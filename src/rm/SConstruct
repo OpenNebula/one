@@ -1,0 +1,22 @@
+# SConstruct for src/rm
+
+Import('env')
+
+lib_name='nebula_rm'
+
+#Sources to generate the library
+source_files=[
+    'RequestManager.cc',
+    'RequestManagerAction.cc',
+    'RequestManagerAllocate.cc',
+    'RequestManagerDeploy.cc',
+	'RequestManagerMigrate.cc',    
+    'RequestManagerInfo.cc',
+    'RequestManagerHostAllocate.cc',
+    'RequestManagerHostDelete.cc',
+    'RequestManagerHostInfo.cc',
+	'RequestManagerHostEnable.cc',    
+]
+
+# Build library
+env.StaticLibrary(lib_name, source_files)

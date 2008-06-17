@@ -1,0 +1,6 @@
+DISK=[image="/local/xen/domains/xen-etch/disk.img",dev="sda1",mode=w]
+DISK=[image="/local/xen/domains/xen-etch/swap.img",dev="sda2",mode=w]
+KERNEL=/boot/vmlinuz-2.6.18-4-xen-amd64
+RAMDISK=/boot/initrd.img-2.6.18-4-xen-amd64
+MEMORY=64
+CPU=1

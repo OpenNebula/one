@@ -1,0 +1,16 @@
+# SConstruct for src/vm
+
+Import('env')
+
+lib_name='nebula_vm'
+
+# Sources to generate the library
+source_files=[
+	'History.cc',
+	'VirtualMachine.cc',
+	'VirtualMachinePool.cc',
+	'VirtualMachineTemplate.cc',	
+]
+
+# Build library
+env.StaticLibrary(lib_name, source_files)

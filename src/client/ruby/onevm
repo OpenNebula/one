@@ -1,0 +1,509 @@
+#!/usr/bin/env ruby 
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2008, Distributed Systems Architecture Group, Universidad   #
+# Complutense de Madrid (dsa-research.org)                                   #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+
+ONE_LOCATION=ENV["ONE_LOCATION"]
+
+if !ONE_LOCATION
+    puts "ONE_LOCATION not set"
+    exit -1
+end
+
+$: << ONE_LOCATION+"/lib/ruby"
+
+require 'one'
+require 'client_utilities'
+require 'command_parse'
+
+ShowTableVM={
+    :id => {
+        :name => "ID",
+        :desc => "ONE identifier for the VM",
+        :size => 4,
+        :proc => lambda {|d,e| d["oid"] }
+    },
+    :name => {
+        :name => "NAME",
+        :desc => "Name of the domain",
+        :size => 8,
+        :proc => lambda {|d,e| 
+            tid=d["template"]
+            template=e[:vm].get_template(tid)
+            template["NAME"]
+        }
+    },
+    :stat => {
+        :name => "STAT",
+        :desc => "Actual status of the VM",
+        :size => 4,
+        :proc => lambda {|d,e| e[:vm].get_state(d) }
+    },
+    :cpu => {
+        :name => "CPU",
+        :desc => "CPU percentage used by the VM",
+        :size => 3,
+        :proc => lambda {|d,e| d["cpu"] }
+    },
+    :mem => {
+        :name => "MEM",
+        :desc => "Memory used by the VM",
+        :size => 7,
+        :proc => lambda {|d,e| d["memory"] }
+    },
+    :hostname => {
+        :name => "HOSTNAME",
+        :desc => "Machine where the VM is running",
+        :size => 15,
+        :proc => lambda {|d,e| e[:vm].get_history_host(d["oid"]) }
+    },
+    :time => {
+        :name => "TIME",
+        :desc => "Time since the VM was submitted",
+        :size => 11,
+        :proc => lambda {|d,e| e[:vm].str_running_time(d) }
+    },
+    
+    :default => [:id, :name, :stat, :cpu, :mem, :hostname, :time]
+}
+
+ShowTableHistory={
+    :id => {
+        :name => "ID",
+        :desc => "ONE identifier for the VM",
+        :size => 4,
+        :proc => lambda {|d,e| d["oid"] }
+    },
+    :seq => {
+        :name => "SEQ",
+        :desc => "Sequence number",
+        :size => 3,
+        :proc => lambda {|d,e| d["seq"] }
+    },
+    :hostname => {
+        :name => "HOSTNAME",
+        :desc => "Name of the host where the VM was submited",
+        :size => 15,
+        :proc => lambda {|d,e| d["hostname"] }
+    },
+    :stime => {
+        :name => "STIME",
+        :desc => "Start time",
+        :size => 14,
+        :proc => lambda {|d,e|
+            t=Time.at(d["stime"].to_i)
+            t.strftime("%m/%d %H:%M:%S")
+        }
+    },
+    :etime => {
+        :name => "ETIME",
+        :desc => "End time",
+        :size => 14,
+        :proc => lambda {|d,e|
+            if d["etime"].to_i==0
+                "--"
+            else
+                t=Time.at(d["etime"].to_i)
+                t.strftime("%m/%d %H:%M:%S")
+            end
+        }
+    },
+    :time => {
+        :name => "TIME",
+        :desc => "Total time",
+        :size => 11,
+        :proc => lambda {|d,e| e[:vm].str_running_time(d) }
+    },
+    :reason => {
+        :name => "REASON",
+        :desc => "Reason for state change",
+        :size => "6",
+        :proc => lambda {|d,e| e[:vm].get_reason(d) }
+    },
+    
+    :default => [:id, :seq, :hostname, :stime, :etime, :time, :reason]
+}
+
+class VmShow
+    
+    def initialize(vm)
+        @vm=vm
+        @table=ShowTable.new(ShowTableVM, :vm => @vm)
+        @table_history=ShowTable.new(ShowTableHistory, :vm => @vm)
+    end
+    
+    def close
+    end
+
+    def header_vm_small
+        scr_bold
+        scr_underline
+        puts @table.header_str
+        scr_restore
+    end
+
+    def header_history_small
+        scr_bold
+        scr_underline
+        puts @table_history.header_str
+        scr_restore
+    end
+
+    def print_vm_long(data)
+        str="%-10s: %-20s"
+        puts str % ["ID", data["oid"]]
+        puts str % ["NAME", data["deploy_id"]]
+        puts str % ["STATE", ONE::VM_STATE[data["state"].to_i]]
+        puts str % ["LCM_STATE", ONE::LCM_STATE[data["lcm_state"].to_i]]
+        puts str % ["MEMORY", data["memory"]]
+        puts str % ["CPU", data["cpu"]]
+        puts
+        puts "Template"
+        str="    %-20s: %-20s"
+        data.each {|key,value|
+            puts str % [key, value] if !%w{oid deploy_id state lcm_state memory cpu template}.include? key
+        }
+    end
+    
+    def list_short(options=nil)
+        res=@vm.get_vms(:where => "state <> 6")
+        if options
+            @table.columns=options[:columns] if options[:columns]
+        end
+
+        if res[0]
+            result=[true, ""]
+            header_vm_small
+            
+            if options
+                puts @table.data_str(res[1], options)
+            else
+                puts @table.data_str(res[1])
+            end
+            
+            result
+        else
+            result=res
+        end
+    end
+    
+    def list_long(id)
+        res=@vm.get(:where => "oid="+id)
+
+        if res && res[0] && res[1] && res[1].length>0
+            result=[true, ""]
+            res[1].each {|row|
+                print_vm_long(row)
+            }
+            result
+        else
+            if res[0]
+                [false, "VM not found"]
+            else
+                result=res
+            end
+        end
+    end
+    
+    def top(options=nil)
+        delay=1
+        delay=options[:delay] if options && options[:delay]
+        
+        result=nil
+        
+        begin
+            while true
+                scr_cls
+                scr_move(0,0)
+                result=list_short(options)
+                sleep delay
+            end
+        rescue Exception
+        end
+        result
+    end
+    
+    def list_vm_history(id, options=nil)
+        res=@vm.get_history(id)
+        if options
+            @table_history.columns=options[:columns] if options[:columns]
+        end
+
+        if res[0]
+            result=[true, ""]
+            header_history_small
+            
+            if options
+                puts @table_history.data_str(res, options)
+            else
+                puts @table_history.data_str(res)
+            end
+            
+            result
+        else
+            result=res
+        end
+    end
+    
+    def list_vm_history_array(ids, options=nil)
+        res=[false, "No VMs found"]
+        ids.each {|id|
+            puts "History for VM #{id}"
+            puts
+            res=list_vm_history(id, options)
+            puts
+        }
+        res
+    end
+    
+    def list_vm_history_all(options=nil)
+        res=@vm.get
+        res[1].each {|vm|
+            list_vm_history_array(vm["oid"], options)
+        }
+        res
+    end
+end
+
+
+##########################
+## COMMAND LINE PARSING ##
+##########################
+
+class OnevmParse < CommandParse
+
+    COMMANDS_HELP=<<-EOT
+Commands:
+
+* submit (Submits a new virtual machine, adding it to the ONE VM pool)
+    onevm submit <template>
+    
+    template is a file name where the VM description is located
+    
+* deploy (Start a previously submitted VM in an specific host)
+    onevm deploy <vm_id> <host_id>
+    
+* shutdown (Shutdown an already deployed VM)
+    onevm shutdown <vm_id>
+    
+* livemigrate (Migrates a running VM to another host without downtime)
+    onevm livemigrate <vm_id> <host_id>
+    
+* migrate (Saves a running VM and starts it again in the specified host)
+    onevm migrate <vm_id> <host_id>
+    
+* suspend (Saves a running VM)
+    onevm suspend <vm_id>
+    
+* resume (Resumes the execution of a saved VM)
+    onevm resume <vm_id>
+    
+* delete (Deletes a VM from the pool and DB)
+    onevm delete <vm_id>
+    
+* list (Shows VMs in the pool)
+    onevm list
+    
+* show (Gets information about a specific VM)
+    onevm show <vm_id>
+
+* top (Lists VMs continuously)
+    onevm top
+
+* history (Gets history from VMs)
+    onevm history [<vm_id> <vm_id> ...]
+    
+    if no vm_id is provided it will list history for all known VMs
+    
+EOT
+
+    def text_commands
+        COMMANDS_HELP
+    end
+
+    def text_command_name
+        "onevm"
+    end
+    
+    def list_options
+        table=ShowTable.new(ShowTableVM)
+        table.print_help
+    end
+    
+end
+
+
+server=ONE::Server.new
+vm=ONE::VM.new(server)
+
+onevm_opts=OnevmParse.new
+onevm_opts.parse(ARGV)
+
+result=[false, "Unknown error"]
+
+command=ARGV.shift
+
+case command
+when "submit"
+    check_parameters("submit", 1)
+    result=vm.allocate(*ARGV)
+    if result[0]
+        puts "ID: " + result[1].to_s
+        exit 0
+    end
+    
+when "deploy"
+    check_parameters("deploy", 2)
+    result=vm.deploy(*ARGV)
+    if result[0]
+        puts "Deploying VM"
+        exit 0
+    end
+
+when "shutdown"
+    check_parameters("shutdown", 1)
+    result=vm.shutdown(*ARGV)
+    if result[0]
+        puts "Shutting down VM"
+        exit 0
+    end
+
+when "livemigrate"
+    check_parameters("livemigrate", 2)
+    result=vm.livemigrate(*ARGV)
+    if result[0]
+        puts "Migrating VM"
+        exit 0
+    end
+
+when "migrate"
+    check_parameters("migrate", 2)
+    result=vm.migrate(*ARGV)
+    if result[0]
+        puts "Migrating VM"
+        exit 0
+    end
+
+when "suspend"
+    check_parameters("suspend", 1)
+    result=vm.suspend(*ARGV)
+    if result[0]
+        puts "Suspending VM"
+        exit 0
+    end
+    
+when "resume"
+    check_parameters("resume", 1)
+    result=vm.resume(*ARGV)
+    if result[0]
+        puts "Resuming VM"
+        exit 0
+    end
+
+when "list"
+    vmlist=VmShow.new(vm)
+    ops=onevm_opts.options
+    ops[:columns]=ops[:list] if ops[:list]
+    result=vmlist.list_short(ops)
+    vmlist.close
+    
+when "top"
+    vmlist=VmShow.new(vm)
+    ops=onevm_opts.options
+    ops[:columns]=ops[:list] if ops[:list]
+    result=vmlist.top(ops)
+    vmlist.close
+    
+when "show_db"
+    check_parameters("show", 1)
+    vmlist=VmShow.new(vm)
+    
+    if ARGV[0]
+        result=vmlist.list_long(ARGV[0])
+        vmlist.close
+    else
+        result=[false, "You must provide a VM id."]
+    end
+    
+when "history"
+    vmlist=VmShow.new(vm)
+    ops=onevm_opts.options
+    ops[:columns]=ops[:list] if ops[:list]
+    if ARGV[0]
+        result=vmlist.list_vm_history_array(ARGV)
+    else
+        result=vmlist.list_vm_history_all(ops)
+    end
+    vmlist.close
+    
+when "delete"
+    check_parameters("delete", 1)
+    result=vm.delete(*ARGV)
+    if result[0]
+        puts "VM correctly deleted" 
+        exit 0
+    end
+
+when "show"
+     check_parameters("get_info", 1)
+     res = vm.get_info(ARGV[0])
+     if res[0]
+         res[1].gsub!(/^\n/, '')
+         (normal, template)=res[1].split("Template")
+         
+         str="%-15s: %-20s"
+         normal.each{|line|
+             (key, value)=line.split(":").collect{|v| v.strip }
+             case key 
+             when "STATE"
+                 value = ONE::VM_STATE[value.to_i]
+             when "LCM STATE"
+                 value = ONE::LCM_STATE[value.to_i]   
+             when "START TIME","STOP TIME"
+                 value=Time.at(value.to_i).strftime("%m/%d %H:%M:%S")
+             end
+             puts str % [key, value] 
+         }
+         
+         puts
+         puts "....: Template :...."
+                           
+         str="    %-16s: %-20s"
+         
+         template.each{|line|
+             next if line=="\n"
+             (key, value)=line.split("^").collect{|v| v.strip }
+             puts str % [key, value] 
+         }         
+         
+         
+         exit 0
+     end
+        
+else
+    onevm_opts.print_help
+    exit -1
+end
+
+
+
+if !result[0]
+    puts "Error: " + result[1].to_s
+    exit -1
+end
+

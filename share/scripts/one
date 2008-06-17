@@ -1,0 +1,110 @@
+#! /bin/sh
+
+if [ -z "$ONE_LOCATION" ]; then 
+	echo "ONE_LOCATION is not defined"
+	exit 1
+fi 
+
+ONE_PID=$ONE_LOCATION/var/oned.pid
+ONE_SCHEDPID=$ONE_LOCATION/var/sched.pid
+ONE_CONF=$ONE_LOCATION/etc/oned.conf
+
+ONED=$ONE_LOCATION/bin/oned
+ONE_SCHEDULER=$ONE_LOCATION/bin/mm_sched
+
+setup()
+{
+	PORT=`cat $ONE_CONF | grep ^PORT= | cut -d= -f2`
+
+	if [ $? -ne 0 ]; then
+    	echo "Can not find PORT in $ONE_CONF."
+	    exit 1
+	fi
+}
+
+start()
+{
+	if [ ! -x "$ONED" ]; then
+    	echo "Can not find $ONED."
+	    exit 1		
+	fi
+
+	if [ ! -x "$ONE_SCHEDULER" ]; then
+    	echo "Can not find $ONE_SCHEDULER."
+	    exit 1		
+	fi
+		
+	# Start the one daemon
+	$ONED -f 2>&1 &
+	
+	LASTRC=$?
+	LASTPID=$!
+
+	if [ $LASTRC -ne 0 ]; then
+    	echo "Error executing $ONED"
+	    exit 1			
+	else
+		echo $LASTPID > $ONE_PID
+	fi
+	
+	# Start the scheduler
+	$ONE_SCHEDULER -p $PORT &
+
+	LASTRC=$?
+	LASTPID=$!
+
+	if [ $LASTRC -ne 0 ]; then
+    	echo "Error executing $ONE_SCHEDULER"
+	    exit 1			
+	else
+		echo $LASTPID > $ONE_SCHEDPID
+	fi
+	
+	echo "oned and scheduler started"
+}
+
+#
+# Function that stops the daemon/service
+#
+stop()
+{
+	if [ ! -f $ONE_PID ]; then
+		echo "Couldn't find oned process pid."
+		exit 1
+	fi
+
+	if [ ! -f $ONE_SCHEDPID ]; then
+		echo "Couldn't find scheduler process pid."
+		exit 1
+	fi
+
+	# Kill the one daemon
+
+	kill `cat $ONE_PID`
+
+	# Kill the scheduler
+	
+	kill `cat $ONE_SCHEDPID`
+
+	# Remove pid files
+
+	rm -f $ONE_PID > /dev/null 2>&1
+	rm -f $ONE_SCHEDPID > /dev/null 2>&1
+
+	echo "oned and scheduler stopped"
+}
+
+
+case "$1" in
+  start)
+  	setup
+	start
+	;;
+  stop)
+	stop
+	;;
+  *)
+	echo "Usage: nebula {start|stop}" >&2
+	exit 3
+	;;
+esac

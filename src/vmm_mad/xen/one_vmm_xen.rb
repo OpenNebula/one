@@ -1,0 +1,208 @@
+#!/usr/bin/env ruby
+
+XENTOP_PATH="/usr/sbin/xentop"
+
+ONE_LOCATION=ENV["ONE_LOCATION"]
+
+if !ONE_LOCATION
+    puts "ONE_LOCATION not set"
+    exit -1
+end
+
+$: << ONE_LOCATION+"/lib/ruby"
+
+require 'pp'
+
+require 'one_mad'
+require 'open3'
+
+class DM < ONEMad
+	
+	def initialize
+		super(5, 4)
+		
+		# Set log file
+		#log_file=File.open("dm.log", "w")
+		#set_logger(log_file)
+	end
+	
+	def action_init(args)
+		send_message("INIT", "SUCCESS")
+	end
+		
+	def action_deploy(args)
+		std_action("DEPLOY", "create #{args[3]}", args)
+	end
+	
+	def action_shutdown(args)
+		std_action("SHUTDOWN", "shutdown #{args[3]}", args)
+	end
+	
+	def action_cancel(args)
+		std_action("CANCEL", "destroy #{args[3]}", args)
+	end
+	
+	def action_checkpoint(args)
+		std_action("CHECKPOINT", "save -c #{args[3]} #{args[4]}", args)
+	end
+
+	def action_save(args)
+		std_action("SAVE", "save #{args[3]} #{args[4]}", args)
+	end
+
+	def action_restore(args)
+		std_action("RESTORE", "restore #{args[3]}", args)
+	end
+	
+	def action_migrate(args)
+		std_action("MIGRATE", "migrate -l #{args[3]} #{args[4]}", args)
+	end
+	
+	def action_poll(args)
+		std=Open3.popen3(
+			"ssh -n #{args[2]} sudo #{XENTOP_PATH} -bi2 ;"+
+			" echo ExitCode: $? 1>&2")
+		stdout=std[1].read
+		stderr=std[2].read
+		
+		exit_code=get_exit_code(stderr)
+		
+		if exit_code!=0
+			send_message("POLL", "FAILURE", args[1])
+			return nil
+		end
+
+		#log("stdout:")
+		#log(stdout)
+		#log("stderr:")
+		#log(stderr)		
+
+		
+		values=parse_xentop(args[3], stdout)
+		
+		if !values
+			send_message("POLL", "FAILURE", args[1], "Domain not found")
+			return nil
+		end
+		
+		info=values.map do |k,v|
+			k+"="+v
+		end.join(" ")
+		
+		send_message("POLL", "SUCCESS", args[1], info)
+	end
+	
+	###########################
+	# Common action functions #
+	###########################
+	
+	def std_action(name, command, args)
+		std=exec_xm_command(args[2], command)
+		stdout=std[1].read
+		stderr=std[2].read
+		
+		write_response(name, stdout, stderr, args)
+	end
+		
+	def exec_xm_command(host, command)
+		Open3.popen3(
+			"ssh -n #{host} sudo /usr/sbin/xm #{command} ;"+
+			" echo ExitCode: $? 1>&2")
+	end
+	
+	def write_response(action, stdout, stderr, args)
+		exit_code=get_exit_code(stderr)
+		
+		if exit_code==0
+			domain_name=get_domain_name(stdout)
+			send_message(action, "SUCCESS", args[1], domain_name)
+		else
+			error_message=get_error_message(stderr)
+			send_message(action, "FAILURE", args[1], error_message)
+		end
+
+		#log("stdout:")
+		#log(stdout)
+		#log("stderr:")
+		#log(stderr)
+	end
+	
+
+	#########################################
+	# Get information form xm create output #
+	#########################################
+
+	# From STDERR if exit code == 1
+	def get_exit_code(str)
+		tmp=str.scan(/^ExitCode: (\d*)$/)
+		return nil if !tmp[0]
+		tmp[0][0].to_i
+	end
+	
+	# From STDERR if exit code == 1
+	def get_error_message(str)
+		tmp=str.scan(/^Error: (.*)$/)
+		return "Unknown error" if !tmp[0]
+		tmp[0][0]
+	end
+
+	# From STDOUT if exit code == 0
+	def get_domain_name(str)
+		tmp=str.scan(/^Started domain (.*)$/)
+		return nil if !tmp[0]
+		tmp[0][0]
+	end
+	
+	
+	###############################
+	# Get information from xentop #
+	###############################
+	
+	# COLUMNS
+	#
+	# 00 -> NAME
+	# 01 -> STATE
+	# 02 -> CPU(sec)
+	# 03 -> CPU(%)
+	# 04 -> MEM(k) 
+	# 05 -> MEM(%)  
+	# 06 -> MAXMEM(k) 
+	# 07 -> MAXMEM(%) 
+	# 08 -> VCPUS 
+	# 09 -> NETS 
+	# 10 -> NETTX(k) 
+	# 11 -> NETRX(k) 
+	# 12 -> VBDS   
+	# 13 -> VBD_OO   
+	# 14 -> VBD_RD   
+	# 15 -> VBD_WR 
+	# 16 -> SSID
+	
+	ColumnNames=[
+		"name", "state", "cpu_sec", "USEDCPU", "USEDMEMORY", "mem_percent", 
+		"maxmem_k", "maxmem_percent", "vcpus", "nets", "NETTX", "NETRX",
+		"vdbs", "vdb_oo", "vdb_rd", "vdb_wr", "ssid"
+	]
+	
+	ColumnsToPrint=[ "USEDMEMORY", "USEDCPU", "NETRX", "NETTX" ]
+	
+	def parse_xentop(name, stdout)
+		line=stdout.split(/$/).select{|l| l.match(/^ *(migrating-)?#{name} /) }[-1]
+		
+		return nil if !line
+		
+		line.gsub!("no limit", "no_limit")
+		data=line.split
+		values=Hash.new
+		
+		ColumnNames.each_with_index do |n, i|
+			values[n]=data[i] if ColumnsToPrint.include? n
+		end
+	
+		values
+	end
+	
+end
+
+dm=DM.new
+dm.loop

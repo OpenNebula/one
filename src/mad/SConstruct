@@ -1,0 +1,14 @@
+# SConstruct for src/mad
+
+Import('env')
+
+lib_name='nebula_mad'
+
+# Sources to generate the library
+source_files=[
+	'Mad.cc',
+	'MadManager.cc'
+]
+
+# Build library
+env.StaticLibrary(lib_name, source_files)

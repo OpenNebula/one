@@ -1,0 +1,14 @@
+# SConstruct for src/common
+
+Import('env')
+
+lib_name='nebula_common'
+
+# Sources to generate the library
+source_files=[
+	'ActionManager.cc',
+	'Attribute.cc'
+]
+
+# Build library
+env.StaticLibrary(lib_name, source_files)

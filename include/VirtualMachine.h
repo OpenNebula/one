@@ -1,0 +1,775 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2008, Distributed Systems Architecture Group, Universidad   */
+/* Complutense de Madrid (dsa-research.org)                                   */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
+#ifndef VIRTUAL_MACHINE_H_
+#define VIRTUAL_MACHINE_H_
+
+#include "VirtualMachineTemplate.h"
+#include "PoolSQL.h"
+#include "History.h"
+#include "Log.h"
+
+#include <time.h>
+#include <sstream>
+
+using namespace std;
+
+extern "C" int vm_select_cb (void * _vm, int num,char ** values, char ** names);
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+/**
+ *  The Virtual Machine class. It represents a VM...
+ */
+class VirtualMachine : public PoolObjectSQL
+{
+public:
+    // ------------------------------------------------------------------------
+    // VM States
+    // ------------------------------------------------------------------------    
+
+    /**
+     *  Global Virtual Machine state
+     */
+    enum VmState
+    {
+        INIT      = 0,
+        PENDING   = 1,
+        HOLD      = 2,
+        ACTIVE    = 3,
+        STOPPED   = 4,
+        SUSPENDED = 5,
+        DONE      = 6,
+        FAILED    = 7
+    };
+
+    /**
+     *  Virtual Machine state associated to the Life-cycle Manager 
+     */
+    enum LcmState
+    {
+        LCM_INIT       = 0,
+        PROLOG         = 1,
+        BOOT           = 2,
+        RUNNING        = 3,
+        MIGRATE        = 4,
+        SAVE_STOP      = 5,
+        SAVE_SUSPEND   = 6,
+        SAVE_MIGRATE   = 7,
+        PROLOG_MIGRATE = 8,
+        EPILOG_STOP    = 9,
+        EPILOG         = 10,
+        SHUTDOWN       = 11,
+        CANCEL         = 12
+    };
+
+    // ------------------------------------------------------------------------
+    // Log & Print
+    // ------------------------------------------------------------------------    
+
+    /**
+     *  writes a log message in vm.log. The class lock should be locked and
+     *  the VM MUST BE obtained through the VirtualMachinePool get() method.  
+     */
+    void log(
+        const char *            module,
+        const Log::MessageType  type,
+        const ostringstream&    message) const
+    {
+        if (_log != 0)
+        {
+            _log->log(module,type,message);
+        }
+    };
+     
+    /**
+     *  writes a log message in vm.log. The class lock should be locked and
+     *  the VM MUST BE obtained through the VirtualMachinePool get() method.  
+     */
+    void log(
+        const char *            module,
+        const Log::MessageType  type,
+        const char *            message) const 
+    {
+        if (_log != 0)
+        {
+            _log->log(module,type,message);
+        }
+    };
+         
+    /**
+     *  Function to write a Virtual Machine in an output stream
+     */
+    friend ostream& operator<<(ostream& os, VirtualMachine& vm);
+
+    // ------------------------------------------------------------------------
+    // Dynamic Info
+    // ------------------------------------------------------------------------    
+
+    /**
+     *  Updates VM dynamic information (id).
+     *   @param _deploy_id the VMM driver specific id
+     */
+    void update_info(
+        const string& _deploy_id)
+    {
+        deploy_id = _deploy_id;
+    };
+
+    /**
+     *  Updates VM dynamic information (usage counters).
+     *   @param _memory used by the VM (total)
+     *   @param _cpu used by the VM (rate)
+     *   @param _net_tx transmitted bytes (total)
+     *   @param _net_tx received bytes (total)
+     */
+    void update_info(
+        const int _memory,
+        const int _cpu,
+        const int _net_tx,
+        const int _net_rx)
+    {
+        if (_memory != -1)
+        {
+            memory = _memory;
+        }
+
+        if (_cpu != -1)
+        {
+            cpu    = _cpu;
+        }
+
+        if (_net_tx != -1)
+        {
+            net_tx = _net_tx;
+        }
+
+        if (_net_rx != -1)
+        {
+            net_rx = _net_rx;
+        }
+    };
+
+    /**
+     *  Returns the deployment ID
+     *    @return the VMM driver specific ID
+     */
+    const string& get_deploy_id() const
+    {
+        return deploy_id;
+    };
+
+    /**
+     *  Sets the VM exit time
+     *    @param _et VM exit time (when it arraived DONE/FAILED states)
+     */
+    void set_exit_time(time_t et)
+    {
+        etime = et;
+    };
+
+    // ------------------------------------------------------------------------
+    // History
+    // ------------------------------------------------------------------------    
+    /**
+     *  Adds a new history record an writes it in the database
+     */
+    void add_history(
+        int         hid,
+        string&     hostname,
+        string&     vm_dir,
+        string&     vmm_mad,
+        string&     tm_mad);
+
+    /**
+     *  Checks if the VM has a defined history record. This function
+     *  MUST be called before using any history related function.
+     *    @return true if the VM has a record
+     */ 
+    bool hasHistory() const
+    {
+        return (history!=0);
+    };
+
+    /**
+     *  Returns the VMM driver name for the current host. The hasHistory()
+     *  function MUST be called before this one.
+     *    @return the VMM mad name
+     */ 
+    const string & get_vmm_mad() const
+    {
+        return history->vmm_mad_name;
+    };
+
+    /**
+     *  Returns the TM driver name for the current host. The hasHistory()
+     *  function MUST be called before this one.
+     *    @return the TM mad name
+     */ 
+    const string & get_tm_mad() const
+    {
+        return history->tm_mad_name;
+    };
+
+    /**
+     *  Returns the deployment filename (local path). The hasHistory()
+     *  function MUST be called before this one.
+     *    @return the deployment filename
+     */ 
+    const string & get_deployment_lfile() const
+    {
+        return history->deployment_lfile;
+    };
+
+    /**
+     *  Returns the deployment filename for the current host (remote). The 
+     *  hasHistory() function MUST be called before this one.
+     *    @return the deployment filename
+     */ 
+    const string & get_deployment_rfile() const
+    {
+        return history->deployment_rfile;
+    };
+        
+    /**
+     *  Returns the checkpoint filename for the current host (remote). The 
+     *  hasHistory() function MUST be called before this one.
+     *    @return the checkpoint filename
+     */ 
+    const string & get_checkpoint_file() const
+    {
+        return history->checkpoint_file;
+    };
+
+    /**
+     *  Returns the hostname for the current host. The hasHistory()
+     *  function MUST be called before this one.
+     *    @return the hostname
+     */ 
+    const string & get_hostname() const
+    {
+        return history->hostname;
+    };
+
+    /**
+     *  Get host id where the VM is or is going to execute. The hasHistory()
+     *  function MUST be called before this one.
+     */
+    int get_hid()
+    {
+        return history->hid;
+    }
+    
+    /**
+     *  Sets start time of a VM.
+     *    @param _stime time when the VM started
+     */
+    void set_stime(time_t _stime)
+    {
+        history->stime=_stime;
+    };
+
+    /**
+     *  Sets end time of a VM.
+     *    @param _etime time when the VM finished
+     */
+    void set_etime(time_t _etime)
+    {
+        history->etime=_etime;
+    };
+
+    /**
+     *  Sets start time of VM prolog.
+     *    @param _stime time when the prolog started
+     */
+    void set_prolog_stime(time_t _stime)
+    {
+        history->prolog_stime=_stime;
+    };
+
+    /**
+     *  Sets end time of VM prolog.
+     *    @param _etime time when the prolog finished
+     */
+    void set_prolog_etime(time_t _etime)
+    {
+        history->prolog_etime=_etime;
+    };
+
+    /**
+     *  Sets start time of VM running state.
+     *    @param _stime time when the running state started
+     */
+    void set_running_stime(time_t _stime)
+    {
+        history->running_stime=_stime;
+    };
+
+    /**
+     *  Sets end time of VM running state.
+     *    @param _etime time when the running state finished
+     */
+    void set_running_etime(time_t _etime)
+    {
+        history->running_etime=_etime;
+    };
+
+    /**
+     *  Sets start time of VM epilog.
+     *    @param _stime time when the epilog started
+     */
+    void set_epilog_stime(time_t _stime)
+    {
+        history->running_stime=_stime;
+    };
+
+    /**
+     *  Sets end time of VM epilog.
+     *    @param _etime time when the epilog finished
+     */
+    void set_epilog_etime(time_t _etime)
+    {
+        history->running_etime=_etime;
+    };
+
+    /**
+     *  Sets the reason that originated the VM migration
+     *    @param _reason migration reason to leave this host
+     */
+    void set_reason(History::MigrationReason _reason)
+    {
+        history->reason=_reason;
+    };
+
+    // ------------------------------------------------------------------------
+    // Template
+    // ------------------------------------------------------------------------    
+
+    /**
+     *  Gets the values of a template attribute
+     *    @param name of the attribute
+     *    @param values of the attribute
+     *    @return the number of values
+     */
+    int get_template_attribute(
+        string& name, 
+        vector<const Attribute*>& values) const
+    {
+        return vm_template.get(name,values);
+    };
+
+    /**
+     *  Gets the values of a template attribute
+     *    @param name of the attribute
+     *    @param values of the attribute
+     *    @return the number of values
+     */
+    int get_template_attribute(
+        const char *name,
+        vector<const Attribute*>& values) const
+    {
+        string str=name;
+        return vm_template.get(str,values);
+    };
+
+    /**
+     *  Gets a string based VM attribute (single)
+     *    @param name of the attribute
+     *    @param value of the attribute (a string), will be "" if not defined or
+     *    not a single attribute  
+     */
+    void get_template_attribute(
+        const char *    name, 
+        string&         value) const
+    {
+        string str=name;
+        vm_template.get(str,value);           
+    }        
+    
+    /**
+     *  Gets an int based VM attribute (single)
+     *    @param name of the attribute
+     *    @param value of the attribute (an int), will be 0 if not defined or
+     *    not a single attribute   
+     */
+    void get_template_attribute(
+        const char *    name, 
+        int&            value) const
+    {
+        string str=name;
+        vm_template.get(str,value);        
+    }
+    
+    // ------------------------------------------------------------------------
+    // States
+    // ------------------------------------------------------------------------    
+
+    /**
+     *  Returns the VM state (Dispatch Manager)
+     *    @return the VM state
+     */
+    VmState get_state() const
+    {
+        return state;
+    };
+
+    /**
+     *  Returns the VM state (life-cycle Manager)
+     *    @return the VM state
+     */
+    LcmState get_lcm_state() const
+    {
+        return lcm_state;
+    };
+
+    /**
+     *  Sets VM state
+     *    @param s state
+     */
+    void set_state(VmState s)
+    {
+        state = s;
+    };
+
+    /**
+     *  Sets VM LCM state
+     *    @param s state
+     */
+    void set_state(LcmState s)
+    {
+        lcm_state = s;
+    };
+    
+    /**
+     *  Gets the user id of the owner of this VM
+     *    @return the VM uid
+     */
+    int get_uid() const
+    {
+        return uid;
+    };
+
+    // ------------------------------------------------------------------------
+    // Timers
+    // ------------------------------------------------------------------------    
+    /**
+     *  Gets time from last information polling.
+     *    @return time of last poll (epoch) or 0 if never polled
+     */
+    time_t get_last_poll() const
+    {
+        return last_poll;
+    };
+    
+    /**
+     *  Sets time of last information polling.
+     *    @param poll time in epoch, normally time(0)
+     */
+    void set_last_poll(time_t poll)
+    {
+        last_poll = poll;
+    };
+    
+    /**
+     *  Get the VM physical requirements for the host.
+     *    @param cpu
+     *    @param memory
+     *    @param disk 
+     */
+    void get_requirements (int& cpu, int& memory, int& disk);
+        
+private:
+
+    // -------------------------------------------------------------------------
+    // Friends
+    // -------------------------------------------------------------------------
+    friend class VirtualMachinePool;
+
+    friend int vm_select_cb (
+        void *  _vm,
+        int     num,
+        char ** values,
+        char ** names);
+
+    // *************************************************************************
+    // Virtual Machine Attributes
+    // *************************************************************************
+
+    // -------------------------------------------------------------------------
+    // Identification variables
+    // -------------------------------------------------------------------------
+    /**
+     *  Array id
+     */
+    int         aid;
+
+    /**
+     *  Task id
+     */
+    int         tid;
+
+    /**
+     *  User (owner) id
+     */
+    int         uid;
+
+    // -------------------------------------------------------------------------
+    // VM Scheduling & Managing Information
+    // -------------------------------------------------------------------------
+    /**
+     *  Static scheduling priority
+     */
+    int         priority;
+
+    /**
+     *  The VM reschedule flag
+     */
+    bool        reschedule;
+
+    /**
+     *  Last time (in epoch) that the VM was rescheduled
+     */
+    time_t      last_reschedule;
+    
+    /**
+     *  Last time (in epoch) that the VM was polled to get its status
+     */
+    time_t      last_poll;
+    
+    // -------------------------------------------------------------------------
+    // Virtual Machine Description
+    // -------------------------------------------------------------------------
+    /**
+     *  The Virtual Machine template, holds the VM attributes.
+     */
+    VirtualMachineTemplate  vm_template;
+
+    // Dynamic state of the Virtual Machine
+
+    /**
+     *  The state of the virtual machine.
+     */
+    VmState     state;
+
+    /**
+     *  The state of the virtual machine (in the Life-cycle Manager).
+     */
+    LcmState    lcm_state;
+
+    /**
+     *  Start time, the VM enter the nebula system (in epoch)
+     */
+    time_t      stime;
+
+    /**
+     *  Exit time, the VM leave the nebula system (in epoch)
+     */
+    time_t      etime;
+
+    /**
+     *  Deployment specific identification string, as returned by the VM driver
+     */
+    string      deploy_id;
+
+    /**
+     *  Memory in Megabytes used by the VM
+     */
+    int         memory;
+
+    /**
+     *  CPU usage (percent)
+     */
+    int         cpu;
+
+    /**
+     *  Network usage, transmitted Kilobytes
+     */
+    int         net_tx;
+
+    /**
+     *  Network usage, received Kilobytes
+     */
+    int         net_rx;
+
+    /**
+     *  History record, for the current execution
+     */
+    History *   history;
+
+    // -------------------------------------------------------------------------
+    // Logging
+    // -------------------------------------------------------------------------
+
+    /**
+     *  Log class for the virtual machine, it writes log messages in
+     *  $ONE_LOCATION/var/$VID/vm.log
+     */
+    Log *       _log;
+    
+    // *************************************************************************
+    // DataBase implementation (Private)
+    // *************************************************************************
+
+    /**
+     *  Bootstraps the database table(s) associated to the VirtualMachine
+     */
+    static void bootstrap(SqliteDB * db)
+    {
+        db->exec(VirtualMachine::db_bootstrap);
+
+        db->exec(VirtualMachineTemplate::db_bootstrap);
+
+        db->exec(History::db_bootstrap);
+    };
+    
+    /**
+     *  Function to unmarshall a VM object, an associated classes.
+     *    @param num the number of columns read from the DB
+     *    @para names the column names
+     *    @para vaues the column values
+     *    @return 0 on success
+     */
+    int unmarshall(int num, char **names, char ** values);
+    
+    /**
+     *  Updates the VM history record
+     *    @param db pointer to the db
+     *    @return 0 on success 
+     */
+    int update_history(SqliteDB * db)
+    {
+        if ( history != 0 )
+        {
+            return history->insert(db);
+        }
+        else
+            return -1;
+    };
+
+    /**
+     *  Sets the value of a column of the previous VM history record
+     *    @param db pointer to the db
+     *    @return 0 on success 
+     */
+    int update_previous_history_column(
+        SqliteDB *              db,
+        const History::ColNames column,
+        const time_t            val);
+    
+    /**
+     *  Gets the value of a column of the previous VM history record
+     *    @param db pointer to the db
+     *    @return 0 on success 
+     */
+    int select_previous_history_column(
+        SqliteDB *              db,
+        const History::ColNames column,
+        string *                value);
+
+    /**
+     *  Gets the hid of the previous history host
+     */
+    int get_previous_hid(SqliteDB * db, int * hid);
+    
+protected:
+	
+    //**************************************************************************
+    // Constructor
+    //**************************************************************************
+    
+    VirtualMachine(int id=-1);
+
+    virtual ~VirtualMachine();
+    
+    // *************************************************************************
+    // DataBase implementation
+    // *************************************************************************
+
+	enum ColNames
+    {
+        OID             = 0,
+        AID             = 1,
+        TID             = 2,
+        UID             = 3,
+        PRIORITY        = 4,
+        RESCHEDULE      = 5,
+        LAST_RESCHEDULE = 6,
+        LAST_POLL       = 7,
+        TEMPLATE_ID     = 8,
+        STATE           = 9,
+        LCM_STATE       = 10,
+        STIME           = 11,
+        ETIME           = 12,
+        DEPLOY_ID       = 13,
+        MEMORY          = 14,
+        CPU             = 15,
+        NET_TX          = 16,
+        NET_RX          = 17,
+        LIMIT           = 18
+    };
+
+    static const char * table;
+
+    static const char * db_names;
+
+    static const char * db_bootstrap;
+    
+    /**
+     *  Reads the Virtual Machine (identified with its OID) from the database.
+     *    @param db pointer to the db
+     *    @return 0 on success
+     */
+    int select(SqliteDB * db);
+
+    /**
+     *  Writes the Virtual Machine and its associated template in the database.
+     *    @param db pointer to the db
+     *    @return 0 on success
+     */
+    virtual int insert(SqliteDB * db);
+
+    /**
+     *  Writes/updates the Virtual Machine data fields in the database.
+     *    @param db pointer to the db
+     *    @return 0 on success
+     */
+    virtual int update(SqliteDB * db);
+    
+    /**
+     * Deletes a VM from the database and all its associated information:
+     *   - History records
+     *   - VM template
+     *   @param db pointer to the db
+     *   @return 0 on success
+     */
+    virtual int drop(SqliteDB * db)
+    { 
+    	int rc;
+    	
+    	rc = vm_template.drop(db);
+    	
+    	if ( history != 0 )
+    	{
+    		rc += history->drop(db);
+    	}
+    	
+    	return rc;
+    }
+};
+
+#endif /*VIRTUAL_MACHINE_H_*/

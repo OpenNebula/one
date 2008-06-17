@@ -1,0 +1,13 @@
+# SConstruct for src/vm
+
+Import('env')
+
+lib_name='nebula_tm'
+
+# Sources to generate the library
+source_files=[
+	'TransferManager.cc'
+]
+
+# Build library
+env.StaticLibrary(lib_name, source_files)

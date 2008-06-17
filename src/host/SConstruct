@@ -1,0 +1,37 @@
+# SConstruct for src/vm
+
+Import('env')
+
+lib_name='nebula_host'
+
+if env['parsers']=='yes':
+	# LEX
+	parser=env.Lex(
+		source='host_parser.l'
+	)
+	env.NoClean(parser)
+
+	# BISON
+	parser=env.Bison(
+		source='host_requirements.y'
+	)
+	env.NoClean(parser)
+
+	parser=env.Bison(
+		source='host_rank.y'
+	)
+	env.NoClean(parser)
+
+# Sources to generate the library
+source_files=[
+	'Host.cc',
+	'HostShare.cc',
+	'HostPool.cc',
+	'HostTemplate.cc',
+	'host_parser.c',
+	'host_requirements.cc',
+	'host_rank.cc',	
+]
+
+# Build library
+env.StaticLibrary(lib_name, source_files)
