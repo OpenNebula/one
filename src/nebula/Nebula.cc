@@ -41,6 +41,9 @@ void Nebula::start()
     sigset_t            mask;
     int                 signal;
     
+    const SingleAttribute *     sattr;
+    vector<const Attribute *>   attr;
+    
     nl = getenv("ONE_LOCATION");
 
     if (nl == 0)
@@ -49,23 +52,6 @@ void Nebula::start()
     }
     
     nebula_location = nl;
-
-    // ----------------------------------------------------------- 
-    // Log system 
-    // ----------------------------------------------------------- 
-
-    try
-    {
-        string log_fname;
-        
-        log_fname = nebula_location + "/var/oned.log";
-            
-        Nebula::log("ONE",Log::INFO,"Init Log system",log_fname.c_str());
-    }
-    catch(runtime_error&)
-    {
-        throw;
-    }
 
     // ----------------------------------------------------------- 
     // Configuration 
@@ -79,14 +65,64 @@ void Nebula::start()
     {
         throw runtime_error("Could not load nebula configuration file.");
     }
-   
+    
+    // ----------------------------------------------------------- 
+    // Log system 
+    // ----------------------------------------------------------- 
+    
     ostringstream os;
+
+    try
+    {
+        string log_fname;
+        int    log_level_int;        
+        log_fname = nebula_location + "/var/oned.log";
+        Log::MessageType   clevel = Log::ERROR;
+        
+        nebula_configuration->get("DEBUG_LEVEL", log_level_int);
+        
+        if (0 <= log_level_int && log_level_int <= 3 )
+        {
+            clevel = static_cast<Log::MessageType>(log_level_int);
+        }
+
+        os << "Init OpenNEbula Log system";
+        
+        // Initializing ONE Daemon log system
+        
+        Nebula::log("ONE",
+                    Log::INFO,
+                    os,
+                    log_fname.c_str(),
+                    clevel);
+         
+        os.str("");
+        os << "Log Level: " << clevel << " [0=ERROR,1=WARNING,2=INFO,3=DEBUG]";
+
+        // Initializing ONE Daemon log system
+
+        Nebula::log("ONE",
+                    Log::INFO,
+                    os,
+                    log_fname.c_str(),
+                    clevel);           
+        
+                    
+    }
+    catch(runtime_error&)
+    {
+        throw;
+    }
     
     Nebula::log("ONE",Log::INFO,"----------------------------------------------");
     Nebula::log("ONE",Log::INFO,"       OpenNEbula Configuration File          ");
     Nebula::log("ONE",Log::INFO,"----------------------------------------------");
 
+    os.str("");
+    
+    os << "\n--------------------------------------------";
     os << *nebula_configuration;
+    os << "\n--------------------------------------------";
     
     Nebula::log("ONE",Log::INFO,os);
        
@@ -150,8 +186,6 @@ void Nebula::start()
     
     MadManager::mad_manager_system_init();
 
-    const SingleAttribute *     sattr;
-    vector<const Attribute *>   attr;
     time_t                      timer_period;
     istringstream               is;
     
@@ -354,7 +388,7 @@ void Nebula::start()
     im->finalize();    
     rm->finalize();
     
-    //sleep to wait drviers???
+    //sleep to wait drivers???
     
     pthread_join(vmm->get_thread_id(),0);
     pthread_join(lcm->get_thread_id(),0);

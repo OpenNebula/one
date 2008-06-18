@@ -88,7 +88,10 @@ void Scheduler::start()
 
         log_fname = nebula_location + "/var/sched.log";
 
-        Scheduler::log("SCHED",Log::INFO,"Init Log system",log_fname.c_str());
+        Scheduler::log("SCHED",
+                        Log::INFO,
+                        "Init Scheduler Log system",
+                        log_fname.c_str());
     }
     catch(runtime_error &)
     {

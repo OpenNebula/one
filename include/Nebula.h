@@ -36,7 +36,7 @@
 class Nebula
 {
 public:
-
+    
     static Nebula& instance() 
     {
         static Nebula nebulad;
@@ -45,18 +45,19 @@ public:
     };
     
     // ---------------------------------------------------------------
-    // Loggging
+    // Logging
     // ---------------------------------------------------------------
         
     static void log(
         const char *            module,
         const Log::MessageType  type,
         const ostringstream&    message,
-        const char *            filename = 0)
+        const char *            filename = 0,
+        Log::MessageType        clevel   = Log::ERROR)
     {        
-        static Log nebula_log(filename,Log::DEBUG,ios_base::trunc);
-        static pthread_mutex_t log_mutex =  PTHREAD_MUTEX_INITIALIZER;
-        
+        static Log nebula_log(filename,clevel,ios_base::trunc);
+        static pthread_mutex_t log_mutex = PTHREAD_MUTEX_INITIALIZER;
+
         pthread_mutex_lock(&log_mutex);        
         nebula_log.log(module,type,message);
         pthread_mutex_unlock(&log_mutex);

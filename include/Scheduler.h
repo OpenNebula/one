@@ -54,9 +54,10 @@ public:
         const char *            module,
         const Log::MessageType  type,
         const ostringstream&    message,
-        const char *            filename = 0)
+        const char *            filename = 0,
+        Log::MessageType        clevel   = Log::ERROR)
     {        
-        static Log scheduler_log(filename,Log::DEBUG);
+        static Log scheduler_log(filename,clevel);
         static pthread_mutex_t log_mutex =  PTHREAD_MUTEX_INITIALIZER;
         
         pthread_mutex_lock(&log_mutex);        

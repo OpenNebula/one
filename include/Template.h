@@ -38,7 +38,10 @@ class Template
 {
 public:
 
-    Template(bool _replace_mode=false):replace_mode(_replace_mode){};
+    Template(bool  _replace_mode   = false,
+             const char _separator = '='):
+             replace_mode(_replace_mode),
+             separator(_separator){};
 
     /**
      *  The class destructor frees all the attributes conforming the template
@@ -131,6 +134,11 @@ private:
      *  Mutex to perform just one flex-bison parsing at a time
      */
     static pthread_mutex_t          mutex;
+    
+    /**
+     * Character to separate key from value when dump onto a string
+     **/
+    char                           separator;
 };
 
 /* -------------------------------------------------------------------------- */

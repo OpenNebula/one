@@ -243,7 +243,7 @@ ostream& operator << (ostream& os, Template& t)
     {
         s = it->second->marshall();
 
-        os << endl << "\t" << it->first << " ^ " << *s;
+        os << endl << "\t" << it->first << t.separator << *s;
 
         delete s;
     }

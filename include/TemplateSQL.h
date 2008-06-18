@@ -37,8 +37,9 @@ public:
     TemplateSQL(
         const char * _table,
         int          template_id = -1,
-        bool         replace     = false):
-        	Template(replace),table(_table),id(template_id)
+        bool         replace     = false,
+        const char   separator   = '='):
+        	Template(replace,separator),table(_table),id(template_id)
     {};
 
     virtual ~TemplateSQL(){};

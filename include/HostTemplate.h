@@ -28,7 +28,10 @@ using namespace std;
 class HostTemplate : public TemplateSQL
 {
 public:
-    HostTemplate(int tid = -1):TemplateSQL(table,tid,true){};
+    HostTemplate(int tid = -1,
+                 const char separator = '^'):
+                 TemplateSQL(table,tid,true,separator)
+                    {};
 
     ~HostTemplate(){};
 

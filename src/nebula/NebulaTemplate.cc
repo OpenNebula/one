@@ -74,6 +74,12 @@ NebulaTemplate::NebulaTemplate(string& nebula_location)
     
     attribute = new SingleAttribute("VM_RDIR",value);
     conf_default.insert(make_pair(attribute->name(),attribute));
+    
+    //DEBUG_LEVEL    
+    value = Log::WARNING;
+    
+    attribute = new SingleAttribute("DEBUG_LEVEL",value);
+    conf_default.insert(make_pair(attribute->name(),attribute));
 }
 
 /* -------------------------------------------------------------------------- */

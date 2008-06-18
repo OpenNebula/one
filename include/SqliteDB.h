@@ -122,7 +122,7 @@ public:
                 ostringstream oss;
                 
                 oss << "SQL command was: " << c_str << ", error: " << err_msg;
-                log("ONE",Log::ERROR,oss,0);
+                log("ONE",Log::ERROR,oss,0,Log::ERROR);
                 
                 sqlite3_free(err_msg);   
             }

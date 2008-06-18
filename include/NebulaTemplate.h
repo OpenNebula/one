@@ -39,6 +39,25 @@ public:
         
         return Template::get(_name,values);   
     };
+    
+    void get(
+        const char * name, 
+        string& values) const
+    {
+        string _name(name);
+        
+        Template::get(_name,values);   
+    };
+    
+    
+    void get(
+        const char * name, 
+        int&    values) const
+    {
+        string _name(name);
+        
+        Template::get(_name,values);   
+    };
        
 private:
     friend class Nebula;

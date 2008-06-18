@@ -37,7 +37,8 @@ public:
         const char *,
         const MessageType,
         const ostringstream&,
-        const char *);
+        const char *,
+        const MessageType);
     
     Log(const string&       file_name,
         const MessageType   level = WARNING,
@@ -58,7 +59,7 @@ public:
 private:
 
     static const char error_names[];
-
+    
     MessageType     log_level;
 
     ofstream        file;
