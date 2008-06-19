@@ -60,6 +60,7 @@ env.Append(LIBS=[
     'wwwcore',
     'wwwutils',
     'm',
+    'md5'
 ])
 
 # Build tests
