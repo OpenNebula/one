@@ -179,12 +179,12 @@ class DM < ONEMad
 	# 16 -> SSID
 	
 	ColumnNames=[
-		"name", "state", "cpu_sec", "USEDCPU", "USEDMEMORY", "mem_percent", 
+		"name", "STATE", "cpu_sec", "USEDCPU", "USEDMEMORY", "mem_percent", 
 		"maxmem_k", "maxmem_percent", "vcpus", "nets", "NETTX", "NETRX",
 		"vdbs", "vdb_oo", "vdb_rd", "vdb_wr", "ssid"
 	]
 	
-	ColumnsToPrint=[ "USEDMEMORY", "USEDCPU", "NETRX", "NETTX" ]
+	ColumnsToPrint=[ "USEDMEMORY", "USEDCPU", "NETRX", "NETTX", "STATE"]
 	
 	def parse_xentop(name, stdout)
 		line=stdout.split(/$/).select{|l| l.match(/^ *(migrating-)?#{name} /) }[-1]
@@ -194,6 +194,22 @@ class DM < ONEMad
 		line.gsub!("no limit", "no_limit")
 		data=line.split
 		values=Hash.new
+		
+		# Get status code
+		index=ColumnNames.index("STATE")
+		state=data[index]
+		state.gsub!("-", "")
+		
+		case state
+	    when "r", "b", "s"
+	        state="a" # alive
+	    when "p"
+	        state="p" # paused
+	    else
+	        state="e" # error
+	    end
+	    
+	    data[index]=state
 		
 		ColumnNames.each_with_index do |n, i|
 			values[n]=data[i] if ColumnsToPrint.include? n
