@@ -377,8 +377,7 @@ void VirtualMachine::add_history(
     string&     				hostname,
     string&     				vm_dir,
     string&     				vmm_mad,
-    string&     			 	tm_mad,
-    History::MigrationReason	reason)
+    string&     			 	tm_mad)
 {
     ostringstream os;
     int           seq;
@@ -390,9 +389,7 @@ void VirtualMachine::add_history(
     else
     {
         seq = history->seq + 1;
-        
-        history->reason = reason;
-        
+                
         if (previous_history != 0)
         {
         	delete previous_history;
@@ -407,8 +404,7 @@ void VirtualMachine::add_history(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 	
-void VirtualMachine::cp_history(
-	History::MigrationReason reason)
+void VirtualMachine::cp_history()
 {
 	History * htmp;
 	
@@ -416,9 +412,7 @@ void VirtualMachine::cp_history(
 	{
 		return;
 	}
-	
-	history->reason = reason;
-	
+		
 	htmp = new History(oid,
 			history->seq + 1,
 			history->hid,
@@ -440,8 +434,7 @@ void VirtualMachine::cp_history(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 	
-void VirtualMachine::cp_previous_history(
-	History::MigrationReason reason)
+void VirtualMachine::cp_previous_history()
 {
 	History * htmp;
 
@@ -449,8 +442,6 @@ void VirtualMachine::cp_previous_history(
 	{
 		return;
 	}
-	
-	history->reason = reason;
 	
 	htmp = new History(oid,
 			history->seq + 1,

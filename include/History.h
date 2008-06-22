@@ -38,13 +38,11 @@ class History:public ObjectSQL
 public:
     enum MigrationReason
     {
-        NONE,
-        ERROR,
-        STOP_RESUME,
-        PERFORMANCE,
-        USER,
-        RESCHEDULING,
-        KILL
+        NONE, 		/** < Normal termination in host */
+        ERROR,		/** < The VM was migrated because of an error */
+        STOP_RESUME,/** < The VM was migrated because of a stop/resume request*/
+        USER,		/** < The VM was migrated because of an explicit request */
+        CANCEL		/** < The VM was migrated because of an explicit cancel */
     };
 
     History(int oid, int _seq = -1);

@@ -369,10 +369,8 @@ void  LifeCycleManager::restore_action(int vid)
 
         vmpool->update(vm);
         
-        vm->cp_history(History::STOP_RESUME);
-        
-        vmpool->update_previous_history(vm);
-        
+        vm->cp_history();
+                        
         vm->set_stime(the_time);
         
         vm->set_running_stime(the_time);

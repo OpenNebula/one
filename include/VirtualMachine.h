@@ -187,34 +187,28 @@ public:
     // History
     // ------------------------------------------------------------------------    
     /**
-     *  Adds a new history record an writes it in the database. If reason is 
-     *  given the update_previous_history MUST be called.
+     *  Adds a new history record an writes it in the database.
      */
     void add_history(
         int         				hid,
         string&     				hostname,
         string&     				vm_dir,
         string&     				vmm_mad,
-        string&     			 	tm_mad,
-        History::MigrationReason	reason=History::NONE);
+        string&     			 	tm_mad);
 
     /**
      *  Duplicates the last history record. Only the host related fields are
-     *  affected (i.e. no counter is copied nor initialized). If reason is given
-     *  the update_previous_history MUST be called.
+     *  affected (i.e. no counter is copied nor initialized).
      *    @param reason explaining the new addition.
      */
-    void cp_history(
-    		History::MigrationReason reason=History::NONE);
+    void cp_history();
 
     /**
      *  Duplicates the previous history record. Only the host related fields are
-     *  affected (i.e. no counter is copied nor initialized). If reason is given
-     *  the update_previous_history MUST be called.
+     *  affected (i.e. no counter is copied nor initialized).
      *    @param reason explaining the new addition.
      */
-    void cp_previous_history(
-    		History::MigrationReason reason=History::NONE);
+    void cp_previous_history();
 
     /**
      *  Checks if the VM has a valid history record. This function
@@ -421,6 +415,15 @@ public:
     {
         history->reason=_reason;
     };
+    
+    /**
+     *  Sets the reason that originated the VM migration in the previous host
+     *    @param _reason migration reason to leave this host
+     */
+    void set_previous_reason(History::MigrationReason _reason)
+    {
+        previous_history->reason=_reason;
+    };    
 
     // ------------------------------------------------------------------------
     // Template

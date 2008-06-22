@@ -350,6 +350,7 @@ void VirtualMachineManagerDriver::protocol(
             int             memory = -1;
             int             net_tx = -1;
             int             net_rx = -1;
+            char			state  = '-';
 
             while(is.good())
             {
@@ -391,6 +392,10 @@ void VirtualMachineManagerDriver::protocol(
                 {
                     tiss >> net_tx;
                 }
+                else if (var == "STATE")
+                {
+                	tiss >> state;
+                }
                 else
                 {
                     os.str("");
@@ -403,6 +408,43 @@ void VirtualMachineManagerDriver::protocol(
             vm->update_info(memory,cpu,net_tx,net_rx);
             
             vmpool->update(vm);
+            
+            if (state != '-'  && vm->get_lcm_state() == VirtualMachine::RUNNING)
+            {
+                Nebula          	&ne  = Nebula::instance();
+                LifeCycleManager *	lcm = ne.get_lcm();
+                
+            	switch (state)
+            	{
+            	case 'a': // Still active, good!
+                    os.str("");
+                    os  << "Monitor Information:\n" 
+                    	<< "\tCPU   : "<< cpu << "\n"
+                    	<< "\tMemory: "<< cpu << "\n"
+                    	<< "\tNet_TX: "<< cpu << "\n"
+                    	<< "\tNet_RX: "<< cpu << "\n";
+                    vm->log("VMM",Log::INFO,os);  
+            		break;
+            		
+            	case 'p': // It's paused
+                    os.str("");
+                    os  << "VM running but new state from monitor is PAUSED.\n";
+                    vm->log("VMM",Log::INFO,os);
+                    
+                    lcm->trigger(LifeCycleManager::MONITOR_SUSPEND, id);
+                    
+            		break;
+            		
+            	case 'e': //Failed
+            		os.str("");
+                    os  << "VM running but new state from monitor is ERROR.\n";
+                    vm->log("VMM",Log::INFO,os);
+                    
+                    lcm->trigger(LifeCycleManager::MONITOR_FAILURE, id);
+
+            		break;
+            	}
+            }
         }
         else
         {

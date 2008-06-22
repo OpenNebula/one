@@ -52,6 +52,8 @@ void  LifeCycleManager::save_success_action(int vid)
         
         vm->set_previous_running_etime(the_time);
         
+        vm->set_previous_reason(History::USER);
+        
         vmpool->update_previous_history(vm);
         
         vm->set_prolog_stime(the_time);
@@ -82,6 +84,8 @@ void  LifeCycleManager::save_success_action(int vid)
         vm->set_running_etime(the_time);
         
         vm->set_etime(the_time);
+        
+        vm->set_reason(History::STOP_RESUME);
 
         vmpool->update_history(vm);
 
@@ -159,6 +163,8 @@ void  LifeCycleManager::save_failure_action(int vid)
         
         vm->set_etime(the_time);
         
+        vm->set_reason(History::ERROR);
+        
         vmpool->update_history(vm);
         
         vm->get_requirements(cpu,mem,disk);
@@ -169,13 +175,13 @@ void  LifeCycleManager::save_failure_action(int vid)
     	
     	vm->set_previous_running_etime(the_time);
     	
+    	vm->set_previous_reason(History::USER);
+    	
     	vmpool->update_previous_history(vm);
     	
     	// --- Add new record by copying the previous one 
     	
-        vm->cp_history(History::ERROR);
-        
-        vmpool->update_previous_history(vm);
+        vm->cp_history();
         
         vm->set_stime(the_time);
         
@@ -246,6 +252,8 @@ void  LifeCycleManager::deploy_success_action(int vid)
         
         vm->set_previous_running_etime(the_time);
         
+        vm->set_previous_reason(History::USER);
+        
         vmpool->update_previous_history(vm);
         
         vm->get_requirements(cpu,mem,disk);
@@ -295,24 +303,26 @@ void  LifeCycleManager::deploy_failure_action(int vid)
 
         vm->set_etime(the_time);
         
+        vm->set_reason(History::ERROR);
+        
         vmpool->update_history(vm);
         
-        vm->get_requirements(cpu,mem,disk);
-        
-        hpool->del_capacity(vm->get_hid(),cpu,mem,disk);
-                
     	vm->set_previous_etime(the_time);
     	
     	vm->set_previous_running_etime(the_time);
     	
+    	vm->set_previous_reason(History::USER);
+    	
     	vmpool->update_previous_history(vm);
+
+    	vm->get_requirements(cpu,mem,disk);
+        
+        hpool->del_capacity(vm->get_hid(),cpu,mem,disk);                
     	
     	// --- Add new record by copying the previous one
     	        
-        vm->cp_previous_history(History::ERROR);
-        
-        vmpool->update_previous_history(vm);
-        
+        vm->cp_previous_history();
+                
         vm->set_stime(the_time);
         
         vm->set_running_stime(the_time);
@@ -337,6 +347,8 @@ void  LifeCycleManager::deploy_failure_action(int vid)
         vm->set_running_etime(the_time);
         
         vm->set_etime(the_time);
+        
+        vm->set_reason(History::ERROR);
 
         vmpool->update_history(vm);
 
@@ -514,6 +526,8 @@ void  LifeCycleManager::prolog_failure_action(int vid)
     
     vm->set_etime(the_time);
     
+    vm->set_reason(History::ERROR);
+    
     vmpool->update_history(vm);
 
     vm->get_requirements(cpu,mem,disk);
@@ -608,6 +622,8 @@ void  LifeCycleManager::epilog_failure_action(int vid)
     vm->set_epilog_etime(the_time);
     
     vm->set_etime(the_time);
+    
+    vm->set_reason(History::ERROR);
             
     vmpool->update_history(vm);
     
@@ -644,6 +660,8 @@ void  LifeCycleManager::cancel_success_action(int vid)
     }
 
     vm->set_etime(the_time);
+    
+    vm->set_reason(History::CANCEL);
         
     vmpool->update_history(vm);
 
@@ -691,4 +709,85 @@ void  LifeCycleManager::cancel_failure_action(int vid)
     vmm->trigger(VirtualMachineManager::POLL,vid);
         
     vm->unlock();    
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void  LifeCycleManager::monitor_failure_action(int vid)
+{
+    VirtualMachine *    vm;
+
+	int		cpu,mem,disk;
+	time_t	the_time = time(0);
+
+	Nebula&             nd = Nebula::instance();
+    DispatchManager *   dm = nd.get_dm();
+    
+    vm = vmpool->get(vid,true);
+    
+    if ( vm == 0 )
+    {
+        return;
+    }
+	
+    vm->set_running_etime(the_time);
+    
+    vm->set_etime(the_time);
+    
+    vm->set_reason(History::ERROR);
+
+    vmpool->update_history(vm);
+
+    vm->get_requirements(cpu,mem,disk);
+    
+    hpool->del_capacity(vm->get_hid(),cpu,mem,disk);
+
+    vm->log("LCM", Log::INFO, "VM failed.");
+
+    //----------------------------------------------------
+    
+    dm->trigger(DispatchManager::FAILED,vid);
+
+    vm->unlock();
+}
+
+
+void  LifeCycleManager::monitor_suspend_action(int vid)
+{
+    VirtualMachine *    vm;
+
+	int		cpu,mem,disk;
+	time_t	the_time = time(0);
+
+	Nebula&             nd = Nebula::instance();
+    DispatchManager *   dm = nd.get_dm();
+    
+    vm = vmpool->get(vid,true);
+    
+    if ( vm == 0 )
+    {
+        return;
+    }
+    
+    vm->set_running_etime(the_time);
+    
+    vm->set_etime(the_time);
+    
+    vm->set_reason(History::STOP_RESUME);
+
+    vmpool->update_history(vm);
+
+    vm->get_requirements(cpu,mem,disk);
+    
+    hpool->del_capacity(vm->get_hid(),cpu,mem,disk);
+
+    vm->log("LCM", Log::INFO, "VM is suspended.");
+
+    //----------------------------------------------------
+
+    dm->trigger(DispatchManager::SUSPEND_SUCCESS,vid);
+
+
+    vm->unlock();
 }

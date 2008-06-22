@@ -52,6 +52,8 @@ public:
         SHUTDOWN_FAILURE, /**< Send by the VMM when a shutdown action fails   */
         CANCEL_SUCCESS,   /**< Send by the VMM when a cancel action succeeds  */
         CANCEL_FAILURE,   /**< Send by the VMM when a cancel action fails     */
+        MONITOR_FAILURE,  /**< Send by the VMM when a VM has failed while active */
+        MONITOR_SUSPEND,  /**< Send by the VMM when a VM is paused while active */
         PROLOG_SUCCESS,   /**< Send by the TM when the prolog phase succeeds  */
         PROLOG_FAILURE,   /**< Send by the TM when the prolog phase fails     */
         EPILOG_SUCCESS,   /**< Send by the TM when the epilog phase succeeds  */
@@ -145,6 +147,10 @@ private:
     void cancel_success_action(int vid);
     
     void cancel_failure_action(int vid);
+    
+    void monitor_failure_action(int vid);
+    
+    void monitor_suspend_action(int vid);
 
     void prolog_success_action(int vid);
 
