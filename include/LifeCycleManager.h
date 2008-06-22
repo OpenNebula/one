@@ -20,6 +20,7 @@
 
 #include "ActionManager.h"
 #include "VirtualMachinePool.h"
+#include "HostPool.h"
 
 using namespace std;
 
@@ -33,10 +34,9 @@ class LifeCycleManager : public ActionListener
 {
 public:
 
-    LifeCycleManager(VirtualMachinePool * pool)
+    LifeCycleManager(VirtualMachinePool * _vmpool, HostPool * _hpool):
+    	vmpool(_vmpool),hpool(_hpool)
     {
-        vmpool = pool;
-
         am.addListener(this);
     };
 
@@ -104,6 +104,11 @@ private:
      *  Pointer to the Virtual Machine Pool, to access VMs
      */
     VirtualMachinePool *    vmpool;
+    
+    /**
+     *  Pointer to the Host Pool, to access hosts
+     */
+    HostPool *    			hpool;
 
     /**
      *  Action engine for the Manager
@@ -133,9 +138,13 @@ private:
 
     void deploy_failure_action(int vid);
 
-    void shutdown_success_failure_action(int vid);
+    void shutdown_success_action(int vid);
 
-    void cancel_success_failure_action(int vid);
+    void shutdown_failure_action(int vid);
+    
+    void cancel_success_action(int vid);
+    
+    void cancel_failure_action(int vid);
 
     void prolog_success_action(int vid);
 

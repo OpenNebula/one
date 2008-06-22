@@ -36,9 +36,7 @@ void  DispatchManager::suspend_success_action(int vid)
         vm->set_state(VirtualMachine::LCM_INIT);
         
         vmpool->update(vm);
-        
-        //TODO: Update suspended time
-        
+                
         vm->log("DiM", Log::INFO, "New VM state is SUSPENDED");
     }
     else
@@ -63,14 +61,6 @@ error:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void  DispatchManager::suspend_failure_action(int vid)
-{
-    failed_action(vid);    
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 void  DispatchManager::stop_success_action(int vid)
 {
     VirtualMachine *    vm;
@@ -87,13 +77,9 @@ void  DispatchManager::stop_success_action(int vid)
         vm->set_state(VirtualMachine::STOPPED);
         
         vm->set_state(VirtualMachine::LCM_INIT);
-        
-        vm->set_etime(time(0));
-        
+                
         vmpool->update(vm);
-        
-        vmpool->update_history(vm);
-        
+                
         vm->log("DiM", Log::INFO, "New VM state is STOPPED");
     }
     else
@@ -118,22 +104,6 @@ error:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void  DispatchManager::stop_failure_action(int vid)
-{
-    failed_action(vid);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void  DispatchManager::migrate_failure_action(int vid)
-{
-    failed_action(vid);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 void  DispatchManager::done_action(int vid)
 {
     VirtualMachine *    vm;
@@ -147,19 +117,13 @@ void  DispatchManager::done_action(int vid)
     
     if (vm->get_state() == VirtualMachine::ACTIVE )
     {
-        time_t the_time = time(0);
-                
         vm->set_state(VirtualMachine::DONE);
         
         vm->set_state(VirtualMachine::LCM_INIT);
-        
-        vm->set_etime(the_time);
-        
-        vm->set_exit_time(the_time);
+                
+        vm->set_exit_time(time(0));
                 
         vmpool->update(vm);
-        
-        vmpool->update_history(vm);
         
         vm->log("DiM", Log::INFO, "New VM state is DONE");
         
@@ -187,7 +151,6 @@ error:
 void  DispatchManager::failed_action(int vid)
 {
     VirtualMachine *    vm;
-    time_t              the_time;
     
     vm = vmpool->get(vid,true);
     
@@ -195,22 +158,14 @@ void  DispatchManager::failed_action(int vid)
     {
         return;
     }
-    
-    the_time = time(0);
-    
+        
     vm->set_state(VirtualMachine::LCM_INIT);
 
     vm->set_state(VirtualMachine::FAILED);
 
-    vm->set_etime(the_time);
-
-    vm->set_exit_time(the_time);
-                    
-    host_del_vm(vm);
-    
+    vm->set_exit_time(time(0));
+                        
     vmpool->update(vm);
-    
-    vmpool->update_history(vm);
     
     vm->log("DiM", Log::INFO, "New VM state is FAILED");
     

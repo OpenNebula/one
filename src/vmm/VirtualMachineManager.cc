@@ -124,6 +124,10 @@ void VirtualMachineManager::trigger(Actions action, int _vid)
         aname = "MIGRATE";
         break;
 
+    case POLL:
+        aname = "POLL";
+        break;
+        
     case FINALIZE:
         aname = ACTION_FINALIZE;
         break;
@@ -180,6 +184,10 @@ void VirtualMachineManager::do_action(const string &action, void * arg)
     {
         migrate_action(vid);
     }
+    else if (action == "POLL")
+    {
+        poll_action(vid);
+    }    
     else if (action == ACTION_TIMER)
     {
         timer_action();
@@ -287,8 +295,6 @@ void VirtualMachineManager::save_action(
     VirtualMachine *                    vm;
     const VirtualMachineManagerDriver * vmd;
     string                              hostname;
-    Host *                              host;
-    int                                 phid;
     ostringstream                       os;
     
     // Get the VM from the pool
@@ -315,30 +321,12 @@ void VirtualMachineManager::save_action(
     // Use previous host if it is a migration
     if ( vm->get_lcm_state() == VirtualMachine::SAVE_MIGRATE )
     {
-        int             rc;
-        ostringstream   os;
-
-        // Get the previous hostname
-        rc = vmpool->get_previous_hid(vm,&phid);
-
-        if ( rc != 0 )
+        if (!vm->hasPreviousHistory())
         {
-            goto error_host_get_previous_host_id;
+        	goto error_previous_history;
         }
-
-        host = hpool->get(phid, false);
-
-        if ( host == 0 )
-        {
-            goto error_host_get_previous_host;
-        }
-
-        hostname = host->get_hostname();
-
-        if ( hostname == "" )
-        {
-            goto error_host_get_previous_hostname;
-        }
+        
+        hostname = vm->get_previous_hostname();
     }
     else
     {
@@ -365,20 +353,9 @@ error_driver:
     os << "save_action, error getting driver " << vm->get_vmm_mad();
     goto error_common;
 
-error_host_get_previous_host_id:
+error_previous_history:
     os.str("");
-    os << "save_action, error getting previous host id, value returned: " << phid;
-    goto error_common;
-
-error_host_get_previous_host:
-    os.str("");
-    os << "save_action, error getting previous host from pool with host id: " << phid;
-    goto error_common;        
-
-error_host_get_previous_hostname:
-    os.str("");
-    os << "save_action, error getting previous host's hostname with host id: " << phid;
-    goto error_common;
+    os << "save_action, VM has no previous history";
     
 error_common:
     Nebula              &ne = Nebula::instance();
@@ -516,14 +493,9 @@ error_common:
 void VirtualMachineManager::migrate_action(
     int vid)
 {
-    VirtualMachine *    vm;
-    int                 rc;
-    int                 phid;
-
-    const VirtualMachineManagerDriver *     vmd;
-    string                                  phostname;
-    Host *                                  host;
-    ostringstream                           os;
+    VirtualMachine *    				vm;
+    const VirtualMachineManagerDriver *	vmd;
+    ostringstream                       os;
 
     // Get the VM from the pool
     vm = vmpool->get(vid,true);
@@ -546,30 +518,16 @@ void VirtualMachineManager::migrate_action(
         goto error_driver;
     }
 
-    // Get the previous hostname
-    rc = vmpool->get_previous_hid(vm,&phid);
-
-    if ( rc != 0 )
+    if (!vm->hasPreviousHistory())
     {
-        goto error_host;
-    }
-
-    host = hpool->get(phid, false);
-
-    if ( host == 0 )
-    {
-        goto error_host;
-    }
-
-    phostname = host->get_hostname();
-
-    if ( phostname == "" )
-    {
-        goto error_host;
+        goto error_previous_history;
     }
 
     // Invoke driver method
-    vmd->migrate (vid,phostname,vm->get_deploy_id(),vm->get_hostname());
+    vmd->migrate(vid,
+    		vm->get_previous_hostname(),
+    		vm->get_deploy_id(),
+    		vm->get_hostname());
 
     vm->unlock();
     
@@ -585,11 +543,11 @@ error_driver:
     os << "migrate_action, error getting driver " << vm->get_vmm_mad();
     goto error_common;
 
-error_host:
-    os.str("");
-    os << "migrate_action, error generating hostname";
-    goto error_common;        
-    
+error_previous_history:
+	os.str("");
+	os << "migrate_action, error VM has no previous history";
+	goto error_common;
+	
 error_common:
     Nebula              &ne = Nebula::instance();
     LifeCycleManager *  lcm = ne.get_lcm();
@@ -659,6 +617,65 @@ error_common:
     
     vm->unlock();
     return;    
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineManager::poll_action(
+    int vid)
+{
+    VirtualMachine *                vm;
+    const VirtualMachineManagerDriver *   vmd;
+    ostringstream                       os;
+    
+    // Get the VM from the pool
+    vm = vmpool->get(vid,true);
+
+    if (vm == 0) 
+    {
+        return;
+    }
+
+    if (!vm->hasHistory())
+    {
+        goto error_history;
+    }
+    
+    // Get the driver for this VM
+    vmd = get(vm->get_uid(),vm->get_vmm_mad());
+
+    if ( vmd == 0 )
+    {
+        goto error_driver;
+    }
+
+    // Invoke driver method
+    vmd->poll(vid,vm->get_hostname(),vm->get_deploy_id());
+    
+    vm->unlock();
+    return;
+
+error_history:
+    os.str("");
+    os << "poll_action, VM has no history";
+    goto error_common;
+
+error_driver:
+    os.str("");
+    os << "poll_action, error getting driver " << vm->get_vmm_mad();
+    goto error_common;
+
+error_common:
+    Nebula              &ne = Nebula::instance();
+    LifeCycleManager *  lcm = ne.get_lcm();
+
+    lcm->trigger(LifeCycleManager::CANCEL_FAILURE, vid);
+    
+    vm->log("VMM", Log::ERROR, os);
+    
+    vm->unlock();
+    return;
 }
 
 /* -------------------------------------------------------------------------- */

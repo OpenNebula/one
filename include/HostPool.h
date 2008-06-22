@@ -102,7 +102,35 @@ public:
      * return int 0 if success
      */
     int discover(map<int, string> * discovered_hosts);
-   
+
+    void add_capacity(int oid,int cpu, int mem, int disk)
+    {
+    	Host *  host = get(oid, true);
+    	        
+    	if ( host != 0 )
+    	{
+    		host->add_capacity(cpu, mem, disk);
+    	        
+    	    update(host);
+    	        
+    	    host->unlock();
+    	}
+    };
+    
+    void del_capacity(int oid,int cpu, int mem, int disk)
+    {
+    	Host *  host = get(oid, true);
+    	        
+    	if ( host != 0 )
+    	{
+    		host->del_capacity(cpu, mem, disk);
+    	        
+    	    update(host);
+    	        
+    	    host->unlock();
+    	}    	
+    };
+    
 private:
     /**
      *  Factory method to produce Host objects

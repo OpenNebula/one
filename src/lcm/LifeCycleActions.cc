@@ -34,19 +34,27 @@ void  LifeCycleManager::deploy_action(int vid)
     {
         Nebula&             nd = Nebula::instance();
         TransferManager *   tm = nd.get_tm();
-
+        time_t				thetime = time(0);
+        int					cpu,mem,disk;
+        
         //----------------------------------------------------
         //                 PROLOG STATE
         //----------------------------------------------------
 
         vm->set_state(VirtualMachine::PROLOG);
-        
-        vm->set_prolog_stime(time(0));
-        
+                
         vmpool->update(vm);
         
+        vm->set_stime(thetime);
+        
+        vm->set_prolog_stime(thetime);        
+        
         vmpool->update_history(vm);
-
+        
+        vm->get_requirements(cpu,mem,disk);
+        
+        hpool->add_capacity(vm->get_hid(),cpu,mem,disk);
+        
         vm->log("LCM", Log::INFO, "New VM state is PROLOG.");
         
         //----------------------------------------------------
@@ -182,7 +190,8 @@ void  LifeCycleManager::migrate_action(int vid)
     {
         Nebula&                 nd  = Nebula::instance();
         VirtualMachineManager * vmm = nd.get_vmm();
-
+        int						cpu,mem,disk;
+        
         //----------------------------------------------------
         //                SAVE_MIGRATE STATE
         //----------------------------------------------------
@@ -190,6 +199,14 @@ void  LifeCycleManager::migrate_action(int vid)
         vm->set_state(VirtualMachine::SAVE_MIGRATE);
         
         vmpool->update(vm);
+        
+        vm->set_stime(time(0));
+        
+        vmpool->update_history(vm);
+        
+        vm->get_requirements(cpu,mem,disk);
+        
+        hpool->add_capacity(vm->get_hid(),cpu,mem,disk);
 
         vm->log("LCM", Log::INFO, "New VM state is SAVE_MIGRATE");
         
@@ -231,7 +248,8 @@ void  LifeCycleManager::live_migrate_action(int vid)
     {
         Nebula&                 nd = Nebula::instance();
         VirtualMachineManager * vmm = nd.get_vmm();
-
+        int						cpu,mem,disk;
+        
         //----------------------------------------------------
         //                   MIGRATE STATE
         //----------------------------------------------------
@@ -239,6 +257,14 @@ void  LifeCycleManager::live_migrate_action(int vid)
         vm->set_state(VirtualMachine::MIGRATE);
 
         vmpool->update(vm);
+
+        vm->set_stime(time(0));
+        
+        vmpool->update_history(vm);
+        
+        vm->get_requirements(cpu,mem,disk);
+        
+        hpool->add_capacity(vm->get_hid(),cpu,mem,disk);
         
         vm->log("LCM",Log::INFO,"New VM state is MIGRATE");
         
@@ -290,6 +316,8 @@ void  LifeCycleManager::shutdown_action(int vid)
         vm->set_state(VirtualMachine::SHUTDOWN);
 
         vmpool->update(vm);
+        
+        vm->log("LCM",Log::INFO,"New VM state is SHUTDOWN");
 
         //----------------------------------------------------
         
@@ -328,14 +356,36 @@ void  LifeCycleManager::restore_action(int vid)
     {
         Nebula&                 nd  = Nebula::instance();
         VirtualMachineManager * vmm = nd.get_vmm();
-
+        int						cpu,mem,disk;
+        time_t					the_time = time(0);
+        
         vm->log("LCM", Log::INFO, "Restoring VM");
         
-        vm->log("LCM", Log::INFO, "New state is BOOT");
-        
+        //----------------------------------------------------
+        //            BOOT STATE (FROM SUSPEND)
+        //----------------------------------------------------        
+
         vm->set_state(VirtualMachine::BOOT);
 
         vmpool->update(vm);
+        
+        vm->cp_history(History::STOP_RESUME);
+        
+        vmpool->update_previous_history(vm);
+        
+        vm->set_stime(the_time);
+        
+        vm->set_running_stime(the_time);
+        
+        vmpool->update_history(vm);
+                
+        vm->get_requirements(cpu,mem,disk);
+        
+        hpool->add_capacity(vm->get_hid(),cpu,mem,disk);        
+        
+        vm->log("LCM", Log::INFO, "New state is BOOT");
+        
+        //----------------------------------------------------
         
         vmm->trigger(VirtualMachineManager::RESTORE,vid);       
     }
@@ -379,11 +429,7 @@ void  LifeCycleManager::cancel_action(int vid)
 
         vm->set_state(VirtualMachine::CANCEL);
         
-        vm->set_running_etime(time(0));
-        
         vmpool->update(vm);
-        
-        vmpool->update_history(vm);
 
         vm->log("LCM", Log::INFO, "New state is CANCEL");
         
@@ -404,4 +450,3 @@ error:
     vm->log("LCM", Log::ERROR, "cancel_action, VM in a wrong state.");
     vm->unlock();
 }
-

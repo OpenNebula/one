@@ -98,11 +98,6 @@ void RequestManager::VirtualMachineMigrate::execute(
     
     thetime = time(0);
     
-    vm->set_running_etime(thetime);
-    vm->set_etime(thetime);
-    
-    VirtualMachineMigrate::vmpool->update_history(vm);
-    
     vm->add_history(hid,hostname,vmdir,vmm_mad,tm_mad);
     
     rc = VirtualMachineMigrate::vmpool->update_history(vm);
@@ -136,6 +131,8 @@ void RequestManager::VirtualMachineMigrate::execute(
     return;
 
 error_host_managed:
+	host->unlock();
+	
     oss << "Not managed hosts (id:" << hid << ") not supported";
     goto error_common;
 
@@ -148,10 +145,14 @@ error_vm_get:
     goto error_common;
 
 error_history:
-    oss << "Can not deploy VM " << vid << ", can not insert history";
+	vm->unlock();
+	
+    oss << "Can not deploy VM " << vid << ", can not insert history";    
     goto error_common;
 
 error_state:
+	vm->unlock();
+	
     oss << "Can not deploy VM " << vid << ", wrong state";
     goto error_common;
 

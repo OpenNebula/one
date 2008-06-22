@@ -38,9 +38,10 @@ const char * History::db_bootstrap = "CREATE TABLE history (oid INTEGER,"
 /* -------------------------------------------------------------------------- */
 
 History::History(
-    int _oid):
+    int _oid,
+    int _seq):
         oid(_oid),
-        seq(-1),
+        seq(_seq),
         hostname(""),
         vm_rdir(""),
         hid(-1),
@@ -59,13 +60,13 @@ History::History(
 /* -------------------------------------------------------------------------- */
 
 History::History(
-    int     _oid,
-    int     _seq,
-    int     _hid,
-    string& _hostname,
-    string& _vm_rdir,
-    string& _vmm,
-    string& _tm):
+    int     		_oid,
+    int     		_seq,
+    int     		_hid,
+    string& 		_hostname,
+    string& 		_vm_rdir,
+    string& 		_vmm,
+    string& 		_tm):
         oid(_oid),
         seq(_seq),
         hostname(_hostname),
@@ -252,8 +253,15 @@ int History::select(SqliteDB * db)
         return -1;
     }
 
-    oss << "SELECT * FROM history WHERE oid = "<< oid <<
-        " AND seq=(SELECT MAX(seq) FROM history WHERE oid = " << oid << ")";
+    if ( seq == -1)
+    {
+    	oss << "SELECT * FROM history WHERE oid = "<< oid <<
+        	" AND seq=(SELECT MAX(seq) FROM history WHERE oid = " << oid << ")";
+    }
+    else
+    {
+    	oss << "SELECT * FROM history WHERE oid = "<< oid <<" AND seq = "<< seq;    
+    }
 
     rc = db->exec(oss,history_select_cb,(void *) this);
 
@@ -273,7 +281,6 @@ int History::drop(SqliteDB * db)
     ostringstream   oss;
 
     oss << "DELETE FROM " << table << " WHERE oid= "<< oid; 
-    // <<" AND seq= "<<seq;
 
     return db->exec(oss);
 }

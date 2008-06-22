@@ -197,19 +197,19 @@ void LifeCycleManager::do_action(const string &action, void * arg)
     }
     else if (action == "SHUTDOWN_SUCCESS")
     {
-        shutdown_success_failure_action(vid);
+        shutdown_success_action(vid);
     }
     else if (action == "SHUTDOWN_FAILURE")
     {
-        shutdown_success_failure_action(vid);
+        shutdown_failure_action(vid);
     }
     else if (action == "CANCEL_SUCCESS")
     {
-        cancel_success_failure_action(vid);
+        cancel_success_action(vid);
     }
     else if (action == "CANCEL_FAILURE")
     {
-        cancel_success_failure_action(vid);
+        cancel_failure_action(vid);
     }
     else if (action == "PROLOG_SUCCESS")
     {

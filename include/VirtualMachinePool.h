@@ -87,7 +87,7 @@ public:
     //--------------------------------------------------------------------------
     
     /**
-     *  Updates the history record of a VM, the lock of the vm SHOULD be locked
+     *  Updates the history record of a VM, the vm's mutex SHOULD be locked
      *    @param vm pointer to the virtual machine object
      *    @return 0 on success
      */
@@ -96,20 +96,18 @@ public:
     {
         return vm->update_history(db);
     }
-    
+
     /**
-     *  Get the ID of the previous host
+     *  Updates the previous history record, the vm's mutex SHOULD be locked
      *    @param vm pointer to the virtual machine object
-     *    @param hid the ID of the host
-     *    @return 0 on success 
+     *    @return 0 on success
      */
-    int get_previous_hid(
-        VirtualMachine *    vm, 
-        int *               hid)
+    int update_previous_history(
+        VirtualMachine * vm)
     {
-        return vm->get_previous_hid(db,hid);
-    };
-           
+        return vm->update_previous_history(db);
+    }
+    
     /**
      *  Bootstraps the database table(s) associated to the VirtualMachine pool
      */

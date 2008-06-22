@@ -51,6 +51,7 @@ VirtualMachine::VirtualMachine(int id):
         net_tx(0),
         net_rx(0),
         history(0),
+        previous_history(0),
         _log(0)
 {
 }
@@ -200,7 +201,7 @@ int VirtualMachine::select(SqliteDB * db)
         goto error_template;
     }
 
-    //Get the History Record
+    //Get the History Records
 
     history = new History(oid);
 
@@ -216,6 +217,17 @@ int VirtualMachine::select(SqliteDB * db)
         delete history;
 
         history = 0;
+    }
+    else if (history->seq > 0)
+    {
+    	previous_history = new History(oid,history->seq - 1);
+    	
+    	rc = previous_history->select(db);
+    	
+    	if ( rc != 0)
+    	{
+    		goto error_previous_history;	
+    	}
     }
 
     //Create Log support fo this VM
@@ -268,6 +280,12 @@ error_history:
     ose << "Can not get history for VM id: " << oid;
     log("ONE", Log::ERROR, ose);
     return -1;
+    
+error_previous_history:
+	ose << "Can not get previous history record (seq:" << history->seq 
+	    << ") for VM id: " << oid;
+    log("ONE", Log::ERROR, ose);
+    return -1;    
 }
 
 /* -------------------------------------------------------------------------- */
@@ -355,11 +373,12 @@ int VirtualMachine::update(SqliteDB * db)
 /* -------------------------------------------------------------------------- */
 
 void VirtualMachine::add_history(
-    int         hid,
-    string&     hostname,
-    string&     vm_dir,
-    string&     vmm_mad,
-    string&     tm_mad)
+	int         				hid,
+    string&     				hostname,
+    string&     				vm_dir,
+    string&     				vmm_mad,
+    string&     			 	tm_mad,
+    History::MigrationReason	reason)
 {
     ostringstream os;
     int           seq;
@@ -371,14 +390,82 @@ void VirtualMachine::add_history(
     else
     {
         seq = history->seq + 1;
+        
+        history->reason = reason;
+        
+        if (previous_history != 0)
+        {
+        	delete previous_history;
+        }
 
-        delete history;
+        previous_history = history;
     }
 
     history = new History(oid,seq,hid,hostname,vm_dir,vmm_mad,tm_mad);
-
-    history->stime = time(0);
 };
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+	
+void VirtualMachine::cp_history(
+	History::MigrationReason reason)
+{
+	History * htmp;
+	
+	if (history == 0)
+	{
+		return;
+	}
+	
+	history->reason = reason;
+	
+	htmp = new History(oid,
+			history->seq + 1,
+			history->hid,
+			history->hostname,
+			history->vm_rdir,
+			history->vmm_mad_name,
+			history->tm_mad_name);
+	
+	if ( previous_history != 0 )
+	{
+		delete previous_history;
+	}
+	
+	previous_history = history;
+
+	history = htmp; 
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+	
+void VirtualMachine::cp_previous_history(
+	History::MigrationReason reason)
+{
+	History * htmp;
+
+	if ( previous_history == 0 || history == 0)
+	{
+		return;
+	}
+	
+	history->reason = reason;
+	
+	htmp = new History(oid,
+			history->seq + 1,
+			previous_history->hid,
+			previous_history->hostname,
+			previous_history->vm_rdir,
+			previous_history->vmm_mad_name,
+			previous_history->tm_mad_name);
+	
+	delete previous_history;
+	
+	previous_history = history;
+	
+	history = htmp;	
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -394,7 +481,7 @@ void VirtualMachine::get_requirements (int& cpu, int& memory, int& disk)
 
     if ((memory == 0) || (scpu==""))
     {
-        goto error;
+        return;
     }
 
     iss.str(scpu);
@@ -405,102 +492,7 @@ void VirtualMachine::get_requirements (int& cpu, int& memory, int& disk)
     disk   = 0;
 
     return;
-
-error:
-    ostringstream oss;
-
-    oss << "MEMORY or CPU attribute not defined in VM " << get_oid()
-    << ", will not schedule it";
-    //Scheduler::log("HOST",Log::ERROR,oss);
 }
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-    
-int VirtualMachine::update_previous_history_column(
-    SqliteDB *              db,
-    const History::ColNames column,
-    const time_t            val)
-{
-    ostringstream   os;
-    string          colname;
-    string          where;
-    string          value;
-
-    if ( history == 0 || history->seq < 0 )
-    {
-        return -1;
-    }
-
-    colname = History::column_name(column);
-
-    if (colname.empty())
-    {
-        return -1;
-    }
-
-    os << "oid == " << oid << " AND seq == " << (history->seq -1);
-
-    where = os.str();
-
-    os.str("");
-
-    os << val;
-
-    value= os.str();
-
-    return history->update_column(db,colname,where,value);
-};
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int VirtualMachine::select_previous_history_column(
-    SqliteDB *              db,
-    const History::ColNames column,
-    string *                value)
-{
-    ostringstream   os;
-    string          colname;
-    string          where;
-
-    if ( history == 0 || history->seq < 0 )
-    {
-        return -1;
-    }
-
-    colname = History::column_name(column);
-
-    if (colname.empty())
-    {
-        return -1;
-    }
-
-    os << "oid == " << oid << " AND seq == " << (history->seq -1);
-
-    where = os.str();
-
-    return history->select_column(db,colname,where,value);
-};
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int VirtualMachine::get_previous_hid(SqliteDB * db, int * hid)
-{
-    string          shid;
-    const char *    cshid;
-
-    if ( select_previous_history_column(db,History::HID,&shid) != 0 )
-    {
-        return -1;
-    }
-
-    cshid = shid.c_str();
-    *hid  = atoi(cshid);
-
-    return 0;
-};
 
 /* ************************************************************************** */
 /* Virtual Machine :: Misc                                                    */

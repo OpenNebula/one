@@ -36,20 +36,6 @@ extern "C" int history_select_cb (
 class History:public ObjectSQL
 {
 public:
-
-    History(int oid);
-
-    History(
-        int     oid,
-        int     seq,
-        int     hid,
-        string& hostname,
-        string& vm_dir,
-        string& vmm,
-        string& tm);
-
-    ~History(){};
-
     enum MigrationReason
     {
         NONE,
@@ -60,6 +46,19 @@ public:
         RESCHEDULING,
         KILL
     };
+
+    History(int oid, int _seq = -1);
+
+    History(
+        int     		oid,
+        int     		seq,
+        int     		hid,
+        string& 		hostname,
+        string& 		vm_dir,
+        string& 		vmm,
+        string& 		tm);
+
+    ~History(){};
 
 private:
     friend class VirtualMachine;

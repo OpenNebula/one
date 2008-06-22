@@ -238,7 +238,7 @@ void Nebula::start()
     // ---- Life-cycle Manager ----    
     try
     {
-        lcm = new LifeCycleManager(vmpool);
+        lcm = new LifeCycleManager(vmpool,hpool);
     }
     catch (bad_alloc&)
     {

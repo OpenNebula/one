@@ -39,9 +39,9 @@ extern "C" int vm_select_cb (void * _vm, int num,char ** values, char ** names);
 class VirtualMachine : public PoolObjectSQL
 {
 public:
-    // ------------------------------------------------------------------------
-    // VM States
-    // ------------------------------------------------------------------------    
+    // -------------------------------------------------------------------------
+	// VM States
+    // -------------------------------------------------------------------------   
 
     /**
      *  Global Virtual Machine state
@@ -78,9 +78,9 @@ public:
         CANCEL         = 12
     };
 
-    // ------------------------------------------------------------------------
+    // -------------------------------------------------------------------------
     // Log & Print
-    // ------------------------------------------------------------------------    
+    // -------------------------------------------------------------------------   
 
     /**
      *  writes a log message in vm.log. The class lock should be locked and
@@ -187,17 +187,37 @@ public:
     // History
     // ------------------------------------------------------------------------    
     /**
-     *  Adds a new history record an writes it in the database
+     *  Adds a new history record an writes it in the database. If reason is 
+     *  given the update_previous_history MUST be called.
      */
     void add_history(
-        int         hid,
-        string&     hostname,
-        string&     vm_dir,
-        string&     vmm_mad,
-        string&     tm_mad);
+        int         				hid,
+        string&     				hostname,
+        string&     				vm_dir,
+        string&     				vmm_mad,
+        string&     			 	tm_mad,
+        History::MigrationReason	reason=History::NONE);
 
     /**
-     *  Checks if the VM has a defined history record. This function
+     *  Duplicates the last history record. Only the host related fields are
+     *  affected (i.e. no counter is copied nor initialized). If reason is given
+     *  the update_previous_history MUST be called.
+     *    @param reason explaining the new addition.
+     */
+    void cp_history(
+    		History::MigrationReason reason=History::NONE);
+
+    /**
+     *  Duplicates the previous history record. Only the host related fields are
+     *  affected (i.e. no counter is copied nor initialized). If reason is given
+     *  the update_previous_history MUST be called.
+     *    @param reason explaining the new addition.
+     */
+    void cp_previous_history(
+    		History::MigrationReason reason=History::NONE);
+
+    /**
+     *  Checks if the VM has a valid history record. This function
      *  MUST be called before using any history related function.
      *    @return true if the VM has a record
      */ 
@@ -206,6 +226,15 @@ public:
         return (history!=0);
     };
 
+    /**
+     *  Checks if the VM has a valid previous history record. This function
+     *  MUST be called before using any previous_history related function.
+     *    @return true if the VM has a previous record
+     */ 
+    bool hasPreviousHistory() const
+    {
+        return (previous_history!=0);
+    };
     /**
      *  Returns the VMM driver name for the current host. The hasHistory()
      *  function MUST be called before this one.
@@ -265,7 +294,17 @@ public:
     {
         return history->hostname;
     };
-
+    
+    /**
+     *  Returns the hostname for the previous host. The hasPreviousHistory()
+     *  function MUST be called before this one.
+     *    @return the hostname
+     */ 
+    const string & get_previous_hostname() const
+    {
+        return previous_history->hostname;
+    };
+    
     /**
      *  Get host id where the VM is or is going to execute. The hasHistory()
      *  function MUST be called before this one.
@@ -273,6 +312,15 @@ public:
     int get_hid()
     {
         return history->hid;
+    }
+
+    /**
+     *  Get host id where the VM was executing. The hasPreviousHistory()
+     *  function MUST be called before this one.
+     */
+    int get_previous_hid()
+    {
+        return previous_history->hid;
     }
     
     /**
@@ -293,6 +341,15 @@ public:
         history->etime=_etime;
     };
 
+    /**
+     *  Sets end time of a VM in the previous Host.
+     *    @param _etime time when the VM finished
+     */
+    void set_previous_etime(time_t _etime)
+    {
+        previous_history->etime=_etime;
+    };
+    
     /**
      *  Sets start time of VM prolog.
      *    @param _stime time when the prolog started
@@ -330,12 +387,21 @@ public:
     };
 
     /**
+     *  Sets end time of VM running state in the previous host.
+     *    @param _etime time when the running state finished
+     */
+    void set_previous_running_etime(time_t _etime)
+    {
+        previous_history->running_etime=_etime;
+    };
+    
+    /**
      *  Sets start time of VM epilog.
      *    @param _stime time when the epilog started
      */
     void set_epilog_stime(time_t _stime)
     {
-        history->running_stime=_stime;
+        history->epilog_stime=_stime;
     };
 
     /**
@@ -344,7 +410,7 @@ public:
      */
     void set_epilog_etime(time_t _etime)
     {
-        history->running_etime=_etime;
+        history->epilog_etime=_etime;
     };
 
     /**
@@ -607,10 +673,15 @@ private:
     int         net_rx;
 
     /**
-     *  History record, for the current execution
+     *  History record, for the current host
      */
     History *   history;
 
+    /**
+     *  History record, for the previous host
+     */
+    History *   previous_history;
+    
     // -------------------------------------------------------------------------
     // Logging
     // -------------------------------------------------------------------------
@@ -662,29 +733,19 @@ private:
     };
 
     /**
-     *  Sets the value of a column of the previous VM history record
+     *  Updates the previous history record
      *    @param db pointer to the db
      *    @return 0 on success 
      */
-    int update_previous_history_column(
-        SqliteDB *              db,
-        const History::ColNames column,
-        const time_t            val);
-    
-    /**
-     *  Gets the value of a column of the previous VM history record
-     *    @param db pointer to the db
-     *    @return 0 on success 
-     */
-    int select_previous_history_column(
-        SqliteDB *              db,
-        const History::ColNames column,
-        string *                value);
-
-    /**
-     *  Gets the hid of the previous history host
-     */
-    int get_previous_hid(SqliteDB * db, int * hid);
+    int update_previous_history(SqliteDB * db)
+    {
+        if ( previous_history != 0 )
+        {
+            return previous_history->insert(db);
+        }
+        else
+            return -1;
+    };
     
 protected:
 	

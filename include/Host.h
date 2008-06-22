@@ -276,7 +276,7 @@ public:
      *    @param disk needed by the VM
      *    @return 0 on success
      */
-    void add_vm(int cpu, int mem, int disk)
+    void add_capacity(int cpu, int mem, int disk)
     {
         host_share.add(cpu,mem,disk);
     };
@@ -289,7 +289,7 @@ public:
      *    @param disk used by the VM
      *    @return 0 on success
      */
-    void del_vm(int cpu, int mem, int disk)
+    void del_capacity(int cpu, int mem, int disk)
     {                
         host_share.del(cpu,mem,disk);        
     };
@@ -301,7 +301,7 @@ public:
      *    @param disk needed by the VM
      *    @return true if the share can host the VM
      */
-    bool test_vm(int cpu, int mem, int disk)
+    bool test_capacity(int cpu, int mem, int disk)
     {
         return host_share.test(cpu,mem,disk);
     }

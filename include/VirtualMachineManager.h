@@ -50,6 +50,7 @@ public:
         CANCEL,
         MIGRATE,
         RESTORE,
+        POLL,
         TIMER,
         FINALIZE
     };
@@ -213,7 +214,14 @@ private:
      */
     void restore_action(
         int vid);
-        
+
+    /**
+     *  Polls a VM.
+     *    @param vid the id of the VM.
+     */
+    void poll_action(
+        int vid);
+    
     /**
      *  This function is executed periodically to poll the running VMs
      */

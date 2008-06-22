@@ -18,60 +18,6 @@
 #include "DispatchManager.h"
 #include "Nebula.h"
 
-
-void DispatchManager::host_add_vm(VirtualMachine *vm)
-{
-    int     cpu, memory, disk;
-    int     hid;
-    Host *  host;
-    
-    if ( vm->hasHistory() == true )
-    {
-        hid=vm->get_hid();
-    
-        host=hpool->get(hid, true);
-        
-        if ( host != 0 )
-        {
-        	vm->get_requirements(cpu, memory, disk);
-        
-        	host->add_vm(cpu, memory, disk);
-        
-        	hpool->update(host);
-        
-        	host->unlock();
-        }
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void DispatchManager::host_del_vm(VirtualMachine *vm)
-{
-    int     cpu, memory, disk;
-    int     hid;
-    Host *  host;
-    
-    if ( vm->hasHistory() == true )
-    {
-        hid=vm->get_hid();
-    
-        host=hpool->get(hid, true);
-        
-        if (host != 0)
-        {
-            vm->get_requirements(cpu, memory, disk);
-            
-            host->del_vm(cpu, memory, disk);
-            
-            hpool->update(host);
-            
-            host->unlock();	
-        }        
-    }
-}
-
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -112,9 +58,7 @@ int DispatchManager::deploy (
         vm->set_state(VirtualMachine::ACTIVE);
         
         vmpool->update(vm);
-        
-        host_add_vm(vm);
-        
+                
         vm->log("DiM", Log::INFO, "New VM state is ACTIVE.");
         
         lcm->trigger(LifeCycleManager::DEPLOY,vid);
@@ -252,9 +196,7 @@ int DispatchManager::shutdown (
     {
         Nebula&             nd  = Nebula::instance();
         LifeCycleManager *  lcm = nd.get_lcm();
-        
-        host_del_vm(vm);
-     
+             
         lcm->trigger(LifeCycleManager::SHUTDOWN,vid);       
     }
     else
@@ -391,9 +333,7 @@ int DispatchManager::stop(
     {
         Nebula&             nd  = Nebula::instance();
         LifeCycleManager *  lcm = nd.get_lcm();
-        
-        host_del_vm(vm);
-     
+             
         lcm->trigger(LifeCycleManager::STOP,vid);       
     }
     else
@@ -439,8 +379,6 @@ int DispatchManager::suspend(
         Nebula&             nd  = Nebula::instance();
         LifeCycleManager *  lcm = nd.get_lcm();
         
-        host_del_vm(vm);
-     
         lcm->trigger(LifeCycleManager::SUSPEND,vid);       
     }
     else
@@ -496,8 +434,6 @@ int DispatchManager::resume(
         vm->set_state(VirtualMachine::ACTIVE);
         
         vmpool->update(vm);
-        
-        host_add_vm(vm);
         
         vm->log("DiM", Log::INFO, "New VM state is ACTIVE.");
         

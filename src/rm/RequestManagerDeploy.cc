@@ -138,10 +138,14 @@ error_vm_get:
     goto error_common;
 
 error_history:
+	vm->unlock();
+	
     oss << "Can not deploy VM " << vid << ", can not insert history";
     goto error_common;
 
 error_state:
+	vm->unlock();
+	
     oss << "Can not deploy VM " << vid << ", wrong state";
     goto error_common;
 

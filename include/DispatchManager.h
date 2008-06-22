@@ -46,10 +46,7 @@ public:
     enum Actions
     {
         SUSPEND_SUCCESS, /**< Send by LCM when a VM is suspended*/
-        SUSPEND_FAILURE, /**< Send by LCM when a VM could not be suspended*/
         STOP_SUCCESS,    /**< Send by LCM when a VM is stopped*/
-        STOP_FAILURE,    /**< Send by LCM when a VM could not be stopped*/
-        MIGRATE_FAILURE, /**< Send by LCM when a VM could not be migrated*/
         DONE,            /**< Send by LCM when a VM is shut down*/
         FAILED,          /**< Send by LCM when one of the execution steps fails*/
         FINALIZE
@@ -238,22 +235,11 @@ private:
     
     void  suspend_success_action(int vid);
 
-    void  suspend_failure_action(int vid);
-
     void  stop_success_action(int vid);
-
-    void  stop_failure_action(int vid);
-
-    void  migrate_failure_action(int vid);
 
     void  done_action(int vid);
 
-    void  failed_action(int vid);
-    
-    void  host_add_vm(VirtualMachine *vm);
-    
-    void  host_del_vm(VirtualMachine *vm);
-    
+    void  failed_action(int vid);    
 };
 
 #endif /*DISPATCH_MANAGER_H*/

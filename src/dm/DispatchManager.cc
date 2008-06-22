@@ -73,20 +73,8 @@ void DispatchManager::trigger(Actions action, int _vid)
         aname = "SUSPEND_SUCCESS";
         break;
 
-    case SUSPEND_FAILURE:
-        aname = "SUSPEND_FAILURE";
-        break;
-
     case STOP_SUCCESS:
         aname = "STOP_SUCCESS";
-        break;
-
-    case STOP_FAILURE:
-        aname = "STOP_FAILURE";
-        break;
-
-    case MIGRATE_FAILURE:
-        aname = "MIGRATE_FAILURE";
         break;
 
     case DONE:
@@ -130,21 +118,9 @@ void DispatchManager::do_action(const string &action, void * arg)
     {
         suspend_success_action(vid);
     }
-    else if (action == "SUSPEND_FAILURE")
-    {
-        suspend_failure_action(vid);
-    }
     else if (action == "STOP_SUCCESS")
     {
         stop_success_action(vid);
-    }
-    else if (action == "STOP_FAILURE")
-    {
-        stop_failure_action(vid);
-    }
-    else if (action == "MIGRATE_FAILURE")
-    {
-        migrate_failure_action(vid);
     }
     else if (action == "DONE")
     {

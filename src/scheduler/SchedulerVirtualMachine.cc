@@ -106,9 +106,9 @@ int SchedulerVirtualMachine::get_host(
             continue;
         }
         
-        if (host->test_vm(cpu,mem,dsk)==true)
+        if (host->test_capacity(cpu,mem,dsk)==true)
         {
-            host->add_vm(cpu,mem,dsk);
+        	host->add_capacity(cpu,mem,dsk);
             hid  = (*i)->hid;
 
             return 0;        	
@@ -136,7 +136,6 @@ ostream& operator<<(ostream& os, SchedulerVirtualMachine& vm)
 
     return os;
 };
-
 
 /* ************************************************************************** */
 /* SchedulerVirtualMachinePool                                                */

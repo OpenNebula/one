@@ -36,7 +36,6 @@ using namespace std;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-
 extern "C" void * scheduler_action_loop(void *arg)
 {
     Scheduler *  sched;
@@ -316,7 +315,7 @@ void Scheduler::match()
 
             if ((vm_memory <= host_memory) && (vm_cpu <= host_cpu))
             {
-                if (host->test_vm(vm_cpu,vm_memory,vm_disk) == true)
+                if (host->test_capacity(vm_cpu,vm_memory,vm_disk) == true)
                 {
                 	vm->add_host(host->get_hid());
                 }
@@ -478,10 +477,8 @@ void Scheduler::dispatch()
     }
 }
 
-
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-
 
 void Scheduler::do_action(const string &name, void *args)
 {
