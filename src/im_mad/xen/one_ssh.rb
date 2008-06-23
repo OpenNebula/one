@@ -10,6 +10,7 @@ class SSHCommand
     
     def initialize(command)
         @command=command
+        @callback=nil
     end
     
     def run(host)
@@ -75,6 +76,7 @@ class SSHAction
             @actions=clone_actions(@actions)
         end
         @finished=false
+        @callback=nil
     end
     
     def finished

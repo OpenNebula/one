@@ -1,12 +1,13 @@
 #!/usr/bin/env ruby
 
 XENTOP_PATH="/usr/sbin/xentop"
+XM_PATH="/usr/sbin/xm"
 
 ONE_LOCATION=ENV["ONE_LOCATION"]
 
 if !ONE_LOCATION
-    puts "ONE_LOCATION not set"
-    exit -1
+	puts "ONE_LOCATION not set"
+	exit -1
 end
 
 $: << ONE_LOCATION+"/lib/ruby"
@@ -15,8 +16,10 @@ require 'pp'
 
 require 'one_mad'
 require 'open3'
+require 'one_ssh'
 
 class DM < ONEMad
+	include SSHActionController
 	
 	def initialize
 		super(5, 4)
@@ -24,6 +27,8 @@ class DM < ONEMad
 		# Set log file
 		#log_file=File.open("dm.log", "w")
 		#set_logger(log_file)
+		
+		init_actions
 	end
 	
 	def action_init(args)
@@ -59,37 +64,47 @@ class DM < ONEMad
 	end
 	
 	def action_poll(args)
-		std=Open3.popen3(
-			"ssh -n #{args[2]} sudo #{XENTOP_PATH} -bi2 ;"+
-			" echo ExitCode: $? 1>&2")
-		stdout=std[1].read
-		stderr=std[2].read
+		#std=Open3.popen3(
+		#	"ssh -n #{args[2]} sudo #{XENTOP_PATH} -bi2 ;"+
+		#	" echo ExitCode: $? 1>&2")
 		
-		exit_code=get_exit_code(stderr)
+		action_number=args[1]
+		action_host=args[2]
 		
-		if exit_code!=0
-			send_message("POLL", "FAILURE", args[1])
-			return nil
-		end
+		cmd=SSHCommand.new("sudo #{XENTOP_PATH} -bi2")
+		cmd.callback=lambda do |a,num|
+		
+			stdout=a.stdout
+			stderr=a.stderr
+		
+			exit_code=get_exit_code(stderr)
+		
+			if exit_code!=0
+				send_message("POLL", "FAILURE", args[1])
+				return nil
+			end
 
-		#log("stdout:")
-		#log(stdout)
-		#log("stderr:")
-		#log(stderr)		
-
+			#log("stdout:")
+			#log(stdout)
+			#log("stderr:")
+			#log(stderr)
 		
-		values=parse_xentop(args[3], stdout)
+			values=parse_xentop(args[3], stdout)
 		
-		if !values
-			send_message("POLL", "FAILURE", args[1], "Domain not found")
-			return nil
-		end
+			if !values
+				send_message("POLL", "FAILURE", args[1], "Domain not found")
+				return nil
+			end
 		
-		info=values.map do |k,v|
-			k+"="+v
-		end.join(" ")
+			info=values.map do |k,v|
+				k+"="+v
+			end.join(" ")
 		
-		send_message("POLL", "SUCCESS", args[1], info)
+			send_message("POLL", "SUCCESS", args[1], info)
+		end # End of callback
+		
+		action=SSHAction.new(action_number, action_host, cmd)
+		send_ssh_action(action_number, action_host, action)
 	end
 	
 	###########################
@@ -97,11 +112,16 @@ class DM < ONEMad
 	###########################
 	
 	def std_action(name, command, args)
-		std=exec_xm_command(args[2], command)
-		stdout=std[1].read
-		stderr=std[2].read
+		action_number=args[1]
+		action_host=args[2]
 		
-		write_response(name, stdout, stderr, args)
+		cmd=SSHCommand.new("sudo #{XM_PATH} "+command)
+		cmd.callback=lambda do |a, num|
+			write_response(name, a.stdout, a.stderr, args)
+		end
+		
+		action=SSHAction.new(action_number, action_host, cmd)
+		send_ssh_action(action_number, action_host, cmd)
 	end
 		
 	def exec_xm_command(host, command)
@@ -165,7 +185,7 @@ class DM < ONEMad
 	# 02 -> CPU(sec)
 	# 03 -> CPU(%)
 	# 04 -> MEM(k) 
-	# 05 -> MEM(%)  
+	# 05 -> MEM(%)	
 	# 06 -> MAXMEM(k) 
 	# 07 -> MAXMEM(%) 
 	# 08 -> VCPUS 
@@ -173,8 +193,8 @@ class DM < ONEMad
 	# 10 -> NETTX(k) 
 	# 11 -> NETRX(k) 
 	# 12 -> VBDS   
-	# 13 -> VBD_OO   
-	# 14 -> VBD_RD   
+	# 13 -> VBD_OO	 
+	# 14 -> VBD_RD	 
 	# 15 -> VBD_WR 
 	# 16 -> SSID
 	
@@ -201,15 +221,15 @@ class DM < ONEMad
 		state.gsub!("-", "")
 		
 		case state
-	    when "r", "b", "s"
-	        state="a" # alive
-	    when "p"
-	        state="p" # paused
-	    else
-	        state="e" # error
-	    end
-	    
-	    data[index]=state
+		when "r", "b", "s"
+			state="a" # alive
+		when "p"
+			state="p" # paused
+		else
+			state="e" # error
+		end
+		
+		data[index]=state
 		
 		ColumnNames.each_with_index do |n, i|
 			values[n]=data[i] if ColumnsToPrint.include? n
