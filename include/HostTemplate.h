@@ -29,7 +29,7 @@ class HostTemplate : public TemplateSQL
 {
 public:
     HostTemplate(int tid = -1,
-                 const char separator = '^'):
+                 const char separator = '='):
                  TemplateSQL(table,tid,true,separator)
                     {};
 
