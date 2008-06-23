@@ -110,6 +110,10 @@ void LifeCycleManager::trigger(Actions action, int _vid)
         aname = "MONITOR_SUSPEND";
         break;
 
+    case MONITOR_DONE:
+        aname = "MONITOR_DONE";
+        break;
+
     case PROLOG_SUCCESS:
         aname = "PROLOG_SUCCESS";
         break;
@@ -226,6 +230,10 @@ void LifeCycleManager::do_action(const string &action, void * arg)
     else if (action == "MONITOR_SUSPEND")
     {
     	monitor_suspend_action(vid);
+    }
+    else if (action == "MONITOR_DONE")
+    {
+    	monitor_done_action(vid);
     }    
     else if (action == "PROLOG_SUCCESS")
     {

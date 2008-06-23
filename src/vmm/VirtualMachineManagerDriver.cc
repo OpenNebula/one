@@ -443,6 +443,15 @@ void VirtualMachineManagerDriver::protocol(
                     lcm->trigger(LifeCycleManager::MONITOR_FAILURE, id);
 
             		break;
+            		
+            	case 'd': //Failed
+            		os.str("");
+                    os  << "VM running but it was not found. Assuming it is done.\n";
+                    vm->log("VMM",Log::INFO,os);
+                    
+                    lcm->trigger(LifeCycleManager::MONITOR_DONE, id);
+
+            		break;            		
             	}
             }
         }
