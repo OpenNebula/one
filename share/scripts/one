@@ -104,7 +104,7 @@ case "$1" in
 	stop
 	;;
   *)
-	echo "Usage: nebula {start|stop}" >&2
+	echo "Usage: one {start|stop}" >&2
 	exit 3
 	;;
 esac
