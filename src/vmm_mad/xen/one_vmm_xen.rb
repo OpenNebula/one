@@ -92,7 +92,7 @@ class DM < ONEMad
 			values=parse_xentop(args[3], stdout)
 		
 			if !values
-				send_message("POLL", "FAILURE", args[1], "Domain not found")
+				send_message("POLL", "SUCCESS", args[1], "STATE=d")
 				return nil
 			end
 		
