@@ -306,7 +306,16 @@ Commands:
     
 * migrate (Saves a running VM and starts it again in the specified host)
     onevm migrate <vm_id> <host_id>
-    
+
+* hold (Sets a VM to hold state, scheduler will not deploy it)
+    onevm hold <vm_id>
+
+* release (Releases a VM from hold state)
+    onevm release <vm_id>
+
+* stop (Stops a running VM)
+    onevm stop <vm_id>
+
 * suspend (Saves a running VM)
     onevm suspend <vm_id>
     
@@ -396,6 +405,30 @@ when "migrate"
     result=vm.migrate(*ARGV)
     if result[0]
         puts "Migrating VM"
+        exit 0
+    end
+
+when "hold"
+    check_parameters("hold", 1)
+    result=vm.hold(*ARGV)
+    if result[0]
+        puts "Setting VM to hold state"
+        exit 0
+    end
+
+when "release"
+    check_parameters("release", 1)
+    result=vm.release(*ARGV)
+    if result[0]
+        puts "Releasing VM"
+        exit 0
+    end
+    
+when "stop"
+    check_parameters("stop", 1)
+    result=vm.stop(*ARGV)
+    if result[0]
+        puts "Stopping VM"
         exit 0
     end
 
