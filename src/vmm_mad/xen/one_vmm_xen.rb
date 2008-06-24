@@ -121,7 +121,7 @@ class DM < ONEMad
 		end
 		
 		action=SSHAction.new(action_number, action_host, cmd)
-		send_ssh_action(action_number, action_host, cmd)
+		send_ssh_action(action_number, action_host, action)
 	end
 		
 	def exec_xm_command(host, command)
