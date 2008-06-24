@@ -336,7 +336,7 @@ module ONE
             
             my_db.close if !db
             
-            if res and res[0]
+            if res and res[0] and res[1] and res[1][-1]
                 return hostname=res[1][-1]["hostname"]
             else
                 return nil
