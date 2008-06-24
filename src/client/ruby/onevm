@@ -249,9 +249,9 @@ class VmShow
             header_history_small
             
             if options
-                puts @table_history.data_str(res, options)
+                puts @table_history.data_str(res[1], options)
             else
-                puts @table_history.data_str(res)
+                puts @table_history.data_str(res[1])
             end
             
             result
