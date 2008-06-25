@@ -73,7 +73,7 @@ function execute_mad
 
 # Set global environment
 
-export_rc_vars $ONE_LOCATION/etc/defaultrc
+export_rc_vars $ONE_LOCATION/etc/mad/defaultrc
 
 # Sanitize PRIORITY variable
 if [ -z "$PRIORITY" ]; then
