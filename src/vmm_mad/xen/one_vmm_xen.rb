@@ -36,7 +36,43 @@ class DM < ONEMad
 	end
 		
 	def action_deploy(args)
-		std_action("DEPLOY", "create #{args[3]}", args)
+		#std_action("DEPLOY", "create #{args[3]}", args)
+		
+		# TODO: check for error
+		file=open(args[3])
+		f=file.read
+		file.close
+		
+		# Get values passed in the deployment file, the form is:
+		#   [["CPU_CREDITS", "3"], ["OTHER_VARIABLE", "value"]]
+		values=f.scan(/^#O (.*?) = (.*)$/)
+		
+		# Gets the first pair with the name provided or nil if not found
+		credits=values.assoc("CPU_CREDITS")
+		credits=credits[1] if credits
+		
+		# Get the name of the VM (used to set credit scheduling)
+		vm_name=f.match(/^name = '(.*?)'$/)[1]
+
+		action_number=args[1]
+		action_host=args[2]
+		
+		cmd_str="sudo #{XM_PATH} create #{args[3]}"
+		
+		# Add sched-cred command if credits are defined
+		if(credits)
+		    cmd_str+=" \\&\\& sudo #{XM_PATH} sched-cred -d #{vm_name} -w #{credits}"
+		    STDERR.puts "Setting credits for the VM"
+		    STDERR.puts "Command: #{cmd_str}"
+		end
+		
+		cmd=SSHCommand.new(cmd_str)
+		cmd.callback=lambda do |a, num|
+			write_response("DEPLOY", a.stdout, a.stderr, args)
+		end
+		
+		action=SSHAction.new(action_number, action_host, cmd)
+		send_ssh_action(action_number, action_host, action)
 	end
 	
 	def action_shutdown(args)

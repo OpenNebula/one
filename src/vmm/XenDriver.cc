@@ -19,6 +19,7 @@
 #include "Nebula.h"
 #include <sstream>
 #include <fstream>
+#include <math.h>
 
 int XenDriver::deployment_description(
     const VirtualMachine *  vm,
@@ -27,12 +28,16 @@ int XenDriver::deployment_description(
     ofstream                    file;
         
     int                         num;
-    vector<const Attribute *>   attrs;        
+    vector<const Attribute *>   attrs;
     const VectorAttribute *     disk;
     const VectorAttribute *     nic;
     
     string                      boot_device = "";
     string                      str_value;
+    
+    // Base Scheduler Credit
+    float                       base_credit = 1.0;
+    float                       cpu_units = 1.0;
     
     string dev;
     string image;
@@ -45,6 +50,23 @@ int XenDriver::deployment_description(
     {
     	goto error_file;
     }
+    
+    // ------------------------------------------------------------------------
+    // CPU Credits
+    // ------------------------------------------------------------------------       
+    
+    get_default("CREDIT", str_value);
+    
+    if(str_value!="")
+        base_credit = atof(str_value.c_str());
+    
+    vm->get_template_attribute("CPU", str_value);
+    
+    if(str_value!="")
+        cpu_units = atof(str_value.c_str());
+        
+    file << "#O CPU_CREDITS = " << ceil(cpu_units*base_credit) << endl;
+    
 
     // VM name
     file << "name = 'one-" << vm->get_oid() << "'" << endl;
