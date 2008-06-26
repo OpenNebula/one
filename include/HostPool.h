@@ -82,10 +82,15 @@ public:
      *    @param host pointer to Host
      */
     int drop(Host * host)
-    {		
-        remove(static_cast<PoolObjectSQL *>(host));
+    {
+    	int rc = host->drop(db);
+    	
+    	if ( rc == 0)
+    	{
+    		remove(static_cast<PoolObjectSQL *>(host));	
+    	}
         
-        return host->drop(db);
+        return rc;
     };
 
     /**
