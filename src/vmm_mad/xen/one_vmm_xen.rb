@@ -38,21 +38,30 @@ class DM < ONEMad
 	def action_deploy(args)
 		#std_action("DEPLOY", "create #{args[3]}", args)
 		
-		# TODO: check for error
-		file=open(args[3])
-		f=file.read
-		file.close
+		# Get local deployment file
+		one_location=ENV["ONE_LOCATION"]
+		m=args[3].match(/.*?\/(\d+)\/(deployment.\d+)$/)
 		
-		# Get values passed in the deployment file, the form is:
-		#   [["CPU_CREDITS", "3"], ["OTHER_VARIABLE", "value"]]
-		values=f.scan(/^#O (.*?) = (.*)$/)
+		# If matched the we can read the file and get more configuration values
+		if m
+			local_deployment_file="#{one_location}/var/#{m[1]}/#{m[2]}"
+		   
+			# TODO: check for error
+			file=open(local_deployment_file)
+			f=file.read
+			file.close
 		
-		# Gets the first pair with the name provided or nil if not found
-		credits=values.assoc("CPU_CREDITS")
-		credits=credits[1] if credits
-		
-		# Get the name of the VM (used to set credit scheduling)
-		vm_name=f.match(/^name = '(.*?)'$/)[1]
+			# Get values passed in the deployment file, the form is:
+			#   [["CPU_CREDITS", "3"], ["OTHER_VARIABLE", "value"]]
+			values=f.scan(/^#O (.*?) = (.*)$/)
+
+			# Gets the first pair with the name provided or nil if not found
+			credits=values.assoc("CPU_CREDITS")
+			credits=credits[1] if credits
+
+			# Get the name of the VM (used to set credit scheduling)
+			vm_name=f.match(/^name = '(.*?)'$/)[1]
+		end
 
 		action_number=args[1]
 		action_host=args[2]
