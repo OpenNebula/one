@@ -44,7 +44,7 @@ inst_ln src/vmm_mad/xen/one_vmm_xen bin
 inst_ln src/im_mad/xen/one_im_ssh.rb bin
 inst_ln src/im_mad/xen/one_im_ssh bin
 
-inst_cp src/im_mad/xen/one_im_ssh.conf etc
+inst_cp src/im_mad/xen/one_im_ssh.conf etc/default
 inst_ln src/vmm_mad/xen/one_mad.rb lib/ruby
 inst_ln src/im_mad/xen/one_ssh.rb lib/ruby
 inst_ln src/client/ruby/one.rb lib/ruby
