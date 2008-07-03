@@ -40,22 +40,20 @@
       know about them.  */
    enum yytokentype {
      EQUAL = 258,
-     BLANK = 259,
-     COMMA = 260,
-     OBRACKET = 261,
-     CBRACKET = 262,
-     NL = 263,
-     STRING = 264
+     COMMA = 259,
+     OBRACKET = 260,
+     CBRACKET = 261,
+     NL = 262,
+     STRING = 263
    };
 #endif
 /* Tokens.  */
 #define EQUAL 258
-#define BLANK 259
-#define COMMA 260
-#define OBRACKET 261
-#define CBRACKET 262
-#define NL 263
-#define STRING 264
+#define COMMA 259
+#define OBRACKET 260
+#define CBRACKET 261
+#define NL 262
+#define STRING 263
 
 
 
@@ -68,7 +66,7 @@ typedef union YYSTYPE
     void * val_attr;
 }
 /* Line 1489 of yacc.c.  */
-#line 72 "template_syntax.hh"
+#line 70 "template_syntax.hh"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

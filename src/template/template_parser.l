@@ -39,17 +39,17 @@
 %%
     /* --- Comments and blanks --- */
 
-#.*\n                ;
-^[[:blank:]]*        ;
-[[:blank:]]*(#.*)?\n {return NL;}
+#.*                ;
+^[[:blank:]]*      ;
+[[:blank:]]*(#.*)? ;
 
    /* --- Tokens --- */
 
-[[:blank:]]+               {return BLANK;}
-[[:blank:]]*=[[:blank:]]*  {return EQUAL;}
-[[:blank:]]*,[[:blank:]]*  {return COMMA;}
-[[:blank:]]*\[[[:blank:]]* {return OBRACKET;}
-[[:blank:]]*\][[:blank:]]* {return CBRACKET;}
+[[:blank:]\n]*=[[:blank:]]*    {return EQUAL;}
+[[:blank:]\n]*,[[:blank:]\n]*  {return COMMA;}
+[[:blank:]\n]*\[[[:blank:]\n]* {return OBRACKET;}
+[[:blank:]\n]*\][[:blank:]]*   {return CBRACKET;}
+\n                             {return NL;}
 
     /* --- Strings, anything but =,][# Also quoted form --- */
 

@@ -58,7 +58,7 @@ int template_parse(Template * tmpl, char ** errmsg);
 %name-prefix = "template_"
 %output      = "template_syntax.cc"
 
-%token EQUAL BLANK COMMA OBRACKET CBRACKET 
+%token EQUAL COMMA OBRACKET CBRACKET 
 %token <void>  		NL
 %token <val_str>  	STRING
 %type  <val_attr>  	array_val
