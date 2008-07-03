@@ -130,7 +130,7 @@ int Mad::start()
         arguments = it->second.c_str();
     }
 
-    if ( owner == 0 || executable == 0 )
+    if ( (sudo_execution == true && owner == 0) || executable == 0 )
     {
         goto error_attributes;
     }

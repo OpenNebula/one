@@ -762,7 +762,7 @@ void VirtualMachineManager::load_mads(int uid)
     const VectorAttribute * vattr;
     int                     rc;
     
-    oss << "Loading Virtual Machine Manager drivers for user " << uid <<" .";
+    oss << "Loading Virtual Machine Manager drivers.";
     
     Nebula::log("VMM",Log::INFO,oss);
     
