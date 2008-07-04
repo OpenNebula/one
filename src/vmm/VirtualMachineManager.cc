@@ -756,32 +756,55 @@ void VirtualMachineManager::timer_action()
 
 void VirtualMachineManager::load_mads(int uid)
 {
-    XenDriver *             xen_mad;
-    unsigned int            i;
-    ostringstream           oss;
-    const VectorAttribute * vattr;
-    int                     rc;
+    unsigned int            		i;
+    ostringstream           		oss;
+    const VectorAttribute * 		vattr;
+    int                     		rc;
+    string							name;
+    string							type;
+    VirtualMachineManagerDriver *	vmm_driver = 0;
     
     oss << "Loading Virtual Machine Manager drivers.";
     
     Nebula::log("VMM",Log::INFO,oss);
     
-    for(i=0,oss.str("");i<mad_conf.size();i++,oss.str(""))
+    for(i=0,oss.str("");i<mad_conf.size();i++,oss.str(""),vmm_driver=0)
     {
         vattr = static_cast<const VectorAttribute *>(mad_conf[i]);
-                
-        oss << "\tLoading driver: " << vattr->vector_value("NAME");
-  
-        Nebula::log("VMM", Log::INFO, oss);
-                
-        xen_mad = new XenDriver(uid, vattr->value(),(uid != 0),vmpool);
         
-        rc = add(xen_mad);
+        name  = vattr->vector_value("NAME");
+        type  = vattr->vector_value("TYPE");
+        
+        transform (type.begin(),type.end(),type.begin(),(int(*)(int))toupper);
+        
+        oss << "\tLoading driver: " << name << " (" << type << ")"; 
+                
+        Nebula::log("VMM", Log::INFO, oss);
+        
+        if ( type == "XEN" )
+        {	
+        	vmm_driver = new XenDriver(uid, vattr->value(),(uid != 0),vmpool);
+        }
+        else if ( type == "KVM" )
+        {
+        	vmm_driver = new KvmDriver(uid, vattr->value(),(uid != 0),vmpool);
+        }
+        else
+        {
+        	oss.str("");
+        	oss << "\tUnknown driver type: " << type;
+        	
+        	Nebula::log("VMM",Log::ERROR,oss);
+        	
+        	continue;
+        }
+                
+        rc = add(vmm_driver);
         
         if ( rc == 0 )
         {
             oss.str("");            
-            oss << "\tDriver " << vattr->vector_value("NAME") << " loaded";
+            oss << "\tDriver " << name << " loaded.";
             
             Nebula::log("VMM",Log::INFO,oss);
         }
