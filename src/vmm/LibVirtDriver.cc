@@ -26,11 +26,7 @@ int LibVirtDriver::deployment_description(
     const string&           file_name) const
 {
     
-    ostringstream           		oss;
-    
-    oss << "cp /home/tinova/kvmxml.tmpl " << file_name ;
-
-    system(oss.str().c_str());
+    vm->log("VMM", Log::ERROR, "KVM Driver not yet supported. Work in progress.\n.");
     
     return 0;
 }
