@@ -48,10 +48,10 @@ inst_ln src/vmm_mad/kvm_ssh/one_vmm_kvm bin
 
 inst_ln src/im_mad/im_ssh/one_im_ssh.rb bin
 inst_ln src/im_mad/im_ssh/one_im_ssh bin
+inst_ln src/im_mad/im_ssh/one_ssh.rb lib/ruby
 
 inst_cp src/im_mad/xen/im_xen.conf etc/default
 inst_cp src/im_mad/kvm/im_kvm.conf etc/default
-inst_ln src/im_mad/xen/one_ssh.rb lib/ruby
 inst_ln src/vmm_mad/xen/one_mad.rb lib/ruby
 inst_ln src/client/ruby/one.rb lib/ruby
 inst_ln src/client/ruby/client_utilities.rb lib/ruby
