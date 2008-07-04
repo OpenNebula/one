@@ -149,6 +149,11 @@ int MadManager::add(Mad *mad)
     char    buf = 'A';
     int     rc;
 
+    if ( mad == 0 )
+    {
+    	return -1;
+    }
+    
     lock();
 
     rc = mad->start();
