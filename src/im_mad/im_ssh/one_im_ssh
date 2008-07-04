@@ -7,7 +7,7 @@ fi
 
 . $ONE_LOCATION/libexec/madcommon.sh
 
-# Export the vmm_mad specific rc
+# Export the im_mad specific rc
 export_rc_vars $ONE_LOCATION/etc/mad/im_sshrc
 
 # Go to ONE_LOCATION

@@ -57,10 +57,11 @@ inst_ln src/client/ruby/one.rb lib/ruby
 inst_ln src/client/ruby/client_utilities.rb lib/ruby
 inst_ln src/client/ruby/command_parse.rb lib/ruby
 
-inst_ln src/im_mad/xen/architecture.sh lib/im_probes
-inst_ln src/im_mad/xen/cpu.sh lib/im_probes
-inst_ln src/im_mad/xen/name.sh lib/im_probes
+inst_ln src/im_mad/im_ssh/architecture.sh lib/im_probes
+inst_ln src/im_mad/im_ssh/cpu.sh lib/im_probes
+inst_ln src/im_mad/im_ssh/name.sh lib/im_probes
 inst_ln src/im_mad/xen/xen.rb lib/im_probes
+inst_ln src/im_mad/kvm/kvm.rb lib/im_probes
 
 inst_cp share/scripts/one bin
 
