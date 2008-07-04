@@ -18,6 +18,7 @@
 #include "VirtualMachineManager.h"
 #include "Nebula.h"
 #include "XenDriver.h"
+#include "LibVirtDriver.h"
 #include <time.h>
 
 /* ************************************************************************** */
@@ -787,7 +788,7 @@ void VirtualMachineManager::load_mads(int uid)
         }
         else if ( type == "KVM" )
         {
-        	vmm_driver = new KvmDriver(uid, vattr->value(),(uid != 0),vmpool);
+        	vmm_driver = new LibVirtDriver(uid, vattr->value(),(uid != 0),vmpool,"kvm");
         }
         else
         {

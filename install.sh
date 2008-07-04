@@ -34,19 +34,25 @@ inst_cp share/etc/oned.conf etc
 inst_ln share/etc/mad/defaultrc etc/mad
 inst_ln share/etc/mad/im_sshrc etc/mad
 inst_ln share/etc/mad/vmm_xenrc etc/mad
+inst_ln share/etc/mad/vmm_kvmrc etc/mad
 inst_ln share/etc/default/vmm_xen.conf etc/default
+inst_ln share/etc/default/vmm_kvm.conf etc/default
 
 inst_ln share/scripts/madcommon.sh libexec
 
 inst_ln src/vmm_mad/xen/one_vmm_xen.rb bin
 inst_ln src/vmm_mad/xen/one_vmm_xen bin
 
-inst_ln src/im_mad/xen/one_im_ssh.rb bin
-inst_ln src/im_mad/xen/one_im_ssh bin
+inst_ln src/vmm_mad/kvm_ssh/one_vmm_kvm.rb bin
+inst_ln src/vmm_mad/kvm_ssh/one_vmm_kvm bin
 
-inst_cp src/im_mad/xen/one_im_ssh.conf etc/default
-inst_ln src/vmm_mad/xen/one_mad.rb lib/ruby
+inst_ln src/im_mad/im_ssh/one_im_ssh.rb bin
+inst_ln src/im_mad/im_ssh/one_im_ssh bin
+
+inst_cp src/im_mad/xen/im_xen.conf etc
+inst_cp src/im_mad/kvm/im_kvm.conf etc
 inst_ln src/im_mad/xen/one_ssh.rb lib/ruby
+inst_ln src/vmm_mad/xen/one_mad.rb lib/ruby
 inst_ln src/client/ruby/one.rb lib/ruby
 inst_ln src/client/ruby/client_utilities.rb lib/ruby
 inst_ln src/client/ruby/command_parse.rb lib/ruby

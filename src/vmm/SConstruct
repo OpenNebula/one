@@ -9,6 +9,7 @@ source_files=[
 	'VirtualMachineManager.cc',
 	'VirtualMachineManagerDriver.cc',
 	'XenDriver.cc',
+	'LibVirtDriver.cc',
 ]
 
 # Build library
