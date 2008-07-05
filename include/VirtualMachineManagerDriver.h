@@ -42,14 +42,9 @@ public:
         int                         userid,
         const map<string,string>&   attrs,
         bool                        sudo,
-        VirtualMachinePool *        pool):
-            Mad(userid,attrs,sudo),vmpool(pool)
-    {}
-    ;
+        VirtualMachinePool *        pool);
 
-    virtual ~VirtualMachineManagerDriver()
-    {}
-    ;
+    virtual ~VirtualMachineManagerDriver(){};
 
     /**
      *  Implements the VM Manager driver protocol.
@@ -73,8 +68,41 @@ public:
     virtual int deployment_description(
         const VirtualMachine *  vm,
         const string&           file_name) const = 0;
+    
+protected:	
+    /**
+     *  Gets a configuration attr from driver configuration file (single 
+     *  version)
+     *    @param name of config attribute
+     *    @param value of the attribute
+     */
+    void get_default(
+    	const char *  name, 
+        string&       value) const
+    {
+    	string sn = name;
+    	
+    	driver_conf.get(sn,value);
+    }    
 
-private:
+    /**
+     *  Gets a configuration attr from driver configuration file (vector 
+     *  version)
+     *    @param name of config vector attribute for the domain
+     *    @param vname of the attribute
+     *    @param value of the attribute
+     */
+    void get_default(
+    	const char *  name,
+    	const char *  vname,
+        string&       value) const;
+    
+private:	
+	/**	
+	 *  Configuration file for the driver
+	 */
+	Template	driver_conf;
+	
     /**
      *  Pointer to the Virtual Machine Pool, to access VMs
      */
@@ -186,29 +214,6 @@ private:
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-
-class KvmDriver : public VirtualMachineManagerDriver
-{
-public:
-
-    KvmDriver(
-        int userid,
-        const map<string,string> &attrs,
-        bool sudo,
-        VirtualMachinePool *    pool):
-            VirtualMachineManagerDriver(userid, attrs,sudo,pool)
-    {};
-
-    ~KvmDriver(){};
-
-private:
-    int deployment_description(
-        const VirtualMachine *  vm,
-        const string&           file_name) const
-    {
-        return 0;
-    };
-};
 
 #endif /*VIRTUAL_MACHINE_MANAGER_DRIVER_H_*/
 

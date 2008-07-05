@@ -20,6 +20,75 @@
 #include "LifeCycleManager.h"
 #include <sstream>
 
+VirtualMachineManagerDriver::VirtualMachineManagerDriver(
+	int                         userid,
+    const map<string,string>&   attrs,
+    bool                        sudo,
+    VirtualMachinePool *        pool): 
+    	Mad(userid,attrs,sudo),driver_conf(true),vmpool(pool)
+{
+    map<string,string>::const_iterator	it;
+    char *			error_msg = 0;
+    const char *	cfile;
+    string			file;
+    int				rc;
+                    
+    it = attrs.find("DEFAULT");
+            
+    if ( it != attrs.end() )
+    {        	        	
+       	if (it->second[0] != '/') //Look in ONE_LOCATION
+        {
+      		Nebula& nd = Nebula::instance();
+                                    
+            file  = nd.get_nebula_location() + "/" + it->second;
+            cfile = file.c_str();
+        }
+        else //Absolute Path
+        {
+          	cfile = it->second.c_str();        
+        } 
+                
+        rc = driver_conf.parse(cfile, &error_msg);
+            
+        if (( rc != 0 ) && ( error_msg != 0))
+        {
+           	ostringstream   oss;
+            	
+           	oss << "Error loading driver configuration file " << cfile << 
+           		" : " << error_msg;
+            		  
+           	Nebula::log("VMM", Log::ERROR, oss);
+            		
+           	free(error_msg);
+        }
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+    
+void VirtualMachineManagerDriver::get_default(
+	const char *  name,
+    const char *  vname,
+    string&       value) const
+{
+	vector<const Attribute *>   attrs;        
+    string 						sn = name;
+                
+    if ( driver_conf.get(sn,attrs) == 1 )
+    {
+       	const VectorAttribute *	vattr;
+        	
+       	vattr = static_cast<const VectorAttribute *>(attrs[0]);
+        	
+       	value = vattr->vector_value(vname);
+    }
+    else
+    {
+       	value = "";	
+    }
+}
 
 /* ************************************************************************** */
 /* Driver ASCII Protocol Implementation                                       */

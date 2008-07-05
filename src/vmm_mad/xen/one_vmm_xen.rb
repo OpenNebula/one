@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
-XENTOP_PATH="/usr/sbin/xentop"
-XM_PATH="/usr/sbin/xm"
+XENTOP_PATH=ENV["XENTOP_PATH"]
+XM_PATH=ENV["XM_PATH"]
 
 ONE_LOCATION=ENV["ONE_LOCATION"]
 
@@ -24,7 +24,7 @@ class DM < ONEMad
 	def initialize
 		super(5, 4)
 		
-		# Set log file
+		#Set log file
 		#log_file=File.open("dm.log", "w")
 		#set_logger(log_file)
 		
