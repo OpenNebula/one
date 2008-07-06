@@ -52,22 +52,34 @@ string * VectorAttribute::marshall()
 
 void VectorAttribute::unmarshall(string& sattr)
 {
-    size_t pos;
-    string tmp;
-
-    while ( (pos = sattr.find(',')) != string::npos )
+    size_t 	bpos=0,epos,mpos;
+    string  tmp;
+    bool	cont = true;
+    
+    while(cont)
     {
-        sattr.replace(pos,1," ");
-    }
-
-    istringstream   is(sattr);
-
-    while ( is >> tmp )
-    {
-        pos = tmp.find("=");
-
-        attribute_value.insert(make_pair(tmp.substr(0,pos),
-                                         tmp.substr(pos+1)));
+    	epos=sattr.find(',',bpos);
+    	
+    	if (epos == string::npos)
+    	{
+    		tmp  = sattr.substr(bpos);
+    		cont = false;
+    	}
+    	else
+    	{
+    		tmp  = sattr.substr(bpos,epos-bpos);
+    		bpos = epos + 1;
+    	}
+    	
+    	mpos = tmp.find('=');
+    	
+    	if (mpos == string::npos)
+    	{
+    		continue;
+    	}
+    	
+        attribute_value.insert(make_pair(tmp.substr(0,mpos),
+                                         tmp.substr(mpos+1)));
     }
 }
 

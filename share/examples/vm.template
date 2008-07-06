@@ -1,6 +1,38 @@
-DISK=[image="/local/xen/domains/xen-etch/disk.img",dev="sda1",mode=w]
-DISK=[image="/local/xen/domains/xen-etch/swap.img",dev="sda2",mode=w]
-KERNEL=/boot/vmlinuz-2.6.18-4-xen-amd64
-RAMDISK=/boot/initrd.img-2.6.18-4-xen-amd64
-MEMORY=64
-CPU=1
+#---------------------------------------
+# VM definition example
+#---------------------------------------
+
+NAME = vm-example 
+
+CPU    = 0.5
+MEMORY = 128
+
+# --- kernel & boot device ---
+
+OS = [
+  kernel   = "/vmlinuz",
+  initrd   = "/initrd.img",
+  boot     = "sda1" ]
+
+# --- 2 disks ---
+
+DISK = [
+  source   = "/local/xen/domains/etch/disk.img",
+  target   = "sda1",
+  readonly = "no" ]
+
+DISK = [
+  source   = "/local/xen/domains/etch/swap.img",
+  target   = "sda2",
+  readonly = "no" ]
+
+# --- 1 NIC ---
+
+NIC = [ mac="00:ff:72:17:20:27"]
+
+# --- VNC server ---
+
+GRAPHICS = [ 
+  type    = "vnc",              
+  listen  = "127.0.0.1",
+  port    = "5"]

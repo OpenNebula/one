@@ -29,20 +29,41 @@ int XenDriver::deployment_description(
         
     int                         num;
     vector<const Attribute *>   attrs;
-    const VectorAttribute *     disk;
-    const VectorAttribute *     nic;
     
-    string                      boot_device = "";
-    string                      str_value;
-    
-    // Base Scheduler Credit
-    float                       base_credit = 1.0;
-    float                       cpu_units = 1.0;
-    
-    string dev;
-    string image;
+    string	credits;
+    string  cpu;
+    string  memory;
+        
+    float   base_credit = 1.0;
+    float   cpu_units   = 1.0;
+
+    string kernel = "";
+    string initrd = "";
+    string boot   = "";
+
+    const VectorAttribute *	disk;
+  
+    string source = "";
+    string target = "";
+    string ro     = "";
     string mode;
-    string boot;
+
+    const VectorAttribute * nic;
+    
+    string mac    = "";
+    string bridge = "";
+
+    const VectorAttribute * graphics;
+	
+	string type   = "";
+	string listen = "";
+	string port   = "";
+	string passwd = "";
+
+	const VectorAttribute * raw;
+	string data;
+	
+	// ------------------------------------------------------------------------
     
     file.open(file_name.c_str(), ios::out);
     
@@ -50,178 +71,279 @@ int XenDriver::deployment_description(
     {
     	goto error_file;
     }
-    
-    // ------------------------------------------------------------------------
-    // CPU Credits
-    // ------------------------------------------------------------------------       
-    
-    get_default("CREDIT", str_value);
-    
-    if(str_value!="")
-        base_credit = atof(str_value.c_str());
-    
-    vm->get_template_attribute("CPU", str_value);
-    
-    if(str_value!="")
-        cpu_units = atof(str_value.c_str());
-        
-    file << "#O CPU_CREDITS = " << ceil(cpu_units*base_credit) << endl;
-    
 
-    // VM name
+    // ------------------------------------------------------------------------
+    // Domain name
+    // ------------------------------------------------------------------------       
+
     file << "name = 'one-" << vm->get_oid() << "'" << endl;
 
     // ------------------------------------------------------------------------
-    // Disks and Boot Device
+    // Capacity CPU, Mem & Credits
     // ------------------------------------------------------------------------       
     
+    get_default("CREDIT", credits);
+    
+    if(!credits.empty())
+    {
+        base_credit = atof(credits.c_str());
+    }
+    
+    vm->get_template_attribute("CPU", cpu);
+    
+    if(!cpu.empty())
+    {
+        cpu_units = atof(cpu.c_str());
+    }
+    
+    file << "#O CPU_CREDITS = " << ceil(cpu_units*base_credit) << endl;
+    
+    // ------------------------------------------------------------------------
+
+    vm->get_template_attribute("MEMORY",memory);
+    
+    if (memory.empty())
+    {
+       	get_default("MEMORY",memory);
+    }
+
+    if (!memory.empty())
+    {
+    	file << "memory  = '" << memory << "'" << endl;
+    }
+    else
+    {
+    	goto error_memory;
+    }
+    
+    // ------------------------------------------------------------------------
+    //  OS and boot options
+    // ------------------------------------------------------------------------
+    
+    num = vm->get_template_attribute("OS",attrs);
+    
+    if ( num >= 0 ) 
+    {
+    	const VectorAttribute *	os;
+    	
+    	os = static_cast<const VectorAttribute *>(attrs[0]);
+    	
+    	kernel     = os->vector_value("KERNEL");
+    	initrd     = os->vector_value("INITRD");
+    	boot       = os->vector_value("BOOT");
+    }
+
+    if ( kernel.empty() )
+    {
+    	get_default("OS","KERNEL",kernel);
+    }
+
+    if ( initrd.empty() )
+    {
+    	get_default("OS","INITRD",initrd);
+    }
+
+    if ( boot.empty() )
+    {
+    	get_default("OS","BOOT",boot);
+    }
+
+    if ( kernel.empty() )
+    {
+    	goto error_kernel;
+    }
+    else
+    {
+    	file << "kernel = '" << kernel << "'" << endl;
+    }
+    
+    if ( boot.empty() )
+    {
+    	goto error_boot;
+    }
+    else
+    {
+    	file << "root = '/dev/" << boot << " ro'" << endl;	
+    }
+    
+    if ( !initrd.empty() )
+    {
+    	file << "ramdisk = '" << initrd << "'" << endl;
+    }
+        
+    attrs.clear();
+        
+    // ------------------------------------------------------------------------
+    // Disks
+    // ------------------------------------------------------------------------       
+        
     num = vm->get_template_attribute("DISK",attrs);
     
     file << "disk = [" << endl;
 
-    for (int i=0; i < num ;i++)
+    for (int i=0; i < num ;i++,source="",target="",ro="")
     {
         disk = static_cast<const VectorAttribute *>(attrs[i]);
         
-        image = disk->vector_value("IMAGE");
-        dev   = disk->vector_value("DEV");
-        mode  = disk->vector_value("MODE");
-        
-        if ( image == "" | dev == "")
+        source = disk->vector_value("SOURCE");
+        target = disk->vector_value("TARGET");
+        ro     = disk->vector_value("READONLY");
+                
+        if ( source.empty() | target.empty())
         {
         	goto error_disk;
         }
-        
-        if (mode == "")
-        {
-        	mode = "rw";
-        }
                 
+        mode = "w";
+                
+        if ( !ro.empty() )
+        {
+        	transform(ro.begin(),ro.end(),ro.begin(),(int(*)(int))toupper);
+        	
+        	if ( ro == "YES" )
+        	{
+        		mode = "r";
+        	}
+        }
+        
         file << "    "
-             << "'file:" << image << ","
-             << dev << ","
+             << "'file:" << source << ","
+             << target << ","
              << mode
              << "'," << endl;
     }
 
     file << "]" << endl;
-      
-    // --- Boot device ---
-    
-    vm->get_template_attribute("BOOT",boot);
-    
-    if (boot != "")
-    {
-    	boot_device = boot;
-    }
-    else
-    {  
-        // Boot device default value
-		boot_device = 
-			static_cast<const VectorAttribute *>(attrs[0])->vector_value("DEV");
-    }
-            
-    file << "root = '/dev/" << boot_device << " ro'" << endl;
-    
+
     attrs.clear();
-    
-    // ------------------------------------------------------------------------
-    // Kernel & Ramdisk
-    // ------------------------------------------------------------------------       
-    
-    vm->get_template_attribute("KERNEL",str_value);
-    
-    if ( str_value == "" )
-    {
-    	get_default("KERNEL",str_value);
-    }
-    
-    if ( str_value != "" )
-    {
-    	file << "kernel = '" << str_value << "'" << endl;
-    }
-    
-    vm->get_template_attribute("RAMDISK",str_value);
-    
-    if( str_value == "" )
-    {
-    	get_default("RAMDISK",str_value);
-    }
-    
-    if ( str_value != "" )
-    {
-    	file << "ramdisk = '" << str_value << "'" << endl;
-    }
-
-    // ------------------------------------------------------------------------
-    // Memory
-    // ------------------------------------------------------------------------
-
-    vm->get_template_attribute("MEMORY",str_value);
-    
-    if( str_value == "" )
-    {
-       	get_default("MEMORY",str_value);
-    }
-
-    if ( str_value != "" )
-    {
-    	file << "memory  = '" << str_value << "'" << endl;
-    }
-        
+            
     // ------------------------------------------------------------------------
     // Network
     // ------------------------------------------------------------------------
-     
+    
     num = vm->get_template_attribute("NIC",attrs);
     
-    if ( num != 0 )
-    {	
-        file << "vif = [" << endl;
+    file << "vif = [" << endl;
         
-        for(int i=0; i<num;i++)
-        {
-        	char pre_char = ' ';
+    for(int i=0; i<num;i++,mac="",bridge="")
+    {
+       	char pre_char = ' ';
         	
-            nic = static_cast<const VectorAttribute *>(attrs[i]);
+        nic = static_cast<const VectorAttribute *>(attrs[i]);
             
-            file << "    '";
+        file << "    '";
             
-            str_value = nic->vector_value("MAC");
-            if( str_value != "" )
-            {
-                file << "mac=" << str_value;
-                pre_char = ',';
-            }
-            
-            str_value = nic->vector_value("BRIDGE");
-            if( str_value != "" )
-            {
-                file << pre_char << "bridge=" << str_value;
-                pre_char = ',';
-            }
-
-            file << "',";
-            file << endl;
-        }
+        mac = nic->vector_value("MAC");
         
-        file << "]" << endl;
+        if( !mac.empty() )
+        {
+        	file << "mac=" << mac;
+            pre_char = ',';
+        }
+            
+        bridge = nic->vector_value("BRIDGE");
+        
+        if( !bridge.empty() )
+        {
+        	file << pre_char << "bridge=" << bridge;
+        }
+
+        file << "',";
+        file << endl;
+    }
+        
+    file << "]" << endl;
+    
+    attrs.clear();
+
+    // ------------------------------------------------------------------------
+    // Graphics
+    // ------------------------------------------------------------------------
+    
+    if ( vm->get_template_attribute("GRAPHICS",attrs) > 0 )
+    {
+    	graphics = static_cast<const VectorAttribute *>(attrs[0]);
+    	
+    	type   = graphics->vector_value("TYPE");
+    	listen = graphics->vector_value("LISTEN");
+    	port   = graphics->vector_value("PORT");
+    	passwd = graphics->vector_value("PASSWD");
+    	
+    	if ( type == "vnc" || type == "VNC" )
+    	{
+    		file << "vfb = ['type=vnc";  
+    		
+    		if ( !listen.empty() )
+    		{
+    			file << ",vnclisten=" << listen;
+    		}
+    		
+    		if ( !port.empty() )
+    		{
+    			file << ",vncdisplay=" << port;
+    		}
+
+    		if ( !passwd.empty() )
+    		{
+    			file << ",vncpasswd=" << passwd;
+    		}
+    		    		
+    		file <<"']" << endl;    		 	
+    	}
+    	else
+    	{
+    		vm->log("VMM", Log::WARNING, "Not supported graphics type, ignored.");
+    	}
     }
     
     attrs.clear();
     
+    // ------------------------------------------------------------------------
+    // Raw XEN attributes
+    // ------------------------------------------------------------------------
+
+    num = vm->get_template_attribute("RAW",attrs);
+            
+    for(int i=0; i<num;i++)
+    {
+    	raw = static_cast<const VectorAttribute *>(attrs[i]);
+    	    	
+    	type = raw->vector_value("TYPE");
+    	
+    	transform(type.begin(),type.end(),type.begin(),(int(*)(int))toupper);
+    	
+    	if ( type == "XEN" )
+    	{   
+    		data = raw->vector_value("DATA");
+    		file << data << endl;
+    	}
+    }
+
     file.close();
 
     return 0;
 
 error_file:
-	vm->log("VMM", Log::ERROR, "Could not open Xen deployment file\n.");
-
+	vm->log("VMM", Log::ERROR, "Could not open Xen deployment file.");
 	return -1;
 	
+error_memory:
+	vm->log("VMM", Log::ERROR, "No memory defined and no default provided.");
+	file.close();	
+	return -1;
+
+error_kernel:
+	vm->log("VMM", Log::ERROR, "No kernel defined and no default provided.");
+	file.close();	
+	return -1;
+
+error_boot:
+	vm->log("VMM", Log::ERROR, "No boot device defined and no default provided.");
+	file.close();	
+	return -1;
+
 error_disk:
-	vm->log("VMM", Log::ERROR, "Wrong dev or image value in DISK attribute\n.");
-	
+	vm->log("VMM", Log::ERROR, "Wrong source or target value in DISK.");
 	file.close();	
 	return -1;
 }
