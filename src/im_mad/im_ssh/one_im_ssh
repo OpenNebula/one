@@ -8,7 +8,10 @@ fi
 . $ONE_LOCATION/libexec/madcommon.sh
 
 # Export the im_mad specific rc
-export_rc_vars $ONE_LOCATION/etc/mad/im_sshrc
+
+DRIVER_NAME=`basename $1 | cut -d. -f1`
+
+export_rc_vars $ONE_LOCATION/etc/${DRIVER_NAME}/${DRIVER_NAME}rc
 
 # Go to ONE_LOCATION
 cd $ONE_LOCATION

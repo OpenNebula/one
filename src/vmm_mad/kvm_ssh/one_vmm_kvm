@@ -8,7 +8,7 @@ fi
 . $ONE_LOCATION/libexec/madcommon.sh
 
 # Export the vmm_mad specific rc
-export_rc_vars $ONE_LOCATION/etc/mad/vmm_kvmrc
+export_rc_vars $ONE_LOCATION/etc/vmm_kvm/vmm_kvmrc
 
 # Go to ONE_LOCATION
 cd $ONE_LOCATION

@@ -8,7 +8,7 @@ fi
 . $ONE_LOCATION/libexec/madcommon.sh
 
 # Export the vmm_mad specific rc
-export_rc_vars $ONE_LOCATION/etc/mad/vmm_xenrc
+export_rc_vars $ONE_LOCATION/etc/vmm_xen/vmm_xenrc
 
 # Go to ONE_LOCATION
 cd $ONE_LOCATION

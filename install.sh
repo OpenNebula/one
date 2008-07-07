@@ -19,7 +19,7 @@ if [ -z "$SRC_DIR" -o -z "$DST_DIR" ]; then
     exit -1
 fi
 
-DIRS="/bin /etc /etc/mad /etc/default /libexec /lib/ruby /var /share/examples /lib/im_probes"
+DIRS="/bin /etc /etc/im_kvm /etc/im_xen /etc/vmm_kvm /etc/vmm_xen /libexec /lib/ruby /var /share/examples /lib/im_probes"
 
 for d in $DIRS; do
     mkdir -p $DST_DIR$d
@@ -31,14 +31,14 @@ inst_ln src/client/ruby/onevm bin
 inst_ln src/client/ruby/onehost bin
 
 inst_cp share/etc/oned.conf etc
-inst_ln share/etc/mad/defaultrc etc/mad
-inst_ln share/etc/mad/im_sshrc etc/mad
-inst_ln share/etc/mad/vmm_xenrc etc/mad
-inst_ln share/etc/mad/vmm_kvmrc etc/mad
-inst_ln share/etc/default/vmm_xen.conf etc/default
-inst_ln share/etc/default/vmm_kvm.conf etc/default
+inst_ln share/etc/mad/defaultrc etc
 
 inst_ln share/scripts/madcommon.sh libexec
+
+inst_ln share/etc/mad/vmm_xenrc etc/vmm_xen
+inst_ln share/etc/default/vmm_xen.conf etc/vmm_xen
+inst_ln share/etc/mad/vmm_kvmrc etc/vmm_kvm
+inst_ln share/etc/default/vmm_kvm.conf etc/vmm_kvm
 
 inst_ln src/vmm_mad/xen/one_vmm_xen.rb bin
 inst_ln src/vmm_mad/xen/one_vmm_xen bin
@@ -50,8 +50,12 @@ inst_ln src/im_mad/im_ssh/one_im_ssh.rb bin
 inst_ln src/im_mad/im_ssh/one_im_ssh bin
 inst_ln src/im_mad/im_ssh/one_ssh.rb lib/ruby
 
-inst_cp src/im_mad/xen/im_xen.conf etc/default
-inst_cp src/im_mad/kvm/im_kvm.conf etc/default
+inst_ln share/etc/mad/im_kvmrc etc/im_kvm
+inst_cp src/im_mad/kvm/im_kvm.conf etc/im_kvm
+inst_cp src/im_mad/xen/im_xen.conf etc/im_xen
+inst_ln share/etc/mad/im_xenrc etc/im_xen
+
+
 inst_ln src/vmm_mad/xen/one_mad.rb lib/ruby
 inst_ln src/client/ruby/one.rb lib/ruby
 inst_ln src/client/ruby/client_utilities.rb lib/ruby
