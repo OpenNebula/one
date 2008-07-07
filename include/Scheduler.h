@@ -55,7 +55,7 @@ public:
         const Log::MessageType  type,
         const ostringstream&    message,
         const char *            filename = 0,
-        Log::MessageType        clevel   = Log::ERROR)
+        Log::MessageType        clevel   = Log::DEBUG)
     {        
         static Log scheduler_log(filename,clevel);
         static pthread_mutex_t log_mutex =  PTHREAD_MUTEX_INITIALIZER;
