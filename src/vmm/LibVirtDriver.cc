@@ -21,12 +21,457 @@
 #include <sstream>
 #include <fstream>
 
+
 int LibVirtDriver::deployment_description(
     const VirtualMachine *  vm,
     const string&           file_name) const
 {
     
-    vm->log("VMM", Log::ERROR, "KVM Driver not yet supported. Work in progress.\n.");
-    
-    return 0;
+     ofstream                    file;
+
+     int                         num;
+     vector<const Attribute *>   attrs;
+
+     string  cpu;
+     string  memory;
+
+     string  kernel  = "";
+     string  initrd  = "";
+     string  boot    = "";
+     string  root    = "";
+
+     const VectorAttribute *	disk;
+
+     string  type    = "";
+     string  source  = "";
+     string  target  = "";
+     string  bus     = "";
+     string  ro      = "";
+     bool    readonly;
+
+     const VectorAttribute * nic;
+
+     string  mac     = "";
+     string  bridge  = "";
+     string  script  = "";
+
+     const VectorAttribute * graphics;
+     
+     string  listen  = "";
+     string  port    = "";
+     string  passwd  = "";
+     
+     const VectorAttribute * input;
+     
+     const VectorAttribute * features;
+     
+     string     pae  = "";
+     string     acpi = "";
+
+     const VectorAttribute * raw;
+     string data;
+
+ 	// ------------------------------------------------------------------------
+
+     file.open(file_name.c_str(), ios::out);
+
+     if (file.fail() == true)
+     {
+     	goto error_file;
+     }
+
+     // ------------------------------------------------------------------------
+     // Starting XML document
+     // ------------------------------------------------------------------------     
+     
+     file << "<domain type='" << emulator << "'>" << endl;
+     
+     // ------------------------------------------------------------------------
+     // Domain name
+     // ------------------------------------------------------------------------  
+     
+     file << "\t<name>one-" << vm->get_oid() << "</name>" << endl;
+
+     // ------------------------------------------------------------------------
+     // CPU 
+     // ------------------------------------------------------------------------       
+
+
+     vm->get_template_attribute("CPU", cpu);
+
+     if(cpu.empty())
+     {
+         get_default("CPU",cpu);
+     }
+     
+     if (!cpu.empty())
+     {
+     	file << "\t<vcpu>one-" << cpu << "</vcpu>" << endl;
+     }
+     else
+     {
+     	goto error_cpu;
+     }
+     
+     // ------------------------------------------------------------------------
+     // Memory 
+     // ------------------------------------------------------------------------
+
+     vm->get_template_attribute("MEMORY",memory);
+
+     if (memory.empty())
+     {
+        	get_default("MEMORY",memory);
+     }
+
+     if (!memory.empty())
+     {
+     	file << "\t<memory>" << memory << "</memory>" << endl;
+     }
+     else
+     {
+     	goto error_memory;
+     }
+
+     // ------------------------------------------------------------------------
+     //  OS and boot options
+     // ------------------------------------------------------------------------
+     
+     file << "\t<os>" << endl;
+
+     num = vm->get_template_attribute("OS",attrs);
+
+     if ( num >= 0 ) 
+     {
+     	const VectorAttribute *	os;
+
+     	os = static_cast<const VectorAttribute *>(attrs[0]);
+
+     	kernel     = os->vector_value("KERNEL");
+     	initrd     = os->vector_value("INITRD");
+     	boot       = os->vector_value("BOOT");
+     	root       = os->vector_value("ROOT");
+     }
+
+     if ( kernel.empty() )
+     {
+     	get_default("OS","KERNEL",kernel);
+     }
+
+     if ( initrd.empty() )
+     {
+     	get_default("OS","INITRD",initrd);
+     }
+
+     if ( boot.empty() )
+     {
+     	get_default("OS","BOOT",boot);
+     }
+     
+     if ( root.empty() )
+     {
+     	get_default("OS","ROOT",root);
+     }
+
+     if ( kernel.empty() )
+     {
+     	goto error_kernel;
+     }
+     else
+     {
+     	file << "\t\t<kernel>" << kernel << "</kernel>" << endl;
+     }
+
+     if ( boot.empty() )
+     {
+     	goto error_boot;
+     }
+     
+     if ( root.empty() )
+     {
+     	goto error_root;
+     }
+     else
+     {
+      	file << "\t\t<boot dev='" << boot << "'/>" << endl;	  // TODO decide what boot is going to be
+     	file << "\t\t<cmdline>root = /dev/" << root << " ro</cmdline>" << endl;	
+     }
+
+     if ( !initrd.empty() )
+     {
+     	file << "\t\t<initrd>" << initrd << "</initrd>" << endl;
+     }
+     
+     file << "\t</os>" << endl;
+
+     attrs.clear();
+
+     // ------------------------------------------------------------------------
+     // Disks
+     // ------------------------------------------------------------------------      
+     
+     file << "\t<devices>" << endl; 
+     
+     if (emulator == "kvm")
+     {
+         file << "\t\t<emulator>/usr/bin/kvm</emulator>" << endl; 
+     }
+
+     num = vm->get_template_attribute("DISK",attrs);
+
+     for (int i=0; i < num ;i++,source="",target="",ro="")
+     {
+         disk = static_cast<const VectorAttribute *>(attrs[i]);
+
+         type   = disk->vector_value("TYPE");
+         source = disk->vector_value("SOURCE");
+         target = disk->vector_value("TARGET");
+         ro     = disk->vector_value("READONLY");
+         bus    = disk->vector_value("BUS");
+
+         if ( source.empty() | target.empty())
+         {
+         	goto error_disk;
+         }
+
+         readonly = false;
+
+         if ( !ro.empty() )
+         {
+         	transform(ro.begin(),ro.end(),ro.begin(),(int(*)(int))toupper);
+
+         	if ( ro == "YES" )
+         	{
+         		readonly = true;
+         	}
+         }
+
+         file << "\t\t<disk type='file' device='" << type << "'>" << endl;
+         file << "\t\t\t<source file='" << source << "'/>" << endl;
+         file << "\t\t\t<target file='" << target << "'/>" << endl;
+         
+         if (!bus.empty())
+         { 
+             file << "\t\t\t<bus ='" << bus << "'/>" << endl; 
+         }
+         
+         if (readonly)
+         {
+             file << "\t\t\t<bus ='" << bus << "'/>" << endl; 
+         }
+         
+         file << "\t\t</disk>" << endl;
+     }
+
+     attrs.clear();
+
+     // ------------------------------------------------------------------------
+     // Network interfaces
+     // ------------------------------------------------------------------------
+
+     num = vm->get_template_attribute("NIC",attrs);
+
+     for(int i=0; i<num;i++,mac="",bridge="",target="",script="")
+     {
+         nic = static_cast<const VectorAttribute *>(attrs[i]);
+
+         bridge = nic->vector_value("BRIDGE");
+
+         if ( bridge.empty() )
+         {
+           file << "\t\t<interface type='network'/>" << endl;
+         }
+         else
+         {
+           file << "\t\t<interface type='bridge'/>" << endl;
+           file << "\t\t\t<source bridge='" << bridge << "'/>" << endl;
+         }    
+
+         mac = nic->vector_value("MAC");
+
+         if( !mac.empty() )
+         {
+         	file << "\t\t\t<mac address'=" << mac << "'/>" << endl;
+         }
+         
+         target = nic->vector_value("TARGET");
+         
+         if( !target.empty() )
+         {
+             file << "\t\t\t<target dev='" << target << "'/>" << endl;
+         }
+         
+         script = nic->vector_value("SCRIPT");
+     
+         if( !script.empty() )
+         {
+             file << "\t\t\t<script path='" << script << "'/>" << endl;
+         }
+         
+         file << "\t\t</interface>" << endl;
+
+     }
+
+     attrs.clear();
+
+     // ------------------------------------------------------------------------
+     // Graphics
+     // ------------------------------------------------------------------------
+
+     if ( vm->get_template_attribute("GRAPHICS",attrs) > 0 )
+     {
+     	graphics = static_cast<const VectorAttribute *>(attrs[0]);
+
+     	type   = graphics->vector_value("TYPE");
+     	listen = graphics->vector_value("LISTEN");
+     	port   = graphics->vector_value("PORT");
+     	passwd = graphics->vector_value("PASSWD");
+
+     	if ( type == "vnc" || type == "VNC" )
+     	{
+            file << "\t\t<graphics type='vnc'";
+
+     		if ( !listen.empty() )
+     		{
+                file << " listen='" << listen << "'";
+     		}
+
+     		if ( !port.empty() )
+     		{
+                file << " port='" << port << "'";
+     		}
+
+     		if ( !passwd.empty() )
+     		{
+     			file << " password='" << passwd << "'";
+     		}
+
+     		file << "/>" << endl;    		 	
+     	}
+     	else
+     	{
+     		vm->log("VMM", Log::WARNING, "Not supported graphics type, ignored.");
+     	}
+     }
+
+     attrs.clear();
+     
+     // ------------------------------------------------------------------------
+     // Input
+     // ------------------------------------------------------------------------
+
+     if ( vm->get_template_attribute("INPUT",attrs) > 0 )
+     {
+     	input = static_cast<const VectorAttribute *>(attrs[0]);
+
+     	type   = graphics->vector_value("TYPE");
+     	bus    = graphics->vector_value("BUS");
+     	
+ 		if ( !type.empty() )
+ 		{
+            file << "\t\t<input type='" << type << "'";
+            
+            if ( !bus.empty() )
+     		{
+                file << " bus='" << bus << "'";
+     		}
+ 		}	  
+ 		
+        file << "/>" << endl; 
+     }  	  	
+     	
+     attrs.clear();
+     
+     file << "\t</devices>" << endl;
+     
+     // ------------------------------------------------------------------------
+     // Features
+     // ------------------------------------------------------------------------
+
+     num = vm->get_template_attribute("FEATURES",attrs);
+
+     if ( num > 0 ) 
+     {         
+     	features = static_cast<const VectorAttribute *>(attrs[0]);
+
+     	pae      = features->vector_value("PAE");
+     	acpi     = features->vector_value("ACPI");
+     	
+        file << "\t<features>" << endl;
+     	
+     	if ( pae == "yes" )
+ 		{
+ 			file << "\t\t<pae/>" << endl;
+ 		}
+ 		
+ 		if ( acpi == "no" )
+ 		{
+ 			file << "\t\t<acpi/>" << endl;
+ 		}
+ 
+         file << "\t</features>" << endl;
+     }
+     
+     attrs.clear();
+
+     // ------------------------------------------------------------------------
+     // Raw XEN attributes
+     // ------------------------------------------------------------------------
+
+     num = vm->get_template_attribute("RAW",attrs);
+
+     for(int i=0; i<num;i++)
+     {
+     	raw = static_cast<const VectorAttribute *>(attrs[i]);
+
+     	type = raw->vector_value("TYPE");
+
+     	transform(type.begin(),type.end(),type.begin(),(int(*)(int))toupper);
+
+     	if ( type == "KVM" )
+     	{   
+     		data = raw->vector_value("DATA");
+     		file << "\t" << data << endl;
+     	}
+     }
+     
+     file << "</domain>" << endl;
+
+     file.close();
+
+     return 0;
+
+error_file:
+	vm->log("VMM", Log::ERROR, "Could not open KVM deployment file.");
+	return -1;
+	
+error_cpu:
+	vm->log("VMM", Log::ERROR, "No CPU defined and no default provided.");
+    file.close();	
+    return -1;
+
+error_memory:
+	vm->log("VMM", Log::ERROR, "No MEMORY defined and no default provided.");
+	file.close();	
+	return -1;
+
+error_kernel:
+	vm->log("VMM", Log::ERROR, "No KERNEL defined and no default provided.");
+	file.close();	
+	return -1;
+
+error_boot:
+	vm->log("VMM", Log::ERROR, "No BOOT device defined and no default provided.");
+	file.close();	
+	return -1;
+	
+error_root:
+    vm->log("VMM", Log::ERROR, "No ROOT device defined and no default provided.");
+    file.close();	
+    return -1; 
+
+error_disk:
+	vm->log("VMM", Log::ERROR, "Wrong source or target value in DISK.");
+	file.close();	
+	return -1;
 }
