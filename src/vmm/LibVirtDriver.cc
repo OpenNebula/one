@@ -106,7 +106,8 @@ int LibVirtDriver::deployment_description(
      
      if (!cpu.empty())
      {
-     	file << "\t<vcpu>one-" << cpu << "</vcpu>" << endl;
+     	//file << "\t<vcpu>" << cpu << "</vcpu>" << endl;
+     	// TODO decide about the vpcu value 
      }
      else
      {
@@ -193,7 +194,7 @@ int LibVirtDriver::deployment_description(
      }
      else
      {
-      	file << "\t\t<boot dev='" << boot << "'/>" << endl;	  // TODO decide what boot is going to be
+      	file << "\t\t<boot dev='" << boot << "'/>" << endl;	  
      	file << "\t\t<cmdline>root = /dev/" << root << " ro</cmdline>" << endl;	
      }
 
@@ -279,7 +280,7 @@ int LibVirtDriver::deployment_description(
 
          if ( bridge.empty() )
          {
-           file << "\t\t<interface type='network'/>" << endl;
+           file << "\t\t<interface type='ethernet'/>" << endl;
          }
          else
          {
