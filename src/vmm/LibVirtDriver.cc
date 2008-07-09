@@ -129,7 +129,7 @@ int LibVirtDriver::deployment_description(
 
      if (!memory.empty())
      {
-         memory_in_kb = atoi(memory.c_str()) * 1024;
+        memory_in_kb = atoi(memory.c_str()) * 1024;
          
      	file << "\t<memory>" << memory_in_kb << "</memory>" << endl;
      }
@@ -254,18 +254,28 @@ int LibVirtDriver::deployment_description(
          	}
          }
 
+         if ( type.empty() )
+         {
+        	 type = "disk";
+         }
+         
          file << "\t\t<disk type='file' device='" << type << "'>" << endl;
          file << "\t\t\t<source file='" << source << "'/>" << endl;
-         file << "\t\t\t<target file='" << target << "'/>" << endl;
+                  
+         file << "\t\t\t<target dev='" << target << "'"; 
          
          if (!bus.empty())
          { 
-             file << "\t\t\t<bus ='" << bus << "'/>" << endl; 
+             file << " bus='" << bus << "'/>" << endl; 
+         }
+         else
+         {
+        	 file << "/>" << endl;
          }
          
          if (readonly)
          {
-             file << "\t\t\t<bus ='" << bus << "'/>" << endl; 
+             file << "\t\t\t<readonly/>" << endl; 
          }
          
          file << "\t\t</disk>" << endl;
@@ -287,11 +297,11 @@ int LibVirtDriver::deployment_description(
 
          if ( bridge.empty() )
          {
-           file << "\t\t<interface type='ethernet'/>" << endl;
+           file << "\t\t<interface type='ethernet'>" << endl;
          }
          else
          {
-           file << "\t\t<interface type='bridge'/>" << endl;
+           file << "\t\t<interface type='bridge'>" << endl;
            file << "\t\t\t<source bridge='" << bridge << "'/>" << endl;
          }    
 
