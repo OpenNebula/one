@@ -34,6 +34,8 @@ int LibVirtDriver::deployment_description(
 
      string  cpu;
      string  memory;
+     
+     int     memory_in_kb = 0;
 
      string  kernel  = "";
      string  initrd  = "";
@@ -122,12 +124,14 @@ int LibVirtDriver::deployment_description(
 
      if (memory.empty())
      {
-        	get_default("MEMORY",memory);
+    	get_default("MEMORY",memory);
      }
 
      if (!memory.empty())
      {
-     	file << "\t<memory>" << memory << "</memory>" << endl;
+         memory_in_kb = atoi(memory.c_str()) * 1024;
+         
+     	file << "\t<memory>" << memory_in_kb << "</memory>" << endl;
      }
      else
      {
@@ -139,8 +143,15 @@ int LibVirtDriver::deployment_description(
      // ------------------------------------------------------------------------
      
      file << "\t<os>" << endl;
+     
+     if (emulator == "kvm")
+     {
+         file << "\t\t<type>hvm</type>" << endl; 
+     }
 
      num = vm->get_template_attribute("OS",attrs);
+     
+     // Get values & defaults
 
      if ( num >= 0 ) 
      {
@@ -167,41 +178,37 @@ int LibVirtDriver::deployment_description(
      if ( boot.empty() )
      {
      	get_default("OS","BOOT",boot);
+     	
+     	if ( boot.empty() )
+        {
+        	goto error_boot;
+        }
      }
      
      if ( root.empty() )
      {
      	get_default("OS","ROOT",root);
      }
+     
+     // Start writing to the file with the info we got
 
-     if ( kernel.empty() )
-     {
-     	goto error_kernel;
-     }
-     else
+     if ( !kernel.empty() )
      {
      	file << "\t\t<kernel>" << kernel << "</kernel>" << endl;
      }
-
-     if ( boot.empty() )
-     {
-     	goto error_boot;
-     }
      
-     if ( root.empty() )
-     {
-     	goto error_root;
-     }
-     else
-     {
-      	file << "\t\t<boot dev='" << boot << "'/>" << endl;	  
-     	file << "\t\t<cmdline>root = /dev/" << root << " ro</cmdline>" << endl;	
-     }
-
      if ( !initrd.empty() )
      {
      	file << "\t\t<initrd>" << initrd << "</initrd>" << endl;
      }
+     
+     file << "\t\t<boot dev='" << boot << "'/>" << endl;
+     
+     if ( !root.empty() )
+     {
+     	file << "\t\t<cmdline>root=/dev/" << root << " ro</cmdline>" << endl;	
+     }     	  
+    
      
      file << "\t</os>" << endl;
 
@@ -292,7 +299,7 @@ int LibVirtDriver::deployment_description(
 
          if( !mac.empty() )
          {
-         	file << "\t\t\t<mac address'=" << mac << "'/>" << endl;
+         	file << "\t\t\t<mac address='" << mac << "'/>" << endl;
          }
          
          target = nic->vector_value("TARGET");
@@ -456,20 +463,10 @@ error_memory:
 	file.close();	
 	return -1;
 
-error_kernel:
-	vm->log("VMM", Log::ERROR, "No KERNEL defined and no default provided.");
-	file.close();	
-	return -1;
-
 error_boot:
 	vm->log("VMM", Log::ERROR, "No BOOT device defined and no default provided.");
 	file.close();	
 	return -1;
-	
-error_root:
-    vm->log("VMM", Log::ERROR, "No ROOT device defined and no default provided.");
-    file.close();	
-    return -1; 
 
 error_disk:
 	vm->log("VMM", Log::ERROR, "Wrong source or target value in DISK.");
