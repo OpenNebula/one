@@ -39,7 +39,7 @@ int XenDriver::deployment_description(
 
     string kernel = "";
     string initrd = "";
-    string boot   = "";
+    string root   = "";
 
     const VectorAttribute *	disk;
   
@@ -130,7 +130,7 @@ int XenDriver::deployment_description(
     	
     	kernel     = os->vector_value("KERNEL");
     	initrd     = os->vector_value("INITRD");
-    	boot       = os->vector_value("BOOT");
+    	root       = os->vector_value("ROOT");
     }
 
     if ( kernel.empty() )
@@ -143,9 +143,9 @@ int XenDriver::deployment_description(
     	get_default("OS","INITRD",initrd);
     }
 
-    if ( boot.empty() )
+    if ( root.empty() )
     {
-    	get_default("OS","BOOT",boot);
+    	get_default("OS","ROOT",root);
     }
 
     if ( kernel.empty() )
@@ -157,13 +157,13 @@ int XenDriver::deployment_description(
     	file << "kernel = '" << kernel << "'" << endl;
     }
     
-    if ( boot.empty() )
+    if ( root.empty() )
     {
-    	goto error_boot;
+    	goto error_root;
     }
     else
     {
-    	file << "root = '/dev/" << boot << " ro'" << endl;	
+    	file << "root = '/dev/" << root << " ro'" << endl;	
     }
     
     if ( !initrd.empty() )
@@ -337,8 +337,8 @@ error_kernel:
 	file.close();	
 	return -1;
 
-error_boot:
-	vm->log("VMM", Log::ERROR, "No boot device defined and no default provided.");
+error_root:
+	vm->log("VMM", Log::ERROR, "No root device defined and no default provided.");
 	file.close();	
 	return -1;
 

@@ -23,11 +23,12 @@ MEMORY = "amount_of_requested_MEM" # Mandatory, XEN, KVM
 #---------------------------------------
 
 OS = [
-  kernel     = "path_to_os_kernel",    # Mandatory, default, XEN, KVM
-  initrd     = "path_to_initrd_image", # Optional, default, XEN, KVM
-  kernel_cmd = "kernel_command_line",  # Optional, default, KVM
-  boot       = "device to boot from" ] # Mandatory, default, XEN, KVM
-
+  kernel     = "path_to_os_kernel",           # XEN: Mandatory,default. KVM: Optional
+  initrd     = "path_to_initrd_image",        # XEN: Mandatory,default. KVM: Optional
+  kernel_cmd = "kernel_command_line",         # Optional, default, KVM
+  root       = "device to be mounted as root" # XEN: Mandatory,default. KVM: Optional
+  boot       = "device to boot from" ]        # KVM: Mandatory,default  XEN: Optional
+ 
 #---------------------------------------
 #      Features of the hypervisor
 #---------------------------------------

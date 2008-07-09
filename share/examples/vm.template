@@ -12,7 +12,7 @@ MEMORY = 128
 OS = [
   kernel   = "/vmlinuz",
   initrd   = "/initrd.img",
-  boot     = "sda1" ]
+  root     = "sda1" ]
 
 # --- 2 disks ---
 
