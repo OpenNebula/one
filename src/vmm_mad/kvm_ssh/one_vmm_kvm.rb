@@ -133,7 +133,7 @@ class DM < ONEMad
 	
 	# From STDERR if exit code == 1
 	def get_error_message(str)
-		tmp=str.scan(/^Error: (.*)$/)
+		tmp=str.scan(/^error: (.*)$/)
 		return "Unknown error" if !tmp[0]
 		tmp[0][0]
 	end
@@ -160,7 +160,7 @@ class DM < ONEMad
 	        columns=line.split(":").collect {|c| c.strip }
 	        case columns[0]
                 when 'Used memory'
-                        info += "USEDMEMORY=" + columns[1].to_i*1024
+                        info += "USEDMEMORY=" + (columns[1].to_i).to_s
 
                 end        
 	    }    
