@@ -489,9 +489,9 @@ void VirtualMachineManagerDriver::protocol(
                     os.str("");
                     os  << "Monitor Information:\n" 
                     	<< "\tCPU   : "<< cpu << "\n"
-                    	<< "\tMemory: "<< cpu << "\n"
-                    	<< "\tNet_TX: "<< cpu << "\n"
-                    	<< "\tNet_RX: "<< cpu << "\n";
+                    	<< "\tMemory: "<< memory << "\n"
+                    	<< "\tNet_TX: "<< net_tx << "\n"
+                    	<< "\tNet_RX: "<< net_rx << "\n";
                     vm->log("VMM",Log::INFO,os);  
             		break;
             		
