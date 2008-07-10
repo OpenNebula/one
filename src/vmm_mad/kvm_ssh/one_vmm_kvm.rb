@@ -39,7 +39,7 @@ class DM < ONEMad
 	end
 	
 	def action_checkpoint(args)
-        send_message("CHECKPOINT", "FAILURE", args[1], "action not supported for KVM")
+        	send_message("CHECKPOINT", "FAILURE", args[1], "action not supported for KVM")
 	end
 
 	def action_save(args)
@@ -65,13 +65,13 @@ class DM < ONEMad
 		exit_code=get_exit_code(stderr)
 		
 		if exit_code!=0	  
-		  tmp=stderr.scan(/^error: failed to get domain '#{args[3]}'/)
-  		if tmp[0]
-  		    send_message("POLL", "SUCCESS", args[1], "STATE=d")
-  		else
-		  		send_message("POLL", "FAILURE", args[1])
-		  end
-			return nil
+		    tmp=stderr.scan(/^error: failed to get domain '#{args[3]}'/)
+  		    if tmp[0]
+  		        send_message("POLL", "SUCCESS", args[1], "STATE=d")
+  		    else
+		        send_message("POLL", "FAILURE", args[1])
+		    end
+		    return nil
 		end
 		
 		log("STDOUT:"+stdout)
@@ -167,15 +167,15 @@ class DM < ONEMad
                               state = "a"
                           when "paused"
                               state = "p"
-                        when "crashed"
+                          when "crashed"
                               state = "e"
                       end   
-            end     
+                end     
 	    }    
 	    
 	    info += " STATE=" + state 
 	
-		return info
+	    return info
 	end
 	
 end
