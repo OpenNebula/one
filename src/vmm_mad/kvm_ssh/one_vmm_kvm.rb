@@ -64,15 +64,18 @@ class DM < ONEMad
 		
 		exit_code=get_exit_code(stderr)
 		
-		if exit_code!=0
-			send_message("POLL", "FAILURE", args[1])
+		if exit_code!=0	  
+		  tmp=stderr.scan(/^error: failed to get domain '#{args[3]}'/)
+  		if tmp[0]
+  		    send_message("POLL", "SUCCESS", args[1], "STATE=d")
+  		else
+		  		send_message("POLL", "FAILURE", args[1])
+		  end
 			return nil
 		end
 		
-		log("stdout:")
-		log(stdout)
-		log("stderr:")
-		log(stderr)
+		log("STDOUT:"+stdout)
+		log("STDERR:"+stderr)
 		
 		info = parse_virsh_dominfo(stdout)		
 
@@ -90,12 +93,8 @@ class DM < ONEMad
 		stdout=std[1].read
 		stderr=std[2].read
 		
-		
-		
-		log("stdout:")
-		log(stdout)
-		log("stderr:")
-		log(stderr)
+		log("STDOUT:"+stdout)
+		log("STDERR:"+stderr)
 		
 		write_response(name, stdout, stderr, args)
 	end
@@ -153,7 +152,8 @@ class DM < ONEMad
 	
 	def parse_virsh_dominfo(returned_info)
 	    
-	    info = ""
+	    info  = ""
+	    state = "u"
 	    
 	    returned_info.each_line {|line|
 	     
@@ -161,9 +161,19 @@ class DM < ONEMad
 	        case columns[0]
                 when 'Used memory'
                         info += "USEDMEMORY=" + (columns[1].to_i).to_s
-
-                end        
+                when 'State'
+                      case columns[1]
+                          when "running","blocked","shutdown","dying"
+                              state = "a"
+                          when "paused"
+                              state = "p"
+                        when "crashed"
+                              state = "e"
+                      end   
+            end     
 	    }    
+	    
+	    info += " STATE=" + state 
 	
 		return info
 	end
