@@ -43,8 +43,8 @@ inst_ln share/etc/default/vmm_kvm.conf etc/vmm_kvm
 inst_ln src/vmm_mad/xen/one_vmm_xen.rb bin
 inst_ln src/vmm_mad/xen/one_vmm_xen bin
 
-inst_ln src/vmm_mad/kvm_ssh/one_vmm_kvm.rb bin
-inst_ln src/vmm_mad/kvm_ssh/one_vmm_kvm bin
+inst_ln src/vmm_mad/kvm/one_vmm_kvm.rb bin
+inst_ln src/vmm_mad/kvm/one_vmm_kvm bin
 
 inst_ln src/im_mad/im_ssh/one_im_ssh.rb bin
 inst_ln src/im_mad/im_ssh/one_im_ssh bin
