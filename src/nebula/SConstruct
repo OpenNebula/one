@@ -15,7 +15,7 @@ source_files=[
 env.StaticLibrary(lib_name, source_files)
 
 # Build daemon
-
+"""
 env.Append(LIBS=[
 	'nebula_core',
 	'nebula_vmm',
@@ -69,5 +69,26 @@ env.Append(LIBS=[
     'xmlrpc_server',
     'xmlrpc_abyss',	
 ])
+"""
+
+env.Append(LIBS=[
+	'nebula_core',
+	'nebula_vmm',
+	'nebula_lcm',
+	'nebula_vm',
+	'nebula_im',
+	'nebula_rm',
+	'nebula_dm',	
+	'nebula_tm',		
+	'nebula_mad',
+	'nebula_template',
+	'nebula_pool',
+	'nebula_host',
+	'nebula_common',
+	'sqlite3',
+])
+
+
+env.ParseConfig('../../share/scons/get_xmlrpc_config server')
 
 env.Program('oned.cc')

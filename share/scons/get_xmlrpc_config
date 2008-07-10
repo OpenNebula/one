@@ -1,0 +1,228 @@
+#!/usr/bin/env ruby
+
+require 'pp'
+
+TestCode={
+    :server => """
+#include <xmlrpc-c/base.hpp>
+#include <xmlrpc-c/registry.hpp>
+
+int main(int argc, char *argv[])
+{
+    xmlrpc_c::registry RequestManagerRegistry;
+    return 0;
+}""",
+    :client => <<-EOT
+#include <cstdlib>
+#include <string>
+#include <iostream>
+#include <xmlrpc-c/girerr.hpp>
+#include <xmlrpc-c/base.hpp>
+#include <xmlrpc-c/client_simple.hpp>
+#include <map>
+
+using namespace std;
+
+int
+main(int argc, char **) {
+    if (argc-1 > 0) {
+        cerr << "This program has no arguments" << endl;
+        exit(1);
+    }
+    try {
+        xmlrpc_env env;
+        string const serverUrl("http://localhost:8080/RPC2");
+        string const methodAllocate("one.vmallocate");
+        xmlrpc_c::clientSimple myClient;
+        xmlrpc_c::value resultSUBMIT;
+
+        xmlrpc_env_init(&env);
+
+        myClient.call(serverUrl, methodAllocate, "ss",
+                      &resultSUBMIT,"SESSION-GOLA&4H9109KVFSG",
+                      "MEMORY=345 CPU=4 DISK=[FILE=\\"img\\",TYPE=cd]"
+                      "DISK=[FILE=\\"../f\\"]");
+
+        xmlrpc_c::value_array resultArray = xmlrpc_c::value_array(resultSUBMIT);
+        vector<xmlrpc_c::value> const paramArrayValue(resultArray.vectorValueValue());
+
+        //check posible Errors:
+        xmlrpc_c::value * firstvalue;
+        firstvalue = &(static_cast<xmlrpc_c::value>(paramArrayValue[0]));
+        xmlrpc_c::value_boolean * status = &(static_cast<xmlrpc_c::value_boolean>(*firstvalue));
+
+        xmlrpc_c::value * secondvalue;
+        secondvalue = &(static_cast<xmlrpc_c::value>(paramArrayValue[1]));
+        xmlrpc_c::value_string * valueS = &(static_cast<xmlrpc_c::value_string>(*secondvalue));
+
+        if(static_cast<bool>(*status)) {
+            //Success, returns the id assigned to the VM:
+            cout << "vmid returned: " << static_cast<string>(*valueS) << endl;
+            return 0;
+        }
+        else{ //Failure:
+            string error_value=static_cast<string>(*valueS);
+            if (error_value.find("Error inserting",0)!=string::npos ) cout << "Error inserting VM in the database" << endl;
+            else if (error_value.find("Error parsing",0)!=string::npos ) cout << "Error parsing VM template" << endl;
+            else cout << "Unknown error " << static_cast<string>(*valueS) << endl;
+        };
+    } catch (girerr::error const error) {
+        cerr << "Client threw error: " << error.what() << endl;
+        //"Client threw error:"
+        return 20;
+    } catch (std::exception const e) {
+        cerr << "Client threw unexpected error." << endl;
+        //Unexpected error:
+        return 999;
+    }
+    return 0;
+}
+EOT
+}
+
+
+def exec_command(text)
+    lambda {
+        STDERR.puts text
+        text=`#{text} 2>/dev/null`
+        if $?!=0
+            nil
+        else
+            text
+        end
+    }
+end
+
+def flags_and_libs_array(flags, libs)
+    lambda {
+        libs_text=libs.collect {|lib| "-l"+lib }.join(' ')
+        text=flags+" "+libs_text
+        STDERR.puts text
+        text
+    }
+end
+
+Configs=[
+    {
+        :client => exec_command("pkg-config xmlrpc_client++ xmlrpc++ --libs"),
+        :server => exec_command("pkg-config xmlrpc_server_abyss++ --static --libs")
+    },
+#    {
+#        :client => exec_command("xmlrpc-c-config client c++ --cflags --libs"),
+#        :server => exec_command("xmlrpc-c-config abyss-server c++ --cflags --libs | tr '\\n' ' ' ; echo -lxmlrpc_server++")
+#    },
+    {
+        :server => flags_and_libs_array("-I/opt/local/include -L/opt/local/lib", [
+                'wwwxml',
+                'xmltok',
+                'xmlparse',
+                'wwwzip',
+                'wwwinit',
+                'wwwapp',
+                'wwwtelnet',
+                'wwwhtml',
+                'wwwnews',
+                'wwwhttp',
+                'wwwmime',
+                'wwwgopher',
+                'wwwftp',
+                'wwwfile',
+                'wwwdir',
+                'wwwcache',
+                'wwwstream',
+                'wwwmux',
+                'wwwtrans',
+                'wwwcore',
+                'wwwutils',
+                'md5',
+                'dl',
+                'z',
+                'pthread',
+                'xmlrpc_client++',
+                'xmlrpc_client',
+                'xmlrpc++',
+                'xmlrpc',
+                'xmlrpc_util',
+                'xmlrpc_xmlparse',
+                'xmlrpc_xmltok',
+                'xmlrpc_server_abyss++',
+                'xmlrpc_server++',
+                'xmlrpc_server_abyss',
+                'xmlrpc_server',
+                'xmlrpc_abyss',
+            ]),
+        :client => flags_and_libs_array("-I/opt/local/include -L/opt/local/lib", [
+                'curl',
+            	'xmlrpc_client++',
+                'xmlrpc_client',
+                'xmlrpc++',
+                'xmlrpc',
+                'xmlrpc_util',
+                'xmlrpc_xmlparse',
+                'xmlrpc_xmltok',
+                'wwwxml',
+                'xmltok',
+                'xmlparse',
+                'wwwzip',
+                'wwwinit',
+                'wwwapp',
+                'wwwtelnet',
+                'wwwhtml',
+                'wwwnews',
+                'wwwhttp',
+                'wwwmime',
+                'wwwgopher',
+                'wwwftp',
+                'wwwfile',
+                'wwwdir',
+                'wwwcache',
+                'wwwstream',
+                'wwwmux',
+                'wwwtrans',
+                'wwwcore',
+                'wwwutils',
+                'm',
+                'md5'
+            ])
+    }
+]
+
+def compile(file, args)
+    command="g++ #{file} -o #{file}.out #{args} 1>/dev/null 2>/dev/null"
+    STDERR.puts command
+    out=system(command)
+end
+
+def test_config(kind, config)
+    name="/tmp/xmlrpc_test.cc"
+    f=open(name, "w")
+    f.write(TestCode[kind])
+    f.close
+    
+    args=config[kind.to_sym].call
+    
+    return nil if !args
+    
+    args.strip!
+    exit_code=compile(name, args)
+    
+    return nil if !exit_code
+    
+    puts args
+    
+    true
+end
+
+def search_config(kind)
+    Configs.each {|config|
+        found=test_config(kind,config)
+        exit(0) if found
+    }
+    exit(1)
+end
+
+
+#pp test_config(ARGV[0].to_sym, Configs[0])
+
+search_config(ARGV[0].to_sym)
+

@@ -21,6 +21,7 @@ scheduler_names=[
 # Build library
 env.StaticLibrary(lib_name, source_files)
 
+"""
 env.Append(LIBS=[
 	'sqlite3',
 	lib_name,
@@ -62,6 +63,22 @@ env.Append(LIBS=[
     'm',
     'md5'
 ])
+"""
+
+env.Append(LIBS=[
+	'sqlite3',
+	lib_name,
+	'nebula_core',
+	'nebula_host',	
+	'nebula_vm',
+	'nebula_pool',	
+	'nebula_template',		
+	'nebula_common',
+])
+
+
+env.ParseConfig('../../share/scons/get_xmlrpc_config client')
+
 
 # Build tests
 for sched in scheduler_names:

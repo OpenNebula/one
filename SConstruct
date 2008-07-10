@@ -15,33 +15,32 @@ main_env['ENV']['PATH']=os.environ['PATH']
 add_lex(main_env)
 add_bison(main_env)
 
-
 # Include dirs
 main_env.Append(CPPPATH=[
-	cwd+'/include',
+    cwd+'/include',
 ])
 
 # Library dirs
 main_env.Append(LIBPATH=[
-	cwd+'/src/common',
-	cwd+'/src/host',
-	cwd+'/src/mad',
-	cwd+'/src/nebula',
-	cwd+'/src/pool',
-	cwd+'/src/template',
-	cwd+'/src/vm',
-	cwd+'/src/vmm',
-	cwd+'/src/lcm',
-	cwd+'/src/tm',	
-	cwd+'/src/dm',
-	cwd+'/src/im',
-	cwd+'/src/rm',
+    cwd+'/src/common',
+    cwd+'/src/host',
+    cwd+'/src/mad',
+    cwd+'/src/nebula',
+    cwd+'/src/pool',
+    cwd+'/src/template',
+    cwd+'/src/vm',
+    cwd+'/src/vmm',
+    cwd+'/src/lcm',
+    cwd+'/src/tm',  
+    cwd+'/src/dm',
+    cwd+'/src/im',
+    cwd+'/src/rm',
 ])
 
 # Compile flags
 main_env.Append(CPPFLAGS=[
-	"-g",
-	"-Wall"
+    "-g",
+    "-Wall"
 ])
 
 # Linking flags
@@ -66,9 +65,11 @@ if xmlrpc_dir!='none':
 # build lex/bison
 build_parsers=ARGUMENTS.get('parsers', 'no')
 if build_parsers=='yes':
-	main_env.Append(parsers='yes')
+    main_env.Append(parsers='yes')
 else:
-	main_env.Append(parsers='no')
+    main_env.Append(parsers='no')
+
+main_env.ParseConfig('share/scons/get_xmlrpc_config server')
 
 
 # SCONS scripts to build
