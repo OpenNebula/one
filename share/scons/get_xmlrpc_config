@@ -1,9 +1,15 @@
 #!/usr/bin/env ruby
 
 require 'pp'
+require 'digest'
+require 'ftools'
 
-TestCode={
-    :server => """
+
+###########################################
+# Code to test compilation/linkning flags #
+###########################################
+
+TestCodeServer="""
 #include <xmlrpc-c/base.hpp>
 #include <xmlrpc-c/registry.hpp>
 
@@ -11,8 +17,9 @@ int main(int argc, char *argv[])
 {
     xmlrpc_c::registry RequestManagerRegistry;
     return 0;
-}""",
-    :client => <<-EOT
+}"""
+
+TestCodeClient=<<-EOT
 #include <cstdlib>
 #include <string>
 #include <iostream>
@@ -78,12 +85,16 @@ main(int argc, char **) {
     return 0;
 }
 EOT
+
+TestCode={
+    :client => TestCodeClient,
+    :server => TestCodeServer
 }
 
-
+# Executes a command and discards stderr
 def exec_command(text)
     lambda {
-        STDERR.puts text
+        #STDERR.puts text
         text=`#{text} 2>/dev/null`
         if $?!=0
             nil
@@ -93,118 +104,86 @@ def exec_command(text)
     }
 end
 
+# Adds fixed flags and libraries
 def flags_and_libs_array(flags, libs)
     lambda {
         libs_text=libs.collect {|lib| "-l"+lib }.join(' ')
         text=flags+" "+libs_text
-        STDERR.puts text
+        #STDERR.puts text
         text
     }
 end
 
+# Array with flags/libs to test
 Configs=[
+    # Configuration for fedora
     {
         :client => exec_command("pkg-config xmlrpc_client++ xmlrpc++ --libs"),
         :server => exec_command("pkg-config xmlrpc_server_abyss++ --static --libs")
     },
-#    {
-#        :client => exec_command("xmlrpc-c-config client c++ --cflags --libs"),
-#        :server => exec_command("xmlrpc-c-config abyss-server c++ --cflags --libs | tr '\\n' ' ' ; echo -lxmlrpc_server++")
-#    },
+    # Configuration for Mac OS X and Debian
     {
         :server => flags_and_libs_array("-I/opt/local/include -L/opt/local/lib", [
-                'wwwxml',
-                'xmltok',
-                'xmlparse',
-                'wwwzip',
-                'wwwinit',
-                'wwwapp',
-                'wwwtelnet',
-                'wwwhtml',
-                'wwwnews',
-                'wwwhttp',
-                'wwwmime',
-                'wwwgopher',
-                'wwwftp',
-                'wwwfile',
-                'wwwdir',
-                'wwwcache',
-                'wwwstream',
-                'wwwmux',
-                'wwwtrans',
-                'wwwcore',
-                'wwwutils',
-                'md5',
-                'dl',
-                'z',
-                'pthread',
-                'xmlrpc_client++',
-                'xmlrpc_client',
-                'xmlrpc++',
-                'xmlrpc',
-                'xmlrpc_util',
-                'xmlrpc_xmlparse',
-                'xmlrpc_xmltok',
-                'xmlrpc_server_abyss++',
-                'xmlrpc_server++',
-                'xmlrpc_server_abyss',
-                'xmlrpc_server',
-                'xmlrpc_abyss',
+                'wwwxml', 'xmltok', 'xmlparse', 'wwwzip', 'wwwinit', 'wwwapp',
+                'wwwtelnet', 'wwwhtml', 'wwwnews', 'wwwhttp', 'wwwmime', 'wwwgopher',
+                'wwwftp', 'wwwfile', 'wwwdir', 'wwwcache', 'wwwstream', 'wwwmux',
+                'wwwtrans', 'wwwcore', 'wwwutils', 'md5', 'dl', 'z', 'pthread',
+                'xmlrpc_client++', 'xmlrpc_client', 'xmlrpc++', 'xmlrpc',
+                'xmlrpc_util', 'xmlrpc_xmlparse', 'xmlrpc_xmltok',
+                'xmlrpc_server_abyss++', 'xmlrpc_server++', 'xmlrpc_server_abyss',
+                'xmlrpc_server', 'xmlrpc_abyss',
             ]),
         :client => flags_and_libs_array("-I/opt/local/include -L/opt/local/lib", [
-                'curl',
-            	'xmlrpc_client++',
-                'xmlrpc_client',
-                'xmlrpc++',
-                'xmlrpc',
-                'xmlrpc_util',
-                'xmlrpc_xmlparse',
-                'xmlrpc_xmltok',
-                'wwwxml',
-                'xmltok',
-                'xmlparse',
-                'wwwzip',
-                'wwwinit',
-                'wwwapp',
-                'wwwtelnet',
-                'wwwhtml',
-                'wwwnews',
-                'wwwhttp',
-                'wwwmime',
-                'wwwgopher',
-                'wwwftp',
-                'wwwfile',
-                'wwwdir',
-                'wwwcache',
-                'wwwstream',
-                'wwwmux',
-                'wwwtrans',
-                'wwwcore',
-                'wwwutils',
-                'm',
-                'md5'
+                'curl', 'xmlrpc_client++', 'xmlrpc_client', 'xmlrpc++', 'xmlrpc',
+                'xmlrpc_util', 'xmlrpc_xmlparse', 'xmlrpc_xmltok', 'wwwxml',
+                'xmltok', 'xmlparse', 'wwwzip', 'wwwinit', 'wwwapp', 'wwwtelnet',
+                'wwwhtml', 'wwwnews', 'wwwhttp', 'wwwmime', 'wwwgopher', 'wwwftp',
+                'wwwfile', 'wwwdir', 'wwwcache', 'wwwstream', 'wwwmux', 'wwwtrans',
+                'wwwcore', 'wwwutils', 'm', 'md5'
             ])
-    }
+    },
+    
+    # Example adding more custom libraries
+    #    {
+    #        :client => exec_command("xmlrpc-c-config client c++ --cflags --libs"),
+    #        :server => exec_command("xmlrpc-c-config abyss-server c++ --cflags --libs | tr '\\n' ' ' ; echo -lxmlrpc_server++")
+    #    },
 ]
 
+
+# Compiles test code with given arguments
 def compile(file, args)
     command="g++ #{file} -o #{file}.out #{args} 1>/dev/null 2>/dev/null"
-    STDERR.puts command
+    #STDERR.puts command
     out=system(command)
 end
 
-def test_config(kind, config)
-    name="/tmp/xmlrpc_test.cc"
-    f=open(name, "w")
+def gen_test_file(kind)
+    dir='.xmlrpc_test'
+    hash=Digest::MD5.hexdigest(Time.now.to_s+kind.to_s)[0..5]
+    fname="xmlrpc_test."+hash+".cc"
+    #fname="xmlrpc_test.cc"
+    full_path=dir+"/"+fname
+    
+    File.makedirs(dir)
+    f=open(full_path, "w")
     f.write(TestCode[kind])
     f.close
     
+    full_path
+end
+
+# Tests a configuration and writes build parameters if it is successful
+def test_config(kind, config)
     args=config[kind.to_sym].call
     
     return nil if !args
     
     args.strip!
+    name=gen_test_file(kind)
     exit_code=compile(name, args)
+    File.delete(name)
+    File.delete(name+".out")
     
     return nil if !exit_code
     
@@ -213,6 +192,7 @@ def test_config(kind, config)
     true
 end
 
+# Test each of possible configurations and exits when it finds one working
 def search_config(kind)
     Configs.each {|config|
         found=test_config(kind,config)
@@ -221,8 +201,10 @@ def search_config(kind)
     exit(1)
 end
 
-
-#pp test_config(ARGV[0].to_sym, Configs[0])
+if !%w{client server}.include?ARGV[0]
+    puts "You need to specify client or server"
+    exit -1
+end
 
 search_config(ARGV[0].to_sym)
 
