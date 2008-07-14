@@ -258,12 +258,14 @@ class DM < ONEMad
 		state.gsub!("-", "")
 		
 		case state
-		when "r", "b", "s"
+		when "r", "b", "s","d"
 			state="a" # alive
 		when "p"
 			state="p" # paused
+		when "c"
+		    state="e" # error
 		else
-			state="e" # error
+			state="u" # unknown
 		end
 		
 		data[index]=state
