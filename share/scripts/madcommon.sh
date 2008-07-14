@@ -35,36 +35,17 @@ function export_rc_vars
     fi
 }
 
-function log_with_date
-{
-    PID=$$
-    LOG_FILE=$1
-    shift
-
-    mkfifo /tmp/one_fifo.$PID.err /tmp/one_fifo.$PID.out
-    
-    # This line creates an empty log file
-    echo -n "" > $LOG_FILE
-
-    # Write out fifo to STDOUT
-    cat /tmp/one_fifo.$PID.out &
-
-    while read line < /tmp/one_fifo.$PID.err
-    do
-        echo `date +"%D %T"`: $line >> $LOG_FILE
-    done &
-
-    $* 2>/tmp/one_fifo.$PID.err 1>/tmp/one_fifo.$PID.out
-
-    rm /tmp/one_fifo.$PID.out /tmp/one_fifo.$PID.err
-}
-
 function execute_mad
 {
+
     MAD_FILE=`basename $0`
+        
+    if [ -z "$LOG_FILE" ]; then
+        LOG_FILE=$MAD_FILE
+    fi
 
     if [ -n "${ONE_MAD_DEBUG}" ]; then
-        log_with_date var/$MAD_FILE.log nice -n $PRIORITY bin/$MAD_FILE.rb $*
+        exec nice -n $PRIORITY bin/$MAD_FILE.rb $* 2> var/$LOG_FILE.log
     else
         exec nice -n $PRIORITY bin/$MAD_FILE.rb $* 2> /dev/null
     fi

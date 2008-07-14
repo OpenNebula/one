@@ -5,6 +5,8 @@ XM_PATH=ENV["XM_PATH"]
 
 ONE_LOCATION=ENV["ONE_LOCATION"]
 
+DEBUG_LEVEL=ENV["ONE_MAD_DEBUG"]
+
 if !ONE_LOCATION
 	puts "ONE_LOCATION not set"
 	exit -1
@@ -24,9 +26,9 @@ class DM < ONEMad
 	def initialize
 		super(5, 4)
 		
-		#Set log file
-		#log_file=File.open("dm.log", "w")
-		#set_logger(log_file)
+		if DEBUG_LEVEL and !DEBUG_LEVEL.empty? 
+			set_logger(STDERR,DEBUG_LEVEL)
+		end
 		
 		init_actions
 	end
@@ -71,8 +73,8 @@ class DM < ONEMad
 		# Add sched-cred command if credits are defined
 		if(credits)
 		    cmd_str+=" \\&\\& sudo #{XM_PATH} sched-cred -d #{vm_name} -w #{credits}"
-		    STDERR.puts "Setting credits for the VM"
-		    STDERR.puts "Command: #{cmd_str}"
+		    log("Setting credits for the VM",ONEMad::DEBUG)
+			log("Command: #{cmd_str}",ONEMad::DEBUG)
 		end
 		
 		cmd=SSHCommand.new(cmd_str)
@@ -108,11 +110,7 @@ class DM < ONEMad
 		std_action("MIGRATE", "migrate -l #{args[3]} #{args[4]}", args)
 	end
 	
-	def action_poll(args)
-		#std=Open3.popen3(
-		#	"ssh -n #{args[2]} sudo #{XENTOP_PATH} -bi2 ;"+
-		#	" echo ExitCode: $? 1>&2")
-		
+	def action_poll(args)	
 		action_number=args[1]
 		action_host=args[2]
 		
@@ -121,6 +119,10 @@ class DM < ONEMad
 		
 			stdout=a.stdout
 			stderr=a.stderr
+			
+			if !stderr.empty?
+				log(stderr,ONEMad::ERROR)
+			end
 		
 			exit_code=get_exit_code(stderr)
 		
@@ -128,11 +130,6 @@ class DM < ONEMad
 				send_message("POLL", "FAILURE", args[1])
 				return nil
 			end
-
-			#log("stdout:")
-			#log(stdout)
-			#log("stderr:")
-			#log(stderr)
 		
 			values=parse_xentop(args[3], stdout)
 		
@@ -168,15 +165,13 @@ class DM < ONEMad
 		action=SSHAction.new(action_number, action_host, cmd)
 		send_ssh_action(action_number, action_host, action)
 	end
-		
-	def exec_xm_command(host, command)
-		Open3.popen3(
-			"ssh -n #{host} sudo /usr/sbin/xm #{command} ;"+
-			" echo ExitCode: $? 1>&2")
-	end
 	
 	def write_response(action, stdout, stderr, args)
 		exit_code=get_exit_code(stderr)
+		
+		if !stderr.empty?
+			log(stderr,ONEMad::ERROR)
+		end
 		
 		if exit_code==0
 			domain_name=get_domain_name(stdout)
@@ -186,10 +181,7 @@ class DM < ONEMad
 			send_message(action, "FAILURE", args[1], error_message)
 		end
 
-		#log("stdout:")
-		#log(stdout)
-		#log("stderr:")
-		#log(stderr)
+
 	end
 	
 

@@ -14,7 +14,10 @@ DRIVER_NAME=`basename $1 | cut -d. -f1`
 export_rc_vars $ONE_LOCATION/etc/${DRIVER_NAME}/${DRIVER_NAME}rc
 
 # Go to ONE_LOCATION
+
 cd $ONE_LOCATION
+
+LOG_FILE=$DRIVER_NAME
 
 # Execute the actual MAD
 execute_mad $*

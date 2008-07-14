@@ -2,6 +2,8 @@
 
 ONE_LOCATION=ENV["ONE_LOCATION"]
 
+DEBUG_LEVEL=ENV["ONE_MAD_DEBUG"]
+
 if !ONE_LOCATION
     puts "ONE_LOCATION not set"
     exit -1
@@ -17,13 +19,24 @@ require 'open3'
 
 class DM < ONEMad
 	
+	###########################
+	# Constructor             #
+	###########################
+	
 	def initialize
 		super(5, 4)
+		
+		if DEBUG_LEVEL and !DEBUG_LEVEL.empty? 
+			set_logger(STDERR,DEBUG_LEVEL)
+		end
 	end
+	
+	###########################
+	# Actions                 #
+	###########################
 	
 	def action_init(args)
 		send_message("INIT", "SUCCESS")
-		log("KVM Access Driver initialized.")
 	end
 		
 	def action_deploy(args)
@@ -39,7 +52,7 @@ class DM < ONEMad
 	end
 	
 	def action_checkpoint(args)
-        	send_message("CHECKPOINT", "FAILURE", args[1], "action not supported for KVM")
+ 	        send_message("CHECKPOINT", "FAILURE", args[1], "action not supported for KVM")
 	end
 
 	def action_save(args)
@@ -62,6 +75,10 @@ class DM < ONEMad
 		stdout=std[1].read
 		stderr=std[2].read
 		
+		if !stderr.empty?
+			log(stderr,ONEMad::ERROR)
+		end
+		
 		exit_code=get_exit_code(stderr)
 		
 		if exit_code!=0	  
@@ -73,9 +90,6 @@ class DM < ONEMad
 		    end
 		    return nil
 		end
-		
-		log("STDOUT:"+stdout)
-		log("STDERR:"+stderr)
 		
 		info = parse_virsh_dominfo(stdout)		
 
@@ -93,9 +107,10 @@ class DM < ONEMad
 		stdout=std[1].read
 		stderr=std[2].read
 		
-		log("STDOUT:"+stdout)
-		log("STDERR:"+stderr)
-		
+		if !stderr.empty?
+			log(stderr,ONEMad::ERROR)
+		end		
+				
 		write_response(name, stdout, stderr, args)
 	end
 		
@@ -120,7 +135,7 @@ class DM < ONEMad
 	
 
 	#########################################
-	# Get information from virsh            #
+	# Parsers for virsh output              #
 	#########################################
 
 	# From STDERR if exit code == 1

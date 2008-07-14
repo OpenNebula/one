@@ -31,7 +31,14 @@
 #     send_message("INIT", "SUCCESS")
 #   end
 
+
 class ONEMad
+	
+	##
+	#  Debug constants
+	##	
+	ERROR, DEBUG=[0,1]
+
 	
 	# * +num_params_in+: number of parameters that mensages will have
 	# * +num_params_out+: number of parameters that mensages sent back
@@ -43,17 +50,31 @@ class ONEMad
 		else
 			@num_params_out=num_params_out
 		end
-		#@logger=STDERR
+		@debug_level = -1
 	end
 	
 	# Sends a message to the logger
-	def log(str)
-		#@logger.puts(str)
-		#@logger.flush
+	def log(str, level)
+		
+		if level == ERROR
+			str = "------- ERROR ---------------\n" +
+			      str +
+    			      "\n-----------------------------"
+		end
+
+		if @debug_level != -1 and level <= @debug_level
+             
+			str.split("\n").each{|line|
+				@logger.puts(Time.now.ctime + ": " + line.strip)
+				@logger.flush
+			}
+			
+		end
 	end
 	
 	# Sets the logger file, this can be an open file
-	def set_logger(logger)
+	def set_logger(logger, level)
+		@debug_level = level.to_i
 		@logger=logger
 	end
 	
@@ -66,6 +87,8 @@ class ONEMad
 			next if !str
 			
 			line=str.split(/\s+/)
+			
+			log(str,DEBUG)
 			
 			args=Array.new
 			args+=line[0..(@num_params-2)]
@@ -84,7 +107,8 @@ class ONEMad
 		end
 		STDOUT.puts to_send.join(' ')
 		STDOUT.flush
-		#log to_send.join(' ')
+		log(to_send.join(' '),DEBUG)
+
 	end
 	
 	# Proceses each message received, called by +loop+.

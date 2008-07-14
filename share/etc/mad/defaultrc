@@ -28,7 +28,9 @@
 # This file MUST preserve SH syntax
 #-------------------------------------------------------------------------------
 
-# MADs will generate cores and logs if defined
+# Debug for MADs. 
+# If set, MADs will generate cores and logs in $ONE_LOCATION/var. 
+# Possible values are [0=ERROR, 1=DEBUG]
 ONE_MAD_DEBUG=
 
 # Nice Priority to run the drivers

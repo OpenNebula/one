@@ -18,6 +18,14 @@ require 'fileutils'
 require 'thread'
 require 'one_ssh'
 
+DEBUG_LEVEL=ENV["ONE_MAD_DEBUG"]
+
+##
+#  Debug constants
+##	
+ERROR, DEBUG=[0,1]
+
+
 
 ####################
 # SENSOR DEFINTION #
@@ -199,9 +207,10 @@ class IM < ONEMad
     def initialize(sensors=nil)
         super(3, 4)
         
-        #log_file=File.open("im.log", "w")
-        #set_logger(log_file)
-        
+	if DEBUG_LEVEL and !DEBUG_LEVEL.empty? 
+	    set_logger(STDERR,DEBUG_LEVEL)
+	end
+
         if sensors
             @sensors=sensors
         else
@@ -220,8 +229,10 @@ class IM < ONEMad
 
                 if done.length>0
                     done.each{|a|
-                        STDOUT.puts a.get_result
+                        tmp_result = a.get_result
+                        STDOUT.puts tmp_result
                         STDOUT.flush
+                        log(tmp_result,DEBUG)
                     }
 
                     @action_mutex.lock
@@ -236,6 +247,7 @@ class IM < ONEMad
     def action_init(args)
         STDOUT.puts "INIT SUCCESS"
         STDOUT.flush
+        log("INIT SUCCESS",DEBUG)
     end
     
     def action_monitor(args)
