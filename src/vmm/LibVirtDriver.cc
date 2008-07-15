@@ -433,7 +433,7 @@ int LibVirtDriver::deployment_description(
      attrs.clear();
 
      // ------------------------------------------------------------------------
-     // Raw XEN attributes
+     // Raw KVM attributes
      // ------------------------------------------------------------------------
 
      num = vm->get_template_attribute("RAW",attrs);
