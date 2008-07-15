@@ -58,8 +58,7 @@ module ONE
     
     HOST_STATE=%w{INIT MONITORING MONITORED ERROR DISABLED}
     
-    MIGRATE_REASON=%w{NONE ERROR STOP_RESUME PERFORMANCE USER RESCHEDULING
-        KILL}
+    MIGRATE_REASON=%w{NONE ERROR STOP_RESUME USER CANCEL}
 
 
     ##################
@@ -68,10 +67,6 @@ module ONE
     
     # Server class. This is the one that makes xml-rpc calls.
     class Server
-        #def initialize(host="localhost", port=60666, path="/RPC2")
-        #    @server=XMLRPC::Client.new(host, path, port)
-        #end
-        
         def initialize(endpoint=nil)
             if endpoint
                 one_endpoint=endpoint
@@ -121,7 +116,6 @@ module ONE
             order_clause=( options[:order] ? "order by #{options[:order]}" : "" )
             
             sql="select * from #{table} #{where_clause} #{order_clause}"
-            #pp sql
             begin
                 result=@db.execute(sql)
             rescue Exception => e
@@ -224,10 +218,8 @@ module ONE
             "NONE"          => "none",
             "ERROR"         => "erro",
             "STOP_RESUME"   => "stop",
-            "PERFORMANCE"   => "perf",
             "USER"          => "user",
-            "RESCHEDULING"  => "rsch",
-            "KILL"          => "kill"
+            "CANCEL"        => "canc"
         }
         
 
