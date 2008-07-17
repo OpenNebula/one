@@ -116,35 +116,28 @@ module SSHActionController
     def init_actions
         @actions=Array.new
         @action_mutex=Mutex.new
+        @action_cond=ConditionVariable.new
         start_action_thread
     end
     
     def send_ssh_action(number, host, action)
-        @action_mutex.lock
-        action.run
-        @actions << action
-        @action_mutex.unlock
+        @action_mutex.synchronize {
+        	action.run
+        	@actions << action
+        	@action_cond.signal
+        }
     end
     
     def start_action_thread
         @action_thread=Thread.new {
             while true
-                @action_mutex.lock
-                done=@actions.select{|a| a.finished }
-                @action_mutex.unlock
-
-                if done.length>0
-                    done.each{|a|
-                        #STDOUT.puts a.get_result
-                        #STDOUT.flush
-                        a.exec_callbacks
-                    }
-
-                    @action_mutex.lock
-                    @actions-=done
-                    @action_mutex.unlock
+                @action_mutex.synchronize {
+                	@action_cond.wait(mutex)                	
+                	done=@actions.delete_if{|a| a.finished }
+                }
+                if done
+                	done.exec_callbacks
                 end
-                sleep(1)
             end
         }
     end
