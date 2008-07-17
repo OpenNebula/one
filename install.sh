@@ -19,7 +19,7 @@ if [ -z "$SRC_DIR" -o -z "$DST_DIR" ]; then
     exit -1
 fi
 
-DIRS="/bin /etc /etc/im_kvm /etc/im_xen /etc/vmm_kvm /etc/vmm_xen /libexec /lib/ruby /var /share/examples /lib/im_probes"
+DIRS="/bin /etc /etc/im_kvm /etc/im_xen /etc/vmm_kvm /etc/vmm_xen /libexec /lib/ruby /var /share/examples /lib/im_probes /etc/vmm_ec2 /etc/im_ec2"
 
 for d in $DIRS; do
     mkdir -p $DST_DIR$d
@@ -75,6 +75,20 @@ inst_cp src/vmm_mad/kvm/vmm_kvm.conf etc/vmm_kvm
 
 inst_cp src/im_mad/kvm/im_kvmrc etc/im_kvm
 inst_cp src/im_mad/kvm/im_kvm.conf etc/im_kvm
+
+# --- EC2 driver & configuration files ---
+
+inst_ln src/vmm_mad/ec2/one_vmm_ec2.rb bin
+inst_ln src/vmm_mad/ec2/one_vmm_ec2 bin
+
+inst_ln src/im_mad/ec2/one_im_ec2.rb bin
+inst_ln src/im_mad/ec2/one_im_ec2 bin
+
+inst_cp src/vmm_mad/ec2/vmm_ec2rc etc/vmm_ec2
+inst_cp src/vmm_mad/ec2/vmm_ec2.conf etc/vmm_ec2
+
+inst_cp src/im_mad/ec2/im_ec2rc etc/im_ec2
+inst_cp src/im_mad/ec2/im_ec2.conf etc/im_ec2
 
 # --- Information driver & probes ---
 

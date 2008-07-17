@@ -1,0 +1,20 @@
+#!/bin/bash
+
+if [ -z "${ONE_LOCATION}" ]; then
+    echo "Please, set ONE_LOCATION variable."
+    exit -1
+fi
+
+. $ONE_LOCATION/libexec/madcommon.sh
+
+# Export the vmm_mad specific rc
+export_rc_vars $ONE_LOCATION/etc/im_ec2/im_ec2rc
+
+# Export max instance type usages
+export_rc_vars $ONE_LOCATION/etc/im_ec2/im_ec2.conf
+
+# Go to ONE_LOCATION
+cd $ONE_LOCATION
+
+# Execute the actual MAD
+execute_mad $*

@@ -19,6 +19,7 @@
 #include "Nebula.h"
 #include "XenDriver.h"
 #include "LibVirtDriver.h"
+#include "EC2Driver.h"
 #include <time.h>
 
 /* ************************************************************************** */
@@ -790,6 +791,10 @@ void VirtualMachineManager::load_mads(int uid)
         {
         	vmm_driver = new LibVirtDriver(uid, vattr->value(),(uid != 0),vmpool,"kvm");
         }
+        else if ( type == "EC2" )
+        {
+        	vmm_driver = new EC2Driver(uid, vattr->value(),(uid != 0),vmpool);
+        }        
         else
         {
         	oss.str("");
