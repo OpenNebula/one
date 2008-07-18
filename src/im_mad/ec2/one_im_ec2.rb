@@ -47,7 +47,7 @@ class IM < ONEMad
         end
 
         STDOUT.puts "MONITOR SUCCESS " + args[1].to_s + 
-		" HOSTNAME=#{args[2]},TOTALMEMORY=#{totalmemory},TOTALCPU=#{totalcpu},CPUSPEED=1000"
+                    "HOSTNAME=#{args[2]},TOTALMEMORY=#{totalmemory},TOTALCPU=#{totalcpu},CPUSPEED=1000,FREEMEMORY=#{totalmemory},FREECPU=#{totalcpu}"
         STDOUT.flush
     end
     

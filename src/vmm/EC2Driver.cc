@@ -27,53 +27,54 @@ int EC2Driver::deployment_description(
     ofstream                    file;
     vector<const Attribute *>   attrs;
     const VectorAttribute *     ec2;
-    
+
     string aminame   = "";
     string keypair   = "";
     string elasticip = "";
+    string a_ports = "";
     string itype     = "";
-    
+
     // -------------------------------------------------------------------------
-    
+
     file.open(file_name.c_str(), ios::out);
 
     if (file.fail() == true)
     {
     	goto error_file;
     }
-    
+
     // -------------------------------------------------------------------------
-    
+
     if ( vm->get_template_attribute("EC2",attrs) == 0 )
 	{
     	goto error_ec2;
     }
 
     ec2 = static_cast<const VectorAttribute *>(attrs[0]);
-    
+
     // ------------------------------------------------------------------------
     //  AMI - Amazon Machine Image
     // ------------------------------------------------------------------------
 
     aminame = ec2->vector_value("AMI");
-    
+
     if (aminame.empty())
     {
     	goto error_aminame;
     }
-    
+
     file << "aminame=" << aminame << "\n" << endl;
-     
+
     // ------------------------------------------------------------------------
     //  KEY PAIR - IdRsa key pair
     // ------------------------------------------------------------------------
 
     keypair = ec2->vector_value("KEYPAIR");
-    
+
     if (keypair.empty())
     {
     	get_default("EC2","KEYPAIR",keypair);
-    	
+
      	if ( keypair.empty() )
         {
         	goto error_keypair;
@@ -87,10 +88,26 @@ int EC2Driver::deployment_description(
     // ------------------------------------------------------------------------
 
     elasticip = ec2->vector_value("ELASTICIP");
-    
+
     if (!elasticip.empty())
     {
     	file << "elasticip=" << elasticip << "\n" << endl;
+    }
+
+    // ------------------------------------------------------------------------
+    //  AUTHORIZED PORTS
+    // ------------------------------------------------------------------------
+
+    a_ports = ec2->vector_value("AUTHORIZEDPORTS");
+
+    if (a_ports.empty())
+    {
+    	get_default("EC2","AUTHORIZEDPORTS",a_ports);
+    }
+
+    if (!a_ports.empty())
+    {
+    	file << "authorizedports=" << a_ports << "\n" << endl;
     }
 
     // ------------------------------------------------------------------------
@@ -98,11 +115,11 @@ int EC2Driver::deployment_description(
     // ------------------------------------------------------------------------
 
     itype = ec2->vector_value("INSTANCETYPE");
-    
+
     if (itype.empty())
     {
     	get_default("EC2","INSTANCETYPE",itype);
-    	
+
      	if ( itype.empty() )
         {
         	goto error_itype;
@@ -110,32 +127,32 @@ int EC2Driver::deployment_description(
     }
 
     file << "instancetype=" << itype << "\n" << endl;
-    
+
     file.close();
 
     return 0;
-    
+
 error_file:
    	vm->log("VMM", Log::ERROR, "Could not open EC2 deployment file.");
-   	return -1;    
-   	
+   	return -1;
+
 error_ec2:
 	vm->log("VMM", Log::ERROR, "No EC2 attributes found.");
-	file.close();	
+	file.close();
 	return -1;
-	
+
 error_aminame:
 	vm->log("VMM", Log::ERROR, "No AMI name attribute defined.");
-	file.close();	
+	file.close();
 	return -1;
-	
+
 error_keypair:
 	vm->log("VMM", Log::ERROR, "No keypair defined and no default provided.");
-	file.close();	
+	file.close();
 	return -1;
-	
+
 error_itype:
 	vm->log("VMM", Log::ERROR, "No AMI type defined and no default provided.");
-	file.close();	
+	file.close();
 	return -1;
 }
