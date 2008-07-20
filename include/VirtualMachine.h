@@ -750,6 +750,22 @@ private:
             return -1;
     };
     
+    /**
+     *  Updates the template of a VM, adding a new attribute (replacing it if 
+     *  already defined), the vm's mutex SHOULD be locked
+     *    @param vm pointer to the virtual machine object
+     *    @param name of the new attribute
+     *    @param value of the new attribute
+     *    @return 0 on success
+     */
+    int update_template_attribute(
+    	SqliteDB * 			db,
+        string&			 	name,
+        string&			 	value)
+    {
+    	return vm_template.replace_attribute(db,name,value);
+    }    
+    
 protected:
 	
     //**************************************************************************

@@ -84,7 +84,15 @@ protected:
      *  Removes the template from the DB
      *    @param db pointer to the database.
      */
-    int drop(SqliteDB *db);    
+    int drop(SqliteDB *db);
+
+    /**
+     *  Removes a template attribute from the DB (ONLY SINGLE ATTRIBUTES)
+     *    @param db pointer to the database.
+     *    @param name of the attribute.
+     *    @param value of the new attribute. 
+     */
+    int replace_attribute(SqliteDB * db, string& name, string& value);    
 };
 
 /* -------------------------------------------------------------------------- */

@@ -241,3 +241,64 @@ int TemplateSQL::drop(SqliteDB * db)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+int TemplateSQL::replace_attribute(
+	SqliteDB * 					db, 
+	string& 					name, 
+	string& 					value)
+{
+    ostringstream   oss;
+    int 			rc;
+            
+    multimap<string, Attribute *>::const_iterator	i;
+    Attribute *		attribute;
+    
+    if ( id == -1 || name.empty() || name.empty() )
+    {
+        return -1;
+    }
+            
+    i = attributes.find(name);
+    
+    if ( i != attributes.end() ) //attribute exists
+    {
+    	string * attr = i->second->marshall();
+    	
+    	if ( attr != 0 )
+    	{
+    	    oss << "DELETE FROM " << table << " WHERE id=" << id 
+    	    	<< " AND name='" << name << "' AND value='" << *attr << "'";
+    	    
+    		delete attr;    	    
+    	}
+    	else
+    	{
+    	    oss << "DELETE FROM " << table << " WHERE id=" << id 
+    	    	<< " AND name='" << name << "'";
+    	}
+    	    
+    	rc = db->exec(oss);
+    	    
+    	if ( rc != 0 )
+    	{
+    	   	return rc;
+    	}
+    	
+    	attributes.erase(name);
+    }
+
+	attribute = new SingleAttribute(name,value);
+	
+	attributes.insert(make_pair(attribute->name(),attribute));
+	
+	oss.str("");
+	
+    oss << "INSERT INTO " << table << " " << db_names
+        << " VALUES (" << id << ",'" << name << "'," << 
+        Attribute::SIMPLE <<",'" << value << "')";
+
+    return db->exec(oss);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */

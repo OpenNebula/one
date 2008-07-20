@@ -467,10 +467,17 @@ void VirtualMachineManagerDriver::protocol(
                 }
                 else
                 {
+                	string val;
+                	
                     os.str("");
-                    os << "Unknown monitoring attribute (ignored): " << tmp;
+                    os << "Unknown monitoring attribute (adding/updating"
+                       << " template): " << tmp;
              
-                    vm->log("VMM",Log::WARNING,os);                            
+                    vm->log("VMM",Log::WARNING,os);
+                    
+                    tiss >> val;
+                    
+                    vmpool->update_template_attribute(vm,var,val);
                 }
             }
 

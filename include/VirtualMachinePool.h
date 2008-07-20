@@ -87,6 +87,22 @@ public:
     //--------------------------------------------------------------------------
     
     /**
+     *  Updates the template of a VM, adding a new attribute (replacing it if 
+     *  already defined), the vm's mutex SHOULD be locked
+     *    @param vm pointer to the virtual machine object
+     *    @param name of the new attribute
+     *    @param value of the new attribute
+     *    @return 0 on success
+     */
+    int update_template_attribute(
+        VirtualMachine *	vm,
+        string&			 	name,
+        string&			 	value)
+    {
+    	return vm->update_template_attribute(db,name,value);
+    }
+    
+    /**
      *  Updates the history record of a VM, the vm's mutex SHOULD be locked
      *    @param vm pointer to the virtual machine object
      *    @return 0 on success
