@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/sh 
 
 if [ -z "$ONE_LOCATION" ]; then 
 	echo "ONE_LOCATION is not defined"
@@ -19,6 +19,27 @@ setup()
 	if [ $? -ne 0 ]; then
     	echo "Can not find PORT in $ONE_CONF."
 	    exit 1
+	fi
+	
+	if [ -f $ONE_LOCATION/var/.lock ]; then
+	    if [ -f  $ONE_PID ]; then
+	        ONEPID=`cat $ONE_PID`
+	        ps $ONEPID &> /dev/null
+	        if [ $? -eq 0 ]; then
+	            echo "ONE is still running (PID:$ONEPID). Please try 'one stop' first."
+	            exit 1 
+	        fi
+	    fi
+	    if [ -f  $ONE_SCHEDPID ]; then
+	        ONESCHEDPID=`cat $ONE_SCHEDPID`
+	        ps $ONESCHEDPID &> /dev/null
+	        if [ $? -eq 0 ]; then
+	            echo "The scheduler is still running (PID:$ONEPID). Please try 'one stop' first."
+	            exit 1 
+	        fi
+	    fi
+	    echo "Stale .lock detected. Erasing it."
+	    rm $ONE_LOCATION/var/.lock   
 	fi
 }
 
@@ -80,11 +101,11 @@ stop()
 
 	# Kill the one daemon
 
-	kill `cat $ONE_PID`
+	kill `cat $ONE_PID` &> /dev/null
 
 	# Kill the scheduler
 	
-	kill `cat $ONE_SCHEDPID`
+	kill `cat $ONE_SCHEDPID` &> /dev/null
 
 	# Remove pid files
 
@@ -98,7 +119,7 @@ stop()
 case "$1" in
   start)
   	setup
-	start
+    start
 	;;
   stop)
 	stop
