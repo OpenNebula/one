@@ -81,7 +81,7 @@ void Log::log(
 
         if (file.fail() == true)
         {
-            throw runtime_error("Could not open log file");
+            return;
         }
         
         the_time = time(NULL);
@@ -124,7 +124,7 @@ void Log::log(
 
         if (file.fail() == true)
         {
-            throw runtime_error("Could not open log file");
+            return;
         }
         
         the_time = time(NULL);
