@@ -99,7 +99,9 @@ int NebulaTemplate::load_configuration()
     
     if ( rc != 0 )
     {
-        Nebula::log("ONE",Log::ERROR,error);   
+
+        std::cout << "\nError while parsing configuration file:\n" << error << std::endl;
+
         free(error);
         
         return -1;
