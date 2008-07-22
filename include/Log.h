@@ -60,9 +60,9 @@ private:
 
     static const char error_names[];
     
-    MessageType             log_level;
+    MessageType       log_level;
     
-    const char *            log_file;
+    char *            log_file;
 };
 
 #endif /* _LOG_H_ */

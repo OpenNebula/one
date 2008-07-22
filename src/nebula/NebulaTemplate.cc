@@ -88,7 +88,7 @@ NebulaTemplate::NebulaTemplate(string& nebula_location)
 
 int NebulaTemplate::load_configuration()
 {
-    char *                              error;
+    char *                              error = 0;
     map<string, Attribute *>::iterator  iter, j;    
     int                                 rc;
     
@@ -97,10 +97,10 @@ int NebulaTemplate::load_configuration()
     
     rc = parse(conf_file.c_str(), &error);
     
-    if ( rc != 0 )
+    if ( rc != 0 && error != 0)
     {
 
-        std::cout << "\nError while parsing configuration file:\n" << error << std::endl;
+        cout << "\nError while parsing configuration file:\n" << error << endl;
 
         free(error);
         
