@@ -63,8 +63,6 @@ private:
     MessageType             log_level;
     
     const char *            log_file;
-    
-    ios_base::openmode      log_mode;
 };
 
 #endif /* _LOG_H_ */

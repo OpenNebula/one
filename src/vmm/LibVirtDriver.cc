@@ -235,15 +235,17 @@ int LibVirtDriver::deployment_description(
          disk = dynamic_cast<const VectorAttribute *>(attrs[i]);
          
          if ( disk == 0 )
+         {
              continue;
-
+         }
+         
          type   = disk->vector_value("TYPE");
          source = disk->vector_value("SOURCE");
          target = disk->vector_value("TARGET");
          ro     = disk->vector_value("READONLY");
          bus    = disk->vector_value("BUS");
 
-         if ( source.empty() | target.empty())
+         if ( source.empty() || target.empty())
          {
          	goto error_disk;
          }
@@ -300,8 +302,10 @@ int LibVirtDriver::deployment_description(
          nic = dynamic_cast<const VectorAttribute *>(attrs[i]);
          
          if ( nic == 0 )
+         {
              continue;
-
+         }
+         
          bridge = nic->vector_value("BRIDGE");
 
          if ( bridge.empty() )
@@ -349,41 +353,41 @@ int LibVirtDriver::deployment_description(
      {
      	graphics = dynamic_cast<const VectorAttribute *>(attrs[0]);
      	
-     	if ( graphics != 0)
+     	if ( graphics != 0 )
      	{
          	type   = graphics->vector_value("TYPE");
          	listen = graphics->vector_value("LISTEN");
          	port   = graphics->vector_value("PORT");
          	passwd = graphics->vector_value("PASSWD");
-        }
+         	
+         	if ( type == "vnc" || type == "VNC" )
+         	{
+                file << "\t\t<graphics type='vnc'";
 
-     	if ( type == "vnc" || type == "VNC" )
-     	{
-            file << "\t\t<graphics type='vnc'";
+         		if ( !listen.empty() )
+         		{
+                    file << " listen='" << listen << "'";
+         		}
 
-     		if ( !listen.empty() )
-     		{
-                file << " listen='" << listen << "'";
-     		}
+         		if ( !port.empty() )
+         		{
+                    file << " port='" << port << "'";
+         		}
 
-     		if ( !port.empty() )
-     		{
-                file << " port='" << port << "'";
-     		}
+         		if ( !passwd.empty() )
+         		{
+         			file << " password='" << passwd << "'";
+         		}
 
-     		if ( !passwd.empty() )
-     		{
-     			file << " password='" << passwd << "'";
-     		}
-
-     		file << "/>" << endl;    		 	
-     	}
-     	else
-     	{
-     		vm->log("VMM", Log::WARNING, "Not supported graphics type, ignored.");
+         		file << "/>" << endl;    		 	
+         	}
+         	else
+         	{
+         		vm->log("VMM", Log::WARNING, "Not supported graphics type, ignored.");
+         	}         	
      	}
      }
-
+     		
      attrs.clear();
      
      // ------------------------------------------------------------------------
@@ -394,23 +398,23 @@ int LibVirtDriver::deployment_description(
      {
      	input = dynamic_cast<const VectorAttribute *>(attrs[0]);
      	
-     	if ( input != 0)
+     	if ( input != 0 )
      	{
-         	type   = input->vector_value("TYPE");
-         	bus    = input->vector_value("BUS");
-     	}
-     	
- 		if ( !type.empty() )
- 		{
-            file << "\t\t<input type='" << type << "'";
-            
-            if ( !bus.empty() )
+         	type = input->vector_value("TYPE");
+         	bus  = input->vector_value("BUS");
+
+     		if ( !type.empty() )
      		{
-                file << " bus='" << bus << "'";
+                file << "\t\t<input type='" << type << "'";
+                
+                if ( !bus.empty() )
+         		{
+                    file << " bus='" << bus << "'";
+         		}
+                
+                file << "/>" << endl;
      		}
- 		}	  
- 		
-        file << "/>" << endl; 
+     	}
      }  	  	
      	
      attrs.clear();
@@ -429,23 +433,23 @@ int LibVirtDriver::deployment_description(
      	
      	if ( features != 0 )
      	{
-     	    pae      = features->vector_value("PAE");
-     	    acpi     = features->vector_value("ACPI");
+     	    pae  = features->vector_value("PAE");
+     	    acpi = features->vector_value("ACPI");
+
+            file << "\t<features>" << endl;
+         	
+         	if ( pae == "yes" )
+     		{
+     			file << "\t\t<pae/>" << endl;
+     		}
+     		
+     		if ( acpi == "no" )
+     		{
+     			file << "\t\t<acpi/>" << endl;
+     		}
+     
+            file << "\t</features>" << endl;
      	}
-     	
-        file << "\t<features>" << endl;
-     	
-     	if ( pae == "yes" )
- 		{
- 			file << "\t\t<pae/>" << endl;
- 		}
- 		
- 		if ( acpi == "no" )
- 		{
- 			file << "\t\t<acpi/>" << endl;
- 		}
- 
-         file << "\t</features>" << endl;
      }
      
      attrs.clear();
@@ -460,8 +464,12 @@ int LibVirtDriver::deployment_description(
      {
      	raw = dynamic_cast<const VectorAttribute *>(attrs[i]);
      	
-     	if ( raw != 0 )
-     	    type = raw->vector_value("TYPE");
+     	if ( raw == 0 )
+     	{
+     		continue;
+     	}
+     	
+     	type = raw->vector_value("TYPE");
 
      	transform(type.begin(),type.end(),type.begin(),(int(*)(int))toupper);
 

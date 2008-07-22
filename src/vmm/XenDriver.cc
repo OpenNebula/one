@@ -188,14 +188,16 @@ int XenDriver::deployment_description(
     {
         disk = dynamic_cast<const VectorAttribute *>(attrs[i]);
         
-        if (disk == 0)
+        if ( disk == 0 )
+        {
             continue;
+        }
         
         source = disk->vector_value("SOURCE");
         target = disk->vector_value("TARGET");
         ro     = disk->vector_value("READONLY");
                 
-        if ( source.empty() | target.empty())
+        if ( source.empty() || target.empty())
         {
         	goto error_disk;
         }
@@ -237,9 +239,11 @@ int XenDriver::deployment_description(
         	
         nic = dynamic_cast<const VectorAttribute *>(attrs[i]);
         
-        if (nic == 0)
+        if ( nic == 0 )
+        {
             continue;
-            
+        }
+        
         file << "    '";
             
         mac = nic->vector_value("MAC");
@@ -279,33 +283,33 @@ int XenDriver::deployment_description(
         	listen = graphics->vector_value("LISTEN");
         	port   = graphics->vector_value("PORT");
         	passwd = graphics->vector_value("PASSWD");
-    	}
-    	
-    	if ( type == "vnc" || type == "VNC" )
-    	{
-    		file << "vfb = ['type=vnc";  
-    		
-    		if ( !listen.empty() )
-    		{
-    			file << ",vnclisten=" << listen;
-    		}
-    		
-    		if ( !port.empty() )
-    		{
-    			file << ",vncdisplay=" << port;
-    		}
+        	
+        	if ( type == "vnc" || type == "VNC" )
+        	{
+        		file << "vfb = ['type=vnc";  
+        		
+        		if ( !listen.empty() )
+        		{
+        			file << ",vnclisten=" << listen;
+        		}
+        		
+        		if ( !port.empty() )
+        		{
+        			file << ",vncdisplay=" << port;
+        		}
 
-    		if ( !passwd.empty() )
-    		{
-    			file << ",vncpasswd=" << passwd;
-    		}
-    		    		
-    		file <<"']" << endl;    		 	
-    	}
-    	else
-    	{
-    		vm->log("VMM", Log::WARNING, "Not supported graphics type, ignored.");
-    	}
+        		if ( !passwd.empty() )
+        		{
+        			file << ",vncpasswd=" << passwd;
+        		}
+        		    		
+        		file <<"']" << endl;    		 	
+        	}
+        	else
+        	{
+        		vm->log("VMM", Log::WARNING, "Not supported graphics type, ignored.");
+        	}        	
+    	}    	
     }
     
     attrs.clear();
@@ -321,8 +325,10 @@ int XenDriver::deployment_description(
     	raw = dynamic_cast<const VectorAttribute *>(attrs[i]);
     	
     	if ( raw == 0 )
+    	{
             continue;
-    	    	
+    	}
+    	
     	type = raw->vector_value("TYPE");
     	
     	transform(type.begin(),type.end(),type.begin(),(int(*)(int))toupper);

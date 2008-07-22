@@ -31,13 +31,14 @@ const char Log::error_names[] ={ 'E', 'W', 'I', 'D' };
 Log::Log(const string&       file_name,
          const MessageType   level,
          ios_base::openmode  mode):
-        log_level(level)
+        	 log_level(level), 
+        	 log_file(0)
 {
     ofstream    file;
     
     log_file = strdup(file_name.c_str());
 
-    file.open(log_file, log_mode);
+    file.open(log_file, mode);
 
     if (file.fail() == true)
     {
@@ -55,6 +56,10 @@ Log::Log(const string&       file_name,
 
 Log::~Log()
 {
+	if ( log_file != 0 )
+	{
+		free(log_file);
+	}
 }
 
 /* -------------------------------------------------------------------------- */
