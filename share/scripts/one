@@ -17,42 +17,42 @@ setup()
 	PORT=`cat $ONE_CONF | grep ^PORT= | cut -d= -f2`
 
 	if [ $? -ne 0 ]; then
-    	echo "Can not find PORT in $ONE_CONF."
-	    exit 1
+		echo "Can not find PORT in $ONE_CONF."
+		exit 1
 	fi
 	
 	if [ -f $ONE_LOCATION/var/.lock ]; then
-	    if [ -f  $ONE_PID ]; then
-	        ONEPID=`cat $ONE_PID`
-	        ps $ONEPID &> /dev/null
-	        if [ $? -eq 0 ]; then
-	            echo "ONE is still running (PID:$ONEPID). Please try 'one stop' first."
-	            exit 1 
-	        fi
-	    fi
-	    if [ -f  $ONE_SCHEDPID ]; then
-	        ONESCHEDPID=`cat $ONE_SCHEDPID`
-	        ps $ONESCHEDPID &> /dev/null
-	        if [ $? -eq 0 ]; then
-	            echo "The scheduler is still running (PID:$ONEPID). Please try 'one stop' first."
-	            exit 1 
-	        fi
-	    fi
-	    echo "Stale .lock detected. Erasing it."
-	    rm $ONE_LOCATION/var/.lock   
+		if [ -f  $ONE_PID ]; then
+			ONEPID=`cat $ONE_PID`
+			ps $ONEPID &> /dev/null
+			if [ $? -eq 0 ]; then
+				echo "ONE is still running (PID:$ONEPID). Please try 'one stop' first."
+				exit 1 
+			fi
+		fi
+		if [ -f  $ONE_SCHEDPID ]; then
+			ONESCHEDPID=`cat $ONE_SCHEDPID`
+			ps $ONESCHEDPID &> /dev/null
+			if [ $? -eq 0 ]; then
+				echo "The scheduler is still running (PID:$ONEPID). Please try 'one stop' first."
+				exit 1
+			fi
+		fi
+		echo "Stale .lock detected. Erasing it."
+		rm $ONE_LOCATION/var/.lock   
 	fi
 }
 
 start()
 {
 	if [ ! -x "$ONED" ]; then
-    	echo "Can not find $ONED."
-	    exit 1		
+		echo "Can not find $ONED."
+		exit 1		
 	fi
 
 	if [ ! -x "$ONE_SCHEDULER" ]; then
-    	echo "Can not find $ONE_SCHEDULER."
-	    exit 1		
+		echo "Can not find $ONE_SCHEDULER."
+		exit 1		
 	fi
 		
 	# Start the one daemon
@@ -62,8 +62,8 @@ start()
 	LASTPID=$!
 
 	if [ $LASTRC -ne 0 ]; then
-    	echo "Error executing $ONED"
-	    exit 1			
+		echo "Error executing $ONED"
+		exit 1			
 	else
 		echo $LASTPID > $ONE_PID
 	fi
@@ -75,8 +75,8 @@ start()
 	LASTPID=$!
 
 	if [ $LASTRC -ne 0 ]; then
-    	echo "Error executing $ONE_SCHEDULER"
-	    exit 1			
+		echo "Error executing $ONE_SCHEDULER"
+		exit 1			
 	else
 		echo $LASTPID > $ONE_SCHEDPID
 	fi
@@ -118,8 +118,8 @@ stop()
 
 case "$1" in
   start)
-  	setup
-    start
+	setup
+	start
 	;;
   stop)
 	stop
