@@ -123,7 +123,7 @@ int main(int argc, char **argv)
 
     if( fd == -1)
     {
-        cerr<< "Error: Can not start oned, openning lock file" << lockfile 
+        cerr<< "Error: Can not start oned, opening lock file " << lockfile 
             << endl;
         exit(-1);
     }

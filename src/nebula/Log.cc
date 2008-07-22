@@ -33,15 +33,20 @@ Log::Log(const string&       file_name,
          ios_base::openmode  mode):
         log_level(level)
 {
-    const char * file_name_c;
+    ofstream    file;
+    
+    log_file = strdup(file_name.c_str());
 
-    file_name_c = file_name.c_str();
-
-    file.open(file_name_c, mode);
+    file.open(log_file, log_mode);
 
     if (file.fail() == true)
     {
         throw runtime_error("Could not open log file");
+    }
+    
+    if ( file.is_open() == true )
+    {
+        file.close();
     }
 };
 
@@ -50,10 +55,6 @@ Log::Log(const string&       file_name,
 
 Log::~Log()
 {
-    if ( file.is_open() == true )
-    {
-        file.close();
-    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -66,9 +67,18 @@ void Log::log(
 {
     char    str[26];
     time_t  the_time;
+    ofstream    file;
 
     if( type <= log_level)
     {
+        
+        file.open(log_file, ios_base::app);
+
+        if (file.fail() == true)
+        {
+            throw runtime_error("Could not open log file");
+        }
+        
         the_time = time(NULL);
         
 #ifdef SOLARIS
@@ -86,6 +96,8 @@ void Log::log(
         file << endl;
         
         file.flush();
+        
+        file.close();
     }
 }
 
@@ -97,11 +109,19 @@ void Log::log(
     const MessageType       type,
     const char *            message)
 {
-    char    str[26];
-    time_t  the_time;
+    char        str[26];
+    time_t      the_time;
+    ofstream    file;
 
     if( type <= log_level)
     {
+        file.open(log_file, ios_base::app);
+
+        if (file.fail() == true)
+        {
+            throw runtime_error("Could not open log file");
+        }
+        
         the_time = time(NULL);
         
 #ifdef SOLARIS
@@ -119,6 +139,8 @@ void Log::log(
         file << endl;
         
         file.flush();
+        
+        file.close();
     }
 }
 
