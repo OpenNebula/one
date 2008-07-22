@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'pp'
-require 'digest'
+require 'digest/md5'
 require 'ftools'
 
 
