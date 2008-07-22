@@ -126,11 +126,14 @@ int XenDriver::deployment_description(
     {
     	const VectorAttribute *	os;
     	
-    	os = static_cast<const VectorAttribute *>(attrs[0]);
+    	os = dynamic_cast<const VectorAttribute *>(attrs[0]);
     	
-    	kernel     = os->vector_value("KERNEL");
-    	initrd     = os->vector_value("INITRD");
-    	root       = os->vector_value("ROOT");
+    	if ( os != 0 )
+    	{
+        	kernel     = os->vector_value("KERNEL");
+        	initrd     = os->vector_value("INITRD");
+        	root       = os->vector_value("ROOT");
+    	}
     }
 
     if ( kernel.empty() )
@@ -183,7 +186,10 @@ int XenDriver::deployment_description(
 
     for (int i=0; i < num ;i++,source="",target="",ro="")
     {
-        disk = static_cast<const VectorAttribute *>(attrs[i]);
+        disk = dynamic_cast<const VectorAttribute *>(attrs[i]);
+        
+        if (disk == 0)
+            continue;
         
         source = disk->vector_value("SOURCE");
         target = disk->vector_value("TARGET");
@@ -229,7 +235,10 @@ int XenDriver::deployment_description(
     {
        	char pre_char = ' ';
         	
-        nic = static_cast<const VectorAttribute *>(attrs[i]);
+        nic = dynamic_cast<const VectorAttribute *>(attrs[i]);
+        
+        if (nic == 0)
+            continue;
             
         file << "    '";
             
@@ -240,7 +249,7 @@ int XenDriver::deployment_description(
         	file << "mac=" << mac;
             pre_char = ',';
         }
-            
+               
         bridge = nic->vector_value("BRIDGE");
         
         if( !bridge.empty() )
@@ -262,12 +271,15 @@ int XenDriver::deployment_description(
     
     if ( vm->get_template_attribute("GRAPHICS",attrs) > 0 )
     {
-    	graphics = static_cast<const VectorAttribute *>(attrs[0]);
+    	graphics = dynamic_cast<const VectorAttribute *>(attrs[0]);
     	
-    	type   = graphics->vector_value("TYPE");
-    	listen = graphics->vector_value("LISTEN");
-    	port   = graphics->vector_value("PORT");
-    	passwd = graphics->vector_value("PASSWD");
+    	if ( graphics != 0 )
+	    {
+    	    type   = graphics->vector_value("TYPE");
+        	listen = graphics->vector_value("LISTEN");
+        	port   = graphics->vector_value("PORT");
+        	passwd = graphics->vector_value("PASSWD");
+    	}
     	
     	if ( type == "vnc" || type == "VNC" )
     	{
@@ -306,7 +318,10 @@ int XenDriver::deployment_description(
             
     for(int i=0; i<num;i++)
     {
-    	raw = static_cast<const VectorAttribute *>(attrs[i]);
+    	raw = dynamic_cast<const VectorAttribute *>(attrs[i]);
+    	
+    	if ( raw == 0 )
+            continue;
     	    	
     	type = raw->vector_value("TYPE");
     	

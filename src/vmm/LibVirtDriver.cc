@@ -157,12 +157,15 @@ int LibVirtDriver::deployment_description(
      {
      	const VectorAttribute *	os;
 
-     	os = static_cast<const VectorAttribute *>(attrs[0]);
-
-     	kernel     = os->vector_value("KERNEL");
-     	initrd     = os->vector_value("INITRD");
-     	boot       = os->vector_value("BOOT");
-     	root       = os->vector_value("ROOT");
+     	os = dynamic_cast<const VectorAttribute *>(attrs[0]);
+     	
+     	if( os != 0 )
+     	{
+     	    kernel     = os->vector_value("KERNEL");
+         	initrd     = os->vector_value("INITRD");
+         	boot       = os->vector_value("BOOT");
+         	root       = os->vector_value("ROOT");
+ 	    }
      }
 
      if ( kernel.empty() )
@@ -229,7 +232,10 @@ int LibVirtDriver::deployment_description(
 
      for (int i=0; i < num ;i++,source="",target="",ro="")
      {
-         disk = static_cast<const VectorAttribute *>(attrs[i]);
+         disk = dynamic_cast<const VectorAttribute *>(attrs[i]);
+         
+         if ( disk == 0 )
+             continue;
 
          type   = disk->vector_value("TYPE");
          source = disk->vector_value("SOURCE");
@@ -291,7 +297,10 @@ int LibVirtDriver::deployment_description(
 
      for(int i=0; i<num;i++,mac="",bridge="",target="",script="")
      {
-         nic = static_cast<const VectorAttribute *>(attrs[i]);
+         nic = dynamic_cast<const VectorAttribute *>(attrs[i]);
+         
+         if ( nic == 0 )
+             continue;
 
          bridge = nic->vector_value("BRIDGE");
 
@@ -338,12 +347,15 @@ int LibVirtDriver::deployment_description(
 
      if ( vm->get_template_attribute("GRAPHICS",attrs) > 0 )
      {
-     	graphics = static_cast<const VectorAttribute *>(attrs[0]);
-
-     	type   = graphics->vector_value("TYPE");
-     	listen = graphics->vector_value("LISTEN");
-     	port   = graphics->vector_value("PORT");
-     	passwd = graphics->vector_value("PASSWD");
+     	graphics = dynamic_cast<const VectorAttribute *>(attrs[0]);
+     	
+     	if ( graphics != 0)
+     	{
+         	type   = graphics->vector_value("TYPE");
+         	listen = graphics->vector_value("LISTEN");
+         	port   = graphics->vector_value("PORT");
+         	passwd = graphics->vector_value("PASSWD");
+        }
 
      	if ( type == "vnc" || type == "VNC" )
      	{
@@ -380,10 +392,13 @@ int LibVirtDriver::deployment_description(
 
      if ( vm->get_template_attribute("INPUT",attrs) > 0 )
      {
-     	input = static_cast<const VectorAttribute *>(attrs[0]);
-
-     	type   = graphics->vector_value("TYPE");
-     	bus    = graphics->vector_value("BUS");
+     	input = dynamic_cast<const VectorAttribute *>(attrs[0]);
+     	
+     	if ( input != 0)
+     	{
+         	type   = input->vector_value("TYPE");
+         	bus    = input->vector_value("BUS");
+     	}
      	
  		if ( !type.empty() )
  		{
@@ -410,10 +425,13 @@ int LibVirtDriver::deployment_description(
 
      if ( num > 0 ) 
      {         
-     	features = static_cast<const VectorAttribute *>(attrs[0]);
-
-     	pae      = features->vector_value("PAE");
-     	acpi     = features->vector_value("ACPI");
+     	features = dynamic_cast<const VectorAttribute *>(attrs[0]);
+     	
+     	if ( features != 0 )
+     	{
+     	    pae      = features->vector_value("PAE");
+     	    acpi     = features->vector_value("ACPI");
+     	}
      	
         file << "\t<features>" << endl;
      	
@@ -440,9 +458,10 @@ int LibVirtDriver::deployment_description(
 
      for(int i=0; i<num;i++)
      {
-     	raw = static_cast<const VectorAttribute *>(attrs[i]);
-
-     	type = raw->vector_value("TYPE");
+     	raw = dynamic_cast<const VectorAttribute *>(attrs[i]);
+     	
+     	if ( raw != 0 )
+     	    type = raw->vector_value("TYPE");
 
      	transform(type.begin(),type.end(),type.begin(),(int(*)(int))toupper);
 
