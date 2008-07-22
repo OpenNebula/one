@@ -473,7 +473,8 @@ int DispatchManager::finalize(
         return -1;
     }
     
-    if (vm->get_state() == VirtualMachine::FAILED )
+    if (vm->get_state() != VirtualMachine::ACTIVE && 
+        vm->get_state() != VirtualMachine::DONE    )
     {
         oss << "Finalizing VM " << vid; 
         Nebula::log("DiM",Log::DEBUG,oss);
