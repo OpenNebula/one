@@ -31,10 +31,10 @@ using namespace std;
 static const char * usage =
 "\n  oned [-h] [-v] [-f]\n\n"
 "SYNOPSIS\n"
-"  Starts the OpenNEbula daemon\n\n"
+"  Starts the OpenNebula daemon\n\n"
 "OPTIONS\n"
 "\t-h\tprints this help.\n"
-"\t-v\tprints OpenNEbula version and license\n"
+"\t-v\tprints OpenNebula version and license\n"
 "\t-f\tforeground, do not fork the oned daemon\n";
 
 static const char * susage =

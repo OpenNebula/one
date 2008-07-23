@@ -86,7 +86,7 @@ void Nebula::start()
             clevel = static_cast<Log::MessageType>(log_level_int);
         }
 
-        os << "Init OpenNEbula Log system";
+        os << "Init OpenNebula Log system";
         
         // Initializing ONE Daemon log system
         
@@ -115,7 +115,7 @@ void Nebula::start()
     }
     
     Nebula::log("ONE",Log::INFO,"----------------------------------------------");
-    Nebula::log("ONE",Log::INFO,"       OpenNEbula Configuration File          ");
+    Nebula::log("ONE",Log::INFO,"       OpenNebula Configuration File          ");
     Nebula::log("ONE",Log::INFO,"----------------------------------------------");
 
     os.str("");
@@ -151,7 +151,7 @@ void Nebula::start()
         throw;
     }
     
-    Nebula::log("ONE",Log::INFO,"Bootstraping OpenNEbula database.");
+    Nebula::log("ONE",Log::INFO,"Bootstraping OpenNebula database.");
     
     vmpool->bootstrap();
     hpool->bootstrap();
