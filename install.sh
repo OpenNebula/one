@@ -2,7 +2,7 @@
 
 MAKE_LINKS="no"
 
-if [ "$1" == "-l" ]; then
+if [ "$1" = "-l" ]; then
     MAKE_LINKS="yes"
     shift
 fi
@@ -14,7 +14,7 @@ echo $SRC_DIR
 echo $DST_DIR
 
 inst_ln() {
-    if [ "$MAKE_LINKS" == "yes" ]; then
+    if [ "$MAKE_LINKS" = "yes" ]; then
         ln -s $SRC_DIR/$1 $DST_DIR/$2
     else
         cp $SRC_DIR/$1 $DST_DIR/$2
