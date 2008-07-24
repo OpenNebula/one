@@ -1,5 +1,12 @@
 #!/bin/sh
 
+MAKE_LINKS="no"
+
+if [ "$1" == "-l" ]; then
+    MAKE_LINKS="yes"
+    shift
+fi
+
 SRC_DIR=$PWD
 DST_DIR=$1
 
@@ -7,7 +14,11 @@ echo $SRC_DIR
 echo $DST_DIR
 
 inst_ln() {
-    ln -s $SRC_DIR/$1 $DST_DIR/$2
+    if [ "$MAKE_LINKS" == "yes" ]; then
+        ln -s $SRC_DIR/$1 $DST_DIR/$2
+    else
+        cp $SRC_DIR/$1 $DST_DIR/$2
+    fi
 }
 
 inst_cp() {
