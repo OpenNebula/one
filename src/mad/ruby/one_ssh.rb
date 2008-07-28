@@ -83,11 +83,14 @@ class SSHAction
         @finished
     end
     
-    def run
+    def run(action_mutex, action_cond)
         @thread=Thread.new {
             run_actions
             @finished=true
-        }   
+            action_mutex.synchronize {
+                action_cond.signal
+            }
+        }
     end
     
     def run_actions
@@ -122,21 +125,27 @@ module SSHActionController
     
     def send_ssh_action(number, host, action)
         @action_mutex.synchronize {
-        	action.run
-        	@actions << action
-        	@action_cond.signal
+            action.run(@action_mutex, @action_cond)
+            @actions << action
         }
+    end
+    
+    def action_finalize(args)
+        @action_thread.kill!
+        super(args)
     end
     
     def start_action_thread
         @action_thread=Thread.new {
             while true
+                done_actions=nil
                 @action_mutex.synchronize {
-                	@action_cond.wait(mutex)                	
-                	done=@actions.delete_if{|a| a.finished }
+                    @action_cond.wait(@action_mutex)
+                    done_actions=@actions.select{|a| a.finished }
+                    @actions-=done_actions if done_actions
                 }
-                if done
-                	done.exec_callbacks
+                if done_actions
+                    done_actions.each {|action| action.exec_callbacks }
                 end
             end
         }
