@@ -68,7 +68,7 @@ void RequestManager::HostDelete::execute(
 error_host_get:
 
     oss << "Error getting host with HID = " <<hid;
-    Nebula::log ("Rem",log::Error,oss);
+    Nebula::log ("Rem",Log::ERROR,oss);
 
     arrayData.push_back(xmlrpc_c::value_boolean(false)); // FAILURE
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
