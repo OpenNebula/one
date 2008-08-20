@@ -122,7 +122,7 @@ int XenDriver::deployment_description(
     
     num = vm->get_template_attribute("OS",attrs);
     
-    if ( num >= 0 ) 
+    if ( num > 0 )
     {
     	const VectorAttribute *	os;
     	
