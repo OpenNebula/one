@@ -232,7 +232,8 @@ when "add"
     
 when "show"
     check_parameters("show", 1)
-    result=host.info(*ARGV)
+    host_id=get_host_id(host, ARGV[0])
+    result=host.info(host_id)
     if result[0]
         puts result[1]
     else
@@ -242,7 +243,8 @@ when "show"
     
 when "delete"
     check_parameters("delete", 1)
-    result=host.delete(*ARGV)
+    host_id=get_host_id(host, ARGV[0])
+    result=host.delete(host_id)
     if result[0]
         puts "Host deleted"
         exit 0
@@ -264,7 +266,8 @@ when "top"
     
 when "enable"
     check_parameters("enable", 1)
-    result=host.enable(*ARGV)
+    host_id=get_host_id(host, ARGV[0])
+    result=host.enable(host_id)
     if result[0]
         puts "Host enabled"
         exit 0
@@ -272,7 +275,8 @@ when "enable"
 
 when "disable"
     check_parameters("disable", 1)
-    result=host.disable(*ARGV)
+    host_id=get_host_id(host, ARGV[0])
+    result=host.disable(host_id)
     if result[0]
         puts "Host disabled"
         exit 0

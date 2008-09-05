@@ -218,3 +218,44 @@ def check_parameters(name, number)
         exit -1
     end
 end
+
+
+def get_vm_id(vm, name)
+    vm_id=vm.get_vm_id(name)
+    
+    result=nil
+    
+    if vm_id
+        if vm_id.kind_of?(Array)
+            puts "There are multiple VM's with name #{name}."
+            exit -1
+        else
+            result=vm_id
+        end
+    else
+        puts "VM named #{name} not found."
+        exit -1
+    end
+    
+    result
+end
+
+def get_host_id(host, name)
+    host_id=host.get_host_id(name)
+    
+    result=nil
+    
+    if host_id
+        if host_id.kind_of?(Array)
+            puts "There are multiple hosts with name #{name}."
+            exit -1
+        else
+            result=host_id
+        end
+    else
+        puts "Host named #{name} not found."
+        exit -1
+    end
+    
+    result
+end

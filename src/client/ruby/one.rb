@@ -411,7 +411,52 @@ module ONE
             dtime=Time.at(etime-stime).getgm
 
             "%02d %02d:%02d:%02d" % [dtime.yday-1, dtime.hour, dtime.min, dtime.sec]
-        end        
+        end
+        
+        def get_vm_id(name)
+            vm_id=name.strip
+            # Check if the name is not a number (is not an ID)
+            vm_id=get_vm_from_name(vm_id) if !vm_id.match(/^[0123456789]+$/)
+            return vm_id
+        end
+        
+        # Gets vm ids which name is "name"
+        # Returns:
+        #   nil if not vm has that name
+        #   id if there is only one vm with that name
+        #   array of ids if there is more than one vm
+        def get_vm_from_name(name)
+            db=Database.new
+            res_template=db.select_table_with_names(
+                                "vm_template", 
+                                :where => "name=\"NAME\" AND value=\"#{name}\"")
+            
+            return nil if !res_template[0] or res_template[1].length<1
+            
+            selected_vms=res_template[1].collect {|sel_template|
+                template_id=sel_template["id"]
+                res_vm=get(:where => "template=#{template_id}")
+                if !res_vm[0] or res_vm[1].length<1
+                    nil
+                else
+                    res_vm[1].collect {|vm|
+                        vm["oid"]
+                    }
+                end
+            }
+            
+            selected_vms.flatten!
+            selected_vms.compact!
+
+            case selected_vms.length
+            when 0
+                nil
+            when 1
+                selected_vms[0]
+            else
+                selected_vms
+            end
+        end
     end
     
     
@@ -497,6 +542,25 @@ module ONE
             state_str=SHORT_HOST_STATES[host_state]
 
             state_str
+        end
+        
+        def get_host_id(name)
+            host_id=name.strip
+            # Check if the name is not a number (is not an ID)
+            host_id=get_host_from_name(host_id) if !host_id.match(/^[0123456789]+$/)
+            return host_id
+        end
+        
+        def get_host_from_name(name)
+            res=get(:where => "host_name=\"#{name}\"")
+            
+            return nil if !res[0] or res[1].length<1
+            
+            if res[1].length==1
+                return res[1][0]["hid"]
+            else
+                return res[1].collect {|host| host["hid"] }
+            end
         end
     end
     

@@ -263,9 +263,10 @@ class VmShow
     def list_vm_history_array(ids, options=nil)
         res=[false, "No VMs found"]
         ids.each {|id|
+            vm_id=get_vm_id(@vm, id)
             puts "History for VM #{id}"
             puts
-            res=list_vm_history(id, options)
+            res=list_vm_history(vm_id, options)
             puts
         }
         res
@@ -359,6 +360,7 @@ end
 
 server=ONE::Server.new
 vm=ONE::VM.new(server)
+host=ONE::Host.new(server)
 
 onevm_opts=OnevmParse.new
 onevm_opts.parse(ARGV)
@@ -378,7 +380,9 @@ when "submit"
     
 when "deploy"
     check_parameters("deploy", 2)
-    result=vm.deploy(*ARGV)
+    vm_id=get_vm_id(vm, ARGV[0])
+    host_id=get_host_id(host, ARGV[1])
+    result=vm.deploy(vm_id, host_id)
     if result[0]
         puts "Deploying VM"
         exit 0
@@ -386,7 +390,8 @@ when "deploy"
 
 when "shutdown"
     check_parameters("shutdown", 1)
-    result=vm.shutdown(*ARGV)
+    vm_id=get_vm_id(vm, ARGV[0])
+    result=vm.shutdown(vm_id)
     if result[0]
         puts "Shutting down VM"
         exit 0
@@ -394,7 +399,9 @@ when "shutdown"
 
 when "livemigrate"
     check_parameters("livemigrate", 2)
-    result=vm.livemigrate(*ARGV)
+    vm_id=get_vm_id(vm, ARGV[0])
+    host_id=get_host_id(host, ARGV[1])
+    result=vm.livemigrate(vm_id, host_id)
     if result[0]
         puts "Migrating VM"
         exit 0
@@ -402,7 +409,9 @@ when "livemigrate"
 
 when "migrate"
     check_parameters("migrate", 2)
-    result=vm.migrate(*ARGV)
+    vm_id=get_vm_id(vm, ARGV[0])
+    host_id=get_host_id(host, ARGV[1])
+    result=vm.migrate(vm_id, host_id)
     if result[0]
         puts "Migrating VM"
         exit 0
@@ -410,7 +419,8 @@ when "migrate"
 
 when "hold"
     check_parameters("hold", 1)
-    result=vm.hold(*ARGV)
+    vm_id=get_vm_id(vm, ARGV[0])
+    result=vm.hold(vm_id)
     if result[0]
         puts "Setting VM to hold state"
         exit 0
@@ -418,7 +428,8 @@ when "hold"
 
 when "release"
     check_parameters("release", 1)
-    result=vm.release(*ARGV)
+    vm_id=get_vm_id(vm, ARGV[0])
+    result=vm.release(vm_id)
     if result[0]
         puts "Releasing VM"
         exit 0
@@ -426,7 +437,8 @@ when "release"
     
 when "stop"
     check_parameters("stop", 1)
-    result=vm.stop(*ARGV)
+    vm_id=get_vm_id(vm, ARGV[0])
+    result=vm.stop(vm_id)
     if result[0]
         puts "Stopping VM"
         exit 0
@@ -434,7 +446,8 @@ when "stop"
 
 when "suspend"
     check_parameters("suspend", 1)
-    result=vm.suspend(*ARGV)
+    vm_id=get_vm_id(vm, ARGV[0])
+    result=vm.suspend(vm_id)
     if result[0]
         puts "Suspending VM"
         exit 0
@@ -442,7 +455,8 @@ when "suspend"
     
 when "resume"
     check_parameters("resume", 1)
-    result=vm.resume(*ARGV)
+    vm_id=get_vm_id(vm, ARGV[0])
+    result=vm.resume(vm_id)
     if result[0]
         puts "Resuming VM"
         exit 0
@@ -467,7 +481,9 @@ when "show_db"
     vmlist=VmShow.new(vm)
     
     if ARGV[0]
-        result=vmlist.list_long(ARGV[0])
+        vm_id=get_vm_id(vm, ARGV[0])
+        result=vmlist.list_long(vm_id)
+        
         vmlist.close
     else
         result=[false, "You must provide a VM id."]
@@ -478,7 +494,9 @@ when "history"
     ops=onevm_opts.options
     ops[:columns]=ops[:list] if ops[:list]
     if ARGV[0]
-        result=vmlist.list_vm_history_array(ARGV)
+        ids=ARGV.collect {|arg| get_vm_id(vm, arg)}
+        ids=ids.flatten.compact
+        result=vmlist.list_vm_history_array(ids)
     else
         result=vmlist.list_vm_history_all(ops)
     end
@@ -486,7 +504,8 @@ when "history"
     
 when "delete"
     check_parameters("delete", 1)
-    result=vm.delete(*ARGV)
+    vm_id=get_vm_id(vm, ARGV[0])
+    result=vm.delete(vm_id)
     if result[0]
         puts "VM correctly deleted" 
         exit 0
@@ -494,7 +513,8 @@ when "delete"
 
 when "show"
      check_parameters("get_info", 1)
-     res = vm.get_info(ARGV[0])
+     vm_id=get_vm_id(vm, ARGV[0])
+     res = vm.get_info(vm_id)
      if res[0]
          res[1].gsub!(/^\n/, '')
          (normal, template)=res[1].split("Template")
