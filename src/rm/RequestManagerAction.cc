@@ -58,6 +58,10 @@ void RequestManager::VirtualMachineAction::execute(
     {
         rc = dm->stop(vid);
     }
+    else if (action == "cancel")
+    {
+        rc = dm->cancel(vid);
+    }
     else if (action == "suspend")
     {
         rc = dm->suspend(vid);

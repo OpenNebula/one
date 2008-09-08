@@ -357,6 +357,51 @@ error:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int DispatchManager::cancel(
+    int vid)
+{
+    VirtualMachine *    vm;
+    ostringstream       oss;
+    
+    vm = vmpool->get(vid,true);
+    
+    if ( vm == 0 )
+    {
+        return -1;
+    }
+    
+    oss << "Cancelling VM " << vid; 
+    Nebula::log("DiM",Log::DEBUG,oss);
+    
+    if (vm->get_state()     == VirtualMachine::ACTIVE &&
+        vm->get_lcm_state() == VirtualMachine::RUNNING )
+    {
+        Nebula&             nd  = Nebula::instance();
+        LifeCycleManager *  lcm = nd.get_lcm();
+
+        vm->unlock();
+        
+        lcm->trigger(LifeCycleManager::CANCEL,vid);       
+    }
+    else
+    {
+        goto error; 
+    }
+    
+    return 0;
+    
+error:
+    oss.str("");
+    oss << "Could not cancel VM " << vid << ", wrong state.";
+    Nebula::log("DiM",Log::ERROR,oss);
+    
+    vm->unlock();
+    return -2;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int DispatchManager::suspend(
     int vid)
 {

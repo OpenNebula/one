@@ -223,6 +223,9 @@ void RequestManager::register_xml_methods()
         
     xmlrpc_c::methodPtr vm_action(new 
         RequestManager::VirtualMachineAction);
+
+    xmlrpc_c::methodPtr vm_cancel(new 
+        RequestManager::VirtualMachineCancel(vmpool));
         
     xmlrpc_c::methodPtr vm_info(new 
         RequestManager::VirtualMachineInfo(vmpool));
@@ -245,6 +248,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vmdeploy", vm_deploy);
     RequestManagerRegistry.addMethod("one.vmaction", vm_action);
     RequestManagerRegistry.addMethod("one.vmmigrate", vm_migrate);
+    RequestManagerRegistry.addMethod("one.vmcancel", vm_cancel);
     RequestManagerRegistry.addMethod("one.vmget_info", vm_info);
      
     /* Host related methods*/

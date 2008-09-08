@@ -316,6 +316,9 @@ Commands:
 
 * stop (Stops a running VM)
     onevm stop <vm_id>
+    
+* cancel (Cancels a running VM)
+    onevm cancel <vm_id>
 
 * suspend (Saves a running VM)
     onevm suspend <vm_id>
@@ -441,6 +444,14 @@ when "stop"
     result=vm.stop(vm_id)
     if result[0]
         puts "Stopping VM"
+        exit 0
+    end
+    
+when "cancel"
+    check_parameters("cancel", 1)
+    result=vm.cancel(*ARGV)
+    if result[0]
+        puts "Cancelling VM"
         exit 0
     end
 

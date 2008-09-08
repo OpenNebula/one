@@ -45,7 +45,7 @@ void RequestManager::VirtualMachineInfo::execute(
     session      = xmlrpc_c::value_string(paramList.getString(0));
     vid          = xmlrpc_c::value_int   (paramList.getInt(1));
 
-    // Perform the allocation in the hostpool 
+    // Perform the allocation in the vmpool 
     vm = VirtualMachineInfo::vmpool->get(vid,true);
        
                                                  

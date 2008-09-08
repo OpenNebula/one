@@ -167,6 +167,15 @@ public:
         int vid);
 
     /**
+     *  Cancels a VM.
+     *    @param vid VirtualMachine identification
+     *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is 
+     *    in a wrong a state 
+     */       
+    int cancel(
+        int vid);
+
+    /**
      *  Suspends a VM.
      *    @param vid VirtualMachine identification
      *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is 

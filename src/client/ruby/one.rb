@@ -229,7 +229,8 @@ module ONE
                 "deploy"    => [:to_i, :to_i],
                 "action"    => [:to_s, :to_i],
                 "migrate_"  => [:to_i, :to_i, nil],
-                "get_info"  => [:to_i]
+                "get_info"  => [:to_i],
+                "cancel"    => [:to_i]
             }
         end
         
@@ -271,6 +272,10 @@ module ONE
         
         def stop(*args)
             self.action("stop", args[0])
+        end
+        
+        def cancel(*args)
+            self.action("cancel", args[0])
         end
         
         def suspend(*args)
