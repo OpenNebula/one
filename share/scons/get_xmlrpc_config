@@ -118,11 +118,28 @@ end
 Configs=[
     # Configuration for fedora
     {
+        :description => "pkg-config",
         :client => exec_command("pkg-config xmlrpc_client++ xmlrpc++ --libs"),
         :server => exec_command("pkg-config xmlrpc_server_abyss++ --static --libs")
     },
+    # Configuration using xmlrpc-c-config
+    {
+        :description => "xmlrpc-c-config",
+        :client => exec_command("xmlrpc-c-config c++2 client --libs"),
+        :server => exec_command("xmlrpc-c-config c++2 abyss-server --libs")
+    },
+    # Debian lenny
+    {
+        :description => "mixed hardcoded libraries and xmlrpc-c-config (debian lenny)",
+        :client => flags_and_libs_array("-I/usr/include -L/usr/lib", [
+                'xmlrpc_client', 'xmlrpc_client', 'xmlrpc', 'xmlrpc_util',
+                'xmlrpc_xmlparse', 'xmlrpc_xmltok', 'xmlrpc_client++', 'xmlrpc++'
+            ]),
+        :server => exec_command("xmlrpc-c-config c++2 abyss-server --libs"),
+    },
     # Configuration for Mac OS X and Debian
     {
+        :description => "hardcoded libraries for Mac OS X (installed using port)",
         :server => flags_and_libs_array("-I/opt/local/include -L/opt/local/lib", [
                 'wwwxml', 'xmltok', 'xmlparse', 'wwwzip', 'wwwinit', 'wwwapp',
                 'wwwtelnet', 'wwwhtml', 'wwwnews', 'wwwhttp', 'wwwmime', 'wwwgopher',
@@ -154,7 +171,8 @@ Configs=[
 # Compiles test code with given arguments
 def compile(file, args)
     command="g++ #{file} -o #{file}.out #{args} 1>/dev/null 2>/dev/null"
-    #STDERR.puts command
+    STDERR.puts command
+    STDERR.puts ""
     out=system(command)
 end
 
@@ -175,6 +193,7 @@ end
 
 # Tests a configuration and writes build parameters if it is successful
 def test_config(kind, config)
+    STDERR.puts "Testing recipe: "+config[:description].to_s
     args=config[kind.to_sym].call
     
     return nil if !args
