@@ -466,6 +466,10 @@ void VirtualMachine::get_requirements (int& cpu, int& memory, int& disk)
     string          scpu;
     istringstream   iss;
     float           fcpu;
+    
+    cpu=0;
+    memory=0;
+    disk=0;
 
     get_template_attribute("MEMORY",memory);
     get_template_attribute("CPU",scpu);
