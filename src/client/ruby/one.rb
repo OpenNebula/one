@@ -440,7 +440,7 @@ module ONE
             
             selected_vms=res_template[1].collect {|sel_template|
                 template_id=sel_template["id"]
-                res_vm=get(:where => "template=#{template_id}")
+                res_vm=get(:where => "template=#{template_id} AND state<>6")
                 if !res_vm[0] or res_vm[1].length<1
                     nil
                 else
