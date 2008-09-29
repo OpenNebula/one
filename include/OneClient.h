@@ -22,6 +22,7 @@
 #include <xmlrpc-c/client_simple.hpp>
 
 #include <string>
+#include <iostream>
 
 using namespace std;
 
@@ -43,7 +44,13 @@ public:
      *  @param oneurl the ONE front-end to interact with, defaults to "localhost".
      *  @param socket the socket where ONE listen to, defaults to 2633.
      */
-    OneClient(string oneurl="localhost",unsigned int socket=2633);
+    OneClient(string oneurl="localhost",unsigned int socket=2633)
+    {
+        ostringstream oss;
+        
+        oss << "http://" << oneurl << ":" << socket << "/RPC2";
+        url=oss.str();
+    };
     
     ~OneClient(){};
 
