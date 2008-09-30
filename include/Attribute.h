@@ -211,6 +211,10 @@ public:
     };
 
 private:
+	
+	static const char * magic_sep;
+	
+	static const int	magic_sep_size;
 
     map<string,string> attribute_value;    
 };

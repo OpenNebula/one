@@ -20,6 +20,10 @@
 
 #include "Attribute.h"
 
+
+const char * VectorAttribute::magic_sep      = "@^_^@";
+const int    VectorAttribute::magic_sep_size = 5;
+
 string * VectorAttribute::marshall()
 {
     ostringstream                   os;
@@ -37,7 +41,7 @@ string * VectorAttribute::marshall()
 
     for (++it; it != attribute_value.end(); it++)
     {
-        os << "," << it->first << "=" << it->second;
+        os << magic_sep << it->first << "=" << it->second;
     }
 
     rs = new string;
@@ -58,7 +62,7 @@ void VectorAttribute::unmarshall(string& sattr)
     
     while(cont)
     {
-    	epos=sattr.find(',',bpos);
+    	epos=sattr.find(magic_sep,bpos);
     	
     	if (epos == string::npos)
     	{
@@ -68,7 +72,7 @@ void VectorAttribute::unmarshall(string& sattr)
     	else
     	{
     		tmp  = sattr.substr(bpos,epos-bpos);
-    		bpos = epos + 1;
+    		bpos = epos + magic_sep_size;
     	}
     	
     	mpos = tmp.find('=');
