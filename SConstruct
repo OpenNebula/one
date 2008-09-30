@@ -69,8 +69,19 @@ if build_parsers=='yes':
 else:
     main_env.Append(parsers='no')
 
-main_env.ParseConfig('share/scons/get_xmlrpc_config server')
-
+try:
+    main_env.ParseConfig('share/scons/get_xmlrpc_config server')
+except Exception, e:
+    print ""
+    print "Error searching for xmlrpc-c libraries. Please check this things:"
+    print ""
+    print " * You have installed development libraries for xmlrpc-c. One way to check"
+    print "   this is calling xmlrpc-c-config that is provided with the development"
+    print "   package."
+    print " * Check that the version of xmlrpc-c is at least 1.06. You can do this also"
+    print "   calling:"
+    print "   $ xmlrpc-c-config --version"
+    exit(-1)
 
 # SCONS scripts to build
 build_scripts=[

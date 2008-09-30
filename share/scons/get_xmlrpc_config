@@ -92,11 +92,16 @@ TestCode={
 }
 
 # Executes a command and discards stderr
-def exec_command(text)
+def exec_command(command)
     lambda {
         #STDERR.puts text
-        text=`#{text} 2>/dev/null`
+        text=`#{command} 2>/dev/null`
+        text.gsub!("\n", " ")
+        
+        STDERR.puts text.inspect
+        
         if $?!=0
+            STDERR.puts "  Error calling #{command}"
             nil
         else
             text
@@ -125,8 +130,8 @@ Configs=[
     # Configuration using xmlrpc-c-config
     {
         :description => "xmlrpc-c-config",
-        :client => exec_command("xmlrpc-c-config c++2 client --libs"),
-        :server => exec_command("xmlrpc-c-config c++2 abyss-server --libs")
+        :client => exec_command("xmlrpc-c-config c++2 client --libs --cflags"),
+        :server => exec_command("xmlrpc-c-config c++2 abyss-server --libs --cflags")
     },
     # Debian lenny
     {
@@ -135,9 +140,10 @@ Configs=[
                 'xmlrpc_client', 'xmlrpc_client', 'xmlrpc', 'xmlrpc_util',
                 'xmlrpc_xmlparse', 'xmlrpc_xmltok', 'xmlrpc_client++', 'xmlrpc++'
             ]),
-        :server => exec_command("xmlrpc-c-config c++2 abyss-server --libs"),
+        :server => exec_command("xmlrpc-c-config c++2 abyss-server --libs --cflags"),
     },
     # Configuration for Mac OS X and Debian
+=begin
     {
         :description => "hardcoded libraries for Mac OS X (installed using port)",
         :server => flags_and_libs_array("-I/opt/local/include -L/opt/local/lib", [
@@ -159,7 +165,7 @@ Configs=[
                 'wwwcore', 'wwwutils', 'm', 'md5'
             ])
     },
-    
+=end    
     # Example adding more custom libraries
     #    {
     #        :client => exec_command("xmlrpc-c-config client c++ --cflags --libs"),
@@ -170,7 +176,13 @@ Configs=[
 
 # Compiles test code with given arguments
 def compile(file, args)
-    command="g++ #{file} -o #{file}.out #{args} 1>/dev/null 2>/dev/null"
+    logfile="#{file}.log"
+    command="g++ #{file} -o #{file}.out #{args} 1>>#{logfile} 2>&1"
+    
+    open(logfile, "w+") {|f|
+        f.write(command)
+    }
+    
     STDERR.puts command
     STDERR.puts ""
     out=system(command)
