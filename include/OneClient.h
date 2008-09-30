@@ -50,6 +50,8 @@ public:
         
         oss << "http://" << oneurl << ":" << socket << "/RPC2";
         url=oss.str();
+        
+        session = "oneclient";
     };
     
     ~OneClient(){};
@@ -213,7 +215,8 @@ public:
        */
     int host_allocate(string& name, 
     				  string& im_mad, 
-    				  string& vmm_mad, 
+    				  string& vmm_mad,
+    				  int&    hid,
     				  string& error);
 private:
 
@@ -221,6 +224,11 @@ private:
      *	URl - url to connect to ONE.
      */
     string url;
+    
+    /**
+     *	Session - Client session id
+     */
+    string session;
 
     /**
      *	Submits an action to be performed on a VM.
