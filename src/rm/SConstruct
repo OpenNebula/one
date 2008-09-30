@@ -11,7 +11,6 @@ source_files=[
     'RequestManagerAllocate.cc',
     'RequestManagerDeploy.cc',
     'RequestManagerMigrate.cc',    
-    'RequestManagerCancel.cc',
     'RequestManagerInfo.cc',
     'RequestManagerHostAllocate.cc',
     'RequestManagerHostDelete.cc',

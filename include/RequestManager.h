@@ -241,30 +241,7 @@ private:
     private:
         VirtualMachinePool * vmpool;
         HostPool *           hpool;
-    };
-    
-    /* ---------------------------------------------------------------------- */
-    
-    class VirtualMachineCancel: public xmlrpc_c::method
-    {
-    public:
-        VirtualMachineCancel(
-            VirtualMachinePool * _vmpool):
-                vmpool(_vmpool)
-        {
-            _signature="A:si";
-            _help="Cancels a virtual machine";
-        };
-
-        ~VirtualMachineCancel(){};
-
-        void execute(
-            xmlrpc_c::paramList const& paramList,
-            xmlrpc_c::value *   const  retval);
-
-    private:
-        VirtualMachinePool * vmpool;
-    };    
+    }; 
     
     /* ---------------------------------------------------------------------- */
     
