@@ -71,6 +71,7 @@ else:
 
 try:
     main_env.ParseConfig('share/scons/get_xmlrpc_config server')
+    main_env.ParseConfig('share/scons/get_xmlrpc_config client')
 except Exception, e:
     print ""
     print "Error searching for xmlrpc-c libraries. Please check this things:"
@@ -81,6 +82,9 @@ except Exception, e:
     print " * Check that the version of xmlrpc-c is at least 1.06. You can do this also"
     print "   calling:"
     print "   $ xmlrpc-c-config --version"
+    print " * If all this requirements are already met please send log files located in"
+    print "   .xmlrpc_test to the mailing list."
+    print ""
     exit(-1)
 
 # SCONS scripts to build

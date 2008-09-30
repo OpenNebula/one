@@ -98,8 +98,6 @@ def exec_command(command)
         text=`#{command} 2>/dev/null`
         text.gsub!("\n", " ")
         
-        STDERR.puts text.inspect
-        
         if $?!=0
             STDERR.puts "  Error calling #{command}"
             nil
@@ -143,7 +141,6 @@ Configs=[
         :server => exec_command("xmlrpc-c-config c++2 abyss-server --libs --cflags"),
     },
     # Configuration for Mac OS X and Debian
-=begin
     {
         :description => "hardcoded libraries for Mac OS X (installed using port)",
         :server => flags_and_libs_array("-I/opt/local/include -L/opt/local/lib", [
@@ -165,7 +162,6 @@ Configs=[
                 'wwwcore', 'wwwutils', 'm', 'md5'
             ])
     },
-=end    
     # Example adding more custom libraries
     #    {
     #        :client => exec_command("xmlrpc-c-config client c++ --cflags --libs"),
@@ -179,8 +175,8 @@ def compile(file, args)
     logfile="#{file}.log"
     command="g++ #{file} -o #{file}.out #{args} 1>>#{logfile} 2>&1"
     
-    open(logfile, "w+") {|f|
-        f.write(command)
+    open(logfile, "a") {|f|
+        f.write(command+"\n")
     }
     
     STDERR.puts command
