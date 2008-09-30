@@ -238,10 +238,19 @@ ostream& operator << (ostream& os, Template& t)
 {
     multimap<string,Attribute *>::iterator  it;
     string *                                s;
+    size_t									pos;
         
-    for ( it = t.attributes.begin(); it != t.attributes.end(); it++)
+    for ( it = t.attributes.begin(); it!=t.attributes.end(); it++)
     {
         s = it->second->marshall();
+        
+        pos = s->find("\n");
+        
+        while (pos != string::npos)
+        {
+        	s->replace(pos++,1," ");
+        	pos = s->find("\n",pos);
+        }
 
         os << endl << "\t" << it->first << t.separator << *s;
 
