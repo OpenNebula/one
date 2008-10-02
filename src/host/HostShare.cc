@@ -19,6 +19,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <algorithm> 
 
 #include "HostShare.h"
 

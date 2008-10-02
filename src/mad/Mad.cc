@@ -22,6 +22,7 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <string.h> 
 
 #include "Mad.h"
 #include "Nebula.h"
