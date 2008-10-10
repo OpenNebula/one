@@ -21,8 +21,9 @@
 #include <xmlrpc-c/base.hpp>
 #include <xmlrpc-c/client_simple.hpp>
 
-#include <string>
 #include <iostream>
+#include <string>
+#include <sstream>
 
 using namespace std;
 
@@ -248,5 +249,31 @@ private:
      */
     int host_available(int hid, bool enable, string& error);
 };
+
+extern "C" 
+{
+
+	void c_oneStart();
+
+	int c_oneDeploy(int vmid, int hid);
+
+	int c_oneMigrate(int vmid, int hid, int flag);
+
+	int c_oneAllocate(char* vm_template);
+
+	int c_oneAction(int vmid,char* action);
+
+	int c_oneShutdown(int vmid);
+
+	int c_oneSuspend(int vmid);
+
+	int c_oneStop(int vmid);
+
+	int c_oneResume(int vmid);
+                                                              
+	int c_oneVmInfo(int vmid, char* ret_info,int leng);
+
+	void c_oneFree();
+}
 
 #endif /*ONECLIENT_H_*/

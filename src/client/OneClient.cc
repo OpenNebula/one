@@ -22,24 +22,34 @@
 
 int OneClient::allocate(string template_file, int& vmid, string& error)
 {
-		    
-	try {
-		ifstream file;
+  
+	try{
+
 		string   str_template="";
-	 
-		file.exceptions (ifstream::failbit | ifstream::badbit );
-	 
+		ifstream file;
+		char c;
+		
 		file.open(template_file.c_str());
-	 
+
+		if ( file.good() == false )
+		{
+			error =  "Could not open file\n";
+			return -1;
+		}
+    
+		file.get(c);
+		
 		while (file.good())
 		{
-			str_template += file.get();
+			str_template+=c;
+			file.get(c);
 		}
-	 
+    
 		file.close();
 
-		xmlrpc_c::value result;	
-		this->call(url,
+		xmlrpc_c::value result;
+		
+	    this->call(url,
 				"one.vmallocate",
 				"ss",
 				&result,
