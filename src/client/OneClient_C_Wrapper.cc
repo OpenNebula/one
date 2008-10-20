@@ -3,13 +3,18 @@
 using namespace std;
 
 /* ************************************************************************** */
+#define ONED_PORT 60222
 OneClient* client=0;
 /* ************************************************************************** */
 
 
 void c_oneStart()
 {
-    client=new OneClient("localhost",60222);
+#ifdef ONED_PORT
+    client=new OneClient("localhost",ONED_PORT);
+#else
+    client=new OneClient("localhost");
+#endif
 };
 
 /* -------------------------------------------------------------------------- */

@@ -30,7 +30,7 @@ if [ -z "$SRC_DIR" -o -z "$DST_DIR" ]; then
     exit -1
 fi
 
-DIRS="/bin /etc /etc/im_kvm /etc/im_xen /etc/vmm_kvm /etc/vmm_xen /libexec /lib/ruby /var /share/examples /lib/im_probes /etc/vmm_ec2 /etc/im_ec2"
+DIRS="/bin /include /etc /etc/im_kvm /etc/im_xen /etc/vmm_kvm /etc/vmm_xen /libexec /lib/ruby /var /share/examples /lib/im_probes /etc/vmm_ec2 /etc/im_ec2"
 
 for d in $DIRS; do
     mkdir -p $DST_DIR$d
@@ -46,6 +46,11 @@ inst_ln src/client/ruby/onehost bin
 
 inst_ln share/scripts/madcommon.sh libexec
 inst_ln share/scripts/one bin
+
+# --- C/C++ OpenNebula API Library & Development files
+
+inst_ln src/client/liboneapi.a lib/
+inst_ln include/OneClient.h include/
 
 # --- Ruby Libraries
 

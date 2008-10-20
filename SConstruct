@@ -89,6 +89,7 @@ except Exception, e:
 
 # SCONS scripts to build
 build_scripts=[
+    'src/client/SConstruct',
     'src/common/SConstruct',
     'src/template/SConstruct',
     'src/host/SConstruct',
