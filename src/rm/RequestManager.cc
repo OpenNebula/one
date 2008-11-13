@@ -56,7 +56,6 @@ extern "C" void * rm_action_loop(void *arg)
 extern "C" void * rm_xml_server_loop(void *arg)
 {
     RequestManager *    rm;
-    ostringstream       oss;
         
     if ( arg == 0 )
     {
@@ -72,10 +71,7 @@ extern "C" void * rm_xml_server_loop(void *arg)
     pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS,0);
       
     //Start the server
-    
-    oss << "Starting XML-RPC server, port " << rm->port << " ...";
-    Nebula::log("ReM",Log::INFO,oss);
-        
+            
     rm->AbyssServer = new xmlrpc_c::serverAbyss(xmlrpc_c::serverAbyss::constrOpt()
         .registryP(&rm->RequestManagerRegistry)
         .logFileName(rm->xml_log_file)
@@ -150,6 +146,7 @@ int RequestManager::setup_socket()
 int RequestManager::start()
 {
     pthread_attr_t  pattr;
+    ostringstream   oss;
     
     Nebula::log("ReM",Log::INFO,"Starting Request Manager...");
     
@@ -169,6 +166,9 @@ int RequestManager::start()
     
     pthread_attr_init (&pattr);
     pthread_attr_setdetachstate (&pattr, PTHREAD_CREATE_JOINABLE);
+    
+    oss << "Starting XML-RPC server, port " << port << " ...";
+    Nebula::log("ReM",Log::INFO,oss);
     
     pthread_create(&rm_xml_server_thread,&pattr,rm_xml_server_loop,(void *)this);
 
