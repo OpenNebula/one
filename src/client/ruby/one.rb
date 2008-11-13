@@ -42,7 +42,7 @@ module ONE
             last_mon_time managed},
         "host_attributes" => %w{id name type value},
         "host_shares" => %w{hid endpoint disk_usage mem_usage
-            cpu_usage max_disk max_mem max_cpu running_vms}
+            cpu_usage max_disk max_mem max_cpu running_vms},
         "network_pool"    => %w{oid uid name type bridge},
         "vn_template"     => %w{id name type value}
     }

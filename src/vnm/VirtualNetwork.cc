@@ -404,11 +404,11 @@ ostream& operator<<(ostream& os, VirtualNetwork& vn)
        os << "Fixed" << endl;
     }
     os << "Size              : " << vn.get_size() << endl;
-    os << "Bridge            : " << vn.bridge << endl;
+    os << "Bridge            : " << vn.bridge << endl << endl;
 
-    os << "Template" << endl << vn.vn_template << endl;
+    os << "....: Template :...."  << vn.vn_template << endl << endl;
     
-    os << "Leases"   << endl << *(vn.leases) << endl;
+    os << "....: Leases :...."   << endl << *(vn.leases) << endl;
     
     return os;
 };

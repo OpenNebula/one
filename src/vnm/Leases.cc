@@ -391,11 +391,6 @@ ostream& operator<<(ostream& os, Leases& _leases)
 {
     map<unsigned int, Leases::Lease *>::iterator  it;
     
-    os << "NID   : " << _leases.oid << endl;
-    os << "SIZE  : " << _leases.size << endl;
-
-    os << "Leases:" << endl;
-
     // Iterate all the leases
     for(it=_leases.leases.begin();it!=_leases.leases.end();it++)
     {
