@@ -56,13 +56,13 @@ Host::~Host(){};
 /* Host :: Database Access Functions                               */
 /* ************************************************************************** */
 
-const char * Host::table = "hostpool";
+const char * Host::table = "host_pool";
 
-const char * Host::db_names = "(hid,host_name,state,im_mad,vm_mad,"
+const char * Host::db_names = "(oid,host_name,state,im_mad,vm_mad,"
                               "tm_mad,last_mon_time,managed)";
 
-const char * Host::db_bootstrap = "CREATE TABLE hostpool ("
-	"hid INTEGER PRIMARY KEY,host_name TEXT,state INTEGER,"
+const char * Host::db_bootstrap = "CREATE TABLE host_pool ("
+	"oid INTEGER PRIMARY KEY,host_name TEXT,state INTEGER,"
 	"im_mad TEXT,vm_mad TEXT,tm_mad TEXT,last_mon_time INTEGER,"
     "managed INTEGER)";
 
@@ -71,7 +71,7 @@ const char * Host::db_bootstrap = "CREATE TABLE hostpool ("
 
 int Host::unmarshall(int num, char **names, char ** values)
 {
-    if ((values[HID] == 0) ||
+    if ((values[OID] == 0) ||
             (values[HOST_NAME] == 0) ||
             (values[STATE] == 0) ||
             (values[IM_MAD] == 0) ||
@@ -84,7 +84,7 @@ int Host::unmarshall(int num, char **names, char ** values)
         return -1;
     }
 
-    oid              = atoi(values[HID]);
+    oid              = atoi(values[OID]);
     hostname         = values[HOST_NAME];
     state            = static_cast<HostState>(atoi(values[STATE]));
     
@@ -131,7 +131,7 @@ int Host::select(SqliteDB *db)
     int             rc;
     int             boid;
     
-    oss << "SELECT * FROM " << table << " WHERE hid = " << oid;
+    oss << "SELECT * FROM " << table << " WHERE oid = " << oid;
 
     boid = oid;
     oid  = -1;
@@ -258,7 +258,7 @@ int Host::drop(SqliteDB * db)
     host_share.drop(db);
 
     // Third, drop the host itself
-    oss << "DELETE FROM " << table << " WHERE hid=" << oid;
+    oss << "DELETE FROM " << table << " WHERE oid=" << oid;
 
     return db->exec(oss);
 }

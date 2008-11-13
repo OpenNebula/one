@@ -89,7 +89,7 @@ int HostPool::discover(map<int, string> * discovered_hosts)
 
     lock();
 
-    sql << "SELECT hid, im_mad FROM " 
+    sql << "SELECT oid, im_mad FROM " 
         << Host::table << " ORDER BY last_mon_time LIMIT 10";
 
     rc = db->exec(sql,discover_cb,(void *) discovered_hosts);

@@ -25,6 +25,9 @@
 #include <sstream>
 
 #include "VirtualMachine.h"
+#include "VirtualNetworkPool.h"
+#include "Nebula.h"
+
 
 
 /* ************************************************************************** */
@@ -33,12 +36,7 @@
 
 VirtualMachine::VirtualMachine(int id):
         PoolObjectSQL(id),
-        aid(-1),
-        tid(-1),
         uid(-1),
-        priority(INT_MIN),
-        reschedule(false),
-        last_reschedule(0),
         last_poll(0),
         vm_template(),
         state(INIT),
@@ -73,17 +71,15 @@ VirtualMachine::~VirtualMachine()
 /* Virtual Machine :: Database Access Functions                               */
 /* ************************************************************************** */
 
-const char * VirtualMachine::table = "vmpool";
+const char * VirtualMachine::table = "vm_pool";
 
-const char * VirtualMachine::db_names = "(oid,aid,tid,uid,priority,reschedule"
-                                        ",last_reschedule,last_poll,template,state"
+const char * VirtualMachine::db_names = "(oid,uid,last_poll,template_id,state"
                                         ",lcm_state,stime,etime,deploy_id"
                                         ",memory,cpu,net_tx,net_rx)";
 
-const char * VirtualMachine::db_bootstrap = "CREATE TABLE vmpool ("
-        "oid INTEGER PRIMARY KEY,aid INTEGER,tid INTEGER,uid INTEGER,"
-        "priority INTEGER,reschedule INTEGER,last_reschedule INTEGER,"
-        "last_poll INTEGER, template INTEGER,state INTEGER,lcm_state INTEGER,"
+const char * VirtualMachine::db_bootstrap = "CREATE TABLE vm_pool ("
+        "oid INTEGER PRIMARY KEY,uid INTEGER,"
+        "last_poll INTEGER, template_id INTEGER,state INTEGER,lcm_state INTEGER,"
         "stime INTEGER,etime INTEGER,deploy_id TEXT,memory INTEGER,cpu INTEGER,"
         "net_tx INTEGER,net_rx INTEGER)";
 
@@ -93,12 +89,7 @@ const char * VirtualMachine::db_bootstrap = "CREATE TABLE vmpool ("
 int VirtualMachine::unmarshall(int num, char **names, char ** values)
 {
     if ((values[OID] == 0) ||
-            (values[AID] == 0) ||
-            (values[TID] == 0) ||
             (values[UID] == 0) ||
-            (values[PRIORITY] == 0) ||
-            (values[RESCHEDULE] == 0) ||
-            (values[LAST_RESCHEDULE] == 0) ||
             (values[LAST_POLL] == 0) ||
             (values[TEMPLATE_ID] == 0) ||
             (values[STATE] == 0) ||
@@ -115,15 +106,9 @@ int VirtualMachine::unmarshall(int num, char **names, char ** values)
     }
 
     oid = atoi(values[OID]);
-    aid = atoi(values[AID]);
-    tid = atoi(values[TID]);
     uid = atoi(values[UID]);
 
-    priority = atoi(values[PRIORITY]);
-
-    reschedule      = static_cast<bool>(atoi(values[RESCHEDULE]));
-    last_reschedule = static_cast<time_t>(atoi(values[LAST_RESCHEDULE]));
-    last_poll       = static_cast<time_t>(atoi(values[LAST_POLL]));
+    last_poll = static_cast<time_t>(atoi(values[LAST_POLL]));
 
     state     = static_cast<VmState>(atoi(values[STATE]));
     lcm_state = static_cast<LcmState>(atoi(values[LCM_STATE]));
@@ -292,9 +277,23 @@ error_previous_history:
 /* -------------------------------------------------------------------------- */
 
 int VirtualMachine::insert(SqliteDB * db)
-{
-    int rc;
-    string name;
+{                              
+    int                  rc;
+    string               name;
+                               
+    int                        num_nics;
+    vector<Attribute  * >      nics;
+    VirtualNetworkPool       * vnpool; 
+    VirtualNetwork           * vn;
+    VectorAttribute          * nic;
+    map<string,string>         new_nic;
+    
+    string                     ip;
+    string                     mac;
+    string                     bridge;
+    string                     network;
+
+    ostringstream              vnid;
 
     //Set a name if the VM has not got one
     
@@ -311,15 +310,65 @@ int VirtualMachine::insert(SqliteDB * db)
     	name_attr = new SingleAttribute("NAME",name);
     	
     	vm_template.set(name_attr);
-    }    
+    }  
+    
+     // Set the networking attributes.
+     
+     Nebula& nd = Nebula::instance();
+     vnpool     = nd.get_vnpool();
+     
+     num_nics   = vm_template.get("NIC",nics);
+     
+     for(int i=0; i<num_nics; i++,vnid.str(""))
+     {
+         new_nic.erase(new_nic.begin(),new_nic.end());
+
+    	 nic = dynamic_cast<VectorAttribute * >(nics[i]);
+
+         if ( nic == 0 )
+         {
+             continue;
+         }
+     
+         network = nic->vector_value("NETWORK");
+     
+         if ( network.empty() )
+         {
+             continue;
+         }
+     
+         vn = vnpool->get(network,true);
+         
+         if ( vn == 0 )
+         {
+             continue;
+         }
+     
+         if ( vn->get_lease(oid, ip, mac, bridge) != 0 )
+         {
+        	 goto error_leases;
+         }
+         
+         vn->unlock();
+
+         vnid << vn->get_oid();
+
+         new_nic.insert(make_pair("NETWORK",network));
+         new_nic.insert(make_pair("MAC"    ,mac));
+         new_nic.insert(make_pair("BRIDGE" ,bridge));
+         new_nic.insert(make_pair("VNID"   ,vnid.str()));
+         new_nic.insert(make_pair("IP"     ,ip));
+         
+         nic->replace(new_nic);
+                 
+    }
 
     // Insert the template first, so we get a valid template ID
     rc = vm_template.insert(db);
 
     if ( rc != 0 )
     {
-        log("ONE", Log::ERROR, "Can not insert template");
-        return -1;
+    	goto error_template;
     }
 
     //Insert the VM
@@ -327,13 +376,24 @@ int VirtualMachine::insert(SqliteDB * db)
 
     if ( rc != 0 )
     {
-        log("ONE", Log::ERROR, "Can not update vm");
-        vm_template.drop(db);
-
-        return -1;
+    	goto error_update;
     }
 
     return 0;
+
+error_update:
+	log("ONE", Log::ERROR, "Can not update vm");
+	vm_template.drop(db);
+	return -1;
+
+error_template:
+	log("ONE", Log::ERROR, "Can not insert template");
+	return -1;
+
+error_leases:
+	log("ONE", Log::ERROR, "Could not get lease for VM");
+	vn->unlock();
+	return -1;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -346,12 +406,7 @@ int VirtualMachine::update(SqliteDB * db)
 
     oss << "INSERT OR REPLACE INTO " << table << " "<< db_names <<" VALUES ("<<
         oid << "," <<
-        aid << "," <<
-        tid << "," <<
         uid << "," <<
-        priority << "," <<
-        reschedule << "," <<
-        last_reschedule << "," <<
         last_poll << "," <<
         vm_template.id << "," <<
         state << "," <<
@@ -417,7 +472,7 @@ void VirtualMachine::cp_history()
 			history->seq + 1,
 			history->hid,
 			history->hostname,
-			history->vm_rdir,
+			history->vm_dir,
 			history->vmm_mad_name,
 			history->tm_mad_name);
 	
@@ -447,7 +502,7 @@ void VirtualMachine::cp_previous_history()
 			history->seq + 1,
 			previous_history->hid,
 			previous_history->hostname,
-			previous_history->vm_rdir,
+			previous_history->vm_dir,
 			previous_history->vmm_mad_name,
 			previous_history->tm_mad_name);
 	
@@ -489,6 +544,59 @@ void VirtualMachine::get_requirements (int& cpu, int& memory, int& disk)
     return;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachine::release_leases()
+{
+    Nebula& nd = Nebula::instance();
+    
+    VirtualNetworkPool * vnpool = nd.get_vnpool();
+
+    string                        vnid;
+    string                        ip;
+    int                           num_nics;
+
+    vector<Attribute const  * >   nics;
+    VirtualNetwork          *     vn;    
+
+    num_nics   = get_template_attribute("NIC",nics);
+
+    for(int i=0; i<num_nics; i++)
+    {
+        VectorAttribute const *  nic = dynamic_cast<VectorAttribute const * >(nics[i]);
+
+        if ( nic == 0 )
+        {
+            continue;
+        }
+
+        vnid = nic->vector_value("VNID");
+
+        if ( vnid.empty() )
+        {
+            continue;
+        }
+        
+        ip   = nic->vector_value("IP");
+
+        if ( ip.empty() )
+        {
+            continue;
+        }
+        
+        vn = vnpool->get(atoi(vnid.c_str()),true);
+        
+        if ( vn == 0 )
+        {
+            continue;
+        }
+
+        vn->release_lease(ip);   
+        vn->unlock();      
+    }
+}
+
 /* ************************************************************************** */
 /* Virtual Machine :: Misc                                                    */
 /* ************************************************************************** */
@@ -496,17 +604,12 @@ void VirtualMachine::get_requirements (int& cpu, int& memory, int& disk)
 ostream& operator<<(ostream& os, VirtualMachine& vm)
 {
     os << "VID               : " << vm.oid << endl;
-    os << "AID               : " << vm.aid << endl;
-    os << "TID               : " << vm.tid << endl;
     os << "UID               : " << vm.uid << endl;
     os << "STATE             : " << vm.state << endl;
     os << "LCM STATE         : " << vm.lcm_state << endl;
     os << "DEPLOY ID         : " << vm.deploy_id << endl;
     os << "MEMORY            : " << vm.memory << endl; 
     os << "CPU               : " << vm.cpu << endl;
-    os << "PRIORITY          : " << vm.priority << endl;
-    os << "RESCHEDULE        : " << vm.reschedule << endl;  
-    os << "LAST RESCHEDULE   : " << vm.last_reschedule << endl;  
     os << "LAST POLL         : " << vm.last_poll << endl;  
     os << "START TIME        : " << vm.stime << endl;  
     os << "STOP TIME         : " << vm.etime << endl;  

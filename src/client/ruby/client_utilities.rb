@@ -259,3 +259,23 @@ def get_host_id(host, name)
     
     result
 end
+
+def get_vn_id(vn, name)
+    vn_id=vn.get_vn_id(name)
+    
+    result=nil
+    
+    if vn_id
+        if vn_id.kind_of?(Array)
+            puts "There are multiple virtual networks with name #{name}."
+            exit -1
+        else
+            result=vn_id
+        end
+    else
+        puts "Virtual networks named #{name} not found."
+        exit -1
+    end
+    
+    result
+end

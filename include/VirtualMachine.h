@@ -72,10 +72,11 @@ public:
         SAVE_SUSPEND   = 6,
         SAVE_MIGRATE   = 7,
         PROLOG_MIGRATE = 8,
-        EPILOG_STOP    = 9,
-        EPILOG         = 10,
-        SHUTDOWN       = 11,
-        CANCEL         = 12
+        PROLOG_RESUME  = 9,
+        EPILOG_STOP    = 10,
+        EPILOG         = 11,
+        SHUTDOWN       = 12,
+        CANCEL         = 13
     };
 
     // -------------------------------------------------------------------------
@@ -250,34 +251,71 @@ public:
     };
 
     /**
-     *  Returns the deployment filename (local path). The hasHistory()
-     *  function MUST be called before this one.
-     *    @return the deployment filename
+     *  Returns the transfer filename. The transfer file is in the form: 
+     *  		$ONE_LOCATION/var/$VM_ID/transfer.$SEQ
+     *  The hasHistory() function MUST be called before this one.
+     *    @return the transfer filename
      */ 
-    const string & get_deployment_lfile() const
+    const string & get_transfer_file() const
     {
-        return history->deployment_lfile;
+        return history->transfer_file;
     };
 
     /**
-     *  Returns the deployment filename for the current host (remote). The 
-     *  hasHistory() function MUST be called before this one.
+     *  Returns the deployment filename. The deployment file is in the form:
+     *  		$ONE_LOCATION/var/$VM_ID/deployment.$SEQ 
+     *  The hasHistory() function MUST be called before this one.
      *    @return the deployment filename
      */ 
-    const string & get_deployment_rfile() const
+    const string & get_deployment_file() const
     {
-        return history->deployment_rfile;
+        return history->deployment_file;
     };
+    
+    /**
+     *  Returns the remote deployment filename. The file is in the form:
+     *  		$VM_DIR/$VM_ID/images/deployment.$SEQ 
+     *  The hasHistory() function MUST be called before this one.
+     *    @return the deployment filename
+     */ 
+    const string & get_remote_deployment_file() const
+    {
+        return history->rdeployment_file;
+    };    
         
     /**
-     *  Returns the checkpoint filename for the current host (remote). The 
-     *  hasHistory() function MUST be called before this one.
+     *  Returns the checkpoint filename for the current host. The checkpoint file 
+     *  is in the form: 
+     *  		$VM_DIR/$VM_ID/images/checkpoint  
+     *  The hasHistory() function MUST be called before this one.
      *    @return the checkpoint filename
      */ 
     const string & get_checkpoint_file() const
     {
         return history->checkpoint_file;
     };
+    
+    /**
+     *  Returns the remote VM directory. The VM remote dir is in the form: 
+     *  		$VM_DIR/$VM_ID/  
+     *  The hasHistory() function MUST be called before this one.
+     *    @return the remote directory
+     */ 
+    const string & get_remote_dir() const
+    {
+        return history->vm_rhome;
+    };
+    
+    /**
+     *  Returns the local VM directory. The VM local dir is in the form: 
+     *  		$ONE_LOCATION/var/$VM_ID/  
+     *  The hasHistory() function MUST be called before this one.
+     *    @return the remote directory
+     */ 
+    const string & get_local_dir() const
+    {
+        return history->vm_lhome;
+    };    
 
     /**
      *  Returns the hostname for the current host. The hasHistory()
@@ -298,6 +336,15 @@ public:
     {
         return previous_history->hostname;
     };
+    
+    /**
+     *  Returns the reason that originated the VM migration in the previous host
+     *    @return the migration reason to leave this host
+     */
+    const History::MigrationReason get_previous_reason() const
+    {
+        return previous_history->reason;
+    };    
     
     /**
      *  Get host id where the VM is or is going to execute. The hasHistory()
@@ -532,6 +579,7 @@ public:
     {
         return uid;
     };
+    
 
     // ------------------------------------------------------------------------
     // Timers
@@ -561,6 +609,15 @@ public:
      *    @param disk 
      */
     void get_requirements (int& cpu, int& memory, int& disk);
+    
+    // ------------------------------------------------------------------------
+    // Leases
+    // ------------------------------------------------------------------------
+    
+    /**
+     *  Releases all network leases taken by this Virtual Machine
+     */
+    void release_leases();
         
 private:
 
@@ -578,20 +635,11 @@ private:
     // *************************************************************************
     // Virtual Machine Attributes
     // *************************************************************************
-
+    
     // -------------------------------------------------------------------------
     // Identification variables
     // -------------------------------------------------------------------------
-    /**
-     *  Array id
-     */
-    int         aid;
-
-    /**
-     *  Task id
-     */
-    int         tid;
-
+    
     /**
      *  User (owner) id
      */
@@ -599,22 +647,7 @@ private:
 
     // -------------------------------------------------------------------------
     // VM Scheduling & Managing Information
-    // -------------------------------------------------------------------------
-    /**
-     *  Static scheduling priority
-     */
-    int         priority;
-
-    /**
-     *  The VM reschedule flag
-     */
-    bool        reschedule;
-
-    /**
-     *  Last time (in epoch) that the VM was rescheduled
-     */
-    time_t      last_reschedule;
-    
+    // ------------------------------------------------------------------------- 
     /**
      *  Last time (in epoch) that the VM was polled to get its status
      */
@@ -783,24 +816,19 @@ protected:
 	enum ColNames
     {
         OID             = 0,
-        AID             = 1,
-        TID             = 2,
-        UID             = 3,
-        PRIORITY        = 4,
-        RESCHEDULE      = 5,
-        LAST_RESCHEDULE = 6,
-        LAST_POLL       = 7,
-        TEMPLATE_ID     = 8,
-        STATE           = 9,
-        LCM_STATE       = 10,
-        STIME           = 11,
-        ETIME           = 12,
-        DEPLOY_ID       = 13,
-        MEMORY          = 14,
-        CPU             = 15,
-        NET_TX          = 16,
-        NET_RX          = 17,
-        LIMIT           = 18
+        UID             = 1,
+        LAST_POLL       = 2,
+        TEMPLATE_ID     = 3,
+        STATE           = 4,
+        LCM_STATE       = 5,
+        STIME           = 6,
+        ETIME           = 7,
+        DEPLOY_ID       = 8,
+        MEMORY          = 9,
+        CPU             = 10,
+        NET_TX          = 11,
+        NET_RX          = 12,
+        LIMIT           = 13
     };
 
     static const char * table;

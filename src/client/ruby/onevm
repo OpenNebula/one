@@ -43,7 +43,7 @@ ShowTableVM={
         :desc => "Name of the domain",
         :size => 8,
         :proc => lambda {|d,e| 
-            tid=d["template"]
+            tid=d["template_id"]
             template=e[:vm].get_template(tid)
             template["NAME"]
         }
@@ -99,7 +99,7 @@ ShowTableHistory={
         :name => "HOSTNAME",
         :desc => "Name of the host where the VM was submited",
         :size => 15,
-        :proc => lambda {|d,e| d["hostname"] }
+        :proc => lambda {|d,e| d["host_name"] }
     },
     :stime => {
         :name => "STIME",
@@ -176,7 +176,7 @@ class VmShow
         puts "Template"
         str="    %-20s: %-20s"
         data.each {|key,value|
-            puts str % [key, value] if !%w{oid deploy_id state lcm_state memory cpu template}.include? key
+            puts str % [key, value] if !%w{oid deploy_id state lcm_state memory cpu template_id}.include? key
         }
     end
     
@@ -362,8 +362,14 @@ end
 
 
 server=ONE::Server.new
-vm=ONE::VM.new(server)
+$vm=vm=ONE::VM.new(server)
 host=ONE::Host.new(server)
+
+def command_exit(code)
+    $vm.close_db
+    exit(code)
+end
+    
 
 onevm_opts=OnevmParse.new
 onevm_opts.parse(ARGV)
@@ -378,7 +384,7 @@ when "submit"
     result=vm.allocate(*ARGV)
     if result[0]
         puts "ID: " + result[1].to_s
-        exit 0
+        command_exit 0
     end
     
 when "deploy"
@@ -388,7 +394,7 @@ when "deploy"
     result=vm.deploy(vm_id, host_id)
     if result[0]
         puts "Deploying VM"
-        exit 0
+        command_exit 0
     end
 
 when "shutdown"
@@ -397,7 +403,7 @@ when "shutdown"
     result=vm.shutdown(vm_id)
     if result[0]
         puts "Shutting down VM"
-        exit 0
+        command_exit 0
     end
 
 when "livemigrate"
@@ -407,7 +413,7 @@ when "livemigrate"
     result=vm.livemigrate(vm_id, host_id)
     if result[0]
         puts "Migrating VM"
-        exit 0
+        command_exit 0
     end
 
 when "migrate"
@@ -417,7 +423,7 @@ when "migrate"
     result=vm.migrate(vm_id, host_id)
     if result[0]
         puts "Migrating VM"
-        exit 0
+        command_exit 0
     end
 
 when "hold"
@@ -426,7 +432,7 @@ when "hold"
     result=vm.hold(vm_id)
     if result[0]
         puts "Setting VM to hold state"
-        exit 0
+        command_exit 0
     end
 
 when "release"
@@ -435,7 +441,7 @@ when "release"
     result=vm.release(vm_id)
     if result[0]
         puts "Releasing VM"
-        exit 0
+        command_exit 0
     end
     
 when "stop"
@@ -444,7 +450,7 @@ when "stop"
     result=vm.stop(vm_id)
     if result[0]
         puts "Stopping VM"
-        exit 0
+        command_exit 0
     end
     
 when "cancel"
@@ -452,7 +458,7 @@ when "cancel"
     result=vm.cancel(*ARGV)
     if result[0]
         puts "Cancelling VM"
-        exit 0
+        command_exit 0
     end
 
 when "suspend"
@@ -461,7 +467,7 @@ when "suspend"
     result=vm.suspend(vm_id)
     if result[0]
         puts "Suspending VM"
-        exit 0
+        command_exit 0
     end
     
 when "resume"
@@ -470,7 +476,7 @@ when "resume"
     result=vm.resume(vm_id)
     if result[0]
         puts "Resuming VM"
-        exit 0
+        command_exit 0
     end
 
 when "list"
@@ -519,7 +525,7 @@ when "delete"
     result=vm.delete(vm_id)
     if result[0]
         puts "VM correctly deleted" 
-        exit 0
+        command_exit 0
     end
 
 when "show"
@@ -556,18 +562,20 @@ when "show"
              puts str % [key, value] 
          }              
          
-         exit 0
+         command_exit 0
      end
         
 else
     onevm_opts.print_help
-    exit -1
+    command_exit -1
 end
 
 
 
 if !result[0]
     puts "Error: " + result[1].to_s
-    exit -1
+    command_exit -1
 end
+
+command_exit 0
 

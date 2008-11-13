@@ -71,7 +71,7 @@ void RequestManager::VirtualMachineDeploy::execute(
     
     if (host->isManaged() == true)
     {
-        nd.get_configuration_attribute("VM_RDIR",vmdir);
+        nd.get_configuration_attribute("VM_DIR",vmdir);
     }
     else
     {

@@ -33,7 +33,7 @@ class Attribute
 {
 public:
 
-    Attribute(string& aname):attribute_name(aname)
+    Attribute(const string& aname):attribute_name(aname)
     {
         transform (
             attribute_name.begin(),
@@ -77,7 +77,7 @@ public:
     /**
      *  Builds a new attribute from a string.
      */
-    virtual void unmarshall(string& sattr) = 0;
+    virtual void unmarshall(const string& sattr) = 0;
     
     /**
      *  Returns the attribute type
@@ -104,12 +104,12 @@ class SingleAttribute : public Attribute
 {
 public:
 
-    SingleAttribute(string& name):Attribute(name){};
+    SingleAttribute(const string& name):Attribute(name){};
 
-    SingleAttribute(string& name, string& value):
+    SingleAttribute(const string& name, const string& value):
         Attribute(name),attribute_value(value){};
     
-    SingleAttribute(const char * name, string& value):
+    SingleAttribute(const char * name, const string& value):
         Attribute(name),attribute_value(value){};
 
     ~SingleAttribute(){};
@@ -139,11 +139,19 @@ public:
     /**
      *  Builds a new attribute from a string.
      */    
-    void unmarshall(string& sattr)
+    void unmarshall(const string& sattr)
     {
         attribute_value = sattr;
     };
-    
+
+    /**
+     *  Replaces the attribute value from a string.
+     */
+    void replace(const string& sattr)
+    {
+        attribute_value = sattr;
+    };
+
     /**
      *  Returns the attribute type
      */    
@@ -169,9 +177,9 @@ class VectorAttribute : public Attribute
 {
 public:
 
-    VectorAttribute(string& name):Attribute(name){};
+    VectorAttribute(const string& name):Attribute(name){};
 
-    VectorAttribute(string& name, map<string,string>& value):
+    VectorAttribute(const string& name,const  map<string,string>& value):
             Attribute(name),attribute_value(value){};
 
     ~VectorAttribute(){};
@@ -201,7 +209,13 @@ public:
      *  Builds a new attribute from a string of the form:
      *  "VAL_NAME_1=VAL_VALUE_1,...,VAL_NAME_N=VAL_VALUE_N".
      */        
-    void unmarshall(string& sattr);
+    void unmarshall(const string& sattr);
+
+    /**
+     *  Replace the value of the given attribute with the provided map
+     */
+    void replace(const map<string,string>& attr);
+
 
     /**
      *  Returns the attribute type

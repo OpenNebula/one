@@ -4,7 +4,7 @@ ONE_LOCATION=ENV["ONE_LOCATION"]
 
 if !ONE_LOCATION
     puts "ONE_LOCATION not set"
-    exit -1
+    exit(-1)
 end
 
 $: << ONE_LOCATION+"/lib/ruby"
@@ -49,6 +49,7 @@ class Sensor < SSHCommand
 
         gen_identifier
         @script_hash=gen_hash
+        super(script)
     end
     
     # Runs the sensor in some host
@@ -219,31 +220,7 @@ class IM < ONEMad
         
         init_actions
     end
-    
-    def start_action_thread
-        @action_thread=Thread.new {
-            while true
-                @action_mutex.lock
-                done=@actions.select{|a| a.finished }
-                @action_mutex.unlock
 
-                if done.length>0
-                    done.each{|a|
-                        tmp_result = a.get_result
-                        STDOUT.puts tmp_result
-                        STDOUT.flush
-                        log(tmp_result,DEBUG)
-                    }
-
-                    @action_mutex.lock
-                    @actions-=done
-                    @action_mutex.unlock
-                end
-                sleep(1)
-            end
-        }
-    end
-    
     def action_init(args)
         STDOUT.puts "INIT SUCCESS"
         STDOUT.flush
@@ -252,13 +229,28 @@ class IM < ONEMad
     
     def action_monitor(args)
         action=PollAction.new(args[1], args[2], @sensors)
-        send_ssh_action(args[1], args[2], action)
+        action.callback=lambda {|actions,number|
+            result=get_result(actions, number)
+            STDOUT.puts result
+            STDOUT.flush
+            log(result,DEBUG)
+        }
+        send_ssh_action(action)
     end
     
-    #def action_finalize(args)
-    #    STDOUT.puts "FINALIZE SUCCESS"
-    #    exit 0
-    #end
+    def get_result(actions, number)
+        good_results=actions.select{|s| s.ok? }
+        
+        if good_results.length>0
+            "MONITOR SUCCESS " + number.to_s + " " + 
+                good_results.collect{|s| s.value }.join(',')
+        else
+            bad_results=actions.select{|s| !s.ok? && s.value }
+            err_text="Unknown error"
+            err_text=bad_results[0].value.to_s if bad_results.length>0
+            "MONITOR FAILURE " + number.to_s + " " + err_text
+        end
+    end
 end
 
 
@@ -267,7 +259,7 @@ im_conf=ARGV[0]
 
 if !im_conf
     puts "You need to specify config file."
-    exit -1
+    exit(-1)
 end
 
 im_conf=ONE_LOCATION+"/"+im_conf if im_conf[0] != ?/

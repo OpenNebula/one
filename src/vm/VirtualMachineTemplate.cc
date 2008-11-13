@@ -17,8 +17,8 @@
 
 #include "VirtualMachineTemplate.h"
 
-const char * VirtualMachineTemplate::table = "vm_template";
+const char * VirtualMachineTemplate::table = "vm_attributes";
 
-const char * VirtualMachineTemplate::db_bootstrap = "CREATE TABLE vm_template"
+const char * VirtualMachineTemplate::db_bootstrap = "CREATE TABLE vm_attributes"
     " (id INTEGER, name TEXT, type INTEGER, value TEXT)";
 

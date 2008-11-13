@@ -35,6 +35,7 @@ main_env.Append(LIBPATH=[
     cwd+'/src/dm',
     cwd+'/src/im',
     cwd+'/src/rm',
+    cwd+'/src/vnm',
 ])
 
 # Compile flags
@@ -103,7 +104,8 @@ build_scripts=[
     'src/tm/SConstruct',
     'src/im/SConstruct',
     'src/dm/SConstruct',
-    'src/scheduler/SConstruct',    
+    'src/scheduler/SConstruct',  
+    'src/vnm/SConstruct',    
 ]
 
 for script in build_scripts:

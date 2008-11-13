@@ -45,7 +45,6 @@ int LibVirtDriver::deployment_description(
      const VectorAttribute *	disk;
 
      string  type    = "";
-     string  source  = "";
      string  target  = "";
      string  bus     = "";
      string  ro      = "";
@@ -230,7 +229,7 @@ int LibVirtDriver::deployment_description(
 
      num = vm->get_template_attribute("DISK",attrs);
 
-     for (int i=0; i < num ;i++,source="",target="",ro="")
+     for (int i=0; i < num ;i++,target="",ro="")
      {
          disk = dynamic_cast<const VectorAttribute *>(attrs[i]);
          
@@ -240,12 +239,11 @@ int LibVirtDriver::deployment_description(
          }
          
          type   = disk->vector_value("TYPE");
-         source = disk->vector_value("SOURCE");
          target = disk->vector_value("TARGET");
          ro     = disk->vector_value("READONLY");
          bus    = disk->vector_value("BUS");
 
-         if ( source.empty() || target.empty())
+         if (target.empty())
          {
          	goto error_disk;
          }
@@ -268,8 +266,8 @@ int LibVirtDriver::deployment_description(
          }
          
          file << "\t\t<disk type='file' device='" << type << "'>" << endl;
-         file << "\t\t\t<source file='" << source << "'/>" << endl;
-                  
+         file << "\t\t\t<source file='" << vm->get_remote_dir() << "/disk." << i 
+                                        << "'/>" << endl;
          file << "\t\t\t<target dev='" << target << "'"; 
          
          if (!bus.empty())
@@ -506,7 +504,7 @@ error_boot:
 	return -1;
 
 error_disk:
-	vm->log("VMM", Log::ERROR, "Wrong source or target value in DISK.");
+	vm->log("VMM", Log::ERROR, "Wrong target value in DISK.");
 	file.close();	
 	return -1;
 }

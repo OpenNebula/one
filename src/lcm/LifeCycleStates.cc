@@ -68,7 +68,7 @@ void  LifeCycleManager::save_success_action(int vid)
                          
         //----------------------------------------------------
         
-        tm->trigger(TransferManager::PROLOG,vid);
+        tm->trigger(TransferManager::PROLOG_MIGR,vid);
     }
     else if ( vm->get_lcm_state() == VirtualMachine::SAVE_SUSPEND)
     {
@@ -82,7 +82,7 @@ void  LifeCycleManager::save_success_action(int vid)
         //----------------------------------------------------
 
         vm->set_running_etime(the_time);
-        
+
         vm->set_etime(the_time);
         
         vm->set_reason(History::STOP_RESUME);
@@ -108,12 +108,14 @@ void  LifeCycleManager::save_success_action(int vid)
         //----------------------------------------------------
         
         vm->set_state(VirtualMachine::EPILOG_STOP);
-        
+
         vmpool->update(vm);
         
         vm->set_epilog_stime(the_time);
         
         vm->set_running_etime(the_time);        
+
+        vm->set_reason(History::STOP_RESUME);
         
         vmpool->update_history(vm);
         
@@ -121,7 +123,7 @@ void  LifeCycleManager::save_success_action(int vid)
         
         //----------------------------------------------------
         
-        tm->trigger(TransferManager::EPILOG,vid);
+        tm->trigger(TransferManager::EPILOG_STOP,vid);
     }
     else
     {
@@ -181,7 +183,7 @@ void  LifeCycleManager::save_failure_action(int vid)
     	
     	// --- Add new record by copying the previous one 
     	
-        vm->cp_history();
+        vm->cp_previous_history();
         
         vm->set_stime(the_time);
         
@@ -453,19 +455,23 @@ void  LifeCycleManager::prolog_success_action(int vid)
     ostringstream           os;
     
     VirtualMachineManager::Actions action;
-
+    VirtualMachine::LcmState       lcm_state;
+    
     vm = vmpool->get(vid, true);
 
     if ( vm == 0 )
     {
         return;
     }
+    
+    lcm_state = vm->get_lcm_state(); 
             
-    if (vm->get_lcm_state()==VirtualMachine::PROLOG)
+    if (lcm_state == VirtualMachine::PROLOG)
     {
         action = VirtualMachineManager::DEPLOY;    
     }
-    else if (vm->get_lcm_state()==VirtualMachine::PROLOG_MIGRATE)
+    else if ( lcm_state == VirtualMachine::PROLOG_MIGRATE ||
+    		  lcm_state == VirtualMachine::PROLOG_RESUME )
     {
         action = VirtualMachineManager::RESTORE;        
     }

@@ -50,13 +50,13 @@ HostShare::HostShare(
 /* HostShare :: Database Access Functions                               */
 /* ************************************************************************** */
 
-const char * HostShare::table = "hostshares";
+const char * HostShare::table = "host_shares";
 
-const char * HostShare::db_names = "(hsid,endpoint,disk_usage,"
+const char * HostShare::db_names = "(hid,endpoint,disk_usage,"
     "mem_usage,cpu_usage,max_disk,max_mem,max_cpu,running_vms)";
 
-const char * HostShare::db_bootstrap = "CREATE TABLE hostshares ("
-	"hsid INTEGER PRIMARY KEY, endpoint TEXT,"
+const char * HostShare::db_bootstrap = "CREATE TABLE host_shares ("
+	"hid INTEGER PRIMARY KEY, endpoint TEXT,"
     "disk_usage INTEGER,mem_usage INTEGER,cpu_usage INTEGER,"
     "max_disk INTEGER,max_mem INTEGER,max_cpu INTEGER,running_vms INTEGER)";
 
@@ -65,7 +65,7 @@ const char * HostShare::db_bootstrap = "CREATE TABLE hostshares ("
 
 int HostShare::unmarshall(int num, char **names, char ** values)
 {
-    if ((values[HSID] == 0) ||
+    if ((values[HID] == 0) ||
         (values[ENDPOINT] == 0) ||
         (values[DISK_USAGE] == 0) ||
         (values[MEM_USAGE] == 0) ||
@@ -79,7 +79,7 @@ int HostShare::unmarshall(int num, char **names, char ** values)
         return -1;
     }
 
-    hsid       = atoi(values[HSID]);
+    hsid       = atoi(values[HID]);
     endpoint   = values[ENDPOINT];
     disk_usage = atoi(values[DISK_USAGE]);
     mem_usage  = atoi(values[MEM_USAGE]);
@@ -121,7 +121,7 @@ int HostShare::select(SqliteDB * db)
     int             rc;
     int             bhsid;
 
-    oss << "SELECT * FROM " << table << " WHERE hsid = " << hsid;
+    oss << "SELECT * FROM " << table << " WHERE hid = " << hsid;
 
     bhsid = hsid;
     hsid  = -1;
@@ -186,7 +186,7 @@ int HostShare::drop(SqliteDB * db)
     ostringstream   oss;
 
     // Drop the HostShare itself
-    oss << "DELETE FROM " << table << " WHERE hsid=" << hsid;
+    oss << "DELETE FROM " << table << " WHERE hid=" << hsid;
 
     return db->exec(oss);
 }
@@ -197,7 +197,7 @@ int HostShare::drop(SqliteDB * db)
 
 ostream& operator<<(ostream& os, HostShare& hs)
 {
-	os << "\tHSID         = " << hs.hsid    << endl;
+	os << "\tHID          = " << hs.hsid    << endl;
 	os << "\tENDPOINT     = " << hs.endpoint<< endl;
 	
     os << "\tMAX_CPU      = " << hs.max_cpu << endl;

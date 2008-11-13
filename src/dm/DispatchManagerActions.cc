@@ -280,7 +280,7 @@ int DispatchManager::release(
         return -1;
     }
     
-    oss << "Realising VM " << vid; 
+    oss << "Releasing VM " << vid; 
     Nebula::log("DiM",Log::DEBUG,oss);
     
     if (vm->get_state() == VirtualMachine::HOLD)
@@ -524,11 +524,17 @@ int DispatchManager::finalize(
         oss << "Finalizing VM " << vid; 
         Nebula::log("DiM",Log::DEBUG,oss);
         
+        vm->set_state(VirtualMachine::LCM_INIT);
+        
         vm->set_state(VirtualMachine::DONE);
+                
+        vm->set_exit_time(time(0));
         
         vmpool->update(vm);
         
         vm->log("DiM", Log::INFO, "New VM state is DONE.");
+        
+        vm->release_leases();
         
         vmpool->remove(vm);
         

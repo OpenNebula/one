@@ -33,18 +33,10 @@ NebulaTemplate::NebulaTemplate(string& nebula_location)
     ostringstream       os;
     SingleAttribute *   attribute;
     string              value;
-    Nebula&             nd = Nebula::instance();
         
     conf_file  = nebula_location + "/etc/";
     conf_file += conf_name;
-    
-    // VM_DIR
-    os << nebula_location << "/var";
-    value = os.str();
-    
-    attribute = new SingleAttribute("VM_DIR",value);
-    conf_default.insert(make_pair(attribute->name(),attribute));
-        
+            
     // POLL_INTERVAL
     value = "300";
     
@@ -69,10 +61,22 @@ NebulaTemplate::NebulaTemplate(string& nebula_location)
     attribute = new SingleAttribute("PORT",value);
     conf_default.insert(make_pair(attribute->name(),attribute));
        
-    //VM_RDIR    
-    value = nd.get_nebula_location() + "/var";
+    //VM_DIR    
+    value = nebula_location + "/var";
     
-    attribute = new SingleAttribute("VM_RDIR",value);
+    attribute = new SingleAttribute("VM_DIR",value);
+    conf_default.insert(make_pair(attribute->name(),attribute));
+    
+    //MAC_PREFIX    
+    value = "00:01";
+    
+    attribute = new SingleAttribute("MAC_PREFIX",value);
+    conf_default.insert(make_pair(attribute->name(),attribute));
+
+    //NETWORK_SIZE    
+    value = "254";
+    
+    attribute = new SingleAttribute("NETWORK_SIZE",value);
     conf_default.insert(make_pair(attribute->name(),attribute));
     
     //DEBUG_LEVEL    

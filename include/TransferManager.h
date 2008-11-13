@@ -22,6 +22,7 @@
 #include "ActionManager.h"
 #include "VirtualMachinePool.h"
 #include "LifeCycleManager.h"
+#include "TransferManagerDriver.h"
 
 using namespace std;
 
@@ -32,10 +33,12 @@ class TransferManager : public MadManager, public ActionListener
 public:
 
     TransferManager(
-        VirtualMachinePool *        pool,
+    	VirtualMachinePool *      	_vmpool,
+        HostPool *                	_hpool,
         vector<const Attribute*>&   _mads):
             MadManager(_mads),
-            hpool(pool)
+            vmpool(_vmpool),
+            hpool(_hpool)
     {
         am.addListener(this);
     };
@@ -45,7 +48,10 @@ public:
     enum Actions
     {
         PROLOG,
+        PROLOG_MIGR,
+        PROLOG_RESUME,
         EPILOG,
+        EPILOG_STOP,
         CHECKPOINT,
         FINALIZE
     };
@@ -75,7 +81,7 @@ public:
      *   identity will be used. Otherwise the Mad will be loaded through the
      *   sudo application. 
      */
-    void load_mads(int uid){};
+    void load_mads(int uid);
         
     /**
      *  Gets the thread identification.
@@ -93,15 +99,54 @@ private:
     pthread_t               tm_thread;
 
     /**
-     *  Pointer to the VM Pool, to access virtual machines
+     *  Pointer to the Virtual Machine Pool, to access VMs
      */
-    VirtualMachinePool *    hpool;
+    VirtualMachinePool *    vmpool;
+
+    /**
+     *  Pointer to the Host Pool, to access hosts
+     */
+    HostPool *              hpool;
      
     /**
      *  Action engine for the Manager
      */
-    ActionManager   am;
+    ActionManager   		am;
 
+    /**
+     *  Returns a pointer to a Transfer Manager driver.
+     *    @param uid of the owner of the driver
+     *    @param name of an attribute of the driver (e.g. its type)
+     *    @param value of the attribute
+     *    @return the TM driver owned by uid with attribute name equal to value
+     *    or 0 in not found
+     */
+    const TransferManagerDriver * get(
+        int             uid,
+        const string&   name,
+        const string&   value)
+    {
+        return static_cast<const TransferManagerDriver *>
+               (MadManager::get(uid,name,value));
+    };
+
+    /**
+     *  Returns a pointer to a Transfer Manager driver. The driver is 
+     *  searched by its name.
+     *    @param uid of the owner of the driver
+     *    @param name the name of the driver
+     *    @return the TM driver owned by uid with attribute name equal to value
+     *    or 0 in not found
+     */
+    const TransferManagerDriver * get(
+        int             uid,
+        const string&   name)
+    {
+        string _name("NAME");
+        return static_cast<const TransferManagerDriver *>
+               (MadManager::get(uid,_name,name));
+    };
+        
     /**
      *  Function to execute the Manager action loop method within a new pthread 
      * (requires C linkage)
@@ -123,10 +168,25 @@ private:
     void prolog_action(int vid);
 
     /**
+     *  This function starts the prolog migration sequence 
+     */
+    void prolog_migr_action(int vid);
+
+    /**
+     *  This function starts the prolog resume sequence 
+     */
+    void prolog_resume_action(int vid);
+    
+    /**
      *  This function starts the epilog sequence
      */
     void epilog_action(int vid);
 
+    /**
+     *  This function starts the epilog_stop sequence
+     */
+    void epilog_stop_action(int vid);
+    
     /**
      *  This function starts the epilog sequence
      */

@@ -25,10 +25,11 @@ int VirtualMachinePool::allocate (
     int *          oid,
     bool           on_hold)
 {
-    VirtualMachine *    vm;
-    char *              error_msg;
-    int                 rc;
-
+    VirtualMachine *          vm;       
+    
+    char *                    error_msg;
+    int                       rc;
+    
     // Build a new Virtual Machine object
 
     vm = new VirtualMachine;
@@ -60,6 +61,11 @@ int VirtualMachinePool::allocate (
     // Insert the Object in the pool
 
     *oid = PoolSQL::allocate(vm);
+    
+    if ( *oid == -1 )
+    {
+        return -1;
+    }
 
     return 0;
 }

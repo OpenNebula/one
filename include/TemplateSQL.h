@@ -92,7 +92,8 @@ protected:
      *    @param name of the attribute.
      *    @param value of the new attribute. 
      */
-    int replace_attribute(SqliteDB * db, string& name, string& value);    
+    int replace_attribute(SqliteDB * db, const string& name, const string& value); 
+    
 };
 
 /* -------------------------------------------------------------------------- */

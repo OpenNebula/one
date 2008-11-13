@@ -96,8 +96,17 @@ public:
      *    @returns the number of elements in the vector
      */
     virtual int get(
-        string& name, 
+        const string& name, 
         vector<const Attribute*>& values) const;
+
+    /**
+     *  Gets all the attributes with the given name,  non-const version
+     *    @param name the attribute name.
+     *    @returns the number of elements in the vector
+     */
+    virtual int get(
+        const string& name, 
+        vector<Attribute*>& values);
         
     /**
      *  Gets the value of a Single attributes (string) with the given name. 

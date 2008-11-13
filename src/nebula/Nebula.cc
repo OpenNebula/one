@@ -40,6 +40,7 @@ void Nebula::start()
     int                 fd;
     sigset_t            mask;
     int                 signal;
+    char 				hn[80];
     
     const SingleAttribute *     sattr;
     vector<const Attribute *>   attr;
@@ -52,6 +53,13 @@ void Nebula::start()
     }
     
     nebula_location = nl;
+    
+    if ( gethostname(hn,79) != 0 )
+    {
+    	throw runtime_error("Error getting hostname");
+    }
+    
+    hostname = hn;
 
     // ----------------------------------------------------------- 
     // Configuration 
@@ -142,9 +150,17 @@ void Nebula::start()
     }
     
     try
-    {        
+    {   
+    	string 	mac_prefix;
+    	int		size;
+    	
         vmpool = new VirtualMachinePool(db);
         hpool  = new HostPool(db);
+        
+        nebula_configuration->get("MAC_PREFIX", mac_prefix);
+        nebula_configuration->get("NETWORK_SIZE", size);
+                
+        vnpool = new VirtualNetworkPool(db,mac_prefix,size);
     }
     catch (exception&)
     {
@@ -155,6 +171,7 @@ void Nebula::start()
     
     vmpool->bootstrap();
     hpool->bootstrap();
+    vnpool->bootstrap();
     
     // ----------------------------------------------------------- 
     // Close stds, we no longer need them                          
@@ -288,9 +305,9 @@ void Nebula::start()
     {
         vector<const Attribute *> tm_mads;
                 
-        tm_mads.clear();
+        nebula_configuration->get("TM_MAD", tm_mads);
         
-        tm = new TransferManager(vmpool,tm_mads);
+        tm = new TransferManager(vmpool, hpool, tm_mads);
     }
     catch (bad_alloc&)
     {
@@ -324,22 +341,14 @@ void Nebula::start()
     // ---- Request Manager ----
     try
     {        
-        int             rm_port=0;
+        int             rm_port = 0;
 
-        attr.clear();
-
-        nebula_configuration->get("PORT", attr);
-        
-        sattr = static_cast<const SingleAttribute *>(attr[0]);
-        
-        is.clear();
-        is.str(sattr->value());
-        
-        is >> rm_port;
+        nebula_configuration->get("PORT", rm_port);
         
         rm = new RequestManager(
             vmpool,
             hpool,
+            vnpool,
             rm_port,
             nebula_location + "/var/one_xmlrpc.log");
     }
@@ -364,6 +373,7 @@ void Nebula::start()
 
     im->load_mads(0);
     vmm->load_mads(0);
+    tm->load_mads(0);
 
     // -----------------------------------------------------------
     // Wait for a SIGTERM or SIGINT signal

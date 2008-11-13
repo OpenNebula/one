@@ -66,7 +66,7 @@ private:
     // ----------------------------------------
     enum ColNames
     {
-        OID             = 0,
+        VID             = 0,
         SEQ             = 1,
         HOSTNAME        = 2,
         VM_DIR          = 3,
@@ -115,7 +115,7 @@ private:
     int     seq;
 
     string  hostname;
-    string  vm_rdir;
+    string  vm_dir;
     
     int     hid;
 
@@ -138,13 +138,13 @@ private:
 
     //Non-persistent history fields
     string  vm_lhome;
+    string  transfer_file;
+    string  deployment_file;
+    
     string  vm_rhome;
-    
-    string  deployment_lfile;
-    string  deployment_rfile;
-    
     string  checkpoint_file;
-
+    string  rdeployment_file;
+    
     friend int history_select_cb (
         void *                  _history,
         int                     num,

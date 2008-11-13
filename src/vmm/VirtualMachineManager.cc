@@ -243,11 +243,11 @@ void VirtualMachineManager::deploy_action(int vid)
 
     //Generate VM description file
     os.str("");
-    os << "Generating deployment file: " << vm->get_deployment_lfile();
+    os << "Generating deployment file: " << vm->get_deployment_file();
     
     vm->log("VMM", Log::INFO, os);
 
-    rc = vmd->deployment_description(vm,vm->get_deployment_lfile());
+    rc = vmd->deployment_description(vm,vm->get_deployment_file());
 
     if (rc != 0)
     {
@@ -255,7 +255,7 @@ void VirtualMachineManager::deploy_action(int vid)
     }
 
     // Invoke driver method
-    vmd->deploy(vid,vm->get_hostname(),vm->get_deployment_rfile());
+    vmd->deploy(vid,vm->get_hostname(),vm->get_remote_deployment_file());
 
     vm->unlock();
     
@@ -273,7 +273,7 @@ error_driver:
 
 error_file:
     os.str("");
-    os << "deploy_action, error generating deployment file: " << vm->get_deployment_lfile();
+    os << "deploy_action, error generating deployment file: " << vm->get_deployment_file();
     goto error_common;        
     
 error_common:

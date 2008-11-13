@@ -1,0 +1,225 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2008, Distributed Systems Architecture Group, Universidad   #
+# Complutense de Madrid (dsa-research.org)                                   #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+
+
+ONE_LOCATION=ENV["ONE_LOCATION"]
+
+if !ONE_LOCATION
+    puts "ONE_LOCATION not set"
+    exit -1
+end
+
+$: << ONE_LOCATION+"/lib/ruby"
+
+require 'one'
+require 'client_utilities'
+require 'command_parse'
+
+ShowTableVN={
+    :nid => {
+        :name => "NID",
+        :desc => "ONE identifier for virtual network",
+        :size => 4,
+        :proc => lambda {|d,e| d["oid"] }
+    },
+    :name => {
+        :name => "NAME",
+        :desc => "name of the virtual network",
+        :size => 15,
+        :left => true,
+        :proc => lambda {|d,e| d["name"] }
+    },
+    :type => {
+        :name => "TYPE",
+        :desc => "NType of virtual network",
+        :size => 4,
+        :proc => lambda {|d,e| d["type"] }
+    },
+    :size => {
+        :name => "SIZE",
+        :desc => "Number of hosts (free + used) in the virtual network",
+        :size => 6,
+        :proc => lambda {|d,e| d["SIZE"] }
+    },
+    :bridge => {
+        :name => "BRIDGE",
+        :desc => "Bridge associated to the virtual network",
+        :size => 6,
+        :left => true,
+        :proc => lambda {|d,e| d["bridge"] }
+    },
+    
+
+    :default => [:nid, :name, :type, :size, :bridge]
+}
+
+class VNShow
+    def initialize(vn)
+        @vn=vn
+        @table=ShowTable.new(ShowTableVN, :vn => @vn)
+    end
+    
+    def close
+    end
+
+    def header_vn_small
+        scr_bold
+        scr_underline
+        puts @table.header_str
+        scr_restore
+    end
+    
+    def list_short(options=nil)
+        res=@vn.get
+        if options
+            @table.columns=options[:columns] if options[:columns]
+        end
+
+        if res[0]
+            result=res
+            header_vn_small
+            res[1].each {|row|
+                res2=@vn.get_vn_attributes(row["oid"])
+                if res2[0]
+                    attributes=res2[1]
+                    attributes.each {|a|
+                        if %w{SIZE}.include? a["name"]
+                            row[a["name"]]=a["value"]
+                        end
+                    }
+                end
+            }
+            puts @table.data_str(result[1], options)
+            result
+        else
+            result=res
+        end
+    end
+    
+    def top(options=nil)
+        delay=1
+        delay=options[:delay] if options && options[:delay]
+        
+        result=nil
+        
+        begin
+            while true
+                scr_cls
+                scr_move(0,0)
+                result=list_short(options)
+                sleep delay
+            end
+        rescue Exception
+        end
+        result
+    end
+end
+
+class OneVNParse < CommandParse
+    
+    COMMANDS_HELP=<<-EOT
+Commands:
+
+* create (Creates a new virtual network)
+    onenetwork create <template>
+    
+    template is a filename where the virtual network is described
+    
+* show (Gets info from a virtual network)
+    onenetwork show <network_id>
+    
+* delete (Removes a virtual network)
+    onehost delete <network_id>
+    
+* list (Lists virtual networks in the pool)
+    onehost list
+
+EOT
+
+    def text_commands
+        COMMANDS_HELP
+    end
+
+    def text_command_name
+        "onenetwork"
+    end
+
+    def list_options
+        table=ShowTable.new(ShowTableVN)
+        table.print_help
+    end
+
+end
+
+server=ONE::Server.new
+vn=ONE::VN.new(server)
+
+onevn_opts=OneVNParse.new
+onevn_opts.parse(ARGV)
+
+result=[false, "Unknown error"]
+
+command=ARGV.shift
+
+case command
+when "create"
+    check_parameters("create", 1)
+    result=vn.allocate(*ARGV)
+    if result[0]
+        puts "NID: " + result[1].to_s
+        exit 0
+    end
+    
+when "show"
+    check_parameters("show", 1)
+    vn_id=get_vn_id(vn, ARGV[0])
+    result=vn.info(vn_id)
+    if result[0]
+        puts result[1]
+    else
+        puts "Error: "+result[1]
+        exit -1
+    end
+    
+when "delete"
+    check_parameters("delete", 1)
+    vn_id=get_vn_id(vn, ARGV[0])
+    result=vn.delete(vn_id)
+    if result[0]
+        puts "Virtual Network deleted"
+        exit 0
+    end
+    
+when "list"
+    vnlist=VNShow.new(vn)
+    ops=onevn_opts.options
+    ops[:columns]=ops[:list] if ops[:list]
+    result=vnlist.list_short(ops)
+    vnlist.close
+    
+else
+    onevn_opts.print_help
+    exit -1
+end
+
+if !result[0]
+    puts "Error: " + result[1].to_s
+    exit -1
+end

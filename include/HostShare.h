@@ -171,7 +171,7 @@ private:
 
     enum ColNames
     {
-        HSID         = 0,
+        HID          = 0,
         ENDPOINT     = 1,
         DISK_USAGE   = 2,
         MEM_USAGE    = 3,

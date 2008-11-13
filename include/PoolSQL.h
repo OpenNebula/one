@@ -156,7 +156,7 @@ private:
     int                         lastOID;
 
     /**
-     *  The pool is implemented with a Map, of SQL object pointers, using the 
+     *  The pool is implemented with a Map of SQL object pointers, using the 
      *  OID as key.
      */
     map<int,PoolObjectSQL *>	pool;
@@ -175,7 +175,7 @@ private:
 
     /**
      *  FIFO-like replacement policy function. Before removing an object (pop)
-     *  from  the cache it's lock is checked. The object is removed only if 
+     *  from  the cache its lock is checked. The object is removed only if 
      *  the associated mutex IS NOT blocked. Otherwise the oid is sent to the 
      *  back of the queue.  
      */

@@ -425,7 +425,7 @@ protected:
     
     enum ColNames
     {
-        HID              = 0, 
+        OID              = 0, 
         HOST_NAME        = 1, 
         STATE            = 2,  
         IM_MAD           = 3, 

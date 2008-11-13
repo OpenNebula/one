@@ -30,6 +30,9 @@ DISK = [
 
 NIC = [ mac="00:ff:72:17:20:27"]
 
+NIC = [ NETWORK="Private LAN"]
+
+
 # --- VNC server ---
 
 GRAPHICS = [ 

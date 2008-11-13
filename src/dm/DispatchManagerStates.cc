@@ -106,7 +106,7 @@ error:
 
 void  DispatchManager::done_action(int vid)
 {
-    VirtualMachine *    vm;
+    VirtualMachine *      vm;
     
     vm = vmpool->get(vid,true);
     
@@ -115,7 +115,7 @@ void  DispatchManager::done_action(int vid)
         return;
     }
     
-    if (vm->get_state() == VirtualMachine::ACTIVE )
+    if ( vm->get_state() == VirtualMachine::ACTIVE )
     {
         vm->set_state(VirtualMachine::DONE);
         
@@ -126,6 +126,8 @@ void  DispatchManager::done_action(int vid)
         vmpool->update(vm);
         
         vm->log("DiM", Log::INFO, "New VM state is DONE");
+        
+        vm->release_leases();
         
         vmpool->remove(vm);
     }

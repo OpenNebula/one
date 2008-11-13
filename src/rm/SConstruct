@@ -15,7 +15,10 @@ source_files=[
     'RequestManagerHostAllocate.cc',
     'RequestManagerHostDelete.cc',
     'RequestManagerHostInfo.cc',
-    'RequestManagerHostEnable.cc',    
+    'RequestManagerHostEnable.cc',  
+    'RequestManagerVirtualNetworkAllocate.cc',  
+    'RequestManagerVirtualNetworkInfo.cc',  
+    'RequestManagerVirtualNetworkDelete.cc',    
 ]
 
 # Build library

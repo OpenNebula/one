@@ -37,11 +37,26 @@ void  LifeCycleManager::deploy_action(int vid)
         time_t				thetime = time(0);
         int					cpu,mem,disk;
         
+        VirtualMachine::LcmState vm_state;
+        TransferManager::Actions tm_action;
+        
         //----------------------------------------------------
         //                 PROLOG STATE
         //----------------------------------------------------
+        
+        vm_state  = VirtualMachine::PROLOG;
+        tm_action = TransferManager::PROLOG;
+        
+        if (vm->hasPreviousHistory())
+        {
+        	if (vm->get_previous_reason() == History::STOP_RESUME)
+        	{
+        		vm_state  = VirtualMachine::PROLOG_RESUME;
+        		tm_action = TransferManager::PROLOG_RESUME;
+        	}
+        }
 
-        vm->set_state(VirtualMachine::PROLOG);
+        vm->set_state(vm_state);
                 
         vmpool->update(vm);
         
@@ -59,7 +74,7 @@ void  LifeCycleManager::deploy_action(int vid)
         
         //----------------------------------------------------
 
-        tm->trigger(TransferManager::PROLOG,vid);
+        tm->trigger(tm_action,vid);
     }
     else
     {

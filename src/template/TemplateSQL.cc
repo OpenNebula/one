@@ -244,16 +244,16 @@ int TemplateSQL::drop(SqliteDB * db)
 
 int TemplateSQL::replace_attribute(
 	SqliteDB * 					db, 
-	string& 					name, 
-	string& 					value)
+	const string& 				        name, 
+	const string& 				        value)
 {
-    ostringstream   oss;
-    int 			rc;
+    ostringstream                                       oss;
+    int 			                        rc;
             
     multimap<string, Attribute *>::const_iterator	i;
-    Attribute *		attribute;
+    Attribute *		                                attribute;
     
-    if ( id == -1 || name.empty() || name.empty() )
+    if ( id == -1 || name.empty() || value.empty() )
     {
         return -1;
     }

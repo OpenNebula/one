@@ -42,8 +42,7 @@ int XenDriver::deployment_description(
     string root   = "";
 
     const VectorAttribute *	disk;
-  
-    string source = "";
+    
     string target = "";
     string ro     = "";
     string mode;
@@ -184,7 +183,7 @@ int XenDriver::deployment_description(
     
     file << "disk = [" << endl;
 
-    for (int i=0; i < num ;i++,source="",target="",ro="")
+    for (int i=0; i < num ;i++,target="",ro="")
     {
         disk = dynamic_cast<const VectorAttribute *>(attrs[i]);
         
@@ -193,11 +192,10 @@ int XenDriver::deployment_description(
             continue;
         }
         
-        source = disk->vector_value("SOURCE");
         target = disk->vector_value("TARGET");
         ro     = disk->vector_value("READONLY");
                 
-        if ( source.empty() || target.empty())
+        if ( target.empty() )
         {
         	goto error_disk;
         }
@@ -214,8 +212,10 @@ int XenDriver::deployment_description(
         	}
         }
         
+        // TODO: "file" method to specify disk images in xen is deprecated.
+        // The new method is using "tap:aio:" instead of "file:"
         file << "    "
-             << "'file:" << source << ","
+             << "'file:" << vm->get_remote_dir() << "/disk." << i << ","
              << target << ","
              << mode
              << "'," << endl;
@@ -364,7 +364,7 @@ error_root:
 	return -1;
 
 error_disk:
-	vm->log("VMM", Log::ERROR, "Wrong source or target value in DISK.");
+	vm->log("VMM", Log::ERROR, "Wrong target value in DISK.");
 	file.close();	
 	return -1;
 }

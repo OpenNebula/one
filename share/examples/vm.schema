@@ -42,12 +42,15 @@ FEATURES = [
 #---------------------------------------
 
 DISK = [
-  type     = "floppy|disk|cdrom",                    #Optional, KVM
+  type     = "floppy|disk|cdrom|swap",               #Optional, KVM ,XEN(only swap)
   source   = "path_to_disk_image_file|physical_dev", #Mandatory, XEN, KVM
+  size     = "size_in_GB",			     #Optional, KVM, XEN (only for swap, defaults 1G)
   target   = "device_to_map_disk",                   #Mandatory, XEN, KVM
   bus      = "ide|scsi|virtio|xen",                  #Optional, KVM
-  readonly = "yes|no" ]                              #Optional, XEN, KVM
-
+  readonly = "yes|no",                               #Optional, XEN, KVM
+  clone    = "yes|no",                               #Optional, XEN, KVM
+  save     = "path_to_disk_image_file" ]             #Optional, XEN, KVM
+  
 #---------------------------------------
 #           Network Interfaces
 #---------------------------------------

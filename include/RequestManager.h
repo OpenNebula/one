@@ -21,7 +21,7 @@
 #include "ActionManager.h"
 #include "VirtualMachinePool.h"
 #include "HostPool.h"
-
+#include "VirtualNetworkPool.h"
 
 #include <xmlrpc-c/base.hpp>
 #include <xmlrpc-c/registry.hpp>
@@ -40,9 +40,10 @@ public:
     RequestManager(
         VirtualMachinePool *    _vmpool,
         HostPool *              _hpool,
+        VirtualNetworkPool *    _vnpool,
         int                     _port,
         string                  _xml_log_file)
-            :vmpool(_vmpool),hpool(_hpool),port(_port),socket_fd(-1),
+            :vmpool(_vmpool),hpool(_hpool),vnpool(_vnpool),port(_port),socket_fd(-1),
             xml_log_file(_xml_log_file)
     {
         am.addListener(this);
@@ -98,7 +99,7 @@ private:
     pthread_t               rm_xml_server_thread;
 
     /**
-     *  Pointer to the Host Pool, to access hosts
+     *  Pointer to the VM Pool, to access Virtual Machines
      */
     VirtualMachinePool *    vmpool;
 
@@ -106,6 +107,11 @@ private:
      *  Pointer to the Host Pool, to access hosts
      */
     HostPool *              hpool;
+    
+    /**
+     *  Pointer to the VN Pool, to access Virtual Netowrks
+     */
+    VirtualNetworkPool *    vnpool;
 
     /**
      *  Port number where the connection will be open
@@ -352,7 +358,75 @@ private:
     private:
         HostPool * hpool;
 
-    };    
+    };   
+    
+    /* ---------------------------------------------------------------------- */
+    /*                      Virtual Network Interface                         */    
+    /* ---------------------------------------------------------------------- */
+    
+    
+    class VirtualNetworkAllocate: public xmlrpc_c::method
+    {
+    public:
+        VirtualNetworkAllocate(VirtualNetworkPool * _vnpool):vnpool(_vnpool)
+        {
+            _signature="A:ss";
+            _help="Creates a virtual network";
+        };
+
+        ~VirtualNetworkAllocate(){};
+
+        void execute(
+            xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP);
+
+    private:
+        VirtualNetworkPool * vnpool;
+    }; 
+    
+    /* ---------------------------------------------------------------------- */
+    
+    class VirtualNetworkInfo: public xmlrpc_c::method
+    {
+    public:
+        VirtualNetworkInfo(VirtualNetworkPool * _vnpool):vnpool(_vnpool)
+        {
+            _signature="A:si";
+            _help="Returns virtual network information";
+        };
+
+        ~VirtualNetworkInfo(){};
+
+        void execute(
+            xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP);
+
+    private:
+        VirtualNetworkPool * vnpool;
+
+    };
+    
+    /* ---------------------------------------------------------------------- */
+
+    class VirtualNetworkDelete: public xmlrpc_c::method
+    {
+    public:
+        VirtualNetworkDelete(VirtualNetworkPool * _vnpool):vnpool(_vnpool)
+        {
+            _signature="A:si";
+            _help="Deletes a virtual network";
+        };
+
+        ~VirtualNetworkDelete(){};
+
+        void execute(
+            xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP);
+
+    private:
+        VirtualNetworkPool * vnpool;
+
+    };
 };
 
 /* -------------------------------------------------------------------------- */

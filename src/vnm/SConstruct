@@ -1,0 +1,19 @@
+# SConstruct for src/vnm
+
+Import('env')
+
+lib_name='nebula_vnm'
+
+# Sources to generate the library
+source_files=[
+	'Leases.cc',
+	'FixedLeases.cc',
+	'RangedLeases.cc',
+	'VirtualNetwork.cc',
+	'VirtualNetworkTemplate.cc',
+	'VirtualNetworkPool.cc',
+]
+
+# Build library
+env.StaticLibrary(lib_name, source_files)
+

@@ -30,7 +30,7 @@ class DM < ONEMad
 			set_logger(STDERR,DEBUG_LEVEL)
 		end
 		
-		init_actions
+		init_actions(50)
 	end
 	
 	def action_init(args)
@@ -42,11 +42,21 @@ class DM < ONEMad
 		
 		# Get local deployment file
 		one_location=ENV["ONE_LOCATION"]
-		m=args[3].match(/.*?\/(\d+)\/(deployment.\d+)$/)
+		m=args[3].match(/.*?\/(\d+)\/images\/(deployment.\d+)$/)
 		
 		# If matched the we can read the file and get more configuration values
 		if m
 			local_deployment_file="#{one_location}/var/#{m[1]}/#{m[2]}"
+
+            # TODO: review this way of copying files
+            # This command copies deployment file to remote machine
+            # when shared directories are not used
+            copy_deploy="scp #{local_deployment_file} #{args[2]}:#{args[3]}"
+            copy_deploy_exit=system(copy_deploy)
+            STDERR.puts("Command: #{copy_deploy}")
+            STDERR.puts(copy_deploy_exit)
+            STDERR.flush
+
 		   
 			# TODO: check for error
 			file=open(local_deployment_file)
@@ -62,7 +72,12 @@ class DM < ONEMad
 			credits=credits[1] if credits
 
 			# Get the name of the VM (used to set credit scheduling)
-			vm_name=f.match(/^name = '(.*?)'$/)[1]
+			match_name=f.match(/^name = '(.*?)'$/)
+			if match_name
+			    vm_name=match_name[1]
+			else
+			    credits=nil
+			end
 		end
 
 		action_number=args[1]
@@ -83,11 +98,11 @@ class DM < ONEMad
 		end
 		
 		action=SSHAction.new(action_number, action_host, cmd)
-		send_ssh_action(action_number, action_host, action)
+		send_ssh_action(action)
 	end
 	
 	def action_shutdown(args)
-		std_action("SHUTDOWN", "shutdown #{args[3]}", args)
+		std_action("SHUTDOWN", "shutdown #{args[3]} \\&\\& sudo #{XM_PATH} destroy #{args[3]} \\&\\& sleep 4", args)
 	end
 	
 	def action_cancel(args)
@@ -146,7 +161,7 @@ class DM < ONEMad
 		end # End of callback
 		
 		action=SSHAction.new(action_number, action_host, cmd)
-		send_ssh_action(action_number, action_host, action)
+		send_ssh_action(action)
 	end
 	
 	###########################
@@ -163,7 +178,7 @@ class DM < ONEMad
 		end
 		
 		action=SSHAction.new(action_number, action_host, cmd)
-		send_ssh_action(action_number, action_host, action)
+		send_ssh_action(action)
 	end
 	
 	def write_response(action, stdout, stderr, args)

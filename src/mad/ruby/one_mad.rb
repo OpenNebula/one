@@ -15,6 +15,8 @@
 # limitations under the License.
 # --------------------------------------------------------------------------
 
+require "thread"
+
 # Author:: dsa-research.org
 # Copyright:: (c) 2007 Universidad Computense de Madrid
 # License:: Apache License
@@ -51,6 +53,7 @@ class ONEMad
 			@num_params_out=num_params_out
 		end
 		@debug_level = -1
+		@send_mutex=Mutex.new
 	end
 	
 	# Sends a message to the logger
@@ -82,7 +85,7 @@ class ONEMad
 	# action associated to the message.
 	def loop
 		while true
-		    exit -1 if STDIN.eof?
+		    exit(-1) if STDIN.eof?
 			str=STDIN.gets
 			next if !str
 			
@@ -101,15 +104,25 @@ class ONEMad
 	# If the message is shorter than the number of parameters specified in the
 	# initialization more marameters will be added containing '-'.
 	def send_message(*args)
-		to_send=args
-		if args.length<@num_params_out
-			(@num_params_out-args.length).times{ to_send<<'-' }
-		end
-		STDOUT.puts to_send.join(' ')
-		STDOUT.flush
-		log(to_send.join(' '),DEBUG)
-
+        @send_mutex.synchronize {
+    		to_send=args
+    		if args.length<@num_params_out
+    			(@num_params_out-args.length).times{ to_send<<'-' }
+    		end
+    		STDOUT.puts to_send.join(' ')
+    		STDOUT.flush
+    		log(to_send.join(' '),DEBUG)
+        }
 	end
+	
+	# Sends a log message to ONE. The +message+ can be multiline, it will
+	# be automatically splitted by lines.
+	def mad_log(command, number, message)
+	    msg=message.strip
+        msg.each_line {|line|
+            send_message("LOG", "-", number, line.strip)
+        }
+    end
 	
 	# Proceses each message received, called by +loop+.
 	def process(args)
@@ -131,7 +144,7 @@ class ONEMad
 	
 	# Default FINALIZE action. Exists the program.
 	def action_finalize(args)
-		exit 0
+		exit(0)
 	end
 		
 end

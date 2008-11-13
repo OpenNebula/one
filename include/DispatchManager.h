@@ -214,7 +214,7 @@ private:
     HostPool *              hpool;
 
     /**
-     *  Pointer to the Host Pool, to access hosts
+     *  Pointer to the Virtual Machine Pool, to access hosts
      */
     VirtualMachinePool *    vmpool;
 

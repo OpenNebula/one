@@ -239,6 +239,15 @@ void RequestManager::register_xml_methods()
 
     xmlrpc_c::methodPtr host_enable(new 
         RequestManager::HostEnable(hpool));
+        
+    xmlrpc_c::methodPtr vn_allocate(new 
+        RequestManager::VirtualNetworkAllocate(vnpool));
+        
+    xmlrpc_c::methodPtr vn_info(new 
+        RequestManager::VirtualNetworkInfo(vnpool));
+        
+    xmlrpc_c::methodPtr vn_delete(new 
+        RequestManager::VirtualNetworkDelete(vnpool));
 
     /* VM related methods  */    
         
@@ -254,6 +263,12 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.hostinfo", host_info); 
     RequestManagerRegistry.addMethod("one.hostdelete", host_delete);
     RequestManagerRegistry.addMethod("one.hostenable", host_enable);
+    
+    /* Network related methods*/
+     
+    RequestManagerRegistry.addMethod("one.vnallocate", vn_allocate);   
+    RequestManagerRegistry.addMethod("one.vninfo", vn_info); 
+    RequestManagerRegistry.addMethod("one.vndelete", vn_delete);
     
 };
 

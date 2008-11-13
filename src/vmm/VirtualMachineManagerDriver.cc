@@ -50,17 +50,24 @@ VirtualMachineManagerDriver::VirtualMachineManagerDriver(
         } 
                 
         rc = driver_conf.parse(cfile, &error_msg);
-            
-        if (( rc != 0 ) && ( error_msg != 0))
+
+        if ( rc != 0 )
         {
-           	ostringstream   oss;
-            	
-           	oss << "Error loading driver configuration file " << cfile << 
+        	ostringstream   oss;
+        	
+        	if ( error_msg != 0 )
+        	{            	
+        		oss << "Error loading driver configuration file " << cfile << 
            		" : " << error_msg;
-            		  
-           	Nebula::log("VMM", Log::ERROR, oss);
-            		
-           	free(error_msg);
+        		
+        		free(error_msg);
+        	}
+        	else
+        	{            	
+        		oss << "Error loading driver configuration file " << cfile;
+        	}
+        	
+           	Nebula::log("VMM", Log::ERROR, oss);            		           	
         }
     }
 }

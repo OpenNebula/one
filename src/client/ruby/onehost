@@ -37,7 +37,7 @@ ShowTableHost={
         :name => "HID",
         :desc => "ONE identifier for host",
         :size => 4,
-        :proc => lambda {|d,e| d["hid"] }
+        :proc => lambda {|d,e| d["oid"] }
     },
     :name => {
         :name => "NAME",
@@ -123,7 +123,7 @@ class HostShow
             result=res
             header_host_small
             res[1].each {|row|
-                res2=@host.get_host_attributes(row["hid"])
+                res2=@host.get_host_attributes(row["oid"])
                 if res2[0]
                     attributes=res2[1]
                     attributes.each {|a|
@@ -133,7 +133,7 @@ class HostShow
                     }
                 end
                 
-                res2=@host.get_host_share(row["hid"])
+                res2=@host.get_host_share(row["oid"])
                 if res2[0]
                     attributes=res2[1]
                     attributes.each {|a|
@@ -142,7 +142,6 @@ class HostShow
                         row["hs_max_cpu"]=a["max_cpu"]
                         row["hs_mem_usage"]=a["mem_usage"]
                         row["hs_cpu_usage"]=a["cpu_usage"]
-                        row["hs_running_vms"]=a["running_vms"]
                     }
                 end
             }
@@ -178,7 +177,7 @@ class OnehostParse < CommandParse
 Commands:
 
 * add (Adds a new machine to the pool)
-    onehost add <hostname> <im_mad> <vmm_mad>
+    onehost add <hostname> <im_mad> <vmm_mad> <tm_mad>
     
 * show (Gets info from a host)
     onehost show <host_id>
@@ -216,7 +215,13 @@ EOT
 end
 
 server=ONE::Server.new
-host=ONE::Host.new(server)
+$host=host=ONE::Host.new(server)
+
+def command_exit(code)
+    $host.close_db
+    exit(code)
+end
+
 
 onehost_opts=OnehostParse.new
 onehost_opts.parse(ARGV)
@@ -227,8 +232,8 @@ command=ARGV.shift
 
 case command
 when "add"
-    check_parameters("add", 3)
-    result=host.allocate(*[ARGV[0], ARGV[1], ARGV[2], "tm_mad", "true"])
+    check_parameters("add", 4)
+    result=host.allocate(*[ARGV[0], ARGV[1], ARGV[2], ARGV[3], "true"])
     
 when "show"
     check_parameters("show", 1)
@@ -238,7 +243,7 @@ when "show"
         puts result[1]
     else
         puts "Error: "+result[1]
-        exit -1
+        command_exit -1
     end
     
 when "delete"
@@ -247,7 +252,7 @@ when "delete"
     result=host.delete(host_id)
     if result[0]
         puts "Host deleted"
-        exit 0
+        command_exit 0
     end
     
 when "list"
@@ -270,7 +275,7 @@ when "enable"
     result=host.enable(host_id)
     if result[0]
         puts "Host enabled"
-        exit 0
+        command_exit 0
     end
 
 when "disable"
@@ -279,15 +284,18 @@ when "disable"
     result=host.disable(host_id)
     if result[0]
         puts "Host disabled"
-        exit 0
+        command_exit 0
     end
     
 else
     onehost_opts.print_help
-    exit -1
+    command_exit -1
 end
 
 if !result[0]
     puts "Error: " + result[1].to_s
-    exit -1
+    command_exit -1
 end
+
+command_exit 0
+
