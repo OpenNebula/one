@@ -170,6 +170,11 @@ private:
             delete vmpool;
         }
 
+        if ( vnpool != 0)
+        {
+            delete vnpool;
+        }
+
         if ( hpool != 0)
         {
             delete hpool;
