@@ -281,20 +281,6 @@ int VirtualMachine::insert(SqliteDB * db)
     int                  rc;
     string               name;
                                
-    int                        num_nics;
-    vector<Attribute  * >      nics;
-    VirtualNetworkPool       * vnpool; 
-    VirtualNetwork           * vn;
-    VectorAttribute          * nic;
-    map<string,string>         new_nic;
-    
-    string                     ip;
-    string                     mac;
-    string                     bridge;
-    string                     network;
-
-    ostringstream              vnid;
-
     //Set a name if the VM has not got one
     
     get_template_attribute("NAME",name);
@@ -312,55 +298,11 @@ int VirtualMachine::insert(SqliteDB * db)
     	vm_template.set(name_attr);
     }  
     
-     // Set the networking attributes.
-     
-     Nebula& nd = Nebula::instance();
-     vnpool     = nd.get_vnpool();
-     
-     num_nics   = vm_template.get("NIC",nics);
-     
-     for(int i=0; i<num_nics; i++,vnid.str(""))
-     {
-         new_nic.erase(new_nic.begin(),new_nic.end());
-
-    	 nic = dynamic_cast<VectorAttribute * >(nics[i]);
-
-         if ( nic == 0 )
-         {
-             continue;
-         }
-     
-         network = nic->vector_value("NETWORK");
-     
-         if ( network.empty() )
-         {
-             continue;
-         }
-     
-         vn = vnpool->get(network,true);
-         
-         if ( vn == 0 )
-         {
-             continue;
-         }
-     
-         if ( vn->get_lease(oid, ip, mac, bridge) != 0 )
-         {
-        	 goto error_leases;
-         }
-         
-         vn->unlock();
-
-         vnid << vn->get_oid();
-
-         new_nic.insert(make_pair("NETWORK",network));
-         new_nic.insert(make_pair("MAC"    ,mac));
-         new_nic.insert(make_pair("BRIDGE" ,bridge));
-         new_nic.insert(make_pair("VNID"   ,vnid.str()));
-         new_nic.insert(make_pair("IP"     ,ip));
-         
-         nic->replace(new_nic);
-                 
+    rc = get_leases();
+    
+    if ( rc != 0 )
+    {
+    	goto error_leases;
     }
 
     // Insert the template first, so we get a valid template ID
@@ -392,7 +334,6 @@ error_template:
 
 error_leases:
 	log("ONE", Log::ERROR, "Could not get lease for VM");
-	vn->unlock();
 	return -1;
 }
 
@@ -542,6 +483,79 @@ void VirtualMachine::get_requirements (int& cpu, int& memory, int& disk)
     disk   = 0;
 
     return;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::get_leases()
+{
+    int                        num_nics;
+    vector<Attribute  * >      nics;
+    VirtualNetworkPool       * vnpool; 
+    VirtualNetwork           * vn;
+    VectorAttribute          * nic;
+    map<string,string>         new_nic;
+    
+    string                     ip;
+    string                     mac;
+    string                     bridge;
+    string                     network;
+
+    ostringstream              vnid;
+
+    // Set the networking attributes.
+    
+    Nebula& nd = Nebula::instance();
+    vnpool     = nd.get_vnpool();
+    
+    num_nics   = vm_template.get("NIC",nics);
+    
+    for(int i=0; i<num_nics; i++,vnid.str(""))
+    {        
+   	 	nic = dynamic_cast<VectorAttribute * >(nics[i]);
+
+        if ( nic == 0 )
+        {
+            continue;
+        }
+    
+        network = nic->vector_value("NETWORK");
+    
+        if ( network.empty() )
+        {
+            continue;
+        }
+    
+        vn = vnpool->get(network,true);
+        
+        if ( vn == 0 )
+        {
+            continue;
+        }
+    
+        if ( vn->get_lease(oid, ip, mac, bridge) != 0 )
+        {
+           	vn->unlock();
+            return -1;
+        }
+        
+        vn->unlock();
+
+        vnid << vn->get_oid();
+
+        new_nic.insert(make_pair("NETWORK",network));
+        new_nic.insert(make_pair("MAC"    ,mac));
+        new_nic.insert(make_pair("BRIDGE" ,bridge));
+        new_nic.insert(make_pair("VNID"   ,vnid.str()));
+        new_nic.insert(make_pair("IP"     ,ip));
+        
+        nic->replace(new_nic);
+        
+        new_nic.erase(new_nic.begin(),new_nic.end());
+    }
+    
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */

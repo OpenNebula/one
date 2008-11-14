@@ -613,7 +613,12 @@ public:
     // ------------------------------------------------------------------------
     // Leases
     // ------------------------------------------------------------------------
-    
+    /**
+     *  Get all network leases for this Virtual Machine
+     *  @return 0 if success
+     */
+    int get_leases();
+            
     /**
      *  Releases all network leases taken by this Virtual Machine
      */
