@@ -30,7 +30,7 @@ RangedLeases::RangedLeases(
     unsigned long _size,
     unsigned int  _mac_prefix,
     const string& _network_address):
-        Leases(db,_oid,_size),mac_prefix(_mac_prefix),current(1)
+        Leases(db,_oid,_size),mac_prefix(_mac_prefix),current(0)
 {
     unsigned int net_addr;
     
