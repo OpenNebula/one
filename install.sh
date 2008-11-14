@@ -150,4 +150,6 @@ inst_ln src/tm_mad/ssh/tm_mv.sh         lib/tm_commands/ssh
 
 inst_cp share/examples/vm.template share/examples
 inst_cp share/examples/vm.schema share/examples
+inst_cp share/examples/private.net share/examples
+inst_cp share/examples/public.net share/examples
 
