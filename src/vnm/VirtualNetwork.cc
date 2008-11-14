@@ -239,7 +239,7 @@ int VirtualNetwork::insert(SqliteDB * db)
     }
 
     // Insert the template first
-    rc = vn_template.insert(db);
+    rc = vn_template.update(db);
 
     if ( rc != 0 )
     {
