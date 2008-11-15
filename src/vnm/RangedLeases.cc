@@ -82,6 +82,51 @@ int RangedLeases::get(int vid, string&  ip, string&  mac)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int RangedLeases::set(int vid, const string&  ip, string&  mac)
+{
+	unsigned int num_ip;
+	unsigned int num_mac[2];
+	unsigned int net;
+	int			 rc;
+	
+	rc = Leases::Lease::ip_to_number(ip,num_ip);
+	
+	if (rc != 0)
+	{
+		return -1;
+	}
+	
+	net =  0xFFFFFFFF << (int) ceil(log(size)/log(2));
+	net &= num_ip;
+	
+	if ( net != network_address )
+	{
+		return -1;
+	}
+	
+	if (check(num_ip) == true)
+	{
+		return -1;
+	}
+		
+	num_mac[Lease::PREFIX] = mac_prefix;
+	num_mac[Lease::SUFFIX] = num_ip;
+		
+	rc = add(num_ip,num_mac,vid);
+	
+	if (rc != 0)
+	{
+		return -1;
+	}
+	
+	Leases::Lease::mac_to_string(num_mac,mac);
+	
+	return 0;
+}	
+	
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int RangedLeases::add(
     unsigned int 	ip,
     unsigned int 	mac[],

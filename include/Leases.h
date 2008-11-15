@@ -69,9 +69,16 @@ public:
      *  @param mac mac of  the returned lease
      *  @return 0 if success
      */
-     virtual int get(int          vid,
-                     string&      ip,
-                     string&      mac) = 0;
+     virtual int get(int vid, string& ip,string& mac) = 0;
+
+     /**
+      * Ask for a specific lease in the network
+      *  @param vid identifier of the VM getting this lease
+      *  @param ip ip of lease requested
+      *  @param mac mac of the lease
+      *  @return 0 if success
+      */
+     virtual int set(int vid, const string&  ip, string&  mac) = 0;
      
      /**
       * Release an used lease, which becomes unused

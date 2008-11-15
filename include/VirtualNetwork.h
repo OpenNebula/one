@@ -73,6 +73,20 @@ public:
         _bridge = bridge;
         return leases->get(vid,_ip,_mac);
     };
+
+    /**
+     *    Asks for an specific lease of the given virtual network
+     *    @param vid VM identifier
+     *    @param _ip the ip of the requested lease
+     *    @param _mac pointer to string for MAC to be stored into
+     *    @param _bridge name of the physical bridge this VN binds to 
+     *    @return 0 if success
+     */
+    int set_lease(int vid, const string& _ip, string& _mac, string& _bridge)
+    {
+        _bridge = bridge;
+        return leases->set(vid,_ip,_mac);
+    };
     
     /**
      *    Release previously given lease

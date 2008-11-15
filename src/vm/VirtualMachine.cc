@@ -490,7 +490,7 @@ void VirtualMachine::get_requirements (int& cpu, int& memory, int& disk)
 
 int VirtualMachine::get_leases()
 {
-    int                        num_nics;
+    int                        num_nics, rc;
     vector<Attribute  * >      nics;
     VirtualNetworkPool       * vnpool; 
     VirtualNetwork           * vn;
@@ -533,14 +533,24 @@ int VirtualMachine::get_leases()
         {
             continue;
         }
-    
-        if ( vn->get_lease(oid, ip, mac, bridge) != 0 )
+        
+        ip = nic->vector_value("IP");
+        
+        if (ip.empty())
         {
-           	vn->unlock();
-            return -1;
+        	rc = vn->get_lease(oid, ip, mac, bridge);
+        }
+        else
+        {
+        	rc = vn->set_lease(oid, ip, mac, bridge);
         }
         
-        vn->unlock();
+        vn->unlock();    
+        
+        if ( rc != 0 )
+        {
+            return -1;
+        }
 
         vnid << vn->get_oid();
 

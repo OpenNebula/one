@@ -47,6 +47,15 @@ public:
     int get(int vid, string&  ip, string&  mac);
 
     /**
+     * Ask for a specific lease in the network
+     *  @param vid identifier of the VM getting this lease
+     *  @param ip ip of lease requested
+     *  @param mac mac of the lease
+     *  @return 0 if success
+     */
+    int set(int vid, const string&  ip, string&  mac);
+    
+    /**
      * Release an used lease, which becomes unused
      *   @param ip of the lease in use
      */

@@ -186,3 +186,50 @@ int FixedLeases::get(int vid, string&  ip, string&  mac)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+int FixedLeases::set(int vid, const string&  ip, string&  mac)
+{
+	map<unsigned int,Lease *>::iterator it;
+	
+	ostringstream 	oss;
+	unsigned int	num_ip;	
+	int			 	rc;
+	
+	rc = Leases::Lease::ip_to_number(ip,num_ip);
+	
+	if (rc != 0)
+	{
+		return -1;
+	}
+	
+    it=leases.find(num_ip);
+
+    if (it == leases.end()) //it does not exists in the net
+    {
+    	return -1;
+    }
+    else if (it->second->used) //it is in use
+    {
+    	return -1;
+    }
+    				
+	oss << "UPDATE " << table << " SET used='1', vid='" << vid
+	    << "' WHERE ip='" << it->second->ip <<"'";
+
+    rc = db->exec(oss);
+    
+    if ( rc != 0 )
+    {
+    	return -1;
+    }
+
+    it->second->used = true;
+    it->second->vid  = vid;
+    
+    Leases::Lease::mac_to_string(it->second->mac,mac);
+    
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
