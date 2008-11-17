@@ -550,6 +550,13 @@ void VirtualMachineManagerDriver::protocol(
             vm->log("VMM",Log::ERROR,os);        
         }
     }
+    else if (action == "LOG")
+    {
+        string info;
+        
+        getline(is,info);
+        vm->log("VMM",Log::INFO,info.c_str());
+    }
 
     vm->unlock();
 }

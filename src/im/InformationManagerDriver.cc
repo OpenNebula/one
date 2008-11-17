@@ -132,7 +132,14 @@ void InformationManagerDriver::protocol(
 
         host->unlock();        
     }
-
+    else if (action == "LOG")
+    {
+        string info;
+        
+        getline(is,info);
+        Nebula::log("InM",Log::INFO,info.c_str());
+    }
+    
     return;
 
 error_driver_info:
