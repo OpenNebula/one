@@ -215,7 +215,7 @@ int XenDriver::deployment_description(
         // TODO: "file" method to specify disk images in xen is deprecated.
         // The new method is using "tap:aio:" instead of "file:"
         file << "    "
-             << "'file:" << vm->get_remote_dir() << "/disk." << i << ","
+             << "'tap:aio:" << vm->get_remote_dir() << "/disk." << i << ","
              << target << ","
              << mode
              << "'," << endl;
