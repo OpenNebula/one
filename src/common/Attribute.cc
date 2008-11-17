@@ -24,12 +24,22 @@
 const char * VectorAttribute::magic_sep      = "@^_^@";
 const int    VectorAttribute::magic_sep_size = 5;
 
-string * VectorAttribute::marshall()
+string * VectorAttribute::marshall(const char * _sep)
 {
     ostringstream                   os;
     map<string,string>::iterator    it;
     string *                        rs;
-
+    const char *					my_sep;
+    
+    if ( _sep == 0 )
+    {
+    	my_sep = magic_sep;
+    }
+    else
+    {
+    	my_sep = _sep;
+    }
+    
     if ( attribute_value.size() == 0 )
     {
         return 0;
@@ -41,7 +51,7 @@ string * VectorAttribute::marshall()
 
     for (++it; it != attribute_value.end(); it++)
     {
-        os << magic_sep << it->first << "=" << it->second;
+        os << my_sep << it->first << "=" << it->second;
     }
 
     rs = new string;

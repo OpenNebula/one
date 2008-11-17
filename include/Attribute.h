@@ -72,7 +72,7 @@ public:
      *  by the calling function.
      *    @return a string (allocated in the heap) holding the attribute value.
      */
-    virtual string * marshall() = 0;
+    virtual string * marshall(const char * _sep = 0) = 0;
 
     /**
      *  Builds a new attribute from a string.
@@ -127,7 +127,7 @@ public:
      *  by the calling function.
      *    @return a string (allocated in the heap) holding the attribute value.
      */    
-    string * marshall()
+    string * marshall(const char * _sep = 0)
     {
         string * rs = new string;
         
@@ -203,7 +203,7 @@ public:
      *  "VAL_NAME_1=VAL_VALUE_1,...,VAL_NAME_N=VAL_VALUE_N".
      *    @return a string (allocated in the heap) holding the attribute value.
      */    
-    string * marshall();
+    string * marshall(const char * _sep = 0);
 
     /**
      *  Builds a new attribute from a string of the form:
