@@ -324,16 +324,18 @@ int VirtualMachine::insert(SqliteDB * db)
     return 0;
 
 error_update:
-	log("ONE", Log::ERROR, "Can not update vm");
+	Nebula::log("ONE",Log::ERROR, "Can not update VM in the database");
 	vm_template.drop(db);
 	return -1;
 
 error_template:
-	log("ONE", Log::ERROR, "Can not insert template");
+	Nebula::log("ONE",Log::ERROR, "Can not insert template in the database");
+	release_leases();
 	return -1;
 
 error_leases:
-	log("ONE", Log::ERROR, "Could not get lease for VM");
+	Nebula::log("ONE",Log::ERROR, "Could not get network lease for VM");
+	release_leases();
 	return -1;
 }
 

@@ -49,7 +49,7 @@ void RequestManager::VirtualMachineAllocate::execute(
         
         if (rc == -1)
         {
-            oss << "Error inserting VM in the database";
+            oss << "Error inserting VM in the database, check oned.log";
         }
         else
         {
