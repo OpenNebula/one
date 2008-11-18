@@ -217,7 +217,7 @@ int LibVirtDriver::deployment_description(
      {
          file << "\t\t<cmdline>root=/dev/" << root;
          
-         if (kernel_cmd.empty())
+         if (!kernel_cmd.empty())
          {
              file << " " << kernel_cmd;
          }
