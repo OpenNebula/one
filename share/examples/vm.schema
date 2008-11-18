@@ -25,7 +25,7 @@ MEMORY = "amount_of_requested_MEM" # Mandatory, XEN, KVM
 OS = [
   kernel     = "path_to_os_kernel",           # XEN: Mandatory,default. KVM: Optional
   initrd     = "path_to_initrd_image",        # XEN: Mandatory,default. KVM: Optional
-  kernel_cmd = "kernel_command_line",         # Optional, default, KVM
+  kernel_cmd = "kernel_command_line",         # Optional, default, KVM, XEN
   root       = "device to be mounted as root" # XEN: Mandatory,default. KVM: Optional
   boot       = "device to boot from" ]        # KVM: Mandatory,default  XEN: Optional
  

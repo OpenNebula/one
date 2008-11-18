@@ -37,37 +37,38 @@ int LibVirtDriver::deployment_description(
      
      int     memory_in_kb = 0;
 
-     string  kernel  = "";
-     string  initrd  = "";
-     string  boot    = "";
-     string  root    = "";
+     string  kernel     = "";
+     string  initrd     = "";
+     string  boot       = "";
+     string  root       = "";
+     string  kernel_cmd = "";
 
-     const VectorAttribute *	disk;
+     const VectorAttribute * disk;
 
-     string  type    = "";
-     string  target  = "";
-     string  bus     = "";
-     string  ro      = "";
+     string  type       = "";
+     string  target     = "";
+     string  bus        = "";
+     string  ro         = "";
      bool    readonly;
 
      const VectorAttribute * nic;
 
-     string  mac     = "";
-     string  bridge  = "";
-     string  script  = "";
+     string  mac        = "";
+     string  bridge     = "";
+     string  script     = "";
 
      const VectorAttribute * graphics;
      
-     string  listen  = "";
-     string  port    = "";
-     string  passwd  = "";
+     string  listen     = "";
+     string  port       = "";
+     string  passwd     = "";
      
      const VectorAttribute * input;
      
      const VectorAttribute * features;
      
-     string     pae  = "";
-     string     acpi = "";
+     string     pae     = "";
+     string     acpi    = "";
 
      const VectorAttribute * raw;
      string data;
@@ -164,6 +165,7 @@ int LibVirtDriver::deployment_description(
          	initrd     = os->vector_value("INITRD");
          	boot       = os->vector_value("BOOT");
          	root       = os->vector_value("ROOT");
+         	kernel_cmd = os->vector_value("KERNEL_CMD");
  	    }
      }
 
@@ -189,7 +191,12 @@ int LibVirtDriver::deployment_description(
      
      if ( root.empty() )
      {
-     	get_default("OS","ROOT",root);
+         get_default("OS","ROOT",root);
+     }
+     
+     if ( kernel_cmd.empty() )
+     {
+         get_default("OS","KERNEL_CMD",kernel_cmd);
      }
      
      // Start writing to the file with the info we got
@@ -208,7 +215,14 @@ int LibVirtDriver::deployment_description(
      
      if ( !root.empty() )
      {
-     	file << "\t\t<cmdline>root=/dev/" << root << " ro</cmdline>" << endl;	
+         file << "\t\t<cmdline>root=/dev/" << root;
+         
+         if (kernel_cmd.empty())
+         {
+             file << " " << kernel_cmd;
+         }
+         
+         file << "</cmdline>" << endl;	
      }     	  
     
      

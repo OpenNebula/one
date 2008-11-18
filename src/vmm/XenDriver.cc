@@ -37,27 +37,28 @@ int XenDriver::deployment_description(
     float   base_credit = 1.0;
     float   cpu_units   = 1.0;
 
-    string kernel = "";
-    string initrd = "";
-    string root   = "";
+    string kernel     = "";
+    string initrd     = "";
+    string root       = "";
+    string kernel_cmd = "";
 
-    const VectorAttribute *	disk;
+    const VectorAttribute * disk;
     
-    string target = "";
-    string ro     = "";
+    string target     = "";
+    string ro         = "";
     string mode;
 
     const VectorAttribute * nic;
     
-    string mac    = "";
-    string bridge = "";
+    string mac        = "";
+    string bridge     = "";
 
     const VectorAttribute * graphics;
 	
-	string type   = "";
-	string listen = "";
-	string port   = "";
-	string passwd = "";
+	string type       = "";
+	string listen     = "";
+	string port       = "";
+	string passwd     = "";
 
 	const VectorAttribute * raw;
 	string data;
@@ -129,9 +130,10 @@ int XenDriver::deployment_description(
     	
     	if ( os != 0 )
     	{
-        	kernel     = os->vector_value("KERNEL");
-        	initrd     = os->vector_value("INITRD");
-        	root       = os->vector_value("ROOT");
+            kernel     = os->vector_value("KERNEL");
+            initrd     = os->vector_value("INITRD");
+            root       = os->vector_value("ROOT");
+            kernel_cmd = os->vector_value("KERNEL_CMD");
     	}
     }
 
@@ -149,6 +151,11 @@ int XenDriver::deployment_description(
     {
     	get_default("OS","ROOT",root);
     }
+    
+    if ( kernel_cmd.empty() )
+    {
+    	get_default("OS","KERNEL_CMD",kernel_cmd);
+    }
 
     if ( kernel.empty() )
     {
@@ -165,13 +172,19 @@ int XenDriver::deployment_description(
     }
     else
     {
-    	file << "root = '/dev/" << root << " ro'" << endl;	
+    	file << "root = '/dev/" << root << "'" << endl;	
     }
     
     if ( !initrd.empty() )
     {
-    	file << "ramdisk = '" << initrd << "'" << endl;
+        file << "ramdisk = '" << initrd << "'" << endl;
     }
+    
+    if ( !kernel_cmd.empty() )
+    {
+        file << "extra = '" << kernel_cmd << "'" << endl;
+    }    
+    
         
     attrs.clear();
         
