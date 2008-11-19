@@ -38,7 +38,8 @@ class DM < ONEMad
     end
         
     def action_deploy(args)
-        #std_action("DEPLOY", "create #{args[3]}", args)
+        action_number=args[1]
+        action_host=args[2]
         
         # Get local deployment file
         one_location=ENV["ONE_LOCATION"]
@@ -53,9 +54,8 @@ class DM < ONEMad
             # when shared directories are not used
             copy_deploy="scp #{local_deployment_file} #{args[2]}:#{args[3]}"
             copy_deploy_exit=system(copy_deploy)
-            STDERR.puts("Command: #{copy_deploy}")
-            STDERR.puts(copy_deploy_exit)
-            STDERR.flush
+            mad_log("DEPLOY", action_number, "Command: #{copy_deploy}")
+            mad_log("DEPLOY", action_number, "Command finalized: "+copy_deploy_exit.to_s)
 
            
             # TODO: check for error
@@ -80,16 +80,13 @@ class DM < ONEMad
             end
         end
 
-        action_number=args[1]
-        action_host=args[2]
-        
         cmd_str="sudo #{XM_PATH} create #{args[3]}"
         
         # Add sched-cred command if credits are defined
         if(credits)
             cmd_str+=" \\&\\& sudo #{XM_PATH} sched-cred -d #{vm_name} -w #{credits}"
-            log("Setting credits for the VM",ONEMad::DEBUG)
-            log("Command: #{cmd_str}",ONEMad::DEBUG)
+            mad_log("DEPLOY", action_number, "Setting credits for the VM")
+            mad_log("DEPLOY", action_number, "Command: #{cmd_str}")
         end
         
         cmd=SSHCommand.new(cmd_str)
