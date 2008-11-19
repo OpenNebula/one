@@ -176,8 +176,8 @@ class OnehostParse < CommandParse
     COMMANDS_HELP=<<-EOT
 Commands:
 
-* add (Adds a new machine to the pool)
-    onehost add <hostname> <im_mad> <vmm_mad> <tm_mad>
+* create (Adds a new machine to the pool)
+    onehost create <hostname> <im_mad> <vmm_mad> <tm_mad>
     
 * show (Gets info from a host)
     onehost show <host_id>
@@ -232,8 +232,8 @@ result=[false, "Unknown error"]
 command=ARGV.shift
 
 case command
-when "add"
-    check_parameters("add", 4)
+when "add", "create"
+    check_parameters("create", 4)
     result=host.allocate(*[ARGV[0], ARGV[1], ARGV[2], ARGV[3], "true"])
     
 when "show"

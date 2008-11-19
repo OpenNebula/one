@@ -291,8 +291,8 @@ class OnevmParse < CommandParse
     COMMANDS_HELP=<<-EOT
 Commands:
 
-* submit (Submits a new virtual machine, adding it to the ONE VM pool)
-    onevm submit <template>
+* create (Submits a new virtual machine, adding it to the ONE VM pool)
+    onevm create <template>
     
     template is a file name where the VM description is located
     
@@ -380,8 +380,8 @@ result=[false, "Unknown error"]
 command=ARGV.shift
 
 case command
-when "submit"
-    check_parameters("submit", 1)
+when "submit", "create"
+    check_parameters("create", 1)
     result=vm.allocate(*ARGV)
     if result[0]
         puts "ID: " + result[1].to_s if ops[:verbose]
