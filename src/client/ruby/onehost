@@ -225,6 +225,7 @@ end
 
 onehost_opts=OnehostParse.new
 onehost_opts.parse(ARGV)
+ops=onehost_opts.options
 
 result=[false, "Unknown error"]
 
@@ -251,20 +252,18 @@ when "delete"
     host_id=get_host_id(host, ARGV[0])
     result=host.delete(host_id)
     if result[0]
-        puts "Host deleted"
+        puts "Host deleted" if ops[:verbose]
         command_exit 0
     end
     
 when "list"
     hostlist=HostShow.new(host)
-    ops=onehost_opts.options
     ops[:columns]=ops[:list] if ops[:list]
     result=hostlist.list_short(ops)
     hostlist.close
 
 when "top"
     hostlist=HostShow.new(host)
-    ops=onehost_opts.options
     ops[:columns]=ops[:list] if ops[:list]
     result=hostlist.top(ops)
     hostlist.close
@@ -274,7 +273,7 @@ when "enable"
     host_id=get_host_id(host, ARGV[0])
     result=host.enable(host_id)
     if result[0]
-        puts "Host enabled"
+        puts "Host enabled" if ops[:verbose]
         command_exit 0
     end
 
@@ -283,7 +282,7 @@ when "disable"
     host_id=get_host_id(host, ARGV[0])
     result=host.disable(host_id)
     if result[0]
-        puts "Host disabled"
+        puts "Host disabled" if ops[:verbose]
         command_exit 0
     end
     

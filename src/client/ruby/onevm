@@ -373,6 +373,7 @@ end
 
 onevm_opts=OnevmParse.new
 onevm_opts.parse(ARGV)
+ops=onevm_opts.options
 
 result=[false, "Unknown error"]
 
@@ -383,7 +384,7 @@ when "submit"
     check_parameters("submit", 1)
     result=vm.allocate(*ARGV)
     if result[0]
-        puts "ID: " + result[1].to_s
+        puts "ID: " + result[1].to_s if ops[:verbose]
         command_exit 0
     end
     
@@ -393,7 +394,7 @@ when "deploy"
     host_id=get_host_id(host, ARGV[1])
     result=vm.deploy(vm_id, host_id)
     if result[0]
-        puts "Deploying VM"
+        puts "Deploying VM" if ops[:verbose]
         command_exit 0
     end
 
@@ -402,7 +403,7 @@ when "shutdown"
     vm_id=get_vm_id(vm, ARGV[0])
     result=vm.shutdown(vm_id)
     if result[0]
-        puts "Shutting down VM"
+        puts "Shutting down VM" if ops[:verbose]
         command_exit 0
     end
 
@@ -412,7 +413,7 @@ when "livemigrate"
     host_id=get_host_id(host, ARGV[1])
     result=vm.livemigrate(vm_id, host_id)
     if result[0]
-        puts "Migrating VM"
+        puts "Migrating VM" if ops[:verbose]
         command_exit 0
     end
 
@@ -422,7 +423,7 @@ when "migrate"
     host_id=get_host_id(host, ARGV[1])
     result=vm.migrate(vm_id, host_id)
     if result[0]
-        puts "Migrating VM"
+        puts "Migrating VM" if ops[:verbose]
         command_exit 0
     end
 
@@ -431,7 +432,7 @@ when "hold"
     vm_id=get_vm_id(vm, ARGV[0])
     result=vm.hold(vm_id)
     if result[0]
-        puts "Setting VM to hold state"
+        puts "Setting VM to hold state" if ops[:verbose]
         command_exit 0
     end
 
@@ -440,7 +441,7 @@ when "release"
     vm_id=get_vm_id(vm, ARGV[0])
     result=vm.release(vm_id)
     if result[0]
-        puts "Releasing VM"
+        puts "Releasing VM" if ops[:verbose]
         command_exit 0
     end
     
@@ -449,7 +450,7 @@ when "stop"
     vm_id=get_vm_id(vm, ARGV[0])
     result=vm.stop(vm_id)
     if result[0]
-        puts "Stopping VM"
+        puts "Stopping VM" if ops[:verbose]
         command_exit 0
     end
     
@@ -457,7 +458,7 @@ when "cancel"
     check_parameters("cancel", 1)
     result=vm.cancel(*ARGV)
     if result[0]
-        puts "Cancelling VM"
+        puts "Cancelling VM" if ops[:verbose]
         command_exit 0
     end
 
@@ -466,7 +467,7 @@ when "suspend"
     vm_id=get_vm_id(vm, ARGV[0])
     result=vm.suspend(vm_id)
     if result[0]
-        puts "Suspending VM"
+        puts "Suspending VM" if ops[:verbose]
         command_exit 0
     end
     
@@ -475,20 +476,18 @@ when "resume"
     vm_id=get_vm_id(vm, ARGV[0])
     result=vm.resume(vm_id)
     if result[0]
-        puts "Resuming VM"
+        puts "Resuming VM" if ops[:verbose]
         command_exit 0
     end
 
 when "list"
     vmlist=VmShow.new(vm)
-    ops=onevm_opts.options
     ops[:columns]=ops[:list] if ops[:list]
     result=vmlist.list_short(ops)
     vmlist.close
     
 when "top"
     vmlist=VmShow.new(vm)
-    ops=onevm_opts.options
     ops[:columns]=ops[:list] if ops[:list]
     result=vmlist.top(ops)
     vmlist.close
@@ -508,7 +507,6 @@ when "show_db"
     
 when "history"
     vmlist=VmShow.new(vm)
-    ops=onevm_opts.options
     ops[:columns]=ops[:list] if ops[:list]
     if ARGV[0]
         ids=ARGV.collect {|arg| get_vm_id(vm, arg)}
@@ -524,7 +522,7 @@ when "delete"
     vm_id=get_vm_id(vm, ARGV[0])
     result=vm.delete(vm_id)
     if result[0]
-        puts "VM correctly deleted" 
+        puts "VM correctly deleted"  if ops[:verbose]
         command_exit 0
     end
 

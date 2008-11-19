@@ -173,6 +173,7 @@ vn=ONE::VN.new(server)
 
 onevn_opts=OneVNParse.new
 onevn_opts.parse(ARGV)
+ops=onevn_opts.options
 
 result=[false, "Unknown error"]
 
@@ -183,7 +184,7 @@ when "create"
     check_parameters("create", 1)
     result=vn.allocate(*ARGV)
     if result[0]
-        puts "NID: " + result[1].to_s
+        puts "NID: " + result[1].to_s if ops[:verbose]
         exit 0
     end
     
@@ -203,13 +204,12 @@ when "delete"
     vn_id=get_vn_id(vn, ARGV[0])
     result=vn.delete(vn_id)
     if result[0]
-        puts "Virtual Network deleted"
+        puts "Virtual Network deleted" if ops[:verbose]
         exit 0
     end
     
 when "list"
     vnlist=VNShow.new(vn)
-    ops=onevn_opts.options
     ops[:columns]=ops[:list] if ops[:list]
     result=vnlist.list_short(ops)
     vnlist.close

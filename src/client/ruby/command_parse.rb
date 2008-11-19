@@ -59,13 +59,19 @@ EOT
                     "Sets the delay in seconds for top", "command") do |o|
                 @options[:delay]=o
             end
+
+            opts.on("-v", "--verbose", 
+                    "Tells more information if the command",
+                    "is successful") do |o|
+                @options[:verbose]=true
+            end
             
             opts.on_tail("-h", "--help", "Shows this help message") do |o|
                 print_help
                 exit
             end
             
-            opts.on_tail("-v", "--version", 
+            opts.on_tail("--version", 
                         "Shows version and copyright information") do |o|
                 puts text_version
                 exit
