@@ -37,7 +37,7 @@ class SSHCommand
         end
     end
     
-    private
+    #private
     
     # Gets exit code from STDERR
     def get_exit_code(str)

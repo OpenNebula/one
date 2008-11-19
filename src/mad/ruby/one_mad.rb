@@ -145,5 +145,29 @@ class ONEMad
     def action_finalize(args)
         exit(0)
     end
+
+    # Functions for VM deployment
+    # TODO: Move elsewhere
+    def get_local_deployment_file(remote_deployment_file)
+        local_deployment_file=nil
+
+        one_location=ENV["ONE_LOCATION"]
+        m=remote_deployment_file.match(/.*?\/(\d+)\/images\/(deployment.\d+)$/)
+        local_deployment_file="#{one_location}/var/#{m[1]}/#{m[2]}" if m
+
+        return local_deployment_file
+    end
+
+    def execute_local_command(cmd_string)
+        command=SSHCommand.new(cmd_string)
+        stdout, stderr=command.exec_local_command(cmd_string)
+        exit_code=command.get_exit_code(stderr)
+        if exit_code!=0
+            return stderr
+        else
+            nil
+        end
+    end
+ 
         
 end

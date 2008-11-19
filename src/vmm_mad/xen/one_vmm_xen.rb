@@ -36,26 +36,32 @@ class DM < ONEMad
     def action_init(args)
         send_message("INIT", "SUCCESS")
     end
-        
+
     def action_deploy(args)
         action_number=args[1]
         action_host=args[2]
+        remote_deployment_file=args[3]
         
         # Get local deployment file
-        one_location=ENV["ONE_LOCATION"]
-        m=args[3].match(/.*?\/(\d+)\/images\/(deployment.\d+)$/)
+        local_deployment_file=get_local_deployment_file(remote_deployment_file)
         
         # If matched the we can read the file and get more configuration values
-        if m
-            local_deployment_file="#{one_location}/var/#{m[1]}/#{m[2]}"
-
+        if local_deployment_file
             # TODO: review this way of copying files
             # This command copies deployment file to remote machine
             # when shared directories are not used
-            copy_deploy="scp #{local_deployment_file} #{args[2]}:#{args[3]}"
-            copy_deploy_exit=system(copy_deploy)
+            copy_deploy="scp #{local_deployment_file} "+
+                "#{action_host}:#{remote_deployment_file}"
             mad_log("DEPLOY", action_number, "Command: #{copy_deploy}")
-            mad_log("DEPLOY", action_number, "Command finalized: "+copy_deploy_exit.to_s)
+            copy_deploy_exit=execute_local_command(copy_deploy)
+
+            if copy_deploy_exit
+                mad_log("DEPLOY", action_number, 
+                    "Error: "+copy_deploy_exit.to_s)
+            else
+                mad_log("DEPLOY", action_number,
+                    "Copy success")
+            end
 
            
             # TODO: check for error
