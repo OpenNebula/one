@@ -22,7 +22,7 @@ DEBUG_LEVEL=ENV["ONE_MAD_DEBUG"]
 
 ##
 #  Debug constants
-##	
+##
 ERROR, DEBUG=[0,1]
 
 
@@ -208,9 +208,9 @@ class IM < ONEMad
     def initialize(sensors=nil)
         super(3, 4)
         
-	if DEBUG_LEVEL and !DEBUG_LEVEL.empty? 
-	    set_logger(STDERR,DEBUG_LEVEL)
-	end
+        if DEBUG_LEVEL and !DEBUG_LEVEL.empty? 
+            set_logger(STDERR,DEBUG_LEVEL)
+        end
 
         if sensors
             @sensors=sensors
