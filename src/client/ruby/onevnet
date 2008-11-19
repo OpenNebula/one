@@ -138,18 +138,18 @@ class OneVNParse < CommandParse
 Commands:
 
 * create (Creates a new virtual network)
-    onenetwork create <template>
+    onevnet create <template>
     
     template is a filename where the virtual network is described
     
 * show (Gets info from a virtual network)
-    onenetwork show <network_id>
+    onevnet show <network_id>
     
 * delete (Removes a virtual network)
-    onehost delete <network_id>
+    onevnet delete <network_id>
     
 * list (Lists virtual networks in the pool)
-    onehost list
+    onevnet list
 
 EOT
 
@@ -158,7 +158,7 @@ EOT
     end
 
     def text_command_name
-        "onenetwork"
+        "onevnet"
     end
 
     def list_options

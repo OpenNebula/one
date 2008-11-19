@@ -43,7 +43,7 @@ inst_ln src/scheduler/mm_sched bin
 
 inst_ln src/client/ruby/onevm bin
 inst_ln src/client/ruby/onehost bin
-inst_ln src/client/ruby/onenetwork bin
+inst_ln src/client/ruby/onevnet bin
 
 inst_ln share/scripts/madcommon.sh libexec
 inst_ln share/scripts/one bin
