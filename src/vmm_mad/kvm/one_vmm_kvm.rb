@@ -40,7 +40,45 @@ class DM < ONEMad
     end
         
     def action_deploy(args)
-        std_action("DEPLOY", "create #{args[3]}", args)
+        action_number=args[1]
+        action_host=args[2]
+        remote_deployment_file=args[3]
+        action_name="DEPLOY"
+        
+        # Get local deployment file
+        local_deployment_file=get_local_deployment_file(remote_deployment_file)
+        
+        # If we can copy the deployment file
+        if local_deployment_file
+            # TODO: review this way of copying files
+            # This command copies deployment file to remote machine
+            # when shared directories are not used
+            copy_deploy="scp #{local_deployment_file} "+
+                "#{action_host}:#{remote_deployment_file}"
+            mad_log("DEPLOY", action_number, "Command: #{copy_deploy}")
+            copy_deploy_exit=execute_local_command(copy_deploy)
+
+            if copy_deploy_exit
+                mad_log("DEPLOY", action_number, 
+                    "Error: "+copy_deploy_exit.to_s)
+            else
+                mad_log("DEPLOY", action_number,
+                    "Copy success")
+            end
+        end
+        
+        command="create #{remote_deployment_file}"
+        std=exec_kvm_command(action_host, command)
+        stdout=std[1].read
+        stderr=std[2].read
+        
+        if !stderr.empty?
+            mad_log("DEPLOY", action_number, stderr)
+        end     
+        
+        write_response(action_name, stdout, stderr, args)
+        
+        #std_action("DEPLOY", "create #{args[3]}", args)
     end
     
     def action_shutdown(args)
@@ -52,7 +90,7 @@ class DM < ONEMad
     end
     
     def action_checkpoint(args)
-            send_message("CHECKPOINT", "FAILURE", args[1], "action not supported for KVM")
+        send_message("CHECKPOINT", "FAILURE", args[1], "action not supported for KVM")
     end
 
     def action_save(args)
@@ -68,6 +106,7 @@ class DM < ONEMad
     end
     
     def action_poll(args)
+        action_number=args[1]
         
         std=Open3.popen3(
             "ssh -n #{args[2]} virsh dominfo #{args[3]};"+
@@ -76,7 +115,7 @@ class DM < ONEMad
         stderr=std[2].read
         
         if !stderr.empty?
-            log(stderr,ONEMad::ERROR)
+            mad_log("POLL", action_number, stderr)
         end
         
         exit_code=get_exit_code(stderr)
@@ -108,7 +147,7 @@ class DM < ONEMad
         stderr=std[2].read
         
         if !stderr.empty?
-            log(stderr,ONEMad::ERROR)
+            mad_log(name, action_number, stderr)
         end     
                 
         write_response(name, stdout, stderr, args)
