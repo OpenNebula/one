@@ -56,10 +56,12 @@ DISK = [
 #---------------------------------------
 
 NIC = [
-  bridge = "name_of_bridge_to_bind_if",     #Optional, XEN, KVM
-  target = "device_name_to_map_if",         #Optional, KVM
-  mac    = "HW_address",                    #Optional, XEN, KVM
-  script = "path_to_script_to_bring_up_if"] #Optional, KVM
+  network = "name_of_the_virtual_network",   #Optional, XEN, KVM
+  ip      = "ip_address",                    #Optional, XEN, KVM 
+  bridge  = "name_of_bridge_to_bind_if",     #Optional, XEN, KVM
+  target  = "device_name_to_map_if",         #Optional, KVM
+  mac     = "HW_address",                    #Optional, XEN, KVM
+  script  = "path_to_script_to_bring_up_if"] #Optional, KVM
 
 #---------------------------------------
 #  I/O Interfaces 
