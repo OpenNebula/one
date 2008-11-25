@@ -270,13 +270,22 @@ int LibVirtDriver::deployment_description(
 
          	if ( ro == "YES" )
          	{
-         		readonly = true;
+                readonly = true;
          	}
          }
 
          if ( type.empty() )
          {
-        	 type = "disk";
+        	type = "disk";
+         } 
+         else 
+         {
+            string type_=type;
+            transform(type_.begin(),type_.end(),type_.begin(),(int(*)(int))toupper);
+            if ( type_ == "SWAP" )
+            {
+                type="disk";
+            }
          }
          
          file << "\t\t<disk type='file' device='" << type << "'>" << endl;
