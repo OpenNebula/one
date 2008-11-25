@@ -45,7 +45,7 @@ function execute_mad
     fi
 
     if [ -n "${ONE_MAD_DEBUG}" ]; then
-        exec nice -n $PRIORITY bin/$MAD_FILE.rb $* 2> var/$LOG_FILE.log
+        exec nice -n $PRIORITY bin/$MAD_FILE.rb $* 2>> var/$LOG_FILE.log
     else
         exec nice -n $PRIORITY bin/$MAD_FILE.rb $* 2> /dev/null
     fi
