@@ -14,6 +14,7 @@ $: << ONE_LOCATION+"/lib/ruby"
 require 'pp'
 
 require 'one_mad'
+require 'one_ssh'
 require 'open3'
 
 
