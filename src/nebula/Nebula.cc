@@ -214,14 +214,13 @@ void Nebula::start()
     
     is >> timer_period;
     
-    attr.clear();
-
     // ---- Virtual Machine Manager ----         
     try
     {
         time_t                    poll_period;
         vector<const Attribute *> vmm_mads;
                         
+        attr.clear();
         nebula_configuration->get("VM_POLLING_INTERVAL", attr);
         
         sattr = static_cast<const SingleAttribute *>(attr[0]);
@@ -275,6 +274,7 @@ void Nebula::start()
         vector<const Attribute *>   im_mads;
         time_t                      monitor_period;
         
+        attr.clear();
         nebula_configuration->get("HOST_MONITORING_INTERVAL", attr);
         
         sattr = static_cast<const SingleAttribute *>(attr[0]);
