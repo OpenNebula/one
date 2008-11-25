@@ -49,8 +49,16 @@ ShowTableVN={
     :type => {
         :name => "TYPE",
         :desc => "NType of virtual network",
-        :size => 4,
-        :proc => lambda {|d,e| d["type"] }
+        :size => 6,
+        :proc => lambda {|d,e| 
+                          if(d["type"] == "0")
+                              return "Ranged"
+                          else
+                              if (d["type"] == "1")
+                                  return "Fixed"
+                              end
+                          end
+                      }
     },
     :size => {
         :name => "SIZE",
@@ -62,12 +70,11 @@ ShowTableVN={
         :name => "BRIDGE",
         :desc => "Bridge associated to the virtual network",
         :size => 6,
-        :left => true,
         :proc => lambda {|d,e| d["bridge"] }
     },
     
 
-    :default => [:nid, :name, :type, :size, :bridge]
+    :default => [:nid, :name, :type, :bridge]
 }
 
 class VNShow
