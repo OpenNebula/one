@@ -143,6 +143,7 @@ class DM < ONEMad
     ###########################
     
     def std_action(name, command, args)
+        action_number=args[1]
         std=exec_kvm_command(args[2], command)
         stdout=std[1].read
         stderr=std[2].read
