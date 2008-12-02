@@ -153,14 +153,14 @@ inst_ln src/tm_mad/dummy/tm_dummy.sh    lib/tm_commands/dummy
 
 # --- Examples ---
 
-inst_cp share/examples/vm.template          share/examples
-inst_cp share/examples/vm.schema            share/examples
-inst_cp share/examples/private.net          share/examples
-inst_cp share/examples/public.net           share/examples
+inst_cp share/examples/vm.template      share/examples
+inst_cp share/examples/vm.schema        share/examples
+inst_cp share/examples/private.net      share/examples
+inst_cp share/examples/public.net       share/examples
 
-inst_cp share/examples/tmp/tm_clone.sh      share/examples/tm
-inst_cp share/examples/tmp/tm_delete.sh     share/examples/tm
-inst_cp share/examples/tmp/tm_ln.sh         share/examples/tm
-inst_cp share/examples/tmp/tm_mkimage.sh    share/examples/tm
-inst_cp share/examples/tmp/tm_mkswap.sh     share/examples/tm
-inst_cp share/examples/tmp/tm_mv.sh         share/examples/tm
+inst_cp share/examples/tm/tm_clone.sh   share/examples/tm
+inst_cp share/examples/tm/tm_delete.sh  share/examples/tm
+inst_cp share/examples/tm/tm_ln.sh      share/examples/tm
+inst_cp share/examples/tm/tm_mkimage.sh share/examples/tm
+inst_cp share/examples/tm/tm_mkswap.sh  share/examples/tm
+inst_cp share/examples/tm/tm_mv.sh      share/examples/tm
