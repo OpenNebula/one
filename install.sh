@@ -30,7 +30,7 @@ if [ -z "$SRC_DIR" -o -z "$DST_DIR" ]; then
     exit -1
 fi
 
-DIRS="/bin /include /etc /etc/im_kvm /etc/im_xen /etc/vmm_kvm /etc/vmm_xen /libexec /lib/ruby /var /share/examples /lib/im_probes /lib/tm_commands/nfs /lib/tm_commands/ssh /lib/tm_commands/dummy /etc/vmm_ec2 /etc/im_ec2 /etc/tm_nfs /etc/tm_ssh"
+DIRS="/bin /include /etc /etc/im_kvm /etc/im_xen /etc/vmm_kvm /etc/vmm_xen /libexec /lib/ruby /var /share/examples /share/examples/tm /lib/im_probes /lib/tm_commands/nfs /lib/tm_commands/ssh /lib/tm_commands/dummy /etc/vmm_ec2 /etc/im_ec2 /etc/tm_nfs /etc/tm_ssh"
 
 for d in $DIRS; do
     mkdir -p $DST_DIR$d
@@ -153,8 +153,14 @@ inst_ln src/tm_mad/dummy/tm_dummy.sh    lib/tm_commands/dummy
 
 # --- Examples ---
 
-inst_cp share/examples/vm.template share/examples
-inst_cp share/examples/vm.schema share/examples
-inst_cp share/examples/private.net share/examples
-inst_cp share/examples/public.net share/examples
+inst_cp share/examples/vm.template          share/examples
+inst_cp share/examples/vm.schema            share/examples
+inst_cp share/examples/private.net          share/examples
+inst_cp share/examples/public.net           share/examples
 
+inst_cp share/examples/tmp/tm_clone.sh      share/examples/tm
+inst_cp share/examples/tmp/tm_delete.sh     share/examples/tm
+inst_cp share/examples/tmp/tm_ln.sh         share/examples/tm
+inst_cp share/examples/tmp/tm_mkimage.sh    share/examples/tm
+inst_cp share/examples/tmp/tm_mkswap.sh     share/examples/tm
+inst_cp share/examples/tmp/tm_mv.sh         share/examples/tm
