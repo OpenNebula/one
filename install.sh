@@ -30,7 +30,7 @@ if [ -z "$SRC_DIR" -o -z "$DST_DIR" ]; then
     exit -1
 fi
 
-DIRS="/bin /include /etc /etc/im_kvm /etc/im_xen /etc/vmm_kvm /etc/vmm_xen /libexec /lib/ruby /var /share/examples /lib/im_probes /lib/tm_commands/nfs /lib/tm_commands/ssh /etc/vmm_ec2 /etc/im_ec2 /etc/tm_nfs /etc/tm_ssh"
+DIRS="/bin /include /etc /etc/im_kvm /etc/im_xen /etc/vmm_kvm /etc/vmm_xen /libexec /lib/ruby /var /share/examples /lib/im_probes /lib/tm_commands/nfs /lib/tm_commands/ssh /lib/tm_commands/dummy /etc/vmm_ec2 /etc/im_ec2 /etc/tm_nfs /etc/tm_ssh"
 
 for d in $DIRS; do
     mkdir -p $DST_DIR$d
@@ -144,6 +144,11 @@ inst_ln src/tm_mad/ssh/tm_ln.sh         lib/tm_commands/ssh
 inst_ln src/tm_mad/ssh/tm_mkswap.sh     lib/tm_commands/ssh
 inst_ln src/tm_mad/ssh/tm_mkimage.sh    lib/tm_commands/ssh
 inst_ln src/tm_mad/ssh/tm_mv.sh         lib/tm_commands/ssh
+
+inst_ln src/tm_mad/dummy/tm_dummy.conf  etc/tm_dummy
+inst_ln src/tm_mad/dummy/tm_dummyrc     etc/tm_dummy
+
+inst_ln src/tm_mad/dummy/tm_dummy.sh    lib/tm_commands/dummy
 
 
 # --- Examples ---
