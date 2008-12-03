@@ -1,57 +1,113 @@
-#! /bin/sh
-
-PATH=/sbin:/bin:/usr/bin
-
-mac2ip ()
-{
-let ip_a=0x`echo $1 | cut -d: -f 3`
-let ip_b=0x`echo $1 | cut -d: -f 4`
-let ip_c=0x`echo $1 | cut -d: -f 5`
-let ip_d=0x`echo $1 | cut -d: -f 6`
+#!/bin/bash
  
-IP="$ip_a.$ip_b.$ip_c.$ip_d"
+# Gets IP address from a given MAC
+mac2ip() {
+    mac=$1
+ 
+    let ip_a=0x`echo $mac | cut -d: -f 3`
+    let ip_b=0x`echo $mac | cut -d: -f 4`
+    let ip_c=0x`echo $mac | cut -d: -f 5`
+    let ip_d=0x`echo $mac | cut -d: -f 6`
+ 
+    ip="$ip_a.$ip_b.$ip_c.$ip_d"
+ 
+    echo $ip
 }
-
-do_start () 
-{
-
-INTERFACES=`/sbin/ifconfig -a | grep ^eth | sed 's/\s*Link encap:Ethernet\s*HWaddr /-/g'`
-rm -f /etc/network/interfaces > /dev/null 2>&1
-cat > /etc/network/interfaces << EOF
+ 
+# Gets the network part of an IP
+get_network() {
+    IP=$1
+ 
+    echo $IP | cut -d'.' -f1,2,3
+}
+ 
+get_interfaces() {
+    IFCMD="/sbin/ifconfig -a"
+ 
+    $IFCMD | grep ^eth | sed 's/ *Link encap:Ethernet.*HWaddr /-/g'
+}
+ 
+get_dev() {
+    echo $1 | cut -d'-' -f 1
+}
+ 
+get_mac() {
+    echo $1 | cut -d'-' -f 2
+}
+ 
+gen_hosts() {
+    NETWORK=$1
+    echo "127.0.0.1 localhost"
+    for n in `seq -w 01 99`; do
+        n2=`echo $n | sed 's/^0*//'`
+        echo ${NETWORK}.$n2 cluster${n}
+    done
+}
+ 
+gen_exports() {
+    NETWORK=$1
+    echo "/images ${NETWORK}.0/255.255.255.0(rw,async,no_subtree_check)"
+}
+ 
+gen_hostname() {
+    MAC=$1
+    NUM=`mac2ip $MAC | cut -d'.' -f4`
+    NUM2=`echo 000000$NUM | sed 's/.*\(..\)/\1/'`
+    echo cluork part of an IP
+get_network() {
+    IP=$1
+ 
+    echo $IP | cut -d'.' -f1,2,3
+}
+ 
+get_interfaces() {
+    IFCMD="/sbin/ifconfig -a"
+ 
+    $IFCMD | grep ^eth | sed 's/ *Link encap:Ethernet.*HWaddr /-/g'
+}
+ 
+get_dev() {
+    echo $1 | cut -d'-' -f 1
+}
+ 
+get_mac() {
+    echo $1 | cut -d'-' -f 2
+}
+ 
+gen_hosts()  "  gateway $NETWORK.1"
+    fi
+ 
+echo ""
+}
+ 
+ 
+IFACES=`get_interfaces`
+ 
+for i in $IFACES; do
+    MASTER_DEV_MAC=$i
+    DEV=`get_dev $i`
+    MAC=`get_mac $i`
+    IP=`mac2ip $MAC`
+    NETWORK=`get_network $IP`
+done
+ 
+# gen_hosts $NETWORK > /etc/hosts
+ 
+# gen_exports $NETWORK  > /etc/exports
+ 
+# gen_hostname $MAC  > /etc/hostname
+ 
+(
+cat <<EOT
 auto lo
 iface lo inet loopback
-EOF
-
-for i in $INTERFACES; do
-        DEV=`echo $i | cut -d'-' -f 1`
-        MAC=`echo $i | cut -d'-' -f 2`
-        mac2ip $MAC
-        NET=`echo $IP | cut -d'.' -f1,2,3`
-
-cat >> /etc/network/interfaces << EOF
-auto $DEV
-iface $DEV inet static
-  address $IP
-  gateway $NET.1
-  netmask 255.255.255.0
-EOF
+ 
+EOT
+ 
+for i in $IFACES; do
+    gen_interface $i
 done
+) > /etc/network/interfaces
+ 
+# /bin/hostname `cat /etc/hostname`
 
-}
-
-case "$1" in
-  start|"")
-	do_start
-	;;
-  restart|reload|force-reload)
-	echo "Error: argument '$1' not supported" >&2
-	exit 3
-	;;
-  stop)
-	# No-op
-	;;
-  *)
-	echo "Usage: vmcontext.sh [start|stop]" >&2
-	exit 3
-	;;
-esac
