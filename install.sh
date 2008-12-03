@@ -30,7 +30,7 @@ if [ -z "$SRC_DIR" -o -z "$DST_DIR" ]; then
     exit -1
 fi
 
-DIRS="/bin /include /etc /etc/im_kvm /etc/im_xen /etc/vmm_kvm /etc/vmm_xen /libexec /lib/ruby /var /share/examples /share/examples/tm /lib/im_probes /lib/tm_commands/nfs /lib/tm_commands/ssh /lib/tm_commands/dummy /etc/vmm_ec2 /etc/im_ec2 /etc/tm_nfs /etc/tm_ssh"
+DIRS="/bin /include /etc /etc/im_kvm /etc/im_xen /etc/vmm_kvm /etc/vmm_xen /libexec /lib/ruby /var /share/examples /share/examples/tm /lib/im_probes /lib/tm_commands/nfs /lib/tm_commands/ssh /lib/tm_commands/dummy /etc/vmm_ec2 /etc/im_ec2 /etc/tm_nfs /etc/tm_ssh /etc/tm_dummy"
 
 for d in $DIRS; do
     mkdir -p $DST_DIR$d
