@@ -53,28 +53,26 @@ gen_hostname() {
     MAC=$1
     NUM=`mac2ip $MAC | cut -d'.' -f4`
     NUM2=`echo 000000$NUM | sed 's/.*\(..\)/\1/'`
-    echo cluork part of an IP
-get_network() {
-    IP=$1
- 
-    echo $IP | cut -d'.' -f1,2,3
+    echo cluster$NUM2
 }
  
-get_interfaces() {
-    IFCMD="/sbin/ifconfig -a"
+gen_interface() {
+    DEV_MAC=$1
+    DEV=`get_dev $DEV_MAC`
+    MAC=`get_mac $DEV_MAC`
+    IP=`mac2ip $MAC`
+    NETWORK=`get_network $IP`
  
-    $IFCMD | grep ^eth | sed 's/ *Link encap:Ethernet.*HWaddr /-/g'
-}
+    cat <<EOT
+auto $DEV
+iface $DEV inet static
+  address $IP
+  network $NETWORK.0
+  netmask 255.255.255.0
+EOT
  
-get_dev() {
-    echo $1 | cut -d'-' -f 1
-}
- 
-get_mac() {
-    echo $1 | cut -d'-' -f 2
-}
- 
-gen_hosts()  "  gateway $NETWORK.1"
+    if [ $DEV == "eth0" ]; then
+      echo "  gateway $NETWORK.1"
     fi
  
 echo ""
@@ -110,4 +108,3 @@ done
 ) > /etc/network/interfaces
  
 # /bin/hostname `cat /etc/hostname`
-
