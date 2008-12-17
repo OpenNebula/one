@@ -53,12 +53,19 @@ class DM < ONEMad
 
     def action_deploy(args)
 
+        action_number=args[1]
+        action_host=args[2]
+        remote_deployment_file=args[3]
+
+        # Get local deployment file
+        local_deployment_file=get_local_deployment_file(remote_deployment_file)
+
         pkeypair = ""
         paminame = ""
         pinstance = ""
         pports = ""
 
-        File.read(args[3]).split(/\n/).each{|line|
+        File.read(local_deployment_file).split(/\n/).each{|line|
 
             result = line.split(/=/)
 
@@ -149,6 +156,13 @@ class DM < ONEMad
         if exit_code=="0"
             domain_name=""
             if action=="DEPLOY"
+               action_number=args[1]
+               action_host=args[2]
+               remote_deployment_file=args[3]
+
+               # Get local deployment file
+               local_deployment_file=get_local_deployment_file(remote_deployment_file)
+
 
                 domain_name = "id_not_found"
 
@@ -162,7 +176,7 @@ class DM < ONEMad
 
                 pelasticip=""
 
-                File.read(args[3]).split(/\n/).each{|line|
+                File.read(local_deployment_file).split(/\n/).each{|line|
 
                     result = line.split(/=/)
 
