@@ -25,40 +25,59 @@ class NebulaTemplate : public Template
 {    
 public:
 
-    NebulaTemplate(string& nebula_location);
+    NebulaTemplate(string& etc_location, string& var_location);
     
     ~NebulaTemplate(){};
 
     static const char * conf_name;
     
-    int get(
-        const char * name, 
-        vector<const Attribute*>& values) const
+    int get(const char * name, vector<const Attribute*>& values) const
     {
         string _name(name);
         
         return Template::get(_name,values);   
     };
     
-    void get(
-        const char * name, 
-        string& values) const
+    void get(const char * name, string& values) const
+    {
+        string _name(name);
+        
+        Template::get(_name,values);   
+    };
+        
+    void get(const char * name, int& values) const
     {
         string _name(name);
         
         Template::get(_name,values);   
     };
     
-    
-    void get(
-        const char * name, 
-        int&    values) const
+    void get(const char * name, time_t& values) const
     {
-        string _name(name);
+        const SingleAttribute *		sattr;
+        vector<const Attribute *>	attr;
         
-        Template::get(_name,values);   
-    };
-       
+        string 						_name(name);
+                
+        if ( Template::get(_name,attr) == 0 )
+        {
+        	values = 0;
+        	return;
+        }
+                       
+        sattr = dynamic_cast<const SingleAttribute *>(attr[0]);
+        
+        if ( sattr != 0 )
+        {
+        	istringstream	is;
+        	
+        	is.str(sattr->value());
+        	is >> values;
+        }
+        else
+        	values = 0;        
+    };    
+
 private:
     friend class Nebula;
     

@@ -125,14 +125,85 @@ public:
     
     // --------------------------------------------------------------
     // Environment & Configuration
-    // -------------------------------------------------------------- 
+    // --------------------------------------------------------------
     
+    /**
+     *  Returns the value of ONE_LOCATION env variable. When this variable is 
+     *  not defined the nebula location is "/".
+     *  	@return the nebula location.
+     */    
     const string& get_nebula_location()
     {
         return nebula_location;
     };
-   
+
+    /**
+     *  Returns the path where mad executables are stored, if ONE_LOCATION is 
+     *  defined this path points to $ONE_LOCATION/bin, otherwise it is 
+     *  /usr/lib/one/mads.
+     *  	@return the mad execs location.
+     */
+    const string& get_mad_location()
+    {
+    	return mad_location;
+    };
+
+    /**
+     *  Returns the path where defaults for mads are stored, if ONE_LOCATION is 
+     *  defined this path points to $ONE_LOCATION/etc, otherwise it is /etc/one
+     *  	@return the mad defaults location.
+     */
+    const string& get_defaults_location()
+    {
+    	return etc_location;
+    };
     
+    /**
+     *  Returns the path where logs (oned.log, schedd.log,...) are generated
+     *  if ONE_LOCATION is defined this path points to $ONE_LOCATION/var, 
+     *  otherwise it is /var/log/one.
+     *  	@return the log location.
+     */
+    const string& get_log_location()
+    {
+    	return log_location;
+    };
+
+    /**
+     *  Returns the path where the OpenNebula DB and the VM local directories 
+     *  are stored. When ONE_LOCATION is defined this path points to 
+     *  $ONE_LOCATION/var, otherwise it is /var/lib/one.
+     *  	@return the log location.
+     */
+    const string& get_var_location()
+    {
+    	return var_location;
+    };
+   
+    /**
+     *  Returns the path of the log file for a VM, depending where OpenNebula is
+     *  installed,
+     *     $ONE_LOCATION/var/$VM_ID/vm.log
+     *  or
+     *     /var/log/one/$VM_ID.log
+     *  @return the log location for the VM.
+     */
+    string get_vm_log_filename(int oid)
+    {
+    	ostringstream oss;
+    	
+    	if (nebula_location == "/")
+    	{
+    		oss << log_location << oid << ".log"; 
+    	}
+    	else
+    	{
+    		oss << nebula_location << "var/" << oid << "/vm.log"; 
+    	}
+    	
+    	return oss.str();
+    };
+        
     const string& get_nebula_hostname()
     {
         return hostname;
@@ -140,7 +211,7 @@ public:
     
     static string version()
     {
-        return "ONE1.1.80";   
+        return "ONE1.1.85";   
     };
     
     void start();
@@ -161,7 +232,34 @@ private:
     // -----------------------------------------------------------------------
     
     Nebula():nebula_configuration(0),db(0),vmpool(0),hpool(0),vnpool(0),lcm(0),
-        vmm(0),im(0),tm(0),dm(0),rm(0){};
+        vmm(0),im(0),tm(0),dm(0),rm(0)
+    {
+    	const char * nl = getenv("ONE_LOCATION");
+
+        if (nl == 0) //OpenNebula installed under root directory
+        {
+        	nebula_location = "/";
+        	
+        	mad_location = "/usr/lib/one/mads/";
+        	etc_location = "/etc/one/";
+        	log_location = "/var/log/one/";
+        	var_location = "/var/lib/one/";
+        }
+        else
+        {
+        	nebula_location = nl;
+        	
+        	if ( nebula_location.at(nebula_location.size()-1) != '/' )
+        	{
+        		nebula_location += "/";
+        	}
+        	
+        	mad_location = nebula_location + "lib/mads/";    	
+        	etc_location = nebula_location + "etc/";    	
+        	log_location = nebula_location + "var/";
+        	var_location = nebula_location + "var/";    	
+        }    	
+    };
     
     ~Nebula()
     {
@@ -229,8 +327,13 @@ private:
     // Environment variables
     // ---------------------------------------------------------------
        
-    string              nebula_location;
-    string				hostname;
+    string  nebula_location;
+    
+    string	mad_location;
+    string	etc_location;
+    string	log_location;
+    string	var_location;
+    string	hostname;
     
     // ---------------------------------------------------------------
     // Configuration

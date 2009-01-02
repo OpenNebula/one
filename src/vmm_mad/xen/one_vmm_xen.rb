@@ -1,18 +1,18 @@
 #!/usr/bin/env ruby
 
+ONE_LOCATION=ENV["ONE_LOCATION"]
+DEBUG_LEVEL=ENV["ONE_MAD_DEBUG"]
+
 XENTOP_PATH=ENV["XENTOP_PATH"]
 XM_PATH=ENV["XM_PATH"]
 
-ONE_LOCATION=ENV["ONE_LOCATION"]
-
-DEBUG_LEVEL=ENV["ONE_MAD_DEBUG"]
-
 if !ONE_LOCATION
-    puts "ONE_LOCATION not set"
-    exit -1
+    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
+else
+    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
 end
 
-$: << ONE_LOCATION+"/lib/ruby"
+$: << RUBY_LIB_LOCATION
 
 require 'pp'
 

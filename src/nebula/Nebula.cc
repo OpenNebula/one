@@ -35,25 +35,12 @@ using namespace std;
 
 void Nebula::start()
 {
-    int                 rc;
-    const char *        nl;
-    int                 fd;
-    sigset_t            mask;
-    int                 signal;
-    char 				hn[80];
-    
-    const SingleAttribute *     sattr;
-    vector<const Attribute *>   attr;
-    
-    nl = getenv("ONE_LOCATION");
-
-    if (nl == 0)
-    {
-        throw runtime_error("Environment variable ONE_LOCATION not defined");
-    }
-    
-    nebula_location = nl;
-    
+    int             rc;
+    int             fd;
+    sigset_t        mask;
+    int             signal;
+    char 			hn[80];
+        
     if ( gethostname(hn,79) != 0 )
     {
     	throw runtime_error("Error getting hostname");
@@ -65,7 +52,7 @@ void Nebula::start()
     // Configuration 
     // ----------------------------------------------------------- 
 
-    nebula_configuration = new NebulaTemplate(nebula_location);
+    nebula_configuration = new NebulaTemplate(etc_location, var_location);
     
     rc = nebula_configuration->load_configuration();
     
@@ -82,10 +69,11 @@ void Nebula::start()
 
     try
     {
-        string log_fname;
-        int    log_level_int;        
-        log_fname = nebula_location + "/var/oned.log";
-        Log::MessageType   clevel = Log::ERROR;
+        string 				log_fname;
+        int    				log_level_int;
+        Log::MessageType	clevel = Log::ERROR;
+        
+        log_fname = log_location + "oned.log";
         
         nebula_configuration->get("DEBUG_LEVEL", log_level_int);
         
@@ -113,9 +101,7 @@ void Nebula::start()
                     Log::INFO,
                     os,
                     log_fname.c_str(),
-                    clevel);           
-        
-                    
+                    clevel);               
     }
     catch(runtime_error&)
     {
@@ -140,7 +126,7 @@ void Nebula::start()
 
     try
     {
-        string db_name = nebula_location + "/var/one.db";
+        string db_name = var_location + "one.db";
         
         db = new SqliteDB(db_name,Nebula::log);
     }
@@ -170,7 +156,7 @@ void Nebula::start()
     Nebula::log("ONE",Log::INFO,"Bootstraping OpenNebula database.");
     
     vmpool->bootstrap();
-    hpool->bootstrap();
+     hpool->bootstrap();
     vnpool->bootstrap();
     
     // ----------------------------------------------------------- 
@@ -203,32 +189,17 @@ void Nebula::start()
     
     MadManager::mad_manager_system_init();
 
-    time_t                      timer_period;
-    istringstream               is;
-    
-    nebula_configuration->get("MANAGER_TIMER", attr);
-    
-    sattr = static_cast<const SingleAttribute *>(attr[0]);
-    
-    is.str(sattr->value());
-    
-    is >> timer_period;
-    
+    time_t timer_period;
+        
+    nebula_configuration->get("MANAGER_TIMER", timer_period);
+        
     // ---- Virtual Machine Manager ----         
     try
     {
         time_t                    poll_period;
         vector<const Attribute *> vmm_mads;
-                        
-        attr.clear();
-        nebula_configuration->get("VM_POLLING_INTERVAL", attr);
-        
-        sattr = static_cast<const SingleAttribute *>(attr[0]);
-        
-        is.clear();
-        is.str(sattr->value());
-        
-        is >> poll_period;
+
+        nebula_configuration->get("VM_POLLING_INTERVAL", poll_period);
         
         nebula_configuration->get("VM_MAD", vmm_mads);
         
@@ -274,16 +245,8 @@ void Nebula::start()
         vector<const Attribute *>   im_mads;
         time_t                      monitor_period;
         
-        attr.clear();
-        nebula_configuration->get("HOST_MONITORING_INTERVAL", attr);
-        
-        sattr = static_cast<const SingleAttribute *>(attr[0]);
-        
-        is.clear();
-        is.str(sattr->value());
-        
-        is >> monitor_period;
-                        
+        nebula_configuration->get("HOST_MONITORING_INTERVAL", monitor_period);
+                                
         nebula_configuration->get("IM_MAD", im_mads);
         
         im = new InformationManager(hpool,timer_period,monitor_period,im_mads);
@@ -350,7 +313,7 @@ void Nebula::start()
             hpool,
             vnpool,
             rm_port,
-            nebula_location + "/var/one_xmlrpc.log");
+            log_location + "one_xmlrpc.log");
     }
     catch (bad_alloc&)
     {

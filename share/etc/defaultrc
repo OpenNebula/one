@@ -29,7 +29,9 @@
 #-------------------------------------------------------------------------------
 
 # Debug for MADs. 
-# If set, MADs will generate cores and logs in $ONE_LOCATION/var. 
+# If set, MADs will generate cores and logs in $ONE_LOCATION/var. If OpenNebula
+# is installed in /, then the files will be in /var/lib/one and /var/log/one,
+# respectively. 
 # Possible values are [0=ERROR, 1=DEBUG]
 ONE_MAD_DEBUG=
 

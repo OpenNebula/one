@@ -3,7 +3,13 @@
 SIZE=$1
 DST=$2
 
-. $ONE_LOCATION/libexec/tm_common.sh
+if [ -z "${ONE_LOCATION}" ]; then
+    TMCOMMON=/usr/lib/one/mads/tm_common.sh
+else
+    TMCOMMON=$ONE_LOCATION/lib/mads/tm_common.sh
+fi
+
+. $TMCOMMON
 
 DST_PATH=`arg_path $DST`
 

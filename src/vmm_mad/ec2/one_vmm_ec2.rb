@@ -16,24 +16,22 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-VMWARECMD="/usr/bin/"
-
-ONE_LOCATION = ENV["ONE_LOCATION"]
 EC2_LOCATION = ENV["EC2_HOME"]
-
-
-if !ONE_LOCATION
-        puts "ONE_LOCATION not set"
-            exit -1
-end
 
 if !EC2_LOCATION
         puts "EC2_LOCATION not set"
             exit -1
 end
 
-$: << ONE_LOCATION+"/lib/ruby"
+ONE_LOCATION=ENV["ONE_LOCATION"]
 
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
+else
+    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
+end
+
+$: << RUBY_LIB_LOCATION
 
 require 'pp'
 require 'one_mad'

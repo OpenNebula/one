@@ -29,8 +29,19 @@ module ONE
     ########################
     # DATABASE DEFINITIONS #
     ########################
+
+    def ONE.get_db_filename
+	one_location=ENV["ONE_LOCATION"]
+
+	if !one_location
+            db_filename = "/var/lib/one/one.db"
+	else
+            db_filename = one_location + "/var/one.db"
+	end
+
+	db_filename
+    end
     
-    ONE_LOCATION=ENV["ONE_LOCATION"]
     
     TABLES={
         "vm_pool" => %w{oid uid last_poll template_id state lcm_state 
@@ -95,8 +106,13 @@ module ONE
     class Database
         attr_reader :db
         
-        def initialize(file=ONE_LOCATION+"/var/one.db")
-            @db=SQLite3::Database.new(file)
+        def initialize(file=nil)
+             
+            if file == nil 
+		file=ONE.get_db_filename
+	    end
+            
+	    @db=SQLite3::Database.new(file)
             @db.busy_timeout(5000)
             
             @db.busy_handler do |data, retries|

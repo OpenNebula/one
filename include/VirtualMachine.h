@@ -253,6 +253,8 @@ public:
     /**
      *  Returns the transfer filename. The transfer file is in the form: 
      *  		$ONE_LOCATION/var/$VM_ID/transfer.$SEQ
+     *  or, in case that OpenNebula is installed in root
+     *  		/var/lib/one/$VM_ID/transfer.$SEQ 
      *  The hasHistory() function MUST be called before this one.
      *    @return the transfer filename
      */ 
@@ -263,7 +265,9 @@ public:
 
     /**
      *  Returns the deployment filename. The deployment file is in the form:
-     *  		$ONE_LOCATION/var/$VM_ID/deployment.$SEQ 
+     *  		$ONE_LOCATION/var/$VM_ID/deployment.$SEQ
+     *  or, in case that OpenNebula is installed in root
+     *  		/var/lib/one/$VM_ID/deployment.$SEQ
      *  The hasHistory() function MUST be called before this one.
      *    @return the deployment filename
      */ 
@@ -297,7 +301,9 @@ public:
     
     /**
      *  Returns the remote VM directory. The VM remote dir is in the form: 
-     *  		$VM_DIR/$VM_ID/  
+     *  		$VM_DIR/$VM_ID/
+     *  or, in case that OpenNebula is installed in root
+     *  		/var/lib/one/$VM_ID/
      *  The hasHistory() function MUST be called before this one.
      *    @return the remote directory
      */ 
@@ -729,7 +735,9 @@ private:
 
     /**
      *  Log class for the virtual machine, it writes log messages in
-     *  $ONE_LOCATION/var/$VID/vm.log
+     *  		$ONE_LOCATION/var/$VID/vm.log
+     *  or, in case that OpenNebula is installed in root
+     *  		/var/log/one/$VM_ID.log
      */
     Log *       _log;
     

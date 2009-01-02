@@ -45,7 +45,7 @@ static const char * susage =
 
 static void print_license()
 {
-    cout<< "Copyright 2002-2008, Distributed Systems Architecture Group,\n"
+    cout<< "Copyright 2002-2009, Distributed Systems Architecture Group,\n"
         << "Universidad Complutense de Madrid (dsa-research.org).\n\n"
         << Nebula::version() << " is distributed and licensed for use under the"
         << " terms of the\nApache License, Version 2.0 "
@@ -106,18 +106,24 @@ int main(int argc, char **argv)
     // ---------------------------------
     //   Check if other oned is running  
     // --------------------------------- 
-        
+    
+    string lockfile;
+    string var_location;
+    
     nl = getenv("ONE_LOCATION");
 
-    if (nl == 0)
+    if (nl == 0) // OpenNebula in root of FSH
     {
-        cerr << "Error: ONE_LOCATION environment variable is undefined.\n";        
-        exit(-1);
+    	var_location = "/var/lib/one/"; 
+    	lockfile 	 = "/var/lock/one";
     }
-
-    string lockfile(nl);
-    
-    lockfile += "/var/.lock";
+    else
+    {
+    	var_location = nl;
+    	var_location += "/var/";
+    	
+    	lockfile = var_location + ".lock";
+    }
 
     fd = open(lockfile.c_str(), O_CREAT|O_EXCL, 0640);
 
@@ -125,6 +131,7 @@ int main(int argc, char **argv)
     {
         cerr<< "Error: Can not start oned, opening lock file " << lockfile 
             << endl;
+        
         exit(-1);
     }
 
@@ -151,9 +158,8 @@ int main(int argc, char **argv)
             
 
         case 0: // Child process
-            wd=nl;
-            wd += "/var/";
-            rc  = chdir(wd.c_str());
+        	
+            rc  = chdir(var_location.c_str());
                         
             if (rc != 0)
             {

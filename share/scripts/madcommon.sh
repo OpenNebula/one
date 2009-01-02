@@ -44,17 +44,30 @@ function execute_mad
         LOG_FILE=$MAD_FILE
     fi
 
-    if [ -n "${ONE_MAD_DEBUG}" ]; then
-        exec nice -n $PRIORITY bin/$MAD_FILE.rb $* 2>> var/$LOG_FILE.log
+    if [ -z "${ONE_LOCATION}" ]; then
+        MAD_EXEC_PATH=/usr/lib/one/mads/$MAD_FILE.rb
+        MAD_LOG_PATH=/var/log/one/$LOG_FILE.log	
     else
-        exec nice -n $PRIORITY bin/$MAD_FILE.rb $* 2> /dev/null
+        MAD_EXEC_PATH=$ONE_LOCATION/lib/mads/$MAD_FILE.rb
+	MAD_LOG_PATH=$ONE_LOCATION/var/$LOG_FILE.log
+    fi
+
+    if [ -n "${ONE_MAD_DEBUG}" ]; then
+        exec nice -n $PRIORITY $MAD_EXEC_PATH $* 2>> $MAD_LOG_PATH
+    else
+        exec nice -n $PRIORITY $MAD_EXEC_PATH $* 2> /dev/null
     fi
 }
 
 
 # Set global environment
+if [ -z "${ONE_LOCATION}" ]; then
+    DEFAULTRC=/etc/one/defaultrc
+else
+    DEFAULTRC=$ONE_LOCATION/etc/defaultrc
+fi
 
-export_rc_vars $ONE_LOCATION/etc/defaultrc
+export_rc_vars $DEFAULTRC
 
 # Sanitize PRIORITY variable
 if [ -z "$PRIORITY" ]; then

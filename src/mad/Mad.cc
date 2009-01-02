@@ -110,11 +110,11 @@ int Mad::start()
     {
         if ( it->second.empty() == false )
         {
-            if (it->second[0] != '/') //Look in ONE_LOCATION
+            if (it->second[0] != '/') //Look in ONE_LOCATION/lib/mads or in "/usr/lib/one/mads"
             {
                 Nebula& nd = Nebula::instance();
                                 
-                exec_path = nd.get_nebula_location() + "/" + it->second;
+                exec_path = nd.get_mad_location() + it->second;
                 executable= exec_path.c_str();
             }
             else //Absolute Path

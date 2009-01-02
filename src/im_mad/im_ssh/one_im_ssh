@@ -1,25 +1,27 @@
 #!/bin/bash
 
+DRIVER_NAME=`basename $1 | cut -d. -f1`
+
 if [ -z "${ONE_LOCATION}" ]; then
-    echo "Please, set ONE_LOCATION variable."
-    exit -1
+    DRIVERRC=/etc/one/${DRIVER_NAME}/${DRIVER_NAME}rc
+    MADCOMMON=/usr/lib/one/mads/madcommon.sh
+    VAR_LOCATION=/var/lib/one
+else
+    DRIVERRC=$ONE_LOCATION/etc/${DRIVER_NAME}/${DRIVER_NAME}rc
+    MADCOMMON=$ONE_LOCATION/lib/mads/madcommon.sh
+    VAR_LOCATION=$ONE_LOCATION/var
 fi
 
-. $ONE_LOCATION/libexec/madcommon.sh
+. $MADCOMMON
 
 # Export the im_mad specific rc
 
-DRIVER_NAME=`basename $1 | cut -d. -f1`
+export_rc_vars $DRIVERRC
 
-export_rc_vars $ONE_LOCATION/etc/${DRIVER_NAME}/${DRIVER_NAME}rc
-
-# Go to ONE_LOCATION
-
-cd $ONE_LOCATION
+# Go to var directory ONE_LOCATION/var or /var/lib/one
+cd $VAR_LOCATION
 
 LOG_FILE=$DRIVER_NAME
 
 # Execute the actual MAD
 execute_mad $*
-
-

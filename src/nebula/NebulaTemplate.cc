@@ -28,15 +28,14 @@ const char * NebulaTemplate::conf_name="oned.conf";
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-NebulaTemplate::NebulaTemplate(string& nebula_location)
+NebulaTemplate::NebulaTemplate(string& etc_location, string& var_location)
 {
     ostringstream       os;
     SingleAttribute *   attribute;
     string              value;
-        
-    conf_file  = nebula_location + "/etc/";
-    conf_file += conf_name;
-            
+
+    conf_file = etc_location + conf_name;
+
     // POLL_INTERVAL
     value = "300";
     
@@ -61,10 +60,8 @@ NebulaTemplate::NebulaTemplate(string& nebula_location)
     attribute = new SingleAttribute("PORT",value);
     conf_default.insert(make_pair(attribute->name(),attribute));
        
-    //VM_DIR    
-    value = nebula_location + "/var";
-    
-    attribute = new SingleAttribute("VM_DIR",value);
+    //VM_DIR        
+    attribute = new SingleAttribute("VM_DIR",var_location);
     conf_default.insert(make_pair(attribute->name(),attribute));
     
     //MAC_PREFIX    

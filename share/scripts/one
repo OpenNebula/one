@@ -1,16 +1,24 @@
 #! /bin/sh
 
 if [ -z "$ONE_LOCATION" ]; then 
-	echo "ONE_LOCATION is not defined"
-	exit 1
+    ONE_PID=/var/run/one/oned.pid
+    ONE_SCHEDPID=/var/run/one/sched.pid
+    ONE_CONF=/etc/one/oned.conf
+
+    ONED=/usr/bin/oned
+    ONE_SCHEDULER=/usr/bin/mm_sched
+
+    LOCK_FILE=/var/lock/one
+else
+    ONE_PID=$ONE_LOCATION/var/oned.pid
+    ONE_SCHEDPID=$ONE_LOCATION/var/sched.pid
+    ONE_CONF=$ONE_LOCATION/etc/oned.conf
+
+    ONED=$ONE_LOCATION/bin/oned
+    ONE_SCHEDULER=$ONE_LOCATION/bin/mm_sched
+    
+    LOCK_FILE=$ONE_LOCATION/var/.lock
 fi 
-
-ONE_PID=$ONE_LOCATION/var/oned.pid
-ONE_SCHEDPID=$ONE_LOCATION/var/sched.pid
-ONE_CONF=$ONE_LOCATION/etc/oned.conf
-
-ONED=$ONE_LOCATION/bin/oned
-ONE_SCHEDULER=$ONE_LOCATION/bin/mm_sched
 
 setup()
 {
@@ -21,7 +29,7 @@ setup()
 		exit 1
 	fi
 	
-	if [ -f $ONE_LOCATION/var/.lock ]; then
+	if [ -f $LOCK_FILE ]; then
 		if [ -f  $ONE_PID ]; then
 			ONEPID=`cat $ONE_PID`
 			ps $ONEPID &> /dev/null
@@ -39,7 +47,7 @@ setup()
 			fi
 		fi
 		echo "Stale .lock detected. Erasing it."
-		rm $ONE_LOCATION/var/.lock   
+		rm $LOCK_FILE
 	fi
 }
 
