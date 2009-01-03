@@ -41,6 +41,7 @@ int XenDriver::deployment_description(
     string initrd     = "";
     string root       = "";
     string kernel_cmd = "";
+    string bootloader = "";
 
     const VectorAttribute * disk;
     
@@ -134,6 +135,7 @@ int XenDriver::deployment_description(
             initrd     = os->vector_value("INITRD");
             root       = os->vector_value("ROOT");
             kernel_cmd = os->vector_value("KERNEL_CMD");
+            bootloader = os->vector_value("BOOTLOADER");
     	}
     }
 
@@ -146,6 +148,11 @@ int XenDriver::deployment_description(
     {
     	get_default("OS","INITRD",initrd);
     }
+    
+    if ( bootloader.empty() )
+    {
+    	get_default("OS","BOOTLOADER",bootloader);
+    }        
 
     if ( root.empty() )
     {
@@ -156,36 +163,35 @@ int XenDriver::deployment_description(
     {
     	get_default("OS","KERNEL_CMD",kernel_cmd);
     }
-
-    if ( kernel.empty() )
-    {
-    	goto error_kernel;
-    }
-    else
+    
+    if ( !kernel.empty() ) //Direct Kernel boot method
     {
     	file << "kernel = '" << kernel << "'" << endl;
+    	
+        if ( !initrd.empty() )
+        {
+            file << "ramdisk = '" << initrd << "'" << endl;
+        }
+        
+        if ( !root.empty() )
+        {
+        	file << "root = '/dev/" << root << "'" << endl;
+        }
+
+        if ( !kernel_cmd.empty() )
+        {
+            file << "extra = '" << kernel_cmd << "'" << endl;
+        }
     }
-    
-    if ( root.empty() )
+    else if ( !bootloader.empty() ) //Host loader boot method
     {
-    	goto error_root;
+    	file << "bootloader = \"" << bootloader << "\"" << endl;    		
     }
     else
     {
-    	file << "root = '/dev/" << root << "'" << endl;	
+    	goto error_boot;    	
     }
-    
-    if ( !initrd.empty() )
-    {
-        file << "ramdisk = '" << initrd << "'" << endl;
-    }
-    
-    if ( !kernel_cmd.empty() )
-    {
-        file << "extra = '" << kernel_cmd << "'" << endl;
-    }    
-    
-        
+            
     attrs.clear();
         
     // ------------------------------------------------------------------------
@@ -366,13 +372,8 @@ error_memory:
 	file.close();	
 	return -1;
 
-error_kernel:
-	vm->log("VMM", Log::ERROR, "No kernel defined and no default provided.");
-	file.close();	
-	return -1;
-
-error_root:
-	vm->log("VMM", Log::ERROR, "No root device defined and no default provided.");
+error_boot:
+	vm->log("VMM", Log::ERROR, "No kernel or bootloader defined and no default provided.");
 	file.close();	
 	return -1;
 

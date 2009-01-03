@@ -42,6 +42,7 @@ int LibVirtDriver::deployment_description(
      string  boot       = "";
      string  root       = "";
      string  kernel_cmd = "";
+     string  bootloader = "";
 
      const VectorAttribute * disk;
 
@@ -166,6 +167,7 @@ int LibVirtDriver::deployment_description(
          	boot       = os->vector_value("BOOT");
          	root       = os->vector_value("ROOT");
          	kernel_cmd = os->vector_value("KERNEL_CMD");
+         	bootloader = os->vector_value("BOOTLOADER");
  	    }
      }
 
@@ -179,6 +181,11 @@ int LibVirtDriver::deployment_description(
      	get_default("OS","INITRD",initrd);
      }
 
+     if ( bootloader.empty() )
+     {
+     	get_default("OS","BOOTLOADER",bootloader);
+     }
+     
      if ( boot.empty() )
      {
      	get_default("OS","BOOT",boot);
@@ -204,27 +211,29 @@ int LibVirtDriver::deployment_description(
      if ( !kernel.empty() )
      {
      	file << "\t\t<kernel>" << kernel << "</kernel>" << endl;
+     	
+        if ( !initrd.empty() )
+        {
+        	file << "\t\t<initrd>" << initrd << "</initrd>" << endl;
+        }
+        
+        if ( !root.empty() )
+        {
+        	kernel_cmd = "root=/dev/" + root + " " + kernel_cmd;
+        }
+        
+        if (!kernel_cmd.empty())
+        {
+        	file << "\t\t<cmdline>" << kernel_cmd << "</cmdline>" << endl;
+        }
      }
-     
-     if ( !initrd.empty() )
+     else if ( !bootloader.empty() )
      {
-     	file << "\t\t<initrd>" << initrd << "</initrd>" << endl;
+     	file << "\t\t<bootloader>" << bootloader << "</bootloader>" << endl;
      }
+    	 
      
-     file << "\t\t<boot dev='" << boot << "'/>" << endl;
-     
-     if ( !root.empty() )
-     {
-         file << "\t\t<cmdline>root=/dev/" << root;
-         
-         if (!kernel_cmd.empty())
-         {
-             file << " " << kernel_cmd;
-         }
-         
-         file << "</cmdline>" << endl;	
-     }     	  
-    
+     file << "\t\t<boot dev='" << boot << "'/>" << endl;    
      
      file << "\t</os>" << endl;
 
