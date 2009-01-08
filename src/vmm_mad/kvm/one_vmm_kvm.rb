@@ -103,7 +103,7 @@ class DM < ONEMad
     end
     
     def action_migrate(args)
-        send_message("MIGRATE", "FAILURE", args[1], "action not supported for KVM")
+        std_action("MIGRATE", "migrate --live #{args[3]} qemu+tcp://#{args[4]}/session", args)
     end
     
     def action_poll(args)
