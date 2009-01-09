@@ -32,8 +32,6 @@ top_text.split(/\n/).each{|line|
             temp = elemento.strip.split("k ")
             if temp[1] == "used"
                 $used_memory = temp[0]
-            elsif temp[1] == "free"
-                $free_memory = temp[0]
             end
         }
     
@@ -50,6 +48,8 @@ top_text.split(/\n/).each{|line|
         }
     end
 }
+
+$free_memory=`free -k|grep "buffers\/cache"|awk '{print $4}'`
     
 net_text=`cat /proc/net/dev`
 
