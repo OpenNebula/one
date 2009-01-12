@@ -30,6 +30,7 @@
 
 #include "Scheduler.h"
 #include "RankPolicy.h"
+#include "Nebula.h"
 
 using namespace std;
 
@@ -62,21 +63,10 @@ extern "C" void * scheduler_action_loop(void *arg)
 void Scheduler::start()
 {
     int             rc;
-
-    string          nebula_location;
-    const char *    nl;
+    Nebula& 		nd = Nebula::instance();
 
     pthread_attr_t    pattr;
-
-    nl = getenv("ONE_LOCATION");
-
-    if (nl == 0)
-    {
-        throw runtime_error("Environment variable ONE_LOCATION not defined");
-    }
-
-    nebula_location = nl;
-
+    
     // -----------------------------------------------------------
     // Log system
     // -----------------------------------------------------------
@@ -85,7 +75,7 @@ void Scheduler::start()
     {
         string log_fname;
 
-        log_fname = nebula_location + "/var/sched.log";
+        log_fname = nd.get_log_location() + "sched.log";
 
         Scheduler::log("SCHED",
                         Log::INFO,
@@ -103,7 +93,7 @@ void Scheduler::start()
 
     try
     {
-        string db_name = nebula_location + "/var/one.db";
+        string db_name = nd.get_var_location() + "one.db";
         
         db = new SqliteDB(db_name,Scheduler::log);
     }
@@ -112,17 +102,8 @@ void Scheduler::start()
         throw;
     }
 
-    try
-    {
-        string db_name = nebula_location + "/var/one.db";
-        
-        hpool  = new SchedulerHostPool(db);
-        vmpool = new SchedulerVirtualMachinePool(db);
-    }
-    catch (exception&)
-    {
-        throw;
-    }
+    hpool  = new SchedulerHostPool(db);
+    vmpool = new SchedulerVirtualMachinePool(db);
 
     // -----------------------------------------------------------
     // Load scheduler policies

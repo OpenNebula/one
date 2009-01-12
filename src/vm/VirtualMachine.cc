@@ -163,7 +163,7 @@ int VirtualMachine::select(SqliteDB * db)
     int             boid;
     
     string          filename;
-    const char *    nl;
+    Nebula& 		nd = Nebula::instance();
     
     oss << "SELECT * FROM " << table << " WHERE oid = " << oid;
 
@@ -214,41 +214,29 @@ int VirtualMachine::select(SqliteDB * db)
     		goto error_previous_history;	
     	}
     }
-
-    //Create Log support fo this VM
     
-    nl = getenv("ONE_LOCATION");
-
-    if (nl == 0)
-    {
-        goto error_env;  //no logging support for this VM
-    }
+    //Create support directory fo this VM
         
     oss.str("");
-    oss << nl << "/var/" << oid;
+    oss << nd.get_var_location() << oid;
     
     mkdir(oss.str().c_str(), 0777);
     chmod(oss.str().c_str(), 0777);
-       
+    
+    //Create Log support fo this VM
+    
     try 
     {
-        oss << "/vm.log";
-        
-        filename = oss.str();
-
-    	_log = new Log(filename,Log::DEBUG);
+    	_log = new Log(nd.get_vm_log_filename(oid),Log::DEBUG);
 	}
     catch(exception &e)
-    {        
-    	_log = 0;
+    {
+    	ose << "Error creating log: " << e.what();
+    	Nebula::log("ONE",Log::ERROR, ose);
     	
-    	goto error_log;
+    	_log = 0;
 	}
 
-    return 0;
-
-error_log:
-error_env:
     return 0;
 
 error_id:

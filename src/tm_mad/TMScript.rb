@@ -93,6 +93,12 @@ class TMPlugin < Hash
         end
         
         one_location=ENV['ONE_LOCATION']
+
+        if one_location == nil 
+            tm_commands_location = "/usr/lib/one/tm_commands/"
+        else
+            tm_commands_location = one_location + "/lib/tm_commands/"
+        end
         
         scripts_text.each_line {|line|
             case line
@@ -100,16 +106,12 @@ class TMPlugin < Hash
                 # skip empty or commented lines
                 next
             when /^\s*(\w+)\s*=\s*(.*)\s*$/
-                # TODO: add ONE_LOCATION if it is not FQDM
                 command=$1.strip.upcase
                 path=$2.strip
-                
-                # Substitutes ONE_LOCATION by the envionment variable
-                path.gsub!(/ONE_LOCATION/, one_location)
 
-                # Prepend ONE_LOCATION if the path does not
+                # Prepend default location for tm commands if the path does not
                 # start with /
-                path=one_location+"/"+path if path[0]!=?/
+                path=tm_commands_location+path if path[0]!=?/
                 
                 self[command]=path
             else

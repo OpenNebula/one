@@ -152,8 +152,15 @@ class ONEMad
         local_deployment_file=nil
 
         one_location=ENV["ONE_LOCATION"]
+
+	if one_location == nil
+	    var_location = "/var/lib/one/"
+        else
+            var_location = one_location + "/var/"
+        end
+
         m=remote_deployment_file.match(/.*?\/(\d+)\/images\/(deployment.\d+)$/)
-        local_deployment_file="#{one_location}/var/#{m[1]}/#{m[2]}" if m
+        local_deployment_file="#{var_location}#{m[1]}/#{m[2]}" if m
 
         return local_deployment_file
     end

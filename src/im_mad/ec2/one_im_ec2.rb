@@ -3,11 +3,12 @@
 ONE_LOCATION=ENV["ONE_LOCATION"]
 
 if !ONE_LOCATION
-    puts "ONE_LOCATION not set"
-    exit -1
+    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
+else
+    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
 end
 
-$: << ONE_LOCATION+"/lib/ruby"
+$: << RUBY_LIB_LOCATION
 
 require 'pp'
 require 'one_mad'

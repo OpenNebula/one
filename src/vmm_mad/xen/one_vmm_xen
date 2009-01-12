@@ -1,17 +1,22 @@
 #!/bin/bash
 
 if [ -z "${ONE_LOCATION}" ]; then
-    echo "Please, set ONE_LOCATION variable."
-    exit -1
+    DRIVERRC=/etc/one/vmm_xen/vmm_xenrc
+    MADCOMMON=/usr/lib/one/mads/madcommon.sh
+    VAR_LOCATION=/var/lib/one
+else
+    DRIVERRC=$ONE_LOCATION/etc/vmm_xen/vmm_xenrc
+    MADCOMMON=$ONE_LOCATION/lib/mads/madcommon.sh
+    VAR_LOCATION=$ONE_LOCATION/var
 fi
 
-. $ONE_LOCATION/libexec/madcommon.sh
+. $MADCOMMON
 
 # Export the vmm_mad specific rc
-export_rc_vars $ONE_LOCATION/etc/vmm_xen/vmm_xenrc
+export_rc_vars $DRIVERRC
 
 # Go to ONE_LOCATION
-cd $ONE_LOCATION
+cd $VAR_LOCATION
 
 # Execute the actual MAD
-execute_mad 
+execute_mad $*

@@ -3,11 +3,16 @@
 ONE_LOCATION=ENV["ONE_LOCATION"]
 
 if !ONE_LOCATION
-    puts "ONE_LOCATION not set"
-    exit(-1)
+    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
+    ETC_LOCATION="/etc/one/"
+    PROBE_LOCATION="/usr/lib/one/im_probes/"
+else
+    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
+    ETC_LOCATION=ONE_LOCATION+"/etc/"
+    PROBE_LOCATION=ONE_LOCATION+"/lib/im_probes/"
 end
 
-$: << ONE_LOCATION+"/lib/ruby"
+$: << RUBY_LIB_LOCATION
 
 require 'pp'
 
@@ -168,7 +173,7 @@ class SensorList < SSHCommandList
             (name, script)=l.split("=")
             name.strip!
             script.strip!
-            script=ONE_LOCATION+"/"+script if script[0] != ?/
+            script=PROBE_LOCATION+script if script[0] != ?/
             self<<Sensor.new(name, script)
         else
             STDERR.puts "Malformed line in configuration file: " + line
@@ -262,7 +267,7 @@ if !im_conf
     exit(-1)
 end
 
-im_conf=ONE_LOCATION+"/"+im_conf if im_conf[0] != ?/
+im_conf=ETC_LOCATION+im_conf if im_conf[0] != ?/
 sensors.load_sensors(im_conf)
 
 im=IM.new(sensors)

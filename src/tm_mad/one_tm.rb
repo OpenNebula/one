@@ -3,11 +3,14 @@
 ONE_LOCATION=ENV["ONE_LOCATION"]
 
 if !ONE_LOCATION
-    puts "ONE_LOCATION not set"
-    exit(-1)
+    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
+    ETC_LOCATION="/etc/one/"
+else
+    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
+    ETC_LOCATION=ONE_LOCATION+"/etc/"
 end
 
-$: << ONE_LOCATION+"/lib/ruby"
+$: << RUBY_LIB_LOCATION
 
 require 'pp'
 require 'one_mad'
@@ -73,7 +76,7 @@ if !tm_conf
     exit(-1)
 end
 
-tm_conf=ONE_LOCATION+"/"+tm_conf if tm_conf[0] != ?/
+tm_conf=ETC_LOCATION+tm_conf if tm_conf[0] != ?/
 
 plugin=TMPlugin.new(tm_conf)
 

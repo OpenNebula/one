@@ -16,24 +16,22 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-VMWARECMD="/usr/bin/"
-
-ONE_LOCATION = ENV["ONE_LOCATION"]
 EC2_LOCATION = ENV["EC2_HOME"]
-
-
-if !ONE_LOCATION
-        puts "ONE_LOCATION not set"
-            exit -1
-end
 
 if !EC2_LOCATION
         puts "EC2_LOCATION not set"
             exit -1
 end
 
-$: << ONE_LOCATION+"/lib/ruby"
+ONE_LOCATION=ENV["ONE_LOCATION"]
 
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
+else
+    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
+end
+
+$: << RUBY_LIB_LOCATION
 
 require 'pp'
 require 'one_mad'
@@ -53,12 +51,19 @@ class DM < ONEMad
 
     def action_deploy(args)
 
+        action_number=args[1]
+        action_host=args[2]
+        remote_deployment_file=args[3]
+
+        # Get local deployment file
+        local_deployment_file=get_local_deployment_file(remote_deployment_file)
+
         pkeypair = ""
         paminame = ""
         pinstance = ""
         pports = ""
 
-        File.read(args[3]).split(/\n/).each{|line|
+        File.read(local_deployment_file).split(/\n/).each{|line|
 
             result = line.split(/=/)
 
@@ -149,6 +154,13 @@ class DM < ONEMad
         if exit_code=="0"
             domain_name=""
             if action=="DEPLOY"
+               action_number=args[1]
+               action_host=args[2]
+               remote_deployment_file=args[3]
+
+               # Get local deployment file
+               local_deployment_file=get_local_deployment_file(remote_deployment_file)
+
 
                 domain_name = "id_not_found"
 
@@ -162,7 +174,7 @@ class DM < ONEMad
 
                 pelasticip=""
 
-                File.read(args[3]).split(/\n/).each{|line|
+                File.read(local_deployment_file).split(/\n/).each{|line|
 
                     result = line.split(/=/)
 

@@ -37,11 +37,11 @@ TransferManagerDriver::TransferManagerDriver(
             
     if ( it != attrs.end() )
     {        	        	
-       	if (it->second[0] != '/') //Look in ONE_LOCATION
+       	if (it->second[0] != '/') //Look in ONE_LOCATION/etc or in "/etc/one"
         {
       		Nebula& nd = Nebula::instance();
                                     
-            file  = nd.get_nebula_location() + "/" + it->second;
+            file  = nd.get_defaults_location() + it->second;
             cfile = file.c_str();
         }
         else //Absolute Path
