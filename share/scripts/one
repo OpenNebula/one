@@ -32,7 +32,7 @@ setup()
 	if [ -f $LOCK_FILE ]; then
 		if [ -f  $ONE_PID ]; then
 			ONEPID=`cat $ONE_PID`
-			ps $ONEPID &> /dev/null
+			ps $ONEPID > /dev/null 2>&1
 			if [ $? -eq 0 ]; then
 				echo "ONE is still running (PID:$ONEPID). Please try 'one stop' first."
 				exit 1 
@@ -40,7 +40,7 @@ setup()
 		fi
 		if [ -f  $ONE_SCHEDPID ]; then
 			ONESCHEDPID=`cat $ONE_SCHEDPID`
-			ps $ONESCHEDPID &> /dev/null
+			ps $ONESCHEDPID > /dev/null 2>&1
 			if [ $? -eq 0 ]; then
 				echo "The scheduler is still running (PID:$ONEPID). Please try 'one stop' first."
 				exit 1
@@ -117,11 +117,11 @@ stop()
 
 	# Kill the one daemon
 
-	kill `cat $ONE_PID` &> /dev/null
+	kill `cat $ONE_PID` > /dev/null 2>&1
 
 	# Kill the scheduler
 	
-	kill `cat $ONE_SCHEDPID` &> /dev/null
+	kill `cat $ONE_SCHEDPID` > /dev/null 2>&1
 
 	# Remove pid files
 
