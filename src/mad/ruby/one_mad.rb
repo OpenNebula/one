@@ -1,5 +1,5 @@
 # --------------------------------------------------------------------------
-# Copyright 2002-2008 GridWay Team, Distributed Systems Architecture
+# Copyright 2002-2009 GridWay Team, Distributed Systems Architecture
 # Group, Universidad Complutense de Madrid
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
