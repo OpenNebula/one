@@ -371,8 +371,10 @@ if [ "$UNINSTALL" = "no" ] ; then
         /bin/chown -R $ONEADMIN_USER:$ONEADMIN_GROUP $DESTDIR$d
     done
     # Create library links
-    ln -s $LIB_LOCATION/liboneapi.so $LIB_LOCATION/liboneapi.so.1
-    ln -s $LIB_LOCATION/liboneapi.so.1 $LIB_LOCATION/liboneapi.so.1.2
+    ln -s $DESTDIR$LIB_LOCATION/liboneapi.so \
+          $DESTDIR$LIB_LOCATION/liboneapi.so.1
+    ln -s $DESTDIR$LIB_LOCATION/liboneapi.so.1 \
+          $DESTDIR$LIB_LOCATION/liboneapi.so.1.2
 else
     for d in `echo $MAKE_DIRS | awk '{for (i=NF;i>=1;i--) printf $i" "}'`; do
         rmdir $d
