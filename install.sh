@@ -1,5 +1,22 @@
 #!/bin/bash
 
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2009, Distributed Systems Architecture Group, Universidad   #
+# Complutense de Madrid (dsa-research.org)                                   #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
 #-------------------------------------------------------------------------------
 # Install program for OpenNebula. It will install it relative to
 # $ONE_LOCATION if defined with the -d option, otherwise it'll be installed 
@@ -48,7 +65,7 @@ while true ; do
         -r) UNINSTALL="yes"   ; shift ;;
         -u) ONEADMIN_USER="$2" ; shift 2;;
         -g) ONEADMIN_GROUP="$2"; shift 2;;
-        -d) DST_DIR="$2" ; shift 2 ;;
+        -d) ROOT="$2" ; shift 2 ;;
         --) shift ; break ;;
         *)  usage; exit 1 ;;
     esac
@@ -58,7 +75,7 @@ done
 # Definition of locations
 #-------------------------------------------------------------------------------
 
-if [ -z "$DST_DIR" ] ; then
+if [ -z "$ROOT" ] ; then
     BIN_LOCATION="/usr/bin"
     LIB_LOCATION="/usr/lib/one"
     ETC_LOCATION="/etc/one"
@@ -68,22 +85,23 @@ if [ -z "$DST_DIR" ] ; then
     INCLUDE_LOCATION="/usr/include"
     SHARE_LOCATION="/usr/share/doc/opennebula"
 
-    MAKE_DIRS="$LIB_LOCATION $ETC_LOCATION $LOG_LOCATION \
-               $VAR_LOCATION $RUN_LOCATION $SHARE_LOCATION"
+    MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION $VAR_LOCATION \
+               $INCLUDE_LOCATION $SHARE_LOCATION \
+               $LOG_LOCATION $RUN_LOCATION"
 
     CHOWN_DIRS="$LOG_LOCATION $VAR_LOCATION $RUN_LOCATION"
 else
-    BIN_LOCATION="$DST_DIR/bin"
-    LIB_LOCATION="$DST_DIR/lib"
-    ETC_LOCATION="$DST_DIR/etc"
-    VAR_LOCATION="$DST_DIR/var"
-    INCLUDE_LOCATION="$DST_DIR/include"
-    SHARE_LOCATION="$DST_DIR/share"
+    BIN_LOCATION="$ROOT/bin"
+    LIB_LOCATION="$ROOT/lib"
+    ETC_LOCATION="$ROOT/etc"
+    VAR_LOCATION="$ROOT/var"
+    INCLUDE_LOCATION="$ROOT/include"
+    SHARE_LOCATION="$ROOT/share"
 
     MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION $VAR_LOCATION \
                $INCLUDE_LOCATION $SHARE_LOCATION"
 
-    CHOWN_DIRS="$DST_DIR"
+    CHOWN_DIRS="$ROOT"
 fi
 
 SHARE_DIRS="$SHARE_LOCATION/examples \
@@ -307,7 +325,7 @@ TM_EXAMPLE_SHARE_FILES="share/examples/tm/tm_clone.sh \
 
 if [ "$UNINSTALL" = "no" ] ; then 
     for d in $MAKE_DIRS; do
-        mkdir -p $d
+        mkdir -p $DESTDIR$d
     done
 fi
 
@@ -317,7 +335,7 @@ do_file() {
     if [ "$UNINSTALL" = "yes" ]; then
         rm $2/`basename $1`
     else
-        cp $SRC_DIR/$1 $2
+        cp $SRC_DIR/$1 $DESTDIR$2
     fi
 }
 
@@ -348,7 +366,9 @@ fi
 # --- Set ownership or remove OpenNebula directories ---
 
 if [ "$UNINSTALL" = "no" ] ; then 
-    /bin/chown -R $ONEADMIN_USER:$ONEADMIN_GROUP $CHOWN_DIRS
+    for d in $CHOWN_DIRS; do
+        /bin/chown -R $ONEADMIN_USER:$ONEADMIN_GROUP $DESTDIR$d
+    done
 else
     for d in `echo $MAKE_DIRS | awk '{for (i=NF;i>=1;i--) printf $i" "}'`; do
         rmdir $d
