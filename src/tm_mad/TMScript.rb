@@ -155,6 +155,8 @@ class TMScript
     # Returns an array where first element tells if succeded and the
     # second one is the error message in case of failure.
     def execute(plugin)
+        return [true,""] if @lines.empty?
+        
         result=@lines.each {|line|
             res=plugin.execute(@logger, *line)
             if !res
