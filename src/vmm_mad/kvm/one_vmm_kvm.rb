@@ -173,9 +173,11 @@ class DM < ONEMad
     end
         
     def exec_kvm_command(host, command)
-        Open3.popen3(
+        res=Open3.popen3(
             "ssh -n #{host} virsh #{command} ;"+
             " echo ExitCode: $? 1>&2")
+        res[0].close
+        res
     end
     
     def write_response(action, stdout, stderr, args)
