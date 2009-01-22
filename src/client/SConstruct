@@ -32,3 +32,5 @@ env.Append(CPPFLAGS=["-fPIC"])
 
 # Build library
 env.StaticLibrary(lib_name, source_files)
+env.SharedLibrary(lib_name, source_files)
+
