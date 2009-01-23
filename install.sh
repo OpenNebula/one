@@ -174,7 +174,8 @@ BIN_FILES="src/nebula/oned \
 #-------------------------------------------------------------------------------
 
 INCLUDE_FILES="include/OneClient.h"
-LIB_FILES="src/client/liboneapi.a"
+LIB_FILES="src/client/liboneapi.a \
+           src/client/liboneapi.so"
 
 #-------------------------------------------------------------------------------
 # Ruby library files, to be installed under $LIB_LOCATION/ruby
@@ -369,6 +370,11 @@ if [ "$UNINSTALL" = "no" ] ; then
     for d in $CHOWN_DIRS; do
         /bin/chown -R $ONEADMIN_USER:$ONEADMIN_GROUP $DESTDIR$d
     done
+    # Create library links
+    ln -s $DESTDIR$LIB_LOCATION/liboneapi.so \
+          $DESTDIR$LIB_LOCATION/liboneapi.so.1
+    ln -s $DESTDIR$LIB_LOCATION/liboneapi.so.1 \
+          $DESTDIR$LIB_LOCATION/liboneapi.so.1.2
 else
     for d in `echo $MAKE_DIRS | awk '{for (i=NF;i>=1;i--) printf $i" "}'`; do
         rmdir $d
