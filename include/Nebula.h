@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2008, Distributed Systems Architecture Group, Universidad   */
+/* Copyright 2002-2009, Distributed Systems Architecture Group, Universidad   */
 /* Complutense de Madrid (dsa-research.org)                                   */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
@@ -211,7 +211,7 @@ public:
     
     static string version()
     {
-        return "ONE1.1.85";   
+        return "OpenNebula release 1.2 (2009/1/28)";   
     };
     
     void start();
