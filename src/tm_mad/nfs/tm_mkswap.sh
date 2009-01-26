@@ -34,7 +34,7 @@ log "Creating ${SIZE}Mb image in $DST_PATH"
 exec_and_log "dd if=/dev/zero of=$DST_PATH bs=1 count=1 seek=${SIZE}M"
 
 log "Initializing swap space"
-exec_and_log "mkswap $DST_PATH"
+exec_and_log "/sbin/mkswap $DST_PATH"
 
 exec_and_log "chmod a+w $DST_PATH"
 

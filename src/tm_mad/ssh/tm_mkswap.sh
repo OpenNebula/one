@@ -38,7 +38,7 @@ exec_and_log "ssh $DST_HOST mkdir -p $DST_DIR"
 exec_and_log "ssh $DST_HOST dd if=/dev/zero of=$DST_PATH bs=1 count=1 seek=${SIZE}M"
 
 log "Initializing swap space"
-exec_and_log "ssh $DST_HOST mkswap $DST_PATH"
+exec_and_log "ssh $DST_HOST /sbin/mkswap $DST_PATH"
 
 exec_and_log "ssh $DST_HOST chmod a+w $DST_PATH"
 
