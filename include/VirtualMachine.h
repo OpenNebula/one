@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2008, Distributed Systems Architecture Group, Universidad   */
+/* Copyright 2002-2009, Distributed Systems Architecture Group, Universidad   */
 /* Complutense de Madrid (dsa-research.org)                                   */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
@@ -535,6 +535,15 @@ public:
     {
         string str=name;
         vm_template.get(str,value);        
+    }
+    
+    /**
+     *  Generates a XML string for the template of the VM
+     *    @param xml the string to store the XML description.
+     */
+    void template_to_xml(string &xml) const
+    {
+        vm_template.to_xml(xml);        
     }
     
     // ------------------------------------------------------------------------

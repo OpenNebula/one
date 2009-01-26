@@ -27,7 +27,8 @@ source_files=[
 	'VirtualMachineManagerDriver.cc',
 	'XenDriver.cc',
 	'LibVirtDriver.cc',
-	'EC2Driver.cc'
+	'EC2Driver.cc',
+	'XMLDriver.cc'
 ]
 
 # Build library

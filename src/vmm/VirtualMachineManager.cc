@@ -18,6 +18,7 @@
 #include "VirtualMachineManager.h"
 #include "Nebula.h"
 #include "XenDriver.h"
+#include "XMLDriver.h"
 #include "LibVirtDriver.h"
 #include "EC2Driver.h"
 #include <time.h>
@@ -794,7 +795,11 @@ void VirtualMachineManager::load_mads(int uid)
         else if ( type == "EC2" )
         {
         	vmm_driver = new EC2Driver(uid, vattr->value(),(uid != 0),vmpool);
-        }        
+        }
+        else if ( type == "XML" )
+        {
+        	vmm_driver = new XMLDriver(uid, vattr->value(),(uid != 0),vmpool);
+        }
         else
         {
         	oss.str("");

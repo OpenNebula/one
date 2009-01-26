@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2008, Distributed Systems Architecture Group, Universidad   */
+/* Copyright 2002-2009, Distributed Systems Architecture Group, Universidad   */
 /* Complutense de Madrid (dsa-research.org)                                   */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
@@ -74,6 +74,20 @@ public:
      *    @param delim to separate attributes
      */
     void marshall(string &str, const char delim='\n');
+
+    /**
+     *  Writes the template in a simple xml string:
+     *  <template>
+     *    <single>value</single>
+     *    <vector>
+     *      <attr>value</attr>
+     *      ...
+     *    </vector>
+     *    ...
+     *  </template>
+     *    @param xml string that hold the xml template representation
+     */
+    void to_xml(string& xml) const;
     
     /**
      *  Sets a new attribute, the attribute MUST BE ALLOCATED IN THE HEAP, and

@@ -33,7 +33,7 @@ Options:
 EOT
 
     ONE_VERSION=<<-EOT
-OpenNebula release 1.1.80 (2008/12/02)
+OpenNebula 1.3.0
 Copyright 2002-2008, Distributed Systems Architecture Group, Universidad
 Complutense de Madrid (dsa-research.org)
 

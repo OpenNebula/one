@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2008, Distributed Systems Architecture Group, Universidad   */
+/* Copyright 2002-2009, Distributed Systems Architecture Group, Universidad   */
 /* Complutense de Madrid (dsa-research.org)                                   */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
@@ -73,6 +73,13 @@ public:
      *    @return a string (allocated in the heap) holding the attribute value.
      */
     virtual string * marshall(const char * _sep = 0) = 0;
+    
+    /**
+     *  Write the attribute using a simple XML format. The string MUST be freed
+     *  by the calling function.
+     *    @return a string (allocated in the heap) holding the attribute value.
+     */
+    virtual string * to_xml() const = 0;
 
     /**
      *  Builds a new attribute from a string.
@@ -135,7 +142,25 @@ public:
         
         return rs;   
     };
-
+    
+    /**
+     *  Write the attribute using a simple XML format:
+     * 
+     *  <attribute_name>attribute_value</attribute_name> 
+     * 
+     *  The string MUST be freed by the calling function.
+     *    @return a string (allocated in the heap) holding the attribute value.
+     */
+    string * to_xml() const
+    {
+    	string * xml = new string;
+    	
+    	*xml = "<" + name() + ">" + attribute_value
+    		 + "</"+ name() + ">";
+    	
+    	return xml;
+    }
+        
     /**
      *  Builds a new attribute from a string.
      */    
@@ -204,6 +229,20 @@ public:
      *    @return a string (allocated in the heap) holding the attribute value.
      */    
     string * marshall(const char * _sep = 0);
+    
+    /**
+     *  Write the attribute using a simple XML format:
+     * 
+     *  <attribute_name>
+     *    <val_name_1>val_value_1</val_name_1>
+     *    ...
+     *    <val_name_n>val_value_n</val_name_n>
+     *  </attribute_name> 
+     * 
+     *  The string MUST be freed by the calling function.
+     *    @return a string (allocated in the heap) holding the attribute value.
+     */
+    string * to_xml() const;
 
     /**
      *  Builds a new attribute from a string of the form:

@@ -255,6 +255,31 @@ void Template::get(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void Template::to_xml(string& xml) const
+{
+    multimap<string,Attribute *>::const_iterator  it;
+    ostringstream                   		oss;
+    string *                                s;
+    
+    oss << "<template>";
+    
+    for ( it = attributes.begin(); it!=attributes.end(); it++)
+    {
+        s = it->second->to_xml();
+
+        oss << *s;
+
+        delete s;
+    }
+    
+    oss << "</template>";
+    
+    xml = oss.str();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 ostream& operator << (ostream& os, Template& t)
 {
     multimap<string,Attribute *>::iterator  it;
@@ -274,3 +299,4 @@ ostream& operator << (ostream& os, Template& t)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+

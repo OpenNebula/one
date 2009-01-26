@@ -64,6 +64,33 @@ string * VectorAttribute::marshall(const char * _sep)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+string * VectorAttribute::to_xml() const
+{
+	map<string,string>::const_iterator    it;
+	ostringstream                   oss;
+	string * 						xml;
+	
+	oss << "<" << name() << ">";
+	
+	for (it=attribute_value.begin();it!=attribute_value.end();it++)
+	{
+		oss << "<" << it->first << ">" << it->second 
+			<< "</"<< it->first << ">";
+	}
+	
+	oss << "</"<< name() << ">";
+	
+	xml = new string;
+	
+	*xml = oss.str();
+	
+	return xml;
+}    
+
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void VectorAttribute::unmarshall(const string& sattr)
 {
     size_t 	bpos=0,epos,mpos;
