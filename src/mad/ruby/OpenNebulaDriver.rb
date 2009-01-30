@@ -29,14 +29,22 @@ require "ActionManager"
 # with the action name through the register_action func
 
 class OpenNebulaDriver < ActionManager
+
+    RESULT = {
+        :success => "SUCCESS",
+        :failure => "FAILURE"
+    }
+
     def initialize(concurrency=10, threaded=true)
         super(concurrency,threaded)
+
+        register_action("INIT", method("init"))
         @send_mutex=Mutex.new
     end
 
-    def send_message(*args)
+    def send_message(action="-", result=RESULT[:failure], id="-", info="-")
         @send_mutex.synchronize {
-            STDOUT.puts args.join(' ')
+            STDOUT.puts "#{action} #{result} #{id} #{info}"
             STDOUT.flush
         }
     end
@@ -57,6 +65,10 @@ class OpenNebulaDriver < ActionManager
     end
 
 private
+
+    def init
+        send_message("INIT",RESULT[:success])
+    end
 
     def loop
         while true
@@ -84,16 +96,12 @@ if __FILE__ == $0
             register_action("SLEEP",method("my_sleep"))
         end
 
-        def response(action,result,info)
-            send_message(action,result,info)
-        end
-
         def my_sleep(timeout, num)
             log(num,"Sleeping #{timeout} seconds")
             sleep(timeout.to_i)
             log(num,"Done with #{num}")
 
-            response("SLEEP","SUCCESS",num.to_s)
+            send_message("SLEEP",RESULT[:success],num.to_s)
         end
     end
 
