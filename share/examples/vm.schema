@@ -17,6 +17,7 @@ NAME = vm-example # Optional, Default: one-$VMID, XEN, KVM
 
 CPU    = "amount_of_requested_CPU" # Mandatory, XEN, KVM
 MEMORY = "amount_of_requested_MEM" # Mandatory, XEN, KVM
+VCPU   = number of virtual cpus # Optional, default, KVM, XEN
 
 #---------------------------------------
 #         OS and boot options

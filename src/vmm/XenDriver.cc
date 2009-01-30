@@ -33,6 +33,7 @@ int XenDriver::deployment_description(
     string	credits;
     string  cpu;
     string  memory;
+    string  vcpu;
         
     float   base_credit = 1.0;
     float   cpu_units   = 1.0;
@@ -99,7 +100,7 @@ int XenDriver::deployment_description(
     
     file << "#O CPU_CREDITS = " << ceil(cpu_units*base_credit) << endl;
     
-    // ------------------------------------------------------------------------
+    // -------------------------------------------------------------------------
 
     vm->get_template_attribute("MEMORY",memory);
     
@@ -117,6 +118,20 @@ int XenDriver::deployment_description(
     	goto error_memory;
     }
     
+    // -------------------------------------------------------------------------
+
+    vm->get_template_attribute("VCPU",vcpu);
+    
+    if (vcpu.empty())
+    {
+    	get_default("VCPU",vcpu);
+    }
+    
+    if (!vcpu.empty())
+    {
+    	file << "vcpu  = '" << vcpu << "'" << endl;
+    }
+
     // ------------------------------------------------------------------------
     //  OS and boot options
     // ------------------------------------------------------------------------

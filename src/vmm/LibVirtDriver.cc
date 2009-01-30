@@ -32,7 +32,7 @@ int LibVirtDriver::deployment_description(
      int                         num;
      vector<const Attribute *>   attrs;
 
-     string  cpu;
+     string  vcpu;
      string  memory;
      
      int     memory_in_kb = 0;
@@ -99,22 +99,16 @@ int LibVirtDriver::deployment_description(
      // CPU 
      // ------------------------------------------------------------------------       
 
+     vm->get_template_attribute("VCPU", vcpu);
 
-     vm->get_template_attribute("CPU", cpu);
-
-     if(cpu.empty())
+     if(vcpu.empty())
      {
-         get_default("CPU",cpu);
+         get_default("VCPU", vcpu);
      }
      
-     if (!cpu.empty())
+     if (!vcpu.empty())
      {
-     	//file << "\t<vcpu>" << cpu << "</vcpu>" << endl;
-     	// TODO decide about the vpcu value 
-     }
-     else
-     {
-     	goto error_cpu;
+     	file << "\t<vcpu>" << vcpu << "</vcpu>" << endl; 
      }
      
      // ------------------------------------------------------------------------
@@ -520,11 +514,6 @@ error_file:
 	vm->log("VMM", Log::ERROR, "Could not open KVM deployment file.");
 	return -1;
 	
-error_cpu:
-	vm->log("VMM", Log::ERROR, "No CPU defined and no default provided.");
-    file.close();	
-    return -1;
-
 error_memory:
 	vm->log("VMM", Log::ERROR, "No MEMORY defined and no default provided.");
 	file.close();	
