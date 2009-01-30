@@ -28,11 +28,10 @@ require "ActionManager"
 # for each action it wants to receive. The method must be associated
 # with the action name through the register_action func
 
-class OpenNebulaDriver
+class OpenNebulaDriver < ActionManager
     def initialize(concurrency=10, threaded=true)
+        super(concurrency,threaded)
         @send_mutex=Mutex.new
-
-        @am = ActionManager.new(concurrency,threaded)
     end
 
     def send_message(*args)
@@ -53,9 +52,7 @@ class OpenNebulaDriver
 
     def start_driver
         loop_thread = Thread.new { loop }
-        
-        @am.start_listener
-        
+        start_listener
         loop_thread.kill!
     end
 
@@ -73,7 +70,7 @@ private
 
             action = args.shift.upcase
 
-            @am.trigger_action(action,*args)
+            trigger_action(action,*args)
         end
     end
 end
@@ -82,9 +79,9 @@ if __FILE__ == $0
 
     class SampleDriver < OpenNebulaDriver
         def initialize
-            super(5,true)
+            super(15,true)
 
-            @am.register_action("SLEEP",method("my_sleep"))
+            register_action("SLEEP",method("my_sleep"))
         end
 
         def response(action,result,info)

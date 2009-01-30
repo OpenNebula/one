@@ -46,7 +46,7 @@ class Sample
     end
 end
 
-        
+
     s = Sample.new
 
     s.@am.start_listener
@@ -96,11 +96,11 @@ class ActionManager
     # +aname+ name of the action
     # +aargs+ arguments to call the action
     def trigger_action(aname,*aargs)
-      
+
         return if @finalize
-        
+
         @threads_mutex.synchronize {
-        
+
             if aname == "FINALIZE"
                 @finalize = true
                 @threads_cond.signal if @running_actions == 0
@@ -129,10 +129,10 @@ class ActionManager
                 while ((@concurrency - @running_actions)==0) ||
                         @action_queue.size==0
                     @threads_cond.wait(@threads_mutex)
-                                                
-                    return if ( @finalize && @running_actions == 0) 
+
+                    return if (@finalize && @running_actions == 0)
                 end
-                
+
                 run_action
             }
         end
@@ -162,7 +162,6 @@ private
             end
         end
     end
-
 end
 
 if __FILE__ == $0
@@ -187,7 +186,6 @@ if __FILE__ == $0
         def nop_action
             p " - Just an action"
         end
-        
     end
 
     s = Sample.new
@@ -200,11 +198,11 @@ if __FILE__ == $0
         }
 
         s.am.trigger_action("FINALIZE")
-    
+
         s.am.trigger_action("SLEEP",rand(3)+1,999)
         s.am.trigger_action("SLEEP",rand(3)+1,333)
     }
-    
+
     s.am.start_listener
 end
 
