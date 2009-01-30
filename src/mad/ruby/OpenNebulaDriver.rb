@@ -33,7 +33,6 @@ class OpenNebulaDriver
         @send_mutex=Mutex.new
 
         @am = ActionManager.new(concurrency,threaded)
-        @am.register_action("FINALIZE",method("stop_driver"),false)
     end
 
     def send_message(*args)
@@ -53,16 +52,14 @@ class OpenNebulaDriver
     end
 
     def start_driver
+        loop_thread = Thread.new { loop }
+        
         @am.start_listener
-        loop
+        
+        loop_thread.kill!
     end
 
 private
-
-    def stop_driver
-        @am.stop_listener
-        exit(0)
-    end
 
     def loop
         while true
@@ -105,7 +102,5 @@ if __FILE__ == $0
 
     sd = SampleDriver.new
     sd.start_driver
-
-    gets
 
 end
