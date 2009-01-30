@@ -34,9 +34,6 @@ class Sample
         @am = ActionManager.new(15,true)
 
         @am.register_action("SLEEP",method("sleep_action"))
-        @am.register_action("FINALIZE",method("finalize_action"),false)
-
-        @am.start_listener
     end
 
     def sleep_action(secs)
@@ -49,10 +46,14 @@ class Sample
     end
 end
 
+        
     s = Sample.new
 
-    s.am.trigger_action("SLEEP",rand(3)+1)
-    s.am.trigger_action("FINALIZE")
+    s.@am.start_listener
+
+#  Objects in other threads can trigger actions like this
+#  s.am.trigger_action("SLEEP",rand(3)+1)
+#  s.am.trigger_action("FINALIZE")
 =end
 
 class ActionManager
@@ -67,7 +68,6 @@ class ActionManager
         @finalize = false
         @actions  = Hash.new
         @threaded = threaded
-        @listener = nil
 
         @concurrency     = concurrency
         @action_queue    = Array.new
@@ -132,9 +132,9 @@ class ActionManager
                                                 
                     return if ( @finalize && @running_actions == 0) 
                 end
-                    
-                    run_action
-                }
+                
+                run_action
+            }
         end
     end
 
