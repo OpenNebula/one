@@ -211,7 +211,7 @@ public:
     
     static string version()
     {
-        return "OpenNebula release 1.2 (2009/1/28)";   
+        return "OpenNebula release 1.2 (2009/2/6)";
     };
     
     void start();
