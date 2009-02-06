@@ -122,7 +122,7 @@ class DM < ONEMad
     end
     
     def action_shutdown(args)
-        std_action("SHUTDOWN", "shutdown #{args[3]} \\&\\& sudo #{XM_PATH} destroy #{args[3]} \\&\\& sleep 4", args)
+        std_action("SHUTDOWN", "shutdown #{args[3]} \\&\\& sleep 10 \\&\\& sudo #{XM_PATH} destroy #{args[3]} \\&\\& sleep 4", args)
     end
     
     def action_cancel(args)

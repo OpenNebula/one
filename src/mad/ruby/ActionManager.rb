@@ -27,33 +27,33 @@ can be used to synchronize different objects in different threads
 
 == Example
 
-class Sample
-    attr_reader :am
+    class Sample
+        attr_reader :am
 
-    def initialize
-        @am = ActionManager.new(15,true)
+        def initialize
+            @am = ActionManager.new(15,true)
 
-        @am.register_action("SLEEP",method("sleep_action"))
+            @am.register_action("SLEEP",method("sleep_action"))
+        end
+
+        def sleep_action(secs)
+            sleep(secs)
+        end
+
+        def finalize_action
+            p "Exiting..."
+            @am.stop_listener
+        end
     end
-
-    def sleep_action(secs)
-        sleep(secs)
-    end
-
-    def finalize_action
-        p "Exiting..."
-        @am.stop_listener
-    end
-end
 
 
     s = Sample.new
 
     s.@am.start_listener
 
-#  Objects in other threads can trigger actions like this
-#  s.am.trigger_action("SLEEP",rand(3)+1)
-#  s.am.trigger_action("FINALIZE")
+#   Objects in other threads can trigger actions like this
+#   s.am.trigger_action("SLEEP",rand(3)+1)
+#   s.am.trigger_action("FINALIZE")
 =end
 
 class ActionManager
@@ -65,16 +65,16 @@ class ActionManager
     # +threaded+ if true actions will be executed by default in a different
     # thread
     def initialize(concurrency=10, threaded=true)
-        @finalize = false
-        @actions  = Hash.new
-        @threaded = threaded
+        @finalize       = false
+        @actions        = Hash.new
+        @threaded       = threaded
 
-        @concurrency     = concurrency
-        @action_queue    = Array.new
-        @running_actions = 0
+        @concurrency    = concurrency
+        @action_queue   = Array.new
+        @running_actions= 0
 
-        @threads_mutex   = Mutex.new
-        @threads_cond    = ConditionVariable.new
+        @threads_mutex  = Mutex.new
+        @threads_cond   = ConditionVariable.new
     end
 
     # Registers a new action in the manager. An action is defined by:
@@ -110,8 +110,10 @@ class ActionManager
             if !@actions.has_key?(aname)
                 return
             end
+            
+            method_obj = method(@actions[aname][:method])
 
-            if @actions[aname][:method].arity != aargs.length
+            if method_obj.arity != aargs.length
                 return
             end
 
