@@ -38,7 +38,7 @@ class OpenNebulaDriver < ActionManager
     def initialize(concurrency=10, threaded=true)
         super(concurrency,threaded)
 
-        register_action("INIT", method("init"))
+        register_action(:INIT, method("init"))
         @send_mutex=Mutex.new
     end
 
@@ -80,7 +80,7 @@ private
             args   = str.split(/\s+/)
             next if args.length == 0
 
-            action = args.shift.upcase
+            action = args.shift.upcase.to_sym
 
             trigger_action(action,*args)
         end
@@ -93,7 +93,7 @@ if __FILE__ == $0
         def initialize
             super(15,true)
 
-            register_action("SLEEP",method("my_sleep"))
+            register_action(:SLEEP,method("my_sleep"))
         end
 
         def my_sleep(timeout, num)

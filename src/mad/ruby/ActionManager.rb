@@ -97,11 +97,10 @@ class ActionManager
     # +aargs+ arguments to call the action
     def trigger_action(aname,*aargs)
 
-        return if @finalize
-
         @threads_mutex.synchronize {
+            return if @finalize
 
-            if aname == "FINALIZE"
+            if aname == :FINALIZE
                 @finalize = true
                 @threads_cond.signal if @running_actions == 0
                 return
@@ -110,10 +109,8 @@ class ActionManager
             if !@actions.has_key?(aname)
                 return
             end
-            
-            method_obj = method(@actions[aname][:method])
 
-            if method_obj.arity != aargs.length
+            if @actions[aname][:method].arity != aargs.length
                 return
             end
 
@@ -174,9 +171,9 @@ if __FILE__ == $0
         def initialize
             @am = ActionManager.new(15,true)
 
-            @am.register_action("SLEEP",method("sleep_action"))
-#            @am.register_action("SLEEP",Proc.new{|s,i| p s ; sleep(s)})
-            @am.register_action("NOP",method("nop_action"))
+            @am.register_action(:SLEEP,method("sleep_action"))
+#            @am.register_action(:SLEEP,Proc.new{|s,i| p s ; sleep(s)})
+            @am.register_action(:NOP,method("nop_action"))
        end
 
         def sleep_action(secs, id)
@@ -195,14 +192,14 @@ if __FILE__ == $0
     Thread.new {
         sleep 1
         100.times {|n|
-            s.am.trigger_action("SLEEP",rand(3)+1,n)
-            s.am.trigger_action("NOP")
+            s.am.trigger_action(:SLEEP,rand(3)+1,n)
+            s.am.trigger_action(:NOP)
         }
 
-        s.am.trigger_action("FINALIZE")
+        s.am.trigger_action(:FINALIZE)
 
-        s.am.trigger_action("SLEEP",rand(3)+1,999)
-        s.am.trigger_action("SLEEP",rand(3)+1,333)
+        s.am.trigger_action(:SLEEP,rand(3)+1,999)
+        s.am.trigger_action(:SLEEP,rand(3)+1,333)
     }
 
     s.am.start_listener

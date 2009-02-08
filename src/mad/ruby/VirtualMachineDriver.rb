@@ -30,6 +30,9 @@ require "OpenNebulaDriver"
 
 class VirtualMachineDriver < OpenNebulaDriver
 
+    # -------------------------------------------------------------------------
+    # Virtual Machine Driver Protocol constants
+    # -------------------------------------------------------------------------
     ACTION = {
         :deploy     => "DEPLOY",
         :shutdown   => "SHUTDOWN",
@@ -55,18 +58,25 @@ class VirtualMachineDriver < OpenNebulaDriver
         :deleted => 'd'
     }
 
+    # -------------------------------------------------------------------------
+    # Register default actions for the protocol
+    # -------------------------------------------------------------------------
     def initialize(concurrency=10, threaded=true)
         super(concurrency,threaded)
 
-        register_action(ACTION[:deploy], method("deploy"))
-        register_action(ACTION[:shutdown], method("shutdown"))
-        register_action(ACTION[:cancel], method("cancel"))
-        register_action(ACTION[:save], method("save"))
-        register_action(ACTION[:restore], method("restore"))
-        register_action(ACTION[:migrate], method("migrate"))
-        register_action(ACTION[:poll], method("poll"))
+        register_action(ACTION[:deploy].to_sym, method("deploy"))
+        register_action(ACTION[:shutdown].to_sym, method("shutdown"))
+        register_action(ACTION[:cancel].to_sym, method("cancel"))
+        register_action(ACTION[:save].to_sym, method("save"))
+        register_action(ACTION[:restore].to_sym, method("restore"))
+        register_action(ACTION[:migrate].to_sym, method("migrate"))
+        register_action(ACTION[:poll].to_sym, method("poll"))
     end
 
+    # -------------------------------------------------------------------------
+    # Converts a deployment file from its remote path to the local (front-end)
+    # path
+    # -------------------------------------------------------------------------
     def get_local_deployment_file(remote_deployment_file)
 
         local_deployment_file = nil
