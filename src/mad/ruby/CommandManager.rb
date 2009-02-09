@@ -11,19 +11,34 @@ class GenericCommand
     
     # Creates the new command:
     # +command+: string with the command to be executed
-    def initialize(command)
+    def initialize(command, logger=nil)
         @command=command
+        @logger=logger
         @callback=nil
+    end
+    
+    def log(message)
+        @logger.call(message) if @logger
     end
     
     # Runs the command and calls the callback if it is defined
     # +data+: variable to pass to the callaback to provide data
     # or to share with other callbacks
     def run(data=nil)
+        
+        log("About to execute #{command}")
+        
         (@stdout, @stderr)=execute
         @code=get_exit_code(@stderr)
         
+        log("Command executed, exit code: #{@code}")
+        
         @callback.call(self, data) if @callback
+        
+        if @code!=0
+            log("Command execution fail. STDERR follows.")
+            log(@stderr)
+        end
         
         return @code
     end
@@ -75,9 +90,9 @@ class SSHCommand < GenericCommand
     
     # This one takes another parameter. +host+ is the machine
     # where de command is going to be executed
-    def initialize(command, host)
+    def initialize(command, host, logger=nil)
         @host=host
-        super(command)
+        super(command, logger)
     end
     
 private

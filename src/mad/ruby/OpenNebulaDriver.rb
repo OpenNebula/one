@@ -57,7 +57,17 @@ class OpenNebulaDriver < ActionManager
             send_message("LOG", "-", number, line.strip)
         }
     end
+    
+    # Generates a proc with that calls log with a hardcoded number. It will
+    # be used to add loging to command actions
+    def log_method(num)
+        lambda {|message|
+            log(num, message)
+        }
+    end
 
+    # Start the driver. Reads from STDIN and executes methods associated with
+    # the messages
     def start_driver
         loop_thread = Thread.new { loop }
         start_listener
