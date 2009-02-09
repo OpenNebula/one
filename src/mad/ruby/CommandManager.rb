@@ -56,7 +56,15 @@ private
         std=Open3.popen3(
             "#{command} ;"+
             " echo ExitCode: $? 1>&2")
-        [std[1].read, std[2].read]
+        std[0].close if !std[0].closed?
+            
+        stdout=std[1].read
+        std[1].close if !std[1].closed?
+
+        stderr=std[2].read
+        std[2].close if !std[2].closed?
+
+        [stdout, stderr]
     end
 end
 
@@ -78,8 +86,15 @@ private
         std=Open3.popen3(
             "ssh -n #{host} #{command} ;"+
             " echo ExitCode: $? 1>&2")
-        std[0].close
-        [std[1].read, std[2].read]
+        std[0].close if !std[0].closed?
+        
+        stdout=std[1].read
+        std[1].close if !std[1].closed?
+        
+        stderr=std[2].read
+        std[2].close if !std[2].closed?
+        
+        [stdout, stderr]
     end
 end
 
