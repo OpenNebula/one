@@ -9,6 +9,13 @@ class GenericCommand
     attr_accessor :value, :code, :stdout, :stderr, :command
     attr_accessor :callback
     
+    # Creates a command and runs it
+    def self.run(command, logger=nil)
+        cmd=self.new(command, logger)
+        cmd.run
+        cmd
+    end
+    
     # Creates the new command:
     # +command+: string with the command to be executed
     def initialize(command, logger=nil)
@@ -87,6 +94,13 @@ end
 # for GenericCommand
 class SSHCommand < GenericCommand
     attr_accessor :host
+
+    # Creates a command and runs it
+    def self.run(command, host, logger=nil)
+        cmd=self.new(command, host, logger)
+        cmd.run
+        cmd
+    end
     
     # This one takes another parameter. +host+ is the machine
     # where de command is going to be executed
