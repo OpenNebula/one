@@ -32,10 +32,19 @@ class GenericCommand
     # +data+: variable to pass to the callaback to provide data
     # or to share with other callbacks
     def run(data=nil)
-        
         log("About to execute #{command}")
         
-        (@stdout, @stderr)=execute
+        std=execute
+        
+        # Close standard IO descriptors
+        std[0].close if !std[0].closed?
+            
+        @stdout=std[1].read
+        std[1].close if !std[1].closed?
+
+        @stderr=std[2].read
+        std[2].close if !std[2].closed?
+        
         @code=get_exit_code(@stderr)
         
         log("Command executed, exit code: #{@code}")
@@ -64,7 +73,7 @@ private
     # +stdout+ and +stderr+ of the command execution.
     def execute
         puts "About to execute \"#{@command}\""
-        ["", "ExitCode: 0"]
+        [StringIO.new, StringIO.new, StringIO.new]
     end
     
 end
@@ -75,18 +84,7 @@ class LocalCommand < GenericCommand
 private
 
     def execute
-        std=Open3.popen3(
-            "#{command} ;"+
-            " echo ExitCode: $? 1>&2")
-        std[0].close if !std[0].closed?
-            
-        stdout=std[1].read
-        std[1].close if !std[1].closed?
-
-        stderr=std[2].read
-        std[2].close if !std[2].closed?
-
-        [stdout, stderr]
+        Open3.popen3("#{command} ; echo ExitCode: $? 1>&2")
     end
 end
 
@@ -112,18 +110,7 @@ class SSHCommand < GenericCommand
 private
 
     def execute
-        std=Open3.popen3(
-            "ssh -n #{host} #{command} ;"+
-            " echo ExitCode: $? 1>&2")
-        std[0].close if !std[0].closed?
-        
-        stdout=std[1].read
-        std[1].close if !std[1].closed?
-        
-        stderr=std[2].read
-        std[2].close if !std[2].closed?
-        
-        [stdout, stderr]
+        Open3.popen3("ssh -n #{@host} #{@command} ; echo ExitCode: $? 1>&2")
     end
 end
 
