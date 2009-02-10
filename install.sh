@@ -184,6 +184,10 @@ LIB_FILES="src/client/liboneapi.a \
 RUBY_LIB_FILES="src/mad/ruby/one_mad.rb \
                 src/mad/ruby/one_ssh.rb \
                 src/mad/ruby/ThreadScheduler.rb \
+                src/mad/ruby/ActionManager.rb \
+                src/mad/ruby/CommandManager.rb \
+                src/mad/ruby/OpenNebulaDriver.rb \
+                src/mad/ruby/VirtualMachineDriver.rb \
                 src/client/ruby/one.rb \
                 src/client/ruby/client_utilities.rb \
                 src/client/ruby/command_parse.rb \
