@@ -19,6 +19,7 @@
 require 'pp'
 require 'open3'
 require 'ftools'
+require 'CommandManager'
 
 =begin rdoc
 
@@ -80,15 +81,12 @@ class TMPlugin < Hash
     # Executes the command, get its exit code and logs every line that
     # comes from stdout. Returns whatever came from stderr.
     def exec_local_command(command, logger)
-        cmd="#{command} ; echo ExitCode: $? 1>&2"
-        stderr=""
-        std=Open3.popen3(cmd) {|stdin, stdout, stderr_|
-            # TODO: this should be sent to ONE and not to STDERR
-            while !stdout.eof?
-                log(stdout.readline, logger)
-            end
-            stderr_.read
-        }
+        cmd=LocalCommand.new(command, logger)
+        cmd.run
+        
+        log(cmd.stdout, logger)
+
+        cmd
     end
     
     # Uses +logger+ to send +message+ to ONE
@@ -196,12 +194,11 @@ class TMScript
     
     # Gets exit code and error message (if failed) from
     # +stderr+
-    def parse_output(err)
-        exit_code=get_exit_code(err)
-        if exit_code==0
+    def parse_output(command)
+        if command.code==0
             [true, ""]
         else
-            [false, get_error_message(err)]
+            [false, get_error_message(command.stderr)]
         end
     end
     
@@ -222,6 +219,8 @@ end
 
 
 if $0 == __FILE__
+
+=begin
     require 'one_log'
     
     logger=ONELog.new
@@ -237,7 +236,12 @@ if $0 == __FILE__
         thingy
     EOT
     
-    
+=end
+
+    log_proc=lambda{|message|
+        puts message
+    }
+
     script_text="
 
     CLONE localhost:/tmp/source.img ursa:/tmp/one_jfontan/0/hda.img
@@ -249,6 +253,7 @@ if $0 == __FILE__
 
     plugin=TMPlugin.new
     plugin["CLONE"]="./tm_clone.sh"
+    plugin["CLONE"]="echo"
 
     scr=TMScript.new(script_text, log_proc)
     pp scr.lines
