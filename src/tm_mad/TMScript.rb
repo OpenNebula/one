@@ -61,7 +61,7 @@ class TMPlugin < Hash
     #
     # Returns:
     # * It will return +nil+ if the +command+ is not defined.
-    # * String with stderr output of the string (exit code and
+    # * LocalCommand object (exit code and
     #   error message in case of failure)
     #
     # Note: the exit code will be written like this:
@@ -79,13 +79,10 @@ class TMPlugin < Hash
     private
     
     # Executes the command, get its exit code and logs every line that
-    # comes from stdout. Returns whatever came from stderr.
+    # comes from stdout. Returns LocalCommand object.
     def exec_local_command(command, logger)
-        cmd=LocalCommand.new(command, logger)
-        cmd.run
-        
+        cmd=LocalCommand.run(command, logger)
         log(cmd.stdout, logger)
-
         cmd
     end
     
@@ -96,6 +93,7 @@ class TMPlugin < Hash
         logger.call(message)
     end
     
+    # Loads definitions of commands from the configuration file
     def load_scripts(scripts_file)
         scripts_text=""
         
@@ -200,13 +198,6 @@ class TMScript
         else
             [false, get_error_message(command.stderr)]
         end
-    end
-    
-    # Gets exit code from STDERR
-    def get_exit_code(str)
-        tmp=str.scan(/^ExitCode: (\d*)$/)
-        return nil if !tmp[0]
-        tmp[0][0].to_i
     end
     
     # Parses error message from +stderr+ output
