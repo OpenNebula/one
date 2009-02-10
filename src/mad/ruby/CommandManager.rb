@@ -1,3 +1,19 @@
+# --------------------------------------------------------------------------
+# Copyright 2002-2009 GridWay Team, Distributed Systems Architecture
+# Group, Universidad Complutense de Madrid
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# --------------------------------------------------------------------------
 
 require 'pp'
 require 'open3'
@@ -5,8 +21,16 @@ require 'open3'
 # Generic command executor that holds the code shared by all the command
 # executors. Commands can have an associated callback that will be
 # after they finish.
+#
+# Properties:
+#
+# * +code+: integer holding the exit code. Read-only
+# * +stdout+: string of the standard output. Read-only
+# * +stderr+: string of the standard error. Read-only
+# * +command+: command to execute. Read-only
+# * +callback+: proc to execute after command execution. Read-Write
 class GenericCommand
-    attr_accessor :value, :code, :stdout, :stderr, :command
+    attr_reader :code, :stdout, :stderr, :command
     attr_accessor :callback
     
     # Creates a command and runs it
@@ -18,12 +42,14 @@ class GenericCommand
     
     # Creates the new command:
     # +command+: string with the command to be executed
+    # +logger+: proc that takes a message parameter and logs it
     def initialize(command, logger=nil)
         @command=command
         @logger=logger
         @callback=nil
     end
     
+    # Sends a log message to the logger proc
     def log(message)
         @logger.call(message) if @logger
     end
@@ -70,7 +96,7 @@ private
     
     # Low level command execution. This method has to be redefined
     # for each kind of command execution. Returns an array with
-    # +stdout+ and +stderr+ of the command execution.
+    # +stdin+, +stdout+ and +stderr+ handlers of the command execution.
     def execute
         puts "About to execute \"#{@command}\""
         [StringIO.new, StringIO.new, StringIO.new]
@@ -101,7 +127,7 @@ class SSHCommand < GenericCommand
     end
     
     # This one takes another parameter. +host+ is the machine
-    # where de command is going to be executed
+    # where the command is going to be executed
     def initialize(command, host, logger=nil)
         @host=host
         super(command, logger)
@@ -156,7 +182,3 @@ if $0 == __FILE__
     
     pp data
 end
-
-
-
-
