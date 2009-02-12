@@ -49,12 +49,7 @@ class TMPlugin < Hash
         super
         load_scripts(scripts_file) if scripts_file
     end
-    
-    # Sets the script path for the specific +command+
-    def set(command, script)
-        self[command]=script
-    end
-    
+   
     # Executes the script associated with the +command+ using
     # specified arguments. +logger+ is a proc that takes a message
     # as its unique argument.
@@ -73,32 +68,22 @@ class TMPlugin < Hash
         # Generates the line to call the script with all the
         # arguments provided.
         cmd=[self[command], *args].join(" ")
-        exec_local_command(cmd, logger)
+
+	local_command = LocalCommand.run(cmd, logger)
+
+	logger.call(local_command.stdout) if logger
+
+        local_command
     end
     
     private
-    
-    # Executes the command, get its exit code and logs every line that
-    # comes from stdout. Returns LocalCommand object.
-    def exec_local_command(command, logger)
-        cmd=LocalCommand.run(command, logger)
-        log(cmd.stdout, logger)
-        cmd
-    end
-    
-    # Uses +logger+ to send +message+ to ONE
-    def log(message, logger=nil)
-        return nil if !logger
-        
-        logger.call(message)
-    end
     
     # Loads definitions of commands from the configuration file
     def load_scripts(scripts_file)
         scripts_text=""
         
         if File.exist?(scripts_file)
-            scripts_text=open(scripts_file).read
+            scripts_text = open(scripts_file).read
         else
             STDERR.puts("Can not open #{scripts_file}")
             STDERR.flush
@@ -119,14 +104,14 @@ class TMPlugin < Hash
                 # skip empty or commented lines
                 next
             when /^\s*(\w+)\s*=\s*(.*)\s*$/
-                command=$1.strip.upcase
-                path=$2.strip
+                command = $1.strip.upcase
+                path    = $2.strip
 
                 # Prepend default location for tm commands if the path does not
                 # start with /
-                path=tm_commands_location+path if path[0]!=?/
+                path = tm_commands_location+path if path[0]!=?/
                 
-                self[command]=path
+                self[command] = path
             else
                 STDERR.puts("Can not parse line: #{line}")
             end
@@ -140,10 +125,11 @@ class TMScript
     
     # +script_text+ contains the script to be executed.
     # +logger+ is a lambda that receives a message and sends it
-    # to ONE server
+    # to OpenNebula server
     def initialize(script_text, logger=nil)
-        @lines=Array.new
-        @logger=logger
+        @lines  = Array.new
+        @logger = logger
+
         parse_script(script_text)
     end
     
@@ -153,28 +139,29 @@ class TMScript
     def execute(plugin)
         return [true,""] if @lines.empty?
         
-        result=@lines.each {|line|
-            res=plugin.execute(@logger, *line)
+        result = @lines.each {|line|
+            res = plugin.execute(@logger, *line)
+
             if !res
-                log "COMMAND not found for: #{line.join(" ")}."
-                res=[false, "COMMAND not found for: #{line.join(" ")}."]
+                @logger.call("COMMAND not found: #{line.join(" ")}.") if @logger
+
+                res = [false, "COMMAND not found: #{line.join(" ")}."]
             else
-                res=parse_output(res)
+		if res.code == 0
+		  res = [true, ""]
+		else
+		  res = [false, get_error_message(res.stderr)]
+		end
             end
-            
+
             # do not continue if command failed
-            break res if !res[0]
+	    break res if !res[0]
         }
         
         result
     end
     
     private
-    
-    # Sends a log +message+ to ONE using +@logger+
-    def log(message)
-        @logger.call(message) if @logger
-    end
     
     # Gets commands from the script and populates +@lines+
     def parse_script(script_text)
@@ -189,17 +176,7 @@ class TMScript
             @lines<< command
         }
     end
-    
-    # Gets exit code and error message (if failed) from
-    # +stderr+
-    def parse_output(command)
-        if command.code==0
-            [true, ""]
-        else
-            [false, get_error_message(command.stderr)]
-        end
-    end
-    
+   
     # Parses error message from +stderr+ output
     def get_error_message(str)
         tmp=str.scan(/^ERROR MESSAGE --8<------\n(.*?)ERROR MESSAGE ------>8--$/m)
@@ -240,12 +217,16 @@ if $0 == __FILE__
 
     CLONE localhost:/tmp/source.img ursa:/tmp/one_jfontan/1/hda.img
 
+    WRONG the program for WRONG does not exist
+    ERROR a command not in plugin
+
     "
 
     plugin=TMPlugin.new
-    plugin["CLONE"]="./tm_clone.sh"
+    plugin["OTHER"]="./tm_clone.sh"
     plugin["CLONE"]="echo"
-
+    plugin["WRONG"]="it_does_not_exist"
+ 
     scr=TMScript.new(script_text, log_proc)
     pp scr.lines
 
