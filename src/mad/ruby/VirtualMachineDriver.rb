@@ -91,7 +91,9 @@ class VirtualMachineDriver < OpenNebulaDriver
 
         m=remote_deployment_file.match(/.*?\/(\d+)\/images\/(deployment.\d+)$/)
 
-        local_deployment_file="#{var_location}#{m[1]}/#{m[2]}" if m
+        local_deployment_file = "#{var_location}#{m[1]}/#{m[2]}" if m
+
+	local_deployment_file = nil if !File.exists(local_deployment_file)
 
         return local_deployment_file
     end
