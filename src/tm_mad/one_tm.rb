@@ -58,12 +58,12 @@ class TransferManager < OpenNebulaDriver
             res=script.execute(@plugin)
         
             if res[0]
-                send_message("TRANSFER", "SUCCESS", number)
+                send_message("TRANSFER", RESULT[:success], number)
             else
-                send_message("TRANSFER", "FAILURE", number, res[1])
+                send_message("TRANSFER", RESULT[:failure], number, res[1])
             end
         else
-            send_message("TRANSFER", "FAILURE", number, 
+            send_message("TRANSFER", RESULT[:failure], number, 
                 "Transfer file not found: #{script_file}")
         end
     end
