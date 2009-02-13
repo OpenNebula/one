@@ -19,8 +19,8 @@
 EC2_LOCATION = ENV["EC2_HOME"]
 
 if !EC2_LOCATION
-        puts "EC2_LOCATION not set"
-            exit -1
+    puts "EC2_HOME not set"
+    exit(-1)
 end
 
 ONE_LOCATION=ENV["ONE_LOCATION"]
@@ -34,203 +34,153 @@ end
 $: << RUBY_LIB_LOCATION
 
 require 'pp'
-require 'one_mad'
-require 'open3'
+require "VirtualMachineDriver"
+require "CommandManager"
+require "rexml/document"
 
-class DM < ONEMad
+class EC2Driver < VirtualMachineDriver
+    
+    EC2 = {
+	:run       => "#{EC2_LOCATION}/bin/ec2-run-instances",
+	:terminate => "#{EC2_LOCATION}/bin/ec2-terminate-instances",
+	:describe  => "#{EC2_LOCATION}/bin/ec2-describe-instances",
+	:associate => "#{EC2_LOCATION}/bin/ec2-associate-address",
+	:authorize => "#{EC2_LOCATION}bin/ec2-authorize"
+    }
 
     def initialize
-        super(5, 4)
+        super(15,true)
     end
 
-    def action_init(args)
+    def deploy(id, host, remote_dfile, not_used)
+	
+	local_dfile = get_local_deployment_file(remote_dfile)
 
-        send_message("INIT", "SUCCESS")
+	if !local_dfile
+	    send_message(ACTION[:deploy],RESULT[:failure],id,
+	      "Can not open deployment file #{local_dfile}")
+	    return
+	end
 
+        tmp = File.new(local_dfile)
+	xml = REXML::Document.new tmp
+        tmp.close()
+
+	ec2 = xml.root.elements["EC2"]
+	
+	if !ec2
+	    send_message(ACTION[:deploy],RESULT[:failure],id,
+	      "Can not find EC2 element in deployment file #{local_dfile}")
+	    return
+	end
+
+        ami     = ec2_value(ec2,"AMI")
+        keypair = ec2_value(ec2,"KEYPAIR")
+        eip     = ec2_value(ec2,"ELASTICIP")
+        ports   = ec2_value(ec2,"AUTHORIZEDPORTS")
+        type    = ec2_value(ec2,"INSTANCETYPE")
+
+	deploy_cmd = "#{EC2[:run]} #{ami} -k #{keypair} -t #{type}"
+	deploy_exe = LocalCommand.run(deploy_cmd, log_method(id))
+
+	if deploy_exe.code != 0
+	    send_message(ACTION[:deploy],RESULT[:failure],id,
+		get_error_message(deploy_exe.stderr))
+	    return
+	end
+
+        if !deploy_exe.stdout.match(/^INSTANCE\s*(.+?)\s/)
+	    send_message(ACTION[:deploy],RESULT[:failure],id,
+		"Could not find instance id. Check ec2-describe-instances")
+	    return
+	end
+        
+        deploy_id = $1
+
+	if eip
+	    ip_cmd = "#{EC2[:associate]} #{eip} -i #{deploy_id}" 
+	    ip_exe = LocalCommand.run(ip_cmd, log_method(id))
+	end
+
+	if ports
+	    ports_cmd = "#{EC2[:authorize]} default -p #{ports}"
+	    ports_exe = LocalCommand.run(ports_cmd, log_method(id))
+	end
+
+        send_message(ACTION[:deploy],RESULT[:success],id,deploy_id)
     end
 
-    def action_deploy(args)
-
-        action_number=args[1]
-        action_host=args[2]
-        remote_deployment_file=args[3]
-
-        # Get local deployment file
-        local_deployment_file=get_local_deployment_file(remote_deployment_file)
-
-        pkeypair = ""
-        paminame = ""
-        pinstance = ""
-        pports = ""
-
-        File.read(local_deployment_file).split(/\n/).each{|line|
-
-            result = line.split(/=/)
-
-            pkeypair = result[1] if result[0] == "keypair"
-
-            paminame = result[1] if result[0] == "aminame"
-
-            pinstance = result[1] if result[0] == "instancetype"
-
-            pports = result[1] if result[0] == "authorizedports"
-        }
-
-        std_action("DEPLOY", "#{EC2_LOCATION}bin/ec2-run-instances #{paminame} -k #{pkeypair} -t #{pinstance}", args)
-
-        Open3.popen3("#{EC2_LOCATION}bin/ec2-authorize default -p #{pports}; echo ExitCode: $? 1>&2") if !pports.empty?
-
+    def shutdown(id, host, deploy_id, not_used)
+	ec2_terminate(ACTION[:shutdown], id, deploy_id)
     end
 
-    def action_shutdown(args)
-
-       std_action("SHUTDOWN", "#{EC2_LOCATION}bin/ec2-terminate-instances #{args[3]}", args)
-
+    def cancel(id, host, deploy_id, not_used)
+	ec2_terminate(ACTION[:cancel], id, deploy_id)
     end
 
-    def action_cancel(args)
+    def poll(id, host, deploy_id, not_used)
 
-       std_action("CANCEL", "#{EC2_LOCATION}bin/ec2-terminate-instances #{args[3]}", args)
+	info = String.new
 
+	info << "#{POLL_ATTRIBUTE[:usedmemory]}=0 " <<
+	    "#{POLL_ATTRIBUTE[:usedcpu]}=0 " << 
+            "#{POLL_ATTRIBUTE[:nettx]}=0 " <<
+            "#{POLL_ATTRIBUTE[:netrx]}=0"
+
+	cmd = "#{EC2[:describe]} #{deploy_id}"
+	exe = LocalCommand.run(cmd, log_method(id))
+
+	if exe.code != 0
+	    send_message(ACTION[:poll],RESULT[:failure],id,
+		get_error_message(exe.stderr))
+	    return
+	end
+
+	exe.stdout.match(Regexp.new("INSTANCE\\s+#{deploy_id}\\s+(.+)"))
+
+	if !$1
+	    info << " #{POLL_ATTRIBUTE[:state]}=#{VM_STATE[:deleted]}"
+	else
+	    monitor_data = $1.split(/\s+/)
+
+	    case monitor_data[3]
+		when "pending","running"
+		    info << " #{POLL_ATTRIBUTE[:state]}=#{VM_STATE[:active]}"
+		when "shutting-down","terminated" 
+		    info << " #{POLL_ATTRIBUTE[:state]}=#{VM_STATE[:deleted]}"
+            end        
+           
+            info << " IP=#{monitor_data[1]}"
+	end
+        
+        send_message(ACTION[:poll], RESULT[:success], id, info)
     end
 
-    def action_checkpoint(args)
+private
 
-        send_message("CHECKPOINT", "FAILURE", args[1], "action not supported for EC2")
+    def ec2_terminate(action, id, deploy_id)
+	cmd = "#{EC2_LOCATION}/bin/ec2-terminate-instances #{deploy_id}"
+	exe = LocalCommand.run(cmd, log_method(id))
+	
+	if exe.code != 0
+	    result = RESULT[:failure]
+	    info   = get_error_message(exe.stderr)
+	else
+	    result = RESULT[:success]
+	    info   = "-"
+	end
 
+	send_message(action,result,id,info)
     end
 
-    def action_save(args)
+    def ec2_value(xml,name)
+	value   = nil
+	element = xml.elements[name]
+        value   = element.text.strip if element
 
-        send_message("SAVE", "FAILURE", args[1], "action not supported for EC2")
-
+	return value
     end
-
-    def action_restore(args)
-
-        send_message("RESTORE", "FAILURE", args[1], "action not supported for EC2")
-
-    end
-
-    def action_poll(args)
-
-        std = Open3.popen3("#{EC2_LOCATION}bin/ec2-describe-instances #{args[3]}; echo ExitCode: $? 1>&2")
-
-        stdout=std[1].read
-        stderr=std[2].read
-
-        exit_code=get_exit_code(stderr)
-
-        ip_address = "N/A"
-
-        if exit_code=="0"
-            stdout.split(/\n/).each{|line|
-            result = line.squeeze(" ").split(/\t/)
-            if result[0] == "INSTANCE" then
-                ip_address = result[3]
-                break
-            end
-            }
-
-        end
-
-        send_message("POLL", "SUCCESS", args[1],"USEDCPU=0.0 NETTX=0 NETRX=0 USEDMEMORY=0 IP=#{ip_address}")
-
-    end
-
-    ###########################
-    # Common action functions #
-    ###########################
-
-    def std_action(action, command, args)
-
-        std= Open3.popen3("#{command} ; echo ExitCode: $? 1>&2")
-
-        stdout=std[1].read
-        stderr=std[2].read
-
-        exit_code=get_exit_code(stderr)
-
-        if exit_code=="0"
-            domain_name=""
-            if action=="DEPLOY"
-               action_number=args[1]
-               action_host=args[2]
-               remote_deployment_file=args[3]
-
-               # Get local deployment file
-               local_deployment_file=get_local_deployment_file(remote_deployment_file)
-
-
-                domain_name = "id_not_found"
-
-                stdout.split(/\n/).each{|line|
-                    result = line.squeeze(" ").split(/\t/)
-                    if result[0] == "INSTANCE" then
-                        domain_name = result[1]
-                        break
-                    end
-                }
-
-                pelasticip=""
-
-                File.read(local_deployment_file).split(/\n/).each{|line|
-
-                    result = line.split(/=/)
-
-                    if result[0] == "elasticip"
-
-                        pelasticip = result[1]
-
-                        Open3.popen3("#{EC2_LOCATION}bin/ec2-associate-address #{pelasticip} -i #{domain_name}; echo ExitCode: $? 1>&2")
-
-                        break
-                    end
-                }
-
-            else
-                domain_name=get_domain_name(stdout)
-            end
-            send_message(action, "SUCCESS", args[1], domain_name)
-        else
-            error_message=get_error_message(stderr)
-            send_message(action, "FAILURE", args[1], error_message)
-        end
-
-    end
-
-    #########################################
-    # Get information form xm create output #
-    #########################################
-
-    # From STDERR if exit code == 1
-    def get_exit_code(str)
-        #puts "scanninge error code.... >>" + str + "<<"
-        tmp=str.scan(/^ExitCode:.*$/)[0]
-        if tmp
-            return tmp.split(' ')[1]
-        else
-            return -1
-        end
-    end
-
-    # From STDERR if exit code == 1
-    def get_error_message(str)
-        #puts "escanenado el mensaje del error ..." + str
-        tmp=str.split(/\n/)
-        return "Unknown error" if !tmp[0]
-        tmp[0]
-    end
-
-    # From STDOUT if exit code == 0
-    def get_domain_name(str)
-        tmp=str.scan(/(hard) = 1$/)
-        #puts "get_domain_name " + str
-        return nil if !tmp[0]
-        tmp[0][0]
-    end
-
 end
 
-dm=DM.new
-dm.loop
+ec2_driver = EC2Driver.new
+ec2_driver.start_driver
