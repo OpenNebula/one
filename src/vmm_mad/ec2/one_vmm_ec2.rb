@@ -39,13 +39,13 @@ require "CommandManager"
 require "rexml/document"
 
 class EC2Driver < VirtualMachineDriver
-    
+
     EC2 = {
-	:run       => "#{EC2_LOCATION}/bin/ec2-run-instances",
-	:terminate => "#{EC2_LOCATION}/bin/ec2-terminate-instances",
-	:describe  => "#{EC2_LOCATION}/bin/ec2-describe-instances",
-	:associate => "#{EC2_LOCATION}/bin/ec2-associate-address",
-	:authorize => "#{EC2_LOCATION}bin/ec2-authorize"
+        :run       => "#{EC2_LOCATION}/bin/ec2-run-instances",
+        :terminate => "#{EC2_LOCATION}/bin/ec2-terminate-instances",
+        :describe  => "#{EC2_LOCATION}/bin/ec2-describe-instances",
+        :associate => "#{EC2_LOCATION}/bin/ec2-associate-address",
+        :authorize => "#{EC2_LOCATION}bin/ec2-authorize"
     }
 
     def initialize
@@ -53,26 +53,26 @@ class EC2Driver < VirtualMachineDriver
     end
 
     def deploy(id, host, remote_dfile, not_used)
-	
-	local_dfile = get_local_deployment_file(remote_dfile)
 
-	if !local_dfile
-	    send_message(ACTION[:deploy],RESULT[:failure],id,
-	      "Can not open deployment file #{local_dfile}")
-	    return
-	end
+        local_dfile = get_local_deployment_file(remote_dfile)
+
+        if !local_dfile
+            send_message(ACTION[:deploy],RESULT[:failure],id,
+                "Can not open deployment file #{local_dfile}")
+            return
+        end
 
         tmp = File.new(local_dfile)
-	xml = REXML::Document.new tmp
+        xml = REXML::Document.new tmp
         tmp.close()
 
-	ec2 = xml.root.elements["EC2"]
-	
-	if !ec2
-	    send_message(ACTION[:deploy],RESULT[:failure],id,
-	      "Can not find EC2 element in deployment file #{local_dfile}")
-	    return
-	end
+        ec2 = xml.root.elements["EC2"]
+
+        if !ec2
+            send_message(ACTION[:deploy],RESULT[:failure],id,
+                "Can not find EC2 element in deployment file #{local_dfile}")
+            return
+        end
 
         ami     = ec2_value(ec2,"AMI")
         keypair = ec2_value(ec2,"KEYPAIR")
@@ -80,105 +80,99 @@ class EC2Driver < VirtualMachineDriver
         ports   = ec2_value(ec2,"AUTHORIZEDPORTS")
         type    = ec2_value(ec2,"INSTANCETYPE")
 
-	deploy_cmd = "#{EC2[:run]} #{ami} -k #{keypair} -t #{type}"
-	deploy_exe = LocalCommand.run(deploy_cmd, log_method(id))
+        deploy_cmd = "#{EC2[:run]} #{ami} -k #{keypair} -t #{type}"
+        deploy_exe = LocalCommand.run(deploy_cmd, log_method(id))
 
-	if deploy_exe.code != 0
-	    send_message(ACTION[:deploy],RESULT[:failure],id,
-		get_error_message(deploy_exe.stderr))
-	    return
-	end
+        if deploy_exe.code != 0
+            send_message(ACTION[:deploy],RESULT[:failure],id)
+            return
+        end
 
         if !deploy_exe.stdout.match(/^INSTANCE\s*(.+?)\s/)
-	    send_message(ACTION[:deploy],RESULT[:failure],id,
-		"Could not find instance id. Check ec2-describe-instances")
-	    return
-	end
-        
+            send_message(ACTION[:deploy],RESULT[:failure],id,
+                "Could not find instance id. Check ec2-describe-instances")
+            return
+        end
+
         deploy_id = $1
 
-	if eip
-	    ip_cmd = "#{EC2[:associate]} #{eip} -i #{deploy_id}" 
-	    ip_exe = LocalCommand.run(ip_cmd, log_method(id))
-	end
+        if eip
+            ip_cmd = "#{EC2[:associate]} #{eip} -i #{deploy_id}"
+            ip_exe = LocalCommand.run(ip_cmd, log_method(id))
+        end
 
-	if ports
-	    ports_cmd = "#{EC2[:authorize]} default -p #{ports}"
-	    ports_exe = LocalCommand.run(ports_cmd, log_method(id))
-	end
+        if ports
+            ports_cmd = "#{EC2[:authorize]} default -p #{ports}"
+            ports_exe = LocalCommand.run(ports_cmd, log_method(id))
+        end
 
         send_message(ACTION[:deploy],RESULT[:success],id,deploy_id)
     end
 
     def shutdown(id, host, deploy_id, not_used)
-	ec2_terminate(ACTION[:shutdown], id, deploy_id)
+        ec2_terminate(ACTION[:shutdown], id, deploy_id)
     end
 
     def cancel(id, host, deploy_id, not_used)
-	ec2_terminate(ACTION[:cancel], id, deploy_id)
+        ec2_terminate(ACTION[:cancel], id, deploy_id)
     end
 
     def poll(id, host, deploy_id, not_used)
 
-	info = String.new
+        info =  "#{POLL_ATTRIBUTE[:usedmemory]}=0 " \
+                "#{POLL_ATTRIBUTE[:usedcpu]}=0 " \
+                "#{POLL_ATTRIBUTE[:nettx]}=0 " \
+                "#{POLL_ATTRIBUTE[:netrx]}=0"
 
-	info << "#{POLL_ATTRIBUTE[:usedmemory]}=0 " <<
-	    "#{POLL_ATTRIBUTE[:usedcpu]}=0 " << 
-            "#{POLL_ATTRIBUTE[:nettx]}=0 " <<
-            "#{POLL_ATTRIBUTE[:netrx]}=0"
+        cmd  = "#{EC2[:describe]} #{deploy_id}"
+        exe  = LocalCommand.run(cmd, log_method(id))
 
-	cmd = "#{EC2[:describe]} #{deploy_id}"
-	exe = LocalCommand.run(cmd, log_method(id))
+        if exe.code != 0
+            send_message(ACTION[:poll],RESULT[:failure],id)
+            return
+        end
 
-	if exe.code != 0
-	    send_message(ACTION[:poll],RESULT[:failure],id,
-		get_error_message(exe.stderr))
-	    return
-	end
+        exe.stdout.match(Regexp.new("INSTANCE\\s+#{deploy_id}\\s+(.+)"))
 
-	exe.stdout.match(Regexp.new("INSTANCE\\s+#{deploy_id}\\s+(.+)"))
+        if !$1
+            info << " #{POLL_ATTRIBUTE[:state]}=#{VM_STATE[:deleted]}"
+        else
+            monitor_data = $1.split(/\s+/)
 
-	if !$1
-	    info << " #{POLL_ATTRIBUTE[:state]}=#{VM_STATE[:deleted]}"
-	else
-	    monitor_data = $1.split(/\s+/)
+            case monitor_data[3]
+                when "pending","running"
+                    info << " #{POLL_ATTRIBUTE[:state]}=#{VM_STATE[:active]}"
+                when "shutting-down","terminated"
+                    info << " #{POLL_ATTRIBUTE[:state]}=#{VM_STATE[:deleted]}"
+            end
 
-	    case monitor_data[3]
-		when "pending","running"
-		    info << " #{POLL_ATTRIBUTE[:state]}=#{VM_STATE[:active]}"
-		when "shutting-down","terminated" 
-		    info << " #{POLL_ATTRIBUTE[:state]}=#{VM_STATE[:deleted]}"
-            end        
-           
             info << " IP=#{monitor_data[1]}"
-	end
-        
+        end
+
         send_message(ACTION[:poll], RESULT[:success], id, info)
     end
 
 private
 
     def ec2_terminate(action, id, deploy_id)
-	cmd = "#{EC2_LOCATION}/bin/ec2-terminate-instances #{deploy_id}"
-	exe = LocalCommand.run(cmd, log_method(id))
-	
-	if exe.code != 0
-	    result = RESULT[:failure]
-	    info   = get_error_message(exe.stderr)
-	else
-	    result = RESULT[:success]
-	    info   = "-"
-	end
+        cmd = "#{EC2_LOCATION}/bin/ec2-terminate-instances #{deploy_id}"
+        exe = LocalCommand.run(cmd, log_method(id))
 
-	send_message(action,result,id,info)
+        if exe.code != 0
+            result = RESULT[:failure]
+        else
+            result = RESULT[:success]
+        end
+
+        send_message(action,result,id)
     end
 
     def ec2_value(xml,name)
-	value   = nil
-	element = xml.elements[name]
+        value   = nil
+        element = xml.elements[name]
         value   = element.text.strip if element
 
-	return value
+        return value
     end
 end
 
