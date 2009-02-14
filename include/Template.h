@@ -31,17 +31,19 @@ using namespace std;
  *  matter of fact) containing a set of attribute definitions of the form:
  *  NAME = VALUE
  *  where NAME is a string representing the name of the attribute, and VALUE can
- *  be a single string or a vector value (array of string pairs). The file can 
+ *  be a single string or a vector value (array of string pairs). The file can
  *  contain several attributes with the same name.
  */
 class Template
 {
 public:
 
-    Template(bool  _replace_mode   = false,
-             const char _separator = '='):
-             replace_mode(_replace_mode),
-             separator(_separator){};
+    Template(bool         _replace_mode = false,
+             const char   _separator    = '=',
+             const char * _xml_root     = "TEMPLATE"):
+                 replace_mode(_replace_mode),
+                 separator(_separator),
+                 xml_root(_xml_root){};
 
     /**
      *  The class destructor frees all the attributes conforming the template
@@ -52,7 +54,7 @@ public:
      *  Parse a string representing the template, each attribute is inserted
      *  in the template class.
      *    @param parse_str string with template attributes
-     *    @param error_msg error string, must be freed by the calling funtion. 
+     *    @param error_msg error string, must be freed by the calling funtion.
      *    This string is null if no error occurred.
      *    @return 0 on success.
      */
@@ -61,14 +63,14 @@ public:
     /**
      *  Parse a template file.
      *    @param filename of the template file
-     *    @param error_msg error string, must be freed by the calling funtion. 
+     *    @param error_msg error string, must be freed by the calling funtion.
      *    This string is null if no error occurred.
      *    @return 0 on success.
      */
     int parse(const char * filename, char **error_msg);
 
     /**
-     *  Marshall a template. This function generates a single string with the 
+     *  Marshall a template. This function generates a single string with the
      *  template attributes ("VAR=VAL<delim>...").
      *    @param str_tempalte string that hold the template
      *    @param delim to separate attributes
@@ -85,13 +87,14 @@ public:
      *    </vector>
      *    ...
      *  </template>
+     *  The name of the root element is set when the Template object is created
      *    @param xml string that hold the xml template representation
      */
     void to_xml(string& xml) const;
-    
+
     /**
      *  Sets a new attribute, the attribute MUST BE ALLOCATED IN THE HEAP, and
-     *  will be freed when the template destructor is called. 
+     *  will be freed when the template destructor is called.
      *    @param attr pointer to the attribute
      */
     virtual void set(Attribute * attr)
@@ -100,17 +103,17 @@ public:
         {
             attributes.erase(attr->name());
         }
-        
+
         attributes.insert(make_pair(attr->name(),attr));
     };
 
     /**
-     *  Gets all the attributes with the given name. 
+     *  Gets all the attributes with the given name.
      *    @param name the attribute name.
      *    @returns the number of elements in the vector
      */
     virtual int get(
-        const string& name, 
+        const string& name,
         vector<const Attribute*>& values) const;
 
     /**
@@ -119,29 +122,29 @@ public:
      *    @returns the number of elements in the vector
      */
     virtual int get(
-        const string& name, 
+        const string& name,
         vector<Attribute*>& values);
-        
+
     /**
-     *  Gets the value of a Single attributes (string) with the given name. 
+     *  Gets the value of a Single attributes (string) with the given name.
      *    @param name the attribute name.
      *    @param value the attribute value, a string, "" if the attribute is not
-     *    defined or not Single  
+     *    defined or not Single
      */
     virtual void get(
         string& name,
         string& value) const;
-    
+
     /**
      *  Gets the value of a Single attributes (int) with the given name.
      *    @param name the attribute name.
      *    @param value the attribute value, an int, 0 if the attribute is not
-     *    defined or not Single   
+     *    defined or not Single
      */
     virtual void get(
         string& name,
         int&    value) const;
-        
+
     friend ostream& operator<<(ostream& os, Template& t);
 
 protected:
@@ -156,12 +159,17 @@ private:
     /**
      *  Mutex to perform just one flex-bison parsing at a time
      */
-    static pthread_mutex_t          mutex;
-    
+    static pthread_mutex_t			mutex;
+
     /**
      * Character to separate key from value when dump onto a string
      **/
-    char                           separator;
+    char							separator;
+
+    /**
+     *  Name of the Root element for the XML document
+     */
+    string							xml_root;
 };
 
 /* -------------------------------------------------------------------------- */

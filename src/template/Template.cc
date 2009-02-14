@@ -261,7 +261,7 @@ void Template::to_xml(string& xml) const
     ostringstream                   		oss;
     string *                                s;
     
-    oss << "<template>";
+    oss << "<" << xml_root << ">";
     
     for ( it = attributes.begin(); it!=attributes.end(); it++)
     {
@@ -272,7 +272,7 @@ void Template::to_xml(string& xml) const
         delete s;
     }
     
-    oss << "</template>";
+    oss << "</" << xml_root << ">";
     
     xml = oss.str();
 }

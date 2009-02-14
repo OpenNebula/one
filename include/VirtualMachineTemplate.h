@@ -29,7 +29,7 @@ class VirtualMachineTemplate : public TemplateSQL
 {
 public:
     VirtualMachineTemplate(int tid = -1):
-    	TemplateSQL(table,tid){};
+    	TemplateSQL(table,tid,false,'=',"VM"){};
 
     ~VirtualMachineTemplate(){};
     

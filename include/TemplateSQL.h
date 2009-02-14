@@ -38,8 +38,9 @@ public:
         const char * _table,
         int          template_id = -1,
         bool         replace     = false,
-        const char   separator   = '='):
-        	Template(replace,separator),table(_table),id(template_id)
+        const char   separator   = '=',
+        const char * xml_root    = "TEMPLATE"):
+        	Template(replace,separator,xml_root),table(_table),id(template_id)
     {};
 
     virtual ~TemplateSQL(){};
