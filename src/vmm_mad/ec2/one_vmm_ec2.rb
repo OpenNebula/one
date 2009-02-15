@@ -124,7 +124,7 @@ class EC2Driver < VirtualMachineDriver
 
         deploy_cmd = "#{EC2[:run]} #{ami}"
         deploy_cmd << " -k #{keypair}" if keypair
-        deploy_cmd << " -t #{type}" if keypair
+        deploy_cmd << " -t #{type}" if type
 
         deploy_exe = LocalCommand.run(deploy_cmd, log_method(id))
 
