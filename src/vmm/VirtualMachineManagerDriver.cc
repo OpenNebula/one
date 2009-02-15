@@ -24,7 +24,7 @@ VirtualMachineManagerDriver::VirtualMachineManagerDriver(
 	int                         userid,
     const map<string,string>&   attrs,
     bool                        sudo,
-    VirtualMachinePool *        pool): 
+    VirtualMachinePool *        pool):
     	Mad(userid,attrs,sudo),driver_conf(true),vmpool(pool)
 {
     map<string,string>::const_iterator	it;
@@ -32,68 +32,68 @@ VirtualMachineManagerDriver::VirtualMachineManagerDriver(
     const char *	cfile;
     string			file;
     int				rc;
-                    
+
     it = attrs.find("DEFAULT");
-            
+
     if ( it != attrs.end() )
-    {        	        	
+    {
        	if (it->second[0] != '/') //Look in ONE_LOCATION/etc or in "/etc/one"
         {
       		Nebula& nd = Nebula::instance();
-                                    
+
             file  = nd.get_defaults_location() + it->second;
             cfile = file.c_str();
         }
         else //Absolute Path
         {
-          	cfile = it->second.c_str();        
-        } 
-                
+          	cfile = it->second.c_str();
+        }
+
         rc = driver_conf.parse(cfile, &error_msg);
 
         if ( rc != 0 )
         {
         	ostringstream   oss;
-        	
+
         	if ( error_msg != 0 )
-        	{            	
-        		oss << "Error loading driver configuration file " << cfile << 
+        	{
+        		oss << "Error loading driver configuration file " << cfile <<
            		" : " << error_msg;
-        		
+
         		free(error_msg);
         	}
         	else
-        	{            	
+        	{
         		oss << "Error loading driver configuration file " << cfile;
         	}
-        	
-           	Nebula::log("VMM", Log::ERROR, oss);            		           	
+
+           	Nebula::log("VMM", Log::ERROR, oss);
         }
     }
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-    
+
 void VirtualMachineManagerDriver::get_default(
 	const char *  name,
     const char *  vname,
     string&       value) const
 {
-	vector<const Attribute *>   attrs;        
+	vector<const Attribute *>   attrs;
     string 						sn = name;
-                
+
     if ( driver_conf.get(sn,attrs) == 1 )
     {
        	const VectorAttribute *	vattr;
-        	
+
        	vattr = static_cast<const VectorAttribute *>(attrs[0]);
-        	
+
        	value = vattr->vector_value(vname);
     }
     else
     {
-       	value = "";	
+       	value = "";
     }
 }
 
@@ -252,7 +252,23 @@ void VirtualMachineManagerDriver::protocol(
         return;
 
     if ( is.good() )
+    {
         is >> id >> ws;
+
+        if ( is.fail() )
+        {
+            if ( action == "LOG" )
+            {
+                string info;
+
+                is.clear();
+                getline(is,info);
+                Nebula::log("VMM",Log::INFO, info.c_str());
+            }
+
+            return;
+        }
+    }
     else
         return;
 
@@ -269,7 +285,7 @@ void VirtualMachineManagerDriver::protocol(
     {
         Nebula              &ne = Nebula::instance();
         LifeCycleManager *  lcm = ne.get_lcm();
-        
+
         if (result == "SUCCESS")
         {
             string              deploy_id;
@@ -277,22 +293,22 @@ void VirtualMachineManagerDriver::protocol(
             is >> deploy_id;
 
             vm->update_info(deploy_id);
-                        
+
             vmpool->update(vm);
-            
+
             lcm->trigger(LifeCycleManager::DEPLOY_SUCCESS, id);
         }
         else
         {
             string info;
-            
+
             getline(is,info);
-            
+
             os.str("");
             os << "Error deploying virtual machine: " << info;
-            
+
             vm->log("VMM",Log::ERROR,os);
-            
+
             lcm->trigger(LifeCycleManager::DEPLOY_FAILURE, id);
         }
     }
@@ -300,7 +316,7 @@ void VirtualMachineManagerDriver::protocol(
     {
         Nebula              &ne  = Nebula::instance();
         LifeCycleManager    *lcm = ne.get_lcm();
-        
+
         if (result == "SUCCESS")
         {
             lcm->trigger(LifeCycleManager::SHUTDOWN_SUCCESS, id);
@@ -308,14 +324,14 @@ void VirtualMachineManagerDriver::protocol(
         else
         {
             string          info;
-            
+
             getline(is,info);
-            
+
             os.str("");
             os << "Error shuting down VM, " << info;
-             
+
             vm->log("VMM",Log::ERROR,os);
-            
+
             lcm->trigger(LifeCycleManager::SHUTDOWN_FAILURE, id);
         }
     }
@@ -323,7 +339,7 @@ void VirtualMachineManagerDriver::protocol(
     {
         Nebula              &ne  = Nebula::instance();
         LifeCycleManager    *lcm = ne.get_lcm();
-                
+
         if (result == "SUCCESS")
         {
             lcm->trigger(LifeCycleManager::CANCEL_SUCCESS, id);
@@ -331,14 +347,14 @@ void VirtualMachineManagerDriver::protocol(
         else
         {
             string          info;
-            
+
             getline(is,info);
-            
+
             os.str("");
             os << "Error canceling VM, " << info;
-             
+
             vm->log("VMM",Log::ERROR,os);
-            
+
             lcm->trigger(LifeCycleManager::CANCEL_FAILURE, id);
         }
     }
@@ -346,7 +362,7 @@ void VirtualMachineManagerDriver::protocol(
     {
         Nebula              &ne  = Nebula::instance();
         LifeCycleManager    *lcm = ne.get_lcm();
-        
+
         if (result == "SUCCESS")
         {
             lcm->trigger(LifeCycleManager::SAVE_SUCCESS, id);
@@ -354,14 +370,14 @@ void VirtualMachineManagerDriver::protocol(
         else
         {
             string          info;
-            
+
             getline(is,info);
-            
+
             os.str("");
             os << "Error saving VM state, " << info;
-             
+
             vm->log("VMM",Log::ERROR,os);
-            
+
             lcm->trigger(LifeCycleManager::SAVE_FAILURE, id);
         }
     }
@@ -369,7 +385,7 @@ void VirtualMachineManagerDriver::protocol(
     {
         Nebula              &ne  = Nebula::instance();
         LifeCycleManager    *lcm = ne.get_lcm();
-        
+
         if (result == "SUCCESS")
         {
             lcm->trigger(LifeCycleManager::DEPLOY_SUCCESS, id);
@@ -377,14 +393,14 @@ void VirtualMachineManagerDriver::protocol(
         else
         {
             string          info;
-            
+
             getline(is,info);
-            
+
             os.str("");
             os << "Error restoring VM, " << info;
-             
+
             vm->log("VMM",Log::ERROR,os);
-            
+
             lcm->trigger(LifeCycleManager::DEPLOY_FAILURE, id);
         }
     }
@@ -392,7 +408,7 @@ void VirtualMachineManagerDriver::protocol(
     {
         Nebula              &ne  = Nebula::instance();
         LifeCycleManager    *lcm = ne.get_lcm();
-        
+
         if (result == "SUCCESS")
         {
             lcm->trigger(LifeCycleManager::DEPLOY_SUCCESS, id);
@@ -400,14 +416,14 @@ void VirtualMachineManagerDriver::protocol(
         else
         {
             string          info;
-            
+
             getline(is,info);
-            
+
             os.str("");
             os << "Error live-migrating VM, " << info;
-             
+
             vm->log("VMM",Log::ERROR,os);
-            
+
             lcm->trigger(LifeCycleManager::DEPLOY_FAILURE, id);
         }
     }
@@ -421,7 +437,7 @@ void VirtualMachineManagerDriver::protocol(
             string          var;
             ostringstream   os;
             istringstream   tiss;
-            
+
             int             cpu    = -1;
             int             memory = -1;
             int             net_tx = -1;
@@ -438,16 +454,16 @@ void VirtualMachineManagerDriver::protocol(
                 {
                     os.str("");
                     os << "Error parsing monitoring attribute: " << tmp;
-             
-                    vm->log("VMM",Log::ERROR,os);        
-                    
+
+                    vm->log("VMM",Log::ERROR,os);
+
                     break;
                 }
 
                 tmp.replace(pos,1," ");
 
                 tiss.clear();
-                
+
                 tiss.str(tmp);
 
                 tiss >> var;
@@ -475,85 +491,85 @@ void VirtualMachineManagerDriver::protocol(
                 else
                 {
                 	string val;
-                	
+
                     os.str("");
                     os << "Unknown monitoring attribute (adding/updating"
                        << " template): " << tmp;
-             
+
                     vm->log("VMM",Log::WARNING,os);
-                    
+
                     tiss >> val;
-                    
+
                     vmpool->update_template_attribute(vm,var,val);
                 }
             }
 
             vm->update_info(memory,cpu,net_tx,net_rx);
-            
+
             vmpool->update(vm);
-            
+
             if (state != '-'  && vm->get_lcm_state() == VirtualMachine::RUNNING)
             {
                 Nebula          	&ne  = Nebula::instance();
                 LifeCycleManager *	lcm = ne.get_lcm();
-                
+
             	switch (state)
             	{
             	case 'a': // Still active, good!
                     os.str("");
-                    os  << "Monitor Information:\n" 
+                    os  << "Monitor Information:\n"
                     	<< "\tCPU   : "<< cpu << "\n"
                     	<< "\tMemory: "<< memory << "\n"
                     	<< "\tNet_TX: "<< net_tx << "\n"
                     	<< "\tNet_RX: "<< net_rx << "\n";
-                    vm->log("VMM",Log::INFO,os);  
+                    vm->log("VMM",Log::INFO,os);
             		break;
-            		
+
             	case 'p': // It's paused
                     os.str("");
                     os  << "VM running but new state from monitor is PAUSED.\n";
                     vm->log("VMM",Log::INFO,os);
-                    
+
                     lcm->trigger(LifeCycleManager::MONITOR_SUSPEND, id);
-                    
+
             		break;
-            		
+
             	case 'e': //Failed
             		os.str("");
                     os  << "VM running but new state from monitor is ERROR.\n";
                     vm->log("VMM",Log::INFO,os);
-                    
+
                     lcm->trigger(LifeCycleManager::MONITOR_FAILURE, id);
 
             		break;
-            		
+
             	case 'd': //Failed
             		os.str("");
                     os  << "VM running but it was not found. Assuming it is done.\n";
                     vm->log("VMM",Log::INFO,os);
-                    
+
                     lcm->trigger(LifeCycleManager::MONITOR_DONE, id);
 
-            		break;            		
+            		break;
             	}
             }
         }
         else
         {
             string          info;
-            
+
             getline(is,info);
-            
+
             os.str("");
             os << "Error monitoring VM, " << info;
-             
-            vm->log("VMM",Log::ERROR,os);        
+
+            vm->log("VMM",Log::ERROR,os);
         }
     }
     else if (action == "LOG")
     {
         string info;
-        
+
         getline(is,info);
         vm->log("VMM",Log::INFO,info.c_str());
     }

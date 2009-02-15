@@ -24,7 +24,7 @@ TransferManagerDriver::TransferManagerDriver(
 	int                         userid,
     const map<string,string>&   attrs,
     bool                        sudo,
-    VirtualMachinePool *        pool): 
+    VirtualMachinePool *        pool):
     	Mad(userid,attrs,sudo),driver_conf(true),vmpool(pool)
 {
     map<string,string>::const_iterator	it;
@@ -32,42 +32,42 @@ TransferManagerDriver::TransferManagerDriver(
     const char *	cfile;
     string			file;
     int				rc;
-                    
+
     it = attrs.find("DEFAULT");
-            
+
     if ( it != attrs.end() )
-    {        	        	
+    {
        	if (it->second[0] != '/') //Look in ONE_LOCATION/etc or in "/etc/one"
         {
       		Nebula& nd = Nebula::instance();
-                                    
+
             file  = nd.get_defaults_location() + it->second;
             cfile = file.c_str();
         }
         else //Absolute Path
         {
-          	cfile = it->second.c_str();        
-        } 
-                
+          	cfile = it->second.c_str();
+        }
+
         rc = driver_conf.parse(cfile, &error_msg);
-        
+
         if ( rc != 0 )
         {
         	ostringstream   oss;
-        	
+
         	if ( error_msg != 0 )
-        	{            	
-        		oss << "Error loading driver configuration file " << cfile << 
+        	{
+        		oss << "Error loading driver configuration file " << cfile <<
            		" : " << error_msg;
-        		
+
         		free(error_msg);
         	}
         	else
-        	{            	
+        	{
         		oss << "Error loading driver configuration file " << cfile;
         	}
-        	
-           	Nebula::log("TM", Log::ERROR, oss);            		           	
+
+           	Nebula::log("TM", Log::ERROR, oss);
         }
     }
 }
@@ -77,7 +77,7 @@ TransferManagerDriver::TransferManagerDriver(
 /* ************************************************************************** */
 
 void TransferManagerDriver::transfer (
-		const int oid, 
+		const int oid,
 		const string& xfr_file) const
 {
     ostringstream os;
@@ -119,7 +119,23 @@ void TransferManagerDriver::protocol(
         return;
 
     if ( is.good() )
+    {
         is >> id >> ws;
+
+        if ( is.fail() )
+        {
+            if ( action == "LOG" )
+            {
+                string info;
+
+                is.clear();
+                getline(is,info);
+                Nebula::log("TM",Log::INFO, info.c_str());
+            }
+
+            return;
+        }
+    }
     else
         return;
 
@@ -136,9 +152,9 @@ void TransferManagerDriver::protocol(
     {
         Nebula              &ne = Nebula::instance();
         LifeCycleManager *  lcm = ne.get_lcm();
-        
+
         LifeCycleManager::Actions lcm_action;
-    	
+
         if (result == "SUCCESS")
         {
         	switch (vm->get_lcm_state())
@@ -146,61 +162,61 @@ void TransferManagerDriver::protocol(
         		case VirtualMachine::PROLOG:
         		case VirtualMachine::PROLOG_MIGRATE:
         		case VirtualMachine::PROLOG_RESUME:
-       	        	lcm_action = LifeCycleManager::PROLOG_SUCCESS; 
+       	        	lcm_action = LifeCycleManager::PROLOG_SUCCESS;
         			break;
-        			
+
         		case VirtualMachine::EPILOG:
         		case VirtualMachine::EPILOG_STOP:
-       	        	lcm_action = LifeCycleManager::EPILOG_SUCCESS; 
+       	        	lcm_action = LifeCycleManager::EPILOG_SUCCESS;
         			break;
-        			
+
         		default:
         			goto error_state;
         	}
         }
         else
-        {        	
+        {
             string info;
-            
+
             getline(is,info);
-            
+
             os.str("");
             os << "Error excuting image transfer script: " << info;
-            
+
             vm->log("TM",Log::ERROR,os);
-            
+
         	switch (vm->get_lcm_state())
         	{
         		case VirtualMachine::PROLOG:
         		case VirtualMachine::PROLOG_MIGRATE:
         		case VirtualMachine::PROLOG_RESUME:
-       	        	lcm_action = LifeCycleManager::PROLOG_FAILURE; 
+       	        	lcm_action = LifeCycleManager::PROLOG_FAILURE;
         			break;
-        			
+
         		case VirtualMachine::EPILOG:
         		case VirtualMachine::EPILOG_STOP:
-       	        	lcm_action = LifeCycleManager::EPILOG_FAILURE; 
+       	        	lcm_action = LifeCycleManager::EPILOG_FAILURE;
         			break;
-        			
+
         		default:
         			goto error_state;
         	}
         }
-        
+
         lcm->trigger(lcm_action, id);
     }
     else if (action == "LOG")
     {
         string info;
-        
+
         getline(is,info);
         vm->log("TM",Log::INFO,info.c_str());
     }
 
     vm->unlock();
-    
+
     return;
-    
+
 error_state:
 	os.str("");
 	os << "Wrong state in TM answer for VM " << id;
@@ -208,7 +224,7 @@ error_state:
 	vm->log("TM",Log::ERROR,os);
 
 	vm->unlock();
-	
+
 	return;
 }
 
