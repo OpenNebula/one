@@ -16,6 +16,10 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+# ---------------------------------------------------------------------------- #
+# Set up the environment for the driver                                        #
+# ---------------------------------------------------------------------------- #
+
 EC2_LOCATION = ENV["EC2_HOME"]
 
 if !EC2_LOCATION
@@ -23,12 +27,14 @@ if !EC2_LOCATION
     exit(-1)
 end
 
-ONE_LOCATION=ENV["ONE_LOCATION"]
+ONE_LOCATION = ENV["ONE_LOCATION"]
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
+    RUBY_LIB_LOCATION = "/usr/lib/one/ruby"
+    ETC_LOCATION      = "/etc/one/"
 else
-    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
+    RUBY_LIB_LOCATION = ONE_LOCATION + "/lib/ruby"
+    ETC_LOCATION      = ONE_LOCATION + "/etc/"
 end
 
 $: << RUBY_LIB_LOCATION
@@ -38,8 +44,15 @@ require "VirtualMachineDriver"
 require "CommandManager"
 require "rexml/document"
 
+# ---------------------------------------------------------------------------- #
+# The main class for the EC2 driver                                            #
+# ---------------------------------------------------------------------------- #
+
 class EC2Driver < VirtualMachineDriver
 
+    # ------------------------------------------------------------------------ #
+    # EC2 commands constants                                                   #
+    # ------------------------------------------------------------------------ #
     EC2 = {
         :run       => "#{EC2_LOCATION}/bin/ec2-run-instances",
         :terminate => "#{EC2_LOCATION}/bin/ec2-terminate-instances",
@@ -48,10 +61,33 @@ class EC2Driver < VirtualMachineDriver
         :authorize => "#{EC2_LOCATION}bin/ec2-authorize"
     }
 
-    def initialize
+    # ------------------------------------------------------------------------ #
+    # EC2 constructor, loads defaults for the EC2Driver                        #
+    # ------------------------------------------------------------------------ #
+    def initialize(ec2_conf = nil)
         super(15,true)
+
+        @defaults = Hash.new
+
+        if ec2_conf && File.exists?(ec2_conf)
+            fd  = File.new(ec2_conf)
+            xml = REXML::Document.new fd
+            return if !xml || !xml.root
+            fd.close()
+
+            ec2 = xml.root.elements["EC2"]
+
+            return if !ec2
+
+            @defaults["KEYPAIR"]         = ec2_value(ec2,"KEYPAIR")
+            @defaults["AUTHORIZEDPORTS"] = ec2_value(ec2,"AUTHORIZEDPORTS")
+            @defaults["INSTANCETYPE"]    = ec2_value(ec2,"INSTANCETYPE")
+        end
     end
 
+    # ------------------------------------------------------------------------ #
+    # DEPLOY action, also sets ports and ip if needed                          #
+    # ------------------------------------------------------------------------ #
     def deploy(id, host, remote_dfile, not_used)
 
         local_dfile = get_local_deployment_file(remote_dfile)
@@ -80,7 +116,16 @@ class EC2Driver < VirtualMachineDriver
         ports   = ec2_value(ec2,"AUTHORIZEDPORTS")
         type    = ec2_value(ec2,"INSTANCETYPE")
 
-        deploy_cmd = "#{EC2[:run]} #{ami} -k #{keypair} -t #{type}"
+        if !ami
+            send_message(ACTION[:deploy],RESULT[:failure],id,
+                "Can not find AMI in deployment file #{local_dfile}")
+            return
+        end
+
+        deploy_cmd = "#{EC2[:run]} #{ami}"
+        deploy_cmd << " -k #{keypair}" if keypair
+        deploy_cmd << " -t #{type}" if keypair
+
         deploy_exe = LocalCommand.run(deploy_cmd, log_method(id))
 
         if deploy_exe.code != 0
@@ -109,14 +154,23 @@ class EC2Driver < VirtualMachineDriver
         send_message(ACTION[:deploy],RESULT[:success],id,deploy_id)
     end
 
+    # ------------------------------------------------------------------------ #
+    # Shutdown a EC2 instance                                                  #
+    # ------------------------------------------------------------------------ #
     def shutdown(id, host, deploy_id, not_used)
         ec2_terminate(ACTION[:shutdown], id, deploy_id)
     end
 
+    # ------------------------------------------------------------------------ #
+    # Cancel a EC2 instance                                                    #
+    # ------------------------------------------------------------------------ #
     def cancel(id, host, deploy_id, not_used)
         ec2_terminate(ACTION[:cancel], id, deploy_id)
     end
 
+    # ------------------------------------------------------------------------ #
+    # Get info (IP, and state) for a EC2 instance                              #
+    # ------------------------------------------------------------------------ #
     def poll(id, host, deploy_id, not_used)
 
         info =  "#{POLL_ATTRIBUTE[:usedmemory]}=0 " \
@@ -140,13 +194,14 @@ class EC2Driver < VirtualMachineDriver
             monitor_data = $1.split(/\s+/)
 
             case monitor_data[3]
-                when "pending","running"
+                when "pending"
                     info << " #{POLL_ATTRIBUTE[:state]}=#{VM_STATE[:active]}"
+                when "running"
+                    info << " #{POLL_ATTRIBUTE[:state]}=#{VM_STATE[:active]}" \
+                            " IP=#{monitor_data[1]}"
                 when "shutting-down","terminated"
                     info << " #{POLL_ATTRIBUTE[:state]}=#{VM_STATE[:deleted]}"
             end
-
-            info << " IP=#{monitor_data[1]}"
         end
 
         send_message(ACTION[:poll], RESULT[:success], id, info)
@@ -170,11 +225,25 @@ private
     def ec2_value(xml,name)
         value   = nil
         element = xml.elements[name]
-        value   = element.text.strip if element
+        value   = element.text.strip if element && element.text
+
+        if !value
+            value = @defaults[name]
+        end
 
         return value
     end
 end
 
-ec2_driver = EC2Driver.new
+# ---------------------------------------------------------------------------- #
+# EC2Driver Main program
+# ---------------------------------------------------------------------------- #
+
+ec2_conf = ARGV[0]
+
+if ec2_conf
+    ec2_conf = ETC_LOCATION + ec2_conf if ec2_conf[0] != ?/
+end
+
+ec2_driver = EC2Driver.new(ec2_conf)
 ec2_driver.start_driver

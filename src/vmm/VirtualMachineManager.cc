@@ -20,7 +20,6 @@
 #include "XenDriver.h"
 #include "XMLDriver.h"
 #include "LibVirtDriver.h"
-#include "EC2Driver.h"
 #include <time.h>
 
 /* ************************************************************************** */
@@ -31,14 +30,14 @@ VirtualMachineManager::VirtualMachineManager(
     VirtualMachinePool *            _vmpool,
     HostPool *                      _hpool,
     time_t                          _timer_period,
-    time_t                          _poll_period,        
+    time_t                          _poll_period,
     vector<const Attribute*>&       _mads):
         MadManager(_mads),
         vmpool(_vmpool),
         hpool(_hpool),
         timer_period(_timer_period),
-        poll_period(_poll_period)     
-{        
+        poll_period(_poll_period)
+{
     am.addListener(this);
 };
 
@@ -58,11 +57,11 @@ extern "C" void * vmm_action_loop(void *arg)
     vmm = static_cast<VirtualMachineManager *>(arg);
 
     Nebula::log("VMM",Log::INFO,"Virtual Machine Manager started.");
-    
+
     vmm->am.loop(vmm->timer_period,0);
 
     Nebula::log("VMM",Log::INFO,"Virtual Machine Manager stopped.");
-    
+
     return 0;
 }
 
@@ -81,7 +80,7 @@ int VirtualMachineManager::start()
     }
 
     Nebula::log("VMM",Log::INFO,"Starting Virtual Machine Manager...");
-    
+
     pthread_attr_init (&pattr);
     pthread_attr_setdetachstate (&pattr, PTHREAD_CREATE_JOINABLE);
 
@@ -130,7 +129,7 @@ void VirtualMachineManager::trigger(Actions action, int _vid)
     case POLL:
         aname = "POLL";
         break;
-        
+
     case FINALIZE:
         aname = ACTION_FINALIZE;
         break;
@@ -150,7 +149,7 @@ void VirtualMachineManager::do_action(const string &action, void * arg)
 {
     int vid;
     ostringstream os;
-    
+
     if ( arg == 0)
     {
         if ( action != ACTION_TIMER && action != ACTION_FINALIZE )
@@ -190,7 +189,7 @@ void VirtualMachineManager::do_action(const string &action, void * arg)
     else if (action == "POLL")
     {
         poll_action(vid);
-    }    
+    }
     else if (action == ACTION_TIMER)
     {
         timer_action();
@@ -198,15 +197,15 @@ void VirtualMachineManager::do_action(const string &action, void * arg)
     else if (action == ACTION_FINALIZE)
     {
         Nebula::log("VMM",Log::INFO,"Stopping Virtual Machine Manager...");
-        
+
         MadManager::stop();
     }
     else
     {
         ostringstream oss;
         oss << "Unknown action name: " << action;
-        
-        Nebula::log("VMM", Log::ERROR, oss);        
+
+        Nebula::log("VMM", Log::ERROR, oss);
     }
 }
 
@@ -224,7 +223,7 @@ void VirtualMachineManager::deploy_action(int vid)
     // Get the VM from the pool
     vm = vmpool->get(vid,true);
 
-    if (vm == 0) 
+    if (vm == 0)
     {
         return;
     }
@@ -233,10 +232,10 @@ void VirtualMachineManager::deploy_action(int vid)
     {
         goto error_history;
     }
-    
+
     // Get the driver for this VM
     vmd = get(vm->get_uid(),vm->get_vmm_mad());
-    
+
     if ( vmd == 0 )
     {
         goto error_driver;
@@ -245,7 +244,7 @@ void VirtualMachineManager::deploy_action(int vid)
     //Generate VM description file
     os.str("");
     os << "Generating deployment file: " << vm->get_deployment_file();
-    
+
     vm->log("VMM", Log::INFO, os);
 
     rc = vmd->deployment_description(vm,vm->get_deployment_file());
@@ -259,9 +258,9 @@ void VirtualMachineManager::deploy_action(int vid)
     vmd->deploy(vid,vm->get_hostname(),vm->get_remote_deployment_file());
 
     vm->unlock();
-    
+
     return;
-    
+
 error_history:
     os.str("");
     os << "deploy_action, VM has no history";
@@ -275,16 +274,16 @@ error_driver:
 error_file:
     os.str("");
     os << "deploy_action, error generating deployment file: " << vm->get_deployment_file();
-    goto error_common;        
-    
+    goto error_common;
+
 error_common:
     Nebula              &ne = Nebula::instance();
     LifeCycleManager *  lcm = ne.get_lcm();
 
     lcm->trigger(LifeCycleManager::DEPLOY_FAILURE, vid);
-    
+
     vm->log("VMM", Log::ERROR, os);
-    
+
     vm->unlock();
     return;
 }
@@ -299,11 +298,11 @@ void VirtualMachineManager::save_action(
     const VirtualMachineManagerDriver * vmd;
     string                              hostname;
     ostringstream                       os;
-    
+
     // Get the VM from the pool
     vm = vmpool->get(vid,true);
 
-    if (vm == 0) 
+    if (vm == 0)
     {
         return;
     }
@@ -328,7 +327,7 @@ void VirtualMachineManager::save_action(
         {
         	goto error_previous_history;
         }
-        
+
         hostname = vm->get_previous_hostname();
     }
     else
@@ -359,15 +358,15 @@ error_driver:
 error_previous_history:
     os.str("");
     os << "save_action, VM has no previous history";
-    
+
 error_common:
     Nebula              &ne = Nebula::instance();
     LifeCycleManager *  lcm = ne.get_lcm();
 
     lcm->trigger(LifeCycleManager::SAVE_FAILURE, vid);
-    
+
     vm->log("VMM", Log::ERROR, os);
-    
+
     vm->unlock();
     return;
 }
@@ -381,11 +380,11 @@ void VirtualMachineManager::shutdown_action(
     VirtualMachine *                vm;
     const VirtualMachineManagerDriver *   vmd;
     ostringstream                       os;
-    
+
     // Get the VM from the pool
     vm = vmpool->get(vid,true);
 
-    if (vm == 0) 
+    if (vm == 0)
     {
         return;
     }
@@ -394,7 +393,7 @@ void VirtualMachineManager::shutdown_action(
     {
         goto error_history;
     }
-    
+
     // Get the driver for this VM
     vmd = get(vm->get_uid(),vm->get_vmm_mad());
 
@@ -408,7 +407,7 @@ void VirtualMachineManager::shutdown_action(
 
     vm->unlock();
     return;
-    
+
 error_history:
     os.str("");
     os << "shutdown_action, VM has no history";
@@ -424,9 +423,9 @@ error_common:
     LifeCycleManager *  lcm = ne.get_lcm();
 
     lcm->trigger(LifeCycleManager::SHUTDOWN_FAILURE, vid);
-    
+
     vm->log("VMM", Log::ERROR, os);
-    
+
     vm->unlock();
     return;
 }
@@ -440,11 +439,11 @@ void VirtualMachineManager::cancel_action(
     VirtualMachine *                vm;
     const VirtualMachineManagerDriver *   vmd;
     ostringstream                       os;
-    
+
     // Get the VM from the pool
     vm = vmpool->get(vid,true);
 
-    if (vm == 0) 
+    if (vm == 0)
     {
         return;
     }
@@ -453,7 +452,7 @@ void VirtualMachineManager::cancel_action(
     {
         goto error_history;
     }
-    
+
     // Get the driver for this VM
     vmd = get(vm->get_uid(),vm->get_vmm_mad());
 
@@ -464,7 +463,7 @@ void VirtualMachineManager::cancel_action(
 
     // Invoke driver method
     vmd->cancel(vid,vm->get_hostname(),vm->get_deploy_id());
-    
+
     vm->unlock();
     return;
 
@@ -483,9 +482,9 @@ error_common:
     LifeCycleManager *  lcm = ne.get_lcm();
 
     lcm->trigger(LifeCycleManager::CANCEL_FAILURE, vid);
-    
+
     vm->log("VMM", Log::ERROR, os);
-    
+
     vm->unlock();
     return;
 }
@@ -503,7 +502,7 @@ void VirtualMachineManager::migrate_action(
     // Get the VM from the pool
     vm = vmpool->get(vid,true);
 
-    if (vm == 0) 
+    if (vm == 0)
     {
         return;
     }
@@ -512,7 +511,7 @@ void VirtualMachineManager::migrate_action(
     {
         goto error_history;
     }
-    
+
     // Get the driver for this VM
     vmd = get(vm->get_uid(),vm->get_vmm_mad());
 
@@ -533,7 +532,7 @@ void VirtualMachineManager::migrate_action(
     		vm->get_hostname());
 
     vm->unlock();
-    
+
     return;
 
 error_history:
@@ -550,17 +549,17 @@ error_previous_history:
 	os.str("");
 	os << "migrate_action, error VM has no previous history";
 	goto error_common;
-	
+
 error_common:
     Nebula              &ne = Nebula::instance();
     LifeCycleManager *  lcm = ne.get_lcm();
 
     lcm->trigger(LifeCycleManager::DEPLOY_FAILURE, vid);
-    
+
     vm->log("VMM", Log::ERROR, os);
-    
+
     vm->unlock();
-    return;    
+    return;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -572,11 +571,11 @@ void VirtualMachineManager::restore_action(
     VirtualMachine *                vm;
     const VirtualMachineManagerDriver *   vmd;
     ostringstream                       os;
-    
+
     // Get the VM from the pool
     vm = vmpool->get(vid,true);
 
-    if (vm == 0) 
+    if (vm == 0)
     {
         return;
     }
@@ -585,7 +584,7 @@ void VirtualMachineManager::restore_action(
     {
         goto error_history;
     }
-    
+
     // Get the driver for this VM
     vmd = get(vm->get_uid(),vm->get_vmm_mad());
 
@@ -596,10 +595,10 @@ void VirtualMachineManager::restore_action(
 
     // Invoke driver method
     vmd->restore(vid,vm->get_hostname(),vm->get_checkpoint_file());
-    
-    vm->unlock();    
+
+    vm->unlock();
     return;
-    
+
 error_history:
     os.str("");
     os << "restore_action, VM has no history";
@@ -615,11 +614,11 @@ error_common:
     LifeCycleManager *  lcm = ne.get_lcm();
 
     lcm->trigger(LifeCycleManager::DEPLOY_FAILURE, vid);
-    
+
     vm->log("VMM", Log::ERROR, os);
-    
+
     vm->unlock();
-    return;    
+    return;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -631,11 +630,11 @@ void VirtualMachineManager::poll_action(
     VirtualMachine *                vm;
     const VirtualMachineManagerDriver *   vmd;
     ostringstream                       os;
-    
+
     // Get the VM from the pool
     vm = vmpool->get(vid,true);
 
-    if (vm == 0) 
+    if (vm == 0)
     {
         return;
     }
@@ -644,7 +643,7 @@ void VirtualMachineManager::poll_action(
     {
         goto error_history;
     }
-    
+
     // Get the driver for this VM
     vmd = get(vm->get_uid(),vm->get_vmm_mad());
 
@@ -655,7 +654,7 @@ void VirtualMachineManager::poll_action(
 
     // Invoke driver method
     vmd->poll(vid,vm->get_hostname(),vm->get_deploy_id());
-    
+
     vm->unlock();
     return;
 
@@ -674,9 +673,9 @@ error_common:
     LifeCycleManager *  lcm = ne.get_lcm();
 
     lcm->trigger(LifeCycleManager::CANCEL_FAILURE, vid);
-    
+
     vm->log("VMM", Log::ERROR, os);
-    
+
     vm->unlock();
     return;
 }
@@ -687,7 +686,7 @@ error_common:
 void VirtualMachineManager::timer_action()
 {
     static int mark = 0;
-    
+
     VirtualMachine *        vm;
     vector<int>             oids;
     vector<int>::iterator   it;
@@ -721,19 +720,19 @@ void VirtualMachineManager::timer_action()
         if ( vm == 0 || (!vm->hasHistory()))
         {
             os.str("");
-            os << "Monitoring VM " << *it << " but it has no history."; 
+            os << "Monitoring VM " << *it << " but it has no history.";
             Nebula::log("VMM", Log::ERROR, os);
-            
+
             continue;
         }
 
         if ( (thetime - vm->get_last_poll()) >= poll_period )
         {
             os.str("");
-            
+
             os << "Monitoring VM " << *it << ".";
             Nebula::log("VMM", Log::INFO, os);
-            
+
             vm->set_last_poll(thetime);
 
             vmd = get(vm->get_uid(),vm->get_vmm_mad());
@@ -745,7 +744,7 @@ void VirtualMachineManager::timer_action()
             }
 
             vmd->poll(*it,vm->get_hostname(),vm->get_deploy_id());
-            
+
             vmpool->update(vm);
         }
 
@@ -766,35 +765,31 @@ void VirtualMachineManager::load_mads(int uid)
     string							name;
     string							type;
     VirtualMachineManagerDriver *	vmm_driver = 0;
-    
+
     oss << "Loading Virtual Machine Manager drivers.";
-    
+
     Nebula::log("VMM",Log::INFO,oss);
-    
+
     for(i=0,oss.str("");i<mad_conf.size();i++,oss.str(""),vmm_driver=0)
     {
         vattr = static_cast<const VectorAttribute *>(mad_conf[i]);
-        
+
         name  = vattr->vector_value("NAME");
         type  = vattr->vector_value("TYPE");
-        
+
         transform (type.begin(),type.end(),type.begin(),(int(*)(int))toupper);
-        
-        oss << "\tLoading driver: " << name << " (" << type << ")"; 
-                
+
+        oss << "\tLoading driver: " << name << " (" << type << ")";
+
         Nebula::log("VMM", Log::INFO, oss);
-        
+
         if ( type == "XEN" )
-        {	
+        {
         	vmm_driver = new XenDriver(uid, vattr->value(),(uid != 0),vmpool);
         }
         else if ( type == "KVM" )
         {
         	vmm_driver = new LibVirtDriver(uid, vattr->value(),(uid != 0),vmpool,"kvm");
-        }
-        else if ( type == "EC2" )
-        {
-        	vmm_driver = new EC2Driver(uid, vattr->value(),(uid != 0),vmpool);
         }
         else if ( type == "XML" )
         {
@@ -804,21 +799,21 @@ void VirtualMachineManager::load_mads(int uid)
         {
         	oss.str("");
         	oss << "\tUnknown driver type: " << type;
-        	
+
         	Nebula::log("VMM",Log::ERROR,oss);
-        	
+
         	continue;
         }
-                
+
         rc = add(vmm_driver);
-        
+
         if ( rc == 0 )
         {
-            oss.str("");            
+            oss.str("");
             oss << "\tDriver " << name << " loaded.";
-            
+
             Nebula::log("VMM",Log::INFO,oss);
         }
-        
+
     }
 }
