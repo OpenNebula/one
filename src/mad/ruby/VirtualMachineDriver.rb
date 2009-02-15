@@ -40,7 +40,8 @@ class VirtualMachineDriver < OpenNebulaDriver
         :save       => "SAVE",
         :restore    => "RESTORE",
         :migrate    => "MIGRATE",
-        :poll       => "POLL"
+        :poll       => "POLL",
+        :log        => "LOG"
     }
 
     POLL_ATTRIBUTE = {
@@ -77,11 +78,11 @@ class VirtualMachineDriver < OpenNebulaDriver
     # Converts a deployment file from its remote path to the local (front-end)
     # path
     # -------------------------------------------------------------------------
-    def get_local_deployment_file(remote_deployment_file)
+    def get_local_deployment_file(rfile)
 
-        local_deployment_file = nil
+        lfile = nil
 
-        one_location=ENV["ONE_LOCATION"]
+        one_location = ENV["ONE_LOCATION"]
 
         if one_location == nil
             var_location = "/var/lib/one/"
@@ -89,13 +90,13 @@ class VirtualMachineDriver < OpenNebulaDriver
             var_location = one_location + "/var/"
         end
 
-        m=remote_deployment_file.match(/.*?\/(\d+)\/images\/(deployment.\d+)$/)
+        m = rfile.match(/.*?\/(\d+)\/images\/(deployment.\d+)$/)
 
-        local_deployment_file = "#{var_location}#{m[1]}/#{m[2]}" if m
+        lfile = "#{var_location}#{m[1]}/#{m[2]}" if m
 
-	local_deployment_file = nil if !File.exists?(local_deployment_file)
+        lfile = nil if lfile and !File.exists?(lfile)
 
-        return local_deployment_file
+        return lfile
     end
 
     def deploy(id, host, remote_dfile, not_used)
