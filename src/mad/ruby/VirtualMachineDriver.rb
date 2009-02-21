@@ -56,7 +56,8 @@ class VirtualMachineDriver < OpenNebulaDriver
         :active  => 'a',
         :paused  => 'p',
         :error   => 'e',
-        :deleted => 'd'
+        :deleted => 'd',
+        :unknown => '-'
     }
 
     # -------------------------------------------------------------------------

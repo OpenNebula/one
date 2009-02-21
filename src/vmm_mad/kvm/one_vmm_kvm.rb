@@ -161,11 +161,11 @@ class LibVirtDriver < VirtualMachineDriver
                         when "crashed"
                             state = VM_STATE[:error]
                         else
-                            state = "-"
+                            state = VM_STATE[:unknown]
                     end
 
                     info << " #{POLL_ATTRIBUTE[:state]}=#{state}"
-                end
+            end
         }
 
         send_message(ACTION[:poll], RESULT[:success], id, info)
