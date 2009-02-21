@@ -37,7 +37,7 @@ require "VirtualMachineDriver"
 require "CommandManager"
 
 # ---------------------------------------------------------------------------- #
-# The main class for the EC2 driver                                            #
+# The main class for the LibVirt driver                                        #
 # ---------------------------------------------------------------------------- #
 
 class LibVirtDriver < VirtualMachineDriver
@@ -46,6 +46,7 @@ class LibVirtDriver < VirtualMachineDriver
     # Libvirt commands constants                                               #
     # ------------------------------------------------------------------------ #
     QEMU_PROTOCOL = "qemu+ssh"
+
     LIBVIRT       = {
         :create   => "virsh create",
         :shutdown => "virsh shutdown",
@@ -77,8 +78,7 @@ class LibVirtDriver < VirtualMachineDriver
         end
 
         tmp    = File.new(local_dfile)
-        domain = String.new
-        tmp.each { |line| domain << line }
+        domain = tmp.read
         tmp.close()
 
         deploy_cmd = "cat > #{remote_dfile} && " \
@@ -92,7 +92,7 @@ class LibVirtDriver < VirtualMachineDriver
             send_message(ACTION[:deploy],RESULT[:success],id,$1)
         else
             send_message(ACTION[:deploy],RESULT[:failure],id,
-                "Domain id not found.")
+                         "Domain id not found in #{LIBVIRT[:create]} output.")
         end
     end
 
@@ -177,12 +177,12 @@ private
         command_exe = SSHCommand.run(command, host, log_method(id))
 
         if command_exe.code == 0
-            result = RESULT[:success]
+            result = :success
         else
-            result = RESULT[:failure]
+            result = :failure
         end
 
-        send_message(ACTION[action],result,id)
+        send_message(ACTION[action],RESULT[result],id)
     end
 end
 
