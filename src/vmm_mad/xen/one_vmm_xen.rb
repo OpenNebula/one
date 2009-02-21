@@ -1,5 +1,4 @@
 #!/usr/bin/env ruby
-
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2009, Distributed Systems Architecture Group, Universidad   #
 # Complutense de Madrid (dsa-research.org)                                   #
@@ -17,302 +16,201 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-ONE_LOCATION=ENV["ONE_LOCATION"]
-DEBUG_LEVEL=ENV["ONE_MAD_DEBUG"]
+# ---------------------------------------------------------------------------- #
+# Set up the environment for the driver                                        #
+# ---------------------------------------------------------------------------- #
 
-XENTOP_PATH=ENV["XENTOP_PATH"]
-XM_PATH=ENV["XM_PATH"]
+ONE_LOCATION = ENV["ONE_LOCATION"]
+XENTOP_PATH  = ENV["XENTOP_PATH"]
+XM_PATH      = ENV["XM_PATH"]
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
+    RUBY_LIB_LOCATION = "/usr/lib/one/ruby"
+    ETC_LOCATION      = "/etc/one/"
 else
-    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
+    RUBY_LIB_LOCATION = ONE_LOCATION + "/lib/ruby"
+    ETC_LOCATION      = ONE_LOCATION + "/etc/"
 end
 
 $: << RUBY_LIB_LOCATION
 
 require 'pp'
+require "VirtualMachineDriver"
+require "CommandManager"
 
-require 'one_mad'
-require 'open3'
-require 'one_ssh'
+# ---------------------------------------------------------------------------- #
+# The main class for the Xen driver                                            #
+# ---------------------------------------------------------------------------- #
 
-class DM < ONEMad
-    include SSHActionController
-    
-    def initialize
-        super(5, 4)
-        
-        if DEBUG_LEVEL and !DEBUG_LEVEL.empty? 
-            set_logger(STDERR,DEBUG_LEVEL)
-        end
-        
-        init_actions(50)
+class XenDriver < VirtualMachineDriver
+
+    # ------------------------------------------------------------------------ #
+    # Xen commands constants                                                   #
+    # ------------------------------------------------------------------------ #
+    XEN = {
+        :create   => "sudo #{XM_PATH} create",
+        :shutdown => "sudo #{XM_PATH} shutdown",
+        :cancel   => "sudo #{XM_PATH} destroy",
+        :save     => "sudo #{XM_PATH} save",
+        :restore  => "sudo #{XM_PATH} restore",
+        :migrate  => "sudo #{XM_PATH} migrate -l",
+        :poll     => "sudo #{XENTOP_PAT} -bi2",
+        :credits  => "sudo #{XM_PATH} sched-cred"
+    }
+
+    XEN_INFO = {
+        :name       => 0,
+        :state      => 1,
+        :cpu_sec    => 2,
+        :cpu_per    => 3,
+        :mem        => 4,
+        :mem_per    => 5,
+        :maxmem     => 6,
+        :maxmem_per => 7,
+        :vcpus      => 8,
+        :nets       => 9,
+        :nettx      => 10,
+        :netrx      => 11,
+        :vbds       => 12,
+        :vbd_oo     => 13,
+        :vbd_rd     => 14,
+        :vbd_wr     => 15,
+        :ssid       => 16
+    }
+
+    # ------------------------------------------------------------------------ #
+    # XenDriver constructor                                                    #
+    # ------------------------------------------------------------------------ #
+    def initialize()
+        super(15,true)
     end
-    
-    def action_init(args)
-        send_message("INIT", "SUCCESS")
-    end
 
-    def action_deploy(args)
-        action_number=args[1]
-        action_host=args[2]
-        remote_deployment_file=args[3]
-        
-        # Get local deployment file
-        local_deployment_file=get_local_deployment_file(remote_deployment_file)
-        
-        # If matched the we can read the file and get more configuration values
-        if local_deployment_file
-            # TODO: review this way of copying files
-            # This command copies deployment file to remote machine
-            # when shared directories are not used
-            copy_deploy="scp #{local_deployment_file} "+
-                "#{action_host}:#{remote_deployment_file}"
-            mad_log("DEPLOY", action_number, "Command: #{copy_deploy}")
-            copy_deploy_exit=execute_local_command(copy_deploy)
+    # ------------------------------------------------------------------------ #
+    # DEPLOY action, sends the deployment file to remote host                  #
+    # ------------------------------------------------------------------------ #
+    def deploy(id, host, remote_dfile, not_used)
 
-            if copy_deploy_exit
-                mad_log("DEPLOY", action_number, 
-                    "Error: "+copy_deploy_exit.to_s)
-            else
-                mad_log("DEPLOY", action_number,
-                    "Copy success")
-            end
+        local_dfile = get_local_deployment_file(remote_dfile)
 
-           
-            # TODO: check for error
-            file=open(local_deployment_file)
-            f=file.read
-            file.close
-        
-            # Get values passed in the deployment file, the form is:
-            #   [["CPU_CREDITS", "3"], ["OTHER_VARIABLE", "value"]]
-            values=f.scan(/^#O (.*?) = (.*)$/)
-
-            # Gets the first pair with the name provided or nil if not found
-            credits=values.assoc("CPU_CREDITS")
-            credits=credits[1] if credits
-
-            # Get the name of the VM (used to set credit scheduling)
-            match_name=f.match(/^name = '(.*?)'$/)
-            if match_name
-                vm_name=match_name[1]
-            else
-                credits=nil
-            end
+        if !local_dfile || File.zero?(local_dfile)
+            send_message(ACTION[:deploy],RESULT[:failure],id,
+                "Can not open deployment file #{local_dfile}")
+            return
         end
 
-        cmd_str="sudo #{XM_PATH} create #{args[3]}"
-        
-        # Add sched-cred command if credits are defined
-        if(credits)
-            cmd_str+=" \\&\\& sudo #{XM_PATH} sched-cred -d #{vm_name} -w #{credits}"
-            mad_log("DEPLOY", action_number, "Setting credits for the VM")
-            mad_log("DEPLOY", action_number, "Command: #{cmd_str}")
-        end
-        
-        cmd=SSHCommand.new(cmd_str)
-        cmd.callback=lambda do |a, num|
-            write_response("DEPLOY", a.stdout, a.stderr, args)
-        end
-        
-        action=SSHAction.new(action_number, action_host, cmd)
-        send_ssh_action(action)
-    end
-    
-    def action_shutdown(args)
-        std_action("SHUTDOWN", "shutdown #{args[3]} \\&\\& sleep 10 \\&\\& sudo #{XM_PATH} destroy #{args[3]} \\&\\& sleep 4", args)
-    end
-    
-    def action_cancel(args)
-        std_action("CANCEL", "destroy #{args[3]}", args)
-    end
-    
-    def action_checkpoint(args)
-        std_action("CHECKPOINT", "save -c #{args[3]} #{args[4]}", args)
-    end
+        tmp    = File.new(local_dfile)
+        domain = tmp.read
+        tmp.close()
 
-    def action_save(args)
-        std_action("SAVE", "save #{args[3]} #{args[4]}", args)
-    end
+        deploy_cmd = "cat > #{remote_dfile} && " \
+                     "#{XEN[:create]} #{remote_dfile}"
 
-    def action_restore(args)
-        std_action("RESTORE", "restore #{args[3]}", args)
-    end
-    
-    def action_migrate(args)
-        std_action("MIGRATE", "migrate -l #{args[3]} #{args[4]}", args)
-    end
-    
-    def action_poll(args)   
-        action_number=args[1]
-        action_host=args[2]
-        
-        cmd=SSHCommand.new("sudo #{XENTOP_PATH} -bi2")
-        cmd.callback=lambda do |a,num|
-        
-            stdout=a.stdout
-            stderr=a.stderr
-            
-            if !stderr.empty?
-                log(stderr,ONEMad::ERROR)
-            end
-        
-            exit_code=get_exit_code(stderr)
-        
-            if exit_code!=0
-                send_message("POLL", "FAILURE", args[1])
-                return nil
-            end
-        
-            values=parse_xentop(args[3], stdout)
-        
-            if !values
-                send_message("POLL", "SUCCESS", args[1], "STATE=d")
-                return nil
-            end
-        
-            info=values.map do |k,v|
-                k+"="+v
-            end.join(" ")
-        
-            send_message("POLL", "SUCCESS", args[1], info)
-        end # End of callback
-        
-        action=SSHAction.new(action_number, action_host, cmd)
-        send_ssh_action(action)
-    end
-    
-    ###########################
-    # Common action functions #
-    ###########################
-    
-    def std_action(name, command, args)
-        action_number=args[1]
-        action_host=args[2]
-        
-        cmd=SSHCommand.new("sudo #{XM_PATH} "+command)
-        cmd.callback=lambda do |a, num|
-            write_response(name, a.stdout, a.stderr, args)
+        values  = domain.scan(/^#O (.*?) = (.*)$/)
+        credits = values.assoc("CPU_CREDITS")
+
+        if domain.match(/^name = '(.*?)'$/) && credits
+            deploy_cmd << " && #{XEN[:credits]} -d #{$1} -w #{credits[1]}"
         end
-        
-        action=SSHAction.new(action_number, action_host, cmd)
-        send_ssh_action(action)
-    end
-    
-    def write_response(action, stdout, stderr, args)
-        exit_code=get_exit_code(stderr)
-        
-        if !stderr.empty?
-            log(stderr,ONEMad::ERROR)
-        end
-        
-        if exit_code==0
-            domain_name=get_domain_name(stdout)
-            send_message(action, "SUCCESS", args[1], domain_name)
+
+        deploy_exe = SSHCommand.run(deploy_cmd, host, log_method(id), domain)
+
+        if deploy_exe.code != 0
+            send_message(ACTION[:deploy],RESULT[:failure],id)
+        elsif deploy_exe.stdout.match(/^Started domain (.*)/)
+            send_message(ACTION[:deploy],RESULT[:success],id,$1)
         else
-            error_message=get_error_message(stderr)
-            send_message(action, "FAILURE", args[1], error_message)
+            send_message(ACTION[:deploy],RESULT[:failure],id,
+                         "Domain id not found in #{XEN[:create]} output.")
+        end
+    end
+
+    # ------------------------------------------------------------------------ #
+    # Basic Domain Management Operations                                       #
+    # ------------------------------------------------------------------------ #
+    def shutdown(id, host, deploy_id, not_used)
+        ssh_action("#{XEN[:shutdown]} #{deploy_id}", id, host, :shutdown)
+    end
+
+    def cancel(id, host, deploy_id, not_used)
+        ssh_action("#{XEN[:cancel]} #{deploy_id}", id, host, :cancel)
+    end
+
+    def save(id, host, deploy_id, file)
+        ssh_action("#{XEN[:save]} #{deploy_id} #{file}", id, host, :save)
+    end
+
+    def restore(id, host, file, not_used)
+        ssh_action("#{XEN[:restore]} #{file}", id, host, :restore)
+    end
+
+    def migrate(id, host, deploy_id, dest_host)
+        ssh_action("#{XEN[:migrate]} #{deploy_id} #{dest_host}",
+                   id, host, :migrate)
+    end
+
+    # ------------------------------------------------------------------------ #
+    # Get info from the Xen Domain. xentop columns chart:
+   # ------------------------------------------------------------------------ #
+
+    def poll(id, host, deploy_id, not_used)
+
+        exe = SSHCommand.run("#{XEN[:poll]} #{deploy_id}", host, log_method(id))
+
+        if exe.code != 0
+            send_message(ACTION[:poll], RESULT[:failure], id, info)
+            return
         end
 
+        dinfo = exe.stdout.split(/$/).select { |l|
+            l.match(/^ *(migrating-)?#{deploy_id} /) }[-1]
 
-    end
-    
+        if !dinfo
+            send_message(ACTION[:poll], RESULT[:success], id,
+                         "#{POLL_ATTRIBUTE[:state]}=#{VM_STATE[:deleted]}"
+            return
+        end
 
-    #########################################
-    # Get information form xm create output #
-    #########################################
+        data = dinfo.gsub!("no limit", "no_limit").split
 
-    # From STDERR if exit code == 1
-    def get_exit_code(str)
-        tmp=str.scan(/^ExitCode: (\d*)$/)
-        return nil if !tmp[0]
-        tmp[0][0].to_i
-    end
-    
-    # From STDERR if exit code == 1
-    def get_error_message(str)
-        tmp=str.scan(/^Error: (.*)$/)
-        return "Unknown error" if !tmp[0]
-        tmp[0][0]
+        info = "#{POLL_ATTRIBUTE[:usedmemory]}=#{data[XEN_INFO[:mem]]} " \
+               "#{POLL_ATTRIBUTE[:usedcpu]}=#{data[XEN_INFO[:cpu_per]]} " \
+               "#{POLL_ATTRIBUTE[:nettx]}=#{data[XEN_INFO[:nettx]]} " \
+               "#{POLL_ATTRIBUTE[:netrx]}=#{data[XEN_INFO[:netrx]]} "
+
+        case data[XEN_INFO[:state]]
+            when "r", "b", "s","d"
+                state = VM_STATE[:active]
+            when "p"
+                state = VM_STATE[:paused]
+            when "c"
+                state = VM_STATE[:error]
+            else
+                state = VM_STATE[:unknown]
+        end
+
+        info << " #{POLL_ATTRIBUTE[:state]}=#{state}"
+
+        send_message(ACTION[:poll], RESULT[:success], id, info)
     end
 
-    # From STDOUT if exit code == 0
-    def get_domain_name(str)
-        tmp=str.scan(/^Started domain (.*)$/)
-        return nil if !tmp[0]
-        tmp[0][0]
-    end
-    
-    
-    ###############################
-    # Get information from xentop #
-    ###############################
-    
-    # COLUMNS
-    #
-    # 00 -> NAME
-    # 01 -> STATE
-    # 02 -> CPU(sec)
-    # 03 -> CPU(%)
-    # 04 -> MEM(k) 
-    # 05 -> MEM(%)  
-    # 06 -> MAXMEM(k) 
-    # 07 -> MAXMEM(%) 
-    # 08 -> VCPUS 
-    # 09 -> NETS 
-    # 10 -> NETTX(k) 
-    # 11 -> NETRX(k) 
-    # 12 -> VBDS   
-    # 13 -> VBD_OO   
-    # 14 -> VBD_RD   
-    # 15 -> VBD_WR 
-    # 16 -> SSID
-    
-    ColumnNames=[
-        "name", "STATE", "cpu_sec", "USEDCPU", "USEDMEMORY", "mem_percent", 
-        "maxmem_k", "maxmem_percent", "vcpus", "nets", "NETTX", "NETRX",
-        "vdbs", "vdb_oo", "vdb_rd", "vdb_wr", "ssid"
-    ]
-    
-    ColumnsToPrint=[ "USEDMEMORY", "USEDCPU", "NETRX", "NETTX", "STATE"]
-    
-    def parse_xentop(name, stdout)
-        line=stdout.split(/$/).select{|l| l.match(/^ *(migrating-)?#{name} /) }[-1]
-        
-        return nil if !line
-        
-        line.gsub!("no limit", "no_limit")
-        data=line.split
-        values=Hash.new
-        
-        # Get status code
-        index=ColumnNames.index("STATE")
-        state=data[index]
-        state.gsub!("-", "")
-        
-        case state
-        when "r", "b", "s","d"
-            state="a" # alive
-        when "p"
-            state="p" # paused
-        when "c"
-            state="e" # error
+private
+
+    def ssh_action(command, id, host, action)
+        command_exe = SSHCommand.run(command, host, log_method(id))
+
+        if command_exe.code == 0
+            result = :success
         else
-            state="u" # unknown
+            result = :failure
         end
-        
-        data[index]=state
-        
-        ColumnNames.each_with_index do |n, i|
-            values[n]=data[i] if ColumnsToPrint.include? n
-        end
-    
-        values
+
+        send_message(ACTION[action],RESULT[result],id)
     end
-    
 end
 
-dm=DM.new
-dm.loop
+# ---------------------------------------------------------------------------- #
+# XenDriver Main program                                                       #
+# ---------------------------------------------------------------------------- #
+
+xen_driver = XenDriver.new
+xen_driver.start_driver
