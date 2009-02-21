@@ -81,10 +81,9 @@ class LibVirtDriver < VirtualMachineDriver
         domain = tmp.read
         tmp.close()
 
-        deploy_cmd = "cat > #{remote_dfile} && " \
-                     "#{LIBVIRT[:create]} #{remote_dfile}"
+        cmd = "cat > #{remote_dfile} && #{LIBVIRT[:create]} #{remote_dfile}"
 
-        deploy_exe = SSHCommand.run(deploy_cmd, host, log_method(id), domain)
+        deploy_exe = SSHCommand.run("'#{cmd}'", host, log_method(id), domain)
 
         if deploy_exe.code != 0
             send_message(ACTION[:deploy],RESULT[:failure],id)

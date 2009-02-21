@@ -54,7 +54,7 @@ class XenDriver < VirtualMachineDriver
         :save     => "sudo #{XM_PATH} save",
         :restore  => "sudo #{XM_PATH} restore",
         :migrate  => "sudo #{XM_PATH} migrate -l",
-        :poll     => "sudo #{XENTOP_PAT} -bi2",
+        :poll     => "sudo #{XENTOP_PATH} -bi2",
         :credits  => "sudo #{XM_PATH} sched-cred"
     }
 
@@ -102,17 +102,16 @@ class XenDriver < VirtualMachineDriver
         domain = tmp.read
         tmp.close()
 
-        deploy_cmd = "cat > #{remote_dfile} && " \
-                     "#{XEN[:create]} #{remote_dfile}"
+        cmd = "cat > #{remote_dfile} && #{XEN[:create]} #{remote_dfile}"
 
         values  = domain.scan(/^#O (.*?) = (.*)$/)
         credits = values.assoc("CPU_CREDITS")
 
         if domain.match(/^name = '(.*?)'$/) && credits
-            deploy_cmd << " && #{XEN[:credits]} -d #{$1} -w #{credits[1]}"
+            cmd << " && #{XEN[:credits]} -d #{$1} -w #{credits[1]}"
         end
 
-        deploy_exe = SSHCommand.run(deploy_cmd, host, log_method(id), domain)
+        deploy_exe = SSHCommand.run("'#{cmd}'", host, log_method(id), domain)
 
         if deploy_exe.code != 0
             send_message(ACTION[:deploy],RESULT[:failure],id)
@@ -166,18 +165,19 @@ class XenDriver < VirtualMachineDriver
 
         if !dinfo
             send_message(ACTION[:poll], RESULT[:success], id,
-                         "#{POLL_ATTRIBUTE[:state]}=#{VM_STATE[:deleted]}"
+                         "#{POLL_ATTRIBUTE[:state]}=#{VM_STATE[:deleted]}")
             return
         end
 
-        data = dinfo.gsub!("no limit", "no_limit").split
+        dinfo.gsub!("no limit", "no_limit")
+        data = dinfo.split
 
         info = "#{POLL_ATTRIBUTE[:usedmemory]}=#{data[XEN_INFO[:mem]]} " \
                "#{POLL_ATTRIBUTE[:usedcpu]}=#{data[XEN_INFO[:cpu_per]]} " \
                "#{POLL_ATTRIBUTE[:nettx]}=#{data[XEN_INFO[:nettx]]} " \
                "#{POLL_ATTRIBUTE[:netrx]}=#{data[XEN_INFO[:netrx]]} "
 
-        case data[XEN_INFO[:state]]
+        case data[XEN_INFO[:state]].gsub!("-", "")
             when "r", "b", "s","d"
                 state = VM_STATE[:active]
             when "p"
