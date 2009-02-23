@@ -34,12 +34,10 @@ $: << RUBY_LIB_LOCATION
 
 require 'pp'
 require "VirtualMachineDriver"
-require "CommandManager"
 
 # ---------------------------------------------------------------------------- #
 # The main class for the LibVirt driver                                        #
 # ---------------------------------------------------------------------------- #
-
 class LibVirtDriver < VirtualMachineDriver
 
     # ------------------------------------------------------------------------ #
@@ -168,20 +166,6 @@ class LibVirtDriver < VirtualMachineDriver
         }
 
         send_message(ACTION[:poll], RESULT[:success], id, info)
-    end
-
-private
-
-    def ssh_action(command, id, host, action)
-        command_exe = SSHCommand.run(command, host, log_method(id))
-
-        if command_exe.code == 0
-            result = :success
-        else
-            result = :failure
-        end
-
-        send_message(ACTION[action],RESULT[result],id)
     end
 end
 

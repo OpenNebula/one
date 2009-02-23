@@ -36,12 +36,10 @@ $: << RUBY_LIB_LOCATION
 
 require 'pp'
 require "VirtualMachineDriver"
-require "CommandManager"
 
 # ---------------------------------------------------------------------------- #
 # The main class for the Xen driver                                            #
 # ---------------------------------------------------------------------------- #
-
 class XenDriver < VirtualMachineDriver
 
     # ------------------------------------------------------------------------ #
@@ -148,9 +146,8 @@ class XenDriver < VirtualMachineDriver
     end
 
     # ------------------------------------------------------------------------ #
-    # Get info from the Xen Domain. xentop columns chart:
-   # ------------------------------------------------------------------------ #
-
+    # Get info from the Xen Domain.                                            #
+    # ------------------------------------------------------------------------ #
     def poll(id, host, deploy_id, not_used)
 
         exe = SSHCommand.run("#{XEN[:poll]} #{deploy_id}", host, log_method(id))
@@ -191,20 +188,6 @@ class XenDriver < VirtualMachineDriver
         info << " #{POLL_ATTRIBUTE[:state]}=#{state}"
 
         send_message(ACTION[:poll], RESULT[:success], id, info)
-    end
-
-private
-
-    def ssh_action(command, id, host, action)
-        command_exe = SSHCommand.run(command, host, log_method(id))
-
-        if command_exe.code == 0
-            result = :success
-        else
-            result = :failure
-        end
-
-        send_message(ACTION[action],RESULT[result],id)
     end
 end
 

@@ -14,6 +14,7 @@
 # limitations under the License.                                             */
 # -------------------------------------------------------------------------- */
 require "OpenNebulaDriver"
+require "CommandManager"
 
 # Author:: dsa-research.org
 # Copyright:: (c) 2009 Universidad Computense de Madrid
@@ -100,6 +101,24 @@ class VirtualMachineDriver < OpenNebulaDriver
         return lfile
     end
 
+    # -------------------------------------------------------------------------
+    # Execute a command associated to an action and id in a remote host.
+    # -------------------------------------------------------------------------
+    def ssh_action(command, id, host, action)
+        command_exe = SSHCommand.run(command, host, log_method(id))
+
+        if command_exe.code == 0
+            result = :success
+        else
+            result = :failure
+        end
+
+        send_message(ACTION[action],RESULT[result],id)
+    end
+
+    # -------------------------------------------------------------------------
+    # Virtual Machine Manager Protocol Actions (generic implementation
+    # -------------------------------------------------------------------------
     def deploy(id, host, remote_dfile, not_used)
         error = "Action not implemented by driver #{self.class}"
         send_message(ACTION[:deploy],RESULT[:failure],id,error)
@@ -172,8 +191,8 @@ class TemplateDriver < VirtualMachineDriver
     def poll(id, host, deploy_id, not_used)
         # monitor_info: string in the form "VAR=VAL VAR=VAL ... VAR=VAL"
         # known VAR are in POLL_ATTRIBUTES. VM states VM_STATES
-        monitor_info = "#{POLL_ATTRIBUTE[:state]}=#{VM_STATE[:active]} \
-#{POLL_ATTRIBUTE[:nettx]}=12345"
+        monitor_info = "#{POLL_ATTRIBUTE[:state]}=#{VM_STATE[:active]} " \
+                       "#{POLL_ATTRIBUTE[:nettx]}=12345"
 
         send_message(ACTION[:poll],RESULT[:success],id,monitor_info)
     end
