@@ -120,7 +120,7 @@ class DM < ONEMad
     end
     
     def action_migrate(args)
-        std_action("MIGRATE", "migrate --live #{args[3]} qemu+tcp://#{args[4]}/session", args)
+        std_action("MIGRATE", "migrate --live #{args[3]} qemu+ssh://#{args[4]}/session", args)
     end
     
     def action_poll(args)
