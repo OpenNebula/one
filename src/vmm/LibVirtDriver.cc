@@ -154,7 +154,7 @@ int LibVirtDriver::deployment_description(
      
      // Get values & defaults
 
-     if ( num >= 0 ) 
+     if ( num > 0 ) 
      {
      	const VectorAttribute *	os;
 
