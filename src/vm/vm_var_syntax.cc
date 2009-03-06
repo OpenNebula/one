@@ -478,7 +478,7 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    81,    81,    82,    85,    90,   108,   139,   177
+       0,    81,    81,    82,    85,    90,   108,   140,   178
 };
 #endif
 
@@ -1446,8 +1446,8 @@ yyreduce:
   case 5:
 #line 91 "vm_var_syntax.y"
     {
-                string value;
                 string name((yyvsp[(1) - (2)].val_str));
+                string value = "";
 
                 VM_VAR_TO_UPPER(name);
 
@@ -1474,6 +1474,7 @@ yyreduce:
                 string name((yyvsp[(1) - (5)].val_str));
                 string vname((yyvsp[(3) - (5)].val_str));
 
+                VM_VAR_TO_UPPER(name);
                 VM_VAR_TO_UPPER(vname);
 
                 if ( vm->get_template_attribute(name,values) > 0 )
@@ -1499,7 +1500,7 @@ yyreduce:
     break;
 
   case 7:
-#line 140 "vm_var_syntax.y"
+#line 141 "vm_var_syntax.y"
     {
                 vector<const Attribute*> values;
                 const VectorAttribute *  vattr;
@@ -1540,7 +1541,7 @@ yyreduce:
     break;
 
   case 8:
-#line 178 "vm_var_syntax.y"
+#line 179 "vm_var_syntax.y"
     {
                 string name((yyvsp[(3) - (4)].val_str));
                 string value = "";
@@ -1581,7 +1582,7 @@ yyreduce:
 
 
 /* Line 1267 of yacc.c.  */
-#line 1585 "vm_var_syntax.cc"
+#line 1586 "vm_var_syntax.cc"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1801,7 +1802,7 @@ yyreturn:
 }
 
 
-#line 215 "vm_var_syntax.y"
+#line 216 "vm_var_syntax.y"
 
 
 extern "C" void vm_var_error(

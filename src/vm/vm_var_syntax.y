@@ -89,8 +89,8 @@ vm_variable:RSTRING
             }
             | STRING BLANK
             {
-                string value;
                 string name($1);
+                string value = "";
 
                 VM_VAR_TO_UPPER(name);
 
@@ -114,6 +114,7 @@ vm_variable:RSTRING
                 string name($1);
                 string vname($3);
 
+                VM_VAR_TO_UPPER(name);
                 VM_VAR_TO_UPPER(vname);
 
                 if ( vm->get_template_attribute(name,values) > 0 )
