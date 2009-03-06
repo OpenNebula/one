@@ -320,7 +320,7 @@ extern "C"
 
     int host_rank_parse(Host * host, int& result, char ** errmsg);
 
-    void host_lex_destroy();
+    int host_lex_destroy();
 
     YY_BUFFER_STATE host__scan_string(const char * str);
 

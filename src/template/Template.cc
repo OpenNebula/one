@@ -19,7 +19,7 @@
 
 #include "Template.h"
 #include "template_syntax.h"
-extern "C" 
+extern "C"
 {
 #include "template_parser.h"
 }
@@ -46,7 +46,7 @@ extern "C"
 {
     int template_parse(Template * tmpl, char ** errmsg);
 
-    void template_lex_destroy();
+    int template_lex_destroy();
 
     YY_BUFFER_STATE template__scan_string(const char * str);
 
@@ -97,7 +97,7 @@ int Template::parse(const string &parse_str, char **error_msg)
     YY_BUFFER_STATE     str_buffer;
     const char *        str;
     int                 rc;
-    
+
     pthread_mutex_lock(&mutex);
 
     *error_msg = 0;
@@ -137,7 +137,7 @@ void Template::marshall(string &str, const char delim)
 {
     multimap<string,Attribute *>::iterator  it;
     string *                                attr;
- 
+
     for(it=attributes.begin(),str="";it!=attributes.end();it++)
     {
         attr = it->second->marshall();
@@ -148,7 +148,7 @@ void Template::marshall(string &str, const char delim)
         }
 
         str += it->first + "=" + *attr + delim;
-        
+
         delete attr;
     }
 }
@@ -156,13 +156,35 @@ void Template::marshall(string &str, const char delim)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int Template::remove(const string& name, vector<Attribute *>& values)
+{
+    multimap<string, Attribute *>::iterator         i;
+    pair<multimap<string, Attribute *>::iterator,
+    multimap<string, Attribute *>::iterator>        index;
+    int                                             j;
+
+    index = attributes.equal_range(name);
+
+    for ( i = index.first,j=0 ; i != index.second ; i++,j++ )
+    {
+        values.push_back(i->second);
+    }
+
+    attributes.erase(index.first,index.second);
+
+    return j;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int Template::get(
-    const string& name, 
+    const string& name,
     vector<const Attribute*>& values) const
 {
     multimap<string, Attribute *>::const_iterator       i;
     pair<multimap<string, Attribute *>::const_iterator,
-    multimap<string, Attribute *>::const_iterator>      index;        
+    multimap<string, Attribute *>::const_iterator>      index;
     int                                                 j;
 
     index = attributes.equal_range(name);
@@ -179,18 +201,18 @@ int Template::get(
 /* -------------------------------------------------------------------------- */
 
 int Template::get(
-    const string& name, 
+    const string& name,
     vector<Attribute*>& values)
 {
     multimap<string, Attribute *>::iterator       i;
     pair<multimap<string, Attribute *>::iterator,
-    multimap<string, Attribute *>::iterator>      index;        
+    multimap<string, Attribute *>::iterator>      index;
     int                                           j;
 
     index = attributes.equal_range(name);
 
     for ( i = index.first,j=0 ; i != index.second ; i++,j++ )
-    { 
+    {
         values.push_back(i->second);
     }
 
@@ -217,18 +239,18 @@ void Template::get(
         value = "";
         return;
     }
-    
+
     sattr = dynamic_cast<const SingleAttribute *>(attrs[0]);
 
     if ( sattr != 0 )
     {
-        value = sattr->value();    
+        value = sattr->value();
     }
     else
     {
         value="";
-    }                
-}        
+    }
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -249,8 +271,8 @@ void Template::get(
 
     istringstream iss(sval);
 
-    iss >> value;   
-}        
+    iss >> value;
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -260,9 +282,9 @@ void Template::to_xml(string& xml) const
     multimap<string,Attribute *>::const_iterator  it;
     ostringstream                   		oss;
     string *                                s;
-    
+
     oss << "<" << xml_root << ">";
-    
+
     for ( it = attributes.begin(); it!=attributes.end(); it++)
     {
         s = it->second->to_xml();
@@ -271,9 +293,9 @@ void Template::to_xml(string& xml) const
 
         delete s;
     }
-    
+
     oss << "</" << xml_root << ">";
-    
+
     xml = oss.str();
 }
 
@@ -284,7 +306,7 @@ ostream& operator << (ostream& os, Template& t)
 {
     multimap<string,Attribute *>::iterator  it;
     string *                                s;
-        
+
     for ( it = t.attributes.begin(); it!=t.attributes.end(); it++)
     {
         s = it->second->marshall(",");
@@ -293,7 +315,7 @@ ostream& operator << (ostream& os, Template& t)
 
         delete s;
     }
-        
+
     return os;
 }
 

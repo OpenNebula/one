@@ -13,7 +13,7 @@
 #define FLEX_SCANNER
 #define YY_FLEX_MAJOR_VERSION 2
 #define YY_FLEX_MINOR_VERSION 5
-#define YY_FLEX_SUBMINOR_VERSION 34
+#define YY_FLEX_SUBMINOR_VERSION 35
 #if YY_FLEX_SUBMINOR_VERSION > 0
 #define FLEX_BETA
 #endif
@@ -58,7 +58,6 @@ typedef int flex_int32_t;
 typedef unsigned char flex_uint8_t; 
 typedef unsigned short int flex_uint16_t;
 typedef unsigned int flex_uint32_t;
-#endif /* ! C99 */
 
 /* Limits of integral types. */
 #ifndef INT8_MIN
@@ -88,6 +87,8 @@ typedef unsigned int flex_uint32_t;
 #ifndef UINT32_MAX
 #define UINT32_MAX             (4294967295U)
 #endif
+
+#endif /* ! C99 */
 
 #endif /* ! FLEXINT_H */
 
@@ -125,13 +126,6 @@ typedef struct yy_buffer_state *YY_BUFFER_STATE;
 extern int host_leng;
 
 extern FILE *host_in, *host_out;
-
-/* The following is because we cannot portably get our hands on size_t
- * (without autoconf's help, which isn't available because we want
- * flex-generated scanners to compile on their own).
- * Given that the standard has decreed that size_t exists since 1989,
- * I guess we can afford to depend on it. Manoj.
- */
 
 #ifndef YY_TYPEDEF_YY_SIZE_T
 #define YY_TYPEDEF_YY_SIZE_T
@@ -229,6 +223,35 @@ extern char *host_text;
 #define YY_EXTRA_TYPE void *
 #endif
 
+/* Accessor methods to globals.
+   These are made visible to non-reentrant scanners for convenience. */
+
+int host_lex_destroy (void );
+
+int host_get_debug (void );
+
+void host_set_debug (int debug_flag  );
+
+YY_EXTRA_TYPE host_get_extra (void );
+
+void host_set_extra (YY_EXTRA_TYPE user_defined  );
+
+FILE *host_get_in (void );
+
+void host_set_in  (FILE * in_str  );
+
+FILE *host_get_out (void );
+
+void host_set_out  (FILE * out_str  );
+
+int host_get_leng (void );
+
+char *host_get_text (void );
+
+int host_get_lineno (void );
+
+void host_set_lineno (int line_number  );
+
 /* Macros after this point can all be overridden by user definitions in
  * section 1.
  */
@@ -291,6 +314,6 @@ extern int host_lex (void);
 #line 64 "host_parser.l"
 
 
-#line 295 "host_parser.h"
+#line 318 "host_parser.h"
 #undef host_IN_HEADER
 #endif /* host_HEADER_H */
