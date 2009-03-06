@@ -272,7 +272,9 @@ int TemplateSQL::replace_attribute(SqliteDB * db, Attribute * attribute)
 
         delete astr;
 
-        if ((rc = db->exec(oss)) != 0 )
+        rc = db->exec(oss);
+
+        if (rc != 0 )
         {
             return rc;
         }
@@ -314,7 +316,9 @@ int TemplateSQL::insert_attribute(SqliteDB * db, Attribute * attribute)
 
     delete astr;
 
-    if ((rc = db->exec(oss)) == 0)
+    rc = db->exec(oss);
+
+    if (rc == 0)
     {
         attributes.insert(make_pair(attribute->name(),attribute));
     }

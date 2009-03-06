@@ -21,40 +21,40 @@
 void  DispatchManager::suspend_success_action(int vid)
 {
     VirtualMachine *    vm;
-    
+
     vm = vmpool->get(vid,true);
-    
+
     if ( vm == 0 )
     {
         return;
     }
-    
+
     if (vm->get_state() == VirtualMachine::ACTIVE )
-    {        
+    {
         vm->set_state(VirtualMachine::SUSPENDED);
-        
+
         vm->set_state(VirtualMachine::LCM_INIT);
-        
+
         vmpool->update(vm);
-                
+
         vm->log("DiM", Log::INFO, "New VM state is SUSPENDED");
     }
     else
     {
-        goto error; 
+        goto error;
     }
-    
+
     vm->unlock();
-    
+
     return;
-    
+
 error:
     ostringstream oss;
-    
-    oss << "suspend_success action received but VM " << vid 
-        << " not in ACTIVE state";    
+
+    oss << "suspend_success action received but VM " << vid
+        << " not in ACTIVE state";
     Nebula::log("DiM",Log::ERROR,oss);
-    
+
     vm->unlock();
 }
 
@@ -64,40 +64,40 @@ error:
 void  DispatchManager::stop_success_action(int vid)
 {
     VirtualMachine *    vm;
-    
+
     vm = vmpool->get(vid,true);
-    
+
     if ( vm == 0 )
     {
         return;
     }
-    
+
     if (vm->get_state() == VirtualMachine::ACTIVE )
-    {        
+    {
         vm->set_state(VirtualMachine::STOPPED);
-        
+
         vm->set_state(VirtualMachine::LCM_INIT);
-                
+
         vmpool->update(vm);
-                
+
         vm->log("DiM", Log::INFO, "New VM state is STOPPED");
     }
     else
     {
-        goto error; 
+        goto error;
     }
-    
+
     vm->unlock();
-    
+
     return;
-    
+
 error:
     ostringstream oss;
-    
-    oss << "stop_success action received but VM " << vid 
-        << " not in ACTIVE state";    
+
+    oss << "stop_success action received but VM " << vid
+        << " not in ACTIVE state";
     Nebula::log("DiM",Log::ERROR,oss);
-    
+
     vm->unlock();
 }
 
@@ -107,43 +107,43 @@ error:
 void  DispatchManager::done_action(int vid)
 {
     VirtualMachine *      vm;
-    
+
     vm = vmpool->get(vid,true);
-    
+
     if ( vm == 0 )
     {
         return;
     }
-    
+
     if ( vm->get_state() == VirtualMachine::ACTIVE )
     {
         vm->set_state(VirtualMachine::DONE);
-        
+
         vm->set_state(VirtualMachine::LCM_INIT);
-                
+
         vm->set_exit_time(time(0));
-                
+
         vmpool->update(vm);
-        
+
         vm->log("DiM", Log::INFO, "New VM state is DONE");
-        
-        vm->release_leases();
-        
+
+        vm->release_network_leases();
+
         vmpool->remove(vm);
     }
     else
     {
-        goto error; 
+        goto error;
     }
-        
+
     return;
-    
+
 error:
     ostringstream oss;
-    
-    oss << "done action received but VM " << vid << " not in ACTIVE state";    
+
+    oss << "done action received but VM " << vid << " not in ACTIVE state";
     Nebula::log("DiM",Log::ERROR,oss);
-    
+
     vm->unlock();
 }
 
@@ -153,26 +153,26 @@ error:
 void  DispatchManager::failed_action(int vid)
 {
     VirtualMachine *    vm;
-    
+
     vm = vmpool->get(vid,true);
-    
+
     if ( vm == 0 )
     {
         return;
     }
-        
+
     vm->set_state(VirtualMachine::LCM_INIT);
 
     vm->set_state(VirtualMachine::FAILED);
 
     vm->set_exit_time(time(0));
-                        
+
     vmpool->update(vm);
-    
+
     vm->log("DiM", Log::INFO, "New VM state is FAILED");
-    
+
     vm->unlock();
-    
+
     return;
 }
 

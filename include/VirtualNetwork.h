@@ -292,7 +292,9 @@ private:
         rc    = vn_template.replace_attribute(db,sattr);
 
         if (rc != 0)
+        {
             delete sattr;
+        }
 
         return rc;
     }

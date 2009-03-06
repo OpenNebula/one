@@ -37,8 +37,9 @@ int VirtualMachinePool::allocate (
 
     vector<Attribute *> attrs;
 
+    // ------------------------------------------------------------------------
     // Build a new Virtual Machine object
-
+    // ------------------------------------------------------------------------
     vm = new VirtualMachine;
 
     if (on_hold == true)
@@ -52,6 +53,9 @@ int VirtualMachinePool::allocate (
 
     vm->uid = uid;
 
+    // ------------------------------------------------------------------------
+    // Parse template and keep CONTEXT apart
+    // ------------------------------------------------------------------------
     rc = vm->vm_template.parse(stemplate,&error_msg);
 
     if ( rc != 0 )
@@ -67,8 +71,9 @@ int VirtualMachinePool::allocate (
 
     vm->vm_template.remove("CONTEXT",attrs);
 
+    // ------------------------------------------------------------------------
     // Insert the Object in the pool
-
+    // ------------------------------------------------------------------------
     *oid = PoolSQL::allocate(vm);
 
     if ( *oid == -1 )
@@ -76,12 +81,17 @@ int VirtualMachinePool::allocate (
         return -1;
     }
 
+    // ------------------------------------------------------------------------
+    // Insert parsed context in the VM template and clean-up
+    // ------------------------------------------------------------------------
     generate_context(*oid,attrs);
 
     for (int i = 0; i < attrs.size() ; i++)
     {
         if (attrs[i] != 0)
-                delete attrs[i];
+        {
+            delete attrs[i];
+        }
     }
 
     return 0;
@@ -183,10 +193,14 @@ void VirtualMachinePool::generate_context(int vm_id, vector<Attribute *> attrs)
 
     if ( vm == 0 )
     {
+        delete context_parsed;
         return;
     }
 
-    vm->insert_template_attribute(db,context_parsed);
+    if ( vm->insert_template_attribute(db,context_parsed) != 0 )
+    {
+        delete context_parsed;
+    }
 
     vm->unlock();
 }
@@ -210,6 +224,8 @@ extern "C"
     void vm_var__delete_buffer(YY_BUFFER_STATE);
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 int VirtualMachinePool::parse_attribute(int     vm_id,
                                         string  &attribute,

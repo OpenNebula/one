@@ -639,19 +639,22 @@ public:
     void get_requirements (int& cpu, int& memory, int& disk);
 
     // ------------------------------------------------------------------------
-    // Leases
+    // Network Leases
     // ------------------------------------------------------------------------
     /**
      *  Get all network leases for this Virtual Machine
      *  @return 0 if success
      */
-    int get_leases();
+    int get_network_leases();
 
     /**
      *  Releases all network leases taken by this Virtual Machine
      */
-    void release_leases();
+    void release_network_leases();
 
+    // ------------------------------------------------------------------------
+    // Context related functions
+    // ------------------------------------------------------------------------
     /**
      *  Writes the context file for this VM.
      *    @return 0 if success
@@ -844,9 +847,11 @@ private:
         rc    = vm_template.replace_attribute(db,sattr);
 
         if (rc != 0)
+        {
             delete sattr;
+        }
 
-    	return rc;
+        return rc;
     }
 
     /**

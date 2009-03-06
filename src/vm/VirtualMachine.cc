@@ -302,7 +302,7 @@ int VirtualMachine::insert(SqliteDB * db)
     // Get network leases
     // ------------------------------------------------------------------------
 
-    rc = get_leases();
+    rc = get_network_leases();
 
     if ( rc != 0 )
     {
@@ -336,12 +336,12 @@ error_update:
 
 error_template:
 	Nebula::log("ONE",Log::ERROR, "Can not insert template in the database");
-	release_leases();
+	release_network_leases();
 	return -1;
 
 error_leases:
 	Nebula::log("ONE",Log::ERROR, "Could not get network lease for VM");
-	release_leases();
+	release_network_leases();
 	return -1;
 }
 
@@ -496,7 +496,7 @@ void VirtualMachine::get_requirements (int& cpu, int& memory, int& disk)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::get_leases()
+int VirtualMachine::get_network_leases()
 {
     int                        num_nics, rc;
     vector<Attribute  * >      nics;
@@ -579,7 +579,7 @@ int VirtualMachine::get_leases()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachine::release_leases()
+void VirtualMachine::release_network_leases()
 {
     Nebula& nd = Nebula::instance();
 
