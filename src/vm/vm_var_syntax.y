@@ -152,7 +152,9 @@ vm_variable:RSTRING
                 VM_VAR_TO_UPPER(vname);
                 VM_VAR_TO_UPPER(vvar);
 
-                for (int i=0 ; i<vm->get_template_attribute(name,values) ; i++)
+                int num = vm->get_template_attribute(name,values);
+
+                for (int i=0 ; i < num ; i++)
                 {
                     vattr = dynamic_cast<const VectorAttribute *>(values[i]);
 
