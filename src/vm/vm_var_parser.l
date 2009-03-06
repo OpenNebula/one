@@ -1,0 +1,77 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2009, Distributed Systems Architecture Group, Universidad   */
+/* Complutense de Madrid (dsa-research.org)                                   */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
+%{
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <pthread.h>
+
+#include "vm_var_syntax.h"
+
+#define YY_DECL int vm_var_lex (YYSTYPE *lvalp, YYLTYPE *llocp)
+
+#define YY_USER_ACTION  llocp->first_line = yylineno; 				\
+                        llocp->first_column = llocp->last_column;	\
+                        llocp->last_column += yyleng;
+%}
+
+%option nounput
+%option prefix="vm_var_"
+%option outfile="vm_var_parser.c"
+%option header-file="vm_var_parser.h"
+%option yylineno
+
+%x VAR
+%%
+
+ /* ------------------------------------------------------------------------- */
+ /* Parse variables in the form:                                              */
+ /*   $VARIABLE                                                               */
+ /*   $VARIABLE[ATTR]                                                         */
+ /*   $VARIABLE[ATTR,ATTR=VALUE]                                              */
+ /* ------------------------------------------------------------------------- */
+
+\$                             { BEGIN VAR;}
+
+<VAR>[[:blank:]]               { BEGIN(INITIAL); return BLANK;}
+<VAR>[[:digit:]]+              { lvalp->val_int=atoi(yytext); return INTEGER;}
+<VAR>\.                        { return DOT;}
+<VAR>[[:blank:]]*=[[:blank:]]* { return EQUAL;}
+<VAR>[[:blank:]]*,[[:blank:]]* { return COMMA;}
+<VAR>\[[[:blank:]]*            { return OBRACKET;}
+<VAR>[[:blank:]]*\]            { return CBRACKET;}
+<VAR>\$                        { return DOLLAR;}
+<VAR>[^=,\[\]\$[:blank:]\.]+   { lvalp->val_str=strdup(yytext); return STRING;}
+<VAR>\"[^\"]*\"                { lvalp->val_str = strdup(yytext+1);
+                                 lvalp->val_str[yyleng-2] = '\0';
+                                 return STRING; }
+
+<VAR><<EOF>>                   { BEGIN(INITIAL); return BLANK;}
+
+ /* ------------------------------------------------------------------------- */
+ /* Just copy the string verbatim till we find a variable (starts with $)     */
+ /* ------------------------------------------------------------------------- */
+
+[^\$]+  { lvalp->val_str = strdup(yytext); return RSTRING;}
+
+%%
+
+int vm_var_wrap()
+{
+    return 1;
+}
