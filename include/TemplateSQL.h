@@ -44,29 +44,29 @@ public:
     {};
 
     virtual ~TemplateSQL(){};
-    
+
 protected:
 
     //Database implementation variables
-	
+
 	const char *		table;
 
     static const char * db_names;
-    
+
     //Template attributes
-    
+
     /**
      *  Template unique identification.
      */
     int id;
-    
+
     /**
      *  Writes the template in the DB
      *    @param db pointer to the database.
      *    @return 0 on success.
      */
     int insert(SqliteDB * db);
-    
+
     /**
      *  Updates the template in the DB
      *    @param db pointer to the database.
@@ -88,13 +88,21 @@ protected:
     int drop(SqliteDB *db);
 
     /**
-     *  Removes a template attribute from the DB (ONLY SINGLE ATTRIBUTES)
+     *  Removes a template attribute from the DB. If there are multiple
+     *  attributes with the same name, only one will be replaced. The attribute
+     *  MUST be allocated in the heap.
      *    @param db pointer to the database.
-     *    @param name of the attribute.
-     *    @param value of the new attribute. 
+     *    @param attribute pointer to the new attribute.
      */
-    int replace_attribute(SqliteDB * db, const string& name, const string& value); 
-    
+    int replace_attribute(SqliteDB * db, Attribute * attribute);
+
+    /**
+     *  Insert a given attribute (MUST be allocated in the heap) in the template
+     *  and updates the DB.
+     *    @param db pointer to the database.
+     *    @param attribute pointer to the new attribute
+     */
+    int insert_attribute(SqliteDB * db, Attribute * attribute);
 };
 
 /* -------------------------------------------------------------------------- */

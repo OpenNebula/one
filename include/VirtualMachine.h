@@ -41,7 +41,7 @@ class VirtualMachine : public PoolObjectSQL
 public:
     // -------------------------------------------------------------------------
 	// VM States
-    // -------------------------------------------------------------------------   
+    // -------------------------------------------------------------------------
 
     /**
      *  Global Virtual Machine state
@@ -59,7 +59,7 @@ public:
     };
 
     /**
-     *  Virtual Machine state associated to the Life-cycle Manager 
+     *  Virtual Machine state associated to the Life-cycle Manager
      */
     enum LcmState
     {
@@ -81,11 +81,11 @@ public:
 
     // -------------------------------------------------------------------------
     // Log & Print
-    // -------------------------------------------------------------------------   
+    // -------------------------------------------------------------------------
 
     /**
      *  writes a log message in vm.log. The class lock should be locked and
-     *  the VM MUST BE obtained through the VirtualMachinePool get() method.  
+     *  the VM MUST BE obtained through the VirtualMachinePool get() method.
      */
     void log(
         const char *            module,
@@ -97,22 +97,22 @@ public:
             _log->log(module,type,message);
         }
     };
-     
+
     /**
      *  writes a log message in vm.log. The class lock should be locked and
-     *  the VM MUST BE obtained through the VirtualMachinePool get() method.  
+     *  the VM MUST BE obtained through the VirtualMachinePool get() method.
      */
     void log(
         const char *            module,
         const Log::MessageType  type,
-        const char *            message) const 
+        const char *            message) const
     {
         if (_log != 0)
         {
             _log->log(module,type,message);
         }
     };
-         
+
     /**
      *  Function to write a Virtual Machine in an output stream
      */
@@ -120,7 +120,7 @@ public:
 
     // ------------------------------------------------------------------------
     // Dynamic Info
-    // ------------------------------------------------------------------------    
+    // ------------------------------------------------------------------------
 
     /**
      *  Updates VM dynamic information (id).
@@ -186,7 +186,7 @@ public:
 
     // ------------------------------------------------------------------------
     // History
-    // ------------------------------------------------------------------------    
+    // ------------------------------------------------------------------------
     /**
      *  Adds a new history record an writes it in the database.
      */
@@ -215,7 +215,7 @@ public:
      *  Checks if the VM has a valid history record. This function
      *  MUST be called before using any history related function.
      *    @return true if the VM has a record
-     */ 
+     */
     bool hasHistory() const
     {
         return (history!=0);
@@ -225,7 +225,7 @@ public:
      *  Checks if the VM has a valid previous history record. This function
      *  MUST be called before using any previous_history related function.
      *    @return true if the VM has a previous record
-     */ 
+     */
     bool hasPreviousHistory() const
     {
         return (previous_history!=0);
@@ -234,7 +234,7 @@ public:
      *  Returns the VMM driver name for the current host. The hasHistory()
      *  function MUST be called before this one.
      *    @return the VMM mad name
-     */ 
+     */
     const string & get_vmm_mad() const
     {
         return history->vmm_mad_name;
@@ -244,20 +244,20 @@ public:
      *  Returns the TM driver name for the current host. The hasHistory()
      *  function MUST be called before this one.
      *    @return the TM mad name
-     */ 
+     */
     const string & get_tm_mad() const
     {
         return history->tm_mad_name;
     };
 
     /**
-     *  Returns the transfer filename. The transfer file is in the form: 
+     *  Returns the transfer filename. The transfer file is in the form:
      *  		$ONE_LOCATION/var/$VM_ID/transfer.$SEQ
      *  or, in case that OpenNebula is installed in root
-     *  		/var/lib/one/$VM_ID/transfer.$SEQ 
+     *  		/var/lib/one/$VM_ID/transfer.$SEQ
      *  The hasHistory() function MUST be called before this one.
      *    @return the transfer filename
-     */ 
+     */
     const string & get_transfer_file() const
     {
         return history->transfer_file;
@@ -270,79 +270,92 @@ public:
      *  		/var/lib/one/$VM_ID/deployment.$SEQ
      *  The hasHistory() function MUST be called before this one.
      *    @return the deployment filename
-     */ 
+     */
     const string & get_deployment_file() const
     {
         return history->deployment_file;
     };
-    
+
     /**
-     *  Returns the remote deployment filename. The file is in the form:
-     *  		$VM_DIR/$VM_ID/images/deployment.$SEQ 
+     *  Returns the context filename. The context file is in the form:
+     *          $ONE_LOCATION/var/$VM_ID/context.sh
+     *  or, in case that OpenNebula is installed in root
+     *          /var/lib/one/$VM_ID/context.sh
      *  The hasHistory() function MUST be called before this one.
      *    @return the deployment filename
-     */ 
+     */
+    const string & get_context_file() const
+    {
+        return history->context_file;
+    }
+
+    /**
+     *  Returns the remote deployment filename. The file is in the form:
+     *  		$VM_DIR/$VM_ID/images/deployment.$SEQ
+     *  The hasHistory() function MUST be called before this one.
+     *    @return the deployment filename
+     */
     const string & get_remote_deployment_file() const
     {
         return history->rdeployment_file;
-    };    
-        
+    };
+
     /**
-     *  Returns the checkpoint filename for the current host. The checkpoint file 
-     *  is in the form: 
-     *  		$VM_DIR/$VM_ID/images/checkpoint  
+     *  Returns the checkpoint filename for the current host. The checkpoint file
+     *  is in the form:
+     *  		$VM_DIR/$VM_ID/images/checkpoint
      *  The hasHistory() function MUST be called before this one.
      *    @return the checkpoint filename
-     */ 
+     */
     const string & get_checkpoint_file() const
     {
         return history->checkpoint_file;
     };
-    
+
     /**
-     *  Returns the remote VM directory. The VM remote dir is in the form: 
+     *  Returns the remote VM directory. The VM remote dir is in the form:
      *  		$VM_DIR/$VM_ID/
      *  or, in case that OpenNebula is installed in root
      *  		/var/lib/one/$VM_ID/
      *  The hasHistory() function MUST be called before this one.
      *    @return the remote directory
-     */ 
+     */
     const string & get_remote_dir() const
     {
         return history->vm_rhome;
     };
-    
+
     /**
-     *  Returns the local VM directory. The VM local dir is in the form: 
-     *  		$ONE_LOCATION/var/$VM_ID/  
+     *  Returns the local VM directory. The VM local dir is in the form:
+     *  		$ONE_LOCATION/var/$VM_ID/
      *  The hasHistory() function MUST be called before this one.
      *    @return the remote directory
-     */ 
+     */
     const string & get_local_dir() const
     {
         return history->vm_lhome;
-    };    
+    };
 
     /**
      *  Returns the hostname for the current host. The hasHistory()
      *  function MUST be called before this one.
      *    @return the hostname
-     */ 
+     */
     const string & get_hostname() const
     {
         return history->hostname;
     };
-    
+
     /**
      *  Returns the hostname for the previous host. The hasPreviousHistory()
      *  function MUST be called before this one.
      *    @return the hostname
-     */ 
+     */
     const string & get_previous_hostname() const
     {
         return previous_history->hostname;
     };
-    
+
     /**
      *  Returns the reason that originated the VM migration in the previous host
      *    @return the migration reason to leave this host
@@ -350,8 +363,8 @@ public:
     const History::MigrationReason get_previous_reason() const
     {
         return previous_history->reason;
-    };    
-    
+    };
+
     /**
      *  Get host id where the VM is or is going to execute. The hasHistory()
      *  function MUST be called before this one.
@@ -369,7 +382,7 @@ public:
     {
         return previous_history->hid;
     }
-    
+
     /**
      *  Sets start time of a VM.
      *    @param _stime time when the VM started
@@ -396,7 +409,7 @@ public:
     {
         previous_history->etime=_etime;
     };
-    
+
     /**
      *  Sets start time of VM prolog.
      *    @param _stime time when the prolog started
@@ -441,7 +454,7 @@ public:
     {
         previous_history->running_etime=_etime;
     };
-    
+
     /**
      *  Sets start time of VM epilog.
      *    @param _stime time when the epilog started
@@ -468,7 +481,7 @@ public:
     {
         history->reason=_reason;
     };
-    
+
     /**
      *  Sets the reason that originated the VM migration in the previous host
      *    @param _reason migration reason to leave this host
@@ -476,11 +489,11 @@ public:
     void set_previous_reason(History::MigrationReason _reason)
     {
         previous_history->reason=_reason;
-    };    
+    };
 
     // ------------------------------------------------------------------------
     // Template
-    // ------------------------------------------------------------------------    
+    // ------------------------------------------------------------------------
 
     /**
      *  Gets the values of a template attribute
@@ -489,7 +502,7 @@ public:
      *    @return the number of values
      */
     int get_template_attribute(
-        string& name, 
+        string& name,
         vector<const Attribute*>& values) const
     {
         return vm_template.get(name,values);
@@ -513,42 +526,42 @@ public:
      *  Gets a string based VM attribute (single)
      *    @param name of the attribute
      *    @param value of the attribute (a string), will be "" if not defined or
-     *    not a single attribute  
+     *    not a single attribute
      */
     void get_template_attribute(
-        const char *    name, 
+        const char *    name,
         string&         value) const
     {
         string str=name;
-        vm_template.get(str,value);           
-    }        
-    
+        vm_template.get(str,value);
+    }
+
     /**
      *  Gets an int based VM attribute (single)
      *    @param name of the attribute
      *    @param value of the attribute (an int), will be 0 if not defined or
-     *    not a single attribute   
+     *    not a single attribute
      */
     void get_template_attribute(
-        const char *    name, 
+        const char *    name,
         int&            value) const
     {
         string str=name;
-        vm_template.get(str,value);        
+        vm_template.get(str,value);
     }
-    
+
     /**
      *  Generates a XML string for the template of the VM
      *    @param xml the string to store the XML description.
      */
     void template_to_xml(string &xml) const
     {
-        vm_template.to_xml(xml);        
+        vm_template.to_xml(xml);
     }
-    
+
     // ------------------------------------------------------------------------
     // States
-    // ------------------------------------------------------------------------    
+    // ------------------------------------------------------------------------
 
     /**
      *  Returns the VM state (Dispatch Manager)
@@ -585,7 +598,7 @@ public:
     {
         lcm_state = s;
     };
-    
+
     /**
      *  Gets the user id of the owner of this VM
      *    @return the VM uid
@@ -594,11 +607,11 @@ public:
     {
         return uid;
     };
-    
+
 
     // ------------------------------------------------------------------------
     // Timers
-    // ------------------------------------------------------------------------    
+    // ------------------------------------------------------------------------
     /**
      *  Gets time from last information polling.
      *    @return time of last poll (epoch) or 0 if never polled
@@ -607,7 +620,7 @@ public:
     {
         return last_poll;
     };
-    
+
     /**
      *  Sets time of last information polling.
      *    @param poll time in epoch, normally time(0)
@@ -616,15 +629,15 @@ public:
     {
         last_poll = poll;
     };
-    
+
     /**
      *  Get the VM physical requirements for the host.
      *    @param cpu
      *    @param memory
-     *    @param disk 
+     *    @param disk
      */
     void get_requirements (int& cpu, int& memory, int& disk);
-    
+
     // ------------------------------------------------------------------------
     // Leases
     // ------------------------------------------------------------------------
@@ -633,12 +646,18 @@ public:
      *  @return 0 if success
      */
     int get_leases();
-            
+
     /**
      *  Releases all network leases taken by this Virtual Machine
      */
     void release_leases();
-        
+
+    /**
+     *  Writes the context file for this VM.
+     *    @return 0 if success
+     */
+    int  write_context();
+
 private:
 
     // -------------------------------------------------------------------------
@@ -655,11 +674,11 @@ private:
     // *************************************************************************
     // Virtual Machine Attributes
     // *************************************************************************
-    
+
     // -------------------------------------------------------------------------
     // Identification variables
     // -------------------------------------------------------------------------
-    
+
     /**
      *  User (owner) id
      */
@@ -667,12 +686,12 @@ private:
 
     // -------------------------------------------------------------------------
     // VM Scheduling & Managing Information
-    // ------------------------------------------------------------------------- 
+    // -------------------------------------------------------------------------
     /**
      *  Last time (in epoch) that the VM was polled to get its status
      */
     time_t      last_poll;
-    
+
     // -------------------------------------------------------------------------
     // Virtual Machine Description
     // -------------------------------------------------------------------------
@@ -737,7 +756,7 @@ private:
      *  History record, for the previous host
      */
     History *   previous_history;
-    
+
     // -------------------------------------------------------------------------
     // Logging
     // -------------------------------------------------------------------------
@@ -749,7 +768,7 @@ private:
      *  		/var/log/one/$VM_ID.log
      */
     Log *       _log;
-    
+
     // *************************************************************************
     // DataBase implementation (Private)
     // *************************************************************************
@@ -765,7 +784,7 @@ private:
 
         db->exec(History::db_bootstrap);
     };
-    
+
     /**
      *  Function to unmarshall a VM object, an associated classes.
      *    @param num the number of columns read from the DB
@@ -774,11 +793,11 @@ private:
      *    @return 0 on success
      */
     int unmarshall(int num, char **names, char ** values);
-    
+
     /**
      *  Updates the VM history record
      *    @param db pointer to the db
-     *    @return 0 on success 
+     *    @return 0 on success
      */
     int update_history(SqliteDB * db)
     {
@@ -793,7 +812,7 @@ private:
     /**
      *  Updates the previous history record
      *    @param db pointer to the db
-     *    @return 0 on success 
+     *    @return 0 on success
      */
     int update_previous_history(SqliteDB * db)
     {
@@ -804,11 +823,11 @@ private:
         else
             return -1;
     };
-    
+
     /**
-     *  Updates the template of a VM, adding a new attribute (replacing it if 
+     *  Updates the template of a VM, adding a new attribute (replacing it if
      *  already defined), the vm's mutex SHOULD be locked
-     *    @param vm pointer to the virtual machine object
+     *    @param db pointer to the database
      *    @param name of the new attribute
      *    @param value of the new attribute
      *    @return 0 on success
@@ -818,19 +837,41 @@ private:
         string&			 	name,
         string&			 	value)
     {
-    	return vm_template.replace_attribute(db,name,value);
-    }    
-    
+        SingleAttribute * sattr;
+        int               rc;
+
+        sattr = new SingleAttribute(name,value);
+        rc    = vm_template.replace_attribute(db,sattr);
+
+        if (rc != 0)
+            delete sattr;
+
+    	return rc;
+    }
+
+    /**
+     *  Inserts a new attribute in the template of a VM, also the DB is
+     *  updated. The vm's mutex SHOULD be locked
+     *    @param db pointer to the database
+     *    @param attribute the new attribute for the template
+     *    @return 0 on success
+     */
+    int insert_template_attribute(SqliteDB * db, Attribute * attribute)
+    {
+        return vm_template.insert_attribute(db,attribute);
+    }
+
+
 protected:
-	
+
     //**************************************************************************
     // Constructor
     //**************************************************************************
-    
+
     VirtualMachine(int id=-1);
 
     virtual ~VirtualMachine();
-    
+
     // *************************************************************************
     // DataBase implementation
     // *************************************************************************
@@ -858,7 +899,7 @@ protected:
     static const char * db_names;
 
     static const char * db_bootstrap;
-    
+
     /**
      *  Reads the Virtual Machine (identified with its OID) from the database.
      *    @param db pointer to the db
@@ -879,7 +920,7 @@ protected:
      *    @return 0 on success
      */
     virtual int update(SqliteDB * db);
-    
+
     /**
      * Deletes a VM from the database and all its associated information:
      *   - History records
@@ -888,16 +929,16 @@ protected:
      *   @return 0 on success
      */
     virtual int drop(SqliteDB * db)
-    { 
+    {
     	int rc;
-    	
+
     	rc = vm_template.drop(db);
-    	
+
     	if ( history != 0 )
     	{
     		rc += history->drop(db);
     	}
-    	
+
     	return rc;
     }
 };

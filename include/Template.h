@@ -108,6 +108,17 @@ public:
     };
 
     /**
+     *  Removes an attribute from the template. The attributes are returned. The
+     *  attributes MUST be freed by the calling funtion
+     *    @param name of the attribute
+     *    @param values a vector containing a pointer to the attributes
+     *    @returns the number of attributes removed
+     */
+    virtual int remove(
+        const string&        name,
+        vector<Attribute *>& values);
+
+    /**
      *  Gets all the attributes with the given name.
      *    @param name the attribute name.
      *    @returns the number of elements in the vector

@@ -95,35 +95,40 @@ void History::non_persistent_data()
 {
     ostringstream   os;
     Nebula& 		nd = Nebula::instance();
-    
+
     // ----------- Local Locations ------------
     os.str("");
-    os << nd.get_var_location() << oid; 
-    
+    os << nd.get_var_location() << oid;
+
     vm_lhome = os.str();
-    
+
     os << "/deployment." << seq;
-    
+
     deployment_file = os.str();
-    
+
     os.str("");
     os << vm_lhome << "/transfer." << seq;
-    
+
     transfer_file = os.str();
-    
+
+    os.str("");
+    os << vm_lhome << "/context.sh";
+
+    context_file = os.str();
+
     // ----------- Remote Locations ------------
     os.str("");
     os << vm_dir << "/" << oid << "/images";
-    
+
     vm_rhome = os.str();
-    
+
     os << "/checkpoint";
-    
+
     checkpoint_file = os.str();
-    
+
     os.str("");
     os << vm_rhome << "/deployment." << seq;
-    
+
     rdeployment_file = os.str();
 }
 
@@ -194,7 +199,7 @@ int History::unmarshall(int num, char **names, char ** values)
 
     hostname      = values[HOSTNAME];
     vm_dir       = values[VM_DIR];
-    
+
     hid           = atoi(values[HID]);
 
     vmm_mad_name  = values[VMMMAD];
@@ -257,7 +262,7 @@ int History::select(SqliteDB * db)
     }
     else
     {
-    	oss << "SELECT * FROM history WHERE vid = "<< oid <<" AND seq = "<< seq;    
+    	oss << "SELECT * FROM history WHERE vid = "<< oid <<" AND seq = "<< seq;
     }
 
     rc = db->exec(oss,history_select_cb,(void *) this);
@@ -277,7 +282,7 @@ int History::drop(SqliteDB * db)
 {
     ostringstream   oss;
 
-    oss << "DELETE FROM " << table << " WHERE vid= "<< oid; 
+    oss << "DELETE FROM " << table << " WHERE vid= "<< oid;
 
     return db->exec(oss);
 }

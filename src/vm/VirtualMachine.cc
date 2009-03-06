@@ -18,8 +18,8 @@
 #include <string.h>
 #include <time.h>
 #include <sys/stat.h>
-#include <sys/types.h>  
-#include <unistd.h> 
+#include <sys/types.h>
+#include <unistd.h>
 
 #include <iostream>
 #include <sstream>
@@ -158,13 +158,13 @@ int VirtualMachine::select(SqliteDB * db)
 {
     ostringstream   oss;
     ostringstream   ose;
-    
+
     int             rc;
     int             boid;
-    
+
     string          filename;
     Nebula& 		nd = Nebula::instance();
-    
+
     oss << "SELECT * FROM " << table << " WHERE oid = " << oid;
 
     boid = oid;
@@ -206,26 +206,26 @@ int VirtualMachine::select(SqliteDB * db)
     else if (history->seq > 0)
     {
     	previous_history = new History(oid,history->seq - 1);
-    	
+
     	rc = previous_history->select(db);
-    	
+
     	if ( rc != 0)
     	{
-    		goto error_previous_history;	
+    		goto error_previous_history;
     	}
     }
-    
+
     //Create support directory fo this VM
-        
+
     oss.str("");
     oss << nd.get_var_location() << oid;
-    
+
     mkdir(oss.str().c_str(), 0777);
     chmod(oss.str().c_str(), 0777);
-    
+
     //Create Log support fo this VM
-    
-    try 
+
+    try
     {
     	_log = new Log(nd.get_vm_log_filename(oid),Log::DEBUG);
 	}
@@ -233,7 +233,7 @@ int VirtualMachine::select(SqliteDB * db)
     {
     	ose << "Error creating log: " << e.what();
     	Nebula::log("ONE",Log::ERROR, ose);
-    	
+
     	_log = 0;
 	}
 
@@ -253,60 +253,78 @@ error_history:
     ose << "Can not get history for VM id: " << oid;
     log("ONE", Log::ERROR, ose);
     return -1;
-    
+
 error_previous_history:
-	ose << "Can not get previous history record (seq:" << history->seq 
+	ose << "Can not get previous history record (seq:" << history->seq
 	    << ") for VM id: " << oid;
     log("ONE", Log::ERROR, ose);
-    return -1;    
+    return -1;
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 int VirtualMachine::insert(SqliteDB * db)
-{                              
-    int                  rc;
-    string               name;
-                               
-    //Set a name if the VM has not got one
-    
+{
+    int    rc;
+    string name;
+
+    SingleAttribute *   attr;
+    string              value;
+    ostringstream       oss;
+
+    // ------------------------------------------------------------------------
+    // Set a name if the VM has not got one and VM_ID
+    // ------------------------------------------------------------------------
+
     get_template_attribute("NAME",name);
-    
+
     if ( name.empty() == true )
     {
-    	SingleAttribute * 	name_attr;
-    	ostringstream		default_name;
-    	
-    	default_name << "one-" << oid;
-    	name = default_name.str();
-    	
-    	name_attr = new SingleAttribute("NAME",name);
-    	
-    	vm_template.set(name_attr);
-    }  
-    
+        oss << "one-" << oid;
+        value = oss.str();
+
+        attr = new SingleAttribute("NAME",value);
+
+        vm_template.set(attr);
+    }
+
+    oss.str("");
+
+    oss << oid;
+    value = oss.str();
+
+    attr = new SingleAttribute("VM_ID",value);
+
+    vm_template.set(attr);
+
+    // ------------------------------------------------------------------------
+    // Get network leases
+    // ------------------------------------------------------------------------
+
     rc = get_leases();
-    
+
     if ( rc != 0 )
     {
     	goto error_leases;
     }
 
-    // Insert the template first, so we get a valid template ID
+    // ------------------------------------------------------------------------
+    // Insert the template first, so we get a valid template ID. Then the VM
+    // ------------------------------------------------------------------------
+
     rc = vm_template.insert(db);
 
     if ( rc != 0 )
     {
-    	goto error_template;
+        goto error_template;
     }
 
-    //Insert the VM
     rc = update(db);
 
     if ( rc != 0 )
     {
-    	goto error_update;
+        goto error_update;
     }
 
     return 0;
@@ -375,7 +393,7 @@ void VirtualMachine::add_history(
     else
     {
         seq = history->seq + 1;
-                
+
         if (previous_history != 0)
         {
         	delete previous_history;
@@ -389,16 +407,16 @@ void VirtualMachine::add_history(
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-	
+
 void VirtualMachine::cp_history()
 {
 	History * htmp;
-	
+
 	if (history == 0)
 	{
 		return;
 	}
-		
+
 	htmp = new History(oid,
 			history->seq + 1,
 			history->hid,
@@ -406,20 +424,20 @@ void VirtualMachine::cp_history()
 			history->vm_dir,
 			history->vmm_mad_name,
 			history->tm_mad_name);
-	
+
 	if ( previous_history != 0 )
 	{
 		delete previous_history;
 	}
-	
+
 	previous_history = history;
 
-	history = htmp; 
+	history = htmp;
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-	
+
 void VirtualMachine::cp_previous_history()
 {
 	History * htmp;
@@ -428,7 +446,7 @@ void VirtualMachine::cp_previous_history()
 	{
 		return;
 	}
-	
+
 	htmp = new History(oid,
 			history->seq + 1,
 			previous_history->hid,
@@ -436,12 +454,12 @@ void VirtualMachine::cp_previous_history()
 			previous_history->vm_dir,
 			previous_history->vmm_mad_name,
 			previous_history->tm_mad_name);
-	
+
 	delete previous_history;
-	
+
 	previous_history = history;
-	
-	history = htmp;	
+
+	history = htmp;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -452,7 +470,7 @@ void VirtualMachine::get_requirements (int& cpu, int& memory, int& disk)
     string          scpu;
     istringstream   iss;
     float           fcpu;
-    
+
     get_template_attribute("MEMORY",memory);
     get_template_attribute("CPU",scpu);
 
@@ -461,7 +479,7 @@ void VirtualMachine::get_requirements (int& cpu, int& memory, int& disk)
         cpu    = 0;
         memory = 0;
         disk   = 0;
-        
+
         return;
     }
 
@@ -482,11 +500,11 @@ int VirtualMachine::get_leases()
 {
     int                        num_nics, rc;
     vector<Attribute  * >      nics;
-    VirtualNetworkPool       * vnpool; 
+    VirtualNetworkPool       * vnpool;
     VirtualNetwork           * vn;
     VectorAttribute          * nic;
     map<string,string>         new_nic;
-    
+
     string                     ip;
     string                     mac;
     string                     bridge;
@@ -495,37 +513,37 @@ int VirtualMachine::get_leases()
     ostringstream              vnid;
 
     // Set the networking attributes.
-    
+
     Nebula& nd = Nebula::instance();
     vnpool     = nd.get_vnpool();
-    
+
     num_nics   = vm_template.get("NIC",nics);
-    
+
     for(int i=0; i<num_nics; i++,vnid.str(""))
-    {        
+    {
    	 	nic = dynamic_cast<VectorAttribute * >(nics[i]);
 
         if ( nic == 0 )
         {
             continue;
         }
-    
+
         network = nic->vector_value("NETWORK");
-    
+
         if ( network.empty() )
         {
             continue;
         }
-    
+
         vn = vnpool->get(network,true);
-        
+
         if ( vn == 0 )
         {
-            continue;
+            return -1;
         }
-        
+
         ip = nic->vector_value("IP");
-        
+
         if (ip.empty())
         {
         	rc = vn->get_lease(oid, ip, mac, bridge);
@@ -534,9 +552,9 @@ int VirtualMachine::get_leases()
         {
         	rc = vn->set_lease(oid, ip, mac, bridge);
         }
-        
-        vn->unlock();    
-        
+
+        vn->unlock();
+
         if ( rc != 0 )
         {
             return -1;
@@ -549,12 +567,12 @@ int VirtualMachine::get_leases()
         new_nic.insert(make_pair("BRIDGE" ,bridge));
         new_nic.insert(make_pair("VNID"   ,vnid.str()));
         new_nic.insert(make_pair("IP"     ,ip));
-        
+
         nic->replace(new_nic);
-        
+
         new_nic.erase(new_nic.begin(),new_nic.end());
     }
-    
+
     return 0;
 }
 
@@ -564,7 +582,7 @@ int VirtualMachine::get_leases()
 void VirtualMachine::release_leases()
 {
     Nebula& nd = Nebula::instance();
-    
+
     VirtualNetworkPool * vnpool = nd.get_vnpool();
 
     string                        vnid;
@@ -572,7 +590,7 @@ void VirtualMachine::release_leases()
     int                           num_nics;
 
     vector<Attribute const  * >   nics;
-    VirtualNetwork          *     vn;    
+    VirtualNetwork          *     vn;
 
     num_nics   = get_template_attribute("NIC",nics);
 
@@ -591,24 +609,78 @@ void VirtualMachine::release_leases()
         {
             continue;
         }
-        
+
         ip   = nic->vector_value("IP");
 
         if ( ip.empty() )
         {
             continue;
         }
-        
+
         vn = vnpool->get(atoi(vnid.c_str()),true);
-        
+
         if ( vn == 0 )
         {
             continue;
         }
 
-        vn->release_lease(ip);   
-        vn->unlock();      
+        vn->release_lease(ip);
+        vn->unlock();
     }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::write_context()
+{
+    ofstream file;
+
+    vector<const Attribute*> attrs;
+    const VectorAttribute *  context;
+
+    map<string, string>::const_iterator it;
+
+    if ( history == 0 )
+        return -1;
+
+    if ( get_template_attribute("CONTEXT",attrs) != 1 )
+    {
+        log("VM", Log::INFO, "Virtual Machine has no context");
+        return 0;
+    }
+
+    file.open(history->context_file.c_str(),ios::out);
+
+    if (file.fail() == true)
+    {
+        ostringstream oss;
+
+        oss << "Could not open context file: " << history->context_file;
+        log("VM", Log::ERROR, oss);
+        return -1;
+    }
+
+    context = dynamic_cast<const VectorAttribute *>(attrs[0]);
+
+    if (context == 0)
+    {
+        file.close();
+        return -1;
+    }
+
+    const map<string, string> values = context->value();
+
+    file << "# Context variables generated by OpenNebula\n";
+
+    for (it=values.begin(); it != values.end(); it++ )
+    {
+        file << it->first <<"=\""<< it->second << "\"" << endl;
+    }
+
+    file.close();
+
+    return 0;
 }
 
 /* ************************************************************************** */
@@ -622,15 +694,15 @@ ostream& operator<<(ostream& os, VirtualMachine& vm)
     os << "STATE             : " << vm.state << endl;
     os << "LCM STATE         : " << vm.lcm_state << endl;
     os << "DEPLOY ID         : " << vm.deploy_id << endl;
-    os << "MEMORY            : " << vm.memory << endl; 
+    os << "MEMORY            : " << vm.memory << endl;
     os << "CPU               : " << vm.cpu << endl;
-    os << "LAST POLL         : " << vm.last_poll << endl;  
-    os << "START TIME        : " << vm.stime << endl;  
-    os << "STOP TIME         : " << vm.etime << endl;  
-    os << "NET TX            : " << vm.net_tx << endl;  
+    os << "LAST POLL         : " << vm.last_poll << endl;
+    os << "START TIME        : " << vm.stime << endl;
+    os << "STOP TIME         : " << vm.etime << endl;
+    os << "NET TX            : " << vm.net_tx << endl;
     os << "NET RX            : " << vm.net_rx << endl;
 
     os << "Template" << endl << vm.vm_template << endl;
-    
+
     return os;
 };

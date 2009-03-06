@@ -43,7 +43,7 @@ public:
      *    @param stemplate a string describing the VM
      *    @param oid the id assigned to the VM (output)
      *    @param on_hold flag to submit on hold
-     *    @return 0 on success, -1 error inserting in DB or -2 error parsing 
+     *    @return 0 on success, -1 error inserting in DB or -2 error parsing
      *  the template
      */
     int allocate (
@@ -85,9 +85,9 @@ public:
     //--------------------------------------------------------------------------
     // Virtual Machine DB access functions
     //--------------------------------------------------------------------------
-    
+
     /**
-     *  Updates the template of a VM, adding a new attribute (replacing it if 
+     *  Updates the template of a VM, adding a new attribute (replacing it if
      *  already defined), the vm's mutex SHOULD be locked
      *    @param vm pointer to the virtual machine object
      *    @param name of the new attribute
@@ -101,7 +101,7 @@ public:
     {
     	return vm->update_template_attribute(db,name,value);
     }
-    
+
     /**
      *  Updates the history record of a VM, the vm's mutex SHOULD be locked
      *    @param vm pointer to the virtual machine object
@@ -123,7 +123,21 @@ public:
     {
         return vm->update_previous_history(db);
     }
-    
+
+    /**
+     *  Parse a string and substitute variables (e.g. $NAME) using template
+     *  values:
+     *    @param vm_id, ID of the VM used to substitute the variables
+     *    @param attribute, the string to be parsed
+     *    @param parsed, the resulting parsed string
+     *    @param error_msg, string describing the syntax error
+     *    @return 0 on success.
+     */
+    int parse_attribute(int     vm_id,
+                        string  &attribute,
+                        string  &parsed,
+                        char ** error_msg);
+
     /**
      *  Bootstraps the database table(s) associated to the VirtualMachine pool
      */
@@ -131,8 +145,20 @@ public:
     {
         VirtualMachine::bootstrap(db);
     };
-    
+
 private:
+    /**
+     * Mutex to perform just one attribute parse at a time
+     */
+    static pthread_mutex_t lex_mutex;
+
+    /**
+     *  Generate context file to be sourced upon VM booting
+     *  @param vm_id, ID of the VM to generate context for
+     *  @param attrs, the template CONTEXT attributes (only the first one will
+     *  be used)
+     */
+    void generate_context(int vm_id, vector<Attribute *> attrs);
 
     /**
      *  Factory method to produce VM objects
@@ -143,5 +169,5 @@ private:
         return new VirtualMachine;
     };
 };
- 
+
 #endif /*VIRTUAL_MACHINE_POOL_H_*/

@@ -28,7 +28,7 @@ extern "C" int history_select_cb (
         int                     num,
         char **                 values,
         char **                 names);
-        
+
 /**
  *  The History class, it represents an execution record of a Virtual Machine.
  */
@@ -60,7 +60,7 @@ public:
 
 private:
     friend class VirtualMachine;
-                
+
     // ----------------------------------------
     // DataBase implementation variables
     // ----------------------------------------
@@ -88,17 +88,17 @@ private:
     static const char * table;
 
     static const char * db_names;
-    
+
     static const char * db_bootstrap;
 
     void non_persistent_data();
-    
+
     static string column_name(const ColNames column)
     {
         switch (column)
         {
         case HID:
-            return "hid";            
+            return "hid";
         case ETIME:
             return "etime";
         case RUNNING_ETIME:
@@ -116,7 +116,7 @@ private:
 
     string  hostname;
     string  vm_dir;
-    
+
     int     hid;
 
     string  vmm_mad_name;
@@ -140,17 +140,18 @@ private:
     string  vm_lhome;
     string  transfer_file;
     string  deployment_file;
-    
+    string  context_file;
+
     string  vm_rhome;
     string  checkpoint_file;
     string  rdeployment_file;
-    
+
     friend int history_select_cb (
         void *                  _history,
         int                     num,
         char **                 values,
         char **                 names);
-    
+
     /**
      *  Writes the history record in the DB
      *    @param db pointer to the database.
@@ -172,14 +173,14 @@ private:
 
      */
     int drop(SqliteDB * db);
-    
+
     /**
      *  Updates the history record
      *    @param db pointer to the database.
      *    @return 0 on success.
-     */ 
+     */
     int update(SqliteDB * db)
-    { 
+    {
     	return insert(db);
 	}
 
@@ -199,7 +200,7 @@ private:
     {
     	return ObjectSQL::select_column(db,table,column,where,value);
     }
-    
+
     /**
      *  Sets the value of a column in the pool for a given object
      *    @param db pointer to Database
@@ -216,7 +217,7 @@ private:
     {
     	return ObjectSQL::update_column(db,table,column,where,value);
     }
-    
+
 
     /**
      *  Function to unmarshall a history object

@@ -17,6 +17,7 @@
 
 #include <string>
 #include <sstream>
+#include <cstring>
 
 #include "Attribute.h"
 
@@ -24,13 +25,14 @@
 const char * VectorAttribute::magic_sep      = "@^_^@";
 const int    VectorAttribute::magic_sep_size = 5;
 
-string * VectorAttribute::marshall(const char * _sep)
+string * VectorAttribute::marshall(const char * _sep) const
 {
-    ostringstream                   os;
-    map<string,string>::iterator    it;
-    string *                        rs;
-    const char *					my_sep;
-    
+    ostringstream os;
+    string *      rs;
+    const char *  my_sep;
+
+    map<string,string>::const_iterator it;
+
     if ( _sep == 0 )
     {
     	my_sep = magic_sep;
@@ -39,7 +41,7 @@ string * VectorAttribute::marshall(const char * _sep)
     {
     	my_sep = _sep;
     }
-    
+
     if ( attribute_value.size() == 0 )
     {
         return 0;
@@ -69,38 +71,52 @@ string * VectorAttribute::to_xml() const
 	map<string,string>::const_iterator    it;
 	ostringstream                   oss;
 	string * 						xml;
-	
+
 	oss << "<" << name() << ">";
-	
+
 	for (it=attribute_value.begin();it!=attribute_value.end();it++)
 	{
-		oss << "<" << it->first << ">" << it->second 
+		oss << "<" << it->first << ">" << it->second
 			<< "</"<< it->first << ">";
 	}
-	
+
 	oss << "</"<< name() << ">";
-	
+
 	xml = new string;
-	
+
 	*xml = oss.str();
-	
+
 	return xml;
-}    
+}
 
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VectorAttribute::unmarshall(const string& sattr)
+void VectorAttribute::unmarshall(const string& sattr, const char * _sep)
 {
-    size_t 	bpos=0,epos,mpos;
+    size_t  bpos=0,epos,mpos;
     string  tmp;
-    bool	cont = true;
-    
+    bool    cont = true;
+
+    const char *  my_sep;
+    int           my_sep_size;
+
+    if ( _sep == 0 )
+    {
+        my_sep      = magic_sep;
+        my_sep_size = magic_sep_size;
+    }
+    else
+    {
+        my_sep      = _sep;
+        my_sep_size = strlen(_sep);
+    }
+
     while(cont)
     {
-    	epos=sattr.find(magic_sep,bpos);
-    	
+    	epos=sattr.find(my_sep,bpos);
+
     	if (epos == string::npos)
     	{
     		tmp  = sattr.substr(bpos);
@@ -109,16 +125,16 @@ void VectorAttribute::unmarshall(const string& sattr)
     	else
     	{
     		tmp  = sattr.substr(bpos,epos-bpos);
-    		bpos = epos + magic_sep_size;
+    		bpos = epos + my_sep_size;
     	}
-    	
+
     	mpos = tmp.find('=');
-    	
+
     	if (mpos == string::npos)
     	{
     		continue;
     	}
-    	
+
         attribute_value.insert(make_pair(tmp.substr(0,mpos),
                                          tmp.substr(mpos+1)));
     }

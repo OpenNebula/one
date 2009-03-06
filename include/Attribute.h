@@ -21,13 +21,13 @@
 #include <string>
 #include <map>
 #include <sstream>
-#include <algorithm> 
+#include <algorithm>
 
 using namespace std;
 
 /**
  *  Attribute base class for name-value pairs. This class provides a generic
- *  interface to implement 
+ *  interface to implement
  */
 class Attribute
 {
@@ -45,11 +45,11 @@ public:
     Attribute(const char * aname)
     {
         ostringstream name;
-        
+
         name << uppercase << aname;
         attribute_name = name.str();
     };
-    
+
     virtual ~Attribute(){};
 
     enum AttributeType
@@ -57,7 +57,7 @@ public:
         SIMPLE = 0,
         VECTOR = 1
     };
-    
+
     /**
      *  Gets the name of the attribute.
      *    @return the attribute name
@@ -72,8 +72,8 @@ public:
      *  by the calling function.
      *    @return a string (allocated in the heap) holding the attribute value.
      */
-    virtual string * marshall(const char * _sep = 0) = 0;
-    
+    virtual string * marshall(const char * _sep = 0) const = 0;
+
     /**
      *  Write the attribute using a simple XML format. The string MUST be freed
      *  by the calling function.
@@ -84,8 +84,8 @@ public:
     /**
      *  Builds a new attribute from a string.
      */
-    virtual void unmarshall(const string& sattr) = 0;
-    
+    virtual void unmarshall(const string& sattr, const char * _sep = 0) = 0;
+
     /**
      *  Returns the attribute type
      */
@@ -103,8 +103,8 @@ private:
 /* -------------------------------------------------------------------------- */
 
 /**
- *  The SingleAttribute class represents a simple attribute in the form 
- *  NAME = VALUE. 
+ *  The SingleAttribute class represents a simple attribute in the form
+ *  NAME = VALUE.
  */
 
 class SingleAttribute : public Attribute
@@ -115,12 +115,12 @@ public:
 
     SingleAttribute(const string& name, const string& value):
         Attribute(name),attribute_value(value){};
-    
+
     SingleAttribute(const char * name, const string& value):
         Attribute(name),attribute_value(value){};
 
     ~SingleAttribute(){};
-    
+
     /**
      *  Returns the attribute value, a string.
      */
@@ -128,43 +128,43 @@ public:
     {
         return attribute_value;
     };
-    
+
     /**
      *  Marshall the attribute in a single string. The string MUST be freed
      *  by the calling function.
      *    @return a string (allocated in the heap) holding the attribute value.
-     */    
-    string * marshall(const char * _sep = 0)
+     */
+    string * marshall(const char * _sep = 0) const
     {
         string * rs = new string;
-        
+
         *rs = attribute_value;
-        
-        return rs;   
+
+        return rs;
     };
-    
+
     /**
      *  Write the attribute using a simple XML format:
-     * 
-     *  <attribute_name>attribute_value</attribute_name> 
-     * 
+     *
+     *  <attribute_name>attribute_value</attribute_name>
+     *
      *  The string MUST be freed by the calling function.
      *    @return a string (allocated in the heap) holding the attribute value.
      */
     string * to_xml() const
     {
     	string * xml = new string;
-    	
+
     	*xml = "<" + name() + ">" + attribute_value
     		 + "</"+ name() + ">";
-    	
+
     	return xml;
     }
-        
+
     /**
      *  Builds a new attribute from a string.
-     */    
-    void unmarshall(const string& sattr)
+     */
+    void unmarshall(const string& sattr, const char * _sep = 0)
     {
         attribute_value = sattr;
     };
@@ -179,23 +179,23 @@ public:
 
     /**
      *  Returns the attribute type
-     */    
+     */
     AttributeType type()
     {
         return SIMPLE;
     };
-    
+
 private:
 
-    string attribute_value;    
+    string attribute_value;
 };
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 /**
- *  The VectorAttribute class represents an array attribute in the form 
- *  NAME = [ VAL_NAME_1=VAL_VALUE_1,...,VAL_NAME_N=VAL_VALUE_N]. 
+ *  The VectorAttribute class represents an array attribute in the form
+ *  NAME = [ VAL_NAME_1=VAL_VALUE_1,...,VAL_NAME_N=VAL_VALUE_N].
  */
 
 class VectorAttribute : public Attribute
@@ -208,7 +208,7 @@ public:
             Attribute(name),attribute_value(value){};
 
     ~VectorAttribute(){};
-    
+
     /**
      *  Returns the attribute value, a string.
      */
@@ -216,29 +216,29 @@ public:
     {
         return attribute_value;
     };
-    
+
     /**
      *
      */
     string vector_value(const char *name) const;
-    
+
     /**
      *  Marshall the attribute in a single string. The string MUST be freed
-     *  by the calling function. The string is in the form: 
+     *  by the calling function. The string is in the form:
      *  "VAL_NAME_1=VAL_VALUE_1,...,VAL_NAME_N=VAL_VALUE_N".
      *    @return a string (allocated in the heap) holding the attribute value.
-     */    
-    string * marshall(const char * _sep = 0);
-    
+     */
+    string * marshall(const char * _sep = 0) const;
+
     /**
      *  Write the attribute using a simple XML format:
-     * 
+     *
      *  <attribute_name>
      *    <val_name_1>val_value_1</val_name_1>
      *    ...
      *    <val_name_n>val_value_n</val_name_n>
-     *  </attribute_name> 
-     * 
+     *  </attribute_name>
+     *
      *  The string MUST be freed by the calling function.
      *    @return a string (allocated in the heap) holding the attribute value.
      */
@@ -247,8 +247,8 @@ public:
     /**
      *  Builds a new attribute from a string of the form:
      *  "VAL_NAME_1=VAL_VALUE_1,...,VAL_NAME_N=VAL_VALUE_N".
-     */        
-    void unmarshall(const string& sattr);
+     */
+    void unmarshall(const string& sattr, const char * _sep = 0);
 
     /**
      *  Replace the value of the given attribute with the provided map
@@ -258,19 +258,19 @@ public:
 
     /**
      *  Returns the attribute type
-     */    
+     */
     AttributeType type()
     {
         return VECTOR;
     };
 
 private:
-	
+
 	static const char * magic_sep;
-	
+
 	static const int	magic_sep_size;
 
-    map<string,string> attribute_value;    
+    map<string,string> attribute_value;
 };
 
 #endif /*ATTRIBUTE_H_*/
