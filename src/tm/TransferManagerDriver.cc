@@ -20,58 +20,6 @@
 #include "LifeCycleManager.h"
 #include <sstream>
 
-TransferManagerDriver::TransferManagerDriver(
-	int                         userid,
-    const map<string,string>&   attrs,
-    bool                        sudo,
-    VirtualMachinePool *        pool):
-    	Mad(userid,attrs,sudo),driver_conf(true),vmpool(pool)
-{
-    map<string,string>::const_iterator	it;
-    char *			error_msg = 0;
-    const char *	cfile;
-    string			file;
-    int				rc;
-
-    it = attrs.find("DEFAULT");
-
-    if ( it != attrs.end() )
-    {
-       	if (it->second[0] != '/') //Look in ONE_LOCATION/etc or in "/etc/one"
-        {
-      		Nebula& nd = Nebula::instance();
-
-            file  = nd.get_defaults_location() + it->second;
-            cfile = file.c_str();
-        }
-        else //Absolute Path
-        {
-          	cfile = it->second.c_str();
-        }
-
-        rc = driver_conf.parse(cfile, &error_msg);
-
-        if ( rc != 0 )
-        {
-        	ostringstream   oss;
-
-        	if ( error_msg != 0 )
-        	{
-        		oss << "Error loading driver configuration file " << cfile <<
-           		" : " << error_msg;
-
-        		free(error_msg);
-        	}
-        	else
-        	{
-        		oss << "Error loading driver configuration file " << cfile;
-        	}
-
-           	Nebula::log("TM", Log::ERROR, oss);
-        }
-    }
-}
-
 /* ************************************************************************** */
 /* Driver ASCII Protocol Implementation                                       */
 /* ************************************************************************** */
@@ -235,4 +183,3 @@ void TransferManagerDriver::recover()
 {
     Nebula::log("TM",Log::INFO,"Recovering TM drivers");
 }
-

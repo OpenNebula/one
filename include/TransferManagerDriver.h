@@ -40,7 +40,8 @@ public:
         int                         userid,
         const map<string,string>&   attrs,
         bool                        sudo,
-        VirtualMachinePool *        pool);
+        VirtualMachinePool *        pool):
+            Mad(userid,attrs,sudo), vmpool(pool){};
 
     virtual ~TransferManagerDriver(){};
 
@@ -55,20 +56,15 @@ public:
      *  TODO: What do we need here? Check on-going xfr?
      */
     void recover();
-    
+
 private:
     friend class TransferManager;
 
-	/**	
-	 *  Configuration file for the driver
-	 */
-	Template	driver_conf;
-		
     /**
      *  Pointer to the Virtual Machine Pool, to access VMs
      */
-    VirtualMachinePool * vmpool;	
-	      
+    VirtualMachinePool * vmpool;
+
     /**
      *  Sends a transfer request to the MAD: "TRANSFER    ID    XFR_FILE"
      *    @param oid the virtual machine id.
