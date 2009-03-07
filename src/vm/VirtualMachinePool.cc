@@ -86,7 +86,7 @@ int VirtualMachinePool::allocate (
     // ------------------------------------------------------------------------
     generate_context(*oid,attrs);
 
-    for (int i = 0; i < attrs.size() ; i++)
+    for (int i = 0; i < (int) attrs.size() ; i++)
     {
         if (attrs[i] != 0)
         {
