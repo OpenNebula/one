@@ -29,7 +29,7 @@
 
 #define YYERROR_VERBOSE
 
-extern "C" 
+extern "C"
 {
 void template_error(
 	YYLTYPE *		llocp,
@@ -58,9 +58,10 @@ int template_parse(Template * tmpl, char ** errmsg);
 %name-prefix = "template_"
 %output      = "template_syntax.cc"
 
-%token EQUAL COMMA OBRACKET CBRACKET 
+%token EQUAL COMMA OBRACKET CBRACKET
 %token <void>  		NL
 %token <val_str>  	STRING
+%token <val_str>    VARIABLE
 %type  <val_attr>  	array_val
 %type  <void>		attribute
 %type  <void>   	template
@@ -70,57 +71,57 @@ int template_parse(Template * tmpl, char ** errmsg);
 template:  attribute
 	| template attribute
     ;
-         
-attribute:	STRING EQUAL STRING NL 
+
+attribute:	VARIABLE EQUAL STRING NL
 			{
 				Attribute * pattr;
 				string 		name($1);
 				string		value($3);
-				
+
 				pattr = new SingleAttribute(name,value);
 
 				tmpl->set(pattr);
-				
+
 				free($1);
 				free($3);
 			}
-		 | 	STRING EQUAL OBRACKET array_val CBRACKET NL 
+		 | 	VARIABLE EQUAL OBRACKET array_val CBRACKET NL
 		 	{
 				Attribute * pattr;
 				string 		name($1);
 				map<string,string> * amap;
-				
+
 				amap    = static_cast<map<string,string> *>($4);
 				pattr   = new VectorAttribute(name,*amap);
-				
+
 				tmpl->set(pattr);
-				
+
 				delete amap;
 				free($1);
 		 	}
-		 | 	STRING EQUAL NL
+		 | 	VARIABLE EQUAL NL
 		 	{
 				Attribute * pattr;
 				string 		name($1);
 				string		value("");
-				
+
 				pattr = new SingleAttribute(name,value);
-				
+
 				tmpl->set(pattr);
-				
+
 				free($1);
 		 	}
 		 | 	NL {};
 		 ;
-	    
-array_val: 	STRING EQUAL STRING
+
+array_val: 	VARIABLE EQUAL STRING
 			{
 			  	map<string,string>* vattr;
 			  	string				name($1);
 			  	string				value($3);
 
 			    transform (name.begin(),name.end(),name.begin(),(int(*)(int))toupper);
-				
+
 				vattr = new map<string,string>;
 				vattr->insert(make_pair(name,value));
 
@@ -129,18 +130,18 @@ array_val: 	STRING EQUAL STRING
 				free($1);
 				free($3);
 			}
-		| 	array_val COMMA STRING EQUAL STRING 
+		| 	array_val COMMA VARIABLE EQUAL STRING
 			{
 				string				 name($3);
 			  	string				 value($5);
 				map<string,string> * attrmap;
-						
-			    transform (name.begin(),name.end(),name.begin(),(int(*)(int))toupper);                
+
+			    transform (name.begin(),name.end(),name.begin(),(int(*)(int))toupper);
 				attrmap = static_cast<map<string,string> *>($1);
-				
+
 				attrmap->insert(make_pair(name,value));
 				$$ = $1;
-				
+
 				free($3);
 				free($5);
 			}
@@ -154,11 +155,11 @@ extern "C" void template_error(
 	const char *	str)
 {
 	int length;
-	
+
 	length = strlen(str)+ 64;
-	
+
 	*error_msg = (char *) malloc(sizeof(char)*length);
-	
+
 	if (*error_msg != 0)
 	{
 		snprintf(*error_msg,
@@ -169,4 +170,4 @@ extern "C" void template_error(
     		llocp->first_column,
         	llocp->last_column);
 	}
-} 
+}

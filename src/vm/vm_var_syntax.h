@@ -44,11 +44,9 @@
      OBRACKET = 260,
      CBRACKET = 261,
      BLANK = 262,
-     DOLLAR = 263,
-     DOT = 264,
-     STRING = 265,
-     RSTRING = 266,
-     INTEGER = 267
+     STRING = 263,
+     RSTRING = 264,
+     INTEGER = 265
    };
 #endif
 /* Tokens.  */
@@ -57,11 +55,9 @@
 #define OBRACKET 260
 #define CBRACKET 261
 #define BLANK 262
-#define DOLLAR 263
-#define DOT 264
-#define STRING 265
-#define RSTRING 266
-#define INTEGER 267
+#define STRING 263
+#define RSTRING 264
+#define INTEGER 265
 
 
 
@@ -72,9 +68,10 @@ typedef union YYSTYPE
 {
     char * val_str;
     int    val_int;
+    char   val_char;
 }
 /* Line 1489 of yacc.c.  */
-#line 78 "vm_var_syntax.hh"
+#line 75 "vm_var_syntax.hh"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

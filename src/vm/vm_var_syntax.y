@@ -60,6 +60,7 @@ int vm_var_parse (VirtualMachinePool * vmpool,
 %union {
     char * val_str;
     int    val_int;
+    char   val_char;
 };
 
 %defines
@@ -68,8 +69,9 @@ int vm_var_parse (VirtualMachinePool * vmpool,
 %name-prefix = "vm_var_"
 %output      = "vm_var_syntax.cc"
 
-%token EQUAL COMMA OBRACKET CBRACKET BLANK DOLLAR DOT
+%token EQUAL COMMA OBRACKET CBRACKET
 
+%token <val_char>   BLANK
 %token <val_str>  	STRING
 %token <val_str>    RSTRING
 %token <val_int>    INTEGER
@@ -101,7 +103,10 @@ vm_variable:RSTRING
                     (*parsed) << value;
                 }
 
-                (*parsed) << ' ';
+                if ( $2 != '\0' )
+                {
+                    (*parsed) << $2;
+                }
 
                 free($1);
             }
@@ -132,7 +137,10 @@ vm_variable:RSTRING
                     (*parsed) << value;
                 }
 
-                (*parsed) << ' ';
+                if ( $5 != '\0' )
+                {
+                    (*parsed) << $5;
+                }
 
                 free($1);
                 free($3);
@@ -170,16 +178,19 @@ vm_variable:RSTRING
                     (*parsed) << value;
                 }
 
-                (*parsed) << ' ';
+                if ( $9 != '\0' )
+                {
+                    (*parsed) << $9;
+                }
 
                 free($1);
                 free($3);
                 free($5);
                 free($7);
             }
-            | INTEGER DOT STRING BLANK
+            | INTEGER STRING BLANK
             {
-                string name($3);
+                string name($2);
                 string value = "";
 
                 VirtualMachine *         tvm;
@@ -210,9 +221,12 @@ vm_variable:RSTRING
                     (*parsed) << value;
                 }
 
-                (*parsed) << ' ';
+                if ( $3 != '\0' )
+                {
+                    (*parsed) << $3;
+                }
 
-                free($3);
+                free($2);
             }
             ;
 %%

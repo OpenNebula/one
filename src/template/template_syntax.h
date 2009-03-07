@@ -44,7 +44,8 @@
      OBRACKET = 260,
      CBRACKET = 261,
      NL = 262,
-     STRING = 263
+     STRING = 263,
+     VARIABLE = 264
    };
 #endif
 /* Tokens.  */
@@ -54,6 +55,7 @@
 #define CBRACKET 261
 #define NL 262
 #define STRING 263
+#define VARIABLE 264
 
 
 
@@ -66,7 +68,7 @@ typedef union YYSTYPE
     void * val_attr;
 }
 /* Line 1489 of yacc.c.  */
-#line 70 "template_syntax.hh"
+#line 72 "template_syntax.hh"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

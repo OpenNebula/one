@@ -312,7 +312,7 @@ extern int vm_var_lex (void);
 #undef YY_DECL
 #endif
 
-#line 72 "vm_var_parser.l"
+#line 81 "vm_var_parser.l"
 
 
 #line 319 "vm_var_parser.h"

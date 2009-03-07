@@ -311,7 +311,7 @@ extern int template_lex (void);
 #undef YY_DECL
 #endif
 
-#line 66 "template_parser.l"
+#line 68 "template_parser.l"
 
 
 #line 318 "template_parser.h"

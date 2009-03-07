@@ -44,24 +44,33 @@
  /*   $VARIABLE                                                               */
  /*   $VARIABLE[ATTR]                                                         */
  /*   $VARIABLE[ATTR,ATTR=VALUE]                                              */
+ /*   $NUM.CONTEXT_VARIABLE                                                   */
  /* ------------------------------------------------------------------------- */
 
 \$                             { BEGIN VAR;}
 
-<VAR>[[:blank:]]               { BEGIN(INITIAL); return BLANK;}
-<VAR>[[:digit:]]+              { lvalp->val_int=atoi(yytext); return INTEGER;}
-<VAR>\.                        { return DOT;}
 <VAR>[[:blank:]]*=[[:blank:]]* { return EQUAL;}
 <VAR>[[:blank:]]*,[[:blank:]]* { return COMMA;}
 <VAR>\[[[:blank:]]*            { return OBRACKET;}
 <VAR>[[:blank:]]*\]            { return CBRACKET;}
-<VAR>\$                        { return DOLLAR;}
-<VAR>[^=,\[\]\$[:blank:]\.]+   { lvalp->val_str=strdup(yytext); return STRING;}
+
+<VAR>[[:digit:]]+\.            { yytext[yyleng-1] = '\0';
+                                 lvalp->val_int   = atoi(yytext);
+                                 return INTEGER;}
+<VAR>[[:alnum:]_]+             { lvalp->val_str = strdup(yytext);
+                                 return STRING;}
 <VAR>\"[^\"]*\"                { lvalp->val_str = strdup(yytext+1);
                                  lvalp->val_str[yyleng-2] = '\0';
-                                 return STRING; }
+                                 return STRING;}
 
-<VAR><<EOF>>                   { BEGIN(INITIAL); return BLANK;}
+<VAR>\$                        { lvalp->val_char = '\0';
+                                 return BLANK;}
+<VAR>.                         { lvalp->val_char = *yytext;
+                                 BEGIN(INITIAL);
+                                 return BLANK;}
+<VAR><<EOF>>                   { lvalp->val_char = '\0';
+                                 BEGIN(INITIAL);
+                                 return BLANK;}
 
  /* ------------------------------------------------------------------------- */
  /* Just copy the string verbatim till we find a variable (starts with $)     */

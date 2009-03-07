@@ -45,27 +45,29 @@
 
    /* --- Tokens --- */
 
-[[:blank:]\n]*=[[:blank:]]*    {return EQUAL;}
-[[:blank:]\n]*,[[:blank:]\n]*  {return COMMA;}
-[[:blank:]\n]*\[[[:blank:]\n]* {return OBRACKET;}
-[[:blank:]\n]*\][[:blank:]]*   {return CBRACKET;}
-\n                             {return NL;}
+[[:blank:]\n]*=[[:blank:]]*    { return EQUAL;}
+[[:blank:]\n]*,[[:blank:]\n]*  { return COMMA;}
+[[:blank:]\n]*\[[[:blank:]\n]* { return OBRACKET;}
+[[:blank:]\n]*\][[:blank:]]*   { return CBRACKET;}
+\n                             { return NL;}
 
-    /* --- Strings, anything but =,][# Also quoted form --- */
+    /* --- Strings in quoted form and variables alphanumeric - and _ --- */
 
-\"[^\"]*\"         { lvalp->val_str = strdup(yytext+1);
+\"[^\"]+\"         { lvalp->val_str = strdup(yytext+1);
                      lvalp->val_str[yyleng-2] = '\0';
                      return STRING; }
 
-'[^']*'            { lvalp->val_str = strdup(yytext+1);
+'[^']+'            { lvalp->val_str = strdup(yytext+1);
                      lvalp->val_str[yyleng-2] = '\0';
                      return STRING; }
-                     
-[^=#[:blank:]\n,\[\]]* { lvalp->val_str = strdup(yytext); return STRING;}
+
+-?[0-9]+(.[0-9]+)? { lvalp->val_str = strdup(yytext); return STRING;}
+
+[[:alnum:]_]+      { lvalp->val_str = strdup(yytext); return VARIABLE;}
 
 %%
 
 int template_wrap()
 {
     return 1;
-} 
+}
