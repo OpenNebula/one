@@ -656,10 +656,12 @@ public:
     // Context related functions
     // ------------------------------------------------------------------------
     /**
-     *  Writes the context file for this VM.
+     *  Writes the context file for this VM, and gets the paths to be included
+     *  in the context block device (CBD)
+     *    @param  files space separated list of paths to be included in the CBD
      *    @return 0 if success
      */
-    int  write_context();
+    int  generate_context(string &files);
 
 private:
 

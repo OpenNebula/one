@@ -632,7 +632,7 @@ void VirtualMachine::release_network_leases()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::write_context()
+int VirtualMachine::generate_context(string &files)
 {
     ofstream file;
 
@@ -640,6 +640,8 @@ int VirtualMachine::write_context()
     const VectorAttribute *  context;
 
     map<string, string>::const_iterator it;
+
+    files = "";
 
     if ( history == 0 )
         return -1;
@@ -668,6 +670,8 @@ int VirtualMachine::write_context()
         file.close();
         return -1;
     }
+
+    files = context->vector_value("FILES");
 
     const map<string, string> values = context->value();
 
