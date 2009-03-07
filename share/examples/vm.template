@@ -2,7 +2,7 @@
 # VM definition example
 #---------------------------------------
 
-NAME = vm-example 
+NAME = "vm-example"
 
 CPU    = 0.5
 MEMORY = 128
@@ -39,3 +39,10 @@ GRAPHICS = [
   type    = "vnc",              
   listen  = "127.0.0.1",
   port    = "5"]
+
+# --- Context ---
+
+CONTEXT = [
+  hostname   = "$NAME",
+  ip_private = '$NIC[IP, NETWORK="Private LAN"]',
+  ip_gen     = "10.0.0.$VM_ID"]

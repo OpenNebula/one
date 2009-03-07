@@ -9,7 +9,7 @@
 # Name of the VM 
 #---------------------------------------
 
-NAME = vm-example # Optional, Default: one-$VMID, XEN, KVM
+NAME = "vm-example" # Optional, Default: one-$VMID, XEN, KVM
 
 #---------------------------------------
 #               Capacity
@@ -17,7 +17,7 @@ NAME = vm-example # Optional, Default: one-$VMID, XEN, KVM
 
 CPU    = "amount_of_requested_CPU" # Mandatory, XEN, KVM
 MEMORY = "amount_of_requested_MEM" # Mandatory, XEN, KVM
-VCPU   = number of virtual cpus # Optional, default, KVM, XEN
+VCPU   = "number of virtual cpus"  # Optional, default, KVM, XEN
 
 #---------------------------------------
 #         OS and boot options
@@ -85,6 +85,21 @@ GRAPHICS = [                 #Optional, XEN, KVM
 RAW = [ # Optional, KVM, XEN
   type = "xen|kvm",
   data = "raw_domain_configutarion"]
+
+#---------------------------------------
+#  Context for the VM
+#    values can be:
+#    $<template_variable>
+#    $<template_variable>[<attribute>]
+#    $<template_variable>[<attribute>, <attribute2>=<value2>]
+#    $<vm_id>.<context_var>
+#---------------------------------------
+
+CONTEXT = [ # Optional, KVM, XEN
+  var_1 = "value_1",
+  var_n = "value_n",
+  files = "space-separated list of paths to include in context device",
+  target= "device to attach the context device" ]
 
 #---------------------------------------
 #           Scheduler
