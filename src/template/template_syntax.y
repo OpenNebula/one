@@ -28,7 +28,8 @@
 #include "Template.h"
 
 #define YYERROR_VERBOSE
-
+#define TEMPLATE_TO_UPPER(S) transform (S.begin(),S.end(),S.begin(), \
+(int(*)(int))toupper)
 extern "C"
 {
 void template_error(
@@ -69,83 +70,83 @@ int template_parse(Template * tmpl, char ** errmsg);
 %%
 
 template:  attribute
-	| template attribute
+    | template attribute
     ;
 
-attribute:	VARIABLE EQUAL STRING NL
-			{
-				Attribute * pattr;
-				string 		name($1);
-				string		value($3);
+attribute:  VARIABLE EQUAL STRING NL
+            {
+                Attribute * pattr;
+                string      name($1);
+                string      value($3);
 
-				pattr = new SingleAttribute(name,value);
+                pattr = new SingleAttribute(name,value);
 
-				tmpl->set(pattr);
+                tmpl->set(pattr);
 
-				free($1);
-				free($3);
-			}
-		 | 	VARIABLE EQUAL OBRACKET array_val CBRACKET NL
-		 	{
-				Attribute * pattr;
-				string 		name($1);
-				map<string,string> * amap;
+                free($1);
+                free($3);
+            }
+         |  VARIABLE EQUAL OBRACKET array_val CBRACKET NL
+            {
+                Attribute * pattr;
+                string      name($1);
+                map<string,string> * amap;
 
-				amap    = static_cast<map<string,string> *>($4);
-				pattr   = new VectorAttribute(name,*amap);
+                amap    = static_cast<map<string,string> *>($4);
+                pattr   = new VectorAttribute(name,*amap);
 
-				tmpl->set(pattr);
+                tmpl->set(pattr);
 
-				delete amap;
-				free($1);
-		 	}
-		 | 	VARIABLE EQUAL NL
-		 	{
-				Attribute * pattr;
-				string 		name($1);
-				string		value("");
+                delete amap;
+                free($1);
+            }
+         |  VARIABLE EQUAL NL
+            {
+                Attribute * pattr;
+                string      name($1);
+                string      value("");
 
-				pattr = new SingleAttribute(name,value);
+                pattr = new SingleAttribute(name,value);
 
-				tmpl->set(pattr);
+                tmpl->set(pattr);
 
-				free($1);
-		 	}
-		 | 	NL {};
-		 ;
+                free($1);
+            }
+        ;
 
-array_val: 	VARIABLE EQUAL STRING
-			{
-			  	map<string,string>* vattr;
-			  	string				name($1);
-			  	string				value($3);
+array_val:  VARIABLE EQUAL STRING
+            {
+                map<string,string>* vattr;
+                string              name($1);
+                string              value($3);
 
-			    transform (name.begin(),name.end(),name.begin(),(int(*)(int))toupper);
+                TEMPLATE_TO_UPPER(name);
 
-				vattr = new map<string,string>;
-				vattr->insert(make_pair(name,value));
+                vattr = new map<string,string>;
+                vattr->insert(make_pair(name,value));
 
-				$$ = static_cast<void *>(vattr);
+                $$ = static_cast<void *>(vattr);
 
-				free($1);
-				free($3);
-			}
-		| 	array_val COMMA VARIABLE EQUAL STRING
-			{
-				string				 name($3);
-			  	string				 value($5);
-				map<string,string> * attrmap;
+                free($1);
+                free($3);
+            }
+        |   array_val COMMA VARIABLE EQUAL STRING
+            {
+                string               name($3);
+                string               value($5);
+                map<string,string> * attrmap;
 
-			    transform (name.begin(),name.end(),name.begin(),(int(*)(int))toupper);
-				attrmap = static_cast<map<string,string> *>($1);
+                TEMPLATE_TO_UPPER(name);
 
-				attrmap->insert(make_pair(name,value));
-				$$ = $1;
+                attrmap = static_cast<map<string,string> *>($1);
 
-				free($3);
-				free($5);
-			}
-		;
+                attrmap->insert(make_pair(name,value));
+                $$ = $1;
+
+                free($3);
+                free($5);
+            }
+        ;
 %%
 
 extern "C" void template_error(

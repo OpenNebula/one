@@ -36,35 +36,66 @@
 %option header-file="template_parser.h"
 %option yylineno
 
+%x ATTR
+%x VATTR
+
+STRING [^=#[:blank:]\n,\[\]]+
 %%
-    /* --- Comments and blanks --- */
 
-#.*                ;
-^[[:blank:]]*      ;
-[[:blank:]]*(#.*)? ;
+ /* ------------------------------------------------------------------------- */
+ /* Comments (lines with an starting #), and empty lines                      */
+ /* ------------------------------------------------------------------------- */
+[[:blank:]]*#.*\n  ;
+^[[:blank:]\n]*    ;
 
-   /* --- Tokens --- */
+ /* ------------------------------------------------------------------------- */
+ /* Variable                                                                  */
+ /*   - Alpha numeric charatcers                                              */
+ /*   - _                                                                     */
+ /* ------------------------------------------------------------------------- */
+[[:alnum:]_]+  { lvalp->val_str = strdup(yytext);
+                 BEGIN ATTR;
+                 return VARIABLE;}
 
-[[:blank:]\n]*=[[:blank:]]*    { return EQUAL;}
-[[:blank:]\n]*,[[:blank:]\n]*  { return COMMA;}
-[[:blank:]\n]*\[[[:blank:]\n]* { return OBRACKET;}
-[[:blank:]\n]*\][[:blank:]]*   { return CBRACKET;}
-\n                             { return NL;}
+ /* ------------------------------------------------------------------------ */
+ /* TOKENS                                                                   */
+ /* Single attribute (VARIABLE = VALUE)                                      */
+ /* Vector attributes (VARIABLE = [ ATTR1 = VAL1, ATTR2 = VAL2 ])            */
+ /* ------------------------------------------------------------------------ */
+<ATTR,VATTR>[[:blank:]]*=[[:blank:]]* { return EQUAL;}
 
-    /* --- Strings in quoted form and variables alphanumeric - and _ --- */
+<VATTR>[[:blank:]\n]*,[[:blank:]\n]*  { return COMMA;}
 
-\"[^\"]+\"         { lvalp->val_str = strdup(yytext+1);
-                     lvalp->val_str[yyleng-2] = '\0';
-                     return STRING; }
+<VATTR>[[:blank:]\n]*\][[:blank:]]*   { return CBRACKET;}
 
-'[^']+'            { lvalp->val_str = strdup(yytext+1);
-                     lvalp->val_str[yyleng-2] = '\0';
-                     return STRING; }
+<ATTR>[[:blank:]]*\[[[:blank:]\n]*    { BEGIN VATTR;
+                                        return OBRACKET;}
 
--?[0-9]+(.[0-9]+)? { lvalp->val_str = strdup(yytext); return STRING;}
+<VATTR>[[:alnum:]_]+                  { lvalp->val_str = strdup(yytext);
+                                        return VARIABLE;}
 
-[[:alnum:]_]+      { lvalp->val_str = strdup(yytext); return VARIABLE;}
+ /* ------------------------------------------------------------------------ */
+ /* Ending rules for variables                                               */
+ /* ------------------------------------------------------------------------ */
+<ATTR,VATTR>\n       { BEGIN(INITIAL); return NL;}
 
+<ATTR,VATTR><<EOF>>  { BEGIN(INITIAL); return NL;}
+
+ /* ------------------------------------------------------------------------ */
+ /* Attribute values                                                         */
+ /*   - String in quoted forms                                               */
+ /*   - Anything but  =,][# and blanks                                       */
+ /* ------------------------------------------------------------------------ */
+<ATTR,VATTR>\"[^\"]+\" { lvalp->val_str = strdup(yytext+1);
+                         lvalp->val_str[yyleng-2] = '\0';
+                         return STRING; }
+
+<ATTR,VATTR>'[^']+'    { lvalp->val_str = strdup(yytext+1);
+                         lvalp->val_str[yyleng-2] = '\0';
+                         return STRING; }
+
+<ATTR,VATTR>{STRING}   { lvalp->val_str = strdup(yytext);
+                         return STRING;}
 %%
 
 int template_wrap()

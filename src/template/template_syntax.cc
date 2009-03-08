@@ -110,7 +110,8 @@
 #include "Template.h"
 
 #define YYERROR_VERBOSE
-
+#define TEMPLATE_TO_UPPER(S) transform (S.begin(),S.end(),S.begin(), \
+(int(*)(int))toupper)
 extern "C"
 {
 void template_error(
@@ -146,13 +147,13 @@ int template_parse(Template * tmpl, char ** errmsg);
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 50 "template_syntax.y"
+#line 51 "template_syntax.y"
 {
     char * val_str;
     void * val_attr;
 }
 /* Line 187 of yacc.c.  */
-#line 156 "template_syntax.cc"
+#line 157 "template_syntax.cc"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
@@ -177,7 +178,7 @@ typedef struct YYLTYPE
 
 
 /* Line 216 of yacc.c.  */
-#line 181 "template_syntax.cc"
+#line 182 "template_syntax.cc"
 
 #ifdef short
 # undef short
@@ -392,18 +393,18 @@ union yyalloc
 #endif
 
 /* YYFINAL -- State number of the termination state.  */
-#define YYFINAL  6
+#define YYFINAL  5
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   19
+#define YYLAST   18
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  10
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  4
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  9
+#define YYNRULES  8
 /* YYNRULES -- Number of states.  */
-#define YYNSTATES  22
+#define YYNSTATES  21
 
 /* YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.  */
 #define YYUNDEFTOK  2
@@ -449,7 +450,7 @@ static const yytype_uint8 yytranslate[] =
    YYRHS.  */
 static const yytype_uint8 yyprhs[] =
 {
-       0,     0,     3,     5,     8,    13,    20,    24,    26,    30
+       0,     0,     3,     5,     8,    13,    20,    24,    28
 };
 
 /* YYRHS -- A `-1'-separated list of the rules' RHS.  */
@@ -457,14 +458,14 @@ static const yytype_int8 yyrhs[] =
 {
       11,     0,    -1,    12,    -1,    11,    12,    -1,     9,     3,
        8,     7,    -1,     9,     3,     5,    13,     6,     7,    -1,
-       9,     3,     7,    -1,     7,    -1,     9,     3,     8,    -1,
-      13,     4,     9,     3,     8,    -1
+       9,     3,     7,    -1,     9,     3,     8,    -1,    13,     4,
+       9,     3,     8,    -1
 };
 
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    71,    71,    72,    75,    88,   102,   114,   117,   133
+       0,    72,    72,    73,    76,    89,   103,   117,   133
 };
 #endif
 
@@ -491,13 +492,13 @@ static const yytype_uint16 yytoknum[] =
 /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_uint8 yyr1[] =
 {
-       0,    10,    11,    11,    12,    12,    12,    12,    13,    13
+       0,    10,    11,    11,    12,    12,    12,    13,    13
 };
 
 /* YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
-       0,     2,     1,     2,     4,     6,     3,     1,     3,     5
+       0,     2,     1,     2,     4,     6,     3,     3,     5
 };
 
 /* YYDEFACT[STATE-NAME] -- Default rule to reduce with in state
@@ -505,15 +506,15 @@ static const yytype_uint8 yyr2[] =
    means the default is an error.  */
 static const yytype_uint8 yydefact[] =
 {
-       0,     7,     0,     0,     2,     0,     1,     3,     0,     6,
-       0,     0,     0,     4,     0,     0,     0,     8,     0,     5,
-       0,     9
+       0,     0,     0,     2,     0,     1,     3,     0,     6,     0,
+       0,     0,     4,     0,     0,     0,     7,     0,     5,     0,
+       8
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,     3,     4,    12
+      -1,     2,     3,    11
 };
 
 /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
@@ -521,9 +522,9 @@ static const yytype_int8 yydefgoto[] =
 #define YYPACT_NINF -8
 static const yytype_int8 yypact[] =
 {
-      -1,    -8,     2,     0,    -8,    -4,    -8,    -8,    -7,    -8,
-       4,    10,     6,    -8,     7,     5,     9,    -8,    14,    -8,
-      11,    -8
+      -7,     3,     0,    -8,    -4,    -8,    -8,    -1,    -8,     4,
+       7,     1,    -8,     5,     6,     9,    -8,    11,    -8,    10,
+      -8
 };
 
 /* YYPGOTO[NTERM-NUM].  */
@@ -539,23 +540,23 @@ static const yytype_int8 yypgoto[] =
 #define YYTABLE_NINF -1
 static const yytype_uint8 yytable[] =
 {
-       6,     8,    11,     9,    10,     5,     1,     1,     2,     2,
-      15,    13,    16,    14,    18,    17,    19,    20,     7,    21
+       5,     7,     1,     8,     9,    14,     4,    15,    10,     1,
+      13,    12,     0,    16,    19,    17,    18,     6,    20
 };
 
-static const yytype_uint8 yycheck[] =
+static const yytype_int8 yycheck[] =
 {
-       0,     5,     9,     7,     8,     3,     7,     7,     9,     9,
-       4,     7,     6,     3,     9,     8,     7,     3,     3,     8
+       0,     5,     9,     7,     8,     4,     3,     6,     9,     9,
+       3,     7,    -1,     8,     3,     9,     7,     2,     8
 };
 
 /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
    symbol of state STATE-NUM.  */
 static const yytype_uint8 yystos[] =
 {
-       0,     7,     9,    11,    12,     3,     0,    12,     5,     7,
-       8,     9,    13,     7,     3,     4,     6,     8,     9,     7,
-       3,     8
+       0,     9,    11,    12,     3,     0,    12,     5,     7,     8,
+       9,    13,     7,     3,     4,     6,     8,     9,     7,     3,
+       8
 };
 
 #define yyerrok		(yyerrstatus = 0)
@@ -1405,98 +1406,94 @@ yyreduce:
   switch (yyn)
     {
         case 4:
-#line 76 "template_syntax.y"
+#line 77 "template_syntax.y"
     {
-				Attribute * pattr;
-				string 		name((yyvsp[(1) - (4)].val_str));
-				string		value((yyvsp[(3) - (4)].val_str));
+                Attribute * pattr;
+                string      name((yyvsp[(1) - (4)].val_str));
+                string      value((yyvsp[(3) - (4)].val_str));
 
-				pattr = new SingleAttribute(name,value);
+                pattr = new SingleAttribute(name,value);
 
-				tmpl->set(pattr);
+                tmpl->set(pattr);
 
-				free((yyvsp[(1) - (4)].val_str));
-				free((yyvsp[(3) - (4)].val_str));
-			;}
+                free((yyvsp[(1) - (4)].val_str));
+                free((yyvsp[(3) - (4)].val_str));
+            ;}
     break;
 
   case 5:
-#line 89 "template_syntax.y"
+#line 90 "template_syntax.y"
     {
-				Attribute * pattr;
-				string 		name((yyvsp[(1) - (6)].val_str));
-				map<string,string> * amap;
+                Attribute * pattr;
+                string      name((yyvsp[(1) - (6)].val_str));
+                map<string,string> * amap;
 
-				amap    = static_cast<map<string,string> *>((yyvsp[(4) - (6)].val_attr));
-				pattr   = new VectorAttribute(name,*amap);
+                amap    = static_cast<map<string,string> *>((yyvsp[(4) - (6)].val_attr));
+                pattr   = new VectorAttribute(name,*amap);
 
-				tmpl->set(pattr);
+                tmpl->set(pattr);
 
-				delete amap;
-				free((yyvsp[(1) - (6)].val_str));
-		 	;}
+                delete amap;
+                free((yyvsp[(1) - (6)].val_str));
+            ;}
     break;
 
   case 6:
-#line 103 "template_syntax.y"
+#line 104 "template_syntax.y"
     {
-				Attribute * pattr;
-				string 		name((yyvsp[(1) - (3)].val_str));
-				string		value("");
+                Attribute * pattr;
+                string      name((yyvsp[(1) - (3)].val_str));
+                string      value("");
 
-				pattr = new SingleAttribute(name,value);
+                pattr = new SingleAttribute(name,value);
 
-				tmpl->set(pattr);
+                tmpl->set(pattr);
 
-				free((yyvsp[(1) - (3)].val_str));
-		 	;}
+                free((yyvsp[(1) - (3)].val_str));
+            ;}
     break;
 
   case 7:
-#line 114 "template_syntax.y"
-    {;}
+#line 118 "template_syntax.y"
+    {
+                map<string,string>* vattr;
+                string              name((yyvsp[(1) - (3)].val_str));
+                string              value((yyvsp[(3) - (3)].val_str));
+
+                TEMPLATE_TO_UPPER(name);
+
+                vattr = new map<string,string>;
+                vattr->insert(make_pair(name,value));
+
+                (yyval.val_attr) = static_cast<void *>(vattr);
+
+                free((yyvsp[(1) - (3)].val_str));
+                free((yyvsp[(3) - (3)].val_str));
+            ;}
     break;
 
   case 8:
-#line 118 "template_syntax.y"
-    {
-			  	map<string,string>* vattr;
-			  	string				name((yyvsp[(1) - (3)].val_str));
-			  	string				value((yyvsp[(3) - (3)].val_str));
-
-			    transform (name.begin(),name.end(),name.begin(),(int(*)(int))toupper);
-
-				vattr = new map<string,string>;
-				vattr->insert(make_pair(name,value));
-
-				(yyval.val_attr) = static_cast<void *>(vattr);
-
-				free((yyvsp[(1) - (3)].val_str));
-				free((yyvsp[(3) - (3)].val_str));
-			;}
-    break;
-
-  case 9:
 #line 134 "template_syntax.y"
     {
-				string				 name((yyvsp[(3) - (5)].val_str));
-			  	string				 value((yyvsp[(5) - (5)].val_str));
-				map<string,string> * attrmap;
+                string               name((yyvsp[(3) - (5)].val_str));
+                string               value((yyvsp[(5) - (5)].val_str));
+                map<string,string> * attrmap;
 
-			    transform (name.begin(),name.end(),name.begin(),(int(*)(int))toupper);
-				attrmap = static_cast<map<string,string> *>((yyvsp[(1) - (5)].val_attr));
+                TEMPLATE_TO_UPPER(name);
 
-				attrmap->insert(make_pair(name,value));
-				(yyval.val_attr) = (yyvsp[(1) - (5)].val_attr);
+                attrmap = static_cast<map<string,string> *>((yyvsp[(1) - (5)].val_attr));
 
-				free((yyvsp[(3) - (5)].val_str));
-				free((yyvsp[(5) - (5)].val_str));
-			;}
+                attrmap->insert(make_pair(name,value));
+                (yyval.val_attr) = (yyvsp[(1) - (5)].val_attr);
+
+                free((yyvsp[(3) - (5)].val_str));
+                free((yyvsp[(5) - (5)].val_str));
+            ;}
     break;
 
 
 /* Line 1267 of yacc.c.  */
-#line 1500 "template_syntax.cc"
+#line 1497 "template_syntax.cc"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1716,7 +1713,7 @@ yyreturn:
 }
 
 
-#line 149 "template_syntax.y"
+#line 150 "template_syntax.y"
 
 
 extern "C" void template_error(

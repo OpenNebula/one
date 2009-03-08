@@ -62,7 +62,7 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 50 "template_syntax.y"
+#line 51 "template_syntax.y"
 {
     char * val_str;
     void * val_attr;
