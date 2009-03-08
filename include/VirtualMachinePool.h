@@ -155,10 +155,9 @@ private:
     /**
      *  Generate context file to be sourced upon VM booting
      *  @param vm_id, ID of the VM to generate context for
-     *  @param attrs, the template CONTEXT attributes (only the first one will
-     *  be used)
+     *  @param attr, the template CONTEXT attribute (the first one)
      */
-    void generate_context(int vm_id, vector<Attribute *> attrs);
+    void generate_context(int vm_id, Attribute * attr);
 
     /**
      *  Factory method to produce VM objects

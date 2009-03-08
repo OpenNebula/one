@@ -33,7 +33,7 @@ int VirtualMachinePool::allocate (
     VirtualMachine * vm;
 
     char *  error_msg;
-    int     rc;
+    int     rc, num_attr;
 
     vector<Attribute *> attrs;
 
@@ -84,13 +84,16 @@ int VirtualMachinePool::allocate (
     // ------------------------------------------------------------------------
     // Insert parsed context in the VM template and clean-up
     // ------------------------------------------------------------------------
-    generate_context(*oid,attrs);
-
-    for (int i = 0; i < (int) attrs.size() ; i++)
+    if ((num_attr = (int) attrs.size()) > 0)
     {
-        if (attrs[i] != 0)
+        generate_context(*oid,attrs[0]);
+
+        for (int i = 0; i < num_attr ; i++)
         {
-            delete attrs[i];
+            if (attrs[i] != 0)
+            {
+                delete attrs[i];
+            }
         }
     }
 
@@ -133,7 +136,7 @@ int VirtualMachinePool::get_pending(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachinePool::generate_context(int vm_id, vector<Attribute *> attrs)
+void VirtualMachinePool::generate_context(int vm_id, Attribute * attr)
 {
     VirtualMachine *  vm;
     VectorAttribute * context_parsed;
@@ -146,12 +149,7 @@ void VirtualMachinePool::generate_context(int vm_id, vector<Attribute *> attrs)
 
     char *            error_msg;
 
-    if ( attrs.size() == 0 )
-    {
-        return;
-    }
-
-    context = dynamic_cast<VectorAttribute *>(attrs[0]);
+    context = dynamic_cast<VectorAttribute *>(attr);
 
     if (context == 0)
     {
