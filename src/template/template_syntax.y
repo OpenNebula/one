@@ -59,13 +59,12 @@ int template_parse(Template * tmpl, char ** errmsg);
 %name-prefix = "template_"
 %output      = "template_syntax.cc"
 
-%token EQUAL COMMA OBRACKET CBRACKET
-%token <void>  		NL
-%token <val_str>  	STRING
+%token EQUAL COMMA OBRACKET CBRACKET EQUAL_EMPTY
+%token <val_str>    STRING
 %token <val_str>    VARIABLE
-%type  <val_attr>  	array_val
-%type  <void>		attribute
-%type  <void>   	template
+%type  <val_attr>   array_val
+%type  <void>       attribute
+%type  <void>       template
 
 %%
 
@@ -73,7 +72,7 @@ template:  attribute
     | template attribute
     ;
 
-attribute:  VARIABLE EQUAL STRING NL
+attribute:  VARIABLE EQUAL STRING
             {
                 Attribute * pattr;
                 string      name($1);
@@ -86,7 +85,7 @@ attribute:  VARIABLE EQUAL STRING NL
                 free($1);
                 free($3);
             }
-         |  VARIABLE EQUAL OBRACKET array_val CBRACKET NL
+         |  VARIABLE EQUAL OBRACKET array_val CBRACKET
             {
                 Attribute * pattr;
                 string      name($1);
@@ -100,7 +99,7 @@ attribute:  VARIABLE EQUAL STRING NL
                 delete amap;
                 free($1);
             }
-         |  VARIABLE EQUAL NL
+         |  VARIABLE EQUAL_EMPTY
             {
                 Attribute * pattr;
                 string      name($1);

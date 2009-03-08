@@ -43,7 +43,7 @@
      COMMA = 259,
      OBRACKET = 260,
      CBRACKET = 261,
-     NL = 262,
+     EQUAL_EMPTY = 262,
      STRING = 263,
      VARIABLE = 264
    };
@@ -53,7 +53,7 @@
 #define COMMA 259
 #define OBRACKET 260
 #define CBRACKET 261
-#define NL 262
+#define EQUAL_EMPTY 262
 #define STRING 263
 #define VARIABLE 264
 

@@ -208,8 +208,7 @@ extern char *template_text;
 
 #ifdef YY_HEADER_EXPORT_START_CONDITIONS
 #define INITIAL 0
-#define ATTR 1
-#define VATTR 2
+#define VALUE 1
 
 #endif
 
@@ -313,9 +312,9 @@ extern int template_lex (void);
 #undef YY_DECL
 #endif
 
-#line 99 "template_parser.l"
+#line 85 "template_parser.l"
 
 
-#line 320 "template_parser.h"
+#line 319 "template_parser.h"
 #undef template_IN_HEADER
 #endif /* template_HEADER_H */
