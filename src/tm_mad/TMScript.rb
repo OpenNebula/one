@@ -46,7 +46,9 @@ for scripts to do so is as follows:
 class TMPlugin < Hash
     # If a +scripts_file+ is supplied commands are loaded from it.
     def initialize(scripts_file=nil)
-        super
+        # Pass nil default value to hash initialization or it will use
+        # scripts file as the default value if the key does not exist
+        super(nil)
         load_scripts(scripts_file) if scripts_file
     end
    
