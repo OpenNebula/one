@@ -78,7 +78,7 @@ class EC2Driver < VirtualMachineDriver
             ec2 = xml.root.elements["EC2"]
 
             return if !ec2
-
+            
             @defaults["KEYPAIR"]         = ec2_value(ec2,"KEYPAIR")
             @defaults["AUTHORIZEDPORTS"] = ec2_value(ec2,"AUTHORIZEDPORTS")
             @defaults["INSTANCETYPE"]    = ec2_value(ec2,"INSTANCETYPE")
@@ -101,13 +101,30 @@ class EC2Driver < VirtualMachineDriver
         tmp = File.new(local_dfile)
         xml = REXML::Document.new tmp
         tmp.close()
+        
+        ec2 = nil
 
-        ec2 = xml.root.elements["EC2"]
+        all_ec2_elements = xml.root.get_elements("EC2")
+    
+        # First, let's see if we have an EC2 site that matches 
+        # our desired host name
+        all_ec2_elements.each { |element| 
+            if element.elements["CLOUD"].text.upcase == host.upcase
+                ec2 = element
+            end
+        }
 
         if !ec2
-            send_message(ACTION[:deploy],RESULT[:failure],id,
-                "Can not find EC2 element in deployment file #{local_dfile}")
-            return
+            # If we don't find the EC2 site, and ONE just 
+            # knows about one EC2 site, let's use that
+            if all_ec2_elements.size == 1
+                ec2 = all_ec2_elements[0]
+            else
+                send_message(ACTION[:deploy],RESULT[:failure],id,
+                    "Can not find EC2 element in deployment file #{local_dfile}" +
+                    " or couldn't find any EC2 site matching one of the template.")
+                return
+            end
         end
 
         ami     = ec2_value(ec2,"AMI")
@@ -239,7 +256,7 @@ end
 # EC2Driver Main program
 # ---------------------------------------------------------------------------- #
 
-ec2_conf = ARGV[0]
+ec2_conf = ARGV.last
 
 if ec2_conf
     ec2_conf = ETC_LOCATION + ec2_conf if ec2_conf[0] != ?/

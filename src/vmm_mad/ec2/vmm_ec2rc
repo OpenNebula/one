@@ -17,6 +17,6 @@
 
 #May be needed in some setups
 #CLASSPATH=""
-EC2_HOME="<path_to_ec2_utils>"
-EC2_PRIVATE_KEY="<path_to_your_ec2_pem_key>"
-EC2_CERT="<path_to_your_ec2_pem_cert>"
+#EC2_HOME="<path_to_ec2_utils>"
+#EC2_PRIVATE_KEY="<path_to_your_ec2_pem_key>"
+#EC2_CERT="<path_to_your_ec2_pem_cert>"
