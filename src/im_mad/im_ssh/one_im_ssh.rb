@@ -31,14 +31,12 @@ end
 
 $: << RUBY_LIB_LOCATION
 
-require 'pp'
 
-require 'one_mad'
-#require 'open3'
+require 'pp'
 require 'digest/md5'
 require 'fileutils'
-require 'thread'
-require 'one_ssh'
+require 'OpenNebulaDriver'
+require 'CommandManager'
 
 DEBUG_LEVEL=ENV["ONE_MAD_DEBUG"]
 
@@ -47,54 +45,29 @@ DEBUG_LEVEL=ENV["ONE_MAD_DEBUG"]
 ##
 ERROR, DEBUG=[0,1]
 
-
-
-####################
-# SENSOR DEFINTION #
-####################
-
-class Sensor < SSHCommand
-    attr_accessor :name, :script, :value, :ok, :identifier
-    attr_accessor :script_hash
-
-    # Sets remote script directory for all sensors
-    def self.set_script_dir(script_dir)
-        @@remote_dir=script_dir
-    end
-
-    # Constructor, takes the name of the sensor and the script that provides that sensors
+# This class holds the information of a IM probe and the methods
+# to copy the script to the remote hosts and run it
+class Sensor
+    attr_accessor   :remote_dir
+    attr_reader     :name, :script
+    
     def initialize(name, script)
-        @name=name || ""
-        @script=script || ""
-        @value=nil
-        @ok=false
-
+        @name=name
+        @script=script
+        
         gen_identifier
-        @script_hash=gen_hash
-        super(script)
     end
     
-    # Runs the sensor in some host
-    def run(host=nil)
-        if !File.exists? @script
-            STDERR.puts("Script file does not exist: "+@script.to_s)
-            return
-        end
+    def execute(host, log_proc)
+        script_text=File.read @script
+        scr="'mkdir -p #{remote_dir};cat > #{remote_script};if [ \"x$?\" != \"x0\" ]; then exit 42;fi;chmod +x #{remote_script};#{remote_script}'"
         
-        create_remote_dir(host)
-        
-        if !send_script(host)
-            STDERR.puts("Can not send script to remote machine: "+host)
-            @value="Can not send script to remote machine: "+host
-            return
-        end
-        
-        (stdout, stderr)=execute(host, remote_script) 
-        code=get_exit_code(stderr)
-        if code==0
+        cmd=SSHCommand.run(scr, host, log_proc, script_text)
+        case cmd.code
+        when 0
             # Splits the output by lines, strips each line and gets only
             # lines that have something
-            @value=stdout.split("\n").collect {|v| 
+            value=cmd.stdout.split("\n").collect {|v| 
                 v2=v.strip
                 if v2==""
                     nil
@@ -103,35 +76,52 @@ class Sensor < SSHCommand
                 end
             }.compact.join(",")
             
-            @ok=true
-            if @value.length==0
-                @ok=false
-                @value=nil
+        when 42
+            log_proc.call("Can not send script to remote machine: "+host)
+            nil
+        else
+            value="Could not execute remote script in " +
+                host + ": "+remote_script
+            log_proc.call(value)
+            nil
+        end
+    end
+
+    def execute_old(host, log_proc)
+        if send_script(host, log_proc)
+            cmd=SSHCommand.run(@script, host, log_proc)
+            if cmd.code==0
+                # Splits the output by lines, strips each line and gets only
+                # lines that have something
+                value=cmd.stdout.split("\n").collect {|v| 
+                    v2=v.strip
+                    if v2==""
+                        nil
+                    else
+                        v2
+                    end
+                }.compact.join(",")
+            else
+                value="Could not execute remote script in " +
+                    host + ": "+remote_script
+                log_proc.call(value)
+                nil
             end
         else
-            STDERR.puts("Could not execute remote script in " +
-                host + ": "+remote_script)
-            @value="Could not execute remote script in " +
-                host + ": "+remote_script
+            nil
         end
     end
     
-    def create_remote_dir(host)
-        execute(host, "mkdir -p " + @@remote_dir)
-    end
-    
-    # Copies the script to the remote machine
-    def send_script(host)
-        # TODO: only copy when necessary
-        (stdout, stderr)=exec_local_command("scp #{@script} #{host}:#{remote_script}")
-        code=get_exit_code(stderr)
-        
-        code==0
-    end
-    
-    # Returns the path of the script in the remote machine
-    def remote_script
-        @@remote_dir+"/ne_im-"+identifier
+private
+
+    def send_script(host, log_proc)
+        cmd=LocalCommand.run("scp #{script} #{host}:#{@remote_dir}")
+        if cmd.code==0
+            true
+        else
+            log_proc.call("Can not send script to remote machine: "+host)
+            false
+        end
     end
     
     # Generates an unique identifier using name of the sensor and its script
@@ -139,53 +129,62 @@ class Sensor < SSHCommand
         id=@name+@script
         @identifier=Digest::MD5.hexdigest(id)
     end
-
-    # Generates an MD5 hash of a file
-    def gen_hash
-        if !File.exists? @script
-            STDERR.puts("Script file does not exist: "+@script.to_s)
-            return nil
-        else
-            f=open(@script)
-            data=f.read
-            f.close
-            return Digest::MD5.hexdigest(data)
-        end 
+    
+    # Returns the path of the script in the remote machine
+    def remote_script
+        @remote_dir+"/ne_im-"+@identifier
     end
     
-    def ok?
-        @ok
-    end
 end
 
 
-#################
-# SENSOR LOADER #
-#################
+class SensorList < Array
+    def initialize(config_file=nil)
+        super(0)
+        
+        @remote_dir='/tmp/ne_im_scripts'
+        
+        load_sensors(config_file) if config_file
+    end
+    
+    def execute_sensors(host, log_proc)
+        results=Array.new
+        self.each {|sensor|
+            results<<sensor.execute(host, log_proc)
+        }
+        results
+    end
+    
+private
 
-class SensorList < SSHCommandList
+    # Load sensors from a configuration file
     def load_sensors(file)
         f=open(file, "r")
-        
+    
         f.each_line {|line|
             parse_line(line.strip)
         }
-        
+    
         f.close
+        
+        set_remote_dir(@remote_dir)
+        set_remote_dir("/tmp/lerolero")
     end
     
+    # Sets the directory where to put scripts in the remote machine
     def set_remote_dir(dir)
-        Sensor.set_script_dir(dir)
+        self.each {|sensor| sensor.remote_dir=dir }
     end
-    
+
+    # Parses one line of the configuration file
     def parse_line(line)
         # Strip coments
         l=line.gsub(/#.*$/, "")
         case l
         when ""
             return
-        when /^REMOTE_DIR=/
-            set_remote_dir(l.split("=")[-1].strip)
+        when /^REMOTE_DIR\s*=/
+            @remote_dir=l.split("=")[-1].strip
         when /^[^=]+=[^=]+$/
             (name, script)=l.split("=")
             name.strip!
@@ -199,84 +198,30 @@ class SensorList < SSHCommandList
 end
 
 
-##################
-# POLLING ACTION #
-##################
+class InformationManager < OpenNebulaDriver
 
-class PollAction < SSHAction
-    def get_result
-        good_results=@actions.select{|s| s.ok? }
+    def initialize(config_file, num)
+        super(num, true)
         
-        if good_results.length>0
-            "MONITOR SUCCESS " + @number.to_s + " " + 
-                good_results.collect{|s| s.value }.join(',')
-        else
-            bad_results=@actions.select{|s| !s.ok? && s.value }
-            err_text="Unknown error"
-            err_text=bad_results[0].value.to_s if bad_results.length>0
-            "MONITOR FAILURE " + @number.to_s + " " + err_text
-        end
-    end
-end
-
-
-##########
-# IM MAD #
-##########
-
-class IM < ONEMad
-    include SSHActionController
-
-    def initialize(sensors=nil)
-        super(3, 4)
+        @sensor_list=SensorList.new(config_file)
         
-        if DEBUG_LEVEL and !DEBUG_LEVEL.empty? 
-            set_logger(STDERR,DEBUG_LEVEL)
-        end
-
-        if sensors
-            @sensors=sensors
-        else
-            @sensors=SensorList.new
-        end
-        
-        init_actions
-    end
-
-    def action_init(args)
-        STDOUT.puts "INIT SUCCESS"
-        STDOUT.flush
-        log("INIT SUCCESS",DEBUG)
+        # register actions
+        register_action(:MONITOR, method("action_monitor"))
     end
     
-    def action_monitor(args)
-        action=PollAction.new(args[1], args[2], @sensors)
-        action.callback=lambda {|actions,number|
-            result=get_result(actions, number)
-            STDOUT.puts result
-            STDOUT.flush
-            log(result,DEBUG)
-        }
-        send_ssh_action(action)
-    end
-    
-    def get_result(actions, number)
-        good_results=actions.select{|s| s.ok? }
-        
-        if good_results.length>0
-            "MONITOR SUCCESS " + number.to_s + " " + 
-                good_results.collect{|s| s.value }.join(',')
+    def action_monitor(number, host)
+        results=@sensor_list.execute_sensors(host, log_method(number))
+        information=results.select{|res| res && !res.empty? }.join(",")
+        if information and !information.empty?
+            send_message("MONITOR", RESULT[:success], number, information)
         else
-            bad_results=actions.select{|s| !s.ok? && s.value }
-            err_text="Unknown error"
-            err_text=bad_results[0].value.to_s if bad_results.length>0
-            "MONITOR FAILURE " + number.to_s + " " + err_text
+            send_message("MONITOR", RESULT[:failure], number,
+                "Could not monitor host #{host}.")
         end
     end
+
 end
 
-
-sensors=SensorList.new
 im_conf=ARGV[0]
 
 if !im_conf
@@ -285,9 +230,6 @@ if !im_conf
 end
 
 im_conf=ETC_LOCATION+im_conf if im_conf[0] != ?/
-sensors.load_sensors(im_conf)
 
-im=IM.new(sensors)
-
-im.loop
-
+im=InformationManager.new(im_conf, 15)
+im.start_driver
