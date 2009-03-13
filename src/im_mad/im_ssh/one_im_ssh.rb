@@ -87,42 +87,7 @@ class Sensor
         end
     end
 
-    def execute_old(host, log_proc)
-        if send_script(host, log_proc)
-            cmd=SSHCommand.run(@script, host, log_proc)
-            if cmd.code==0
-                # Splits the output by lines, strips each line and gets only
-                # lines that have something
-                value=cmd.stdout.split("\n").collect {|v| 
-                    v2=v.strip
-                    if v2==""
-                        nil
-                    else
-                        v2
-                    end
-                }.compact.join(",")
-            else
-                value="Could not execute remote script in " +
-                    host + ": "+remote_script
-                log_proc.call(value)
-                nil
-            end
-        else
-            nil
-        end
-    end
-    
 private
-
-    def send_script(host, log_proc)
-        cmd=LocalCommand.run("scp #{script} #{host}:#{@remote_dir}")
-        if cmd.code==0
-            true
-        else
-            log_proc.call("Can not send script to remote machine: "+host)
-            false
-        end
-    end
     
     # Generates an unique identifier using name of the sensor and its script
     def gen_identifier
