@@ -47,7 +47,7 @@ xm_text.each_line {|line|
     case columns[0]
     when 'total_memory'
         memory_info[:total]=columns[1].to_i*1024
-    when 'free_memory'
+    when 'max_free_memory'
         memory_info[:free]=columns[1].to_i*1024
     when 'nr_cpus'
         cpu_info[:total]=columns[1].to_f*100
