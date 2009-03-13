@@ -168,7 +168,6 @@ private
         f.close
         
         set_remote_dir(@remote_dir)
-        set_remote_dir("/tmp/lerolero")
     end
     
     # Sets the directory where to put scripts in the remote machine
