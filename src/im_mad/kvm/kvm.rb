@@ -56,9 +56,9 @@ top_text.split(/\n/).each{|line|
         line[7..-1].split(",").each{|elemento|
             temp = elemento.strip.split("%")
             if temp[1]=="id"
-                $free_cpu = temp[0]
-                used     = temp[0].to_f
-                $used_cpu = (((100 - used)*100).round / 100).to_f.to_s
+	        idle = temp[0] 
+ 	        $free_cpu = idle.to_f * $total_cpu.to_f / 100 
+ 	        $used_cpu = $total_cpu.to_f - $free_cpu                 
                 break
             end
 
