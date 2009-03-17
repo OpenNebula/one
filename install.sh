@@ -234,7 +234,8 @@ NFS_TM_COMMANDS_LIB_FILES="src/tm_mad/nfs/tm_clone.sh \
                            src/tm_mad/nfs/tm_ln.sh \
                            src/tm_mad/nfs/tm_mkswap.sh \
                            src/tm_mad/nfs/tm_mkimage.sh \
-                           src/tm_mad/nfs/tm_mv.sh"
+                           src/tm_mad/nfs/tm_mv.sh \
+                           src/tm_mad/nfs/tm_context.sh"
 
 SSH_TM_COMMANDS_LIB_FILES="src/tm_mad/ssh/tm_clone.sh \
                            src/tm_mad/ssh/tm_delete.sh \
