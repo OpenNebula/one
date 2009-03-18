@@ -17,10 +17,10 @@
 
 require 'pp'
 require 'open3'
+require 'stringio'
 
 # Generic command executor that holds the code shared by all the command
-# executors. Commands can have an associated callback that will be
-# after they finish.
+# executors.
 #
 # Properties:
 #
@@ -28,10 +28,8 @@ require 'open3'
 # * +stdout+: string of the standard output. Read-only
 # * +stderr+: string of the standard error. Read-only
 # * +command+: command to execute. Read-only
-# * +callback+: proc to execute after command execution. Read-Write
 class GenericCommand
     attr_reader :code, :stdout, :stderr, :command
-    attr_accessor :callback
 
     # Creates a command and runs it
     def self.run(command, logger=nil, stdin=nil)
@@ -47,7 +45,6 @@ class GenericCommand
         @command = command
         @logger  = logger
         @stdin   = stdin
-        @callback= nil
     end
 
     # Sends a log message to the logger proc
@@ -55,10 +52,8 @@ class GenericCommand
         @logger.call(message) if @logger
     end
 
-    # Runs the command and calls the callback if it is defined
-    # +data+: variable to pass to the callaback to provide data
-    # or to share with other callbacks
-    def run(data=nil)
+    # Runs the command
+    def run
         std = execute
 
         # Close standard IO descriptors
@@ -75,8 +70,6 @@ class GenericCommand
         std[2].close if !std[2].closed?
 
         @code=get_exit_code(@stderr)
-
-        @callback.call(self, data) if @callback
 
         if @code!=0
             log("Command execution fail: #{command}")
@@ -149,48 +142,27 @@ end
 
 if $0 == __FILE__
 
-    data={}
+    command=GenericCommand.run("uname -a")
+    puts command.stderr
 
-    command=GenericCommand.new("uname -a")
-    command.callback=lambda {|obj,data|
-        puts obj.stderr
+    local_command=LocalCommand.run("uname -a")
+    puts "STDOUT:"
+    puts local_command.stdout
+    puts
+    puts "STDERR:"
+    puts local_command.stderr
 
-        data[1]=[obj.command, obj.code]
-    }
-
-   # command.run(data)
-
-    local_command=LocalCommand.new("uname -a")
-    local_command.callback=lambda {|obj,data|
-        puts "STDOUT:"
-        puts obj.stdout
-        puts
-        puts "STDERR:"
-        puts obj.stderr
-
-        data[2]=[obj.command, obj.code]
-    }
-
-    local_command.run(data)
-
-    ssh_command=SSHCommand.new("uname -a", "localhost")
-    ssh_command.callback=lambda {|obj,data|
-        puts "STDOUT:"
-        puts obj.stdout
-        puts
-        puts "STDERR:"
-        puts obj.stderr
-
-        data[3]=[obj.command, obj.host, obj.code]
-    }
-
-    ssh_command.run(data)
+    ssh_command=SSHCommand.run("uname -a", "localhost")
+    puts "STDOUT:"
+    puts ssh_command.stdout
+    puts
+    puts "STDERR:"
+    puts ssh_command.stderr
 
     fd  = File.new("/etc/passwd")
     str = String.new
     fd.each {|line| str << line}
     fd.close
 
-    ssh_in = SSHCommand.new("cat > /tmp/test","localhost",nil,str)
-    ssh_in.run
+    ssh_in = SSHCommand.run("cat > /tmp/test","localhost",nil,str)
 end
