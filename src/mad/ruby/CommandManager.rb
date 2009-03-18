@@ -59,8 +59,6 @@ class GenericCommand
     # +data+: variable to pass to the callaback to provide data
     # or to share with other callbacks
     def run(data=nil)
-        log("About to execute #{command}")
-
         std = execute
 
         # Close standard IO descriptors
@@ -78,12 +76,11 @@ class GenericCommand
 
         @code=get_exit_code(@stderr)
 
-        log("Command executed, exit code: #{@code}")
-
         @callback.call(self, data) if @callback
 
         if @code!=0
-            log("Command execution fail. STDERR follows.")
+            log("Command execution fail: #{command}")
+            log("STDERR follows.")
             log(@stderr)
         end
 
