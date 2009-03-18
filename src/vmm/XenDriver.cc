@@ -265,14 +265,14 @@ int XenDriver::deployment_description(
     if ( vm->get_template_attribute("CONTEXT",attrs) == 1 )
     {
         context = dynamic_cast<const VectorAttribute *>(attrs[0]);
-        target  = disk->vector_value("TARGET");
+        target  = context->vector_value("TARGET");
 
         if ( !target.empty() )
         {
             file << "    "
                  << "'tap:aio:" << vm->get_remote_dir() << "/disk." << num <<","
                  << target << ","
-                 << "ro'," << endl;
+                 << "r'," << endl;
         }
         else
         {
