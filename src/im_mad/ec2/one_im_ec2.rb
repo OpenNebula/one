@@ -38,8 +38,8 @@ class EC2InformationManagerDriver < OpenNebulaDriver
     # Init the driver, and compute the predefined maximum capacity for this
     # EC2 cloud
     #---------------------------------------------------------------------------
-    def initialize(num=15)
-        super(num,false)
+    def initialize()
+        super(1,false)
 
         register_action(:MONITOR, method("action_monitor"))
 
@@ -76,5 +76,5 @@ end
 # The EC2 Information Driver main program
 #-------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------
-im = EC2InformationManagerDriver.new(15)
+im = EC2InformationManagerDriver.new
 im.start_driver
