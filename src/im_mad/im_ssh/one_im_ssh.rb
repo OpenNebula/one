@@ -38,144 +38,138 @@ require 'fileutils'
 require 'OpenNebulaDriver'
 require 'CommandManager'
 
-DEBUG_LEVEL=ENV["ONE_MAD_DEBUG"]
-
-##
-#  Debug constants
-##
-ERROR, DEBUG=[0,1]
-
-# This class holds the information of a IM probe and the methods
-# to copy the script to the remote hosts and run it
+#-------------------------------------------------------------------------------
+# This class holds the information of a IM probe and the methods to copy the
+# script to the remote hosts and run it
+#-------------------------------------------------------------------------------
 class Sensor
-    attr_accessor   :remote_dir
-    attr_reader     :name, :script
-    
-    def initialize(name, script)
-        @name=name
-        @script=script
-        
-        gen_identifier
+
+    #---------------------------------------------------------------------------
+    # Class constructor init the remote script name and working directory
+    #---------------------------------------------------------------------------
+    def initialize(name, script, remote_dir)
+        id = Digest::MD5.hexdigest("#{name}#{script}")
+
+        @script        = script
+        @remote_script = "#{remote_dir}/one_im-#{id}"
+        @remote_dir    = remote_dir
     end
-    
+
+    #---------------------------------------------------------------------------
+    # Sends the monitor probe script to the remote host and execute it
+    #---------------------------------------------------------------------------
     def execute(host, log_proc)
-        script_text=File.read @script
-        scr="'mkdir -p #{remote_dir};cat > #{remote_script};if [ \"x$?\" != \"x0\" ]; then exit 42;fi;chmod +x #{remote_script};#{remote_script}'"
-        
-        cmd=SSHCommand.run(scr, host, log_proc, script_text)
+        script_text = File.read @script
+
+        src = "'mkdir -p #{@remote_dir}; cat > #{@remote_script};" \
+              " if [ \"x$?\" != \"x0\" ]; then exit -1; fi;" \
+              " chmod +x #{@remote_script}; #{@remote_script}'"
+
+        cmd = SSHCommand.run(src, host, log_proc, script_text)
+
         case cmd.code
         when 0
             # Splits the output by lines, strips each line and gets only
             # lines that have something
-            value=cmd.stdout.split("\n").collect {|v| 
-                v2=v.strip
-                if v2==""
+            value = cmd.stdout.split("\n").collect {|v|
+                v2 = v.strip
+                if v2 == ""
                     nil
                 else
                     v2
                 end
             }.compact.join(",")
-            
-        when 42
-            log_proc.call("Can not send script to remote machine: "+host)
-            nil
         else
-            value="Could not execute remote script in " +
-                host + ": "+remote_script
-            log_proc.call(value)
             nil
         end
     end
-
-private
-    
-    # Generates an unique identifier using name of the sensor and its script
-    def gen_identifier
-        id=@name+@script
-        @identifier=Digest::MD5.hexdigest(id)
-    end
-    
-    # Returns the path of the script in the remote machine
-    def remote_script
-        @remote_dir+"/ne_im-"+@identifier
-    end
-    
 end
 
 
+#-------------------------------------------------------------------------------
+# This class is an array of sensor probes to be executed by the information
+# driver. The class is built on top of the Sensor class
+#-------------------------------------------------------------------------------
 class SensorList < Array
-    def initialize(config_file=nil)
+    #---------------------------------------------------------------------------
+    # Initialize the class
+    #---------------------------------------------------------------------------
+    def initialize(config_file, remote_dir)
         super(0)
-        
-        @remote_dir='/tmp/ne_im_scripts'
-        
-        load_sensors(config_file) if config_file
+
+        @remote_dir = remote_dir
+
+        load_sensors(config_file)
     end
-    
+
+    #---------------------------------------------------------------------------
+    # Execute all sensors in the list in the given host
+    #---------------------------------------------------------------------------
     def execute_sensors(host, log_proc)
-        results=Array.new
+        results = Array.new
+
         self.each {|sensor|
-            results<<sensor.execute(host, log_proc)
+            results << sensor.execute(host, log_proc)
         }
         results
     end
-    
+
 private
-
+    #---------------------------------------------------------------------------
     # Load sensors from a configuration file
+    #---------------------------------------------------------------------------
     def load_sensors(file)
-        f=open(file, "r")
-    
-        f.each_line {|line|
-            parse_line(line.strip)
-        }
-    
-        f.close
-        
-        set_remote_dir(@remote_dir)
-    end
-    
-    # Sets the directory where to put scripts in the remote machine
-    def set_remote_dir(dir)
-        self.each {|sensor| sensor.remote_dir=dir }
-    end
+        f = open(file, "r")
 
-    # Parses one line of the configuration file
-    def parse_line(line)
-        # Strip coments
-        l=line.gsub(/#.*$/, "")
-        case l
-        when ""
-            return
-        when /^REMOTE_DIR\s*=/
-            @remote_dir=l.split("=")[-1].strip
-        when /^[^=]+=[^=]+$/
-            (name, script)=l.split("=")
-            name.strip!
-            script.strip!
-            script=PROBE_LOCATION+script if script[0] != ?/
-            self<<Sensor.new(name, script)
-        else
-            STDERR.puts "Malformed line in configuration file: " + line
-        end
+        f.each_line {|line|
+            l = line.strip.gsub(/#.*$/, "")
+
+            case l
+            when ""
+            when /^[^=]+=[^=]+$/
+                (name, script)=l.split("=")
+
+                name.strip!
+                script.strip!
+
+                script = "#{PROBE_LOCATION}#{script}" if script[0] != ?/
+
+                self << Sensor.new(name, script, @remote_dir)
+            else
+                STDERR.puts "Malformed line in configuration file: #{line}"
+            end
+        }
+
+        f.close
     end
 end
 
-
+#-------------------------------------------------------------------------------
+# The SSH Information Manager Driver
+#-------------------------------------------------------------------------------
 class InformationManager < OpenNebulaDriver
 
-    def initialize(config_file, num)
+    #---------------------------------------------------------------------------
+    # Init the driver
+    #---------------------------------------------------------------------------
+    def initialize(config_file, remote_dir, num)
         super(num, true)
-        
-        @sensor_list=SensorList.new(config_file)
-        
+
+        @sensor_list=SensorList.new(config_file, remote_dir)
+
         # register actions
         register_action(:MONITOR, method("action_monitor"))
     end
-    
+
+    #---------------------------------------------------------------------------
+    # Execute the sensor array in the remote host
+    #---------------------------------------------------------------------------
     def action_monitor(number, host)
-        results=@sensor_list.execute_sensors(host, log_method(number))
+
+        results = @sensor_list.execute_sensors(host, log_method(number))
+
         information=results.select{|res| res && !res.empty? }.join(",")
+
         if information and !information.empty?
             send_message("MONITOR", RESULT[:success], number, information)
         else
@@ -186,14 +180,27 @@ class InformationManager < OpenNebulaDriver
 
 end
 
-im_conf=ARGV[0]
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+# Information Manager main program
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+im_conf = ARGV.last
 
-if !im_conf
+if !im_conf || File.exists?(im_conf)
     puts "You need to specify config file."
     exit(-1)
 end
 
-im_conf=ETC_LOCATION+im_conf if im_conf[0] != ?/
+im_conf = "#{ETC_LOCATION}#{im_conf}" if im_conf[0] != ?/
 
-im=InformationManager.new(im_conf, 15)
+if !File.exists?(im_conf)
+    puts "Configuration file #{im_conf} does not exists."
+    exit(-1)
+end
+
+remote_dir = ENV["IM_REMOTE_DIR"]
+remote_dir = "/tmp/one-im" if !remote_dir
+
+im = InformationManager.new(im_conf, "#{remote_dir}/", 15)
 im.start_driver
