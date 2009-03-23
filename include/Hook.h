@@ -48,16 +48,16 @@ public:
     //--------------------------------------------------------------------------
     /**
      *  Check if the object where we are attached should execute de hook or not
-     *    @param hk the object where this hook was registered to
+     *    @param arg arguments for the hook
      *    @return true if the hook has to be executed
      */
-    virtual bool check_hook(Hookable* hk) =  0;
+    virtual bool check_hook(void *arg) =  0;
 
     /**
      *  Executes the hook it self (usually with the aid of the ExecutionManager)
-     *    @param hk the object where this hook was registered to
+     *    @param arg additional arguments for the hook
      */
-    virtual void do_hook(Hookable* hk) = 0;
+    virtual void do_hook(void *arg) = 0;
 
 protected:
     /**
@@ -129,16 +129,17 @@ public:
     /**
      *  Iterates through the hooks, checking if they have to be executed and
      *  invokes them.
+     *    @param arg additional arguments for the hook
      */
-    void do_hooks()
+    void do_hooks(void *arg = 0)
     {
         vector<Hook *>::size_type sz = hooks.size();
 
         for (int i=0; i<sz ; i++)
         {
-            if (hooks[i]->check_hook(this) == true)
+            if (hooks[i]->check_hook(arg) == true)
             {
-                hooks[i]->do_hook(this);
+                hooks[i]->do_hook(arg);
             }
         }
 
