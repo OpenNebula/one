@@ -25,6 +25,7 @@
 #include "SqliteDB.h"
 #include "PoolObjectSQL.h"
 #include "Log.h"
+#include "Hook.h"
 
 using namespace std;
 
@@ -34,7 +35,7 @@ using namespace std;
  * multithreaded applications. Any modification or access function to the pool 
  * SHOULD block the mutex.
  */
-class PoolSQL
+class PoolSQL: public Hookable
 {
 public:
 
@@ -94,7 +95,16 @@ public:
     virtual int update(
         PoolObjectSQL * objsql)
     {
-        return objsql->update(db);
+        int rc;
+        
+        rc = objsql->update(db);
+        
+        if ( rc == 0 )
+        {
+            do_hooks(objsql);
+        }
+        
+        return rc;
     };
 
     /**

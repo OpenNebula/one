@@ -91,7 +91,7 @@ public:
 
     virtual ~Hookable()
     {
-        vector<Hook *>::size_type sz = hooks.size();
+        int sz = static_cast<int>(hooks.size());
 
         for (int i=0; i<sz ; i++)
         {
@@ -116,8 +116,8 @@ public:
      */
     void clear_hooks()
     {
-        vector<Hook *>::size_type sz = hooks.size();
-
+        int sz = static_cast<int>(hooks.size());
+        
         for (int i=0; i<sz ; i++)
         {
             delete hooks[i];
@@ -133,7 +133,7 @@ public:
      */
     void do_hooks(void *arg = 0)
     {
-        vector<Hook *>::size_type sz = hooks.size();
+        int sz = static_cast<int>(hooks.size());
 
         for (int i=0; i<sz ; i++)
         {

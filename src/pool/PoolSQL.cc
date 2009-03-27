@@ -64,8 +64,7 @@ extern "C"
 
 /* -------------------------------------------------------------------------- */
 
-PoolSQL::PoolSQL(SqliteDB * _db, const char * table)
-    :db(_db)
+PoolSQL::PoolSQL(SqliteDB * _db, const char * table): Hookable(), db(_db)
 {
     ostringstream   oss;
 
@@ -139,6 +138,8 @@ int PoolSQL::allocate(
         rc = lastOID;
     }
 
+    do_hooks(objsql);
+    
     objsql->unlock();
 
     delete objsql;
