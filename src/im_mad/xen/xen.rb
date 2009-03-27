@@ -41,6 +41,9 @@ domains_info=xentop_text[3..-1]
 memory_info=Hash.new
 cpu_info=Hash.new
 
+free_memory=nil
+max_free_memory=nil
+
 xm_text.each_line {|line|
     columns=line.split(":").collect {|c| c.strip }
 
@@ -48,13 +51,21 @@ xm_text.each_line {|line|
     when 'total_memory'
         memory_info[:total]=columns[1].to_i*1024
     when 'max_free_memory'
-        memory_info[:free]=columns[1].to_i*1024
+        max_free_memory=columns[1].to_i*1024
+    when 'max_free_memory'
+        free_memory=columns[1].to_i*1024
     when 'nr_cpus'
         cpu_info[:total]=columns[1].to_f*100
     when 'cpu_mhz'
         cpu_info[:speed]=columns[1]
     end
 }
+
+if max_free_memory
+    memory_info[:free]=max_free_memory
+else
+    memory_info[:free]=free_memory
+end
 
 memory_info[:used]=memory_info[:total]-memory_info[:free]
 
