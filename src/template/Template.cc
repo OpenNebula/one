@@ -152,6 +152,29 @@ void Template::marshall(string &str, const char delim)
         delete attr;
     }
 }
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void Template::set(Attribute * attr)
+{
+    if ( replace_mode == true )
+    {
+        multimap<string, Attribute *>::iterator         i;
+        pair<multimap<string, Attribute *>::iterator,
+        multimap<string, Attribute *>::iterator>        index;
+
+        index = attributes.equal_range(attr->name());
+
+        for ( i = index.first; i != index.second; i++)
+        {
+            delete i->second;
+        }
+
+        attributes.erase(attr->name());
+    }
+
+    attributes.insert(make_pair(attr->name(),attr));
+};
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

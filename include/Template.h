@@ -97,15 +97,7 @@ public:
      *  will be freed when the template destructor is called.
      *    @param attr pointer to the attribute
      */
-    virtual void set(Attribute * attr)
-    {
-        if ( replace_mode == true )
-        {
-            attributes.erase(attr->name());
-        }
-
-        attributes.insert(make_pair(attr->name(),attr));
-    };
+    virtual void set(Attribute * attr);
 
     /**
      *  Removes an attribute from the template. The attributes are returned. The
