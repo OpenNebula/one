@@ -101,7 +101,7 @@ public:
         
         if ( rc == 0 )
         {
-            do_hooks(objsql);
+            do_hooks(objsql, Hook::UPDATE);
         }
         
         return rc;
