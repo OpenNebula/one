@@ -104,6 +104,25 @@ int c_oneAllocate(char* vm_template)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int c_oneAllocateTemplate(char* vm_template)
+{
+	string info;
+	int vmid;
+	
+    if (!client)
+        return -1;
+        
+    if( (client->allocate_template(vm_template,vmid, info)) <0)
+    {
+        cerr<<info<<endl;
+        return -1;
+    }
+    return vmid;
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int c_oneShutdown(int vmid)
 {
 	string info;

@@ -91,6 +91,55 @@ int OneClient::allocate(string template_file, int& vmid, string& error)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int OneClient::allocate_template(const string& str_template, 
+                                 int&          vmid, 
+                                 string&       error)
+{  
+	try{
+		xmlrpc_c::value result;
+		
+	    this->call(url,
+				"one.vmallocate",
+				"ss",
+				&result,
+				session.c_str(),
+				str_template.c_str());
+		
+		xmlrpc_c::value_array resultArray = xmlrpc_c::value_array(result);
+		vector<xmlrpc_c::value> const 
+			paramArrayValue(resultArray.vectorValueValue());
+		
+		//check posible errors
+		xmlrpc_c::value_boolean const status(paramArrayValue[0]);
+		
+		if(static_cast<bool>(status) == true) 
+		{	
+			xmlrpc_c::value_int const _vmid (paramArrayValue[1]);            
+			
+			vmid = static_cast<int>(_vmid);
+			return 0;
+		}
+		else
+		{	
+			xmlrpc_c::value_string const valueS(paramArrayValue[1]);
+			
+			error=static_cast<string>(valueS);
+			return -1;
+		}
+	}
+	catch (std::exception const &e) 
+	{
+		ostringstream oss;
+    	oss << "XML-RPC Error: " << e.what() << endl;
+    	
+		error=oss.str();
+		return -1;
+   	}		
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int OneClient::deploy(int vmid, int hid, string& error)
 {
 	try {

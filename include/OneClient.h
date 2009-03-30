@@ -71,6 +71,17 @@ public:
     int allocate(string template_file, int& vmid, string& error);
 
     /**
+     * 	Add a new VM to the VM pool and starts it.
+     * 	@param template description of the Virtual Machine template
+     *  @param vmid, the id of the new VM
+   	 *  @param error if an error occurs this is the error message
+     * 	@return -1 if an error occurs, 0 on success.
+     */
+    int allocate_template(const string& template_file, 
+                          int&          vmid, 
+                          string&       error);
+
+    /**
      *	Deploys the virtual machine "vmid" into the host "hid".
      *	@param vmid the virtual machine to deploy.
      *  @param hid  the host id to deploy the VM.
@@ -260,6 +271,8 @@ extern "C"
 	int c_oneMigrate(int vmid, int hid, int flag);
 
 	int c_oneAllocate(char* vm_template);
+	
+	int c_oneAllocateTemplate(char* vm_template);
 
 	int c_oneAction(int vmid,char* action);
 
