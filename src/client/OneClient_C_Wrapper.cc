@@ -88,12 +88,35 @@ int c_oneMigrate(int vmid, int hid, int flag)
 int c_oneAllocate(char* vm_template)
 {
 	string info;
+	string template_file(vm_template);
+	
 	int vmid;
 	
     if (!client)
         return -1;
         
-    if( (client->allocate(vm_template,vmid, info)) <0)
+    if( (client->allocate(template_file,vmid, info)) <0)
+    {
+        cerr<<info<<endl;
+        return -1;
+    }
+    return vmid;
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int c_oneAllocateTemplate(char* vm_template)
+{
+	string info;
+	string template_str(vm_template);
+	
+	int vmid;
+	
+    if (!client)
+        return -1;
+        
+    if( (client->allocate_template(template_str,vmid, info)) <0)
     {
         cerr<<info<<endl;
         return -1;
