@@ -242,7 +242,8 @@ SSH_TM_COMMANDS_LIB_FILES="src/tm_mad/ssh/tm_clone.sh \
                            src/tm_mad/ssh/tm_ln.sh \
                            src/tm_mad/ssh/tm_mkswap.sh \
                            src/tm_mad/ssh/tm_mkimage.sh \
-                           src/tm_mad/ssh/tm_mv.sh"
+                           src/tm_mad/ssh/tm_mv.sh \
+                           src/tm_mad/ssh/tm_context.sh"
 
 DUMMY_TM_COMMANDS_LIB_FILES="src/tm_mad/dummy/tm_dummy.sh"
 
