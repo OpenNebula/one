@@ -25,4 +25,15 @@ fi
 
 . $TMCOMMON
 
-log "mkimage placeholder"
+SIZE=$1
+FSTYPE=$2
+DST=$3
+
+DST_PATH=`arg_path $DST`
+DST_HOST=`arg_host $DST`
+DST_DIR=`dirname $DST_PATH`
+
+exec_and_log "ssh $DST_HOST mkdir -p $DST_DIR"
+exec_and_log "ssh $DST_HOST dd if=/dev/zero of=$DST_PATH bs=1 count=1 seek=${SIZE}M"
+exec_and_log "ssh $DST_HOST mkfs -t $FSTYPE $DST_PATH"
+exec_and_log "ssh $DST_HOST chmod a+rw $DST_PATH"
