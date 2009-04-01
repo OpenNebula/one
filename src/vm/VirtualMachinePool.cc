@@ -211,10 +211,11 @@ pthread_mutex_t VirtualMachinePool::lex_mutex = PTHREAD_MUTEX_INITIALIZER;
 extern "C"
 {
     int vm_var_parse (VirtualMachinePool * vmpool,
-                      ostringstream *      parsed,
-                      VirtualMachine *     vm,
-                      char **              errmsg);
-
+                  VirtualMachine *     vm,
+                  int                  vm_id,                  
+                  ostringstream *      parsed,
+                  char **              errmsg);
+ 
     int vm_var_lex_destroy();
 
     YY_BUFFER_STATE vm_var__scan_string(const char * str);
@@ -233,19 +234,11 @@ int VirtualMachinePool::parse_attribute(int     vm_id,
     YY_BUFFER_STATE  str_buffer;
     const char *     str;
     int              rc;
-    VirtualMachine * vm;
     ostringstream    oss_parsed;
 
     *error_msg = 0;
 
     pthread_mutex_lock(&lex_mutex);
-
-    vm = get(vm_id,true);
-
-    if ( vm == 0 )
-    {
-        goto error_vm;
-    }
 
     str        = attribute.c_str();
     str_buffer = vm_var__scan_string(str);
@@ -255,13 +248,11 @@ int VirtualMachinePool::parse_attribute(int     vm_id,
         goto error_yy;
     }
 
-    rc = vm_var_parse(this,&oss_parsed,vm,error_msg);
+    rc = vm_var_parse(this,0,vm_id,&oss_parsed,error_msg);
 
     vm_var__delete_buffer(str_buffer);
 
     vm_var_lex_destroy();
-
-    vm->unlock();
 
     pthread_mutex_unlock(&lex_mutex);
 
@@ -269,14 +260,8 @@ int VirtualMachinePool::parse_attribute(int     vm_id,
 
     return rc;
 
-error_vm:
-    *error_msg=strdup("Could not find virtual machine!");
-    goto error_common;
-
 error_yy:
     *error_msg=strdup("Error setting scan buffer");
-    vm->unlock();
-error_common:
     pthread_mutex_unlock(&lex_mutex);
     return -1;
 }

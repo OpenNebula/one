@@ -161,7 +161,15 @@ typedef unsigned int flex_uint32_t;
 
 /* Size of default input buffer. */
 #ifndef YY_BUF_SIZE
+#ifdef __ia64__
+/* On IA-64, the buffer size is 16k, not 8k.
+ * Moreover, YY_BUF_SIZE is 2*YY_READ_BUF_SIZE in the general case.
+ * Ditto for the __ia64__ case accordingly.
+ */
+#define YY_BUF_SIZE 32768
+#else
 #define YY_BUF_SIZE 16384
+#endif /* __ia64__ */
 #endif
 
 /* The state buf must be large enough to hold one state per character in the main buffer.
@@ -534,7 +542,7 @@ char *vm_var_text;
                         llocp->first_column = llocp->last_column;	\
                         llocp->last_column += vm_var_leng;
 
-#line 538 "vm_var_parser.c"
+#line 546 "vm_var_parser.c"
 
 #define INITIAL 0
 #define VAR 1
@@ -614,7 +622,12 @@ static int input (void );
 
 /* Amount of stuff to slurp up with each read. */
 #ifndef YY_READ_BUF_SIZE
+#ifdef __ia64__
+/* On IA-64, the buffer size is 16k, not 8k */
+#define YY_READ_BUF_SIZE 16384
+#else
 #define YY_READ_BUF_SIZE 8192
+#endif /* __ia64__ */
 #endif
 
 /* Copy whatever the last rule matched to the standard output. */
@@ -726,7 +739,7 @@ YY_DECL
  /*   $NUM.CONTEXT_VARIABLE                                                   */
  /* ------------------------------------------------------------------------- */
 
-#line 730 "vm_var_parser.c"
+#line 743 "vm_var_parser.c"
 
 	if ( !(yy_init) )
 		{
@@ -869,20 +882,20 @@ case 9:
 YY_RULE_SETUP
 #line 66 "vm_var_parser.l"
 { lvalp->val_char = '\0';
-                                 return BLANK;}
+                                 return EOA;}
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
 #line 68 "vm_var_parser.l"
 { lvalp->val_char = *vm_var_text;
                                  BEGIN(INITIAL);
-                                 return BLANK;}
+                                 return EOA;}
 	YY_BREAK
 case YY_STATE_EOF(VAR):
 #line 71 "vm_var_parser.l"
 { lvalp->val_char = '\0';
                                  BEGIN(INITIAL);
-                                 return BLANK;}
+                                 return EOA;}
 	YY_BREAK
 /* ------------------------------------------------------------------------- */
 /* Just copy the string verbatim till we find a variable (starts with $)     */
@@ -898,7 +911,7 @@ YY_RULE_SETUP
 #line 81 "vm_var_parser.l"
 ECHO;
 	YY_BREAK
-#line 902 "vm_var_parser.c"
+#line 915 "vm_var_parser.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1624,8 +1637,8 @@ YY_BUFFER_STATE vm_var__scan_string (yyconst char * yystr )
 
 /** Setup the input buffer state to scan the given bytes. The next call to vm_var_lex() will
  * scan from a @e copy of @a bytes.
- * @param bytes the byte buffer to scan
- * @param len the number of bytes in the buffer pointed to by @a bytes.
+ * @param yybytes the byte buffer to scan
+ * @param _yybytes_len the number of bytes in the buffer pointed to by @a bytes.
  * 
  * @return the newly allocated buffer state object.
  */

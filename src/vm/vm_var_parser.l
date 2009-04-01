@@ -64,13 +64,13 @@
                                  return STRING;}
 
 <VAR>\$                        { lvalp->val_char = '\0';
-                                 return BLANK;}
+                                 return EOA;}
 <VAR>.                         { lvalp->val_char = *yytext;
                                  BEGIN(INITIAL);
-                                 return BLANK;}
+                                 return EOA;}
 <VAR><<EOF>>                   { lvalp->val_char = '\0';
                                  BEGIN(INITIAL);
-                                 return BLANK;}
+                                 return EOA;}
 
  /* ------------------------------------------------------------------------- */
  /* Just copy the string verbatim till we find a variable (starts with $)     */

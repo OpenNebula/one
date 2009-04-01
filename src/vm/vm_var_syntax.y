@@ -37,24 +37,130 @@ extern "C"
 void vm_var_error(
     YYLTYPE *            llocp,
     VirtualMachinePool * vmpool,
-    ostringstream *      parsed,
     VirtualMachine *     vm,
-    char **              error_msg,
+    int                  vm_id,                  
+    ostringstream *      parsed,
+    char **              errmsg,
     const char *         str);
 
 int vm_var_lex (YYSTYPE *lvalp, YYLTYPE *llocp);
 
 int vm_var_parse (VirtualMachinePool * vmpool,
-                  ostringstream *      parsed,
                   VirtualMachine *     vm,
+                  int                  vm_id,                  
+                  ostringstream *      parsed,
                   char **              errmsg);
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void insert_single(VirtualMachinePool * vmpool,
+                   VirtualMachine *     vm,
+                   int                  vm_id,
+                   ostringstream&       parsed,
+                   const string&        name)
+{
+    VirtualMachine * tvm = vm;
+    string value = "";
+    
+    if ( vm == 0 && vmpool != 0 )
+    {
+        tvm = vmpool->get(vm_id,true);
+    }
+    
+    if ( tvm == 0 )
+    {
+        return;
+    }
+
+    tvm->get_template_attribute(name.c_str(),value);
+                    
+    parsed << value;
+    
+    if ( vm == 0 )
+    {
+        tvm->unlock();
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void insert_vector(VirtualMachinePool * vmpool,
+                   VirtualMachine *     vm,
+                   int                  vm_id,
+                   ostringstream&       parsed,
+                   const string&        name,
+                   const string&        vname,
+                   const string&        vvar,
+                   const string&        vval)
+                   
+{
+    VirtualMachine * tvm = vm;
+    
+    vector<const Attribute*> values;
+    const VectorAttribute *  vattr = 0;
+    
+    int    num;
+    string value = "";
+    
+    if ( vm == 0 && vmpool != 0 )
+    {
+        tvm = vmpool->get(vm_id,true);
+    }
+    
+    if ( tvm == 0 )
+    {
+        return;
+    }
+
+    if ( ( num = tvm->get_template_attribute(name.c_str(),values) ) <= 0 )
+    {
+        goto error_name;
+    }
+    
+    if ( vvar.empty() )
+    {
+        vattr = dynamic_cast<const VectorAttribute *>(values[0]);        
+    }
+    else
+    {
+        const VectorAttribute *  tmp = 0;
+                
+        for (int i=0 ; i < num ; i++)
+        {
+            tmp = dynamic_cast<const VectorAttribute *>(values[i]);
+    
+            if ( tmp && ( tmp->vector_value(vvar.c_str()) == vval ))
+            {
+                vattr = tmp;
+                break;
+            }
+        }
+    }
+
+    if ( vattr != 0 )
+    {
+        parsed << vattr->vector_value(vname.c_str());
+    }
+
+error_name:                        
+    if ( vm == 0 )
+    {
+        tvm->unlock();
+    }
+}
+  
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 %}
 
 %parse-param {VirtualMachinePool * vmpool}
-%parse-param {ostringstream *      parsed}
 %parse-param {VirtualMachine *     vm}
+%parse-param {int                  vm_id}
+%parse-param {ostringstream *      parsed}
 %parse-param {char **              errmsg}
 
 %union {
@@ -71,7 +177,7 @@ int vm_var_parse (VirtualMachinePool * vmpool,
 
 %token EQUAL COMMA OBRACKET CBRACKET
 
-%token <val_char>   BLANK
+%token <val_char>   EOA
 %token <val_str>  	STRING
 %token <val_str>    RSTRING
 %token <val_int>    INTEGER
@@ -89,53 +195,30 @@ vm_variable:RSTRING
                 (*parsed) << $1;
                 free($1);
             }
-            | STRING BLANK
+            | STRING EOA
             {
                 string name($1);
-                string value = "";
-
+                
                 VM_VAR_TO_UPPER(name);
-
-                vm->get_template_attribute(name.c_str(),value);
-
-                if (!value.empty())
-                {
-                    (*parsed) << value;
-                }
-
+                                    
+                insert_single(vmpool,vm,vm_id,*parsed,name);
+                                
                 if ( $2 != '\0' )
                 {
                     (*parsed) << $2;
                 }
-
+                
                 free($1);
             }
-            | STRING OBRACKET STRING CBRACKET BLANK
+            | STRING OBRACKET STRING CBRACKET EOA
             {
-                vector<const Attribute*> values;
-                const VectorAttribute *  vattr;
-                string value = "";
-
                 string name($1);
                 string vname($3);
-
+                
                 VM_VAR_TO_UPPER(name);
                 VM_VAR_TO_UPPER(vname);
 
-                if ( vm->get_template_attribute(name,values) > 0 )
-                {
-                    vattr = dynamic_cast<const VectorAttribute *>(values[0]);
-
-                    if (vattr)
-                    {
-                        value = vattr->vector_value(vname.c_str());
-                    }
-                }
-
-                if ( !value.empty() )
-                {
-                    (*parsed) << value;
-                }
+                insert_vector(vmpool,vm,vm_id,*parsed,name,vname,"","");
 
                 if ( $5 != '\0' )
                 {
@@ -145,39 +228,19 @@ vm_variable:RSTRING
                 free($1);
                 free($3);
             }
-            | STRING OBRACKET STRING COMMA STRING EQUAL STRING CBRACKET BLANK
+            | STRING OBRACKET STRING COMMA STRING EQUAL STRING CBRACKET EOA
             {
-                vector<const Attribute*> values;
-                const VectorAttribute *  vattr;
-
-                string value = "";
-
                 string name($1);
                 string vname($3);
                 string vvar($5);
+                string vval($7);
 
                 VM_VAR_TO_UPPER(name);
                 VM_VAR_TO_UPPER(vname);
                 VM_VAR_TO_UPPER(vvar);
 
-                int num = vm->get_template_attribute(name,values);
-
-                for (int i=0 ; i < num ; i++)
-                {
-                    vattr = dynamic_cast<const VectorAttribute *>(values[i]);
-
-                    if (vattr && (vattr->vector_value(vvar.c_str())== $7))
-                    {
-                        value = vattr->vector_value(vname.c_str());
-                        break;
-                    }
-                }
-
-                if ( !value.empty() )
-                {
-                    (*parsed) << value;
-                }
-
+                insert_vector(vmpool,vm,vm_id,*parsed,name,vname,vvar,vval);
+                                                                      
                 if ( $9 != '\0' )
                 {
                     (*parsed) << $9;
@@ -188,39 +251,15 @@ vm_variable:RSTRING
                 free($5);
                 free($7);
             }
-            | INTEGER STRING BLANK
+            | INTEGER STRING EOA
             {
-                string name($2);
-                string value = "";
+                string name("CONTEXT");
+                string vname($2);
 
-                VirtualMachine *         tvm;
-                vector<const Attribute*> values;
-                const VectorAttribute *  vattr;
-
-                tvm = vmpool->get($1,true);
-
-                if ( tvm != 0 )
-                {
-                    VM_VAR_TO_UPPER(name);
-
-                    if ( tvm->get_template_attribute("CONTEXT",values) > 0 )
-                    {
-                        vattr=dynamic_cast<const VectorAttribute *> (values[0]);
-
-                        if (vattr)
-                        {
-                            value = vattr->vector_value(name.c_str());
-                        }
-                    }
-
-                    tvm->unlock();
-                }
-
-                if ( !value.empty() )
-                {
-                    (*parsed) << value;
-                }
-
+                VM_VAR_TO_UPPER(vname);
+                
+                insert_vector(vmpool,0,$1,*parsed,name,vname,"","");
+                
                 if ( $3 != '\0' )
                 {
                     (*parsed) << $3;
@@ -234,8 +273,9 @@ vm_variable:RSTRING
 extern "C" void vm_var_error(
     YYLTYPE *            llocp,
     VirtualMachinePool * vmpool,
-    ostringstream *      parsed,
     VirtualMachine *     vm,
+    int                  vm_id,                  
+    ostringstream *      parsed,
     char **              error_msg,
     const char *         str)
 {
@@ -244,7 +284,7 @@ extern "C" void vm_var_error(
     length = strlen(str)+ 64;
 
     *error_msg = (char *) malloc(sizeof(char)*length);
-
+                string nil = "";
     if (*error_msg != 0)
     {
         snprintf(*error_msg,
