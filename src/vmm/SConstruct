@@ -23,11 +23,11 @@ lib_name='nebula_vmm'
 
 # Sources to generate the library
 source_files=[
-	'VirtualMachineManager.cc',
-	'VirtualMachineManagerDriver.cc',
-	'XenDriver.cc',
-	'LibVirtDriver.cc',
-	'XMLDriver.cc'
+    'VirtualMachineManager.cc',
+    'VirtualMachineManagerDriver.cc',
+    'XenDriver.cc',
+    'LibVirtDriver.cc',
+    'XMLDriver.cc'
 ]
 
 # Build library

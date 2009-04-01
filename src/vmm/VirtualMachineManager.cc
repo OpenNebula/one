@@ -325,7 +325,7 @@ void VirtualMachineManager::save_action(
     {
         if (!vm->hasPreviousHistory())
         {
-        	goto error_previous_history;
+            goto error_previous_history;
         }
 
         hostname = vm->get_previous_hostname();
@@ -495,8 +495,8 @@ error_common:
 void VirtualMachineManager::migrate_action(
     int vid)
 {
-    VirtualMachine *    				vm;
-    const VirtualMachineManagerDriver *	vmd;
+    VirtualMachine *                    vm;
+    const VirtualMachineManagerDriver * vmd;
     ostringstream                       os;
 
     // Get the VM from the pool
@@ -527,9 +527,9 @@ void VirtualMachineManager::migrate_action(
 
     // Invoke driver method
     vmd->migrate(vid,
-    		vm->get_previous_hostname(),
-    		vm->get_deploy_id(),
-    		vm->get_hostname());
+            vm->get_previous_hostname(),
+            vm->get_deploy_id(),
+            vm->get_hostname());
 
     vm->unlock();
 
@@ -546,9 +546,9 @@ error_driver:
     goto error_common;
 
 error_previous_history:
-	os.str("");
-	os << "migrate_action, error VM has no previous history";
-	goto error_common;
+    os.str("");
+    os << "migrate_action, error VM has no previous history";
+    goto error_common;
 
 error_common:
     Nebula              &ne = Nebula::instance();
@@ -758,13 +758,13 @@ void VirtualMachineManager::timer_action()
 
 void VirtualMachineManager::load_mads(int uid)
 {
-    unsigned int            		i;
-    ostringstream           		oss;
-    const VectorAttribute * 		vattr;
-    int                     		rc;
-    string							name;
-    string							type;
-    VirtualMachineManagerDriver *	vmm_driver = 0;
+    unsigned int                    i;
+    ostringstream                   oss;
+    const VectorAttribute *         vattr;
+    int                             rc;
+    string                          name;
+    string                          type;
+    VirtualMachineManagerDriver *   vmm_driver = 0;
 
     oss << "Loading Virtual Machine Manager drivers.";
 
@@ -785,24 +785,25 @@ void VirtualMachineManager::load_mads(int uid)
 
         if ( type == "XEN" )
         {
-        	vmm_driver = new XenDriver(uid, vattr->value(),(uid != 0),vmpool);
+            vmm_driver = new XenDriver(uid, vattr->value(),(uid != 0),vmpool);
         }
         else if ( type == "KVM" )
         {
-        	vmm_driver = new LibVirtDriver(uid, vattr->value(),(uid != 0),vmpool,"kvm");
+            vmm_driver = new LibVirtDriver(uid, vattr->value(),
+                                           (uid != 0),vmpool,"kvm");
         }
         else if ( type == "XML" )
         {
-        	vmm_driver = new XMLDriver(uid, vattr->value(),(uid != 0),vmpool);
+            vmm_driver = new XMLDriver(uid, vattr->value(),(uid != 0),vmpool);
         }
         else
         {
-        	oss.str("");
-        	oss << "\tUnknown driver type: " << type;
+            oss.str("");
+            oss << "\tUnknown driver type: " << type;
 
-        	Nebula::log("VMM",Log::ERROR,oss);
+            Nebula::log("VMM",Log::ERROR,oss);
 
-        	continue;
+            continue;
         }
 
         rc = add(vmm_driver);

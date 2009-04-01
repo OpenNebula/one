@@ -30,7 +30,7 @@ int XenDriver::deployment_description(
     int                         num;
     vector<const Attribute *>   attrs;
 
-    string	credits;
+    string  credits;
     string  cpu;
     string  memory;
     string  vcpu;
@@ -58,21 +58,21 @@ int XenDriver::deployment_description(
 
     const VectorAttribute * graphics;
 
-	string type       = "";
-	string listen     = "";
-	string port       = "";
-	string passwd     = "";
+    string type       = "";
+    string listen     = "";
+    string port       = "";
+    string passwd     = "";
 
-	const VectorAttribute * raw;
-	string data;
+    const VectorAttribute * raw;
+    string data;
 
-	// ------------------------------------------------------------------------
+    // ------------------------------------------------------------------------
 
     file.open(file_name.c_str(), ios::out);
 
     if (file.fail() == true)
     {
-    	goto error_file;
+        goto error_file;
     }
 
     // ------------------------------------------------------------------------
@@ -107,16 +107,16 @@ int XenDriver::deployment_description(
 
     if (memory.empty())
     {
-       	get_default("MEMORY",memory);
+        get_default("MEMORY",memory);
     }
 
     if (!memory.empty())
     {
-    	file << "memory  = '" << memory << "'" << endl;
+        file << "memory  = '" << memory << "'" << endl;
     }
     else
     {
-    	goto error_memory;
+        goto error_memory;
     }
 
     // -------------------------------------------------------------------------
@@ -125,12 +125,12 @@ int XenDriver::deployment_description(
 
     if (vcpu.empty())
     {
-    	get_default("VCPU",vcpu);
+        get_default("VCPU",vcpu);
     }
 
     if (!vcpu.empty())
     {
-    	file << "vcpu  = '" << vcpu << "'" << endl;
+        file << "vcpu  = '" << vcpu << "'" << endl;
     }
 
     // ------------------------------------------------------------------------
@@ -141,48 +141,48 @@ int XenDriver::deployment_description(
 
     if ( num > 0 )
     {
-    	const VectorAttribute *	os;
+        const VectorAttribute * os;
 
-    	os = dynamic_cast<const VectorAttribute *>(attrs[0]);
+        os = dynamic_cast<const VectorAttribute *>(attrs[0]);
 
-    	if ( os != 0 )
-    	{
+        if ( os != 0 )
+        {
             kernel     = os->vector_value("KERNEL");
             initrd     = os->vector_value("INITRD");
             root       = os->vector_value("ROOT");
             kernel_cmd = os->vector_value("KERNEL_CMD");
             bootloader = os->vector_value("BOOTLOADER");
-    	}
+        }
     }
 
     if ( kernel.empty() )
     {
-    	get_default("OS","KERNEL",kernel);
+        get_default("OS","KERNEL",kernel);
     }
 
     if ( initrd.empty() )
     {
-    	get_default("OS","INITRD",initrd);
+        get_default("OS","INITRD",initrd);
     }
 
     if ( bootloader.empty() )
     {
-    	get_default("OS","BOOTLOADER",bootloader);
+        get_default("OS","BOOTLOADER",bootloader);
     }
 
     if ( root.empty() )
     {
-    	get_default("OS","ROOT",root);
+        get_default("OS","ROOT",root);
     }
 
     if ( kernel_cmd.empty() )
     {
-    	get_default("OS","KERNEL_CMD",kernel_cmd);
+        get_default("OS","KERNEL_CMD",kernel_cmd);
     }
 
     if ( !kernel.empty() ) //Direct Kernel boot method
     {
-    	file << "kernel = '" << kernel << "'" << endl;
+        file << "kernel = '" << kernel << "'" << endl;
 
         if ( !initrd.empty() )
         {
@@ -191,7 +191,7 @@ int XenDriver::deployment_description(
 
         if ( !root.empty() )
         {
-        	file << "root = '/dev/" << root << "'" << endl;
+            file << "root = '/dev/" << root << "'" << endl;
         }
 
         if ( !kernel_cmd.empty() )
@@ -201,11 +201,11 @@ int XenDriver::deployment_description(
     }
     else if ( !bootloader.empty() ) //Host loader boot method
     {
-    	file << "bootloader = \"" << bootloader << "\"" << endl;
+        file << "bootloader = \"" << bootloader << "\"" << endl;
     }
     else
     {
-    	goto error_boot;
+        goto error_boot;
     }
 
     attrs.clear();
@@ -232,19 +232,19 @@ int XenDriver::deployment_description(
 
         if ( target.empty() )
         {
-        	goto error_disk;
+            goto error_disk;
         }
 
         mode = "w";
 
         if ( !ro.empty() )
         {
-        	transform(ro.begin(),ro.end(),ro.begin(),(int(*)(int))toupper);
+            transform(ro.begin(),ro.end(),ro.begin(),(int(*)(int))toupper);
 
-        	if ( ro == "YES" )
-        	{
-        		mode = "r";
-        	}
+            if ( ro == "YES" )
+            {
+                mode = "r";
+            }
         }
 
         // TODO: "file" method to specify disk images in xen is deprecated.
@@ -295,7 +295,7 @@ int XenDriver::deployment_description(
 
     for(int i=0; i<num;i++,mac="",bridge="")
     {
-       	char pre_char = ' ';
+        char pre_char = ' ';
 
         nic = dynamic_cast<const VectorAttribute *>(attrs[i]);
 
@@ -310,7 +310,7 @@ int XenDriver::deployment_description(
 
         if( !mac.empty() )
         {
-        	file << "mac=" << mac;
+            file << "mac=" << mac;
             pre_char = ',';
         }
 
@@ -318,7 +318,7 @@ int XenDriver::deployment_description(
 
         if( !bridge.empty() )
         {
-        	file << pre_char << "bridge=" << bridge;
+            file << pre_char << "bridge=" << bridge;
         }
 
         file << "',";
@@ -335,41 +335,42 @@ int XenDriver::deployment_description(
 
     if ( vm->get_template_attribute("GRAPHICS",attrs) > 0 )
     {
-    	graphics = dynamic_cast<const VectorAttribute *>(attrs[0]);
+        graphics = dynamic_cast<const VectorAttribute *>(attrs[0]);
 
-    	if ( graphics != 0 )
-	    {
-    	    type   = graphics->vector_value("TYPE");
-        	listen = graphics->vector_value("LISTEN");
-        	port   = graphics->vector_value("PORT");
-        	passwd = graphics->vector_value("PASSWD");
+        if ( graphics != 0 )
+        {
+            type   = graphics->vector_value("TYPE");
+            listen = graphics->vector_value("LISTEN");
+            port   = graphics->vector_value("PORT");
+            passwd = graphics->vector_value("PASSWD");
 
-        	if ( type == "vnc" || type == "VNC" )
-        	{
-        		file << "vfb = ['type=vnc";
+            if ( type == "vnc" || type == "VNC" )
+            {
+                file << "vfb = ['type=vnc";
 
-        		if ( !listen.empty() )
-        		{
-        			file << ",vnclisten=" << listen;
-        		}
+                if ( !listen.empty() )
+                {
+                    file << ",vnclisten=" << listen;
+                }
 
-        		if ( !port.empty() )
-        		{
-        			file << ",vncdisplay=" << port;
-        		}
+                if ( !port.empty() )
+                {
+                    file << ",vncdisplay=" << port;
+                }
 
-        		if ( !passwd.empty() )
-        		{
-        			file << ",vncpasswd=" << passwd;
-        		}
+                if ( !passwd.empty() )
+                {
+                    file << ",vncpasswd=" << passwd;
+                }
 
-        		file <<"']" << endl;
-        	}
-        	else
-        	{
-        		vm->log("VMM", Log::WARNING, "Not supported graphics type, ignored.");
-        	}
-    	}
+                file <<"']" << endl;
+            }
+            else
+            {
+                vm->log("VMM", Log::WARNING,
+                        "Not supported graphics type, ignored.");
+            }
+        }
     }
 
     attrs.clear();
@@ -382,22 +383,22 @@ int XenDriver::deployment_description(
 
     for(int i=0; i<num;i++)
     {
-    	raw = dynamic_cast<const VectorAttribute *>(attrs[i]);
+        raw = dynamic_cast<const VectorAttribute *>(attrs[i]);
 
-    	if ( raw == 0 )
-    	{
+        if ( raw == 0 )
+        {
             continue;
-    	}
+        }
 
-    	type = raw->vector_value("TYPE");
+        type = raw->vector_value("TYPE");
 
-    	transform(type.begin(),type.end(),type.begin(),(int(*)(int))toupper);
+        transform(type.begin(),type.end(),type.begin(),(int(*)(int))toupper);
 
-    	if ( type == "XEN" )
-    	{
-    		data = raw->vector_value("DATA");
-    		file << data << endl;
-    	}
+        if ( type == "XEN" )
+        {
+            data = raw->vector_value("DATA");
+            file << data << endl;
+        }
     }
 
     file.close();
@@ -405,21 +406,22 @@ int XenDriver::deployment_description(
     return 0;
 
 error_file:
-	vm->log("VMM", Log::ERROR, "Could not open Xen deployment file.");
-	return -1;
+    vm->log("VMM", Log::ERROR, "Could not open Xen deployment file.");
+    return -1;
 
 error_memory:
-	vm->log("VMM", Log::ERROR, "No memory defined and no default provided.");
-	file.close();
-	return -1;
+    vm->log("VMM", Log::ERROR, "No memory defined and no default provided.");
+    file.close();
+    return -1;
 
 error_boot:
-	vm->log("VMM", Log::ERROR, "No kernel or bootloader defined and no default provided.");
-	file.close();
-	return -1;
+    vm->log("VMM", Log::ERROR,
+            "No kernel or bootloader defined and no default provided.");
+    file.close();
+    return -1;
 
 error_disk:
-	vm->log("VMM", Log::ERROR, "Wrong target value in DISK.");
-	file.close();
-	return -1;
+    vm->log("VMM", Log::ERROR, "Wrong target value in DISK.");
+    file.close();
+    return -1;
 }
