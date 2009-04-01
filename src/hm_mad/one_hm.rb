@@ -48,7 +48,7 @@ class HookManagerDriver < OpenNebulaDriver
         if host.upcase=="LOCAL"
             cmd=LocalCommand.run(cmd_string, log_method(number))
         else
-            cmd=LocalCommand.run(host, cmd_string, log_method(number))
+            cmd=SSHCommand.run(cmd_string, host, log_method(number))
         end
         
         pp cmd.stdout
