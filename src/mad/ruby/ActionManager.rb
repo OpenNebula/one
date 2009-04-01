@@ -110,8 +110,21 @@ class ActionManager
                 return
             end
 
-            if @actions[aname][:method].arity != aargs.length
-                return
+            arity=@actions[aname][:method].arity 
+            
+            if arity < 0
+                # Last parameter is an array
+                arity = -arity - 1
+                if arity > aargs.length
+                    # Message has not enough parameters
+                    return
+                end
+                # Converts last parameters to an array
+                aargs[arity..-1]=[aargs[arity..-1]]
+            else
+                if arity != aargs.length
+                    return
+                end
             end
 
             @action_queue << @actions[aname].merge(:args => aargs)
