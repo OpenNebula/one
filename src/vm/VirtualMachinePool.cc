@@ -17,7 +17,20 @@
 
 #include "Nebula.h"
 #include "VirtualMachinePool.h"
+#include "VirtualMachineHook.h"
 #include <sstream>
+
+VirtualMachinePool::VirtualMachinePool(SqliteDB * db):
+    PoolSQL(db,VirtualMachine::table)
+{
+/*  TODO: Get the hooks from conf file / API call ?
+    VirtualMachineAllocateHook * test_hook;
+    
+    test_hook = new VirtualMachineAllocateHook("/bin/true","$NAME $VM_ID");
+    
+    add_hook(test_hook);
+*/
+}
 
 int VirtualMachinePool::allocate (
     int            uid,

@@ -33,7 +33,7 @@ class VirtualMachinePool : public PoolSQL
 {
 public:
 
-    VirtualMachinePool(SqliteDB * db):PoolSQL(db,VirtualMachine::table){};
+    VirtualMachinePool(SqliteDB * db);
 
     ~VirtualMachinePool(){};
 
