@@ -191,6 +191,8 @@ void TransferManager::prolog_action(int vid)
     vector<const Attribute *>   attrs;
     int                         num;
 
+    int                         context_result;
+
 
     // ------------------------------------------------------------------------
     // Setup & Transfer script
@@ -312,20 +314,25 @@ void TransferManager::prolog_action(int vid)
     // Generate context file (There are 0...num-1 disks, constext is disk.num)
     // ------------------------------------------------------------------------
 
-    if ( vm->generate_context(files) != 0 )
+    context_result = vm->generate_context(files);
+
+    if ( context_result == -1 )
     {
         goto error_context;
     }
 
-    xfr << "CONTEXT " << vm->get_context_file() << " ";
-
-    if (!files.empty())
+    if ( context_result )
     {
-        xfr << files << " ";
-    }
+        xfr << "CONTEXT " << vm->get_context_file() << " ";
 
-    xfr <<  vm->get_hostname() << ":" << vm->get_remote_dir()
-        << "/disk." << num << endl;
+        if (!files.empty())
+        {
+            xfr << files << " ";
+        }
+
+        xfr <<  vm->get_hostname() << ":" << vm->get_remote_dir()
+            << "/disk." << num << endl;
+    }
 
     xfr.close();
 

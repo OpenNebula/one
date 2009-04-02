@@ -686,7 +686,7 @@ int VirtualMachine::generate_context(string &files)
 
     file.close();
 
-    return 0;
+    return 1;
 }
 
 /* -------------------------------------------------------------------------- */
