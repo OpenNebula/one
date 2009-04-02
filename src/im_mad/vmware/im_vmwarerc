@@ -15,9 +15,10 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+# This must point to a java keystore with appropriate certificates for accessing
+# all the ESXi hosts
 #VMWARE_TRUSTORE=<path_to_keystore>
 
 # Uncomment the following line to active MAD debug  
 #ONE_MAD_DEBUG=1
 
-VMWARE_TRUSTORE=/home/tinova/.vmware-certs/vmware.keystore
