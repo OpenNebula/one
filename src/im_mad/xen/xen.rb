@@ -52,7 +52,7 @@ xm_text.each_line {|line|
         memory_info[:total]=columns[1].to_i*1024
     when 'max_free_memory'
         max_free_memory=columns[1].to_i*1024
-    when 'max_free_memory'
+    when 'free_memory'
         free_memory=columns[1].to_i*1024
     when 'nr_cpus'
         cpu_info[:total]=columns[1].to_f*100
