@@ -31,8 +31,6 @@ fi
 
 . $MADCOMMON
 
-echo $DRIVERRC
-
 # Export the im_mad specific rc
 
 export_rc_vars $DRIVERRC
