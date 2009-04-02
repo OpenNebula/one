@@ -17,11 +17,6 @@
 
 #include "Nebula.h"
 #include "VirtualMachinePool.h"
-#include "vm_var_syntax.h"
-extern "C"
-{
-    #include "vm_var_parser.h"
-}
 #include <sstream>
 
 int VirtualMachinePool::allocate (
@@ -163,7 +158,7 @@ void VirtualMachinePool::generate_context(int vm_id, Attribute * attr)
         return;
     }
 
-    rc = parse_attribute(vm_id,*str,parsed,&error_msg);
+    rc = VirtualMachine::parse_template_attribute(vm_id,*str,parsed,&error_msg);
 
     if ( rc != 0 )
     {
@@ -203,65 +198,4 @@ void VirtualMachinePool::generate_context(int vm_id, Attribute * attr)
     vm->unlock();
 }
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
 
-pthread_mutex_t VirtualMachinePool::lex_mutex = PTHREAD_MUTEX_INITIALIZER;
-
-extern "C"
-{
-    int vm_var_parse (VirtualMachinePool * vmpool,
-                  VirtualMachine *     vm,
-                  int                  vm_id,                  
-                  ostringstream *      parsed,
-                  char **              errmsg);
- 
-    int vm_var_lex_destroy();
-
-    YY_BUFFER_STATE vm_var__scan_string(const char * str);
-
-    void vm_var__delete_buffer(YY_BUFFER_STATE);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int VirtualMachinePool::parse_attribute(int     vm_id,
-                                        string  &attribute,
-                                        string  &parsed,
-                                        char ** error_msg)
-{
-    YY_BUFFER_STATE  str_buffer;
-    const char *     str;
-    int              rc;
-    ostringstream    oss_parsed;
-
-    *error_msg = 0;
-
-    pthread_mutex_lock(&lex_mutex);
-
-    str        = attribute.c_str();
-    str_buffer = vm_var__scan_string(str);
-
-    if (str_buffer == 0)
-    {
-        goto error_yy;
-    }
-
-    rc = vm_var_parse(this,0,vm_id,&oss_parsed,error_msg);
-
-    vm_var__delete_buffer(str_buffer);
-
-    vm_var_lex_destroy();
-
-    pthread_mutex_unlock(&lex_mutex);
-
-    parsed = oss_parsed.str();
-
-    return rc;
-
-error_yy:
-    *error_msg=strdup("Error setting scan buffer");
-    pthread_mutex_unlock(&lex_mutex);
-    return -1;
-}

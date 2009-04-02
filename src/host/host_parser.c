@@ -714,7 +714,7 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 40 "host_parser.l"
+#line 39 "host_parser.l"
 
    /* --- Tokens --- */
 
@@ -813,26 +813,26 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 43 "host_parser.l"
+#line 42 "host_parser.l"
 { return *host_text;}
 	YY_BREAK
 /* --- Strings, also quoted form --- */
 case 2:
 YY_RULE_SETUP
-#line 47 "host_parser.l"
+#line 46 "host_parser.l"
 { lvalp->val_str = strdup(host_text);      
 						return STRING;}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 50 "host_parser.l"
+#line 49 "host_parser.l"
 { 	lvalp->val_str = NULL;            
 				return STRING;}                     
 	YY_BREAK
 case 4:
 /* rule 4 can match eol */
 YY_RULE_SETUP
-#line 53 "host_parser.l"
+#line 52 "host_parser.l"
 { 	lvalp->val_str = strdup(host_text+1);
 				lvalp->val_str[host_leng-2] = '\0';
                 return STRING;}	
@@ -840,19 +840,19 @@ YY_RULE_SETUP
 /* --- Integers --- */
 case 5:
 YY_RULE_SETUP
-#line 58 "host_parser.l"
+#line 57 "host_parser.l"
 { 	lvalp->val_int = atoi(host_text);        
 						return INTEGER;}
 	YY_BREAK
 /* --- blanks --- */
 case 6:
 YY_RULE_SETUP
-#line 62 "host_parser.l"
+#line 61 "host_parser.l"
 
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 64 "host_parser.l"
+#line 63 "host_parser.l"
 ECHO;
 	YY_BREAK
 #line 859 "host_parser.c"
@@ -1824,7 +1824,7 @@ void host_free (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 64 "host_parser.l"
+#line 63 "host_parser.l"
 
 
 

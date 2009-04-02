@@ -33,7 +33,6 @@
 %option nounput
 %option prefix="template_"
 %option outfile="template_parser.c"
-%option header-file="template_parser.h"
 %option yylineno
 
 %x VALUE

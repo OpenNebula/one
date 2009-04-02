@@ -33,7 +33,6 @@
 %option nounput
 %option prefix="vm_var_"
 %option outfile="vm_var_parser.c"
-%option header-file="vm_var_parser.h"
 %option yylineno
 
 %x VAR

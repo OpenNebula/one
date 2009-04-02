@@ -125,20 +125,6 @@ public:
     }
 
     /**
-     *  Parse a string and substitute variables (e.g. $NAME) using template
-     *  values:
-     *    @param vm_id, ID of the VM used to substitute the variables
-     *    @param attribute, the string to be parsed
-     *    @param parsed, the resulting parsed string
-     *    @param error_msg, string describing the syntax error
-     *    @return 0 on success.
-     */
-    int parse_attribute(int     vm_id,
-                        string  &attribute,
-                        string  &parsed,
-                        char ** error_msg);
-
-    /**
      *  Bootstraps the database table(s) associated to the VirtualMachine pool
      */
     void bootstrap()
@@ -147,11 +133,6 @@ public:
     };
 
 private:
-    /**
-     * Mutex to perform just one attribute parse at a time
-     */
-    static pthread_mutex_t lex_mutex;
-
     /**
      *  Generate context file to be sourced upon VM booting
      *  @param vm_id, ID of the VM to generate context for

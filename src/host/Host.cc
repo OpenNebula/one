@@ -22,10 +22,6 @@
 #include <sstream>
 
 #include "Host.h"
-extern "C"
-{
-#include "host_parser.h"
-}
 
 /* ************************************************************************** */
 /* Host :: Constructor/Destructor                                  */
@@ -316,6 +312,8 @@ pthread_mutex_t Host::lex_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 extern "C"
 {
+    typedef struct yy_buffer_state * YY_BUFFER_STATE;
+    
     int host_requirements_parse(Host * host, bool& result, char ** errmsg);
 
     int host_rank_parse(Host * host, int& result, char ** errmsg);
@@ -332,7 +330,7 @@ extern "C"
 
 int Host::match(const string& requirements, bool& result, char **errmsg)
 {
-    YY_BUFFER_STATE     str_buffer;
+    YY_BUFFER_STATE     str_buffer = 0;
     const char *        str;
     int                 rc;
 
@@ -373,7 +371,7 @@ error_yy:
 
 int Host::rank(const string& rank, int& result, char **errmsg)
 {
-    YY_BUFFER_STATE     str_buffer;
+    YY_BUFFER_STATE     str_buffer = 0;
     const char *        str;
     int                 rc;
 

@@ -728,7 +728,7 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 40 "vm_var_parser.l"
+#line 39 "vm_var_parser.l"
 
 
  /* ------------------------------------------------------------------------- */
@@ -834,65 +834,65 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 50 "vm_var_parser.l"
+#line 49 "vm_var_parser.l"
 { BEGIN VAR;}
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 52 "vm_var_parser.l"
+#line 51 "vm_var_parser.l"
 { return EQUAL;}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 53 "vm_var_parser.l"
+#line 52 "vm_var_parser.l"
 { return COMMA;}
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 54 "vm_var_parser.l"
+#line 53 "vm_var_parser.l"
 { return OBRACKET;}
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 55 "vm_var_parser.l"
+#line 54 "vm_var_parser.l"
 { return CBRACKET;}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 57 "vm_var_parser.l"
+#line 56 "vm_var_parser.l"
 { vm_var_text[vm_var_leng-1] = '\0';
                                  lvalp->val_int   = atoi(vm_var_text);
                                  return INTEGER;}
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 60 "vm_var_parser.l"
+#line 59 "vm_var_parser.l"
 { lvalp->val_str = strdup(vm_var_text);
                                  return STRING;}
 	YY_BREAK
 case 8:
 /* rule 8 can match eol */
 YY_RULE_SETUP
-#line 62 "vm_var_parser.l"
+#line 61 "vm_var_parser.l"
 { lvalp->val_str = strdup(vm_var_text+1);
                                  lvalp->val_str[vm_var_leng-2] = '\0';
                                  return STRING;}
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 66 "vm_var_parser.l"
+#line 65 "vm_var_parser.l"
 { lvalp->val_char = '\0';
                                  return EOA;}
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 68 "vm_var_parser.l"
+#line 67 "vm_var_parser.l"
 { lvalp->val_char = *vm_var_text;
                                  BEGIN(INITIAL);
                                  return EOA;}
 	YY_BREAK
 case YY_STATE_EOF(VAR):
-#line 71 "vm_var_parser.l"
+#line 70 "vm_var_parser.l"
 { lvalp->val_char = '\0';
                                  BEGIN(INITIAL);
                                  return EOA;}
@@ -903,12 +903,12 @@ case YY_STATE_EOF(VAR):
 case 11:
 /* rule 11 can match eol */
 YY_RULE_SETUP
-#line 79 "vm_var_parser.l"
+#line 78 "vm_var_parser.l"
 { lvalp->val_str = strdup(vm_var_text); return RSTRING;}
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 81 "vm_var_parser.l"
+#line 80 "vm_var_parser.l"
 ECHO;
 	YY_BREAK
 #line 915 "vm_var_parser.c"
@@ -1880,7 +1880,7 @@ void vm_var_free (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 81 "vm_var_parser.l"
+#line 80 "vm_var_parser.l"
 
 
 

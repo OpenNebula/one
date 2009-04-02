@@ -29,6 +29,7 @@
 #include "Nebula.h"
 
 
+#include "vm_var_syntax.h"
 
 /* ************************************************************************** */
 /* Virtual Machine :: Constructor/Destructor                                  */
@@ -596,7 +597,8 @@ void VirtualMachine::release_network_leases()
 
     for(int i=0; i<num_nics; i++)
     {
-        VectorAttribute const *  nic = dynamic_cast<VectorAttribute const * >(nics[i]);
+        VectorAttribute const *  nic = 
+            dynamic_cast<VectorAttribute const * >(nics[i]);
 
         if ( nic == 0 )
         {
@@ -685,6 +687,92 @@ int VirtualMachine::generate_context(string &files)
     file.close();
 
     return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::parse_template_attribute(const string& attribute,
+                                             string&       parsed)
+{
+    int rc;
+    char * err = 0;
+    
+    rc = parse_attribute(this,-1,attribute,parsed,&err);
+    
+    if ( rc != 0 && err != 0 )
+    {
+        ostringstream oss;
+        
+        oss << "Error parsing: " << attribute << ". " << err;
+        log("VM",Log::ERROR,oss);
+    }
+    
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+pthread_mutex_t VirtualMachine::lex_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+extern "C"
+{    
+    typedef struct yy_buffer_state * YY_BUFFER_STATE;
+
+    int vm_var_parse (VirtualMachine * vm,
+                      int              vm_id,                  
+                      ostringstream *  parsed,
+                      char **          errmsg);
+ 
+    int vm_var_lex_destroy();
+
+    YY_BUFFER_STATE vm_var__scan_string(const char * str);
+
+    void vm_var__delete_buffer(YY_BUFFER_STATE);    
+}
+
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::parse_attribute(VirtualMachine * vm,
+                                    int              vm_id,
+                                    const string&    attribute,
+                                    string&          parsed,
+                                    char **          error_msg)
+{
+    YY_BUFFER_STATE  str_buffer = 0;
+    const char *     str;
+    int              rc;
+    ostringstream    oss_parsed("DEBUG");
+
+    *error_msg = 0;
+
+    pthread_mutex_lock(&lex_mutex);
+
+    str        = attribute.c_str();
+    str_buffer = vm_var__scan_string(str);
+
+    if (str_buffer == 0)
+    {
+        goto error_yy;
+    }
+
+    rc = vm_var_parse(vm,vm_id,&oss_parsed,error_msg);
+
+    vm_var__delete_buffer(str_buffer);
+
+    vm_var_lex_destroy();
+
+    pthread_mutex_unlock(&lex_mutex);
+
+    parsed = oss_parsed.str();
+
+    return rc;
+
+error_yy:
+    *error_msg=strdup("Error setting scan buffer");
+    pthread_mutex_unlock(&lex_mutex);
+    return -1;
 }
 
 /* ************************************************************************** */

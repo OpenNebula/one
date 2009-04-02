@@ -64,7 +64,7 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 166 "vm_var_syntax.y"
+#line 167 "vm_var_syntax.y"
 {
     char * val_str;
     int    val_int;

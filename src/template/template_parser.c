@@ -745,7 +745,7 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 42 "template_parser.l"
+#line 41 "template_parser.l"
 
 
  /* ------------------------------------------------------------------------- */
@@ -847,13 +847,13 @@ do_action:	/* This label is used only to access EOF actions. */
 case 1:
 /* rule 1 can match eol */
 YY_RULE_SETUP
-#line 47 "template_parser.l"
+#line 46 "template_parser.l"
 ;
 	YY_BREAK
 case 2:
 /* rule 2 can match eol */
 YY_RULE_SETUP
-#line 48 "template_parser.l"
+#line 47 "template_parser.l"
 ;
 	YY_BREAK
 /* ------------------------------------------------------------------------- */
@@ -861,7 +861,7 @@ YY_RULE_SETUP
 /* ------------------------------------------------------------------------- */
 case 3:
 YY_RULE_SETUP
-#line 53 "template_parser.l"
+#line 52 "template_parser.l"
 { lvalp->val_str = strdup(template_text); return VARIABLE;}
 	YY_BREAK
 /* ------------------------------------------------------------------------ */
@@ -871,31 +871,31 @@ YY_RULE_SETUP
 /* ------------------------------------------------------------------------ */
 case 4:
 YY_RULE_SETUP
-#line 60 "template_parser.l"
+#line 59 "template_parser.l"
 { BEGIN VALUE; return EQUAL;}
 	YY_BREAK
 case 5:
 /* rule 5 can match eol */
 YY_RULE_SETUP
-#line 62 "template_parser.l"
+#line 61 "template_parser.l"
 { return EQUAL_EMPTY;}
 	YY_BREAK
 case 6:
 /* rule 6 can match eol */
 YY_RULE_SETUP
-#line 64 "template_parser.l"
+#line 63 "template_parser.l"
 { return COMMA;}
 	YY_BREAK
 case 7:
 /* rule 7 can match eol */
 YY_RULE_SETUP
-#line 66 "template_parser.l"
+#line 65 "template_parser.l"
 { return CBRACKET;}
 	YY_BREAK
 case 8:
 /* rule 8 can match eol */
 YY_RULE_SETUP
-#line 68 "template_parser.l"
+#line 67 "template_parser.l"
 { BEGIN(INITIAL); return OBRACKET;}
 	YY_BREAK
 /* ------------------------------------------------------------------------ */
@@ -906,7 +906,7 @@ YY_RULE_SETUP
 case 9:
 /* rule 9 can match eol */
 YY_RULE_SETUP
-#line 75 "template_parser.l"
+#line 74 "template_parser.l"
 { lvalp->val_str = strdup(template_text+1);
                     lvalp->val_str[template_leng-2] = '\0';
                     BEGIN(INITIAL); return STRING; }
@@ -914,20 +914,20 @@ YY_RULE_SETUP
 case 10:
 /* rule 10 can match eol */
 YY_RULE_SETUP
-#line 79 "template_parser.l"
+#line 78 "template_parser.l"
 { lvalp->val_str = strdup(template_text+1);
                     lvalp->val_str[template_leng-2] = '\0';
                     BEGIN(INITIAL); return STRING; }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 83 "template_parser.l"
+#line 82 "template_parser.l"
 { lvalp->val_str = strdup(template_text);
                     BEGIN(INITIAL); return STRING;}
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 85 "template_parser.l"
+#line 84 "template_parser.l"
 ECHO;
 	YY_BREAK
 #line 934 "template_parser.c"
@@ -1900,7 +1900,7 @@ void template_free (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 85 "template_parser.l"
+#line 84 "template_parser.l"
 
 
 

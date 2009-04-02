@@ -19,15 +19,13 @@
 
 #include "Template.h"
 #include "template_syntax.h"
-extern "C"
-{
-#include "template_parser.h"
-}
 
 #include <iostream>
 #include <sstream>
+#include <cstring>
 
-pthread_mutex_t Template::mutex = PTHREAD_MUTEX_INITIALIZER;
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 Template::~Template()
 {
@@ -42,8 +40,14 @@ Template::~Template()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+pthread_mutex_t Template::mutex = PTHREAD_MUTEX_INITIALIZER;
+
 extern "C"
 {
+    typedef struct yy_buffer_state * YY_BUFFER_STATE;
+    
+    extern FILE *template_in, *template_out;
+
     int template_parse(Template * tmpl, char ** errmsg);
 
     int template_lex_destroy();
@@ -94,7 +98,7 @@ error_open:
 
 int Template::parse(const string &parse_str, char **error_msg)
 {
-    YY_BUFFER_STATE     str_buffer;
+    YY_BUFFER_STATE     str_buffer = 0;
     const char *        str;
     int                 rc;
 

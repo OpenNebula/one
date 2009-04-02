@@ -27,6 +27,8 @@
 
 #include "vm_var_syntax.h"
 #include "VirtualMachinePool.h"
+#include "VirtualMachine.h"
+#include "Nebula.h"
 
 #define YYERROR_VERBOSE
 #define VM_VAR_TO_UPPER(S) transform (S.begin(),S.end(),S.begin(), \
@@ -35,38 +37,37 @@
 extern "C"
 {
 void vm_var_error(
-    YYLTYPE *            llocp,
-    VirtualMachinePool * vmpool,
-    VirtualMachine *     vm,
-    int                  vm_id,                  
-    ostringstream *      parsed,
-    char **              errmsg,
-    const char *         str);
+    YYLTYPE *        llocp,
+    VirtualMachine * vm,
+    int              vm_id,                  
+    ostringstream *  parsed,
+    char **          errmsg,
+    const char *     str);
 
 int vm_var_lex (YYSTYPE *lvalp, YYLTYPE *llocp);
 
-int vm_var_parse (VirtualMachinePool * vmpool,
-                  VirtualMachine *     vm,
-                  int                  vm_id,                  
-                  ostringstream *      parsed,
-                  char **              errmsg);
+int vm_var_parse (VirtualMachine * vm,
+                  int              vm_id,                  
+                  ostringstream *  parsed,
+                  char **          errmsg);
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void insert_single(VirtualMachinePool * vmpool,
-                   VirtualMachine *     vm,
-                   int                  vm_id,
-                   ostringstream&       parsed,
-                   const string&        name)
+void insert_single(VirtualMachine * vm,
+                   int              vm_id,
+                   ostringstream&   parsed,
+                   const string&    name)
 {
     VirtualMachine * tvm = vm;
     string value = "";
     
-    if ( vm == 0 && vmpool != 0 )
+    if ( vm == 0 )
     {
-        tvm = vmpool->get(vm_id,true);
+        Nebula& nd = Nebula::instance();
+
+        tvm = nd.get_vmpool()->get(vm_id,true);
     }
     
     if ( tvm == 0 )
@@ -87,14 +88,13 @@ void insert_single(VirtualMachinePool * vmpool,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void insert_vector(VirtualMachinePool * vmpool,
-                   VirtualMachine *     vm,
-                   int                  vm_id,
-                   ostringstream&       parsed,
-                   const string&        name,
-                   const string&        vname,
-                   const string&        vvar,
-                   const string&        vval)
+void insert_vector(VirtualMachine * vm,
+                   int              vm_id,
+                   ostringstream&   parsed,
+                   const string&    name,
+                   const string&    vname,
+                   const string&    vvar,
+                   const string&    vval)
                    
 {
     VirtualMachine * tvm = vm;
@@ -105,9 +105,11 @@ void insert_vector(VirtualMachinePool * vmpool,
     int    num;
     string value = "";
     
-    if ( vm == 0 && vmpool != 0 )
+    if ( vm == 0 )
     {
-        tvm = vmpool->get(vm_id,true);
+        Nebula& nd = Nebula::instance();
+        
+        tvm = nd.get_vmpool()->get(vm_id,true);
     }
     
     if ( tvm == 0 )
@@ -157,11 +159,10 @@ error_name:
 
 %}
 
-%parse-param {VirtualMachinePool * vmpool}
-%parse-param {VirtualMachine *     vm}
-%parse-param {int                  vm_id}
-%parse-param {ostringstream *      parsed}
-%parse-param {char **              errmsg}
+%parse-param {VirtualMachine * vm}
+%parse-param {int              vm_id}
+%parse-param {ostringstream *  parsed}
+%parse-param {char **          errmsg}
 
 %union {
     char * val_str;
@@ -177,12 +178,12 @@ error_name:
 
 %token EQUAL COMMA OBRACKET CBRACKET
 
-%token <val_char>   EOA
-%token <val_str>  	STRING
-%token <val_str>    RSTRING
-%token <val_int>    INTEGER
-%type  <void>		vm_variable
-%type  <void>   	vm_string
+%token <val_char> EOA
+%token <val_str>  STRING
+%token <val_str>  RSTRING
+%token <val_int>  INTEGER
+%type  <void>	  vm_variable
+%type  <void>     vm_string
 
 %%
 
@@ -201,7 +202,7 @@ vm_variable:RSTRING
                 
                 VM_VAR_TO_UPPER(name);
                                     
-                insert_single(vmpool,vm,vm_id,*parsed,name);
+                insert_single(vm,vm_id,*parsed,name);
                                 
                 if ( $2 != '\0' )
                 {
@@ -218,7 +219,7 @@ vm_variable:RSTRING
                 VM_VAR_TO_UPPER(name);
                 VM_VAR_TO_UPPER(vname);
 
-                insert_vector(vmpool,vm,vm_id,*parsed,name,vname,"","");
+                insert_vector(vm,vm_id,*parsed,name,vname,"","");
 
                 if ( $5 != '\0' )
                 {
@@ -239,7 +240,7 @@ vm_variable:RSTRING
                 VM_VAR_TO_UPPER(vname);
                 VM_VAR_TO_UPPER(vvar);
 
-                insert_vector(vmpool,vm,vm_id,*parsed,name,vname,vvar,vval);
+                insert_vector(vm,vm_id,*parsed,name,vname,vvar,vval);
                                                                       
                 if ( $9 != '\0' )
                 {
@@ -258,7 +259,7 @@ vm_variable:RSTRING
 
                 VM_VAR_TO_UPPER(vname);
                 
-                insert_vector(vmpool,0,$1,*parsed,name,vname,"","");
+                insert_vector(0,$1,*parsed,name,vname,"","");
                 
                 if ( $3 != '\0' )
                 {
@@ -271,20 +272,19 @@ vm_variable:RSTRING
 %%
 
 extern "C" void vm_var_error(
-    YYLTYPE *            llocp,
-    VirtualMachinePool * vmpool,
-    VirtualMachine *     vm,
-    int                  vm_id,                  
-    ostringstream *      parsed,
-    char **              error_msg,
-    const char *         str)
+    YYLTYPE *        llocp,
+    VirtualMachine * vm,
+    int              vm_id,                  
+    ostringstream *  parsed,
+    char **          error_msg,
+    const char *     str)
 {
     int length;
 
     length = strlen(str)+ 64;
 
     *error_msg = (char *) malloc(sizeof(char)*length);
-                string nil = "";
+    
     if (*error_msg != 0)
     {
         snprintf(*error_msg,

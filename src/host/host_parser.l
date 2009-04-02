@@ -34,7 +34,6 @@
 %option nounput
 %option prefix="host_"
 %option outfile="host_parser.c"
-%option header-file="host_parser.h"
 %option yylineno
 
 %%

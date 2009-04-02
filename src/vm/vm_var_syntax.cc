@@ -111,6 +111,8 @@
 
 #include "vm_var_syntax.h"
 #include "VirtualMachinePool.h"
+#include "VirtualMachine.h"
+#include "Nebula.h"
 
 #define YYERROR_VERBOSE
 #define VM_VAR_TO_UPPER(S) transform (S.begin(),S.end(),S.begin(), \
@@ -119,38 +121,37 @@
 extern "C"
 {
 void vm_var_error(
-    YYLTYPE *            llocp,
-    VirtualMachinePool * vmpool,
-    VirtualMachine *     vm,
-    int                  vm_id,                  
-    ostringstream *      parsed,
-    char **              errmsg,
-    const char *         str);
+    YYLTYPE *        llocp,
+    VirtualMachine * vm,
+    int              vm_id,                  
+    ostringstream *  parsed,
+    char **          errmsg,
+    const char *     str);
 
 int vm_var_lex (YYSTYPE *lvalp, YYLTYPE *llocp);
 
-int vm_var_parse (VirtualMachinePool * vmpool,
-                  VirtualMachine *     vm,
-                  int                  vm_id,                  
-                  ostringstream *      parsed,
-                  char **              errmsg);
+int vm_var_parse (VirtualMachine * vm,
+                  int              vm_id,                  
+                  ostringstream *  parsed,
+                  char **          errmsg);
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void insert_single(VirtualMachinePool * vmpool,
-                   VirtualMachine *     vm,
-                   int                  vm_id,
-                   ostringstream&       parsed,
-                   const string&        name)
+void insert_single(VirtualMachine * vm,
+                   int              vm_id,
+                   ostringstream&   parsed,
+                   const string&    name)
 {
     VirtualMachine * tvm = vm;
     string value = "";
     
-    if ( vm == 0 && vmpool != 0 )
+    if ( vm == 0 )
     {
-        tvm = vmpool->get(vm_id,true);
+        Nebula& nd = Nebula::instance();
+
+        tvm = nd.get_vmpool()->get(vm_id,true);
     }
     
     if ( tvm == 0 )
@@ -171,14 +172,13 @@ void insert_single(VirtualMachinePool * vmpool,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void insert_vector(VirtualMachinePool * vmpool,
-                   VirtualMachine *     vm,
-                   int                  vm_id,
-                   ostringstream&       parsed,
-                   const string&        name,
-                   const string&        vname,
-                   const string&        vvar,
-                   const string&        vval)
+void insert_vector(VirtualMachine * vm,
+                   int              vm_id,
+                   ostringstream&   parsed,
+                   const string&    name,
+                   const string&    vname,
+                   const string&    vvar,
+                   const string&    vval)
                    
 {
     VirtualMachine * tvm = vm;
@@ -189,9 +189,11 @@ void insert_vector(VirtualMachinePool * vmpool,
     int    num;
     string value = "";
     
-    if ( vm == 0 && vmpool != 0 )
+    if ( vm == 0 )
     {
-        tvm = vmpool->get(vm_id,true);
+        Nebula& nd = Nebula::instance();
+        
+        tvm = nd.get_vmpool()->get(vm_id,true);
     }
     
     if ( tvm == 0 )
@@ -261,14 +263,14 @@ error_name:
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 166 "vm_var_syntax.y"
+#line 167 "vm_var_syntax.y"
 {
     char * val_str;
     int    val_int;
     char   val_char;
 }
 /* Line 187 of yacc.c.  */
-#line 272 "vm_var_syntax.cc"
+#line 274 "vm_var_syntax.cc"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
@@ -293,7 +295,7 @@ typedef struct YYLTYPE
 
 
 /* Line 216 of yacc.c.  */
-#line 297 "vm_var_syntax.cc"
+#line 299 "vm_var_syntax.cc"
 
 #ifdef short
 # undef short
@@ -580,7 +582,7 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,   189,   189,   190,   193,   198,   213,   231,   254
+       0,   190,   190,   191,   194,   199,   214,   232,   255
 };
 #endif
 
@@ -707,7 +709,7 @@ do								\
     }								\
   else								\
     {								\
-      yyerror (&yylloc, vmpool, vm, vm_id, parsed, errmsg, YY_("syntax error: cannot back up")); \
+      yyerror (&yylloc, vm, vm_id, parsed, errmsg, YY_("syntax error: cannot back up")); \
       YYERROR;							\
     }								\
 while (YYID (0))
@@ -787,7 +789,7 @@ do {									  \
     {									  \
       YYFPRINTF (stderr, "%s ", Title);					  \
       yy_symbol_print (stderr,						  \
-		  Type, Value, Location, vmpool, vm, vm_id, parsed, errmsg); \
+		  Type, Value, Location, vm, vm_id, parsed, errmsg); \
       YYFPRINTF (stderr, "\n");						  \
     }									  \
 } while (YYID (0))
@@ -801,25 +803,23 @@ do {									  \
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, VirtualMachinePool * vmpool, VirtualMachine *     vm, int                  vm_id, ostringstream *      parsed, char **              errmsg)
+yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, VirtualMachine * vm, int              vm_id, ostringstream *  parsed, char **          errmsg)
 #else
 static void
-yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, vmpool, vm, vm_id, parsed, errmsg)
+yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, vm, vm_id, parsed, errmsg)
     FILE *yyoutput;
     int yytype;
     YYSTYPE const * const yyvaluep;
     YYLTYPE const * const yylocationp;
-    VirtualMachinePool * vmpool;
-    VirtualMachine *     vm;
-    int                  vm_id;
-    ostringstream *      parsed;
-    char **              errmsg;
+    VirtualMachine * vm;
+    int              vm_id;
+    ostringstream *  parsed;
+    char **          errmsg;
 #endif
 {
   if (!yyvaluep)
     return;
   YYUSE (yylocationp);
-  YYUSE (vmpool);
   YYUSE (vm);
   YYUSE (vm_id);
   YYUSE (parsed);
@@ -845,19 +845,18 @@ yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, vmpool, vm, vm_i
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, VirtualMachinePool * vmpool, VirtualMachine *     vm, int                  vm_id, ostringstream *      parsed, char **              errmsg)
+yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, VirtualMachine * vm, int              vm_id, ostringstream *  parsed, char **          errmsg)
 #else
 static void
-yy_symbol_print (yyoutput, yytype, yyvaluep, yylocationp, vmpool, vm, vm_id, parsed, errmsg)
+yy_symbol_print (yyoutput, yytype, yyvaluep, yylocationp, vm, vm_id, parsed, errmsg)
     FILE *yyoutput;
     int yytype;
     YYSTYPE const * const yyvaluep;
     YYLTYPE const * const yylocationp;
-    VirtualMachinePool * vmpool;
-    VirtualMachine *     vm;
-    int                  vm_id;
-    ostringstream *      parsed;
-    char **              errmsg;
+    VirtualMachine * vm;
+    int              vm_id;
+    ostringstream *  parsed;
+    char **          errmsg;
 #endif
 {
   if (yytype < YYNTOKENS)
@@ -867,7 +866,7 @@ yy_symbol_print (yyoutput, yytype, yyvaluep, yylocationp, vmpool, vm, vm_id, par
 
   YY_LOCATION_PRINT (yyoutput, *yylocationp);
   YYFPRINTF (yyoutput, ": ");
-  yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, vmpool, vm, vm_id, parsed, errmsg);
+  yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, vm, vm_id, parsed, errmsg);
   YYFPRINTF (yyoutput, ")");
 }
 
@@ -907,18 +906,17 @@ do {								\
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yy_reduce_print (YYSTYPE *yyvsp, YYLTYPE *yylsp, int yyrule, VirtualMachinePool * vmpool, VirtualMachine *     vm, int                  vm_id, ostringstream *      parsed, char **              errmsg)
+yy_reduce_print (YYSTYPE *yyvsp, YYLTYPE *yylsp, int yyrule, VirtualMachine * vm, int              vm_id, ostringstream *  parsed, char **          errmsg)
 #else
 static void
-yy_reduce_print (yyvsp, yylsp, yyrule, vmpool, vm, vm_id, parsed, errmsg)
+yy_reduce_print (yyvsp, yylsp, yyrule, vm, vm_id, parsed, errmsg)
     YYSTYPE *yyvsp;
     YYLTYPE *yylsp;
     int yyrule;
-    VirtualMachinePool * vmpool;
-    VirtualMachine *     vm;
-    int                  vm_id;
-    ostringstream *      parsed;
-    char **              errmsg;
+    VirtualMachine * vm;
+    int              vm_id;
+    ostringstream *  parsed;
+    char **          errmsg;
 #endif
 {
   int yynrhs = yyr2[yyrule];
@@ -932,7 +930,7 @@ yy_reduce_print (yyvsp, yylsp, yyrule, vmpool, vm, vm_id, parsed, errmsg)
       fprintf (stderr, "   $%d = ", yyi + 1);
       yy_symbol_print (stderr, yyrhs[yyprhs[yyrule] + yyi],
 		       &(yyvsp[(yyi + 1) - (yynrhs)])
-		       , &(yylsp[(yyi + 1) - (yynrhs)])		       , vmpool, vm, vm_id, parsed, errmsg);
+		       , &(yylsp[(yyi + 1) - (yynrhs)])		       , vm, vm_id, parsed, errmsg);
       fprintf (stderr, "\n");
     }
 }
@@ -940,7 +938,7 @@ yy_reduce_print (yyvsp, yylsp, yyrule, vmpool, vm, vm_id, parsed, errmsg)
 # define YY_REDUCE_PRINT(Rule)		\
 do {					\
   if (yydebug)				\
-    yy_reduce_print (yyvsp, yylsp, Rule, vmpool, vm, vm_id, parsed, errmsg); \
+    yy_reduce_print (yyvsp, yylsp, Rule, vm, vm_id, parsed, errmsg); \
 } while (YYID (0))
 
 /* Nonzero means print parse trace.  It is left uninitialized so that
@@ -1191,24 +1189,22 @@ yysyntax_error (char *yyresult, int yystate, int yychar)
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep, YYLTYPE *yylocationp, VirtualMachinePool * vmpool, VirtualMachine *     vm, int                  vm_id, ostringstream *      parsed, char **              errmsg)
+yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep, YYLTYPE *yylocationp, VirtualMachine * vm, int              vm_id, ostringstream *  parsed, char **          errmsg)
 #else
 static void
-yydestruct (yymsg, yytype, yyvaluep, yylocationp, vmpool, vm, vm_id, parsed, errmsg)
+yydestruct (yymsg, yytype, yyvaluep, yylocationp, vm, vm_id, parsed, errmsg)
     const char *yymsg;
     int yytype;
     YYSTYPE *yyvaluep;
     YYLTYPE *yylocationp;
-    VirtualMachinePool * vmpool;
-    VirtualMachine *     vm;
-    int                  vm_id;
-    ostringstream *      parsed;
-    char **              errmsg;
+    VirtualMachine * vm;
+    int              vm_id;
+    ostringstream *  parsed;
+    char **          errmsg;
 #endif
 {
   YYUSE (yyvaluep);
   YYUSE (yylocationp);
-  YYUSE (vmpool);
   YYUSE (vm);
   YYUSE (vm_id);
   YYUSE (parsed);
@@ -1237,7 +1233,7 @@ int yyparse ();
 #endif
 #else /* ! YYPARSE_PARAM */
 #if defined __STDC__ || defined __cplusplus
-int yyparse (VirtualMachinePool * vmpool, VirtualMachine *     vm, int                  vm_id, ostringstream *      parsed, char **              errmsg);
+int yyparse (VirtualMachine * vm, int              vm_id, ostringstream *  parsed, char **          errmsg);
 #else
 int yyparse ();
 #endif
@@ -1266,15 +1262,14 @@ yyparse (YYPARSE_PARAM)
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 int
-yyparse (VirtualMachinePool * vmpool, VirtualMachine *     vm, int                  vm_id, ostringstream *      parsed, char **              errmsg)
+yyparse (VirtualMachine * vm, int              vm_id, ostringstream *  parsed, char **          errmsg)
 #else
 int
-yyparse (vmpool, vm, vm_id, parsed, errmsg)
-    VirtualMachinePool * vmpool;
-    VirtualMachine *     vm;
-    int                  vm_id;
-    ostringstream *      parsed;
-    char **              errmsg;
+yyparse (vm, vm_id, parsed, errmsg)
+    VirtualMachine * vm;
+    int              vm_id;
+    ostringstream *  parsed;
+    char **          errmsg;
 #endif
 #endif
 {
@@ -1545,7 +1540,7 @@ yyreduce:
   switch (yyn)
     {
         case 4:
-#line 194 "vm_var_syntax.y"
+#line 195 "vm_var_syntax.y"
     {
                 (*parsed) << (yyvsp[(1) - (1)].val_str);
                 free((yyvsp[(1) - (1)].val_str));
@@ -1553,13 +1548,13 @@ yyreduce:
     break;
 
   case 5:
-#line 199 "vm_var_syntax.y"
+#line 200 "vm_var_syntax.y"
     {
                 string name((yyvsp[(1) - (2)].val_str));
                 
                 VM_VAR_TO_UPPER(name);
                                     
-                insert_single(vmpool,vm,vm_id,*parsed,name);
+                insert_single(vm,vm_id,*parsed,name);
                                 
                 if ( (yyvsp[(2) - (2)].val_char) != '\0' )
                 {
@@ -1571,7 +1566,7 @@ yyreduce:
     break;
 
   case 6:
-#line 214 "vm_var_syntax.y"
+#line 215 "vm_var_syntax.y"
     {
                 string name((yyvsp[(1) - (5)].val_str));
                 string vname((yyvsp[(3) - (5)].val_str));
@@ -1579,7 +1574,7 @@ yyreduce:
                 VM_VAR_TO_UPPER(name);
                 VM_VAR_TO_UPPER(vname);
 
-                insert_vector(vmpool,vm,vm_id,*parsed,name,vname,"","");
+                insert_vector(vm,vm_id,*parsed,name,vname,"","");
 
                 if ( (yyvsp[(5) - (5)].val_char) != '\0' )
                 {
@@ -1592,7 +1587,7 @@ yyreduce:
     break;
 
   case 7:
-#line 232 "vm_var_syntax.y"
+#line 233 "vm_var_syntax.y"
     {
                 string name((yyvsp[(1) - (9)].val_str));
                 string vname((yyvsp[(3) - (9)].val_str));
@@ -1603,7 +1598,7 @@ yyreduce:
                 VM_VAR_TO_UPPER(vname);
                 VM_VAR_TO_UPPER(vvar);
 
-                insert_vector(vmpool,vm,vm_id,*parsed,name,vname,vvar,vval);
+                insert_vector(vm,vm_id,*parsed,name,vname,vvar,vval);
                                                                       
                 if ( (yyvsp[(9) - (9)].val_char) != '\0' )
                 {
@@ -1618,14 +1613,14 @@ yyreduce:
     break;
 
   case 8:
-#line 255 "vm_var_syntax.y"
+#line 256 "vm_var_syntax.y"
     {
                 string name("CONTEXT");
                 string vname((yyvsp[(2) - (3)].val_str));
 
                 VM_VAR_TO_UPPER(vname);
                 
-                insert_vector(vmpool,0,(yyvsp[(1) - (3)].val_int),*parsed,name,vname,"","");
+                insert_vector(0,(yyvsp[(1) - (3)].val_int),*parsed,name,vname,"","");
                 
                 if ( (yyvsp[(3) - (3)].val_char) != '\0' )
                 {
@@ -1638,7 +1633,7 @@ yyreduce:
 
 
 /* Line 1267 of yacc.c.  */
-#line 1642 "vm_var_syntax.cc"
+#line 1637 "vm_var_syntax.cc"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1674,7 +1669,7 @@ yyerrlab:
     {
       ++yynerrs;
 #if ! YYERROR_VERBOSE
-      yyerror (&yylloc, vmpool, vm, vm_id, parsed, errmsg, YY_("syntax error"));
+      yyerror (&yylloc, vm, vm_id, parsed, errmsg, YY_("syntax error"));
 #else
       {
 	YYSIZE_T yysize = yysyntax_error (0, yystate, yychar);
@@ -1698,11 +1693,11 @@ yyerrlab:
 	if (0 < yysize && yysize <= yymsg_alloc)
 	  {
 	    (void) yysyntax_error (yymsg, yystate, yychar);
-	    yyerror (&yylloc, vmpool, vm, vm_id, parsed, errmsg, yymsg);
+	    yyerror (&yylloc, vm, vm_id, parsed, errmsg, yymsg);
 	  }
 	else
 	  {
-	    yyerror (&yylloc, vmpool, vm, vm_id, parsed, errmsg, YY_("syntax error"));
+	    yyerror (&yylloc, vm, vm_id, parsed, errmsg, YY_("syntax error"));
 	    if (yysize != 0)
 	      goto yyexhaustedlab;
 	  }
@@ -1726,7 +1721,7 @@ yyerrlab:
       else
 	{
 	  yydestruct ("Error: discarding",
-		      yytoken, &yylval, &yylloc, vmpool, vm, vm_id, parsed, errmsg);
+		      yytoken, &yylval, &yylloc, vm, vm_id, parsed, errmsg);
 	  yychar = YYEMPTY;
 	}
     }
@@ -1783,7 +1778,7 @@ yyerrlab1:
 
       yyerror_range[0] = *yylsp;
       yydestruct ("Error: popping",
-		  yystos[yystate], yyvsp, yylsp, vmpool, vm, vm_id, parsed, errmsg);
+		  yystos[yystate], yyvsp, yylsp, vm, vm_id, parsed, errmsg);
       YYPOPSTACK (1);
       yystate = *yyssp;
       YY_STACK_PRINT (yyss, yyssp);
@@ -1826,7 +1821,7 @@ yyabortlab:
 | yyexhaustedlab -- memory exhaustion comes here.  |
 `-------------------------------------------------*/
 yyexhaustedlab:
-  yyerror (&yylloc, vmpool, vm, vm_id, parsed, errmsg, YY_("memory exhausted"));
+  yyerror (&yylloc, vm, vm_id, parsed, errmsg, YY_("memory exhausted"));
   yyresult = 2;
   /* Fall through.  */
 #endif
@@ -1834,7 +1829,7 @@ yyexhaustedlab:
 yyreturn:
   if (yychar != YYEOF && yychar != YYEMPTY)
      yydestruct ("Cleanup: discarding lookahead",
-		 yytoken, &yylval, &yylloc, vmpool, vm, vm_id, parsed, errmsg);
+		 yytoken, &yylval, &yylloc, vm, vm_id, parsed, errmsg);
   /* Do not reclaim the symbols of the rule which action triggered
      this YYABORT or YYACCEPT.  */
   YYPOPSTACK (yylen);
@@ -1842,7 +1837,7 @@ yyreturn:
   while (yyssp != yyss)
     {
       yydestruct ("Cleanup: popping",
-		  yystos[*yyssp], yyvsp, yylsp, vmpool, vm, vm_id, parsed, errmsg);
+		  yystos[*yyssp], yyvsp, yylsp, vm, vm_id, parsed, errmsg);
       YYPOPSTACK (1);
     }
 #ifndef yyoverflow
@@ -1858,24 +1853,23 @@ yyreturn:
 }
 
 
-#line 271 "vm_var_syntax.y"
+#line 272 "vm_var_syntax.y"
 
 
 extern "C" void vm_var_error(
-    YYLTYPE *            llocp,
-    VirtualMachinePool * vmpool,
-    VirtualMachine *     vm,
-    int                  vm_id,                  
-    ostringstream *      parsed,
-    char **              error_msg,
-    const char *         str)
+    YYLTYPE *        llocp,
+    VirtualMachine * vm,
+    int              vm_id,                  
+    ostringstream *  parsed,
+    char **          error_msg,
+    const char *     str)
 {
     int length;
 
     length = strlen(str)+ 64;
 
     *error_msg = (char *) malloc(sizeof(char)*length);
-                string nil = "";
+    
     if (*error_msg != 0)
     {
         snprintf(*error_msg,
