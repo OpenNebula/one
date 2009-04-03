@@ -156,7 +156,7 @@ INSTALL_ETC_FILES[6]="IM_EC2_ETC_FILES:$ETC_LOCATION/im_ec2"
 INSTALL_ETC_FILES[7]="TM_NFS_ETC_FILES:$ETC_LOCATION/tm_nfs"
 INSTALL_ETC_FILES[8]="TM_SSH_ETC_FILES:$ETC_LOCATION/tm_ssh"
 INSTALL_ETC_FILES[9]="TM_DUMMY_ETC_FILES:$ETC_LOCATION/tm_dummy"
-INSTALL_ETC_FILES[9]="HM_ETC_FILES:$ETC_LOCATION/hm"
+INSTALL_ETC_FILES[10]="HM_ETC_FILES:$ETC_LOCATION/hm"
 
 #-------------------------------------------------------------------------------
 # Binary files, to be installed under $BIN_LOCATION
