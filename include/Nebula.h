@@ -33,6 +33,7 @@
 #include "TransferManager.h"
 #include "DispatchManager.h"
 #include "RequestManager.h"
+#include "HookManager.h"
 
 class Nebula
 {
@@ -121,6 +122,11 @@ public:
     DispatchManager * get_dm()
     {
         return dm;
+    };
+    
+    HookManager * get_hm()
+    {
+        return hm;
     };
     
     // --------------------------------------------------------------
@@ -360,6 +366,7 @@ private:
     TransferManager *       tm;
     DispatchManager *       dm;
     RequestManager *        rm;
+    HookManager *           hm;
     
     // ---------------------------------------------------------------
     // Implementation functions

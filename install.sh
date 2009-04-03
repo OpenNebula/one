@@ -115,7 +115,8 @@ ETC_DIRS="$ETC_LOCATION/im_kvm \
           $ETC_LOCATION/vmm_ec2 \
           $ETC_LOCATION/tm_nfs \
           $ETC_LOCATION/tm_ssh \
-          $ETC_LOCATION/tm_dummy"
+          $ETC_LOCATION/tm_dummy \
+          $ETC_LOCATION/hm"
 
 LIB_DIRS="$LIB_LOCATION/im_probes \
           $LIB_LOCATION/ruby \
@@ -155,6 +156,7 @@ INSTALL_ETC_FILES[6]="IM_EC2_ETC_FILES:$ETC_LOCATION/im_ec2"
 INSTALL_ETC_FILES[7]="TM_NFS_ETC_FILES:$ETC_LOCATION/tm_nfs"
 INSTALL_ETC_FILES[8]="TM_SSH_ETC_FILES:$ETC_LOCATION/tm_ssh"
 INSTALL_ETC_FILES[9]="TM_DUMMY_ETC_FILES:$ETC_LOCATION/tm_dummy"
+INSTALL_ETC_FILES[9]="HM_ETC_FILES:$ETC_LOCATION/hm"
 
 #-------------------------------------------------------------------------------
 # Binary files, to be installed under $BIN_LOCATION
@@ -210,7 +212,9 @@ MADS_LIB_FILES="share/scripts/madcommon.sh \
               src/im_mad/ec2/one_im_ec2.rb \
               src/im_mad/ec2/one_im_ec2 \
               src/tm_mad/one_tm \
-              src/tm_mad/one_tm.rb"
+              src/tm_mad/one_tm.rb \
+              src/hm_mad/one_hm.rb \
+              src/hm_mad/one_hm"
               
 #-------------------------------------------------------------------------------
 # Information Manager Probes, to be installed under $LIB_LOCATION/im_probes
@@ -301,6 +305,12 @@ TM_SSH_ETC_FILES="src/tm_mad/ssh/tm_ssh.conf \
 
 TM_DUMMY_ETC_FILES="src/tm_mad/dummy/tm_dummy.conf \
                     src/tm_mad/dummy/tm_dummyrc"
+
+#-------------------------------------------------------------------------------
+# Hook Manager driver config. files, to be installed under $ETC_LOCATION/hm
+#-------------------------------------------------------------------------------
+
+HM_ETC_FILES="src/hm_mad/hmrc"
 
 #-------------------------------------------------------------------------------
 # Sample files, to be installed under $SHARE_LOCATION/examples

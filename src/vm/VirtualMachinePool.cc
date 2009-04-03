@@ -23,13 +23,16 @@
 VirtualMachinePool::VirtualMachinePool(SqliteDB * db):
     PoolSQL(db,VirtualMachine::table)
 {
-/*  TODO: Get the hooks from conf file / API call ?
+/*  TODO: Get the hooks from conf file / API call ? 
+
     VirtualMachineAllocateHook * test_hook;
     
-    test_hook = new VirtualMachineAllocateHook("/bin/true","$NAME $VM_ID");
+    test_hook = new VirtualMachineAllocateHook("test","/bin/echo",
+    "$NAME $VM_ID > salida");
     
     add_hook(test_hook);
 */
+
 }
 
 int VirtualMachinePool::allocate (

@@ -1,4 +1,4 @@
-# SConstruct for src/vm
+#!/bin/bash
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2009, Distributed Systems Architecture Group, Universidad   #
@@ -17,33 +17,24 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-Import('env')
+if [ -z "${ONE_LOCATION}" ]; then
+    DRIVERRC=/etc/one/hm/hmrc
+    MADCOMMON=/usr/lib/one/mads/madcommon.sh
+    VAR_LOCATION=/var/lib/one
+else
+    DRIVERRC=$ONE_LOCATION/etc/hm/hmrc
+    MADCOMMON=$ONE_LOCATION/lib/mads/madcommon.sh
+    VAR_LOCATION=$ONE_LOCATION/var
+fi
 
-lib_name='nebula_vm'
+. $MADCOMMON
 
-if env['parsers']=='yes':
-    # LEX
-    parser=env.Lex(
-    source='vm_var_parser.l'
-    )
-    env.NoClean(parser)
+# Export the im_mad specific rc
 
-    # BISON
-    parser=env.Bison(
-    source='vm_var_syntax.y'
-    )
-    env.NoClean(parser)
+export_rc_vars $DRIVERRC
 
-# Sources to generate the library
-source_files=[
-    'History.cc',
-    'VirtualMachine.cc',
-    'vm_var_parser.c',
-    'vm_var_syntax.cc',
-    'VirtualMachinePool.cc',
-    'VirtualMachineTemplate.cc',
-    'VirtualMachineHook.cc'
-]
+# Go to var directory ONE_LOCATION/var or /var/lib/one
+cd $VAR_LOCATION
 
-# Build library
-env.StaticLibrary(lib_name, source_files)
+# Execute the actual MAD
+execute_mad $*

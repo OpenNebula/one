@@ -49,11 +49,12 @@ public:
     //--------------------------------------------------------------------------
     // Constructor and Destructor
     //--------------------------------------------------------------------------
-    Hook(const string &_cmd, 
+    Hook(const string &_name,
+         const string &_cmd, 
          const string &_args,
          HookType     _ht,
          bool         _remote):
-        cmd(_cmd), args(_args), hook_type(_ht), remote(_remote){};
+        name(_name), cmd(_cmd), args(_args), hook_type(_ht), remote(_remote){};
 
     virtual ~Hook(){};
     
@@ -82,6 +83,11 @@ public:
     virtual void do_hook(void *arg) = 0;
 
 protected:
+    /**
+     *  Name of the Hook
+     */
+    string   name;
+    
     /**
      *  The command to be executed
      */

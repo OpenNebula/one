@@ -15,43 +15,35 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#ifndef VIRTUAL_MACHINE_HOOK_H_
-#define VIRTUAL_MACHINE_HOOK_H_
+#include "VirtualMachineHook.h"
+#include "VirtualMachine.h"
+#include "Nebula.h"
 
-#include <vector>
-#include <string>
-
-#include "Hook.h"
-
-using namespace std;
-
-/**
- *  This class is general VM Allocate Hook that executes a command locally 
- *  when the VM is inserted in the database. The VirtualMachine object is
- *  looked
- */
-class VirtualMachineAllocateHook : public Hook
-{
-public:
-    // -------------------------------------------------------------------------
-    // Init a LOCAL hook of ALLOCATE type
-    // -------------------------------------------------------------------------
-    VirtualMachineAllocateHook(const string& name,
-                               const string& cmd, 
-                               const string& args):
-        Hook(name, cmd, args, Hook::ALLOCATE, false){};
+void VirtualMachineAllocateHook::do_hook(void *arg)
+{    
+    VirtualMachine * vm;
+    int              rc;
+    string           parsed_args;
         
-    virtual ~VirtualMachineAllocateHook(){};
-
-    // -------------------------------------------------------------------------
-    // Hook methods
-    // -------------------------------------------------------------------------
-    bool check_hook(void *arg)
+    vm = static_cast<VirtualMachine *>(arg);
+        
+    if ( vm == 0 )
     {
-        return true;
+        return;
     }
+        
+    rc = vm->parse_template_attribute(args, parsed_args);
+        
+    if ( rc == 0)
+    {
+        Nebula& ne                    = Nebula::instance();
+        HookManager * hm              = ne.get_hm();
+        const HookManagerDriver * hmd = hm->get();
+        
+        if ( hmd != 0 )
+        {
+            hmd->execute(vm->get_oid(),name,cmd,parsed_args);
+        }
+    }            
+}
 
-    void do_hook(void *arg);
-};
-
-#endif

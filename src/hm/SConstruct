@@ -1,4 +1,4 @@
-# SConstruct for src/vm
+# SConstruct for src/hm
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2009, Distributed Systems Architecture Group, Universidad   #
@@ -19,31 +19,16 @@
 
 Import('env')
 
-lib_name='nebula_vm'
-
-if env['parsers']=='yes':
-    # LEX
-    parser=env.Lex(
-    source='vm_var_parser.l'
-    )
-    env.NoClean(parser)
-
-    # BISON
-    parser=env.Bison(
-    source='vm_var_syntax.y'
-    )
-    env.NoClean(parser)
+lib_name='nebula_hm'
 
 # Sources to generate the library
 source_files=[
-    'History.cc',
-    'VirtualMachine.cc',
-    'vm_var_parser.c',
-    'vm_var_syntax.cc',
-    'VirtualMachinePool.cc',
-    'VirtualMachineTemplate.cc',
-    'VirtualMachineHook.cc'
+	'HookManager.cc',
+	'HookManagerDriver.cc'
 ]
+
+test_names=[]
 
 # Build library
 env.StaticLibrary(lib_name, source_files)
+

@@ -1,5 +1,3 @@
-# SConstruct for src/vm
-
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2009, Distributed Systems Architecture Group, Universidad   #
 # Complutense de Madrid (dsa-research.org)                                   #
@@ -16,34 +14,3 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
-
-Import('env')
-
-lib_name='nebula_vm'
-
-if env['parsers']=='yes':
-    # LEX
-    parser=env.Lex(
-    source='vm_var_parser.l'
-    )
-    env.NoClean(parser)
-
-    # BISON
-    parser=env.Bison(
-    source='vm_var_syntax.y'
-    )
-    env.NoClean(parser)
-
-# Sources to generate the library
-source_files=[
-    'History.cc',
-    'VirtualMachine.cc',
-    'vm_var_parser.c',
-    'vm_var_syntax.cc',
-    'VirtualMachinePool.cc',
-    'VirtualMachineTemplate.cc',
-    'VirtualMachineHook.cc'
-]
-
-# Build library
-env.StaticLibrary(lib_name, source_files)

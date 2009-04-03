@@ -328,6 +328,27 @@ void Nebula::start()
        throw runtime_error("Could not start the Request Manager");
     }
 
+    // ---- Hook Manager ----         
+    try
+    {
+        vector<const Attribute *> hm_mads;
+                
+        nebula_configuration->get("HM_MAD", hm_mads);
+        
+        hm = new HookManager(hm_mads,vmpool);
+    }
+    catch (bad_alloc&)
+    {
+        throw;
+    }
+
+    rc = hm->start();
+    
+    if ( rc != 0 )
+    {
+       throw runtime_error("Could not start the Hook Manager");
+    }
+        
     // -----------------------------------------------------------
     // Load mads
     // -----------------------------------------------------------
@@ -337,7 +358,8 @@ void Nebula::start()
     im->load_mads(0);
     vmm->load_mads(0);
     tm->load_mads(0);
-
+    hm->load_mads(0);
+    
     // -----------------------------------------------------------
     // Wait for a SIGTERM or SIGINT signal
     // -----------------------------------------------------------

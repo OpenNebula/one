@@ -255,7 +255,11 @@ public:
      */
     void replace(const map<string,string>& attr);
 
-
+    /**
+     *  Replace the value of the given vector attribute
+     */
+    void replace(const string& name, const string& value);
+    
     /**
      *  Returns the attribute type
      */
