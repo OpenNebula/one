@@ -314,6 +314,11 @@ private:
             delete rm;
         }
      
+        if ( hm != 0)
+        {
+            delete hm;
+        }
+             
         if ( nebula_configuration != 0)
         {
             delete nebula_configuration;

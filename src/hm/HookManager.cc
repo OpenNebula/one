@@ -23,29 +23,6 @@ const char * HookManager::hook_driver_name = "hook_exe";
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-extern "C" void * hm_action_loop(void *arg)
-{
-    HookManager *  hm;
-
-    if ( arg == 0 )
-    {
-        return 0;
-    }
-
-    Nebula::log("HKM",Log::INFO,"Hook Manager started.");
-
-    hm = static_cast<HookManager *>(arg);
-    
-    hm->am.loop(0,0);
-
-    Nebula::log("HKM",Log::INFO,"Hook Manager stopped.");
-    
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 void HookManager::load_mads(int uid) 
 {
     HookManagerDriver *     hm_mad;
@@ -77,51 +54,6 @@ void HookManager::load_mads(int uid)
         oss << "\tHook Manager loaded";
             
         Nebula::log("HKM",Log::INFO,oss);
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int HookManager::start()
-{
-    int               rc;
-    pthread_attr_t    pattr;
-
-    rc = MadManager::start();
-
-    if ( rc != 0 )
-    {
-        return -1;
-    }
-
-    Nebula::log("HKM",Log::INFO,"Starting Hook Manager...");
-    
-    pthread_attr_init (&pattr);
-    pthread_attr_setdetachstate (&pattr, PTHREAD_CREATE_JOINABLE);
-
-    rc = pthread_create(&hm_thread,&pattr,hm_action_loop,(void *) this);
-
-    return rc;
-};
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void HookManager::do_action(const string &action, void * arg)
-{
-    if (action == ACTION_FINALIZE)
-    {
-        Nebula::log("HKM",Log::INFO,"Stopping Hook Manager...");
-        
-        MadManager::stop();       
-    }
-    else
-    {
-        ostringstream oss;
-        oss << "Unknown action name: " << action;
-        
-        Nebula::log("HKM", Log::ERROR, oss);        
     }
 }
 

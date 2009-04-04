@@ -19,23 +19,17 @@
 #define HOOK_MANAGER_H_
 
 #include "MadManager.h"
-#include "ActionManager.h"
 #include "HookManagerDriver.h"
 #include "VirtualMachinePool.h"
 
 using namespace std;
 
-extern "C" void * hm_action_loop(void *arg);
-
-class HookManager : public MadManager, public ActionListener
+class HookManager : public MadManager
 {
 public:
 
     HookManager(vector<const Attribute*>& _mads, VirtualMachinePool * _vmpool)
-        :MadManager(_mads),vmpool(_vmpool)          
-    {
-        am.addListener(this);
-    };
+        :MadManager(_mads),vmpool(_vmpool){};
 
     ~HookManager(){};
     
@@ -45,34 +39,9 @@ public:
      static const char *  hook_driver_name;    
 
     /**
-     *  This functions starts the associated listener thread, and creates a 
-     *  new thread for the Hook Manager. This thread will wait in
-     *  an action loop till it receives ACTION_FINALIZE.
-     *    @return 0 on success.
-     */
-    int start();
-
-    /**
-     *  Gets the HookManager thread identification.
-     *    @return pthread_t for the manager thread (that in the action loop).
-     */
-    pthread_t get_thread_id() const
-    {
-        return hm_thread;
-    };
-
-    /**
      *  
      */
     void load_mads(int uid=0);
-
-    /**
-     * 
-     */
-    void finalize()
-    {
-        am.trigger(ACTION_FINALIZE,0);
-    };
 
     /**
      *  Returns a pointer to a Information Manager MAD. The driver is 
@@ -94,32 +63,7 @@ private:
     /**
      *  Pointer to the VirtualMachine Pool
      */
-     VirtualMachinePool * vmpool;
-     
-    /**
-     *  Thread id for the HookManager
-     */
-    pthread_t             hm_thread;
-        
-    /**
-     *  Action engine for the Manager
-     */
-    ActionManager         am;
-
-    /**
-     *  Function to execute the Manager action loop method within a new pthread 
-     *  (requires C linkage)
-     */
-    friend void * hm_action_loop(void *arg);
-
-    /**
-     *  The action function executed when an action is triggered.
-     *    @param action the name of the action
-     *    @param arg arguments for the action function
-     */
-    void do_action(
-        const string &  action,
-        void *          arg);
+     VirtualMachinePool * vmpool;     
 };
 
 #endif /*HOOK_MANAGER_H*/
