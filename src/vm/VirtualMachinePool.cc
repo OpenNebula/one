@@ -20,20 +20,56 @@
 #include "VirtualMachineHook.h"
 #include <sstream>
 
-VirtualMachinePool::VirtualMachinePool(SqliteDB * db):
-    PoolSQL(db,VirtualMachine::table)
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+VirtualMachinePool::VirtualMachinePool(SqliteDB *                db, 
+                                       vector<const Attribute *> hook_mads)
+    : PoolSQL(db,VirtualMachine::table)
 {
-/*  TODO: Get the hooks from conf file / API call ? 
-
-    VirtualMachineAllocateHook * test_hook;
+    const VectorAttribute * vattr;
     
-    test_hook = new VirtualMachineAllocateHook("test","/bin/echo",
-    "$NAME $VM_ID > salida");
+    string                  name;
+    string                  on;
+    string                  cmd;
+    string                  arg;
     
-    add_hook(test_hook);
-*/
-
+    for (unsigned int i = 0 ; i < hook_mads.size() ; i++ )
+    {
+        vattr = static_cast<const VectorAttribute *>(hook_mads[i]);
+        
+        name = vattr->vector_value("NAME");
+        on   = vattr->vector_value("ON");
+        cmd  = vattr->vector_value("COMMAND");
+        arg  = vattr->vector_value("ARGUMENTS");
+        
+        transform (on.begin(),on.end(),on.begin(),(int(*)(int))toupper);
+        
+        if (name.empty())
+        {
+            name = cmd;
+        }
+        
+        if ( on == "CREATE" )
+        {
+            VirtualMachineAllocateHook * hook;
+            
+            hook = new VirtualMachineAllocateHook(name,cmd,arg);
+    
+            add_hook(hook);
+        }
+        else
+        {
+            ostringstream oss;
+            
+            oss << "Unkown VM_HOOK " << on << ". Hook not registered!";
+            Nebula::log("VM",Log::WARNING,oss);
+        }
+    }    
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 int VirtualMachinePool::allocate (
     int            uid,

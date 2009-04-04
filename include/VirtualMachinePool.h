@@ -33,7 +33,7 @@ class VirtualMachinePool : public PoolSQL
 {
 public:
 
-    VirtualMachinePool(SqliteDB * db);
+    VirtualMachinePool(SqliteDB * db, vector<const Attribute *> hook_mads);
 
     ~VirtualMachinePool(){};
 

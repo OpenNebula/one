@@ -140,7 +140,11 @@ void Nebula::start()
     	string 	mac_prefix;
     	int		size;
     	
-        vmpool = new VirtualMachinePool(db);
+        vector<const Attribute *> vm_hooks;
+                
+        nebula_configuration->get("VM_HOOK", vm_hooks);
+    	
+        vmpool = new VirtualMachinePool(db, vm_hooks);
         hpool  = new HostPool(db);
         
         nebula_configuration->get("MAC_PREFIX", mac_prefix);
