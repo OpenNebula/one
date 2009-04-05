@@ -345,6 +345,13 @@ void Nebula::start()
     {
         throw;
     }
+
+    rc = hm->start();
+    
+    if ( rc != 0 )
+    {
+       throw runtime_error("Could not start the Hook Manager");
+    }
         
     // -----------------------------------------------------------
     // Load mads
@@ -353,7 +360,7 @@ void Nebula::start()
     sleep(2);
 
     vmm->load_mads(0);
-    
+
     im->load_mads(0);
     tm->load_mads(0);
     hm->load_mads(0);
