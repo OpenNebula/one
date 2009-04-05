@@ -255,11 +255,31 @@ void TransferManager::prolog_action(int vid)
 
             if (size.empty()==true)
             {
-                size = "1";
+                vm->log("TM",Log::WARNING,"No size in swap image, skipping");
+                continue;
             }
 
             xfr << "MKSWAP " << size << " " << vm->get_hostname() << ":"
                 << vm->get_remote_dir() << "/disk." << i << endl;
+        }
+        else if ( type == "FS" )
+        {
+            // -----------------------------------------------------------------
+            // Create a clean file system disk image
+            // -----------------------------------------------------------------
+            string  size   = disk->vector_value("SIZE");
+            string  format = disk->vector_value("FORMAT");
+
+            if ( size.empty() || format.empty())
+            {
+                vm->log("TM",Log::WARNING,"No size or format in plain FS image,"
+                        " skipping");
+                continue;
+            }
+
+            xfr << "MKIMAGE " << size << " " << format << " "
+                << vm->get_hostname() << ":" << vm->get_remote_dir()
+                << "/disk." << i << endl;
         }
         else
         {
