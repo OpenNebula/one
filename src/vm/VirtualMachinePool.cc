@@ -101,7 +101,7 @@ VirtualMachinePool::VirtualMachinePool(SqliteDB *                db,
             VirtualMachineStateHook * hook;
 
             hook = new VirtualMachineStateHook(name, cmd, arg, remote,
-                            VirtualMachine::LCM_INIT, VirtualMachine::DONE);
+                            VirtualMachine::EPILOG, VirtualMachine::ACTIVE);
             add_hook(hook);
 
             state_hook = true;
