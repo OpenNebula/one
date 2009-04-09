@@ -37,7 +37,7 @@ class Hook
 public:
 
     /**
-     *  Defines the hook type, so a whole hook class can be masked 
+     *  Defines the hook type, so a whole hook class can be masked
      */
     enum HookType
     {
@@ -50,31 +50,24 @@ public:
     // Constructor and Destructor
     //--------------------------------------------------------------------------
     Hook(const string &_name,
-         const string &_cmd, 
+         const string &_cmd,
          const string &_args,
          HookType     _ht,
          bool         _remote):
         name(_name), cmd(_cmd), args(_args), hook_type(_ht), remote(_remote){};
 
     virtual ~Hook(){};
-    
+
     //--------------------------------------------------------------------------
     // Hook methods
     //--------------------------------------------------------------------------
     /**
      *  Returns the hook_type
      */
-     HookType type()
+     HookType type() const
      {
         return hook_type;
      }
-     
-    /**
-     *  Check if the object where we are attached should execute de hook or not
-     *    @param arg arguments for the hook
-     *    @return true if the hook has to be executed
-     */
-    virtual bool check_hook(void *arg) =  0;
 
     /**
      *  Executes the hook it self (usually with the aid of the ExecutionManager)
@@ -87,7 +80,7 @@ protected:
      *  Name of the Hook
      */
     string   name;
-    
+
     /**
      *  The command to be executed
      */
@@ -102,7 +95,7 @@ protected:
      *  The Hook Type
      */
     HookType hook_type;
-    
+
     /**
      *  True if the command is to be executed remotely
      */
@@ -150,7 +143,7 @@ public:
     void clear_hooks()
     {
         int sz = static_cast<int>(hooks.size());
-        
+
         for (int i=0; i<sz ; i++)
         {
             delete hooks[i];
@@ -170,13 +163,11 @@ public:
 
         for (int i=0; i<sz ; i++)
         {
-            if ((hooks[i]->type() & hook_mask) && 
-                (hooks[i]->check_hook(arg) == true))
+            if ( hooks[i]->type() & hook_mask )
             {
                 hooks[i]->do_hook(arg);
             }
         }
-
     };
 
 private:

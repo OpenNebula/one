@@ -448,10 +448,6 @@ void TransferManager::prolog_migr_action(int vid)
     xfr << vm->get_previous_hostname() << ":" << vm->get_remote_dir() << " ";
     xfr << vm->get_hostname() << ":" << vm->get_remote_dir() << endl;
 
-    // ------------------------------------------------------------------------
-    // TODO: Context commands
-    // ------------------------------------------------------------------------
-
     xfr.close();
 
     tm_md->transfer(vid,vm->get_transfer_file());
@@ -536,10 +532,6 @@ void TransferManager::prolog_resume_action(int vid)
     xfr << "MV ";
     xfr << nd.get_nebula_hostname() << ":" << vm->get_local_dir() << "/images ";
     xfr << vm->get_hostname() << ":" << vm->get_remote_dir() << endl;
-
-    // ------------------------------------------------------------------------
-    // TODO: Context commands
-    // ------------------------------------------------------------------------
 
     xfr.close();
 
@@ -743,10 +735,6 @@ void TransferManager::epilog_stop_action(int vid)
     xfr << "MV ";
     xfr << vm->get_hostname() << ":" << vm->get_remote_dir() << " ";
     xfr << nd.get_nebula_hostname() << ":" << vm->get_local_dir() << endl;
-
-    // ------------------------------------------------------------------------
-    // TODO: Context commands
-    // ------------------------------------------------------------------------
 
     xfr.close();
 
