@@ -150,7 +150,7 @@ class VirtualMachineStateMapHook : public Hook
 public:
     // -------------------------------------------------------------------------
     // -------------------------------------------------------------------------
-    VirtualMachineStateMapHook():Hook(name, cmd, args, Hook::UPDATE, remote){};
+    VirtualMachineStateMapHook():Hook("","","", Hook::UPDATE,false){};
 
     ~VirtualMachineStateMapHook(){};
 
