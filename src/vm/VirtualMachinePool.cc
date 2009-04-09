@@ -23,49 +23,116 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-VirtualMachinePool::VirtualMachinePool(SqliteDB *                db, 
+VirtualMachinePool::VirtualMachinePool(SqliteDB *                db,
                                        vector<const Attribute *> hook_mads)
     : PoolSQL(db,VirtualMachine::table)
 {
     const VectorAttribute * vattr;
-    
-    string                  name;
-    string                  on;
-    string                  cmd;
-    string                  arg;
-    
+
+    string name;
+    string on;
+    string cmd;
+    string arg;
+    string rmt;
+    bool   remote;
+
+    bool state_hook = false;
+
     for (unsigned int i = 0 ; i < hook_mads.size() ; i++ )
     {
         vattr = static_cast<const VectorAttribute *>(hook_mads[i]);
-        
+
         name = vattr->vector_value("NAME");
         on   = vattr->vector_value("ON");
         cmd  = vattr->vector_value("COMMAND");
         arg  = vattr->vector_value("ARGUMENTS");
-        
+        rmt  = vattr->vector_value("REMOTE");
+
         transform (on.begin(),on.end(),on.begin(),(int(*)(int))toupper);
-        
-        if (name.empty())
+
+        if ( on.empty() || cmd.empty() )
+        {
+            ostringstream oss;
+
+            oss << "Empty ON or COMMAND attribute in VM_HOOK. Hook "
+                << "not registered!";
+            Nebula::log("VM",Log::WARNING,oss);
+
+            continue;
+        }
+
+        if ( name.empty() )
         {
             name = cmd;
         }
-        
+
+        remote = false;
+
+        if ( !rmt.empty() )
+        {
+            transform(rmt.begin(),rmt.end(),rmt.begin(),(int(*)(int))toupper);
+
+            if ( rmt == "YES" )
+            {
+                remote = true;
+            }
+        }
+
         if ( on == "CREATE" )
         {
             VirtualMachineAllocateHook * hook;
-            
+
             hook = new VirtualMachineAllocateHook(name,cmd,arg);
-    
+
             add_hook(hook);
+        }
+        else if ( on == "RUNNING" )
+        {
+            VirtualMachineStateHook * hook;
+
+            hook = new VirtualMachineStateHook(name, cmd, arg, remote,
+                           VirtualMachine::RUNNING, VirtualMachine::ACTIVE);
+            add_hook(hook);
+
+            state_hook = true;
+        }
+        else if ( on == "SHUTDOWN" )
+        {
+            VirtualMachineStateHook * hook;
+
+            hook = new VirtualMachineStateHook(name, cmd, arg, remote,
+                            VirtualMachine::LCM_INIT, VirtualMachine::DONE);
+            add_hook(hook);
+
+            state_hook = true;
+        }
+        else if ( on == "STOP" )
+        {
+            VirtualMachineStateHook * hook;
+
+            hook = new VirtualMachineStateHook(name, cmd, arg, remote,
+                            VirtualMachine::LCM_INIT, VirtualMachine::STOPPED);
+            add_hook(hook);
+
+            state_hook = true;
         }
         else
         {
             ostringstream oss;
-            
+
             oss << "Unkown VM_HOOK " << on << ". Hook not registered!";
             Nebula::log("VM",Log::WARNING,oss);
         }
-    }    
+    }
+
+    if ( state_hook )
+    {
+        VirtualMachineUpdateStateHook * hook;
+
+        hook = new VirtualMachineUpdateStateHook();
+
+        add_hook(hook);
+    }
 }
 
 /* -------------------------------------------------------------------------- */

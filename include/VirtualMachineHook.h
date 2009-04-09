@@ -56,16 +56,22 @@ public:
  *  The state Map is shared by all the State hooks. A maintenance hook that
  *  updates the map should be added.
  */
-class VirtualMachineStateMap
+class VirtualMachineStateMapHook: public Hook
 {
 public:
+    virtual void do_hook(void *arg) = 0;
 
-    static VirtualMachineStateMap& instance()
-    {
-        static VirtualMachineStateMap vm_sm;
+protected:
+    // -------------------------------------------------------------------------
+    // Init the Map
+    // -------------------------------------------------------------------------
+    VirtualMachineStateMapHook(const string& name,
+                           const string& cmd,
+                           const string& args,
+                           bool          remote):
+        Hook(name, cmd, args, Hook::UPDATE, remote){};
 
-        return vm_sm;
-    };
+    virtual ~VirtualMachineStateMapHook(){};
 
     // -------------------------------------------------------------------------
     // Functions to handle the VM state map
@@ -76,7 +82,9 @@ public:
      *    @param lcm_state (previous) of the VM
      *    @return 0 if the previous state for the VM has been recorded
      */
-    int get_state(int id, VirtualMachine::LcmState &lcm_state);
+    int get_state(int id,
+                  VirtualMachine::LcmState &lcm_state,
+                  VirtualMachine::VmState  &vm_state);
 
     /**
      *  Updates the state associated to the VM
@@ -86,19 +94,21 @@ public:
     void update_state (int                      id,
                        VirtualMachine::LcmState lcm_state,
                        VirtualMachine::VmState  vm_state);
-
 private:
-    // -------------------------------------------------------------------------
-    // Init the Map
-    // -------------------------------------------------------------------------
-    VirtualMachineStateMap(){};
 
-    ~VirtualMachineStateMap(){};
+    struct VmStates
+    {
+        VmStates(VirtualMachine::LcmState _lcm, VirtualMachine::VmState _vm):
+            lcm(_lcm), vm(_vm){};
+
+        VirtualMachine::LcmState lcm;
+        VirtualMachine::VmState  vm;
+    };
 
     /**
      *  The state Map for the VMs
      */
-    map<int,VirtualMachine::LcmState> vm_states;
+    static map<int,VmStates> vm_states;
 };
 
 /**
@@ -106,11 +116,10 @@ private:
  *  remotelly when the VM gets into a given state (one shot). The VirtualMachine
  *  object is looked when the hook is invoked.
  */
-class VirtualMachineStateHook : public Hook
+class VirtualMachineStateHook : public VirtualMachineStateMapHook
 {
 public:
     // -------------------------------------------------------------------------
-    // Init a LOCAL hook of ALLOCATE type
     // -------------------------------------------------------------------------
     /**
      *  Creates a VirtualMachineStateHook
@@ -124,8 +133,9 @@ public:
                             const string&            cmd,
                             const string&            args,
                             bool                     remote,
-                            VirtualMachine::LcmState _state):
-        Hook(name, cmd,args,Hook::UPDATE,remote), state(_state){};
+                            VirtualMachine::LcmState _lcm,
+                            VirtualMachine::VmState  _vm):
+        VirtualMachineStateMapHook(name,cmd,args,remote), lcm(_lcm), vm(_vm){};
 
     ~VirtualMachineStateHook(){};
 
@@ -136,23 +146,29 @@ public:
 
 private:
     /**
-     *  The target hook state
+     *  The target LCM state
      */
-    VirtualMachine::LcmState state;
+    VirtualMachine::LcmState lcm;
+
+    /**
+     *  The target DM state
+     */
+    VirtualMachine::VmState  vm;
 };
 
 /**
  *  This class implements a state Map updater, one hook of this type should be
  *  added in order to mantain the VM state map.
  */
-class VirtualMachineStateMapHook : public Hook
+class VirtualMachineUpdateStateHook : public VirtualMachineStateMapHook
 {
 public:
     // -------------------------------------------------------------------------
     // -------------------------------------------------------------------------
-    VirtualMachineStateMapHook():Hook("","","", Hook::UPDATE,false){};
+    VirtualMachineUpdateStateHook():
+        VirtualMachineStateMapHook("","","",false){};
 
-    ~VirtualMachineStateMapHook(){};
+    ~VirtualMachineUpdateStateHook(){};
 
     // -------------------------------------------------------------------------
     // Hook methods

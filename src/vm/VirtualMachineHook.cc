@@ -53,10 +53,16 @@ void VirtualMachineAllocateHook::do_hook(void *arg)
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
 
-int VirtualMachineStateMap::get_state(int id,
-        VirtualMachine::LcmState &lcm_state)
+map<int,VirtualMachineStateMapHook::VmStates>
+                                     VirtualMachineStateMapHook::vm_states;
+
+// -----------------------------------------------------------------------------
+
+int VirtualMachineStateMapHook::get_state(int id,
+        VirtualMachine::LcmState &lcm_state,
+        VirtualMachine::VmState  &vm_state)
 {
-    map<int,VirtualMachine::LcmState>::iterator it;
+    map<int,VmStates>::iterator it;
 
     it = vm_states.find(id);
 
@@ -65,7 +71,8 @@ int VirtualMachineStateMap::get_state(int id,
         return -1;
     }
 
-    lcm_state = it->second;
+    lcm_state = it->second.lcm;
+    vm_state  = it->second.vm;
 
     return 0;
 }
@@ -73,17 +80,19 @@ int VirtualMachineStateMap::get_state(int id,
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
 
-void VirtualMachineStateMap::update_state (int id,
+void VirtualMachineStateMapHook::update_state (int id,
         VirtualMachine::LcmState lcm_state,
-        VirtualMachine::VmState   vm_state)
+        VirtualMachine::VmState  vm_state)
 {
-    map<int,VirtualMachine::LcmState>::iterator it;
+    map<int,VmStates>::iterator it;
 
     it = vm_states.find(id);
 
     if ( it == vm_states.end() )
     {
-        vm_states.insert(make_pair(id,lcm_state));
+        VmStates states(lcm_state, vm_state);
+
+        vm_states.insert(make_pair(id,states));
     }
     else
     {
@@ -93,7 +102,8 @@ void VirtualMachineStateMap::update_state (int id,
         }
         else
         {
-            it->second = lcm_state;
+            it->second.lcm = lcm_state;
+            it->second.vm  = vm_state;
         }
     }
 }
@@ -107,8 +117,8 @@ void VirtualMachineStateHook::do_hook(void *arg)
     VirtualMachine * vm;
     int              rc;
 
-    VirtualMachine::LcmState lcm_state;
-    VirtualMachineStateMap&  vm_sm = VirtualMachineStateMap::instance();
+    VirtualMachine::LcmState prev_lcm, cur_lcm;
+    VirtualMachine::VmState  prev_vm, cur_vm;
 
     vm = static_cast<VirtualMachine *>(arg);
 
@@ -117,19 +127,26 @@ void VirtualMachineStateHook::do_hook(void *arg)
         return;
     }
 
-    rc = vm_sm.get_state(vm->get_oid(),lcm_state);
+    rc = get_state(vm->get_oid(), prev_lcm, prev_vm);
 
     if ( rc != 0 )
     {
         return;
     }
 
-    if ((lcm_state != state) && (vm->get_lcm_state() == state))
+    cur_lcm = vm->get_lcm_state();
+    cur_vm  = vm->get_state();
+
+    if ( prev_lcm == cur_lcm && prev_vm == cur_vm ) //Still in the same state
+    {
+        return;
+    }
+
+    if ( cur_lcm == lcm && cur_vm == this->vm )
     {
         string  parsed_args;
-        int     rc = vm->parse_template_attribute(args, parsed_args);
 
-        if ( rc == 0)
+        if ( vm->parse_template_attribute(args, parsed_args) == 0)
         {
             Nebula& ne        = Nebula::instance();
             HookManager * hm  = ne.get_hm();
@@ -158,7 +175,7 @@ void VirtualMachineStateHook::do_hook(void *arg)
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
 
-void VirtualMachineStateMapHook::do_hook(void *arg)
+void VirtualMachineUpdateStateHook::do_hook(void *arg)
 {
     VirtualMachine * vm = static_cast<VirtualMachine *>(arg);
 
@@ -167,9 +184,7 @@ void VirtualMachineStateMapHook::do_hook(void *arg)
         return;
     }
 
-    VirtualMachineStateMap& vm_sm = VirtualMachineStateMap::instance();
-
-    vm_sm.update_state(vm->get_oid(), vm->get_lcm_state(), vm->get_state());
+    update_state(vm->get_oid(), vm->get_lcm_state(), vm->get_state());
 }
 
 // -----------------------------------------------------------------------------
