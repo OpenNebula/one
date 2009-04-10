@@ -37,22 +37,20 @@ require 'CommandManager'
 class HookManagerDriver < OpenNebulaDriver
     def initialize(num)
         super(num, true)
-        
+
         register_action(:EXECUTE, method("action_execute"))
     end
-    
+
     def action_execute(number, hook_name, host, script, *arguments)
         cmd=nil
         cmd_string="#{script} #{arguments.join(' ')}"
-        
+
         if host.upcase=="LOCAL"
             cmd=LocalCommand.run(cmd_string, log_method(number))
         else
-            cmd=SSHCommand.run(cmd_string, host, log_method(number))
+            cmd=SSHCommand.run("'#{cmd_string}'", host, log_method(number))
         end
-        
-        pp cmd.stdout
-        
+
         if cmd.code==0
             send_message("EXECUTE", RESULT[:success], number, hook_name)
         else
