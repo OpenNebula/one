@@ -324,14 +324,14 @@ int LibVirtDriver::deployment_description(
     if ( vm->get_template_attribute("CONTEXT",attrs) == 1 )
     {
         context = dynamic_cast<const VectorAttribute *>(attrs[0]);
-        target  = disk->vector_value("TARGET");
+        target  = context->vector_value("TARGET");
 
         if ( !target.empty() )
         {
             file << "\t\t<disk type='file' device='disk'>" << endl;
             file << "\t\t\t<source file='" << vm->get_remote_dir() << "/disk."
                  << num << "'/>" << endl;
-            file << "\t\t\t<target dev='" << target << "'";
+            file << "\t\t\t<target dev='" << target << "'/>";
             file << "\t\t\t<readonly/>" << endl;
             file << "\t\t</disk>" << endl;
         }
