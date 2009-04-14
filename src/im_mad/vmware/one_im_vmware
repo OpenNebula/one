@@ -35,8 +35,6 @@ fi
 
 export_rc_vars $DRIVERRC
 
-echo $VMWARE_TRUSTORE
-
 LOG_FILE=$DRIVER_NAME
 
 MAD_FILE="OneImVmware"
