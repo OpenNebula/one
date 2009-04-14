@@ -41,9 +41,7 @@ import javax.xml.parsers.DocumentBuilder;
 
 public class TMClone 
 {
-    // TODO set oneID from remotepath
     private String oneID        = "";
-    //private ArrayList diskNames = new ArrayList();
     
     // Helpers from VI samples
     private static  ServiceContent content;    
@@ -233,7 +231,7 @@ public class TMClone
         ManagedObjectReference hostMor =                                                    
                cb.getServiceUtil().getDecendentMoRef(null,
                                                      "HostSystem",                                                                                                                             
-                                                     "ursa09.localdomain");
+                                                     hostName);
         
         // TODO make this dymamic. 
         datacenter = "ha-datacenter";
