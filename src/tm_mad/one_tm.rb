@@ -49,8 +49,6 @@ class TransferManager < OpenNebulaDriver
     def action_transfer(number, script_file)
         script_text=""
         
-        log(number, script_file)
-        
         if File.exist?(script_file)
             open(script_file) {|f|
                 script_text=f.read

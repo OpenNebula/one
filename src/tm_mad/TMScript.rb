@@ -71,9 +71,9 @@ class TMPlugin < Hash
         # arguments provided.
         cmd=[self[command], *args].join(" ")
 
-	local_command = LocalCommand.run(cmd, logger)
+        local_command = LocalCommand.run(cmd, logger)
 
-	logger.call(local_command.stdout) if logger
+        logger.call(local_command.stdout) if logger
 
         local_command
     end
@@ -149,15 +149,15 @@ class TMScript
 
                 res = [false, "COMMAND not found: #{line.join(" ")}."]
             else
-		if res.code == 0
-		  res = [true, ""]
-		else
-		  res = [false, get_error_message(res.stderr)]
-		end
+                if res.code == 0
+                    res = [true, ""]
+                else
+                    res = [false, get_error_message(res.stderr)]
+                end
             end
 
             # do not continue if command failed
-	    break res if !res[0]
+            break res if !res[0]
         }
         
         result
