@@ -48,19 +48,19 @@ public:
     OneClient(string oneurl="localhost",unsigned int socket=2633)
     {
         ostringstream oss;
-        
+
         oss << "http://" << oneurl << ":" << socket << "/RPC2";
         url=oss.str();
-        
+
         session = "oneclient";
     };
-    
+
     ~OneClient(){};
 
     /* ---------------------------------------------------------------------- */
     /*   ONE Virtual Machine Methods                                          */
     /* ---------------------------------------------------------------------- */
-    
+
     /**
      * 	Add a new VM to the VM pool and starts it.
      * 	@param template_file path, description of the Virtual Machine template
@@ -77,8 +77,8 @@ public:
    	 *  @param error if an error occurs this is the error message
      * 	@return -1 if an error occurs, 0 on success.
      */
-    int allocate_template(const string& template_file, 
-                          int&          vmid, 
+    int allocate_template(const string& template_file,
+                          int&          vmid,
                           string&       error);
 
     /**
@@ -108,7 +108,7 @@ public:
       */
     int shutdown(int vmid, string& error)
     {
-    	return action(vmid,"shutdown",error); 
+    	return action(vmid,"shutdown",error);
     };
 
     /**
@@ -119,7 +119,7 @@ public:
      */
     int hold(int vmid, string& error)
     {
-    	return action(vmid,"hold",error); 
+    	return action(vmid,"hold",error);
     };
 
     /**
@@ -130,7 +130,7 @@ public:
      */
     int release(int vmid, string& error)
     {
-    	return action(vmid,"release",error); 
+    	return action(vmid,"release",error);
     };
 
     /**
@@ -139,9 +139,9 @@ public:
    	 *  @param error if an error occurs this is the error message
      * 	@return -1 if an error occurs, 0 on success.
      */
-    int stop(int vmid, string& error)    
+    int stop(int vmid, string& error)
     {
-    	return action(vmid,"stop",error); 
+    	return action(vmid,"stop",error);
     };
 
     /**
@@ -152,7 +152,7 @@ public:
      */
     int suspend(int vmid, string& error)
     {
-    	return action(vmid,"suspend",error); 
+    	return action(vmid,"suspend",error);
     };
 
     /**
@@ -163,13 +163,36 @@ public:
      */
     int resume(int vmid, string& error)
     {
-    	return action(vmid,"resume",error); 
+    	return action(vmid,"resume",error);
+    };
+
+
+    /**
+     *  Cancel the execution of a VM,
+     *  @param vmid the vm identifier to resume.
+   	 *  @param error if an error occurs this is the error message
+     * 	@return -1 if an error occurs, 0 on success.
+     */
+    int cancel(int vmid, string& error)
+    {
+    	return action(vmid,"cancel",error);
+    };
+
+    /**
+     *  Remove the VM from the DB
+     *  @param vmid the vm identifier to resume.
+   	 *  @param error if an error occurs this is the error message
+     * 	@return -1 if an error occurs, 0 on success.
+     */
+    int finalize(int vmid, string& error)
+    {
+    	return action(vmid,"finalize",error);
     };
 
     /**
      *  Gets information on a virtual machine
      *  @param vmid the vm identifier.
-   	 *  @param info the VM information 
+   	 *  @param info the VM information
    	 *  @param error if an error occurs this is the error message
      * 	@return -1 if an error occurs, 0 on success.
      */
@@ -177,8 +200,8 @@ public:
 
     /* ---------------------------------------------------------------------- */
     /*   ONE Host Methods                                                     */
-    /* ---------------------------------------------------------------------- */    
-    
+    /* ---------------------------------------------------------------------- */
+
     /**
      * 	Gets system info from a single host ( "hid" ).
      *	@param hid	the host id to get for information
@@ -212,7 +235,7 @@ public:
    	 *  @param error if an error occurs this is the error message
      * 	@return -1 if an error occurs, 0 on success.
      */
-    int host_disable(int hid, string& error)    
+    int host_disable(int hid, string& error)
     {
     	return host_available(hid,false,error);
     };
@@ -225,8 +248,8 @@ public:
    	 *  @param error if an error occurs this is the error message
      * 	@return -1 if an error occurs, 0 on success.
        */
-    int host_allocate(string& name, 
-    				  string& im_mad, 
+    int host_allocate(string& name,
+    				  string& im_mad,
     				  string& vmm_mad,
     				  int&    hid,
     				  string& error);
@@ -236,7 +259,7 @@ private:
      *	URl - url to connect to ONE.
      */
     string url;
-    
+
     /**
      *	Session - Client session id
      */
@@ -261,7 +284,7 @@ private:
     int host_available(int hid, bool enable, string& error);
 };
 
-extern "C" 
+extern "C"
 {
 
 	void c_oneStart();
@@ -271,7 +294,7 @@ extern "C"
 	int c_oneMigrate(int vmid, int hid, int flag);
 
 	int c_oneAllocate(char* vm_template);
-	
+
 	int c_oneAllocateTemplate(char* vm_template);
 
 	int c_oneAction(int vmid,char* action);
@@ -283,7 +306,11 @@ extern "C"
 	int c_oneStop(int vmid);
 
 	int c_oneResume(int vmid);
-                                                              
+
+    int c_oneCancel(int vmid);
+
+    int c_oneFinalize(int vmid);
+
 	int c_oneVmInfo(int vmid, char* ret_info,int leng);
 
 	void c_oneFree();
