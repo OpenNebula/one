@@ -108,8 +108,9 @@ class HostShow
     def header_host_small
         scr_bold
         scr_underline
-        puts @table.header_str
+        print @table.header_str
         scr_restore
+        puts ""
     end
     
     def list_short(options=nil)
