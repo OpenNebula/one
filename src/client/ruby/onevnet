@@ -88,8 +88,9 @@ class VNShow
     def header_vn_small
         scr_bold
         scr_underline
-        puts @table.header_str
+        print @table.header_str
         scr_restore
+        puts ""
     end
     
     def list_short(options=nil)

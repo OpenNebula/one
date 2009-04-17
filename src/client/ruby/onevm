@@ -153,15 +153,17 @@ class VmShow
     def header_vm_small
         scr_bold
         scr_underline
-        puts @table.header_str
+        print @table.header_str
         scr_restore
+        puts ""
     end
 
     def header_history_small
         scr_bold
         scr_underline
-        puts @table_history.header_str
+        print @table_history.header_str
         scr_restore
+        puts ""
     end
 
     def print_vm_long(data)
