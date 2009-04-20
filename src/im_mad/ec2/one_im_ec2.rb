@@ -59,7 +59,7 @@ class EC2InformationManagerDriver < OpenNebulaDriver
         totalmemory = smem + lmem + xlmem
         totalcpu    = scpu + lcpu + xlcpu
 
-        @info = "TOTALMEMORY=#{totalmemory},TOTALCPU=#{totalcpu}" \
+        @info = "TOTALMEMORY=#{totalmemory},TOTALCPU=#{totalcpu}," \
                 "CPUSPEED=1000,FREEMEMORY=#{totalmemory},FREECPU=#{totalcpu}"
     end
 
