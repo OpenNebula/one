@@ -465,21 +465,35 @@ int LibVirtDriver::deployment_description(
      	{
      	    pae  = features->vector_value("PAE");
      	    acpi = features->vector_value("ACPI");
-
-            file << "\t<features>" << endl;
-         	
-         	if ( pae == "yes" )
-     		{
-     			file << "\t\t<pae/>" << endl;
-     		}
-     		
-     		if ( acpi == "no" )
-     		{
-     			file << "\t\t<acpi/>" << endl;
-     		}
-     
-            file << "\t</features>" << endl;
      	}
+     }
+     
+     if ( pae.empty() )
+     {
+         get_default("FEATURES", "PAE", pae);
+     }
+     
+     if ( acpi.empty() )
+     {
+         get_default("FEATURES", "ACPI", acpi);
+     }
+     
+     if( acpi=="yes" || pae=="yes" )
+     {
+
+        file << "\t<features>" << endl;
+
+        if ( pae == "yes" )
+        {
+            file << "\t\t<pae/>" << endl;
+        }
+
+        if ( acpi == "yes" )
+        {
+            file << "\t\t<acpi/>" << endl;
+        }
+
+        file << "\t</features>" << endl;
      }
      
      attrs.clear();
