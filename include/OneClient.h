@@ -18,6 +18,7 @@
 #ifndef ONECLIENT_H_
 #define ONECLIENT_H_
 
+#ifdef __cplusplus
 #include <xmlrpc-c/base.hpp>
 #include <xmlrpc-c/client_simple.hpp>
 
@@ -263,8 +264,8 @@ private:
 
 extern "C" 
 {
-
-	void c_oneStart();
+#endif
+	void c_oneStart(void);
 
 	int c_oneDeploy(int vmid, int hid);
 
@@ -286,7 +287,9 @@ extern "C"
                                                               
 	int c_oneVmInfo(int vmid, char* ret_info,int leng);
 
-	void c_oneFree();
-}
+	void c_oneFree(void);
 
+#ifdef __cplusplus
+}
+#endif
 #endif /*ONECLIENT_H_*/
