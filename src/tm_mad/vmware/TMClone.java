@@ -110,6 +110,7 @@ public class TMClone
         while ((len = in.read(buf)) > 0)
         {
            out.write(buf, 0, len);
+           out.flush();
         }  
         conn.getResponseMessage();
         conn.disconnect();
