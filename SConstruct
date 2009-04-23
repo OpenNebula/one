@@ -17,6 +17,7 @@
 
 import os
 import sys
+import shutil
 sys.path.append("./share/scons")
 from lex_bison import *
 
@@ -104,6 +105,10 @@ if not main_env.GetOption('clean'):
         print "   .xmlrpc_test to the mailing list."
         print ""
         exit(-1)
+else:
+    shutil.rmtree('.xmlrpc_test', True)
+    shutil.rmtree('src/nebula/.xmlrpc_test', True)
+    shutil.rmtree('src/scheduler/.xmlrpc_test', True)
 
 # SCONS scripts to build
 build_scripts=[
