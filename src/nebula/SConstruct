@@ -108,6 +108,7 @@ env.Append(LIBS=[
 ])
 
 
-env.ParseConfig('../../share/scons/get_xmlrpc_config server')
+if not env.GetOption('clean'):
+    env.ParseConfig('../../share/scons/get_xmlrpc_config server')
 
 env.Program('oned.cc')
