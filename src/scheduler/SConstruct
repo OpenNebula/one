@@ -27,72 +27,28 @@ lib_name='nebula_scheduler'
 
 # Sources to generate the library
 source_files=[
-	'Scheduler.cc',
-	'SchedulerHost.cc',
-	'SchedulerVirtualMachine.cc',
+    'Scheduler.cc',
+    'SchedulerHost.cc',
+    'SchedulerVirtualMachine.cc',
 ]
 
 scheduler_names=[
-	'mm_sched'
+    'mm_sched'
 ]
 
 # Build library
 env.StaticLibrary(lib_name, source_files)
 
-"""
 env.Append(LIBS=[
-	'sqlite3',
-	lib_name,
-	'nebula_core',
-	'nebula_host',	
-	'nebula_vm',
-	'nebula_pool',	
-	'nebula_template',		
-	'nebula_common',
-	'curl',
-	'xmlrpc_client++',
-    'xmlrpc_client',
-    'xmlrpc++',
-    'xmlrpc',
-    'xmlrpc_util',
-    'xmlrpc_xmlparse',
-    'xmlrpc_xmltok',
-    'wwwxml',
-    'xmltok',
-    'xmlparse',
-    'wwwzip',
-    'wwwinit',
-    'wwwapp',
-    'wwwtelnet',
-    'wwwhtml',
-    'wwwnews',
-    'wwwhttp',
-    'wwwmime',
-    'wwwgopher',
-    'wwwftp',
-    'wwwfile',
-    'wwwdir',
-    'wwwcache',
-    'wwwstream',
-    'wwwmux',
-    'wwwtrans',
-    'wwwcore',
-    'wwwutils',
-    'm',
-    'md5'
-])
-"""
-
-env.Append(LIBS=[
-	'sqlite3',
-	lib_name,
-	'nebula_core',
-	'nebula_host',
-	'nebula_vm',
-	'nebula_vnm',	
-	'nebula_pool',	
-	'nebula_template',		
-	'nebula_common',
+    'sqlite3',
+    lib_name,
+    'nebula_core',
+    'nebula_host',
+    'nebula_vm',
+    'nebula_vnm',
+    'nebula_pool',
+    'nebula_template',
+    'nebula_common',
 ])
 
 
@@ -102,4 +58,4 @@ if not env.GetOption('clean'):
 
 # Build tests
 for sched in scheduler_names:
-	env.Program(sched, sched+'.cc')
+    env.Program(sched, sched+'.cc')

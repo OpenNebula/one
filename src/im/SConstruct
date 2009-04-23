@@ -23,8 +23,8 @@ lib_name='nebula_im'
 
 # Sources to generate the library
 source_files=[
-	'InformationManager.cc',
-	'InformationManagerDriver.cc'
+    'InformationManager.cc',
+    'InformationManagerDriver.cc'
 ]
 
 test_names=[]

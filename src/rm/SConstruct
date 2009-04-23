@@ -27,15 +27,15 @@ source_files=[
     'RequestManagerAction.cc',
     'RequestManagerAllocate.cc',
     'RequestManagerDeploy.cc',
-    'RequestManagerMigrate.cc',    
+    'RequestManagerMigrate.cc',
     'RequestManagerInfo.cc',
     'RequestManagerHostAllocate.cc',
     'RequestManagerHostDelete.cc',
     'RequestManagerHostInfo.cc',
-    'RequestManagerHostEnable.cc',  
-    'RequestManagerVirtualNetworkAllocate.cc',  
-    'RequestManagerVirtualNetworkInfo.cc',  
-    'RequestManagerVirtualNetworkDelete.cc',    
+    'RequestManagerHostEnable.cc',
+    'RequestManagerVirtualNetworkAllocate.cc',
+    'RequestManagerVirtualNetworkInfo.cc',
+    'RequestManagerVirtualNetworkDelete.cc',
 ]
 
 # Build library

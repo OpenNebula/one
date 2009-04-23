@@ -22,25 +22,25 @@ Import('env')
 lib_name='nebula_template'
 
 if env['parsers']=='yes':
-	# LEX
-	parser=env.Lex(
-		source='template_parser.l'
-	)
-	env.NoClean(parser)
+    # LEX
+    parser=env.Lex(
+        source='template_parser.l'
+    )
+    env.NoClean(parser)
 
-	# BISON
-	parser=env.Bison(
-		source='template_syntax.y'
-	)
-	env.NoClean(parser)
+    # BISON
+    parser=env.Bison(
+        source='template_syntax.y'
+    )
+    env.NoClean(parser)
 
 
 # Sources to generate the library
 source_files=[
-	'Template.cc',
-	'TemplateSQL.cc',	
-	'template_parser.c',
-	'template_syntax.cc'
+    'Template.cc',
+    'TemplateSQL.cc',
+    'template_parser.c',
+    'template_syntax.cc'
 ]
 
 # Build library

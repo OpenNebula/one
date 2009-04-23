@@ -23,8 +23,8 @@ lib_name='nebula_mad'
 
 # Sources to generate the library
 source_files=[
-	'Mad.cc',
-	'MadManager.cc'
+    'Mad.cc',
+    'MadManager.cc'
 ]
 
 # Build library

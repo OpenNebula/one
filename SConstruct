@@ -48,7 +48,7 @@ main_env.Append(LIBPATH=[
     cwd+'/src/vm',
     cwd+'/src/vmm',
     cwd+'/src/lcm',
-    cwd+'/src/tm',  
+    cwd+'/src/tm',
     cwd+'/src/dm',
     cwd+'/src/im',
     cwd+'/src/rm',
@@ -94,15 +94,20 @@ if not main_env.GetOption('clean'):
         main_env.ParseConfig('share/scons/get_xmlrpc_config client')
     except Exception, e:
         print ""
-        print "Error searching for xmlrpc-c libraries. Please check this things:"
+        print "Error searching for xmlrpc-c libraries. Please check this"+
+            " things:"
         print ""
-        print " * You have installed development libraries for xmlrpc-c. One way to check"
-        print "   this is calling xmlrpc-c-config that is provided with the development"
+        print " * You have installed development libraries for xmlrpc-c. One"+
+            " way to check"
+        print "   this is calling xmlrpc-c-config that is provided with the"+
+            " development"
         print "   package."
-        print " * Check that the version of xmlrpc-c is at least 1.06. You can do this also"
+        print " * Check that the version of xmlrpc-c is at least 1.06. You can"+
+            " do this also"
         print "   calling:"
         print "   $ xmlrpc-c-config --version"
-        print " * If all this requirements are already met please send log files located in"
+        print " * If all this requirements are already met please send log"+
+            " files located in"
         print "   .xmlrpc_test to the mailing list."
         print ""
         exit(-1)
@@ -127,7 +132,7 @@ build_scripts=[
     'src/tm/SConstruct',
     'src/im/SConstruct',
     'src/dm/SConstruct',
-    'src/scheduler/SConstruct',  
+    'src/scheduler/SConstruct',
     'src/vnm/SConstruct',
     'src/hm/SConstruct',
 ]

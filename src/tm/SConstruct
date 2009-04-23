@@ -23,8 +23,8 @@ lib_name='nebula_tm'
 
 # Sources to generate the library
 source_files=[
-	'TransferManager.cc',
-	'TransferManagerDriver.cc'
+    'TransferManager.cc',
+    'TransferManagerDriver.cc'
 ]
 
 # Build library

@@ -23,9 +23,9 @@ lib_name='nebula_dm'
 
 # Sources to generate the library
 source_files=[
-	'DispatchManager.cc',
-	'DispatchManagerActions.cc',	
-	'DispatchManagerStates.cc',	
+    'DispatchManager.cc',
+    'DispatchManagerActions.cc',
+    'DispatchManagerStates.cc',
 ]
 
 # Build library
