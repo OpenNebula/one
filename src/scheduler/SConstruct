@@ -96,7 +96,8 @@ env.Append(LIBS=[
 ])
 
 
-env.ParseConfig('../../share/scons/get_xmlrpc_config client')
+if not env.GetOption('clean'):
+    env.ParseConfig('../../share/scons/get_xmlrpc_config client')
 
 
 # Build tests
