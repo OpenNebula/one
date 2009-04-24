@@ -216,10 +216,26 @@ end
 
 server=ONE::Server.new
 $host=host=ONE::Host.new(server)
+#$vm=vm=ONE::VM.new(server)
 
 def command_exit(code)
     $host.close_db
     exit(code)
+end
+
+# Returns true if there are non DONE VM's in a host, false otherwise
+def vms_in_host?(host)
+    sql_statement="select history.vid,history.hid,history.seq,vm_pool.state"+
+        " from history,vm_pool where vm_pool.oid=history.vid and"+
+        " vm_pool.state<>6 and history.hid=#{host} group by vid"
+
+    result=$host.get_db.db.execute(sql_statement)
+
+    if result.length>0
+        true
+    else
+        false
+    end
 end
 
 
@@ -250,10 +266,18 @@ when "show"
 when "delete"
     check_parameters("delete", 1)
     host_id=get_host_id(host, ARGV[0])
-    result=host.delete(host_id)
-    if result[0]
-        puts "Host deleted" if ops[:verbose]
-        command_exit 0
+    if vms_in_host?(host_id)
+        result=host.disable(host_id)
+        if result[0]
+            puts "Host disabled" if ops[:verbose]
+            command_exit 0
+        end
+    else
+        result=host.delete(host_id)
+        if result[0]
+            puts "Host deleted" if ops[:verbose]
+            command_exit 0
+        end
     end
     
 when "list"
