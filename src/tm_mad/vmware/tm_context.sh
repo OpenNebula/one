@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2009, Distributed Systems Architecture Group, Universidad   #
 # Complutense de Madrid (dsa-research.org)                                   #
@@ -15,8 +17,53 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# Uncomment the following line to active MAD debug  
-#ONE_MAD_DEBUG=1
+# Parameters: a b c d e f g h
+# SRC: a b c d e f g
+# DST: h
+while (( "$#" )); do
+    if [ "$#" == "1" ]; then
+        DST=$1
+    else
+        SRC="$SRC $1"
+    fi
+    shift
+done
 
-# Name of the ESX(i) datastore
-DATASTORE=datastore1
+
+if [ -z "${ONE_LOCATION}" ]; then
+    TMCOMMON=/usr/lib/one/mads/tm_common.sh
+else
+    TMCOMMON=$ONE_LOCATION/lib/mads/tm_common.sh
+fi
+
+. $TMCOMMON
+
+
+DST_PATH=`arg_path $DST`
+DST_FILE=`basename $DST_PATH`
+DST_PATH=`dirname $DST_PATH`
+DST_DIR=`dirname $DST_PATH`
+DST_HASH=`echo -n $DST | md5sum | awk '{print $1}'`
+TMP_DIR="$ONE_LOCATION/var/$DST_HASH"
+ISO_DIR="$TMP_DIR/isofiles"
+DST_HOST=`arg_host $DST`
+DST_ONEID_FOLDER=`dirname $DST_PATH`
+DST_ONEID_FOLDER=`basename $DST_ONEID_FOLDER`
+
+exec_and_log "mkdir -p $ISO_DIR"
+
+for f in $SRC; do
+    case $f in
+    http://*)
+        exec_and_log "wget -O $ISO_DIR $f"
+        ;;
+
+    *)
+        exec_and_log "cp -R $f $ISO_DIR"
+        ;;
+    esac
+done
+
+exec_and_log "mkisofs -o $TMP_DIR/$DST_FILE -J -R $ISO_DIR"
+scp $TMP_DIR/$DST_FILE $DST_HOST:/vmfs/volumes/$DATASTORE/$DST_ONEID_FOLDER
+exec_and_log "rm -rf $TMP_DIR"

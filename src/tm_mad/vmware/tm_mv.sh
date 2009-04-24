@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2009, Distributed Systems Architecture Group, Universidad   #
 # Complutense de Madrid (dsa-research.org)                                   #
@@ -15,8 +17,53 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# Uncomment the following line to active MAD debug  
-#ONE_MAD_DEBUG=1
+SRC=$1
+DST=$2
 
-# Name of the ESX(i) datastore
-DATASTORE=datastore1
+if [ -z "${ONE_LOCATION}" ]; then
+    TMCOMMON=/usr/lib/one/mads/tm_common.sh
+else
+    TMCOMMON=$ONE_LOCATION/lib/mads/tm_common.sh
+fi
+
+. $TMCOMMON
+
+SRC_PATH=`arg_path $SRC`
+DST_PATH=`arg_path $DST`
+
+SRC_HOST=`arg_host $SRC`
+DST_HOST=`arg_host $DST`
+
+if [ $SRC_HOST -ne `hostname` ]; then
+    $VM_ID=`sed -e 's/.*\/\([0-9]\+\)\/images\/.*/\1/`
+    $VM_NAME=one-$VM_ID
+    $LAST_BIT_OF_PATH=`basename $SRC_PATH`
+    if [ $LAST_BIT_OF_PATH -eq "images" ]; then
+	SRC_PATH="/vmfs/volumes/$DATASTORE/"$VM_NAME
+    else
+	SRC_PATH="/vmfs/volumes/$DATASTORE/"$VM_NAME"/$LAST_BIT_OF_PATH
+    fi
+fi
+
+if [ $DST_HOST -ne `hostname` ]; then
+    $VM_ID=`sed -e 's/.*\/\([0-9]\+\)\/images\/.*/\1/`    
+    $VM_NAME=one-$VM_ID
+    $LAST_BIT_OF_PATH=`basename $DST_PATH`
+    if [ $LAST_BIT_OF_PATH -eq "images" ]; then
+        DST_PATH="/vmfs/volumes/$DATASTORE/"$VM_NAME
+    else
+        DST_PATH="/vmfs/volumes/$DATASTORE/"$VM_NAME"/$LAST_BIT_OF_PATH
+    fi
+fi
+
+
+DST_DIR=`dirname $DST_PATH`
+
+if [ -d $DST_PATH ]; then
+    DST_ONEID_FOLDER=`basename `
+else
+fi
+
+log "Moving $SRC_PATH"
+scp -r $SRC $DST_HOST:/vmfs/volumes/$DATASTORE/$
+ssh $SRC_HOST rm -rf $SRC_PATH
