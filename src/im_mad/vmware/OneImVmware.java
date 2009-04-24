@@ -132,15 +132,8 @@ class OneImVmware extends Thread
                                   argsWithHost[i] = arguments[i];
                               }
                               
-<<<<<<< HEAD:trunk/src/im_mad/vmware/OneImVmware.java
                               argsWithHost[arguments.length]      = "--url";
                               argsWithHost[arguments.length + 1 ] = "https://" + hostToMonitor + ":443/sdk";
-=======
-                              //argsWithHost[arguments.length] = "--url https://" + hostToMonitor + ":443/sdk";
-                              //TODO for testing only
-                              argsWithHost[arguments.length]      = "--url";
-                              argsWithHost[arguments.length + 1 ] = "https://" + "localhost" + ":8008/sdk";
->>>>>>> Initial commit for VMWare drivers: the Information Manager.:trunk/src/im_mad/vmware/OneImVmware.java
                               gP = new GetProperty(argsWithHost, "HostSystem", hostToMonitor);
                                               
                               // Now it's time to build the response gathering the properties needed
