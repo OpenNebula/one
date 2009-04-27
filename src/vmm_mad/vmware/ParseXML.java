@@ -13,7 +13,7 @@ import org.xml.sax.SAXParseException;
 
 public class ParseXML
 {
-
+    private String   name;
     private String   cpu;
     private String[] disk;
     private String   memory;
@@ -40,6 +40,17 @@ public class ParseXML
             {
                 throw new Exception("Number of VM tags different of 1: [" + vm.getLength() + "]");
             }
+            
+            // Name
+            
+            NodeList nameNL = doc.getElementsByTagName("NAME");
+            
+            if(nameNL.getLength()!=1)
+            {
+                throw new Exception("Number of NAME tags different of 1: [" + nameNL.getLength() + "]");
+            }
+            
+            name     = ((Node)nameNL.item(0)).getNodeValue().trim();
             
             // CPU
             
@@ -136,5 +147,14 @@ public class ParseXML
     String[] getNet()
     {
         return macs;
+    }
+    
+    /**
+     * Returns VM name
+     * @return anme of the VM
+     **/
+    String getName()
+    {
+        return name;
     }
 }

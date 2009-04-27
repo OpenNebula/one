@@ -124,25 +124,26 @@ class OneVmmVmware extends Thread
                             // TODO this is just for testing
                             //  argsWithHost[arguments.length + 1 ] = "https://" + hostName + ":443/sdk";
                             argsWithHost[arguments.length + 1 ] = "https://localhost:8008/sdk";
-                            RegisterVM rVM = new RegisterVM(argsWithHost, hostName, "one-" + vid_str);
                             
-                            if(!rVM.registerVirtualMachine())
-                            {
-                                throw new Exception("Error registering VM.")
-                            }
-                            
-                            // Now, let's read the XML file and extract needed info
+                            // let's read the XML file and extract needed info
                             
                             ParseXML pXML = new ParseXML(fileName);
                             
-                            // Now, proceed with the reconfiguration
+                            DeployVM dVM = new DeployVM(argsWithHost, hostName, "one-" + vid_str,pXML);
                             
-                            if(!rVM.shapeVM())
+                            if(!dVM.registerVirtualMachine())
                             {
-                                throw new Exception("Error reconfiguring VM.")
+                                throw new Exception("Error registering VM.");
                             }
                             
+                            // Now, proceed with the reconfiguration
                             
+                            if(!dVM.shapeVM())
+                            {
+                                throw new Exception("Error reconfiguring VM.");
+                            }
+                            
+                            continue;
                          
                          }
                          catch(Exception e)

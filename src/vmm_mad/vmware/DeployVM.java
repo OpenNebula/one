@@ -169,7 +169,7 @@ public class DeployVM
         return datastoreName;
     }
     
-    private boolean shapeVM() throws Exception 
+    public boolean shapeVM() throws Exception 
     {
          
          virtualMachine 
