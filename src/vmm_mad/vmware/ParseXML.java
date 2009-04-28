@@ -13,11 +13,11 @@ import org.xml.sax.SAXParseException;
 
 public class ParseXML
 {
-    private String   name;
-    private String   cpu;
-    private String[] disk;
-    private String   memory;
-    private String[] macs;
+    private String   name = "";
+    private String   cpu  = "";
+    private String[] disk = {""};
+    private String   memory = "";
+    private String[] macs = {""};
     
     /**
      * Parses the XML file and fills the values
@@ -29,54 +29,46 @@ public class ParseXML
         {            
             DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
-            
+     
             Document doc = docBuilder.parse (new File(fileName));
             
-            doc.getDocumentElement().normalize();
+            doc.getDocumentElement().normalize();     
 
-            NodeList vm = doc.getElementsByTagName("VM");
-            
-            if(vm.getLength()!=1)
+            NodeList vmNL = doc.getElementsByTagName("VM");      
+            if(vmNL.getLength()!=1)
             {
-                throw new Exception("Number of VM tags different of 1: [" + vm.getLength() + "]");
+                throw new Exception("Number of VM tags different of 1: [" + vmNL.getLength() + "]");
             }
             
+            Element vm = (Element)(vmNL.item(0));
+                            
             // Name
-            
-            NodeList nameNL = doc.getElementsByTagName("NAME");
-            
+            NodeList nameNL = vm.getElementsByTagName("NAME");
             if(nameNL.getLength()!=1)
             {
                 throw new Exception("Number of NAME tags different of 1: [" + nameNL.getLength() + "]");
             }
+            name     = ((Node)nameNL.item(0)).getFirstChild().getNodeValue().trim();
             
-            name     = ((Node)nameNL.item(0)).getNodeValue().trim();
             
             // CPU
-            
-            NodeList cpuNL = doc.getElementsByTagName("CPU");
-            
+            NodeList cpuNL = vm.getElementsByTagName("CPU");
             if(cpuNL.getLength()!=1)
             {
                 throw new Exception("Number of CPU tags different of 1: [" + cpuNL.getLength() + "]");
             }
-            
-            cpu     = ((Node)cpuNL.item(0)).getNodeValue().trim();
+            cpu     = ((Node)cpuNL.item(0)).getFirstChild().getNodeValue().trim();
             
             // Memory
-            
-            NodeList memoryNL = doc.getElementsByTagName("MEMORY");
-            
+            NodeList memoryNL = vm.getElementsByTagName("MEMORY"); 
             if(memoryNL.getLength()!=1)
             {
                 throw new Exception("Number of MEMORY tags different of 1: [" + memoryNL.getLength() + "]");
             }
-            
-            memory   = ((Node)memoryNL.item(0)).getNodeValue().trim();
+            memory   = ((Node)memoryNL.item(0)).getFirstChild().getNodeValue().trim();
             
             // DISK
-            
-            NodeList diskNL = doc.getElementsByTagName("DISK");
+            NodeList diskNL = vm.getElementsByTagName("DISK");
             
             if(diskNL.getLength()!=0)
             {
@@ -86,13 +78,13 @@ public class ParseXML
                 {
                     NodeList sourceNode = ((Element)diskNL).getElementsByTagName("SOURCE");
                     
-                    disk[i] = ((Node)sourceNode.item(0)).getNodeValue().trim();
+                    disk[i] = ((Node)sourceNode.item(0)).getFirstChild().getNodeValue().trim();
                 }
             }
             
             // Network
             
-            NodeList nwNL = doc.getElementsByTagName("NIC");
+            NodeList nwNL = vm.getElementsByTagName("NIC");
             
             if(nwNL.getLength()!=0)
             {
@@ -102,14 +94,14 @@ public class ParseXML
                 {
                     NodeList mac = ((Element)nwNL).getElementsByTagName("MAC");
                     
-                    macs[i] = ((Node)mac.item(0)).getNodeValue().trim();
+                    macs[i] = ((Node)mac.item(0)).getFirstChild().getNodeValue().trim();
                 }
             }            
         }
         catch (SAXParseException err) 
         {
             throw new Exception("** Parsing error" + ", line " 
-                 + err.getLineNumber () + ", uri " + err.getSystemId ());
+                 + err.getLineNumber () + ", uri " + err.getSystemId ());    
         }
     }// end ParseXML
 

@@ -24,12 +24,17 @@ DRIVER_NAME=`basename $0`
 if [ -z "${ONE_LOCATION}" ]; then
     DRIVERRC=/etc/one/${DRIVER_NAME}/${DRIVER_NAME}rc
     MADCOMMON=/usr/lib/one/mads/madcommon.sh
+    VAR_LOCATION=/var/lib/one
 else
     DRIVERRC=$ONE_LOCATION/etc/${DRIVER_NAME}/${DRIVER_NAME}rc
     MADCOMMON=$ONE_LOCATION/lib/mads/madcommon.sh
+    VAR_LOCATION=$ONE_LOCATION/var
 fi
 
 . $MADCOMMON
+
+# Go to VAR_LOCATION
+cd $VAR_LOCATION
 
 # Export the im_mad specific rc
 

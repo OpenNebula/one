@@ -25,10 +25,11 @@ import com.vmware.apputils.vim.*;
 
 class OneVmmVmware extends Thread 
 {
+    private String[]     argsWithHost;
+    OperationsOverVM     oVM;
 
-    private String[] arguments;
-
-    // Entry point - main procedure
+    // Helpers from VI samples
+    static  AppUtil cb = null;
     
     public static void main(String[] args) 
     {
@@ -46,7 +47,36 @@ class OneVmmVmware extends Thread
     // Constructor
     OneVmmVmware(String[] args) 
     {
-        arguments = args;
+        argsWithHost = new String[args.length+2];
+        
+        for(int i=0;i<args.length;i++)
+        {
+            argsWithHost[i] = args[i];
+        }
+        
+        argsWithHost[args.length]      = "--url";
+        // TODO this is just for testing
+        //  argsWithHost[arguments.length + 1 ] = "https://" + hostName + ":443/sdk";
+        argsWithHost[args.length + 1 ] = "https://localhost:8008/sdk";
+        
+        try
+        {
+            cb = AppUtil.initialize("OneVmmVmware", null, argsWithHost);
+            cb.connect();
+            
+            oVM = new OperationsOverVM(cb);
+        }
+        catch(Exception e)
+        {
+            System.out.println("Error stablishing connection to ESX host. Reason: " + 
+                                e.getMessage());
+            System.exit(-1);
+        }
+    }
+
+    protected void finalize() throws Throwable
+    {	
+		cb.disConnect();
     }
     
 
@@ -101,7 +131,8 @@ class OneVmmVmware extends Thread
                     {
                        synchronized (System.err)
                        {
-                           System.err.println("FAILURE Unknown command");
+                           System.out.println("FAILURE Wrong number of arguments for DEPLOY action. Number args = [" +
+                                              str_split.length + "].");
                        }
                     }
                     else
@@ -111,37 +142,32 @@ class OneVmmVmware extends Thread
                         fileName       = str_split[3];
                                           
                         try
-                        {
-                            // First, register the VM
-                            String[] argsWithHost = new String[arguments.length+2];
-                            
-                            for(int i=0;i<arguments.length;i++)
-                            {
-                                argsWithHost[i] = arguments[i];
-                            }
-                            
-                            argsWithHost[arguments.length]      = "--url";
-                            // TODO this is just for testing
-                            //  argsWithHost[arguments.length + 1 ] = "https://" + hostName + ":443/sdk";
-                            argsWithHost[arguments.length + 1 ] = "https://localhost:8008/sdk";
-                            
+                        {    
                             // let's read the XML file and extract needed info
-                            
                             ParseXML pXML = new ParseXML(fileName);
                             
-                            DeployVM dVM = new DeployVM(argsWithHost, hostName, "one-" + vid_str,pXML);
+                            // First, register the VM
+                            DeployVM dVM = new DeployVM(cb, hostName, pXML);
                             
                             if(!dVM.registerVirtualMachine())
                             {
-                                throw new Exception("Error registering VM.");
+                                throw new Exception("Error registering VM(" + pXML.getName() + ").");
                             }
                             
                             // Now, proceed with the reconfiguration
                             
                             if(!dVM.shapeVM())
                             {
-                                throw new Exception("Error reconfiguring VM.");
+                                throw new Exception("Error reconfiguring VM (" + pXML.getName() + ").");
                             }
+                            
+                            if(!oVM.powerOn(pXML.getName()))
+                            {
+                                throw new Exception("Error powering on VM(" + pXML.getName() + ").");
+                            }
+                            
+                            System.err.println("DEPLOY SUCCESS " + vid_str + " " + pXML.getName());
+                            
                             
                             continue;
                          
@@ -157,6 +183,127 @@ class OneVmmVmware extends Thread
                          } // catch
            		    } // else if (str_split.length != 4)
                  } // if (action.equals("DEPLOY"))
+                 
+                 if (action.equals("SHUTDOWN"))
+                 {                           
+                     if (str_split.length < 3 )
+                     {
+                        synchronized (System.err)
+                        {
+                            System.out.println("FAILURE Wrong number of arguments for SHUTDOWN action. Number args = [" +
+                                               str_split.length + "].");
+                        }
+                     }
+                     else
+                     {
+                         
+                         vid_str        = str_split[1];
+                         hostName       = str_split[2];  
+                         String vmName  = str_split[3];
+                         
+                         if(!oVM.powerOff(vmName))
+                         {
+                             System.err.println("SHUTDOWN FAILURE " + vid_str + " Failed shutdown VM in host " + 
+                                                  hostName);
+                         }
+                         else
+                         {
+                             System.err.println("SHUTDOWN SUCCESS " + vid_str);                             
+                         }
+                      }
+                      
+                      continue;
+                 } // if (action.equals("SHUTDOWN"))
+                 
+                 if (action.equals("SHUTDOWN") || action.equals("CANCEL"))
+                 {                           
+                     if (str_split.length < 3 )
+                     {
+                        synchronized (System.err)
+                        {
+                            System.out.println("FAILURE Wrong number of arguments for " + action + 
+                                               " action. Number args = [" +
+                                               str_split.length + "].");
+                        }
+                     }
+                     else
+                     {
+                         
+                         vid_str        = str_split[1];
+                         hostName       = str_split[2];  
+                         String vmName  = str_split[3];
+                         
+                         if(!oVM.powerOff(vmName))
+                         {
+                             System.err.println(action + " FAILURE " + vid_str + " Failed shutdown VM in host " + 
+                                                  hostName);
+                         }
+                         else
+                         {
+                             System.err.println(action + " SUCCESS " + vid_str);                             
+                         }
+                      }
+                      
+                      continue;
+                 } // if (action.equals("SHUTDOWN or CANCEL"))
+                 
+                 if (action.equals("SUSPEND"))
+                 {                           
+                     if (str_split.length < 4)
+                     {
+                        synchronized (System.err)
+                        {
+                            System.out.println("FAILURE Wrong number of arguments for SUSPEND action. Number args = [" +
+                                               str_split.length + "].");
+                        }
+                     }
+                     else
+                     {              
+                         vid_str        = str_split[1];
+                         hostName       = str_split[2];  
+                         String vmName  = str_split[3];
+                         
+                         if(!oVM.suspend(vmName))
+                         {
+                             System.err.println(action + " FAILURE " + vid_str + " Failed suspending VM in host " + 
+                                                  hostName);
+                         }
+                         else
+                         {
+                             System.err.println(action + " SUCCESS " + vid_str);                             
+                         }
+                         
+                         continue;
+                      }
+                 } // if (action.equals("SUSPEND"))
+                 
+                 if (action.equals("CHECKPOINT"))
+                 {       
+                     vid_str        = str_split[1];  
+                                       
+                     System.err.println(action + " FAILURE " + vid_str + " Action not supported");
+                     
+                     continue;
+                 } // if (action.equals("CHECKPOINT"))
+                 
+                 if (action.equals("RESTORE"))
+                 {       
+                     vid_str        = str_split[1];  
+                                       
+                     System.err.println(action + " FAILURE " + vid_str + " Action not supported");
+                     
+                     continue;
+                 } // if (action.equals("RESTORE"))
+                 
+                 if (action.equals("MIGRATE"))
+                 {       
+                     vid_str        = str_split[1];  
+                                       
+                     System.err.println(action + " FAILURE " + vid_str + " Action not supported");
+                     
+                     continue;
+                 } // if (action.equals("MIGRATE"))
+                 
              } //  else if (action.equals("FINALIZE"))
         } // while(!fin)
     } // loop

@@ -36,7 +36,7 @@ public class DeployVM
 {
     // Helpers from VI samples
     private static  ServiceContent content;    
-    private static  AppUtil cb = null;
+    static  AppUtil cb = null;
     private static  VimPortType service;  
     
     private String  datacenterName  ="";
@@ -53,7 +53,7 @@ public class DeployVM
     com.vmware.vim.ManagedObjectReference hostMor; 
     
     public boolean registerVirtualMachine() throws Exception 
-    {     
+    {    
        boolean registered = false;
 
        ManagedObjectReference host = null;
@@ -121,13 +121,13 @@ public class DeployVM
                    vmFolderMor,vmxPath,getVmName(),false,resourcePool,host);
 
              String result = cb.getServiceUtil().waitForTask(taskmor);
-             if (result.equalsIgnoreCase("Sucess")) 
+             if (result.equalsIgnoreCase("Sucess")) // sic
              {
                 registered = true;
              }
              else 
              {
-                System.out.println("Some Exception While Registering The VM");
+                System.out.println("Exception registering the VM");
                 registered = false;
              }
              return registered;
@@ -247,6 +247,11 @@ public class DeployVM
      {
          String[] disks = pXML.getDisk();
          
+         if(disks.length==1 && disks[0].equals(""))
+         {
+             return;
+         }
+         
          VirtualDeviceConfigSpec [] vdiskSpecArray = new VirtualDeviceConfigSpec[disks.length];
          
          for(int i=0;i<disks.length;i++)
@@ -302,11 +307,17 @@ public class DeployVM
      
      void configureNetwork()
      {
-         // Firt, let's find out the number of NICs to be removed
+         String[] nics = pXML.getNet();
          
+         if(nics.length==1 && nics[0].equals(""))
+         {
+             return;
+         }
+         
+         // First, let's find out the number of NICs to be removed    
          VirtualDevice [] test = vmConfigInfo.getHardware().getDevice();
          
-         String[] nics = pXML.getNet();
+
          
          // Lenth of array is #nicsToBeRemoved-#nicsToBeAdded
                      
@@ -371,20 +382,18 @@ public class DeployVM
     }
     */
     
-    DeployVM(String[] args, String hostName, String _vmName, ParseXML _pXML) throws Exception
-    {
-        cb = AppUtil.initialize("RegisterVM", null, args);
-        cb.connect();
+    DeployVM(AppUtil _cb, String hostName, ParseXML _pXML) throws Exception
+    {  
+        cb = _cb;
         
         // TODO get this dynamically
         datastoreName  = "datastore1";
         datacenterName = "ha-datacenter";
         
-        vmName = _vmName;
+        vmName = _pXML.getName();
         pXML   = _pXML;
 
         // Get reference to host
-        
         hostMor = cb.getServiceUtil().getDecendentMoRef(null,"HostSystem",
                                                            hostName);
                                                         
@@ -394,8 +403,5 @@ public class DeployVM
         service = sc.getService();
     }
     
-    protected void finalize() throws Throwable
-    {	
-		cb.disConnect();
-    }
+
 }
