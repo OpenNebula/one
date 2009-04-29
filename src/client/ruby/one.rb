@@ -632,7 +632,7 @@ module ONE
         end
         
         def get_vn_attributes(nid)
-            get_generic("vn_template", :where => "oid=#{nid}")
+            get_generic("vn_template", :where => "id=#{nid}")
         end
         
         def get_vn_leases(nid)
