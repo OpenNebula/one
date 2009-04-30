@@ -18,6 +18,7 @@ public class ParseXML
     private String[] disk = {""};
     private String   memory = "";
     private String[] macs = {""};
+    private String   vmID = "";
     
     /**
      * Parses the XML file and fills the values
@@ -49,6 +50,14 @@ public class ParseXML
                 throw new Exception("Number of NAME tags different of 1: [" + nameNL.getLength() + "]");
             }
             name     = ((Node)nameNL.item(0)).getFirstChild().getNodeValue().trim();
+            
+            // VM_ID
+            NodeList vmIDNL = vm.getElementsByTagName("VM_ID");
+            if(vmIDNL.getLength()!=1)
+            {
+                throw new Exception("Number of VM_ID tags different of 1: [" + vmIDNL.getLength() + "]");
+            }
+            vmID     = ((Node)vmIDNL.item(0)).getFirstChild().getNodeValue().trim();
             
             
             // CPU
@@ -143,10 +152,19 @@ public class ParseXML
     
     /**
      * Returns VM name
-     * @return anme of the VM
+     * @return name of the VM
      **/
     String getName()
     {
         return name;
+    }
+    
+    /**
+     * Returns VM id
+     * @return ID of the VM
+     **/
+    String getVMID()
+    {
+        return vmID;
     }
 }

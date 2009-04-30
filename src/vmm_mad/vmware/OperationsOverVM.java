@@ -106,8 +106,15 @@ public class OperationsOverVM
         }
     }
     
-    public boolean suspend(String vmName)
+    public boolean save(String vmName, String checkpointName)
     {   
+        // first, create the checkpoint
+        
+        if(!createCheckpoint(vmName,checkpointName))
+        {
+            return false;
+        }
+        
         try
         { 
             ManagedObjectReference taskmor = null;   
@@ -127,11 +134,143 @@ public class OperationsOverVM
             return false;
         }
     } 
-
-
-    OperationsOverVM(AppUtil _cb) throws Exception
+    
+    public boolean createCheckpoint(String vmName, String checkpointName)
     {
-        cb = _cb;
+        try
+        {
+            ManagedObjectReference  virtualMachine 
+               = cb.getServiceUtil().getDecendentMoRef(null, "VirtualMachine", vmName);  
+            ManagedObjectReference taskMor 
+               = cb.getConnection().getService().createSnapshot_Task(
+                                               virtualMachine, checkpointName,
+                                               "This checkpoint corresponds to filename = " + 
+                                               checkpointName, false, false);
+            String res = cb.getServiceUtil().waitForTask(taskMor);
+        
+            if(res.equalsIgnoreCase("sucess"))  // sic
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        catch(Exception e)
+        {
+            System.out.println("Error checkpointing VirtualMachine [" + vmName + "]. Reason:" + e.getMessage());
+            return false;
+        }
+    }
+    
+    public boolean restoreCheckpoint(String vmName, String checkpointName)
+    {
+       
+        try
+        {
+             ManagedObjectReference snapmor = null;
+            
+             ManagedObjectReference  virtualMachine 
+                = cb.getServiceUtil().getDecendentMoRef(null, "VirtualMachine", vmName);
+             
+             ObjectContent[] snaps = cb.getServiceUtil().getObjectProperties(
+                null, virtualMachine, new String[] { "snapshot" } );
+            
+             VirtualMachineSnapshotInfo snapInfo = null;
+             
+             if (snaps != null && snaps.length > 0) 
+             {
+                 ObjectContent snapobj     = snaps[0];
+                 DynamicProperty[] snapary = snapobj.getPropSet();
+                 if (snapary != null && snapary.length > 0) 
+                 {
+                    snapInfo = ((VirtualMachineSnapshotInfo)(snapary[0]).getVal());
+                 }
+             } 
+             else 
+             {
+                 throw new Exception("No Snapshots found for VirtualMachine : " + vmName);
+             }
+             
+             VirtualMachineSnapshotTree[] snapTree = snapInfo.getRootSnapshotList();
+             
+             if (snapTree == null) 
+             {
+                throw new Exception("No Snapshots Tree found for VirtualMachine : " + vmName);
+             }
+             
+             snapmor = traverseSnapshotInTree(snapTree, checkpointName);
+             
+             if (snapmor == null) 
+             {
+                throw new Exception("No Snapshot named " + checkpointName + 
+                                    " found for VirtualMachine : " + vmName);
+             }
+             
+            ManagedObjectReference taskMor 
+                   = cb.getConnection().getService().revertToSnapshot_Task(snapmor,null);      
+            String res = cb.getServiceUtil().waitForTask(taskMor);
+                
+            if(!res.equalsIgnoreCase("sucess"))  // sic
+            {
+               throw new Exception("Unknown problem while creating the snapshot.");
+            }
+            
+            return true;                      
+         }
+         catch(Exception e)
+         {
+             System.out.println("Error checkpointing VirtualMachine [" + vmName + "]. Reason:" + e.getMessage());
+             return false;
+         }
+    }
+    
+    private ManagedObjectReference traverseSnapshotInTree(
+                                         VirtualMachineSnapshotTree[] snapTree,  
+                                         String checkpointName) 
+    {
+         ManagedObjectReference snapmor = null;      
+         if (snapTree == null) 
+         {
+             return snapmor;
+         }
+         
+         for (int i = 0; i < snapTree.length && snapmor == null; i++)
+         {
+             VirtualMachineSnapshotTree node = snapTree[i];
+             if ( checkpointName != null && node.getName().equals(checkpointName) ) 
+             {
+                 snapmor = node.getSnapshot();
+             } 
+             else 
+             {
+                 VirtualMachineSnapshotTree[] childTree = node.getChildSnapshotList();
+                 snapmor = traverseSnapshotInTree(childTree, checkpointName);
+             }
+         }
+
+         return snapmor;
+      }
+
+
+    OperationsOverVM(String[] args, String hostName) throws Exception
+    {
+        String[] argsWithHost = new String[args.length+2];
+
+         for(int i=0;i<args.length;i++)
+         {
+             argsWithHost[i] = args[i];
+         }
+
+         argsWithHost[args.length]      = "--url";
+         // TODO this is just for testing
+         //  argsWithHost[arguments.length + 1 ] = "https://" + hostName + ":443/sdk";
+         argsWithHost[args.length + 1 ] = "https://localhost:8008/sdk";
+
+
+         cb = AppUtil.initialize("DeployVM", null, argsWithHost);
+         cb.connect();
         
         // TODO get this dynamically
         datastoreName  = "datastore1";

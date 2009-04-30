@@ -25,7 +25,7 @@ import com.vmware.apputils.vim.*;
 
 class OneVmmVmware extends Thread 
 {
-    private String[]     argsWithHost;
+    private String[]     arguments;
     OperationsOverVM     oVM;
 
     // Helpers from VI samples
@@ -47,31 +47,7 @@ class OneVmmVmware extends Thread
     // Constructor
     OneVmmVmware(String[] args) 
     {
-        argsWithHost = new String[args.length+2];
-        
-        for(int i=0;i<args.length;i++)
-        {
-            argsWithHost[i] = args[i];
-        }
-        
-        argsWithHost[args.length]      = "--url";
-        // TODO this is just for testing
-        //  argsWithHost[arguments.length + 1 ] = "https://" + hostName + ":443/sdk";
-        argsWithHost[args.length + 1 ] = "https://localhost:8008/sdk";
-        
-        try
-        {
-            cb = AppUtil.initialize("OneVmmVmware", null, argsWithHost);
-            cb.connect();
-            
-            oVM = new OperationsOverVM(cb);
-        }
-        catch(Exception e)
-        {
-            System.out.println("Error stablishing connection to ESX host. Reason: " + 
-                                e.getMessage());
-            System.exit(-1);
-        }
+        arguments = args;
     }
 
     protected void finalize() throws Throwable
@@ -109,7 +85,7 @@ class OneVmmVmware extends Thread
                 }
             }
 
-            String str_split[] = str.split(" ", 4);
+            String str_split[] = str.split(" ", 5);
             
             action    = str_split[0].toUpperCase();
 
@@ -128,12 +104,14 @@ class OneVmmVmware extends Thread
                 if (action.equals("DEPLOY"))
                 {                           
                     if (str_split.length != 4)
-                    {
+                    {   
+                       System.out.println("FAILURE Wrong number of arguments for DEPLOY action. Number args = [" +
+                                              str_split.length + "].");
                        synchronized (System.err)
                        {
-                           System.out.println("FAILURE Wrong number of arguments for DEPLOY action. Number args = [" +
-                                              str_split.length + "].");
-                       }
+                           System.err.println(action + " FAILURE " + vid_str); 
+                           continue;
+                       }      
                     }
                     else
                     {
@@ -147,11 +125,11 @@ class OneVmmVmware extends Thread
                             ParseXML pXML = new ParseXML(fileName);
                             
                             // First, register the VM
-                            DeployVM dVM = new DeployVM(cb, hostName, pXML);
+                            DeployVM dVM = new DeployVM(arguments, hostName, pXML);
                             
                             if(!dVM.registerVirtualMachine())
                             {
-                                throw new Exception("Error registering VM(" + pXML.getName() + ").");
+                                // We will skip this error, it may be pre-registered
                             }
                             
                             // Now, proceed with the reconfiguration
@@ -161,13 +139,29 @@ class OneVmmVmware extends Thread
                                 throw new Exception("Error reconfiguring VM (" + pXML.getName() + ").");
                             }
                             
+                            try
+                            {
+                                oVM = new OperationsOverVM(arguments,hostName);
+                            }
+                            catch(Exception e)
+                            {
+                                synchronized (System.err)
+                                {
+                                    System.err.println(action + " FAILURE " + vid_str + " Failed connection to host " +
+                                                       hostName +". Reason: " + e.getMessage());
+                                }
+                                continue;
+                            }
+                            
                             if(!oVM.powerOn(pXML.getName()))
                             {
                                 throw new Exception("Error powering on VM(" + pXML.getName() + ").");
                             }
                             
-                            System.err.println("DEPLOY SUCCESS " + vid_str + " " + pXML.getName());
-                            
+                            synchronized (System.err)
+                            {
+                                 System.err.println("DEPLOY SUCCESS " + vid_str + " " + pXML.getName() + "-" + vid_str);
+                            }
                             
                             continue;
                          
@@ -176,10 +170,14 @@ class OneVmmVmware extends Thread
                          {
                              System.out.println("Failed deploying VM " + vid_str + " into " + hostName + 
                                                 ".Reason:" + e.getMessage());
-                             e.printStackTrace();
+                             // TODO make DEBUG option
+                             // e.printStackTrace(); 
                         
-                             System.err.println("DEPLOY FAILURE " + vid_str + " Failed deploying VM in host " + 
-                                                 hostName + ". Please check the VM log.");
+                             synchronized (System.err)
+                             {
+                                 System.err.println("DEPLOY FAILURE " + vid_str + " Failed deploying VM in host " + 
+                                                    hostName + ". Please check the VM log.");
+                             }
                          } // catch
            		    } // else if (str_split.length != 4)
                  } // if (action.equals("DEPLOY"))
@@ -187,11 +185,14 @@ class OneVmmVmware extends Thread
                  if (action.equals("SHUTDOWN"))
                  {                           
                      if (str_split.length < 3 )
-                     {
+                     {  
+                        System.out.println("FAILURE Wrong number of arguments for SHUTDOWN action. Number args = [" +
+                                           str_split.length + "].");
                         synchronized (System.err)
                         {
-                            System.out.println("FAILURE Wrong number of arguments for SHUTDOWN action. Number args = [" +
-                                               str_split.length + "].");
+
+                            System.err.println(action + " FAILURE " + vid_str); 
+                            continue;
                         }
                      }
                      else
@@ -201,14 +202,34 @@ class OneVmmVmware extends Thread
                          hostName       = str_split[2];  
                          String vmName  = str_split[3];
                          
+                         try
+                         {
+                             oVM = new OperationsOverVM(arguments,hostName);
+                         }
+                         catch(Exception e)
+                         {
+                             synchronized (System.err)
+                             {
+                                 System.err.println(action + " FAILURE " + vid_str + " Failed connection to host " +
+                                                    hostName +". Reason: " + e.getMessage());
+                             }
+                             continue;
+                         }
+                         
                          if(!oVM.powerOff(vmName))
                          {
-                             System.err.println("SHUTDOWN FAILURE " + vid_str + " Failed shutdown VM in host " + 
-                                                  hostName);
+                             synchronized (System.err)
+                             {
+                                 System.err.println("SHUTDOWN FAILURE " + vid_str + " Failed shutdown VM in host " + 
+                                                    hostName);
+                             }
                          }
                          else
                          {
-                             System.err.println("SHUTDOWN SUCCESS " + vid_str);                             
+                             synchronized (System.err)
+                             {
+                                 System.err.println("SHUTDOWN SUCCESS " + vid_str);                             
+                             }
                          }
                       }
                       
@@ -218,12 +239,15 @@ class OneVmmVmware extends Thread
                  if (action.equals("SHUTDOWN") || action.equals("CANCEL"))
                  {                           
                      if (str_split.length < 3 )
-                     {
+                     {  
+                         System.out.println("FAILURE Wrong number of arguments for " + action + 
+                                           " action. Number args = [" +
+                                           str_split.length + "].");
+                                           
                         synchronized (System.err)
                         {
-                            System.out.println("FAILURE Wrong number of arguments for " + action + 
-                                               " action. Number args = [" +
-                                               str_split.length + "].");
+                            System.err.println(action + " FAILURE " + vid_str); 
+                            continue;
                         }
                      }
                      else
@@ -233,77 +257,313 @@ class OneVmmVmware extends Thread
                          hostName       = str_split[2];  
                          String vmName  = str_split[3];
                          
+                         try
+                         {
+                             oVM = new OperationsOverVM(arguments,hostName);
+                         }
+                         catch(Exception e)
+                         {
+                             synchronized (System.err)
+                             {
+                                 System.err.println(action + " FAILURE " + vid_str + " Failed connection to host " +
+                                                    hostName +". Reason: " + e.getMessage());
+                             }
+                             continue;
+                         }
+                         
                          if(!oVM.powerOff(vmName))
                          {
-                             System.err.println(action + " FAILURE " + vid_str + " Failed shutdown VM in host " + 
-                                                  hostName);
+                             synchronized (System.err)
+                             {
+                                 System.err.println(action + " FAILURE " + vid_str + " Failed shutdown VM in host " + 
+                                                    hostName);
+                             }
                          }
                          else
                          {
-                             System.err.println(action + " SUCCESS " + vid_str);                             
+                             synchronized (System.err)
+                             {
+                                 System.err.println(action + " SUCCESS " + vid_str);                             
+                             }
                          }
                       }
                       
                       continue;
                  } // if (action.equals("SHUTDOWN or CANCEL"))
                  
-                 if (action.equals("SUSPEND"))
+                 if (action.equals("SAVE"))
                  {                           
                      if (str_split.length < 4)
-                     {
+                     {  
+                        System.out.println("FAILURE Wrong number of arguments for SAVE action. Number args = [" +
+                                           str_split.length + "].");
+                                           
                         synchronized (System.err)
                         {
-                            System.out.println("FAILURE Wrong number of arguments for SUSPEND action. Number args = [" +
-                                               str_split.length + "].");
+                            System.err.println(action + " FAILURE " + vid_str); 
+                            continue;
                         }
                      }
                      else
                      {              
-                         vid_str        = str_split[1];
-                         hostName       = str_split[2];  
-                         String vmName  = str_split[3];
+                         vid_str               = str_split[1];
+                         hostName              = str_split[2];  
+                         String vmName         = str_split[3];
+                         String checkpointName = str_split[4];
                          
-                         if(!oVM.suspend(vmName))
+                         try
                          {
-                             System.err.println(action + " FAILURE " + vid_str + " Failed suspending VM in host " + 
-                                                  hostName);
+                             oVM = new OperationsOverVM(arguments,hostName);
+                         }
+                         catch(Exception e)
+                         {
+                             synchronized (System.err)
+                             {
+                                 System.err.println(action + " FAILURE " + vid_str + " Failed connection to host " +
+                                                    hostName +". Reason: " + e.getMessage());
+                             }
+                             continue;
+                         }
+                         
+                         if(!oVM.save(vmName,checkpointName))
+                         {
+                             synchronized (System.err)
+                             {
+                                 System.err.println(action + " FAILURE " + vid_str + " Failed suspending VM in host " + 
+                                                    hostName);
+                             }
                          }
                          else
                          {
-                             System.err.println(action + " SUCCESS " + vid_str);                             
+                             synchronized (System.err)
+                             {
+                                 System.err.println(action + " SUCCESS " + vid_str);                             
+                             }
                          }
                          
                          continue;
                       }
-                 } // if (action.equals("SUSPEND"))
+                 } // if (action.equals("SAVE"))
                  
                  if (action.equals("CHECKPOINT"))
                  {       
-                     vid_str        = str_split[1];  
-                                       
-                     System.err.println(action + " FAILURE " + vid_str + " Action not supported");
-                     
-                     continue;
+                     if (str_split.length < 4)
+                     {  
+                        System.out.println("FAILURE Wrong number of arguments for CHECKPOINT action. Number args = [" +
+                                           str_split.length + "].");
+                        synchronized (System.err)
+                        {
+                            System.err.println(action + " FAILURE " + vid_str); 
+                            continue;
+                        }
+                     }
+                     else 
+                     {              
+                         vid_str               = str_split[1];
+                         hostName              = str_split[2];  
+                         String vmName         = str_split[3];
+                         String checkpointName = str_split[4];
+                         
+                         try
+                         {
+                             oVM = new OperationsOverVM(arguments,hostName);
+                         }
+                         catch(Exception e)
+                         {
+                             synchronized (System.err)
+                             {
+                                 System.err.println(action + " FAILURE " + vid_str + " Failed connection to host " +
+                                                    hostName +". Reason: " + e.getMessage());
+                             }
+                             continue;
+                         }
+                         
+                         if(!oVM.createCheckpoint(vmName,checkpointName))
+                         {
+                             synchronized (System.err)
+                             {
+                                 System.err.println(action + " FAILURE " + vid_str + " Failed suspending VM in host " + 
+                                                    hostName);
+                             }
+                         }
+                         else
+                         {
+                             synchronized (System.err)
+                             {
+                                 System.err.println(action + " SUCCESS " + vid_str);                             
+                             }
+                         }
+                         
+                         continue;
+                      }
                  } // if (action.equals("CHECKPOINT"))
                  
                  if (action.equals("RESTORE"))
                  {       
-                     vid_str        = str_split[1];  
-                                       
-                     System.err.println(action + " FAILURE " + vid_str + " Action not supported");
-                     
-                     continue;
+                     if (str_split.length < 4)
+                     {  
+                        System.out.println("FAILURE Wrong number of arguments for RESTORE " + 
+                                           "action. Number args = [" + str_split.length + "].");
+                        synchronized (System.err)
+                        {
+                            System.err.println(action + " FAILURE " + vid_str); 
+                            continue;
+                        }
+                     }
+                     else 
+                     {              
+                         vid_str               = str_split[1];
+                         hostName              = str_split[2];  
+                         String checkpointName = str_split[3];
+                         
+                         boolean result;
+                         
+                         try
+                         {
+                             oVM = new OperationsOverVM(arguments,hostName);
+                         }
+                         catch(Exception e)
+                         {
+                             synchronized (System.err)
+                             {
+                                 System.err.println(action + " FAILURE " + vid_str + " Failed connection to host " +
+                                                    hostName +". Reason: " + e.getMessage());
+                                 continue;
+                             }
+                         }
+                         
+                         if(!oVM.restoreCheckpoint("one-"+vid_str,checkpointName))
+                         {
+                             synchronized (System.err)
+                             {
+                                 System.err.println(action + " FAILURE " + vid_str + " Failed restoring VM in host " + 
+                                                    hostName);
+                             }
+                         }
+                         else
+                         {
+                             synchronized (System.err)
+                             {
+                                 System.err.println(action + " SUCCESS " + vid_str);                             
+                             }
+                         }
+                         
+                         continue;
+                     }
                  } // if (action.equals("RESTORE"))
                  
                  if (action.equals("MIGRATE"))
-                 {       
-                     vid_str        = str_split[1];  
-                                       
-                     System.err.println(action + " FAILURE " + vid_str + " Action not supported");
-                     
-                     continue;
-                 } // if (action.equals("MIGRATE"))
-                 
+                 {      
+                     if (str_split.length < 4)
+                     {
+                         System.out.println("FAILURE Wrong number of arguments for MIGTRATE " + 
+                                            "action. Number args = [" + str_split.length + "].");
+                         synchronized (System.err)
+                         {
+                             System.err.println(action + " FAILURE " + vid_str); 
+                             continue;
+                         }
+                     }
+                     else
+                     {
+                         vid_str               = str_split[1];
+                         String sourceHostName = str_split[2];  
+                         String vmName         = str_split[3];
+                         String destHostName   = str_split[4];
+                         
+                         // First, create the checkpoint
+                         
+                         try
+                         {
+                             oVM = new OperationsOverVM(arguments,sourceHostName);
+                         }
+                         catch(Exception e)
+                         {
+                             synchronized (System.err)
+                             {
+                                 System.err.println(action + " FAILURE " + vid_str + " Failed connection to host " +
+                                                    sourceHostName +". Reason: " + e.getMessage());
+                             }
+                             continue;
+                         }
+                         
+                         // First, checkpoint the running virtual machine
+                         
+                         String checkpointName = "one-migrate-" + vid_str;
+                         
+                         if(!oVM.save(vmName,checkpointName))
+                         {
+                             synchronized (System.err)
+                             {
+                                 System.err.println(action + " FAILURE " + vid_str + " Failed saving VM in host " + 
+                                                    sourceHostName);
+                                 continue;
+                             }
+                         }
+                         
+                         // Now, we stop it
+                         
+                         if(!oVM.powerOff(vmName))
+                         {
+                             synchronized (System.err)
+                             {
+                                 System.err.println(action + " FAILURE " + vid_str + " Failed shutdown VM in host " + 
+                                                    sourceHostName);
+                             }
+                         }
+                         
+                         // Now, register machine in new host
+                         
+                         DeployVM dVM;
+                         try
+                         {
+                             oVM = new OperationsOverVM(arguments,destHostName);
+                             dVM = new DeployVM(arguments, destHostName, vmName);
+                             
+                             if(!dVM.registerVirtualMachine())
+                             {
+                                 // We will skip this error, it may be pre-registered
+                             }
+
+                             // Power it On
+
+                             if(!oVM.powerOn(vmName))
+                             {
+                                 throw new Exception();
+                             }
+                         }
+                         catch(Exception e)
+                         {
+                             synchronized (System.err)
+                             {
+                                 System.err.println(action + " FAILURE " + vid_str + " Failed registering VM ["
+                                                    + vmName + "] in host " + destHostName);
+                             }
+                             continue;
+                         }
+                         
+                         
+                         // Restore the virtual machine checkpoint
+                         
+                         if(!oVM.restoreCheckpoint(vmName,checkpointName))
+                         {
+                             synchronized (System.err)
+                             {
+                                 System.err.println(action + " FAILURE " + vid_str + " Failed restoring VM [" + 
+                                                    vmName + "] in host " +  destHostName);
+                             }
+                         }
+                         else
+                         {
+                             synchronized (System.err)
+                             {
+                                 System.err.println(action + " SUCCESS " + vid_str);                             
+                             }
+                         }
+                         
+                         continue;
+                     }                
+                 } // if (action.equals("MIGRATE"))           
              } //  else if (action.equals("FINALIZE"))
         } // while(!fin)
     } // loop

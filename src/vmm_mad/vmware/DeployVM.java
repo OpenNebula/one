@@ -39,9 +39,10 @@ public class DeployVM
     static  AppUtil cb = null;
     private static  VimPortType service;  
     
-    private String  datacenterName  ="";
-    private String  datastoreName   ="";
-    private String  vmName          ="";
+    private String  datacenterName  = "";
+    private String  datastoreName   = "";
+    private String  vmName          = "";
+    private String  vmDiskName      = "";
     
     ParseXML        pXML;
     
@@ -111,7 +112,7 @@ public class DeployVM
           if(hostFound) 
           {
     
-             String vmxPath = "[" + getDataStoreName() + "]"+getVmName()+"/"+getVmName()+".vmx";
+             String vmxPath = "[" + getDataStoreName() + "]"+getDiskName()+"/"+getDiskName()+".vmx";
              // Resource Pool
              ManagedObjectReference resourcePool 
                 = cb.getServiceUtil().getFirstDecendentMoRef(null, "ResourcePool");
@@ -148,6 +149,15 @@ public class DeployVM
     private String getVmName()
     {
         return vmName;
+    }
+    
+    /**
+     * Gets the name of the VMX file and folder
+     * @returns name of the VMX file and folder
+     */   
+    private String getDiskName()
+    {
+        return vmDiskName;
     }
 
 
@@ -382,22 +392,71 @@ public class DeployVM
     }
     */
     
-    DeployVM(AppUtil _cb, String hostName, ParseXML _pXML) throws Exception
+    DeployVM(String[] args, String hostName, ParseXML _pXML) throws Exception
     {  
-        cb = _cb;
+
+        String[] argsWithHost = new String[args.length+2];
+        
+        for(int i=0;i<args.length;i++)
+        {
+            argsWithHost[i] = args[i];
+        }
+        
+        argsWithHost[args.length]      = "--url";
+        // TODO this is just for testing
+        //  argsWithHost[arguments.length + 1 ] = "https://" + hostName + ":443/sdk";
+        argsWithHost[args.length + 1 ] = "https://localhost:8008/sdk";
+        
+
+        cb = AppUtil.initialize("DeployVM", null, argsWithHost);
+        cb.connect();
         
         // TODO get this dynamically
         datastoreName  = "datastore1";
         datacenterName = "ha-datacenter";
         
-        vmName = _pXML.getName();
-        pXML   = _pXML;
+        vmName     = _pXML.getName();
+        pXML       = _pXML;
 
         // Get reference to host
         hostMor = cb.getServiceUtil().getDecendentMoRef(null,"HostSystem",
                                                            hostName);
                                                         
+        com.vmware.apputils.vim.ServiceConnection sc = cb.getConnection();
+        content = sc.getServiceContent();
+        service = sc.getService();
+    }
+    
+    DeployVM(String[] args, String hostName, String _vmName) throws Exception
+    {  
 
+        String[] argsWithHost = new String[args.length+2];
+        
+        for(int i=0;i<args.length;i++)
+        {
+            argsWithHost[i] = args[i];
+        }
+        
+        argsWithHost[args.length]      = "--url";
+        // TODO this is just for testing
+        //  argsWithHost[arguments.length + 1 ] = "https://" + hostName + ":443/sdk";
+        argsWithHost[args.length + 1 ] = "https://localhost:8008/sdk";
+        
+
+        cb = AppUtil.initialize("DeployVM", null, argsWithHost);
+        cb.connect();
+        
+        // TODO get this dynamically
+        datastoreName  = "datastore1";
+        datacenterName = "ha-datacenter";
+        
+        vmName     = _vmName;
+        vmDiskName = _vmName.substring(0,_vmName.lastIndexOf("-"));
+
+        // Get reference to host
+        hostMor = cb.getServiceUtil().getDecendentMoRef(null,"HostSystem",
+                                                           hostName);
+                                                        
         com.vmware.apputils.vim.ServiceConnection sc = cb.getConnection();
         content = sc.getServiceContent();
         service = sc.getService();
