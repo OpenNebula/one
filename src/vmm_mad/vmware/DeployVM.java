@@ -392,7 +392,7 @@ public class DeployVM
     }
     */
     
-    DeployVM(String[] args, String hostName, ParseXML _pXML) throws Exception
+    DeployVM(String[] args, String hostName, String vid, ParseXML _pXML) throws Exception
     {  
 
         String[] argsWithHost = new String[args.length+2];
@@ -415,7 +415,8 @@ public class DeployVM
         datastoreName  = "datastore1";
         datacenterName = "ha-datacenter";
         
-        vmName     = _pXML.getName();
+        vmName     = _pXML.getName() + "-" + vid;
+        vmDiskName = _pXML.getName();
         pXML       = _pXML;
 
         // Get reference to host

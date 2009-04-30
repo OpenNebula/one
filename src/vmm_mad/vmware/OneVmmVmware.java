@@ -123,22 +123,22 @@ class OneVmmVmware extends Thread
                         {    
                             // let's read the XML file and extract needed info
                             ParseXML pXML = new ParseXML(fileName);
-                            
+
                             // First, register the VM
-                            DeployVM dVM = new DeployVM(arguments, hostName, pXML);
-                            
+                            DeployVM dVM = new DeployVM(arguments, hostName, vid_str, pXML);
+
                             if(!dVM.registerVirtualMachine())
                             {
                                 // We will skip this error, it may be pre-registered
                             }
-                            
+
                             // Now, proceed with the reconfiguration
                             
                             if(!dVM.shapeVM())
                             {
                                 throw new Exception("Error reconfiguring VM (" + pXML.getName() + ").");
                             }
-                            
+
                             try
                             {
                                 oVM = new OperationsOverVM(arguments,hostName);
@@ -153,7 +153,7 @@ class OneVmmVmware extends Thread
                                 continue;
                             }
                             
-                            if(!oVM.powerOn(pXML.getName()))
+                            if(!oVM.powerOn(pXML.getName() + "-" + vid_str))
                             {
                                 throw new Exception("Error powering on VM(" + pXML.getName() + ").");
                             }
