@@ -531,7 +531,7 @@ when "delete"
 when "show"
      check_parameters("get_info", 1)
      vm_id=get_vm_id(vm, ARGV[0])
-     res = vm.get_info(vm_id)
+     result = res = vm.get_info(vm_id)
      if res[0]
          res[1].gsub!(/^\n/, '')
          (normal, template)=res[1].split("Template")
