@@ -72,23 +72,3 @@ int ObjectSQL::select_column(
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-
-int ObjectSQL::update_column(
-    SqliteDB *      db,  
-    const string&   table,
-    const string&   column,
-    const string&   where,
-    const string&   value)
-{
-    ostringstream   os;
-
-    if ( where.empty() == true )
-    {
-        return -1;
-    }
-
-    os << "UPDATE " << table << " SET "<< column << " ='" << value 
-        << "' WHERE " << where;
-             
-    return db->exec(os);
-}

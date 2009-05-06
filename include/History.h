@@ -202,24 +202,6 @@ private:
     }
 
     /**
-     *  Sets the value of a column in the pool for a given object
-     *    @param db pointer to Database
-     *    @param column to be selected
-     *    @param where contidtion to select the column
-     *    @param value of the column
-     *    @return 0 on success
-     */
-    int update_column(
-        SqliteDB *      db,
-        const string&   column,
-        const string&   where,
-        const string&   value)
-    {
-    	return ObjectSQL::update_column(db,table,column,where,value);
-    }
-
-
-    /**
      *  Function to unmarshall a history object
      *    @param num the number of columns read from the DB
      *    @para names the column names

@@ -282,24 +282,7 @@ private:
      *    @return 0 on success.
      */
     int update(SqliteDB * db);
-
-    /**
-     *  Sets the value of a column in the pool for a given object
-     *    @param db pointer to Database
-     *    @param column to be selected
-     *    @param where condition to select the column
-     *    @param value of the column
-     *    @return 0 on success
-     */
-    int update_column(
-        SqliteDB *      db,
-        const string&   column,
-        const string&   where,
-        const string&   value)
-    {
-        return ObjectSQL::update_column(db,table,column,where,value);
-    }
-    
+   
     /**
      *  Gets the value of a column in the pool for a given object
      *    @param db pointer to Database

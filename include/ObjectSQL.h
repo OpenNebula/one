@@ -51,22 +51,6 @@ protected:
         const string&   column,
         const string&   where,
         string *        value);
-    
-    /**
-     *  Sets the value of a column in the pool for a given object
-     *    @param db pointer to Database
-     *    @param table supporting the object
-     *    @param column to be selected
-     *    @param where contidtion to select the column
-     *    @param value of the column
-     *    @return 0 on success
-     */
-    int update_column(
-        SqliteDB *      db,
-        const string&   table,
-        const string&   column,
-        const string&   where,
-        const string&   value);
 
     /**
      *  Reads the ObjectSQL (identified with its OID) from the database.
