@@ -46,7 +46,7 @@ extern "C"
 {
     int template_parse(Template * tmpl, char ** errmsg);
 
-    void template_lex_destroy();
+    int template_lex_destroy();
 
     YY_BUFFER_STATE template__scan_string(const char * str);
 

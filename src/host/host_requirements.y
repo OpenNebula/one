@@ -55,6 +55,7 @@ int host_requirements_parse(Host * host, bool& result, char ** errmsg);
 %union {
     char * 	val_str;
     int 	val_int;
+    float   val_float;
 };
 
 %defines
@@ -66,79 +67,86 @@ int host_requirements_parse(Host * host, bool& result, char ** errmsg);
 %left '!' '&' '|'
 %token <val_int> 	INTEGER
 %token <val_str> 	STRING
+%token <val_float>  FLOAT
 %type  <val_int> 	stmt expr
 
 %%
 
-stmt:   expr	{ result=$1;   }
-        |		{ result=true; } /* TRUE BY DEFAULT, ON EMPTY STRINGS */
+stmt:   expr    { result=$1;   }
+        |       { result=true; } /* TRUE BY DEFAULT, ON EMPTY STRINGS */
         ;
         
-expr:   STRING '=' INTEGER { 
-			int val;
+expr:   STRING '=' INTEGER { int val;
 
-			host->get_template_attribute($1,val);
-			$$ = val == $3;
+            host->get_template_attribute($1,val);
+            $$ = val == $3;
 
-			free($1);}
+            free($1);}
 
-		| STRING '!' '=' INTEGER {
-			int val;
-			
-			host->get_template_attribute($1,val);
-			$$ = val != $4;
-			
-			free($1);}
-					
-        | STRING '>' INTEGER { 
-			int val;
-			
-			host->get_template_attribute($1,val);
-			$$ = val > $3;
-			
-			free($1);}			        
+        | STRING '!' '=' INTEGER { int val;
+
+            host->get_template_attribute($1,val);
+            $$ = val != $4;
+
+            free($1);}
+
+        | STRING '>' INTEGER { int val;
+
+            host->get_template_attribute($1,val);
+            $$ = val > $3;
+
+            free($1);}
                 
-        | STRING '<' INTEGER { 
-			int val;
-			
-			host->get_template_attribute($1,val);
-			$$ = val < $3;
-			
-			free($1);}			
-			
-        | STRING '=' STRING { 
-        	string val;
-        	
-			host->get_template_attribute($1,val);
-			
-			if (val == "")
-			{
-				$$ = false;
-			}
-			else
-			{
-				$$ = fnmatch($3, val.c_str(), 0) == 0;
-			}
-											
-			free($1); 
-			free($3);}
+        | STRING '<' INTEGER { int val;
 
-        | STRING '!''=' STRING {
-			string val;
+            host->get_template_attribute($1,val);
+            $$ = val < $3;
+
+            free($1);}
+            
+        | STRING '=' FLOAT { string val;
+
+            host->get_template_attribute($1,val);
+            $$ = val.empty() ? false : atof(val.c_str()) == $3;
+
+            free($1);}
+
+        | STRING '!' '=' FLOAT { string val;
+
+            host->get_template_attribute($1,val);
+            $$ = val.empty() ? false : atof(val.c_str()) != $4;
+
+            free($1);}
+
+        | STRING '>' FLOAT { string val;
+
+            host->get_template_attribute($1,val);
+            $$ = val.empty() ? false : atof(val.c_str()) > $3;
+
+            free($1);}
+
+        | STRING '<' FLOAT { string val;
+
+            host->get_template_attribute($1,val);
+            $$ = val.empty() ? false : atof(val.c_str()) < $3;
+
+            free($1);}
+            
+        | STRING '=' STRING { string val;
+ 
+            host->get_template_attribute($1,val);
+            $$ = val.empty() ? false :fnmatch($3, val.c_str(), 0) == 0;
+
+            free($1);
+            free($3);}
+
+        | STRING '!''=' STRING { string val;
         
-			host->get_template_attribute($1,val);
-			
-			if (val == "")
-			{
-				$$ = false;
-			}
-			else
-			{
-				$$ = fnmatch($4, val.c_str(), 0) != 0;
-			}
-								
-			free($1); 
-			free($4);}			
+            host->get_template_attribute($1,val);
+            $$ = val.empty() ? false : fnmatch($4, val.c_str(), 0) != 0;
+
+            free($1);
+            free($4);}
                                                                             
         | expr '&' expr { $$ = $1 && $3; }
         | expr '|' expr { $$ = $1 || $3; }

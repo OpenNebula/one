@@ -55,6 +55,7 @@ int host_rank_parse(Host * host, int& result, char ** errmsg);
 %union {
     char * 	val_str;
     int 	val_int;
+    float   val_float;
 };
 
 %defines
@@ -67,19 +68,22 @@ int host_rank_parse(Host * host, int& result, char ** errmsg);
 %left '*' '/'
 %token <val_int> 	INTEGER
 %token <val_str> 	STRING
-%type  <val_int> 	stmt expr
+%token <val_float>  FLOAT
+%type  <val_int> 	stmt
+%type  <val_float>  expr
 
 %%
 
-stmt:   expr                { result=$1;}
-        |                   { result=0;} /* TRUE BY DEFAULT, ON EMPTY STRINGS */		
+stmt:   expr                { result = static_cast<int>($1);}
+        |                   { result = 0; } 
         ;
         
-expr:   STRING		    	{ int val;
-							  host->get_template_attribute($1,val);
-							  $$ = val;
-							  free($1);}
-        | INTEGER		    { $$ = $1;}	
+expr:   STRING              { string val;
+                              host->get_template_attribute($1,val);
+                              $$ = val.empty() ? 0.0 : atof(val.c_str());
+                              free($1); }
+        | FLOAT             { $$ = $1; }
+        | INTEGER           { $$ = static_cast<float>($1); }
         | expr '+' expr     { $$ = $1 + $3;}
         | expr '-' expr     { $$ = $1 - $3;}
         | expr '*' expr     { $$ = $1 * $3;}

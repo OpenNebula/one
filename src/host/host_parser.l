@@ -53,10 +53,13 @@
 \"[^\"]*\"	{ 	lvalp->val_str = strdup(yytext+1);
 				lvalp->val_str[yyleng-2] = '\0';
                 return STRING;}	
-	/* --- Integers --- */
-	
--?[0-9]+         	{ 	lvalp->val_int = atoi(yytext);        
-						return INTEGER;}
+	/* --- Numbers --- */
+
+-?[0-9]+         { lvalp->val_int = atoi(yytext);
+                   return INTEGER;}
+
+-?[0-9]+\.[0-9]+ { lvalp->val_float = atof(yytext);
+				   return FLOAT;}
     /* --- blanks --- */
 
 [[:blank:]]*        

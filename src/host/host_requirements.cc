@@ -75,12 +75,14 @@
       know about them.  */
    enum yytokentype {
      INTEGER = 258,
-     STRING = 259
+     STRING = 259,
+     FLOAT = 260
    };
 #endif
 /* Tokens.  */
 #define INTEGER 258
 #define STRING 259
+#define FLOAT 260
 
 
 
@@ -144,9 +146,10 @@ typedef union YYSTYPE
 {
     char * 	val_str;
     int 	val_int;
+    float   val_float;
 }
 /* Line 187 of yacc.c.  */
-#line 150 "host_requirements.cc"
+#line 153 "host_requirements.cc"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
@@ -171,7 +174,7 @@ typedef struct YYLTYPE
 
 
 /* Line 216 of yacc.c.  */
-#line 175 "host_requirements.cc"
+#line 178 "host_requirements.cc"
 
 #ifdef short
 # undef short
@@ -388,20 +391,20 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  12
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   24
+#define YYLAST   29
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  13
+#define YYNTOKENS  14
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  3
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  13
+#define YYNRULES  17
 /* YYNRULES -- Number of states.  */
-#define YYNSTATES  25
+#define YYNSTATES  29
 
 /* YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.  */
 #define YYUNDEFTOK  2
-#define YYMAXUTOK   259
+#define YYMAXUTOK   260
 
 #define YYTRANSLATE(YYX)						\
   ((unsigned int) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
@@ -413,9 +416,9 @@ static const yytype_uint8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     3,     2,     2,     2,     2,     4,     2,
-      11,    12,     2,     2,     2,     2,     2,     2,     2,     2,
+      12,    13,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-      10,     8,     9,     2,     2,     2,     2,     2,     2,     2,
+      11,     9,    10,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -434,7 +437,8 @@ static const yytype_uint8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     1,     2,     6,     7
+       2,     2,     2,     2,     2,     2,     1,     2,     6,     7,
+       8
 };
 
 #if YYDEBUG
@@ -443,24 +447,26 @@ static const yytype_uint8 yytranslate[] =
 static const yytype_uint8 yyprhs[] =
 {
        0,     0,     3,     5,     6,    10,    15,    19,    23,    27,
-      32,    36,    40,    43
+      32,    36,    40,    44,    49,    53,    57,    60
 };
 
 /* YYRHS -- A `-1'-separated list of the rules' RHS.  */
 static const yytype_int8 yyrhs[] =
 {
-      14,     0,    -1,    15,    -1,    -1,     7,     8,     6,    -1,
-       7,     3,     8,     6,    -1,     7,     9,     6,    -1,     7,
-      10,     6,    -1,     7,     8,     7,    -1,     7,     3,     8,
-       7,    -1,    15,     4,    15,    -1,    15,     5,    15,    -1,
-       3,    15,    -1,    11,    15,    12,    -1
+      15,     0,    -1,    16,    -1,    -1,     7,     9,     6,    -1,
+       7,     3,     9,     6,    -1,     7,    10,     6,    -1,     7,
+      11,     6,    -1,     7,     9,     8,    -1,     7,     3,     9,
+       8,    -1,     7,    10,     8,    -1,     7,    11,     8,    -1,
+       7,     9,     7,    -1,     7,     3,     9,     7,    -1,    16,
+       4,    16,    -1,    16,     5,    16,    -1,     3,    16,    -1,
+      12,    16,    13,    -1
 };
 
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    73,    73,    74,    77,    85,    93,   101,   109,   126,
-     143,   144,   145,   146
+       0,    75,    75,    76,    79,    86,    93,   100,   107,   114,
+     121,   128,   135,   143,   151,   152,   153,   154
 };
 #endif
 
@@ -470,7 +476,7 @@ static const yytype_uint8 yyrline[] =
 static const char *const yytname[] =
 {
   "$end", "error", "$undefined", "'!'", "'&'", "'|'", "INTEGER", "STRING",
-  "'='", "'>'", "'<'", "'('", "')'", "$accept", "stmt", "expr", 0
+  "FLOAT", "'='", "'>'", "'<'", "'('", "')'", "$accept", "stmt", "expr", 0
 };
 #endif
 
@@ -479,23 +485,23 @@ static const char *const yytname[] =
    token YYLEX-NUM.  */
 static const yytype_uint16 yytoknum[] =
 {
-       0,   256,   257,    33,    38,   124,   258,   259,    61,    62,
-      60,    40,    41
+       0,   256,   257,    33,    38,   124,   258,   259,   260,    61,
+      62,    60,    40,    41
 };
 # endif
 
 /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_uint8 yyr1[] =
 {
-       0,    13,    14,    14,    15,    15,    15,    15,    15,    15,
-      15,    15,    15,    15
+       0,    14,    15,    15,    16,    16,    16,    16,    16,    16,
+      16,    16,    16,    16,    16,    16,    16,    16
 };
 
 /* YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
        0,     2,     1,     0,     3,     4,     3,     3,     3,     4,
-       3,     3,     2,     3
+       3,     3,     3,     4,     3,     3,     2,     3
 };
 
 /* YYDEFACT[STATE-NAME] -- Default rule to reduce with in state
@@ -503,9 +509,9 @@ static const yytype_uint8 yyr2[] =
    means the default is an error.  */
 static const yytype_uint8 yydefact[] =
 {
-       3,     0,     0,     0,     0,     2,    12,     0,     0,     0,
-       0,     0,     1,     0,     0,     0,     4,     8,     6,     7,
-      13,    10,    11,     5,     9
+       3,     0,     0,     0,     0,     2,    16,     0,     0,     0,
+       0,     0,     1,     0,     0,     0,     4,    12,     8,     6,
+      10,     7,    11,    17,    14,    15,     5,    13,     9
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
@@ -516,18 +522,18 @@ static const yytype_int8 yydefgoto[] =
 
 /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
    STATE-NUM.  */
-#define YYPACT_NINF -4
+#define YYPACT_NINF -6
 static const yytype_int8 yypact[] =
 {
-      -2,    -2,     7,    -2,     8,    14,    -4,     3,    -3,    17,
-      18,     2,    -4,    -2,    -2,    15,    -4,    -4,    -4,    -4,
-      -4,    -4,    -4,    -4,    -4
+      -2,    -2,     8,    -2,     3,     4,    -6,    -5,    14,    20,
+      21,     2,    -6,    -2,    -2,    17,    -6,    -6,    -6,    -6,
+      -6,    -6,    -6,    -6,    -6,    -6,    -6,    -6,    -6
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-      -4,    -4,    -1
+      -6,    -6,    -1
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
@@ -537,25 +543,25 @@ static const yytype_int8 yypgoto[] =
 #define YYTABLE_NINF -1
 static const yytype_uint8 yytable[] =
 {
-       6,     1,    11,    16,    17,     2,    13,    14,    12,     3,
-       7,    15,    21,    22,    20,     8,     9,    10,    13,    14,
-       0,    23,    24,    18,    19
+       6,     1,    11,    12,    15,     2,    13,    14,    13,    14,
+       3,     7,    24,    25,     0,    23,     0,     8,     9,    10,
+      16,    17,    18,    26,    27,    28,    19,    21,    20,    22
 };
 
 static const yytype_int8 yycheck[] =
 {
-       1,     3,     3,     6,     7,     7,     4,     5,     0,    11,
-       3,     8,    13,    14,    12,     8,     9,    10,     4,     5,
-      -1,     6,     7,     6,     6
+       1,     3,     3,     0,     9,     7,     4,     5,     4,     5,
+      12,     3,    13,    14,    -1,    13,    -1,     9,    10,    11,
+       6,     7,     8,     6,     7,     8,     6,     6,     8,     8
 };
 
 /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
    symbol of state STATE-NUM.  */
 static const yytype_uint8 yystos[] =
 {
-       0,     3,     7,    11,    14,    15,    15,     3,     8,     9,
-      10,    15,     0,     4,     5,     8,     6,     7,     6,     6,
-      12,    15,    15,     6,     7
+       0,     3,     7,    12,    15,    16,    16,     3,     9,    10,
+      11,    16,     0,     4,     5,     9,     6,     7,     8,     6,
+       8,     6,     8,    13,    16,    16,     6,     7,     8
 };
 
 #define yyerrok		(yyerrstatus = 0)
@@ -1412,122 +1418,140 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 73 "host_requirements.y"
+#line 75 "host_requirements.y"
     { result=(yyvsp[(1) - (1)].val_int);   ;}
     break;
 
   case 3:
-#line 74 "host_requirements.y"
+#line 76 "host_requirements.y"
     { result=true; ;}
     break;
 
   case 4:
-#line 77 "host_requirements.y"
-    { 
-			int val;
+#line 79 "host_requirements.y"
+    { int val;
 
-			host->get_template_attribute((yyvsp[(1) - (3)].val_str),val);
-			(yyval.val_int) = val == (yyvsp[(3) - (3)].val_int);
+            host->get_template_attribute((yyvsp[(1) - (3)].val_str),val);
+            (yyval.val_int) = val == (yyvsp[(3) - (3)].val_int);
 
-			free((yyvsp[(1) - (3)].val_str));;}
+            free((yyvsp[(1) - (3)].val_str));;}
     break;
 
   case 5:
-#line 85 "host_requirements.y"
-    {
-			int val;
-			
-			host->get_template_attribute((yyvsp[(1) - (4)].val_str),val);
-			(yyval.val_int) = val != (yyvsp[(4) - (4)].val_int);
-			
-			free((yyvsp[(1) - (4)].val_str));;}
+#line 86 "host_requirements.y"
+    { int val;
+
+            host->get_template_attribute((yyvsp[(1) - (4)].val_str),val);
+            (yyval.val_int) = val != (yyvsp[(4) - (4)].val_int);
+
+            free((yyvsp[(1) - (4)].val_str));;}
     break;
 
   case 6:
 #line 93 "host_requirements.y"
-    { 
-			int val;
-			
-			host->get_template_attribute((yyvsp[(1) - (3)].val_str),val);
-			(yyval.val_int) = val > (yyvsp[(3) - (3)].val_int);
-			
-			free((yyvsp[(1) - (3)].val_str));;}
+    { int val;
+
+            host->get_template_attribute((yyvsp[(1) - (3)].val_str),val);
+            (yyval.val_int) = val > (yyvsp[(3) - (3)].val_int);
+
+            free((yyvsp[(1) - (3)].val_str));;}
     break;
 
   case 7:
-#line 101 "host_requirements.y"
-    { 
-			int val;
-			
-			host->get_template_attribute((yyvsp[(1) - (3)].val_str),val);
-			(yyval.val_int) = val < (yyvsp[(3) - (3)].val_int);
-			
-			free((yyvsp[(1) - (3)].val_str));;}
+#line 100 "host_requirements.y"
+    { int val;
+
+            host->get_template_attribute((yyvsp[(1) - (3)].val_str),val);
+            (yyval.val_int) = val < (yyvsp[(3) - (3)].val_int);
+
+            free((yyvsp[(1) - (3)].val_str));;}
     break;
 
   case 8:
-#line 109 "host_requirements.y"
-    { 
-        	string val;
-        	
-			host->get_template_attribute((yyvsp[(1) - (3)].val_str),val);
-			
-			if (val == "")
-			{
-				(yyval.val_int) = false;
-			}
-			else
-			{
-				(yyval.val_int) = fnmatch((yyvsp[(3) - (3)].val_str), val.c_str(), 0) == 0;
-			}
-											
-			free((yyvsp[(1) - (3)].val_str)); 
-			free((yyvsp[(3) - (3)].val_str));;}
+#line 107 "host_requirements.y"
+    { string val;
+
+            host->get_template_attribute((yyvsp[(1) - (3)].val_str),val);
+            (yyval.val_int) = val.empty() ? false : atof(val.c_str()) == (yyvsp[(3) - (3)].val_float);
+
+            free((yyvsp[(1) - (3)].val_str));;}
     break;
 
   case 9:
-#line 126 "host_requirements.y"
-    {
-			string val;
-        
-			host->get_template_attribute((yyvsp[(1) - (4)].val_str),val);
-			
-			if (val == "")
-			{
-				(yyval.val_int) = false;
-			}
-			else
-			{
-				(yyval.val_int) = fnmatch((yyvsp[(4) - (4)].val_str), val.c_str(), 0) != 0;
-			}
-								
-			free((yyvsp[(1) - (4)].val_str)); 
-			free((yyvsp[(4) - (4)].val_str));;}
+#line 114 "host_requirements.y"
+    { string val;
+
+            host->get_template_attribute((yyvsp[(1) - (4)].val_str),val);
+            (yyval.val_int) = val.empty() ? false : atof(val.c_str()) != (yyvsp[(4) - (4)].val_float);
+
+            free((yyvsp[(1) - (4)].val_str));;}
     break;
 
   case 10:
-#line 143 "host_requirements.y"
-    { (yyval.val_int) = (yyvsp[(1) - (3)].val_int) && (yyvsp[(3) - (3)].val_int); ;}
+#line 121 "host_requirements.y"
+    { string val;
+
+            host->get_template_attribute((yyvsp[(1) - (3)].val_str),val);
+            (yyval.val_int) = val.empty() ? false : atof(val.c_str()) > (yyvsp[(3) - (3)].val_float);
+
+            free((yyvsp[(1) - (3)].val_str));;}
     break;
 
   case 11:
-#line 144 "host_requirements.y"
-    { (yyval.val_int) = (yyvsp[(1) - (3)].val_int) || (yyvsp[(3) - (3)].val_int); ;}
+#line 128 "host_requirements.y"
+    { string val;
+
+            host->get_template_attribute((yyvsp[(1) - (3)].val_str),val);
+            (yyval.val_int) = val.empty() ? false : atof(val.c_str()) < (yyvsp[(3) - (3)].val_float);
+
+            free((yyvsp[(1) - (3)].val_str));;}
     break;
 
   case 12:
-#line 145 "host_requirements.y"
-    { (yyval.val_int) = ! (yyvsp[(2) - (2)].val_int); ;}
+#line 135 "host_requirements.y"
+    { string val;
+ 
+            host->get_template_attribute((yyvsp[(1) - (3)].val_str),val);
+            (yyval.val_int) = val.empty() ? false :fnmatch((yyvsp[(3) - (3)].val_str), val.c_str(), 0) == 0;
+
+            free((yyvsp[(1) - (3)].val_str));
+            free((yyvsp[(3) - (3)].val_str));;}
     break;
 
   case 13:
-#line 146 "host_requirements.y"
+#line 143 "host_requirements.y"
+    { string val;
+        
+            host->get_template_attribute((yyvsp[(1) - (4)].val_str),val);
+            (yyval.val_int) = val.empty() ? false : fnmatch((yyvsp[(4) - (4)].val_str), val.c_str(), 0) != 0;
+
+            free((yyvsp[(1) - (4)].val_str));
+            free((yyvsp[(4) - (4)].val_str));;}
+    break;
+
+  case 14:
+#line 151 "host_requirements.y"
+    { (yyval.val_int) = (yyvsp[(1) - (3)].val_int) && (yyvsp[(3) - (3)].val_int); ;}
+    break;
+
+  case 15:
+#line 152 "host_requirements.y"
+    { (yyval.val_int) = (yyvsp[(1) - (3)].val_int) || (yyvsp[(3) - (3)].val_int); ;}
+    break;
+
+  case 16:
+#line 153 "host_requirements.y"
+    { (yyval.val_int) = ! (yyvsp[(2) - (2)].val_int); ;}
+    break;
+
+  case 17:
+#line 154 "host_requirements.y"
     { (yyval.val_int) =   (yyvsp[(2) - (3)].val_int); ;}
     break;
 
 
 /* Line 1267 of yacc.c.  */
-#line 1531 "host_requirements.cc"
+#line 1555 "host_requirements.cc"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1747,7 +1771,7 @@ yyreturn:
 }
 
 
-#line 149 "host_requirements.y"
+#line 157 "host_requirements.y"
 
 
 extern "C" void host_requirements_error(

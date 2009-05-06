@@ -40,12 +40,14 @@
       know about them.  */
    enum yytokentype {
      INTEGER = 258,
-     STRING = 259
+     STRING = 259,
+     FLOAT = 260
    };
 #endif
 /* Tokens.  */
 #define INTEGER 258
 #define STRING 259
+#define FLOAT 260
 
 
 
@@ -56,9 +58,10 @@ typedef union YYSTYPE
 {
     char * 	val_str;
     int 	val_int;
+    float   val_float;
 }
 /* Line 1489 of yacc.c.  */
-#line 62 "host_rank.hh"
+#line 65 "host_rank.hh"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
