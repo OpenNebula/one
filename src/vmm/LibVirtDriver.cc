@@ -58,6 +58,7 @@ int LibVirtDriver::deployment_description(
     string  mac        = "";
     string  bridge     = "";
     string  script     = "";
+    string  model      = "";
 
     const VectorAttribute * graphics;
 
@@ -350,7 +351,7 @@ int LibVirtDriver::deployment_description(
 
     num = vm->get_template_attribute("NIC",attrs);
 
-    for(int i=0; i<num;i++,mac="",bridge="",target="",script="")
+    for(int i=0; i<num;i++,mac="",bridge="",target="",script="",model="")
     {
         nic = dynamic_cast<const VectorAttribute *>(attrs[i]);
 
@@ -390,6 +391,13 @@ int LibVirtDriver::deployment_description(
         if( !script.empty() )
         {
             file << "\t\t\t<script path='" << script << "'/>" << endl;
+        }
+        
+        model = nic->vector_value("MODEL");
+
+        if( !model.empty() )
+        {
+            file << "\t\t\t<model type='" << model << "'/>" << endl;
         }
 
         file << "\t\t</interface>" << endl;
