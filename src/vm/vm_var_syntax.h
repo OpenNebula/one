@@ -45,8 +45,9 @@
      CBRACKET = 261,
      EOA = 262,
      STRING = 263,
-     RSTRING = 264,
-     INTEGER = 265
+     VARIABLE = 264,
+     RSTRING = 265,
+     INTEGER = 266
    };
 #endif
 /* Tokens.  */
@@ -56,8 +57,9 @@
 #define CBRACKET 261
 #define EOA 262
 #define STRING 263
-#define RSTRING 264
-#define INTEGER 265
+#define VARIABLE 264
+#define RSTRING 265
+#define INTEGER 266
 
 
 
@@ -71,7 +73,7 @@ typedef union YYSTYPE
     char   val_char;
 }
 /* Line 1489 of yacc.c.  */
-#line 75 "vm_var_syntax.hh"
+#line 77 "vm_var_syntax.hh"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

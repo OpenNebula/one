@@ -80,8 +80,9 @@
      CBRACKET = 261,
      EOA = 262,
      STRING = 263,
-     RSTRING = 264,
-     INTEGER = 265
+     VARIABLE = 264,
+     RSTRING = 265,
+     INTEGER = 266
    };
 #endif
 /* Tokens.  */
@@ -91,8 +92,9 @@
 #define CBRACKET 261
 #define EOA 262
 #define STRING 263
-#define RSTRING 264
-#define INTEGER 265
+#define VARIABLE 264
+#define RSTRING 265
+#define INTEGER 266
 
 
 
@@ -270,7 +272,7 @@ typedef union YYSTYPE
     char   val_char;
 }
 /* Line 187 of yacc.c.  */
-#line 274 "vm_var_syntax.cc"
+#line 276 "vm_var_syntax.cc"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
@@ -295,7 +297,7 @@ typedef struct YYLTYPE
 
 
 /* Line 216 of yacc.c.  */
-#line 299 "vm_var_syntax.cc"
+#line 301 "vm_var_syntax.cc"
 
 #ifdef short
 # undef short
@@ -512,10 +514,10 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  9
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   21
+#define YYLAST   20
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  11
+#define YYNTOKENS  12
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  3
 /* YYNRULES -- Number of rules.  */
@@ -525,7 +527,7 @@ union yyalloc
 
 /* YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.  */
 #define YYUNDEFTOK  2
-#define YYMAXUTOK   265
+#define YYMAXUTOK   266
 
 #define YYTRANSLATE(YYX)						\
   ((unsigned int) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
@@ -559,7 +561,7 @@ static const yytype_uint8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
-       5,     6,     7,     8,     9,    10
+       5,     6,     7,     8,     9,    10,    11
 };
 
 #if YYDEBUG
@@ -573,16 +575,16 @@ static const yytype_uint8 yyprhs[] =
 /* YYRHS -- A `-1'-separated list of the rules' RHS.  */
 static const yytype_int8 yyrhs[] =
 {
-      12,     0,    -1,    13,    -1,    12,    13,    -1,     9,    -1,
-       8,     7,    -1,     8,     5,     8,     6,     7,    -1,     8,
-       5,     8,     4,     8,     3,     8,     6,     7,    -1,    10,
-       8,     7,    -1
+      13,     0,    -1,    14,    -1,    13,    14,    -1,    10,    -1,
+       9,     7,    -1,     9,     5,     9,     6,     7,    -1,     9,
+       5,     9,     4,     9,     3,     8,     6,     7,    -1,    11,
+       9,     7,    -1
 };
 
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
-static const yytype_uint8 yyrline[] =
+static const yytype_uint16 yyrline[] =
 {
-       0,   190,   190,   191,   194,   199,   214,   232,   255
+       0,   191,   191,   192,   195,   200,   215,   233,   256
 };
 #endif
 
@@ -592,8 +594,8 @@ static const yytype_uint8 yyrline[] =
 static const char *const yytname[] =
 {
   "$end", "error", "$undefined", "EQUAL", "COMMA", "OBRACKET", "CBRACKET",
-  "EOA", "STRING", "RSTRING", "INTEGER", "$accept", "vm_string",
-  "vm_variable", 0
+  "EOA", "STRING", "VARIABLE", "RSTRING", "INTEGER", "$accept",
+  "vm_string", "vm_variable", 0
 };
 #endif
 
@@ -603,14 +605,14 @@ static const char *const yytname[] =
 static const yytype_uint16 yytoknum[] =
 {
        0,   256,   257,   258,   259,   260,   261,   262,   263,   264,
-     265
+     265,   266
 };
 # endif
 
 /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_uint8 yyr1[] =
 {
-       0,    11,    12,    12,    13,    13,    13,    13,    13
+       0,    12,    13,    13,    14,    14,    14,    14,    14
 };
 
 /* YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.  */
@@ -637,18 +639,18 @@ static const yytype_int8 yydefgoto[] =
 
 /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
    STATE-NUM.  */
-#define YYPACT_NINF -8
+#define YYPACT_NINF -9
 static const yytype_int8 yypact[] =
 {
-      -7,    -1,    -8,     3,     0,    -8,     4,    -8,     6,    -8,
-      -8,     1,    -8,     7,     9,    11,    -8,    10,    13,    14,
-      -8
+      -8,    -1,    -9,     3,     0,    -9,     4,    -9,     7,    -9,
+      -9,     1,    -9,     6,     9,     5,    -9,    10,    11,    12,
+      -9
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-      -8,    -8,    16
+      -9,    -9,    16
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
@@ -658,24 +660,24 @@ static const yytype_int8 yypgoto[] =
 #define YYTABLE_NINF -1
 static const yytype_uint8 yytable[] =
 {
-       9,     1,     2,     3,     6,    13,     7,    14,     1,     2,
-       3,     8,    11,    12,    17,    15,    16,     0,    18,    19,
-      10,    20
+       9,     1,     2,     3,     6,    13,     7,    14,    17,     1,
+       2,     3,     8,    11,    12,    15,    16,    19,    18,    20,
+      10
 };
 
-static const yytype_int8 yycheck[] =
+static const yytype_uint8 yycheck[] =
 {
-       0,     8,     9,    10,     5,     4,     7,     6,     8,     9,
-      10,     8,     8,     7,     3,     8,     7,    -1,     8,     6,
-       4,     7
+       0,     9,    10,    11,     5,     4,     7,     6,     3,     9,
+      10,    11,     9,     9,     7,     9,     7,     6,     8,     7,
+       4
 };
 
 /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
    symbol of state STATE-NUM.  */
 static const yytype_uint8 yystos[] =
 {
-       0,     8,     9,    10,    12,    13,     5,     7,     8,     0,
-      13,     8,     7,     4,     6,     8,     7,     3,     8,     6,
+       0,     9,    10,    11,    13,    14,     5,     7,     9,     0,
+      14,     9,     7,     4,     6,     9,     7,     3,     8,     6,
        7
 };
 
@@ -1540,100 +1542,100 @@ yyreduce:
   switch (yyn)
     {
         case 4:
-#line 195 "vm_var_syntax.y"
+#line 196 "vm_var_syntax.y"
     {
-                (*parsed) << (yyvsp[(1) - (1)].val_str);
-                free((yyvsp[(1) - (1)].val_str));
-            ;}
+        (*parsed) << (yyvsp[(1) - (1)].val_str);
+        free((yyvsp[(1) - (1)].val_str));
+    ;}
     break;
 
   case 5:
-#line 200 "vm_var_syntax.y"
+#line 201 "vm_var_syntax.y"
     {
-                string name((yyvsp[(1) - (2)].val_str));
-                
-                VM_VAR_TO_UPPER(name);
-                                    
-                insert_single(vm,vm_id,*parsed,name);
-                                
-                if ( (yyvsp[(2) - (2)].val_char) != '\0' )
-                {
-                    (*parsed) << (yyvsp[(2) - (2)].val_char);
-                }
-                
-                free((yyvsp[(1) - (2)].val_str));
-            ;}
+        string name((yyvsp[(1) - (2)].val_str));
+        
+        VM_VAR_TO_UPPER(name);
+                            
+        insert_single(vm,vm_id,*parsed,name);
+                        
+        if ( (yyvsp[(2) - (2)].val_char) != '\0' )
+        {
+            (*parsed) << (yyvsp[(2) - (2)].val_char);
+        }
+        
+        free((yyvsp[(1) - (2)].val_str));
+    ;}
     break;
 
   case 6:
-#line 215 "vm_var_syntax.y"
+#line 216 "vm_var_syntax.y"
     {
-                string name((yyvsp[(1) - (5)].val_str));
-                string vname((yyvsp[(3) - (5)].val_str));
-                
-                VM_VAR_TO_UPPER(name);
-                VM_VAR_TO_UPPER(vname);
+        string name((yyvsp[(1) - (5)].val_str));
+        string vname((yyvsp[(3) - (5)].val_str));
+        
+        VM_VAR_TO_UPPER(name);
+        VM_VAR_TO_UPPER(vname);
 
-                insert_vector(vm,vm_id,*parsed,name,vname,"","");
+        insert_vector(vm,vm_id,*parsed,name,vname,"","");
 
-                if ( (yyvsp[(5) - (5)].val_char) != '\0' )
-                {
-                    (*parsed) << (yyvsp[(5) - (5)].val_char);
-                }
+        if ( (yyvsp[(5) - (5)].val_char) != '\0' )
+        {
+            (*parsed) << (yyvsp[(5) - (5)].val_char);
+        }
 
-                free((yyvsp[(1) - (5)].val_str));
-                free((yyvsp[(3) - (5)].val_str));
-            ;}
+        free((yyvsp[(1) - (5)].val_str));
+        free((yyvsp[(3) - (5)].val_str));
+    ;}
     break;
 
   case 7:
-#line 233 "vm_var_syntax.y"
+#line 234 "vm_var_syntax.y"
     {
-                string name((yyvsp[(1) - (9)].val_str));
-                string vname((yyvsp[(3) - (9)].val_str));
-                string vvar((yyvsp[(5) - (9)].val_str));
-                string vval((yyvsp[(7) - (9)].val_str));
+        string name((yyvsp[(1) - (9)].val_str));
+        string vname((yyvsp[(3) - (9)].val_str));
+        string vvar((yyvsp[(5) - (9)].val_str));
+        string vval((yyvsp[(7) - (9)].val_str));
 
-                VM_VAR_TO_UPPER(name);
-                VM_VAR_TO_UPPER(vname);
-                VM_VAR_TO_UPPER(vvar);
+        VM_VAR_TO_UPPER(name);
+        VM_VAR_TO_UPPER(vname);
+        VM_VAR_TO_UPPER(vvar);
 
-                insert_vector(vm,vm_id,*parsed,name,vname,vvar,vval);
-                                                                      
-                if ( (yyvsp[(9) - (9)].val_char) != '\0' )
-                {
-                    (*parsed) << (yyvsp[(9) - (9)].val_char);
-                }
+        insert_vector(vm,vm_id,*parsed,name,vname,vvar,vval);
+                                                              
+        if ( (yyvsp[(9) - (9)].val_char) != '\0' )
+        {
+            (*parsed) << (yyvsp[(9) - (9)].val_char);
+        }
 
-                free((yyvsp[(1) - (9)].val_str));
-                free((yyvsp[(3) - (9)].val_str));
-                free((yyvsp[(5) - (9)].val_str));
-                free((yyvsp[(7) - (9)].val_str));
-            ;}
+        free((yyvsp[(1) - (9)].val_str));
+        free((yyvsp[(3) - (9)].val_str));
+        free((yyvsp[(5) - (9)].val_str));
+        free((yyvsp[(7) - (9)].val_str));
+    ;}
     break;
 
   case 8:
-#line 256 "vm_var_syntax.y"
+#line 257 "vm_var_syntax.y"
     {
-                string name("CONTEXT");
-                string vname((yyvsp[(2) - (3)].val_str));
+        string name("CONTEXT");
+        string vname((yyvsp[(2) - (3)].val_str));
 
-                VM_VAR_TO_UPPER(vname);
-                
-                insert_vector(0,(yyvsp[(1) - (3)].val_int),*parsed,name,vname,"","");
-                
-                if ( (yyvsp[(3) - (3)].val_char) != '\0' )
-                {
-                    (*parsed) << (yyvsp[(3) - (3)].val_char);
-                }
+        VM_VAR_TO_UPPER(vname);
+        
+        insert_vector(0,(yyvsp[(1) - (3)].val_int),*parsed,name,vname,"","");
+        
+        if ( (yyvsp[(3) - (3)].val_char) != '\0' )
+        {
+            (*parsed) << (yyvsp[(3) - (3)].val_char);
+        }
 
-                free((yyvsp[(2) - (3)].val_str));
-            ;}
+        free((yyvsp[(2) - (3)].val_str));
+    ;}
     break;
 
 
 /* Line 1267 of yacc.c.  */
-#line 1637 "vm_var_syntax.cc"
+#line 1639 "vm_var_syntax.cc"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1853,7 +1855,7 @@ yyreturn:
 }
 
 
-#line 272 "vm_var_syntax.y"
+#line 273 "vm_var_syntax.y"
 
 
 extern "C" void vm_var_error(

@@ -868,7 +868,7 @@ case 7:
 YY_RULE_SETUP
 #line 59 "vm_var_parser.l"
 { lvalp->val_str = strdup(vm_var_text);
-                                 return STRING;}
+                                 return VARIABLE;}
 	YY_BREAK
 case 8:
 /* rule 8 can match eol */

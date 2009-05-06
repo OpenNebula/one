@@ -57,7 +57,7 @@
                                  lvalp->val_int   = atoi(yytext);
                                  return INTEGER;}
 <VAR>[[:alnum:]_]+             { lvalp->val_str = strdup(yytext);
-                                 return STRING;}
+                                 return VARIABLE;}
 <VAR>\"[^\"]*\"                { lvalp->val_str = strdup(yytext+1);
                                  lvalp->val_str[yyleng-2] = '\0';
                                  return STRING;}

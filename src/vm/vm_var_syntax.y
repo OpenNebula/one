@@ -180,6 +180,7 @@ error_name:
 
 %token <val_char> EOA
 %token <val_str>  STRING
+%token <val_str>  VARIABLE
 %token <val_str>  RSTRING
 %token <val_int>  INTEGER
 %type  <void>	  vm_variable
@@ -192,83 +193,83 @@ vm_string:  vm_variable
     ;
 
 vm_variable:RSTRING
-            {
-                (*parsed) << $1;
-                free($1);
-            }
-            | STRING EOA
-            {
-                string name($1);
-                
-                VM_VAR_TO_UPPER(name);
-                                    
-                insert_single(vm,vm_id,*parsed,name);
-                                
-                if ( $2 != '\0' )
-                {
-                    (*parsed) << $2;
-                }
-                
-                free($1);
-            }
-            | STRING OBRACKET STRING CBRACKET EOA
-            {
-                string name($1);
-                string vname($3);
-                
-                VM_VAR_TO_UPPER(name);
-                VM_VAR_TO_UPPER(vname);
+    {
+        (*parsed) << $1;
+        free($1);
+    }
+    | VARIABLE EOA
+    {
+        string name($1);
+        
+        VM_VAR_TO_UPPER(name);
+                            
+        insert_single(vm,vm_id,*parsed,name);
+                        
+        if ( $2 != '\0' )
+        {
+            (*parsed) << $2;
+        }
+        
+        free($1);
+    }
+    | VARIABLE OBRACKET VARIABLE CBRACKET EOA
+    {
+        string name($1);
+        string vname($3);
+        
+        VM_VAR_TO_UPPER(name);
+        VM_VAR_TO_UPPER(vname);
 
-                insert_vector(vm,vm_id,*parsed,name,vname,"","");
+        insert_vector(vm,vm_id,*parsed,name,vname,"","");
 
-                if ( $5 != '\0' )
-                {
-                    (*parsed) << $5;
-                }
+        if ( $5 != '\0' )
+        {
+            (*parsed) << $5;
+        }
 
-                free($1);
-                free($3);
-            }
-            | STRING OBRACKET STRING COMMA STRING EQUAL STRING CBRACKET EOA
-            {
-                string name($1);
-                string vname($3);
-                string vvar($5);
-                string vval($7);
+        free($1);
+        free($3);
+    }
+    | VARIABLE OBRACKET VARIABLE COMMA VARIABLE EQUAL STRING CBRACKET EOA
+    {
+        string name($1);
+        string vname($3);
+        string vvar($5);
+        string vval($7);
 
-                VM_VAR_TO_UPPER(name);
-                VM_VAR_TO_UPPER(vname);
-                VM_VAR_TO_UPPER(vvar);
+        VM_VAR_TO_UPPER(name);
+        VM_VAR_TO_UPPER(vname);
+        VM_VAR_TO_UPPER(vvar);
 
-                insert_vector(vm,vm_id,*parsed,name,vname,vvar,vval);
-                                                                      
-                if ( $9 != '\0' )
-                {
-                    (*parsed) << $9;
-                }
+        insert_vector(vm,vm_id,*parsed,name,vname,vvar,vval);
+                                                              
+        if ( $9 != '\0' )
+        {
+            (*parsed) << $9;
+        }
 
-                free($1);
-                free($3);
-                free($5);
-                free($7);
-            }
-            | INTEGER STRING EOA
-            {
-                string name("CONTEXT");
-                string vname($2);
+        free($1);
+        free($3);
+        free($5);
+        free($7);
+    }
+    | INTEGER VARIABLE EOA
+    {
+        string name("CONTEXT");
+        string vname($2);
 
-                VM_VAR_TO_UPPER(vname);
-                
-                insert_vector(0,$1,*parsed,name,vname,"","");
-                
-                if ( $3 != '\0' )
-                {
-                    (*parsed) << $3;
-                }
+        VM_VAR_TO_UPPER(vname);
+        
+        insert_vector(0,$1,*parsed,name,vname,"","");
+        
+        if ( $3 != '\0' )
+        {
+            (*parsed) << $3;
+        }
 
-                free($2);
-            }
-            ;
+        free($2);
+    }
+    ;
 %%
 
 extern "C" void vm_var_error(
