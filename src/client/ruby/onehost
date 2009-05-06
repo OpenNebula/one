@@ -267,6 +267,7 @@ when "delete"
     check_parameters("delete", 1)
     host_id=get_host_id(host, ARGV[0])
     if vms_in_host?(host_id)
+        puts "Host still has associated VMs. It will be disabled instead."
         result=host.disable(host_id)
         if result[0]
             puts "Host disabled" if ops[:verbose]
