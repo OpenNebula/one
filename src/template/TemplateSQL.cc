@@ -91,6 +91,7 @@ int TemplateSQL::update(SqliteDB * db)
     ostringstream                           oss;
     int                                     rc;
     string *                                attr;
+    char *                                  sql_attr;
     Attribute::AttributeType                atype;
 
     for(it=attributes.begin(),oss.str("");it!=attributes.end();it++,oss.str(""))
@@ -108,14 +109,23 @@ int TemplateSQL::update(SqliteDB * db)
             continue;
         }
 
-        oss << "INSERT OR REPLACE INTO " << table << " " << db_names
-            << " VALUES (" << id << ",'" << it->first << "',"<< atype <<",'"
-            << *attr << "')";
+        sql_attr = sqlite3_mprintf("%q",(*attr).c_str());
 
         delete attr;
+        
+        if ( sql_attr == 0 )
+        {
+            continue;
+        }
+
+        oss << "INSERT OR REPLACE INTO " << table << " " << db_names
+            << " VALUES (" << id << ",'" << it->first << "',"<< atype <<",'"
+            << sql_attr << "')";
 
         rc = db->exec(oss);
-
+        
+        sqlite3_free(sql_attr);
+        
         if ( rc != 0 )
         {
             goto error_sqlite;
@@ -142,7 +152,7 @@ extern "C"
         char **                 values,
         char **                 names)
     {
-        TemplateSQL *        vmt;
+        TemplateSQL *       vmt;
 
         Attribute *         attr;
 
@@ -247,6 +257,7 @@ int TemplateSQL::replace_attribute(SqliteDB * db, Attribute * attribute)
     ostringstream   oss;
     int             rc;
     string *        astr;
+    char *          sql_attr;
 
     multimap<string, Attribute *>::iterator i;
 
@@ -266,13 +277,22 @@ int TemplateSQL::replace_attribute(SqliteDB * db, Attribute * attribute)
             return -1;
         }
 
-        oss << "DELETE FROM " << table << " WHERE id=" << id
-            << " AND name='" << attribute->name() << "' AND value='"
-            << *astr << "'";
+        sql_attr = sqlite3_mprintf("%q",(*astr).c_str());
 
         delete astr;
 
+        if ( sql_attr == 0 )
+        {
+            return -1;
+        }
+        
+        oss << "DELETE FROM " << table << " WHERE id=" << id
+            << " AND name='" << attribute->name() << "' AND value='"
+            << sql_attr << "'";
+
         rc = db->exec(oss);
+
+        sqlite3_free(sql_attr);
 
         if (rc != 0 )
         {
@@ -297,6 +317,8 @@ int TemplateSQL::insert_attribute(SqliteDB * db, Attribute * attribute)
     string *        astr;
     int             atype;
 
+    char *          sql_attr;
+
     if ( id == -1 || attribute == 0)
     {
         return -1;
@@ -310,13 +332,22 @@ int TemplateSQL::insert_attribute(SqliteDB * db, Attribute * attribute)
         return -1;
     }
 
-    oss << "INSERT INTO " << table << " " << db_names
-        << " VALUES (" << id << ",'" << attribute->name() << "'," << atype
-        << ",'" << *astr << "')";
+    sql_attr = sqlite3_mprintf("%q",(*astr).c_str());
 
     delete astr;
+        
+    if ( sql_attr == 0 )
+    {
+        return -1;
+    }
+
+    oss << "INSERT INTO " << table << " " << db_names
+        << " VALUES (" << id << ",'" << attribute->name() << "'," << atype
+        << ",'" << sql_attr << "')";
 
     rc = db->exec(oss);
+
+    sqlite3_free(sql_attr);
 
     if (rc == 0)
     {
