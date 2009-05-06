@@ -23,7 +23,6 @@
 
 #include <ctype.h>
 #include <string.h>
-
 #include "template_syntax.h"
 #include "Template.h"
 
@@ -43,6 +42,7 @@ int template_lex (YYSTYPE *lvalp, YYLTYPE *llocp);
 int template_parse(Template * tmpl, char ** errmsg);
 }
 
+static string& unescape (string &str);
 %}
 
 %parse-param {Template * tmpl}
@@ -78,7 +78,7 @@ attribute:  VARIABLE EQUAL STRING
                 string      name($1);
                 string      value($3);
 
-                pattr = new SingleAttribute(name,value);
+                pattr = new SingleAttribute(name,unescape(value));
 
                 tmpl->set(pattr);
 
@@ -122,7 +122,7 @@ array_val:  VARIABLE EQUAL STRING
                 TEMPLATE_TO_UPPER(name);
 
                 vattr = new map<string,string>;
-                vattr->insert(make_pair(name,value));
+                vattr->insert(make_pair(name,unescape(value)));
 
                 $$ = static_cast<void *>(vattr);
 
@@ -139,7 +139,7 @@ array_val:  VARIABLE EQUAL STRING
 
                 attrmap = static_cast<map<string,string> *>($1);
 
-                attrmap->insert(make_pair(name,value));
+                attrmap->insert(make_pair(name,unescape(value)));
                 $$ = $1;
 
                 free($3);
@@ -147,6 +147,18 @@ array_val:  VARIABLE EQUAL STRING
             }
         ;
 %%
+
+string& unescape (string &str)
+{
+    size_t  pos;
+    
+    while ((pos = str.find("\\\"")) != string::npos)
+    {
+        str.replace(pos,2,"\"");
+    }
+    
+    return str;
+}
 
 extern "C" void template_error(
 	YYLTYPE *		llocp,

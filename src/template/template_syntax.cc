@@ -105,7 +105,6 @@
 
 #include <ctype.h>
 #include <string.h>
-
 #include "template_syntax.h"
 #include "Template.h"
 
@@ -125,6 +124,7 @@ int template_lex (YYSTYPE *lvalp, YYLTYPE *llocp);
 int template_parse(Template * tmpl, char ** errmsg);
 }
 
+static string& unescape (string &str);
 
 
 /* Enabling traces.  */
@@ -1409,7 +1409,7 @@ yyreduce:
                 string      name((yyvsp[(1) - (3)].val_str));
                 string      value((yyvsp[(3) - (3)].val_str));
 
-                pattr = new SingleAttribute(name,value);
+                pattr = new SingleAttribute(name,unescape(value));
 
                 tmpl->set(pattr);
 
@@ -1460,7 +1460,7 @@ yyreduce:
                 TEMPLATE_TO_UPPER(name);
 
                 vattr = new map<string,string>;
-                vattr->insert(make_pair(name,value));
+                vattr->insert(make_pair(name,unescape(value)));
 
                 (yyval.val_attr) = static_cast<void *>(vattr);
 
@@ -1480,7 +1480,7 @@ yyreduce:
 
                 attrmap = static_cast<map<string,string> *>((yyvsp[(1) - (5)].val_attr));
 
-                attrmap->insert(make_pair(name,value));
+                attrmap->insert(make_pair(name,unescape(value)));
                 (yyval.val_attr) = (yyvsp[(1) - (5)].val_attr);
 
                 free((yyvsp[(3) - (5)].val_str));
@@ -1712,6 +1712,18 @@ yyreturn:
 
 #line 149 "template_syntax.y"
 
+
+string& unescape (string &str)
+{
+    size_t  pos;
+    
+    while ((pos = str.find("\\\"")) != string::npos)
+    {
+        str.replace(pos,2,"\"");
+    }
+    
+    return str;
+}
 
 extern "C" void template_error(
 	YYLTYPE *		llocp,

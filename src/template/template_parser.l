@@ -68,17 +68,18 @@ STRING [^=#[:blank:]\n,\[\]]+
 
  /* ------------------------------------------------------------------------ */
  /* Attribute values                                                         */
- /*   - String in quoted forms                                               */
+ /*   - String in double quoted form                                         */
  /*   - Anything but  =,][# and blanks                                       */
  /* ------------------------------------------------------------------------ */
-<VALUE>\"[^\"]+\" { lvalp->val_str = strdup(yytext+1);
-                    lvalp->val_str[yyleng-2] = '\0';
-                    BEGIN(INITIAL); return STRING; }
+<VALUE>\"([^\"]|"\\\"")+\" { lvalp->val_str = strdup(yytext+1);
+                             lvalp->val_str[yyleng-2] = '\0';
+                             BEGIN(INITIAL); return STRING; }
 
+ /*
 <VALUE>'[^']+'    { lvalp->val_str = strdup(yytext+1);
                     lvalp->val_str[yyleng-2] = '\0';
                     BEGIN(INITIAL); return STRING; }
-
+ */
 <VALUE>{STRING}   { lvalp->val_str = strdup(yytext);
                     BEGIN(INITIAL); return STRING;}
 %%
