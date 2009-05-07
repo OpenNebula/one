@@ -27,26 +27,41 @@ class OneVmmVmware extends Thread
 {
     private String[]     arguments;
     OperationsOverVM     oVM;
+    
+    boolean              debug;
 
     // Helpers from VI samples
     static  AppUtil cb = null;
     
     public static void main(String[] args) 
-    {
-        // first, make redirection
+    { 
+        boolean debug_flag;
         
+        // first, make redirection
         PrintStream stdout = System.out;                                       
         PrintStream stderr = System.err;
       
         System.setOut(stderr);
         System.setErr(stdout);
-        OneVmmVmware omv = new OneVmmVmware(args);
+        
+        if (System.getProperty("debug").equals("1"))
+        {
+            debug_flag=true;
+        }
+        else
+        {
+            debug_flag=false;
+        }
+        
+        OneVmmVmware omv = new OneVmmVmware(args, debug_flag);
         omv.loop();
     }
 
     // Constructor
-    OneVmmVmware(String[] args) 
+    OneVmmVmware(String[] args, boolean _debug) 
     {
+        debug     = _debug;
+        
         arguments = args;
     }
 
@@ -175,8 +190,10 @@ class OneVmmVmware extends Thread
                          {
                              System.out.println("Failed deploying VM " + vid_str + " into " + hostName + 
                                                 ".Reason:" + e.getMessage());
-                             // TODO make DEBUG option
-                             // e.printStackTrace(); 
+                             if(debug)
+                             {
+                                 e.printStackTrace(); 
+                             }
                         
                              synchronized (System.err)
                              {
@@ -186,60 +203,6 @@ class OneVmmVmware extends Thread
                          } // catch
            		    } // else if (str_split.length != 4)
                  } // if (action.equals("DEPLOY"))
-                 
-                 if (action.equals("SHUTDOWN"))
-                 {                           
-                     if (str_split.length < 3 )
-                     {  
-                        System.out.println("FAILURE Wrong number of arguments for SHUTDOWN action. Number args = [" +
-                                           str_split.length + "].");
-                        synchronized (System.err)
-                        {
-
-                            System.err.println(action + " FAILURE " + vid_str); 
-                            continue;
-                        }
-                     }
-                     else
-                     {
-                         
-                         vid_str        = str_split[1];
-                         hostName       = str_split[2];  
-                         String vmName  = str_split[3];
-                         
-                         try
-                         {
-                             oVM = new OperationsOverVM(arguments,hostName);
-                         }
-                         catch(Exception e)
-                         {
-                             synchronized (System.err)
-                             {
-                                 System.err.println(action + " FAILURE " + vid_str + " Failed connection to host " +
-                                                    hostName +". Reason: " + e.getMessage());
-                             }
-                             continue;
-                         }
-                         
-                         if(!oVM.powerOff(vmName))
-                         {
-                             synchronized (System.err)
-                             {
-                                 System.err.println("SHUTDOWN FAILURE " + vid_str + " Failed shutdown VM in host " + 
-                                                    hostName);
-                             }
-                         }
-                         else
-                         {
-                             synchronized (System.err)
-                             {
-                                 System.err.println("SHUTDOWN SUCCESS " + vid_str);                             
-                             }
-                         }
-                      }
-                      
-                      continue;
-                 } // if (action.equals("SHUTDOWN"))
                  
                  if (action.equals("SHUTDOWN") || action.equals("CANCEL"))
                  {                           
@@ -488,6 +451,10 @@ class OneVmmVmware extends Thread
                              {
                                  System.err.println(action + " FAILURE " + vid_str + " Failed connection to host " +
                                                     sourceHostName +". Reason: " + e.getMessage());
+                                 if(debug)
+                                 {
+                                     e.printStackTrace(); 
+                                 }
                              }
                              continue;
                          }
@@ -543,6 +510,10 @@ class OneVmmVmware extends Thread
                              {
                                  System.err.println(action + " FAILURE " + vid_str + " Failed registering VM ["
                                                     + vmName + "] in host " + destHostName);
+                                 if(debug)
+                                 {
+                                     e.printStackTrace(); 
+                                 }
                              }
                              continue;
                          }
