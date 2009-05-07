@@ -89,6 +89,9 @@ if [ -z "$ROOT" ] ; then
                $INCLUDE_LOCATION $SHARE_LOCATION \
                $LOG_LOCATION $RUN_LOCATION"
 
+    DELETE_DIRS="$LIB_LOCATION $ETC_LOCATION $LOG_LOCATION $VAR_LOCATION \
+                 $RUN_LOCATION $SHARE_DIRS"
+
     CHOWN_DIRS="$LOG_LOCATION $VAR_LOCATION $RUN_LOCATION"
 else
     BIN_LOCATION="$ROOT/bin"
@@ -100,6 +103,8 @@ else
 
     MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION $VAR_LOCATION \
                $INCLUDE_LOCATION $SHARE_LOCATION"
+               
+    DELETE_DIRS="$MAKE_DIRS"
 
     CHOWN_DIRS="$ROOT"
 fi
@@ -392,7 +397,7 @@ if [ "$UNINSTALL" = "no" ] ; then
     ln -s $DESTDIR$LIB_LOCATION/liboneapi.so.1 \
           $DESTDIR$LIB_LOCATION/liboneapi.so.1.2
 else
-    for d in `echo $MAKE_DIRS | awk '{for (i=NF;i>=1;i--) printf $i" "}'`; do
+    for d in `echo $DELETE_DIRS | awk '{for (i=NF;i>=1;i--) printf $i" "}'`; do
         rmdir $d
     done
 fi
