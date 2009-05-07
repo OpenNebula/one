@@ -354,6 +354,13 @@ int VirtualMachine::update(SqliteDB * db)
     ostringstream   oss;
     int             rc;
 
+    char * sql_deploy_id = sqlite3_mprintf("%q",deploy_id.c_str());
+
+    if ( sql_deploy_id == 0 )
+    {
+        return -1;
+    }
+    
     oss << "INSERT OR REPLACE INTO " << table << " "<< db_names <<" VALUES ("<<
         oid << "," <<
         uid << "," <<
@@ -363,11 +370,13 @@ int VirtualMachine::update(SqliteDB * db)
         lcm_state << "," <<
         stime << "," <<
         etime << "," <<
-        "'" << deploy_id << "'," <<
+        "'" << sql_deploy_id << "'," <<
         memory << "," <<
         cpu << "," <<
         net_tx << "," <<
         net_rx << ")";
+
+    sqlite3_free(sql_deploy_id);
 
     rc = db->exec(oss);
 

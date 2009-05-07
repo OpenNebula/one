@@ -153,11 +153,20 @@ VirtualNetwork * VirtualNetworkPool::get(const string& name, bool lock)
     
     int	oid;    
     int	rc; 
-        
+
+    char * sql_name = sqlite3_mprintf("%q",name.c_str());
+
+    if ( sql_name == 0 )
+    {
+        return 0;
+    }
+    
     oss << "SELECT oid FROM " << VirtualNetwork::table << " WHERE name = '" 
-        << name << "'";
+        << sql_name << "'";
     
     rc = db->exec(oss, select_name_cb, (void *) (&oid));
+
+    sqlite3_free(sql_name);
 
     if (rc != 0)
     {

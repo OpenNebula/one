@@ -356,16 +356,34 @@ int VirtualNetwork::update(SqliteDB * db)
 {
     ostringstream   oss;
     int             rc;
+    
+    char * sql_name = sqlite3_mprintf("%q",name.c_str());
+
+    if ( sql_name == 0 )
+    {
+        return -1;
+    }
+
+    char * sql_bridge = sqlite3_mprintf("%q",bridge.c_str());
+
+    if ( sql_bridge == 0 )
+    {
+        sqlite3_free(sql_name);
+        return -1;
+    }
 
     oss << "INSERT OR REPLACE INTO " << table << " "<< db_names <<" VALUES ("<<
         oid << "," <<
         uid << "," <<
-        "'" << name << "',"  <<
+        "'" << sql_name << "',"  <<
         type << "," <<
-        "'" << bridge << "')";
+        "'" << sql_bridge << "')";
         
     rc = db->exec(oss);
 
+    sqlite3_free(sql_name);
+    sqlite3_free(sql_bridge);
+    
     return rc;
 }
 

@@ -138,21 +138,55 @@ void History::non_persistent_data()
 int History::insert(SqliteDB * db)
 {
     ostringstream   oss;
-    int             rc;
+    
+    int    rc;
 
+    char * sql_hostname;
+    char * sql_vm_dir;
+    char * sql_vmm_mad_name;
+    char * sql_tm_mad_name;
+    
     if (seq == -1)
     {
         return 0;
+    }
+    
+    sql_hostname = sqlite3_mprintf("%q",hostname.c_str());
+
+    if ( sql_hostname == 0 )
+    {
+        goto error_hostname;
+    }
+
+    sql_vm_dir = sqlite3_mprintf("%q",vm_dir.c_str());
+
+    if ( sql_vm_dir == 0 )
+    {
+        goto error_vm_dir;
+    }
+    
+    sql_vmm_mad_name = sqlite3_mprintf("%q",vmm_mad_name.c_str());
+
+    if ( sql_vmm_mad_name == 0 )
+    {
+        goto error_vmm;
+    }
+    
+    sql_tm_mad_name = sqlite3_mprintf("%q",tm_mad_name.c_str());
+
+    if ( sql_tm_mad_name == 0 )
+    {
+        goto error_tm;
     }
 
     oss << "INSERT OR REPLACE INTO " << table << " "<< db_names <<" VALUES ("<<
         oid << "," <<
         seq << "," <<
-        "'" << hostname << "',"<<
-        "'" << vm_dir << "'," <<
+        "'" << sql_hostname << "',"<<
+        "'" << sql_vm_dir << "'," <<
         hid << "," <<
-        "'" << vmm_mad_name << "'," <<
-        "'" << tm_mad_name  << "'," <<
+        "'" << sql_vmm_mad_name << "'," <<
+        "'" << sql_tm_mad_name  << "'," <<
         stime << "," <<
         etime << "," <<
         prolog_stime  << "," <<
@@ -165,7 +199,21 @@ int History::insert(SqliteDB * db)
 
     rc = db->exec(oss);
 
+    sqlite3_free(sql_hostname);
+    sqlite3_free(sql_vm_dir);
+    sqlite3_free(sql_vmm_mad_name);
+    sqlite3_free(sql_tm_mad_name);
+    
     return rc;
+    
+error_tm:
+    sqlite3_free(sql_vmm_mad_name);
+error_vmm:
+    sqlite3_free(sql_vm_dir);
+error_vm_dir:
+    sqlite3_free(sql_hostname);
+error_hostname:
+    return -1;
 }
 
 /* -------------------------------------------------------------------------- */

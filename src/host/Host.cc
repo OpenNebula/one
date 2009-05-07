@@ -199,10 +199,15 @@ int Host::insert(SqliteDB *db)
 int Host::update(SqliteDB *db)
 {
     ostringstream   oss;
-    int             rc;
+    
+    int    rc;
+    int    managed_i = managed?1:0;
 
-    int             managed_i = managed?1:0;
-
+    char * sql_hostname;
+    char * sql_im_mad_name;
+    char * sql_tm_mad_name;
+    char * sql_vmm_mad_name;
+    
     //Update template.
 
     rc = host_template.update(db);
@@ -221,21 +226,62 @@ int Host::update(SqliteDB *db)
         return rc;
     }
 
+    sql_hostname = sqlite3_mprintf("%q",hostname.c_str());
+
+    if ( sql_hostname == 0 )
+    {
+        goto error_hostname;
+    }
+    
+    sql_im_mad_name = sqlite3_mprintf("%q",im_mad_name.c_str());
+
+    if ( sql_im_mad_name == 0 )
+    {
+        goto error_im;
+    }
+   
+    sql_tm_mad_name = sqlite3_mprintf("%q",tm_mad_name.c_str());
+
+    if ( sql_tm_mad_name == 0 )
+    {
+        goto error_tm;
+    }
+
+    sql_vmm_mad_name = sqlite3_mprintf("%q",vmm_mad_name.c_str());
+
+    if ( sql_vmm_mad_name == 0 )
+    {
+        goto error_vmm;
+    }
     // Construct the SQL statement to Insert or Replace (effectively, update)
 
     oss << "INSERT OR REPLACE INTO " << table << " "<< db_names <<" VALUES ("<<
     oid << "," <<
-    "'" << hostname << "'," <<
+    "'" << sql_hostname << "'," <<
     state << "," <<
-    "'" << im_mad_name << "'," <<
-    "'" << vmm_mad_name << "'," <<
-    "'" << tm_mad_name << "'," <<
+    "'" << sql_im_mad_name << "'," <<
+    "'" << sql_vmm_mad_name << "'," <<
+    "'" << sql_tm_mad_name << "'," <<
     last_monitored << "," <<
     managed_i << ")";
 
     rc = db->exec(oss);
 
+    sqlite3_free(sql_hostname);
+    sqlite3_free(sql_im_mad_name);
+    sqlite3_free(sql_im_mad_name);
+    sqlite3_free(sql_vmm_mad_name);
+
     return rc;
+    
+error_vmm:
+    sqlite3_free(sql_tm_mad_name);
+error_tm:
+    sqlite3_free(sql_im_mad_name);
+error_im:
+    sqlite3_free(sql_hostname);
+error_hostname:
+    return -1;
 }
 
 /* -------------------------------------------------------------------------- */
