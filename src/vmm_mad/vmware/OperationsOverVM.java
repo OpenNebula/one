@@ -264,7 +264,7 @@ public class OperationsOverVM
          }
 
          argsWithHost[args.length]      = "--url";
-         argsWithHost[arguments.length + 1 ] = "https://" + hostName + ":443/sdk";
+         argsWithHost[args.length + 1 ] = "https://" + hostName + ":443/sdk";
 
 
          cb = AppUtil.initialize("DeployVM", null, argsWithHost);

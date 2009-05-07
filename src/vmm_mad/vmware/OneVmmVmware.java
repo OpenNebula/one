@@ -70,6 +70,11 @@ class OneVmmVmware extends Thread
 
         while (!fin) 
 	    {
+            action   = null;
+            vid_str  = null;
+            hostName = null;
+            fileName = null;
+	        
             // Read a line a parse it
             try
             {
@@ -293,7 +298,7 @@ class OneVmmVmware extends Thread
                  
                  if (action.equals("SAVE"))
                  {                           
-                     if (str_split.length < 4)
+                     if (str_split.length < 5)
                      {  
                         System.out.println("FAILURE Wrong number of arguments for SAVE action. Number args = [" +
                                            str_split.length + "].");
@@ -456,7 +461,7 @@ class OneVmmVmware extends Thread
                  {      
                      if (str_split.length < 4)
                      {
-                         System.out.println("FAILURE Wrong number of arguments for MIGTRATE " + 
+                         System.out.println("FAILURE Wrong number of arguments for MIGRATE " + 
                                             "action. Number args = [" + str_split.length + "].");
                          synchronized (System.err)
                          {
