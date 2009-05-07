@@ -269,7 +269,7 @@ int Host::update(SqliteDB *db)
 
     sqlite3_free(sql_hostname);
     sqlite3_free(sql_im_mad_name);
-    sqlite3_free(sql_im_mad_name);
+    sqlite3_free(sql_tm_mad_name);
     sqlite3_free(sql_vmm_mad_name);
 
     return rc;
