@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2009, Distributed Systems Architecture Group, Universidad   #
 # Complutense de Madrid (dsa-research.org)                                   #
@@ -17,45 +15,10 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+# This must point to a java keystore with appropriate certificates for accessing
+# all the ESXi hosts
+#VMWARE_TRUSTORE=<path_to_keystore>
 
-#Setup driver variables
-DRIVER_NAME=`basename $0`
-
-if [ -z "${ONE_LOCATION}" ]; then
-    DRIVERRC=/etc/one/${DRIVER_NAME}/${DRIVER_NAME}rc
-    MADCOMMON=/usr/lib/one/mads/madcommon.sh
-    VAR_LOCATION=/var/lib/one
-else
-    DRIVERRC=$ONE_LOCATION/etc/${DRIVER_NAME}/${DRIVER_NAME}rc
-    MADCOMMON=$ONE_LOCATION/lib/mads/madcommon.sh
-    VAR_LOCATION=$ONE_LOCATION/var
-fi
-
-. $MADCOMMON
-
-# Go to VAR_LOCATION
-cd $VAR_LOCATION
-
-# Export the vmm_mad specific rc
-
-export_rc_vars $DRIVERRC
-
-LOG_FILE=$DRIVER_NAME
-
-MAD_FILE="OneVmmVmware"
-
-if [ -z "${ONE_LOCATION}" ]; then
-    MAD_LOG_PATH=/var/log/one/$LOG_FILE.log	
-else
-    MAD_LOG_PATH=$ONE_LOCATION/var/$LOG_FILE.log
-fi
-ONE_MAD_DEBUG=neno
-# Execute the actual MAD
-if [ -n "${ONE_MAD_DEBUG}" ]; then
-    exec nice -n $PRIORITY java -cp $ONE_LOCATION/lib/mads:$CLASSPATH -Djavax.net.ssl.trustStore=$VMWARE_TRUSTORE -Ddebug=$ONE_MAD_DEBUG -Xmx1024M $MAD_FILE $* 2>> $MAD_LOG_PATH
-else
-     exec nice -n $PRIORITY java -cp $ONE_LOCATION/lib/mads:$CLASSPATH -Djavax.net.ssl.trustStore=$VMWARE_TRUSTORE -Xmx1024M $MAD_FILE $* 2> /dev/null
-fi
-
-
+# Uncomment the following line to active MAD debug  
+#ONE_MAD_DEBUG=1
 

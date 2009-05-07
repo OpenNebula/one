@@ -539,7 +539,69 @@ class OneVmmVmware extends Thread
                          
                          continue;
                      }                
-                 } // if (action.equals("MIGRATE"))           
+                 } // if (action.equals("MIGRATE"))      
+                 
+                 if (action.equals("POLL"))
+                 {      
+                     if (str_split.length < 4)
+                     {
+                         System.out.println("FAILURE Wrong number of arguments for POLL " + 
+                                            "action. Number args = [" + str_split.length + "].");
+                         synchronized (System.err)
+                         {
+                             System.err.println(action + " FAILURE " + vid_str); 
+                             continue;
+                         }
+                     }
+                     else
+                     {
+                         vid_str               = str_split[1];
+                         hostName       = str_split[2];  
+                         String vmName         = str_split[3];
+                         
+                         // First, create the checkpoint
+                         
+                         try
+                         {
+                             oVM = new OperationsOverVM(arguments,hostName);
+                         }
+                         catch(Exception e)
+                         {
+                             synchronized (System.err)
+                             {
+                                 System.err.println(action + " FAILURE " + vid_str + " Failed connection to host " +
+                                                    hostName +". Reason: " + e.getMessage());
+                                 if(debug)
+                                 {
+                                     e.printStackTrace(); 
+                                 }
+                             }
+                             continue;
+                         }
+                         
+                         // Poll the VM
+                                              
+             /*            if(!oVM.pollVM(vmName,checkpointName))
+                         {
+                             synchronized (System.err)
+                             {
+                                 System.err.println(action + " FAILURE " + vid_str + " Failed restoring VM [" + 
+                                                    vmName + "] in host " +  destHostName);
+                             }
+                         }
+                         else
+                         {
+                             synchronized (System.err)
+                             {
+                                 System.err.println(action + " SUCCESS " + vid_str);                             
+                             }
+                         }*/
+                         
+                         System.err.println(action + " SUCCESS " + vid_str + "USEDCPU=1 USEDMEMORY=256");
+                         
+                         continue;
+                     }                
+                 } // if (action.equals("POLL"))     
              } //  else if (action.equals("FINALIZE"))
         } // while(!fin)
     } // loop
