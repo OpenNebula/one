@@ -136,7 +136,7 @@ class XenDriver < VirtualMachineDriver
         ssh_action("#{XEN[:save]} #{deploy_id} #{file}", id, host, :save)
     end
 
-    def restore(id, host, file, not_used)
+    def restore(id, host, deploy_id, file)
         ssh_action("#{XEN[:restore]} #{file}", id, host, :restore)
     end
 

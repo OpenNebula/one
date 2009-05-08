@@ -594,7 +594,10 @@ void VirtualMachineManager::restore_action(
     }
 
     // Invoke driver method
-    vmd->restore(vid,vm->get_hostname(),vm->get_checkpoint_file());
+    vmd->restore(vid,
+                 vm->get_hostname(),
+                 vm->get_deploy_id(),
+                 vm->get_checkpoint_file());
 
     vm->unlock();
     return;

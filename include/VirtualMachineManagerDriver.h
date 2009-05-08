@@ -177,12 +177,15 @@ private:
      *  Sends a save request to the MAD: "RESTORE    ID    HOST    FILE    -"
      *    @param oid the virtual machine id.
      *    @param host the hostname
+     *    @param name of the Virtual Machine (deployment id), as returned by the
+     *    driver
      *    @param file the filename of the checkpoint file to restore the VM 
      *    from
      */
     void restore (
         const int     oid,
         const string& host,
+        const string& name,
         const string& file) const;
 
     /**

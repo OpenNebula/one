@@ -139,7 +139,7 @@ class VirtualMachineDriver < OpenNebulaDriver
         send_message(ACTION[:save],RESULT[:failure],id,error)
     end
 
-    def restore(id, host, file, not_used)
+    def restore(id, host, deploy_id, file)
         error = "Action not implemented by driver #{self.class}"
         send_message(ACTION[:restore],RESULT[:failure],id,error)
     end
@@ -180,7 +180,7 @@ class TemplateDriver < VirtualMachineDriver
         send_message(ACTION[:save],RESULT[:success],id)
     end
 
-    def restore(id, host, file, not_used)
+    def restore(id, host, deploy_id , file)
         send_message(ACTION[:restore],RESULT[:success],id)
     end
 

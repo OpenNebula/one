@@ -181,11 +181,12 @@ void VirtualMachineManagerDriver::save (
 void VirtualMachineManagerDriver::restore (
     const int     oid,
     const string& host,
+    const string& name,
     const string& file) const
 {
     ostringstream os;
 
-    os << "RESTORE " << oid << " " << host << " " << file << " -" << endl;
+    os << "RESTORE " << oid << " " << host << " " << name << " " << file<< endl;
 
     write(os);
 };
