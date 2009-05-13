@@ -29,6 +29,11 @@ fi
 . $TMCOMMON
 
 DST_PATH=`arg_path $DST`
+DST_DIR=`dirname $DST_PATH`
+
+log "Creating directory $DST_DIR"
+exec_and_log "mkdir -p $DST_DIR"
+exec_and_log "chmod a+w $DST_DIR"
 
 log "Creating ${SIZE}Mb image in $DST_PATH"
 exec_and_log "dd if=/dev/zero of=$DST_PATH bs=1 count=1 seek=${SIZE}M"
