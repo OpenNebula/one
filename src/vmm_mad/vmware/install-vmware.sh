@@ -17,13 +17,19 @@ cp *class $ONE_LOCATION/lib/mads
 cp one_im_vmware $ONE_LOCATION/bin
 cd -
 
+cd ../../tm_mad/vmware
+mkdir $ONE_LOCATION/lib/tm_commands/vmware
+cp *sh $ONE_LOCATION/lib/tm_commands/vmware
+
 echo -n "."
 
 mkdir $ONE_LOCATION/etc/im_vmware
 mkdir $ONE_LOCATION/etc/vmm_vmware
+mkdir $ONE_LOCATION/etc/tm_vmware
 
-cp vmm_vmware.conf vmm_vmwarerc $ONE_LOCATION/etc/vmm_vmware
-cp im_vmware.conf im_vmwarerc $ONE_LOCATION/etc/im_vmware
+cp ../../vmm_mad/vmware/vmm_vmware.conf ../../vmm_mad/vmware/vmm_vmwarerc $ONE_LOCATION/etc/vmm_vmware
+cp ../../im_mad/vmware/im_vmware.conf ../../im_mad/vmware/im_vmwarerc $ONE_LOCATION/etc/im_vmware
+cp tm_vmware.conf tm_vmwarerc $ONE_LOCATION/etc/tm_vmware
 
 echo "done"
 
