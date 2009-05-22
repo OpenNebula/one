@@ -296,7 +296,7 @@ void  LifeCycleManager::deploy_failure_action(int vid)
         VirtualMachineManager * vmm = nd.get_vmm();
         
         //----------------------------------------------------
-        //           RUNNING STATE FROM SAVE_MIGRATE
+        //           RUNNING STATE FROM MIGRATE
         //----------------------------------------------------
 
         vm->set_state(VirtualMachine::RUNNING);
