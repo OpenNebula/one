@@ -677,7 +677,7 @@ error_driver:
     goto error_common;
 
 error_common:
-    (nd.get_lcm())->trigger(LifeCycleManager::PROLOG_FAILURE,vid);
+    (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_FAILURE,vid);
     vm->log("TM", Log::ERROR, os);
 
     vm->unlock();
