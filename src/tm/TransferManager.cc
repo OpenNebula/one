@@ -765,8 +765,6 @@ error_common:
 
     vm->unlock();
     return;
-
-    (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_SUCCESS,vid);
 }
 
 /* -------------------------------------------------------------------------- */
