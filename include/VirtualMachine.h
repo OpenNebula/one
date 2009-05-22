@@ -29,6 +29,7 @@
 using namespace std;
 
 extern "C" int vm_select_cb (void * _vm, int num,char ** values, char ** names);
+extern "C" int vm_dump_cb (void * _oss, int num,char ** values, char ** names);
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -116,8 +117,24 @@ public:
     /**
      *  Function to write a Virtual Machine in an output stream
      */
-    friend ostream& operator<<(ostream& os, VirtualMachine& vm);
+    friend ostream& operator<<(ostream& os, const VirtualMachine& vm);
 
+	/**
+	 * Function to print the VirtualMachine object into a string in
+	 * plain text
+	 *  @param str the resulting string
+	 *  @return a reference to the generated string 
+	 */
+	string& to_str(string& str) const;
+
+	/**
+	 * Function to print the VirtualMachine object into a string in
+	 * XML format
+	 *  @param xml the resulting XML string
+	 *  @return a reference to the generated string 
+	 */
+	string& to_xml(string& xml) const;
+	
     // ------------------------------------------------------------------------
     // Dynamic Info
     // ------------------------------------------------------------------------
@@ -702,6 +719,12 @@ private:
         int     num,
         char ** values,
         char ** names);
+
+    friend int vm_dump_cb (
+        void *  _vm,
+        int     num,
+        char ** values,
+        char ** names);
     
     // *************************************************************************
     // Virtual Machine Attributes
@@ -820,8 +843,8 @@ private:
     /**
      *  Function to unmarshall a VM object, an associated classes.
      *    @param num the number of columns read from the DB
-     *    @para names the column names
-     *    @para vaues the column values
+     *    @param names the column names
+     *    @param vaues the column values
      *    @return 0 on success
      */
     int unmarshall(int num, char **names, char ** values);
@@ -981,6 +1004,17 @@ protected:
      */
     virtual int update(SqliteDB * db);
 
+    /**
+     *  Dumps the contect of a set of VirtualMachine objects in the given stream
+     *  using XML format
+     *    @param db pointer to the db
+     *    @param oss the output stream
+     *    @param where string to filter the VirtualMachine objects
+     *    @return 0 on success
+     */
+    static int dump(SqliteDB * db, ostringstream& oss, const string&
+where);
+    
     /**
      * Deletes a VM from the database and all its associated information:
      *   - History records

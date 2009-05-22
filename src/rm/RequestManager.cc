@@ -228,6 +228,9 @@ void RequestManager::register_xml_methods()
         
     xmlrpc_c::methodPtr vm_info(new 
         RequestManager::VirtualMachineInfo(vmpool));
+
+    xmlrpc_c::methodPtr vm_pool_info(new
+        RequestManager::VirtualMachinePoolInfo(vmpool));
         
     xmlrpc_c::methodPtr host_allocate(new 
         RequestManager::HostAllocate(hpool));
@@ -257,6 +260,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vmaction", vm_action);
     RequestManagerRegistry.addMethod("one.vmmigrate", vm_migrate);
     RequestManagerRegistry.addMethod("one.vmget_info", vm_info);
+    RequestManagerRegistry.addMethod("one.vmget_pool_info", vm_pool_info);
      
     /* Host related methods*/
      

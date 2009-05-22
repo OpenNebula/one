@@ -131,7 +131,29 @@ public:
     {
         VirtualMachine::bootstrap(db);
     };
+    
+    /**
+     *  Dumps the VM pool in XML format. A filter can be also added to the query
+     *  Also the hostname where the VirtualMachine is running is added to the
+     *  pool
+     *  @param oss the output stream to dump the pool contents
+     *  @param where filter for the objects, defaults to all
+     *
+     *  @return 0 on success
+     */
+    int dump(ostringstream& oss, const string& where)
+    {
+        int rc;
 
+        oss << "<VM_POOL>";
+
+        rc = VirtualMachine::dump(db,oss,where);
+
+        oss << "</VM_POOL>";
+            
+        return rc;
+    }
+    
 private:
     /**
      *  Generate context file to be sourced upon VM booting

@@ -271,6 +271,30 @@ private:
     private:
         VirtualMachinePool * vmpool;
     };
+
+
+    /* ---------------------------------------------------------------------- */
+
+    class VirtualMachinePoolInfo: public xmlrpc_c::method
+    {
+    public:
+        VirtualMachinePoolInfo(
+            VirtualMachinePool * _vmpool):
+                vmpool(_vmpool)
+        {
+            _signature="A:si";
+            _help="Returns the virtual machine pool";
+        };
+
+        ~VirtualMachinePoolInfo(){};
+
+        void execute(
+            xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retval);
+
+    private:
+        VirtualMachinePool * vmpool;
+    };    
     
     /* ---------------------------------------------------------------------- */
     

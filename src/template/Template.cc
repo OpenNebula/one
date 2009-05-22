@@ -304,7 +304,7 @@ void Template::get(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void Template::to_xml(string& xml) const
+string& Template::to_xml(string& xml) const
 {
     multimap<string,Attribute *>::const_iterator  it;
     ostringstream                   		oss;
@@ -324,25 +324,40 @@ void Template::to_xml(string& xml) const
     oss << "</" << xml_root << ">";
 
     xml = oss.str();
+
+	return xml;
+}
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string& Template::to_str(string& str) const
+{
+	ostringstream os;
+    multimap<string,Attribute *>::const_iterator  it;
+    string *                                s;
+
+    for ( it = attributes.begin(); it!=attributes.end(); it++)
+    {
+        s = it->second->marshall(",");
+
+        os << endl << "\t" << it->first << separator << *s;
+
+        delete s;
+    }
+
+	str = os.str();
+    return str;
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-ostream& operator << (ostream& os, Template& t)
+ostream& operator << (ostream& os, const Template& t)
 {
-    multimap<string,Attribute *>::iterator  it;
-    string *                                s;
-
-    for ( it = t.attributes.begin(); it!=t.attributes.end(); it++)
-    {
-        s = it->second->marshall(",");
-
-        os << endl << "\t" << it->first << t.separator << *s;
-
-        delete s;
-    }
-
+	string str;
+	
+	os << t.to_str(str);
+	
     return os;
 }
 

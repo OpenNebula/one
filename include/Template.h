@@ -89,8 +89,16 @@ public:
      *  </template>
      *  The name of the root element is set when the Template object is created
      *    @param xml string that hold the xml template representation
+     *    @return a reference to the generated string
+	 */
+    string& to_xml(string& xml) const;
+
+    /**
+     *  Writes the template in a plain text string
+     *    @param str string that hold the template representation
+     *    @return a reference to the generated string
      */
-    void to_xml(string& xml) const;
+    string& to_str(string& str) const;
 
     /**
      *  Sets a new attribute, the attribute MUST BE ALLOCATED IN THE HEAP, and
@@ -148,7 +156,7 @@ public:
         string& name,
         int&    value) const;
 
-    friend ostream& operator<<(ostream& os, Template& t);
+    friend ostream& operator<<(ostream& os, const Template& t);
 
 protected:
     /**
