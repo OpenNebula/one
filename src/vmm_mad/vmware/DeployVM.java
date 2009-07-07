@@ -403,8 +403,8 @@ public class DeployVM
         }
         
         argsWithHost[args.length]      = "--url";
-        argsWithHost[args.length + 1 ] = "https://" + hostName + ":443/sdk";
-
+        //argsWithHost[args.length + 1 ] = "https://" + hostName + ":443/sdk";
+        argsWithHost[args.length + 1 ] = "https://localhost:8008/sdk";
         
 
         cb = AppUtil.initialize("DeployVM", null, argsWithHost);
@@ -438,7 +438,9 @@ public class DeployVM
         }
         
         argsWithHost[args.length]      = "--url";
-        argsWithHost[args.length + 1 ] = "https://" + hostName + ":443/sdk";
+//        argsWithHost[args.length + 1 ] = "https://" + hostName + ":443/sdk";
+        
+        argsWithHost[args.length + 1 ] = "https://localhost:8008/sdk";
         
 
         cb = AppUtil.initialize("DeployVM", null, argsWithHost);

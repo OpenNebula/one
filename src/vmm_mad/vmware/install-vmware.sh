@@ -9,12 +9,14 @@ echo -n "Installing VMWare drivers."
 
 javac OneVmmVmware.java
 cp *class $ONE_LOCATION/lib/mads
-cp one_vmm_vmware $ONE_LOCATION/bin
+cp one_vmm_vmware $ONE_LOCATION/lib/mads
+chmod +x $ONE_LOCATION/lib/mads/one_vmm_vmware
 
 cd ../../im_mad/vmware/
 javac OneImVmware.java
 cp *class $ONE_LOCATION/lib/mads
-cp one_im_vmware $ONE_LOCATION/bin
+cp one_im_vmware $ONE_LOCATION/lib/mads
+chmod +x $ONE_LOCATION/lib/mads/one_im_vmware
 cd -
 
 cd ../../tm_mad/vmware
