@@ -336,7 +336,7 @@ public class DeployVM
          
          // Let's remove existing NICs
          
-         for(int i=0;i<test.length;i++)
+       /*  for(int i=0;i<test.length;i++)
          {
              VirtualDeviceConfigSpec nicSpec = new VirtualDeviceConfigSpec(); 
              VirtualEthernetCard nic;
@@ -348,14 +348,14 @@ public class DeployVM
              
              nicSpecArray[i] = nicSpec;
          }
-         
+         */
          
         // Let's add specified NICs
          
          for(int i=0;i<nics.length;i++)
          {
              VirtualDeviceConfigSpec nicSpec = new VirtualDeviceConfigSpec();
-             // TODO make this dynamic?
+             // TODO make this dynamic
              String networkName = "one-net"; 
              
              nicSpec.setOperation(VirtualDeviceConfigSpecOperation.add);

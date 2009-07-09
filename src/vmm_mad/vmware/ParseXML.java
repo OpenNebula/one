@@ -85,7 +85,7 @@ public class ParseXML
                 
                 for(int i=0; i<diskNL.getLength(); i++)
                 {
-                    NodeList sourceNode = ((Element)diskNL).getElementsByTagName("SOURCE");
+                    NodeList sourceNode = ((Element)diskNL.item(i)).getElementsByTagName("SOURCE");
                     
                     disk[i] = ((Node)sourceNode.item(0)).getFirstChild().getNodeValue().trim();
                 }
@@ -101,7 +101,7 @@ public class ParseXML
                 
                 for(int i=0; i<nwNL.getLength(); i++)
                 {
-                    NodeList mac = ((Element)nwNL).getElementsByTagName("MAC");
+                    NodeList mac = ((Element)nwNL.item(i)).getElementsByTagName("MAC");
                     
                     macs[i] = ((Node)mac.item(0)).getFirstChild().getNodeValue().trim();
                 }
