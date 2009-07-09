@@ -48,10 +48,12 @@ public:
         SAVE,
         SHUTDOWN,
         CANCEL,
+        CANCEL_PREVIOUS,
         MIGRATE,
         RESTORE,
         POLL,
         TIMER,
+        DRIVER_CANCEL,
         FINALIZE
     };
 
@@ -202,6 +204,14 @@ private:
         int vid);
 
     /**
+     *  Cancels a VM (in the previous host) when a CANCEL action is received.
+     *  Note that the domain-id is the last one returned by a boot action
+     *    @param vid the id of the VM.
+     */
+    void cancel_previous_action(
+        int vid);
+
+    /**
      *  Function to migrate (live) a VM (MIGRATE action).
      *    @param vid the id of the VM.
      */
@@ -226,6 +236,12 @@ private:
      *  This function is executed periodically to poll the running VMs
      */
     void timer_action();
+
+    /**
+     *  This function cancels the current driver operation
+     */
+    void driver_cancel_action(
+        int vid);
 };
 
 #endif /*VIRTUAL_MACHINE_MANAGER_H*/

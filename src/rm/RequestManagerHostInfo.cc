@@ -25,14 +25,13 @@ void RequestManager::HostInfo::execute(
     xmlrpc_c::paramList const& paramList,
     xmlrpc_c::value *   const  retval)
 { 
-    string              session;
+    string  session;
 
-    // <hid> of the host to retrieve the information for
-    int                 hid;   
+    int     hid;  
+    int     rc;
+    Host *  host;
     
-    Host *              host;
-    
-    ostringstream       oss;
+    ostringstream oss;
 
     /*   -- RPC specific vars --  */
     vector<xmlrpc_c::value> arrayData;
@@ -41,9 +40,16 @@ void RequestManager::HostInfo::execute(
     Nebula::log("ReM",Log::DEBUG,"HostInfo method invoked");
 
     // Get the parameters
-        //TODO the session id to validate with the SessionManager
     session      = xmlrpc_c::value_string(paramList.getString(0));
     hid          = xmlrpc_c::value_int   (paramList.getInt(1));
+
+    // Check if it is a valid user
+    rc = HostInfo::upool->authenticate(session);
+
+    if ( rc == -1 )
+    {
+        goto error_authenticate;
+    }
 
     // Perform the allocation in the hostpool 
     host = HostInfo::hpool->get(hid,true);    
@@ -53,21 +59,25 @@ void RequestManager::HostInfo::execute(
         goto error_host_get;                     
     }
     
-    // All nice, return the host info to the client  
-    arrayData.push_back(xmlrpc_c::value_boolean(true)); // SUCCESS
-    oss.str("");
     oss << *host;
     
     host->unlock();
     
+    // All nice, return the host info to the client  
+    arrayData.push_back(xmlrpc_c::value_boolean(true)); // SUCCESS
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
-    arrayresult = new xmlrpc_c::value_array(arrayData);
+
     // Copy arrayresult into retval mem space
+    arrayresult = new xmlrpc_c::value_array(arrayData);
     *retval = *arrayresult;
-    // and get rid of the original
-    delete arrayresult;
+
+    delete arrayresult; // and get rid of the original
 
     return;
+
+error_authenticate:
+    oss << "User not authenticated, HostInfo call aborted.";
+    goto error_common;
 
 error_host_get:
     oss << "Error getting host with HID = " << hid; 

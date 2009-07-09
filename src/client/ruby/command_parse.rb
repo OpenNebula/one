@@ -81,6 +81,11 @@ EOT
                     "is successful") do |o|
                 @options[:verbose]=true
             end
+
+            opts.on("-x", "--xml",
+                    "Returns xml instead of human readable text") do |o|
+                @options[:xml]=true
+            end
             
             opts.on_tail("-h", "--help", "Shows this help message") do |o|
                 print_help

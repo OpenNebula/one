@@ -86,6 +86,7 @@ domains_info.each {|line|
 
 # WRITE INFO
 
+puts "HYPERVISOR=xen" 
 puts "TOTALCPU=" + cpu_info[:total].round.to_s
 puts "CPUSPEED=" + cpu_info[:speed]
 puts "TOTALMEMORY=" + memory_info[:total].to_s
@@ -95,4 +96,3 @@ puts "USEDCPU=" + vm_info[:cpu].round.to_s
 puts "FREECPU=" + (cpu_info[:total]-vm_info[:cpu]).round.to_s
 puts "NETTX=" + vm_info[:nettx].to_s
 puts "NETRX=" + vm_info[:netrx].to_s
-

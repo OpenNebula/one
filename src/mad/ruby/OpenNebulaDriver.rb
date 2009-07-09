@@ -39,6 +39,7 @@ class OpenNebulaDriver < ActionManager
         super(concurrency,threaded)
 
         register_action(:INIT, method("init"))
+
         @send_mutex=Mutex.new
     end
 
@@ -92,7 +93,18 @@ private
 
             action = args.shift.upcase.to_sym
 
-            trigger_action(action,*args)
+            if (args.length == 0) || (!args[0])
+                action_id = 0
+            else
+                action_id = args[0].to_i
+            end
+
+            if action == :DRIVER_CANCEL
+                cancel_action(action_id)
+                log(action_id,"Driver command for #{action_id} cancelled")
+            else 
+                trigger_action(action,action_id,*args)
+            end
         end
     end
 end
@@ -106,7 +118,7 @@ if __FILE__ == $0
             register_action(:SLEEP,method("my_sleep"))
         end
 
-        def my_sleep(timeout, num)
+        def my_sleep(num, timeout)
             log(num,"Sleeping #{timeout} seconds")
             sleep(timeout.to_i)
             log(num,"Done with #{num}")
@@ -117,5 +129,4 @@ if __FILE__ == $0
 
     sd = SampleDriver.new
     sd.start_driver
-
 end

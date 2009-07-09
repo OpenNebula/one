@@ -28,6 +28,7 @@ void RequestManager::VirtualNetworkInfo::execute(
     string              session;
 
     int                 nid;
+    int                 rc;
     string              info;
     
     VirtualNetwork *    vn;
@@ -43,29 +44,41 @@ void RequestManager::VirtualNetworkInfo::execute(
     // Get the parameters & host
     session   = xmlrpc_c::value_string(paramList.getString(0));
     nid       = xmlrpc_c::value_int   (paramList.getInt   (1));
-    
+
+    // Check if it is a valid user
+    rc = VirtualNetworkInfo::upool->authenticate(session);
+
+    if ( rc == -1 )
+    {
+        goto error_authenticate;
+    }
+
     vn = vnpool->get(nid,true);
                                               
     if ( vn == 0 )                             
     {                                            
         goto error_vn_get;                     
     }
-      
-    // All nice, return the Virtual Network info to the client  
-    arrayData.push_back(xmlrpc_c::value_boolean(true)); // SUCCESS
-    oss.str("");
+    
     oss << *vn;
     
     vn->unlock();
-    
+      
+    // All nice, return the Virtual Network info to the client  
+    arrayData.push_back(xmlrpc_c::value_boolean(true)); // SUCCESS
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
-    arrayresult = new xmlrpc_c::value_array(arrayData);
+
     // Copy arrayresult into retval mem space
+    arrayresult = new xmlrpc_c::value_array(arrayData);
     *retval = *arrayresult;
-    // and get rid of the original
-    delete arrayresult;
+
+    delete arrayresult; // and get rid of the original
 
     return;
+
+error_authenticate:
+    oss << "User not authenticated, VirtualNetworkInfo call aborted.";
+    goto error_common;
 
 error_vn_get:
     oss << "Error getting Virtual Network with NID = " << nid; 

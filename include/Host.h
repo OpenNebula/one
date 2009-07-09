@@ -24,8 +24,15 @@
 
 using namespace std;
 
-extern "C" int host_select_cb (void * _host, int num,char ** values, char ** names);
-
+extern "C" int host_select_cb (void *  _host,
+                               int     num,
+                               char ** values,
+                               char ** names);
+                               
+extern "C" int host_dump_cb (void *  _oss,
+                             int     num,
+                             char ** values,
+                             char ** names);
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -54,6 +61,20 @@ public:
      */
      friend ostream& operator<<(ostream& os, Host& h);
 
+	/**
+	 * Function to print the Host object into a string in plain text
+	 *  @param str the resulting string
+	 *  @return a reference to the generated string 
+	 */
+	string& to_str(string& str) const;
+
+	/**
+	 * Function to print the Host object into a string in XML format
+	 *  @param xml the resulting XML string
+	 *  @return a reference to the generated string 
+	 */
+	string& to_xml(string& xml) const;
+
     /**
      * Get the Host unique identifier HID, that matches the OID of the object
      *    @return HID Host identifier
@@ -62,15 +83,6 @@ public:
     {
         return oid;
     };
-    
-    /**
-     *  Check if the host is managed
-     *    @return true if the host is managed
-     */
-     bool isManaged() const
-     {
-        return managed;
-     }
 
     /**
      *  Check if the host is enabled
@@ -310,15 +322,17 @@ private:
     // -------------------------------------------------------------------------
     // Friends
     // -------------------------------------------------------------------------
-    
 	friend class HostPool;
     
-    friend int host_select_cb (
-        void * _host, 
-        int num, 
-        char ** values, 
-        char ** names);
+    friend int host_select_cb (void *  _host,
+                               int     num,
+                               char ** values,
+                               char ** names);
 
+    friend int host_dump_cb (void *  _oss,
+                             int     num,
+                             char ** values,
+                             char ** names);
     // -------------------------------------------------------------------------
     // Host Description
     // -------------------------------------------------------------------------
@@ -349,13 +363,8 @@ private:
      *  If Host State = MONITORED  last time it got fully monitored or 1 Jan 1970
      *     Host State = MONITORING last time it got a signal to be monitored
      */  
-	time_t      last_monitored;
-	
-	/**
-	 * This tells if this host pertains to a local managed cluster
-	 */
-	bool        managed;
-	
+    time_t      last_monitored;
+
     // -------------------------------------------------------------------------
     //  Host Attributes
     // -------------------------------------------------------------------------
@@ -363,12 +372,12 @@ private:
     /**
      *  The Host template, holds the Host attributes.
      */
-    HostTemplate	host_template;
+    HostTemplate    host_template;
 	
     /**
-     *  This map holds pointers to all the Host's HostShares
+     *  The Share represents the logical capacity associated with the host
      */
-    HostShare		host_share;
+    HostShare       host_share;
 
     // -------------------------------------------------------------------------
     //  Lex & bison
@@ -386,12 +395,24 @@ private:
     /**
      *  Function to unmarshall a Host object
      *    @param num the number of columns read from the DB
-     *    @para names the column names
-     *    @para vaues the column values
+     *    @param names the column names
+     *    @param vaues the column values
      *    @return 0 on success
      */    
     int unmarshall(int num, char **names, char ** values);
 
+    /**
+     *  Function to unmarshall a Host object in to an output stream in XML
+     *    @param oss the output stream
+     *    @param num the number of columns read from the DB
+     *    @param names the column names
+     *    @param vaues the column values
+     *    @return 0 on success
+     */
+    static int unmarshall(ostringstream& oss,
+                          int            num,
+                          char **        names,
+                          char **        values);
     /**
      *  Bootstraps the database table(s) associated to the Host
      */
@@ -399,9 +420,9 @@ private:
     {         
         db->exec(Host::db_bootstrap);
         
-        db->exec(HostTemplate::db_bootstrap);
-        
         db->exec(HostShare::db_bootstrap);
+        
+        db->exec(HostTemplate::db_bootstrap);
     };
 
 protected:
@@ -414,8 +435,7 @@ protected:
          string _hostname="",
          string _im_mad_name="",
          string _vmm_mad_name="", 
-         string _tm_mad_name="", 
-         bool   _managed=true);
+         string _tm_mad_name="");
 
     virtual ~Host();
     
@@ -431,9 +451,8 @@ protected:
         IM_MAD           = 3, 
         VM_MAD           = 4, 
         TM_MAD           = 5, 
-        LAST_MON_TIME    = 6, 
-        MANAGED          = 7, 
-        LIMIT            = 8
+        LAST_MON_TIME    = 6,
+        LIMIT            = 7
     };
 
     static const char * db_names;
@@ -468,7 +487,17 @@ protected:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    virtual int drop(SqliteDB *db);    
+    virtual int drop(SqliteDB *db);
+
+    /**
+     *  Dumps the contect of a set of Host objects in the given stream
+     *  using XML format
+     *    @param db pointer to the db
+     *    @param oss the output stream
+     *    @param where string to filter the VirtualMachine objects
+     *    @return 0 on success
+     */
+    static int dump(SqliteDB * db, ostringstream& oss, const string& where);    
 };
 
 #endif /*HOST_H_*/

@@ -44,29 +44,31 @@ public:
 
     enum Actions
     {
-        SAVE_SUCCESS,     /**< Send by the VMM when a save action succeeds    */
-        SAVE_FAILURE,     /**< Send by the VMM when a save action fails       */
-        DEPLOY_SUCCESS,   /**< Send by the VMM when a deploy/restore/migrate action succeeds  */
-        DEPLOY_FAILURE,   /**< Send by the VMM when a deploy/restore/migrate action fails     */
-        SHUTDOWN_SUCCESS, /**< Send by the VMM when a shutdown action succeeds*/
-        SHUTDOWN_FAILURE, /**< Send by the VMM when a shutdown action fails   */
-        CANCEL_SUCCESS,   /**< Send by the VMM when a cancel action succeeds  */
-        CANCEL_FAILURE,   /**< Send by the VMM when a cancel action fails     */
-        MONITOR_FAILURE,  /**< Send by the VMM when a VM has failed while active */
-        MONITOR_SUSPEND,  /**< Send by the VMM when a VM is paused while active */
-        MONITOR_DONE,     /**< Send by the VMM when a VM is not found */
-        PROLOG_SUCCESS,   /**< Send by the TM when the prolog phase succeeds  */
-        PROLOG_FAILURE,   /**< Send by the TM when the prolog phase fails     */
-        EPILOG_SUCCESS,   /**< Send by the TM when the epilog phase succeeds  */
-        EPILOG_FAILURE,   /**< Send by the TM when the epilog phase fails     */
-        DEPLOY,           /**< Send by the DM to deploy a VM on a host        */
-        SUSPEND,          /**< Send by the DM to suspend an running VM        */
-        RESTORE,          /**< Send by the DM to restore a suspended VM       */
-        STOP,             /**< Send by the DM to stop an running VM           */
-        CANCEL,           /**< Send by the DM to cancel an running VM         */
-        MIGRATE,          /**< Send by the DM to migrate a VM to other host   */
-        LIVE_MIGRATE,     /**< Send by the DM to live-migrate a VM            */
-        SHUTDOWN,         /**< Send by the DM to shutdown an running VM       */
+        SAVE_SUCCESS,     /**< Sent by the VMM when a save action succeeds    */
+        SAVE_FAILURE,     /**< Sent by the VMM when a save action fails       */
+        DEPLOY_SUCCESS,   /**< Sent by the VMM when a deploy/restore/migrate action succeeds  */
+        DEPLOY_FAILURE,   /**< Sent by the VMM when a deploy/restore/migrate action fails     */
+        SHUTDOWN_SUCCESS, /**< Sent by the VMM when a shutdown action succeeds*/
+        SHUTDOWN_FAILURE, /**< Sent by the VMM when a shutdown action fails   */
+        CANCEL_SUCCESS,   /**< Sent by the VMM when a cancel action succeeds  */
+        CANCEL_FAILURE,   /**< Sent by the VMM when a cancel action fails     */
+        MONITOR_FAILURE,  /**< Sent by the VMM when a VM has failed while active */
+        MONITOR_SUSPEND,  /**< Sent by the VMM when a VM is paused while active */
+        MONITOR_DONE,     /**< Sent by the VMM when a VM is not found */
+        PROLOG_SUCCESS,   /**< Sent by the TM when the prolog phase succeeds  */
+        PROLOG_FAILURE,   /**< Sent by the TM when the prolog phase fails     */
+        EPILOG_SUCCESS,   /**< Sent by the TM when the epilog phase succeeds  */
+        EPILOG_FAILURE,   /**< Sent by the TM when the epilog phase fails     */
+        DEPLOY,           /**< Sent by the DM to deploy a VM on a host        */
+        SUSPEND,          /**< Sent by the DM to suspend an running VM        */
+        RESTORE,          /**< Sent by the DM to restore a suspended VM       */
+        STOP,             /**< Sent by the DM to stop an running VM           */
+        CANCEL,           /**< Sent by the DM to cancel an running VM         */
+        MIGRATE,          /**< Sent by the DM to migrate a VM to other host   */
+        LIVE_MIGRATE,     /**< Sent by the DM to live-migrate a VM            */
+        SHUTDOWN,         /**< Sent by the DM to shutdown a running VM        */
+        RESTART,          /**< Sent by the DM to restart a deployed VM        */
+        DELETE,           /**< Sent by the DM to delete a VM                  */
         FINALIZE
     };
 
@@ -180,6 +182,12 @@ private:
     void live_migrate_action(int vid);
 
     void shutdown_action(int vid);
+
+    void failure_action(VirtualMachine * vm);
+
+    void restart_action(int vid);
+
+    void delete_action(int vid);
 
     void timer_action();        
 };

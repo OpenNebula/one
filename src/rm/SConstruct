@@ -33,10 +33,16 @@ source_files=[
     'RequestManagerHostAllocate.cc',
     'RequestManagerHostDelete.cc',
     'RequestManagerHostInfo.cc',
+    'RequestManagerHostPoolInfo.cc',
     'RequestManagerHostEnable.cc',
     'RequestManagerVirtualNetworkAllocate.cc',
     'RequestManagerVirtualNetworkInfo.cc',
+    'RequestManagerVirtualNetworkPoolInfo.cc',
     'RequestManagerVirtualNetworkDelete.cc',
+    'RequestManagerUserAllocate.cc',
+    'RequestManagerUserInfo.cc',
+    'RequestManagerUserDelete.cc',
+    'RequestManagerUserPoolInfo.cc'
 ]
 
 # Build library

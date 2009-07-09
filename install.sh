@@ -125,6 +125,7 @@ ETC_DIRS="$ETC_LOCATION/im_kvm \
 
 LIB_DIRS="$LIB_LOCATION/im_probes \
           $LIB_LOCATION/ruby \
+          $LIB_LOCATION/ruby/OpenNebula \
           $LIB_LOCATION/tm_commands \
           $LIB_LOCATION/tm_commands/nfs \
           $LIB_LOCATION/tm_commands/ssh \
@@ -143,13 +144,14 @@ INSTALL_FILES[0]="BIN_FILES:$BIN_LOCATION"
 INSTALL_FILES[1]="INCLUDE_FILES:$INCLUDE_LOCATION"
 INSTALL_FILES[2]="LIB_FILES:$LIB_LOCATION"
 INSTALL_FILES[3]="RUBY_LIB_FILES:$LIB_LOCATION/ruby"
-INSTALL_FILES[4]="MADS_LIB_FILES:$LIB_LOCATION/mads"
-INSTALL_FILES[5]="IM_PROBES_LIB_FILES:$LIB_LOCATION/im_probes"
-INSTALL_FILES[6]="NFS_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/nfs"
-INSTALL_FILES[7]="SSH_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/ssh"
-INSTALL_FILES[8]="DUMMY_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/dummy"
-INSTALL_FILES[9]="EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples"
-INSTALL_FILES[10]="TM_EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples/tm"
+INSTALL_FILES[4]="RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/OpenNebula"
+INSTALL_FILES[5]="MADS_LIB_FILES:$LIB_LOCATION/mads"
+INSTALL_FILES[6]="IM_PROBES_LIB_FILES:$LIB_LOCATION/im_probes"
+INSTALL_FILES[7]="NFS_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/nfs"
+INSTALL_FILES[8]="SSH_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/ssh"
+INSTALL_FILES[9]="DUMMY_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/dummy"
+INSTALL_FILES[10]="EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples"
+INSTALL_FILES[11]="TM_EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples/tm"
 
 INSTALL_ETC_FILES[0]="ETC_FILES:$ETC_LOCATION"
 INSTALL_ETC_FILES[1]="VMM_XEN_ETC_FILES:$ETC_LOCATION/vmm_xen"
@@ -172,6 +174,7 @@ BIN_FILES="src/nebula/oned \
            src/client/ruby/onevm \
            src/client/ruby/onehost \
            src/client/ruby/onevnet \
+           src/client/ruby/oneuser \
            share/scripts/one"
 
 #-------------------------------------------------------------------------------
@@ -198,7 +201,19 @@ RUBY_LIB_FILES="src/mad/ruby/one_mad.rb \
                 src/client/ruby/one.rb \
                 src/client/ruby/client_utilities.rb \
                 src/client/ruby/command_parse.rb \
+                src/client/ruby/lib/OpenNebula.rb \
                 src/tm_mad/TMScript.rb"
+
+RUBY_OPENNEBULA_LIB_FILES="src/client/ruby/lib/OpenNebula/Host.rb \
+                           src/client/ruby/lib/OpenNebula/HostPool.rb \
+                           src/client/ruby/lib/OpenNebula/Pool.rb \
+                           src/client/ruby/lib/OpenNebula/User.rb \
+                           src/client/ruby/lib/OpenNebula/UserPool.rb \
+                           src/client/ruby/lib/OpenNebula/VirtualMachine.rb \
+                           src/client/ruby/lib/OpenNebula/VirtualMachinePool.rb \
+                           src/client/ruby/lib/OpenNebula/VirtualNetwork.rb \
+                           src/client/ruby/lib/OpenNebula/VirtualNetworkPool.rb \
+                           src/client/ruby/lib/OpenNebula/XMLUtils.rb"
 
 #-------------------------------------------------------------------------------
 # Driver executable files, to be installed under $LIB_LOCATION/mads

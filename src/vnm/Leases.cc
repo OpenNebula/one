@@ -29,7 +29,7 @@
 /* -------------------------------------------------------------------------- */
 
 void Leases::Lease::to_string(string &_ip,
-                              string &_mac)
+                              string &_mac) const
 {
     mac_to_string(mac, _mac);
 
@@ -185,10 +185,21 @@ void Leases::Lease::mac_to_string(const unsigned int i_mac[], string& mac)
 
 ostream& operator<<(ostream& os, Leases::Lease& _lease)
 {
+	string xml;
+
+    os << _lease.to_xml(xml);
+    
+    return os;
+}
+
+string& Leases::Lease::to_str(string& str) const
+{
 	string ip;
 	string mac;
 	
-    _lease.to_string(ip,mac);
+    ostringstream os;
+
+    to_string(ip,mac);
     
     ip = "IP = " + ip;
     mac = "MAC = " + mac;
@@ -199,10 +210,35 @@ ostream& operator<<(ostream& os, Leases::Lease& _lease)
     os.width(24);
     os << left << mac;
     
-    os << left << " USED = " << _lease.used;  
-    os << left << " VID = "  << _lease.vid;
+    os << left << " USED = " << used;  
+    os << left << " VID = "  << vid;
     
-    return os;
+    str = os.str();
+
+    return str;
+}
+
+
+string& Leases::Lease::to_xml(string& str) const
+{
+	string ip;
+	string mac;
+	
+    ostringstream os;
+
+    to_string(ip,mac);
+    
+    os << 
+        "<LEASE>" <<
+            "<IP>"<< ip << "</IP>" <<
+            "<MAC>" << mac << "</MAC>" <<
+            "<USED>" << used << "</USED>" <<
+            "<VID>" << vid << "</VID>" <<
+        "</LEASE>";
+
+    str = os.str();
+
+    return str;
 }
 
 /* ************************************************************************** */
@@ -393,15 +429,53 @@ bool Leases::check(unsigned int ip)
 /* Leases :: Misc                                                             */
 /* ************************************************************************** */
 
+string& Leases::to_xml(string& xml) const
+{
+    map<unsigned int, Leases::Lease *>::const_iterator  it;
+    ostringstream os;
+    string        lease_xml;
+
+    os << "<LEASES>";
+
+    for(it=leases.begin();it!=leases.end();it++)
+    {
+        os << it->second->to_xml(lease_xml);
+    }
+
+    os << "</LEASES>";
+
+    xml = os.str();
+
+    return xml;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string& Leases::to_str(string& str) const
+{
+    map<unsigned int, Leases::Lease *>::const_iterator  it;
+    ostringstream os;
+    string        lease_str;
+
+    for(it=leases.begin();it!=leases.end();it++)
+    {
+        os << it->second->to_str(lease_str) << endl;
+    }
+    
+    str = os.str();
+
+    return str;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 ostream& operator<<(ostream& os, Leases& _leases)
 {
-    map<unsigned int, Leases::Lease *>::iterator  it;
-    
-    // Iterate all the leases
-    for(it=_leases.leases.begin();it!=_leases.leases.end();it++)
-    {
-        os << *(it->second) << endl;
-    }
+    string xml;
+
+    os << _leases.to_xml(xml);
 
     return os;
 };

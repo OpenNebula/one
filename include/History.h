@@ -58,6 +58,27 @@ public:
 
     ~History(){};
 
+    /**
+     *  Function to write the History Record in an output stream
+     */
+    friend ostream& operator<<(ostream& os, const History& history);
+
+    /**
+     * Function to print the History object into a string in
+     * plain text
+     *  @param str the resulting string
+     *  @return a reference to the generated string
+     */
+    string& to_str(string& str) const;
+
+    /**
+     * Function to print the History object into a string in
+     * XML format
+     *  @param xml the resulting XML string
+     *  @return a reference to the generated string
+     */
+    string& to_xml(string& xml) const;
+    
 private:
     friend class VirtualMachine;
 
@@ -192,6 +213,20 @@ private:
      *    @return 0 on success
      */
     int unmarshall(int num, char **names, char ** values);
+
+    /**
+     *  Function to unmarshall a History object into an output stream with XML
+     *  format.
+     *    @param oss the output stream
+     *    @param num the number of columns read from the DB
+     *    @param names the column names
+     *    @param vaues the column values
+     *    @return 0 on success
+     */
+    static int unmarshall(ostringstream& oss,
+                          int            num,
+                          char **        names,
+                          char **        values);
 };
 
 #endif /*HISTORY_H_*/

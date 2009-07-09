@@ -26,14 +26,17 @@ void RequestManager::VirtualNetworkAllocate::execute(
     xmlrpc_c::value *   const  retval)
 { 
     string              session;
-
+    string              username;
+    string              password;
     string              name;
     string              stemplate;
     
     int                 nid;
-    
+    int                 uid;
     int                 rc;
     
+    User *              user;
+
     ostringstream       oss;
 
     /*   -- RPC specific vars --  */
@@ -45,8 +48,25 @@ void RequestManager::VirtualNetworkAllocate::execute(
     // Get the parameters & host
     session   = xmlrpc_c::value_string(paramList.getString(0));
     stemplate = xmlrpc_c::value_string(paramList.getString(1));
+
+    if ( User::split_secret(session,username,password) != 0 )
+    {
+        goto error_session;
+    }
     
-    rc = vnpool->allocate(0,stemplate,&nid);
+    // Now let's get the user
+    user = VirtualNetworkAllocate::upool->get(username,true);
+
+    if ( user == 0 )
+    {
+        goto error_get_user;
+    }
+
+    uid = user->get_uid();
+
+    user->unlock();
+    
+    rc = vnpool->allocate(uid,stemplate,&nid);
                                               
     if ( rc != 0 )                             
     {                                            
@@ -64,9 +84,20 @@ void RequestManager::VirtualNetworkAllocate::execute(
 
     return;
 
+
+error_session:
+    oss << "Session information malformed, cannot allocate VirtualNetwork";
+    goto error_common;
+
+error_get_user:
+    oss << "User not recognized, cannot allocate VirtualNetwork";
+    goto error_common;
+
 error_vn_allocate:
-    
     oss << "Error allocating VN with template: " << endl << stemplate;     
+    goto error_common;
+
+error_common:    
     Nebula::log("ReM",Log::ERROR,oss); 
 
     arrayData.push_back(xmlrpc_c::value_boolean(false));

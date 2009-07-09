@@ -1,0 +1,203 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2009, Distributed Systems Architecture Group, Universidad   #
+# Complutense de Madrid (dsa-research.org)                                   #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+ONE_LOCATION=ENV["ONE_LOCATION"]
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
+else
+    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
+end
+
+$: << RUBY_LIB_LOCATION
+
+$: << "./lib"
+
+#require 'one'
+require 'OpenNebula'
+require 'client_utilities'
+require 'command_parse'
+
+ShowTableUP={
+    :uid => {
+        :name => "UID",
+        :desc => "ONE identifier for user",
+        :size => 4,
+        :proc => lambda {|d,e| d.id }
+    },
+    :name => {
+        :name => "NAME",
+        :desc => "name of the user",
+        :size => 15,
+        :left => true,
+        :proc => lambda {|d,e| d.name }
+    },
+    :password => {
+        :name => "PASSWORD",
+        :desc => "password of the user",
+        :size => 50,
+        :left => true,
+        :proc => lambda {|d,e| d[:password] }
+    },
+    :enable => {
+        :name => "ENABLE",
+        :desc => "Wether the user is active or not",
+        :size => 6,
+        :proc => lambda {|d,e| d[:enabled] }
+    },
+   
+    :default => [:uid, :name, :password, :enable]
+}
+
+class UPShow
+    def initialize
+        @userpool=OpenNebula::UserPool.new(get_one_client)
+        @table=ShowTable.new(ShowTableUP)
+    end
+    
+    def close
+    end
+
+    def header_up_small
+        scr_bold
+        scr_underline
+        print @table.header_str
+        scr_restore
+        puts ""
+    end
+    
+    def list_short(options=nil)
+        res=@userpool.info
+        if options
+            @table.columns=options[:columns] if options[:columns]
+        end
+
+        if OpenNebula.is_error?(res)
+            result=res
+        else
+            result=res
+            header_up_small
+            
+            puts @table.data_str(@userpool, options)
+            result
+        end
+    end
+    
+    def top(options=nil)
+        delay=1
+        delay=options[:delay] if options && options[:delay]
+        
+        result=nil
+        
+        begin
+            while true
+                scr_cls
+                scr_move(0,0)
+                result=list_short(options)
+                sleep delay
+            end
+        rescue Exception
+        end
+        result
+    end
+end
+
+class OneUPParse < CommandParse
+    
+    COMMANDS_HELP=<<-EOT
+Commands:
+
+* create (Creates a new user)
+    oneuser create username password
+    
+* delete (Removes a user)
+    oneuser delete <uid>
+    
+* list (Lists virtual networks in the pool)
+    oneuser list
+
+EOT
+
+    def text_commands
+        COMMANDS_HELP
+    end
+
+    def text_command_name
+        "oneuser"
+    end
+
+    def list_options
+        table=ShowTable.new(ShowTableUP)
+        table.print_help
+    end
+
+end
+
+oneup_opts=OneUPParse.new
+oneup_opts.parse(ARGV)
+ops=oneup_opts.options
+
+result=[false, "Unknown error"]
+
+command=ARGV.shift
+
+case command
+when "create"
+    check_parameters("create", 2)
+    user=OpenNebula::User.new(
+        OpenNebula::User.build_xml, get_one_client)
+    sha_password = Digest::SHA1.hexdigest(ARGV[1])
+    result=user.allocate(ARGV[0],sha_password)
+    if !OpenNebula.is_error?(result)
+        puts "UID: " + user.id.to_s if ops[:verbose]
+        exit 0
+    end
+    
+when "delete"
+    check_parameters("delete", 1)
+    user_id=get_user_id(ARGV[0])
+    user=OpenNebula::User.new(
+        OpenNebula::User.build_xml(user_id), get_one_client)
+    result=user.delete
+    if !OpenNebula.is_error?(result)
+        puts "User deleted" if ops[:verbose]
+        exit 0
+    end
+    
+when "list"
+    if !ops[:xml]
+        uplist=UPShow.new
+        ops[:columns]=ops[:list] if ops[:list]
+        result=uplist.list_short(ops)
+        uplist.close
+    else
+        userpool=OpenNebula::UserPool.new(get_one_client)
+        userpool.info
+        puts userpool.to_xml
+    end
+    
+else
+    oneup_opts.print_help
+    exit -1
+end
+
+if OpenNebula.is_error?(result)
+    puts "Error: " + result.message
+    exit -1
+end

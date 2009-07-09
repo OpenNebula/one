@@ -77,7 +77,10 @@ public:
         EPILOG_STOP    = 10,
         EPILOG         = 11,
         SHUTDOWN       = 12,
-        CANCEL         = 13
+        CANCEL         = 13,
+        FAILURE        = 14,
+        DELETE         = 15,
+        UNKNOWN        = 16
     };
 
     // -------------------------------------------------------------------------
@@ -183,6 +186,16 @@ public:
         }
     };
 
+
+    /**
+     *  Returns the name of the VM
+     *    @return the VM name
+     */
+    const string& get_name() const
+    {
+        return name;
+    };
+
     /**
      *  Returns the deployment ID
      *    @return the VMM driver specific ID
@@ -247,6 +260,7 @@ public:
     {
         return (previous_history!=0);
     };
+
     /**
      *  Returns the VMM driver name for the current host. The hasHistory()
      *  function MUST be called before this one.
@@ -258,6 +272,16 @@ public:
     };
 
     /**
+     *  Returns the VMM driver name for the previous host. The hasPreviousHistory()
+     *  function MUST be called before this one.
+     *    @return the VMM mad name
+     */
+    const string & get_previous_vmm_mad() const
+    {
+        return previous_history->vmm_mad_name;
+    };
+
+    /**
      *  Returns the TM driver name for the current host. The hasHistory()
      *  function MUST be called before this one.
      *    @return the TM mad name
@@ -265,6 +289,16 @@ public:
     const string & get_tm_mad() const
     {
         return history->tm_mad_name;
+    };
+
+    /**
+     *  Returns the TM driver name for the previous host. The 
+     *  hasPreviousHistory() function MUST be called before this one.
+     *    @return the TM mad name
+     */
+    const string & get_previous_tm_mad() const
+    {
+        return previous_history->tm_mad_name;
     };
 
     /**
@@ -750,6 +784,12 @@ private:
     // -------------------------------------------------------------------------
     // Virtual Machine Description
     // -------------------------------------------------------------------------
+
+    /**
+     * Name of the VM
+     */
+    string                  name;
+
     /**
      *  The Virtual Machine template, holds the VM attributes.
      */
@@ -848,6 +888,20 @@ private:
      *    @return 0 on success
      */
     int unmarshall(int num, char **names, char ** values);
+
+    /**
+     *  Function to unmarshall a VM object into an output stream with XML
+     *  format.
+     *    @param oss the output stream
+     *    @param num the number of columns read from the DB
+     *    @param names the column names
+     *    @param vaues the column values
+     *    @return 0 on success
+     */
+    static int unmarshall(ostringstream& oss,
+                          int            num,
+                          char **        names,
+                          char **        values);
 
     /**
      *  Updates the VM history record
@@ -963,18 +1017,19 @@ protected:
     {
         OID             = 0,
         UID             = 1,
-        LAST_POLL       = 2,
-        TEMPLATE_ID     = 3,
-        STATE           = 4,
-        LCM_STATE       = 5,
-        STIME           = 6,
-        ETIME           = 7,
-        DEPLOY_ID       = 8,
-        MEMORY          = 9,
-        CPU             = 10,
-        NET_TX          = 11,
-        NET_RX          = 12,
-        LIMIT           = 13
+        NAME            = 2,
+        LAST_POLL       = 3,
+        TEMPLATE_ID     = 4,
+        STATE           = 5,
+        LCM_STATE       = 6,
+        STIME           = 7,
+        ETIME           = 8,
+        DEPLOY_ID       = 9,
+        MEMORY          = 10,
+        CPU             = 11,
+        NET_TX          = 12,
+        NET_RX          = 13,
+        LIMIT           = 14
     };
 
     static const char * table;
@@ -1003,17 +1058,6 @@ protected:
      *    @return 0 on success
      */
     virtual int update(SqliteDB * db);
-
-    /**
-     *  Dumps the contect of a set of VirtualMachine objects in the given stream
-     *  using XML format
-     *    @param db pointer to the db
-     *    @param oss the output stream
-     *    @param where string to filter the VirtualMachine objects
-     *    @return 0 on success
-     */
-    static int dump(SqliteDB * db, ostringstream& oss, const string&
-where);
     
     /**
      * Deletes a VM from the database and all its associated information:
@@ -1035,6 +1079,16 @@ where);
 
     	return rc;
     }
+
+    /**
+     *  Dumps the contect of a set of VirtualMachine objects in the given stream
+     *  using XML format
+     *    @param db pointer to the db
+     *    @param oss the output stream
+     *    @param where string to filter the VirtualMachine objects
+     *    @return 0 on success
+     */
+    static int dump(SqliteDB * db, ostringstream& oss, const string& where);    
 };
 
 #endif /*VIRTUAL_MACHINE_H_*/

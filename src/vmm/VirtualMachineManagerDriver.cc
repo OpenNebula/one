@@ -281,6 +281,18 @@ void VirtualMachineManagerDriver::protocol(
         return;
     }
 
+    if ( vm->get_lcm_state() == VirtualMachine::DELETE ||
+         vm->get_lcm_state() == VirtualMachine::FAILURE||
+         vm->get_lcm_state() == VirtualMachine::LCM_INIT )
+    {
+        os.str("");
+        os << "Ignored: " << message;
+        vm->log("VMM",Log::WARNING,os);
+
+        vm->unlock();
+        return;
+    }
+
     // Driver Actions
     if ( action == "DEPLOY" )
     {
@@ -306,7 +318,10 @@ void VirtualMachineManagerDriver::protocol(
             getline(is,info);
 
             os.str("");
-            os << "Error deploying virtual machine: " << info;
+            os << "Error deploying virtual machine";
+               
+            if (info[0] != '-')
+               os << ": " << info;
 
             vm->log("VMM",Log::ERROR,os);
 
@@ -509,7 +524,9 @@ void VirtualMachineManagerDriver::protocol(
 
             vmpool->update(vm);
 
-            if (state != '-'  && vm->get_lcm_state() == VirtualMachine::RUNNING)
+            if (state != '-' && 
+                (vm->get_lcm_state() == VirtualMachine::RUNNING ||
+                 vm->get_lcm_state() == VirtualMachine::UNKNOWN))
             {
                 Nebula              &ne  = Nebula::instance();
                 LifeCycleManager *  lcm = ne.get_lcm();
@@ -519,38 +536,41 @@ void VirtualMachineManagerDriver::protocol(
                 case 'a': // Still active, good!
                     os.str("");
                     os  << "Monitor Information:\n"
-                        << "\tCPU   : "<< cpu << "\n"
+                        << "\tCPU   : "<< cpu    << "\n"
                         << "\tMemory: "<< memory << "\n"
                         << "\tNet_TX: "<< net_tx << "\n"
-                        << "\tNet_RX: "<< net_rx << "\n";
-                    vm->log("VMM",Log::INFO,os);
+                        << "\tNet_RX: "<< net_rx;
+                    vm->log("VMM",Log::DEBUG,os);
+
+                    if ( vm->get_lcm_state() == VirtualMachine::UNKNOWN)
+                    {
+                        vm->log("VMM",Log::INFO,"VM was now found, new state is"
+                                " RUNNING"); 
+                        vm->set_state(VirtualMachine::RUNNING);
+                        vmpool->update(vm);
+                    }
                     break;
 
                 case 'p': // It's paused
-                    os.str("");
-                    os  << "VM running but new state from monitor is PAUSED.\n";
-                    vm->log("VMM",Log::INFO,os);
+                    vm->log("VMM",Log::INFO,"VM running but new state "
+                            "from monitor is PAUSED.");
 
                     lcm->trigger(LifeCycleManager::MONITOR_SUSPEND, id);
-
                     break;
 
                 case 'e': //Failed
-                    os.str("");
-                    os  << "VM running but new state from monitor is ERROR.\n";
-                    vm->log("VMM",Log::INFO,os);
+                    vm->log("VMM",Log::INFO,"VM running but new state "
+                            "from monitor is ERROR.");
 
                     lcm->trigger(LifeCycleManager::MONITOR_FAILURE, id);
-
                     break;
 
-                case 'd': //Failed
-                    os.str("");
-                    os  << "VM running but it was not found. Assuming it is done.\n";
-                    vm->log("VMM",Log::INFO,os);
+                case 'd': //The VM was not found
+                    vm->log("VMM",Log::INFO,"VM running but it was not found."
+                            " Restart and delete actions available or try to"
+                            " recover it manually");
 
                     lcm->trigger(LifeCycleManager::MONITOR_DONE, id);
-
                     break;
                 }
             }

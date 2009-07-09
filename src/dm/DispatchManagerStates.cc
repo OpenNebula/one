@@ -41,21 +41,16 @@ void  DispatchManager::suspend_success_action(int vid)
     }
     else
     {
-        goto error;
+        ostringstream oss;
+
+        oss << "suspend_success action received but VM " << vid
+            << " not in ACTIVE state";
+        Nebula::log("DiM",Log::ERROR,oss);
     }
 
     vm->unlock();
 
     return;
-
-error:
-    ostringstream oss;
-
-    oss << "suspend_success action received but VM " << vid
-        << " not in ACTIVE state";
-    Nebula::log("DiM",Log::ERROR,oss);
-
-    vm->unlock();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -84,21 +79,16 @@ void  DispatchManager::stop_success_action(int vid)
     }
     else
     {
-        goto error;
+        ostringstream oss;
+
+        oss << "stop_success action received but VM " << vid
+            << " not in ACTIVE state";
+        Nebula::log("DiM",Log::ERROR,oss);
     }
 
     vm->unlock();
 
     return;
-
-error:
-    ostringstream oss;
-
-    oss << "stop_success action received but VM " << vid
-        << " not in ACTIVE state";
-    Nebula::log("DiM",Log::ERROR,oss);
-
-    vm->unlock();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -128,23 +118,18 @@ void  DispatchManager::done_action(int vid)
         vm->log("DiM", Log::INFO, "New VM state is DONE");
 
         vm->release_network_leases();
-
-        vmpool->remove(vm);
     }
     else
     {
-        goto error;
+        ostringstream oss;
+
+        oss << "done action received but VM " << vid << " not in ACTIVE state";
+        Nebula::log("DiM",Log::ERROR,oss);
     }
 
-    return;
-
-error:
-    ostringstream oss;
-
-    oss << "done action received but VM " << vid << " not in ACTIVE state";
-    Nebula::log("DiM",Log::ERROR,oss);
-
     vm->unlock();
+
+    return;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -178,3 +163,4 @@ void  DispatchManager::failed_action(int vid)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+

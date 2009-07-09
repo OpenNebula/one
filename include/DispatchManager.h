@@ -194,6 +194,15 @@ public:
         int vid);
         
     /**
+     * Restart a previusly deployed VM.
+     *    @param vid VirtualMachine identification
+     *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is 
+     *    in a wrong a state 
+     */       
+    int restart(
+        int vid);
+
+    /**
      *  Ends a VM life cycle inside ONE.
      *    @param vid VirtualMachine identification
      *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is 

@@ -39,6 +39,7 @@ VirtualMachine::VirtualMachine(int id):
         PoolObjectSQL(id),
         uid(-1),
         last_poll(0),
+        name(""),
         vm_template(),
         state(INIT),
         lcm_state(LCM_INIT),
@@ -74,12 +75,12 @@ VirtualMachine::~VirtualMachine()
 
 const char * VirtualMachine::table = "vm_pool";
 
-const char * VirtualMachine::db_names = "(oid,uid,last_poll,template_id,state"
+const char * VirtualMachine::db_names = "(oid,uid,name,last_poll,template_id,state"
                                         ",lcm_state,stime,etime,deploy_id"
                                         ",memory,cpu,net_tx,net_rx)";
 
 const char * VirtualMachine::db_bootstrap = "CREATE TABLE vm_pool ("
-        "oid INTEGER PRIMARY KEY,uid INTEGER,"
+        "oid INTEGER PRIMARY KEY,uid INTEGER,name TEXT,"
         "last_poll INTEGER, template_id INTEGER,state INTEGER,lcm_state INTEGER,"
         "stime INTEGER,etime INTEGER,deploy_id TEXT,memory INTEGER,cpu INTEGER,"
         "net_tx INTEGER,net_rx INTEGER)";
@@ -91,6 +92,7 @@ int VirtualMachine::unmarshall(int num, char **names, char ** values)
 {
     if ((values[OID] == 0) ||
             (values[UID] == 0) ||
+            (values[NAME] == 0) ||
             (values[LAST_POLL] == 0) ||
             (values[TEMPLATE_ID] == 0) ||
             (values[STATE] == 0) ||
@@ -106,8 +108,9 @@ int VirtualMachine::unmarshall(int num, char **names, char ** values)
         return -1;
     }
 
-    oid = atoi(values[OID]);
-    uid = atoi(values[UID]);
+    oid  = atoi(values[OID]);
+    uid  = atoi(values[UID]);
+    name = values[NAME];
 
     last_poll = static_cast<time_t>(atoi(values[LAST_POLL]));
 
@@ -274,30 +277,30 @@ int VirtualMachine::insert(SqliteDB * db)
     string              value;
     ostringstream       oss;
 
-    // ------------------------------------------------------------------------
+    // -----------------------------------------------------------------------
     // Set a name if the VM has not got one and VM_ID
     // ------------------------------------------------------------------------
-
-    get_template_attribute("NAME",name);
-
-    if ( name.empty() == true )
-    {
-        oss << "one-" << oid;
-        value = oss.str();
-
-        attr = new SingleAttribute("NAME",value);
-
-        vm_template.set(attr);
-    }
-
-    oss.str("");
-
     oss << oid;
     value = oss.str();
 
     attr = new SingleAttribute("VMID",value);
 
     vm_template.set(attr);
+    
+    
+    get_template_attribute("NAME",name);
+
+    if ( name.empty() == true )
+    {
+        oss.str("");
+        oss << "one-" << oid;
+        name = oss.str();
+
+        attr = new SingleAttribute("NAME",name);
+        vm_template.set(attr);
+    }
+
+    this->name = name;
 
     // ------------------------------------------------------------------------
     // Get network leases
@@ -354,16 +357,28 @@ int VirtualMachine::update(SqliteDB * db)
     ostringstream   oss;
     int             rc;
 
-    char * sql_deploy_id = sqlite3_mprintf("%q",deploy_id.c_str());
+    char * sql_deploy_id;
+    char * sql_name;
+
+    sql_deploy_id = sqlite3_mprintf("%q",deploy_id.c_str());
 
     if ( sql_deploy_id == 0 )
     {
         return -1;
     }
-    
+
+    sql_name =  sqlite3_mprintf("%q",name.c_str());
+
+    if ( sql_name == 0 )
+    {
+       sqlite3_free(sql_deploy_id);
+       return -1;
+    }
+
     oss << "INSERT OR REPLACE INTO " << table << " "<< db_names <<" VALUES ("<<
         oid << "," <<
         uid << "," <<
+        "'" << sql_name << "'," <<
         last_poll << "," <<
         vm_template.id << "," <<
         state << "," <<
@@ -377,14 +392,63 @@ int VirtualMachine::update(SqliteDB * db)
         net_rx << ")";
 
     sqlite3_free(sql_deploy_id);
+    sqlite3_free(sql_name);
 
     rc = db->exec(oss);
 
     return rc;
 }
 
-
 /* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::unmarshall(ostringstream& oss,
+                               int            num,
+                               char **        names,
+                               char **        values)
+{
+    if ((!values[OID])||
+        (!values[UID])||
+        (!values[NAME]) ||
+        (!values[LAST_POLL])||
+        (!values[STATE])||
+        (!values[LCM_STATE])||
+        (!values[STIME])||
+        (!values[ETIME])||
+        (!values[DEPLOY_ID])||
+        (!values[MEMORY])||
+        (!values[CPU])||
+        (!values[NET_TX])||
+        (!values[NET_RX])||
+        (num != LIMIT + History::LIMIT + 2 ))
+    {
+        return -1;
+    }
+
+    oss <<
+        "<VM>" <<
+            "<ID>"       << values[OID]      << "</ID>"       <<
+            "<UID>"      << values[UID]      << "</UID>"      <<
+            "<USERNAME>" << values[LIMIT]     << "</USERNAME>"<<
+            "<NAME>"     << values[NAME]     << "</NAME>"     << 
+            "<LAST_POLL>"<< values[LAST_POLL]<< "</LAST_POLL>"<<
+            "<STATE>"    << values[STATE]    << "</STATE>"    <<
+            "<LCM_STATE>"<< values[LCM_STATE]<< "</LCM_STATE>"<<
+            "<STIME>"    << values[STIME]    << "</STIME>"    <<
+            "<ETIME>"    << values[ETIME]    << "</ETIME>"    <<
+            "<DEPLOY_ID>"<< values[DEPLOY_ID]<< "</DEPLOY_ID>"<<
+            "<MEMORY>"   << values[MEMORY]   << "</MEMORY>"   <<
+            "<CPU>"      << values[CPU]      << "</CPU>"      <<
+            "<NET_TX>"   << values[NET_TX]   << "</NET_TX>"   <<
+            "<NET_RX>"   << values[NET_RX]   << "</NET_RX>";
+
+	History::unmarshall(oss, num-LIMIT-2, names+LIMIT+1, values+LIMIT+1);
+	
+    oss << "</VM>";
+
+    return 0;    
+}
+
 /* -------------------------------------------------------------------------- */
 
 extern "C" int vm_dump_cb (
@@ -403,59 +467,10 @@ extern "C" int vm_dump_cb (
         return -1;
     }
 
-    if ((!values[VirtualMachine::OID]) ||
-        (!values[VirtualMachine::UID]) ||
-        (!values[VirtualMachine::LAST_POLL]) ||
-        (!values[VirtualMachine::TEMPLATE_ID]) ||
-        (!values[VirtualMachine::STATE]) ||
-        (!values[VirtualMachine::LCM_STATE]) ||
-        (!values[VirtualMachine::STIME]) ||
-        (!values[VirtualMachine::ETIME]) ||
-        (!values[VirtualMachine::MEMORY]) ||
-        (!values[VirtualMachine::CPU]) ||
-        (!values[VirtualMachine::NET_TX]) ||
-        (!values[VirtualMachine::NET_RX]) ||
-        (num != VirtualMachine::LIMIT+1 ))
-    {
-        return -1;
-    }
-
-    *oss << "<VM>"
-         << "<OID>" << atoi(values[VirtualMachine::OID]) << "</OID>"
-         << "<UID>" << atoi(values[VirtualMachine::UID]) << "</UID>"
-         << "<LAST_POLL>" 
-			<< static_cast<time_t>(atoi(values[VirtualMachine::LAST_POLL]))
-            << "</LAST_PLOL>"
-         << "<STATE>" << atoi(values[VirtualMachine::STATE]) << "</STATE>"
-         << "<LCM_STATE>" 
-			<< atoi(values[VirtualMachine::LCM_STATE]) 
-			<< "</LCM_STATE>"
-         << "<STIME>" 
-			<< static_cast<time_t>(atoi(values[VirtualMachine::STIME])) 
-			<< "</STIME>"
-         << "<ETIME>" 
-			<< static_cast<time_t>(atoi(values[VirtualMachine::ETIME])) 
-			<< "</ETIME>"
-         << "<MEMORY>" << atoi(values[VirtualMachine::MEMORY]) << "</MEMORY>"
-         << "<CPU>"    << atoi(values[VirtualMachine::CPU])    << "</CPU>"
-         << "<NET_TX>" << atoi(values[VirtualMachine::NET_TX]) << "</NET_TX>"
-         << "<NET_RX>" << atoi(values[VirtualMachine::NET_RX]) << "</NET_RX>";
-
-	if ( values[VirtualMachine::DEPLOY_ID] != 0 )
-    {
-   		*oss << "<DEPLOY_ID>" << values[VirtualMachine::DEPLOY_ID] 
-			 << "</DEPLOY_ID>";
-    }
-
-    if (values[VirtualMachine::LIMIT] != 0)
-    {
-    	*oss << "<HOSTNAME>" << values[VirtualMachine::LIMIT] << "</HOSTNAME>";
-    }
-    
-    *oss<< "</VM>";
-
-    return 0;
+    return VirtualMachine::unmarshall(*oss,num,names,values);
 };
+
+/* -------------------------------------------------------------------------- */
 
 int VirtualMachine::dump(SqliteDB * db, ostringstream& oss, const string& where)
 {
@@ -463,15 +478,19 @@ int VirtualMachine::dump(SqliteDB * db, ostringstream& oss, const string& where)
     ostringstream   cmd;
 
     cmd << "SELECT " << VirtualMachine::table << ".*, "
-        << History::table << ".host_name FROM " << VirtualMachine::table
-        << " LEFT OUTER JOIN (SELECT vid, host_name, MAX(seq) FROM "
+        << "user_pool.user_name, " << History::table << ".* FROM " 
+        << VirtualMachine::table
+        << " LEFT OUTER JOIN (SELECT *,MAX(seq) FROM "
         << History::table << " GROUP BY vid) AS " << History::table
         << " ON " << VirtualMachine::table << ".oid = "
-        << History::table << ".vid";
+        << History::table << ".vid LEFT OUTER JOIN (SELECT oid,user_name FROM "
+        << "user_pool) AS user_pool ON "
+        << VirtualMachine::table << ".uid = user_pool.oid WHERE " 
+        << VirtualMachine::table << ".state != " << VirtualMachine::DONE;
 
     if ( !where.empty() )
     {
-        cmd << " WHERE" << where;
+        cmd << " AND " << where;
     }
     
     rc = db->exec(cmd,vm_dump_cb,(void *) &oss);
@@ -483,11 +502,11 @@ int VirtualMachine::dump(SqliteDB * db, ostringstream& oss, const string& where)
 /* -------------------------------------------------------------------------- */
 
 void VirtualMachine::add_history(
-	int         				hid,
-    string&     				hostname,
-    string&     				vm_dir,
-    string&     				vmm_mad,
-    string&     			 	tm_mad)
+	int     hid,
+    string& hostname,
+    string& vm_dir,
+    string& vmm_mad,
+    string& tm_mad)
 {
     ostringstream os;
     int           seq;
@@ -887,7 +906,7 @@ ostream& operator<<(ostream& os, const VirtualMachine& vm)
 {
 	string vm_str;
 	
-	os << vm.to_str(vm_str);
+		os << vm.to_xml(vm_str);
 	
     return os;
 };
@@ -897,27 +916,30 @@ ostream& operator<<(ostream& os, const VirtualMachine& vm)
 string& VirtualMachine::to_xml(string& xml) const
 {
 	string template_xml;
+    string history_xml;
+    
 	ostringstream	oss;
 	
 	oss << "<VM>"
-	    << "<OID>"       << oid       << "</OID>"
-	    << "<UID>"       << uid       << "</UID>"
-	    << "<LAST_POLL>" << last_poll << "</LAST_POLL>"
-	    << "<STATE>"     << state     << "</STATE>"
-	    << "<LCM_STATE>" << lcm_state << "</LCM_STATE>"
-	    << "<STIME>"     << stime     << "</STIME>"
-	    << "<ETIME>"     << etime     << "</ETIME>"
-	    << "<MEMORY>"    << memory    << "</MEMORY>"
-	    << "<CPU>"       << cpu       << "</CPU>"
-	    << "<NET_TX>"    << net_tx    << "</NET_TX>"
-	    << "<NET_RX>"    << net_rx    << "</NET_RX>";
-
-	if ( !deploy_id.empty() != 0 )
-	{
-		oss << "<DEPLOY_ID>" << deploy_id << "</DEPLOY_ID>";
-	}
-	
-	oss << vm_template.to_xml(template_xml);
+	      << "<ID>"       << oid       << "</ID>"
+	      << "<UID>"       << uid       << "</UID>"
+          << "<NAME>"      << name      << "</NAME>"
+	      << "<LAST_POLL>" << last_poll << "</LAST_POLL>"
+	      << "<STATE>"     << state     << "</STATE>"
+	      << "<LCM_STATE>" << lcm_state << "</LCM_STATE>"
+	      << "<STIME>"     << stime     << "</STIME>"
+	      << "<ETIME>"     << etime     << "</ETIME>"
+          << "<DEPLOY_ID>" << deploy_id << "</DEPLOY_ID>"
+	      << "<MEMORY>"    << memory    << "</MEMORY>"
+	      << "<CPU>"       << cpu       << "</CPU>"
+	      << "<NET_TX>"    << net_tx    << "</NET_TX>"
+	      << "<NET_RX>"    << net_rx    << "</NET_RX>"
+          << vm_template.to_xml(template_xml);
+        
+    if ( hasHistory() )
+    {
+        oss << history->to_xml(history_xml);
+    }
 	oss << "</VM>";
 	
 	xml = oss.str();
@@ -929,11 +951,14 @@ string& VirtualMachine::to_xml(string& xml) const
 
 string& VirtualMachine::to_str(string& str) const
 {
-	string template_xml;
+	string template_str;
+    string history_str;
+    
 	ostringstream	oss;
 	
-	oss<< "VID               : " << oid << endl
+	oss<< "ID                : " << oid << endl
        << "UID               : " << uid << endl
+       << "NAME              : " << name << endl
        << "STATE             : " << state << endl
        << "LCM STATE         : " << lcm_state << endl
        << "DEPLOY ID         : " << deploy_id << endl
@@ -944,7 +969,12 @@ string& VirtualMachine::to_str(string& str) const
        << "STOP TIME         : " << etime << endl
        << "NET TX            : " << net_tx << endl
        << "NET RX            : " << net_rx << endl
-       << "Template" << endl << vm_template << endl;
+       << "Template" << endl << vm_template.to_str(template_str) << endl;
+       
+    if ( hasHistory() )
+    {
+        oss << "Last History Record" << endl << history->to_str(history_str);
+    }       
     	
 	str = oss.str();
 	

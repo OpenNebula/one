@@ -145,6 +145,7 @@ int VirtualMachinePool::allocate (
     bool           on_hold)
 {
     VirtualMachine * vm;
+    string  name;
 
     char *  error_msg;
     int     rc, num_attr;
@@ -185,9 +186,11 @@ int VirtualMachinePool::allocate (
 
     vm->vm_template.remove("CONTEXT",attrs);
 
+
     // ------------------------------------------------------------------------
     // Insert the Object in the pool
     // ------------------------------------------------------------------------
+    
     *oid = PoolSQL::allocate(vm);
 
     if ( *oid == -1 )
@@ -198,6 +201,7 @@ int VirtualMachinePool::allocate (
     // ------------------------------------------------------------------------
     // Insert parsed context in the VM template and clean-up
     // ------------------------------------------------------------------------
+    
     if ((num_attr = (int) attrs.size()) > 0)
     {
         generate_context(*oid,attrs[0]);
@@ -224,7 +228,8 @@ int VirtualMachinePool::get_running(
     string          where;
 
     os << "state == " << VirtualMachine::ACTIVE
-    << " and lcm_state == " << VirtualMachine::RUNNING;
+       << " and ( lcm_state == " << VirtualMachine::RUNNING
+       << " or lcm_state == " << VirtualMachine::UNKNOWN << " )";
 
     where = os.str();
 

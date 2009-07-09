@@ -32,8 +32,7 @@ Host::Host(
     string _hostname,
     string _im_mad_name,
     string _vmm_mad_name,
-    string _tm_mad_name,
-    bool    _managed):
+    string _tm_mad_name):
         PoolObjectSQL(id),
         hostname(_hostname),
         state(INIT),
@@ -41,9 +40,8 @@ Host::Host(
         vmm_mad_name(_vmm_mad_name),
         tm_mad_name(_tm_mad_name),
         last_monitored(time(0)),
-        managed(_managed),
-        host_template(id),
-        host_share(id){};
+        host_template(id)
+        {};
 
 
 Host::~Host(){};
@@ -55,43 +53,39 @@ Host::~Host(){};
 const char * Host::table = "host_pool";
 
 const char * Host::db_names = "(oid,host_name,state,im_mad,vm_mad,"
-                              "tm_mad,last_mon_time,managed)";
+                              "tm_mad,last_mon_time)";
 
 const char * Host::db_bootstrap = "CREATE TABLE host_pool ("
 	"oid INTEGER PRIMARY KEY,host_name TEXT,state INTEGER,"
-	"im_mad TEXT,vm_mad TEXT,tm_mad TEXT,last_mon_time INTEGER,"
-    "managed INTEGER)";
+	"im_mad TEXT,vm_mad TEXT,tm_mad TEXT,last_mon_time INTEGER)";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 int Host::unmarshall(int num, char **names, char ** values)
 {
-    if ((values[OID] == 0) ||
-            (values[HOST_NAME] == 0) ||
-            (values[STATE] == 0) ||
-            (values[IM_MAD] == 0) ||
-            (values[VM_MAD] == 0) ||
-            (values[TM_MAD] == 0) ||
-            (values[LAST_MON_TIME] == 0) ||
-            (values[MANAGED] == 0) ||
-            (num != LIMIT ))
+    if ((!values[OID]) ||
+        (!values[HOST_NAME]) ||
+        (!values[STATE]) ||
+        (!values[IM_MAD]) ||
+        (!values[VM_MAD]) ||
+        (!values[TM_MAD]) ||
+        (!values[LAST_MON_TIME]) ||
+        (num != LIMIT ))
     {
         return -1;
     }
 
-    oid              = atoi(values[OID]);
-    hostname         = values[HOST_NAME];
-    state            = static_cast<HostState>(atoi(values[STATE]));
+    oid      = atoi(values[OID]);
+    hostname = values[HOST_NAME];
+    state    = static_cast<HostState>(atoi(values[STATE]));
     
-    im_mad_name      = values[IM_MAD];
-    vmm_mad_name     = values[VM_MAD];
-    tm_mad_name      = values[TM_MAD];
+    im_mad_name  = values[IM_MAD];
+    vmm_mad_name = values[VM_MAD];
+    tm_mad_name  = values[TM_MAD];
     
-    last_monitored   = static_cast<time_t>(atoi(values[LAST_MON_TIME]));
-    
-    managed          = atoi(values[MANAGED]) == 1?true:false;
-    
+    last_monitored = static_cast<time_t>(atoi(values[LAST_MON_TIME]));
+
     host_template.id = oid;
     host_share.hsid  = oid;
 
@@ -154,8 +148,8 @@ int Host::select(SqliteDB *db)
 
     if ( rc != 0 )
     {
-    	return rc;
-	}
+        return rc;
+    }
 
     return 0;
 }
@@ -201,14 +195,13 @@ int Host::update(SqliteDB *db)
     ostringstream   oss;
     
     int    rc;
-    int    managed_i = managed?1:0;
 
     char * sql_hostname;
     char * sql_im_mad_name;
     char * sql_tm_mad_name;
     char * sql_vmm_mad_name;
     
-    //Update template.
+    // Update the Template
 
     rc = host_template.update(db);
 
@@ -217,7 +210,7 @@ int Host::update(SqliteDB *db)
         return rc;
     }
 
-    // Let's get the HostShares before the host
+    // Update the HostShare
 
     rc = host_share.update(db);
 
@@ -226,6 +219,8 @@ int Host::update(SqliteDB *db)
         return rc;
     }
 
+    // Update the Host
+    
     sql_hostname = sqlite3_mprintf("%q",hostname.c_str());
 
     if ( sql_hostname == 0 )
@@ -253,17 +248,17 @@ int Host::update(SqliteDB *db)
     {
         goto error_vmm;
     }
+    
     // Construct the SQL statement to Insert or Replace (effectively, update)
 
-    oss << "INSERT OR REPLACE INTO " << table << " "<< db_names <<" VALUES ("<<
-    oid << "," <<
-    "'" << sql_hostname << "'," <<
-    state << "," <<
-    "'" << sql_im_mad_name << "'," <<
-    "'" << sql_vmm_mad_name << "'," <<
-    "'" << sql_tm_mad_name << "'," <<
-    last_monitored << "," <<
-    managed_i << ")";
+    oss << "INSERT OR REPLACE INTO " << table << " "<< db_names <<" VALUES ("
+        << oid << ","
+        << "'" << sql_hostname << "',"
+        << state << ","
+        << "'" << sql_im_mad_name << "',"
+        << "'" << sql_vmm_mad_name << "',"
+        << "'" << sql_tm_mad_name << "',"
+        << last_monitored << ")";
 
     rc = db->exec(oss);
 
@@ -287,11 +282,87 @@ error_hostname:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int Host::unmarshall(ostringstream& oss,
+                     int            num,
+                     char **        names,
+                     char **        values)
+{
+    if ((!values[OID]) ||
+        (!values[HOST_NAME]) ||
+        (!values[STATE]) ||
+        (!values[IM_MAD]) ||
+        (!values[VM_MAD]) ||
+        (!values[TM_MAD]) ||
+        (!values[LAST_MON_TIME]) ||
+        (num != LIMIT + HostShare::LIMIT ))
+    {
+        return -1;
+    }
+
+    oss <<
+        "<HOST>" <<
+            "<ID>"           << values[OID]          <<"</ID>"           <<
+ 		    "<NAME>"         << values[HOST_NAME]    <<"</NAME>"         <<
+		    "<STATE>"        << values[STATE]        <<"</STATE>"        <<
+		    "<IM_MAD>"       << values[IM_MAD]       <<"</IM_MAD>"       <<
+		    "<VM_MAD>"       << values[VM_MAD]       <<"</VM_MAD>"       <<
+		    "<TM_MAD>"       << values[TM_MAD]       <<"</TM_MAD>"       <<
+			"<LAST_MON_TIME>"<< values[LAST_MON_TIME]<<"</LAST_MON_TIME>";
+			
+	HostShare::unmarshall(oss,num - LIMIT, names + LIMIT, values + LIMIT);
+	
+    oss << "</HOST>";
+
+    return 0;
+
+}
+
+/* -------------------------------------------------------------------------- */
+
+extern "C" int host_dump_cb (
+        void *                  _oss,
+        int                     num,
+        char **                 values,
+        char **                 names)
+{
+    ostringstream * oss;
+
+    oss = static_cast<ostringstream *>(_oss);
+
+    if (oss == 0)
+    {
+        return -1;
+    }
+
+    return Host::unmarshall(*oss,num,names,values);
+};
+
+/* -------------------------------------------------------------------------- */
+
+int Host::dump(SqliteDB * db, ostringstream& oss, const string& where)
+{
+    int             rc;
+    ostringstream   cmd;
+
+    cmd << "SELECT * FROM " << Host::table << "," << HostShare::table
+        << " ON " << Host::table << ".oid = " << HostShare::table << ".hid";
+
+    if ( !where.empty() )
+    {
+        cmd << " WHERE " << where;
+    }
+
+    rc = db->exec(cmd,host_dump_cb,(void *) &oss);
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int Host::drop(SqliteDB * db)
 {
     ostringstream   oss;
-    
-    map<int,HostShare *>::iterator iter;
 
     // First, drop the template
     host_template.drop(db);
@@ -312,23 +383,26 @@ int Host::update_info(string &parse_str)
 {
     char *  error_msg;
     int     rc;
-    
-    // If we have a default
 
     rc = host_template.parse(parse_str, &error_msg);
     
     if ( rc != 0 )
     {
-        /*
-        Nebula::log("ONE", Log::ERROR, error_msg);
-        */
+        //Nebula::log("ONE", Log::ERROR, error_msg);
+        
         free(error_msg);
         return -1;
     }
     
     get_template_attribute("TOTALCPU",host_share.max_cpu);
     get_template_attribute("TOTALMEMORY",host_share.max_mem);
-    
+
+    get_template_attribute("FREECPU",host_share.free_cpu);
+    get_template_attribute("FREEMEMORY",host_share.free_mem);
+
+    get_template_attribute("USEDCPU",host_share.used_cpu);
+    get_template_attribute("USEDMEMORY",host_share.used_mem);
+
     return 0;
 }
 
@@ -338,17 +412,67 @@ int Host::update_info(string &parse_str)
 
 ostream& operator<<(ostream& os, Host& host)
 {
-    os << "HID      = "  << host.oid          << endl;
-    os << "HOSTNAME = "  << host.hostname     << endl;
-    os << "IM MAD   = "  << host.im_mad_name  << endl;
-    os << "VMM MAD  = "  << host.vmm_mad_name << endl;
-    os << "TM MAD   = "  << host.tm_mad_name  << endl;
-    os << "MANAGED  = "  << host.managed      << endl;
-    os << "ATTRIBUTES"   << endl << host.host_template<< endl;
-    os << "HOST SHARES"  << endl << host.host_share <<endl;
-
+	string host_str;
+	
+	os << host.to_xml(host_str);
+	
     return os;
 };
+
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string& Host::to_xml(string& xml) const
+{
+    string template_xml;
+	string share_xml;
+    ostringstream   oss;
+ 
+    oss << 
+    "<HOST>"                             
+       "<ID>"            << oid       	   << "</ID>"            <<           
+       "<NAME>"          << hostname 	   << "</NAME>"          << 
+       "<STATE>"         << state          << "</STATE>"         << 
+       "<IM_MAD>"        << im_mad_name    << "</IM_MAD>"        << 
+       "<VM_MAD>"        << vmm_mad_name   << "</VM_MAD>"        << 
+       "<TM_MAD>"        << tm_mad_name    << "</TM_MAD>"        << 
+       "<LAST_MON_TIME>" << last_monitored << "</LAST_MON_TIME>" << 
+ 	   host_share.to_xml(share_xml)  << 
+       host_template.to_xml(template_xml) << 
+	"</HOST>";
+
+    xml = oss.str();
+
+    return xml;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string& Host::to_str(string& str) const
+{
+    string template_str;
+	string share_str;
+	
+    ostringstream   os;
+
+    os << 
+		"ID      =  "  << oid            << endl <<
+    	"NAME = "      << hostname       << endl <<
+    	"STATE    = "  << state          << endl <<
+    	"IM MAD   = "  << im_mad_name    << endl <<
+    	"VMM MAD  = "  << vmm_mad_name   << endl <<
+    	"TM MAD   = "  << tm_mad_name    << endl <<
+    	"LAST_MON = "  << last_monitored << endl <<
+        "ATTRIBUTES"   << endl << host_template.to_str(template_str) << endl <<
+        "HOST SHARES"  << endl << host_share.to_str(share_str) <<endl;
+
+	str = os.str();
+	
+	return str;
+}
+
 
 /* ************************************************************************** */
 /* Host :: Parse functions to compute rank and evaluate requirements          */

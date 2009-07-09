@@ -70,8 +70,10 @@ class ActionManager
         @threaded       = threaded
 
         @concurrency    = concurrency
+        @num_running    = 0
+
         @action_queue   = Array.new
-        @running_actions= 0
+        @action_running = Hash.new
 
         @threads_mutex  = Mutex.new
         @threads_cond   = ConditionVariable.new
@@ -94,15 +96,16 @@ class ActionManager
     # Triggers the execution of the action.
     #
     # +aname+ name of the action
+    # +action_id+ an id to identify the action (to cancel it later)
     # +aargs+ arguments to call the action
-    def trigger_action(aname,*aargs)
+    def trigger_action(aname, action_id, *aargs)
 
         @threads_mutex.synchronize {
             return if @finalize
 
             if aname == :FINALIZE
                 @finalize = true
-                @threads_cond.signal if @running_actions == 0
+                @threads_cond.signal if @num_running == 0
                 return
             end
 
@@ -127,10 +130,29 @@ class ActionManager
                 end
             end
 
-            @action_queue << @actions[aname].merge(:args => aargs)
+            @action_queue << @actions[aname].merge(:args => aargs,
+                    :id => action_id)
 
-            if @running_actions < @concurrency
+            if @num_running < @concurrency
                 @threads_cond.signal
+            end
+        }
+    end
+
+    def cancel_action(action_id)
+        @threads_mutex.synchronize {
+            thread = @action_running[action_id]
+            
+            if thread
+                thread.kill!
+
+                @num_running -= 1
+                @action_running.delete(action_id)
+
+                @threads_cond.signal
+            else
+                i = @action_queue.index{|x| x[:id] == action_id}
+                @action_queue.delete_at(i) if i
             end
         }
     end
@@ -138,11 +160,11 @@ class ActionManager
     def start_listener
         while true
             @threads_mutex.synchronize {
-                while ((@concurrency - @running_actions)==0) ||
+                while ((@concurrency - @num_running)==0) ||
                         @action_queue.size==0
                     @threads_cond.wait(@threads_mutex)
 
-                    return if (@finalize && @running_actions == 0)
+                    return if (@finalize && @num_running == 0)
                 end
 
                 run_action
@@ -156,21 +178,25 @@ private
         action = @action_queue.shift
 
         if action
-            @running_actions += 1
+            @num_running += 1
 
             if action[:threaded]
-                Thread.new {
+                thread = Thread.new {
                     action[:method].call(*action[:args])
 
                     @threads_mutex.synchronize {
-                        @running_actions -= 1
+                        @num_running -= 1
+                        @action_running.delete(action[:id])
+
                         @threads_cond.signal
                     }
                 }
+
+                @action_running[action[:id]] = thread
             else
                 action[:method].call(*action[:args])
 
-                @running_actions -= 1
+                @num_running -= 1
             end
         end
     end
@@ -204,15 +230,20 @@ if __FILE__ == $0
 
     Thread.new {
         sleep 1
+
         100.times {|n|
-            s.am.trigger_action(:SLEEP,rand(3)+1,n)
-            s.am.trigger_action(:NOP)
+           s.am.trigger_action(:SLEEP,n,rand(3)+1,n)
+           s.am.trigger_action(:NOP,100+n)
         }
 
-        s.am.trigger_action(:FINALIZE)
+        s.am.trigger_action(:SLEEP,301,5,301)
+      
+        s.am.cancel_action(301)
 
-        s.am.trigger_action(:SLEEP,rand(3)+1,999)
-        s.am.trigger_action(:SLEEP,rand(3)+1,333)
+        s.am.trigger_action(:FINALIZE,0)
+
+        s.am.trigger_action(:SLEEP,999,rand(3)+1,999)
+        s.am.trigger_action(:SLEEP,333,rand(3)+1,333)
     }
 
     s.am.start_listener

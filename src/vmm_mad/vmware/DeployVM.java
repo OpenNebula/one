@@ -198,7 +198,7 @@ public class DeployVM
          // Memory
          
          sharesInfo.setLevel(SharesLevel.custom);          
-         sharesInfo.setShares(Integer.parseInt(pXML.getMemory()));
+         sharesInfo.setShares(Integer.parseInt(pXML.getMemory())*1024);
          
          raInfo.setShares(sharesInfo);
          
@@ -392,7 +392,7 @@ public class DeployVM
     }
     */
     
-    DeployVM(String[] args, String hostName, String vid, ParseXML _pXML) throws Exception
+    DeployVM(String[] args, String hostName, String vid, ParseXML _pXML, String _datastore, String _datacenter) throws Exception
     {  
 
         String[] argsWithHost = new String[args.length+2];
@@ -404,15 +404,15 @@ public class DeployVM
         
         argsWithHost[args.length]      = "--url";
         //argsWithHost[args.length + 1 ] = "https://" + hostName + ":443/sdk";
+
         argsWithHost[args.length + 1 ] = "https://localhost:8008/sdk";
-        
+
 
         cb = AppUtil.initialize("DeployVM", null, argsWithHost);
         cb.connect();
         
-        // TODO get this dynamically
-        datastoreName  = "datastore1";
-        datacenterName = "ha-datacenter";
+        datastoreName  = _datastore;
+        datacenterName = _datacenter;
         
         vmName     = _pXML.getName() + "-" + vid;
         vmDiskName = _pXML.getName();
@@ -427,7 +427,7 @@ public class DeployVM
         service = sc.getService();
     }
     
-    DeployVM(String[] args, String hostName, String _vmName) throws Exception
+    DeployVM(String[] args, String hostName, String _vmName, String _datastore, String _datacenter) throws Exception
     {  
 
         String[] argsWithHost = new String[args.length+2];
@@ -438,17 +438,15 @@ public class DeployVM
         }
         
         argsWithHost[args.length]      = "--url";
-//        argsWithHost[args.length + 1 ] = "https://" + hostName + ":443/sdk";
+        //argsWithHost[args.length + 1 ] = "https://" + hostName + ":443/sdk";
         
         argsWithHost[args.length + 1 ] = "https://localhost:8008/sdk";
-        
 
         cb = AppUtil.initialize("DeployVM", null, argsWithHost);
         cb.connect();
-        
-        // TODO get this dynamically
-        datastoreName  = "datastore1";
-        datacenterName = "ha-datacenter";
+
+        datastoreName  = _datastore;
+        datacenterName = _datacenter;
         
         vmName     = _vmName;
         vmDiskName = _vmName.substring(0,_vmName.lastIndexOf("-"));

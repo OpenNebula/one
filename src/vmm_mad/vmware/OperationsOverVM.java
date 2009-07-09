@@ -105,12 +105,36 @@ public class OperationsOverVM
             return false;
         }
     }
+
+    public boolean deregisterVM(String vmName) 
+    {
+
+        try
+        { 
+            ManagedObjectReference  virtualMachine 
+               = cb.getServiceUtil().getDecendentMoRef(null, "VirtualMachine", vmName);
+            
+            cb.getConnection().getService().unregisterVM(virtualMachine);
+            
+            return true;
+        }
+        catch(InvalidPowerState e)
+        {
+            System.out.println("Error deregistering Virtual Machine [" + vmName + "]. Reason: " 
+                               + "[InvalidPowerState] " + e .getMessage());
+            return false;
+        }
+        catch(Exception e)
+        {
+            System.out.println("Error deregistering VirtualMachine [" + vmName + "]. Reason:" + e.getMessage());
+            return false;
+        }
+    }
     
-    public boolean save(String vmName, String checkpointName)
+    public boolean save(String vmName)
     {   
         // first, create the checkpoint
-        
-        if(!createCheckpoint(vmName,checkpointName))
+        if(!createCheckpoint(vmName))
         {
             return false;
         }
@@ -135,7 +159,7 @@ public class OperationsOverVM
         }
     } 
     
-    public boolean createCheckpoint(String vmName, String checkpointName)
+    public boolean createCheckpoint(String vmName)
     {
         try
         {
@@ -143,9 +167,9 @@ public class OperationsOverVM
                = cb.getServiceUtil().getDecendentMoRef(null, "VirtualMachine", vmName);  
             ManagedObjectReference taskMor 
                = cb.getConnection().getService().createSnapshot_Task(
-                                               virtualMachine, checkpointName,
+                                               virtualMachine, vmName + ".checkpoint",
                                                "This checkpoint corresponds to filename = " + 
-                                               checkpointName, false, false);
+                                               vmName + ".checkpoint", false, false);
             String res = cb.getServiceUtil().waitForTask(taskMor);
         
             if(res.equalsIgnoreCase("sucess"))  // sic
@@ -164,7 +188,7 @@ public class OperationsOverVM
         }
     }
     
-    public boolean restoreCheckpoint(String vmName, String checkpointName)
+    public boolean restoreCheckpoint(String vmName)
     {
        
         try
@@ -200,11 +224,11 @@ public class OperationsOverVM
                 throw new Exception("No Snapshots Tree found for VirtualMachine : " + vmName);
              }
              
-             snapmor = traverseSnapshotInTree(snapTree, checkpointName);
+             snapmor = traverseSnapshotInTree(snapTree, vmName + ".checkpoint");
              
              if (snapmor == null) 
              {
-                throw new Exception("No Snapshot named " + checkpointName + 
+                throw new Exception("No Snapshot named " + vmName + ".checkpoint" + 
                                     " found for VirtualMachine : " + vmName);
              }
              
@@ -251,12 +275,11 @@ public class OperationsOverVM
          }
 
          return snapmor;
-      }
-
+    }
 
     OperationsOverVM(String[] args, String hostName) throws Exception
     {
-        String[] argsWithHost = new String[args.length+2];
+         String[] argsWithHost = new String[args.length+2];
 
          for(int i=0;i<args.length;i++)
          {
@@ -267,14 +290,12 @@ public class OperationsOverVM
          //argsWithHost[args.length + 1 ] = "https://" + hostName + ":443/sdk";
 
          argsWithHost[args.length + 1 ] = "https://localhost:8008/sdk";
-         
 
          cb = AppUtil.initialize("DeployVM", null, argsWithHost);
          cb.connect();
         
-        // TODO get this dynamically
-        datastoreName  = "datastore1";
-        datacenterName = "ha-datacenter";                                    
+         datastoreName  = System.getProperty("VMWARE_DATASTORE");
+         datacenterName = System.getProperty("VMWARE_DATACENTER");
     }
 
 }

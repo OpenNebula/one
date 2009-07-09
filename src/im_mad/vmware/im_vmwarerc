@@ -22,3 +22,8 @@
 # Uncomment the following line to active MAD debug  
 #ONE_MAD_DEBUG=1
 
+# Datastore name
+VMWARE_DATASTORE=datastore1
+
+# Datacenter name
+VMWARE_DATACENTER=ha-datacenter

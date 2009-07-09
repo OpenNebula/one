@@ -41,6 +41,7 @@ env.Append(LIBS=[
     'nebula_rm',
     'nebula_dm',
     'nebula_tm',
+    'nebula_um',
     'nebula_mad',
     'nebula_template',
     'nebula_pool',
@@ -49,6 +50,7 @@ env.Append(LIBS=[
     'nebula_vm',
     'nebula_common',
     'sqlite3',
+    'crypto'
 ])
 
 

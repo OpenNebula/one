@@ -29,7 +29,8 @@ void RequestManager::VirtualMachineCancel::execute(
 
     // <vid> of the vid to retrieve the information for
     int                 vid;   
-    
+    int                 uid;
+
     VirtualMachine *    vm;
     
     ostringstream       oss;
@@ -44,19 +45,31 @@ void RequestManager::VirtualMachineCancel::execute(
     Nebula::log("ReM",Log::DEBUG,"VirtualMachineCancel method invoked");
 
     // Get the parameters
-        //TODO the session id to validate with the SessionManager
     session      = xmlrpc_c::value_string(paramList.getString(0));
     vid          = xmlrpc_c::value_int   (paramList.getInt(1));
 
-    // Perform the allocation in the vmpool 
-    vm = VirtualMachineCancel::vmpool->get(vid,false);
+
+    // Retrieve the VM from the vmpool 
+    vm = VirtualMachineCancel::vmpool->get(vid,true);
                                                         
     if ( vm == 0 )                             
     {                                            
         goto error_vm_get;                     
     }
     
-    //Deploy the VM
+    uid = vm->get_uid();
+
+    vm->unlock();
+
+    // Only oneadmin or the VM owner can perform operations upon the VM
+    rc = VirtualMachineCancel::upool->authenticate(session);
+    
+    if ( rc != 0 && rc != uid)                             
+    {                                            
+        goto error_authenticate;                     
+    }
+    
+    //Cancel the VM
     
     dm->cancel(vid);
     
@@ -71,6 +84,10 @@ void RequestManager::VirtualMachineCancel::execute(
     delete arrayresult;
      
     return;
+
+error_authenticate:
+    oss << "User not authorized to cancel VM";
+    goto error_common;
 
 error_vm_get:
     oss << "Error getting vm for cancelling with VID = " << vid; 

@@ -64,12 +64,12 @@ const char * VirtualNetwork::db_bootstrap        = "CREATE TABLE network_pool ("
 
 int VirtualNetwork::unmarshall(int num, char **names, char ** values)
 {
-    if     ((values[OID]    == 0)  ||
-            (values[UID]    == 0)  ||
-            (values[NAME]   == 0)  ||
-            (values[TYPE]   == 0)  ||
-            (values[BRIDGE] == 0)  ||                 
-            (num            != LIMIT ))
+    if ((!values[OID])  ||
+        (!values[UID])  ||
+        (!values[NAME]) ||
+        (!values[TYPE]) ||
+        (!values[BRIDGE]) ||                 
+        (num != LIMIT ))
     {
         return -1;
     }
@@ -224,6 +224,88 @@ error_common:
 	Nebula::log("VNM", Log::ERROR, ose);   
 	return -1;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualNetwork::unmarshall(ostringstream& oss,
+                               int            num,
+                               char **        names,
+                               char **        values)
+{
+    if ((!values[OID])   ||
+        (!values[UID])   ||
+        (!values[NAME])  ||
+        (!values[TYPE])  ||
+        (!values[BRIDGE])||                 
+        (!values[LIMIT]) ||
+        (num != LIMIT + 2 ))
+    {
+        return -1;
+    }
+
+    oss <<
+        "<VNET>" <<
+            "<ID>"       << values[OID]     << "</ID>"        <<
+            "<UID>"      << values[UID]     << "</UID>"       <<
+            "<USERNAME>" << values[LIMIT+1]  << "</USERNAME>" <<
+            "<NAME>"     << values[NAME]    << "</NAME>"      <<
+            "<TYPE>"     << values[TYPE]    << "</TYPE>"      <<
+            "<BRIDGE>"   << values[BRIDGE]  << "</BRIDGE>"    <<
+            "<TOTAL_LEASES>" << values[LIMIT]<< "</TOTAL_LEASES>" <<
+        "</VNET>";
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+
+extern "C" int vn_dump_cb (
+        void *                  _oss,
+        int                     num,
+        char **                 values,
+        char **                 names)
+{
+    ostringstream * oss;
+
+    oss = static_cast<ostringstream *>(_oss);
+
+    if (oss == 0)
+    {
+        return -1;
+    }
+
+    return VirtualNetwork::unmarshall(*oss,num,names,values);
+};
+
+/* -------------------------------------------------------------------------- */
+
+int VirtualNetwork::dump(SqliteDB * db, ostringstream& oss, const string& where)
+{
+    int             rc;
+    ostringstream   cmd;
+
+    cmd << "SELECT " << VirtualNetwork::table << ".*,COUNT("
+        << Leases::table << ".used), user_pool.user_name FROM " 
+        << VirtualNetwork::table
+        << " LEFT OUTER JOIN " << Leases::table << " ON "
+        << VirtualNetwork::table << ".oid = " <<  Leases::table << ".oid"
+        << " AND " << Leases::table << ".used = 1"
+        << " LEFT OUTER JOIN (SELECT oid,user_name FROM user_pool) "
+        << " AS user_pool ON "<< VirtualNetwork::table << ".uid = user_pool.oid";
+       
+    if ( !where.empty() )
+    {
+        cmd << " WHERE " << where;
+    }
+
+    cmd << " GROUP BY " << VirtualNetwork::table << ".oid";
+
+    rc = db->exec(cmd,vn_dump_cb,(void *) &oss);
+
+    return rc;
+}
+
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -403,17 +485,62 @@ int VirtualNetwork::vn_drop(SqliteDB * db)
 }
 
 
+
 /* ************************************************************************** */
 /* Virtual Network :: Misc                                                    */
 /* ************************************************************************** */
 
 ostream& operator<<(ostream& os, VirtualNetwork& vn)
 {
-    os << "NID               : " << vn.oid << endl;
-    os << "UID               : " << vn.uid << endl;
-    os << "Network Name      : " << vn.name << endl;
+    string vnet_xml;
+
+    os << vn.to_xml(vnet_xml);  
+    
+    return os;
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string& VirtualNetwork::to_xml(string& xml) const
+{
+    ostringstream os;
+
+    string template_xml;
+    string leases_xml;
+
+    os << 
+        "<VNET>" <<
+            "<ID>"    << oid   << "</ID>"   <<
+            "<UID>"   << uid   << "</UID>"  <<
+            "<NAME>"  << name  << "</NAME>" <<
+            "<TYPE>"  << type  << "</TYPE>" <<
+            "<BRIDGE>"<< bridge<< "</BRIDGE>" <<
+            vn_template.to_xml(template_xml);
+    if (leases)
+        os << leases->to_xml(leases_xml);
+    os << "</VNET>";
+    
+    xml = os.str();
+
+    return xml;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string& VirtualNetwork::to_str(string& str) const
+{
+    ostringstream os;
+
+    string template_str;
+    string leases_str;
+    
+    os << "ID                : " << oid << endl;
+    os << "UID               : " << uid << endl;
+    os << "NAME              : " << name << endl;
     os << "Type              : ";
-    if ( vn.type==VirtualNetwork::RANGED )
+    if ( type==VirtualNetwork::RANGED )
     {
         os << "Ranged" << endl;
     }
@@ -422,11 +549,20 @@ ostream& operator<<(ostream& os, VirtualNetwork& vn)
        os << "Fixed" << endl;
     }
     
-    os << "Bridge            : " << vn.bridge << endl << endl;
+    os << "Bridge            : " << bridge << endl << endl;
 
-    os << "....: Template :...."  << vn.vn_template << endl << endl;
+    os << "....: Template :...." << vn_template.to_str(template_str) << endl << endl;
+   
+    if (leases)
+    {
+        os << "....: Leases :...." << endl << leases->to_str(leases_str) << endl;
+    }
     
-    os << "....: Leases :...."   << endl << *(vn.leases) << endl;
-    
-    return os;
-};
+    str = os.str();
+
+    return str;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+

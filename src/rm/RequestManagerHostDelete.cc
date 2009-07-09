@@ -40,10 +40,17 @@ void RequestManager::HostDelete::execute(
     Nebula::log("ReM",Log::DEBUG,"HostDelete method invoked");
 
     // Get the parameters
-    //TODO the session id to validate with the SessionManager
     session      = xmlrpc_c::value_string(paramList.getString(0));
     hid          = xmlrpc_c::value_int   (paramList.getInt(1));
-
+ 
+    // Only oneadmin can delete hosts
+    rc = HostDelete::upool->authenticate(session);
+    
+    if ( rc != 0 )                             
+    {                                            
+        goto error_authenticate;                     
+    }
+ 
     // Perform the allocation in the hostpool 
     host = HostDelete::hpool->get(hid,true);    
                                                  
@@ -65,9 +72,15 @@ void RequestManager::HostDelete::execute(
 
     return;
 
-error_host_get:
+error_authenticate:
+    oss << "User not authorized to delete hosts";
+    goto error_common;
 
+error_host_get:
     oss << "Error getting host with HID = " <<hid;
+    goto error_common;
+
+error_common:
     Nebula::log ("Rem",Log::ERROR,oss);
 
     arrayData.push_back(xmlrpc_c::value_boolean(false)); // FAILURE

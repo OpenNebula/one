@@ -79,6 +79,8 @@ net_text.split(/\n/).each{|line|
     end
 }
 
+puts "HYPERVISOR=kvm" 
+
 puts "TOTALCPU=#{$total_cpu}"
 puts "CPUSPEED=#{$cpu_speed}"
 

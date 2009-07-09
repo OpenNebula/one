@@ -254,33 +254,6 @@ void PoolSQL::replace()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void PoolSQL::remove(PoolObjectSQL * obj)
-{
-    map<int,PoolObjectSQL *>::iterator  index;
-     
-    if (obj == 0)
-    {
-        return;
-    }
-       
-    index = pool.find(obj->oid);
-    
-    if ( index != pool.end())
-    {
-        delete obj;
-        
-        lock();
-        
-        pool.erase(index);
-        
-        unlock();
-       
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 void PoolSQL::clean()
 {
     map<int,PoolObjectSQL *>::iterator  it;

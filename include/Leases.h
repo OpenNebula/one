@@ -129,7 +129,7 @@ protected:
         * @param ip ip of the lease in string
         * @param mac mac of the lease in string
         */
-        void to_string(string& _ip, string& _mac);
+        void to_string(string& _ip, string& _mac) const;
                             
         /**
          * Conversion from string IP to unsigned int IP
@@ -157,7 +157,23 @@ protected:
          * Prints a Lease in a single line
          */
         friend ostream& operator<<(ostream& os, Lease& _lease);
-        
+
+        /**
+         * Function to print the Lease object into a string in
+         * plain text
+         *  @param str the resulting string
+         *  @return a reference to the generated string 
+         */
+        string& to_str(string& str) const;
+
+        /**
+         * Function to print the Lease object into a string in
+         * XML format
+         *  @param xml the resulting XML string
+         *  @return a reference to the generated string 
+         */
+        string& to_xml(string& xml) const;
+       
         /**
          * Constants to access the array storing the MAC address
          */
@@ -176,9 +192,8 @@ protected:
         bool            used;
     };
 
-    friend ostream& operator<<(ostream& os, Lease& _lease);
-    
     friend class VirtualNetwork;
+
     
     // -------------------------------------------------------------------------
     // Leases fields
@@ -242,6 +257,24 @@ protected:
       */
      virtual int select(SqliteDB * db);
           
+    friend ostream& operator<<(ostream& os, Lease& _lease);
+
+    /**
+    * Function to print the Leases object into a string in
+    * plain text
+    *  @param str the resulting string
+    *  @return a reference to the generated string 
+    */
+    string& to_str(string& str) const;
+
+    /**
+    * Function to print the Leases object into a string in
+    * XML format
+    *  @param xml the resulting XML string
+    *  @return a reference to the generated string 
+    */
+    string& to_xml(string& xml) const;
+
 private:
 
     friend int leases_select_cb (

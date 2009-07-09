@@ -221,53 +221,98 @@ error_hostname:
 
 int History::unmarshall(int num, char **names, char ** values)
 {
-    if ((values[VID] == 0) ||
-            (values[SEQ] == 0) ||
-            (values[HOSTNAME] == 0) ||
-            (values[VM_DIR] == 0) ||
-            (values[HID] == 0) ||
-            (values[VMMMAD] == 0) ||
-            (values[TMMAD] == 0) ||
-            (values[STIME] == 0) ||
-            (values[ETIME] == 0) ||
-            (values[PROLOG_STIME] == 0) ||
-            (values[PROLOG_ETIME] == 0) ||
-            (values[RUNNING_STIME] == 0) ||
-            (values[RUNNING_ETIME] == 0) ||
-            (values[EPILOG_STIME] == 0) ||
-            (values[EPILOG_ETIME] == 0) ||
-            (values[REASON] == 0) ||
-            (num != LIMIT ))
+    if ((!values[VID]) ||
+        (!values[SEQ]) ||
+        (!values[HOSTNAME]) ||
+        (!values[VM_DIR]) ||
+        (!values[HID]) ||
+        (!values[VMMMAD]) ||
+        (!values[TMMAD]) ||
+        (!values[STIME]) ||
+        (!values[ETIME]) ||
+        (!values[PROLOG_STIME]) ||
+        (!values[PROLOG_ETIME]) ||
+        (!values[RUNNING_STIME]) ||
+        (!values[RUNNING_ETIME]) ||
+        (!values[EPILOG_STIME]) ||
+        (!values[EPILOG_ETIME]) ||
+        (!values[REASON]) ||
+        (num != LIMIT ))
     {
         return -1;
     }
 
-    oid           = atoi(values[VID]);
-    seq           = atoi(values[SEQ]);
+    oid      = atoi(values[VID]);
+    seq      = atoi(values[SEQ]);
+            
+    hostname = values[HOSTNAME];
+    vm_dir   = values[VM_DIR];
+            
+    hid      = atoi(values[HID]);
 
-    hostname      = values[HOSTNAME];
-    vm_dir       = values[VM_DIR];
+    vmm_mad_name = values[VMMMAD];
+    tm_mad_name  = values[TMMAD];
 
-    hid           = atoi(values[HID]);
+    stime = static_cast<time_t>(atoi(values[STIME]));
+    etime = static_cast<time_t>(atoi(values[ETIME]));
 
-    vmm_mad_name  = values[VMMMAD];
-    tm_mad_name   = values[TMMAD];
-
-    stime         = static_cast<time_t>(atoi(values[STIME]));
-    etime         = static_cast<time_t>(atoi(values[ETIME]));
-
-    prolog_stime  = static_cast<time_t>(atoi(values[PROLOG_STIME]));
-    prolog_etime  = static_cast<time_t>(atoi(values[PROLOG_ETIME]));
+    prolog_stime = static_cast<time_t>(atoi(values[PROLOG_STIME]));
+    prolog_etime = static_cast<time_t>(atoi(values[PROLOG_ETIME]));
 
     running_stime = static_cast<time_t>(atoi(values[RUNNING_STIME]));
     running_etime = static_cast<time_t>(atoi(values[RUNNING_ETIME]));
 
-    epilog_stime  = static_cast<time_t>(atoi(values[EPILOG_STIME]));
-    epilog_etime  = static_cast<time_t>(atoi(values[EPILOG_ETIME]));
+    epilog_stime = static_cast<time_t>(atoi(values[EPILOG_STIME]));
+    epilog_etime = static_cast<time_t>(atoi(values[EPILOG_ETIME]));
 
-    reason        = static_cast<MigrationReason>(atoi(values[REASON]));
+    reason = static_cast<MigrationReason>(atoi(values[REASON]));
 
     return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int History::unmarshall(ostringstream& oss,
+                        int            num,
+                        char **        names,
+                        char **        values)
+{
+	if ((!values[VID])||
+        (!values[SEQ])||
+        (!values[HOSTNAME])||
+        (!values[HID])||
+        (!values[STIME])||
+        (!values[ETIME])||
+        (!values[PROLOG_STIME])||
+        (!values[PROLOG_ETIME])||
+        (!values[RUNNING_STIME])||
+        (!values[RUNNING_ETIME])||
+        (!values[EPILOG_STIME])||
+        (!values[EPILOG_ETIME])||
+        (!values[REASON])||
+		(num != LIMIT))
+    {
+		return -1;
+	}
+	
+    oss <<
+        "<HISTORY>" <<
+          "<SEQ>"     << values[SEQ]           << "</SEQ>"     <<
+          "<HOSTNAME>"<< values[HOSTNAME]      << "</HOSTNAME>"<<
+          "<HID>"     << values[HID]           << "</HID>"     <<
+          "<STIME>"   << values[STIME]         << "</STIME>"   <<
+          "<ETIME>"   << values[ETIME]         << "</ETIME>"   <<
+          "<PSTIME>"  << values[PROLOG_STIME]  << "</PSTIME>"  <<
+          "<PETIME>"  << values[PROLOG_ETIME]  << "</PETIME>"  <<
+          "<RSTIME>"  << values[RUNNING_STIME] << "</RSTIME>"  <<
+          "<RETIME>"  << values[RUNNING_ETIME] << "</RETIME>"  <<
+          "<ESTIME>"  << values[EPILOG_STIME]  << "</ESTIME>"  <<
+          "<EETIME>"  << values[EPILOG_ETIME]  << "</EETIME>"  <<
+          "<REASON>"  << values[REASON]        << "</REASON>"  <<
+        "</HISTORY>";
+    
+	return 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -337,3 +382,67 @@ int History::drop(SqliteDB * db)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+ostream& operator<<(ostream& os, const History& history)
+{
+    string history_str;
+
+    os << history.to_xml(history_str);
+
+    return os;
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+
+string& History::to_str(string& str) const
+{
+    ostringstream oss;
+
+    oss<< "\tSEQ      = " << seq           << endl
+       << "\tHOSTNAME = " << hostname      << endl
+       << "\tHID      = " << hid           << endl
+       << "\tSTIME    = " << stime         << endl
+       << "\tETIME    = " << etime         << endl
+       << "\tPSTIME   = " << prolog_stime  << endl
+       << "\tPETIME   = " << prolog_etime  << endl
+       << "\tRSTIME   = " << running_stime << endl
+       << "\tRETIME   = " << running_etime << endl
+       << "\tESTIME   = " << epilog_stime  << endl
+       << "\tEETIME   = " << epilog_etime  << endl
+       << "\tREASON   = " << reason;
+
+   str = oss.str();
+
+   return str;
+
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string& History::to_xml(string& xml) const
+{
+    ostringstream oss;
+    
+    oss <<
+        "<HISTORY>" <<
+          "<SEQ>"     << seq           << "</SEQ>"   <<
+          "<HOSTNAME>"<< hostname      << "</HOSTNAME>"<<
+          "<HID>"     << hid           << "</HID>"   <<
+          "<STIME>"   << stime         << "</STIME>" <<
+          "<ETIME>"   << etime         << "</ETIME>" <<
+          "<PSTIME>"  << prolog_stime  << "</PSTIME>"<<
+          "<PETIME>"  << prolog_etime  << "</PETIME>"<<
+          "<RSTIME>"  << running_stime << "</RSTIME>"<<
+          "<RETIME>"  << running_etime << "</RETIME>"<<
+          "<ESTIME>"  << epilog_stime  << "</ESTIME>"<<
+          "<EETIME>"  << epilog_etime  << "</EETIME>"<<
+          "<REASON>"  << reason        << "</REASON>"<<
+        "</HISTORY>";
+
+   xml = oss.str();
+
+   return xml;
+}

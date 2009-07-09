@@ -46,7 +46,7 @@ exec_and_log "ssh $DST_HOST mkdir -p $DST_DIR"
 case $SRC in
 http://*)
     log "Downloading $SRC"
-    exec_and_log "ssh $DST_HOST wget -O $DST_PATH $SRC_PATH"
+    exec_and_log "ssh $DST_HOST wget -O $DST_PATH $SRC"
     ;;
 
 *)

@@ -113,7 +113,7 @@ class OneImVmware extends Thread
                           
                           GetProperty gP;
                           boolean     rf;
-                          String      response = "";
+                          String      response = "HYPERVISOR=vmware";
                        
                           try
                           {
@@ -122,12 +122,11 @@ class OneImVmware extends Thread
                               for(int i=0;i<arguments.length;i++)
                               {
                                   argsWithHost[i] = arguments[i];
-System.out.println(arguments[i]);
                               }
                               
                               argsWithHost[arguments.length]      = "--url";
-                              //argsWithHost[arguments.length + 1 ] = "https://" + hostToMonitor + ":443/sdk";
- 
+//                              argsWithHost[arguments.length + 1 ] = "https://" + hostToMonitor + ":443/sdk";
+
                               argsWithHost[arguments.length + 1 ] = "https://localhost:8008/sdk";
                               gP = new GetProperty(argsWithHost, "HostSystem", hostToMonitor);
                                               
@@ -139,15 +138,15 @@ System.out.println(arguments[i]);
                                      Integer.parseInt(gP.getObjectProperty("hardware.memorySize").toString().trim());
                               totalMemory /= 1024;   
                               
-                              response = response + "TOTALMEMORY=" + totalMemory;
+                              response = response + ",TOTALMEMORY=" + totalMemory;
                        
                               int numCpus = 
                                      Integer.parseInt(gP.getObjectProperty("hardware.cpuInfo.numCpuCores").
                                                       toString().trim());
                               numCpus *= 100;
-                              response = response + " TOTALCPU=" + numCpus;
+                              response = response + ",TOTALCPU=" + numCpus;
                               
-                              response = response + " MODELNAME=\"" 
+                              response = response + ",MODELNAME=\"" 
                                                   + gP.getObjectProperty("hardware.systemInfo.model")
                                                   + "\"";
                               
@@ -156,7 +155,7 @@ System.out.println(arguments[i]);
                               // From hz to Mhz
                               cpuSpeed/=1000000;
                        
-                              response = response + " CPUSPEED=" + (int)cpuSpeed;
+                              response = response + ",CPUSPEED=" + (int)cpuSpeed;
                         
                         
                           // Dynamic Information
@@ -165,27 +164,27 @@ System.out.println(arguments[i]);
                               if (!rf) throw new Exception();
                               // Convert from 1/10000 to 1/100
                               int usedCpu = (int)(gP.getMeasure()/100);
-                              response = response + " USEDCPU="+usedCpu;
+                              response = response + ",USEDCPU="+usedCpu;
                               
-                              response = response + " FREECPU="+(100-usedCpu);
+                              response = response + ",FREECPU="+(100-usedCpu);
                        
                              // MEM 
                               rf = gP.getPerformanceCounter("mem.usage.average", 60);
                               if (!rf) throw new Exception();
                               // Convert from percentage to actual value
                               int usedMemory = (int)(totalMemory * (gP.getMeasure()/100))/100;
-                              response = response + " USEDMEMORY=" + usedMemory;
+                              response = response + ",USEDMEMORY=" + usedMemory;
         
-                              response = response + " FREEMEMORY=" + (totalMemory-usedMemory);
+                              response = response + ",FREEMEMORY=" + (totalMemory-usedMemory);
                               
                              // NET
                               rf = gP.getPerformanceCounter("net.transmitted.average", 60);
                               if (!rf) throw new Exception();
-                              response = response + " NETTX=" + (int)gP.getMeasure();
+                              response = response + ",NETTX=" + (int)gP.getMeasure();
         
                               rf = gP.getPerformanceCounter("net.received.average", 60);
                               if (!rf) throw new Exception();
-                              response = response + " NETRX=" + (int)gP.getMeasure();
+                              response = response + ",NETRX=" + (int)gP.getMeasure();
                        
                               // Send the actual response
                               System.err.println("MONITOR SUCCESS " + hid_str + " " + response);    
@@ -196,7 +195,7 @@ System.out.println(arguments[i]);
                               e.printStackTrace();
                               
                               System.err.println("MONITOR FAILURE " + hid_str + " Failed monitoring host " + 
-                                                  hostToMonitor + ".");
+                                                  hostToMonitor + ". Please check the VM log.");
                           } // catch		   
            			} // if (action.equals("MONITOR"))
                    } // else if (str_split.length != 4)

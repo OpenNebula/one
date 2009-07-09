@@ -29,7 +29,8 @@ void RequestManager::VirtualNetworkDelete::execute(
 
     string              name;
     int                 nid;
-    
+    int                 uid;
+
     VirtualNetwork *    vn;
     
     int                 rc;        
@@ -45,12 +46,22 @@ void RequestManager::VirtualNetworkDelete::execute(
     session   = xmlrpc_c::value_string(paramList.getString(0));
     nid       = xmlrpc_c::value_int   (paramList.getInt   (1));
     
-    // Perform the allocation in the hostpool 
+    // Retrieve VN from the pool 
     vn = vnpool->get(nid,true);    
    
     if ( vn == 0 )                             
     {                                            
         goto error_vn_get;                     
+    }
+
+    uid = vn->get_uid();
+
+    // Only oneadmin or the VN owner can perform operations upon the VN
+    rc = VirtualNetworkDelete::upool->authenticate(session);
+    
+    if ( rc != 0 && rc != uid)                             
+    {                                            
+        goto error_authenticate;                     
     }
    
     rc = vnpool->drop(vn);
@@ -66,9 +77,16 @@ void RequestManager::VirtualNetworkDelete::execute(
    
     return;
 
-error_vn_get:
+error_authenticate:
+    vn->unlock();
+    oss << "User cannot delete VN";
+    goto error_common;
 
+error_vn_get:
     oss << "Error getting Virtual Network with NID = " << nid;
+    goto error_common;
+ 
+error_common:
     Nebula::log ("Rem",Log::ERROR,oss);
   
     arrayData.push_back(xmlrpc_c::value_boolean(false)); // FAILURE

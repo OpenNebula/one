@@ -34,6 +34,8 @@ using namespace std;
 
 extern "C" int vn_select_cb (void * _vn, int num,char ** values, char ** names);
 
+extern "C" int vn_dump_cb (void *  _oss, int num, char ** values, char ** names);
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -60,6 +62,17 @@ public:
     // *************************************************************************
     // Virtual Network Public Methods
     // *************************************************************************
+    
+
+    /**
+     * Gets the uid of the owner of the Virtual Network
+     * @return uid
+     **/
+    int get_uid()
+    {
+        return uid;
+    }
+
     /**
      *    Gets a new lease for a specific VM
      *    @param vid VM identifier
@@ -112,6 +125,22 @@ public:
      */
     friend ostream& operator<<(ostream& os, VirtualNetwork& vn);
 
+    /**
+     * Function to print the VirtualNetwork object into a string in
+     * plain text
+     *  @param str the resulting string
+     *  @return a reference to the generated string 
+     */
+    string& to_str(string& str) const;
+
+    /**
+     * Function to print the VirtualNetwork object into a string in
+     * XML format
+     *  @param xml the resulting XML string
+     *  @return a reference to the generated string 
+     */
+    string& to_xml(string& xml) const;
+   
 private:
 
     // -------------------------------------------------------------------------
@@ -121,6 +150,12 @@ private:
 
     friend int vn_select_cb (
         void *  _vm,
+        int     num,
+        char ** values,
+        char ** names);
+
+    friend int vn_dump_cb (
+        void *  _oss,
         int     num,
         char ** values,
         char ** names);
@@ -209,6 +244,18 @@ private:
      */
     int unmarshall(int num, char **names, char ** values);
 
+    /**
+     *  Function to unmarshall a VNW object into an stream in XML format.
+     *    @param oss the output stream
+     *    @param num the number of columns read from the DB
+     *    @para names the column names
+     *    @para vaues the column values
+     *    @return 0 on success
+     */
+    static int unmarshall(ostringstream& oss, 
+                          int            num, 
+                          char **        names, 
+                          char **        values);
     /**
      *  Function to drop VN entry in vn_pool
      *    @return 0 on success
@@ -369,6 +416,16 @@ protected:
 
     	return rc;
     }
+
+    /**
+     *  Dumps the contect of a set of Host objects in the given stream
+     *  using XML format
+     *    @param db pointer to the db
+     *    @param oss the output stream
+     *    @param where string to filter the VirtualMachine objects
+     *    @return 0 on success
+     */
+    static int dump(SqliteDB * db, ostringstream& oss, const string& where);    
 };
 
 #endif /*VIRTUAL_NETWORK_H_*/

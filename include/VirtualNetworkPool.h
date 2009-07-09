@@ -100,9 +100,9 @@ public:
     /**
      *  Bootstraps the database table(s) associated to the VirtualNetwork pool
      */
-    void bootstrap()
+    static void bootstrap(SqliteDB * _db)
     {
-        VirtualNetwork::bootstrap(db);
+        VirtualNetwork::bootstrap(_db);
     };
     
     /** Drops a VN from the cache & DB, the VN mutex MUST BE locked
@@ -110,26 +110,31 @@ public:
      */
     int drop(VirtualNetwork * vn)
     {
-    	int rc = vn->drop(db);
-    	
-    	if ( rc == 0)
-    	{
-    		remove(static_cast<PoolObjectSQL *>(vn));	
-    	}
-        
-        return rc;
+    	return vn->drop(db);
     };
     
-private:
     /**
-     *  Factory method to produce VN objects
-     *    @return a pointer to the new VN
+     *  Dumps the HOST pool in XML format. A filter can be also added to the
+     *  query
+     *  @param oss the output stream to dump the pool contents
+     *  @param where filter for the objects, defaults to all
+     *
+     *  @return 0 on success
      */
-    PoolObjectSQL * create()
+    int dump(ostringstream& oss, const string& where)
     {
-        return new VirtualNetwork(mac_prefix, default_size);
-    };
-    
+        int rc;
+
+        oss << "<VNET_POOL>";
+
+        rc = VirtualNetwork::dump(db,oss,where);
+
+        oss << "</VNET_POOL>";
+
+        return rc;
+    }
+
+private:
     /**
      *  Holds the system-wide MAC prefix
      */
@@ -139,6 +144,16 @@ private:
      *  Default size for Virtual Networks
      */
     unsigned int     default_size;    
+    
+    /**
+     *  Factory method to produce VN objects
+     *    @return a pointer to the new VN
+     */
+    PoolObjectSQL * create()
+    {
+        return new VirtualNetwork(mac_prefix, default_size);
+    };
+    
 };
  
 #endif /*VIRTUAL_NETWORK_POOL_H_*/

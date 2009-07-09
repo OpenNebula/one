@@ -187,7 +187,12 @@ private:
     // ---------------------------------------------------------------
     // XML_RPC related variables
     // ---------------------------------------------------------------
-    
+
+    /**
+     * The authentication token
+     */
+    string secret;
+
     /**
      *  NOTE (from lib doc): "you may not have more than one object of this 
      *  class in a program. The code is not re-entrant -- it uses global 
@@ -195,6 +200,5 @@ private:
      */
     xmlrpc_c::clientSimple  xmlrpc_client;
 };
-
 
 #endif /*SCHEDULER_H_*/

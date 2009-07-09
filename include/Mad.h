@@ -74,7 +74,21 @@ protected:
         cstr = str.c_str();
 
         ::write(nebula_mad_pipe, cstr, str.size());        
-    };    
+    };
+
+    /**
+     *  Send a DRIVER_CANCEL command to the driver
+     *    @param oid identifies the action (that associated with oid)
+     */
+    void driver_cancel (const int oid) const
+    {
+        ostringstream os;
+
+        os << "DRIVER_CANCEL " << oid << endl;
+
+        write(os);
+    };
+
 
 private:
     friend class MadManager;

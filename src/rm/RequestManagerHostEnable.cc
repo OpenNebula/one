@@ -28,6 +28,7 @@ void RequestManager::HostEnable::execute(
     string              session;
 
     int                 hid;
+    int                 rc;
     bool				enable;
     Host *              host;
     ostringstream       oss;
@@ -42,6 +43,14 @@ void RequestManager::HostEnable::execute(
     session = xmlrpc_c::value_string(paramList.getString(0));
     hid     = xmlrpc_c::value_int(paramList.getInt(1));
     enable  = xmlrpc_c::value_boolean(paramList.getBoolean(2));
+
+    // Only oneadmin can enable hosts 
+    rc = HostEnable::upool->authenticate(session);
+    
+    if ( rc != 0)                             
+    {                                            
+        goto error_authenticate;                     
+    }
 
     host = HostEnable::hpool->get(hid,true);    
                                                  
@@ -74,9 +83,15 @@ void RequestManager::HostEnable::execute(
 
     return;
 
+error_authenticate:
+    oss << "Only oneadmin can enable hosts";
+    goto error_common;
+
 error_host_get:
-    
-    oss << "Error getting host with HID = " << hid;     
+    oss << "Error getting host with HID = " << hid;    
+    goto error_common;
+
+error_common:
     Nebula::log("ReM",Log::ERROR,oss); 
 
     arrayData.push_back(xmlrpc_c::value_boolean(false));

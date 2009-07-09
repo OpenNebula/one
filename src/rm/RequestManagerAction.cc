@@ -29,19 +29,46 @@ void RequestManager::VirtualMachineAction::execute(
     string  action;
     int     vid;
     int     rc;
-    
+
+    int     uid;
+
     vector<xmlrpc_c::value> arrayData;
-    
+    xmlrpc_c::value_array * arrayresult;
+
     Nebula&             nd = Nebula::instance();
     DispatchManager *   dm = nd.get_dm();
+
+    VirtualMachine *    vm;
+
+    ostringstream       oss;
 
     Nebula::log("ReM",Log::DEBUG,"VirtualMachineAction invoked");
 
     session = xmlrpc_c::value_string(paramList.getString(0));
     action  = xmlrpc_c::value_string(paramList.getString(1));
-    
     vid     = xmlrpc_c::value_int(paramList.getInt(2));
 
+
+    // Get the VM
+    vm  = VirtualMachineAction::vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        goto error_vm_get;
+    }
+
+    uid = vm->get_uid(); 
+    
+    vm->unlock();
+
+    // Only oneadmin or the VM owner can perform operations upon the VM
+    rc = VirtualMachineAction::upool->authenticate(session);
+    
+    if ( rc != 0 && rc != uid)                             
+    {                                            
+        goto error_authenticate;                     
+    }
+    
     if (action == "shutdown")
     {
         rc = dm->shutdown(vid);    
@@ -70,6 +97,10 @@ void RequestManager::VirtualMachineAction::execute(
     {
         rc = dm->resume(vid);
     }
+    else if (action == "restart")
+    {
+        rc = dm->restart(vid);
+    }
     else if (action == "finalize")
     {
         rc = dm->finalize(vid);
@@ -79,34 +110,52 @@ void RequestManager::VirtualMachineAction::execute(
         rc = -3;   
     }
 
-    if (rc == 0)
+    if (rc != 0)
     {
-        arrayData.push_back(xmlrpc_c::value_boolean(true));
-    }
-    else
-    {
-        ostringstream oss;
-                
-        if (rc == -1)
-        {
-            oss << "Virtual machine does not exist";
-        }
-        else if ( rc == -2 )
-        {
-            oss << "Wrong state to perform action";
-        }
-        else if ( rc == -3 )
-        {
-            oss << "Unknown action";
-        }
-        
-        arrayData.push_back(xmlrpc_c::value_boolean(false));
-        arrayData.push_back(xmlrpc_c::value_string(oss.str()));
-    } 
+        goto error_operation;
 
-    xmlrpc_c::value_array arrayresult(arrayData);
-    
-    *retval = arrayresult;
+    }
+
+    arrayData.push_back(xmlrpc_c::value_boolean(true));
+    arrayresult = new xmlrpc_c::value_array(arrayData);
+    *retval = *arrayresult;
+    delete arrayresult;
+    return;
+
+error_operation:
+    if (rc == -1)
+    {
+        oss << "Virtual machine does not exist";
+    }
+    else if ( rc == -2 )
+    {
+        oss << "Wrong state to perform action";
+    }
+    else if ( rc == -3 )
+    {
+        oss << "Unknown action";
+    }
+    goto error_common;
+
+error_vm_get:
+    oss << "The virtual machine " << vid << " does not exists";
+    goto error_common;
+
+error_authenticate:
+    oss << "User not authorized to perform operation upon VirtualMachine [" << vid << "]";
+    goto error_common;
+
+error_common:
+
+    arrayData.push_back(xmlrpc_c::value_boolean(false));
+    arrayData.push_back(xmlrpc_c::value_string(oss.str()));
+
+    xmlrpc_c::value_array arrayresult_error(arrayData);
+
+    *retval = arrayresult_error;
+
+    return;
+ 
 }
 
 /* -------------------------------------------------------------------------- */

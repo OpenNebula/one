@@ -125,7 +125,35 @@ class XenDriver < VirtualMachineDriver
     # Basic Domain Management Operations                                       #
     # ------------------------------------------------------------------------ #
     def shutdown(id, host, deploy_id, not_used)
-        ssh_action("#{XEN[:shutdown]} #{deploy_id}", id, host, :shutdown)
+        cmd=<<-EOS
+function gdm {
+    sudo xm list | grep '#{deploy_id}\\>'
+}
+
+#{XEN[:shutdown]} #{deploy_id} || exit -1
+
+OUT=$(gdm)
+
+while [ -n "$OUT" -a $(echo $OUT | awk '{print $5}') != "---s--" ]; do
+    sleep 1
+    OUT=$(gdm)
+done
+
+OUT=$(gdm)
+
+if [ -n "$OUT" ]; then
+    #{XEN[:cancel]} '#{deploy_id}'
+fi
+sleep 2
+EOS
+        
+        execution=SSHCommand.run('bash', host, log_method(id), cmd)
+        
+        if execution.code !=0
+            send_message(ACTION[:shutdown], RESULT[:failure], id)
+        else
+            send_message(ACTION[:shutdown], RESULT[:success], id)
+        end
     end
 
     def cancel(id, host, deploy_id, not_used)

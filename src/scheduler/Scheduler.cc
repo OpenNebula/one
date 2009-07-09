@@ -31,6 +31,7 @@
 #include "Scheduler.h"
 #include "RankPolicy.h"
 #include "Nebula.h"
+#include "User.h"
 
 using namespace std;
 
@@ -86,6 +87,24 @@ void Scheduler::start()
     {
         throw;
     }
+
+    const char * one_auth;
+    string       one_name;
+    string       one_pass;
+
+    one_auth = getenv("ONE_AUTH");
+
+    if (!one_auth)
+    {
+        throw runtime_error("ONE_AUTH variable not defined");
+    }
+
+    if ( User::split_secret(one_auth,one_name,one_pass) != 0 )
+    {
+        throw runtime_error("ONE_AUTH must be <username>:<password>");
+    }
+
+    secret = one_name + ":" + User::sha1_digest(one_pass);
 
     // -----------------------------------------------------------
     // Pools
@@ -421,10 +440,10 @@ void Scheduler::dispatch()
             {
                 xmlrpc_client.call(
                     one_url,
-                    "one.vmdeploy",
+                    "one.vm.deploy",
                     "sii",
                     &deploy_result,
-                    "session",
+                    secret.c_str(),
                     vm->get_oid(),
                     hid);
             }

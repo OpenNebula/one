@@ -127,9 +127,9 @@ public:
     /**
      *  Bootstraps the database table(s) associated to the VirtualMachine pool
      */
-    void bootstrap()
+    static void bootstrap(SqliteDB * _db)
     {
-        VirtualMachine::bootstrap(db);
+        VirtualMachine::bootstrap(_db);
     };
     
     /**

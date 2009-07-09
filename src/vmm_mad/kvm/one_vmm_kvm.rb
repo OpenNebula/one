@@ -97,7 +97,17 @@ class LibVirtDriver < VirtualMachineDriver
     # Basic Domain Management Operations                                       #
     # ------------------------------------------------------------------------ #
     def shutdown(id, host, deploy_id, not_used)
-        ssh_action("#{LIBVIRT[:shutdown]} #{deploy_id}", id, host, :shutdown)
+        cmd="#{LIBVIRT[:shutdown]} #{deploy_id} && " \
+            "while [ $(#{LIBVIRT[:poll]} #{deploy_id} > /dev/null 2>&1; " \
+            "echo $?) -eq \"0\" ]; do sleep 2; done ; sleep 4"
+
+        execution=SSHCommand.run('bash', host, log_method(id), cmd)
+
+        if execution.code !=0
+            send_message(ACTION[:shutdown], RESULT[:failure], id)
+        else
+            send_message(ACTION[:shutdown], RESULT[:success], id)
+        end
     end
 
     def cancel(id, host, deploy_id, not_used)

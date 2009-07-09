@@ -27,8 +27,7 @@ int HostPool::allocate (
     string hostname,
     string im_mad_name, 
     string vmm_mad_name, 
-    string tm_mad_name,
-    bool   managed)
+    string tm_mad_name)
 {
     Host *        host;
 
@@ -38,8 +37,7 @@ int HostPool::allocate (
         hostname,
         im_mad_name,
         vmm_mad_name,
-        tm_mad_name,
-        managed);
+        tm_mad_name);
 
     // Insert the Object in the pool
 

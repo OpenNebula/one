@@ -95,6 +95,18 @@ void TransferManagerDriver::protocol(
         return;
     }
 
+    if ( vm->get_lcm_state() == VirtualMachine::DELETE ||
+         vm->get_lcm_state() == VirtualMachine::FAILURE||
+         vm->get_lcm_state() == VirtualMachine::LCM_INIT )
+    {
+        os.str("");
+        os << "Ignored: " << message;
+        vm->log("TM",Log::WARNING,os);
+
+        vm->unlock();
+        return;
+    }
+
     // Driver Actions
     if (action == "TRANSFER")
     {

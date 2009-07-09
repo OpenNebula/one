@@ -24,7 +24,10 @@
 
 using namespace std;
 
-extern "C" int host_share_select_cb (void * _host_share, int num,char ** values, char ** names);
+extern "C" int host_share_select_cb (void *  _hs,
+                                     int     num,
+                                     char ** values,
+                                     char ** names);
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -43,15 +46,6 @@ public:
         int     _max_cpu=0);
 
     ~HostShare(){};
-
-    /**
-     * Gets the HostShare identifier
-     *    @return HSID HostShare identifier
-     */
-    int get_hsid() const
-    {
-        return hsid;
-    };
 
     /**
      *  Add a new VM to this share
@@ -104,55 +98,44 @@ public:
      */
     friend ostream& operator<<(ostream& os, HostShare& hs);
 
-private:	
     /**
-     *  HostShare identifier
+     * Function to print the HostShare object into a string in
+     * plain text
+     *  @param str the resulting string
+     *  @return a reference to the generated string
      */
-    int         hsid;
+    string& to_str(string& str) const;
 
     /**
-     *  HostShare's Endpoint
+     * Function to print the HostShare object into a string in
+     * XML format
+     *  @param xml the resulting XML string
+     *  @return a reference to the generated string
      */
-    string      endpoint;
+    string& to_xml(string& xml) const;
+    
+private:
 
-    /**
-     *  HostShare disk usage (in Kb)
-     */
-    int         disk_usage;
+    int hsid; /**< HostShare identifier */
+    
+    int disk_usage; /**< Disk allocated to VMs (in Mb).        */
+    int mem_usage;  /**< Memory allocated to VMs (in Mb)       */
+    int cpu_usage;  /**< CPU  allocated to VMs (in percentage) */
+    
+    int max_disk;   /**< Total disk capacity (in Mb)           */
+    int max_mem;    /**< Total memory capacity (in Mb)         */
+    int max_cpu;    /**< Total cpu capacity (in percentage)    */
 
-    /**
-     *  HostShare memory usage (in Kb)
-     */
-    int         mem_usage;
+    int free_disk;  /**< Free disk from the IM monitor         */
+    int free_mem;   /**< Free memory from the IM monitor       */
+    int free_cpu;   /**< Free cpu from the IM monitor          */
 
-    /**
-     *  HostShare cpu usage (in percentage)
-     */
-    int         cpu_usage;
+    int used_disk;  /**< Used disk from the IM monitor         */
+    int used_mem;   /**< Used memory from the IM monitor       */
+    int used_cpu;   /**< Used cpu from the IM monitor          */
 
-    /**
-     *  HostShare disk share (in GB), 0 means that the share will use all the
-     *  avialable disk in the host
-     */
-	int         max_disk;
-
-    /**
-     *  HostShare memory share (in MB), 0 means that the share will use all the
-     *  avialable disk in the host
-     */
-    int         max_mem;
-
-    /**
-     *  HostShare cpu usage (in percentage), 0 means that the share will use all 
-     *  the avialable disk in the host
-     */
-    int         max_cpu;
-
-    /**
-     *  Number of running Virtual Machines in this HostShare
-     */
-    int         running_vms;
-	
+    int running_vms; /**< Number of running VMs in this Host   */
+    
     // ----------------------------------------
     // Friends
     // ----------------------------------------
@@ -160,9 +143,9 @@ private:
     friend class Host;
         
     friend int host_share_select_cb (
-        void *  _hostshare, 
-        int     num, 
-        char ** values, 
+        void *  _hostshare,
+        int     num,
+        char ** values,
         char ** names);
     
     // ----------------------------------------
@@ -171,17 +154,22 @@ private:
 
     enum ColNames
     {
-        HID          = 0,
-        ENDPOINT     = 1,
-        DISK_USAGE   = 2,
-        MEM_USAGE    = 3,
-        CPU_USAGE    = 4,
-        MAX_DISK     = 5,
-        MAX_MEMORY   = 6,
-        MAX_CPU      = 7,
-        RUNNING_VMS  = 8,
-		LIMIT        = 9
-	};
+        HID         = 0,
+        DISK_USAGE  = 1,
+        MEM_USAGE   = 2,
+        CPU_USAGE   = 3,
+        MAX_DISK    = 4,
+        MAX_MEMORY  = 5,
+        MAX_CPU     = 6,
+        FREE_DISK   = 7,
+        FREE_MEMORY = 8,
+        FREE_CPU    = 9,
+        USED_DISK   = 10,
+        USED_MEMORY = 11,
+        USED_CPU    = 12,
+        RUNNING_VMS = 13,
+        LIMIT       = 14
+    };
 
     static const char * table;
     
@@ -228,7 +216,20 @@ private:
      *    @para vaues the column values
      *    @return 0 on success
      */
-    int unmarshall(int num, char **names, char ** values);    
+    int unmarshall(int num, char **names, char ** values);
+
+    /**
+     *  Function to unmarshall a HostShare object in to an output stream in XML
+     *    @param oss the output stream
+     *    @param num the number of columns read from the DB
+     *    @param names the column names
+     *    @param vaues the column values
+     *    @return 0 on success
+     */
+    static int unmarshall(ostringstream& oss,
+                          int            num,
+                          char **        names,
+                          char **        values);
 };
 
 

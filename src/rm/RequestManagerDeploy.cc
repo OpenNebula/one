@@ -28,6 +28,7 @@ void RequestManager::VirtualMachineDeploy::execute(
     string              session;
     int                 vid;
     int                 hid;
+    int                 uid;
     int                 rc;
 
     string              hostname;
@@ -69,15 +70,8 @@ void RequestManager::VirtualMachineDeploy::execute(
     vmm_mad  = host->get_vmm_mad();
     tm_mad   = host->get_tm_mad();
     
-    if (host->isManaged() == true)
-    {
-        nd.get_configuration_attribute("VM_DIR",vmdir);
-    }
-    else
-    {
-        goto error_host_managed;
-    }
-        
+    nd.get_configuration_attribute("VM_DIR",vmdir);
+
     host->unlock();
     
     //Get the VM
@@ -88,7 +82,17 @@ void RequestManager::VirtualMachineDeploy::execute(
     {
         goto error_vm_get;
     }
+
+    uid = vm->get_uid();
     
+    // Only oneadmin or the VM owner can perform operations upon the VM
+    rc = VirtualMachineDeploy::upool->authenticate(session);
+    
+    if ( rc != 0 && rc != uid)                             
+    {                                            
+        goto error_authenticate;                     
+    }
+
     if ( vm->get_state() != VirtualMachine::PENDING )
     {
         goto error_state;
@@ -122,11 +126,10 @@ void RequestManager::VirtualMachineDeploy::execute(
     delete arrayresult;
      
     return;
-    
-error_host_managed:
-	host->unlock();
-	
-    oss << "Not managed hosts (id:" << hid << ") not supported";
+
+error_authenticate:
+    vm->unlock();
+    oss << "User not authorized to perform the deploy";
     goto error_common;
 
 error_host_get:

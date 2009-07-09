@@ -25,9 +25,11 @@ else
     RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
 end
 
-$: << RUBY_LIB_LOCATION 
+$: << RUBY_LIB_LOCATION
 
-require 'one'
+$: << './lib'
+
+require 'OpenNebula'
 require 'client_utilities'
 require 'command_parse'
 
@@ -36,60 +38,62 @@ ShowTableHost={
         :name => "HID",
         :desc => "ONE identifier for host",
         :size => 4,
-        :proc => lambda {|d,e| d["oid"] }
+        :proc => lambda {|d,e| d.id }
     },
     :name => {
         :name => "NAME",
         :desc => "Hostname",
         :size => 25,
         :left => true,
-        :proc => lambda {|d,e| d["host_name"] }
+        :proc => lambda {|d,e| d.name }
     },
     :rvm => {
         :name => "RVM",
         :desc => "Number of virtual machines running",
         :size => 3,
-        :proc => lambda {|d,e| d["hs_running_vms"] }
+        :proc => lambda {|d,e| d["HOST_SHARE/RUNNING_VMS"] }
     },
     :tcpu => {
         :name => "TCPU",
         :desc => "Total cpu percentage",
         :size => 6,
-        :proc => lambda {|d,e| d["TOTALCPU"] }
+        :proc => lambda {|d,e| d["HOST_SHARE/MAX_CPU"] }
     },
     :fcpu => {
         :name => "FCPU",
         :desc => "Free cpu percentage",
         :size => 6,
-        :proc => lambda {|d,e| d["TOTALCPU"].to_i-d["USEDCPU"].to_i }
+        :proc => lambda {|d,e| d["HOST_SHARE/MAX_CPU"].to_i-d["HOST_SHARE/USED_CPU"].to_i }
     },
     :acpu => {
         :name => "ACPU",
         :desc => "Available cpu percentage (not reserved by VMs)",
         :size => 6,
         :proc => lambda {|d,e|
-            max_cpu=d["hs_max_cpu"].to_i
+            max_cpu=d["HOST_SHARE/MAX_CPU"].to_i
             max_cpu=100 if max_cpu==0
-            max_cpu-d["hs_cpu_usage"].to_i
+            max_cpu-d["HOST_SHARE/USED_CPU"].to_i
         }
     },
     :tmem => {
         :name => "TMEM",
         :desc => "Total memory",
         :size => 7,
-        :proc => lambda {|d,e| d["TOTALMEMORY"] }
+        :proc => lambda {|d,e| d["HOST_SHARE/MAX_MEM"] }
     },
     :fmem => {
         :name => "FMEM",
         :desc => "Free memory",
         :size => 7,
-        :proc => lambda {|d,e| d["FREEMEMORY"] }
+        :proc => lambda {|d,e| d["HOST_SHARE/FREE_MEM"] }
     },
     :stat => {
         :name => "STAT",
         :desc => "Host status",
         :size => 4,
-        :proc => lambda {|d,e| e[:host].get_state(d) }
+        :proc => lambda {|d,e|
+            d.short_state_str()
+        }
     },
     
 
@@ -97,9 +101,9 @@ ShowTableHost={
 }
 
 class HostShow
-    def initialize(host)
-        @host=host
-        @table=ShowTable.new(ShowTableHost, :host => @host)
+    def initialize(client)
+        @hostpool=OpenNebula::HostPool.new(client)
+        @table=ShowTable.new(ShowTableHost)
     end
     
     def close
@@ -114,41 +118,22 @@ class HostShow
     end
     
     def list_short(options=nil)
-        res=@host.get
+        res=@hostpool.info
         if options
             @table.columns=options[:columns] if options[:columns]
         end
 
-        if res[0]
+        if OpenNebula.is_error?(res)
             result=res
-            header_host_small
-            res[1].each {|row|
-                res2=@host.get_host_attributes(row["oid"])
-                if res2[0]
-                    attributes=res2[1]
-                    attributes.each {|a|
-                        if %w{USEDCPU TOTALMEMORY FREEMEMORY TOTALCPU}.include? a["name"]
-                            row[a["name"]]=a["value"]
-                        end
-                    }
-                end
-                
-                res2=@host.get_host_share(row["oid"])
-                if res2[0]
-                    attributes=res2[1]
-                    attributes.each {|a|
-                        row["hs_running_vms"]=a["running_vms"]
-                        row["hs_max_mem"]=a["max_mem"]
-                        row["hs_max_cpu"]=a["max_cpu"]
-                        row["hs_mem_usage"]=a["mem_usage"]
-                        row["hs_cpu_usage"]=a["cpu_usage"]
-                    }
-                end
-            }
-            puts @table.data_str(result[1], options)
-            result
         else
-            result=res
+            result=[true,""]
+            header_host_small
+            if options
+                puts @table.data_str(@hostpool, options)
+            else
+                puts @table.data_str(@hostpool)
+            end
+            result
         end
     end
     
@@ -214,28 +199,20 @@ EOT
 
 end
 
-server=ONE::Server.new
-$host=host=ONE::Host.new(server)
-#$vm=vm=ONE::VM.new(server)
-
-def command_exit(code)
-    $host.close_db
-    exit(code)
-end
-
 # Returns true if there are non DONE VM's in a host, false otherwise
-def vms_in_host?(host)
-    sql_statement="select history.vid,history.hid,history.seq,vm_pool.state"+
-        " from history,vm_pool where vm_pool.oid=history.vid and"+
-        " vm_pool.state<>6 and history.hid=#{host} group by vid"
+def vms_in_host?(host_id)
 
-    result=$host.get_db.db.execute(sql_statement)
+    host = OpenNebula::Host.new_with_id(host_id,get_one_client)
 
-    if result.length>0
-        true
-    else
-        false
+    rc = host.info
+
+    if OpenNebula::is_error?(rc)
+        puts rc.message
+        exit -1
     end
+    
+    host['host_shares/running_vms'].to_i
+
 end
 
 
@@ -250,76 +227,135 @@ command=ARGV.shift
 case command
 when "add", "create"
     check_parameters("create", 4)
-    result=host.allocate(*[ARGV[0], ARGV[1], ARGV[2], ARGV[3], "true"])
+    host=OpenNebula::Host.new(OpenNebula::Host.build_xml, get_one_client)
+    result=host.allocate(ARGV[0], ARGV[1], ARGV[2], ARGV[3])
+    
+    if is_successful?(result)
+        puts "ID: " + host.id.to_s if ops[:verbose]
+        exit 0
+    end
     
 when "show"
     check_parameters("show", 1)
-    host_id=get_host_id(host, ARGV[0])
-    result=host.info(host_id)
-    if result[0]
-        puts result[1]
+    host_id=get_host_id(ARGV[0])
+    
+    host=OpenNebula::Host.new_with_id(host_id, get_one_client)
+    
+    result=host.info
+    if is_successful?(result)
+        #puts host.template_str
     else
-        puts "Error: "+result[1]
-        command_exit -1
+        puts "Error: "+result.message
+        exit -1
     end
     
+    if !ops[:xml]
+        str    = "%-22s: %-20s"
+        str_h1 = "%-80s"
+    
+        print_header(str_h1, "HOST #{host_id} INFORMATION", true)
+
+        puts str % ["ID", host[:id]]
+        puts str % ["NAME", host[:name]]
+        puts str % ["STATE", host.state_str]
+        puts str % ["IM_MAD", host[:im_mad]]
+        puts str % ["VM_MAD", host[:vm_mad]]
+        puts str % ["TM_MAD", host[:tm_mad]]
+        puts
+
+        print_header(str_h1, "HOST SHARES", false)
+    
+        puts str % ["MAX MEM", host['host_share/max_mem']]
+        puts str % ["USED MEM (REAL)", host['host_share/used_mem']]
+        puts str % ["USED MEM (ALLOCATED)", host['host_share/mem_usage']]
+        puts str % ["MAX CPU", host['host_share/max_cpu']]
+        puts str % ["USED CPU (REAL)", host['host_share/used_cpu']]
+        puts str % ["USED CPU (ALLOCATED)", host['host_share/cpu_usage']]
+        puts str % ["RUNNING VMS", host['host_share/running_vms']]
+        puts
+
+        print_header(str_h1, "MONITORING INFORMATION", false)
+
+        puts host.template_str
+    else
+        puts host.to_xml
+    end
+
 when "delete"
     check_parameters("delete", 1)
-    host_id=get_host_id(host, ARGV[0])
-    if vms_in_host?(host_id)
+    host_id=get_host_id(ARGV[0])
+    
+    host = OpenNebula::Host.new_with_id(host_id,get_one_client)
+
+    rc = host.info
+
+    if OpenNebula::is_error?(rc)
+        puts rc.message
+        exit -1
+    end
+
+    if host['host_shares/running_vms'].to_i != 0
         puts "Host still has associated VMs. It will be disabled instead."
-        result=host.disable(host_id)
-        if result[0]
+        result=host.disable
+        if is_successful?(result)
             puts "Host disabled" if ops[:verbose]
-            command_exit 0
+            exit 0
         end
     else
-        result=host.delete(host_id)
-        if result[0]
+        result=host.delete
+        if is_successful?(result)
             puts "Host deleted" if ops[:verbose]
-            command_exit 0
+            exit 0
         end
     end
     
 when "list"
-    hostlist=HostShow.new(host)
-    ops[:columns]=ops[:list] if ops[:list]
-    result=hostlist.list_short(ops)
-    hostlist.close
+    if !ops[:xml]
+        hostlist=HostShow.new(get_one_client)
+        ops[:columns]=ops[:list] if ops[:list]
+        result=hostlist.list_short(ops)
+        hostlist.close
+    else
+        hostpool=OpenNebula::HostPool.new(get_one_client)
+        hostpool.info
+        puts hostpool.to_xml
+    end
 
 when "top"
-    hostlist=HostShow.new(host)
+    hostlist=HostShow.new(get_one_client)
     ops[:columns]=ops[:list] if ops[:list]
     result=hostlist.top(ops)
     hostlist.close
     
 when "enable"
     check_parameters("enable", 1)
-    host_id=get_host_id(host, ARGV[0])
-    result=host.enable(host_id)
-    if result[0]
+    host_id=get_host_id(ARGV[0])
+    host = OpenNebula::Host.new_with_id(host_id,get_one_client)
+    result=host.enable
+    if is_successful?(result)
         puts "Host enabled" if ops[:verbose]
-        command_exit 0
+        exit 0 
     end
 
 when "disable"
     check_parameters("disable", 1)
-    host_id=get_host_id(host, ARGV[0])
-    result=host.disable(host_id)
-    if result[0]
+    host_id=get_host_id(ARGV[0])
+    host = OpenNebula::Host.new_with_id(host_id,get_one_client)
+    result=host.disable
+    if is_successful?(result)
         puts "Host disabled" if ops[:verbose]
-        command_exit 0
+        exit 0
     end
     
 else
     onehost_opts.print_help
-    command_exit -1
+    exit -1
 end
 
-if !result[0]
-    puts "Error: " + result[1].to_s
-    command_exit -1
+if is_error?(result) 
+    puts "Error: " + result.message
+    exit -1
 end
 
-command_exit 0
+exit 0
 

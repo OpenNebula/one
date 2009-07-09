@@ -35,10 +35,10 @@ public class ParseXML
             
             doc.getDocumentElement().normalize();     
 
-            NodeList vmNL = doc.getElementsByTagName("VM");      
+            NodeList vmNL = doc.getElementsByTagName("TEMPLATE");      
             if(vmNL.getLength()!=1)
             {
-                throw new Exception("Number of VM tags different of 1: [" + vmNL.getLength() + "]");
+                throw new Exception("Number of TEMPLATE tags different of 1: [" + vmNL.getLength() + "]");
             }
             
             Element vm = (Element)(vmNL.item(0));
@@ -52,10 +52,10 @@ public class ParseXML
             name     = ((Node)nameNL.item(0)).getFirstChild().getNodeValue().trim();
             
             // VM_ID
-            NodeList vmIDNL = vm.getElementsByTagName("VM_ID");
+            NodeList vmIDNL = vm.getElementsByTagName("VMID");
             if(vmIDNL.getLength()!=1)
             {
-                throw new Exception("Number of VM_ID tags different of 1: [" + vmIDNL.getLength() + "]");
+                throw new Exception("Number of VMID tags different of 1: [" + vmIDNL.getLength() + "]");
             }
             vmID     = ((Node)vmIDNL.item(0)).getFirstChild().getNodeValue().trim();
             
@@ -134,7 +134,7 @@ public class ParseXML
     
     /**
      * Returns memory value
-     * @return memory amount of memory in Kb to be used by this VM
+     * @return memory amount of memory in Mb to be used by this VM
      **/    
     String getMemory()
     {

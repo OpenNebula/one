@@ -19,7 +19,7 @@
 
 
 #Setup driver variables
-DRIVER_NAME="one_im_vmware"
+DRIVER_NAME="im_vmware"
 
 if [ -z "${ONE_LOCATION}" ]; then
     DRIVERRC=/etc/one/${DRIVER_NAME}/${DRIVER_NAME}rc
@@ -47,9 +47,9 @@ fi
 
 # Execute the actual MAD
 if [ -n "${ONE_MAD_DEBUG}" ]; then
-    exec nice -n $PRIORITY java -cp $ONE_LOCATION/lib/mads:$CLASSPATH -Djavax.net.ssl.trustStore=$VMWARE_TRUSTORE -Xmx1024M $MAD_FILE $* 2>> $MAD_LOG_PATH
+    exec nice -n $PRIORITY java -cp $ONE_LOCATION/lib/mads:$CLASSPATH -Ddatastore=$VMWARE_DATASTORE -Ddatacenter=$VMWARE_DATACENTER -Djavax.net.ssl.trustStore=$VMWARE_TRUSTORE -Xmx1024M $MAD_FILE $* 2>> $MAD_LOG_PATH
 else
-     exec nice -n $PRIORITY java -cp $ONE_LOCATION/lib/mads:$CLASSPATH -Djavax.net.ssl.trustStore=$VMWARE_TRUSTORE -Xmx1024M $MAD_FILE $* 2> /dev/null
+     exec nice -n $PRIORITY java -cp $ONE_LOCATION/lib/mads:$CLASSPATH -Ddatastore=$VMWARE_DATASTORE -Ddatacenter=$VMWARE_DATACENTER -Djavax.net.ssl.trustStore=$VMWARE_TRUSTORE -Xmx1024M $MAD_FILE $* 2> /dev/null
 fi
 
 
