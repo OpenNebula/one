@@ -13,12 +13,12 @@ import org.xml.sax.SAXParseException;
 
 public class ParseXML
 {
-    private String   name = "";
-    private String   cpu  = "";
-    private String[] disk = {""};
-    private String   memory = "";
-    private String[] macs = {""};
-    private String   vmID = "";
+    private String      name = "";
+    private String      cpu  = "";
+    private String[]    disk = {""};
+    private String      memory = "";
+    private String[][]  macs;
+    private String      vmID = "";
     
     /**
      * Parses the XML file and fills the values
@@ -97,13 +97,17 @@ public class ParseXML
             
             if(nwNL.getLength()!=0)
             {
-                macs = new String[nwNL.getLength()];
+                macs = new String[nwNL.getLength()][2];
                 
                 for(int i=0; i<nwNL.getLength(); i++)
                 {
                     NodeList mac = ((Element)nwNL.item(i)).getElementsByTagName("MAC");
                     
-                    macs[i] = ((Node)mac.item(0)).getFirstChild().getNodeValue().trim();
+                    macs[i][0] = ((Node)mac.item(0)).getFirstChild().getNodeValue().trim();
+
+                    NodeList bridge = ((Element)nwNL.item(i)).getElementsByTagName("BRIDGE");
+
+                    macs[i][1] = ((Node)bridge.item(0)).getFirstChild().getNodeValue().trim();
                 }
             }            
         }
@@ -145,7 +149,7 @@ public class ParseXML
      * Returns networks MACs
      * @return macs array with the macs of the NICs to be added to this VM
      **/
-    String[] getNet()
+    String[][] getNet()
     {
         return macs;
     }

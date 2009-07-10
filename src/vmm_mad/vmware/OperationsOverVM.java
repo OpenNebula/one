@@ -287,9 +287,9 @@ public class OperationsOverVM
          }
 
          argsWithHost[args.length]      = "--url";
-         //argsWithHost[args.length + 1 ] = "https://" + hostName + ":443/sdk";
+         argsWithHost[args.length + 1 ] = "https://" + hostName + ":443/sdk";
 
-         argsWithHost[args.length + 1 ] = "https://localhost:8008/sdk";
+//         argsWithHost[args.length + 1 ] = "https://localhost:8008/sdk";
 
          cb = AppUtil.initialize("DeployVM", null, argsWithHost);
          cb.connect();

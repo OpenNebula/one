@@ -217,8 +217,8 @@ public class DeployVM
          vmConfigSpec.setCpuAllocation(raInfo);
          
          // DISKs
-         
-         addDisks();
+         // TODO finish disk support
+         // addDisks();
          
          // Network
          
@@ -253,6 +253,137 @@ public class DeployVM
       }
       
       
+     
+     void configureNetwork()
+     {
+         String[][] nics = pXML.getNet();
+         
+         if(nics.length==1 && nics[0].equals(""))
+         {
+             return;
+         }
+         
+         // First, let's find out the number of NICs to be removed    
+        // VirtualDevice [] test = vmConfigInfo.getHardware().getDevice();
+         
+
+         
+         // Lenth of array is #nicsToBeRemoved-#nicsToBeAdded
+                     
+         //test.length+
+         VirtualDeviceConfigSpec [] nicSpecArray = new VirtualDeviceConfigSpec[
+                                                                               nics.length];
+         
+         // Let's remove existing NICs
+         
+       /*  for(int i=0;i<test.length;i++)
+         {
+             VirtualDeviceConfigSpec nicSpec = new VirtualDeviceConfigSpec(); 
+             VirtualEthernetCard nic;
+             
+             nicSpec.setOperation(VirtualDeviceConfigSpecOperation.remove);            
+             nic             = (VirtualEthernetCard)test[i];
+             
+             nicSpec.setDevice(nic);
+             
+             nicSpecArray[i] = nicSpec;
+         }
+         */
+         
+        // Let's add specified NICs
+         
+         for(int i=0;i<nics.length;i++)
+         {
+             VirtualDeviceConfigSpec nicSpec = new VirtualDeviceConfigSpec();
+             String networkName = nics[i][1]; 
+             
+             nicSpec.setOperation(VirtualDeviceConfigSpecOperation.add);
+             VirtualEthernetCard nic =  new VirtualPCNet32();
+             VirtualEthernetCardNetworkBackingInfo nicBacking 
+                = new VirtualEthernetCardNetworkBackingInfo();
+             nicBacking.setDeviceName(networkName);
+             nic.setAddressType("manual");
+             nic.setMacAddress(nics[i][0]);
+             nic.setBacking(nicBacking);
+             nic.setKey(4);
+             nicSpec.setDevice(nic);
+             nicSpecArray[i] = nicSpec; // +test.length
+         }
+         
+         vmConfigSpec.setDeviceChange(nicSpecArray);
+    
+     }
+     
+      
+    DeployVM(String[] args, String hostName, String vid, ParseXML _pXML, String _datastore, String _datacenter) throws Exception
+    {  
+
+        String[] argsWithHost = new String[args.length+2];
+        
+        for(int i=0;i<args.length;i++)
+        {
+            argsWithHost[i] = args[i];
+        }
+        
+        argsWithHost[args.length]      = "--url";
+        argsWithHost[args.length + 1 ] = "https://" + hostName + ":443/sdk";
+
+        //argsWithHost[args.length + 1 ] = "https://localhost:8008/sdk";
+
+
+        cb = AppUtil.initialize("DeployVM", null, argsWithHost);
+        cb.connect();
+        
+        datastoreName  = _datastore;
+        datacenterName = _datacenter;
+        
+        vmName     = _pXML.getName() + "-" + vid;
+        vmDiskName = _pXML.getName();
+        pXML       = _pXML;
+
+        // Get reference to host
+        hostMor = cb.getServiceUtil().getDecendentMoRef(null,"HostSystem",
+                                                           hostName);
+                                                        
+        com.vmware.apputils.vim.ServiceConnection sc = cb.getConnection();
+        content = sc.getServiceContent();
+        service = sc.getService();
+    }
+    
+    DeployVM(String[] args, String hostName, String _vmName, String _datastore, String _datacenter) throws Exception
+    {  
+
+        String[] argsWithHost = new String[args.length+2];
+        
+        for(int i=0;i<args.length;i++)
+        {
+            argsWithHost[i] = args[i];
+        }
+        
+        argsWithHost[args.length]      = "--url";
+        argsWithHost[args.length + 1 ] = "https://" + hostName + ":443/sdk";
+        
+        //argsWithHost[args.length + 1 ] = "https://localhost:8008/sdk";
+
+        cb = AppUtil.initialize("DeployVM", null, argsWithHost);
+        cb.connect();
+
+        datastoreName  = _datastore;
+        datacenterName = _datacenter;
+        
+        vmName     = _vmName;
+        vmDiskName = _vmName.substring(0,_vmName.lastIndexOf("-"));
+
+        // Get reference to host
+        hostMor = cb.getServiceUtil().getDecendentMoRef(null,"HostSystem",
+                                                           hostName);
+                                                        
+        com.vmware.apputils.vim.ServiceConnection sc = cb.getConnection();
+        content = sc.getServiceContent();
+        service = sc.getService();
+    }
+    
+/*
      void addDisks()
      {
          String[] disks = pXML.getDisk();
@@ -313,152 +444,5 @@ public class DeployVM
          }
          
          vmConfigSpec.setDeviceChange(vdiskSpecArray);           
-     }
-     
-     void configureNetwork()
-     {
-         String[] nics = pXML.getNet();
-         
-         if(nics.length==1 && nics[0].equals(""))
-         {
-             return;
-         }
-         
-         // First, let's find out the number of NICs to be removed    
-         VirtualDevice [] test = vmConfigInfo.getHardware().getDevice();
-         
-
-         
-         // Lenth of array is #nicsToBeRemoved-#nicsToBeAdded
-                     
-         VirtualDeviceConfigSpec [] nicSpecArray = new VirtualDeviceConfigSpec[test.length+
-                                                                               nics.length];
-         
-         // Let's remove existing NICs
-         
-       /*  for(int i=0;i<test.length;i++)
-         {
-             VirtualDeviceConfigSpec nicSpec = new VirtualDeviceConfigSpec(); 
-             VirtualEthernetCard nic;
-             
-             nicSpec.setOperation(VirtualDeviceConfigSpecOperation.remove);            
-             nic             = (VirtualEthernetCard)test[i];
-             
-             nicSpec.setDevice(nic);
-             
-             nicSpecArray[i] = nicSpec;
-         }
-         */
-         
-        // Let's add specified NICs
-         
-         for(int i=0;i<nics.length;i++)
-         {
-             VirtualDeviceConfigSpec nicSpec = new VirtualDeviceConfigSpec();
-             // TODO make this dynamic
-             String networkName = "one-net"; 
-             
-             nicSpec.setOperation(VirtualDeviceConfigSpecOperation.add);
-             VirtualEthernetCard nic =  new VirtualPCNet32();
-             VirtualEthernetCardNetworkBackingInfo nicBacking 
-                = new VirtualEthernetCardNetworkBackingInfo();
-             nicBacking.setDeviceName(networkName);
-             nic.setAddressType(nics[i]); 
-             nic.setBacking(nicBacking);
-             nic.setKey(4);
-             nicSpec.setDevice(nic);
-             nicSpecArray[i+test.length] = nicSpec;
-         }
-     }
-     
-      
-    
-    /*
-    private String getDataStoreName(int size) throws Exception{
-       String dsName = null;
-       ManagedObjectReference [] datastores 
-          = (ManagedObjectReference [])cb.getServiceUtil().getDynamicProperty(
-                _virtualMachine,"datastore");
-       for(int i=0; i<datastores.length; i++) {
-          DatastoreSummary ds 
-             = (DatastoreSummary)cb.getServiceUtil().getDynamicProperty(datastores[i],
-                                                                       "summary");
-          if(ds.getFreeSpace() > size) {
-             dsName = ds.getName();
-             i = datastores.length + 1;           
-          }
-       }
-       return dsName;
-    }
-    */
-    
-    DeployVM(String[] args, String hostName, String vid, ParseXML _pXML, String _datastore, String _datacenter) throws Exception
-    {  
-
-        String[] argsWithHost = new String[args.length+2];
-        
-        for(int i=0;i<args.length;i++)
-        {
-            argsWithHost[i] = args[i];
-        }
-        
-        argsWithHost[args.length]      = "--url";
-        //argsWithHost[args.length + 1 ] = "https://" + hostName + ":443/sdk";
-
-        argsWithHost[args.length + 1 ] = "https://localhost:8008/sdk";
-
-
-        cb = AppUtil.initialize("DeployVM", null, argsWithHost);
-        cb.connect();
-        
-        datastoreName  = _datastore;
-        datacenterName = _datacenter;
-        
-        vmName     = _pXML.getName() + "-" + vid;
-        vmDiskName = _pXML.getName();
-        pXML       = _pXML;
-
-        // Get reference to host
-        hostMor = cb.getServiceUtil().getDecendentMoRef(null,"HostSystem",
-                                                           hostName);
-                                                        
-        com.vmware.apputils.vim.ServiceConnection sc = cb.getConnection();
-        content = sc.getServiceContent();
-        service = sc.getService();
-    }
-    
-    DeployVM(String[] args, String hostName, String _vmName, String _datastore, String _datacenter) throws Exception
-    {  
-
-        String[] argsWithHost = new String[args.length+2];
-        
-        for(int i=0;i<args.length;i++)
-        {
-            argsWithHost[i] = args[i];
-        }
-        
-        argsWithHost[args.length]      = "--url";
-        //argsWithHost[args.length + 1 ] = "https://" + hostName + ":443/sdk";
-        
-        argsWithHost[args.length + 1 ] = "https://localhost:8008/sdk";
-
-        cb = AppUtil.initialize("DeployVM", null, argsWithHost);
-        cb.connect();
-
-        datastoreName  = _datastore;
-        datacenterName = _datacenter;
-        
-        vmName     = _vmName;
-        vmDiskName = _vmName.substring(0,_vmName.lastIndexOf("-"));
-
-        // Get reference to host
-        hostMor = cb.getServiceUtil().getDecendentMoRef(null,"HostSystem",
-                                                           hostName);
-                                                        
-        com.vmware.apputils.vim.ServiceConnection sc = cb.getConnection();
-        content = sc.getServiceContent();
-        service = sc.getService();
-    }
-    
-
+     }*/
 }
