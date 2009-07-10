@@ -256,46 +256,49 @@ public class DeployVM
      
      void configureNetwork()
      {
-         String[][] nics = pXML.getNet();
-         
+         String[][] nics                  = pXML.getNet();
+         int        nics_toRemove_counter = 0; 
          if(nics.length==1 && nics[0].equals(""))
          {
              return;
          }
          
          // First, let's find out the number of NICs to be removed    
-        // VirtualDevice [] test = vmConfigInfo.getHardware().getDevice();
+         VirtualDevice [] test = vmConfigInfo.getHardware().getDevice();
          
-
-         
-         // Lenth of array is #nicsToBeRemoved-#nicsToBeAdded
-                     
-         //test.length+
-         VirtualDeviceConfigSpec [] nicSpecArray = new VirtualDeviceConfigSpec[
-                                                                               nics.length];
+         VirtualDeviceConfigSpec [] nicSpecArray_toRemove = new VirtualDeviceConfigSpec[test.length];   
          
          // Let's remove existing NICs
-         
-       /*  for(int i=0;i<test.length;i++)
+         for(int i=0;i<test.length;i++)
          {
              VirtualDeviceConfigSpec nicSpec = new VirtualDeviceConfigSpec(); 
              VirtualEthernetCard nic;
              
              nicSpec.setOperation(VirtualDeviceConfigSpecOperation.remove);            
-             nic             = (VirtualEthernetCard)test[i];
+             
+             try
+             {
+                nic             = (VirtualEthernetCard)test[i];
+             }
+             catch(Exception e)
+             {
+                 continue;
+             }
              
              nicSpec.setDevice(nic);
-             
-             nicSpecArray[i] = nicSpec;
+             nicSpecArray_toRemove[nics_toRemove_counter++] = nicSpec;
          }
-         */
          
-        // Let's add specified NICs
-         
-         for(int i=0;i<nics.length;i++)
+        
+
+         VirtualDeviceConfigSpec [] nicSpecArray = new VirtualDeviceConfigSpec[nics_toRemove_counter+   
+                                                                               nics.length];
+
+         // Let's add specified NICs
+         for(int i=nics_toRemove_counter;i<(nics.length+nics_toRemove_counter);i++)
          {
              VirtualDeviceConfigSpec nicSpec = new VirtualDeviceConfigSpec();
-             String networkName = nics[i][1]; 
+             String networkName = nics[i-nics_toRemove_counter][1]; 
              
              nicSpec.setOperation(VirtualDeviceConfigSpecOperation.add);
              VirtualEthernetCard nic =  new VirtualPCNet32();
@@ -303,15 +306,19 @@ public class DeployVM
                 = new VirtualEthernetCardNetworkBackingInfo();
              nicBacking.setDeviceName(networkName);
              nic.setAddressType("manual");
-             nic.setMacAddress(nics[i][0]);
+             nic.setMacAddress(nics[i-nics_toRemove_counter][0]);
              nic.setBacking(nicBacking);
              nic.setKey(4);
              nicSpec.setDevice(nic);
-             nicSpecArray[i] = nicSpec; // +test.length
+             nicSpecArray[i] = nicSpec; 
+         }
+
+         for(int i=0;i<nics_toRemove_counter;i++)
+         {
+            nicSpecArray[i] = nicSpecArray_toRemove[i];
          }
          
          vmConfigSpec.setDeviceChange(nicSpecArray);
-    
      }
      
       
