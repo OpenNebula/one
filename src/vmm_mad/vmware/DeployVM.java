@@ -192,30 +192,11 @@ public class DeployVM
          vmConfigSpec = new VirtualMachineConfigSpec();
          
 
-         ResourceAllocationInfo raInfo     = new ResourceAllocationInfo();
-         SharesInfo             sharesInfo = new SharesInfo();
          
-         // Memory
-         
-         sharesInfo.setLevel(SharesLevel.custom);          
-         sharesInfo.setShares(Integer.parseInt(pXML.getMemory())*1024);
-         
-         raInfo.setShares(sharesInfo);
-         
-         vmConfigSpec.setMemoryAllocation(raInfo);
-         
-         // CPU
-                      
-         sharesInfo = new SharesInfo();
-         raInfo     = new ResourceAllocationInfo();
-         
-         sharesInfo.setLevel(SharesLevel.custom);          
-         sharesInfo.setShares(Integer.parseInt(pXML.getCPU()));
-         
-         raInfo.setShares(sharesInfo);
-            
-         vmConfigSpec.setCpuAllocation(raInfo);
-         
+         vmConfigSpec.setMemoryMB((long)Integer.parseInt(pXML.getMemory()));
+
+         vmConfigSpec.setNumCPUs(Integer.parseInt(pXML.getCPU()));
+
          // DISKs
          // TODO finish disk support
          // addDisks();
