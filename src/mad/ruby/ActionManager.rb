@@ -144,7 +144,7 @@ class ActionManager
             thread = @action_running[action_id]
             
             if thread
-                thread.kill!
+                thread.kill
 
                 @num_running -= 1
                 @action_running.delete(action_id)
