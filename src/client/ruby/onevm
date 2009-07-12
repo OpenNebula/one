@@ -558,7 +558,7 @@ when "resume"
     end
     
 when "restart"
-    check_parameters("restart")
+    check_parameters("restart", 1)
     vm_id=get_vm_id(ARGV[0])
     
     vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
