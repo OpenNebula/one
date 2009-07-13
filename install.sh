@@ -198,7 +198,6 @@ RUBY_LIB_FILES="src/mad/ruby/one_mad.rb \
                 src/mad/ruby/CommandManager.rb \
                 src/mad/ruby/OpenNebulaDriver.rb \
                 src/mad/ruby/VirtualMachineDriver.rb \
-                src/client/ruby/one.rb \
                 src/client/ruby/client_utilities.rb \
                 src/client/ruby/command_parse.rb \
                 src/client/ruby/lib/OpenNebula.rb \
