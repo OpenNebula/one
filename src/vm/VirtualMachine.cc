@@ -667,6 +667,12 @@ int VirtualMachine::get_network_leases()
             return -1;
         }
 
+        if ( vn->get_uid() != uid) 
+        {
+            return -1;
+        }
+
+
         ip = nic->vector_value("IP");
 
         if (ip.empty())
