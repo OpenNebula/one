@@ -62,6 +62,7 @@ int XenDriver::deployment_description(
     string listen     = "";
     string port       = "";
     string passwd     = "";
+    string keymap     = "";
 
     const VectorAttribute * raw;
     string data;
@@ -343,6 +344,7 @@ int XenDriver::deployment_description(
             listen = graphics->vector_value("LISTEN");
             port   = graphics->vector_value("PORT");
             passwd = graphics->vector_value("PASSWD");
+            keymap = graphics->vector_value("KEYMAP");
 
             if ( type == "vnc" || type == "VNC" )
             {
@@ -361,6 +363,11 @@ int XenDriver::deployment_description(
                 if ( !passwd.empty() )
                 {
                     file << ",vncpasswd=" << passwd;
+                }
+
+                if ( !keymap.empty() )
+                {
+                    file << ",keymap=" << keymap ;
                 }
 
                 file <<"']" << endl;

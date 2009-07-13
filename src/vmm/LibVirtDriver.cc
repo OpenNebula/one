@@ -65,6 +65,7 @@ int LibVirtDriver::deployment_description(
     string  listen     = "";
     string  port       = "";
     string  passwd     = "";
+    string  keymap     = "";
 
     const VectorAttribute * input;
 
@@ -420,6 +421,7 @@ int LibVirtDriver::deployment_description(
             listen = graphics->vector_value("LISTEN");
             port   = graphics->vector_value("PORT");
             passwd = graphics->vector_value("PASSWD");
+            keymap = graphics->vector_value("KEYMAP");
 
             if ( type == "vnc" || type == "VNC" )
             {
@@ -438,6 +440,11 @@ int LibVirtDriver::deployment_description(
                 if ( !passwd.empty() )
                 {
                     file << " password='" << passwd << "'";
+                }
+
+                if ( !keymap.empty() )
+                {
+                    file << " keymap='" << keymap << "'";
                 }
 
                 file << "/>" << endl;
