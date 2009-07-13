@@ -313,7 +313,6 @@ when "list"
         hostlist=HostShow.new(get_one_client)
         ops[:columns]=ops[:list] if ops[:list]
         result=hostlist.list_short(ops)
-        hostlist.close
     else
         hostpool=OpenNebula::HostPool.new(get_one_client)
         hostpool.info
@@ -324,7 +323,6 @@ when "top"
     hostlist=HostShow.new(get_one_client)
     ops[:columns]=ops[:list] if ops[:list]
     result=hostlist.top(ops)
-    hostlist.close
     
 when "enable"
     check_parameters("enable", 1)
