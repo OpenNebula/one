@@ -362,18 +362,23 @@ int Host::dump(SqliteDB * db, ostringstream& oss, const string& where)
 
 int Host::drop(SqliteDB * db)
 {
-    ostringstream   oss;
+    ostringstream oss;
+    int rc;
 
-    // First, drop the template
     host_template.drop(db);
 
-    // Second, drop the host_shares
     host_share.drop(db);
 
-    // Third, drop the host itself
     oss << "DELETE FROM " << table << " WHERE oid=" << oid;
 
-    return db->exec(oss);
+    rc = db->exec(oss);
+
+    if ( rc == 0 )
+    {
+        set_valid(false);
+    }
+
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */

@@ -66,6 +66,8 @@ void RequestManager::UserDelete::execute(
     }
     
     rc = UserDelete::upool->drop(user);
+
+    user->unlock();
     
     if ( rc != 0 )                             
     {                                            
@@ -79,7 +81,7 @@ void RequestManager::UserDelete::execute(
     arrayresult = new xmlrpc_c::value_array(arrayData);
     *retval     = *arrayresult;
 
-     delete arrayresult; // and get rid of the original
+    delete arrayresult; // and get rid of the original
 
     return;
 

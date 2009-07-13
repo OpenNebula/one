@@ -65,6 +65,8 @@ void RequestManager::VirtualNetworkDelete::execute(
     }
    
     rc = vnpool->drop(vn);
+
+    vn->unlock();
    
     // All nice, return the host info to the client  
     arrayData.push_back(xmlrpc_c::value_boolean( rc == 0 )); // SUCCESS

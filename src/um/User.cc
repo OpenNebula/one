@@ -266,11 +266,19 @@ int User::dump(SqliteDB * db, ostringstream& oss, const string& where)
 
 int User::drop(SqliteDB * db)
 {
-    ostringstream   oss;
-    
+    ostringstream oss;
+    int rc;
+
     oss << "DELETE FROM " << table << " WHERE oid=" << oid;
 
-    return db->exec(oss);
+    rc = db->exec(oss);
+
+    if ( rc == 0 )
+    {
+        set_valid(false);
+    }
+
+    return rc;
 }
 
 /* ************************************************************************** */

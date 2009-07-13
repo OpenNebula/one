@@ -37,7 +37,7 @@ class PoolObjectSQL : public ObjectSQL
 {
 public:
 
-	PoolObjectSQL(int id=-1):oid(id)
+	PoolObjectSQL(int id=-1):oid(id),valid(true)
     {
         pthread_mutex_init(&mutex,0);
     };
@@ -53,6 +53,24 @@ public:
     {
         return oid;
     };
+
+    /**
+     *  Check if the object is valid
+     *    @return true if object is valid
+     */
+    const bool& isValid() const
+    {
+       return valid;
+    };
+
+    /**
+     *  Set the object valid flag  
+     *  @param _valid new valid flag
+     */
+    void set_valid(const bool _valid)
+    {
+        valid = _valid;
+    }
 
     /**
      *  Function to lock the object
@@ -74,7 +92,12 @@ protected:
     /**
      *  The object unique ID
      */
-    int             oid;
+    int  oid;
+
+    /**
+     *  The contents ob this object are valid
+     */
+    bool valid;      
 
 private:
 

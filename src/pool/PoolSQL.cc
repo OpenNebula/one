@@ -166,14 +166,23 @@ PoolObjectSQL * PoolSQL::get(
 
     if ( index != pool.end() )
     {        
-        if ( olock == true )
+        if ( index->second->isValid() == false )
         {
-            index->second->lock();
+            objectsql = 0;
+        }
+        else
+        {
+            objectsql = index->second;
+
+            if ( olock == true )
+            {
+                objectsql->lock();
+            }
         }
 
         unlock();
 
-        return index->second;
+        return objectsql;
     }
     else
     {            

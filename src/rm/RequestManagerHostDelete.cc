@@ -61,6 +61,8 @@ void RequestManager::HostDelete::execute(
     
     rc = HostDelete::hpool->drop(host);
 
+    host->unlock();
+
     // All nice, return the host info to the client  
     arrayData.push_back(xmlrpc_c::value_boolean( rc == 0 )); // SUCCESS
     arrayresult = new xmlrpc_c::value_array(arrayData);

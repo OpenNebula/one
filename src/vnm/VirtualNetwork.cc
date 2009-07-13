@@ -423,7 +423,6 @@ error_null_leases:
     ose << "Error getting Virtual Network leases nid: " << oid;
 
 error_leases:
- 	vn_template.drop(db);  
     vn_drop(db);
 
 error_common:
@@ -477,9 +476,18 @@ int VirtualNetwork::vn_drop(SqliteDB * db)
     ostringstream   oss;
     int             rc;
 
+ 	vn_template.drop(db);  
+
+    leases->drop(db);
+
     oss << "DELETE FROM " << table << " WHERE OID=" << oid;
         
     rc = db->exec(oss);
+
+    if ( rc == 0 )
+    {
+        set_valid(false);
+    }
 
     return rc;    
 }
