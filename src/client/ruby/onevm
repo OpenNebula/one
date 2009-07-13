@@ -25,17 +25,13 @@ else
     RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
 end
 
-$: << './lib'
 $: << RUBY_LIB_LOCATION
 
 
-#require 'one'
 require 'OpenNebula'
-
 require 'client_utilities'
 require 'command_parse'
 
-require 'profiler'
 
 ShowTableVM={
     :id => {
@@ -169,9 +165,6 @@ class VmShow
         @table_history=ShowTable.new(ShowTableHistory)
     end
     
-    def close
-    end
-
     def header_vm_small
         scr_bold
         scr_underline
@@ -186,24 +179,6 @@ class VmShow
         print @table_history.header_str
         scr_restore
         puts ""
-    end
-
-    def print_vm_long(data)
-        
-        str="%-10s: %-20s"
-        
-        puts str % ["ID", data["oid"]]
-        puts str % ["NAME", data["deploy_id"]]
-        puts str % ["STATE", ONE::VM_STATE[data["state"].to_i]]
-        puts str % ["LCM_STATE", ONE::LCM_STATE[data["lcm_state"].to_i]]
-        puts str % ["MEMORY", data["memory"]]
-        puts str % ["CPU", data["cpu"]]
-        puts
-        
-        str="    %-20s: %-20s"
-        data.each {|key,value|
-            puts str % [key, value] if !%w{oid deploy_id state lcm_state memory cpu template_id}.include? key
-        }
     end
     
     def list_short(options=nil)
@@ -595,7 +570,6 @@ when "list"
 
         ops[:columns]=ops[:list] if ops[:list]
         result=vmlist.list_short(ops) 
-        vmlist.close
     else
         vmpool=OpenNebula::VirtualMachinePool.new(get_one_client,
             filter_flag.to_i)
@@ -607,24 +581,9 @@ when "top"
     vmlist=VmShow.new(get_one_client)
     ops[:columns]=ops[:list] if ops[:list]
     result=vmlist.top(ops)
-    vmlist.close
     
-when "show_db"
-    # TODO: delete?
-    check_parameters("show", 1)
-    vmlist=VmShow.new(vm)
-    
-    if ARGV[0]
-        vm_id=get_vm_id(vm, ARGV[0])
-        result=vmlist.list_long(vm_id)
-        
-        vmlist.close
-    else
-        result=[false, "You must provide a VM id."]
-    end
     
 when "history"
-    # TODO: change this to new API
     vmlist=VmShow.new(get_one_client)
     ops[:columns]=ops[:list] if ops[:list]
     if ARGV[0]
@@ -634,7 +593,6 @@ when "history"
     else
         result=vmlist.list_vm_history_all(ops)
     end
-    vmlist.close
     
 when "delete"
     check_parameters("delete", 1)
@@ -649,7 +607,6 @@ when "delete"
     end
 
 when "show"
-    # TODO: change this to the new API
     check_parameters("get_info", 1)
     vm_id=get_vm_id(ARGV[0])
 
@@ -695,43 +652,6 @@ when "show"
         puts vm.to_xml
     end
      
-     
-=begin
-     result = res = vm.get_info(vm_id)
-     if res[0]
-         res[1].gsub!(/^\n/, '')
-         (normal, template)=res[1].split("Template")
-         
-         str="%-15s: %-20s"
-         normal.each{|line|
-             (key, value)=line.split(":").collect{|v| v.strip }
-             case key 
-             when "STATE"
-                 value = ONE::VM_STATE[value.to_i]
-             when "LCM STATE"
-                 value = ONE::LCM_STATE[value.to_i]   
-             when "START TIME","STOP TIME"
-                 value=Time.at(value.to_i).strftime("%m/%d %H:%M:%S")
-             end
-             puts str % [key, value] 
-         }
-         
-         puts
-         puts "....: Template :...."
-                           
-         str="    %-16s: %-20s"
-         
-         template.gsub!(/\@\^\_\^\@/,',')
-         
-         template.scan(/^\t*(.*?)=(.*)$/).each{|line|
-             (key, value)=line
-             puts str % [key, value] 
-         }              
-         
-         command_exit 0
-     end
-=end
-
 else
     onevm_opts.print_help
     exit -1
@@ -744,7 +664,4 @@ if OpenNebula.is_error?(result)
     exit -1
 end
 
-
-
-#command_exit 0
 

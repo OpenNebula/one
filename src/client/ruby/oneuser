@@ -27,12 +27,11 @@ end
 
 $: << RUBY_LIB_LOCATION
 
-$: << "./lib"
 
-#require 'one'
 require 'OpenNebula'
 require 'client_utilities'
 require 'command_parse'
+
 
 ShowTableUP={
     :uid => {
@@ -71,9 +70,6 @@ class UPShow
         @table=ShowTable.new(ShowTableUP)
     end
     
-    def close
-    end
-
     def header_up_small
         scr_bold
         scr_underline
@@ -185,7 +181,6 @@ when "list"
         uplist=UPShow.new
         ops[:columns]=ops[:list] if ops[:list]
         result=uplist.list_short(ops)
-        uplist.close
     else
         userpool=OpenNebula::UserPool.new(get_one_client)
         userpool.info

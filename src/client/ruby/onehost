@@ -25,9 +25,9 @@ else
     RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
 end
 
+
 $: << RUBY_LIB_LOCATION
 
-$: << './lib'
 
 require 'OpenNebula'
 require 'client_utilities'
@@ -63,7 +63,9 @@ ShowTableHost={
         :name => "FCPU",
         :desc => "Free cpu percentage",
         :size => 6,
-        :proc => lambda {|d,e| d["HOST_SHARE/MAX_CPU"].to_i-d["HOST_SHARE/USED_CPU"].to_i }
+        :proc => lambda {|d,e|
+            d["HOST_SHARE/MAX_CPU"].to_i-d["HOST_SHARE/USED_CPU"].to_i
+        }
     },
     :acpu => {
         :name => "ACPU",
@@ -106,9 +108,6 @@ class HostShow
         @table=ShowTable.new(ShowTableHost)
     end
     
-    def close
-    end
-
     def header_host_small
         scr_bold
         scr_underline
