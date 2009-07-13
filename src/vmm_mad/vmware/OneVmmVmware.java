@@ -90,7 +90,7 @@ class OneVmmVmware extends Thread
             hostName = null;
             fileName = null;
 	        
-            // Read a line a parse it
+            // Read a line and parse it
             try
             {
                 str = in.readLine();
@@ -163,6 +163,15 @@ class OneVmmVmware extends Thread
                             
                             if(!dVM.shapeVM())
                             {
+                                // Will try and deregister VM
+                                try
+                                {
+                                    oVM = new OperationsOverVM(arguments,hostName);
+                                    String vmName = pXML.getName() + "-" + vid_str;
+                                    oVM.deregisterVM(vmName);
+                                }
+                                catch(Exception e){}
+
                                 throw new Exception("Error reconfiguring VM (" + pXML.getName() + ").");
                             }
 
@@ -182,6 +191,14 @@ class OneVmmVmware extends Thread
                             
                             if(!oVM.powerOn(pXML.getName() + "-" + vid_str))
                             {
+                                // Will try and deregister VM
+                                try
+                                {
+                                    oVM = new OperationsOverVM(arguments,hostName);
+                                    String vmName = pXML.getName() + "-" + vid_str;
+                                    oVM.deregisterVM(vmName);
+                                }
+                                catch(Exception e){}
                                 throw new Exception("Error powering on VM(" + pXML.getName() + ").");
                             }
                             
