@@ -139,29 +139,26 @@ private:
      *    or 0 in not found
      */
     const VirtualMachineManagerDriver * get(
-        int             uid,
         const string&   name,
         const string&   value)
     {
         return static_cast<const VirtualMachineManagerDriver *>
-               (MadManager::get(uid,name,value));
+               (MadManager::get(0,name,value));
     };
 
     /**
      *  Returns a pointer to a Virtual Machine Manager driver. The driver is 
      *  searched by its name.
-     *    @param uid of the owner of the driver
      *    @param name the name of the driver
      *    @return the VM driver owned by uid with attribute name equal to value
      *    or 0 in not found
      */
     const VirtualMachineManagerDriver * get(
-        int             uid,
         const string&   name)
     {
         string _name("NAME");
         return static_cast<const VirtualMachineManagerDriver *>
-               (MadManager::get(uid,_name,name));
+               (MadManager::get(0,_name,name));
     };
     
     /**

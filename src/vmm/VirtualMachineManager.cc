@@ -250,7 +250,7 @@ void VirtualMachineManager::deploy_action(int vid)
     }
 
     // Get the driver for this VM
-    vmd = get(vm->get_uid(),vm->get_vmm_mad());
+    vmd = get(vm->get_vmm_mad());
 
     if ( vmd == 0 )
     {
@@ -327,7 +327,7 @@ void VirtualMachineManager::save_action(
     }
 
     // Get the driver for this VM
-    vmd = get(vm->get_uid(),vm->get_vmm_mad());
+    vmd = get(vm->get_vmm_mad());
 
     if ( vmd == 0 )
     {
@@ -408,7 +408,7 @@ void VirtualMachineManager::shutdown_action(
     }
 
     // Get the driver for this VM
-    vmd = get(vm->get_uid(),vm->get_vmm_mad());
+    vmd = get(vm->get_vmm_mad());
 
     if ( vmd == 0 )
     {
@@ -466,7 +466,7 @@ void VirtualMachineManager::cancel_action(
     }
 
     // Get the driver for this VM
-    vmd = get(vm->get_uid(),vm->get_vmm_mad());
+    vmd = get(vm->get_vmm_mad());
 
     if ( vmd == 0 )
     {
@@ -527,7 +527,7 @@ void VirtualMachineManager::cancel_previous_action(
     }
 
     // Get the driver for this VM
-    vmd = get(vm->get_uid(),vm->get_previous_vmm_mad());
+    vmd = get(vm->get_previous_vmm_mad());
 
     if ( vmd == 0 )
     {
@@ -579,7 +579,7 @@ void VirtualMachineManager::migrate_action(
     }
 
     // Get the driver for this VM
-    vmd = get(vm->get_uid(),vm->get_vmm_mad());
+    vmd = get(vm->get_vmm_mad());
 
     if ( vmd == 0 )
     {
@@ -650,7 +650,7 @@ void VirtualMachineManager::restore_action(
     }
 
     // Get the driver for this VM
-    vmd = get(vm->get_uid(),vm->get_vmm_mad());
+    vmd = get(vm->get_vmm_mad());
 
     if ( vmd == 0 )
     {
@@ -710,7 +710,7 @@ void VirtualMachineManager::poll_action(
     }
 
     // Get the driver for this VM
-    vmd = get(vm->get_uid(),vm->get_vmm_mad());
+    vmd = get(vm->get_vmm_mad());
 
     if ( vmd == 0 )
     {
@@ -763,7 +763,7 @@ void VirtualMachineManager::driver_cancel_action(
     }
 
     // Get the driver for this VM
-    vmd = get(vm->get_uid(),vm->get_vmm_mad());
+    vmd = get(vm->get_vmm_mad());
 
     if ( vmd == 0 )
     {
@@ -846,7 +846,7 @@ void VirtualMachineManager::timer_action()
 
             vm->set_last_poll(thetime);
 
-            vmd = get(vm->get_uid(),vm->get_vmm_mad());
+            vmd = get(vm->get_vmm_mad());
 
             if ( vmd == 0 )
             {

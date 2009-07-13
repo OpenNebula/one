@@ -234,7 +234,7 @@ void TransferManager::prolog_action(int vid)
         goto error_history;
     }
 
-    tm_md = get(vm->get_uid(),vm->get_tm_mad());
+    tm_md = get(vm->get_tm_mad());
 
     if ( tm_md == 0 )
     {
@@ -451,7 +451,7 @@ void TransferManager::prolog_migr_action(int vid)
         goto error_history;
     }
 
-    tm_md = get(vm->get_uid(),vm->get_tm_mad());
+    tm_md = get(vm->get_tm_mad());
 
     if ( tm_md == 0 )
     {
@@ -535,7 +535,7 @@ void TransferManager::prolog_resume_action(int vid)
         goto error_history;
     }
 
-    tm_md = get(vm->get_uid(),vm->get_tm_mad());
+    tm_md = get(vm->get_tm_mad());
 
     if ( tm_md == 0 )
     {
@@ -625,7 +625,7 @@ void TransferManager::epilog_action(int vid)
         goto error_history;
     }
 
-    tm_md = get(vm->get_uid(),vm->get_tm_mad());
+    tm_md = get(vm->get_tm_mad());
 
     if ( tm_md == 0 )
     {
@@ -736,7 +736,7 @@ void TransferManager::epilog_stop_action(int vid)
         goto error_history;
     }
 
-    tm_md = get(vm->get_uid(),vm->get_tm_mad());
+    tm_md = get(vm->get_tm_mad());
 
     if ( tm_md == 0 )
     {
@@ -819,7 +819,7 @@ void TransferManager::epilog_delete_action(int vid)
         goto error_history;
     }
 
-    tm_md = get(vm->get_uid(),vm->get_tm_mad());
+    tm_md = get(vm->get_tm_mad());
 
     if ( tm_md == 0 )
     {
@@ -902,7 +902,7 @@ void TransferManager::epilog_delete_previous_action(int vid)
         goto error_history;
     }
 
-    tm_md = get(vm->get_uid(),vm->get_previous_tm_mad());
+    tm_md = get(vm->get_previous_tm_mad());
 
     if ( tm_md == 0 )
     {
@@ -986,7 +986,7 @@ void TransferManager::driver_cancel_action(int vid)
         goto error_history;
     }
 
-    tm_md = get(vm->get_uid(),vm->get_tm_mad());
+    tm_md = get(vm->get_tm_mad());
 
     if ( tm_md == 0 )
     {

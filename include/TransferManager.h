@@ -118,36 +118,32 @@ private:
 
     /**
      *  Returns a pointer to a Transfer Manager driver.
-     *    @param uid of the owner of the driver
      *    @param name of an attribute of the driver (e.g. its type)
      *    @param value of the attribute
      *    @return the TM driver owned by uid with attribute name equal to value
      *    or 0 in not found
      */
     const TransferManagerDriver * get(
-        int             uid,
         const string&   name,
         const string&   value)
     {
         return static_cast<const TransferManagerDriver *>
-               (MadManager::get(uid,name,value));
+               (MadManager::get(0,name,value));
     };
 
     /**
      *  Returns a pointer to a Transfer Manager driver. The driver is 
      *  searched by its name.
-     *    @param uid of the owner of the driver
      *    @param name the name of the driver
      *    @return the TM driver owned by uid with attribute name equal to value
      *    or 0 in not found
      */
     const TransferManagerDriver * get(
-        int             uid,
         const string&   name)
     {
         string _name("NAME");
         return static_cast<const TransferManagerDriver *>
-               (MadManager::get(uid,_name,name));
+               (MadManager::get(0,_name,name));
     };
         
     /**
