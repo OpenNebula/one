@@ -669,6 +669,10 @@ int VirtualMachine::get_network_leases()
 
         if ( vn->get_uid() != uid) 
         {
+            ostringstream ose;
+            ose << "Owner [" << uid << "] of the VM doesn't have ownership of Virtual Network [" 
+                << vn->get_uid() << "]";
+            Nebula::log("VMM", Log::ERROR, ose);
             return -1;
         }
 
