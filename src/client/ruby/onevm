@@ -386,6 +386,30 @@ EOT
     
 end
 
+
+def get_user_flags
+    ops=Hash.new
+    if ARGV[0]
+        case ARGV[0]
+            when "a", "all"
+                ops[:filter_user]="-2"
+            when "m", "mine"
+                ops[:filter_user]="-1"
+            else
+                if !ARGV[0].match(/^[0123456789]+$/)
+                    ops[:filter_user]="-2"
+                    ops[:filter_flag]=ARGV[0]
+                else
+                    ops[:filter_user]=ARGV[0]
+                end
+        end
+     else
+        ops[:filter_user]="-2"
+     end
+
+     ops
+end
+
 onevm_opts=OnevmParse.new
 onevm_opts.parse(ARGV)
 ops=onevm_opts.options
@@ -545,40 +569,22 @@ when "restart"
     end
     
 when "list"
-   
-    if ARGV[0]
-        case ARGV[0]
-            when "a", "all"
-                filter_flag="-2"
-            when "m", "mine"
-                filter_flag="-1"
-            else
-                if !ARGV[0].match(/^[0123456789]+$/)
-                    filter_flag="-2"
-                    ops[:filter_flag]=ARGV[0]
-
-                else
-                    filter_flag=ARGV[0]
-                end
-        end
-     else
-        filter_flag="-2"
-     end
-   
+    ops.merge!(get_user_flags)
     if !ops[:xml]
-        vmlist=VmShow.new(get_one_client, filter_flag)
+        vmlist=VmShow.new(get_one_client, ops[:filter_user].to_i)
 
         ops[:columns]=ops[:list] if ops[:list]
         result=vmlist.list_short(ops) 
     else
         vmpool=OpenNebula::VirtualMachinePool.new(get_one_client,
-            filter_flag.to_i)
+            ops[:filter_user].to_i)
         vmpool.info
         puts vmpool.to_xml
     end
     
 when "top"
-    vmlist=VmShow.new(get_one_client)
+    ops.merge!(get_user_flags)
+    vmlist=VmShow.new(get_one_client, ops[:filter_user].to_i)
     ops[:columns]=ops[:list] if ops[:list]
     result=vmlist.top(ops)
     
