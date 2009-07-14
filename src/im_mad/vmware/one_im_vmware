@@ -47,9 +47,9 @@ fi
 
 # Execute the actual MAD
 if [ -n "${ONE_MAD_DEBUG}" ]; then
-    exec nice -n $PRIORITY java -cp $ONE_LOCATION/lib/mads:$CLASSPATH -Ddatastore=$VMWARE_DATASTORE -Ddatacenter=$VMWARE_DATACENTER -Djavax.net.ssl.trustStore=$VMWARE_TRUSTORE -Xmx1024M $MAD_FILE $* 2>> $MAD_LOG_PATH
+    exec nice -n $PRIORITY java -cp $ONE_LOCATION/lib/mads:$CLASSPATH -Ddebug=$ONE_MAD_DEBUG -Ddatastore=$VMWARE_DATASTORE -Ddatacenter=$VMWARE_DATACENTER -Djavax.net.ssl.trustStore=$VMWARE_TRUSTORE -Xmx1024M $MAD_FILE $* 2>> $MAD_LOG_PATH
 else
-     exec nice -n $PRIORITY java -cp $ONE_LOCATION/lib/mads:$CLASSPATH -Ddatastore=$VMWARE_DATASTORE -Ddatacenter=$VMWARE_DATACENTER -Djavax.net.ssl.trustStore=$VMWARE_TRUSTORE -Xmx1024M $MAD_FILE $* 2> /dev/null
+    exec nice -n $PRIORITY java -cp $ONE_LOCATION/lib/mads:$CLASSPATH -Ddebug=$ONE_MAD_DEBUG -Ddatastore=$VMWARE_DATASTORE -Ddatacenter=$VMWARE_DATACENTER -Djavax.net.ssl.trustStore=$VMWARE_TRUSTORE -Xmx1024M $MAD_FILE $* 2> /dev/null
 fi
 
 

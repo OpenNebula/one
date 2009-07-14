@@ -27,7 +27,8 @@ class OneVmmVmware extends Thread
 {
     private String[]     arguments;
     OperationsOverVM     oVM;
-    
+    DeployVM             dVM;
+
     boolean              debug;
 
     // Helpers from VI samples
@@ -147,7 +148,7 @@ class OneVmmVmware extends Thread
                             ParseXML pXML = new ParseXML(fileName);
 
                             // First, register the VM
-                            DeployVM dVM = new DeployVM(arguments, 
+                            dVM = new DeployVM(arguments, 
                                                         hostName, 
                                                         vid_str, 
                                                         pXML,
@@ -334,6 +335,17 @@ class OneVmmVmware extends Thread
                                  System.err.println(action + " FAILURE " + vid_str + " Failed suspending VM in host " + 
                                                     hostName);
                              }
+                             continue;
+                         }
+
+                         if(!oVM.deregisterVM(vmName))
+                         {
+                             synchronized (System.err)
+                             {
+                                 System.err.println(action + " FAILURE " + vid_str + " Failed deregistering of " +vmName
+                                                    + " in host " + hostName +".");
+                             }
+                             continue;
                          }
                          else
                          {
@@ -422,6 +434,17 @@ class OneVmmVmware extends Thread
                          try
                          {
                              oVM = new OperationsOverVM(arguments,hostName);
+
+                             dVM = new DeployVM(arguments, 
+                                                hostName, 
+                                                vmName,
+                                                System.getProperty("datastore"),
+                                                System.getProperty("datacenter"));
+                             
+                             if(!dVM.registerVirtualMachine())
+                             {
+                                 // We will skip this error, it may be pre-registered
+                             }
                          }
                          catch(Exception e)
                          {
@@ -476,125 +499,11 @@ class OneVmmVmware extends Thread
                  
                  if (action.equals("MIGRATE"))
                  {      
-                     if (str_split.length < 4)
+                     synchronized (System.err)
                      {
-                         System.out.println("FAILURE Wrong number of arguments for MIGRATE " + 
-                                            "action. Number args = [" + str_split.length + "].");
-                         synchronized (System.err)
-                         {
-                             System.err.println(action + " FAILURE " + vid_str); 
-                             continue;
-                         }
-                     }
-                     else
-                     {
-                         vid_str               = str_split[1];
-                         String sourceHostName = str_split[2];  
-                         String vmName         = str_split[3];
-                         String destHostName   = str_split[4];
-                         
-                         // First, create the checkpoint
-                         
-                         try
-                         {
-                             oVM = new OperationsOverVM(arguments,sourceHostName);
-                         }
-                         catch(Exception e)
-                         {
-                             synchronized (System.err)
-                             {
-                                 System.err.println(action + " FAILURE " + vid_str + " Failed connection to host " +
-                                                    sourceHostName +". Reason: " + e.getMessage());
-                                 if(debug)
-                                 {
-                                     e.printStackTrace(); 
-                                 }
-                             }
-                             continue;
-                         }
-                         
-                         // First, checkpoint the running virtual machine
-                         
-                         if(!oVM.save(vmName))
-                         {
-                             synchronized (System.err)
-                             {
-                                 System.err.println(action + " FAILURE " + vid_str + " Failed saving VM in host " + 
-                                                    sourceHostName);
-                                 continue;
-                             }
-                         }
-                         
-                         // Now, we stop it
-                         
-                         if(!oVM.powerOff(vmName))
-                         {
-                             synchronized (System.err)
-                             {
-                                 System.err.println(action + " FAILURE " + vid_str + " Failed shutdown VM in host " + 
-                                                    sourceHostName);
-                             }
-                         }
-                         
-                         // Now, register machine in new host
-                         
-                         DeployVM dVM;
-                         try
-                         {
-                             oVM = new OperationsOverVM(arguments,destHostName);
-                             dVM = new DeployVM(arguments, 
-                                                destHostName, 
-                                                vmName,
-                                                System.getProperty("datastore"),
-                                                System.getProperty("datacenter"));
-                             
-                             if(!dVM.registerVirtualMachine())
-                             {
-                                 // We will skip this error, it may be pre-registered
-                             }
-
-                             // Power it On
-
-                             if(!oVM.powerOn(vmName))
-                             {
-                                 throw new Exception();
-                             }
-                         }
-                         catch(Exception e)
-                         {
-                             synchronized (System.err)
-                             {
-                                 System.err.println(action + " FAILURE " + vid_str + " Failed registering VM ["
-                                                    + vmName + "] in host " + destHostName);
-                                 if(debug)
-                                 {
-                                     e.printStackTrace(); 
-                                 }
-                             }
-                             continue;
-                         }
-                         
-                         
-                         // Restore the virtual machine checkpoint
-                         
-                         if(!oVM.restoreCheckpoint(vmName))
-                         {
-                             synchronized (System.err)
-                             {
-                                 System.err.println(action + " FAILURE " + vid_str + " Failed restoring VM [" + 
-                                                    vmName + "] in host " +  destHostName);
-                             }
-                         }
-                         else
-                         {
-                             synchronized (System.err)
-                             {
-                                 System.err.println(action + " SUCCESS " + vid_str);                             
-                             }
-                         }
-                         
+                         System.err.println(action + " FAILURE " + vid_str + " Action not implemented."); 
                          continue;
-                     }                
+                     }
                  } // if (action.equals("MIGRATE"))      
                  
                  if (action.equals("POLL"))

@@ -30,10 +30,15 @@ class OneImVmware extends Thread
 
     private String[] arguments;
 
+    boolean              debug;
+
+
     // Entry point - main procedure
     
     public static void main(String[] args) 
     {
+        boolean debug_flag;
+
         // first, make redirection
         
         PrintStream stdout = System.out;                                       
@@ -41,13 +46,25 @@ class OneImVmware extends Thread
       
         System.setOut(stderr);
         System.setErr(stdout);
-        OneImVmware oiv = new OneImVmware(args);
+
+        if (System.getProperty("debug").equals("1"))
+        {
+            debug_flag=true;
+        }
+        else
+        {
+            debug_flag=false;
+        }
+
+        OneImVmware oiv = new OneImVmware(args,debug_flag);
         oiv.loop();
     }
 
     // Constructor
-    OneImVmware(String[] args) 
+    OneImVmware(String[] args,boolean _debug) 
     {
+        debug = _debug;
+
         arguments = args;
     }
     
@@ -192,7 +209,10 @@ class OneImVmware extends Thread
                           catch(Exception e)
                           {
                               System.out.println("Failed monitoring host " + hostToMonitor);
-                              e.printStackTrace();
+                              if(debug)
+                              {
+                                  e.printStackTrace();
+                              }
                               
                               System.err.println("MONITOR FAILURE " + hid_str + " Failed monitoring host " + 
                                                   hostToMonitor + ". Please check the VM log.");

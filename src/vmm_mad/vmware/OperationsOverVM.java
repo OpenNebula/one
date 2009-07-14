@@ -183,7 +183,7 @@ public class OperationsOverVM
         }
         catch(Exception e)
         {
-            System.out.println("Error checkpointing VirtualMachine [" + vmName + "]. Reason:" + e.getMessage());
+            System.out.println("Error checkpointing VirtualMachine " + vmName + ". Reason:" + e.getMessage());
             return false;
         }
     }
@@ -245,7 +245,7 @@ public class OperationsOverVM
          }
          catch(Exception e)
          {
-             System.out.println("Error checkpointing VirtualMachine [" + vmName + "]. Reason:" + e.getMessage());
+             System.out.println("Error restoring checkpoint of VirtualMachine " + vmName + ". Reason:" + e.getMessage());
              return false;
          }
     }
