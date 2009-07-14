@@ -105,6 +105,7 @@
 
 #include <ctype.h>
 #include <string.h>
+#include <stdlib.h>
 #include "template_syntax.h"
 #include "Template.h"
 
@@ -147,13 +148,13 @@ static string& unescape (string &str);
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 51 "template_syntax.y"
+#line 52 "template_syntax.y"
 {
     char * val_str;
     void * val_attr;
 }
 /* Line 187 of yacc.c.  */
-#line 157 "template_syntax.cc"
+#line 158 "template_syntax.cc"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
@@ -178,7 +179,7 @@ typedef struct YYLTYPE
 
 
 /* Line 216 of yacc.c.  */
-#line 182 "template_syntax.cc"
+#line 183 "template_syntax.cc"
 
 #ifdef short
 # undef short
@@ -465,7 +466,7 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    71,    71,    72,    75,    88,   102,   116,   132
+       0,    72,    72,    73,    76,    89,   103,   117,   133
 };
 #endif
 
@@ -1403,7 +1404,7 @@ yyreduce:
   switch (yyn)
     {
         case 4:
-#line 76 "template_syntax.y"
+#line 77 "template_syntax.y"
     {
                 Attribute * pattr;
                 string      name((yyvsp[(1) - (3)].val_str));
@@ -1419,7 +1420,7 @@ yyreduce:
     break;
 
   case 5:
-#line 89 "template_syntax.y"
+#line 90 "template_syntax.y"
     {
                 Attribute * pattr;
                 string      name((yyvsp[(1) - (5)].val_str));
@@ -1436,7 +1437,7 @@ yyreduce:
     break;
 
   case 6:
-#line 103 "template_syntax.y"
+#line 104 "template_syntax.y"
     {
                 Attribute * pattr;
                 string      name((yyvsp[(1) - (2)].val_str));
@@ -1451,7 +1452,7 @@ yyreduce:
     break;
 
   case 7:
-#line 117 "template_syntax.y"
+#line 118 "template_syntax.y"
     {
                 map<string,string>* vattr;
                 string              name((yyvsp[(1) - (3)].val_str));
@@ -1470,7 +1471,7 @@ yyreduce:
     break;
 
   case 8:
-#line 133 "template_syntax.y"
+#line 134 "template_syntax.y"
     {
                 string               name((yyvsp[(3) - (5)].val_str));
                 string               value((yyvsp[(5) - (5)].val_str));
@@ -1490,7 +1491,7 @@ yyreduce:
 
 
 /* Line 1267 of yacc.c.  */
-#line 1494 "template_syntax.cc"
+#line 1495 "template_syntax.cc"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1710,7 +1711,7 @@ yyreturn:
 }
 
 
-#line 149 "template_syntax.y"
+#line 150 "template_syntax.y"
 
 
 string& unescape (string &str)

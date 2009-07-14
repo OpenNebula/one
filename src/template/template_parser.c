@@ -161,15 +161,7 @@ typedef unsigned int flex_uint32_t;
 
 /* Size of default input buffer. */
 #ifndef YY_BUF_SIZE
-#ifdef __ia64__
-/* On IA-64, the buffer size is 16k, not 8k.
- * Moreover, YY_BUF_SIZE is 2*YY_READ_BUF_SIZE in the general case.
- * Ditto for the __ia64__ case accordingly.
- */
-#define YY_BUF_SIZE 32768
-#else
 #define YY_BUF_SIZE 16384
-#endif /* __ia64__ */
 #endif
 
 /* The state buf must be large enough to hold one state per character in the main buffer.
@@ -559,7 +551,7 @@ char *template_text;
                         llocp->first_column = llocp->last_column;	\
                         llocp->last_column += template_leng;
 
-#line 563 "template_parser.c"
+#line 555 "template_parser.c"
 
 #define INITIAL 0
 #define VALUE 1
@@ -639,12 +631,7 @@ static int input (void );
 
 /* Amount of stuff to slurp up with each read. */
 #ifndef YY_READ_BUF_SIZE
-#ifdef __ia64__
-/* On IA-64, the buffer size is 16k, not 8k */
-#define YY_READ_BUF_SIZE 16384
-#else
 #define YY_READ_BUF_SIZE 8192
-#endif /* __ia64__ */
 #endif
 
 /* Copy whatever the last rule matched to the standard output. */
@@ -751,7 +738,7 @@ YY_DECL
  /* ------------------------------------------------------------------------- */
  /* Comments (lines with an starting #), and empty lines                      */
  /* ------------------------------------------------------------------------- */
-#line 755 "template_parser.c"
+#line 742 "template_parser.c"
 
 	if ( !(yy_init) )
 		{
@@ -927,7 +914,7 @@ YY_RULE_SETUP
 #line 85 "template_parser.l"
 ECHO;
 	YY_BREAK
-#line 931 "template_parser.c"
+#line 918 "template_parser.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(VALUE):
 	yyterminate();
@@ -1654,8 +1641,8 @@ YY_BUFFER_STATE template__scan_string (yyconst char * yystr )
 
 /** Setup the input buffer state to scan the given bytes. The next call to template_lex() will
  * scan from a @e copy of @a bytes.
- * @param yybytes the byte buffer to scan
- * @param _yybytes_len the number of bytes in the buffer pointed to by @a bytes.
+ * @param bytes the byte buffer to scan
+ * @param len the number of bytes in the buffer pointed to by @a bytes.
  * 
  * @return the newly allocated buffer state object.
  */
