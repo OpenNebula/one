@@ -279,7 +279,72 @@ public:
     // ------------------------------------------------------------------------
     // Share functions
     // ------------------------------------------------------------------------    
+   
+    /**
+     *
+     *
+     */
     
+    int get_share_disk_usage()
+    {
+        return host_share.disk_usage;
+    }
+
+    int get_share_mem_usage()
+    {
+        return host_share.mem_usage;
+    }
+
+    int get_share_cpu_usage()
+    {
+        return host_share.cpu_usage;
+    }
+
+    int get_share_max_disk()
+    {
+        return host_share.max_disk;
+    }
+
+    int get_share_max_mem()
+    {
+        return host_share.max_mem;
+    }
+
+    int get_share_max_cpu()
+    {
+        return host_share.max_cpu;
+    }
+
+    int get_share_free_disk()
+    {
+        return host_share.free_disk;
+    }
+
+    int get_share_free_mem()
+    {
+        return host_share.free_mem;
+    }
+
+    int get_share_free_cpu()
+    {
+        return host_share.free_cpu;
+    }
+
+    int get_share_used_disk()
+    {
+        return host_share.used_disk;
+    }
+
+    int get_share_used_mem()
+    {
+        return host_share.used_mem;
+    }
+
+    int get_share_used_cpu()
+    {
+        return host_share.used_cpu;
+    }
+
     /**
      *  Adds a new VM to the given share by icrementing the cpu,mem and disk 
      *  counters
@@ -373,7 +438,7 @@ private:
      *  The Host template, holds the Host attributes.
      */
     HostTemplate    host_template;
-	
+
     /**
      *  The Share represents the logical capacity associated with the host
      */

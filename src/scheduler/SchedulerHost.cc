@@ -31,10 +31,10 @@ void SchedulerHost::get_capacity(int& cpu, int& memory, int threshold)
 {
     int total_cpu;
 
-    get_template_attribute("FREEMEMORY",memory);
-    get_template_attribute("FREECPU",cpu);
-
-    get_template_attribute("TOTALCPU",total_cpu);
+    memory = get_share_free_mem();
+    cpu    = get_share_free_cpu();
+    
+    total_cpu = get_share_max_cpu();
 
     /* eg. 96.7 >= 0.9 * 100, We need to round */
     if ( cpu >= threshold * total_cpu )

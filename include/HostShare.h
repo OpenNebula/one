@@ -59,7 +59,7 @@ public:
         mem_usage  += mem;
         disk_usage += disk;
         
-        running_vms++;    
+        running_vms++;
     }
 
     /**
