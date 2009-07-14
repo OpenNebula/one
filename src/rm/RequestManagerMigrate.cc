@@ -89,9 +89,9 @@ void RequestManager::VirtualMachineMigrate::execute(
     // Only oneadmin or the VM owner can perform operations upon the VM
     rc = VirtualMachineMigrate::upool->authenticate(session);
     
-    if ( rc != 0 && rc != uid)                             
-    {                                            
-        goto error_authenticate;                     
+    if ( rc != 0 && rc != uid)
+    {
+        goto error_authenticate;
     }
     
     if ((vm->get_state() != VirtualMachine::ACTIVE) ||
@@ -117,7 +117,7 @@ void RequestManager::VirtualMachineMigrate::execute(
     }
     else
     {
-        dm->migrate(vm);    
+        dm->migrate(vm);
     }
     
     vm->unlock();
@@ -150,13 +150,13 @@ error_vm_get:
 error_history:
 	vm->unlock();
 	
-    oss << "Can not deploy VM " << vid << ", can not insert history";    
+    oss << "Can not migrate VM " << vid << ", can not insert history";    
     goto error_common;
 
 error_state:
 	vm->unlock();
 	
-    oss << "Can not deploy VM " << vid << ", wrong state";
+    oss << "Can not migrate VM " << vid << ", wrong state";
     goto error_common;
 
 error_common:

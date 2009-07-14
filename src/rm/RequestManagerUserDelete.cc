@@ -52,9 +52,9 @@ void RequestManager::UserDelete::execute(
     // Only oneadmin can delete users
     rc = UserDelete::upool->authenticate(session);
     
-    if ( rc != 0 )                             
-    {                                            
-        goto error_authenticate;                     
+    if ( rc != 0 )
+    {
+        goto error_authenticate;
     }
 
     // Now let's get the user 
@@ -90,7 +90,7 @@ error_oneadmin_deletion:
     goto error_common;
 
 error_authenticate:
-    oss << "User not authorized to add new users";
+    oss << "User not authorized to delete users";
     goto error_common;
     
 error_get_user:
