@@ -21,6 +21,7 @@ if [ -z "$ONE_LOCATION" ]; then
     ONE_PID=/var/run/one/oned.pid
     ONE_SCHEDPID=/var/run/one/sched.pid
     ONE_CONF=/etc/one/oned.conf
+    ONE_DB=/var/lib/one/one.db
 
     ONED=/usr/bin/oned
     ONE_SCHEDULER=/usr/bin/mm_sched
@@ -30,6 +31,7 @@ else
     ONE_PID=$ONE_LOCATION/var/oned.pid
     ONE_SCHEDPID=$ONE_LOCATION/var/sched.pid
     ONE_CONF=$ONE_LOCATION/etc/oned.conf
+    ONE_DB=$ONE_LOCATION/var/one.db
 
     ONED=$ONE_LOCATION/bin/oned
     ONE_SCHEDULER=$ONE_LOCATION/bin/mm_sched
@@ -79,6 +81,15 @@ start()
 		echo "Can not find $ONE_SCHEDULER."
 		exit 1		
 	fi
+
+    if [ ! -f "$ONE_DB" ]; then
+        if [ -z "$ONE_AUTH" ]; then
+            echo "You should have ONE_AUTH set the first time you start"
+            echo "OpenNebula as it is used to set the credentials for"
+            echo "the adminitrator user."
+            exit 1
+        fi
+    fi
 		
 	# Start the one daemon
 	$ONED -f 2>&1 & 
