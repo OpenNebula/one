@@ -29,19 +29,8 @@ fi
 . $TMCOMMON
 
 SRC_PATH=`arg_path $SRC`
-DST_PATH=`arg_path $DST`
-
-# Get rid of path/images, we don't need it
-DST_PATH=`dirname $DST_PATH`
-
-SRC_HOST=`arg_host $SRC`
-DST_HOST=`arg_host $DST`
 
 log "$1 $2"
-log "DST: $DST_PATH"
-
-BASE_SRC=`basename $SRC_PATH`
-BASE_DST=`basename $DST_PATH`
 
 case $SRC in
 http://*)
@@ -51,10 +40,10 @@ http://*)
 
 *)
     log "Cloning $SRC"
-    scp -r $SRC $DST_HOST:/vmfs/volumes/$DATASTORE/
-    ssh $DST_HOST "cd /vmfs/volumes/$DATASTORE ; mv $BASE_SRC $BASE_DST"
+    VM_ID=`echo $DST | sed -e 's/.*\/\([0-9]\+\)\/images\/.*/\1/'`
+    sudo cp -r $SRC_PATH $DATASTORE_PATH/one-$VM_ID &>/dev/null
+    sudo mv $DATASTORE_PATH/one-$VM_ID/*.vmx $DATASTORE_PATH/one-$VM_ID/one-$VM_ID.vmx
     ;;
 esac
 
-ssh $DST_HOST chmod a+w /vmfs/volumes/$DATASTORE/$BASE_DST
 

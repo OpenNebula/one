@@ -20,3 +20,6 @@
 
 # Name of the ESX(i) datastore
 DATASTORE=datastore1
+
+# Local path of the datastore
+DATASTORE_PATH=/images/vmware
