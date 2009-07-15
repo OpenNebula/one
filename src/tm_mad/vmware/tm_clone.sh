@@ -41,8 +41,8 @@ http://*)
 *)
     log "Cloning $SRC"
     VM_ID=`echo $DST | sed -e 's/.*\/\([0-9]\+\)\/images\/.*/\1/'`
-    sudo cp -r $SRC_PATH $DATASTORE_PATH/one-$VM_ID &>/dev/null
-    sudo mv $DATASTORE_PATH/one-$VM_ID/*.vmx $DATASTORE_PATH/one-$VM_ID/one-$VM_ID.vmx
+    cp -r $SRC_PATH $DATASTORE_PATH/one-$VM_ID &>/dev/null
+    mv $DATASTORE_PATH/one-$VM_ID/*.vmx $DATASTORE_PATH/one-$VM_ID/one-$VM_ID.vmx
     ;;
 esac
 
