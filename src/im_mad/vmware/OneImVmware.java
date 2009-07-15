@@ -144,7 +144,6 @@ class OneImVmware extends Thread
                               argsWithHost[arguments.length]      = "--url";
                               argsWithHost[arguments.length + 1 ] = "https://" + hostToMonitor + ":443/sdk";
 
-//                              argsWithHost[arguments.length + 1 ] = "https://localhost:8008/sdk";
                               gP = new GetProperty(argsWithHost, "HostSystem", hostToMonitor);
                                               
                               // Now it's time to build the response gathering the properties needed
@@ -215,7 +214,7 @@ class OneImVmware extends Thread
                               }
                               
                               System.err.println("MONITOR FAILURE " + hid_str + " Failed monitoring host " + 
-                                                  hostToMonitor + ". Please check the VM log.");
+                                                  hostToMonitor + ".");
                           } // catch		   
            			} // if (action.equals("MONITOR"))
                    } // else if (str_split.length != 4)

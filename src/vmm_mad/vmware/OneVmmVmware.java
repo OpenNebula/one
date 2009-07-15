@@ -537,10 +537,8 @@ class OneVmmVmware extends Thread
                              }
 
                              argsWithHost[arguments.length]      = "--url";
-                             //argsWithHost[arguments.length + 1 ] = "https://" + hostName + ":443/sdk";
+                             argsWithHost[arguments.length + 1 ] = "https://" + hostName + ":443/sdk";
 
-                             argsWithHost[arguments.length + 1 ] = "https://localhost:8008/sdk";
-                            
                              GetProperty gPHost = new GetProperty(argsWithHost, "HostSystem", hostName);
                              GetProperty gpVM   = new GetProperty(argsWithHost, "VirtualMachine", vmName);
 
