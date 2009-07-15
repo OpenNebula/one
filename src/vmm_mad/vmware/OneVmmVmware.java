@@ -31,9 +31,6 @@ class OneVmmVmware extends Thread
 
     boolean              debug;
 
-    // Helpers from VI samples
-    static  AppUtil cb = null;
-    
     public static void main(String[] args) 
     { 
         boolean debug_flag;
@@ -65,12 +62,6 @@ class OneVmmVmware extends Thread
         
         arguments = args;
     }
-
-    protected void finalize() throws Throwable
-    {	
-		cb.disConnect();
-    }
-    
 
     // Main loop, threaded
     void loop() 

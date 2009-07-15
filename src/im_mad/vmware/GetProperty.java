@@ -276,9 +276,4 @@ public class GetProperty
         content = sc.getServiceContent();
         service = sc.getService();
     }
-    
-    protected void finalize() throws Throwable
-    {	
-		cb.disConnect();
-    }
 }
