@@ -44,5 +44,5 @@ GRAPHICS = [
 
 CONTEXT = [
   hostname   = "$NAME",
-  ip_private = '$NIC[IP, NETWORK="Private LAN"]',
+  ip_private = "$NIC[IP, NETWORK=\"Private LAN\"]",
   ip_gen     = "10.0.0.$VM_ID"]
