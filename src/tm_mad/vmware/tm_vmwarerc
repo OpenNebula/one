@@ -18,8 +18,5 @@
 # Uncomment the following line to active MAD debug  
 #ONE_MAD_DEBUG=1
 
-# Name of the ESX(i) datastore
-DATASTORE=datastore1
-
 # Local path of the datastore
 DATASTORE_PATH=/images/vmware
