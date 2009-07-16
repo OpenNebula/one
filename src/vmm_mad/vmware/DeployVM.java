@@ -34,6 +34,9 @@ import java.rmi.RemoteException;
 
 public class DeployVM 
 {
+    String[] args;
+    String   hostName;
+    
     // Helpers from VI samples
     private static  ServiceContent content;    
     static  AppUtil cb = null;
@@ -43,7 +46,9 @@ public class DeployVM
     private String  datastoreName   = "";
     private String  vmName          = "";
     private String  vmDiskName      = "";
-    
+    private String  vid             = "";
+
+
     ParseXML        pXML;
     
     // VM configuration objects
@@ -112,7 +117,7 @@ public class DeployVM
           if(hostFound) 
           {
     
-             String vmxPath = "[" + getDataStoreName() + "]"+getDiskName()+"/"+getDiskName()+".vmx";
+             String vmxPath = "[" + getDataStoreName() + "]one-"+getID()+"/one-"+getID()+".vmx";
              // Resource Pool
              ManagedObjectReference resourcePool 
                 = cb.getServiceUtil().getFirstDecendentMoRef(null, "ResourcePool");
@@ -178,7 +183,16 @@ public class DeployVM
     {
         return datastoreName;
     }
-    
+
+    /**
+     * Gets the vid
+     * @returns vid
+     */
+    private String getID()
+    {   
+        return vid;
+    }
+
     public boolean shapeVM() throws Exception 
     {
          
@@ -300,70 +314,84 @@ public class DeployVM
          }
          
          vmConfigSpec.setDeviceChange(nicSpecArray);
-     }
-     
+    }
       
-    DeployVM(String[] args, String hostName, String vid, ParseXML _pXML, String _datastore, String _datacenter) throws Exception
-    {  
-
-        String[] argsWithHost = new String[args.length+2];
-        
-        for(int i=0;i<args.length;i++)
+    public boolean connect()
+    {
+        try
         {
-            argsWithHost[i] = args[i];
+            cb = AppUtil.initialize("DeployVM", null, args);
+            cb.connect();
+     
+            // Get reference to host
+            hostMor = cb.getServiceUtil().getDecendentMoRef(null,"HostSystem",
+                                                               hostName);
+                                                            
+            com.vmware.apputils.vim.ServiceConnection sc = cb.getConnection();
+            content = sc.getServiceContent();
+            service = sc.getService();
+            
+            return true;
+        }
+        catch(Exception e)
+        {
+            return false;
+        }
+
+    }
+
+    public void disconnect()
+    {
+        try
+        {
+            cb.disConnect();
+        }
+        catch(Exception e){}
+    }
+       
+    DeployVM(String[] arguments, String _hostName, String _vid, ParseXML _pXML, String _datastore, String _datacenter) throws Exception
+    {  
+        args = new String[arguments.length+2];
+
+        for(int i=0;i<arguments.length;i++)
+        {
+            args[i] = arguments[i];
         }
         
-        argsWithHost[args.length]      = "--url";
-        argsWithHost[args.length + 1 ] = "https://" + hostName + ":443/sdk";
+        args[arguments.length]      = "--url";
+        args[arguments.length + 1 ] = "https://" + _hostName + ":443/sdk";
 
-        cb = AppUtil.initialize("DeployVM", null, argsWithHost);
-        cb.connect();
-        
         datastoreName  = _datastore;
         datacenterName = _datacenter;
         
-        vmName     = _pXML.getName() + "-" + vid;
+        vmName     = _pXML.getName() + "-" + _vid;
         vmDiskName = _pXML.getName();
         pXML       = _pXML;
-
-        // Get reference to host
-        hostMor = cb.getServiceUtil().getDecendentMoRef(null,"HostSystem",
-                                                           hostName);
-                                                        
-        com.vmware.apputils.vim.ServiceConnection sc = cb.getConnection();
-        content = sc.getServiceContent();
-        service = sc.getService();
+        vid        = _vid;
+        hostName = _hostName;
     }
     
-    DeployVM(String[] args, String hostName, String _vmName, String _datastore, String _datacenter) throws Exception
+    DeployVM(String[] arguments, String _hostName, String _vmName, String _vid, String _datastore, String _datacenter) throws Exception
     {  
 
-        String[] argsWithHost = new String[args.length+2];
+        args = new String[arguments.length+2];
         
-        for(int i=0;i<args.length;i++)
+        for(int i=0;i<arguments.length;i++)
         {
-            argsWithHost[i] = args[i];
+            args[i] = arguments[i];
         }
         
-        argsWithHost[args.length]      = "--url";
-        argsWithHost[args.length + 1 ] = "https://" + hostName + ":443/sdk";
+        args[arguments.length]      = "--url";
+        args[arguments.length + 1 ] = "https://" + _hostName + ":443/sdk";
         
-        cb = AppUtil.initialize("DeployVM", null, argsWithHost);
-        cb.connect();
-
         datastoreName  = _datastore;
         datacenterName = _datacenter;
         
         vmName     = _vmName;
         vmDiskName = _vmName.substring(0,_vmName.lastIndexOf("-"));
+        vid        = _vid;
 
-        // Get reference to host
-        hostMor = cb.getServiceUtil().getDecendentMoRef(null,"HostSystem",
-                                                           hostName);
-                                                        
-        com.vmware.apputils.vim.ServiceConnection sc = cb.getConnection();
-        content = sc.getServiceContent();
-        service = sc.getService();
+        hostName = _hostName;
     }
     
 /*

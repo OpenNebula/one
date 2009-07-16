@@ -132,19 +132,25 @@ class OneImVmware extends Thread
                           boolean     rf;
                           String      response = "HYPERVISOR=vmware";
                        
+                          String[] argsWithHost = new String[arguments.length+2];
+                          
+                          for(int i=0;i<arguments.length;i++)
+                          {
+                              argsWithHost[i] = arguments[i];
+                          }
+                          
+                          argsWithHost[arguments.length]      = "--url";
+                          argsWithHost[arguments.length + 1 ] = "https://" + hostToMonitor + ":443/sdk";
+
+                          gP = new GetProperty(argsWithHost, "HostSystem", hostToMonitor);
+
                           try
                           {
-                              String[] argsWithHost = new String[arguments.length+2];
-                              
-                              for(int i=0;i<arguments.length;i++)
-                              {
-                                  argsWithHost[i] = arguments[i];
-                              }
-                              
-                              argsWithHost[arguments.length]      = "--url";
-                              argsWithHost[arguments.length + 1 ] = "https://" + hostToMonitor + ":443/sdk";
 
-                              gP = new GetProperty(argsWithHost, "HostSystem", hostToMonitor);
+                             if(!gP.connect())
+                             {
+                                throw new Exception("Connection to host " + hostToMonitor + " failed.");
+                             }
                                               
                               // Now it's time to build the response gathering the properties needed
                        
@@ -204,9 +210,12 @@ class OneImVmware extends Thread
                        
                               // Send the actual response
                               System.err.println("MONITOR SUCCESS " + hid_str + " " + response);    
+
+                              gP.disconnect();
                           }
                           catch(Exception e)
                           {
+                              gP.disconnect();
                               System.out.println("Failed monitoring host " + hostToMonitor);
                               if(debug)
                               {

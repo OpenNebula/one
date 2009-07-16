@@ -34,6 +34,10 @@ import java.rmi.RemoteException;
 
 public class GetProperty 
 {
+    String[] args;
+    String   entity;
+    String   entityName;
+
     // Helpers from VI samples
     private static  ServiceContent content;    
     private static  AppUtil cb = null;
@@ -261,19 +265,41 @@ public class GetProperty
     {
         return measure;
     }
-    
-    GetProperty(String[] args, String entity, String entityName) throws Exception
+
+    public boolean connect()
     {
-        cb = AppUtil.initialize("GetProperty", null, args);
-        cb.connect();
-        
+        try
+        {
+            cb = AppUtil.initialize("GetProperty", null, args);
+            cb.connect();
+            moRef = cb.getServiceUtil().getDecendentMoRef(null,entity,
+                                                               entityName);
 
-        moRef = cb.getServiceUtil().getDecendentMoRef(null,entity,
-                                                           entityName);
+            com.vmware.apputils.vim.ServiceConnection sc = cb.getConnection();
+            content = sc.getServiceContent();
+            service = sc.getService();
+            return true;
+        }
+        catch(Exception e)
+        {
+            return false;
+        }
 
+    }
 
-        com.vmware.apputils.vim.ServiceConnection sc = cb.getConnection();
-        content = sc.getServiceContent();
-        service = sc.getService();
+    public void disconnect()
+    {
+        try
+        {
+            cb.disConnect();
+        }
+        catch(Exception e){}
+    }
+
+    GetProperty(String[] arguments, String _entity, String _entityName) 
+    {
+        args       = arguments;
+        entity     = _entity;
+        entityName = _entityName;
     }
 }

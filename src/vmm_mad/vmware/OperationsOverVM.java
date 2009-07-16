@@ -33,7 +33,9 @@ import java.rmi.RemoteException;
  */
 
 public class OperationsOverVM 
-{    
+{   
+    String[] args;
+
     // Helpers from VI samples
     private static  AppUtil cb = null;
     
@@ -277,21 +279,44 @@ public class OperationsOverVM
          return snapmor;
     }
 
-    OperationsOverVM(String[] args, String hostName) throws Exception
-    {
-         String[] argsWithHost = new String[args.length+2];
 
-         for(int i=0;i<args.length;i++)
+    public boolean connect()
+    {
+        try
+        {
+            cb = AppUtil.initialize("OperationsOverVM", null, args);
+            cb.connect();
+     
+            return true;
+        }
+        catch(Exception e)
+        {
+            return false;
+        }
+
+    }
+
+    public void disconnect()
+    {
+        try
+        {
+            cb.disConnect();
+        }
+        catch(Exception e){}
+    }
+
+    OperationsOverVM(String[] arguments, String hostName) throws Exception
+    {
+         args = new String[arguments.length+2];
+
+         for(int i=0;i<arguments.length;i++)
          {
-             argsWithHost[i] = args[i];
+             args[i] = arguments[i];
          }
 
-         argsWithHost[args.length]      = "--url";
-         argsWithHost[args.length + 1 ] = "https://" + hostName + ":443/sdk";
+         args[arguments.length]      = "--url";
+         args[arguments.length + 1 ] = "https://" + hostName + ":443/sdk";
 
-         cb = AppUtil.initialize("DeployVM", null, argsWithHost);
-         cb.connect();
-        
          datastoreName  = System.getProperty("VMWARE_DATASTORE");
          datacenterName = System.getProperty("VMWARE_DATACENTER");
     }

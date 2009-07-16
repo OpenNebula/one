@@ -59,7 +59,6 @@ class OneVmmVmware extends Thread
     OneVmmVmware(String[] args, boolean _debug) 
     {
         debug     = _debug;
-        
         arguments = args;
     }
 
@@ -146,6 +145,11 @@ class OneVmmVmware extends Thread
                                                         System.getProperty("datastore"),
                                                         System.getProperty("datacenter"));
 
+                            if(!dVM.connect())
+                            {
+                                throw new Exception("DeployVM: Failed connection to host " + hostName);
+                            }
+
                             if(!dVM.registerVirtualMachine())
                             {
                                 // We will skip this error, it may be pre-registered
@@ -167,12 +171,21 @@ class OneVmmVmware extends Thread
                                 throw new Exception("Error reconfiguring VM (" + pXML.getName() + ").");
                             }
 
+                            dVM.disconnect();
+
                             try
                             {
                                 oVM = new OperationsOverVM(arguments,hostName);
+                                
+                                if(!oVM.connect())
+                                { 
+                                    throw new Exception("Failed connection to host " + hostName);
+                                }
+
                             }
                             catch(Exception e)
                             {
+                                oVM.disconnect();
                                 synchronized (System.err)
                                 {
                                     System.err.println(action + " FAILURE " + vid_str + " Failed connection to host " +
@@ -186,11 +199,13 @@ class OneVmmVmware extends Thread
                                 // Will try and deregister VM
                                 try
                                 {
-                                    oVM = new OperationsOverVM(arguments,hostName);
                                     String vmName = pXML.getName() + "-" + vid_str;
                                     oVM.deregisterVM(vmName);
                                 }
-                                catch(Exception e){}
+                                catch(Exception e)
+                                {
+                                    oVM.disconnect();
+                                }
                                 throw new Exception("Error powering on VM(" + pXML.getName() + ").");
                             }
                             
@@ -198,6 +213,8 @@ class OneVmmVmware extends Thread
                             {
                                  System.err.println("DEPLOY SUCCESS " + vid_str + " " + pXML.getName() + "-" + vid_str);
                             }
+
+                            oVM.disconnect();
                             
                             continue;
                          
@@ -244,6 +261,10 @@ class OneVmmVmware extends Thread
                          try
                          {
                              oVM = new OperationsOverVM(arguments,hostName);
+                             if(!oVM.connect())
+                             { 
+                                 throw new Exception("Failed connection to host " + hostName);
+                             }
                          }
                          catch(Exception e)
                          {
@@ -252,6 +273,7 @@ class OneVmmVmware extends Thread
                                  System.err.println(action + " FAILURE " + vid_str + " Failed connection to host " +
                                                     hostName +". Reason: " + e.getMessage());
                              }
+                             oVM.disconnect();
                              continue;
                          }
                          
@@ -262,6 +284,8 @@ class OneVmmVmware extends Thread
                                  System.err.println(action + " FAILURE " + vid_str + " Failed shutdown VM in host " + 
                                                     hostName);
                              }
+                             oVM.disconnect();
+                             continue;
                          }
 
                          if(!oVM.deregisterVM(vmName))
@@ -271,6 +295,7 @@ class OneVmmVmware extends Thread
                                  System.err.println(action + " FAILURE " + vid_str + " Failed deregistering of " +vmName
                                                     + " in host " + hostName +".");
                              }
+                             oVM.disconnect();
                              continue;
                          }
                          else
@@ -281,7 +306,7 @@ class OneVmmVmware extends Thread
                              }
                          }
                       }
-                      
+                      oVM.disconnect();                     
                       continue;
                  } // if (action.equals("SHUTDOWN or CANCEL"))
                  
@@ -308,6 +333,10 @@ class OneVmmVmware extends Thread
                          try
                          {
                              oVM = new OperationsOverVM(arguments,hostName);
+                             if(!oVM.connect())
+                             { 
+                                 throw new Exception("Failed connection to host " + hostName);
+                             }
                          }
                          catch(Exception e)
                          {
@@ -316,6 +345,7 @@ class OneVmmVmware extends Thread
                                  System.err.println(action + " FAILURE " + vid_str + " Failed connection to host " +
                                                     hostName +". Reason: " + e.getMessage());
                              }
+                             oVM.disconnect();
                              continue;
                          }
                          
@@ -326,6 +356,7 @@ class OneVmmVmware extends Thread
                                  System.err.println(action + " FAILURE " + vid_str + " Failed suspending VM in host " + 
                                                     hostName);
                              }
+                             oVM.disconnect();
                              continue;
                          }
 
@@ -336,6 +367,7 @@ class OneVmmVmware extends Thread
                                  System.err.println(action + " FAILURE " + vid_str + " Failed deregistering of " +vmName
                                                     + " in host " + hostName +".");
                              }
+                             oVM.disconnect();
                              continue;
                          }
                          else
@@ -345,7 +377,7 @@ class OneVmmVmware extends Thread
                                  System.err.println(action + " SUCCESS " + vid_str);                             
                              }
                          }
-                         
+                         oVM.disconnect();                        
                          continue;
                       }
                  } // if (action.equals("SAVE"))
@@ -372,6 +404,10 @@ class OneVmmVmware extends Thread
                          try
                          {
                              oVM = new OperationsOverVM(arguments,hostName);
+                             if(!oVM.connect())
+                             { 
+                                 throw new Exception("Failed connection to host " + hostName);
+                             }
                          }
                          catch(Exception e)
                          {
@@ -380,6 +416,7 @@ class OneVmmVmware extends Thread
                                  System.err.println(action + " FAILURE " + vid_str + " Failed connection to host " +
                                                     hostName +". Reason: " + e.getMessage());
                              }
+                             oVM.disconnect();
                              continue;
                          }
                          
@@ -390,6 +427,8 @@ class OneVmmVmware extends Thread
                                  System.err.println(action + " FAILURE " + vid_str + " Failed suspending VM in host " + 
                                                     hostName);
                              }
+                             oVM.disconnect();
+                             continue;
                          }
                          else
                          {
@@ -398,7 +437,7 @@ class OneVmmVmware extends Thread
                                  System.err.println(action + " SUCCESS " + vid_str);                             
                              }
                          }
-                         
+                         oVM.disconnect();                         
                          continue;
                       }
                  } // if (action.equals("CHECKPOINT"))
@@ -429,9 +468,18 @@ class OneVmmVmware extends Thread
                              dVM = new DeployVM(arguments, 
                                                 hostName, 
                                                 vmName,
+                                                vid_str,
                                                 System.getProperty("datastore"),
                                                 System.getProperty("datacenter"));
-                             
+                             if(!oVM.connect())
+                             { 
+                                 throw new Exception("Failed connection to host " + hostName);
+                             }
+  
+                             if(!dVM.connect())
+                             { 
+                                 throw new Exception("Failed connection to host " + hostName);
+                             }
                              if(!dVM.registerVirtualMachine())
                              {
                                  // We will skip this error, it may be pre-registered
@@ -443,8 +491,10 @@ class OneVmmVmware extends Thread
                              {
                                  System.err.println(action + " FAILURE " + vid_str + " Failed connection to host " +
                                                     hostName +". Reason: " + e.getMessage());
-                                 continue;
                              }
+                             oVM.disconnect();
+                             dVM.disconnect();
+                             continue;
                          }
                          
                          if(!oVM.restoreCheckpoint(vmName))
@@ -454,6 +504,9 @@ class OneVmmVmware extends Thread
                                  System.err.println(action + " FAILURE " + vid_str + " Failed restoring VM in host " + 
                                                     hostName);
                              }
+                             oVM.disconnect();
+                             dVM.disconnect();
+                             continue;
                          }
                          else
                          {
@@ -470,6 +523,9 @@ class OneVmmVmware extends Thread
                                      {
                                          System.err.println(action + " SUCCESS " + vid_str);                             
                                      }
+                                     oVM.disconnect();
+                                     dVM.disconnect();
+                                     continue;
                                  }
                              }
                              catch(Exception e)
@@ -478,12 +534,15 @@ class OneVmmVmware extends Thread
                                  {
                                      System.err.println(action + " FAILURE " + vid_str + " Failed connection to host " +
                                                         hostName +". Reason: " + e.getMessage());
-                                     continue;
                                  }
+                                 oVM.disconnect();
+                                 dVM.disconnect();
+                                 continue;
                               }
                      
                          }
-
+                         oVM.disconnect();
+                         dVM.disconnect();
                          continue;
                      }
                  } // if (action.equals("RESTORE"))
@@ -531,17 +590,30 @@ class OneVmmVmware extends Thread
                              argsWithHost[arguments.length + 1 ] = "https://" + hostName + ":443/sdk";
 
                              GetProperty gPHost = new GetProperty(argsWithHost, "HostSystem", hostName);
-                             GetProperty gpVM   = new GetProperty(argsWithHost, "VirtualMachine", vmName);
+                             GetProperty gPVM   = new GetProperty(argsWithHost, "VirtualMachine", vmName);
+
+                             if(!gPHost.connect())
+                             {
+                                throw new Exception();
+                             }
 
                              String hostCPUMhz = gPHost.getObjectProperty("summary.hardware.cpuMhz").toString();
-  
+ 
+                             gPHost.disconnect();
+
+                             if(!gPVM.connect())
+                             {
+                                throw new Exception();
+                             }
+
                              String vmCPUMhz = 
-                                  gpVM.getObjectProperty("summary.quickStats.overallCpuUsage").toString();       
+                                  gPVM.getObjectProperty("summary.quickStats.overallCpuUsage").toString();       
                              
                              String vmMEMMb  = 
-                                  gpVM.getObjectProperty("summary.quickStats.guestMemoryUsage").toString();
+                                  gPVM.getObjectProperty("summary.quickStats.guestMemoryUsage").toString();
 
-                                   
+                             gPVM.disconnect();
+
                              int hostCPUMhz_i = Integer.parseInt(hostCPUMhz);      
                              int vmCPUMhz_i   = Integer.parseInt(vmCPUMhz);      
                              int vmCPUperc    = (vmCPUMhz_i / hostCPUMhz_i) * 100;
