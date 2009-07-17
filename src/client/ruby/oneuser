@@ -125,7 +125,7 @@ Commands:
 * delete (Removes a user)
     oneuser delete <uid>
     
-* list (Lists virtual networks in the pool)
+* list (Lists all the users in the pool)
     oneuser list
 
 EOT
