@@ -109,8 +109,9 @@ class EC2Driver < VirtualMachineDriver
     
         # First, let's see if we have an EC2 site that matches 
         # our desired host name
-        all_ec2_elements.each { |element| 
-            if element.elements["CLOUD"].text.upcase == host.upcase
+        all_ec2_elements.each { |element|
+            cloud=element.elements["CLOUD"]
+            if cloud and cloud.text.upcase == host.upcase
                 ec2 = element
             end
         }
