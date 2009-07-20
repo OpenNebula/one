@@ -115,9 +115,11 @@ SHARE_DIRS="$SHARE_LOCATION/examples \
 ETC_DIRS="$ETC_LOCATION/im_kvm \
           $ETC_LOCATION/im_xen \
           $ETC_LOCATION/im_ec2 \
+          $ETC_LOCATION/im_eh \
           $ETC_LOCATION/vmm_kvm \
           $ETC_LOCATION/vmm_xen \
           $ETC_LOCATION/vmm_ec2 \
+          $ETC_LOCATION/vmm_eh \
           $ETC_LOCATION/tm_nfs \
           $ETC_LOCATION/tm_ssh \
           $ETC_LOCATION/tm_dummy \
@@ -157,13 +159,15 @@ INSTALL_ETC_FILES[0]="ETC_FILES:$ETC_LOCATION"
 INSTALL_ETC_FILES[1]="VMM_XEN_ETC_FILES:$ETC_LOCATION/vmm_xen"
 INSTALL_ETC_FILES[2]="VMM_KVM_ETC_FILES:$ETC_LOCATION/vmm_kvm"
 INSTALL_ETC_FILES[3]="VMM_EC2_ETC_FILES:$ETC_LOCATION/vmm_ec2"
-INSTALL_ETC_FILES[4]="IM_XEN_ETC_FILES:$ETC_LOCATION/im_xen"
-INSTALL_ETC_FILES[5]="IM_KVM_ETC_FILES:$ETC_LOCATION/im_kvm"
-INSTALL_ETC_FILES[6]="IM_EC2_ETC_FILES:$ETC_LOCATION/im_ec2"
-INSTALL_ETC_FILES[7]="TM_NFS_ETC_FILES:$ETC_LOCATION/tm_nfs"
-INSTALL_ETC_FILES[8]="TM_SSH_ETC_FILES:$ETC_LOCATION/tm_ssh"
-INSTALL_ETC_FILES[9]="TM_DUMMY_ETC_FILES:$ETC_LOCATION/tm_dummy"
-INSTALL_ETC_FILES[10]="HM_ETC_FILES:$ETC_LOCATION/hm"
+INSTALL_ETC_FILES[4]="VMM_EH_ETC_FILES:$ETC_LOCATION/vmm_eh"
+INSTALL_ETC_FILES[5]="IM_XEN_ETC_FILES:$ETC_LOCATION/im_xen"
+INSTALL_ETC_FILES[6]="IM_KVM_ETC_FILES:$ETC_LOCATION/im_kvm"
+INSTALL_ETC_FILES[7]="IM_EC2_ETC_FILES:$ETC_LOCATION/im_ec2"
+INSTALL_ETC_FILES[8]="IM_EH_ETC_FILES:$ETC_LOCATION/im_eh"
+INSTALL_ETC_FILES[9]="TM_NFS_ETC_FILES:$ETC_LOCATION/tm_nfs"
+INSTALL_ETC_FILES[10]="TM_SSH_ETC_FILES:$ETC_LOCATION/tm_ssh"
+INSTALL_ETC_FILES[11]="TM_DUMMY_ETC_FILES:$ETC_LOCATION/tm_dummy"
+INSTALL_ETC_FILES[12]="HM_ETC_FILES:$ETC_LOCATION/hm"
 
 #-------------------------------------------------------------------------------
 # Binary files, to be installed under $BIN_LOCATION
@@ -226,10 +230,14 @@ MADS_LIB_FILES="share/scripts/madcommon.sh \
               src/vmm_mad/kvm/one_vmm_kvm \
               src/vmm_mad/ec2/one_vmm_ec2.rb \
               src/vmm_mad/ec2/one_vmm_ec2 \
+              src/vmm_mad/eh/one_vmm_eh.rb \
+              src/vmm_mad/eh/one_vmm_eh \
               src/im_mad/im_ssh/one_im_ssh.rb \
               src/im_mad/im_ssh/one_im_ssh \
               src/im_mad/ec2/one_im_ec2.rb \
               src/im_mad/ec2/one_im_ec2 \
+              src/im_mad/eh/one_im_eh.rb \
+              src/im_mad/eh/one_im_eh \
               src/tm_mad/one_tm \
               src/tm_mad/one_tm.rb \
               src/hm_mad/one_hm.rb \
@@ -282,6 +290,7 @@ ETC_FILES="share/etc/oned.conf \
 #   - xen, $ETC_LOCATION/vmm_xen
 #   - kvm, $ETC_LOCATION/vmm_kvm
 #   - ec2, $ETC_LOCATION/vmm_ec2
+#   - eh, $ETC_LOCATION/vmm_eh
 #-------------------------------------------------------------------------------
 
 VMM_XEN_ETC_FILES="src/vmm_mad/xen/vmm_xenrc \
@@ -292,6 +301,9 @@ VMM_KVM_ETC_FILES="src/vmm_mad/kvm/vmm_kvmrc \
 
 VMM_EC2_ETC_FILES="src/vmm_mad/ec2/vmm_ec2rc \
                    src/vmm_mad/ec2/vmm_ec2.conf"
+
+VMM_EH_ETC_FILES="src/vmm_mad/eh/vmm_ehrc \
+                  src/vmm_mad/eh/vmm_eh.conf"
 
 #-------------------------------------------------------------------------------
 # Information drivers config. files, to be installed under $ETC_LOCATION
@@ -308,6 +320,9 @@ IM_KVM_ETC_FILES="src/im_mad/kvm/im_kvmrc \
 
 IM_EC2_ETC_FILES="src/im_mad/ec2/im_ec2rc \
                   src/im_mad/ec2/im_ec2.conf"
+
+IM_EH_ETC_FILES="src/im_mad/eh/im_ehrc \
+                 src/im_mad/eh/im_eh.conf"
 
 #-------------------------------------------------------------------------------
 # Storage drivers config. files, to be installed under $ETC_LOCATION
@@ -392,7 +407,7 @@ if [ "$INSTALL_ETC" = "yes" ] ; then
         DST=`echo $i | cut -d: -f2`
     
         eval SRC_FILES=$SRC 
-   
+        
         for f in $SRC_FILES; do 
             do_file $f $DST
         done
