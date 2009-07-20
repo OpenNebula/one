@@ -347,7 +347,7 @@ Commands:
 * delete (Deletes a VM from the pool and DB)
     onevm delete <vm_id>
     
-* restart (...)
+* restart (Resubmits the VM after failure)
     onevm restart <vm_id>
     
 * list (Shows VMs in the pool)
