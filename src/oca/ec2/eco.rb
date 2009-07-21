@@ -275,8 +275,8 @@ __END__
         <code>0</code> 
         <name>pending</name> 
       </instanceState> 
-      <privateDnsName></privateDnsName> 
-      <dnsName></dnsName> 
+      <privateDnsName><%= @vm_info[:vm]["TEMPLATE/NIC/IP"]%></privateDnsName> 
+      <dnsName><%= @vm_info[:vm]["TEMPLATE/NIC/IP"]%></dnsName> 
       <keyName>default</keyName> 
       <amiLaunchIndex>0</amiLaunchIndex> 
       <instanceType><%= @vm_info[:instance_type] %></instanceType> 
@@ -304,17 +304,17 @@ __END__
       </groupSet> 
       <instancesSet> 
         <% @vmpool.each do |vm| %>
-        <% vm.info ; pp vm ; puts 'hostia' %>
+        <% vm.info %>
         <item> 
           <instanceId><%= vm.id %></instanceId> 
           <imageId><%= vm['TEMPLATE/IMAGE_ID'] %></imageId> 
           <instanceState> 
               <%= render_state(vm) %>
           </instanceState> 
-          <privateDnsName>10.0.0.1</privateDnsName> 
-          <dnsName>10.0.0.1</dnsName> 
+          <privateDnsName><%= vm["TEMPLATE/NIC/IP"] %></privateDnsName> 
+          <dnsName><%= vm["TEMPLATE/NIC/IP"] %></dnsName> 
           <keyName>default</keyName> 
-          <amiLaunchIndex>1</amiLaunchIndex> 
+          <amiLaunchIndex>0</amiLaunchIndex> 
           <instanceType><%= vm['TEMPLATE/INSTANCE_TYPE'] %></instanceType> 
           <%= render_launch_time(vm) %>
           <placement> 

@@ -15,6 +15,9 @@ DISK = [ source   = <%= @vm_info[:img_path] %>,
          readonly = no]
 
 
+NIC=[NETWORK="Public EC2"]
+
+
 IMAGE_ID = <%= @vm_info[:img_id] %>
 INSTANCE_TYPE = <%= @vm_info[:instance_type ]%>
 
