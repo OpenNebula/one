@@ -91,7 +91,12 @@ end
 def get_one_client_user(user_name)
     user=get_user(user_name)
     
-    Client.new("#{user[:name]}:#{user[:password]}")
+    
+    auth="#{user[:name]}:#{user[:password]}"
+    
+    client=Client.new("dummy:dummy")
+    client.one_auth=auth
+    client
 end
 
 def get_user(name)
@@ -120,7 +125,6 @@ def render_state(vm)
 end
 
 def render_launch_time(vm)
-    pp vm[:stime]
     "<launchTime>#{Time.at(vm[:stime].to_i).xmlschema}</launchTime>"
 end
 
@@ -202,7 +206,9 @@ end
 def describe_instances(params)
     @user=get_user(params['AWSAccessKeyId'])
     
-    @vmpool=VirtualMachinePool.new(get_one_client_user(@user[:name]))
+    client=get_one_client_user(@user[:name])
+    
+    @vmpool=VirtualMachinePool.new(client)
     @vmpool.info
     
     pp @vmpool
@@ -298,7 +304,7 @@ __END__
       </groupSet> 
       <instancesSet> 
         <% @vmpool.each do |vm| %>
-        <% vm.info %>
+        <% vm.info ; pp vm ; puts 'hostia' %>
         <item> 
           <instanceId><%= vm.id %></instanceId> 
           <imageId><%= vm['TEMPLATE/IMAGE_ID'] %></imageId> 

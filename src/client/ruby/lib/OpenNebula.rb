@@ -51,6 +51,8 @@ module OpenNebula
     # xml-rpc calls.
     # -------------------------------------------------------------------------
     class Client
+        attr_accessor :one_auth
+        
         begin
             require 'xmlparser'
             XMLPARSER=true
