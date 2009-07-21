@@ -3,7 +3,7 @@ require 'rubygems'
 #require 'storage_pool'
 require 'uuid'
 require 'fileutils'
-gem 'sequel', '< 3.0'
+#gem 'sequel', '< 3.0'
 require 'sequel'
 require 'logger'
 

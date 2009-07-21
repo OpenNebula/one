@@ -1,6 +1,9 @@
 
 module OpenNebula
     class Image < Sequel::Model
+        plugin :schema
+        plugin :hook_class_methods
+        
         # Creates the database table asociated with the model. It first
         # checks for table existence before creating it so it is reasonably
         # safe to call it when you load the library.
@@ -138,6 +141,8 @@ module OpenNebula
     end
     
     class ImageAcl < Sequel::Model
+        plugin :schema
+        
         def self.initialize_table
             set_schema do
                 primary_key :id, :type => Integer
