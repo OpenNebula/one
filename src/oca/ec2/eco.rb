@@ -266,7 +266,7 @@ __END__
       <dnsName></dnsName> 
       <keyName>default</keyName> 
       <amiLaunchIndex>0</amiLaunchIndex> 
-      <instanceType><%= @vm[:instance_type] %></instanceType> 
+      <instanceType><%= @vm_info[:instance_type] %></instanceType> 
       <%= render_launch_time(@vm_info[:vm]) %>
       <placement> 
         <availabilityZone>default</availabilityZone> 
