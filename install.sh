@@ -110,7 +110,8 @@ else
 fi
 
 SHARE_DIRS="$SHARE_LOCATION/examples \
-            $SHARE_LOCATION/examples/tm"
+            $SHARE_LOCATION/examples/tm \
+            $SHARE_LOCATION/hooks"
 
 ETC_DIRS="$ETC_LOCATION/im_kvm \
           $ETC_LOCATION/im_xen \
@@ -154,6 +155,7 @@ INSTALL_FILES[8]="SSH_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/ssh"
 INSTALL_FILES[9]="DUMMY_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/dummy"
 INSTALL_FILES[10]="EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples"
 INSTALL_FILES[11]="TM_EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples/tm"
+INSTALL_FILES[12]="HOOK_SHARE_FILES:$SHARE_LOCATION/hooks"
 
 INSTALL_ETC_FILES[0]="ETC_FILES:$ETC_LOCATION"
 INSTALL_ETC_FILES[1]="VMM_XEN_ETC_FILES:$ETC_LOCATION/vmm_xen"
@@ -365,6 +367,12 @@ TM_EXAMPLE_SHARE_FILES="share/examples/tm/tm_clone.sh \
                         share/examples/tm/tm_mkimage.sh \
                         share/examples/tm/tm_mkswap.sh \
                         share/examples/tm/tm_mv.sh"
+
+#-------------------------------------------------------------------------------
+# HOOK scripts, to be installed under $SHARE_LOCATION/hooks
+#-------------------------------------------------------------------------------
+
+HOOK_SHARE_FILES="share/hooks/ebtables-xen"
 
 #-------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------
