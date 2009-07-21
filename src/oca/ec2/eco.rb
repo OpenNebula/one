@@ -1,11 +1,22 @@
 
+
+ONE_LOCATION=ENV["ONE_LOCATION"]
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
+else
+    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
+    TEMPLATES_LOCATION=ONE_LOCATION+"/etc/ec2query_templates"
+    CONF_LOCATION=ONE_LOCATION+"/etc"
+end
+
+$: << RUBY_LIB_LOCATION
+
+
 require 'rubygems'
 require 'sinatra'
 require 'EC2'
 require 'time'
-
-$: << './OpenNebulaApi'
-$: << './lib'
 
 require 'OpenNebula'
 require 'repo_manager'
@@ -18,8 +29,9 @@ include OpenNebula
 
 
 
-CONFIG=OcaConfiguration.new('oca.conf')
+CONFIG=OcaConfiguration.new(CONF_LOCATION+'/oca.conf')
 AUTH="#{CONFIG[:user]}:#{CONFIG[:password]}"
+Image.image_dir=CONFIG[:image_dir]
 
 INSTANCE_TYPES=Hash.new
 
@@ -159,7 +171,8 @@ def run_instances(params)
     
     @vm_info[:instance_type]=instance_type_name
     
-    template=ERB.new(File.read("templates/#{instance_type['TEMPLATE']}"))
+    template=ERB.new(File.read(
+        TEMPLATES_LOCATION+"/#{instance_type['TEMPLATE']}"))
     template_text=template.result(binding)
     
     pp template_text
@@ -279,7 +292,7 @@ __END__
         <% vm.info %>
         <item> 
           <instanceId><%= vm.id %></instanceId> 
-          <imageId><%= vm.id %></imageId> 
+          <imageId><%= vm['TEMPLATE/IMAGE_ID'] %></imageId> 
           <instanceState> 
               <%= render_state(vm) %>
           </instanceState> 
