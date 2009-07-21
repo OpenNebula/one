@@ -88,6 +88,12 @@ def get_one_client
     Client.new(AUTH)
 end
 
+def get_one_client_user(user_name)
+    user=get_user(user_name)
+    
+    Client.new("#{user[:name]}:#{user[:password]}")
+end
+
 def get_user(name)
     user=nil
     
@@ -179,7 +185,8 @@ def run_instances(params)
     
     pp template_text
     
-    vm=VirtualMachine.new(VirtualMachine.build_xml, get_one_client)
+    vm=VirtualMachine.new(
+        VirtualMachine.build_xml, get_one_client_user(@user[:name]))
     response=vm.allocate(template_text)
     
     pp response
@@ -195,7 +202,7 @@ end
 def describe_instances(params)
     @user=get_user(params['AWSAccessKeyId'])
     
-    @vmpool=VirtualMachinePool.new(get_one_client)
+    @vmpool=VirtualMachinePool.new(get_one_client_user(@user[:name]))
     @vmpool.info
     
     pp @vmpool
