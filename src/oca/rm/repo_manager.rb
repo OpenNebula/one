@@ -1,15 +1,17 @@
 
 require 'rubygems'
-#require 'storage_pool'
 require 'uuid'
 require 'fileutils'
-#gem 'sequel', '< 3.0'
 require 'sequel'
 require 'logger'
 
 # Seems that database should be opened before defining models
 # TODO: fix this
-DB=Sequel.sqlite('database.db')
+if ONE_RM_DATABASE
+    DB=Sequel.sqlite(ONE_RM_DATABASE)
+else
+    DB=Sequel.sqlite('database.db')
+end
 #DB.loggers << Logger.new($stdout)
 require 'image'
 

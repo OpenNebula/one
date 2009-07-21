@@ -19,19 +19,21 @@ require 'EC2'
 require 'time'
 
 require 'OpenNebula'
-require 'repo_manager'
+#require 'repo_manager'
 require 'OcaConfiguration'
 
 require 'pp'
 
 include OpenNebula
 
-
-
-
 CONFIG=OcaConfiguration.new(CONF_LOCATION+'/oca.conf')
 AUTH="#{CONFIG[:user]}:#{CONFIG[:password]}"
+ONE_RM_DATABASE=CONFIG[:database]
+
+# Load this gere to use ONE_RM_DATABASE form the configuration file
+require 'repo_manager'
 Image.image_dir=CONFIG[:image_dir]
+
 
 INSTANCE_TYPES=Hash.new
 
