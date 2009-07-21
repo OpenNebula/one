@@ -2,6 +2,7 @@
 require 'rubygems'
 require 'sinatra'
 require 'EC2'
+require 'time'
 
 $: << './OpenNebulaApi'
 $: << './lib'
@@ -98,6 +99,11 @@ def render_state(vm)
     <name>#{ec2_state[:name]}</name>"
 end
 
+def render_launch_time(vm)
+    pp vm[:stime]
+    "<launchTime>#{Time.at(vm[:stime].to_i).xmlschema}</launchTime>"
+end
+
 def authenticate(params)
     user_name=params['AWSAccessKeyId']
     user=get_user(user_name)
@@ -163,7 +169,10 @@ def run_instances(params)
     
     pp response
     
+    vm.info
+    
     @vm_info[:vm_id]=vm.id
+    @vm_info[:vm]=vm
     
     erb :run_instances
 end
@@ -173,6 +182,8 @@ def describe_instances(params)
     
     @vmpool=VirtualMachinePool.new(get_one_client)
     @vmpool.info
+    
+    pp @vmpool
     
     erb :describe_instances
 end
@@ -238,12 +249,12 @@ __END__
       </instanceState> 
       <privateDnsName></privateDnsName> 
       <dnsName></dnsName> 
-      <keyName>example-key-name</keyName> 
+      <keyName>default</keyName> 
       <amiLaunchIndex>0</amiLaunchIndex> 
-      <instanceType>m1.small</instanceType> 
-      <launchTime>2007-08-07T11:51:50.000Z</launchTime> 
+      <instanceType><%= @vm[:instance_type] %></instanceType> 
+      <%= render_launch_time(@vm_info[:vm]) %>
       <placement> 
-        <availabilityZone>us-east-1b</availabilityZone> 
+        <availabilityZone>default</availabilityZone> 
       </placement> 
       <monitoring> 
         <enabled>true</enabled> 
@@ -265,23 +276,21 @@ __END__
       </groupSet> 
       <instancesSet> 
         <% @vmpool.each do |vm| %>
+        <% vm.info %>
         <item> 
           <instanceId><%= vm.id %></instanceId> 
           <imageId><%= vm.id %></imageId> 
           <instanceState> 
               <%= render_state(vm) %>
           </instanceState> 
-          <privateDnsName>10-251-50-132.ec2.internal</privateDnsName> 
-          <dnsName>ec2-72-44-33-4.compute-1.amazonaws.com</dnsName> 
-          <keyName>example-key-name</keyName> 
-          <amiLaunchIndex>23</amiLaunchIndex> 
-          <productCodesSet> 
-            <item><productCode>774F4FF8</productCode></item> 
-          </productCodesSet> 
-          <instanceType>m1.large</instanceType> 
-          <launchTime>2007-08-07T11:54:42.000Z</launchTime> 
+          <privateDnsName>10.0.0.1</privateDnsName> 
+          <dnsName>10.0.0.1</dnsName> 
+          <keyName>default</keyName> 
+          <amiLaunchIndex>1</amiLaunchIndex> 
+          <instanceType><%= vm['TEMPLATE/INSTANCE_TYPE'] %></instanceType> 
+          <%= render_launch_time(vm) %>
           <placement> 
-            <availabilityZone>us-east-1b</availabilityZone> 
+            <availabilityZone>default</availabilityZone> 
           </placement> 
         </item> 
         <% end %>

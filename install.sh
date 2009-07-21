@@ -124,7 +124,8 @@ ETC_DIRS="$ETC_LOCATION/im_kvm \
           $ETC_LOCATION/tm_nfs \
           $ETC_LOCATION/tm_ssh \
           $ETC_LOCATION/tm_dummy \
-          $ETC_LOCATION/hm"
+          $ETC_LOCATION/hm \
+          $ETC_LOCATION/ec2query_templates"
 
 LIB_DIRS="$LIB_LOCATION/im_probes \
           $LIB_LOCATION/ruby \
@@ -156,6 +157,8 @@ INSTALL_FILES[9]="DUMMY_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/dummy"
 INSTALL_FILES[10]="EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples"
 INSTALL_FILES[11]="TM_EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples/tm"
 INSTALL_FILES[12]="HOOK_SHARE_FILES:$SHARE_LOCATION/hooks"
+INSTALL_FILES[13]="OCA_LIB_FILES:$LIB_LOCATION/ruby"
+INSTALL_FILES[14]="OCA_BIN_FILES:$BIN_LOCATION"
 
 INSTALL_ETC_FILES[0]="ETC_FILES:$ETC_LOCATION"
 INSTALL_ETC_FILES[1]="VMM_XEN_ETC_FILES:$ETC_LOCATION/vmm_xen"
@@ -170,6 +173,8 @@ INSTALL_ETC_FILES[9]="TM_NFS_ETC_FILES:$ETC_LOCATION/tm_nfs"
 INSTALL_ETC_FILES[10]="TM_SSH_ETC_FILES:$ETC_LOCATION/tm_ssh"
 INSTALL_ETC_FILES[11]="TM_DUMMY_ETC_FILES:$ETC_LOCATION/tm_dummy"
 INSTALL_ETC_FILES[12]="HM_ETC_FILES:$ETC_LOCATION/hm"
+INSTALL_ETC_FILES[13]="OCA_ETC_FILES:$ETC_LOCATION"
+INSTALL_ETC_FILES[14]="OCA_TEMPLATE_FILES:$ETC_LOCATION/ec2query_templates"
 
 #-------------------------------------------------------------------------------
 # Binary files, to be installed under $BIN_LOCATION
@@ -373,6 +378,21 @@ TM_EXAMPLE_SHARE_FILES="share/examples/tm/tm_clone.sh \
 #-------------------------------------------------------------------------------
 
 HOOK_SHARE_FILES="share/hooks/ebtables-xen"
+
+#-------------------------------------------------------------------------------
+# OCA files
+#-------------------------------------------------------------------------------
+
+OCA_LIB_FILES="src/oca/rm/image.rb \
+               src/oca/rm/repo_manager.rb \
+               src/oca/ec2/OcaConfiguration.rb"
+
+OCA_BIN_FILES="src/oca/ec2/eco.rb"
+
+OCA_ETC_FILES="src/oca/ec2/oca.conf"
+
+OCA_TEMPLATE_FILES="src/oca/ec2/templates/m1.small.erb"
+
 
 #-------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------
