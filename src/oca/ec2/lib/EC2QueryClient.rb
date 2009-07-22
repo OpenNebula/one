@@ -2,6 +2,24 @@
 
 require 'pp'
 
+
+ONE_LOCATION=ENV["ONE_LOCATION"]
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
+else
+    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
+end
+
+$: << RUBY_LIB_LOCATION
+
+@@ec2url = nil
+
+if ENV["EC2_URL"]
+    @@ec2url = ENV["EC2_URL"]
+    ENV["EC2_URL"]=nil
+end
+
 require 'rubygems'
 require 'EC2'
 require 'curb'
@@ -21,9 +39,13 @@ module EC2QueryClient
         #
         #
         #######################################################################
-        def initialize(secret=nil, endpoint="http://127.0.0.1:4567")
+        def initialize(secret=nil, endpoint=nil)
+            # Autentication
+            
             if secret
                 ec2auth = secret
+            elsif ENV["EC2_ACCESS_KEY"] and ENV["EC2_SECRET_KEY"]
+                ec2auth = ENV["EC2_ACCESS_KEY"] + ":" + ENV["EC2_SECRET_KEY"]   
             elsif ENV["ONE_AUTH"]
                 ec2auth = ENV["ONE_AUTH"]
             end
@@ -33,6 +55,16 @@ module EC2QueryClient
             @access_key_id     = $1
             @access_key_secret = Digest::SHA1.hexdigest($2)
 
+            # Server location
+
+            if !endpoint
+                if @@ec2url
+                    endpoint = @@ec2url
+                else
+                    endpoint = "http://127.0.0.1:4567"
+                end
+            end
+            
             @uri = URI.parse(endpoint)
 
             if !@uri.scheme or @uri.scheme != "http"
@@ -41,6 +73,11 @@ module EC2QueryClient
                 raise "Wrong URI format, host not found"
             end
 
+            pp  @access_key_id
+            pp  @access_key_secret
+            pp  @uri.port
+            pp  @uri.host
+            
             @ec2_connection = EC2::Base.new(
                 :access_key_id     => @access_key_id,
                 :secret_access_key => @access_key_secret,
@@ -170,6 +207,8 @@ module EC2QueryClient
             return response
         end
     end
+
+    client = Client.new
 end
 
 
