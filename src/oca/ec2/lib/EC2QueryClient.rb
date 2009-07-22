@@ -1,9 +1,9 @@
 #!/usr/bin/ruby
 
-@@ec2url = nil
+$ec2url = nil
 
 if ENV["EC2_URL"]
-    @@ec2url = ENV["EC2_URL"]
+    $ec2url = ENV["EC2_URL"]
     ENV["EC2_URL"]=nil
 end
 
@@ -35,6 +35,8 @@ module EC2QueryClient
                 ec2auth = ENV["EC2_ACCESS_KEY"] + ":" + ENV["EC2_SECRET_KEY"]   
             elsif ENV["ONE_AUTH"]
                 ec2auth = ENV["ONE_AUTH"]
+            elsif
+                raise "No authorization data present"
             end
 
             ec2auth=~/(\w+):(\w+)/
@@ -45,8 +47,8 @@ module EC2QueryClient
             # Server location
 
             if !endpoint
-                if @@ec2url
-                    endpoint = @@ec2url
+                if $ec2url
+                    endpoint = $ec2url
                 else
                     endpoint = "http://127.0.0.1:4567"
                 end
@@ -59,7 +61,7 @@ module EC2QueryClient
             elsif !@uri.host
                 raise "Wrong URI format, host not found"
             end
-            
+ 
             @ec2_connection = EC2::Base.new(
                 :access_key_id     => @access_key_id,
                 :secret_access_key => @access_key_secret,
@@ -189,8 +191,6 @@ module EC2QueryClient
             return response
         end
     end
-
-    client = Client.new
 end
 
 

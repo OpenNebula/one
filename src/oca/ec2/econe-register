@@ -16,7 +16,7 @@
 # --access-key <id>, -K <id>:
 #    The username of the user
 #
-# --secret-key <key>, -K <key>:
+# --secret-key <key>, -S <key>:
 #    The password of the user
 #
 # --url <url>, -U <url>:
