@@ -236,6 +236,27 @@ def describe_instances(params)
     erb :describe_instances
 end
 
+def terminate_instances(params)
+    @user=get_user(params['AWSAccessKeyId'])
+    vmid=params['InstanceId.1']
+    
+    client=get_one_client_user(@user[:name])
+    @vm=VirtualMachine.new(VirtualMachine.build_xml(vmid), client)
+    res=@vm.info
+    
+    halt 401, res.message if OpenNebula::is_error?(res)
+    
+    if @vm.status=='runn'
+        res=@vm.shutdown
+    else
+        res=@vm.finalize
+    end
+    
+    halt 401, res.message if OpenNebula::is_error?(res)
+    
+    erb :terminate_instances
+end
+
 post '/' do
     pp params
     
@@ -250,6 +271,8 @@ post '/' do
         run_instances(params)
     when 'DescribeInstances'
         describe_instances(params)
+    when 'TerminateInstances'
+        terminate_instances(params)
     end
 end
 
@@ -348,5 +371,21 @@ __END__
     </item>
   </reservationSet>
 </DescribeInstancesResponse>
-  
+
+@@ terminate_instances
+<TerminateInstancesResponse xmlns="http://ec2.amazonaws.com/doc/2009-04-04/"> 
+  <instancesSet> 
+    <item> 
+      <instanceId><%= @vm.id %></instanceId> 
+      <shutdownState> 
+        <code>32</code> 
+        <name>shutting-down</name> 
+      </shutdownState> 
+      <previousState> 
+          <%= render_state(@vm) %>
+      </previousState>
+    </item>
+  </instancesSet> 
+</TerminateInstancesResponse> 
+
 
