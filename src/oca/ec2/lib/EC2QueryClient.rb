@@ -1,18 +1,5 @@
 #!/usr/bin/ruby
 
-require 'pp'
-
-
-ONE_LOCATION=ENV["ONE_LOCATION"]
-
-if !ONE_LOCATION
-    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
-else
-    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
-end
-
-$: << RUBY_LIB_LOCATION
-
 @@ec2url = nil
 
 if ENV["EC2_URL"]
@@ -72,11 +59,6 @@ module EC2QueryClient
             elsif !@uri.host
                 raise "Wrong URI format, host not found"
             end
-
-            pp  @access_key_id
-            pp  @access_key_secret
-            pp  @uri.port
-            pp  @uri.host
             
             @ec2_connection = EC2::Base.new(
                 :access_key_id     => @access_key_id,
