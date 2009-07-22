@@ -114,8 +114,3 @@ puts "Success: Image_id #{rc['imageId']}"
 
 exit 0
 
-
-
-
-
-
