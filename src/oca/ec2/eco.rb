@@ -134,7 +134,8 @@ def authenticate(params)
     
     halt 401, "User does not exist" if !user
     
-    signature_params=params.reject {|key,value| key=='Signature' }
+    signature_params=params.reject {|key,value| 
+        key=='Signature' or key=='file' }
     canonical=EC2.canonical_string(signature_params, CONFIG[:server])
     signature=EC2.encode(user[:password], canonical, false)
     
@@ -146,10 +147,29 @@ before do
 end
 
 
+def upload_image(params)
+    user=get_user(params['AWSAccessKeyId'])
+    file=params["file"]
+    
+    # tmpfile where the file is stored
+    f_tmp=file[:tempfile]
+    img=$repoman.add(user[:id], f_tmp.path)
+    f_tmp.unlink
+    
+    @img_id=img.uuid
+
+    erb :register_image
+end
+
 def register_image(params)
     user=get_user(params['AWSAccessKeyId'])
+    uuid=params['ImageLocation']
     
-    img=$repoman.add(user[:id], params["ImageLocation"])
+    img=$repoman.get(uuid)
+    
+    halt 404, 'Image not found' if !img
+    halt 401, 'Not permited to use image' if user[:id]!=img[:owner]
+    
     @img_id=img.uuid
 
     erb :register_image
@@ -220,6 +240,8 @@ post '/' do
     pp params
     
     case params['Action']
+    when 'UploadImage'
+        upload_image(params)
     when 'RegisterImage'
         register_image(params)
     when 'DescribeImages'
