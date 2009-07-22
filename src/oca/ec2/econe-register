@@ -107,7 +107,7 @@ end
 auth = "#{access}:#{secret}" if secret && access
 
 begin
-ec2_client = EC2QueryClient::Client.new(auth,url)
+    ec2_client = EC2QueryClient::Client.new(auth,url)
 rescue Exception => e
     puts "#{$0}: #{e.message}"
     exit -1
