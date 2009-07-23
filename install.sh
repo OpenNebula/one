@@ -158,8 +158,8 @@ INSTALL_FILES[9]="DUMMY_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/dummy"
 INSTALL_FILES[10]="EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples"
 INSTALL_FILES[11]="TM_EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples/tm"
 INSTALL_FILES[12]="HOOK_SHARE_FILES:$SHARE_LOCATION/hooks"
-INSTALL_FILES[13]="OCA_LIB_FILES:$LIB_LOCATION/ruby/econe"
-INSTALL_FILES[14]="OCA_BIN_FILES:$BIN_LOCATION"
+INSTALL_FILES[13]="ECO_LIB_FILES:$LIB_LOCATION/ruby/econe"
+INSTALL_FILES[14]="ECO_BIN_FILES:$BIN_LOCATION"
 
 INSTALL_ETC_FILES[0]="ETC_FILES:$ETC_LOCATION"
 INSTALL_ETC_FILES[1]="VMM_XEN_ETC_FILES:$ETC_LOCATION/vmm_xen"
@@ -174,8 +174,8 @@ INSTALL_ETC_FILES[9]="TM_NFS_ETC_FILES:$ETC_LOCATION/tm_nfs"
 INSTALL_ETC_FILES[10]="TM_SSH_ETC_FILES:$ETC_LOCATION/tm_ssh"
 INSTALL_ETC_FILES[11]="TM_DUMMY_ETC_FILES:$ETC_LOCATION/tm_dummy"
 INSTALL_ETC_FILES[12]="HM_ETC_FILES:$ETC_LOCATION/hm"
-INSTALL_ETC_FILES[13]="OCA_ETC_FILES:$ETC_LOCATION"
-INSTALL_ETC_FILES[14]="OCA_TEMPLATE_FILES:$ETC_LOCATION/ec2query_templates"
+INSTALL_ETC_FILES[13]="ECO_ETC_FILES:$ETC_LOCATION"
+INSTALL_ETC_FILES[14]="ECO_TEMPLATE_FILES:$ETC_LOCATION/ec2query_templates"
 
 #-------------------------------------------------------------------------------
 # Binary files, to be installed under $BIN_LOCATION
@@ -212,19 +212,19 @@ RUBY_LIB_FILES="src/mad/ruby/one_mad.rb \
                 src/mad/ruby/VirtualMachineDriver.rb \
                 src/client/ruby/client_utilities.rb \
                 src/client/ruby/command_parse.rb \
-                src/client/ruby/lib/OpenNebula.rb \
+                src/oca/ruby/OpenNebula.rb \
                 src/tm_mad/TMScript.rb"
 
-RUBY_OPENNEBULA_LIB_FILES="src/client/ruby/lib/OpenNebula/Host.rb \
-                           src/client/ruby/lib/OpenNebula/HostPool.rb \
-                           src/client/ruby/lib/OpenNebula/Pool.rb \
-                           src/client/ruby/lib/OpenNebula/User.rb \
-                           src/client/ruby/lib/OpenNebula/UserPool.rb \
-                           src/client/ruby/lib/OpenNebula/VirtualMachine.rb \
-                           src/client/ruby/lib/OpenNebula/VirtualMachinePool.rb \
-                           src/client/ruby/lib/OpenNebula/VirtualNetwork.rb \
-                           src/client/ruby/lib/OpenNebula/VirtualNetworkPool.rb \
-                           src/client/ruby/lib/OpenNebula/XMLUtils.rb"
+RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/OpenNebula/Host.rb \
+                           src/oca/ruby/OpenNebula/HostPool.rb \
+                           src/oca/ruby/OpenNebula/Pool.rb \
+                           src/oca/ruby/OpenNebula/User.rb \
+                           src/oca/ruby/OpenNebula/UserPool.rb \
+                           src/oca/ruby/OpenNebula/VirtualMachine.rb \
+                           src/oca/ruby/OpenNebula/VirtualMachinePool.rb \
+                           src/oca/ruby/OpenNebula/VirtualNetwork.rb \
+                           src/oca/ruby/OpenNebula/VirtualNetworkPool.rb \
+                           src/oca/ruby/OpenNebula/XMLUtils.rb"
 
 #-------------------------------------------------------------------------------
 # Driver executable files, to be installed under $LIB_LOCATION/mads
@@ -384,23 +384,23 @@ HOOK_SHARE_FILES="share/hooks/ebtables-xen"
 # OCA files
 #-------------------------------------------------------------------------------
 
-OCA_LIB_FILES="src/oca/rm/image.rb \
-               src/oca/rm/repo_manager.rb \
-               src/oca/ec2/OcaConfiguration.rb \
-               src/oca/ec2/eco.rb \
-               src/oca/ec2/lib/EC2QueryClient.rb"
+ECO_LIB_FILES="src/cloud/rm/image.rb \
+               src/cloud/rm/repo_manager.rb \
+               src/cloud/ec2/OcaConfiguration.rb \
+               src/cloud/ec2/eco.rb \
+               src/cloud/ec2/lib/EC2QueryClient.rb"
 
-OCA_BIN_FILES="src/oca/ec2/econe-server \
-               src/oca/ec2/econe-describe-images \
-               src/oca/ec2/econe-describe-instances \
-               src/oca/ec2/econe-register \
-               src/oca/ec2/econe-run-instances \
-               src/oca/ec2/econe-terminate-instances \
-               src/oca/ec2/econe-upload"
+ECO_BIN_FILES="src/cloud/ec2/econe-server \
+               src/cloud/ec2/econe-describe-images \
+               src/cloud/ec2/econe-describe-instances \
+               src/cloud/ec2/econe-register \
+               src/cloud/ec2/econe-run-instances \
+               src/cloud/ec2/econe-terminate-instances \
+               src/cloud/ec2/econe-upload"
 
-OCA_ETC_FILES="src/oca/ec2/oca.conf"
+ECO_ETC_FILES="src/cloud/ec2/econe.conf"
 
-OCA_TEMPLATE_FILES="src/oca/ec2/templates/m1.small.erb"
+ECO_TEMPLATE_FILES="src/cloud/ec2/templates/m1.small.erb"
 
 
 #-------------------------------------------------------------------------------
