@@ -50,7 +50,7 @@ module EC2QueryClient
                 if $ec2url
                     endpoint = $ec2url
                 else
-                    endpoint = "http://127.0.0.1:4567"
+                    endpoint = "http://localhost:4567"
                 end
             end
             
