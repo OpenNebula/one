@@ -107,13 +107,15 @@ rescue Exception => e
     exit -1
 end
 
-rc = ec2_client.register_image(instance)
+rc = ec2_client.terminate_instances(instance)
 
 if OpenNebula::is_error?(rc)
     puts "#{$0}: #{rc.message}"
     exit -1
 end
 
-puts "Success: Terminating #{rc['instanceId']} in #{rc['previousState']} state"
+result = rc['instancesSet']['item'][0]
+
+puts "Success: Terminating #{result['instanceId']} in #{result['previousState']['name']} state"
 
 exit 0
