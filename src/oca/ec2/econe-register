@@ -8,7 +8,7 @@
 #
 # == Usage
 #
-# econe-register [OPTIONS] IMAGE-ID
+# econe-register [OPTIONS] ImageId
 #
 # -h, --help:
 #    show help
@@ -100,7 +100,7 @@ end
 image_id = ARGV.shift
 
 if !image_id
-    puts "#{$0}: missing IMAGE-ID parameter"
+    puts "#{$0}: missing ImageId parameter"
     exit -1
 end
 
@@ -120,7 +120,7 @@ if OpenNebula::is_error?(rc)
     exit -1
 end
 
-puts "Success: Image_id #{rc['imageId']}"
+puts "Success: ImageId #{rc['imageId']}"
 
 exit 0
 

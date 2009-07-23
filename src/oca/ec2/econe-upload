@@ -4,7 +4,7 @@
 # econe-upload
 # 
 # Uploads an image for use with an OpenNebula Cloud. This image should
-# be later register with econe-register using the returned IMAGE-ID
+# be later register with econe-register using the returned ImageId
 #
 # == Usage
 #
@@ -110,7 +110,7 @@ if OpenNebula::is_error?(rc)
     exit -1
 end
 
-puts "Success: Image_id #{rc['imageId']}"
+puts "Success: ImageId #{rc['imageId']}"
 
 exit 0
 
