@@ -36,6 +36,8 @@ mkdir -p $ONE_LOCATION/etc/vmm_vmware
 mkdir -p $ONE_LOCATION/etc/tm_vmware
 
 cp tm_vmware.conf tm_vmwarerc $ONE_LOCATION/etc/tm_vmware
+cp ../../vmm_mad/vmware/vmm_vmwarerc $ONE_LOCATION/etc/vmm_vmware
+cp ../../im_mad/vmware/im_vmwarerc $ONE_LOCATION/etc/im_vmware
 
 echo "done"
 
