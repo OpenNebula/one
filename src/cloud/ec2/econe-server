@@ -1,7 +1,7 @@
 #!/bin/bash
 
 eval `grep ^IMAGE_DIR= $ONE_LOCATION/etc/econe.conf `
-export TMPDIR=$IMG_DIR/tmp
+export TMPDIR=$IMAGE_DIR/tmp
 mkdir -p $TMPDIR
 
 nohup ruby $ONE_LOCATION/lib/ruby/econe/eco.rb >> $ONE_LOCATION/var/econe.log &
