@@ -61,7 +61,8 @@ module OpenNebula
         
             image=Image.new(data)
         
-            image.copy_image(path)
+            # TODO: make copy or movement configurable
+            image.copy_image(path, true)
             image.get_image_info
             image.save
         
@@ -77,8 +78,12 @@ module OpenNebula
         # Copies the image from the source path to the image repository.
         # Its name will be the image uuid. It also stores its new location
         # in the object.
-        def copy_image(path)
-            FileUtils.cp(path, image_path)
+        def copy_image(path, move=false)
+            if move
+                FileUtils.mv(path, image_path)
+            else
+                FileUtils.cp(path, image_path)
+            end
             self.path=image_path
         end
         
