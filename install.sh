@@ -130,6 +130,7 @@ ETC_DIRS="$ETC_LOCATION/im_kvm \
 LIB_DIRS="$LIB_LOCATION/im_probes \
           $LIB_LOCATION/ruby \
           $LIB_LOCATION/ruby/OpenNebula \
+          $LIB_LOCATION/ruby/econe \
           $LIB_LOCATION/tm_commands \
           $LIB_LOCATION/tm_commands/nfs \
           $LIB_LOCATION/tm_commands/ssh \
@@ -157,7 +158,7 @@ INSTALL_FILES[9]="DUMMY_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/dummy"
 INSTALL_FILES[10]="EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples"
 INSTALL_FILES[11]="TM_EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples/tm"
 INSTALL_FILES[12]="HOOK_SHARE_FILES:$SHARE_LOCATION/hooks"
-INSTALL_FILES[13]="OCA_LIB_FILES:$LIB_LOCATION/ruby"
+INSTALL_FILES[13]="OCA_LIB_FILES:$LIB_LOCATION/ruby/econe"
 INSTALL_FILES[14]="OCA_BIN_FILES:$BIN_LOCATION"
 
 INSTALL_ETC_FILES[0]="ETC_FILES:$ETC_LOCATION"
@@ -385,9 +386,17 @@ HOOK_SHARE_FILES="share/hooks/ebtables-xen"
 
 OCA_LIB_FILES="src/oca/rm/image.rb \
                src/oca/rm/repo_manager.rb \
-               src/oca/ec2/OcaConfiguration.rb"
+               src/oca/ec2/OcaConfiguration.rb \
+               src/oca/ec2/eco.rb \
+               src/oca/ec2/lib/EC2QueryClient.rb"
 
-OCA_BIN_FILES="src/oca/ec2/eco.rb"
+OCA_BIN_FILES="src/oca/ec2/econe-server \
+               src/oca/ec2/econe-describe-images \
+               src/oca/ec2/econe-describe-instances \
+               src/oca/ec2/econe-register \
+               src/oca/ec2/econe-run-instances \
+               src/oca/ec2/econe-terminate-instances \
+               src/oca/ec2/econe-upload"
 
 OCA_ETC_FILES="src/oca/ec2/oca.conf"
 

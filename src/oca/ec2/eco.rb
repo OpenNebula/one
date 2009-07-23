@@ -11,6 +11,7 @@ else
 end
 
 $: << RUBY_LIB_LOCATION
+$: << RUBY_LIB_LOCATION+"/econe"
 
 
 require 'rubygems'

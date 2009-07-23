@@ -1,0 +1,5 @@
+#!/bin/bash
+
+nohup ruby $ONE_LOCATION/lib/ruby/econe/eco.rb >> $ONE_LOCATION/var/econe.log &
+
+
