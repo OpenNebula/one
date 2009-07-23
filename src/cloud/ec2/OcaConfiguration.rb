@@ -67,7 +67,7 @@ if $0 == __FILE__
 
     require 'pp'
 
-    conf=OcaConfiguration.new('oca.conf')
+    conf=OcaConfiguration.new('econe.conf')
     pp conf.conf
 
 end

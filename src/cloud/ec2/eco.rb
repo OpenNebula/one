@@ -27,7 +27,7 @@ require 'pp'
 
 include OpenNebula
 
-CONFIG=OcaConfiguration.new(CONF_LOCATION+'/oca.conf')
+CONFIG=OcaConfiguration.new(CONF_LOCATION+'/econe.conf')
 AUTH="#{CONFIG[:user]}:#{CONFIG[:password]}"
 ONE_RM_DATABASE=CONFIG[:database]
 

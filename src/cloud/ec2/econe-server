@@ -1,6 +1,6 @@
 #!/bin/bash
 
-eval `grep ^IMAGE_DIR= $ONE_LOCATION/etc/oca.conf `
+eval `grep ^IMAGE_DIR= $ONE_LOCATION/etc/econe.conf `
 export TMPDIR=$IMG_DIR/tmp
 mkdir -p $TMPDIR
 
