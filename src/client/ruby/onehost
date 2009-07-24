@@ -1,0 +1,300 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2009, Distributed Systems Architecture Group, Universidad   #
+# Complutense de Madrid (dsa-research.org)                                   #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+ONE_LOCATION=ENV["ONE_LOCATION"]
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
+else
+    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
+end
+
+$: << RUBY_LIB_LOCATION 
+
+require 'one'
+require 'client_utilities'
+require 'command_parse'
+
+ShowTableHost={
+    :hid => {
+        :name => "HID",
+        :desc => "ONE identifier for host",
+        :size => 4,
+        :proc => lambda {|d,e| d["oid"] }
+    },
+    :name => {
+        :name => "NAME",
+        :desc => "Hostname",
+        :size => 25,
+        :left => true,
+        :proc => lambda {|d,e| d["host_name"] }
+    },
+    :rvm => {
+        :name => "RVM",
+        :desc => "Number of virtual machines running",
+        :size => 3,
+        :proc => lambda {|d,e| d["hs_running_vms"] }
+    },
+    :tcpu => {
+        :name => "TCPU",
+        :desc => "Total cpu percentage",
+        :size => 6,
+        :proc => lambda {|d,e| d["TOTALCPU"] }
+    },
+    :fcpu => {
+        :name => "FCPU",
+        :desc => "Free cpu percentage",
+        :size => 6,
+        :proc => lambda {|d,e| d["TOTALCPU"].to_i-d["USEDCPU"].to_i }
+    },
+    :acpu => {
+        :name => "ACPU",
+        :desc => "Available cpu percentage (not reserved by VMs)",
+        :size => 6,
+        :proc => lambda {|d,e|
+            max_cpu=d["hs_max_cpu"].to_i
+            max_cpu=100 if max_cpu==0
+            max_cpu-d["hs_cpu_usage"].to_i
+        }
+    },
+    :tmem => {
+        :name => "TMEM",
+        :desc => "Total memory",
+        :size => 7,
+        :proc => lambda {|d,e| d["TOTALMEMORY"] }
+    },
+    :fmem => {
+        :name => "FMEM",
+        :desc => "Free memory",
+        :size => 7,
+        :proc => lambda {|d,e| d["FREEMEMORY"] }
+    },
+    :stat => {
+        :name => "STAT",
+        :desc => "Host status",
+        :size => 4,
+        :proc => lambda {|d,e| e[:host].get_state(d) }
+    },
+    
+
+    :default => [:hid, :name, :rvm, :tcpu, :fcpu, :acpu, :tmem, :fmem, :stat]
+}
+
+class HostShow
+    def initialize(host)
+        @host=host
+        @table=ShowTable.new(ShowTableHost, :host => @host)
+    end
+    
+    def close
+    end
+
+    def header_host_small
+        scr_bold
+        scr_underline
+        print @table.header_str
+        scr_restore
+        puts ""
+    end
+    
+    def list_short(options=nil)
+        res=@host.get
+        if options
+            @table.columns=options[:columns] if options[:columns]
+        end
+
+        if res[0]
+            result=res
+            header_host_small
+            res[1].each {|row|
+                res2=@host.get_host_attributes(row["oid"])
+                if res2[0]
+                    attributes=res2[1]
+                    attributes.each {|a|
+                        if %w{USEDCPU TOTALMEMORY FREEMEMORY TOTALCPU}.include? a["name"]
+                            row[a["name"]]=a["value"]
+                        end
+                    }
+                end
+                
+                res2=@host.get_host_share(row["oid"])
+                if res2[0]
+                    attributes=res2[1]
+                    attributes.each {|a|
+                        row["hs_running_vms"]=a["running_vms"]
+                        row["hs_max_mem"]=a["max_mem"]
+                        row["hs_max_cpu"]=a["max_cpu"]
+                        row["hs_mem_usage"]=a["mem_usage"]
+                        row["hs_cpu_usage"]=a["cpu_usage"]
+                    }
+                end
+            }
+            puts @table.data_str(result[1], options)
+            result
+        else
+            result=res
+        end
+    end
+    
+    def top(options=nil)
+        delay=1
+        delay=options[:delay] if options && options[:delay]
+        
+        result=nil
+        
+        begin
+            while true
+                scr_cls
+                scr_move(0,0)
+                result=list_short(options)
+                sleep delay
+            end
+        rescue Exception
+        end
+        result
+    end
+end
+
+class OnehostParse < CommandParse
+    
+    COMMANDS_HELP=<<-EOT
+Commands:
+
+* create (Adds a new machine to the pool)
+    onehost create <hostname> <im_mad> <vmm_mad> <tm_mad>
+    
+* show (Gets info from a host)
+    onehost show <host_id>
+    
+* delete (Removes a machine from the pool)
+    onehost delete <host_id>
+    
+* list (Lists machines in the pool)
+    onehost list
+    
+* enable (Enables host)
+    onehost enable <host_id>
+    
+* disable (Disables host)
+    onehost disable <host_id>
+    
+* top (Lists hosts continuously)
+    onehost top
+
+EOT
+
+    def text_commands
+        COMMANDS_HELP
+    end
+
+    def text_command_name
+        "onehost"
+    end
+
+    def list_options
+        table=ShowTable.new(ShowTableHost)
+        table.print_help
+    end
+
+end
+
+server=ONE::Server.new
+$host=host=ONE::Host.new(server)
+
+def command_exit(code)
+    $host.close_db
+    exit(code)
+end
+
+
+onehost_opts=OnehostParse.new
+onehost_opts.parse(ARGV)
+ops=onehost_opts.options
+
+result=[false, "Unknown error"]
+
+command=ARGV.shift
+
+case command
+when "add", "create"
+    check_parameters("create", 4)
+    result=host.allocate(*[ARGV[0], ARGV[1], ARGV[2], ARGV[3], "true"])
+    
+when "show"
+    check_parameters("show", 1)
+    host_id=get_host_id(host, ARGV[0])
+    result=host.info(host_id)
+    if result[0]
+        puts result[1]
+    else
+        puts "Error: "+result[1]
+        command_exit -1
+    end
+    
+when "delete"
+    check_parameters("delete", 1)
+    host_id=get_host_id(host, ARGV[0])
+    result=host.delete(host_id)
+    if result[0]
+        puts "Host deleted" if ops[:verbose]
+        command_exit 0
+    end
+    
+when "list"
+    hostlist=HostShow.new(host)
+    ops[:columns]=ops[:list] if ops[:list]
+    result=hostlist.list_short(ops)
+    hostlist.close
+
+when "top"
+    hostlist=HostShow.new(host)
+    ops[:columns]=ops[:list] if ops[:list]
+    result=hostlist.top(ops)
+    hostlist.close
+    
+when "enable"
+    check_parameters("enable", 1)
+    host_id=get_host_id(host, ARGV[0])
+    result=host.enable(host_id)
+    if result[0]
+        puts "Host enabled" if ops[:verbose]
+        command_exit 0
+    end
+
+when "disable"
+    check_parameters("disable", 1)
+    host_id=get_host_id(host, ARGV[0])
+    result=host.disable(host_id)
+    if result[0]
+        puts "Host disabled" if ops[:verbose]
+        command_exit 0
+    end
+    
+else
+    onehost_opts.print_help
+    command_exit -1
+end
+
+if !result[0]
+    puts "Error: " + result[1].to_s
+    command_exit -1
+end
+
+command_exit 0
+

@@ -1,0 +1,114 @@
+# SConstruct for src/nebula
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2009, Distributed Systems Architecture Group, Universidad   #
+# Complutense de Madrid (dsa-research.org)                                   #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+Import('env')
+
+lib_name='nebula_core'
+
+# Sources to generate the library
+source_files=[
+	'Nebula.cc',
+	'NebulaTemplate.cc',
+	'Log.cc'
+]
+
+# Build library
+env.StaticLibrary(lib_name, source_files)
+
+# Build daemon
+"""
+env.Append(LIBS=[
+	'nebula_core',
+	'nebula_vmm',
+	'nebula_lcm',
+	'nebula_im',
+	'nebula_rm',
+	'nebula_dm',	
+	'nebula_tm',		
+	'nebula_mad',
+	'nebula_template',
+	'nebula_pool',
+	'nebula_host',
+	'nebula_vm',
+	'nebula_vnm',
+	'nebula_common',
+	'sqlite3',
+    'wwwxml',
+    'xmltok',
+    'xmlparse',
+    'wwwzip',
+    'wwwinit',
+    'wwwapp',
+    'wwwtelnet',
+    'wwwhtml',
+    'wwwnews',
+    'wwwhttp',
+    'wwwmime',
+    'wwwgopher',
+    'wwwftp',
+    'wwwfile',
+    'wwwdir',
+    'wwwcache',
+    'wwwstream',
+    'wwwmux',
+    'wwwtrans',
+    'wwwcore',
+    'wwwutils',
+    'md5',
+    'dl',
+    'z',
+    'pthread',
+    'xmlrpc_client++',
+    'xmlrpc_client',
+    'xmlrpc++',
+    'xmlrpc',
+    'xmlrpc_util',
+    'xmlrpc_xmlparse',
+    'xmlrpc_xmltok',
+    'xmlrpc_server_abyss++',
+    'xmlrpc_server++',
+    'xmlrpc_server_abyss',
+    'xmlrpc_server',
+    'xmlrpc_abyss',	
+])
+"""
+
+env.Append(LIBS=[
+	'nebula_core',
+	'nebula_vmm',
+	'nebula_lcm',
+	'nebula_im',
+	'nebula_rm',
+	'nebula_dm',	
+	'nebula_tm',		
+	'nebula_mad',
+	'nebula_template',
+	'nebula_pool',
+	'nebula_host',
+	'nebula_vnm',
+	'nebula_vm',
+	'nebula_common',
+	'sqlite3',
+])
+
+
+if not env.GetOption('clean'):
+    env.ParseConfig('../../share/scons/get_xmlrpc_config server')
+
+env.Program('oned.cc')

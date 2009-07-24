@@ -1,0 +1,93 @@
+# ----------------------------------------------------------------------
+# VM ATTRIBUTES
+# Each attribute is labeled as Optional or Mandatory, also if it 
+# can be defined in the driver conf file is tagged with default. Finally
+# the hypervisors that support the attribute are listed.
+# ----------------------------------------------------------------------
+
+#---------------------------------------
+# Name of the VM 
+#---------------------------------------
+
+NAME = vm-example # Optional, Default: one-$VMID, XEN, KVM
+
+#---------------------------------------
+#               Capacity
+#---------------------------------------
+
+CPU    = "amount_of_requested_CPU" # Mandatory, XEN, KVM
+MEMORY = "amount_of_requested_MEM" # Mandatory, XEN, KVM
+
+#---------------------------------------
+#         OS and boot options
+#---------------------------------------
+
+OS = [
+  kernel     = "path_to_os_kernel",           # XEN: Mandatory,default. KVM: Optional
+  initrd     = "path_to_initrd_image",        # XEN: Mandatory,default. KVM: Optional
+  kernel_cmd = "kernel_command_line",         # Optional, default, KVM, XEN
+  root       = "device to be mounted as root" # XEN: Mandatory,default. KVM: Optional
+  boot       = "device to boot from" ]        # KVM: Mandatory,default  XEN: Optional
+ 
+#---------------------------------------
+#      Features of the hypervisor
+#---------------------------------------
+
+FEATURES = [
+  pae  = "yes|no",   # Optional, KVM
+  acpi = "yes|no" ]  # Optional, KVM
+
+#---------------------------------------
+#                VM Disks
+#---------------------------------------
+
+DISK = [
+  type     = "floppy|disk|cdrom|swap",               #Optional, KVM ,XEN(only swap)
+  source   = "path_to_disk_image_file|physical_dev", #Mandatory, XEN, KVM
+  size     = "size_in_GB",			     #Optional, KVM, XEN (only for swap, defaults 1G)
+  target   = "device_to_map_disk",                   #Mandatory, XEN, KVM
+  bus      = "ide|scsi|virtio|xen",                  #Optional, KVM
+  readonly = "yes|no",                               #Optional, XEN, KVM
+  clone    = "yes|no",                               #Optional, XEN, KVM
+  save     = "path_to_disk_image_file" ]             #Optional, XEN, KVM
+  
+#---------------------------------------
+#           Network Interfaces
+#---------------------------------------
+
+NIC = [
+  network = "name_of_the_virtual_network",   #Optional, XEN, KVM
+  ip      = "ip_address",                    #Optional, XEN, KVM 
+  bridge  = "name_of_bridge_to_bind_if",     #Optional, XEN, KVM
+  target  = "device_name_to_map_if",         #Optional, KVM
+  mac     = "HW_address",                    #Optional, XEN, KVM
+  script  = "path_to_script_to_bring_up_if"] #Optional, KVM
+
+#---------------------------------------
+#  I/O Interfaces 
+#---------------------------------------
+
+INPUT = [                    #Optional, KVM
+  type = "mouse|tablet", 
+  bus  = "usb|ps2|xen" ]
+
+GRAPHICS = [                 #Optional, XEN, KVM
+  type   = "vnc|sdl",              
+  listen = "IP-to-listen-on",
+  port   = "port_for_VNC_server",
+  passwd = "passwor_for_VNC_server" ]
+
+#---------------------------------------
+#  Raw Hypervisor attributes 
+#---------------------------------------
+
+RAW = [ # Optional, KVM, XEN
+  type = "xen|kvm",
+  data = "raw_domain_configutarion"]
+
+#---------------------------------------
+#           Scheduler
+#---------------------------------------
+
+REQUIREMENTS = "Bool_expression_for_reqs"       #Optional
+RANK         = "Arith_expression_to_rank_hosts" #Optional
