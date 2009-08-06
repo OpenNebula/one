@@ -42,14 +42,6 @@ public:
             (int(*)(int))toupper);
     };
 
-    Attribute(const char * aname)
-    {
-        ostringstream name;
-
-        name << uppercase << aname;
-        attribute_name = name.str();
-    };
-
     virtual ~Attribute(){};
 
     enum AttributeType
@@ -114,9 +106,6 @@ public:
     SingleAttribute(const string& name):Attribute(name){};
 
     SingleAttribute(const string& name, const string& value):
-        Attribute(name),attribute_value(value){};
-
-    SingleAttribute(const char * name, const string& value):
         Attribute(name),attribute_value(value){};
 
     ~SingleAttribute(){};
