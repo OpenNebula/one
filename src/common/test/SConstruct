@@ -46,7 +46,8 @@ main_env.Append(LIBPATH=[
 main_env.Append(LIBS=[
     'nebula_common',
     'cppunit',
-    'dl'
+    'dl',
+    'pthread'
 ])
 
 # Compile flags
@@ -59,3 +60,5 @@ main_env.Append(CPPFLAGS=[
 main_env.Append(LDFLAGS=["-g"])
 
 main_env.Program('single_attribute.cc')
+main_env.Program('vector_attribute.cc')
+main_env.Program('action_manager.cc')
