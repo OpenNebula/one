@@ -517,16 +517,16 @@ int LibVirtDriver::deployment_description(
         get_default("FEATURES", "ACPI", acpi);
     }
     
-    if( acpi == "no" || pae == "no" )
+    if( acpi == "yes" || pae == "yes" )
     {
         file << "\t<features>" << endl;
 
-        if ( pae == "no" )
+        if ( pae == "yes" )
         {
             file << "\t\t<pae/>" << endl;
         }
 
-        if ( acpi == "no" )
+        if ( acpi == "yes" )
         {
             file << "\t\t<acpi/>" << endl;
         }
