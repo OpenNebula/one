@@ -49,7 +49,8 @@ main_env.Append(LIBS=[
     'nebula_common',
     'cppunit',
     'dl',
-    'pthread'
+    'pthread',
+    'sqlite3'
 ])
 
 # Compile flags
@@ -59,8 +60,8 @@ main_env.Append(CPPFLAGS=[
 ])
 
 # Linking flags
-main_env.Append(LDFLAGS=["-g"])
+main_env.Append(LDFLAGS=["-g "])
 
 main_env.Program('template.cc')
-#main_env.Program('template_sql.cc')
+main_env.Program('template_sql.cc')
 #
