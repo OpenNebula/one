@@ -156,8 +156,8 @@ class OneImVmware extends Thread
                        
                           // Static Information   
                        
-                              int totalMemory = 
-                                     Integer.parseInt(gP.getObjectProperty("hardware.memorySize").toString().trim());
+                              long totalMemory = 
+                                     Long.parseLong(gP.getObjectProperty("hardware.memorySize").toString().trim());
                               totalMemory /= 1024;   
                               
                               response = response + ",TOTALMEMORY=" + totalMemory;
