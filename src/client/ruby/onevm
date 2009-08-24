@@ -436,136 +436,191 @@ when "submit", "create"
     
 when "deploy"
     check_parameters("deploy", 2)
-    vm_id=get_vm_id(ARGV[0])
-    host_id=get_host_id(ARGV[1])
+    host_id=get_host_id(ARGV[-1])
+    args=expand_args(ARGV[0..-2])
     
-    vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
+    args.each do |param|
+        vm_id=get_vm_id(param)
     
-    result=vm.deploy(host_id)
-    if is_successful?(result)
-        puts "Deploying VM" if ops[:verbose]
-        exit 0
+        vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
+    
+        result=vm.deploy(host_id)
+        if is_successful?(result)
+            puts "Deploying VM" if ops[:verbose]
+        else
+            break
+        end
     end
 
 when "shutdown"
     check_parameters("shutdown", 1)
-    vm_id=get_vm_id(ARGV[0])
+    args=expand_args(ARGV)
+    
+    args.each do |param|
+        vm_id=get_vm_id(param)
 
-    vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
-    result=vm.shutdown
-    if is_successful?(result)
-        puts "Shutting down VM" if ops[:verbose]
-        exit 0
+        vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
+        result=vm.shutdown
+        if is_successful?(result)
+            puts "Shutting down VM" if ops[:verbose]
+        else
+            break
+        end
     end
 
 when "livemigrate"
     check_parameters("livemigrate", 2)
-    vm_id=get_vm_id(ARGV[0])
-    host_id=get_host_id(ARGV[1])
+    host_id=get_host_id(ARGV[-1])
+    args=expand_args(ARGV[0..-2])
     
-    vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
+    args.each do |param|
+        vm_id=get_vm_id(param)
     
-    result=vm.live_migrate(host_id)
-    if is_successful?(result)
-        puts "Migrating VM" if ops[:verbose]
-        exit 0
+        vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
+    
+        result=vm.live_migrate(host_id)
+        if is_successful?(result)
+            puts "Migrating VM" if ops[:verbose]
+        else
+            break
+        end
     end
 
 when "migrate"
     check_parameters("migrate", 2)
-    vm_id=get_vm_id(ARGV[0])
-    host_id=get_host_id(ARGV[1])
+    host_id=get_host_id(ARGV[-1])
+    args=expand_args(ARGV[0..-2])
     
-    vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
+    args.each do |param|
+        vm_id=get_vm_id(param)
     
-    result=vm.migrate(host_id)
-    if is_successful?(result)
-        puts "Migrating VM" if ops[:verbose]
-        exit 0
+        vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
+    
+        result=vm.migrate(host_id)
+        if is_successful?(result)
+            puts "Migrating VM" if ops[:verbose]
+        else
+            break
+        end
     end
 
 when "hold"
     check_parameters("hold", 1)
-    vm_id=get_vm_id(ARGV[0])
+    args=expand_args(ARGV)
     
-    vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
+    args.each do |param|
+        vm_id=get_vm_id(param)
     
-    result=vm.hold
-    if is_successful?(result)
-        puts "Setting VM to hold state" if ops[:verbose]
-        exit 0
+        vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
+    
+        result=vm.hold
+        if is_successful?(result)
+            puts "Setting VM to hold state" if ops[:verbose]
+        else
+            break
+        end
     end
 
 when "release"
     check_parameters("release", 1)
-    vm_id=get_vm_id(ARGV[0])
+    args=expand_args(ARGV)
     
-    vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
+    args.each do |param|
+        vm_id=get_vm_id(param)
     
-    result=vm.release
-    if is_successful?(result)
-        puts "Releasing VM" if ops[:verbose]
-        exit 0
+        vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
+    
+        result=vm.release
+        if is_successful?(result)
+            puts "Releasing VM" if ops[:verbose]
+        else
+            break
+        end
     end
     
 when "stop"
     check_parameters("stop", 1)
-    vm_id=get_vm_id(ARGV[0])
+    args=expand_args(ARGV)
     
-    vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
+    args.each do |param|
+        vm_id=get_vm_id(param)
     
-    result=vm.stop
-    if is_successful?(result)
-        puts "Stopping VM" if ops[:verbose]
-        exit 0
+        vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
+    
+        result=vm.stop
+        if is_successful?(result)
+            puts "Stopping VM" if ops[:verbose]
+        else
+            break
+        end
     end
     
 when "cancel"
     check_parameters("cancel", 1)
-    vm_id=get_vm_id(ARGV[0])
+    args=expand_args(ARGV)
     
-    vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
-    
-    result=vm.cancel
-    if is_successful?(result)
-        puts "Cancelling VM" if ops[:verbose]
-        exit 0
+    args.each do |param|
+        vm_id=get_vm_id(param)
+
+        vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
+
+        result=vm.cancel
+        if is_successful?(result)
+            puts "Cancelling VM" if ops[:verbose]
+        else
+            break
+        end
     end
 
 when "suspend"
     check_parameters("suspend", 1)
-    vm_id=get_vm_id(ARGV[0])
+    args=expand_args(ARGV)
     
-    vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
+    args.each do |param|
+        vm_id=get_vm_id(param)
     
-    result=vm.suspend
-    if is_successful?(result)
-        puts "Suspending VM" if ops[:verbose]
-        exit 0
+        vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
+    
+        result=vm.suspend
+        if is_successful?(result)
+            puts "Suspending VM" if ops[:verbose]
+        else
+            break
+        end
     end
     
 when "resume"
     check_parameters("resume", 1)
-    vm_id=get_vm_id(ARGV[0])
+    args=expand_args(ARGV)
     
-    vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
+    args.each do |param|
+        vm_id=get_vm_id(param)
     
-    result=vm.resume
-    if is_successful?(result)
-        puts "Resuming VM" if ops[:verbose]
-        exit 0
+        vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
+    
+        result=vm.resume
+        if is_successful?(result)
+            puts "Resuming VM" if ops[:verbose]
+        else
+            break
+        end
     end
     
 when "restart"
     check_parameters("restart", 1)
-    vm_id=get_vm_id(ARGV[0])
+    args=expand_args(ARGV)
     
-    vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
+    args.each do |param|
+        vm_id=get_vm_id(param)
     
-    result=vm.restart
-    if is_successful?(result)
-        puts "Restarting VM" if ops[:verbose]
-        exit 0
+        vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
+    
+        result=vm.restart
+        if is_successful?(result)
+            puts "Restarting VM" if ops[:verbose]
+        else
+            break
+        end
     end
     
 when "list"
@@ -602,22 +657,24 @@ when "history"
     
 when "delete"
     check_parameters("delete", 1)
-    vm_id=get_vm_id(ARGV[0])
+    args=expand_args(ARGV)
     
-    vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
+    args.each do |param|
+        vm_id=get_vm_id(param)
     
-    result=vm.finalize
-    if is_successful?(result)
-        puts "VM correctly deleted"  if ops[:verbose]
-        exit 0
+        vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
+    
+        result=vm.finalize
+        if is_successful?(result)
+            puts "VM correctly deleted"  if ops[:verbose]
+        else
+            break
+        end
     end
 
 when "show"
     check_parameters("get_info", 1)
-    
     args=expand_args(ARGV)
-    
-    pp args
     
     args.each do |param|
     
