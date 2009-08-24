@@ -614,50 +614,57 @@ when "delete"
 
 when "show"
     check_parameters("get_info", 1)
-    vm_id=get_vm_id(ARGV[0])
+    
+    args=expand_args(ARGV)
+    
+    pp args
+    
+    args.each do |param|
+    
+        vm_id=get_vm_id(param)
 
-    vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
-    vm.info
+        vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
+        vm.info
 
-    if !ops[:xml]
-        str="%-15s: %-20s"
-        str_h1="%-80s"
+        if !ops[:xml]
+            str="%-15s: %-20s"
+            str_h1="%-80s"
 
-        print_header(str_h1, "VIRTUAL MACHINE #{vm[:id]} INFORMATION", true)
+            print_header(str_h1, "VIRTUAL MACHINE #{vm[:id]} INFORMATION", true)
 
-        puts str % ["ID", vm[:id]]
-        puts str % ["NAME", vm[:name]]
-        puts str % ["STATE", vm.state_str]
-        puts str % ["LCM_STATE", vm.lcm_state_str]
+            puts str % ["ID", vm[:id]]
+            puts str % ["NAME", vm[:name]]
+            puts str % ["STATE", vm.state_str]
+            puts str % ["LCM_STATE", vm.lcm_state_str]
         
-        value=vm[:stime].to_i
-        if value==0
-            value='-'
+            value=vm[:stime].to_i
+            if value==0
+                value='-'
+            else
+                value=Time.at(value).strftime("%m/%d %H:%M:%S")
+            end
+            puts str % ["START TIME", value]
+
+            value=vm[:etime].to_i
+            if value==0
+                value='-'
+            else
+                value=Time.at(value).strftime("%m/%d %H:%M:%S")
+            end
+            puts str % ["END TIME", value]
+        
+            value=vm[:deploy_id]
+            puts str % ["DEPLOY ID:", value=="" ? "-" : value]
+
+            puts
+        
+            print_header(str_h1,"VIRTUAL MACHINE TEMPLATE",false)
+        
+            puts vm.template_str
         else
-            value=Time.at(value).strftime("%m/%d %H:%M:%S")
+            puts vm.to_xml
         end
-        puts str % ["START TIME", value]
-
-        value=vm[:etime].to_i
-        if value==0
-            value='-'
-        else
-            value=Time.at(value).strftime("%m/%d %H:%M:%S")
-        end
-        puts str % ["END TIME", value]
-        
-        value=vm[:deploy_id]
-        puts str % ["DEPLOY ID:", value=="" ? "-" : value]
-
-        puts
-        
-        print_header(str_h1,"VIRTUAL MACHINE TEMPLATE",false)
-        
-        puts vm.template_str
-    else
-        puts vm.to_xml
-    end
-     
+     end
 else
     onevm_opts.print_help
     exit -1
