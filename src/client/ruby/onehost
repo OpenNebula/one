@@ -236,6 +236,8 @@ when "add", "create"
     
 when "show"
     check_parameters("show", 1)
+    #args=expand_args(ARGV)
+    
     host_id=get_host_id(ARGV[0])
     
     host=OpenNebula::Host.new_with_id(host_id, get_one_client)
@@ -282,29 +284,34 @@ when "show"
 
 when "delete"
     check_parameters("delete", 1)
-    host_id=get_host_id(ARGV[0])
-    
-    host = OpenNebula::Host.new_with_id(host_id,get_one_client)
+    args=expand_args(ARGV)
 
-    rc = host.info
+    args.each do |param|
+        host_id=get_host_id(param)
+        
+        host = OpenNebula::Host.new_with_id(host_id,get_one_client)
 
-    if OpenNebula::is_error?(rc)
-        puts rc.message
-        exit -1
-    end
+        rc = host.info
 
-    if host['host_shares/running_vms'].to_i != 0
-        puts "Host still has associated VMs. It will be disabled instead."
-        result=host.disable
-        if is_successful?(result)
-            puts "Host disabled" if ops[:verbose]
-            exit 0
+        if OpenNebula::is_error?(rc)
+            puts rc.message
+            exit -1
         end
-    else
-        result=host.delete
-        if is_successful?(result)
-            puts "Host deleted" if ops[:verbose]
-            exit 0
+
+        if host['host_shares/running_vms'].to_i != 0
+            puts "Host still has associated VMs. It will be disabled instead."
+            result=host.disable
+            if is_successful?(result)
+                puts "Host disabled" if ops[:verbose]
+            else
+                break
+            end
+        else
+            result=host.delete
+            if is_successful?(result)
+                puts "Host deleted" if ops[:verbose]
+                exit 0
+            end
         end
     end
     
@@ -326,22 +333,32 @@ when "top"
     
 when "enable"
     check_parameters("enable", 1)
-    host_id=get_host_id(ARGV[0])
-    host = OpenNebula::Host.new_with_id(host_id,get_one_client)
-    result=host.enable
-    if is_successful?(result)
-        puts "Host enabled" if ops[:verbose]
-        exit 0 
+    args=expand_args(ARGV)
+
+    args.each do |param|
+        host_id=get_host_id(param)
+        host = OpenNebula::Host.new_with_id(host_id,get_one_client)
+        result=host.enable
+        if is_successful?(result)
+            puts "Host enabled" if ops[:verbose]
+        else
+            break
+        end
     end
 
 when "disable"
     check_parameters("disable", 1)
-    host_id=get_host_id(ARGV[0])
-    host = OpenNebula::Host.new_with_id(host_id,get_one_client)
-    result=host.disable
-    if is_successful?(result)
-        puts "Host disabled" if ops[:verbose]
-        exit 0
+    args=expand_args(ARGV)
+
+    args.each do |param|
+        host_id=get_host_id(param)
+        host = OpenNebula::Host.new_with_id(host_id,get_one_client)
+        result=host.disable
+        if is_successful?(result)
+            puts "Host disabled" if ops[:verbose]
+        else
+            break
+        end
     end
     
 else

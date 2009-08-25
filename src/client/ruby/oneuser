@@ -167,28 +167,32 @@ when "create"
     
 when "delete"
     check_parameters("delete", 1)
-    user_id=get_user_id(ARGV[0])
+    args=expand_args(ARGV)
 
-    # Check if the user has defined VM's
-    vms=false
-    vmpool=OpenNebula::VirtualMachinePool.new(
-        get_one_client, user_id)
-    vmpool.info
-    vmpool.each{ vms=true ; break }
+    args.each do |param|
+        user_id=get_user_id(param)
 
-    if vms
-        puts "The user still has VM's defined, type YES if you are sure you"
-        print "want to delete this user: "
-        answer=STDIN.gets.strip
-        exit -1 if answer != 'YES'
-    end
+        # Check if the user has defined VM's
+        vms=false
+        vmpool=OpenNebula::VirtualMachinePool.new(
+            get_one_client, user_id)
+        vmpool.info
+        vmpool.each{ vms=true ; break }
 
-    user=OpenNebula::User.new(
-        OpenNebula::User.build_xml(user_id), get_one_client)
-    result=user.delete
-    if !OpenNebula.is_error?(result)
-        puts "User deleted" if ops[:verbose]
-        exit 0
+        if vms
+            puts "The user #{param} still has VM's defined, "+
+                "type YES if you are sure you"
+            print "want to delete this user: "
+            answer=STDIN.gets.strip
+            exit -1 if answer != 'YES'
+        end
+
+        user=OpenNebula::User.new(
+            OpenNebula::User.build_xml(user_id), get_one_client)
+        result=user.delete
+        if !OpenNebula.is_error?(result)
+            puts "User deleted" if ops[:verbose]
+        end
     end
     
 when "list"
