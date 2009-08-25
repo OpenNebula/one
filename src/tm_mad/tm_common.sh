@@ -62,11 +62,12 @@ function arg_path
 function exec_and_log
 {
     output=`$1 2>&1 1>/dev/null`
-    if [ "x$?" != "x0" ]; then
+    code=$?
+    if [ "x$code" != "x0" ]; then
         log_error "Command \"$1\" failed."
         log_error "$output"
         error_message "$output"
-        exit -1
+        exit $code
     fi
     log "Executed \"$1\"."
 }
@@ -96,7 +97,7 @@ function timeout_exec_and_log
     ) &
     TIMEOUT_PID=$!
 
-    # stopts the exution until the command finalizes
+    # stops the execution until the command finalizes
     wait $CMD_PID 2>/dev/null
     CMD_CODE=$?
     
