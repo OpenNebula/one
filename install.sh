@@ -461,7 +461,7 @@ if [ "$UNINSTALL" = "no" ] ; then
     ln -s $DESTDIR$LIB_LOCATION/liboneapi.so \
           $DESTDIR$LIB_LOCATION/liboneapi.so.1
     ln -s $DESTDIR$LIB_LOCATION/liboneapi.so.1 \
-          $DESTDIR$LIB_LOCATION/liboneapi.so.1.2
+          $DESTDIR$LIB_LOCATION/liboneapi.so.1.3
 else
     for d in `echo $DELETE_DIRS | awk '{for (i=NF;i>=1;i--) printf $i" "}'`; do
         rmdir $d
