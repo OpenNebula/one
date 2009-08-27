@@ -39,11 +39,12 @@ usage() {
  echo "-d: target installation directory, if not defined it'd be root"
  echo "-r: remove Opennebula, only useful if -d was not specified, otherwise"
  echo "    rm -rf \$ONE_LOCATION would do the job"
+ echo "-l: creates symlinks instead of copying files, useful for development"
  echo "-h: prints this help"
 }
 #-------------------------------------------------------------------------------
 
-TEMP_OPT=`getopt -o hkru:g:d: -n 'install.sh' -- "$@"`
+TEMP_OPT=`getopt -o hkrlu:g:d: -n 'install.sh' -- "$@"`
 
 if [ $? != 0 ] ; then 
     usage
@@ -54,6 +55,7 @@ eval set -- "$TEMP_OPT"
 
 INSTALL_ETC="yes"
 UNINSTALL="no"
+LINK="no"
 ONEADMIN_USER=`id -u`
 ONEADMIN_GROUP=`id -g`
 SRC_DIR=$PWD
@@ -63,6 +65,7 @@ while true ; do
         -h) usage; exit 0;;
         -k) INSTALL_ETC="no"   ; shift ;;
         -r) UNINSTALL="yes"   ; shift ;;
+        -l) LINK="yes" ; shift ;;
         -u) ONEADMIN_USER="$2" ; shift 2;;
         -g) ONEADMIN_GROUP="$2"; shift 2;;
         -d) ROOT="$2" ; shift 2 ;;
@@ -423,7 +426,11 @@ do_file() {
     if [ "$UNINSTALL" = "yes" ]; then
         rm $2/`basename $1`
     else
-        cp $SRC_DIR/$1 $DESTDIR$2
+        if [ "$LINK" = "yes" ]; then
+            ln -s $SRC_DIR/$1 $DESTDIR$2
+        else
+            cp $SRC_DIR/$1 $DESTDIR$2
+        fi
     fi
 }
 
@@ -443,11 +450,16 @@ if [ "$INSTALL_ETC" = "yes" ] ; then
         SRC=$`echo $i | cut -d: -f1`
         DST=`echo $i | cut -d: -f2`
     
-        eval SRC_FILES=$SRC 
+        eval SRC_FILES=$SRC
+        
+        OLD_LINK=$LINK
+        LINK="no"
         
         for f in $SRC_FILES; do 
             do_file $f $DST
         done
+        
+        LINK=$OLD_LINK
    done
 fi
 
