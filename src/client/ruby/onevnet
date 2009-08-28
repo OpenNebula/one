@@ -258,6 +258,7 @@ when "delete"
             puts "Virtual Network deleted" if ops[:verbose]
             break
         end
+    end
     
 when "list"
     if ARGV[0]
