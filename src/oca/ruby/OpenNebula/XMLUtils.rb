@@ -72,8 +72,8 @@ module OpenNebula
                         str_line << n.collect {|n2|
                             if n2 && n2.class==REXML::Element
                                 str = ind_tab + n2.name + "="
-				str += n2.text if n2.text
-				str
+                                str += n2.text if n2.text
+                                str
                             end
                         }.compact.join(","+ind_enter)
                         str_line<<" ]"
@@ -86,6 +86,41 @@ module OpenNebula
             
             str
         end
+        
+        def to_hash(root_element)
+            if NOKOGIRI
+                xml_template=@xml.xpath(root_element).to_s
+                rexml=REXML::Document.new(xml_template).root
+            else
+                rexml=@xml.elements[root_element]
+            end
+            
+            vmhash=Hash.new
+                    
+            rexml.each {|n|
+                if n.class==REXML::Element
+                    if n.has_elements?
+                        elemhash=Hash.new
+                        n.each {|n2|
+                            if n2 && n2.class==REXML::Element
+                                elemhash[n2.name]=n2.text
+                            end
+                        }
+                        if vmhash[n.name].class==Array
+                            vmhash[n.name]<<elemhash
+                        elsif vmhash[n.name]
+                            vmhash[n.name]=[vmhash[n.name],elemhash]
+                        else
+                            vmhash[n.name]=elemhash
+                        end
+                    else
+                        vmhash[n.name]=n.text
+                    end
+                end
+            }
+            
+            vmhash
+        end
 
         def to_xml
             if NOKOGIRI
@@ -96,6 +131,7 @@ module OpenNebula
                 str
             end
         end
+        
     end
         
     ###########################################################################
