@@ -67,7 +67,7 @@ module OpenNebula
                 one_secret = ENV["ONE_AUTH"]
             end
 
-            one_secret=~/(\w+):(\w+)/
+            one_secret=~/^(.+?):(.+)$/
             @one_auth  = "#{$1}:#{Digest::SHA1.hexdigest($2)}"
 
             if endpoint
