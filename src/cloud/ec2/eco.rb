@@ -16,7 +16,7 @@ $: << RUBY_LIB_LOCATION+"/econe"
 
 require 'rubygems'
 require 'sinatra'
-require 'EC2'
+require 'AWS'
 require 'time'
 
 require 'OpenNebula'
@@ -137,8 +137,8 @@ def authenticate(params)
     
     signature_params=params.reject {|key,value| 
         key=='Signature' or key=='file' }
-    canonical=EC2.canonical_string(signature_params, CONFIG[:server])
-    signature=EC2.encode(user[:password], canonical, false)
+    canonical=AWS.canonical_string(signature_params, CONFIG[:server])
+    signature=AWS.encode(user[:password], canonical, false)
     
     halt 401, "Bad password" if params['Signature']!=signature
 end

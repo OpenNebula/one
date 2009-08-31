@@ -8,7 +8,7 @@ if ENV["EC2_URL"]
 end
 
 require 'rubygems'
-require 'EC2'
+require 'AWS'
 require 'curb'
 require 'uri'
 require 'OpenNebula'
@@ -39,7 +39,7 @@ module EC2QueryClient
                 raise "No authorization data present"
             end
 
-            ec2auth=~/(\w+):(\w+)/
+            ec2auth=~/(.+?):(.+)/
             
             @access_key_id     = $1
             @access_key_secret = Digest::SHA1.hexdigest($2)
@@ -62,7 +62,7 @@ module EC2QueryClient
                 raise "Wrong URI format, host not found"
             end
  
-            @ec2_connection = EC2::Base.new(
+            @ec2_connection = AWS::EC2::Base.new(
                 :access_key_id     => @access_key_id,
                 :secret_access_key => @access_key_secret,
                 :server            => @uri.host,
@@ -134,8 +134,8 @@ module EC2QueryClient
                        "Version"          => API_VERSION,
                        "Timestamp"        => Time.now.getutc.iso8601 }
 
-            str = EC2.canonical_string(params, @uri.host)
-            sig = EC2.encode(@access_key_secret, str, false)
+            str = AWS.canonical_string(params, @uri.host)
+            sig = AWS.encode(@access_key_secret, str, false)
    
             post_fields = Array.new;
 
@@ -152,7 +152,7 @@ module EC2QueryClient
             connection.http_post(*post_fields)
 
             if connection.response_code == 200
-                return EC2::Response.parse(:xml => connection.body_str)
+                return AWS::Response.parse(:xml => connection.body_str)
             else
                 return OpenNebula::Error.new(connection.body_str)
             end
