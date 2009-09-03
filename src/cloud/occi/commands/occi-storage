@@ -1,0 +1,163 @@
+#!/usr/bin/env ruby
+
+# == Synopsis
+# occi-storage
+# 
+# Manages OCCI storage resource
+#
+# == Usage
+#
+# occi-storage <COMMAND> [OPTIONS] [PARAMETERS]
+#
+# COMMANDS
+#
+# create <occi xml file>
+#       creates a new storage resource described by the provided 
+#       <occi xml file>
+#
+# list
+#       lists available storage resources
+#
+# show <storage id>
+#       retrieves the OCCI XML representation of the storage resource
+#       identified by <storage id>
+#
+# update <occi xml file>
+#       updates the representation of the storage resource represented by the
+#       provided <occi xml file>
+#
+# delete <storage id>
+#       deletes the storage resource idenfitied by <storage id>
+#
+#
+# OPTIONS
+# -h, --help:
+#    show help
+#
+# --username <id>, -U <id>:
+#    The username of the user
+#
+# --password <key>, -P <key>:
+#    The password of the user
+#
+# --url <url>, -U <url>:
+#    Set url as the web service url to use
+#
+# --debug, -D
+#    Enables verbosity
+#
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2009, Distributed Systems Architecture Group, Universidad   #
+# Complutense de Madrid (dsa-research.org)                                   #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+ONE_LOCATION=ENV["ONE_LOCATION"]
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
+else
+    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
+    TEMPLATES_LOCATION=ONE_LOCATION+"/etc/occi_templates"
+    CONF_LOCATION=ONE_LOCATION+"/etc"
+end
+
+$: << RUBY_LIB_LOCATION
+$: << RUBY_LIB_LOCATION+"/occi"
+
+require 'ONEOCCIClient'
+require 'getoptlong'
+require 'rdoc/usage'
+require 'pp'
+
+
+opts = GetoptLong.new(
+            ['--help',       '-h',GetoptLong::NO_ARGUMENT],
+            ['--username',   '-U',GetoptLong::REQUIRED_ARGUMENT],
+            ['--password',   '-P',GetoptLong::REQUIRED_ARGUMENT],
+            ['--url',        '-R',GetoptLong::REQUIRED_ARGUMENT],
+            ['--debug',      '-D',GetoptLong::NO_ARGUMENT]
+        )
+
+url      = nil
+username = nil
+password = nil
+auth     = nil
+debug    = false
+
+begin
+    opts.each do |opt, arg|
+        case opt
+            when '--help'
+                RDoc::usage
+            when '--username'
+                username = arg
+            when '--password'
+                password = arg
+            when '--url'
+                url = arg
+            when '--debug'
+                debug = true
+        end
+    end
+rescue Exception => e
+    exit -1
+end 
+
+
+begin
+    occi_client = ONEOCCIClient::Client.new(url,username,password,debug)
+rescue Exception => e
+    puts "#{$0}: #{e.message}"
+    exit -1
+end
+
+case ARGV[0].downcase
+when 'create'
+    image_xml = ARGV[1]
+
+    if !image_xml || !File.exists?(image_xml)
+        puts "#{$0} create: missing occi xml parameter or file not found"
+        exit -1
+    end
+
+    occi_client.post_image(image_xml)
+
+when 'list'
+    occi_client.get_images
+
+when 'show'
+    image_id = ARGV[1]
+
+    if !image_id 
+        puts "#{$0} show: missing storage id parameter or file not found"
+        exit -1
+    end
+    
+    occi_client.get_image(image_id)
+
+when 'delete'
+    puts 'Delete still not implemented'
+    exit -1
+
+else
+    puts "Command #{ARGV[0]} not valid."
+    exit -1
+    
+end
+
+    
+
+

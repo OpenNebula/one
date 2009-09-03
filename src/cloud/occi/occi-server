@@ -1,0 +1,9 @@
+#!/bin/bash
+
+eval `grep ^IMAGE_DIR= $ONE_LOCATION/etc/occi-server.conf `
+export TMPDIR=$IMAGE_DIR/tmp
+mkdir -p $TMPDIR
+
+nohup ruby $ONE_LOCATION/lib/ruby/occi/OCCIServer.rb >> $ONE_LOCATION/var/occi-server.log &
+
+

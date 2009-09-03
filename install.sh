@@ -128,12 +128,14 @@ ETC_DIRS="$ETC_LOCATION/im_kvm \
           $ETC_LOCATION/tm_ssh \
           $ETC_LOCATION/tm_dummy \
           $ETC_LOCATION/hm \
-          $ETC_LOCATION/ec2query_templates"
+          $ETC_LOCATION/ec2query_templates \
+          $ETC_LOCATION/occi_templates"
 
 LIB_DIRS="$LIB_LOCATION/im_probes \
           $LIB_LOCATION/ruby \
           $LIB_LOCATION/ruby/OpenNebula \
           $LIB_LOCATION/ruby/econe \
+          $LIB_LOCATION/ruby/occi \
           $LIB_LOCATION/tm_commands \
           $LIB_LOCATION/tm_commands/nfs \
           $LIB_LOCATION/tm_commands/ssh \
@@ -163,6 +165,8 @@ INSTALL_FILES[11]="TM_EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples/tm"
 INSTALL_FILES[12]="HOOK_SHARE_FILES:$SHARE_LOCATION/hooks"
 INSTALL_FILES[13]="ECO_LIB_FILES:$LIB_LOCATION/ruby/econe"
 INSTALL_FILES[14]="ECO_BIN_FILES:$BIN_LOCATION"
+INSTALL_FILES[15]="OCCI_LIB_FILES:$LIB_LOCATION/ruby/occi"
+INSTALL_FILES[16]="OCCI_BIN_FILES:$BIN_LOCATION"
 
 INSTALL_ETC_FILES[0]="ETC_FILES:$ETC_LOCATION"
 INSTALL_ETC_FILES[1]="VMM_XEN_ETC_FILES:$ETC_LOCATION/vmm_xen"
@@ -179,6 +183,8 @@ INSTALL_ETC_FILES[11]="TM_DUMMY_ETC_FILES:$ETC_LOCATION/tm_dummy"
 INSTALL_ETC_FILES[12]="HM_ETC_FILES:$ETC_LOCATION/hm"
 INSTALL_ETC_FILES[13]="ECO_ETC_FILES:$ETC_LOCATION"
 INSTALL_ETC_FILES[14]="ECO_TEMPLATE_FILES:$ETC_LOCATION/ec2query_templates"
+INSTALL_ETC_FILES[15]="OCCI_ETC_FILES:$ETC_LOCATION"
+INSTALL_ETC_FILES[16]="OCCI_TEMPLATE_FILES:$ETC_LOCATION/occi_templates"
 
 #-------------------------------------------------------------------------------
 # Binary files, to be installed under $BIN_LOCATION
@@ -404,6 +410,32 @@ ECO_BIN_FILES="src/cloud/ec2/econe-server \
 ECO_ETC_FILES="src/cloud/ec2/econe.conf"
 
 ECO_TEMPLATE_FILES="src/cloud/ec2/templates/m1.small.erb"
+
+#-------------------------------------------------------------------------------
+# OCCI files
+#-------------------------------------------------------------------------------
+
+OCCI_LIB_FILES="src/cloud/occi/OCCI.rb \
+                src/cloud/occi/OCCIServer.rb \
+                src/cloud/occi/lib/OCCIConfiguration.rb \
+                src/cloud/occi/lib/ONEOCCIClient.rb \
+                src/cloud/occi/lib/VirtualMachineOCCI.rb \
+                src/cloud/occi/lib/VirtualMachinePoolOCCI.rb \
+                src/cloud/occi/lib/VirtualNetworkOCCI.rb \
+                src/cloud/occi/lib/VirtualNetworkPoolOCCI.rb"
+               
+
+
+OCCI_BIN_FILES="src/cloud/occi/occi-server \
+               src/cloud/occi/commands/occi-compute \
+               src/cloud/occi/commands/occi-network \
+               src/cloud/occi/commands/occi-storage"
+
+OCCI_ETC_FILES="src/cloud/occi/occi-server.conf"
+
+OCCI_TEMPLATE_FILES="src/cloud/occi/templates/small.erb \
+                    src/cloud/occi/templates/medium.erb \
+                    src/cloud/occi/templates/large.erb"
 
 
 #-------------------------------------------------------------------------------
