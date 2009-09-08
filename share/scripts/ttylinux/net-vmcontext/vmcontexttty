@@ -1,0 +1,120 @@
+#!/bin/bash
+#
+# chkconfig: 2345 10 90
+# description:  network reconfigure
+#                                                     
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2009, Distributed Systems Architecture Group, Universidad   #
+# Complutense de Madrid (dsa-research.org)                                   #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+# Gets IP address from a given MAC
+mac2ip() {
+    mac=$1
+ 
+    let ip_a=0x`echo $mac | cut -d: -f 3`
+    let ip_b=0x`echo $mac | cut -d: -f 4`
+    let ip_c=0x`echo $mac | cut -d: -f 5`
+    let ip_d=0x`echo $mac | cut -d: -f 6`
+ 
+    ip="$ip_a.$ip_b.$ip_c.$ip_d"
+ 
+    echo $ip
+}
+ 
+# Gets the network part of an IP
+get_network() {
+    IP=$1
+ 
+    echo $IP | cut -d'.' -f1-3
+}
+ 
+get_interfaces() {
+    IFCMD="/sbin/ifconfig -a"
+ 
+    $IFCMD | grep ^eth | sed 's/ *Link encap:Ethernet.*HWaddr /-/g'
+}
+ 
+get_dev() {
+    echo $1 | cut -d'-' -f 1
+}
+ 
+get_mac() {
+    echo $1 | cut -d'-' -f 2
+}
+ 
+gen_hosts() {
+    NETWORK=$1
+    echo "127.0.0.1 localhost"
+    for n in `seq -w 01 99`; do
+        n2=`echo $n | sed 's/^0*//'`
+        echo ${NETWORK}.$n2 cluster${n}
+    done
+}
+ 
+gen_exports() {
+    NETWORK=$1
+    echo "/images ${NETWORK}.0/255.255.255.0(rw,async,no_subtree_check)"
+}
+ 
+gen_hostname() {
+    MAC=$1
+    NUM=`mac2ip $MAC | cut -d'.' -f4`
+    NUM2=`echo 000000$NUM | sed 's/.*\(..\)/\1/'`
+    echo cluster$NUM2
+}
+ 
+gen_interface() {
+	DEV_MAC=$1
+	DEV=`get_dev $DEV_MAC`
+	MAC=`get_mac $DEV_MAC`
+	IP=`mac2ip $MAC`
+	NETWORK=`get_network $IP`
+ 
+cat <<EOT
+	ENABLE=yes
+	NAME=Ethernet
+	IPADDRESS=$IP
+	CIDRLEN=24
+	NETWORK=$NETWORK.0
+	NETMASK=255.255.255.0
+	BROADCAST=$NETWORK.255
+	DHCP=no
+EOT
+	if [ $DEV == "eth0" ]; then
+		echo "	GATEWAY=$NETWORK.1"
+	fi
+ 
+echo ""
+}
+ 
+ 
+IFACES=`get_interfaces`
+ 
+for i in $IFACES; do
+  DEV=`get_dev $i`
+	gen_interface $i > /etc/sysconfig/network-scripts/ifcfg-${DEV}
+done
+
+# gen_hosts $NETWORK > /etc/hosts
+ 
+# gen_exports $NETWORK  > /etc/exports
+ 
+# gen_hostname $MAC  > /etc/hostname
+
+#ifdown $DEV
+#ifup $DEV
+
+# /bin/hostname `cat /etc/hostname`
