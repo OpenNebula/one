@@ -1,0 +1,71 @@
+_one_list() {
+	local cmd filter
+	one_cmd=$1
+	if [ -n "$2" ]; then
+		filter="-f $2"
+	fi
+	echo $($one_cmd $filter list|sed 1d|awk '{print $1}')	
+	return 0
+}
+
+_onevm() {
+	local cur prev opts
+	COMPREPLY=()
+	cur="${COMP_WORDS[COMP_CWORD]}"
+	prev="${COMP_WORDS[COMP_CWORD-1]}"
+	opts="create deploy shutdown livemigrate migrate hold release stop cancel suspend resume delete restart list show top history"
+	if [ $COMP_CWORD == 1 ]
+	then
+		COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+		return 0
+	elif [ $COMP_CWORD == 2 ] 
+	then
+		case "$prev" in
+		show|delete)
+			vms=`_one_list onevm`
+			COMPREPLY=( $(compgen -W "${vms}" -- ${cur}) )
+			return 0
+		;;
+		cancel|shutdown|suspend)
+			vms=`_one_list onevm stat='runn'`
+			COMPREPLY=( $(compgen -W "${vms}" -- ${cur}) )
+			return 0
+		;;
+		create|submit)
+			COMPREPLY=( $(compgen -A file -- ${cur}) )
+			return 0
+		;;
+		esac
+	fi
+}
+
+complete -F _onevm onevm
+
+_onevnet() {
+	local cur prev opts
+	COMPREPLY=()
+	cur="${COMP_WORDS[COMP_CWORD]}"
+	prev="${COMP_WORDS[COMP_CWORD-1]}"
+	opts="create delete list show"
+	if [ $COMP_CWORD == 1 ]
+	then
+		COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+		return 0
+	elif [ $COMP_CWORD == 2 ] 
+	then
+		case "$prev" in
+		create|submit)
+			COMPREPLY=( $(compgen -A file -- ${cur}) )
+			return 0
+		;;
+		delete|show)
+			vnets=`_one_list onevnet`
+			COMPREPLY=( $(compgen -W "${vnets}" -- ${cur}) )
+			return 0
+		;;
+		esac
+	fi
+
+}
+
+complete -F _onevnet onevnet
