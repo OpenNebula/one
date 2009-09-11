@@ -17,14 +17,15 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-if [ -f /mnt/context/context.sh ]
+if [ -f /mnt/context.sh ]
 then
-  . /mnt/context/context.sh
+  . /mnt/context.sh
 fi
 
 
-echo $HOSTNAME > /etc/HOSTNAME
+echo $HOSTNAME > /etc/hostname
 hostname $HOSTNAME
+sed -i "/127.0.1.1/s/ubuntu/$HOSTNAME/" /etc/hosts
 
 if [ -n "$IP_PUBLIC" ]; then
 	ifconfig eth0 $IP_PUBLIC
@@ -35,16 +36,18 @@ if [ -n "$NETMASK" ]; then
 fi
 
 
-if [ -f /mnt/context/$ROOT_PUBKEY ]; then
-	cat /mnt/context/$ROOT_PUBKEY >> /root/.ssh/authorized_keys
+if [ -f /mnt/$ROOT_PUBKEY ]; then
+	mkdir -p /root/.ssh
+	cat /mnt/$ROOT_PUBKEY >> /root/.ssh/authorized_keys
+	chmod -R 600 /root/.ssh/
 fi
 
 if [ -n "$USERNAME" ]; then
-	adduser -s /bin/bash -D $USERNAME
-	if [ -f /mnt/context/$USER_PUBKEY ]; then
+	useradd -s /bin/bash -m $USERNAME
+	if [ -f /mnt/$USER_PUBKEY ]; then
 		mkdir -p /home/$USERNAME/.ssh/
-		cat /mnt/context/$USER_PUBKEY >> /home/$USERNAME/.ssh/authorized_keys
-		chown -R $USERNAME /home/$USERNAME/.ssh
-		chmod -R 600 /home/$USERNAME/.ssh
+		cat /mnt/$USER_PUBKEY >> /home/$USERNAME/.ssh/authorized_keys
+		chown -R $USERNAME:$USERNAME /home/$USERNAME/.ssh
+		chmod -R 600 /home/$USERNAME/.ssh/authorized_keys
 	fi
 fi
