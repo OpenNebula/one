@@ -1,9 +1,9 @@
-NAME   = myUbuntu
+NAME   = Centos5
 CPU    = 0.5
 MEMORY = 400
 DISK   = [
-  source   = "/home/srv/cloud/images/ubuntu-server-9.04.img",
-  target   = "sda",
+  source   = "/home/srv/cloud/images/centos-5.img",
+  target   = "hda",
   readonly = "no" ]
 NIC    = [ NETWORK = "Red Virtual" ]
 
@@ -13,10 +13,9 @@ RAW = [ type = "kvm", data = " <serial type='pty'> <source path='/dev/pts/3'/> <
 CONTEXT = [
   hostname   = "$NAME",
 	#ip_public = "$NIC[IP, NETWORK=\"Red Virtual\"]",
-	ip_public = "192.168.0.4",
-	files				= "/home/jaime/one-templates/ubuntu/init.sh /home/jaime/one-templates/ubuntu/id_dsa.pub",
-  target     = "sdb", # This distribution's udev assigns block device symlinks sequentally. If you only define two drives
-											# the second will be sdb.
+	ip_public = "192.168.0.5",
+	files				= "/home/jaime/one-templates/centos-5/init.sh /home/jaime/one-templates/centos-5/id_dsa.pub",
+  target     = "hdc", 
 	root_pubkey = "id_dsa.pub",
 	username = "jaime",
 	user_pubkey = "id_dsa.pub"
