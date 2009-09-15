@@ -9,9 +9,20 @@ end
 
 require 'rubygems'
 require 'AWS'
-require 'curb'
 require 'uri'
 require 'OpenNebula'
+
+begin
+    require 'curb'
+    CURL_LOADED=true
+rescue LoadError
+    CURL_LOADED=false
+end
+
+begin
+    require 'net/http/post/multipart'
+rescue LoadError
+end
 
 module EC2QueryClient
     ###########################################################################
@@ -126,7 +137,7 @@ module EC2QueryClient
         #
         #  Returns true if HTTP code is 200, 
         #######################################################################
-        def upload_image(file_name)
+        def upload_image(file_name, curb=true)
             params = { "Action"           => "UploadImage",
                        "SignatureVersion" => "2",
                        "SignatureMethod"  => 'HmacSHA1',
@@ -139,22 +150,43 @@ module EC2QueryClient
    
             post_fields = Array.new;
 
-            params.each { |k,v|
-                post_fields << Curl::PostField.content(k,v)
-            }
+            if curb and CURL_LOADED
+                params.each { |k,v|
+                    post_fields << Curl::PostField.content(k,v)
+                }
 
-            post_fields << Curl::PostField.content("Signature",sig)
-            post_fields << Curl::PostField.file("file",file_name)
+                post_fields << Curl::PostField.content("Signature",sig)
+                post_fields << Curl::PostField.file("file",file_name)
 
-            connection = Curl::Easy.new(@uri.to_s)
-            connection.multipart_form_post = true
+                connection = Curl::Easy.new(@uri.to_s)
+                connection.multipart_form_post = true
 
-            connection.http_post(*post_fields)
+                connection.http_post(*post_fields)
 
-            if connection.response_code == 200
-                return AWS::Response.parse(:xml => connection.body_str)
+                if connection.response_code == 200
+                    return AWS::Response.parse(:xml => connection.body_str)
+                else
+                    return OpenNebula::Error.new(connection.body_str)
+                end
             else
-                return OpenNebula::Error.new(connection.body_str)
+                params["Signature"]=sig
+
+                file=File.open(file_name)
+                params["file"]=UploadIO.new(file,
+                    'application/octet-stream', file_name)
+
+                req = Net::HTTP::Post::Multipart.new('/', params)
+                res = Net::HTTP.start(@uri.host, @uri.port) do |http|
+                    http.request(req)
+                end
+
+                file.close
+
+                if res.code == '200'
+                    return AWS::Response.parse(:xml => res.body)
+                else
+                    return OpenNebula::Error.new(res.body)
+                end
             end
         end
 

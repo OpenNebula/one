@@ -22,6 +22,9 @@
 # --url <url>, -U <url>:
 #    Set url as the web service url to use
 #
+# --multipart, -M:
+#    Use 'multipart-post' library instead of Curb/Curl
+#
 # IMAGE-PATH: Path to the image to upload
 
 # -------------------------------------------------------------------------- #
@@ -63,13 +66,15 @@ opts = GetoptLong.new(
             ['--help',       '-h',GetoptLong::NO_ARGUMENT],
             ['--access-key', '-K',GetoptLong::REQUIRED_ARGUMENT],
             ['--secret-key', '-S',GetoptLong::REQUIRED_ARGUMENT],
-            ['--url',        '-U',GetoptLong::REQUIRED_ARGUMENT]
+            ['--url',        '-U',GetoptLong::REQUIRED_ARGUMENT],
+            ['--multipart',  '-M',GetoptLong::NO_ARGUMENT]
         )
 
 url     = nil
 access  = nil
 secret  = nil
 auth    = nil
+curb    = true
 
 begin
     opts.each do |opt, arg|
@@ -82,6 +87,8 @@ begin
                 secret = arg
             when '--url'
                 url = arg
+            when '--multipart'
+                curb = false
         end
     end
 rescue Exception => e
@@ -104,7 +111,7 @@ rescue Exception => e
     exit -1
 end
 
-rc = ec2_client.upload_image(image)
+rc = ec2_client.upload_image(image, curb)
 
 if OpenNebula::is_error?(rc)
     puts "#{$0}: #{rc.message}"
