@@ -214,8 +214,6 @@ def run_instances(params)
         VirtualMachine.build_xml, get_one_client_user(@user[:name]))
     response=vm.allocate(template_text)
     
-    pp response
-    
     vm.info
     
     @vm_info[:vm_id]=vm.id
@@ -228,11 +226,15 @@ def describe_instances(params)
     @user=get_user(params['AWSAccessKeyId'])
     
     client=get_one_client_user(@user[:name])
-    
-    @vmpool=VirtualMachinePool.new(client)
+
+    if @user[:id]==0
+        user_flag=-2
+    else
+        user_flag=-1
+    end
+
+    @vmpool=VirtualMachinePool.new(client, user_flag)
     @vmpool.info
-    
-    pp @vmpool
     
     erb :describe_instances
 end
