@@ -1,0 +1,44 @@
+#!/usr/bin/env ruby
+
+require 'pp'
+require 'rexml/document'
+ 
+COMMAND=ARGV[0]
+VM_NAME=ARGV[1]
+ 
+def activate(rule)
+    system "sudo ebtables -A #{rule}"
+end
+ 
+def deactivate(rule)
+    system "sudo ebtables -D #{rule}"
+end
+ 
+nets=`virsh dumpxml #{VM_NAME}`
+
+doc=REXML::Document.new(nets).root
+ 
+doc.elements.each('/domain/devices/interface') {|net|
+    iface_mac=net.elements['mac'].attributes['address']
+ 
+    mac=iface_mac.split(':')
+    mac[-1]='00'
+    net_mac=mac.join(':')
+ 
+    tap=net.elements['target'].attributes['dev']
+ 
+    in_rule="INPUT -d ! #{iface_mac}/FF:FF:FF:FF:FF:FF -i #{tap} -j DROP"
+    out_rule="OUTPUT -s ! #{net_mac}/FF:FF:FF:FF:FF:00 -o #{tap} -j DROP"
+ 
+    case COMMAND
+    when "start"
+        activate(in_rule)
+        activate(out_rule)
+    when "stop"
+        deactivate(in_rule)
+        deactivate(out_rule)
+    else
+        puts "First parameter should be start or stop"
+    end
+}
+
