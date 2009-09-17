@@ -13,10 +13,24 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
-#--------------------------------------------------------------------------- ##
+#--------------------------------------------------------------------------- #
 
 #May be needed in some setups
 #CLASSPATH=""
+
+#----------------------------------------------------------------------------
+# EC2 API TOOLS Configuration.
+#----------------------------------------------------------------------------
 #EC2_HOME="<path_to_ec2_utils>"
 #EC2_PRIVATE_KEY="<path_to_your_ec2_pem_key>"
 #EC2_CERT="<path_to_your_ec2_pem_cert>"
+
+#
+#----------------------------------------------------------------------------
+# Driver configuration 
+#----------------------------------------------------------------------------
+# Arguments for the JAVA Virtual Machine
+EC2_JVM_ARGS="-Xms16m -Xmx64m"
+
+# Number of concurrent EC2 operations (not instances) 
+EC2_JVM_CONCURRENCY=10

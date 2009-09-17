@@ -27,6 +27,8 @@ if !EC2_LOCATION
     exit(-1)
 end
 
+EC2_JVM_CONCURRENCY = ENV["EC2_JVM_CONCURRENCY"]
+
 ONE_LOCATION = ENV["ONE_LOCATION"]
 
 if !ONE_LOCATION
@@ -65,7 +67,14 @@ class EC2Driver < VirtualMachineDriver
     # EC2 constructor, loads defaults for the EC2Driver                        #
     # ------------------------------------------------------------------------ #
     def initialize(ec2_conf = nil)
-        super(5,true)
+        
+        if !EC2_JVM_CONCURRENCY
+            concurrency = 5
+        else
+            concurrency = EC2_JVM_CONCURRENCY.to_i
+        end
+
+        super(concurrency,true)
 
         @defaults = Hash.new
 
