@@ -252,7 +252,13 @@ public class DeployVM
      void configureNetwork()
      {
          String[][] nics                  = pXML.getNet();
-         int        nics_toRemove_counter = 0; 
+         int        nics_toRemove_counter = 0;
+
+         if(nics==null) 
+         {
+	      return;
+         }
+ 
          if(nics.length==1 && nics[0].equals(""))
          {
              return;
