@@ -605,20 +605,38 @@ class OneVmmVmware extends Thread
                              {
                                 throw new Exception();
                              }
-
-                             String vmCPUMhz = 
-                                  gPVM.getObjectProperty("summary.quickStats.overallCpuUsage").toString();       
                              
-                             String vmMEMMb  = 
-                                  gPVM.getObjectProperty("summary.quickStats.guestMemoryUsage").toString();
+                             String powerState = 
+                                   gPVM.getObjectProperty("runtime.powerState").toString();
+                                   
+                            if (powerState.equals("poweredOn"))
+                            {
 
-                             gPVM.disconnect();
-
-                             int hostCPUMhz_i = Integer.parseInt(hostCPUMhz);      
-                             int vmCPUMhz_i   = Integer.parseInt(vmCPUMhz);      
-                             int vmCPUperc    = (vmCPUMhz_i / hostCPUMhz_i) * 100;
+                                 String vmCPUMhz = 
+                                      gPVM.getObjectProperty("summary.quickStats.overallCpuUsage").toString();       
                              
-                             pollInfo = "STATE=a USEDMEMORY=" + vmMEMMb + " USEDCPU=" + vmCPUperc;
+                                 String vmMEMMb  = 
+                                      gPVM.getObjectProperty("summary.quickStats.guestMemoryUsage").toString();
+
+                                 gPVM.disconnect();
+
+                                 int hostCPUMhz_i = Integer.parseInt(hostCPUMhz);      
+                                 int vmCPUMhz_i   = Integer.parseInt(vmCPUMhz);      
+                                 int vmCPUperc    = (vmCPUMhz_i / hostCPUMhz_i) * 100;
+                             
+                                 pollInfo = "STATE=a USEDMEMORY=" + vmMEMMb + " USEDCPU=" + vmCPUperc;
+                             }
+                             else
+                             {
+                                 if (powerState.equals("suspended"))
+                                 {
+                                     pollInfo = "STATE=p";
+                                 }
+                                 else // Machine poweredOff
+                                 {
+                                     pollInfo = "STATE=d";
+                                 }
+                             }
                              
                          }
                          catch(Exception e)
