@@ -34,8 +34,8 @@ require 'client_utilities'
 require 'command_parse'
 
 ShowTableHost={
-    :hid => {
-        :name => "HID",
+    :id => {
+        :name => "ID",
         :desc => "ONE identifier for host",
         :size => 4,
         :proc => lambda {|d,e| d.id }
@@ -99,7 +99,7 @@ ShowTableHost={
     },
     
 
-    :default => [:hid, :name, :rvm, :tcpu, :fcpu, :acpu, :tmem, :fmem, :stat]
+    :default => [:id, :name, :rvm, :tcpu, :fcpu, :acpu, :tmem, :fmem, :stat]
 }
 
 class HostShow

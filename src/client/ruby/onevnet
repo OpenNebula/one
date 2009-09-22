@@ -34,8 +34,8 @@ require 'command_parse'
 
 
 ShowTableVN={
-    :nid => {
-        :name => "NID",
+    :id => {
+        :name => "ID",
         :desc => "ONE identifier for virtual network",
         :size => 4,
         :proc => lambda {|d,e| d.id }
@@ -47,7 +47,7 @@ ShowTableVN={
         :left => true,
         :proc => lambda {|d,e| d.name }
     },
-    :username => {
+    :user => {
         :name => "USER",
         :desc => "Username of the virtual network owner",
         :size => 8,
@@ -87,7 +87,7 @@ ShowTableVN={
         :proc => lambda {|d,e| d["TOTAL_LEASES"] }
     },
 
-    :default => [:nid, :username, :name, :type, :bridge, :totalleases]
+    :default => [:id, :user, :name, :type, :bridge, :totalleases]
 }
 
 class VNShow
@@ -169,7 +169,7 @@ Commands:
             a, all   --> all the known VNs
             m, mine  --> the VNs belonging to the user in ONE_AUTH
             uid      --> VNs of the user identified by this uid
-            username --> VNs of the user identified by the username
+            user --> VNs of the user identified by the username
 EOT
 
     def text_commands
@@ -203,7 +203,7 @@ when "create"
     template=File.read(ARGV[0])
     result=vn.allocate(template)
     if !OpenNebula.is_error?(result)
-        puts "NID: " + vn.id.to_s if ops[:verbose]
+        puts "ID: " + vn.id.to_s if ops[:verbose]
         exit 0
     end
     

@@ -48,7 +48,7 @@ ShowTableVM={
             d.name
         }
     },
-    :username => {
+    :user=> {
         :name => "USER",
         :desc => "Name of the owner",
         :size => 8,
@@ -93,7 +93,7 @@ ShowTableVM={
         :proc => lambda {|d,e| str_running_time(d) }
     },
     
-    :default => [:id, :username, :name, :stat, :cpu, :mem, :hostname, :time]
+    :default => [:id, :user, :name, :stat, :cpu, :mem, :hostname, :time]
 }
 
 ShowTableHistory={
@@ -356,7 +356,7 @@ Commands:
             a, all   --> all the known VMs
             m, mine  --> the VMs belonging to the user in ONE_AUTH
             uid      --> VMs of the user identified by this uid
-            username --> VMs of the user identified by the username
+            user--> VMs of the user identified by the username
     
 * show (Gets information about a specific VM)
     onevm show <vm_id>

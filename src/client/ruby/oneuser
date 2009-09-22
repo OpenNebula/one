@@ -34,14 +34,14 @@ require 'command_parse'
 
 
 ShowTableUP={
-    :uid => {
-        :name => "UID",
+    :id => {
+        :name => "ID",
         :desc => "ONE identifier for user",
         :size => 4,
         :proc => lambda {|d,e| d.id }
     },
-    :name => {
-        :name => "NAME",
+    :user => {
+        :name => "USER",
         :desc => "name of the user",
         :size => 15,
         :left => true,
@@ -61,7 +61,7 @@ ShowTableUP={
         :proc => lambda {|d,e| d[:enabled] }
     },
    
-    :default => [:uid, :name, :password, :enable]
+    :default => [:id, :user, :password, :enable]
 }
 
 class UPShow
@@ -123,7 +123,7 @@ Commands:
     oneuser create username password
     
 * delete (Removes a user)
-    oneuser delete <uid>
+    oneuser delete <id>
     
 * list (Lists all the users in the pool)
     oneuser list
@@ -161,7 +161,7 @@ when "create"
     sha_password = Digest::SHA1.hexdigest(ARGV[1])
     result=user.allocate(ARGV[0],sha_password)
     if !OpenNebula.is_error?(result)
-        puts "UID: " + user.id.to_s if ops[:verbose]
+        puts "ID: " + user.id.to_s if ops[:verbose]
         exit 0
     end
     
