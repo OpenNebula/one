@@ -264,7 +264,7 @@ get '/compute' do
     vmpool.info
     # OCCI conversion
     begin
-        vmpool.to_occi(CONFIG[:server])
+        vmpool.to_occi(CONFIG[:server]+":"+CONFIG[:port])
     rescue Exception => e
         error = OpenNebula::Error.new(e.message)
         return error
@@ -306,7 +306,7 @@ get '/network' do
     network_pool.info
     # OCCI conversion
     begin
-        network_pool.to_occi(CONFIG[:server])
+        network_pool.to_occi(CONFIG[:server]+":"+CONFIG[:port])
     rescue Exception => e
         error = OpenNebula::Error.new(e.message)
         return error
@@ -359,7 +359,7 @@ get '/storage' do
     
     image_pool = "<STORAGE>"
     for image in images do
-        image_pool += "<DISK id=\"#{image[:uuid]}\" href=\"http://#{CONFIG[:server]}/storage/#{image[:uuid]}\">"
+        image_pool += "<DISK id=\"#{image[:uuid]}\" href=\"http://#{CONFIG[:server]}:#{CONFIG[:port]}/storage/#{image[:uuid]}\">"
     end
     image_pool += "</STORAGE>"
     image_pool
