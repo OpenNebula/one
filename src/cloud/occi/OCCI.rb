@@ -1,6 +1,6 @@
-require 'lib/VirtualMachineOCCI'
-require 'lib/VirtualMachinePoolOCCI'
-require 'lib/VirtualNetworkOCCI'
-require 'lib/VirtualNetworkPoolOCCI'
+require 'VirtualMachineOCCI'
+require 'VirtualMachinePoolOCCI'
+require 'VirtualNetworkOCCI'
+require 'VirtualNetworkPoolOCCI'
 
-require 'lib/OCCIConfiguration'
+require 'OCCIConfiguration'

@@ -1,5 +1,5 @@
 require 'OpenNebula'
-require 'Crack'
+require 'crack'
 
 include OpenNebula
 

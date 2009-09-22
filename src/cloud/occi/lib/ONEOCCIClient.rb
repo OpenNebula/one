@@ -4,7 +4,7 @@ require 'rubygems'
 require 'curb'
 require 'uri'
 require 'OpenNebula'
-require 'Crack'
+require 'crack'
 
 module ONEOCCIClient
     #####################################################################

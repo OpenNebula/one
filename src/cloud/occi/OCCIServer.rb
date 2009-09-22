@@ -12,7 +12,7 @@ else
 end
 
 $: << RUBY_LIB_LOCATION
-$: << RUBY_LIB_LOCATION+"/occiserver"
+$: << RUBY_LIB_LOCATION+"/occi"
 $: << RUBY_LIB_LOCATION+"/econe" # For the Repository Manager
 
 ################################################
