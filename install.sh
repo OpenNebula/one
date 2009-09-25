@@ -239,7 +239,7 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/OpenNebula/Host.rb \
 # Driver executable files, to be installed under $LIB_LOCATION/mads
 #-------------------------------------------------------------------------------
 
-MADS_LIB_FILES="share/scripts/madcommon.sh \
+MADS_LIB_FILES="src/mad/sh/madcommon.sh \
               src/tm_mad/tm_common.sh \
               src/vmm_mad/xen/one_vmm_xen.rb \
               src/vmm_mad/xen/one_vmm_xen \
