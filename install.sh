@@ -44,7 +44,7 @@ usage() {
 }
 #-------------------------------------------------------------------------------
 
-TEMP_OPT=`getopt -o hkrlu:g:d: -n 'install.sh' -- "$@"`
+TEMP_OPT=`getopt -o hkrlcu:g:d: -n 'install.sh' -- "$@"`
 
 if [ $? != 0 ] ; then 
     usage
@@ -56,6 +56,7 @@ eval set -- "$TEMP_OPT"
 INSTALL_ETC="yes"
 UNINSTALL="no"
 LINK="no"
+CLIENT="no"
 ONEADMIN_USER=`id -u`
 ONEADMIN_GROUP=`id -g`
 SRC_DIR=$PWD
@@ -66,6 +67,7 @@ while true ; do
         -k) INSTALL_ETC="no"   ; shift ;;
         -r) UNINSTALL="yes"   ; shift ;;
         -l) LINK="yes" ; shift ;;
+        -c) CLIENT="yes" ; shift ;;
         -u) ONEADMIN_USER="$2" ; shift 2;;
         -g) ONEADMIN_GROUP="$2"; shift 2;;
         -d) ROOT="$2" ; shift 2 ;;
@@ -87,15 +89,24 @@ if [ -z "$ROOT" ] ; then
     RUN_LOCATION="/var/run/one"
     INCLUDE_LOCATION="/usr/include"
     SHARE_LOCATION="/usr/share/doc/opennebula"
+    
+    if [ "$CLIENT" = "no" ]; then
+        MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION $VAR_LOCATION \
+                   $INCLUDE_LOCATION $SHARE_LOCATION \
+                   $LOG_LOCATION $RUN_LOCATION"
+        
+        DELETE_DIRS="$LIB_LOCATION $ETC_LOCATION $LOG_LOCATION $VAR_LOCATION \
+                     $RUN_LOCATION $SHARE_DIRS"
 
-    MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION $VAR_LOCATION \
-               $INCLUDE_LOCATION $SHARE_LOCATION \
-               $LOG_LOCATION $RUN_LOCATION"
+        CHOWN_DIRS="$LOG_LOCATION $VAR_LOCATION $RUN_LOCATION"
+    else
+        MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION"
 
-    DELETE_DIRS="$LIB_LOCATION $ETC_LOCATION $LOG_LOCATION $VAR_LOCATION \
-                 $RUN_LOCATION $SHARE_DIRS"
+        DELETE_DIRS=""
 
-    CHOWN_DIRS="$LOG_LOCATION $VAR_LOCATION $RUN_LOCATION"
+        CHOWN_DIRS=""
+    fi
+
 else
     BIN_LOCATION="$ROOT/bin"
     LIB_LOCATION="$ROOT/lib"
@@ -104,10 +115,18 @@ else
     INCLUDE_LOCATION="$ROOT/include"
     SHARE_LOCATION="$ROOT/share"
 
-    MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION $VAR_LOCATION \
-               $INCLUDE_LOCATION $SHARE_LOCATION"
-               
-    DELETE_DIRS="$MAKE_DIRS"
+    if [ "$CLIENT" = "no" ]; then
+        MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION $VAR_LOCATION \
+                   $INCLUDE_LOCATION $SHARE_LOCATION"
+                   
+        DELETE_DIRS="$MAKE_DIRS"
+
+        CHOWN_DIRS="$ROOT"
+    else
+        MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION"
+
+        DELETE_DIRS="$MAKE_DIRS"
+    fi
 
     CHOWN_DIRS="$ROOT"
 fi
@@ -142,7 +161,14 @@ LIB_DIRS="$LIB_LOCATION/im_probes \
           $LIB_LOCATION/tm_commands/dummy \
           $LIB_LOCATION/mads"
 
-MAKE_DIRS="$MAKE_DIRS $SHARE_DIRS $ETC_DIRS $LIB_DIRS"
+LIB_CLIENT_DIRS="$LIB_LOCATION/ruby \
+                 $LIB_LOCATION/ruby/OpenNebula"
+
+if [ "$CLIENT" = "no" ]; then
+    MAKE_DIRS="$MAKE_DIRS $SHARE_DIRS $ETC_DIRS $LIB_DIRS"
+else
+    MAKE_DIRS="$MAKE_DIRS $LIB_CLIENT_DIRS"
+fi
 
 #-------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------
@@ -167,6 +193,10 @@ INSTALL_FILES[13]="ECO_LIB_FILES:$LIB_LOCATION/ruby/econe"
 INSTALL_FILES[14]="ECO_BIN_FILES:$BIN_LOCATION"
 INSTALL_FILES[15]="OCCI_LIB_FILES:$LIB_LOCATION/ruby/occi"
 INSTALL_FILES[16]="OCCI_BIN_FILES:$BIN_LOCATION"
+
+INSTALL_CLIENT_FILES[0]="BIN_CLIENT_FILES:$BIN_LOCATION"
+INSTALL_CLIENT_FILES[1]="RUBY_LIB_CLIENT_FILES:$LIB_LOCATION/ruby"
+INSTALL_CLIENT_FILES[2]="RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/OpenNebula"
 
 INSTALL_ETC_FILES[0]="ETC_FILES:$ETC_LOCATION"
 INSTALL_ETC_FILES[1]="VMM_XEN_ETC_FILES:$ETC_LOCATION/vmm_xen"
@@ -198,6 +228,11 @@ BIN_FILES="src/nebula/oned \
            src/client/ruby/oneuser \
            share/scripts/one"
 
+BIN_CLIENT_FILES="src/client/ruby/onevm \
+                  src/client/ruby/onehost \
+                  src/client/ruby/onevnet \
+                  src/client/ruby/oneuser"
+
 #-------------------------------------------------------------------------------
 # C/C++ OpenNebula API Library & Development files
 # Include files, to be installed under $INCLUDE_LOCATION
@@ -224,6 +259,10 @@ RUBY_LIB_FILES="src/mad/ruby/one_mad.rb \
                 src/oca/ruby/OpenNebula.rb \
                 src/tm_mad/TMScript.rb"
 
+RUBY_LIB_CLIENT_FILES="src/client/ruby/client_utilities.rb \
+                       src/client/ruby/command_parse.rb \
+                       src/oca/ruby/OpenNebula.rb"
+
 RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/OpenNebula/Host.rb \
                            src/oca/ruby/OpenNebula/HostPool.rb \
                            src/oca/ruby/OpenNebula/Pool.rb \
@@ -234,7 +273,6 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/OpenNebula/Host.rb \
                            src/oca/ruby/OpenNebula/VirtualNetwork.rb \
                            src/oca/ruby/OpenNebula/VirtualNetworkPool.rb \
                            src/oca/ruby/OpenNebula/XMLUtils.rb"
-
 #-------------------------------------------------------------------------------
 # Driver executable files, to be installed under $LIB_LOCATION/mads
 #-------------------------------------------------------------------------------
@@ -466,7 +504,14 @@ do_file() {
     fi
 }
 
-for i in ${INSTALL_FILES[@]}; do
+
+if [ "$CLIENT" = "no" ]; then
+    INSTALL_SET=${INSTALL_FILES[@]}
+else
+    INSTALL_SET=${INSTALL_CLIENT_FILES[@]}
+fi
+
+for i in ${INSTALL_SET[@]}; do
     SRC=$`echo $i | cut -d: -f1`
     DST=`echo $i | cut -d: -f2`
     
@@ -477,7 +522,7 @@ for i in ${INSTALL_FILES[@]}; do
     done
 done
 
-if [ "$INSTALL_ETC" = "yes" ] ; then
+if [ "$CLIENT" = "no" -a "$INSTALL_ETC" = "yes" ] ; then
     for i in ${INSTALL_ETC_FILES[@]}; do
         SRC=$`echo $i | cut -d: -f1`
         DST=`echo $i | cut -d: -f2`
@@ -502,10 +547,12 @@ if [ "$UNINSTALL" = "no" ] ; then
         /bin/chown -R $ONEADMIN_USER:$ONEADMIN_GROUP $DESTDIR$d
     done
     # Create library links
-    ln -s $DESTDIR$LIB_LOCATION/liboneapi.so \
-          $DESTDIR$LIB_LOCATION/liboneapi.so.1
-    ln -s $DESTDIR$LIB_LOCATION/liboneapi.so.1 \
-          $DESTDIR$LIB_LOCATION/liboneapi.so.1.3
+    if [ "$CLIENT" = "no" ] ; then
+        ln -s $DESTDIR$LIB_LOCATION/liboneapi.so \
+              $DESTDIR$LIB_LOCATION/liboneapi.so.1
+        ln -s $DESTDIR$LIB_LOCATION/liboneapi.so.1 \
+              $DESTDIR$LIB_LOCATION/liboneapi.so.1.3
+    fi
 else
     for d in `echo $DELETE_DIRS | awk '{for (i=NF;i>=1;i--) printf $i" "}'`; do
         rmdir $d
