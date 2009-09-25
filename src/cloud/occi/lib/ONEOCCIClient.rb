@@ -15,8 +15,8 @@ module ONEOCCIClient
         
         #######################################################################
         #
-        #
-        #######################################################################
+        # Initialized client library
+        # #######################################################################
         def initialize(endpoint_str=nil, user=nil, pass=nil, debug_flag=false)
             @debug = debug_flag
             
@@ -102,9 +102,7 @@ module ONEOCCIClient
             xml=File.read(xmlfile)
             
             begin
-                curl.http_post(
-                  Curl::PostField.content('occixml', xml)
-                )
+                curl.http_post(xml)
             rescue Exception => e
                 error = OpenNebula::Error.new(e.message)
                 return error
@@ -295,6 +293,8 @@ module ONEOCCIClient
         end
     end
 end
+
+
 
 
 

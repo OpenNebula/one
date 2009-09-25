@@ -275,8 +275,8 @@ post '/network' do
     # Auth check  
     protected!
     # Info retrieval from post params
-    if params['occixml']
-        network_info=Crack::XML.parse(params['occixml'])
+    if params
+        network_info=Crack::XML.parse(params.to_s)
     else
         halt 400, "OCCI XML representation of Virtual Network not present in the request" 
     end
