@@ -30,6 +30,12 @@ else
     ETC_LOCATION      = ONE_LOCATION + "/etc/"
 end
 
+if ENV["LIBVIRT_DEFAULT_URI"]
+    LIBVIRT_URI = ENV["LIBVIRT_DEFAULT_URI"]
+else
+    LIBVIRT_URI = "qemu:///system"
+end
+
 $: << RUBY_LIB_LOCATION
 
 require 'pp'
@@ -46,13 +52,13 @@ class LibVirtDriver < VirtualMachineDriver
     QEMU_PROTOCOL = "qemu+ssh"
 
     LIBVIRT       = {
-        :create   => "virsh create",
-        :shutdown => "virsh shutdown",
-        :cancel   => "virsh destroy",
-        :save     => "virsh save",
-        :restore  => "virsh restore",
-        :migrate  => "virsh migrate --live",
-        :poll     => "virsh dominfo"
+        :create   => "virsh --connect #{LIBVIRT_URI} create",
+        :shutdown => "virsh --connect #{LIBVIRT_URI} shutdown",
+        :cancel   => "virsh --connect #{LIBVIRT_URI} destroy",
+        :save     => "virsh --connect #{LIBVIRT_URI} save",
+        :restore  => "virsh --connect #{LIBVIRT_URI} restore",
+        :migrate  => "virsh --connect #{LIBVIRT_URI} migrate --live",
+        :poll     => "virsh --connect #{LIBVIRT_URI} dominfo"
     }
 
     # ------------------------------------------------------------------------ #
@@ -115,7 +121,7 @@ class LibVirtDriver < VirtualMachineDriver
     end
 
     def save(id, host, deploy_id, file)
-        ssh_action("#{LIBVIRT[:save]} #{deploy_id} #{file}", id, host, :save)
+        ssh_action("'touch #{file};#{LIBVIRT[:save]} #{deploy_id} #{file}'",id,host,:save)
     end
 
     def restore(id, host, deploy_id, file)
