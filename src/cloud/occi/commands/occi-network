@@ -26,6 +26,7 @@
 #       deletes the virtual network idenfitied by <network id>
 #
 #
+#
 # OPTIONS
 #
 # -h, --help:
@@ -42,6 +43,9 @@
 #
 # --debug, -D
 #    Enables verbosity
+#
+# --multipart, -M:
+#    Use 'multipart-post' library instead of Curb/Curl
 #
 
 # -------------------------------------------------------------------------- #

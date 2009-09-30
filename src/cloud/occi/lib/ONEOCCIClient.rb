@@ -1,22 +1,34 @@
 #!/usr/bin/ruby
 
 require 'rubygems'
-require 'curb'
 require 'uri'
 require 'OpenNebula'
 require 'crack'
 
+begin
+    require 'curb'
+    CURL_LOADED=true
+rescue LoadError
+    CURL_LOADED=false
+end
+
+begin
+    require 'net/http/post/multipart'
+rescue LoadError
+end
+
+
+
 module ONEOCCIClient
+    
     #####################################################################
-    #
-    #
+    #  Client Library to interface with the OpenNebula OCCI Service
     #####################################################################
     class Client
         
-        #######################################################################
-        #
-        # Initialized client library
-        # #######################################################################
+        ######################################################################
+        # Initialize client library
+        ######################################################################
         def initialize(endpoint_str=nil, user=nil, pass=nil, debug_flag=false)
             @debug = debug_flag
             
@@ -44,103 +56,96 @@ module ONEOCCIClient
             
         end
 
-        #######################################################################
-        # Pool Resource Request Methods
-        #######################################################################
+        #################################
+        # Pool Resource Request Methods #
+        #################################
         
-        #######################################################################
+        ######################################################################
         # Post a new VM to the VM Pool
         # :instance_type
         # :xmlfile
-        #######################################################################
-        def post_vms(instance_type,xmlfile)
-            curl=Curl::Easy.new(@endpoint+"/compute")
-            curl.userpwd=@occiauth
-            curl.verbose=true if @debug 
-            
+        ######################################################################
+        def post_vms(xmlfile)          
             xml=File.read(xmlfile)
-            
-            begin
-                curl.http_post(
-                  Curl::PostField.content('occixml', xml),
-                  Curl::PostField.content('InstanceType', instance_type)
-                )
-            rescue Exception => e
-                error = OpenNebula::Error.new(e.message)
-                return error
-            end      
-            
-            puts curl.body_str            
-        end
+         
+            url = URI.parse(@endpoint+"/compute")
+
+            req = Net::HTTP::Post.new(url.path)
+            req.body=xml
         
-        #######################################################################
-        # Retieves the pool of Virtual Machines
-        #######################################################################
-        def get_vms
-            curl=Curl::Easy.new(@endpoint+"/compute")
-            curl.userpwd=@occiauth
-            curl.verbose=true if @debug
-            
-            begin
-                curl.http_get
-            rescue Exception => e
-                error = OpenNebula::Error.new(e.message)
-                return error
+            auth=@occiauth.split(":")
+            req.basic_auth auth[0], auth[1]
+    
+            res = Net::HTTP.start(url.host, url.port) do |http|
+                http.request(req)
             end
-            puts curl.body_str
+            
+            pp res.body
         end
         
-        #######################################################################
+        ######################################################################
+        # Retieves the pool of Virtual Machines
+        ######################################################################
+        def get_vms
+            url = URI.parse(@endpoint+"/compute")
+            req = Net::HTTP::Get.new(url.path)
+            
+            auth=@occiauth.split(":")
+            req.basic_auth auth[0], auth[1]
+            
+            res = Net::HTTP.start(url.host, url.port) {|http|
+              http.request(req)
+            }
+            puts res.body           
+        end
+        
+        ######################################################################
         # Post a new Network to the VN Pool
         # :xmlfile xml description of the Virtual Network
-        #######################################################################
+        ######################################################################
         def post_network(xmlfile)
-            curl=Curl::Easy.new(@endpoint+"/network")
-            curl.userpwd=@occiauth
-            curl.verbose=true if @debug 
-            
             xml=File.read(xmlfile)
             
-            begin
-                curl.http_post(xml)
-            rescue Exception => e
-                error = OpenNebula::Error.new(e.message)
-                return error
-            end      
+            url = URI.parse(@endpoint+"/network")
             
-            puts curl.body_str            
-        end
+            req = Net::HTTP::Post.new(url.path)
+            req.body=xml
         
-        #######################################################################
-        # Retieves the pool of Virtual Networks
-        #######################################################################
-        def get_networks
-            curl=Curl::Easy.new(@endpoint+"/network")
-            curl.userpwd=@occiauth
-            curl.verbose=true if @debug
+            auth=@occiauth.split(":")
             
-            begin
-                curl.http_get
-            rescue Exception => e
-                error = OpenNebula::Error.new(e.message)
-                return error
+            req.basic_auth auth[0], auth[1]
+    
+            res = Net::HTTP.start(url.host, url.port) do |http|
+                http.request(req)
             end
-            puts curl.body_str
+            
+            puts res.body      
         end
         
-        #######################################################################
+        ######################################################################
+        # Retieves the pool of Virtual Networks
+        ######################################################################
+        def get_networks
+            url = URI.parse(@endpoint+"/network")
+            req = Net::HTTP::Get.new(url.path)
+            
+            auth=@occiauth.split(":")
+            req.basic_auth auth[0], auth[1]
+            
+            res = Net::HTTP.start(url.host, url.port) {|http|
+              http.request(req)
+            }
+            puts res.body
+        end
+        
+        ######################################################################
         # Post a new Image to the Image Pool
         # :xmlfile
-        #######################################################################
-        def post_image(xmlfile)
+        ######################################################################
+        def post_image(xmlfile, curb=true)
             xml=File.read(xmlfile)
             image_info=Crack::XML.parse(xml)
-      
-            curl=Curl::Easy.new(@endpoint+"/storage")
-            curl.userpwd=@occiauth
-            curl.verbose=true if @debug 
-            curl.multipart_form_post = true
-      
+            
             file_path = image_info['DISK']['URL'] 
             
             m=file_path.match(/^\w+:\/\/(.*)$/)
@@ -148,148 +153,172 @@ module ONEOCCIClient
             if m 
                 file_path="/"+m[1]
             end
-                 
-            begin    
-                curl.http_post(
-                  Curl::PostField.content('occixml', xml),
-                  Curl::PostField.file('file', file_path)
-                )   
-            rescue Exception => e
-                error = OpenNebula::Error.new(e.message)
-                return error
-            end      
             
-            puts curl.body_str            
+            if curb and CURL_LOADED
+                curl=Curl::Easy.new(@endpoint+"/storage")
+                curl.userpwd=@occiauth
+                curl.verbose=true if @debug 
+                curl.multipart_form_post = true
+           
+                begin    
+                    curl.http_post(
+                      Curl::PostField.content('occixml', xml),
+                      Curl::PostField.file('file', file_path)
+                    )   
+                rescue Exception => e
+                    pp e.message
+                end      
+            
+                puts curl.body_str   
+            else
+                file=File.open(file_path)
+
+                params=Hash.new
+                params["file"]=UploadIO.new(file,
+                    'application/octet-stream', file_path)
+                    
+                params['occixml'] = xml
+                
+                url = URI.parse(@endpoint+"/storage")
+
+                req = Net::HTTP::Post::Multipart.new(url.path, params)
+  
+                auth=@occiauth.split(":")
+                
+                req.basic_auth auth[0], auth[1]
+        
+                res = Net::HTTP.start(url.host, url.port) do |http|
+                    http.request(req)
+                end
+                file.close
+                
+                puts res.body
+            end         
         end
         
-        #######################################################################
+        ######################################################################
         # Retieves the pool of Images owned by the user
-        #######################################################################
+        ######################################################################
         def get_images
-            curl=Curl::Easy.new(@endpoint+"/storage")
-            curl.userpwd=@occiauth
-            curl.verbose=true if @debug
+            url = URI.parse(@endpoint+"/storage")
+            req = Net::HTTP::Get.new(url.path)
             
-            begin
-                curl.http_get
-            rescue Exception => e
-                error = OpenNebula::Error.new(e.message)
-                return error
-            end
-            puts curl.body_str
+            auth=@occiauth.split(":")
+            req.basic_auth auth[0], auth[1]
+            
+            res = Net::HTTP.start(url.host, url.port) {|http|
+              http.request(req)
+            }
+            puts res.body
         end
         
-        #######################################################################
-        # Entity Resource Request Methods
-        #######################################################################
+        ####################################
+        # Entity Resource Request Methods  #
+        ####################################
         
-        #######################################################################
+        ######################################################################
         # :id VM identifier
-        #######################################################################
+        ######################################################################
         def get_vm(id)
-            curl=Curl::Easy.new(@endpoint+"/compute/" + id.to_s)
-            curl.userpwd=@occiauth
-            curl.verbose=true if @debug
-                        
-            begin
-                curl.http_get
-            rescue Exception => e
-                error = OpenNebula::Error.new(e.message)
-                return error
-            end
-            puts curl.body_str
+            url = URI.parse(@endpoint+"/compute/" + id.to_s)
+            req = Net::HTTP::Get.new(url.path)
+            
+            auth=@occiauth.split(":")
+            req.basic_auth auth[0], auth[1]
+            
+            res = Net::HTTP.start(url.host, url.port) {|http|
+              http.request(req)
+            }
+            puts res.body                
         end
         
-        #######################################################################
+        ######################################################################
         # Puts a new Compute representation in order to change its state
         # :xmlfile Compute OCCI xml representation
-        #######################################################################
+        ######################################################################
         def put_vm(xmlfile)
             xml=File.read(xmlfile)
             vm_info=Crack::XML.parse(xml)
-      
-            curl=Curl::Easy.new(@endpoint+"/compute/"+vm_info['ID'])
-            curl.userpwd=@occiauth
-            curl.verbose=true if @debug 
-                 
-            begin    
-                curl.http_post(Curl::PostField.content('occixml', xml)) 
-            rescue Exception => e
-                error = OpenNebula::Error.new(e.message)
-                return error
-            end      
+  
+            url = URI.parse(@endpoint+'/compute/' + vm_info['COMPUTE']['ID'])
             
-            puts curl.body_str            
-        end
+            req = Net::HTTP::Put.new(url.path)          
+            req.body = xml
         
-        #######################################################################
-        # :id Compute identifier
-       #######################################################################
-        def delete_vm(id)
-            curl=Curl::Easy.new(@endpoint+"/compute/" + id.to_s)
-            curl.userpwd=@occiauth
-            curl.verbose=true if @debug
-                        
-            begin
-                curl.http_delete
-            rescue Exception => e
-                error = OpenNebula::Error.new(e.message)
-                return error
+            auth=@occiauth.split(":")        
+            req.basic_auth auth[0], auth[1]
+    
+            res = Net::HTTP.start(url.host, url.port) do |http|
+                http.request(req)
             end
-            puts curl.body_str
+            
+            pp res.body
         end
         
-        #######################################################################
+        ####################################################################
+        # :id Compute identifier
+        ####################################################################
+        def delete_vm(id)
+            url = URI.parse(@endpoint+"/compute/" + id.to_s)
+            req = Net::HTTP::Delete.new(url.path)
+            
+            auth=@occiauth.split(":")
+            req.basic_auth auth[0], auth[1]
+            
+            res = Net::HTTP.start(url.host, url.port) {|http|
+              http.request(req)
+            }
+            puts res.body               
+        end
+        
+        ######################################################################
         # Retrieves a Virtual Network
         # :id Virtual Network identifier
-        #######################################################################
+        ######################################################################
         def get_network(id)
-            curl=Curl::Easy.new(@endpoint+"/network/" + id.to_s)
-            curl.userpwd=@occiauth
-            curl.verbose=true if @debug
+            url = URI.parse(@endpoint+"/network/" + id.to_s)
+            req = Net::HTTP::Get.new(url.path)
             
-            begin
-                curl.http_get
-            rescue Exception => e
-                error = OpenNebula::Error.new(e.message)
-                return error
-            end
-            puts curl.body_str
+            auth=@occiauth.split(":")
+            req.basic_auth auth[0], auth[1]
+            
+            res = Net::HTTP.start(url.host, url.port) {|http|
+              http.request(req)
+            }
+            puts res.body
         end
         
-        #######################################################################
+        ######################################################################
         # :id VM identifier
-        #######################################################################
+        ######################################################################
         def delete_network(id)
-            curl=Curl::Easy.new(@endpoint+"/network/" + id.to_s)
-            curl.userpwd=@occiauth
-            curl.verbose=true if @debug
-                        
-            begin
-                curl.http_delete
-            rescue Exception => e
-                error = OpenNebula::Error.new(e.message)
-                return error
-            end
-            puts curl.body_str
+            url = URI.parse(@endpoint+"/network/" + id.to_s)
+            req = Net::HTTP::Delete.new(url.path)
+            
+            auth=@occiauth.split(":")
+            req.basic_auth auth[0], auth[1]
+            
+            res = Net::HTTP.start(url.host, url.port) {|http|
+              http.request(req)
+            }
+            puts res.body
         end
         
-        #######################################################################
+       #######################################################################
         # Retieves an Image
         # :image_uuid Image identifier
-        #######################################################################
+        ######################################################################
         def get_image(image_uuid)
-            curl=Curl::Easy.new(@endpoint+"/storage/"+image_uuid)
-            curl.userpwd=@occiauth
-            curl.verbose=true if @debug
+            url = URI.parse(@endpoint+"/storage/"+image_uuid)
+            req = Net::HTTP::Get.new(url.path)
             
-            begin
-                curl.http_get
-            rescue Exception => e
-                error = OpenNebula::Error.new(e.message)
-                return error
-            end
-            puts curl.body_str
+            auth=@occiauth.split(":")
+            req.basic_auth auth[0], auth[1]
+            
+            res = Net::HTTP.start(url.host, url.port) {|http|
+              http.request(req)
+            }
+            puts res.body
         end
     end
 end

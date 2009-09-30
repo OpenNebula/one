@@ -9,7 +9,10 @@ class VirtualMachinePoolOCCI < VirtualMachinePool
        pool_hash=Crack::XML.parse(to_xml)
        occi_xml =  "<COMPUTES>"
        
-       pool_hash['VM_POOL']['VM'].each{|vm|
+       vmlist=[pool_hash['VM_POOL']['VM']].flatten
+       
+       vmlist.each{|vm|
+           pp vm
            occi_xml+='<COMPUTE id="' + vm['ID'].strip + '"' +
                       ' href="' + base_url + '/compute/' + vm['ID'].strip + '"/>'  
        }

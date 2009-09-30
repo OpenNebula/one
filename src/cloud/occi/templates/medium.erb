@@ -37,7 +37,7 @@ NIC = [
 <% if nic['ip'] %>
         IP=<%= nic['ip'] %>,
 <% end %>
-        NETWORK=<%= nic['network']%>, 
+        NETWORK="<%= nic['network']%>", 
         NETWORK_ID=<%= nic['network_id'] %>      
 ]
 <% end %>

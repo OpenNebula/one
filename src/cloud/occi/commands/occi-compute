@@ -47,8 +47,6 @@
 # --debug, -D
 #    Enables verbosity
 #
-# --instance-type, -T
-#    Specifies the type of compute resource we want (compulsory for create)
 #
 
 # -------------------------------------------------------------------------- #
@@ -91,7 +89,6 @@ opts = GetoptLong.new(
             ['--username',     '-U',GetoptLong::REQUIRED_ARGUMENT],
             ['--password',     '-P',GetoptLong::REQUIRED_ARGUMENT],
             ['--url',          '-R',GetoptLong::REQUIRED_ARGUMENT],
-            ['--instance-type','-T',GetoptLong::REQUIRED_ARGUMENT],
             ['--debug',        '-D',GetoptLong::NO_ARGUMENT]
         )
 
@@ -99,7 +96,6 @@ url      = nil
 username = nil
 password = nil
 auth     = nil
-type     = nil
 debug    = false
 
 begin
@@ -113,8 +109,6 @@ begin
                 password = arg
             when '--url'
                 url = arg
-            when '--instance-type'
-                type = arg
             when '--debug'
                 debug = true
         end
@@ -141,11 +135,6 @@ when 'list'
     occi_client.get_vms
 
 when 'create'
-    if !type
-        puts "#{$0}: missing compulsory instance type"
-        exit -1
-    end
-
     vm_xml = ARGV[1]
 
     if !vm_xml || !File.exists?(vm_xml)
@@ -160,7 +149,7 @@ when 'create'
         exit -1
     end
 
-    occi_client.post_vms(type, vm_xml)
+    occi_client.post_vms(vm_xml)
     
 when 'show'
     vm_id = ARGV[1]

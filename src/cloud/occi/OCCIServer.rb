@@ -144,15 +144,15 @@ end
 ###################################################
 
 
-def submit_vm(params)
-
-    if params['occixml']
-        @vm_info=Crack::XML.parse(params['occixml'])
+def submit_vm(request)
+ 
+    if request.body
+        @vm_info=Crack::XML.parse(request.body.read)
     else
         halt 400, "OCCI XML representation of VM not present" 
     end
     
-    @vm_info=@vm_info['COMPUTE']
+     @vm_info=@vm_info['COMPUTE']
     
     if @vm_info['STORAGE'].class==Array
         disks=@vm_info['STORAGE']
@@ -185,7 +185,7 @@ def submit_vm(params)
     
     @vm_info['NETWORK']['NIC']=nics
     
-    instance_type_name=params['InstanceType']
+    instance_type_name=@vm_info['INSTANCE_TYPE']
     instance_type=INSTANCE_TYPES[instance_type_name]
 
     halt 400, "Bad instance type" if !instance_type
@@ -209,9 +209,9 @@ def submit_vm(params)
     end
 end
 
-def change_state(params)
-    if params['occixml']
-        vm_info=Crack::XML.parse(params['occixml'])
+def change_state(request)
+    if request.body
+        vm_info=Crack::XML.parse(request.body.read)
     else
         halt 400, "OCCI XML representation of VM not present" 
     end
@@ -252,16 +252,25 @@ end
 post '/compute' do
     # Auth check 
     protected!   
-     
-    submit_vm(params)
+    
+    submit_vm(request)
 end
 
 get '/compute' do  
     # Auth check  
     protected!
     # Info retrieval
-    vmpool = VirtualMachinePoolOCCI.new(get_one_client)
+    user = get_user(@auth.credentials.first)
+    
+    if user[:id] == 0
+        user_flag=-2
+    else
+        user_flag=-1
+    end
+    
+    vmpool = VirtualMachinePoolOCCI.new(get_one_client,user_flag)
     vmpool.info
+
     # OCCI conversion
     begin
         vmpool.to_occi(CONFIG[:server]+":"+CONFIG[:port])
@@ -275,8 +284,8 @@ post '/network' do
     # Auth check  
     protected!
     # Info retrieval from post params
-    if params
-        network_info=Crack::XML.parse(params.to_s)
+    if request.body
+        network_info=Crack::XML.parse(request.body.read)
     else
         halt 400, "OCCI XML representation of Virtual Network not present in the request" 
     end
@@ -388,10 +397,10 @@ delete '/compute/:id' do
     "The Compute resource has been successfully deleted"
 end
 
-post '/compute/:id' do
+put '/compute/:id' do
     protected!
 
-    change_state(params)    
+    change_state(request)    
 end
 
 get '/network/:id' do  
