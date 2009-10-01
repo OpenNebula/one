@@ -10,8 +10,8 @@ class VirtualNetworkPoolOCCI < VirtualNetworkPool
        occi_xml  = "<NETWORK>"
        
        network_pool_hash['VNET_POOL']['VNET'].each{|network|
-           occi_xml+='<NIC id="' + network['ID'].strip + '"' +
-                      ' href="' + base_url + '/network/' + network['ID'].strip + '"/>'  
+           occi_xml+='<NIC ' + 'href="' +
+                      base_url + '/network/' + network['ID'].strip + '"/>'  
        }
        
        occi_xml += "</NETWORK>" 

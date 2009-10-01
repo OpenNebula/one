@@ -205,7 +205,7 @@ def submit_vm(request)
         response.to_str
     else
         vm.info    
-        vm.to_occi
+        vm.to_occi(CONFIG[:server])
     end
 end
 
@@ -368,7 +368,7 @@ get '/storage' do
     
     image_pool = "<STORAGE>"
     for image in images do
-        image_pool += "<DISK id=\"#{image[:uuid]}\" href=\"http://#{CONFIG[:server]}:#{CONFIG[:port]}/storage/#{image[:uuid]}\">"
+        image_pool += "<DISK href=\"http://#{CONFIG[:server]}:#{CONFIG[:port]}/storage/#{image[:uuid]}\">"
     end
     image_pool += "</STORAGE>"
     image_pool
@@ -383,7 +383,7 @@ get '/compute/:id' do
     vm = VirtualMachineOCCI.new(VirtualMachine.build_xml(params[:id]),get_one_client_user(@auth.credentials[0]))
     vm.info
     begin
-        vm.to_occi()
+        vm.to_occi(CONFIG[:server])
     rescue Exception => e
         error = OpenNebula::Error.new(e.message)
         return error

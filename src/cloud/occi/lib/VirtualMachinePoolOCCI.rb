@@ -12,9 +12,8 @@ class VirtualMachinePoolOCCI < VirtualMachinePool
        vmlist=[pool_hash['VM_POOL']['VM']].flatten
        
        vmlist.each{|vm|
-           pp vm
-           occi_xml+='<COMPUTE id="' + vm['ID'].strip + '"' +
-                      ' href="' + base_url + '/compute/' + vm['ID'].strip + '"/>'  
+           occi_xml+='<COMPUTE ' + 'href="' + 
+                      base_url + '/compute/' + vm['ID'].strip + '"/>'  
        }
        occi_xml += "</COMPUTES>" 
     end

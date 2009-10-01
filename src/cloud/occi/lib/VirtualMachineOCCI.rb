@@ -4,7 +4,7 @@ include OpenNebula
 
 class VirtualMachineOCCI < VirtualMachine
     # Creates the VMI representation of a Virtual Machine
-    def to_occi
+    def to_occi(base_url)
         occi_xml  = "<COMPUTE>"
         occi_xml += "<ID>" + id.to_s + "</ID>"
         occi_xml += "<NAME>" + self['NAME'] + "</NAME>"
@@ -23,7 +23,7 @@ class VirtualMachineOCCI < VirtualMachine
             template['DISK'].each{|disk|
                 case disk['TYPE']
                     when "disk" then
-                        occi_xml += "<DISK image=\"#{disk['IMAGE_ID']}\" dev=\"#{disk['DEV']}\"/>"
+                        occi_xml += "<DISK image=\"#{base_url}/storage/#{disk['IMAGE_ID']}\" dev=\"#{disk['DEV']}\"/>"
                     when "swap" then
                         occi_xml += "<SWAP size=\"#{disk['SIZE']}\" dev=\"#{disk['DEV']}\"/>"
                     when "fs" then
@@ -41,7 +41,7 @@ class VirtualMachineOCCI < VirtualMachine
         
             template['NIC'].each{|nic|
                 
-                occi_xml += "<NIC network=\"#{nic['VNID']}\""
+                occi_xml += "<NIC network=\"#{base_url}/network/\"#{nic['VNID']}\""
                 if nic['IP']
                      occi_xml += " ip=\"#{nic['IP']}\""
                 end
@@ -58,12 +58,6 @@ class VirtualMachineOCCI < VirtualMachine
     end
 end
 
-if $0 == __FILE__
-    t=VirtualMachineOCCI.new(VirtualMachine.build_xml(6),Client.new("tinova:opennebula"))
- #   t=VirtualMachineOCCI.new(VirtualMachine.build_xml,nil)
-    t.info
-    puts t.to_occi
-end
 
 
 
