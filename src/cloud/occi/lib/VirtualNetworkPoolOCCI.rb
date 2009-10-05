@@ -9,7 +9,9 @@ class VirtualNetworkPoolOCCI < VirtualNetworkPool
        network_pool_hash=Crack::XML.parse(to_xml)
        occi_xml  = "<NETWORK>"
        
-       network_pool_hash['VNET_POOL']['VNET'].each{|network|
+       vnlist=[pool_hash['VNET_POOL']['VNET']].flatten
+       
+       vnlist.each{|network|
            occi_xml+='<NIC ' + 'href="' +
                       base_url + '/network/' + network['ID'].strip + '"/>'  
        }
