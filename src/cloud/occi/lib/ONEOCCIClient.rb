@@ -49,7 +49,11 @@ module ONEOCCIClient
                 one_auth=~/(\w+):(\w+)/
                 user  = $1
                 pass  = $2
-                @occiauth = user + ":" + Digest::SHA1.hexdigest(pass)
+                if user && pass
+                    @occiauth = user + ":" + Digest::SHA1.hexdigest(pass)
+                else
+                    raise "$ONE_AUTH malformed"
+                end
             elsif
                 raise "No authorization data present"
             end
