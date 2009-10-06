@@ -381,7 +381,13 @@ end
 get '/compute/:id' do  
     protected!
     vm = VirtualMachineOCCI.new(VirtualMachine.build_xml(params[:id]),get_one_client_user(@auth.credentials[0]))
-    vm.info
+
+    result=vm.info
+
+    if OpenNebula::is_error?(result)
+        return "Error: "+result.message
+    end
+
     begin
         vm.to_occi(CONFIG[:server])
     rescue Exception => e
@@ -406,7 +412,12 @@ end
 get '/network/:id' do  
     protected!
     vn = VirtualNetworkOCCI.new(VirtualNetwork.build_xml(params[:id]),get_one_client_user(@auth.credentials[0]))
-    vn.info
+    result=vn.info
+    
+    if OpenNebula::is_error?(result)
+        return "Error: "+result.message
+    end
+    
     begin
         vn.to_occi()
     rescue Exception => e
@@ -426,9 +437,9 @@ get '/storage/:id' do
     protected!
     image=$repoman.get(params[:id])
     
-    image.get_image_info
-    
     if image
+        image.get_image_info
+        
         xml_response = "<DISK><ID>" + image.uuid + "</ID>" + 
                               "<NAME>" + image.name + "</NAME>" +
                               "<SIZE>" + ((image.size/1024)/1024).to_s + "</SIZE>" +
