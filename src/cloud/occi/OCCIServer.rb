@@ -275,6 +275,7 @@ get '/compute' do
     begin
         vmpool.to_occi(CONFIG[:server]+":"+CONFIG[:port])
     rescue Exception => e
+        status 500
         error = OpenNebula::Error.new(e.message)
         return error
     end
@@ -317,6 +318,7 @@ get '/network' do
     begin
         network_pool.to_occi(CONFIG[:server]+":"+CONFIG[:port])
     rescue Exception => e
+        status 500
         error = OpenNebula::Error.new(e.message)
         return error
     end
@@ -385,12 +387,14 @@ get '/compute/:id' do
     result=vm.info
 
     if OpenNebula::is_error?(result)
+        status 404
         return "Error: "+result.message
     end
 
     begin
         vm.to_occi(CONFIG[:server])
     rescue Exception => e
+        status 500
         error = OpenNebula::Error.new(e.message)
         return error
     end
@@ -401,6 +405,7 @@ delete '/compute/:id' do
     vm = VirtualMachineOCCI.new(VirtualMachine.build_xml(params[:id]),get_one_client_user(@auth.credentials[0]))
     result = vm.finalize
     if OpenNebula::is_error?(result)
+        status 500
         "Error: " + result.message
     else
         "The Compute resource has been successfully deleted"
@@ -419,12 +424,14 @@ get '/network/:id' do
     result=vn.info
     
     if OpenNebula::is_error?(result)
+        status 404
         return "Error: "+result.message
     end
     
     begin
         vn.to_occi()
     rescue Exception => e
+        status 500
         error = OpenNebula::Error.new(e.message)
         return error
     end
@@ -437,6 +444,7 @@ delete '/network/:id' do
     result = vn.delete
     
     if OpenNebula::is_error?(result)
+        status 500
         "Error: " + result.message
     else
         "The Virtual Network has been successfully deleted"
@@ -463,6 +471,7 @@ end
 
 delete '/storage/:id' do
     protected!
+    status 501
     "Not yet implemented"
 end
 
