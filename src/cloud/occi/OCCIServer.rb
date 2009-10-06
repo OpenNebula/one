@@ -399,8 +399,12 @@ end
 delete '/compute/:id' do
     protected!
     vm = VirtualMachineOCCI.new(VirtualMachine.build_xml(params[:id]),get_one_client_user(@auth.credentials[0]))
-    vm.finalize
-    "The Compute resource has been successfully deleted"
+    result = vm.finalize
+    if OpenNebula::is_error?(result)
+        "Error: " + result.message
+    else
+        "The Compute resource has been successfully deleted"
+    end
 end
 
 put '/compute/:id' do
@@ -429,8 +433,14 @@ end
 delete '/network/:id' do
     protected!
     vn = VirtualNetworkOCCI.new(VirtualNetwork.build_xml(params[:id]),get_one_client_user(@auth.credentials[0]))
-    vn.delete
-    "The Virtual Network has been successfully deleted"
+    
+    result = vn.delete
+    
+    if OpenNebula::is_error?(result)
+        "Error: " + result.message
+    else
+        "The Virtual Network has been successfully deleted"
+    end
 end
 
 get '/storage/:id' do  
