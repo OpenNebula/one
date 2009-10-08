@@ -49,6 +49,7 @@ int XenDriver::deployment_description(
 
     string target     = "";
     string ro         = "";
+    string type       = "";
     string mode;
 
     const VectorAttribute * nic;
@@ -58,7 +59,6 @@ int XenDriver::deployment_description(
 
     const VectorAttribute * graphics;
 
-    string type       = "";
     string listen     = "";
     string port       = "";
     string passwd     = "";
@@ -219,7 +219,7 @@ int XenDriver::deployment_description(
 
     file << "disk = [" << endl;
 
-    for (int i=0; i < num ;i++,target="",ro="")
+    for (int i=0; i < num ;i++)
     {
         disk = dynamic_cast<const VectorAttribute *>(attrs[i]);
 
@@ -229,11 +229,17 @@ int XenDriver::deployment_description(
         }
 
         target = disk->vector_value("TARGET");
+        type   = disk->vector_value("TYPE");
         ro     = disk->vector_value("READONLY");
 
         if ( target.empty() )
         {
             goto error_disk;
+        }
+
+        if (type.empty() == false)
+        {
+            transform(type.begin(),type.end(),type.begin(),(int(*)(int))toupper);
         }
 
         mode = "w";
@@ -248,10 +254,16 @@ int XenDriver::deployment_description(
             }
         }
 
-        // TODO: "file" method to specify disk images in xen is deprecated.
-        // The new method is using "tap:aio:" instead of "file:"
-        file << "    "
-             << "'tap:aio:" << vm->get_remote_dir() << "/disk." << i << ","
+        if ( type == "BLOCK" )
+        {
+            file << "    'tap:aio:";
+        }
+        else
+        {
+            file << "    'phy:";
+        }
+
+        file << vm->get_remote_dir() << "/disk." << i << ","
              << target << ","
              << mode
              << "'," << endl;
@@ -294,7 +306,7 @@ int XenDriver::deployment_description(
 
     file << "vif = [" << endl;
 
-    for(int i=0; i<num;i++,mac="",bridge="")
+    for(int i=0; i<num;i++)
     {
         char pre_char = ' ';
 
@@ -307,15 +319,14 @@ int XenDriver::deployment_description(
 
         file << "    '";
 
-        mac = nic->vector_value("MAC");
-
+        mac    = nic->vector_value("MAC");
+        bridge = nic->vector_value("BRIDGE");
+        
         if( !mac.empty() )
         {
             file << "mac=" << mac;
             pre_char = ',';
         }
-
-        bridge = nic->vector_value("BRIDGE");
 
         if( !bridge.empty() )
         {
