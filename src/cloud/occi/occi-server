@@ -1,9 +1,119 @@
-#!/bin/bash
+#! /bin/sh
 
-eval `grep ^IMAGE_DIR= $ONE_LOCATION/etc/occi-server.conf `
-export TMPDIR=$IMAGE_DIR/tmp
-mkdir -p $TMPDIR
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2009, Distributed Systems Architecture Group, Universidad   #
+# Complutense de Madrid (dsa-research.org)                                   #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
 
-nohup ruby $ONE_LOCATION/lib/ruby/occi/OCCIServer.rb >> $ONE_LOCATION/var/occi-server.log &
+if [ -z "$ONE_LOCATION" ]; then 
+    OCCI_PID=/var/run/one/occi-server.pid
+    OCCI_SERVER=/usr/lib/ruby/occi/OCCIServer.rb
+    OCCI_LOCK_FILE=/var/lock/.occi.lock
+    OCCI_LOG=/var/log/one/occi-server.log   
+else
+    OCCI_PID=$ONE_LOCATION/var/occi-server.pid
+    OCCI_SERVER=$ONE_LOCATION/lib/ruby/occi/OCCIServer.rb
+    OCCI_LOCK_FILE=$ONE_LOCATION/var/.occi.lock
+    OCCI_LOG=$ONE_LOCATION/var/occi-server.log
+fi 
+
+setup()
+{
+    eval `grep ^IMAGE_DIR= $ONE_LOCATION/etc/occi-server.conf `
+    export TMPDIR=$IMAGE_DIR/tmp
+    mkdir -p $TMPDIR
+	
+	if [ -f $OCCI_LOCK_FILE ]; then
+		if [ -f  $OCCI_PID ]; then
+			ONEPID=`cat $OCCI_PID`
+			ps $OCCI_PID > /dev/null 2>&1
+			if [ $? -eq 0 ]; then
+				echo "OCCI Server is still running (PID:$OCCI_PID). Please try 'occi-server stop' first."
+				exit 1 
+			fi
+		fi
+		echo "Stale .lock detected. Erasing it."
+		rm $LOCK_FILE
+	fi
+}
+
+start()
+{
+	if [ ! -x "$OCCI_SERVER" ]; then
+		echo "Can not find $OCCI_SERVER."
+		exit 1		
+	fi
+		
+	# Start the occi-server daemon
+	ruby $OCCI_SERVER > $OCCI_LOG 2>&1 & 
+	
+	LASTRC=$?
+	LASTPID=$!
+
+	if [ $LASTRC -ne 0 ]; then
+		echo "Error executing $OCCI_SERVER"
+		exit 1			
+	else
+		echo $LASTPID > $OCCI_PID
+	fi
+	
+	sleep 1
+	ps $LASTPID > /dev/null 2>&1
+	
+	if [ $? -ne 0 ]; then
+		echo "Error executing $OCCI_SERVER."
+		exit 1
+	fi
+	
+	echo "occi-server started"
+}
+
+#
+# Function that stops the daemon/service
+#
+stop()
+{
+	if [ ! -f $OCCI_PID ]; then
+		echo "Couldn't find occi-server process pid."
+		exit 1
+	fi
+
+	# Kill the occi-server daemon
+
+	kill `cat $OCCI_PID` > /dev/null 2>&1
+
+	# Remove pid files
+
+	rm -f $OCCI_PID > /dev/null 2>&1
+
+	echo "occi-server stopped"
+}
+
+
+case "$1" in
+  start)
+	setup
+	start
+	;;
+  stop)
+	stop
+	;;
+  *)
+	echo "Usage: occi-server {start|stop}" >&2
+	exit 3
+	;;
+esac
 
 
