@@ -26,10 +26,11 @@ if [ -z "${ONE_LOCATION}" ]; then
     LVMRC=/etc/one/tm_lvm/tm_lvmrc
 else
     TMCOMMON=$ONE_LOCATION/lib/mads/tm_common.sh
-    LVMRC=$ONE_LOCATION/etc/one/tm_lvm/tm_lvmrc
+    LVMRC=$ONE_LOCATION/etc/tm_lvm/tm_lvmrc
 fi
 
 . $TMCOMMON
+. $LVMRC
 
 SRC_PATH=`arg_path $SRC`
 DST_PATH=`arg_path $DST`
@@ -51,7 +52,7 @@ DST_DIR=`dirname $DST_PATH`
 log "Creating directory $DST_DIR"
 exec_and_log "ssh $DST_HOST mkdir -p $DST_DIR"
 
-case $SRC in
+case $SRC_PATH in
 #------------------------------------------------------------------------------
 #Get the image from http repository and dump it to a new LV
 #------------------------------------------------------------------------------
@@ -62,13 +63,11 @@ http://*)
     exec_and_log "ssh $DST_HOST wget -O $TMP_NAME $SRC"
 
     log "Creating LV $LV_NAME"
-    exec_and_log "ssh $DST_HOST sudo /usr/sbin/lvcreate -L$SIZE "\
-                 "-n $LV_NAME $VG_NAME"
+    exec_and_log "ssh $DST_HOST sudo lvcreate -L$SIZE -n $LV_NAME $VG_NAME"
     exec_and_log "ssh $DST_HOST ln -s /dev/$VG_NAME/$LV_NAME $DST_PATH"
 
     log "Dumping Image $TMP_NAME into $/dev/$VG_NAME/$LV_NAME"
-    exec_and_log "ssh $DST_HOST sudo dd if=$TMP_NAME "\
-                 "of=/dev/$VG_NAME/$LV_NAME bs=64k"
+    exec_and_log "ssh $DST_HOST sudo dd if=$TMP_NAME of=/dev/$VG_NAME/$LV_NAME bs=64k"
     exec_and_log "ssh $DST_HOST rm -f $TMP_NAME"
     ;;
 
@@ -77,8 +76,7 @@ http://*)
 #------------------------------------------------------------------------------
 /dev/*)
     log "Cloning LV $LV_NAME"
-    exec_and_log "ssh $DST_HOST sudo /usr/sbin/lvcreate -s -L$SIZE "\
-                 "-n $LV_NAME $VG_NAME"
+    exec_and_log "ssh $DST_HOST sudo lvcreate -s -L$SIZE -n $LV_NAME $SRC_PATH"
     exec_and_log "ssh $DST_HOST ln -s /dev/$VG_NAME/$LV_NAME $DST_PATH"
     ;;
 
@@ -90,16 +88,12 @@ http://*)
     exec_and_log "scp $SRC $DST.scp"
 
     log "Creating LV $LV_NAME"
-    exec_and_log "ssh $DST_HOST sudo /usr/sbin/lvcreate -L$SIZE "\
-                 "-n $LV_NAME $VG_NAME"
+    exec_and_log "ssh $DST_HOST sudo lvcreate -L$SIZE -n $LV_NAME $VG_NAME"
     exec_and_log "ssh $DST_HOST ln -s /dev/$VG_NAME/$LV_NAME $DST_PATH"
 
     log "Dumping Image"
-    exec_and_log "ssh $DST_HOST sudo dd if=$DST_PATH.scp "\
-                 "of=/dev/$VG_NAME/$VOL_NAME bs=64k"
+    exec_and_log "ssh $DST_HOST sudo dd if=$DST_PATH.scp of=/dev/$VG_NAME/$LV_NAME bs=64k"
     exec_and_log "ssh $DST_HOST rm -f $DST_PATH.scp"
     ;;
 esac
-
-exec_and_log "ssh $DST_HOST chmod a+w $DST_PATH"
 
