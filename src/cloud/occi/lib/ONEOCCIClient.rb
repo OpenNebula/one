@@ -44,9 +44,9 @@ module ONEOCCIClient
             # Autentication            
             if user && pass
                 @occiauth = user + ":" + Digest::SHA1.hexdigest(pass)  
-            elsif ENV["ONE_AUTH"] and !ENV["ONE_AUTH"].empty? and File.exists?(ENV["ONE_AUTH"])
+            elsif ENV["ONE_AUTH"] and !ENV["ONE_AUTH"].empty? and File.file?(ENV["ONE_AUTH"])
                 one_auth=File.read(ENV["ONE_AUTH"])
-            elsif File.exists?(ENV["HOME"]+"/.one/one_auth")
+            elsif File.file?(ENV["HOME"]+"/.one/one_auth")
                 one_auth=File.read(ENV["HOME"]+"/.one/one_auth")
             else
                 raise "No authorization data present"

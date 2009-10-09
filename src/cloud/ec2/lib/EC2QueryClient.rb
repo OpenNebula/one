@@ -44,9 +44,9 @@ module EC2QueryClient
                 ec2auth = secret
             elsif ENV["EC2_ACCESS_KEY"] and ENV["EC2_SECRET_KEY"]
                 ec2auth = ENV["EC2_ACCESS_KEY"] + ":" + ENV["EC2_SECRET_KEY"]   
-            elsif ENV["ONE_AUTH"] and !ENV["ONE_AUTH"].empty? and File.exists?(ENV["ONE_AUTH"])
+            elsif ENV["ONE_AUTH"] and !ENV["ONE_AUTH"].empty? and File.file?(ENV["ONE_AUTH"])
                 ec2auth=File.read(ENV["ONE_AUTH"])
-            elsif File.exists?(ENV["HOME"]+"/.one/one_auth")
+            elsif File.file?(ENV["HOME"]+"/.one/one_auth")
                 ec2auth=File.read(ENV["HOME"]+"/.one/one_auth")
             else
                 raise "No authorization data present"
