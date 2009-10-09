@@ -23,6 +23,8 @@
 #include <signal.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <sys/types.h>
+#include <pwd.h>
 
 #include <pthread.h>
 
@@ -63,10 +65,18 @@ extern "C" void * scheduler_action_loop(void *arg)
 
 void Scheduler::start()
 {
-    int             rc;
-    Nebula& 		nd = Nebula::instance();
+    int     rc;
+    Nebula&	nd = Nebula::instance();
 
-    pthread_attr_t    pattr;
+    pthread_attr_t  pattr;
+
+    const char * one_auth;
+
+    string one_name;
+    string one_pass;
+    string one_token;
+
+    ifstream file;
     
     // -----------------------------------------------------------
     // Log system
@@ -88,20 +98,49 @@ void Scheduler::start()
         throw;
     }
 
-    const char * one_auth;
-    string       one_name;
-    string       one_pass;
-
     one_auth = getenv("ONE_AUTH");
 
     if (!one_auth)
     {
-        throw runtime_error("ONE_AUTH variable not defined");
+        struct passwd * pw_ent;
+        
+        pw_ent = getpwuid(getuid());
+
+        if ((pw_ent != NULL) && (pw_ent->pw_dir != NULL))
+        {                                                 
+          
+            string one_auth_file = pw_ent->pw_dir;
+            
+            one_auth_file += "/.one/one_auth";
+            one_auth = one_auth_file.c_str();
+        }
+        else
+        {
+            throw runtime_error("Could not get one_auth file location");
+        }
+    }
+    
+    file.open(one_auth);
+
+    if (file.good())
+    {
+        getline(file,one_token);
+
+        if (file.fail())
+        {
+            throw runtime_error("Error reading $ONE_AUTH file");
+        }
+    }
+    else
+    {
+        throw runtime_error("Could not open $ONE_AUTH file");
     }
 
-    if ( User::split_secret(one_auth,one_name,one_pass) != 0 )
+    file.close();
+ 
+    if ( User::split_secret(one_token,one_name,one_pass) != 0 )
     {
-        throw runtime_error("ONE_AUTH must be <username>:<password>");
+        throw runtime_error("Wrong format must be <username>:<password>");
     }
 
     secret = one_name + ":" + User::sha1_digest(one_pass);
