@@ -12,8 +12,9 @@ class VirtualMachineOCCI < VirtualMachine
         occi_xml += "<STATE>" + state_str + "</STATE>"
         
         # Now let's parse the template
-        template=self.to_hash("TEMPLATE")
-        
+        template=self.to_hash
+        template=template['VM']['TEMPLATE']
+   
         template['DISK']=[template['DISK']].flatten
         
          if template['DISK']

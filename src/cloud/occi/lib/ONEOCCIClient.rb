@@ -3,7 +3,6 @@
 require 'rubygems'
 require 'uri'
 require 'OpenNebula'
-require 'crack'
 
 begin
     require 'curb'

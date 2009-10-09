@@ -1,12 +1,12 @@
 require 'OpenNebula'
-require 'crack'
+
 
 include OpenNebula
 
 class VirtualNetworkOCCI < VirtualNetwork
     # Creates the OCCI representation of a Virtual Network
     def to_occi()
-       vn_hash=Crack::XML.parse(to_xml)
+       vn_hash=to_hash
        occi_xml  = "<NIC>"
        
        occi_xml += "<ID>" + vn_hash['VNET']['ID'].strip + "</ID>"

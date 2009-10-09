@@ -163,6 +163,7 @@ def submit_vm(request)
     disks.each{|disk|
         next if disk['DISK']==nil
         image=$repoman.get(disk['DISK']['image'])
+        halt 400, "Invalid image uuid referred" if !image
         disk['DISK']['source']=image.path
     }
     

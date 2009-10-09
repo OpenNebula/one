@@ -7,6 +7,13 @@ module OpenNebula
     rescue LoadError
         NOKOGIRI=false
     end
+    
+    # Require crack library if present, otherwise don't bother
+    # This is just for OCCI use
+    begin
+        require 'crack'
+    rescue LoadError
+    end
 
     ###########################################################################
     # The XMLUtilsElement module provides an abstraction of the underlying
@@ -87,39 +94,11 @@ module OpenNebula
             str
         end
         
-        def to_hash(root_element)
-            if NOKOGIRI
-                xml_template=@xml.xpath(root_element).to_s
-                rexml=REXML::Document.new(xml_template).root
-            else
-                rexml=@xml.elements[root_element]
+        def to_hash 
+            if !@hash
+                @hash=Crack::XML.parse(to_xml)
             end
-            
-            vmhash=Hash.new
-                    
-            rexml.each {|n|
-                if n.class==REXML::Element
-                    if n.has_elements?
-                        elemhash=Hash.new
-                        n.each {|n2|
-                            if n2 && n2.class==REXML::Element
-                                elemhash[n2.name]=n2.text
-                            end
-                        }
-                        if vmhash[n.name].class==Array
-                            vmhash[n.name]<<elemhash
-                        elsif vmhash[n.name]
-                            vmhash[n.name]=[vmhash[n.name],elemhash]
-                        else
-                            vmhash[n.name]=elemhash
-                        end
-                    else
-                        vmhash[n.name]=n.text
-                    end
-                end
-            }
-            
-            vmhash
+            return @hash
         end
 
         def to_xml
@@ -175,6 +154,13 @@ module OpenNebula
                 REXML::Formatters::Pretty.new(1).write(@xml,str)
                 str
             end
+        end
+        
+        def to_hash 
+            if !@hash
+                @hash=Crack::XML.parse(to_xml)
+            end
+            return @hash
         end
     end
 end

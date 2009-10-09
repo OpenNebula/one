@@ -2,6 +2,7 @@ begin # require 'rubygems'
     require 'rubygems'
 rescue Exception
 end
+
 require 'xmlrpc/client'
 require 'digest/sha1'
 require 'rexml/document'
