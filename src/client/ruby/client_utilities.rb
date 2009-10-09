@@ -217,10 +217,6 @@ end
 ################
 
 def get_one_client(session=nil)
-    if !ENV["ONE_AUTH"] or ENV["ONE_AUTH"].empty? or !ENV["ONE_AUTH"].match(".+:.+")
-        puts "$ONE_AUTH not defined or malformed"
-        exit -1
-    end
     OpenNebula::Client.new(session)
 end
 
