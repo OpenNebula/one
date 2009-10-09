@@ -256,11 +256,11 @@ int XenDriver::deployment_description(
 
         if ( type == "BLOCK" )
         {
-            file << "    'tap:aio:";
+            file << "    'phy:";
         }
         else
         {
-            file << "    'phy:";
+            file << "    'tap:aio:";
         }
 
         file << vm->get_remote_dir() << "/disk." << i << ","
