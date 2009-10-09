@@ -44,20 +44,24 @@ module ONEOCCIClient
             # Autentication            
             if user && pass
                 @occiauth = user + ":" + Digest::SHA1.hexdigest(pass)  
-            elsif ENV["ONE_AUTH"]
-                one_auth= ENV["ONE_AUTH"]
-                one_auth=~/(\w+):(\w+)/
-                user  = $1
-                pass  = $2
-                if user && pass
-                    @occiauth = user + ":" + Digest::SHA1.hexdigest(pass)
-                else
-                    raise "$ONE_AUTH malformed"
-                end
-            elsif
+            elsif ENV["ONE_AUTH"] and !ENV["ONE_AUTH"].empty? and File.exists?(ENV["ONE_AUTH"])
+                one_auth=File.read(ENV["ONE_AUTH"])
+            elsif File.exists?(ENV["HOME"]+"/.one/one_auth")
+                one_auth=File.read(ENV["HOME"]+"/.one/one_auth")
+            else
                 raise "No authorization data present"
+                return
             end
             
+            one_auth=~/(\w+):(\w+)/
+            user  = $1
+            pass  = $2
+            
+            if user && pass
+                @occiauth = user + ":" + Digest::SHA1.hexdigest(pass)
+            else
+                raise "Authorization data malformed"
+            end          
         end
 
         #################################
