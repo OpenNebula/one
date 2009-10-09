@@ -146,7 +146,8 @@ int SchedulerHostPool::set_up()
     lock();
 
     oss << "SELECT oid FROM " << Host::table 
-    	<< " WHERE state != " << Host::DISABLED;
+    	<< " WHERE state != " << Host::DISABLED
+        << " AND state != " << Host::ERROR;
 
     rc = db->exec(oss,set_up_cb,(void *) &hids);
 
