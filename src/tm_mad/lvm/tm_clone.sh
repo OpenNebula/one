@@ -52,29 +52,23 @@ DST_DIR=`dirname $DST_PATH`
 log "Creating directory $DST_DIR"
 exec_and_log "ssh $DST_HOST mkdir -p $DST_DIR"
 
-case $SRC_PATH in
+case $SRC in
 #------------------------------------------------------------------------------
 #Get the image from http repository and dump it to a new LV
 #------------------------------------------------------------------------------
 http://*)
-    TMP_NAME="$DST_PATH.tmp"
-
-    log "Downloading $SRC"
-    exec_and_log "ssh $DST_HOST wget -O $TMP_NAME $SRC"
-
     log "Creating LV $LV_NAME"
     exec_and_log "ssh $DST_HOST sudo lvcreate -L$SIZE -n $LV_NAME $VG_NAME"
     exec_and_log "ssh $DST_HOST ln -s /dev/$VG_NAME/$LV_NAME $DST_PATH"
 
-    log "Dumping Image $TMP_NAME into $/dev/$VG_NAME/$LV_NAME"
-    exec_and_log "ssh $DST_HOST sudo dd if=$TMP_NAME of=/dev/$VG_NAME/$LV_NAME bs=64k"
-    exec_and_log "ssh $DST_HOST rm -f $TMP_NAME"
+    log "Dumping Image into /dev/$VG_NAME/$LV_NAME"
+    exec_and_log "eval ssh $DST_HOST 'wget $SRC -q -O- | sudo dd of=/dev/$VG_NAME/$LV_NAME bs=64k'"
     ;;
 
 #------------------------------------------------------------------------------
 #Make a snapshot from the given dev (already in DST_HOST)
 #------------------------------------------------------------------------------
-/dev/*)
+*:/dev/*)
     log "Cloning LV $LV_NAME"
     exec_and_log "ssh $DST_HOST sudo lvcreate -s -L$SIZE -n $LV_NAME $SRC_PATH"
     exec_and_log "ssh $DST_HOST ln -s /dev/$VG_NAME/$LV_NAME $DST_PATH"
@@ -84,16 +78,11 @@ http://*)
 #Get the image from SRC_HOST and dump it to a new LV
 #------------------------------------------------------------------------------
 *)
-    log "Copying $SRC"
-    exec_and_log "scp $SRC $DST.scp"
-
     log "Creating LV $LV_NAME"
     exec_and_log "ssh $DST_HOST sudo lvcreate -L$SIZE -n $LV_NAME $VG_NAME"
     exec_and_log "ssh $DST_HOST ln -s /dev/$VG_NAME/$LV_NAME $DST_PATH"
 
     log "Dumping Image"
-    exec_and_log "ssh $DST_HOST sudo dd if=$DST_PATH.scp of=/dev/$VG_NAME/$LV_NAME bs=64k"
-    exec_and_log "ssh $DST_HOST rm -f $DST_PATH.scp"
+    exec_and_log "eval cat $SRC_PATH | ssh $DST_HOST sudo dd of=/dev/$VG_NAME/$LV_NAME bs=64k"
     ;;
 esac
-
