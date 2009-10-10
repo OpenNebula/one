@@ -1,3 +1,19 @@
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2009, Distributed Systems Architecture Group, Universidad   #
+# Complutense de Madrid (dsa-research.org)                                   #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
 
 require 'rubygems'
 require 'uuid'
@@ -5,23 +21,21 @@ require 'fileutils'
 require 'sequel'
 require 'logger'
 
-# Seems that database should be opened before defining models
-# TODO: fix this
-if ONE_RM_DATABASE
-    DB=Sequel.sqlite(ONE_RM_DATABASE)
-else
-    DB=Sequel.sqlite('database.db')
-end
-#DB.loggers << Logger.new($stdout)
-require 'image'
-
-
-IMAGE_DIR='images'
-
 module OpenNebula
     class RepoManager
-        def initialize
+        def initialize(rm_db=nil)
+            # Seems that database should be opened before defining models
+            # TODO: fix this
+            if rm_db
+                DB=Sequel.sqlite(rm_db)
+            else
+                DB=Sequel.sqlite('database.db')
+            end
+
+            require 'image'
+
             @uuid=UUID.new
+
             Image.initialize_table
             ImageAcl.initialize_table
         end
