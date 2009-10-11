@@ -39,6 +39,10 @@ class Configuration
         @conf=parse_conf(file)
     end
     
+    def add_configuration_value(key,value) 
+	    add_value(@conf,key,value)
+    end
+
     def [](key)
         @conf[key.to_s.upcase]
     end

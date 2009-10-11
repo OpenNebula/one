@@ -16,8 +16,10 @@
 #--------------------------------------------------------------------------- #
 
 require 'repo_manager'
+require 'image'
 require 'Configuration'
 require 'OpenNebula'
+require 'pp'
 
 ###############################################################################
 # This class represents a generic Cloud Server using the OpenNebula Cloud
@@ -67,17 +69,29 @@ class CloudServer
         @user_pool  = UserPool.new(@one_client)
     end
 
-    # Generates an OpenNebula Session for the given user
-    # user_name:: _String_ the name of the user   
-    def one_client_user(user_name)
+    #
+    # Prints the configuration of the server
+    #
+    def print_configuration
+        puts "--------------------------------------"
+        puts "         Server configuration         "
+        puts "--------------------------------------"
+        pp @config
 
-        user = get_user(user_name)
- 
-        if !user
-            error = OpenNebula::Error.new("User not found")
-            return error
-        end
-    
+        puts "--------------------------------------"
+        puts "      Registered Instance Types       "
+        puts "--------------------------------------"
+        pp @instance_types 
+    end
+
+    ###########################################################################
+    # USER and OpenNebula Session Methods
+    ###########################################################################
+
+    # Generates an OpenNebula Session for the given user
+    # user:: _Hash_ the user information  
+    # [return] an OpenNebula client session 
+    def one_client_user(user)
         client = Client.new("dummy:dummy")
         client.one_auth = "#{user[:name]}:#{user[:password]}"
     
@@ -85,14 +99,18 @@ class CloudServer
     end
 
     # Authenticates a user
-    #
+    # name:: _String_ of the user
+    # password:: _String_ of the user
+    # [return] true if authenticated    
     def authenticate?(name, password)
         user = get_user(name)
 
         return user && user.password == password
     end
 
-private
+    # Gets the data associated with a user
+    # name:: _String_ the name of the user
+    # [return] _Hash_ with the user data
     def get_user(name)
         user = nil
     
@@ -108,5 +126,28 @@ private
         }
         return user
    end
+
+    ###########################################################################
+    # Repository Methods
+    ###########################################################################
+
+    # Adds a new image to the repository and deletes the temp_file
+    # uid:: _Integer_ owner of the image
+    # path:: _String_ path of the tmp file
+    # metadata:: Additional metadata for the file
+    def add_image(uid, file, metadata={})
+        image = @rm.add(uid,file.path,metadata)
+        file.unlink
+
+        return image
+    end
+
+    # Gets an image from the repository
+    # uid:: _Integer_ owner of the image
+    # path:: _String_ path of the tmp file
+    # metadata:: Additional metadata for the file
+    def get_image(uuid)
+        return @rm.get(uuid)
+    end
 end
 
