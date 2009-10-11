@@ -17,7 +17,7 @@
 
 # -------------------------------------------------------------------------- #
 # Volume Group to create logical volumes or snapshots in the cluster nodes   # 
-VG_NAME="vgone"
+VG_NAME=
 # Default size for logical volumes if not specified
 DEFAULT_LV_SIZE="1G"
 # -------------------------------------------------------------------------- #
