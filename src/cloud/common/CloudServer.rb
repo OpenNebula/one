@@ -70,6 +70,8 @@ class CloudServer
     # Generates an OpenNebula Session for the given user
     # user_name:: _String_ the name of the user   
     def one_client_user(user_name)
+
+        user = get_user(user_name)
  
         if !user
             error = OpenNebula::Error.new("User not found")
@@ -82,6 +84,8 @@ class CloudServer
         return client
     end
 
+    # Authenticates a user
+    #
     def authenticate?(name, password)
         user = get_user(name)
 
