@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2009, Distributed Systems Architecture Group, Universidad   #
 # Complutense de Madrid (dsa-research.org)                                   #
@@ -15,18 +17,25 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# -------------------------------------------------------------------------- #
-# Volume Group to create logical volumes or snapshots in the cluster nodes   # 
-VG_NAME="vgone"
-# Default size for logical volumes if not specified
-DEFAULT_LV_SIZE="1G"
-# -------------------------------------------------------------------------- #
+SRC=$1
+DST=$2
 
-# -------------------------------------------------------------------------- #
-# Helper functions for the LVM plugin                                        #
-# -------------------------------------------------------------------------- #
+if [ -z "${ONE_LOCATION}" ]; then
+    TMCOMMON=/usr/lib/one/mads/tm_common.sh
+    LVMRC=/etc/one/tm_lvm/tm_lvmrc
+else
+    TMCOMMON=$ONE_LOCATION/lib/mads/tm_common.sh
+    LVMRC=$ONE_LOCATION/etc/tm_lvm/tm_lvmrc
+fi
 
-function get_lv_name {
-    VID=`echo $1 |sed -e 's%^.*/\([^/]*\)/images.*$%\1%'`
-    echo "lv-one-$VID"
-}
+. $TMCOMMON
+. $LVMRC
+
+SRC_PATH=`arg_path $SRC`
+SRC_HOST=`arg_host $SRC`
+
+LV_NAME=`get_lv_name $SRC_PATH`
+
+log "Deleting $SRC_PATH"
+exec_and_log "ssh $SRC_HOST rm -rf $SRC_PATH"
+exec_and_log "ssh $SRC_HOST sudo lvremove -f /dev/$VG_NAME/$LV_NAME"
