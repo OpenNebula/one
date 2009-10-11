@@ -4,6 +4,8 @@ require 'rubygems'
 require 'uri'
 require 'OpenNebula'
 
+require 'net/https'
+
 begin
     require 'curb'
     CURL_LOADED=true
@@ -62,6 +64,16 @@ module ONEOCCIClient
                 raise "Authorization data malformed"
             end          
         end
+        
+        # Starts an http connection and calls the block provided. SSL flag
+        # is set if needed.
+        def http_start(url, &block)
+            http = Net::HTTP.new(url.host, url.port)
+            http.use_ssl = (url.scheme == 'https')
+            http.start do |connection|
+                block.call(connection)
+            end
+        end
 
         #################################
         # Pool Resource Request Methods #
@@ -72,18 +84,18 @@ module ONEOCCIClient
         # :instance_type
         # :xmlfile
         ######################################################################
-        def post_vms(xmlfile)          
+        def post_vms(xmlfile)
             xml=File.read(xmlfile)
-         
+            
             url = URI.parse(@endpoint+"/compute")
-
+            
             req = Net::HTTP::Post.new(url.path)
             req.body=xml
-        
+            
             auth=@occiauth.split(":")
             req.basic_auth auth[0], auth[1]
-    
-            res = Net::HTTP.start(url.host, url.port) do |http|
+            
+            res = http_start(url) do |http|
                 http.request(req)
             end
             
@@ -100,10 +112,10 @@ module ONEOCCIClient
             auth=@occiauth.split(":")
             req.basic_auth auth[0], auth[1]
             
-            res = Net::HTTP.start(url.host, url.port) {|http|
-              http.request(req)
+            res = http_start(url) {|http|
+                http.request(req)
             }
-            puts res.body           
+            puts res.body
         end
         
         ######################################################################
@@ -117,16 +129,16 @@ module ONEOCCIClient
             
             req = Net::HTTP::Post.new(url.path)
             req.body=xml
-        
+            
             auth=@occiauth.split(":")
             
             req.basic_auth auth[0], auth[1]
-    
-            res = Net::HTTP.start(url.host, url.port) do |http|
+            
+            res = http_start(url) do |http|
                 http.request(req)
             end
             
-            puts res.body      
+            puts res.body
         end
         
         ######################################################################
@@ -139,8 +151,8 @@ module ONEOCCIClient
             auth=@occiauth.split(":")
             req.basic_auth auth[0], auth[1]
             
-            res = Net::HTTP.start(url.host, url.port) {|http|
-              http.request(req)
+            res = http_start(url) {|http|
+                http.request(req)
             }
             puts res.body
         end
@@ -153,7 +165,7 @@ module ONEOCCIClient
             xml=File.read(xmlfile)
             image_info=Crack::XML.parse(xml)
             
-            file_path = image_info['DISK']['URL'] 
+            file_path = image_info['DISK']['URL']
             
             m=file_path.match(/^\w+:\/\/(.*)$/)
             
@@ -164,37 +176,37 @@ module ONEOCCIClient
             if curb and CURL_LOADED
                 curl=Curl::Easy.new(@endpoint+"/storage")
                 curl.userpwd=@occiauth
-                curl.verbose=true if @debug 
+                curl.verbose=true if @debug
                 curl.multipart_form_post = true
-           
-                begin    
+                
+                begin
                     curl.http_post(
                       Curl::PostField.content('occixml', xml),
                       Curl::PostField.file('file', file_path)
-                    )   
+                    )
                 rescue Exception => e
                     pp e.message
-                end      
-            
-                puts curl.body_str   
+                end
+                
+                puts curl.body_str
             else
                 file=File.open(file_path)
-
+                
                 params=Hash.new
                 params["file"]=UploadIO.new(file,
                     'application/octet-stream', file_path)
-                    
+                
                 params['occixml'] = xml
                 
                 url = URI.parse(@endpoint+"/storage")
-
+                
                 req = Net::HTTP::Post::Multipart.new(url.path, params)
-  
+                
                 auth=@occiauth.split(":")
                 
                 req.basic_auth auth[0], auth[1]
-        
-                res = Net::HTTP.start(url.host, url.port) do |http|
+                
+                res = http_start(url) do |http|
                     http.request(req)
                 end
                 file.close
@@ -213,8 +225,8 @@ module ONEOCCIClient
             auth=@occiauth.split(":")
             req.basic_auth auth[0], auth[1]
             
-            res = Net::HTTP.start(url.host, url.port) {|http|
-              http.request(req)
+            res = http_start(url) {|http|
+                http.request(req)
             }
             puts res.body
         end
@@ -233,10 +245,10 @@ module ONEOCCIClient
             auth=@occiauth.split(":")
             req.basic_auth auth[0], auth[1]
             
-            res = Net::HTTP.start(url.host, url.port) {|http|
-              http.request(req)
+            res = http_start(url) {|http|
+                http.request(req)
             }
-            puts res.body                
+            puts res.body
         end
         
         ######################################################################
@@ -246,16 +258,16 @@ module ONEOCCIClient
         def put_vm(xmlfile)
             xml=File.read(xmlfile)
             vm_info=Crack::XML.parse(xml)
-  
+            
             url = URI.parse(@endpoint+'/compute/' + vm_info['COMPUTE']['ID'])
             
-            req = Net::HTTP::Put.new(url.path)          
+            req = Net::HTTP::Put.new(url.path)
             req.body = xml
-        
-            auth=@occiauth.split(":")        
+            
+            auth=@occiauth.split(":")
             req.basic_auth auth[0], auth[1]
-    
-            res = Net::HTTP.start(url.host, url.port) do |http|
+            
+            res = http_start(url) do |http|
                 http.request(req)
             end
             
@@ -272,10 +284,10 @@ module ONEOCCIClient
             auth=@occiauth.split(":")
             req.basic_auth auth[0], auth[1]
             
-            res = Net::HTTP.start(url.host, url.port) {|http|
-              http.request(req)
+            res = http_start(url) {|http|
+                http.request(req)
             }
-            puts res.body               
+            puts res.body
         end
         
         ######################################################################
@@ -289,8 +301,8 @@ module ONEOCCIClient
             auth=@occiauth.split(":")
             req.basic_auth auth[0], auth[1]
             
-            res = Net::HTTP.start(url.host, url.port) {|http|
-              http.request(req)
+            res = http_start(url) {|http|
+                http.request(req)
             }
             puts res.body
         end
@@ -305,8 +317,8 @@ module ONEOCCIClient
             auth=@occiauth.split(":")
             req.basic_auth auth[0], auth[1]
             
-            res = Net::HTTP.start(url.host, url.port) {|http|
-              http.request(req)
+            res = http_start(url) {|http|
+                http.request(req)
             }
             puts res.body
         end
@@ -322,8 +334,8 @@ module ONEOCCIClient
             auth=@occiauth.split(":")
             req.basic_auth auth[0], auth[1]
             
-            res = Net::HTTP.start(url.host, url.port) {|http|
-              http.request(req)
+            res = http_start(url) {|http|
+                http.request(req)
             }
             puts res.body
         end
