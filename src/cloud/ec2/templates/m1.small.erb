@@ -9,7 +9,7 @@ OS = [ kernel     = /vmlinuz,
        root       = sda1,
        kernel_cmd = "ro xencons=tty console=tty1"]
 
-DISK = [ source   = <%= @vm_info[:img_path] %>,
+DISK = [ source   = <%= @erb_vm_info[:img_path] %>,
          clone    = no,
          target   = sda1,
          readonly = no]
@@ -18,6 +18,6 @@ DISK = [ source   = <%= @vm_info[:img_path] %>,
 NIC=[NETWORK="Public EC2"]
 
 
-IMAGE_ID = <%= @vm_info[:img_id] %>
-INSTANCE_TYPE = <%= @vm_info[:instance_type ]%>
+IMAGE_ID = <%= @erb_vm_info[:img_id] %>
+INSTANCE_TYPE = <%= @erb_vm_info[:instance_type ]%>
 
