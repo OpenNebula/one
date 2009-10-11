@@ -1,0 +1,34 @@
+<DescribeInstancesResponse xmlns="http://ec2.amazonaws.com/doc/2009-04-04/"> 
+  <reservationSet> 
+    <item> 
+      <reservationId>default</reservationId> 
+      <ownerId><%= @erb_user_name %></ownerId> 
+      <groupSet> 
+        <item> 
+          <groupId>default</groupId> 
+        </item> 
+      </groupSet> 
+      <instancesSet> 
+        <% @erb_vmpool.each do |vm| %>
+        <% vm.info %>
+        <item> 
+          <instanceId><%= vm.id %></instanceId> 
+          <imageId><%= vm['TEMPLATE/IMAGE_ID'] %></imageId> 
+          <instanceState> 
+              <%= render_state(vm) %>
+          </instanceState> 
+          <privateDnsName><%= vm["TEMPLATE/NIC/IP"] %></privateDnsName> 
+          <dnsName><%= vm["TEMPLATE/NIC/IP"] %></dnsName> 
+          <keyName>default</keyName> 
+          <amiLaunchIndex>0</amiLaunchIndex> 
+          <instanceType><%= vm['TEMPLATE/INSTANCE_TYPE'] %></instanceType> 
+          <%= render_launch_time(vm) %>
+          <placement> 
+            <availabilityZone>default</availabilityZone> 
+          </placement> 
+        </item> 
+        <% end %>
+      </instancesSet>
+    </item>
+  </reservationSet>
+</DescribeInstancesResponse>
