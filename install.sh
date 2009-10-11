@@ -153,8 +153,10 @@ ETC_DIRS="$ETC_LOCATION/im_kvm \
 LIB_DIRS="$LIB_LOCATION/im_probes \
           $LIB_LOCATION/ruby \
           $LIB_LOCATION/ruby/OpenNebula \
-          $LIB_LOCATION/ruby/econe \
-          $LIB_LOCATION/ruby/occi \
+          $LIB_LOCATION/ruby/cloud/ \
+          $LIB_LOCATION/ruby/cloud/econe \
+          $LIB_LOCATION/ruby/cloud/econe/views \
+          $LIB_LOCATION/ruby/cloud/occi \
           $LIB_LOCATION/tm_commands \
           $LIB_LOCATION/tm_commands/nfs \
           $LIB_LOCATION/tm_commands/ssh \
@@ -189,10 +191,12 @@ INSTALL_FILES[9]="DUMMY_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/dummy"
 INSTALL_FILES[10]="EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples"
 INSTALL_FILES[11]="TM_EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples/tm"
 INSTALL_FILES[12]="HOOK_SHARE_FILES:$SHARE_LOCATION/hooks"
-INSTALL_FILES[13]="ECO_LIB_FILES:$LIB_LOCATION/ruby/econe"
-INSTALL_FILES[14]="ECO_BIN_FILES:$BIN_LOCATION"
-INSTALL_FILES[15]="OCCI_LIB_FILES:$LIB_LOCATION/ruby/occi"
-INSTALL_FILES[16]="OCCI_BIN_FILES:$BIN_LOCATION"
+INSTALL_FILES[13]="COMMON_CLOUD_LIB_FILES:$LIB_LOCATION/ruby/cloud"
+INSTALL_FILES[14]="ECO_LIB_FILES:$LIB_LOCATION/ruby/cloud/econe"
+INSTALL_FILES[15]="ECO_LIB_VIEW_FILES:$LIB_LOCATION/ruby/cloud/econe/views"
+INSTALL_FILES[16]="ECO_BIN_FILES:$BIN_LOCATION"
+INSTALL_FILES[17]="OCCI_LIB_FILES:$LIB_LOCATION/ruby/cloud/occi"
+INSTALL_FILES[18]="OCCI_BIN_FILES:$BIN_LOCATION"
 
 INSTALL_CLIENT_FILES[0]="BIN_CLIENT_FILES:$BIN_LOCATION"
 INSTALL_CLIENT_FILES[1]="RUBY_LIB_CLIENT_FILES:$LIB_LOCATION/ruby"
@@ -212,9 +216,9 @@ INSTALL_ETC_FILES[10]="TM_SSH_ETC_FILES:$ETC_LOCATION/tm_ssh"
 INSTALL_ETC_FILES[11]="TM_DUMMY_ETC_FILES:$ETC_LOCATION/tm_dummy"
 INSTALL_ETC_FILES[12]="HM_ETC_FILES:$ETC_LOCATION/hm"
 INSTALL_ETC_FILES[13]="ECO_ETC_FILES:$ETC_LOCATION"
-INSTALL_ETC_FILES[14]="ECO_TEMPLATE_FILES:$ETC_LOCATION/ec2query_templates"
+INSTALL_ETC_FILES[14]="ECO_ETC_TEMPLATE_FILES:$ETC_LOCATION/ec2query_templates"
 INSTALL_ETC_FILES[15]="OCCI_ETC_FILES:$ETC_LOCATION"
-INSTALL_ETC_FILES[16]="OCCI_TEMPLATE_FILES:$ETC_LOCATION/occi_templates"
+INSTALL_ETC_FILES[16]="OCCI_ETC_TEMPLATE_FILES:$ETC_LOCATION/occi_templates"
 
 #-------------------------------------------------------------------------------
 # Binary files, to be installed under $BIN_LOCATION
@@ -428,53 +432,63 @@ TM_EXAMPLE_SHARE_FILES="share/examples/tm/tm_clone.sh \
 HOOK_SHARE_FILES="share/hooks/ebtables-xen"
 
 #-------------------------------------------------------------------------------
-# OCA files
+# Common Cloud Files
 #-------------------------------------------------------------------------------
 
-ECO_LIB_FILES="src/cloud/rm/image.rb \
-               src/cloud/rm/repo_manager.rb \
-               src/cloud/ec2/OcaConfiguration.rb \
-               src/cloud/ec2/eco.rb \
-               src/cloud/ec2/lib/EC2QueryClient.rb"
+COMMON_CLOUD_LIB_FILES="src/cloud/common/CloudServer.rb \
+                        src/cloud/common/Configuration.rb \
+                        src/cloud/rm/image.rb \
+                        src/cloud/rm/repo_manager.rb"
 
-ECO_BIN_FILES="src/cloud/ec2/econe-server \
-               src/cloud/ec2/econe-describe-images \
-               src/cloud/ec2/econe-describe-instances \
-               src/cloud/ec2/econe-register \
-               src/cloud/ec2/econe-run-instances \
-               src/cloud/ec2/econe-terminate-instances \
-               src/cloud/ec2/econe-upload"
+#-------------------------------------------------------------------------------
+# EC2 Query for OpenNebula 
+#-------------------------------------------------------------------------------
 
-ECO_ETC_FILES="src/cloud/ec2/econe.conf"
+ECO_LIB_FILES="src/cloud/ec2/lib/EC2QueryClient.rb \
+               src/cloud/ec2/lib/EC2QueryServer.rb \
+               src/cloud/ec2/lib/econe-server.rb"
 
-ECO_TEMPLATE_FILES="src/cloud/ec2/templates/m1.small.erb"
+ECO_LIB_VIEW_FILES="src/cloud/ec2/lib/views/describe_images.erb \
+                    src/cloud/ec2/lib/views/describe_instances.erb \
+                    src/cloud/ec2/lib/views/register_image.erb \
+                    src/cloud/ec2/lib/views/run_instances.erb \
+                    src/cloud/ec2/lib/views/terminate_instances.erb"
+
+ECO_BIN_FILES="src/cloud/ec2/bin/econe-server \
+               src/cloud/ec2/bin/econe-describe-images \
+               src/cloud/ec2/bin/econe-describe-instances \
+               src/cloud/ec2/bin/econe-register \
+               src/cloud/ec2/bin/econe-run-instances \
+               src/cloud/ec2/bin/econe-terminate-instances \
+               src/cloud/ec2/bin/econe-upload"
+
+ECO_ETC_FILES="src/cloud/ec2/etc/econe.conf"
+
+ECO_ETC_TEMPLATE_FILES="src/cloud/ec2/etc/templates/m1.small.erb"
 
 #-------------------------------------------------------------------------------
 # OCCI files
 #-------------------------------------------------------------------------------
 
-OCCI_LIB_FILES="src/cloud/occi/OCCI.rb \
-                src/cloud/occi/OCCIServer.rb \
+OCCI_LIB_FILES="src/cloud/occi/lib/OCCI.rb \
+                src/cloud/occi/lib/OCCIServer.rb \
                 src/cloud/occi/lib/OCCIConfiguration.rb \
                 src/cloud/occi/lib/ONEOCCIClient.rb \
                 src/cloud/occi/lib/VirtualMachineOCCI.rb \
                 src/cloud/occi/lib/VirtualMachinePoolOCCI.rb \
                 src/cloud/occi/lib/VirtualNetworkOCCI.rb \
                 src/cloud/occi/lib/VirtualNetworkPoolOCCI.rb"
-               
 
+OCCI_BIN_FILES="src/cloud/occi/bin/occi-server \
+               src/cloud/occi/bin/occi-compute \
+               src/cloud/occi/bin/occi-network \
+               src/cloud/occi/bin/occi-storage"
 
-OCCI_BIN_FILES="src/cloud/occi/occi-server \
-               src/cloud/occi/commands/occi-compute \
-               src/cloud/occi/commands/occi-network \
-               src/cloud/occi/commands/occi-storage"
+OCCI_ETC_FILES="src/cloud/occi/etc/occi-server.conf"
 
-OCCI_ETC_FILES="src/cloud/occi/occi-server.conf"
-
-OCCI_TEMPLATE_FILES="src/cloud/occi/templates/small.erb \
-                    src/cloud/occi/templates/medium.erb \
-                    src/cloud/occi/templates/large.erb"
-
+OCCI_ETC_TEMPLATE_FILES="src/cloud/occi/etc/templates/small.erb \
+                    src/cloud/occi/etc/templates/medium.erb \
+                    src/cloud/occi/etc/templates/large.erb"
 
 #-------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------
