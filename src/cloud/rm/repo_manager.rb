@@ -26,11 +26,11 @@ module OpenNebula
         def initialize(rm_db=nil)
             # Seems that database should be opened before defining models
             # TODO: fix this
-            if rm_db
-                DB=Sequel.sqlite(rm_db)
-            else
-                DB=Sequel.sqlite('database.db')
-            end
+            #if rm_db
+            #    DB=Sequel.sqlite(rm_db)
+            #else
+            #    DB=Sequel.sqlite('database.db')
+            #end
 
             require 'image'
 
