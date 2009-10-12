@@ -99,7 +99,6 @@ class EC2QueryServer < CloudServer
         image   = add_image(user[:id],params["file"][:tempfile])
         @erb_img_id = image.uuid
 
-        pp image
         response = ERB.new(File.read(@config[:views]+"/register_image.erb"))
         return response.result(binding), 200
     end
