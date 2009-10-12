@@ -50,9 +50,8 @@ else
     RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
 end
 
-
 $: << RUBY_LIB_LOCATION
-$: << RUBY_LIB_LOCATION+"/econe"
+$: << RUBY_LIB_LOCATION+"/cloud/econe"
 
 require 'EC2QueryClient'
 require 'getoptlong'
@@ -119,10 +118,11 @@ if headers
     puts "------------------------------------------------------------------------------------------------------------" 
 end
 
-instances.each { |img|
+if instances
+    instances.each { |img|
         puts fmt % [owner, img['instanceId'],img['imageId'],img['instanceState']['name'],img['dnsName'],img['instanceType']]
     }
-
+end
 exit 0
 
 

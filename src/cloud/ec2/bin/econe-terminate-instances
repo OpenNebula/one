@@ -53,7 +53,7 @@ end
 
 
 $: << RUBY_LIB_LOCATION
-$: << RUBY_LIB_LOCATION+"/econe"
+$: << RUBY_LIB_LOCATION+"/cloud/econe"
 
 require 'EC2QueryClient'
 require 'getoptlong'

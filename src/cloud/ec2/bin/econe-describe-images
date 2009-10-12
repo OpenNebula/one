@@ -52,7 +52,7 @@ end
 
 
 $: << RUBY_LIB_LOCATION
-$: << RUBY_LIB_LOCATION+"/econe"
+$: << RUBY_LIB_LOCATION+"/cloud/econe"
 
 require 'EC2QueryClient'
 require 'getoptlong'
@@ -118,9 +118,11 @@ if headers
     puts "------------------------------------------------------------------------------" 
 end
 
-images.each { |img|
+if images 
+    images.each { |img|
         puts fmt % [img['imageOwnerId'],img['imageId'],img['imageLocation']]
     }
+end
 
 exit 0
 
