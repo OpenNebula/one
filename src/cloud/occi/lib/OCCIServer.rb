@@ -12,8 +12,8 @@ else
 end
 
 $: << RUBY_LIB_LOCATION
-$: << RUBY_LIB_LOCATION+"/occi"
-$: << RUBY_LIB_LOCATION+"/econe" # For the Repository Manager
+$: << RUBY_LIB_LOCATION+"/cloud/occi"
+$: << RUBY_LIB_LOCATION+"/cloud" # For the Repository Manager
 
 ################################################
 # Required libraries
@@ -24,7 +24,7 @@ require 'time'
 require 'pp'
 
 require 'OpenNebula'
-require 'OCCI'
+require 'cloud/occi/OCCI'
 
 
 include OpenNebula
@@ -35,7 +35,6 @@ ONE_RM_DATABASE=CONFIG[:database]
 
 # Load Repository Manager here to use ONE_RM_DATABASE from the configuration file
 require 'repo_manager'
-Image.image_dir=CONFIG[:image_dir]
 
 INSTANCE_TYPES=Hash.new
 
@@ -68,6 +67,7 @@ set :port, CONFIG[:port]
 
 # Start repository manager
 $repoman=RepoManager.new
+Image.image_dir=CONFIG[:image_dir]
 
 ################################################
 # Client builders for ONE communication

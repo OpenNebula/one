@@ -19,12 +19,12 @@
 
 if [ -z "$ONE_LOCATION" ]; then 
     OCCI_PID=/var/run/one/occi-server.pid
-    OCCI_SERVER=/usr/lib/ruby/occi/OCCIServer.rb
+    OCCI_SERVER=/usr/lib/ruby/cloud/occi/OCCIServer.rb
     OCCI_LOCK_FILE=/var/lock/.occi.lock
     OCCI_LOG=/var/log/one/occi-server.log   
 else
     OCCI_PID=$ONE_LOCATION/var/occi-server.pid
-    OCCI_SERVER=$ONE_LOCATION/lib/ruby/occi/OCCIServer.rb
+    OCCI_SERVER=$ONE_LOCATION/lib/ruby/cloud/occi/OCCIServer.rb
     OCCI_LOCK_FILE=$ONE_LOCATION/var/.occi.lock
     OCCI_LOG=$ONE_LOCATION/var/occi-server.log
 fi 

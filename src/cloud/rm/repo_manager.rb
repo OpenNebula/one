@@ -31,6 +31,8 @@ module OpenNebula
             #else
             #    DB=Sequel.sqlite('database.db')
             #end
+            
+            @db=Sequel.sqlite(rm_db)
 
             require 'image'
 
