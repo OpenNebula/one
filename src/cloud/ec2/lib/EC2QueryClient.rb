@@ -86,18 +86,32 @@ module EC2QueryClient
             
             @uri = URI.parse(endpoint)
 
-            if !@uri.scheme or @uri.scheme != "http"
-                raise "Only http protocol supported"
-            elsif !@uri.host
-                raise "Wrong URI format, host not found"
-            end
+            #if !@uri.scheme or @uri.scheme != "http"
+            #    raise "Only http protocol supported"
+            #elsif !@uri.host
+            #    raise "Wrong URI format, host not found"
+            #end
  
             @ec2_connection = AWS::EC2::Base.new(
                 :access_key_id     => @access_key_id,
                 :secret_access_key => @access_key_secret,
                 :server            => @uri.host,
                 :port              => @uri.port,
-                :use_ssl           => false)
+                :use_ssl           => @uri.scheme == 'https')
+        end
+        
+        # Starts an http connection and calls the block provided. SSL flag
+        # is set if needed.
+        def http_start(url, &block)
+            http = Net::HTTP.new(url.host, url.port)
+            if url.scheme=='https'
+                http.use_ssl = true
+                http.verify_mode=OpenSSL::SSL::VERIFY_NONE
+            end
+            
+            http.start do |connection|
+                block.call(connection)
+            end
         end
 
         #######################################################################
@@ -195,7 +209,7 @@ module EC2QueryClient
                     'application/octet-stream', file_name)
 
                 req = Net::HTTP::Post::Multipart.new('/', params)
-                res = Net::HTTP.start(@uri.host, @uri.port) do |http|
+                res = http_start(@uri) do |http|
                     http.request(req)
                 end
 

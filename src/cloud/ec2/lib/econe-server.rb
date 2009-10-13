@@ -83,9 +83,9 @@ post '/' do
         when 'TerminateInstances'
             result,rc = $econe_server.terminate_instances(params)
     end
-
-    if OpenNebula::is_error?(rc)
-        halt rc, result.message
+    
+    if OpenNebula::is_error?(result)
+        halt rc, result.to_s
     end
 
     result
