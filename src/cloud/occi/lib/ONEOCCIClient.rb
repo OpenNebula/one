@@ -69,7 +69,11 @@ module ONEOCCIClient
         # is set if needed.
         def http_start(url, &block)
             http = Net::HTTP.new(url.host, url.port)
-            http.use_ssl = (url.scheme == 'https')
+            if url.scheme=='https'
+                http.use_ssl = true
+                http.verify_mode=OpenSSL::SSL::VERIFY_NONE
+            end
+            
             http.start do |connection|
                 block.call(connection)
             end
