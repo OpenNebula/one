@@ -65,7 +65,9 @@ set :port, $econe_server.config[:port]
 ###############################################################################
 
 before do
-    $econe_server.authenticate?(params)
+    if !$econe_server.authenticate?(params)
+        halt 401, 'Invalid credentials'
+    end
 end
 
 post '/' do
@@ -85,7 +87,7 @@ post '/' do
     end
     
     if OpenNebula::is_error?(result)
-        halt rc, result.to_s
+        halt rc, result.message
     end
 
     result

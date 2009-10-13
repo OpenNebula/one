@@ -61,19 +61,18 @@ module EC2QueryClient
             elsif ENV["EC2_ACCESS_KEY"] and ENV["EC2_SECRET_KEY"]
                 ec2auth = ENV["EC2_ACCESS_KEY"] + ":" + ENV["EC2_SECRET_KEY"]   
             elsif ENV["ONE_AUTH"] and !ENV["ONE_AUTH"].empty? and File.file?(ENV["ONE_AUTH"])
-                ec2auth=File.read(ENV["ONE_AUTH"])
+                ec2auth=File.read(ENV["ONE_AUTH"]).strip
             elsif File.file?(ENV["HOME"]+"/.one/one_auth")
-                ec2auth=File.read(ENV["HOME"]+"/.one/one_auth")
+                ec2auth=File.read(ENV["HOME"]+"/.one/one_auth").strip
             else
                 raise "No authorization data present"
             end
             
-
             ec2auth=~/(.+?):(.+)/
             
             @access_key_id     = $1
             @access_key_secret = Digest::SHA1.hexdigest($2)
-
+            
             # Server location
 
             if !endpoint
