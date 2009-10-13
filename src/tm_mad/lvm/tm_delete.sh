@@ -22,20 +22,17 @@ DST=$2
 
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/usr/lib/one/mads/tm_common.sh
-    LVMRC=/etc/one/tm_lvm/tm_lvmrc
 else
     TMCOMMON=$ONE_LOCATION/lib/mads/tm_common.sh
-    LVMRC=$ONE_LOCATION/etc/tm_lvm/tm_lvmrc
 fi
 
 . $TMCOMMON
-. $LVMRC
 
 SRC_PATH=`arg_path $SRC`
 SRC_HOST=`arg_host $SRC`
 
-LV_NAME=`get_lv_name $SRC_PATH`
+log "Deleting remote LVs"
+exec_and_log "ssh $SRC_HOST sudo lvremove -f `find $SRC_PATH -name "disk*" -printf "%l\n"`"
 
 log "Deleting $SRC_PATH"
 exec_and_log "ssh $SRC_HOST rm -rf $SRC_PATH"
-exec_and_log "ssh $SRC_HOST sudo lvremove -f /dev/$VG_NAME/$LV_NAME"
