@@ -151,7 +151,7 @@ class ActionManager
 
                 @threads_cond.signal
             else
-                i = @action_queue.index{|x| x[:id] == action_id}
+                i = @action_queue.select{|x| x[:id] == action_id}.first
                 @action_queue.delete_at(i) if i
             end
         }
