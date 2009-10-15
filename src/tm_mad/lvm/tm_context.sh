@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2009, Distributed Systems Architecture Group, Universidad   #
 # Complutense de Madrid (dsa-research.org)                                   #
@@ -15,26 +17,51 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# -------------------------------------------------------------------------- #
+# Parameters: a b c d e f g h
+# SRC: a b c d e f g
+# DST: h
+while (( "$#" )); do
+    if [ "$#" == "1" ]; then
+        DST=$1
+    else
+        SRC="$SRC $1"
+    fi
+    shift
+done
 
-# Volume Group to create logical volumes or snapshots in the cluster nodes   # 
-VG_NAME=
 
-# Default size for logical volumes if not specified
-DEFAULT_LV_SIZE="1G"
+if [ -z "${ONE_LOCATION}" ]; then
+    TMCOMMON=/usr/lib/one/mads/tm_common.sh
+else
+    TMCOMMON=$ONE_LOCATION/lib/mads/tm_common.sh
+fi
+
+. $TMCOMMON
 
 
-# -------------------------------------------------------------------------- #
-# Helper functions for the LVM plugin                                        #
-# -------------------------------------------------------------------------- #
+DST_PATH=`arg_path $DST`
+DST_DIR=`dirname $DST_PATH`
+DST_FILE=`basename $DST_PATH`
+DST_HASH=`echo -n $DST | md5sum | awk '{print $1}'`
+TMP_DIR="$ONE_LOCATION/var/$DST_HASH"
+ISO_DIR="$TMP_DIR/isofiles"
 
-function get_vid {
-    echo $1 |sed -e 's%^.*/\([^/]*\)/images.*$%\1%'
-}
 
-function get_lv_name {
-    VID=`get_vid $1`
-    DISK=`echo $1|awk -F. '{printf $NF}'`
-    echo "lv-one-$VID-$DISK"
-}
+exec_and_log "mkdir -p $ISO_DIR"
+
+for f in $SRC; do
+    case $f in
+    http://*)
+        exec_and_log "wget -O $ISO_DIR $f"
+        ;;
+
+    *)
+        exec_and_log "cp -R $f $ISO_DIR"
+        ;;
+    esac
+done
+
+exec_and_log "mkisofs -o $TMP_DIR/$DST_FILE -J -R $ISO_DIR"
+exec_and_log "scp $TMP_DIR/$DST_FILE $DST"
+exec_and_log "rm -rf $TMP_DIR"
 
