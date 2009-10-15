@@ -477,7 +477,9 @@ OCCI_LIB_FILES="src/cloud/occi/lib/OCCI.rb \
                 src/cloud/occi/lib/VirtualMachineOCCI.rb \
                 src/cloud/occi/lib/VirtualMachinePoolOCCI.rb \
                 src/cloud/occi/lib/VirtualNetworkOCCI.rb \
-                src/cloud/occi/lib/VirtualNetworkPoolOCCI.rb"
+                src/cloud/occi/lib/VirtualNetworkPoolOCCI.rb \
+                src/cloud/occi/lib/ImageOCCI.rb \
+                src/cloud/occi/lib/ImagePoolOCCI.rb" 
 
 OCCI_BIN_FILES="src/cloud/occi/bin/occi-server \
                src/cloud/occi/bin/occi-compute \

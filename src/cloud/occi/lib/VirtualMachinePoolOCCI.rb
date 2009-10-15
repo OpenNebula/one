@@ -4,11 +4,11 @@ include OpenNebula
 
 class VirtualMachinePoolOCCI < VirtualMachinePool
     OCCI_VM_POOL = %q{
-        <COMPUTES>
-           <% if pool_hash['VM_POOL'] != nil     
+        <COMPUTES><% 
+             if pool_hash['VM_POOL'] != nil     
                   vmlist=[pool_hash['VM_POOL']['VM']].flatten
-                  vmlist.each{|vm| 
-           %><COMPUTE href="<%= base_url %>/compute/<%= vm['ID'].strip %>"/><%
+                  vmlist.each{|vm|  %>  
+            <COMPUTE href="<%= base_url %>/compute/<%= vm['ID'].strip %>"/><%  
                   } 
               end %>
         </COMPUTES>       

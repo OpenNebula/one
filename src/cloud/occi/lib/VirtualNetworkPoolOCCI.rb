@@ -4,11 +4,11 @@ include OpenNebula
 
 class VirtualNetworkPoolOCCI < VirtualNetworkPool
     OCCI_NETWORK_POOL = %q{
-        <NETWORK>
-           <% if network_pool_hash['VNET_POOL'] != nil       
+        <NETWORK><% 
+             if network_pool_hash['VNET_POOL'] != nil       
                   vnlist=[network_pool_hash['VNET_POOL']['VNET']].flatten
-                  vnlist.each{|network|
-           %><NIC href="<%= base_url %>/network/<%= network['ID'].strip %>"/><%
+                  vnlist.each{|network|%>
+            <NIC href="<%= base_url %>/network/<%= network['ID'].strip %>"/><%
                   } 
               end %>
         </NETWORK>       

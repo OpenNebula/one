@@ -14,11 +14,11 @@ class VirtualMachineOCCI < VirtualMachine
                      next if !disk 
                      case disk['TYPE']
                          when "disk"%>
-                  <DISK type="disk" href="<%= base_url%>/storage/<%= disk['IMAGE_ID']%>" dev="<%= disk['DEV']%>"/><%
+                <DISK type="disk" href="<%= base_url%>/storage/<%= disk['IMAGE_ID']%>" dev="<%= disk['DEV']%>"/><%
                          when "swap"%>
-                  <DISK type="swap" size="<%= disk['SIZE']%>" dev="<%= disk['DEV']%>"/><%    
+                <DISK type="swap" size="<%= disk['SIZE']%>" dev="<%= disk['DEV']%>"/><%    
                          when "fs"%>
-                  <DISK type="fs" size="<%= disk['SIZE']%>" format="<%= disk['FORMAT']%>" dev="<%= disk['DEV']%>"/><%   
+                <DISK type="fs" size="<%= disk['SIZE']%>" format="<%= disk['FORMAT']%>" dev="<%= disk['DEV']%>"/><%   
                       end                  
                end %>           
             </STORAGE>  

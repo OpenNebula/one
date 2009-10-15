@@ -358,13 +358,10 @@ post '/storage' do
     img.get_image_info
     img.change_metadata(:name=>image_info['DISK']['NAME'])
     img.change_metadata(:description=>image_info['DISK']['URL'])
-
-    xml_response = "<DISK><ID>" + img.uuid + "</ID>" + 
-                          "<NAME>" + image_info['DISK']['NAME'] + "</NAME>" +
-                          "<SIZE>" + ((img.size/1024)/1024).to_s + "</SIZE>" +
-                          "<URL>"  + image_info['DISK']['URL'] + "<URL>" + 
-                   "</DISK>"
-                  
+    
+    img.extend(ImageOCCI)
+    xml_response = img.to_occi
+    
     status 201
     xml_response
 end
@@ -374,14 +371,9 @@ get '/storage' do
     protected!
     # Retrieve images owned by this user
     user = get_user(@auth.credentials[0])
-    images=Image.filter(:owner => user[:id])
     
-    image_pool = "<STORAGE>"
-    for image in images do
-        image_pool += "<DISK href=\"http://#{CONFIG[:server]}:#{CONFIG[:port]}/storage/#{image[:uuid]}\">"
-    end
-    image_pool += "</STORAGE>"
-    image_pool
+    image_pool = ImagePoolOCCI.new(user[:id])
+    image_pool.to_occi
 end
 
 ###################################################
@@ -465,12 +457,9 @@ get '/storage/:id' do
     
     if image
         image.get_image_info
-        
-        xml_response = "<DISK><ID>" + image.uuid + "</ID>" + 
-                              "<NAME>" + image.name + "</NAME>" +
-                              "<SIZE>" + ((image.size/1024)/1024).to_s + "</SIZE>" +
-                              "<URL>"  + image.description  + "<URL>" + 
-                       "</DISK>"
+      
+        image.extend(ImageOCCI)
+        image.to_occi
     else
         status 404
         "Disk with id = \"" + params[:id] + "\" not found"
