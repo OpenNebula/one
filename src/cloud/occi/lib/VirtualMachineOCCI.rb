@@ -3,58 +3,51 @@ require 'OpenNebula'
 include OpenNebula
 
 class VirtualMachineOCCI < VirtualMachine
+    OCCI_VM = %q{
+        <COMPUTE>
+            <ID><%= id.to_s%></ID>
+            <NAME><%= self['NAME']%></NAME>
+            <STATE><%= state_str %></STATE>
+            <% if template['DISK']!=nil 
+            %><STORAGE><%
+                template['DISK'].each do |disk| 
+                     next if !disk 
+                     case disk['TYPE']
+                         when "disk"%>
+                  <DISK type="disk" href="<%= base_url%>/storage/<%= disk['IMAGE_ID']%>" dev="<%= disk['DEV']%>"/><%
+                         when "swap"%>
+                  <DISK type="swap" size="<%= disk['SIZE']%>" dev="<%= disk['DEV']%>"/><%    
+                         when "fs"%>
+                  <DISK type="fs" size="<%= disk['SIZE']%>" format="<%= disk['FORMAT']%>" dev="<%= disk['DEV']%>"/><%   
+                      end                  
+               end %>           
+            </STORAGE>  
+            <% end 
+            if template['NIC'] 
+            %><NETWORK><%
+                 template['NIC'].each do |nic|
+                     next if !nic %>
+                <NIC href="<%= base_url%>/network/<%= nic['VNID']%>"<% if nic['IP'] %> ip="<%= nic['IP']%>"<% end %>/><%
+               end        
+            %></NETWORK><%    
+               end
+               if template['INSTANCE_TYPE'] %>
+            <INSTANCE_TYPE><%=template['INSTANCE_TYPE']%></INSTANCE_TYPE><%
+             end %>
+        </COMPUTE>     
+    }.gsub(/^        /, '')
+    
+    
     # Creates the VMI representation of a Virtual Machine
     def to_occi(base_url)
-        occi_xml  = "<COMPUTE>"
-        occi_xml += "<ID>" + id.to_s + "</ID>"
-        occi_xml += "<NAME>" + self['NAME'] + "</NAME>"
-        occi_xml += "<TYPE>" + self['OCCI_SIZE_TYPE'] + "</TYPE>" if self['OCCI_SIZE_TYPE']
-        occi_xml += "<STATE>" + state_str + "</STATE>"
-        
-        # Now let's parse the template
+        # Let's parse the template
         template=self.to_hash
         template=template['VM']['TEMPLATE']
-   
         template['DISK']=[template['DISK']].flatten
-        
-         if template['DISK']
-             
-             occi_xml += "<STORAGE>"
-        
-            template['DISK'].each{|disk|
-                case disk['TYPE']
-                    when "disk" then
-                        occi_xml += "<DISK image=\"#{base_url}/storage/#{disk['IMAGE_ID']}\" dev=\"#{disk['DEV']}\"/>"
-                    when "swap" then
-                        occi_xml += "<SWAP size=\"#{disk['SIZE']}\" dev=\"#{disk['DEV']}\"/>"
-                    when "fs" then
-                        occi_xml += "<FS size=\"#{disk['SIZE']}\" format=\"#{disk['FORMAT']}\" dev=\"#{disk['DEV']}\"/>"
-                end
-            }
-        
-            occi_xml += "</STORAGE>"
-        end 
-        
         template['NIC']=[template['NIC']].flatten
-                 
-        if template['NIC']
-            occi_xml += "<NETWORK>" 
-        
-            template['NIC'].each{|nic|
-                
-                occi_xml += "<NIC network=\"#{base_url}/network/\"#{nic['VNID']}\""
-                if nic['IP']
-                     occi_xml += " ip=\"#{nic['IP']}\""
-                end
-                occi_xml += "/>"
-            }
-        
-            occi_xml += "</NETWORK>" 
-        end
-        
-        occi_xml  += "</COMPUTE>"
-        
-        return occi_xml
+    
+        occi = ERB.new(OCCI_VM)
+        return occi.result(binding)
 
     end
 end

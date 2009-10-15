@@ -74,8 +74,15 @@ module ONEOCCIClient
                 http.verify_mode=OpenSSL::SSL::VERIFY_NONE
             end
             
-            http.start do |connection|
-                block.call(connection)
+            begin
+                http.start do |connection|
+                    block.call(connection)
+                end
+            rescue Errno::ECONNREFUSED => e
+                puts "Error connecting to server (" + e.to_s + ")."
+                puts "Is the occi-server running? Try:"
+                puts "  $ occi-server start"
+                exit -1
             end
         end
 
@@ -103,7 +110,7 @@ module ONEOCCIClient
                 http.request(req)
             end
             
-            pp res.body
+            puts res.body
         end
         
         ######################################################################

@@ -66,7 +66,12 @@ set :host, CONFIG[:server]
 set :port, CONFIG[:port]
 
 # Start repository manager
-$repoman=RepoManager.new
+begin
+    $repoman=RepoManager.new(CONFIG[:database])
+rescue Exception => e
+    puts "Error initializing Repository Manager. Reason: " + e
+    exit -1
+end
 Image.image_dir=CONFIG[:image_dir]
 
 ################################################
@@ -153,22 +158,17 @@ def submit_vm(request)
     end
     
      @vm_info=@vm_info['COMPUTE']
+         
+    disks=@vm_info['STORAGE']
+          
+    disks['DISK'].each{|disk|
+        next if disk==nil
+        image=$repoman.get(disk['image'])
+        halt 400, "Invalid image (#{disk['image']}) referred" if !image
+        disk['source']=image.path
+    } if disks and disks['DISK']
     
-    if @vm_info['STORAGE'].class==Array
-        disks=@vm_info['STORAGE']
-    else
-        disks=[@vm_info['STORAGE']]
-    end
-    
-    disks.each{|disk|
-        next if disk['DISK']==nil
-        image=$repoman.get(disk['DISK']['image'])
-        halt 400, "Invalid image uuid referred" if !image
-        disk['DISK']['source']=image.path
-    }
-    
-    @vm_info['STORAGE']=disks[0]
-    
+    @vm_info['STORAGE']=disks
     
     if @vm_info['NETWORK']['NIC'].class==Array
         nics=@vm_info['NETWORK']['NIC']
@@ -177,9 +177,12 @@ def submit_vm(request)
     end
 
     nics.each{|nic|
+        next if nic==nil
         vn=VirtualNetwork.new(VirtualNetwork.build_xml(nic['network']), get_one_client)
         vn.info
         vn_xml=Crack::XML.parse(vn.to_xml)
+        halt 400, "Invalid network referred" if !vn_xml['VNET']['NAME']
+        
         nic['network_id']=nic['network']
         nic['network']=vn_xml['VNET']['NAME'].strip
     }
@@ -295,9 +298,13 @@ post '/network' do
     network = VirtualNetworkOCCI.new(
                     VirtualNetwork.build_xml,
                     get_one_client_user(@auth.credentials[0]))
-      
-    vntemplate = network.to_one_template(network_info['NIC'],CONFIG[:bridge])
-    rc         = network.allocate(vntemplate)
+    
+    begin  
+        vntemplate = network.to_one_template(network_info['NIC'],CONFIG[:bridge])
+        rc         = network.allocate(vntemplate)
+    rescue Exception => e
+        rc = "XML malformed?."
+    end
     
     # Return status 201 XML if correct, status 500 otherwise
     if rc

@@ -32,6 +32,8 @@ module OpenNebula
             #    DB=Sequel.sqlite('database.db')
             #end
             
+            raise "DB not defined" if !rm_db
+            
             @db=Sequel.sqlite(rm_db)
 
             require 'image'

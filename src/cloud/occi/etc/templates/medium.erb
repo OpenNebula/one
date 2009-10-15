@@ -7,7 +7,8 @@ OS = [ kernel     = /vmlinuz,
        initrd     = /initrd.img,
        root       = sda1,
        kernel_cmd = "ro xencons=tty console=tty1"]
-<% @vm_info['STORAGE'].each do |key, image| 
+<% if @vm_info['STORAGE']
+       @vm_info['STORAGE'].each do |key, image| 
    
 case key
     
@@ -23,7 +24,7 @@ DISK = [ type = "disk",
          dev=<%= image['dev']%>, 
          source=<%= image['source']%>, 
          image_id=<%= image['image']%> ]
-<% 
+<%  
     when "FS"  
 %>
 DISK = [ type = "fs", 
@@ -32,6 +33,8 @@ DISK = [ type = "fs",
          format=<%= CONFIG[:fs_format]||"ext3"%>  ]   
 <% end %>
 <% end %>
+<% end %>
+<% if @vm_info['NETWORK']['NIC'] %>
 <% @vm_info['NETWORK']['NIC'].each do |nic| %>
 NIC = [ 
 <% if nic['ip'] %>
@@ -41,5 +44,6 @@ NIC = [
         NETWORK_ID=<%= nic['network_id'] %>      
 ]
 <% end %>
-OCCI_SIZE_TYPE = <%= @vm_info[:instance_type ]%>
+<% end %>
+INSTANCE_TYPE = <%= @vm_info[:instance_type ]%>
 

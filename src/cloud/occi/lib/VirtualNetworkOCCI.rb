@@ -47,7 +47,7 @@ class VirtualNetworkOCCI < VirtualNetwork
     end
     
     def to_one_template(network_hash, bridge)
-        one = ERB.new(ONE_NETWORK)
-        return one.result(binding)
+         one = ERB.new(ONE_NETWORK)
+         return one.result(binding)
     end
 end
