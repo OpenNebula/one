@@ -26,7 +26,6 @@ module OpenNebula
         def self.initialize_table
             set_schema do
                 primary_key :id, :type => Integer
-                varchar :uuid
                 int     :owner
                 varchar :name
                 varchar :description
@@ -62,27 +61,34 @@ module OpenNebula
         
         # Creates a new Image object, fills it, copies the image
         # to the repository and saves to the database
-        # uuid:: _String_ UUID identifier for the image
         # owner:: _Integer_ identifier of the user that owns this image
         # path:: _String_ place where to copy the image from
         # metadata:: _Hash_ extra data to add to the image, like name and description
         # [return] _Image_ newly created image
-        def self.create_image(uuid, owner, path, metadata={})
+        def self.create_image(owner, path, metadata={})
             sanitized_metadata=sanitize_metadata(metadata)
         
             data={
-                :uuid => uuid,
                 :owner => owner,
             }.merge(sanitized_metadata)
-        
+            
             image=Image.new(data)
-        
+            
+            image.save
+            
             # TODO: make copy or movement configurable
             image.copy_image(path, true)
             image.get_image_info
+            
             image.save
-        
+            
+            image
+            
             # set metadata
+        end
+        
+        def identifier
+            self.id
         end
         
         # Updates the image with the metadata provided. Currently only
@@ -92,7 +98,7 @@ module OpenNebula
         end
         
         # Copies the image from the source path to the image repository.
-        # Its name will be the image uuid. It also stores its new location
+        # Its name will be the image id. It also stores its new location
         # in the object.
         def copy_image(path, move=false)
             if move
@@ -107,7 +113,7 @@ module OpenNebula
         # this Image object.
         def image_path
             @@image_dir||='images'
-            File.join(@@image_dir, uuid)
+            File.join(@@image_dir, self.id.to_s)
         end
         
         # Extracts md5 and size from the image file and stores these data
@@ -119,26 +125,26 @@ module OpenNebula
         
         # Adds a user to the list of allowed users of this image
         def add_acl(user)
-            acl=ImageAcl.new({:uuid => self.uuid, :user => user})
+            acl=ImageAcl.new({:image_id => self.id, :user => user})
             acl.save
         end
 
         # Deletes a user fom the list of allowed users of this image
         def del_acl(user)
-            acl=ImageAcl[:uuid => self.uuid, :user => user]
+            acl=ImageAcl[:image_id => self.id, :user => user]
             acl.destroy if acl
         end
         
         # Checks if a user has permissions to use this image
         def has_permission?(user)
             return true if self.owner==user
-            ImageAcl[:uuid => self.uuid, :user => user]!=nil
+            ImageAcl[:image_id => self.id, :user => user]!=nil
         end
         
         # Returns the xml representation of the image.
         def to_xml
             xml="<IMAGE>\n"
-            xml<<"  <ID>#{uuid}</ID>\n"
+            xml<<"  <ID>#{id}</ID>\n"
             xml<<"  <OWNER>#{owner}</OWNER>\n"
             xml<<"  <NAME>#{name}</NAME>\n"
             xml<<"  <DESCRIPTION>#{description}</DESCRIPTION>\n"
@@ -151,7 +157,7 @@ module OpenNebula
         # Like to_xml but does not show image file path data
         def to_xml_lite
             xml="<IMAGE>\n"
-            xml<<"  <ID>#{uuid}</ID>\n"
+            xml<<"  <ID>#{id}</ID>\n"
             xml<<"  <OWNER>#{owner}</OWNER>\n"
             xml<<"  <NAME>#{name}</NAME>\n"
             xml<<"  <DESCRIPTION>#{description}</DESCRIPTION>\n"
@@ -167,7 +173,7 @@ module OpenNebula
         def self.initialize_table
             set_schema do
                 primary_key :id, :type => Integer
-                varchar :uuid
+                varchar :image_id
                 int     :user
             end
             

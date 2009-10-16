@@ -97,7 +97,7 @@ class EC2QueryServer < CloudServer
         user  = get_user(params['AWSAccessKeyId'])
 
         image   = add_image(user[:id],params["file"][:tempfile])
-        @erb_img_id = image.uuid
+        @erb_img_id = image.id
 
         response = ERB.new(File.read(@config[:views]+"/register_image.erb"))
         return response.result(binding), 200
@@ -113,7 +113,7 @@ class EC2QueryServer < CloudServer
             return OpenNebula::Error.new('Not permited to use image'), 401
         end
 
-        @erb_img_id=image.uuid
+        @erb_img_id=image.id
 
         response = ERB.new(File.read(@config[:views]+"/register_image.erb"))
         return response.result(binding), 200

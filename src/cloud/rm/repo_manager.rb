@@ -16,7 +16,6 @@
 #--------------------------------------------------------------------------- #
 
 require 'rubygems'
-require 'uuid'
 require 'fileutils'
 require 'sequel'
 require 'logger'
@@ -24,38 +23,26 @@ require 'logger'
 module OpenNebula
     class RepoManager
         def initialize(rm_db=nil)
-            # Seems that database should be opened before defining models
-            # TODO: fix this
-            #if rm_db
-            #    DB=Sequel.sqlite(rm_db)
-            #else
-            #    DB=Sequel.sqlite('database.db')
-            #end
-            
             raise "DB not defined" if !rm_db
             
             @db=Sequel.sqlite(rm_db)
 
             require 'image'
 
-            @uuid=UUID.new
-
             Image.initialize_table
             ImageAcl.initialize_table
         end
         
         def add(owner, path, metadata={})
-            uuid=@uuid.generate
-
-            Image.create_image(uuid, owner, path, metadata)
+            Image.create_image(owner, path, metadata)
         end
         
-        def get(uuid)
-            Image[:uuid => uuid]
+        def get(image_id)
+            Image[:id => image_id]
         end
         
-        def update(uuid, metadata)
-            image=get(uuid)
+        def update(image_id, metadata)
+            image=get(image_id)
             image.update(metadata)
         end
         
@@ -65,7 +52,7 @@ module OpenNebula
 end
 
 =begin
-OpenNebula::Image.create_image('uid', 10, 'repo_manager.rb',
+OpenNebula::Image.create_image(10, 'repo_manager.rb',
     :name => 'nombre',
     :noexiste => 'nada'
 )

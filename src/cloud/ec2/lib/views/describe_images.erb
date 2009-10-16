@@ -2,7 +2,7 @@
   <imagesSet> 
   <% for image in @erb_images %>
     <item> 
-      <imageId><%= image.uuid %></imageId> 
+      <imageId><%= image.id %></imageId> 
       <imageLocation><%= image.path %></imageLocation> 
       <imageState>available</imageState> 
       <imageOwnerId><%= @erb_user[:name] %></imageOwnerId> 

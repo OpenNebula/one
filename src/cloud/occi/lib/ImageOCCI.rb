@@ -23,7 +23,7 @@ include OpenNebula
 module ImageOCCI
     OCCI_IMAGE = %q{
         <DISK>
-            <ID><%= uuid %></ID>
+            <ID><%= self.id %></ID>
             <NAME><%= name %></NAME>
             <SIZE><%= ((size/1024)/1024).to_s %></ADDRESS>
             <URL><%= description %></SIZE>
