@@ -24,12 +24,10 @@ if !ONE_LOCATION
     RUBY_LIB_LOCATION  = "/usr/lib/one/ruby"
     CONFIGURATION_FILE = "/etc/one/econe.conf"
     TEMPLATE_LOCATION  = "/etc/one/ec2query_templates"
-    DB_LOCATION        = "/var/lib/one/econe.db"
 else
     RUBY_LIB_LOCATION  = ONE_LOCATION+"/lib/ruby"
     CONFIGURATION_FILE = ONE_LOCATION+"/etc/econe.conf"
     TEMPLATE_LOCATION  = ONE_LOCATION+"/etc/ec2query_templates"
-    DB_LOCATION        = ONE_LOCATION+"/var/econe.db"
 end
 
 VIEWS_LOCATION = RUBY_LIB_LOCATION + "/cloud/econe/views"
@@ -43,7 +41,6 @@ $: << RUBY_LIB_LOCATION+"/cloud/econe"
 ###############################################################################
 require 'rubygems'
 require 'sinatra'
-
 
 require 'EC2QueryServer'
 
