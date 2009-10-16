@@ -16,7 +16,6 @@
 #--------------------------------------------------------------------------- #
 
 require 'repo_manager'
-require 'image'
 require 'Configuration'
 require 'OpenNebula'
 require 'pp'
@@ -60,8 +59,8 @@ class CloudServer
 
         # --- Start a Repository Manager ---
     
-        Image.image_dir = @config[:image_dir]
         @rm = RepoManager.new(@config[:database])
+        Image.image_dir = @config[:image_dir]
 
         # --- Start an OpenNebula Session ---
         

@@ -24,7 +24,7 @@ if !ONE_LOCATION
     RUBY_LIB_LOCATION  = "/usr/lib/one/ruby"
     CONFIGURATION_FILE = "/etc/one/econe.conf"
     TEMPLATE_LOCATION  = "/etc/one/ec2query_templates"
-    DB_LOCATION        = "/var/lib/one/econe.rb"
+    DB_LOCATION        = "/var/lib/one/econe.db"
 else
     RUBY_LIB_LOCATION  = ONE_LOCATION+"/lib/ruby"
     CONFIGURATION_FILE = ONE_LOCATION+"/etc/econe.conf"
