@@ -146,6 +146,7 @@ ETC_DIRS="$ETC_LOCATION/im_kvm \
           $ETC_LOCATION/tm_nfs \
           $ETC_LOCATION/tm_ssh \
           $ETC_LOCATION/tm_dummy \
+          $ETC_LOCATION/tm_lvm \
           $ETC_LOCATION/hm \
           $ETC_LOCATION/ec2query_templates \
           $ETC_LOCATION/occi_templates"
@@ -161,6 +162,7 @@ LIB_DIRS="$LIB_LOCATION/im_probes \
           $LIB_LOCATION/tm_commands/nfs \
           $LIB_LOCATION/tm_commands/ssh \
           $LIB_LOCATION/tm_commands/dummy \
+          $LIB_LOCATION/tm_commands/lvm \
           $LIB_LOCATION/mads"
 
 LIB_CLIENT_DIRS="$LIB_LOCATION/ruby \
@@ -188,15 +190,16 @@ INSTALL_FILES[6]="IM_PROBES_LIB_FILES:$LIB_LOCATION/im_probes"
 INSTALL_FILES[7]="NFS_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/nfs"
 INSTALL_FILES[8]="SSH_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/ssh"
 INSTALL_FILES[9]="DUMMY_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/dummy"
-INSTALL_FILES[10]="EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples"
-INSTALL_FILES[11]="TM_EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples/tm"
-INSTALL_FILES[12]="HOOK_SHARE_FILES:$SHARE_LOCATION/hooks"
-INSTALL_FILES[13]="COMMON_CLOUD_LIB_FILES:$LIB_LOCATION/ruby/cloud"
-INSTALL_FILES[14]="ECO_LIB_FILES:$LIB_LOCATION/ruby/cloud/econe"
-INSTALL_FILES[15]="ECO_LIB_VIEW_FILES:$LIB_LOCATION/ruby/cloud/econe/views"
-INSTALL_FILES[16]="ECO_BIN_FILES:$BIN_LOCATION"
-INSTALL_FILES[17]="OCCI_LIB_FILES:$LIB_LOCATION/ruby/cloud/occi"
-INSTALL_FILES[18]="OCCI_BIN_FILES:$BIN_LOCATION"
+INSTALL_FILES[10]="LVM_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/lvm"
+INSTALL_FILES[11]="EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples"
+INSTALL_FILES[12]="TM_EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples/tm"
+INSTALL_FILES[13]="HOOK_SHARE_FILES:$SHARE_LOCATION/hooks"
+INSTALL_FILES[14]="COMMON_CLOUD_LIB_FILES:$LIB_LOCATION/ruby/cloud"
+INSTALL_FILES[15]="ECO_LIB_FILES:$LIB_LOCATION/ruby/cloud/econe"
+INSTALL_FILES[16]="ECO_LIB_VIEW_FILES:$LIB_LOCATION/ruby/cloud/econe/views"
+INSTALL_FILES[17]="ECO_BIN_FILES:$BIN_LOCATION"
+INSTALL_FILES[18]="OCCI_LIB_FILES:$LIB_LOCATION/ruby/cloud/occi"
+INSTALL_FILES[19]="OCCI_BIN_FILES:$BIN_LOCATION"
 
 INSTALL_CLIENT_FILES[0]="BIN_CLIENT_FILES:$BIN_LOCATION"
 INSTALL_CLIENT_FILES[1]="RUBY_LIB_CLIENT_FILES:$LIB_LOCATION/ruby"
@@ -214,11 +217,12 @@ INSTALL_ETC_FILES[8]="IM_EH_ETC_FILES:$ETC_LOCATION/im_eh"
 INSTALL_ETC_FILES[9]="TM_NFS_ETC_FILES:$ETC_LOCATION/tm_nfs"
 INSTALL_ETC_FILES[10]="TM_SSH_ETC_FILES:$ETC_LOCATION/tm_ssh"
 INSTALL_ETC_FILES[11]="TM_DUMMY_ETC_FILES:$ETC_LOCATION/tm_dummy"
-INSTALL_ETC_FILES[12]="HM_ETC_FILES:$ETC_LOCATION/hm"
-INSTALL_ETC_FILES[13]="ECO_ETC_FILES:$ETC_LOCATION"
-INSTALL_ETC_FILES[14]="ECO_ETC_TEMPLATE_FILES:$ETC_LOCATION/ec2query_templates"
-INSTALL_ETC_FILES[15]="OCCI_ETC_FILES:$ETC_LOCATION"
-INSTALL_ETC_FILES[16]="OCCI_ETC_TEMPLATE_FILES:$ETC_LOCATION/occi_templates"
+INSTALL_ETC_FILES[12]="TM_LVM_ETC_FILES:$ETC_LOCATION/tm_lvm"
+INSTALL_ETC_FILES[13]="HM_ETC_FILES:$ETC_LOCATION/hm"
+INSTALL_ETC_FILES[14]="ECO_ETC_FILES:$ETC_LOCATION"
+INSTALL_ETC_FILES[15]="ECO_ETC_TEMPLATE_FILES:$ETC_LOCATION/ec2query_templates"
+INSTALL_ETC_FILES[16]="OCCI_ETC_FILES:$ETC_LOCATION"
+INSTALL_ETC_FILES[17]="OCCI_ETC_TEMPLATE_FILES:$ETC_LOCATION/occi_templates"
 
 #-------------------------------------------------------------------------------
 # Binary files, to be installed under $BIN_LOCATION
@@ -317,6 +321,7 @@ IM_PROBES_LIB_FILES="src/im_mad/xen/xen.rb \
 #   - NFS TM, $LIB_LOCATION/tm_commands/nfs
 #   - SSH TM, $LIB_LOCATION/tm_commands/ssh
 #   - dummy TM, $LIB_LOCATION/tm_commands/dummy
+#   - LVM TM, $LIB_LOCATION/tm_commands/lvm
 #-------------------------------------------------------------------------------
 
 NFS_TM_COMMANDS_LIB_FILES="src/tm_mad/nfs/tm_clone.sh \
@@ -336,6 +341,14 @@ SSH_TM_COMMANDS_LIB_FILES="src/tm_mad/ssh/tm_clone.sh \
                            src/tm_mad/ssh/tm_context.sh"
 
 DUMMY_TM_COMMANDS_LIB_FILES="src/tm_mad/dummy/tm_dummy.sh"
+
+LVM_TM_COMMANDS_LIB_FILES="src/tm_mad/lvm/tm_clone.sh \
+                           src/tm_mad/lvm/tm_delete.sh \
+                           src/tm_mad/lvm/tm_ln.sh \
+                           src/tm_mad/lvm/tm_mkswap.sh \
+                           src/tm_mad/lvm/tm_mkimage.sh \
+                           src/tm_mad/lvm/tm_mv.sh \
+                           src/tm_mad/lvm/tm_context.sh"
 
 #-------------------------------------------------------------------------------
 # Configuration files for OpenNebula, to be installed under $ETC_LOCATION
@@ -388,6 +401,7 @@ IM_EH_ETC_FILES="src/im_mad/eh/im_ehrc \
 #   - nfs, $ETC_LOCATION/tm_nfs
 #   - ssh, $ETC_LOCATION/tm_ssh
 #   - dummy, $ETC_LOCATION/tm_dummy
+#   - lvm, $ETC_LOCATION/tm_lvm
 #-------------------------------------------------------------------------------
 
 TM_NFS_ETC_FILES="src/tm_mad/nfs/tm_nfs.conf \
@@ -398,6 +412,9 @@ TM_SSH_ETC_FILES="src/tm_mad/ssh/tm_ssh.conf \
 
 TM_DUMMY_ETC_FILES="src/tm_mad/dummy/tm_dummy.conf \
                     src/tm_mad/dummy/tm_dummyrc"
+
+TM_LVM_ETC_FILES="src/tm_mad/lvm/tm_lvm.conf \
+                  src/tm_mad/lvm/tm_lvmrc"
 
 #-------------------------------------------------------------------------------
 # Hook Manager driver config. files, to be installed under $ETC_LOCATION/hm
