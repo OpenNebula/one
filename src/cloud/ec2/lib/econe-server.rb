@@ -43,9 +43,7 @@ $: << RUBY_LIB_LOCATION+"/cloud/econe"
 ###############################################################################
 require 'rubygems'
 require 'sinatra'
-require 'sequel'
 
-DB = Sequel.sqlite(DB_LOCATION)
 
 require 'EC2QueryServer'
 
