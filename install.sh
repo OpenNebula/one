@@ -483,14 +483,15 @@ ECO_ETC_FILES="src/cloud/ec2/etc/econe.conf"
 
 ECO_ETC_TEMPLATE_FILES="src/cloud/ec2/etc/templates/m1.small.erb"
 
-#-------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 # OCCI files
-#-------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 OCCI_LIB_FILES="src/cloud/occi/lib/OCCI.rb \
                 src/cloud/occi/lib/OCCIServer.rb \
+                src/cloud/occi/lib/occi-server.rb \
                 src/cloud/occi/lib/OCCIConfiguration.rb \
-                src/cloud/occi/lib/ONEOCCIClient.rb \
+                src/cloud/occi/lib/OCCIClient.rb \
                 src/cloud/occi/lib/VirtualMachineOCCI.rb \
                 src/cloud/occi/lib/VirtualMachinePoolOCCI.rb \
                 src/cloud/occi/lib/VirtualNetworkOCCI.rb \
@@ -509,11 +510,11 @@ OCCI_ETC_TEMPLATE_FILES="src/cloud/occi/etc/templates/small.erb \
                     src/cloud/occi/etc/templates/medium.erb \
                     src/cloud/occi/etc/templates/large.erb"
 
-#-------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 # INSTALL.SH SCRIPT
-#-------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 # --- Create OpenNebula directories ---
 

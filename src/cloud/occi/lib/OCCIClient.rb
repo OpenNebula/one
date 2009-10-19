@@ -1,5 +1,22 @@
 #!/usr/bin/ruby
 
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2009, Distributed Systems Architecture Group, Universidad   #
+# Complutense de Madrid (dsa-research.org)                                   #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
 require 'rubygems'
 require 'uri'
 require 'OpenNebula'
@@ -20,7 +37,7 @@ end
 
 
 
-module ONEOCCIClient
+module OCCIClient
     
     #####################################################################
     #  Client Library to interface with the OpenNebula OCCI Service
@@ -44,7 +61,8 @@ module ONEOCCIClient
             
             # Autentication            
             if user && pass
-                @occiauth = user + ":" + Digest::SHA1.hexdigest(pass)  
+                @occiauth = user + ":" + pass
+                one_auth=@occiauth
             elsif ENV["ONE_AUTH"] and !ENV["ONE_AUTH"].empty? and File.file?(ENV["ONE_AUTH"])
                 one_auth=File.read(ENV["ONE_AUTH"])
             elsif File.file?(ENV["HOME"]+"/.one/one_auth")

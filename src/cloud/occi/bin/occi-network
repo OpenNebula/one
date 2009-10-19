@@ -78,7 +78,7 @@ end
 $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+"/cloud/occi"
 
-require 'ONEOCCIClient'
+require 'OCCIClient'
 require 'getoptlong'
 require 'rdoc/usage'
 require 'pp'
@@ -119,7 +119,7 @@ end
 
 
 begin
-    occi_client = ONEOCCIClient::Client.new(url,username,password,debug)
+    occi_client = OCCIClient::Client.new(url,username,password,debug)
 rescue Exception => e
     puts "#{$0}: #{e.message}"
     exit -1
