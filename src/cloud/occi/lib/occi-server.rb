@@ -77,7 +77,7 @@ helpers do
         end
         
         status rc
-        result
+        result 
     end
 end
 
@@ -100,12 +100,12 @@ get '/compute' do
 end
 
 post '/network' do
-    result,rc = $occi_server.get_compute(request)
+    result,rc = $occi_server.post_network(request)
     treat_response(result,rc)
 end
 
 get '/network' do
-    result,rc = $occi_server.get_network(request)
+    result,rc = $occi_server.get_networks(request)
     treat_response(result,rc)
 end
 
@@ -124,36 +124,36 @@ end
 ###################################################
 
 get '/compute/:id' do  
-    result,rc = $occi_server.get_compute(request)
+    result,rc = $occi_server.get_compute(request, params)
     treat_response(result,rc)
 end
 
 delete '/compute/:id' do
-    result,rc = $occi_server.delete_compute(request)
+    result,rc = $occi_server.delete_compute(request, params)
     treat_response(result,rc)
 end
 
 put '/compute/:id' do
-    result,rc = $occi_server.put_compute(request)
+    result,rc = $occi_server.put_compute(request, params)
     treat_response(result,rc)  
 end
 
 get '/network/:id' do  
-    result,rc = $occi_server.get_network(request)
+    result,rc = $occi_server.get_network(request, params)
     treat_response(result,rc)
 end
 
 delete '/network/:id' do
-    result,rc = $occi_server.delete_network(request)
+    result,rc = $occi_server.delete_network(request, params)
     treat_response(result,rc)   
 end
 
 get '/storage/:id' do  
-    result,rc = $occi_server.get_storage(request)
+    result,rc = $occi_server.get_storage(request, params)
     treat_response(result,rc)
 end
 
 delete '/storage/:id' do
-    result,rc = $occi_server.delete_storage(request)
+    result,rc = $occi_server.delete_storage(request, params)
     treat_response(result,rc)
 end

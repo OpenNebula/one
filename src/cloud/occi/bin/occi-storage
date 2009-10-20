@@ -158,7 +158,7 @@ when 'show'
     occi_client.get_image(image_id)
 
 when 'delete'
-    puts 'Delete still not implemented'
+    puts 'Delete not yet implemented'
     exit -1
 
 else

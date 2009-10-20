@@ -24,16 +24,16 @@ class ImagePoolOCCI
     OCCI_IMAGE_POOL = %q{
         <STORAGE><% 
             for image in @images do %>
-            <DISK href="<%= CONFIG[:server]%>:<%=CONFIG[:port]%>/storage/<%= image[:id]%>"\><%  
+            <DISK href="<%= base_url%>/storage/<%= image[:id] %>"\><%  
             end  %>
         </STORAGE>
     }.gsub(/^        /, '')
         
     def initialize(user_id)
-        @images=Image.filter(:owner => user_id)
+        @images=Image.filter(:owner => user_id)     
     end 
     
-    def to_occi
+    def to_occi(base_url)
         occi = ERB.new(OCCI_IMAGE_POOL)
         return occi.result(binding)       
     end

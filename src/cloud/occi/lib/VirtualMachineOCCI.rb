@@ -29,7 +29,8 @@ class VirtualMachineOCCI < VirtualMachine
                      next if !nic %>
                 <NIC href="<%= base_url%>/network/<%= nic['VNID']%>"<% if nic['IP'] %> ip="<%= nic['IP']%>"<% end %>/><%
                end        
-            %></NETWORK><%    
+            %>
+            </NETWORK><%    
                end
                if template['INSTANCE_TYPE'] %>
             <INSTANCE_TYPE><%=template['INSTANCE_TYPE']%></INSTANCE_TYPE><%
@@ -43,8 +44,8 @@ class VirtualMachineOCCI < VirtualMachine
         # Let's parse the template
         template=self.to_hash
         template=template['VM']['TEMPLATE']
-        template['DISK']=[template['DISK']].flatten
-        template['NIC']=[template['NIC']].flatten
+        template['DISK']=[template['DISK']].flatten if template['DISK']
+        template['NIC']=[template['NIC']].flatten if template['NIC']
     
         occi = ERB.new(OCCI_VM)
         return occi.result(binding)

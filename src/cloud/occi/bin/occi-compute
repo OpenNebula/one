@@ -143,7 +143,7 @@ when 'create'
     end
 
     begin
-        occi_client = ONEOCCIClient::Client.new(url,username,password,debug)
+        occi_client = OCCIClient::Client.new(url,username,password,debug)
     rescue Exception => e
         puts "#{$0} create: #{e.message}"
         exit -1
@@ -160,7 +160,7 @@ when 'show'
     end
 
     begin
-        occi_client = ONEOCCIClient::Client.new(url,username,password,debug)
+        occi_client = OCCIClient::Client.new(url,username,password,debug)
     rescue Exception => e
         puts "#{$0} show: #{e.message}"
         exit -1
@@ -177,7 +177,7 @@ when 'update'
     end
 
     begin
-        occi_client = ONEOCCIClient::Client.new(url,username,password,debug)
+        occi_client = OCCIClient::Client.new(url,username,password,debug)
     rescue Exception => e
         puts "#{$0} update: #{e.message}"
         exit -1
@@ -194,7 +194,7 @@ when 'delete'
     end
 
     begin
-        occi_client = ONEOCCIClient::Client.new(url,username,password,debug)
+        occi_client = OCCIClient::Client.new(url,username,password,debug)
     rescue Exception => e
         puts "#{$0} delete: #{e.message}"
         exit -1

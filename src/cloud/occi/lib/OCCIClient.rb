@@ -300,7 +300,7 @@ module OCCIClient
                 http.request(req)
             end
             
-            pp res.body
+            puts res.body
         end
         
         ####################################################################
@@ -316,7 +316,6 @@ module OCCIClient
             res = http_start(url) {|http|
                 http.request(req)
             }
-            puts res.body
         end
         
         ######################################################################
@@ -349,7 +348,6 @@ module OCCIClient
             res = http_start(url) {|http|
                 http.request(req)
             }
-            puts res.body
         end
         
        #######################################################################
