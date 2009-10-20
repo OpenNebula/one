@@ -64,14 +64,14 @@ set :port, $occi_server.config[:port]
 
 # Authentication
 before do
-    if !$occi_server.authenticate?(params)
+    if !$occi_server.authenticate?(request.env)
         halt 401, 'Invalid credentials'
     end
 end
 
 # Response treatment
 helpers do
-    def treat_response
+    def treat_response(result,rc)
         if OpenNebula::is_error?(result)
             halt rc, result.message
         end
@@ -91,32 +91,32 @@ end
 
 post '/compute' do    
    result,rc = $occi_server.post_compute(request) 
-   treat_response
+   treat_response(result,rc)
 end
 
 get '/compute' do 
-    result,rc = $occi_server.get_compute(request)
-    treat_response
+    result,rc = $occi_server.get_computes(request)
+    treat_response(result,rc)
 end
 
 post '/network' do
     result,rc = $occi_server.get_compute(request)
-    treat_response
+    treat_response(result,rc)
 end
 
 get '/network' do
     result,rc = $occi_server.get_network(request)
-    treat_response
+    treat_response(result,rc)
 end
 
 post '/storage' do
     result,rc = $occi_server.post_storage(request)
-    treat_response
+    treat_response(result,rc)
 end
 
 get '/storage' do
     result,rc = $occi_server.get_storages(request)
-    treat_response
+    treat_response(result,rc)
 end
 
 ###################################################
@@ -125,35 +125,35 @@ end
 
 get '/compute/:id' do  
     result,rc = $occi_server.get_compute(request)
-    treat_response
+    treat_response(result,rc)
 end
 
 delete '/compute/:id' do
     result,rc = $occi_server.delete_compute(request)
-    treat_response
+    treat_response(result,rc)
 end
 
 put '/compute/:id' do
     result,rc = $occi_server.put_compute(request)
-    treat_response  
+    treat_response(result,rc)  
 end
 
 get '/network/:id' do  
     result,rc = $occi_server.get_network(request)
-    treat_response
+    treat_response(result,rc)
 end
 
 delete '/network/:id' do
     result,rc = $occi_server.delete_network(request)
-    treat_response   
+    treat_response(result,rc)   
 end
 
 get '/storage/:id' do  
     result,rc = $occi_server.get_storage(request)
-    treat_response
+    treat_response(result,rc)
 end
 
 delete '/storage/:id' do
     result,rc = $occi_server.delete_storage(request)
-    treat_response
+    treat_response(result,rc)
 end

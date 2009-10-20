@@ -487,10 +487,8 @@ ECO_ETC_TEMPLATE_FILES="src/cloud/ec2/etc/templates/m1.small.erb"
 # OCCI files
 #-----------------------------------------------------------------------------
 
-OCCI_LIB_FILES="src/cloud/occi/lib/OCCI.rb \
-                src/cloud/occi/lib/OCCIServer.rb \
+OCCI_LIB_FILES="src/cloud/occi/lib/OCCIServer.rb \
                 src/cloud/occi/lib/occi-server.rb \
-                src/cloud/occi/lib/OCCIConfiguration.rb \
                 src/cloud/occi/lib/OCCIClient.rb \
                 src/cloud/occi/lib/VirtualMachineOCCI.rb \
                 src/cloud/occi/lib/VirtualMachinePoolOCCI.rb \

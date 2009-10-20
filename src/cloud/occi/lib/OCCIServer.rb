@@ -15,14 +15,25 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+# Common cloud libs
 require 'rubygems'
 require 'sinatra'
 require 'CloudServer'
 
+# OCA
 require 'OpenNebula'
-require 'cloud/occi/OCCI'
-
 include OpenNebula
+
+# OCCI libs
+require 'VirtualMachineOCCI'
+require 'VirtualMachinePoolOCCI'
+require 'VirtualNetworkOCCI'
+require 'VirtualNetworkPoolOCCI'
+require 'ImageOCCI'
+require 'ImagePoolOCCI'
+
+include ImageOCCI
+
 
 ##############################################################################
 # The OCCI Server provides an OCCI implementation based on the 
@@ -45,15 +56,12 @@ class OCCIServer < CloudServer
     # [return] _Boolean_ Whether the user is authorized or not  
     def authenticate?(requestenv)
       auth ||=  Rack::Auth::Basic::Request.new(requestenv)
-      
-      pp auth
-      return
 
       if !(auth.provided? && auth.basic? && auth.credentials)
           return false
       end 
 
-      user = get_user(auth.credentials.first)
+      user = get_user(requestenv, auth)
 
       if user
           if user[:password] == auth.credentials[1]
@@ -67,8 +75,8 @@ class OCCIServer < CloudServer
     # Retrieve the user crendentials
     # requestenv:: _Hash_ Hash containing the environment of the request
     # [return] _User_ User structure
-    def get_user(requestenv)
-        auth =  Rack::Auth::Basic::Request.new(requestenv)
+    def get_user(requestenv, auth=nil)
+        auth =  Rack::Auth::Basic::Request.new(requestenv) if !auth
         super(auth.credentials.first)
     end
     
@@ -241,7 +249,6 @@ class OCCIServer < CloudServer
         begin
             network_pool.to_occi(@config[:server]+":"+@config[:port])
         rescue Exception => e
-            status 500
             error = OpenNebula::Error.new(e.message)
             return error, 500
         end
@@ -273,12 +280,8 @@ class OCCIServer < CloudServer
 
         # tmpfile where the file is stored
         f_tmp=file[:tempfile]
-        img=$repoman.add(user[:id], f_tmp.path)
-        f_tmp.unlink
-
-        img.get_image_info
-        img.change_metadata(:name=>image_info['DISK']['NAME'])
-        img.change_metadata(:description=>image_info['DISK']['URL'])
+        img=add_image(user[:id], f_tmp, {:name=>image_info['DISK']['NAME'],
+                                    :description=>image_info['DISK']['URL']})
 
         img.extend(ImageOCCI)
         xml_response = img.to_occi
@@ -313,7 +316,7 @@ class OCCIServer < CloudServer
         result=vm.info
 
         if OpenNebula::is_error?(result)
-            return "Error: "+result.message, 404
+            return result, 404
         end
 
         begin
@@ -340,9 +343,7 @@ class OCCIServer < CloudServer
                 
         result = vm.finalize
         if OpenNebula::is_error?(result)
-            error_msg = "Deletion failed. Reason: " + e.message
-            error     = OpenNebula::Error.new(error_msg)
-            return error, 500
+            return result, 500
         else
             return "The Compute resource has been successfully deleted", 200
         end
@@ -415,8 +416,7 @@ class OCCIServer < CloudServer
         result=vn.info
 
         if OpenNebula::is_error?(result)
-            error     = OpenNebula::Error.new("Error: "+result.message)
-            return error, 404
+            return result, 404
         end
 
         begin
@@ -442,8 +442,7 @@ class OCCIServer < CloudServer
         result = vn.delete
         
         if OpenNebula::is_error?(result)
-            error = OpenNebula::Error.new("Error: " + result.message)
-            return error, 500
+            return result, 500
         else
             return "The Virtual Network has been successfully deleted", 200
         end
@@ -460,8 +459,6 @@ class OCCIServer < CloudServer
         image=$repoman.get(request.params[:id])
 
         if image
-            image.get_image_info
-
             image.extend(ImageOCCI)
             return image.to_occi, 200
         else
@@ -475,7 +472,7 @@ class OCCIServer < CloudServer
     # request:: _Hash_ hash containing the data of the request
     # [return] _String_,_Integer_ Delete confirmation msg or error, 
     #                             status code 
-    def delete_network(request)
+    def delete_storage(request)
         error = OpenNebula::Error.new("Not yet implemented")
         return error, 501
     end
