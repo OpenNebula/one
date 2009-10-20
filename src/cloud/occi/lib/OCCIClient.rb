@@ -204,6 +204,7 @@ module OCCIClient
             
             if curb and CURL_LOADED
                 curl=Curl::Easy.new(@endpoint+"/storage")
+                curl.http_auth_types=Curl::CURLAUTH_BASIC
                 curl.userpwd=@occiauth
                 curl.verbose=true if @debug
                 curl.multipart_form_post = true
