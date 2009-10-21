@@ -74,13 +74,14 @@ else
 end
 
 $: << RUBY_LIB_LOCATION
-$: << RUBY_LIB_LOCATION+"/cloud/occi"
+$: << RUBY_LIB_LOCATION+"/cloud"
 
-require 'OCCIClient'
+require 'occi/OCCIClient'
 require 'getoptlong'
 require 'rdoc/usage'
 require 'pp'
 
+include CloudClient::CLIHelpers
 
 opts = GetoptLong.new(
             ['--help',       '-h',GetoptLong::NO_ARGUMENT],
@@ -120,8 +121,8 @@ rescue Exception => e
 end 
 
 if !ARGV[0]
-    puts "#{$0}: [COMMAND] not present"
-    puts "#{$0}: Execute #{$0} -h for help."
+    puts "#{cmd_name}: [COMMAND] not present"
+    puts "#{cmd_name}: Execute #{cmd_name} -h for help."
     exit -1
 end
 
@@ -129,7 +130,7 @@ end
 begin
     occi_client = OCCIClient::Client.new(url,username,password,debug)
 rescue Exception => e
-    puts "#{$0}: #{e.message}"
+    puts "#{cmd_name}: #{e.message}"
     exit -1
 end
 
@@ -138,7 +139,7 @@ when 'create'
     image_xml = ARGV[1]
 
     if !image_xml || !File.exists?(image_xml)
-        puts "#{$0} create: missing occi xml parameter or file not found"
+        puts "#{cmd_name} create: missing occi xml parameter or file not found"
         exit -1
     end
 
@@ -151,7 +152,7 @@ when 'show'
     image_id = ARGV[1]
 
     if !image_id 
-        puts "#{$0} show: missing storage id parameter or file not found"
+        puts "#{cmd_name} show: missing storage id parameter or file not found"
         exit -1
     end
     

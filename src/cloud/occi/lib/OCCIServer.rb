@@ -468,7 +468,7 @@ class OCCIServer < CloudServer
         # Get client with user credentials
         client = get_client(request.env)
         
-        image=$repoman.get(params[:id])
+        image=get_image(params[:id])
 
         if image
             image.extend(ImageOCCI)

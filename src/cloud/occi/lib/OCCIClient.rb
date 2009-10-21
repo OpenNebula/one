@@ -21,20 +21,7 @@ require 'rubygems'
 require 'uri'
 require 'OpenNebula'
 
-require 'net/https'
-
-begin
-    require 'curb'
-    CURL_LOADED=true
-rescue LoadError
-    CURL_LOADED=false
-end
-
-begin
-    require 'net/http/post/multipart'
-rescue LoadError
-end
-
+require 'CloudClient'
 
 
 module OCCIClient
@@ -42,12 +29,12 @@ module OCCIClient
     #####################################################################
     #  Client Library to interface with the OpenNebula OCCI Service
     #####################################################################
-    class Client
+    class Client < CloudClient
         
         ######################################################################
         # Initialize client library
         ######################################################################
-        def initialize(endpoint_str=nil, user=nil, pass=nil, debug_flag=false)
+        def initialize(endpoint_str=nil, user=nil, pass=nil, debug_flag=true)
             @debug = debug_flag
             
             # Server location
@@ -59,28 +46,18 @@ module OCCIClient
                 @endpoint = "http://localhost:4567"
             end
             
-            # Autentication            
+            # Autentication
             if user && pass
-                @occiauth = user + ":" + pass
-                one_auth=@occiauth
-            elsif ENV["ONE_AUTH"] and !ENV["ONE_AUTH"].empty? and File.file?(ENV["ONE_AUTH"])
-                one_auth=File.read(ENV["ONE_AUTH"])
-            elsif File.file?(ENV["HOME"]+"/.one/one_auth")
-                one_auth=File.read(ENV["HOME"]+"/.one/one_auth")
+                @occiauth = [user, pass]
             else
-                raise "No authorization data present"
-                return
+                @occiauth = get_one_auth
             end
             
-            one_auth=~/(\w+):(\w+)/
-            user  = $1
-            pass  = $2
+            if !@occiauth
+                raise "No authorization data present"
+            end
             
-            if user && pass
-                @occiauth = user + ":" + Digest::SHA1.hexdigest(pass)
-            else
-                raise "Authorization data malformed"
-            end          
+            @occiauth[1] = Digest::SHA1.hexdigest(@occiauth[1])
         end
         
         # Starts an http connection and calls the block provided. SSL flag
@@ -121,8 +98,7 @@ module OCCIClient
             req = Net::HTTP::Post.new(url.path)
             req.body=xml
             
-            auth=@occiauth.split(":")
-            req.basic_auth auth[0], auth[1]
+            req.basic_auth @occiauth[0], @occiauth[1]
             
             res = http_start(url) do |http|
                 http.request(req)
@@ -138,8 +114,7 @@ module OCCIClient
             url = URI.parse(@endpoint+"/compute")
             req = Net::HTTP::Get.new(url.path)
             
-            auth=@occiauth.split(":")
-            req.basic_auth auth[0], auth[1]
+            req.basic_auth @occiauth[0], @occiauth[1]
             
             res = http_start(url) {|http|
                 http.request(req)
@@ -159,9 +134,7 @@ module OCCIClient
             req = Net::HTTP::Post.new(url.path)
             req.body=xml
             
-            auth=@occiauth.split(":")
-            
-            req.basic_auth auth[0], auth[1]
+            req.basic_auth @occiauth[0], @occiauth[1]
             
             res = http_start(url) do |http|
                 http.request(req)
@@ -177,8 +150,7 @@ module OCCIClient
             url = URI.parse(@endpoint+"/network")
             req = Net::HTTP::Get.new(url.path)
             
-            auth=@occiauth.split(":")
-            req.basic_auth auth[0], auth[1]
+            req.basic_auth @occiauth[0], @occiauth[1]
             
             res = http_start(url) {|http|
                 http.request(req)
@@ -205,7 +177,7 @@ module OCCIClient
             if curb and CURL_LOADED
                 curl=Curl::Easy.new(@endpoint+"/storage")
                 curl.http_auth_types=Curl::CURLAUTH_BASIC
-                curl.userpwd=@occiauth
+                curl.userpwd="#{@occiauth[0]}:#{@occiauth[1]}"
                 curl.verbose=true if @debug
                 curl.multipart_form_post = true
                 
@@ -232,9 +204,7 @@ module OCCIClient
                 
                 req = Net::HTTP::Post::Multipart.new(url.path, params)
                 
-                auth=@occiauth.split(":")
-                
-                req.basic_auth auth[0], auth[1]
+                req.basic_auth @occiauth[0], @occiauth[1]
                 
                 res = http_start(url) do |http|
                     http.request(req)
@@ -252,8 +222,7 @@ module OCCIClient
             url = URI.parse(@endpoint+"/storage")
             req = Net::HTTP::Get.new(url.path)
             
-            auth=@occiauth.split(":")
-            req.basic_auth auth[0], auth[1]
+            req.basic_auth @occiauth[0], @occiauth[1]
             
             res = http_start(url) {|http|
                 http.request(req)
@@ -272,8 +241,7 @@ module OCCIClient
             url = URI.parse(@endpoint+"/compute/" + id.to_s)
             req = Net::HTTP::Get.new(url.path)
             
-            auth=@occiauth.split(":")
-            req.basic_auth auth[0], auth[1]
+            req.basic_auth @occiauth[0], @occiauth[1]
             
             res = http_start(url) {|http|
                 http.request(req)
@@ -294,8 +262,7 @@ module OCCIClient
             req = Net::HTTP::Put.new(url.path)
             req.body = xml
             
-            auth=@occiauth.split(":")
-            req.basic_auth auth[0], auth[1]
+            req.basic_auth @occiauth[0], @occiauth[1]
             
             res = http_start(url) do |http|
                 http.request(req)
@@ -311,8 +278,7 @@ module OCCIClient
             url = URI.parse(@endpoint+"/compute/" + id.to_s)
             req = Net::HTTP::Delete.new(url.path)
             
-            auth=@occiauth.split(":")
-            req.basic_auth auth[0], auth[1]
+            req.basic_auth @occiauth[0], @occiauth[1]
             
             res = http_start(url) {|http|
                 http.request(req)
@@ -327,8 +293,7 @@ module OCCIClient
             url = URI.parse(@endpoint+"/network/" + id.to_s)
             req = Net::HTTP::Get.new(url.path)
             
-            auth=@occiauth.split(":")
-            req.basic_auth auth[0], auth[1]
+            req.basic_auth @occiauth[0], @occiauth[1]
             
             res = http_start(url) {|http|
                 http.request(req)
@@ -343,8 +308,7 @@ module OCCIClient
             url = URI.parse(@endpoint+"/network/" + id.to_s)
             req = Net::HTTP::Delete.new(url.path)
             
-            auth=@occiauth.split(":")
-            req.basic_auth auth[0], auth[1]
+            req.basic_auth @occiauth[0], @occiauth[1]
             
             res = http_start(url) {|http|
                 http.request(req)
@@ -359,8 +323,7 @@ module OCCIClient
             url = URI.parse(@endpoint+"/storage/"+image_uuid)
             req = Net::HTTP::Get.new(url.path)
             
-            auth=@occiauth.split(":")
-            req.basic_auth auth[0], auth[1]
+            req.basic_auth @occiauth[0], @occiauth[1]
             
             res = http_start(url) {|http|
                 http.request(req)
@@ -369,11 +332,3 @@ module OCCIClient
         end
     end
 end
-
-
-
-
-
-
-
-

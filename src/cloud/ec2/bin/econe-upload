@@ -53,13 +53,14 @@ else
 end
 
 $: << RUBY_LIB_LOCATION
-$: << RUBY_LIB_LOCATION+"/cloud/econe"
+$: << RUBY_LIB_LOCATION+"/cloud"
 
-require 'EC2QueryClient'
+require 'econe/EC2QueryClient'
 require 'getoptlong'
 require 'rdoc/usage'
 require 'pp'
 
+include CloudClient::CLIHelpers
 
 opts = GetoptLong.new(
             ['--help',       '-h',GetoptLong::NO_ARGUMENT],
@@ -97,7 +98,7 @@ end
 image = ARGV.shift
 
 if !image || !File.exists?(image)
-    puts "#{$0}: missing IMAGE-PATH parameter or file not found"
+    puts "#{cmd_name}: missing IMAGE-PATH parameter or file not found"
     exit -1
 end
 
@@ -106,14 +107,14 @@ auth = "#{access}:#{secret}" if secret && access
 begin
     ec2_client = EC2QueryClient::Client.new(auth,url)
 rescue Exception => e
-    puts "#{$0}: #{e.message}"
+    puts "#{cmd_name}: #{e.message}"
     exit -1
 end
 
 rc = ec2_client.upload_image(image, curb)
 
 if OpenNebula::is_error?(rc)
-    puts "#{$0}: #{rc.message}"
+    puts "#{cmd_name}: #{rc.message}"
     exit -1
 end
 

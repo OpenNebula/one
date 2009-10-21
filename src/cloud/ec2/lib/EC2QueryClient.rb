@@ -23,29 +23,15 @@ if ENV["EC2_URL"]
     ENV["EC2_URL"]=nil
 end
 
-require 'rubygems'
+require 'CloudClient'
 require 'AWS'
-require 'uri'
-require 'OpenNebula'
-
-begin
-    require 'curb'
-    CURL_LOADED=true
-rescue LoadError
-    CURL_LOADED=false
-end
-
-begin
-    require 'net/http/post/multipart'
-rescue LoadError
-end
 
 module EC2QueryClient
     ###########################################################################
     #
     #
     ###########################################################################
-    class Client
+    class Client < CloudClient
 
         API_VERSION = '2008-12-01'
         
@@ -55,26 +41,25 @@ module EC2QueryClient
         #######################################################################
         def initialize(secret=nil, endpoint=nil)
             # Autentication
+            ec2auth=nil
             
             if secret
-                ec2auth = secret
+                ec2auth = secret.split(':')
             elsif ENV["EC2_ACCESS_KEY"] and ENV["EC2_SECRET_KEY"]
-                ec2auth = ENV["EC2_ACCESS_KEY"] + ":" + ENV["EC2_SECRET_KEY"]   
-            elsif ENV["ONE_AUTH"] and !ENV["ONE_AUTH"].empty? and File.file?(ENV["ONE_AUTH"])
-                ec2auth=File.read(ENV["ONE_AUTH"]).strip
-            elsif File.file?(ENV["HOME"]+"/.one/one_auth")
-                ec2auth=File.read(ENV["HOME"]+"/.one/one_auth").strip
+                ec2auth = [ENV["EC2_ACCESS_KEY"], ENV["EC2_SECRET_KEY"]]
             else
+                ec2auth=get_one_auth
+            end
+            
+            if !ec2auth
                 raise "No authorization data present"
             end
             
-            ec2auth=~/(.+?):(.+)/
-            
-            @access_key_id     = $1
-            @access_key_secret = Digest::SHA1.hexdigest($2)
+            @access_key_id     = ec2auth[0]
+            @access_key_secret = Digest::SHA1.hexdigest(ec2auth[1])
             
             # Server location
-
+            
             if !endpoint
                 if $ec2url
                     endpoint = $ec2url
@@ -84,12 +69,6 @@ module EC2QueryClient
             end
             
             @uri = URI.parse(endpoint)
-
-            #if !@uri.scheme or @uri.scheme != "http"
-            #    raise "Only http protocol supported"
-            #elsif !@uri.host
-            #    raise "Wrong URI format, host not found"
-            #end
  
             @ec2_connection = AWS::EC2::Base.new(
                 :access_key_id     => @access_key_id,
@@ -98,20 +77,7 @@ module EC2QueryClient
                 :port              => @uri.port,
                 :use_ssl           => @uri.scheme == 'https')
         end
-        
-        # Starts an http connection and calls the block provided. SSL flag
-        # is set if needed.
-        def http_start(url, &block)
-            http = Net::HTTP.new(url.host, url.port)
-            if url.scheme=='https'
-                http.use_ssl = true
-                http.verify_mode=OpenSSL::SSL::VERIFY_NONE
-            end
-            
-            http.start do |connection|
-                block.call(connection)
-            end
-        end
+
 
         #######################################################################
         #

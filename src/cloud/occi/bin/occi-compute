@@ -77,12 +77,14 @@ else
 end
 
 $: << RUBY_LIB_LOCATION
-$: << RUBY_LIB_LOCATION+"/cloud/occi"
+$: << RUBY_LIB_LOCATION+"/cloud"
 
-require 'OCCIClient'
+require 'occi/OCCIClient'
 require 'getoptlong'
 require 'rdoc/usage'
 require 'pp'
+
+include CloudClient::CLIHelpers
 
 opts = GetoptLong.new(
             ['--help',         '-h',GetoptLong::NO_ARGUMENT],
@@ -120,13 +122,13 @@ end
 begin
     occi_client = OCCIClient::Client.new(url,username,password,debug)
 rescue Exception => e
-    puts "#{$0}: #{e.message}"
+    puts "#{cmd_name}: #{e.message}"
     exit -1
 end
 
 if !ARGV[0]
-    puts "#{$0}: [COMMAND] not present"
-    puts "#{$0}: Execute #{$0} -h for help."
+    puts "#{cmd_name}: [COMMAND] not present"
+    puts "#{cmd_name}: Execute #{cmd_name} -h for help."
     exit -1
 end   
 
@@ -138,14 +140,14 @@ when 'create'
     vm_xml = ARGV[1]
 
     if !vm_xml || !File.exists?(vm_xml)
-        puts "#{$0} create: missing OCCI-XML parameter or file not found"
+        puts "#{cmd_name} create: missing OCCI-XML parameter or file not found"
         exit -1
     end
 
     begin
         occi_client = OCCIClient::Client.new(url,username,password,debug)
     rescue Exception => e
-        puts "#{$0} create: #{e.message}"
+        puts "#{cmd_name} create: #{e.message}"
         exit -1
     end
 
@@ -155,14 +157,14 @@ when 'show'
     vm_id = ARGV[1]
 
     if !vm_id 
-        puts "#{$0} show: missing VM-ID parameter"
+        puts "#{cmd_name} show: missing VM-ID parameter"
         exit -1
     end
 
     begin
         occi_client = OCCIClient::Client.new(url,username,password,debug)
     rescue Exception => e
-        puts "#{$0} show: #{e.message}"
+        puts "#{cmd_name} show: #{e.message}"
         exit -1
     end
 
@@ -172,14 +174,14 @@ when 'update'
     vm_xml = ARGV[1]
 
     if !vm_xml || !File.exists?(vm_xml)
-        puts "#{$0} update: missing OCCI-XML parameter or file not found"
+        puts "#{cmd_name} update: missing OCCI-XML parameter or file not found"
         exit -1
     end
 
     begin
         occi_client = OCCIClient::Client.new(url,username,password,debug)
     rescue Exception => e
-        puts "#{$0} update: #{e.message}"
+        puts "#{cmd_name} update: #{e.message}"
         exit -1
     end
 
@@ -189,14 +191,14 @@ when 'delete'
     vm_id = ARGV[1]
 
     if !vm_id 
-        puts "#{$0} delete: missing VM-ID parameter"
+        puts "#{cmd_name} delete: missing VM-ID parameter"
         exit -1
     end
 
     begin
         occi_client = OCCIClient::Client.new(url,username,password,debug)
     rescue Exception => e
-        puts "#{$0} delete: #{e.message}"
+        puts "#{cmd_name} delete: #{e.message}"
         exit -1
     end
 

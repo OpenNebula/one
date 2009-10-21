@@ -24,7 +24,7 @@ class ImagePoolOCCI
     OCCI_IMAGE_POOL = %q{
         <STORAGE><% 
             for image in @images do %>
-            <DISK href="<%= base_url%>/storage/<%= image[:id] %>"\><%  
+            <DISK href="<%= base_url%>/storage/<%= image[:id] %>"/><%  
             end  %>
         </STORAGE>
     }.gsub(/^        /, '')

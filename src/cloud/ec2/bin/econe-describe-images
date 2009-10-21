@@ -52,13 +52,14 @@ end
 
 
 $: << RUBY_LIB_LOCATION
-$: << RUBY_LIB_LOCATION+"/cloud/econe"
+$: << RUBY_LIB_LOCATION+"/cloud"
 
-require 'EC2QueryClient'
+require 'econe/EC2QueryClient'
 require 'getoptlong'
 require 'rdoc/usage'
 require 'pp'
 
+include CloudClient::CLIHelpers
 
 opts = GetoptLong.new(
             ['--help',       '-h',GetoptLong::NO_ARGUMENT],
@@ -98,14 +99,14 @@ auth = "#{access}:#{secret}" if secret && access
 begin
     ec2_client = EC2QueryClient::Client.new(auth,url)
 rescue Exception => e
-    puts "#{$0}: #{e.message}"
+    puts "#{cmd_name}: #{e.message}"
     exit -1
 end
 
 rc = ec2_client.describe_images()
 
 if OpenNebula::is_error?(rc)
-    puts "#{$0}: #{rc.message}"
+    puts "#{cmd_name}: #{rc.message}"
     exit -1
 end
 

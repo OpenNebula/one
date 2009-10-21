@@ -135,6 +135,7 @@ class CloudServer
     # uid:: _Integer_ owner of the image
     # path:: _String_ path of the tmp file
     # metadata:: Additional metadata for the file
+    # [return] _Image_ Newly created image object
     def add_image(uid, file, metadata={})
         image = @rm.add(uid,file.path,metadata)
         file.unlink
@@ -143,11 +144,10 @@ class CloudServer
     end
 
     # Gets an image from the repository
-    # uid:: _Integer_ owner of the image
-    # path:: _String_ path of the tmp file
-    # metadata:: Additional metadata for the file
-    def get_image(uuid)
-        return @rm.get(uuid)
+    # image_id:: _Integer_ Image identifier
+    # [return] _Image_ Image object
+    def get_image(image_id)
+        return @rm.get(image_id)
     end
 end
 

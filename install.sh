@@ -453,6 +453,7 @@ HOOK_SHARE_FILES="share/hooks/ebtables-xen"
 #-------------------------------------------------------------------------------
 
 COMMON_CLOUD_LIB_FILES="src/cloud/common/CloudServer.rb \
+                        src/cloud/common/CloudClient.rb \
                         src/cloud/common/Configuration.rb \
                         src/cloud/rm/image.rb \
                         src/cloud/rm/repo_manager.rb"
