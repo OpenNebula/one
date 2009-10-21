@@ -45,17 +45,25 @@ if [ -z $SIZE ] ; then
     SIZE=$DEFAULT_LV_SIZE
 fi
 
+# Check that we are not stopping, migrating or resuming
+if echo `basename $SRC_PATH`|grep -vq '^disk'; then
+    log_error "This TM does not support stop, migrating or resuming."
+    exit 1
+fi
+
 if [ "$SRC_HOST" != "$HOSTNAME" ]; then
-    log "Dumping LVs to disk images"
+    log "Dumping LV to disk image"
 
-    echo "for disk in \$(ls $SRC_PATH/|grep ^disk);do
-    disk=$SRC_PATH/\$disk
-    lv=\$(readlink \$disk)
-    rm \$disk
-    sudo dd if=\$lv of=\$disk bs=64k
-done" | ssh $SRC_HOST "cat > $SRC_PATH/lv_dump.sh"
+    echo "if [ -L "$SRC_PATH" ]; then
+        lv=\$(readlink $SRC_PATH)
+        rm $SRC_PATH
+        touch $SRC_PATH
+        sudo dd if=\$lv of=$SRC_PATH bs=64k
+    else
+        exit 1
+    fi" | ssh $SRC_HOST "bash -s"
 
-    exec_and_log "eval ssh $SRC_HOST 'bash $SRC_PATH/lv_dump.sh; rm $SRC_PATH/lv_dump.sh'"
+    [ "$?" != "0" ] && log_error "Error dumping LV to disk image"
 
     log "Deleting remote LVs"
     exec_and_log "ssh $SRC_HOST sudo lvremove -f \$(echo $VG_NAME/\$(sudo lvs --noheadings $VG_NAME|awk '{print \$1}'|grep lv-one-$VID))"
@@ -67,22 +75,6 @@ exec_and_log "scp -r $SRC $DST"
 exec_and_log "ssh $SRC_HOST rm -rf $SRC_PATH"
 
 if [ "$DST_HOST" != "$HOSTNAME" ]; then
-    log "Creating LVs in remote host"
-
-    if echo "$DST_PATH" |grep -qv images$ ; then
-        DST_PATH="$DST_PATH/images"
-    fi
-
-    echo "for disk in \$(ls $DST_PATH/|grep ^disk); do
-    ndisk=\$(echo \$disk|cut -d. -f2)
-    disk=$DST_PATH/\$disk
-    lv=lv-one-$VID-\$ndisk
-    sudo lvcreate -L$SIZE -n \$lv $VG_NAME
-    sudo dd if=\$disk of=/dev/$VG_NAME/\$lv bs=64k
-    rm \$disk
-    ln -s /dev/$VG_NAME/\$lv \$disk
-done" | ssh $DST_HOST "cat > $DST_PATH/lv_restore.sh"
-
-    exec_and_log "eval ssh $DST_HOST 'bash $DST_PATH/lv_restore.sh; rm $DST_PATH/lv_restore.sh'"
+    log_error "This TM does not support resuming."
 fi
 
