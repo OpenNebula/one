@@ -576,7 +576,7 @@ fi
 
 if [ "$UNINSTALL" = "no" ] ; then 
     for d in $CHOWN_DIRS; do
-        /bin/chown -R $ONEADMIN_USER:$ONEADMIN_GROUP $DESTDIR$d
+        chown -R $ONEADMIN_USER:$ONEADMIN_GROUP $DESTDIR$d
     done
     # Create library links
     if [ "$CLIENT" = "no" ] ; then
