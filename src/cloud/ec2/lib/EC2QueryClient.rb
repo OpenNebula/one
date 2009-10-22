@@ -23,8 +23,6 @@ if ENV["EC2_URL"]
     ENV["EC2_URL"]=nil
 end
 
-require 'OpenNebula'
-
 require 'CloudClient'
 require 'AWS'
 
@@ -33,7 +31,9 @@ module EC2QueryClient
     #
     #
     ##########################################################################
-    class Client < CloudClient
+    class Client 
+
+        include CloudClient
 
         API_VERSION = '2008-12-01'
         
@@ -50,9 +50,9 @@ module EC2QueryClient
             elsif ENV["EC2_ACCESS_KEY"] and ENV["EC2_SECRET_KEY"]
                 ec2auth = [ENV["EC2_ACCESS_KEY"], ENV["EC2_SECRET_KEY"]]
             else
-                ec2auth=get_one_auth
+                ec2auth=CloudClient::get_one_auth
             end
-            
+           
             if !ec2auth
                 raise "No authorization data present"
             end
@@ -89,7 +89,7 @@ module EC2QueryClient
             begin
                 response = @ec2_connection.describe_instances
             rescue Exception => e
-                error = OpenNebula::Error.new(e.message)
+                error = Error.new(e.message)
                 return error
             end
             
@@ -109,7 +109,7 @@ module EC2QueryClient
                                 :instance_type => type
                            )            
             rescue Exception => e
-                error = OpenNebula::Error.new(e.message)
+                error = Error.new(e.message)
                 return error
             end
             
@@ -126,7 +126,7 @@ module EC2QueryClient
                     :instance_id   => instance_id
                  )
             rescue Exception => e
-                error = OpenNebula::Error.new(e.message)
+                error = Error.new(e.message)
                 return error
             end
             
@@ -166,7 +166,7 @@ module EC2QueryClient
                 if connection.response_code == 200
                     return AWS::Response.parse(:xml => connection.body_str)
                 else
-                    return OpenNebula::Error.new(connection.body_str)
+                    return Error.new(connection.body_str)
                 end
             else
                 params["Signature"]=sig
@@ -185,7 +185,7 @@ module EC2QueryClient
                 if res.code == '200'
                     return AWS::Response.parse(:xml => res.body)
                 else
-                    return OpenNebula::Error.new(res.body)
+                    return Error.new(res.body)
                 end
             end
         end
@@ -200,7 +200,7 @@ module EC2QueryClient
                             :image_location => image_id
                           )
             rescue Exception => e
-                error = OpenNebula::Error.new(e.message)
+                error = Error.new(e.message)
                 return error
             end
             
@@ -216,7 +216,7 @@ module EC2QueryClient
             begin
                 response = @ec2_connection.describe_images
             rescue Exception => e
-                error = OpenNebula::Error.new(e.message)
+                error = Error.new(e.message)
                 return error
             end
             
@@ -224,5 +224,3 @@ module EC2QueryClient
         end
     end
 end
-
-

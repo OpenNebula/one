@@ -57,11 +57,12 @@ $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+"/cloud"
 
 require 'econe/EC2QueryClient'
+require 'CloudClient'
 require 'getoptlong'
 require 'rdoc/usage'
 require 'pp'
 
-include CloudClient::CLIHelpers
+include CloudCLI
 
 opts = GetoptLong.new(
             ['--help',       '-h',GetoptLong::NO_ARGUMENT],
@@ -122,7 +123,7 @@ end
 
 rc = ec2_client.run_instances(image_id,type)
 
-if OpenNebula::is_error?(rc)
+if CloudClient::is_error?(rc)
     puts "#{cmd_name}: #{rc.message}"
     exit -1
 end
@@ -141,9 +142,3 @@ images.each { |img|
     }
 
 exit 0
-
-
-
-
-
-

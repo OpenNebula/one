@@ -32,17 +32,28 @@ begin
 rescue LoadError
 end
 
-class CloudClient
+###############################################################################
+# The CloudClient module contains general functionality to implement a 
+# Cloud Client
+###############################################################################
+module CloudClient
+    # #########################################################################
+    # Default location for the authentication file
+    # #########################################################################
+    DEFAULT_AUTH_FILE = ENV["HOME"]+"/.one/one_auth"
+    
+    # #########################################################################
     # Gets authorization credentials from ONE_AUTH or default
     # auth file.
     #
     # Raises an error if authorization is not found
-    def get_one_auth
-        if ENV["ONE_AUTH"] and !ENV["ONE_AUTH"].empty? and
-                File.file?(ENV["ONE_AUTH"])
+    # #########################################################################
+    def self.get_one_auth
+        if ENV["ONE_AUTH"] and !ENV["ONE_AUTH"].empty? and 
+           File.file?(ENV["ONE_AUTH"])
             one_auth=File.read(ENV["ONE_AUTH"]).strip.split(':')
-        elsif File.file?(ENV["HOME"]+"/.one/one_auth")
-            one_auth=File.read(ENV["HOME"]+"/.one/one_auth").strip.split(':')
+        elsif File.file?(DEFAULT_AUTH_FILE)
+            one_auth=File.read(DEFAULT_AUTH_FILE).strip.split(':')
         else
             raise "No authorization data present"
         end
@@ -51,10 +62,12 @@ class CloudClient
         
         one_auth
     end
-    
+        
+    # #########################################################################
     # Starts an http connection and calls the block provided. SSL flag
     # is set if needed.
-    def http_start(url, &block)
+    # #########################################################################
+    def self.http_start(url, &block)
         http = Net::HTTP.new(url.host, url.port)
         if url.scheme=='https'
             http.use_ssl = true
@@ -71,13 +84,37 @@ class CloudClient
             exit -1
         end
     end
-    
-    # Command line help functions
-    module CLIHelpers
-        # Returns the command name
-        def cmd_name
-            File.basename($0)
+
+    # #########################################################################
+    # The Error Class represents a generic error in the Cloud Client
+    # library. It contains a readable representation of the error.
+    # #########################################################################
+    class Error
+        attr_reader :message
+        
+        # +message+ a description of the error
+        def initialize(message=nil)
+            @message=message
+        end
+
+        def to_s()
+            @message
         end
     end
-end
 
+    # ######################################################################### 
+    # Returns true if the object returned by a method of the OpenNebula
+    # library is an Error
+    # #########################################################################
+    def self.is_error?(value)
+        value.class==CloudClient::Error
+    end
+end
+        
+# Command line help functions
+module CloudCLI
+    # Returns the command name
+    def cmd_name
+        File.basename($0)
+    end
+end
