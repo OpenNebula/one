@@ -101,16 +101,16 @@ class OCCIServer < CloudServer
         client = get_client(request.env)
         
         if request.body
-            @vm_info=Crack::XML.parse(request.body.read)
+            vm_info=Crack::XML.parse(request.body.read)
         else
             error = OpenNebula::Error.new(
                    "OCCI XML representation of VM not present")
             return error, 400
         end
 
-         @vm_info=@vm_info['COMPUTE']
+        vm_info=vm_info['COMPUTE']
         
-        disks=@vm_info['STORAGE']
+        disks=vm_info['STORAGE']
         
         disks['DISK']=[disks['DISK']].flatten if disks and disks['DISK']
                 
@@ -125,14 +125,14 @@ class OCCIServer < CloudServer
             disk['source']=image.path
         } if disks and disks['DISK']
         
-        @vm_info['STORAGE']=disks
+        vm_info['STORAGE']=disks
         
-        if @vm_info['NETWORK'] and @vm_info['NETWORK']['NIC']
+        if vm_info['NETWORK'] and vm_info['NETWORK']['NIC']
         
-            if @vm_info['NETWORK']['NIC'].class==Array
-                nics=@vm_info['NETWORK']['NIC']
+            if vm_info['NETWORK']['NIC'].class==Array
+                nics=vm_info['NETWORK']['NIC']
             else
-                nics=[@vm_info['NETWORK']['NIC']]
+                nics=[vm_info['NETWORK']['NIC']]
             end
         
             nics.each{|nic|
@@ -151,10 +151,10 @@ class OCCIServer < CloudServer
                 nic['network']=vn_xml['VNET']['NAME'].strip
             } if nics 
         
-            @vm_info['NETWORK']['NIC']=nics
+            vm_info['NETWORK']['NIC']=nics
         end
         
-        instance_type_name=@vm_info['INSTANCE_TYPE']
+        instance_type_name=vm_info['INSTANCE_TYPE']
         instance_type=@instance_types[instance_type_name]
         
         if !instance_type
@@ -162,7 +162,7 @@ class OCCIServer < CloudServer
             return error, 400            
         end
         
-        @vm_info[:instance_type]=instance_type_name
+        vm_info[:instance_type]=instance_type_name
         
         template=ERB.new(File.read(
              @config[:template_location]+"/#{instance_type['TEMPLATE']}"))

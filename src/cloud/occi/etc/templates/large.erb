@@ -1,4 +1,4 @@
-NAME   = <%= @vm_info['NAME']%>
+NAME   = <%= vm_info['NAME']%>
 
 CPU    = 8
 MEMORY = 8192
@@ -7,8 +7,9 @@ OS = [ kernel     = /vmlinuz,
        initrd     = /initrd.img,
        root       = sda1,
        kernel_cmd = "ro xencons=tty console=tty1"]
-<% if @vm_info['STORAGE']
-       @vm_info['STORAGE'].each do |key, image| 
+       
+<% if vm_info['STORAGE']
+       vm_info['STORAGE'].each do |key, image| 
   image=[image].flatten
 case key
     when "SWAP" 
@@ -39,8 +40,8 @@ DISK = [ type = "fs",
 <% end %>
 <% end %>
 <% end %>
-<% if @vm_info['NETWORK'] and @vm_info['NETWORK']['NIC'] %>
-<% @vm_info['NETWORK']['NIC'].each do |nic| %>
+<% if vm_info['NETWORK'] and vm_info['NETWORK']['NIC'] %>
+<% vm_info['NETWORK']['NIC'].each do |nic| %>
 NIC = [ 
 <% if nic['ip'] %>
         IP=<%= nic['ip'] %>,
@@ -50,5 +51,5 @@ NIC = [
 ]
 <% end %>
 <% end %>
-INSTANCE_TYPE = <%= @vm_info[:instance_type ]%>
+INSTANCE_TYPE = <%= vm_info[:instance_type ]%>
 
