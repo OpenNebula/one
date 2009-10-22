@@ -1,28 +1,34 @@
-/* -------------------------------------------------------------------------- */
-/* Copyright 2002-2009, Distributed Systems Architecture Group, Universidad   */
-/* Complutense de Madrid (dsa-research.org)                                   */
-/*                                                                            */
-/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
-/* not use this file except in compliance with the License. You may obtain    */
-/* a copy of the License at                                                   */
-/*                                                                            */
-/* http://www.apache.org/licenses/LICENSE-2.0                                 */
-/*                                                                            */
-/* Unless required by applicable law or agreed to in writing, software        */
-/* distributed under the License is distributed on an "AS IS" BASIS,          */
-/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
-/* See the License for the specific language governing permissions and        */
-/* limitations under the License.                                             */
-/* -------------------------------------------------------------------------- */
-
-
+/*
+# -------------------------------------------------------------------------#
+# Copyright 2002-2009, Distributed Systems Architecture Group, Universidad #
+# Complutense de Madrid (dsa-research.org)                                 #
+#                                                                          #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may  #
+# not use this file except in compliance with the License. You may obtain  #
+# a copy of the License at                                                 #
+#                                                                          #
+# http://www.apache.org/licenses/LICENSE-2.0                               #
+#                                                                          #
+# Unless required by applicable law or agreed to in writing, software      #
+# distributed under the License is distributed on an "AS IS" BASIS,        #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. #
+# See the License for the specific language governing permissions and      #
+# limitations under the License.                                           #
+#--------------------------------------------------------------------------#
+*/
 
 import java.io.*;
+import java.util.*;
+import java.text.*;
 
 import com.vmware.vim.*;
 import com.vmware.apputils.*;
 import com.vmware.apputils.vim.*;
 
+/************************************
+ * Manages VMware VMs               *
+ * through the VI API               *
+ ************************************/
 class OneVmmVmware extends Thread 
 {
     private String[]     arguments;
@@ -30,18 +36,14 @@ class OneVmmVmware extends Thread
     DeployVM             dVM;
 
     boolean              debug;
+    
+    PrintStream          stdout;
+    PrintStream          stderr;
 
     public static void main(String[] args) 
     { 
         boolean debug_flag;
-        
-        // first, make redirection
-        PrintStream stdout = System.out;                                       
-        PrintStream stderr = System.err;
-      
-        System.setOut(stderr);
-        System.setErr(stdout);
-        
+                
         if (System.getProperty("debug").equals("1"))
         {
             debug_flag=true;
@@ -60,9 +62,18 @@ class OneVmmVmware extends Thread
     {
         debug     = _debug;
         arguments = args;
+        
+        // Get out and err descriptors
+        stdout    = System.out;
+        stderr    = System.err;
+        
+        // No VMware library output to standard out 
+        // or err. This will be activated when needed
+        disable_standard_output();
+        disable_standard_error();
     }
 
-    // Main loop, threaded
+    // Main loop
     void loop() 
     {
         String  str     = null;
@@ -70,11 +81,11 @@ class OneVmmVmware extends Thread
         String  vid_str = null;
 		String  hostName;
 		String  fileName;
-        boolean fin     = false;
+        boolean end     = false;
         
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 
-        while (!fin) 
+        while (!end) 
 	    {
             action   = null;
             vid_str  = null;
@@ -90,10 +101,9 @@ class OneVmmVmware extends Thread
             {
                 String message = e.getMessage().replace('\n', ' ');
 
-                synchronized (System.err)
-                {
-                    System.err.println(action + " FAILURE " + vid_str + " " + message);
-                }
+                send_message(action + " FAILURE " + vid_str + " " + message);
+                send_error  (action + " FAILURE " + vid_str + 
+                             " Action malformed. Reason: " + message);
             }
 
             String str_split[] = str.split(" ", 5);
@@ -108,7 +118,7 @@ class OneVmmVmware extends Thread
             else if (action.equals("FINALIZE"))
             {
                 finalize_mad();
-                fin = true;
+                end = true;
             } 
             else 
             {
@@ -116,13 +126,10 @@ class OneVmmVmware extends Thread
                 {                           
                     if (str_split.length != 5)
                     {   
-                       System.out.println("FAILURE Wrong number of arguments for DEPLOY action. Number args = [" +
+                       send_message(action + " FAILURE " + vid_str);     
+                       send_error("FAILURE Wrong number of arguments for DEPLOY action. Number args = [" +
                                               str_split.length + "].");
-                       synchronized (System.err)
-                       {
-                           System.err.println(action + " FAILURE " + vid_str); 
-                           continue;
-                       }      
+                       continue;
                     }
                     else
                     {
@@ -186,11 +193,9 @@ class OneVmmVmware extends Thread
                             catch(Exception e)
                             {
                                 oVM.disconnect();
-                                synchronized (System.err)
-                                {
-                                    System.err.println(action + " FAILURE " + vid_str + " Failed connection to host " +
-                                                       hostName +". Reason: " + e.getMessage());
-                                }
+                                send_message(action + " FAILURE " + vid_str + " " + e.getMessage());
+                                if (!debug)
+                                    send_error  (action + " FAILURE " + vid_str + " " + e.getMessage());
                                 continue;
                             }
                             
@@ -209,11 +214,7 @@ class OneVmmVmware extends Thread
                                 throw new Exception("Error powering on VM(" + pXML.getName() + ").");
                             }
                             
-                            synchronized (System.err)
-                            {
-                                 System.err.println("DEPLOY SUCCESS " + vid_str + " " + pXML.getName() + "-" + vid_str);
-                            }
-
+                            send_message("DEPLOY SUCCESS " + vid_str + " " + pXML.getName() + "-" + vid_str);
                             oVM.disconnect();
                             
                             continue;
@@ -221,17 +222,23 @@ class OneVmmVmware extends Thread
                          }
                          catch(Exception e)
                          {
-                             System.out.println("Failed deploying VM " + vid_str + " into " + hostName + 
-                                                ".Reason:" + e.getMessage());
+                             send_message("DEPLOY FAILURE " + vid_str + " Failed deploying VM in host " + 
+                                                hostName + ".");
+                             
                              if(debug)
                              {
-                                 e.printStackTrace(); 
+                                 send_error("Failed deploying VM " + vid_str + " into " + hostName +
+                                             ".Reason: "+ e.getMessage() +
+                                             "\n---- Debug stack trace ----");
+                                 enable_standard_error();
+                                 e.printStackTrace();
+                                 disable_standard_error();
+                                 send_error("---------------------------");
                              }
-                        
-                             synchronized (System.err)
-                             {
-                                 System.err.println("DEPLOY FAILURE " + vid_str + " Failed deploying VM in host " + 
-                                                    hostName + ".");
+                             else
+                             {   // If debug activated, this will be replicated in send_message
+                                 send_error("Failed deploying VM " + vid_str + " into " + hostName + 
+                                                  ".Reason:" + e.getMessage());
                              }
                          } // catch
            		    } // else if (str_split.length != 4)
@@ -241,15 +248,10 @@ class OneVmmVmware extends Thread
                  {                           
                      if (str_split.length < 3 )
                      {  
-                         System.out.println("FAILURE Wrong number of arguments for " + action + 
+                         send_message(action + " FAILURE " + vid_str);
+                         send_error("FAILURE Wrong number of arguments for " + action + 
                                            " action. Number args = [" +
                                            str_split.length + "].");
-                                           
-                        synchronized (System.err)
-                        {
-                            System.err.println(action + " FAILURE " + vid_str); 
-                            continue;
-                        }
                      }
                      else
                      {
@@ -268,42 +270,31 @@ class OneVmmVmware extends Thread
                          }
                          catch(Exception e)
                          {
-                             synchronized (System.err)
-                             {
-                                 System.err.println(action + " FAILURE " + vid_str + " Failed connection to host " +
-                                                    hostName +". Reason: " + e.getMessage());
-                             }
+                             send_message(action + " FAILURE " + vid_str + " " + e.getMessage());
+                             if(!debug)
+                                 send_error(action + " FAILURE " + vid_str + " " + e.getMessage());
                              oVM.disconnect();
                              continue;
                          }
                          
                          if(!oVM.powerOff(vmName))
                          {
-                             synchronized (System.err)
-                             {
-                                 System.err.println(action + " FAILURE " + vid_str + " Failed shutdown VM in host " + 
+                             send_message(action + " FAILURE " + vid_str + " Failed shutdown VM in host " + 
                                                     hostName);
-                             }
                              oVM.disconnect();
                              continue;
                          }
 
                          if(!oVM.deregisterVM(vmName))
                          {
-                             synchronized (System.err)
-                             {
-                                 System.err.println(action + " FAILURE " + vid_str + " Failed deregistering of " +vmName
+                             send_message(action + " FAILURE " + vid_str + " Failed deregistering of " +vmName
                                                     + " in host " + hostName +".");
-                             }
                              oVM.disconnect();
                              continue;
                          }
                          else
                          {
-                             synchronized (System.err)
-                             {
-                                 System.err.println(action + " SUCCESS " + vid_str);                             
-                             }
+                             send_message(action + " SUCCESS " + vid_str);                             
                          }
                       }
                       oVM.disconnect();                     
@@ -314,14 +305,10 @@ class OneVmmVmware extends Thread
                  {                           
                      if (str_split.length < 5)
                      {  
-                        System.out.println("FAILURE Wrong number of arguments for SAVE action. Number args = [" +
+                        send_message(action + " FAILURE " + vid_str); 
+                        send_error("FAILURE Wrong number of arguments for SAVE action. Number args = [" +
                                            str_split.length + "].");
-                                           
-                        synchronized (System.err)
-                        {
-                            System.err.println(action + " FAILURE " + vid_str); 
-                            continue;
-                        }
+                        continue;                   
                      }
                      else
                      {              
@@ -340,42 +327,31 @@ class OneVmmVmware extends Thread
                          }
                          catch(Exception e)
                          {
-                             synchronized (System.err)
-                             {
-                                 System.err.println(action + " FAILURE " + vid_str + " Failed connection to host " +
-                                                    hostName +". Reason: " + e.getMessage());
-                             }
+                             send_message(action + " FAILURE " + vid_str + " " + e.getMessage());
+                             if(!debug)
+                                send_error(action + " FAILURE " + vid_str + " " + e.getMessage());
                              oVM.disconnect();
                              continue;
                          }
                          
                          if(!oVM.save(vmName))
                          {
-                             synchronized (System.err)
-                             {
-                                 System.err.println(action + " FAILURE " + vid_str + " Failed suspending VM in host " + 
+                             send_message(action + " FAILURE " + vid_str + " Failed suspending VM in host " + 
                                                     hostName);
-                             }
                              oVM.disconnect();
                              continue;
                          }
 
                          if(!oVM.deregisterVM(vmName))
                          {
-                             synchronized (System.err)
-                             {
-                                 System.err.println(action + " FAILURE " + vid_str + " Failed deregistering of " +vmName
+                             send_message(action + " FAILURE " + vid_str + " Failed deregistering of " +vmName
                                                     + " in host " + hostName +".");
-                             }
                              oVM.disconnect();
                              continue;
                          }
                          else
                          {
-                             synchronized (System.err)
-                             {
-                                 System.err.println(action + " SUCCESS " + vid_str);                             
-                             }
+                             send_message(action + " SUCCESS " + vid_str);                             
                          }
                          oVM.disconnect();                        
                          continue;
@@ -386,13 +362,10 @@ class OneVmmVmware extends Thread
                  {       
                      if (str_split.length < 4)
                      {  
-                        System.out.println("FAILURE Wrong number of arguments for CHECKPOINT action. Number args = [" +
+                        send_message(action + " FAILURE " + vid_str);  
+                        send_error("FAILURE Wrong number of arguments for CHECKPOINT action. Number args = [" +
                                            str_split.length + "].");
-                        synchronized (System.err)
-                        {
-                            System.err.println(action + " FAILURE " + vid_str); 
-                            continue;
-                        }
+                        continue;
                      }
                      else 
                      {              
@@ -411,31 +384,21 @@ class OneVmmVmware extends Thread
                          }
                          catch(Exception e)
                          {
-                             synchronized (System.err)
-                             {
-                                 System.err.println(action + " FAILURE " + vid_str + " Failed connection to host " +
-                                                    hostName +". Reason: " + e.getMessage());
-                             }
+                             send_message(action + " FAILURE " + vid_str + " " + e.getMessage());
                              oVM.disconnect();
                              continue;
                          }
                          
                          if(!oVM.createCheckpoint(vmName))
                          {
-                             synchronized (System.err)
-                             {
-                                 System.err.println(action + " FAILURE " + vid_str + " Failed suspending VM in host " + 
+                             send_message(action + " FAILURE " + vid_str + " Failed suspending VM in host " + 
                                                     hostName);
-                             }
                              oVM.disconnect();
                              continue;
                          }
                          else
                          {
-                             synchronized (System.err)
-                             {
-                                 System.err.println(action + " SUCCESS " + vid_str);                             
-                             }
+                             send_message(action + " SUCCESS " + vid_str);                             
                          }
                          oVM.disconnect();                         
                          continue;
@@ -446,13 +409,10 @@ class OneVmmVmware extends Thread
                  {       
                      if (str_split.length < 4)
                      {  
-                        System.out.println("FAILURE Wrong number of arguments for RESTORE " + 
+                        send_message(action + " FAILURE " + vid_str); 
+                        send_error("FAILURE Wrong number of arguments for RESTORE " + 
                                            "action. Number args = [" + str_split.length + "].");
-                        synchronized (System.err)
-                        {
-                            System.err.println(action + " FAILURE " + vid_str); 
-                            continue;
-                        }
+                        continue;
                      }
                      else 
                      {              
@@ -487,11 +447,9 @@ class OneVmmVmware extends Thread
                          }
                          catch(Exception e)
                          {
-                             synchronized (System.err)
-                             {
-                                 System.err.println(action + " FAILURE " + vid_str + " Failed connection to host " +
-                                                    hostName +". Reason: " + e.getMessage());
-                             }
+                             send_message(action + " FAILURE " + vid_str + " " + e.getMessage());
+                             if(!debug)
+                                send_error(action + " FAILURE " + vid_str + " " + e.getMessage());
                              oVM.disconnect();
                              dVM.disconnect();
                              continue;
@@ -499,11 +457,8 @@ class OneVmmVmware extends Thread
                          
                          if(!oVM.restoreCheckpoint(vmName))
                          {
-                             synchronized (System.err)
-                             {
-                                 System.err.println(action + " FAILURE " + vid_str + " Failed restoring VM in host " + 
+                             send_message(action + " FAILURE " + vid_str + " Failed restoring VM in host " + 
                                                     hostName);
-                             }
                              oVM.disconnect();
                              dVM.disconnect();
                              continue;
@@ -514,15 +469,12 @@ class OneVmmVmware extends Thread
                              {
                                  if(!oVM.powerOn(vmName))
                                  {
-                                      System.err.println(action + " FAILURE " + vid_str + " Failed restoring VM in host " + 
+                                      send_message(action + " FAILURE " + vid_str + " Failed restoring VM in host " + 
                                                         hostName);
                                  }
                                  else
                                  {
-                                     synchronized (System.err)
-                                     {
-                                         System.err.println(action + " SUCCESS " + vid_str);                             
-                                     }
+                                     send_message(action + " SUCCESS " + vid_str);                             
                                      oVM.disconnect();
                                      dVM.disconnect();
                                      continue;
@@ -530,11 +482,8 @@ class OneVmmVmware extends Thread
                              }
                              catch(Exception e)
                              {
-                                 synchronized (System.err)
-                                 {
-                                     System.err.println(action + " FAILURE " + vid_str + " Failed connection to host " +
+                                 send_message(action + " FAILURE " + vid_str + " Failed connection to host " +
                                                         hostName +". Reason: " + e.getMessage());
-                                 }
                                  oVM.disconnect();
                                  dVM.disconnect();
                                  continue;
@@ -549,24 +498,20 @@ class OneVmmVmware extends Thread
                  
                  if (action.equals("MIGRATE"))
                  {      
-                     synchronized (System.err)
-                     {
-                         System.err.println(action + " FAILURE " + vid_str + " Action not implemented."); 
-                         continue;
-                     }
+                     send_message(action + " FAILURE " + vid_str + " Action not implemented."); 
+                     if(!debug)
+                        send_error(action + " FAILURE " + vid_str + " Action not implemented."); 
+                     continue;
                  } // if (action.equals("MIGRATE"))      
                  
                  if (action.equals("POLL"))
                  {      
                      if (str_split.length < 4)
                      {
-                         System.out.println("FAILURE Wrong number of arguments for POLL " + 
-                                            "action. Number args = [" + str_split.length + "].");
-                         synchronized (System.err)
-                         {
-                             System.err.println(action + " FAILURE " + vid_str); 
-                             continue;
-                         }
+                         send_message(action + " FAILURE " + vid_str);
+                         send_error("FAILURE Wrong number of arguments for POLL " + 
+                                            "action. Number args = [" + str_split.length + "]."); 
+                         continue;
                      }
                      else
                      {
@@ -644,11 +589,7 @@ class OneVmmVmware extends Thread
                              pollInfo = "STATE=-";
                          }
 
-                         synchronized (System.err)
-                         {
-                             System.err.println(action + " SUCCESS " + vid_str + " " + pollInfo);                             
-                         }
-                        
+                         send_message(action + " SUCCESS " + vid_str + " " + pollInfo);                                        
                          continue;
                      }                
                  } // if (action.equals("POLL"))     
@@ -659,18 +600,68 @@ class OneVmmVmware extends Thread
     void init() 
     {
         // Nothing to do here
-        synchronized(System.err)
-        {
-            System.err.println("INIT SUCCESS");
-        }
+        send_message("INIT SUCCESS");
     }
 
     void finalize_mad() 
     {
-        // Nothing to do here
-        synchronized(System.err)
-        {
-            System.err.println("FINALIZE SUCCESS");
+        send_message("FINALIZE SUCCESS");
+    }
+    
+    void enable_standard_output()
+    {   
+        System.setOut(stdout);
+    }
+
+    void enable_standard_error()
+    {   
+        System.setErr(stderr);
+    }
+
+    
+    void disable_standard_output()
+    {
+        try
+        {        
+            System.setOut(new PrintStream(new FileOutputStream("/dev/null")));
+        }
+        catch(Exception e)
+        {}
+    }
+
+    void disable_standard_error()
+    {   
+        try
+        {        
+            System.setErr(new PrintStream(new FileOutputStream("/dev/null")));
+        }
+        catch(Exception e)
+        {}
+    }
+
+
+    void send_message(String str)
+    {
+        synchronized (System.out)
+        {   
+            enable_standard_output();
+            System.out.println(str);
+            disable_standard_output();
+        }
+        
+        if(debug){ enable_standard_output(); System.out.println("dddd"); disable_standard_output();send_error(str);}
+    }
+    
+    void send_error(String str)
+    {
+        Date date = new Date();
+        Format formatter;
+        formatter = new SimpleDateFormat("[dd.MM.yyyy HH:mm:ss] ");
+        synchronized (System.err)
+        {   
+            enable_standard_error();
+            System.err.println(formatter.format(date)+str);
+            disable_standard_error();
         }
     }
 }
