@@ -17,7 +17,6 @@
 
 require 'rubygems'
 require 'uri'
-require 'OpenNebula'
 
 require 'net/https'
 

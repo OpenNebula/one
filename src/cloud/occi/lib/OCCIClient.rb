@@ -19,7 +19,6 @@
 
 require 'rubygems'
 require 'uri'
-require 'OpenNebula'
 
 require 'CloudClient'
 
@@ -75,8 +74,6 @@ module OCCIClient
                 end
             rescue Errno::ECONNREFUSED => e
                 puts "Error connecting to server (" + e.to_s + ")."
-                puts "Is the occi-server running? Try:"
-                puts "  $ occi-server start"
                 exit -1
             end
         end
