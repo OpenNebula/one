@@ -28,8 +28,9 @@ module OCCIClient
     #####################################################################
     #  Client Library to interface with the OpenNebula OCCI Service
     #####################################################################
-    class Client < CloudClient
-        
+    class Client 
+       
+        include CloudClient 
         ######################################################################
         # Initialize client library
         ######################################################################
@@ -49,7 +50,7 @@ module OCCIClient
             if user && pass
                 @occiauth = [user, pass]
             else
-                @occiauth = get_one_auth
+                @occiauth = CloudClient::get_one_auth
             end
             
             if !@occiauth
@@ -59,25 +60,6 @@ module OCCIClient
             @occiauth[1] = Digest::SHA1.hexdigest(@occiauth[1])
         end
         
-        # Starts an http connection and calls the block provided. SSL flag
-        # is set if needed.
-        def http_start(url, &block)
-            http = Net::HTTP.new(url.host, url.port)
-            if url.scheme=='https'
-                http.use_ssl = true
-                http.verify_mode=OpenSSL::SSL::VERIFY_NONE
-            end
-            
-            begin
-                http.start do |connection|
-                    block.call(connection)
-                end
-            rescue Errno::ECONNREFUSED => e
-                puts "Error connecting to server (" + e.to_s + ")."
-                exit -1
-            end
-        end
-
         #################################
         # Pool Resource Request Methods #
         #################################
@@ -97,7 +79,7 @@ module OCCIClient
             
             req.basic_auth @occiauth[0], @occiauth[1]
             
-            res = http_start(url) do |http|
+            res = CloudClient::http_start(url) do |http|
                 http.request(req)
             end
             
@@ -113,7 +95,7 @@ module OCCIClient
             
             req.basic_auth @occiauth[0], @occiauth[1]
             
-            res = http_start(url) {|http|
+            res = CloudClient::http_start(url) {|http|
                 http.request(req)
             }
             puts res.body
@@ -133,7 +115,7 @@ module OCCIClient
             
             req.basic_auth @occiauth[0], @occiauth[1]
             
-            res = http_start(url) do |http|
+            res = CloudClient::http_start(url) do |http|
                 http.request(req)
             end
             
@@ -149,7 +131,7 @@ module OCCIClient
             
             req.basic_auth @occiauth[0], @occiauth[1]
             
-            res = http_start(url) {|http|
+            res = CloudClient::http_start(url) {|http|
                 http.request(req)
             }
             puts res.body
@@ -203,7 +185,7 @@ module OCCIClient
                 
                 req.basic_auth @occiauth[0], @occiauth[1]
                 
-                res = http_start(url) do |http|
+                res = CloudClient::http_start(url) do |http|
                     http.request(req)
                 end
                 file.close
@@ -221,7 +203,7 @@ module OCCIClient
             
             req.basic_auth @occiauth[0], @occiauth[1]
             
-            res = http_start(url) {|http|
+            res = CloudClient::http_start(url) {|http|
                 http.request(req)
             }
             puts res.body
@@ -240,7 +222,7 @@ module OCCIClient
             
             req.basic_auth @occiauth[0], @occiauth[1]
             
-            res = http_start(url) {|http|
+            res = CloudClient::http_start(url) {|http|
                 http.request(req)
             }
             puts res.body
@@ -261,7 +243,7 @@ module OCCIClient
             
             req.basic_auth @occiauth[0], @occiauth[1]
             
-            res = http_start(url) do |http|
+            res = CloudClient::http_start(url) do |http|
                 http.request(req)
             end
             
@@ -277,7 +259,7 @@ module OCCIClient
             
             req.basic_auth @occiauth[0], @occiauth[1]
             
-            res = http_start(url) {|http|
+            res = CloudClient::http_start(url) {|http|
                 http.request(req)
             }
         end
@@ -292,7 +274,7 @@ module OCCIClient
             
             req.basic_auth @occiauth[0], @occiauth[1]
             
-            res = http_start(url) {|http|
+            res = CloudClient::http_start(url) {|http|
                 http.request(req)
             }
             puts res.body
@@ -307,7 +289,7 @@ module OCCIClient
             
             req.basic_auth @occiauth[0], @occiauth[1]
             
-            res = http_start(url) {|http|
+            res = CloudClient::http_start(url) {|http|
                 http.request(req)
             }
         end
@@ -322,7 +304,7 @@ module OCCIClient
             
             req.basic_auth @occiauth[0], @occiauth[1]
             
-            res = http_start(url) {|http|
+            res = CloudClient::http_start(url) {|http|
                 http.request(req)
             }
             puts res.body

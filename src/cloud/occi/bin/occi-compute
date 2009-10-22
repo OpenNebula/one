@@ -84,7 +84,7 @@ require 'getoptlong'
 require 'rdoc/usage'
 require 'pp'
 
-include CloudClient::CLIHelpers
+include CloudCLI
 
 opts = GetoptLong.new(
             ['--help',         '-h',GetoptLong::NO_ARGUMENT],
