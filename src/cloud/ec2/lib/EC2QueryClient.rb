@@ -33,8 +33,6 @@ module EC2QueryClient
     ##########################################################################
     class Client 
 
-        include CloudClient
-
         API_VERSION = '2008-12-01'
         
         ######################################################################
@@ -89,7 +87,7 @@ module EC2QueryClient
             begin
                 response = @ec2_connection.describe_instances
             rescue Exception => e
-                error = Error.new(e.message)
+                error = CloudClient::Error.new(e.message)
                 return error
             end
             
@@ -109,7 +107,7 @@ module EC2QueryClient
                                 :instance_type => type
                            )            
             rescue Exception => e
-                error = Error.new(e.message)
+                error = CloudClient::Error.new(e.message)
                 return error
             end
             
@@ -126,7 +124,7 @@ module EC2QueryClient
                     :instance_id   => instance_id
                  )
             rescue Exception => e
-                error = Error.new(e.message)
+                error = CloudClient::Error.new(e.message)
                 return error
             end
             
@@ -166,7 +164,7 @@ module EC2QueryClient
                 if connection.response_code == 200
                     return AWS::Response.parse(:xml => connection.body_str)
                 else
-                    return Error.new(connection.body_str)
+                    return CloudClient::Error.new(connection.body_str)
                 end
             else
                 params["Signature"]=sig
@@ -185,7 +183,7 @@ module EC2QueryClient
                 if res.code == '200'
                     return AWS::Response.parse(:xml => res.body)
                 else
-                    return Error.new(res.body)
+                    return CloudClient::Error.new(res.body)
                 end
             end
         end
@@ -200,7 +198,7 @@ module EC2QueryClient
                             :image_location => image_id
                           )
             rescue Exception => e
-                error = Error.new(e.message)
+                error = CloudClient::Error.new(e.message)
                 return error
             end
             
@@ -216,7 +214,7 @@ module EC2QueryClient
             begin
                 response = @ec2_connection.describe_images
             rescue Exception => e
-                error = Error.new(e.message)
+                error = CloudClient::Error.new(e.message)
                 return error
             end
             
