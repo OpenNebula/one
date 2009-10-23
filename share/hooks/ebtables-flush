@@ -1,0 +1,50 @@
+#!/usr/bin/env ruby
+
+def deactivate(rule)
+    system "sudo ebtables -D #{rule}"
+end
+
+def get_interfaces
+    brctl_exit=`brctl show`
+    brctl_exit.split("\n")[1..-1].collect{|l| l.split.last }
+end
+
+RULE_TYPES={
+    'INPUT' => /-i ([\w\.\-]+) /,
+    'OUTPUT' => /-o ([\w\.\-]+) /
+}
+
+def get_rules
+    rules=Hash.new
+    RULE_TYPES.each do |name, reg|
+        r=Array.new
+        ebtables_exit=`sudo ebtables -L #{name}`
+        rules[name]=ebtables_exit.split("\n")[3..-1].collect do |l|
+            line=l.strip
+            m=line.match(reg)
+            if m
+                interface=m[1]
+                {
+                    :interface  => interface, 
+                    :rule       => line
+                }
+            else
+                nil
+            end
+        end.compact
+    end
+
+    rules
+end
+
+interfaces=get_interfaces
+all_rules=get_rules
+
+all_rules.each do |chain, rules|
+    rules.each do |rule|
+        if !interfaces.include?(rule[:interface])
+            deactivate("#{chain} #{rule[:rule]}") 
+        end
+    end
+end
+
