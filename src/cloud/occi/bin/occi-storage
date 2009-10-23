@@ -118,13 +118,13 @@ begin
         end
     end
 rescue Exception => e
-    exit -1
+    exit(-1)
 end 
 
 if !ARGV[0]
     puts "#{cmd_name}: [COMMAND] not present"
     puts "#{cmd_name}: Execute #{cmd_name} -h for help."
-    exit -1
+    exit(-1)
 end
 
 
@@ -132,43 +132,44 @@ begin
     occi_client = OCCIClient::Client.new(url,username,password,debug)
 rescue Exception => e
     puts "#{cmd_name}: #{e.message}"
-    exit -1
+    exit(-1)
 end
 
 case ARGV[0].downcase
-when 'create'
-    image_xml = ARGV[1]
+    when 'create'
+        image_xml = ARGV[1]
 
-    if !image_xml || !File.exists?(image_xml)
-        puts "#{cmd_name} create: missing occi xml parameter or file not found"
-        exit -1
-    end
+        if !image_xml || !File.exists?(image_xml)
+            puts "#{cmd_name} create: missing occi xml or file not found"
+            exit(-1)
+        end
 
-    occi_client.post_image(image_xml, curb)
+        rc = occi_client.post_image(image_xml, curb)
 
-when 'list'
-    occi_client.get_images
+    when 'list'
+        rc = occi_client.get_images
 
-when 'show'
-    image_id = ARGV[1]
+    when 'show'
+        image_id = ARGV[1]
 
-    if !image_id 
-        puts "#{cmd_name} show: missing storage id parameter or file not found"
-        exit -1
-    end
-    
-    occi_client.get_image(image_id)
+        if !image_id 
+            puts "#{cmd_name} show: missing storage id parameter"
+            exit(-1)
+        end
+        
+        rc = occi_client.get_image(image_id)
 
-when 'delete'
-    puts 'Delete not yet implemented'
-    exit -1
+    when 'delete'
+        puts 'Delete not yet implemented'
+        exit(-1)
 
-else
-    puts "Command #{ARGV[0]} not valid."
-    exit -1
-    
+    else
+        puts "Command #{ARGV[0]} not valid."
+        exit(-1)
 end
 
-    
-
-
+if CloudClient::is_error?(rc)
+    puts rc.to_s()
+else
+    puts rc
+end

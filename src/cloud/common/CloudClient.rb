@@ -79,9 +79,10 @@ module CloudClient
                 block.call(connection)
             end
         rescue Errno::ECONNREFUSED => e
-            puts "Error connecting to server (" + e.to_s + ")."
-            puts "Server: #{url.host}:#{url.port}"
-            exit -1
+            str =  "Error connecting to server (#{e.to_s})."
+            str << "Server: #{url.host}:#{url.port}"
+        
+            return CloudClient::Error.new(str)
         end
     end
 

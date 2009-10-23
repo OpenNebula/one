@@ -18,6 +18,7 @@
 #--------------------------------------------------------------------------- #
 
 require 'rubygems'
+require 'crack'
 require 'uri'
 
 require 'CloudClient'
@@ -30,7 +31,6 @@ module OCCIClient
     #####################################################################
     class Client 
        
-        include CloudClient 
         ######################################################################
         # Initialize client library
         ######################################################################
@@ -82,8 +82,12 @@ module OCCIClient
             res = CloudClient::http_start(url) do |http|
                 http.request(req)
             end
-            
-            puts res.body
+
+            if CloudClient::is_error?(res)
+                return res
+            else
+                return res.body
+            end
         end
         
         ######################################################################
@@ -98,7 +102,12 @@ module OCCIClient
             res = CloudClient::http_start(url) {|http|
                 http.request(req)
             }
-            puts res.body
+            
+            if CloudClient::is_error?(res)
+                return res
+            else
+                return res.body
+            end
         end
         
         ######################################################################
@@ -119,7 +128,11 @@ module OCCIClient
                 http.request(req)
             end
             
-            puts res.body
+            if CloudClient::is_error?(res)
+                return res
+            else
+                return res.body
+            end
         end
         
         ######################################################################
@@ -134,7 +147,12 @@ module OCCIClient
             res = CloudClient::http_start(url) {|http|
                 http.request(req)
             }
-            puts res.body
+            
+            if CloudClient::is_error?(res)
+                return res
+            else
+                return res.body
+            end
         end
         
         ######################################################################
@@ -155,9 +173,10 @@ module OCCIClient
             
             if curb and CURL_LOADED
                 curl=Curl::Easy.new(@endpoint+"/storage")
-                curl.http_auth_types=Curl::CURLAUTH_BASIC
-                curl.userpwd="#{@occiauth[0]}:#{@occiauth[1]}"
-                curl.verbose=true if @debug
+
+                curl.http_auth_types     = Curl::CURLAUTH_BASIC
+                curl.userpwd             = "#{@occiauth[0]}:#{@occiauth[1]}"
+                curl.verbose             = true if @debug
                 curl.multipart_form_post = true
                 
                 begin
@@ -166,10 +185,10 @@ module OCCIClient
                       Curl::PostField.file('file', file_path)
                     )
                 rescue Exception => e
-                    pp e.message
+                    return CloudClient::Error.new(e.message)
                 end
                 
-                puts curl.body_str
+                return curl.body_str
             else
                 file=File.open(file_path)
                 
@@ -188,9 +207,14 @@ module OCCIClient
                 res = CloudClient::http_start(url) do |http|
                     http.request(req)
                 end
+
                 file.close
                 
-                puts res.body
+                if CloudClient::is_error?(res)
+                    return res
+                else
+                    return res.body
+                end
             end         
         end
         
@@ -206,7 +230,12 @@ module OCCIClient
             res = CloudClient::http_start(url) {|http|
                 http.request(req)
             }
-            puts res.body
+            
+            if CloudClient::is_error?(res)
+                return res
+            else
+                return res.body
+            end
         end
         
         ####################################
@@ -225,7 +254,12 @@ module OCCIClient
             res = CloudClient::http_start(url) {|http|
                 http.request(req)
             }
-            puts res.body
+            
+            if CloudClient::is_error?(res)
+                return res
+            else
+                return res.body
+            end
         end
         
         ######################################################################
@@ -247,7 +281,11 @@ module OCCIClient
                 http.request(req)
             end
             
-            puts res.body
+            if CloudClient::is_error?(res)
+                return res
+            else
+                return res.body
+            end
         end
         
         ####################################################################
@@ -262,6 +300,12 @@ module OCCIClient
             res = CloudClient::http_start(url) {|http|
                 http.request(req)
             }
+
+            if CloudClient::is_error?(res)
+                return res
+            else
+                return res.body
+            end
         end
         
         ######################################################################
@@ -277,7 +321,12 @@ module OCCIClient
             res = CloudClient::http_start(url) {|http|
                 http.request(req)
             }
-            puts res.body
+
+            if CloudClient::is_error?(res)
+                return res
+            else
+                return res.body
+            end
         end
         
         ######################################################################
@@ -292,6 +341,12 @@ module OCCIClient
             res = CloudClient::http_start(url) {|http|
                 http.request(req)
             }
+
+            if CloudClient::is_error?(res)
+                return res
+            else
+                return res.body
+            end
         end
         
        #######################################################################
@@ -307,7 +362,12 @@ module OCCIClient
             res = CloudClient::http_start(url) {|http|
                 http.request(req)
             }
-            puts res.body
+
+            if CloudClient::is_error?(res)
+                return res
+            else
+                return res.body
+            end
         end
     end
 end

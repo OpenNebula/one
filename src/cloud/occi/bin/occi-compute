@@ -116,96 +116,82 @@ begin
         end
     end
 rescue Exception => e
-    exit -1
+    exit(-1)
 end 
 
 begin
     occi_client = OCCIClient::Client.new(url,username,password,debug)
 rescue Exception => e
     puts "#{cmd_name}: #{e.message}"
-    exit -1
+    exit(-1)
+end
+
+
+begin
+    occi_client = OCCIClient::Client.new(url,username,password,debug)
+rescue Exception => e
+    puts "#{cmd_name}: #{e.message}"
+    exit(-1)
 end
 
 if !ARGV[0]
     puts "#{cmd_name}: [COMMAND] not present"
     puts "#{cmd_name}: Execute #{cmd_name} -h for help."
-    exit -1
+    exit(-1)
 end   
 
 case ARGV[0].downcase
-when 'list'
-    occi_client.get_vms
+    when 'list'
+        rc = occi_client.get_vms
 
-when 'create'
-    vm_xml = ARGV[1]
+    when 'create'
+        vm_xml = ARGV[1]
 
-    if !vm_xml || !File.exists?(vm_xml)
-        puts "#{cmd_name} create: missing OCCI-XML parameter or file not found"
-        exit -1
-    end
+        if !vm_xml || !File.exists?(vm_xml)
+            puts "#{cmd_name} create: missing OCCI-XML or file not found"
+            exit(-1)
+        end
 
-    begin
-        occi_client = OCCIClient::Client.new(url,username,password,debug)
-    rescue Exception => e
-        puts "#{cmd_name} create: #{e.message}"
-        exit -1
-    end
+        rc = occi_client.post_vms(vm_xml)
+        
+    when 'show'
+        vm_id = ARGV[1]
 
-    occi_client.post_vms(vm_xml)
-    
-when 'show'
-    vm_id = ARGV[1]
+        if !vm_id 
+            puts "#{cmd_name} show: missing VM-ID parameter"
+            exit(-1)
+        end
 
-    if !vm_id 
-        puts "#{cmd_name} show: missing VM-ID parameter"
-        exit -1
-    end
+        rc = occi_client.get_vm(vm_id)
+        
+    when 'update'
+        vm_xml = ARGV[1]
 
-    begin
-        occi_client = OCCIClient::Client.new(url,username,password,debug)
-    rescue Exception => e
-        puts "#{cmd_name} show: #{e.message}"
-        exit -1
-    end
+        if !vm_xml || !File.exists?(vm_xml)
+            puts "#{cmd_name} update: missing OCCI-XML or file not found"
+            exit -1
+        end
 
-    occi_client.get_vm(vm_id)
-    
-when 'update'
-    vm_xml = ARGV[1]
+        rc = occi_client.put_vm(vm_xml)
+        
+    when 'delete'
+        vm_id = ARGV[1]
 
-    if !vm_xml || !File.exists?(vm_xml)
-        puts "#{cmd_name} update: missing OCCI-XML parameter or file not found"
-        exit -1
-    end
+        if !vm_id 
+            puts "#{cmd_name} delete: missing VM-ID parameter"
+            exit -1
+        end
 
-    begin
-        occi_client = OCCIClient::Client.new(url,username,password,debug)
-    rescue Exception => e
-        puts "#{cmd_name} update: #{e.message}"
-        exit -1
-    end
-
-    occi_client.put_vm(vm_xml)
-    
-when 'delete'
-    vm_id = ARGV[1]
-
-    if !vm_id 
-        puts "#{cmd_name} delete: missing VM-ID parameter"
-        exit -1
-    end
-
-    begin
-        occi_client = OCCIClient::Client.new(url,username,password,debug)
-    rescue Exception => e
-        puts "#{cmd_name} delete: #{e.message}"
-        exit -1
-    end
-
-    occi_client.delete_vm(vm_id)
-    
-else
-    puts "Command #{ARGV[0]} not valid."
-    exit -1
-    
+        rc = occi_client.delete_vm(vm_id)
+        
+    else
+        puts "Command #{ARGV[0]} not valid."
+        exit(-1)
 end
+
+if CloudClient::is_error?(rc)
+    puts rc.to_s()
+else
+    puts rc
+end
+

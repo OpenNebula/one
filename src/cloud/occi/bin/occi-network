@@ -116,7 +116,7 @@ begin
         end
     end
 rescue Exception => e
-    exit -1
+    exit(-1)
 end 
 
 
@@ -124,56 +124,58 @@ begin
     occi_client = OCCIClient::Client.new(url,username,password,debug)
 rescue Exception => e
     puts "#{cmd_name}: #{e.message}"
-    exit -1
+    exit(-1)
 end
 
 if !ARGV[0]
     puts "#{cmd_name}: [COMMAND] not present"
     puts "#{cmd_name}: Execute #{cmd_name} -h for help."
-    exit -1
+    exit(-1)
 end
 
 
 case ARGV[0].downcase
-when 'create'
-    network_xml = ARGV[1]
+    when 'create'
+        network_xml = ARGV[1]
 
-    if !network_xml || !File.exists?(network_xml)
-        puts "#{cmd_name} create: missing OCCI-XML parameter or file not found"
-        exit -1
-    end
+        if !network_xml || !File.exists?(network_xml)
+            puts "#{cmd_name} create: missing OCCI-XML or file not found"
+            exit(-1)
+        end
 
-    occi_client.post_network(network_xml)
+        rc = occi_client.post_network(network_xml)
 
-when 'list'
-    occi_client.get_networks
+    when 'list'
+        rc = occi_client.get_networks
 
-when 'show'
-    network_id = ARGV[1]
+    when 'show'
+        network_id = ARGV[1]
 
-    if !network_id 
-        puts "#{cmd_name} show: missing NETWORK-ID parameter or file not found"
-        exit -1
-    end
-    
-    occi_client.get_network(network_id)
+        if !network_id 
+            puts "#{cmd_name} show: missing NETWORK-ID or file not found"
+            exit(-1)
+        end
+        
+        rc = occi_client.get_network(network_id)
+        pp "KKKK"
 
-when 'delete'
-    network_id = ARGV[1]
+    when 'delete'
+        network_id = ARGV[1]
 
-    if !network_id 
-        puts "#{cmd_name} delete: missing NETWORK-ID parameter"
-        exit -1
-    end
+        if !network_id 
+            puts "#{cmd_name} delete: missing NETWORK-ID parameter"
+            exit(-1)
+        end
 
-    occi_client.delete_network(network_id)
+        rc = occi_client.delete_network(network_id)
 
+    else
+        puts "Command #{ARGV[0]} not valid."
+        exit(-1)
+end    
+
+if CloudClient::is_error?(rc)
+    puts rc.to_s()
 else
-    puts "Command #{ARGV[0]} not valid."
-    exit -1
-    
+    puts rc
 end
-    
-    
-
-
