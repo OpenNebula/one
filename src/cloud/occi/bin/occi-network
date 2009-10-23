@@ -157,7 +157,6 @@ case ARGV[0].downcase
         end
         
         rc = occi_client.get_network(network_id)
-        pp "KKKK"
 
     when 'delete'
         network_id = ARGV[1]
