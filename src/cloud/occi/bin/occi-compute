@@ -41,7 +41,7 @@
 # --password <key>, -P <key>:
 #    The password of the user
 #
-# --url <url>, -U <url>:
+# --url <url>, -R <url>:
 #    Set url as the web service url to use
 #
 # --debug, -D
