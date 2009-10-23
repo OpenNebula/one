@@ -97,7 +97,7 @@ class EC2QueryServer < CloudServer
         user  = get_user(params['AWSAccessKeyId'])
 
         image   = add_image(user[:id],params["file"][:tempfile])
-        @erb_img_id = image.id
+        erb_img_id = image.id
 
         response = ERB.new(File.read(@config[:views]+"/register_image.erb"))
         return response.result(binding), 200
@@ -113,15 +113,15 @@ class EC2QueryServer < CloudServer
             return OpenNebula::Error.new('Not permited to use image'), 401
         end
 
-        @erb_img_id=image.id
+        erb_img_id=image.id
 
         response = ERB.new(File.read(@config[:views]+"/register_image.erb"))
         return response.result(binding), 200
     end
 
     def describe_images(params)
-        @erb_user   = get_user(params['AWSAccessKeyId'])
-        @erb_images = Image.filter(:owner => @erb_user[:id])
+        erb_user   = get_user(params['AWSAccessKeyId'])
+        erb_images = Image.filter(:owner => erb_user[:id])
        
         response = ERB.new(File.read(@config[:views]+"/describe_images.erb"))
         return response.result(binding), 200
@@ -146,20 +146,19 @@ class EC2QueryServer < CloudServer
         # Get the user
         user       = get_user(params['AWSAccessKeyId'])
         one_client = one_client_user(user) 
-        @erb_user_name = user[:name]
-       
+        erb_user_name = user[:name]
+   
         # Build the VM 
-        @erb_vm_info=Hash.new
+        erb_vm_info=Hash.new
 
-        @erb_vm_info[:img_path]      = image.path
-        @erb_vm_info[:img_id]        = params['ImageId']
-        @erb_vm_info[:instance_type] = instance_type_name
-        @erb_vm_info[:template]      = @config[:template_location] + 
+        erb_vm_info[:img_path]      = image.path
+        erb_vm_info[:img_id]        = params['ImageId']
+        erb_vm_info[:instance_type] = instance_type_name
+        erb_vm_info[:template]      = @config[:template_location] + 
                                        "/#{instance_type['TEMPLATE']}"
-
-        template      = ERB.new(File.read(@erb_vm_info[:template]))
+        template      = ERB.new(File.read(erb_vm_info[:template]))
         template_text = template.result(binding)
-
+ 
         #Start the VM.
         vm = VirtualMachine.new(VirtualMachine.build_xml, one_client)
         rc = vm.allocate(template_text)
@@ -167,9 +166,9 @@ class EC2QueryServer < CloudServer
         return rc, 401 if OpenNebula::is_error?(rc)
 
         vm.info
-        
-        @erb_vm_info[:vm_id]=vm.id
-        @erb_vm_info[:vm]=vm
+     
+        erb_vm_info[:vm_id]=vm.id
+        erb_vm_info[:vm]=vm
         
         response = ERB.new(File.read(@config[:views]+"/run_instances.erb"))
         return response.result(binding), 200
@@ -181,7 +180,7 @@ class EC2QueryServer < CloudServer
         user       = get_user(params['AWSAccessKeyId'])
         one_client = one_client_user(user) 
 
-        @erb_user_name = user[:name]
+        erb_user_name = user[:name]
 
         if user[:id]==0
             user_flag=-2
@@ -189,8 +188,8 @@ class EC2QueryServer < CloudServer
             user_flag=-1
         end
 
-        @erb_vmpool = VirtualMachinePool.new(one_client, user_flag)
-        @erb_vmpool.info
+        erb_vmpool = VirtualMachinePool.new(one_client, user_flag)
+        erb_vmpool.info
         
         response = ERB.new(File.read(@config[:views]+"/describe_instances.erb"))
         return response.result(binding), 200
@@ -203,15 +202,15 @@ class EC2QueryServer < CloudServer
         
         vmid=params['InstanceId.1']
         
-        @erb_vm = VirtualMachine.new(VirtualMachine.build_xml(vmid),one_client)
-        rc      = @erb_vm.info
+        erb_vm = VirtualMachine.new(VirtualMachine.build_xml(vmid),one_client)
+        rc      = erb_vm.info
         
         return rc, 401 if OpenNebula::is_error?(rc)
         
-        if @erb_vm.status == 'runn'
-            rc = @erb_vm.shutdown
+        if erb_vm.status == 'runn'
+            rc = erb_vm.shutdown
         else
-            rc = @erb_vm.finalize
+            rc = erb_vm.finalize
         end
         
         return rc, 401 if OpenNebula::is_error?(rc)

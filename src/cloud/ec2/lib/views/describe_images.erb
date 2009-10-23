@@ -1,11 +1,11 @@
 <DescribeImagesResponse xmlns="http://ec2.amazonaws.com/doc/2009-04-04/"> 
   <imagesSet> 
-  <% for image in @erb_images %>
+  <% for image in erb_images %>
     <item> 
       <imageId><%= image.id %></imageId> 
       <imageLocation><%= image.path %></imageLocation> 
       <imageState>available</imageState> 
-      <imageOwnerId><%= @erb_user[:name] %></imageOwnerId> 
+      <imageOwnerId><%= erb_user[:name] %></imageOwnerId> 
       <isPublic>false</isPublic> 
       <architecture>i386</architecture> 
       <imageType>machine</imageType> 

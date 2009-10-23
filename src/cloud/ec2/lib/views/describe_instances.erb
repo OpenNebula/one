@@ -2,14 +2,14 @@
   <reservationSet> 
     <item> 
       <reservationId>default</reservationId> 
-      <ownerId><%= @erb_user_name %></ownerId> 
+      <ownerId><%= erb_user_name %></ownerId> 
       <groupSet> 
         <item> 
           <groupId>default</groupId> 
         </item> 
       </groupSet> 
       <instancesSet> 
-        <% @erb_vmpool.each do |vm| %>
+        <% erb_vmpool.each do |vm| %>
         <% vm.info %>
         <item> 
           <instanceId><%= vm.id %></instanceId> 

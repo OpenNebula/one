@@ -1,6 +1,6 @@
 <RunInstancesResponse xmlns="http://ec2.amazonaws.com/doc/2009-04-04/"> 
   <reservationId>r-47a5402e</reservationId> 
-  <ownerId><%= @erb_user_name %></ownerId> 
+  <ownerId><%= erb_user_name %></ownerId> 
   <groupSet> 
     <item> 
       <groupId>default</groupId> 
@@ -8,18 +8,18 @@
   </groupSet> 
   <instancesSet> 
     <item> 
-      <instanceId><%= @erb_vm_info[:vm_id] %></instanceId> 
-      <imageId><%= @erb_vm_info[:img_id] %></imageId> 
+      <instanceId><%= erb_vm_info[:vm_id] %></instanceId> 
+      <imageId><%= erb_vm_info[:img_id] %></imageId> 
       <instanceState> 
         <code>0</code> 
         <name>pending</name> 
       </instanceState> 
-      <privateDnsName><%= @erb_vm_info[:vm]["TEMPLATE/NIC/IP"]%></privateDnsName> 
-      <dnsName><%= @erb_vm_info[:vm]["TEMPLATE/NIC/IP"]%></dnsName> 
+      <privateDnsName><%= erb_vm_info[:vm]["TEMPLATE/NIC/IP"]%></privateDnsName> 
+      <dnsName><%= erb_vm_info[:vm]["TEMPLATE/NIC/IP"]%></dnsName> 
       <keyName>default</keyName> 
       <amiLaunchIndex>0</amiLaunchIndex> 
-      <instanceType><%= @erb_vm_info[:instance_type] %></instanceType> 
-      <%= render_launch_time(@erb_vm_info[:vm]) %>
+      <instanceType><%= erb_vm_info[:instance_type] %></instanceType> 
+      <%= render_launch_time(erb_vm_info[:vm]) %>
       <placement> 
         <availabilityZone>default</availabilityZone> 
       </placement> 
