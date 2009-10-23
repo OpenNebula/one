@@ -13,12 +13,11 @@ class VirtualMachineOCCI < VirtualMachine
                 template['DISK'].each do |disk| 
                      next if !disk 
                      case disk['TYPE']
-                         when "disk"%>
-                <DISK type="disk" href="<%= base_url%>/storage/<%= disk['IMAGE_ID']%>" dev="<%= disk['DEV']%>"/><%
                          when "swap"%>
-                <DISK type="swap" size="<%= disk['SIZE']%>" dev="<%= disk['DEV']%>"/><%    
-                         when "fs"%>
-                <DISK type="fs" size="<%= disk['SIZE']%>" format="<%= disk['FORMAT']%>" dev="<%= disk['DEV']%>"/><%   
+                <DISK type="swap" size="<%= disk['SIZE']%>" dev="<%= disk['TARGET']%>"/><%       when "fs"  %>
+                <DISK type="fs" size="<%= disk['SIZE']%>" format="<%= disk['FORMAT']%>" dev="<%= disk['TARGET']%>"/><%
+                         else       %>
+                <DISK type="disk" href="<%= base_url%>/storage/<%= disk['IMAGE_ID']%>" dev="<%= disk['TARGET']%>"/><%   
                       end                  
                end %>           
             </STORAGE>  

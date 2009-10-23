@@ -17,14 +17,14 @@ case key
 %>
 DISK = [ type = "swap", 
          size=<%= img['size']%>, 
-         dev=<%= img['dev']%> ]
+         target=<%= img['dev']%> ]
 <% 
         end
     when "DISK"  
         image.each do |img|  
 %>
 DISK = [ type = "disk", 
-         dev=<%= img['dev']%>, 
+         target=<%= img['dev']%>, 
          source=<%= img['source']%>, 
          image_id=<%= img['image']%> ]
 <%  
@@ -33,7 +33,7 @@ DISK = [ type = "disk",
         image.each do |img| 
 %>
 DISK = [ type = "fs", 
-         dev=<%= img['dev']%>, 
+         target=<%= img['dev']%>, 
          size=<%= img['size']%>,
          format=<%= @config[:fs_format]||"ext3"%>  ]   
 <%      end %>
