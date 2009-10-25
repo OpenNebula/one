@@ -48,7 +48,13 @@ class OCCIServer < CloudServer
         super(config_file)
         
         @config.add_configuration_value("TEMPLATE_LOCATION",template)
-        @base_url="http://#{@config[:server]}:#{@config[:port]}"
+        
+        if @config[:ssl_server]
+            @base_url=@config[:ssl_server]
+        else
+            @base_url="http://#{@config[:server]}:#{@config[:port]}"
+        end
+        
         print_configuration
     end
     
