@@ -63,6 +63,12 @@ class EC2QueryServer < CloudServer
         super(config_file)
         @config.add_configuration_value("TEMPLATE_LOCATION",template)
         @config.add_configuration_value("VIEWS",views)
+        
+        if @config[:ssl_server]
+            @server_host=@config[:ssl_server]
+        else
+            @server_host=@config[:server]
+        end
 
         print_configuration
     end
@@ -83,7 +89,7 @@ class EC2QueryServer < CloudServer
 
         signature = AWS.encode(
                        user[:password], 
-                       AWS.canonical_string(signature_params, @config[:server]),
+                       AWS.canonical_string(signature_params, @server_host),
                        false)
         
         return params['Signature']==signature
