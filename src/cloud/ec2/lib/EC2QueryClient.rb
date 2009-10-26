@@ -174,7 +174,7 @@ module EC2QueryClient
                     'application/octet-stream', file_name)
 
                 req = Net::HTTP::Post::Multipart.new('/', params)
-                res = http_start(@uri) do |http|
+                res = CloudClient.http_start(@uri) do |http|
                     http.request(req)
                 end
 
