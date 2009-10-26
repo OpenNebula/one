@@ -25,11 +25,16 @@ fi
 
 . $TMCOMMON
 
+get_vmdir
+
 SIZE=$1
 FSTYPE=$2
 DST=$3
 
 DST_PATH=`arg_path $DST`
+
+fix_dst_path
+
 DST_DIR=`dirname $DST_PATH`
 
 exec_and_log "mkdir -p $DST_DIR"

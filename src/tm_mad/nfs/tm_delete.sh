@@ -28,7 +28,11 @@ fi
 
 . $TMCOMMON
 
+get_vmdir
+
 SRC_PATH=`arg_path $SRC`
+
+fix_src_path
 
 log "Deleting $SRC_PATH"
 exec_and_log "rm -rf $SRC_PATH"

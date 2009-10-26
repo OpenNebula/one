@@ -30,8 +30,12 @@ fi
 
 . $TMCOMMON
 
+get_vmdir
+
 SRC_PATH=`arg_path $SRC`
 DST_PATH=`arg_path $DST`
+
+fix_paths
 
 if [ "$SRC_PATH" == "$DST_PATH" ]; then
     log "Will not move, source and destination are equal"

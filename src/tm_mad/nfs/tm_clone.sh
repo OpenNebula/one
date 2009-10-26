@@ -28,8 +28,12 @@ fi
 
 . $TMCOMMON
 
+get_vmdir
+
 SRC_PATH=`arg_path $SRC`
 DST_PATH=`arg_path $DST`
+
+fix_paths
 
 log "$1 $2"
 log "DST: $DST_PATH"

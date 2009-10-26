@@ -15,6 +15,41 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+if [ -z "$ONE_LOCATION" ]; then 
+    ONE_CONF=/etc/one/oned.conf
+    ONE_LOCAL_VAR=/var/lib/one
+else
+    ONE_CONF=$ONE_LOCATION/etc/oned.conf
+    ONE_LOCAL_VAR=$ONE_LOCATION/var
+fi
+
+function get_vmdir
+{
+    VMDIR=`cat $ONE_CONF | grep ^VM_DIR= | cut -d= -f2`
+}
+
+function fix_paths
+{
+    if [ -n "$VMDIR" ]; then
+        SRC_PATH=${SRC_PATH/$VMDIR/$ONE_LOCAL_VAR}
+        DST_PATH=${DST_PATH/$VMDIR/$ONE_LOCAL_VAR}
+    fi
+}
+
+function fix_src_path
+{
+    if [ -n "$VMDIR" ]; then
+        SRC_PATH=${SRC_PATH/$VMDIR/$ONE_LOCAL_VAR}
+    fi
+}
+
+function fix_dst_path
+{
+    if [ -n "$VMDIR" ]; then
+        DST_PATH=${DST_PATH/$VMDIR/$ONE_LOCAL_VAR}
+    fi
+}
+
 # Used for log messages
 SCRIPT_NAME=`basename $0`
 

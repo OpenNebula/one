@@ -38,8 +38,12 @@ fi
 
 . $TMCOMMON
 
+get_vmdir
 
 DST_PATH=`arg_path $DST`
+
+fix_dst_path
+
 DST_DIR=`dirname $DST_PATH`
 ISO_DIR=$DST_DIR/isofiles
 
