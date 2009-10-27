@@ -1,4 +1,4 @@
-/* -------------------------------------------------------------------------- */
+* -------------------------------------------------------------------------- */
 /* Copyright 2002-2009, Distributed Systems Architecture Group, Universidad   */
 /* Complutense de Madrid (dsa-research.org)                                   */
 /*                                                                            */
@@ -877,7 +877,7 @@ int VirtualMachine::parse_attribute(VirtualMachine * vm,
     YY_BUFFER_STATE  str_buffer = 0;
     const char *     str;
     int              rc;
-    ostringstream    oss_parsed("DEBUG");
+    ostringstream    oss_parsed;
 
     *error_msg = 0;
 
