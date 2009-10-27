@@ -1,4 +1,4 @@
-* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 /* Copyright 2002-2009, Distributed Systems Architecture Group, Universidad   */
 /* Complutense de Madrid (dsa-research.org)                                   */
 /*                                                                            */
