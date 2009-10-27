@@ -1,42 +1,29 @@
 #!/usr/bin/env ruby
- 
-COMMAND=ARGV[0]
-VM_NAME=ARGV[1]
- 
+
+VM_NAME=ARGV[0]
+
 def activate(rule)
     system "sudo ebtables -A #{rule}"
 end
- 
-def deactivate(rule)
-    system "sudo ebtables -D #{rule}"
-end
- 
-vm_id=`sudo xm domid #{VM_NAME}`.strip
+
+vm_id=`sudo xm domid one-#{VM_NAME}`.strip
 networks=`sudo xm network-list #{vm_id}`.split("\n")[1..-1]
- 
+
 networks.each {|net|
     n=net.split
     iface_id=n[0]
     iface_mac=n[2]
- 
+
     mac=iface_mac.split(':')
     mac[-1]='00'
     net_mac=mac.join(':')
- 
+
     tap="vif#{vm_id}.#{iface_id}"
- 
-    in_rule="INPUT -d ! #{iface_mac}/FF:FF:FF:FF:FF:FF -i #{tap} -j DROP"
-    out_rule="OUTPUT -s ! #{net_mac}/FF:FF:FF:FF:FF:00 -o #{tap} -j DROP"
- 
-    case COMMAND
-    when "start"
-        activate(in_rule)
-        activate(out_rule)
-    when "stop"
-        deactivate(in_rule)
-        deactivate(out_rule)
-    else
-        puts "First parameter should be start or stop"
-    end
+
+    in_rule="FORWARD -s ! #{net_mac}/ff:ff:ff:ff:ff:00 -o #{tap} -j DROP"
+    out_rule="FORWARD -s ! #{iface_mac} -i #{tap} -j DROP"
+
+    activate(in_rule)
+    activate(out_rule)
 }
 
