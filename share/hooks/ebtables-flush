@@ -9,17 +9,16 @@ def get_interfaces
     brctl_exit.split("\n")[1..-1].collect{|l| l.split.last }
 end
 
-RULE_TYPES={
-    'INPUT' => /-i ([\w\.\-]+) /,
-    'OUTPUT' => /-o ([\w\.\-]+) /
-}
+RULE_TYPES=[
+    /-i ([\w\.\-]+) /,
+    /-o ([\w\.\-]+) /
+]
 
 def get_rules
-    rules=Hash.new
-    RULE_TYPES.each do |name, reg|
-        r=Array.new
-        ebtables_exit=`sudo ebtables -L #{name}`
-        rules[name]=ebtables_exit.split("\n")[3..-1].collect do |l|
+    rules=Array.new
+    RULE_TYPES.each do |reg|
+        ebtables_exit=`sudo ebtables -L FORWARD`
+        rules << ebtables_exit.split("\n")[3..-1].collect do |l|
             line=l.strip
             m=line.match(reg)
             if m
@@ -33,18 +32,15 @@ def get_rules
             end
         end.compact
     end
-
-    rules
+    rules.flatten
 end
 
 interfaces=get_interfaces
 all_rules=get_rules
 
-all_rules.each do |chain, rules|
-    rules.each do |rule|
-        if !interfaces.include?(rule[:interface])
-            deactivate("#{chain} #{rule[:rule]}") 
-        end
+all_rules.each do |rule|
+    if !interfaces.include?(rule[:interface])
+        deactivate("FORWARD #{rule[:rule]}") 
     end
 end
 

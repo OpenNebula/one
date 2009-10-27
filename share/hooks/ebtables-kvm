@@ -3,18 +3,13 @@
 require 'pp'
 require 'rexml/document'
  
-COMMAND=ARGV[0]
-VM_NAME=ARGV[1]
+VM_NAME=ARGV[0]
  
 def activate(rule)
     system "sudo ebtables -A #{rule}"
 end
  
-def deactivate(rule)
-    system "sudo ebtables -D #{rule}"
-end
- 
-nets=`virsh dumpxml #{VM_NAME}`
+nets=`virsh dumpxml one-#{VM_NAME}`
 
 doc=REXML::Document.new(nets).root
  
@@ -26,19 +21,11 @@ doc.elements.each('/domain/devices/interface') {|net|
     net_mac=mac.join(':')
  
     tap=net.elements['target'].attributes['dev']
+
+    in_rule="FORWARD -s ! #{net_mac}/ff:ff:ff:ff:ff:00 -o #{tap} -j DROP"
+    out_rule="FORWARD -s ! #{iface_mac} -i #{tap} -j DROP"
  
-    in_rule="INPUT -d ! #{iface_mac}/FF:FF:FF:FF:FF:FF -i #{tap} -j DROP"
-    out_rule="OUTPUT -s ! #{net_mac}/FF:FF:FF:FF:FF:00 -o #{tap} -j DROP"
- 
-    case COMMAND
-    when "start"
-        activate(in_rule)
-        activate(out_rule)
-    when "stop"
-        deactivate(in_rule)
-        deactivate(out_rule)
-    else
-        puts "First parameter should be start or stop"
-    end
+    activate(in_rule)
+    activate(out_rule)
 }
 
