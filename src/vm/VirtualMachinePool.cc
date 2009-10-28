@@ -116,6 +116,16 @@ VirtualMachinePool::VirtualMachinePool(SqliteDB *                db,
 
             state_hook = true;
         }
+        else if ( on == "DONE" )
+        {
+            VirtualMachineStateHook * hook;
+
+            hook = new VirtualMachineStateHook(name, cmd, arg, remote,
+                            VirtualMachine::LCM_INIT, VirtualMachine::DONE);
+            add_hook(hook);
+
+            state_hook = true;
+        }
         else
         {
             ostringstream oss;
