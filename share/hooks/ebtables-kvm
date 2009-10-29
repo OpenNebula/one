@@ -35,7 +35,7 @@ def get_bridges
     cur_bridge = ""
     brctl_exit.split("\n")[1..-1].each do |l| 
         l = l.split
-        if l.count > 1
+        if l.length > 1
             cur_bridge = l[0]
             bridges[cur_bridge] = Array.new
             bridges[cur_bridge] << l[3]
