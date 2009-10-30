@@ -210,7 +210,7 @@ def vms_in_host?(host_id)
         exit -1
     end
     
-    host['host_shares/running_vms'].to_i
+    host['host_share/running_vms'].to_i
 
 end
 
@@ -298,7 +298,7 @@ when "delete"
             exit -1
         end
 
-        if host['host_shares/running_vms'].to_i != 0
+        if host['host_share/running_vms'].to_i != 0
             puts "Host still has associated VMs. It will be disabled instead."
             result=host.disable
             if is_successful?(result)
