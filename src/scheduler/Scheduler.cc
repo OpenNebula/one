@@ -437,7 +437,7 @@ void Scheduler::dispatch()
     int rc;
 
     oss << "Select hosts" << endl;
-    oss << "\tPRI\tHID\tHSID" << endl;
+    oss << "\tPRI\tHID" << endl;
     oss << "\t-------------------" << endl;
 
     for (it=vmpool->pending_vms.begin();it!=vmpool->pending_vms.end();it++)
