@@ -111,9 +111,14 @@ private:
 
         ~Host(){};
         
-        bool operator<(const Host& b) { //Sort by priority
+        bool operator<(const Host& b) const { //Sort by priority
             return priority < b.priority;
         }        
+    };
+
+    static bool host_cmp (const Host * a, const Host * b )
+    {
+        return (*a < *b );
     };
     
     //--------------------------------------------------------------------------

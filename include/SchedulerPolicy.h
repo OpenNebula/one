@@ -45,10 +45,10 @@ public:
         
         if(priority.empty()!=true) 
         {      
-            sw.max = *max_element(
+            sw.max = fabs(*max_element(
                 priority.begin(),
                 priority.end(),
-                SchedulerHostPolicy::abs_cmp);
+                SchedulerHostPolicy::abs_cmp));
                 
             transform(
                 priority.begin(),
