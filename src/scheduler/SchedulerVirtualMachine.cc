@@ -76,7 +76,7 @@ void SchedulerVirtualMachine::set_priorities(vector<float>& total)
 
     //Sort the shares using the priority
     
-    sort(hosts.begin(),hosts.end());
+    sort(hosts.begin(),hosts.end(),SchedulerVirtualMachine::host_cmp);
 }
 
 /* -------------------------------------------------------------------------- */
