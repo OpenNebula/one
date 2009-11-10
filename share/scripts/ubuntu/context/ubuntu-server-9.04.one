@@ -14,10 +14,10 @@ CONTEXT = [
   hostname   = "$NAME",
 	#ip_public = "$NIC[IP, NETWORK=\"Red Virtual\"]",
 	ip_public = "192.168.0.4",
-	files				= "/home/jaime/one-templates/ubuntu/init.sh /home/jaime/one-templates/ubuntu/id_dsa.pub",
+	files				= "/home/oneadmin/one-templates/ubuntu/init.sh /home/oneadmin/one-templates/ubuntu/id_dsa.pub",
   target     = "sdb", # This distribution's udev assigns block device symlinks sequentally. If you only define two drives
 											# the second will be sdb.
 	root_pubkey = "id_dsa.pub",
-	username = "jaime",
+	username = "oneadmin",
 	user_pubkey = "id_dsa.pub"
 ]

@@ -14,9 +14,9 @@ RAW = [ type = "kvm", data = " <serial type='pty'> <source path='/dev/pts/3'/> <
 CONTEXT = [
   hostname   = "$NAME",
 	ip_public = "$NIC[IP, NETWORK=\"Red Virtual\"]",
-	files				= "/home/jaime/one-templates/ttylinux/init.sh /home/jaime/one-templates/ttylinux/id_dsa.pub",
+	files				= "/home/oneadmin/one-templates/ttylinux/init.sh /home/oneadmin/one-templates/ttylinux/id_dsa.pub",
   target     = "hdc",
 	root_pubkey = "id_dsa.pub",
-	username = "jaime",
+	username = "oneadmin",
 	user_pubkey = "id_dsa.pub"
 ]

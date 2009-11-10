@@ -14,9 +14,9 @@ CONTEXT = [
   hostname   = "$NAME",
 	#ip_public = "$NIC[IP, NETWORK=\"Red Virtual\"]",
 	ip_public = "192.168.0.5",
-	files				= "/home/jaime/one-templates/centos-5/init.sh /home/jaime/one-templates/centos-5/id_dsa.pub",
+	files				= "/home/oneadmin/one-templates/centos-5/init.sh /home/oneadmin/one-templates/centos-5/id_dsa.pub",
   target     = "hdc", 
 	root_pubkey = "id_dsa.pub",
-	username = "jaime",
+	username = "oneadmin",
 	user_pubkey = "id_dsa.pub"
 ]
