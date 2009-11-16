@@ -3,12 +3,11 @@
 # == Synopsis
 # econe-run-instances 
 # 
-# List and describe previously uploaded images of a user for use 
-# with an OpenNebula Cloud.
+# Runs an instance of a particular image
 #
 # == Usage
 #
-# econe-describe-images [OPTIONS]
+# econe-run-instances [OPTIONS]
 #
 # -h, --help:
 #    show help
