@@ -11,9 +11,9 @@ NIC    = [ NETWORK = "Red Virtual" ]
 CONTEXT = [
   hostname   = "$NAME",
 	ip_public = "192.168.0.5",
-	files				= "/home/jaime/one-templates/openSUSE/init.sh /home/jaime/one-templates/openSUSE/id_dsa.pub",
+	files				= "/home/oneadmin/one-templates/openSUSE/init.sh /home/oneadmin/one-templates/openSUSE/id_dsa.pub",
   target     = "hdc", 
 	root_pubkey = "id_dsa.pub",
-	username = "jaime",
+	username = "oneadmin",
 	user_pubkey = "id_dsa.pub"
 ]
