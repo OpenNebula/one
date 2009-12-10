@@ -53,7 +53,8 @@ class XenDriver < VirtualMachineDriver
         :restore  => "sudo #{XM_PATH} restore",
         :migrate  => "sudo #{XM_PATH} migrate -l",
         :poll     => "sudo #{XENTOP_PATH} -bi2",
-        :credits  => "sudo #{XM_PATH} sched-cred"
+        :credits  => "sudo #{XM_PATH} sched-cred",
+        :list     => "sudo #{XM_PATH} list"
     }
 
     XEN_INFO = {
@@ -127,7 +128,7 @@ class XenDriver < VirtualMachineDriver
     def shutdown(id, host, deploy_id, not_used)
         cmd=<<-EOS
 function gdm {
-    sudo xm list | grep '#{deploy_id}\\>'
+    #{XEN[:list]} | grep '#{deploy_id}\\>'
 }
 
 #{XEN[:shutdown]} #{deploy_id} || exit -1
