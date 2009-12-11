@@ -26,7 +26,7 @@ if [ -z "$ONE_LOCATION" ]; then
     ONED=/usr/bin/oned
     ONE_SCHEDULER=/usr/bin/mm_sched
 
-    LOCK_FILE=/var/lock/one
+    LOCK_FILE=/var/lock/one/one
 else
     ONE_PID=$ONE_LOCATION/var/oned.pid
     ONE_SCHEDPID=$ONE_LOCATION/var/sched.pid

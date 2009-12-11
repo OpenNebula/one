@@ -19,19 +19,21 @@
 
 if [ -z "$ONE_LOCATION" ]; then 
     OCCI_PID=/var/run/one/occi-server.pid
-    OCCI_SERVER=/usr/lib/ruby/cloud/occi/occi-server.rb
-    OCCI_LOCK_FILE=/var/lock/.occi.lock
+    OCCI_SERVER=/usr/lib/one/ruby/cloud/occi/occi-server.rb
+    OCCI_LOCK_FILE=/var/lock/one/.occi.lock
     OCCI_LOG=/var/log/one/occi-server.log   
+    OCCI_ETC=/etc/one/occi-server.conf
 else
     OCCI_PID=$ONE_LOCATION/var/occi-server.pid
     OCCI_SERVER=$ONE_LOCATION/lib/ruby/cloud/occi/occi-server.rb
     OCCI_LOCK_FILE=$ONE_LOCATION/var/.occi.lock
     OCCI_LOG=$ONE_LOCATION/var/occi-server.log
+    OCCI_ETC=$ONE_LOCATION/etc/occi-server.conf
 fi 
 
 setup()
 {
-    eval `grep ^IMAGE_DIR= $ONE_LOCATION/etc/occi-server.conf `
+    eval `grep ^IMAGE_DIR= $OCCI_ETC `
     export TMPDIR=$IMAGE_DIR/tmp
     mkdir -p $TMPDIR
 	
@@ -92,10 +94,9 @@ stop()
 
 	# Kill the occi-server daemon
 
-	kill `cat $OCCI_PID` > /dev/null 2>&1
+	kill -INT `cat $OCCI_PID` > /dev/null 2>&1
 
 	# Remove pid files
-
 	rm -f $OCCI_PID > /dev/null 2>&1
 
 	echo "occi-server stopped"

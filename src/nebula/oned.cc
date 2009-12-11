@@ -115,7 +115,7 @@ int main(int argc, char **argv)
     if (nl == 0) // OpenNebula in root of FSH
     {
     	var_location = "/var/lib/one/"; 
-    	lockfile 	 = "/var/lock/one";
+    	lockfile 	 = "/var/lock/one/one";
     }
     else
     {

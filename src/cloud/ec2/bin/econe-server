@@ -19,19 +19,21 @@
 
 if [ -z "$ONE_LOCATION" ]; then 
     ECONE_PID=/var/run/one/econe-server.pid
-    ECONE_SERVER=/usr/lib/ruby/cloud/econe/econe-server.rb
-    ECONE_LOCK_FILE=/var/lock/.econe.lock
+    ECONE_SERVER=/usr/lib/one/ruby/cloud/econe/econe-server.rb
+    ECONE_LOCK_FILE=/var/lock/one/.econe.lock
     ECONE_LOG=/var/log/one/econe-server.log   
+    ECONE_ETC=/etc/one/econe.conf
 else
     ECONE_PID=$ONE_LOCATION/var/econe-server.pid
     ECONE_SERVER=$ONE_LOCATION/lib/ruby/cloud/econe/econe-server.rb
     ECONE_LOCK_FILE=$ONE_LOCATION/var/.econe.lock
     ECONE_LOG=$ONE_LOCATION/var/econe-server.log
+    ECONE_ETC=$ONE_LOCATION/etc/econe.conf
 fi 
 
 setup()
 {
-    eval `grep ^IMAGE_DIR= $ONE_LOCATION/etc/econe.conf `
+    eval `grep ^IMAGE_DIR= $ECONE_ETC`
     export TMPDIR=$IMAGE_DIR/tmp
     mkdir -p $TMPDIR
 	
@@ -92,7 +94,7 @@ stop()
 
 	# Kill the econe-server daemon
 
-	kill `cat $ECONE_PID` > /dev/null 2>&1
+	kill -INT `cat $ECONE_PID` > /dev/null 2>&1
 
 	# Remove pid files
 
