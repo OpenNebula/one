@@ -96,18 +96,19 @@ if [ -z "$ROOT" ] ; then
     LOG_LOCATION="/var/log/one"
     VAR_LOCATION="/var/lib/one"
     RUN_LOCATION="/var/run/one"
+    LOCK_LOCATION="/var/lock/one"
     INCLUDE_LOCATION="/usr/include"
     SHARE_LOCATION="/usr/share/doc/opennebula"
     
     if [ "$CLIENT" = "no" ]; then
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION $VAR_LOCATION \
                    $INCLUDE_LOCATION $SHARE_LOCATION \
-                   $LOG_LOCATION $RUN_LOCATION"
+                   $LOG_LOCATION $RUN_LOCATION $LOCK_LOCATION"
         
         DELETE_DIRS="$LIB_LOCATION $ETC_LOCATION $LOG_LOCATION $VAR_LOCATION \
                      $RUN_LOCATION $SHARE_DIRS"
 
-        CHOWN_DIRS="$LOG_LOCATION $VAR_LOCATION $RUN_LOCATION"
+        CHOWN_DIRS="$LOG_LOCATION $VAR_LOCATION $RUN_LOCATION $LOCK_LOCATION"
     else
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION"
 
@@ -617,7 +618,7 @@ if [ "$UNINSTALL" = "no" ] ; then
         ln -s $DESTDIR$LIB_LOCATION/liboneapi.so \
               $DESTDIR$LIB_LOCATION/liboneapi.so.1
         ln -s $DESTDIR$LIB_LOCATION/liboneapi.so.1 \
-              $DESTDIR$LIB_LOCATION/liboneapi.so.1.3
+              $DESTDIR$LIB_LOCATION/liboneapi.so.1.4
     fi
 else
     for d in `echo $DELETE_DIRS | awk '{for (i=NF;i>=1;i--) printf $i" "}'`; do
