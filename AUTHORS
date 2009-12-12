@@ -1,11 +1,15 @@
-OpenNebula v1.4
-December 2009
+OpenNebula: The open source cloud toolkit
+-----------------------------------------
+
+You can find  more information about the project, relase notes and documentation at www.opennebula.org 
 
 AUTHORS
+
 - Ruben Santiago Montero (rubensm@dacya.ucm.es)
 - Ignacio Martín Llorente (llorente@dacya.ucm.es)
 
 ACKNOWLEDGEMENTS
+
 The following people have contributed to the development of the technology
 - Javier Fontán Muiños (jfontan@fdi.ucm.es)
 - Contantino Vázquez Blanco (tinova@fdi.ucm.es)
