@@ -223,7 +223,7 @@ public:
     
     static string version()
     {
-        return "OpenNebula 1.4.0";   
+        return "OpenNebula 1.5.0";   
     };
     
     void start();
