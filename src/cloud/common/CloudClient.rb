@@ -18,6 +18,7 @@
 require 'rubygems'
 require 'uri'
 
+require 'digest'
 require 'net/https'
 
 begin
