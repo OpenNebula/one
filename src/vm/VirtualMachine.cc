@@ -634,6 +634,7 @@ int VirtualMachine::get_network_leases()
     string                     mac;
     string                     bridge;
     string                     network;
+    string                     model;
 
     ostringstream              vnid;
 
@@ -702,6 +703,13 @@ int VirtualMachine::get_network_leases()
         new_nic.insert(make_pair("BRIDGE" ,bridge));
         new_nic.insert(make_pair("VNID"   ,vnid.str()));
         new_nic.insert(make_pair("IP"     ,ip));
+
+        model = nic->vector_value("MODEL");
+
+        if ( !model.empty() )
+        {
+		    new_nic.insert(make_pair("MODEL",model));
+        }
 
         nic->replace(new_nic);
 
