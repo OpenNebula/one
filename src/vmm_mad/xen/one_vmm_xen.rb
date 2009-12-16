@@ -182,7 +182,7 @@ EOS
         exe = SSHCommand.run("#{XEN[:poll]} #{deploy_id}", host, log_method(id))
 
         if exe.code != 0
-            send_message(ACTION[:poll], RESULT[:failure], id, info)
+            send_message(ACTION[:poll], RESULT[:failure], id, "-")
             return
         end
 
