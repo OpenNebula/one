@@ -25,13 +25,13 @@ module ImageOCCI
         <DISK>
             <ID><%= self.id %></ID>
             <NAME><%= name %></NAME>
-            <SIZE><%= ((size/1024)/1024).to_s %></ADDRESS>
-            <URL><%= description %></SIZE>
+            <SIZE><%= ((size/1024)/1024).to_s %></SIZE>
+            <URL><%= description %></URL>
         </DISK>
     }.gsub(/^        /, '')
 
 
-    # Creates the OCCI representation of a Virtual Network
+    # Creates the OCCI representation of an Image
     def to_occi()
         occi = ERB.new(OCCI_IMAGE)
         return occi.result(binding)
