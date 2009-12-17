@@ -86,7 +86,7 @@ class LibVirtDriver < VirtualMachineDriver
         tmp.close()
 
         images_path = File.dirname remote_dfile
-        cmd = "mkdir -p #{images_path} && cat > #{remote_dfile} && " \ 
+        cmd = "mkdir -p #{images_path} && cat > #{remote_dfile} && " \
               "#{LIBVIRT[:create]} #{remote_dfile}"
 
         deploy_exe = SSHCommand.run("'#{cmd}'", host, log_method(id), domain)
