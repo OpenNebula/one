@@ -158,9 +158,10 @@ int VirtualMachinePool::allocate (
     string  name;
 
     char *  error_msg;
-    int     rc, num_attr;
+    int     rc, num_context, num_reqs;
 
-    vector<Attribute *> attrs;
+    vector<Attribute *> context;
+    vector<Attribute *> reqs;
 
     // ------------------------------------------------------------------------
     // Build a new Virtual Machine object
@@ -179,7 +180,7 @@ int VirtualMachinePool::allocate (
     vm->uid = uid;
 
     // ------------------------------------------------------------------------
-    // Parse template and keep CONTEXT apart
+    // Parse template and keep CONTEXT and REQUIREMENTS apart
     // ------------------------------------------------------------------------
     rc = vm->vm_template.parse(stemplate,&error_msg);
 
@@ -194,8 +195,8 @@ int VirtualMachinePool::allocate (
         return -2;
     }
 
-    vm->vm_template.remove("CONTEXT",attrs);
-
+    num_context = vm->vm_template.remove("CONTEXT",context);
+    num_reqs    = vm->vm_template.remove("REQUIREMENTS",reqs);
 
     // ------------------------------------------------------------------------
     // Insert the Object in the pool
@@ -212,15 +213,32 @@ int VirtualMachinePool::allocate (
     // Insert parsed context in the VM template and clean-up
     // ------------------------------------------------------------------------
     
-    if ((num_attr = (int) attrs.size()) > 0)
+    if ( num_context > 0)
     {
-        generate_context(*oid,attrs[0]);
+        generate_context(*oid,context[0]);
 
-        for (int i = 0; i < num_attr ; i++)
+        for (int i = 0; i < num_context ; i++)
         {
-            if (attrs[i] != 0)
+            if (context[i] != 0)
             {
-                delete attrs[i];
+                delete context[i];
+            }
+        }
+    }
+
+    // ------------------------------------------------------------------------
+    // Parse the Requirements
+    // ------------------------------------------------------------------------
+
+    if ( num_reqs > 0 )
+    {
+        generate_requirements(*oid,reqs[0]);
+
+        for (int i = 0; i < num_reqs ; i++)
+        {
+            if (reqs[i] != 0)
+            {
+                delete reqs[i];
             }
         }
     }
@@ -332,4 +350,58 @@ void VirtualMachinePool::generate_context(int vm_id, Attribute * attr)
     vm->unlock();
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
+void VirtualMachinePool::generate_requirements(int vm_id, Attribute * attr)
+{
+    SingleAttribute * reqs;
+    string            parsed;
+    char *            error_msg;
+    int               rc;
+
+    SingleAttribute * reqs_parsed;
+    VirtualMachine *  vm;
+
+    reqs = dynamic_cast<SingleAttribute *>(attr);
+
+    if (reqs == 0)
+    {
+        return;
+    }
+
+    rc = VirtualMachine::parse_template_attribute(vm_id,reqs->value(),
+            parsed,&error_msg);
+
+    if ( rc != 0 )
+    {
+        if (error_msg != 0)
+        {
+            ostringstream oss;
+
+            oss << error_msg << ": " << reqs->value();
+            free(error_msg);
+
+            Nebula::log("ONE", Log::ERROR, oss);
+        }
+
+        return;
+    }
+
+    reqs_parsed = new SingleAttribute("REQUIREMENTS",parsed);
+                
+    vm = get(vm_id,true);
+
+    if ( vm == 0 )
+    {
+        delete reqs_parsed;
+        return;
+    }
+    
+    if ( vm->insert_template_attribute(db,reqs_parsed) != 0 )
+    {
+        delete reqs_parsed;
+    }
+
+    vm->unlock();
+}
