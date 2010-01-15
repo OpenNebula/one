@@ -402,6 +402,8 @@ class OCCIServer < CloudServer
                 rc = vm.resume
             when "cancel"
                 rc = vm.cancel
+            when "shutdown"
+                rc = vm.shutdown
             when "done"  
                 rc = vm.finalize  
             else 
