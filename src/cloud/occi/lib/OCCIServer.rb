@@ -233,7 +233,7 @@ class OCCIServer < CloudServer
 
         begin  
             vntemplate = network.to_one_template(
-                            network_info['NIC'],
+                            network_info['NETWORK'],
                             @config[:bridge])
             rc         = network.allocate(vntemplate)
             network.info
@@ -402,6 +402,8 @@ class OCCIServer < CloudServer
                 rc = vm.resume
             when "cancel"
                 rc = vm.cancel
+            when "shutdown"
+                rc = vm.shutdown
             when "done"  
                 rc = vm.finalize  
             else 

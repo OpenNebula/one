@@ -132,7 +132,7 @@ class LibVirtDriver < VirtualMachineDriver
 
     def migrate(id, host, deploy_id, dest_host)
         cmd = "#{LIBVIRT[:migrate]} #{deploy_id} "\
-              "#{QEMU_PROTOCOL}://#{dest_host}/session"
+              "#{QEMU_PROTOCOL}://#{dest_host}/system"
 
         ssh_action(cmd, id, host, :migrate)
     end
