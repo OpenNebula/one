@@ -649,7 +649,7 @@ class OneVmmVmware extends Thread
             disable_standard_output();
         }
         
-        if(debug){ enable_standard_output(); System.out.println("dddd"); disable_standard_output();send_error(str);}
+        if(debug){ send_error(str);}
     }
     
     void send_error(String str)
