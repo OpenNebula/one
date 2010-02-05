@@ -207,13 +207,17 @@ class OneImVmware extends Thread
                               response = response + ",FREEMEMORY=" + (totalMemory-usedMemory);
                               
                              // NET
+                              int net=0; 
                               rf = gP.getPerformanceCounter("net.transmitted.average", 60);
-                              if (!rf) throw new Exception();
-                              response = response + ",NETTX=" + (int)gP.getMeasure();
+                              if (!rf) net = 0;
+                              else net = (int)gP.getMeasure();
+                              response = response + ",NETTX=" + net;
         
                               rf = gP.getPerformanceCounter("net.received.average", 60);
-                              if (!rf) throw new Exception();
-                              response = response + ",NETRX=" + (int)gP.getMeasure();
+                              if (!rf) net = 0;
+			      else net = (int)gP.getMeasure();
+                              response = response + ",NETRX=" + net;
+
                               // Send the actual response
                               send_message("MONITOR SUCCESS " + hid_str + " " + response);    
 
