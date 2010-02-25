@@ -125,14 +125,6 @@ rescue Exception => e
     exit(-1)
 end
 
-
-begin
-    occi_client = OCCIClient::Client.new(url,username,password,debug)
-rescue Exception => e
-    puts "#{cmd_name}: #{e.message}"
-    exit(-1)
-end
-
 if !ARGV[0]
     puts "#{cmd_name}: [COMMAND] not present"
     puts "#{cmd_name}: Execute #{cmd_name} -h for help."
