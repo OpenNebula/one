@@ -130,7 +130,7 @@ int XenDriver::deployment_description(
 
     if (!vcpu.empty())
     {
-        file << "vcpu  = '" << vcpu << "'" << endl;
+        file << "vcpus  = '" << vcpu << "'" << endl;
     }
 
     // ------------------------------------------------------------------------
