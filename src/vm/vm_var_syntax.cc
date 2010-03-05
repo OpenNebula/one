@@ -115,6 +115,65 @@ int vm_var_parse (VirtualMachine * vm,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void get_network_attribute(VirtualMachine * vm,
+                           const string&    attr_name,
+                           const string&    net_name,
+                           const string&    net_value,
+                           string&          attr_value)
+{
+    Nebula& nd = Nebula::instance();
+
+    VirtualNetworkPool * vnpool = nd.get_vnpool();
+    VirtualNetwork  *    vn;
+
+    string  network = "";
+
+    attr_value = "";
+
+    if (net_name.empty())
+    {
+        vector<const Attribute *> nics;
+        const VectorAttribute *   nic;
+
+        if (vm->get_template_attribute("NIC",nics) == 0)
+        {
+            return;
+        }
+
+        nic = dynamic_cast<const VectorAttribute * >(nics[0]);
+
+        if ( nic == 0 )
+        {
+            return;
+        }
+
+        network = nic->vector_value("NETWORK");
+    }
+    else if (net_name == "NAME")
+    {
+        network = net_value;
+    }
+
+    if ( network.empty() )
+    {
+        return;
+    }
+
+    vn = vnpool->get(network,true);
+
+    if ( vn == 0 )
+    {
+        return;
+    }
+
+    vn->get_template_attribute(attr_name.c_str(),attr_value);
+
+    vn->unlock();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void insert_single(VirtualMachine * vm,
                    ostringstream&   parsed,
                    const string&    name)
@@ -141,7 +200,20 @@ void insert_vector(VirtualMachine * vm,
     const VectorAttribute *  vattr = 0;
     
     int    num;
-    string value = "";
+
+    if ( name == "NETWORK")
+    {
+        string value;
+      
+        get_network_attribute(vm,vname,vvar,vval,value);
+
+        if (!value.empty())
+        {
+            parsed << value;
+        }
+
+        return;
+    }
 
     if ( ( num = vm->get_template_attribute(name.c_str(),values) ) <= 0 )
     {
@@ -180,7 +252,7 @@ void insert_vector(VirtualMachine * vm,
 
 
 /* Line 189 of yacc.c  */
-#line 184 "vm_var_syntax.cc"
+#line 256 "vm_var_syntax.cc"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -226,7 +298,7 @@ typedef union YYSTYPE
 {
 
 /* Line 214 of yacc.c  */
-#line 124 "vm_var_syntax.y"
+#line 196 "vm_var_syntax.y"
 
     char * val_str;
     int    val_int;
@@ -235,7 +307,7 @@ typedef union YYSTYPE
 
 
 /* Line 214 of yacc.c  */
-#line 239 "vm_var_syntax.cc"
+#line 311 "vm_var_syntax.cc"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -260,7 +332,7 @@ typedef struct YYLTYPE
 
 
 /* Line 264 of yacc.c  */
-#line 264 "vm_var_syntax.cc"
+#line 336 "vm_var_syntax.cc"
 
 #ifdef short
 # undef short
@@ -544,9 +616,9 @@ static const yytype_int8 yyrhs[] =
 };
 
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
-static const yytype_uint8 yyrline[] =
+static const yytype_uint16 yyrline[] =
 {
-       0,   148,   148,   149,   152,   157,   172,   190
+       0,   220,   220,   221,   224,   229,   244,   262
 };
 #endif
 
@@ -1503,7 +1575,7 @@ yyreduce:
         case 4:
 
 /* Line 1455 of yacc.c  */
-#line 153 "vm_var_syntax.y"
+#line 225 "vm_var_syntax.y"
     {
         (*parsed) << (yyvsp[(1) - (1)].val_str);
         free((yyvsp[(1) - (1)].val_str));
@@ -1513,7 +1585,7 @@ yyreduce:
   case 5:
 
 /* Line 1455 of yacc.c  */
-#line 158 "vm_var_syntax.y"
+#line 230 "vm_var_syntax.y"
     {
         string name((yyvsp[(1) - (2)].val_str));
         
@@ -1533,7 +1605,7 @@ yyreduce:
   case 6:
 
 /* Line 1455 of yacc.c  */
-#line 173 "vm_var_syntax.y"
+#line 245 "vm_var_syntax.y"
     {
         string name((yyvsp[(1) - (5)].val_str));
         string vname((yyvsp[(3) - (5)].val_str));
@@ -1556,7 +1628,7 @@ yyreduce:
   case 7:
 
 /* Line 1455 of yacc.c  */
-#line 191 "vm_var_syntax.y"
+#line 263 "vm_var_syntax.y"
     {
         string name((yyvsp[(1) - (9)].val_str));
         string vname((yyvsp[(3) - (9)].val_str));
@@ -1584,7 +1656,7 @@ yyreduce:
 
 
 /* Line 1455 of yacc.c  */
-#line 1588 "vm_var_syntax.cc"
+#line 1660 "vm_var_syntax.cc"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1803,7 +1875,7 @@ yyreturn:
 
 
 /* Line 1675 of yacc.c  */
-#line 214 "vm_var_syntax.y"
+#line 286 "vm_var_syntax.y"
 
 
 extern "C" void vm_var_error(

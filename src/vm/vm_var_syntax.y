@@ -53,6 +53,65 @@ int vm_var_parse (VirtualMachine * vm,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void get_network_attribute(VirtualMachine * vm,
+                           const string&    attr_name,
+                           const string&    net_name,
+                           const string&    net_value,
+                           string&          attr_value)
+{
+    Nebula& nd = Nebula::instance();
+
+    VirtualNetworkPool * vnpool = nd.get_vnpool();
+    VirtualNetwork  *    vn;
+
+    string  network = "";
+
+    attr_value = "";
+
+    if (net_name.empty())
+    {
+        vector<const Attribute *> nics;
+        const VectorAttribute *   nic;
+
+        if (vm->get_template_attribute("NIC",nics) == 0)
+        {
+            return;
+        }
+
+        nic = dynamic_cast<const VectorAttribute * >(nics[0]);
+
+        if ( nic == 0 )
+        {
+            return;
+        }
+
+        network = nic->vector_value("NETWORK");
+    }
+    else if (net_name == "NAME")
+    {
+        network = net_value;
+    }
+
+    if ( network.empty() )
+    {
+        return;
+    }
+
+    vn = vnpool->get(network,true);
+
+    if ( vn == 0 )
+    {
+        return;
+    }
+
+    vn->get_template_attribute(attr_name.c_str(),attr_value);
+
+    vn->unlock();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void insert_single(VirtualMachine * vm,
                    ostringstream&   parsed,
                    const string&    name)
@@ -79,7 +138,20 @@ void insert_vector(VirtualMachine * vm,
     const VectorAttribute *  vattr = 0;
     
     int    num;
-    string value = "";
+
+    if ( name == "NETWORK")
+    {
+        string value;
+      
+        get_network_attribute(vm,vname,vvar,vval,value);
+
+        if (!value.empty())
+        {
+            parsed << value;
+        }
+
+        return;
+    }
 
     if ( ( num = vm->get_template_attribute(name.c_str(),values) ) <= 0 )
     {
