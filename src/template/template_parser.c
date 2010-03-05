@@ -28,7 +28,7 @@
 #define FLEX_SCANNER
 #define YY_FLEX_MAJOR_VERSION 2
 #define YY_FLEX_MINOR_VERSION 5
-#define YY_FLEX_SUBMINOR_VERSION 34
+#define YY_FLEX_SUBMINOR_VERSION 35
 #if YY_FLEX_SUBMINOR_VERSION > 0
 #define FLEX_BETA
 #endif
@@ -210,13 +210,6 @@ extern FILE *template_in, *template_out;
 	while ( 0 )
 
 #define unput(c) yyunput( c, (yytext_ptr)  )
-
-/* The following is because we cannot portably get our hands on size_t
- * (without autoconf's help, which isn't available because we want
- * flex-generated scanners to compile on their own).
- * Given that the standard has decreed that size_t exists since 1989,
- * I guess we can afford to depend on it. Manoj.
- */
 
 #ifndef YY_TYPEDEF_YY_SIZE_T
 #define YY_TYPEDEF_YY_SIZE_T
@@ -557,7 +550,7 @@ char *template_text;
                         llocp->first_column = llocp->last_column;	\
                         llocp->last_column += template_leng;
 
-#line 561 "template_parser.c"
+#line 554 "template_parser.c"
 
 #define INITIAL 0
 #define VALUE 1
@@ -575,6 +568,35 @@ char *template_text;
 #endif
 
 static int yy_init_globals (void );
+
+/* Accessor methods to globals.
+   These are made visible to non-reentrant scanners for convenience. */
+
+int template_lex_destroy (void );
+
+int template_get_debug (void );
+
+void template_set_debug (int debug_flag  );
+
+YY_EXTRA_TYPE template_get_extra (void );
+
+void template_set_extra (YY_EXTRA_TYPE user_defined  );
+
+FILE *template_get_in (void );
+
+void template_set_in  (FILE * in_str  );
+
+FILE *template_get_out (void );
+
+void template_set_out  (FILE * out_str  );
+
+int template_get_leng (void );
+
+char *template_get_text (void );
+
+int template_get_lineno (void );
+
+void template_set_lineno (int line_number  );
 
 /* Macros after this point can all be overridden by user definitions in
  * section 1.
@@ -715,7 +737,7 @@ YY_DECL
  /* ------------------------------------------------------------------------- */
  /* Comments (lines with an starting #), and empty lines                      */
  /* ------------------------------------------------------------------------- */
-#line 719 "template_parser.c"
+#line 741 "template_parser.c"
 
 	if ( !(yy_init) )
 		{
@@ -891,7 +913,7 @@ YY_RULE_SETUP
 #line 85 "template_parser.l"
 ECHO;
 	YY_BREAK
-#line 895 "template_parser.c"
+#line 917 "template_parser.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(VALUE):
 	yyterminate();

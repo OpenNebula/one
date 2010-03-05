@@ -53,20 +53,20 @@
 <VAR>\[[[:blank:]]*            { return OBRACKET;}
 <VAR>[[:blank:]]*\]            { return CBRACKET;}
 
-<VAR>[[:digit:]]+\.            { yytext[yyleng-1] = '\0';
-                                 lvalp->val_int   = atoi(yytext);
-                                 return INTEGER;}
 <VAR>[[:alnum:]_]+             { lvalp->val_str = strdup(yytext);
                                  return VARIABLE;}
+
 <VAR>\"[^\"]*\"                { lvalp->val_str = strdup(yytext+1);
                                  lvalp->val_str[yyleng-2] = '\0';
                                  return STRING;}
 
 <VAR>\$                        { lvalp->val_char = '\0';
                                  return EOA;}
+
 <VAR>.                         { lvalp->val_char = *yytext;
                                  BEGIN(INITIAL);
                                  return EOA;}
+
 <VAR><<EOF>>                   { lvalp->val_char = '\0';
                                  BEGIN(INITIAL);
                                  return EOA;}

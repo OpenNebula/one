@@ -156,20 +156,6 @@ public:
     
 private:
     /**
-     *  Generate context file to be sourced upon VM booting
-     *  @param vm_id, ID of the VM to generate context for
-     *  @param attr, the template CONTEXT attribute (the first one)
-     */
-    void generate_context(int vm_id, Attribute * attr);
-
-    /**
-     *  Generate a parsed requirements string
-     *  @param vm_id, ID of the VM to generate context for
-     *  @param attr, the template REQUIREMENTS attribute (the first one)
-     */
-    void generate_requirements(int vm_id, Attribute * attr);
-
-    /**
      *  Factory method to produce VM objects
      *    @return a pointer to the new VM
      */
