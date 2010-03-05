@@ -468,10 +468,20 @@ void VirtualMachine::parse_graphics()
 
     if ( port.empty() )
     {
-      ostringstream oss;
+        Nebula&       nd = Nebula::instance();
 
-      oss << ( 5900 + oid );
-      graphics->replace("PORT", oss.str());
+        ostringstream oss;
+        istringstream iss;
+        
+        int           base_port;
+        string        base_port_s;
+
+        nd.get_configuration_attribute("VNC_BASE_PORT",base_port_s);
+        iss.str(base_port_s);
+        iss >> base_port;
+
+        oss << ( base_port + oid );
+        graphics->replace("PORT", oss.str());
     }
 }
 

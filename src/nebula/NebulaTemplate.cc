@@ -75,6 +75,12 @@ NebulaTemplate::NebulaTemplate(string& etc_location, string& var_location)
     
     attribute = new SingleAttribute("NETWORK_SIZE",value);
     conf_default.insert(make_pair(attribute->name(),attribute));
+
+    //NETWORK_SIZE
+    value = "5900";
+
+    attribute = new SingleAttribute("VNC_BASE_PORT",value);
+    conf_default.insert(make_pair(attribute->name(),attribute));    
     
     //DEBUG_LEVEL    
     value = Log::WARNING;
