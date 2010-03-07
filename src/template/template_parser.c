@@ -28,7 +28,7 @@
 #define FLEX_SCANNER
 #define YY_FLEX_MAJOR_VERSION 2
 #define YY_FLEX_MINOR_VERSION 5
-#define YY_FLEX_SUBMINOR_VERSION 34
+#define YY_FLEX_SUBMINOR_VERSION 35
 #if YY_FLEX_SUBMINOR_VERSION > 0
 #define FLEX_BETA
 #endif
@@ -210,13 +210,6 @@ extern FILE *template_in, *template_out;
 	while ( 0 )
 
 #define unput(c) yyunput( c, (yytext_ptr)  )
-
-/* The following is because we cannot portably get our hands on size_t
- * (without autoconf's help, which isn't available because we want
- * flex-generated scanners to compile on their own).
- * Given that the standard has decreed that size_t exists since 1989,
- * I guess we can afford to depend on it. Manoj.
- */
 
 #ifndef YY_TYPEDEF_YY_SIZE_T
 #define YY_TYPEDEF_YY_SIZE_T
@@ -542,7 +535,7 @@ char *template_text;
 /* See the License for the specific language governing permissions and        */
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
-#line 19 "template_parser.l"
+#line 18 "template_parser.l"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -556,7 +549,7 @@ char *template_text;
                         llocp->first_column = llocp->last_column;	\
                         llocp->last_column += template_leng;
 
-#line 561 "template_parser.c"
+#line 553 "template_parser.c"
 
 #define INITIAL 0
 #define VALUE 1
@@ -574,6 +567,35 @@ char *template_text;
 #endif
 
 static int yy_init_globals (void );
+
+/* Accessor methods to globals.
+   These are made visible to non-reentrant scanners for convenience. */
+
+int template_lex_destroy (void );
+
+int template_get_debug (void );
+
+void template_set_debug (int debug_flag  );
+
+YY_EXTRA_TYPE template_get_extra (void );
+
+void template_set_extra (YY_EXTRA_TYPE user_defined  );
+
+FILE *template_get_in (void );
+
+void template_set_in  (FILE * in_str  );
+
+FILE *template_get_out (void );
+
+void template_set_out  (FILE * out_str  );
+
+int template_get_leng (void );
+
+char *template_get_text (void );
+
+int template_get_lineno (void );
+
+void template_set_lineno (int line_number  );
 
 /* Macros after this point can all be overridden by user definitions in
  * section 1.
@@ -708,13 +730,13 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 41 "template_parser.l"
+#line 40 "template_parser.l"
 
 
  /* ------------------------------------------------------------------------- */
  /* Comments (lines with an starting #), and empty lines                      */
  /* ------------------------------------------------------------------------- */
-#line 719 "template_parser.c"
+#line 740 "template_parser.c"
 
 	if ( !(yy_init) )
 		{
@@ -810,13 +832,13 @@ do_action:	/* This label is used only to access EOF actions. */
 case 1:
 /* rule 1 can match eol */
 YY_RULE_SETUP
-#line 46 "template_parser.l"
+#line 45 "template_parser.l"
 ;
 	YY_BREAK
 case 2:
 /* rule 2 can match eol */
 YY_RULE_SETUP
-#line 47 "template_parser.l"
+#line 46 "template_parser.l"
 ;
 	YY_BREAK
 /* ------------------------------------------------------------------------- */
@@ -824,7 +846,7 @@ YY_RULE_SETUP
 /* ------------------------------------------------------------------------- */
 case 3:
 YY_RULE_SETUP
-#line 52 "template_parser.l"
+#line 51 "template_parser.l"
 { lvalp->val_str = strdup(template_text); return VARIABLE;}
 	YY_BREAK
 /* ------------------------------------------------------------------------ */
@@ -834,31 +856,31 @@ YY_RULE_SETUP
 /* ------------------------------------------------------------------------ */
 case 4:
 YY_RULE_SETUP
-#line 59 "template_parser.l"
+#line 58 "template_parser.l"
 { BEGIN VALUE; return EQUAL;}
 	YY_BREAK
 case 5:
 /* rule 5 can match eol */
 YY_RULE_SETUP
-#line 61 "template_parser.l"
+#line 60 "template_parser.l"
 { return EQUAL_EMPTY;}
 	YY_BREAK
 case 6:
 /* rule 6 can match eol */
 YY_RULE_SETUP
-#line 63 "template_parser.l"
+#line 62 "template_parser.l"
 { return COMMA;}
 	YY_BREAK
 case 7:
 /* rule 7 can match eol */
 YY_RULE_SETUP
-#line 65 "template_parser.l"
+#line 64 "template_parser.l"
 { return CBRACKET;}
 	YY_BREAK
 case 8:
 /* rule 8 can match eol */
 YY_RULE_SETUP
-#line 67 "template_parser.l"
+#line 66 "template_parser.l"
 { BEGIN(INITIAL); return OBRACKET;}
 	YY_BREAK
 /* ------------------------------------------------------------------------ */
@@ -869,7 +891,7 @@ YY_RULE_SETUP
 case 9:
 /* rule 9 can match eol */
 YY_RULE_SETUP
-#line 74 "template_parser.l"
+#line 73 "template_parser.l"
 { lvalp->val_str = strdup(template_text+1);
                              lvalp->val_str[template_leng-2] = '\0';
                              BEGIN(INITIAL); return STRING; }
@@ -881,16 +903,16 @@ YY_RULE_SETUP
  */
 case 10:
 YY_RULE_SETUP
-#line 83 "template_parser.l"
+#line 82 "template_parser.l"
 { lvalp->val_str = strdup(template_text);
                     BEGIN(INITIAL); return STRING;}
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 85 "template_parser.l"
+#line 84 "template_parser.l"
 ECHO;
 	YY_BREAK
-#line 895 "template_parser.c"
+#line 916 "template_parser.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(VALUE):
 	yyterminate();
@@ -1860,7 +1882,7 @@ void template_free (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 85 "template_parser.l"
+#line 84 "template_parser.l"
 
 
 

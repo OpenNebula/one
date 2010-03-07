@@ -283,7 +283,11 @@ public:
      *
      *
      */
-    
+    int get_share_running_vms()
+    {
+        return host_share.running_vms;
+    }
+
     int get_share_disk_usage()
     {
         return host_share.disk_usage;
