@@ -1,6 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2009, Distributed Systems Architecture Group, Universidad   */
-/* Complutense de Madrid (dsa-research.org)                                   */
+/* Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -197,26 +196,27 @@ void TransferManager::do_action(const string &action, void * arg)
 
 void TransferManager::prolog_action(int vid)
 {
-    ofstream        xfr;
-    ostringstream   os;
-    string          xfr_name;
+    ofstream      xfr;
+    ostringstream os;
+    string        xfr_name;
 
     const VectorAttribute * disk;
-    string          source;
-    string          type;
-    string          clon;
-    string          files;
+    string source;
+    string type;
+    string clon;
+    string files;
+    string size;
+    string format;
 
-    VirtualMachine *    vm;
-    Nebula&             nd = Nebula::instance();
+    VirtualMachine * vm;
+    Nebula&          nd = Nebula::instance();
 
     const TransferManagerDriver * tm_md;
 
-    vector<const Attribute *>   attrs;
-    int                         num;
+    vector<const Attribute *> attrs;
+    int                       num;
 
-    int                         context_result;
-
+    int  context_result;
 
     // ------------------------------------------------------------------------
     // Setup & Transfer script
@@ -264,11 +264,12 @@ void TransferManager::prolog_action(int vid)
             continue;
         }
 
-        type   = disk->vector_value("TYPE");
+        type = disk->vector_value("TYPE");
 
         if ( type.empty() == false)
         {
-            transform(type.begin(),type.end(),type.begin(),(int(*)(int))toupper);
+            transform(type.begin(),type.end(),type.begin(),
+                (int(*)(int))toupper);
         }
 
         if ( type == "SWAP" )
@@ -276,7 +277,7 @@ void TransferManager::prolog_action(int vid)
             // -----------------------------------------------------------------
             // Generate a swap disk image
             // -----------------------------------------------------------------
-            string  size = disk->vector_value("SIZE");
+            size = disk->vector_value("SIZE");
 
             if (size.empty()==true)
             {
@@ -292,8 +293,8 @@ void TransferManager::prolog_action(int vid)
             // -----------------------------------------------------------------
             // Create a clean file system disk image
             // -----------------------------------------------------------------
-            string  size   = disk->vector_value("SIZE");
-            string  format = disk->vector_value("FORMAT");
+            size   = disk->vector_value("SIZE");
+            format = disk->vector_value("FORMAT");
 
             if ( size.empty() || format.empty())
             {
@@ -312,6 +313,7 @@ void TransferManager::prolog_action(int vid)
             // CLONE or LINK disk images
             // -----------------------------------------------------------------
             clon = disk->vector_value("CLONE");
+            size = disk->vector_value("SIZE");
 
             if ( clon.empty() == true )
             {
@@ -319,7 +321,8 @@ void TransferManager::prolog_action(int vid)
             }
             else
             {
-                transform(clon.begin(),clon.end(),clon.begin(),(int(*)(int))toupper);
+                transform(clon.begin(),clon.end(),clon.begin(),
+                    (int(*)(int))toupper);
             }
 
             if (clon == "YES")
@@ -351,7 +354,14 @@ void TransferManager::prolog_action(int vid)
             }
 
             xfr << vm->get_hostname() << ":" << vm->get_remote_dir()
-                << "/disk." << i << endl;
+                << "/disk." << i;
+
+            if (!size.empty()) //Add size for dev based disks
+            {
+                xfr << " " << size;
+            }
+
+            xfr << endl;
         }
     }
 

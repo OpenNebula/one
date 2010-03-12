@@ -1,0 +1,19 @@
+NAME   = opensuse11
+CPU    = 0.5
+MEMORY = 400
+DISK   = [
+  source   = "/home/srv/cloud/images/openSUSE-11.1-v2.img",
+  target   = "hda",
+  readonly = "no" ]
+
+NIC    = [ NETWORK = "Red Virtual" ]
+
+CONTEXT = [
+  hostname   = "$NAME",
+	ip_public = "192.168.0.5",
+	files				= "/home/oneadmin/one-templates/openSUSE/init.sh /home/oneadmin/one-templates/openSUSE/id_dsa.pub",
+  target     = "hdc", 
+	root_pubkey = "id_dsa.pub",
+	username = "oneadmin",
+	user_pubkey = "id_dsa.pub"
+]

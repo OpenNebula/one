@@ -1,8 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2009, Distributed Systems Architecture Group, Universidad   #
-# Complutense de Madrid (dsa-research.org)                                   #
+# Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -34,8 +33,8 @@ require 'command_parse'
 
 
 ShowTableVN={
-    :nid => {
-        :name => "NID",
+    :id => {
+        :name => "ID",
         :desc => "ONE identifier for virtual network",
         :size => 4,
         :proc => lambda {|d,e| d.id }
@@ -47,7 +46,7 @@ ShowTableVN={
         :left => true,
         :proc => lambda {|d,e| d.name }
     },
-    :username => {
+    :user => {
         :name => "USER",
         :desc => "Username of the virtual network owner",
         :size => 8,
@@ -87,7 +86,7 @@ ShowTableVN={
         :proc => lambda {|d,e| d["TOTAL_LEASES"] }
     },
 
-    :default => [:nid, :username, :name, :type, :bridge, :totalleases]
+    :default => [:id, :user, :name, :type, :bridge, :totalleases]
 }
 
 class VNShow
@@ -169,7 +168,7 @@ Commands:
             a, all   --> all the known VNs
             m, mine  --> the VNs belonging to the user in ONE_AUTH
             uid      --> VNs of the user identified by this uid
-            username --> VNs of the user identified by the username
+            user --> VNs of the user identified by the username
 EOT
 
     def text_commands
@@ -203,53 +202,61 @@ when "create"
     template=File.read(ARGV[0])
     result=vn.allocate(template)
     if !OpenNebula.is_error?(result)
-        puts "NID: " + vn.id.to_s if ops[:verbose]
+        puts "ID: " + vn.id.to_s if ops[:verbose]
         exit 0
     end
     
 when "show"
     check_parameters("show", 1)
-    vn_id=get_vn_id(ARGV[0])
-    vn=OpenNebula::VirtualNetwork.new_with_id(vn_id, get_one_client)
-    result=vn.info
-    if is_successful?(result)
-        if !ops[:xml]
-            str_h1="%-80s"
-            str="%-10s: %-20s"
-            print_header(str_h1,
-                "VIRTUAL NETWORK #{vn.id.to_s} INFORMATION",true)
+    args=expand_args(ARGV)
+
+    args.each do |param|
+        vn_id=get_vn_id(param)
+        vn=OpenNebula::VirtualNetwork.new_with_id(vn_id, get_one_client)
+        result=vn.info
+        if is_successful?(result)
+            if !ops[:xml]
+                str_h1="%-80s"
+                str="%-10s: %-20s"
+                print_header(str_h1,
+                    "VIRTUAL NETWORK #{vn.id.to_s} INFORMATION",true)
         
-            puts str % ["ID: ",vn.id.to_s]
-            puts str % ["UID: ",vn["UID"]]
-            puts
-            print_header(str_h1,"VIRTUAL NETWORK TEMPLATE",false)
-        
-            puts vn.template_str(false)
-        
-            leases_str = vn.template_like_str('/VNET/LEASES', false)
-  
-            if !leases_str.empty?
+                puts str % ["ID: ",vn.id.to_s]
+                puts str % ["UID: ",vn["UID"]]
                 puts
-                print_header(str_h1,"LEASES INFORMATION",false)
-                puts leases_str
+                print_header(str_h1,"VIRTUAL NETWORK TEMPLATE",false)
+        
+                puts vn.template_str(false)
+        
+                leases_str = vn.template_like_str('/VNET/LEASES', false)
+  
+                if !leases_str.empty?
+                    puts
+                    print_header(str_h1,"LEASES INFORMATION",false)
+                    puts leases_str
+                end
+            else
+                puts vn.to_xml
             end
         else
-            puts vn.to_xml
+            puts "Error: "+result.message
+            break
         end
-    else
-        puts "Error: "+result.message
-        exit -1
     end
     
 when "delete"
     check_parameters("delete", 1)
-    vn_id=get_vn_id(ARGV[0])
-    vn=OpenNebula::VirtualNetwork.new(
-        OpenNebula::VirtualNetwork.build_xml(vn_id), get_one_client)
-    result=vn.delete
-    if !OpenNebula.is_error?(result)
-        puts "Virtual Network deleted" if ops[:verbose]
-        exit 0
+    args=expand_args(ARGV)
+
+    args.each do |param|
+        vn_id=get_vn_id(param)
+        vn=OpenNebula::VirtualNetwork.new(
+            OpenNebula::VirtualNetwork.build_xml(vn_id), get_one_client)
+        result=vn.delete
+        if !OpenNebula.is_error?(result)
+            puts "Virtual Network deleted" if ops[:verbose]
+            break
+        end
     end
     
 when "list"

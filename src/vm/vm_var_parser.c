@@ -28,7 +28,7 @@
 #define FLEX_SCANNER
 #define YY_FLEX_MAJOR_VERSION 2
 #define YY_FLEX_MINOR_VERSION 5
-#define YY_FLEX_SUBMINOR_VERSION 34
+#define YY_FLEX_SUBMINOR_VERSION 35
 #if YY_FLEX_SUBMINOR_VERSION > 0
 #define FLEX_BETA
 #endif
@@ -210,13 +210,6 @@ extern FILE *vm_var_in, *vm_var_out;
 	while ( 0 )
 
 #define unput(c) yyunput( c, (yytext_ptr)  )
-
-/* The following is because we cannot portably get our hands on size_t
- * (without autoconf's help, which isn't available because we want
- * flex-generated scanners to compile on their own).
- * Given that the standard has decreed that size_t exists since 1989,
- * I guess we can afford to depend on it. Manoj.
- */
 
 #ifndef YY_TYPEDEF_YY_SIZE_T
 #define YY_TYPEDEF_YY_SIZE_T
@@ -511,8 +504,7 @@ int vm_var__flex_debug = 0;
 char *vm_var_text;
 #line 1 "vm_var_parser.l"
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2009, Distributed Systems Architecture Group, Universidad   */
-/* Complutense de Madrid (dsa-research.org)                                   */
+/* Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -526,7 +518,7 @@ char *vm_var_text;
 /* See the License for the specific language governing permissions and        */
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
-#line 19 "vm_var_parser.l"
+#line 18 "vm_var_parser.l"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -540,7 +532,7 @@ char *vm_var_text;
                         llocp->first_column = llocp->last_column;	\
                         llocp->last_column += vm_var_leng;
 
-#line 544 "vm_var_parser.c"
+#line 536 "vm_var_parser.c"
 
 #define INITIAL 0
 #define VAR 1
@@ -558,6 +550,35 @@ char *vm_var_text;
 #endif
 
 static int yy_init_globals (void );
+
+/* Accessor methods to globals.
+   These are made visible to non-reentrant scanners for convenience. */
+
+int vm_var_lex_destroy (void );
+
+int vm_var_get_debug (void );
+
+void vm_var_set_debug (int debug_flag  );
+
+YY_EXTRA_TYPE vm_var_get_extra (void );
+
+void vm_var_set_extra (YY_EXTRA_TYPE user_defined  );
+
+FILE *vm_var_get_in (void );
+
+void vm_var_set_in  (FILE * in_str  );
+
+FILE *vm_var_get_out (void );
+
+void vm_var_set_out  (FILE * out_str  );
+
+int vm_var_get_leng (void );
+
+char *vm_var_get_text (void );
+
+int vm_var_get_lineno (void );
+
+void vm_var_set_lineno (int line_number  );
 
 /* Macros after this point can all be overridden by user definitions in
  * section 1.
@@ -692,7 +713,7 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 39 "vm_var_parser.l"
+#line 38 "vm_var_parser.l"
 
 
  /* ------------------------------------------------------------------------- */
@@ -703,7 +724,7 @@ YY_DECL
  /*   $NUM.CONTEXT_VARIABLE                                                   */
  /* ------------------------------------------------------------------------- */
 
-#line 707 "vm_var_parser.c"
+#line 728 "vm_var_parser.c"
 
 	if ( !(yy_init) )
 		{
@@ -798,65 +819,65 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 49 "vm_var_parser.l"
+#line 48 "vm_var_parser.l"
 { BEGIN VAR;}
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 51 "vm_var_parser.l"
+#line 50 "vm_var_parser.l"
 { return EQUAL;}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 52 "vm_var_parser.l"
+#line 51 "vm_var_parser.l"
 { return COMMA;}
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 53 "vm_var_parser.l"
+#line 52 "vm_var_parser.l"
 { return OBRACKET;}
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 54 "vm_var_parser.l"
+#line 53 "vm_var_parser.l"
 { return CBRACKET;}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 56 "vm_var_parser.l"
+#line 55 "vm_var_parser.l"
 { vm_var_text[vm_var_leng-1] = '\0';
                                  lvalp->val_int   = atoi(vm_var_text);
                                  return INTEGER;}
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 59 "vm_var_parser.l"
+#line 58 "vm_var_parser.l"
 { lvalp->val_str = strdup(vm_var_text);
                                  return VARIABLE;}
 	YY_BREAK
 case 8:
 /* rule 8 can match eol */
 YY_RULE_SETUP
-#line 61 "vm_var_parser.l"
+#line 60 "vm_var_parser.l"
 { lvalp->val_str = strdup(vm_var_text+1);
                                  lvalp->val_str[vm_var_leng-2] = '\0';
                                  return STRING;}
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 65 "vm_var_parser.l"
+#line 64 "vm_var_parser.l"
 { lvalp->val_char = '\0';
                                  return EOA;}
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 67 "vm_var_parser.l"
+#line 66 "vm_var_parser.l"
 { lvalp->val_char = *vm_var_text;
                                  BEGIN(INITIAL);
                                  return EOA;}
 	YY_BREAK
 case YY_STATE_EOF(VAR):
-#line 70 "vm_var_parser.l"
+#line 69 "vm_var_parser.l"
 { lvalp->val_char = '\0';
                                  BEGIN(INITIAL);
                                  return EOA;}
@@ -867,15 +888,15 @@ case YY_STATE_EOF(VAR):
 case 11:
 /* rule 11 can match eol */
 YY_RULE_SETUP
-#line 78 "vm_var_parser.l"
+#line 77 "vm_var_parser.l"
 { lvalp->val_str = strdup(vm_var_text); return RSTRING;}
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 80 "vm_var_parser.l"
+#line 79 "vm_var_parser.l"
 ECHO;
 	YY_BREAK
-#line 879 "vm_var_parser.c"
+#line 900 "vm_var_parser.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1844,7 +1865,7 @@ void vm_var_free (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 80 "vm_var_parser.l"
+#line 79 "vm_var_parser.l"
 
 
 

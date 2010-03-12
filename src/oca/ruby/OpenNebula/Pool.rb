@@ -17,6 +17,7 @@ module OpenNebula
 
             @client = client 
             @xml    = nil
+            @hash   = nil
         end
 
         # Default Factory Method for the Pools. The factory method returns an
@@ -77,7 +78,8 @@ module OpenNebula
         def initialize(node, client)
             @xml    = node
             @client = client
-
+            @hash   = nil
+            
             if self['ID']
                 @pe_id = self['ID'].to_i
             else

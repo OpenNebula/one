@@ -11,7 +11,7 @@ if [ ! -f GetProperty.java ]; then
     ln -s ../../im_mad/vmware/GetProperty.java GetProperty.java
 fi
  
-javac OneVmmVmware.java
+javac *.java
 cp *class $ONE_LOCATION/lib/mads
 cp one_vmm_vmware $ONE_LOCATION/lib/mads
 chmod +x $ONE_LOCATION/lib/mads/one_vmm_vmware
@@ -19,7 +19,7 @@ chmod +x $ONE_LOCATION/lib/mads/one_vmm_vmware
 echo -n "."
 
 cd ../../im_mad/vmware/
-javac OneImVmware.java
+javac *.java
 cp *class $ONE_LOCATION/lib/mads
 cp one_im_vmware $ONE_LOCATION/lib/mads
 chmod +x $ONE_LOCATION/lib/mads/one_im_vmware

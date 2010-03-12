@@ -1,6 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2009, Distributed Systems Architecture Group, Universidad   */
-/* Complutense de Madrid (dsa-research.org)                                   */
+/* Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -634,6 +633,7 @@ int VirtualMachine::get_network_leases()
     string                     mac;
     string                     bridge;
     string                     network;
+    string                     model;
 
     ostringstream              vnid;
 
@@ -702,6 +702,13 @@ int VirtualMachine::get_network_leases()
         new_nic.insert(make_pair("BRIDGE" ,bridge));
         new_nic.insert(make_pair("VNID"   ,vnid.str()));
         new_nic.insert(make_pair("IP"     ,ip));
+
+        model = nic->vector_value("MODEL");
+
+        if ( !model.empty() )
+        {
+		    new_nic.insert(make_pair("MODEL",model));
+        }
 
         nic->replace(new_nic);
 
@@ -877,7 +884,7 @@ int VirtualMachine::parse_attribute(VirtualMachine * vm,
     YY_BUFFER_STATE  str_buffer = 0;
     const char *     str;
     int              rc;
-    ostringstream    oss_parsed("DEBUG");
+    ostringstream    oss_parsed;
 
     *error_msg = 0;
 

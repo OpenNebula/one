@@ -1,8 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2009, Distributed Systems Architecture Group, Universidad   #
-# Complutense de Madrid (dsa-research.org)                                   #
+# Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -22,7 +21,7 @@
 #  TODO : use virsh freecell when available
 ######
 
-nodeinfo_text = `virsh nodeinfo`
+nodeinfo_text = `virsh -c qemu:///system nodeinfo`
 
 nodeinfo_text.split(/\n/).each{|line|
     if     line.match('^CPU\(s\)') 

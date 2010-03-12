@@ -1,0 +1,55 @@
+NAME   = <%= vm_info['NAME']%>
+
+CPU    = 4
+MEMORY = 4096
+
+OS = [ kernel     = /vmlinuz,
+       initrd     = /initrd.img,
+       root       = sda1,
+       kernel_cmd = "ro xencons=tty console=tty1"]
+       
+<% if vm_info['STORAGE']
+       vm_info['STORAGE'].each do |key, image| 
+  image=[image].flatten
+case key
+    when "SWAP" 
+        image.each do |img|
+%>
+DISK = [ type = "swap", 
+         size=<%= img['size']%>, 
+         target=<%= img['dev']%> ]
+<% 
+        end
+    when "DISK"  
+        image.each do |img|  
+%>
+DISK = [ type = "disk", 
+         target=<%= img['dev']%>, 
+         source=<%= img['source']%>, 
+         image_id=<%= img['image']%> ]
+<%  
+        end
+    when "FS" 
+        image.each do |img| 
+%>
+DISK = [ type = "fs", 
+         target=<%= img['dev']%>, 
+         size=<%= img['size']%>,
+         format=<%= @config[:fs_format]||"ext3"%>  ]   
+<%      end %>
+<% end %>
+<% end %>
+<% end %>
+<% if vm_info['NETWORK'] and vm_info['NETWORK']['NIC'] %>
+<% vm_info['NETWORK']['NIC'].each do |nic| %>
+NIC = [ 
+<% if nic['ip'] %>
+        IP=<%= nic['ip'] %>,
+<% end %>
+        NETWORK="<%= nic['network']%>", 
+        NETWORK_ID=<%= nic['network_id'] %>      
+]
+<% end %>
+<% end %>
+INSTANCE_TYPE = <%= vm_info[:instance_type ]%>
+

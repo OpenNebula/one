@@ -2,6 +2,7 @@ begin # require 'rubygems'
     require 'rubygems'
 rescue Exception
 end
+
 require 'xmlrpc/client'
 require 'digest/sha1'
 require 'rexml/document'
@@ -63,11 +64,22 @@ module OpenNebula
         def initialize(secret=nil, endpoint=nil)
             if secret
                 one_secret = secret
-            elsif ENV["ONE_AUTH"]
-                one_secret = ENV["ONE_AUTH"]
+            elsif ENV["ONE_AUTH"] and !ENV["ONE_AUTH"].empty? and File.file?(ENV["ONE_AUTH"])
+                one_secret=File.read(ENV["ONE_AUTH"])
+            elsif File.file?(ENV["HOME"]+"/.one/one_auth")
+                one_secret=File.read(ENV["HOME"]+"/.one/one_auth")
+            else
+                puts "ONE_AUTH file not present"
+                exit -1
             end
 
-            one_secret=~/(\w+):(\w+)/
+            if !one_secret.match(".+:.+")
+                puts "Authorization file malformed"
+                exit -1
+            end
+
+
+            one_secret=~/^(.+?):(.+)$/
             @one_auth  = "#{$1}:#{Digest::SHA1.hexdigest($2)}"
 
             if endpoint

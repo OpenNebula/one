@@ -1,43 +1,47 @@
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
 
 require 'rubygems'
-require 'uuid'
 require 'fileutils'
 require 'sequel'
 require 'logger'
 
-# Seems that database should be opened before defining models
-# TODO: fix this
-if ONE_RM_DATABASE
-    DB=Sequel.sqlite(ONE_RM_DATABASE)
-else
-    DB=Sequel.sqlite('database.db')
-end
-#DB.loggers << Logger.new($stdout)
-require 'image'
-
-
-IMAGE_DIR='images'
-
 module OpenNebula
     class RepoManager
-        def initialize
-            @uuid=UUID.new
+        def initialize(rm_db=nil)
+            raise "DB not defined" if !rm_db
+            
+            @db=Sequel.sqlite(rm_db)
+
+            require 'image'
+
             Image.initialize_table
             ImageAcl.initialize_table
         end
         
         def add(owner, path, metadata={})
-            uuid=@uuid.generate
-
-            Image.create_image(uuid, owner, path, metadata)
+            Image.create_image(owner, path, metadata)
         end
         
-        def get(uuid)
-            Image[:uuid => uuid]
+        def get(image_id)
+            Image[:id => image_id]
         end
         
-        def update(uuid, metadata)
-            image=get(uuid)
+        def update(image_id, metadata)
+            image=get(image_id)
             image.update(metadata)
         end
         
@@ -47,7 +51,7 @@ module OpenNebula
 end
 
 =begin
-OpenNebula::Image.create_image('uid', 10, 'repo_manager.rb',
+OpenNebula::Image.create_image(10, 'repo_manager.rb',
     :name => 'nombre',
     :noexiste => 'nada'
 )

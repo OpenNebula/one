@@ -1,6 +1,5 @@
 # -------------------------------------------------------------------------- */
-# Copyright 2002-2009, Distributed Systems Architecture Group, Universidad   */
-# Complutense de Madrid (dsa-research.org)                                   */
+# Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 # not use this file except in compliance with the License. You may obtain    */
 # a copy of the License at                                                   */
@@ -17,8 +16,7 @@
 require 'thread'
 
 =begin rdoc
-Copyright 2002-2009, Distributed Systems Architecture Group, Universidad
-Complutense de Madrid (dsa-research.org)
+Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)
 
 This class provides support to handle actions. Class methods, or actions, can be
 registered in the action manager. The manager will wait for actions to be
@@ -151,7 +149,7 @@ class ActionManager
 
                 @threads_cond.signal
             else
-                i = @action_queue.index{|x| x[:id] == action_id}
+                i = @action_queue.select{|x| x[:id] == action_id}.first
                 @action_queue.delete_at(i) if i
             end
         }

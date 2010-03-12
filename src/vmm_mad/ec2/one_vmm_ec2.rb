@@ -1,7 +1,6 @@
 #!/usr/bin/env ruby
 # ---------------------------------------------------------------------------- #
-# Copyright 2002-2009, Distributed Systems Architecture Group, Universidad     #
-# Complutense de Madrid (dsa-research.org)                                     #
+# Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -26,6 +25,8 @@ if !EC2_LOCATION
     puts "EC2_HOME not set"
     exit(-1)
 end
+
+EC2_JVM_CONCURRENCY = ENV["EC2_JVM_CONCURRENCY"]
 
 ONE_LOCATION = ENV["ONE_LOCATION"]
 
@@ -65,7 +66,14 @@ class EC2Driver < VirtualMachineDriver
     # EC2 constructor, loads defaults for the EC2Driver                        #
     # ------------------------------------------------------------------------ #
     def initialize(ec2_conf = nil)
-        super(5,true)
+        
+        if !EC2_JVM_CONCURRENCY
+            concurrency = 5
+        else
+            concurrency = EC2_JVM_CONCURRENCY.to_i
+        end
+
+        super(concurrency,true)
 
         @defaults = Hash.new
 

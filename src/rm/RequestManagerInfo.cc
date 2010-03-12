@@ -1,6 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2009, Distributed Systems Architecture Group, Universidad   */
-/* Complutense de Madrid (dsa-research.org)                                   */
+/* Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -42,7 +41,7 @@ void RequestManager::VirtualMachineInfo::execute(
     session      = xmlrpc_c::value_string(paramList.getString(0));
     vid          = xmlrpc_c::value_int   (paramList.getInt(1));
 
-    // Perform the allocation in the vmpool 
+    // Get the details of the virtual machine 
     vm = VirtualMachineInfo::vmpool->get(vid,true);
 
     if ( vm == 0 )                             

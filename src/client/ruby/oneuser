@@ -1,8 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2009, Distributed Systems Architecture Group, Universidad   #
-# Complutense de Madrid (dsa-research.org)                                   #
+# Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -34,14 +33,14 @@ require 'command_parse'
 
 
 ShowTableUP={
-    :uid => {
-        :name => "UID",
+    :id => {
+        :name => "ID",
         :desc => "ONE identifier for user",
         :size => 4,
         :proc => lambda {|d,e| d.id }
     },
-    :name => {
-        :name => "NAME",
+    :user => {
+        :name => "USER",
         :desc => "name of the user",
         :size => 15,
         :left => true,
@@ -61,7 +60,7 @@ ShowTableUP={
         :proc => lambda {|d,e| d[:enabled] }
     },
    
-    :default => [:uid, :name, :password, :enable]
+    :default => [:id, :user, :password, :enable]
 }
 
 class UPShow
@@ -123,7 +122,7 @@ Commands:
     oneuser create username password
     
 * delete (Removes a user)
-    oneuser delete <uid>
+    oneuser delete <id>
     
 * list (Lists all the users in the pool)
     oneuser list
@@ -161,34 +160,38 @@ when "create"
     sha_password = Digest::SHA1.hexdigest(ARGV[1])
     result=user.allocate(ARGV[0],sha_password)
     if !OpenNebula.is_error?(result)
-        puts "UID: " + user.id.to_s if ops[:verbose]
+        puts "ID: " + user.id.to_s if ops[:verbose]
         exit 0
     end
     
 when "delete"
     check_parameters("delete", 1)
-    user_id=get_user_id(ARGV[0])
+    args=expand_args(ARGV)
 
-    # Check if the user has defined VM's
-    vms=false
-    vmpool=OpenNebula::VirtualMachinePool.new(
-        get_one_client, user_id)
-    vmpool.info
-    vmpool.each{ vms=true ; break }
+    args.each do |param|
+        user_id=get_user_id(param)
 
-    if vms
-        puts "The user still has VM's defined, type YES if you are sure you"
-        print "want to delete this user: "
-        answer=STDIN.gets.strip
-        exit -1 if answer != 'YES'
-    end
+        # Check if the user has defined VM's
+        vms=false
+        vmpool=OpenNebula::VirtualMachinePool.new(
+            get_one_client, user_id)
+        vmpool.info
+        vmpool.each{ vms=true ; break }
 
-    user=OpenNebula::User.new(
-        OpenNebula::User.build_xml(user_id), get_one_client)
-    result=user.delete
-    if !OpenNebula.is_error?(result)
-        puts "User deleted" if ops[:verbose]
-        exit 0
+        if vms
+            puts "The user #{param} still has VM's defined, "+
+                "type YES if you are sure you"
+            print "want to delete this user: "
+            answer=STDIN.gets.strip
+            exit -1 if answer != 'YES'
+        end
+
+        user=OpenNebula::User.new(
+            OpenNebula::User.build_xml(user_id), get_one_client)
+        result=user.delete
+        if !OpenNebula.is_error?(result)
+            puts "User deleted" if ops[:verbose]
+        end
     end
     
 when "list"

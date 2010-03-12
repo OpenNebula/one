@@ -1,0 +1,123 @@
+#!/usr/bin/env ruby
+
+# == Synopsis
+# econe-terminate-instances
+# 
+# Terminate the selected running instance
+#
+# == Usage
+#
+# econe-register [OPTIONS] INSTANCE-ID
+#
+# -h, --help:
+#    show help
+#
+# --access-key <id>, -K <id>:
+#    The username of the user
+#
+# --secret-key <key>, -K <key>:
+#    The password of the user
+#
+# --url <url>, -U <url>:
+#    Set url as the web service url to use
+#
+# INSTANCE-ID: The instance identification as returned by
+# the econe-run-instances command
+
+
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+ONE_LOCATION=ENV["ONE_LOCATION"]
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
+else
+    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
+end
+
+
+$: << RUBY_LIB_LOCATION
+$: << RUBY_LIB_LOCATION+"/cloud"
+
+require 'econe/EC2QueryClient'
+require 'CloudClient'
+require 'getoptlong'
+require 'rdoc/usage'
+require 'pp'
+
+include CloudCLI
+
+opts = GetoptLong.new(
+            ['--help',       '-h',GetoptLong::NO_ARGUMENT],
+            ['--access-key', '-K',GetoptLong::REQUIRED_ARGUMENT],
+            ['--secret-key', '-S',GetoptLong::REQUIRED_ARGUMENT],
+            ['--url',        '-U',GetoptLong::REQUIRED_ARGUMENT]
+       )
+
+url     = nil
+access  = nil
+secret  = nil
+auth    = nil
+
+begin
+    opts.each do |opt, arg|
+        case opt
+            when '--help'
+                RDoc::usage
+            when '--access-key'
+                access = arg
+            when '--secret-key'
+                secret = arg
+            when '--url'
+                url = arg
+            when '--headers'
+                headers = true
+        end
+    end
+rescue Exception => e
+    exit -1
+end 
+
+instance = ARGV.shift
+
+if !instance
+    puts "#{cmd_name}: missing INSTANCE-ID parameter"
+    exit -1
+end
+
+auth = "#{access}:#{secret}" if secret && access
+
+begin
+    ec2_client = EC2QueryClient::Client.new(auth,url)
+rescue Exception => e
+    puts "#{cmd_name}: #{e.message}"
+    exit -1
+end
+
+rc = ec2_client.terminate_instances(instance)
+
+if CloudClient::is_error?(rc)
+    puts "#{cmd_name}: #{rc.message}"
+    exit -1
+end
+
+result = rc['instancesSet']['item'][0]
+
+puts "Success: Terminating #{result['instanceId']} in #{result['previousState']['name']} state"
+
+exit 0

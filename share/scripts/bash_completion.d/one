@@ -1,0 +1,130 @@
+_one_list() {
+	local cmd filter
+	one_cmd=$1
+	if [ -n "$2" ]; then
+		filter="-f $2"
+	fi
+	echo $($one_cmd $filter list|sed 1d|awk '{print $1}')	
+	return 0
+}
+
+_onevm() {
+	local cur prev opts cmd
+	COMPREPLY=()
+	cur="${COMP_WORDS[COMP_CWORD]}"
+	prev="${COMP_WORDS[COMP_CWORD-1]}"
+    if [ "${#COMP_WORDS[@]}" -gt "2" ]; then
+        pprev="${COMP_WORDS[COMP_CWORD-2]}"
+    fi
+	opts="create deploy shutdown livemigrate migrate hold release stop cancel suspend resume delete restart list show top history"
+	cmd=onevm
+	if [ $COMP_CWORD == 1 ]
+	then
+		COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+		return 0
+	elif [ $COMP_CWORD == 2 ] 
+	then
+		case "$prev" in
+		show|delete)
+			vms=`_one_list $cmd`
+			COMPREPLY=( $(compgen -W "${vms}" -- ${cur}) )
+			return 0
+		;;
+		cancel|shutdown|suspend|stop)
+			vms=`_one_list $cmd stat='runn'`
+			COMPREPLY=( $(compgen -W "${vms}" -- ${cur}) )
+			return 0
+		;;
+		create|submit)
+			COMPREPLY=( $(compgen -A file -- ${cur}) )
+			return 0
+		;;
+		migrate)
+			vms=`_one_list $cmd stat='runn'`
+			COMPREPLY=( $(compgen -W "${vms}" -- ${cur}) )
+			return 0
+		;;
+		esac
+	elif [ $COMP_CWORD == 3 ] 
+	then
+       case "$pprev" in
+       migrate)
+		   hosts=`onehost list -f STAT=on|sed 1d|awk '{print $2}'`
+           COMPREPLY=( $(compgen -W "${hosts}" -- ${cur}) )
+           return 0
+       ;;
+       esac
+	fi
+}
+
+complete -F _onevm onevm
+
+_onevnet() {
+	local cur prev opts cmd
+	COMPREPLY=()
+	cur="${COMP_WORDS[COMP_CWORD]}"
+	prev="${COMP_WORDS[COMP_CWORD-1]}"
+	opts="create delete list show"
+	cmd=onevnet
+	if [ $COMP_CWORD == 1 ]
+	then
+		COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+		return 0
+	elif [ $COMP_CWORD == 2 ] 
+	then
+		case "$prev" in
+		create|submit)
+			COMPREPLY=( $(compgen -A file -- ${cur}) )
+			return 0
+		;;
+		delete|show)
+			vnets=`_one_list $cmd`
+			COMPREPLY=( $(compgen -W "${vnets}" -- ${cur}) )
+			return 0
+		;;
+		esac
+	fi
+
+}
+
+complete -F _onevnet onevnet
+
+_onehost() {
+	local cur prev opts cmd
+	COMPREPLY=()
+	cur="${COMP_WORDS[COMP_CWORD]}"
+	prev="${COMP_WORDS[COMP_CWORD-1]}"
+	opts="create show delete list enable disable top"
+	cmd=onehost
+	if [ $COMP_CWORD == 1 ]
+	then
+		COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+		return 0
+	elif [ $COMP_CWORD == 2 ] 
+	then
+		case "$prev" in
+		create|submit)
+			COMPREPLY=( $(compgen -A file -- ${cur}) )
+			return 0
+		;;
+		delete|show)
+			hosts=`_one_list $cmd`
+			COMPREPLY=( $(compgen -W "${hosts}" -- ${cur}) )
+			return 0
+		;;
+		enable)
+			hosts=`_one_list $cmd stat='off'`
+			COMPREPLY=( $(compgen -W "${hosts}" -- ${cur}) )
+			return 0
+		;;
+		disable)
+			hosts=`_one_list $cmd stat='on'`
+			COMPREPLY=( $(compgen -W "${hosts}" -- ${cur}) )
+			return 0
+		;;
+		esac
+	fi
+
+}
+
+complete -F _onehost onehost

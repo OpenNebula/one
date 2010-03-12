@@ -1,7 +1,6 @@
 #!/usr/bin/env ruby
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2009, Distributed Systems Architecture Group, Universidad   #
-# Complutense de Madrid (dsa-research.org)                                   #
+# Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -53,7 +52,8 @@ class XenDriver < VirtualMachineDriver
         :restore  => "sudo #{XM_PATH} restore",
         :migrate  => "sudo #{XM_PATH} migrate -l",
         :poll     => "sudo #{XENTOP_PATH} -bi2",
-        :credits  => "sudo #{XM_PATH} sched-cred"
+        :credits  => "sudo #{XM_PATH} sched-cred",
+        :list     => "sudo #{XM_PATH} list"
     }
 
     XEN_INFO = {
@@ -127,7 +127,7 @@ class XenDriver < VirtualMachineDriver
     def shutdown(id, host, deploy_id, not_used)
         cmd=<<-EOS
 function gdm {
-    sudo xm list | grep '#{deploy_id}\\>'
+    #{XEN[:list]} | grep '#{deploy_id}\\>'
 }
 
 #{XEN[:shutdown]} #{deploy_id} || exit -1
@@ -181,7 +181,7 @@ EOS
         exe = SSHCommand.run("#{XEN[:poll]} #{deploy_id}", host, log_method(id))
 
         if exe.code != 0
-            send_message(ACTION[:poll], RESULT[:failure], id, info)
+            send_message(ACTION[:poll], RESULT[:failure], id, "-")
             return
         end
 

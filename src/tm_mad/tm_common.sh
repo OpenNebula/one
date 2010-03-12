@@ -1,6 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2009, Distributed Systems Architecture Group, Universidad   #
-# Complutense de Madrid (dsa-research.org)                                   #
+# Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -14,6 +13,41 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
+
+if [ -z "$ONE_LOCATION" ]; then 
+    ONE_CONF=/etc/one/oned.conf
+    ONE_LOCAL_VAR=/var/lib/one
+else
+    ONE_CONF=$ONE_LOCATION/etc/oned.conf
+    ONE_LOCAL_VAR=$ONE_LOCATION/var
+fi
+
+function get_vmdir
+{
+    VMDIR=`cat $ONE_CONF | grep ^VM_DIR= | cut -d= -f2`
+}
+
+function fix_paths
+{
+    if [ -n "$VMDIR" ]; then
+        SRC_PATH=${SRC_PATH/$VMDIR/$ONE_LOCAL_VAR}
+        DST_PATH=${DST_PATH/$VMDIR/$ONE_LOCAL_VAR}
+    fi
+}
+
+function fix_src_path
+{
+    if [ -n "$VMDIR" ]; then
+        SRC_PATH=${SRC_PATH/$VMDIR/$ONE_LOCAL_VAR}
+    fi
+}
+
+function fix_dst_path
+{
+    if [ -n "$VMDIR" ]; then
+        DST_PATH=${DST_PATH/$VMDIR/$ONE_LOCAL_VAR}
+    fi
+}
 
 # Used for log messages
 SCRIPT_NAME=`basename $0`
@@ -62,11 +96,12 @@ function arg_path
 function exec_and_log
 {
     output=`$1 2>&1 1>/dev/null`
-    if [ "x$?" != "x0" ]; then
+    code=$?
+    if [ "x$code" != "x0" ]; then
         log_error "Command \"$1\" failed."
         log_error "$output"
         error_message "$output"
-        exit -1
+        exit $code
     fi
     log "Executed \"$1\"."
 }
@@ -96,7 +131,7 @@ function timeout_exec_and_log
     ) &
     TIMEOUT_PID=$!
 
-    # stopts the exution until the command finalizes
+    # stops the execution until the command finalizes
     wait $CMD_PID 2>/dev/null
     CMD_CODE=$?
     

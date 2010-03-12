@@ -7,6 +7,13 @@ module OpenNebula
     rescue LoadError
         NOKOGIRI=false
     end
+    
+    # Require crack library if present, otherwise don't bother
+    # This is just for OCCI use
+    begin
+        require 'crack'
+    rescue LoadError
+    end
 
     ###########################################################################
     # The XMLUtilsElement module provides an abstraction of the underlying
@@ -72,8 +79,8 @@ module OpenNebula
                         str_line << n.collect {|n2|
                             if n2 && n2.class==REXML::Element
                                 str = ind_tab + n2.name + "="
-				str += n2.text if n2.text
-				str
+                                str += n2.text if n2.text
+                                str
                             end
                         }.compact.join(","+ind_enter)
                         str_line<<" ]"
@@ -86,6 +93,13 @@ module OpenNebula
             
             str
         end
+        
+        def to_hash 
+            if !@hash
+                @hash=Crack::XML.parse(to_xml)
+            end
+            return @hash
+        end
 
         def to_xml
             if NOKOGIRI
@@ -96,6 +110,7 @@ module OpenNebula
                 str
             end
         end
+        
     end
         
     ###########################################################################
@@ -139,6 +154,13 @@ module OpenNebula
                 REXML::Formatters::Pretty.new(1).write(@xml,str)
                 str
             end
+        end
+        
+        def to_hash 
+            if !@hash
+                @hash=Crack::XML.parse(to_xml)
+            end
+            return @hash
         end
     end
 end

@@ -1,6 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2009, Distributed Systems Architecture Group, Universidad   */
-/* Complutense de Madrid (dsa-research.org)                                   */
+/* Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -79,9 +78,81 @@ stmt:   expr                { result = static_cast<int>($1);}
         ;
         
 expr:   STRING              { string val;
-                              host->get_template_attribute($1,val);
-                              $$ = val.empty() ? 0.0 : atof(val.c_str());
-                              free($1); }
+                              string attr($1);
+
+                              if (attr == "RUNNING_VMS")
+                              {
+                                $$ = static_cast<float>
+                                      (host->get_share_running_vms());
+                              }
+                              else if (attr == "ALLOCATED_MEMORY")
+                              {
+                                $$ = static_cast<float>
+                                      (host->get_share_mem_usage());
+                              }
+                              else if (attr == "ALLOCATED_CPU")
+                              {
+                                $$ = static_cast<float>
+                                      (host->get_share_cpu_usage());
+                              }
+                              else if (attr == "ALLOCATED_DISK")
+                              {
+                                $$ = static_cast<float>
+                                      (host->get_share_disk_usage());
+                              }
+                              else if (attr == "USED_MEMORY")
+                              {
+                                $$ = static_cast<float>
+                                      (host->get_share_used_mem());
+                              }
+                              else if (attr == "USED_CPU")
+                              {
+                                $$ = static_cast<float>
+                                      (host->get_share_used_cpu());
+                              }
+                              else if (attr == "USED_DISK")
+                              {
+                                $$ = static_cast<float>
+                                      (host->get_share_used_disk());
+                              }
+                              else if (attr == "FREE_MEMORY")
+                              {
+                                $$ = static_cast<float>
+                                      (host->get_share_free_mem());
+                              }
+                              else if (attr == "FREE_CPU")
+                              {
+                                $$ = static_cast<float>
+                                      (host->get_share_free_cpu());
+                              }
+                              else if (attr == "FREE_DISK")
+                              {
+                                $$ = static_cast<float>
+                                      (host->get_share_free_disk());
+                              }
+                              else if (attr == "MAX_MEMORY")
+                              {
+                                $$ = static_cast<float>
+                                      (host->get_share_max_mem());
+                              }
+                              else if (attr == "MAX_CPU")
+                              {
+                                $$ = static_cast<float>
+                                      (host->get_share_max_cpu());
+                              }
+                              else if (attr == "MAX_DISK")
+                              {
+                                $$ = static_cast<float>
+                                      (host->get_share_max_disk());
+                              }
+                              else
+                              {
+                                host->get_template_attribute($1,val);
+                                $$ = val.empty() ? 0.0 : atof(val.c_str());
+                              }
+
+                              free($1);
+                            }
         | FLOAT             { $$ = $1; }
         | INTEGER           { $$ = static_cast<float>($1); }
         | expr '+' expr     { $$ = $1 + $3;}

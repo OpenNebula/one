@@ -1,6 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2009, Distributed Systems Architecture Group, Universidad   #
-# Complutense de Madrid (dsa-research.org)                                   #
+# Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -217,10 +216,6 @@ end
 ################
 
 def get_one_client(session=nil)
-    if !ENV["ONE_AUTH"] or ENV["ONE_AUTH"].empty? or !ENV["ONE_AUTH"].match(".+:.+")
-        puts "$ONE_AUTH not defined or malformed"
-        exit -1
-    end
     OpenNebula::Client.new(session)
 end
 
@@ -300,4 +295,46 @@ def str_running_time(data)
     dtime=Time.at(etime-stime).getgm
 
     "%02d %02d:%02d:%02d" % [dtime.yday-1, dtime.hour, dtime.min, dtime.sec]
+end
+
+
+REG_RANGE=/(.*)\[(\d+)([+-])(\d+)\](.*)/
+
+def expand_range(param)
+    if match=param.match(REG_RANGE)
+        pre=match[1]
+        start=match[2]
+        operator=match[3]
+        last=match[4]
+        post=match[5]
+        size=0
+        
+        result=Array.new
+        
+        if operator=='-'
+            range=(start.to_i..last.to_i)
+            size=last.size
+        elsif operator=='+'
+            size=(start.to_i+last.to_i-1).to_s.size
+            range=(start.to_i..(start.to_i+last.to_i-1))
+        end
+        
+        if start[0]==?0
+            range.each do |num|
+                result<<sprintf("%s%0#{size}d%s", pre, num, post)
+            end
+        else
+            range.each do |num|
+                result<<sprintf("%s%d%s", pre, num, post)
+            end
+        end
+
+        result
+    else
+        param
+    end
+end
+
+def expand_args(args)
+    args.collect {|arg| expand_range(arg) }.flatten
 end

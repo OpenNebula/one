@@ -1,0 +1,23 @@
+NAME   = myUbuntu
+CPU    = 0.5
+MEMORY = 400
+DISK   = [
+  source   = "/home/srv/cloud/images/ubuntu-server-9.04.img",
+  target   = "sda",
+  readonly = "no" ]
+NIC    = [ NETWORK = "Red Virtual" ]
+
+FEATURES=[ acpi="no" ]
+RAW = [ type = "kvm", data = " <serial type='pty'> <source path='/dev/pts/3'/> <target port='1'/> </serial>" ]
+
+CONTEXT = [
+  hostname   = "$NAME",
+	#ip_public = "$NIC[IP, NETWORK=\"Red Virtual\"]",
+	ip_public = "192.168.0.4",
+	files				= "/home/oneadmin/one-templates/ubuntu/init.sh /home/oneadmin/one-templates/ubuntu/id_dsa.pub",
+  target     = "sdb", # This distribution's udev assigns block device symlinks sequentally. If you only define two drives
+											# the second will be sdb.
+	root_pubkey = "id_dsa.pub",
+	username = "oneadmin",
+	user_pubkey = "id_dsa.pub"
+]

@@ -1,6 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2009, Distributed Systems Architecture Group, Universidad   */
-/* Complutense de Madrid (dsa-research.org)                                   */
+/* Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -45,8 +44,7 @@ static const char * susage =
 
 static void print_license()
 {
-    cout<< "Copyright 2002-2009, Distributed Systems Architecture Group,\n"
-        << "Universidad Complutense de Madrid (dsa-research.org).\n\n"
+    cout<< "Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)\n\n"
         << Nebula::version() << " is distributed and licensed for use under the"
         << " terms of the\nApache License, Version 2.0 "
         << "(http://www.apache.org/licenses/LICENSE-2.0).\n";
@@ -115,7 +113,7 @@ int main(int argc, char **argv)
     if (nl == 0) // OpenNebula in root of FSH
     {
     	var_location = "/var/lib/one/"; 
-    	lockfile 	 = "/var/lock/one";
+    	lockfile 	 = "/var/lock/one/one";
     }
     else
     {

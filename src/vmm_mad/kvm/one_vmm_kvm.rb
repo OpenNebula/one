@@ -1,7 +1,6 @@
 #!/usr/bin/env ruby
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2009, Distributed Systems Architecture Group, Universidad   #
-# Complutense de Madrid (dsa-research.org)                                   #
+# Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -30,6 +29,12 @@ else
     ETC_LOCATION      = ONE_LOCATION + "/etc/"
 end
 
+if ENV["LIBVIRT_DEFAULT_URI"]
+    LIBVIRT_URI = ENV["LIBVIRT_DEFAULT_URI"]
+else
+    LIBVIRT_URI = "qemu:///system"
+end
+
 $: << RUBY_LIB_LOCATION
 
 require 'pp'
@@ -46,13 +51,13 @@ class LibVirtDriver < VirtualMachineDriver
     QEMU_PROTOCOL = "qemu+ssh"
 
     LIBVIRT       = {
-        :create   => "virsh create",
-        :shutdown => "virsh shutdown",
-        :cancel   => "virsh destroy",
-        :save     => "virsh save",
-        :restore  => "virsh restore",
-        :migrate  => "virsh migrate --live",
-        :poll     => "virsh dominfo"
+        :create   => "virsh --connect #{LIBVIRT_URI} create",
+        :shutdown => "virsh --connect #{LIBVIRT_URI} shutdown",
+        :cancel   => "virsh --connect #{LIBVIRT_URI} destroy",
+        :save     => "virsh --connect #{LIBVIRT_URI} save",
+        :restore  => "virsh --connect #{LIBVIRT_URI} restore",
+        :migrate  => "virsh --connect #{LIBVIRT_URI} migrate --live",
+        :poll     => "virsh --connect #{LIBVIRT_URI} dominfo"
     }
 
     # ------------------------------------------------------------------------ #
@@ -79,7 +84,9 @@ class LibVirtDriver < VirtualMachineDriver
         domain = tmp.read
         tmp.close()
 
-        cmd = "cat > #{remote_dfile} && #{LIBVIRT[:create]} #{remote_dfile}"
+        images_path = File.dirname remote_dfile
+        cmd = "mkdir -p #{images_path} && cat > #{remote_dfile} && " \
+              "#{LIBVIRT[:create]} #{remote_dfile}"
 
         deploy_exe = SSHCommand.run("'#{cmd}'", host, log_method(id), domain)
 
@@ -115,7 +122,7 @@ class LibVirtDriver < VirtualMachineDriver
     end
 
     def save(id, host, deploy_id, file)
-        ssh_action("#{LIBVIRT[:save]} #{deploy_id} #{file}", id, host, :save)
+        ssh_action("'touch #{file};#{LIBVIRT[:save]} #{deploy_id} #{file}'",id,host,:save)
     end
 
     def restore(id, host, deploy_id, file)
@@ -124,7 +131,7 @@ class LibVirtDriver < VirtualMachineDriver
 
     def migrate(id, host, deploy_id, dest_host)
         cmd = "#{LIBVIRT[:migrate]} #{deploy_id} "\
-              "#{QEMU_PROTOCOL}://#{dest_host}/session"
+              "#{QEMU_PROTOCOL}://#{dest_host}/system"
 
         ssh_action(cmd, id, host, :migrate)
     end

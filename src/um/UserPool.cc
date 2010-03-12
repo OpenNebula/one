@@ -1,6 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2009, Distributed Systems Architecture Group, Universidad   */
-/* Complutense de Madrid (dsa-research.org)                                   */
+/* Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -22,6 +21,7 @@
 #include "UserPool.h"
 #include "Nebula.h"
 
+#include <fstream>
 #include <sys/types.h>
 #include <pwd.h>
 
@@ -67,45 +67,65 @@ UserPool::UserPool(SqliteDB * db):PoolSQL(db,User::table)
     if ((int) known_users.size() == 0)   
     {
         // User oneadmin needs to be added in the bootstrap
-        struct passwd * pw_ent;
-        int    one_uid = -1;
-
+        int           one_uid = -1;
         ostringstream oss;
-        
-        pw_ent = getpwuid(getuid());
-
-        if ((pw_ent != NULL) && (pw_ent->pw_name != NULL))
-        {                                                 
-            string one_name;
-            string one_pass;
+        string        one_token;
+        string        one_name;
+        string        one_pass;
             
-            const char * one_auth;
+        const char *  one_auth;
+        ifstream      file;
 
-            one_name = pw_ent->pw_name;
-            one_auth = getenv("ONE_AUTH");
+        one_auth = getenv("ONE_AUTH");
 
-            if ( one_auth != 0 )
+        if (!one_auth)
+        {
+            struct passwd * pw_ent;
+        
+            pw_ent = getpwuid(getuid());
+
+            if ((pw_ent != NULL) && (pw_ent->pw_dir != NULL))
+            {                                                       
+                string one_auth_file = pw_ent->pw_dir;
+            
+                one_auth_file += "/.one/one_auth";
+                one_auth = one_auth_file.c_str();
+            }   
+            else
             {
-                if ( User::split_secret(one_auth,one_name,one_pass) == 0 )
+                oss << "Could not get one_auth file location";
+            }
+        }
+   
+        file.open(one_auth);
+
+        if (file.good())
+        {
+            getline(file,one_token);
+
+            if (file.fail())
+            {
+                oss << "Error reading file: " << one_auth;
+            }
+            else
+            {
+                if (User::split_secret(one_token,one_name,one_pass) == 0)
                 {
                     string sha1_pass = User::sha1_digest(one_pass);
-
                     allocate(&one_uid, one_name, sha1_pass, true);
                 }
                 else
                 {
-                    oss << "ONE_AUTH must be <username>:<password>";
+                    oss << "Wrong format must be <username>:<password>";
                 }
-            }
-            else
-            {
-                oss << "Environment variable ONE_AUTH is not set";
             }
         }
         else
         {
-            oss << "Error getting the user info";
+            oss << "Cloud not open file: " << one_auth;
         }
+
+        file.close();
         
         if (one_uid != 0)
         {

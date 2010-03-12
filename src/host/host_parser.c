@@ -28,7 +28,7 @@
 #define FLEX_SCANNER
 #define YY_FLEX_MAJOR_VERSION 2
 #define YY_FLEX_MINOR_VERSION 5
-#define YY_FLEX_SUBMINOR_VERSION 34
+#define YY_FLEX_SUBMINOR_VERSION 35
 #if YY_FLEX_SUBMINOR_VERSION > 0
 #define FLEX_BETA
 #endif
@@ -210,13 +210,6 @@ extern FILE *host_in, *host_out;
 	while ( 0 )
 
 #define unput(c) yyunput( c, (yytext_ptr)  )
-
-/* The following is because we cannot portably get our hands on size_t
- * (without autoconf's help, which isn't available because we want
- * flex-generated scanners to compile on their own).
- * Given that the standard has decreed that size_t exists since 1989,
- * I guess we can afford to depend on it. Manoj.
- */
 
 #ifndef YY_TYPEDEF_YY_SIZE_T
 #define YY_TYPEDEF_YY_SIZE_T
@@ -502,8 +495,7 @@ int host__flex_debug = 0;
 char *host_text;
 #line 1 "host_parser.l"
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2009, Distributed Systems Architecture Group, Universidad   */
-/* Complutense de Madrid (dsa-research.org)                                   */
+/* Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -517,7 +509,7 @@ char *host_text;
 /* See the License for the specific language governing permissions and        */
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
-#line 19 "host_parser.l"
+#line 18 "host_parser.l"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -531,7 +523,7 @@ char *host_text;
 #define YY_USER_ACTION  llocp->first_line = host_lineno; 				\
                         llocp->first_column = llocp->last_column;	\
                         llocp->last_column += host_leng;
-#line 535 "host_parser.c"
+#line 527 "host_parser.c"
 
 #define INITIAL 0
 
@@ -548,6 +540,35 @@ char *host_text;
 #endif
 
 static int yy_init_globals (void );
+
+/* Accessor methods to globals.
+   These are made visible to non-reentrant scanners for convenience. */
+
+int host_lex_destroy (void );
+
+int host_get_debug (void );
+
+void host_set_debug (int debug_flag  );
+
+YY_EXTRA_TYPE host_get_extra (void );
+
+void host_set_extra (YY_EXTRA_TYPE user_defined  );
+
+FILE *host_get_in (void );
+
+void host_set_in  (FILE * in_str  );
+
+FILE *host_get_out (void );
+
+void host_set_out  (FILE * out_str  );
+
+int host_get_leng (void );
+
+char *host_get_text (void );
+
+int host_get_lineno (void );
+
+void host_set_lineno (int line_number  );
 
 /* Macros after this point can all be overridden by user definitions in
  * section 1.
@@ -682,11 +703,11 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 39 "host_parser.l"
+#line 38 "host_parser.l"
 
    /* --- Tokens --- */
 
-#line 690 "host_parser.c"
+#line 711 "host_parser.c"
 
 	if ( !(yy_init) )
 		{
@@ -781,26 +802,26 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 42 "host_parser.l"
+#line 41 "host_parser.l"
 { return *host_text;}
 	YY_BREAK
 /* --- Strings, also quoted form --- */
 case 2:
 YY_RULE_SETUP
-#line 46 "host_parser.l"
+#line 45 "host_parser.l"
 { lvalp->val_str = strdup(host_text);      
 						return STRING;}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 49 "host_parser.l"
+#line 48 "host_parser.l"
 { 	lvalp->val_str = NULL;            
 				return STRING;}                     
 	YY_BREAK
 case 4:
 /* rule 4 can match eol */
 YY_RULE_SETUP
-#line 52 "host_parser.l"
+#line 51 "host_parser.l"
 { 	lvalp->val_str = strdup(host_text+1);
 				lvalp->val_str[host_leng-2] = '\0';
                 return STRING;}	
@@ -808,28 +829,28 @@ YY_RULE_SETUP
 /* --- Numbers --- */
 case 5:
 YY_RULE_SETUP
-#line 57 "host_parser.l"
+#line 56 "host_parser.l"
 { lvalp->val_int = atoi(host_text);
                    return INTEGER;}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 60 "host_parser.l"
+#line 59 "host_parser.l"
 { lvalp->val_float = atof(host_text);
 				   return FLOAT;}
 	YY_BREAK
 /* --- blanks --- */
 case 7:
 YY_RULE_SETUP
-#line 64 "host_parser.l"
+#line 63 "host_parser.l"
 
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 66 "host_parser.l"
+#line 65 "host_parser.l"
 ECHO;
 	YY_BREAK
-#line 833 "host_parser.c"
+#line 854 "host_parser.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1798,7 +1819,7 @@ void host_free (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 66 "host_parser.l"
+#line 65 "host_parser.l"
 
 
 

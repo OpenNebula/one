@@ -1,6 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2009, Distributed Systems Architecture Group, Universidad   */
-/* Complutense de Madrid (dsa-research.org)                                   */
+/* Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -249,7 +248,7 @@ int LibVirtDriver::deployment_description(
 
     num = vm->get_template_attribute("DISK",attrs);
 
-    for (int i=0; i < num ;i++,target="",ro="")
+    for (int i=0; i < num ;i++)
     {
         disk = dynamic_cast<const VectorAttribute *>(attrs[i]);
 
@@ -280,24 +279,24 @@ int LibVirtDriver::deployment_description(
             }
         }
 
-        if ( type.empty() )
+        if (type.empty() == false)
         {
-            type = "disk";
+            transform(type.begin(),type.end(),type.begin(),(int(*)(int))toupper);
+        }
+
+        if ( type == "BLOCK" )
+        {
+            file << "\t\t<disk type='block' device='disk'>" << endl
+                 << "\t\t\t<source dev='" << vm->get_remote_dir() << "/disk." 
+                 << i << "'/>" << endl;
         }
         else
         {
-            string type_=type;
-            transform(type_.begin(),type_.end(),
-                        type_.begin(),(int(*)(int))toupper);
-            if ( type_ == "SWAP" )
-            {
-                type="disk";
-            }
+            file << "\t\t<disk type='file' device='disk'>" << endl
+                 << "\t\t\t<source file='" << vm->get_remote_dir() << "/disk." 
+                 << i << "'/>" << endl;
         }
 
-        file << "\t\t<disk type='file' device='" << type << "'>" << endl;
-        file << "\t\t\t<source file='" << vm->get_remote_dir() << "/disk." << i
-                                    << "'/>" << endl;
         file << "\t\t\t<target dev='" << target << "'";
 
         if (!bus.empty())
@@ -330,7 +329,7 @@ int LibVirtDriver::deployment_description(
 
         if ( !target.empty() )
         {
-            file << "\t\t<disk type='file' device='disk'>" << endl;
+            file << "\t\t<disk type='file' device='cdrom'>" << endl;
             file << "\t\t\t<source file='" << vm->get_remote_dir() << "/disk."
                  << num << "'/>" << endl;
             file << "\t\t\t<target dev='" << target << "'/>" << endl;
@@ -352,7 +351,7 @@ int LibVirtDriver::deployment_description(
 
     num = vm->get_template_attribute("NIC",attrs);
 
-    for(int i=0; i<num;i++,mac="",bridge="",target="",script="",model="")
+    for(int i=0; i<num; i++)
     {
         nic = dynamic_cast<const VectorAttribute *>(attrs[i]);
 
@@ -362,6 +361,10 @@ int LibVirtDriver::deployment_description(
         }
 
         bridge = nic->vector_value("BRIDGE");
+        mac    = nic->vector_value("MAC");
+        target = nic->vector_value("TARGET");
+        script = nic->vector_value("SCRIPT");
+        model  = nic->vector_value("MODEL");
 
         if ( bridge.empty() )
         {
@@ -373,28 +376,20 @@ int LibVirtDriver::deployment_description(
             file << "\t\t\t<source bridge='" << bridge << "'/>" << endl;
         }
 
-        mac = nic->vector_value("MAC");
-
         if( !mac.empty() )
         {
             file << "\t\t\t<mac address='" << mac << "'/>" << endl;
         }
-
-        target = nic->vector_value("TARGET");
 
         if( !target.empty() )
         {
             file << "\t\t\t<target dev='" << target << "'/>" << endl;
         }
 
-        script = nic->vector_value("SCRIPT");
-
         if( !script.empty() )
         {
             file << "\t\t\t<script path='" << script << "'/>" << endl;
         }
-        
-        model = nic->vector_value("MODEL");
 
         if( !model.empty() )
         {
@@ -517,7 +512,7 @@ int LibVirtDriver::deployment_description(
         get_default("FEATURES", "ACPI", acpi);
     }
     
-    if( acpi=="yes" || pae=="yes" )
+    if( acpi == "yes" || pae == "yes" )
     {
         file << "\t<features>" << endl;
 
