@@ -39,6 +39,7 @@ class PoolTest : public CppUnit::TestFixture
     CPPUNIT_TEST (allocate_get);
     CPPUNIT_TEST (wrong_get);
     CPPUNIT_TEST (search);
+    CPPUNIT_TEST (cache_test);
     CPPUNIT_TEST_SUITE_END ();
 
 private:
@@ -166,6 +167,42 @@ public:
         CPPUNIT_ASSERT(results.size()  == 2);
         CPPUNIT_ASSERT(results.at(0)   == oidA);
         CPPUNIT_ASSERT(results.at(1)   == oidB);
+    };
+
+    void cache_test()
+    {
+        TestObjectSQL *obj;
+        TestObjectSQL *obj_lock;
+
+	//pin object in the cache, it can't be removed - 
+	for (int i=0 ; i < 499 ; i++)
+        {
+            create_allocate(i,"A Test object");
+	    
+	    obj_lock = pool->get(i, true);
+            CPPUNIT_ASSERT(obj_lock != 0);
+        }
+        
+        for (int i=499 ; i < 2000 ; i++)
+        {
+            create_allocate(i,"A Test object");
+        }
+
+        for (int i=499; i < 2000 ; i++)
+        {
+            obj = pool->get(i, true);
+            CPPUNIT_ASSERT(obj != 0);
+
+            CPPUNIT_ASSERT(obj->number == i);
+            CPPUNIT_ASSERT(obj->text   == "A Test object");
+            obj->unlock();
+        }
+
+	for (int i=0 ; i < 499 ; i++)
+        {	    
+	    obj_lock = pool->get(i, false);//pin object in the cache, it can't be removed
+	    obj_lock->unlock();
+        }
     };
 };
 
