@@ -22,9 +22,12 @@
 
 DOC_DIR="./share/doc"
 BIN_DIR="./bin"
-JAR_DIR="./jar/org.opennebula.client.jar"
+JAR_DIR="./jar"
 LIB_DIR="./lib"
 EXA_DIR="./share/examples"
+
+OCA_JAR=$JAR_DIR"/org.opennebula.client.jar"
+
 #-------------------------------------------------------------------------------
 # COMMAND LINE PARSING
 #-------------------------------------------------------------------------------
@@ -34,22 +37,25 @@ usage() {
  echo
  echo "-d: build the documentation"
  echo "-s: compile the examples"
+ echo "-c: clean compilation files"
  echo "-h: prints this help"
 }
 #-------------------------------------------------------------------------------
 
-TEMP_OPT=`getopt -o hsd -n 'build.sh' -- "$@"`
+TEMP_OPT=`getopt -o hsdc -n 'build.sh' -- "$@"`
 
 eval set -- "$TEMP_OPT"
 
 DO_DOC="no"
 DO_EXA="no"
+DO_CLEAN="no"
 
 while true ; do
     case "$1" in
         -h) usage; exit 0;;
         -d) DO_DOC="yes"; shift ;;
         -s) DO_EXA="yes"; shift ;;
+        -c) DO_CLEAN="yes"; shift ;;
         --) shift ; break ;;
         *)  usage; exit 1 ;;
     esac
@@ -81,19 +87,36 @@ do_jar()
     rm -rf $BIN_DIR > /dev/null 2>&1
     mkdir -p $BIN_DIR
 
+    rm -rf $JAR_DIR > /dev/null 2>&1
+    mkdir -p $JAR_DIR
+
     echo "Compiling java files into class files..."
     javac -d $BIN_DIR -cp $LIB_DIR"/*" `find src -name *.java`
 
     if [ $? -eq 0 ]; then
         echo "Packaging class files in a jar..."
-        jar cf $JAR_DIR -C $BIN_DIR org
+        jar cf $OCA_JAR -C $BIN_DIR org
     fi
 }
 
 do_examples()
 {
     echo "Compiling OpenNebula Cloud API Examples..."
+    javac -d $EXA_DIR -classpath $OCA_JAR:$LIB_DIR `find share/examples -name *.java`
 }
+
+do_clean()
+{
+    rm -rf $BIN_DIR > /dev/null 2>&1
+    mkdir -p $BIN_DIR
+
+    find share/examples -name '*.class' -delete
+}
+
+if [ "$DO_CLEAN" = "yes" ] ; then
+    do_clean
+    exit 0
+fi
 
 do_jar
 
@@ -104,3 +127,4 @@ fi
 if [ "$DO_EXA" = "yes" ] ; then
     do_examples
 fi
+
