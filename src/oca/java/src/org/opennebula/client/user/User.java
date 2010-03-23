@@ -25,106 +25,104 @@ import org.w3c.dom.Node;
  * This class represents an OpenNebula User.
  * It also offers static XML-RPC call wrappers.
  */
-public class User extends PoolElement {
+public class User extends PoolElement{
 
-private static final String ROOT_NAME = "USER";
-	
-	private static final String METHOD_PREFIX = "user.";
-	private static final String ALLOCATE = METHOD_PREFIX + "allocate";
-	private static final String INFO     = METHOD_PREFIX + "info";
-	private static final String DELETE   = METHOD_PREFIX + "delete";
-	
-	/**
-	 * Creates a new User representation.
-	 * 
-	 * @param id The user id (uid).
-	 * @param client XML-RPC Client.
-	 */
-	public User(int id, Client client) 
-	{
-	    super(id, client);
-	}
+    private static final String METHOD_PREFIX   = "user.";
+    private static final String ALLOCATE        = METHOD_PREFIX + "allocate";
+    private static final String INFO            = METHOD_PREFIX + "info";
+    private static final String DELETE          = METHOD_PREFIX + "delete";
+    
+    /**
+     * Creates a new User representation.
+     * 
+     * @param id The user id (uid).
+     * @param client XML-RPC Client.
+     */
+    public User(int id, Client client) 
+    {
+        super(id, client);
+    }
 
-	/**
-	 * @see PoolElement 
-	 */
-	protected User(Node xmlElement, Client client)
-	{
+    /**
+     * @see PoolElement 
+     */
+    protected User(Node xmlElement, Client client)
+    {
         super(xmlElement, client);
-	}
-	
-	
-	// =================================
-	// Static XML-RPC methods
-	// =================================
-	
-	/**
-	 * Allocates a new user in OpenNebula.
-	 * 
-	 * @param client XML-RPC Client.
-	 * @param username Username for the new user.
-	 * @param password Password for the new user 
-	 * @return If successful the message contains
-	 * the associated id (int uid) generated for this user.
-	 */
-	public static OneResponse allocate(Client client,
+    }
+
+
+    // =================================
+    // Static XML-RPC methods
+    // =================================
+
+    /**
+     * Allocates a new user in OpenNebula.
+     * 
+     * @param client XML-RPC Client.
+     * @param username Username for the new user.
+     * @param password Password for the new user 
+     * @return If successful the message contains
+     * the associated id (int uid) generated for this user.
+     */
+    public static OneResponse allocate(Client client,
                                        String username,
                                        String password)
     {
-		return client.call(ALLOCATE, username, password);
-	}
+        return client.call(ALLOCATE, username, password);
+    }
 
-	/** Retrieves the information of the given user.
-	 * 
-	 * @param client XML-RPC Client.
-	 * @param id The user id (uid) for the user to
-	 * retrieve the information from. 
-	 * @return if successful the message contains the
-	 * string with the information about the user returned by OpenNebula. 
-	 */
-	public static OneResponse info(Client client, int id)
+    /** Retrieves the information of the given user.
+     * 
+     * @param client XML-RPC Client.
+     * @param id The user id (uid) for the user to
+     * retrieve the information from. 
+     * @return if successful the message contains the
+     * string with the information about the user returned by OpenNebula. 
+     */
+    public static OneResponse info(Client client, int id)
     {
-		return client.call(INFO, id);
-	}
-	
-	/**
-	 * Deletes a user from OpenNebula.
-	 * 
-	 * @param client XML-RPC Client.
-	 * @param id The user id (uid) of the target user we want to delete. 
-	 * @return If an error occurs the error message contains the reason.
-	 */
-	public static OneResponse delete(Client client, int id)
+        return client.call(INFO, id);
+    }
+    
+    /**
+     * Deletes a user from OpenNebula.
+     * 
+     * @param client XML-RPC Client.
+     * @param id The user id (uid) of the target user we want to delete. 
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse delete(Client client, int id)
     {
-		return client.call(DELETE, id);
-	}
+        return client.call(DELETE, id);
+    }
 
-	// =================================
-	// Instanced object XML-RPC methods
-	// =================================
-	
-	/**
-	 * Loads the xml representation of the user.
-	 * The info is also stored internally.
-	 * 
-	 * @see User#info(Client, int)
-	 */
-	public OneResponse info()
+    // =================================
+    // Instanced object XML-RPC methods
+    // =================================
+    
+    /**
+     * Loads the xml representation of the user.
+     * The info is also stored internally.
+     * 
+     * @see User#info(Client, int)
+     */
+    public OneResponse info()
     {
-		OneResponse response = info(client, id);
+        OneResponse response = info(client, id);
 
-		super.processInfo(response);
+        super.processInfo(response);
 
-		return response;
-	}
-	
-	/**
-	 * Deletes the user from OpenNebula.
-	 * 
-	 * @see User#delete(Client, int)
-	 */
-	public OneResponse delete()
+        return response;
+    }
+
+    /**
+     * Deletes the user from OpenNebula.
+     * 
+     * @see User#delete(Client, int)
+     */
+    public OneResponse delete()
     {
-		return delete(client, id);
-	}
+        return delete(client, id);
+    }
 }

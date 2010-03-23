@@ -99,7 +99,7 @@ public abstract class Pool{
      */
     public PoolElement item(int index)
     {
-        PoolElement the_element = null;
+        PoolElement theElement = null;
 
         if (poolElements != null)
         {
@@ -107,11 +107,11 @@ public abstract class Pool{
 
             if (node != null)
             {
-                the_element = factory(node);
+                theElement = factory(node);
             }
         }
 
-        return the_element;
+        return theElement;
     }
 
     /**

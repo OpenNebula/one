@@ -36,7 +36,7 @@ import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
  * xml-rpc calls.
  *
  */
-public class Client {
+public class Client{
 
     //--------------------------------------------------------------------------
     //  PUBLIC INTERFACE
@@ -54,7 +54,7 @@ public class Client {
     public Client() throws Exception
     {
         setOneAuth(null);
-        setOneEndPoint(null);        
+        setOneEndPoint(null);
     }
 
     /**
@@ -160,7 +160,7 @@ public class Client {
             if(token.length != 2 )
             {
                 throw new Exception("Wrong format for authorization string: "
-                    + oneSecret);
+                    + oneSecret + "\nFormat expected is user:password");
             }
 
             MessageDigest md = MessageDigest.getInstance("SHA-1");

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.opennebula.client.vnet;
+package org.opennebula.client.virtualMachine;
 
 import java.util.AbstractList;
 import java.util.Iterator;
@@ -26,43 +26,43 @@ import org.opennebula.client.PoolElement;
 import org.w3c.dom.Node;
 
 /**
- * This class represents an OpenNebula Virtual Network pool.
+ * This class represents an OpenNebula VM pool.
  * It also offers static XML-RPC call wrappers.
  */
-public class VirtualNetworkPool extends Pool implements Iterable<VirtualNetwork>{
+public class VirtualMachinePool extends Pool implements Iterable<VirtualMachine>{
 
-    private static final String ELEMENT_NAME = "VNET";
-    private static final String INFO_METHOD  = "vnpool.info";
+    private static final String ELEMENT_NAME = "VM";
+    private static final String INFO_METHOD  = "vmpool.info";
 
     private int filter;
-
+    
     /**
-     * Creates a new VN pool with the default filter flag value
-     * set to 0 (VNs belonging to user with UID 0)
+     * Creates a new VM pool with the default filter flag value
+     * set to 0 (VMs belonging to user with UID 0)
      * 
      * @param client XML-RPC Client.
      * 
-     * @see VirtualNetworkPool#VirtualNetworkPool(Client, int)
+     * @see VirtualMachinePool#VirtualMachinePool(Client, int)
      */
-    public VirtualNetworkPool(Client client)
+    public VirtualMachinePool(Client client)
     {
         super(ELEMENT_NAME, client);
-        this.filter = 0;
+        this.filter = 0;        
     }
 
     /**
-     * Creates a new VN pool.
+     * Creates a new VM pool.
      * 
      * @param client XML-RPC Client.
      * @param filter Filter flag used by default in the method
-     * {@link VirtualNetworkPool#info()}. Possible values:
+     * {@link VirtualMachinePool#info()}. Possible values:
      * <ul>
-     * <li><= -2: All VNs</li>
-     * <li>-1: Connected user's VNs</li>
-     * <li>>= 0: UID User's VNs</li>
+     * <li><= -2: All VMs</li>
+     * <li>-1: Connected user's VMs</li>
+     * <li>>= 0: UID User's VMs</li>
      * </ul>
      */
-    public VirtualNetworkPool(Client client, int filter)
+    public VirtualMachinePool(Client client, int filter)
     {
         super(ELEMENT_NAME, client);
         this.filter = filter;
@@ -71,18 +71,18 @@ public class VirtualNetworkPool extends Pool implements Iterable<VirtualNetwork>
     @Override
     public PoolElement factory(Node node)
     {
-        return new VirtualNetwork(node, client);
+        return new VirtualMachine(node, client);
     }
 
     /**
-     * Retrieves all or part of the VNs in the pool.
+     * Retrieves all or part of the VMs in the pool.
      *  
      * @param client XML-RPC Client.
      * @param filter Filter flag. Possible values:
      * <ul>
-     * <li><= -2: All VNs</li>
-     * <li>-1: Connected user's VNs</li>
-     * <li>>= 0: UID User's VNs</li>
+     * <li><= -2: All VMs</li>
+     * <li>-1: Connected user's VMs</li>
+     * <li>>= 0: UID User's VMs</li>
      * </ul>
      * @return If successful the message contains the string
      * with the information returned by OpenNebula.
@@ -94,10 +94,11 @@ public class VirtualNetworkPool extends Pool implements Iterable<VirtualNetwork>
 
     /**
      * Loads the xml representation of all or part of the
-     * VNs in the pool. The filter used is the one set in
+     * VMs in the pool. The filter used is the one set in
      * the constructor.
      * 
-     * @see VirtualNetworkPool#info(Client, int)
+     * @see VirtualMachinePool#info(Client, int)
+     * 
      * @return If successful the message contains the string
      * with the information returned by OpenNebula.
      */
@@ -108,18 +109,18 @@ public class VirtualNetworkPool extends Pool implements Iterable<VirtualNetwork>
         return response;
     }
 
-    public Iterator<VirtualNetwork> iterator()
+    public Iterator<VirtualMachine> iterator()
     {
-        AbstractList<VirtualNetwork> ab = new AbstractList<VirtualNetwork>()
+        AbstractList<VirtualMachine> ab = new AbstractList<VirtualMachine>()
         {
             public int size()
             {
                 return getLength();
             }
 
-            public VirtualNetwork get(int index)
+            public VirtualMachine get(int index)
             {
-                return (VirtualNetwork) item(index);
+                return (VirtualMachine) item(index);
             }
         };
 

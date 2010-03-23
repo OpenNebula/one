@@ -1,19 +1,19 @@
 /*******************************************************************************
  * Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)
- *
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * 
  *   http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.opennebula.client.vm;
+package org.opennebula.client.virtualMachine;
 
 
 import org.opennebula.client.Client;
@@ -98,7 +98,7 @@ public class VirtualMachine extends PoolElement{
 
     /**
      * Creates a new VM representation.
-     *
+     * 
      * @param id The virtual machine Id (vid).
      * @param client XML-RPC Client.
      */
@@ -122,9 +122,9 @@ public class VirtualMachine extends PoolElement{
 
     /**
      * Allocates a new VM in OpenNebula.
-     *
+     * 
      * @param client XML-RPC Client.
-     * @param description A string containing the template of the vm.
+     * @param description A string containing the template of the vm. 
      * @return If successful the message contains the associated
      * id generated for this VM.
      */
@@ -132,12 +132,12 @@ public class VirtualMachine extends PoolElement{
     {
         return client.call(ALLOCATE, description);
     }
-
+    
     /**
      * Retrieves the information of the given VM.
-     *
+     * 
      * @param client XML-RPC Client.
-     * @param id The virtual machine id (vid) of the target instance.
+     * @param id The virtual machine id (vid) of the target instance. 
      * @return If successful the message contains the string
      * with the information returned by OpenNebula.
      */
@@ -154,7 +154,7 @@ public class VirtualMachine extends PoolElement{
     /**
      * Loads the xml representation of the virtual machine.
      * The info is also stored internally.
-     *
+     * 
      * @see VirtualMachine#info(Client, int)
      */
     public OneResponse info()
@@ -166,9 +166,9 @@ public class VirtualMachine extends PoolElement{
 
     /**
      * Initiates the instance of the VM on the target host.
-     *
+     *   
      * @param hostId The host id (hid) of the target host where
-     * the VM will be instantiated.
+     * the VM will be instantiated. 
      * @return If an error occurs the error message contains the reason.
      */
     public OneResponse deploy(int hostId)
@@ -191,10 +191,10 @@ public class VirtualMachine extends PoolElement{
      * <li>{@link VirtualMachine#finalizeVM()}</li>
      * <li>{@link VirtualMachine#restart()}</li>
      * </ul>
-     *
+     * 
      * @param action The action name to be performed, can be:<br/>
      * "shutdown", "hold", "release", "stop", "cancel", "suspend",
-     * "resume", "restart", "finalize".
+     * "resume", "restart", "finalize". 
      * @return If an error occurs the error message contains the reason.
      */
     protected OneResponse action(String action)
@@ -204,11 +204,11 @@ public class VirtualMachine extends PoolElement{
 
     /**
      * Migrates the virtual machine to the target host (hid).
-     *
+     * 
      * @param hostId The target host id (hid) where we want to migrate
      * the vm.
      * @param live If true we are indicating that we want livemigration,
-     * otherwise false.
+     * otherwise false. 
      * @return If an error occurs the error message contains the reason.
      */
     public OneResponse migrate(int hostId, boolean live)
@@ -305,12 +305,13 @@ public class VirtualMachine extends PoolElement{
         return action("shutdown");
     }
 
+
     /**
      * Migrates the virtual machine to the target host (hid).
      * <br/>
      * It does the same as {@link VirtualMachine#migrate(int, boolean)}
      * with live set to false.
-     *
+     * 
      * @param hostId The target host id (hid) where we want to migrate
      * the vm.
      * @return If an error occurs the error message contains the reason.
@@ -326,7 +327,7 @@ public class VirtualMachine extends PoolElement{
      * <br/>
      * It does the same as {@link VirtualMachine#migrate(int, boolean)}
      * with live set to true.
-     *
+     * 
      * @param hostId The target host id (hid) where we want to migrate
      * the vm.
      * @return If an error occurs the error message contains the reason.
@@ -368,7 +369,7 @@ public class VirtualMachine extends PoolElement{
     public String lcmStateStr()
     {
         int state = lcmState();
-        return state != -1 ? LCM_STATE[state] : null;
+        return state != -1 ? LCM_STATE[state] : null; 
     }
 
     /**

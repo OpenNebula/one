@@ -20,7 +20,7 @@ package org.opennebula.client;
  * carries a boolean indicating if it is an error. It can also contain a 
  * success message, or an error message. 
  */
-public class OneResponse {
+public class OneResponse{
     /**
      * Creates a new response.
      * 
@@ -34,7 +34,7 @@ public class OneResponse {
         this.success = success;
         this.msg     = message;
     }
-	
+
     /**
      * Returns true if the call resulted in error.
      * 
@@ -44,7 +44,7 @@ public class OneResponse {
     {
         return !success;
     }
-	
+
     /**
      * Returns a string containing the error message, or null
      * if the response isn't an error.
@@ -56,7 +56,7 @@ public class OneResponse {
     {
         return success ? null : msg;
     }
-	
+
     /**
      * Returns a string containing the response information, or
      * null if the response was an error. Note that the success

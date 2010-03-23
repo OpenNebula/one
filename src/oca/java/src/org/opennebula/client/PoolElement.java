@@ -44,7 +44,6 @@ public abstract class PoolElement {
      * Creates a new PoolElement with the specified attributes.
      * @param id Id of the element.
      * @param client XML-RPC Client.
-     * @param root Name of the xml's root element.
      */
     protected PoolElement(int id, Client client)
     {
@@ -63,7 +62,6 @@ public abstract class PoolElement {
      * 
      * @param client XML-RPC Client.
      * @param xmlElement XML representation of the element.
-     * @param root Name of the xml's root element.
      */
     protected PoolElement(Node xmlElement, Client client)
     {

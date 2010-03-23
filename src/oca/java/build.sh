@@ -76,7 +76,7 @@ do_documentation()
       -subpackages org.opennebula \
       -windowtitle 'OpenNebula Cloud API' \
       -doctitle 'OpenNebula Cloud API Specification' \
-      -header '<b>OpenNebula</b><br><font size="-1">Java API</font>' \
+      -header '<b>OpenNebula</b><br><font size="-1">Cloud API</font>' \
       -bottom 'Visit <a
 href="http://opennebula.org/">OpenNebula.org</a><br>Copyright 2002-2010 &copy;
 OpenNebula Project Leads (OpenNebula.org).'
