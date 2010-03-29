@@ -39,9 +39,7 @@ scheduler_names=[
 env.StaticLibrary(lib_name, source_files)
 
 env.Append(LIBS=[
-    'sqlite3',
-    'crypto',
-    lib_name,
+     lib_name,
     'nebula_core',
     'nebula_host',
     'nebula_vm',
@@ -50,6 +48,8 @@ env.Append(LIBS=[
     'nebula_template',
     'nebula_common',
     'nebula_um',
+    'sqlite3',
+    'crypto',
 ])
 
 
