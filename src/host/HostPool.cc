@@ -24,8 +24,8 @@
 int HostPool::allocate (
     int *  oid,
     string hostname,
-    string im_mad_name, 
-    string vmm_mad_name, 
+    string im_mad_name,
+    string vmm_mad_name,
     string tm_mad_name)
 {
     Host *        host;
@@ -59,14 +59,14 @@ extern "C"
         map<int, string> *  discovered_hosts;
         string              im_mad(values[1]);
         int                 hid;
-        
+
         discovered_hosts = static_cast<map<int, string> *>(_discovered_hosts);
 
         if ( (discovered_hosts == 0) || (num<=0) || (values[0] == 0) )
         {
             return -1;
         }
-        
+
         hid    = atoi(values[0]);
         im_mad = values[1];
 
@@ -86,13 +86,14 @@ int HostPool::discover(map<int, string> * discovered_hosts)
 
     lock();
 
-    sql << "SELECT oid, im_mad FROM " 
-        << Host::table << " ORDER BY last_mon_time LIMIT 10";
+    sql << "SELECT oid, im_mad FROM "
+        << Host::table << " WHERE state != "
+        << Host::DISABLED << " ORDER BY last_mon_time LIMIT 10";
 
     rc = db->exec(sql,discover_cb,(void *) discovered_hosts);
-    
+
     unlock();
-       
+
     return rc;
 }
 
