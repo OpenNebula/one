@@ -14,58 +14,72 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#ifndef OBJECT_SQL_H_
-#define OBJECT_SQL_H_
-
-#include "Callbackable.h"
-#include "SqlDB.h"
+#ifndef CALLBACKABLE_H_
+#define CALLBACKABLE_H_
 
 using namespace std;
+
+class SqlDB;
 
 /**
  * ObjectSQL class. Provides a SQL backend interface, it should be implemented
  * by persistent objects.
  */
-class ObjectSQL : public Callbackable
+class Callbackable
 {
 public:
 
-    ObjectSQL(){};
+    Callbackable():cb(0),arg(0){};
 
-    virtual ~ObjectSQL(){};
-
-protected:
-    /**
-     *  Reads the ObjectSQL (identified with its OID) from the database.
-     *    @param db pointer to the db
-     *    @return 0 on success
-     */
-    virtual int select(
-        SqlDB * db) = 0;
+    virtual ~Callbackable(){};
 
     /**
-     *  Writes the ObjectSQL in the database.
-     *    @param db pointer to the db
-     *    @return 0 on success
+     *  Datatype for call back pointers
      */
-    virtual int insert(
-        SqlDB * db) = 0;
+    typedef int (Callbackable::*CallBack)(void *, int, char ** ,char **);
 
     /**
-     *  Updates the ObjectSQL in the database.
-     *    @param db pointer to the db
-     *    @return 0 on success
+     *  Set the callback function and custom arguments to be executed by the
+     *  next SQL command
+     *    @param ptr to the callback function
+     *    @param arg custom arguments for the callback function
      */
-    virtual int update(
-        SqlDB * db) = 0;
+    void set_callback(CallBack _cb, void * _arg)
+    {
+        cb  = _cb;
+        arg = _arg;
+    };
 
     /**
-     *  Removes the ObjectSQL from the database.
-     *    @param db pointer to the db
-     *    @return 0 on success
+     *  Test if the CallBack is set for the object.
+     *    @return true if the callback is set
      */
-    virtual int drop(
-        SqlDB * db) = 0;
+    bool isCallBackSet()
+    {
+        return (cb != 0);
+    };
+
+    /**
+     *  Set the callback function and custom arguments to be executed by the
+     *  next SQL command
+     *    @param ptr to the callback function
+     *    @param arg custom arguments for the callback function
+     */
+    int do_callback(int num, char **values, char **names)
+    {
+        return (this->*cb)(arg, num, values, names);
+    };
+
+private:
+    /**
+     *  SQL callback to be executed for each row result of an SQL statement
+     */
+    CallBack cb;
+
+    /**
+     *  Custom arguments for the callback
+     */
+    void *   arg;
 };
 
-#endif /*OBJECT_SQL_H_*/
+#endif /*CALLBACKABLE_H_*/

@@ -18,11 +18,9 @@
 #define SQL_DB_H_
 
 #include <sstream>
-#include "ObjectSQL.h"
+#include "Callbackable.h"
 
 using namespace std;
-
-class ObjectSQL;
 
 /**
  * SqlDB class.Provides an abstract interface to implement a SQL backend
@@ -42,7 +40,7 @@ public:
      *    @param arg to pass to the callback function
      *    @return 0 on success
      */
-    virtual int exec(ostringstream& cmd, ObjectSQL* obj=0) = 0;
+    virtual int exec(ostringstream& cmd, Callbackable* obj=0) = 0;
 
     /**
      *  This function returns a legal SQL string that can be used in an SQL

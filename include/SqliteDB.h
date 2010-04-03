@@ -88,7 +88,7 @@ public:
      *    @param arg to pass to the callback function
      *    @return 0 on success
      */
-    int exec(ostringstream& cmd, ObjectSQL* obj=0)
+    int exec(ostringstream& cmd, Callbackable* obj=0)
     {
         int          rc;
 
@@ -167,7 +167,7 @@ public:
      *    @param arg to pass to the callback function
      *    @return 0 on success
      */
-    int exec(const char * cmd_c_str, ObjectSQL* obj=0)
+    int exec(const char * cmd_c_str, Callbackable* obj=0)
     {
         string          cmd_str = cmd_c_str;
         ostringstream   cmd;
