@@ -19,8 +19,6 @@
 
 using namespace std;
 
-class SqlDB;
-
 /**
  * ObjectSQL class. Provides a SQL backend interface, it should be implemented
  * by persistent objects.
