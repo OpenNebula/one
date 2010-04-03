@@ -18,7 +18,7 @@
 #include <sstream>
 #include <iostream>
 #include <stdexcept>
-#include <algorithm> 
+#include <algorithm>
 
 #include "PoolSQL.h"
 
@@ -36,49 +36,32 @@ const unsigned int PoolSQL::MAX_POOL_SIZE = 500;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-extern "C"
+int PoolSQL::init_cb(void *nil, int num, char **values, char **names)
 {
-    int init_cb (
-        void *                  _i,
-        int                     num,
-        char **                 values,
-        char **                 names)
+    if ( (num<=0) || (values[0] == 0) )
     {
-        int *    i;
+        lastOID = -1;
+        return -1;
+    }
 
-        i = static_cast<int *>(_i);
+    lastOID = atoi(values[0]);
 
-        if ( (i == 0) || (num<=0) || (values[0] == 0) )
-        {
-            *i  = -1;
-            
-            return -1;
-        }
-
-        *i = atoi(values[0]);
-
-        return 0;
-    };
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
 
-PoolSQL::PoolSQL(SqliteDB * _db, const char * table): Hookable(), db(_db)
+PoolSQL::PoolSQL(SqlDB * _db, const char * table): db(_db), lastOID(-1)
 {
     ostringstream   oss;
 
     pthread_mutex_init(&mutex,0);
 
-    // Get next id from the DB table
-    
-    lastOID = -1;
-    
-    if ( table != 0 )
-    {
-        oss << "SELECT MAX(oid) FROM " << table;
+    set_callback(static_cast<Callbackable::CallBack>(&PoolSQL::init_cb),0);
 
-        db->exec(oss,init_cb,(void *) &lastOID);	
-    }
+    oss << "SELECT MAX(oid) FROM " << table;
+
+    db->exec(oss,this);
 };
 
 /* -------------------------------------------------------------------------- */
@@ -93,10 +76,10 @@ PoolSQL::~PoolSQL()
     for ( it = pool.begin(); it != pool.end(); it++)
     {
         it->second->lock();
-        
+
         delete it->second;
     }
-    
+
     pthread_mutex_unlock(&mutex);
 
     pthread_mutex_destroy(&mutex);
@@ -138,7 +121,7 @@ int PoolSQL::allocate(
     }
 
     do_hooks(objsql, Hook::ALLOCATE);
-    
+
     objsql->unlock();
 
     delete objsql;
@@ -164,7 +147,7 @@ PoolObjectSQL * PoolSQL::get(
     index = pool.find(oid);
 
     if ( index != pool.end() )
-    {        
+    {
         if ( index->second->isValid() == false )
         {
             objectsql = 0;
@@ -184,7 +167,7 @@ PoolObjectSQL * PoolSQL::get(
         return objectsql;
     }
     else
-    {            
+    {
         objectsql = create();
 
         objectsql->oid = oid;
@@ -196,7 +179,7 @@ PoolObjectSQL * PoolSQL::get(
             delete objectsql;
 
             unlock();
-            
+
             return 0;
         }
 
@@ -228,7 +211,7 @@ void PoolSQL::replace()
     bool removed = false;
     int  oid;
     int  rc;
-    
+
     map<int,PoolObjectSQL *>::iterator  index;
 
     while (!removed)
@@ -245,7 +228,7 @@ void PoolSQL::replace()
         rc = pthread_mutex_trylock(&(index->second->mutex));
 
         if ( rc == EBUSY ) // In use by other thread, move to back
-        {            
+        {
             oid_queue.pop();
             oid_queue.push(oid);
         }
@@ -254,7 +237,7 @@ void PoolSQL::replace()
             delete index->second;
 
             pool.erase(index);
-            
+
 	    oid_queue.pop();
             removed = true;
         }
@@ -273,44 +256,35 @@ void PoolSQL::clean()
     for ( it = pool.begin(); it != pool.end(); it++)
     {
         it->second->lock();
-        
+
         delete it->second;
-        
+
         pool.erase(it);
     }
 
-    unlock();   
+    unlock();
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+int PoolSQL:: search_cb(void * _oids, int num, char **values, char **names)
+{
+    vector<int> *  oids;
 
-extern "C"
-{
-static int search_cb(
-    void *                  _oids,
-    int                     num,
-    char **                 values,
-    char **                 names)
-{
-    vector<int> *   oids;
-    
     oids = static_cast<vector<int> *>(_oids);
-    
+
     if ( num == 0 || values == 0 || values[0] == 0 )
     {
         return -1;
     }
-    
+
     oids->push_back(atoi(values[0]));
-    
+
     return 0;
 }
-}
 
-    
 /* -------------------------------------------------------------------------- */
-  
+
 int PoolSQL::search(
     vector<int>&    oids,
     const char *    table,
@@ -318,14 +292,17 @@ int PoolSQL::search(
 {
     ostringstream   sql;
     int             rc;
-    
+
     lock();
-    
+
+    set_callback(static_cast<Callbackable::CallBack>(&PoolSQL::search_cb),
+                 static_cast<void *>(&oids));
+
     sql  << "SELECT oid FROM " <<  table << " WHERE " << where;
-         
-    rc = db->exec(sql, search_cb, (void *) &oids);
-    
+
+    rc = db->exec(sql, this);
+
     unlock();
-        
+
     return rc;
 }
