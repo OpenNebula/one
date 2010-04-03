@@ -28,8 +28,27 @@
 
 #include "Log.h"
 #include "SqlDB.h"
+#include "ObjectSQL.h"
 
 using namespace std;
+
+extern "C" int sqlite_callback (
+        void *                  _obj,
+        int                     num,
+        char **                 values,
+        char **                 names)
+{
+    ObjectSQL *obj;
+
+    obj = static_cast<ObjectSQL *>(_obj);
+
+    if (obj == 0)
+    {
+        return -1;
+    }
+
+    return obj->do_callback(num,values,names);
+};
 
 /**
  * SqliteDB class. Provides a wrapper to the sqlite3 database interface. It also
@@ -40,10 +59,7 @@ class SqliteDB : public SqlDB
 {
 public:
 
-    SqliteDB(
-        string&          db_name,
-        Log::LogFunction _log  = 0
-        ):log(_log)
+    SqliteDB(string& db_name, Log::LogFunction _log = 0):log(_log)
     {
         int rc;
 
@@ -72,7 +88,7 @@ public:
      *    @param arg to pass to the callback function
      *    @return 0 on success
      */
-    int exec(ostringstream& cmd, SqlCallback cbk=0, void * arg=0)
+    int exec(ostringstream& cmd, ObjectSQL* obj=0)
     {
         int          rc;
 
@@ -84,8 +100,20 @@ public:
         char *       err_msg;
         char **      ptr = (log==0) ? 0 : &err_msg;
 
+        int   (*callback)(void*,int,char**,char**);
+        void * arg;
+
         str   = cmd.str();
         c_str = str.c_str();
+
+        callback = 0;
+        arg      = 0;
+
+        if ((obj != 0)&&(obj->isCallBackSet()))
+        {
+            callback = sqlite_callback;
+            arg      = static_cast<void *>(obj);
+        }
 
         lock();
 
@@ -93,7 +121,7 @@ public:
         {
             counter++;
 
-            rc = sqlite3_exec(db, c_str, cbk, arg, ptr);
+            rc = sqlite3_exec(db, c_str, callback, arg, ptr);
 
             if (rc == SQLITE_BUSY || rc == SQLITE_IOERR_BLOCKED)
             {
@@ -102,11 +130,10 @@ public:
 
                 FD_ZERO(&zero);
                 timeout.tv_sec  = 0;
-                timeout.tv_usec = 100000;
+                timeout.tv_usec = 250000;
 
                 select(0, &zero, &zero, &zero, &timeout);
             }
-
         }while( (rc == SQLITE_BUSY || rc == SQLITE_IOERR_BLOCKED) &&
                 (counter < 10));
 
@@ -120,7 +147,10 @@ public:
 
                 oss << "SQL command was: " << c_str << ", error: " << err_msg;
                 log("ONE",Log::ERROR,oss,0,Log::ERROR);
+            }
 
+            if ( err_msg != 0)
+            {
                 sqlite3_free(err_msg);
             }
 
@@ -137,14 +167,14 @@ public:
      *    @param arg to pass to the callback function
      *    @return 0 on success
      */
-    int exec(const char * cmd_c_str, SqlCallback cbk=0, void * arg=0)
+    int exec(const char * cmd_c_str, ObjectSQL* obj=0)
     {
         string          cmd_str = cmd_c_str;
         ostringstream   cmd;
 
         cmd.str(cmd_str);
 
-        return exec(cmd, cbk, arg);
+        return exec(cmd, obj);
     };
 
     /**
