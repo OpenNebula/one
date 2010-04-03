@@ -97,7 +97,7 @@ public:
 
         int          counter = 0;
 
-        char *       err_msg;
+        char *       err_msg = 0;
         char **      ptr = (log==0) ? 0 : &err_msg;
 
         int   (*callback)(void*,int,char**,char**);
