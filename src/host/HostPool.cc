@@ -19,13 +19,13 @@
 /* ************************************************************************** */
 
 #include "HostPool.h"
-#include "Nebula.h"
+//#include "Nebula.h"
 
 int HostPool::allocate (
     int *  oid,
     string hostname,
-    string im_mad_name, 
-    string vmm_mad_name, 
+    string im_mad_name,
+    string vmm_mad_name,
     string tm_mad_name)
 {
     Host *        host;
@@ -48,32 +48,25 @@ int HostPool::allocate (
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-extern "C"
+int HostPool::discover_cb(void * _map, int num, char **values, char **names)
 {
-    static int discover_cb (
-        void *                  _discovered_hosts,
-        int                     num,
-        char **                 values,
-        char **                 names)
+    map<int, string> *  discovered_hosts;
+    string              im_mad(values[1]);
+    int                 hid;
+
+    discovered_hosts = static_cast<map<int, string> *>(_map);
+
+    if ( (num<=0) || (values[0] == 0) )
     {
-        map<int, string> *  discovered_hosts;
-        string              im_mad(values[1]);
-        int                 hid;
-        
-        discovered_hosts = static_cast<map<int, string> *>(_discovered_hosts);
+        return -1;
+    }
 
-        if ( (discovered_hosts == 0) || (num<=0) || (values[0] == 0) )
-        {
-            return -1;
-        }
-        
-        hid    = atoi(values[0]);
-        im_mad = values[1];
+    hid    = atoi(values[0]);
+    im_mad = values[1];
 
-        discovered_hosts->insert(make_pair(hid,im_mad));
+    discovered_hosts->insert(make_pair(hid,im_mad));
 
-        return 0;
-    };
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -86,15 +79,54 @@ int HostPool::discover(map<int, string> * discovered_hosts)
 
     lock();
 
-    sql << "SELECT oid, im_mad FROM " 
+    set_callback(static_cast<Callbackable::Callback>(&HostPool::discover_cb),
+                 static_cast<void *>(discovered_hosts));
+
+    sql << "SELECT oid, im_mad FROM "
         << Host::table << " ORDER BY last_mon_time LIMIT 10";
 
-    rc = db->exec(sql,discover_cb,(void *) discovered_hosts);
-    
+    rc = db->exec(sql,this);
+
     unlock();
-       
+
     return rc;
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+int HostPool::dump_cb(void * _oss, int num, char **values, char **names)
+{
+    ostringstream * oss;
+
+    oss = static_cast<ostringstream *>(_oss);
+
+    return Host::dump(*oss, num, values, names);
+}
+
+/* -------------------------------------------------------------------------- */
+
+int HostPool::dump(ostringstream& oss, const string& where)
+{
+    int             rc;
+    ostringstream   cmd;
+
+    oss << "<HOST_POOL>";
+
+    set_callback(static_cast<Callbackable::Callback>(&HostPool::dump_cb),
+                  static_cast<void *>(&oss));
+
+    cmd << "SELECT * FROM " << Host::table << "," << HostShare::table
+        << " ON " << Host::table << ".oid = " << HostShare::table << ".hid";
+
+    if ( !where.empty() )
+    {
+        cmd << " WHERE " << where;
+    }
+
+    rc = db->exec(cmd, this);
+
+    oss << "</HOST_POOL>";
+
+    return rc;
+}

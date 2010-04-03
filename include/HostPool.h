@@ -30,13 +30,13 @@
 using namespace std;
 
 /**
- *  The Host Pool class. ...
+ *  The Host Pool class.
  */
 class HostPool : public PoolSQL
 {
 public:
 
-	HostPool(SqliteDB * db):PoolSQL(db,Host::table){};
+	HostPool(SqlDB * db):PoolSQL(db,Host::table){};
 
     ~HostPool(){};
 
@@ -48,8 +48,8 @@ public:
     int allocate (
         int *  oid,
         string hostname,
-        string im_mad_name, 
-        string vmm_mad_name, 
+        string im_mad_name,
+        string vmm_mad_name,
         string tm_mad_name);
 
     /**
@@ -65,8 +65,8 @@ public:
     {
         return static_cast<Host *>(PoolSQL::get(oid,lock));
     };
-    
-    /** Update a particular Host 
+
+    /** Update a particular Host
      *    @param host pointer to Host
      *    @return 0 on success
      */
@@ -74,8 +74,8 @@ public:
     {
 		return host->update(db);
     };
-    
-    
+
+
     /** Drops a host from the DB, the host mutex MUST BE locked
      *    @param host pointer to Host
      */
@@ -87,11 +87,11 @@ public:
     /**
      *  Bootstraps the database table(s) associated to the Host pool
      */
-    static void bootstrap(SqliteDB *_db)
+    static void bootstrap(SqlDB *_db)
     {
         Host::bootstrap(_db);
     };
-    
+
     /**
      * Get the 10 least monitored hosts
      *   @param discovered hosts, map to store the retrieved hosts hids and
@@ -109,36 +109,37 @@ public:
      */
     void add_capacity(int oid,int cpu, int mem, int disk)
     {
-    	Host *  host = get(oid, true);
-    	        
-    	if ( host != 0 )
-    	{
-    		host->add_capacity(cpu, mem, disk);
-    	        
-    	    update(host);
-    	        
-    	    host->unlock();
-    	}
+        Host *  host = get(oid, true);
+
+        if ( host != 0 )
+        {
+          host->add_capacity(cpu, mem, disk);
+
+          update(host);
+
+          host->unlock();
+        }
     };
+
     /**
      * De-Allocates a given capacity to the host
      *   @param oid the id of the host to allocate the capacity
      *   @param cpu amount of CPU
      *   @param mem amount of main memory
      *   @param disk amount of disk
-     */    
+     */
     void del_capacity(int oid,int cpu, int mem, int disk)
     {
-    	Host *  host = get(oid, true);
-    	        
-    	if ( host != 0 )
-    	{
-    		host->del_capacity(cpu, mem, disk);
-    	        
-    	    update(host);
-    	        
-    	    host->unlock();
-    	}    	
+        Host *  host = get(oid, true);
+
+        if ( host != 0 )
+        {
+            host->del_capacity(cpu, mem, disk);
+
+            update(host);
+
+            host->unlock();
+        }
     };
 
     /**
@@ -149,19 +150,8 @@ public:
      *
      *  @return 0 on success
      */
-    int dump(ostringstream& oss, const string& where)
-    {
-        int rc;
+    int dump(ostringstream& oss, const string& where);
 
-        oss << "<HOST_POOL>";
-
-        rc = Host::dump(db,oss,where);
-
-        oss << "</HOST_POOL>";
-
-        return rc;
-    }
-    
 private:
     /**
      *  Factory method to produce Host objects
@@ -172,6 +162,25 @@ private:
         return new Host;
     };
 
+    /**
+     *  Callback function to get the IDs of the hosts to be monitored
+     *  (Host::discover)
+     *    @param num the number of columns read from the DB
+     *    @param names the column names
+     *    @param vaues the column values
+     *    @return 0 on success
+     */
+    int discover_cb(void * _map, int num, char **values, char **names);
+
+    /**
+     *  Callback function to get output the host pool in XML format
+     *  (Host::dump)
+     *    @param num the number of columns read from the DB
+     *    @param names the column names
+     *    @param vaues the column values
+     *    @return 0 on success
+     */
+    int dump_cb(void * _oss, int num, char **values, char **names);
 };
 
 #endif /*HOST_POOL_H_*/

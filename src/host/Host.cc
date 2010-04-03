@@ -61,7 +61,7 @@ const char * Host::db_bootstrap = "CREATE TABLE host_pool ("
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int Host::unmarshall(int num, char **names, char ** values)
+int Host::select_cb(void * nil, int num, char **values, char ** names)
 {
     if ((!values[OID]) ||
         (!values[HOST_NAME]) ||
@@ -78,11 +78,11 @@ int Host::unmarshall(int num, char **names, char ** values)
     oid      = atoi(values[OID]);
     hostname = values[HOST_NAME];
     state    = static_cast<HostState>(atoi(values[STATE]));
-    
+
     im_mad_name  = values[IM_MAD];
     vmm_mad_name = values[VM_MAD];
     tm_mad_name  = values[TM_MAD];
-    
+
     last_monitored = static_cast<time_t>(atoi(values[LAST_MON_TIME]));
 
     host_template.id = oid;
@@ -92,40 +92,21 @@ int Host::unmarshall(int num, char **names, char ** values)
 }
 
 /* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
 
-extern "C" int host_select_cb (
-        void *                  _host,
-        int                     num,
-        char **                 values,
-        char **                 names)
-{
-    Host *    host;
-
-    host = static_cast<Host *>(_host);
-
-    if (host == 0)
-    {
-        return -1;
-    }
-
-    return host->unmarshall(num,names,values);
-};
-
-/* -------------------------------------------------------------------------- */
-
-int Host::select(SqliteDB *db)
+int Host::select(SqlDB *db)
 {
     ostringstream   oss;
     int             rc;
     int             boid;
-    
+
+    set_callback(static_cast<Callbackable::Callback>(&Host::select_cb));
+
     oss << "SELECT * FROM " << table << " WHERE oid = " << oid;
 
     boid = oid;
     oid  = -1;
 
-    rc = db->exec(oss, host_select_cb, (void *) this);
+    rc = db->exec(oss, this);
 
     if ((rc != 0) || (oid != boid ))
     {
@@ -156,7 +137,7 @@ int Host::select(SqliteDB *db)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int Host::insert(SqliteDB *db)
+int Host::insert(SqlDB *db)
 {
     int rc;
     map<int,HostShare *>::iterator iter;
@@ -174,7 +155,7 @@ int Host::insert(SqliteDB *db)
     {
     	host_share.hsid = oid;
     }
-    
+
     //Insert the Host and its template
     rc = update(db);
 
@@ -189,17 +170,17 @@ int Host::insert(SqliteDB *db)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int Host::update(SqliteDB *db)
+int Host::update(SqlDB *db)
 {
     ostringstream   oss;
-    
+
     int    rc;
 
     char * sql_hostname;
     char * sql_im_mad_name;
     char * sql_tm_mad_name;
     char * sql_vmm_mad_name;
-    
+
     // Update the Template
 
     rc = host_template.update(db);
@@ -219,35 +200,35 @@ int Host::update(SqliteDB *db)
     }
 
     // Update the Host
-    
-    sql_hostname = sqlite3_mprintf("%q",hostname.c_str());
+
+    sql_hostname = db->escape_str(hostname.c_str());
 
     if ( sql_hostname == 0 )
     {
         goto error_hostname;
     }
-    
-    sql_im_mad_name = sqlite3_mprintf("%q",im_mad_name.c_str());
+
+    sql_im_mad_name = db->escape_str(im_mad_name.c_str());
 
     if ( sql_im_mad_name == 0 )
     {
         goto error_im;
     }
-   
-    sql_tm_mad_name = sqlite3_mprintf("%q",tm_mad_name.c_str());
+
+    sql_tm_mad_name = db->escape_str(tm_mad_name.c_str());
 
     if ( sql_tm_mad_name == 0 )
     {
         goto error_tm;
     }
 
-    sql_vmm_mad_name = sqlite3_mprintf("%q",vmm_mad_name.c_str());
+    sql_vmm_mad_name = db->escape_str(vmm_mad_name.c_str());
 
     if ( sql_vmm_mad_name == 0 )
     {
         goto error_vmm;
     }
-    
+
     // Construct the SQL statement to Insert or Replace (effectively, update)
 
     oss << "INSERT OR REPLACE INTO " << table << " "<< db_names <<" VALUES ("
@@ -261,19 +242,19 @@ int Host::update(SqliteDB *db)
 
     rc = db->exec(oss);
 
-    sqlite3_free(sql_hostname);
-    sqlite3_free(sql_im_mad_name);
-    sqlite3_free(sql_tm_mad_name);
-    sqlite3_free(sql_vmm_mad_name);
+    db->free_str(sql_hostname);
+    db->free_str(sql_im_mad_name);
+    db->free_str(sql_tm_mad_name);
+    db->free_str(sql_vmm_mad_name);
 
     return rc;
-    
+
 error_vmm:
-    sqlite3_free(sql_tm_mad_name);
+    db->free_str(sql_tm_mad_name);
 error_tm:
-    sqlite3_free(sql_im_mad_name);
+    db->free_str(sql_im_mad_name);
 error_im:
-    sqlite3_free(sql_hostname);
+    db->free_str(sql_hostname);
 error_hostname:
     return -1;
 }
@@ -281,10 +262,7 @@ error_hostname:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int Host::unmarshall(ostringstream& oss,
-                     int            num,
-                     char **        names,
-                     char **        values)
+int Host::dump(ostringstream& oss, int num, char **values, char **names)
 {
     if ((!values[OID]) ||
         (!values[HOST_NAME]) ||
@@ -301,65 +279,24 @@ int Host::unmarshall(ostringstream& oss,
     oss <<
         "<HOST>" <<
             "<ID>"           << values[OID]          <<"</ID>"           <<
- 		    "<NAME>"         << values[HOST_NAME]    <<"</NAME>"         <<
-		    "<STATE>"        << values[STATE]        <<"</STATE>"        <<
-		    "<IM_MAD>"       << values[IM_MAD]       <<"</IM_MAD>"       <<
-		    "<VM_MAD>"       << values[VM_MAD]       <<"</VM_MAD>"       <<
-		    "<TM_MAD>"       << values[TM_MAD]       <<"</TM_MAD>"       <<
-			"<LAST_MON_TIME>"<< values[LAST_MON_TIME]<<"</LAST_MON_TIME>";
-			
-	HostShare::unmarshall(oss,num - LIMIT, names + LIMIT, values + LIMIT);
-	
+            "<NAME>"         << values[HOST_NAME]    <<"</NAME>"         <<
+            "<STATE>"        << values[STATE]        <<"</STATE>"        <<
+            "<IM_MAD>"       << values[IM_MAD]       <<"</IM_MAD>"       <<
+            "<VM_MAD>"       << values[VM_MAD]       <<"</VM_MAD>"       <<
+            "<TM_MAD>"       << values[TM_MAD]       <<"</TM_MAD>"       <<
+            "<LAST_MON_TIME>"<< values[LAST_MON_TIME]<<"</LAST_MON_TIME>";
+
+    HostShare::dump(oss,num - LIMIT, values + LIMIT, names + LIMIT);
+
     oss << "</HOST>";
 
     return 0;
-
-}
-
-/* -------------------------------------------------------------------------- */
-
-extern "C" int host_dump_cb (
-        void *                  _oss,
-        int                     num,
-        char **                 values,
-        char **                 names)
-{
-    ostringstream * oss;
-
-    oss = static_cast<ostringstream *>(_oss);
-
-    if (oss == 0)
-    {
-        return -1;
-    }
-
-    return Host::unmarshall(*oss,num,names,values);
-};
-
-/* -------------------------------------------------------------------------- */
-
-int Host::dump(SqliteDB * db, ostringstream& oss, const string& where)
-{
-    int             rc;
-    ostringstream   cmd;
-
-    cmd << "SELECT * FROM " << Host::table << "," << HostShare::table
-        << " ON " << Host::table << ".oid = " << HostShare::table << ".hid";
-
-    if ( !where.empty() )
-    {
-        cmd << " WHERE " << where;
-    }
-
-    rc = db->exec(cmd,host_dump_cb,(void *) &oss);
-
-    return rc;
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int Host::drop(SqliteDB * db)
+int Host::drop(SqlDB * db)
 {
     ostringstream oss;
     int rc;
@@ -389,15 +326,15 @@ int Host::update_info(string &parse_str)
     int     rc;
 
     rc = host_template.parse(parse_str, &error_msg);
-    
+
     if ( rc != 0 )
     {
         //Nebula::log("ONE", Log::ERROR, error_msg);
-        
+
         free(error_msg);
         return -1;
     }
-    
+
     get_template_attribute("TOTALCPU",host_share.max_cpu);
     get_template_attribute("TOTALMEMORY",host_share.max_mem);
 
@@ -417,9 +354,9 @@ int Host::update_info(string &parse_str)
 ostream& operator<<(ostream& os, Host& host)
 {
 	string host_str;
-	
+
 	os << host.to_xml(host_str);
-	
+
     return os;
 };
 
@@ -432,18 +369,18 @@ string& Host::to_xml(string& xml) const
     string template_xml;
 	string share_xml;
     ostringstream   oss;
- 
-    oss << 
-    "<HOST>"                             
-       "<ID>"            << oid       	   << "</ID>"            <<           
-       "<NAME>"          << hostname 	   << "</NAME>"          << 
-       "<STATE>"         << state          << "</STATE>"         << 
-       "<IM_MAD>"        << im_mad_name    << "</IM_MAD>"        << 
-       "<VM_MAD>"        << vmm_mad_name   << "</VM_MAD>"        << 
-       "<TM_MAD>"        << tm_mad_name    << "</TM_MAD>"        << 
-       "<LAST_MON_TIME>" << last_monitored << "</LAST_MON_TIME>" << 
- 	   host_share.to_xml(share_xml)  << 
-       host_template.to_xml(template_xml) << 
+
+    oss <<
+    "<HOST>"
+       "<ID>"            << oid       	   << "</ID>"            <<
+       "<NAME>"          << hostname 	   << "</NAME>"          <<
+       "<STATE>"         << state          << "</STATE>"         <<
+       "<IM_MAD>"        << im_mad_name    << "</IM_MAD>"        <<
+       "<VM_MAD>"        << vmm_mad_name   << "</VM_MAD>"        <<
+       "<TM_MAD>"        << tm_mad_name    << "</TM_MAD>"        <<
+       "<LAST_MON_TIME>" << last_monitored << "</LAST_MON_TIME>" <<
+ 	   host_share.to_xml(share_xml)  <<
+       host_template.to_xml(template_xml) <<
 	"</HOST>";
 
     xml = oss.str();
@@ -458,10 +395,10 @@ string& Host::to_str(string& str) const
 {
     string template_str;
 	string share_str;
-	
+
     ostringstream   os;
 
-    os << 
+    os <<
 		"ID      =  "  << oid            << endl <<
     	"NAME = "      << hostname       << endl <<
     	"STATE    = "  << state          << endl <<
@@ -473,7 +410,7 @@ string& Host::to_str(string& str) const
         "HOST SHARES"  << endl << host_share.to_str(share_str) <<endl;
 
 	str = os.str();
-	
+
 	return str;
 }
 
@@ -487,7 +424,7 @@ pthread_mutex_t Host::lex_mutex = PTHREAD_MUTEX_INITIALIZER;
 extern "C"
 {
     typedef struct yy_buffer_state * YY_BUFFER_STATE;
-    
+
     int host_requirements_parse(Host * host, bool& result, char ** errmsg);
 
     int host_rank_parse(Host * host, int& result, char ** errmsg);

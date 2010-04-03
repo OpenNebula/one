@@ -18,7 +18,7 @@
 
 #include <iostream>
 #include <sstream>
-#include <algorithm> 
+#include <algorithm>
 
 #include "HostShare.h"
 
@@ -73,7 +73,7 @@ const char * HostShare::db_bootstrap = "CREATE TABLE host_shares ("
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int HostShare::unmarshall(int num, char **names, char ** values)
+int HostShare::select_cb(void * nil, int num, char **values, char **names)
 {
     if ((!values[HID]) ||
         (!values[DISK_USAGE]) ||
@@ -99,7 +99,7 @@ int HostShare::unmarshall(int num, char **names, char ** values)
     disk_usage = atoi(values[DISK_USAGE]);
     mem_usage  = atoi(values[MEM_USAGE]);
     cpu_usage  = atoi(values[CPU_USAGE]);
-    
+
     max_disk = atoi(values[MAX_DISK]);
     max_mem  = atoi(values[MAX_MEMORY]);
     max_cpu  = atoi(values[MAX_CPU]);
@@ -113,93 +113,75 @@ int HostShare::unmarshall(int num, char **names, char ** values)
     used_cpu  = atoi(values[USED_CPU]);
 
     running_vms = atoi(values[RUNNING_VMS]);
-    
+
     return 0;
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int HostShare::unmarshall(ostringstream& oss,
-                          int            num,
-                          char **        names,
-                          char **        values)
+int HostShare::dump(ostringstream& oss,
+                    int            num,
+                    char **        values,
+                    char **        names)
 {
-	if ((!values[HID]) ||
+    if ((!values[HID]) ||
         (!values[DISK_USAGE]) ||
-	    (!values[MEM_USAGE]) ||
-	    (!values[CPU_USAGE]) ||
-	    (!values[MAX_DISK]) ||
-	    (!values[MAX_MEMORY]) ||
-	    (!values[MAX_CPU]) ||
-	    (!values[FREE_DISK]) ||
-	    (!values[FREE_MEMORY]) ||
-	    (!values[FREE_CPU]) ||
-	    (!values[USED_DISK]) ||
-	    (!values[USED_MEMORY]) ||
-	    (!values[USED_CPU]) ||
-	    (!values[RUNNING_VMS]) ||
-		(num != LIMIT))
-	{
-		return -1;
-	}
-	
-	oss <<
-	    "<HOST_SHARE>"  <<
-		    "<HID>"       << values[HID]         << "</HID>"       <<
-		    "<DISK_USAGE>"<< values[DISK_USAGE]  << "</DISK_USAGE>"<<
-		    "<MEM_USAGE>" << values[MEM_USAGE]   << "</MEM_USAGE>" <<
-		    "<CPU_USAGE>" << values[CPU_USAGE]   << "</CPU_USAGE>" <<
-		    "<MAX_DISK>"  << values[MAX_DISK]    << "</MAX_DISK>"  <<
-		    "<MAX_MEM>"   << values[MAX_MEMORY]  << "</MAX_MEM>"   <<
-		    "<MAX_CPU>"   << values[MAX_CPU]     << "</MAX_CPU>"   <<
-		    "<FREE_DISK>" << values[FREE_DISK]   << "</FREE_DISK>" <<
-		    "<FREE_MEM>"  << values[FREE_MEMORY] << "</FREE_MEM>"  <<
-		    "<FREE_CPU>"  << values[FREE_CPU]    << "</FREE_CPU>"  <<
-		    "<USED_DISK>" << values[USED_DISK]   << "</USED_DISK>" <<
-		    "<USED_MEM>"  << values[USED_MEMORY] << "</USED_MEM>"  <<
-		    "<USED_CPU>"  << values[USED_CPU]    << "</USED_CPU>"  <<
-		    "<RUNNING_VMS>"<<values[RUNNING_VMS] << "</RUNNING_VMS>"<<
-		"</HOST_SHARE>";
-		
-	return 0;
+        (!values[MEM_USAGE]) ||
+        (!values[CPU_USAGE]) ||
+        (!values[MAX_DISK]) ||
+        (!values[MAX_MEMORY]) ||
+        (!values[MAX_CPU]) ||
+        (!values[FREE_DISK]) ||
+        (!values[FREE_MEMORY]) ||
+        (!values[FREE_CPU]) ||
+        (!values[USED_DISK]) ||
+        (!values[USED_MEMORY]) ||
+        (!values[USED_CPU]) ||
+        (!values[RUNNING_VMS]) ||
+        (num != LIMIT))
+    {
+        return -1;
+    }
+
+    oss <<
+    "<HOST_SHARE>"  <<
+        "<HID>"       << values[HID]         << "</HID>"       <<
+        "<DISK_USAGE>"<< values[DISK_USAGE]  << "</DISK_USAGE>"<<
+        "<MEM_USAGE>" << values[MEM_USAGE]   << "</MEM_USAGE>" <<
+        "<CPU_USAGE>" << values[CPU_USAGE]   << "</CPU_USAGE>" <<
+        "<MAX_DISK>"  << values[MAX_DISK]    << "</MAX_DISK>"  <<
+        "<MAX_MEM>"   << values[MAX_MEMORY]  << "</MAX_MEM>"   <<
+        "<MAX_CPU>"   << values[MAX_CPU]     << "</MAX_CPU>"   <<
+        "<FREE_DISK>" << values[FREE_DISK]   << "</FREE_DISK>" <<
+        "<FREE_MEM>"  << values[FREE_MEMORY] << "</FREE_MEM>"  <<
+        "<FREE_CPU>"  << values[FREE_CPU]    << "</FREE_CPU>"  <<
+        "<USED_DISK>" << values[USED_DISK]   << "</USED_DISK>" <<
+        "<USED_MEM>"  << values[USED_MEMORY] << "</USED_MEM>"  <<
+        "<USED_CPU>"  << values[USED_CPU]    << "</USED_CPU>"  <<
+        "<RUNNING_VMS>"<<values[RUNNING_VMS] << "</RUNNING_VMS>"<<
+    "</HOST_SHARE>";
+
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-extern "C" int host_share_select_cb (
-        void *                  _hs,
-        int                     num,
-        char **                 values,
-        char **                 names)
-{
-    HostShare *    hs;
-
-    hs = static_cast<HostShare *>(_hs);
-
-    if (hs == 0)
-    {
-        return -1;
-    }
-
-    return hs->unmarshall(num,names,values);
-};
-
-/* -------------------------------------------------------------------------- */
-
-int HostShare::select(SqliteDB * db)
+int HostShare::select(SqlDB * db)
 {
     ostringstream   oss;
     int             rc;
     int             bhsid;
+
+    set_callback(static_cast<Callbackable::Callback>(&HostShare::select_cb));
 
     oss << "SELECT * FROM " << table << " WHERE hid = " << hsid;
 
     bhsid = hsid;
     hsid  = -1;
 
-    rc = db->exec(oss,host_share_select_cb,(void *) this);
+    rc = db->exec(oss,this);
 
     if (hsid != bhsid )
     {
@@ -212,7 +194,7 @@ int HostShare::select(SqliteDB * db)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int HostShare::insert(SqliteDB * db)
+int HostShare::insert(SqlDB * db)
 {
     int rc;
 
@@ -229,7 +211,7 @@ int HostShare::insert(SqliteDB * db)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int HostShare::update(SqliteDB * db)
+int HostShare::update(SqlDB * db)
 {
     ostringstream   oss;
     int             rc;
@@ -250,7 +232,7 @@ int HostShare::update(SqliteDB * db)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int HostShare::drop(SqliteDB * db)
+int HostShare::drop(SqlDB * db)
 {
     ostringstream   oss;
 
@@ -268,7 +250,7 @@ ostream& operator<<(ostream& os, HostShare& hs)
     string str;
 
     os << hs.to_xml(str);
-    
+
     return os;
 };
 
@@ -281,19 +263,19 @@ string& HostShare::to_xml(string& xml) const
     ostringstream   oss;
 
     oss << "<HOST_SHARE>"
-          << "<HID>"        << hsid       << "</HID>"        
+          << "<HID>"        << hsid       << "</HID>"
           << "<DISK_USAGE>" << disk_usage << "</DISK_USAGE>"
           << "<MEM_USAGE>"  << mem_usage  << "</MEM_USAGE>"
-          << "<CPU_USAGE>"  << cpu_usage  << "</CPU_USAGE>"        
+          << "<CPU_USAGE>"  << cpu_usage  << "</CPU_USAGE>"
           << "<MAX_DISK>"   << max_disk   << "</MAX_DISK>"
           << "<MAX_MEM>"    << max_mem    << "</MAX_MEM>"
-          << "<MAX_CPU>"    << max_cpu    << "</MAX_CPU>"        
+          << "<MAX_CPU>"    << max_cpu    << "</MAX_CPU>"
           << "<FREE_DISK>"  << free_disk  << "</FREE_DISK>"
           << "<FREE_MEM>"   << free_mem   << "</FREE_MEM>"
-          << "<FREE_CPU>"   << free_cpu   << "</FREE_CPU>"        
+          << "<FREE_CPU>"   << free_cpu   << "</FREE_CPU>"
           << "<USED_DISK>"  << used_disk  << "</USED_DISK>"
           << "<USED_MEM>"   << used_mem   << "</USED_MEM>"
-          << "<USED_CPU>"   << used_cpu   << "</USED_CPU>"        
+          << "<USED_CPU>"   << used_cpu   << "</USED_CPU>"
           << "<RUNNING_VMS>"<<running_vms <<"</RUNNING_VMS>"
         << "</HOST_SHARE>";
 
@@ -310,10 +292,10 @@ string& HostShare::to_str(string& str) const
     string template_xml;
     ostringstream   oss;
 
-    oss<< "\tHID          = " << hsid    
+    oss<< "\tHID          = " << hsid
        << "\tCPU_USAGE    = " << cpu_usage << endl
        << "\tMEMORY_USAGE = " << mem_usage << endl
-       << "\tDISK_USAGE   = " << disk_usage<< endl       
+       << "\tDISK_USAGE   = " << disk_usage<< endl
        << "\tMAX_CPU      = " << max_cpu << endl
        << "\tMAX_MEMORY   = " << max_mem << endl
        << "\tMAX_DISK     = " << max_disk<< endl
