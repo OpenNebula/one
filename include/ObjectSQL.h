@@ -17,15 +17,16 @@
 #ifndef OBJECT_SQL_H_
 #define OBJECT_SQL_H_
 
-#include "SqliteDB.h"
+#include "SqlDB.h"
 
 using namespace std;
+
+class SqlDB;
 
 /**
  * ObjectSQL class. Provides a SQL backend interface, it should be implemented
  * by persistent objects.
  */
-
 class ObjectSQL
 {
 public:
@@ -34,6 +35,43 @@ public:
 
     virtual ~ObjectSQL(){};
 
+    /**
+     *  Datatype for call back pointers
+     */
+    typedef int (ObjectSQL::*CallBackPtr)(void *, int, char ** ,char **);
+
+    /**
+     *  Set the callback function and custom arguments to be executed by the
+     *  next SQL command
+     *    @param ptr to the callback function
+     *    @param arg custom arguments for the callback function
+     */
+    void set_callback(CallBackPtr ptr, void * arg)
+    {
+        callback.cb  = ptr;
+        callback.arg = arg;
+    };
+
+    /**
+     *  Test if the CallBack is set for the object.
+     *    @return true if the callback is set
+     */
+    bool isCallBackSet()
+    {
+        return (callback.cb != 0);
+    };
+
+    /**
+     *  Set the callback function and custom arguments to be executed by the
+     *  next SQL command
+     *    @param ptr to the callback function
+     *    @param arg custom arguments for the callback function
+     */
+    int do_callback(int num, char **values, char **names)
+    {
+        return (this->*(callback.cb))(callback.arg, num, values, names);
+    };
+
 protected:
     /**
      *  Reads the ObjectSQL (identified with its OID) from the database.
@@ -41,7 +79,7 @@ protected:
      *    @return 0 on success
      */
     virtual int select(
-        SqliteDB * db) = 0;
+        SqlDB * db) = 0;
 
     /**
      *  Writes the ObjectSQL in the database.
@@ -49,7 +87,7 @@ protected:
      *    @return 0 on success
      */
     virtual int insert(
-        SqliteDB * db) = 0;
+        SqlDB * db) = 0;
 
     /**
      *  Updates the ObjectSQL in the database.
@@ -57,7 +95,7 @@ protected:
      *    @return 0 on success
      */
     virtual int update(
-        SqliteDB * db) = 0;
+        SqlDB * db) = 0;
 
     /**
      *  Removes the ObjectSQL from the database.
@@ -65,7 +103,23 @@ protected:
      *    @return 0 on success
      */
     virtual int drop(
-        SqliteDB * db) = 0;
+        SqlDB * db) = 0;
+
+private:
+    /**
+     *  A Callback defined by the function to be executed, a generic argument
+     *  and the columns returned by the query
+     */
+    struct CallBackRegister
+    {
+        CallBackPtr cb;
+        void *      arg;
+    };
+
+    /**
+     *  SQL callback to be executed for each row result of an SQL statement
+     */
+    CallBackRegister callback;
 };
 
 #endif /*OBJECT_SQL_H_*/
