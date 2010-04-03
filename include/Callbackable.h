@@ -34,7 +34,7 @@ public:
     /**
      *  Datatype for call back pointers
      */
-    typedef int (Callbackable::*CallBack)(void *, int, char ** ,char **);
+    typedef int (Callbackable::*Callback)(void *, int, char ** ,char **);
 
     /**
      *  Set the callback function and custom arguments to be executed by the
@@ -42,7 +42,7 @@ public:
      *    @param ptr to the callback function
      *    @param arg custom arguments for the callback function
      */
-    void set_callback(CallBack _cb, void * _arg)
+    void set_callback(Callback _cb, void * _arg = 0)
     {
         cb  = _cb;
         arg = _arg;
@@ -72,7 +72,7 @@ private:
     /**
      *  SQL callback to be executed for each row result of an SQL statement
      */
-    CallBack cb;
+    Callback cb;
 
     /**
      *  Custom arguments for the callback

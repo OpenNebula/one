@@ -57,7 +57,7 @@ PoolSQL::PoolSQL(SqlDB * _db, const char * table): db(_db), lastOID(-1)
 
     pthread_mutex_init(&mutex,0);
 
-    set_callback(static_cast<Callbackable::CallBack>(&PoolSQL::init_cb),0);
+    set_callback(static_cast<Callbackable::Callback>(&PoolSQL::init_cb));
 
     oss << "SELECT MAX(oid) FROM " << table;
 
@@ -295,7 +295,7 @@ int PoolSQL::search(
 
     lock();
 
-    set_callback(static_cast<Callbackable::CallBack>(&PoolSQL::search_cb),
+    set_callback(static_cast<Callbackable::Callback>(&PoolSQL::search_cb),
                  static_cast<void *>(&oids));
 
     sql  << "SELECT oid FROM " <<  table << " WHERE " << where;

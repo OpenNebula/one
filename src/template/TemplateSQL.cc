@@ -14,8 +14,6 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#include <sqlite3.h>
-
 #include "TemplateSQL.h"
 #include <iostream>
 #include <sstream>
@@ -29,48 +27,38 @@ const char * TemplateSQL::db_names = "(id,name,type,value)";
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-extern "C"
+int TemplateSQL::insert_cb(void *nil, int num, char **values, char **names)
 {
-    static int insert_cb (
-        void *                  _template_id,
-        int                     num,
-        char **                 values,
-        char **                 names)
+    if ( num<=0 )
     {
-        int *   template_id;
+        return -1;
+    }
 
-        template_id = static_cast<int *>(_template_id);
+    if ( values[0] == 0 )
+    {
+        id = 0;
+    }
+    else
+    {
+        id = atoi(values[0]) + 1;
+    }
 
-        if ( (template_id == 0) || (num<=0) )
-        {
-            return -1;
-        }
-
-        if ( values[0] == 0 )
-        {
-            *template_id = 0;
-        }
-        else
-        {
-            *template_id = atoi(values[0]) + 1;
-        }
-
-        return 0;
-    };
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
 
-int TemplateSQL::insert(SqliteDB * db)
+int TemplateSQL::insert(SqlDB * db)
 {
     ostringstream   oss;
     int             rc;
 
     // Get next id from the DB table
+    set_callback(static_cast<Callbackable::Callback>(&TemplateSQL::insert_cb));
 
     oss << "SELECT MAX(id) FROM " << table;
 
-    rc = db->exec(oss,insert_cb,(void *) &(this->id));
+    rc = db->exec(oss,this);
 
     if ( rc != 0 )
     {
@@ -84,7 +72,7 @@ int TemplateSQL::insert(SqliteDB * db)
 
 /* -------------------------------------------------------------------------- */
 
-int TemplateSQL::update(SqliteDB * db)
+int TemplateSQL::update(SqlDB * db)
 {
     multimap<string,Attribute *>::iterator  it;
     ostringstream                           oss;
@@ -108,10 +96,10 @@ int TemplateSQL::update(SqliteDB * db)
             continue;
         }
 
-        sql_attr = sqlite3_mprintf("%q",(*attr).c_str());
+        sql_attr = db->escape_str((*attr).c_str());
 
         delete attr;
-        
+
         if ( sql_attr == 0 )
         {
             continue;
@@ -122,18 +110,18 @@ int TemplateSQL::update(SqliteDB * db)
             << sql_attr << "')";
 
         rc = db->exec(oss);
-        
-        sqlite3_free(sql_attr);
-        
+
+        db->free_str(sql_attr);
+
         if ( rc != 0 )
         {
-            goto error_sqlite;
+            goto error_sql;
         }
     }
 
     return 0;
 
-error_sqlite:
+error_sql:
     drop(db);
 
     return -1;
@@ -143,78 +131,67 @@ error_sqlite:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-extern "C"
+int TemplateSQL::select_cb(void *nil, int num, char **values, char **names)
 {
-    static int select_cb (
-        void *                  _vmt,
-        int                     num,
-        char **                 values,
-        char **                 names)
+    Attribute *         attr;
+
+    string              name;
+    string              value;
+    int                 atype;
+
+    if (num != 4)
     {
-        TemplateSQL *       vmt;
+        return -1;
+    }
 
-        Attribute *         attr;
+    if ( values[1] != 0 )
+    {
+        name  = values[1];
+    }
+    else
+    {
+        return -1;
+    }
 
-        string              name;
-        string              value;
-        int                 atype;
+    if ( values[3] != 0 )
+    {
+        value = values[3];
+    }
+    else
+    {
+        return -1;
+    }
 
-        vmt = static_cast<TemplateSQL *>(_vmt);
+    if ( values[2] != 0 )
+    {
+        atype = atoi(values[2]);
 
-        if ( (vmt == 0) || ( num != 4 ) )
+        switch (atype)
         {
+        case Attribute::SIMPLE:
+            attr = new SingleAttribute(name);
+            break;
+
+        case Attribute::VECTOR:
+            attr = new VectorAttribute(name);
+            break;
+
+        default:
             return -1;
-        }
+            break;
+        };
+    }
 
-        if ( values[1] != 0 )
-        {
-            name  = values[1];
-        }
-        else
-        {
-            return -1;
-        }
+    attr->unmarshall(value);
 
-        if ( values[3] != 0 )
-        {
-            value = values[3];
-        }
-        else
-        {
-            return -1;
-        }
+    set(attr);
 
-        if ( values[2] != 0 )
-        {
-            atype = atoi(values[2]);
-
-            switch (atype)
-            {
-            case Attribute::SIMPLE:
-                attr = new SingleAttribute(name);
-                break;
-
-            case Attribute::VECTOR:
-                attr = new VectorAttribute(name);
-                break;
-
-            default:
-                return -1;
-                break;
-            };
-        }
-
-        attr->unmarshall(value);
-
-        vmt->set(attr);
-
-        return 0;
-    };
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
 
-int TemplateSQL::select(SqliteDB * db)
+int TemplateSQL::select(SqlDB * db)
 {
     ostringstream   oss;
     int             rc;
@@ -224,9 +201,11 @@ int TemplateSQL::select(SqliteDB * db)
         return -1;
     }
 
+    set_callback(static_cast<Callbackable::Callback>(&TemplateSQL::select_cb));
+
     oss << "SELECT * FROM " << table << " WHERE id=" << id;
 
-    rc = db->exec(oss,select_cb,(void *) this);
+    rc = db->exec(oss,this);
 
     return rc;
 }
@@ -234,7 +213,7 @@ int TemplateSQL::select(SqliteDB * db)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int TemplateSQL::drop(SqliteDB * db)
+int TemplateSQL::drop(SqlDB * db)
 {
     ostringstream   oss;
 
@@ -251,7 +230,7 @@ int TemplateSQL::drop(SqliteDB * db)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int TemplateSQL::replace_attribute(SqliteDB * db, Attribute * attribute)
+int TemplateSQL::replace_attribute(SqlDB * db, Attribute * attribute)
 {
     ostringstream   oss;
     int             rc;
@@ -276,7 +255,7 @@ int TemplateSQL::replace_attribute(SqliteDB * db, Attribute * attribute)
             return -1;
         }
 
-        sql_attr = sqlite3_mprintf("%q",(*astr).c_str());
+        sql_attr = db->escape_str((*astr).c_str());
 
         delete astr;
 
@@ -284,14 +263,14 @@ int TemplateSQL::replace_attribute(SqliteDB * db, Attribute * attribute)
         {
             return -1;
         }
-        
+
         oss << "DELETE FROM " << table << " WHERE id=" << id
             << " AND name='" << attribute->name() << "' AND value='"
             << sql_attr << "'";
 
         rc = db->exec(oss);
 
-        sqlite3_free(sql_attr);
+        db->free_str(sql_attr);
 
         if (rc != 0 )
         {
@@ -309,7 +288,7 @@ int TemplateSQL::replace_attribute(SqliteDB * db, Attribute * attribute)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int TemplateSQL::insert_attribute(SqliteDB * db, Attribute * attribute)
+int TemplateSQL::insert_attribute(SqlDB * db, Attribute * attribute)
 {
     ostringstream   oss;
     int             rc;
@@ -331,10 +310,10 @@ int TemplateSQL::insert_attribute(SqliteDB * db, Attribute * attribute)
         return -1;
     }
 
-    sql_attr = sqlite3_mprintf("%q",(*astr).c_str());
+    sql_attr = db->escape_str((*astr).c_str());
 
     delete astr;
-        
+
     if ( sql_attr == 0 )
     {
         return -1;
@@ -346,7 +325,7 @@ int TemplateSQL::insert_attribute(SqliteDB * db, Attribute * attribute)
 
     rc = db->exec(oss);
 
-    sqlite3_free(sql_attr);
+    db->free_str(sql_attr);
 
     if (rc == 0)
     {

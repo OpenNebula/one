@@ -22,7 +22,7 @@
 #include <vector>
 
 #include "Template.h"
-#include "SqliteDB.h"
+#include "SqlDB.h"
 #include "ObjectSQL.h"
 
 using namespace std;
@@ -39,7 +39,7 @@ public:
         bool         replace     = false,
         const char   separator   = '=',
         const char * xml_root    = "TEMPLATE"):
-        	Template(replace,separator,xml_root),table(_table),id(template_id)
+            Template(replace,separator,xml_root),table(_table),id(template_id)
     {};
 
     virtual ~TemplateSQL(){};
@@ -48,7 +48,7 @@ protected:
 
     //Database implementation variables
 
-	const char *		table;
+    const char *        table;
 
     static const char * db_names;
 
@@ -64,27 +64,27 @@ protected:
      *    @param db pointer to the database.
      *    @return 0 on success.
      */
-    int insert(SqliteDB * db);
+    int insert(SqlDB * db);
 
     /**
      *  Updates the template in the DB
      *    @param db pointer to the database.
      *    @return 0 on success.
      */
-    int update(SqliteDB *db);
+    int update(SqlDB *db);
 
     /**
      *  Reads the template (identified by its id) from the DB
      *    @param db pointer to the database.
      *    @return 0 on success.
      */
-    int select(SqliteDB *db);
+    int select(SqlDB *db);
 
     /**
      *  Removes the template from the DB
      *    @param db pointer to the database.
      */
-    int drop(SqliteDB *db);
+    int drop(SqlDB *db);
 
     /**
      *  Removes a template attribute from the DB. If there are multiple
@@ -93,7 +93,7 @@ protected:
      *    @param db pointer to the database.
      *    @param attribute pointer to the new attribute.
      */
-    int replace_attribute(SqliteDB * db, Attribute * attribute);
+    int replace_attribute(SqlDB * db, Attribute * attribute);
 
     /**
      *  Insert a given attribute (MUST be allocated in the heap) in the template
@@ -101,7 +101,17 @@ protected:
      *    @param db pointer to the database.
      *    @param attribute pointer to the new attribute
      */
-    int insert_attribute(SqliteDB * db, Attribute * attribute);
+    int insert_attribute(SqlDB * db, Attribute * attribute);
+
+    /**
+     *  Callback to set the template id (TemplateSQL::insert)
+     */
+    int  insert_cb(void *nil, int num, char **values, char **names);
+
+    /**
+     *  Callback to recover template attributes (TemplateSQL::select)
+     */
+    int  select_cb(void *nil, int num, char **values, char **names);
 };
 
 /* -------------------------------------------------------------------------- */
