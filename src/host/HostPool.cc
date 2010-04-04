@@ -19,7 +19,6 @@
 /* ************************************************************************** */
 
 #include "HostPool.h"
-//#include "Nebula.h"
 
 int HostPool::allocate (
     int *  oid,

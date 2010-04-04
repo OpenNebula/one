@@ -21,45 +21,35 @@
 
 using namespace std;
 
-extern "C" int user_select_cb (void *  _host,
-                               int     num,
-                               char ** values,
-                               char ** names);
-                               
-extern "C" int user_dump_cb (void *  _oss,
-                             int     num,
-                             char ** values,
-                             char ** names);
-
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 /**
- *  The User class. It represents a User...
+ *  The User class.
  */
 class User : public PoolObjectSQL
 {
 public:
-    
+
     /**
      *  Function to write a User on an output stream
      */
-     friend ostream& operator<<(ostream& os, User& u);
-     
- 	/**
- 	 * Function to print the User object into a string in plain text
- 	 *  @param str the resulting string
- 	 *  @return a reference to the generated string 
- 	 */
- 	string& to_str(string& str) const;
+    friend ostream& operator<<(ostream& os, User& u);
 
- 	/**
- 	 * Function to print the User object into a string in XML format
- 	 *  @param xml the resulting XML string
- 	 *  @return a reference to the generated string 
- 	 */
- 	string& to_xml(string& xml) const;
-     
+    /**
+     * Function to print the User object into a string in plain text
+     *  @param str the resulting string
+     *  @return a reference to the generated string
+     */
+    string& to_str(string& str) const;
+
+    /**
+     * Function to print the User object into a string in XML format
+     *  @param xml the resulting XML string
+     *  @return a reference to the generated string
+     */
+    string& to_xml(string& xml) const;
+
 
     /**
      * Get the User unique identifier UID, that matches the OID of the object
@@ -69,9 +59,7 @@ public:
     {
         return oid;
     };
-    
-	// ----- Getters ---------------------------------
-    
+
     /**
      *  Check if the user is enabled
      *    @return true if the user is enabled
@@ -80,61 +68,59 @@ public:
      {
         return enabled;
      }
-    
+
     /**
      *  Returns user username
      *     @return username User's hostname
      */
- 	const string& get_username() const
+    const string& get_username() const
     {
-	    return username;
-	};
-	
+        return username;
+    };
+
     /**
      *  Returns user password
      *     @return username User's hostname
      */
- 	const string& get_password() const
+    const string& get_password() const
     {
-	    return password;
-	};
-	
-	// ----- Setters ---------------------------------
-	
-	/**
+        return password;
+    };
+
+    /**
      *   Enables the current user
-     */    
+     */
     void enable()
     {
         enabled = true;
     };
-    
+
     /**
      *   Disables the current user
-     */    
+     */
     void disable()
     {
         enabled = false;
     };
-	
-	/**
+
+    /**
      *  Sets user username
      */
- 	void set_username(string _username) 
+    void set_username(string _username)
     {
-	    username = _username;
-	};
-	
-	/**
+        username = _username;
+    };
+
+    /**
      *  Sets user password
      */
- 	void set_password(string _password) 
+    void set_password(string _password)
     {
-	    password = _password;
-	};
-	
+        password = _password;
+    };
+
     /**
-     *  Looks for a match between _password and user password 
+     *  Looks for a match between _password and user password
      *  @return -1 if disabled or wrong password, uid otherwise
      **/
     int authenticate(string _password);
@@ -144,7 +130,7 @@ public:
      *    @param secret, the authentication token
      *    @param username
      *    @param password
-     *    @return 0 on success 
+     *    @return 0 on success
      **/
     static int split_secret(const string secret, string& user, string& pass);
 
@@ -159,18 +145,8 @@ private:
     // -------------------------------------------------------------------------
     // Friends
     // -------------------------------------------------------------------------
-    
-	friend class UserPool;
-    
-    friend int user_select_cb (void *  _host,
-                               int     num,
-                               char ** values,
-                               char ** names);
 
-    friend int user_dump_cb (void *  _oss,
-                             int     num,
-                             char ** values,
-                             char ** names);
+    friend class UserPool;
 
     // -------------------------------------------------------------------------
     // User Attributes
@@ -190,44 +166,32 @@ private:
      * Flag marking user enabled/disabled
      */
     bool        enabled;
- 
-  
+
     // *************************************************************************
     // DataBase implementation (Private)
     // *************************************************************************
 
     /**
-     *  Function to unmarshall a User object
-     *    @param num the number of columns read from the DB
-     *    @para names the column names
-     *    @para vaues the column values
-     *    @return 0 on success
-     */    
-    int unmarshall(int num, char **names, char ** values);
-
-    /**
-     *  Function to unmarshall a User object in to an output stream in XML
-     *    @param oss the output stream
+     *  Callback function to unmarshall a User object (User::select)
      *    @param num the number of columns read from the DB
      *    @param names the column names
      *    @param vaues the column values
      *    @return 0 on success
      */
-    static int unmarshall(ostringstream& oss,
-                          int            num,
-                          char **        names,
-                          char **        values);
+    int select_cb(void *nil, int num, char **values, char **names);
 
     /**
      *  Bootstraps the database table(s) associated to the User
      */
-    static void bootstrap(SqliteDB * db)
-    {         
-        db->exec(User::db_bootstrap);
+    static void bootstrap(SqlDB * db)
+    {
+        ostringstream oss_user(User::db_bootstrap);
+
+        db->exec(oss_user);
     };
 
 protected:
-	
+
     // *************************************************************************
     // Constructor
     // *************************************************************************
@@ -238,16 +202,16 @@ protected:
          bool   _enabled=true);
 
     virtual ~User();
-    
+
     // *************************************************************************
     // DataBase implementation
     // *************************************************************************
-    
+
     enum ColNames
     {
-        OID             = 0, 
-        USERNAME        = 1, 
-        PASSWORD        = 2,  
+        OID             = 0,
+        USERNAME        = 1,
+        PASSWORD        = 2,
         ENABLED         = 3,     // 0 = false, 1 = true
         LIMIT           = 4
     };
@@ -255,7 +219,7 @@ protected:
     static const char * db_names;
 
     static const char * db_bootstrap;
-    
+
     static const char * table;
 
     /**
@@ -263,38 +227,38 @@ protected:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    virtual int select(SqliteDB *db);
+    virtual int select(SqlDB *db);
 
     /**
      *  Writes the User in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    virtual int insert(SqliteDB *db);
+    virtual int insert(SqlDB *db);
 
     /**
      *  Writes/updates the User data fields in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    virtual int update(SqliteDB *db);
-    
+    virtual int update(SqlDB *db);
+
     /**
      *  Drops USer from the database
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    virtual int drop(SqliteDB *db);    
-    
+    virtual int drop(SqlDB *db);
+
     /**
-     *  Dumps the contect of a set of User objects in the given stream
-     *  using XML format
-     *    @param db pointer to the db
+     *  Function to output a User object in to an stream in XML format
      *    @param oss the output stream
-     *    @param where string to filter the VirtualMachine objects
+     *    @param num the number of columns read from the DB
+     *    @param names the column names
+     *    @param vaues the column values
      *    @return 0 on success
      */
-    static int dump(SqliteDB * db, ostringstream& oss, const string& where);
+    static int dump(ostringstream& oss, int num, char **values, char **names);
 };
 
 #endif /*USER_H_*/

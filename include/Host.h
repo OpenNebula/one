@@ -529,8 +529,7 @@ protected:
     virtual int drop(SqlDB *db);
 
     /**
-     *  Callabck function to output a Host object in to an stream in XML format
-     *  (Host::dump)
+     *  Function to output a Host object in to an stream in XML format
      *    @param oss the output stream
      *    @param num the number of columns read from the DB
      *    @param names the column names

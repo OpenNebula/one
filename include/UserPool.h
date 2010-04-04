@@ -36,7 +36,7 @@ class UserPool : public PoolSQL
 {
 public:
 
-	UserPool(SqliteDB * db);
+	UserPool(SqlDB * db);
 
     ~UserPool(){};
 
@@ -49,7 +49,7 @@ public:
         int *  oid,
         string hostname,
         string password,
-        bool   enabled);        
+        bool   enabled);
 
     /**
      *  Function to get a User from the pool, if the object is not in memory
@@ -63,10 +63,10 @@ public:
         bool    lock)
     {
         User * user = static_cast<User *>(PoolSQL::get(oid,lock));
-    
+
         return user;
     }
-    
+
 
     /**
      *  Function to get a User from the pool, if the object is not in memory
@@ -80,7 +80,7 @@ public:
         bool    lock)
     {
         map<string, int>::iterator     index;
-    
+
         index = known_users.find(username);
 
         if ( index != known_users.end() )
@@ -91,46 +91,46 @@ public:
         return 0;
     }
 
-    /** Update a particular User 
+    /** Update a particular User
      *    @param user pointer to User
      *    @return 0 on success
      */
     int update(User * user)
     {
-		return user->update(db);
+        return user->update(db);
     };
-    
-    
+
+
     /** Drops a user from the DB, the user mutex MUST BE locked
      *    @param user pointer to User
      */
     int drop(User * user)
     {
-    	int rc = user->drop(db);
-    	
-    	if ( rc == 0)
-    	{
+        int rc = user->drop(db);
+
+        if ( rc == 0)
+        {
             known_users.erase(user->get_username());
-    	}
-        
+        }
+
         return rc;
     };
 
     /**
      *  Bootstraps the database table(s) associated to the User pool
      */
-    static void bootstrap(SqliteDB * _db)
+    static void bootstrap(SqlDB * _db)
     {
         User::bootstrap(_db);
     };
-    
+
     /**
      * Returns whether there is a user with given username/password or not
      *   @param session, colon separated username and password string
      *   @return -1 if there is no such a user, uid of the user if it exists
      */
     int authenticate(string& session);
-        
+
     /**
      *  Dumps the User pool in XML format. A filter can be also added to the
      *  query
@@ -139,18 +139,7 @@ public:
      *
      *  @return 0 on success
      */
-    int dump(ostringstream& oss, const string& where)
-    {
-        int rc;
-
-        oss << "<USER_POOL>";
-
-        rc = User::dump(db,oss,where);
-
-        oss << "</USER_POOL>";
-
-        return rc;
-    }
+    int dump(ostringstream& oss, const string& where);
 
 private:
     /**
@@ -161,12 +150,31 @@ private:
     {
         return new User;
     };
-    
+
     /**
      *  This map stores the association between UIDs and Usernames
      */
     map<string, int>	known_users;
 
+    /**
+     *  Callback function to get output the user pool in XML format
+     *  (User::dump)
+     *    @param _oss pointer to the output stream
+     *    @param num the number of columns read from the DB
+     *    @param names the column names
+     *    @param vaues the column values
+     *    @return 0 on success
+     */
+    int dump_cb(void * _oss, int num, char **values, char **names);
+
+    /**
+     *  Callback function to build the knwon_user map (User::User)
+     *    @param num the number of columns read from the DB
+     *    @param names the column names
+     *    @param vaues the column values
+     *    @return 0 on success
+     */
+    int init_cb(void *nil, int num, char **values, char **names);
 };
 
 #endif /*USER_POOL_H_*/

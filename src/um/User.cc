@@ -59,7 +59,7 @@ const char * User::db_bootstrap = "CREATE TABLE user_pool ("
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int User::unmarshall(int num, char **names, char ** values)
+int User::select_cb(void *nil, int num, char **values, char **names)
 {
     if ((!values[OID]) ||
         (!values[USERNAME]) ||
@@ -74,45 +74,29 @@ int User::unmarshall(int num, char **names, char ** values)
     username = values[USERNAME];
     password = values[PASSWORD];
     enabled  = (atoi(values[ENABLED])==0)?false:true;
-    
+
     return 0;
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-extern "C" int user_select_cb (
-        void *                  _user,
-        int                     num,
-        char **                 values,
-        char **                 names)
-{
-    User *    user;
-
-    user = static_cast<User *>(_user);
-
-    if (user == 0)
-    {
-        return -1;
-    }
-
-    return user->unmarshall(num,names,values);
-};
-
 /* -------------------------------------------------------------------------- */
 
-int User::select(SqliteDB *db)
+int User::select(SqlDB *db)
 {
     ostringstream   oss;
     int             rc;
     int             boid;
-    
+
+    set_callback(static_cast<Callbackable::Callback>(&User::select_cb));
+
     oss << "SELECT * FROM " << table << " WHERE oid = " << oid;
 
     boid = oid;
     oid  = -1;
 
-    rc = db->exec(oss, user_select_cb, (void *) this);
+    rc = db->exec(oss, this);
 
     if ((rc != 0) || (oid != boid ))
     {
@@ -125,10 +109,10 @@ int User::select(SqliteDB *db)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int User::insert(SqliteDB *db)
+int User::insert(SqlDB *db)
 {
     int rc;
-    
+
     rc = update(db);
 
     if ( rc != 0 )
@@ -142,33 +126,33 @@ int User::insert(SqliteDB *db)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int User::update(SqliteDB *db)
+int User::update(SqlDB *db)
 {
     ostringstream   oss;
-    
+
     int    rc;
 
     char * sql_username;
     char * sql_password;
-    
+
     int    str_enabled = enabled?1:0;
-    
+
     // Update the User
-    
-    sql_username = sqlite3_mprintf("%q",username.c_str());
+
+    sql_username = db->escape_str(username.c_str());
 
     if ( sql_username == 0 )
     {
         goto error_username;
     }
-    
-    sql_password = sqlite3_mprintf("%q",password.c_str());
+
+    sql_password = db->escape_str(password.c_str());
 
     if ( sql_password == 0 )
     {
         goto error_password;
     }
-   
+
     // Construct the SQL statement to Insert or Replace (effectively, update)
 
     oss << "INSERT OR REPLACE INTO " << table << " "<< db_names <<" VALUES ("
@@ -179,13 +163,13 @@ int User::update(SqliteDB *db)
 
     rc = db->exec(oss);
 
-    sqlite3_free(sql_username);
-    sqlite3_free(sql_password);
+    db->free_str(sql_username);
+    db->free_str(sql_password);
 
     return rc;
-    
+
 error_password:
-    sqlite3_free(sql_username);
+    db->free_str(sql_username);
 error_username:
     return -1;
 }
@@ -193,10 +177,7 @@ error_username:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int User::unmarshall(ostringstream& oss,
-                     int            num,
-                     char **        names,
-                     char **        values)
+int User::dump(ostringstream& oss, int num, char **values, char **names)
 {
     if ((!values[OID]) ||
         (!values[USERNAME]) ||
@@ -206,64 +187,24 @@ int User::unmarshall(ostringstream& oss,
     {
         return -1;
     }
-    
+
     string str_enabled = (atoi(values[ENABLED])==0)?"Fase":"True";
 
     oss <<
         "<USER>" <<
-            "<ID>"           << values[OID]           <<"</ID>"        <<
-            "<NAME>"         << values[USERNAME]      <<"</NAME>"      << 
-            "<PASSWORD>"     << values[PASSWORD]      <<"</PASSWORD>"  <<
-            "<ENABLED>"      << str_enabled           <<"</ENABLED>"   <<
+            "<ID>"      << values[OID]     <<"</ID>"      <<
+            "<NAME>"    << values[USERNAME]<<"</NAME>"    <<
+            "<PASSWORD>"<< values[PASSWORD]<<"</PASSWORD>"<<
+            "<ENABLED>" << str_enabled     <<"</ENABLED>" <<
         "</USER>";
 
     return 0;
-
-}
-
-/* -------------------------------------------------------------------------- */
-
-extern "C" int user_dump_cb (
-        void *                  _oss,
-        int                     num,
-        char **                 values,
-        char **                 names)
-{
-    ostringstream * oss;
-
-    oss = static_cast<ostringstream *>(_oss);
-
-    if (oss == 0)
-    {
-        return -1;
-    }
-
-    return User::unmarshall(*oss,num,names,values);
-};
-
-/* -------------------------------------------------------------------------- */
-
-int User::dump(SqliteDB * db, ostringstream& oss, const string& where)
-{
-    int             rc;
-    ostringstream   cmd;
-
-    cmd << "SELECT * FROM " << User::table;
-
-    if ( !where.empty() )
-    {
-        cmd << " WHERE " << where;
-    }
-
-    rc = db->exec(cmd,user_dump_cb,(void *) &oss);
-
-    return rc;
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int User::drop(SqliteDB * db)
+int User::drop(SqlDB * db)
 {
     ostringstream oss;
     int rc;
@@ -286,10 +227,10 @@ int User::drop(SqliteDB * db)
 
 ostream& operator<<(ostream& os, User& user)
 {
-	string user_str;
-	
-	os << user.to_xml(user_str);
-	
+    string user_str;
+
+    os << user.to_xml(user_str);
+
     return os;
 };
 
@@ -300,11 +241,11 @@ ostream& operator<<(ostream& os, User& user)
 string& User::to_xml(string& xml) const
 {
     ostringstream   oss;
-    
+
     int  enabled_int = enabled?1:0;
- 
-    oss << 
-    "<USER>"                             
+
+    oss <<
+    "<USER>"
          "<ID>"           << oid            <<"</ID>"        <<
          "<NAME>"         << username       <<"</NAME>"      <<
          "<PASSWORD>"     << password       <<"</PASSWORD>"  <<
@@ -325,14 +266,14 @@ string& User::to_str(string& str) const
 
     string enabled_str = enabled?"True":"False";
 
-    os << 
-        "ID      = "   << oid            << endl <<
-        "NAME = "      << username       << endl <<
-        "PASSWORD = "  << password       << endl <<
+    os <<
+        "ID      = "   << oid      << endl <<
+        "NAME = "      << username << endl <<
+        "PASSWORD = "  << password << endl <<
         "ENABLED  = "  << enabled_str;
 
     str = os.str();
-    
+
     return str;
 }
 
@@ -347,7 +288,7 @@ int User::authenticate(string _password)
     }
     else
     {
-        return -1; 
+        return -1;
     }
 }
 
@@ -362,13 +303,13 @@ int User::split_secret(const string secret, string& user, string& pass)
     pos=secret.find(":");
 
     if (pos != string::npos)
-    { 
+    {
         user = secret.substr(0,pos);
         pass = secret.substr(pos+1);
 
         rc = 0;
     }
- 
+
     return rc;
 }
 
@@ -381,7 +322,7 @@ string User::sha1_digest(const string& pass)
     unsigned char  md_value[EVP_MAX_MD_SIZE];
     unsigned int   md_len;
     ostringstream  oss;
-            
+
     EVP_MD_CTX_init(&mdctx);
     EVP_DigestInit_ex(&mdctx, EVP_sha1(), NULL);
 
