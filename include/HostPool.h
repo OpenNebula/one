@@ -72,16 +72,7 @@ public:
      */
     int update(Host * host)
     {
-		return host->update(db);
-    };
-
-
-    /** Drops a host from the DB, the host mutex MUST BE locked
-     *    @param host pointer to Host
-     */
-    int drop(Host * host)
-    {
-    	return host->drop(db);
+        return host->update(db);
     };
 
     /**

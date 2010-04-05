@@ -107,6 +107,18 @@ public:
     };
 
     /**
+     *  Drops the object's data in the data base. The object mutex SHOULD be
+     *  locked.
+     *    @param objsql a pointer to the object
+     *    @return 0 on success.
+     */
+    virtual int drop(
+        PoolObjectSQL * objsql)
+    {
+       return objsql->drop(db);
+    };
+
+    /**
      *  Removes all the elements from the pool
      */
     void clean();

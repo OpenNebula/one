@@ -106,7 +106,7 @@ public:
      */
     int drop(User * user)
     {
-        int rc = user->drop(db);
+        int rc = PoolSQL::drop(user);
 
         if ( rc == 0)
         {

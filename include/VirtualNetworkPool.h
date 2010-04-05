@@ -32,7 +32,7 @@ class VirtualNetworkPool : public PoolSQL
 {
 public:
 
-    VirtualNetworkPool(SqliteDB * 		db, 
+    VirtualNetworkPool(SqliteDB * 		db,
     				   const string&	str_mac_prefix,
     				   int 				default_size);
 
@@ -43,7 +43,7 @@ public:
      *    @param uid user identifier
      *    @param stemplate a string describing the VN
      *    @param oid the id assigned to the VM (output)
-     *    @return 0 on success, -1 error inserting in DB,-2 error parsing 
+     *    @return 0 on success, -1 error inserting in DB,-2 error parsing
      *     the template, -3 wrong attributes in template
      */
     int allocate (
@@ -64,7 +64,7 @@ public:
     {
         return static_cast<VirtualNetwork *>(PoolSQL::get(oid,lock));
     };
-    
+
     /**
      *  Function to get a VN from the pool using the network name
      *  If the object is not in memory it is loaded from the DB
@@ -79,9 +79,9 @@ public:
     //--------------------------------------------------------------------------
     // Virtual Network DB access functions
     //--------------------------------------------------------------------------
-    
+
     /**
-     *  Updates the template of a VN, adding a new attribute (replacing it if 
+     *  Updates the template of a VN, adding a new attribute (replacing it if
      *  already defined), the VN's mutex SHOULD be locked
      *    @param vn pointer to the virtual network object
      *    @param name of the new attribute
@@ -103,15 +103,7 @@ public:
     {
         VirtualNetwork::bootstrap(_db);
     };
-    
-    /** Drops a VN from the cache & DB, the VN mutex MUST BE locked
-     *    @param vn pointer to VN
-     */
-    int drop(VirtualNetwork * vn)
-    {
-    	return vn->drop(db);
-    };
-    
+
     /**
      *  Dumps the HOST pool in XML format. A filter can be also added to the
      *  query
@@ -138,12 +130,12 @@ private:
      *  Holds the system-wide MAC prefix
      */
     unsigned int     mac_prefix;
-    
+
     /**
      *  Default size for Virtual Networks
      */
-    unsigned int     default_size;    
-    
+    unsigned int     default_size;
+
     /**
      *  Factory method to produce VN objects
      *    @return a pointer to the new VN
@@ -152,7 +144,7 @@ private:
     {
         return new VirtualNetwork(mac_prefix, default_size);
     };
-    
+
 };
- 
+
 #endif /*VIRTUAL_NETWORK_POOL_H_*/
