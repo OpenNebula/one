@@ -27,6 +27,7 @@
 
 #include "PoolSQL.h"
 #include "TestPoolSQL.h"
+#include "SqliteDB.h"
 
 using namespace std;
 

@@ -39,7 +39,7 @@ const char * TestObjectSQL::db_bootstrap = "CREATE TABLE test_pool ("
 
 /* -------------------------------------------------------------------------- */
 
-int TestObjectSQL::unmarshall(int num, char **names, char ** values)
+int TestObjectSQL::unmarshall(void * nil, int num, char **values, char **names)
 {
     if ((!values[OID]) ||
         (!values[NUMBER]) ||
@@ -58,38 +58,20 @@ int TestObjectSQL::unmarshall(int num, char **names, char ** values)
 
 /* -------------------------------------------------------------------------- */
 
-extern "C" int user_select_cb (
-        void *                  _user,
-        int                     num,
-        char **                 values,
-        char **                 names)
-{    
-    TestObjectSQL *    user;
-
-    user = static_cast<TestObjectSQL *>(_user);
-
-    if (user == 0)
-    {
-        return -1;
-    }
-
-    return user->unmarshall(num,names,values);
-};
-
-/* -------------------------------------------------------------------------- */
-
-int TestObjectSQL::select(SqliteDB *db)
+int TestObjectSQL::select(SqlDB *db)
 {
     ostringstream   oss;
     int             rc;
     int             boid;
 
+    set_callback(
+        static_cast<Callbackable::CallBack>(&TestObjectSQL::unmarshall),0);
     oss << "SELECT * FROM " << table << " WHERE oid = " << oid;
 
     boid = oid;
     oid  = -1;
 
-    rc = db->exec(oss, user_select_cb, (void *) this);
+    rc = db->exec(oss, this);
 
     if ((rc != 0) || (oid != boid ))
     {
@@ -101,47 +83,37 @@ int TestObjectSQL::select(SqliteDB *db)
 
 /* -------------------------------------------------------------------------- */
 
-int TestObjectSQL::insert(SqliteDB *db)
+int TestObjectSQL::insert(SqlDB *db)
 {
     return update(db);
 }
 
 /* -------------------------------------------------------------------------- */
 
-int TestObjectSQL::update(SqliteDB *db)
+int TestObjectSQL::update(SqlDB *db)
 {
     ostringstream   oss;
 
     int    rc;
-
-    char * sql_number;
     char * sql_text;
 
-    sql_number = sqlite3_mprintf("%d",number);
-    sql_text   = sqlite3_mprintf("%q",text.c_str());
-
-    if ( sql_text == 0 )
-    {
-      sqlite3_free(sql_number);
-      return -1;
-    }
+    sql_text   = db->escape_str(text.c_str());
 
     oss << "INSERT OR REPLACE INTO " << table << " "<< db_names <<" VALUES ("
         << oid << ","
-        << sql_number << ","
+        << number << ","
         << "'" << sql_text << "')";
 
     rc = db->exec(oss);
     
-    sqlite3_free(sql_number);
-    sqlite3_free(sql_text);
+    db->free_str(sql_text);
 
     return rc;
 }
 
 /* -------------------------------------------------------------------------- */
 
-int TestObjectSQL::drop(SqliteDB * db)
+int TestObjectSQL::drop(SqlDB * db)
 {
     ostringstream oss;
     int rc;

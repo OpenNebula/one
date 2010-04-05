@@ -21,11 +21,6 @@
 #include "PoolSQL.h"
 
 using namespace std;
-
-extern "C" int user_select_cb (void *  _host,
-                               int     num,
-                               char ** values,
-                               char ** names);
                                
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -44,15 +39,15 @@ public:
     string      text;
 
     // OBJECTSQL INTERFACE
-    int unmarshall(int num, char **names, char ** values);
+    int unmarshall(void * nil, int num, char **names, char ** values);
     
-    int select(SqliteDB *db);
+    int select(SqlDB *db);
 
-    int insert(SqliteDB *db);
+    int insert(SqlDB *db);
 
-    int update(SqliteDB *db);
+    int update(SqlDB *db);
 
-    int drop(SqliteDB *db);
+    int drop(SqlDB *db);
 
     // DATABASE IMPLEMENTATION
     enum ColNames
@@ -69,9 +64,12 @@ public:
 
     static const char * table;
 
-    static void bootstrap(SqliteDB * db)
+    static void bootstrap(SqlDB * db)
     {
-        db->exec(TestObjectSQL::db_bootstrap);
+        ostringstream oss;
+        oss.str(TestObjectSQL::db_bootstrap);
+
+        db->exec(oss,0);
     };
 };
 
@@ -80,7 +78,7 @@ class TestPool : public PoolSQL
 {
 
 public:
-    TestPool(SqliteDB *db):PoolSQL(db,"test_pool"){};
+    TestPool(SqlDB *db):PoolSQL(db,"test_pool"){};
     ~TestPool(){};
 
     TestObjectSQL * get(
