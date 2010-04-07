@@ -40,7 +40,7 @@ extern "C" int sqlite_callback (
 {
     ObjectSQL *obj;
 
-    obj = static_cast<ObjectSQL *>(_obj);
+    obj = static_cast<Callbackable *>(_obj);
 
     if (obj == 0)
     {
