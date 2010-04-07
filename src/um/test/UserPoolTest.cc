@@ -43,6 +43,7 @@ class UserPoolTest : public CppUnit::TestFixture
     CPPUNIT_TEST (get_from_db);
     CPPUNIT_TEST (drop_and_get);
     CPPUNIT_TEST (update);
+    CPPUNIT_TEST (dump);
     CPPUNIT_TEST_SUITE_END ();
 
 private:
@@ -302,11 +303,54 @@ public:
         CPPUNIT_ASSERT( user->isEnabled() == false );
 
         //Now force access to DB
-        
+
         pool->clean();
         user = pool->get(oid_1,false);
         CPPUNIT_ASSERT( user->isEnabled() == false );
     };
+
+    void dump()
+    {
+        string xml_result =
+            "<USER_POOL><USER><ID>0</ID><NAME>one_user_test</NAME>"
+            "<PASSWORD>5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8</PASSWORD>"
+            "<ENABLED>True</ENABLED></USER><USER><ID>1</ID><NAME>a</NAME>"
+            "<PASSWORD>p</PASSWORD><ENABLED>True</ENABLED></USER><USER>"
+            "<ID>2</ID><NAME>a name</NAME><PASSWORD>pass</PASSWORD>"
+            "<ENABLED>True</ENABLED></USER><USER><ID>3</ID><NAME>a_name</NAME>"
+            "<PASSWORD>password</PASSWORD><ENABLED>True</ENABLED></USER><USER>"
+            "<ID>4</ID><NAME>another name</NAME><PASSWORD>secret</PASSWORD>"
+            "<ENABLED>True</ENABLED></USER><USER><ID>5</ID><NAME>user</NAME>"
+            "<PASSWORD>1234</PASSWORD><ENABLED>True</ENABLED></USER>"
+            "</USER_POOL>";
+
+
+        string names[] = {"a", "a name", "a_name", "another name", "user"};
+        string pass[]  = {"p", "pass", "password", "secret", "1234"};
+
+        int oid;
+
+        for(int i=0; i<5; i++)
+        {
+            pool->allocate(&oid, names[i], pass[i], true);
+        }
+
+        ostringstream oss;
+        pool->dump(oss, "");
+
+        CPPUNIT_ASSERT( oss.str() == xml_result );
+
+        // Allocate and delete a new user
+        pool->allocate(&oid, "new name", "new pass", true);
+        user = pool->get(oid, true);
+        pool->drop(user);
+        user->unlock();
+
+        ostringstream new_oss;
+        pool->dump(new_oss, "");
+
+        CPPUNIT_ASSERT( new_oss.str() == xml_result );
+    }
 };
 
 /* ************************************************************************* */
