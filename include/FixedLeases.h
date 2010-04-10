@@ -22,31 +22,31 @@
 using namespace std;
 
 /**
- *  The FixedLeases class represents a pool of fixed IP-MAC leases. A lease can 
+ *  The FixedLeases class represents a pool of fixed IP-MAC leases. A lease can
  *  be either a IP (the MAC is then PREFIX:IP) or the IP and MAC addresses. The
  *  pool is read from a template file, each lease is in the form:
  *    LEASE = [ IP = "<the ip>", MAC = "<the mac>"]
- */ 
+ */
 class FixedLeases : public Leases
 {
 public:
-	/**
-	 *  Create a FixedLeases from template
-	 */
-    FixedLeases(SqliteDB * 					db,
-                int    						_oid,
-                unsigned int				_mac_prefix,
-                vector<const Attribute*>& 	vector_leases);
-	/**
-	 *  Create a plain FixedLeases, you can populate the lease pool using
-	 *  select()
-	 */
-    FixedLeases(SqliteDB * 					db,
-                int    						_oid,
-                unsigned int				_mac_prefix):
-                	Leases(db,_oid,0),
-                	mac_prefix(_mac_prefix),
-                	current(leases.begin()){};
+    /**
+     *  Create a FixedLeases from template
+     */
+    FixedLeases(SqlDB *                     db,
+                int                         _oid,
+                unsigned int                _mac_prefix,
+                vector<const Attribute*>&   vector_leases);
+    /**
+     *  Create a plain FixedLeases, you can populate the lease pool using
+     *  select()
+     */
+    FixedLeases(SqlDB *                     db,
+                int                         _oid,
+                unsigned int                _mac_prefix):
+                    Leases(db,_oid,0),
+                    mac_prefix(_mac_prefix),
+                    current(leases.begin()){};
 
     ~FixedLeases(){};
 
@@ -58,7 +58,7 @@ public:
      *   @return 0 if success
      */
     int get(int vid, string&  ip, string&  mac);
-    
+
     /**
      * Ask for a specific lease in the network
      *  @param vid identifier of the VM getting this lease
@@ -76,32 +76,32 @@ public:
     {
     	del(ip);
     }
-    
+
     /**
      *  Loads the leases from the DB.
      */
-    int select(SqliteDB * db)
+    int select(SqlDB * db)
     {
-    	//Read the leases from the DB
-    	int rc = Leases::select(db);
-    	//Update the size
-    	size = leases.size();
-    	
-    	return rc;
+        //Read the leases from the DB
+        int rc = Leases::select(db);
+        //Update the size
+        size = leases.size();
+
+        return rc;
     }
 
 private:
-	
-	/**
-	 *  The default MAC prefix for the OpenNebula cluster
-	 */
-	unsigned int mac_prefix;
-	
-	/**
-	 *  Current lease pointer
-	 */
-	map<unsigned int, Lease *>::iterator  current;
-	
+
+    /**
+     *  The default MAC prefix for the OpenNebula cluster
+     */
+    unsigned int mac_prefix;
+
+    /**
+     *  Current lease pointer
+     */
+    map<unsigned int, Lease *>::iterator  current;
+
     /**
      * Add a lease, from the Lease interface
      * @param ip ip of the lease
@@ -110,7 +110,7 @@ private:
      * @return 0 if success
      */
      int add(const string&	ip, const string& mac, int vid, bool used=true);
-       
+
     /**
      * Remove a lease, from the Lease interface
      * @param db pointer to DB

@@ -187,31 +187,31 @@ ostream& operator<<(ostream& os, Leases::Lease& _lease)
 	string xml;
 
     os << _lease.to_xml(xml);
-    
+
     return os;
 }
 
 string& Leases::Lease::to_str(string& str) const
 {
-	string ip;
-	string mac;
-	
+    string ip;
+    string mac;
+
     ostringstream os;
 
     to_string(ip,mac);
-    
+
     ip = "IP = " + ip;
     mac = "MAC = " + mac;
-    
+
     os.width(20);
     os << left << ip;
-    
+
     os.width(24);
     os << left << mac;
-    
-    os << left << " USED = " << used;  
+
+    os << left << " USED = " << used;
     os << left << " VID = "  << vid;
-    
+
     str = os.str();
 
     return str;
@@ -220,14 +220,14 @@ string& Leases::Lease::to_str(string& str) const
 
 string& Leases::Lease::to_xml(string& str) const
 {
-	string ip;
-	string mac;
-	
+    string ip;
+    string mac;
+
     ostringstream os;
 
     to_string(ip,mac);
-    
-    os << 
+
+    os <<
         "<LEASE>" <<
             "<IP>"<< ip << "</IP>" <<
             "<MAC>" << mac << "</MAC>" <<
@@ -251,13 +251,13 @@ const char * Leases::table        = "leases";
 const char * Leases::db_names     = "(oid,ip,mac_prefix,mac_suffix,vid,used)";
 
 const char * Leases::db_bootstrap = "CREATE TABLE leases ("
-				"oid INTEGER,ip INTEGER, mac_prefix INTEGER,mac_suffix INTEGER,"
+                "oid INTEGER,ip INTEGER, mac_prefix INTEGER,mac_suffix INTEGER,"
                 "vid INTEGER, used INTEGER, PRIMARY KEY(oid,ip))";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int Leases::unmarshall(int num, char **names, char ** values)
+int Leases::select_cb(void *nil, int num, char **values, char **names)
 {
     if (    (values[OID] == 0)        ||
             (values[IP]  == 0)        ||
@@ -274,65 +274,45 @@ int Leases::unmarshall(int num, char **names, char ** values)
     unsigned int ip;
     int          vid;
     bool         used;
-    
+
     istringstream iss;
-    
+
     iss.str(values[IP]);
     iss >> ip;
-    
+
     iss.clear();
     iss.str(values[MAC_PREFIX]);
     iss >> mac[Lease::PREFIX];
-    
+
     iss.clear();
     iss.str(values[MAC_SUFFIX]);
     iss >> mac[Lease::SUFFIX];
-    
+
     iss.clear();
     iss.str(values[VID]);
     iss >> vid;
-    
+
     iss.clear();
     iss.str(values[USED]);
     iss >> used;
 
     leases.insert(make_pair(ip,new Lease(ip,mac,vid,used)));
-    
+
     return 0;
 }
 
 /* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
 
-extern "C" int leases_select_cb (
-        void *                  _leases,
-        int                     num,
-        char **                 values,
-        char **                 names)
-{
-    Leases * leases;
-
-    leases = static_cast<Leases *>(_leases);
-
-    if (leases == 0)
-    {
-        return -1;
-    }
-
-    return leases->unmarshall(num,names,values);
-};
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int Leases::select(SqliteDB * db)
+int Leases::select(SqlDB * db)
 {
     ostringstream   oss;
     int             rc;
 
+    set_callback(static_cast<Callbackable::Callback>(&Leases::select_cb));
+
     oss << "SELECT * FROM " << table << " WHERE oid = " << oid;
 
-    rc = db->exec(oss,leases_select_cb,(void *) this);
+    rc = db->exec(oss,this);
 
     if (rc != 0)
     {
@@ -342,9 +322,9 @@ int Leases::select(SqliteDB * db)
     return 0;
 
 error_id:
-	oss.str("");
+    oss.str("");
     oss << "Error getting leases for network nid: " << oid;
-    
+
     Nebula::log("VNM", Log::ERROR, oss);
     return -1;
 }
@@ -352,11 +332,11 @@ error_id:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int Leases::drop(SqliteDB * db)
+int Leases::drop(SqlDB * db)
 {
     ostringstream   oss;
-    
-    // Drop all the leases 
+
+    // Drop all the leases
     oss << "DELETE FROM " << table << " WHERE oid=" << oid;
 
     return db->exec(oss);
@@ -365,7 +345,7 @@ int Leases::drop(SqliteDB * db)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int Leases::insert(SqliteDB * db)
+int Leases::insert(SqlDB * db)
 {
 	Nebula::log("VNM", Log::ERROR, "Should not access to Leases.insert()");
     return -1;
@@ -374,7 +354,7 @@ int Leases::insert(SqliteDB * db)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int Leases::update(SqliteDB * db)
+int Leases::update(SqlDB * db)
 {
 	Nebula::log("VNM", Log::ERROR, "Should not access to Leases.update()");
     return -1;
@@ -461,7 +441,7 @@ string& Leases::to_str(string& str) const
     {
         os << it->second->to_str(lease_str) << endl;
     }
-    
+
     str = os.str();
 
     return str;

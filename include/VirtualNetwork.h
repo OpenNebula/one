@@ -31,10 +31,6 @@
 
 using namespace std;
 
-extern "C" int vn_select_cb (void * _vn, int num,char ** values, char ** names);
-
-extern "C" int vn_dump_cb (void *  _oss, int num, char ** values, char ** names);
-
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -61,7 +57,6 @@ public:
     // *************************************************************************
     // Virtual Network Public Methods
     // *************************************************************************
-    
 
     /**
      * Gets the uid of the owner of the Virtual Network
@@ -128,7 +123,7 @@ public:
      * Function to print the VirtualNetwork object into a string in
      * plain text
      *  @param str the resulting string
-     *  @return a reference to the generated string 
+     *  @return a reference to the generated string
      */
     string& to_str(string& str) const;
 
@@ -136,28 +131,16 @@ public:
      * Function to print the VirtualNetwork object into a string in
      * XML format
      *  @param xml the resulting XML string
-     *  @return a reference to the generated string 
+     *  @return a reference to the generated string
      */
     string& to_xml(string& xml) const;
-   
+
 private:
 
     // -------------------------------------------------------------------------
     // Friends
     // -------------------------------------------------------------------------
     friend class VirtualNetworkPool;
-
-    friend int vn_select_cb (
-        void *  _vm,
-        int     num,
-        char ** values,
-        char ** names);
-
-    friend int vn_dump_cb (
-        void *  _oss,
-        int     num,
-        char ** values,
-        char ** names);
 
     // *************************************************************************
     // Virtual Network Private Attributes
@@ -169,12 +152,12 @@ private:
     /**
      *  Name of the Virtual Network
      */
-    string 	name;
+    string  name;
 
     /**
      *  Owner of the Virtual Network
      */
-    int		uid;
+    int     uid;
 
     // -------------------------------------------------------------------------
     // Binded physical attributes
@@ -183,7 +166,7 @@ private:
     /**
      *  Name of the bridge this VNW binds to
      */
-    string	bridge;
+    string  bridge;
 
     // -------------------------------------------------------------------------
     // Virtual Network Description
@@ -191,13 +174,13 @@ private:
     /**
      * Holds the type of this network
      */
-    NetworkType	type;
+    NetworkType type;
 
     /**
      *  Pointer to leases class, can be fixed or ranged.
      *  Holds information on given (and, optionally, possible) leases
      */
-    Leases *	leases;
+    Leases *    leases;
 
     /**
      *  The Virtual Network template, holds the VNW attributes.
@@ -211,12 +194,12 @@ private:
     /**
      *  MAC prefix for this OpenNebula site
      */
-    unsigned int 	mac_prefix;
+    unsigned int    mac_prefix;
 
     /**
      *  Default size for virtual networks
      */
-    int				default_size;
+    int             default_size;
 
     // *************************************************************************
     // DataBase implementation (Private)
@@ -225,41 +208,31 @@ private:
     /**
      *  Bootstraps the database table(s) associated to the Virtual Network
      */
-    static void bootstrap(SqliteDB * db)
+    static void bootstrap(SqlDB * db)
     {
-        db->exec(VirtualNetwork::db_bootstrap);
+        ostringstream oss_vnet(VirtualNetwork::db_bootstrap);
+        ostringstream oss_templ(VirtualNetworkTemplate::db_bootstrap);
+        ostringstream oss_lease(Leases::db_bootstrap);
 
-        db->exec(VirtualNetworkTemplate::db_bootstrap);
-
-        db->exec(Leases::db_bootstrap);
+        db->exec(oss_vnet);
+        db->exec(oss_templ);
+        db->exec(oss_lease);
     };
 
     /**
-     *  Function to unmarshall a VNW object, and associated classes.
+     *  Callback function to unmarshall a VNW object (VirtualNetwork::select)
      *    @param num the number of columns read from the DB
-     *    @para names the column names
-     *    @para vaues the column values
+     *    @param names the column names
+     *    @param vaues the column values
      *    @return 0 on success
      */
-    int unmarshall(int num, char **names, char ** values);
+    int select_cb(void * nil, int num, char **values, char **names);
 
-    /**
-     *  Function to unmarshall a VNW object into an stream in XML format.
-     *    @param oss the output stream
-     *    @param num the number of columns read from the DB
-     *    @para names the column names
-     *    @para vaues the column values
-     *    @return 0 on success
-     */
-    static int unmarshall(ostringstream& oss, 
-                          int            num, 
-                          char **        names, 
-                          char **        values);
     /**
      *  Function to drop VN entry in vn_pool
      *    @return 0 on success
      */
-    int vn_drop(SqliteDB * db);
+    int vn_drop(SqlDB * db);
 
     // ------------------------------------------------------------------------
     // Template
@@ -321,15 +294,15 @@ private:
     /**
      *  Updates the template of a VNW, adding a new attribute (replacing it if
      *  already defined), the VN's mutex SHOULD be locked
-     *    @param vm pointer to the virtual network object
+     *    @param db pointer to the DB
      *    @param name of the new attribute
      *    @param value of the new attribute
      *    @return 0 on success
      */
     int update_template_attribute(
-    	SqliteDB * 			db,
-        string&			 	name,
-        string&			 	value)
+        SqlDB * db,
+        string& name,
+        string& value)
     {
         SingleAttribute * sattr;
         int               rc;
@@ -380,21 +353,21 @@ protected:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int select(SqliteDB * db);
+    int select(SqlDB * db);
 
     /**
      *  Writes the Virtual Network and its associated template and leases in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int insert(SqliteDB * db);
+    int insert(SqlDB * db);
 
     /**
      *  Writes/updates the Virtual Network data fields in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int update(SqliteDB * db);
+    int update(SqlDB * db);
 
     /**
      * Deletes a VNW from the database and all its associated information:
@@ -403,28 +376,29 @@ protected:
      *   @param db pointer to the db
      *   @return 0 on success
      */
-    int drop(SqliteDB * db)
+    int drop(SqlDB * db)
     {
-    	int rc;
+        int rc;
 
-    	rc =  vn_template.drop(db);
+        rc =  vn_template.drop(db);
 
         rc += leases->drop(db);
 
         rc += vn_drop(db);
 
-    	return rc;
+        return rc;
     }
 
     /**
-     *  Dumps the contect of a set of Host objects in the given stream
-     *  using XML format
-     *    @param db pointer to the db
+     *  Dumps the contect of a VirtualNetwork object in the given stream using
+     *  XML format
      *    @param oss the output stream
-     *    @param where string to filter the VirtualMachine objects
+     *    @param num the number of columns read from the DB
+     *    @param names the column names
+     *    @param vaues the column values
      *    @return 0 on success
      */
-    static int dump(SqliteDB * db, ostringstream& oss, const string& where);    
+     static int dump(ostringstream& oss, int num, char **values, char **names);
 };
 
 #endif /*VIRTUAL_NETWORK_H_*/

@@ -28,7 +28,7 @@ public:
     // *************************************************************************
     // Constructor
     // *************************************************************************
-    RangedLeases(SqliteDB *    db,
+    RangedLeases(SqlDB *        db,
                  int           _oid,
                  unsigned long _size,
                  unsigned int  _mac_prefix,
@@ -53,40 +53,40 @@ public:
      *  @return 0 if success
      */
     int set(int vid, const string&  ip, string&  mac);
-    
+
     /**
      * Release an used lease, which becomes unused
      *   @param ip of the lease in use
      */
     void release(const string& ip)
     {
-    	del(ip);
+        del(ip);
     }
-    
+
     /**
      *  Loads the leases from the DB.
      */
-    int select(SqliteDB * db)
+    int select(SqlDB * db)
     {
-    	//Read the leases from the DB
-    	int rc = Leases::select(db);
-    	
-    	return rc;
+        //Read the leases from the DB
+        int rc = Leases::select(db);
+
+        return rc;
     }
-    
+
 private:
-	/**
-	 *  The default MAC prefix for the OpenNebula cluster
-	 */
-	unsigned int mac_prefix;
-	
-	/**
-	 *  The Network address to generate leases
-	 */
-	unsigned int network_address;
-	
-	unsigned int current;
-	
+    /**
+     *  The default MAC prefix for the OpenNebula cluster
+     */
+    unsigned int mac_prefix;
+
+    /**
+     *  The Network address to generate leases
+     */
+    unsigned int network_address;
+
+    unsigned int current;
+
     /**
      * Add a lease, from the Lease interface
      * @param ip ip of the lease
@@ -95,7 +95,7 @@ private:
      * @return 0 if success
      */
      int add(unsigned int ip, unsigned int mac[], int vid, bool used=true);
-       
+
     /**
      * Remove a lease, from the Lease interface
      * @param db pointer to DB
@@ -103,7 +103,7 @@ private:
      * @return 0 if success
      */
      int del(const string& ip);
-                                   
+
 };
 
 #endif /*RANGED_LEASES_H_*/
