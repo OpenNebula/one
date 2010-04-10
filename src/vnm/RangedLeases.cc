@@ -24,7 +24,7 @@
 /* ************************************************************************** */
 
 RangedLeases::RangedLeases(
-    SqliteDB      * db,
+    SqlDB *        db,
     int           _oid,
     unsigned long _size,
     unsigned int  _mac_prefix,
@@ -32,12 +32,12 @@ RangedLeases::RangedLeases(
         Leases(db,_oid,_size),mac_prefix(_mac_prefix),current(0)
 {
     unsigned int net_addr;
-    
+
     Leases::Lease::ip_to_number(_network_address,net_addr);
-    
+
     //size is the number of hosts in the network
     size = _size + 2;
-    
+
     network_address =  0xFFFFFFFF << (int) ceil(log(size)/log(2));
 
     network_address &= net_addr;
@@ -49,33 +49,33 @@ RangedLeases::RangedLeases(
 
 int RangedLeases::get(int vid, string&  ip, string&  mac)
 {
-	unsigned int num_ip;
-	int			 rc = -1;
-	
-	for (unsigned int i=0; i<size; i++, current++)
-	{
-		num_ip = network_address + (current%(size-2)) + 1;
-		
-		if (check(num_ip) == false)
-		{
-			unsigned int num_mac[2];
-			
-			num_mac[Lease::PREFIX] = mac_prefix;
-			num_mac[Lease::SUFFIX] = num_ip;
-			
-			rc = add(num_ip,num_mac,vid);
-			
-			if (rc==0)
-			{
-				Leases::Lease::ip_to_string(num_ip,ip);
-				Leases::Lease::mac_to_string(num_mac,mac);
-				
-				break;
-			}
-		}
-	}
-	
-	return rc;
+    unsigned int num_ip;
+    int          rc = -1;
+
+    for (unsigned int i=0; i<size; i++, current++)
+    {
+        num_ip = network_address + (current%(size-2)) + 1;
+
+        if (check(num_ip) == false)
+        {
+            unsigned int num_mac[2];
+
+            num_mac[Lease::PREFIX] = mac_prefix;
+            num_mac[Lease::SUFFIX] = num_ip;
+
+            rc = add(num_ip,num_mac,vid);
+
+            if (rc==0)
+            {
+                Leases::Lease::ip_to_string(num_ip,ip);
+                Leases::Lease::mac_to_string(num_mac,mac);
+
+                break;
+            }
+        }
+    }
+
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -83,69 +83,69 @@ int RangedLeases::get(int vid, string&  ip, string&  mac)
 
 int RangedLeases::set(int vid, const string&  ip, string&  mac)
 {
-	unsigned int num_ip;
-	unsigned int num_mac[2];
-	unsigned int net;
-	int			 rc;
-	
-	rc = Leases::Lease::ip_to_number(ip,num_ip);
-	
-	if (rc != 0)
-	{
-		return -1;
-	}
-	
-	net =  0xFFFFFFFF << (int) ceil(log(size)/log(2));
-	net &= num_ip;
-	
-	if ( net != network_address )
-	{
-		return -1;
-	}
-	
-	if (check(num_ip) == true)
-	{
-		return -1;
-	}
-		
-	num_mac[Lease::PREFIX] = mac_prefix;
-	num_mac[Lease::SUFFIX] = num_ip;
-		
-	rc = add(num_ip,num_mac,vid);
-	
-	if (rc != 0)
-	{
-		return -1;
-	}
-	
-	Leases::Lease::mac_to_string(num_mac,mac);
-	
-	return 0;
-}	
-	
+    unsigned int num_ip;
+    unsigned int num_mac[2];
+    unsigned int net;
+    int          rc;
+
+    rc = Leases::Lease::ip_to_number(ip,num_ip);
+
+    if (rc != 0)
+    {
+        return -1;
+    }
+
+    net =  0xFFFFFFFF << (int) ceil(log(size)/log(2));
+    net &= num_ip;
+
+    if ( net != network_address )
+    {
+        return -1;
+    }
+
+    if (check(num_ip) == true)
+    {
+        return -1;
+    }
+
+    num_mac[Lease::PREFIX] = mac_prefix;
+    num_mac[Lease::SUFFIX] = num_ip;
+
+    rc = add(num_ip,num_mac,vid);
+
+    if (rc != 0)
+    {
+        return -1;
+    }
+
+    Leases::Lease::mac_to_string(num_mac,mac);
+
+    return 0;
+}
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 int RangedLeases::add(
-    unsigned int 	ip,
-    unsigned int 	mac[],
-    int 			vid,
-    bool 			used)
+    unsigned int    ip,
+    unsigned int    mac[],
+    int             vid,
+    bool            used)
 {
     ostringstream   oss;
-    int				rc;
-    
+    int             rc;
+
     //Insert the lease in the database
     oss << "INSERT OR REPLACE INTO " << table << " "<< db_names <<" VALUES ("<<
-    	oid << "," <<
-    	ip << "," <<
-    	mac[Lease::PREFIX] << "," <<
-    	mac[Lease::SUFFIX] << "," <<
-    	vid << "," <<
-    	used << ")";
+        oid << "," <<
+        ip << "," <<
+        mac[Lease::PREFIX] << "," <<
+        mac[Lease::SUFFIX] << "," <<
+        vid << "," <<
+        used << ")";
 
     rc = db->exec(oss);
-    
+
     if ( rc == 0 )
     {
         leases.insert(make_pair(ip,new Lease(ip,mac,vid,used)));
@@ -161,7 +161,7 @@ int  RangedLeases::del(const string& ip)
 {
     unsigned int    _ip;
     ostringstream   oss;
-    int				rc;
+    int             rc;
     map<unsigned int, Lease *>::iterator  it_ip;
 
     // Remove lease from leases map

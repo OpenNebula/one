@@ -17,7 +17,7 @@
 #ifndef NEBULA_H_
 #define NEBULA_H_
 
-#include <sqlite3.h>
+#include "SqlDB.h"
 
 #include "Log.h"
 #include "NebulaTemplate.h"
@@ -38,29 +38,29 @@
 class Nebula
 {
 public:
-    
-    static Nebula& instance() 
+
+    static Nebula& instance()
     {
         static Nebula nebulad;
-        
+
         return nebulad;
     };
-    
+
     // ---------------------------------------------------------------
     // Logging
     // ---------------------------------------------------------------
-        
+
     static void log(
         const char *            module,
         const Log::MessageType  type,
         const ostringstream&    message,
         const char *            filename = 0,
         Log::MessageType        clevel   = Log::ERROR)
-    {        
+    {
         static Log nebula_log(filename,clevel,ios_base::trunc);
         static pthread_mutex_t log_mutex = PTHREAD_MUTEX_INITIALIZER;
 
-        pthread_mutex_lock(&log_mutex);        
+        pthread_mutex_lock(&log_mutex);
         nebula_log.log(module,type,message);
         pthread_mutex_unlock(&log_mutex);
     };
@@ -78,23 +78,23 @@ public:
 
     // --------------------------------------------------------------
     // Pool Accessors
-    // -------------------------------------------------------------- 
-    
+    // --------------------------------------------------------------
+
     VirtualMachinePool * get_vmpool()
     {
         return vmpool;
-    };   
+    };
 
     HostPool * get_hpool()
     {
         return hpool;
-    }; 
-    
+    };
+
     VirtualNetworkPool * get_vnpool()
     {
         return vnpool;
     };
-    
+
     UserPool * get_upool()
     {
         return upool;
@@ -102,8 +102,8 @@ public:
 
     // --------------------------------------------------------------
     // Manager Accessors
-    // -------------------------------------------------------------- 
-	
+    // --------------------------------------------------------------
+
     VirtualMachineManager * get_vmm()
     {
         return vmm;
@@ -113,7 +113,7 @@ public:
     {
         return lcm;
     };
-	
+
 	InformationManager * get_im()
     {
         return im;
@@ -128,29 +128,29 @@ public:
     {
         return dm;
     };
-    
+
     HookManager * get_hm()
     {
         return hm;
     };
-    
+
     // --------------------------------------------------------------
     // Environment & Configuration
     // --------------------------------------------------------------
-    
+
     /**
-     *  Returns the value of ONE_LOCATION env variable. When this variable is 
+     *  Returns the value of ONE_LOCATION env variable. When this variable is
      *  not defined the nebula location is "/".
      *  	@return the nebula location.
-     */    
+     */
     const string& get_nebula_location()
     {
         return nebula_location;
     };
 
     /**
-     *  Returns the path where mad executables are stored, if ONE_LOCATION is 
-     *  defined this path points to $ONE_LOCATION/bin, otherwise it is 
+     *  Returns the path where mad executables are stored, if ONE_LOCATION is
+     *  defined this path points to $ONE_LOCATION/bin, otherwise it is
      *  /usr/lib/one/mads.
      *  	@return the mad execs location.
      */
@@ -160,7 +160,7 @@ public:
     };
 
     /**
-     *  Returns the path where defaults for mads are stored, if ONE_LOCATION is 
+     *  Returns the path where defaults for mads are stored, if ONE_LOCATION is
      *  defined this path points to $ONE_LOCATION/etc, otherwise it is /etc/one
      *  	@return the mad defaults location.
      */
@@ -168,10 +168,10 @@ public:
     {
     	return etc_location;
     };
-    
+
     /**
      *  Returns the path where logs (oned.log, schedd.log,...) are generated
-     *  if ONE_LOCATION is defined this path points to $ONE_LOCATION/var, 
+     *  if ONE_LOCATION is defined this path points to $ONE_LOCATION/var,
      *  otherwise it is /var/log/one.
      *  	@return the log location.
      */
@@ -181,8 +181,8 @@ public:
     };
 
     /**
-     *  Returns the path where the OpenNebula DB and the VM local directories 
-     *  are stored. When ONE_LOCATION is defined this path points to 
+     *  Returns the path where the OpenNebula DB and the VM local directories
+     *  are stored. When ONE_LOCATION is defined this path points to
      *  $ONE_LOCATION/var, otherwise it is /var/lib/one.
      *  	@return the log location.
      */
@@ -190,7 +190,7 @@ public:
     {
     	return var_location;
     };
-   
+
     /**
      *  Returns the path of the log file for a VM, depending where OpenNebula is
      *  installed,
@@ -202,46 +202,46 @@ public:
     string get_vm_log_filename(int oid)
     {
     	ostringstream oss;
-    	
+
     	if (nebula_location == "/")
     	{
-    		oss << log_location << oid << ".log"; 
+    		oss << log_location << oid << ".log";
     	}
     	else
     	{
-    		oss << nebula_location << "var/" << oid << "/vm.log"; 
+    		oss << nebula_location << "var/" << oid << "/vm.log";
     	}
-    	
+
     	return oss.str();
     };
-        
+
     const string& get_nebula_hostname()
     {
         return hostname;
     };
-    
+
     static string version()
     {
-        return "OpenNebula 1.5.0";   
+        return "OpenNebula 1.5.0";
     };
-    
+
     void start();
-    
+
     void get_configuration_attribute(
-        const char * name, 
+        const char * name,
         string& value) const
     {
         string _name(name);
-        
-        nebula_configuration->Template::get(_name,value);   
+
+        nebula_configuration->Template::get(_name,value);
     };
-      
+
 private:
-    
-    // -----------------------------------------------------------------------    
+
+    // -----------------------------------------------------------------------
     //Constructors and = are private to only access the class through instance
     // -----------------------------------------------------------------------
-    
+
     Nebula():nebula_configuration(0),db(0),vmpool(0),hpool(0),vnpool(0),upool(0),
         lcm(0),vmm(0),im(0),tm(0),dm(0),rm(0)
     {
@@ -250,7 +250,7 @@ private:
         if (nl == 0) //OpenNebula installed under root directory
         {
         	nebula_location = "/";
-        	
+
         	mad_location = "/usr/lib/one/mads/";
         	etc_location = "/etc/one/";
         	log_location = "/var/log/one/";
@@ -259,19 +259,19 @@ private:
         else
         {
         	nebula_location = nl;
-        	
+
         	if ( nebula_location.at(nebula_location.size()-1) != '/' )
         	{
         		nebula_location += "/";
         	}
-        	
-        	mad_location = nebula_location + "lib/mads/";    	
-        	etc_location = nebula_location + "etc/";    	
+
+        	mad_location = nebula_location + "lib/mads/";
+        	etc_location = nebula_location + "etc/";
         	log_location = nebula_location + "var/";
-        	var_location = nebula_location + "var/";    	
-        }    	
+        	var_location = nebula_location + "var/";
+        }
     };
-    
+
     ~Nebula()
     {
         if ( vmpool != 0)
@@ -303,7 +303,7 @@ private:
         {
             delete lcm;
         }
-        
+
         if ( im != 0)
         {
             delete im;
@@ -313,69 +313,69 @@ private:
         {
             delete tm;
         }
-        
+
         if ( dm != 0)
         {
             delete dm;
         }
-       
+
         if ( rm != 0)
         {
             delete rm;
         }
-     
+
         if ( hm != 0)
         {
             delete hm;
         }
-             
+
         if ( nebula_configuration != 0)
         {
             delete nebula_configuration;
         }
-        
+
         if ( db != 0 )
         {
             delete db;
         }
     };
-        
+
     Nebula(Nebula const&){};
-    
-    Nebula& operator=(Nebula const&){return *this;}; 
-    
+
+    Nebula& operator=(Nebula const&){return *this;};
+
     // ---------------------------------------------------------------
     // Environment variables
     // ---------------------------------------------------------------
-       
+
     string  nebula_location;
-    
+
     string	mad_location;
     string	etc_location;
     string	log_location;
     string	var_location;
     string	hostname;
-    
+
     // ---------------------------------------------------------------
     // Configuration
     // ---------------------------------------------------------------
 
     NebulaTemplate *    nebula_configuration;
-    
+
     // ---------------------------------------------------------------
     // Nebula Pools
     // ---------------------------------------------------------------
-    
-    SqliteDB           * db;
+
+    SqlDB              * db;
     VirtualMachinePool * vmpool;
     HostPool           * hpool;
     VirtualNetworkPool * vnpool;
     UserPool           * upool;
-    
+
     // ---------------------------------------------------------------
     // Nebula Managers
     // ---------------------------------------------------------------
-    
+
     LifeCycleManager *      lcm;
     VirtualMachineManager * vmm;
     InformationManager *    im;
@@ -383,11 +383,11 @@ private:
     DispatchManager *       dm;
     RequestManager *        rm;
     HookManager *           hm;
-    
+
     // ---------------------------------------------------------------
     // Implementation functions
     // ---------------------------------------------------------------
-    
+
     friend void nebula_signal_handler (int sig);
 };
 
