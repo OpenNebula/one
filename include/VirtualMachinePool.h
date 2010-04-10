@@ -32,7 +32,7 @@ class VirtualMachinePool : public PoolSQL
 {
 public:
 
-    VirtualMachinePool(SqliteDB * db, vector<const Attribute *> hook_mads);
+    VirtualMachinePool(SqlDB * db, vector<const Attribute *> hook_mads);
 
     ~VirtualMachinePool(){};
 
@@ -126,11 +126,11 @@ public:
     /**
      *  Bootstraps the database table(s) associated to the VirtualMachine pool
      */
-    static void bootstrap(SqliteDB * _db)
+    static void bootstrap(SqlDB * _db)
     {
         VirtualMachine::bootstrap(_db);
     };
-    
+
     /**
      *  Dumps the VM pool in XML format. A filter can be also added to the query
      *  Also the hostname where the VirtualMachine is running is added to the
@@ -140,19 +140,8 @@ public:
      *
      *  @return 0 on success
      */
-    int dump(ostringstream& oss, const string& where)
-    {
-        int rc;
+    int dump(ostringstream& oss, const string& where);
 
-        oss << "<VM_POOL>";
-
-        rc = VirtualMachine::dump(db,oss,where);
-
-        oss << "</VM_POOL>";
-            
-        return rc;
-    }
-    
 private:
     /**
      *  Generate context file to be sourced upon VM booting
@@ -169,6 +158,16 @@ private:
     {
         return new VirtualMachine;
     };
+
+    /**
+     *  Callback function to get output the vm pool in XML format
+     *  (VirtualMachinePool::dump)
+     *    @param num the number of columns read from the DB
+     *    @param names the column names
+     *    @param vaues the column values
+     *    @return 0 on success
+     */
+    int dump_cb(void * _oss, int num, char **values, char **names);
 };
 
 #endif /*VIRTUAL_MACHINE_POOL_H_*/

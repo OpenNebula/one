@@ -17,16 +17,9 @@
 #ifndef HISTORY_H_
 #define HISTORY_H_
 
-#include <sqlite3.h>
 #include "ObjectSQL.h"
 
 using namespace std;
-
-extern "C" int history_select_cb (
-        void *                  _history,
-        int                     num,
-        char **                 values,
-        char **                 names);
 
 /**
  *  The History class, it represents an execution record of a Virtual Machine.
@@ -37,23 +30,23 @@ class History:public ObjectSQL
 public:
     enum MigrationReason
     {
-        NONE, 		/** < Normal termination in host */
-        ERROR,		/** < The VM was migrated because of an error */
+        NONE,       /** < Normal termination in host */
+        ERROR,      /** < The VM was migrated because of an error */
         STOP_RESUME,/** < The VM was migrated because of a stop/resume request*/
-        USER,		/** < The VM was migrated because of an explicit request */
-        CANCEL		/** < The VM was migrated because of an explicit cancel */
+        USER,       /** < The VM was migrated because of an explicit request */
+        CANCEL      /** < The VM was migrated because of an explicit cancel */
     };
 
     History(int oid, int _seq = -1);
 
     History(
-        int     		oid,
-        int     		seq,
-        int     		hid,
-        string& 		hostname,
-        string& 		vm_dir,
-        string& 		vmm,
-        string& 		tm);
+        int             oid,
+        int             seq,
+        int             hid,
+        string&         hostname,
+        string&         vm_dir,
+        string&         vmm,
+        string&         tm);
 
     ~History(){};
 
@@ -77,9 +70,10 @@ public:
      *  @return a reference to the generated string
      */
     string& to_xml(string& xml) const;
-    
+
 private:
     friend class VirtualMachine;
+    friend class VirtualMachinePool;
 
     // ----------------------------------------
     // DataBase implementation variables
@@ -166,25 +160,19 @@ private:
     string  checkpoint_file;
     string  rdeployment_file;
 
-    friend int history_select_cb (
-        void *                  _history,
-        int                     num,
-        char **                 values,
-        char **                 names);
-
     /**
      *  Writes the history record in the DB
      *    @param db pointer to the database.
      *    @return 0 on success.
      */
-    int insert(SqliteDB * db);
+    int insert(SqlDB * db);
 
     /**
      *  Reads the history record from the DB
      *    @param db pointer to the database.
      *    @return 0 on success.
      */
-    int select(SqliteDB * db);
+    int select(SqlDB * db);
 
     /**
      *  Removes the all history records from the DB
@@ -192,26 +180,26 @@ private:
      *    @return 0 on success.
 
      */
-    int drop(SqliteDB * db);
+    int drop(SqlDB * db);
 
     /**
      *  Updates the history record
      *    @param db pointer to the database.
      *    @return 0 on success.
      */
-    int update(SqliteDB * db)
+    int update(SqlDB * db)
     {
-    	return insert(db);
-	}
+        return insert(db);
+    }
 
     /**
-     *  Function to unmarshall a history object
+     *  Callback function to unmarshall a history object (History::select)
      *    @param num the number of columns read from the DB
      *    @para names the column names
      *    @para vaues the column values
      *    @return 0 on success
      */
-    int unmarshall(int num, char **names, char ** values);
+    int select_cb(void *nil, int num, char **values, char **names);
 
     /**
      *  Function to unmarshall a History object into an output stream with XML
@@ -222,10 +210,7 @@ private:
      *    @param vaues the column values
      *    @return 0 on success
      */
-    static int unmarshall(ostringstream& oss,
-                          int            num,
-                          char **        names,
-                          char **        values);
+    static int dump(ostringstream& oss, int  num, char **names, char **values);
 };
 
 #endif /*HISTORY_H_*/
