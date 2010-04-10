@@ -34,7 +34,7 @@ using namespace std;
  * multithreaded applications. Any modification or access function to the pool
  * SHOULD block the mutex.
  */
-class PoolSQL: public Callbackable, Hookable
+class PoolSQL: public Callbackable, public Hookable
 {
 public:
 

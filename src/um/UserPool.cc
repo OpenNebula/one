@@ -42,7 +42,7 @@ int UserPool::init_cb(void *nil, int num, char **values, char **names)
 
 /* -------------------------------------------------------------------------- */
 
-UserPool::UserPool(SqliteDB * db):PoolSQL(db,User::table)
+UserPool::UserPool(SqlDB * db):PoolSQL(db,User::table)
 {
     ostringstream   sql;
 

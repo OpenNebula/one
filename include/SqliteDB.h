@@ -38,7 +38,7 @@ extern "C" int sqlite_callback (
         char **                 values,
         char **                 names)
 {
-    ObjectSQL *obj;
+    Callbackable *obj;
 
     obj = static_cast<Callbackable *>(_obj);
 
@@ -158,23 +158,6 @@ public:
         }
 
         return 0;
-    };
-
-    /**
-     *  Performs a DB transaction
-     *    @param sql_cmd the SQL command
-     *    @param callbak function to execute on each data returned
-     *    @param arg to pass to the callback function
-     *    @return 0 on success
-     */
-    int exec(const char * cmd_c_str, Callbackable* obj=0)
-    {
-        string          cmd_str = cmd_c_str;
-        ostringstream   cmd;
-
-        cmd.str(cmd_str);
-
-        return exec(cmd, obj);
     };
 
     /**
