@@ -72,7 +72,6 @@ int HostPool::discover_cb(void * _map, int num, char **values, char **names)
 
 int HostPool::discover(map<int, string> * discovered_hosts)
 {
-
     ostringstream   sql;
     int             rc;
 
@@ -82,7 +81,8 @@ int HostPool::discover(map<int, string> * discovered_hosts)
                  static_cast<void *>(discovered_hosts));
 
     sql << "SELECT oid, im_mad FROM "
-        << Host::table << " ORDER BY last_mon_time LIMIT 10";
+        << Host::table << " WHERE state != "
+        << Host::DISABLED << " ORDER BY last_mon_time LIMIT 10";
 
     rc = db->exec(sql,this);
 
