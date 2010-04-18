@@ -65,7 +65,7 @@ int TestObjectSQL::select(SqlDB *db)
     int             boid;
 
     set_callback(
-        static_cast<Callbackable::CallBack>(&TestObjectSQL::unmarshall),0);
+        static_cast<Callbackable::Callback>(&TestObjectSQL::unmarshall),0);
     oss << "SELECT * FROM " << table << " WHERE oid = " << oid;
 
     boid = oid;
