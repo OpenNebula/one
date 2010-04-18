@@ -1,5 +1,6 @@
 #include "TemplateSQL.h"
 #include "SqliteDB.h"
+#include "SqlDB.h"
 #include "Log.h"
 
 #include <string>
@@ -35,15 +36,15 @@ public:
     ~TSQL(){}
     
     /* --------------------------------------------------------------------- */
-    int insert(SqliteDB * db){return TemplateSQL::insert(db);}
-    int update(SqliteDB * db){return TemplateSQL::update(db);}
-    int select(SqliteDB * db){return TemplateSQL::select(db);}
-    int drop  (SqliteDB * db){return TemplateSQL::drop(db);}
+    int insert(SqlDB * db){return TemplateSQL::insert(db);}
+    int update(SqlDB * db){return TemplateSQL::update(db);}
+    int select(SqlDB * db){return TemplateSQL::select(db);}
+    int drop  (SqlDB * db){return TemplateSQL::drop(db);}
 
     /* --------------------------------------------------------------------- */
-    int replace_attribute(SqliteDB * db, Attribute * attr)
+    int replace_attribute(SqlDB * db, Attribute * attr)
         {return TemplateSQL::replace_attribute(db,attr);}
-    int insert_attribute(SqliteDB * db, Attribute * attr)
+    int insert_attribute(SqlDB * db, Attribute * attr)
         {return TemplateSQL::insert_attribute(db,attr);}
     /* --------------------------------------------------------------------- */
     int id(){return TemplateSQL::id;};
@@ -56,8 +57,7 @@ public:
 class TemplateSQLTest : public CppUnit::TestFixture 
 {
 private:
-    SqliteDB *db;
-    TSQL     *t;
+    SqlDB *db;
 
     string filename;
 
@@ -99,7 +99,7 @@ public:
             "   PORT = 12\n"
             " ]\n";
 
-        template_xml = 
+        template_xml =
             "<TEMPLATE><CPU>4</CPU><DISK><EXTRA>disk "
             "attribute </EXTRA><FILE>path1</FILE></DISK><DISK><EXTRA>str"
             "</EXTRA><FILE>path2</FILE>"
@@ -108,46 +108,37 @@ public:
             "<REQUIREMENTS>HOSTNAME = \"host*.com\"</REQUIREMENTS></TEMPLATE>";
     }
 
-    ~TemplateSQLTest()
-    {
-        unlink("template_sql.db");
-    }
+    ~TemplateSQLTest(){};
 
     /* --------------------------------------------------------------------- */
     /* --------------------------------------------------------------------- */
 
     void setUp()
     {
-        db = new SqliteDB (filename , TemplateSQLTest::log);
-        t  = new TSQL("template");
+        ostringstream db_bs("CREATE TABLE template (id INTEGER, name TEXT,"
+                            " type INTEGER, value TEXT)");
+                            
+        db = new SqliteDB(filename , TemplateSQLTest::log);
+        CPPUNIT_ASSERT(db->exec(db_bs)== 0);
     }
 
     void tearDown()
     {
         delete db;
-        delete t;
+        unlink(filename.c_str());
     }
 
     /* ********************************************************************* */
     /* ********************************************************************* */
-
-    void test_bootstrap()
-    {
-        const char * db_bs = "CREATE TABLE template"
-                       " (id INTEGER, name TEXT, type INTEGER, value TEXT)";
-
-        CPPUNIT_ASSERT( db->exec(db_bs) == 0);
-    }
-
-    /* --------------------------------------------------------------------- */
     
     void test_insert()
     {
         char * error = 0;
         int    rc;
         string tmp;
-
-        rc = t->parse(template_ok,&error);
+        TSQL   t("template");
+        
+        rc = t.parse(template_ok,&error);
         
         if ( error != 0 )
         {
@@ -157,29 +148,40 @@ public:
 
         CPPUNIT_ASSERT( rc == 0);
 
-        CPPUNIT_ASSERT( t->insert(db) == 0 ); 
-        CPPUNIT_ASSERT( t->id() == 0 ); 
+        CPPUNIT_ASSERT( t.insert(db) == 0 );
+        CPPUNIT_ASSERT( t.id() == 0 );
 
-        CPPUNIT_ASSERT( t->insert(db) == 0 ); 
-        CPPUNIT_ASSERT( t->id() == 1 ); 
+        CPPUNIT_ASSERT( t.insert(db) == 0 );
+        CPPUNIT_ASSERT( t.id() == 1 );
 
-        CPPUNIT_ASSERT( t->insert(db) == 0 ); 
-        CPPUNIT_ASSERT( t->id() == 2 ); 
+        CPPUNIT_ASSERT( t.insert(db) == 0 );
+        CPPUNIT_ASSERT( t.id() == 2 );
     }
 
     /* --------------------------------------------------------------------- */
 
     void test_select()
     {
-        TSQL t2("template",1);
+        char * error = 0;
+
+        TSQL t("template");
+        TSQL t2("template",0);
+        
         string t2_xml;
 
+        t.parse(template_ok,&error);
+        t.insert(db);
+
+        if ( error != 0 )
+        {
+            free(error);
+        }
+        
         CPPUNIT_ASSERT( t2.select(db) == 0 );
 
         t2.to_xml(t2_xml);
 
         CPPUNIT_ASSERT( t2_xml == template_xml );
-
     }
 
     /* ********************************************************************* */
@@ -188,17 +190,17 @@ public:
     static CppUnit::TestSuite * suite()
     {
         CppUnit::TestSuite *ts=new CppUnit::TestSuite("TemplateSQL Tests");
-
+        
         ts->addTest(new CppUnit::TestCaller<TemplateSQLTest>(
-                    "db() Test",
-                    &TemplateSQLTest::test_bootstrap));
-
+                    "bootstrap() Test",
+                    &TemplateSQLTest::test_insert));
+                    
         ts->addTest(new CppUnit::TestCaller<TemplateSQLTest>(
                     "insert() Test",
                     &TemplateSQLTest::test_insert));
 
         ts->addTest(new CppUnit::TestCaller<TemplateSQLTest>(
-                    "update() Test",
+                    "select() Test",
                     &TemplateSQLTest::test_select));
 
         return ts;
@@ -215,6 +217,6 @@ int main(int argc, char ** argv)
     
     tr.addTest(TemplateSQLTest::suite());
     tr.run();
-
+    
     return 0;
 }

@@ -27,6 +27,7 @@
 #include <unistd.h>
 
 #include "UserPool.h"
+#include "SqliteDB.h"
 
 using namespace std;
 
@@ -48,7 +49,7 @@ class UserPoolTest : public CppUnit::TestFixture
 
 private:
     UserPool * pool;
-    SqliteDB * db;
+    SqlDB * db;
 
     User* user;
 
@@ -72,10 +73,11 @@ public:
         // one user, and adds one automatically from the ONE_AUTH file.
         // So the ONE_AUTH environment is forced to point to a test one_auth
         // file.
-        string pwd = getenv("PWD");
-        const char * auth = (pwd + "/one_auth").c_str();
 
-        setenv("ONE_AUTH", auth, 1);
+        ostringstream oss;
+
+        oss << getenv("PWD") << "/one_auth";
+        setenv("ONE_AUTH", oss.str().c_str(), 1);
 
         pool = new UserPool(db);
     };
