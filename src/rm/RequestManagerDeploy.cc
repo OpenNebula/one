@@ -15,6 +15,8 @@
 /* -------------------------------------------------------------------------- */
 
 #include "RequestManager.h"
+#include "NebulaLog.h"
+
 #include "Nebula.h"
 
 /* -------------------------------------------------------------------------- */
@@ -46,7 +48,7 @@ void RequestManager::VirtualMachineDeploy::execute(
     
     ostringstream       oss;
         
-    Nebula::log("ReM",Log::DEBUG,"VirtualMachineDeploy invoked");
+    NebulaLog::log("ReM",Log::DEBUG,"VirtualMachineDeploy invoked");
     
     //Parse Arguments
     

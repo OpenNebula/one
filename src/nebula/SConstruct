@@ -24,6 +24,7 @@ lib_name='nebula_core'
 source_files=[
     'Nebula.cc',
     'NebulaTemplate.cc',
+    'NebulaLog.cc',
     'Log.cc'
 ]
 

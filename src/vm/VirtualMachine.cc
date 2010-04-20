@@ -25,6 +25,8 @@
 
 #include "VirtualMachine.h"
 #include "VirtualNetworkPool.h"
+#include "NebulaLog.h"
+
 #include "Nebula.h"
 
 
@@ -211,12 +213,12 @@ int VirtualMachine::select(SqlDB * db)
 
     try
     {
-        _log = new Log(nd.get_vm_log_filename(oid),Log::DEBUG);
+        _log = new FileLog(nd.get_vm_log_filename(oid),Log::DEBUG);
     }
     catch(exception &e)
     {
         ose << "Error creating log: " << e.what();
-        Nebula::log("ONE",Log::ERROR, ose);
+        NebulaLog::log("ONE",Log::ERROR, ose);
 
         _log = 0;
     }
@@ -314,17 +316,17 @@ int VirtualMachine::insert(SqlDB * db)
     return 0;
 
 error_update:
-    Nebula::log("ONE",Log::ERROR, "Can not update VM in the database");
+    NebulaLog::log("ONE",Log::ERROR, "Can not update VM in the database");
     vm_template.drop(db);
     return -1;
 
 error_template:
-    Nebula::log("ONE",Log::ERROR, "Can not insert template in the database");
+    NebulaLog::log("ONE",Log::ERROR, "Can not insert template in the database");
     release_network_leases();
     return -1;
 
 error_leases:
-    Nebula::log("ONE",Log::ERROR, "Could not get network lease for VM");
+    NebulaLog::log("ONE",Log::ERROR, "Could not get network lease for VM");
     release_network_leases();
     return -1;
 }
@@ -601,7 +603,7 @@ int VirtualMachine::get_network_leases()
             ostringstream ose;
             ose << "Owner " << uid << " of the VM doesn't have ownership of Virtual Network "
                 << vn->get_uid();
-            Nebula::log("VMM", Log::ERROR, ose);
+            NebulaLog::log("VMM", Log::ERROR, ose);
             return -1;
         }
 

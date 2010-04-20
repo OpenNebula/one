@@ -19,11 +19,12 @@
 /* ************************************************************************** */
 
 #include "UserPool.h"
-#include "Nebula.h"
+#include "NebulaLog.h"
 
 #include <fstream>
 #include <sys/types.h>
 #include <pwd.h>
+#include <stdlib.h>
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -117,7 +118,7 @@ UserPool::UserPool(SqlDB * db):PoolSQL(db,User::table)
 
         if (one_uid != 0)
         {
-            Nebula::log("ONE",Log::ERROR,oss);
+            NebulaLog::log("ONE",Log::ERROR,oss);
             throw;
         }
     }

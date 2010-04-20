@@ -15,7 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include "HookManagerDriver.h"
-#include "Nebula.h"
+#include "NebulaLog.h"
 #include <sstream>
 
 /* ************************************************************************** */
@@ -92,7 +92,7 @@ void HookManagerDriver::protocol(
     // Parse the driver message
 
     os << "Message received: " << message;
-    Nebula::log("HKM", Log::DEBUG, os);
+    NebulaLog::log("HKM", Log::DEBUG, os);
 
     // Parse the driver message
     if ( is.good() )
@@ -125,7 +125,7 @@ void HookManagerDriver::protocol(
 
                 is.clear();
                 getline(is,info);
-                Nebula::log("HKM",Log::INFO, info.c_str());
+                NebulaLog::log("HKM",Log::INFO, info.c_str());
             }
 
             return;
@@ -190,6 +190,6 @@ void HookManagerDriver::protocol(
 
 void HookManagerDriver::recover()
 {
-    Nebula::log("HKM", Log::ERROR, "Hook driver crashed, recovering...");       
+    NebulaLog::log("HKM", Log::ERROR, "Hook driver crashed, recovering...");
+ 
 }
-

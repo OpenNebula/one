@@ -15,6 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include "Nebula.h"
+#include "NebulaLog.h"
 #include "VirtualMachine.h"
 #include "SqliteDB.h"
 
@@ -82,35 +83,28 @@ void Nebula::start()
             clevel = static_cast<Log::MessageType>(log_level_int);
         }
 
-        os << "Init OpenNebula Log system";
-
         // Initializing ONE Daemon log system
 
-        Nebula::log("ONE",
-                    Log::INFO,
-                    os,
-                    log_fname.c_str(),
-                    clevel);
+        NebulaLog::init_log_system(NebulaLog::FILE_TS,
+                                   clevel,
+                                   log_fname.c_str(),
+                                   ios_base::trunc);
 
-        os.str("");
+        NebulaLog::log("ONE",Log::INFO,"Init OpenNebula Log system");
+
         os << "Log Level: " << clevel << " [0=ERROR,1=WARNING,2=INFO,3=DEBUG]";
 
-        // Initializing ONE Daemon log system
-
-        Nebula::log("ONE",
-                    Log::INFO,
-                    os,
-                    log_fname.c_str(),
-                    clevel);
+        NebulaLog::log("ONE",Log::INFO,os);
     }
     catch(runtime_error&)
     {
         throw;
     }
 
-    Nebula::log("ONE",Log::INFO,"----------------------------------------------");
-    Nebula::log("ONE",Log::INFO,"       OpenNebula Configuration File          ");
-    Nebula::log("ONE",Log::INFO,"----------------------------------------------");
+
+    NebulaLog::log("ONE",Log::INFO,"----------------------------------------");
+    NebulaLog::log("ONE",Log::INFO,"     OpenNebula Configuration File      ");
+    NebulaLog::log("ONE",Log::INFO,"----------------------------------------");
 
     os.str("");
 
@@ -118,7 +112,7 @@ void Nebula::start()
     os << *nebula_configuration;
     os << "\n--------------------------------------------";
 
-    Nebula::log("ONE",Log::INFO,os);
+    NebulaLog::log("ONE",Log::INFO,os);
 
     // -----------------------------------------------------------
     // Pools
@@ -130,11 +124,11 @@ void Nebula::start()
         struct stat db_stat;
         bool        db_bootstrap = stat(db_name.c_str(), &db_stat) != 0;
 
-        db = new SqliteDB(db_name,Nebula::log);
+        db = new SqliteDB(db_name);
 
         if (db_bootstrap)
         {
-            Nebula::log("ONE",Log::INFO,"Bootstraping OpenNebula database.");
+            NebulaLog::log("ONE",Log::INFO,"Bootstraping OpenNebula database.");
 
             VirtualMachinePool::bootstrap(db);
             HostPool::bootstrap(db);
@@ -330,7 +324,7 @@ void Nebula::start()
     }
     catch (bad_alloc&)
     {
-        Nebula::log("ONE", Log::ERROR, "Error starting RM");
+        NebulaLog::log("ONE", Log::ERROR, "Error starting RM");
         throw;
     }
 
@@ -410,6 +404,6 @@ void Nebula::start()
     pthread_join(rm->get_thread_id(),0);
     pthread_join(hm->get_thread_id(),0);
 
-    Nebula::log("ONE", Log::INFO, "All modules finalized, exiting.\n");
+    NebulaLog::log("ONE", Log::INFO, "All modules finalized, exiting.\n");
 }
 

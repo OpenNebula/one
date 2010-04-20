@@ -21,7 +21,7 @@
 #include <sstream>
 
 #include "Host.h"
-#include "Nebula.h"
+#include "NebulaLog.h"
 
 /* ************************************************************************** */
 /* Host :: Constructor/Destructor                                  */
@@ -330,7 +330,7 @@ int Host::update_info(string &parse_str)
 
     if ( rc != 0 )
     {
-        Nebula::log("ONE", Log::ERROR, error_msg);
+        NebulaLog::log("ONE", Log::ERROR, error_msg);
 
         free(error_msg);
         return -1;

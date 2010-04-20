@@ -16,7 +16,7 @@
 
 
 #include "FixedLeases.h"
-#include "Nebula.h"
+#include "NebulaLog.h"
 
 FixedLeases::FixedLeases(
         SqlDB *                     db,
@@ -99,7 +99,7 @@ error_ip:
 	oss << "Error inserting lease, IP = " << ip;
 
 error_common:
-	Nebula::log("VNM", Log::ERROR, oss);
+	NebulaLog::log("VNM", Log::ERROR, oss);
 	return -1;
 }
 

@@ -14,8 +14,9 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#include "Nebula.h"
 #include "VirtualNetworkPool.h"
+#include "NebulaLog.h"
+
 #include <sstream>
 
 VirtualNetworkPool::VirtualNetworkPool(SqlDB * db,
@@ -40,7 +41,8 @@ VirtualNetworkPool::VirtualNetworkPool(SqlDB * db,
 
     if (count != 1)
     {
-        Nebula::log("VNM",Log::ERROR,"Wrong MAC prefix format, using default");
+        NebulaLog::log("VNM",Log::ERROR,
+                       "Wrong MAC prefix format, using default");
         mac_prefix = 1; //"00:01"
 
         return;
@@ -81,7 +83,7 @@ int VirtualNetworkPool::allocate (
     if ( rc != 0 )
     {
         oss << error_msg;
-        Nebula::log("VNM", Log::ERROR, oss);
+        NebulaLog::log("VNM", Log::ERROR, oss);
         free(error_msg);
 
         return -1;

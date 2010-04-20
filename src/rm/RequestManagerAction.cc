@@ -15,6 +15,8 @@
 /* -------------------------------------------------------------------------- */
 
 #include "RequestManager.h"
+#include "NebulaLog.h"
+
 #include "Nebula.h"
 
 /* -------------------------------------------------------------------------- */
@@ -41,7 +43,7 @@ void RequestManager::VirtualMachineAction::execute(
 
     ostringstream       oss;
 
-    Nebula::log("ReM",Log::DEBUG,"VirtualMachineAction invoked");
+    NebulaLog::log("ReM",Log::DEBUG,"VirtualMachineAction invoked");
 
     session = xmlrpc_c::value_string(paramList.getString(0));
     action  = xmlrpc_c::value_string(paramList.getString(1));

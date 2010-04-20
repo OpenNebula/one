@@ -14,9 +14,11 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#include "Nebula.h"
 #include "VirtualMachinePool.h"
 #include "VirtualMachineHook.h"
+
+#include "NebulaLog.h"
+
 #include <sstream>
 
 /* -------------------------------------------------------------------------- */
@@ -55,7 +57,7 @@ VirtualMachinePool::VirtualMachinePool(SqlDB *                   db,
 
             oss << "Empty ON or COMMAND attribute in VM_HOOK. Hook "
                 << "not registered!";
-            Nebula::log("VM",Log::WARNING,oss);
+            NebulaLog::log("VM",Log::WARNING,oss);
 
             continue;
         }
@@ -130,7 +132,7 @@ VirtualMachinePool::VirtualMachinePool(SqlDB *                   db,
             ostringstream oss;
 
             oss << "Unkown VM_HOOK " << on << ". Hook not registered!";
-            Nebula::log("VM",Log::WARNING,oss);
+            NebulaLog::log("VM",Log::WARNING,oss);
         }
     }
 
@@ -187,7 +189,7 @@ int VirtualMachinePool::allocate (
         ostringstream oss;
 
         oss << error_msg;
-        Nebula::log("ONE", Log::ERROR, oss);
+        NebulaLog::log("ONE", Log::ERROR, oss);
         free(error_msg);
 
         return -2;
@@ -302,7 +304,7 @@ void VirtualMachinePool::generate_context(int vm_id, Attribute * attr)
             oss << error_msg << ": " << *str;
             free(error_msg);
 
-            Nebula::log("ONE", Log::ERROR, oss);
+            NebulaLog::log("ONE", Log::ERROR, oss);
         }
 
         delete str;

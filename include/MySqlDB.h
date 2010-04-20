@@ -26,7 +26,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "Log.h"
+#include "NebulaLog.h"
 #include "SqlDB.h"
 #include "ObjectSQL.h"
 
@@ -47,8 +47,7 @@ public:
             string server,
             string user,
             string password,
-            char * database,
-            Log::LogFunction _log = 0):log(_log)
+            char * database)
     {
 
         // Initialize the MySQL library
@@ -111,7 +110,7 @@ public:
                 oss << "SQL command was: " << c_str;
                 oss << ", error " << err_num << " : " << err_msg;
 
-                log("ONE",Log::ERROR,oss,0,Log::ERROR);
+                NebulaLog::log("ONE",Log::ERROR,oss);
             }
 
             return -1;
@@ -140,7 +139,7 @@ public:
                     oss << "SQL command was: " << c_str;
                     oss << ", error " << err_num << " : " << err_msg;
 
-                    log("ONE",Log::ERROR,oss,0,Log::ERROR);
+                    NebulaLog::log("ONE",Log::ERROR,oss);
                 }
 
                 return -1;
@@ -204,11 +203,6 @@ private:
      * The MySql connection handler
      */
     MYSQL *             db;
-
-    /**
-     *  Log facility
-     */
-    Log::LogFunction    log;
 };
 
 #endif /*MYSQL_DB_H_*/

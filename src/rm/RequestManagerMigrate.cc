@@ -15,6 +15,8 @@
 /* -------------------------------------------------------------------------- */
 
 #include "RequestManager.h"
+#include "NebulaLog.h"
+
 #include "Nebula.h"
 
 /* -------------------------------------------------------------------------- */
@@ -48,7 +50,7 @@ void RequestManager::VirtualMachineMigrate::execute(
     ostringstream       oss;
     time_t              thetime;
         
-    Nebula::log("ReM",Log::DEBUG,"VirtualMachineMigrate invoked");
+    NebulaLog::log("ReM",Log::DEBUG,"VirtualMachineMigrate invoked");
     
     //Parse Arguments
     

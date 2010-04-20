@@ -26,7 +26,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "Log.h"
+#include "NebulaLog.h"
+
 #include "SqlDB.h"
 #include "ObjectSQL.h"
 
@@ -59,7 +60,7 @@ class SqliteDB : public SqlDB
 {
 public:
 
-    SqliteDB(string& db_name, Log::LogFunction _log = 0):log(_log)
+    SqliteDB(string& db_name)
     {
         int rc;
 
@@ -96,10 +97,8 @@ public:
         string       str;
 
         int          counter = 0;
-
         char *       err_msg = 0;
-        char **      ptr = (log==0) ? 0 : &err_msg;
-
+        
         int   (*callback)(void*,int,char**,char**);
         void * arg;
 
@@ -121,7 +120,7 @@ public:
         {
             counter++;
 
-            rc = sqlite3_exec(db, c_str, callback, arg, ptr);
+            rc = sqlite3_exec(db, c_str, callback, arg, &err_msg);
 
             if (rc == SQLITE_BUSY || rc == SQLITE_IOERR_BLOCKED)
             {
@@ -141,16 +140,13 @@ public:
 
         if (rc != SQLITE_OK)
         {
-            if ((log != 0) && (err_msg != 0))
+            if (err_msg != 0)
             {
                 ostringstream oss;
 
                 oss << "SQL command was: " << c_str << ", error: " << err_msg;
-                log("ONE",Log::ERROR,oss,0,Log::ERROR);
-            }
+                NebulaLog::log("ONE",Log::ERROR,oss);
 
-            if ( err_msg != 0)
-            {
                 sqlite3_free(err_msg);
             }
 
@@ -190,11 +186,6 @@ private:
      *  Pointer to the database.
      */
     sqlite3 *           db;
-
-    /**
-     *  Log facility
-     */
-    Log::LogFunction    log;
 
     /**
      *  Function to lock the DB

@@ -24,6 +24,8 @@
 #include <string.h> 
 
 #include "Mad.h"
+#include "NebulaLog.h"
+
 #include "Nebula.h"
 
 #include <cerrno>
@@ -237,43 +239,43 @@ int Mad::start()
 error_exec:
     oss.str("");
     oss << "Can not load driver " << executable << ", " << strerror(errno);
-    Nebula::log("MAD", Log::ERROR, oss);
+    NebulaLog::log("MAD", Log::ERROR, oss);
     exit(-1);
     
 error_dup2:
     oss.str("");
     oss << "Can not duplicate descriptors, " << strerror(errno);
-    Nebula::log("MAD", Log::ERROR, oss);
+    NebulaLog::log("MAD", Log::ERROR, oss);
     exit(-1);
 
 error_mad_result:
     oss.str("");
     oss << "MAD initialization failed, " << info;
-    Nebula::log("MAD", Log::ERROR, oss);
+    NebulaLog::log("MAD", Log::ERROR, oss);
     return -1;
 
 error_mad_action:
-    Nebula::log("MAD", Log::ERROR,"Wrong action in MAD response");
+    NebulaLog::log("MAD", Log::ERROR,"Wrong action in MAD response");
     return -1;
 
 error_mad_init:
-    Nebula::log("MAD", Log::ERROR, "MAD did not answer INIT command");
+    NebulaLog::log("MAD", Log::ERROR, "MAD did not answer INIT command");
     return -1;
     
 error_fork:
     oss.str("");
     oss << "Error forking to start MAD, " << strerror(errno);
-    Nebula::log("MAD", Log::ERROR, oss);
+    NebulaLog::log("MAD", Log::ERROR, oss);
     return -1;
     
 error_attributes:
-    Nebula::log("MAD", Log::ERROR, "Wrong attributes for the driver");
+    NebulaLog::log("MAD", Log::ERROR, "Wrong attributes for the driver");
     return -1;
 
 error_pipes:
     oss.str("");
     oss << "Can not create driver pipes, " << strerror(errno);
-    Nebula::log("MAD", Log::ERROR, oss);
+    NebulaLog::log("MAD", Log::ERROR, oss);
     return -1;
 }
 

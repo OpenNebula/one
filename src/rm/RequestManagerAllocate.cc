@@ -15,6 +15,8 @@
 /* -------------------------------------------------------------------------- */
 
 #include "RequestManager.h"
+#include "NebulaLog.h"
+
 #include "Nebula.h"
 
 /* -------------------------------------------------------------------------- */
@@ -44,7 +46,7 @@ void RequestManager::VirtualMachineAllocate::execute(
     xmlrpc_c::value_array * arrayresult;
     
         
-    Nebula::log("ReM",Log::DEBUG,"VirtualMachineAllocate invoked");
+    NebulaLog::log("ReM",Log::DEBUG,"VirtualMachineAllocate invoked");
         
     session     = xmlrpc_c::value_string(paramList.getString(0));
     vm_template = xmlrpc_c::value_string(paramList.getString(1));
@@ -116,7 +118,7 @@ error_common:
     arrayData.push_back(xmlrpc_c::value_boolean(false));  // FAILURE
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
 
-    Nebula::log("ReM",Log::ERROR,oss);
+    NebulaLog::log("ReM",Log::ERROR,oss);
 
     xmlrpc_c::value_array arrayresult_error(arrayData);
 

@@ -94,7 +94,7 @@ public:
     {
         if (_log != 0)
         {
-            _log->log(module,type,message);
+            _log->log(module,type,message.str().c_str());
         }
     };
 
@@ -118,21 +118,21 @@ public:
      */
     friend ostream& operator<<(ostream& os, const VirtualMachine& vm);
 
-	/**
-	 * Function to print the VirtualMachine object into a string in
-	 * plain text
-	 *  @param str the resulting string
-	 *  @return a reference to the generated string
-	 */
-	string& to_str(string& str) const;
+    /**
+     * Function to print the VirtualMachine object into a string in
+     * plain text
+     *  @param str the resulting string
+     *  @return a reference to the generated string
+     */
+    string& to_str(string& str) const;
 
-	/**
-	 * Function to print the VirtualMachine object into a string in
-	 * XML format
-	 *  @param xml the resulting XML string
-	 *  @return a reference to the generated string
-	 */
-	string& to_xml(string& xml) const;
+    /**
+     * Function to print the VirtualMachine object into a string in
+     * XML format
+     *  @param xml the resulting XML string
+     *  @return a reference to the generated string
+     */
+    string& to_xml(string& xml) const;
 
     // ------------------------------------------------------------------------
     // Dynamic Info
@@ -846,7 +846,7 @@ private:
      *  or, in case that OpenNebula is installed in root
      *          /var/log/one/$VM_ID.log
      */
-    Log *       _log;
+    FileLog *       _log;
 
     // *************************************************************************
     // DataBase implementation (Private)

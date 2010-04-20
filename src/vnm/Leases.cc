@@ -16,7 +16,7 @@
 
 
 #include "Leases.h"
-#include "Nebula.h"
+#include "NebulaLog.h"
 
 /* ************************************************************************** */
 /* ************************************************************************** */
@@ -325,7 +325,7 @@ error_id:
     oss.str("");
     oss << "Error getting leases for network nid: " << oid;
 
-    Nebula::log("VNM", Log::ERROR, oss);
+    NebulaLog::log("VNM", Log::ERROR, oss);
     return -1;
 }
 
@@ -347,7 +347,7 @@ int Leases::drop(SqlDB * db)
 
 int Leases::insert(SqlDB * db)
 {
-	Nebula::log("VNM", Log::ERROR, "Should not access to Leases.insert()");
+	NebulaLog::log("VNM", Log::ERROR, "Should not access to Leases.insert()");
     return -1;
 }
 
@@ -356,7 +356,7 @@ int Leases::insert(SqlDB * db)
 
 int Leases::update(SqlDB * db)
 {
-	Nebula::log("VNM", Log::ERROR, "Should not access to Leases.update()");
+	NebulaLog::log("VNM", Log::ERROR, "Should not access to Leases.update()");
     return -1;
 }
 

@@ -16,7 +16,7 @@
 
 
 #include "VirtualNetwork.h"
-#include "Nebula.h"
+#include "NebulaLog.h"
 #include "RangedLeases.h"
 #include "FixedLeases.h"
 
@@ -201,7 +201,7 @@ error_addr:
     ose << "Network address is not defined nid: " << oid;
 
 error_common:
-    Nebula::log("VNM", Log::ERROR, ose);
+    NebulaLog::log("VNM", Log::ERROR, ose);
     return -1;
 }
 
@@ -357,7 +357,7 @@ error_leases:
     vn_drop(db);
 
 error_common:
-    Nebula::log("VNM", Log::ERROR, ose);
+    NebulaLog::log("VNM", Log::ERROR, ose);
     return -1;
 }
 
