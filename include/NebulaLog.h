@@ -30,7 +30,7 @@ class NebulaLog
 public:
     enum LogType {
         FILE       = 0,
-        FILE_TS = 1,
+        FILE_TS    = 1,
         CERR       = 2
     };
 

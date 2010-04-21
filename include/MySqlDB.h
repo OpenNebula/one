@@ -101,17 +101,14 @@ public:
 
         if (rc != 0)
         {
-            if (log != 0)
-            {
-                ostringstream   oss;
-                const char *    err_msg = mysql_error(db);
-                int             err_num = mysql_errno(db);
+            ostringstream   oss;
+            const char *    err_msg = mysql_error(db);
+            int             err_num = mysql_errno(db);
 
-                oss << "SQL command was: " << c_str;
-                oss << ", error " << err_num << " : " << err_msg;
+            oss << "SQL command was: " << c_str;
+            oss << ", error " << err_num << " : " << err_msg;
 
-                NebulaLog::log("ONE",Log::ERROR,oss);
-            }
+            NebulaLog::log("ONE",Log::ERROR,oss);
 
             return -1;
         }
@@ -130,17 +127,14 @@ public:
 
             if (result == NULL)
             {
-                if (log != 0)
-                {
-                    ostringstream   oss;
-                    const char *    err_msg = mysql_error(db);
-                    int             err_num = mysql_errno(db);
+                ostringstream   oss;
+                const char *    err_msg = mysql_error(db);
+                int             err_num = mysql_errno(db);
 
-                    oss << "SQL command was: " << c_str;
-                    oss << ", error " << err_num << " : " << err_msg;
+                oss << "SQL command was: " << c_str;
+                oss << ", error " << err_num << " : " << err_msg;
 
-                    NebulaLog::log("ONE",Log::ERROR,oss);
-                }
+                NebulaLog::log("ONE",Log::ERROR,oss);
 
                 return -1;
             }
