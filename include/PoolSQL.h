@@ -123,6 +123,16 @@ public:
      */
     void clean();
 
+    /**
+     *  Dumps the pool in XML format. A filter can be also added to the
+     *  query
+     *  @param oss the output stream to dump the pool contents
+     *  @param where filter for the objects, defaults to all
+     *
+     *  @return 0 on success
+     */
+    virtual int dump(ostringstream& oss, const string& where) = 0;
+
 protected:
 
     /**
