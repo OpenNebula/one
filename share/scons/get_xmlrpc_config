@@ -1,8 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2009, Distributed Systems Architecture Group, Universidad   #
-# Complutense de Madrid (dsa-research.org)                                   #
+# Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -19,7 +18,8 @@
 
 require 'pp'
 require 'digest/md5'
-require 'fileutils'
+require 'ftools'
+
 
 ###########################################
 # Code to test compilation/linkning flags #
@@ -207,7 +207,7 @@ def gen_test_file(kind)
     #fname="xmlrpc_test.cc"
     full_path=dir+"/"+fname
     
-    FileUtils::mkdir_p(dir)
+    File.makedirs(dir)
     f=open(full_path, "w")
     f.write(TestCode[kind])
     f.close
