@@ -362,6 +362,8 @@ public:
         if (!log_flag)
             remove("test.log");
 
+        NebulaLog::finalize_log_system();
+
         return 0;
     }
 };

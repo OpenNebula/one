@@ -58,6 +58,11 @@ public:
         }
     };
 
+    static void finalize_log_system()
+    {
+        delete logger;
+    }
+
     static void log(
         const char *            module,
         const Log::MessageType  type,
