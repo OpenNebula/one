@@ -18,76 +18,87 @@
 #include <iostream>
 #include <stdlib.h>
 
-#include <TestFixture.h>
-#include <TestAssert.h>
-#include <TestSuite.h>
-#include <TestCaller.h>
-#include <ui/text/TestRunner.h>
-#include <cppunit/extensions/HelperMacros.h>
-#include <unistd.h>
-
 #include "UserPool.h"
-#include "SqliteDB.h"
+#include "PoolTest.h"
 
 using namespace std;
 
 /* ************************************************************************* */
 /* ************************************************************************* */
 
-class UserPoolTest : public CppUnit::TestFixture
+const string usernames[] = { "A user", "B user", "C user", "D user", "E user" };
+const string passwords[] = { "A pass", "B pass", "C pass", "D pass", "E pass" };
+
+class UserPoolTest : public PoolTest
 {
     CPPUNIT_TEST_SUITE (UserPoolTest);
-    CPPUNIT_TEST (sha1_digest);
-    CPPUNIT_TEST (initial_user);
-    CPPUNIT_TEST (authenticate);
+
+    // Not all tests from PoolTest can be used. Because
+    // of the initial user added to the DB, the oid_assignment would fail.
     CPPUNIT_TEST (get_from_cache);
     CPPUNIT_TEST (get_from_db);
+    CPPUNIT_TEST (wrong_get);
     CPPUNIT_TEST (drop_and_get);
+
+    CPPUNIT_TEST (sha1_digest);
+    CPPUNIT_TEST (split_secret);
+    CPPUNIT_TEST (initial_user);
+    CPPUNIT_TEST (authenticate);
+    CPPUNIT_TEST (get_using_name);
+    CPPUNIT_TEST (wrong_get_name);
     CPPUNIT_TEST (update);
     CPPUNIT_TEST (dump);
+
     CPPUNIT_TEST_SUITE_END ();
 
-private:
-    UserPool * pool;
-    SqlDB * db;
+protected:
 
-    User* user;
+    string database_name()
+    {
+        return "user_pool_test";
+    };
 
+    void bootstrap(SqlDB* db)
+    {
+        UserPool::bootstrap(db);
+    };
+
+    PoolSQL* create_pool(SqlDB* db)
+    {
+        return new UserPool(db);
+    };
+
+    int allocate(int index)
+    {
+        int oid;
+        ((UserPool*)pool)->allocate(&oid, usernames[index], passwords[index], true);
+        return oid;
+    };
+
+    void check(int index, PoolObjectSQL* obj)
+    {
+        CPPUNIT_ASSERT( obj != 0 );
+
+        string name = ((User*)obj)->get_username();
+        CPPUNIT_ASSERT( name == usernames[index] );
+        CPPUNIT_ASSERT( ((User*)obj)->get_password() == passwords[index] );
+    };
 
 public:
-    UserPoolTest(){};
 
-    ~UserPoolTest(){};
-
-    void setUp()
+    UserPoolTest()
     {
-        string db_name = "test.db";
-        unlink("test.db");
-
-        db = new SqliteDB(db_name);
-
-
-        UserPool::bootstrap(db);
-
         // The UserPool constructor checks if the DB contains at least
         // one user, and adds one automatically from the ONE_AUTH file.
         // So the ONE_AUTH environment is forced to point to a test one_auth
         // file.
-
         ostringstream oss;
 
         oss << getenv("PWD") << "/one_auth";
         setenv("ONE_AUTH", oss.str().c_str(), 1);
-
-        pool = new UserPool(db);
     };
 
-    void tearDown()
-    {
-        delete db;
-        delete pool;
-        remove ("test.db");
-    };
+    ~UserPoolTest(){};
 
     /* ********************************************************************* */
     /* ********************************************************************* */
@@ -98,6 +109,18 @@ public:
         string sha1 = "773260f433f7fd6f89c1f1bfc32e080fc0748478";
 
         CPPUNIT_ASSERT( sha1 == User::sha1_digest(st) );
+    }
+
+    void split_secret()
+    {
+        string secret = "left_part-user.N  AME:pass--word..SECRET?";
+        string left   = "";
+        string right  = "";
+
+        User::split_secret(secret, left, right);
+
+        CPPUNIT_ASSERT( left  == "left_part-user.N  AME" );
+        CPPUNIT_ASSERT( right == "pass--word..SECRET?" );
     }
 
     void initial_user()
@@ -112,7 +135,7 @@ public:
         // one_auth file at set-up, so the pool should contain the user
         //      one_user_test:password
 
-        user = pool->get(0, false);
+        User* user = (User*) pool->get(0, false);
         CPPUNIT_ASSERT(user != 0);
 
         CPPUNIT_ASSERT( user->get_uid()      == 0 );
@@ -122,164 +145,89 @@ public:
 
     void authenticate()
     {
+        UserPool* user_pool = (UserPool*) pool;
         // There is an initial user, created with the one_auth file:
         //      one_user_test:password
-        string session =
-                "one_user_test:5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8";
-        int oid = pool->authenticate( session );
+        string session="one_user_test:5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8";
+
+        int oid = user_pool->authenticate( session );
         CPPUNIT_ASSERT( oid == 0 );
 
         session = "one_user_test:wrong_password";
-        oid = pool->authenticate( session );
+        oid = user_pool->authenticate( session );
         CPPUNIT_ASSERT( oid == -1 );
 
-        session =
-                "unknown_user:5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8";
-        oid = pool->authenticate( session );
+        session = "unknown_user:5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8";
+        oid = user_pool->authenticate( session );
         CPPUNIT_ASSERT( oid == -1 );
     }
 
-    // Try to allocate two objects, and retrieve them
-    void get_from_cache()
+    void get_using_name()
     {
-        string username_1 = "A user";
-        string username_2 = "B user";
+        int oid_0, oid_1;
 
-        string pass_1     = "A pass";
-        string pass_2     = "B pass";
-
-        int oid_1, oid_2;
-
-        pool->allocate(&oid_1, username_1, pass_1, true);
-        // first element in the pool should have oid=1 (the 0th one is created
-        // by the UserPool constructor)
-        CPPUNIT_ASSERT(oid_1 == 1);
-
-        pool->allocate(&oid_2, username_2, pass_2, true);
-        // second element in the pool should have oid=2
-        CPPUNIT_ASSERT(oid_2 == 2);
-
+        // Allocate two objects
+        oid_0 = allocate(0);
+        oid_1 = allocate(1);
 
         // ---------------------------------
-        user = pool->get(oid_1, false);
-        CPPUNIT_ASSERT(user != 0);
+        // Get first object and check its integrity
+        obj = pool->get(oid_0, false);
+        CPPUNIT_ASSERT( obj != 0 );
+        check(0, obj);
 
-        CPPUNIT_ASSERT( user->get_uid()      == 1 );
-        CPPUNIT_ASSERT( user->get_username() == username_1 );
-        CPPUNIT_ASSERT( user->get_password() == pass_1 );
+        // Get using its name
+        obj = ((UserPool*)pool)->get(usernames[1], true);
+        check(1, obj);
+        obj->unlock();
 
         // ---------------------------------
-        user = pool->get(oid_2, true);
-        CPPUNIT_ASSERT(user != 0);
-
-        CPPUNIT_ASSERT( user->get_uid()      == 2 );
-        CPPUNIT_ASSERT( user->get_username() == username_2 );
-        CPPUNIT_ASSERT( user->get_password() == pass_2 );
-        user->unlock();
-    };
-
-    // Try to allocate two objects, and retrieve them
-    void get_from_db()
-    {
-        string username_1 = "A user";
-        string username_2 = "B user";
-
-        string pass_1     = "A pass";
-        string pass_2     = "B pass";
-
-        int oid_1, oid_2;
-
-        pool->allocate(&oid_1, username_1, pass_1, true);
-        pool->allocate(&oid_2, username_2, pass_2, true);
-
-        string str;
-        // Get the xml representation of the two users
-        string xml_1 = pool->get(oid_1, false)->to_xml(str);
-        string xml_2 = pool->get(oid_2, false)->to_xml(str);
-
-        // Clean the users from the cache, forcing the pool to read them from
-        // the DB when we retrieve them
+        // Clean the cache, forcing the pool to read the objects from the DB
         pool->clean();
 
-        // ---------------------------------
-        user = pool->get(oid_1, false);
-        CPPUNIT_ASSERT(user != 0);
+        // Get first object and check its integrity
+        obj = pool->get(oid_0, false);
+        check(0, obj);
 
-        // The user objects constructed from the data in the DB should be the
-        // same as the previous ones
-        CPPUNIT_ASSERT(user->to_xml(str)    == xml_1);
-
-        CPPUNIT_ASSERT(user->get_uid()      == oid_1);
-        CPPUNIT_ASSERT(user->get_username() == username_1);
-        CPPUNIT_ASSERT(user->get_password() == pass_1);
-
-        // ---------------------------------
-        user = pool->get(oid_2, true);
-        CPPUNIT_ASSERT(user != 0);
-
-        CPPUNIT_ASSERT(user->to_xml(str)    == xml_2);
-
-        CPPUNIT_ASSERT(user->get_uid()      == oid_2);
-        CPPUNIT_ASSERT(user->get_username() == username_2);
-        CPPUNIT_ASSERT(user->get_password() == pass_2);
-        user->unlock();
+        // Get using its name
+        obj = ((UserPool*)pool)->get(usernames[1], true);
+        check(1, obj);
+        obj->unlock();
     };
 
-    void drop_and_get()
+    void wrong_get_name()
     {
-        string username_1 = "A user";
-        string username_2 = "B user";
+        // The pool is empty
+        // Non existing name
+        obj = ((UserPool*)pool)->get("Wrong name", true);
+        CPPUNIT_ASSERT( obj == 0 );
 
-        string pass_1    = "A pass";
-        string pass_2    = "B pass";
+        // Allocate an object
+        allocate(0);
 
-        int oid_1, oid_2;
-
-        pool->allocate(&oid_1, username_1, pass_1, true);
-        pool->allocate(&oid_2, username_2, pass_2, true);
-
-        // Get the first user (A)
-        user = pool->get(oid_1,true);
-        CPPUNIT_ASSERT(user != 0);
-
-        // Delete it
-        pool->drop(user);
-        user->unlock();
-
-        // It should be gone now
-        user = pool->get(oid_1,true);
-        CPPUNIT_ASSERT(user == 0);
-
-        // The cache is cleaned, the user should be also gone from the DB
-        pool->clean();
-        user = pool->get(oid_1,true);
-        CPPUNIT_ASSERT(user == 0);
-
-        // But the other user must be accessible
-        user = pool->get(oid_2,false);
-        CPPUNIT_ASSERT(user != 0);
-    };
+        // Ask again for a non-existing name
+        obj = ((UserPool*)pool)->get("Non existing name", true);
+        CPPUNIT_ASSERT( obj == 0 );
+    }
 
     void update()
     {
-        string username_1 = "A user";
-        string pass_1    = "A pass";
-
-        int oid_1, oid_2;
+        int oid;
+        User* user;
 
         // Allocate some users, to popullate the DB
-        pool->allocate(&oid_2, "someone",   pass_1, true);
-        pool->allocate(&oid_2, "some_user", pass_1, true);
+        allocate(0);
+        allocate(1);
 
         // The user we are interested in
-        pool->allocate(&oid_1, username_1, pass_1, true);
+        oid = allocate(2);
 
         // Some more users...
-        pool->allocate(&oid_2, "not_used",  pass_1, true);
-        pool->allocate(&oid_2, "no_name",   pass_1, true);
+        allocate(3);
+        allocate(4);
 
 
-        user = pool->get(oid_1, true);
+        user = ((UserPool*)pool)->get(oid, true);
 
         // User object should be cached. Let's update its status
         user->disable();
@@ -293,21 +241,21 @@ public:
         int             rc;
         ostringstream   oss;
 
-        oss << "oid = " << oid_1;
+        oss << "oid = " << oid;
 
         rc = pool->search(results,"user_pool", oss.str());
-        
+
         CPPUNIT_ASSERT(rc             == 0);
         CPPUNIT_ASSERT(results.size() == 1);
-        CPPUNIT_ASSERT(results.at(0)  == oid_1);
+        CPPUNIT_ASSERT(results.at(0)  == oid);
 
-        user = pool->get(oid_1,false);
+        user = ((UserPool*)pool)->get(oid,false);
         CPPUNIT_ASSERT( user->isEnabled() == false );
 
         //Now force access to DB
 
         pool->clean();
-        user = pool->get(oid_1,false);
+        user = ((UserPool*)pool)->get(oid,false);
         CPPUNIT_ASSERT( user->isEnabled() == false );
     };
 
@@ -327,29 +275,29 @@ public:
             "</USER_POOL>";
 
 
-        string names[] = {"a", "a name", "a_name", "another name", "user"};
-        string pass[]  = {"p", "pass", "password", "secret", "1234"};
+        string d_names[] = {"a", "a name", "a_name", "another name", "user"};
+        string d_pass[]  = {"p", "pass", "password", "secret", "1234"};
 
         int oid;
 
         for(int i=0; i<5; i++)
         {
-            pool->allocate(&oid, names[i], pass[i], true);
+            ((UserPool*)pool)->allocate(&oid, d_names[i], d_pass[i], true);
         }
 
         ostringstream oss;
-        pool->dump(oss, "");
+        ((UserPool*)pool)->dump(oss, "");
 
         CPPUNIT_ASSERT( oss.str() == xml_result );
 
         // Allocate and delete a new user
-        pool->allocate(&oid, "new name", "new pass", true);
-        user = pool->get(oid, true);
+        ((UserPool*)pool)->allocate(&oid, "new name", "new pass", true);
+        User* user = ((UserPool*)pool)->get(oid, true);
         pool->drop(user);
         user->unlock();
 
         ostringstream new_oss;
-        pool->dump(new_oss, "");
+        ((UserPool*)pool)->dump(new_oss, "");
 
         CPPUNIT_ASSERT( new_oss.str() == xml_result );
     }
@@ -361,8 +309,5 @@ public:
 
 int main(int argc, char ** argv)
 {
-    CppUnit::TextUi::TestRunner runner;
-    runner.addTest( UserPoolTest::suite() );
-    runner.run();
-    return 0;
+    return PoolTest::main(argc, argv, UserPoolTest::suite());
 }
