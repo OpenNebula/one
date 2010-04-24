@@ -258,9 +258,9 @@ void PoolSQL::clean()
         it->second->lock();
 
         delete it->second;
-
-        pool.erase(it);
     }
+
+    pool.clear();
 
     unlock();
 }
