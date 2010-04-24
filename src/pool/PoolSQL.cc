@@ -221,7 +221,7 @@ void PoolSQL::replace()
 
         if ( index == pool.end())
         {
-	    oid_queue.pop();
+            oid_queue.pop();
             break;
         }
 
@@ -238,7 +238,7 @@ void PoolSQL::replace()
 
             pool.erase(index);
 
-	    oid_queue.pop();
+            oid_queue.pop();
             removed = true;
         }
     }

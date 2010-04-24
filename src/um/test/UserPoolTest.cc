@@ -215,39 +215,16 @@ public:
         int oid;
         User* user;
 
-        // Allocate some users, to popullate the DB
-        allocate(0);
-        allocate(1);
-
-        // The user we are interested in
         oid = allocate(2);
-
-        // Some more users...
-        allocate(3);
-        allocate(4);
-
 
         user = ((UserPool*)pool)->get(oid, true);
 
-        // User object should be cached. Let's update its status
         user->disable();
-
         pool->update(user);
+
         user->unlock();
 
-
-        // When the user is updated, there should be only one entry at the DB
-        vector<int>     results;
-        int             rc;
-        ostringstream   oss;
-
-        oss << "oid = " << oid;
-
-        rc = pool->search(results,"user_pool", oss.str());
-
-        CPPUNIT_ASSERT(rc             == 0);
-        CPPUNIT_ASSERT(results.size() == 1);
-        CPPUNIT_ASSERT(results.at(0)  == oid);
+        // Check the cache
 
         user = ((UserPool*)pool)->get(oid,false);
         CPPUNIT_ASSERT( user->isEnabled() == false );
@@ -256,6 +233,8 @@ public:
 
         pool->clean();
         user = ((UserPool*)pool)->get(oid,false);
+
+        CPPUNIT_ASSERT( user != 0 );
         CPPUNIT_ASSERT( user->isEnabled() == false );
     };
 
@@ -274,7 +253,6 @@ public:
             "<PASSWORD>1234</PASSWORD><ENABLED>True</ENABLED></USER>"
             "</USER_POOL>";
 
-
         string d_names[] = {"a", "a name", "a_name", "another name", "user"};
         string d_pass[]  = {"p", "pass", "password", "secret", "1234"};
 
@@ -289,17 +267,6 @@ public:
         ((UserPool*)pool)->dump(oss, "");
 
         CPPUNIT_ASSERT( oss.str() == xml_result );
-
-        // Allocate and delete a new user
-        ((UserPool*)pool)->allocate(&oid, "new name", "new pass", true);
-        User* user = ((UserPool*)pool)->get(oid, true);
-        pool->drop(user);
-        user->unlock();
-
-        ostringstream new_oss;
-        ((UserPool*)pool)->dump(new_oss, "");
-
-        CPPUNIT_ASSERT( new_oss.str() == xml_result );
     }
 };
 
