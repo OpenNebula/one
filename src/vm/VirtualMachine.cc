@@ -64,6 +64,11 @@ VirtualMachine::~VirtualMachine()
         delete history;
     }
 
+    if ( previous_history != 0 )
+    {
+        delete previous_history;
+    }
+
     if ( _log != 0 )
     {
         delete _log;
