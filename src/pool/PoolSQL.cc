@@ -275,11 +275,11 @@ void PoolSQL::clean()
         it->second->lock();
         
         delete it->second;
-        
-        pool.erase(it);
     }
 
-    unlock();   
+    pool.clear();
+
+    unlock();
 }
 
 /* -------------------------------------------------------------------------- */
