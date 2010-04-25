@@ -145,7 +145,7 @@ VirtualNetwork * VirtualNetworkPool::get(const string& name, bool lock)
 {
     ostringstream   oss;
 
-    int oid;
+    int oid = -1;
     int rc;
 
     char * sql_name = db->escape_str(name.c_str());
@@ -166,7 +166,7 @@ VirtualNetwork * VirtualNetworkPool::get(const string& name, bool lock)
 
     db->free_str(sql_name);
 
-    if (rc != 0)
+    if (rc != 0 || oid == -1)
     {
         return 0;
     }
