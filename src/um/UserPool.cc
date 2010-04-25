@@ -61,6 +61,7 @@ UserPool::UserPool(SqlDB * db):PoolSQL(db,User::table)
         string        one_token;
         string        one_name;
         string        one_pass;
+        string        one_auth_file;
 
         const char *  one_auth;
         ifstream      file;
@@ -75,9 +76,9 @@ UserPool::UserPool(SqlDB * db):PoolSQL(db,User::table)
 
             if ((pw_ent != NULL) && (pw_ent->pw_dir != NULL))
             {
-                string one_auth_file = pw_ent->pw_dir;
-
+                one_auth_file = pw_ent->pw_dir;
                 one_auth_file += "/.one/one_auth";
+
                 one_auth = one_auth_file.c_str();
             }
             else
