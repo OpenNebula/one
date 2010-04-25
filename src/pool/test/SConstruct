@@ -42,11 +42,13 @@ main_env.Append(LIBPATH=[
     cwd + '/src/common',
     cwd + '/src/pool',
     cwd + '/src/pool/test',
+    cwd + '/src/nebula',
 ])
 
 main_env.Append(LIBS=[
     'nebula_pool',
     'nebula_common',
+    'nebula_core',
     'cppunit',
     'dl',
     'pthread',
@@ -64,5 +66,5 @@ main_env.Append(CPPFLAGS=[
 main_env.Append(LDFLAGS=["-g "])
 
 main_env.StaticLibrary('test_object', ['TestPoolSQL.cc', 'TestPoolSQL.h'])
-main_env.Program('pool.cc')
+main_env.Program('test','pool.cc')
 #

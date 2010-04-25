@@ -83,5 +83,5 @@ main_env.Append(CPPFLAGS=[
 # Linking flags
 main_env.Append(LDFLAGS=["-g "])
 
-main_env.Program('VirtualMachinePoolTest.cc')
+main_env.Program('test','VirtualMachinePoolTest.cc')
 

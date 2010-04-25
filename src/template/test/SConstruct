@@ -42,11 +42,13 @@ main_env.Append(CPPPATH=[
 main_env.Append(LIBPATH=[
     cwd + '/src/common',
     cwd + '/src/template',
+    cwd + '/src/nebula',
 ])
 
 main_env.Append(LIBS=[
     'nebula_template',
     'nebula_common',
+    'nebula_core',
     'cppunit',
     'dl',
     'pthread',
@@ -62,6 +64,6 @@ main_env.Append(CPPFLAGS=[
 # Linking flags
 main_env.Append(LDFLAGS=["-g "])
 
-main_env.Program('template.cc')
-main_env.Program('template_sql.cc')
+main_env.Program('test','template.cc')
+main_env.Program('test_sql','template_sql.cc')
 #
