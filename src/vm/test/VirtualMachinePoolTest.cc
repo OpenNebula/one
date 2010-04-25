@@ -108,24 +108,24 @@ class VirtualMachinePoolTest : public PoolTest
 
 protected:
 
-    virtual string database_name()
+    string database_name()
     {
         return "vmachine_pool_test";
     };
 
-    virtual void bootstrap(SqlDB* db)
+    void bootstrap(SqlDB* db)
     {
         VirtualMachinePool::bootstrap(db);
     };
 
-    virtual PoolSQL* create_pool(SqlDB* db)
+    PoolSQL* create_pool(SqlDB* db)
     {
         // The VM pool needs a vector containing the vm hooks
         vector<const Attribute *> vm_hooks;
         return new VirtualMachinePool(db, vm_hooks);
     };
 
-    virtual int allocate(int index)
+    int allocate(int index)
     {
         int oid;
         ((VirtualMachinePool*)pool)->allocate(uids[index],
@@ -146,7 +146,25 @@ protected:
         CPPUNIT_ASSERT( ((VirtualMachine*)obj)->get_name() == names[index] );
         CPPUNIT_ASSERT( xml_str == xmls[index]);
     };
+    
+    void set_up_user_pool()
+    {
+        UserPool::bootstrap(db);
+        UserPool * user_pool = new UserPool(db);
+        int uid_1, uid_2;
+        
+        string username_1 = "A user";
+        string username_2 = "B user";
 
+        string pass_1     = "A pass";
+        string pass_2     = "B pass";
+
+        user_pool->allocate(&uid_1, username_1, pass_1, true);
+        user_pool->allocate(&uid_2, username_2, pass_2, true);
+        
+        delete user_pool;
+    };
+    
 public:
     VirtualMachinePoolTest(){};
 
@@ -158,8 +176,8 @@ public:
 
     void update()
     {
-        VirtualMachinePool*  vmp = static_cast<VirtualMachinePool*>(pool);
-        VirtualMachine*      vm;
+        VirtualMachinePool * vmp = static_cast<VirtualMachinePool*>(pool);
+        VirtualMachine *     vm;
         int oid;
 
         string hostname     = "hostname";
@@ -210,13 +228,47 @@ public:
     };
 
     void dump()
-    {
-        // TBD
+    {        
+        VirtualMachinePool * vmp = static_cast<VirtualMachinePool*>(pool);
+        
+        set_up_user_pool();
+
+        ostringstream oss;
+        int oid, rc;
+
+        vmp->allocate(1, templates[0], &oid, false);
+        vmp->allocate(2, templates[1], &oid, true);
+
+        rc = vmp->dump(oss, "");
+        CPPUNIT_ASSERT(rc == 0);
+
+        string result = oss.str();
+        result.replace(152, 10, replacement);
+        result.replace(426, 10, replacement);
+        
+        CPPUNIT_ASSERT( result == xml_dump );
     }
 
     void dump_where()
     {
-        //TBD
+        VirtualMachinePool * vmp = static_cast<VirtualMachinePool*>(pool);
+
+        set_up_user_pool();
+
+        int oid, rc;
+        ostringstream oss;
+        ostringstream where;
+
+        vmp->allocate(1, templates[0], &oid, false);
+        vmp->allocate(2, templates[1], &oid, true);
+        
+        where << "uid < 2";
+        rc = vmp->dump(oss, where.str());
+        CPPUNIT_ASSERT(rc == 0);
+
+        string result = oss.str();
+        result.replace(152, 10, replacement);
+        CPPUNIT_ASSERT( result == xml_dump_where );
     }
 
     void history()
