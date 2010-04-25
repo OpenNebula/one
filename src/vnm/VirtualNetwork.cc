@@ -138,11 +138,11 @@ int VirtualNetwork::select(SqlDB * db)
 
         get_template_attribute("NETWORK_SIZE",nclass);
 
-        if ( nclass == "B" )
+        if ( nclass == "B" || nclass == "b" )
         {
             size = 65534;
         }
-        else if ( nclass == "C" )
+        else if ( nclass == "C" || nclass == "c" )
         {
             size = 254;
         }
@@ -284,11 +284,11 @@ int VirtualNetwork::insert(SqlDB * db)
 
         get_template_attribute("NETWORK_SIZE",nclass);
 
-        if ( nclass == "B" )
+        if ( nclass == "B" || nclass == "b"  )
         {
             size = 65534;
         }
-        else if ( nclass == "C" )
+        else if ( nclass == "C" || nclass == "c"  )
         {
             size = 254;
         }
