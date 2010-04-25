@@ -88,6 +88,8 @@ public:
         return static_cast<TestObjectSQL *>(PoolSQL::get(oid,lock));;
     }
 
+    int dump(std::ostringstream&, const std::string&){return -1;};
+
 private:
 
     TestObjectSQL * create()

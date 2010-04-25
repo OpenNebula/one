@@ -118,7 +118,7 @@ public:
         ostringstream db_bs("CREATE TABLE template (id INTEGER, name TEXT,"
                             " type INTEGER, value TEXT)");
                             
-        db = new SqliteDB(filename , TemplateSQLTest::log);
+        db = new SqliteDB(filename);
         CPPUNIT_ASSERT(db->exec(db_bs)== 0);
     }
 

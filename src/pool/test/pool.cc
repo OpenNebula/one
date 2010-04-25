@@ -214,7 +214,11 @@ public:
 int main(int argc, char ** argv)
 {
     CppUnit::TextUi::TestRunner runner;
+
+    NebulaLog::init_log_system(NebulaLog::FILE, Log::ERROR, "test.log");
     runner.addTest( PoolTest::suite() );
     runner.run();
+    NebulaLog::finalize_log_system();
+        
     return 0;
 }
