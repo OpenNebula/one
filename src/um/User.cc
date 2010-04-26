@@ -113,7 +113,7 @@ int User::insert(SqlDB *db)
 {
     int rc;
 
-    rc = update(db);
+    rc = insert_replace(db, false);
 
     if ( rc != 0 )
     {
@@ -127,6 +127,23 @@ int User::insert(SqlDB *db)
 /* -------------------------------------------------------------------------- */
 
 int User::update(SqlDB *db)
+{
+    int rc;
+
+    rc = insert_replace(db, true);
+
+    if ( rc != 0 )
+    {
+        return rc;
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int User::insert_replace(SqlDB *db, bool replace)
 {
     ostringstream   oss;
 
@@ -153,9 +170,17 @@ int User::update(SqlDB *db)
         goto error_password;
     }
 
-    // Construct the SQL statement to Insert or Replace (effectively, update)
+    // Construct the SQL statement to Insert or Replace
+    if(replace)
+    {
+        oss << "REPLACE";
+    }
+    else
+    {
+        oss << "INSERT";
+    }
 
-    oss << "INSERT OR REPLACE INTO " << table << " "<< db_names <<" VALUES ("
+    oss << " INTO " << table << " "<< db_names <<" VALUES ("
         << oid << ","
         << "'" << sql_username << "',"
         << "'" << sql_password << "',"
