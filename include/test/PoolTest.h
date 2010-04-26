@@ -331,8 +331,8 @@ public:
 
         // When a DB query fails, it tries to log the error.
         // We need to set the log file, otherwise it will end in a dead-lock
-        NebulaLog::init_log_system(NebulaLog::FILE, Log::ERROR, "test.log");
-        NebulaLog::log("Test", Log::ERROR, "Test started");
+        NebulaLog::init_log_system(NebulaLog::FILE, Log::DEBUG, "test.log");
+        NebulaLog::log("Test", Log::INFO, "Test started");
 
 //        CppUnit::TextUi::TestRunner runner_sqlite;
 //        runner_sqlite.addTest( suite );
@@ -346,14 +346,14 @@ public:
         if (sqlite_flag)
         {
             PoolTest::mysql = false;
-            NebulaLog::log("Test", Log::ERROR, "Running Sqlite tests...");
+            NebulaLog::log("Test", Log::INFO, "Running Sqlite tests...");
             cout << "\nRunning Sqlite tests...\n";
         }
 
         if (mysql_flag)
         {
             PoolTest::mysql = true;
-            NebulaLog::log("Test", Log::ERROR, "Running MySQL tests...");
+            NebulaLog::log("Test", Log::INFO, "Running MySQL tests...");
             cout << "\nRunning MySQL tests...\n";
         }
 
