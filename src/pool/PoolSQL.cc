@@ -38,13 +38,12 @@ const unsigned int PoolSQL::MAX_POOL_SIZE = 500;
 
 int PoolSQL::init_cb(void *nil, int num, char **values, char **names)
 {
-    if ( (num<=0) || (values[0] == 0) )
-    {
-        lastOID = -1;
-        return -1;
-    }
+    lastOID = -1;
 
-    lastOID = atoi(values[0]);
+    if ( values[0] != 0 )
+    {
+        lastOID = atoi(values[0]);
+    }
 
     return 0;
 }
