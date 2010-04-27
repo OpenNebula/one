@@ -1,31 +1,31 @@
-/* -------------------------------------------------------------------------- */
-/* Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             */
-/*                                                                            */
-/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
-/* not use this file except in compliance with the License. You may obtain    */
-/* a copy of the License at                                                   */
-/*                                                                            */
-/* http://www.apache.org/licenses/LICENSE-2.0                                 */
-/*                                                                            */
-/* Unless required by applicable law or agreed to in writing, software        */
-/* distributed under the License is distributed on an "AS IS" BASIS,          */
-/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
-/* See the License for the specific language governing permissions and        */
-/* limitations under the License.                                             */
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------ */
+/* Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)           */
+/*                                                                          */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
+/* not use this file except in compliance with the License. You may obtain  */
+/* a copy of the License at                                                 */
+/*                                                                          */
+/* http://www.apache.org/licenses/LICENSE-2.0                               */
+/*                                                                          */
+/* Unless required by applicable law or agreed to in writing, software      */
+/* distributed under the License is distributed on an "AS IS" BASIS,        */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. */
+/* See the License for the specific language governing permissions and      */
+/* limitations under the License.                                           */
+/* -------------------------------------------------------------------------*/
 
 #include "TemplateSQL.h"
 #include <iostream>
 #include <sstream>
 
-/* ************************************************************************** */
-/* SQL Template                                                               */
-/* ************************************************************************** */
+/* ************************************************************************ */
+/* SQL Template                                                             */
+/* ************************************************************************ */
 
 const char * TemplateSQL::db_names = "(id,name,type,value)";
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
 
 int TemplateSQL::insert_cb(void *nil, int num, char **values, char **names)
 {
@@ -46,7 +46,7 @@ int TemplateSQL::insert_cb(void *nil, int num, char **values, char **names)
     return 0;
 }
 
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------ */
 
 int TemplateSQL::insert(SqlDB * db)
 {
@@ -54,7 +54,8 @@ int TemplateSQL::insert(SqlDB * db)
     int             rc;
 
     // Get next id from the DB table
-    set_callback(static_cast<Callbackable::Callback>(&TemplateSQL::insert_cb));
+    set_callback(
+           static_cast<Callbackable::Callback>(&TemplateSQL::insert_cb));
 
     oss << "SELECT MAX(id) FROM " << table;
 
@@ -189,7 +190,8 @@ int TemplateSQL::select_cb(void *nil, int num, char **values, char **names)
     return 0;
 }
 
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
 
 int TemplateSQL::select(SqlDB * db)
 {
@@ -210,8 +212,8 @@ int TemplateSQL::select(SqlDB * db)
     return rc;
 }
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
 
 int TemplateSQL::drop(SqlDB * db)
 {
@@ -227,8 +229,8 @@ int TemplateSQL::drop(SqlDB * db)
     return db->exec(oss);
 }
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
 
 int TemplateSQL::replace_attribute(SqlDB * db, Attribute * attribute)
 {
@@ -285,8 +287,8 @@ int TemplateSQL::replace_attribute(SqlDB * db, Attribute * attribute)
     return insert_attribute(db,attribute);
 }
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
 
 int TemplateSQL::insert_attribute(SqlDB * db, Attribute * attribute)
 {
@@ -335,5 +337,5 @@ int TemplateSQL::insert_attribute(SqlDB * db, Attribute * attribute)
     return rc;
 }
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */

@@ -1,18 +1,19 @@
-/* -------------------------------------------------------------------------- */
-/* Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             */
-/*                                                                            */
-/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
-/* not use this file except in compliance with the License. You may obtain    */
-/* a copy of the License at                                                   */
-/*                                                                            */
-/* http://www.apache.org/licenses/LICENSE-2.0                                 */
-/*                                                                            */
-/* Unless required by applicable law or agreed to in writing, software        */
-/* distributed under the License is distributed on an "AS IS" BASIS,          */
-/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
-/* See the License for the specific language governing permissions and        */
-/* limitations under the License.                                             */
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------*/
+/* Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)          */
+/*                                                                         */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may */
+/* not use this file except in compliance with the License. You may obtain */
+/* a copy of the License at                                                */
+/*                                                                         */
+/* http://www.apache.org/licenses/LICENSE-2.0                              */
+/*                                                                         */
+/* Unless required by applicable law or agreed to in writing, software     */
+/* distributed under the License is distributed on an "AS IS" BASIS,       */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.*/
+/* See the License for the specific language governing permissions and     */
+/* limitations under the License.                                          */
+/* ------------------------------------------------------------------------*/
+
 #include <limits.h>
 #include <string.h>
 
@@ -22,9 +23,9 @@
 
 #include "HostShare.h"
 
-/* ************************************************************************** */
-/* HostShare :: Constructor/Destructor                                  */
-/* ************************************************************************** */
+/* ************************************************************************ */
+/* HostShare :: Constructor/Destructor                                      */
+/* ************************************************************************ */
 
 HostShare::HostShare(
         int     _hsid,
@@ -49,9 +50,9 @@ HostShare::HostShare(
 {
 }
 
-/* ************************************************************************** */
-/* HostShare :: Database Access Functions                               */
-/* ************************************************************************** */
+/* ************************************************************************ */
+/* HostShare :: Database Access Functions                                   */
+/* ************************************************************************ */
 
 const char * HostShare::table = "host_shares";
 
@@ -70,8 +71,8 @@ const char * HostShare::db_bootstrap = "CREATE TABLE host_shares ("
     "used_disk INTEGER,  used_mem  INTEGER, used_cpu  INTEGER,"
     "running_vms INTEGER)";
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
 
 int HostShare::select_cb(void * nil, int num, char **values, char **names)
 {
@@ -117,8 +118,8 @@ int HostShare::select_cb(void * nil, int num, char **values, char **names)
     return 0;
 }
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
 
 int HostShare::dump(ostringstream& oss,
                     int            num,
@@ -165,8 +166,8 @@ int HostShare::dump(ostringstream& oss,
     return 0;
 }
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
 
 int HostShare::select(SqlDB * db)
 {
@@ -229,8 +230,8 @@ int HostShare::update(SqlDB * db)
     return rc;
 }
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
 
 int HostShare::drop(SqlDB * db)
 {
@@ -241,9 +242,9 @@ int HostShare::drop(SqlDB * db)
     return db->exec(oss);
 }
 
-/* ************************************************************************** */
-/* HostShare :: Misc                                                    */
-/* ************************************************************************** */
+/* ************************************************************************ */
+/* HostShare :: Misc                                                        */
+/* ************************************************************************ */
 
 ostream& operator<<(ostream& os, HostShare& hs)
 {
@@ -254,8 +255,8 @@ ostream& operator<<(ostream& os, HostShare& hs)
     return os;
 };
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
 
 string& HostShare::to_xml(string& xml) const
 {
@@ -284,8 +285,8 @@ string& HostShare::to_xml(string& xml) const
     return xml;
 }
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
 
 string& HostShare::to_str(string& str) const
 {
@@ -312,5 +313,5 @@ string& HostShare::to_str(string& str) const
     return str;
 }
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
