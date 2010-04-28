@@ -197,7 +197,8 @@ public:
         int oid_1 = allocate(0);
 
         Host* host = ((HostPool*)pool)->get(oid_1, true);
-
+        CPPUNIT_ASSERT(host!=0);
+        
         // Host object should be cached. Let's update its status
         host->set_state(Host::DISABLED);
         pool->update(host);
@@ -290,6 +291,7 @@ public:
             if (i >=8 )
             {
                 host = hp->get(oid, false);
+                CPPUNIT_ASSERT(host!=0);
                 host->disable();
                 hp->update(host);
             }
