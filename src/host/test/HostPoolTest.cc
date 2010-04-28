@@ -134,6 +134,7 @@ class HostPoolTest : public PoolTest
     CPPUNIT_TEST (dump);
     CPPUNIT_TEST (dump_where);
     CPPUNIT_TEST (discover);
+    CPPUNIT_TEST (duplicates);
 
     CPPUNIT_TEST_SUITE_END ();
 
@@ -194,18 +195,21 @@ public:
 
     void update()
     {
+        HostPool * hp = static_cast<HostPool *>(pool);
         int oid_1 = allocate(0);
 
-        Host* host = ((HostPool*)pool)->get(oid_1, true);
+        Host* host = hp->get(oid_1, true);
         CPPUNIT_ASSERT(host!=0);
-        
+
         // Host object should be cached. Let's update its status
         host->set_state(Host::DISABLED);
         pool->update(host);
 
         host->unlock();
 
-        host = ((HostPool*)pool)->get(oid_1,false);
+        host = hp->get(oid_1,false);
+
+        CPPUNIT_ASSERT( host != 0 );
         CPPUNIT_ASSERT( host->get_state() == Host::DISABLED );
 
         //Now force access to DB
@@ -215,6 +219,41 @@ public:
 
         CPPUNIT_ASSERT( host->get_state() == Host::DISABLED );
     };
+
+   void duplicates()
+    {
+        int rc, oid_0, oid_1;
+        HostPool * hp = static_cast<HostPool *>(pool);
+        Host * host;
+
+        string tm_mad_2 = "another_tm_mad";
+
+
+        // If we try to allocate two hosts with the same name and drivers,
+        // should fail
+        rc = hp->allocate(&oid_0, names[0], im_mad, vmm_mad, tm_mad);
+        CPPUNIT_ASSERT( oid_0 == 0 );
+        CPPUNIT_ASSERT( rc    == oid_0 );
+
+        rc = hp->allocate(&oid_1, names[0], im_mad, vmm_mad, tm_mad);
+        CPPUNIT_ASSERT( oid_1 == -1 );
+        CPPUNIT_ASSERT( rc    == oid_1 );
+
+        // But if the drivers change, the hostname can be repeated
+        rc = hp->allocate(&oid_1, names[0], im_mad, vmm_mad, tm_mad_2);
+        CPPUNIT_ASSERT( oid_1 == 1 );
+        CPPUNIT_ASSERT( rc    == oid_1 );
+
+        // Get the hosts and check them
+        host = hp->get(oid_0, false);
+        CPPUNIT_ASSERT( host != 0 );
+        CPPUNIT_ASSERT( host->get_tm_mad() == tm_mad );
+
+        host = hp->get(oid_1, false);
+        CPPUNIT_ASSERT( host != 0 );
+        CPPUNIT_ASSERT( host->get_tm_mad() == tm_mad_2 );
+    }
+
 
     void dump()
     {
@@ -306,6 +345,10 @@ public:
         {
             CPPUNIT_ASSERT(it->first  == i);
             CPPUNIT_ASSERT(it->second == im_mad);
+
+            host = hp->get(i, false);
+            CPPUNIT_ASSERT(host!=0);
+            CPPUNIT_ASSERT(host->isEnabled());
         }
     }
 };
