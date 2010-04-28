@@ -197,6 +197,14 @@ private:
      *    @return 0 on success
      */
     int drop(SqlDB * db);
+    
+    /**
+     *  Execute an INSERT or REPLACE Sql query. 
+     *    @param db The SQL DB
+     *    @param replace Execute an INSERT or a REPLACE	
+     *    @return 0 one success
+    */    
+    int insert_replace(SqlDB *db, bool replace);
 
     /**
      *  Callback function to unmarshall a HostShare object (HostShare::select)

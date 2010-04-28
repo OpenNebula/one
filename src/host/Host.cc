@@ -146,17 +146,31 @@ int Host::insert(SqlDB *db)
     map<int,HostShare *>::iterator iter;
 
     // Set up the template ID, to insert it
-
     if ( host_template.id == -1 )
     {
         host_template.id = oid;
     }
 
     // Set up the share ID, to insert it
-
     if ( host_share.hsid == -1 )
     {
     	host_share.hsid = oid;
+    }
+    
+    // Update the Template
+    rc = host_template.insert(db);
+
+    if ( rc != 0 )
+    {
+        return rc;
+    }
+
+    // Update the HostShare
+    rc = host_share.insert(db);
+
+    if ( rc != 0 )
+    {
+        return rc;
     }
 
     //Insert the Host and its template
@@ -170,10 +184,45 @@ int Host::insert(SqlDB *db)
     return 0;
 }
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
 
 int Host::update(SqlDB *db)
+{
+    int    rc;
+
+    // Update the Template
+    rc = host_template.update(db);
+
+    if ( rc != 0 )
+    {
+        return rc;
+    }
+
+    // Update the HostShare
+    rc = host_share.update(db);
+
+    if ( rc != 0 )
+    {
+        return rc;
+    }
+    
+    rc = insert_replace(db, true);
+    
+    if ( rc != 0 )
+    {
+        return rc;
+    }
+    
+    return 0;
+
+ 
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int Host::insert_replace(SqlDB *db, bool replace)
 {
     ostringstream   oss;
 
@@ -183,26 +232,8 @@ int Host::update(SqlDB *db)
     char * sql_im_mad_name;
     char * sql_tm_mad_name;
     char * sql_vmm_mad_name;
-
-    // Update the Template
-
-    rc = host_template.update(db);
-
-    if ( rc != 0 )
-    {
-        return rc;
-    }
-
-    // Update the HostShare
-
-    rc = host_share.update(db);
-
-    if ( rc != 0 )
-    {
-        return rc;
-    }
-
-    // Update the Host
+    
+   // Update the Host
 
     sql_hostname = db->escape_str(hostname.c_str());
 
@@ -231,10 +262,19 @@ int Host::update(SqlDB *db)
     {
         goto error_vmm;
     }
+    
+    if(replace)
+    {
+        oss << "REPLACE";
+    }
+    else
+    {
+        oss << "INSERT";
+    }
 
-    // Construct the SQL statement to Insert or Replace (effectively, update)
+    // Construct the SQL statement to Insert or Replace 
 
-    oss << "INSERT OR REPLACE INTO " << table << " "<< db_names <<" VALUES ("
+    oss <<" INTO "<< table <<" "<< db_names <<" VALUES ("
         << oid << ","
         << "'" << sql_hostname << "',"
         << state << ","

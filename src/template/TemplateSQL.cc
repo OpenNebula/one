@@ -66,14 +66,25 @@ int TemplateSQL::insert(SqlDB * db)
         return -1;
     }
 
-    rc = update(db);
+    rc = insert_replace(db, false);
 
     return rc;
 }
 
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------ */
 
 int TemplateSQL::update(SqlDB * db)
+{
+    int             rc;
+    
+    rc = insert_replace(db, true);
+
+    return rc;       
+}
+
+/* ------------------------------------------------------------------------ */
+
+int TemplateSQL::insert_replace(SqlDB *db, bool replace)
 {
     multimap<string,Attribute *>::iterator  it;
     ostringstream                           oss;
@@ -82,7 +93,9 @@ int TemplateSQL::update(SqlDB * db)
     char *                                  sql_attr;
     Attribute::AttributeType                atype;
 
-    for(it=attributes.begin(),oss.str("");it!=attributes.end();it++,oss.str(""))
+    for(it=attributes.begin(),oss.str("");
+        it!=attributes.end();
+        it++,oss.str(""))
     {
         if ( it->second == 0 )
         {
@@ -105,8 +118,17 @@ int TemplateSQL::update(SqlDB * db)
         {
             continue;
         }
+        
+        if(replace)
+        {
+            oss << "REPLACE";
+        }
+        else
+        {
+            oss << "INSERT";
+        }
 
-        oss << "INSERT OR REPLACE INTO " << table << " " << db_names
+        oss << " INTO " << table << " " << db_names
             << " VALUES (" << id << ",'" << it->first << "',"<< atype <<",'"
             << sql_attr << "')";
 
@@ -129,8 +151,8 @@ error_sql:
 }
 
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
 
 int TemplateSQL::select_cb(void *nil, int num, char **values, char **names)
 {

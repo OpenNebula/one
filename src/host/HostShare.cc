@@ -192,39 +192,55 @@ int HostShare::select(SqlDB * db)
     return rc;
 }
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
 
 int HostShare::insert(SqlDB * db)
 {
     int rc;
 
-    rc = update(db);
+    rc = insert_replace(db, false);
 
-    if ( rc != 0 )
-    {
-        return rc;
-    }
-
-    return 0;
+    return rc;
 }
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
 
 int HostShare::update(SqlDB * db)
 {
-    ostringstream   oss;
     int             rc;
 
-    oss << "INSERT OR REPLACE INTO " << table << " "<< db_names <<" VALUES ("
+    rc = insert_replace(db, true);
+
+    return rc;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int HostShare::insert_replace(SqlDB *db, bool replace)
+{
+    ostringstream   oss;
+    int             rc;
+    
+    if(replace)
+    {
+        oss << "REPLACE";
+    }
+    else
+    {
+        oss << "INSERT";
+    }
+     
+    oss << " INTO " << table << " "<< db_names <<" VALUES ("
         << hsid << ","
         << disk_usage <<","<< mem_usage <<","<< cpu_usage<< ","
         << max_disk   <<","<< max_mem   <<","<< max_cpu  << ","
         << free_disk  <<","<< free_mem  <<","<< free_cpu << ","
         << used_disk  <<","<< used_mem  <<","<< used_cpu << ","
         << running_vms<< ")";
-
+        
     rc = db->exec(oss);
 
     return rc;
