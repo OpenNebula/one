@@ -274,7 +274,7 @@ public:
     {
         cout << "Options:\n";
         cout << "    -h  --help         Show this help\n"
-                "    -s  --sqlite       Run Sqlite tests\n"
+                "    -s  --sqlite       Run Sqlite tests (default)\n"
                 "    -m  --mysql        Run MySQL tests\n"
                 "    -l  --log          Keep the log file, test.log\n";
     }
@@ -291,8 +291,7 @@ public:
     {
 
         // Option flags
-        bool sqlite_flag = false;
-        bool mysql_flag  = false;
+        bool sqlite_flag = true;
         bool log_flag    = false;
 
         // Long options
@@ -308,11 +307,8 @@ public:
         while ((c = getopt_long (argc, argv, "smlh", long_opt, NULL)) != -1)
             switch (c)
             {
-                case 's':
-                    sqlite_flag = true;
-                    break;
                 case 'm':
-                    mysql_flag = true;
+                    sqlite_flag = false;
                     break;
                 case 'l':
                     log_flag = true;
@@ -322,23 +318,11 @@ public:
                     return 0;
             }
 
-        // If not specified, both sqlite and mysql tests will be run
-        if ( ! (sqlite_flag || mysql_flag) )
-        {
-            sqlite_flag = mysql_flag = true;
-        }
-
 
         // When a DB query fails, it tries to log the error.
         // We need to set the log file, otherwise it will end in a dead-lock
-        NebulaLog::init_log_system(NebulaLog::FILE, Log::DEBUG, "test.log");
-        NebulaLog::log("Test", Log::INFO, "Test started");
-
-//        CppUnit::TextUi::TestRunner runner_sqlite;
-//        runner_sqlite.addTest( suite );
-
-//        CppUnit::TextUi::TestRunner runner_mysql;
-//        runner_mysql.addTest( suite );
+        NebulaLog::init_log_system(NebulaLog::FILE, Log::ERROR, "test.log");
+        NebulaLog::log("Test", Log::ERROR, "Test started");
 
         CppUnit::TextUi::TestRunner runner;
         runner.addTest( suite );
@@ -346,14 +330,13 @@ public:
         if (sqlite_flag)
         {
             PoolTest::mysql = false;
-            NebulaLog::log("Test", Log::INFO, "Running Sqlite tests...");
+            NebulaLog::log("Test", Log::ERROR, "Running Sqlite tests...");
             cout << "\nRunning Sqlite tests...\n";
         }
-
-        if (mysql_flag)
+        else
         {
             PoolTest::mysql = true;
-            NebulaLog::log("Test", Log::INFO, "Running MySQL tests...");
+            NebulaLog::log("Test", Log::ERROR, "Running MySQL tests...");
             cout << "\nRunning MySQL tests...\n";
         }
 
