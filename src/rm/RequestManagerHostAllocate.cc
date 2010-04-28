@@ -62,7 +62,7 @@ void RequestManager::HostAllocate::execute(
                                        im_mad_name, 
                                        vmm_mad_name,
                                        tm_mad_name);                         
-    if ( rc != 0 )                             
+    if ( rc == -1 )                             
     {                                            
         goto error_host_allocate;                     
     }
