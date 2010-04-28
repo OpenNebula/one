@@ -41,7 +41,7 @@ int HostPool::allocate (
 
     *oid = PoolSQL::allocate(host);
 
-    return 0;
+    return *oid;
 }
 
 /* -------------------------------------------------------------------------- */

@@ -43,7 +43,7 @@ public:
     /**
      *  Function to allocate a new Host object
      *    @param oid the id assigned to the Host
-     *    @return 0 on success
+     *    @return the oid assigned to the object or -1 in case of failure
      */
     int allocate (
         int *  oid,

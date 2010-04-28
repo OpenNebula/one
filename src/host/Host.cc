@@ -154,9 +154,9 @@ int Host::insert(SqlDB *db)
     // Set up the share ID, to insert it
     if ( host_share.hsid == -1 )
     {
-    	host_share.hsid = oid;
+        host_share.hsid = oid;
     }
-    
+
     // Update the Template
     rc = host_template.insert(db);
 
@@ -170,14 +170,18 @@ int Host::insert(SqlDB *db)
 
     if ( rc != 0 )
     {
+        host_template.drop(db);
         return rc;
     }
 
-    //Insert the Host and its template
+    //Insert the Host
     rc = insert_replace(db, false);
 
     if ( rc != 0 )
     {
+        host_template.drop(db);
+        host_share.drop(db);
+
         return rc;
     }
 
@@ -206,17 +210,17 @@ int Host::update(SqlDB *db)
     {
         return rc;
     }
-    
+
     rc = insert_replace(db, true);
-    
+
     if ( rc != 0 )
     {
         return rc;
     }
-    
+
     return 0;
 
- 
+
 }
 
 /* ------------------------------------------------------------------------ */
@@ -232,7 +236,7 @@ int Host::insert_replace(SqlDB *db, bool replace)
     char * sql_im_mad_name;
     char * sql_tm_mad_name;
     char * sql_vmm_mad_name;
-    
+
    // Update the Host
 
     sql_hostname = db->escape_str(hostname.c_str());
@@ -262,7 +266,7 @@ int Host::insert_replace(SqlDB *db, bool replace)
     {
         goto error_vmm;
     }
-    
+
     if(replace)
     {
         oss << "REPLACE";
@@ -272,7 +276,7 @@ int Host::insert_replace(SqlDB *db, bool replace)
         oss << "INSERT";
     }
 
-    // Construct the SQL statement to Insert or Replace 
+    // Construct the SQL statement to Insert or Replace
 
     oss <<" INTO "<< table <<" "<< db_names <<" VALUES ("
         << oid << ","
