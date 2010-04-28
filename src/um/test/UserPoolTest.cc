@@ -29,6 +29,28 @@ using namespace std;
 const string usernames[] = { "A user", "B user", "C user", "D user", "E user" };
 const string passwords[] = { "A pass", "B pass", "C pass", "D pass", "E pass" };
 
+const string dump_result =
+    "<USER_POOL><USER><ID>0</ID><NAME>one_user_test</NAME>"
+    "<PASSWORD>5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8</PASSWORD>"
+    "<ENABLED>True</ENABLED></USER><USER><ID>1</ID><NAME>a</NAME>"
+    "<PASSWORD>p</PASSWORD><ENABLED>True</ENABLED></USER><USER>"
+    "<ID>2</ID><NAME>a name</NAME><PASSWORD>pass</PASSWORD>"
+    "<ENABLED>True</ENABLED></USER><USER><ID>3</ID><NAME>a_name</NAME>"
+    "<PASSWORD>password</PASSWORD><ENABLED>True</ENABLED></USER><USER>"
+    "<ID>4</ID><NAME>another name</NAME><PASSWORD>secret</PASSWORD>"
+    "<ENABLED>True</ENABLED></USER><USER><ID>5</ID><NAME>user</NAME>"
+    "<PASSWORD>1234</PASSWORD><ENABLED>True</ENABLED></USER>"
+    "</USER_POOL>";
+
+const string dump_where_result =
+    "<USER_POOL><USER><ID>1</ID><NAME>a</NAME>"
+    "<PASSWORD>p</PASSWORD><ENABLED>True</ENABLED></USER><USER>"
+    "<ID>2</ID><NAME>a name</NAME><PASSWORD>pass</PASSWORD>"
+    "<ENABLED>True</ENABLED></USER><USER><ID>3</ID><NAME>a_name</NAME>"
+    "<PASSWORD>password</PASSWORD><ENABLED>True</ENABLED></USER><USER>"
+    "<ID>4</ID><NAME>another name</NAME><PASSWORD>secret</PASSWORD>"
+    "<ENABLED>True</ENABLED></USER></USER_POOL>";
+
 class UserPoolTest : public PoolTest
 {
     CPPUNIT_TEST_SUITE (UserPoolTest);
@@ -47,7 +69,9 @@ class UserPoolTest : public PoolTest
     CPPUNIT_TEST (get_using_name);
     CPPUNIT_TEST (wrong_get_name);
     CPPUNIT_TEST (update);
+    CPPUNIT_TEST (duplicates);
     CPPUNIT_TEST (dump);
+    CPPUNIT_TEST (dump_where);
 
     CPPUNIT_TEST_SUITE_END ();
 
@@ -238,21 +262,29 @@ public:
         CPPUNIT_ASSERT( user->isEnabled() == false );
     };
 
+    void duplicates()
+    {
+        int rc, oid;
+        UserPool * up = static_cast<UserPool *>(pool);
+
+        // Allocate a user.
+        rc = up->allocate(&oid, usernames[0], passwords[0], true);
+        CPPUNIT_ASSERT( oid == 1 );
+        CPPUNIT_ASSERT( oid == rc );
+
+        // Try to allocate twice the same user, should fail
+        rc = up->allocate(&oid, usernames[0], passwords[0], true);
+        CPPUNIT_ASSERT( rc  == -1 );
+        CPPUNIT_ASSERT( oid == rc );
+
+        // Try again, with different password
+        rc = up->allocate(&oid, usernames[0], passwords[1], true);
+        CPPUNIT_ASSERT( rc  == -1 );
+        CPPUNIT_ASSERT( oid == rc );
+    }
+
     void dump()
     {
-        string xml_result =
-            "<USER_POOL><USER><ID>0</ID><NAME>one_user_test</NAME>"
-            "<PASSWORD>5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8</PASSWORD>"
-            "<ENABLED>True</ENABLED></USER><USER><ID>1</ID><NAME>a</NAME>"
-            "<PASSWORD>p</PASSWORD><ENABLED>True</ENABLED></USER><USER>"
-            "<ID>2</ID><NAME>a name</NAME><PASSWORD>pass</PASSWORD>"
-            "<ENABLED>True</ENABLED></USER><USER><ID>3</ID><NAME>a_name</NAME>"
-            "<PASSWORD>password</PASSWORD><ENABLED>True</ENABLED></USER><USER>"
-            "<ID>4</ID><NAME>another name</NAME><PASSWORD>secret</PASSWORD>"
-            "<ENABLED>True</ENABLED></USER><USER><ID>5</ID><NAME>user</NAME>"
-            "<PASSWORD>1234</PASSWORD><ENABLED>True</ENABLED></USER>"
-            "</USER_POOL>";
-
         string d_names[] = {"a", "a name", "a_name", "another name", "user"};
         string d_pass[]  = {"p", "pass", "password", "secret", "1234"};
 
@@ -266,7 +298,28 @@ public:
         ostringstream oss;
         ((UserPool*)pool)->dump(oss, "");
 
-        CPPUNIT_ASSERT( oss.str() == xml_result );
+        CPPUNIT_ASSERT( oss.str() == dump_result );
+    }
+
+    void dump_where()
+    {
+        string d_names[] = {"a", "a name", "a_name", "another name", "user"};
+        string d_pass[]  = {"p", "pass", "password", "secret", "1234"};
+
+        int oid;
+
+        for(int i=0; i<5; i++)
+        {
+            ((UserPool*)pool)->allocate(&oid, d_names[i], d_pass[i], true);
+        }
+
+        // Note: second parameter of dump is the WHERE constraint. The "order
+        // by" is a dirty fix (SQL injection, actually) because MySQL orders the
+        // results by user_name
+        ostringstream oss;
+        ((UserPool*)pool)->dump(oss, "user_name LIKE 'a%' ORDER BY oid");
+
+        CPPUNIT_ASSERT( oss.str() == dump_where_result );
     }
 };
 
