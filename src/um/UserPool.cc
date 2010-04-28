@@ -147,10 +147,13 @@ int UserPool::allocate (
 
     *oid = PoolSQL::allocate(user);
 
-    // Add the user to the map of known_users
-    known_users.insert(make_pair(username,*oid));
+    if (*oid != -1)
+    {
+        // Add the user to the map of known_users
+        known_users.insert(make_pair(username,*oid));
+    }
 
-    return 0;
+    return *oid;
 }
 
 /* -------------------------------------------------------------------------- */

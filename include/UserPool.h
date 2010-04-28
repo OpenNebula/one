@@ -36,14 +36,14 @@ class UserPool : public PoolSQL
 {
 public:
 
-	UserPool(SqlDB * db);
+    UserPool(SqlDB * db);
 
     ~UserPool(){};
 
     /**
      *  Function to allocate a new User object
      *    @param oid the id assigned to the User
-     *    @return 0 on success
+     *    @return the oid assigned to the object or -1 in case of failure
      */
     int allocate (
         int *  oid,
