@@ -434,7 +434,7 @@ int LibVirtDriver::deployment_description(
 
                 if ( !passwd.empty() )
                 {
-                    file << " password='" << passwd << "'";
+                    file << " passwd='" << passwd << "'";
                 }
 
                 if ( !keymap.empty() )
