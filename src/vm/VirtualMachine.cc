@@ -304,14 +304,14 @@ int VirtualMachine::insert(SqlDB * db)
     // Insert the template first, so we get a valid template ID. Then the VM
     // ------------------------------------------------------------------------
 
-    rc = vm_template.insert(db);
+    rc = vm_template.insert_replace(db, false);
 
     if ( rc != 0 )
     {
         goto error_template;
     }
 
-    rc = update(db);
+    rc = insert_replace(db, false);
 
     if ( rc != 0 )
     {
@@ -336,10 +336,22 @@ error_leases:
     return -1;
 }
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
 
 int VirtualMachine::update(SqlDB * db)
+{
+    int             rc;
+
+    rc = insert_replace(db, true);
+
+    return rc;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int VirtualMachine::insert_replace(SqlDB *db, bool replace)
 {
     ostringstream   oss;
     int             rc;
@@ -361,8 +373,17 @@ int VirtualMachine::update(SqlDB * db)
        db->free_str(sql_deploy_id);
        return -1;
     }
-
-    oss << "INSERT OR REPLACE INTO " << table << " "<< db_names <<" VALUES ("<<
+    
+    if(replace)
+    {
+        oss << "REPLACE";
+    }
+    else
+    {
+        oss << "INSERT";
+    }
+    
+    oss << " INTO " << table << " "<< db_names <<" VALUES ("<<
         oid << "," <<
         uid << "," <<
         "'" << sql_name << "'," <<
