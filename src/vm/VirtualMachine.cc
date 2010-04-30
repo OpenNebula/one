@@ -304,7 +304,7 @@ int VirtualMachine::insert(SqlDB * db)
     // Insert the template first, so we get a valid template ID. Then the VM
     // ------------------------------------------------------------------------
 
-    rc = vm_template.insert_replace(db, false);
+    rc = vm_template.insert(db);
 
     if ( rc != 0 )
     {
