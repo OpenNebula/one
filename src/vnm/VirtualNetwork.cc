@@ -157,11 +157,11 @@ int VirtualNetwork::select(SqlDB * db)
             size = default_size;
         }
 
-        leases = new RangedLeases::RangedLeases(db,
-                                                oid,
-                                                size,
-                                                mac_prefix,
-                                                network_address);
+        leases = new RangedLeases(db,
+                                  oid,
+                                  size,
+                                  mac_prefix,
+                                  network_address);
     }
     else if(type == FIXED)
     {
@@ -304,11 +304,11 @@ int VirtualNetwork::insert(SqlDB * db)
             size = default_size;
         }
 
-        leases = new RangedLeases::RangedLeases(db,
-                                                oid,
-                                                size,
-                                                mac_prefix,
-                                                naddr);
+        leases = new RangedLeases(db,
+                                  oid,
+                                  size,
+                                  mac_prefix,
+                                  naddr);
     }
     else if(type == VirtualNetwork::FIXED)
     {
@@ -316,10 +316,10 @@ int VirtualNetwork::insert(SqlDB * db)
 
         get_template_attribute("LEASES",vector_leases);
 
-        leases = new FixedLeases::FixedLeases(db,
-                                              oid,
-                                              mac_prefix,
-                                              vector_leases);
+        leases = new FixedLeases(db,
+                                 oid,
+                                 mac_prefix,
+                                 vector_leases);
     }
     else
     {
