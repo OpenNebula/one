@@ -136,6 +136,30 @@ void History::non_persistent_data()
 
 int History::insert(SqlDB * db)
 {
+    int             rc;
+
+    rc = insert_replace(db, false);
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int History::update(SqlDB * db)
+{
+    int             rc;
+
+    rc = insert_replace(db, true);
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int History::insert_replace(SqlDB *db, bool replace)
+{
     ostringstream   oss;
 
     int    rc;
@@ -177,8 +201,17 @@ int History::insert(SqlDB * db)
     {
         goto error_tm;
     }
+    
+    if(replace)
+    {
+        oss << "REPLACE";
+    }
+    else
+    {
+        oss << "INSERT";
+    }
 
-    oss << "INSERT OR REPLACE INTO " << table << " "<< db_names <<" VALUES ("<<
+    oss << " INTO " << table << " "<< db_names <<" VALUES ("<<
         oid << "," <<
         seq << "," <<
         "'" << sql_hostname << "',"<<
