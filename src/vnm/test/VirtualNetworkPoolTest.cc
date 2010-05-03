@@ -308,7 +308,7 @@ public:
             rc   = vnpool->allocate(uids[0], templ[i], &oid[i]);
             vnet = vnpool->get(oid[i], false);
 
-            CPPUNIT_ASSERT( rc == 0 && vnet->get_size() == sizes[i] );
+            CPPUNIT_ASSERT( rc >= 0 && vnet->get_size() == sizes[i] );
         }
 
         vnpool->clean();
