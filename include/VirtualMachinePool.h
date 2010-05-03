@@ -42,7 +42,7 @@ public:
      *    @param stemplate a string describing the VM
      *    @param oid the id assigned to the VM (output)
      *    @param on_hold flag to submit on hold
-     *    @return 0 on success, -1 error inserting in DB or -2 error parsing
+     *    @return oid on success, -1 error inserting in DB or -2 error parsing
      *  the template
      */
     int allocate (
