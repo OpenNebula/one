@@ -206,6 +206,14 @@ private:
     // *************************************************************************
 
     /**
+     *  Execute an INSERT or REPLACE Sql query.
+     *    @param db The SQL DB
+     *    @param replace Execute an INSERT or a REPLACE
+     *    @return 0 on success
+     */
+    int insert_replace(SqlDB *db, bool replace);
+
+    /**
      *  Bootstraps the database table(s) associated to the Virtual Network
      */
     static void bootstrap(SqlDB * db)

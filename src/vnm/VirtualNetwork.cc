@@ -54,7 +54,8 @@ const char * VirtualNetwork::table               = "network_pool";
 const char * VirtualNetwork::db_names            = "(oid,uid,name,type,bridge)";
 
 const char * VirtualNetwork::db_bootstrap        = "CREATE TABLE network_pool ("
-     "oid INTEGER,uid INTEGER, name TEXT PRIMARY KEY,type INTEGER, bridge TEXT)";
+     "oid INTEGER PRIMARY KEY, uid INTEGER, name VARCHAR(256), type INTEGER, "
+     "bridge TEXT, UNIQUE(name))";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -252,7 +253,7 @@ int VirtualNetwork::insert(SqlDB * db)
     }
 
     // Insert the template first
-    rc = vn_template.update(db);
+    rc = vn_template.insert(db);
 
     if ( rc != 0 )
     {
@@ -260,7 +261,7 @@ int VirtualNetwork::insert(SqlDB * db)
     }
 
     // Insert the Virtual Network
-    rc = update(db);
+    rc = insert_replace(db, false);
 
     if ( rc != 0 )
     {
@@ -364,7 +365,21 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+
 int VirtualNetwork::update(SqlDB * db)
+{
+    int rc;
+
+    // Update the template first
+    rc = vn_template.update(db);
+    // TODO tratar error     <<<================
+
+    rc = insert_replace(db, true);
+    // TODO tratar error     <<<================
+    return rc;
+}
+
+int VirtualNetwork::insert_replace(SqlDB *db, bool replace)
 {
     ostringstream   oss;
     int             rc;
@@ -384,7 +399,17 @@ int VirtualNetwork::update(SqlDB * db)
         return -1;
     }
 
-    oss << "INSERT OR REPLACE INTO " << table << " "<< db_names <<" VALUES ("<<
+    // Construct the SQL statement to Insert or Replace
+    if(replace)
+    {
+        oss << "REPLACE";
+    }
+    else
+    {
+        oss << "INSERT";
+    }
+
+    oss << " INTO " << table << " "<< db_names <<" VALUES ("<<
         oid << "," <<
         uid << "," <<
         "'" << sql_name << "',"  <<

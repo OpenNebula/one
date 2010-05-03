@@ -116,7 +116,7 @@ int VirtualNetworkPool::allocate (
         return -1;
     }
 
-    return 0;
+    return *oid;
 }
 
 /* -------------------------------------------------------------------------- */
