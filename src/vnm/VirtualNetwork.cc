@@ -372,10 +372,12 @@ int VirtualNetwork::update(SqlDB * db)
 
     // Update the template first
     rc = vn_template.update(db);
-    // TODO tratar error     <<<================
 
-    rc = insert_replace(db, true);
-    // TODO tratar error     <<<================
+    if ( rc == 0 )
+    {
+        rc = insert_replace(db, true);
+    }
+
     return rc;
 }
 
