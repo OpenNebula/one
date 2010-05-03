@@ -97,8 +97,8 @@ class VirtualNetworkPoolTest : public PoolTest
 {
     CPPUNIT_TEST_SUITE (VirtualNetworkPoolTest);
 
-   //ALL_POOLTEST_CPPUNIT_TESTS();
-    CPPUNIT_TEST (allocate_virtual_net);/*
+    ALL_POOLTEST_CPPUNIT_TESTS();
+    CPPUNIT_TEST (allocate_rcs);
     CPPUNIT_TEST (get_using_name);
     CPPUNIT_TEST (wrong_get_name);
     CPPUNIT_TEST (update);
@@ -108,7 +108,7 @@ class VirtualNetworkPoolTest : public PoolTest
     CPPUNIT_TEST (fixed_leases);
     CPPUNIT_TEST (ranged_leases);
     CPPUNIT_TEST (wrong_leases);
-    CPPUNIT_TEST (drop_leases);*/
+    CPPUNIT_TEST (drop_leases);
 
     CPPUNIT_TEST_SUITE_END ();
 
@@ -176,7 +176,7 @@ public:
     /* ********************************************************************* */
     /* ********************************************************************* */
 
-    void allocate_virtual_net()
+    void allocate_rcs()
     {
         VirtualNetworkPool * vnpool = static_cast<VirtualNetworkPool *>(pool);
         VirtualNetwork * vn;
