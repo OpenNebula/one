@@ -88,12 +88,6 @@ protected:
      */
     virtual void check(int index, PoolObjectSQL* obj) = 0;
 
-
-    // Allocate the sample objects for the DB dump
-    //    virtual void allocate_dump()           = 0;
-    // Check the DB dump with the correct sample string
-    //    virtual void check_dump(string result) = 0;
-
 public:
 
     void setUp()
@@ -166,6 +160,9 @@ public:
         oid_0 = allocate(0);
         oid_1 = allocate(1);
 
+        CPPUNIT_ASSERT(oid_0 != -1);
+        CPPUNIT_ASSERT(oid_1 != -1);
+
         // ---------------------------------
 
         // Get first object and check its integrity
@@ -190,6 +187,9 @@ public:
         // Allocate two objects
         oid_0 = allocate(0);
         oid_1 = allocate(1);
+
+        CPPUNIT_ASSERT(oid_0 != -1);
+        CPPUNIT_ASSERT(oid_1 != -1);
 
         // Clean the cache, forcing the pool to read the objects from the DB
         pool->clean();
@@ -231,6 +231,9 @@ public:
         // Allocate two objects
         oid_0 = allocate(0);
         oid_1 = allocate(1);
+
+        CPPUNIT_ASSERT(oid_0 != -1);
+        CPPUNIT_ASSERT(oid_1 != -1);
 
         // Get the first object
         obj = pool->get(oid_0, true);
@@ -321,8 +324,8 @@ public:
 
         // When a DB query fails, it tries to log the error.
         // We need to set the log file, otherwise it will end in a dead-lock
-        NebulaLog::init_log_system(NebulaLog::FILE, Log::ERROR, "test.log");
-        NebulaLog::log("Test", Log::ERROR, "Test started");
+        NebulaLog::init_log_system(NebulaLog::FILE, Log::DEBUG, "test.log");
+        NebulaLog::log("Test", Log::INFO, "Test started");
 
         CppUnit::TextUi::TestRunner runner;
         runner.addTest( suite );
@@ -330,13 +333,13 @@ public:
         if (sqlite_flag)
         {
             PoolTest::mysql = false;
-            NebulaLog::log("Test", Log::ERROR, "Running Sqlite tests...");
+            NebulaLog::log("Test", Log::INFO, "Running Sqlite tests...");
             cout << "\nRunning Sqlite tests...\n";
         }
         else
         {
             PoolTest::mysql = true;
-            NebulaLog::log("Test", Log::ERROR, "Running MySQL tests...");
+            NebulaLog::log("Test", Log::INFO, "Running MySQL tests...");
             cout << "\nRunning MySQL tests...\n";
         }
 
