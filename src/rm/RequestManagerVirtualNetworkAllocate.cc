@@ -23,17 +23,17 @@
 void RequestManager::VirtualNetworkAllocate::execute(
     xmlrpc_c::paramList const& paramList,
     xmlrpc_c::value *   const  retval)
-{ 
+{
     string              session;
     string              username;
     string              password;
     string              name;
     string              stemplate;
-    
+
     int                 nid;
     int                 uid;
     int                 rc;
-    
+
     User *              user;
 
     ostringstream       oss;
@@ -52,7 +52,7 @@ void RequestManager::VirtualNetworkAllocate::execute(
     {
         goto error_session;
     }
-    
+
     // Now let's get the user
     user = VirtualNetworkAllocate::upool->get(username,true);
 
@@ -64,19 +64,19 @@ void RequestManager::VirtualNetworkAllocate::execute(
     uid = user->get_uid();
 
     user->unlock();
-    
+
     rc = vnpool->allocate(uid,stemplate,&nid);
-                                              
-    if ( rc != 0 )                             
-    {                                            
-        goto error_vn_allocate;                     
+
+    if ( rc < 0 )
+    {
+        goto error_vn_allocate;
     }
-      
+
     //Result
     arrayData.push_back(xmlrpc_c::value_boolean(true)); // SUCCESS
     arrayData.push_back(xmlrpc_c::value_int(nid));
     arrayresult = new xmlrpc_c::value_array(arrayData);
-    
+
     *retval = *arrayresult;
 
     delete arrayresult;
@@ -93,11 +93,11 @@ error_get_user:
     goto error_common;
 
 error_vn_allocate:
-    oss << "Error allocating VN with template: " << endl << stemplate;     
+    oss << "Error allocating VN with template: " << endl << stemplate;
     goto error_common;
 
-error_common:    
-    NebulaLog::log("ReM",Log::ERROR,oss); 
+error_common:
+    NebulaLog::log("ReM",Log::ERROR,oss);
 
     arrayData.push_back(xmlrpc_c::value_boolean(false));
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
@@ -105,7 +105,7 @@ error_common:
     xmlrpc_c::value_array arrayresult_error(arrayData);
 
     *retval = arrayresult_error;
-    
+
     return;
 }
 
