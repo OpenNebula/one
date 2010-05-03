@@ -18,6 +18,8 @@
 #include "NebulaLog.h"
 
 #include <sstream>
+#include <ctype.h>
+
 
 VirtualNetworkPool::VirtualNetworkPool(SqlDB * db,
     const string&   prefix,
@@ -71,7 +73,7 @@ int VirtualNetworkPool::allocate (
     string              name;
     string              bridge;
 
-    string              str_type;
+    string              s_type;
 
     // Build a new Virtual Network object
     vn = new VirtualNetwork(mac_prefix, default_size);
@@ -86,19 +88,31 @@ int VirtualNetworkPool::allocate (
         NebulaLog::log("VNM", Log::ERROR, oss);
         free(error_msg);
 
-        return -1;
+        delete vn;
+
+        return -2;
     }
 
     // Information about the VN needs to be extracted from the template
-    vn->get_template_attribute("TYPE",str_type);
+    vn->get_template_attribute("TYPE",s_type);
 
-    if ( str_type == "RANGED")
+    transform(s_type.begin(),s_type.end(),s_type.begin(),(int(*)(int))toupper);
+
+    if (s_type == "RANGED")
     {
         vn->type = VirtualNetwork::RANGED;
     }
-    else
+    else if ( s_type == "FIXED")
     {
         vn->type = VirtualNetwork::FIXED;
+    }
+    else
+    {
+        NebulaLog::log("VNM", Log::ERROR, "Wrong type for VirtualNetwork "
+                       "template");
+        delete vn;
+
+        return -3;
     }
 
     vn->get_template_attribute("NAME",name);
@@ -110,11 +124,6 @@ int VirtualNetworkPool::allocate (
     // Insert the VN in the pool so we have a valid OID
 
     *oid = PoolSQL::allocate(vn);
-
-    if ( *oid == -1 )
-    {
-        return -1;
-    }
 
     return *oid;
 }

@@ -26,9 +26,9 @@ using namespace std;
 /* ************************************************************************* */
 /* ************************************************************************* */
 
-const int uids[] = {123, 261};
+const int uids[] = {123, 261, 133};
 
-const string names[] = {"Net number one", "A virtual network"};
+const string names[] = {"Net number one", "A virtual network","Net number two"};
 
 const string templates[] =
 {
@@ -41,7 +41,22 @@ const string templates[] =
             "TYPE            = RANGED\n"
             "BRIDGE          = br0\n"
             "NETWORK_SIZE    = C\n"
-            "NETWORK_ADDRESS = 192.168.0.0\n"
+            "NETWORK_ADDRESS = 192.168.0.0\n",
+
+            "NAME   = \"Net number two\"\n"
+            "TYPE   = fixed\n"
+            "BRIDGE = br1\n"
+            "LEASES = [IP=130.10.2.1, MAC=50:20:20:20:20:20]",
+
+            "NAME   = \"Net number three\"\n"
+            "TYPE   = not_a_type\n"
+            "BRIDGE = br1\n"
+            "LEASES = [IP=130.10.0.1, MAC=50:20:20:20:20:20]",
+
+            "NAME    = = \n"
+            "TYPE   = not_a_type\n"
+            "BRIDGE = br1\n"
+            "LEASES = [IP=130.10.0.1, MAC=50:20:20:20:20:20]",
 };
 
 const string xmls[] =
@@ -57,7 +72,15 @@ const string xmls[] =
             "<TYPE>0</TYPE><BRIDGE>br0</BRIDGE><TEMPLATE><BRIDGE>br0</BRIDGE>"
             "<NAME>A virtual network</NAME><NETWORK_ADDRESS>192.168.0.0</NETWORK_ADDRESS>"
             "<NETWORK_SIZE>C</NETWORK_SIZE><TYPE>RANGED</TYPE></TEMPLATE>"
-            "<LEASES></LEASES></VNET>"
+            "<LEASES></LEASES></VNET>",
+
+            "<VNET><ID>0</ID><UID>133</UID><NAME>Net number two</NAME>"
+            "<TYPE>1</TYPE><BRIDGE>br1</BRIDGE><TEMPLATE><BRIDGE>br1</BRIDGE><"
+            "LEASES><IP>130.10.2.1</IP><MAC>50:20:20:20:20:20</MAC></LEASES>"
+            "<NAME>Net number two</NAME><TYPE>fixed</TYPE></TEMPLATE>"
+            "<LEASES><LEASE><IP>130.10.2.1</IP>"
+            "<MAC>50:20:20:20:20:20</MAC><USED>0</USED><VID>-1</VID>"
+            "</LEASE></LEASES></VNET>"
 };
 
 const string xml_dump =
@@ -74,8 +97,8 @@ class VirtualNetworkPoolTest : public PoolTest
 {
     CPPUNIT_TEST_SUITE (VirtualNetworkPoolTest);
 
-    ALL_POOLTEST_CPPUNIT_TESTS();
-
+   //ALL_POOLTEST_CPPUNIT_TESTS();
+    CPPUNIT_TEST (allocate_virtual_net);/*
     CPPUNIT_TEST (get_using_name);
     CPPUNIT_TEST (wrong_get_name);
     CPPUNIT_TEST (update);
@@ -85,7 +108,7 @@ class VirtualNetworkPoolTest : public PoolTest
     CPPUNIT_TEST (fixed_leases);
     CPPUNIT_TEST (ranged_leases);
     CPPUNIT_TEST (wrong_leases);
-    CPPUNIT_TEST (drop_leases);
+    CPPUNIT_TEST (drop_leases);*/
 
     CPPUNIT_TEST_SUITE_END ();
 
@@ -111,8 +134,8 @@ protected:
     int allocate(int index)
     {
         int oid;
-        ((VirtualNetworkPool*)pool)->allocate(uids[index], templates[index], &oid);
-        return oid;
+        return ((VirtualNetworkPool*)pool)->allocate(uids[index],
+templates[index], &oid);
     };
 
     void check(int index, PoolObjectSQL* obj)
@@ -152,6 +175,28 @@ public:
 
     /* ********************************************************************* */
     /* ********************************************************************* */
+
+    void allocate_virtual_net()
+    {
+        VirtualNetworkPool * vnpool = static_cast<VirtualNetworkPool *>(pool);
+        VirtualNetwork * vn;
+        int rc;
+
+        // Check case
+        rc = allocate(2);
+        CPPUNIT_ASSERT( rc >= 0 );
+        vn = vnpool->get(rc, false);
+        check(2,vn);
+
+        // Check template attribute
+        rc = allocate(3);
+        CPPUNIT_ASSERT( rc == -3 );
+
+        // Parser error for Vnet template
+        //TODO: Check memory leak for allocating strings in template parser
+        rc = allocate(4);
+        CPPUNIT_ASSERT( rc == -2 );
+    }
 
     void get_using_name()
     {

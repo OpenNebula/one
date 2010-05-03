@@ -43,7 +43,7 @@ public:
      *    @param uid user identifier
      *    @param stemplate a string describing the VN
      *    @param oid the id assigned to the VM (output)
-     *    @return 0 on success, -1 error inserting in DB,-2 error parsing
+     *    @return oid on success, -1 error inserting in DB,-2 error parsing
      *     the template, -3 wrong attributes in template
      */
     int allocate (
