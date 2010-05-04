@@ -18,6 +18,7 @@
 #include "NebulaLog.h"
 #include "VirtualMachine.h"
 #include "SqliteDB.h"
+#include "MySqlDB.h"
 
 #include <stdlib.h>
 #include <stdexcept>
@@ -120,21 +121,90 @@ void Nebula::start()
 
     try
     {
-        string      db_name = var_location + "one.db";
-        struct stat db_stat;
-        bool        db_bootstrap = stat(db_name.c_str(), &db_stat) != 0;
+        vector<const Attribute *> dbs;
+        int  rc;
 
-        db = new SqliteDB(db_name);
+        bool   db_is_sqlite = true;
 
-        if (db_bootstrap)
+        string server  = "localhost";
+        string user    = "oneadmin";
+        string passwd  = "oneadmin";
+        string db_name = "opennebula";
+
+        rc = nebula_configuration->get("DB", dbs);
+
+        if ( rc != 0 )
         {
-            NebulaLog::log("ONE",Log::INFO,"Bootstraping OpenNebula database.");
+            string value;
+            const  VectorAttribute * db = static_cast<const VectorAttribute *>
+                                              (dbs[0]);
+            value = db->vector_value("BACKEND");
 
-            VirtualMachinePool::bootstrap(db);
-            HostPool::bootstrap(db);
-            VirtualNetworkPool::bootstrap(db);
-            UserPool::bootstrap(db);
+            if (value == "mysql")
+            {
+                db_is_sqlite = false;
+
+                value = db->vector_value("SERVER");
+                if (!value.empty())
+                {
+                    server = value;
+                }
+
+                value = db->vector_value("USER");
+                if (!value.empty())
+                {
+                    user = value;
+                }
+
+                value = db->vector_value("PASSWD");
+                if (!value.empty())
+                {
+                    passwd = value;
+                }
+
+                value = db->vector_value("DB_NAME");
+                if (!value.empty())
+                {
+                    db_name = value;
+                }
+            }
         }
+
+        if ( db_is_sqlite )
+        {
+            string  db_name = var_location + "one.db";
+
+            db = new SqliteDB(db_name);
+        }
+        else
+        {
+            ostringstream   oss;
+
+            db = new MySqlDB(server,user,passwd,0);
+
+            oss << "CREATE DATABASE IF NOT EXISTS " << db_name;
+            rc = db->exec(oss);
+
+            if ( rc != 0 )
+            {
+                throw runtime_error("Could not create database.");
+            }
+
+            oss.str("");
+            oss << "USE " << db_name;
+            rc = db->exec(oss);
+            if ( rc != 0 )
+            {
+                throw runtime_error("Could not open database.");
+            }
+        }
+
+        NebulaLog::log("ONE",Log::INFO,"Bootstraping OpenNebula database.");
+
+        VirtualMachinePool::bootstrap(db);
+        HostPool::bootstrap(db);
+        VirtualNetworkPool::bootstrap(db);
+        UserPool::bootstrap(db);
     }
     catch (exception&)
     {
