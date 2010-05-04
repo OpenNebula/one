@@ -133,7 +133,7 @@ int FixedLeases::del(const string& ip)
     it_ip->second->vid  = -1;
 
     oss << "UPDATE " << table << " SET used='0', vid='-1' "
-        << " WHERE ip='" << _ip <<"'";
+        << " WHERE oid=" << oid << " AND ip='" << _ip <<"'";
 
     return db->exec(oss);
 }
@@ -162,7 +162,8 @@ int FixedLeases::get(int vid, string&  ip, string&  mac)
             ostringstream oss;
 
             oss << "UPDATE " << table << " SET used='1', vid='" << vid
-                << "' WHERE ip='" << current->second->ip <<"'";
+                << "' WHERE oid=" << oid
+                << " AND ip='" << current->second->ip <<"'";
 
             rc = db->exec(oss);
 
@@ -203,7 +204,7 @@ int FixedLeases::set(int vid, const string&  ip, string&  mac)
 
     it=leases.find(num_ip);
 
-    if (it == leases.end()) //it does not exists in the net
+    if (it == leases.end()) //it does not exist in the net
     {
         return -1;
     }
@@ -212,8 +213,8 @@ int FixedLeases::set(int vid, const string&  ip, string&  mac)
         return -1;
     }
 
-    oss << "UPDATE " << table << " SET used='1', vid='" << vid
-        << "' WHERE ip='" << it->second->ip <<"'";
+    oss << "UPDATE " << table << " SET used='1', vid='" << vid << "'"
+        << " WHERE oid=" << oid << " AND ip='" << it->second->ip <<"'";
 
     rc = db->exec(oss);
 
