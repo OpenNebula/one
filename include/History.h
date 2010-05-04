@@ -173,24 +173,28 @@ private:
      *    @return 0 on success.
      */
     int select(SqlDB * db);
-
-    /**
-     *  Removes the all history records from the DB
-     *    @param db pointer to the database.
-     *    @return 0 on success.
-
-     */
-    int drop(SqlDB * db);
-
+    
     /**
      *  Updates the history record
      *    @param db pointer to the database.
      *    @return 0 on success.
      */
-    int update(SqlDB * db)
-    {
-        return insert(db);
-    }
+     int update(SqlDB * db);
+
+    /**
+     *  Removes the all history records from the DB
+     *    @param db pointer to the database.
+     *    @return 0 on success.
+     */
+    int drop(SqlDB * db);
+    
+    /**
+     *  Execute an INSERT or REPLACE Sql query. 
+     *    @param db The SQL DB
+     *    @param replace Execute an INSERT or a REPLACE	
+     *    @return 0 on success
+     */
+    int insert_replace(SqlDB *db, bool replace);
 
     /**
      *  Callback function to unmarshall a history object (History::select)

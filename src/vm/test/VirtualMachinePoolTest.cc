@@ -293,7 +293,7 @@ public:
         oid = allocate(0);
         CPPUNIT_ASSERT( oid != -1 );
 
-        vm = vmp->get(oid, true);
+        vm = vmp->get(oid, false);
         CPPUNIT_ASSERT( vm != 0 );
 
         // Add a history item
@@ -311,8 +311,6 @@ public:
         rc = vmp->update_previous_history(vm);
 
         CPPUNIT_ASSERT( rc == 0 );
-
-        vm->unlock();
 
         // Clean the DB cache
         pool->clean();

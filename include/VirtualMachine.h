@@ -893,7 +893,7 @@ private:
     {
         if ( history != 0 )
         {
-            return history->insert(db);
+            return history->update(db);
         }
         else
             return -1;
@@ -908,7 +908,7 @@ private:
     {
         if ( previous_history != 0 )
         {
-            return previous_history->insert(db);
+            return previous_history->update(db);
         }
         else
             return -1;
