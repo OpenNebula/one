@@ -56,9 +56,9 @@ const char * Host::db_names = "(oid,host_name,state,im_mad,vm_mad,"
                               "tm_mad,last_mon_time)";
 
 const char * Host::db_bootstrap = "CREATE TABLE host_pool ("
-    "oid INTEGER PRIMARY KEY,host_name TEXT,state INTEGER,"
-    "im_mad TEXT,vm_mad TEXT,tm_mad TEXT,last_mon_time INTEGER, "
-    "UNIQUE(host_name, im_mad, vm_mad, tm_mad) )";
+    "oid INTEGER PRIMARY KEY,host_name VARCHAR(512), state INTEGER,"
+    "im_mad VARCHAR(128),vm_mad VARCHAR(128),tm_mad VARCHAR(128),"
+    "last_mon_time INTEGER, UNIQUE(host_name, im_mad, vm_mad, tm_mad) )";
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
