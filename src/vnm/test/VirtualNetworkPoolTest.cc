@@ -90,6 +90,11 @@ const string xml_dump =
     "ME>A virtual network</NAME><TYPE>0</TYPE><BRIDGE>br0</BRIDGE><TOTAL_LEASES"
     ">0</TOTAL_LEASES></VNET></VNET_POOL>";
 
+const string xml_dump_where =
+    "<VNET_POOL><VNET><ID>1</ID><UID>2</UID><USERNAME>B user</USERNAME><NA"
+    "ME>A virtual network</NAME><TYPE>0</TYPE><BRIDGE>br0</BRIDGE><TOTAL_LEASES"
+    ">0</TOTAL_LEASES></VNET></VNET_POOL>";
+
 /* ************************************************************************* */
 /* ************************************************************************* */
 
@@ -105,19 +110,19 @@ class VirtualNetworkPoolTest : public PoolTest
     CPPUNIT_TEST (size);
     CPPUNIT_TEST (duplicates);
     CPPUNIT_TEST (dump);
+    CPPUNIT_TEST (dump_where);
     CPPUNIT_TEST (fixed_leases);
     CPPUNIT_TEST (ranged_leases);
     CPPUNIT_TEST (wrong_leases);
+    CPPUNIT_TEST (overlapping_leases_ff);
+    CPPUNIT_TEST (overlapping_leases_fr);
+    CPPUNIT_TEST (overlapping_leases_rf);
+    CPPUNIT_TEST (overlapping_leases_rr);
     CPPUNIT_TEST (drop_leases);
 
     CPPUNIT_TEST_SUITE_END ();
 
 protected:
-
-    string database_name()
-    {
-        return "vnet_pool_test";
-    };
 
     void bootstrap(SqlDB* db)
     {
@@ -135,7 +140,7 @@ protected:
     {
         int oid;
         return ((VirtualNetworkPool*)pool)->allocate(uids[index],
-templates[index], &oid);
+                                                     templates[index], &oid);
     };
 
     void check(int index, PoolObjectSQL* obj)
@@ -150,6 +155,16 @@ templates[index], &oid);
 
     void set_up_user_pool()
     {
+
+        // The UserPool constructor checks if the DB contains at least
+        // one user, and adds one automatically from the ONE_AUTH file.
+        // So the ONE_AUTH environment is forced to point to a test one_auth
+        // file.
+        ostringstream oss;
+
+        oss << getenv("PWD") << "/one_auth";
+        setenv("ONE_AUTH", oss.str().c_str(), 1);
+
         UserPool::bootstrap(db);
         UserPool * user_pool = new UserPool(db);
         int uid_1, uid_2;
@@ -202,22 +217,28 @@ public:
     {
         VirtualNetworkPool * vnpool = static_cast<VirtualNetworkPool *>(pool);
         VirtualNetwork * vn;
+        int oid;
 
         // Allocate two objects
-        allocate(0);
-        allocate(1);
+        oid = allocate(0);
+        CPPUNIT_ASSERT( oid >= 0 );
+
+        oid = allocate(1);
+        CPPUNIT_ASSERT( oid >= 0 );
 
         // Get using its name
         vn = vnpool->get(names[1], true);
+        CPPUNIT_ASSERT(vn != 0);
+        vn->unlock();
+        
         check(1, vn);
         vn->unlock();
 
         vnpool->clean();
 
         // Get using its name
-        vn = vnpool->get(names[1], true);
+        vn = vnpool->get(names[1], false);
         check(1, vn);
-        vn->unlock();
     };
 
     void wrong_get_name()
@@ -306,9 +327,11 @@ public:
         for (int i = 0 ; i < 7 ; i++)
         {
             rc   = vnpool->allocate(uids[0], templ[i], &oid[i]);
-            vnet = vnpool->get(oid[i], false);
+            CPPUNIT_ASSERT( rc >= 0 );
 
-            CPPUNIT_ASSERT( rc >= 0 && vnet->get_size() == sizes[i] );
+            vnet = vnpool->get(oid[i], false);
+            CPPUNIT_ASSERT( vnet != 0 );
+            CPPUNIT_ASSERT( vnet->get_size() == sizes[i] );
         }
 
         vnpool->clean();
@@ -316,16 +339,56 @@ public:
         for (int i = 0 ; i < 7 ; i++)
         {
             vnet = vnpool->get(oid[i], false);
-            CPPUNIT_ASSERT( vnet != 0 && vnet->get_size() == sizes[i] );
+            CPPUNIT_ASSERT( vnet != 0 );
+            CPPUNIT_ASSERT( vnet->get_size() == sizes[i] );
         }
     }
 
     void duplicates()
     {
-        //TODO
+        int rc, oid_0, oid_1;
+        VirtualNetworkPool * vnpool = static_cast<VirtualNetworkPool *>(pool);
+        VirtualNetwork     * vnet;
+
+        // Allocate a vnet
+        rc = vnpool->allocate(uids[0], templates[0], &oid_0);
+        CPPUNIT_ASSERT( rc == oid_0 );
+        CPPUNIT_ASSERT( rc == 0 );
+
+        // Allocate the same vnet twice, with the same user ID
+        rc = vnpool->allocate(uids[0], templates[0], &oid_1);
+        CPPUNIT_ASSERT( rc ==  oid_1 );
+        CPPUNIT_ASSERT( rc == -1 );
+
+        // With different user ID
+        rc = vnpool->allocate(uids[1], templates[0], &oid_1);
+        CPPUNIT_ASSERT( rc ==  oid_1 );
+        CPPUNIT_ASSERT( rc == -1 );
+
+        // Insert a different template, with the same user ID
+        rc = vnpool->allocate(uids[1], templates[1], &oid_1);
+        CPPUNIT_ASSERT( rc == oid_1 );
+        CPPUNIT_ASSERT( rc == 1 );
+
+
+        // Make sure the table contains only one vnet with name[0]
+        vector<int>     results;
+        int             ret;
+        const char *    table   = "network_pool";
+
+        string where = "name = '" + names[0] + "'";
+
+        ret = pool->search(results, table, where);
+        CPPUNIT_ASSERT(ret             == 0);
+        CPPUNIT_ASSERT(results.size()  == 1);
+        CPPUNIT_ASSERT(results.at(0)   == oid_0);
+
+        // Get the vnet and check it, to make sure the user id was not rewritten
+        vnet = vnpool->get(oid_0, false);
+        check(0, vnet);
     }
 
-    virtual void dump()
+    void dump()
     {
         VirtualNetworkPool * vnpool = static_cast<VirtualNetworkPool*>(pool);
         int oid, rc;
@@ -344,6 +407,25 @@ public:
         CPPUNIT_ASSERT( result == xml_dump );
     };
 
+    void dump_where()
+    {
+        VirtualNetworkPool * vnpool = static_cast<VirtualNetworkPool*>(pool);
+        int oid, rc;
+        ostringstream oss;
+
+        set_up_user_pool();
+
+        vnpool->allocate(1, templates[0], &oid);
+        vnpool->allocate(2, templates[1], &oid);
+
+        string where = "uid > 1";
+        rc = pool->dump(oss, where);
+
+        CPPUNIT_ASSERT(rc == 0);
+
+        string result = oss.str();
+        CPPUNIT_ASSERT( result == xml_dump_where );
+    };
 
     void fixed_leases()
     {
@@ -559,7 +641,149 @@ public:
         CPPUNIT_ASSERT( rc == -1 );
     }
 
+    void overlapping_leases_ff()
+    {
+        // It is a different Vnet from #0: different user, name, and bridge.
+        // But both of them use the IP 130.10.0.1
+        string tmpl_B =
+            "NAME   = \"New Network\"\n"
+            "TYPE   = FIXED\n"
+            "BRIDGE = br9\n"
+            "LEASES = [IP=130.10.0.5, MAC=50:20:20:20:20:21]\n"
+            "LEASES = [IP=130.10.0.1, MAC=50:20:20:20:20:22]\n";
 
+        overlapping_leases(templates[0], tmpl_B);
+    }
+
+    void overlapping_leases_fr()
+    {
+        // Now use a ranged network, also containig the IP 130.10.0.1
+        string tmpl_B =
+            "NAME   = \"New Network\"\n"
+            "TYPE   = RANGED\n"
+            "BRIDGE = br9\n"
+            "NETWORK_SIZE    = 3\n"
+            "NETWORK_ADDRESS = 130.10.0.0\n";
+
+        overlapping_leases(templates[0], tmpl_B);
+    }
+
+    void overlapping_leases_rf()
+    {
+        // It is a different Vnet from #0: different user, name, and bridge.
+        // But both of them use the IP 130.10.0.1
+        string tmpl_A =
+            "NAME   = \"New Network\"\n"
+            "TYPE   = RANGED\n"
+            "BRIDGE = br9\n"
+            "NETWORK_SIZE    = 3\n"
+            "NETWORK_ADDRESS = 130.10.0.0\n";
+
+        overlapping_leases(tmpl_A, templates[0]);
+    }
+
+    void overlapping_leases_rr()
+    {
+        // It is a different Vnet from #0: different user, name, and bridge.
+        // But both of them use the IP 130.10.0.1
+        string tmpl_A =
+            "NAME   = \"Network A\"\n"
+            "TYPE   = RANGED\n"
+            "BRIDGE = br9\n"
+            "NETWORK_SIZE    = 3\n"
+            "NETWORK_ADDRESS = 130.10.0.0\n";
+
+        string tmpl_B =
+            "NAME   = \"Network B\"\n"
+            "TYPE   = RANGED\n"
+            "BRIDGE = br7\n"
+            "NETWORK_SIZE    = 9\n"
+            "NETWORK_ADDRESS = 130.10.0.0\n";
+
+        overlapping_leases(tmpl_A, tmpl_B);
+    }
+
+
+    // Runs a test using the given templates
+    void overlapping_leases(string tmpl_A, string tmpl_B)
+    {
+        int rc, oid_0, oid_new;
+        VirtualNetwork *vn;
+
+        string ip     = "";
+        string mac    = "";
+        string bridge = "";
+
+        vector<int>     results;
+
+
+        // First VNet template
+        ((VirtualNetworkPool*)pool)->allocate(13, tmpl_A, &oid_0);
+        CPPUNIT_ASSERT( oid_0 != -1 );
+
+        // Second VNet
+        ((VirtualNetworkPool*)pool)->allocate(45, tmpl_B, &oid_new);
+        CPPUNIT_ASSERT( oid_new != -1 );
+
+        // Get this second VNet
+        vn = ((VirtualNetworkPool*)pool)->get(oid_new, false);
+        CPPUNIT_ASSERT( vn != 0 );
+
+        // Set a lease. Ask for the IP that both Vnets have
+        vn->lock();
+        rc = vn->set_lease(1234, "130.10.0.1", mac, bridge);
+        vn->unlock();
+
+        CPPUNIT_ASSERT( rc == 0 );
+
+
+        // The IP ...1 should be tagged as used only in the second Vnet
+
+        const char *    table   = "leases";
+        string          where   = "used = 1 AND vid = 1234";
+
+        rc = pool->search(results, table, where);
+        CPPUNIT_ASSERT(rc              == 0);
+        CPPUNIT_ASSERT(results.size()  == 1);
+
+
+        // Now check that the first VNet has that IP available
+        vn = ((VirtualNetworkPool*)pool)->get(oid_0, false);
+        CPPUNIT_ASSERT( vn != 0 );
+
+        // Ask the first VNet for the IP that both Vnets have
+        vn->lock();
+        rc = vn->set_lease(5678, "130.10.0.1", mac, bridge);
+        vn->unlock();
+
+        CPPUNIT_ASSERT( rc == 0 );
+
+        // Release the lease on first Vnet
+        vn->lock();
+        vn->release_lease("130.10.0.1");
+        vn->unlock();
+
+
+        // Get again the second VNet
+        vn = ((VirtualNetworkPool*)pool)->get(oid_new, false);
+        CPPUNIT_ASSERT( vn != 0 );
+
+        // Ask for the IP, should be still used
+        vn->lock();
+        rc = vn->set_lease(1234, "130.10.0.1", mac, bridge);
+        vn->unlock();
+
+        CPPUNIT_ASSERT( rc != 0 );
+
+        // Check that in the DB, only one lease is used
+        where   = "used = 1";
+        // Clean the reults
+        results.resize(0);
+        rc = pool->search(results, table, where);
+        CPPUNIT_ASSERT(rc              == 0);
+        CPPUNIT_ASSERT(results.size()  == 1);
+    }
+    
     void drop_leases()
     {
         int rc, oid;

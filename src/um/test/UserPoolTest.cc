@@ -77,11 +77,6 @@ class UserPoolTest : public PoolTest
 
 protected:
 
-    string database_name()
-    {
-        return "user_pool_test";
-    };
-
     void bootstrap(SqlDB* db)
     {
         UserPool::bootstrap(db);
@@ -95,8 +90,8 @@ protected:
     int allocate(int index)
     {
         int oid;
-        ((UserPool*)pool)->allocate(&oid, usernames[index], passwords[index], true);
-        return oid;
+        return ((UserPool*)pool)->allocate(&oid, usernames[index],
+                                           passwords[index], true);
     };
 
     void check(int index, PoolObjectSQL* obj)

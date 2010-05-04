@@ -56,16 +56,15 @@ private:
 // Global flag to use either Sqlite or MySQL
 static bool mysql;
 
+
 protected:
+
     PoolSQL * pool;
     SqlDB * db;
 
     PoolObjectSQL* obj;
 
-    /*
-     * The name of the database to execute the test on
-     */
-    virtual string database_name() = 0;
+    static string db_name;
 
     /*
      * Bootstrap the DB with the neccessary tables for the test
@@ -92,29 +91,28 @@ public:
 
     void setUp()
     {
-        string db_name = "test.db";
-        unlink("test.db");
-
-
         if (mysql)
         {
             db = new MySqlDB("localhost","oneadmin","onepass",NULL);
 
             ostringstream   oss1;
-            oss1 << "DROP DATABASE IF EXISTS " << database_name();
+            oss1 << "DROP DATABASE IF EXISTS " << db_name;
             db->exec(oss1);
 
             ostringstream   oss;
-            oss << "CREATE DATABASE " << database_name();
+            oss << "CREATE DATABASE " << db_name;
             db->exec(oss);
 
             ostringstream   oss2;
-            oss2 << "use " << database_name();
+            oss2 << "use " << db_name;
             db->exec(oss2);
         }
         else
-            db = new SqliteDB(db_name);
+        {
+            unlink(db_name.c_str());
 
+            db = new SqliteDB(db_name);
+        }
 
         bootstrap(db);
 
@@ -123,15 +121,18 @@ public:
 
     void tearDown()
     {
+
         if (mysql)
         {
             ostringstream   oss;
-            oss << "DROP DATABASE IF EXISTS " << database_name();
+            oss << "DROP DATABASE IF EXISTS " << db_name;
             db->exec(oss);
         }
         else
-            remove ("test.db");
-
+        {
+            unlink(db_name.c_str());
+        }
+        
         delete db;
         delete pool;
     };
@@ -354,6 +355,12 @@ public:
     }
 };
 
+// -----------------------------------------------------------------------------
+
 bool PoolTest::mysql;
+
+string PoolTest::db_name = "ONE_test_database";
+
+// -----------------------------------------------------------------------------
 
 #endif // POOL_TEST_H_

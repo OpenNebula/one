@@ -108,11 +108,6 @@ class VirtualMachinePoolTest : public PoolTest
 
 protected:
 
-    string database_name()
-    {
-        return "vmachine_pool_test";
-    };
-
     void bootstrap(SqlDB* db)
     {
         VirtualMachinePool::bootstrap(db);
@@ -128,9 +123,9 @@ protected:
     int allocate(int index)
     {
         int oid;
-        ((VirtualMachinePool*)pool)->allocate(uids[index],
-                                              templates[index], &oid, false);
-        return oid;
+        return ((VirtualMachinePool*)pool)->allocate(uids[index],
+                                                     templates[index],
+                                                     &oid, false);
     };
 
     void check(int index, PoolObjectSQL* obj)
@@ -147,7 +142,7 @@ protected:
         CPPUNIT_ASSERT( xml_str == xmls[index]);
     };
 
-void set_up_user_pool()
+    void set_up_user_pool()
     {
 
         // The UserPool constructor checks if the DB contains at least

@@ -140,11 +140,6 @@ class HostPoolTest : public PoolTest
 
 protected:
 
-    string database_name()
-    {
-        return "host_pool_test";
-    };
-
     void bootstrap(SqlDB* db)
     {
         HostPool::bootstrap(db);
@@ -158,8 +153,8 @@ protected:
     int allocate(int index)
     {
         int oid;
-        ((HostPool*)pool)->allocate(&oid, names[index], im_mad, vmm_mad, tm_mad);
-        return oid;
+        return ((HostPool*)pool)->allocate(&oid, names[index], im_mad,
+                                           vmm_mad, tm_mad);
     };
 
     void check(int index, PoolObjectSQL* obj)
@@ -199,7 +194,7 @@ public:
         int oid_1 = allocate(0);
 
         Host* host = hp->get(oid_1, true);
-        CPPUNIT_ASSERT(host!=0);
+        CPPUNIT_ASSERT( host != 0 );
 
         // Host object should be cached. Let's update its status
         host->set_state(Host::DISABLED);
@@ -208,19 +203,19 @@ public:
         host->unlock();
 
         host = hp->get(oid_1,false);
-
         CPPUNIT_ASSERT( host != 0 );
         CPPUNIT_ASSERT( host->get_state() == Host::DISABLED );
 
         //Now force access to DB
 
         pool->clean();
-        host = ((HostPool*)pool)->get(oid_1,false);
+        host = hp->get(oid_1,false);
 
+        CPPUNIT_ASSERT( host != 0 );
         CPPUNIT_ASSERT( host->get_state() == Host::DISABLED );
     };
 
-   void duplicates()
+    void duplicates()
     {
         int rc, oid_0, oid_1;
         HostPool * hp = static_cast<HostPool *>(pool);
