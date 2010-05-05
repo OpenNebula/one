@@ -74,6 +74,13 @@ sqlite_dir=ARGUMENTS.get('sqlite', 'none')
 if sqlite_dir!='none':
     main_env.Append(LIBPATH=[sqlite_dir+"/lib"])
     main_env.Append(CPPPATH=[sqlite_dir+"/include"])
+    
+# MySQL
+mysql=ARGUMENTS.get('mysql', 'no')
+if mysql=='yes':
+    main_env.Append(mysql='yes')
+else:
+    main_env.Append(mysql='no')
 
 # xmlrpc
 xmlrpc_dir=ARGUMENTS.get('xmlrpc', 'none')
@@ -92,6 +99,10 @@ if not main_env.GetOption('clean'):
     try:
         main_env.ParseConfig('share/scons/get_xmlrpc_config server')
         main_env.ParseConfig('share/scons/get_xmlrpc_config client')
+        
+        if mysql=='yes':
+            main_env.ParseConfig('mysql_config5 --cflags --libs')
+            
     except Exception, e:
         print ""
         print "Error searching for xmlrpc-c libraries. Please check this"+\
