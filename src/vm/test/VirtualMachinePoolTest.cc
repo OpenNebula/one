@@ -82,6 +82,28 @@ const string xml_dump_where =
     "IME>0000000000</STIME><ETIME>0</ETIME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</ME"
     "MORY><CPU>0</CPU><NET_TX>0</NET_TX><NET_RX>0</NET_RX></VM></VM_POOL>";
 
+const string xml_history_dump =
+    "<VM_POOL><VM><ID>0</ID><UID>0</UID><USERNAME>one_user_test</USERNAME>"
+    "<NAME>VM one</NAME><LAST_POLL>0</LAST_POLL><STATE>1</STATE><LCM_STATE>"
+    "0</LCM_STATE><STIME>0000000000</STIME><ETIME>0</ETIME><DEPLOY_ID>"
+    "</DEPLOY_ID><MEMORY>0</MEMORY><CPU>0</CPU><NET_TX>0</NET_TX><NET_RX>"
+    "0</NET_RX></VM><VM><ID>1</ID><UID>0</UID><USERNAME>"
+    "one_user_test</USERNAME><NAME>Second VM</NAME><LAST_POLL>0</LAST_POLL>"
+    "<STATE>2</STATE><LCM_STATE>0</LCM_STATE><STIME>0000000000</STIME>"
+    "<ETIME>0</ETIME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</MEMORY><CPU>0</CPU>"
+    "<NET_TX>0</NET_TX><NET_RX>0</NET_RX><HISTORY><SEQ>0</SEQ><HOSTNAME>"
+    "A_hostname</HOSTNAME><HID>0</HID><STIME>0</STIME><ETIME>0</ETIME><PSTIME>"
+    "0</PSTIME><PETIME>0</PETIME><RSTIME>0</RSTIME><RETIME>0</RETIME><ESTIME>"
+    "0</ESTIME><EETIME>0</EETIME><REASON>0</REASON></HISTORY></VM><VM><ID>2"
+    "</ID><UID>0</UID><USERNAME>one_user_test</USERNAME><NAME>VM one</NAME>"
+    "<LAST_POLL>0</LAST_POLL><STATE>2</STATE><LCM_STATE>0</LCM_STATE><STIME>"
+    "0000000000</STIME><ETIME>0</ETIME><DEPLOY_ID></DEPLOY_ID><MEMORY>0"
+    "</MEMORY><CPU>0</CPU><NET_TX>0</NET_TX><NET_RX>0</NET_RX><HISTORY><SEQ>1"
+    "</SEQ><HOSTNAME>C_hostname</HOSTNAME><HID>2</HID><STIME>0</STIME><ETIME>0"
+    "</ETIME><PSTIME>0</PSTIME><PETIME>0</PETIME><RSTIME>0</RSTIME><RETIME>0"
+    "</RETIME><ESTIME>0</ESTIME><EETIME>0</EETIME><REASON>0</REASON></HISTORY>"
+    "</VM></VM_POOL>";
+
 const string replacement = "0000000000";
 
 
@@ -102,6 +124,7 @@ class VirtualMachinePoolTest : public PoolTest
     CPPUNIT_TEST (update);
     CPPUNIT_TEST (dump);
     CPPUNIT_TEST (dump_where);
+    CPPUNIT_TEST (dump_history);
     CPPUNIT_TEST (history);
 
     CPPUNIT_TEST_SUITE_END ();
@@ -235,7 +258,7 @@ public:
     void dump()
     {        
         VirtualMachinePool * vmp = static_cast<VirtualMachinePool*>(pool);
-        
+
         set_up_user_pool();
 
         ostringstream oss;
@@ -266,7 +289,7 @@ public:
 
         vmp->allocate(1, templates[0], &oid, false);
         vmp->allocate(2, templates[1], &oid, true);
-        
+
         where << "uid < 2";
         rc = vmp->dump(oss, where.str());
         CPPUNIT_ASSERT(rc == 0);
@@ -274,6 +297,94 @@ public:
         string result = oss.str();
         result.replace(152, 10, replacement);
         CPPUNIT_ASSERT( result == xml_dump_where );
+    }
+
+    void dump_history()
+    {
+        VirtualMachinePool * vmp = static_cast<VirtualMachinePool*>(pool);
+        VirtualMachine*      vm;
+
+        string hostnames[] = {"A_hostname", "B_hostname", "C_hostname"};
+        string vm_dirs[]   = {"A_vm_dir", "B_vm_dir", "C_vm_dir"};
+        string vmm_mads[]  = {"A_vmm_mad", "B_vmm_mad", "C_vmm_mad"};
+        string tm_mads[]   = {"A_tm_mad", "B_tm_mad", "C_tm_mad"};
+
+        int oid, rc;
+        ostringstream oss;
+        ostringstream where;
+
+
+        set_up_user_pool();
+
+        // Allocate a VM
+        rc = vmp->allocate(0, templates[0], &oid, false);
+        CPPUNIT_ASSERT( rc == oid );
+        CPPUNIT_ASSERT( oid >= 0 );
+        //----------------------------------------------------------------------
+
+        // Allocate a VM with one history item
+        rc = vmp->allocate(0, templates[1], &oid, true);
+        CPPUNIT_ASSERT( rc == oid );
+        CPPUNIT_ASSERT( oid >= 0 );
+
+        vm = vmp->get(oid, false);
+        CPPUNIT_ASSERT( vm != 0 );
+
+        // Add a history item
+        vm->add_history(0, hostnames[0], vm_dirs[0], vmm_mads[0], tm_mads[0]);
+
+        rc = vmp->update_history(vm);
+        CPPUNIT_ASSERT( rc == 0 );
+        //----------------------------------------------------------------------
+
+        // Allocate a VM with two history items
+        rc = vmp->allocate(0, templates[2], &oid, true);
+        CPPUNIT_ASSERT( rc == oid );
+        CPPUNIT_ASSERT( oid >= 0 );
+
+        vm = vmp->get(oid, false);
+        CPPUNIT_ASSERT( vm != 0 );
+
+        // Add a history item
+        vm->add_history(1, hostnames[1], vm_dirs[1], vmm_mads[1], tm_mads[1]);
+        rc = vmp->update_history(vm);
+        CPPUNIT_ASSERT( rc == 0 );
+
+        // Add another history item
+        vm->add_history(2, hostnames[2], vm_dirs[2], vmm_mads[2], tm_mads[2]);
+        rc = vmp->update_history(vm);
+        CPPUNIT_ASSERT( rc == 0 );
+        //----------------------------------------------------------------------
+
+        // Allocate a VM, will be set to DONE
+        rc = vmp->allocate(1, templates[0], &oid, false);
+        CPPUNIT_ASSERT( rc == oid );
+        CPPUNIT_ASSERT( oid >= 0 );
+
+        vm = vmp->get(oid, false);
+        CPPUNIT_ASSERT( vm != 0 );
+
+        vm->set_state(VirtualMachine::DONE);
+        vmp->update(vm);
+        //----------------------------------------------------------------------
+
+        // Call dump. Should return:
+        //    the first VM, with no history.
+        //    the second VM, with the first and only history item
+        //    the third VM, with only its last history item
+
+        where << "uid < 2";
+        rc = vmp->dump(oss, where.str());
+        CPPUNIT_ASSERT(rc == 0);
+
+        // Get the xml and replace the STIME to 0, so we can compare it
+        string result = oss.str();
+
+        result.replace(159, 10, replacement);
+        result.replace(440, 10, replacement);
+        result.replace(950, 10, replacement);
+
+        CPPUNIT_ASSERT( result == xml_history_dump );
     }
 
     void history()
