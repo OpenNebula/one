@@ -361,13 +361,15 @@ int VirtualMachinePool::dump(ostringstream& oss, const string& where)
     cmd << "SELECT " << VirtualMachine::table << ".*, "
         << "user_pool.user_name, " << History::table << ".* FROM "
         << VirtualMachine::table
-        << " LEFT OUTER JOIN (SELECT *,MAX(seq) FROM "
-        << History::table << " GROUP BY vid) AS " << History::table
+        << " LEFT OUTER JOIN ("
+        <<   "SELECT *,seq AS max_seq FROM " << History::table << " h1 WHERE "
+        <<     "seq=(SELECT MAX(seq) FROM " << History::table << " h2 WHERE h1.vid=h2.vid)) "
+        << "AS " << History::table
         << " ON " << VirtualMachine::table << ".oid = "
         << History::table << ".vid LEFT OUTER JOIN (SELECT oid,user_name FROM "
         << "user_pool) AS user_pool ON "
         << VirtualMachine::table << ".uid = user_pool.oid WHERE "
-        << VirtualMachine::table << ".state != " << VirtualMachine::DONE;
+        << VirtualMachine::table << ".state <> " << VirtualMachine::DONE;
 
     if ( !where.empty() )
     {
