@@ -192,6 +192,8 @@ int VirtualMachinePool::allocate (
         NebulaLog::log("ONE", Log::ERROR, oss);
         free(error_msg);
 
+        delete vm;
+
         return -2;
     }
 
