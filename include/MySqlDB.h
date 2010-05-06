@@ -62,6 +62,8 @@ public:
         {
             throw runtime_error("Could not open database.");
         }
+
+        pthread_mutex_init(&mutex,0);
     };
 
     ~MySqlDB()
@@ -96,6 +98,7 @@ public:
         callback = 0;
         arg      = 0;
 
+        lock();
 
         rc = mysql_query(db, c_str);
 
@@ -109,6 +112,8 @@ public:
             oss << ", error " << err_num << " : " << err_msg;
 
             NebulaLog::log("ONE",Log::ERROR,oss);
+
+            unlock();
 
             return -1;
         }
@@ -136,6 +141,7 @@ public:
 
                 NebulaLog::log("ONE",Log::ERROR,oss);
 
+                unlock();
                 return -1;
             }
 
@@ -162,6 +168,7 @@ public:
             delete[] names;
         }
 
+        unlock();
         return 0;
     };
 
@@ -197,6 +204,27 @@ private:
      * The MySql connection handler
      */
     MYSQL *             db;
+
+    /**
+     *  Fine-grain mutex for DB access
+     */
+    pthread_mutex_t     mutex;
+
+    /**
+     *  Function to lock the DB
+     */
+    void lock()
+    {
+        pthread_mutex_lock(&mutex);
+    };
+
+    /**
+     *  Function to unlock the DB
+     */
+    void unlock()
+    {
+        pthread_mutex_unlock(&mutex);
+    };
 };
 
 #endif /*MYSQL_DB_H_*/
