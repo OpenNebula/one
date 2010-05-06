@@ -28,11 +28,12 @@ const char * History::table = "history";
 const char * History::db_names = "(vid,seq,host_name,vm_dir,hid,vm_mad,tm_mad,stime,"
     "etime,pstime,petime,rstime,retime,estime,eetime,reason)";
 
-const char * History::db_bootstrap = "CREATE TABLE history (vid INTEGER,"
+const char * History::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
+    "history (vid INTEGER,"
     "seq INTEGER,host_name TEXT,vm_dir TEXT,hid INTEGER,vm_mad TEXT,tm_mad TEXT,"
     "stime INTEGER,etime INTEGER,pstime INTEGER,petime INTEGER,rstime INTEGER,"
     "retime INTEGER,estime INTEGER,eetime INTEGER,reason INTEGER,"
-	"PRIMARY KEY(vid,seq))";
+    "PRIMARY KEY(vid,seq))";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

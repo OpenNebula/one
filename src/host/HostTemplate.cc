@@ -18,7 +18,7 @@
 
 const char * HostTemplate::table = "host_attributes";
 
-const char * HostTemplate::db_bootstrap = "CREATE TABLE host_attributes"
-    " (id INTEGER, name VARCHAR(256), type INTEGER, value TEXT, "
+const char * HostTemplate::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
+    "host_attributes (id INTEGER, name VARCHAR(256), type INTEGER, value TEXT, "
     "PRIMARY KEY(id,name))";
 

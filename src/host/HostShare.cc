@@ -63,8 +63,8 @@ const char * HostShare::db_names = "(hid,"
     "used_disk,  used_mem,  used_cpu,"
     "running_vms)";
 
-const char * HostShare::db_bootstrap = "CREATE TABLE host_shares ("
-	"hid INTEGER PRIMARY KEY,"
+const char * HostShare::db_bootstrap = "CREATE TABLE IF NOT EXISTS host_shares("
+    "hid INTEGER PRIMARY KEY,"
     "disk_usage INTEGER, mem_usage INTEGER, cpu_usage INTEGER,"
     "max_disk  INTEGER,  max_mem   INTEGER, max_cpu   INTEGER,"
     "free_disk INTEGER,  free_mem  INTEGER, free_cpu  INTEGER,"

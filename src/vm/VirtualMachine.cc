@@ -85,7 +85,8 @@ const char * VirtualMachine::db_names = "(oid,uid,name,last_poll,template_id,sta
                                         ",lcm_state,stime,etime,deploy_id"
                                         ",memory,cpu,net_tx,net_rx)";
 
-const char * VirtualMachine::db_bootstrap = "CREATE TABLE vm_pool ("
+const char * VirtualMachine::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
+        "vm_pool ("
         "oid INTEGER PRIMARY KEY,uid INTEGER,name TEXT,"
         "last_poll INTEGER, template_id INTEGER,state INTEGER,lcm_state INTEGER,"
         "stime INTEGER,etime INTEGER,deploy_id TEXT,memory INTEGER,cpu INTEGER,"

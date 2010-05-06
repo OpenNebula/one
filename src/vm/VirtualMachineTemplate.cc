@@ -18,6 +18,6 @@
 
 const char * VirtualMachineTemplate::table = "vm_attributes";
 
-const char * VirtualMachineTemplate::db_bootstrap = "CREATE TABLE vm_attributes"
-    " (id INTEGER, name TEXT, type INTEGER, value TEXT)";
+const char * VirtualMachineTemplate::db_bootstrap = "CREATE TABLE IF NOT EXISTS"
+    " vm_attributes (id INTEGER, name TEXT, type INTEGER, value TEXT)";
 
