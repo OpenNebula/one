@@ -240,9 +240,9 @@ int VirtualMachinePool::get_running(
     ostringstream   os;
     string          where;
 
-    os << "state == " << VirtualMachine::ACTIVE
-       << " and ( lcm_state == " << VirtualMachine::RUNNING
-       << " or lcm_state == " << VirtualMachine::UNKNOWN << " )";
+    os << "state = " << VirtualMachine::ACTIVE
+       << " and ( lcm_state = " << VirtualMachine::RUNNING
+       << " or lcm_state = " << VirtualMachine::UNKNOWN << " )";
 
     where = os.str();
 
@@ -258,7 +258,7 @@ int VirtualMachinePool::get_pending(
     ostringstream   os;
     string          where;
 
-    os << "state == " << VirtualMachine::PENDING;
+    os << "state = " << VirtualMachine::PENDING;
 
     where = os.str();
 
