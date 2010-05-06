@@ -101,7 +101,7 @@ if not main_env.GetOption('clean'):
         main_env.ParseConfig('share/scons/get_xmlrpc_config client')
         
         if mysql=='yes':
-            main_env.ParseConfig('mysql_config5 --cflags --libs')
+            main_env.ParseConfig('mysql_config --cflags --libs')
             
     except Exception, e:
         print ""
