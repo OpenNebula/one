@@ -39,6 +39,7 @@ main_env.Append(CPPPATH=[
 # Library dirs
 main_env.Append(LIBPATH=[
     cwd+'/src/common',
+    cwd+'/src/sql',
     cwd+'/src/host',
     cwd+'/src/mad',
     cwd+'/src/nebula',
@@ -70,17 +71,26 @@ main_env.Append(LDFLAGS=["-g"])
 #######################
 
 # SQLITE
-sqlite_dir=ARGUMENTS.get('sqlite', 'none')
+sqlite_dir=ARGUMENTS.get('sqlite_dir', 'none')
 if sqlite_dir!='none':
     main_env.Append(LIBPATH=[sqlite_dir+"/lib"])
     main_env.Append(CPPPATH=[sqlite_dir+"/include"])
-    
+
+sqlite=ARGUMENTS.get('sqlite', 'yes')
+if sqlite=='yes':
+    main_env.Append(sqlite='yes')
+    main_env.Append(CPPFLAGS=["-DSQLITE_DB"])
+else:
+    main_env.Append(sqlite='no')
+
 # MySQL
 mysql=ARGUMENTS.get('mysql', 'no')
 if mysql=='yes':
     main_env.Append(mysql='yes')
+    main_env.Append(CPPFLAGS=["-DMYSQL_DB"])
 else:
     main_env.Append(mysql='no')
+
 
 # xmlrpc
 xmlrpc_dir=ARGUMENTS.get('xmlrpc', 'none')
@@ -99,10 +109,10 @@ if not main_env.GetOption('clean'):
     try:
         main_env.ParseConfig('share/scons/get_xmlrpc_config server')
         main_env.ParseConfig('share/scons/get_xmlrpc_config client')
-        
+
         if mysql=='yes':
             main_env.ParseConfig('mysql_config --cflags --libs')
-            
+
     except Exception, e:
         print ""
         print "Error searching for xmlrpc-c libraries. Please check this"+\
@@ -130,6 +140,7 @@ else:
 # SCONS scripts to build
 build_scripts=[
     'src/client/SConstruct',
+    'src/sql/SConstruct',
     'src/common/SConstruct',
     'src/template/SConstruct',
     'src/host/SConstruct',
@@ -143,7 +154,7 @@ build_scripts=[
     'src/tm/SConstruct',
     'src/im/SConstruct',
     'src/dm/SConstruct',
-    'src/scheduler/SConstruct',
+#    'src/scheduler/SConstruct',
     'src/vnm/SConstruct',
     'src/hm/SConstruct',
     'src/um/SConstruct',

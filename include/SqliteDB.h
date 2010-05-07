@@ -20,7 +20,6 @@
 #include <string>
 #include <sstream>
 #include <stdexcept>
-#include <sqlite3.h>
 
 #include <sys/time.h>
 #include <sys/types.h>
@@ -33,23 +32,9 @@
 
 using namespace std;
 
-extern "C" int sqlite_callback (
-        void *                  _obj,
-        int                     num,
-        char **                 values,
-        char **                 names)
-{
-    Callbackable *obj;
+#ifdef SQLITE_DB
 
-    obj = static_cast<Callbackable *>(_obj);
-
-    if (obj == 0)
-    {
-        return -1;
-    }
-
-    return obj->do_callback(num,values,names);
-};
+#include <sqlite3.h>
 
 /**
  * SqliteDB class. Provides a wrapper to the sqlite3 database interface. It also
@@ -60,26 +45,9 @@ class SqliteDB : public SqlDB
 {
 public:
 
-    SqliteDB(string& db_name)
-    {
-        int rc;
+    SqliteDB(string& db_name);
 
-        pthread_mutex_init(&mutex,0);
-
-        rc = sqlite3_open(db_name.c_str(), &db);
-
-        if ( rc != SQLITE_OK )
-        {
-            throw runtime_error("Could not open database.");
-        }
-    };
-
-    ~SqliteDB()
-    {
-        pthread_mutex_destroy(&mutex);
-
-        sqlite3_close(db);
-    };
+    ~SqliteDB();
 
     /**
      *  Wraps the sqlite3_exec function call, and locks the DB mutex.
@@ -89,72 +57,7 @@ public:
      *    @param arg to pass to the callback function
      *    @return 0 on success
      */
-    int exec(ostringstream& cmd, Callbackable* obj=0)
-    {
-        int          rc;
-
-        const char * c_str;
-        string       str;
-
-        int          counter = 0;
-        char *       err_msg = 0;
-        
-        int   (*callback)(void*,int,char**,char**);
-        void * arg;
-
-        str   = cmd.str();
-        c_str = str.c_str();
-
-        callback = 0;
-        arg      = 0;
-
-        if ((obj != 0)&&(obj->isCallBackSet()))
-        {
-            callback = sqlite_callback;
-            arg      = static_cast<void *>(obj);
-        }
-
-        lock();
-
-        do
-        {
-            counter++;
-
-            rc = sqlite3_exec(db, c_str, callback, arg, &err_msg);
-
-            if (rc == SQLITE_BUSY || rc == SQLITE_IOERR_BLOCKED)
-            {
-                struct timeval timeout;
-                fd_set zero;
-
-                FD_ZERO(&zero);
-                timeout.tv_sec  = 0;
-                timeout.tv_usec = 250000;
-
-                select(0, &zero, &zero, &zero, &timeout);
-            }
-        }while( (rc == SQLITE_BUSY || rc == SQLITE_IOERR_BLOCKED) &&
-                (counter < 10));
-
-        unlock();
-
-        if (rc != SQLITE_OK)
-        {
-            if (err_msg != 0)
-            {
-                ostringstream oss;
-
-                oss << "SQL command was: " << c_str << ", error: " << err_msg;
-                NebulaLog::log("ONE",Log::ERROR,oss);
-
-                sqlite3_free(err_msg);
-            }
-
-            return -1;
-        }
-
-        return 0;
-    };
+    int exec(ostringstream& cmd, Callbackable* obj=0);
 
     /**
      *  This function returns a legal SQL string that can be used in an SQL
@@ -162,19 +65,13 @@ public:
      *    @param str the string to be escaped
      *    @return a valid SQL string or NULL in case of failure
      */
-    char * escape_str(const string& str)
-    {
-        return sqlite3_mprintf("%q",str.c_str());
-    };
+    char * escape_str(const string& str);
 
     /**
      *  Frees a previously scaped string
      *    @param str pointer to the str
      */
-    void free_str(char * str)
-    {
-        sqlite3_free(str);
-    };
+    void free_str(char * str);
 
 private:
     /**
@@ -203,5 +100,25 @@ private:
         pthread_mutex_unlock(&mutex);
     };
 };
+#else
+//CLass stub
+class SqliteDB : public SqlDB
+{
+public:
+
+    SqliteDB(string& db_name)
+    {
+        throw runtime_error("Aborting oned, Sqlite support not compiled!");
+    };
+
+    ~SqliteDB(){};
+
+    int exec(ostringstream& cmd, Callbackable* obj=0){return -1;};
+
+    char * escape_str(const string& str){return 0;};
+
+    void free_str(char * str){};
+};
+#endif
 
 #endif /*SQLITE_DB_H_*/

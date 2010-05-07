@@ -1,4 +1,4 @@
-# SConstruct for src/nebula
+# SConstruct for src/pool
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
@@ -18,50 +18,16 @@
 
 Import('env')
 
-lib_name='nebula_core'
+lib_name='nebula_sql'
 
-# Sources to generate the library
-source_files=[
-    'Nebula.cc',
-    'NebulaTemplate.cc',
-    'NebulaLog.cc',
-    'Log.cc'
-]
-
-# Build library
-env.StaticLibrary(lib_name, source_files)
-
-# Build daemon
-env.Append(LIBS=[
-    'nebula_core',
-    'nebula_vmm',
-    'nebula_lcm',
-    'nebula_im',
-    'nebula_hm',
-    'nebula_rm',
-    'nebula_dm',
-    'nebula_tm',
-    'nebula_um',
-    'nebula_mad',
-    'nebula_template',
-    'nebula_pool',
-    'nebula_host',
-    'nebula_vnm',
-    'nebula_vm',
-    'nebula_common',
-    'nebula_sql',
-    'crypto'
-])
+source_files=[]
 
 # Sources to generate the library
 if env['sqlite']=='yes':
-    env.Append(LIBS=['sqlite3'])
+    source_files.append('SqliteDB.cc')
 
 if env['mysql']=='yes':
-    env.Append(LIBS=['mysqlclient'])
+    source_files.append('MySqlDB.cc')
 
-
-if not env.GetOption('clean'):
-    env.ParseConfig('../../share/scons/get_xmlrpc_config server')
-
-env.Program('oned.cc')
+# Build library
+env.StaticLibrary(lib_name, source_files)
