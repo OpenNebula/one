@@ -17,9 +17,7 @@
 import os
 import sys
 import shutil
-sys.path.append("../../share/scons")
-
-from lex_bison import *
+sys.path.append("../../../share/scons")
 
 # This is the absolute path where the project is located
 cwd=os.getcwd()
@@ -28,13 +26,15 @@ cwd=os.getcwd()
 main_env=Environment()
 main_env['ENV']['PATH']=os.environ['PATH']
 
-# Add builders for flex and bison
-add_lex(main_env)
-add_bison(main_env)
-
 # Include dirs
 main_env.Append(CPPPATH=[
-    cwd+'./',
+    cwd+'/../',
+    '/usr/include/cppunit/'
+])
+
+# Library dirs
+main_env.Append(LIBPATH=[
+    '../'
 ])
 
 # Compile flags
@@ -45,6 +45,13 @@ main_env.Append(CPPFLAGS=[
 
 # Linking flags
 main_env.Append(LDFLAGS=["-g"])
+
+# Libraries
+main_env.Append(LIBS=[
+    'cppunit'
+])
+
+main_env.Program('test_xml','ObjectXMLTest.cc')
 
 ################################################################################
 #                               EXTRA CONFIGURATION
@@ -60,7 +67,7 @@ if xmlrpc_dir!='none':
     main_env.Append(LIBPATH=[xmlrpc_dir+"/lib"])
     main_env.Append(CPPPATH=[xmlrpc_dir+"/include"])
 
-main_env.ParseConfig('../../share/scons/get_xmlrpc_config client')
+main_env.ParseConfig('../../../share/scons/get_xmlrpc_config client')
 
 #-------------------------------------------------------------------------------
 # build lex/bison
@@ -78,56 +85,3 @@ else:
 #-------------------------------------------------------------------------------
 
 main_env.ParseConfig('xml2-config --libs --cflags')
-
-
-
-
-
-
-
-
-
-
-Import('env')
-
-cwd=os.getcwd()
-env.Append(LIBPATH=cwd)
-
-lib_name='nebula_scheduler'
-
-# Sources to generate the library
-source_files=[
-    'Scheduler.cc',
-    'SchedulerHost.cc',
-    'SchedulerVirtualMachine.cc',
-]
-
-scheduler_names=[
-    'mm_sched'
-]
-
-# Build library
-env.StaticLibrary(lib_name, source_files)
-
-env.Append(LIBS=[
-     lib_name,
-    'nebula_core',
-    'nebula_host',
-    'nebula_vm',
-    'nebula_vnm',
-    'nebula_pool',
-    'nebula_template',
-    'nebula_common',
-    'nebula_um',
-    'sqlite3',
-    'crypto',
-])
-
-
-if not env.GetOption('clean'):
-    env.ParseConfig('../../share/scons/get_xmlrpc_config client')
-
-
-# Build tests
-for sched in scheduler_names:
-    env.Program(sched, sched+'.cc')
