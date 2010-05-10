@@ -12,7 +12,7 @@
         <% erb_vmpool.each do |vm| %>
         <% vm.info %>
         <item> 
-          <instanceId><%= vm.id %></instanceId> 
+          <instanceId>i-<%= vm.id %></instanceId> 
           <imageId><%= vm['TEMPLATE/IMAGE_ID'] %></imageId> 
           <instanceState> 
               <%= render_state(vm) %>
