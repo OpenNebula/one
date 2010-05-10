@@ -59,12 +59,20 @@ set :port, $econe_server.config[:port]
 ##############################################################################
 
 before do
-    if !$econe_server.authenticate?(params)
+    if !$econe_server.authenticate?(params,env)
         halt 401, 'Invalid credentials'
     end
 end
 
 post '/' do
+    do_http_request(params)
+end
+
+get '/' do
+    do_http_request(params)
+end
+
+def do_http_request(params)
     case params['Action']
         when 'UploadImage'
             result,rc = $econe_server.upload_image(params)
@@ -79,10 +87,10 @@ post '/' do
         when 'TerminateInstances'
             result,rc = $econe_server.terminate_instances(params)
     end
-    
+
     if OpenNebula::is_error?(result)
         halt rc, result.message
     end
 
-    result
+    result    
 end

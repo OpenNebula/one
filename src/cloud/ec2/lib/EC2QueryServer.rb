@@ -69,6 +69,8 @@ class EC2QueryServer < CloudServer
             @server_host=@config[:server]
         end
 
+	@server_port=@config[:port]
+
         print_configuration
     end
 
@@ -79,7 +81,7 @@ class EC2QueryServer < CloudServer
     # EC2 protocol authentication function
     # params:: of the request
     # [return] true if authenticated
-    def authenticate?(params)
+    def authenticate?(params,env)
         user = get_user(params['AWSAccessKeyId'])
         return false if !user
         
@@ -88,9 +90,9 @@ class EC2QueryServer < CloudServer
 
         signature = AWS.encode(
                        user[:password], 
-                       AWS.canonical_string(signature_params, @server_host),
+                       AWS.canonical_string(signature_params, @server_host + ":" + @server_port, env['REQUEST_METHOD']),
                        false)
-        
+
         return params['Signature']==signature
     end
 
@@ -166,6 +168,7 @@ class EC2QueryServer < CloudServer
  
         #Start the VM.
         vm = VirtualMachine.new(VirtualMachine.build_xml, one_client)
+puts template_text
         rc = vm.allocate(template_text)
         
         return rc, 401 if OpenNebula::is_error?(rc)
@@ -206,6 +209,7 @@ class EC2QueryServer < CloudServer
         one_client = one_client_user(user) 
         
         vmid=params['InstanceId.1']
+	tmp, vmid=vmid.split('-') if vmid[0]==?i
         
         erb_vm = VirtualMachine.new(VirtualMachine.build_xml(vmid),one_client)
         rc      = erb_vm.info
