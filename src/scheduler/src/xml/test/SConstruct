@@ -17,7 +17,7 @@
 import os
 import sys
 import shutil
-sys.path.append("../../../share/scons")
+sys.path.append("../../../../../share/scons")
 
 # This is the absolute path where the project is located
 cwd=os.getcwd()
@@ -28,7 +28,7 @@ main_env['ENV']['PATH']=os.environ['PATH']
 
 # Include dirs
 main_env.Append(CPPPATH=[
-    cwd+'/../',
+    cwd+'/../../../include',
     '/usr/include/cppunit/'
 ])
 
@@ -48,7 +48,8 @@ main_env.Append(LDFLAGS=["-g"])
 
 # Libraries
 main_env.Append(LIBS=[
-    'cppunit'
+    'cppunit',
+    'scheduler_xml'
 ])
 
 main_env.Program('test_xml','ObjectXMLTest.cc')
@@ -67,7 +68,7 @@ if xmlrpc_dir!='none':
     main_env.Append(LIBPATH=[xmlrpc_dir+"/lib"])
     main_env.Append(CPPPATH=[xmlrpc_dir+"/include"])
 
-main_env.ParseConfig('../../../share/scons/get_xmlrpc_config client')
+main_env.ParseConfig('../../../../../share/scons/get_xmlrpc_config client')
 
 #-------------------------------------------------------------------------------
 # build lex/bison
