@@ -88,9 +88,13 @@ def do_http_request(params)
             result,rc = $econe_server.terminate_instances(params)
     end
 
+	puts result
+
     if OpenNebula::is_error?(result)
         halt rc, result.message
     end
+
+    headers['Content-Type'] = 'application/xml'
 
     result    
 end

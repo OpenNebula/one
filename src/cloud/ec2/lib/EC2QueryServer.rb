@@ -20,6 +20,8 @@ require 'erb'
 require 'time'
 require 'AWS'
 require 'CloudServer'
+require 'base64'
+
 ###############################################################################
 # The EC2Query Server implements a EC2 compatible server based on the 
 # OpenNebula Engine
@@ -84,16 +86,57 @@ class EC2QueryServer < CloudServer
     def authenticate?(params,env)
         user = get_user(params['AWSAccessKeyId'])
         return false if !user
-        
+
+	signature = case params['SignatureVersion']
+	    when "1" then signature_version_1(params.clone, user[:password])
+	    when "2" then signature_version_2(params, 
+					      user[:password], 
+					      env,
+					      false)
+	end
+
+        return params['Signature']==signature
+    end
+
+    # Calculates signature version 1
+    def signature_version_1(params, secret_key, digest='sha1')
+        params.delete('Signature')
+        req_desc = params.sort {|x,y| x[0].downcase <=> y[0].downcase}.to_s
+
+        digest_generator = OpenSSL::Digest::Digest.new(digest)
+        digest = OpenSSL::HMAC.digest(digest_generator,
+                                      secret_key,
+                                      req_desc)
+        b64sig = Base64.b64encode(digest)
+        return b64sig.strip
+    end
+ 
+    # Calculates signature version 2 
+    def signature_version_2(params, secret_key, env, urlencode=true)
         signature_params = params.reject { |key,value| 
             key=='Signature' or key=='file' }
 
-        signature = AWS.encode(
-                       user[:password], 
-                       AWS.canonical_string(signature_params, @server_host + ":" + @server_port, env['REQUEST_METHOD']),
-                       false)
+        canonical_str = AWS.canonical_string(signature_params, 
+					     @server_host + ":" + @server_port,
+					     env['REQUEST_METHOD'])
 
-        return params['Signature']==signature
+        # Use the correct signature strength
+	sha_strength = case params['SignatureMethod']
+	     when "HmacSHA1" then 'sha1'
+	     when "HmacSHA256" then 'sha256'
+	     else 'sha1'
+	end
+
+	digest = OpenSSL::Digest::Digest.new(sha_strength)
+	b64hmac =	
+      		Base64.encode64(
+        	    OpenSSL::HMAC.digest(digest, secret_key, canonical_str)).gsub("\n","")
+     
+	if urlencode
+      	    return CGI::escape(b64hmac)
+	else
+      	    return b64hmac
+        end
     end
 
     ###########################################################################
@@ -146,7 +189,8 @@ class EC2QueryServer < CloudServer
         return OpenNebula::Error.new('Bad instance type'),400 if !instance_type
 
         # Get the image
-        image = get_image(params['ImageId'])
+	tmp, img=params['ImageId'].split('-')
+        image = get_image(img.to_i)
         
         return OpenNebula::Error.new('Bad image id'),400 if !image
 
@@ -168,7 +212,7 @@ class EC2QueryServer < CloudServer
  
         #Start the VM.
         vm = VirtualMachine.new(VirtualMachine.build_xml, one_client)
-puts template_text
+
         rc = vm.allocate(template_text)
         
         return rc, 401 if OpenNebula::is_error?(rc)
@@ -207,8 +251,10 @@ puts template_text
         # Get the user
         user       = get_user(params['AWSAccessKeyId'])
         one_client = one_client_user(user) 
-        
+
         vmid=params['InstanceId.1']
+        vmid=params['InstanceId.01'] if !vmid
+
 	tmp, vmid=vmid.split('-') if vmid[0]==?i
         
         erb_vm = VirtualMachine.new(VirtualMachine.build_xml(vmid),one_client)
