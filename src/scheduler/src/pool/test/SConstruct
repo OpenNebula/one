@@ -17,9 +17,7 @@
 import os
 import sys
 import shutil
-sys.path.append("../../share/scons")
-
-from lex_bison import *
+sys.path.append("../../../../../share/scons")
 
 # This is the absolute path where the project is located
 cwd=os.getcwd()
@@ -28,18 +26,16 @@ cwd=os.getcwd()
 main_env=Environment()
 main_env['ENV']['PATH']=os.environ['PATH']
 
-# Add builders for flex and bison
-add_lex(main_env)
-add_bison(main_env)
-
 # Include dirs
 main_env.Append(CPPPATH=[
-    cwd+'/include/',
+    cwd+'/../../../include',
+    '/usr/include/cppunit/'
 ])
 
 # Library dirs
 main_env.Append(LIBPATH=[
-    cwd+'/src/xml',
+    cwd+'/..',
+    cwd+'/../../xml'
 ])
 
 # Compile flags
@@ -50,6 +46,15 @@ main_env.Append(CPPFLAGS=[
 
 # Linking flags
 main_env.Append(LDFLAGS=["-g"])
+
+# Libraries
+main_env.Append(LIBS=[
+    'cppunit',
+    'scheduler_xml',
+    'scheduler_pool'
+])
+
+main_env.Program('test_vm','VirtualMachineXMLTest.cc')
 
 ################################################################################
 #                               EXTRA CONFIGURATION
@@ -65,7 +70,7 @@ if xmlrpc_dir!='none':
     main_env.Append(LIBPATH=[xmlrpc_dir+"/lib"])
     main_env.Append(CPPPATH=[xmlrpc_dir+"/include"])
 
-main_env.ParseConfig('../../share/scons/get_xmlrpc_config client')
+main_env.ParseConfig('../../../../../share/scons/get_xmlrpc_config client')
 
 #-------------------------------------------------------------------------------
 # build lex/bison
@@ -83,16 +88,3 @@ else:
 #-------------------------------------------------------------------------------
 
 main_env.ParseConfig('xml2-config --libs --cflags')
-
-################################################################################
-# SCONS scripts to build
-################################################################################
-
-build_scripts=[
-    'src/xml/SConstruct',
-    'src/pool/SConstruct',
-]
-
-for script in build_scripts:
-    env=main_env.Clone()
-    SConscript(script, exports='env')
