@@ -116,8 +116,12 @@ class EC2QueryServer < CloudServer
         signature_params = params.reject { |key,value| 
             key=='Signature' or key=='file' }
 
+	
+	server_str = @server_host
+	server_str = server_str + ":" + @server_port if params["Version"] != "2008-12-01" 
+
         canonical_str = AWS.canonical_string(signature_params, 
-					     @server_host + ":" + @server_port,
+					     server_str,
 					     env['REQUEST_METHOD'])
 
         # Use the correct signature strength
