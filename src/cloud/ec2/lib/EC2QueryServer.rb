@@ -174,8 +174,9 @@ class EC2QueryServer < CloudServer
     end
 
     def describe_images(params)
-        erb_user   = get_user(params['AWSAccessKeyId'])
-        erb_images = Image.filter(:owner => erb_user[:id])
+        erb_user    = get_user(params['AWSAccessKeyId'])
+        erb_images  = Image.filter(:owner => erb_user[:id])
+	erb_version = params['Version']
        
         response = ERB.new(File.read(@config[:views]+"/describe_images.erb"))
         return response.result(binding), 200
@@ -225,6 +226,8 @@ class EC2QueryServer < CloudServer
      
         erb_vm_info[:vm_id]=vm.id
         erb_vm_info[:vm]=vm
+
+	erb_version = params['Version']
         
         response = ERB.new(File.read(@config[:views]+"/run_instances.erb"))
         return response.result(binding), 200
@@ -246,6 +249,8 @@ class EC2QueryServer < CloudServer
 
         erb_vmpool = VirtualMachinePool.new(one_client, user_flag)
         erb_vmpool.info
+
+	erb_version = params['Version']
         
         response = ERB.new(File.read(@config[:views]+"/describe_instances.erb"))
         return response.result(binding), 200
@@ -273,6 +278,8 @@ class EC2QueryServer < CloudServer
         end
         
         return rc, 401 if OpenNebula::is_error?(rc)
+
+	erb_version = params['Version']
         
         response =ERB.new(File.read(@config[:views]+"/terminate_instances.erb"))
         return response.result(binding), 200
