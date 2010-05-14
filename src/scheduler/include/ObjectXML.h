@@ -113,8 +113,6 @@ public:
         string str(reinterpret_cast<char *>(mem));
         os << str;
 
-
-
         xmlFree(mem);
 
         return os;
