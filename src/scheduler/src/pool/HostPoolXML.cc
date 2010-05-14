@@ -33,7 +33,7 @@ int HostPoolXML::set_up()
 
         for (it=objects.begin();it!=objects.end();it++)
         {
-            oss << " " << it->second;
+            oss << " " << it->first;
         }
 
         NebulaLog::log("HOST",Log::DEBUG,oss);

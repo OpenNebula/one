@@ -32,7 +32,7 @@ int VirtualMachinePoolXML::set_up()
 
         for (it=objects.begin();it!=objects.end();it++)
         {
-            oss << " " << it->second;
+            oss << " " << it->first;
         }
 
         NebulaLog::log("VM",Log::DEBUG,oss);
@@ -54,7 +54,7 @@ void VirtualMachinePoolXML::add_object(xmlNodePtr node)
        return;
     }
 
-    xmlChar *     str_ptr = xmlNodeGetContent(node->children->next);
+    xmlChar *     str_ptr = xmlNodeGetContent(node->children);
     istringstream iss(reinterpret_cast<char *>(str_ptr));
 
     int             vid;
