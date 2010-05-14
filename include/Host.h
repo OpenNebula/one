@@ -245,30 +245,6 @@ public:
         host_template.get(str,value);
     }
 
-    // ---------------------------------------------------------
-    //  Lex & bison parser for requirements and rank expressions
-    // ---------------------------------------------------------
-
-    /**
-     *  Evaluates a requirement expression on the given host.
-     *    @param requirements string
-     *    @param result true if the host matches the requirements
-     *    @param errmsg string describing the error, must be freed by the
-     *    calling function
-     *    @return 0 on success
-     */
-    int match(const string& requirements, bool& result, char **errmsg);
-
-    /**
-     *  Evaluates a rank expression on the given host.
-     *    @param rank string
-     *    @param result of the rank evaluation
-     *    @param errmsg string describing the error, must be freed by the
-     *    calling function
-     *    @return 0 on success
-     */
-    int rank(const string& rank, int& result, char **errmsg);
-
     // ------------------------------------------------------------------------
     // Share functions
     // ------------------------------------------------------------------------
@@ -434,23 +410,14 @@ private:
      */
     HostShare       host_share;
 
-    // -------------------------------------------------------------------------
-    //  Lex & bison
-    // -------------------------------------------------------------------------
-
-    /**
-     *  Mutex to perform just one flex-bison parsing at a time
-     */
-    static pthread_mutex_t	lex_mutex;
-
     // *************************************************************************
     // DataBase implementation (Private)
     // *************************************************************************
 
     /**
-     *  Execute an INSERT or REPLACE Sql query. 
+     *  Execute an INSERT or REPLACE Sql query.
      *    @param db The SQL DB
-     *    @param replace Execute an INSERT or a REPLACE	
+     *    @param replace Execute an INSERT or a REPLACE
      *    @return 0 one success
     */
     int insert_replace(SqlDB *db, bool replace);
