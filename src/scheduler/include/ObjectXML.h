@@ -76,6 +76,30 @@ public:
      */
     int update(const string &xml_doc);
 
+    // ---------------------------------------------------------
+    //  Lex & bison parser for requirements and rank expressions
+    // ---------------------------------------------------------
+
+    /**
+     *  Evaluates a requirement expression on the given host.
+     *    @param requirements string
+     *    @param result true if the host matches the requirements
+     *    @param errmsg string describing the error, must be freed by the
+     *    calling function
+     *    @return 0 on success
+     */
+    int eval_bool(const string& expr, bool& result, char **errmsg);
+
+    /**
+     *  Evaluates a rank expression on the given host.
+     *    @param rank string
+     *    @param result of the rank evaluation
+     *    @param errmsg string describing the error, must be freed by the
+     *    calling function
+     *    @return 0 on success
+     */
+    int eval_arith(const string& expr, int& result, char **errmsg);
+
 private:
     /**
      *  XML representation of the Object

@@ -16,6 +16,7 @@
 
 #include <ObjectXML.h>
 #include <stdexcept>
+#include <cstring>
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -212,3 +213,97 @@ void ObjectXML::xml_parse(const string &xml_doc)
         throw("Unable to create new XPath context");
     }
 }
+
+
+/* ************************************************************************ */
+/* Host :: Parse functions to compute rank and evaluate requirements        */
+/* ************************************************************************ */
+
+extern "C"
+{
+    typedef struct yy_buffer_state * YY_BUFFER_STATE;
+
+    int expr_bool_parse(ObjectXML * oxml, bool& result, char ** errmsg);
+
+    int expr_arith_parse(ObjectXML * oxml, int& result, char ** errmsg);
+
+    int expr_lex_destroy();
+
+    YY_BUFFER_STATE expr__scan_string(const char * str);
+
+    void expr__delete_buffer(YY_BUFFER_STATE);
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int ObjectXML::eval_bool(const string& expr, bool& result, char **errmsg)
+{
+    YY_BUFFER_STATE     str_buffer = 0;
+    const char *        str;
+    int                 rc;
+
+    *errmsg = 0;
+
+    str = expr.c_str();
+
+    str_buffer = expr__scan_string(str);
+
+    if (str_buffer == 0)
+    {
+        goto error_yy;
+    }
+
+    rc = expr_bool_parse(this,result,errmsg);
+
+    expr__delete_buffer(str_buffer);
+
+    expr_lex_destroy();
+
+    return rc;
+
+error_yy:
+
+    *errmsg=strdup("Error setting scan buffer");
+
+    return -1;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int ObjectXML::eval_arith(const string& expr, int& result, char **errmsg)
+{
+    YY_BUFFER_STATE     str_buffer = 0;
+    const char *        str;
+    int                 rc;
+
+    *errmsg = 0;
+
+    str = expr.c_str();
+
+    str_buffer = expr__scan_string(str);
+
+    if (str_buffer == 0)
+    {
+        goto error_yy;
+    }
+
+    rc = expr_arith_parse(this,result,errmsg);
+
+    expr__delete_buffer(str_buffer);
+
+    expr_lex_destroy();
+
+    return rc;
+
+error_yy:
+
+    *errmsg=strdup("Error setting scan buffer");
+
+    return -1;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
