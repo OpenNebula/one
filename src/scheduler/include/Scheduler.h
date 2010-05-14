@@ -50,7 +50,7 @@ protected:
         one_url(url),
         timer(_timer),
         threshold(0.9),
-        client()
+        client("",url)
     {
         am.addListener(this);
     };

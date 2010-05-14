@@ -41,6 +41,10 @@ main_env.Append(CPPPATH=[
 # Library dirs
 main_env.Append(LIBPATH=[
     cwd+'/src/xml',
+    cwd+'/src/pool',
+    cwd+'/src/sched',
+    cwd+'/../log',
+    cwd+'/../common',
 ])
 
 # Compile flags

@@ -156,7 +156,7 @@ build_scripts=[
     'src/tm/SConstruct',
     'src/im/SConstruct',
     'src/dm/SConstruct',
-#    'src/scheduler/SConstruct',
+    'src/scheduler/SConstruct',
     'src/vnm/SConstruct',
     'src/hm/SConstruct',
     'src/um/SConstruct',

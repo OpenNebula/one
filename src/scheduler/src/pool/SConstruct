@@ -20,7 +20,11 @@ Import('env')
 
 lib_name='scheduler_pool'
 
-source_files=['VirtualMachinePoolXML.cc','VirtualMachineXML.cc']
+source_files=[
+	'HostPoolXML.cc',
+	'HostXML.cc',
+	'VirtualMachinePoolXML.cc',
+	'VirtualMachineXML.cc']
 
 # Build library
 env.StaticLibrary(lib_name, source_files)
