@@ -34,7 +34,8 @@ add_bison(main_env)
 
 # Include dirs
 main_env.Append(CPPPATH=[
-    cwd+'/include/',
+    cwd + '/include/',
+    cwd + '../../../include/'
 ])
 
 # Library dirs
@@ -91,6 +92,7 @@ main_env.ParseConfig('xml2-config --libs --cflags')
 build_scripts=[
     'src/xml/SConstruct',
     'src/pool/SConstruct',
+    'src/sched/SConstruct'
 ]
 
 for script in build_scripts:

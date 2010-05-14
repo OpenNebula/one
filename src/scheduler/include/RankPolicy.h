@@ -22,68 +22,68 @@
 
 using namespace std;
 
-class RankPolicy : public SchedulerHostPolicy 
+class RankPolicy : public SchedulerHostPolicy
 {
 public:
-    
+
     RankPolicy(
-        SchedulerVirtualMachinePool *   vmpool,
-        SchedulerHostPool *             hpool,
+        VirtualMachinePoolXML *   vmpool,
+        HostPoolXML *             hpool,
         float w=1.0):SchedulerHostPolicy(vmpool,hpool,w){};
-    
+
     ~RankPolicy(){};
 
 private:
 
     void policy(
-        SchedulerVirtualMachine * vm)
-    {        
+        VirtualMachineXML * vm)
+    {
         string  srank;
         int     rank;
-        
+
         char *  errmsg;
         int     rc;
-        
+
         vector<int>     hids;
         unsigned int    i;
-        
-        SchedulerHost * host;
-        
+
+        HostXML * host;
+
         vm->get_matching_hosts(hids);
- 
-        vm->get_template_attribute("RANK",srank);
-        
+
+        srank = vm->get_rank();
+
         if (srank == "")
         {
-            Scheduler::log("RANK",Log::WARNING,"No rank defined for VM");
+            NebulaLog::log("RANK",Log::WARNING,"No rank defined for VM");
         }
 
         for (i=0;i<hids.size();i++)
-        {       
-        	rank = 0;
-        	
+        {
+            rank = 0;
+
             if (srank != "")
             {
-                host = hpool->get(hids[i],false);
-                
+                host = hpool->get(hids[i]);
+
                 if ( host != 0 )
-                {                
-                	rc = host->rank(srank, rank, &errmsg);
-                
-                	if (rc != 0)
-                	{
-                		ostringstream oss;
-                    
-                		oss << "Computing host rank, expression: " << srank
-                        	<< ", error: " << errmsg;                        
-                		Scheduler::log("RANK",Log::ERROR,oss);
-                    
-                		free(errmsg);
-                	}
+                {
+                    rc = host->eval_arith(srank, rank, &errmsg);
+
+                    if (rc != 0)
+                    {
+                        ostringstream oss;
+
+                        oss << "Computing host rank, expression: " << srank
+                            << ", error: " << errmsg;
+                        NebulaLog::log("RANK",Log::ERROR,oss);
+
+                        free(errmsg);
+                    }
                 }
             }
-            
-            priority.push_back(rank);            
+
+            priority.push_back(rank);
         }
     }
 };

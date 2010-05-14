@@ -26,21 +26,15 @@ using namespace std;
 
 class PoolXML : public ObjectXML
 {
-protected:
-
-    // ------------------------------------------------------------------------
-
-    PoolXML(Client* client):ObjectXML()
+public:
+    /**
+     *
+     *
+     */
+    const map<int, ObjectXML*>& get_objects() const
     {
-        this->client = client;
+        return objects;
     };
-
-    virtual ~PoolXML()
-    {
-        flush();
-    };
-
-    // ------------------------------------------------------------------------
 
     /**
      *  Set ups the pool by performing the following actions:
@@ -127,14 +121,21 @@ protected:
         }
     };
 
-    /**
-     *
-     *
-     */
-    const map<int, ObjectXML*>& get_objects() const
+protected:
+
+    // ------------------------------------------------------------------------
+
+    PoolXML(Client* client):ObjectXML()
     {
-        return objects;
+        this->client = client;
     };
+
+    virtual ~PoolXML()
+    {
+        flush();
+    };
+
+    // ------------------------------------------------------------------------
 
     /**
      * Inserts a new ObjectXML into the objects map

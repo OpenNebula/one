@@ -31,8 +31,7 @@
 
 #include "Scheduler.h"
 #include "RankPolicy.h"
-#include "Nebula.h"
-#include "User.h"
+#include "NebulaLog.h"
 
 using namespace std;
 
@@ -50,12 +49,12 @@ extern "C" void * scheduler_action_loop(void *arg)
 
     sched = static_cast<Scheduler *>(arg);
 
-    Scheduler::log("SCHED",Log::INFO,"Scheduler loop started.");
-    
+    NebulaLog::log("SCHED",Log::INFO,"Scheduler loop started.");
+
     sched->am.loop(sched->timer,0);
 
-    Scheduler::log("SCHED",Log::INFO,"Scheduler loop stopped.");
-    
+    NebulaLog::log("SCHED",Log::INFO,"Scheduler loop stopped.");
+
     return 0;
 }
 
@@ -64,103 +63,49 @@ extern "C" void * scheduler_action_loop(void *arg)
 
 void Scheduler::start()
 {
-    int     rc;
-    Nebula&	nd = Nebula::instance();
+    int      rc;
+    ifstream file;
 
     pthread_attr_t  pattr;
 
-    const char * one_auth;
-
-    string one_name;
-    string one_pass;
-    string one_token;
-
-    ifstream file;
-    
     // -----------------------------------------------------------
     // Log system
     // -----------------------------------------------------------
 
     try
     {
-        string log_fname;
+        ostringstream oss;
+        const char *  nl = getenv("ONE_LOCATION");
 
-        log_fname = nd.get_log_location() + "sched.log";
+        if (nl == 0) //OpenNebula installed under root directory
+        {
+            oss << "/var/log/one/";
+        }
+        else
+        {
+            oss << nl << "/var/";
+        }
 
-        Scheduler::log("SCHED",
-                        Log::INFO,
-                        "Init Scheduler Log system",
-                        log_fname.c_str());
+        oss << "sched.log";
+
+        NebulaLog::init_log_system(NebulaLog::FILE,
+                                   Log::DEBUG,
+                                   oss.str().c_str());
+
+        NebulaLog::log("SCHED", Log::INFO, "Init Scheduler Log system");
     }
     catch(runtime_error &)
     {
         throw;
     }
 
-    one_auth = getenv("ONE_AUTH");
-
-    if (!one_auth)
-    {
-        struct passwd * pw_ent;
-        
-        pw_ent = getpwuid(getuid());
-
-        if ((pw_ent != NULL) && (pw_ent->pw_dir != NULL))
-        {                                                 
-          
-            string one_auth_file = pw_ent->pw_dir;
-            
-            one_auth_file += "/.one/one_auth";
-            one_auth = one_auth_file.c_str();
-        }
-        else
-        {
-            throw runtime_error("Could not get one_auth file location");
-        }
-    }
-    
-    file.open(one_auth);
-
-    if (file.good())
-    {
-        getline(file,one_token);
-
-        if (file.fail())
-        {
-            throw runtime_error("Error reading $ONE_AUTH file");
-        }
-    }
-    else
-    {
-        throw runtime_error("Could not open $ONE_AUTH file");
-    }
-
-    file.close();
- 
-    if ( User::split_secret(one_token,one_name,one_pass) != 0 )
-    {
-        throw runtime_error("Wrong format must be <username>:<password>");
-    }
-
-    secret = one_name + ":" + User::sha1_digest(one_pass);
 
     // -----------------------------------------------------------
     // Pools
     // -----------------------------------------------------------
 
-    try
-    {
-        string db_name = nd.get_var_location() + "one.db";
-        
-        db = new SqliteDB(db_name,Scheduler::log);
-    }
-    catch (exception&)
-    {
-        throw;
-    }
-
-    hpool  = new SchedulerHostPool(db);
-    vmpool = new SchedulerVirtualMachinePool(db);
+    hpool  = new HostPoolXML(&client);
+    vmpool = new VirtualMachinePoolXML(&client);
 
     // -----------------------------------------------------------
     // Load scheduler policies
@@ -185,7 +130,7 @@ void Scheduler::start()
     fcntl(0,F_SETFD,0); // Keep them open across exec funcs
     fcntl(1,F_SETFD,0);
     fcntl(2,F_SETFD,0);
-    
+
     // -----------------------------------------------------------
     // Block all signals before creating any  thread
     // -----------------------------------------------------------
@@ -201,8 +146,8 @@ void Scheduler::start()
     // Create the scheduler loop
     // -----------------------------------------------------------
 
-    Scheduler::log("SCHED",Log::INFO,"Starting scheduler loop...");
-    
+    NebulaLog::log("SCHED",Log::INFO,"Starting scheduler loop...");
+
     pthread_attr_init (&pattr);
     pthread_attr_setdetachstate (&pattr, PTHREAD_CREATE_JOINABLE);
 
@@ -210,9 +155,9 @@ void Scheduler::start()
 
     if ( rc != 0 )
     {
-        Scheduler::log("SCHED",Log::ERROR,
+        NebulaLog::log("SCHED",Log::ERROR,
             "Could not start scheduler loop, exiting");
-        
+
         return;
     }
 
@@ -278,39 +223,36 @@ int Scheduler::set_up_pools()
 
 void Scheduler::match()
 {
-    SchedulerVirtualMachine *   vm;
-    int                         vm_memory;
-    int                         vm_cpu;
-    int                         vm_disk;
-    string                      reqs;
+    VirtualMachineXML * vm;
+    int                 vm_memory;
+    int                 vm_cpu;
+    int                 vm_disk;
+    string              reqs;
 
-    SchedulerHost * host;
-    int             host_memory;
-    int             host_cpu;
-    char *          error;
-    bool            matched;
+    HostXML * host;
+    int       host_memory;
+    int       host_cpu;
+    char *    error;
+    bool      matched;
 
-    int             rc;
+    int       rc;
 
-    for (unsigned int i= 0; i < vmpool->pending_vms.size(); i++)
+    map<int, ObjectXML*>::const_iterator  vm_it;
+    map<int, ObjectXML*>::const_iterator  h_it;
+
+    const map<int, ObjectXML*> pending_vms = vmpool->get_objects();
+    const map<int, ObjectXML*> hosts = hpool->get_objects();
+
+
+    for (vm_it=pending_vms.begin(); vm_it != pending_vms.end(); vm_it++)
     {
-        vm = vmpool->get(vmpool->pending_vms[i],false);
+        vm = static_cast<VirtualMachineXML*>(vm_it->second);
 
-        if ( vm == 0 )
+        reqs = vm->get_requirements();
+
+        for (h_it=hosts.begin(); h_it != hosts.end(); h_it++)
         {
-            continue;
-        }
-
-        vm->get_template_attribute("REQUIREMENTS",reqs);
-
-        for (unsigned int j=0;j<hpool->hids.size();j++)
-        {
-            host = hpool->get(hpool->hids[j],false);
-
-            if ( host == 0 )
-            {
-                continue;
-            }
+            host = static_cast<HostXML *>(h_it->second);
 
             // -----------------------------------------------------------------
             // Evaluate VM requirements
@@ -318,7 +260,7 @@ void Scheduler::match()
 
             if (reqs != "")
             {
-                rc = host->match(reqs,matched,&error);
+                rc = host->eval_bool(reqs,matched,&error);
 
                 if ( rc != 0 )
                 {
@@ -328,7 +270,7 @@ void Scheduler::match()
 
                     oss << "Error evaluating expresion: " << reqs
                     << ", error: " << error;
-                    Scheduler::log("HOST",Log::ERROR,oss);
+                    NebulaLog::log("SCHED",Log::ERROR,oss);
 
                     free(error);
                 }
@@ -375,25 +317,20 @@ static float sum_operator (float i, float j)
 int Scheduler::schedule()
 {
     vector<SchedulerHostPolicy *>::iterator it;
-    vector<int>::iterator                   jt;
-    vector<int>::iterator                   kt;
-    SchedulerVirtualMachine *               vm;
 
-    ostringstream                   oss;
+    VirtualMachineXML * vm;
+    ostringstream       oss;
 
     vector<float>   total;
     vector<float>   policy;
 
-    for (jt=vmpool->pending_vms.begin();jt!=vmpool->pending_vms.end();jt++)
+    map<int, ObjectXML*>::const_iterator  vm_it;
+
+    const map<int, ObjectXML*> pending_vms = vmpool->get_objects();
+
+    for (vm_it=pending_vms.begin(); vm_it != pending_vms.end(); vm_it++)
     {
-        vm = vmpool->get(*jt,false);
-        
-        if ( vm == 0 )
-        {
-            oss << "Can not get VM id=" <<  *jt;
-            Scheduler::log("HOST",Log::ERROR,oss);
-            continue;
-        }
+        vm = static_cast<VirtualMachineXML*>(vm_it->second);
 
         total.clear();
 
@@ -427,90 +364,37 @@ int Scheduler::schedule()
 
 void Scheduler::dispatch()
 {
-    vector<int>::iterator   it;
-
-    SchedulerVirtualMachine *   vm;
-    ostringstream               oss;
+    VirtualMachineXML * vm;
+    ostringstream       oss;
 
     int hid;
     int rc;
+
+    map<int, ObjectXML*>::const_iterator  vm_it;
+    const map<int, ObjectXML*>            pending_vms = vmpool->get_objects();
 
     oss << "Select hosts" << endl;
     oss << "\tPRI\tHID" << endl;
     oss << "\t-------------------" << endl;
 
-    for (it=vmpool->pending_vms.begin();it!=vmpool->pending_vms.end();it++)
+    for (vm_it=pending_vms.begin(); vm_it != pending_vms.end(); vm_it++)
     {
-        vm = vmpool->get(*it,false);
-        
-        if ( vm != 0 )
-        {
-        	oss << "Virtual Machine: " << vm->get_oid() << "\n" << *vm << endl;
-        }
+        vm = static_cast<VirtualMachineXML*>(vm_it->second);
+
+        oss << "Virtual Machine: " << vm->get_oid() << "\n" << *vm << endl;
     }
 
-    Scheduler::log("SCHED",Log::INFO,oss);
+    NebulaLog::log("SCHED",Log::INFO,oss);
 
-    for (it=vmpool->pending_vms.begin();it!=vmpool->pending_vms.end();it++)
+    for (vm_it=pending_vms.begin(); vm_it != pending_vms.end(); vm_it++)
     {
-        vm = vmpool->get(*it,false);
-
-        if ( vm == 0 )
-        {
-            continue;
-        }
+        vm = static_cast<VirtualMachineXML*>(vm_it->second);
 
         rc = vm->get_host(hid,hpool);
 
         if (rc == 0)
         {
-            xmlrpc_c::value             deploy_result;
-            
-            oss.str("");
-            oss << "Dispatching virtual machine " << vm->get_oid()
-            	<< " to HID: " << hid;
-            
-            Scheduler::log("SCHED",Log::INFO,oss);
-
-            // Tell ONE about the decision
-
-            try
-            {
-                xmlrpc_client.call(
-                    one_url,
-                    "one.vm.deploy",
-                    "sii",
-                    &deploy_result,
-                    secret.c_str(),
-                    vm->get_oid(),
-                    hid);
-            }
-            catch (exception &e)
-            {
-                oss.str("");
-                oss << "Exception raised: " << e.what() << '\n';
-
-                Scheduler::log("SCHED",Log::ERROR,oss);
-                break;
-            }
-
-            // See how ONE handled the deployment
-
-            xmlrpc_c::value_array         result(deploy_result);
-            vector<xmlrpc_c::value> const param_array(result.vectorValueValue());
-            xmlrpc_c::value_boolean const result_correct(param_array[0]);
-
-            if ( static_cast<bool>(result_correct) != true )
-            {
-                xmlrpc_c::value_string const info(param_array[1]);
-
-                oss.str("");
-                oss << "Error deploying virtual machine " << vm->get_oid()
-                << " to HID: " << hid
-                << ". Reason: " << static_cast<string>(info);
-
-                Scheduler::log("SCHED",Log::ERROR,oss);
-            }
+            //vm->dispatch(hid,client);
         }
     }
 }
@@ -542,6 +426,6 @@ void Scheduler::do_action(const string &name, void *args)
     }
     else if (name == ACTION_FINALIZE)
     {
-        Scheduler::log("SCHED",Log::INFO,"Stopping the scheduler...");
+        NebulaLog::log("SCHED",Log::INFO,"Stopping the scheduler...");
     }
 }
