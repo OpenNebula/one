@@ -122,3 +122,59 @@ int VirtualMachinePoolXML::load_info(xmlrpc_c::value &result)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+
+int VirtualMachinePoolXML::dispatch(int vid, int hid) const
+{
+    ostringstream               oss;
+    xmlrpc_c::value             deploy_result;
+
+    oss.str("");
+    oss << "Dispatching virtual machine " << vid
+        << " to HID: " << hid;
+
+    NebulaLog::log("VM",Log::INFO,oss);
+
+    try
+    {
+        client->call( client->get_endpoint(),           // serverUrl
+                      "one.vm.deploy",                  // methodName
+                      "sii",                            // arguments format
+                      &deploy_result,                   // resultP
+                      client->get_oneauth().c_str(),    // argument 0
+                      vid,                              // argument 1
+                      hid                               // argument 2
+                    );
+    }
+    catch (exception const& e)
+    {
+        oss.str("");
+        oss << "Exception raised: " << e.what() << '\n';
+
+        NebulaLog::log("VM",Log::ERROR,oss);
+
+        return -1;
+    }
+
+    // See how ONE handled the deployment
+
+    vector<xmlrpc_c::value> values =
+                    xmlrpc_c::value_array(deploy_result).vectorValueValue();
+
+    bool   success = xmlrpc_c::value_boolean( values[0] );
+
+    if ( !success )
+    {
+        string message = xmlrpc_c::value_string(  values[1] );
+
+        oss.str("");
+        oss << "Error deploying virtual machine " << vid
+            << " to HID: " << hid << ". Reason: " << message;
+
+        NebulaLog::log("VM",Log::ERROR,oss);
+
+        return -1;
+    }
+
+    return 0;
+}

@@ -394,7 +394,7 @@ void Scheduler::dispatch()
 
         if (rc == 0)
         {
-            //vm->dispatch(hid,client);
+            vmpool->dispatch(vm_it->first,hid);
         }
     }
 }

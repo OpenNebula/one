@@ -44,6 +44,8 @@ public:
         return static_cast<VirtualMachineXML *>(PoolXML::get(oid));
     };
 
+    int dispatch(int vid, int hid) const;
+
 protected:
 
     int get_suitable_nodes(vector<xmlNodePtr>& content)
