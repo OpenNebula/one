@@ -45,6 +45,59 @@ int HostPoolXML::set_up()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void HostPoolXML::add_object(xmlNodePtr node)
+{
+    if ( node == 0 || node->children == 0 )
+    {
+        NebulaLog::log("HOST",Log::ERROR,
+                       "XML Node does not represent a valid Host");
+
+       return;
+    }
+
+    xmlChar *     str_ptr = xmlNodeGetContent(node->children);
+    istringstream iss(reinterpret_cast<char *>(str_ptr));
+
+    int             hid;
+    xmlrpc_c::value result;
+
+    iss >> hid;
+    xmlFree(str_ptr);
+
+    client->call(client->get_endpoint(),            // serverUrl
+                  "one.host.info",                  // methodName
+                  "si",                             // arguments format
+                  &result,                          // resultP
+                  client->get_oneauth().c_str(),    // argument 0
+                  hid);                             // argument 1
+
+    vector<xmlrpc_c::value> values =
+                    xmlrpc_c::value_array(result).vectorValueValue();
+
+    bool   success = xmlrpc_c::value_boolean( values[0] );
+    string message = xmlrpc_c::value_string(  values[1] );
+
+    if( !success )
+    {
+        ostringstream oss;
+
+        oss << "ONE returned error while retrieving info for Host " << hid;
+        oss << ":" << endl;
+        oss << message;
+
+        NebulaLog::log("HOST",Log::ERROR,oss);
+    }
+    else
+    {
+        HostXML* host = new HostXML( message );
+
+        objects.insert( pair<int,ObjectXML*>(hid, host) );
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int HostPoolXML::load_info(xmlrpc_c::value &result)
 {
     try

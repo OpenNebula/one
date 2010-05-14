@@ -26,7 +26,7 @@ class HostXML : public ObjectXML
 {
 public:
 
-    HostXML(const xmlNodePtr node):ObjectXML(node)
+    HostXML(const string &xml_doc):ObjectXML(xml_doc)
     {
         init_attributes();
     };

@@ -49,11 +49,7 @@ protected:
         return get_nodes("/HOST_POOL/HOST[STATE<3]", content);
     };
 
-    virtual void add_object(xmlNodePtr node)
-    {
-        HostXML* host = new HostXML(node);
-        objects.insert( pair<int,ObjectXML*>(host->get_hid(), host) );
-    };
+    virtual void add_object(xmlNodePtr node);
 
     virtual int load_info(xmlrpc_c::value &result);
 };
