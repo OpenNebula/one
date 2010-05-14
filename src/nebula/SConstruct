@@ -24,8 +24,6 @@ lib_name='nebula_core'
 source_files=[
     'Nebula.cc',
     'NebulaTemplate.cc',
-    'NebulaLog.cc',
-    'Log.cc'
 ]
 
 # Build library
@@ -50,6 +48,7 @@ env.Append(LIBS=[
     'nebula_vm',
     'nebula_common',
     'nebula_sql',
+    'nebula_log',
     'crypto'
 ])
 

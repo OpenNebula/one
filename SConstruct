@@ -39,6 +39,7 @@ main_env.Append(CPPPATH=[
 # Library dirs
 main_env.Append(LIBPATH=[
     cwd+'/src/common',
+    cwd+'/src/log',
     cwd+'/src/sql',
     cwd+'/src/host',
     cwd+'/src/mad',
@@ -141,6 +142,7 @@ else:
 build_scripts=[
     'src/client/SConstruct',
     'src/sql/SConstruct',
+    'src/log/SConstruct',
     'src/common/SConstruct',
     'src/template/SConstruct',
     'src/host/SConstruct',
