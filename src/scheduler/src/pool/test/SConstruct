@@ -55,6 +55,7 @@ main_env.Append(LIBS=[
 ])
 
 main_env.Program('test_vm','VirtualMachineXMLTest.cc')
+main_env.Program('test_host','HostXMLTest.cc')
 
 ################################################################################
 #                               EXTRA CONFIGURATION
