@@ -15,6 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include <algorithm>
+
 #include "VirtualMachineXML.h"
 
 VirtualMachineXML::VirtualMachineXML(const string &xml_doc):ObjectXML(xml_doc)
@@ -113,8 +114,7 @@ void VirtualMachineXML::set_priorities(vector<float>& total)
 {
     if ( hosts.size() != total.size() )
     {
-        // TODO log error
-        // Scheduler::log("VM",Log::ERROR,"Wrong size for priority vector");
+        NebulaLog::log("VM",Log::ERROR,"Wrong size for priority vector");
         return;
     }
 
@@ -132,11 +132,10 @@ void VirtualMachineXML::set_priorities(vector<float>& total)
 
 int VirtualMachineXML::get_host(int& hid, HostPoolXML * hpool)
 {
-/*TODO Uncomment for HostPool
     vector<VirtualMachineXML::Host *>::reverse_iterator  i;
 
     vector<int>::iterator   j;
-    HostXML *               host;
+    HostXML *         host;
 
     int cpu;
     int mem;
@@ -146,7 +145,7 @@ int VirtualMachineXML::get_host(int& hid, HostPoolXML * hpool)
 
     for (i=hosts.rbegin();i!=hosts.rend();i++)
     {
-        host = hpool->get( (*i)->hid ) );
+        host = hpool->get( (*i)->hid );
 
         if ( host == 0 )
         {
@@ -163,7 +162,7 @@ int VirtualMachineXML::get_host(int& hid, HostPoolXML * hpool)
     }
 
     hid  = -1;
-*/
+
     return -1;
 }
 

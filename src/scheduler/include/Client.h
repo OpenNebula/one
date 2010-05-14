@@ -24,6 +24,8 @@
 #include <string>
 #include <sstream>
 
+#include "NebulaLog.h"
+
 using namespace std;
 
 // =============================================================================

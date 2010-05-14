@@ -18,13 +18,12 @@
 #ifndef VM_XML_H_
 #define VM_XML_H_
 
-#include "ObjectXML.h"
 #include <sstream>
 
-using namespace std;
+#include "ObjectXML.h"
+#include "HostPoolXML.h"
 
-//TODO include the HostPool file...
-class HostPoolXML;
+using namespace std;
 
 class VirtualMachineXML : public ObjectXML
 {

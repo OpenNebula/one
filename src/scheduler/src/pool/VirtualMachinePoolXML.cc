@@ -25,8 +25,6 @@ int VirtualMachinePoolXML::set_up()
 
     if ( rc == 0 )
     {
-    // TODO FIX LOG
-    /*
         oss.str("");
         oss << "Pending virtual machines :";
 
@@ -37,8 +35,7 @@ int VirtualMachinePoolXML::set_up()
             oss << " " << it->second;
         }
 
-        Scheduler::log("VM",Log::DEBUG,oss);
-    //*/
+        NebulaLog::log("VM",Log::DEBUG,oss);
     }
 
     return rc;
@@ -51,7 +48,10 @@ void VirtualMachinePoolXML::add_object(xmlNodePtr node)
 {
     if ( node == 0 || node->children == 0 || node->children->next==0 )
     {
-        //TODO Log error
+        NebulaLog::log("VM",Log::ERROR,
+                       "XML Node does not represent a valid Virtual Machine");
+        // TODO: if the xml node isn't valid, do nothing?
+       return;
     }
 
     xmlChar *     str_ptr = xmlNodeGetContent(node->children->next);
@@ -78,7 +78,13 @@ void VirtualMachinePoolXML::add_object(xmlNodePtr node)
 
     if( !success )
     {
-        // TODO log error
+        ostringstream oss;
+
+        oss << "ONE returned error while retrieving info for VM " << vid;
+        oss << ":" << endl;
+        oss << message;
+
+        NebulaLog::log("VM",Log::ERROR,oss);
     }
     else
     {
@@ -94,18 +100,22 @@ void VirtualMachinePoolXML::add_object(xmlNodePtr node)
 int VirtualMachinePoolXML::load_info(xmlrpc_c::value &result)
 {
     try
-    {/*TODO make it compile
+    {
         client->call(client->get_endpoint(),           // serverUrl
                      "one.vmpool.info",                // methodName
                      "si",                             // arguments format
-                     result,                          // resultP
+                     &result,                          // resultP
                      client->get_oneauth().c_str(),    // argument 0
-                     -2);                              // argument 1*/
+                     -2);                              // argument 1
         return 0;
     }
     catch (exception const& e)
     {
-        // TODO log error, in e.what()
+        ostringstream   oss;
+        oss << "Exception raised: " << e.what();
+
+        NebulaLog::log("VM", Log::ERROR, oss);
+
         return -1;
     }
 }

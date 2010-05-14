@@ -18,6 +18,7 @@
 #ifndef POOL_XML_H_
 #define POOL_XML_H_
 
+#include "NebulaLog.h"
 #include "ObjectXML.h"
 #include "Client.h"
 
@@ -67,7 +68,8 @@ protected:
 
         if ( rc != 0 )
         {
-            // TODO: log error
+            NebulaLog::log("POOL",Log::ERROR,
+                           "Could not retrieve pool info from ONE");
             return -1;
         }
 
@@ -79,7 +81,12 @@ protected:
 
         if( !success )
         {
-            // TODO log error, in message
+            ostringstream oss;
+
+            oss << "ONE returned error while retrieving pool info:" << endl;
+            oss << message;
+
+            NebulaLog::log("POOL", Log::ERROR, oss);
             return -1;
         }
 
@@ -99,6 +106,28 @@ protected:
     };
 
     /**
+     *  Gets an object from the pool
+     *   @param oid the object unique identifier
+     *
+     *   @return a pointer to the object, 0 in case of failure
+     */
+    virtual ObjectXML * get(int oid) const
+    {
+        map<int, ObjectXML *>::const_iterator it;
+
+        it = objects.find(oid);
+
+        if ( it == objects.end() )
+        {
+            return 0;
+        }
+        else
+        {
+            return it->second;
+        }
+    };
+
+    /**
      *
      *
      */
@@ -106,17 +135,6 @@ protected:
     {
         return objects;
     };
-
-protected:
-    /**
-     * XML-RPC client
-     */
-    Client * client;
-
-    /**
-     * Hash map contains the suitable [id, object] pairs.
-     */
-    map<int, ObjectXML *> objects;
 
     /**
      * Inserts a new ObjectXML into the objects map
@@ -133,27 +151,20 @@ protected:
      */
     virtual int load_info(xmlrpc_c::value &result) = 0;
 
+    // ------------------------------------------------------------------------
+    // Attributes
+    // ------------------------------------------------------------------------
+
     /**
-     *  Gets an object from the pool
-     *   @param oid the object unique identifier
-     *
-     *   @return a pointer to the object, 0 in case of failure
+     * XML-RPC client
      */
-    virtual const ObjectXML * get(int oid) const
-    {
-        map<int, ObjectXML *>::const_iterator it;
+    Client * client;
 
-        it = objects.find(oid);
+    /**
+     * Hash map contains the suitable [id, object] pairs.
+     */
+    map<int, ObjectXML *> objects;
 
-        if ( it == objects.end() )
-        {
-            return 0;
-        }
-        else
-        {
-            return it->second;
-        }
-    };
 
 private:
     /**

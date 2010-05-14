@@ -39,9 +39,9 @@ public:
      *
      *   @return a pointer to the object, 0 in case of failure
      */
-    const VirtualMachineXML * get(int oid) const
+    VirtualMachineXML * get(int oid) const
     {
-        return static_cast<const VirtualMachineXML *>(PoolXML::get(oid));
+        return static_cast<VirtualMachineXML *>(PoolXML::get(oid));
     };
 
 protected:

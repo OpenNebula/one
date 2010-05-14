@@ -57,13 +57,10 @@ void Client::set_one_auth(string secret)
         }
         else
         {
-            // TODO NOTIFY ERROR
-/*
-            NebulaLog::log("ONE",Log::ERROR,
+            NebulaLog::log("XMLRPC",Log::ERROR,
                         "ONE_AUTH wrong format, must be <username>:<password>");
 
             throw;
-//*/
         }
     }
 }
@@ -128,8 +125,7 @@ int Client::read_oneauth(string &secret)
 
     if (rc != 0)
     {
-        // TODO NOTIFY ERROR
-//        NebulaLog::log("ONE",Log::ERROR,oss);
+        NebulaLog::log("XMLRPC",Log::ERROR,oss);
     }
 
     return rc;
