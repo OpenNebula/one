@@ -99,6 +99,7 @@ void Scheduler::start()
         throw;
     }
 
+    xmlInitParser();
 
     // -----------------------------------------------------------
     // Pools
@@ -175,6 +176,10 @@ void Scheduler::start()
     am.trigger(ActionListener::ACTION_FINALIZE,0); //Cancel sched loop
 
     pthread_join(sched_thread,0);
+
+    xmlCleanupParser();
+
+    NebulaLog::finalize_log_system();
 }
 
 /* -------------------------------------------------------------------------- */
