@@ -44,10 +44,10 @@ void RequestManager::VirtualMachineAllocate::execute(
 
     vector<xmlrpc_c::value> arrayData;
     xmlrpc_c::value_array * arrayresult;
-    
-        
+
+
     NebulaLog::log("ReM",Log::DEBUG,"VirtualMachineAllocate invoked");
-        
+
     session     = xmlrpc_c::value_string(paramList.getString(0));
     vm_template = xmlrpc_c::value_string(paramList.getString(1));
     vm_template += "\n";
@@ -62,7 +62,7 @@ void RequestManager::VirtualMachineAllocate::execute(
     }
 
     User::split_secret(session,username,password);
-   
+
     // Now let's get the user
     user = VirtualMachineAllocate::upool->get(username,true);
 
@@ -74,24 +74,24 @@ void RequestManager::VirtualMachineAllocate::execute(
     uid = user->get_uid();
 
     user->unlock();
-    
+
     rc = dm->allocate(uid,vm_template,&vid);
-    
-    if ( rc != 0 )
+
+    if ( rc < 0 )
     {
         goto error_allocate;
 
     }
-    
+
     arrayData.push_back(xmlrpc_c::value_boolean(true));
     arrayData.push_back(xmlrpc_c::value_int(vid));
-    
+
     // Copy arrayresult into retval mem space
     arrayresult = new xmlrpc_c::value_array(arrayData);
     *retval = *arrayresult;
 
     delete arrayresult; // and get rid of the original
-    
+
 
     return;
 
@@ -110,7 +110,7 @@ error_allocate:
     }
     else
     {
-        oss << "Error parsing VM template";   
+        oss << "Error parsing VM template";
     }
     goto error_common;
 
