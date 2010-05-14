@@ -250,7 +250,7 @@ INSTALL_ETC_FILES[17]="OCCI_ETC_TEMPLATE_FILES:$ETC_LOCATION/occi_templates"
 #-------------------------------------------------------------------------------
 
 BIN_FILES="src/nebula/oned \
-           src/scheduler/mm_sched \
+           src/scheduler/src/sched/mm_sched \
            src/client/ruby/onevm \
            src/client/ruby/onehost \
            src/client/ruby/onevnet \
