@@ -100,6 +100,26 @@ public:
      */
     int eval_arith(const string& expr, int& result, char **errmsg);
 
+    /**
+     *  Function to write the Object in an output stream
+     */
+    friend ostream& operator<<(ostream& os, ObjectXML& oxml)
+    {
+        xmlChar * mem;
+        int       size;
+
+        xmlDocDumpMemory(oxml.xml,&mem,&size);
+
+        string str(reinterpret_cast<char *>(mem));
+        os << str;
+
+
+
+        xmlFree(mem);
+
+        return os;
+    };
+
 private:
     /**
      *  XML representation of the Object
