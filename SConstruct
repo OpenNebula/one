@@ -140,7 +140,6 @@ else:
 
 # SCONS scripts to build
 build_scripts=[
-    'src/client/SConstruct',
     'src/sql/SConstruct',
     'src/log/SConstruct',
     'src/common/SConstruct',

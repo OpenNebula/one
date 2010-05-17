@@ -251,10 +251,10 @@ INSTALL_ETC_FILES[17]="OCCI_ETC_TEMPLATE_FILES:$ETC_LOCATION/occi_templates"
 
 BIN_FILES="src/nebula/oned \
            src/scheduler/src/sched/mm_sched \
-           src/client/ruby/onevm \
-           src/client/ruby/onehost \
-           src/client/ruby/onevnet \
-           src/client/ruby/oneuser \
+           src/cli/onevm \
+           src/cli/onehost \
+           src/cli/onevnet \
+           src/cli/oneuser \
            share/scripts/one"
 
 #-------------------------------------------------------------------------------
@@ -263,9 +263,8 @@ BIN_FILES="src/nebula/oned \
 # Library files, to be installed under $LIB_LOCATION
 #-------------------------------------------------------------------------------
 
-INCLUDE_FILES="include/OneClient.h"
-LIB_FILES="src/client/liboneapi.a \
-           src/client/liboneapi.so"
+INCLUDE_FILES=""
+LIB_FILES=""
 
 #-------------------------------------------------------------------------------
 # Ruby library files, to be installed under $LIB_LOCATION/ruby
@@ -278,8 +277,8 @@ RUBY_LIB_FILES="src/mad/ruby/one_mad.rb \
                 src/mad/ruby/CommandManager.rb \
                 src/mad/ruby/OpenNebulaDriver.rb \
                 src/mad/ruby/VirtualMachineDriver.rb \
-                src/client/ruby/client_utilities.rb \
-                src/client/ruby/command_parse.rb \
+                src/cli/client_utilities.rb \
+                src/cli/command_parse.rb \
                 src/oca/ruby/OpenNebula.rb \
                 src/tm_mad/TMScript.rb"
 
