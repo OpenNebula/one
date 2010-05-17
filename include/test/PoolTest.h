@@ -87,6 +87,9 @@ protected:
      */
     virtual void check(int index, PoolObjectSQL* obj) = 0;
 
+    PoolTest():pool(0),db(0){};
+    virtual ~PoolTest(){};
+
 public:
 
     void setUp()
@@ -132,9 +135,16 @@ public:
         {
             unlink(db_name.c_str());
         }
-        
-        delete db;
-        delete pool;
+	
+	if ( pool != 0 )
+	{        
+            delete pool;
+	}
+
+	if ( db != 0 )
+	{
+            delete db;
+	}
     };
 
 // *****************************************************************************

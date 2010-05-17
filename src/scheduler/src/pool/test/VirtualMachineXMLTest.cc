@@ -49,8 +49,6 @@ protected:
 
     void add_object(xmlNodePtr node)
     {
-        xmlNodePtr nodeID;
-
         xmlChar * str_ptr = xmlNodeGetContent(node->children->next);
 
         int hid;

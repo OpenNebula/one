@@ -42,6 +42,8 @@ main_env.Append(CPPPATH=[
 main_env.Append(LIBPATH=[
     cwd + '/src/common',
     cwd + '/src/nebula',
+    cwd + '/src/sql',
+    cwd + '/src/log',
     cwd + '/src/pool',
     cwd + '/src/template',
     cwd + '/src/um',
@@ -49,23 +51,34 @@ main_env.Append(LIBPATH=[
 ])
 
 main_env.Append(LIBS=[
+    'nebula_log',
     'nebula_um',
     'nebula_vnm',
     'nebula_template',
     'nebula_pool',
     'nebula_common',
     'nebula_core',
+    'nebula_sql',
     'cppunit',
     'dl',
     'pthread',
     'crypto',
-    'sqlite3',
-    'mysqlclient'
 ])
 
 # MYSQL
 main_env.Append(LIBPATH=["/usr/lib/mysql"])
 main_env.Append(CPPPATH=["/usr/include/mysql"])
+
+sqlite=ARGUMENTS.get('sqlite', 'yes')
+if sqlite=='yes':
+    main_env.Append(CPPFLAGS=["-DSQLITE_DB"])
+    main_env.Append(LIBS=[ 'sqlite3', ])
+
+# MySQL
+mysql=ARGUMENTS.get('mysql', 'no')
+if mysql=='yes':
+    main_env.Append(CPPFLAGS=["-DMYSQL_DB"])
+    main_env.Append(LIBS=[ 'mysqlclient', ])
 
 # Compile flags
 main_env.Append(CPPFLAGS=[

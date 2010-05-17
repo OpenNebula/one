@@ -40,7 +40,9 @@ main_env.Append(CPPPATH=[
 # Library dirs
 main_env.Append(LIBPATH=[
     cwd + '/src/common',
+    cwd + '/src/log',
     cwd + '/src/pool',
+    cwd + '/src/sql',
     cwd + '/src/pool/test',
     cwd + '/src/nebula',
 ])
@@ -48,11 +50,12 @@ main_env.Append(LIBPATH=[
 main_env.Append(LIBS=[
     'nebula_pool',
     'nebula_common',
+    'nebula_log',
     'nebula_core',
+    'nebula_sql',
     'cppunit',
     'dl',
     'pthread',
-    'sqlite3',
     'test_object'
 ])
 
@@ -62,9 +65,22 @@ main_env.Append(CPPFLAGS=[
     "-Wall"
 ])
 
-# Linking flags
-main_env.Append(LDFLAGS=["-g "])
+# MYSQL
+main_env.Append(LIBPATH=["/usr/lib/mysql"])
+main_env.Append(CPPPATH=["/usr/include/mysql"])
+
+sqlite=ARGUMENTS.get('sqlite', 'yes')
+if sqlite=='yes':
+    main_env.Append(CPPFLAGS=["-DSQLITE_DB"])
+    main_env.Append(LIBS=[ 'sqlite3', ])
+
+# MySQL
+mysql=ARGUMENTS.get('mysql', 'no')
+if mysql=='yes':
+    main_env.Append(CPPFLAGS=["-DMYSQL_DB"])
+    main_env.Append(LIBS=[ 'mysqlclient', ])
+
 
 main_env.StaticLibrary('test_object', ['TestPoolSQL.cc', 'TestPoolSQL.h'])
 main_env.Program('test','pool.cc')
-#
+
