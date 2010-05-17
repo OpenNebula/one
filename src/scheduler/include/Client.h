@@ -62,6 +62,8 @@ public:
     {
         set_one_auth(secret);
         set_one_endpoint(endpoint);
+
+        xmlrpc_limit_set(XMLRPC_XML_SIZE_LIMIT_ID, 1024*MESSAGE_SIZE);
     }
 
     const string& get_oneauth()
@@ -92,6 +94,11 @@ private:
     int split_secret(const string secret, string& user, string& pass);
 
     string sha1_digest(const string& pass);
+
+    /**
+     *  Default message size for XML data off the network
+     */
+    static const int MESSAGE_SIZE;
 };
 
 #endif /*ONECLIENT_H_*/
