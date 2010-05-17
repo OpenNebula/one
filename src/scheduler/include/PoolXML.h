@@ -91,7 +91,9 @@ public:
 
         num_objs = get_suitable_nodes(nodes);
 
-        for (unsigned int i=0 ; i < nodes.size() ; i++)
+        for (unsigned int i=0 ;
+             i < nodes.size() && ( pool_limit <= 0 || i < pool_limit ) ;
+             i++)
         {
             add_object(nodes[i]);
         }
@@ -125,9 +127,10 @@ protected:
 
     // ------------------------------------------------------------------------
 
-    PoolXML(Client* client):ObjectXML()
+    PoolXML(Client* client, unsigned int pool_limit = 0):ObjectXML()
     {
-        this->client = client;
+        this->client     = client;
+        this->pool_limit = pool_limit;
     };
 
     virtual ~PoolXML()
@@ -160,6 +163,12 @@ protected:
      * XML-RPC client
      */
     Client * client;
+
+    /**
+     *  Limit of pool elements to process (request individual info)
+     *  from the pool.
+     */
+    unsigned int pool_limit;
 
     /**
      * Hash map contains the suitable [id, object] pairs.

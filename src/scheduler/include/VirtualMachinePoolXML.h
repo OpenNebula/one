@@ -27,7 +27,10 @@ class VirtualMachinePoolXML : public PoolXML
 {
 public:
 
-    VirtualMachinePoolXML(Client* client):PoolXML(client){};
+    VirtualMachinePoolXML(
+                             Client*        client,
+                             unsigned int   machines_limit
+                         ):PoolXML(client, machines_limit){};
 
     ~VirtualMachinePoolXML(){};
 

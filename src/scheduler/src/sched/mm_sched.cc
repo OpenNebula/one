@@ -31,7 +31,11 @@ class RankScheduler : public Scheduler
 {
 public:
 
-    RankScheduler(string url,time_t timer=1):Scheduler(url,timer),rp(0){};
+    RankScheduler(string url,
+                  unsigned int machines_limit,
+                  unsigned int dispatch_limit,
+                  time_t timer=1
+                  ):Scheduler(url,timer,machines_limit, dispatch_limit),rp(0){};
     
     ~RankScheduler()
     {
@@ -58,11 +62,13 @@ int main(int argc, char **argv)
     RankScheduler * ss;
     int             port = 2633;
     time_t          timer= 30;
+    unsigned int    machines_limit = 400;
+    unsigned int    dispatch_limit = 300;
     char            opt;
     
     ostringstream  oss;
         
-    while((opt = getopt(argc,argv,"p:t:")) != -1)
+    while((opt = getopt(argc,argv,"p:t:m:d:")) != -1)
     {
         switch(opt)
         {
@@ -72,8 +78,15 @@ int main(int argc, char **argv)
             case 't':
                 timer = atoi(optarg);
                 break;
+            case 'm':
+                machines_limit = atoi(optarg);
+                break;
+            case 'd':
+                dispatch_limit = atoi(optarg);
+                break;
             default:
-                cerr << "usage: " << argv[0] << " [-p port] [-t timer]\n";
+                cerr << "usage: " << argv[0] << " [-p port] [-t timer] ";
+                cerr << "[-m machines limit] [-d dispatch limit]\n";
                 exit(-1);
                 break;
         }
@@ -83,7 +96,7 @@ int main(int argc, char **argv)
     
     oss << "http://localhost:" << port << "/RPC2";
         
-    ss = new RankScheduler(oss.str(),timer);
+    ss = new RankScheduler(oss.str(),timer, machines_limit, dispatch_limit);
     
     try
     {

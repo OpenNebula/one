@@ -44,11 +44,13 @@ public:
 
 protected:
 
-    Scheduler(string& url, time_t _timer):
+    Scheduler(string& url, time_t _timer,
+              int _machines_limit, int _dispatch_limit):
         hpool(0),
         vmpool(0),
-        one_url(url),
         timer(_timer),
+        machines_limit(_machines_limit),
+        dispatch_limit(_dispatch_limit),
         threshold(0.9),
         client("",url)
     {
@@ -119,13 +121,17 @@ private:
     // Configuration attributes
     // ---------------------------------------------------------------
 
-    /**
-     *  the URL of the XML-RPC server
-     */
-    string  one_url;
-
-
     time_t  timer;
+
+    /**
+     *  Limit of pending virtual machines to process from the pool.
+     */
+    unsigned int machines_limit;
+
+    /**
+     *  Limit of virtual machines to ask OpenNebula core to deploy.
+     */
+    unsigned int dispatch_limit;
 
     /**
      *  Threshold value to round up freecpu

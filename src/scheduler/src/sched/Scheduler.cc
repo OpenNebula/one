@@ -106,7 +106,7 @@ void Scheduler::start()
     // -----------------------------------------------------------
 
     hpool  = new HostPoolXML(&client);
-    vmpool = new VirtualMachinePoolXML(&client);
+    vmpool = new VirtualMachinePoolXML(&client, machines_limit);
 
     // -----------------------------------------------------------
     // Load scheduler policies
@@ -372,8 +372,9 @@ void Scheduler::dispatch()
     VirtualMachineXML * vm;
     ostringstream       oss;
 
-    int hid;
-    int rc;
+    int             hid;
+    int             rc;
+    unsigned int    dispatched_vms;
 
     map<int, ObjectXML*>::const_iterator  vm_it;
     const map<int, ObjectXML*>            pending_vms = vmpool->get_objects();
@@ -391,7 +392,11 @@ void Scheduler::dispatch()
 
     NebulaLog::log("SCHED",Log::INFO,oss);
 
-    for (vm_it=pending_vms.begin(); vm_it != pending_vms.end(); vm_it++)
+    dispatched_vms = 0;
+    for (vm_it=pending_vms.begin();
+         vm_it != pending_vms.end() && ( dispatch_limit <= 0 ||
+                                         dispatched_vms < dispatch_limit );
+         vm_it++)
     {
         vm = static_cast<VirtualMachineXML*>(vm_it->second);
 
@@ -399,7 +404,12 @@ void Scheduler::dispatch()
 
         if (rc == 0)
         {
-            vmpool->dispatch(vm_it->first,hid);
+            rc = vmpool->dispatch(vm_it->first,hid);
+
+            if (rc == 0)
+            {
+                dispatched_vms++;
+            }
         }
     }
 }

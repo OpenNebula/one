@@ -50,7 +50,7 @@ void VirtualMachinePoolXML::add_object(xmlNodePtr node)
     {
         NebulaLog::log("VM",Log::ERROR,
                        "XML Node does not represent a valid Virtual Machine");
-        // TODO: if the xml node isn't valid, do nothing?
+
        return;
     }
 
