@@ -202,7 +202,7 @@ void ObjectXML::xml_parse(const string &xml_doc)
 
     if (xml == 0)
     {
-        throw("Error parsing XML Document");
+        throw runtime_error("Error parsing XML Document");
     }
 
     ctx = xmlXPathNewContext(xml);
@@ -210,7 +210,7 @@ void ObjectXML::xml_parse(const string &xml_doc)
     if (ctx == 0)
     {
         xmlFreeDoc(xml);
-        throw("Unable to create new XPath context");
+        throw runtime_error("Unable to create new XPath context");
     }
 }
 

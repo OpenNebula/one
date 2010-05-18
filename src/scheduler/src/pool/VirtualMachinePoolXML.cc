@@ -15,6 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include "VirtualMachinePoolXML.h"
+#include <stdexcept>
 
 int VirtualMachinePoolXML::set_up()
 {
@@ -88,9 +89,19 @@ void VirtualMachinePoolXML::add_object(xmlNodePtr node)
     }
     else
     {
-        VirtualMachineXML* vm = new VirtualMachineXML( message );
+        try
+        {
+            VirtualMachineXML* vm = new VirtualMachineXML( message );
 
-        objects.insert( pair<int,ObjectXML*>(vid, vm) );
+            objects.insert( pair<int,ObjectXML*>(vid, vm) );
+        }
+        catch(runtime_error& re)
+        {
+            ostringstream oss_re;
+
+            oss_re << re.what();
+            NebulaLog::log("VM",Log::ERROR,oss_re);
+        }
     }
 }
 
