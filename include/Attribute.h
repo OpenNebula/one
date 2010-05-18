@@ -143,8 +143,8 @@ public:
     {
     	string * xml = new string;
 
-    	*xml = "<" + name() + ">" + attribute_value
-    		 + "</"+ name() + ">";
+    	*xml = "<" + name() + "><![CDATA[" + attribute_value
+    		 + "]]></"+ name() + ">";
 
     	return xml;
     }
