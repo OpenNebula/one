@@ -44,15 +44,16 @@ public:
 
 protected:
 
-    Scheduler(string& url, time_t _timer,
+    Scheduler(string& _url, time_t _timer,
               int _machines_limit, int _dispatch_limit):
         hpool(0),
         vmpool(0),
         timer(_timer),
+        url(_url),
         machines_limit(_machines_limit),
         dispatch_limit(_dispatch_limit),
         threshold(0.9),
-        client("",url)
+        client(0)
     {
         am.addListener(this);
     };
@@ -67,6 +68,11 @@ protected:
         if ( vmpool != 0)
         {
             delete vmpool;
+        }
+
+        if ( client != 0)
+        {
+            delete client;
         }
     };
 
@@ -123,6 +129,8 @@ private:
 
     time_t  timer;
 
+    string  url;
+
     /**
      *  Limit of pending virtual machines to process from the pool.
      */
@@ -141,7 +149,7 @@ private:
     /**
      *  XML_RPC client
      */
-    Client client;
+    Client * client;
 
     // ---------------------------------------------------------------
     // Timer to periodically schedule and dispatch VMs

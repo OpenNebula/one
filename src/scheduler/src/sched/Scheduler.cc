@@ -99,14 +99,28 @@ void Scheduler::start()
         throw;
     }
 
+    // -----------------------------------------------------------
+    // XML-RPC Client
+    // -----------------------------------------------------------
+
+    try
+    {
+        client = new Client("",url);
+    }
+    catch(runtime_error &)
+    {
+        throw;
+    }
+
+
     xmlInitParser();
 
     // -----------------------------------------------------------
     // Pools
     // -----------------------------------------------------------
 
-    hpool  = new HostPoolXML(&client);
-    vmpool = new VirtualMachinePoolXML(&client, machines_limit);
+    hpool  = new HostPoolXML(client);
+    vmpool = new VirtualMachinePoolXML(client, machines_limit);
 
     // -----------------------------------------------------------
     // Load scheduler policies

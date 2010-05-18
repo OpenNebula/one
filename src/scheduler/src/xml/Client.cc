@@ -19,8 +19,7 @@
 #include <fstream>
 #include <pwd.h>
 #include <stdlib.h>
-
-
+#include <stdexcept>
 
 #include <limits.h>
 #include <string.h>
@@ -64,10 +63,8 @@ void Client::set_one_auth(string secret)
         }
         else
         {
-            NebulaLog::log("XMLRPC",Log::ERROR,
-                        "ONE_AUTH wrong format, must be <username>:<password>");
-
-            throw;
+            throw runtime_error("Wrong format for auth token, must "
+                                "be <username>:<passwd>");
         }
     }
 }

@@ -31,12 +31,12 @@ class RankScheduler : public Scheduler
 {
 public:
 
-    RankScheduler(string url,
+    RankScheduler(string       url,
+                  time_t       timer,
                   unsigned int machines_limit,
-                  unsigned int dispatch_limit,
-                  time_t timer=1
+                  unsigned int dispatch_limit
                   ):Scheduler(url,timer,machines_limit, dispatch_limit),rp(0){};
-    
+
     ~RankScheduler()
     {
         if ( rp != 0 )
@@ -44,17 +44,17 @@ public:
             delete rp;
         }
     };
-    
+
     void register_policies()
     {
         rp = new RankPolicy(vmpool,hpool,1.0);
-        
-        add_host_policy(rp);        
+
+        add_host_policy(rp);
     };
-    
+
 private:
     RankPolicy * rp;
-        
+
 };
 
 int main(int argc, char **argv)
@@ -65,9 +65,9 @@ int main(int argc, char **argv)
     unsigned int    machines_limit = 400;
     unsigned int    dispatch_limit = 300;
     char            opt;
-    
+
     ostringstream  oss;
-        
+
     while((opt = getopt(argc,argv,"p:t:m:d:")) != -1)
     {
         switch(opt)
@@ -91,25 +91,25 @@ int main(int argc, char **argv)
                 break;
         }
     };
-    
+
     /* ---------------------------------------------------------------------- */
-    
+
     oss << "http://localhost:" << port << "/RPC2";
-        
+
     ss = new RankScheduler(oss.str(),timer, machines_limit, dispatch_limit);
-    
+
     try
     {
-        ss->start();    
+        ss->start();
     }
     catch (exception &e)
     {
         cout << e.what() << endl;
- 
+
         return -1;
     }
-    
+
     delete ss;
-    
+
     return 0;
 }
