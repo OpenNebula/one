@@ -41,6 +41,7 @@ class ObjectXMLTest : public CppUnit::TestFixture
     CPPUNIT_TEST( node_constructor );
     CPPUNIT_TEST( doc_update );
     CPPUNIT_TEST( requirements );
+    CPPUNIT_TEST( rank );
 
     CPPUNIT_TEST_SUITE_END ();
 
@@ -150,87 +151,160 @@ public:
 
     void requirements()
     {
-        string host = "<HOST>"
-  "<ID>1</ID>"
-  "<NAME>ursa12</NAME>"
-  "<STATE>2</STATE>"
-  "<IM_MAD>im_kvm</IM_MAD>"
-  "<VM_MAD>vmm_kvm</VM_MAD>"
-  "<TM_MAD>tm_nfs</TM_MAD>"
-  "<LAST_MON_TIME>1273799044</LAST_MON_TIME>"
-  "<HOST_SHARE>"
-  "  <HID>1</HID>"
-  "  <DISK_USAGE>0</DISK_USAGE>"
-  "  <MEM_USAGE>0</MEM_USAGE>"
-  "  <CPU_USAGE>0</CPU_USAGE>"
-  "  <MAX_DISK>0</MAX_DISK>"
-  "  <MAX_MEM>8194368</MAX_MEM>"
-  "  <MAX_CPU>800</MAX_CPU>"
-  "  <FREE_DISK>0</FREE_DISK>"
-  "  <FREE_MEM>7959232</FREE_MEM>"
-  "  <FREE_CPU>800</FREE_CPU>"
-  "  <USED_DISK>0</USED_DISK>"
-  "  <USED_MEM>523080</USED_MEM>"
-  "  <USED_CPU>0</USED_CPU>"
-  "  <RUNNING_VMS>12</RUNNING_VMS>"
-  "</HOST_SHARE>"
-  "<TEMPLATE>"
-  "  <ARCH>x86_64</ARCH>"
-  "  <CPUSPEED>2326</CPUSPEED>"
-  "  <FREECPU>800.0</FREECPU>"
-  "  <FREEMEMORY>7959232</FREEMEMORY>"
-  "  <HOSTNAME>ursa12</HOSTNAME>"
-  "  <HYPERVISOR>kvm</HYPERVISOR>"
-  "  <MODELNAME>Intel(R) Xeon(R) CPU           E5410  @ 2.33GHz</MODELNAME>"
-  "  <NETRX>13335836573</NETRX>"
-  "  <NETTX>47959</NETTX>"
-  "  <TOTALCPU>800</TOTALCPU>"
-  "  <TOTALMEMORY>8194368</TOTALMEMORY>"
-  "  <USEDCPU>0.0</USEDCPU>"
-  "  <USEDMEMORY>523080</USEDMEMORY>"
-  "</TEMPLATE>"
-  "</HOST>";
-
         try
         {
             ObjectXML obj(host);
 
-            string reqs1 = "NETRX = \"13335836573\"";
-            string reqs2 = "NETRX != \"13335836573\"";
+            char* err;
+            bool  res;
+            int   rc;
 
-            char *err1;
-            char *err2;
+            // -----------------------------------------------------------------
+            // REQUIREMENTS MATCHING
+            // -----------------------------------------------------------------
+            string reqs[] =
+            {
+                "TOTALCPU =  800",      // exact value matching
+                "TOTALCPU != 800",      // Not equal
+                "TOTALCPU > 5",         // Greater than expr.
+                "! (TOTALCPU > 5)",     // Not exp.
 
-            bool res1;
-            bool res2;
+                "HOSTNAME = \"ursa12\"",        // Exact string matching
+                "HOSTNAME = \"ursa*\"",         // Shell wildcard
+                "HOSTNAME = \"ursa\"",
 
-            int rc1;
-            int rc2;
+                "HID = 1",
+                "ARCH = \"*64*\"",
+                "RUNNING_VMS < 100",
 
-            rc1 = obj.eval_bool(reqs1,res1,&err1);
-            rc2 = obj.eval_bool(reqs2,res2,&err2);
+        /*
+            // Boolean operators
+            "HOSTNAME = \"ursa*\" & NETRX = \"13335836573\"",
+            // Operator precedence
+            "HOSTNAME = \"ursa*\" | HOSTNAME = \"no\" & HOSTNAME = \"no\"",
+            "( HOSTNAME = \"ursa*\" | HOSTNAME = \"no\" ) & HOSTNAME = \"no\"",
+        //*/
 
-             CPPUNIT_ASSERT(rc1 == 0);
-             CPPUNIT_ASSERT(rc2 == 0);
+                "END"
+            };
 
-             CPPUNIT_ASSERT(res1 == true);
-             CPPUNIT_ASSERT(res2 == false);
+            bool results[] = { true, false, true, false,
+                               true, true, false,
+                               true, true, true,
+                            /*
+                               true, true, false,
+                            //*/
+                             };
 
-           string rank1 = "RUNNING_VMS";
-           string rank2 = "MAX_CPU + NETTX";
+            int i = 0;
+            while( reqs[i] != "END" )
+            {
+// cout << endl << i << " - " << reqs[i];
+                rc = obj.eval_bool( reqs[i], res, &err );
+// cout << "··· rc: " << rc << "  result: " << res << "  expected: " << results[i] << endl;
+                CPPUNIT_ASSERT( rc == 0 );
+                CPPUNIT_ASSERT( res == results[i] );
 
-           int r1, r2;
+                i++;
+            }
 
-           rc1 = obj.eval_arith(rank1,r1,&err1);
-           rc2 = obj.eval_arith(rank2,r2,&err2);
+            // Non-existing attribute compared to string value
+            rc = obj.eval_bool( "FOO = \"BAR\"", res, &err );
+            CPPUNIT_ASSERT( rc == 0 );
+            CPPUNIT_ASSERT( res == false );
 
-             CPPUNIT_ASSERT(rc1 == 0);
-             CPPUNIT_ASSERT(rc2 == 0);
+            // Non-existing attribute compared to numeric value
+            rc = obj.eval_bool( "FOO = 123", res, &err );
+            CPPUNIT_ASSERT( rc == 0 );
+            CPPUNIT_ASSERT( res == false );
 
-             CPPUNIT_ASSERT(r1 == 12);
-             CPPUNIT_ASSERT(r2 == 47959 + 800 );
+
+            // Existing string attribute compared to numeric value
+            rc = obj.eval_bool( "HOSTNAME = 123 ", res, &err );
+            CPPUNIT_ASSERT( rc == 0 );
+            CPPUNIT_ASSERT( res == false );
+
+            // Existing numeric attribute compared to string value should work
+            rc = obj.eval_bool( "TOTALCPU =  \"800\"", res, &err );
+            CPPUNIT_ASSERT( rc == 0 );
+            CPPUNIT_ASSERT( res == true );
+
+            // Bad syntax
+            // TODO: Right now eval_bool returns 1 in case of error, and result
+            // is not set to false.
+            rc = obj.eval_bool( "TOTALCPU ^ * - = abc", res, &err );
+            CPPUNIT_ASSERT( rc != 0 );
+            // CPPUNIT_ASSERT( res == false );
+
+            if (err != 0)
+            {
+                free( err );
+            }
+        }
+        catch(runtime_error& re)
+        {
+             cerr << re.what() << endl;
+             CPPUNIT_ASSERT(1 == 0);
+        }
+    };
 
 
+    void rank()
+    {
+        try
+        {
+            ObjectXML obj(host);
+
+            char* err;
+            int   res;
+            int   rc;
+
+            // -----------------------------------------------------------------
+            // RANK EXPRESSIONS
+            // -----------------------------------------------------------------
+            string rank_exp[] =
+            {
+                "RUNNING_VMS",          // Single attribute
+                "MAX_CPU + NETTX",      // Simple operations
+                "RUNNING_VMS * 10",     // Operations with fixed values
+                "- FREE_MEM",           // Unary operator
+                "2 + 4 * 10",           // Operator precedence
+                "(2 + 4) * 10",
+                "END"
+            };
+
+            int results[] =
+            {
+                12,
+                47959 + 800,
+                12 * 10,
+                -7959232,
+                2 + 4 * 10,
+                (2 + 4) * 10,
+            };
+
+            int i = 0;
+            while( rank_exp[i] != "END" )
+            {
+// cout << endl << i << " - " << rank_exp[i];
+                rc = obj.eval_arith( rank_exp[i], res, &err );
+// cout << "··· rc: " << rc << "  res: " << res << "  expected: " << results[i] << endl;
+                CPPUNIT_ASSERT( rc == 0 );
+                CPPUNIT_ASSERT( res == results[i] );
+
+                i++;
+            }
+
+
+            // Non-existing attribute
+            rc = obj.eval_arith( "FOO", res, &err );
+            CPPUNIT_ASSERT( rc == 0 );
+            CPPUNIT_ASSERT( res == 0 );
+
+            // Non-existing attribute and operators
+            rc = obj.eval_arith( "FOO + 10", res, &err );
+            CPPUNIT_ASSERT( rc == 0 );
+            CPPUNIT_ASSERT( res == 10 );
         }
         catch(runtime_error& re)
         {
@@ -241,6 +315,7 @@ public:
 
     static const string xml_history_dump;
     static const string xml_history_dump2;
+    static const string host;
 };
 
 /* ************************************************************************* */
@@ -300,3 +375,45 @@ const string ObjectXMLTest::xml_history_dump2 =
     "</ETIME><PSTIME>0</PSTIME><PETIME>0</PETIME><RSTIME>0</RSTIME><RETIME>0"
     "</RETIME><ESTIME>0</ESTIME><EETIME>0</EETIME><REASON>0</REASON></HISTORY>"
     "</VM></VM_POOL>";
+
+const string ObjectXMLTest::host =
+  "<HOST>"
+  "<ID>1</ID>"
+  "<NAME>ursa12</NAME>"
+  "<STATE>2</STATE>"
+  "<IM_MAD>im_kvm</IM_MAD>"
+  "<VM_MAD>vmm_kvm</VM_MAD>"
+  "<TM_MAD>tm_nfs</TM_MAD>"
+  "<LAST_MON_TIME>1273799044</LAST_MON_TIME>"
+  "<HOST_SHARE>"
+  "  <HID>1</HID>"
+  "  <DISK_USAGE>0</DISK_USAGE>"
+  "  <MEM_USAGE>0</MEM_USAGE>"
+  "  <CPU_USAGE>0</CPU_USAGE>"
+  "  <MAX_DISK>0</MAX_DISK>"
+  "  <MAX_MEM>8194368</MAX_MEM>"
+  "  <MAX_CPU>800</MAX_CPU>"
+  "  <FREE_DISK>0</FREE_DISK>"
+  "  <FREE_MEM>7959232</FREE_MEM>"
+  "  <FREE_CPU>800</FREE_CPU>"
+  "  <USED_DISK>0</USED_DISK>"
+  "  <USED_MEM>523080</USED_MEM>"
+  "  <USED_CPU>0</USED_CPU>"
+  "  <RUNNING_VMS>12</RUNNING_VMS>"
+  "</HOST_SHARE>"
+  "<TEMPLATE>"
+  "  <ARCH>x86_64</ARCH>"
+  "  <CPUSPEED>2326</CPUSPEED>"
+  "  <FREECPU>800.0</FREECPU>"
+  "  <FREEMEMORY>7959232</FREEMEMORY>"
+  "  <HOSTNAME>ursa12</HOSTNAME>"
+  "  <HYPERVISOR>kvm</HYPERVISOR>"
+  "  <MODELNAME>Intel(R) Xeon(R) CPU           E5410  @ 2.33GHz</MODELNAME>"
+  "  <NETRX>13335836573</NETRX>"
+  "  <NETTX>47959</NETTX>"
+  "  <TOTALCPU>800</TOTALCPU>"
+  "  <TOTALMEMORY>8194368</TOTALMEMORY>"
+  "  <USEDCPU>0.0</USEDCPU>"
+  "  <USEDMEMORY>523080</USEDMEMORY>"
+  "</TEMPLATE>"
+  "</HOST>";
