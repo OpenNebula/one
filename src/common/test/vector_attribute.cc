@@ -92,8 +92,9 @@ public:
         bm = b->to_xml();
 
         CPPUNIT_ASSERT(*am == "<VECTOR_A></VECTOR_A>");
-        CPPUNIT_ASSERT(*bm == "<VECTOR_B><attr1>val1</attr1><attr2>val2</attr2>"
-                              "<attr3>val3</attr3></VECTOR_B>");
+        CPPUNIT_ASSERT(*bm == "<VECTOR_B><attr1><![CDATA[val1]]></attr1><attr2>"
+                              "<![CDATA[val2]]></attr2><attr3><![CDATA[val3]]>"
+                              "</attr3></VECTOR_B>");
         delete am;
         delete bm;
     }

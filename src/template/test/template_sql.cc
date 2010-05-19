@@ -100,12 +100,7 @@ public:
             " ]\n";
 
         template_xml =
-            "<TEMPLATE><CPU>4</CPU><DISK><EXTRA>disk "
-            "attribute </EXTRA><FILE>path1</FILE></DISK><DISK><EXTRA>str"
-            "</EXTRA><FILE>path2</FILE>"
-            "<TYPE>disk</TYPE></DISK><EMPTY_VAR></EMPTY_VAR><GRAPHICS>"
-            "<PORT>12</PORT><VNC>127.0.0.1</VNC></GRAPHICS><MEMORY>345</MEMORY>"
-            "<REQUIREMENTS>HOSTNAME = \"host*.com\"</REQUIREMENTS></TEMPLATE>";
+            "<TEMPLATE><CPU><![CDATA[4]]></CPU><DISK><EXTRA><![CDATA[disk attribute ]]></EXTRA><FILE><![CDATA[path1]]></FILE></DISK><DISK><EXTRA><![CDATA[str]]></EXTRA><FILE><![CDATA[path2]]></FILE><TYPE><![CDATA[disk]]></TYPE></DISK><EMPTY_VAR><![CDATA[]]></EMPTY_VAR><GRAPHICS><PORT><![CDATA[12]]></PORT><VNC><![CDATA[127.0.0.1]]></VNC></GRAPHICS><MEMORY><![CDATA[345]]></MEMORY><REQUIREMENTS><![CDATA[HOSTNAME = \"host*.com\"]]></REQUIREMENTS></TEMPLATE>";
     }
 
     ~TemplateSQLTest(){};

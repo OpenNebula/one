@@ -62,22 +62,28 @@ const string templates[] =
 const string xmls[] =
 {
             "<VNET><ID>0</ID><UID>123</UID><NAME>Net number one</NAME>"
-            "<TYPE>1</TYPE><BRIDGE>br1</BRIDGE><TEMPLATE><BRIDGE>br1</BRIDGE>"
-            "<LEASES><IP>130.10.0.1</IP><MAC>50:20:20:20:20:20</MAC></LEASES>"
-            "<NAME>Net number one</NAME><TYPE>FIXED</TYPE></TEMPLATE><LEASES>"
+            "<TYPE>1</TYPE><BRIDGE>br1</BRIDGE><TEMPLATE><BRIDGE>"
+            "<![CDATA[br1]]></BRIDGE><LEASES><IP><![CDATA[130.10.0.1]]>"
+            "</IP><MAC><![CDATA[50:20:20:20:20:20]]></MAC></LEASES><NAME>"
+            "<![CDATA[Net number one]]></NAME><TYPE><![CDATA[FIXED]]></TYPE>"
+            "</TEMPLATE><LEASES>"
             "<LEASE><IP>130.10.0.1</IP><MAC>50:20:20:20:20:20</MAC>"
             "<USED>0</USED><VID>-1</VID></LEASE></LEASES></VNET>",
 
             "<VNET><ID>1</ID><UID>261</UID><NAME>A virtual network</NAME>"
-            "<TYPE>0</TYPE><BRIDGE>br0</BRIDGE><TEMPLATE><BRIDGE>br0</BRIDGE>"
-            "<NAME>A virtual network</NAME><NETWORK_ADDRESS>192.168.0.0</NETWORK_ADDRESS>"
-            "<NETWORK_SIZE>C</NETWORK_SIZE><TYPE>RANGED</TYPE></TEMPLATE>"
+            "<TYPE>0</TYPE><BRIDGE>br0</BRIDGE><TEMPLATE><BRIDGE>"
+            "<![CDATA[br0]]></BRIDGE><NAME><![CDATA[A virtual network]]>"
+            "</NAME><NETWORK_ADDRESS><![CDATA[192.168.0.0]]></NETWORK_ADDRESS>"
+            "<NETWORK_SIZE><![CDATA[C]]></NETWORK_SIZE><TYPE><![CDATA[RANGED]]>"
+            "</TYPE></TEMPLATE>"
             "<LEASES></LEASES></VNET>",
 
             "<VNET><ID>0</ID><UID>133</UID><NAME>Net number two</NAME>"
-            "<TYPE>1</TYPE><BRIDGE>br1</BRIDGE><TEMPLATE><BRIDGE>br1</BRIDGE><"
-            "LEASES><IP>130.10.2.1</IP><MAC>50:20:20:20:20:20</MAC></LEASES>"
-            "<NAME>Net number two</NAME><TYPE>fixed</TYPE></TEMPLATE>"
+            "<TYPE>1</TYPE><BRIDGE>br1</BRIDGE><TEMPLATE><BRIDGE>"
+            "<![CDATA[br1]]></BRIDGE><LEASES><IP><![CDATA[130.10.2.1]]></IP>"
+            "<MAC><![CDATA[50:20:20:20:20:20]]></MAC></LEASES><NAME>"
+            "<![CDATA[Net number two]]></NAME><TYPE><![CDATA[fixed]]></TYPE>"
+            "</TEMPLATE>"
             "<LEASES><LEASE><IP>130.10.2.1</IP>"
             "<MAC>50:20:20:20:20:20</MAC><USED>0</USED><VID>-1</VID>"
             "</LEASE></LEASES></VNET>"

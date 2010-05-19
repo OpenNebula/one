@@ -54,11 +54,14 @@ public:
             "GRAPHICS=PORT=12@^_^@VNC=127.0.0.1\nMEMORY=345\n"
             "REQUIREMENTS=HOSTNAME = \"host*.com\"\n";
 
-        test_ok_xml="<TEMPLATE><CPU>4</CPU><DISK><EXTRA>disk attribute </EXTRA>"
-            "<FILE>path1</FILE></DISK><DISK><EXTRA>str</EXTRA><FILE>path2</FILE>"
-            "<TYPE>disk</TYPE></DISK><EMPTY_VAR></EMPTY_VAR><GRAPHICS>"
-            "<PORT>12</PORT><VNC>127.0.0.1</VNC></GRAPHICS><MEMORY>345</MEMORY>"
-            "<REQUIREMENTS>HOSTNAME = \"host*.com\"</REQUIREMENTS></TEMPLATE>";
+        test_ok_xml="<TEMPLATE><CPU><![CDATA[4]]></CPU><DISK><EXTRA>"
+            "<![CDATA[disk attribute ]]></EXTRA><FILE><![CDATA[path1]]></FILE>"
+            "</DISK><DISK><EXTRA><![CDATA[str]]></EXTRA><FILE><![CDATA[path2]]>"
+            "</FILE><TYPE><![CDATA[disk]]></TYPE></DISK><EMPTY_VAR><![CDATA[]]>"
+            "</EMPTY_VAR><GRAPHICS><PORT><![CDATA[12]]></PORT><VNC>"
+            "<![CDATA[127.0.0.1]]></VNC></GRAPHICS><MEMORY><![CDATA[345]]>"
+            "</MEMORY><REQUIREMENTS><![CDATA[HOSTNAME = \"host*.com\"]]>"
+            "</REQUIREMENTS></TEMPLATE>";
 
         test_ok_str=
             "\n\tCPU=4"
@@ -161,14 +164,16 @@ public:
 
         tmp = attrs[0]->to_xml();
         CPPUNIT_ASSERT( *tmp == 
-            "<DISK><EXTRA>disk attribute </EXTRA><FILE>path1</FILE></DISK>");
+            "<DISK><EXTRA><![CDATA[disk attribute ]]></EXTRA><FILE>"
+            "<![CDATA[path1]]></FILE></DISK>");
         delete tmp;
 
         CPPUNIT_ASSERT(attrs[1]->type() == Attribute::VECTOR);
         
         tmp = attrs[1]->to_xml();
         CPPUNIT_ASSERT( *tmp == 
-            "<DISK><EXTRA>str</EXTRA><FILE>path2</FILE><TYPE>disk</TYPE></DISK>");
+            "<DISK><EXTRA><![CDATA[str]]></EXTRA><FILE><![CDATA[path2]]>"
+            "</FILE><TYPE><![CDATA[disk]]></TYPE></DISK>");
         delete tmp;
 
         CPPUNIT_ASSERT(t1->get("CPU",attrs) == 1 );
@@ -176,7 +181,7 @@ public:
         CPPUNIT_ASSERT(attrs[2]->type() == Attribute::SIMPLE);
         
         tmp = attrs[2]->to_xml();
-        CPPUNIT_ASSERT( *tmp == "<CPU>4</CPU>");
+        CPPUNIT_ASSERT( *tmp == "<CPU><![CDATA[4]]></CPU>");
         delete tmp;
 
         string sval;
@@ -200,9 +205,11 @@ public:
         vector<Attribute*> attrs;
         
         string t1_xml;
-        string rm_xml="<TEMPLATE><CPU>4</CPU><EMPTY_VAR></EMPTY_VAR><GRAPHICS>"
-            "<PORT>12</PORT><VNC>127.0.0.1</VNC></GRAPHICS><MEMORY>345</MEMORY>"
-            "<REQUIREMENTS>HOSTNAME = \"host*.com\"</REQUIREMENTS></TEMPLATE>";
+        string rm_xml="<TEMPLATE><CPU><![CDATA[4]]></CPU><EMPTY_VAR>"
+            "<![CDATA[]]></EMPTY_VAR><GRAPHICS><PORT><![CDATA[12]]></PORT><VNC>"
+            "<![CDATA[127.0.0.1]]></VNC></GRAPHICS><MEMORY><![CDATA[345]]>"
+            "</MEMORY><REQUIREMENTS><![CDATA[HOSTNAME = \"host*.com\"]]>"
+            "</REQUIREMENTS></TEMPLATE>";
 
         t1->remove("DISK",attrs);
         t1->to_xml(t1_xml);
@@ -218,12 +225,15 @@ public:
 
     void test_set()
     {
-        string t1_xml="<TEMPLATE><CPU>4</CPU><DISK><EXTRA>disk attribute </EXTRA>"
-            "<FILE>path1</FILE></DISK><DISK><EXTRA>str</EXTRA><FILE>path2</FILE>"
-            "<TYPE>disk</TYPE></DISK><EMPTY_VAR></EMPTY_VAR><GRAPHICS>"
-            "<PORT>12</PORT><VNC>127.0.0.1</VNC></GRAPHICS><MEMORY>345</MEMORY>"
-            "<REQUIREMENTS>HOSTNAME = \"host*.com\"</REQUIREMENTS>"
-            "<XTRA>44</XTRA></TEMPLATE>";
+        string t1_xml="<TEMPLATE><CPU><![CDATA[4]]></CPU><DISK><EXTRA>"
+            "<![CDATA[disk attribute ]]></EXTRA><FILE><![CDATA[path1]]>"
+            "</FILE></DISK><DISK><EXTRA><![CDATA[str]]></EXTRA><FILE>"
+            "<![CDATA[path2]]></FILE><TYPE><![CDATA[disk]]></TYPE></DISK>"
+            "<EMPTY_VAR><![CDATA[]]></EMPTY_VAR><GRAPHICS><PORT><![CDATA[12]]>"
+            "</PORT><VNC><![CDATA[127.0.0.1]]></VNC></GRAPHICS><MEMORY>"
+            "<![CDATA[345]]></MEMORY><REQUIREMENTS>"
+            "<![CDATA[HOSTNAME = \"host*.com\"]]></REQUIREMENTS><XTRA>"
+            "<![CDATA[44]]></XTRA></TEMPLATE>";
         string xml;
         
         string nattr = "XTRA";
@@ -239,13 +249,14 @@ public:
         nattr = "CPU";
         vattr = "5";
 
-        t1_xml="<TEMPLATE><CPU>4</CPU><CPU>5</CPU>"
-            "<DISK><EXTRA>disk attribute </EXTRA>"
-            "<FILE>path1</FILE></DISK><DISK><EXTRA>str</EXTRA><FILE>path2</FILE>"
-            "<TYPE>disk</TYPE></DISK><EMPTY_VAR></EMPTY_VAR><GRAPHICS>"
-            "<PORT>12</PORT><VNC>127.0.0.1</VNC></GRAPHICS><MEMORY>345</MEMORY>"
-            "<REQUIREMENTS>HOSTNAME = \"host*.com\"</REQUIREMENTS>"
-            "<XTRA>44</XTRA></TEMPLATE>";
+        t1_xml="<TEMPLATE><CPU><![CDATA[4]]></CPU><CPU><![CDATA[5]]></CPU><DISK"
+        "><EXTRA><![CDATA[disk attribute ]]></EXTRA><FILE><![CDATA[path1]]>"
+        "</FILE></DISK><DISK><EXTRA><![CDATA[str]]></EXTRA><FILE><![CDATA[path2"
+        "]]></FILE><TYPE><![CDATA[disk]]></TYPE></DISK><EMPTY_VAR><![CDATA[]]>"
+        "</EMPTY_VAR><GRAPHICS><PORT><![CDATA[12]]></PORT><VNC><![CDATA[127.0.0"
+        ".1]]></VNC></GRAPHICS><MEMORY><![CDATA[345]]></MEMORY><REQUIREMENTS>"
+        "<![CDATA[HOSTNAME = \"host*.com\"]]></REQUIREMENTS><XTRA><![CDATA[44]]"
+        "></XTRA></TEMPLATE>";
         SingleAttribute *b = new SingleAttribute(nattr,vattr);
 
         t1->set(b);
@@ -253,16 +264,17 @@ public:
 
         CPPUNIT_ASSERT(t1_xml == xml);
 
-        string tr_xml="<TEMPLATE><CPU>5</CPU>"
-            "<DISK><EXTRA>str</EXTRA><FILE>path2</FILE>"
-            "<TYPE>disk</TYPE></DISK><EMPTY_VAR></EMPTY_VAR><GRAPHICS>"
-            "<PORT>12</PORT><VNC>127.0.0.1</VNC></GRAPHICS><MEMORY>345</MEMORY>"
-            "<REQUIREMENTS>HOSTNAME = \"host*.com\"</REQUIREMENTS></TEMPLATE>";
+        string tr_xml="<TEMPLATE><CPU><![CDATA[5]]></CPU><DISK><EXTRA><![CDATA["
+        "str]]></EXTRA><FILE><![CDATA[path2]]></FILE><TYPE><![CDATA[disk]]></TY"
+        "PE></DISK><EMPTY_VAR><![CDATA[]]></EMPTY_VAR><GRAPHICS><PORT><![CDATA["
+        "12]]></PORT><VNC><![CDATA[127.0.0.1]]></VNC></GRAPHICS><MEMORY><![CDAT"
+        "A[345]]></MEMORY><REQUIREMENTS><![CDATA[HOSTNAME = \"host*.com\"]]></R"
+        "EQUIREMENTS></TEMPLATE>";
         SingleAttribute *c = new SingleAttribute(nattr,vattr);
 
         tr->set(c);
         tr->to_xml(xml);
-        
+
         CPPUNIT_ASSERT(tr_xml == xml);
     }
 

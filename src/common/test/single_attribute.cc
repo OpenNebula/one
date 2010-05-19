@@ -73,8 +73,8 @@ public:
         am = a->to_xml();
         bm = b->to_xml();
 
-        CPPUNIT_ASSERT(*am == "<SINGLE_A></SINGLE_A>");
-        CPPUNIT_ASSERT(*bm == "<SINGLE_B>value_b</SINGLE_B>");
+        CPPUNIT_ASSERT(*am == "<SINGLE_A><![CDATA[]]></SINGLE_A>");
+        CPPUNIT_ASSERT(*bm == "<SINGLE_B><![CDATA[value_b]]></SINGLE_B>");
 
         delete am;
         delete bm;
