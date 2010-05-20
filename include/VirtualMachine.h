@@ -27,9 +27,6 @@
 
 using namespace std;
 
-extern "C" int vm_select_cb (void * _vm, int num,char ** values, char ** names);
-extern "C" int vm_dump_cb (void * _oss, int num,char ** values, char ** names);
-
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -97,7 +94,7 @@ public:
     {
         if (_log != 0)
         {
-            _log->log(module,type,message);
+            _log->log(module,type,message.str().c_str());
         }
     };
 
@@ -121,22 +118,22 @@ public:
      */
     friend ostream& operator<<(ostream& os, const VirtualMachine& vm);
 
-	/**
-	 * Function to print the VirtualMachine object into a string in
-	 * plain text
-	 *  @param str the resulting string
-	 *  @return a reference to the generated string 
-	 */
-	string& to_str(string& str) const;
+    /**
+     * Function to print the VirtualMachine object into a string in
+     * plain text
+     *  @param str the resulting string
+     *  @return a reference to the generated string
+     */
+    string& to_str(string& str) const;
 
-	/**
-	 * Function to print the VirtualMachine object into a string in
-	 * XML format
-	 *  @param xml the resulting XML string
-	 *  @return a reference to the generated string 
-	 */
-	string& to_xml(string& xml) const;
-	
+    /**
+     * Function to print the VirtualMachine object into a string in
+     * XML format
+     *  @param xml the resulting XML string
+     *  @return a reference to the generated string
+     */
+    string& to_xml(string& xml) const;
+
     // ------------------------------------------------------------------------
     // Dynamic Info
     // ------------------------------------------------------------------------
@@ -291,7 +288,7 @@ public:
     };
 
     /**
-     *  Returns the TM driver name for the previous host. The 
+     *  Returns the TM driver name for the previous host. The
      *  hasPreviousHistory() function MUST be called before this one.
      *    @return the TM mad name
      */
@@ -608,19 +605,19 @@ public:
     {
         vm_template.to_xml(xml);
     }
-    
+
     /**
-     *  Parse a string and substitute variables (e.g. $NAME) using the VM 
+     *  Parse a string and substitute variables (e.g. $NAME) using the VM
      *  template values:
      *    @param attribute, the string to be parsed
      *    @param parsed, the resulting parsed string
      *    @return 0 on success.
-     */                
+     */
     int  parse_template_attribute(const string& attribute,
                                   string&       parsed);
-                  
+
     /**
-     *  Parse a string and substitute variables (e.g. $NAME) using the VM 
+     *  Parse a string and substitute variables (e.g. $NAME) using the VM
      *  template values (blocking-free version for cross references):
      *    @param vm_id ID of the VM used to substitute the variables
      *    @param attribute, the string to be parsed
@@ -632,14 +629,14 @@ public:
                                         const string& attribute,
                                         string&       parsed,
                                         char **       error_msg)
-    {        
+    {
         return parse_attribute(0,vm_id,attribute,parsed,error_msg);
     }
-    
+
     // ------------------------------------------------------------------------
     // States
     // ------------------------------------------------------------------------
-    
+
     /**
      *  Returns the VM state (Dispatch Manager)
      *    @return the VM state
@@ -747,18 +744,6 @@ private:
     // -------------------------------------------------------------------------
     friend class VirtualMachinePool;
 
-    friend int vm_select_cb (
-        void *  _vm,
-        int     num,
-        char ** values,
-        char ** names);
-
-    friend int vm_dump_cb (
-        void *  _vm,
-        int     num,
-        char ** values,
-        char ** names);
-    
     // *************************************************************************
     // Virtual Machine Attributes
     // *************************************************************************
@@ -857,11 +842,11 @@ private:
 
     /**
      *  Log class for the virtual machine, it writes log messages in
-     *  		$ONE_LOCATION/var/$VID/vm.log
+     *          $ONE_LOCATION/var/$VID/vm.log
      *  or, in case that OpenNebula is installed in root
-     *  		/var/log/one/$VM_ID.log
+     *          /var/log/one/$VM_ID.log
      */
-    Log *       _log;
+    FileLog *       _log;
 
     // *************************************************************************
     // DataBase implementation (Private)
@@ -870,48 +855,45 @@ private:
     /**
      *  Bootstraps the database table(s) associated to the VirtualMachine
      */
-    static void bootstrap(SqliteDB * db)
+    static void bootstrap(SqlDB * db)
     {
-        db->exec(VirtualMachine::db_bootstrap);
+        ostringstream oss_vm(VirtualMachine::db_bootstrap);
+        ostringstream oss_tmpl(VirtualMachineTemplate::db_bootstrap);
+        ostringstream oss_hist(History::db_bootstrap);
 
-        db->exec(VirtualMachineTemplate::db_bootstrap);
-
-        db->exec(History::db_bootstrap);
+        db->exec(oss_vm);
+        db->exec(oss_tmpl);
+        db->exec(oss_hist);
     };
 
     /**
-     *  Function to unmarshall a VM object, an associated classes.
+     *  Callback function to unmarshall a VirtualMachine object
+     *  (VirtualMachine::select)
      *    @param num the number of columns read from the DB
      *    @param names the column names
      *    @param vaues the column values
      *    @return 0 on success
      */
-    int unmarshall(int num, char **names, char ** values);
-
+    int select_cb(void *nil, int num, char **names, char ** values);
+    
     /**
-     *  Function to unmarshall a VM object into an output stream with XML
-     *  format.
-     *    @param oss the output stream
-     *    @param num the number of columns read from the DB
-     *    @param names the column names
-     *    @param vaues the column values
-     *    @return 0 on success
-     */
-    static int unmarshall(ostringstream& oss,
-                          int            num,
-                          char **        names,
-                          char **        values);
+     *  Execute an INSERT or REPLACE Sql query. 
+     *    @param db The SQL DB
+     *    @param replace Execute an INSERT or a REPLACE	
+     *    @return 0 one success
+    */
+    int insert_replace(SqlDB *db, bool replace);
 
     /**
      *  Updates the VM history record
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int update_history(SqliteDB * db)
+    int update_history(SqlDB * db)
     {
         if ( history != 0 )
         {
-            return history->insert(db);
+            return history->update(db);
         }
         else
             return -1;
@@ -922,11 +904,11 @@ private:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int update_previous_history(SqliteDB * db)
+    int update_previous_history(SqlDB * db)
     {
         if ( previous_history != 0 )
         {
-            return previous_history->insert(db);
+            return previous_history->update(db);
         }
         else
             return -1;
@@ -941,9 +923,9 @@ private:
      *    @return 0 on success
      */
     int update_template_attribute(
-    	SqliteDB * 			db,
-        string&			 	name,
-        string&			 	value)
+        SqlDB * db,
+        string& name,
+        string& value)
     {
         SingleAttribute * sattr;
         int               rc;
@@ -966,7 +948,7 @@ private:
      *    @param attribute the new attribute for the template
      *    @return 0 on success
      */
-    int insert_template_attribute(SqliteDB * db, Attribute * attribute)
+    int insert_template_attribute(SqlDB * db, Attribute * attribute)
     {
         return vm_template.insert_attribute(db,attribute);
     }
@@ -991,13 +973,13 @@ private:
      *    @param parsed, the resulting parsed string
      *    @param error_msg, string describing the syntax error
      *    @return 0 on success.
-     */    
+     */
     static int parse_attribute(VirtualMachine * vm,
                                int              vm_id,
                                const string&    attribute,
                                string&          parsed,
                                char **          error_msg);
-                               
+
 protected:
 
     //**************************************************************************
@@ -1042,22 +1024,22 @@ protected:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int select(SqliteDB * db);
+    int select(SqlDB * db);
 
     /**
      *  Writes the Virtual Machine and its associated template in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    virtual int insert(SqliteDB * db);
+    virtual int insert(SqlDB * db);
 
     /**
      *  Writes/updates the Virtual Machine data fields in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    virtual int update(SqliteDB * db);
-    
+    virtual int update(SqlDB * db);
+
     /**
      * Deletes a VM from the database and all its associated information:
      *   - History records
@@ -1065,29 +1047,30 @@ protected:
      *   @param db pointer to the db
      *   @return 0 on success
      */
-    virtual int drop(SqliteDB * db)
+    virtual int drop(SqlDB * db)
     {
-    	int rc;
+        int rc;
 
-    	rc = vm_template.drop(db);
+        rc = vm_template.drop(db);
 
-    	if ( history != 0 )
-    	{
-    		rc += history->drop(db);
-    	}
+        if ( history != 0 )
+        {
+            rc += history->drop(db);
+        }
 
-    	return rc;
+        return rc;
     }
 
     /**
      *  Dumps the contect of a set of VirtualMachine objects in the given stream
      *  using XML format
-     *    @param db pointer to the db
      *    @param oss the output stream
-     *    @param where string to filter the VirtualMachine objects
+     *    @param num the number of columns read from the DB
+     *    @param names the column names
+     *    @param vaues the column values
      *    @return 0 on success
      */
-    static int dump(SqliteDB * db, ostringstream& oss, const string& where);    
+    static int dump(ostringstream& oss, int num, char ** values, char ** names);
 };
 
 #endif /*VIRTUAL_MACHINE_H_*/

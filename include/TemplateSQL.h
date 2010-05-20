@@ -1,18 +1,18 @@
-/* -------------------------------------------------------------------------- */
-/* Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             */
-/*                                                                            */
-/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
-/* not use this file except in compliance with the License. You may obtain    */
-/* a copy of the License at                                                   */
-/*                                                                            */
-/* http://www.apache.org/licenses/LICENSE-2.0                                 */
-/*                                                                            */
-/* Unless required by applicable law or agreed to in writing, software        */
-/* distributed under the License is distributed on an "AS IS" BASIS,          */
-/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
-/* See the License for the specific language governing permissions and        */
-/* limitations under the License.                                             */
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------ */
+/* Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)           */
+/*                                                                          */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
+/* not use this file except in compliance with the License. You may obtain  */
+/* a copy of the License at                                                 */
+/*                                                                          */
+/* http://www.apache.org/licenses/LICENSE-2.0                               */
+/*                                                                          */
+/* Unless required by applicable law or agreed to in writing, software      */
+/* distributed under the License is distributed on an "AS IS" BASIS,        */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. */
+/* See the License for the specific language governing permissions and      */
+/* limitations under the License.                                           */
+/* ------------------------------------------------------------------------ */
 
 #ifndef TEMPLATE_SQL_H_
 #define TEMPLATE_SQL_H_
@@ -22,7 +22,7 @@
 #include <vector>
 
 #include "Template.h"
-#include "SqliteDB.h"
+#include "SqlDB.h"
 #include "ObjectSQL.h"
 
 using namespace std;
@@ -39,7 +39,7 @@ public:
         bool         replace     = false,
         const char   separator   = '=',
         const char * xml_root    = "TEMPLATE"):
-        	Template(replace,separator,xml_root),table(_table),id(template_id)
+            Template(replace,separator,xml_root),table(_table),id(template_id)
     {};
 
     virtual ~TemplateSQL(){};
@@ -48,7 +48,7 @@ protected:
 
     //Database implementation variables
 
-	const char *		table;
+    const char *        table;
 
     static const char * db_names;
 
@@ -64,36 +64,44 @@ protected:
      *    @param db pointer to the database.
      *    @return 0 on success.
      */
-    int insert(SqliteDB * db);
+    int insert(SqlDB * db);
 
     /**
      *  Updates the template in the DB
      *    @param db pointer to the database.
      *    @return 0 on success.
      */
-    int update(SqliteDB *db);
+    int update(SqlDB *db);
 
     /**
      *  Reads the template (identified by its id) from the DB
      *    @param db pointer to the database.
      *    @return 0 on success.
      */
-    int select(SqliteDB *db);
+    int select(SqlDB *db);
 
     /**
      *  Removes the template from the DB
      *    @param db pointer to the database.
      */
-    int drop(SqliteDB *db);
+    int drop(SqlDB *db);
+    
+    /**
+     *  Execute an INSERT or REPLACE Sql query. 
+     *    @param db The SQL DB
+     *    @param replace Execute an INSERT or a REPLACE	
+     *    @return 0 one success
+    */    
+    int insert_replace(SqlDB *db, bool replace);
 
     /**
      *  Removes a template attribute from the DB. If there are multiple
-     *  attributes with the same name, only one will be replaced. The attribute
-     *  MUST be allocated in the heap.
+     *  attributes with the same name, only one will be replaced. The 
+     *  attribute MUST be allocated in the heap.
      *    @param db pointer to the database.
      *    @param attribute pointer to the new attribute.
      */
-    int replace_attribute(SqliteDB * db, Attribute * attribute);
+    int replace_attribute(SqlDB * db, Attribute * attribute);
 
     /**
      *  Insert a given attribute (MUST be allocated in the heap) in the template
@@ -101,10 +109,20 @@ protected:
      *    @param db pointer to the database.
      *    @param attribute pointer to the new attribute
      */
-    int insert_attribute(SqliteDB * db, Attribute * attribute);
+    int insert_attribute(SqlDB * db, Attribute * attribute);
+
+    /**
+     *  Callback to set the template id (TemplateSQL::insert)
+     */
+    int  insert_cb(void *nil, int num, char **values, char **names);
+
+    /**
+     *  Callback to recover template attributes (TemplateSQL::select)
+     */
+    int  select_cb(void *nil, int num, char **values, char **names);
 };
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
 
 #endif /*TEMPLATE_SQL_H_*/

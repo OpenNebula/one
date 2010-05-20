@@ -19,52 +19,41 @@
 /* ************************************************************************** */
 
 #include "UserPool.h"
-#include "Nebula.h"
+#include "NebulaLog.h"
 
 #include <fstream>
 #include <sys/types.h>
 #include <pwd.h>
+#include <stdlib.h>
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-extern "C"
+int UserPool::init_cb(void *nil, int num, char **values, char **names)
 {
-    static int getuids_cb(
-        void *                  _known_users,
-        int                     num,
-        char **                 values,
-        char **                 names)
+    if ( num == 0 || values == 0 || values[0] == 0 )
     {
-        map<string, int> *   known_users;
-    
-        known_users = static_cast<map<string, int> *>(_known_users);
-    
-        if ( num == 0 || values == 0 || values[0] == 0 )
-        {
-            return -1;
-        }
-    
-        known_users->insert(make_pair(values[1],atoi(values[0])));
-    
-        return 0;
+        return -1;
     }
+
+    known_users.insert(make_pair(values[1],atoi(values[0])));
+
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
 
-UserPool::UserPool(SqliteDB * db):PoolSQL(db,User::table)
+UserPool::UserPool(SqlDB * db):PoolSQL(db,User::table)
 {
-    // The known_users table needs to be rebuilt
-    
     ostringstream   sql;
-    
+
+    set_callback(static_cast<Callbackable::Callback>(&UserPool::init_cb));
+
     sql  << "SELECT oid,user_name FROM " <<  User::table;
-         
-    db->exec(sql, getuids_cb, (void *) &known_users);     
-    
-    if ((int) known_users.size() == 0)   
+
+    db->exec(sql, this);
+
+    if ((int) known_users.size() == 0)
     {
         // User oneadmin needs to be added in the bootstrap
         int           one_uid = -1;
@@ -82,7 +71,7 @@ UserPool::UserPool(SqliteDB * db):PoolSQL(db,User::table)
         if (!one_auth)
         {
             struct passwd * pw_ent;
-        
+
             pw_ent = getpwuid(getuid());
 
             if ((pw_ent != NULL) && (pw_ent->pw_dir != NULL))
@@ -91,13 +80,13 @@ UserPool::UserPool(SqliteDB * db):PoolSQL(db,User::table)
                 one_auth_file += "/.one/one_auth";
 
                 one_auth = one_auth_file.c_str();
-            }   
+            }
             else
             {
                 oss << "Could not get one_auth file location";
             }
         }
-   
+
         file.open(one_auth);
 
         if (file.good())
@@ -127,10 +116,10 @@ UserPool::UserPool(SqliteDB * db):PoolSQL(db,User::table)
         }
 
         file.close();
-        
+
         if (one_uid != 0)
         {
-            Nebula::log("ONE",Log::ERROR,oss);
+            NebulaLog::log("ONE",Log::ERROR,oss);
             throw;
         }
     }
@@ -157,11 +146,14 @@ int UserPool::allocate (
     // Insert the Object in the pool
 
     *oid = PoolSQL::allocate(user);
-    
-    // Add the user to the map of known_users
-    known_users.insert(make_pair(username,*oid));
 
-    return 0;
+    if (*oid != -1)
+    {
+        // Add the user to the map of known_users
+        known_users.insert(make_pair(username,*oid));
+    }
+
+    return *oid;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -170,12 +162,12 @@ int UserPool::allocate (
 int UserPool::authenticate(string& session)
 {
     map<string, int>::iterator index;
-    
+
     string username;
     string password;
-    
-    int   user_id = -1; 
-    
+
+    int   user_id = -1;
+
     // session holds username:password
 
     if ( User::split_secret(session,username,password) == 0 )
@@ -188,6 +180,44 @@ int UserPool::authenticate(string& session)
             user_id     = user->authenticate(password);
         }
     }
-    
+
     return user_id;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int UserPool::dump_cb(void * _oss, int num, char **values, char **names)
+{
+    ostringstream * oss;
+
+    oss = static_cast<ostringstream *>(_oss);
+
+    return User::dump(*oss, num, values, names);
+}
+
+/* -------------------------------------------------------------------------- */
+
+int UserPool::dump(ostringstream& oss, const string& where)
+{
+    int             rc;
+    ostringstream   cmd;
+
+    oss << "<USER_POOL>";
+
+    set_callback(static_cast<Callbackable::Callback>(&UserPool::dump_cb),
+                 static_cast<void *>(&oss));
+
+    cmd << "SELECT * FROM " << User::table;
+
+    if ( !where.empty() )
+    {
+        cmd << " WHERE " << where;
+    }
+
+    rc = db->exec(cmd, this);
+
+    oss << "</USER_POOL>";
+
+    return rc;
 }

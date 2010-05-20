@@ -28,11 +28,12 @@ const char * History::table = "history";
 const char * History::db_names = "(vid,seq,host_name,vm_dir,hid,vm_mad,tm_mad,stime,"
     "etime,pstime,petime,rstime,retime,estime,eetime,reason)";
 
-const char * History::db_bootstrap = "CREATE TABLE history (vid INTEGER,"
+const char * History::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
+    "history (vid INTEGER,"
     "seq INTEGER,host_name TEXT,vm_dir TEXT,hid INTEGER,vm_mad TEXT,tm_mad TEXT,"
     "stime INTEGER,etime INTEGER,pstime INTEGER,petime INTEGER,rstime INTEGER,"
     "retime INTEGER,estime INTEGER,eetime INTEGER,reason INTEGER,"
-	"PRIMARY KEY(vid,seq))";
+    "PRIMARY KEY(vid,seq))";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -134,51 +135,84 @@ void History::non_persistent_data()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int History::insert(SqliteDB * db)
+int History::insert(SqlDB * db)
+{
+    int             rc;
+
+    rc = insert_replace(db, false);
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int History::update(SqlDB * db)
+{
+    int             rc;
+
+    rc = insert_replace(db, true);
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int History::insert_replace(SqlDB *db, bool replace)
 {
     ostringstream   oss;
-    
+
     int    rc;
 
     char * sql_hostname;
     char * sql_vm_dir;
     char * sql_vmm_mad_name;
     char * sql_tm_mad_name;
-    
+
     if (seq == -1)
     {
         return 0;
     }
-    
-    sql_hostname = sqlite3_mprintf("%q",hostname.c_str());
+
+    sql_hostname = db->escape_str(hostname.c_str());
 
     if ( sql_hostname == 0 )
     {
         goto error_hostname;
     }
 
-    sql_vm_dir = sqlite3_mprintf("%q",vm_dir.c_str());
+    sql_vm_dir = db->escape_str(vm_dir.c_str());
 
     if ( sql_vm_dir == 0 )
     {
         goto error_vm_dir;
     }
-    
-    sql_vmm_mad_name = sqlite3_mprintf("%q",vmm_mad_name.c_str());
+
+    sql_vmm_mad_name = db->escape_str(vmm_mad_name.c_str());
 
     if ( sql_vmm_mad_name == 0 )
     {
         goto error_vmm;
     }
-    
-    sql_tm_mad_name = sqlite3_mprintf("%q",tm_mad_name.c_str());
+
+    sql_tm_mad_name = db->escape_str(tm_mad_name.c_str());
 
     if ( sql_tm_mad_name == 0 )
     {
         goto error_tm;
     }
+    
+    if(replace)
+    {
+        oss << "REPLACE";
+    }
+    else
+    {
+        oss << "INSERT";
+    }
 
-    oss << "INSERT OR REPLACE INTO " << table << " "<< db_names <<" VALUES ("<<
+    oss << " INTO " << table << " "<< db_names <<" VALUES ("<<
         oid << "," <<
         seq << "," <<
         "'" << sql_hostname << "',"<<
@@ -198,19 +232,19 @@ int History::insert(SqliteDB * db)
 
     rc = db->exec(oss);
 
-    sqlite3_free(sql_hostname);
-    sqlite3_free(sql_vm_dir);
-    sqlite3_free(sql_vmm_mad_name);
-    sqlite3_free(sql_tm_mad_name);
-    
+    db->free_str(sql_hostname);
+    db->free_str(sql_vm_dir);
+    db->free_str(sql_vmm_mad_name);
+    db->free_str(sql_tm_mad_name);
+
     return rc;
-    
+
 error_tm:
-    sqlite3_free(sql_vmm_mad_name);
+    db->free_str(sql_vmm_mad_name);
 error_vmm:
-    sqlite3_free(sql_vm_dir);
+    db->free_str(sql_vm_dir);
 error_vm_dir:
-    sqlite3_free(sql_hostname);
+    db->free_str(sql_hostname);
 error_hostname:
     return -1;
 }
@@ -218,7 +252,7 @@ error_hostname:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int History::unmarshall(int num, char **names, char ** values)
+int History::select_cb(void *nil, int num, char **values, char **names)
 {
     if ((!values[VID]) ||
         (!values[SEQ]) ||
@@ -243,10 +277,10 @@ int History::unmarshall(int num, char **names, char ** values)
 
     oid      = atoi(values[VID]);
     seq      = atoi(values[SEQ]);
-            
+
     hostname = values[HOSTNAME];
     vm_dir   = values[VM_DIR];
-            
+
     hid      = atoi(values[HID]);
 
     vmm_mad_name = values[VMMMAD];
@@ -272,12 +306,9 @@ int History::unmarshall(int num, char **names, char ** values)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int History::unmarshall(ostringstream& oss,
-                        int            num,
-                        char **        names,
-                        char **        values)
+int History::dump(ostringstream& oss, int num, char **values, char **names)
 {
-	if ((!values[VID])||
+    if ((!values[VID])||
         (!values[SEQ])||
         (!values[HOSTNAME])||
         (!values[HID])||
@@ -290,11 +321,11 @@ int History::unmarshall(ostringstream& oss,
         (!values[EPILOG_STIME])||
         (!values[EPILOG_ETIME])||
         (!values[REASON])||
-		(num != LIMIT))
+        (num != LIMIT))
     {
-		return -1;
-	}
-	
+        return -1;
+    }
+
     oss <<
         "<HISTORY>" <<
           "<SEQ>"     << values[SEQ]           << "</SEQ>"     <<
@@ -310,34 +341,13 @@ int History::unmarshall(ostringstream& oss,
           "<EETIME>"  << values[EPILOG_ETIME]  << "</EETIME>"  <<
           "<REASON>"  << values[REASON]        << "</REASON>"  <<
         "</HISTORY>";
-    
-	return 0;
+
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
 
-extern "C" int history_select_cb (
-        void *                  _history,
-        int                     num,
-        char **                 values,
-        char **                 names)
-{
-    History *    history;
-
-    history = static_cast<History *>(_history);
-
-    if (history == 0)
-    {
-        return -1;
-    }
-
-    return history->unmarshall(num,names,values);
-};
-
-/* -------------------------------------------------------------------------- */
-
-int History::select(SqliteDB * db)
+int History::select(SqlDB * db)
 {
     ostringstream   oss;
     int             rc;
@@ -349,15 +359,17 @@ int History::select(SqliteDB * db)
 
     if ( seq == -1)
     {
-    	oss << "SELECT * FROM history WHERE vid = "<< oid <<
-        	" AND seq=(SELECT MAX(seq) FROM history WHERE vid = " << oid << ")";
+        oss << "SELECT * FROM history WHERE vid = "<< oid <<
+            " AND seq=(SELECT MAX(seq) FROM history WHERE vid = " << oid << ")";
     }
     else
     {
-    	oss << "SELECT * FROM history WHERE vid = "<< oid <<" AND seq = "<< seq;
+        oss << "SELECT * FROM history WHERE vid = "<< oid <<" AND seq = "<< seq;
     }
 
-    rc = db->exec(oss,history_select_cb,(void *) this);
+    set_callback(static_cast<Callbackable::Callback>(&History::select_cb));
+
+    rc = db->exec(oss,this);
 
     if ( rc == 0 ) // Regenerate non-persistent data
     {
@@ -370,7 +382,7 @@ int History::select(SqliteDB * db)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int History::drop(SqliteDB * db)
+int History::drop(SqlDB * db)
 {
     ostringstream   oss;
 
@@ -424,7 +436,7 @@ string& History::to_str(string& str) const
 string& History::to_xml(string& xml) const
 {
     ostringstream oss;
-    
+
     oss <<
         "<HISTORY>" <<
           "<SEQ>"     << seq           << "</SEQ>"   <<

@@ -15,7 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include "RequestManager.h"
-#include "Nebula.h"
+#include "NebulaLog.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -36,7 +36,7 @@ void RequestManager::HostDelete::execute(
     vector<xmlrpc_c::value> arrayData;
     xmlrpc_c::value_array * arrayresult;
 
-    Nebula::log("ReM",Log::DEBUG,"HostDelete method invoked");
+    NebulaLog::log("ReM",Log::DEBUG,"HostDelete method invoked");
 
     // Get the parameters
     session      = xmlrpc_c::value_string(paramList.getString(0));
@@ -82,7 +82,7 @@ error_host_get:
     goto error_common;
 
 error_common:
-    Nebula::log ("Rem",Log::ERROR,oss);
+    NebulaLog::log ("Rem",Log::ERROR,oss);
 
     arrayData.push_back(xmlrpc_c::value_boolean(false)); // FAILURE
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));

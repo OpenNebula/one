@@ -15,7 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include "DispatchManager.h"
-#include "Nebula.h"
+#include "NebulaLog.h"
 
 void  DispatchManager::suspend_success_action(int vid)
 {
@@ -44,7 +44,7 @@ void  DispatchManager::suspend_success_action(int vid)
 
         oss << "suspend_success action received but VM " << vid
             << " not in ACTIVE state";
-        Nebula::log("DiM",Log::ERROR,oss);
+        NebulaLog::log("DiM",Log::ERROR,oss);
     }
 
     vm->unlock();
@@ -82,7 +82,7 @@ void  DispatchManager::stop_success_action(int vid)
 
         oss << "stop_success action received but VM " << vid
             << " not in ACTIVE state";
-        Nebula::log("DiM",Log::ERROR,oss);
+        NebulaLog::log("DiM",Log::ERROR,oss);
     }
 
     vm->unlock();
@@ -123,7 +123,7 @@ void  DispatchManager::done_action(int vid)
         ostringstream oss;
 
         oss << "done action received but VM " << vid << " not in ACTIVE state";
-        Nebula::log("DiM",Log::ERROR,oss);
+        NebulaLog::log("DiM",Log::ERROR,oss);
     }
 
     vm->unlock();

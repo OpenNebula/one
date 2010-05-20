@@ -17,19 +17,18 @@
 #ifndef POOL_OBJECT_SQL_H_
 #define POOL_OBJECT_SQL_H_
 
-#include "SqliteDB.h"
 #include "ObjectSQL.h"
 #include <pthread.h>
 
 using namespace std;
 
 /**
- * PoolObject class. Provides a SQL backend interface for Pool components. Each 
+ * PoolObject class. Provides a SQL backend interface for Pool components. Each
  * object is identified with and unique OID
- * 
- * Note: The PoolObject provides a synchronization mechanism (mutex). This 
+ *
+ * Note: The PoolObject provides a synchronization mechanism (mutex). This
  * implementation assumes that the mutex IS LOCKED when the class destructor
- * is called. 
+ * is called.
  */
 
 class PoolObjectSQL : public ObjectSQL
@@ -44,10 +43,10 @@ public:
     virtual ~PoolObjectSQL()
     {
         pthread_mutex_unlock(&mutex);
-        
+
         pthread_mutex_destroy(&mutex);
     };
-    
+
     int get_oid() const
     {
         return oid;
@@ -63,7 +62,7 @@ public:
     };
 
     /**
-     *  Set the object valid flag  
+     *  Set the object valid flag
      *  @param _valid new valid flag
      */
     void set_valid(const bool _valid)
@@ -86,8 +85,9 @@ public:
     {
         pthread_mutex_unlock(&mutex);
     };
-    
+
 protected:
+
     /**
      *  The object unique ID
      */
@@ -96,7 +96,7 @@ protected:
     /**
      *  The contents ob this object are valid
      */
-    bool valid;      
+    bool valid;
 
 private:
 
@@ -106,8 +106,8 @@ private:
     friend class PoolSQL;
 
     /**
-     * The mutex for the PoolObject. This implementation assumes that the mutex 
-     * IS LOCKED when the class destructor is called. 
+     * The mutex for the PoolObject. This implementation assumes that the mutex
+     * IS LOCKED when the class destructor is called.
      */
     pthread_mutex_t mutex;
 };

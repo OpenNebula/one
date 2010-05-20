@@ -24,7 +24,6 @@ lib_name='nebula_core'
 source_files=[
     'Nebula.cc',
     'NebulaTemplate.cc',
-    'Log.cc'
 ]
 
 # Build library
@@ -48,9 +47,17 @@ env.Append(LIBS=[
     'nebula_vnm',
     'nebula_vm',
     'nebula_common',
-    'sqlite3',
+    'nebula_sql',
+    'nebula_log',
     'crypto'
 ])
+
+# Sources to generate the library
+if env['sqlite']=='yes':
+    env.Append(LIBS=['sqlite3'])
+
+if env['mysql']=='yes':
+    env.Append(LIBS=['mysqlclient'])
 
 
 if not env.GetOption('clean'):

@@ -15,7 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include "InformationManagerDriver.h"
-#include "Nebula.h"
+#include "NebulaLog.h"
 #include <sstream>
 
 
@@ -111,7 +111,7 @@ void InformationManagerDriver::protocol(
             hinfo += "\n";
             
             oss << "Host " << id << " successfully monitored."; //, info: "<< hinfo;
-            Nebula::log("InM",Log::DEBUG,oss);
+            NebulaLog::log("InM",Log::DEBUG,oss);
                                   
             rc = host->update_info(hinfo);
             
@@ -136,20 +136,20 @@ void InformationManagerDriver::protocol(
         string info;
         
         getline(is,info);
-        Nebula::log("InM",Log::INFO,info.c_str());
+        NebulaLog::log("InM",Log::INFO,info.c_str());
     }
     
     return;
 
 error_driver_info:
 	ess << "Error monitoring host " << id << " : " << is.str();
-	Nebula::log("InM", Log::ERROR, ess);
+	NebulaLog::log("InM", Log::ERROR, ess);
 
 	goto  error_common_info;
 	
 error_parse_info:
     ess << "Error parsing host information: " << hinfo;
-    Nebula::log("InM",Log::ERROR,ess); 
+    NebulaLog::log("InM",Log::ERROR,ess);
     
 error_common_info:
 
@@ -163,14 +163,14 @@ error_common_info:
 
 error_host:
     ess << "Could not get host " << id;
-    Nebula::log("InM",Log::ERROR,ess); 
+    NebulaLog::log("InM",Log::ERROR,ess);
     
     return;
     
 error_parse:
 
     ess << "Error while parsing driver message: " << message;
-    Nebula::log("InM",Log::ERROR,ess); 
+    NebulaLog::log("InM",Log::ERROR,ess);
 
     return;
 }
@@ -180,6 +180,6 @@ error_parse:
 
 void InformationManagerDriver::recover()
 {
-    Nebula::log("InM", Log::ERROR, "Information driver crashed, recovering...");       
+    NebulaLog::log("InM", Log::ERROR,
+                   "Information driver crashed, recovering...");
 }
-

@@ -15,7 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include "RequestManager.h"
-#include "Nebula.h"
+#include "NebulaLog.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -36,7 +36,7 @@ void RequestManager::HostEnable::execute(
     vector<xmlrpc_c::value> arrayData;
     xmlrpc_c::value_array * arrayresult;
 
-    Nebula::log("ReM",Log::DEBUG,"HostEnable method invoked");
+    NebulaLog::log("ReM",Log::DEBUG,"HostEnable method invoked");
 
     // Get the parameters & host
     session = xmlrpc_c::value_string(paramList.getString(0));
@@ -91,7 +91,7 @@ error_host_get:
     goto error_common;
 
 error_common:
-    Nebula::log("ReM",Log::ERROR,oss); 
+    NebulaLog::log("ReM",Log::ERROR,oss); 
 
     arrayData.push_back(xmlrpc_c::value_boolean(false));
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));

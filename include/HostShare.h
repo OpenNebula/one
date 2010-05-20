@@ -1,40 +1,35 @@
-/* -------------------------------------------------------------------------- */
-/* Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             */
-/*                                                                            */
-/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
-/* not use this file except in compliance with the License. You may obtain    */
-/* a copy of the License at                                                   */
-/*                                                                            */
-/* http://www.apache.org/licenses/LICENSE-2.0                                 */
-/*                                                                            */
-/* Unless required by applicable law or agreed to in writing, software        */
-/* distributed under the License is distributed on an "AS IS" BASIS,          */
-/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
-/* See the License for the specific language governing permissions and        */
-/* limitations under the License.                                             */
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------ */
+/* Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)           */
+/*                                                                          */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
+/* not use this file except in compliance with the License. You may obtain  */
+/* a copy of the License at                                                 */
+/*                                                                          */
+/* http://www.apache.org/licenses/LICENSE-2.0                               */
+/*                                                                          */
+/* Unless required by applicable law or agreed to in writing, software      */
+/* distributed under the License is distributed on an "AS IS" BASIS,        */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. */
+/* See the License for the specific language governing permissions and      */
+/* limitations under the License.                                           */
+/* ------------------------------------------------------------------------ */
 
 #ifndef HOST_SHARE_H_
 #define HOST_SHARE_H_
 
-#include "SqliteDB.h"
+#include "SqlDB.h"
 #include "ObjectSQL.h"
 #include <time.h>
 
 using namespace std;
 
-extern "C" int host_share_select_cb (void *  _hs,
-                                     int     num,
-                                     char ** values,
-                                     char ** names);
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
 
 /**
  *  The HostShare class. It represents a logical partition of a host...
  */
-class HostShare : public ObjectSQL 
+class HostShare : public ObjectSQL
 {
 public:
 
@@ -57,7 +52,7 @@ public:
         cpu_usage  += cpu;
         mem_usage  += mem;
         disk_usage += disk;
-        
+
         running_vms++;
     }
 
@@ -72,17 +67,17 @@ public:
         cpu_usage  -= cpu;
         mem_usage  -= mem;
         disk_usage -= disk;
-        
-        running_vms--;    
+
+        running_vms--;
     }
-    
+
     /**
-     *  Check if this share can host a VM. 
+     *  Check if this share can host a VM.
      *    @param cpu requested by the VM
      *    @param mem requested by the VM
      *    @param disk requested by the VM
-     * 
-     *    @return true if the share can host the VM or it is the only one 
+     *
+     *    @return true if the share can host the VM or it is the only one
      *    configured
      */
     bool test(int cpu, int mem, int disk) const
@@ -90,8 +85,8 @@ public:
             return (((max_cpu  - cpu_usage ) >= cpu) &&
                     ((max_mem  - mem_usage ) >= mem) &&
                     ((max_disk - disk_usage) >= disk));
-    }    
-    
+    }
+
     /**
      *  Function to write a HostShare to an output stream
      */
@@ -112,15 +107,15 @@ public:
      *  @return a reference to the generated string
      */
     string& to_xml(string& xml) const;
-    
+
 private:
 
     int hsid; /**< HostShare identifier */
-    
+
     int disk_usage; /**< Disk allocated to VMs (in Mb).        */
     int mem_usage;  /**< Memory allocated to VMs (in Mb)       */
     int cpu_usage;  /**< CPU  allocated to VMs (in percentage) */
-    
+
     int max_disk;   /**< Total disk capacity (in Mb)           */
     int max_mem;    /**< Total memory capacity (in Mb)         */
     int max_cpu;    /**< Total cpu capacity (in percentage)    */
@@ -134,19 +129,14 @@ private:
     int used_cpu;   /**< Used cpu from the IM monitor          */
 
     int running_vms; /**< Number of running VMs in this Host   */
-    
+
     // ----------------------------------------
     // Friends
     // ----------------------------------------
 
     friend class Host;
-        
-    friend int host_share_select_cb (
-        void *  _hostshare,
-        int     num,
-        char ** values,
-        char ** names);
-    
+    friend class HostPool;
+
     // ----------------------------------------
     // DataBase implementation variables
     // ----------------------------------------
@@ -171,7 +161,7 @@ private:
     };
 
     static const char * table;
-    
+
     static const char * db_names;
 
     static const char * db_bootstrap;
@@ -179,43 +169,51 @@ private:
     // ----------------------------------------
     // Database methods
     // ----------------------------------------
-    
+
     /**
      *  Reads the HostShare (identified with its HSID) from the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int select(SqliteDB * db);
+    int select(SqlDB * db);
 
     /**
      *  Writes the HostShare in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int insert(SqliteDB * db);
+    int insert(SqlDB * db);
 
     /**
      *  Writes/updates the HostShare data fields in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int update(SqliteDB * db);
-    
+    int update(SqlDB * db);
+
     /**
      *  Drops hostshare from the database
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int drop(SqliteDB * db);
-        
+    int drop(SqlDB * db);
+    
     /**
-     *  Function to unmarshall a HostShare object
+     *  Execute an INSERT or REPLACE Sql query. 
+     *    @param db The SQL DB
+     *    @param replace Execute an INSERT or a REPLACE	
+     *    @return 0 one success
+    */    
+    int insert_replace(SqlDB *db, bool replace);
+
+    /**
+     *  Callback function to unmarshall a HostShare object (HostShare::select)
      *    @param num the number of columns read from the DB
      *    @para names the column names
      *    @para vaues the column values
      *    @return 0 on success
      */
-    int unmarshall(int num, char **names, char ** values);
+    int select_cb(void * nil, int num, char **values, char **names);
 
     /**
      *  Function to unmarshall a HostShare object in to an output stream in XML
@@ -225,10 +223,8 @@ private:
      *    @param vaues the column values
      *    @return 0 on success
      */
-    static int unmarshall(ostringstream& oss,
-                          int            num,
-                          char **        names,
-                          char **        values);
+    static int dump(ostringstream& oss, int num, char **values, char **names);
+
 };
 
 

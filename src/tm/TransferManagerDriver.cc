@@ -15,8 +15,10 @@
 /* -------------------------------------------------------------------------- */
 
 #include "TransferManagerDriver.h"
-#include "Nebula.h"
+#include "NebulaLog.h"
 #include "LifeCycleManager.h"
+
+#include "Nebula.h"
 #include <sstream>
 
 /* ************************************************************************** */
@@ -52,7 +54,7 @@ void TransferManagerDriver::protocol(
     VirtualMachine *        vm;
 
     os << "Message received: " << message;
-    Nebula::log("TM", Log::DEBUG, os);
+    NebulaLog::log("TM", Log::DEBUG, os);
 
     // Parse the driver message
     if ( is.good() )
@@ -77,7 +79,7 @@ void TransferManagerDriver::protocol(
 
                 is.clear();
                 getline(is,info);
-                Nebula::log("TM",Log::INFO, info.c_str());
+                NebulaLog::log("TM",Log::INFO, info.c_str());
             }
 
             return;
@@ -192,5 +194,5 @@ error_state:
 
 void TransferManagerDriver::recover()
 {
-    Nebula::log("TM",Log::INFO,"Recovering TM drivers");
+    NebulaLog::log("TM",Log::INFO,"Recovering TM drivers");
 }

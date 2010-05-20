@@ -15,7 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include "LifeCycleManager.h"
-#include "Nebula.h"
+#include "NebulaLog.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -31,11 +31,11 @@ extern "C" void * lcm_action_loop(void *arg)
 
     lcm = static_cast<LifeCycleManager *>(arg);
 
-    Nebula::log("LCM",Log::INFO,"Life-cycle Manager started.");
+    NebulaLog::log("LCM",Log::INFO,"Life-cycle Manager started.");
 
     lcm->am.loop(0,0);
 
-    Nebula::log("LCM",Log::INFO,"Life-cycle Manager stopped.");
+    NebulaLog::log("LCM",Log::INFO,"Life-cycle Manager stopped.");
     
     return 0;    
 }
@@ -50,7 +50,7 @@ int LifeCycleManager::start()
     pthread_attr_init (&pattr);
     pthread_attr_setdetachstate (&pattr, PTHREAD_CREATE_JOINABLE);
 
-    Nebula::log("LCM",Log::INFO,"Starting Life-cycle Manager...");
+    NebulaLog::log("LCM",Log::INFO,"Starting Life-cycle Manager...");
     
     rc = pthread_create(&lcm_thread,&pattr,lcm_action_loop,(void *) this);
 
@@ -300,14 +300,14 @@ void LifeCycleManager::do_action(const string &action, void * arg)
     }
     else if (action == ACTION_FINALIZE)
     {
-        Nebula::log("LCM",Log::INFO,"Stopping Life-cycle Manager...");
+        NebulaLog::log("LCM",Log::INFO,"Stopping Life-cycle Manager...");
     }
     else
     {
         ostringstream oss;
         oss << "Unknown action name: " << action;
         
-        Nebula::log("LCM", Log::ERROR, oss);        
+        NebulaLog::log("LCM", Log::ERROR, oss);
     }
 }
 

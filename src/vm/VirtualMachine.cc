@@ -25,6 +25,8 @@
 
 #include "VirtualMachine.h"
 #include "VirtualNetworkPool.h"
+#include "NebulaLog.h"
+
 #include "Nebula.h"
 
 
@@ -83,7 +85,8 @@ const char * VirtualMachine::db_names = "(oid,uid,name,last_poll,template_id,sta
                                         ",lcm_state,stime,etime,deploy_id"
                                         ",memory,cpu,net_tx,net_rx)";
 
-const char * VirtualMachine::db_bootstrap = "CREATE TABLE vm_pool ("
+const char * VirtualMachine::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
+        "vm_pool ("
         "oid INTEGER PRIMARY KEY,uid INTEGER,name TEXT,"
         "last_poll INTEGER, template_id INTEGER,state INTEGER,lcm_state INTEGER,"
         "stime INTEGER,etime INTEGER,deploy_id TEXT,memory INTEGER,cpu INTEGER,"
@@ -92,7 +95,7 @@ const char * VirtualMachine::db_bootstrap = "CREATE TABLE vm_pool ("
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::unmarshall(int num, char **names, char ** values)
+int VirtualMachine::select_cb(void *nil, int num, char **values, char **names)
 {
     if ((values[OID] == 0) ||
             (values[UID] == 0) ||
@@ -140,29 +143,8 @@ int VirtualMachine::unmarshall(int num, char **names, char ** values)
 }
 
 /* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
 
-extern "C" int vm_select_cb (
-        void *                  _vm,
-        int                     num,
-        char **                 values,
-        char **                 names)
-{
-    VirtualMachine *    vm;
-
-    vm = static_cast<VirtualMachine *>(_vm);
-
-    if (vm == 0)
-    {
-        return -1;
-    }
-
-    return vm->unmarshall(num,names,values);
-};
-
-/* -------------------------------------------------------------------------- */
-
-int VirtualMachine::select(SqliteDB * db)
+int VirtualMachine::select(SqlDB * db)
 {
     ostringstream   oss;
     ostringstream   ose;
@@ -171,15 +153,17 @@ int VirtualMachine::select(SqliteDB * db)
     int             boid;
 
     string          filename;
-    Nebula& 		nd = Nebula::instance();
+    Nebula&         nd = Nebula::instance();
+
+    set_callback(
+        static_cast<Callbackable::Callback>(&VirtualMachine::select_cb));
 
     oss << "SELECT * FROM " << table << " WHERE oid = " << oid;
 
     boid = oid;
     oid  = -1;
 
-    rc = db->exec(oss,vm_select_cb,(void *) this);
-
+    rc = db->exec(oss,this);
 
     if ((rc != 0) || (oid != boid ))
     {
@@ -213,14 +197,14 @@ int VirtualMachine::select(SqliteDB * db)
     }
     else if (history->seq > 0)
     {
-    	previous_history = new History(oid,history->seq - 1);
+        previous_history = new History(oid,history->seq - 1);
 
-    	rc = previous_history->select(db);
+        rc = previous_history->select(db);
 
-    	if ( rc != 0)
-    	{
-    		goto error_previous_history;
-    	}
+        if ( rc != 0)
+        {
+            goto error_previous_history;
+        }
     }
 
     //Create support directory fo this VM
@@ -235,15 +219,15 @@ int VirtualMachine::select(SqliteDB * db)
 
     try
     {
-    	_log = new Log(nd.get_vm_log_filename(oid),Log::DEBUG);
-	}
+        _log = new FileLog(nd.get_vm_log_filename(oid),Log::DEBUG);
+    }
     catch(exception &e)
     {
-    	ose << "Error creating log: " << e.what();
-    	Nebula::log("ONE",Log::ERROR, ose);
+        ose << "Error creating log: " << e.what();
+        NebulaLog::log("ONE",Log::ERROR, ose);
 
-    	_log = 0;
-	}
+        _log = 0;
+    }
 
     return 0;
 
@@ -263,8 +247,8 @@ error_history:
     return -1;
 
 error_previous_history:
-	ose << "Can not get previous history record (seq:" << history->seq
-	    << ") for VM id: " << oid;
+    ose << "Can not get previous history record (seq:" << history->seq
+        << ") for VM id: " << oid;
     log("ONE", Log::ERROR, ose);
     return -1;
 }
@@ -272,7 +256,7 @@ error_previous_history:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::insert(SqliteDB * db)
+int VirtualMachine::insert(SqlDB * db)
 {
     int    rc;
     string name;
@@ -290,8 +274,8 @@ int VirtualMachine::insert(SqliteDB * db)
     attr = new SingleAttribute("VMID",value);
 
     vm_template.set(attr);
-    
-    
+
+
     get_template_attribute("NAME",name);
 
     if ( name.empty() == true )
@@ -328,7 +312,7 @@ int VirtualMachine::insert(SqliteDB * db)
         goto error_template;
     }
 
-    rc = update(db);
+    rc = insert_replace(db, false);
 
     if ( rc != 0 )
     {
@@ -338,25 +322,37 @@ int VirtualMachine::insert(SqliteDB * db)
     return 0;
 
 error_update:
-	Nebula::log("ONE",Log::ERROR, "Can not update VM in the database");
-	vm_template.drop(db);
-	return -1;
+    NebulaLog::log("ONE",Log::ERROR, "Can not update VM in the database");
+    vm_template.drop(db);
+    return -1;
 
 error_template:
-	Nebula::log("ONE",Log::ERROR, "Can not insert template in the database");
-	release_network_leases();
-	return -1;
+    NebulaLog::log("ONE",Log::ERROR, "Can not insert template in the database");
+    release_network_leases();
+    return -1;
 
 error_leases:
-	Nebula::log("ONE",Log::ERROR, "Could not get network lease for VM");
-	release_network_leases();
-	return -1;
+    NebulaLog::log("ONE",Log::ERROR, "Could not get network lease for VM");
+    release_network_leases();
+    return -1;
 }
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
 
-int VirtualMachine::update(SqliteDB * db)
+int VirtualMachine::update(SqlDB * db)
+{
+    int             rc;
+
+    rc = insert_replace(db, true);
+
+    return rc;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int VirtualMachine::insert_replace(SqlDB *db, bool replace)
 {
     ostringstream   oss;
     int             rc;
@@ -364,22 +360,31 @@ int VirtualMachine::update(SqliteDB * db)
     char * sql_deploy_id;
     char * sql_name;
 
-    sql_deploy_id = sqlite3_mprintf("%q",deploy_id.c_str());
+    sql_deploy_id = db->escape_str(deploy_id.c_str());
 
     if ( sql_deploy_id == 0 )
     {
         return -1;
     }
 
-    sql_name =  sqlite3_mprintf("%q",name.c_str());
+    sql_name =  db->escape_str(name.c_str());
 
     if ( sql_name == 0 )
     {
-       sqlite3_free(sql_deploy_id);
+       db->free_str(sql_deploy_id);
        return -1;
     }
-
-    oss << "INSERT OR REPLACE INTO " << table << " "<< db_names <<" VALUES ("<<
+    
+    if(replace)
+    {
+        oss << "REPLACE";
+    }
+    else
+    {
+        oss << "INSERT";
+    }
+    
+    oss << " INTO " << table << " "<< db_names <<" VALUES ("<<
         oid << "," <<
         uid << "," <<
         "'" << sql_name << "'," <<
@@ -395,8 +400,8 @@ int VirtualMachine::update(SqliteDB * db)
         net_tx << "," <<
         net_rx << ")";
 
-    sqlite3_free(sql_deploy_id);
-    sqlite3_free(sql_name);
+    db->free_str(sql_deploy_id);
+    db->free_str(sql_name);
 
     rc = db->exec(oss);
 
@@ -406,10 +411,7 @@ int VirtualMachine::update(SqliteDB * db)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::unmarshall(ostringstream& oss,
-                               int            num,
-                               char **        names,
-                               char **        values)
+int VirtualMachine::dump(ostringstream& oss,int num,char **values,char **names)
 {
     if ((!values[OID])||
         (!values[UID])||
@@ -434,7 +436,7 @@ int VirtualMachine::unmarshall(ostringstream& oss,
             "<ID>"       << values[OID]      << "</ID>"       <<
             "<UID>"      << values[UID]      << "</UID>"      <<
             "<USERNAME>" << values[LIMIT]     << "</USERNAME>"<<
-            "<NAME>"     << values[NAME]     << "</NAME>"     << 
+            "<NAME>"     << values[NAME]     << "</NAME>"     <<
             "<LAST_POLL>"<< values[LAST_POLL]<< "</LAST_POLL>"<<
             "<STATE>"    << values[STATE]    << "</STATE>"    <<
             "<LCM_STATE>"<< values[LCM_STATE]<< "</LCM_STATE>"<<
@@ -446,67 +448,18 @@ int VirtualMachine::unmarshall(ostringstream& oss,
             "<NET_TX>"   << values[NET_TX]   << "</NET_TX>"   <<
             "<NET_RX>"   << values[NET_RX]   << "</NET_RX>";
 
-	History::unmarshall(oss, num-LIMIT-2, names+LIMIT+1, values+LIMIT+1);
-	
+    History::dump(oss, num-LIMIT-2, values+LIMIT+1, names+LIMIT+1);
+
     oss << "</VM>";
 
-    return 0;    
-}
-
-/* -------------------------------------------------------------------------- */
-
-extern "C" int vm_dump_cb (
-        void *                  _oss,
-        int                     num,
-        char **                 values,
-        char **                 names)
-{
-    ostringstream * oss;
-    ostringstream dbg;
-    
-    oss = static_cast<ostringstream *>(_oss);
-
-    if (oss == 0)
-    {
-        return -1;
-    }
-
-    return VirtualMachine::unmarshall(*oss,num,names,values);
-};
-
-/* -------------------------------------------------------------------------- */
-
-int VirtualMachine::dump(SqliteDB * db, ostringstream& oss, const string& where)
-{
-    int             rc;
-    ostringstream   cmd;
-
-    cmd << "SELECT " << VirtualMachine::table << ".*, "
-        << "user_pool.user_name, " << History::table << ".* FROM " 
-        << VirtualMachine::table
-        << " LEFT OUTER JOIN (SELECT *,MAX(seq) FROM "
-        << History::table << " GROUP BY vid) AS " << History::table
-        << " ON " << VirtualMachine::table << ".oid = "
-        << History::table << ".vid LEFT OUTER JOIN (SELECT oid,user_name FROM "
-        << "user_pool) AS user_pool ON "
-        << VirtualMachine::table << ".uid = user_pool.oid WHERE " 
-        << VirtualMachine::table << ".state != " << VirtualMachine::DONE;
-
-    if ( !where.empty() )
-    {
-        cmd << " AND " << where;
-    }
-    
-    rc = db->exec(cmd,vm_dump_cb,(void *) &oss);
-
-    return rc;
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 void VirtualMachine::add_history(
-	int     hid,
+    int     hid,
     string& hostname,
     string& vm_dir,
     string& vmm_mad,
@@ -525,7 +478,7 @@ void VirtualMachine::add_history(
 
         if (previous_history != 0)
         {
-        	delete previous_history;
+            delete previous_history;
         }
 
         previous_history = history;
@@ -539,29 +492,29 @@ void VirtualMachine::add_history(
 
 void VirtualMachine::cp_history()
 {
-	History * htmp;
+    History * htmp;
 
-	if (history == 0)
-	{
-		return;
-	}
+    if (history == 0)
+    {
+        return;
+    }
 
-	htmp = new History(oid,
-			history->seq + 1,
-			history->hid,
-			history->hostname,
-			history->vm_dir,
-			history->vmm_mad_name,
-			history->tm_mad_name);
+    htmp = new History(oid,
+            history->seq + 1,
+            history->hid,
+            history->hostname,
+            history->vm_dir,
+            history->vmm_mad_name,
+            history->tm_mad_name);
 
-	if ( previous_history != 0 )
-	{
-		delete previous_history;
-	}
+    if ( previous_history != 0 )
+    {
+        delete previous_history;
+    }
 
-	previous_history = history;
+    previous_history = history;
 
-	history = htmp;
+    history = htmp;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -569,26 +522,26 @@ void VirtualMachine::cp_history()
 
 void VirtualMachine::cp_previous_history()
 {
-	History * htmp;
+    History * htmp;
 
-	if ( previous_history == 0 || history == 0)
-	{
-		return;
-	}
+    if ( previous_history == 0 || history == 0)
+    {
+        return;
+    }
 
-	htmp = new History(oid,
-			history->seq + 1,
-			previous_history->hid,
-			previous_history->hostname,
-			previous_history->vm_dir,
-			previous_history->vmm_mad_name,
-			previous_history->tm_mad_name);
+    htmp = new History(oid,
+            history->seq + 1,
+            previous_history->hid,
+            previous_history->hostname,
+            previous_history->vm_dir,
+            previous_history->vmm_mad_name,
+            previous_history->tm_mad_name);
 
-	delete previous_history;
+    delete previous_history;
 
-	previous_history = history;
+    previous_history = history;
 
-	history = htmp;
+    history = htmp;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -672,12 +625,12 @@ int VirtualMachine::get_network_leases()
             return -1;
         }
 
-        if ( vn->get_uid() != uid && vn->get_uid() != 0 && uid != 0) 
+        if ( vn->get_uid() != uid && vn->get_uid() != 0 && uid != 0)
         {
             ostringstream ose;
-            ose << "Owner " << uid << " of the VM doesn't have ownership of Virtual Network " 
+            ose << "Owner " << uid << " of the VM doesn't have ownership of Virtual Network "
                 << vn->get_uid();
-            Nebula::log("VMM", Log::ERROR, ose);
+            NebulaLog::log("VMM", Log::ERROR, ose);
             return -1;
         }
 
@@ -712,7 +665,7 @@ int VirtualMachine::get_network_leases()
 
         if ( !model.empty() )
         {
-		    new_nic.insert(make_pair("MODEL",model));
+            new_nic.insert(make_pair("MODEL",model));
         }
 
         nic->replace(new_nic);
@@ -743,7 +696,7 @@ void VirtualMachine::release_network_leases()
 
     for(int i=0; i<num_nics; i++)
     {
-        VectorAttribute const *  nic = 
+        VectorAttribute const *  nic =
             dynamic_cast<VectorAttribute const * >(nics[i]);
 
         if ( nic == 0 )
@@ -843,17 +796,17 @@ int VirtualMachine::parse_template_attribute(const string& attribute,
 {
     int rc;
     char * err = 0;
-    
+
     rc = parse_attribute(this,-1,attribute,parsed,&err);
-    
+
     if ( rc != 0 && err != 0 )
     {
         ostringstream oss;
-        
+
         oss << "Error parsing: " << attribute << ". " << err;
         log("VM",Log::ERROR,oss);
     }
-    
+
     return rc;
 }
 
@@ -863,19 +816,19 @@ int VirtualMachine::parse_template_attribute(const string& attribute,
 pthread_mutex_t VirtualMachine::lex_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 extern "C"
-{    
+{
     typedef struct yy_buffer_state * YY_BUFFER_STATE;
 
     int vm_var_parse (VirtualMachine * vm,
-                      int              vm_id,                  
+                      int              vm_id,
                       ostringstream *  parsed,
                       char **          errmsg);
- 
+
     int vm_var_lex_destroy();
 
     YY_BUFFER_STATE vm_var__scan_string(const char * str);
 
-    void vm_var__delete_buffer(YY_BUFFER_STATE);    
+    void vm_var__delete_buffer(YY_BUFFER_STATE);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -927,9 +880,9 @@ error_yy:
 ostream& operator<<(ostream& os, const VirtualMachine& vm)
 {
 	string vm_str;
-	
+
 		os << vm.to_xml(vm_str);
-	
+
     return os;
 };
 
@@ -939,9 +892,9 @@ string& VirtualMachine::to_xml(string& xml) const
 {
 	string template_xml;
     string history_xml;
-    
+
 	ostringstream	oss;
-	
+
 	oss << "<VM>"
 	      << "<ID>"       << oid       << "</ID>"
 	      << "<UID>"       << uid       << "</UID>"
@@ -957,15 +910,15 @@ string& VirtualMachine::to_xml(string& xml) const
 	      << "<NET_TX>"    << net_tx    << "</NET_TX>"
 	      << "<NET_RX>"    << net_rx    << "</NET_RX>"
           << vm_template.to_xml(template_xml);
-        
+
     if ( hasHistory() )
     {
         oss << history->to_xml(history_xml);
     }
 	oss << "</VM>";
-	
+
 	xml = oss.str();
-	
+
 	return xml;
 }
 
@@ -975,9 +928,9 @@ string& VirtualMachine::to_str(string& str) const
 {
 	string template_str;
     string history_str;
-    
+
 	ostringstream	oss;
-	
+
 	oss<< "ID                : " << oid << endl
        << "UID               : " << uid << endl
        << "NAME              : " << name << endl
@@ -992,14 +945,14 @@ string& VirtualMachine::to_str(string& str) const
        << "NET TX            : " << net_tx << endl
        << "NET RX            : " << net_rx << endl
        << "Template" << endl << vm_template.to_str(template_str) << endl;
-       
+
     if ( hasHistory() )
     {
         oss << "Last History Record" << endl << history->to_str(history_str);
-    }       
-    	
+    }
+
 	str = oss.str();
-	
+
 	return str;
 }
 

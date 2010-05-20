@@ -15,7 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include "RequestManager.h"
-#include "Nebula.h"
+#include "NebulaLog.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -35,7 +35,7 @@ void RequestManager::VirtualMachineInfo::execute(
     vector<xmlrpc_c::value> arrayData;
     xmlrpc_c::value_array * arrayresult;
 
-    Nebula::log("ReM",Log::DEBUG,"VirtualMachineInfo method invoked");
+    NebulaLog::log("ReM",Log::DEBUG,"VirtualMachineInfo method invoked");
 
     // Get the parameters
     session      = xmlrpc_c::value_string(paramList.getString(0));
@@ -74,7 +74,7 @@ error_common:
     arrayData.push_back(xmlrpc_c::value_boolean(false)); // FAILURE
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
     
-    Nebula::log("ReM",Log::ERROR,oss); 
+    NebulaLog::log("ReM",Log::ERROR,oss); 
     
     xmlrpc_c::value_array arrayresult_error(arrayData);
 

@@ -1,5 +1,3 @@
-# SConstruct for src/nebula
-
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
@@ -17,46 +15,90 @@
 #--------------------------------------------------------------------------- #
 
 import os
-Import('env')
+import sys
+import shutil
+sys.path.append("../../share/scons")
 
+from lex_bison import *
+
+# This is the absolute path where the project is located
 cwd=os.getcwd()
-env.Append(LIBPATH=cwd)
 
-lib_name='nebula_scheduler'
+# Environment that will be applied to each scons child
+main_env=Environment()
+main_env['ENV']['PATH']=os.environ['PATH']
 
-# Sources to generate the library
-source_files=[
-    'Scheduler.cc',
-    'SchedulerHost.cc',
-    'SchedulerVirtualMachine.cc',
-]
+# Add builders for flex and bison
+add_lex(main_env)
+add_bison(main_env)
 
-scheduler_names=[
-    'mm_sched'
-]
-
-# Build library
-env.StaticLibrary(lib_name, source_files)
-
-env.Append(LIBS=[
-    'sqlite3',
-    'crypto',
-    lib_name,
-    'nebula_core',
-    'nebula_host',
-    'nebula_vm',
-    'nebula_vnm',
-    'nebula_pool',
-    'nebula_template',
-    'nebula_common',
-    'nebula_um',
+# Include dirs
+main_env.Append(CPPPATH=[
+    cwd + '/include/',
+    cwd + '../../../include/'
 ])
 
+# Library dirs
+main_env.Append(LIBPATH=[
+    cwd+'/src/xml',
+    cwd+'/src/pool',
+    cwd+'/src/sched',
+    cwd+'/../log',
+    cwd+'/../common',
+])
 
-if not env.GetOption('clean'):
-    env.ParseConfig('../../share/scons/get_xmlrpc_config client')
+# Compile flags
+main_env.Append(CPPFLAGS=[
+    "-g",
+    "-Wall"
+])
 
+# Linking flags
+main_env.Append(LDFLAGS=["-g"])
 
-# Build tests
-for sched in scheduler_names:
-    env.Program(sched, sched+'.cc')
+################################################################################
+#                               EXTRA CONFIGURATION
+################################################################################
+
+#-------------------------------------------------------------------------------
+# xmlrpc
+#-------------------------------------------------------------------------------
+
+xmlrpc_dir=ARGUMENTS.get('xmlrpc', 'none')
+
+if xmlrpc_dir!='none':
+    main_env.Append(LIBPATH=[xmlrpc_dir+"/lib"])
+    main_env.Append(CPPPATH=[xmlrpc_dir+"/include"])
+
+main_env.ParseConfig('../../share/scons/get_xmlrpc_config client')
+
+#-------------------------------------------------------------------------------
+# build lex/bison
+#-------------------------------------------------------------------------------
+
+build_parsers=ARGUMENTS.get('parsers', 'no')
+
+if build_parsers=='yes':
+    main_env.Append(parsers='yes')
+else:
+    main_env.Append(parsers='no')
+
+#-------------------------------------------------------------------------------
+# libxml2
+#-------------------------------------------------------------------------------
+
+main_env.ParseConfig('xml2-config --libs --cflags')
+
+################################################################################
+# SCONS scripts to build
+################################################################################
+
+build_scripts=[
+    'src/xml/SConstruct',
+    'src/pool/SConstruct',
+    'src/sched/SConstruct'
+]
+
+for script in build_scripts:
+    env=main_env.Clone()
+    SConscript(script, exports='env')

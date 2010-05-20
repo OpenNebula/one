@@ -32,9 +32,9 @@ class VirtualNetworkPool : public PoolSQL
 {
 public:
 
-    VirtualNetworkPool(SqliteDB * 		db, 
-    				   const string&	str_mac_prefix,
-    				   int 				default_size);
+    VirtualNetworkPool(SqlDB *          db,
+                       const string&    str_mac_prefix,
+                       int              default_size);
 
     ~VirtualNetworkPool(){};
 
@@ -43,7 +43,7 @@ public:
      *    @param uid user identifier
      *    @param stemplate a string describing the VN
      *    @param oid the id assigned to the VM (output)
-     *    @return 0 on success, -1 error inserting in DB,-2 error parsing 
+     *    @return oid on success, -1 error inserting in DB,-2 error parsing
      *     the template, -3 wrong attributes in template
      */
     int allocate (
@@ -64,7 +64,7 @@ public:
     {
         return static_cast<VirtualNetwork *>(PoolSQL::get(oid,lock));
     };
-    
+
     /**
      *  Function to get a VN from the pool using the network name
      *  If the object is not in memory it is loaded from the DB
@@ -74,14 +74,14 @@ public:
      */
     VirtualNetwork * get(
         const string&  name,
-        bool    	   lock);
+        bool           lock);
 
     //--------------------------------------------------------------------------
     // Virtual Network DB access functions
     //--------------------------------------------------------------------------
-    
+
     /**
-     *  Updates the template of a VN, adding a new attribute (replacing it if 
+     *  Updates the template of a VN, adding a new attribute (replacing it if
      *  already defined), the VN's mutex SHOULD be locked
      *    @param vn pointer to the virtual network object
      *    @param name of the new attribute
@@ -89,61 +89,42 @@ public:
      *    @return 0 on success
      */
     int update_template_attribute(
-        VirtualNetwork *	vn,
-        string&			 	name,
-        string&			 	value)
+        VirtualNetwork *    vn,
+        string&             name,
+        string&             value)
     {
-    	return vn->update_template_attribute(db,name,value);
+        return vn->update_template_attribute(db,name,value);
     };
 
     /**
      *  Bootstraps the database table(s) associated to the VirtualNetwork pool
      */
-    static void bootstrap(SqliteDB * _db)
+    static void bootstrap(SqlDB * _db)
     {
         VirtualNetwork::bootstrap(_db);
     };
-    
-    /** Drops a VN from the cache & DB, the VN mutex MUST BE locked
-     *    @param vn pointer to VN
-     */
-    int drop(VirtualNetwork * vn)
-    {
-    	return vn->drop(db);
-    };
-    
+
     /**
-     *  Dumps the HOST pool in XML format. A filter can be also added to the
-     *  query
+     *  Dumps the Virtual Network pool in XML format. A filter can be also added
+     *  to the query
      *  @param oss the output stream to dump the pool contents
      *  @param where filter for the objects, defaults to all
      *
      *  @return 0 on success
      */
-    int dump(ostringstream& oss, const string& where)
-    {
-        int rc;
-
-        oss << "<VNET_POOL>";
-
-        rc = VirtualNetwork::dump(db,oss,where);
-
-        oss << "</VNET_POOL>";
-
-        return rc;
-    }
+    int dump(ostringstream& oss, const string& where);
 
 private:
     /**
      *  Holds the system-wide MAC prefix
      */
     unsigned int     mac_prefix;
-    
+
     /**
      *  Default size for Virtual Networks
      */
-    unsigned int     default_size;    
-    
+    unsigned int     default_size;
+
     /**
      *  Factory method to produce VN objects
      *    @return a pointer to the new VN
@@ -152,7 +133,26 @@ private:
     {
         return new VirtualNetwork(mac_prefix, default_size);
     };
-    
+
+    /**
+     *  Callback function to get output the virtual network pool in XML format
+     *  (VirtualNetworkPool::dump)
+     *    @param num the number of columns read from the DB
+     *    @param names the column names
+     *    @param vaues the column values
+     *    @return 0 on success
+     */
+    int dump_cb(void * _oss, int num, char **values, char **names);
+
+    /**
+     *  Callback function to get the ID of a given virtual network
+     *  (VirtualNetworkPool::get)
+     *    @param num the number of columns read from the DB
+     *    @param names the column names
+     *    @param vaues the column values
+     *    @return 0 on success
+     */
+    int get_cb(void * _oss, int num, char **values, char **names);
 };
- 
+
 #endif /*VIRTUAL_NETWORK_POOL_H_*/

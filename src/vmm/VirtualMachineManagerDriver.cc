@@ -15,8 +15,10 @@
 /* -------------------------------------------------------------------------- */
 
 #include "VirtualMachineManagerDriver.h"
-#include "Nebula.h"
+#include "NebulaLog.h"
 #include "LifeCycleManager.h"
+
+#include "Nebula.h"
 #include <sstream>
 
 VirtualMachineManagerDriver::VirtualMachineManagerDriver(
@@ -66,7 +68,7 @@ VirtualMachineManagerDriver::VirtualMachineManagerDriver(
                 oss << "Error loading driver configuration file " << cfile;
             }
 
-            Nebula::log("VMM", Log::ERROR, oss);
+            NebulaLog::log("VMM", Log::ERROR, oss);
         }
     }
 }
@@ -238,7 +240,7 @@ void VirtualMachineManagerDriver::protocol(
     VirtualMachine *        vm;
 
     os << "Message received: " << message;
-    Nebula::log("VMM", Log::DEBUG, os);
+    NebulaLog::log("VMM", Log::DEBUG, os);
 
     // Parse the driver message
     if ( is.good() )
@@ -263,7 +265,7 @@ void VirtualMachineManagerDriver::protocol(
 
                 is.clear();
                 getline(is,info);
-                Nebula::log("VMM",Log::INFO, info.c_str());
+                NebulaLog::log("VMM",Log::INFO, info.c_str());
             }
 
             return;
@@ -361,7 +363,7 @@ void VirtualMachineManagerDriver::protocol(
         }
         else
         {
-            string          info;
+            string  info;
 
             getline(is,info);
 
@@ -602,6 +604,6 @@ void VirtualMachineManagerDriver::protocol(
 
 void VirtualMachineManagerDriver::recover()
 {
-    Nebula::log("VMM",Log::INFO,"Recovering VMM drivers");
+    NebulaLog::log("VMM",Log::INFO,"Recovering VMM drivers");
 }
 

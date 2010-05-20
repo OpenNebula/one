@@ -14,15 +14,17 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#include "Nebula.h"
 #include "VirtualMachinePool.h"
 #include "VirtualMachineHook.h"
+
+#include "NebulaLog.h"
+
 #include <sstream>
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-VirtualMachinePool::VirtualMachinePool(SqliteDB *                db,
+VirtualMachinePool::VirtualMachinePool(SqlDB *                   db,
                                        vector<const Attribute *> hook_mads)
     : PoolSQL(db,VirtualMachine::table)
 {
@@ -55,7 +57,7 @@ VirtualMachinePool::VirtualMachinePool(SqliteDB *                db,
 
             oss << "Empty ON or COMMAND attribute in VM_HOOK. Hook "
                 << "not registered!";
-            Nebula::log("VM",Log::WARNING,oss);
+            NebulaLog::log("VM",Log::WARNING,oss);
 
             continue;
         }
@@ -130,7 +132,7 @@ VirtualMachinePool::VirtualMachinePool(SqliteDB *                db,
             ostringstream oss;
 
             oss << "Unkown VM_HOOK " << on << ". Hook not registered!";
-            Nebula::log("VM",Log::WARNING,oss);
+            NebulaLog::log("VM",Log::WARNING,oss);
         }
     }
 
@@ -187,8 +189,10 @@ int VirtualMachinePool::allocate (
         ostringstream oss;
 
         oss << error_msg;
-        Nebula::log("ONE", Log::ERROR, oss);
+        NebulaLog::log("ONE", Log::ERROR, oss);
         free(error_msg);
+
+        delete vm;
 
         return -2;
     }
@@ -199,7 +203,7 @@ int VirtualMachinePool::allocate (
     // ------------------------------------------------------------------------
     // Insert the Object in the pool
     // ------------------------------------------------------------------------
-    
+
     *oid = PoolSQL::allocate(vm);
 
     if ( *oid == -1 )
@@ -210,7 +214,7 @@ int VirtualMachinePool::allocate (
     // ------------------------------------------------------------------------
     // Insert parsed context in the VM template and clean-up
     // ------------------------------------------------------------------------
-    
+
     if ((num_attr = (int) attrs.size()) > 0)
     {
         generate_context(*oid,attrs[0]);
@@ -224,7 +228,7 @@ int VirtualMachinePool::allocate (
         }
     }
 
-    return 0;
+    return *oid;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -236,9 +240,9 @@ int VirtualMachinePool::get_running(
     ostringstream   os;
     string          where;
 
-    os << "state == " << VirtualMachine::ACTIVE
-       << " and ( lcm_state == " << VirtualMachine::RUNNING
-       << " or lcm_state == " << VirtualMachine::UNKNOWN << " )";
+    os << "state = " << VirtualMachine::ACTIVE
+       << " and ( lcm_state = " << VirtualMachine::RUNNING
+       << " or lcm_state = " << VirtualMachine::UNKNOWN << " )";
 
     where = os.str();
 
@@ -254,7 +258,7 @@ int VirtualMachinePool::get_pending(
     ostringstream   os;
     string          where;
 
-    os << "state == " << VirtualMachine::PENDING;
+    os << "state = " << VirtualMachine::PENDING;
 
     where = os.str();
 
@@ -302,7 +306,7 @@ void VirtualMachinePool::generate_context(int vm_id, Attribute * attr)
             oss << error_msg << ": " << *str;
             free(error_msg);
 
-            Nebula::log("ONE", Log::ERROR, oss);
+            NebulaLog::log("ONE", Log::ERROR, oss);
         }
 
         delete str;
@@ -331,4 +335,52 @@ void VirtualMachinePool::generate_context(int vm_id, Attribute * attr)
     vm->unlock();
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
+int  VirtualMachinePool::dump_cb(void * _oss,int num,char **values,char **names)
+{
+    ostringstream * oss;
+
+    oss = static_cast<ostringstream *>(_oss);
+
+    return VirtualMachine::dump(*oss, num, values, names);
+}
+
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachinePool::dump(ostringstream& oss, const string& where)
+{
+    int             rc;
+    ostringstream   cmd;
+
+    oss << "<VM_POOL>";
+
+    set_callback(
+        static_cast<Callbackable::Callback>(&VirtualMachinePool::dump_cb),
+        static_cast<void *>(&oss));
+
+    cmd << "SELECT " << VirtualMachine::table << ".*, "
+        << "user_pool.user_name, " << History::table << ".* FROM "
+        << VirtualMachine::table
+        << " LEFT OUTER JOIN ("
+        <<   "SELECT *,seq AS max_seq FROM " << History::table << " h1 WHERE "
+        <<     "seq=(SELECT MAX(seq) FROM " << History::table << " h2 WHERE h1.vid=h2.vid)) "
+        << "AS " << History::table
+        << " ON " << VirtualMachine::table << ".oid = "
+        << History::table << ".vid LEFT OUTER JOIN (SELECT oid,user_name FROM "
+        << "user_pool) AS user_pool ON "
+        << VirtualMachine::table << ".uid = user_pool.oid WHERE "
+        << VirtualMachine::table << ".state <> " << VirtualMachine::DONE;
+
+    if ( !where.empty() )
+    {
+        cmd << " AND " << where;
+    }
+
+    rc = db->exec(cmd,this);
+
+    oss << "</VM_POOL>";
+
+    return rc;
+}

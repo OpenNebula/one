@@ -1,0 +1,64 @@
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2009, Distributed Systems Architecture Group, Universidad   #
+# Complutense de Madrid (dsa-research.org)                                   #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+import os
+import sys
+import shutil
+sys.path.append("../../../share/scons")
+from lex_bison import *
+
+# This is the absolute path where the project is located
+cwd="../../../"
+
+# Environment that will be applied to each scons child
+main_env=Environment()
+main_env['ENV']['PATH']=os.environ['PATH']
+
+# Add builders for flex and bison
+add_lex(main_env)
+add_bison(main_env)
+
+# Include dirs
+main_env.Append(CPPPATH=[
+    cwd + '/include',
+    '/usr/include/cppunit/'
+])
+
+# Library dirs
+main_env.Append(LIBPATH=[
+    cwd + '/src/common',
+])
+
+main_env.Append(LIBS=[
+    'nebula_common',
+    'cppunit',
+    'dl',
+    'pthread'
+])
+
+# Compile flags
+main_env.Append(CPPFLAGS=[
+    "-g",
+    "-Wall"
+])
+
+# Linking flags
+main_env.Append(LDFLAGS=["-g"])
+
+main_env.Program('test_sa','single_attribute.cc')
+main_env.Program('test_va','vector_attribute.cc')
+main_env.Program('test_am','action_manager.cc')

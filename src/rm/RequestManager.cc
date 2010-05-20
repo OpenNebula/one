@@ -15,7 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include "RequestManager.h"
-#include "Nebula.h"
+#include "NebulaLog.h"
 #include <cerrno>
 
 #include <sys/signal.h>
@@ -39,13 +39,13 @@ extern "C" void * rm_action_loop(void *arg)
         return 0;
     }
 
-    Nebula::log("ReM",Log::INFO,"Request Manager started.");
+    NebulaLog::log("ReM",Log::INFO,"Request Manager started.");
 
     rm = static_cast<RequestManager *>(arg);
     
     rm->am.loop(0,0);
 
-    Nebula::log("ReM",Log::INFO,"Request Manager stopped.");
+    NebulaLog::log("ReM",Log::INFO,"Request Manager stopped.");
     
     return 0;
 }
@@ -98,7 +98,7 @@ int RequestManager::setup_socket()
         ostringstream oss;
 
         oss << "Can not open server socket: " << strerror(errno);
-        Nebula::log("ReM",Log::ERROR,oss);
+        NebulaLog::log("ReM",Log::ERROR,oss);
        
         return -1; 
     }
@@ -110,7 +110,7 @@ int RequestManager::setup_socket()
         ostringstream oss;
 
         oss << "Can not set socket options: " << strerror(errno);
-        Nebula::log("ReM",Log::ERROR,oss);
+        NebulaLog::log("ReM",Log::ERROR,oss);
         
         close(socket_fd);
                
@@ -130,7 +130,7 @@ int RequestManager::setup_socket()
         ostringstream oss;
 
         oss << "Can not bind to port " << port << " : " << strerror(errno);
-        Nebula::log("ReM",Log::ERROR,oss);
+        NebulaLog::log("ReM",Log::ERROR,oss);
        
         close(socket_fd);
             
@@ -148,7 +148,7 @@ int RequestManager::start()
     pthread_attr_t  pattr;
     ostringstream   oss;
     
-    Nebula::log("ReM",Log::INFO,"Starting Request Manager...");
+    NebulaLog::log("ReM",Log::INFO,"Starting Request Manager...");
     
     int rc = setup_socket();
     
@@ -168,7 +168,7 @@ int RequestManager::start()
     pthread_attr_setdetachstate (&pattr, PTHREAD_CREATE_JOINABLE);
     
     oss << "Starting XML-RPC server, port " << port << " ...";
-    Nebula::log("ReM",Log::INFO,oss);
+    NebulaLog::log("ReM",Log::INFO,oss);
     
     pthread_create(&rm_xml_server_thread,&pattr,rm_xml_server_loop,(void *)this);
 
@@ -184,13 +184,13 @@ void RequestManager::do_action(
 {
     if (action == ACTION_FINALIZE)
     {
-        Nebula::log("ReM",Log::INFO,"Stopping Request Manager...");
+        NebulaLog::log("ReM",Log::INFO,"Stopping Request Manager...");
         
         pthread_cancel(rm_xml_server_thread); 
 
         pthread_join(rm_xml_server_thread,0);
 
-        Nebula::log("ReM",Log::INFO,"XML-RPC server stopped.");
+        NebulaLog::log("ReM",Log::INFO,"XML-RPC server stopped.");
 
         delete AbyssServer;
         
@@ -204,7 +204,7 @@ void RequestManager::do_action(
         ostringstream oss;
         oss << "Unknown action name: " << action;
         
-        Nebula::log("ReM", Log::ERROR, oss);        
+        NebulaLog::log("ReM", Log::ERROR, oss);
     }    
 };
 

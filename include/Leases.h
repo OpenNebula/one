@@ -17,7 +17,6 @@
 #ifndef LEASES_H_
 #define LEASES_H_
 
-#include <sqlite3.h>
 #include "ObjectSQL.h"
 #include "Attribute.h"
 
@@ -26,12 +25,6 @@
 #include <sstream>
 
 using namespace std;
-
-extern "C" int leases_select_cb (
-        void *                  _lease,
-        int                     num,
-        char **                 values,
-        char **                 names);
 
 /**
  *  The Leases class represents all the IP and MAC addresses (lease) that can
@@ -46,13 +39,13 @@ public:
      * @param _oid the virtual network unique identifier
      * @param _size the max number of leases
      */
-    Leases(SqliteDB * _db, int _oid, unsigned long _size):
+    Leases(SqlDB * _db, int _oid, unsigned long _size):
         oid(_oid), size(_size), db(_db){};
-            
+
     virtual ~Leases()
     {
         map<unsigned int, Lease *>::iterator  it;
-            
+
         for(it=leases.begin();it!=leases.end();it++)
         {
             delete it->second;
@@ -78,7 +71,7 @@ public:
       *  @return 0 if success
       */
      virtual int set(int vid, const string&  ip, string&  mac) = 0;
-     
+
      /**
       * Release an used lease, which becomes unused
       *   @param ip of the lease in use
@@ -122,31 +115,31 @@ protected:
         };
 
         ~Lease(){};
-        
+
         /**
         * Converts this lease's IP and MAC to string
         * @param ip ip of the lease in string
         * @param mac mac of the lease in string
         */
         void to_string(string& _ip, string& _mac) const;
-                            
+
         /**
          * Conversion from string IP to unsigned int IP
          * @return 0 if success
          */
         static int ip_to_number(const string& ip, unsigned int& i_ip);
-            
+
         /**
          * Conversion from unsigned int IP to string IP
          */
         static void ip_to_string(const unsigned int i_ip, string& ip);
-            
+
         /**
          * Conversion from string MAC to unsigned int[] MAC
          * @return 0 if success
          */
         static int mac_to_number(const string& mac, unsigned int i_mac[]);
-        
+
         /**
          * Conversion from string IP to unsigned int IP
          */
@@ -161,7 +154,7 @@ protected:
          * Function to print the Lease object into a string in
          * plain text
          *  @param str the resulting string
-         *  @return a reference to the generated string 
+         *  @return a reference to the generated string
          */
         string& to_str(string& str) const;
 
@@ -169,10 +162,10 @@ protected:
          * Function to print the Lease object into a string in
          * XML format
          *  @param xml the resulting XML string
-         *  @return a reference to the generated string 
+         *  @return a reference to the generated string
          */
         string& to_xml(string& xml) const;
-       
+
         /**
          * Constants to access the array storing the MAC address
          */
@@ -181,19 +174,19 @@ protected:
             SUFFIX  = 0,/**< Lower significant 4 bytes */
             PREFIX  = 1 /**< Higher significant 2 bytes */
         };
-                   
+
         unsigned int    ip;
-            
+
         unsigned int    mac [2];
-            
+
         int             vid;
-            
+
         bool            used;
     };
 
     friend class VirtualNetwork;
+    friend class VirtualNetworkPool;
 
-    
     // -------------------------------------------------------------------------
     // Leases fields
     // -------------------------------------------------------------------------
@@ -201,12 +194,12 @@ protected:
     * Leases indentifier. Connects it to a Virtual Network
     */
     int            oid;
-    
+
     /**
     * Number of possible leases (free + asigned)
     */
     unsigned int  size;
-    
+
     /**
      * Hash of leases, indexed by lease.ip
      */
@@ -218,7 +211,7 @@ protected:
     /**
      * Pointer to the DataBase
      */
-    SqliteDB *  db;
+    SqlDB *  db;
 
     enum ColNames
     {
@@ -240,29 +233,30 @@ protected:
     // -------------------------------------------------------------------------
     // Leases methods
     // -------------------------------------------------------------------------
+
     /**
      * Check if the passed ip corresponds with a given lease
      * @param ip of the lease to be checked
      * @return true if the ip was already assigned
      */
-     bool check(const string& ip);
-     
-     bool check(unsigned int ip);
+    bool check(const string& ip);
 
-     /**
-      *  Reads the leases from the DB, and updates the lease hash table
-      *    @param db pointer to the database.
-      *    @return 0 on success.
-      */
-     virtual int select(SqliteDB * db);
-          
+    bool check(unsigned int ip);
+
+    /**
+     *  Reads the leases from the DB, and updates the lease hash table
+     *    @param db pointer to the database.
+     *    @return 0 on success.
+     */
+    virtual int select(SqlDB * db);
+
     friend ostream& operator<<(ostream& os, Lease& _lease);
 
     /**
     * Function to print the Leases object into a string in
     * plain text
     *  @param str the resulting string
-    *  @return a reference to the generated string 
+    *  @return a reference to the generated string
     */
     string& to_str(string& str) const;
 
@@ -270,34 +264,27 @@ protected:
     * Function to print the Leases object into a string in
     * XML format
     *  @param xml the resulting XML string
-    *  @return a reference to the generated string 
+    *  @return a reference to the generated string
     */
     string& to_xml(string& xml) const;
 
 private:
-
-    friend int leases_select_cb (
-        void *                  _leases,
-        int                     num,
-        char **                 values,
-        char **                 names);
-    
     /**
-     *  Function to unmarshall a leases object
+     *  Callback function to unmarshall a Lease object (Lease::select)
      *    @param num the number of columns read from the DB
      *    @para names the column names
      *    @para vaues the column values
      *    @return 0 on success
      */
-    int unmarshall(int num, char **names, char ** values);
-    
+    int select_cb(void *nil, int num, char **values, char **names);
+
     /**
      *  This method should not be called, leases are added/removed/updated
      *  through add/del interface
      *    @param db pointer to the database.
      *    @return 0 on success.
      */
-    int insert(SqliteDB * db);
+    int insert(SqlDB * db);
 
     /**
      *  Leases are added/removed/updated through add/del interface
@@ -305,7 +292,7 @@ private:
      *    @param db pointer to the database.
      *    @return 0 on success.
      */
-    int drop(SqliteDB * db);
+    int drop(SqlDB * db);
 
     /**
      *  This method should not be called, leases are added/removed/updated
@@ -313,7 +300,7 @@ private:
      *    @param db pointer to the database.
      *    @return 0 on success.
      */
-    int update(SqliteDB * db);
+    int update(SqlDB * db);
 };
 
 #endif /*LEASES_H_*/

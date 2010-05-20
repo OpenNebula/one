@@ -44,9 +44,6 @@ source_files=[
     'HostShare.cc',
     'HostPool.cc',
     'HostTemplate.cc',
-    'host_parser.c',
-    'host_requirements.cc',
-    'host_rank.cc',
 ]
 
 # Build library

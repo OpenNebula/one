@@ -15,6 +15,8 @@
 /* -------------------------------------------------------------------------- */
 
 #include "TransferManager.h"
+#include "NebulaLog.h"
+
 #include "Nebula.h"
 
 /* -------------------------------------------------------------------------- */
@@ -31,11 +33,11 @@ extern "C" void * tm_action_loop(void *arg)
 
     tm = static_cast<TransferManager *>(arg);
 
-    Nebula::log("TrM",Log::INFO,"Transfer Manager started.");
+    NebulaLog::log("TrM",Log::INFO,"Transfer Manager started.");
 
     tm->am.loop(0,0);
 
-    Nebula::log("TrM",Log::INFO,"Transfer Manager stopped.");
+    NebulaLog::log("TrM",Log::INFO,"Transfer Manager stopped.");
 
     return 0;
 }
@@ -54,7 +56,7 @@ int TransferManager::start()
         return -1;
     }
 
-    Nebula::log("TrM",Log::INFO,"Starting Transfer Manager...");
+    NebulaLog::log("TrM",Log::INFO,"Starting Transfer Manager...");
 
     pthread_attr_init (&pattr);
     pthread_attr_setdetachstate (&pattr, PTHREAD_CREATE_JOINABLE);
@@ -178,7 +180,7 @@ void TransferManager::do_action(const string &action, void * arg)
     }
     else if (action == ACTION_FINALIZE)
     {
-        Nebula::log("TrM",Log::INFO,"Stopping Transfer Manager...");
+        NebulaLog::log("TrM",Log::INFO,"Stopping Transfer Manager...");
 
         MadManager::stop();
     }
@@ -187,7 +189,7 @@ void TransferManager::do_action(const string &action, void * arg)
         ostringstream oss;
         oss << "Unknown action name: " << action;
 
-        Nebula::log("TrM", Log::ERROR, oss);
+        NebulaLog::log("TrM", Log::ERROR, oss);
     }
 }
 
@@ -1052,7 +1054,7 @@ void TransferManager::load_mads(int uid)
 
     oss << "Loading Transfer Manager drivers.";
 
-    Nebula::log("TM",Log::INFO,oss);
+    NebulaLog::log("TM",Log::INFO,oss);
 
     for(i=0,oss.str("");i<mad_conf.size();i++,oss.str(""),tm_driver=0)
     {
@@ -1061,7 +1063,7 @@ void TransferManager::load_mads(int uid)
         name  = vattr->vector_value("NAME");
 
         oss << "\tLoading driver: " << name;
-        Nebula::log("VMM", Log::INFO, oss);
+        NebulaLog::log("VMM", Log::INFO, oss);
 
         tm_driver = new TransferManagerDriver(
                 uid,
@@ -1079,7 +1081,7 @@ void TransferManager::load_mads(int uid)
             oss.str("");
             oss << "\tDriver " << name << " loaded.";
 
-            Nebula::log("TM",Log::INFO,oss);
+            NebulaLog::log("TM",Log::INFO,oss);
         }
     }
 }

@@ -21,7 +21,7 @@
 #include <string>
 #include <queue>
 
-#include "SqliteDB.h"
+#include "SqlDB.h"
 #include "PoolObjectSQL.h"
 #include "Log.h"
 #include "Hook.h"
@@ -30,11 +30,11 @@ using namespace std;
 
 /**
  * PoolSQL class. Provides a base class to implement persistent generic pools.
- * The PoolSQL provides a synchronization mechanism (mutex) to operate in 
- * multithreaded applications. Any modification or access function to the pool 
+ * The PoolSQL provides a synchronization mechanism (mutex) to operate in
+ * multithreaded applications. Any modification or access function to the pool
  * SHOULD block the mutex.
  */
-class PoolSQL: public Hookable
+class PoolSQL: public Callbackable, public Hookable
 {
 public:
 
@@ -43,10 +43,10 @@ public:
      * the last used Object identifier by querying the corresponding database
      * table. This function SHOULD be called before any pool related function.
      *   @param _db a pointer to the database
-     *   @param table the name of the table supporting the pool (to set the oid 
+     *   @param table the name of the table supporting the pool (to set the oid
      *   counter). If null the OID counter is not updated.
      */
-    PoolSQL(SqliteDB * _db, const char * table=0);
+    PoolSQL(SqlDB * _db, const char * table=0);
 
     virtual ~PoolSQL();
 
@@ -60,11 +60,11 @@ public:
         PoolObjectSQL   *objsql);
 
     /**
-     *  Gets an object from the pool (if needed the object is loaded from the 
+     *  Gets an object from the pool (if needed the object is loaded from the
      *  database).
      *   @param oid the object unique identifier
      *   @param lock locks the object if true
-     * 
+     *
      *   @return a pointer to the object, 0 in case of failure
      */
     virtual PoolObjectSQL * get(
@@ -76,48 +76,70 @@ public:
      *   @param oids a vector with the oids of the objects.
      *   @param the name of the DB table.
      *   @param where condition in SQL format.
-     *   
-     *   @return 0 on success 
+     *
+     *   @return 0 on success
      */
     virtual int search(
         vector<int>&    oids,
         const char *    table,
         const string&   where);
-                    
+
     /**
      *  Updates the object's data in the data base. The object mutex SHOULD be
      *  locked.
      *    @param objsql a pointer to the object
-     * 
+     *
      *    @return 0 on success.
      */
     virtual int update(
         PoolObjectSQL * objsql)
     {
         int rc;
-        
+
         rc = objsql->update(db);
-        
+
         if ( rc == 0 )
         {
             do_hooks(objsql, Hook::UPDATE);
         }
-        
+
         return rc;
     };
-        
+
+    /**
+     *  Drops the object's data in the data base. The object mutex SHOULD be
+     *  locked.
+     *    @param objsql a pointer to the object
+     *    @return 0 on success.
+     */
+    virtual int drop(
+        PoolObjectSQL * objsql)
+    {
+       return objsql->drop(db);
+    };
+
     /**
      *  Removes all the elements from the pool
      */
     void clean();
-     
+
+    /**
+     *  Dumps the pool in XML format. A filter can be also added to the
+     *  query
+     *  @param oss the output stream to dump the pool contents
+     *  @param where filter for the objects, defaults to all
+     *
+     *  @return 0 on success
+     */
+    virtual int dump(ostringstream& oss, const string& where) = 0;
+
 protected:
 
     /**
      *  Pointer to the database.
      */
-    SqliteDB *  db;
-    
+    SqlDB * db;
+
     /**
      *  Function to lock the pool
      */
@@ -133,13 +155,13 @@ protected:
     {
         pthread_mutex_unlock(&mutex);
     };
-        
+
 private:
 
     pthread_mutex_t             mutex;
 
     /**
-     *  Max size for the pool, to control the memory footprint of the pool. This 
+     *  Max size for the pool, to control the memory footprint of the pool. This
      *  number MUST be greater than the max. number of objects that are
      *  accessed simultaneously.
      */
@@ -152,7 +174,7 @@ private:
     int                         lastOID;
 
     /**
-     *  The pool is implemented with a Map of SQL object pointers, using the 
+     *  The pool is implemented with a Map of SQL object pointers, using the
      *  OID as key.
      */
     map<int,PoolObjectSQL *>	pool;
@@ -164,18 +186,28 @@ private:
     virtual PoolObjectSQL * create() = 0;
 
     /**
-     *  OID queue to implement a FIFO-like replacement policy for the pool 
-     *  cache. 
+     *  OID queue to implement a FIFO-like replacement policy for the pool
+     *  cache.
      */
     queue<int>					oid_queue;
 
     /**
      *  FIFO-like replacement policy function. Before removing an object (pop)
-     *  from  the cache its lock is checked. The object is removed only if 
-     *  the associated mutex IS NOT blocked. Otherwise the oid is sent to the 
-     *  back of the queue.  
+     *  from  the cache its lock is checked. The object is removed only if
+     *  the associated mutex IS NOT blocked. Otherwise the oid is sent to the
+     *  back of the queue.
      */
     void replace();
+
+    /**
+     *  Callback to set the lastOID (PoolSQL::PoolSQL)
+     */
+    int  init_cb(void *nil, int num, char **values, char **names);
+
+    /**
+     *  Callback to store the IDs of pool objects (PoolSQL::search)
+     */
+    int  search_cb(void *_oids, int num, char **values, char **names);
 };
 
 #endif /*POOL_SQL_H_*/

@@ -17,7 +17,8 @@
 #ifndef OBJECT_SQL_H_
 #define OBJECT_SQL_H_
 
-#include "SqliteDB.h"
+#include "Callbackable.h"
+#include "SqlDB.h"
 
 using namespace std;
 
@@ -25,8 +26,7 @@ using namespace std;
  * ObjectSQL class. Provides a SQL backend interface, it should be implemented
  * by persistent objects.
  */
-
-class ObjectSQL
+class ObjectSQL : public Callbackable
 {
 public:
 
@@ -41,7 +41,7 @@ protected:
      *    @return 0 on success
      */
     virtual int select(
-        SqliteDB * db) = 0;
+        SqlDB * db) = 0;
 
     /**
      *  Writes the ObjectSQL in the database.
@@ -49,7 +49,7 @@ protected:
      *    @return 0 on success
      */
     virtual int insert(
-        SqliteDB * db) = 0;
+        SqlDB * db) = 0;
 
     /**
      *  Updates the ObjectSQL in the database.
@@ -57,7 +57,7 @@ protected:
      *    @return 0 on success
      */
     virtual int update(
-        SqliteDB * db) = 0;
+        SqlDB * db) = 0;
 
     /**
      *  Removes the ObjectSQL from the database.
@@ -65,7 +65,7 @@ protected:
      *    @return 0 on success
      */
     virtual int drop(
-        SqliteDB * db) = 0;
+        SqlDB * db) = 0;
 };
 
 #endif /*OBJECT_SQL_H_*/

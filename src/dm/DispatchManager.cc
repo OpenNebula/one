@@ -15,7 +15,8 @@
 /* -------------------------------------------------------------------------- */
 
 #include "DispatchManager.h"
-#include "Nebula.h"
+#include "NebulaLog.h"
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -27,15 +28,15 @@ extern "C" void * dm_action_loop(void *arg)
     {
         return 0;
     }
-    
+
     dm = static_cast<DispatchManager *>(arg);
 
-    Nebula::log("DiM",Log::INFO,"Dispatch Manager started.");
-    
+    NebulaLog::log("DiM",Log::INFO,"Dispatch Manager started.");
+
     dm->am.loop(0,0);
 
-    Nebula::log("DiM",Log::INFO,"Dispatch Manager stopped.");
-    
+    NebulaLog::log("DiM",Log::INFO,"Dispatch Manager stopped.");
+
     return 0;
 }
 
@@ -49,7 +50,7 @@ int DispatchManager::start()
     pthread_attr_init (&pattr);
     pthread_attr_setdetachstate (&pattr, PTHREAD_CREATE_JOINABLE);
 
-    Nebula::log("DiM",Log::INFO,"Starting Dispatch Manager...");
+    NebulaLog::log("DiM",Log::INFO,"Starting Dispatch Manager...");
 
     rc = pthread_create(&dm_thread,&pattr,dm_action_loop,(void *) this);
 
@@ -83,14 +84,14 @@ void DispatchManager::trigger(Actions action, int _vid)
     case FAILED:
         aname = "FAILED";
         break;
-        
+
     case FINALIZE:
         aname = ACTION_FINALIZE;
         break;
-        
+
     default:
         delete vid;
-        return;        
+        return;
     }
 
     am.trigger(aname,vid);
@@ -103,7 +104,7 @@ void DispatchManager::do_action(const string &action, void * arg)
 {
     int             vid;
     ostringstream   oss;
-    
+
     if (arg == 0)
     {
         return;
@@ -112,7 +113,7 @@ void DispatchManager::do_action(const string &action, void * arg)
     vid  = *(static_cast<int *>(arg));
 
     delete static_cast<int *>(arg);
-        
+
     if (action == "SUSPEND_SUCCESS")
     {
         suspend_success_action(vid);
@@ -128,16 +129,16 @@ void DispatchManager::do_action(const string &action, void * arg)
     else if (action == "FAILED")
     {
         failed_action(vid);
-    }    
+    }
     else if (action == ACTION_FINALIZE)
     {
-        Nebula::log("DiM",Log::INFO,"Stopping Dispatch Manager...");
+        NebulaLog::log("DiM",Log::INFO,"Stopping Dispatch Manager...");
     }
     else
     {
         ostringstream oss;
         oss << "Unknown action name: " << action;
-        
-        Nebula::log("DiM", Log::ERROR, oss);
+
+        NebulaLog::log("DiM", Log::ERROR, oss);
     }
 }

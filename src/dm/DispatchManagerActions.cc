@@ -15,8 +15,9 @@
 /* -------------------------------------------------------------------------- */
 
 #include "DispatchManager.h"
-#include "Nebula.h"
+#include "NebulaLog.h"
 
+#include "Nebula.h"
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -25,7 +26,7 @@ int DispatchManager::allocate (
     const string& stemplate,
     int *   oid)
 {
-    Nebula::log("DiM",Log::DEBUG,"Allocating a new VM");
+    NebulaLog::log("DiM",Log::DEBUG,"Allocating a new VM");
 
     return vmpool->allocate(uid,stemplate,oid);
 };
@@ -47,7 +48,7 @@ int DispatchManager::deploy (
     vid = vm->get_oid();
 
     oss << "Deploying VM " << vid;
-    Nebula::log("DiM",Log::DEBUG,oss);
+    NebulaLog::log("DiM",Log::DEBUG,oss);
 
     if ( vm->get_state() == VirtualMachine::PENDING )
     {
@@ -75,7 +76,7 @@ error:
 
     oss.str("");
     oss << "Could not deploy VM " << vid << ", wrong state.";
-    Nebula::log("DiM",Log::ERROR,oss);
+    NebulaLog::log("DiM",Log::ERROR,oss);
 
     vm->unlock();
     return -1;
@@ -98,7 +99,7 @@ int DispatchManager::migrate(
     vid = vm->get_oid();
 
     oss << "Migrating VM " << vid;
-    Nebula::log("DiM",Log::DEBUG,oss);
+    NebulaLog::log("DiM",Log::DEBUG,oss);
 
     if (vm->get_state()     == VirtualMachine::ACTIVE &&
         vm->get_lcm_state() == VirtualMachine::RUNNING )
@@ -120,7 +121,7 @@ int DispatchManager::migrate(
 error:
     oss.str("");
     oss << "Could not migrate VM " << vid << ", wrong state.";
-    Nebula::log("DiM",Log::ERROR,oss);
+    NebulaLog::log("DiM",Log::ERROR,oss);
 
     vm->unlock();
     return -1;
@@ -143,7 +144,7 @@ int DispatchManager::live_migrate(
     vid = vm->get_oid();
 
     oss << "Live-migrating VM " << vid;
-    Nebula::log("DiM",Log::DEBUG,oss);
+    NebulaLog::log("DiM",Log::DEBUG,oss);
 
     if (vm->get_state()     == VirtualMachine::ACTIVE &&
         vm->get_lcm_state() == VirtualMachine::RUNNING )
@@ -165,7 +166,7 @@ int DispatchManager::live_migrate(
 error:
     oss.str("");
     oss << "Could not live-migrate VM " << vid << ", wrong state.";
-    Nebula::log("DiM",Log::ERROR,oss);
+    NebulaLog::log("DiM",Log::ERROR,oss);
 
     vm->unlock();
     return -1;
@@ -188,7 +189,7 @@ int DispatchManager::shutdown (
     }
 
     oss << "Shutting down VM " << vid;
-    Nebula::log("DiM",Log::DEBUG,oss);
+    NebulaLog::log("DiM",Log::DEBUG,oss);
 
     if (vm->get_state()     == VirtualMachine::ACTIVE &&
         vm->get_lcm_state() == VirtualMachine::RUNNING )
@@ -211,7 +212,7 @@ error:
 
     oss.str("");
     oss << "Could not shutdown VM " << vid << ", wrong state.";
-    Nebula::log("DiM",Log::ERROR,oss);
+    NebulaLog::log("DiM",Log::ERROR,oss);
 
     vm->unlock();
     return -2;
@@ -234,7 +235,7 @@ int DispatchManager::hold(
     }
 
     oss << "Holding VM " << vid;
-    Nebula::log("DiM",Log::DEBUG,oss);
+    NebulaLog::log("DiM",Log::DEBUG,oss);
 
     if (vm->get_state() == VirtualMachine::PENDING)
     {
@@ -257,7 +258,7 @@ error:
 
     oss.str("");
     oss << "Could not hold VM " << vid << ", wrong state.";
-    Nebula::log("DiM",Log::ERROR,oss);
+    NebulaLog::log("DiM",Log::ERROR,oss);
 
     vm->unlock();
     return -2;
@@ -280,7 +281,7 @@ int DispatchManager::release(
     }
 
     oss << "Releasing VM " << vid;
-    Nebula::log("DiM",Log::DEBUG,oss);
+    NebulaLog::log("DiM",Log::DEBUG,oss);
 
     if (vm->get_state() == VirtualMachine::HOLD)
     {
@@ -302,7 +303,7 @@ int DispatchManager::release(
 error:
     oss.str("");
     oss << "Could not release VM " << vid << ", wrong state.";
-    Nebula::log("DiM",Log::ERROR,oss);
+    NebulaLog::log("DiM",Log::ERROR,oss);
 
     vm->unlock();
     return -2;
@@ -325,7 +326,7 @@ int DispatchManager::stop(
     }
 
     oss << "Stopping VM " << vid;
-    Nebula::log("DiM",Log::DEBUG,oss);
+    NebulaLog::log("DiM",Log::DEBUG,oss);
 
     if (vm->get_state()     == VirtualMachine::ACTIVE &&
         vm->get_lcm_state() == VirtualMachine::RUNNING )
@@ -347,7 +348,7 @@ int DispatchManager::stop(
 error:
     oss.str("");
     oss << "Could not stop VM " << vid << ", wrong state.";
-    Nebula::log("DiM",Log::ERROR,oss);
+    NebulaLog::log("DiM",Log::ERROR,oss);
 
     vm->unlock();
     return -2;
@@ -370,7 +371,7 @@ int DispatchManager::cancel(
     }
 
     oss << "Cancelling VM " << vid;
-    Nebula::log("DiM",Log::DEBUG,oss);
+    NebulaLog::log("DiM",Log::DEBUG,oss);
 
     if (vm->get_state()     == VirtualMachine::ACTIVE &&
         vm->get_lcm_state() == VirtualMachine::RUNNING )
@@ -392,7 +393,7 @@ int DispatchManager::cancel(
 error:
     oss.str("");
     oss << "Could not cancel VM " << vid << ", wrong state.";
-    Nebula::log("DiM",Log::ERROR,oss);
+    NebulaLog::log("DiM",Log::ERROR,oss);
 
     vm->unlock();
     return -2;
@@ -415,7 +416,7 @@ int DispatchManager::suspend(
     }
 
     oss << "Suspending VM " << vid;
-    Nebula::log("DiM",Log::DEBUG,oss);
+    NebulaLog::log("DiM",Log::DEBUG,oss);
 
     if (vm->get_state()     == VirtualMachine::ACTIVE &&
         vm->get_lcm_state() == VirtualMachine::RUNNING )
@@ -437,7 +438,7 @@ int DispatchManager::suspend(
 error:
     oss.str("");
     oss << "Could not suspend VM " << vid << ", wrong state.";
-    Nebula::log("DiM",Log::ERROR,oss);
+    NebulaLog::log("DiM",Log::ERROR,oss);
 
     vm->unlock();
     return -2;
@@ -460,7 +461,7 @@ int DispatchManager::resume(
     }
 
     oss << "Resuming VM " << vid;
-    Nebula::log("DiM",Log::DEBUG,oss);
+    NebulaLog::log("DiM",Log::DEBUG,oss);
 
     if (vm->get_state() == VirtualMachine::STOPPED )
     {
@@ -495,7 +496,7 @@ int DispatchManager::resume(
 error:
     oss.str("");
     oss << "Could not resume VM " << vid << ", wrong state.";
-    Nebula::log("DiM",Log::ERROR,oss);
+    NebulaLog::log("DiM",Log::ERROR,oss);
 
     vm->unlock();
     return -2;
@@ -517,9 +518,9 @@ int DispatchManager::restart(int vid)
     }
 
     oss << "Restarting VM " << vid;
-    Nebula::log("DiM",Log::DEBUG,oss);
+    NebulaLog::log("DiM",Log::DEBUG,oss);
 
-    if (vm->get_state() == VirtualMachine::ACTIVE && 
+    if (vm->get_state() == VirtualMachine::ACTIVE &&
         (vm->get_lcm_state() == VirtualMachine::UNKNOWN ||
          vm->get_lcm_state() == VirtualMachine::BOOT))
     {
@@ -540,7 +541,7 @@ int DispatchManager::restart(int vid)
 error:
     oss.str("");
     oss << "Could not restart VM " << vid << ", wrong state.";
-    Nebula::log("DiM",Log::ERROR,oss);
+    NebulaLog::log("DiM",Log::ERROR,oss);
 
     vm->unlock();
 
@@ -567,7 +568,7 @@ int DispatchManager::finalize(
     state = vm->get_state();
 
     oss << "Finalizing VM " << vid;
-    Nebula::log("DiM",Log::DEBUG,oss);
+    NebulaLog::log("DiM",Log::DEBUG,oss);
 
     Nebula&            nd  = Nebula::instance();
     TransferManager *  tm  = nd.get_tm();

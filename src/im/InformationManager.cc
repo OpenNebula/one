@@ -15,7 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include "InformationManager.h"
-#include "Nebula.h"
+#include "NebulaLog.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -29,13 +29,13 @@ extern "C" void * im_action_loop(void *arg)
         return 0;
     }
 
-    Nebula::log("InM",Log::INFO,"Information Manager started.");
+    NebulaLog::log("InM",Log::INFO,"Information Manager started.");
 
     im = static_cast<InformationManager *>(arg);
     
     im->am.loop(im->timer_period,0);
 
-    Nebula::log("InM",Log::INFO,"Information Manager stopped.");
+    NebulaLog::log("InM",Log::INFO,"Information Manager stopped.");
     
     return 0;
 }
@@ -51,7 +51,7 @@ void InformationManager::load_mads(int uid)
     const VectorAttribute *     vattr;
     int                         rc;
     
-    Nebula::log("InM",Log::INFO,"Loading Information Manager drivers.");
+    NebulaLog::log("InM",Log::INFO,"Loading Information Manager drivers.");
     
     for(i=0;i<mad_conf.size();i++)
     {
@@ -60,7 +60,7 @@ void InformationManager::load_mads(int uid)
         oss.str("");
         oss << "\tLoading driver: " << vattr->vector_value("NAME");
             
-        Nebula::log("InM",Log::INFO,oss);
+        NebulaLog::log("InM",Log::INFO,oss);
      
         im_mad = new InformationManagerDriver(0,vattr->value(),false,hpool);
         
@@ -71,7 +71,7 @@ void InformationManager::load_mads(int uid)
             oss.str("");            
             oss << "\tDriver " << vattr->vector_value("NAME") << " loaded";
             
-            Nebula::log("InM",Log::INFO,oss);
+            NebulaLog::log("InM",Log::INFO,oss);
         }
     }    
 }
@@ -91,7 +91,7 @@ int InformationManager::start()
         return -1;
     }
 
-    Nebula::log("InM",Log::INFO,"Starting Information Manager...");
+    NebulaLog::log("InM",Log::INFO,"Starting Information Manager...");
     
     pthread_attr_init (&pattr);
     pthread_attr_setdetachstate (&pattr, PTHREAD_CREATE_JOINABLE);
@@ -112,7 +112,7 @@ void InformationManager::do_action(const string &action, void * arg)
     }
     else if (action == ACTION_FINALIZE)
     {
-        Nebula::log("InM",Log::INFO,"Stopping Information Manager...");
+        NebulaLog::log("InM",Log::INFO,"Stopping Information Manager...");
         
         MadManager::stop();       
     }
@@ -121,7 +121,7 @@ void InformationManager::do_action(const string &action, void * arg)
         ostringstream oss;
         oss << "Unknown action name: " << action;
         
-        Nebula::log("InM", Log::ERROR, oss);        
+        NebulaLog::log("InM", Log::ERROR, oss);
     }
 }
 
@@ -148,7 +148,7 @@ void InformationManager::timer_action()
 
     if ( mark >= 600 )
     {
-        Nebula::log("InM",Log::INFO,"--Mark--");
+        NebulaLog::log("InM",Log::INFO,"--Mark--");
         mark = 0;
     }
 
@@ -187,7 +187,7 @@ void InformationManager::timer_action()
             oss.str("");
             oss << "Monitoring host " << host->get_hostname() 
                 << " (" << it->first << ")";
-            Nebula::log("InM",Log::INFO,oss);
+            NebulaLog::log("InM",Log::INFO,oss);
             
             imd = get(it->second);
             
@@ -195,7 +195,7 @@ void InformationManager::timer_action()
             {
                 oss.str("");
                 oss << "Could not find information driver " << it->second;
-                Nebula::log("InM",Log::ERROR,oss);
+                NebulaLog::log("InM",Log::ERROR,oss);
                 
                 host->set_state(Host::ERROR);                                
             }

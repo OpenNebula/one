@@ -75,8 +75,8 @@ string * VectorAttribute::to_xml() const
 
 	for (it=attribute_value.begin();it!=attribute_value.end();it++)
 	{
-		oss << "<" << it->first << ">" << it->second
-			<< "</"<< it->first << ">";
+		oss << "<" << it->first << "><![CDATA[" << it->second
+			<< "]]></"<< it->first << ">";
 	}
 
 	oss << "</"<< name() << ">";

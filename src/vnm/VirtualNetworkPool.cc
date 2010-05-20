@@ -14,16 +14,19 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#include "Nebula.h"
 #include "VirtualNetworkPool.h"
-#include <sstream>
+#include "NebulaLog.h"
 
-VirtualNetworkPool::VirtualNetworkPool(SqliteDB * db, 
-	const string& 	prefix,
-	int				_default_size):
-		PoolSQL(db,VirtualNetwork::table),
-		mac_prefix(0),
-		default_size(_default_size)
+#include <sstream>
+#include <ctype.h>
+
+
+VirtualNetworkPool::VirtualNetworkPool(SqlDB * db,
+    const string&   prefix,
+    int             _default_size):
+    PoolSQL(db,VirtualNetwork::table),
+    mac_prefix(0),
+    default_size(_default_size)
 {
     istringstream iss;
     size_t        pos   = 0;
@@ -34,16 +37,17 @@ VirtualNetworkPool::VirtualNetworkPool(SqliteDB * db,
 
     while ( (pos = mac.find(':')) !=  string::npos )
     {
-    	mac.replace(pos,1," ");
-    	count++;
+        mac.replace(pos,1," ");
+        count++;
     }
 
     if (count != 1)
     {
-    	Nebula::log("VNM",Log::ERROR,"Wrong MAC prefix format, using default");
-    	mac_prefix = 1; //"00:01"
-    	
-    	return;
+        NebulaLog::log("VNM",Log::ERROR,
+                       "Wrong MAC prefix format, using default");
+        mac_prefix = 1; //"00:01"
+
+        return;
     }
 
     iss.str(mac);
@@ -55,92 +59,92 @@ VirtualNetworkPool::VirtualNetworkPool(SqliteDB * db,
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-    		
+
 int VirtualNetworkPool::allocate (
     int            uid,
     const  string& stemplate,
     int *          oid)
 {
-    VirtualNetwork *	vn;
-    char *				error_msg;
+    VirtualNetwork *    vn;
+    char *              error_msg;
     int                 rc;
-    ostringstream 		oss;            
+    ostringstream       oss;
 
     string              name;
     string              bridge;
-    
-    string              str_type;
-    
+
+    string              s_type;
+
     // Build a new Virtual Network object
     vn = new VirtualNetwork(mac_prefix, default_size);
-    
+
     vn->uid	= uid;
-    
+
     rc = vn->vn_template.parse(stemplate,&error_msg);
-    
+
     if ( rc != 0 )
     {
-        oss << error_msg;        
-        Nebula::log("VNM", Log::ERROR, oss);
+        oss << error_msg;
+        NebulaLog::log("VNM", Log::ERROR, oss);
         free(error_msg);
 
-        return -1;
+        delete vn;
+
+        return -2;
     }
-   
+
     // Information about the VN needs to be extracted from the template
-    vn->get_template_attribute("TYPE",str_type);
-    
-    if ( str_type == "RANGED")
+    vn->get_template_attribute("TYPE",s_type);
+
+    transform(s_type.begin(),s_type.end(),s_type.begin(),(int(*)(int))toupper);
+
+    if (s_type == "RANGED")
     {
         vn->type = VirtualNetwork::RANGED;
     }
-    else
+    else if ( s_type == "FIXED")
     {
         vn->type = VirtualNetwork::FIXED;
+    }
+    else
+    {
+        NebulaLog::log("VNM", Log::ERROR, "Wrong type for VirtualNetwork "
+                       "template");
+        delete vn;
+
+        return -3;
     }
 
     vn->get_template_attribute("NAME",name);
     vn->name = name;
-    
+
     vn->get_template_attribute("BRIDGE",bridge);
     vn->bridge = bridge;
-    
+
     // Insert the VN in the pool so we have a valid OID
 
     *oid = PoolSQL::allocate(vn);
-    
-    if ( *oid == -1 )
-    {
-        return -1;
-    }
-        
-    return 0;
+
+    return *oid;
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-extern "C"
+int VirtualNetworkPool::get_cb(void * _oid, int num, char **values,char **names)
 {
-static int select_name_cb(
-    void *          _value,
-    int             num,
-    char **         values,
-    char **         names)
-{
-    int    *        oid;
-    
-    oid = static_cast<int *>(_value);
-    
+    int * oid;
+
+    oid = static_cast<int *>(_oid);
+
     if ( oid == 0 || values == 0 || values[0] == 0 )
     {
         return -1;
     }
-    
+
     *oid = atoi(values[0]);
-    
-    return 0;    
-}    
+
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -149,25 +153,29 @@ static int select_name_cb(
 VirtualNetwork * VirtualNetworkPool::get(const string& name, bool lock)
 {
     ostringstream   oss;
-    
-    int	oid;    
-    int	rc; 
 
-    char * sql_name = sqlite3_mprintf("%q",name.c_str());
+    int oid = -1;
+    int rc;
+
+    char * sql_name = db->escape_str(name.c_str());
 
     if ( sql_name == 0 )
     {
         return 0;
     }
-    
-    oss << "SELECT oid FROM " << VirtualNetwork::table << " WHERE name = '" 
+
+    set_callback(
+        static_cast<Callbackable::Callback>(&VirtualNetworkPool::get_cb),
+        static_cast<void *>(&oid));
+
+    oss << "SELECT oid FROM " << VirtualNetwork::table << " WHERE name = '"
         << sql_name << "'";
-    
-    rc = db->exec(oss, select_name_cb, (void *) (&oid));
 
-    sqlite3_free(sql_name);
+    rc = db->exec(oss, this);
 
-    if (rc != 0)
+    db->free_str(sql_name);
+
+    if (rc != 0 || oid == -1)
     {
         return 0;
     }
@@ -178,4 +186,51 @@ VirtualNetwork * VirtualNetworkPool::get(const string& name, bool lock)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int VirtualNetworkPool::dump_cb(void * _oss,
+                                int     num,
+                                char ** values,
+                                char ** names)
+{
+    ostringstream * oss;
 
+    oss = static_cast<ostringstream *>(_oss);
+
+    return VirtualNetwork::dump(*oss, num, values, names);
+}
+
+/* -------------------------------------------------------------------------- */
+
+int VirtualNetworkPool::dump(ostringstream& oss, const string& where)
+{
+    int             rc;
+    ostringstream   cmd;
+
+    oss << "<VNET_POOL>";
+
+    set_callback(
+        static_cast<Callbackable::Callback>(&VirtualNetworkPool::dump_cb),
+        static_cast<void *>(&oss));
+
+    cmd << "SELECT " << VirtualNetwork::table << ".*,COUNT("
+        << Leases::table << ".used), user_pool.user_name FROM "
+        << VirtualNetwork::table
+        << " LEFT OUTER JOIN " << Leases::table << " ON "
+        << VirtualNetwork::table << ".oid = " <<  Leases::table << ".oid"
+        << " AND " << Leases::table << ".used = 1"
+        << " LEFT OUTER JOIN (SELECT oid,user_name FROM user_pool) "
+        << " AS user_pool ON "<< VirtualNetwork::table
+        << ".uid = user_pool.oid";
+
+    if ( !where.empty() )
+    {
+        cmd << " WHERE " << where;
+    }
+
+    cmd << " GROUP BY " << VirtualNetwork::table << ".oid";
+
+    rc = db->exec(cmd,this);
+
+    oss << "</VNET_POOL>";
+
+    return rc;
+}

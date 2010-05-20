@@ -15,10 +15,13 @@
 /* -------------------------------------------------------------------------- */
 
 #include "VirtualMachineManager.h"
-#include "Nebula.h"
+#include "NebulaLog.h"
 #include "XenDriver.h"
 #include "XMLDriver.h"
 #include "LibVirtDriver.h"
+
+#include "Nebula.h"
+
 #include <time.h>
 
 /* ************************************************************************** */
@@ -55,11 +58,11 @@ extern "C" void * vmm_action_loop(void *arg)
 
     vmm = static_cast<VirtualMachineManager *>(arg);
 
-    Nebula::log("VMM",Log::INFO,"Virtual Machine Manager started.");
+    NebulaLog::log("VMM",Log::INFO,"Virtual Machine Manager started.");
 
     vmm->am.loop(vmm->timer_period,0);
 
-    Nebula::log("VMM",Log::INFO,"Virtual Machine Manager stopped.");
+    NebulaLog::log("VMM",Log::INFO,"Virtual Machine Manager stopped.");
 
     return 0;
 }
@@ -78,7 +81,7 @@ int VirtualMachineManager::start()
         return -1;
     }
 
-    Nebula::log("VMM",Log::INFO,"Starting Virtual Machine Manager...");
+    NebulaLog::log("VMM",Log::INFO,"Starting Virtual Machine Manager...");
 
     pthread_attr_init (&pattr);
     pthread_attr_setdetachstate (&pattr, PTHREAD_CREATE_JOINABLE);
@@ -211,7 +214,7 @@ void VirtualMachineManager::do_action(const string &action, void * arg)
     }
     else if (action == ACTION_FINALIZE)
     {
-        Nebula::log("VMM",Log::INFO,"Stopping Virtual Machine Manager...");
+        NebulaLog::log("VMM",Log::INFO,"Stopping Virtual Machine Manager...");
 
         MadManager::stop();
     }
@@ -220,7 +223,7 @@ void VirtualMachineManager::do_action(const string &action, void * arg)
         ostringstream oss;
         oss << "Unknown action name: " << action;
 
-        Nebula::log("VMM", Log::ERROR, oss);
+        NebulaLog::log("VMM", Log::ERROR, oss);
     }
 }
 
@@ -810,7 +813,7 @@ void VirtualMachineManager::timer_action()
 
     if ( mark >= 600 )
     {
-        Nebula::log("VMM",Log::INFO,"--Mark--");
+        NebulaLog::log("VMM",Log::INFO,"--Mark--");
         mark = 0;
     }
 
@@ -831,7 +834,7 @@ void VirtualMachineManager::timer_action()
         {
             os.str("");
             os << "Monitoring VM " << *it << " but it has no history.";
-            Nebula::log("VMM", Log::ERROR, os);
+            NebulaLog::log("VMM", Log::ERROR, os);
 
             continue;
         }
@@ -841,7 +844,7 @@ void VirtualMachineManager::timer_action()
             os.str("");
 
             os << "Monitoring VM " << *it << ".";
-            Nebula::log("VMM", Log::INFO, os);
+            NebulaLog::log("VMM", Log::INFO, os);
 
             vm->set_last_poll(thetime);
 
@@ -878,7 +881,7 @@ void VirtualMachineManager::load_mads(int uid)
 
     oss << "Loading Virtual Machine Manager drivers.";
 
-    Nebula::log("VMM",Log::INFO,oss);
+    NebulaLog::log("VMM",Log::INFO,oss);
 
     for(i=0,oss.str("");i<mad_conf.size();i++,oss.str(""),vmm_driver=0)
     {
@@ -891,7 +894,7 @@ void VirtualMachineManager::load_mads(int uid)
 
         oss << "\tLoading driver: " << name << " (" << type << ")";
 
-        Nebula::log("VMM", Log::INFO, oss);
+        NebulaLog::log("VMM", Log::INFO, oss);
 
         if ( type == "XEN" )
         {
@@ -911,7 +914,7 @@ void VirtualMachineManager::load_mads(int uid)
             oss.str("");
             oss << "\tUnknown driver type: " << type;
 
-            Nebula::log("VMM",Log::ERROR,oss);
+            NebulaLog::log("VMM",Log::ERROR,oss);
 
             continue;
         }
@@ -923,7 +926,7 @@ void VirtualMachineManager::load_mads(int uid)
             oss.str("");
             oss << "\tDriver " << name << " loaded.";
 
-            Nebula::log("VMM",Log::INFO,oss);
+            NebulaLog::log("VMM",Log::INFO,oss);
         }
     }
 }

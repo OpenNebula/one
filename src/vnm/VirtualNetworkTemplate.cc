@@ -18,6 +18,6 @@
 
 const char * VirtualNetworkTemplate::table = "vn_template";
 
-const char * VirtualNetworkTemplate::db_bootstrap = "CREATE TABLE vn_template"
-    " (id INTEGER, name TEXT, type INTEGER, value TEXT)";
+const char * VirtualNetworkTemplate::db_bootstrap = "CREATE TABLE IF NOT EXISTS"
+    " vn_template (id INTEGER, name TEXT, type INTEGER, value TEXT)";
 
