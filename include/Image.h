@@ -45,7 +45,18 @@ public:
       {
           IDE      = 0,
           SCSI     = 1
-      };  
+      }; 
+      
+      /**
+       *  Image State
+       */
+       enum ImageState
+       {
+           INIT      = 0,
+           LOCKED    = 1,
+           READY     = 2,
+           USED      = 3
+       }; 
      
     /**
      *  Function to write an Image on an output stream
@@ -96,12 +107,20 @@ public:
     {
         return name;
     };
- 
+    
     /**
-     *  Function to drop an Image entry in image_pool
-     *    @return 0 on success
+     * Get an image to be used in a VM
+     * @param overwrite true if the image is going to be overwritten
+     * @return boolean true if the image can be used
      */
-    int image_drop(SqlDB * db);
+    bool get_image(bool overwrite);
+    
+
+    /**
+     * Releases an image being used by a VM
+     */
+    void release_image();
+ 
 
     // ------------------------------------------------------------------------
     // Template
@@ -260,7 +279,16 @@ private:
       *  IDE or SCSI
       */
     BusType     bus;
-          
+    
+     /**
+      *  Image state
+      */
+    ImageState  state;
+    
+    /**
+     * Number of VMs using the image
+     */
+    int running_vms;     
 
     // -------------------------------------------------------------------------
     //  Image Attributes
@@ -330,7 +358,10 @@ protected:
         SOURCE           = 6,    /* Path to the image           */
         TARGET           = 7,    /* Device to be plugged into   */
         BUS              = 8,    /* 0) IDE 1) SCSI              */
-        LIMIT            = 9     
+        STATE            = 9,    /* 0) INIT   1) ALLOCATED      */
+                                 /* 2) READY  3) USED           */
+        RUNNING_VMS      = 10,   /* Number of VMs using the img */
+        LIMIT            = 11    
     };
     
     static const char * db_names;

@@ -27,6 +27,10 @@ int ImagePool::allocate (
 {
         Image * img;
         string  name;
+        string  type;
+        string  original_path;
+        string  target;
+        string  bus;
 
         char *  error_msg;
         int     rc;
@@ -43,27 +47,59 @@ int ImagePool::allocate (
 
         if ( rc != 0 )
         {
-            ostringstream oss;
-
-            oss << "ImagePool template parse error: " << error_msg;
-            NebulaLog::log("IMG", Log::ERROR, oss);
-            free(error_msg);
-
-            delete img;
-
-            *oid = -2;
-            return -2;
+            goto error_parse;
         }
         
+        // ---------------------------------------------------------------------
+        // Check default image attributes
+        // ---------------------------------------------------------------------               
         img->get_template_attribute("NAME", name);
 
         if ( name.empty() == true )
         {
-            oss.str("");
-            oss << "image-" << oid;
-            name = oss.str();
-            img->set_template_attribute("NAME", name);
+            goto error_name;
         }
+            
+        img->get_template_attribute("TYPE", type);
+
+        if ( type.empty() == true )
+        {
+            goto error_type;
+        }        
+        
+        img->get_template_attribute("ORIGINAL_PATH", original_path);
+        
+        if  ( type == "OS" || type == "CDROM" )
+        {
+            if ( original_path.empty() == true )
+            {
+                goto error_original_path;
+            }
+        }
+        
+        img->get_template_attribute("TARGET", target);
+
+        if ( target.empty() == true )
+        {
+            target = "hda"; // TODO add to oned.configuration
+        }
+        
+        img->get_template_attribute("BUS", bus);
+
+        if ( bus.empty() == true )
+        {
+            bus = "IDE"; // TODO add to oned.configuration
+        }
+        
+        
+        
+        // generatesource
+        
+        img->name   = name;
+        img->type   = type;
+        img->target = target;
+        img->bus    = bus;
+        
 
         // ---------------------------------------------------------------------
         // Insert the Object in the pool
@@ -80,6 +116,33 @@ int ImagePool::allocate (
         image_names.insert(make_pair(name, *oid));
 
         return *oid;
+
+error_name:
+    NebulaLog::log("IMG", Log::ERROR, "NAME not present in image template");
+    goto error_common;
+error_type:
+    NebulaLog::log("IMG", Log::ERROR, "TYPE not present in image template");
+    goto error_common;
+error_original_path:
+    NebulaLog::log("IMG", Log::ERROR, 
+    "ORIGINAL_PATH compulsory and not present in image template of this type.");
+    goto error_common;
+error_common:
+    delete img;
+
+    *oid = -1;
+    return -1;
+error_parse:
+    ostringstream oss;
+
+    oss << "ImagePool template parse error: " << error_msg;
+    NebulaLog::log("IMG", Log::ERROR, oss);
+    free(error_msg);
+
+    delete img;
+
+    *oid = -2;
+    return -2;    
 }
 
 /* -------------------------------------------------------------------------- */

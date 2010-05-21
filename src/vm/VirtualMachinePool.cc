@@ -156,7 +156,6 @@ int VirtualMachinePool::allocate (
     bool           on_hold)
 {
     VirtualMachine * vm;
-    string  name;
 
     char *  error_msg;
     int     rc, num_attr;

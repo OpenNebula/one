@@ -35,7 +35,8 @@ Image::Image(int _uid):
         registration_time(time(0)),
         source(""),
         target(""),
-        bus(0)
+        bus(0),
+        state(INIT)
         {};
 
 Image::~Image(){};
@@ -47,12 +48,13 @@ Image::~Image(){};
 const char * Image::table = "image_pool";
 
 const char * Image::db_names = "(oid, uid, name, description, type, regtime," 
-                               "source, target, bus)";
+                               "source, target, bus, state, running_vms)";
 
 const char * Image::db_bootstrap = "CREATE TABLE IF NOT EXISTS image_pool ("
     "oid INTEGER PRIMARY KEY, uid INTEGER, name VARCHAR(128), "
     "description TEXT, type INTEGER, regtime INTEGER, "
-    "source VARCHAR, target VARCHAR, bus INTEGER, UNIQUE(name) )";
+    "source VARCHAR, target VARCHAR, bus INTEGER, state INTEGER, "
+    "running_vms INTEGER, UNIQUE(name) )";
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
@@ -68,6 +70,8 @@ int Image::select_cb(void * nil, int num, char **values, char ** names)
         (!values[SOURCE]) ||
         (!values[TARGET]) ||
         (!values[BUS]) ||
+        (!values[STATE]) ||
+        (!values[RUNNING_VMS]) ||
         (num != LIMIT ))
     {
         return -1;
@@ -85,13 +89,17 @@ int Image::select_cb(void * nil, int num, char **values, char ** names)
     source      = values[SOURCE];
     target      = values[TARGET];
     
-    bus         = static_cast<BusType>(atoi(values[BUS]));   
+    bus         = static_cast<BusType>(atoi(values[BUS])); 
+    state       = static_cast<ImageState>(atoi(values[STATE])); 
+    
+    running_vms = atoi(values[RUNNING_VMS]); 
 
     image_template.id  = oid;
 
     return 0;
 }
 
+/* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
 int Image::select(SqlDB *db)
@@ -246,61 +254,68 @@ int Image::insert_replace(SqlDB *db, bool replace)
         <<          uid             << ","
         << "'" <<   sql_name        << "',"
         << "'" <<   sql_description << "',"
-        <<          type            << ","       // TODO CHECK ENUM << OPERATOR
+        <<          type            << ","       
         <<          regtime         << ","
         << "'" <<   sql_source      << "',"
         << "'" <<   sql_target      << "',"
-        <<          bus             << ")";      // TODO CHECK ENUM << OPERATOR
+        <<          bus             << ","
+        <<          state           << ","
+        <<          running_vms     << ")";     
 
     rc = db->exec(oss);
 
-    db->free_str(sql_hostname);
-    db->free_str(sql_im_mad_name);
-    db->free_str(sql_tm_mad_name);
-    db->free_str(sql_vmm_mad_name);
+    db->free_str(sql_name);
+    db->free_str(sql_description);
+    db->free_str(sql_source);
+    db->free_str(sql_target);
 
     return rc;
-// TODO error names
-error_vmm:
-    db->free_str(sql_tm_mad_name);
-error_tm:
-    db->free_str(sql_im_mad_name);
-error_im:
-    db->free_str(sql_hostname);
-error_hostname:
+
+error_target:
+    db->free_str(sql_source);
+error_source:
+    db->free_str(sql_description);
+error_description:
+    db->free_str(sql_name);
+error_name:
     return -1;
 }
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-int Host::dump(ostringstream& oss, int num, char **values, char **names)
+int Image::dump(ostringstream& oss, int num, char **values, char **names)
 {
     if ((!values[OID]) ||
-        (!values[HOST_NAME]) ||
+        (!values[UID]) ||
+        (!values[NAME]) ||
+        (!values[DESCRIPTION]) ||
+        (!values[TYPE]) ||
+        (!values[REGTIME]) ||
+        (!values[SOURCE]) ||
+        (!values[TARGET]) ||
+        (!values[BUS]) ||
         (!values[STATE]) ||
-        (!values[IM_MAD]) ||
-        (!values[VM_MAD]) ||
-        (!values[TM_MAD]) ||
-        (!values[LAST_MON_TIME]) ||
-        (num != LIMIT + HostShare::LIMIT ))
+        (!values[RUNNING_VMS]) ||
+        (num != LIMIT ))
     {
         return -1;
     }
 
     oss <<
-        "<HOST>" <<
-            "<ID>"           << values[OID]          <<"</ID>"           <<
-            "<NAME>"         << values[HOST_NAME]    <<"</NAME>"         <<
-            "<STATE>"        << values[STATE]        <<"</STATE>"        <<
-            "<IM_MAD>"       << values[IM_MAD]       <<"</IM_MAD>"       <<
-            "<VM_MAD>"       << values[VM_MAD]       <<"</VM_MAD>"       <<
-            "<TM_MAD>"       << values[TM_MAD]       <<"</TM_MAD>"       <<
-            "<LAST_MON_TIME>"<< values[LAST_MON_TIME]<<"</LAST_MON_TIME>";
-
-    HostShare::dump(oss,num - LIMIT, values + LIMIT, names + LIMIT);
-
-    oss << "</HOST>";
+        "<IMAGE>" <<
+            "<ID>"             << values[OID]         << "</ID>"          <<
+            "<UID>"            << values[UID]         << "</UID>"         <<
+            "<NAME>"           << values[NAME]        << "</NAME>"        <<
+            "<DESCRIPTION>"    << values[DESCRIPTION] << "</DESCRIPTION>" <<
+            "<TYPE>"           << values[TYPE]        << "</TYPE>"        <<
+            "<REGTIME>"        << values[REGTIME]     << "</REGTIME>"     <<
+            "<SOURCE>"         << values[SOURCE]      << "</SOURCE>"      <<
+            "<TARGET>"         << values[TARGET]      << "</TARGET>"      <<
+            "<BUS>"            << values[BUS]         << "</BUS>"         <<
+            "<STATE>"          << values[STATE]       << "</STATE>"       <<
+            "<RUNNING_VMS>"    << values[RUNNING_VMS] << "</RUNNING_VMS>" <<                                                           
+        "</IMAGE>";
 
     return 0;
 }
@@ -308,14 +323,12 @@ int Host::dump(ostringstream& oss, int num, char **values, char **names)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-int Host::drop(SqlDB * db)
+int Image::drop(SqlDB * db)
 {
     ostringstream oss;
     int rc;
 
-    host_template.drop(db);
-
-    host_share.drop(db);
+    image_template.drop(db);
 
     oss << "DELETE FROM " << table << " WHERE oid=" << oid;
 
@@ -329,45 +342,16 @@ int Host::drop(SqlDB * db)
     return rc;
 }
 
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
-int Host::update_info(string &parse_str)
-{
-    char *  error_msg;
-    int     rc;
-
-    rc = host_template.parse(parse_str, &error_msg);
-
-    if ( rc != 0 )
-    {
-        NebulaLog::log("ONE", Log::ERROR, error_msg);
-
-        free(error_msg);
-        return -1;
-    }
-
-    get_template_attribute("TOTALCPU",host_share.max_cpu);
-    get_template_attribute("TOTALMEMORY",host_share.max_mem);
-
-    get_template_attribute("FREECPU",host_share.free_cpu);
-    get_template_attribute("FREEMEMORY",host_share.free_mem);
-
-    get_template_attribute("USEDCPU",host_share.used_cpu);
-    get_template_attribute("USEDMEMORY",host_share.used_mem);
-
-    return 0;
-}
 
 /* ************************************************************************ */
-/* Host :: Misc                                                             */
+/* Image :: Misc                                                             */
 /* ************************************************************************ */
 
-ostream& operator<<(ostream& os, Host& host)
+ostream& operator<<(ostream& os, Image& image)
 {
-	string host_str;
+	string image_str;
 
-	os << host.to_xml(host_str);
+	os << image.to_xml(image_str);
 
     return os;
 };
@@ -376,24 +360,28 @@ ostream& operator<<(ostream& os, Host& host)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-string& Host::to_xml(string& xml) const
+string& Image::to_xml(string& xml) const
 {
     string template_xml;
-	string share_xml;
     ostringstream   oss;
 
+
+
     oss <<
-    "<HOST>"
-       "<ID>"            << oid       	   << "</ID>"            <<
-       "<NAME>"          << hostname 	   << "</NAME>"          <<
-       "<STATE>"         << state          << "</STATE>"         <<
-       "<IM_MAD>"        << im_mad_name    << "</IM_MAD>"        <<
-       "<VM_MAD>"        << vmm_mad_name   << "</VM_MAD>"        <<
-       "<TM_MAD>"        << tm_mad_name    << "</TM_MAD>"        <<
-       "<LAST_MON_TIME>" << last_monitored << "</LAST_MON_TIME>" <<
- 	   host_share.to_xml(share_xml)  <<
-       host_template.to_xml(template_xml) <<
-	"</HOST>";
+        "<IMAGE>" <<
+            "<ID>"             << oid         << "</ID>"          <<
+            "<UID>"            << uid         << "</UID>"         <<
+            "<NAME>"           << name        << "</NAME>"        <<
+            "<DESCRIPTION>"    << description << "</DESCRIPTION>" <<
+            "<TYPE>"           << type        << "</TYPE>"        <<
+            "<REGTIME>"        << regtime     << "</REGTIME>"     <<
+            "<SOURCE>"         << source      << "</SOURCE>"      <<
+            "<TARGET>"         << target      << "</TARGET>"      <<
+            "<BUS>"            << bus         << "</BUS>"         <<
+            "<STATE>"          << state       << "</STATE>"       <<
+            "<RUNNING_VMS>"    << running_vms << "</RUNNING_VMS>" <<
+            image_template.to_xml(template_xml)                   <<
+        "</IMAGE>";
 
     xml = oss.str();
 
@@ -403,25 +391,68 @@ string& Host::to_xml(string& xml) const
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-string& Host::to_str(string& str) const
+string& Image::to_str(string& str) const
 {
     string template_str;
-	string share_str;
 
     ostringstream   os;
 
     os <<
-		"ID      =  "  << oid            << endl <<
-    	"NAME = "      << hostname       << endl <<
-    	"STATE    = "  << state          << endl <<
-    	"IM MAD   = "  << im_mad_name    << endl <<
-    	"VMM MAD  = "  << vmm_mad_name   << endl <<
-    	"TM MAD   = "  << tm_mad_name    << endl <<
-    	"LAST_MON = "  << last_monitored << endl <<
-        "ATTRIBUTES"   << endl << host_template.to_str(template_str) << endl <<
-        "HOST SHARES"  << endl << host_share.to_str(share_str) <<endl;
+        "ID          = "    << oid         << endl <<
+        "UID         = "    << uid         << endl <<
+        "NAME        = "    << name        << endl <<
+        "DESCRIPTION = "    << description << endl <<
+        "TYPE        = "    << type        << endl <<
+        "REGTIME     = "    << regtime     << endl <<
+        "SOURCE      = "    << source      << endl <<
+        "TARGET      = "    << target      << endl <<
+        "BUS         = "    << bus         << endl <<
+        "STATE       = "    << state       << endl <<
+        "RUNNING_VMS = "    << running_vms << endl <<
+        "TEMPLATE"          << endl        
+                            << image_template.to_str(template_str) 
+                            << endl;
 
-	str = os.str();
+    str = os.str();
 
-	return str;
+    return str;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+  
+bool get_image(bool overwrite)
+{
+    if ( state == READY || state == USED )
+    {
+        running_vms++;
+        
+        if(overwrite)
+        {
+            state = LOCKED;
+        }
+        else
+        {
+            state = USED;
+        }
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+    
+void release_image()
+{
+    running_vms--;
+    
+    if ( state == USED && running_vms == 0 )
+    {
+        state = READY;
+    }
 }
