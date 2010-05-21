@@ -39,22 +39,23 @@ int ImagePool::allocate (
         // ---------------------------------------------------------------------
         // Parse template 
         // ---------------------------------------------------------------------
-        rc = img->image_template.parse(stemplate,&error_msg);
+        rc = img->image_template.parse(stemplate, &error_msg);
 
         if ( rc != 0 )
         {
             ostringstream oss;
 
             oss << "ImagePool template parse error: " << error_msg;
-            NebulaLog::log("ONE", Log::ERROR, oss);
+            NebulaLog::log("IMG", Log::ERROR, oss);
             free(error_msg);
 
             delete img;
 
+            *oid = -2;
             return -2;
         }
         
-        img->get_template_attribute("NAME",name);
+        img->get_template_attribute("NAME", name);
 
         if ( name.empty() == true )
         {
@@ -73,12 +74,11 @@ int ImagePool::allocate (
         if ( *oid == -1 )
         {
             return -1;
-        }     
-                
+        }
+
         // Add the image name to the map of image_names
-        image_names.insert(make_pair(name,*oid));
-        
-   
+        image_names.insert(make_pair(name, *oid));
+
         return *oid;
 }
 
@@ -104,7 +104,7 @@ int ImagePool::dump(ostringstream& oss, const string& where)
 
     oss << "<IMAGE_POOL>";
 
-    set_callback(static_cast<Callbackable::Callback>(&HostPool::dump_cb),
+    set_callback(static_cast<Callbackable::Callback>(&ImagePool::dump_cb),
                   static_cast<void *>(&oss));
 
     cmd << "SELECT * FROM " << Image::table;

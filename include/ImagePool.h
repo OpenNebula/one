@@ -80,9 +80,9 @@ public:
     {
         map<string, int>::iterator     index;
 
-        index = known_users.find(username);
+        index = image_names.find(name);
 
-        if ( index != known_users.end() )
+        if ( index != image_names.end() )
         {
             return get((int)index->second,lock);
         }

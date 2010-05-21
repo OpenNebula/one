@@ -133,44 +133,27 @@ int Image::select(SqlDB *db)
 int Image::insert(SqlDB *db)
 {
     int rc;
-    map<int,HostShare *>::iterator iter;
 
     // Set up the template ID, to insert it
-    if ( host_template.id == -1 )
+    if ( image_template.id == -1 )
     {
-        host_template.id = oid;
+        image_template.id = oid;
     }
 
-    // Set up the share ID, to insert it
-    if ( host_share.hsid == -1 )
-    {
-        host_share.hsid = oid;
-    }
-
-    // Update the Template
-    rc = host_template.insert(db);
+    // Insert the Template
+    rc = image_template.insert(db);
 
     if ( rc != 0 )
     {
         return rc;
     }
 
-    // Update the HostShare
-    rc = host_share.insert(db);
-
-    if ( rc != 0 )
-    {
-        host_template.drop(db);
-        return rc;
-    }
-
-    //Insert the Host
+    //Insert the Image
     rc = insert_replace(db, false);
 
     if ( rc != 0 )
     {
-        host_template.drop(db);
-        host_share.drop(db);
+        image_template.drop(db);
 
         return rc;
     }
@@ -181,20 +164,12 @@ int Image::insert(SqlDB *db)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-int Host::update(SqlDB *db)
+int Image::update(SqlDB *db)
 {
     int    rc;
 
     // Update the Template
-    rc = host_template.update(db);
-
-    if ( rc != 0 )
-    {
-        return rc;
-    }
-
-    // Update the HostShare
-    rc = host_share.update(db);
+    rc = image_template.update(db);
 
     if ( rc != 0 )
     {
@@ -209,52 +184,50 @@ int Host::update(SqlDB *db)
     }
 
     return 0;
-
-
 }
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-int Host::insert_replace(SqlDB *db, bool replace)
+int Image::insert_replace(SqlDB *db, bool replace)
 {
     ostringstream   oss;
 
     int    rc;
 
-    char * sql_hostname;
-    char * sql_im_mad_name;
-    char * sql_tm_mad_name;
-    char * sql_vmm_mad_name;
+    char * sql_name;
+    char * sql_description;
+    char * sql_source;
+    char * sql_target;
 
-   // Update the Host
+   // Update the Image
 
-    sql_hostname = db->escape_str(hostname.c_str());
+    sql_name = db->escape_str(name.c_str());
 
-    if ( sql_hostname == 0 )
+    if ( sql_name == 0 )
     {
-        goto error_hostname;
+        goto error_name;
     }
 
-    sql_im_mad_name = db->escape_str(im_mad_name.c_str());
+    sql_description = db->escape_str(description.c_str());
 
-    if ( sql_im_mad_name == 0 )
+    if ( sql_description == 0 )
     {
-        goto error_im;
+        goto error_description;
     }
 
-    sql_tm_mad_name = db->escape_str(tm_mad_name.c_str());
+    sql_source = db->escape_str(source.c_str());
 
-    if ( sql_tm_mad_name == 0 )
+    if ( sql_source == 0 )
     {
-        goto error_tm;
+        goto error_source;
     }
 
-    sql_vmm_mad_name = db->escape_str(vmm_mad_name.c_str());
+    sql_target = db->escape_str(target.c_str());
 
-    if ( sql_vmm_mad_name == 0 )
+    if ( sql_target == 0 )
     {
-        goto error_vmm;
+        goto error_target;
     }
 
     if(replace)
@@ -269,13 +242,15 @@ int Host::insert_replace(SqlDB *db, bool replace)
     // Construct the SQL statement to Insert or Replace
 
     oss <<" INTO "<< table <<" "<< db_names <<" VALUES ("
-        << oid << ","
-        << "'" << sql_hostname << "',"
-        << state << ","
-        << "'" << sql_im_mad_name << "',"
-        << "'" << sql_vmm_mad_name << "',"
-        << "'" << sql_tm_mad_name << "',"
-        << last_monitored << ")";
+        <<          oid             << ","
+        <<          uid             << ","
+        << "'" <<   sql_name        << "',"
+        << "'" <<   sql_description << "',"
+        <<          type            << ","       // TODO CHECK ENUM << OPERATOR
+        <<          regtime         << ","
+        << "'" <<   sql_source      << "',"
+        << "'" <<   sql_target      << "',"
+        <<          bus             << ")";      // TODO CHECK ENUM << OPERATOR
 
     rc = db->exec(oss);
 
@@ -285,7 +260,7 @@ int Host::insert_replace(SqlDB *db, bool replace)
     db->free_str(sql_vmm_mad_name);
 
     return rc;
-
+// TODO error names
 error_vmm:
     db->free_str(sql_tm_mad_name);
 error_tm:
