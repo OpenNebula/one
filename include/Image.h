@@ -109,6 +109,58 @@ public:
     };
     
     /**
+     *  Set enum type
+     *     @return 0 on success, -1 otherwise
+     */ 
+    int set_type(string _type)
+    {
+        int rc = 0;
+        
+        if ( _type == "OS" )
+        {
+            type = OS;
+        }
+        else if ( _type == "CDROM" )
+        {
+            type = CDROM;
+        }
+        else if ( _type == "DATABLOCK" )
+        {
+            type = DATABLOCK;
+        }
+        else
+        {
+            rc = -1;
+        }
+        
+        return rc;
+    }
+
+    /**
+     *  Set enum bus
+     *     @return 0 on success, -1 otherwise
+     */  
+    int set_bus(string _bus)
+    {
+        int rc = 0;
+        
+        if ( _bus == "IDE" )
+        {
+            bus = IDE;
+        }
+        else if ( _bus == "SCSI" )
+        {
+            bus = SCSI;
+        }
+        else
+        {
+            rc = -1;
+        }
+        
+        return rc;
+    }
+    
+    /**
      * Get an image to be used in a VM
      * @param overwrite true if the image is going to be overwritten
      * @return boolean true if the image can be used
@@ -190,9 +242,9 @@ public:
     {
         Attribute * single_attr;
 
-        single_attr = new SongleAttribute(name,value);
+        single_attr = new SingleAttribute(name,value);
 
-        image_template->set(single_attr);
+        image_template.set(single_attr);
     }
     
     /**
@@ -208,7 +260,7 @@ public:
 
         vector_attr = new VectorAttribute(name,value);
 
-        image_template->set(vector_attr);
+        image_template.set(vector_attr);
     }
     
     /**
@@ -218,12 +270,19 @@ public:
     int remove_template_attribute(
         const string&   name) 
     {
-        int rc;  
+        int                 rc;  
         vector<Attribute *> values;
+        Attribute *         value;
 
-        rc = image_template->remove(name, values);
+        rc = image_template.remove(name, values);
         
-        delete[] values;
+        // Delete all pointers in the vector
+        while (!values.empty())
+        {
+            value = values.front();     // Gets the pointer
+            values.erase(values.begin()); // Removes it from the vector 
+            delete value;               // Frees memory
+        }       
         
         return rc;
     }
@@ -263,7 +322,7 @@ private:
     /**
      *  Registration time
      */
-    time_t       registration_time;
+    time_t       regtime;
     
     /**
      *  Path to the image
@@ -396,16 +455,7 @@ protected:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int drop(SqlDB *db)
-    {
-        int rc;
-
-        rc =  image_template.drop(db);
-
-        rc += image_drop(db);
-
-        return rc;
-    }
+     virtual int drop(SqlDB *db);
 
     /**
      *  Function to output an Image object in to an stream in XML format

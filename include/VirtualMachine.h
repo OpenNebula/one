@@ -21,6 +21,7 @@
 #include "PoolSQL.h"
 #include "History.h"
 #include "Log.h"
+#include "NebulaLog.h"
 
 #include <time.h>
 #include <sstream>
@@ -1041,24 +1042,14 @@ protected:
     virtual int update(SqlDB * db);
 
     /**
-     * Deletes a VM from the database and all its associated information:
-     *   - History records
-     *   - VM template
+     * Deletes a VM from the database and all its associated information
      *   @param db pointer to the db
-     *   @return 0 on success
+     *   @return -1
      */
     virtual int drop(SqlDB * db)
     {
-        int rc;
-
-        rc = vm_template.drop(db);
-
-        if ( history != 0 )
-        {
-            rc += history->drop(db);
-        }
-
-        return rc;
+        NebulaLog::log("ONE",Log::ERROR, "VM Drop not implemented!");
+        return -1;
     }
 
     /**

@@ -31,11 +31,11 @@ Image::Image(int _uid):
         uid(_uid),
         name(""),
         description(""),
-        type(0),
-        registration_time(time(0)),
+        type(OS),
+        regtime(time(0)),
         source(""),
         target(""),
-        bus(0),
+        bus(IDE),
         state(INIT)
         {};
 
@@ -421,8 +421,8 @@ string& Image::to_str(string& str) const
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-  
-bool get_image(bool overwrite)
+// TODO update?  
+bool Image::get_image(bool overwrite)
 {
     if ( state == READY || state == USED )
     {
@@ -446,8 +446,8 @@ bool get_image(bool overwrite)
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
-    
-void release_image()
+  // TODO update?   
+void Image::release_image()
 {
     running_vms--;
     

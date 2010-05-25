@@ -19,12 +19,12 @@
 
 #include "PoolSQL.h"
 #include "Image.h"
+#include "NebulaLog.h"
 
 #include <time.h>
 #include <sstream>
 
 #include <iostream>
-
 #include <vector>
 
 using namespace std;
@@ -36,7 +36,38 @@ class ImagePool : public PoolSQL
 {
 public:
 
-    ImagePool(SqlDB * db):PoolSQL(db,Image::table){};
+    ImagePool(SqlDB * db,     
+              const string&   _source_prefix,
+              const string&   _default_type,
+              const string&    _default_bus):
+              PoolSQL(db,Image::table),
+              source_prefix(_source_prefix)
+              {
+                  if (_default_type != "OS" || 
+                      _default_type != "CDROM" ||          
+                      _default_type != "DATABLOCK")
+                      {
+                          NebulaLog::log("IMG", Log::ERROR, 
+                                     "Bad default for image type, setting OS");
+                          default_type = "OS";       
+                      }
+                      else
+                      {
+                          default_type = _default_type;
+                      }
+                      
+                  if (_default_bus != "IDE" || 
+                      _default_bus != "SCSI")
+                      {
+                          NebulaLog::log("IMG", Log::ERROR, 
+                                     "Bad default for bus type, setting IDE");
+                          default_bus = "IDE";
+                      }
+                      else
+                      {
+                          default_bus = _default_bus;
+                      }
+              };
 
     ~ImagePool(){};
 
@@ -136,6 +167,21 @@ private:
      *  This map stores the association between IIDs and Image names
      */
     map<string, int>    image_names;
+    
+    /**
+     * Path to the image repository
+     **/
+    string              source_prefix;
+    
+    /**
+     * Default image type
+     **/
+    string              default_type;
+    
+    /**
+     * Default bus type
+     **/
+    string              default_bus;
       
     /**
      *  Factory method to produce Image objects
@@ -155,6 +201,13 @@ private:
      *    @return 0 on success
      */
     int dump_cb(void * _oss, int num, char **values, char **names);
+    
+    /**
+     *  "Encrypts" the password with SHA1 digest
+     *  @param password
+     *  @return sha1 encrypted password
+     */
+    string sha1_digest(const string& pass);
 };
 
 #endif /*IMAGE_POOL_H_*/

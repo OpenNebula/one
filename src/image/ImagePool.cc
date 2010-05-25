@@ -19,6 +19,8 @@
 /* ************************************************************************** */
 
 #include "ImagePool.h"
+#include <openssl/evp.h>
+#include <iomanip>
 
 int ImagePool::allocate (
         int            uid,
@@ -26,11 +28,16 @@ int ImagePool::allocate (
         int *          oid)
 {
         Image * img;
-        string  name;
-        string  type;
-        string  original_path;
-        string  target;
-        string  bus;
+        string  name           = "";
+        string  description    = "";
+        string  source         = "";
+        string  type           = "";
+        string  original_path  = "";
+        string  target         = "";
+        string  bus            = "";
+        
+        ostringstream          tmp_hashstream;
+        ostringstream          tmp_sourcestream;
 
         char *  error_msg;
         int     rc;
@@ -59,48 +66,54 @@ int ImagePool::allocate (
         {
             goto error_name;
         }
+        
+        img->get_template_attribute("DESCRIPTION", description);
             
         img->get_template_attribute("TYPE", type);
 
         if ( type.empty() == true )
         {
-            goto error_type;
-        }        
-        
+            type = default_type;
+        }
+       
         img->get_template_attribute("ORIGINAL_PATH", original_path);
         
-        if  ( type == "OS" || type == "CDROM" )
+        if  ( (type == "OS" || type == "CDROM") &&
+               original_path.empty() == true      )
         {
-            if ( original_path.empty() == true )
-            {
-                goto error_original_path;
-            }
-        }
-        
-        img->get_template_attribute("TARGET", target);
-
-        if ( target.empty() == true )
-        {
-            target = "hda"; // TODO add to oned.configuration
+            goto error_original_path;
         }
         
         img->get_template_attribute("BUS", bus);
 
         if ( bus.empty() == true )
         {
-            bus = "IDE"; // TODO add to oned.configuration
+            bus = default_bus; 
         }
         
-        
-        
-        // generatesource
-        
-        img->name   = name;
-        img->type   = type;
-        img->target = target;
-        img->bus    = bus;
-        
+        img->running_vms = 0;
 
+
+        // Generate path to store the image
+        tmp_hashstream << oid << ":" << uid << ":" << name;    
+        tmp_hashstream.str(sha1_digest(tmp_hashstream.str()));
+        
+        tmp_sourcestream << source_prefix << "/" << tmp_hashstream;
+        
+        img->name        = name;
+        img->description = description;
+        img->source      = tmp_sourcestream.str();
+        
+        if (img->set_type(type) != 0)
+        {
+            goto error_type;
+        }
+        
+        if (img->set_bus(bus) != 0)
+        {
+            goto error_bus;
+        }
+        
         // ---------------------------------------------------------------------
         // Insert the Object in the pool
         // ---------------------------------------------------------------------
@@ -121,26 +134,26 @@ error_name:
     NebulaLog::log("IMG", Log::ERROR, "NAME not present in image template");
     goto error_common;
 error_type:
-    NebulaLog::log("IMG", Log::ERROR, "TYPE not present in image template");
+    NebulaLog::log("IMG", Log::ERROR, "Incorrect TYPE in image template");
     goto error_common;
+error_bus:
+    NebulaLog::log("IMG", Log::ERROR, "Incorrect BUS in image template");
+    goto error_common;        
 error_original_path:
     NebulaLog::log("IMG", Log::ERROR, 
     "ORIGINAL_PATH compulsory and not present in image template of this type.");
     goto error_common;
 error_common:
     delete img;
-
     *oid = -1;
     return -1;
+    
 error_parse:
     ostringstream oss;
-
     oss << "ImagePool template parse error: " << error_msg;
     NebulaLog::log("IMG", Log::ERROR, oss);
     free(error_msg);
-
     delete img;
-
     *oid = -2;
     return -2;    
 }
@@ -182,4 +195,31 @@ int ImagePool::dump(ostringstream& oss, const string& where)
     oss << "</IMAGE_POOL>";
 
     return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string ImagePool::sha1_digest(const string& pass)
+{
+    EVP_MD_CTX     mdctx;
+    unsigned char  md_value[EVP_MAX_MD_SIZE];
+    unsigned int   md_len;
+    ostringstream  oss;
+
+    EVP_MD_CTX_init(&mdctx);
+    EVP_DigestInit_ex(&mdctx, EVP_sha1(), NULL);
+
+    EVP_DigestUpdate(&mdctx, pass.c_str(), pass.length());
+
+    EVP_DigestFinal_ex(&mdctx,md_value,&md_len);
+    EVP_MD_CTX_cleanup(&mdctx);
+
+    for(unsigned int i = 0; i<md_len; i++)
+    {
+        oss << setfill('0') << setw(2) << hex << nouppercase
+            << (unsigned short) md_value[i];
+    }
+
+    return oss.str();
 }
