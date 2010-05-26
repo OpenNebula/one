@@ -197,61 +197,54 @@ public:
         string str=name;
         image_template.get(str,value);
     }
-    
+
+
     /**
-     *  Sets an Image single attribute
-     *    @param name of the attribute
-     *    @param value of the attribute (string)
+     *  Updates the template of an Image, adding a new attribute (replacing it
+     * if already defined), the image's mutex SHOULD be locked
+     *    @param db pointer to the database
+     *    @param name of the new attribute
+     *    @param value of the new attribute
+     *    @return 0 on success
      */
-    void set_template_attribute(
-        const string&   name,
-        string          value) 
+    int update_template_attribute(
+        SqlDB * db,
+        string& name,
+        string& value)
     {
-        Attribute * single_attr;
+        SingleAttribute * sattr;
+        int               rc;
 
-        single_attr = new SingleAttribute(name,value);
+        sattr = new SingleAttribute(name,value);
+        rc    = image_template.replace_attribute(db,sattr);
 
-        image_template.set(single_attr);
+        if (rc != 0)
+        {
+            delete sattr;
+        }
+
+        return rc;
     }
-    
+
     /**
-     *  Sets a string based Image attribute
-     *    @param name of the attribute
-     *    @param values of the attribute (map)
+     *  Inserts a new attribute in the template of an Image, also the DB is
+     *  updated. The image's mutex SHOULD be locked
+     *    @param db pointer to the database
+     *    @param attribute the new attribute for the template
+     *    @return 0 on success
      */
-    void set_template_attribute(
-        const string&       name,
-        map<string,string>  value) 
+    int insert_template_attribute(SqlDB * db, Attribute * attribute)
     {
-        Attribute * vector_attr;
-
-        vector_attr = new VectorAttribute(name,value);
-
-        image_template.set(vector_attr);
+        return image_template.insert_attribute(db,attribute);
     }
-    
+
     /**
      *  Removes an Image attribute
      *    @param name of the attribute
      */
-    int remove_template_attribute(
-        const string&   name) 
+    int remove_template_attribute(SqlDB * db, const string&   name)
     {
-        int                 rc;  
-        vector<Attribute *> values;
-        Attribute *         value;
-
-        rc = image_template.remove(name, values);
-        
-        // Delete all pointers in the vector
-        while (!values.empty())
-        {
-            value = values.front();     // Gets the pointer
-            values.erase(values.begin()); // Removes it from the vector 
-            delete value;               // Frees memory
-        }       
-        
-        return rc;
+        return image_template.remove_attribute(db, name);
     }
 
 private:

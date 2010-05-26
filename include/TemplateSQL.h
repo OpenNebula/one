@@ -112,6 +112,13 @@ protected:
     int insert_attribute(SqlDB * db, Attribute * attribute);
 
     /**
+     *  Remove a given attribute from the template and the DB.
+     *    @param db pointer to the database.
+     *    @param name name of the attribute
+     */
+    int remove_attribute(SqlDB * db, const string& name);
+
+    /**
      *  Callback to set the template id (TemplateSQL::insert)
      */
     int  insert_cb(void *nil, int num, char **values, char **names);

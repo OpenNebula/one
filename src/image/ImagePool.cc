@@ -38,6 +38,9 @@ int ImagePool::allocate (
 
         char *  error_msg;
         int     rc;
+        int     num_attr;
+
+        vector<Attribute *>     attrs;
 
         // ---------------------------------------------------------------------
         // Build a new Image object
@@ -63,14 +66,45 @@ int ImagePool::allocate (
         {
             goto error_name;
         }
-            
+
+        img->image_template.remove("NAME", attrs);
+
+        // Clear attrs
+        if ((num_attr = (int) attrs.size()) > 0)
+        {
+            for (int i = 0; i < num_attr ; i++)
+            {
+                if (attrs[i] != 0)
+                {
+                    delete attrs[i];
+                }
+            }
+        }
+
         img->get_template_attribute("TYPE", type);
 
         if ( type.empty() == true )
         {
             type = default_type;
         }
-       
+        else
+        {
+            attrs.clear();
+            img->image_template.remove("TYPE", attrs);
+
+            // Clear attrs
+            if ((num_attr = (int) attrs.size()) > 0)
+            {
+                for (int i = 0; i < num_attr ; i++)
+                {
+                    if (attrs[i] != 0)
+                    {
+                        delete attrs[i];
+                    }
+                }
+            }
+        }
+
         img->get_template_attribute("ORIGINAL_PATH", original_path);
         
         if  ( (type == "OS" || type == "CDROM") &&
@@ -138,7 +172,7 @@ error_parse:
     free(error_msg);
     delete img;
     *oid = -2;
-    return -2;    
+    return -2;
 }
 
 /* -------------------------------------------------------------------------- */
