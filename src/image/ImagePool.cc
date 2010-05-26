@@ -33,7 +33,6 @@ int ImagePool::allocate (
         string  source         = "";
         string  type           = "";
         string  original_path  = "";
-        string  target         = "";
         string  bus            = "";
         
         ostringstream          tmp_hashstream;
@@ -95,15 +94,17 @@ int ImagePool::allocate (
 
 
         // Generate path to store the image
-        tmp_hashstream << oid << ":" << uid << ":" << name;    
+        tmp_hashstream << uid << ":" << name;
+
         tmp_hashstream.str(sha1_digest(tmp_hashstream.str()));
-        
-        tmp_sourcestream << source_prefix << "/" << tmp_hashstream;
-        
+
+        tmp_sourcestream << source_prefix << "/";
+        tmp_sourcestream << sha1_digest(tmp_hashstream.str());
+
         img->name        = name;
         img->description = description;
         img->source      = tmp_sourcestream.str();
-        
+
         if (img->set_type(type) != 0)
         {
             goto error_type;

@@ -328,12 +328,7 @@ private:
      *  Path to the image
      */
     string      source;
-     
-    /**
-     *  Device for the image to be attached into
-     */
-    string      target;
-     
+
      /**
       *  IDE or SCSI
       */
@@ -415,12 +410,11 @@ protected:
         TYPE             = 4,    /* 0) OS 1) CDROM 2) DATABLOCK */
         REGTIME          = 5,    /* Time of registration        */
         SOURCE           = 6,    /* Path to the image           */
-        TARGET           = 7,    /* Device to be plugged into   */
-        BUS              = 8,    /* 0) IDE 1) SCSI              */
-        STATE            = 9,    /* 0) INIT   1) ALLOCATED      */
+        BUS              = 7,    /* 0) IDE 1) SCSI              */
+        STATE            = 8,    /* 0) INIT   1) ALLOCATED      */
                                  /* 2) READY  3) USED           */
-        RUNNING_VMS      = 10,   /* Number of VMs using the img */
-        LIMIT            = 11    
+        RUNNING_VMS      = 9,    /* Number of VMs using the img */
+        LIMIT            = 10
     };
     
     static const char * db_names;

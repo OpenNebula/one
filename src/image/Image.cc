@@ -34,7 +34,6 @@ Image::Image(int _uid):
         type(OS),
         regtime(time(0)),
         source(""),
-        target(""),
         bus(IDE),
         state(INIT)
         {};
@@ -48,12 +47,12 @@ Image::~Image(){};
 const char * Image::table = "image_pool";
 
 const char * Image::db_names = "(oid, uid, name, description, type, regtime," 
-                               "source, target, bus, state, running_vms)";
+                               "source, bus, state, running_vms)";
 
 const char * Image::db_bootstrap = "CREATE TABLE IF NOT EXISTS image_pool ("
     "oid INTEGER PRIMARY KEY, uid INTEGER, name VARCHAR(128), "
     "description TEXT, type INTEGER, regtime INTEGER, "
-    "source VARCHAR, target VARCHAR, bus INTEGER, state INTEGER, "
+    "source VARCHAR, bus INTEGER, state INTEGER, "
     "running_vms INTEGER, UNIQUE(name) )";
 
 /* ------------------------------------------------------------------------ */
@@ -68,7 +67,6 @@ int Image::select_cb(void * nil, int num, char **values, char ** names)
         (!values[TYPE]) ||
         (!values[REGTIME]) ||
         (!values[SOURCE]) ||
-        (!values[TARGET]) ||
         (!values[BUS]) ||
         (!values[STATE]) ||
         (!values[RUNNING_VMS]) ||
@@ -85,10 +83,9 @@ int Image::select_cb(void * nil, int num, char **values, char ** names)
     
     type        = static_cast<ImageType>(atoi(values[TYPE]));
     regtime     = static_cast<time_t>(atoi(values[REGTIME]));
-    
+
     source      = values[SOURCE];
-    target      = values[TARGET];
-    
+
     bus         = static_cast<BusType>(atoi(values[BUS])); 
     state       = static_cast<ImageState>(atoi(values[STATE])); 
     
@@ -206,7 +203,6 @@ int Image::insert_replace(SqlDB *db, bool replace)
     char * sql_name;
     char * sql_description;
     char * sql_source;
-    char * sql_target;
 
    // Update the Image
 
@@ -231,13 +227,6 @@ int Image::insert_replace(SqlDB *db, bool replace)
         goto error_source;
     }
 
-    sql_target = db->escape_str(target.c_str());
-
-    if ( sql_target == 0 )
-    {
-        goto error_target;
-    }
-
     if(replace)
     {
         oss << "REPLACE";
@@ -257,7 +246,6 @@ int Image::insert_replace(SqlDB *db, bool replace)
         <<          type            << ","       
         <<          regtime         << ","
         << "'" <<   sql_source      << "',"
-        << "'" <<   sql_target      << "',"
         <<          bus             << ","
         <<          state           << ","
         <<          running_vms     << ")";     
@@ -267,12 +255,9 @@ int Image::insert_replace(SqlDB *db, bool replace)
     db->free_str(sql_name);
     db->free_str(sql_description);
     db->free_str(sql_source);
-    db->free_str(sql_target);
 
     return rc;
 
-error_target:
-    db->free_str(sql_source);
 error_source:
     db->free_str(sql_description);
 error_description:
@@ -293,7 +278,6 @@ int Image::dump(ostringstream& oss, int num, char **values, char **names)
         (!values[TYPE]) ||
         (!values[REGTIME]) ||
         (!values[SOURCE]) ||
-        (!values[TARGET]) ||
         (!values[BUS]) ||
         (!values[STATE]) ||
         (!values[RUNNING_VMS]) ||
@@ -311,10 +295,9 @@ int Image::dump(ostringstream& oss, int num, char **values, char **names)
             "<TYPE>"           << values[TYPE]        << "</TYPE>"        <<
             "<REGTIME>"        << values[REGTIME]     << "</REGTIME>"     <<
             "<SOURCE>"         << values[SOURCE]      << "</SOURCE>"      <<
-            "<TARGET>"         << values[TARGET]      << "</TARGET>"      <<
             "<BUS>"            << values[BUS]         << "</BUS>"         <<
             "<STATE>"          << values[STATE]       << "</STATE>"       <<
-            "<RUNNING_VMS>"    << values[RUNNING_VMS] << "</RUNNING_VMS>" <<                                                           
+            "<RUNNING_VMS>"    << values[RUNNING_VMS] << "</RUNNING_VMS>" <<
         "</IMAGE>";
 
     return 0;
@@ -376,7 +359,6 @@ string& Image::to_xml(string& xml) const
             "<TYPE>"           << type        << "</TYPE>"        <<
             "<REGTIME>"        << regtime     << "</REGTIME>"     <<
             "<SOURCE>"         << source      << "</SOURCE>"      <<
-            "<TARGET>"         << target      << "</TARGET>"      <<
             "<BUS>"            << bus         << "</BUS>"         <<
             "<STATE>"          << state       << "</STATE>"       <<
             "<RUNNING_VMS>"    << running_vms << "</RUNNING_VMS>" <<
@@ -405,7 +387,6 @@ string& Image::to_str(string& str) const
         "TYPE        = "    << type        << endl <<
         "REGTIME     = "    << regtime     << endl <<
         "SOURCE      = "    << source      << endl <<
-        "TARGET      = "    << target      << endl <<
         "BUS         = "    << bus         << endl <<
         "STATE       = "    << state       << endl <<
         "RUNNING_VMS = "    << running_vms << endl <<
