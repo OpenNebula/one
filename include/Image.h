@@ -37,16 +37,7 @@ public:
          CDROM     = 1,
          DATABLOCK = 2
      };
-     
-     /**
-      *  Bus type
-      */
-      enum BusType
-      {
-          IDE      = 0,
-          SCSI     = 1
-      }; 
-      
+
       /**
        *  Image State
        */
@@ -136,30 +127,6 @@ public:
         return rc;
     }
 
-    /**
-     *  Set enum bus
-     *     @return 0 on success, -1 otherwise
-     */  
-    int set_bus(string _bus)
-    {
-        int rc = 0;
-        
-        if ( _bus == "IDE" )
-        {
-            bus = IDE;
-        }
-        else if ( _bus == "SCSI" )
-        {
-            bus = SCSI;
-        }
-        else
-        {
-            rc = -1;
-        }
-        
-        return rc;
-    }
-    
     /**
      * Get an image to be used in a VM
      * @param overwrite true if the image is going to be overwritten
@@ -310,11 +277,6 @@ private:
     string       name;
     
     /**
-     *  The description of the Image
-     */
-    string       description;
-    
-    /**
      *  Type of the Image
      */
     ImageType    type;
@@ -329,11 +291,6 @@ private:
      */
     string      source;
 
-     /**
-      *  IDE or SCSI
-      */
-    BusType     bus;
-    
      /**
       *  Image state
       */
@@ -402,19 +359,17 @@ protected:
     // *************************************************************************
 
     enum ColNames
-    {                                                           
+    {
         OID              = 0,    /* Image identifier (IID)      */
         UID              = 1,    /* Image owner id              */
         NAME             = 2,    /* Image name                  */
-        DESCRIPTION      = 3,    /* Image description           */
-        TYPE             = 4,    /* 0) OS 1) CDROM 2) DATABLOCK */
-        REGTIME          = 5,    /* Time of registration        */
-        SOURCE           = 6,    /* Path to the image           */
-        BUS              = 7,    /* 0) IDE 1) SCSI              */
-        STATE            = 8,    /* 0) INIT   1) ALLOCATED      */
+        TYPE             = 3,    /* 0) OS 1) CDROM 2) DATABLOCK */
+        REGTIME          = 4,    /* Time of registration        */
+        SOURCE           = 5,    /* Path to the image           */
+        STATE            = 6,    /* 0) INIT   1) ALLOCATED      */
                                  /* 2) READY  3) USED           */
-        RUNNING_VMS      = 9,    /* Number of VMs using the img */
-        LIMIT            = 10
+        RUNNING_VMS      = 7,    /* Number of VMs using the img */
+        LIMIT            = 8
     };
     
     static const char * db_names;

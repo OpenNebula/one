@@ -30,11 +30,9 @@ Image::Image(int _uid):
         PoolObjectSQL(-1),
         uid(_uid),
         name(""),
-        description(""),
         type(OS),
         regtime(time(0)),
         source(""),
-        bus(IDE),
         state(INIT)
         {};
 
@@ -46,13 +44,12 @@ Image::~Image(){};
 
 const char * Image::table = "image_pool";
 
-const char * Image::db_names = "(oid, uid, name, description, type, regtime," 
-                               "source, bus, state, running_vms)";
+const char * Image::db_names = "(oid, uid, name, type, regtime, " 
+                               "source, state, running_vms)";
 
 const char * Image::db_bootstrap = "CREATE TABLE IF NOT EXISTS image_pool ("
     "oid INTEGER PRIMARY KEY, uid INTEGER, name VARCHAR(128), "
-    "description TEXT, type INTEGER, regtime INTEGER, "
-    "source VARCHAR, bus INTEGER, state INTEGER, "
+    "type INTEGER, regtime INTEGER, source VARCHAR, state INTEGER, "
     "running_vms INTEGER, UNIQUE(name) )";
 
 /* ------------------------------------------------------------------------ */
@@ -63,11 +60,9 @@ int Image::select_cb(void * nil, int num, char **values, char ** names)
     if ((!values[OID]) ||
         (!values[UID]) ||
         (!values[NAME]) ||
-        (!values[DESCRIPTION]) ||
         (!values[TYPE]) ||
         (!values[REGTIME]) ||
         (!values[SOURCE]) ||
-        (!values[BUS]) ||
         (!values[STATE]) ||
         (!values[RUNNING_VMS]) ||
         (num != LIMIT ))
@@ -79,14 +74,12 @@ int Image::select_cb(void * nil, int num, char **values, char ** names)
     uid         = atoi(values[UID]);
     
     name        = values[NAME];
-    description = values[DESCRIPTION];
     
     type        = static_cast<ImageType>(atoi(values[TYPE]));
     regtime     = static_cast<time_t>(atoi(values[REGTIME]));
 
     source      = values[SOURCE];
 
-    bus         = static_cast<BusType>(atoi(values[BUS])); 
     state       = static_cast<ImageState>(atoi(values[STATE])); 
     
     running_vms = atoi(values[RUNNING_VMS]); 
@@ -201,7 +194,6 @@ int Image::insert_replace(SqlDB *db, bool replace)
     int    rc;
 
     char * sql_name;
-    char * sql_description;
     char * sql_source;
 
    // Update the Image
@@ -213,12 +205,6 @@ int Image::insert_replace(SqlDB *db, bool replace)
         goto error_name;
     }
 
-    sql_description = db->escape_str(description.c_str());
-
-    if ( sql_description == 0 )
-    {
-        goto error_description;
-    }
 
     sql_source = db->escape_str(source.c_str());
 
@@ -242,25 +228,20 @@ int Image::insert_replace(SqlDB *db, bool replace)
         <<          oid             << ","
         <<          uid             << ","
         << "'" <<   sql_name        << "',"
-        << "'" <<   sql_description << "',"
         <<          type            << ","       
         <<          regtime         << ","
         << "'" <<   sql_source      << "',"
-        <<          bus             << ","
         <<          state           << ","
         <<          running_vms     << ")";     
 
     rc = db->exec(oss);
 
     db->free_str(sql_name);
-    db->free_str(sql_description);
     db->free_str(sql_source);
 
     return rc;
 
 error_source:
-    db->free_str(sql_description);
-error_description:
     db->free_str(sql_name);
 error_name:
     return -1;
@@ -274,11 +255,9 @@ int Image::dump(ostringstream& oss, int num, char **values, char **names)
     if ((!values[OID]) ||
         (!values[UID]) ||
         (!values[NAME]) ||
-        (!values[DESCRIPTION]) ||
         (!values[TYPE]) ||
         (!values[REGTIME]) ||
         (!values[SOURCE]) ||
-        (!values[BUS]) ||
         (!values[STATE]) ||
         (!values[RUNNING_VMS]) ||
         (num != LIMIT ))
@@ -291,11 +270,9 @@ int Image::dump(ostringstream& oss, int num, char **values, char **names)
             "<ID>"             << values[OID]         << "</ID>"          <<
             "<UID>"            << values[UID]         << "</UID>"         <<
             "<NAME>"           << values[NAME]        << "</NAME>"        <<
-            "<DESCRIPTION>"    << values[DESCRIPTION] << "</DESCRIPTION>" <<
             "<TYPE>"           << values[TYPE]        << "</TYPE>"        <<
             "<REGTIME>"        << values[REGTIME]     << "</REGTIME>"     <<
             "<SOURCE>"         << values[SOURCE]      << "</SOURCE>"      <<
-            "<BUS>"            << values[BUS]         << "</BUS>"         <<
             "<STATE>"          << values[STATE]       << "</STATE>"       <<
             "<RUNNING_VMS>"    << values[RUNNING_VMS] << "</RUNNING_VMS>" <<
         "</IMAGE>";
@@ -355,11 +332,9 @@ string& Image::to_xml(string& xml) const
             "<ID>"             << oid         << "</ID>"          <<
             "<UID>"            << uid         << "</UID>"         <<
             "<NAME>"           << name        << "</NAME>"        <<
-            "<DESCRIPTION>"    << description << "</DESCRIPTION>" <<
             "<TYPE>"           << type        << "</TYPE>"        <<
             "<REGTIME>"        << regtime     << "</REGTIME>"     <<
             "<SOURCE>"         << source      << "</SOURCE>"      <<
-            "<BUS>"            << bus         << "</BUS>"         <<
             "<STATE>"          << state       << "</STATE>"       <<
             "<RUNNING_VMS>"    << running_vms << "</RUNNING_VMS>" <<
             image_template.to_xml(template_xml)                   <<
@@ -383,11 +358,9 @@ string& Image::to_str(string& str) const
         "ID          = "    << oid         << endl <<
         "UID         = "    << uid         << endl <<
         "NAME        = "    << name        << endl <<
-        "DESCRIPTION = "    << description << endl <<
         "TYPE        = "    << type        << endl <<
         "REGTIME     = "    << regtime     << endl <<
         "SOURCE      = "    << source      << endl <<
-        "BUS         = "    << bus         << endl <<
         "STATE       = "    << state       << endl <<
         "RUNNING_VMS = "    << running_vms << endl <<
         "TEMPLATE"          << endl        

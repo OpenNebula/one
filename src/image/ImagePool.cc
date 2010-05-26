@@ -29,12 +29,10 @@ int ImagePool::allocate (
 {
         Image * img;
         string  name           = "";
-        string  description    = "";
         string  source         = "";
         string  type           = "";
         string  original_path  = "";
-        string  bus            = "";
-        
+
         ostringstream          tmp_hashstream;
         ostringstream          tmp_sourcestream;
 
@@ -65,8 +63,6 @@ int ImagePool::allocate (
         {
             goto error_name;
         }
-        
-        img->get_template_attribute("DESCRIPTION", description);
             
         img->get_template_attribute("TYPE", type);
 
@@ -82,14 +78,8 @@ int ImagePool::allocate (
         {
             goto error_original_path;
         }
-        
-        img->get_template_attribute("BUS", bus);
 
-        if ( bus.empty() == true )
-        {
-            bus = default_bus; 
-        }
-        
+
         img->running_vms = 0;
 
 
@@ -102,18 +92,13 @@ int ImagePool::allocate (
         tmp_sourcestream << sha1_digest(tmp_hashstream.str());
 
         img->name        = name;
-        img->description = description;
         img->source      = tmp_sourcestream.str();
 
         if (img->set_type(type) != 0)
         {
             goto error_type;
         }
-        
-        if (img->set_bus(bus) != 0)
-        {
-            goto error_bus;
-        }
+
         
         // ---------------------------------------------------------------------
         // Insert the Object in the pool
@@ -137,9 +122,6 @@ error_name:
 error_type:
     NebulaLog::log("IMG", Log::ERROR, "Incorrect TYPE in image template");
     goto error_common;
-error_bus:
-    NebulaLog::log("IMG", Log::ERROR, "Incorrect BUS in image template");
-    goto error_common;        
 error_original_path:
     NebulaLog::log("IMG", Log::ERROR, 
     "ORIGINAL_PATH compulsory and not present in image template of this type.");
