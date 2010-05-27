@@ -1,0 +1,124 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
+#include "AuthManagerDriver.h"
+#include "AuthManager.h"
+#include "NebulaLog.h"
+
+#include "Nebula.h"
+#include <sstream>
+
+/* ************************************************************************** */
+/* Driver ASCII Protocol Implementation                                       */
+/* ************************************************************************** */
+
+void AuthManagerDriver::authorize(int oid, int uid, const string& reqs) const
+{
+    ostringstream os;
+
+    os << "AUTHORIZE " << oid << " " << uid << " " << reqs << endl;
+
+    write(os);
+}
+
+void AuthManagerDriver::authenticate(int oid, int uid, const string& ch) const
+{
+    ostringstream os;
+
+    os << "AUTHENTICATE " << oid << " " << uid << " " << ch << endl;
+
+    write(os);
+}
+
+/* ************************************************************************** */
+/* MAD Interface                                                              */
+/* ************************************************************************** */
+
+void AuthManagerDriver::protocol(
+    string&     message)
+{
+    istringstream is(message);
+    ostringstream os;
+
+    string        action;
+    string        result;
+    string        info="";
+
+    int           id;
+
+    os << "Message received: " << message;
+    NebulaLog::log("AuM", Log::DEBUG, os);
+
+    // Parse the driver message
+    if ( is.good() )
+        is >> action >> ws;
+    else
+        return;
+
+    if ( is.good() )
+        is >> result >> ws;
+    else
+        return;
+
+    if ( is.good() )
+    {
+        is >> id >> ws;
+
+        if ( is.fail() )
+        {
+            if ( action == "LOG" )
+            {
+                string info;
+
+                is.clear();
+                getline(is,info);
+                NebulaLog::log("AuM",Log::INFO, info.c_str());
+            }
+
+            return;
+        }
+    }
+    else
+        return;
+
+    if (action == "LOG")
+    {
+        string info;
+
+        getline(is,info);
+        NebulaLog::log("AuM",Log::INFO,info.c_str());
+    }
+    else if (result == "SUCCESS")
+    {
+        authm->notify(id,true,info);
+    }
+    else
+    {
+        getline(is,info);
+
+        authm->notify(id,false,info);
+    }
+
+    return;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void AuthManagerDriver::recover()
+{
+    NebulaLog::log("AuM",Log::INFO,"Recovering Authorization drivers");
+}
