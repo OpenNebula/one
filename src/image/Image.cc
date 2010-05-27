@@ -49,7 +49,7 @@ const char * Image::db_names = "(oid, uid, name, type, regtime, "
 
 const char * Image::db_bootstrap = "CREATE TABLE IF NOT EXISTS image_pool ("
     "oid INTEGER PRIMARY KEY, uid INTEGER, name VARCHAR(128), "
-    "type INTEGER, regtime INTEGER, source VARCHAR, state INTEGER, "
+    "type INTEGER, regtime INTEGER, source TEXT, state INTEGER, "
     "running_vms INTEGER, UNIQUE(name) )";
 
 /* ------------------------------------------------------------------------ */
