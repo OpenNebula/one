@@ -23,70 +23,47 @@
 
 using namespace std;
 
-const int uids[] = {123, 261, 123};
+const int uids[] = {122, 262, 127};
 
-const string names[] = {"VM one", "Second VM", "VM one"};
+const string names[] = {"Image one", "Second Image", "The third image"};
 
-    // TODO change templates
 const string templates[] =
 {
-    "NAME   = \"VM one\"\n"
-    "MEMORY = 128\n"
-    "CPU    = 1",
+    "NAME          = \"Image one\"\n"
+    "ORIGINAL_PATH = /tmp/image_test\n"
+    "DESCRIPTION   = \"This is a very long description of an image, and to achieve the longness I will copy this over. This is a very long description of an image, and to achieve the longness I will copy this over. And over. This is a very long description of an image, and to achieve the longness I will copy this over. And over. This is a very long description of an image, and to achieve the longness I will copy this over. And over.This is a very long description of an image, and to achieve the longness I will copy this over.\"\n",
 
-    "NAME   = \"Second VM\"\n"
-    "MEMORY = 256\n"
-    "CPU    = 2",
+    "NAME          = \"Second Image\"\n"
+    "ORIGINAL_PATH = /tmp/image_second_test\n"
+    "DESCRIPTION   = \"This is a rather short description.\"\n",
 
-    "NAME   = \"VM one\"\n"
-    "MEMORY = 1024\n"
-    "CPU    = 1"
+    "NAME          = \"The third image\"\n"
+    "ORIGINAL_PATH = /tmp/image_test\n"
+    "# DESCRIPTION   = \"An image description\"\n"
+    "BUS           = SCSI\n"
+    "PROFILE       = STUDENT\n"
 };
 
-    // TODO change xmls
+
 const string xmls[] =
 {
-    "<VM><ID>0</ID><UID>123</UID><NAME>VM one</NAME><LAST_POLL>0</LAST_POLL><ST"
-    "ATE>1</STATE><LCM_STATE>0</LCM_STATE><STIME>0000000000</STIME><ETIME>0</ET"
-    "IME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</MEMORY><CPU>0</CPU><NET_TX>0</NET_TX"
-    "><NET_RX>0</NET_RX><TEMPLATE><CPU><![CDATA[1]]></CPU><MEMORY><![CDATA[128]"
-    "]></MEMORY><NAME><![CDATA[VM one]]></NAME><VMID><![CDATA[0]]></VMID>"
-    "</TEMPLATE></VM>",
+    "<IMAGE><ID>0</ID><UID>122</UID><NAME>Image one</NAME><TYPE>0</TYPE><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/b734e8645d3eba91315e851662adf021ee488e34</SOURCE><STATE>0</STATE><RUNNING_VMS>0</RUNNING_VMS><TEMPLATE><DESCRIPTION><![CDATA[This is a very long description of an image, and to achieve the longness I will copy this over. This is a very long description of an image, and to achieve the longness I will copy this over. And over. This is a very long description of an image, and to achieve the longness I will copy this over. And over. This is a very long description of an image, and to achieve the longness I will copy this over. And over.This is a very long description of an image, and to achieve the longness I will copy this over.]]></DESCRIPTION><ORIGINAL_PATH><![CDATA[/tmp/image_test]]></ORIGINAL_PATH></TEMPLATE></IMAGE>",
 
-    "<VM><ID>1</ID><UID>261</UID><NAME>Second VM</NAME><LAST_POLL>0</LAST_POLL>"
-    "<STATE>1</STATE><LCM_STATE>0</LCM_STATE><STIME>0000000000</STIME><ETIME>0<"
-    "/ETIME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</MEMORY><CPU>0</CPU><NET_TX>0</NET"
-    "_TX><NET_RX>0</NET_RX><TEMPLATE><CPU><![CDATA[2]]></CPU><MEMORY>"
-    "<![CDATA[256]]></MEMORY><NAME><![CDATA[Second VM]]></NAME><VMID>"
-    "<![CDATA[1]]></VMID></TEMPLATE></VM>",
+    "<IMAGE><ID>1</ID><UID>262</UID><NAME>Second Image</NAME><TYPE>0</TYPE><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/24939d280a0e29c9eb00bbb7c5e997ba5c4b8667</SOURCE><STATE>0</STATE><RUNNING_VMS>0</RUNNING_VMS><TEMPLATE><DESCRIPTION><![CDATA[This is a rather short description.]]></DESCRIPTION><ORIGINAL_PATH><![CDATA[/tmp/image_second_test]]></ORIGINAL_PATH></TEMPLATE></IMAGE>",
 
-    "<VM><ID>0</ID><UID>123</UID><NAME>VM one</NAME><LAST_POLL>0</LAST_POLL><ST"
-    "ATE>1</STATE><LCM_STATE>0</LCM_STATE><STIME>0000000000</STIME><ETIME>0</ET"
-    "IME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</MEMORY><CPU>0</CPU><NET_TX>0</NET_TX"
-    "><NET_RX>0</NET_RX><TEMPLATE><CPU>1</CPU><MEMORY>1024</MEMORY><NAME>VM one"
-    "</NAME><VMID>0</VMID></TEMPLATE></VM>"
+    "<IMAGE><ID>0</ID><UID>127</UID><NAME>The third image</NAME><TYPE>0</TYPE><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/b690e963a810b60538b70784697b5183807f84ff</SOURCE><STATE>0</STATE><RUNNING_VMS>0</RUNNING_VMS><TEMPLATE><BUS><![CDATA[SCSI]]></BUS><ORIGINAL_PATH><![CDATA[/tmp/image_test]]></ORIGINAL_PATH><PROFILE><![CDATA[STUDENT]]></PROFILE></TEMPLATE></IMAGE>"
 };
 
-/*
+
 // This xml dump result has the STIMEs modified to 0000000000
 const string xml_dump =
-    "<VM_POOL><VM><ID>0</ID><UID>1</UID><USERNAME>A user</USERNAME><NAME>VM one"
-    "</NAME><LAST_POLL>0</LAST_POLL><STATE>1</STATE><LCM_STATE>0</LCM_STATE><ST"
-    "IME>0000000000</STIME><ETIME>0</ETIME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</ME"
-    "MORY><CPU>0</CPU><NET_TX>0</NET_TX><NET_RX>0</NET_RX></VM><VM><ID>1</ID><U"
-    "ID>2</UID><USERNAME>B user</USERNAME><NAME>Second VM</NAME><LAST_POLL>0</L"
-    "AST_POLL><STATE>2</STATE><LCM_STATE>0</LCM_STATE><STIME>0000000000</STIME>"
-    "<ETIME>0</ETIME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</MEMORY><CPU>0</CPU><NET_"
-    "TX>0</NET_TX><NET_RX>0</NET_RX></VM></VM_POOL>";
+    "<IMAGE_POOL><IMAGE><ID>0</ID><UID>122</UID><NAME>Image one</NAME><TYPE>0</TYPE><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/b734e8645d3eba91315e851662adf021ee488e34</SOURCE><STATE>0</STATE><RUNNING_VMS>0</RUNNING_VMS></IMAGE><IMAGE><ID>1</ID><UID>262</UID><NAME>Second Image</NAME><TYPE>0</TYPE><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/24939d280a0e29c9eb00bbb7c5e997ba5c4b8667</SOURCE><STATE>0</STATE><RUNNING_VMS>0</RUNNING_VMS></IMAGE><IMAGE><ID>2</ID><UID>127</UID><NAME>The third image</NAME><TYPE>0</TYPE><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/b690e963a810b60538b70784697b5183807f84ff</SOURCE><STATE>0</STATE><RUNNING_VMS>0</RUNNING_VMS></IMAGE></IMAGE_POOL>";
 
 const string xml_dump_where =
-    "<VM_POOL><VM><ID>0</ID><UID>1</UID><USERNAME>A user</USERNAME><NAME>VM one"
-    "</NAME><LAST_POLL>0</LAST_POLL><STATE>1</STATE><LCM_STATE>0</LCM_STATE><ST"
-    "IME>0000000000</STIME><ETIME>0</ETIME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</ME"
-    "MORY><CPU>0</CPU><NET_TX>0</NET_TX><NET_RX>0</NET_RX></VM></VM_POOL>";
+    "<IMAGE_POOL><IMAGE><ID>1</ID><UID>262</UID><NAME>Second Image</NAME><TYPE>0</TYPE><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/24939d280a0e29c9eb00bbb7c5e997ba5c4b8667</SOURCE><STATE>0</STATE><RUNNING_VMS>0</RUNNING_VMS></IMAGE><IMAGE><ID>2</ID><UID>127</UID><NAME>The third image</NAME><TYPE>0</TYPE><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/b690e963a810b60538b70784697b5183807f84ff</SOURCE><STATE>0</STATE><RUNNING_VMS>0</RUNNING_VMS></IMAGE></IMAGE_POOL>";
 
+const string replacement = "0000000000";
 
-//*/
 
 /* ************************************************************************* */
 /* ************************************************************************* */
@@ -96,6 +73,14 @@ class ImagePoolTest : public PoolTest
     CPPUNIT_TEST_SUITE (ImagePoolTest);
 
     ALL_POOLTEST_CPPUNIT_TESTS();
+
+    CPPUNIT_TEST ( update );
+    CPPUNIT_TEST ( get_using_name );
+    CPPUNIT_TEST ( wrong_get_name );
+    CPPUNIT_TEST ( duplicates );
+    CPPUNIT_TEST ( extra_attributes );
+    CPPUNIT_TEST ( dump );
+    CPPUNIT_TEST ( dump_where );
 
     CPPUNIT_TEST_SUITE_END ();
 
@@ -116,7 +101,8 @@ protected:
         int oid;
         return ((ImagePool*)pool)->allocate(uids[index],
                                             templates[index],
-                                            false);
+                                            &oid);
+
     };
 
     void check(int index, PoolObjectSQL* obj)
@@ -125,8 +111,10 @@ protected:
 
         string xml_str = "";
 
-        // Get the xml and replace the STIME to 0, so we can compare it
+        // Get the xml and replace the REGTIME to 0, so we can compare
+        // it.
         ((Image*)obj)->to_xml(xml_str);
+        xml_str.replace( xml_str.find("<REGTIME>")+9, 10, replacement);
 
         CPPUNIT_ASSERT( ((Image*)obj)->get_name() == names[index] );
         CPPUNIT_ASSERT( xml_str == xmls[index]);
@@ -139,6 +127,221 @@ public:
 
 
     /* ********************************************************************* */
+
+
+    void update()
+    {
+        string      description_name    = "DESCRIPTION";
+        string      description_val     = "";
+        string      new_description     = "A new description";
+
+        string      attr_name       = "NEW_ATTRIBUTE";
+        string      attr_val        = "";
+        string      new_attr_value  = "New value";
+
+        string      no_value        = "Some random value";
+
+        ImagePool * ip;
+        Image *     img;
+        int         oid_1;
+
+        ip = static_cast<ImagePool *>(pool);
+        oid_1 = allocate(0);
+
+        img = ip->get(oid_1, true);
+        CPPUNIT_ASSERT( img != 0 );
+
+        // Image object should be cached. Let's change some template attributes
+        img->update_template_attribute(db, description_name, new_description);
+        img->update_template_attribute(db, attr_name,        new_attr_value);
+        img->remove_template_attribute(db, "ORIGINAL_PATH");
+
+        pool->update(img);
+
+        img->unlock();
+
+        img = ip->get(oid_1,false);
+        CPPUNIT_ASSERT( img != 0 );
+
+
+        img->get_template_attribute("DESCRIPTION",   description_val);
+        img->get_template_attribute("NEW_ATTRIBUTE", attr_val);
+        img->get_template_attribute("ORIGINAL_PATH", no_value);
+
+        CPPUNIT_ASSERT( description_val == new_description );
+        CPPUNIT_ASSERT( attr_val        == new_attr_value );
+        CPPUNIT_ASSERT( no_value        == "" );
+
+        //Now force access to DB
+
+        pool->clean();
+        img = ip->get(oid_1,false);
+
+        CPPUNIT_ASSERT( img != 0 );
+
+        description_val = "";
+        attr_val        = "";
+        no_value        = "Random value";
+        img->get_template_attribute("DESCRIPTION",   description_val);
+        img->get_template_attribute("NEW_ATTRIBUTE", attr_val);
+        img->get_template_attribute("ORIGINAL_PATH", no_value);
+
+        CPPUNIT_ASSERT( description_val == new_description );
+        CPPUNIT_ASSERT( attr_val        == new_attr_value );
+        CPPUNIT_ASSERT( no_value        == "" );
+    };
+
+
+    void get_using_name()
+    {
+        int oid_0, oid_1;
+        ImagePool * imp = static_cast<ImagePool *>(pool);
+
+        // Allocate two objects
+        oid_0 = allocate(0);
+        oid_1 = allocate(1);
+
+        // ---------------------------------
+        // Get first object and check its integrity
+        obj = pool->get(oid_0, false);
+        CPPUNIT_ASSERT( obj != 0 );
+        check(0, obj);
+
+        // Get using its name
+        obj = imp->get(names[1], true);
+        CPPUNIT_ASSERT( obj != 0 );
+        obj->unlock();
+
+        check(1, obj);
+
+
+        // ---------------------------------
+        // Clean the cache, forcing the pool to read the objects from the DB
+        pool->clean();
+
+        // Get first object and check its integrity
+        obj = imp->get(names[0], false);
+        check(0, obj);
+
+        // Get using its name
+        obj = imp->get(oid_1, false);
+        check(1, obj);
+    };
+
+
+    void wrong_get_name()
+    {
+        ImagePool * imp = static_cast<ImagePool *>(pool);
+
+        // The pool is empty
+        // Non existing name
+        obj = imp->get("Wrong name", true);
+        CPPUNIT_ASSERT( obj == 0 );
+
+        // Allocate an object
+        allocate(0);
+
+        // Ask again for a non-existing name
+        obj = imp->get("Non existing name", true);
+        CPPUNIT_ASSERT( obj == 0 );
+    }
+
+
+    void duplicates()
+    {
+        int rc, oid;
+        ImagePool * imp = static_cast<ImagePool *>(pool);
+
+        // Allocate an image.
+        rc = imp->allocate(uids[0], templates[0], &oid);
+        CPPUNIT_ASSERT( oid == 0 );
+        CPPUNIT_ASSERT( oid == rc );
+
+        // Try to allocate twice the same image, should fail
+        rc = imp->allocate(uids[0], templates[0], &oid);
+        CPPUNIT_ASSERT( rc  == -1 );
+        CPPUNIT_ASSERT( oid == rc );
+
+        // Try again, with different uid
+        rc = imp->allocate(uids[1], templates[0], &oid);
+        CPPUNIT_ASSERT( rc  == -1 );
+        CPPUNIT_ASSERT( oid == rc );
+    }
+
+    void extra_attributes()
+    {
+        int     oid;
+        string  value = "";
+        Image * img;
+
+        // The third template doen't have a description, but has some
+        // extra attibutes
+        oid = allocate(2);
+        CPPUNIT_ASSERT( oid == 0 );
+
+        pool->clean();
+
+
+        img = ((ImagePool*)pool)->get(oid, false);
+        check(2, img);
+
+        img->get_template_attribute("DESCRIPTION", value);
+        CPPUNIT_ASSERT( value == "" );
+
+        img->get_template_attribute("PROFILE", value);
+        CPPUNIT_ASSERT( value == "STUDENT" );
+    }
+
+
+    void dump()
+    {
+        ImagePool * imp = static_cast<ImagePool*>(pool);
+
+        ostringstream oss;
+        int oid, rc;
+
+        allocate(0);
+        allocate(1);
+        allocate(2);
+
+        rc = imp->dump(oss, "");
+        CPPUNIT_ASSERT(rc == 0);
+
+        string result = oss.str();
+
+        result.replace(88,  10, replacement);
+        result.replace(310, 10, replacement);
+        result.replace(535, 10, replacement);
+
+        CPPUNIT_ASSERT( result == xml_dump );
+    }
+
+    void dump_where()
+    {
+        ImagePool * imp = static_cast<ImagePool*>(pool);
+
+        int oid, rc;
+        ostringstream oss;
+        ostringstream where;
+
+
+        allocate(0);
+        allocate(1);
+        allocate(2);
+
+        where << "oid > 0";
+
+        rc = imp->dump(oss, where.str());
+        CPPUNIT_ASSERT(rc == 0);
+
+        string result = oss.str();
+
+        result.replace(91,  10, replacement);
+        result.replace(316, 10, replacement);
+
+        CPPUNIT_ASSERT( result == xml_dump_where );
+    }
+
     /* ********************************************************************* */
 
 };
