@@ -47,11 +47,11 @@ const string templates[] =
 
 const string xmls[] =
 {
-    "<IMAGE><ID>0</ID><UID>122</UID><NAME>Image one</NAME><TYPE>0</TYPE><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/b734e8645d3eba91315e851662adf021ee488e34</SOURCE><STATE>0</STATE><RUNNING_VMS>0</RUNNING_VMS><TEMPLATE><DESCRIPTION><![CDATA[This is a very long description of an image, and to achieve the longness I will copy this over. This is a very long description of an image, and to achieve the longness I will copy this over. And over. This is a very long description of an image, and to achieve the longness I will copy this over. And over. This is a very long description of an image, and to achieve the longness I will copy this over. And over.This is a very long description of an image, and to achieve the longness I will copy this over.]]></DESCRIPTION><ORIGINAL_PATH><![CDATA[/tmp/image_test]]></ORIGINAL_PATH></TEMPLATE></IMAGE>",
+    "<IMAGE><ID>0</ID><UID>122</UID><NAME>Image one</NAME><TYPE>0</TYPE><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/b734e8645d3eba91315e851662adf021ee488e34</SOURCE><STATE>0</STATE><RUNNING_VMS>0</RUNNING_VMS><TEMPLATE><DESCRIPTION><![CDATA[This is a very long description of an image, and to achieve the longness I will copy this over. This is a very long description of an image, and to achieve the longness I will copy this over. And over. This is a very long description of an image, and to achieve the longness I will copy this over. And over. This is a very long description of an image, and to achieve the longness I will copy this over. And over.This is a very long description of an image, and to achieve the longness I will copy this over.]]></DESCRIPTION><DEV_PREFIX><![CDATA[hd]]></DEV_PREFIX><ORIGINAL_PATH><![CDATA[/tmp/image_test]]></ORIGINAL_PATH></TEMPLATE></IMAGE>",
 
-    "<IMAGE><ID>1</ID><UID>262</UID><NAME>Second Image</NAME><TYPE>0</TYPE><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/24939d280a0e29c9eb00bbb7c5e997ba5c4b8667</SOURCE><STATE>0</STATE><RUNNING_VMS>0</RUNNING_VMS><TEMPLATE><DESCRIPTION><![CDATA[This is a rather short description.]]></DESCRIPTION><ORIGINAL_PATH><![CDATA[/tmp/image_second_test]]></ORIGINAL_PATH></TEMPLATE></IMAGE>",
+    "<IMAGE><ID>1</ID><UID>262</UID><NAME>Second Image</NAME><TYPE>0</TYPE><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/24939d280a0e29c9eb00bbb7c5e997ba5c4b8667</SOURCE><STATE>0</STATE><RUNNING_VMS>0</RUNNING_VMS><TEMPLATE><DESCRIPTION><![CDATA[This is a rather short description.]]></DESCRIPTION><DEV_PREFIX><![CDATA[hd]]></DEV_PREFIX><ORIGINAL_PATH><![CDATA[/tmp/image_second_test]]></ORIGINAL_PATH></TEMPLATE></IMAGE>",
 
-    "<IMAGE><ID>0</ID><UID>127</UID><NAME>The third image</NAME><TYPE>0</TYPE><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/b690e963a810b60538b70784697b5183807f84ff</SOURCE><STATE>0</STATE><RUNNING_VMS>0</RUNNING_VMS><TEMPLATE><BUS><![CDATA[SCSI]]></BUS><ORIGINAL_PATH><![CDATA[/tmp/image_test]]></ORIGINAL_PATH><PROFILE><![CDATA[STUDENT]]></PROFILE></TEMPLATE></IMAGE>"
+    "<IMAGE><ID>0</ID><UID>127</UID><NAME>The third image</NAME><TYPE>0</TYPE><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/b690e963a810b60538b70784697b5183807f84ff</SOURCE><STATE>0</STATE><RUNNING_VMS>0</RUNNING_VMS><TEMPLATE><BUS><![CDATA[SCSI]]></BUS><DEV_PREFIX><![CDATA[hd]]></DEV_PREFIX><ORIGINAL_PATH><![CDATA[/tmp/image_test]]></ORIGINAL_PATH><PROFILE><![CDATA[STUDENT]]></PROFILE></TEMPLATE></IMAGE>"
 };
 
 
@@ -79,6 +79,9 @@ class ImagePoolTest : public PoolTest
     CPPUNIT_TEST ( wrong_get_name );
     CPPUNIT_TEST ( duplicates );
     CPPUNIT_TEST ( extra_attributes );
+    CPPUNIT_TEST ( wrong_templates );
+    CPPUNIT_TEST ( target_generation );
+    CPPUNIT_TEST ( bus_assignment );
     CPPUNIT_TEST ( dump );
     CPPUNIT_TEST ( dump_where );
 
@@ -93,7 +96,7 @@ protected:
 
     PoolSQL* create_pool(SqlDB* db)
     {
-        return new ImagePool(db, "source_prefix", "OS", "IDE");
+        return new ImagePool(db, "source_prefix", "OS", "hd");
     };
 
     int allocate(int index)
@@ -290,6 +293,171 @@ public:
 
         img->get_template_attribute("PROFILE", value);
         CPPUNIT_ASSERT( value == "STUDENT" );
+    }
+
+    void wrong_templates()
+    {
+        int rc;
+        ImagePool * imp = static_cast<ImagePool *>(pool);
+
+        string templates[] =
+        {
+            "ORIGINAL_PATH  = /tmp/image_test\n"
+            "DESCRIPTION    = \"This template lacks name!\"\n",
+
+            "NAME           = \"name A\"\n"
+            "ORIGINAL_PATH  = /tmp/image_test\n"
+            "TYPE           = WRONG\n",
+
+            "NAME           = \"name B\"\n"
+            "TYPE           = DATABLOCK\n"
+            "DESCRIPTION    = \"This type doesn't need original_path\"\n",
+
+            "NAME           = \"name C\"\n"
+            "TYPE           = CDROM\n"
+            "DESCRIPTION    = \"This type needs original_path\"\n",
+
+            "NAME           \"PARSE ERROR\"\n"
+            "TYPE           = WRONG\n",
+
+            "END"
+        };
+
+        int results[] = { -1, -1, 0, -1, -2 };
+
+        int i = 0;
+        while( templates[i] != "END" )
+        {
+
+            imp->allocate(0, templates[i], &rc);
+
+//cout << endl << i << " - rc: " << rc << "  expected: " << results[i] << endl;
+
+            CPPUNIT_ASSERT( rc == results[i] );
+
+            i++;
+        }
+    }
+
+    void target_generation()
+    {
+        ImagePool *         imp = static_cast<ImagePool *>(pool);
+        Image *             img;
+
+        VectorAttribute *   disk;
+        int                 oid;
+        string              value;
+
+        disk = new VectorAttribute("DISK");
+
+        // Allocate an OS type image
+        oid = allocate(0);
+        img = imp->get(oid, false);
+
+        img->get_disk_attribute(disk, 0);
+
+        value = disk->vector_value("TARGET");
+
+        CPPUNIT_ASSERT( value == "hda" );
+
+
+        // clean up
+        delete disk;
+        value = "";
+
+        // This time, set a target for this disk
+        disk = new VectorAttribute("DISK");
+        disk->replace("TARGET", "sdw");
+
+        img->get_disk_attribute(disk, 0);
+
+        value = disk->vector_value("TARGET");
+        CPPUNIT_ASSERT(value == "sdw");
+
+
+        // clean up
+        delete disk;
+        value = "";
+
+        disk = new VectorAttribute("DISK");
+
+        // Allocate a CDROM type image
+        string templ = "NAME = \"name A\" TYPE = CDROM ORIGINAL_PATH = /tmp";
+        imp->allocate(0, templ, &oid);
+
+        CPPUNIT_ASSERT(oid >= 0);
+
+        img = imp->get(oid, false);
+
+        img->get_disk_attribute(disk, 0);
+
+        value = disk->vector_value("TARGET");
+        CPPUNIT_ASSERT(value == "hdc");
+
+
+
+        // clean up
+        delete disk;
+        value = "";
+
+        disk = new VectorAttribute("DISK");
+
+        // Allocate a DATABLOCK type image
+        templ = "NAME = \"name B\" TYPE = DATABLOCK";
+        imp->allocate(0, templ, &oid);
+
+        CPPUNIT_ASSERT(oid >= 0);
+
+        img = imp->get(oid, false);
+
+        img->get_disk_attribute(disk, 0);
+
+        value = disk->vector_value("TARGET");
+        CPPUNIT_ASSERT(value == "hdd");
+
+
+        // clean up
+        delete disk;
+        value = "";
+
+        disk = new VectorAttribute("DISK");
+
+        // Allocate a DATABLOCK type image
+        templ = "NAME = \"name C\" TYPE = DATABLOCK DEV_PREFIX = \"sd\"";
+        imp->allocate(0, templ, &oid);
+
+        CPPUNIT_ASSERT(oid >= 0);
+
+        img = imp->get(oid, false);
+
+        img->get_disk_attribute(disk, 2);
+
+        value = disk->vector_value("TARGET");
+        CPPUNIT_ASSERT(value == "sdf");
+
+    }
+
+
+    void bus_assignment()
+    {
+        ImagePool *         imp = static_cast<ImagePool *>(pool);
+        Image *             img;
+
+        VectorAttribute *   disk;
+        int                 oid;
+        string              value;
+
+        disk = new VectorAttribute("DISK");
+        disk->replace("BUS", "SCSI");
+
+        // Allocate an OS type image
+        oid = allocate(0);
+        img = imp->get(oid, false);
+
+        img->get_disk_attribute(disk, 0);
+
+        value = disk->vector_value("BUS");
+        CPPUNIT_ASSERT( value == "SCSI" );
     }
 
 
