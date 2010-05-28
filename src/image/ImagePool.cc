@@ -120,8 +120,6 @@ int ImagePool::allocate (
         // Generate path to store the image
         tmp_hashstream << uid << ":" << name;
 
-        tmp_hashstream.str(sha1_digest(tmp_hashstream.str()));
-
         tmp_sourcestream << source_prefix << "/";
         tmp_sourcestream << sha1_digest(tmp_hashstream.str());
 
