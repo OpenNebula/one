@@ -44,9 +44,9 @@ public:
               source_prefix(_source_prefix),
               default_dev_prefix(_default_dev_prefix)
     {
-        if (_default_type != "OS" ||
-            _default_type != "CDROM" ||
-            _default_type != "DATABLOCK")
+        if (_default_type != "OS"       &&
+            _default_type != "CDROM"    &&
+            _default_type != "DATABLOCK" )
         {
             NebulaLog::log("IMG", Log::ERROR, 
                      "Bad default for image type, setting OS");
