@@ -363,7 +363,7 @@ string& Image::to_str(string& str) const
         "SOURCE      = "    << source      << endl <<
         "STATE       = "    << state       << endl <<
         "RUNNING_VMS = "    << running_vms << endl <<
-        "TEMPLATE"          << endl        
+        "TEMPLATE"          << endl
                             << image_template.to_str(template_str) 
                             << endl;
 
@@ -400,6 +400,7 @@ bool Image::get_image(bool overwrite)
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
+
   // TODO update?   
 void Image::release_image()
 {
@@ -410,3 +411,72 @@ void Image::release_image()
         state = READY;
     }
 }
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int Image::get_disk_attribute(VectorAttribute * disk, int index)
+{
+    string  target  = "";
+    string  bus     = "";
+
+    // The BUS attribute isn't mandatory.
+
+    get_template_attribute("BUS", bus);
+
+    if( !bus.empty() )  // If the image has a BUS defined ...
+    {
+        string disk_bus = disk->vector_value("BUS");
+
+        if( disk_bus.empty() )  // ... and the disk doesn't have already one
+        {
+            disk->replace("BUS", bus);
+        }
+    }
+
+
+    // If the disk has already a user-defined target, then it will be used.
+    // First, check if it exists.
+    target = disk->vector_value("TARGET");
+
+
+    if ( target.empty() )
+    {
+        // Generate the target from the image's prefix and type
+
+        get_template_attribute("DEV_PREFIX", target);
+
+        switch( type )
+        {
+            case OS:
+                target += "a";
+                break;
+            case CDROM:
+                target += "c";
+                break;
+            case DATABLOCK:
+                // Multiple datablocks can be defined, and they are mounted as
+                // sdd, sde, sdf...
+
+                if( index < 0 )
+                {
+                    return -1;
+                }
+
+                char letter = ('d' + index);
+                target += letter;
+                break;
+        };
+
+        // "Replace" inserts the name-value pair even if it doesn't exist.
+        disk->replace("TARGET", target);
+
+        return 1;
+    }
+
+    return 0;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+

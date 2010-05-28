@@ -36,38 +36,27 @@ class ImagePool : public PoolSQL
 {
 public:
 
-    ImagePool(SqlDB * db,     
+    ImagePool(SqlDB * db,
               const string&   _source_prefix,
               const string&   _default_type,
-              const string&    _default_bus):
+              const string&   _default_dev_prefix):
               PoolSQL(db,Image::table),
-              source_prefix(_source_prefix)
-              {
-                  if (_default_type != "OS" || 
-                      _default_type != "CDROM" ||          
-                      _default_type != "DATABLOCK")
-                      {
-                          NebulaLog::log("IMG", Log::ERROR, 
-                                     "Bad default for image type, setting OS");
-                          default_type = "OS";       
-                      }
-                      else
-                      {
-                          default_type = _default_type;
-                      }
-                      
-                  if (_default_bus != "IDE" || 
-                      _default_bus != "SCSI")
-                      {
-                          NebulaLog::log("IMG", Log::ERROR, 
-                                     "Bad default for bus type, setting IDE");
-                          default_bus = "IDE";
-                      }
-                      else
-                      {
-                          default_bus = _default_bus;
-                      }
-              };
+              source_prefix(_source_prefix),
+              default_dev_prefix(_default_dev_prefix)
+    {
+        if (_default_type != "OS" ||
+            _default_type != "CDROM" ||
+            _default_type != "DATABLOCK")
+        {
+            NebulaLog::log("IMG", Log::ERROR, 
+                     "Bad default for image type, setting OS");
+            default_type = "OS";
+        }
+        else
+        {
+            default_type = _default_type;
+        }
+    };
 
     ~ImagePool(){};
 
@@ -179,9 +168,9 @@ private:
     string              default_type;
     
     /**
-     * Default bus type
+     * Default device prefix
      **/
-    string              default_bus;
+    string              default_dev_prefix;
       
     /**
      *  Factory method to produce Image objects

@@ -55,22 +55,22 @@ public:
      friend ostream& operator<<(ostream& os, Image& i);
      
     // *************************************************************************
-    // Virtual Network Public Methods
+    // Image Public Methods
     // *************************************************************************
 
-	/**
-	 * Function to print the Image object into a string in plain text
-	 *  @param str the resulting string
-	 *  @return a reference to the generated string
-	 */
-	string& to_str(string& str) const;
+    /**
+     * Function to print the Image object into a string in plain text
+     *  @param str the resulting string
+     *  @return a reference to the generated string
+     */
+    string& to_str(string& str) const;
 
-	/**
-	 * Function to print the Image object into a string in XML format
-	 *  @param xml the resulting XML string
-	 *  @return a reference to the generated string
-	 */
-	string& to_xml(string& xml) const;
+    /**
+     * Function to print the Image object into a string in XML format
+     *  @param xml the resulting XML string
+     *  @return a reference to the generated string
+     */
+    string& to_xml(string& xml) const;
 
     /**
      * Get the Image unique identifier IID, that matches the OID of the object
@@ -98,7 +98,7 @@ public:
     {
         return name;
     };
-    
+
     /**
      *  Set enum type
      *     @return 0 on success, -1 otherwise
@@ -133,13 +133,25 @@ public:
      * @return boolean true if the image can be used
      */
     bool get_image(bool overwrite);
-    
+
 
     /**
      * Releases an image being used by a VM
      */
     void release_image();
- 
+
+    /**
+     * Modifies the given disk attribute to set the target value.
+     *   * OS images will be mounted at prefix + a:  hda, sda.
+     *   * Prefix + b is reserved for the contex cdrom.
+     *   * CDROM images will be at prefix + c:  hdc, sdc.
+     *   * Several DATABLOCK images can be mounted, they will be set to
+     *   prefix + (d + index) :   hdd, hde, hdf...
+     * returns: 0 if the disk was not modified
+     *          1 if the disk was modified correctly
+     *         -1 in case of error
+     */
+    int get_disk_attribute(VectorAttribute * disk, int index);
 
     // ------------------------------------------------------------------------
     // Template

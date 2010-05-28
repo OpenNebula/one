@@ -32,6 +32,7 @@ int ImagePool::allocate (
         string  source         = "";
         string  type           = "";
         string  original_path  = "";
+        string  dev_prefix     = "";
 
         ostringstream          tmp_hashstream;
         ostringstream          tmp_sourcestream;
@@ -111,6 +112,19 @@ int ImagePool::allocate (
                original_path.empty() == true      )
         {
             goto error_original_path;
+        }
+
+        // DEV_PREFIX template attribute must exist for every image, if it
+        // isn't present it will be set to the default value.
+
+        img->get_template_attribute("DEV_PREFIX", dev_prefix);
+
+        if( dev_prefix.empty() )
+        {
+            SingleAttribute * dev_att = 
+                        new SingleAttribute("DEV_PREFIX", default_dev_prefix);
+
+            img->image_template.set(dev_att);
         }
 
 
