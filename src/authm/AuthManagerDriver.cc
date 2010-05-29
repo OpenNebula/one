@@ -81,8 +81,6 @@ void AuthManagerDriver::protocol(
         {
             if ( action == "LOG" )
             {
-                string info;
-
                 is.clear();
                 getline(is,info);
                 NebulaLog::log("AuM",Log::INFO, info.c_str());
@@ -96,20 +94,17 @@ void AuthManagerDriver::protocol(
 
     if (action == "LOG")
     {
-        string info;
-
         getline(is,info);
         NebulaLog::log("AuM",Log::INFO,info.c_str());
     }
     else if (result == "SUCCESS")
     {
-        authm->notify(id,true,info);
+        authm->notify_request(id,true,info);
     }
     else
     {
         getline(is,info);
-
-        authm->notify(id,false,info);
+        authm->notify_request(id,false,info);
     }
 
     return;

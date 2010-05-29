@@ -37,7 +37,7 @@ extern "C" void * authm_action_loop(void *arg)
 
     authm->am.loop(0,0);
 
-    NebulaLog::log("TrM",Log::INFO,"Authorization Manager stopped.");
+    NebulaLog::log("AuM",Log::INFO,"Authorization Manager stopped.");
 
     return 0;
 }
@@ -101,7 +101,7 @@ void AuthManager::do_action(const string &action, void * arg)
 {
     AuthRequest * request;
 
-    if (arg == 0)
+    if ( arg == 0 && action != ACTION_FINALIZE )
     {
         return;
     }
@@ -137,7 +137,6 @@ void AuthManager::do_action(const string &action, void * arg)
 void AuthManager::authenticate_action(AuthRequest * ar)
 {
     const AuthManagerDriver * authm_md;
-    int   id;
 
     // ------------------------------------------------------------------------
     // Get the driver
@@ -154,13 +153,13 @@ void AuthManager::authenticate_action(AuthRequest * ar)
     // Queue the request
     // ------------------------------------------------------------------------
 
-    id = add_request(ar);
+    ar->id = add_request(ar);
 
     // ------------------------------------------------------------------------
     // Make the request to the driver
     // ------------------------------------------------------------------------
 
-    authm_md->authenticate(id,ar->uid,ar->challenge);
+    authm_md->authenticate(ar->id,ar->uid,ar->challenge);
 
     return;
 
@@ -176,7 +175,6 @@ error_driver:
 void AuthManager::authorize_action(AuthRequest * ar)
 {
     const AuthManagerDriver * authm_md;
-    int    id;
     string auths;
 
     // ------------------------------------------------------------------------
@@ -194,7 +192,7 @@ void AuthManager::authorize_action(AuthRequest * ar)
     // Queue the request
     // ------------------------------------------------------------------------
 
-    id = add_request(ar);
+    ar->id = add_request(ar);
 
     // ------------------------------------------------------------------------
     // Make the request to the driver
@@ -202,7 +200,7 @@ void AuthManager::authorize_action(AuthRequest * ar)
 
     auths = ar->get_auths();
 
-    authm_md->authorize(id, ar->uid, auths);
+    authm_md->authorize(ar->id, ar->uid, auths);
 
     return;
 
@@ -224,7 +222,7 @@ int AuthManager::add_request(AuthRequest *ar)
 
     id = auth_id++;
 
-    auth_requests.insert(auth_requests.end(),make_pair(auth_id,ar));
+    auth_requests.insert(auth_requests.end(),make_pair(id,ar));
 
     unlock();
 
@@ -237,6 +235,7 @@ AuthRequest * AuthManager::get_request(int id)
 {
     AuthRequest * ar = 0;
     map<int,AuthRequest *>::iterator it;
+    ostringstream oss;
 
     lock();
 
@@ -245,9 +244,9 @@ AuthRequest * AuthManager::get_request(int id)
     if ( it != auth_requests.end())
     {
         ar = it->second;
-    }
 
-    auth_requests.erase(it);
+        auth_requests.erase(it);
+    }
 
     unlock();
 
@@ -257,7 +256,7 @@ AuthRequest * AuthManager::get_request(int id)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void AuthManager::notify(int auth_id, bool result, const string& message)
+void AuthManager::notify_request(int auth_id,bool result,const string& message)
 {
 
     AuthRequest * ar;

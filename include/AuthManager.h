@@ -32,15 +32,17 @@ class AuthManager;
  *  request to the AuthManager. The result of the request will be stored
  *  in the result and message attributes of this class.
  */
-class AuthRequest
+class AuthRequest : public ActionListener
 {
 public:
-    AuthRequest(ActionManager *_am, int _uid, const string& _auth_driver):
+    AuthRequest(int _uid, const string& _auth_driver):
         result(false),
-        am(_am),
+        timeout(false),
         auth_driver(_auth_driver),
         uid(_uid)
-          {};
+    {
+        am.addListener(this);
+    };
 
     ~AuthRequest(){};
 
@@ -127,7 +129,15 @@ public:
      */
     void notify()
     {
-        am->trigger(ActionListener::ACTION_FINALIZE,0);
+        am.trigger(ActionListener::ACTION_FINALIZE,0);
+    };
+
+    /**
+     *  Wait for the AuthRequest to be completed
+     */
+    void wait(time_t timeout=30)
+    {
+        am.loop(timeout,0);
     };
 
     /**
@@ -140,6 +150,16 @@ public:
      */
     string          message;
 
+    /**
+     *  Time out
+     */
+    bool            timeout;
+
+    /**
+     *  Identification of this request
+     */
+    int             id;
+
 private:
 
     friend class AuthManager;
@@ -147,7 +167,7 @@ private:
     /**
      *  The ActionManager that will be notify when the request is ready.
      */
-    ActionManager * am;
+    ActionManager am;
 
     /**
      *  The name of the Authorization driver to use with this request
@@ -168,6 +188,20 @@ private:
      *  A list of authorization requests
      */
     vector<string> auths;
+
+    /**
+     *
+     */
+    void do_action(const string &name, void *args)
+    {
+        if (name == ACTION_TIMER)
+        {
+            result  = false;
+            timeout = true;
+
+            am.trigger(ActionListener::ACTION_FINALIZE,0);
+        }
+    }
 };
 
 /* -------------------------------------------------------------------------- */
@@ -184,6 +218,7 @@ public:
             MadManager(_mads)
     {
         am.addListener(this);
+        pthread_mutex_init(&mutex,0);
     };
 
     ~AuthManager(){};
@@ -207,7 +242,7 @@ public:
 
     /**
      *  This functions starts the associated listener thread, and creates a
-     *  new thread for the Information Manager. This thread will wait in
+     *  new thread for the AuthManager. This thread will wait in
      *  an action loop till it receives ACTION_FINALIZE.
      *    @return 0 on success.
      */
@@ -233,7 +268,21 @@ public:
     /**
      *  Notify the result of an auth request
      */
-    void notify(int auth_id, bool result, const string& message);
+    void notify_request(int auth_id, bool result, const string& message);
+
+    /**
+     *  Discards a pending request. Call this before freeing not notified or
+     *  timeout requests.
+     */
+    void discard_request(int auth_id)
+    {
+        lock();
+
+        auth_requests.erase(auth_id);
+
+        unlock();
+    }
+
 
 private:
     /**
