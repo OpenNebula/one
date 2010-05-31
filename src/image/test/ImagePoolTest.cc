@@ -435,6 +435,8 @@ public:
         value = disk->vector_value("TARGET");
         CPPUNIT_ASSERT(value == "sdf");
 
+        // clean up
+        delete disk;
     }
 
 
@@ -458,6 +460,9 @@ public:
 
         value = disk->vector_value("BUS");
         CPPUNIT_ASSERT( value == "SCSI" );
+
+        // clean up
+        delete disk;
     }
 
 
