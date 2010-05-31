@@ -74,6 +74,7 @@ class ImagePoolTest : public PoolTest
 
     ALL_POOLTEST_CPPUNIT_TESTS();
 
+    CPPUNIT_TEST ( names_initialization );
     CPPUNIT_TEST ( update );
     CPPUNIT_TEST ( get_using_name );
     CPPUNIT_TEST ( wrong_get_name );
@@ -131,6 +132,34 @@ public:
 
     /* ********************************************************************* */
 
+    void names_initialization()
+    {
+        ImagePool * imp;
+        Image *     img;
+
+        // Allocate 2 users, so they are written to the DB.
+        allocate(0);
+        allocate(2);
+
+        // Create a new pool, using the same DB. This new pool should read the
+        // allocated images.
+        imp = new ImagePool(db, "source_prefix", "OS", "hd");
+
+        img = imp->get(names[0], false);
+        CPPUNIT_ASSERT( img != 0 );
+
+        img = imp->get(names[1], false);
+        CPPUNIT_ASSERT( img == 0 );
+
+        img = imp->get(names[2], false);
+        CPPUNIT_ASSERT( img != 0 );
+
+
+        delete imp;
+    }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
     void update()
     {
@@ -194,6 +223,8 @@ public:
         CPPUNIT_ASSERT( no_value        == "" );
     };
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
     void get_using_name()
     {
@@ -249,6 +280,8 @@ public:
         CPPUNIT_ASSERT( obj == 0 );
     }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
     void duplicates()
     {
@@ -270,6 +303,9 @@ public:
         CPPUNIT_ASSERT( rc  == -1 );
         CPPUNIT_ASSERT( oid == rc );
     }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
     void extra_attributes()
     {
@@ -294,6 +330,9 @@ public:
         img->get_template_attribute("PROFILE", value);
         CPPUNIT_ASSERT( value == "STUDENT" );
     }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
     void wrong_templates()
     {
@@ -338,6 +377,9 @@ public:
             i++;
         }
     }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
     void target_generation()
     {
@@ -439,6 +481,8 @@ public:
         delete disk;
     }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
     void bus_source_assignment()
     {
@@ -491,6 +535,8 @@ public:
         delete disk;
     }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
     void dump()
     {
@@ -514,6 +560,9 @@ public:
 
         CPPUNIT_ASSERT( result == xml_dump );
     }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
     void dump_where()
     {
