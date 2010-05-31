@@ -420,6 +420,11 @@ int Image::get_disk_attribute(VectorAttribute * disk, int index)
     string  target  = "";
     string  bus     = "";
 
+
+    // SOURCE attribute
+    disk->replace("SOURCE", source);
+
+
     // The BUS attribute isn't mandatory.
 
     get_template_attribute("BUS", bus);
@@ -470,8 +475,6 @@ int Image::get_disk_attribute(VectorAttribute * disk, int index)
 
         // "Replace" inserts the name-value pair even if it doesn't exist.
         disk->replace("TARGET", target);
-
-        return 1;
     }
 
     return 0;

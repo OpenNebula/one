@@ -141,15 +141,16 @@ public:
     void release_image();
 
     /**
-     * Modifies the given disk attribute to set the target value.
-     *   * OS images will be mounted at prefix + a:  hda, sda.
-     *   * Prefix + b is reserved for the contex cdrom.
-     *   * CDROM images will be at prefix + c:  hdc, sdc.
-     *   * Several DATABLOCK images can be mounted, they will be set to
-     *   prefix + (d + index) :   hdd, hde, hdf...
-     * returns: 0 if the disk was not modified
-     *          1 if the disk was modified correctly
-     *         -1 in case of error
+     * Modifies the given disk attribute adding the following attributes:
+     *  * SOURCE: the file-path.
+     *  * BUS:    will only be set if the Image's definition includes it.
+     *  * TARGET: the value set depends on:
+     *    - OS images will be mounted at prefix + a:  hda, sda.
+     *    - Prefix + b is reserved for the contex cdrom.
+     *    - CDROM images will be at prefix + c:  hdc, sdc.
+     *    - Several DATABLOCK images can be mounted, they will be set to
+     *      prefix + (d + index) :   hdd, hde, hdf...
+     * returns: 0 on success, -1 in case of error.
      */
     int get_disk_attribute(VectorAttribute * disk, int index);
 

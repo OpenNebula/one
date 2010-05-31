@@ -81,7 +81,7 @@ class ImagePoolTest : public PoolTest
     CPPUNIT_TEST ( extra_attributes );
     CPPUNIT_TEST ( wrong_templates );
     CPPUNIT_TEST ( target_generation );
-    CPPUNIT_TEST ( bus_assignment );
+    CPPUNIT_TEST ( bus_source_assignment );
     CPPUNIT_TEST ( dump );
     CPPUNIT_TEST ( dump_where );
 
@@ -440,7 +440,7 @@ public:
     }
 
 
-    void bus_assignment()
+    void bus_source_assignment()
     {
         ImagePool *         imp = static_cast<ImagePool *>(pool);
         Image *             img;
@@ -449,17 +449,43 @@ public:
         int                 oid;
         string              value;
 
-        disk = new VectorAttribute("DISK");
-        disk->replace("BUS", "SCSI");
-
         // Allocate an OS type image
         oid = allocate(0);
         img = imp->get(oid, false);
+
+        // ---------------------------------------------------------------------
+        // A disk without a BUS attribute should not have it added.
+        disk = new VectorAttribute("DISK");
+
+        img->get_disk_attribute(disk, 0);
+
+        value = "";
+        value = disk->vector_value("BUS");
+        CPPUNIT_ASSERT( value == "" );
+
+        value = "";
+        value = disk->vector_value("SOURCE");
+        CPPUNIT_ASSERT( value == 
+                    "source_prefix/7e997f5fdc26712ac64eac8385fc81632b4bf024" );
+
+        // clean up
+        delete disk;
+
+        // ---------------------------------------------------------------------
+        // A disk with a BUS attribute should not have it overwritten.
+        disk = new VectorAttribute("DISK");
+        disk->replace("BUS", "SCSI");
+
 
         img->get_disk_attribute(disk, 0);
 
         value = disk->vector_value("BUS");
         CPPUNIT_ASSERT( value == "SCSI" );
+
+        value = "";
+        value = disk->vector_value("SOURCE");
+        CPPUNIT_ASSERT( value ==
+                    "source_prefix/7e997f5fdc26712ac64eac8385fc81632b4bf024" );
 
         // clean up
         delete disk;
