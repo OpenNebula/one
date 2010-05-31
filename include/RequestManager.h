@@ -22,6 +22,7 @@
 #include "HostPool.h"
 #include "UserPool.h"
 #include "VirtualNetworkPool.h"
+#include "ImagePool.h"
 
 #include <xmlrpc-c/base.hpp>
 #include <xmlrpc-c/registry.hpp>
@@ -42,10 +43,11 @@ public:
         HostPool *              _hpool,
         VirtualNetworkPool *    _vnpool,
         UserPool           *    _upool,
+        ImagePool          *    _ipool,
         int                     _port,
         string                  _xml_log_file)
             :vmpool(_vmpool),hpool(_hpool),vnpool(_vnpool),upool(_upool),
-            port(_port),socket_fd(-1),xml_log_file(_xml_log_file)
+            ipool(_ipool),port(_port),socket_fd(-1),xml_log_file(_xml_log_file)
     {
         am.addListener(this);
     };
@@ -118,6 +120,11 @@ private:
      *  Pointer to the User Pool, to access users
      */
     UserPool           *    upool;
+    
+    /**
+     *  Pointer to the Image Pool, to access images
+     */
+    ImagePool          *    ipool;
 
     /**
      *  Port number where the connection will be open
@@ -653,6 +660,57 @@ private:
     };
 
 };
+
+    /* ---------------------------------------------------------------------- */
+    /*                      Image Pool Interface                              */
+    /* ---------------------------------------------------------------------- */
+
+
+    class ImageAllocate: public xmlrpc_c::method
+    {
+    public:
+        UserAllocate(UserPool * _upool):upool(_upool)
+        {
+            _signature="A:sss";
+            _help="Creates a new user";
+        };
+
+        ~UserAllocate(){};
+
+        void execute(
+            xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP);
+
+    private:
+        UserPool * upool;
+    };
+    
+    /* ---------------------------------------------------------------------- */
+
+    class ImagePoolInfo: public xmlrpc_c::method
+    {
+    public:
+        ImagePoolInfo(ImagePool * _ipool,
+                      UserPool  * _upool):
+                            ipool(_ipool),
+                            upool(_upool)
+        {
+            _signature="A:ss";
+            _help="Allocates an image in the pool";
+        };
+
+        ~ImagePoolInfo(){};
+
+        void execute(
+            xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP);
+
+    private:
+        ImagePool * ipool;
+        UserPool  * upool;
+    };    
+    
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
