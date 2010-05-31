@@ -39,24 +39,7 @@ public:
     ImagePool(SqlDB * db,
               const string&   _source_prefix,
               const string&   _default_type,
-              const string&   _default_dev_prefix):
-              PoolSQL(db,Image::table),
-              source_prefix(_source_prefix),
-              default_dev_prefix(_default_dev_prefix)
-    {
-        if (_default_type != "OS"       &&
-            _default_type != "CDROM"    &&
-            _default_type != "DATABLOCK" )
-        {
-            NebulaLog::log("IMG", Log::ERROR, 
-                     "Bad default for image type, setting OS");
-            default_type = "OS";
-        }
-        else
-        {
-            default_type = _default_type;
-        }
-    };
+              const string&   _default_dev_prefix);
 
     ~ImagePool(){};
 
@@ -190,7 +173,16 @@ private:
      *    @return 0 on success
      */
     int dump_cb(void * _oss, int num, char **values, char **names);
-    
+
+    /**
+     *  Callback function to build the image_names map
+     *    @param num the number of columns read from the DB
+     *    @param names the column names
+     *    @param vaues the column values
+     *    @return 0 on success
+     */
+    int init_cb(void *nil, int num, char **values, char **names);
+
     /**
      *  "Encrypts" the password with SHA1 digest
      *  @param password

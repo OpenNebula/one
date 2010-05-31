@@ -22,6 +22,68 @@
 #include <openssl/evp.h>
 #include <iomanip>
 
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int ImagePool::init_cb(void *nil, int num, char **values, char **names)
+{
+    if ( num == 0 || values == 0 || values[0] == 0 )
+    {
+        return -1;
+    }
+
+    image_names.insert(make_pair(values[1],atoi(values[0])));
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+ImagePool::ImagePool(   SqlDB * db,
+                        const string&   _source_prefix,
+                        const string&   _default_type,
+                        const string&   _default_dev_prefix):
+
+                        PoolSQL(db,Image::table),
+                        source_prefix(_source_prefix),
+                        default_dev_prefix(_default_dev_prefix)
+{
+    ostringstream   sql;
+    int             rc;
+
+    // Set default type
+    if (_default_type != "OS"       &&
+        _default_type != "CDROM"    &&
+        _default_type != "DATABLOCK" )
+    {
+        NebulaLog::log("IMG", Log::ERROR,
+                 "Bad default for image type, setting OS");
+        default_type = "OS";
+    }
+    else
+    {
+        default_type = _default_type;
+    }
+
+    // Read from the DB the existing images, and build the ID:Name map
+    set_callback(static_cast<Callbackable::Callback>(&ImagePool::init_cb));
+
+    sql  << "SELECT oid, name FROM " <<  Image::table;
+
+    rc = db->exec(sql, this);
+
+    if ( rc != 0 )
+    {
+        NebulaLog::log("IMG", Log::ERROR,
+                 "Could not load the existing images from the DB.");
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int ImagePool::allocate (
         int            uid,
         const  string& stemplate,
