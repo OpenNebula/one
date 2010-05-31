@@ -42,9 +42,9 @@ class AuthManagerTest : public CppUnit::TestFixture
     CPPUNIT_TEST_SUITE (AuthManagerTest);
 
     CPPUNIT_TEST (load);
-
     CPPUNIT_TEST (timeout);
     CPPUNIT_TEST (authenticate);
+    CPPUNIT_TEST (authorize);
 
     CPPUNIT_TEST_SUITE_END ();
 
@@ -152,6 +152,37 @@ public:
         CPPUNIT_ASSERT(0==0);
     }
 
+
+    void authorize()
+    {
+        int         rc;
+        AuthRequest ar(2,"dummy");
+
+        rc = am->start();
+
+        CPPUNIT_ASSERT(rc==0);
+
+        am->load_mads(0);
+
+        string astr="CREATION:VM:-1 USAGE:IMAGE:2 USAGE:NET:4 MANAGE:HOST:3";
+
+        ar.add_auth(AuthRequest::CREATION,AuthRequest::VM,-1);
+        ar.add_auth(AuthRequest::USAGE,AuthRequest::IMAGE,2);
+        ar.add_auth(AuthRequest::USAGE,AuthRequest::NET,4);
+        ar.add_auth(AuthRequest::MANAGE,AuthRequest::HOST,3);
+
+        am->trigger(AuthManager::AUTHORIZE,&ar);
+        ar.wait();
+
+        CPPUNIT_ASSERT(ar.result==false);
+        CPPUNIT_ASSERT(ar.message==astr);
+
+        am->trigger(AuthManager::FINALIZE,0);
+
+        pthread_join(am->get_thread_id(),0);
+
+        CPPUNIT_ASSERT(0==0);
+    }
 private:
     AuthManager * am;
 
