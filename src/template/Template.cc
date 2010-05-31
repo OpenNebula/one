@@ -205,6 +205,33 @@ int Template::remove(const string& name, vector<Attribute *>& values)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int Template::erase(const string& name)
+{
+    int                     removed;
+    int                     num_attr;
+    vector<Attribute *>     attrs;
+
+    // Call remove
+    removed = remove(name, attrs);
+
+    // Clear attrs
+    if ((num_attr = (int) attrs.size()) > 0)
+    {
+        for (int i = 0; i < num_attr ; i++)
+        {
+            if (attrs[i] != 0)
+            {
+                delete attrs[i];
+            }
+        }
+    }
+
+    return removed;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int Template::get(
     const string& name,
     vector<const Attribute*>& values) const

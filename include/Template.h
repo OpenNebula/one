@@ -117,6 +117,14 @@ public:
         const string&        name,
         vector<Attribute *>& values);
 
+
+    /**
+     *  Removes an attribute from the template, and frees the attributes.
+     *    @param name of the attribute
+     *    @returns the number of attributes removed
+     */
+    virtual int erase(const string& name);
+
     /**
      *  Gets all the attributes with the given name.
      *    @param name the attribute name.
