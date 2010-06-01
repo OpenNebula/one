@@ -42,6 +42,7 @@ env.Append(LIBS=[
     'nebula_um',
     'nebula_mad',
     'nebula_template',
+    'nebula_image',
     'nebula_pool',
     'nebula_host',
     'nebula_vnm',

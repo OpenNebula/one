@@ -669,13 +669,13 @@ private:
     class ImageAllocate: public xmlrpc_c::method
     {
     public:
-        UserAllocate(UserPool * _upool):upool(_upool)
+        ImageAllocate(UserPool * _upool):upool(_upool)
         {
             _signature="A:sss";
             _help="Creates a new user";
         };
 
-        ~UserAllocate(){};
+        ~ImageAllocate(){};
 
         void execute(
             xmlrpc_c::paramList const& paramList,
@@ -683,7 +683,32 @@ private:
 
     private:
         UserPool * upool;
-    };
+    };  
+    
+    /* ---------------------------------------------------------------------- */
+
+    class ImageInfo: public xmlrpc_c::method
+    {
+    public:
+        ImageInfo(ImagePool * _ipool,
+                      UserPool  * _upool):
+                            ipool(_ipool),
+                            upool(_upool)
+        {
+            _signature="A:ss";
+            _help="Allocates an image in the pool";
+        };
+
+        ~ImageInfo(){};
+
+        void execute(
+            xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP);
+
+    private:
+        ImagePool * ipool;
+        UserPool  * upool;
+    }; 
     
     /* ---------------------------------------------------------------------- */
 
@@ -708,7 +733,7 @@ private:
     private:
         ImagePool * ipool;
         UserPool  * upool;
-    };    
+    };
     
 
 /* -------------------------------------------------------------------------- */

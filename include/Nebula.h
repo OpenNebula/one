@@ -340,6 +340,7 @@ private:
     HostPool           * hpool;
     VirtualNetworkPool * vnpool;
     UserPool           * upool;
+    ImagePool          * ipool;
 
     // ---------------------------------------------------------------
     // Nebula Managers
