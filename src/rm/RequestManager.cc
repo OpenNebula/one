@@ -269,6 +269,9 @@ void RequestManager::register_xml_methods()
     
     xmlrpc_c::methodPtr userpool_info(new    
         RequestManager::UserPoolInfo(upool));
+        
+    xmlrpc_c::methodPtr image_info(new    
+        RequestManager::ImageInfo(ipool, upool));
 
     /* VM related methods  */    
         
@@ -305,6 +308,10 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.user.delete",   user_delete);
 
     RequestManagerRegistry.addMethod("one.userpool.info", userpool_info);
+    
+    /* Image related methods*/
+
+    RequestManagerRegistry.addMethod("one.image.info",    image_info);
     
 };
 

@@ -658,9 +658,7 @@ private:
     private:
         UserPool * upool;
     };
-
-};
-
+    
     /* ---------------------------------------------------------------------- */
     /*                      Image Pool Interface                              */
     /* ---------------------------------------------------------------------- */
@@ -691,9 +689,9 @@ private:
     {
     public:
         ImageInfo(ImagePool * _ipool,
-                      UserPool  * _upool):
-                            ipool(_ipool),
-                            upool(_upool)
+                  UserPool  * _upool):
+                      ipool(_ipool),
+                      upool(_upool)
         {
             _signature="A:ss";
             _help="Allocates an image in the pool";
@@ -734,6 +732,8 @@ private:
         ImagePool * ipool;
         UserPool  * upool;
     };
+
+};
     
 
 /* -------------------------------------------------------------------------- */

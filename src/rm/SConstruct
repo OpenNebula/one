@@ -34,6 +34,7 @@ source_files=[
     'RequestManagerHostInfo.cc',
     'RequestManagerHostPoolInfo.cc',
     'RequestManagerHostEnable.cc',
+    'RequestManagerImageInfo.cc',
     'RequestManagerVirtualNetworkAllocate.cc',
     'RequestManagerVirtualNetworkInfo.cc',
     'RequestManagerVirtualNetworkPoolInfo.cc',
