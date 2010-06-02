@@ -124,6 +124,12 @@ public:
     {
         Image::bootstrap(_db);
     };
+    
+    /**
+     * Get the template table name
+     *  @return string with the name of the template table
+     */
+    string get_template_table_name();
 
     /**
      *  Dumps the Image pool in XML format. A filter can be also added to the

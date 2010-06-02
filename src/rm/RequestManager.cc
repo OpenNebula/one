@@ -270,8 +270,14 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr userpool_info(new    
         RequestManager::UserPoolInfo(upool));
         
+    xmlrpc_c::methodPtr image_allocate(new    
+        RequestManager::ImageAllocate(ipool, upool));
+        
     xmlrpc_c::methodPtr image_info(new    
         RequestManager::ImageInfo(ipool, upool));
+        
+    xmlrpc_c::methodPtr imagepool_info(new    
+        RequestManager::ImagePoolInfo(ipool, upool));
 
     /* VM related methods  */    
         
@@ -310,8 +316,11 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.userpool.info", userpool_info);
     
     /* Image related methods*/
+    
+    RequestManagerRegistry.addMethod("one.image.allocate", image_allocate);
+    RequestManagerRegistry.addMethod("one.image.info",     image_info);        
 
-    RequestManagerRegistry.addMethod("one.image.info",    image_info);
+    RequestManagerRegistry.addMethod("one.imagepool.info", imagepool_info);
     
 };
 

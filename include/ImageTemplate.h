@@ -35,6 +35,7 @@ public:
 
 private:
     friend class Image;
+    friend class ImagePool;
     
     static const char * table;
     

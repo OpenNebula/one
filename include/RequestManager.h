@@ -646,7 +646,7 @@ private:
         UserPoolInfo(UserPool * _upool):upool(_upool)
         {
             _signature="A:s";
-            _help="Creates a new user";
+            _help="Returns content of the user pool";
         };
 
         ~UserPoolInfo(){};
@@ -667,10 +667,13 @@ private:
     class ImageAllocate: public xmlrpc_c::method
     {
     public:
-        ImageAllocate(UserPool * _upool):upool(_upool)
+        ImageAllocate(ImagePool * _ipool,
+                      UserPool * _upool):
+                            ipool(_ipool),
+                            upool(_upool)
         {
-            _signature="A:sss";
-            _help="Creates a new user";
+            _signature="A:ss";
+            _help="Creates a new image";
         };
 
         ~ImageAllocate(){};
@@ -680,7 +683,8 @@ private:
             xmlrpc_c::value *   const  retvalP);
 
     private:
-        UserPool * upool;
+        ImagePool * ipool;
+        UserPool  * upool;
     };  
     
     /* ---------------------------------------------------------------------- */
@@ -718,8 +722,8 @@ private:
                             ipool(_ipool),
                             upool(_upool)
         {
-            _signature="A:ss";
-            _help="Allocates an image in the pool";
+            _signature="A:si";
+            _help="Returns content of image pool attending to the filter flag";
         };
 
         ~ImagePoolInfo(){};
