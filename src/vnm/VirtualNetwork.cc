@@ -437,7 +437,10 @@ int VirtualNetwork::vn_drop(SqlDB * db)
 
     vn_template.drop(db);
 
-    leases->drop(db);
+    if ( leases != 0 )
+    {
+        leases->drop(db);
+    }
 
     oss << "DELETE FROM " << table << " WHERE OID=" << oid;
 
