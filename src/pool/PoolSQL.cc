@@ -233,9 +233,12 @@ void PoolSQL::replace()
         }
         else
         {
-            delete index->second;
+            PoolObjectSQL * tmp_ptr;
 
+            tmp_ptr = index->second;
             pool.erase(index);
+
+            delete tmp_ptr;
 
             oid_queue.pop();
             removed = true;
@@ -292,16 +295,12 @@ int PoolSQL::search(
     ostringstream   sql;
     int             rc;
 
-    lock();
-
     set_callback(static_cast<Callbackable::Callback>(&PoolSQL::search_cb),
                  static_cast<void *>(&oids));
 
     sql  << "SELECT oid FROM " <<  table << " WHERE " << where;
 
     rc = db->exec(sql, this);
-
-    unlock();
 
     return rc;
 }

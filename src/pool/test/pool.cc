@@ -28,6 +28,8 @@
 #include "PoolSQL.h"
 #include "TestPoolSQL.h"
 #include "SqliteDB.h"
+#include "MySqlDB.h"
+#include "SqlDB.h"
 
 using namespace std;
 
@@ -45,7 +47,7 @@ class PoolTest : public CppUnit::TestFixture
 
 private:
     TestPool * pool;
-    SqliteDB * db;
+    SqlDB * db;
 
     int create_allocate(int n, string st)
     {
@@ -58,16 +60,36 @@ public:
     PoolTest(){};
 
     ~PoolTest(){};
-  
+
     void setUp()
     {
-        string db_name = "test.db";
-        unlink("test.db");
-        
-        db = new SqliteDB(db_name);
+        string db_name = "testdb";
+
+        if (true)
+        {
+            db = new MySqlDB("localhost","oneadmin","oneadmin",NULL);
+
+            ostringstream   oss1;
+            oss1 << "DROP DATABASE IF EXISTS " << db_name;
+            db->exec(oss1);
+
+            ostringstream   oss;
+            oss << "CREATE DATABASE " << db_name;
+            db->exec(oss);
+
+            ostringstream   oss2;
+            oss2 << "use " << db_name;
+            db->exec(oss2);
+        }
+        else
+        {
+            unlink(db_name.c_str());
+
+            db = new SqliteDB(db_name);
+        }
 
         TestObjectSQL::bootstrap(db);
-        
+
         pool = new TestPool(db);
     };
 
@@ -136,7 +158,7 @@ public:
 
         pool->clean();
         obj = pool->get(oid,true);
-        CPPUNIT_ASSERT(obj == 0);        
+        CPPUNIT_ASSERT(obj == 0);
     };
 
     void search()
@@ -153,14 +175,14 @@ public:
         const char *    table   = "test_pool";
         string          where   = "text = '" + stB + "'";
         int             ret;
-        
+
         ret = pool->search(results, table, where);
         CPPUNIT_ASSERT(ret              == 0);
         CPPUNIT_ASSERT(results.size()  == 1);
         CPPUNIT_ASSERT(results.at(0)   == oidB);
 
         results.erase(results.begin(), results.end());
-        
+
         where = "number < 18";
 
         ret = pool->search(results, table, where);
@@ -175,15 +197,15 @@ public:
         TestObjectSQL *obj;
         TestObjectSQL *obj_lock;
 
-	//pin object in the cache, it can't be removed - 
+	//pin object in the cache, it can't be removed -
 	for (int i=0 ; i < 499 ; i++)
         {
             create_allocate(i,"A Test object");
-	    
+
 	    obj_lock = pool->get(i, true);
             CPPUNIT_ASSERT(obj_lock != 0);
         }
-        
+
         for (int i=499 ; i < 2000 ; i++)
         {
             create_allocate(i,"A Test object");
@@ -200,7 +222,7 @@ public:
         }
 
 	for (int i=0 ; i < 499 ; i++)
-        {	    
+        {
 	    obj_lock = pool->get(i, false);//pin object in the cache, it can't be removed
 	    obj_lock->unlock();
         }
@@ -219,6 +241,6 @@ int main(int argc, char ** argv)
     runner.addTest( PoolTest::suite() );
     runner.run();
     NebulaLog::finalize_log_system();
-        
+
     return 0;
 }

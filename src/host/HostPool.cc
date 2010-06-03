@@ -75,8 +75,6 @@ int HostPool::discover(map<int, string> * discovered_hosts)
     ostringstream   sql;
     int             rc;
 
-    lock();
-
     set_callback(static_cast<Callbackable::Callback>(&HostPool::discover_cb),
                  static_cast<void *>(discovered_hosts));
 
@@ -85,8 +83,6 @@ int HostPool::discover(map<int, string> * discovered_hosts)
         << Host::DISABLED << " ORDER BY last_mon_time LIMIT 10";
 
     rc = db->exec(sql,this);
-
-    unlock();
 
     return rc;
 }
