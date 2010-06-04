@@ -287,13 +287,19 @@ int LibVirtDriver::deployment_description(
         if ( type == "BLOCK" )
         {
             file << "\t\t<disk type='block' device='disk'>" << endl
-                 << "\t\t\t<source dev='" << vm->get_remote_dir() << "/disk." 
+                 << "\t\t\t<source dev='" << vm->get_remote_dir() << "/disk."
+                 << i << "'/>" << endl;
+        }
+        else if ( type == "CDROM" )
+        {
+            file << "\t\t<disk type='file' device='cdrom'>" << endl
+                 << "\t\t\t<source file='" << vm->get_remote_dir() << "/disk."
                  << i << "'/>" << endl;
         }
         else
         {
             file << "\t\t<disk type='file' device='disk'>" << endl
-                 << "\t\t\t<source file='" << vm->get_remote_dir() << "/disk." 
+                 << "\t\t\t<source file='" << vm->get_remote_dir() << "/disk."
                  << i << "'/>" << endl;
         }
 
@@ -501,17 +507,17 @@ int LibVirtDriver::deployment_description(
             acpi = features->vector_value("ACPI");
         }
     }
-    
+
     if ( pae.empty() )
     {
         get_default("FEATURES", "PAE", pae);
     }
-    
+
     if ( acpi.empty() )
     {
         get_default("FEATURES", "ACPI", acpi);
     }
-    
+
     if( acpi == "yes" || pae == "yes" )
     {
         file << "\t<features>" << endl;
