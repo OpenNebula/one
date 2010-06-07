@@ -286,7 +286,12 @@ private:
      *  Type of the Image
      */
     ImageType    type;
-    
+
+    /**
+     *  Public scope of the Image
+     */
+    string       public_img;
+
     /**
      *  Registration time
      */
@@ -370,12 +375,13 @@ protected:
         UID              = 1,    /* Image owner id              */
         NAME             = 2,    /* Image name                  */
         TYPE             = 3,    /* 0) OS 1) CDROM 2) DATABLOCK */
-        REGTIME          = 4,    /* Time of registration        */
-        SOURCE           = 5,    /* Path to the image           */
-        STATE            = 6,    /* 0) INIT   1) ALLOCATED      */
+        PUBLIC           = 4,    /* Public scope (YES OR NO)    */
+        REGTIME          = 5,    /* Time of registration        */
+        SOURCE           = 6,    /* Path to the image           */
+        STATE            = 7,    /* 0) INIT   1) ALLOCATED      */
                                  /* 2) READY  3) USED           */
-        RUNNING_VMS      = 7,    /* Number of VMs using the img */
-        LIMIT            = 8
+        RUNNING_VMS      = 8,    /* Number of VMs using the img */
+        LIMIT            = 9
     };
     
     static const char * db_names;

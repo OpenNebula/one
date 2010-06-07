@@ -67,6 +67,8 @@ ImagePool::ImagePool(   SqlDB * db,
         default_type = _default_type;
     }
 
+    default_public = "NO";
+
     // Read from the DB the existing images, and build the ID:Name map
     set_callback(static_cast<Callbackable::Callback>(&ImagePool::init_cb));
 
@@ -93,6 +95,7 @@ int ImagePool::allocate (
         string  name           = "";
         string  source         = "";
         string  type           = "";
+        string  public_attr    = "";
         string  original_path  = "";
         string  dev_prefix     = "";
 
@@ -142,6 +145,17 @@ int ImagePool::allocate (
             img->image_template.erase("TYPE");
         }
 
+        img->get_template_attribute("PUBLIC", public_attr);
+
+        if ( public_attr.empty() == true )
+        {
+            public_attr = default_public;
+        }
+        else
+        {
+            img->image_template.erase("PUBLIC");
+        }
+
         img->get_template_attribute("ORIGINAL_PATH", original_path);
         
         if  ( (type == "OS" || type == "CDROM") &&
@@ -175,6 +189,7 @@ int ImagePool::allocate (
 
         img->name        = name;
         img->source      = tmp_sourcestream.str();
+        img->public_img  = public_attr;
 
         if (img->set_type(type) != 0)
         {
