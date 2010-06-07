@@ -164,9 +164,9 @@ class EC2QueryServer < CloudServer
         image = get_image(params['ImageLocation'])
 
         if !image
-            return OpenNebula::Error.new('Image not found'), 404
+            return OpenNebula::Error.new('InvalidAMIID.NotFound'), 400
         elsif user[:id] != image[:owner]
-            return OpenNebula::Error.new('Not permited to use image'), 401
+            return OpenNebula::Error.new('AuthFailure'), 400
         end
 
         erb_img_id=image.id
@@ -194,13 +194,13 @@ class EC2QueryServer < CloudServer
         instance_type_name = params['InstanceType']
         instance_type      = @instance_types[instance_type_name]
         
-        return OpenNebula::Error.new('Bad instance type'),400 if !instance_type
+        return OpenNebula::Error.new('Unsupported'),400 if !instance_type
 
         # Get the image
 	    tmp, img=params['ImageId'].split('-')
         image = get_image(img.to_i)
         
-        return OpenNebula::Error.new('Bad image id'),400 if !image
+        return OpenNebula::Error.new('InvalidAMIID.NotFound'),400 if !image
 
         # Get the user
         user       = get_user(params['AWSAccessKeyId'])
@@ -223,7 +223,7 @@ class EC2QueryServer < CloudServer
 
         rc = vm.allocate(template_text)
         
-        return rc, 401 if OpenNebula::is_error?(rc)
+        return OpenNebula::Error.new('Unsupported'),400 if OpenNebula::is_error?(rc)
 
         vm.info
      
@@ -273,7 +273,7 @@ class EC2QueryServer < CloudServer
         erb_vm = VirtualMachine.new(VirtualMachine.build_xml(vmid),one_client)
         rc      = erb_vm.info
         
-        return rc, 401 if OpenNebula::is_error?(rc)
+        return OpenNebula::Error.new('Unsupported'),400 if OpenNebula::is_error?(rc)
         
         if erb_vm.status == 'runn'
             rc = erb_vm.shutdown
@@ -281,7 +281,7 @@ class EC2QueryServer < CloudServer
             rc = erb_vm.finalize
         end
         
-        return rc, 401 if OpenNebula::is_error?(rc)
+        return OpenNebula::Error.new('Unsupported'),400 if OpenNebula::is_error?(rc)
 
 	    erb_version = params['Version']
         

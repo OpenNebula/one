@@ -60,8 +60,33 @@ set :port, $econe_server.config[:port]
 
 before do
     if !$econe_server.authenticate?(params,env)
-        halt 401, 'Invalid credentials'
+        error 400, error_xml("AuthFailure", 0)
     end
+end
+
+helpers do
+    def error_xml(code,id)
+        message = ''
+        
+        case code
+        when 'AuthFailure'
+            message = 'User not authorized'
+        when 'InvalidAMIID.NotFound'
+            message = 'Specified AMI ID does not exist'
+        when 'Unsupported'
+            message = 'The instance type or feature is not supported in your requested Availability Zone.'
+        end
+        
+        xml = "<Response><Errors><Error><Code>"+
+                    code + 
+                    "</Code><Message>" + 
+                    message + 
+                    "</Message></Error></Errors><RequestID>" + 
+                    id.to_s + 
+                    "</RequestID></Response>"
+        
+        return xml                              
+    end 
 end
 
 post '/' do
@@ -89,7 +114,7 @@ def do_http_request(params)
     end
 
     if OpenNebula::is_error?(result)
-        halt rc, result.message
+        error rc, error_xml(result.message, 0)
     end
 
     headers['Content-Type'] = 'application/xml'
