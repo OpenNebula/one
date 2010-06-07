@@ -177,6 +177,11 @@ private:
     NetworkType type;
 
     /**
+     *  Public scope of this Virtual Network
+     */
+    string  public_vnet;
+
+    /**
      *  Pointer to leases class, can be fixed or ranged.
      *  Holds information on given (and, optionally, possible) leases
      */
@@ -347,7 +352,8 @@ protected:
         NAME            = 2,
         TYPE            = 3,
         BRIDGE          = 4,
-        LIMIT           = 5
+        LIMIT           = 5,
+        PUBLIC          = 6
     };
 
     static const char * table;

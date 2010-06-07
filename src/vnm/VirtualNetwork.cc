@@ -30,6 +30,7 @@ VirtualNetwork::VirtualNetwork(unsigned int  mp, int ds):
                 uid(-1),
                 bridge(""),
                 type(UNINITIALIZED),
+                public_vnet(""),
                 leases(0),
                 mac_prefix(mp),
                 default_size(ds){};
@@ -49,11 +50,11 @@ VirtualNetwork::~VirtualNetwork()
 /* Virtual Network :: Database Access Functions                               */
 /* ************************************************************************** */
 
-const char * VirtualNetwork::table               = "network_pool";
+const char * VirtualNetwork::table        = "network_pool";
 
-const char * VirtualNetwork::db_names            = "(oid,uid,name,type,bridge)";
+const char * VirtualNetwork::db_names     = "(oid,uid,name,type,bridge,public)";
 
-const char * VirtualNetwork::db_bootstrap        = "CREATE TABLE IF NOT EXISTS"
+const char * VirtualNetwork::db_bootstrap = "CREATE TABLE IF NOT EXISTS"
     " network_pool ("
      "oid INTEGER PRIMARY KEY, uid INTEGER, name VARCHAR(256), type INTEGER, "
      "bridge TEXT, UNIQUE(name))";
@@ -68,19 +69,22 @@ int VirtualNetwork::select_cb(void * nil, int num, char **values, char **names)
         (!values[NAME]) ||
         (!values[TYPE]) ||
         (!values[BRIDGE]) ||
+        (!values[PUBLIC]) ||
         (num != LIMIT ))
     {
         return -1;
     }
 
-    oid    = atoi(values[OID]);
-    uid    = atoi(values[UID]);
+    oid         = atoi(values[OID]);
+    uid         = atoi(values[UID]);
 
-    name   = values[NAME];
+    name        = values[NAME];
 
-    type   = (NetworkType)atoi(values[TYPE]);
+    type        = (NetworkType)atoi(values[TYPE]);
 
-    bridge = values[BRIDGE];
+    bridge      = values[BRIDGE];
+
+    public_vnet = values[PUBLIC];
 
     // Virtual Network template ID is the Network ID
     vn_template.id = oid;
@@ -221,7 +225,8 @@ int VirtualNetwork::dump(ostringstream& oss,
         (!values[TYPE])  ||
         (!values[BRIDGE])||
         (!values[LIMIT]) ||
-        (num != LIMIT + 2 ))
+        (!values[PUBLIC])||
+        (num != PUBLIC + 2 ))
     {
         return -1;
     }
@@ -235,6 +240,7 @@ int VirtualNetwork::dump(ostringstream& oss,
             "<TYPE>"     << values[TYPE]    << "</TYPE>"      <<
             "<BRIDGE>"   << values[BRIDGE]  << "</BRIDGE>"    <<
             "<TOTAL_LEASES>" << values[LIMIT]<< "</TOTAL_LEASES>" <<
+            "<PUBLIC>"   << values[PUBLIC]  << "</PUBLIC>"    <<
         "</VNET>";
 
     return 0;
@@ -402,6 +408,15 @@ int VirtualNetwork::insert_replace(SqlDB *db, bool replace)
         return -1;
     }
 
+    char * sql_public = db->escape_str(public_vnet.c_str());
+
+    if ( sql_public == 0 )
+    {
+        db->free_str(sql_name);
+        db->free_str(sql_bridge);
+        return -1;
+    }
+
     // Construct the SQL statement to Insert or Replace
     if(replace)
     {
@@ -412,17 +427,19 @@ int VirtualNetwork::insert_replace(SqlDB *db, bool replace)
         oss << "INSERT";
     }
 
-    oss << " INTO " << table << " "<< db_names <<" VALUES ("<<
-        oid << "," <<
-        uid << "," <<
-        "'" << sql_name << "',"  <<
-        type << "," <<
-        "'" << sql_bridge << "')";
+    oss << " INTO " << table << " "<< db_names <<" VALUES ("
+        <<          oid         << ","
+        <<          uid         << ","
+        << "'" <<   sql_name    << "',"
+        <<          type        << ","
+        << "'" <<   sql_bridge  << "',"
+        << "'" <<   sql_public  << "')";
 
     rc = db->exec(oss);
 
     db->free_str(sql_name);
     db->free_str(sql_bridge);
+    db->free_str(sql_public);
 
     return rc;
 }
@@ -478,14 +495,17 @@ string& VirtualNetwork::to_xml(string& xml) const
 
     os <<
         "<VNET>" <<
-            "<ID>"    << oid   << "</ID>"   <<
-            "<UID>"   << uid   << "</UID>"  <<
-            "<NAME>"  << name  << "</NAME>" <<
-            "<TYPE>"  << type  << "</TYPE>" <<
-            "<BRIDGE>"<< bridge<< "</BRIDGE>" <<
+            "<ID>"      << oid          << "</ID>"   <<
+            "<UID>"     << uid          << "</UID>"  <<
+            "<NAME>"    << name         << "</NAME>" <<
+            "<TYPE>"    << type         << "</TYPE>" <<
+            "<BRIDGE>"  << bridge       << "</BRIDGE>" <<
+            "<PUBLIC>"  << public_vnet  << "</PUBLIC>" <<
             vn_template.to_xml(template_xml);
     if (leases)
+    {
         os << leases->to_xml(leases_xml);
+    }
     os << "</VNET>";
 
     xml = os.str();
@@ -516,7 +536,8 @@ string& VirtualNetwork::to_str(string& str) const
        os << "Fixed" << endl;
     }
 
-    os << "Bridge            : " << bridge << endl << endl;
+    os << "Bridge            : " << bridge      << endl;
+    os << "Public            : " << public_vnet << endl << endl;
 
     os << "....: Template :...." << vn_template.to_str(template_str) << endl << endl;
 

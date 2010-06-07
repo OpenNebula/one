@@ -55,6 +55,8 @@ VirtualNetworkPool::VirtualNetworkPool(SqlDB * db,
     iss >> hex >> mac_prefix >> ws >> hex >> tmp >> ws;
     mac_prefix <<= 8;
     mac_prefix += tmp;
+
+    default_public = "NO";
 }
 
 /* -------------------------------------------------------------------------- */
@@ -72,6 +74,7 @@ int VirtualNetworkPool::allocate (
 
     string              name;
     string              bridge;
+    string              public_attr;
 
     string              s_type;
 
@@ -120,6 +123,17 @@ int VirtualNetworkPool::allocate (
 
     vn->get_template_attribute("BRIDGE",bridge);
     vn->bridge = bridge;
+
+    vn->get_template_attribute("PUBLIC", public_attr);
+
+    if ( public_attr.empty() == true )
+    {
+        public_attr = default_public;
+    }
+    else
+    {
+        vn->vn_template.erase("PUBLIC");
+    }
 
     // Insert the VN in the pool so we have a valid OID
 

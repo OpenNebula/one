@@ -126,6 +126,11 @@ private:
     unsigned int     default_size;
 
     /**
+     * Default public scope
+     **/
+    string              default_public;
+
+    /**
      *  Factory method to produce VN objects
      *    @return a pointer to the new VN
      */
