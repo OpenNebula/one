@@ -56,46 +56,45 @@ void RequestManager::ImagePoolInfo::execute(
     where_string.str("");
     
     /** Filter flag meaning table
-     *     -3 :: All Images (just for oneadmin)
-     *     -2  :: User's Images AND public images
-     *     -1  :: User's Images exclusively
-     *    >=0  :: UID User's Images (just for oneadmin)
-     **/ 
-    if ( filter_flag < -3 )
+     *      -2 :: All Images (just for oneadmin)
+     *      -1 :: User's Images AND public images belonging to any user
+     *    >= 0 :: UID User's Images (just for oneadmin)
+     **/
+    if ( filter_flag < -2 )
     {
         goto error_filter_flag;
-    } 
-     
+    }
+
     switch(filter_flag)
     {
-        case -3:
+        case -2:
             if ( uid != 0 )
             {
                 goto error_authorization;
             }
-            break;
-        case -2:
-            where_string << "UID=" << uid << " OR oid IN ( SELECT oid " << 
-                            "FROM " << 
-                            ImagePoolInfo::ipool->get_template_table_name()  <<
-                            " WHERE name = 'PUBLIC' AND value = 'Yes')";
+            // where remains empty.
             break;
         case -1:
-            where_string << "UID=" << uid;
+            where_string << "UID=" << uid << " OR public = 'YES'";
             break;
         default:
-            where_string << "UID=" << filter_flag;              
-    } 
+            // Only oneadmin or the user can list a specific user's images.
+            if ( uid != 0 && uid != filter_flag )
+            {
+                goto error_authorization;
+            }
+            where_string << "UID=" << filter_flag;
+    }
 
-    // Perform the allocation in the vmpool 
+    // Call the image pool dump
     rc = ImagePoolInfo::ipool->dump(oss,where_string.str());
-      
+
     if ( rc != 0 )
-    {                                            
+    {
         goto error_dump;
     }
-    
-    //All nice, return the host info to the client  
+
+    // All nice, return pool info to the client
     arrayData.push_back(xmlrpc_c::value_boolean(true)); // SUCCESS   
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
 
@@ -118,7 +117,7 @@ error_authorization:
     goto error_common;
     
 error_filter_flag:
-    oss << "Incorrect filter_flag, must be >= 3.";
+    oss << "Incorrect filter_flag, must be >= -2.";
     goto error_common;
 
 error_dump:
