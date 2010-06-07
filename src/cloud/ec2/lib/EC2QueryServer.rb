@@ -120,7 +120,6 @@ class EC2QueryServer < CloudServer
 	    server_str = @server_host
 	    server_str = server_str + ":" + @server_port unless %w{2008-12-01 2009-11-30}.include? params["Version"]
 
-        pp params["Version"]
         canonical_str = AWS.canonical_string(signature_params, 
 					     server_str,
 					     env['REQUEST_METHOD'])
