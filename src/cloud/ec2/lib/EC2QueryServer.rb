@@ -116,29 +116,31 @@ class EC2QueryServer < CloudServer
         signature_params = params.reject { |key,value| 
             key=='Signature' or key=='file' }
 
-	
-	server_str = @server_host
-	server_str = server_str + ":" + @server_port if params["Version"] != "2008-12-01" 
 
+	    server_str = @server_host
+	    server_str = server_str + ":" + @server_port unless %w{2008-12-01 2009-11-30}.include? params["Version"]
+
+        pp params["Version"]
         canonical_str = AWS.canonical_string(signature_params, 
 					     server_str,
 					     env['REQUEST_METHOD'])
+					     
 
         # Use the correct signature strength
-	sha_strength = case params['SignatureMethod']
-	     when "HmacSHA1" then 'sha1'
-	     when "HmacSHA256" then 'sha256'
-	     else 'sha1'
-	end
+	    sha_strength = case params['SignatureMethod']
+	        when "HmacSHA1" then 'sha1'
+	        when "HmacSHA256" then 'sha256'
+	        else 'sha1'
+	    end
 
-	digest = OpenSSL::Digest::Digest.new(sha_strength)
-	b64hmac =	
-      		Base64.encode64(
-        	    OpenSSL::HMAC.digest(digest, secret_key, canonical_str)).gsub("\n","")
+	    digest = OpenSSL::Digest::Digest.new(sha_strength)
+	    b64hmac =	
+      	    Base64.encode64(
+  	            OpenSSL::HMAC.digest(digest, secret_key, canonical_str)).gsub("\n","")
      
-	if urlencode
+	    if urlencode
       	    return CGI::escape(b64hmac)
-	else
+	    else
       	    return b64hmac
         end
     end
@@ -176,9 +178,10 @@ class EC2QueryServer < CloudServer
     def describe_images(params)
         erb_user    = get_user(params['AWSAccessKeyId'])
         erb_images  = Image.filter(:owner => erb_user[:id])
-	erb_version = params['Version']
+	    erb_version = params['Version']
        
         response = ERB.new(File.read(@config[:views]+"/describe_images.erb"))
+        
         return response.result(binding), 200
     end
 
@@ -194,7 +197,7 @@ class EC2QueryServer < CloudServer
         return OpenNebula::Error.new('Bad instance type'),400 if !instance_type
 
         # Get the image
-	tmp, img=params['ImageId'].split('-')
+	    tmp, img=params['ImageId'].split('-')
         image = get_image(img.to_i)
         
         return OpenNebula::Error.new('Bad image id'),400 if !image
@@ -227,7 +230,7 @@ class EC2QueryServer < CloudServer
         erb_vm_info[:vm_id]=vm.id
         erb_vm_info[:vm]=vm
 
-	erb_version = params['Version']
+	    erb_version = params['Version']
         
         response = ERB.new(File.read(@config[:views]+"/run_instances.erb"))
         return response.result(binding), 200
@@ -250,9 +253,10 @@ class EC2QueryServer < CloudServer
         erb_vmpool = VirtualMachinePool.new(one_client, user_flag)
         erb_vmpool.info
 
-	erb_version = params['Version']
+	    erb_version = params['Version']
         
         response = ERB.new(File.read(@config[:views]+"/describe_instances.erb"))
+        
         return response.result(binding), 200
     end
 
@@ -264,7 +268,7 @@ class EC2QueryServer < CloudServer
         vmid=params['InstanceId.1']
         vmid=params['InstanceId.01'] if !vmid
 
-	tmp, vmid=vmid.split('-') if vmid[0]==?i
+	    tmp, vmid=vmid.split('-') if vmid[0]==?i
         
         erb_vm = VirtualMachine.new(VirtualMachine.build_xml(vmid),one_client)
         rc      = erb_vm.info
@@ -279,7 +283,7 @@ class EC2QueryServer < CloudServer
         
         return rc, 401 if OpenNebula::is_error?(rc)
 
-	erb_version = params['Version']
+	    erb_version = params['Version']
         
         response =ERB.new(File.read(@config[:views]+"/terminate_instances.erb"))
         return response.result(binding), 200
