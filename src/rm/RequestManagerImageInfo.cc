@@ -56,10 +56,9 @@ void RequestManager::ImageInfo::execute(
     // Check if it is a valid user
     rc = ImageInfo::upool->authenticate(session);
 
-    if ( rc != 0 && rc != uid)                             
+    if ( rc != 0 && rc != uid && !image->is_public())                             
     {                                            
-        goto error_authenticate;  
-         // TODO and if it is public!!!                   
+        goto error_authenticate;                    
     }
     
     oss << *image;
@@ -83,7 +82,8 @@ error_image_get:
     goto error_common;
 
 error_authenticate:
-    oss << "User not authenticated, ImageInfo call aborted.";
+    oss << "User doesn't exist, or not authorized to use image with " << 
+    "ID = " << iid << " , ImageInfo call aborted.";
     goto error_common;
 
 error_common:

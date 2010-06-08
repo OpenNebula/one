@@ -98,6 +98,15 @@ public:
     {
         return name;
     };
+    
+    /**
+     *  Returns Image's name
+     *     @return name Image's name
+     */
+    bool is_public() 
+    {
+        return public_img == "YES";
+    };
 
     /**
      *  Set enum type
