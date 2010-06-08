@@ -273,6 +273,9 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr image_allocate(new    
         RequestManager::ImageAllocate(ipool, upool));
         
+    xmlrpc_c::methodPtr image_delete(new    
+        RequestManager::ImageDelete(ipool, upool));
+        
     xmlrpc_c::methodPtr image_info(new    
         RequestManager::ImageInfo(ipool, upool));
         
@@ -318,6 +321,7 @@ void RequestManager::register_xml_methods()
     /* Image related methods*/
     
     RequestManagerRegistry.addMethod("one.image.allocate", image_allocate);
+    RequestManagerRegistry.addMethod("one.image.delete",   image_delete);
     RequestManagerRegistry.addMethod("one.image.info",     image_info);        
 
     RequestManagerRegistry.addMethod("one.imagepool.info", imagepool_info);

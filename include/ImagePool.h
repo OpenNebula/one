@@ -104,6 +104,7 @@ public:
     
     /** Drops an image from the DB, the image mutex MUST BE locked
      *    @param image pointer to Image
+     *    @return 0 on success
      */
     int drop(Image * image)
     {

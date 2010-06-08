@@ -302,6 +302,12 @@ int Image::drop(SqlDB * db)
 {
     ostringstream oss;
     int rc;
+    
+    // Only delete the VM
+    if (running_vms != 0)
+    {
+        return -1;
+    }
 
     image_template.drop(db);
 

@@ -663,7 +663,6 @@ private:
     /*                      Image Pool Interface                              */
     /* ---------------------------------------------------------------------- */
 
-
     class ImageAllocate: public xmlrpc_c::method
     {
     public:
@@ -688,6 +687,31 @@ private:
     };  
     
     /* ---------------------------------------------------------------------- */
+    
+    class ImageDelete: public xmlrpc_c::method
+    {
+    public:
+        ImageDelete(ImagePool * _ipool,
+                      UserPool * _upool):
+                            ipool(_ipool),
+                            upool(_upool)
+        {
+            _signature="A:si";
+            _help="Deletes an image";
+        };
+
+        ~ImageDelete(){};
+
+        void execute(
+            xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP);
+
+    private:
+        ImagePool * ipool;
+        UserPool  * upool;
+    };  
+    
+    /* ---------------------------------------------------------------------- */
 
     class ImageInfo: public xmlrpc_c::method
     {
@@ -697,8 +721,8 @@ private:
                       ipool(_ipool),
                       upool(_upool)
         {
-            _signature="A:ss";
-            _help="Allocates an image in the pool";
+            _signature="A:si";
+            _help="Returns information for an image";
         };
 
         ~ImageInfo(){};
