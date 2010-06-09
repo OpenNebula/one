@@ -145,15 +145,7 @@ int ImagePool::allocate (
         }
 
         img->get_template_attribute("PUBLIC", public_attr);
-
-        if ( public_attr.empty() == true )
-        {
-            public_attr = "NO";
-        }
-        else
-        {
-            img->image_template.erase("PUBLIC");
-        }
+        img->image_template.erase("PUBLIC");
 
         img->get_template_attribute("ORIGINAL_PATH", original_path);
         
@@ -188,7 +180,8 @@ int ImagePool::allocate (
 
         img->name        = name;
         img->source      = tmp_sourcestream.str();
-        img->public_img  = public_attr;
+
+        img->public_img = (public_attr == "YES");
 
         if (img->set_type(type) != 0)
         {

@@ -49,7 +49,7 @@ const char * Image::db_names = "(oid, uid, name, type, public, regtime, "
 
 const char * Image::db_bootstrap = "CREATE TABLE IF NOT EXISTS image_pool ("
     "oid INTEGER PRIMARY KEY, uid INTEGER, name VARCHAR(128), "
-    "type INTEGER, public TEXT, regtime INTEGER, source TEXT, state INTEGER, "
+    "type INTEGER, public INTEGER, regtime INTEGER, source TEXT, state INTEGER, "
     "running_vms INTEGER, UNIQUE(name) )";
 
 /* ------------------------------------------------------------------------ */
@@ -77,7 +77,7 @@ int Image::select_cb(void * nil, int num, char **values, char ** names)
     name        = values[NAME];
     
     type        = static_cast<ImageType>(atoi(values[TYPE]));
-    public_img  = values[PUBLIC];
+    public_img  = atoi(values[PUBLIC]);
     regtime     = static_cast<time_t>(atoi(values[REGTIME]));
 
     source      = values[SOURCE];
@@ -196,7 +196,6 @@ int Image::insert_replace(SqlDB *db, bool replace)
     int    rc;
 
     char * sql_name;
-    char * sql_public;
     char * sql_source;
 
    // Update the Image
@@ -206,13 +205,6 @@ int Image::insert_replace(SqlDB *db, bool replace)
     if ( sql_name == 0 )
     {
         goto error_name;
-    }
-
-    sql_public = db->escape_str(public_img.c_str());
-
-    if ( sql_public == 0 )
-    {
-        goto error_public;
     }
 
     sql_source = db->escape_str(source.c_str());
@@ -238,7 +230,7 @@ int Image::insert_replace(SqlDB *db, bool replace)
         <<          uid             << ","
         << "'" <<   sql_name        << "',"
         <<          type            << ","
-        << "'" <<   sql_public      << "',"
+        <<          public_img      << ","
         <<          regtime         << ","
         << "'" <<   sql_source      << "',"
         <<          state           << ","
@@ -247,14 +239,11 @@ int Image::insert_replace(SqlDB *db, bool replace)
     rc = db->exec(oss);
 
     db->free_str(sql_name);
-    db->free_str(sql_public);
     db->free_str(sql_source);
 
     return rc;
 
 error_source:
-    db->free_str(sql_public);
-error_public:
     db->free_str(sql_name);
 error_name:
     return -1;

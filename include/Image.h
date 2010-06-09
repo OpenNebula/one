@@ -100,12 +100,12 @@ public:
     };
     
     /**
-     *  Returns Image's name
-     *     @return name Image's name
+     *  Returns true if the image is public
+     *     @return true if the image is public
      */
     bool is_public() 
     {
-        return public_img == "YES";
+        return public_img;
     };
 
     /**
@@ -299,7 +299,7 @@ private:
     /**
      *  Public scope of the Image
      */
-    string       public_img;
+    int          public_img;
 
     /**
      *  Registration time
