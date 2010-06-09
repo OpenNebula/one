@@ -73,7 +73,7 @@ ShowTableHost={
         :proc => lambda {|d,e|
             max_cpu=d["HOST_SHARE/MAX_CPU"].to_i
             max_cpu=100 if max_cpu==0
-            max_cpu-d["HOST_SHARE/USED_CPU"].to_i
+            max_cpu-d["HOST_SHARE/CPU_USAGE"].to_i
         }
     },
     :tmem => {
