@@ -67,7 +67,6 @@ ImagePool::ImagePool(   SqlDB * db,
         default_type = _default_type;
     }
 
-    default_public = "NO";
 
     // Read from the DB the existing images, and build the ID:Name map
     set_callback(static_cast<Callbackable::Callback>(&ImagePool::init_cb));
@@ -149,7 +148,7 @@ int ImagePool::allocate (
 
         if ( public_attr.empty() == true )
         {
-            public_attr = default_public;
+            public_attr = "NO";
         }
         else
         {

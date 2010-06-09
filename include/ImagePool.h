@@ -177,11 +177,6 @@ private:
     string              default_type;
 
     /**
-     * Default public scope
-     **/
-    string              default_public;
-
-    /**
      * Default device prefix
      **/
     string              default_dev_prefix;

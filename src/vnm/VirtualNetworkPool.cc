@@ -55,8 +55,6 @@ VirtualNetworkPool::VirtualNetworkPool(SqlDB * db,
     iss >> hex >> mac_prefix >> ws >> hex >> tmp >> ws;
     mac_prefix <<= 8;
     mac_prefix += tmp;
-
-    default_public = "NO";
 }
 
 /* -------------------------------------------------------------------------- */
@@ -128,7 +126,7 @@ int VirtualNetworkPool::allocate (
 
     if ( public_attr.empty() == true )
     {
-        public_attr = default_public;
+        public_attr = "NO";
     }
     else
     {
