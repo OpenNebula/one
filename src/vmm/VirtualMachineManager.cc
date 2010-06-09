@@ -827,12 +827,18 @@ void VirtualMachineManager::timer_action()
     {
         vm = vmpool->get(*it,true);
 
-        if ( vm == 0 || (!vm->hasHistory()))
+        if ( vm == 0 )
+        {
+            continue;
+        }
+
+        if (!vm->hasHistory())
         {
             os.str("");
             os << "Monitoring VM " << *it << " but it has no history.";
             Nebula::log("VMM", Log::ERROR, os);
 
+            vm->unlock();
             continue;
         }
 
