@@ -68,6 +68,15 @@ public:
     }
 
     /**
+     *  Returns true if the Virtual Network is public
+     *     @return true if the Virtual Network is public
+     */
+    bool is_public()
+    {
+        return public_vnet;
+    };
+
+    /**
      *    Gets a new lease for a specific VM
      *    @param vid VM identifier
      *    @param _ip pointer to string for IP to be stored into
@@ -179,7 +188,7 @@ private:
     /**
      *  Public scope of this Virtual Network
      */
-    string  public_vnet;
+    int         public_vnet;
 
     /**
      *  Pointer to leases class, can be fixed or ranged.
@@ -352,8 +361,8 @@ protected:
         NAME            = 2,
         TYPE            = 3,
         BRIDGE          = 4,
-        LIMIT           = 5,
-        PUBLIC          = 6
+        PUBLIC          = 5,
+        LIMIT           = 6
     };
 
     static const char * table;

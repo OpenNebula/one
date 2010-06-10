@@ -123,15 +123,8 @@ int VirtualNetworkPool::allocate (
     vn->bridge = bridge;
 
     vn->get_template_attribute("PUBLIC", public_attr);
-
-    if ( public_attr.empty() == true )
-    {
-        public_attr = "NO";
-    }
-    else
-    {
-        vn->vn_template.erase("PUBLIC");
-    }
+    vn->vn_template.erase("PUBLIC");
+    vn->public_vnet = (public_attr == "YES");
 
     // Insert the VN in the pool so we have a valid OID
 

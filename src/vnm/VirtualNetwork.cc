@@ -30,7 +30,6 @@ VirtualNetwork::VirtualNetwork(unsigned int  mp, int ds):
                 uid(-1),
                 bridge(""),
                 type(UNINITIALIZED),
-                public_vnet(""),
                 leases(0),
                 mac_prefix(mp),
                 default_size(ds){};
@@ -57,7 +56,7 @@ const char * VirtualNetwork::db_names     = "(oid,uid,name,type,bridge,public)";
 const char * VirtualNetwork::db_bootstrap = "CREATE TABLE IF NOT EXISTS"
     " network_pool ("
      "oid INTEGER PRIMARY KEY, uid INTEGER, name VARCHAR(256), type INTEGER, "
-     "bridge TEXT, UNIQUE(name))";
+     "bridge TEXT, public INTEGER, UNIQUE(name))";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -84,7 +83,7 @@ int VirtualNetwork::select_cb(void * nil, int num, char **values, char **names)
 
     bridge      = values[BRIDGE];
 
-    public_vnet = values[PUBLIC];
+    public_vnet = atoi(values[PUBLIC]);
 
     // Virtual Network template ID is the Network ID
     vn_template.id = oid;
@@ -224,9 +223,9 @@ int VirtualNetwork::dump(ostringstream& oss,
         (!values[NAME])  ||
         (!values[TYPE])  ||
         (!values[BRIDGE])||
-        (!values[LIMIT]) ||
         (!values[PUBLIC])||
-        (num != PUBLIC + 2 ))
+        (!values[LIMIT]) ||
+        (num != LIMIT + 2 ))
     {
         return -1;
     }
@@ -239,8 +238,8 @@ int VirtualNetwork::dump(ostringstream& oss,
             "<NAME>"     << values[NAME]    << "</NAME>"      <<
             "<TYPE>"     << values[TYPE]    << "</TYPE>"      <<
             "<BRIDGE>"   << values[BRIDGE]  << "</BRIDGE>"    <<
-            "<TOTAL_LEASES>" << values[LIMIT]<< "</TOTAL_LEASES>" <<
             "<PUBLIC>"   << values[PUBLIC]  << "</PUBLIC>"    <<
+            "<TOTAL_LEASES>" << values[LIMIT]<< "</TOTAL_LEASES>" <<
         "</VNET>";
 
     return 0;
@@ -408,15 +407,6 @@ int VirtualNetwork::insert_replace(SqlDB *db, bool replace)
         return -1;
     }
 
-    char * sql_public = db->escape_str(public_vnet.c_str());
-
-    if ( sql_public == 0 )
-    {
-        db->free_str(sql_name);
-        db->free_str(sql_bridge);
-        return -1;
-    }
-
     // Construct the SQL statement to Insert or Replace
     if(replace)
     {
@@ -433,13 +423,12 @@ int VirtualNetwork::insert_replace(SqlDB *db, bool replace)
         << "'" <<   sql_name    << "',"
         <<          type        << ","
         << "'" <<   sql_bridge  << "',"
-        << "'" <<   sql_public  << "')";
+        <<          public_vnet << ")";
 
     rc = db->exec(oss);
 
     db->free_str(sql_name);
     db->free_str(sql_bridge);
-    db->free_str(sql_public);
 
     return rc;
 }
