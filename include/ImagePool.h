@@ -117,6 +117,31 @@ public:
 
         return rc;
     };
+    
+    /** Modify an image attribute in the template OR the public attribute
+     *    @param image pointer to Image
+     *    @param name of the attribute to be changed
+     *    @param new value for the attribute
+     *    @return 0 on success, -1 otherwise
+     */
+    int modify_image_attribute(
+        Image * image,
+        string& name,
+        string& value)
+    {
+        int rc = 0;
+        
+        if ( name == "PUBLIC" && ( value == "YES" || value == "NO" ))
+        {
+            image->public_img == value;
+        }
+        else
+        {
+            return image->update_template_attribute(db, name, value);
+        }
+        
+        return rc;
+    }                   
 
     /**
      *  Bootstraps the database table(s) associated to the Image pool
@@ -126,12 +151,6 @@ public:
         Image::bootstrap(_db);
     };
     
-    /**
-     * Get the template table name
-     *  @return string with the name of the template table
-     */
-    string get_template_table_name();
-
     /**
      *  Dumps the Image pool in XML format. A filter can be also added to the
      *  query

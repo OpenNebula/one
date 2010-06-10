@@ -307,9 +307,3 @@ string ImagePool::sha1_digest(const string& pass)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-string ImagePool::get_template_table_name()
-{
-    string table(ImageTemplate::table);
-    
-    return table;
-}
