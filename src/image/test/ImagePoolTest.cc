@@ -84,6 +84,7 @@ class ImagePoolTest : public PoolTest
     CPPUNIT_TEST ( wrong_templates );
     CPPUNIT_TEST ( target_generation );
     CPPUNIT_TEST ( bus_source_assignment );
+    CPPUNIT_TEST ( public_attribute );
     CPPUNIT_TEST ( dump );
     CPPUNIT_TEST ( dump_where );
 
@@ -534,6 +535,84 @@ public:
 
         // clean up
         delete disk;
+    }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+    void public_attribute()
+    {
+        int oid;
+        ImagePool * imp = static_cast<ImagePool *>(pool);
+        Image *     img;
+
+        string templates[] =
+        {
+            // false
+            "NAME           = \"name A\"\n"
+            "ORIGINAL_PATH  = \"/tmp/nothing\"\n",
+
+            // true
+            "NAME           = \"name B\"\n"
+            "ORIGINAL_PATH  = \"/tmp/nothing\"\n"
+            "PUBLIC         = YES",
+
+            // false
+            "NAME           = \"name C\"\n"
+            "ORIGINAL_PATH  = \"/tmp/nothing\"\n"
+            "PUBLIC         = NO",
+
+            // false
+            "NAME           = \"name D\"\n"
+            "ORIGINAL_PATH  = \"/tmp/nothing\"\n"
+            "PUBLIC         = 1",
+
+            // false
+            "NAME           = \"name E\"\n"
+            "ORIGINAL_PATH  = \"/tmp/nothing\"\n"
+            "PUBLIC         = Yes",
+
+            // false
+            "NAME           = \"name F\"\n"
+            "ORIGINAL_PATH  = \"/tmp/nothing\"\n"
+            "PUBLIC         = TRUE",
+
+            // false
+            "NAME           = \"name G\"\n"
+            "ORIGINAL_PATH  = \"/tmp/nothing\"\n"
+            "PUBLIC         = yes",
+
+            // false
+            "NAME           = \"name H\"\n"
+            "ORIGINAL_PATH  = \"/tmp/nothing\"\n"
+            "PUBLIC         = 'YES'",
+
+            // true
+            "NAME           = \"name I\"\n"
+            "ORIGINAL_PATH  = \"/tmp/nothing\"\n"
+            "PUBLIC         = \"YES\"",
+
+            "END"
+        };
+
+        bool results[] = {  false, true, false, false,
+                            false, false, false, false, true };
+
+        int i = 0;
+        while( templates[i] != "END" )
+        {
+
+            imp->allocate(0, templates[i], &oid);
+
+            CPPUNIT_ASSERT( oid >= 0 );
+
+            img = imp->get( oid, false );
+            CPPUNIT_ASSERT( img != 0 );
+//cout << endl << i << " : exp. " << results[i] << " got " << img->is_public();
+            CPPUNIT_ASSERT( img->is_public() == results[i] );
+
+            i++;
+        }
     }
 
 /* -------------------------------------------------------------------------- */
