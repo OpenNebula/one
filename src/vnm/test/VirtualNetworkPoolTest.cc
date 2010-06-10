@@ -41,7 +41,8 @@ const string templates[] =
             "TYPE            = RANGED\n"
             "BRIDGE          = br0\n"
             "NETWORK_SIZE    = C\n"
-            "NETWORK_ADDRESS = 192.168.0.0\n",
+            "NETWORK_ADDRESS = 192.168.0.0\n"
+            "PUBLIC          = YES",
 
             "NAME   = \"Net number two\"\n"
             "TYPE   = fixed\n"
@@ -61,45 +62,18 @@ const string templates[] =
 
 const string xmls[] =
 {
-            "<VNET><ID>0</ID><UID>123</UID><NAME>Net number one</NAME>"
-            "<TYPE>1</TYPE><BRIDGE>br1</BRIDGE><TEMPLATE><BRIDGE>"
-            "<![CDATA[br1]]></BRIDGE><LEASES><IP><![CDATA[130.10.0.1]]>"
-            "</IP><MAC><![CDATA[50:20:20:20:20:20]]></MAC></LEASES><NAME>"
-            "<![CDATA[Net number one]]></NAME><TYPE><![CDATA[FIXED]]></TYPE>"
-            "</TEMPLATE><LEASES>"
-            "<LEASE><IP>130.10.0.1</IP><MAC>50:20:20:20:20:20</MAC>"
-            "<USED>0</USED><VID>-1</VID></LEASE></LEASES></VNET>",
+    "<VNET><ID>0</ID><UID>123</UID><NAME>Net number one</NAME><TYPE>1</TYPE><BRIDGE>br1</BRIDGE><PUBLIC>0</PUBLIC><TEMPLATE><BRIDGE><![CDATA[br1]]></BRIDGE><LEASES><IP><![CDATA[130.10.0.1]]></IP><MAC><![CDATA[50:20:20:20:20:20]]></MAC></LEASES><NAME><![CDATA[Net number one]]></NAME><TYPE><![CDATA[FIXED]]></TYPE></TEMPLATE><LEASES><LEASE><IP>130.10.0.1</IP><MAC>50:20:20:20:20:20</MAC><USED>0</USED><VID>-1</VID></LEASE></LEASES></VNET>",
 
-            "<VNET><ID>1</ID><UID>261</UID><NAME>A virtual network</NAME>"
-            "<TYPE>0</TYPE><BRIDGE>br0</BRIDGE><TEMPLATE><BRIDGE>"
-            "<![CDATA[br0]]></BRIDGE><NAME><![CDATA[A virtual network]]>"
-            "</NAME><NETWORK_ADDRESS><![CDATA[192.168.0.0]]></NETWORK_ADDRESS>"
-            "<NETWORK_SIZE><![CDATA[C]]></NETWORK_SIZE><TYPE><![CDATA[RANGED]]>"
-            "</TYPE></TEMPLATE>"
-            "<LEASES></LEASES></VNET>",
+    "<VNET><ID>1</ID><UID>261</UID><NAME>A virtual network</NAME><TYPE>0</TYPE><BRIDGE>br0</BRIDGE><PUBLIC>1</PUBLIC><TEMPLATE><BRIDGE><![CDATA[br0]]></BRIDGE><NAME><![CDATA[A virtual network]]></NAME><NETWORK_ADDRESS><![CDATA[192.168.0.0]]></NETWORK_ADDRESS><NETWORK_SIZE><![CDATA[C]]></NETWORK_SIZE><TYPE><![CDATA[RANGED]]></TYPE></TEMPLATE><LEASES></LEASES></VNET>",
 
-            "<VNET><ID>0</ID><UID>133</UID><NAME>Net number two</NAME>"
-            "<TYPE>1</TYPE><BRIDGE>br1</BRIDGE><TEMPLATE><BRIDGE>"
-            "<![CDATA[br1]]></BRIDGE><LEASES><IP><![CDATA[130.10.2.1]]></IP>"
-            "<MAC><![CDATA[50:20:20:20:20:20]]></MAC></LEASES><NAME>"
-            "<![CDATA[Net number two]]></NAME><TYPE><![CDATA[fixed]]></TYPE>"
-            "</TEMPLATE>"
-            "<LEASES><LEASE><IP>130.10.2.1</IP>"
-            "<MAC>50:20:20:20:20:20</MAC><USED>0</USED><VID>-1</VID>"
-            "</LEASE></LEASES></VNET>"
+    "<VNET><ID>0</ID><UID>133</UID><NAME>Net number two</NAME><TYPE>1</TYPE><BRIDGE>br1</BRIDGE><PUBLIC>0</PUBLIC><TEMPLATE><BRIDGE><![CDATA[br1]]></BRIDGE><LEASES><IP><![CDATA[130.10.2.1]]></IP><MAC><![CDATA[50:20:20:20:20:20]]></MAC></LEASES><NAME><![CDATA[Net number two]]></NAME><TYPE><![CDATA[fixed]]></TYPE></TEMPLATE><LEASES><LEASE><IP>130.10.2.1</IP><MAC>50:20:20:20:20:20</MAC><USED>0</USED><VID>-1</VID></LEASE></LEASES></VNET>"
 };
 
 const string xml_dump =
-    "<VNET_POOL><VNET><ID>0</ID><UID>1</UID><USERNAME>A user</USERNAME><NAME>Ne"
-    "t number one</NAME><TYPE>1</TYPE><BRIDGE>br1</BRIDGE><TOTAL_LEASES>0</TOTA"
-    "L_LEASES></VNET><VNET><ID>1</ID><UID>2</UID><USERNAME>B user</USERNAME><NA"
-    "ME>A virtual network</NAME><TYPE>0</TYPE><BRIDGE>br0</BRIDGE><TOTAL_LEASES"
-    ">0</TOTAL_LEASES></VNET></VNET_POOL>";
+    "<VNET_POOL><VNET><ID>0</ID><UID>1</UID><USERNAME>A user</USERNAME><NAME>Net number one</NAME><TYPE>1</TYPE><BRIDGE>br1</BRIDGE><PUBLIC>0</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES></VNET><VNET><ID>1</ID><UID>2</UID><USERNAME>B user</USERNAME><NAME>A virtual network</NAME><TYPE>0</TYPE><BRIDGE>br0</BRIDGE><PUBLIC>1</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES></VNET></VNET_POOL>";
 
 const string xml_dump_where =
-    "<VNET_POOL><VNET><ID>1</ID><UID>2</UID><USERNAME>B user</USERNAME><NA"
-    "ME>A virtual network</NAME><TYPE>0</TYPE><BRIDGE>br0</BRIDGE><TOTAL_LEASES"
-    ">0</TOTAL_LEASES></VNET></VNET_POOL>";
+    "<VNET_POOL><VNET><ID>1</ID><UID>2</UID><USERNAME>B user</USERNAME><NAME>A virtual network</NAME><TYPE>0</TYPE><BRIDGE>br0</BRIDGE><PUBLIC>1</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES></VNET></VNET_POOL>";
 
 /* ************************************************************************* */
 /* ************************************************************************* */
@@ -125,6 +99,7 @@ class VirtualNetworkPoolTest : public PoolTest
     CPPUNIT_TEST (overlapping_leases_rf);
     CPPUNIT_TEST (overlapping_leases_rr);
     CPPUNIT_TEST (drop_leases);
+    CPPUNIT_TEST (public_attribute);
 
     CPPUNIT_TEST_SUITE_END ();
 
@@ -789,7 +764,7 @@ public:
         CPPUNIT_ASSERT(rc              == 0);
         CPPUNIT_ASSERT(results.size()  == 1);
     }
-    
+
     void drop_leases()
     {
         int rc, oid;
@@ -818,6 +793,102 @@ public:
         rc = pool->search(results, table, where);
         CPPUNIT_ASSERT(rc              == 0);
         CPPUNIT_ASSERT(results.size()  == 0);
+    }
+
+
+    void public_attribute()
+    {
+        int oid;
+        VirtualNetworkPool * vnp = static_cast<VirtualNetworkPool *>(pool);
+        VirtualNetwork *     vn;
+
+        string templates[] =
+        {
+            // false
+            "NAME   = \"name A\"\n"
+            "TYPE   = FIXED\n"
+            "BRIDGE = br1\n"
+            "LEASES = [IP=130.10.0.1, MAC=50:20:20:20:20:20]\n",
+
+            // true
+            "NAME   = \"name B\"\n"
+            "TYPE   = FIXED\n"
+            "BRIDGE = br1\n"
+            "LEASES = [IP=130.10.0.1, MAC=50:20:20:20:20:20]\n"
+            "PUBLIC = YES",
+
+            // false
+            "NAME   = \"name C\"\n"
+            "TYPE   = FIXED\n"
+            "BRIDGE = br1\n"
+            "LEASES = [IP=130.10.0.1, MAC=50:20:20:20:20:20]\n"
+            "PUBLIC = NO",
+
+            // false
+            "NAME   = \"name D\"\n"
+            "TYPE   = FIXED\n"
+            "BRIDGE = br1\n"
+            "LEASES = [IP=130.10.0.1, MAC=50:20:20:20:20:20]\n"
+            "PUBLIC = 1",
+
+            // false
+            "NAME   = \"name E\"\n"
+            "TYPE   = FIXED\n"
+            "BRIDGE = br1\n"
+            "LEASES = [IP=130.10.0.1, MAC=50:20:20:20:20:20]\n"
+            "PUBLIC = Yes",
+
+            // false
+            "NAME   = \"name F\"\n"
+            "TYPE   = FIXED\n"
+            "BRIDGE = br1\n"
+            "LEASES = [IP=130.10.0.1, MAC=50:20:20:20:20:20]\n"
+            "PUBLIC = TRUE",
+
+            // false
+            "NAME   = \"name G\"\n"
+            "TYPE   = FIXED\n"
+            "BRIDGE = br1\n"
+            "LEASES = [IP=130.10.0.1, MAC=50:20:20:20:20:20]\n"
+            "PUBLIC = yes",
+
+            // false
+            "NAME   = \"name H\"\n"
+            "TYPE   = FIXED\n"
+            "BRIDGE = br1\n"
+            "LEASES = [IP=130.10.0.1, MAC=50:20:20:20:20:20]\n"
+            "PUBLIC = 'YES'",
+
+            // true
+            "NAME   = \"name I\"\n"
+            "TYPE   = FIXED\n"
+            "BRIDGE = br1\n"
+            "LEASES = [IP=130.10.0.1, MAC=50:20:20:20:20:20]\n"
+            "PUBLIC = \"YES\"",
+
+            "END"
+        };
+
+        bool results[] = {  false, true, false, false,
+                            false, false, false, false, true };
+
+        int i = 0;
+        while( templates[i] != "END" )
+        {
+
+            vnp->allocate(0, templates[i], &oid);
+
+            CPPUNIT_ASSERT( oid >= 0 );
+
+            vn = vnp->get( oid, false );
+            CPPUNIT_ASSERT( vn != 0 );
+
+//cout << endl << i << ":expected " << results[i] << " got " << vn->is_public();
+
+            CPPUNIT_ASSERT( vn->is_public() == results[i] );
+
+            i++;
+        }
     }
 };
 
