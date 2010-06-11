@@ -84,6 +84,8 @@ int HostPool::discover(map<int, string> * discovered_hosts)
 
     rc = db->exec(sql,this);
 
+    unset_callback();
+
     return rc;
 }
 
@@ -122,6 +124,8 @@ int HostPool::dump(ostringstream& oss, const string& where)
     rc = db->exec(cmd, this);
 
     oss << "</HOST_POOL>";
+
+    unset_callback();
 
     return rc;
 }

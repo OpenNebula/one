@@ -61,6 +61,8 @@ PoolSQL::PoolSQL(SqlDB * _db, const char * table): db(_db), lastOID(-1)
     oss << "SELECT MAX(oid) FROM " << table;
 
     db->exec(oss,this);
+
+    unset_callback();
 };
 
 /* -------------------------------------------------------------------------- */
@@ -301,6 +303,8 @@ int PoolSQL::search(
     sql  << "SELECT oid FROM " <<  table << " WHERE " << where;
 
     rc = db->exec(sql, this);
+
+    unset_callback();
 
     return rc;
 }

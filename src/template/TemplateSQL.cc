@@ -61,6 +61,8 @@ int TemplateSQL::insert(SqlDB * db)
 
     rc = db->exec(oss,this);
 
+    unset_callback();
+
     if ( rc != 0 )
     {
         return -1;
@@ -230,6 +232,8 @@ int TemplateSQL::select(SqlDB * db)
     oss << "SELECT * FROM " << table << " WHERE id=" << id;
 
     rc = db->exec(oss,this);
+
+    unset_callback();
 
     return rc;
 }

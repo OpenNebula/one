@@ -371,6 +371,8 @@ int History::select(SqlDB * db)
 
     rc = db->exec(oss,this);
 
+    unset_callback();
+
     if ( rc == 0 ) // Regenerate non-persistent data
     {
         non_persistent_data();

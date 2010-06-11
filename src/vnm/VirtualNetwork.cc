@@ -111,6 +111,8 @@ int VirtualNetwork::select(SqlDB * db)
 
     rc = db->exec(oss, this);
 
+    unset_callback();
+
     if ((rc != 0) || (oid != boid ))
     {
         goto error_id;

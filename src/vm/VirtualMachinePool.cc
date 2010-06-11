@@ -455,5 +455,7 @@ int VirtualMachinePool::dump(ostringstream& oss, const string& where)
 
     oss << "</VM_POOL>";
 
+    unset_callback();
+
     return rc;
 }

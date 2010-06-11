@@ -73,6 +73,8 @@ int TestObjectSQL::select(SqlDB *db)
 
     rc = db->exec(oss, this);
 
+    unset_callback();
+
     if ((rc != 0) || (oid != boid ))
     {
         return -1;
