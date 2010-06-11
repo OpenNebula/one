@@ -22,6 +22,8 @@
 #include <openssl/evp.h>
 #include <iomanip>
 
+#define TO_UPPER(S) transform (S.begin(),S.end(),S.begin(), \
+(int(*)(int))toupper)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -145,6 +147,7 @@ int ImagePool::allocate (
         }
 
         img->get_template_attribute("PUBLIC", public_attr);
+	TO_UPPER( public_attr );
         img->image_template.erase("PUBLIC");
 
         img->get_template_attribute("ORIGINAL_PATH", original_path);
