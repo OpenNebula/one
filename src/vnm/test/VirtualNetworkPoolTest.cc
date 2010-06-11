@@ -831,7 +831,7 @@ public:
             "LEASES = [IP=130.10.0.1, MAC=50:20:20:20:20:20]\n"
             "PUBLIC = 1",
 
-            // false
+            // true
             "NAME   = \"name E\"\n"
             "TYPE   = FIXED\n"
             "BRIDGE = br1\n"
@@ -845,7 +845,7 @@ public:
             "LEASES = [IP=130.10.0.1, MAC=50:20:20:20:20:20]\n"
             "PUBLIC = TRUE",
 
-            // false
+            // true
             "NAME   = \"name G\"\n"
             "TYPE   = FIXED\n"
             "BRIDGE = br1\n"
@@ -870,7 +870,7 @@ public:
         };
 
         bool results[] = {  false, true, false, false,
-                            false, false, false, false, true };
+                            true, false, true, false, true };
 
         int i = 0;
         while( templates[i] != "END" )

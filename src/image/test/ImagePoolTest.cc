@@ -567,7 +567,7 @@ public:
             "ORIGINAL_PATH  = \"/tmp/nothing\"\n"
             "PUBLIC         = 1",
 
-            // false
+            // true
             "NAME           = \"name E\"\n"
             "ORIGINAL_PATH  = \"/tmp/nothing\"\n"
             "PUBLIC         = Yes",
@@ -577,7 +577,7 @@ public:
             "ORIGINAL_PATH  = \"/tmp/nothing\"\n"
             "PUBLIC         = TRUE",
 
-            // false
+            // true
             "NAME           = \"name G\"\n"
             "ORIGINAL_PATH  = \"/tmp/nothing\"\n"
             "PUBLIC         = yes",
@@ -596,7 +596,7 @@ public:
         };
 
         bool results[] = {  false, true, false, false,
-                            false, false, false, false, true };
+                            true, false, true, false, true };
 
         int i = 0;
         while( templates[i] != "END" )
