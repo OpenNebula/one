@@ -23,29 +23,29 @@ void  LifeCycleManager::deploy_action(int vid)
     ostringstream       os;
 
     vm = vmpool->get(vid,true);
-    
+
     if ( vm == 0 )
     {
         return;
     }
-    
+
     if ( vm->get_state() == VirtualMachine::ACTIVE )
     {
         Nebula&             nd = Nebula::instance();
         TransferManager *   tm = nd.get_tm();
         time_t				thetime = time(0);
         int					cpu,mem,disk;
-        
+
         VirtualMachine::LcmState vm_state;
         TransferManager::Actions tm_action;
-        
+
         //----------------------------------------------------
         //                 PROLOG STATE
         //----------------------------------------------------
-        
+
         vm_state  = VirtualMachine::PROLOG;
         tm_action = TransferManager::PROLOG;
-        
+
         if (vm->hasPreviousHistory())
         {
         	if (vm->get_previous_reason() == History::STOP_RESUME)
@@ -56,21 +56,21 @@ void  LifeCycleManager::deploy_action(int vid)
         }
 
         vm->set_state(vm_state);
-                
+
         vmpool->update(vm);
-        
+
         vm->set_stime(thetime);
-        
-        vm->set_prolog_stime(thetime);        
-        
+
+        vm->set_prolog_stime(thetime);
+
         vmpool->update_history(vm);
-        
+
         vm->get_requirements(cpu,mem,disk);
-        
+
         hpool->add_capacity(vm->get_hid(),cpu,mem,disk);
-        
+
         vm->log("LCM", Log::INFO, "New VM state is PROLOG.");
-        
+
         //----------------------------------------------------
 
         tm->trigger(tm_action,vid);
@@ -79,9 +79,9 @@ void  LifeCycleManager::deploy_action(int vid)
     {
         vm->log("LCM", Log::ERROR, "deploy_action, VM in a wrong state.");
     }
-    
+
     vm->unlock();
-    
+
     return;
 }
 
@@ -91,14 +91,14 @@ void  LifeCycleManager::deploy_action(int vid)
 void  LifeCycleManager::suspend_action(int vid)
 {
     VirtualMachine *    vm;
-    
+
     vm = vmpool->get(vid,true);
-    
+
     if ( vm == 0 )
     {
         return;
     }
-    
+
     if (vm->get_state() == VirtualMachine::ACTIVE &&
         vm->get_lcm_state() == VirtualMachine::RUNNING)
     {
@@ -108,24 +108,24 @@ void  LifeCycleManager::suspend_action(int vid)
         //----------------------------------------------------
         //                SAVE_SUSPEND STATE
         //----------------------------------------------------
-        
+
         vm->set_state(VirtualMachine::SAVE_SUSPEND);
-        
+
         vmpool->update(vm);
 
         vm->log("LCM", Log::INFO, "New VM state is SAVE_SUSPEND");
-        
+
         //----------------------------------------------------
-        
-        vmm->trigger(VirtualMachineManager::SAVE,vid);       
+
+        vmm->trigger(VirtualMachineManager::SAVE,vid);
     }
     else
     {
         vm->log("LCM", Log::ERROR, "suspend_action, VM in a wrong state.");
     }
-    
+
     vm->unlock();
-    
+
     return;
 }
 
@@ -135,14 +135,14 @@ void  LifeCycleManager::suspend_action(int vid)
 void  LifeCycleManager::stop_action(int vid)
 {
     VirtualMachine *    vm;
-    
+
     vm = vmpool->get(vid,true);
-    
+
     if ( vm == 0 )
     {
         return;
     }
-    
+
     if (vm->get_state() == VirtualMachine::ACTIVE &&
         vm->get_lcm_state() == VirtualMachine::RUNNING)
     {
@@ -154,22 +154,22 @@ void  LifeCycleManager::stop_action(int vid)
         //----------------------------------------------------
 
         vm->set_state(VirtualMachine::SAVE_STOP);
-        
+
         vmpool->update(vm);
 
         vm->log("LCM", Log::INFO, "New VM state is SAVE_STOP");
-        
+
         //----------------------------------------------------
 
-        vmm->trigger(VirtualMachineManager::SAVE,vid);       
+        vmm->trigger(VirtualMachineManager::SAVE,vid);
     }
     else
     {
-        vm->log("LCM", Log::ERROR, "stop_action, VM in a wrong state.");  
+        vm->log("LCM", Log::ERROR, "stop_action, VM in a wrong state.");
     }
-    
+
     vm->unlock();
-    
+
     return;
 }
 
@@ -179,50 +179,50 @@ void  LifeCycleManager::stop_action(int vid)
 void  LifeCycleManager::migrate_action(int vid)
 {
     VirtualMachine *    vm;
-    
+
     vm = vmpool->get(vid,true);
-    
+
     if ( vm == 0 )
     {
         return;
     }
-    
+
     if (vm->get_state() == VirtualMachine::ACTIVE &&
         vm->get_lcm_state() == VirtualMachine::RUNNING)
     {
         Nebula&                 nd  = Nebula::instance();
         VirtualMachineManager * vmm = nd.get_vmm();
         int						cpu,mem,disk;
-        
+
         //----------------------------------------------------
         //                SAVE_MIGRATE STATE
         //----------------------------------------------------
 
         vm->set_state(VirtualMachine::SAVE_MIGRATE);
-        
+
         vmpool->update(vm);
-        
+
         vm->set_stime(time(0));
-        
+
         vmpool->update_history(vm);
-        
+
         vm->get_requirements(cpu,mem,disk);
-        
+
         hpool->add_capacity(vm->get_hid(),cpu,mem,disk);
 
         vm->log("LCM", Log::INFO, "New VM state is SAVE_MIGRATE");
-        
+
         //----------------------------------------------------
 
-        vmm->trigger(VirtualMachineManager::SAVE,vid);       
+        vmm->trigger(VirtualMachineManager::SAVE,vid);
     }
     else
     {
         vm->log("LCM", Log::ERROR, "migrate_action, VM in a wrong state.");
     }
-    
+
     vm->unlock();
-    
+
     return;
 }
 
@@ -233,21 +233,21 @@ void  LifeCycleManager::live_migrate_action(int vid)
 {
     VirtualMachine *    vm;
     ostringstream        os;
-    
+
     vm = vmpool->get(vid,true);
-    
+
     if ( vm == 0 )
     {
         return;
     }
-    
+
     if (vm->get_state() == VirtualMachine::ACTIVE &&
         vm->get_lcm_state() == VirtualMachine::RUNNING)
     {
         Nebula&                 nd = Nebula::instance();
         VirtualMachineManager * vmm = nd.get_vmm();
         int						cpu,mem,disk;
-        
+
         //----------------------------------------------------
         //                   MIGRATE STATE
         //----------------------------------------------------
@@ -257,26 +257,26 @@ void  LifeCycleManager::live_migrate_action(int vid)
         vmpool->update(vm);
 
         vm->set_stime(time(0));
-        
+
         vmpool->update_history(vm);
-        
+
         vm->get_requirements(cpu,mem,disk);
-        
+
         hpool->add_capacity(vm->get_hid(),cpu,mem,disk);
-        
+
         vm->log("LCM",Log::INFO,"New VM state is MIGRATE");
-        
+
         //----------------------------------------------------
-        
-        vmm->trigger(VirtualMachineManager::MIGRATE,vid);       
+
+        vmm->trigger(VirtualMachineManager::MIGRATE,vid);
     }
     else
     {
         vm->log("LCM", Log::ERROR, "live_migrate_action, VM in a wrong state.");
     }
-    
+
     vm->unlock();
-    
+
     return;
 }
 
@@ -286,14 +286,14 @@ void  LifeCycleManager::live_migrate_action(int vid)
 void  LifeCycleManager::shutdown_action(int vid)
 {
     VirtualMachine *    vm;
-    
+
     vm = vmpool->get(vid,true);
-    
+
     if ( vm == 0 )
     {
         return;
     }
-    
+
     if (vm->get_state() == VirtualMachine::ACTIVE &&
         vm->get_lcm_state() == VirtualMachine::RUNNING)
     {
@@ -307,20 +307,20 @@ void  LifeCycleManager::shutdown_action(int vid)
         vm->set_state(VirtualMachine::SHUTDOWN);
 
         vmpool->update(vm);
-        
+
         vm->log("LCM",Log::INFO,"New VM state is SHUTDOWN");
 
         //----------------------------------------------------
-        
-        vmm->trigger(VirtualMachineManager::SHUTDOWN,vid);       
+
+        vmm->trigger(VirtualMachineManager::SHUTDOWN,vid);
     }
     else
     {
         vm->log("LCM", Log::ERROR, "shutdown_action, VM in a wrong state.");
     }
-    
+
     vm->unlock();
-    
+
     return;
 }
 
@@ -331,56 +331,56 @@ void  LifeCycleManager::restore_action(int vid)
 {
     VirtualMachine *    vm;
     ostringstream       os;
-    
+
     vm = vmpool->get(vid,true);
-    
+
     if ( vm == 0 )
     {
         return;
     }
-    
+
     if (vm->get_state() == VirtualMachine::ACTIVE)
     {
         Nebula&                 nd  = Nebula::instance();
         VirtualMachineManager * vmm = nd.get_vmm();
         int						cpu,mem,disk;
         time_t					the_time = time(0);
-        
+
         vm->log("LCM", Log::INFO, "Restoring VM");
-        
+
         //----------------------------------------------------
         //            BOOT STATE (FROM SUSPEND)
-        //----------------------------------------------------        
+        //----------------------------------------------------
 
         vm->set_state(VirtualMachine::BOOT);
 
-        vmpool->update(vm);
-        
         vm->cp_history();
-                        
+
+        vmpool->update(vm); //update last_seq & state
+
         vm->set_stime(the_time);
-        
+
         vm->set_running_stime(the_time);
-        
+
         vmpool->update_history(vm);
-                
+
         vm->get_requirements(cpu,mem,disk);
-        
-        hpool->add_capacity(vm->get_hid(),cpu,mem,disk);        
-        
+
+        hpool->add_capacity(vm->get_hid(),cpu,mem,disk);
+
         vm->log("LCM", Log::INFO, "New state is BOOT");
-        
+
         //----------------------------------------------------
-        
-        vmm->trigger(VirtualMachineManager::RESTORE,vid);       
+
+        vmm->trigger(VirtualMachineManager::RESTORE,vid);
     }
     else
     {
         vm->log("LCM", Log::ERROR, "restore_action, VM in a wrong state.");
     }
-    
+
     vm->unlock();
-    
+
     return;
 }
 
@@ -390,14 +390,14 @@ void  LifeCycleManager::restore_action(int vid)
 void  LifeCycleManager::cancel_action(int vid)
 {
     VirtualMachine *    vm;
-    
+
     vm = vmpool->get(vid,true);
-    
+
     if ( vm == 0 )
     {
         return;
     }
-    
+
     if (vm->get_state() == VirtualMachine::ACTIVE &&
         vm->get_lcm_state() == VirtualMachine::RUNNING)
     {
@@ -409,22 +409,22 @@ void  LifeCycleManager::cancel_action(int vid)
         //----------------------------------------------------
 
         vm->set_state(VirtualMachine::CANCEL);
-        
+
         vmpool->update(vm);
 
         vm->log("LCM", Log::INFO, "New state is CANCEL");
-        
+
         //----------------------------------------------------
-        
-        vmm->trigger(VirtualMachineManager::CANCEL,vid);       
+
+        vmm->trigger(VirtualMachineManager::CANCEL,vid);
     }
     else
     {
         vm->log("LCM", Log::ERROR, "cancel_action, VM in a wrong state.");
     }
-    
+
     vm->unlock();
-    
+
     return;
 }
 
@@ -434,14 +434,14 @@ void  LifeCycleManager::cancel_action(int vid)
 void  LifeCycleManager::restart_action(int vid)
 {
     VirtualMachine *    vm;
-    
+
     vm = vmpool->get(vid,true);
-    
+
     if ( vm == 0 )
     {
         return;
     }
-    
+
     if (vm->get_state() == VirtualMachine::ACTIVE &&
         (vm->get_lcm_state() == VirtualMachine::UNKNOWN ||
          vm->get_lcm_state() == VirtualMachine::BOOT))
@@ -452,7 +452,7 @@ void  LifeCycleManager::restart_action(int vid)
         //----------------------------------------------------
         //       RE-START THE VM IN THE SAME HOST
         //----------------------------------------------------
-       
+
         if (vm->get_lcm_state() == VirtualMachine::BOOT)
         {
             vm->log("LCM", Log::INFO, "Sending BOOT command to VM again");
@@ -460,23 +460,23 @@ void  LifeCycleManager::restart_action(int vid)
         else
         {
             vm->set_state(VirtualMachine::BOOT);
-        
+
             vmpool->update(vm);
 
             vm->log("LCM", Log::INFO, "New VM state is BOOT");
         }
-        
+
         //----------------------------------------------------
-        
-        vmm->trigger(VirtualMachineManager::DEPLOY,vid);       
+
+        vmm->trigger(VirtualMachineManager::DEPLOY,vid);
     }
     else
     {
         vm->log("LCM", Log::ERROR, "restart_action, VM in a wrong state.");
     }
-    
+
     vm->unlock();
-    
+
     return;
 }
 
@@ -489,7 +489,7 @@ void  LifeCycleManager::delete_action(int vid)
 
 
     vm = vmpool->get(vid,true);
-    
+
     if ( vm == 0 )
     {
         return;
@@ -548,7 +548,7 @@ void  LifeCycleManager::delete_action(int vid)
 
             tm->trigger(TransferManager::EPILOG_DELETE,vid);
         break;
-        
+
         case VirtualMachine::MIGRATE:
             vm->set_running_etime(the_time);
             vmpool->update_history(vm);
@@ -557,8 +557,8 @@ void  LifeCycleManager::delete_action(int vid)
             vm->set_previous_running_etime(the_time);
             vm->set_previous_reason(History::USER);
             vmpool->update_previous_history(vm);
-        
-            hpool->del_capacity(vm->get_previous_hid(),cpu,mem,disk);        
+
+            hpool->del_capacity(vm->get_previous_hid(),cpu,mem,disk);
 
             vmm->trigger(VirtualMachineManager::DRIVER_CANCEL,vid);
 
@@ -585,8 +585,8 @@ void  LifeCycleManager::delete_action(int vid)
             vm->set_previous_running_etime(the_time);
             vm->set_previous_reason(History::USER);
             vmpool->update_previous_history(vm);
-        
-            hpool->del_capacity(vm->get_previous_hid(),cpu,mem,disk);        
+
+            hpool->del_capacity(vm->get_previous_hid(),cpu,mem,disk);
 
             vmm->trigger(VirtualMachineManager::DRIVER_CANCEL,vid);
             vmm->trigger(VirtualMachineManager::CANCEL_PREVIOUS,vid);

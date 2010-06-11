@@ -24,49 +24,49 @@ void  LifeCycleManager::save_success_action(int vid)
 {
     VirtualMachine *    vm;
     ostringstream       os;
-    
+
     vm = vmpool->get(vid,true);
-    
+
     if ( vm == 0 )
     {
         return;
     }
-    
+
     if ( vm->get_lcm_state() == VirtualMachine::SAVE_MIGRATE )
     {
         Nebula&             nd = Nebula::instance();
         TransferManager *   tm = nd.get_tm();
         int					cpu,mem,disk;
         time_t              the_time = time(0);
-        
+
         //----------------------------------------------------
         //                PROLOG_MIGRATE STATE
         //----------------------------------------------------
-                         
+
         vm->set_state(VirtualMachine::PROLOG_MIGRATE);
-        
+
         vmpool->update(vm);
-        
+
         vm->set_previous_etime(the_time);
-        
+
         vm->set_previous_running_etime(the_time);
-        
+
         vm->set_previous_reason(History::USER);
-        
+
         vmpool->update_previous_history(vm);
-        
+
         vm->set_prolog_stime(the_time);
 
         vmpool->update_history(vm);
-        
+
         vm->get_requirements(cpu,mem,disk);
-        
+
         hpool->del_capacity(vm->get_previous_hid(),cpu,mem,disk);
-        
+
         vm->log("LCM", Log::INFO, "New VM state is PROLOG_MIGRATE");
-                         
+
         //----------------------------------------------------
-        
+
         tm->trigger(TransferManager::PROLOG_MIGR,vid);
     }
     else if ( vm->get_lcm_state() == VirtualMachine::SAVE_SUSPEND)
@@ -83,17 +83,17 @@ void  LifeCycleManager::save_success_action(int vid)
         vm->set_running_etime(the_time);
 
         vm->set_etime(the_time);
-        
+
         vm->set_reason(History::STOP_RESUME);
 
         vmpool->update_history(vm);
 
         vm->get_requirements(cpu,mem,disk);
-        
+
         hpool->del_capacity(vm->get_hid(),cpu,mem,disk);
 
         //----------------------------------------------------
-        
+
         dm->trigger(DispatchManager::SUSPEND_SUCCESS,vid);
     }
     else if ( vm->get_lcm_state() == VirtualMachine::SAVE_STOP)
@@ -101,34 +101,34 @@ void  LifeCycleManager::save_success_action(int vid)
         Nebula&             nd = Nebula::instance();
         TransferManager *   tm = nd.get_tm();
         time_t 				the_time = time(0);
-        
+
         //----------------------------------------------------
         //                 EPILOG_STOP STATE
         //----------------------------------------------------
-        
+
         vm->set_state(VirtualMachine::EPILOG_STOP);
 
         vmpool->update(vm);
-        
+
         vm->set_epilog_stime(the_time);
-        
-        vm->set_running_etime(the_time);        
+
+        vm->set_running_etime(the_time);
 
         vm->set_reason(History::STOP_RESUME);
-        
+
         vmpool->update_history(vm);
-        
+
         vm->log("LCM", Log::INFO, "New VM state is EPILOG_STOP");
-        
+
         //----------------------------------------------------
-        
+
         tm->trigger(TransferManager::EPILOG_STOP,vid);
     }
     else
     {
         vm->log("LCM",Log::ERROR,"save_success_action, VM in a wrong state");
     }
-    
+
     vm->unlock();
 }
 
@@ -138,69 +138,69 @@ void  LifeCycleManager::save_success_action(int vid)
 void  LifeCycleManager::save_failure_action(int vid)
 {
     VirtualMachine *    vm;
-    
+
     vm = vmpool->get(vid,true);
-    
+
     if ( vm == 0 )
     {
         return;
     }
-    
+
     if ( vm->get_lcm_state() == VirtualMachine::SAVE_MIGRATE )
     {
     	int						cpu,mem,disk;
     	time_t 					the_time = time(0);
-    	
-        Nebula&             	nd = Nebula::instance();    	
+
+        Nebula&             	nd = Nebula::instance();
     	VirtualMachineManager *	vmm = nd.get_vmm();
-    	
+
         //----------------------------------------------------
         //           RUNNING STATE FROM SAVE_MIGRATE
         //----------------------------------------------------
 
         vm->set_state(VirtualMachine::RUNNING);
-        
-        vmpool->update(vm);
-        
+
         vm->set_etime(the_time);
-        
+
         vm->set_reason(History::ERROR);
-        
+
         vmpool->update_history(vm);
-        
+
         vm->get_requirements(cpu,mem,disk);
-        
+
         hpool->del_capacity(vm->get_hid(),cpu,mem,disk);
-        
-    	vm->set_previous_etime(the_time);
-    	
-    	vm->set_previous_running_etime(the_time);
-    	
-    	vm->set_previous_reason(History::USER);
-    	
-    	vmpool->update_previous_history(vm);
-    	
-    	// --- Add new record by copying the previous one 
-    	
+
+        vm->set_previous_etime(the_time);
+
+        vm->set_previous_running_etime(the_time);
+
+        vm->set_previous_reason(History::USER);
+
+        vmpool->update_previous_history(vm);
+
+        // --- Add new record by copying the previous one
+
         vm->cp_previous_history();
-        
+
+        vmpool->update(vm); //update last_seq & state
+
         vm->set_stime(the_time);
-        
+
         vm->set_running_stime(the_time);
-    	
+
         vmpool->update_history(vm);
-        
+
         vm->log("LCM", Log::INFO, "Fail to save VM state while migrating."
         		" Assuming that the VM is still RUNNING (will poll VM).");
-        
+
         //----------------------------------------------------
-        
-        vmm->trigger(VirtualMachineManager::POLL,vid);       
+
+        vmm->trigger(VirtualMachineManager::POLL,vid);
     }
     else if ( vm->get_lcm_state() == VirtualMachine::SAVE_SUSPEND ||
     		  vm->get_lcm_state() == VirtualMachine::SAVE_STOP )
     {
-        Nebula&             	nd = Nebula::instance();    	
+        Nebula&             	nd = Nebula::instance();
     	VirtualMachineManager *	vmm = nd.get_vmm();
 
         //----------------------------------------------------
@@ -208,14 +208,14 @@ void  LifeCycleManager::save_failure_action(int vid)
         //----------------------------------------------------
 
         vm->set_state(VirtualMachine::RUNNING);
-        
+
         vmpool->update(vm);
 
         vm->log("LCM", Log::INFO, "Fail to save VM state."
         		" Assuming that the VM is still RUNNING (will poll VM).");
-        
+
         //----------------------------------------------------
-        
+
         vmm->trigger(VirtualMachineManager::POLL,vid);
     }
 
@@ -228,9 +228,9 @@ void  LifeCycleManager::save_failure_action(int vid)
 void  LifeCycleManager::deploy_success_action(int vid)
 {
     VirtualMachine *    vm;
-    
+
     vm = vmpool->get(vid,true);
-    
+
     if ( vm == 0 )
     {
         return;
@@ -244,30 +244,30 @@ void  LifeCycleManager::deploy_success_action(int vid)
     {
     	int		cpu,mem,disk;
     	time_t	the_time = time(0);
-    	
+
         vm->set_running_stime(the_time);
-        
+
         vmpool->update_history(vm);
-        
+
         vm->set_previous_etime(the_time);
-        
+
         vm->set_previous_running_etime(the_time);
-        
+
         vm->set_previous_reason(History::USER);
-        
+
         vmpool->update_previous_history(vm);
-        
+
         vm->get_requirements(cpu,mem,disk);
-        
-        hpool->del_capacity(vm->get_previous_hid(),cpu,mem,disk);        
+
+        hpool->del_capacity(vm->get_previous_hid(),cpu,mem,disk);
     }
-    
+
     vm->set_state(VirtualMachine::RUNNING);
-    
+
     vmpool->update(vm);
 
     vm->log("LCM", Log::INFO, "New VM state is RUNNING");
-        
+
     vm->unlock();
 }
 
@@ -276,11 +276,11 @@ void  LifeCycleManager::deploy_success_action(int vid)
 
 void  LifeCycleManager::deploy_failure_action(int vid)
 {
-    
+
     VirtualMachine *    vm;
 
     vm = vmpool->get(vid,true);
-    
+
     if ( vm == 0 )
     {
         return;
@@ -290,52 +290,52 @@ void  LifeCycleManager::deploy_failure_action(int vid)
     {
     	int		cpu,mem,disk;
     	time_t	the_time = time(0);
-    	
+
     	Nebula&             	nd = Nebula::instance();
         VirtualMachineManager * vmm = nd.get_vmm();
-        
+
         //----------------------------------------------------
         //           RUNNING STATE FROM MIGRATE
         //----------------------------------------------------
 
         vm->set_state(VirtualMachine::RUNNING);
-        
+
         vmpool->update(vm);
 
         vm->set_etime(the_time);
-        
-        vm->set_reason(History::ERROR);
-        
-        vmpool->update_history(vm);
-        
-    	vm->set_previous_etime(the_time);
-    	
-    	vm->set_previous_running_etime(the_time);
-    	
-    	vm->set_previous_reason(History::USER);
-    	
-    	vmpool->update_previous_history(vm);
 
-    	vm->get_requirements(cpu,mem,disk);
-        
-        hpool->del_capacity(vm->get_hid(),cpu,mem,disk);                
-    	
-    	// --- Add new record by copying the previous one
-    	        
+        vm->set_reason(History::ERROR);
+
+        vm->set_previous_etime(the_time);
+
+        vm->set_previous_running_etime(the_time);
+
+        vm->set_previous_reason(History::USER);
+
+        vmpool->update_previous_history(vm);
+
+        vm->get_requirements(cpu,mem,disk);
+
+        hpool->del_capacity(vm->get_hid(),cpu,mem,disk);
+
+        // --- Add new record by copying the previous one
+
         vm->cp_previous_history();
-                
+
+        vmpool->update(vm); //update last_seq & state
+
         vm->set_stime(the_time);
-        
+
         vm->set_running_stime(the_time);
-    	
+
         vmpool->update_history(vm);
-        
+
         vm->log("LCM", Log::INFO, "Fail to life migrate VM."
-        		" Assuming that the VM is still RUNNING (will poll VM).");
-        
+                " Assuming that the VM is still RUNNING (will poll VM).");
+
         //----------------------------------------------------
-        
-        vmm->trigger(VirtualMachineManager::POLL,vid);    	
+
+        vmm->trigger(VirtualMachineManager::POLL,vid);
     }
     else if (vm->get_lcm_state() == VirtualMachine::BOOT)
     {
@@ -345,7 +345,7 @@ void  LifeCycleManager::deploy_failure_action(int vid)
 
         failure_action(vm);
     }
-    
+
     vm->unlock();
 }
 
@@ -358,35 +358,35 @@ void  LifeCycleManager::shutdown_success_action(int vid)
     TransferManager *   tm = nd.get_tm();
     VirtualMachine *    vm;
     time_t              the_time = time(0);
-                 
+
     vm = vmpool->get(vid,true);
-    
+
     if ( vm == 0 )
     {
         return;
     }
-    
+
     //----------------------------------------------------
     //                   EPILOG STATE
     //----------------------------------------------------
-    
+
     vm->set_state(VirtualMachine::EPILOG);
-    
+
     vmpool->update(vm);
-    
+
     vm->set_epilog_stime(the_time);
-    
+
     vm->set_running_etime(the_time);
-    
+
     vmpool->update_history(vm);
-    
+
     vm->log("LCM", Log::INFO, "New VM state is EPILOG");
-    
+
     //----------------------------------------------------
-        
+
     tm->trigger(TransferManager::EPILOG,vid);
-    
-    vm->unlock();    
+
+    vm->unlock();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -395,33 +395,33 @@ void  LifeCycleManager::shutdown_success_action(int vid)
 void  LifeCycleManager::shutdown_failure_action(int vid)
 {
     VirtualMachine *    	vm;
-    
-    Nebula&             	nd = Nebula::instance();    	
+
+    Nebula&             	nd = Nebula::instance();
 	VirtualMachineManager *	vmm = nd.get_vmm();
 
     vm = vmpool->get(vid,true);
-    
+
     if ( vm == 0 )
     {
         return;
     }
-    
+
     //----------------------------------------------------
     //    RUNNING STATE FROM SHUTDOWN
     //----------------------------------------------------
 
     vm->set_state(VirtualMachine::RUNNING);
-    
+
     vmpool->update(vm);
 
     vm->log("LCM", Log::INFO, "Fail to shutdown VM."
     		" Assuming that the VM is still RUNNING (will poll VM).");
-    
+
     //----------------------------------------------------
-    
+
     vmm->trigger(VirtualMachineManager::POLL,vid);
-        
-    vm->unlock();    
+
+    vm->unlock();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -434,31 +434,31 @@ void  LifeCycleManager::prolog_success_action(int vid)
     VirtualMachine *        vm;
     time_t                  the_time = time(0);
     ostringstream           os;
-    
+
     VirtualMachineManager::Actions action;
     VirtualMachine::LcmState       lcm_state;
-    
+
     vm = vmpool->get(vid, true);
 
     if ( vm == 0 )
     {
         return;
     }
-    
-    lcm_state = vm->get_lcm_state(); 
-            
+
+    lcm_state = vm->get_lcm_state();
+
     if (lcm_state == VirtualMachine::PROLOG)
     {
-        action = VirtualMachineManager::DEPLOY;    
+        action = VirtualMachineManager::DEPLOY;
     }
     else if ( lcm_state == VirtualMachine::PROLOG_MIGRATE ||
     		  lcm_state == VirtualMachine::PROLOG_RESUME )
     {
-        action = VirtualMachineManager::RESTORE;        
+        action = VirtualMachineManager::RESTORE;
     }
     else
     {
-        vm->log("LCM",Log::ERROR,"prolog_success_action, VM in a wrong state");        
+        vm->log("LCM",Log::ERROR,"prolog_success_action, VM in a wrong state");
         vm->unlock();
 
         return;
@@ -469,23 +469,23 @@ void  LifeCycleManager::prolog_success_action(int vid)
     //----------------------------------------------------
 
     vm->set_state(VirtualMachine::BOOT);
-    
+
     vmpool->update(vm);
-    
+
     vm->set_prolog_etime(the_time);
-    
+
     vm->set_running_stime(the_time);
-        
+
     vmpool->update_history(vm);
 
     vm->log("LCM", Log::INFO, "New VM state is BOOT");
-    
+
     //----------------------------------------------------
-    
+
     vmm->trigger(action,vid);
-        
+
     vm->unlock();
-    
+
     return;
 }
 
@@ -498,19 +498,19 @@ void  LifeCycleManager::prolog_failure_action(int vid)
 	time_t	the_time = time(0);
 
     vm = vmpool->get(vid,true);
-    
+
     if ( vm == 0 )
     {
         return;
     }
-        
+
     vm->set_prolog_etime(the_time);
 
     failure_action(vm);
 
     vm->unlock();
-    
-    return;    
+
+    return;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -520,20 +520,20 @@ void  LifeCycleManager::epilog_success_action(int vid)
 {
     Nebula&             nd = Nebula::instance();
     DispatchManager *   dm = nd.get_dm();
-    
+
     VirtualMachine *    vm;
     time_t              the_time = time(0);
     int					cpu,mem,disk;
-    
+
     DispatchManager::Actions action;
-    
+
     vm = vmpool->get(vid,true);
-    
+
     if ( vm == 0 )
     {
         return;
     }
-    
+
     if ( vm->get_lcm_state() == VirtualMachine::EPILOG_STOP )
     {
         action = DispatchManager::STOP_SUCCESS;
@@ -549,23 +549,23 @@ void  LifeCycleManager::epilog_success_action(int vid)
 
         return;
     }
-    
+
     vm->set_epilog_etime(the_time);
-    
+
     vm->set_etime(the_time);
-        
+
     vmpool->update_history(vm);
 
     vm->get_requirements(cpu,mem,disk);
-    
+
     hpool->del_capacity(vm->get_hid(),cpu,mem,disk);
 
     //----------------------------------------------------
-    
+
     dm->trigger(action,vid);
-    
+
     vm->unlock();
-    
+
     return;
 }
 
@@ -576,21 +576,21 @@ void  LifeCycleManager::epilog_failure_action(int vid)
 {
     VirtualMachine * vm;
     time_t           the_time = time(0);
-    
+
     vm = vmpool->get(vid,true);
-    
+
     if ( vm == 0 )
     {
         return;
     }
 
     vm->set_epilog_etime(the_time);
-    
+
     failure_action(vm);
 
     vm->unlock();
-    
-    return;        
+
+    return;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -601,31 +601,31 @@ void  LifeCycleManager::cancel_success_action(int vid)
     VirtualMachine *    vm;
     time_t				the_time = time(0);
     int					cpu,mem,disk;
-    
+
     Nebula&             nd = Nebula::instance();
     DispatchManager *   dm = nd.get_dm();
-    
+
     vm = vmpool->get(vid,true);
-    
+
     if ( vm == 0 )
     {
         return;
     }
 
     vm->set_etime(the_time);
-    
+
     vm->set_reason(History::CANCEL);
-        
+
     vmpool->update_history(vm);
 
     vm->get_requirements(cpu,mem,disk);
-    
+
     hpool->del_capacity(vm->get_hid(),cpu,mem,disk);
 
     //----------------------------------------------------
-    
+
     dm->trigger(DispatchManager::DONE,vid);
-    
+
     vm->unlock();
 }
 
@@ -636,32 +636,32 @@ void  LifeCycleManager::cancel_failure_action(int vid)
 {
     VirtualMachine *    vm;
 
-    Nebula&             	nd = Nebula::instance();    	
+    Nebula&             	nd = Nebula::instance();
 	VirtualMachineManager *	vmm = nd.get_vmm();
 
     vm = vmpool->get(vid,true);
-    
+
     if ( vm == 0 )
     {
         return;
     }
-    
+
     //----------------------------------------------------
     //    RUNNING STATE FROM CANCEL
     //----------------------------------------------------
 
     vm->set_state(VirtualMachine::RUNNING);
-    
+
     vmpool->update(vm);
 
     vm->log("LCM", Log::INFO, "Fail to cancel VM."
     		" Assuming that the VM is still RUNNING (will poll VM).");
-    
+
     //----------------------------------------------------
-    
+
     vmm->trigger(VirtualMachineManager::POLL,vid);
-        
-    vm->unlock();    
+
+    vm->unlock();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -672,14 +672,14 @@ void  LifeCycleManager::monitor_failure_action(int vid)
     VirtualMachine * vm;
 
 	time_t	the_time = time(0);
-    
+
     vm = vmpool->get(vid,true);
-    
+
     if ( vm == 0 )
     {
         return;
     }
-	
+
     vm->set_running_etime(the_time);
 
     failure_action(vm);
@@ -699,24 +699,24 @@ void  LifeCycleManager::monitor_suspend_action(int vid)
 
 	Nebula&             nd = Nebula::instance();
     DispatchManager *   dm = nd.get_dm();
-    
+
     vm = vmpool->get(vid,true);
-    
+
     if ( vm == 0 )
     {
         return;
     }
-    
+
     vm->set_running_etime(the_time);
-    
+
     vm->set_etime(the_time);
-    
+
     vm->set_reason(History::STOP_RESUME);
 
     vmpool->update_history(vm);
 
     vm->get_requirements(cpu,mem,disk);
-    
+
     hpool->del_capacity(vm->get_hid(),cpu,mem,disk);
 
     vm->log("LCM", Log::INFO, "VM is suspended.");
@@ -735,27 +735,27 @@ void  LifeCycleManager::monitor_suspend_action(int vid)
 void  LifeCycleManager::monitor_done_action(int vid)
 {
     VirtualMachine *    vm;
-    
+
     vm = vmpool->get(vid,true);
-    
+
     if ( vm == 0 )
     {
         return;
     }
-    
+
     //----------------------------------------------------
     //                   EPILOG STATE
     //----------------------------------------------------
-    
+
     vm->set_state(VirtualMachine::UNKNOWN);
-    
+
     vmpool->update(vm);
-    
+
     vm->log("LCM", Log::INFO, "New VM state is UNKNOWN");
-    
+
     //----------------------------------------------------
-    
-    vm->unlock();  
+
+    vm->unlock();
 }
 
 
@@ -767,10 +767,10 @@ void  LifeCycleManager::failure_action(VirtualMachine * vm)
 	Nebula&             nd = Nebula::instance();
 	TransferManager *   tm = nd.get_tm();
     DispatchManager *   dm = nd.get_dm();
-    
+
 	time_t	the_time = time(0);
    	int		cpu,mem,disk;
-    
+
     //----------------------------------------------------
     //                LCM FAILURE STATE
     //----------------------------------------------------
@@ -778,15 +778,15 @@ void  LifeCycleManager::failure_action(VirtualMachine * vm)
     vm->set_state(VirtualMachine::FAILURE);
 
     vmpool->update(vm);
-     
+
     vm->set_etime(the_time);
-        
+
     vm->set_reason(History::ERROR);
 
     vmpool->update_history(vm);
 
     vm->get_requirements(cpu,mem,disk);
-        
+
     hpool->del_capacity(vm->get_hid(),cpu,mem,disk);
 
     //------------- Clean up remote files ----------------

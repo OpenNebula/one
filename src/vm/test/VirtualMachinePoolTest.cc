@@ -335,6 +335,9 @@ cout << endl << oss.str() << endl;
         // Add a history item
         vm->add_history(0, hostnames[0], vm_dirs[0], vmm_mads[0], tm_mads[0]);
 
+	rc = vmp->update(vm);
+        CPPUNIT_ASSERT( rc == 0 );
+
         rc = vmp->update_history(vm);
         CPPUNIT_ASSERT( rc == 0 );
         //----------------------------------------------------------------------
@@ -349,11 +352,19 @@ cout << endl << oss.str() << endl;
 
         // Add a history item
         vm->add_history(1, hostnames[1], vm_dirs[1], vmm_mads[1], tm_mads[1]);
+
+	rc = vmp->update(vm);
+        CPPUNIT_ASSERT( rc == 0 );
+
         rc = vmp->update_history(vm);
         CPPUNIT_ASSERT( rc == 0 );
 
         // Add another history item
         vm->add_history(2, hostnames[2], vm_dirs[2], vmm_mads[2], tm_mads[2]);
+
+	rc = vmp->update(vm);
+        CPPUNIT_ASSERT( rc == 0 );
+
         rc = vmp->update_history(vm);
         CPPUNIT_ASSERT( rc == 0 );
         //----------------------------------------------------------------------
@@ -412,10 +423,16 @@ cout << endl << oss.str() << endl;
         // Add a history item
         vm->add_history(0, hostname, vm_dir, vmm_mad, tm_mad);
 
+	rc = vmp->update(vm);
+        CPPUNIT_ASSERT( rc == 0 );
+
         rc = vmp->update_history(vm);
         CPPUNIT_ASSERT( rc == 0 );
 
         vm->add_history(0, new_hostname, vm_dir, vmm_mad, tm_mad);
+
+	rc = vmp->update(vm);
+        CPPUNIT_ASSERT( rc == 0 );
 
         vm->set_reason(History::USER);
         vm->set_previous_reason(History::ERROR);

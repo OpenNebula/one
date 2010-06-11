@@ -185,26 +185,21 @@ int VirtualMachine::select(SqlDB * db)
 
     //Get the History Records
 
-    history = new History(oid);
-
-    rc = history->select(db);
-
-    if (rc != 0)
+    if ( last_seq != -1 )
     {
-        goto error_history;
+        history = new History(oid, last_seq);
+
+        rc = history->select(db);
+
+        if (rc != 0)
+        {
+            goto error_history;
+        }
     }
 
-    if ( history->seq == -1 )
+    if ( last_seq > 0 )
     {
-        delete history;
-
-        history = 0;
-    }
-    else if (history->seq > 0)
-    {
-        last_seq = history->seq;
-
-        previous_history = new History(oid,history->seq - 1);
+        previous_history = new History(oid, last_seq - 1);
 
         rc = previous_history->select(db);
 
@@ -381,7 +376,7 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace)
        db->free_str(sql_deploy_id);
        return -1;
     }
-    
+
     if(replace)
     {
         oss << "REPLACE";
@@ -390,7 +385,7 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace)
     {
         oss << "INSERT";
     }
-    
+
     oss << " INTO " << table << " "<< db_names <<" VALUES ("
         <<          oid             << ","
         <<          uid             << ","
@@ -421,8 +416,6 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace)
 
 int VirtualMachine::dump(ostringstream& oss,int num,char **values,char **names)
 {
-int n = num;
-int j = ( LIMIT + History::LIMIT + 2 );
     if ((!values[OID])||
         (!values[UID])||
         (!values[NAME]) ||
@@ -437,7 +430,7 @@ int j = ( LIMIT + History::LIMIT + 2 );
         (!values[NET_TX])||
         (!values[NET_RX])||
         (!values[LAST_SEQ])||
-        (num != LIMIT + History::LIMIT + 1 ))
+        (num != (LIMIT + History::LIMIT + 1)))
     {
         return -1;
     }
@@ -460,7 +453,7 @@ int j = ( LIMIT + History::LIMIT + 2 );
             "<NET_RX>"   << values[NET_RX]   << "</NET_RX>"   <<
             "<LAST_SEQ>" << values[LAST_SEQ] << "</LAST_SEQ>";
 
-    History::dump(oss, num-LIMIT-2, values+LIMIT+1, names+LIMIT+1);
+    History::dump(oss, num-LIMIT-1, values+LIMIT+1, names+LIMIT+1);
 
     oss << "</VM>";
 
@@ -963,6 +956,7 @@ string& VirtualMachine::to_str(string& str) const
        << "STOP TIME         : " << etime << endl
        << "NET TX            : " << net_tx << endl
        << "NET RX            : " << net_rx << endl
+       << "LAST SEQ          : " << last_seq << endl
        << "Template" << endl << vm_template.to_str(template_str) << endl;
 
     if ( hasHistory() )
