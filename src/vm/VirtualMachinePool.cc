@@ -433,18 +433,14 @@ int VirtualMachinePool::dump(ostringstream& oss, const string& where)
         static_cast<Callbackable::Callback>(&VirtualMachinePool::dump_cb),
         static_cast<void *>(&oss));
 
-    cmd << "SELECT " << VirtualMachine::table << ".*, "
-        << "user_pool.user_name, " << History::table << ".* FROM "
-        << VirtualMachine::table
-        << " LEFT OUTER JOIN ("
-        <<   "SELECT *,seq AS max_seq FROM " << History::table << " h1 WHERE "
-        <<     "seq=(SELECT MAX(seq) FROM " << History::table << " h2 WHERE h1.vid=h2.vid)) "
-        << "AS " << History::table
-        << " ON " << VirtualMachine::table << ".oid = "
-        << History::table << ".vid LEFT OUTER JOIN (SELECT oid,user_name FROM "
-        << "user_pool) AS user_pool ON "
-        << VirtualMachine::table << ".uid = user_pool.oid WHERE "
-        << VirtualMachine::table << ".state <> " << VirtualMachine::DONE;
+    cmd << "SELECT " << VirtualMachine::table << ".*, user_pool.user_name, "
+        << History::table << ".* FROM " << VirtualMachine::table
+        << " LEFT OUTER JOIN " << History::table << " ON "
+        << VirtualMachine::table << ".oid = " << History::table << ".vid AND "
+        << History::table << ".seq = " << VirtualMachine::table
+        << ".last_seq LEFT OUTER JOIN (SELECT oid,user_name FROM user_pool) "
+        << "AS user_pool ON " << VirtualMachine::table << ".uid = user_pool.oid"
+        << " WHERE " << VirtualMachine::table << ".state <> 6";
 
     if ( !where.empty() )
     {
