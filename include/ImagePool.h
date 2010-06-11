@@ -133,7 +133,7 @@ public:
         
         if ( name == "PUBLIC" && ( value == "YES" || value == "NO" ))
         {
-            image->public_img == value;
+            image->public_img = value=="YES"?1:0;
         }
         else
         {
