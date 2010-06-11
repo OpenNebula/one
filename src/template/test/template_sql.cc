@@ -37,7 +37,7 @@ public:
         TemplateSQL(_table,template_id,replace,separator,xml_root){}
 
     ~TSQL(){}
-    
+
     /* --------------------------------------------------------------------- */
     int insert(SqlDB * db){return TemplateSQL::insert(db);}
     int update(SqlDB * db){return TemplateSQL::update(db);}
@@ -59,7 +59,7 @@ public:
 /* ************************************************************************* */
 /* ************************************************************************* */
 
-class TemplateSQLTest : public CppUnit::TestFixture 
+class TemplateSQLTest : public CppUnit::TestFixture
 {
 
     CPPUNIT_TEST_SUITE (TemplateSQLTest);
@@ -93,7 +93,7 @@ public:
     {
         db_name  = "ONE_test_database";
 
-        template_ok = 
+        template_ok =
             "#This line is a comment\n"
             "  # Other comment\n"
             "MEMORY=345 # more comments behind an attribute\n"
@@ -123,7 +123,7 @@ public:
     {
         if (mysql)
         {
-            db = new MySqlDB("localhost","oneadmin","onepass",NULL);
+            db = new MySqlDB("localhost","oneadmin","oneadmin",NULL);
 
             ostringstream   oss1;
             oss1 << "DROP DATABASE IF EXISTS " << db_name;
@@ -170,16 +170,16 @@ public:
 
     /* ********************************************************************* */
     /* ********************************************************************* */
-    
+
     void test_insert()
     {
         char * error = 0;
         int    rc;
         string tmp;
         TSQL   t("template");
-        
+
         rc = t.parse(template_ok,&error);
-        
+
         if ( error != 0 )
         {
             cerr << error << endl;
@@ -202,43 +202,6 @@ public:
 
     void test_update()
     {
-
-        // Update only makes sense with a table with primary keys
-        //----------------------------------------------- //
-        tearDown();
-
-
-        if (mysql)
-        {
-            db = new MySqlDB("localhost","oneadmin","onepass",NULL);
-
-            ostringstream   oss1;
-            oss1 << "DROP DATABASE IF EXISTS " << db_name;
-            db->exec(oss1);
-
-            ostringstream   oss;
-            oss << "CREATE DATABASE " << db_name;
-            db->exec(oss);
-
-            ostringstream   oss2;
-            oss2 << "use " << db_name;
-            db->exec(oss2);
-        }
-        else
-        {
-            unlink(db_name.c_str());
-
-            db = new SqliteDB(db_name);
-        }
-
-        ostringstream db_bs("CREATE TABLE IF NOT EXISTS template (id INTEGER, "
-                            "name VARCHAR(256), type INTEGER, value TEXT, "
-                            "PRIMARY KEY(id,name))");
-
-        CPPUNIT_ASSERT(db->exec(db_bs) == 0);
-
-        //----------------------------------------------- //
-
         int         rc;
         string      att_name = "NEW_ATT";
         string      value = "";
@@ -277,7 +240,7 @@ public:
 
         TSQL t("template");
         TSQL t2("template",0);
-        
+
         string t2_xml;
 
         t.parse(template_ok,&error);
@@ -287,7 +250,7 @@ public:
         {
             free(error);
         }
-        
+
         CPPUNIT_ASSERT( t2.select(db) == 0 );
 
         t2.to_xml(t2_xml);
