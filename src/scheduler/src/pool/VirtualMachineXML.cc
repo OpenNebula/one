@@ -130,7 +130,10 @@ void VirtualMachineXML::set_priorities(vector<float>& total)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachineXML::get_host(int& hid, HostPoolXML * hpool)
+int VirtualMachineXML::get_host(int&          hid, 
+                                HostPoolXML * hpool,
+                                map<int,int>& host_vms, 
+                                int           max_vms)
 {
     vector<VirtualMachineXML::Host *>::reverse_iterator  i;
 
@@ -140,6 +143,8 @@ int VirtualMachineXML::get_host(int& hid, HostPoolXML * hpool)
     int cpu;
     int mem;
     int dsk;
+
+    pair<map<int,int>::iterator,bool> rc;
 
     get_requirements(cpu,mem,dsk);
 
@@ -154,10 +159,16 @@ int VirtualMachineXML::get_host(int& hid, HostPoolXML * hpool)
 
         if (host->test_capacity(cpu,mem,dsk)==true)
         {
-            host->add_capacity(cpu,mem,dsk);
-            hid  = (*i)->hid;
+            rc = host_vms.insert(make_pair((*i)->hid,0));
 
-            return 0;
+            if ( rc.first->second < max_vms )
+            {
+                host->add_capacity(cpu,mem,dsk);
+                hid  = (*i)->hid;
+
+                rc.first->second++;
+                return 0;
+            }
         }
     }
 
