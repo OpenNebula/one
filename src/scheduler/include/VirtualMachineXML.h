@@ -59,7 +59,10 @@ public:
     /**
      *
      */
-    int get_host(int& hid, HostPoolXML * hpool);
+    int get_host(int& hid, 
+                 HostPoolXML * hpool,
+                 map<int,int>& host_vms,
+                 int max_vms);
 
     void get_requirements (int& cpu, int& memory, int& disk);
 

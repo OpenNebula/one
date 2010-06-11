@@ -45,13 +45,14 @@ public:
 protected:
 
     Scheduler(string& _url, time_t _timer,
-              int _machines_limit, int _dispatch_limit):
+              int _machines_limit, int _dispatch_limit, int _host_dispatch_limit):
         hpool(0),
         vmpool(0),
         timer(_timer),
         url(_url),
         machines_limit(_machines_limit),
         dispatch_limit(_dispatch_limit),
+        host_dispatch_limit(_host_dispatch_limit),
         threshold(0.9),
         client(0)
     {
@@ -140,6 +141,11 @@ private:
      *  Limit of virtual machines to ask OpenNebula core to deploy.
      */
     unsigned int dispatch_limit;
+
+    /**
+     *  Limit of virtual machines to be deployed simultaneously to a given host.
+     */
+    unsigned int host_dispatch_limit;
 
     /**
      *  Threshold value to round up freecpu
