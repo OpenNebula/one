@@ -45,7 +45,7 @@ pthread_mutex_t Template::mutex = PTHREAD_MUTEX_INITIALIZER;
 extern "C"
 {
     typedef struct yy_buffer_state * YY_BUFFER_STATE;
-    
+
     extern FILE *template_in, *template_out;
 
     int template_parse(Template * tmpl, char ** errmsg);
@@ -207,26 +207,26 @@ int Template::remove(const string& name, vector<Attribute *>& values)
 
 int Template::erase(const string& name)
 {
-    int                     removed;
-    int                     num_attr;
-    vector<Attribute *>     attrs;
+    multimap<string, Attribute *>::iterator         i;
 
-    // Call remove
-    removed = remove(name, attrs);
+    pair<
+        multimap<string, Attribute *>::iterator,
+        multimap<string, Attribute *>::iterator
+        >                                           index;
+    int                                             j;
 
-    // Clear attrs
-    if ((num_attr = (int) attrs.size()) > 0)
+    index = attributes.equal_range(name);
+
+    for ( i = index.first,j=0 ; i != index.second ; i++,j++ )
     {
-        for (int i = 0; i < num_attr ; i++)
-        {
-            if (attrs[i] != 0)
-            {
-                delete attrs[i];
-            }
-        }
+        Attribute * attr = i->second;
+        delete attr;
     }
 
-    return removed;
+    attributes.erase(index.first,index.second);
+
+    return j;
+
 }
 
 /* -------------------------------------------------------------------------- */
@@ -382,9 +382,9 @@ string& Template::to_str(string& str) const
 ostream& operator << (ostream& os, const Template& t)
 {
 	string str;
-	
+
 	os << t.to_str(str);
-	
+
     return os;
 }
 

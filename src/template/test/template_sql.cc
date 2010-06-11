@@ -206,9 +206,14 @@ public:
         string      att_name = "NEW_ATT";
         string      value = "";
 
+        ostringstream db_bs(
+          "CREATE TABLE IF NOT EXISTS template_replace (id INTEGER, "
+          "name VARCHAR(256), type INTEGER, value TEXT, PRIMARY KEY(id,name))");
 
-        TSQL t ("template",0);
-        TSQL t2("template",0);
+        CPPUNIT_ASSERT(db->exec(db_bs) == 0);
+
+        TSQL t ("template_replace",0);
+        TSQL t2("template_replace",0);
 
         // Insert template t into the DB
         t.insert(db);
