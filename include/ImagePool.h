@@ -119,6 +119,7 @@ public:
     };
     
     /** Modify an image attribute in the template OR the public attribute
+     *  and updates it in the DB (Image MUST be locked)
      *    @param image pointer to Image
      *    @param name of the attribute to be changed
      *    @param new value for the attribute
@@ -139,6 +140,8 @@ public:
         {
             return image->update_template_attribute(db, name, value);
         }
+        
+        image->update(db);
         
         return rc;
     }                   
