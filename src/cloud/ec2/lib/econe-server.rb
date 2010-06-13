@@ -75,6 +75,8 @@ helpers do
             message = 'Specified AMI ID does not exist'
         when 'Unsupported'
             message = 'The instance type or feature is not supported in your requested Availability Zone.'
+        else 
+            message = code
         end
         
         xml = "<Response><Errors><Error><Code>"+

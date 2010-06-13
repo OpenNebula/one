@@ -211,11 +211,14 @@ class EC2QueryServer < CloudServer
         # Build the VM 
         erb_vm_info=Hash.new
 
+        
         erb_vm_info[:img_path]      = image.path
         erb_vm_info[:img_id]        = params['ImageId']
         erb_vm_info[:instance_type] = instance_type_name
         erb_vm_info[:template]      = @config[:template_location] + 
                                        "/#{instance_type['TEMPLATE']}"
+        erb_vm_info[:user_data]     = params['UserData']
+        
         template      = ERB.new(File.read(erb_vm_info[:template]))
         template_text = template.result(binding)
  
