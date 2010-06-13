@@ -71,7 +71,7 @@ class EC2QueryServer < CloudServer
             @server_host=@config[:server]
         end
 
-	@server_port=@config[:port]
+	    @server_port=@config[:port]
 
         print_configuration
     end
@@ -87,13 +87,13 @@ class EC2QueryServer < CloudServer
         user = get_user(params['AWSAccessKeyId'])
         return false if !user
 
-	signature = case params['SignatureVersion']
-	    when "1" then signature_version_1(params.clone, user[:password])
-	    when "2" then signature_version_2(params, 
-					      user[:password], 
-					      env,
-					      false)
-	end
+    	signature = case params['SignatureVersion']
+    	    when "1" then signature_version_1(params.clone, user[:password])
+    	    when "2" then signature_version_2(params, 
+    					      user[:password], 
+    					      env,
+    					      false)
+    	end
 
         return params['Signature']==signature
     end
@@ -153,6 +153,7 @@ class EC2QueryServer < CloudServer
 
         image   = add_image(user[:id],params["file"][:tempfile])
         erb_img_id = image.id
+	    erb_version = params['Version']
 
         response = ERB.new(File.read(@config[:views]+"/register_image.erb"))
         return response.result(binding), 200
@@ -169,6 +170,7 @@ class EC2QueryServer < CloudServer
         end
 
         erb_img_id=image.id
+	    erb_version = params['Version']
 
         response = ERB.new(File.read(@config[:views]+"/register_image.erb"))
         return response.result(binding), 200
