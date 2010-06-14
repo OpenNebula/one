@@ -61,6 +61,8 @@ PoolSQL::PoolSQL(SqlDB * _db, const char * table): db(_db), lastOID(-1)
     oss << "SELECT MAX(oid) FROM " << table;
 
     db->exec(oss,this);
+
+    unset_callback();
 };
 
 /* -------------------------------------------------------------------------- */
@@ -233,9 +235,12 @@ void PoolSQL::replace()
         }
         else
         {
-            delete index->second;
+            PoolObjectSQL * tmp_ptr;
 
+            tmp_ptr = index->second;
             pool.erase(index);
+
+            delete tmp_ptr;
 
             oid_queue.pop();
             removed = true;
@@ -292,8 +297,6 @@ int PoolSQL::search(
     ostringstream   sql;
     int             rc;
 
-    lock();
-
     set_callback(static_cast<Callbackable::Callback>(&PoolSQL::search_cb),
                  static_cast<void *>(&oids));
 
@@ -301,7 +304,7 @@ int PoolSQL::search(
 
     rc = db->exec(sql, this);
 
-    unlock();
+    unset_callback();
 
     return rc;
 }

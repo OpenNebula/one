@@ -75,8 +75,6 @@ int HostPool::discover(map<int, string> * discovered_hosts)
     ostringstream   sql;
     int             rc;
 
-    lock();
-
     set_callback(static_cast<Callbackable::Callback>(&HostPool::discover_cb),
                  static_cast<void *>(discovered_hosts));
 
@@ -86,7 +84,7 @@ int HostPool::discover(map<int, string> * discovered_hosts)
 
     rc = db->exec(sql,this);
 
-    unlock();
+    unset_callback();
 
     return rc;
 }
@@ -126,6 +124,8 @@ int HostPool::dump(ostringstream& oss, const string& where)
     rc = db->exec(cmd, this);
 
     oss << "</HOST_POOL>";
+
+    unset_callback();
 
     return rc;
 }

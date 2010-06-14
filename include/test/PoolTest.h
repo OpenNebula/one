@@ -96,7 +96,7 @@ public:
     {
         if (mysql)
         {
-            db = new MySqlDB("localhost","oneadmin","onepass",NULL);
+            db = new MySqlDB("localhost","oneadmin","oneadmin",NULL);
 
             ostringstream   oss1;
             oss1 << "DROP DATABASE IF EXISTS " << db_name;
@@ -135,9 +135,9 @@ public:
         {
             unlink(db_name.c_str());
         }
-	
+
 	if ( pool != 0 )
-	{        
+	{
             delete pool;
 	}
 

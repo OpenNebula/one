@@ -178,6 +178,8 @@ VirtualNetwork * VirtualNetworkPool::get(const string& name, bool lock)
 
     rc = db->exec(oss, this);
 
+    unset_callback();
+
     db->free_str(sql_name);
 
     if (rc != 0 || oid == -1)
@@ -236,6 +238,8 @@ int VirtualNetworkPool::dump(ostringstream& oss, const string& where)
     rc = db->exec(cmd,this);
 
     oss << "</VNET_POOL>";
+
+    unset_callback();
 
     return rc;
 }

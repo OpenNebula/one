@@ -53,6 +53,8 @@ UserPool::UserPool(SqlDB * db):PoolSQL(db,User::table)
 
     db->exec(sql, this);
 
+    unset_callback();
+
     if ((int) known_users.size() == 0)
     {
         // User oneadmin needs to be added in the bootstrap
@@ -216,6 +218,8 @@ int UserPool::dump(ostringstream& oss, const string& where)
     }
 
     rc = db->exec(cmd, this);
+
+    unset_callback();
 
     oss << "</USER_POOL>";
 

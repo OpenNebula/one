@@ -48,21 +48,21 @@ const string xmls[] =
     "<VM><ID>0</ID><UID>123</UID><NAME>VM one</NAME><LAST_POLL>0</LAST_POLL><ST"
     "ATE>1</STATE><LCM_STATE>0</LCM_STATE><STIME>0000000000</STIME><ETIME>0</ET"
     "IME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</MEMORY><CPU>0</CPU><NET_TX>0</NET_TX"
-    "><NET_RX>0</NET_RX><TEMPLATE><CPU><![CDATA[1]]></CPU><MEMORY><![CDATA[128]"
+    "><NET_RX>0</NET_RX><LAST_SEQ>-1</LAST_SEQ><TEMPLATE><CPU><![CDATA[1]]></CPU><MEMORY><![CDATA[128]"
     "]></MEMORY><NAME><![CDATA[VM one]]></NAME><VMID><![CDATA[0]]></VMID>"
     "</TEMPLATE></VM>",
 
     "<VM><ID>1</ID><UID>261</UID><NAME>Second VM</NAME><LAST_POLL>0</LAST_POLL>"
     "<STATE>1</STATE><LCM_STATE>0</LCM_STATE><STIME>0000000000</STIME><ETIME>0<"
     "/ETIME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</MEMORY><CPU>0</CPU><NET_TX>0</NET"
-    "_TX><NET_RX>0</NET_RX><TEMPLATE><CPU><![CDATA[2]]></CPU><MEMORY>"
+    "_TX><NET_RX>0</NET_RX><LAST_SEQ>-1</LAST_SEQ><TEMPLATE><CPU><![CDATA[2]]></CPU><MEMORY>"
     "<![CDATA[256]]></MEMORY><NAME><![CDATA[Second VM]]></NAME><VMID>"
     "<![CDATA[1]]></VMID></TEMPLATE></VM>",
 
     "<VM><ID>0</ID><UID>123</UID><NAME>VM one</NAME><LAST_POLL>0</LAST_POLL><ST"
     "ATE>1</STATE><LCM_STATE>0</LCM_STATE><STIME>0000000000</STIME><ETIME>0</ET"
     "IME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</MEMORY><CPU>0</CPU><NET_TX>0</NET_TX"
-    "><NET_RX>0</NET_RX><TEMPLATE><CPU>1</CPU><MEMORY>1024</MEMORY><NAME>VM one"
+    "><NET_RX>0</NET_RX><LAST_SEQ>-1</LAST_SEQ><TEMPLATE><CPU>1</CPU><MEMORY>1024</MEMORY><NAME>VM one"
     "</NAME><VMID>0</VMID></TEMPLATE></VM>"
 };
 
@@ -162,7 +162,7 @@ protected:
         // Get the xml and replace the STIME to 0, so we can compare it
         ((VirtualMachine*)obj)->to_xml(xml_str);
         xml_str.replace( xml_str.find("<STIME>")+7, 10, replacement);
-
+//cout << endl << xml_str << endl;
         CPPUNIT_ASSERT( ((VirtualMachine*)obj)->get_name() == names[index] );
         CPPUNIT_ASSERT( xml_str == xmls[index]);
     };
@@ -258,7 +258,7 @@ public:
     };
 
     void dump()
-    {        
+    {
         VirtualMachinePool * vmp = static_cast<VirtualMachinePool*>(pool);
 
         set_up_user_pool();
@@ -271,7 +271,7 @@ public:
 
         rc = vmp->dump(oss, "");
         CPPUNIT_ASSERT(rc == 0);
-
+cout << endl << oss.str() << endl;
         string result = oss.str();
         result.replace(152, 10, replacement);
         result.replace(426, 10, replacement);
@@ -335,6 +335,9 @@ public:
         // Add a history item
         vm->add_history(0, hostnames[0], vm_dirs[0], vmm_mads[0], tm_mads[0]);
 
+	rc = vmp->update(vm);
+        CPPUNIT_ASSERT( rc == 0 );
+
         rc = vmp->update_history(vm);
         CPPUNIT_ASSERT( rc == 0 );
         //----------------------------------------------------------------------
@@ -349,11 +352,19 @@ public:
 
         // Add a history item
         vm->add_history(1, hostnames[1], vm_dirs[1], vmm_mads[1], tm_mads[1]);
+
+	rc = vmp->update(vm);
+        CPPUNIT_ASSERT( rc == 0 );
+
         rc = vmp->update_history(vm);
         CPPUNIT_ASSERT( rc == 0 );
 
         // Add another history item
         vm->add_history(2, hostnames[2], vm_dirs[2], vmm_mads[2], tm_mads[2]);
+
+	rc = vmp->update(vm);
+        CPPUNIT_ASSERT( rc == 0 );
+
         rc = vmp->update_history(vm);
         CPPUNIT_ASSERT( rc == 0 );
         //----------------------------------------------------------------------
@@ -412,10 +423,16 @@ public:
         // Add a history item
         vm->add_history(0, hostname, vm_dir, vmm_mad, tm_mad);
 
+	rc = vmp->update(vm);
+        CPPUNIT_ASSERT( rc == 0 );
+
         rc = vmp->update_history(vm);
         CPPUNIT_ASSERT( rc == 0 );
 
         vm->add_history(0, new_hostname, vm_dir, vmm_mad, tm_mad);
+
+	rc = vmp->update(vm);
+        CPPUNIT_ASSERT( rc == 0 );
 
         vm->set_reason(History::USER);
         vm->set_previous_reason(History::ERROR);

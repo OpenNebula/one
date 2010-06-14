@@ -33,7 +33,8 @@ env.Append(LIBS=[
     'scheduler_pool',
     'nebula_log',
     'scheduler_xml',
-    'crypto'
+    'crypto',
+    'pthread'
 ])
 
 if not env.GetOption('clean'):

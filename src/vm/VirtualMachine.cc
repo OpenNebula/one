@@ -51,6 +51,7 @@ VirtualMachine::VirtualMachine(int id):
         cpu(0),
         net_tx(0),
         net_rx(0),
+        last_seq(-1),
         history(0),
         previous_history(0),
         _log(0)
@@ -81,16 +82,16 @@ VirtualMachine::~VirtualMachine()
 
 const char * VirtualMachine::table = "vm_pool";
 
-const char * VirtualMachine::db_names = "(oid,uid,name,last_poll,template_id,state"
-                                        ",lcm_state,stime,etime,deploy_id"
-                                        ",memory,cpu,net_tx,net_rx)";
+const char * VirtualMachine::db_names =
+    "(oid,uid,name,last_poll,template_id,state,lcm_state,stime,etime,deploy_id"
+                                        ",memory,cpu,net_tx,net_rx,last_seq)";
 
 const char * VirtualMachine::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
         "vm_pool ("
         "oid INTEGER PRIMARY KEY,uid INTEGER,name TEXT,"
         "last_poll INTEGER, template_id INTEGER,state INTEGER,lcm_state INTEGER,"
         "stime INTEGER,etime INTEGER,deploy_id TEXT,memory INTEGER,cpu INTEGER,"
-        "net_tx INTEGER,net_rx INTEGER)";
+        "net_tx INTEGER,net_rx INTEGER, last_seq INTEGER)";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -110,6 +111,7 @@ int VirtualMachine::select_cb(void *nil, int num, char **values, char **names)
             (values[CPU] == 0) ||
             (values[NET_TX] == 0) ||
             (values[NET_RX] == 0) ||
+            (values[LAST_SEQ] == 0) ||
             (num != LIMIT ))
     {
         return -1;
@@ -132,10 +134,11 @@ int VirtualMachine::select_cb(void *nil, int num, char **values, char **names)
         deploy_id = values[DEPLOY_ID];
     }
 
-    memory = atoi(values[MEMORY]);
-    cpu    = atoi(values[CPU]);
-    net_tx = atoi(values[NET_TX]);
-    net_rx = atoi(values[NET_RX]);
+    memory      = atoi(values[MEMORY]);
+    cpu         = atoi(values[CPU]);
+    net_tx      = atoi(values[NET_TX]);
+    net_rx      = atoi(values[NET_RX]);
+    last_seq    = atoi(values[LAST_SEQ]);
 
     vm_template.id = atoi(values[TEMPLATE_ID]);
 
@@ -165,6 +168,8 @@ int VirtualMachine::select(SqlDB * db)
 
     rc = db->exec(oss,this);
 
+    unset_callback();
+
     if ((rc != 0) || (oid != boid ))
     {
         goto error_id;
@@ -180,24 +185,21 @@ int VirtualMachine::select(SqlDB * db)
 
     //Get the History Records
 
-    history = new History(oid);
-
-    rc = history->select(db);
-
-    if (rc != 0)
+    if ( last_seq != -1 )
     {
-        goto error_history;
+        history = new History(oid, last_seq);
+
+        rc = history->select(db);
+
+        if (rc != 0)
+        {
+            goto error_history;
+        }
     }
 
-    if ( history->seq == -1 )
+    if ( last_seq > 0 )
     {
-        delete history;
-
-        history = 0;
-    }
-    else if (history->seq > 0)
-    {
-        previous_history = new History(oid,history->seq - 1);
+        previous_history = new History(oid, last_seq - 1);
 
         rc = previous_history->select(db);
 
@@ -374,7 +376,7 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace)
        db->free_str(sql_deploy_id);
        return -1;
     }
-    
+
     if(replace)
     {
         oss << "REPLACE";
@@ -383,22 +385,23 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace)
     {
         oss << "INSERT";
     }
-    
-    oss << " INTO " << table << " "<< db_names <<" VALUES ("<<
-        oid << "," <<
-        uid << "," <<
-        "'" << sql_name << "'," <<
-        last_poll << "," <<
-        vm_template.id << "," <<
-        state << "," <<
-        lcm_state << "," <<
-        stime << "," <<
-        etime << "," <<
-        "'" << sql_deploy_id << "'," <<
-        memory << "," <<
-        cpu << "," <<
-        net_tx << "," <<
-        net_rx << ")";
+
+    oss << " INTO " << table << " "<< db_names <<" VALUES ("
+        <<          oid             << ","
+        <<          uid             << ","
+        << "'" <<   sql_name        << "',"
+        <<          last_poll       << ","
+        <<          vm_template.id  << ","
+        <<          state           << ","
+        <<          lcm_state       << ","
+        <<          stime           << ","
+        <<          etime           << ","
+        << "'" <<   sql_deploy_id   << "',"
+        <<          memory          << ","
+        <<          cpu             << ","
+        <<          net_tx          << ","
+        <<          net_rx          << ","
+        <<          last_seq        << ")";
 
     db->free_str(sql_deploy_id);
     db->free_str(sql_name);
@@ -426,7 +429,8 @@ int VirtualMachine::dump(ostringstream& oss,int num,char **values,char **names)
         (!values[CPU])||
         (!values[NET_TX])||
         (!values[NET_RX])||
-        (num != LIMIT + History::LIMIT + 2 ))
+        (!values[LAST_SEQ])||
+        (num != (LIMIT + History::LIMIT + 1)))
     {
         return -1;
     }
@@ -446,9 +450,10 @@ int VirtualMachine::dump(ostringstream& oss,int num,char **values,char **names)
             "<MEMORY>"   << values[MEMORY]   << "</MEMORY>"   <<
             "<CPU>"      << values[CPU]      << "</CPU>"      <<
             "<NET_TX>"   << values[NET_TX]   << "</NET_TX>"   <<
-            "<NET_RX>"   << values[NET_RX]   << "</NET_RX>";
+            "<NET_RX>"   << values[NET_RX]   << "</NET_RX>"   <<
+            "<LAST_SEQ>" << values[LAST_SEQ] << "</LAST_SEQ>";
 
-    History::dump(oss, num-LIMIT-2, values+LIMIT+1, names+LIMIT+1);
+    History::dump(oss, num-LIMIT-1, values+LIMIT+1, names+LIMIT+1);
 
     oss << "</VM>";
 
@@ -484,6 +489,8 @@ void VirtualMachine::add_history(
         previous_history = history;
     }
 
+    last_seq = seq;
+
     history = new History(oid,seq,hid,hostname,vm_dir,vmm_mad,tm_mad);
 };
 
@@ -515,6 +522,8 @@ void VirtualMachine::cp_history()
     previous_history = history;
 
     history = htmp;
+
+    last_seq = history->seq;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -542,6 +551,8 @@ void VirtualMachine::cp_previous_history()
     previous_history = history;
 
     history = htmp;
+
+    last_seq = history->seq;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -909,6 +920,7 @@ string& VirtualMachine::to_xml(string& xml) const
 	      << "<CPU>"       << cpu       << "</CPU>"
 	      << "<NET_TX>"    << net_tx    << "</NET_TX>"
 	      << "<NET_RX>"    << net_rx    << "</NET_RX>"
+          << "<LAST_SEQ>"  << last_seq  << "</LAST_SEQ>"
           << vm_template.to_xml(template_xml);
 
     if ( hasHistory() )
@@ -944,6 +956,7 @@ string& VirtualMachine::to_str(string& str) const
        << "STOP TIME         : " << etime << endl
        << "NET TX            : " << net_tx << endl
        << "NET RX            : " << net_rx << endl
+       << "LAST SEQ          : " << last_seq << endl
        << "Template" << endl << vm_template.to_str(template_str) << endl;
 
     if ( hasHistory() )

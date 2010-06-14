@@ -314,6 +314,8 @@ int Leases::select(SqlDB * db)
 
     rc = db->exec(oss,this);
 
+    unset_callback();
+
     if (rc != 0)
     {
         goto error_id;

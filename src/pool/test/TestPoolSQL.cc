@@ -73,6 +73,8 @@ int TestObjectSQL::select(SqlDB *db)
 
     rc = db->exec(oss, this);
 
+    unset_callback();
+
     if ((rc != 0) || (oid != boid ))
     {
         return -1;
@@ -85,7 +87,23 @@ int TestObjectSQL::select(SqlDB *db)
 
 int TestObjectSQL::insert(SqlDB *db)
 {
-    return update(db);
+    ostringstream   oss;
+
+    int    rc;
+    char * sql_text;
+
+    sql_text   = db->escape_str(text.c_str());
+
+    oss << "INSERT INTO " << table << " "<< db_names <<" VALUES ("
+        << oid << ","
+        << number << ","
+        << "'" << sql_text << "')";
+
+    rc = db->exec(oss);
+
+    db->free_str(sql_text);
+
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -99,13 +117,13 @@ int TestObjectSQL::update(SqlDB *db)
 
     sql_text   = db->escape_str(text.c_str());
 
-    oss << "INSERT OR REPLACE INTO " << table << " "<< db_names <<" VALUES ("
+    oss << "REPLACE INTO " << table << " "<< db_names <<" VALUES ("
         << oid << ","
         << number << ","
         << "'" << sql_text << "')";
 
     rc = db->exec(oss);
-    
+
     db->free_str(sql_text);
 
     return rc;

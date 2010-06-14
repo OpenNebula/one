@@ -58,6 +58,13 @@ const string templates[] =
             "TYPE   = not_a_type\n"
             "BRIDGE = br1\n"
             "LEASES = [IP=130.10.0.1, MAC=50:20:20:20:20:20]",
+
+            "NAME   = \"Only a name in this network\"\n",
+
+           "NAME   = \"Only a name in this network\"\n"
+           "TYPE   = RANGED\n"
+           "BRIDGE          = br0\n"
+           "NETWORK_SIZE    = C\n"
 };
 
 const string xmls[] =
@@ -192,6 +199,12 @@ public:
         //TODO: Check memory leak for allocating strings in template parser
         rc = allocate(4);
         CPPUNIT_ASSERT( rc == -2 );
+
+        rc = allocate(5);
+        CPPUNIT_ASSERT( rc == -3 );
+
+        rc = allocate(6);
+        CPPUNIT_ASSERT( rc == -1 );
     }
 
     void get_using_name()
@@ -211,7 +224,7 @@ public:
         vn = vnpool->get(names[1], true);
         CPPUNIT_ASSERT(vn != 0);
         vn->unlock();
-        
+
         check(1, vn);
         vn->unlock();
 

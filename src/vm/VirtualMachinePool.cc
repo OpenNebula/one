@@ -158,9 +158,10 @@ int VirtualMachinePool::allocate (
     VirtualMachine * vm;
 
     char *  error_msg;
-    int     rc, num_attr;
+    int     rc, num_context, num_reqs;
 
-    vector<Attribute *> attrs;
+    vector<Attribute *> context;
+    vector<Attribute *> reqs;
 
     // ------------------------------------------------------------------------
     // Build a new Virtual Machine object
@@ -196,8 +197,8 @@ int VirtualMachinePool::allocate (
         return -2;
     }
 
-    vm->vm_template.remove("CONTEXT",attrs);
-
+    num_context = vm->vm_template.remove("CONTEXT",context);
+    num_reqs    = vm->vm_template.remove("REQUIREMENTS",reqs);
 
     // ------------------------------------------------------------------------
     // Insert the Object in the pool
@@ -210,19 +211,36 @@ int VirtualMachinePool::allocate (
         return -1;
     }
 
-    // ------------------------------------------------------------------------
+   // ------------------------------------------------------------------------
     // Insert parsed context in the VM template and clean-up
     // ------------------------------------------------------------------------
 
-    if ((num_attr = (int) attrs.size()) > 0)
+    if ( num_context > 0)
     {
-        generate_context(*oid,attrs[0]);
+        generate_context(*oid,context[0]);
 
-        for (int i = 0; i < num_attr ; i++)
+        for (int i = 0; i < num_context ; i++)
         {
-            if (attrs[i] != 0)
+            if (context[i] != 0)
             {
-                delete attrs[i];
+                delete context[i];
+            }
+        }
+    }
+
+    // ------------------------------------------------------------------------
+    // Parse the Requirements
+    // ------------------------------------------------------------------------
+
+    if ( num_reqs > 0 )
+    {
+        generate_requirements(*oid,reqs[0]);
+
+        for (int i = 0; i < num_reqs ; i++)
+        {
+            if (reqs[i] != 0)
+            {
+                delete reqs[i];
             }
         }
     }
@@ -333,6 +351,61 @@ void VirtualMachinePool::generate_context(int vm_id, Attribute * attr)
 
     vm->unlock();
 }
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachinePool::generate_requirements(int vm_id, Attribute * attr)
+{
+    SingleAttribute * reqs;
+    string            parsed;
+    char *            error_msg;
+    int               rc;
+
+    SingleAttribute * reqs_parsed;
+    VirtualMachine *  vm;
+
+    reqs = dynamic_cast<SingleAttribute *>(attr);
+
+    if (reqs == 0)
+    {
+        return;
+    }
+
+    rc = VirtualMachine::parse_template_attribute(vm_id,reqs->value(),
+            parsed,&error_msg);
+
+    if ( rc != 0 )
+    {
+        if (error_msg != 0)
+        {
+            ostringstream oss;
+
+            oss << error_msg << ": " << reqs->value();
+            free(error_msg);
+
+            NebulaLog::log("ONE", Log::ERROR, oss);
+        }
+
+        return;
+    }
+
+    reqs_parsed = new SingleAttribute("REQUIREMENTS",parsed);
+
+    vm = get(vm_id,true);
+
+    if ( vm == 0 )
+    {
+        delete reqs_parsed;
+        return;
+    }
+
+    if ( vm->insert_template_attribute(db,reqs_parsed) != 0 )
+    {
+        delete reqs_parsed;
+    }
+
+    vm->unlock();
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -359,18 +432,14 @@ int VirtualMachinePool::dump(ostringstream& oss, const string& where)
         static_cast<Callbackable::Callback>(&VirtualMachinePool::dump_cb),
         static_cast<void *>(&oss));
 
-    cmd << "SELECT " << VirtualMachine::table << ".*, "
-        << "user_pool.user_name, " << History::table << ".* FROM "
-        << VirtualMachine::table
-        << " LEFT OUTER JOIN ("
-        <<   "SELECT *,seq AS max_seq FROM " << History::table << " h1 WHERE "
-        <<     "seq=(SELECT MAX(seq) FROM " << History::table << " h2 WHERE h1.vid=h2.vid)) "
-        << "AS " << History::table
-        << " ON " << VirtualMachine::table << ".oid = "
-        << History::table << ".vid LEFT OUTER JOIN (SELECT oid,user_name FROM "
-        << "user_pool) AS user_pool ON "
-        << VirtualMachine::table << ".uid = user_pool.oid WHERE "
-        << VirtualMachine::table << ".state <> " << VirtualMachine::DONE;
+    cmd << "SELECT " << VirtualMachine::table << ".*, user_pool.user_name, "
+        << History::table << ".* FROM " << VirtualMachine::table
+        << " LEFT OUTER JOIN " << History::table << " ON "
+        << VirtualMachine::table << ".oid = " << History::table << ".vid AND "
+        << History::table << ".seq = " << VirtualMachine::table
+        << ".last_seq LEFT OUTER JOIN (SELECT oid,user_name FROM user_pool) "
+        << "AS user_pool ON " << VirtualMachine::table << ".uid = user_pool.oid"
+        << " WHERE " << VirtualMachine::table << ".state <> 6";
 
     if ( !where.empty() )
     {
@@ -380,6 +449,8 @@ int VirtualMachinePool::dump(ostringstream& oss, const string& where)
     rc = db->exec(cmd,this);
 
     oss << "</VM_POOL>";
+
+    unset_callback();
 
     return rc;
 }

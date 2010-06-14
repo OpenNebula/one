@@ -114,6 +114,8 @@ int VirtualNetwork::select(SqlDB * db)
 
     rc = db->exec(oss, this);
 
+    unset_callback();
+
     if ((rc != 0) || (oid != boid ))
     {
         goto error_id;
@@ -443,7 +445,10 @@ int VirtualNetwork::vn_drop(SqlDB * db)
 
     vn_template.drop(db);
 
-    leases->drop(db);
+    if ( leases != 0 )
+    {
+        leases->drop(db);
+    }
 
     oss << "DELETE FROM " << table << " WHERE OID=" << oid;
 
