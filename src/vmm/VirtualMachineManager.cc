@@ -805,6 +805,7 @@ void VirtualMachineManager::timer_action()
     vector<int>::iterator   it;
     int                     rc;
     time_t                  thetime;
+    time_t                  last_poll;
     ostringstream           os;
 
     const VirtualMachineManagerDriver * vmd;
@@ -817,14 +818,23 @@ void VirtualMachineManager::timer_action()
         mark = 0;
     }
 
-    rc = vmpool->get_running(oids);
+    // TODO: Move this to oned.conf
+    // Max. number of VMs to monitor.
+    int vm_limit = 10;
+
+    thetime     = time(0);
+
+    // Monitor only VMs that hasn't been monitored for 'poll_period' seconds.
+    last_poll   = thetime - poll_period;
+
+    rc = vmpool->get_running(oids, vm_limit, last_poll);
 
     if ( rc != 0 || oids.empty() )
     {
         return;
     }
 
-    thetime = time(0);
+
 
     for ( it = oids.begin(); it != oids.end(); it++ )
     {
@@ -845,27 +855,25 @@ void VirtualMachineManager::timer_action()
             continue;
         }
 
-        if ( (thetime - vm->get_last_poll()) >= poll_period )
+        os.str("");
+
+        os << "Monitoring VM " << *it << ".";
+        NebulaLog::log("VMM", Log::INFO, os);
+
+        vm->set_last_poll(thetime);
+
+        vmd = get(vm->get_vmm_mad());
+
+        if ( vmd == 0 )
         {
-            os.str("");
-
-            os << "Monitoring VM " << *it << ".";
-            NebulaLog::log("VMM", Log::INFO, os);
-
-            vm->set_last_poll(thetime);
-
-            vmd = get(vm->get_vmm_mad());
-
-            if ( vmd == 0 )
-            {
-                vm->unlock();
-                continue;
-            }
-
-            vmd->poll(*it,vm->get_hostname(),vm->get_deploy_id());
-
-            vmpool->update(vm);
+            vm->unlock();
+            continue;
         }
+
+        vmd->poll(*it,vm->get_hostname(),vm->get_deploy_id());
+
+        vmpool->update(vm);
+
 
         vm->unlock();
     }

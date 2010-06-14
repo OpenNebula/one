@@ -68,10 +68,15 @@ public:
     /**
      *  Function to get the IDs of running VMs
      *   @param oids a vector that contains the IDs
+     *   @param vm_limit Max. number of VMs returned
+     *   @param last_poll Return only VMs which last_poll is less than or equal
+     *          to this value.
      *   @return 0 on success
      */
     int get_running(
-        vector<int>&    oids);
+        vector<int>&    oids,
+        int             vm_limit,
+        time_t          last_poll);
 
     /**
      *  Function to get the IDs of pending VMs
