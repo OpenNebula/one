@@ -11,6 +11,23 @@ module OpenNebula
             :update   => "image.update",
             :delete   => "image.delete"
         }
+        
+        IMAGE_STATES=%w{INIT LOCKED READY USED}
+
+        IMAGE_HOST_STATES={
+            "INIT"      => "lock",
+            "LOCKED"    => "lock",
+            "READY"     => "rdy",
+            "USED"      => "used"
+        }
+        
+        IMAGE_TYPES=%w{OS CDROM DATABLOCK}
+
+        SHORT_IMAGE_TYPES={
+            "OS"         => "OS",
+            "CDROM"      => "CD",
+            "DATABLOCK"  => "DB"
+        }
 
         # Creates an Image description with just its identifier
         # this method should be used to create plain Image objects.
@@ -54,6 +71,40 @@ module OpenNebula
 
         def delete()
             super(IMAGE_METHODS[:delete])
+        end
+        
+        #######################################################################
+        # Helpers to get Image information
+        #######################################################################
+
+        # Returns the state of the Image (numeric value)
+        def state
+            self['STATE'].to_i
+        end
+
+        # Returns the state of the Image (string value)
+        def state_str
+            IMAGE_STATES[state]
+        end
+
+        # Returns the state of the Image (string value)
+        def short_state_str
+            SHORT_IMAGE_STATES[state_str]
+        end
+        
+        # Returns the type of the Image (numeric value)
+        def type
+            self['TYPE'].to_i
+        end
+
+        # Returns the type of the Image (string value)
+        def type_str
+            IMAGE_TYPES[state]
+        end
+
+        # Returns the state of the Image (string value)
+        def short_type_str
+            SHORT_IMAGE_TYPES[state_str]
         end
     end
 end
