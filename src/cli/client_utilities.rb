@@ -297,6 +297,13 @@ def str_running_time(data)
     "%02d %02d:%02d:%02d" % [dtime.yday-1, dtime.hour, dtime.min, dtime.sec]
 end
 
+def str_register_time(data)
+    regtime=Time.at(data["REGTIME"].to_i)
+
+   "%02d %02d:%02d:%02d" % [regtime.yday-1, regtime.hour, 
+                            regtime.min, regtime.sec]
+end
+
 
 REG_RANGE=/(.*)\[(\d+)([+-])(\d+)\](.*)/
 
