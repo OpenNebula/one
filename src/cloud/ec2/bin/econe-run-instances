@@ -68,6 +68,7 @@ opts = GetoptLong.new(
             ['--secret-key', '-S',GetoptLong::REQUIRED_ARGUMENT],
             ['--url',        '-U',GetoptLong::REQUIRED_ARGUMENT],
             ['--type',       '-t',GetoptLong::REQUIRED_ARGUMENT],
+            ['--user-data',  '-d',GetoptLong::REQUIRED_ARGUMENT],
             ['--headers',    '-H',GetoptLong::NO_ARGUMENT]
        )
 
@@ -77,6 +78,7 @@ access  = nil
 secret  = nil
 auth    = nil
 type    = nil
+user_data = nil
 
 begin
     opts.each do |opt, arg|
@@ -93,6 +95,8 @@ begin
                 type = arg
             when '--headers'
                 headers = true
+            when '--user-data'
+                user_data = arg
         end
     end
 rescue Exception => e
@@ -119,7 +123,7 @@ rescue Exception => e
     exit -1
 end
 
-rc = ec2_client.run_instances(image_id,type)
+rc = ec2_client.run_instances(image_id,type, user_data)
 
 if CloudClient::is_error?(rc)
     puts "#{cmd_name}: #{rc.message}"

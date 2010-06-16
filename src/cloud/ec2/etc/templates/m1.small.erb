@@ -1,23 +1,29 @@
 
 NAME   = eco-vm
 
+#Adjust Capacity for this instance type
 CPU    = 0.2
 MEMORY = 256
 
-OS = [ kernel     = /vmlinuz,
-       initrd     = /initrd.img,
-       root       = sda1,
-       kernel_cmd = "ro xencons=tty console=tty1"]
+#Put here specific OS configurations for the cloud hypervisors
+#OS = [ kernel     = /vmlinuz,
+#       initrd     = /initrd.img,
+#       root       = sda1,
+#       kernel_cmd = "ro xencons=tty console=tty1"]
 
 DISK = [ source   = <%= erb_vm_info[:img_path] %>,
          clone    = no,
          target   = sda1,
          readonly = no]
 
-
 NIC=[NETWORK="Public EC2"]
-
 
 IMAGE_ID = <%= erb_vm_info[:img_id] %>
 INSTANCE_TYPE = <%= erb_vm_info[:instance_type ]%>
-
+ 
+<% if erb_vm_info[:user_data] %>
+CONTEXT = [ 
+       EC2_USER_DATA="<%= erb_vm_info[:user_data] %>",
+       TARGET="hdc"
+       ]
+<% end %>
