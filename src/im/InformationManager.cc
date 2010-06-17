@@ -32,11 +32,11 @@ extern "C" void * im_action_loop(void *arg)
     NebulaLog::log("InM",Log::INFO,"Information Manager started.");
 
     im = static_cast<InformationManager *>(arg);
-    
+
     im->am.loop(im->timer_period,0);
 
     NebulaLog::log("InM",Log::INFO,"Information Manager stopped.");
-    
+
     return 0;
 }
 
@@ -50,30 +50,30 @@ void InformationManager::load_mads(int uid)
     ostringstream               oss;
     const VectorAttribute *     vattr;
     int                         rc;
-    
+
     NebulaLog::log("InM",Log::INFO,"Loading Information Manager drivers.");
-    
+
     for(i=0;i<mad_conf.size();i++)
     {
         vattr = static_cast<const VectorAttribute *>(mad_conf[i]);
-                
+
         oss.str("");
         oss << "\tLoading driver: " << vattr->vector_value("NAME");
-            
+
         NebulaLog::log("InM",Log::INFO,oss);
-     
+
         im_mad = new InformationManagerDriver(0,vattr->value(),false,hpool);
-        
+
         rc = add(im_mad);
-                
+
         if ( rc == 0 )
         {
-            oss.str("");            
+            oss.str("");
             oss << "\tDriver " << vattr->vector_value("NAME") << " loaded";
-            
+
             NebulaLog::log("InM",Log::INFO,oss);
         }
-    }    
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -92,7 +92,7 @@ int InformationManager::start()
     }
 
     NebulaLog::log("InM",Log::INFO,"Starting Information Manager...");
-    
+
     pthread_attr_init (&pattr);
     pthread_attr_setdetachstate (&pattr, PTHREAD_CREATE_JOINABLE);
 
@@ -113,14 +113,14 @@ void InformationManager::do_action(const string &action, void * arg)
     else if (action == ACTION_FINALIZE)
     {
         NebulaLog::log("InM",Log::INFO,"Stopping Information Manager...");
-        
-        MadManager::stop();       
+
+        MadManager::stop();
     }
     else
     {
         ostringstream oss;
         oss << "Unknown action name: " << action;
-        
+
         NebulaLog::log("InM", Log::ERROR, oss);
     }
 }
@@ -131,18 +131,21 @@ void InformationManager::do_action(const string &action, void * arg)
 void InformationManager::timer_action()
 {
     static int mark = 0;
-    
+
     int             rc;
     time_t          thetime;
     ostringstream   oss;
-    
+
     map<int, string>            discovered_hosts;
     map<int, string>::iterator  it;
-    
+
     const InformationManagerDriver * imd;
-    
+
     Host *          host;
     istringstream   iss;
+
+    // -------------- Max. number of hosts to monitor. ---------------------
+    int             host_limit = 10;
 
     mark = mark + timer_period;
 
@@ -152,7 +155,7 @@ void InformationManager::timer_action()
         mark = 0;
     }
 
-    rc = hpool->discover(&discovered_hosts);
+    rc = hpool->discover(&discovered_hosts, host_limit);
 
     if ((rc != 0) || (discovered_hosts.empty() == true))
     {
@@ -160,55 +163,55 @@ void InformationManager::timer_action()
     }
 
     thetime = time(0);
-    
+
     for(it=discovered_hosts.begin();it!=discovered_hosts.end();it++)
-    {        
+    {
         host = hpool->get(it->first,true);
-        
+
         if (host == 0)
         {
             continue;
         }
-        
+
         Host::HostState state = host->get_state();
-        
+
         // TODO: Set apropriate threshold to timeout monitoring
         if (( state == Host::MONITORING) &&
             (thetime - host->get_last_monitored() >= 600))
         {
             host->set_state(Host::INIT);
-            
+
             hpool->update(host);
         }
-        
+
         if ((state != Host::MONITORING) && (state != Host::DISABLED) &&
             (thetime - host->get_last_monitored() >= monitor_period))
         {
             oss.str("");
-            oss << "Monitoring host " << host->get_hostname() 
+            oss << "Monitoring host " << host->get_hostname()
                 << " (" << it->first << ")";
             NebulaLog::log("InM",Log::INFO,oss);
-            
+
             imd = get(it->second);
-            
+
             if (imd == 0)
             {
                 oss.str("");
                 oss << "Could not find information driver " << it->second;
                 NebulaLog::log("InM",Log::ERROR,oss);
-                
-                host->set_state(Host::ERROR);                                
+
+                host->set_state(Host::ERROR);
             }
             else
             {
             	imd->monitor(it->first,host->get_hostname());
-            	
+
             	host->set_state(Host::MONITORING);
             }
-            
+
             hpool->update(host);
         }
-        
-        host->unlock();        
-    }    
+
+        host->unlock();
+    }
 }
