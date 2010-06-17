@@ -82,6 +82,7 @@ require 'CloudClient'
 require 'getoptlong'
 require 'rdoc/usage'
 require 'pp'
+require "rexml/document"
 
 include CloudCLI
 
@@ -174,6 +175,22 @@ end
 
 if CloudClient::is_error?(rc)
     puts rc.to_s()
-else
-    puts rc
+else 
+    begin
+        doc = REXML::Document.new(rc)
+    rescue REXML::ParseException => e
+        puts e.message 
+        exit(-1)
+    end
+    
+    xml = doc.root
+    
+    if xml.nil?
+        puts "XML syntax error"
+        exit(-1)
+    end
+    
+    str = ""
+    REXML::Formatters::Pretty.new(4).write(xml,str)
+    puts "\n" + str + "\n " 
 end
