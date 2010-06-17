@@ -260,7 +260,7 @@ int VirtualMachinePool::get_running(
     ostringstream   os;
     string          where;
 
-    os << "last_poll > 0 and last_poll <= " << last_poll << " and"
+    os << "last_poll <= " << last_poll << " and"
        << " state = " << VirtualMachine::ACTIVE
        << " and ( lcm_state = " << VirtualMachine::RUNNING
        << " or lcm_state = " << VirtualMachine::UNKNOWN << " )"
