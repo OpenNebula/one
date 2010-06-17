@@ -12,7 +12,7 @@ class VirtualMachinePoolOCCI < VirtualMachinePool
                   } 
               end %>
         </COMPUTES>       
-    }.gsub(/^        /, '')               
+    }
     
     
     # Creates the OCCI representation of a Virtual Machine Pool
@@ -20,7 +20,7 @@ class VirtualMachinePoolOCCI < VirtualMachinePool
        pool_hash=to_hash
        
        occi = ERB.new(OCCI_VM_POOL)
-       return occi.result(binding)
+       return occi.result(binding).gsub(/\n\s*/,'')
     end
 end
 

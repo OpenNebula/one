@@ -13,13 +13,13 @@ class VirtualNetworkPoolOCCI < VirtualNetworkPool
                   } 
               end %>
         </NETWORKS>       
-    }.gsub(/^        /, '')
+    }
     
     # Creates the OCCI representation of a Virtual Network
     def to_occi(base_url)   
       network_pool_hash=to_hash
       
       occi = ERB.new(OCCI_NETWORK_POOL)
-      return occi.result(binding)
+      return occi.result(binding).gsub(/\n\s*/,'')
     end
 end

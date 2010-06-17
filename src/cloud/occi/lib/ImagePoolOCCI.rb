@@ -26,7 +26,7 @@ class ImagePoolOCCI
             <DISK href="<%= base_url%>/storage/<%= image[:id] %>"/><%  
             end  %>
         </STORAGE>
-    }.gsub(/^        /, '')
+    }
         
     def initialize(user_id)
         @images=Image.filter(:owner => user_id)     
@@ -34,7 +34,7 @@ class ImagePoolOCCI
     
     def to_occi(base_url)
         occi = ERB.new(OCCI_IMAGE_POOL)
-        return occi.result(binding)       
+        return occi.result(binding).gsub(/\n\s*/,'')
     end
 end
 
