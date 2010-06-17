@@ -39,7 +39,7 @@ Host::Host(
         im_mad_name(_im_mad_name),
         vmm_mad_name(_vmm_mad_name),
         tm_mad_name(_tm_mad_name),
-        last_monitored(time(0)),
+        last_monitored(0),
         host_template(id)
         {};
 

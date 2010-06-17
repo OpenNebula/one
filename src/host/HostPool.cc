@@ -80,7 +80,7 @@ int HostPool::discover(map<int, string> * discovered_hosts, int host_limit)
 
     sql << "SELECT oid, im_mad FROM "
         << Host::table << " WHERE state != "
-        << Host::DISABLED << " ORDER BY last_mon_time LIMIT " << host_limit;
+        << Host::DISABLED << " ORDER BY last_mon_time ASC LIMIT " << host_limit;
 
     rc = db->exec(sql,this);
 
