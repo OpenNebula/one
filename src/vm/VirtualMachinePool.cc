@@ -260,14 +260,10 @@ int VirtualMachinePool::get_running(
     ostringstream   os;
     string          where;
 
-    // Get all machines that have been monitored ( > 0 ),
-    // but not recently ( <= last_poll ) and...
-    os << "last_poll > 0 and last_poll <= " << last_poll << " and "
-    // ... are running
-       << "state = " << VirtualMachine::ACTIVE
+    os << "last_poll > 0 and last_poll <= " << last_poll << " and"
+       << " state = " << VirtualMachine::ACTIVE
        << " and ( lcm_state = " << VirtualMachine::RUNNING
        << " or lcm_state = " << VirtualMachine::UNKNOWN << " )"
-    // order the results by last_poll, and return only the first 'vm_limit' rows
        << " ORDER BY last_poll ASC LIMIT " << vm_limit;
 
     where = os.str();
