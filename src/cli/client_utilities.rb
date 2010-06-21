@@ -298,10 +298,9 @@ def str_running_time(data)
 end
 
 def str_register_time(data)
-    regtime=Time.at(data["REGTIME"].to_i)
-
-   "%02d %02d:%02d:%02d" % [regtime.yday-1, regtime.hour, 
-                            regtime.min, regtime.sec]
+    regtime=Time.at(data["REGTIME"].to_i).getgm
+       
+    regtime.strftime("%b %d, %Y %H:%M")
 end
 
 

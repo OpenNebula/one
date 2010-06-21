@@ -76,6 +76,8 @@ ImagePool::ImagePool(   SqlDB * db,
     sql  << "SELECT oid, name FROM " <<  Image::table;
 
     rc = db->exec(sql, this);
+    
+    unset_callback();
 
     if ( rc != 0 )
     {
@@ -147,7 +149,7 @@ int ImagePool::allocate (
         }
 
         img->get_template_attribute("PUBLIC", public_attr);
-	TO_UPPER( public_attr );
+        TO_UPPER( public_attr );
         img->image_template.erase("PUBLIC");
 
         img->get_template_attribute("ORIGINAL_PATH", original_path);
@@ -257,7 +259,7 @@ int ImagePool::dump(ostringstream& oss, const string& where)
 
     set_callback(static_cast<Callbackable::Callback>(&ImagePool::dump_cb),
                   static_cast<void *>(&oss));
-
+                  
     cmd << "SELECT * FROM " << Image::table;
 
     if ( !where.empty() )
@@ -268,6 +270,8 @@ int ImagePool::dump(ostringstream& oss, const string& where)
     rc = db->exec(cmd, this);
 
     oss << "</IMAGE_POOL>";
+    
+    unset_callback();
 
     return rc;
 }

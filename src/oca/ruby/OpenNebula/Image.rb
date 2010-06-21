@@ -14,7 +14,7 @@ module OpenNebula
         
         IMAGE_STATES=%w{INIT LOCKED READY USED}
 
-        IMAGE_HOST_STATES={
+        IMAGE_SHORT_STATES={
             "INIT"      => "lock",
             "LOCKED"    => "lock",
             "READY"     => "rdy",

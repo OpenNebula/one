@@ -44,7 +44,7 @@ ShowTableImage={
         :desc => "Name of the owner",
         :size => 8,
         :proc => lambda {|d,e| 
-            d["USERNAME"]
+            d["UID"]
         }
     },
     :name => {
@@ -66,7 +66,7 @@ ShowTableImage={
     :regtime => {
         :name => "REGTIME",
         :desc => "Registration time of the Image",
-        :size => 3,
+        :size => 20,
         :proc => lambda {|d,e| 
             str_register_time(d)
         }
@@ -82,7 +82,7 @@ ShowTableImage={
         :desc => "State of the Image",
         :size => 2,
         :proc => lambda {|d,e|
-            d.short_state_str
+            d.state_str
         }
     },
     :runningvms => {
@@ -134,7 +134,7 @@ class ImageShow
             end
 
             result=[true, ""]
-            header_vm_small
+            header_image_small
 
             if options
                 puts @table.data_str(vms, options)
@@ -240,7 +240,7 @@ def get_user_flags
      ops
 end
 
-oneimage_opts=OnevmParse.new
+oneimage_opts=OneImageParse.new
 oneimage_opts.parse(ARGV)
 ops=oneimage_opts.options
 
@@ -286,7 +286,6 @@ when "list"
     ops.merge!(get_user_flags)
     if !ops[:xml]
         imagelist=ImageShow.new(get_one_client, ops[:filter_user].to_i)
-
         ops[:columns]=ops[:list] if ops[:list]
         result=imagelist.list_short(ops) 
     else
@@ -327,8 +326,8 @@ when "show"
             puts str % ["REGISTER TIME", value]
             puts str % ["PUBLIC", image[:public]]
             
-            puts str % ["STATE", image.state_str]
-            puts str % ["STATE", image[:runningvms]]            
+            puts str % ["STATE", image.short_state_str]
+            puts str % ["RUNNING_VMS", image[:runningvms]]            
             
             puts
         
@@ -339,10 +338,7 @@ when "show"
             puts image.to_xml
         end
      end
-else
-    oneimage_opts.print_help
-    exit -1
-end
+
     
 when "delete"
     check_parameters("delete", 1)
@@ -360,6 +356,10 @@ when "delete"
             break
         end
     end
+else
+    oneimage_opts.print_help
+    exit -1
+end   
 
 if OpenNebula.is_error?(result)
     puts "Error: " + result.message
