@@ -1,32 +1,4 @@
 #!/usr/bin/env ruby
-
-# == Synopsis
-# econe-upload
-# 
-# Uploads an image for use with an OpenNebula Cloud. This image should
-# be later register with econe-register using the returned ImageId
-#
-# == Usage
-#
-# econe-upload [OPTIONS] IMAGE-PATH
-#
-# -h, --help:
-#    show help
-#
-# --access-key <id>, -K <id>:
-#    The username of the user
-#
-# --secret-key <key>, -S <key>:
-#    The password of the user
-#
-# --url <url>, -U <url>:
-#    Set url as the web service url to use
-#
-# --multipart, -M:
-#    Use 'multipart-post' library instead of Curb/Curl
-#
-# IMAGE-PATH: Path to the image to upload
-
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
@@ -54,11 +26,40 @@ end
 $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+"/cloud"
 
+COMMANDS_HELP=<<-EOT
+    ** Synopsis
+    -----------
+    econe-upload
+ 
+    Uploads an image for use with an OpenNebula Cloud. This image should
+    be later register with econe-register using the returned ImageId
+
+    ** Usage
+    --------
+    econe-upload [OPTIONS] IMAGE-PATH
+
+    --help, -h:
+        Show help
+
+    --access-key <id>, -K <id>:
+        The username of the user
+
+    --secret-key <key>, -S <key>:
+        The password of the user
+
+    --url <url>, -U <url>:
+        Set url as the web service url to use
+
+    --multipart, -M:
+        Use 'multipart-post' library instead of Curb/Curl
+
+    IMAGE-PATH: Path to the image to upload
+
+EOT
+
 require 'econe/EC2QueryClient'
 require 'CloudClient'
 require 'getoptlong'
-require 'rdoc/usage'
-require 'pp'
 
 include CloudCLI
 
@@ -80,7 +81,8 @@ begin
     opts.each do |opt, arg|
         case opt
             when '--help'
-                RDoc::usage
+                puts COMMANDS_HELP
+                return
             when '--access-key'
                 access = arg
             when '--secret-key'
