@@ -1,53 +1,4 @@
 #!/usr/bin/env ruby
-
-# == Synopsis
-# occi-network
-# 
-# Manages virtual networks
-#
-# == Usage
-#
-# occi-network <COMMAND> [OPTIONS] [ARGUMENTS]
-#
-# COMMANDS
-#
-# create <occi xml file>
-#       creates a new virtual network described by the provided 
-#       <occi xml file>
-#
-# list
-#       lists available virtual networks
-#
-# show <network id>
-#       retrieves the OCCI XML representation of the virtual network
-#       identified by <network id>
-#
-# delete <network id>
-#       deletes the virtual network idenfitied by <network id>
-#
-#
-#
-# OPTIONS
-#
-# -h, --help:
-#    show help
-#
-# --username <id>, -U <id>:
-#    The username of the user
-#
-# --password <key>, -P <key>:
-#    The password of the user
-#
-# --url <url>, -R <url>:
-#    Set url as the web service url to use
-#
-# --debug, -D
-#    Enables verbosity
-#
-# --multipart, -M:
-#    Use 'multipart-post' library instead of Curb/Curl
-#
-
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
@@ -77,11 +28,58 @@ end
 $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+"/cloud"
 
+COMMANDS_HELP=<<-EOT
+    ** Synopsis
+    occi-network
+ 
+    Manages virtual networks
+
+    ** Usage
+    occi-network <COMMAND> [OPTIONS] [ARGUMENTS]
+
+    COMMANDS
+
+    create <occi xml file>
+           creates a new virtual network described by the provided 
+           <occi xml file>
+
+    list
+           lists available virtual networks
+
+    show <network id>
+           retrieves the OCCI XML representation of the virtual network
+           identified by <network id>
+
+    delete <network id>
+           deletes the virtual network idenfitied by <network id>
+
+
+
+    OPTIONS
+
+    --help, -h:
+        Show help
+
+    --username <id>, -U <id>:
+        The username of the user
+
+    --password <key>, -P <key>:
+        The password of the user
+
+    --url <url>, -R <url>:
+        Set url as the web service url to use
+
+    --debug, -D
+        Enables verbosity
+
+    --multipart, -M:
+        Use 'multipart-post' library instead of Curb/Curl
+
+EOT
+
 require 'occi/OCCIClient'
 require 'CloudClient'
 require 'getoptlong'
-require 'rdoc/usage'
-require 'pp'
 require "rexml/document"
 
 include CloudCLI
@@ -104,7 +102,8 @@ begin
     opts.each do |opt, arg|
         case opt
             when '--help'
-                RDoc::usage
+                puts COMMANDS_HELP
+                return
             when '--username'
                 username = arg
             when '--password'

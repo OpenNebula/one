@@ -1,51 +1,4 @@
 #!/usr/bin/env ruby
-
-# == Synopsis
-# occi-storage
-# 
-# Manages OCCI storage resource
-#
-# == Usage
-#
-# occi-storage <COMMAND> [OPTIONS] [PARAMETERS]
-#
-# COMMANDS
-#
-# create <occi xml file>
-#       creates a new storage resource described by the provided 
-#       <occi xml file>
-#
-# list
-#       lists available storage resources
-#
-# show <storage id>
-#       retrieves the OCCI XML representation of the storage resource
-#       identified by <storage id>
-#
-# delete <storage id>
-#       deletes the storage resource idenfitied by <storage id>
-#
-#
-# OPTIONS
-# -h, --help:
-#    show help
-#
-# --username <id>, -U <id>:
-#    The username of the user
-#
-# --password <key>, -P <key>:
-#    The password of the user
-#
-# --url <url>, -R <url>:
-#    Set url as the web service url to use
-#
-# --debug, -D
-#    Enables verbosity
-#
-# --multipart, -M:
-#    Use 'multipart-post' library instead of Curb/Curl
-#
-
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
@@ -75,11 +28,56 @@ end
 $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+"/cloud"
 
+COMMANDS_HELP=<<-EOT
+** Synopsis
+occi-storage
+ 
+Manages OCCI storage resource
+
+** Usage
+occi-storage <COMMAND> [OPTIONS] [PARAMETERS]
+
+COMMANDS
+
+create <occi xml file>
+       creates a new storage resource described by the provided 
+       <occi xml file>
+
+list
+       lists available storage resources
+
+show <storage id>
+       retrieves the OCCI XML representation of the storage resource
+       identified by <storage id>
+
+delete <storage id>
+       deletes the storage resource idenfitied by <storage id>
+
+
+OPTIONS
+--help, -h:
+    Show help
+
+--username <id>, -U <id>:
+    The username of the user
+
+--password <key>, -P <key>:
+    The password of the user
+
+--url <url>, -R <url>:
+    Set url as the web service url to use
+
+--debug, -D
+    Enables verbosity
+
+--multipart, -M:
+    Use 'multipart-post' library instead of Curb/Curl
+
+EOT
+
 require 'occi/OCCIClient'
 require 'CloudClient'
 require 'getoptlong'
-require 'rdoc/usage'
-require 'pp'
 require "rexml/document"
 
 include CloudCLI
@@ -104,7 +102,8 @@ begin
     opts.each do |opt, arg|
         case opt
             when '--help'
-                RDoc::usage
+                puts COMMANDS_HELP
+                return
             when '--username'
                 username = arg
             when '--password'
