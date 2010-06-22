@@ -14,7 +14,7 @@ module OpenNebula
         
         IMAGE_STATES=%w{INIT LOCKED READY USED}
 
-        IMAGE_SHORT_STATES={
+        SHORT_IMAGE_STATES={
             "INIT"      => "lock",
             "LOCKED"    => "lock",
             "READY"     => "rdy",
@@ -39,7 +39,7 @@ module OpenNebula
         def Image.build_xml(pe_id=nil)
             if pe_id
                 image_xml = "<IMAGE><ID>#{pe_id}</ID></IMAGE>"
-            IMAGE
+            else
                 image_xml = "<IMAGE></IMAGE>"
             end
 
@@ -99,12 +99,12 @@ module OpenNebula
 
         # Returns the type of the Image (string value)
         def type_str
-            IMAGE_TYPES[state]
+            IMAGE_TYPES[type]
         end
 
         # Returns the state of the Image (string value)
         def short_type_str
-            SHORT_IMAGE_TYPES[state_str]
-        end
+            SHORT_IMAGE_TYPES[type_str]
+        end      
     end
 end

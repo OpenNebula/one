@@ -44,13 +44,13 @@ ShowTableImage={
         :desc => "Name of the owner",
         :size => 8,
         :proc => lambda {|d,e| 
-            d["UID"]
+            d["USERNAME"]
         }
     },
     :name => {
         :name => "NAME",
         :desc => "Name of the Image",
-        :size => 8,
+        :size => 20,
         :proc => lambda {|d,e| 
             d.name
         }
@@ -58,7 +58,7 @@ ShowTableImage={
     :type => {
         :name => "TYPE",
         :desc => "Type of the Image",
-        :size => 2,
+        :size => 4,
         :proc => lambda {|d,e| 
             d.short_type_str
         }
@@ -78,17 +78,17 @@ ShowTableImage={
         :proc => lambda {|d,e| if d["PUBLIC"].to_i == 1 then "Y" else "N" end}
     },
     :state => {
-        :name => "ST",
+        :name => "STAT",
         :desc => "State of the Image",
-        :size => 2,
+        :size => 4,
         :proc => lambda {|d,e|
-            d.state_str
+            d.short_state_str
         }
     },
     :runningvms => {
-        :name => "RUNNING_VMS",
+        :name => "#VMS",
         :desc => "Number of VMs currently running from this Image",
-        :size => 2,
+        :size => 5,
         :proc => lambda {|d,e| d['RUNNING_VMS'] }
     },
     
@@ -111,6 +111,24 @@ class ImageShow
         print @table.header_str
         scr_restore
         puts ""
+    end
+    
+    def top(options=nil)
+        delay=1
+        delay=options[:delay] if options && options[:delay]
+        
+        result=nil
+        
+        begin
+            while true
+                scr_cls
+                scr_move(0,0)
+                result=list_short(options)
+                sleep delay
+            end
+        rescue Exception
+        end
+        result
     end
     
     def list_short(options=nil)
@@ -193,6 +211,9 @@ Commands:
         uid      --> Images of the user identified by this uid (admin users)
         user     --> Images of the user identified by the username (admin users)
         
+* top (Lists Images continuously)
+    onevm top
+
 * show (Gets information about an specific Image)
     oneimage show <image_id>
    
@@ -264,23 +285,19 @@ when "register", "create", "add"
         exit 0
     end
     
-when "update" # TODO finish this
-    check_parameters("deploy", 2)
-    host_id=get_host_id(ARGV[-1])
-    args=expand_args(ARGV[0..-2])
+when "update" 
+    check_parameters("update", 3)
+    image_id=get_image_id(ARGV[0])
     
-    args.each do |param|
-        vm_id=get_vm_id(param)
+    image=OpenNebula::Image.new_with_id(image_id, get_one_client)
     
-        vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
-    
-        result=vm.deploy(host_id)
-        if is_successful?(result)
-            puts "Deploying VM" if ops[:verbose]
-        else
-            break
-        end
+    result=image.update(ARGV[1],ARGV[2])
+    if is_successful?(result)
+        puts "Modified image" if ops[:verbose]
+    else
+        break
     end
+
     
 when "list"
     ops.merge!(get_user_flags)
@@ -295,13 +312,19 @@ when "list"
         puts imagepool.to_xml
     end
     
+when "top"
+    ops.merge!(get_user_flags)
+    imagelist=ImageShow.new(get_one_client, ops[:filter_user].to_i)
+    ops[:columns]=ops[:list] if ops[:list]
+    result=imagelist.top(ops)
+    
 when "show"
     check_parameters("get_info", 1)
     args=expand_args(ARGV)
     
     args.each do |param|
-    
         image_id=get_image_id(param)
+        pp image_id
 
         image=OpenNebula::Image.new_with_id(image_id, get_one_client)
         image.info
@@ -347,9 +370,9 @@ when "delete"
     args.each do |param|
         image_id=get_image_id(param)
     
-        vm=OpenNebula::Image.new_with_id(image_id, get_one_client)
+        image=OpenNebula::Image.new_with_id(image_id, get_one_client)
     
-        result=image.finalize
+        result=image.delete
         if is_successful?(result)
             puts "Image correctly deleted"  if ops[:verbose]
         else

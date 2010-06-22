@@ -285,6 +285,10 @@ def get_user_id(name)
     get_entity_id(name, OpenNebula::UserPool)
 end
 
+def get_image_id(name)
+    get_entity_id(name, OpenNebula::ImagePool)
+end
+
 def str_running_time(data)
     stime=Time.at(data["stime"].to_i)
     if data["etime"]=="0"
@@ -299,7 +303,6 @@ end
 
 def str_register_time(data)
     regtime=Time.at(data["REGTIME"].to_i).getgm
-       
     regtime.strftime("%b %d, %Y %H:%M")
 end
 
