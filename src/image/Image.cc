@@ -263,7 +263,7 @@ int Image::dump(ostringstream& oss, int num, char **values, char **names)
         (!values[SOURCE]) ||
         (!values[STATE]) ||
         (!values[RUNNING_VMS]) ||
-        (num != LIMIT ))
+        (num != LIMIT + 1))
     {
         return -1;
     }
@@ -272,6 +272,7 @@ int Image::dump(ostringstream& oss, int num, char **values, char **names)
         "<IMAGE>" <<
             "<ID>"             << values[OID]         << "</ID>"          <<
             "<UID>"            << values[UID]         << "</UID>"         <<
+            "<USERNAME>"       << values[LIMIT]       << "</USERNAME>"    <<
             "<NAME>"           << values[NAME]        << "</NAME>"        <<
             "<TYPE>"           << values[TYPE]        << "</TYPE>"        <<
             "<PUBLIC>"         << values[PUBLIC]      << "</PUBLIC>"      <<

@@ -121,7 +121,7 @@ error_filter_flag:
     goto error_common;
 
 error_dump:
-    oss << "Error getting virtual network pool"; 
+    oss << "Error getting image pool"; 
     goto error_common;
 
 error_common:

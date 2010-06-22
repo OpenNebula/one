@@ -260,8 +260,11 @@ int ImagePool::dump(ostringstream& oss, const string& where)
     set_callback(static_cast<Callbackable::Callback>(&ImagePool::dump_cb),
                   static_cast<void *>(&oss));
                   
-    cmd << "SELECT * FROM " << Image::table;
-
+    cmd << "SELECT " << Image::table << ".*, user_pool.user_name FROM "  
+           << Image::table << 
+           " LEFT OUTER JOIN (SELECT oid, user_name FROM user_pool) "
+           << "AS user_pool ON " << Image::table << ".uid = user_pool.oid";
+     
     if ( !where.empty() )
     {
         cmd << " WHERE " << where;
