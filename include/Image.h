@@ -202,9 +202,9 @@ public:
      *    - CDROM images will be at prefix + c:  hdc, sdc.
      *    - Several DATABLOCK images can be mounted, they will be set to
      *      prefix + (d + index) :   hdd, hde, hdf...
-     * returns: 0 on success, -1 in case of error.
+     * @param disk attribute for the VM template
      */
-    int get_disk_attribute(VectorAttribute * disk, int index);
+    void disk_attribute(VectorAttribute ** disk, int index);
 
     // ------------------------------------------------------------------------
     // Template

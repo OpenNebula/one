@@ -22,9 +22,6 @@
 #include <openssl/evp.h>
 #include <iomanip>
 
-#define TO_UPPER(S) transform (S.begin(),S.end(),S.begin(), \
-(int(*)(int))toupper)
-
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -76,7 +73,7 @@ ImagePool::ImagePool(   SqlDB * db,
     sql  << "SELECT oid, name FROM " <<  Image::table;
 
     rc = db->exec(sql, this);
-    
+
     unset_callback();
 
     if ( rc != 0 )
@@ -115,7 +112,7 @@ int ImagePool::allocate (
         img = new Image(uid);
 
         // ---------------------------------------------------------------------
-        // Parse template 
+        // Parse template
         // ---------------------------------------------------------------------
         rc = img->image_template.parse(stemplate, &error_msg);
 
@@ -123,10 +120,10 @@ int ImagePool::allocate (
         {
             goto error_parse;
         }
-        
+
         // ---------------------------------------------------------------------
         // Check default image attributes
-        // ---------------------------------------------------------------------               
+        // ---------------------------------------------------------------------
         img->get_template_attribute("NAME", name);
 
         if ( name.empty() == true )
@@ -149,11 +146,11 @@ int ImagePool::allocate (
         }
 
         img->get_template_attribute("PUBLIC", public_attr);
-        TO_UPPER( public_attr );
+        IMAGE_TO_UPPER( public_attr );
         img->image_template.erase("PUBLIC");
 
         img->get_template_attribute("ORIGINAL_PATH", original_path);
-        
+
         if  ( (type == "OS" || type == "CDROM") &&
                original_path.empty() == true      )
         {
@@ -167,7 +164,7 @@ int ImagePool::allocate (
 
         if( dev_prefix.empty() )
         {
-            SingleAttribute * dev_att = 
+            SingleAttribute * dev_att =
                         new SingleAttribute("DEV_PREFIX", default_dev_prefix);
 
             img->image_template.set(dev_att);
@@ -193,7 +190,7 @@ int ImagePool::allocate (
             goto error_type;
         }
 
-        
+
         // ---------------------------------------------------------------------
         // Insert the Object in the pool
         // ---------------------------------------------------------------------
@@ -217,14 +214,14 @@ error_type:
     NebulaLog::log("IMG", Log::ERROR, "Incorrect TYPE in image template");
     goto error_common;
 error_original_path:
-    NebulaLog::log("IMG", Log::ERROR, 
+    NebulaLog::log("IMG", Log::ERROR,
     "ORIGINAL_PATH compulsory and not present in image template of this type.");
     goto error_common;
 error_common:
     delete img;
     *oid = -1;
     return -1;
-    
+
 error_parse:
     ostringstream oss;
     oss << "ImagePool template parse error: " << error_msg;
@@ -259,12 +256,12 @@ int ImagePool::dump(ostringstream& oss, const string& where)
 
     set_callback(static_cast<Callbackable::Callback>(&ImagePool::dump_cb),
                   static_cast<void *>(&oss));
-                  
-    cmd << "SELECT " << Image::table << ".*, user_pool.user_name FROM "  
-           << Image::table << 
+
+    cmd << "SELECT " << Image::table << ".*, user_pool.user_name FROM "
+           << Image::table <<
            " LEFT OUTER JOIN (SELECT oid, user_name FROM user_pool) "
            << "AS user_pool ON " << Image::table << ".uid = user_pool.oid";
-     
+
     if ( !where.empty() )
     {
         cmd << " WHERE " << where;
@@ -273,7 +270,7 @@ int ImagePool::dump(ostringstream& oss, const string& where)
     rc = db->exec(cmd, this);
 
     oss << "</IMAGE_POOL>";
-    
+
     unset_callback();
 
     return rc;

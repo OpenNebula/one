@@ -29,6 +29,9 @@
 
 using namespace std;
 
+#define IMAGE_TO_UPPER(S) transform (S.begin(),S.end(),S.begin(), \
+(int(*)(int))toupper)
+
 /**
  *  The Image Pool class.
  */
@@ -78,8 +81,8 @@ public:
      *    @return a pointer to the Image, 0 if the User could not be loaded
      */
     Image * get(
-        string  name,
-        bool    lock)
+        const string&  name,
+        bool           lock)
     {
         map<string, int>::iterator     index;
 
@@ -162,6 +165,37 @@ public:
      *  @return 0 on success
      */
     int dump(ostringstream& oss, const string& where);
+
+    /**
+     *  Generates a DISK attribute for VM templates using the Image metadata
+     *    @param disk the disk to be generated
+     *    @return 0 on success, -1 error, -2 not using the pool
+     */
+    int disk_attribute(VectorAttribute * disk, int index)
+    {
+        string  source;
+        Image * img;
+
+        source = disk->vector_value("NAME");
+
+        if (source.empty())
+        {
+            return -2;
+        }
+
+        img = get(source,true);
+
+        if (img == 0)
+        {
+            return -1;
+        }
+
+        img->disk_attribute(&disk,index);
+
+        img->unlock();
+
+        return 0;
+    }
 
 private:
     /**

@@ -21,6 +21,8 @@
 #include <sstream>
 
 #include "Image.h"
+#include "ImagePool.h"
+
 
 /* ************************************************************************ */
 /* Image :: Constructor/Destructor                                           */
@@ -456,69 +458,111 @@ void Image::release_image()
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-int Image::get_disk_attribute(VectorAttribute * disk, int index)
+void Image::disk_attribute(VectorAttribute ** disk, int index)
 {
-    string  target  = "";
-    string  bus     = "";
+    string  overwrite;
+    string  saveas;
+    string  name;
+    string  bus;
 
+    name      = (*disk)->vector_value("NAME");
+    overwrite = (*disk)->vector_value("OVERWRITE");
+    saveas    = (*disk)->vector_value("SAVE_AS");
+    bus       = (*disk)->vector_value("BUS");
 
-    // SOURCE attribute
-    disk->replace("SOURCE", source);
+    string template_bus;
+    string prefix;
 
+    get_template_attribute("BUS", template_bus);
+    get_template_attribute("DEV_PREFIX", prefix);
 
-    // The BUS attribute isn't mandatory.
+   //---------------------------------------------------------------------------
+   //                       NEW DISK ATTRIBUTES
+   //---------------------------------------------------------------------------
+    VectorAttribute * new_disk = new VectorAttribute("DISK");
 
-    get_template_attribute("BUS", bus);
+    new_disk->replace("NAME",name);
+    new_disk->replace("OVERWRITE",overwrite);
+    new_disk->replace("SAVE_AS",saveas);
 
-    if( !bus.empty() )  // If the image has a BUS defined ...
+    new_disk->replace("SOURCE", source);
+
+    if (bus.empty())
     {
-        string disk_bus = disk->vector_value("BUS");
-
-        if( disk_bus.empty() )  // ... and the disk doesn't have already one
+        if (!template_bus.empty())
         {
-            disk->replace("BUS", bus);
+            new_disk->replace("BUS",template_bus);
         }
     }
-
-
-    // If the disk has already a user-defined target, then it will be used.
-    // First, check if it exists.
-    target = disk->vector_value("TARGET");
-
-
-    if ( target.empty() )
+    else
     {
-        // Generate the target from the image's prefix and type
-
-        get_template_attribute("DEV_PREFIX", target);
-
-        switch( type )
-        {
-            case OS:
-                target += "a";
-                break;
-            case CDROM:
-                target += "c";
-                break;
-            case DATABLOCK:
-                // Multiple datablocks can be defined, and they are mounted as
-                // sdd, sde, sdf...
-
-                if( index < 0 )
-                {
-                    return -1;
-                }
-
-                char letter = ('d' + index);
-                target += letter;
-                break;
-        };
-
-        // "Replace" inserts the name-value pair even if it doesn't exist.
-        disk->replace("TARGET", target);
+        new_disk->replace("BUS",bus);
     }
 
-    return 0;
+   //---------------------------------------------------------------------------
+   //   TYPE, READONLY, CLONE, and SAVE attributes
+   //---------------------------------------------------------------------------
+
+    IMAGE_TO_UPPER(overwrite);
+    IMAGE_TO_UPPER(saveas);
+
+    switch(type)
+    {
+        case OS:
+        case DATABLOCK:
+          new_disk->replace("TYPE","DISK");
+          new_disk->replace("READONLY","NO");
+
+          if (overwrite == "YES")
+          {
+              new_disk->replace("CLONE","NO");
+              new_disk->replace("SAVE","YES");
+          }
+          else if (saveas == "YES")
+          {
+              new_disk->replace("CLONE","YES");
+              new_disk->replace("SAVE","YES");
+          }
+          else
+          {
+              new_disk->replace("CLONE","YES");
+              new_disk->replace("SAVE","NO");
+          }
+        break;
+
+        case CDROM:
+          new_disk->replace("TYPE","CDROM");
+          new_disk->replace("READONLY","YES");
+
+          new_disk->replace("CLONE","YES");
+          new_disk->replace("SAVE","NO");
+        break;
+    }
+
+   //---------------------------------------------------------------------------
+   //   TARGET attribute
+   //---------------------------------------------------------------------------
+
+    switch(type)
+    {
+        case OS:
+            prefix += "a";
+        break;
+
+        case CDROM:
+            prefix += "c"; // b is for context
+        break;
+
+        case DATABLOCK:
+            prefix += static_cast<char>(('d'+ index));
+        break;
+
+    }
+
+    new_disk->replace("TARGET", prefix);
+
+    delete (*disk);
+    (*disk) = new_disk;
 }
 
 /* ------------------------------------------------------------------------ */
