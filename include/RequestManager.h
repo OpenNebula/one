@@ -763,6 +763,81 @@ private:
     
     /* ---------------------------------------------------------------------- */
 
+    class ImageRemoveAttribute: public xmlrpc_c::method
+    {
+    public:
+        ImageRemoveAttribute(ImagePool * _ipool,
+                             UserPool  * _upool):
+                        ipool(_ipool),
+                        upool(_upool)
+        {
+            _signature="A:sis";
+            _help="Removes image attribute";
+        };
+
+        ~ImageRemoveAttribute(){};
+
+        void execute(
+            xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP);
+
+    private:
+        ImagePool * ipool;
+        UserPool  * upool;
+    };
+    
+    /* ---------------------------------------------------------------------- */
+
+    class ImagePublish: public xmlrpc_c::method
+    {
+    public:
+        ImagePublish(ImagePool * _ipool,
+                     UserPool  * _upool):
+                        ipool(_ipool),
+                        upool(_upool)
+        {
+            _signature="A:sib";
+            _help="Removes image attribute";
+        };
+
+        ~ImagePublish(){};
+
+        void execute(
+            xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP);
+
+    private:
+        ImagePool * ipool;
+        UserPool  * upool;
+    };
+    
+    /* ---------------------------------------------------------------------- */
+
+    class ImageEnable: public xmlrpc_c::method
+    {
+    public:
+        ImageEnable(ImagePool * _ipool,
+                     UserPool  * _upool):
+                        ipool(_ipool),
+                        upool(_upool)
+        {
+            _signature="A:sib";
+            _help="Removes image attribute";
+        };
+
+        ~ImageEnable(){};
+
+        void execute(
+            xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP);
+
+    private:
+        ImagePool * ipool;
+        UserPool  * upool;
+    };
+    
+    /* ---------------------------------------------------------------------- */
+
     class ImagePoolInfo: public xmlrpc_c::method
     {
     public:

@@ -22,16 +22,15 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void RequestManager::ImageUpdate::execute(
+void RequestManager::ImagePublish::execute(
     xmlrpc_c::paramList const& paramList,
     xmlrpc_c::value *   const  retval)
 {
     string              session;
 
     int                 iid;
+    bool                publish_flag; 
     int                 uid;
-    string              name;
-    string              value;
     int                 rc;
     
     Image             * image;
@@ -42,17 +41,14 @@ void RequestManager::ImageUpdate::execute(
     xmlrpc_c::value_array * arrayresult;
 
 
-    NebulaLog::log("ReM",Log::DEBUG,"ImageUpdate invoked");
+    NebulaLog::log("ReM",Log::DEBUG,"ImagePublish invoked");
 
-    session  = xmlrpc_c::value_string(paramList.getString(0));
-    iid      = xmlrpc_c::value_int   (paramList.getInt(1));
-    name     = xmlrpc_c::value_string(paramList.getString(2));    
-    value    = xmlrpc_c::value_string(paramList.getString(3));        
-
-
+    session      = xmlrpc_c::value_string (paramList.getString(0));
+    iid          = xmlrpc_c::value_int    (paramList.getInt(1));
+    publish_flag = xmlrpc_c::value_boolean(paramList.getBoolean(1));
 
     // First, we need to authenticate the user
-    rc = ImageUpdate::upool->authenticate(session);
+    rc = ImagePublish::upool->authenticate(session);
 
     if ( rc == -1 )
     {
@@ -62,29 +58,20 @@ void RequestManager::ImageUpdate::execute(
     uid = rc;
     
     // Get image from the ImagePool
-    image = ImageUpdate::ipool->get(iid,true);    
+    image = ImagePublish::ipool->get(iid,true);    
                                                  
     if ( image == 0 )                             
     {                                            
         goto error_image_get;                     
     }
     
-    
     if ( uid != 0 && uid != image->get_uid() )
     {
         goto error_authorization;
     }
 
-    // This will perform the update on the DB as well, 
-    // so no need to do it manually
-    rc = ImageUpdate::ipool->replace_attribute(image, name, value);
+    image->publish(publish_flag);
 
-    if ( rc < 0 )
-    {
-        goto error_update;
-
-    }
-    
     image->unlock();
 
     arrayData.push_back(xmlrpc_c::value_boolean(true));
@@ -99,20 +86,20 @@ void RequestManager::ImageUpdate::execute(
     return;
 
 error_authenticate:
-    oss << "User not authenticated, aborting ImageUpdate call.";
+    oss << "[ImagePublish] User not authenticated, aborting call.";
     goto error_common;
     
 error_image_get:
-    oss << "Error getting image with ID = " << iid; 
+    oss << "[ImagePublish] Error getting image with ID = " << iid; 
     goto error_common;
     
 error_authorization:
-    oss << "User not authorized to modify image attributes " << 
-           ", aborting ImageUpdate call.";
+    oss << "[ImagePublish] User not authorized to publish/unpublish image" << 
+           ", aborting call.";
     goto error_common;
     
-error_update:
-    oss << "Cannot modify image [" << iid << "] attribute with name = " << name;
+error_remove_attribute:
+    oss << "[ImagePublish] Cannot publish/unpublish image [" << iid << "]";
     goto error_common;
 
 error_common:

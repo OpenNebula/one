@@ -22,16 +22,15 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void RequestManager::ImageUpdate::execute(
+void RequestManager::ImageRemoveAttribute::execute(
     xmlrpc_c::paramList const& paramList,
     xmlrpc_c::value *   const  retval)
 {
     string              session;
+    string              name;
 
     int                 iid;
     int                 uid;
-    string              name;
-    string              value;
     int                 rc;
     
     Image             * image;
@@ -42,17 +41,14 @@ void RequestManager::ImageUpdate::execute(
     xmlrpc_c::value_array * arrayresult;
 
 
-    NebulaLog::log("ReM",Log::DEBUG,"ImageUpdate invoked");
+    NebulaLog::log("ReM",Log::DEBUG,"ImageRemoveAttribute invoked");
 
     session  = xmlrpc_c::value_string(paramList.getString(0));
     iid      = xmlrpc_c::value_int   (paramList.getInt(1));
-    name     = xmlrpc_c::value_string(paramList.getString(2));    
-    value    = xmlrpc_c::value_string(paramList.getString(3));        
-
-
+    name     = xmlrpc_c::value_string(paramList.getString(2));        
 
     // First, we need to authenticate the user
-    rc = ImageUpdate::upool->authenticate(session);
+    rc = ImageRemoveAttribute::upool->authenticate(session);
 
     if ( rc == -1 )
     {
@@ -62,7 +58,7 @@ void RequestManager::ImageUpdate::execute(
     uid = rc;
     
     // Get image from the ImagePool
-    image = ImageUpdate::ipool->get(iid,true);    
+    image = ImageRemoveAttribute::ipool->get(iid,true);    
                                                  
     if ( image == 0 )                             
     {                                            
@@ -75,13 +71,11 @@ void RequestManager::ImageUpdate::execute(
         goto error_authorization;
     }
 
-    // This will perform the update on the DB as well, 
-    // so no need to do it manually
-    rc = ImageUpdate::ipool->replace_attribute(image, name, value);
+    rc = ImageRemoveAttribute::ipool->remove_attribute(image, name);
 
     if ( rc < 0 )
     {
-        goto error_update;
+        goto error_remove_attribute;
 
     }
     
@@ -99,20 +93,21 @@ void RequestManager::ImageUpdate::execute(
     return;
 
 error_authenticate:
-    oss << "User not authenticated, aborting ImageUpdate call.";
+    oss << "[ImageRemoveAttribute] User not authenticated, aborting call.";
     goto error_common;
     
 error_image_get:
-    oss << "Error getting image with ID = " << iid; 
+    oss << "[ImageRemoveAttribute] Error getting image with ID = " << iid; 
     goto error_common;
     
 error_authorization:
-    oss << "User not authorized to modify image attributes " << 
-           ", aborting ImageUpdate call.";
+    oss << "[ImageRemoveAttribute] User not authorized to remove image" << 
+           " attributes aborting call.";
     goto error_common;
     
-error_update:
-    oss << "Cannot modify image [" << iid << "] attribute with name = " << name;
+error_remove_attribute:
+    oss << "[ImageRemoveAttribute] Cannot remove attribute with name = " 
+        << name << " for image [" << iid << "]";
     goto error_common;
 
 error_common:
