@@ -47,6 +47,7 @@ ImagePool::ImagePool(   SqlDB * db,
 
                         PoolSQL(db,Image::table),
                         source_prefix(_source_prefix),
+                        default_type(_default_type),
                         default_dev_prefix(_default_dev_prefix)
 {
     ostringstream   sql;
@@ -61,11 +62,6 @@ ImagePool::ImagePool(   SqlDB * db,
                  "Bad default for image type, setting OS");
         default_type = "OS";
     }
-    else
-    {
-        default_type = _default_type;
-    }
-
 
     // Read from the DB the existing images, and build the ID:Name map
     set_callback(static_cast<Callbackable::Callback>(&ImagePool::init_cb));
@@ -92,19 +88,17 @@ int ImagePool::allocate (
         int *          oid)
 {
         Image * img;
-        string  name           = "";
-        string  source         = "";
-        string  type           = "";
-        string  public_attr    = "";
-        string  original_path  = "";
-        string  dev_prefix     = "";
-
-        ostringstream          tmp_hashstream;
-        ostringstream          tmp_sourcestream;
+        string  name;
+        string  source;
+        string  type;
+        string  public_attr;
+        string  dev_prefix;
 
         char *  error_msg;
         int     rc;
 
+        ostringstream tmp_hashstream;
+        ostringstream tmp_sourcestream;
 
         // ---------------------------------------------------------------------
         // Build a new Image object
@@ -124,6 +118,9 @@ int ImagePool::allocate (
         // ---------------------------------------------------------------------
         // Check default image attributes
         // ---------------------------------------------------------------------
+
+        // ------------ NAME --------------------
+
         img->get_template_attribute("NAME", name);
 
         if ( name.empty() == true )
@@ -131,8 +128,9 @@ int ImagePool::allocate (
             goto error_name;
         }
 
-        img->image_template.erase("NAME");
+        img->name = name;
 
+        // ------------ TYPE --------------------
 
         img->get_template_attribute("TYPE", type);
 
@@ -140,25 +138,21 @@ int ImagePool::allocate (
         {
             type = default_type;
         }
-        else
+
+        if (img->set_type(type) != 0)
         {
-            img->image_template.erase("TYPE");
+            goto error_type;
         }
+
+        // ------------ PUBLIC --------------------
 
         img->get_template_attribute("PUBLIC", public_attr);
-        IMAGE_TO_UPPER( public_attr );
-        img->image_template.erase("PUBLIC");
 
-        img->get_template_attribute("ORIGINAL_PATH", original_path);
+        IMAGE_TO_UPPER(public_attr);
 
-        if  ( (type == "OS" || type == "CDROM") &&
-               original_path.empty() == true      )
-        {
-            goto error_original_path;
-        }
+        img->public_img = (public_attr == "YES");
 
-        // DEV_PREFIX template attribute must exist for every image, if it
-        // isn't present it will be set to the default value.
+        // ------------ PREFIX --------------------
 
         img->get_template_attribute("DEV_PREFIX", dev_prefix);
 
@@ -170,26 +164,14 @@ int ImagePool::allocate (
             img->image_template.set(dev_att);
         }
 
+        // ------------ SOURCE (path to store the image)--------------------
 
-        img->running_vms = 0;
-
-
-        // Generate path to store the image
         tmp_hashstream << uid << ":" << name;
 
         tmp_sourcestream << source_prefix << "/";
         tmp_sourcestream << sha1_digest(tmp_hashstream.str());
 
-        img->name        = name;
-        img->source      = tmp_sourcestream.str();
-
-        img->public_img = (public_attr == "YES");
-
-        if (img->set_type(type) != 0)
-        {
-            goto error_type;
-        }
-
+        img->source = tmp_sourcestream.str();
 
         // ---------------------------------------------------------------------
         // Insert the Object in the pool
@@ -202,7 +184,10 @@ int ImagePool::allocate (
             return -1;
         }
 
+        // ---------------------------------------------------------------------
         // Add the image name to the map of image_names
+        // ---------------------------------------------------------------------
+
         image_names.insert(make_pair(name, *oid));
 
         return *oid;
@@ -212,10 +197,6 @@ error_name:
     goto error_common;
 error_type:
     NebulaLog::log("IMG", Log::ERROR, "Incorrect TYPE in image template");
-    goto error_common;
-error_original_path:
-    NebulaLog::log("IMG", Log::ERROR,
-    "ORIGINAL_PATH compulsory and not present in image template of this type.");
     goto error_common;
 error_common:
     delete img;
@@ -305,4 +286,3 @@ string ImagePool::sha1_digest(const string& pass)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-

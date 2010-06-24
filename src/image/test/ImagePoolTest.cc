@@ -186,11 +186,9 @@ public:
         CPPUNIT_ASSERT( img != 0 );
 
         // Image object should be cached. Let's change some template attributes
-        img->update_template_attribute(db, description_name, new_description);
-        img->update_template_attribute(db, attr_name,        new_attr_value);
-        img->remove_template_attribute(db, "ORIGINAL_PATH");
-
-        pool->update(img);
+        ip->replace_attribute(img, description_name, new_description);
+        ip->replace_attribute(img, attr_name,        new_attr_value);
+        ip->remove_attribute(img, "ORIGINAL_PATH");
 
         img->unlock();
 
@@ -398,25 +396,11 @@ public:
         oid = allocate(0);
         img = imp->get(oid, false);
 
-        img->get_disk_attribute(disk, 0);
+        img->disk_attribute(&disk, 0);
 
         value = disk->vector_value("TARGET");
 
         CPPUNIT_ASSERT( value == "hda" );
-
-
-        // clean up
-        delete disk;
-        value = "";
-
-        // This time, set a target for this disk
-        disk = new VectorAttribute("DISK");
-        disk->replace("TARGET", "sdw");
-
-        img->get_disk_attribute(disk, 0);
-
-        value = disk->vector_value("TARGET");
-        CPPUNIT_ASSERT(value == "sdw");
 
 
         // clean up
@@ -433,12 +417,10 @@ public:
 
         img = imp->get(oid, false);
 
-        img->get_disk_attribute(disk, 0);
+        img->disk_attribute(&disk, 0);
 
         value = disk->vector_value("TARGET");
         CPPUNIT_ASSERT(value == "hdc");
-
-
 
         // clean up
         delete disk;
@@ -454,11 +436,10 @@ public:
 
         img = imp->get(oid, false);
 
-        img->get_disk_attribute(disk, 0);
+        img->disk_attribute(&disk, 0);
 
         value = disk->vector_value("TARGET");
         CPPUNIT_ASSERT(value == "hdd");
-
 
         // clean up
         delete disk;
@@ -474,7 +455,7 @@ public:
 
         img = imp->get(oid, false);
 
-        img->get_disk_attribute(disk, 2);
+        img->disk_attribute(&disk, 2);
 
         value = disk->vector_value("TARGET");
         CPPUNIT_ASSERT(value == "sdf");
@@ -503,7 +484,7 @@ public:
         // A disk without a BUS attribute should not have it added.
         disk = new VectorAttribute("DISK");
 
-        img->get_disk_attribute(disk, 0);
+        img->disk_attribute(&disk, 0);
 
         value = "";
         value = disk->vector_value("BUS");
@@ -511,7 +492,7 @@ public:
 
         value = "";
         value = disk->vector_value("SOURCE");
-        CPPUNIT_ASSERT( value == 
+        CPPUNIT_ASSERT( value ==
                     "source_prefix/7e997f5fdc26712ac64eac8385fc81632b4bf024" );
 
         // clean up
@@ -522,8 +503,7 @@ public:
         disk = new VectorAttribute("DISK");
         disk->replace("BUS", "SCSI");
 
-
-        img->get_disk_attribute(disk, 0);
+        img->disk_attribute(&disk, 0);
 
         value = disk->vector_value("BUS");
         CPPUNIT_ASSERT( value == "SCSI" );
@@ -623,7 +603,7 @@ public:
         ImagePool * imp = static_cast<ImagePool*>(pool);
 
         ostringstream oss;
-        int oid, rc;
+        int rc;
 
         allocate(0);
         allocate(1);
@@ -648,7 +628,7 @@ public:
     {
         ImagePool * imp = static_cast<ImagePool*>(pool);
 
-        int oid, rc;
+        int rc;
         ostringstream oss;
         ostringstream where;
 
