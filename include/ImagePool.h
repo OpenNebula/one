@@ -48,7 +48,7 @@ public:
      *    @param uid the user id of the image's owner
      *    @param stemplate template associated with the image
      *    @param oid the id assigned to the Image
-     *    @return the oid assigned to the object, 
+     *    @return the oid assigned to the object,
      *                  -1 in case of failure
      *                  -2 in case of template parse failure
      */
@@ -70,7 +70,7 @@ public:
     {
         return static_cast<Image *>(PoolSQL::get(oid,lock));
     };
-    
+
     /**
      *  Function to get an Image from the pool using the image name
      *    @param name of the image
@@ -101,7 +101,7 @@ public:
     {
         return image->update(db);
     };
-    
+
     /** Drops an image from the DB, the image mutex MUST BE locked
      *    @param image pointer to Image
      *    @return 0 on success
@@ -117,34 +117,34 @@ public:
 
         return rc;
     };
-    
-    /** Modify an image attribute in the template OR the public attribute
-     *  and updates it in the DB (Image MUST be locked)
+
+    /** Modify an image attribute in the template (Image MUST be locked)
      *    @param image pointer to Image
      *    @param name of the attribute to be changed
      *    @param new value for the attribute
      *    @return 0 on success, -1 otherwise
      */
-    int modify_image_attribute(
-        Image * image,
-        string& name,
-        string& value)
+    int replace_attribute(
+        Image *       image,
+        const string& name,
+        const string& value)
     {
-        int rc = 0;
-        
-        if ( name == "PUBLIC" && ( value == "YES" || value == "NO" ))
-        {
-            image->public_img = value=="YES"?1:0;
-        }
-        else
-        {
-            return image->update_template_attribute(db, name, value);
-        }
-        
-        image->update(db);
-        
-        return rc;
-    }                   
+        SingleAttribute * sattr = new SingleAttribute(name,value);
+
+        return image->image_template.replace_attribute(db,sattr);
+    }
+
+    /** Delete an image attribute in the template (Image MUST be locked)
+     *    @param image pointer to Image
+     *    @param name of the attribute to be removed
+     *    @return 0 on success, -1 otherwise
+     */
+    int remove_attribute(
+        Image *       image,
+        const string& name)
+    {
+        return image->image_template.remove_attribute(db, name);
+    }
 
     /**
      *  Bootstraps the database table(s) associated to the Image pool
@@ -153,7 +153,7 @@ public:
     {
         Image::bootstrap(_db);
     };
-    
+
     /**
      *  Dumps the Image pool in XML format. A filter can be also added to the
      *  query
@@ -168,12 +168,12 @@ private:
      *  This map stores the association between IIDs and Image names
      */
     map<string, int>    image_names;
-    
+
     /**
      * Path to the image repository
      **/
     string              source_prefix;
-    
+
     /**
      * Default image type
      **/
@@ -183,7 +183,7 @@ private:
      * Default device prefix
      **/
     string              default_dev_prefix;
-      
+
     /**
      *  Factory method to produce Image objects
      *    @return a pointer to the new Image

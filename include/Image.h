@@ -152,15 +152,20 @@ public:
 
     /**
      *  Enables the image
+     *    @param to_enable true will enable the image.
      *    @return 0 on success
      */
-    int enable()
+    int enable(bool to_enable)
     {
         int rc = 0;
 
-        if (state == DISABLED)
+        if ((to_enable == true) && (state == DISABLED))
         {
             state = READY;
+        }
+        else if ((to_enable == false) && (state == READY))
+        {
+            state = DISABLED;
         }
         else
         {
@@ -171,23 +176,20 @@ public:
     }
 
     /**
-     *  Disables the image
+     *  Publish or unpublish an image
+     *    @param pub true to publish the image
      *    @return 0 on success
      */
-    int disable()
+    void publish(bool pub)
     {
-        int rc = 0;
-
-        if (state == READY)
+        if (pub == true)
         {
-            state = DISABLED;
+            public_img = 1;
         }
         else
         {
-            rc = -1;
+            public_img = 0;
         }
-
-        return rc;
     }
 
     /**
@@ -259,29 +261,6 @@ public:
     {
         string str=name;
         image_template.get(str,value);
-    }
-
-
-    /**
-     *  Updates the template of an Image, adding a new attribute (replacing it
-     * if already defined), the image's mutex SHOULD be locked
-     *    @param db pointer to the database
-     *    @param name of the new attribute
-     *    @param value of the new attribute
-     *    @return 0 on success
-     */
-    int update_template_attribute(
-        SqlDB * db,
-        string& name,
-        string& value)
-    {
-        SingleAttribute * sattr;
-        int               rc;
-
-        sattr = new SingleAttribute(name,value);
-        rc    = image_template.replace_attribute(db,sattr);
-
-        return rc;
     }
 
     /**
