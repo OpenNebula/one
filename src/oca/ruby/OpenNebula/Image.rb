@@ -9,6 +9,9 @@ module OpenNebula
             :info     => "image.info",
             :allocate => "image.allocate",
             :update   => "image.update",
+            :rmattr   => "image.rmattr",
+            :enable   => "image.enable",
+            :publish  => "image.publish",
             :delete   => "image.delete"
         }
         
@@ -68,6 +71,26 @@ module OpenNebula
         def update(name, value)
             super(IMAGE_METHODS[:update], name, value)
         end
+        
+        def remove_attr(name)
+            super(IMAGE_METHODS[:rmattr], name)
+        end
+        
+        def enable
+            set_enabled(true) 
+        end
+        
+        def disable
+            set_enabled(false) 
+        end
+        
+        def publish
+            set_publish(true)
+        end
+        
+        def unpublish
+            set_publish(false)
+        end
 
         def delete()
             super(IMAGE_METHODS[:delete])
@@ -105,6 +128,26 @@ module OpenNebula
         # Returns the state of the Image (string value)
         def short_type_str
             SHORT_IMAGE_TYPES[type_str]
-        end      
+        end 
+        
+    private
+        def set_enabled(enabled)
+            return Error.new('ID not defined') if !@pe_id
+
+            rc = @client.call(IMAGE_METHODS[:enable], @pe_id, enabled)
+            rc = nil if !OpenNebula.is_error?(rc)
+
+            return rc
+        end
+        
+        def set_publish(published)
+            return Error.new('ID not defined') if !@pe_id
+
+            rc = @client.call(IMAGE_METHODS[:publish], @pe_id, published)
+            rc = nil if !OpenNebula.is_error?(rc)
+
+            return rc
+        end
+    
     end
 end
