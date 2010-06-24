@@ -45,7 +45,7 @@ void RequestManager::ImagePublish::execute(
 
     session      = xmlrpc_c::value_string (paramList.getString(0));
     iid          = xmlrpc_c::value_int    (paramList.getInt(1));
-    publish_flag = xmlrpc_c::value_boolean(paramList.getBoolean(1));
+    publish_flag = xmlrpc_c::value_boolean(paramList.getBoolean(2));
 
     // First, we need to authenticate the user
     rc = ImagePublish::upool->authenticate(session);
@@ -71,6 +71,8 @@ void RequestManager::ImagePublish::execute(
     }
 
     image->publish(publish_flag);
+    
+    ImagePublish::ipool->update(image);
 
     image->unlock();
 

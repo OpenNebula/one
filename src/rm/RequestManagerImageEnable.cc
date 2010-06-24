@@ -45,7 +45,7 @@ void RequestManager::ImageEnable::execute(
 
     session     = xmlrpc_c::value_string (paramList.getString(0));
     iid         = xmlrpc_c::value_int    (paramList.getInt(1));
-    enable_flag = xmlrpc_c::value_boolean(paramList.getBoolean(1));
+    enable_flag = xmlrpc_c::value_boolean(paramList.getBoolean(2));
 
     // First, we need to authenticate the user
     rc = ImageEnable::upool->authenticate(session);
@@ -77,6 +77,8 @@ void RequestManager::ImageEnable::execute(
         goto error_remove_attribute;
 
     }
+    
+    ImageEnable::ipool->update(image);
     
     image->unlock();
 
