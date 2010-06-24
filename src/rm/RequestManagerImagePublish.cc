@@ -97,10 +97,6 @@ error_authorization:
     oss << "[ImagePublish] User not authorized to publish/unpublish image" << 
            ", aborting call.";
     goto error_common;
-    
-error_remove_attribute:
-    oss << "[ImagePublish] Cannot publish/unpublish image [" << iid << "]";
-    goto error_common;
 
 error_common:
     arrayData.push_back(xmlrpc_c::value_boolean(false));  // FAILURE
