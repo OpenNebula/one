@@ -151,6 +151,46 @@ public:
     void release_image();
 
     /**
+     *  Enables the image
+     *    @return 0 on success
+     */
+    int enable()
+    {
+        int rc = 0;
+
+        if (state == DISABLED)
+        {
+            state = READY;
+        }
+        else
+        {
+            rc = -1;
+        }
+
+        return rc;
+    }
+
+    /**
+     *  Disables the image
+     *    @return 0 on success
+     */
+    int disable()
+    {
+        int rc = 0;
+
+        if (state == READY)
+        {
+            state = DISABLED;
+        }
+        else
+        {
+            rc = -1;
+        }
+
+        return rc;
+    }
+
+    /**
      * Modifies the given disk attribute adding the following attributes:
      *  * SOURCE: the file-path.
      *  * BUS:    will only be set if the Image's definition includes it.
