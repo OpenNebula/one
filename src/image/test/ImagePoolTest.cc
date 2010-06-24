@@ -407,20 +407,6 @@ public:
         delete disk;
         value = "";
 
-        // This time, set a target for this disk
-        disk = new VectorAttribute("DISK");
-        disk->replace("TARGET", "sdw");
-
-        img->disk_attribute(&disk, 0);
-
-        value = disk->vector_value("TARGET");
-        CPPUNIT_ASSERT(value == "sdw");
-
-
-        // clean up
-        delete disk;
-        value = "";
-
         disk = new VectorAttribute("DISK");
 
         // Allocate a CDROM type image
