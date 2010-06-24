@@ -31,29 +31,30 @@ public:
     /**
      *  Type of Images
      */
-     enum ImageType
-     {
-         OS        = 0,
-         CDROM     = 1,
-         DATABLOCK = 2
-     };
+    enum ImageType
+    {
+        OS        = 0, /** < Base OS image */
+        CDROM     = 1, /** < An ISO9660 image */
+        DATABLOCK = 2  /** < User persistent data device */
+    };
 
-      /**
-       *  Image State
-       */
-       enum ImageState
-       {
-           INIT      = 0,
-           LOCKED    = 1,
-           READY     = 2,
-           USED      = 3
-       }; 
-     
+    /**
+     *  Image State
+     */
+    enum ImageState
+    {
+        INIT      = 0, /** < Initialization state */
+        LOCKED    = 1, /** < FS operation on the image in progress, don't use */
+        READY     = 2, /** < Image ready to use */
+        USED      = 3, /** < Image in use */
+        DISABLED  = 4  /** < Image can not be instantiated by a VM */
+    };
+
     /**
      *  Function to write an Image on an output stream
      */
      friend ostream& operator<<(ostream& os, Image& i);
-     
+
     // *************************************************************************
     // Image Public Methods
     // *************************************************************************
@@ -98,24 +99,24 @@ public:
     {
         return name;
     };
-    
+
     /**
      *  Returns true if the image is public
      *     @return true if the image is public
      */
-    bool is_public() 
+    bool is_public()
     {
-        return public_img;
+        return (public_img == 1);
     };
 
     /**
      *  Set enum type
      *     @return 0 on success, -1 otherwise
-     */ 
-    int set_type(string _type)
+     */
+    int set_type(const string& _type)
     {
         int rc = 0;
-        
+
         if ( _type == "OS" )
         {
             type = OS;
@@ -132,16 +133,16 @@ public:
         {
             rc = -1;
         }
-        
+
         return rc;
     }
 
     /**
-     * Get an image to be used in a VM
+     * Get an image to be used in a VM, and updates its state.
      * @param overwrite true if the image is going to be overwritten
-     * @return boolean true if the image can be used
+     * @return 0 if success
      */
-    bool get_image(bool overwrite);
+    int acquire_image(bool overwrite);
 
 
     /**
@@ -240,24 +241,7 @@ public:
         sattr = new SingleAttribute(name,value);
         rc    = image_template.replace_attribute(db,sattr);
 
-        if (rc != 0)
-        {
-            delete sattr;
-        }
-
         return rc;
-    }
-
-    /**
-     *  Inserts a new attribute in the template of an Image, also the DB is
-     *  updated. The image's mutex SHOULD be locked
-     *    @param db pointer to the database
-     *    @param attribute the new attribute for the template
-     *    @return 0 on success
-     */
-    int insert_template_attribute(SqlDB * db, Attribute * attribute)
-    {
-        return image_template.insert_attribute(db,attribute);
     }
 
     /**
@@ -290,7 +274,7 @@ private:
      *  The name of the Image
      */
     string       name;
-    
+
     /**
      *  Type of the Image
      */
@@ -305,7 +289,7 @@ private:
      *  Registration time
      */
     time_t       regtime;
-    
+
     /**
      *  Path to the image
      */
@@ -315,11 +299,11 @@ private:
       *  Image state
       */
     ImageState  state;
-    
+
     /**
      * Number of VMs using the image
      */
-    int running_vms;     
+    int running_vms;
 
     // -------------------------------------------------------------------------
     //  Image Attributes
@@ -392,7 +376,7 @@ protected:
         RUNNING_VMS      = 8,    /* Number of VMs using the img */
         LIMIT            = 9
     };
-    
+
     static const char * db_names;
 
     static const char * db_bootstrap;

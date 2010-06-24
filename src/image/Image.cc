@@ -44,7 +44,7 @@ Image::~Image(){};
 
 const char * Image::table = "image_pool";
 
-const char * Image::db_names = "(oid, uid, name, type, public, regtime, " 
+const char * Image::db_names = "(oid, uid, name, type, public, regtime, "
                                "source, state, running_vms)";
 
 const char * Image::db_bootstrap = "CREATE TABLE IF NOT EXISTS image_pool ("
@@ -73,18 +73,18 @@ int Image::select_cb(void * nil, int num, char **values, char ** names)
 
     oid         = atoi(values[OID]);
     uid         = atoi(values[UID]);
-    
+
     name        = values[NAME];
-    
+
     type        = static_cast<ImageType>(atoi(values[TYPE]));
     public_img  = atoi(values[PUBLIC]);
     regtime     = static_cast<time_t>(atoi(values[REGTIME]));
 
     source      = values[SOURCE];
 
-    state       = static_cast<ImageState>(atoi(values[STATE])); 
-    
-    running_vms = atoi(values[RUNNING_VMS]); 
+    state       = static_cast<ImageState>(atoi(values[STATE]));
+
+    running_vms = atoi(values[RUNNING_VMS]);
 
     image_template.id  = oid;
 
@@ -122,7 +122,7 @@ int Image::select(SqlDB *db)
     {
         return -1;
     }
-    
+
     return 0;
 }
 
@@ -292,7 +292,7 @@ int Image::drop(SqlDB * db)
 {
     ostringstream oss;
     int rc;
-    
+
     // Only delete the VM
     if (running_vms != 0)
     {
@@ -377,7 +377,7 @@ string& Image::to_str(string& str) const
         "STATE       = "    << state       << endl <<
         "RUNNING_VMS = "    << running_vms << endl <<
         "TEMPLATE"          << endl
-                            << image_template.to_str(template_str) 
+                            << image_template.to_str(template_str)
                             << endl;
 
     str = os.str();
@@ -388,40 +388,68 @@ string& Image::to_str(string& str) const
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-// TODO update?  
-bool Image::get_image(bool overwrite)
+int Image::acquire_image(bool overwrite)
 {
-    if ( state == READY || state == USED )
+    int rc = 0;
+
+
+    switch (state)
     {
-        running_vms++;
-        
-        if(overwrite)
-        {
-            state = LOCKED;
-        }
-        else
-        {
-            state = USED;
-        }
-        return true;
+        case READY:
+            running_vms++;
+
+            if ( overwrite  == true)
+            {
+                state = LOCKED;
+            }
+            else
+            {
+                state = USED;
+            }
+        break;
+
+        case USED:
+            if ( overwrite == true)
+            {
+                rc = -1;
+            }
+            else
+            {
+                running_vms++;
+            }
+        break;
+
+        case DISABLED:
+        case LOCKED:
+        default:
+           rc = -1;
+        break;
     }
-    else
-    {
-        return false;
-    }
+
+    return rc;
 }
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-  // TODO update?   
 void Image::release_image()
 {
-    running_vms--;
-    
-    if ( state == USED && running_vms == 0 )
+    switch (state)
     {
-        state = READY;
+        case USED:
+        case LOCKED:
+            running_vms--;
+
+            if ( running_vms == 0)
+            {
+                state = READY;
+            }
+        break;
+
+        case DISABLED:
+        case READY:
+        default:
+        break;
     }
 }
 
