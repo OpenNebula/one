@@ -35,7 +35,8 @@ Image::Image(int _uid):
         type(OS),
         regtime(time(0)),
         source(""),
-        state(INIT)
+        state(INIT),
+        running_vms(0)
         {};
 
 Image::~Image(){};
