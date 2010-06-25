@@ -73,7 +73,7 @@ public:
      */
     bool is_public()
     {
-        return public_vnet;
+        return (public_vnet == 1);
     };
 
     /**
@@ -143,6 +143,17 @@ public:
      *  @return a reference to the generated string
      */
     string& to_xml(string& xml) const;
+
+    /**
+     * Modifies the given nic attribute adding the following attributes:
+     *  * IP:  leased from network
+     *  * MAC: leased from network
+     *  * BRIDGE: for this virtual network
+     *  @param nic attribute for the VM template
+     *  @param vid of the VM getting the lease
+     *  @return 0 on success
+     */
+    int nic_attribute(VectorAttribute * nic, int vid);
 
 private:
 

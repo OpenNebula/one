@@ -547,3 +547,62 @@ string& VirtualNetwork::to_str(string& str) const
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+int VirtualNetwork::nic_attribute(VectorAttribute *nic, int vid)
+{
+    int rc;
+
+    string  network;
+    string  model;
+    string  ip;
+    string  mac;
+
+    ostringstream  vnid;
+
+    map<string,string> new_nic;
+
+    network = nic->vector_value("NETWORK");
+    model   = nic->vector_value("MODEL");
+    ip      = nic->vector_value("IP");
+    vnid   << oid;
+
+    //--------------------------------------------------------------------------
+    //                       GET NETWORK LEASE
+    //--------------------------------------------------------------------------
+
+    if (ip.empty())
+    {
+        rc = leases->get(vid,ip,mac);
+    }
+    else
+    {
+        rc = leases->set(vid,ip,mac);
+    }
+
+    if ( rc != 0 )
+    {
+        return -1;
+    }
+
+    //--------------------------------------------------------------------------
+    //                       NEW NIC ATTRIBUTES
+    //--------------------------------------------------------------------------
+
+    new_nic.insert(make_pair("NETWORK",network));
+    new_nic.insert(make_pair("MAC"    ,mac));
+    new_nic.insert(make_pair("BRIDGE" ,bridge));
+    new_nic.insert(make_pair("VNID"   ,vnid.str()));
+    new_nic.insert(make_pair("IP"     ,ip));
+
+    if (!model.empty())
+    {
+        new_nic.insert(make_pair("MODEL",model));
+    }
+
+    nic->replace(new_nic);
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */

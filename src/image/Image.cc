@@ -459,17 +459,17 @@ void Image::release_image()
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-void Image::disk_attribute(VectorAttribute ** disk, int index)
+void Image::disk_attribute(VectorAttribute * disk, int index)
 {
     string  overwrite;
     string  saveas;
     string  name;
     string  bus;
 
-    name      = (*disk)->vector_value("NAME");
-    overwrite = (*disk)->vector_value("OVERWRITE");
-    saveas    = (*disk)->vector_value("SAVE_AS");
-    bus       = (*disk)->vector_value("BUS");
+    name      = disk->vector_value("NAME");
+    overwrite = disk->vector_value("OVERWRITE");
+    saveas    = disk->vector_value("SAVE_AS");
+    bus       = disk->vector_value("BUS");
 
     string template_bus;
     string prefix;
@@ -480,24 +480,25 @@ void Image::disk_attribute(VectorAttribute ** disk, int index)
    //---------------------------------------------------------------------------
    //                       NEW DISK ATTRIBUTES
    //---------------------------------------------------------------------------
-    VectorAttribute * new_disk = new VectorAttribute("DISK");
 
-    new_disk->replace("NAME",name);
-    new_disk->replace("OVERWRITE",overwrite);
-    new_disk->replace("SAVE_AS",saveas);
+    map<string,string> new_disk;
 
-    new_disk->replace("SOURCE", source);
+    new_disk.insert(make_pair("NAME",name));
+    new_disk.insert(make_pair("OVERWRITE",overwrite));
+    new_disk.insert(make_pair("SAVE_AS",saveas));
+
+    new_disk.insert(make_pair("SOURCE", source));
 
     if (bus.empty())
     {
         if (!template_bus.empty())
         {
-            new_disk->replace("BUS",template_bus);
+            new_disk.insert(make_pair("BUS",template_bus));
         }
     }
     else
     {
-        new_disk->replace("BUS",bus);
+        new_disk.insert(make_pair("BUS",bus));
     }
 
    //---------------------------------------------------------------------------
@@ -511,32 +512,32 @@ void Image::disk_attribute(VectorAttribute ** disk, int index)
     {
         case OS:
         case DATABLOCK:
-          new_disk->replace("TYPE","DISK");
-          new_disk->replace("READONLY","NO");
+          new_disk.insert(make_pair("TYPE","DISK"));
+          new_disk.insert(make_pair("READONLY","NO"));
 
           if (overwrite == "YES")
           {
-              new_disk->replace("CLONE","NO");
-              new_disk->replace("SAVE","YES");
+              new_disk.insert(make_pair("CLONE","NO"));
+              new_disk.insert(make_pair("SAVE","YES"));
           }
           else if (saveas == "YES")
           {
-              new_disk->replace("CLONE","YES");
-              new_disk->replace("SAVE","YES");
+              new_disk.insert(make_pair("CLONE","YES"));
+              new_disk.insert(make_pair("SAVE","YES"));
           }
           else
           {
-              new_disk->replace("CLONE","YES");
-              new_disk->replace("SAVE","NO");
+              new_disk.insert(make_pair("CLONE","YES"));
+              new_disk.insert(make_pair("SAVE","NO"));
           }
         break;
 
         case CDROM:
-          new_disk->replace("TYPE","CDROM");
-          new_disk->replace("READONLY","YES");
+          new_disk.insert(make_pair("TYPE","CDROM"));
+          new_disk.insert(make_pair("READONLY","YES"));
 
-          new_disk->replace("CLONE","YES");
-          new_disk->replace("SAVE","NO");
+          new_disk.insert(make_pair("CLONE","YES"));
+          new_disk.insert(make_pair("SAVE","NO"));
         break;
     }
 
@@ -559,11 +560,9 @@ void Image::disk_attribute(VectorAttribute ** disk, int index)
         break;
 
     }
+    new_disk.insert(make_pair("TARGET", prefix));
 
-    new_disk->replace("TARGET", prefix);
-
-    delete (*disk);
-    (*disk) = new_disk;
+    disk->replace(new_disk);
 }
 
 /* ------------------------------------------------------------------------ */

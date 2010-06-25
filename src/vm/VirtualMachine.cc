@@ -594,17 +594,7 @@ int VirtualMachine::get_network_leases()
     int                        num_nics, rc;
     vector<Attribute  * >      nics;
     VirtualNetworkPool       * vnpool;
-    VirtualNetwork           * vn;
     VectorAttribute          * nic;
-    map<string,string>         new_nic;
-
-    string                     ip;
-    string                     mac;
-    string                     bridge;
-    string                     network;
-    string                     model;
-
-    ostringstream              vnid;
 
     // Set the networking attributes.
 
@@ -613,75 +603,21 @@ int VirtualMachine::get_network_leases()
 
     num_nics   = vm_template.get("NIC",nics);
 
-    for(int i=0; i<num_nics; i++,vnid.str(""))
+    for(int i=0; i<num_nics; i++)
     {
-   	 	nic = dynamic_cast<VectorAttribute * >(nics[i]);
+        nic = dynamic_cast<VectorAttribute * >(nics[i]);
 
         if ( nic == 0 )
         {
             continue;
         }
 
-        network = nic->vector_value("NETWORK");
+        rc = vnpool->nic_attribute(nic, oid);
 
-        if ( network.empty() )
-        {
-            continue;
-        }
-
-        vn = vnpool->get(network,true);
-
-        if ( vn == 0 )
+        if (rc == -1)
         {
             return -1;
         }
-
-        if ( vn->get_uid() != uid && vn->get_uid() != 0 && uid != 0)
-        {
-            ostringstream ose;
-            ose << "Owner " << uid << " of the VM doesn't have ownership of Virtual Network "
-                << vn->get_uid();
-            NebulaLog::log("VMM", Log::ERROR, ose);
-            return -1;
-        }
-
-
-        ip = nic->vector_value("IP");
-
-        if (ip.empty())
-        {
-        	rc = vn->get_lease(oid, ip, mac, bridge);
-        }
-        else
-        {
-        	rc = vn->set_lease(oid, ip, mac, bridge);
-        }
-
-        vn->unlock();
-
-        if ( rc != 0 )
-        {
-            return -1;
-        }
-
-        vnid << vn->get_oid();
-
-        new_nic.insert(make_pair("NETWORK",network));
-        new_nic.insert(make_pair("MAC"    ,mac));
-        new_nic.insert(make_pair("BRIDGE" ,bridge));
-        new_nic.insert(make_pair("VNID"   ,vnid.str()));
-        new_nic.insert(make_pair("IP"     ,ip));
-
-        model = nic->vector_value("MODEL");
-
-        if ( !model.empty() )
-        {
-            new_nic.insert(make_pair("MODEL",model));
-        }
-
-        nic->replace(new_nic);
-
-        new_nic.erase(new_nic.begin(),new_nic.end());
     }
 
     return 0;

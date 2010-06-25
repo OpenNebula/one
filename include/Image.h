@@ -204,7 +204,7 @@ public:
      *      prefix + (d + index) :   hdd, hde, hdf...
      * @param disk attribute for the VM template
      */
-    void disk_attribute(VectorAttribute ** disk, int index);
+    void disk_attribute(VectorAttribute * disk, int index);
 
     // ------------------------------------------------------------------------
     // Template

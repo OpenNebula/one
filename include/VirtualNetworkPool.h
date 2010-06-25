@@ -81,6 +81,39 @@ public:
     //--------------------------------------------------------------------------
 
     /**
+     *  Generates a NIC attribute for VM templates using the VirtualNetwork
+     *  metadata
+     *    @param nic the nic attribute to be generated
+     *    @param vid of the VM requesting the lease
+     *    @return 0 on success, -1 error, -2 not using the pool
+     */
+    int nic_attribute(VectorAttribute * nic, int vid)
+    {
+        string           network;
+        VirtualNetwork * vnet;
+
+        network = nic->vector_value("NETWORK");
+
+        if (network.empty())
+        {
+            return -2;
+        }
+
+        vnet = get(network,true);
+
+        if (vnet == 0)
+        {
+            return -1;
+        }
+
+        int rc = vnet->nic_attribute(nic,vid);
+
+        vnet->unlock();
+
+        return rc;
+    }
+
+    /**
      *  Updates the template of a VN, adding a new attribute (replacing it if
      *  already defined), the VN's mutex SHOULD be locked
      *    @param vn pointer to the virtual network object

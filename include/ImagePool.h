@@ -190,7 +190,7 @@ public:
             return -1;
         }
 
-        img->disk_attribute(&disk,index);
+        img->disk_attribute(disk,index);
 
         img->unlock();
 
