@@ -309,8 +309,6 @@ when "update"
     result=image.update(ARGV[1],ARGV[2])
     if is_successful?(result)
         puts "Modified image" if ops[:verbose]
-    else
-        break
     end
 
 when "rmattr"
@@ -322,8 +320,6 @@ when "rmattr"
     result=image.remove_attr(ARGV[1])
     if is_successful?(result)
         puts "Removed image atrribute" if ops[:verbose]
-    else
-        break
     end
     
 when "enable"
@@ -333,10 +329,9 @@ when "enable"
     image=OpenNebula::Image.new_with_id(image_id, get_one_client)
 
     result=image.enable
+    pp result
     if is_successful?(result)
         puts "Image enabled" if ops[:verbose]
-    else
-        break
     end
     
 when "disable"
@@ -348,8 +343,6 @@ when "disable"
     result=image.disable
     if is_successful?(result)
         puts "Image disabled" if ops[:verbose]
-    else
-        break
     end
 
 when "publish"
@@ -361,8 +354,6 @@ when "publish"
     result=image.disable
     if is_successful?(result)
         puts "Image published" if ops[:verbose]
-    else
-        break
     end
     
 when "unpublish"
@@ -374,8 +365,6 @@ when "unpublish"
     result=image.unpublished
     if is_successful?(result)
         puts "Image unpublished" if ops[:verbose]
-    else
-        break
     end
     
 when "list"
