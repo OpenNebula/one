@@ -254,6 +254,7 @@ public:
         vector<float>       priorities;
         int                 hid;
         int                 rc;
+        map<int, int>  host_vms;
 
         CPPUNIT_ASSERT( vmp != 0 );
 
@@ -267,7 +268,7 @@ public:
         vm = vmp->get(0);
         CPPUNIT_ASSERT( vm != 0 );
 
-        rc = vm->get_host(hid, hpool);
+        rc = vm->get_host(hid, hpool,host_vms,1);
         CPPUNIT_ASSERT( rc == -1 );
 
         // get_host will iterate in reverse order the available hosts, and
@@ -278,7 +279,7 @@ public:
         vm->add_host( 2 );
         vm->add_host( 1 );
 
-        rc = vm->get_host(hid, hpool);
+        rc = vm->get_host(hid, hpool,host_vms,1);
 
         CPPUNIT_ASSERT( rc  == 0 );
         CPPUNIT_ASSERT( hid == 4 );
@@ -293,7 +294,7 @@ public:
 
         vm->set_priorities(priorities);
 
-        rc = vm->get_host(hid, hpool);
+        rc = vm->get_host(hid, hpool,host_vms,1);
 
         CPPUNIT_ASSERT( rc  == 0 );
         CPPUNIT_ASSERT( hid == 5 );
