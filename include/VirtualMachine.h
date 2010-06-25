@@ -714,7 +714,7 @@ public:
     void get_requirements (int& cpu, int& memory, int& disk);
 
     // ------------------------------------------------------------------------
-    // Network Leases
+    // Network Leases & Disk Images
     // ------------------------------------------------------------------------
     /**
      *  Get all network leases for this Virtual Machine
@@ -726,6 +726,17 @@ public:
      *  Releases all network leases taken by this Virtual Machine
      */
     void release_network_leases();
+
+    /**
+     *  Get all disk images for this Virtual Machine
+     *  @return 0 if success
+     */
+    int get_disk_images();
+
+    /**
+     *  Releases all disk images taken by this Virtual Machine
+     */
+    void release_disk_images();
 
     // ------------------------------------------------------------------------
     // Context related functions
@@ -881,11 +892,11 @@ private:
      *    @return 0 on success
      */
     int select_cb(void *nil, int num, char **names, char ** values);
-    
+
     /**
-     *  Execute an INSERT or REPLACE Sql query. 
+     *  Execute an INSERT or REPLACE Sql query.
      *    @param db The SQL DB
-     *    @param replace Execute an INSERT or a REPLACE	
+     *    @param replace Execute an INSERT or a REPLACE
      *    @return 0 one success
     */
     int insert_replace(SqlDB *db, bool replace);

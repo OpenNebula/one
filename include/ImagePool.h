@@ -29,9 +29,6 @@
 
 using namespace std;
 
-#define IMAGE_TO_UPPER(S) transform (S.begin(),S.end(),S.begin(), \
-(int(*)(int))toupper)
-
 /**
  *  The Image Pool class.
  */
@@ -171,7 +168,7 @@ public:
      *    @param disk the disk to be generated
      *    @return 0 on success, -1 error, -2 not using the pool
      */
-    int disk_attribute(VectorAttribute * disk, int index)
+    int disk_attribute(VectorAttribute * disk, int * index)
     {
         string  source;
         Image * img;

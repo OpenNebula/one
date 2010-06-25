@@ -148,7 +148,8 @@ int ImagePool::allocate (
 
         img->get_template_attribute("PUBLIC", public_attr);
 
-        IMAGE_TO_UPPER(public_attr);
+        transform (public_attr.begin(), public_attr.end(), public_attr.begin(),
+            (int(*)(int))toupper);
 
         img->public_img = (public_attr == "YES");
 

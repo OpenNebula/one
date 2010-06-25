@@ -459,7 +459,7 @@ void Image::release_image()
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-int Image::disk_attribute(VectorAttribute * disk, int index)
+int Image::disk_attribute(VectorAttribute * disk, int * index)
 {
     string  overwrite;
     string  saveas;
@@ -474,8 +474,11 @@ int Image::disk_attribute(VectorAttribute * disk, int index)
     bus       = disk->vector_value("BUS");
     iid << oid;
 
-    IMAGE_TO_UPPER(overwrite);
-    IMAGE_TO_UPPER(saveas);
+    transform(overwrite.begin(), overwrite.end(), overwrite.begin(),
+        (int(*)(int))toupper);
+
+    transform(saveas.begin(), saveas.end(), saveas.begin(),
+        (int(*)(int))toupper);
 
     string template_bus;
     string prefix;
@@ -569,7 +572,8 @@ int Image::disk_attribute(VectorAttribute * disk, int index)
         break;
 
         case DATABLOCK:
-            prefix += static_cast<char>(('d'+ index));
+            prefix += static_cast<char>(('d'+ *index));
+            *index  = *index + 1;
         break;
 
     }

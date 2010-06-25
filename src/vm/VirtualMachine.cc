@@ -304,6 +304,17 @@ int VirtualMachine::insert(SqlDB * db)
     }
 
     // ------------------------------------------------------------------------
+    // Get disk images
+    // ------------------------------------------------------------------------
+
+    rc = get_disk_images();
+
+    if ( rc != 0 )
+    {
+        goto error_images;
+    }
+
+    // ------------------------------------------------------------------------
     // Insert the template first, so we get a valid template ID. Then the VM
     // ------------------------------------------------------------------------
 
@@ -336,6 +347,11 @@ error_template:
 error_leases:
     NebulaLog::log("ONE",Log::ERROR, "Could not get network lease for VM");
     release_network_leases();
+    return -1;
+
+error_images:
+    NebulaLog::log("ONE",Log::ERROR, "Could not get disk image for VM");
+    release_disk_images();
     return -1;
 }
 
@@ -585,18 +601,98 @@ void VirtualMachine::get_requirements (int& cpu, int& memory, int& disk)
 
     return;
 }
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::get_disk_images()
+{
+    int                   num_disks, rc;
+    vector<Attribute  * > disks;
+    ImagePool *           ipool;
+    VectorAttribute *     disk;
+
+    Nebula& nd = Nebula::instance();
+    ipool      = nd.get_ipool();
+
+    num_disks  = vm_template.get("DISK",disks);
+
+    for(int i=0, index=0; i<num_disks; i++)
+    {
+
+        disk = dynamic_cast<VectorAttribute * >(disks[i]);
+
+        if ( disk == 0 )
+        {
+            continue;
+        }
+
+        rc = ipool->disk_attribute(disk, &index);
+
+        if (rc == -1) // 0 OK, -2 not using the Image pool
+        {
+            return -1;
+        }
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachine::release_disk_images()
+{
+    string  iid;
+    int     num_disks;
+
+    vector<Attribute const  * > disks;
+    Image *                     img;
+    ImagePool *                 ipool;
+
+    Nebula& nd = Nebula::instance();
+    ipool      = nd.get_ipool();
+
+    num_disks   = get_template_attribute("DISK",disks);
+
+    for(int i=0; i<num_disks; i++)
+    {
+        VectorAttribute const *  disk =
+            dynamic_cast<VectorAttribute const * >(disks[i]);
+
+        if ( disk == 0 )
+        {
+            continue;
+        }
+
+        iid = disk->vector_value("IID");
+
+        if ( iid.empty() )
+        {
+            continue;
+        }
+
+        img = ipool->get(atoi(iid.c_str()),true);
+
+        if ( img == 0 )
+        {
+            continue;
+        }
+
+        img->release_image();
+
+        img->unlock();
+    }
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 int VirtualMachine::get_network_leases()
 {
-    int                        num_nics, rc;
-    vector<Attribute  * >      nics;
-    VirtualNetworkPool       * vnpool;
-    VectorAttribute          * nic;
-
-    // Set the networking attributes.
+    int                   num_nics, rc;
+    vector<Attribute  * > nics;
+    VirtualNetworkPool *  vnpool;
+    VectorAttribute *     nic;
 
     Nebula& nd = Nebula::instance();
     vnpool     = nd.get_vnpool();

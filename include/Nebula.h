@@ -69,6 +69,11 @@ public:
         return upool;
     };
 
+    ImagePool * get_ipool()
+    {
+        return ipool;
+    };
+
     // --------------------------------------------------------------
     // Manager Accessors
     // --------------------------------------------------------------
@@ -212,32 +217,32 @@ private:
     // -----------------------------------------------------------------------
 
     Nebula():nebula_configuration(0),db(0),vmpool(0),hpool(0),vnpool(0),upool(0),
-        lcm(0),vmm(0),im(0),tm(0),dm(0),rm(0)
+        ipool(0),lcm(0),vmm(0),im(0),tm(0),dm(0),rm(0)
     {
-    	const char * nl = getenv("ONE_LOCATION");
+        const char * nl = getenv("ONE_LOCATION");
 
         if (nl == 0) //OpenNebula installed under root directory
         {
-        	nebula_location = "/";
+            nebula_location = "/";
 
-        	mad_location = "/usr/lib/one/mads/";
-        	etc_location = "/etc/one/";
-        	log_location = "/var/log/one/";
-        	var_location = "/var/lib/one/";
+            mad_location = "/usr/lib/one/mads/";
+            etc_location = "/etc/one/";
+            log_location = "/var/log/one/";
+            var_location = "/var/lib/one/";
         }
         else
         {
-        	nebula_location = nl;
+            nebula_location = nl;
 
-        	if ( nebula_location.at(nebula_location.size()-1) != '/' )
-        	{
-        		nebula_location += "/";
-        	}
+            if ( nebula_location.at(nebula_location.size()-1) != '/' )
+            {
+                nebula_location += "/";
+            }
 
-        	mad_location = nebula_location + "lib/mads/";
-        	etc_location = nebula_location + "etc/";
-        	log_location = nebula_location + "var/";
-        	var_location = nebula_location + "var/";
+            mad_location = nebula_location + "lib/mads/";
+            etc_location = nebula_location + "etc/";
+            log_location = nebula_location + "var/";
+            var_location = nebula_location + "var/";
         }
     };
 
@@ -261,6 +266,11 @@ private:
         if ( upool != 0)
         {
             delete upool;
+        }
+
+        if ( ipool != 0)
+        {
+            delete ipool;
         }
 
         if ( vmm != 0)
