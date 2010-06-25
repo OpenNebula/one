@@ -201,6 +201,21 @@ Commands:
 * update (Modifies an image attribute)
     oneimage update <image_id> <attribute_name> <attribute_value>
     
+* rmattr (Deletes an Image attribute)
+    oneimage rmattr <image_id> <attribute_name>
+    
+* enable (Enabled an Image)
+    oneimage enable <image_id>
+    
+* disable (Disabled an Image)
+    oneimage disable <image_id>
+    
+* publish (Publish an Image)
+    oneimage publish <image_id>
+    
+* unpublish (Unpublish an Image)
+    oneimage unpublish <image_id>
+    
 * list (Shows Images in the pool)
     oneimage list <filter_flag>
     
@@ -298,6 +313,70 @@ when "update"
         break
     end
 
+when "rmattr"
+    check_parameters("rmattr", 2)
+    image_id=get_image_id(ARGV[0])
+
+    image=OpenNebula::Image.new_with_id(image_id, get_one_client)
+
+    result=image.remove_attr(ARGV[1])
+    if is_successful?(result)
+        puts "Removed image atrribute" if ops[:verbose]
+    else
+        break
+    end
+    
+when "enable"
+    check_parameters("enable", 1)
+    image_id=get_image_id(ARGV[0])
+
+    image=OpenNebula::Image.new_with_id(image_id, get_one_client)
+
+    result=image.enable
+    if is_successful?(result)
+        puts "Image enabled" if ops[:verbose]
+    else
+        break
+    end
+    
+when "disable"
+    check_parameters("disable", 1)
+    image_id=get_image_id(ARGV[0])
+
+    image=OpenNebula::Image.new_with_id(image_id, get_one_client)
+
+    result=image.disable
+    if is_successful?(result)
+        puts "Image disabled" if ops[:verbose]
+    else
+        break
+    end
+
+when "publish"
+    check_parameters("publish", 1)
+    image_id=get_image_id(ARGV[0])
+
+    image=OpenNebula::Image.new_with_id(image_id, get_one_client)
+
+    result=image.disable
+    if is_successful?(result)
+        puts "Image published" if ops[:verbose]
+    else
+        break
+    end
+    
+when "unpublish"
+    check_parameters("unpublish", 1)
+    image_id=get_image_id(ARGV[0])
+
+    image=OpenNebula::Image.new_with_id(image_id, get_one_client)
+
+    result=image.unpublished
+    if is_successful?(result)
+        puts "Image unpublished" if ops[:verbose]
+    else
+        break
+    end
     
 when "list"
     ops.merge!(get_user_flags)
@@ -361,7 +440,6 @@ when "show"
             puts image.to_xml
         end
      end
-
     
 when "delete"
     check_parameters("delete", 1)
@@ -379,6 +457,7 @@ when "delete"
             break
         end
     end
+
 else
     oneimage_opts.print_help
     exit -1
