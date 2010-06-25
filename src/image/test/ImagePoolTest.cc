@@ -48,20 +48,20 @@ const string templates[] =
 
 const string xmls[] =
 {
-    "<IMAGE><ID>0</ID><UID>0</UID><NAME>Image one</NAME><TYPE>0</TYPE><PUBLIC>0</PUBLIC><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/9ab4a4e021ee2883f57e3aeecc9e2aed7c3fa198</SOURCE><STATE>0</STATE><RUNNING_VMS>0</RUNNING_VMS><TEMPLATE><DESCRIPTION><![CDATA[This is a very long description of an image, and to achieve the longness I will copy this over. This is a very long description of an image, and to achieve the longness I will copy this over. And over. This is a very long description of an image, and to achieve the longness I will copy this over. And over. This is a very long description of an image, and to achieve the longness I will copy this over. And over.This is a very long description of an image, and to achieve the longness I will copy this over.]]></DESCRIPTION><DEV_PREFIX><![CDATA[hd]]></DEV_PREFIX><NAME><![CDATA[Image one]]></NAME><ORIGINAL_PATH><![CDATA[/tmp/image_test]]></ORIGINAL_PATH></TEMPLATE></IMAGE>",
+    "<IMAGE><ID>0</ID><UID>0</UID><NAME>Image one</NAME><TYPE>0</TYPE><PUBLIC>0</PUBLIC><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/9ab4a4e021ee2883f57e3aeecc9e2aed7c3fa198</SOURCE><STATE>4</STATE><RUNNING_VMS>0</RUNNING_VMS><TEMPLATE><DESCRIPTION><![CDATA[This is a very long description of an image, and to achieve the longness I will copy this over. This is a very long description of an image, and to achieve the longness I will copy this over. And over. This is a very long description of an image, and to achieve the longness I will copy this over. And over. This is a very long description of an image, and to achieve the longness I will copy this over. And over.This is a very long description of an image, and to achieve the longness I will copy this over.]]></DESCRIPTION><DEV_PREFIX><![CDATA[hd]]></DEV_PREFIX><NAME><![CDATA[Image one]]></NAME><ORIGINAL_PATH><![CDATA[/tmp/image_test]]></ORIGINAL_PATH></TEMPLATE></IMAGE>",
 
-    "<IMAGE><ID>1</ID><UID>1</UID><NAME>Second Image</NAME><TYPE>0</TYPE><PUBLIC>1</PUBLIC><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/c9d51800847467911c755e5e4c13dfe28c3a79f3</SOURCE><STATE>0</STATE><RUNNING_VMS>0</RUNNING_VMS><TEMPLATE><DESCRIPTION><![CDATA[This is a rather short description.]]></DESCRIPTION><DEV_PREFIX><![CDATA[hd]]></DEV_PREFIX><NAME><![CDATA[Second Image]]></NAME><ORIGINAL_PATH><![CDATA[/tmp/image_second_test]]></ORIGINAL_PATH><PUBLIC><![CDATA[YES]]></PUBLIC></TEMPLATE></IMAGE>",
+    "<IMAGE><ID>1</ID><UID>1</UID><NAME>Second Image</NAME><TYPE>0</TYPE><PUBLIC>1</PUBLIC><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/c9d51800847467911c755e5e4c13dfe28c3a79f3</SOURCE><STATE>4</STATE><RUNNING_VMS>0</RUNNING_VMS><TEMPLATE><DESCRIPTION><![CDATA[This is a rather short description.]]></DESCRIPTION><DEV_PREFIX><![CDATA[hd]]></DEV_PREFIX><NAME><![CDATA[Second Image]]></NAME><ORIGINAL_PATH><![CDATA[/tmp/image_second_test]]></ORIGINAL_PATH><PUBLIC><![CDATA[YES]]></PUBLIC></TEMPLATE></IMAGE>",
 
-    "<IMAGE><ID>0</ID><UID>2</UID><NAME>The third image</NAME><TYPE>0</TYPE><PUBLIC>0</PUBLIC><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/e50b0c738be9d431475bf5859629e5580301a7d6</SOURCE><STATE>0</STATE><RUNNING_VMS>0</RUNNING_VMS><TEMPLATE><BUS><![CDATA[SCSI]]></BUS><DEV_PREFIX><![CDATA[hd]]></DEV_PREFIX><NAME><![CDATA[The third image]]></NAME><ORIGINAL_PATH><![CDATA[/tmp/image_test]]></ORIGINAL_PATH><PROFILE><![CDATA[STUDENT]]></PROFILE></TEMPLATE></IMAGE>"
+    "<IMAGE><ID>0</ID><UID>2</UID><NAME>The third image</NAME><TYPE>0</TYPE><PUBLIC>0</PUBLIC><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/e50b0c738be9d431475bf5859629e5580301a7d6</SOURCE><STATE>4</STATE><RUNNING_VMS>0</RUNNING_VMS><TEMPLATE><BUS><![CDATA[SCSI]]></BUS><DEV_PREFIX><![CDATA[hd]]></DEV_PREFIX><NAME><![CDATA[The third image]]></NAME><ORIGINAL_PATH><![CDATA[/tmp/image_test]]></ORIGINAL_PATH><PROFILE><![CDATA[STUDENT]]></PROFILE></TEMPLATE></IMAGE>"
 };
 
 
 // This xml dump result has the STIMEs modified to 0000000000
 const string xml_dump =
-"<IMAGE_POOL><IMAGE><ID>0</ID><UID>0</UID><USERNAME>one_user_test</USERNAME><NAME>Image one</NAME><TYPE>0</TYPE><PUBLIC>0</PUBLIC><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/9ab4a4e021ee2883f57e3aeecc9e2aed7c3fa198</SOURCE><STATE>0</STATE><RUNNING_VMS>0</RUNNING_VMS></IMAGE><IMAGE><ID>1</ID><UID>1</UID><USERNAME>A user</USERNAME><NAME>Second Image</NAME><TYPE>0</TYPE><PUBLIC>1</PUBLIC><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/c9d51800847467911c755e5e4c13dfe28c3a79f3</SOURCE><STATE>0</STATE><RUNNING_VMS>0</RUNNING_VMS></IMAGE><IMAGE><ID>2</ID><UID>2</UID><USERNAME>B user</USERNAME><NAME>The third image</NAME><TYPE>0</TYPE><PUBLIC>0</PUBLIC><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/e50b0c738be9d431475bf5859629e5580301a7d6</SOURCE><STATE>0</STATE><RUNNING_VMS>0</RUNNING_VMS></IMAGE></IMAGE_POOL>";
+"<IMAGE_POOL><IMAGE><ID>0</ID><UID>0</UID><USERNAME>one_user_test</USERNAME><NAME>Image one</NAME><TYPE>0</TYPE><PUBLIC>0</PUBLIC><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/9ab4a4e021ee2883f57e3aeecc9e2aed7c3fa198</SOURCE><STATE>4</STATE><RUNNING_VMS>0</RUNNING_VMS></IMAGE><IMAGE><ID>1</ID><UID>1</UID><USERNAME>A user</USERNAME><NAME>Second Image</NAME><TYPE>0</TYPE><PUBLIC>1</PUBLIC><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/c9d51800847467911c755e5e4c13dfe28c3a79f3</SOURCE><STATE>4</STATE><RUNNING_VMS>0</RUNNING_VMS></IMAGE><IMAGE><ID>2</ID><UID>2</UID><USERNAME>B user</USERNAME><NAME>The third image</NAME><TYPE>0</TYPE><PUBLIC>0</PUBLIC><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/e50b0c738be9d431475bf5859629e5580301a7d6</SOURCE><STATE>4</STATE><RUNNING_VMS>0</RUNNING_VMS></IMAGE></IMAGE_POOL>";
 
 const string xml_dump_where =
-"<IMAGE_POOL><IMAGE><ID>0</ID><UID>0</UID><USERNAME>one_user_test</USERNAME><NAME>Image one</NAME><TYPE>0</TYPE><PUBLIC>0</PUBLIC><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/9ab4a4e021ee2883f57e3aeecc9e2aed7c3fa198</SOURCE><STATE>0</STATE><RUNNING_VMS>0</RUNNING_VMS></IMAGE><IMAGE><ID>1</ID><UID>1</UID><USERNAME>A user</USERNAME><NAME>Second Image</NAME><TYPE>0</TYPE><PUBLIC>1</PUBLIC><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/c9d51800847467911c755e5e4c13dfe28c3a79f3</SOURCE><STATE>0</STATE><RUNNING_VMS>0</RUNNING_VMS></IMAGE></IMAGE_POOL>";
+"<IMAGE_POOL><IMAGE><ID>0</ID><UID>0</UID><USERNAME>one_user_test</USERNAME><NAME>Image one</NAME><TYPE>0</TYPE><PUBLIC>0</PUBLIC><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/9ab4a4e021ee2883f57e3aeecc9e2aed7c3fa198</SOURCE><STATE>4</STATE><RUNNING_VMS>0</RUNNING_VMS></IMAGE><IMAGE><ID>1</ID><UID>1</UID><USERNAME>A user</USERNAME><NAME>Second Image</NAME><TYPE>0</TYPE><PUBLIC>1</PUBLIC><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/c9d51800847467911c755e5e4c13dfe28c3a79f3</SOURCE><STATE>4</STATE><RUNNING_VMS>0</RUNNING_VMS></IMAGE></IMAGE_POOL>";
 
 const string replacement = "0000000000";
 
@@ -423,6 +423,7 @@ public:
         CPPUNIT_ASSERT( img != 0 );
         CPPUNIT_ASSERT( oid == 0 );
 
+        img->enable(true);
         img->disk_attribute(disk, &index);
 
         value = disk->vector_value("TARGET");
@@ -442,6 +443,7 @@ public:
 
         img = imp->get(oid, false);
 
+        img->enable(true);
         img->disk_attribute(disk, &index);
 
         value = disk->vector_value("TARGET");
@@ -461,6 +463,7 @@ public:
 
         img = imp->get(oid, false);
 
+        img->enable(true);
         img->disk_attribute(disk, &index);
 
         value = disk->vector_value("TARGET");
@@ -480,6 +483,7 @@ public:
 
         img = imp->get(oid, false);
 
+        img->enable(true);
         img->disk_attribute(disk, &index);
 
         value = disk->vector_value("TARGET");
@@ -509,6 +513,7 @@ public:
         // A disk without a BUS attribute should not have it added.
         disk = new VectorAttribute("DISK");
 
+        img->enable(true);
         img->disk_attribute(disk, &index);
 
         value = "";
@@ -528,6 +533,7 @@ public:
         disk = new VectorAttribute("DISK");
         disk->replace("BUS", "SCSI");
 
+        img->enable(true);
         img->disk_attribute(disk, &index);
 
         value = disk->vector_value("BUS");
