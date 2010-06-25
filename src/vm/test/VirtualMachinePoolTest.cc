@@ -69,42 +69,13 @@ const string xmls[] =
 
 // This xml dump result has the STIMEs modified to 0000000000
 const string xml_dump =
-    "<VM_POOL><VM><ID>0</ID><UID>1</UID><USERNAME>A user</USERNAME><NAME>VM one"
-    "</NAME><LAST_POLL>0</LAST_POLL><STATE>1</STATE><LCM_STATE>0</LCM_STATE><ST"
-    "IME>0000000000</STIME><ETIME>0</ETIME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</ME"
-    "MORY><CPU>0</CPU><NET_TX>0</NET_TX><NET_RX>0</NET_RX></VM><VM><ID>1</ID><U"
-    "ID>2</UID><USERNAME>B user</USERNAME><NAME>Second VM</NAME><LAST_POLL>0</L"
-    "AST_POLL><STATE>2</STATE><LCM_STATE>0</LCM_STATE><STIME>0000000000</STIME>"
-    "<ETIME>0</ETIME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</MEMORY><CPU>0</CPU><NET_"
-    "TX>0</NET_TX><NET_RX>0</NET_RX></VM></VM_POOL>";
+    "<VM_POOL><VM><ID>0</ID><UID>1</UID><USERNAME>A user</USERNAME><NAME>VM one</NAME><LAST_POLL>0</LAST_POLL><STATE>1</STATE><LCM_STATE>0</LCM_STATE><STIME>0000000000</STIME><ETIME>0</ETIME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</MEMORY><CPU>0</CPU><NET_TX>0</NET_TX><NET_RX>0</NET_RX><LAST_SEQ>-1</LAST_SEQ></VM><VM><ID>1</ID><UID>2</UID><USERNAME>B user</USERNAME><NAME>Second VM</NAME><LAST_POLL>0</LAST_POLL><STATE>2</STATE><LCM_STATE>0</LCM_STATE><STIME>0000000000</STIME><ETIME>0</ETIME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</MEMORY><CPU>0</CPU><NET_TX>0</NET_TX><NET_RX>0</NET_RX><LAST_SEQ>-1</LAST_SEQ></VM></VM_POOL>";
 
 const string xml_dump_where =
-    "<VM_POOL><VM><ID>0</ID><UID>1</UID><USERNAME>A user</USERNAME><NAME>VM one"
-    "</NAME><LAST_POLL>0</LAST_POLL><STATE>1</STATE><LCM_STATE>0</LCM_STATE><ST"
-    "IME>0000000000</STIME><ETIME>0</ETIME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</ME"
-    "MORY><CPU>0</CPU><NET_TX>0</NET_TX><NET_RX>0</NET_RX></VM></VM_POOL>";
+    "<VM_POOL><VM><ID>0</ID><UID>1</UID><USERNAME>A user</USERNAME><NAME>VM one</NAME><LAST_POLL>0</LAST_POLL><STATE>1</STATE><LCM_STATE>0</LCM_STATE><STIME>0000000000</STIME><ETIME>0</ETIME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</MEMORY><CPU>0</CPU><NET_TX>0</NET_TX><NET_RX>0</NET_RX><LAST_SEQ>-1</LAST_SEQ></VM></VM_POOL>";
 
 const string xml_history_dump =
-    "<VM_POOL><VM><ID>0</ID><UID>0</UID><USERNAME>one_user_test</USERNAME>"
-    "<NAME>VM one</NAME><LAST_POLL>0</LAST_POLL><STATE>1</STATE><LCM_STATE>"
-    "0</LCM_STATE><STIME>0000000000</STIME><ETIME>0</ETIME><DEPLOY_ID>"
-    "</DEPLOY_ID><MEMORY>0</MEMORY><CPU>0</CPU><NET_TX>0</NET_TX><NET_RX>"
-    "0</NET_RX></VM><VM><ID>1</ID><UID>0</UID><USERNAME>"
-    "one_user_test</USERNAME><NAME>Second VM</NAME><LAST_POLL>0</LAST_POLL>"
-    "<STATE>2</STATE><LCM_STATE>0</LCM_STATE><STIME>0000000000</STIME>"
-    "<ETIME>0</ETIME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</MEMORY><CPU>0</CPU>"
-    "<NET_TX>0</NET_TX><NET_RX>0</NET_RX><HISTORY><SEQ>0</SEQ><HOSTNAME>"
-    "A_hostname</HOSTNAME><HID>0</HID><STIME>0</STIME><ETIME>0</ETIME><PSTIME>"
-    "0</PSTIME><PETIME>0</PETIME><RSTIME>0</RSTIME><RETIME>0</RETIME><ESTIME>"
-    "0</ESTIME><EETIME>0</EETIME><REASON>0</REASON></HISTORY></VM><VM><ID>2"
-    "</ID><UID>0</UID><USERNAME>one_user_test</USERNAME><NAME>VM one</NAME>"
-    "<LAST_POLL>0</LAST_POLL><STATE>2</STATE><LCM_STATE>0</LCM_STATE><STIME>"
-    "0000000000</STIME><ETIME>0</ETIME><DEPLOY_ID></DEPLOY_ID><MEMORY>0"
-    "</MEMORY><CPU>0</CPU><NET_TX>0</NET_TX><NET_RX>0</NET_RX><HISTORY><SEQ>1"
-    "</SEQ><HOSTNAME>C_hostname</HOSTNAME><HID>2</HID><STIME>0</STIME><ETIME>0"
-    "</ETIME><PSTIME>0</PSTIME><PETIME>0</PETIME><RSTIME>0</RSTIME><RETIME>0"
-    "</RETIME><ESTIME>0</ESTIME><EETIME>0</EETIME><REASON>0</REASON></HISTORY>"
-    "</VM></VM_POOL>";
+    "<VM_POOL><VM><ID>0</ID><UID>0</UID><USERNAME>one_user_test</USERNAME><NAME>VM one</NAME><LAST_POLL>0</LAST_POLL><STATE>1</STATE><LCM_STATE>0</LCM_STATE><STIME>0000000000</STIME><ETIME>0</ETIME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</MEMORY><CPU>0</CPU><NET_TX>0</NET_TX><NET_RX>0</NET_RX><LAST_SEQ>-1</LAST_SEQ></VM><VM><ID>1</ID><UID>0</UID><USERNAME>one_user_test</USERNAME><NAME>Second VM</NAME><LAST_POLL>0</LAST_POLL><STATE>2</STATE><LCM_STATE>0</LCM_STATE><STIME>0000000000</STIME><ETIME>0</ETIME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</MEMORY><CPU>0</CPU><NET_TX>0</NET_TX><NET_RX>0</NET_RX><LAST_SEQ>0</LAST_SEQ><HISTORY><SEQ>0</SEQ><HOSTNAME>A_hostname</HOSTNAME><HID>0</HID><STIME>0</STIME><ETIME>0</ETIME><PSTIME>0</PSTIME><PETIME>0</PETIME><RSTIME>0</RSTIME><RETIME>0</RETIME><ESTIME>0</ESTIME><EETIME>0</EETIME><REASON>0</REASON></HISTORY></VM><VM><ID>2</ID><UID>0</UID><USERNAME>one_user_test</USERNAME><NAME>VM one</NAME><LAST_POLL>0</LAST_POLL><STATE>2</STATE><LCM_STATE>0</LCM_STATE><STIME>0000000000</STIME><ETIME>0</ETIME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</MEMORY><CPU>0</CPU><NET_TX>0</NET_TX><NET_RX>0</NET_RX><LAST_SEQ>1</LAST_SEQ><HISTORY><SEQ>1</SEQ><HOSTNAME>C_hostname</HOSTNAME><HID>2</HID><STIME>0</STIME><ETIME>0</ETIME><PSTIME>0</PSTIME><PETIME>0</PETIME><RSTIME>0</RSTIME><RETIME>0</RETIME><ESTIME>0</ESTIME><EETIME>0</EETIME><REASON>0</REASON></HISTORY></VM></VM_POOL>";
 
 const string replacement = "0000000000";
 
@@ -271,11 +242,11 @@ public:
 
         rc = vmp->dump(oss, "");
         CPPUNIT_ASSERT(rc == 0);
-cout << endl << oss.str() << endl;
+
         string result = oss.str();
         result.replace(152, 10, replacement);
-        result.replace(426, 10, replacement);
-        
+        result.replace(449, 10, replacement);
+
         CPPUNIT_ASSERT( result == xml_dump );
     }
 
@@ -335,7 +306,7 @@ cout << endl << oss.str() << endl;
         // Add a history item
         vm->add_history(0, hostnames[0], vm_dirs[0], vmm_mads[0], tm_mads[0]);
 
-	rc = vmp->update(vm);
+        rc = vmp->update(vm);
         CPPUNIT_ASSERT( rc == 0 );
 
         rc = vmp->update_history(vm);
@@ -353,7 +324,7 @@ cout << endl << oss.str() << endl;
         // Add a history item
         vm->add_history(1, hostnames[1], vm_dirs[1], vmm_mads[1], tm_mads[1]);
 
-	rc = vmp->update(vm);
+        rc = vmp->update(vm);
         CPPUNIT_ASSERT( rc == 0 );
 
         rc = vmp->update_history(vm);
@@ -362,7 +333,7 @@ cout << endl << oss.str() << endl;
         // Add another history item
         vm->add_history(2, hostnames[2], vm_dirs[2], vmm_mads[2], tm_mads[2]);
 
-	rc = vmp->update(vm);
+        rc = vmp->update(vm);
         CPPUNIT_ASSERT( rc == 0 );
 
         rc = vmp->update_history(vm);
@@ -394,8 +365,8 @@ cout << endl << oss.str() << endl;
         string result = oss.str();
 
         result.replace(159, 10, replacement);
-        result.replace(440, 10, replacement);
-        result.replace(950, 10, replacement);
+        result.replace(463, 10, replacement);
+        result.replace(995, 10, replacement);
 
         CPPUNIT_ASSERT( result == xml_history_dump );
     }

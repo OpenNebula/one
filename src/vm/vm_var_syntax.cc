@@ -1,10 +1,9 @@
-
-/* A Bison parser, made by GNU Bison 2.4.1.  */
+/* A Bison parser, made by GNU Bison 2.4.2.  */
 
 /* Skeleton implementation for Bison's Yacc-like parsers in C
    
-      Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004, 2005, 2006
-   Free Software Foundation, Inc.
+      Copyright (C) 1984, 1989-1990, 2000-2006, 2009-2010 Free Software
+   Foundation, Inc.
    
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -46,7 +45,7 @@
 #define YYBISON 1
 
 /* Bison version.  */
-#define YYBISON_VERSION "2.4.1"
+#define YYBISON_VERSION "2.4.2"
 
 /* Skeleton name.  */
 #define YYSKELETON_NAME "yacc.c"
@@ -100,8 +99,7 @@ extern "C"
 {
 void vm_var_error(
     YYLTYPE *        llocp,
-    VirtualMachine * vm,
-    int              vm_id,                  
+    VirtualMachine * vm,                
     ostringstream *  parsed,
     char **          errmsg,
     const char *     str);
@@ -109,7 +107,6 @@ void vm_var_error(
 int vm_var_lex (YYSTYPE *lvalp, YYLTYPE *llocp);
 
 int vm_var_parse (VirtualMachine * vm,
-                  int              vm_id,                  
                   ostringstream *  parsed,
                   char **          errmsg);
 }
@@ -117,71 +114,109 @@ int vm_var_parse (VirtualMachine * vm,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void insert_single(VirtualMachine * vm,
-                   int              vm_id,
-                   ostringstream&   parsed,
-                   const string&    name)
+void get_network_attribute(VirtualMachine * vm,
+                           const string&    attr_name,
+                           const string&    net_name,
+                           const string&    net_value,
+                           string&          attr_value)
 {
-    VirtualMachine * tvm = vm;
-    string value = "";
-    
-    if ( vm == 0 )
-    {
-        Nebula& nd = Nebula::instance();
+    Nebula& nd = Nebula::instance();
 
-        tvm = nd.get_vmpool()->get(vm_id,true);
+    VirtualNetworkPool * vnpool = nd.get_vnpool();
+    VirtualNetwork  *    vn;
+
+    string  network = "";
+
+    attr_value = "";
+
+    if (net_name.empty())
+    {
+        vector<const Attribute *> nics;
+        const VectorAttribute *   nic;
+
+        if (vm->get_template_attribute("NIC",nics) == 0)
+        {
+            return;
+        }
+
+        nic = dynamic_cast<const VectorAttribute * >(nics[0]);
+
+        if ( nic == 0 )
+        {
+            return;
+        }
+
+        network = nic->vector_value("NETWORK");
     }
-    
-    if ( tvm == 0 )
+    else if (net_name == "NAME")
+    {
+        network = net_value;
+    }
+
+    if ( network.empty() )
     {
         return;
     }
 
-    tvm->get_template_attribute(name.c_str(),value);
+    vn = vnpool->get(network,true);
+
+    if ( vn == 0 )
+    {
+        return;
+    }
+
+    vn->get_template_attribute(attr_name.c_str(),attr_value);
+
+    vn->unlock();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void insert_single(VirtualMachine * vm,
+                   ostringstream&   parsed,
+                   const string&    name)
+{
+    string value = "";
+
+    vm->get_template_attribute(name.c_str(),value);
                     
     parsed << value;
-    
-    if ( vm == 0 )
-    {
-        tvm->unlock();
-    }
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 void insert_vector(VirtualMachine * vm,
-                   int              vm_id,
                    ostringstream&   parsed,
                    const string&    name,
                    const string&    vname,
                    const string&    vvar,
                    const string&    vval)
                    
-{
-    VirtualMachine * tvm = vm;
-    
+{   
     vector<const Attribute*> values;
     const VectorAttribute *  vattr = 0;
     
     int    num;
-    string value = "";
-    
-    if ( vm == 0 )
+
+    if ( name == "NETWORK")
     {
-        Nebula& nd = Nebula::instance();
-        
-        tvm = nd.get_vmpool()->get(vm_id,true);
-    }
-    
-    if ( tvm == 0 )
-    {
+        string value;
+      
+        get_network_attribute(vm,vname,vvar,vval,value);
+
+        if (!value.empty())
+        {
+            parsed << value;
+        }
+
         return;
     }
 
-    if ( ( num = tvm->get_template_attribute(name.c_str(),values) ) <= 0 )
+    if ( ( num = vm->get_template_attribute(name.c_str(),values) ) <= 0 )
     {
-        goto error_name;
+        return;
     }
     
     if ( vvar.empty() )
@@ -190,7 +225,7 @@ void insert_vector(VirtualMachine * vm,
     }
     else
     {
-        const VectorAttribute *  tmp = 0;
+        const VectorAttribute * tmp = 0;
                 
         for (int i=0 ; i < num ; i++)
         {
@@ -208,12 +243,6 @@ void insert_vector(VirtualMachine * vm,
     {
         parsed << vattr->vector_value(vname.c_str());
     }
-
-error_name:                        
-    if ( vm == 0 )
-    {
-        tvm->unlock();
-    }
 }
   
 /* -------------------------------------------------------------------------- */
@@ -222,7 +251,7 @@ error_name:
 
 
 /* Line 189 of yacc.c  */
-#line 226 "vm_var_syntax.cc"
+#line 255 "vm_var_syntax.cc"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -268,7 +297,7 @@ typedef union YYSTYPE
 {
 
 /* Line 214 of yacc.c  */
-#line 166 "vm_var_syntax.y"
+#line 195 "vm_var_syntax.y"
 
     char * val_str;
     int    val_int;
@@ -277,7 +306,7 @@ typedef union YYSTYPE
 
 
 /* Line 214 of yacc.c  */
-#line 281 "vm_var_syntax.cc"
+#line 310 "vm_var_syntax.cc"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -302,7 +331,7 @@ typedef struct YYLTYPE
 
 
 /* Line 264 of yacc.c  */
-#line 306 "vm_var_syntax.cc"
+#line 335 "vm_var_syntax.cc"
 
 #ifdef short
 # undef short
@@ -352,7 +381,7 @@ typedef short int yytype_int16;
 #define YYSIZE_MAXIMUM ((YYSIZE_T) -1)
 
 #ifndef YY_
-# if YYENABLE_NLS
+# if defined YYENABLE_NLS && YYENABLE_NLS
 #  if ENABLE_NLS
 #   include <libintl.h> /* INFRINGES ON USER NAME SPACE */
 #   define YY_(msgid) dgettext ("bison-runtime", msgid)
@@ -517,18 +546,18 @@ union yyalloc
 #endif
 
 /* YYFINAL -- State number of the termination state.  */
-#define YYFINAL  9
+#define YYFINAL  7
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   20
+#define YYLAST   18
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  12
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  3
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  8
+#define YYNRULES  7
 /* YYNRULES -- Number of states.  */
-#define YYNSTATES  21
+#define YYNSTATES  18
 
 /* YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.  */
 #define YYUNDEFTOK  2
@@ -574,7 +603,7 @@ static const yytype_uint8 yytranslate[] =
    YYRHS.  */
 static const yytype_uint8 yyprhs[] =
 {
-       0,     0,     3,     5,     8,    10,    13,    19,    29
+       0,     0,     3,     5,     8,    10,    13,    19
 };
 
 /* YYRHS -- A `-1'-separated list of the rules' RHS.  */
@@ -582,14 +611,13 @@ static const yytype_int8 yyrhs[] =
 {
       13,     0,    -1,    14,    -1,    13,    14,    -1,    10,    -1,
        9,     7,    -1,     9,     5,     9,     6,     7,    -1,     9,
-       5,     9,     4,     9,     3,     8,     6,     7,    -1,    11,
-       9,     7,    -1
+       5,     9,     4,     9,     3,     8,     6,     7,    -1
 };
 
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
-static const yytype_uint8 yyrline[] =
+static const yytype_uint16 yyrline[] =
 {
-       0,   190,   190,   191,   194,   199,   214,   232,   255
+       0,   219,   219,   220,   223,   228,   243,   261
 };
 #endif
 
@@ -617,13 +645,13 @@ static const yytype_uint16 yytoknum[] =
 /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_uint8 yyr1[] =
 {
-       0,    12,    13,    13,    14,    14,    14,    14,    14
+       0,    12,    13,    13,    14,    14,    14,    14
 };
 
 /* YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
-       0,     2,     1,     2,     1,     2,     5,     9,     3
+       0,     2,     1,     2,     1,     2,     5,     9
 };
 
 /* YYDEFACT[STATE-NAME] -- Default rule to reduce with in state
@@ -631,31 +659,29 @@ static const yytype_uint8 yyr2[] =
    means the default is an error.  */
 static const yytype_uint8 yydefact[] =
 {
-       0,     0,     4,     0,     0,     2,     0,     5,     0,     1,
-       3,     0,     8,     0,     0,     0,     6,     0,     0,     0,
-       7
+       0,     0,     4,     0,     2,     0,     5,     1,     3,     0,
+       0,     0,     0,     6,     0,     0,     0,     7
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,     4,     5
+      -1,     3,     4
 };
 
 /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
    STATE-NUM.  */
-#define YYPACT_NINF -9
+#define YYPACT_NINF -5
 static const yytype_int8 yypact[] =
 {
-      -8,    -1,    -9,     3,     0,    -9,     4,    -9,     7,    -9,
-      -9,     1,    -9,     6,     9,     5,    -9,    10,    11,    12,
-      -9
+      -3,    -4,    -5,     0,    -5,    -1,    -5,    -5,    -5,    -2,
+       2,     5,    10,    -5,     6,     9,    11,    -5
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-      -9,    -9,    16
+      -5,    -5,    13
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
@@ -665,25 +691,22 @@ static const yytype_int8 yypgoto[] =
 #define YYTABLE_NINF -1
 static const yytype_uint8 yytable[] =
 {
-       9,     1,     2,     3,     6,    13,     7,    14,    17,     1,
-       2,     3,     8,    11,    12,    15,    16,    19,    18,    20,
-      10
+       7,     5,    10,     6,    11,     0,     1,     2,     9,     1,
+       2,    12,    13,    14,    15,    16,     8,     0,    17
 };
 
-static const yytype_uint8 yycheck[] =
+static const yytype_int8 yycheck[] =
 {
-       0,     9,    10,    11,     5,     4,     7,     6,     3,     9,
-      10,    11,     9,     9,     7,     9,     7,     6,     8,     7,
-       4
+       0,     5,     4,     7,     6,    -1,     9,    10,     9,     9,
+      10,     9,     7,     3,     8,     6,     3,    -1,     7
 };
 
 /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
    symbol of state STATE-NUM.  */
 static const yytype_uint8 yystos[] =
 {
-       0,     9,    10,    11,    13,    14,     5,     7,     9,     0,
-      14,     9,     7,     4,     6,     9,     7,     3,     8,     6,
-       7
+       0,     9,    10,    13,    14,     5,     7,     0,    14,     9,
+       4,     6,     9,     7,     3,     8,     6,     7
 };
 
 #define yyerrok		(yyerrstatus = 0)
@@ -698,9 +721,18 @@ static const yytype_uint8 yystos[] =
 
 /* Like YYERROR except do call yyerror.  This remains here temporarily
    to ease the transition to the new meaning of YYERROR, for GCC.
-   Once GCC version 2 has supplanted version 1, this can go.  */
+   Once GCC version 2 has supplanted version 1, this can go.  However,
+   YYFAIL appears to be in use.  Nevertheless, it is formally deprecated
+   in Bison 2.4.2's NEWS entry, where a plan to phase it out is
+   discussed.  */
 
 #define YYFAIL		goto yyerrlab
+#if defined YYFAIL
+  /* This is here to suppress warnings from the GCC cpp's
+     -Wunused-macros.  Normally we don't worry about that warning, but
+     some users do, and we want to make it easy for users to remove
+     YYFAIL uses, which will produce warnings from Bison 2.5.  */
+#endif
 
 #define YYRECOVERING()  (!!yyerrstatus)
 
@@ -716,7 +748,7 @@ do								\
     }								\
   else								\
     {								\
-      yyerror (&yylloc, vm, vm_id, parsed, errmsg, YY_("syntax error: cannot back up")); \
+      yyerror (&yylloc, vm, parsed, errmsg, YY_("syntax error: cannot back up")); \
       YYERROR;							\
     }								\
 while (YYID (0))
@@ -757,7 +789,7 @@ while (YYID (0))
    we won't break user code: when these are the locations we know.  */
 
 #ifndef YY_LOCATION_PRINT
-# if YYLTYPE_IS_TRIVIAL
+# if defined YYLTYPE_IS_TRIVIAL && YYLTYPE_IS_TRIVIAL
 #  define YY_LOCATION_PRINT(File, Loc)			\
      fprintf (File, "%d.%d-%d.%d",			\
 	      (Loc).first_line, (Loc).first_column,	\
@@ -796,7 +828,7 @@ do {									  \
     {									  \
       YYFPRINTF (stderr, "%s ", Title);					  \
       yy_symbol_print (stderr,						  \
-		  Type, Value, Location, vm, vm_id, parsed, errmsg); \
+		  Type, Value, Location, vm, parsed, errmsg); \
       YYFPRINTF (stderr, "\n");						  \
     }									  \
 } while (YYID (0))
@@ -810,16 +842,15 @@ do {									  \
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, VirtualMachine * vm, int              vm_id, ostringstream *  parsed, char **          errmsg)
+yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, VirtualMachine * vm, ostringstream *  parsed, char **          errmsg)
 #else
 static void
-yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, vm, vm_id, parsed, errmsg)
+yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, vm, parsed, errmsg)
     FILE *yyoutput;
     int yytype;
     YYSTYPE const * const yyvaluep;
     YYLTYPE const * const yylocationp;
     VirtualMachine * vm;
-    int              vm_id;
     ostringstream *  parsed;
     char **          errmsg;
 #endif
@@ -828,7 +859,6 @@ yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, vm, vm_id, parse
     return;
   YYUSE (yylocationp);
   YYUSE (vm);
-  YYUSE (vm_id);
   YYUSE (parsed);
   YYUSE (errmsg);
 # ifdef YYPRINT
@@ -852,16 +882,15 @@ yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, vm, vm_id, parse
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, VirtualMachine * vm, int              vm_id, ostringstream *  parsed, char **          errmsg)
+yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, VirtualMachine * vm, ostringstream *  parsed, char **          errmsg)
 #else
 static void
-yy_symbol_print (yyoutput, yytype, yyvaluep, yylocationp, vm, vm_id, parsed, errmsg)
+yy_symbol_print (yyoutput, yytype, yyvaluep, yylocationp, vm, parsed, errmsg)
     FILE *yyoutput;
     int yytype;
     YYSTYPE const * const yyvaluep;
     YYLTYPE const * const yylocationp;
     VirtualMachine * vm;
-    int              vm_id;
     ostringstream *  parsed;
     char **          errmsg;
 #endif
@@ -873,7 +902,7 @@ yy_symbol_print (yyoutput, yytype, yyvaluep, yylocationp, vm, vm_id, parsed, err
 
   YY_LOCATION_PRINT (yyoutput, *yylocationp);
   YYFPRINTF (yyoutput, ": ");
-  yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, vm, vm_id, parsed, errmsg);
+  yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, vm, parsed, errmsg);
   YYFPRINTF (yyoutput, ")");
 }
 
@@ -916,15 +945,14 @@ do {								\
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yy_reduce_print (YYSTYPE *yyvsp, YYLTYPE *yylsp, int yyrule, VirtualMachine * vm, int              vm_id, ostringstream *  parsed, char **          errmsg)
+yy_reduce_print (YYSTYPE *yyvsp, YYLTYPE *yylsp, int yyrule, VirtualMachine * vm, ostringstream *  parsed, char **          errmsg)
 #else
 static void
-yy_reduce_print (yyvsp, yylsp, yyrule, vm, vm_id, parsed, errmsg)
+yy_reduce_print (yyvsp, yylsp, yyrule, vm, parsed, errmsg)
     YYSTYPE *yyvsp;
     YYLTYPE *yylsp;
     int yyrule;
     VirtualMachine * vm;
-    int              vm_id;
     ostringstream *  parsed;
     char **          errmsg;
 #endif
@@ -940,7 +968,7 @@ yy_reduce_print (yyvsp, yylsp, yyrule, vm, vm_id, parsed, errmsg)
       YYFPRINTF (stderr, "   $%d = ", yyi + 1);
       yy_symbol_print (stderr, yyrhs[yyprhs[yyrule] + yyi],
 		       &(yyvsp[(yyi + 1) - (yynrhs)])
-		       , &(yylsp[(yyi + 1) - (yynrhs)])		       , vm, vm_id, parsed, errmsg);
+		       , &(yylsp[(yyi + 1) - (yynrhs)])		       , vm, parsed, errmsg);
       YYFPRINTF (stderr, "\n");
     }
 }
@@ -948,7 +976,7 @@ yy_reduce_print (yyvsp, yylsp, yyrule, vm, vm_id, parsed, errmsg)
 # define YY_REDUCE_PRINT(Rule)		\
 do {					\
   if (yydebug)				\
-    yy_reduce_print (yyvsp, yylsp, Rule, vm, vm_id, parsed, errmsg); \
+    yy_reduce_print (yyvsp, yylsp, Rule, vm, parsed, errmsg); \
 } while (YYID (0))
 
 /* Nonzero means print parse trace.  It is left uninitialized so that
@@ -1199,16 +1227,15 @@ yysyntax_error (char *yyresult, int yystate, int yychar)
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep, YYLTYPE *yylocationp, VirtualMachine * vm, int              vm_id, ostringstream *  parsed, char **          errmsg)
+yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep, YYLTYPE *yylocationp, VirtualMachine * vm, ostringstream *  parsed, char **          errmsg)
 #else
 static void
-yydestruct (yymsg, yytype, yyvaluep, yylocationp, vm, vm_id, parsed, errmsg)
+yydestruct (yymsg, yytype, yyvaluep, yylocationp, vm, parsed, errmsg)
     const char *yymsg;
     int yytype;
     YYSTYPE *yyvaluep;
     YYLTYPE *yylocationp;
     VirtualMachine * vm;
-    int              vm_id;
     ostringstream *  parsed;
     char **          errmsg;
 #endif
@@ -1216,7 +1243,6 @@ yydestruct (yymsg, yytype, yyvaluep, yylocationp, vm, vm_id, parsed, errmsg)
   YYUSE (yyvaluep);
   YYUSE (yylocationp);
   YYUSE (vm);
-  YYUSE (vm_id);
   YYUSE (parsed);
   YYUSE (errmsg);
 
@@ -1241,7 +1267,7 @@ int yyparse ();
 #endif
 #else /* ! YYPARSE_PARAM */
 #if defined __STDC__ || defined __cplusplus
-int yyparse (VirtualMachine * vm, int              vm_id, ostringstream *  parsed, char **          errmsg);
+int yyparse (VirtualMachine * vm, ostringstream *  parsed, char **          errmsg);
 #else
 int yyparse ();
 #endif
@@ -1269,12 +1295,11 @@ yyparse (YYPARSE_PARAM)
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 int
-yyparse (VirtualMachine * vm, int              vm_id, ostringstream *  parsed, char **          errmsg)
+yyparse (VirtualMachine * vm, ostringstream *  parsed, char **          errmsg)
 #else
 int
-yyparse (vm, vm_id, parsed, errmsg)
+yyparse (vm, parsed, errmsg)
     VirtualMachine * vm;
-    int              vm_id;
     ostringstream *  parsed;
     char **          errmsg;
 #endif
@@ -1367,7 +1392,7 @@ YYLTYPE yylloc;
   yyvsp = yyvs;
   yylsp = yyls;
 
-#if YYLTYPE_IS_TRIVIAL
+#if defined YYLTYPE_IS_TRIVIAL && YYLTYPE_IS_TRIVIAL
   /* Initialize the default location before parsing starts.  */
   yylloc.first_line   = yylloc.last_line   = 1;
   yylloc.first_column = yylloc.last_column = 1;
@@ -1557,8 +1582,8 @@ yyreduce:
     {
         case 4:
 
-/* Line 1455 of yacc.c  */
-#line 195 "vm_var_syntax.y"
+/* Line 1464 of yacc.c  */
+#line 224 "vm_var_syntax.y"
     {
         (*parsed) << (yyvsp[(1) - (1)].val_str);
         free((yyvsp[(1) - (1)].val_str));
@@ -1567,14 +1592,14 @@ yyreduce:
 
   case 5:
 
-/* Line 1455 of yacc.c  */
-#line 200 "vm_var_syntax.y"
+/* Line 1464 of yacc.c  */
+#line 229 "vm_var_syntax.y"
     {
         string name((yyvsp[(1) - (2)].val_str));
         
         VM_VAR_TO_UPPER(name);
                             
-        insert_single(vm,vm_id,*parsed,name);
+        insert_single(vm,*parsed,name);
                         
         if ( (yyvsp[(2) - (2)].val_char) != '\0' )
         {
@@ -1587,8 +1612,8 @@ yyreduce:
 
   case 6:
 
-/* Line 1455 of yacc.c  */
-#line 215 "vm_var_syntax.y"
+/* Line 1464 of yacc.c  */
+#line 244 "vm_var_syntax.y"
     {
         string name((yyvsp[(1) - (5)].val_str));
         string vname((yyvsp[(3) - (5)].val_str));
@@ -1596,7 +1621,7 @@ yyreduce:
         VM_VAR_TO_UPPER(name);
         VM_VAR_TO_UPPER(vname);
 
-        insert_vector(vm,vm_id,*parsed,name,vname,"","");
+        insert_vector(vm,*parsed,name,vname,"","");
 
         if ( (yyvsp[(5) - (5)].val_char) != '\0' )
         {
@@ -1610,8 +1635,8 @@ yyreduce:
 
   case 7:
 
-/* Line 1455 of yacc.c  */
-#line 233 "vm_var_syntax.y"
+/* Line 1464 of yacc.c  */
+#line 262 "vm_var_syntax.y"
     {
         string name((yyvsp[(1) - (9)].val_str));
         string vname((yyvsp[(3) - (9)].val_str));
@@ -1622,7 +1647,7 @@ yyreduce:
         VM_VAR_TO_UPPER(vname);
         VM_VAR_TO_UPPER(vvar);
 
-        insert_vector(vm,vm_id,*parsed,name,vname,vvar,vval);
+        insert_vector(vm,*parsed,name,vname,vvar,vval);
                                                               
         if ( (yyvsp[(9) - (9)].val_char) != '\0' )
         {
@@ -1636,31 +1661,10 @@ yyreduce:
     ;}
     break;
 
-  case 8:
-
-/* Line 1455 of yacc.c  */
-#line 256 "vm_var_syntax.y"
-    {
-        string name("CONTEXT");
-        string vname((yyvsp[(2) - (3)].val_str));
-
-        VM_VAR_TO_UPPER(vname);
-        
-        insert_vector(0,(yyvsp[(1) - (3)].val_int),*parsed,name,vname,"","");
-        
-        if ( (yyvsp[(3) - (3)].val_char) != '\0' )
-        {
-            (*parsed) << (yyvsp[(3) - (3)].val_char);
-        }
-
-        free((yyvsp[(2) - (3)].val_str));
-    ;}
-    break;
 
 
-
-/* Line 1455 of yacc.c  */
-#line 1664 "vm_var_syntax.cc"
+/* Line 1464 of yacc.c  */
+#line 1668 "vm_var_syntax.cc"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1696,7 +1700,7 @@ yyerrlab:
     {
       ++yynerrs;
 #if ! YYERROR_VERBOSE
-      yyerror (&yylloc, vm, vm_id, parsed, errmsg, YY_("syntax error"));
+      yyerror (&yylloc, vm, parsed, errmsg, YY_("syntax error"));
 #else
       {
 	YYSIZE_T yysize = yysyntax_error (0, yystate, yychar);
@@ -1720,11 +1724,11 @@ yyerrlab:
 	if (0 < yysize && yysize <= yymsg_alloc)
 	  {
 	    (void) yysyntax_error (yymsg, yystate, yychar);
-	    yyerror (&yylloc, vm, vm_id, parsed, errmsg, yymsg);
+	    yyerror (&yylloc, vm, parsed, errmsg, yymsg);
 	  }
 	else
 	  {
-	    yyerror (&yylloc, vm, vm_id, parsed, errmsg, YY_("syntax error"));
+	    yyerror (&yylloc, vm, parsed, errmsg, YY_("syntax error"));
 	    if (yysize != 0)
 	      goto yyexhaustedlab;
 	  }
@@ -1748,7 +1752,7 @@ yyerrlab:
       else
 	{
 	  yydestruct ("Error: discarding",
-		      yytoken, &yylval, &yylloc, vm, vm_id, parsed, errmsg);
+		      yytoken, &yylval, &yylloc, vm, parsed, errmsg);
 	  yychar = YYEMPTY;
 	}
     }
@@ -1805,7 +1809,7 @@ yyerrlab1:
 
       yyerror_range[0] = *yylsp;
       yydestruct ("Error: popping",
-		  yystos[yystate], yyvsp, yylsp, vm, vm_id, parsed, errmsg);
+		  yystos[yystate], yyvsp, yylsp, vm, parsed, errmsg);
       YYPOPSTACK (1);
       yystate = *yyssp;
       YY_STACK_PRINT (yyss, yyssp);
@@ -1845,7 +1849,7 @@ yyabortlab:
 | yyexhaustedlab -- memory exhaustion comes here.  |
 `-------------------------------------------------*/
 yyexhaustedlab:
-  yyerror (&yylloc, vm, vm_id, parsed, errmsg, YY_("memory exhausted"));
+  yyerror (&yylloc, vm, parsed, errmsg, YY_("memory exhausted"));
   yyresult = 2;
   /* Fall through.  */
 #endif
@@ -1853,7 +1857,7 @@ yyexhaustedlab:
 yyreturn:
   if (yychar != YYEMPTY)
      yydestruct ("Cleanup: discarding lookahead",
-		 yytoken, &yylval, &yylloc, vm, vm_id, parsed, errmsg);
+		 yytoken, &yylval, &yylloc, vm, parsed, errmsg);
   /* Do not reclaim the symbols of the rule which action triggered
      this YYABORT or YYACCEPT.  */
   YYPOPSTACK (yylen);
@@ -1861,7 +1865,7 @@ yyreturn:
   while (yyssp != yyss)
     {
       yydestruct ("Cleanup: popping",
-		  yystos[*yyssp], yyvsp, yylsp, vm, vm_id, parsed, errmsg);
+		  yystos[*yyssp], yyvsp, yylsp, vm, parsed, errmsg);
       YYPOPSTACK (1);
     }
 #ifndef yyoverflow
@@ -1878,14 +1882,13 @@ yyreturn:
 
 
 
-/* Line 1675 of yacc.c  */
-#line 272 "vm_var_syntax.y"
+/* Line 1684 of yacc.c  */
+#line 285 "vm_var_syntax.y"
 
 
 extern "C" void vm_var_error(
     YYLTYPE *        llocp,
     VirtualMachine * vm,
-    int              vm_id,                  
     ostringstream *  parsed,
     char **          error_msg,
     const char *     str)

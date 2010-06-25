@@ -616,24 +616,6 @@ public:
      */
     int  parse_template_attribute(const string& attribute,
                                   string&       parsed);
-
-    /**
-     *  Parse a string and substitute variables (e.g. $NAME) using the VM
-     *  template values (blocking-free version for cross references):
-     *    @param vm_id ID of the VM used to substitute the variables
-     *    @param attribute, the string to be parsed
-     *    @param parsed, the resulting parsed string
-     *    @param error_msg, string describing the syntax error
-     *    @return 0 on success.
-     */
-    static int parse_template_attribute(int           vm_id,
-                                        const string& attribute,
-                                        string&       parsed,
-                                        char **       error_msg)
-    {
-        return parse_attribute(0,vm_id,attribute,parsed,error_msg);
-    }
-
     // ------------------------------------------------------------------------
     // States
     // ------------------------------------------------------------------------
@@ -980,22 +962,24 @@ private:
     static pthread_mutex_t lex_mutex;
 
     /**
-     *  Parse a string and substitute variables (e.g. $NAME) using template
-     *  values:
-     *    @param vm pointer to VirtualMachine if not 0 the template of that VM
-     *           will be used.
-     *    @param vm_id ID of the VM used to substitute the variables, used if vm
-     *           is 0
-     *    @param attribute, the string to be parsed
-     *    @param parsed, the resulting parsed string
-     *    @param error_msg, string describing the syntax error
-     *    @return 0 on success.
+     *  Parse the "CONTEXT" attribute of the template by substituting
+     *  $VARIABLE, $VARIABLE[ATTR] and $VARIABLE[ATTR, ATTR = VALUE]
+     *    @return 0 on success
      */
-    static int parse_attribute(VirtualMachine * vm,
-                               int              vm_id,
-                               const string&    attribute,
-                               string&          parsed,
-                               char **          error_msg);
+    int parse_context();
+
+    /**
+     *  Parse the "REQUIREMENTS" attribute of the template by substituting
+     *  $VARIABLE, $VARIABLE[ATTR] and $VARIABLE[ATTR, ATTR = VALUE]
+     *    @return 0 on success
+     */
+    int parse_requirements();
+
+    /**
+     *  Parse the "GRAPHICS" attribute and generates a default PORT if not
+     *  defined
+     */
+    void parse_graphics();
 
 protected:
 

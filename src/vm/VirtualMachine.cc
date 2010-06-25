@@ -314,6 +314,26 @@ int VirtualMachine::insert(SqlDB * db)
         goto error_images;
     }
 
+    // -------------------------------------------------------------------------
+    // Parse the context & requirements
+    // -------------------------------------------------------------------------
+
+    rc = parse_context();
+
+    if ( rc != 0 )
+    {
+        goto error_context;
+    }
+
+    rc = parse_requirements();
+
+    if ( rc != 0 )
+    {
+        goto error_requirements;
+    }
+
+    parse_graphics();
+
     // ------------------------------------------------------------------------
     // Insert the template first, so we get a valid template ID. Then the VM
     // ------------------------------------------------------------------------
@@ -353,6 +373,173 @@ error_images:
     NebulaLog::log("ONE",Log::ERROR, "Could not get disk image for VM");
     release_disk_images();
     return -1;
+
+error_context:
+    NebulaLog::log("ONE",Log::ERROR, "Could not parse CONTEXT for VM");
+    release_network_leases();
+    return -1;
+
+error_requirements:
+    NebulaLog::log("ONE",Log::ERROR, "Could not parse REQUIREMENTS for VM");
+    release_network_leases();
+    return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::parse_context()
+{
+    int rc, num;
+
+    vector<Attribute *> array_context;
+    VectorAttribute *   context;
+
+    string *            str;
+    string              parsed;
+
+    num = vm_template.remove("CONTEXT", array_context);
+
+    if ( num == 0 )
+    {
+        return 0;
+    }
+
+    context = dynamic_cast<VectorAttribute *>(array_context[0]);
+
+    if ( context == 0 )
+    {
+        NebulaLog::log("ONE",Log::ERROR, "Wrong format for CONTEXT attribute");
+        return -1;
+    }
+
+    str = context->marshall(" @^_^@ ");
+
+    if (str == 0)
+    {
+        NebulaLog::log("ONE",Log::ERROR, "Can not marshall CONTEXT");
+        return -1;
+    }
+
+    rc = parse_template_attribute(*str,parsed);
+
+    if ( rc == 0 )
+    {
+        VectorAttribute * context_parsed;
+
+        context_parsed = new VectorAttribute("CONTEXT");
+        context_parsed->unmarshall(parsed," @^_^@ ");
+
+        vm_template.set(context_parsed);
+    }
+
+    /* --- Delete old context attributes --- */
+
+    for (int i = 0; i < num ; i++)
+    {
+        if (array_context[i] != 0)
+        {
+            delete array_context[i];
+        }
+    }
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachine::parse_graphics()
+{
+    int num;
+
+    vector<Attribute *> array_graphics;
+    VectorAttribute *   graphics;
+
+    num = vm_template.get("GRAPHICS", array_graphics);
+
+    if ( num == 0 )
+    {
+        return;
+    }
+
+    graphics = dynamic_cast<VectorAttribute * >(array_graphics[0]);
+
+    if ( graphics == 0 )
+    {
+        return;
+    }
+
+    string port = graphics->vector_value("PORT");
+
+    if ( port.empty() )
+    {
+        Nebula&       nd = Nebula::instance();
+
+        ostringstream oss;
+        istringstream iss;
+
+        int           base_port;
+        string        base_port_s;
+
+        nd.get_configuration_attribute("VNC_BASE_PORT",base_port_s);
+        iss.str(base_port_s);
+        iss >> base_port;
+
+        oss << ( base_port + oid );
+        graphics->replace("PORT", oss.str());
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::parse_requirements()
+{
+    int rc, num;
+
+    vector<Attribute *> array_reqs;
+    SingleAttribute *   reqs;
+
+    string              parsed;
+
+    num = vm_template.remove("REQUIREMENTS", array_reqs);
+
+    if ( num == 0 )
+    {
+        return 0;
+    }
+
+    reqs = dynamic_cast<SingleAttribute *>(array_reqs[0]);
+
+    if ( reqs == 0 )
+    {
+        NebulaLog::log("ONE",Log::ERROR,"Wrong format for REQUIREMENTS");
+        return -1;
+    }
+
+    rc = parse_template_attribute(reqs->value(),parsed);
+
+    if ( rc == 0 )
+    {
+        SingleAttribute * reqs_parsed;
+
+        reqs_parsed = new SingleAttribute("REQUIREMENTS",parsed);
+        vm_template.set(reqs_parsed);
+    }
+
+    /* --- Delete old requirements attributes --- */
+
+    for (int i = 0; i < num ; i++)
+    {
+        if (array_reqs[i] != 0)
+        {
+            delete array_reqs[i];
+        }
+    }
+
+    return rc;
+>>>>>>> master
 }
 
 /* ------------------------------------------------------------------------ */
@@ -834,28 +1021,6 @@ int VirtualMachine::generate_context(string &files)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::parse_template_attribute(const string& attribute,
-                                             string&       parsed)
-{
-    int rc;
-    char * err = 0;
-
-    rc = parse_attribute(this,-1,attribute,parsed,&err);
-
-    if ( rc != 0 && err != 0 )
-    {
-        ostringstream oss;
-
-        oss << "Error parsing: " << attribute << ". " << err;
-        log("VM",Log::ERROR,oss);
-    }
-
-    return rc;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 pthread_mutex_t VirtualMachine::lex_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 extern "C"
@@ -863,7 +1028,6 @@ extern "C"
     typedef struct yy_buffer_state * YY_BUFFER_STATE;
 
     int vm_var_parse (VirtualMachine * vm,
-                      int              vm_id,
                       ostringstream *  parsed,
                       char **          errmsg);
 
@@ -876,18 +1040,14 @@ extern "C"
 
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::parse_attribute(VirtualMachine * vm,
-                                    int              vm_id,
-                                    const string&    attribute,
-                                    string&          parsed,
-                                    char **          error_msg)
+int VirtualMachine::parse_template_attribute(const string& attribute,
+                                             string&       parsed)
 {
     YY_BUFFER_STATE  str_buffer = 0;
     const char *     str;
     int              rc;
     ostringstream    oss_parsed;
-
-    *error_msg = 0;
+    char *           error_msg = 0;
 
     pthread_mutex_lock(&lex_mutex);
 
@@ -899,7 +1059,7 @@ int VirtualMachine::parse_attribute(VirtualMachine * vm,
         goto error_yy;
     }
 
-    rc = vm_var_parse(vm,vm_id,&oss_parsed,error_msg);
+    rc = vm_var_parse(this,&oss_parsed,&error_msg);
 
     vm_var__delete_buffer(str_buffer);
 
@@ -907,12 +1067,22 @@ int VirtualMachine::parse_attribute(VirtualMachine * vm,
 
     pthread_mutex_unlock(&lex_mutex);
 
+    if ( rc != 0 && error_msg != 0 )
+    {
+        ostringstream oss;
+
+        oss << "Error parsing: " << attribute << ". " << error_msg;
+        log("VM",Log::ERROR,oss);
+
+        free(error_msg);
+    }
+
     parsed = oss_parsed.str();
 
     return rc;
 
 error_yy:
-    *error_msg=strdup("Error setting scan buffer");
+    log("VM",Log::ERROR,"Error setting scan buffer");
     pthread_mutex_unlock(&lex_mutex);
     return -1;
 }
@@ -922,9 +1092,9 @@ error_yy:
 
 ostream& operator<<(ostream& os, const VirtualMachine& vm)
 {
-	string vm_str;
+    string vm_str;
 
-		os << vm.to_xml(vm_str);
+    os << vm.to_xml(vm_str);
 
     return os;
 };
@@ -933,49 +1103,51 @@ ostream& operator<<(ostream& os, const VirtualMachine& vm)
 
 string& VirtualMachine::to_xml(string& xml) const
 {
-	string template_xml;
+
+    string template_xml;
     string history_xml;
 
-	ostringstream	oss;
+    ostringstream	oss;
 
-	oss << "<VM>"
-	      << "<ID>"       << oid       << "</ID>"
-	      << "<UID>"       << uid       << "</UID>"
-          << "<NAME>"      << name      << "</NAME>"
-	      << "<LAST_POLL>" << last_poll << "</LAST_POLL>"
-	      << "<STATE>"     << state     << "</STATE>"
-	      << "<LCM_STATE>" << lcm_state << "</LCM_STATE>"
-	      << "<STIME>"     << stime     << "</STIME>"
-	      << "<ETIME>"     << etime     << "</ETIME>"
-          << "<DEPLOY_ID>" << deploy_id << "</DEPLOY_ID>"
-	      << "<MEMORY>"    << memory    << "</MEMORY>"
-	      << "<CPU>"       << cpu       << "</CPU>"
-	      << "<NET_TX>"    << net_tx    << "</NET_TX>"
-	      << "<NET_RX>"    << net_rx    << "</NET_RX>"
-          << "<LAST_SEQ>"  << last_seq  << "</LAST_SEQ>"
-          << vm_template.to_xml(template_xml);
+    oss << "<VM>"
+        << "<ID>"        << oid       << "</ID>"
+        << "<UID>"       << uid       << "</UID>"
+        << "<NAME>"      << name      << "</NAME>"
+        << "<LAST_POLL>" << last_poll << "</LAST_POLL>"
+        << "<STATE>"     << state     << "</STATE>"
+        << "<LCM_STATE>" << lcm_state << "</LCM_STATE>"
+        << "<STIME>"     << stime     << "</STIME>"
+        << "<ETIME>"     << etime     << "</ETIME>"
+        << "<DEPLOY_ID>" << deploy_id << "</DEPLOY_ID>"
+        << "<MEMORY>"    << memory    << "</MEMORY>"
+        << "<CPU>"       << cpu       << "</CPU>"
+        << "<NET_TX>"    << net_tx    << "</NET_TX>"
+        << "<NET_RX>"    << net_rx    << "</NET_RX>"
+        << "<LAST_SEQ>"  << last_seq  << "</LAST_SEQ>"
+        << vm_template.to_xml(template_xml);
 
     if ( hasHistory() )
     {
         oss << history->to_xml(history_xml);
     }
-	oss << "</VM>";
 
-	xml = oss.str();
+    oss << "</VM>";
 
-	return xml;
+    xml = oss.str();
+
+    return xml;
 }
 
 /* -------------------------------------------------------------------------- */
 
 string& VirtualMachine::to_str(string& str) const
 {
-	string template_str;
+    string template_str;
     string history_str;
 
-	ostringstream	oss;
+    ostringstream	oss;
 
-	oss<< "ID                : " << oid << endl
+    oss<< "ID                : " << oid << endl
        << "UID               : " << uid << endl
        << "NAME              : " << name << endl
        << "STATE             : " << state << endl
@@ -996,9 +1168,9 @@ string& VirtualMachine::to_str(string& str) const
         oss << "Last History Record" << endl << history->to_str(history_str);
     }
 
-	str = oss.str();
+    str = oss.str();
 
-	return str;
+    return str;
 }
 
 /* -------------------------------------------------------------------------- */

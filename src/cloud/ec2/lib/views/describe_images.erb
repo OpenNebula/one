@@ -1,9 +1,10 @@
-<DescribeImagesResponse xmlns="http://ec2.amazonaws.com/doc/2009-04-04/"> 
+<?xml version="1.0"?>
+<DescribeImagesResponse xmlns="http://ec2.amazonaws.com/doc/<%= erb_version %>/"> 
   <imagesSet> 
   <% for image in erb_images %>
     <item> 
-      <imageId><%= image.id %></imageId> 
-      <imageLocation><%= image.path %></imageLocation> 
+      <imageId>ami-<%= sprintf('%08i', image.id) %></imageId> 
+      <imageLocation><%= image.path.gsub(/^\//,'') %></imageLocation> 
       <imageState>available</imageState> 
       <imageOwnerId><%= erb_user[:name] %></imageOwnerId> 
       <isPublic>false</isPublic> 

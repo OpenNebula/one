@@ -97,13 +97,15 @@ module EC2QueryClient
         # :image_id
         # :instance_type
         ######################################################################
-        def run_instances(ami_id, type)
+        def run_instances(ami_id, type, user_data=nil)
             begin
                 response = @ec2_connection.run_instances(
-                                :image_id      => ami_id,
-                                :min_count     => 1,
-                                :max_count     => 1,
-                                :instance_type => type
+                                :image_id       => ami_id,
+                                :min_count      => 1,
+                                :max_count      => 1,
+                                :instance_type  => type,
+                                :user_data      => user_data,
+                                :base64_encoded => true
                            )            
             rescue Exception => e
                 error = CloudClient::Error.new(e.message)
