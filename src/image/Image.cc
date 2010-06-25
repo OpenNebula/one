@@ -143,6 +143,8 @@ int Image::insert(SqlDB *db)
         image_template.id = oid;
     }
 
+    state = DISABLED;
+
     // Insert the Template
     rc = image_template.insert(db);
 
