@@ -16,6 +16,7 @@
 
 #include <string>
 #include <iostream>
+#include <getopt.h>
 
 #include <TestFixture.h>
 #include <TestAssert.h>
@@ -35,6 +36,7 @@ using namespace std;
 
 /* ************************************************************************* */
 /* ************************************************************************* */
+bool mysql;
 
 class PoolTest : public CppUnit::TestFixture
 {
@@ -65,7 +67,7 @@ public:
     {
         string db_name = "testdb";
 
-        if (true)
+        if (mysql)
         {
             db = new MySqlDB("localhost","oneadmin","oneadmin",NULL);
 
@@ -236,10 +238,59 @@ public:
 int main(int argc, char ** argv)
 {
     CppUnit::TextUi::TestRunner runner;
+    // Option flags
+    bool sqlite_flag = true;
+    bool log_flag    = false;
+
+    // Long options
+    const struct option long_opt[] =
+    {
+            { "sqlite", 0,  NULL,   's'},
+            { "mysql",  0,  NULL,   'm'},
+            { "log",    0,  NULL,   'l'},
+            { "help",   0,  NULL,   'h'}
+    };
+
+    int c;
+    while ((c = getopt_long (argc, argv, "smlh", long_opt, NULL)) != -1)
+        switch (c)
+        {
+            case 'm':
+                sqlite_flag = false;
+                break;
+            case 'l':
+                log_flag = true;
+                break;
+            case 'h':
+                cout << "Options:\n";
+                cout << "    -h  --help         Show this help\n"
+                        "    -s  --sqlite       Run Sqlite tests (default)\n"
+                        "    -m  --mysql        Run MySQL tests\n"
+                        "    -l  --log          Keep the log file, test.log\n";
+                return 0;
+        }
 
     NebulaLog::init_log_system(NebulaLog::FILE, Log::ERROR, "test.log");
+
+    if (sqlite_flag)
+    {
+        mysql = false;
+        NebulaLog::log("Test", Log::INFO, "Running Sqlite tests...");
+        cout << "\nRunning Sqlite tests...\n";
+    }
+    else
+    {
+        mysql = true;
+        NebulaLog::log("Test", Log::INFO, "Running MySQL tests...");
+        cout << "\nRunning MySQL tests...\n";
+    }
+
     runner.addTest( PoolTest::suite() );
     runner.run();
+
+    if (!log_flag)
+        remove("test.log");
+
     NebulaLog::finalize_log_system();
 
     return 0;

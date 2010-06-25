@@ -1,4 +1,4 @@
-<RunInstancesResponse xmlns="http://ec2.amazonaws.com/doc/2009-04-04/"> 
+<RunInstancesResponse xmlns="http://ec2.amazonaws.com/doc/<%= erb_version %>/"> 
   <reservationId>r-47a5402e</reservationId> 
   <ownerId><%= erb_user_name %></ownerId> 
   <groupSet> 
@@ -8,7 +8,7 @@
   </groupSet> 
   <instancesSet> 
     <item> 
-      <instanceId><%= erb_vm_info[:vm_id] %></instanceId> 
+      <instanceId>i-<%= erb_vm_info[:vm_id] %></instanceId> 
       <imageId><%= erb_vm_info[:img_id] %></imageId> 
       <instanceState> 
         <code>0</code> 
