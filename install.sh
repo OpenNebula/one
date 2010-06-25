@@ -255,6 +255,7 @@ BIN_FILES="src/nebula/oned \
            src/cli/onehost \
            src/cli/onevnet \
            src/cli/oneuser \
+           src/cli/oneimage \
            share/scripts/one"
 
 #-------------------------------------------------------------------------------
