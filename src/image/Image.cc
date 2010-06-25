@@ -466,10 +466,13 @@ void Image::disk_attribute(VectorAttribute * disk, int index)
     string  name;
     string  bus;
 
+    ostringstream  iid;
+
     name      = disk->vector_value("NAME");
     overwrite = disk->vector_value("OVERWRITE");
     saveas    = disk->vector_value("SAVE_AS");
     bus       = disk->vector_value("BUS");
+    iid << oid;
 
     string template_bus;
     string prefix;
@@ -486,6 +489,7 @@ void Image::disk_attribute(VectorAttribute * disk, int index)
     new_disk.insert(make_pair("NAME",name));
     new_disk.insert(make_pair("OVERWRITE",overwrite));
     new_disk.insert(make_pair("SAVE_AS",saveas));
+    new_disk.insert(make_pair("IID", iid.str()));
 
     new_disk.insert(make_pair("SOURCE", source));
 
