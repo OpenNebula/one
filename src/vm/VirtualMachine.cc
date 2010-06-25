@@ -300,7 +300,7 @@ int VirtualMachine::insert(SqlDB * db)
 
     if ( rc != 0 )
     {
-    	goto error_leases;
+        goto error_leases;
     }
 
     // ------------------------------------------------------------------------
@@ -357,12 +357,11 @@ int VirtualMachine::insert(SqlDB * db)
 error_update:
     NebulaLog::log("ONE",Log::ERROR, "Can not update VM in the database");
     vm_template.drop(db);
-    return -1;
+    goto error_common;
 
 error_template:
     NebulaLog::log("ONE",Log::ERROR, "Can not insert template in the database");
-    release_network_leases();
-    return -1;
+    goto error_common;
 
 error_leases:
     NebulaLog::log("ONE",Log::ERROR, "Could not get network lease for VM");
@@ -371,17 +370,18 @@ error_leases:
 
 error_images:
     NebulaLog::log("ONE",Log::ERROR, "Could not get disk image for VM");
-    release_disk_images();
-    return -1;
+    goto error_common;
 
 error_context:
     NebulaLog::log("ONE",Log::ERROR, "Could not parse CONTEXT for VM");
-    release_network_leases();
-    return -1;
+    goto error_common;
 
 error_requirements:
     NebulaLog::log("ONE",Log::ERROR, "Could not parse REQUIREMENTS for VM");
+
+error_common:
     release_network_leases();
+    release_disk_images();
     return -1;
 }
 
@@ -539,7 +539,6 @@ int VirtualMachine::parse_requirements()
     }
 
     return rc;
->>>>>>> master
 }
 
 /* ------------------------------------------------------------------------ */
