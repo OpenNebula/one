@@ -134,6 +134,9 @@ int ImagePool::allocate (
 
         img->get_template_attribute("TYPE", type);
 
+        transform (type.begin(), type.end(), type.begin(),
+            (int(*)(int))toupper);
+
         if ( type.empty() == true )
         {
             type = default_type;

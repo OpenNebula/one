@@ -477,9 +477,6 @@ int Image::disk_attribute(VectorAttribute * disk, int * index)
     transform(overwrite.begin(), overwrite.end(), overwrite.begin(),
         (int(*)(int))toupper);
 
-    transform(saveas.begin(), saveas.end(), saveas.begin(),
-        (int(*)(int))toupper);
-
     string template_bus;
     string prefix;
 
@@ -502,11 +499,19 @@ int Image::disk_attribute(VectorAttribute * disk, int * index)
     map<string,string> new_disk;
 
     new_disk.insert(make_pair("NAME",name));
-    new_disk.insert(make_pair("OVERWRITE",overwrite));
-    new_disk.insert(make_pair("SAVE_AS",saveas));
     new_disk.insert(make_pair("IID", iid.str()));
 
     new_disk.insert(make_pair("SOURCE", source));
+
+    if (!overwrite.empty())
+    {
+        new_disk.insert(make_pair("OVERWRITE",overwrite));
+    }
+
+    if (!saveas.empty())
+    {
+        new_disk.insert(make_pair("SAVE_AS",saveas));
+    }
 
     if (bus.empty())
     {
@@ -536,7 +541,7 @@ int Image::disk_attribute(VectorAttribute * disk, int * index)
               new_disk.insert(make_pair("CLONE","NO"));
               new_disk.insert(make_pair("SAVE","YES"));
           }
-          else if (saveas == "YES")
+          else if (!saveas.empty())
           {
               new_disk.insert(make_pair("CLONE","YES"));
               new_disk.insert(make_pair("SAVE","YES"));
