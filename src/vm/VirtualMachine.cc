@@ -1090,6 +1090,7 @@ string& VirtualMachine::to_xml(string& xml) const
         << "<CPU>"       << cpu       << "</CPU>"
         << "<NET_TX>"    << net_tx    << "</NET_TX>"
         << "<NET_RX>"    << net_rx    << "</NET_RX>"
+        << "<LAST_SEQ>"  << last_seq  << "</LAST_SEQ>"
         << vm_template.to_xml(template_xml);
 
     if ( hasHistory() )
