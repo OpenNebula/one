@@ -135,6 +135,63 @@ public:
      */
     string& to_xml(string& xml) const;
 
+    //------------------------------------------------------------------------
+    // Template
+    // ------------------------------------------------------------------------
+
+    /**
+     *  Gets the values of a template attribute
+     *    @param name of the attribute
+     *    @param values of the attribute
+     *    @return the number of values
+     */
+    int get_template_attribute(
+        string& name,
+        vector<const Attribute*>& values) const
+    {
+        return vn_template.get(name,values);
+    };
+
+    /**
+     *  Gets the values of a template attribute
+     *    @param name of the attribute
+     *    @param values of the attribute
+     *    @return the number of values
+     */
+    int get_template_attribute(
+        const char *name,
+        vector<const Attribute*>& values) const
+    {
+        string str=name;
+        return vn_template.get(str,values);
+    };
+
+    /**
+     *  Gets a string based VN attribute
+     *    @param name of the attribute
+     *    @param value of the attribute (a string), will be "" if not defined
+     */
+    void get_template_attribute(
+        const char *    name,
+        string&         value) const
+    {
+        string str=name;
+        vn_template.get(str,value);
+    }
+
+    /**
+     *  Gets a string based VN attribute
+     *    @param name of the attribute
+     *    @param value of the attribute (an int), will be 0 if not defined
+     */
+    void get_template_attribute(
+        const char *    name,
+        int&            value) const
+    {
+        string str=name;
+        vn_template.get(str,value);
+    }
+
 private:
 
     // -------------------------------------------------------------------------
@@ -242,62 +299,7 @@ private:
      */
     int vn_drop(SqlDB * db);
 
-    // ------------------------------------------------------------------------
-    // Template
-    // ------------------------------------------------------------------------
 
-    /**
-     *  Gets the values of a template attribute
-     *    @param name of the attribute
-     *    @param values of the attribute
-     *    @return the number of values
-     */
-    int get_template_attribute(
-        string& name,
-        vector<const Attribute*>& values) const
-    {
-        return vn_template.get(name,values);
-    };
-
-    /**
-     *  Gets the values of a template attribute
-     *    @param name of the attribute
-     *    @param values of the attribute
-     *    @return the number of values
-     */
-    int get_template_attribute(
-        const char *name,
-        vector<const Attribute*>& values) const
-    {
-        string str=name;
-        return vn_template.get(str,values);
-    };
-
-    /**
-     *  Gets a string based VN attribute
-     *    @param name of the attribute
-     *    @param value of the attribute (a string), will be "" if not defined
-     */
-    void get_template_attribute(
-        const char *    name,
-        string&         value) const
-    {
-        string str=name;
-        vn_template.get(str,value);
-    }
-
-    /**
-     *  Gets a string based VN attribute
-     *    @param name of the attribute
-     *    @param value of the attribute (an int), will be 0 if not defined
-     */
-    void get_template_attribute(
-        const char *    name,
-        int&            value) const
-    {
-        string str=name;
-        vn_template.get(str,value);
-    }
 
     /**
      *  Updates the template of a VNW, adding a new attribute (replacing it if

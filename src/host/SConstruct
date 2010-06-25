@@ -20,24 +20,6 @@ Import('env')
 
 lib_name='nebula_host'
 
-if env['parsers']=='yes':
-    # LEX
-    parser=env.Lex(
-        source='host_parser.l'
-    )
-    env.NoClean(parser)
-
-    # BISON
-    parser=env.Bison(
-        source='host_requirements.y'
-    )
-    env.NoClean(parser)
-
-    parser=env.Bison(
-        source='host_rank.y'
-    )
-    env.NoClean(parser)
-
 # Sources to generate the library
 source_files=[
     'Host.cc',

@@ -37,8 +37,7 @@ extern "C"
 {
 void vm_var_error(
     YYLTYPE *        llocp,
-    VirtualMachine * vm,
-    int              vm_id,                  
+    VirtualMachine * vm,                
     ostringstream *  parsed,
     char **          errmsg,
     const char *     str);
@@ -46,7 +45,6 @@ void vm_var_error(
 int vm_var_lex (YYSTYPE *lvalp, YYLTYPE *llocp);
 
 int vm_var_parse (VirtualMachine * vm,
-                  int              vm_id,                  
                   ostringstream *  parsed,
                   char **          errmsg);
 }
@@ -54,71 +52,109 @@ int vm_var_parse (VirtualMachine * vm,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void insert_single(VirtualMachine * vm,
-                   int              vm_id,
-                   ostringstream&   parsed,
-                   const string&    name)
+void get_network_attribute(VirtualMachine * vm,
+                           const string&    attr_name,
+                           const string&    net_name,
+                           const string&    net_value,
+                           string&          attr_value)
 {
-    VirtualMachine * tvm = vm;
-    string value = "";
-    
-    if ( vm == 0 )
-    {
-        Nebula& nd = Nebula::instance();
+    Nebula& nd = Nebula::instance();
 
-        tvm = nd.get_vmpool()->get(vm_id,true);
+    VirtualNetworkPool * vnpool = nd.get_vnpool();
+    VirtualNetwork  *    vn;
+
+    string  network = "";
+
+    attr_value = "";
+
+    if (net_name.empty())
+    {
+        vector<const Attribute *> nics;
+        const VectorAttribute *   nic;
+
+        if (vm->get_template_attribute("NIC",nics) == 0)
+        {
+            return;
+        }
+
+        nic = dynamic_cast<const VectorAttribute * >(nics[0]);
+
+        if ( nic == 0 )
+        {
+            return;
+        }
+
+        network = nic->vector_value("NETWORK");
     }
-    
-    if ( tvm == 0 )
+    else if (net_name == "NAME")
+    {
+        network = net_value;
+    }
+
+    if ( network.empty() )
     {
         return;
     }
 
-    tvm->get_template_attribute(name.c_str(),value);
+    vn = vnpool->get(network,true);
+
+    if ( vn == 0 )
+    {
+        return;
+    }
+
+    vn->get_template_attribute(attr_name.c_str(),attr_value);
+
+    vn->unlock();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void insert_single(VirtualMachine * vm,
+                   ostringstream&   parsed,
+                   const string&    name)
+{
+    string value = "";
+
+    vm->get_template_attribute(name.c_str(),value);
                     
     parsed << value;
-    
-    if ( vm == 0 )
-    {
-        tvm->unlock();
-    }
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 void insert_vector(VirtualMachine * vm,
-                   int              vm_id,
                    ostringstream&   parsed,
                    const string&    name,
                    const string&    vname,
                    const string&    vvar,
                    const string&    vval)
                    
-{
-    VirtualMachine * tvm = vm;
-    
+{   
     vector<const Attribute*> values;
     const VectorAttribute *  vattr = 0;
     
     int    num;
-    string value = "";
-    
-    if ( vm == 0 )
+
+    if ( name == "NETWORK")
     {
-        Nebula& nd = Nebula::instance();
-        
-        tvm = nd.get_vmpool()->get(vm_id,true);
-    }
-    
-    if ( tvm == 0 )
-    {
+        string value;
+      
+        get_network_attribute(vm,vname,vvar,vval,value);
+
+        if (!value.empty())
+        {
+            parsed << value;
+        }
+
         return;
     }
 
-    if ( ( num = tvm->get_template_attribute(name.c_str(),values) ) <= 0 )
+    if ( ( num = vm->get_template_attribute(name.c_str(),values) ) <= 0 )
     {
-        goto error_name;
+        return;
     }
     
     if ( vvar.empty() )
@@ -127,7 +163,7 @@ void insert_vector(VirtualMachine * vm,
     }
     else
     {
-        const VectorAttribute *  tmp = 0;
+        const VectorAttribute * tmp = 0;
                 
         for (int i=0 ; i < num ; i++)
         {
@@ -145,12 +181,6 @@ void insert_vector(VirtualMachine * vm,
     {
         parsed << vattr->vector_value(vname.c_str());
     }
-
-error_name:                        
-    if ( vm == 0 )
-    {
-        tvm->unlock();
-    }
 }
   
 /* -------------------------------------------------------------------------- */
@@ -159,7 +189,6 @@ error_name:
 %}
 
 %parse-param {VirtualMachine * vm}
-%parse-param {int              vm_id}
 %parse-param {ostringstream *  parsed}
 %parse-param {char **          errmsg}
 
@@ -202,7 +231,7 @@ vm_variable:RSTRING
         
         VM_VAR_TO_UPPER(name);
                             
-        insert_single(vm,vm_id,*parsed,name);
+        insert_single(vm,*parsed,name);
                         
         if ( $2 != '\0' )
         {
@@ -219,7 +248,7 @@ vm_variable:RSTRING
         VM_VAR_TO_UPPER(name);
         VM_VAR_TO_UPPER(vname);
 
-        insert_vector(vm,vm_id,*parsed,name,vname,"","");
+        insert_vector(vm,*parsed,name,vname,"","");
 
         if ( $5 != '\0' )
         {
@@ -240,7 +269,7 @@ vm_variable:RSTRING
         VM_VAR_TO_UPPER(vname);
         VM_VAR_TO_UPPER(vvar);
 
-        insert_vector(vm,vm_id,*parsed,name,vname,vvar,vval);
+        insert_vector(vm,*parsed,name,vname,vvar,vval);
                                                               
         if ( $9 != '\0' )
         {
@@ -252,29 +281,12 @@ vm_variable:RSTRING
         free($5);
         free($7);
     }
-    | INTEGER VARIABLE EOA
-    {
-        string name("CONTEXT");
-        string vname($2);
-
-        VM_VAR_TO_UPPER(vname);
-        
-        insert_vector(0,$1,*parsed,name,vname,"","");
-        
-        if ( $3 != '\0' )
-        {
-            (*parsed) << $3;
-        }
-
-        free($2);
-    }
     ;
 %%
 
 extern "C" void vm_var_error(
     YYLTYPE *        llocp,
     VirtualMachine * vm,
-    int              vm_id,                  
     ostringstream *  parsed,
     char **          error_msg,
     const char *     str)
