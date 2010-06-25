@@ -459,7 +459,7 @@ void Image::release_image()
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-void Image::disk_attribute(VectorAttribute * disk, int index)
+int Image::disk_attribute(VectorAttribute * disk, int index)
 {
     string  overwrite;
     string  saveas;
@@ -474,11 +474,23 @@ void Image::disk_attribute(VectorAttribute * disk, int index)
     bus       = disk->vector_value("BUS");
     iid << oid;
 
+    IMAGE_TO_UPPER(overwrite);
+    IMAGE_TO_UPPER(saveas);
+
     string template_bus;
     string prefix;
 
     get_template_attribute("BUS", template_bus);
     get_template_attribute("DEV_PREFIX", prefix);
+
+    //--------------------------------------------------------------------------
+    //                       Acquire the image
+    //--------------------------------------------------------------------------
+
+    if ( acquire_image(overwrite == "YES") != 0 )
+    {
+        return -1;
+    }
 
    //---------------------------------------------------------------------------
    //                       NEW DISK ATTRIBUTES
@@ -508,9 +520,6 @@ void Image::disk_attribute(VectorAttribute * disk, int index)
    //---------------------------------------------------------------------------
    //   TYPE, READONLY, CLONE, and SAVE attributes
    //---------------------------------------------------------------------------
-
-    IMAGE_TO_UPPER(overwrite);
-    IMAGE_TO_UPPER(saveas);
 
     switch(type)
     {
@@ -567,6 +576,8 @@ void Image::disk_attribute(VectorAttribute * disk, int index)
     new_disk.insert(make_pair("TARGET", prefix));
 
     disk->replace(new_disk);
+
+    return 0;
 }
 
 /* ------------------------------------------------------------------------ */

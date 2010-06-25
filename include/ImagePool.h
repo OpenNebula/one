@@ -190,11 +190,11 @@ public:
             return -1;
         }
 
-        img->disk_attribute(disk,index);
+        int rc = img->disk_attribute(disk,index);
 
         img->unlock();
 
-        return 0;
+        return rc;
     }
 
 private:
