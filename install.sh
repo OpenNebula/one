@@ -291,6 +291,8 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/OpenNebula/Host.rb \
                            src/oca/ruby/OpenNebula/VirtualMachinePool.rb \
                            src/oca/ruby/OpenNebula/VirtualNetwork.rb \
                            src/oca/ruby/OpenNebula/VirtualNetworkPool.rb \
+                           src/oca/ruby/OpenNebula/Image.rb \
+                           src/oca/ruby/OpenNebula/ImagePool.rb \
                            src/oca/ruby/OpenNebula/XMLUtils.rb"
 #-------------------------------------------------------------------------------
 # Driver executable files, to be installed under $LIB_LOCATION/mads
@@ -611,13 +613,6 @@ if [ "$UNINSTALL" = "no" ] ; then
     for d in $CHOWN_DIRS; do
         chown -R $ONEADMIN_USER:$ONEADMIN_GROUP $DESTDIR$d
     done
-    # Create library links
-    if [ "$CLIENT" = "no" ] ; then
-        ln -s $DESTDIR$LIB_LOCATION/liboneapi.so \
-              $DESTDIR$LIB_LOCATION/liboneapi.so.1
-        ln -s $DESTDIR$LIB_LOCATION/liboneapi.so.1 \
-              $DESTDIR$LIB_LOCATION/liboneapi.so.1.4
-    fi
 else
     for d in `echo $DELETE_DIRS | awk '{for (i=NF;i>=1;i--) printf $i" "}'`; do
         rmdir $d
