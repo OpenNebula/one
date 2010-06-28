@@ -114,7 +114,17 @@ start()
 	fi
 	
 	# Start the scheduler
-	$ONE_SCHEDULER -p $PORT &
+        # The following command line arguments are supported by mm_shed:
+        #  [-p port]           to connect to oned - default: 2633
+        #  [-t timer]          seconds between two scheduling actions - default: 30
+        #  [-m machines limit] max number of VMs managed in each scheduling action
+        #                      - default: 300
+        #  [-d dispatch limit] max number of VMs dispatched in each scheduling action
+        #                      - default: 30
+        #  [-h host dispatch]  max number of VMs dispatched to a given host in each
+        #                      scheduling action - default: 1
+  
+	$ONE_SCHEDULER -p $PORT -t 30 -m 300 -d 30 -h 1&
 
 	LASTRC=$?
 	LASTPID=$!
