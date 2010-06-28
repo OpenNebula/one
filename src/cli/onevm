@@ -1,4 +1,4 @@
-#!/usr/bin/env ruby 
+#!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
@@ -36,14 +36,14 @@ ShowTableVM={
     :id => {
         :name => "ID",
         :desc => "ONE identifier for the VM",
-        :size => 4,
+        :size => 5,
         :proc => lambda {|d,e| d.id }
     },
     :name => {
         :name => "NAME",
         :desc => "Name of the domain",
         :size => 8,
-        :proc => lambda {|d,e| 
+        :proc => lambda {|d,e|
             d.name
         }
     },
@@ -51,7 +51,7 @@ ShowTableVM={
         :name => "USER",
         :desc => "Name of the owner",
         :size => 8,
-        :proc => lambda {|d,e| 
+        :proc => lambda {|d,e|
             d["USERNAME"]
         }
     },
@@ -59,7 +59,7 @@ ShowTableVM={
         :name => "STAT",
         :desc => "Actual status of the VM",
         :size => 4,
-        :proc => lambda {|d,e| 
+        :proc => lambda {|d,e|
             d.status
         }
     },
@@ -67,7 +67,7 @@ ShowTableVM={
         :name => "CPU",
         :desc => "CPU percentage used by the VM",
         :size => 3,
-        :proc => lambda {|d,e| 
+        :proc => lambda {|d,e|
             d["cpu"]
         }
     },
@@ -91,7 +91,7 @@ ShowTableVM={
         :size => 11,
         :proc => lambda {|d,e| str_running_time(d) }
     },
-    
+
     :default => [:id, :user, :name, :stat, :cpu, :mem, :hostname, :time]
 }
 
@@ -152,18 +152,18 @@ ShowTableHistory={
             OpenNebula::VirtualMachine.get_reason(d["reason"])
         }
     },
-    
+
     :default => [:id, :seq, :hostname, :stime, :etime, :time, :reason]
 }
 
 class VmShow
-    
+
     def initialize(client, filter_flag="-2")
         @vmpool=OpenNebula::VirtualMachinePool.new(client, filter_flag.to_i)
         @table=ShowTable.new(ShowTableVM)
         @table_history=ShowTable.new(ShowTableHistory)
     end
-    
+
     def header_vm_small
         scr_bold
         scr_underline
@@ -179,7 +179,7 @@ class VmShow
         scr_restore
         puts ""
     end
-    
+
     def list_short(options=nil)
         res=@vmpool.info()
 
@@ -208,17 +208,17 @@ class VmShow
             else
                 puts @table.data_str(vms)
             end
-            
+
             result
         end
     end
-    
+
     def top(options=nil)
         delay=1
         delay=options[:delay] if options && options[:delay]
-        
+
         result=nil
-        
+
         begin
             while true
                 scr_cls
@@ -256,7 +256,7 @@ class VmShow
             get_vm_history(vm)
         end
     end
-    
+
     def list_vm_history(vm, options=nil)
         #res=@vm.get_history(id)
         if options
@@ -264,14 +264,14 @@ class VmShow
         end
 
         header_history_small
-        
+
         if options
             puts @table_history.data_str([vm], options)
         else
             puts @table_history.data_str([vm])
         end
     end
-    
+
     def list_vm_history_array(ids, options=nil)
         get_vms_history(ids).each {|vm|
             puts "History for VM #{vm['id']}"
@@ -280,7 +280,7 @@ class VmShow
             puts
         }
     end
-    
+
     def list_vm_history_all(options=nil)
         result=@vmpool.info
 
@@ -310,18 +310,18 @@ Commands:
 
 * create (Submits a new virtual machine, adding it to the ONE VM pool)
     onevm create <template>
-    
+
     template is a file name where the VM description is located
-    
+
 * deploy (Start a previously submitted VM in an specific host)
     onevm deploy <vm_id> <host_id>
-    
+
 * shutdown (Shutdown an already deployed VM)
     onevm shutdown <vm_id>
-    
+
 * livemigrate (Migrates a running VM to another host without downtime)
     onevm livemigrate <vm_id> <host_id>
-    
+
 * migrate (Saves a running VM and starts it again in the specified host)
     onevm migrate <vm_id> <host_id>
 
@@ -333,22 +333,22 @@ Commands:
 
 * stop (Stops a running VM)
     onevm stop <vm_id>
-    
+
 * cancel (Cancels a running VM)
     onevm cancel <vm_id>
 
 * suspend (Saves a running VM)
     onevm suspend <vm_id>
-    
+
 * resume (Resumes the execution of a saved VM)
     onevm resume <vm_id>
-    
+
 * delete (Deletes a VM from the pool and DB)
     onevm delete <vm_id>
-    
+
 * restart (Resubmits the VM after failure)
     onevm restart <vm_id>
-    
+
 * list (Shows VMs in the pool)
     onevm list <filter_flag>
         where filter_flag can be
@@ -356,7 +356,7 @@ Commands:
             m, mine  --> the VMs belonging to the user in ONE_AUTH
             uid      --> VMs of the user identified by this uid
             user--> VMs of the user identified by the username
-    
+
 * show (Gets information about a specific VM)
     onevm show <vm_id>
 
@@ -365,9 +365,9 @@ Commands:
 
 * history (Gets history from VMs)
     onevm history [<vm_id> <vm_id> ...]
-    
+
     if no vm_id is provided it will list history for all known VMs
-    
+
 EOT
 
     def text_commands
@@ -377,12 +377,12 @@ EOT
     def text_command_name
         "onevm"
     end
-    
+
     def list_options
         table=ShowTable.new(ShowTableVM)
         table.print_help
     end
-    
+
 end
 
 
@@ -432,17 +432,17 @@ when "submit", "create"
         puts "ID: " + vm.id.to_s if ops[:verbose]
         exit 0
     end
-    
+
 when "deploy"
     check_parameters("deploy", 2)
     host_id=get_host_id(ARGV[-1])
     args=expand_args(ARGV[0..-2])
-    
+
     args.each do |param|
         vm_id=get_vm_id(param)
-    
+
         vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
-    
+
         result=vm.deploy(host_id)
         if is_successful?(result)
             puts "Deploying VM" if ops[:verbose]
@@ -454,7 +454,7 @@ when "deploy"
 when "shutdown"
     check_parameters("shutdown", 1)
     args=expand_args(ARGV)
-    
+
     args.each do |param|
         vm_id=get_vm_id(param)
 
@@ -471,12 +471,12 @@ when "livemigrate"
     check_parameters("livemigrate", 2)
     host_id=get_host_id(ARGV[-1])
     args=expand_args(ARGV[0..-2])
-    
+
     args.each do |param|
         vm_id=get_vm_id(param)
-    
+
         vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
-    
+
         result=vm.live_migrate(host_id)
         if is_successful?(result)
             puts "Migrating VM" if ops[:verbose]
@@ -489,12 +489,12 @@ when "migrate"
     check_parameters("migrate", 2)
     host_id=get_host_id(ARGV[-1])
     args=expand_args(ARGV[0..-2])
-    
+
     args.each do |param|
         vm_id=get_vm_id(param)
-    
+
         vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
-    
+
         result=vm.migrate(host_id)
         if is_successful?(result)
             puts "Migrating VM" if ops[:verbose]
@@ -506,12 +506,12 @@ when "migrate"
 when "hold"
     check_parameters("hold", 1)
     args=expand_args(ARGV)
-    
+
     args.each do |param|
         vm_id=get_vm_id(param)
-    
+
         vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
-    
+
         result=vm.hold
         if is_successful?(result)
             puts "Setting VM to hold state" if ops[:verbose]
@@ -523,12 +523,12 @@ when "hold"
 when "release"
     check_parameters("release", 1)
     args=expand_args(ARGV)
-    
+
     args.each do |param|
         vm_id=get_vm_id(param)
-    
+
         vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
-    
+
         result=vm.release
         if is_successful?(result)
             puts "Releasing VM" if ops[:verbose]
@@ -536,16 +536,16 @@ when "release"
             break
         end
     end
-    
+
 when "stop"
     check_parameters("stop", 1)
     args=expand_args(ARGV)
-    
+
     args.each do |param|
         vm_id=get_vm_id(param)
-    
+
         vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
-    
+
         result=vm.stop
         if is_successful?(result)
             puts "Stopping VM" if ops[:verbose]
@@ -553,11 +553,11 @@ when "stop"
             break
         end
     end
-    
+
 when "cancel"
     check_parameters("cancel", 1)
     args=expand_args(ARGV)
-    
+
     args.each do |param|
         vm_id=get_vm_id(param)
 
@@ -574,12 +574,12 @@ when "cancel"
 when "suspend"
     check_parameters("suspend", 1)
     args=expand_args(ARGV)
-    
+
     args.each do |param|
         vm_id=get_vm_id(param)
-    
+
         vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
-    
+
         result=vm.suspend
         if is_successful?(result)
             puts "Suspending VM" if ops[:verbose]
@@ -587,16 +587,16 @@ when "suspend"
             break
         end
     end
-    
+
 when "resume"
     check_parameters("resume", 1)
     args=expand_args(ARGV)
-    
+
     args.each do |param|
         vm_id=get_vm_id(param)
-    
+
         vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
-    
+
         result=vm.resume
         if is_successful?(result)
             puts "Resuming VM" if ops[:verbose]
@@ -604,16 +604,16 @@ when "resume"
             break
         end
     end
-    
+
 when "restart"
     check_parameters("restart", 1)
     args=expand_args(ARGV)
-    
+
     args.each do |param|
         vm_id=get_vm_id(param)
-    
+
         vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
-    
+
         result=vm.restart
         if is_successful?(result)
             puts "Restarting VM" if ops[:verbose]
@@ -621,28 +621,28 @@ when "restart"
             break
         end
     end
-    
+
 when "list"
     ops.merge!(get_user_flags)
     if !ops[:xml]
         vmlist=VmShow.new(get_one_client, ops[:filter_user].to_i)
 
         ops[:columns]=ops[:list] if ops[:list]
-        result=vmlist.list_short(ops) 
+        result=vmlist.list_short(ops)
     else
         vmpool=OpenNebula::VirtualMachinePool.new(get_one_client,
             ops[:filter_user].to_i)
         vmpool.info
         puts vmpool.to_xml
     end
-    
+
 when "top"
     ops.merge!(get_user_flags)
     vmlist=VmShow.new(get_one_client, ops[:filter_user].to_i)
     ops[:columns]=ops[:list] if ops[:list]
     result=vmlist.top(ops)
-    
-    
+
+
 when "history"
     vmlist=VmShow.new(get_one_client)
     ops[:columns]=ops[:list] if ops[:list]
@@ -653,16 +653,16 @@ when "history"
     else
         result=vmlist.list_vm_history_all(ops)
     end
-    
+
 when "delete"
     check_parameters("delete", 1)
     args=expand_args(ARGV)
-    
+
     args.each do |param|
         vm_id=get_vm_id(param)
-    
+
         vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
-    
+
         result=vm.finalize
         if is_successful?(result)
             puts "VM correctly deleted"  if ops[:verbose]
@@ -674,9 +674,9 @@ when "delete"
 when "show"
     check_parameters("get_info", 1)
     args=expand_args(ARGV)
-    
+
     args.each do |param|
-    
+
         vm_id=get_vm_id(param)
 
         vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
@@ -692,7 +692,7 @@ when "show"
             puts str % ["NAME", vm[:name]]
             puts str % ["STATE", vm.state_str]
             puts str % ["LCM_STATE", vm.lcm_state_str]
-        
+
             value=vm[:stime].to_i
             if value==0
                 value='-'
@@ -708,14 +708,14 @@ when "show"
                 value=Time.at(value).strftime("%m/%d %H:%M:%S")
             end
             puts str % ["END TIME", value]
-        
+
             value=vm[:deploy_id]
             puts str % ["DEPLOY ID:", value=="" ? "-" : value]
 
             puts
-        
+
             print_header(str_h1,"VIRTUAL MACHINE TEMPLATE",false)
-        
+
             puts vm.template_str
         else
             puts vm.to_xml
