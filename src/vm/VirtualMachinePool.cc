@@ -213,14 +213,18 @@ int VirtualMachinePool::allocate (
 /* -------------------------------------------------------------------------- */
 
 int VirtualMachinePool::get_running(
-    vector<int>&    oids)
+    vector<int>&    oids,
+    int             vm_limit,
+    time_t          last_poll)
 {
     ostringstream   os;
     string          where;
 
-    os << "state = " << VirtualMachine::ACTIVE
+    os << "last_poll <= " << last_poll << " and"
+       << " state = " << VirtualMachine::ACTIVE
        << " and ( lcm_state = " << VirtualMachine::RUNNING
-       << " or lcm_state = " << VirtualMachine::UNKNOWN << " )";
+       << " or lcm_state = " << VirtualMachine::UNKNOWN << " )"
+       << " ORDER BY last_poll ASC LIMIT " << vm_limit;
 
     where = os.str();
 
