@@ -134,6 +134,9 @@ int ImagePool::allocate (
 
         img->get_template_attribute("TYPE", type);
 
+        transform (type.begin(), type.end(), type.begin(),
+            (int(*)(int))toupper);
+
         if ( type.empty() == true )
         {
             type = default_type;
@@ -240,9 +243,9 @@ int ImagePool::dump(ostringstream& oss, const string& where)
                   static_cast<void *>(&oss));
 
     cmd << "SELECT " << Image::table << ".*, user_pool.user_name FROM "
-           << Image::table <<
-           " LEFT OUTER JOIN (SELECT oid, user_name FROM user_pool) "
-           << "AS user_pool ON " << Image::table << ".uid = user_pool.oid";
+        << Image::table
+        << " LEFT OUTER JOIN (SELECT oid, user_name FROM user_pool) "
+        << "AS user_pool ON " << Image::table << ".uid = user_pool.oid";
 
     if ( !where.empty() )
     {

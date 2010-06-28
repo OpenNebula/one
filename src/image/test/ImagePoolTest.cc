@@ -23,7 +23,7 @@
 
 using namespace std;
 
-const int uids[] = {122, 262, 127};
+const int uids[] = {0,1,2};
 
 const string names[] = {"Image one", "Second Image", "The third image"};
 
@@ -48,20 +48,20 @@ const string templates[] =
 
 const string xmls[] =
 {
-    "<IMAGE><ID>0</ID><UID>122</UID><NAME>Image one</NAME><TYPE>0</TYPE><PUBLIC>0</PUBLIC><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/7e997f5fdc26712ac64eac8385fc81632b4bf024</SOURCE><STATE>0</STATE><RUNNING_VMS>0</RUNNING_VMS><TEMPLATE><DESCRIPTION><![CDATA[This is a very long description of an image, and to achieve the longness I will copy this over. This is a very long description of an image, and to achieve the longness I will copy this over. And over. This is a very long description of an image, and to achieve the longness I will copy this over. And over. This is a very long description of an image, and to achieve the longness I will copy this over. And over.This is a very long description of an image, and to achieve the longness I will copy this over.]]></DESCRIPTION><DEV_PREFIX><![CDATA[hd]]></DEV_PREFIX><ORIGINAL_PATH><![CDATA[/tmp/image_test]]></ORIGINAL_PATH></TEMPLATE></IMAGE>",
+    "<IMAGE><ID>0</ID><UID>0</UID><NAME>Image one</NAME><TYPE>0</TYPE><PUBLIC>0</PUBLIC><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/9ab4a4e021ee2883f57e3aeecc9e2aed7c3fa198</SOURCE><STATE>4</STATE><RUNNING_VMS>0</RUNNING_VMS><TEMPLATE><DESCRIPTION><![CDATA[This is a very long description of an image, and to achieve the longness I will copy this over. This is a very long description of an image, and to achieve the longness I will copy this over. And over. This is a very long description of an image, and to achieve the longness I will copy this over. And over. This is a very long description of an image, and to achieve the longness I will copy this over. And over.This is a very long description of an image, and to achieve the longness I will copy this over.]]></DESCRIPTION><DEV_PREFIX><![CDATA[hd]]></DEV_PREFIX><NAME><![CDATA[Image one]]></NAME><ORIGINAL_PATH><![CDATA[/tmp/image_test]]></ORIGINAL_PATH></TEMPLATE></IMAGE>",
 
-    "<IMAGE><ID>1</ID><UID>262</UID><NAME>Second Image</NAME><TYPE>0</TYPE><PUBLIC>1</PUBLIC><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/64c4e548575b3d40274190bad7a92e63b354f83e</SOURCE><STATE>0</STATE><RUNNING_VMS>0</RUNNING_VMS><TEMPLATE><DESCRIPTION><![CDATA[This is a rather short description.]]></DESCRIPTION><DEV_PREFIX><![CDATA[hd]]></DEV_PREFIX><ORIGINAL_PATH><![CDATA[/tmp/image_second_test]]></ORIGINAL_PATH></TEMPLATE></IMAGE>",
+    "<IMAGE><ID>1</ID><UID>1</UID><NAME>Second Image</NAME><TYPE>0</TYPE><PUBLIC>1</PUBLIC><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/c9d51800847467911c755e5e4c13dfe28c3a79f3</SOURCE><STATE>4</STATE><RUNNING_VMS>0</RUNNING_VMS><TEMPLATE><DESCRIPTION><![CDATA[This is a rather short description.]]></DESCRIPTION><DEV_PREFIX><![CDATA[hd]]></DEV_PREFIX><NAME><![CDATA[Second Image]]></NAME><ORIGINAL_PATH><![CDATA[/tmp/image_second_test]]></ORIGINAL_PATH><PUBLIC><![CDATA[YES]]></PUBLIC></TEMPLATE></IMAGE>",
 
-    "<IMAGE><ID>0</ID><UID>127</UID><NAME>The third image</NAME><TYPE>0</TYPE><PUBLIC>0</PUBLIC><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/c924d8d760da913871b4c4f1acbe36ba793ae5e5</SOURCE><STATE>0</STATE><RUNNING_VMS>0</RUNNING_VMS><TEMPLATE><BUS><![CDATA[SCSI]]></BUS><DEV_PREFIX><![CDATA[hd]]></DEV_PREFIX><ORIGINAL_PATH><![CDATA[/tmp/image_test]]></ORIGINAL_PATH><PROFILE><![CDATA[STUDENT]]></PROFILE></TEMPLATE></IMAGE>"
+    "<IMAGE><ID>0</ID><UID>2</UID><NAME>The third image</NAME><TYPE>0</TYPE><PUBLIC>0</PUBLIC><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/e50b0c738be9d431475bf5859629e5580301a7d6</SOURCE><STATE>4</STATE><RUNNING_VMS>0</RUNNING_VMS><TEMPLATE><BUS><![CDATA[SCSI]]></BUS><DEV_PREFIX><![CDATA[hd]]></DEV_PREFIX><NAME><![CDATA[The third image]]></NAME><ORIGINAL_PATH><![CDATA[/tmp/image_test]]></ORIGINAL_PATH><PROFILE><![CDATA[STUDENT]]></PROFILE></TEMPLATE></IMAGE>"
 };
 
 
 // This xml dump result has the STIMEs modified to 0000000000
 const string xml_dump =
-    "<IMAGE_POOL><IMAGE><ID>0</ID><UID>122</UID><NAME>Image one</NAME><TYPE>0</TYPE><PUBLIC>0</PUBLIC><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/7e997f5fdc26712ac64eac8385fc81632b4bf024</SOURCE><STATE>0</STATE><RUNNING_VMS>0</RUNNING_VMS></IMAGE><IMAGE><ID>1</ID><UID>262</UID><NAME>Second Image</NAME><TYPE>0</TYPE><PUBLIC>1</PUBLIC><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/64c4e548575b3d40274190bad7a92e63b354f83e</SOURCE><STATE>0</STATE><RUNNING_VMS>0</RUNNING_VMS></IMAGE><IMAGE><ID>2</ID><UID>127</UID><NAME>The third image</NAME><TYPE>0</TYPE><PUBLIC>0</PUBLIC><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/c924d8d760da913871b4c4f1acbe36ba793ae5e5</SOURCE><STATE>0</STATE><RUNNING_VMS>0</RUNNING_VMS></IMAGE></IMAGE_POOL>";
+"<IMAGE_POOL><IMAGE><ID>0</ID><UID>0</UID><USERNAME>one_user_test</USERNAME><NAME>Image one</NAME><TYPE>0</TYPE><PUBLIC>0</PUBLIC><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/9ab4a4e021ee2883f57e3aeecc9e2aed7c3fa198</SOURCE><STATE>4</STATE><RUNNING_VMS>0</RUNNING_VMS></IMAGE><IMAGE><ID>1</ID><UID>1</UID><USERNAME>A user</USERNAME><NAME>Second Image</NAME><TYPE>0</TYPE><PUBLIC>1</PUBLIC><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/c9d51800847467911c755e5e4c13dfe28c3a79f3</SOURCE><STATE>4</STATE><RUNNING_VMS>0</RUNNING_VMS></IMAGE><IMAGE><ID>2</ID><UID>2</UID><USERNAME>B user</USERNAME><NAME>The third image</NAME><TYPE>0</TYPE><PUBLIC>0</PUBLIC><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/e50b0c738be9d431475bf5859629e5580301a7d6</SOURCE><STATE>4</STATE><RUNNING_VMS>0</RUNNING_VMS></IMAGE></IMAGE_POOL>";
 
 const string xml_dump_where =
-    "<IMAGE_POOL><IMAGE><ID>1</ID><UID>262</UID><NAME>Second Image</NAME><TYPE>0</TYPE><PUBLIC>1</PUBLIC><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/64c4e548575b3d40274190bad7a92e63b354f83e</SOURCE><STATE>0</STATE><RUNNING_VMS>0</RUNNING_VMS></IMAGE><IMAGE><ID>2</ID><UID>127</UID><NAME>The third image</NAME><TYPE>0</TYPE><PUBLIC>0</PUBLIC><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/c924d8d760da913871b4c4f1acbe36ba793ae5e5</SOURCE><STATE>0</STATE><RUNNING_VMS>0</RUNNING_VMS></IMAGE></IMAGE_POOL>";
+"<IMAGE_POOL><IMAGE><ID>0</ID><UID>0</UID><USERNAME>one_user_test</USERNAME><NAME>Image one</NAME><TYPE>0</TYPE><PUBLIC>0</PUBLIC><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/9ab4a4e021ee2883f57e3aeecc9e2aed7c3fa198</SOURCE><STATE>4</STATE><RUNNING_VMS>0</RUNNING_VMS></IMAGE><IMAGE><ID>1</ID><UID>1</UID><USERNAME>A user</USERNAME><NAME>Second Image</NAME><TYPE>0</TYPE><PUBLIC>1</PUBLIC><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/c9d51800847467911c755e5e4c13dfe28c3a79f3</SOURCE><STATE>4</STATE><RUNNING_VMS>0</RUNNING_VMS></IMAGE></IMAGE_POOL>";
 
 const string replacement = "0000000000";
 
@@ -122,8 +122,38 @@ protected:
         ((Image*)obj)->to_xml(xml_str);
         xml_str.replace( xml_str.find("<REGTIME>")+9, 10, replacement);
 
+        //cout << endl << xml_str << endl << xmls[index] << endl;
+
         CPPUNIT_ASSERT( ((Image*)obj)->get_name() == names[index] );
         CPPUNIT_ASSERT( xml_str == xmls[index]);
+    };
+
+    void set_up_user_pool()
+    {
+
+        // The UserPool constructor checks if the DB contains at least
+        // one user, and adds one automatically from the ONE_AUTH file.
+        // So the ONE_AUTH environment is forced to point to a test one_auth
+        // file.
+        ostringstream oss;
+
+        oss << getenv("PWD") << "/one_auth";
+        setenv("ONE_AUTH", oss.str().c_str(), 1);
+
+        UserPool::bootstrap(db);
+        UserPool * user_pool = new UserPool(db);
+        int uid_1, uid_2;
+
+        string username_1 = "A user";
+        string username_2 = "B user";
+
+        string pass_1     = "A pass";
+        string pass_2     = "B pass";
+
+        user_pool->allocate(&uid_1, username_1, pass_1, true);
+        user_pool->allocate(&uid_2, username_2, pass_2, true);
+
+        delete user_pool;
     };
 
 public:
@@ -348,21 +378,13 @@ public:
             "ORIGINAL_PATH  = /tmp/image_test\n"
             "TYPE           = WRONG\n",
 
-            "NAME           = \"name B\"\n"
-            "TYPE           = DATABLOCK\n"
-            "DESCRIPTION    = \"This type doesn't need original_path\"\n",
-
-            "NAME           = \"name C\"\n"
-            "TYPE           = CDROM\n"
-            "DESCRIPTION    = \"This type needs original_path\"\n",
-
             "NAME           \"PARSE ERROR\"\n"
             "TYPE           = WRONG\n",
 
             "END"
         };
 
-        int results[] = { -1, -1, 0, -1, -2 };
+        int results[] = { -1, -1, -2 };
 
         int i = 0;
         while( templates[i] != "END" )
@@ -370,7 +392,8 @@ public:
 
             imp->allocate(0, templates[i], &rc);
 
-//cout << endl << i << " - rc: " << rc << "  expected: " << results[i] << endl;
+            //cout << endl << i << " - rc: " << rc << "  expected: "
+            //     << results[i] << endl;
 
             CPPUNIT_ASSERT( rc == results[i] );
 
@@ -389,6 +412,7 @@ public:
         VectorAttribute *   disk;
         int                 oid;
         string              value;
+        int                 index=0;
 
         disk = new VectorAttribute("DISK");
 
@@ -396,13 +420,15 @@ public:
         oid = allocate(0);
         img = imp->get(oid, false);
 
-        img->disk_attribute(&disk, 0);
+        CPPUNIT_ASSERT( img != 0 );
+        CPPUNIT_ASSERT( oid == 0 );
+
+        img->enable(true);
+        img->disk_attribute(disk, &index);
 
         value = disk->vector_value("TARGET");
 
         CPPUNIT_ASSERT( value == "hda" );
-
-
         // clean up
         delete disk;
         value = "";
@@ -417,7 +443,8 @@ public:
 
         img = imp->get(oid, false);
 
-        img->disk_attribute(&disk, 0);
+        img->enable(true);
+        img->disk_attribute(disk, &index);
 
         value = disk->vector_value("TARGET");
         CPPUNIT_ASSERT(value == "hdc");
@@ -436,7 +463,8 @@ public:
 
         img = imp->get(oid, false);
 
-        img->disk_attribute(&disk, 0);
+        img->enable(true);
+        img->disk_attribute(disk, &index);
 
         value = disk->vector_value("TARGET");
         CPPUNIT_ASSERT(value == "hdd");
@@ -455,10 +483,11 @@ public:
 
         img = imp->get(oid, false);
 
-        img->disk_attribute(&disk, 2);
+        img->enable(true);
+        img->disk_attribute(disk, &index);
 
         value = disk->vector_value("TARGET");
-        CPPUNIT_ASSERT(value == "sdf");
+        CPPUNIT_ASSERT(value == "sde");
 
         // clean up
         delete disk;
@@ -475,7 +504,7 @@ public:
         VectorAttribute *   disk;
         int                 oid;
         string              value;
-
+        int                 index = 0;
         // Allocate an OS type image
         oid = allocate(0);
         img = imp->get(oid, false);
@@ -484,7 +513,8 @@ public:
         // A disk without a BUS attribute should not have it added.
         disk = new VectorAttribute("DISK");
 
-        img->disk_attribute(&disk, 0);
+        img->enable(true);
+        img->disk_attribute(disk, &index);
 
         value = "";
         value = disk->vector_value("BUS");
@@ -493,7 +523,7 @@ public:
         value = "";
         value = disk->vector_value("SOURCE");
         CPPUNIT_ASSERT( value ==
-                    "source_prefix/7e997f5fdc26712ac64eac8385fc81632b4bf024" );
+                    "source_prefix/9ab4a4e021ee2883f57e3aeecc9e2aed7c3fa198" );
 
         // clean up
         delete disk;
@@ -503,7 +533,8 @@ public:
         disk = new VectorAttribute("DISK");
         disk->replace("BUS", "SCSI");
 
-        img->disk_attribute(&disk, 0);
+        img->enable(true);
+        img->disk_attribute(disk, &index);
 
         value = disk->vector_value("BUS");
         CPPUNIT_ASSERT( value == "SCSI" );
@@ -511,7 +542,7 @@ public:
         value = "";
         value = disk->vector_value("SOURCE");
         CPPUNIT_ASSERT( value ==
-                    "source_prefix/7e997f5fdc26712ac64eac8385fc81632b4bf024" );
+                    "source_prefix/9ab4a4e021ee2883f57e3aeecc9e2aed7c3fa198" );
 
         // clean up
         delete disk;
@@ -604,19 +635,22 @@ public:
 
         ostringstream oss;
         int rc;
+        string nan;
+
+        set_up_user_pool();
 
         allocate(0);
         allocate(1);
         allocate(2);
 
-        rc = imp->dump(oss, "");
+        rc = imp->dump(oss,nan);
         CPPUNIT_ASSERT(rc == 0);
 
         string result = oss.str();
 
-        result.replace(106,  10, replacement);
-        result.replace(346, 10, replacement);
-        result.replace(589, 10, replacement);
+        result.replace(138,  10, replacement);
+        result.replace(403, 10, replacement);
+        result.replace(671, 10, replacement);
 
         CPPUNIT_ASSERT( result == xml_dump );
     }
@@ -632,20 +666,21 @@ public:
         ostringstream oss;
         ostringstream where;
 
+        set_up_user_pool();
 
         allocate(0);
         allocate(1);
         allocate(2);
 
-        where << "oid > 0";
+        where << "uid < 2";
 
         rc = imp->dump(oss, where.str());
         CPPUNIT_ASSERT(rc == 0);
 
         string result = oss.str();
 
-        result.replace(109, 10, replacement);
-        result.replace(352, 10, replacement);
+        result.replace(138, 10, replacement);
+        result.replace(403, 10, replacement);
 
         CPPUNIT_ASSERT( result == xml_dump_where );
     }
