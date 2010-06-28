@@ -27,7 +27,7 @@ class VirtualNetworkOCCI < VirtualNetwork
             <ADDRESS><%= vn_hash['VNET']['TEMPLATE']['NETWORK_ADDRESS'].strip %></ADDRESS>
             <SIZE><%= vn_hash['VNET']['TEMPLATE']['NETWORK_SIZE'].strip %></SIZE>
         </NETWORK>
-    }.gsub(/^        /, '')
+    }
 
     ONE_NETWORK = %q{
         NAME            = <%= network_hash['NAME'] %>
@@ -42,7 +42,7 @@ class VirtualNetworkOCCI < VirtualNetwork
         vn_hash = to_hash
 
         occi = ERB.new(OCCI_NETWORK)
-        return occi.result(binding)
+        return occi.result(binding).gsub(/\n\s*/,'')
     end
     
     def to_one_template(network_hash, bridge)

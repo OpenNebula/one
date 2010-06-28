@@ -35,7 +35,7 @@ class VirtualMachineOCCI < VirtualMachine
             <INSTANCE_TYPE><%=template['INSTANCE_TYPE']%></INSTANCE_TYPE><%
              end %>
         </COMPUTE>     
-    }.gsub(/^        /, '')
+    }
     
     
     # Creates the VMI representation of a Virtual Machine
@@ -47,7 +47,7 @@ class VirtualMachineOCCI < VirtualMachine
         template['NIC']=[template['NIC']].flatten if template['NIC']
     
         occi = ERB.new(OCCI_VM)
-        return occi.result(binding)
+        return occi.result(binding).gsub(/\n\s*/,'')
 
     end
 end

@@ -1,54 +1,4 @@
 #!/usr/bin/env ruby
-
-# == Synopsis
-# occi-compute
-# 
-# Manages compute resources
-#
-# == Usage
-#
-# occi-compute <COMMAND> [OPTIONS] [ARGUMENTS]
-#
-# COMMANDS
-#
-# create <occi xml file>
-#       creates a new compute resource described by the provided 
-#       <occi xml file>
-#
-# list
-#       lists available compute resources
-#
-# show <compute id>
-#       retrieves the OCCI XML representation of the compute resource
-#       identified by <compute id>
-#
-# update <occi xml file>
-#       updates the representation of the compute resource represented by the
-#       provided <occi xml file>
-#
-# delete <compute id>
-#       deletes the compute resource idenfitied by <compute id>
-#
-#
-# OPTIONS
-#
-# -h, --help:
-#    show help
-#
-# --username <id>, -U <id>:
-#    The username of the user
-#
-# --password <key>, -P <key>:
-#    The password of the user
-#
-# --url <url>, -R <url>:
-#    Set url as the web service url to use
-#
-# --debug, -D
-#    Enables verbosity
-#
-#
-
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
@@ -78,10 +28,58 @@ end
 $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+"/cloud"
 
+COMMANDS_HELP=<<-EOT
+    ** Synopsis
+    occi-compute
+ 
+    Manages compute resources
+
+    ** Usage
+    occi-compute <COMMAND> [OPTIONS] [ARGUMENTS]
+
+    COMMANDS
+
+    create <occi xml file>
+           creates a new compute resource described by the provided 
+           <occi xml file>
+
+    list
+           lists available compute resources
+
+    show <compute id>
+           retrieves the OCCI XML representation of the compute resource
+           identified by <compute id>
+
+    update <occi xml file>
+           updates the representation of the compute resource represented by the
+           provided <occi xml file>
+
+    delete <compute id>
+           deletes the compute resource idenfitied by <compute id>
+
+
+    OPTIONS
+
+    --help, -h:
+        Show help
+
+    --username <id>, -U <id>:
+        The username of the user
+
+    --password <key>, -P <key>:
+        The password of the user
+
+    --url <url>, -R <url>:
+        Set url as the web service url to use
+
+    --debug, -D
+        Enables verbosity
+
+EOT
+
 require 'occi/OCCIClient'
 require 'getoptlong'
-require 'rdoc/usage'
-require 'pp'
+require "rexml/document"
 
 include CloudCLI
 
@@ -103,7 +101,8 @@ begin
     opts.each do |opt, arg|
         case opt
             when '--help'
-                RDoc::usage
+                puts COMMANDS_HELP
+                return
             when '--username'
                 username = arg
             when '--password'
@@ -182,7 +181,23 @@ end
 
 if CloudClient::is_error?(rc)
     puts rc.to_s()
-else
-    puts rc
+else 
+    begin
+        doc = REXML::Document.new(rc)
+    rescue REXML::ParseException => e
+        puts e.message 
+        exit(-1)
+    end
+    
+    xml = doc.root
+    
+    if xml.nil?
+        puts "XML syntax error"
+        exit(-1)
+    end
+    
+    str = ""
+    REXML::Formatters::Pretty.new(4).write(xml,str)
+    puts "\n" + str + "\n " 
 end
 
