@@ -74,7 +74,7 @@ void RequestManager::ImageEnable::execute(
 
     if ( rc < 0 )
     {
-        goto error_remove_attribute;
+        goto error_enable;
 
     }
     
@@ -106,7 +106,7 @@ error_authorization:
            " attributes, aborting call.";
     goto error_common;
     
-error_remove_attribute:
+error_enable:
     oss << "[ImageEnable] Cannot enable/disable image [" << iid << "]";
     goto error_common;
 

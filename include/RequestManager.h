@@ -797,7 +797,7 @@ private:
                         upool(_upool)
         {
             _signature="A:sib";
-            _help="Removes image attribute";
+            _help="Publish/Unpublish the Image";
         };
 
         ~ImagePublish(){};
@@ -822,7 +822,7 @@ private:
                         upool(_upool)
         {
             _signature="A:sib";
-            _help="Removes image attribute";
+            _help="Enables/Disables the Image";
         };
 
         ~ImageEnable(){};

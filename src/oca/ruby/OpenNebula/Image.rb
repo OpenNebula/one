@@ -73,7 +73,7 @@ module OpenNebula
         end
         
         def remove_attr(name)
-            super(IMAGE_METHODS[:rmattr], name)
+            do_rm_attr(name)
         end
         
         def enable
@@ -143,11 +143,20 @@ module OpenNebula
         def set_publish(published)
             return Error.new('ID not defined') if !@pe_id
 
-            rc = @client.call(IMAGE_METHODS[:publish], @pe_id, published)
+            rc = @client.call(IMAGE_METHODS[:publish], @pe_id, publish)
             rc = nil if !OpenNebula.is_error?(rc)
 
             return rc
         end
-    
+        
+        def do_rm_attr(name)
+            return Error.new('ID not defined') if !@pe_id
+
+            rc = @client.call(IMAGE_METHODS[:rmattr], @pe_id, name)
+            rc = nil if !OpenNebula.is_error?(rc)
+
+            return rc            
+        end
+
     end
 end
