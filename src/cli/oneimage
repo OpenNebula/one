@@ -30,6 +30,7 @@ $: << RUBY_LIB_LOCATION
 require 'OpenNebula'
 require 'client_utilities'
 require 'command_parse'
+require 'ftools'
 
 
 ShowTableImage={
@@ -193,7 +194,7 @@ class OneImageParse < CommandParse
     COMMANDS_HELP=<<-EOT
 Commands:
 
-* register (Registers an image, copying it to the repository if it applys)
+* register (Registers an image, copying it to the repository if it applies)
     oneimage register <template>
     
     template is a file name where the Image description is located
@@ -276,6 +277,24 @@ def get_user_flags
      ops
 end
 
+def get_type_and_path(image_template_file)
+    image_text = open(image_template_file).read
+    result=Hash.new
+    image_text.each_line {|line|
+        case line
+        when /^\s*(#.*)?$/
+            # skip empty or commented lines
+            next
+        when /^\s*(\w+)\s*=\s*(.*)\s*$/
+            name  = $1.strip.upcase
+            if name == "PATH" || name == "TYPE"
+                 result[name] = $2.strip
+            end 
+        end
+    }
+    result
+end
+
 oneimage_opts=OneImageParse.new
 oneimage_opts.parse(ARGV)
 ops=oneimage_opts.options
@@ -287,6 +306,42 @@ command=ARGV.shift
 case command
 when "register", "create", "add"
     check_parameters("register", 1)
+    
+    # First, let's check we have everything we need in the template
+
+    # Get the path and type from the template file
+    parser_result = get_type_and_path(ARGV[0]) 
+    
+    if parser_result['TYPE']
+        type = parser_result['TYPE'].upcase 
+    else
+        type = "OS"
+    end 
+    
+    result = true       
+    case type
+        when "OS", "CDROM"
+            if !parser_result['PATH'] 
+                result=OpenNebula::Error.new(
+                       "Image path not present, aborting.")
+            elsif !File.exists?(parser_result['PATH'])
+                result=OpenNebula::Error.new(
+                       "Image file could not be found, aborting.")
+            end
+        when "DATABLOCK"
+            if parser_result['PATH'] and !File.exists?(parser_result['PATH']) 
+                 result=OpenNebula::Error.new(
+                                "Image path present present for DATABLOCK, " +
+                                "but not found, aborting.")     
+           end
+    end     
+                
+    if !is_successful?(result) 
+        puts result.message
+        exit -1
+    end
+    
+    # Perform the allocate if all goes well
     image=OpenNebula::Image.new(
         OpenNebula::Image.build_xml, get_one_client)
     begin
@@ -295,10 +350,31 @@ when "register", "create", "add"
     rescue
         result=OpenNebula::Error.new("Can not read template: #{ARGV[0]}")
     end
-    if is_successful?(result)
+    
+    # Get the allocated image 
+    image=OpenNebula::Image.new_with_id(image.id, get_one_client)
+    image.info
+    template=image.to_hash
+    template=template['IMAGE']['TEMPLATE']
+
+    if !is_successful?(result) 
+        exit -1
+    end
+    
+    # Perform the copy to the image repo
+    if template['TYPE'].to_i == 0   
+        if File.copy(template['PATH'], image['SOURCE'])
+            result = image.enable
+        else
+            result=OpenNebula::Error.new(
+                 "Cannot copy image, please update before enabling it.")
+        end 
+    end
+           
+    if is_successful?(result) 
         puts "ID: " + image.id.to_s if ops[:verbose]
         exit 0
-    end
+    end 
     
 when "update" 
     check_parameters("update", 3)
@@ -329,7 +405,6 @@ when "enable"
     image=OpenNebula::Image.new_with_id(image_id, get_one_client)
 
     result=image.enable
-    pp result
     if is_successful?(result)
         puts "Image enabled" if ops[:verbose]
     end
@@ -351,7 +426,7 @@ when "publish"
 
     image=OpenNebula::Image.new_with_id(image_id, get_one_client)
 
-    result=image.disable
+    result=image.publish
     if is_successful?(result)
         puts "Image published" if ops[:verbose]
     end
@@ -362,7 +437,7 @@ when "unpublish"
 
     image=OpenNebula::Image.new_with_id(image_id, get_one_client)
 
-    result=image.unpublished
+    result=image.unpublish
     if is_successful?(result)
         puts "Image unpublished" if ops[:verbose]
     end
@@ -392,7 +467,6 @@ when "show"
     
     args.each do |param|
         image_id=get_image_id(param)
-        pp image_id
 
         image=OpenNebula::Image.new_with_id(image_id, get_one_client)
         image.info

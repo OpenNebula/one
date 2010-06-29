@@ -144,7 +144,7 @@ module OpenNebula
         def set_publish(published)
             return Error.new('ID not defined') if !@pe_id
 
-            rc = @client.call(IMAGE_METHODS[:publish], @pe_id, publish)
+            rc = @client.call(IMAGE_METHODS[:publish], @pe_id, published)
             rc = nil if !OpenNebula.is_error?(rc)
 
             return rc
