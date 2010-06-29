@@ -93,7 +93,7 @@ int VirtualNetworkPool::allocate (
 
         return -2;
     }
-
+    
     // Information about the VN needs to be extracted from the template
     vn->get_template_attribute("TYPE",s_type);
 
@@ -121,10 +121,16 @@ int VirtualNetworkPool::allocate (
 
     vn->get_template_attribute("BRIDGE",bridge);
     vn->bridge = bridge;
+    
+    // ------------ PUBLIC --------------------
 
     vn->get_template_attribute("PUBLIC", public_attr);
-    vn->vn_template.erase("PUBLIC");
-    vn->public_vnet = (public_attr == "YES");
+
+    transform (public_attr.begin(), public_attr.end(), public_attr.begin(),
+        (int(*)(int))toupper);
+
+    vn->public_vnet = (public_attr == "YES");  
+    vn->vn_template.erase("PUBLIC");  
 
     // Insert the VN in the pool so we have a valid OID
 

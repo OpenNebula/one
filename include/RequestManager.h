@@ -543,6 +543,32 @@ private:
         VirtualNetworkPool * vnpool;
         UserPool           * upool;
     };
+    
+    /* ---------------------------------------------------------------------- */
+
+    class VirtualNetworkPublish: public xmlrpc_c::method
+    {
+    public:
+        VirtualNetworkPublish(
+            VirtualNetworkPool * _vnpool,
+            UserPool           * _upool):
+                vnpool(_vnpool),
+                upool(_upool)
+        {
+            _signature="A:sib";
+            _help="Enables/Disables a virtual network";
+        };
+
+        ~VirtualNetworkPublish(){};
+
+        void execute(
+            xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP);
+
+    private:
+        VirtualNetworkPool * vnpool;
+        UserPool           * upool;
+    };
 
     /* ---------------------------------------------------------------------- */
 
