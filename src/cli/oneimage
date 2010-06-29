@@ -361,8 +361,8 @@ when "register", "create", "add"
         exit -1
     end
     
-    # Perform the copy to the image repo
-    if template['TYPE'].to_i == 0   
+    # Perform the copy to the image repo if needed
+    if template['PATH']
         if File.copy(template['PATH'], image['SOURCE'])
             result = image.enable
         else
