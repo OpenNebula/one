@@ -75,6 +75,23 @@ public:
     {
         return (public_vnet == 1);
     };
+    
+    /**
+     *  Publish or unpublish a virtual network
+     *    @param pub true to publish the image
+     *    @return 0 on success
+     */
+    void publish(bool pub)
+    {
+        if (pub == true)
+        {
+            public_vnet = 1;
+        }
+        else
+        {
+            public_vnet = 0;
+        }
+    }
 
     /**
      *    Gets a new lease for a specific VM
