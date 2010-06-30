@@ -181,6 +181,7 @@ int Image::insert(SqlDB *db)
     // ------------ PUBLIC --------------------
 
     get_template_attribute("PUBLIC", public_attr);
+    image_template.erase("PUBLIC");
 
     transform (public_attr.begin(), public_attr.end(), public_attr.begin(),
         (int(*)(int))toupper);
