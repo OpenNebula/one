@@ -72,7 +72,6 @@ int VirtualNetworkPool::allocate (
 
     string              name;
     string              bridge;
-    string              public_attr;
 
     string              s_type;
 
@@ -122,16 +121,6 @@ int VirtualNetworkPool::allocate (
     vn->get_template_attribute("BRIDGE",bridge);
     vn->bridge = bridge;
     
-    // ------------ PUBLIC --------------------
-
-    vn->get_template_attribute("PUBLIC", public_attr);
-
-    transform (public_attr.begin(), public_attr.end(), public_attr.begin(),
-        (int(*)(int))toupper);
-
-    vn->public_vnet = (public_attr == "YES");  
-    vn->vn_template.erase("PUBLIC");  
-
     // Insert the VN in the pool so we have a valid OID
 
     *oid = PoolSQL::allocate(vn);
