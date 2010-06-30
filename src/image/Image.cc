@@ -173,14 +173,6 @@ int Image::update(SqlDB *db)
 {
     int    rc;
 
-    // Update the Template
-    rc = image_template.update(db);
-
-    if ( rc != 0 )
-    {
-        return rc;
-    }
-
     rc = insert_replace(db, true);
 
     if ( rc != 0 )
