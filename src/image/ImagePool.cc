@@ -22,9 +22,9 @@
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-string ImagePool::source_prefix;
-string ImagePool::default_type;
-string ImagePool::default_dev_prefix;
+string ImagePool::_source_prefix;
+string ImagePool::_default_type;
+string ImagePool::_default_dev_prefix;
 
 int ImagePool::init_cb(void *nil, int num, char **values, char **names)
 {
@@ -43,9 +43,9 @@ int ImagePool::init_cb(void *nil, int num, char **values, char **names)
 
 
 ImagePool::ImagePool(   SqlDB * db,
-                        const string&   _source_prefix,
-                        const string&   _default_type,
-                        const string&   _default_dev_prefix):
+                        const string&   __source_prefix,
+                        const string&   __default_type,
+                        const string&   __default_dev_prefix):
 
                         PoolSQL(db,Image::table)
 {
@@ -53,9 +53,9 @@ ImagePool::ImagePool(   SqlDB * db,
     int             rc;
 
     // Init static defaults
-    source_prefix       = _source_prefix;
-    default_type        = _default_type;
-    default_dev_prefix  = _default_dev_prefix;
+    _source_prefix       = __source_prefix;
+    _default_type        = __default_type;
+    _default_dev_prefix  = __default_dev_prefix;
 
     // Set default type
     if (_default_type != "OS"       &&
@@ -64,7 +64,7 @@ ImagePool::ImagePool(   SqlDB * db,
     {
         NebulaLog::log("IMG", Log::ERROR,
                  "Bad default for image type, setting OS");
-        default_type = "OS";
+        _default_type = "OS";
     }
 
     // Read from the DB the existing images, and build the ID:Name map

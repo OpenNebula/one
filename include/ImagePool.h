@@ -194,41 +194,47 @@ public:
         return rc;
     }
 
-    static string get_source_prefix()
+    static const string& source_prefix()
     {
-        return source_prefix;
+        return _source_prefix;
     };
 
-    static string get_default_type()
+    static const string& default_type()
     {
-        return default_type;
+        return _default_type;
     };
 
-    static string get_default_dev_prefix()
+    static const string& default_dev_prefix()
     {
-        return default_dev_prefix;
+        return _default_dev_prefix;
     };
 
 private:
-    /**
-     *  This map stores the association between IIDs and Image names
-     */
-    map<string, int>    image_names;
-
+    //--------------------------------------------------------------------------
+    // Configuration Attributes for Images
+    // -------------------------------------------------------------------------
     /**
      * Path to the image repository
      **/
-    static string       source_prefix;
+    static string       _source_prefix;
 
     /**
      * Default image type
      **/
-    static string       default_type;
+    static string       _default_type;
 
     /**
      * Default device prefix
      **/
-    static string       default_dev_prefix;
+    static string       _default_dev_prefix;
+
+    //--------------------------------------------------------------------------
+    // Pool Attributes
+    // -------------------------------------------------------------------------
+    /**
+     *  This map stores the association between IIDs and Image names
+     */
+    map<string, int>    image_names;
 
     /**
      *  Factory method to produce Image objects

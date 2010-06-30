@@ -170,7 +170,7 @@ int Image::insert(SqlDB *db)
 
     if ( type_att.empty() == true )
     {
-        type_att = ImagePool::get_default_type();
+        type_att = ImagePool::default_type();
     }
 
     if (set_type(type_att) != 0)
@@ -194,7 +194,7 @@ int Image::insert(SqlDB *db)
     if( dev_prefix.empty() )
     {
         SingleAttribute * dev_att = new SingleAttribute("DEV_PREFIX",
-                                          ImagePool::get_default_dev_prefix());
+                                          ImagePool::default_dev_prefix());
 
         image_template.set(dev_att);
     }
@@ -203,7 +203,7 @@ int Image::insert(SqlDB *db)
 
     tmp_hashstream << uid << ":" << name;
 
-    tmp_sourcestream << ImagePool::get_source_prefix() << "/";
+    tmp_sourcestream << ImagePool::source_prefix() << "/";
     tmp_sourcestream << sha1_digest(tmp_hashstream.str());
 
     source = tmp_sourcestream.str();
