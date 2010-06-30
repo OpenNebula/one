@@ -194,26 +194,47 @@ public:
         return rc;
     }
 
-private:
-    /**
-     *  This map stores the association between IIDs and Image names
-     */
-    map<string, int>    image_names;
+    static const string& source_prefix()
+    {
+        return _source_prefix;
+    };
 
+    static const string& default_type()
+    {
+        return _default_type;
+    };
+
+    static const string& default_dev_prefix()
+    {
+        return _default_dev_prefix;
+    };
+
+private:
+    //--------------------------------------------------------------------------
+    // Configuration Attributes for Images
+    // -------------------------------------------------------------------------
     /**
      * Path to the image repository
      **/
-    string              source_prefix;
+    static string       _source_prefix;
 
     /**
      * Default image type
      **/
-    string              default_type;
+    static string       _default_type;
 
     /**
      * Default device prefix
      **/
-    string              default_dev_prefix;
+    static string       _default_dev_prefix;
+
+    //--------------------------------------------------------------------------
+    // Pool Attributes
+    // -------------------------------------------------------------------------
+    /**
+     *  This map stores the association between IIDs and Image names
+     */
+    map<string, int>    image_names;
 
     /**
      *  Factory method to produce Image objects
@@ -243,12 +264,6 @@ private:
      */
     int init_cb(void *nil, int num, char **values, char **names);
 
-    /**
-     *  "Encrypts" the password with SHA1 digest
-     *  @param password
-     *  @return sha1 encrypted password
-     */
-    string sha1_digest(const string& pass);
 };
 
 #endif /*IMAGE_POOL_H_*/

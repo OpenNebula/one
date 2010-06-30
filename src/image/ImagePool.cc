@@ -19,11 +19,12 @@
 /* ************************************************************************** */
 
 #include "ImagePool.h"
-#include <openssl/evp.h>
-#include <iomanip>
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+string ImagePool::_source_prefix;
+string ImagePool::_default_type;
+string ImagePool::_default_dev_prefix;
 
 int ImagePool::init_cb(void *nil, int num, char **values, char **names)
 {
@@ -40,18 +41,21 @@ int ImagePool::init_cb(void *nil, int num, char **values, char **names)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-ImagePool::ImagePool(   SqlDB * db,
-                        const string&   _source_prefix,
-                        const string&   _default_type,
-                        const string&   _default_dev_prefix):
 
-                        PoolSQL(db,Image::table),
-                        source_prefix(_source_prefix),
-                        default_type(_default_type),
-                        default_dev_prefix(_default_dev_prefix)
+ImagePool::ImagePool(   SqlDB * db,
+                        const string&   __source_prefix,
+                        const string&   __default_type,
+                        const string&   __default_dev_prefix):
+
+                        PoolSQL(db,Image::table)
 {
     ostringstream   sql;
     int             rc;
+
+    // Init static defaults
+    _source_prefix       = __source_prefix;
+    _default_type        = __default_type;
+    _default_dev_prefix  = __default_dev_prefix;
 
     // Set default type
     if (_default_type != "OS"       &&
@@ -60,7 +64,7 @@ ImagePool::ImagePool(   SqlDB * db,
     {
         NebulaLog::log("IMG", Log::ERROR,
                  "Bad default for image type, setting OS");
-        default_type = "OS";
+        _default_type = "OS";
     }
 
     // Read from the DB the existing images, and build the ID:Name map
@@ -87,18 +91,11 @@ int ImagePool::allocate (
         const  string& stemplate,
         int *          oid)
 {
-        Image * img;
-        string  name;
-        string  source;
-        string  type;
-        string  public_attr;
-        string  dev_prefix;
-
-        char *  error_msg;
         int     rc;
+        Image * img;
 
-        ostringstream tmp_hashstream;
-        ostringstream tmp_sourcestream;
+        string  name;
+        char *  error_msg;
 
         // ---------------------------------------------------------------------
         // Build a new Image object
@@ -115,67 +112,7 @@ int ImagePool::allocate (
             goto error_parse;
         }
 
-        // ---------------------------------------------------------------------
-        // Check default image attributes
-        // ---------------------------------------------------------------------
-
-        // ------------ NAME --------------------
-
         img->get_template_attribute("NAME", name);
-
-        if ( name.empty() == true )
-        {
-            goto error_name;
-        }
-
-        img->name = name;
-
-        // ------------ TYPE --------------------
-
-        img->get_template_attribute("TYPE", type);
-
-        transform (type.begin(), type.end(), type.begin(),
-            (int(*)(int))toupper);
-
-        if ( type.empty() == true )
-        {
-            type = default_type;
-        }
-
-        if (img->set_type(type) != 0)
-        {
-            goto error_type;
-        }
-
-        // ------------ PUBLIC --------------------
-
-        img->get_template_attribute("PUBLIC", public_attr);
-
-        transform (public_attr.begin(), public_attr.end(), public_attr.begin(),
-            (int(*)(int))toupper);
-
-        img->public_img = (public_attr == "YES");
-
-        // ------------ PREFIX --------------------
-
-        img->get_template_attribute("DEV_PREFIX", dev_prefix);
-
-        if( dev_prefix.empty() )
-        {
-            SingleAttribute * dev_att =
-                        new SingleAttribute("DEV_PREFIX", default_dev_prefix);
-
-            img->image_template.set(dev_att);
-        }
-
-        // ------------ SOURCE (path to store the image)--------------------
-
-        tmp_hashstream << uid << ":" << name;
-
-        tmp_sourcestream << source_prefix << "/";
-        tmp_sourcestream << sha1_digest(tmp_hashstream.str());
-
-        img->source = tmp_sourcestream.str();
 
         // ---------------------------------------------------------------------
         // Insert the Object in the pool
@@ -195,17 +132,6 @@ int ImagePool::allocate (
         image_names.insert(make_pair(name, *oid));
 
         return *oid;
-
-error_name:
-    NebulaLog::log("IMG", Log::ERROR, "NAME not present in image template");
-    goto error_common;
-error_type:
-    NebulaLog::log("IMG", Log::ERROR, "Incorrect TYPE in image template");
-    goto error_common;
-error_common:
-    delete img;
-    *oid = -1;
-    return -1;
 
 error_parse:
     ostringstream oss;
@@ -259,33 +185,6 @@ int ImagePool::dump(ostringstream& oss, const string& where)
     unset_callback();
 
     return rc;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-string ImagePool::sha1_digest(const string& pass)
-{
-    EVP_MD_CTX     mdctx;
-    unsigned char  md_value[EVP_MAX_MD_SIZE];
-    unsigned int   md_len;
-    ostringstream  oss;
-
-    EVP_MD_CTX_init(&mdctx);
-    EVP_DigestInit_ex(&mdctx, EVP_sha1(), NULL);
-
-    EVP_DigestUpdate(&mdctx, pass.c_str(), pass.length());
-
-    EVP_DigestFinal_ex(&mdctx,md_value,&md_len);
-    EVP_MD_CTX_cleanup(&mdctx);
-
-    for(unsigned int i = 0; i<md_len; i++)
-    {
-        oss << setfill('0') << setw(2) << hex << nouppercase
-            << (unsigned short) md_value[i];
-    }
-
-    return oss.str();
 }
 
 /* -------------------------------------------------------------------------- */

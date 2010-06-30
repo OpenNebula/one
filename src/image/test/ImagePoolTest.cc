@@ -85,6 +85,7 @@ class ImagePoolTest : public PoolTest
     CPPUNIT_TEST ( target_generation );
     CPPUNIT_TEST ( bus_source_assignment );
     CPPUNIT_TEST ( public_attribute );
+    CPPUNIT_TEST ( disk_overwrite );
     CPPUNIT_TEST ( dump );
     CPPUNIT_TEST ( dump_where );
 
@@ -155,6 +156,7 @@ protected:
 
         delete user_pool;
     };
+
 
 public:
     ImagePoolTest(){};
@@ -292,6 +294,8 @@ public:
         check(1, obj);
     };
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
     void wrong_get_name()
     {
@@ -543,6 +547,136 @@ public:
         value = disk->vector_value("SOURCE");
         CPPUNIT_ASSERT( value ==
                     "source_prefix/9ab4a4e021ee2883f57e3aeecc9e2aed7c3fa198" );
+
+        // clean up
+        delete disk;
+    }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+    void disk_overwrite()
+    {
+        ImagePool *         imp = static_cast<ImagePool *>(pool);
+        Image *             img;
+
+        VectorAttribute *   disk;
+        int                 oid, rc;
+        string              value;
+        int                 index = 0;
+
+        // ---------------------------------------------------------------------
+        // Allocate an OS type image
+        oid = allocate(0);
+        CPPUNIT_ASSERT( oid > -1 );
+        img = imp->get(oid, false);
+
+        // Disk with overwrite=yes, save_as empty
+        disk = new VectorAttribute("DISK");
+
+        disk->replace("OVERWRITE", "yes");
+
+        img->enable(true);
+        rc = img->disk_attribute(disk, &index);
+        CPPUNIT_ASSERT( rc == 0 );
+
+
+        value = disk->vector_value("OVERWRITE");
+        CPPUNIT_ASSERT( value == "YES" );
+
+        value = "";
+        value = disk->vector_value("SAVE_AS");
+        CPPUNIT_ASSERT( value == "" );
+
+        value = "";
+        value = disk->vector_value("CLONE");
+        CPPUNIT_ASSERT( value == "NO" );
+
+        value = "";
+        value = disk->vector_value("SAVE");
+        CPPUNIT_ASSERT( value == "YES" );
+
+        value = "";
+        value = disk->vector_value("READONLY");
+        CPPUNIT_ASSERT( value == "NO" );
+
+        // clean up
+        delete disk;
+
+
+        // ---------------------------------------------------------------------
+        // Allocate an OS type image
+        oid = allocate(1);
+        CPPUNIT_ASSERT( oid > -1 );
+        img = imp->get(oid, false);
+
+        // Disk with overwrite=no, save_as not empty
+        disk = new VectorAttribute("DISK");
+
+        disk->replace("OVERWRITE", "NO");
+        disk->replace("SAVE_AS", "path_to_save");
+
+        img->enable(true);
+        rc = img->disk_attribute(disk, &index);
+        CPPUNIT_ASSERT( rc == 0 );
+
+        value = "";
+        value = disk->vector_value("OVERWRITE");
+        CPPUNIT_ASSERT( value == "NO" );
+
+        value = "";
+        value = disk->vector_value("SAVE_AS");
+        CPPUNIT_ASSERT( value == "path_to_save" );
+
+        value = "";
+        value = disk->vector_value("CLONE");
+        CPPUNIT_ASSERT( value == "YES" );
+
+        value = "";
+        value = disk->vector_value("SAVE");
+        CPPUNIT_ASSERT( value == "YES" );
+
+        value = "";
+        value = disk->vector_value("READONLY");
+        CPPUNIT_ASSERT( value == "NO" );
+
+        // clean up
+        delete disk;
+
+        // ---------------------------------------------------------------------
+        // Allocate an OS type image
+        oid = allocate(2);
+        CPPUNIT_ASSERT( oid > -1 );
+        img = imp->get(oid, false);
+
+        // Disk with overwrite=no, save_as not present
+        disk = new VectorAttribute("DISK");
+
+        disk->replace("OVERWRITE", "NO");
+
+        img->enable(true);
+        rc = img->disk_attribute(disk, &index);
+        CPPUNIT_ASSERT( rc == 0 );
+
+        value = "";
+        value = disk->vector_value("OVERWRITE");
+        CPPUNIT_ASSERT( value == "NO" );
+
+        value = "";
+        value = disk->vector_value("SAVE_AS");
+        CPPUNIT_ASSERT( value == "" );
+
+        value = "";
+        value = disk->vector_value("CLONE");
+        CPPUNIT_ASSERT( value == "YES" );
+
+        value = "";
+        value = disk->vector_value("SAVE");
+        CPPUNIT_ASSERT( value == "NO" );
+
+        value = "";
+        value = disk->vector_value("READONLY");
+        CPPUNIT_ASSERT( value == "NO" );
 
         // clean up
         delete disk;
