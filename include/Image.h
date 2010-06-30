@@ -19,6 +19,7 @@
 
 #include "PoolSQL.h"
 #include "ImageTemplate.h"
+#include "NebulaLog.h"
 
 using namespace std;
 
@@ -366,6 +367,14 @@ private:
         db->exec(oss_image);
         db->exec(oss_templ);
     };
+
+
+    /**
+     *  "Encrypts" the password with SHA1 digest
+     *  @param password
+     *  @return sha1 encrypted password
+     */
+    string sha1_digest(const string& pass);
 
 protected:
 

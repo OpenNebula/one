@@ -194,6 +194,21 @@ public:
         return rc;
     }
 
+    static string get_source_prefix()
+    {
+        return source_prefix;
+    };
+
+    static string get_default_type()
+    {
+        return default_type;
+    };
+
+    static string get_default_dev_prefix()
+    {
+        return default_dev_prefix;
+    };
+
 private:
     /**
      *  This map stores the association between IIDs and Image names
@@ -203,17 +218,17 @@ private:
     /**
      * Path to the image repository
      **/
-    string              source_prefix;
+    static string       source_prefix;
 
     /**
      * Default image type
      **/
-    string              default_type;
+    static string       default_type;
 
     /**
      * Default device prefix
      **/
-    string              default_dev_prefix;
+    static string       default_dev_prefix;
 
     /**
      *  Factory method to produce Image objects
@@ -243,12 +258,6 @@ private:
      */
     int init_cb(void *nil, int num, char **values, char **names);
 
-    /**
-     *  "Encrypts" the password with SHA1 digest
-     *  @param password
-     *  @return sha1 encrypted password
-     */
-    string sha1_digest(const string& pass);
 };
 
 #endif /*IMAGE_POOL_H_*/

@@ -19,6 +19,8 @@
 
 #include <iostream>
 #include <sstream>
+#include <openssl/evp.h>
+#include <iomanip>
 
 #include "Image.h"
 #include "ImagePool.h"
@@ -137,6 +139,76 @@ int Image::insert(SqlDB *db)
 {
     int rc;
 
+    string  source_att;
+    string  type_att;
+    string  public_attr;
+    string  dev_prefix;
+
+    ostringstream tmp_hashstream;
+    ostringstream tmp_sourcestream;
+
+
+    // ---------------------------------------------------------------------
+    // Check default image attributes
+    // ---------------------------------------------------------------------
+
+    // ------------ NAME --------------------
+
+    get_template_attribute("NAME", name);
+
+    if ( name.empty() == true )
+    {
+        goto error_name;
+    }
+
+    // ------------ TYPE --------------------
+
+    get_template_attribute("TYPE", type_att);
+
+    transform (type_att.begin(), type_att.end(), type_att.begin(),
+        (int(*)(int))toupper);
+
+    if ( type_att.empty() == true )
+    {
+        type_att = ImagePool::get_default_type();
+    }
+
+    if (set_type(type_att) != 0)
+    {
+        goto error_type;
+    }
+
+    // ------------ PUBLIC --------------------
+
+    get_template_attribute("PUBLIC", public_attr);
+
+    transform (public_attr.begin(), public_attr.end(), public_attr.begin(),
+        (int(*)(int))toupper);
+
+    public_img = (public_attr == "YES");
+
+    // ------------ PREFIX --------------------
+
+    get_template_attribute("DEV_PREFIX", dev_prefix);
+
+    if( dev_prefix.empty() )
+    {
+        SingleAttribute * dev_att = new SingleAttribute("DEV_PREFIX",
+                                          ImagePool::get_default_dev_prefix());
+
+        image_template.set(dev_att);
+    }
+
+    // ------------ SOURCE (path to store the image)--------------------
+
+    tmp_hashstream << uid << ":" << name;
+
+    tmp_sourcestream << ImagePool::get_source_prefix() << "/";
+    tmp_sourcestream << sha1_digest(tmp_hashstream.str());
+
+    source = tmp_sourcestream.str();
+
+
     // Set up the template ID, to insert it
     if ( image_template.id == -1 )
     {
@@ -164,6 +236,15 @@ int Image::insert(SqlDB *db)
     }
 
     return 0;
+
+error_name:
+    NebulaLog::log("IMG", Log::ERROR, "NAME not present in image template");
+    goto error_common;
+error_type:
+    NebulaLog::log("IMG", Log::ERROR, "Incorrect TYPE in image template");
+    goto error_common;
+error_common:
+    return -1;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -589,6 +670,33 @@ int Image::disk_attribute(VectorAttribute * disk, int * index)
     disk->replace(new_disk);
 
     return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string Image::sha1_digest(const string& pass)
+{
+    EVP_MD_CTX     mdctx;
+    unsigned char  md_value[EVP_MAX_MD_SIZE];
+    unsigned int   md_len;
+    ostringstream  oss;
+
+    EVP_MD_CTX_init(&mdctx);
+    EVP_DigestInit_ex(&mdctx, EVP_sha1(), NULL);
+
+    EVP_DigestUpdate(&mdctx, pass.c_str(), pass.length());
+
+    EVP_DigestFinal_ex(&mdctx,md_value,&md_len);
+    EVP_MD_CTX_cleanup(&mdctx);
+
+    for(unsigned int i = 0; i<md_len; i++)
+    {
+        oss << setfill('0') << setw(2) << hex << nouppercase
+            << (unsigned short) md_value[i];
+    }
+
+    return oss.str();
 }
 
 /* ------------------------------------------------------------------------ */
