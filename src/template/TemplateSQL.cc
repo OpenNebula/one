@@ -31,6 +31,11 @@ int TemplateSQL::insert(SqlDB * db)
 {
     int             rc;
 
+    if ( rc == -1)
+    {
+        return -1;
+    }
+
     rc = insert_replace(db, false);
 
     return rc;
@@ -41,10 +46,10 @@ int TemplateSQL::insert(SqlDB * db)
 int TemplateSQL::update(SqlDB * db)
 {
     int             rc;
-    
+
     rc = insert_replace(db, true);
 
-    return rc;       
+    return rc;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -83,7 +88,7 @@ int TemplateSQL::insert_replace(SqlDB *db, bool replace)
         {
             continue;
         }
-        
+
         if(replace)
         {
             oss << "REPLACE";
