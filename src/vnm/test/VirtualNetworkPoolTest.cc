@@ -193,15 +193,15 @@ public:
 
         // Check template attribute
         rc = allocate(3);
-        CPPUNIT_ASSERT( rc == -3 );
+        CPPUNIT_ASSERT( rc == -1 );
 
         // Parser error for Vnet template
         //TODO: Check memory leak for allocating strings in template parser
         rc = allocate(4);
-        CPPUNIT_ASSERT( rc == -2 );
+        CPPUNIT_ASSERT( rc == -1 );
 
         rc = allocate(5);
-        CPPUNIT_ASSERT( rc == -3 );
+        CPPUNIT_ASSERT( rc == -1 );
 
         rc = allocate(6);
         CPPUNIT_ASSERT( rc == -1 );

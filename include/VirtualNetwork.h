@@ -75,7 +75,7 @@ public:
     {
         return (public_vnet == 1);
     };
-    
+
     /**
      *  Publish or unpublish a virtual network
      *    @param pub true to publish the image
@@ -287,20 +287,6 @@ private:
     VirtualNetworkTemplate  vn_template;
 
     // *************************************************************************
-    // Non persistent data members from Nebula.conf
-    // *************************************************************************
-
-    /**
-     *  MAC prefix for this OpenNebula site
-     */
-    unsigned int    mac_prefix;
-
-    /**
-     *  Default size for virtual networks
-     */
-    int             default_size;
-
-    // *************************************************************************
     // DataBase implementation (Private)
     // *************************************************************************
 
@@ -376,7 +362,7 @@ protected:
     // Constructor
     //**************************************************************************
 
-    VirtualNetwork(unsigned int _mac_prefix, int _default_size);
+    VirtualNetwork();
 
     ~VirtualNetwork();
 

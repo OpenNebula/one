@@ -553,11 +553,7 @@ int VirtualMachine::parse_requirements()
 
 int VirtualMachine::update(SqlDB * db)
 {
-    int             rc;
-
-    rc = insert_replace(db, true);
-
-    return rc;
+    return insert_replace(db, true);
 }
 
 /* ------------------------------------------------------------------------ */

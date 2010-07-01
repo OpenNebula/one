@@ -253,16 +253,7 @@ error_common:
 
 int Image::update(SqlDB *db)
 {
-    int    rc;
-
-    rc = insert_replace(db, true);
-
-    if ( rc != 0 )
-    {
-        return rc;
-    }
-
-    return 0;
+    return insert_replace(db, true);;
 }
 
 /* ------------------------------------------------------------------------ */

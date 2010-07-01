@@ -147,16 +147,34 @@ public:
      */
     int dump(ostringstream& oss, const string& where);
 
+    /**
+     *  Get the mac prefix
+     *  @return the mac prefix
+     */
+    static const unsigned int& mac_prefix()
+    {
+        return _mac_prefix;
+    };
+
+    /**
+     *  Get the default network size
+     *  @return the size
+     */
+    static const unsigned int& default_size()
+    {
+        return _default_size;
+    };
+
 private:
     /**
      *  Holds the system-wide MAC prefix
      */
-    unsigned int     mac_prefix;
+    static unsigned int     _mac_prefix;
 
     /**
      *  Default size for Virtual Networks
      */
-    unsigned int     default_size;
+    static unsigned int     _default_size;
 
     /**
      *  Factory method to produce VN objects
@@ -164,7 +182,7 @@ private:
      */
     PoolObjectSQL * create()
     {
-        return new VirtualNetwork(mac_prefix, default_size);
+        return new VirtualNetwork();
     };
 
     /**
