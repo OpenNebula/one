@@ -28,10 +28,11 @@ end
 
 $: << RUBY_LIB_LOCATION
 
-
 require 'OpenNebula'
 require 'client_utilities'
-require 'pp'
+require 'ftools'
+
+TYPES=%w{OS CDROM DATABLOCK}
 
 if !(vm_id=ARGV[0])
     exit -1
@@ -44,25 +45,26 @@ template=template['VM']['TEMPLATE']
 disks=[template['DISK']].flatten if template['DISK']
 disks.each_with_index do |disk,i|
     source_path=VMDIR+"/#{vm_id}/disk.#{i}"
-    if disk["NAME"]# and File.exists?(source_path)        
-        if nil#disk["SAVE_AS"] 
+    if disk["NAME"] and File.exists?(source_path)
+        if disk["SAVE_AS"] 
+            # Get Type
+            image=OpenNebula::Image.new_with_id(disk['IID'], get_one_client)
+            image.info
+            type=image['TYPE']
             # Perform the allocate if all goes well
             image=OpenNebula::Image.new(
                 OpenNebula::Image.build_xml, get_one_client)
-            begin
-                template="NAME=#{disk['SAVE_AS']}\n"
-                template+="TYPE=#{disk['TYPE'].upcase}\n" if DISK["TYPE"]
-                result=image.allocate(template)
-            rescue
-                result=OpenNebula::Error.new("Error in template")
-            end
+            
+            template="NAME=#{disk['SAVE_AS']}\n"
+            template+="TYPE=#{TYPES[type.to_i]}\n" if type
+            result=image.allocate(template)
 
             # Get the allocated image 
             image=OpenNebula::Image.new_with_id(image.id, get_one_client)
             image.info
             template=image.to_hash
             template=template['IMAGE']['TEMPLATE']
-
+            
             if !is_successful?(result) 
                 exit -1
             end
@@ -75,9 +77,6 @@ disks.each_with_index do |disk,i|
         # Perform the copy to the image repo if needed
         if File.copy(source_path, image['SOURCE'])
             result=image.enable
-        else
-            result=OpenNebula::Error.new(
-                 "Cannot copy image, please update before enabling it.")
         end
     end
 end
