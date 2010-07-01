@@ -388,7 +388,7 @@ public:
             "END"
         };
 
-        int results[] = { -1, -1, -2 };
+        int results[] = { -1, -1, -1 };
 
         int i = 0;
         while( templates[i] != "END" )

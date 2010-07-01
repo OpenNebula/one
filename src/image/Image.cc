@@ -147,7 +147,6 @@ int Image::insert(SqlDB *db)
     ostringstream tmp_hashstream;
     ostringstream tmp_sourcestream;
 
-
     // ---------------------------------------------------------------------
     // Check default image attributes
     // ---------------------------------------------------------------------

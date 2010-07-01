@@ -191,7 +191,7 @@ int VirtualMachinePool::allocate (
 
         delete vm;
 
-        return -2;
+        return -1;
     }
 
     // ------------------------------------------------------------------------
@@ -199,11 +199,6 @@ int VirtualMachinePool::allocate (
     // ------------------------------------------------------------------------
 
     *oid = PoolSQL::allocate(vm);
-
-    if ( *oid == -1 )
-    {
-        return -1;
-    }
 
     return *oid;
 }

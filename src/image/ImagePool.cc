@@ -91,56 +91,54 @@ int ImagePool::allocate (
         const  string& stemplate,
         int *          oid)
 {
-        int     rc;
-        Image * img;
+    int     rc;
+    Image * img;
 
-        string  name;
-        char *  error_msg;
+    string  name;
+    char *  error_msg;
 
-        // ---------------------------------------------------------------------
-        // Build a new Image object
-        // ---------------------------------------------------------------------
-        img = new Image(uid);
+    // ---------------------------------------------------------------------
+    // Build a new Image object
+    // ---------------------------------------------------------------------
+    img = new Image(uid);
 
-        // ---------------------------------------------------------------------
-        // Parse template
-        // ---------------------------------------------------------------------
-        rc = img->image_template.parse(stemplate, &error_msg);
+    // ---------------------------------------------------------------------
+    // Parse template
+    // ---------------------------------------------------------------------
+    rc = img->image_template.parse(stemplate, &error_msg);
 
-        if ( rc != 0 )
-        {
-            goto error_parse;
-        }
+    if ( rc != 0 )
+    {
+        ostringstream oss;
+        oss << "ImagePool template parse error: " << error_msg;
+        NebulaLog::log("IMG", Log::ERROR, oss);
 
-        img->get_template_attribute("NAME", name);
+        free(error_msg);
+        delete img;
 
-        // ---------------------------------------------------------------------
-        // Insert the Object in the pool
-        // ---------------------------------------------------------------------
+        return -1;
+    }
 
-        *oid = PoolSQL::allocate(img);
+    img->get_template_attribute("NAME", name);
 
-        if ( *oid == -1 )
-        {
-            return -1;
-        }
+    // ---------------------------------------------------------------------
+    // Insert the Object in the pool
+    // ---------------------------------------------------------------------
 
-        // ---------------------------------------------------------------------
-        // Add the image name to the map of image_names
-        // ---------------------------------------------------------------------
+    *oid = PoolSQL::allocate(img);
 
-        image_names.insert(make_pair(name, *oid));
+    if ( *oid == -1 )
+    {
+        return -1;
+    }
 
-        return *oid;
+    // ---------------------------------------------------------------------
+    // Add the image name to the map of image_names
+    // ---------------------------------------------------------------------
 
-error_parse:
-    ostringstream oss;
-    oss << "ImagePool template parse error: " << error_msg;
-    NebulaLog::log("IMG", Log::ERROR, oss);
-    free(error_msg);
-    delete img;
-    *oid = -2;
-    return -2;
+    image_names.insert(make_pair(name, *oid));
+
+    return *oid;
 }
 
 /* -------------------------------------------------------------------------- */
