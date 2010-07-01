@@ -102,6 +102,7 @@ class ActionManager
             return if @finalize
 
             if aname == :FINALIZE
+                finalize if respond_to?(:finalize)
                 @finalize = true
                 @threads_cond.signal if @num_running == 0
                 return
