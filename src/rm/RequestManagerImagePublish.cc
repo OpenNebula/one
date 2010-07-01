@@ -98,6 +98,7 @@ error_image_get:
 error_authorization:
     oss << "[ImagePublish] User not authorized to publish/unpublish image" << 
            ", aborting call.";
+    image->unlock();
     goto error_common;
 
 error_common:

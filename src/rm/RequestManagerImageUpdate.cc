@@ -109,10 +109,12 @@ error_image_get:
 error_authorization:
     oss << "User not authorized to modify image attributes " << 
            ", aborting ImageUpdate call.";
+    image->unlock();
     goto error_common;
     
 error_update:
     oss << "Cannot modify image [" << iid << "] attribute with name = " << name;
+    image->unlock();
     goto error_common;
 
 error_common:

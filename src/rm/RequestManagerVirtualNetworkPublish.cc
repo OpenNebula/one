@@ -98,6 +98,7 @@ error_vn_get:
 error_authorization:
     oss << "[VirtualNetworkPublish] User not authorized to (un)publish VN" << 
            ", aborting call.";
+    vn->unlock();
     goto error_common;
 
 error_common:
