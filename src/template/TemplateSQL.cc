@@ -50,18 +50,7 @@ int TemplateSQL::insert_cb(void *nil, int num, char **values, char **names)
 
 int TemplateSQL::insert(SqlDB * db)
 {
-    ostringstream   oss;
     int             rc;
-
-    // Get next id from the DB table
-    set_callback(
-           static_cast<Callbackable::Callback>(&TemplateSQL::insert_cb));
-
-    oss << "SELECT MAX(id) FROM " << table;
-
-    rc = db->exec(oss,this);
-
-    unset_callback();
 
     if ( rc != 0 )
     {

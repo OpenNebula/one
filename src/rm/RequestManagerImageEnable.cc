@@ -104,10 +104,12 @@ error_image_get:
 error_authorization:
     oss << "[ImageEnable] User not authorized to enable/disable image" << 
            " attributes, aborting call.";
+    image->unlock();
     goto error_common;
     
 error_enable:
     oss << "[ImageEnable] Cannot enable/disable image [" << iid << "]";
+    image->unlock();
     goto error_common;
 
 error_common:

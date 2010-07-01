@@ -103,11 +103,13 @@ error_image_get:
 error_authorization:
     oss << "[ImageRemoveAttribute] User not authorized to remove image" << 
            " attributes aborting call.";
+    image->unlock();
     goto error_common;
     
 error_remove_attribute:
     oss << "[ImageRemoveAttribute] Cannot remove attribute with name = " 
         << name << " for image [" << iid << "]";
+    image->unlock();
     goto error_common;
 
 error_common:

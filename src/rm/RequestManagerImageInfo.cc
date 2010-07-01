@@ -84,6 +84,7 @@ error_image_get:
 error_authenticate:
     oss << "User doesn't exist, or not authorized to use image with " << 
     "ID = " << iid << " , ImageInfo call aborted.";
+    image->unlock();
     goto error_common;
 
 error_common:

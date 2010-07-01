@@ -254,11 +254,23 @@ int VirtualNetwork::insert(SqlDB * db)
 {
     ostringstream   ose;
     int             rc;
+    
+    string          public_attr;
 
     if ( vn_template.id == -1 )
     {
         vn_template.id = oid;
     }
+    
+    // ------------ PUBLIC --------------------
+
+    get_template_attribute("PUBLIC", public_attr);
+
+    transform (public_attr.begin(), public_attr.end(), public_attr.begin(),
+        (int(*)(int))toupper);
+
+    public_vnet = (public_attr == "YES");  
+    vn_template.erase("PUBLIC");
 
     // Insert the template first
     rc = vn_template.insert(db);
