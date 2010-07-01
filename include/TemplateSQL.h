@@ -85,18 +85,18 @@ protected:
      *    @param db pointer to the database.
      */
     int drop(SqlDB *db);
-    
+
     /**
-     *  Execute an INSERT or REPLACE Sql query. 
+     *  Execute an INSERT or REPLACE Sql query.
      *    @param db The SQL DB
-     *    @param replace Execute an INSERT or a REPLACE	
+     *    @param replace Execute an INSERT or a REPLACE
      *    @return 0 one success
-    */    
+    */
     int insert_replace(SqlDB *db, bool replace);
 
     /**
      *  Removes a template attribute from the DB. If there are multiple
-     *  attributes with the same name, only one will be replaced. The 
+     *  attributes with the same name, only one will be replaced. The
      *  attribute MUST be allocated in the heap.
      *    @param db pointer to the database.
      *    @param attribute pointer to the new attribute.

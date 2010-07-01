@@ -53,6 +53,7 @@ public:
         {return TemplateSQL::remove_attribute(db,name);};
     /* --------------------------------------------------------------------- */
     int id(){return TemplateSQL::id;};
+    void sid(int i){TemplateSQL::id = i;}
 };
 
 /* ************************************************************************* */
@@ -188,14 +189,13 @@ public:
 
         CPPUNIT_ASSERT( rc == 0);
 
+        t.sid(0);
         CPPUNIT_ASSERT( t.insert(db) == 0 );
         CPPUNIT_ASSERT( t.id() == 0 );
 
+        t.sid(1);
         CPPUNIT_ASSERT( t.insert(db) == 0 );
         CPPUNIT_ASSERT( t.id() == 1 );
-
-        CPPUNIT_ASSERT( t.insert(db) == 0 );
-        CPPUNIT_ASSERT( t.id() == 2 );
     }
 
     /* --------------------------------------------------------------------- */
@@ -244,12 +244,15 @@ public:
         char * error = 0;
 
         TSQL t("template");
-        TSQL t2("template",0);
+        TSQL t2("template",23);
 
         string t2_xml;
 
+        t.sid(23);
         t.parse(template_ok,&error);
-        t.insert(db);
+
+        int rc = t.insert(db);
+        CPPUNIT_ASSERT( rc == 0 );
 
         if ( error != 0 )
         {

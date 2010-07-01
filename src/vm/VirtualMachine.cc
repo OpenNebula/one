@@ -99,19 +99,19 @@ const char * VirtualMachine::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
 int VirtualMachine::select_cb(void *nil, int num, char **values, char **names)
 {
     if ((values[OID] == 0) ||
-            (values[UID] == 0) ||
-            (values[NAME] == 0) ||
-            (values[LAST_POLL] == 0) ||
-            (values[STATE] == 0) ||
-            (values[LCM_STATE] == 0) ||
-            (values[STIME] == 0) ||
-            (values[ETIME] == 0) ||
-            (values[MEMORY] == 0) ||
-            (values[CPU] == 0) ||
-            (values[NET_TX] == 0) ||
-            (values[NET_RX] == 0) ||
-            (values[LAST_SEQ] == 0) ||
-            (num != LIMIT ))
+        (values[UID] == 0) ||
+        (values[NAME] == 0) ||
+        (values[LAST_POLL] == 0) ||
+        (values[STATE] == 0) ||
+        (values[LCM_STATE] == 0) ||
+        (values[STIME] == 0) ||
+        (values[ETIME] == 0) ||
+        (values[MEMORY] == 0) ||
+        (values[CPU] == 0) ||
+        (values[NET_TX] == 0) ||
+        (values[NET_RX] == 0) ||
+        (values[LAST_SEQ] == 0) ||
+        (num != LIMIT ))
     {
         return -1;
     }
@@ -266,10 +266,10 @@ int VirtualMachine::insert(SqlDB * db)
     SingleAttribute *   attr;
     string              value;
     ostringstream       oss;
-    
+
     // -----------------------------------------------------------------------
     // Set a template ID if it wasn't already assigned
-    // ------------------------------------------------------------------------    
+    // ------------------------------------------------------------------------
     if ( vm_template.id == -1 )
     {
         vm_template.id = oid;
@@ -284,7 +284,6 @@ int VirtualMachine::insert(SqlDB * db)
     attr = new SingleAttribute("VMID",value);
 
     vm_template.set(attr);
-
 
     get_template_attribute("NAME",name);
 

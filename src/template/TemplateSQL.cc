@@ -31,7 +31,7 @@ int TemplateSQL::insert(SqlDB * db)
 {
     int             rc;
 
-    if ( rc == -1)
+    if ( id == -1)
     {
         return -1;
     }
