@@ -119,11 +119,6 @@ protected:
     int remove_attribute(SqlDB * db, const string& name);
 
     /**
-     *  Callback to set the template id (TemplateSQL::insert)
-     */
-    int  insert_cb(void *nil, int num, char **values, char **names);
-
-    /**
      *  Callback to recover template attributes (TemplateSQL::select)
      */
     int  select_cb(void *nil, int num, char **values, char **names);

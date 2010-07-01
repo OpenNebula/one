@@ -27,35 +27,9 @@ const char * TemplateSQL::db_names = "(id,name,type,value)";
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-int TemplateSQL::insert_cb(void *nil, int num, char **values, char **names)
-{
-    if ( num<=0 )
-    {
-        return -1;
-    }
-
-    if ( values[0] == 0 )
-    {
-        id = 0;
-    }
-    else
-    {
-        id = atoi(values[0]) + 1;
-    }
-
-    return 0;
-}
-
-/* ------------------------------------------------------------------------ */
-
 int TemplateSQL::insert(SqlDB * db)
 {
     int             rc;
-
-    if ( rc != 0 )
-    {
-        return -1;
-    }
 
     rc = insert_replace(db, false);
 

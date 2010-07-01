@@ -1001,18 +1001,17 @@ protected:
         UID             = 1,
         NAME            = 2,
         LAST_POLL       = 3,
-        TEMPLATE_ID     = 4,
-        STATE           = 5,
-        LCM_STATE       = 6,
-        STIME           = 7,
-        ETIME           = 8,
-        DEPLOY_ID       = 9,
-        MEMORY          = 10,
-        CPU             = 11,
-        NET_TX          = 12,
-        NET_RX          = 13,
-        LAST_SEQ        = 14,
-        LIMIT           = 15
+        STATE           = 4,
+        LCM_STATE       = 5,
+        STIME           = 6,
+        ETIME           = 7,
+        DEPLOY_ID       = 8,
+        MEMORY          = 9,
+        CPU             = 10,
+        NET_TX          = 11,
+        NET_RX          = 12,
+        LAST_SEQ        = 13,
+        LIMIT           = 14
     };
 
     static const char * table;
