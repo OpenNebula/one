@@ -83,13 +83,13 @@ VirtualMachine::~VirtualMachine()
 const char * VirtualMachine::table = "vm_pool";
 
 const char * VirtualMachine::db_names =
-    "(oid,uid,name,last_poll,template_id,state,lcm_state,stime,etime,deploy_id"
-                                        ",memory,cpu,net_tx,net_rx,last_seq)";
+    "(oid,uid,name,last_poll, state,lcm_state,stime,etime,deploy_id"
+    ",memory,cpu,net_tx,net_rx,last_seq)";
 
 const char * VirtualMachine::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
         "vm_pool ("
         "oid INTEGER PRIMARY KEY,uid INTEGER,name TEXT,"
-        "last_poll INTEGER, template_id INTEGER,state INTEGER,lcm_state INTEGER,"
+        "last_poll INTEGER, state INTEGER,lcm_state INTEGER,"
         "stime INTEGER,etime INTEGER,deploy_id TEXT,memory INTEGER,cpu INTEGER,"
         "net_tx INTEGER,net_rx INTEGER, last_seq INTEGER)";
 
@@ -102,7 +102,6 @@ int VirtualMachine::select_cb(void *nil, int num, char **values, char **names)
             (values[UID] == 0) ||
             (values[NAME] == 0) ||
             (values[LAST_POLL] == 0) ||
-            (values[TEMPLATE_ID] == 0) ||
             (values[STATE] == 0) ||
             (values[LCM_STATE] == 0) ||
             (values[STIME] == 0) ||
@@ -140,7 +139,8 @@ int VirtualMachine::select_cb(void *nil, int num, char **values, char **names)
     net_rx      = atoi(values[NET_RX]);
     last_seq    = atoi(values[LAST_SEQ]);
 
-    vm_template.id = atoi(values[TEMPLATE_ID]);
+    // Virtual Machine template ID is the VM ID
+    vm_template.id = oid;
 
     return 0;
 }
@@ -266,6 +266,14 @@ int VirtualMachine::insert(SqlDB * db)
     SingleAttribute *   attr;
     string              value;
     ostringstream       oss;
+    
+    // -----------------------------------------------------------------------
+    // Set a template ID if it wasn't already assigned
+    // ------------------------------------------------------------------------    
+    if ( vm_template.id == -1 )
+    {
+        vm_template.id = oid;
+    }
 
     // -----------------------------------------------------------------------
     // Set a name if the VM has not got one and VM_ID
@@ -593,7 +601,6 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace)
         <<          uid             << ","
         << "'" <<   sql_name        << "',"
         <<          last_poll       << ","
-        <<          vm_template.id  << ","
         <<          state           << ","
         <<          lcm_state       << ","
         <<          stime           << ","
