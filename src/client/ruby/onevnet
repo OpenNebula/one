@@ -236,7 +236,7 @@ when "show"
                     puts leases_str
                 end
             else
-                puts vn.to_xml
+                puts vn.to_xml(true)
             end
         else
             puts "Error: "+result.message
@@ -286,7 +286,7 @@ when "list"
         vnpool=OpenNebula::VirtualNetworkPool.new(get_one_client,
             filter_flag.to_i)
         vnpool.info
-        puts vnpool.to_xml
+        puts vnpool.to_xml(true)
     end
     
 else

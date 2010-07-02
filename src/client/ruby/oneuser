@@ -202,7 +202,7 @@ when "list"
     else
         userpool=OpenNebula::UserPool.new(get_one_client)
         userpool.info
-        puts userpool.to_xml
+        puts userpool.to_xml(true)
     end
     
 else

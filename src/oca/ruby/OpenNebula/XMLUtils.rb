@@ -104,12 +104,16 @@ module OpenNebula
             return @hash
         end
 
-        def to_xml
+        def to_xml(pretty=false)
             if NOKOGIRI
                 @xml.to_xml
             else
                 str = ""
-                REXML::Formatters::Pretty.new(1).write(@xml,str)
+                if pretty
+                    REXML::Formatters::Pretty.new(1).write(@xml,str)
+                else 
+                    REXML::Formatters::Default.new.write(@xml,str)
+                end
                 str
             end
         end
@@ -149,12 +153,16 @@ module OpenNebula
             end
         end
 
-        def to_xml
+        def to_xml(pretty=false)
             if NOKOGIRI
                 @xml.to_xml
             else
                 str = ""
-                REXML::Formatters::Pretty.new(1).write(@xml,str)
+                if pretty
+                    REXML::Formatters::Pretty.new(1).write(@xml,str)
+                else 
+                    REXML::Formatters::Default.new.write(@xml,str)
+                end
                 str
             end
         end
