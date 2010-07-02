@@ -1,0 +1,103 @@
+$: << '../'
+
+require 'OpenNebula'
+require 'MockClient'
+
+module OpenNebula
+
+    describe "VirtualNetwork using NOKOGIRI" do
+        before(:all) do
+            NOKOGIRI=true
+            
+            client = MockClient.new()
+            @vnet_pool = VirtualNetworkPool.new(client)
+        end
+        
+        #it "should get nil, trying to get a hash, if the info method was not called before" do
+        #    vnet_hash = @vnet_pool.to_hash
+        #    vnet_hash.nil?.should eql(true)
+        #end
+        
+        it "should update the VNET_POOL info" do
+            rc = @vnet_pool.info()
+            rc.nil?.should eql(true)
+        end
+
+        it "should iterate the VNET_POOL elements and get info from them" do
+            rc = @vnet_pool.each{ |vn|
+                vn.class.to_s.should eql("OpenNebula::VirtualNetwork")
+                if vn.id == 4
+                    vn.name.should eql('Red LAN')
+                elsif vn.id == 5
+                    vn.name.should eql('Public')
+                end
+            }
+        end
+        
+        it "should get a hash representation of the VNET_POOL" do
+            vnet_hash = @vnet_pool.to_hash
+            vnet_hash['VNET_POOL']['VNET'][0]['ID'].should eql('4')
+            vnet_hash['VNET_POOL']['VNET'][0]['UID'].should eql('0')
+            vnet_hash['VNET_POOL']['VNET'][0]['USERNAME'].should eql('oneadmin')
+            vnet_hash['VNET_POOL']['VNET'][0]['NAME'].should eql('Red LAN')
+            vnet_hash['VNET_POOL']['VNET'][0]['TYPE'].should eql('0')
+            vnet_hash['VNET_POOL']['VNET'][0]['BRIDGE'].should eql('vbr0')
+            vnet_hash['VNET_POOL']['VNET'][0]['TOTAL_LEASES'].should eql('0')
+            vnet_hash['VNET_POOL']['VNET'][1]['ID'].should eql('5')
+            vnet_hash['VNET_POOL']['VNET'][1]['UID'].should eql('0')
+            vnet_hash['VNET_POOL']['VNET'][1]['USERNAME'].should eql('oneadmin')
+            vnet_hash['VNET_POOL']['VNET'][1]['NAME'].should eql('Public')
+            vnet_hash['VNET_POOL']['VNET'][1]['TYPE'].should eql('0')
+            vnet_hash['VNET_POOL']['VNET'][1]['BRIDGE'].should eql('vbr0')
+            vnet_hash['VNET_POOL']['VNET'][1]['TOTAL_LEASES'].should eql('1')
+        end
+    end
+    
+    describe "VirtualNetwork using REXML" do
+        before(:all) do
+            NOKOGIRI=false
+            
+            client = MockClient.new()
+            @vnet_pool = VirtualNetworkPool.new(client)
+        end
+
+        #it "should get nil, trying to get a hash, if the info method was not called before" do
+        #    vnet_hash = @vnet_pool.to_hash
+        #    vnet_hash.nil?.should eql(true)
+        #end
+        
+        it "should update the VNET_POOL info" do
+            rc = @vnet_pool.info()
+            rc.nil?.should eql(true)
+        end
+
+        it "should iterate the VNET_POOL elements and get info from them" do
+            rc = @vnet_pool.each{ |vn|
+                vn.class.to_s.should eql("OpenNebula::VirtualNetwork")
+                if vn.id == 4
+                    vn.name.should eql('Red LAN')
+                elsif vn.id == 5
+                    vn.name.should eql('Public')
+                end
+            }
+        end
+        
+        it "should get a hash representation of the VNET_POOL" do
+            vnet_hash = @vnet_pool.to_hash
+            vnet_hash['VNET_POOL']['VNET'][0]['ID'].should eql('4')
+            vnet_hash['VNET_POOL']['VNET'][0]['UID'].should eql('0')
+            vnet_hash['VNET_POOL']['VNET'][0]['USERNAME'].should eql('oneadmin')
+            vnet_hash['VNET_POOL']['VNET'][0]['NAME'].should eql('Red LAN')
+            vnet_hash['VNET_POOL']['VNET'][0]['TYPE'].should eql('0')
+            vnet_hash['VNET_POOL']['VNET'][0]['BRIDGE'].should eql('vbr0')
+            vnet_hash['VNET_POOL']['VNET'][0]['TOTAL_LEASES'].should eql('0')
+            vnet_hash['VNET_POOL']['VNET'][1]['ID'].should eql('5')
+            vnet_hash['VNET_POOL']['VNET'][1]['UID'].should eql('0')
+            vnet_hash['VNET_POOL']['VNET'][1]['USERNAME'].should eql('oneadmin')
+            vnet_hash['VNET_POOL']['VNET'][1]['NAME'].should eql('Public')
+            vnet_hash['VNET_POOL']['VNET'][1]['TYPE'].should eql('0')
+            vnet_hash['VNET_POOL']['VNET'][1]['BRIDGE'].should eql('vbr0')
+            vnet_hash['VNET_POOL']['VNET'][1]['TOTAL_LEASES'].should eql('1')
+        end
+    end
+end
