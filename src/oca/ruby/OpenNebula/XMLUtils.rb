@@ -95,7 +95,7 @@ module OpenNebula
         end
         
         def to_hash 
-            if !@hash
+            if !@hash && @xml
                 @hash=Crack::XML.parse(to_xml)
             end
             return @hash
@@ -157,7 +157,7 @@ module OpenNebula
         end
         
         def to_hash 
-            if !@hash
+            if !@hash && @xml
                 @hash=Crack::XML.parse(to_xml)
             end
             return @hash
