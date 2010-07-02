@@ -41,6 +41,9 @@ module OpenNebula
         def [](key)
             if NOKOGIRI
                 element=@xml.xpath(key.to_s.upcase)
+                if element.size == 0
+                    return nil
+                end
             else
                 element=@xml.elements[key.to_s.upcase]
             end
