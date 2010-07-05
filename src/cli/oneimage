@@ -28,10 +28,10 @@ $: << RUBY_LIB_LOCATION
 
 
 require 'OpenNebula'
+require 'CommandManager'
 require 'client_utilities'
 require 'command_parse'
 require 'ftools'
-
 
 ShowTableImage={
     :id => {
@@ -288,7 +288,8 @@ def get_type_and_path(image_template_file)
             next
         when /^\s*(\w+)\s*=\s*(.*)\s*$/
             name  = $1.strip.upcase
-            if name == "PATH" || name == "TYPE"
+            if name == "PATH" || name == "TYPE" ||
+               name == "SIZE" || name == "FSTYPE"
                  result[name] = $2.strip
             end 
         end
@@ -331,9 +332,11 @@ when "register", "create", "add"
             end
         when "DATABLOCK"
             if parser_result['PATH'] and !File.exists?(parser_result['PATH']) 
+                if !parser_result['SIZE'] || !parser_result['FSTYPE'] 
                  result=OpenNebula::Error.new(
-                                "Image path present present for DATABLOCK, " +
-                                "but not found, aborting.")     
+                                "No image file present for DATABLOCK, " +
+                                "size and/or fstype also missing, aborting.") 
+                end   
            end
     end     
                 
@@ -371,6 +374,25 @@ when "register", "create", "add"
                  "Cannot copy image, aborting.")
             image.delete
         end 
+    elsif parser_result['SIZE'] and parser_result['FSTYPE'] 
+        local_command=LocalCommand.run(
+           "dd if=/dev/zero of=#{image['SOURCE']} ibs=1 count=1 " \
+           "obs=1048576 oseek=#{parser_result['SIZE']}")
+        if local_command.code!=0
+            result=OpenNebula::Error.new(
+                 "Cannot create datablock, aborting.")   
+            image.delete
+        else
+            local_command=LocalCommand.run(
+               "mkfs -t #{parser_result['FSTYPE']} -F #{image['SOURCE']}")
+            if local_command.code!=0       
+                result=OpenNebula::Error.new(
+                     "Cannot format datablock, aborting.")   
+                image.delete
+            else
+                image.enable
+            end
+        end    
     end
            
     if is_successful?(result) 
