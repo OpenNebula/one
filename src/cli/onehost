@@ -298,13 +298,7 @@ when "delete"
         end
 
         if host['host_share/running_vms'].to_i != 0
-            puts "Host still has associated VMs. It will be disabled instead."
-            result=host.disable
-            if is_successful?(result)
-                puts "Host disabled" if ops[:verbose]
-            else
-                break
-            end
+            puts "Host still has associated VMs, aborting delete."
         else
             result=host.delete
             if is_successful?(result)

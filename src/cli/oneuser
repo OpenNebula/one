@@ -174,16 +174,28 @@ when "delete"
         # Check if the user has defined VM's
         vms=false
         vmpool=OpenNebula::VirtualMachinePool.new(
-            get_one_client, user_id)
+            get_one_client, user_id.to_i)
         vmpool.info
         vmpool.each{ vms=true ; break }
 
         if vms
-            puts "The user #{param} still has VM's defined, "+
-                "type YES if you are sure you"
-            print "want to delete this user: "
-            answer=STDIN.gets.strip
-            exit -1 if answer != 'YES'
+            puts "The user #{param} still has VMs defined, "+
+                "aborting user delete."
+            exit -1 
+        end
+        
+        # Check if the user has defined VN's
+        vns=false
+        vnpool=OpenNebula::VirtualNetworkPool.new(
+            get_one_client, user_id.to_i)
+
+        vnpool.info
+        vnpool.each{ vns=true ; break }
+
+        if vns
+            puts "The user #{param} still has Virtual Networks defined, "+
+                "aborting user delete."
+            exit -1 
         end
 
         user=OpenNebula::User.new(
