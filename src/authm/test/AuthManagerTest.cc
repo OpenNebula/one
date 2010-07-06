@@ -42,7 +42,7 @@ class AuthManagerTest : public CppUnit::TestFixture
     CPPUNIT_TEST_SUITE (AuthManagerTest);
 
     CPPUNIT_TEST (load);
-    CPPUNIT_TEST (timeout);
+    //CPPUNIT_TEST (timeout);
     CPPUNIT_TEST (authenticate);
     CPPUNIT_TEST (authorize);
 
@@ -75,7 +75,7 @@ public:
 
         t->get("AUTH_MAD", am_mads);
 
-        am = new AuthManager(am_mads);
+        am = new AuthManager(1,3,am_mads);
     };
 
     void tearDown()
@@ -101,6 +101,7 @@ public:
         CPPUNIT_ASSERT(0==0);
     }
 
+    //This test needs a driver that takes more than 3 secs to AUTHENTICATE
     void timeout()
     {
         int         rc;
@@ -112,8 +113,10 @@ public:
 
         am->load_mads(0);
 
+        am->trigger(AuthManager::AUTHENTICATE,&ar);
+
         ar.set_challenge("the_secret");
-        ar.wait(1);
+        ar.wait();
 
         CPPUNIT_ASSERT(ar.result==false);
         CPPUNIT_ASSERT(ar.timeout==true);
@@ -141,7 +144,7 @@ public:
         ar.set_challenge("the_secret");
 
         am->trigger(AuthManager::AUTHENTICATE,&ar);
-        ar.wait(300);
+        ar.wait();
 
         CPPUNIT_ASSERT(ar.result==true);
 

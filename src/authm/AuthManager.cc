@@ -22,6 +22,11 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+time_t AuthManager::_time_out;
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 extern "C" void * authm_action_loop(void *arg)
 {
     AuthManager *  authm;
@@ -35,7 +40,7 @@ extern "C" void * authm_action_loop(void *arg)
 
     NebulaLog::log("AuM",Log::INFO,"Authorization Manager started.");
 
-    authm->am.loop(0,0);
+    authm->am.loop(authm->timer_period,0);
 
     NebulaLog::log("AuM",Log::INFO,"Authorization Manager stopped.");
 
@@ -101,20 +106,19 @@ void AuthManager::do_action(const string &action, void * arg)
 {
     AuthRequest * request;
 
-    if ( arg == 0 && action != ACTION_FINALIZE )
-    {
-        return;
-    }
-
     request  = static_cast<AuthRequest *>(arg);
 
-    if (action == "AUTHENTICATE")
+    if (action == "AUTHENTICATE" && request != 0)
     {
         authenticate_action(request);
     }
-    else if (action == "AUTHORIZE")
+    else if (action == "AUTHORIZE"  && request != 0)
     {
         authorize_action(request);
+    }
+    else if (action == ACTION_TIMER)
+    {
+        timer_action();
     }
     else if (action == ACTION_FINALIZE)
     {
@@ -209,6 +213,35 @@ error_driver:
     ar->message = "Could not find Authorization driver";
     ar->notify();
 }
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void AuthManager::timer_action()
+{
+    map<int,AuthRequest *>::iterator it;
+
+    time_t the_time = time(0);
+
+    lock();
+
+    for (it=auth_requests.begin();it!=auth_requests.end();it++)
+    {
+        if (the_time > it->second->time_out)
+        {
+            AuthRequest * ar = it->second;
+            auth_requests.erase(it);
+
+            ar->result  = false;
+            ar->timeout = true;
+            ar->message.clear();
+
+            ar->notify();
+        }
+    }
+
+    unlock();
+
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -229,6 +262,7 @@ int AuthManager::add_request(AuthRequest *ar)
     return id;
 }
 
+/* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 AuthRequest * AuthManager::get_request(int id)
