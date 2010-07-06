@@ -67,8 +67,15 @@ module CloudClient
     # Starts an http connection and calls the block provided. SSL flag
     # is set if needed.
     # #########################################################################
-    def self.http_start(url, &block)
+    def self.http_start(url, timeout, &block)
         http = Net::HTTP.new(url.host, url.port)
+        
+        if timeout
+            http.read_timeout = timeout.to_i
+        else
+            http.read_timeout = 600
+        end
+            
         if url.scheme=='https'
             http.use_ssl = true
             http.verify_mode=OpenSSL::SSL::VERIFY_NONE
@@ -79,10 +86,20 @@ module CloudClient
                 block.call(connection)
             end
         rescue Errno::ECONNREFUSED => e
-            str =  "Error connecting to server (#{e.to_s})."
+            str =  "Error connecting to server (#{e.to_s}).\n"
             str << "Server: #{url.host}:#{url.port}"
         
             return CloudClient::Error.new(str)
+        rescue Errno::ETIMEDOUT => e
+            str =  "Error timeout connecting to server (#{e.to_s}).\n"
+            str << "Server: #{url.host}:#{url.port}"
+        
+            return CloudClient::Error.new(str)
+        rescue Timeout::Error => e
+            str =  "Error timeout while connected to server (#{e.to_s}).\n"
+            str << "Server: #{url.host}:#{url.port}"
+        
+            return CloudClient::Error.new(str)        
         end
     end
 

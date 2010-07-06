@@ -67,6 +67,9 @@ OPTIONS
 --url <url>, -R <url>:
     Set url as the web service url to use
 
+--timeout <seconds>, -T <seconds>
+    Sets a timeout for the http connection
+
 --debug, -D
     Enables verbosity
 
@@ -88,6 +91,7 @@ opts = GetoptLong.new(
             ['--password',   '-P',GetoptLong::REQUIRED_ARGUMENT],
             ['--url',        '-R',GetoptLong::REQUIRED_ARGUMENT],
             ['--debug',      '-D',GetoptLong::NO_ARGUMENT],
+            ['--timeout',    '-T',GetoptLong::REQUIRED_ARGUMENT],
             ['--multipart',  '-M',GetoptLong::NO_ARGUMENT]
         )
 
@@ -95,6 +99,7 @@ url      = nil
 username = nil
 password = nil
 auth     = nil
+timeout  = nil
 debug    = false
 curb     = true
 
@@ -110,6 +115,8 @@ begin
                 password = arg
             when '--url'
                 url = arg
+            when '--timeout'
+                timeout = arg
             when '--debug'
                 debug = true
             when '--multipart'
@@ -128,7 +135,7 @@ end
 
 
 begin
-    occi_client = OCCIClient::Client.new(url,username,password,debug)
+    occi_client = OCCIClient::Client.new(url,username,password,timeout,debug)
 rescue Exception => e
     puts "#{cmd_name}: #{e.message}"
     exit(-1)
