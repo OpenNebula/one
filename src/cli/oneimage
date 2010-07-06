@@ -355,15 +355,15 @@ when "register", "create", "add"
         result=OpenNebula::Error.new("Can not read template: #{ARGV[0]}")
     end
     
+    if !is_successful?(result) 
+        exit -1
+    end
+    
     # Get the allocated image 
     image=OpenNebula::Image.new_with_id(image.id, get_one_client)
     image.info
     template=image.to_hash
     template=template['IMAGE']['TEMPLATE']
-
-    if !is_successful?(result) 
-        exit -1
-    end
     
     # Perform the copy to the image repo if needed
     if template['PATH']
