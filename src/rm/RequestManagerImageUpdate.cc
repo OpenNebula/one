@@ -33,7 +33,7 @@ void RequestManager::ImageUpdate::execute(
     string              name;
     string              value;
     int                 rc;
-    
+
     Image             * image;
 
     ostringstream       oss;
@@ -46,10 +46,8 @@ void RequestManager::ImageUpdate::execute(
 
     session  = xmlrpc_c::value_string(paramList.getString(0));
     iid      = xmlrpc_c::value_int   (paramList.getInt(1));
-    name     = xmlrpc_c::value_string(paramList.getString(2));    
-    value    = xmlrpc_c::value_string(paramList.getString(3));        
-
-
+    name     = xmlrpc_c::value_string(paramList.getString(2));
+    value    = xmlrpc_c::value_string(paramList.getString(3));
 
     // First, we need to authenticate the user
     rc = ImageUpdate::upool->authenticate(session);
@@ -58,33 +56,31 @@ void RequestManager::ImageUpdate::execute(
     {
         goto error_authenticate;
     }
-    
+
     uid = rc;
-    
+
     // Get image from the ImagePool
-    image = ImageUpdate::ipool->get(iid,true);    
-                                                 
-    if ( image == 0 )                             
-    {                                            
-        goto error_image_get;                     
+    image = ImageUpdate::ipool->get(iid,true);
+
+    if ( image == 0 )
+    {
+        goto error_image_get;
     }
-    
-    
+
     if ( uid != 0 && uid != image->get_uid() )
     {
         goto error_authorization;
     }
 
-    // This will perform the update on the DB as well, 
+    // This will perform the update on the DB as well,
     // so no need to do it manually
     rc = ImageUpdate::ipool->replace_attribute(image, name, value);
 
     if ( rc < 0 )
     {
         goto error_update;
-
     }
-    
+
     image->unlock();
 
     arrayData.push_back(xmlrpc_c::value_boolean(true));
@@ -101,17 +97,17 @@ void RequestManager::ImageUpdate::execute(
 error_authenticate:
     oss << "User not authenticated, aborting ImageUpdate call.";
     goto error_common;
-    
+
 error_image_get:
-    oss << "Error getting image with ID = " << iid; 
+    oss << "Error getting image with ID = " << iid;
     goto error_common;
-    
+
 error_authorization:
-    oss << "User not authorized to modify image attributes " << 
+    oss << "User not authorized to modify image attributes " <<
            ", aborting ImageUpdate call.";
     image->unlock();
     goto error_common;
-    
+
 error_update:
     oss << "Cannot modify image [" << iid << "] attribute with name = " << name;
     image->unlock();

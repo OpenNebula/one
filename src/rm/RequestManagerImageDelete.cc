@@ -31,7 +31,7 @@ void RequestManager::ImageDelete::execute(
     int                 iid;
     int                 uid;
     int                 rc;
-    
+
     Image             * image;
 
     ostringstream       oss;
@@ -53,17 +53,17 @@ void RequestManager::ImageDelete::execute(
     {
         goto error_authenticate;
     }
-    
+
     uid = rc;
-    
+
     // Get image from the ImagePool
-    image = ImageDelete::ipool->get(iid,true);    
-                                                 
-    if ( image == 0 )                             
-    {                                            
-        goto error_image_get;                     
+    image = ImageDelete::ipool->get(iid,true);
+
+    if ( image == 0 )
+    {
+        goto error_image_get;
     }
-    
+
     if ( uid != 0 && uid != image->get_uid() )
     {
         goto error_authorization;
@@ -76,7 +76,7 @@ void RequestManager::ImageDelete::execute(
         goto error_delete;
 
     }
-    
+
     image->unlock();
 
     arrayData.push_back(xmlrpc_c::value_boolean(true));
@@ -93,17 +93,19 @@ void RequestManager::ImageDelete::execute(
 error_authenticate:
     oss << "User not authenticated, aborting ImageDelete call.";
     goto error_common;
-    
+
 error_image_get:
-    oss << "Error getting image with ID = " << iid; 
+    oss << "Error getting image with ID = " << iid;
     goto error_common;
-    
+
 error_authorization:
     oss << "User not authorized to delete image, aborting ImageDelete call.";
+    image->unlock();
     goto error_common;
-    
+
 error_delete:
     oss << "Cannot delete image, VMs might be running on it.";
+    image->unlock();
     goto error_common;
 
 error_common:
