@@ -200,7 +200,8 @@ public:
         TestObjectSQL *obj_lock;
 
 	//pin object in the cache, it can't be removed -
-	for (int i=0 ; i < 499 ; i++)
+        //Should be set to MAX_POOL -1
+	for (int i=0 ; i < 14999 ; i++)
         {
             create_allocate(i,"A Test object");
 
@@ -208,12 +209,12 @@ public:
             CPPUNIT_ASSERT(obj_lock != 0);
         }
 
-        for (int i=499 ; i < 2000 ; i++)
+        for (int i=14999 ; i < 15200 ; i++) //Works with just 1 cache line
         {
             create_allocate(i,"A Test object");
         }
 
-        for (int i=499; i < 2000 ; i++)
+        for (int i=14999; i < 15200 ; i++)
         {
             obj = pool->get(i, true);
             CPPUNIT_ASSERT(obj != 0);
@@ -223,9 +224,9 @@ public:
             obj->unlock();
         }
 
-	for (int i=0 ; i < 499 ; i++)
+	for (int i=0 ; i < 14999 ; i++)
         {
-	    obj_lock = pool->get(i, false);//pin object in the cache, it can't be removed
+	    obj_lock = pool->get(i, false);
 	    obj_lock->unlock();
         }
     };
