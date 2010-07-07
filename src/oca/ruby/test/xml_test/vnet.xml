@@ -1,0 +1,23 @@
+<VNET>
+    <ID>3</ID>
+    <UID>0</UID>
+    <NAME>Red LAN</NAME>
+    <TYPE>0</TYPE>
+    <BRIDGE>vbr0</BRIDGE>
+    <TEMPLATE>
+        <BRIDGE>vbr0</BRIDGE>
+        <DNS>192.169.1.4</DNS>
+        <NAME>Red LAN</NAME>
+        <NETWORK_ADDRESS>192.168.0.0</NETWORK_ADDRESS>
+        <NETWORK_SIZE>C</NETWORK_SIZE>
+        <TYPE>RANGED</TYPE>
+    </TEMPLATE>
+	<LEASES>
+		<LEASE>
+			<IP>192.168.0.1</IP>
+			<MAC>00:03:c0:a8:00:01</MAC>
+			<USED>1</USED>
+			<VID>18</VID>
+		</LEASE>
+	</LEASES>
+</VNET>

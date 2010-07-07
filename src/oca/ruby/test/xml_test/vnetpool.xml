@@ -1,0 +1,20 @@
+<VNET_POOL>
+  <VNET>
+    <ID>4</ID>
+    <UID>0</UID>
+    <USERNAME>oneadmin</USERNAME>
+    <NAME>Red LAN</NAME>
+    <TYPE>0</TYPE>
+    <BRIDGE>vbr0</BRIDGE>
+    <TOTAL_LEASES>0</TOTAL_LEASES>
+  </VNET>
+  <VNET>
+    <ID>5</ID>
+    <UID>0</UID>
+    <USERNAME>oneadmin</USERNAME>
+    <NAME>Public</NAME>
+    <TYPE>0</TYPE>
+    <BRIDGE>vbr0</BRIDGE>
+    <TOTAL_LEASES>1</TOTAL_LEASES>
+  </VNET>
+</VNET_POOL>

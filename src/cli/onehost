@@ -278,7 +278,7 @@ when "show"
 
         puts host.template_str
     else
-        puts host.to_xml
+        puts host.to_xml(true)
     end
 
 when "delete"
@@ -316,7 +316,7 @@ when "list"
     else
         hostpool=OpenNebula::HostPool.new(get_one_client)
         hostpool.info
-        puts hostpool.to_xml
+        puts hostpool.to_xml(true)
     end
 
 when "top"

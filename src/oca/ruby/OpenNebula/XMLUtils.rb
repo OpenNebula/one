@@ -41,6 +41,9 @@ module OpenNebula
         def [](key)
             if NOKOGIRI
                 element=@xml.xpath(key.to_s.upcase)
+                if element.size == 0
+                    return nil
+                end
             else
                 element=@xml.elements[key.to_s.upcase]
             end
@@ -95,18 +98,22 @@ module OpenNebula
         end
         
         def to_hash 
-            if !@hash
+            if !@hash && @xml
                 @hash=Crack::XML.parse(to_xml)
             end
             return @hash
         end
 
-        def to_xml
+        def to_xml(pretty=false)
             if NOKOGIRI
                 @xml.to_xml
             else
                 str = ""
-                REXML::Formatters::Pretty.new(1).write(@xml,str)
+                if pretty
+                    REXML::Formatters::Pretty.new(1).write(@xml,str)
+                else 
+                    REXML::Formatters::Default.new.write(@xml,str)
+                end
                 str
             end
         end
@@ -146,18 +153,22 @@ module OpenNebula
             end
         end
 
-        def to_xml
+        def to_xml(pretty=false)
             if NOKOGIRI
                 @xml.to_xml
             else
                 str = ""
-                REXML::Formatters::Pretty.new(1).write(@xml,str)
+                if pretty
+                    REXML::Formatters::Pretty.new(1).write(@xml,str)
+                else 
+                    REXML::Formatters::Default.new.write(@xml,str)
+                end
                 str
             end
         end
         
         def to_hash 
-            if !@hash
+            if !@hash && @xml
                 @hash=Crack::XML.parse(to_xml)
             end
             return @hash

@@ -633,7 +633,7 @@ when "list"
         vmpool=OpenNebula::VirtualMachinePool.new(get_one_client,
             ops[:filter_user].to_i)
         vmpool.info
-        puts vmpool.to_xml
+        puts vmpool.to_xml(true)
     end
 
 when "top"
@@ -718,7 +718,7 @@ when "show"
 
             puts vm.template_str
         else
-            puts vm.to_xml
+            puts vm.to_xml(true)
         end
      end
 else
