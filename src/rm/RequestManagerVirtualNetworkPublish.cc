@@ -17,54 +17,67 @@
 #include "RequestManager.h"
 #include "NebulaLog.h"
 
+#include "Nebula.h"
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void RequestManager::HostInfo::execute(
+void RequestManager::VirtualNetworkPublish::execute(
     xmlrpc_c::paramList const& paramList,
     xmlrpc_c::value *   const  retval)
-{ 
-    string  session;
+{
+    string              session;
 
-    int     hid;  
-    int     rc;
-    Host *  host;
+    int                 nid;
+    bool                publish_flag; 
+    int                 uid;
+    int                 rc;
     
-    ostringstream oss;
+    VirtualNetwork *    vn;
 
-    /*   -- RPC specific vars --  */
+    ostringstream       oss;
+
     vector<xmlrpc_c::value> arrayData;
     xmlrpc_c::value_array * arrayresult;
 
-    NebulaLog::log("ReM",Log::DEBUG,"HostInfo method invoked");
 
-    // Get the parameters
-    session      = xmlrpc_c::value_string(paramList.getString(0));
-    hid          = xmlrpc_c::value_int   (paramList.getInt(1));
+    NebulaLog::log("ReM",Log::DEBUG,"VirtualNetworkPublish invoked");
 
-    // Check if it is a valid user
-    rc = HostInfo::upool->authenticate(session);
+    session      = xmlrpc_c::value_string (paramList.getString(0));
+    nid          = xmlrpc_c::value_int    (paramList.getInt(1));
+    publish_flag = xmlrpc_c::value_boolean(paramList.getBoolean(2));
+
+    // First, we need to authenticate the user
+    rc = VirtualNetworkPublish::upool->authenticate(session);
 
     if ( rc == -1 )
     {
         goto error_authenticate;
     }
-
-    // Get the host from the HostPool
-    host = HostInfo::hpool->get(hid,true);    
+    
+    uid = rc;
+    
+    // Get virtual network from the VirtualNetworkPool
+    vn = VirtualNetworkPublish::vnpool->get(nid,true);    
                                                  
-    if ( host == 0 )                             
+    if ( vn == 0 )                             
     {                                            
-        goto error_host_get;                     
+        goto error_vn_get;                     
     }
     
-    oss << *host;
+    if ( uid != 0 && uid != vn->get_uid() )
+    {
+        goto error_authorization;
+    }
+
+    vn->publish(publish_flag);
     
-    host->unlock();
+    VirtualNetworkPublish::vnpool->update(vn);
     
-    // All nice, return the host info to the client  
-    arrayData.push_back(xmlrpc_c::value_boolean(true)); // SUCCESS
-    arrayData.push_back(xmlrpc_c::value_string(oss.str()));
+    vn->unlock();
+
+    arrayData.push_back(xmlrpc_c::value_boolean(true));
+    arrayData.push_back(xmlrpc_c::value_int(nid));
 
     // Copy arrayresult into retval mem space
     arrayresult = new xmlrpc_c::value_array(arrayData);
@@ -75,24 +88,29 @@ void RequestManager::HostInfo::execute(
     return;
 
 error_authenticate:
-    oss << "User not authenticated, HostInfo call aborted.";
+    oss << "[VirtualNetworkPublish] User not authenticated, aborting call.";
     goto error_common;
-
-error_host_get:
-    oss << "Error getting host with HID = " << hid; 
+    
+error_vn_get:
+    oss << "[VirtualNetworkPublish] Error getting VN with ID = " << nid; 
+    goto error_common;
+    
+error_authorization:
+    oss << "[VirtualNetworkPublish] User not authorized to (un)publish VN" << 
+           ", aborting call.";
+    vn->unlock();
     goto error_common;
 
 error_common:
-
-    arrayData.push_back(xmlrpc_c::value_boolean(false)); // FAILURE
+    arrayData.push_back(xmlrpc_c::value_boolean(false));  // FAILURE
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
-    
-    NebulaLog::log("ReM",Log::ERROR,oss); 
-    
+
+    NebulaLog::log("ReM",Log::ERROR,oss);
+
     xmlrpc_c::value_array arrayresult_error(arrayData);
 
     *retval = arrayresult_error;
-    
+
     return;
 }
 

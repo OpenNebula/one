@@ -83,13 +83,13 @@ VirtualMachine::~VirtualMachine()
 const char * VirtualMachine::table = "vm_pool";
 
 const char * VirtualMachine::db_names =
-    "(oid,uid,name,last_poll,template_id,state,lcm_state,stime,etime,deploy_id"
-                                        ",memory,cpu,net_tx,net_rx,last_seq)";
+    "(oid,uid,name,last_poll, state,lcm_state,stime,etime,deploy_id"
+    ",memory,cpu,net_tx,net_rx,last_seq)";
 
 const char * VirtualMachine::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
         "vm_pool ("
         "oid INTEGER PRIMARY KEY,uid INTEGER,name TEXT,"
-        "last_poll INTEGER, template_id INTEGER,state INTEGER,lcm_state INTEGER,"
+        "last_poll INTEGER, state INTEGER,lcm_state INTEGER,"
         "stime INTEGER,etime INTEGER,deploy_id TEXT,memory INTEGER,cpu INTEGER,"
         "net_tx INTEGER,net_rx INTEGER, last_seq INTEGER)";
 
@@ -99,20 +99,19 @@ const char * VirtualMachine::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
 int VirtualMachine::select_cb(void *nil, int num, char **values, char **names)
 {
     if ((values[OID] == 0) ||
-            (values[UID] == 0) ||
-            (values[NAME] == 0) ||
-            (values[LAST_POLL] == 0) ||
-            (values[TEMPLATE_ID] == 0) ||
-            (values[STATE] == 0) ||
-            (values[LCM_STATE] == 0) ||
-            (values[STIME] == 0) ||
-            (values[ETIME] == 0) ||
-            (values[MEMORY] == 0) ||
-            (values[CPU] == 0) ||
-            (values[NET_TX] == 0) ||
-            (values[NET_RX] == 0) ||
-            (values[LAST_SEQ] == 0) ||
-            (num != LIMIT ))
+        (values[UID] == 0) ||
+        (values[NAME] == 0) ||
+        (values[LAST_POLL] == 0) ||
+        (values[STATE] == 0) ||
+        (values[LCM_STATE] == 0) ||
+        (values[STIME] == 0) ||
+        (values[ETIME] == 0) ||
+        (values[MEMORY] == 0) ||
+        (values[CPU] == 0) ||
+        (values[NET_TX] == 0) ||
+        (values[NET_RX] == 0) ||
+        (values[LAST_SEQ] == 0) ||
+        (num != LIMIT ))
     {
         return -1;
     }
@@ -140,7 +139,8 @@ int VirtualMachine::select_cb(void *nil, int num, char **values, char **names)
     net_rx      = atoi(values[NET_RX]);
     last_seq    = atoi(values[LAST_SEQ]);
 
-    vm_template.id = atoi(values[TEMPLATE_ID]);
+    // Virtual Machine template ID is the VM ID
+    vm_template.id = oid;
 
     return 0;
 }
@@ -268,6 +268,14 @@ int VirtualMachine::insert(SqlDB * db)
     ostringstream       oss;
 
     // -----------------------------------------------------------------------
+    // Set a template ID if it wasn't already assigned
+    // ------------------------------------------------------------------------
+    if ( vm_template.id == -1 )
+    {
+        vm_template.id = oid;
+    }
+
+    // -----------------------------------------------------------------------
     // Set a name if the VM has not got one and VM_ID
     // ------------------------------------------------------------------------
     oss << oid;
@@ -276,7 +284,6 @@ int VirtualMachine::insert(SqlDB * db)
     attr = new SingleAttribute("VMID",value);
 
     vm_template.set(attr);
-
 
     get_template_attribute("NAME",name);
 
@@ -300,12 +307,23 @@ int VirtualMachine::insert(SqlDB * db)
 
     if ( rc != 0 )
     {
-    	goto error_leases;
+        goto error_leases;
     }
 
     // ------------------------------------------------------------------------
-    // Parse the context & requirements
+    // Get disk images
     // ------------------------------------------------------------------------
+
+    rc = get_disk_images();
+
+    if ( rc != 0 )
+    {
+        goto error_images;
+    }
+
+    // -------------------------------------------------------------------------
+    // Parse the context & requirements
+    // -------------------------------------------------------------------------
 
     rc = parse_context();
 
@@ -346,26 +364,31 @@ int VirtualMachine::insert(SqlDB * db)
 error_update:
     NebulaLog::log("ONE",Log::ERROR, "Can not update VM in the database");
     vm_template.drop(db);
-    return -1;
+    goto error_common;
 
 error_template:
     NebulaLog::log("ONE",Log::ERROR, "Can not insert template in the database");
-    release_network_leases();
-    return -1;
+    goto error_common;
 
 error_leases:
     NebulaLog::log("ONE",Log::ERROR, "Could not get network lease for VM");
     release_network_leases();
     return -1;
 
+error_images:
+    NebulaLog::log("ONE",Log::ERROR, "Could not get disk image for VM");
+    goto error_common;
+
 error_context:
     NebulaLog::log("ONE",Log::ERROR, "Could not parse CONTEXT for VM");
-    release_network_leases();
-    return -1;
+    goto error_common;
 
 error_requirements:
     NebulaLog::log("ONE",Log::ERROR, "Could not parse REQUIREMENTS for VM");
+
+error_common:
     release_network_leases();
+    release_disk_images();
     return -1;
 }
 
@@ -530,11 +553,7 @@ int VirtualMachine::parse_requirements()
 
 int VirtualMachine::update(SqlDB * db)
 {
-    int             rc;
-
-    rc = insert_replace(db, true);
-
-    return rc;
+    return insert_replace(db, true);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -577,7 +596,6 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace)
         <<          uid             << ","
         << "'" <<   sql_name        << "',"
         <<          last_poll       << ","
-        <<          vm_template.id  << ","
         <<          state           << ","
         <<          lcm_state       << ","
         <<          stime           << ","
@@ -771,103 +789,119 @@ void VirtualMachine::get_requirements (int& cpu, int& memory, int& disk)
 
     return;
 }
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::get_disk_images()
+{
+    int                   num_disks, rc;
+    vector<Attribute  * > disks;
+    ImagePool *           ipool;
+    VectorAttribute *     disk;
+
+    Nebula& nd = Nebula::instance();
+    ipool      = nd.get_ipool();
+
+    num_disks  = vm_template.get("DISK",disks);
+
+    for(int i=0, index=0; i<num_disks; i++)
+    {
+
+        disk = dynamic_cast<VectorAttribute * >(disks[i]);
+
+        if ( disk == 0 )
+        {
+            continue;
+        }
+
+        rc = ipool->disk_attribute(disk, &index);
+
+        if (rc == -1) // 0 OK, -2 not using the Image pool
+        {
+            return -1;
+        }
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachine::release_disk_images()
+{
+    string  iid;
+    int     num_disks;
+
+    vector<Attribute const  * > disks;
+    Image *                     img;
+    ImagePool *                 ipool;
+
+    Nebula& nd = Nebula::instance();
+    ipool      = nd.get_ipool();
+
+    num_disks   = get_template_attribute("DISK",disks);
+
+    for(int i=0; i<num_disks; i++)
+    {
+        VectorAttribute const *  disk =
+            dynamic_cast<VectorAttribute const * >(disks[i]);
+
+        if ( disk == 0 )
+        {
+            continue;
+        }
+
+        iid = disk->vector_value("IID");
+
+        if ( iid.empty() )
+        {
+            continue;
+        }
+
+        img = ipool->get(atoi(iid.c_str()),true);
+
+        if ( img == 0 )
+        {
+            continue;
+        }
+
+        img->release_image();
+
+        img->unlock();
+    }
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 int VirtualMachine::get_network_leases()
 {
-    int                        num_nics, rc;
-    vector<Attribute  * >      nics;
-    VirtualNetworkPool       * vnpool;
-    VirtualNetwork           * vn;
-    VectorAttribute          * nic;
-    map<string,string>         new_nic;
-
-    string                     ip;
-    string                     mac;
-    string                     bridge;
-    string                     network;
-    string                     model;
-
-    ostringstream              vnid;
-
-    // Set the networking attributes.
+    int                   num_nics, rc;
+    vector<Attribute  * > nics;
+    VirtualNetworkPool *  vnpool;
+    VectorAttribute *     nic;
 
     Nebula& nd = Nebula::instance();
     vnpool     = nd.get_vnpool();
 
     num_nics   = vm_template.get("NIC",nics);
 
-    for(int i=0; i<num_nics; i++,vnid.str(""))
+    for(int i=0; i<num_nics; i++)
     {
-   	 	nic = dynamic_cast<VectorAttribute * >(nics[i]);
+        nic = dynamic_cast<VectorAttribute * >(nics[i]);
 
         if ( nic == 0 )
         {
             continue;
         }
 
-        network = nic->vector_value("NETWORK");
+        rc = vnpool->nic_attribute(nic, oid);
 
-        if ( network.empty() )
-        {
-            continue;
-        }
-
-        vn = vnpool->get(network,true);
-
-        if ( vn == 0 )
+        if (rc == -1)
         {
             return -1;
         }
-
-        if ( vn->get_uid() != uid && vn->get_uid() != 0 && uid != 0)
-        {
-            ostringstream ose;
-            ose << "Owner " << uid << " of the VM doesn't have ownership of Virtual Network "
-                << vn->get_uid();
-            NebulaLog::log("VMM", Log::ERROR, ose);
-            return -1;
-        }
-
-
-        ip = nic->vector_value("IP");
-
-        if (ip.empty())
-        {
-        	rc = vn->get_lease(oid, ip, mac, bridge);
-        }
-        else
-        {
-        	rc = vn->set_lease(oid, ip, mac, bridge);
-        }
-
-        vn->unlock();
-
-        if ( rc != 0 )
-        {
-            return -1;
-        }
-
-        vnid << vn->get_oid();
-
-        new_nic.insert(make_pair("NETWORK",network));
-        new_nic.insert(make_pair("MAC"    ,mac));
-        new_nic.insert(make_pair("BRIDGE" ,bridge));
-        new_nic.insert(make_pair("VNID"   ,vnid.str()));
-        new_nic.insert(make_pair("IP"     ,ip));
-
-        model = nic->vector_value("MODEL");
-
-        if ( !model.empty() )
-        {
-            new_nic.insert(make_pair("MODEL",model));
-        }
-
-        nic->replace(new_nic);
-
-        new_nic.erase(new_nic.begin(),new_nic.end());
     }
 
     return 0;

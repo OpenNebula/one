@@ -592,6 +592,8 @@ int DispatchManager::finalize(
 
             vm->release_network_leases();
 
+            vm->release_disk_images();
+
             vm->log("DiM", Log::INFO, "New VM state is DONE.");
         break;
 

@@ -20,66 +20,108 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void RequestManager::HostInfo::execute(
+void RequestManager::ImagePoolInfo::execute(
     xmlrpc_c::paramList const& paramList,
     xmlrpc_c::value *   const  retval)
 { 
-    string  session;
+    string        session;
 
-    int     hid;  
-    int     rc;
-    Host *  host;
-    
     ostringstream oss;
+    ostringstream where_string;
+
+    int           rc;
+    int           uid;
+    int           filter_flag;
 
     /*   -- RPC specific vars --  */
     vector<xmlrpc_c::value> arrayData;
     xmlrpc_c::value_array * arrayresult;
 
-    NebulaLog::log("ReM",Log::DEBUG,"HostInfo method invoked");
+    NebulaLog::log("ReM",Log::DEBUG,"ImagePoolInfo method invoked");
 
     // Get the parameters
-    session      = xmlrpc_c::value_string(paramList.getString(0));
-    hid          = xmlrpc_c::value_int   (paramList.getInt(1));
+    session     = xmlrpc_c::value_string(paramList.getString(0));
+    filter_flag = xmlrpc_c::value_int(paramList.getInt(1));
 
     // Check if it is a valid user
-    rc = HostInfo::upool->authenticate(session);
+    rc = ImagePoolInfo::upool->authenticate(session);
 
     if ( rc == -1 )
     {
         goto error_authenticate;
     }
 
-    // Get the host from the HostPool
-    host = HostInfo::hpool->get(hid,true);    
-                                                 
-    if ( host == 0 )                             
-    {                                            
-        goto error_host_get;                     
+    uid = rc;
+    
+    where_string.str("");
+    
+    /** Filter flag meaning table
+     *      -2 :: All Images (just for oneadmin)
+     *      -1 :: User's Images AND public images belonging to any user
+     *    >= 0 :: UID User's Images (just for oneadmin)
+     **/
+    if ( filter_flag < -2 )
+    {
+        goto error_filter_flag;
     }
-    
-    oss << *host;
-    
-    host->unlock();
-    
-    // All nice, return the host info to the client  
-    arrayData.push_back(xmlrpc_c::value_boolean(true)); // SUCCESS
+
+    switch(filter_flag)
+    {
+        case -2:
+            if ( uid != 0 )
+            {
+                goto error_authorization;
+            }
+            // where remains empty.
+            break;
+        case -1:
+            where_string << "UID=" << uid << " OR public = 'YES'";
+            break;
+        default:
+            // Only oneadmin or the user can list a specific user's images.
+            if ( uid != 0 && uid != filter_flag )
+            {
+                goto error_authorization;
+            }
+            where_string << "UID=" << filter_flag;
+    }
+
+    // Call the image pool dump
+    rc = ImagePoolInfo::ipool->dump(oss,where_string.str());
+
+    if ( rc != 0 )
+    {
+        goto error_dump;
+    }
+
+    // All nice, return pool info to the client
+    arrayData.push_back(xmlrpc_c::value_boolean(true)); // SUCCESS   
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
 
-    // Copy arrayresult into retval mem space
     arrayresult = new xmlrpc_c::value_array(arrayData);
+
+    // Copy arrayresult into retval mem space
     *retval = *arrayresult;
 
-    delete arrayresult; // and get rid of the original
+    // and get rid of the original
+    delete arrayresult;
 
     return;
 
 error_authenticate:
-    oss << "User not authenticated, HostInfo call aborted.";
+    oss << "User not authenticated, ImagePoolInfo call aborted.";
     goto error_common;
 
-error_host_get:
-    oss << "Error getting host with HID = " << hid; 
+error_authorization:
+    oss << "User not authorized to perform this operation.";
+    goto error_common;
+    
+error_filter_flag:
+    oss << "Incorrect filter_flag, must be >= -2.";
+    goto error_common;
+
+error_dump:
+    oss << "Error getting image pool"; 
     goto error_common;
 
 error_common:

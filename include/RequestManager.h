@@ -22,6 +22,7 @@
 #include "HostPool.h"
 #include "UserPool.h"
 #include "VirtualNetworkPool.h"
+#include "ImagePool.h"
 
 #include <xmlrpc-c/base.hpp>
 #include <xmlrpc-c/registry.hpp>
@@ -42,10 +43,11 @@ public:
         HostPool *              _hpool,
         VirtualNetworkPool *    _vnpool,
         UserPool           *    _upool,
+        ImagePool          *    _ipool,
         int                     _port,
         string                  _xml_log_file)
             :vmpool(_vmpool),hpool(_hpool),vnpool(_vnpool),upool(_upool),
-            port(_port),socket_fd(-1),xml_log_file(_xml_log_file)
+            ipool(_ipool),port(_port),socket_fd(-1),xml_log_file(_xml_log_file)
     {
         am.addListener(this);
     };
@@ -118,6 +120,11 @@ private:
      *  Pointer to the User Pool, to access users
      */
     UserPool           *    upool;
+    
+    /**
+     *  Pointer to the Image Pool, to access images
+     */
+    ImagePool          *    ipool;
 
     /**
      *  Port number where the connection will be open
@@ -536,6 +543,32 @@ private:
         VirtualNetworkPool * vnpool;
         UserPool           * upool;
     };
+    
+    /* ---------------------------------------------------------------------- */
+
+    class VirtualNetworkPublish: public xmlrpc_c::method
+    {
+    public:
+        VirtualNetworkPublish(
+            VirtualNetworkPool * _vnpool,
+            UserPool           * _upool):
+                vnpool(_vnpool),
+                upool(_upool)
+        {
+            _signature="A:sib";
+            _help="Enables/Disables a virtual network";
+        };
+
+        ~VirtualNetworkPublish(){};
+
+        void execute(
+            xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP);
+
+    private:
+        VirtualNetworkPool * vnpool;
+        UserPool           * upool;
+    };
 
     /* ---------------------------------------------------------------------- */
 
@@ -639,7 +672,7 @@ private:
         UserPoolInfo(UserPool * _upool):upool(_upool)
         {
             _signature="A:s";
-            _help="Creates a new user";
+            _help="Returns content of the user pool";
         };
 
         ~UserPoolInfo(){};
@@ -651,8 +684,212 @@ private:
     private:
         UserPool * upool;
     };
+    
+    /* ---------------------------------------------------------------------- */
+    /*                      Image Pool Interface                              */
+    /* ---------------------------------------------------------------------- */
+
+    class ImageAllocate: public xmlrpc_c::method
+    {
+    public:
+        ImageAllocate(ImagePool * _ipool,
+                      UserPool * _upool):
+                            ipool(_ipool),
+                            upool(_upool)
+        {
+            _signature="A:ss";
+            _help="Creates a new image";
+        };
+
+        ~ImageAllocate(){};
+
+        void execute(
+            xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP);
+
+    private:
+        ImagePool * ipool;
+        UserPool  * upool;
+    };  
+    
+    /* ---------------------------------------------------------------------- */
+    
+    class ImageDelete: public xmlrpc_c::method
+    {
+    public:
+        ImageDelete(ImagePool * _ipool,
+                      UserPool * _upool):
+                            ipool(_ipool),
+                            upool(_upool)
+        {
+            _signature="A:si";
+            _help="Deletes an image";
+        };
+
+        ~ImageDelete(){};
+
+        void execute(
+            xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP);
+
+    private:
+        ImagePool * ipool;
+        UserPool  * upool;
+    };  
+    
+    /* ---------------------------------------------------------------------- */
+
+    class ImageInfo: public xmlrpc_c::method
+    {
+    public:
+        ImageInfo(ImagePool * _ipool,
+                  UserPool  * _upool):
+                      ipool(_ipool),
+                      upool(_upool)
+        {
+            _signature="A:si";
+            _help="Returns information for an image";
+        };
+
+        ~ImageInfo(){};
+
+        void execute(
+            xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP);
+
+    private:
+        ImagePool * ipool;
+        UserPool  * upool;
+    }; 
+    
+    /* ---------------------------------------------------------------------- */
+
+    class ImageUpdate: public xmlrpc_c::method
+    {
+    public:
+        ImageUpdate(ImagePool * _ipool,
+                    UserPool  * _upool):
+                        ipool(_ipool),
+                        upool(_upool)
+        {
+            _signature="A:siss";
+            _help="Modifies image attribute";
+        };
+
+        ~ImageUpdate(){};
+
+        void execute(
+            xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP);
+
+    private:
+        ImagePool * ipool;
+        UserPool  * upool;
+    };
+    
+    /* ---------------------------------------------------------------------- */
+
+    class ImageRemoveAttribute: public xmlrpc_c::method
+    {
+    public:
+        ImageRemoveAttribute(ImagePool * _ipool,
+                             UserPool  * _upool):
+                        ipool(_ipool),
+                        upool(_upool)
+        {
+            _signature="A:sis";
+            _help="Removes image attribute";
+        };
+
+        ~ImageRemoveAttribute(){};
+
+        void execute(
+            xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP);
+
+    private:
+        ImagePool * ipool;
+        UserPool  * upool;
+    };
+    
+    /* ---------------------------------------------------------------------- */
+
+    class ImagePublish: public xmlrpc_c::method
+    {
+    public:
+        ImagePublish(ImagePool * _ipool,
+                     UserPool  * _upool):
+                        ipool(_ipool),
+                        upool(_upool)
+        {
+            _signature="A:sib";
+            _help="Publish/Unpublish the Image";
+        };
+
+        ~ImagePublish(){};
+
+        void execute(
+            xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP);
+
+    private:
+        ImagePool * ipool;
+        UserPool  * upool;
+    };
+    
+    /* ---------------------------------------------------------------------- */
+
+    class ImageEnable: public xmlrpc_c::method
+    {
+    public:
+        ImageEnable(ImagePool * _ipool,
+                     UserPool  * _upool):
+                        ipool(_ipool),
+                        upool(_upool)
+        {
+            _signature="A:sib";
+            _help="Enables/Disables the Image";
+        };
+
+        ~ImageEnable(){};
+
+        void execute(
+            xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP);
+
+    private:
+        ImagePool * ipool;
+        UserPool  * upool;
+    };
+    
+    /* ---------------------------------------------------------------------- */
+
+    class ImagePoolInfo: public xmlrpc_c::method
+    {
+    public:
+        ImagePoolInfo(ImagePool * _ipool,
+                      UserPool  * _upool):
+                            ipool(_ipool),
+                            upool(_upool)
+        {
+            _signature="A:si";
+            _help="Returns content of image pool attending to the filter flag";
+        };
+
+        ~ImagePoolInfo(){};
+
+        void execute(
+            xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP);
+
+    private:
+        ImagePool * ipool;
+        UserPool  * upool;
+    };
 
 };
+    
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

@@ -197,7 +197,7 @@ int Host::update(SqlDB *db)
 {
     int    rc;
 
-    // Update the Template
+    // Update the Template needed by the monitoring action from IM
     rc = host_template.update(db);
 
     if ( rc != 0 )

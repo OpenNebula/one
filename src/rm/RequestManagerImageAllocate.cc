@@ -17,54 +17,55 @@
 #include "RequestManager.h"
 #include "NebulaLog.h"
 
+#include "Nebula.h"
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void RequestManager::HostInfo::execute(
+void RequestManager::ImageAllocate::execute(
     xmlrpc_c::paramList const& paramList,
     xmlrpc_c::value *   const  retval)
-{ 
-    string  session;
+{
+    string              session;
+    string              image_template;
 
-    int     hid;  
-    int     rc;
-    Host *  host;
-    
-    ostringstream oss;
+    int                 iid;
+    int                 uid;
+    int                 rc;
 
-    /*   -- RPC specific vars --  */
+    ostringstream       oss;
+
     vector<xmlrpc_c::value> arrayData;
     xmlrpc_c::value_array * arrayresult;
 
-    NebulaLog::log("ReM",Log::DEBUG,"HostInfo method invoked");
 
-    // Get the parameters
-    session      = xmlrpc_c::value_string(paramList.getString(0));
-    hid          = xmlrpc_c::value_int   (paramList.getInt(1));
+    NebulaLog::log("ReM",Log::DEBUG,"ImageAllocate invoked");
 
-    // Check if it is a valid user
-    rc = HostInfo::upool->authenticate(session);
+    session        = xmlrpc_c::value_string(paramList.getString(0));
+    image_template = xmlrpc_c::value_string(paramList.getString(1));
+    image_template += "\n";
+
+
+    // First, we need to authenticate the user
+    rc = ImageAllocate::upool->authenticate(session);
 
     if ( rc == -1 )
     {
         goto error_authenticate;
     }
+    
+    uid = rc;
 
-    // Get the host from the HostPool
-    host = HostInfo::hpool->get(hid,true);    
-                                                 
-    if ( host == 0 )                             
-    {                                            
-        goto error_host_get;                     
+    rc = ImageAllocate::ipool->allocate(uid,image_template,&iid);
+
+    if ( rc < 0 )
+    {
+        goto error_allocate;
+
     }
-    
-    oss << *host;
-    
-    host->unlock();
-    
-    // All nice, return the host info to the client  
-    arrayData.push_back(xmlrpc_c::value_boolean(true)); // SUCCESS
-    arrayData.push_back(xmlrpc_c::value_string(oss.str()));
+
+    arrayData.push_back(xmlrpc_c::value_boolean(true));
+    arrayData.push_back(xmlrpc_c::value_int(iid));
 
     // Copy arrayresult into retval mem space
     arrayresult = new xmlrpc_c::value_array(arrayData);
@@ -75,24 +76,30 @@ void RequestManager::HostInfo::execute(
     return;
 
 error_authenticate:
-    oss << "User not authenticated, HostInfo call aborted.";
+    oss << "User not authenticated, aborting ImageAllocate call.";
     goto error_common;
 
-error_host_get:
-    oss << "Error getting host with HID = " << hid; 
+error_allocate:
+    if (rc == -1)
+    {
+        oss << "Error allocating image, check oned.log";
+    }
+    else
+    {
+        oss << "Error parsing image template";
+    }
     goto error_common;
 
 error_common:
-
-    arrayData.push_back(xmlrpc_c::value_boolean(false)); // FAILURE
+    arrayData.push_back(xmlrpc_c::value_boolean(false));  // FAILURE
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
-    
-    NebulaLog::log("ReM",Log::ERROR,oss); 
-    
+
+    NebulaLog::log("ReM",Log::ERROR,oss);
+
     xmlrpc_c::value_array arrayresult_error(arrayData);
 
     *retval = arrayresult_error;
-    
+
     return;
 }
 

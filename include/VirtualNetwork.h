@@ -68,6 +68,32 @@ public:
     }
 
     /**
+     *  Returns true if the Virtual Network is public
+     *     @return true if the Virtual Network is public
+     */
+    bool is_public()
+    {
+        return (public_vnet == 1);
+    };
+
+    /**
+     *  Publish or unpublish a virtual network
+     *    @param pub true to publish the image
+     *    @return 0 on success
+     */
+    void publish(bool pub)
+    {
+        if (pub == true)
+        {
+            public_vnet = 1;
+        }
+        else
+        {
+            public_vnet = 0;
+        }
+    }
+
+    /**
      *    Gets a new lease for a specific VM
      *    @param vid VM identifier
      *    @param _ip pointer to string for IP to be stored into
@@ -134,6 +160,17 @@ public:
      *  @return a reference to the generated string
      */
     string& to_xml(string& xml) const;
+
+    /**
+     * Modifies the given nic attribute adding the following attributes:
+     *  * IP:  leased from network
+     *  * MAC: leased from network
+     *  * BRIDGE: for this virtual network
+     *  @param nic attribute for the VM template
+     *  @param vid of the VM getting the lease
+     *  @return 0 on success
+     */
+    int nic_attribute(VectorAttribute * nic, int vid);
 
     //------------------------------------------------------------------------
     // Template
@@ -234,6 +271,11 @@ private:
     NetworkType type;
 
     /**
+     *  Public scope of this Virtual Network
+     */
+    int         public_vnet;
+
+    /**
      *  Pointer to leases class, can be fixed or ranged.
      *  Holds information on given (and, optionally, possible) leases
      */
@@ -243,20 +285,6 @@ private:
      *  The Virtual Network template, holds the VNW attributes.
      */
     VirtualNetworkTemplate  vn_template;
-
-    // *************************************************************************
-    // Non persistent data members from Nebula.conf
-    // *************************************************************************
-
-    /**
-     *  MAC prefix for this OpenNebula site
-     */
-    unsigned int    mac_prefix;
-
-    /**
-     *  Default size for virtual networks
-     */
-    int             default_size;
 
     // *************************************************************************
     // DataBase implementation (Private)
@@ -334,7 +362,7 @@ protected:
     // Constructor
     //**************************************************************************
 
-    VirtualNetwork(unsigned int _mac_prefix, int _default_size);
+    VirtualNetwork();
 
     ~VirtualNetwork();
 
@@ -349,7 +377,8 @@ protected:
         NAME            = 2,
         TYPE            = 3,
         BRIDGE          = 4,
-        LIMIT           = 5
+        PUBLIC          = 5,
+        LIMIT           = 6
     };
 
     static const char * table;

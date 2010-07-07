@@ -17,54 +17,72 @@
 #include "RequestManager.h"
 #include "NebulaLog.h"
 
+#include "Nebula.h"
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void RequestManager::HostInfo::execute(
+void RequestManager::ImageRemoveAttribute::execute(
     xmlrpc_c::paramList const& paramList,
     xmlrpc_c::value *   const  retval)
-{ 
-    string  session;
+{
+    string              session;
+    string              name;
 
-    int     hid;  
-    int     rc;
-    Host *  host;
+    int                 iid;
+    int                 uid;
+    int                 rc;
     
-    ostringstream oss;
+    Image             * image;
 
-    /*   -- RPC specific vars --  */
+    ostringstream       oss;
+
     vector<xmlrpc_c::value> arrayData;
     xmlrpc_c::value_array * arrayresult;
 
-    NebulaLog::log("ReM",Log::DEBUG,"HostInfo method invoked");
 
-    // Get the parameters
-    session      = xmlrpc_c::value_string(paramList.getString(0));
-    hid          = xmlrpc_c::value_int   (paramList.getInt(1));
+    NebulaLog::log("ReM",Log::DEBUG,"ImageRemoveAttribute invoked");
 
-    // Check if it is a valid user
-    rc = HostInfo::upool->authenticate(session);
+    session  = xmlrpc_c::value_string(paramList.getString(0));
+    iid      = xmlrpc_c::value_int   (paramList.getInt(1));
+    name     = xmlrpc_c::value_string(paramList.getString(2));        
+
+    // First, we need to authenticate the user
+    rc = ImageRemoveAttribute::upool->authenticate(session);
 
     if ( rc == -1 )
     {
         goto error_authenticate;
     }
-
-    // Get the host from the HostPool
-    host = HostInfo::hpool->get(hid,true);    
+    
+    uid = rc;
+    
+    // Get image from the ImagePool
+    image = ImageRemoveAttribute::ipool->get(iid,true);    
                                                  
-    if ( host == 0 )                             
+    if ( image == 0 )                             
     {                                            
-        goto error_host_get;                     
+        goto error_image_get;                     
     }
     
-    oss << *host;
     
-    host->unlock();
+    if ( uid != 0 && uid != image->get_uid() )
+    {
+        goto error_authorization;
+    }
+
+    rc = ImageRemoveAttribute::ipool->remove_attribute(image, name);
+
+    if ( rc < 0 )
+    {
+        goto error_remove_attribute;
+
+    }
     
-    // All nice, return the host info to the client  
-    arrayData.push_back(xmlrpc_c::value_boolean(true)); // SUCCESS
-    arrayData.push_back(xmlrpc_c::value_string(oss.str()));
+    image->unlock();
+
+    arrayData.push_back(xmlrpc_c::value_boolean(true));
+    arrayData.push_back(xmlrpc_c::value_int(iid));
 
     // Copy arrayresult into retval mem space
     arrayresult = new xmlrpc_c::value_array(arrayData);
@@ -75,24 +93,35 @@ void RequestManager::HostInfo::execute(
     return;
 
 error_authenticate:
-    oss << "User not authenticated, HostInfo call aborted.";
+    oss << "[ImageRemoveAttribute] User not authenticated, aborting call.";
     goto error_common;
-
-error_host_get:
-    oss << "Error getting host with HID = " << hid; 
+    
+error_image_get:
+    oss << "[ImageRemoveAttribute] Error getting image with ID = " << iid; 
+    goto error_common;
+    
+error_authorization:
+    oss << "[ImageRemoveAttribute] User not authorized to remove image" << 
+           " attributes aborting call.";
+    image->unlock();
+    goto error_common;
+    
+error_remove_attribute:
+    oss << "[ImageRemoveAttribute] Cannot remove attribute with name = " 
+        << name << " for image [" << iid << "]";
+    image->unlock();
     goto error_common;
 
 error_common:
-
-    arrayData.push_back(xmlrpc_c::value_boolean(false)); // FAILURE
+    arrayData.push_back(xmlrpc_c::value_boolean(false));  // FAILURE
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
-    
-    NebulaLog::log("ReM",Log::ERROR,oss); 
-    
+
+    NebulaLog::log("ReM",Log::ERROR,oss);
+
     xmlrpc_c::value_array arrayresult_error(arrayData);
 
     *retval = arrayresult_error;
-    
+
     return;
 }
 

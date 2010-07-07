@@ -27,43 +27,11 @@ const char * TemplateSQL::db_names = "(id,name,type,value)";
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-int TemplateSQL::insert_cb(void *nil, int num, char **values, char **names)
-{
-    if ( num<=0 )
-    {
-        return -1;
-    }
-
-    if ( values[0] == 0 )
-    {
-        id = 0;
-    }
-    else
-    {
-        id = atoi(values[0]) + 1;
-    }
-
-    return 0;
-}
-
-/* ------------------------------------------------------------------------ */
-
 int TemplateSQL::insert(SqlDB * db)
 {
-    ostringstream   oss;
     int             rc;
 
-    // Get next id from the DB table
-    set_callback(
-           static_cast<Callbackable::Callback>(&TemplateSQL::insert_cb));
-
-    oss << "SELECT MAX(id) FROM " << table;
-
-    rc = db->exec(oss,this);
-
-    unset_callback();
-
-    if ( rc != 0 )
+    if ( id == -1)
     {
         return -1;
     }
@@ -78,10 +46,10 @@ int TemplateSQL::insert(SqlDB * db)
 int TemplateSQL::update(SqlDB * db)
 {
     int             rc;
-    
+
     rc = insert_replace(db, true);
 
-    return rc;       
+    return rc;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -120,7 +88,7 @@ int TemplateSQL::insert_replace(SqlDB *db, bool replace)
         {
             continue;
         }
-        
+
         if(replace)
         {
             oss << "REPLACE";
@@ -262,8 +230,6 @@ int TemplateSQL::replace_attribute(SqlDB * db, Attribute * attribute)
 {
     ostringstream   oss;
     int             rc;
-    string *        astr;
-    char *          sql_attr;
 
     multimap<string, Attribute *>::iterator i;
 
@@ -272,45 +238,14 @@ int TemplateSQL::replace_attribute(SqlDB * db, Attribute * attribute)
         return -1;
     }
 
-    i = attributes.find(attribute->name());
+    rc  = remove_attribute(db, attribute->name());
 
-    if ( i != attributes.end() )
+    if (rc == 0)
     {
-        astr = i->second->marshall();
-
-        if ( astr == 0 )
-        {
-            return -1;
-        }
-
-        sql_attr = db->escape_str((*astr).c_str());
-
-        delete astr;
-
-        if ( sql_attr == 0 )
-        {
-            return -1;
-        }
-
-        oss << "DELETE FROM " << table << " WHERE id=" << id
-            << " AND name='" << attribute->name() << "' AND value='"
-            << sql_attr << "'";
-
-        rc = db->exec(oss);
-
-        db->free_str(sql_attr);
-
-        if (rc != 0 )
-        {
-            return rc;
-        }
-
-        delete i->second;
-
-        attributes.erase(i);
+        rc = insert_attribute(db,attribute);
     }
 
-    return insert_attribute(db,attribute);
+    return rc;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -365,3 +300,62 @@ int TemplateSQL::insert_attribute(SqlDB * db, Attribute * attribute)
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
+
+int TemplateSQL::remove_attribute(SqlDB * db, const string& name)
+{
+    ostringstream   oss;
+    int             rc;
+    string *        astr;
+    char *          sql_attr;
+
+    multimap<string, Attribute *>::iterator i;
+
+    if ( id == -1 )
+    {
+        return -1;
+    }
+
+    i = attributes.find(name);
+
+    if ( i != attributes.end() )
+    {
+        astr = i->second->marshall();
+
+        if ( astr == 0 )
+        {
+            return -1;
+        }
+
+        sql_attr = db->escape_str((*astr).c_str());
+
+        delete astr;
+
+        if ( sql_attr == 0 )
+        {
+            return -1;
+        }
+
+        oss << "DELETE FROM " << table << " WHERE id=" << id
+            << " AND name='" << name << "' AND value='"
+            << sql_attr << "'";
+
+        rc = db->exec(oss);
+
+        db->free_str(sql_attr);
+
+        if (rc != 0 )
+        {
+            return rc;
+        }
+
+        delete i->second;
+
+        attributes.erase(i);
+    }
+
+    return 0;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+

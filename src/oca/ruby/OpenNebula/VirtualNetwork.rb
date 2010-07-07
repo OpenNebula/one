@@ -8,6 +8,7 @@ module OpenNebula
         VN_METHODS = {
             :info     => "vn.info",
             :allocate => "vn.allocate",
+            :publish  => "vn.publish",
             :delete   => "vn.delete"
         }
 
@@ -46,9 +47,28 @@ module OpenNebula
         def allocate(description)
             super(VN_METHODS[:allocate],description)
         end
+        
+        def publish
+            set_publish(true)
+        end
+        
+        def unpublish
+            set_publish(false)
+        end
 
         def delete()
             super(VN_METHODS[:delete])
         end
+        
+    private
+        def set_publish(published)
+            return Error.new('ID not defined') if !@pe_id
+
+            rc = @client.call(VN_METHODS[:publish], @pe_id, published)
+            rc = nil if !OpenNebula.is_error?(rc)
+
+            return rc
+        end
+        
     end
 end

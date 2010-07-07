@@ -20,13 +20,18 @@
 #include <sstream>
 #include <ctype.h>
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+unsigned int VirtualNetworkPool::_mac_prefix;
+unsigned int VirtualNetworkPool::_default_size;
+
+/* -------------------------------------------------------------------------- */
 
 VirtualNetworkPool::VirtualNetworkPool(SqlDB * db,
     const string&   prefix,
-    int             _default_size):
-    PoolSQL(db,VirtualNetwork::table),
-    mac_prefix(0),
-    default_size(_default_size)
+    int             __default_size):
+    PoolSQL(db,VirtualNetwork::table)
 {
     istringstream iss;
     size_t        pos   = 0;
@@ -34,6 +39,9 @@ VirtualNetworkPool::VirtualNetworkPool(SqlDB * db,
     unsigned int  tmp;
 
     string mac = prefix;
+
+    _mac_prefix   = 0;
+    _default_size = __default_size;
 
     while ( (pos = mac.find(':')) !=  string::npos )
     {
@@ -45,16 +53,16 @@ VirtualNetworkPool::VirtualNetworkPool(SqlDB * db,
     {
         NebulaLog::log("VNM",Log::ERROR,
                        "Wrong MAC prefix format, using default");
-        mac_prefix = 1; //"00:01"
+        _mac_prefix = 1; //"00:01"
 
         return;
     }
 
     iss.str(mac);
 
-    iss >> hex >> mac_prefix >> ws >> hex >> tmp >> ws;
-    mac_prefix <<= 8;
-    mac_prefix += tmp;
+    iss >> hex >> _mac_prefix >> ws >> hex >> tmp >> ws;
+    _mac_prefix <<= 8;
+    _mac_prefix += tmp;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -68,58 +76,26 @@ int VirtualNetworkPool::allocate (
     VirtualNetwork *    vn;
     char *              error_msg;
     int                 rc;
-    ostringstream       oss;
-
-    string              name;
-    string              bridge;
-
-    string              s_type;
 
     // Build a new Virtual Network object
-    vn = new VirtualNetwork(mac_prefix, default_size);
+    vn = new VirtualNetwork();
 
-    vn->uid	= uid;
+    vn->uid = uid;
 
     rc = vn->vn_template.parse(stemplate,&error_msg);
 
     if ( rc != 0 )
     {
+        ostringstream oss;
+
         oss << error_msg;
         NebulaLog::log("VNM", Log::ERROR, oss);
         free(error_msg);
 
         delete vn;
 
-        return -2;
+        return -1;
     }
-
-    // Information about the VN needs to be extracted from the template
-    vn->get_template_attribute("TYPE",s_type);
-
-    transform(s_type.begin(),s_type.end(),s_type.begin(),(int(*)(int))toupper);
-
-    if (s_type == "RANGED")
-    {
-        vn->type = VirtualNetwork::RANGED;
-    }
-    else if ( s_type == "FIXED")
-    {
-        vn->type = VirtualNetwork::FIXED;
-    }
-    else
-    {
-        NebulaLog::log("VNM", Log::ERROR, "Wrong type for VirtualNetwork "
-                       "template");
-        delete vn;
-
-        return -3;
-    }
-
-    vn->get_template_attribute("NAME",name);
-    vn->name = name;
-
-    vn->get_template_attribute("BRIDGE",bridge);
-    vn->bridge = bridge;
 
     // Insert the VN in the pool so we have a valid OID
 

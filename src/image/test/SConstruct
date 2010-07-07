@@ -56,6 +56,7 @@ main_env.Append(LIBPATH=[
 ])
 
 main_env.Append(LIBS=[
+    'nebula_image',
     'nebula_um',
     'nebula_vm',
     'nebula_mad',
@@ -63,7 +64,6 @@ main_env.Append(LIBS=[
     'nebula_vnm',
     'nebula_template',
     'nebula_pool',
-    'nebula_image',
     'nebula_common',
     'nebula_log',
     'nebula_core',
@@ -98,5 +98,5 @@ main_env.Append(CPPFLAGS=[
 # Linking flags
 main_env.Append(LDFLAGS=["-g "])
 
-main_env.Program('test','VirtualMachinePoolTest.cc')
+main_env.Program('test','ImagePoolTest.cc')
 

@@ -21,6 +21,7 @@
 #include "PoolSQL.h"
 #include "History.h"
 #include "Log.h"
+#include "NebulaLog.h"
 
 #include <time.h>
 #include <sstream>
@@ -695,7 +696,7 @@ public:
     void get_requirements (int& cpu, int& memory, int& disk);
 
     // ------------------------------------------------------------------------
-    // Network Leases
+    // Network Leases & Disk Images
     // ------------------------------------------------------------------------
     /**
      *  Get all network leases for this Virtual Machine
@@ -707,6 +708,17 @@ public:
      *  Releases all network leases taken by this Virtual Machine
      */
     void release_network_leases();
+
+    /**
+     *  Get all disk images for this Virtual Machine
+     *  @return 0 if success
+     */
+    int get_disk_images();
+
+    /**
+     *  Releases all disk images taken by this Virtual Machine
+     */
+    void release_disk_images();
 
     // ------------------------------------------------------------------------
     // Context related functions
@@ -989,18 +1001,17 @@ protected:
         UID             = 1,
         NAME            = 2,
         LAST_POLL       = 3,
-        TEMPLATE_ID     = 4,
-        STATE           = 5,
-        LCM_STATE       = 6,
-        STIME           = 7,
-        ETIME           = 8,
-        DEPLOY_ID       = 9,
-        MEMORY          = 10,
-        CPU             = 11,
-        NET_TX          = 12,
-        NET_RX          = 13,
-        LAST_SEQ        = 14,
-        LIMIT           = 15
+        STATE           = 4,
+        LCM_STATE       = 5,
+        STIME           = 6,
+        ETIME           = 7,
+        DEPLOY_ID       = 8,
+        MEMORY          = 9,
+        CPU             = 10,
+        NET_TX          = 11,
+        NET_RX          = 12,
+        LAST_SEQ        = 13,
+        LIMIT           = 14
     };
 
     static const char * table;
@@ -1031,24 +1042,14 @@ protected:
     virtual int update(SqlDB * db);
 
     /**
-     * Deletes a VM from the database and all its associated information:
-     *   - History records
-     *   - VM template
+     * Deletes a VM from the database and all its associated information
      *   @param db pointer to the db
-     *   @return 0 on success
+     *   @return -1
      */
     virtual int drop(SqlDB * db)
     {
-        int rc;
-
-        rc = vm_template.drop(db);
-
-        if ( history != 0 )
-        {
-            rc += history->drop(db);
-        }
-
-        return rc;
+        NebulaLog::log("ONE",Log::ERROR, "VM Drop not implemented!");
+        return -1;
     }
 
     /**

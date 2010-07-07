@@ -81,6 +81,39 @@ public:
     //--------------------------------------------------------------------------
 
     /**
+     *  Generates a NIC attribute for VM templates using the VirtualNetwork
+     *  metadata
+     *    @param nic the nic attribute to be generated
+     *    @param vid of the VM requesting the lease
+     *    @return 0 on success, -1 error, -2 not using the pool
+     */
+    int nic_attribute(VectorAttribute * nic, int vid)
+    {
+        string           network;
+        VirtualNetwork * vnet;
+
+        network = nic->vector_value("NETWORK");
+
+        if (network.empty())
+        {
+            return -2;
+        }
+
+        vnet = get(network,true);
+
+        if (vnet == 0)
+        {
+            return -1;
+        }
+
+        int rc = vnet->nic_attribute(nic,vid);
+
+        vnet->unlock();
+
+        return rc;
+    }
+
+    /**
      *  Updates the template of a VN, adding a new attribute (replacing it if
      *  already defined), the VN's mutex SHOULD be locked
      *    @param vn pointer to the virtual network object
@@ -114,16 +147,34 @@ public:
      */
     int dump(ostringstream& oss, const string& where);
 
+    /**
+     *  Get the mac prefix
+     *  @return the mac prefix
+     */
+    static const unsigned int& mac_prefix()
+    {
+        return _mac_prefix;
+    };
+
+    /**
+     *  Get the default network size
+     *  @return the size
+     */
+    static const unsigned int& default_size()
+    {
+        return _default_size;
+    };
+
 private:
     /**
      *  Holds the system-wide MAC prefix
      */
-    unsigned int     mac_prefix;
+    static unsigned int     _mac_prefix;
 
     /**
      *  Default size for Virtual Networks
      */
-    unsigned int     default_size;
+    static unsigned int     _default_size;
 
     /**
      *  Factory method to produce VN objects
@@ -131,7 +182,7 @@ private:
      */
     PoolObjectSQL * create()
     {
-        return new VirtualNetwork(mac_prefix, default_size);
+        return new VirtualNetwork();
     };
 
     /**

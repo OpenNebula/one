@@ -19,6 +19,7 @@
 #include <stdlib.h>
 
 #include "VirtualMachinePool.h"
+#include "ImagePool.h"
 #include "PoolTest.h"
 
 using namespace std;

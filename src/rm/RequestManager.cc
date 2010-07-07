@@ -254,6 +254,9 @@ void RequestManager::register_xml_methods()
         
     xmlrpc_c::methodPtr vnpool_info(new 
         RequestManager::VirtualNetworkPoolInfo(vnpool,upool));
+        
+    xmlrpc_c::methodPtr vn_publish(new    
+        RequestManager::VirtualNetworkPublish(vnpool, upool));
 
     xmlrpc_c::methodPtr vn_delete(new 
         RequestManager::VirtualNetworkDelete(vnpool, upool));
@@ -269,6 +272,30 @@ void RequestManager::register_xml_methods()
     
     xmlrpc_c::methodPtr userpool_info(new    
         RequestManager::UserPoolInfo(upool));
+        
+    xmlrpc_c::methodPtr image_allocate(new    
+        RequestManager::ImageAllocate(ipool, upool));
+        
+    xmlrpc_c::methodPtr image_delete(new    
+        RequestManager::ImageDelete(ipool, upool));
+        
+    xmlrpc_c::methodPtr image_info(new    
+        RequestManager::ImageInfo(ipool, upool));
+        
+    xmlrpc_c::methodPtr image_update(new    
+        RequestManager::ImageUpdate(ipool, upool));
+    
+    xmlrpc_c::methodPtr image_rm_attribute(new    
+        RequestManager::ImageRemoveAttribute(ipool, upool));
+        
+    xmlrpc_c::methodPtr image_publish(new    
+        RequestManager::ImagePublish(ipool, upool));
+        
+    xmlrpc_c::methodPtr image_enable(new    
+        RequestManager::ImageEnable(ipool, upool));
+        
+    xmlrpc_c::methodPtr imagepool_info(new    
+        RequestManager::ImagePoolInfo(ipool, upool));
 
     /* VM related methods  */    
         
@@ -293,6 +320,7 @@ void RequestManager::register_xml_methods()
      
     RequestManagerRegistry.addMethod("one.vn.allocate", vn_allocate);   
     RequestManagerRegistry.addMethod("one.vn.info",     vn_info); 
+    RequestManagerRegistry.addMethod("one.vn.publish",  vn_publish);
     RequestManagerRegistry.addMethod("one.vn.delete",   vn_delete);
 
     RequestManagerRegistry.addMethod("one.vnpool.info", vnpool_info); 
@@ -305,6 +333,18 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.user.delete",   user_delete);
 
     RequestManagerRegistry.addMethod("one.userpool.info", userpool_info);
+    
+    /* Image related methods*/
+    
+    RequestManagerRegistry.addMethod("one.image.allocate",image_allocate);
+    RequestManagerRegistry.addMethod("one.image.delete",  image_delete);
+    RequestManagerRegistry.addMethod("one.image.info",    image_info);
+    RequestManagerRegistry.addMethod("one.image.update",  image_update);     
+    RequestManagerRegistry.addMethod("one.image.rmattr",  image_rm_attribute);   
+    RequestManagerRegistry.addMethod("one.image.publish", image_publish);  
+    RequestManagerRegistry.addMethod("one.image.enable",  image_enable);    
+
+    RequestManagerRegistry.addMethod("one.imagepool.info", imagepool_info);
     
 };
 

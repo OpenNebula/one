@@ -1,4 +1,4 @@
-# SConstruct for src/rm
+# SConstruct for src/vm
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
@@ -18,39 +18,13 @@
 
 Import('env')
 
-lib_name='nebula_rm'
+lib_name='nebula_image'
 
-#Sources to generate the library
+# Sources to generate the library
 source_files=[
-    'RequestManager.cc',
-    'RequestManagerAction.cc',
-    'RequestManagerAllocate.cc',
-    'RequestManagerDeploy.cc',
-    'RequestManagerMigrate.cc',
-    'RequestManagerInfo.cc',
-    'RequestManagerPoolInfo.cc',
-    'RequestManagerHostAllocate.cc',
-    'RequestManagerHostDelete.cc',
-    'RequestManagerHostInfo.cc',
-    'RequestManagerHostPoolInfo.cc',
-    'RequestManagerHostEnable.cc',
-    'RequestManagerImageAllocate.cc',
-    'RequestManagerImageDelete.cc',
-    'RequestManagerImageInfo.cc',
-    'RequestManagerImageUpdate.cc',
-    'RequestManagerImageRemoveAttribute.cc',
-    'RequestManagerImagePublish.cc',
-    'RequestManagerImageEnable.cc',
-    'RequestManagerImagePoolInfo.cc',
-    'RequestManagerVirtualNetworkAllocate.cc',
-    'RequestManagerVirtualNetworkInfo.cc',
-    'RequestManagerVirtualNetworkPoolInfo.cc',
-    'RequestManagerVirtualNetworkPublish.cc',
-    'RequestManagerVirtualNetworkDelete.cc',
-    'RequestManagerUserAllocate.cc',
-    'RequestManagerUserInfo.cc',
-    'RequestManagerUserDelete.cc',
-    'RequestManagerUserPoolInfo.cc'
+    'ImageTemplate.cc',
+    'Image.cc',
+    'ImagePool.cc'
 ]
 
 # Build library
