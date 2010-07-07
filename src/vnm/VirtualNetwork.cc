@@ -16,6 +16,8 @@
 
 
 #include "VirtualNetwork.h"
+#include "VirtualNetworkPool.h"
+
 #include "NebulaLog.h"
 #include "RangedLeases.h"
 #include "FixedLeases.h"
@@ -24,15 +26,13 @@
 /* Virtual Network :: Constructor/Destructor                                  */
 /* ************************************************************************** */
 
-VirtualNetwork::VirtualNetwork(unsigned int  mp, int ds):
+VirtualNetwork::VirtualNetwork():
                 PoolObjectSQL(-1),
                 name(""),
                 uid(-1),
                 bridge(""),
                 type(UNINITIALIZED),
-                leases(0),
-                mac_prefix(mp),
-                default_size(ds){};
+                leases(0){};
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -49,14 +49,14 @@ VirtualNetwork::~VirtualNetwork()
 /* Virtual Network :: Database Access Functions                               */
 /* ************************************************************************** */
 
-const char * VirtualNetwork::table               = "network_pool";
+const char * VirtualNetwork::table        = "network_pool";
 
-const char * VirtualNetwork::db_names            = "(oid,uid,name,type,bridge)";
+const char * VirtualNetwork::db_names     = "(oid,uid,name,type,bridge,public)";
 
-const char * VirtualNetwork::db_bootstrap        = "CREATE TABLE IF NOT EXISTS"
+const char * VirtualNetwork::db_bootstrap = "CREATE TABLE IF NOT EXISTS"
     " network_pool ("
      "oid INTEGER PRIMARY KEY, uid INTEGER, name VARCHAR(256), type INTEGER, "
-     "bridge TEXT, UNIQUE(name))";
+     "bridge TEXT, public INTEGER, UNIQUE(name))";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -68,19 +68,22 @@ int VirtualNetwork::select_cb(void * nil, int num, char **values, char **names)
         (!values[NAME]) ||
         (!values[TYPE]) ||
         (!values[BRIDGE]) ||
+        (!values[PUBLIC]) ||
         (num != LIMIT ))
     {
         return -1;
     }
 
-    oid    = atoi(values[OID]);
-    uid    = atoi(values[UID]);
+    oid         = atoi(values[OID]);
+    uid         = atoi(values[UID]);
 
-    name   = values[NAME];
+    name        = values[NAME];
 
-    type   = (NetworkType)atoi(values[TYPE]);
+    type        = (NetworkType)atoi(values[TYPE]);
 
-    bridge = values[BRIDGE];
+    bridge      = values[BRIDGE];
+
+    public_vnet = atoi(values[PUBLIC]);
 
     // Virtual Network template ID is the Network ID
     vn_template.id = oid;
@@ -101,6 +104,9 @@ int VirtualNetwork::select(SqlDB * db)
 
     string          network_address;
 
+    unsigned int default_size = VirtualNetworkPool::default_size();
+    unsigned int mac_prefix   = VirtualNetworkPool::mac_prefix();
+
     set_callback(
         static_cast<Callbackable::Callback>(&VirtualNetwork::select_cb));
 
@@ -110,6 +116,8 @@ int VirtualNetwork::select(SqlDB * db)
     oid  = -1;
 
     rc = db->exec(oss, this);
+
+    unset_callback();
 
     if ((rc != 0) || (oid != boid ))
     {
@@ -220,6 +228,7 @@ int VirtualNetwork::dump(ostringstream& oss,
         (!values[NAME])  ||
         (!values[TYPE])  ||
         (!values[BRIDGE])||
+        (!values[PUBLIC])||
         (!values[LIMIT]) ||
         (num != LIMIT + 2 ))
     {
@@ -234,6 +243,7 @@ int VirtualNetwork::dump(ostringstream& oss,
             "<NAME>"     << values[NAME]    << "</NAME>"      <<
             "<TYPE>"     << values[TYPE]    << "</TYPE>"      <<
             "<BRIDGE>"   << values[BRIDGE]  << "</BRIDGE>"    <<
+            "<PUBLIC>"   << values[PUBLIC]  << "</PUBLIC>"    <<
             "<TOTAL_LEASES>" << values[LIMIT]<< "</TOTAL_LEASES>" <<
         "</VNET>";
 
@@ -248,12 +258,69 @@ int VirtualNetwork::insert(SqlDB * db)
     ostringstream   ose;
     int             rc;
 
+    string          pub;
+    string          s_type;
+
+    unsigned int default_size = VirtualNetworkPool::default_size();
+    unsigned int mac_prefix   = VirtualNetworkPool::mac_prefix();
+
+    //--------------------------------------------------------------------------
+    // VirtualNetwork Attributes from the template
+    //--------------------------------------------------------------------------
+
+    // ------------ TYPE ----------------------
+    get_template_attribute("TYPE",s_type);
+
+    transform(s_type.begin(),s_type.end(),s_type.begin(),(int(*)(int))toupper);
+
+    if (s_type == "RANGED")
+    {
+        type = VirtualNetwork::RANGED;
+    }
+    else if ( s_type == "FIXED")
+    {
+        type = VirtualNetwork::FIXED;
+    }
+    else
+    {
+        goto error_type;
+    }
+
+    // ------------ NAME ----------------------
+
+    get_template_attribute("NAME",name);
+
+    if (name.empty())
+    {
+        goto error_name;
+    }
+
+    // ------------ BRIDGE --------------------
+
+    get_template_attribute("BRIDGE",bridge);
+
+    if (bridge.empty())
+    {
+        goto error_bridge;
+    }
+
+    // ------------ PUBLIC --------------------
+
+    get_template_attribute("PUBLIC", pub);
+
+    transform (pub.begin(), pub.end(), pub.begin(), (int(*)(int))toupper);
+
+    public_vnet = (pub == "YES");
+
+    vn_template.erase("PUBLIC");
+
+    // ------------ TEMPLATE --------------------
+
     if ( vn_template.id == -1 )
     {
         vn_template.id = oid;
     }
 
-    // Insert the template first
     rc = vn_template.insert(db);
 
     if ( rc != 0 )
@@ -261,7 +328,10 @@ int VirtualNetwork::insert(SqlDB * db)
     	goto error_template;
     }
 
+    //--------------------------------------------------------------------------
     // Insert the Virtual Network
+    //--------------------------------------------------------------------------
+
     rc = insert_replace(db, false);
 
     if ( rc != 0 )
@@ -269,7 +339,10 @@ int VirtualNetwork::insert(SqlDB * db)
         goto error_update;
     }
 
-    //Get the leases
+    //--------------------------------------------------------------------------
+    // Get the leases
+    //--------------------------------------------------------------------------
+
     if (type == VirtualNetwork::RANGED)
     {
         string nclass = "";
@@ -312,7 +385,7 @@ int VirtualNetwork::insert(SqlDB * db)
                                   mac_prefix,
                                   naddr);
     }
-    else if(type == VirtualNetwork::FIXED)
+    else // VirtualNetwork::FIXED
     {
         vector<const Attribute *>   vector_leases;
 
@@ -323,10 +396,6 @@ int VirtualNetwork::insert(SqlDB * db)
                                  mac_prefix,
                                  vector_leases);
     }
-    else
-    {
-        goto error_type;
-    }
 
     if (leases == 0)
     {
@@ -334,6 +403,18 @@ int VirtualNetwork::insert(SqlDB * db)
     }
 
     return 0;
+
+error_type:
+    ose << "Wrong type in template for Virtual Network id " << oid;
+    goto error_common;
+
+error_name:
+    ose << "No NAME in template for Virtual Network id " << oid;
+    goto error_common;
+
+error_bridge:
+    ose << "No BRIDGE in template for Virtual Network id " << oid;
+    goto error_common;
 
 error_template:
     ose << "Can not insert in DB template for Virtual Network id " << oid;
@@ -343,10 +424,6 @@ error_update:
     ose << "Can not update Virtual Network id " << oid;
     vn_template.drop(db);
     goto error_common;
-
-error_type:
-    ose << "Wrong type of Virtual Network: " << type;
-    goto error_leases;
 
 error_addr:
     ose << "Network address is not defined nid: " << oid;
@@ -369,17 +446,7 @@ error_common:
 
 int VirtualNetwork::update(SqlDB * db)
 {
-    int rc;
-
-    // Update the template first
-    rc = vn_template.update(db);
-
-    if ( rc == 0 )
-    {
-        rc = insert_replace(db, true);
-    }
-
-    return rc;
+    return insert_replace(db, true);
 }
 
 int VirtualNetwork::insert_replace(SqlDB *db, bool replace)
@@ -412,12 +479,13 @@ int VirtualNetwork::insert_replace(SqlDB *db, bool replace)
         oss << "INSERT";
     }
 
-    oss << " INTO " << table << " "<< db_names <<" VALUES ("<<
-        oid << "," <<
-        uid << "," <<
-        "'" << sql_name << "',"  <<
-        type << "," <<
-        "'" << sql_bridge << "')";
+    oss << " INTO " << table << " "<< db_names <<" VALUES ("
+        <<          oid         << ","
+        <<          uid         << ","
+        << "'" <<   sql_name    << "',"
+        <<          type        << ","
+        << "'" <<   sql_bridge  << "',"
+        <<          public_vnet << ")";
 
     rc = db->exec(oss);
 
@@ -437,7 +505,10 @@ int VirtualNetwork::vn_drop(SqlDB * db)
 
     vn_template.drop(db);
 
-    leases->drop(db);
+    if ( leases != 0 )
+    {
+        leases->drop(db);
+    }
 
     oss << "DELETE FROM " << table << " WHERE OID=" << oid;
 
@@ -478,14 +549,17 @@ string& VirtualNetwork::to_xml(string& xml) const
 
     os <<
         "<VNET>" <<
-            "<ID>"    << oid   << "</ID>"   <<
-            "<UID>"   << uid   << "</UID>"  <<
-            "<NAME>"  << name  << "</NAME>" <<
-            "<TYPE>"  << type  << "</TYPE>" <<
-            "<BRIDGE>"<< bridge<< "</BRIDGE>" <<
+            "<ID>"      << oid          << "</ID>"   <<
+            "<UID>"     << uid          << "</UID>"  <<
+            "<NAME>"    << name         << "</NAME>" <<
+            "<TYPE>"    << type         << "</TYPE>" <<
+            "<BRIDGE>"  << bridge       << "</BRIDGE>" <<
+            "<PUBLIC>"  << public_vnet  << "</PUBLIC>" <<
             vn_template.to_xml(template_xml);
     if (leases)
+    {
         os << leases->to_xml(leases_xml);
+    }
     os << "</VNET>";
 
     xml = os.str();
@@ -516,7 +590,8 @@ string& VirtualNetwork::to_str(string& str) const
        os << "Fixed" << endl;
     }
 
-    os << "Bridge            : " << bridge << endl << endl;
+    os << "Bridge            : " << bridge      << endl;
+    os << "Public            : " << public_vnet << endl << endl;
 
     os << "....: Template :...." << vn_template.to_str(template_str) << endl << endl;
 
@@ -528,6 +603,65 @@ string& VirtualNetwork::to_str(string& str) const
     str = os.str();
 
     return str;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualNetwork::nic_attribute(VectorAttribute *nic, int vid)
+{
+    int rc;
+
+    string  network;
+    string  model;
+    string  ip;
+    string  mac;
+
+    ostringstream  vnid;
+
+    map<string,string> new_nic;
+
+    network = nic->vector_value("NETWORK");
+    model   = nic->vector_value("MODEL");
+    ip      = nic->vector_value("IP");
+    vnid   << oid;
+
+    //--------------------------------------------------------------------------
+    //                       GET NETWORK LEASE
+    //--------------------------------------------------------------------------
+
+    if (ip.empty())
+    {
+        rc = leases->get(vid,ip,mac);
+    }
+    else
+    {
+        rc = leases->set(vid,ip,mac);
+    }
+
+    if ( rc != 0 )
+    {
+        return -1;
+    }
+
+    //--------------------------------------------------------------------------
+    //                       NEW NIC ATTRIBUTES
+    //--------------------------------------------------------------------------
+
+    new_nic.insert(make_pair("NETWORK",network));
+    new_nic.insert(make_pair("MAC"    ,mac));
+    new_nic.insert(make_pair("BRIDGE" ,bridge));
+    new_nic.insert(make_pair("VNID"   ,vnid.str()));
+    new_nic.insert(make_pair("IP"     ,ip));
+
+    if (!model.empty())
+    {
+        new_nic.insert(make_pair("MODEL",model));
+    }
+
+    nic->replace(new_nic);
+
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */

@@ -129,6 +129,21 @@ module OpenNebula
 
             return rc
         end
+        
+        # Calls to the corresponding update method to modify
+        # the object's template
+        # xml_method:: _String_ the name of the XML-RPC method
+        # name:: _String_ the name of the property to be modified
+        # value:: _String_ the new value of the property to be modified
+        # [return] nil in case of success or an Error object 
+        def update(xml_method, name, value)
+            return Error.new('ID not defined') if !@pe_id
+
+            rc = @client.call(xml_method,@pe_id, name, value)
+            rc = nil if !OpenNebula.is_error?(rc)
+
+            return rc
+        end
 
         # Calls to the corresponding delete method to remove this element
         # from the OpenNebula core 

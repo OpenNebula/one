@@ -1,0 +1,562 @@
+#!/usr/bin/env ruby 
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+ONE_LOCATION=ENV["ONE_LOCATION"]
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
+else
+    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
+end
+
+$: << RUBY_LIB_LOCATION
+
+
+require 'OpenNebula'
+require 'CommandManager'
+require 'client_utilities'
+require 'command_parse'
+require 'ftools'
+
+ShowTableImage={
+    :id => {
+        :name => "ID",
+        :desc => "ONE identifier for the Image",
+        :size => 4,
+        :proc => lambda {|d,e| d.id }
+    },
+    :user=> {
+        :name => "USER",
+        :desc => "Name of the owner",
+        :size => 8,
+        :proc => lambda {|d,e| 
+            d["USERNAME"]
+        }
+    },
+    :name => {
+        :name => "NAME",
+        :desc => "Name of the Image",
+        :size => 20,
+        :proc => lambda {|d,e| 
+            d.name
+        }
+    },
+    :type => {
+        :name => "TYPE",
+        :desc => "Type of the Image",
+        :size => 4,
+        :proc => lambda {|d,e| 
+            d.short_type_str
+        }
+    },
+    :regtime => {
+        :name => "REGTIME",
+        :desc => "Registration time of the Image",
+        :size => 20,
+        :proc => lambda {|d,e| 
+            str_register_time(d)
+        }
+    },
+    :public => {
+        :name => "PUBLIC",
+        :desc => "Whether the Image is public or not",
+        :size => 3,
+        :proc => lambda {|d,e| 
+            if d["PUBLIC"].to_i == 1 then "Yes" else "No" end}
+    },
+    :state => {
+        :name => "STAT",
+        :desc => "State of the Image",
+        :size => 4,
+        :proc => lambda {|d,e|
+            d.short_state_str
+        }
+    },
+    :runningvms => {
+        :name => "#VMS",
+        :desc => "Number of VMs currently running from this Image",
+        :size => 5,
+        :proc => lambda {|d,e| d['RUNNING_VMS'] }
+    },
+    
+    :default => [:id, :user, :name, :type, :regtime, 
+                 :public, :state, :runningvms]
+}
+
+
+
+class ImageShow
+    
+    def initialize(client, filter_flag="-2")
+        @imagepool=OpenNebula::ImagePool.new(client, filter_flag.to_i)
+        @table=ShowTable.new(ShowTableImage)
+    end
+    
+    def header_image_small
+        scr_bold
+        scr_underline
+        print @table.header_str
+        scr_restore
+        puts ""
+    end
+    
+    def top(options=nil)
+        delay=1
+        delay=options[:delay] if options && options[:delay]
+        
+        result=nil
+        
+        begin
+            while true
+                scr_cls
+                scr_move(0,0)
+                result=list_short(options)
+                sleep delay
+            end
+        rescue Exception
+        end
+        result
+    end
+    
+    def list_short(options=nil)
+        res=@imagepool.info()
+
+        if options
+            @table.columns=options[:columns] if options[:columns]
+        end
+
+        if OpenNebula.is_error?(res)
+            result=res
+            puts res.message
+            exit -1
+        else
+
+            if options[:filter_flag]
+                vms=@imagepool.select{|element|
+                    element['USERNAME']==options[:filter_flag]  }
+            else
+                vms=@imagepool
+            end
+
+            result=[true, ""]
+            header_image_small
+
+            if options
+                puts @table.data_str(vms, options)
+            else
+                puts @table.data_str(vms)
+            end
+            
+            result
+        end
+    end
+    
+    def top(options=nil)
+        delay=1
+        delay=options[:delay] if options && options[:delay]
+        
+        result=nil
+        
+        begin
+            while true
+                scr_cls
+                scr_move(0,0)
+                result=list_short(options)
+                sleep delay
+            end
+        rescue Exception
+        end
+        result
+    end
+end
+
+
+##########################
+## COMMAND LINE PARSING ##
+##########################
+
+class OneImageParse < CommandParse
+
+    COMMANDS_HELP=<<-EOT
+Commands:
+
+* register (Registers an image, copying it to the repository if it applies)
+    oneimage register <template>
+    
+    template is a file name where the Image description is located
+    
+* update (Modifies an image attribute)
+    oneimage update <image_id> <attribute_name> <attribute_value>
+    
+* rmattr (Deletes an Image attribute)
+    oneimage rmattr <image_id> <attribute_name>
+    
+* enable (Enabled an Image)
+    oneimage enable <image_id>
+    
+* disable (Disabled an Image)
+    oneimage disable <image_id>
+    
+* publish (Publish an Image)
+    oneimage publish <image_id>
+    
+* unpublish (Unpublish an Image)
+    oneimage unpublish <image_id>
+    
+* list (Shows Images in the pool)
+    oneimage list <filter_flag>
+    
+    where filter_flag can be
+        a, all   --> all the known Images (admin users)
+        m, mine  --> the Images belonging to the user in ONE_AUTH 
+                     and all the  Public Images
+        uid      --> Images of the user identified by this uid (admin users)
+        user     --> Images of the user identified by the username (admin users)
+        
+* top (Lists Images continuously)
+    onevm top
+
+* show (Gets information about an specific Image)
+    oneimage show <image_id>
+   
+* delete (Deletes an already deployed Image)
+    oneimage delete <image_id>
+   
+EOT
+
+    def text_commands
+        COMMANDS_HELP
+    end
+
+    def text_command_name
+        "oneimage"
+    end
+    
+    def list_options
+        table=ShowTable.new(ShowTableImage)
+        table.print_help
+    end
+    
+end
+
+
+def get_user_flags
+    ops=Hash.new
+    if ARGV[0]
+        case ARGV[0]
+            when "a", "all"
+                ops[:filter_user]="-2"
+            when "m", "mine"
+                ops[:filter_user]="-1"
+            else
+                if !ARGV[0].match(/^[0123456789]+$/)
+                    ops[:filter_user]="-2"
+                    ops[:filter_flag]=ARGV[0]
+                else
+                    ops[:filter_user]=ARGV[0]
+                end
+        end
+     else
+        ops[:filter_user]="-2"
+     end
+
+     ops
+end
+
+def get_type_and_path(image_template_file)
+    image_text = open(image_template_file).read
+    result=Hash.new
+    image_text.each_line {|line|
+        case line
+        when /^\s*(#.*)?$/
+            # skip empty or commented lines
+            next
+        when /^\s*(\w+)\s*=\s*(.*)\s*$/
+            name  = $1.strip.upcase
+            if name == "PATH" || name == "TYPE" ||
+               name == "SIZE" || name == "FSTYPE"
+                 result[name] = $2.strip
+            end 
+        end
+    }
+    result
+end
+
+oneimage_opts=OneImageParse.new
+oneimage_opts.parse(ARGV)
+ops=oneimage_opts.options
+
+result=[false, "Unknown error"]
+
+command=ARGV.shift
+
+case command
+when "register", "create", "add"
+    check_parameters("register", 1)
+    
+    # First, let's check we have everything we need in the template
+
+    # Get the path and type from the template file
+    parser_result = get_type_and_path(ARGV[0]) 
+    
+    if parser_result['TYPE']
+        type = parser_result['TYPE'].upcase 
+    else
+        type = "OS"
+    end 
+    
+    result = true       
+    case type
+        when "OS", "CDROM"
+            if !parser_result['PATH'] 
+                result=OpenNebula::Error.new(
+                       "Image path not present, aborting.")
+            elsif !File.exists?(parser_result['PATH'])
+                result=OpenNebula::Error.new(
+                       "Image file could not be found, aborting.")
+            end
+        when "DATABLOCK"
+            if parser_result['PATH'] and !File.exists?(parser_result['PATH']) 
+                if !parser_result['SIZE'] || !parser_result['FSTYPE'] 
+                 result=OpenNebula::Error.new(
+                                "No image file present for DATABLOCK, " +
+                                "size and/or fstype also missing, aborting.") 
+                end   
+           end
+    end     
+                
+    if !is_successful?(result) 
+        puts result.message
+        exit -1
+    end
+    
+    # Perform the allocate if all goes well
+    image=OpenNebula::Image.new(
+        OpenNebula::Image.build_xml, get_one_client)
+    begin
+        template=File.read(ARGV[0])
+        result=image.allocate(template)
+    rescue
+        result=OpenNebula::Error.new("Can not read template: #{ARGV[0]}")
+    end
+    
+    if !is_successful?(result) 
+        exit -1
+    end
+    
+    # Get the allocated image 
+    image=OpenNebula::Image.new_with_id(image.id, get_one_client)
+    image.info
+    template=image.to_hash
+    template=template['IMAGE']['TEMPLATE']
+    
+    # Perform the copy to the image repo if needed
+    if template['PATH']
+        if File.copy(template['PATH'], image['SOURCE'])
+            result = image.enable
+        else
+            result=OpenNebula::Error.new(
+                 "Cannot copy image, aborting.")
+            image.delete
+        end 
+    elsif parser_result['SIZE'] and parser_result['FSTYPE'] 
+        local_command=LocalCommand.run(
+           "dd if=/dev/zero of=#{image['SOURCE']} ibs=1 count=1 " \
+           "obs=1048576 oseek=#{parser_result['SIZE']}")
+        if local_command.code!=0
+            result=OpenNebula::Error.new(
+                 "Cannot create datablock, aborting.")   
+            image.delete
+        else
+            local_command=LocalCommand.run(
+               "mkfs -t #{parser_result['FSTYPE']} -F #{image['SOURCE']}")
+            if local_command.code!=0       
+                result=OpenNebula::Error.new(
+                     "Cannot format datablock, aborting.")   
+                image.delete
+            else
+                image.enable
+            end
+        end    
+    end
+           
+    if is_successful?(result) 
+        puts "ID: " + image.id.to_s if ops[:verbose]
+        exit 0
+    end 
+    
+when "update" 
+    check_parameters("update", 3)
+    image_id=get_image_id(ARGV[0])
+    
+    image=OpenNebula::Image.new_with_id(image_id, get_one_client)
+    
+    result=image.update(ARGV[1],ARGV[2])
+    if is_successful?(result)
+        puts "Modified image" if ops[:verbose]
+    end
+
+when "rmattr"
+    check_parameters("rmattr", 2)
+    image_id=get_image_id(ARGV[0])
+
+    image=OpenNebula::Image.new_with_id(image_id, get_one_client)
+
+    result=image.remove_attr(ARGV[1])
+    if is_successful?(result)
+        puts "Removed image atrribute" if ops[:verbose]
+    end
+    
+when "enable"
+    check_parameters("enable", 1)
+    image_id=get_image_id(ARGV[0])
+
+    image=OpenNebula::Image.new_with_id(image_id, get_one_client)
+
+    result=image.enable
+    if is_successful?(result)
+        puts "Image enabled" if ops[:verbose]
+    end
+    
+when "disable"
+    check_parameters("disable", 1)
+    image_id=get_image_id(ARGV[0])
+
+    image=OpenNebula::Image.new_with_id(image_id, get_one_client)
+
+    result=image.disable
+    if is_successful?(result)
+        puts "Image disabled" if ops[:verbose]
+    end
+
+when "publish"
+    check_parameters("publish", 1)
+    image_id=get_image_id(ARGV[0])
+
+    image=OpenNebula::Image.new_with_id(image_id, get_one_client)
+
+    result=image.publish
+    if is_successful?(result)
+        puts "Image published" if ops[:verbose]
+    end
+    
+when "unpublish"
+    check_parameters("unpublish", 1)
+    image_id=get_image_id(ARGV[0])
+
+    image=OpenNebula::Image.new_with_id(image_id, get_one_client)
+
+    result=image.unpublish
+    if is_successful?(result)
+        puts "Image unpublished" if ops[:verbose]
+    end
+    
+when "list"
+    ops.merge!(get_user_flags)
+    if !ops[:xml]
+        imagelist=ImageShow.new(get_one_client, ops[:filter_user].to_i)
+        ops[:columns]=ops[:list] if ops[:list]
+        result=imagelist.list_short(ops) 
+    else
+        imagepool=OpenNebula::ImagePool.new(get_one_client,
+            ops[:filter_user].to_i)
+        imagepool.info
+        puts imagepool.to_xml
+    end
+    
+when "top"
+    ops.merge!(get_user_flags)
+    imagelist=ImageShow.new(get_one_client, ops[:filter_user].to_i)
+    ops[:columns]=ops[:list] if ops[:list]
+    result=imagelist.top(ops)
+    
+when "show"
+    check_parameters("get_info", 1)
+    args=expand_args(ARGV)
+    
+    args.each do |param|
+        image_id=get_image_id(param)
+
+        image=OpenNebula::Image.new_with_id(image_id, get_one_client)
+        image.info
+
+        if !ops[:xml]
+            str="%-15s: %-20s"
+            str_h1="%-80s"
+
+            print_header(str_h1, "IMAGE #{image[:id]} INFORMATION", true)
+
+            puts str % ["ID", image[:id]]
+            puts str % ["NAME", image[:name]]
+            puts str % ["TYPE", image.type_str]            
+        
+            value=image[:regtime].to_i
+            if value==0
+                value='-'
+            else
+                value=Time.at(value).strftime("%m/%d %H:%M:%S")
+            end
+            puts str % ["REGISTER TIME", value]
+            if image[:public].to_i == 1 
+                public_str = "Yes" 
+            else 
+                public_str = "No" 
+            end
+            puts str % ["PUBLIC", public_str]            
+            puts str % ["SOURCE", image[:source]]    
+            puts str % ["STATE", image.short_state_str]
+            puts str % ["RUNNING_VMS", image[:runningvms]]            
+            
+            puts
+        
+            print_header(str_h1,"IMAGE TEMPLATE",false)
+        
+            puts image.template_str
+        else
+            puts image.to_xml
+        end
+     end
+    
+when "delete"
+    check_parameters("delete", 1)
+    args=expand_args(ARGV)
+    
+    args.each do |param|
+        image_id=get_image_id(param)
+    
+        image=OpenNebula::Image.new_with_id(image_id, get_one_client)
+    
+        result=image.delete
+        if is_successful?(result)
+            puts "Image correctly deleted"  if ops[:verbose]
+        else
+            break
+        end
+    end
+
+else
+    oneimage_opts.print_help
+    exit -1
+end   
+
+if OpenNebula.is_error?(result)
+    puts "Error: " + result.message
+    exit -1
+end
+
+

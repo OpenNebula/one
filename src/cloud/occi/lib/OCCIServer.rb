@@ -235,6 +235,11 @@ class OCCIServer < CloudServer
                             network_info['NETWORK'],
                             @config[:bridge])
             rc         = network.allocate(vntemplate)
+
+            if OpenNebula::is_error?(rc)
+                return rc, 404
+            end
+
             network.info
             network_xml = network.to_occi
             return network_xml, 201

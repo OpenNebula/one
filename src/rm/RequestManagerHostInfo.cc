@@ -50,7 +50,7 @@ void RequestManager::HostInfo::execute(
         goto error_authenticate;
     }
 
-    // Perform the allocation in the hostpool 
+    // Get the host from the HostPool
     host = HostInfo::hpool->get(hid,true);    
                                                  
     if ( host == 0 )                             

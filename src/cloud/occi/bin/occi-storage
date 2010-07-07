@@ -1,51 +1,4 @@
 #!/usr/bin/env ruby
-
-# == Synopsis
-# occi-storage
-# 
-# Manages OCCI storage resource
-#
-# == Usage
-#
-# occi-storage <COMMAND> [OPTIONS] [PARAMETERS]
-#
-# COMMANDS
-#
-# create <occi xml file>
-#       creates a new storage resource described by the provided 
-#       <occi xml file>
-#
-# list
-#       lists available storage resources
-#
-# show <storage id>
-#       retrieves the OCCI XML representation of the storage resource
-#       identified by <storage id>
-#
-# delete <storage id>
-#       deletes the storage resource idenfitied by <storage id>
-#
-#
-# OPTIONS
-# -h, --help:
-#    show help
-#
-# --username <id>, -U <id>:
-#    The username of the user
-#
-# --password <key>, -P <key>:
-#    The password of the user
-#
-# --url <url>, -R <url>:
-#    Set url as the web service url to use
-#
-# --debug, -D
-#    Enables verbosity
-#
-# --multipart, -M:
-#    Use 'multipart-post' library instead of Curb/Curl
-#
-
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
@@ -75,11 +28,60 @@ end
 $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+"/cloud"
 
+COMMANDS_HELP=<<-EOT
+** Synopsis
+occi-storage
+ 
+Manages OCCI storage resource
+
+** Usage
+occi-storage <COMMAND> [OPTIONS] [PARAMETERS]
+
+COMMANDS
+
+create <occi xml file>
+       creates a new storage resource described by the provided 
+       <occi xml file>
+
+list
+       lists available storage resources
+
+show <storage id>
+       retrieves the OCCI XML representation of the storage resource
+       identified by <storage id>
+
+delete <storage id>
+       deletes the storage resource idenfitied by <storage id>
+
+
+OPTIONS
+--help, -h:
+    Show help
+
+--username <id>, -U <id>:
+    The username of the user
+
+--password <key>, -P <key>:
+    The password of the user
+
+--url <url>, -R <url>:
+    Set url as the web service url to use
+
+--timeout <seconds>, -T <seconds>
+    Sets a timeout for the http connection
+
+--debug, -D
+    Enables verbosity
+
+--multipart, -M:
+    Use 'multipart-post' library instead of Curb/Curl
+
+EOT
+
 require 'occi/OCCIClient'
 require 'CloudClient'
 require 'getoptlong'
-require 'rdoc/usage'
-require 'pp'
+require "rexml/document"
 
 include CloudCLI
 
@@ -89,6 +91,7 @@ opts = GetoptLong.new(
             ['--password',   '-P',GetoptLong::REQUIRED_ARGUMENT],
             ['--url',        '-R',GetoptLong::REQUIRED_ARGUMENT],
             ['--debug',      '-D',GetoptLong::NO_ARGUMENT],
+            ['--timeout',    '-T',GetoptLong::REQUIRED_ARGUMENT],
             ['--multipart',  '-M',GetoptLong::NO_ARGUMENT]
         )
 
@@ -96,6 +99,7 @@ url      = nil
 username = nil
 password = nil
 auth     = nil
+timeout  = nil
 debug    = false
 curb     = true
 
@@ -103,13 +107,16 @@ begin
     opts.each do |opt, arg|
         case opt
             when '--help'
-                RDoc::usage
+                puts COMMANDS_HELP
+                return
             when '--username'
                 username = arg
             when '--password'
                 password = arg
             when '--url'
                 url = arg
+            when '--timeout'
+                timeout = arg
             when '--debug'
                 debug = true
             when '--multipart'
@@ -128,7 +135,7 @@ end
 
 
 begin
-    occi_client = OCCIClient::Client.new(url,username,password,debug)
+    occi_client = OCCIClient::Client.new(url,username,password,timeout,debug)
 rescue Exception => e
     puts "#{cmd_name}: #{e.message}"
     exit(-1)
@@ -169,6 +176,22 @@ end
 
 if CloudClient::is_error?(rc)
     puts rc.to_s()
-else
-    puts rc
+else 
+    begin
+        doc = REXML::Document.new(rc)
+    rescue REXML::ParseException => e
+        puts e.message 
+        exit(-1)
+    end
+    
+    xml = doc.root
+    
+    if xml.nil?
+        puts "XML syntax error"
+        exit(-1)
+    end
+    
+    str = ""
+    REXML::Formatters::Pretty.new(4).write(xml,str)
+    puts "\n" + str + "\n " 
 end

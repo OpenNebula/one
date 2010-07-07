@@ -68,6 +68,32 @@ public:
     }
 
     /**
+     *  Returns true if the Virtual Network is public
+     *     @return true if the Virtual Network is public
+     */
+    bool is_public()
+    {
+        return (public_vnet == 1);
+    };
+
+    /**
+     *  Publish or unpublish a virtual network
+     *    @param pub true to publish the image
+     *    @return 0 on success
+     */
+    void publish(bool pub)
+    {
+        if (pub == true)
+        {
+            public_vnet = 1;
+        }
+        else
+        {
+            public_vnet = 0;
+        }
+    }
+
+    /**
      *    Gets a new lease for a specific VM
      *    @param vid VM identifier
      *    @param _ip pointer to string for IP to be stored into
@@ -135,114 +161,18 @@ public:
      */
     string& to_xml(string& xml) const;
 
-private:
-
-    // -------------------------------------------------------------------------
-    // Friends
-    // -------------------------------------------------------------------------
-    friend class VirtualNetworkPool;
-
-    // *************************************************************************
-    // Virtual Network Private Attributes
-    // *************************************************************************
-
-    // -------------------------------------------------------------------------
-    // Identification variables
-    // -------------------------------------------------------------------------
     /**
-     *  Name of the Virtual Network
+     * Modifies the given nic attribute adding the following attributes:
+     *  * IP:  leased from network
+     *  * MAC: leased from network
+     *  * BRIDGE: for this virtual network
+     *  @param nic attribute for the VM template
+     *  @param vid of the VM getting the lease
+     *  @return 0 on success
      */
-    string  name;
+    int nic_attribute(VectorAttribute * nic, int vid);
 
-    /**
-     *  Owner of the Virtual Network
-     */
-    int     uid;
-
-    // -------------------------------------------------------------------------
-    // Binded physical attributes
-    // -------------------------------------------------------------------------
-
-    /**
-     *  Name of the bridge this VNW binds to
-     */
-    string  bridge;
-
-    // -------------------------------------------------------------------------
-    // Virtual Network Description
-    // -------------------------------------------------------------------------
-    /**
-     * Holds the type of this network
-     */
-    NetworkType type;
-
-    /**
-     *  Pointer to leases class, can be fixed or ranged.
-     *  Holds information on given (and, optionally, possible) leases
-     */
-    Leases *    leases;
-
-    /**
-     *  The Virtual Network template, holds the VNW attributes.
-     */
-    VirtualNetworkTemplate  vn_template;
-
-    // *************************************************************************
-    // Non persistent data members from Nebula.conf
-    // *************************************************************************
-
-    /**
-     *  MAC prefix for this OpenNebula site
-     */
-    unsigned int    mac_prefix;
-
-    /**
-     *  Default size for virtual networks
-     */
-    int             default_size;
-
-    // *************************************************************************
-    // DataBase implementation (Private)
-    // *************************************************************************
-
-    /**
-     *  Execute an INSERT or REPLACE Sql query.
-     *    @param db The SQL DB
-     *    @param replace Execute an INSERT or a REPLACE
-     *    @return 0 on success
-     */
-    int insert_replace(SqlDB *db, bool replace);
-
-    /**
-     *  Bootstraps the database table(s) associated to the Virtual Network
-     */
-    static void bootstrap(SqlDB * db)
-    {
-        ostringstream oss_vnet(VirtualNetwork::db_bootstrap);
-        ostringstream oss_templ(VirtualNetworkTemplate::db_bootstrap);
-        ostringstream oss_lease(Leases::db_bootstrap);
-
-        db->exec(oss_vnet);
-        db->exec(oss_templ);
-        db->exec(oss_lease);
-    };
-
-    /**
-     *  Callback function to unmarshall a VNW object (VirtualNetwork::select)
-     *    @param num the number of columns read from the DB
-     *    @param names the column names
-     *    @param vaues the column values
-     *    @return 0 on success
-     */
-    int select_cb(void * nil, int num, char **values, char **names);
-
-    /**
-     *  Function to drop VN entry in vn_pool
-     *    @return 0 on success
-     */
-    int vn_drop(SqlDB * db);
-
-    // ------------------------------------------------------------------------
+    //------------------------------------------------------------------------
     // Template
     // ------------------------------------------------------------------------
 
@@ -299,6 +229,106 @@ private:
         vn_template.get(str,value);
     }
 
+private:
+
+    // -------------------------------------------------------------------------
+    // Friends
+    // -------------------------------------------------------------------------
+    friend class VirtualNetworkPool;
+
+    // *************************************************************************
+    // Virtual Network Private Attributes
+    // *************************************************************************
+
+    // -------------------------------------------------------------------------
+    // Identification variables
+    // -------------------------------------------------------------------------
+    /**
+     *  Name of the Virtual Network
+     */
+    string  name;
+
+    /**
+     *  Owner of the Virtual Network
+     */
+    int     uid;
+
+    // -------------------------------------------------------------------------
+    // Binded physical attributes
+    // -------------------------------------------------------------------------
+
+    /**
+     *  Name of the bridge this VNW binds to
+     */
+    string  bridge;
+
+    // -------------------------------------------------------------------------
+    // Virtual Network Description
+    // -------------------------------------------------------------------------
+    /**
+     * Holds the type of this network
+     */
+    NetworkType type;
+
+    /**
+     *  Public scope of this Virtual Network
+     */
+    int         public_vnet;
+
+    /**
+     *  Pointer to leases class, can be fixed or ranged.
+     *  Holds information on given (and, optionally, possible) leases
+     */
+    Leases *    leases;
+
+    /**
+     *  The Virtual Network template, holds the VNW attributes.
+     */
+    VirtualNetworkTemplate  vn_template;
+
+    // *************************************************************************
+    // DataBase implementation (Private)
+    // *************************************************************************
+
+    /**
+     *  Execute an INSERT or REPLACE Sql query.
+     *    @param db The SQL DB
+     *    @param replace Execute an INSERT or a REPLACE
+     *    @return 0 on success
+     */
+    int insert_replace(SqlDB *db, bool replace);
+
+    /**
+     *  Bootstraps the database table(s) associated to the Virtual Network
+     */
+    static void bootstrap(SqlDB * db)
+    {
+        ostringstream oss_vnet(VirtualNetwork::db_bootstrap);
+        ostringstream oss_templ(VirtualNetworkTemplate::db_bootstrap);
+        ostringstream oss_lease(Leases::db_bootstrap);
+
+        db->exec(oss_vnet);
+        db->exec(oss_templ);
+        db->exec(oss_lease);
+    };
+
+    /**
+     *  Callback function to unmarshall a VNW object (VirtualNetwork::select)
+     *    @param num the number of columns read from the DB
+     *    @param names the column names
+     *    @param vaues the column values
+     *    @return 0 on success
+     */
+    int select_cb(void * nil, int num, char **values, char **names);
+
+    /**
+     *  Function to drop VN entry in vn_pool
+     *    @return 0 on success
+     */
+    int vn_drop(SqlDB * db);
+
+
+
     /**
      *  Updates the template of a VNW, adding a new attribute (replacing it if
      *  already defined), the VN's mutex SHOULD be locked
@@ -332,7 +362,7 @@ protected:
     // Constructor
     //**************************************************************************
 
-    VirtualNetwork(unsigned int _mac_prefix, int _default_size);
+    VirtualNetwork();
 
     ~VirtualNetwork();
 
@@ -347,7 +377,8 @@ protected:
         NAME            = 2,
         TYPE            = 3,
         BRIDGE          = 4,
-        LIMIT           = 5
+        PUBLIC          = 5,
+        LIMIT           = 6
     };
 
     static const char * table;

@@ -51,6 +51,7 @@ main_env.Append(LIBPATH=[
     cwd + '/src/mad',
     cwd + '/src/vnm',
     cwd + '/src/um',
+    cwd + '/src/image',
     '/usr/include/openssl/',
 ])
 
@@ -62,6 +63,7 @@ main_env.Append(LIBS=[
     'nebula_vnm',
     'nebula_template',
     'nebula_pool',
+    'nebula_image',
     'nebula_common',
     'nebula_log',
     'nebula_core',

@@ -34,8 +34,13 @@ public:
     RankScheduler(string       url,
                   time_t       timer,
                   unsigned int machines_limit,
-                  unsigned int dispatch_limit
-                  ):Scheduler(url,timer,machines_limit, dispatch_limit),rp(0){};
+                  unsigned int dispatch_limit,
+                  unsigned int host_dispatch_limit
+                  ):Scheduler(url,
+                              timer,
+                              machines_limit,
+                              dispatch_limit,
+                              host_dispatch_limit),rp(0){};
 
     ~RankScheduler()
     {
@@ -62,13 +67,14 @@ int main(int argc, char **argv)
     RankScheduler * ss;
     int             port = 2633;
     time_t          timer= 30;
-    unsigned int    machines_limit = 400;
-    unsigned int    dispatch_limit = 300;
+    unsigned int    machines_limit = 300;
+    unsigned int    dispatch_limit = 30;
+    unsigned int    host_dispatch_limit = 1;
     char            opt;
 
     ostringstream  oss;
 
-    while((opt = getopt(argc,argv,"p:t:m:d:")) != -1)
+    while((opt = getopt(argc,argv,"p:t:m:d:h:")) != -1)
     {
         switch(opt)
         {
@@ -84,9 +90,12 @@ int main(int argc, char **argv)
             case 'd':
                 dispatch_limit = atoi(optarg);
                 break;
+            case 'h':
+                host_dispatch_limit = atoi(optarg);
+                break;
             default:
                 cerr << "usage: " << argv[0] << " [-p port] [-t timer] ";
-                cerr << "[-m machines limit] [-d dispatch limit]\n";
+                cerr << "[-m machines limit] [-d dispatch limit] [-h host_dispatch_limit]\n";
                 exit(-1);
                 break;
         }
@@ -96,7 +105,11 @@ int main(int argc, char **argv)
 
     oss << "http://localhost:" << port << "/RPC2";
 
-    ss = new RankScheduler(oss.str(),timer, machines_limit, dispatch_limit);
+    ss = new RankScheduler(oss.str(),
+                           timer,
+                           machines_limit,
+                           dispatch_limit,
+                           host_dispatch_limit);
 
     try
     {

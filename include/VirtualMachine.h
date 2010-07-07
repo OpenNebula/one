@@ -21,6 +21,7 @@
 #include "PoolSQL.h"
 #include "History.h"
 #include "Log.h"
+#include "NebulaLog.h"
 
 #include <time.h>
 #include <sstream>
@@ -615,24 +616,6 @@ public:
      */
     int  parse_template_attribute(const string& attribute,
                                   string&       parsed);
-
-    /**
-     *  Parse a string and substitute variables (e.g. $NAME) using the VM
-     *  template values (blocking-free version for cross references):
-     *    @param vm_id ID of the VM used to substitute the variables
-     *    @param attribute, the string to be parsed
-     *    @param parsed, the resulting parsed string
-     *    @param error_msg, string describing the syntax error
-     *    @return 0 on success.
-     */
-    static int parse_template_attribute(int           vm_id,
-                                        const string& attribute,
-                                        string&       parsed,
-                                        char **       error_msg)
-    {
-        return parse_attribute(0,vm_id,attribute,parsed,error_msg);
-    }
-
     // ------------------------------------------------------------------------
     // States
     // ------------------------------------------------------------------------
@@ -713,7 +696,7 @@ public:
     void get_requirements (int& cpu, int& memory, int& disk);
 
     // ------------------------------------------------------------------------
-    // Network Leases
+    // Network Leases & Disk Images
     // ------------------------------------------------------------------------
     /**
      *  Get all network leases for this Virtual Machine
@@ -725,6 +708,17 @@ public:
      *  Releases all network leases taken by this Virtual Machine
      */
     void release_network_leases();
+
+    /**
+     *  Get all disk images for this Virtual Machine
+     *  @return 0 if success
+     */
+    int get_disk_images();
+
+    /**
+     *  Releases all disk images taken by this Virtual Machine
+     */
+    void release_disk_images();
 
     // ------------------------------------------------------------------------
     // Context related functions
@@ -827,6 +821,11 @@ private:
     int         net_rx;
 
     /**
+     *  Sequence number of the last history item.
+     */
+    int         last_seq;
+
+    /**
      *  History record, for the current host
      */
     History *   history;
@@ -875,11 +874,11 @@ private:
      *    @return 0 on success
      */
     int select_cb(void *nil, int num, char **names, char ** values);
-    
+
     /**
-     *  Execute an INSERT or REPLACE Sql query. 
+     *  Execute an INSERT or REPLACE Sql query.
      *    @param db The SQL DB
-     *    @param replace Execute an INSERT or a REPLACE	
+     *    @param replace Execute an INSERT or a REPLACE
      *    @return 0 one success
     */
     int insert_replace(SqlDB *db, bool replace);
@@ -963,22 +962,24 @@ private:
     static pthread_mutex_t lex_mutex;
 
     /**
-     *  Parse a string and substitute variables (e.g. $NAME) using template
-     *  values:
-     *    @param vm pointer to VirtualMachine if not 0 the template of that VM
-     *           will be used.
-     *    @param vm_id ID of the VM used to substitute the variables, used if vm
-     *           is 0
-     *    @param attribute, the string to be parsed
-     *    @param parsed, the resulting parsed string
-     *    @param error_msg, string describing the syntax error
-     *    @return 0 on success.
+     *  Parse the "CONTEXT" attribute of the template by substituting
+     *  $VARIABLE, $VARIABLE[ATTR] and $VARIABLE[ATTR, ATTR = VALUE]
+     *    @return 0 on success
      */
-    static int parse_attribute(VirtualMachine * vm,
-                               int              vm_id,
-                               const string&    attribute,
-                               string&          parsed,
-                               char **          error_msg);
+    int parse_context();
+
+    /**
+     *  Parse the "REQUIREMENTS" attribute of the template by substituting
+     *  $VARIABLE, $VARIABLE[ATTR] and $VARIABLE[ATTR, ATTR = VALUE]
+     *    @return 0 on success
+     */
+    int parse_requirements();
+
+    /**
+     *  Parse the "GRAPHICS" attribute and generates a default PORT if not
+     *  defined
+     */
+    void parse_graphics();
 
 protected:
 
@@ -1000,16 +1001,16 @@ protected:
         UID             = 1,
         NAME            = 2,
         LAST_POLL       = 3,
-        TEMPLATE_ID     = 4,
-        STATE           = 5,
-        LCM_STATE       = 6,
-        STIME           = 7,
-        ETIME           = 8,
-        DEPLOY_ID       = 9,
-        MEMORY          = 10,
-        CPU             = 11,
-        NET_TX          = 12,
-        NET_RX          = 13,
+        STATE           = 4,
+        LCM_STATE       = 5,
+        STIME           = 6,
+        ETIME           = 7,
+        DEPLOY_ID       = 8,
+        MEMORY          = 9,
+        CPU             = 10,
+        NET_TX          = 11,
+        NET_RX          = 12,
+        LAST_SEQ        = 13,
         LIMIT           = 14
     };
 
@@ -1041,24 +1042,14 @@ protected:
     virtual int update(SqlDB * db);
 
     /**
-     * Deletes a VM from the database and all its associated information:
-     *   - History records
-     *   - VM template
+     * Deletes a VM from the database and all its associated information
      *   @param db pointer to the db
-     *   @return 0 on success
+     *   @return -1
      */
     virtual int drop(SqlDB * db)
     {
-        int rc;
-
-        rc = vm_template.drop(db);
-
-        if ( history != 0 )
-        {
-            rc += history->drop(db);
-        }
-
-        return rc;
+        NebulaLog::log("ONE",Log::ERROR, "VM Drop not implemented!");
+        return -1;
     }
 
     /**

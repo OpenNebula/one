@@ -39,7 +39,7 @@ Host::Host(
         im_mad_name(_im_mad_name),
         vmm_mad_name(_vmm_mad_name),
         tm_mad_name(_tm_mad_name),
-        last_monitored(time(0)),
+        last_monitored(0),
         host_template(id)
         {};
 
@@ -109,6 +109,8 @@ int Host::select(SqlDB *db)
     oid  = -1;
 
     rc = db->exec(oss, this);
+
+    unset_callback();
 
     if ((rc != 0) || (oid != boid ))
     {
@@ -195,7 +197,7 @@ int Host::update(SqlDB *db)
 {
     int    rc;
 
-    // Update the Template
+    // Update the Template needed by the monitoring action from IM
     rc = host_template.update(db);
 
     if ( rc != 0 )

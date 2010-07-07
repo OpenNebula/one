@@ -51,6 +51,7 @@ VirtualMachine::VirtualMachine(int id):
         cpu(0),
         net_tx(0),
         net_rx(0),
+        last_seq(-1),
         history(0),
         previous_history(0),
         _log(0)
@@ -81,16 +82,16 @@ VirtualMachine::~VirtualMachine()
 
 const char * VirtualMachine::table = "vm_pool";
 
-const char * VirtualMachine::db_names = "(oid,uid,name,last_poll,template_id,state"
-                                        ",lcm_state,stime,etime,deploy_id"
-                                        ",memory,cpu,net_tx,net_rx)";
+const char * VirtualMachine::db_names =
+    "(oid,uid,name,last_poll, state,lcm_state,stime,etime,deploy_id"
+    ",memory,cpu,net_tx,net_rx,last_seq)";
 
 const char * VirtualMachine::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
         "vm_pool ("
         "oid INTEGER PRIMARY KEY,uid INTEGER,name TEXT,"
-        "last_poll INTEGER, template_id INTEGER,state INTEGER,lcm_state INTEGER,"
+        "last_poll INTEGER, state INTEGER,lcm_state INTEGER,"
         "stime INTEGER,etime INTEGER,deploy_id TEXT,memory INTEGER,cpu INTEGER,"
-        "net_tx INTEGER,net_rx INTEGER)";
+        "net_tx INTEGER,net_rx INTEGER, last_seq INTEGER)";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -98,19 +99,19 @@ const char * VirtualMachine::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
 int VirtualMachine::select_cb(void *nil, int num, char **values, char **names)
 {
     if ((values[OID] == 0) ||
-            (values[UID] == 0) ||
-            (values[NAME] == 0) ||
-            (values[LAST_POLL] == 0) ||
-            (values[TEMPLATE_ID] == 0) ||
-            (values[STATE] == 0) ||
-            (values[LCM_STATE] == 0) ||
-            (values[STIME] == 0) ||
-            (values[ETIME] == 0) ||
-            (values[MEMORY] == 0) ||
-            (values[CPU] == 0) ||
-            (values[NET_TX] == 0) ||
-            (values[NET_RX] == 0) ||
-            (num != LIMIT ))
+        (values[UID] == 0) ||
+        (values[NAME] == 0) ||
+        (values[LAST_POLL] == 0) ||
+        (values[STATE] == 0) ||
+        (values[LCM_STATE] == 0) ||
+        (values[STIME] == 0) ||
+        (values[ETIME] == 0) ||
+        (values[MEMORY] == 0) ||
+        (values[CPU] == 0) ||
+        (values[NET_TX] == 0) ||
+        (values[NET_RX] == 0) ||
+        (values[LAST_SEQ] == 0) ||
+        (num != LIMIT ))
     {
         return -1;
     }
@@ -132,12 +133,14 @@ int VirtualMachine::select_cb(void *nil, int num, char **values, char **names)
         deploy_id = values[DEPLOY_ID];
     }
 
-    memory = atoi(values[MEMORY]);
-    cpu    = atoi(values[CPU]);
-    net_tx = atoi(values[NET_TX]);
-    net_rx = atoi(values[NET_RX]);
+    memory      = atoi(values[MEMORY]);
+    cpu         = atoi(values[CPU]);
+    net_tx      = atoi(values[NET_TX]);
+    net_rx      = atoi(values[NET_RX]);
+    last_seq    = atoi(values[LAST_SEQ]);
 
-    vm_template.id = atoi(values[TEMPLATE_ID]);
+    // Virtual Machine template ID is the VM ID
+    vm_template.id = oid;
 
     return 0;
 }
@@ -165,6 +168,8 @@ int VirtualMachine::select(SqlDB * db)
 
     rc = db->exec(oss,this);
 
+    unset_callback();
+
     if ((rc != 0) || (oid != boid ))
     {
         goto error_id;
@@ -180,24 +185,21 @@ int VirtualMachine::select(SqlDB * db)
 
     //Get the History Records
 
-    history = new History(oid);
-
-    rc = history->select(db);
-
-    if (rc != 0)
+    if ( last_seq != -1 )
     {
-        goto error_history;
+        history = new History(oid, last_seq);
+
+        rc = history->select(db);
+
+        if (rc != 0)
+        {
+            goto error_history;
+        }
     }
 
-    if ( history->seq == -1 )
+    if ( last_seq > 0 )
     {
-        delete history;
-
-        history = 0;
-    }
-    else if (history->seq > 0)
-    {
-        previous_history = new History(oid,history->seq - 1);
+        previous_history = new History(oid, last_seq - 1);
 
         rc = previous_history->select(db);
 
@@ -266,6 +268,14 @@ int VirtualMachine::insert(SqlDB * db)
     ostringstream       oss;
 
     // -----------------------------------------------------------------------
+    // Set a template ID if it wasn't already assigned
+    // ------------------------------------------------------------------------
+    if ( vm_template.id == -1 )
+    {
+        vm_template.id = oid;
+    }
+
+    // -----------------------------------------------------------------------
     // Set a name if the VM has not got one and VM_ID
     // ------------------------------------------------------------------------
     oss << oid;
@@ -274,7 +284,6 @@ int VirtualMachine::insert(SqlDB * db)
     attr = new SingleAttribute("VMID",value);
 
     vm_template.set(attr);
-
 
     get_template_attribute("NAME",name);
 
@@ -298,8 +307,39 @@ int VirtualMachine::insert(SqlDB * db)
 
     if ( rc != 0 )
     {
-    	goto error_leases;
+        goto error_leases;
     }
+
+    // ------------------------------------------------------------------------
+    // Get disk images
+    // ------------------------------------------------------------------------
+
+    rc = get_disk_images();
+
+    if ( rc != 0 )
+    {
+        goto error_images;
+    }
+
+    // -------------------------------------------------------------------------
+    // Parse the context & requirements
+    // -------------------------------------------------------------------------
+
+    rc = parse_context();
+
+    if ( rc != 0 )
+    {
+        goto error_context;
+    }
+
+    rc = parse_requirements();
+
+    if ( rc != 0 )
+    {
+        goto error_requirements;
+    }
+
+    parse_graphics();
 
     // ------------------------------------------------------------------------
     // Insert the template first, so we get a valid template ID. Then the VM
@@ -324,17 +364,188 @@ int VirtualMachine::insert(SqlDB * db)
 error_update:
     NebulaLog::log("ONE",Log::ERROR, "Can not update VM in the database");
     vm_template.drop(db);
-    return -1;
+    goto error_common;
 
 error_template:
     NebulaLog::log("ONE",Log::ERROR, "Can not insert template in the database");
-    release_network_leases();
-    return -1;
+    goto error_common;
 
 error_leases:
     NebulaLog::log("ONE",Log::ERROR, "Could not get network lease for VM");
     release_network_leases();
     return -1;
+
+error_images:
+    NebulaLog::log("ONE",Log::ERROR, "Could not get disk image for VM");
+    goto error_common;
+
+error_context:
+    NebulaLog::log("ONE",Log::ERROR, "Could not parse CONTEXT for VM");
+    goto error_common;
+
+error_requirements:
+    NebulaLog::log("ONE",Log::ERROR, "Could not parse REQUIREMENTS for VM");
+
+error_common:
+    release_network_leases();
+    release_disk_images();
+    return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::parse_context()
+{
+    int rc, num;
+
+    vector<Attribute *> array_context;
+    VectorAttribute *   context;
+
+    string *            str;
+    string              parsed;
+
+    num = vm_template.remove("CONTEXT", array_context);
+
+    if ( num == 0 )
+    {
+        return 0;
+    }
+
+    context = dynamic_cast<VectorAttribute *>(array_context[0]);
+
+    if ( context == 0 )
+    {
+        NebulaLog::log("ONE",Log::ERROR, "Wrong format for CONTEXT attribute");
+        return -1;
+    }
+
+    str = context->marshall(" @^_^@ ");
+
+    if (str == 0)
+    {
+        NebulaLog::log("ONE",Log::ERROR, "Can not marshall CONTEXT");
+        return -1;
+    }
+
+    rc = parse_template_attribute(*str,parsed);
+
+    if ( rc == 0 )
+    {
+        VectorAttribute * context_parsed;
+
+        context_parsed = new VectorAttribute("CONTEXT");
+        context_parsed->unmarshall(parsed," @^_^@ ");
+
+        vm_template.set(context_parsed);
+    }
+
+    /* --- Delete old context attributes --- */
+
+    for (int i = 0; i < num ; i++)
+    {
+        if (array_context[i] != 0)
+        {
+            delete array_context[i];
+        }
+    }
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachine::parse_graphics()
+{
+    int num;
+
+    vector<Attribute *> array_graphics;
+    VectorAttribute *   graphics;
+
+    num = vm_template.get("GRAPHICS", array_graphics);
+
+    if ( num == 0 )
+    {
+        return;
+    }
+
+    graphics = dynamic_cast<VectorAttribute * >(array_graphics[0]);
+
+    if ( graphics == 0 )
+    {
+        return;
+    }
+
+    string port = graphics->vector_value("PORT");
+
+    if ( port.empty() )
+    {
+        Nebula&       nd = Nebula::instance();
+
+        ostringstream oss;
+        istringstream iss;
+
+        int           base_port;
+        string        base_port_s;
+
+        nd.get_configuration_attribute("VNC_BASE_PORT",base_port_s);
+        iss.str(base_port_s);
+        iss >> base_port;
+
+        oss << ( base_port + oid );
+        graphics->replace("PORT", oss.str());
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::parse_requirements()
+{
+    int rc, num;
+
+    vector<Attribute *> array_reqs;
+    SingleAttribute *   reqs;
+
+    string              parsed;
+
+    num = vm_template.remove("REQUIREMENTS", array_reqs);
+
+    if ( num == 0 )
+    {
+        return 0;
+    }
+
+    reqs = dynamic_cast<SingleAttribute *>(array_reqs[0]);
+
+    if ( reqs == 0 )
+    {
+        NebulaLog::log("ONE",Log::ERROR,"Wrong format for REQUIREMENTS");
+        return -1;
+    }
+
+    rc = parse_template_attribute(reqs->value(),parsed);
+
+    if ( rc == 0 )
+    {
+        SingleAttribute * reqs_parsed;
+
+        reqs_parsed = new SingleAttribute("REQUIREMENTS",parsed);
+        vm_template.set(reqs_parsed);
+    }
+
+    /* --- Delete old requirements attributes --- */
+
+    for (int i = 0; i < num ; i++)
+    {
+        if (array_reqs[i] != 0)
+        {
+            delete array_reqs[i];
+        }
+    }
+
+    return rc;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -342,11 +553,7 @@ error_leases:
 
 int VirtualMachine::update(SqlDB * db)
 {
-    int             rc;
-
-    rc = insert_replace(db, true);
-
-    return rc;
+    return insert_replace(db, true);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -374,7 +581,7 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace)
        db->free_str(sql_deploy_id);
        return -1;
     }
-    
+
     if(replace)
     {
         oss << "REPLACE";
@@ -383,22 +590,22 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace)
     {
         oss << "INSERT";
     }
-    
-    oss << " INTO " << table << " "<< db_names <<" VALUES ("<<
-        oid << "," <<
-        uid << "," <<
-        "'" << sql_name << "'," <<
-        last_poll << "," <<
-        vm_template.id << "," <<
-        state << "," <<
-        lcm_state << "," <<
-        stime << "," <<
-        etime << "," <<
-        "'" << sql_deploy_id << "'," <<
-        memory << "," <<
-        cpu << "," <<
-        net_tx << "," <<
-        net_rx << ")";
+
+    oss << " INTO " << table << " "<< db_names <<" VALUES ("
+        <<          oid             << ","
+        <<          uid             << ","
+        << "'" <<   sql_name        << "',"
+        <<          last_poll       << ","
+        <<          state           << ","
+        <<          lcm_state       << ","
+        <<          stime           << ","
+        <<          etime           << ","
+        << "'" <<   sql_deploy_id   << "',"
+        <<          memory          << ","
+        <<          cpu             << ","
+        <<          net_tx          << ","
+        <<          net_rx          << ","
+        <<          last_seq        << ")";
 
     db->free_str(sql_deploy_id);
     db->free_str(sql_name);
@@ -426,7 +633,8 @@ int VirtualMachine::dump(ostringstream& oss,int num,char **values,char **names)
         (!values[CPU])||
         (!values[NET_TX])||
         (!values[NET_RX])||
-        (num != LIMIT + History::LIMIT + 2 ))
+        (!values[LAST_SEQ])||
+        (num != (LIMIT + History::LIMIT + 1)))
     {
         return -1;
     }
@@ -446,9 +654,10 @@ int VirtualMachine::dump(ostringstream& oss,int num,char **values,char **names)
             "<MEMORY>"   << values[MEMORY]   << "</MEMORY>"   <<
             "<CPU>"      << values[CPU]      << "</CPU>"      <<
             "<NET_TX>"   << values[NET_TX]   << "</NET_TX>"   <<
-            "<NET_RX>"   << values[NET_RX]   << "</NET_RX>";
+            "<NET_RX>"   << values[NET_RX]   << "</NET_RX>"   <<
+            "<LAST_SEQ>" << values[LAST_SEQ] << "</LAST_SEQ>";
 
-    History::dump(oss, num-LIMIT-2, values+LIMIT+1, names+LIMIT+1);
+    History::dump(oss, num-LIMIT-1, values+LIMIT+1, names+LIMIT+1);
 
     oss << "</VM>";
 
@@ -484,6 +693,8 @@ void VirtualMachine::add_history(
         previous_history = history;
     }
 
+    last_seq = seq;
+
     history = new History(oid,seq,hid,hostname,vm_dir,vmm_mad,tm_mad);
 };
 
@@ -515,6 +726,8 @@ void VirtualMachine::cp_history()
     previous_history = history;
 
     history = htmp;
+
+    last_seq = history->seq;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -542,6 +755,8 @@ void VirtualMachine::cp_previous_history()
     previous_history = history;
 
     history = htmp;
+
+    last_seq = history->seq;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -574,103 +789,119 @@ void VirtualMachine::get_requirements (int& cpu, int& memory, int& disk)
 
     return;
 }
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::get_disk_images()
+{
+    int                   num_disks, rc;
+    vector<Attribute  * > disks;
+    ImagePool *           ipool;
+    VectorAttribute *     disk;
+
+    Nebula& nd = Nebula::instance();
+    ipool      = nd.get_ipool();
+
+    num_disks  = vm_template.get("DISK",disks);
+
+    for(int i=0, index=0; i<num_disks; i++)
+    {
+
+        disk = dynamic_cast<VectorAttribute * >(disks[i]);
+
+        if ( disk == 0 )
+        {
+            continue;
+        }
+
+        rc = ipool->disk_attribute(disk, &index);
+
+        if (rc == -1) // 0 OK, -2 not using the Image pool
+        {
+            return -1;
+        }
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachine::release_disk_images()
+{
+    string  iid;
+    int     num_disks;
+
+    vector<Attribute const  * > disks;
+    Image *                     img;
+    ImagePool *                 ipool;
+
+    Nebula& nd = Nebula::instance();
+    ipool      = nd.get_ipool();
+
+    num_disks   = get_template_attribute("DISK",disks);
+
+    for(int i=0; i<num_disks; i++)
+    {
+        VectorAttribute const *  disk =
+            dynamic_cast<VectorAttribute const * >(disks[i]);
+
+        if ( disk == 0 )
+        {
+            continue;
+        }
+
+        iid = disk->vector_value("IID");
+
+        if ( iid.empty() )
+        {
+            continue;
+        }
+
+        img = ipool->get(atoi(iid.c_str()),true);
+
+        if ( img == 0 )
+        {
+            continue;
+        }
+
+        img->release_image();
+
+        img->unlock();
+    }
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 int VirtualMachine::get_network_leases()
 {
-    int                        num_nics, rc;
-    vector<Attribute  * >      nics;
-    VirtualNetworkPool       * vnpool;
-    VirtualNetwork           * vn;
-    VectorAttribute          * nic;
-    map<string,string>         new_nic;
-
-    string                     ip;
-    string                     mac;
-    string                     bridge;
-    string                     network;
-    string                     model;
-
-    ostringstream              vnid;
-
-    // Set the networking attributes.
+    int                   num_nics, rc;
+    vector<Attribute  * > nics;
+    VirtualNetworkPool *  vnpool;
+    VectorAttribute *     nic;
 
     Nebula& nd = Nebula::instance();
     vnpool     = nd.get_vnpool();
 
     num_nics   = vm_template.get("NIC",nics);
 
-    for(int i=0; i<num_nics; i++,vnid.str(""))
+    for(int i=0; i<num_nics; i++)
     {
-   	 	nic = dynamic_cast<VectorAttribute * >(nics[i]);
+        nic = dynamic_cast<VectorAttribute * >(nics[i]);
 
         if ( nic == 0 )
         {
             continue;
         }
 
-        network = nic->vector_value("NETWORK");
+        rc = vnpool->nic_attribute(nic, oid);
 
-        if ( network.empty() )
-        {
-            continue;
-        }
-
-        vn = vnpool->get(network,true);
-
-        if ( vn == 0 )
+        if (rc == -1)
         {
             return -1;
         }
-
-        if ( vn->get_uid() != uid && vn->get_uid() != 0 && uid != 0)
-        {
-            ostringstream ose;
-            ose << "Owner " << uid << " of the VM doesn't have ownership of Virtual Network "
-                << vn->get_uid();
-            NebulaLog::log("VMM", Log::ERROR, ose);
-            return -1;
-        }
-
-
-        ip = nic->vector_value("IP");
-
-        if (ip.empty())
-        {
-        	rc = vn->get_lease(oid, ip, mac, bridge);
-        }
-        else
-        {
-        	rc = vn->set_lease(oid, ip, mac, bridge);
-        }
-
-        vn->unlock();
-
-        if ( rc != 0 )
-        {
-            return -1;
-        }
-
-        vnid << vn->get_oid();
-
-        new_nic.insert(make_pair("NETWORK",network));
-        new_nic.insert(make_pair("MAC"    ,mac));
-        new_nic.insert(make_pair("BRIDGE" ,bridge));
-        new_nic.insert(make_pair("VNID"   ,vnid.str()));
-        new_nic.insert(make_pair("IP"     ,ip));
-
-        model = nic->vector_value("MODEL");
-
-        if ( !model.empty() )
-        {
-            new_nic.insert(make_pair("MODEL",model));
-        }
-
-        nic->replace(new_nic);
-
-        new_nic.erase(new_nic.begin(),new_nic.end());
     }
 
     return 0;
@@ -791,28 +1022,6 @@ int VirtualMachine::generate_context(string &files)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::parse_template_attribute(const string& attribute,
-                                             string&       parsed)
-{
-    int rc;
-    char * err = 0;
-
-    rc = parse_attribute(this,-1,attribute,parsed,&err);
-
-    if ( rc != 0 && err != 0 )
-    {
-        ostringstream oss;
-
-        oss << "Error parsing: " << attribute << ". " << err;
-        log("VM",Log::ERROR,oss);
-    }
-
-    return rc;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 pthread_mutex_t VirtualMachine::lex_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 extern "C"
@@ -820,7 +1029,6 @@ extern "C"
     typedef struct yy_buffer_state * YY_BUFFER_STATE;
 
     int vm_var_parse (VirtualMachine * vm,
-                      int              vm_id,
                       ostringstream *  parsed,
                       char **          errmsg);
 
@@ -833,18 +1041,14 @@ extern "C"
 
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::parse_attribute(VirtualMachine * vm,
-                                    int              vm_id,
-                                    const string&    attribute,
-                                    string&          parsed,
-                                    char **          error_msg)
+int VirtualMachine::parse_template_attribute(const string& attribute,
+                                             string&       parsed)
 {
     YY_BUFFER_STATE  str_buffer = 0;
     const char *     str;
     int              rc;
     ostringstream    oss_parsed;
-
-    *error_msg = 0;
+    char *           error_msg = 0;
 
     pthread_mutex_lock(&lex_mutex);
 
@@ -856,7 +1060,7 @@ int VirtualMachine::parse_attribute(VirtualMachine * vm,
         goto error_yy;
     }
 
-    rc = vm_var_parse(vm,vm_id,&oss_parsed,error_msg);
+    rc = vm_var_parse(this,&oss_parsed,&error_msg);
 
     vm_var__delete_buffer(str_buffer);
 
@@ -864,12 +1068,22 @@ int VirtualMachine::parse_attribute(VirtualMachine * vm,
 
     pthread_mutex_unlock(&lex_mutex);
 
+    if ( rc != 0 && error_msg != 0 )
+    {
+        ostringstream oss;
+
+        oss << "Error parsing: " << attribute << ". " << error_msg;
+        log("VM",Log::ERROR,oss);
+
+        free(error_msg);
+    }
+
     parsed = oss_parsed.str();
 
     return rc;
 
 error_yy:
-    *error_msg=strdup("Error setting scan buffer");
+    log("VM",Log::ERROR,"Error setting scan buffer");
     pthread_mutex_unlock(&lex_mutex);
     return -1;
 }
@@ -879,9 +1093,9 @@ error_yy:
 
 ostream& operator<<(ostream& os, const VirtualMachine& vm)
 {
-	string vm_str;
+    string vm_str;
 
-		os << vm.to_xml(vm_str);
+    os << vm.to_xml(vm_str);
 
     return os;
 };
@@ -890,48 +1104,51 @@ ostream& operator<<(ostream& os, const VirtualMachine& vm)
 
 string& VirtualMachine::to_xml(string& xml) const
 {
-	string template_xml;
+
+    string template_xml;
     string history_xml;
 
-	ostringstream	oss;
+    ostringstream	oss;
 
-	oss << "<VM>"
-	      << "<ID>"       << oid       << "</ID>"
-	      << "<UID>"       << uid       << "</UID>"
-          << "<NAME>"      << name      << "</NAME>"
-	      << "<LAST_POLL>" << last_poll << "</LAST_POLL>"
-	      << "<STATE>"     << state     << "</STATE>"
-	      << "<LCM_STATE>" << lcm_state << "</LCM_STATE>"
-	      << "<STIME>"     << stime     << "</STIME>"
-	      << "<ETIME>"     << etime     << "</ETIME>"
-          << "<DEPLOY_ID>" << deploy_id << "</DEPLOY_ID>"
-	      << "<MEMORY>"    << memory    << "</MEMORY>"
-	      << "<CPU>"       << cpu       << "</CPU>"
-	      << "<NET_TX>"    << net_tx    << "</NET_TX>"
-	      << "<NET_RX>"    << net_rx    << "</NET_RX>"
-          << vm_template.to_xml(template_xml);
+    oss << "<VM>"
+        << "<ID>"        << oid       << "</ID>"
+        << "<UID>"       << uid       << "</UID>"
+        << "<NAME>"      << name      << "</NAME>"
+        << "<LAST_POLL>" << last_poll << "</LAST_POLL>"
+        << "<STATE>"     << state     << "</STATE>"
+        << "<LCM_STATE>" << lcm_state << "</LCM_STATE>"
+        << "<STIME>"     << stime     << "</STIME>"
+        << "<ETIME>"     << etime     << "</ETIME>"
+        << "<DEPLOY_ID>" << deploy_id << "</DEPLOY_ID>"
+        << "<MEMORY>"    << memory    << "</MEMORY>"
+        << "<CPU>"       << cpu       << "</CPU>"
+        << "<NET_TX>"    << net_tx    << "</NET_TX>"
+        << "<NET_RX>"    << net_rx    << "</NET_RX>"
+        << "<LAST_SEQ>"  << last_seq  << "</LAST_SEQ>"
+        << vm_template.to_xml(template_xml);
 
     if ( hasHistory() )
     {
         oss << history->to_xml(history_xml);
     }
-	oss << "</VM>";
 
-	xml = oss.str();
+    oss << "</VM>";
 
-	return xml;
+    xml = oss.str();
+
+    return xml;
 }
 
 /* -------------------------------------------------------------------------- */
 
 string& VirtualMachine::to_str(string& str) const
 {
-	string template_str;
+    string template_str;
     string history_str;
 
-	ostringstream	oss;
+    ostringstream	oss;
 
-	oss<< "ID                : " << oid << endl
+    oss<< "ID                : " << oid << endl
        << "UID               : " << uid << endl
        << "NAME              : " << name << endl
        << "STATE             : " << state << endl
@@ -944,6 +1161,7 @@ string& VirtualMachine::to_str(string& str) const
        << "STOP TIME         : " << etime << endl
        << "NET TX            : " << net_tx << endl
        << "NET RX            : " << net_rx << endl
+       << "LAST SEQ          : " << last_seq << endl
        << "Template" << endl << vm_template.to_str(template_str) << endl;
 
     if ( hasHistory() )
@@ -951,9 +1169,9 @@ string& VirtualMachine::to_str(string& str) const
         oss << "Last History Record" << endl << history->to_str(history_str);
     }
 
-	str = oss.str();
+    str = oss.str();
 
-	return str;
+    return str;
 }
 
 /* -------------------------------------------------------------------------- */

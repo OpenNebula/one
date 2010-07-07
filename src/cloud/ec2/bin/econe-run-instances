@@ -1,31 +1,4 @@
 #!/usr/bin/env ruby
-
-# == Synopsis
-# econe-run-instances 
-# 
-# Runs an instance of a particular image
-#
-# == Usage
-#
-# econe-run-instances [OPTIONS]
-#
-# -h, --help:
-#    show help
-#
-# --access-key <id>, -K <id>:
-#    The username of the user
-#
-# --secret-key <key>, -S <key>:
-#    The password of the user
-#
-# --url <url>, -U <url>:
-#    Set url as the web service url to use
-#
-# --type <type>, -t <type>
-#
-# --headers, -H:
-#    Display column headers
-
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
@@ -54,11 +27,47 @@ end
 $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+"/cloud"
 
+COMMANDS_HELP=<<-EOT
+    ** Synopsis
+    -----------
+    econe-run-instances 
+ 
+    Runs an instance of a particular image
+
+    ** Usage
+    --------
+    econe-run-instances [OPTIONS] IMAGE-ID
+
+    --help, -h:
+        Show help
+
+    --access-key <id>, -K <id>:
+        The username of the user
+
+    --secret-key <key>, -S <key>:
+        The password of the user
+
+    --url <url>, -U <url>:
+        Set url as the web service url to use
+
+    --type <type>, -t <type>:
+        OpenNebula template in which is based this instance
+        
+    -–user-data, -d:
+        Specifies Base64-encoded MIME user data to be made 
+        available to the instance
+        
+    --headers, -H:
+        Display column headers
+        
+    IMAGE-ID: The image identification as returned by
+    the econe-upload command
+
+EOT
+
 require 'econe/EC2QueryClient'
 require 'CloudClient'
 require 'getoptlong'
-require 'rdoc/usage'
-require 'pp'
 
 include CloudCLI
 
@@ -68,6 +77,7 @@ opts = GetoptLong.new(
             ['--secret-key', '-S',GetoptLong::REQUIRED_ARGUMENT],
             ['--url',        '-U',GetoptLong::REQUIRED_ARGUMENT],
             ['--type',       '-t',GetoptLong::REQUIRED_ARGUMENT],
+            ['--user-data',  '-d',GetoptLong::REQUIRED_ARGUMENT],
             ['--headers',    '-H',GetoptLong::NO_ARGUMENT]
        )
 
@@ -77,12 +87,14 @@ access  = nil
 secret  = nil
 auth    = nil
 type    = nil
+user_data = nil
 
 begin
     opts.each do |opt, arg|
         case opt
             when '--help'
-                RDoc::usage
+                puts COMMANDS_HELP
+                return
             when '--access-key'
                 access = arg
             when '--secret-key'
@@ -93,6 +105,8 @@ begin
                 type = arg
             when '--headers'
                 headers = true
+            when '--user-data'
+                user_data = arg
         end
     end
 rescue Exception => e
@@ -119,7 +133,7 @@ rescue Exception => e
     exit -1
 end
 
-rc = ec2_client.run_instances(image_id,type)
+rc = ec2_client.run_instances(image_id,type, user_data)
 
 if CloudClient::is_error?(rc)
     puts "#{cmd_name}: #{rc.message}"

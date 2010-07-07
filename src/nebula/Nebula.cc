@@ -205,6 +205,7 @@ void Nebula::start()
         HostPool::bootstrap(db);
         VirtualNetworkPool::bootstrap(db);
         UserPool::bootstrap(db);
+        ImagePool::bootstrap(db);
     }
     catch (exception&)
     {
@@ -213,8 +214,11 @@ void Nebula::start()
 
     try
     {
-    	string 	mac_prefix;
-    	int		size;
+        string  mac_prefix;
+        int     size;
+        string  repository_path;
+        string  default_image_type;
+        string  default_device_prefix;
 
         vector<const Attribute *> vm_hooks;
 
@@ -229,6 +233,22 @@ void Nebula::start()
         vnpool = new VirtualNetworkPool(db,mac_prefix,size);
 
         upool  = new UserPool(db);
+                
+        nebula_configuration->get("IMAGE_REPOSITORY_PATH", repository_path);
+        
+        if (repository_path.empty()) // Defaults to ONE_LOCATION/var
+        {
+            repository_path = var_location;
+        }
+        
+        nebula_configuration->get("DEFAULT_IMAGE_TYPE", default_image_type);
+        nebula_configuration->get("DEFAULT_DEVICE_PREFIX",
+                                  default_device_prefix);
+           
+        ipool  = new ImagePool(db, 
+                               repository_path,
+                               default_image_type,
+                               default_device_prefix);
     }
     catch (exception&)
     {
@@ -389,6 +409,7 @@ void Nebula::start()
             hpool,
             vnpool,
             upool,
+            ipool,
             rm_port,
             log_location + "one_xmlrpc.log");
     }

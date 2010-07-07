@@ -278,6 +278,40 @@ public:
         CPPUNIT_ASSERT(tr_xml == xml);
     }
 
+    /* --------------------------------------------------------------------- */
+
+    void test_erase()
+    {
+        // There are Single and Vector type attributes, and any att. can be
+        // unique within the template, or not.
+
+        int n;
+
+        // Non-existing attribute
+        n = t1->erase("NON_EXISTING_ATT");
+        CPPUNIT_ASSERT( n == 0 );
+
+        // CPU is a Unique & Single Att.
+        n = t1->erase("CPU");
+        CPPUNIT_ASSERT( n == 1 );
+
+        // GRAPHICS is a Unique & Vector Att.
+        n = t1->erase("GRAPHICS");
+        CPPUNIT_ASSERT( n == 1 );
+
+        // MEMORY is now a Multiple & Single Att.
+        SingleAttribute* satt = new SingleAttribute("MEMORY", "123");
+        t1->set(satt);
+
+        n = t1->erase("MEMORY");
+        CPPUNIT_ASSERT( n == 2 );
+
+        // DISK is a Multiple & Vector Att.
+        n = t1->erase("DISK");
+        CPPUNIT_ASSERT( n == 2 );
+    }
+
+
     /* ********************************************************************* */
     /* ********************************************************************* */
 
@@ -312,6 +346,11 @@ public:
         ts->addTest(new CppUnit::TestCaller<TemplateTest>(
                     "set() Test",
                     &TemplateTest::test_set));
+
+        ts->addTest(new CppUnit::TestCaller<TemplateTest>(
+                    "erase() Test",
+                    &TemplateTest::test_erase));
+
         return ts;
     }
 };

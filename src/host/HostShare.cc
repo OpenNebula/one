@@ -184,6 +184,8 @@ int HostShare::select(SqlDB * db)
 
     rc = db->exec(oss,this);
 
+    unset_callback();
+
     if (hsid != bhsid )
     {
         rc = -1;

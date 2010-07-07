@@ -88,11 +88,11 @@ RAW = [ # Optional, KVM, XEN
 
 #---------------------------------------
 #  Context for the VM
-#    values can be:
+#    values can use:
 #    $<template_variable>
 #    $<template_variable>[<attribute>]
 #    $<template_variable>[<attribute>, <attribute2>=<value2>]
-#    $<vm_id>.<context_var>
+#    $NETWORK[<vnet_attribute>, NAME=<vnet_name>]
 #---------------------------------------
 
 CONTEXT = [ # Optional, KVM, XEN
@@ -102,7 +102,11 @@ CONTEXT = [ # Optional, KVM, XEN
   target= "device to attach the context device" ]
 
 #---------------------------------------
-#           Scheduler
+#  Scheduler
+#    Requirements expressions can use:
+#    $<template_variable>
+#    $<template_variable>[<attribute>]
+#    $<template_variable>[<attribute>, <attribute2>=<value2>]
 #---------------------------------------
 
 REQUIREMENTS = "Bool_expression_for_reqs"       #Optional

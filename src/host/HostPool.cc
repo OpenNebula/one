@@ -70,23 +70,21 @@ int HostPool::discover_cb(void * _map, int num, char **values, char **names)
 
 /* -------------------------------------------------------------------------- */
 
-int HostPool::discover(map<int, string> * discovered_hosts)
+int HostPool::discover(map<int, string> * discovered_hosts, int host_limit)
 {
     ostringstream   sql;
     int             rc;
-
-    lock();
 
     set_callback(static_cast<Callbackable::Callback>(&HostPool::discover_cb),
                  static_cast<void *>(discovered_hosts));
 
     sql << "SELECT oid, im_mad FROM "
         << Host::table << " WHERE state != "
-        << Host::DISABLED << " ORDER BY last_mon_time LIMIT 10";
+        << Host::DISABLED << " ORDER BY last_mon_time ASC LIMIT " << host_limit;
 
     rc = db->exec(sql,this);
 
-    unlock();
+    unset_callback();
 
     return rc;
 }
@@ -126,6 +124,8 @@ int HostPool::dump(ostringstream& oss, const string& where)
     rc = db->exec(cmd, this);
 
     oss << "</HOST_POOL>";
+
+    unset_callback();
 
     return rc;
 }

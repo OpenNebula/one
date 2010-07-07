@@ -1,4 +1,6 @@
-<DescribeInstancesResponse xmlns="http://ec2.amazonaws.com/doc/2009-04-04/"> 
+<?xml version="1.0"?>
+<DescribeInstancesResponse xmlns="http://ec2.amazonaws.com/doc/<%= erb_version %>/"> 
+  <requestId>4ac62eaf-e266-4058-a970-2c01568cd417</requestId>
   <reservationSet> 
     <item> 
       <reservationId>default</reservationId> 
@@ -12,7 +14,7 @@
         <% erb_vmpool.each do |vm| %>
         <% vm.info %>
         <item> 
-          <instanceId><%= vm.id %></instanceId> 
+          <instanceId>i-<%= vm.id %></instanceId> 
           <imageId><%= vm['TEMPLATE/IMAGE_ID'] %></imageId> 
           <instanceState> 
               <%= render_state(vm) %>
@@ -21,11 +23,19 @@
           <dnsName><%= vm["TEMPLATE/NIC/IP"] %></dnsName> 
           <keyName>default</keyName> 
           <amiLaunchIndex>0</amiLaunchIndex> 
+          <productCodes/>
           <instanceType><%= vm['TEMPLATE/INSTANCE_TYPE'] %></instanceType> 
           <%= render_launch_time(vm) %>
           <placement> 
             <availabilityZone>default</availabilityZone> 
           </placement> 
+          
+          <kernelId>eki-EA801065</kernelId>
+          <ramdiskId>eri-1FEE1144</ramdiskId>
+          <monitoring>
+            <state>false</state>
+          </monitoring>
+
         </item> 
         <% end %>
       </instancesSet>

@@ -73,7 +73,7 @@ ShowTableHost={
         :proc => lambda {|d,e|
             max_cpu=d["HOST_SHARE/MAX_CPU"].to_i
             max_cpu=100 if max_cpu==0
-            max_cpu-d["HOST_SHARE/USED_CPU"].to_i
+            max_cpu-d["HOST_SHARE/CPU_USAGE"].to_i
         }
     },
     :tmem => {
@@ -278,7 +278,7 @@ when "show"
 
         puts host.template_str
     else
-        puts host.to_xml
+        puts host.to_xml(true)
     end
 
 when "delete"
@@ -298,13 +298,7 @@ when "delete"
         end
 
         if host['host_share/running_vms'].to_i != 0
-            puts "Host still has associated VMs. It will be disabled instead."
-            result=host.disable
-            if is_successful?(result)
-                puts "Host disabled" if ops[:verbose]
-            else
-                break
-            end
+            puts "Host still has associated VMs, aborting delete."
         else
             result=host.delete
             if is_successful?(result)
@@ -322,7 +316,7 @@ when "list"
     else
         hostpool=OpenNebula::HostPool.new(get_one_client)
         hostpool.info
-        puts hostpool.to_xml
+        puts hostpool.to_xml(true)
     end
 
 when "top"

@@ -393,6 +393,8 @@ void Scheduler::dispatch()
     map<int, ObjectXML*>::const_iterator  vm_it;
     const map<int, ObjectXML*>            pending_vms = vmpool->get_objects();
 
+    map<int, int>  host_vms;
+
     oss << "Select hosts" << endl;
     oss << "\tPRI\tHID" << endl;
     oss << "\t-------------------" << endl;
@@ -414,7 +416,7 @@ void Scheduler::dispatch()
     {
         vm = static_cast<VirtualMachineXML*>(vm_it->second);
 
-        rc = vm->get_host(hid,hpool);
+        rc = vm->get_host(hid,hpool,host_vms,host_dispatch_limit);
 
         if (rc == 0)
         {

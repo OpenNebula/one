@@ -79,6 +79,12 @@ ShowTableVN={
         :size => 6,
         :proc => lambda {|d,e| d["bridge"] }
     },
+    :public => {
+        :name => "PUBLIC",
+        :desc => "Whether the Image is public or not",
+        :size => 1,
+        :proc => lambda {|d,e| if d["PUBLIC"].to_i == 1 then "Y" else "N" end}
+    },
     :totalleases => {
         :name => "#LEASES",
         :desc => "Number of this virtual network's given leases",
@@ -86,7 +92,7 @@ ShowTableVN={
         :proc => lambda {|d,e| d["TOTAL_LEASES"] }
     },
 
-    :default => [:id, :user, :name, :type, :bridge, :totalleases]
+    :default => [:id, :user, :name, :type, :bridge, :public, :totalleases]
 }
 
 class VNShow
@@ -159,6 +165,12 @@ Commands:
 * show (Gets info from a virtual network)
     onevnet show <network_id>
     
+* publish (Publish a virtual network)
+    onevnet publish <network_id>
+
+* unpublish (Unpublish a virtual network)
+    onevnet unpublish <network_id>
+    
 * delete (Removes a virtual network)
     onevnet delete <network_id>
     
@@ -223,6 +235,12 @@ when "show"
         
                 puts str % ["ID: ",vn.id.to_s]
                 puts str % ["UID: ",vn["UID"]]
+                if vn[:public].to_i == 1 
+                    public_str = "Y" 
+                else 
+                    public_str = "N" 
+                end
+                puts str % ["PUBLIC", public_str]
                 puts
                 print_header(str_h1,"VIRTUAL NETWORK TEMPLATE",false)
         
@@ -236,12 +254,34 @@ when "show"
                     puts leases_str
                 end
             else
-                puts vn.to_xml
+                puts vn.to_xml(true)
             end
         else
             puts "Error: "+result.message
             break
         end
+    end
+    
+when "publish"
+    check_parameters("publish", 1)
+    vn_id=get_vn_id(ARGV[0])
+
+    vn=OpenNebula::VirtualNetwork.new_with_id(vn_id, get_one_client)
+
+    result=vn.publish
+    if is_successful?(result)
+        puts "VirtualNetwork published" if ops[:verbose]
+    end
+    
+when "unpublish"
+    check_parameters("unpublish", 1)
+    vn_id=get_vn_id(ARGV[0])
+
+    vn=OpenNebula::VirtualNetwork.new_with_id(vn_id, get_one_client)
+
+    result=vn.unpublish
+    if is_successful?(result)
+        puts "VirtualNetwork unpublished" if ops[:verbose]
     end
     
 when "delete"
@@ -286,7 +326,7 @@ when "list"
         vnpool=OpenNebula::VirtualNetworkPool.new(get_one_client,
             filter_flag.to_i)
         vnpool.info
-        puts vnpool.to_xml
+        puts vnpool.to_xml(true)
     end
     
 else

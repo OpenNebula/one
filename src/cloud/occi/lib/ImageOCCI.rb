@@ -27,12 +27,12 @@ module ImageOCCI
             <SIZE><%= ((size/1024)/1024).to_s %></SIZE>
             <URL><%= description %></URL>
         </DISK>
-    }.gsub(/^        /, '')
+    }
 
 
     # Creates the OCCI representation of an Image
     def to_occi()
         occi = ERB.new(OCCI_IMAGE)
-        return occi.result(binding)
+        return occi.result(binding).gsub(/\n\s*/,'')
     end
 end

@@ -17,6 +17,8 @@
 #ifndef CALLBACKABLE_H_
 #define CALLBACKABLE_H_
 
+#include <pthread.h>
+
 using namespace std;
 
 /**
@@ -27,9 +29,15 @@ class Callbackable
 {
 public:
 
-    Callbackable():cb(0),arg(0){};
+    Callbackable():cb(0),arg(0)
+    {
+        pthread_mutex_init(&mutex,0);
+    };
 
-    virtual ~Callbackable(){};
+    virtual ~Callbackable()
+    {
+        pthread_mutex_destroy(&mutex);
+    };
 
     /**
      *  Datatype for call back pointers
@@ -38,12 +46,14 @@ public:
 
     /**
      *  Set the callback function and custom arguments to be executed by the
-     *  next SQL command
+     *  next SQL command, and locks the mutex until unset_callback is called.
      *    @param ptr to the callback function
      *    @param arg custom arguments for the callback function
      */
     void set_callback(Callback _cb, void * _arg = 0)
     {
+        pthread_mutex_lock(&mutex);
+
         cb  = _cb;
         arg = _arg;
     };
@@ -58,15 +68,25 @@ public:
     };
 
     /**
-     *  Set the callback function and custom arguments to be executed by the
-     *  next SQL command
-     *    @param ptr to the callback function
-     *    @param arg custom arguments for the callback function
+     *  Call the callback funcion set. This method must be called only if
+     *  isCallBackSet returns true.
+     *      @return the callback function return value.
      */
     int do_callback(int num, char **values, char **names)
     {
         return (this->*cb)(arg, num, values, names);
     };
+
+    /**
+     *  Unset the callback function.
+     */
+    void unset_callback()
+    {
+        cb  = 0;
+        arg = 0;
+
+        pthread_mutex_unlock(&mutex);
+    }
 
 private:
     /**
@@ -78,6 +98,11 @@ private:
      *  Custom arguments for the callback
      */
     void *   arg;
+
+    /**
+     *  Mutex for locking the callback function.
+     */
+    pthread_mutex_t             mutex;
 };
 
 #endif /*CALLBACKABLE_H_*/

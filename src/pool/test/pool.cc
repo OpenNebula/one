@@ -16,6 +16,7 @@
 
 #include <string>
 #include <iostream>
+#include <getopt.h>
 
 #include <TestFixture.h>
 #include <TestAssert.h>
@@ -28,11 +29,14 @@
 #include "PoolSQL.h"
 #include "TestPoolSQL.h"
 #include "SqliteDB.h"
+#include "MySqlDB.h"
+#include "SqlDB.h"
 
 using namespace std;
 
 /* ************************************************************************* */
 /* ************************************************************************* */
+bool mysql;
 
 class PoolTest : public CppUnit::TestFixture
 {
@@ -45,7 +49,7 @@ class PoolTest : public CppUnit::TestFixture
 
 private:
     TestPool * pool;
-    SqliteDB * db;
+    SqlDB * db;
 
     int create_allocate(int n, string st)
     {
@@ -58,16 +62,36 @@ public:
     PoolTest(){};
 
     ~PoolTest(){};
-  
+
     void setUp()
     {
-        string db_name = "test.db";
-        unlink("test.db");
-        
-        db = new SqliteDB(db_name);
+        string db_name = "testdb";
+
+        if (mysql)
+        {
+            db = new MySqlDB("localhost","oneadmin","oneadmin",NULL);
+
+            ostringstream   oss1;
+            oss1 << "DROP DATABASE IF EXISTS " << db_name;
+            db->exec(oss1);
+
+            ostringstream   oss;
+            oss << "CREATE DATABASE " << db_name;
+            db->exec(oss);
+
+            ostringstream   oss2;
+            oss2 << "use " << db_name;
+            db->exec(oss2);
+        }
+        else
+        {
+            unlink(db_name.c_str());
+
+            db = new SqliteDB(db_name);
+        }
 
         TestObjectSQL::bootstrap(db);
-        
+
         pool = new TestPool(db);
     };
 
@@ -136,7 +160,7 @@ public:
 
         pool->clean();
         obj = pool->get(oid,true);
-        CPPUNIT_ASSERT(obj == 0);        
+        CPPUNIT_ASSERT(obj == 0);
     };
 
     void search()
@@ -153,14 +177,14 @@ public:
         const char *    table   = "test_pool";
         string          where   = "text = '" + stB + "'";
         int             ret;
-        
+
         ret = pool->search(results, table, where);
         CPPUNIT_ASSERT(ret              == 0);
         CPPUNIT_ASSERT(results.size()  == 1);
         CPPUNIT_ASSERT(results.at(0)   == oidB);
 
         results.erase(results.begin(), results.end());
-        
+
         where = "number < 18";
 
         ret = pool->search(results, table, where);
@@ -175,21 +199,22 @@ public:
         TestObjectSQL *obj;
         TestObjectSQL *obj_lock;
 
-	//pin object in the cache, it can't be removed - 
-	for (int i=0 ; i < 499 ; i++)
+	//pin object in the cache, it can't be removed -
+        //Should be set to MAX_POOL -1
+	for (int i=0 ; i < 14999 ; i++)
         {
             create_allocate(i,"A Test object");
-	    
+
 	    obj_lock = pool->get(i, true);
             CPPUNIT_ASSERT(obj_lock != 0);
         }
-        
-        for (int i=499 ; i < 2000 ; i++)
+
+        for (int i=14999 ; i < 15200 ; i++) //Works with just 1 cache line
         {
             create_allocate(i,"A Test object");
         }
 
-        for (int i=499; i < 2000 ; i++)
+        for (int i=14999; i < 15200 ; i++)
         {
             obj = pool->get(i, true);
             CPPUNIT_ASSERT(obj != 0);
@@ -199,9 +224,9 @@ public:
             obj->unlock();
         }
 
-	for (int i=0 ; i < 499 ; i++)
-        {	    
-	    obj_lock = pool->get(i, false);//pin object in the cache, it can't be removed
+	for (int i=0 ; i < 14999 ; i++)
+        {
+	    obj_lock = pool->get(i, false);
 	    obj_lock->unlock();
         }
     };
@@ -214,11 +239,60 @@ public:
 int main(int argc, char ** argv)
 {
     CppUnit::TextUi::TestRunner runner;
+    // Option flags
+    bool sqlite_flag = true;
+    bool log_flag    = false;
+
+    // Long options
+    const struct option long_opt[] =
+    {
+            { "sqlite", 0,  NULL,   's'},
+            { "mysql",  0,  NULL,   'm'},
+            { "log",    0,  NULL,   'l'},
+            { "help",   0,  NULL,   'h'}
+    };
+
+    int c;
+    while ((c = getopt_long (argc, argv, "smlh", long_opt, NULL)) != -1)
+        switch (c)
+        {
+            case 'm':
+                sqlite_flag = false;
+                break;
+            case 'l':
+                log_flag = true;
+                break;
+            case 'h':
+                cout << "Options:\n";
+                cout << "    -h  --help         Show this help\n"
+                        "    -s  --sqlite       Run Sqlite tests (default)\n"
+                        "    -m  --mysql        Run MySQL tests\n"
+                        "    -l  --log          Keep the log file, test.log\n";
+                return 0;
+        }
 
     NebulaLog::init_log_system(NebulaLog::FILE, Log::ERROR, "test.log");
+
+    if (sqlite_flag)
+    {
+        mysql = false;
+        NebulaLog::log("Test", Log::INFO, "Running Sqlite tests...");
+        cout << "\nRunning Sqlite tests...\n";
+    }
+    else
+    {
+        mysql = true;
+        NebulaLog::log("Test", Log::INFO, "Running MySQL tests...");
+        cout << "\nRunning MySQL tests...\n";
+    }
+
     runner.addTest( PoolTest::suite() );
     runner.run();
+
+    if (!log_flag)
+        remove("test.log");
+
     NebulaLog::finalize_log_system();
-        
+
     return 0;
 }

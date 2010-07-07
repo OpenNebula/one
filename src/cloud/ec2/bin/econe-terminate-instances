@@ -1,31 +1,4 @@
 #!/usr/bin/env ruby
-
-# == Synopsis
-# econe-terminate-instances
-# 
-# Terminate the selected running instance
-#
-# == Usage
-#
-# econe-register [OPTIONS] INSTANCE-ID
-#
-# -h, --help:
-#    show help
-#
-# --access-key <id>, -K <id>:
-#    The username of the user
-#
-# --secret-key <key>, -K <key>:
-#    The password of the user
-#
-# --url <url>, -U <url>:
-#    Set url as the web service url to use
-#
-# INSTANCE-ID: The instance identification as returned by
-# the econe-run-instances command
-
-
-
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
@@ -54,11 +27,37 @@ end
 $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+"/cloud"
 
+COMMANDS_HELP=<<-EOT
+    ** Synopsis
+    -----------
+    econe-terminate-instances
+ 
+    Terminate the selected running instance
+
+    ** Usage
+    --------
+    econe-register [OPTIONS] INSTANCE-ID
+
+    --help, -h:
+        Show help
+
+    --access-key <id>, -K <id>:
+        The username of the user
+
+    --secret-key <key>, -S <key>:
+        The password of the user
+
+    --url <url>, -U <url>:
+        Set url as the web service url to use
+
+    INSTANCE-ID: The instance identification as returned by
+    the econe-run-instances command
+
+EOT
+
 require 'econe/EC2QueryClient'
 require 'CloudClient'
 require 'getoptlong'
-require 'rdoc/usage'
-require 'pp'
 
 include CloudCLI
 
@@ -78,7 +77,8 @@ begin
     opts.each do |opt, arg|
         case opt
             when '--help'
-                RDoc::usage
+                puts COMMANDS_HELP
+                return
             when '--access-key'
                 access = arg
             when '--secret-key'

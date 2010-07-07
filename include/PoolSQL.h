@@ -140,22 +140,6 @@ protected:
      */
     SqlDB * db;
 
-    /**
-     *  Function to lock the pool
-     */
-    void lock()
-    {
-        pthread_mutex_lock(&mutex);
-    };
-
-    /**
-     *  Function to unlock the pool
-     */
-    void unlock()
-    {
-        pthread_mutex_unlock(&mutex);
-    };
-
 private:
 
     pthread_mutex_t             mutex;
@@ -177,7 +161,7 @@ private:
      *  The pool is implemented with a Map of SQL object pointers, using the
      *  OID as key.
      */
-    map<int,PoolObjectSQL *>	pool;
+    map<int,PoolObjectSQL *>    pool;
 
     /**
      *  Factory method, must return an ObjectSQL pointer to an allocated pool
@@ -189,7 +173,23 @@ private:
      *  OID queue to implement a FIFO-like replacement policy for the pool
      *  cache.
      */
-    queue<int>					oid_queue;
+    queue<int>                  oid_queue;
+
+    /**
+     *  Function to lock the pool
+     */
+    void lock()
+    {
+        pthread_mutex_lock(&mutex);
+    };
+
+    /**
+     *  Function to unlock the pool
+     */
+    void unlock()
+    {
+        pthread_mutex_unlock(&mutex);
+    };
 
     /**
      *  FIFO-like replacement policy function. Before removing an object (pop)

@@ -60,7 +60,15 @@ extern "C" void * vmm_action_loop(void *arg)
 
     NebulaLog::log("VMM",Log::INFO,"Virtual Machine Manager started.");
 
-    vmm->am.loop(vmm->timer_period,0);
+    if ( vmm->poll_period == 0 )
+    {
+        NebulaLog::log("VMM",Log::INFO,"VM monitoring is disabled.");
+        vmm->am.loop(0,0);
+    }
+    else
+    {
+        vmm->am.loop(vmm->timer_period,0);
+    }
 
     NebulaLog::log("VMM",Log::INFO,"Virtual Machine Manager stopped.");
 
@@ -804,10 +812,15 @@ void VirtualMachineManager::timer_action()
     vector<int>             oids;
     vector<int>::iterator   it;
     int                     rc;
-    time_t                  thetime;
     ostringstream           os;
 
+    time_t thetime = time(0);
+
     const VirtualMachineManagerDriver * vmd;
+
+    // -------------- Max. number of VMs to monitor. ---------------------
+    int vm_limit = 5;
+
 
     mark = mark + timer_period;
 
@@ -817,49 +830,51 @@ void VirtualMachineManager::timer_action()
         mark = 0;
     }
 
-    rc = vmpool->get_running(oids);
+    // Monitor only VMs that hasn't been monitored for 'poll_period' seconds.
+    rc = vmpool->get_running(oids, vm_limit, thetime - poll_period);
 
     if ( rc != 0 || oids.empty() )
     {
         return;
     }
 
-    thetime = time(0);
-
     for ( it = oids.begin(); it != oids.end(); it++ )
     {
         vm = vmpool->get(*it,true);
 
-        if ( vm == 0 || (!vm->hasHistory()))
+        if ( vm == 0 )
+        {
+            continue;
+        }
+
+        if (!vm->hasHistory())
         {
             os.str("");
             os << "Monitoring VM " << *it << " but it has no history.";
             NebulaLog::log("VMM", Log::ERROR, os);
 
+            vm->unlock();
             continue;
         }
 
-        if ( (thetime - vm->get_last_poll()) >= poll_period )
+        os.str("");
+
+        os << "Monitoring VM " << *it << ".";
+        NebulaLog::log("VMM", Log::INFO, os);
+
+        vm->set_last_poll(thetime);
+
+        vmd = get(vm->get_vmm_mad());
+
+        if ( vmd == 0 )
         {
-            os.str("");
-
-            os << "Monitoring VM " << *it << ".";
-            NebulaLog::log("VMM", Log::INFO, os);
-
-            vm->set_last_poll(thetime);
-
-            vmd = get(vm->get_vmm_mad());
-
-            if ( vmd == 0 )
-            {
-                vm->unlock();
-                continue;
-            }
-
-            vmd->poll(*it,vm->get_hostname(),vm->get_deploy_id());
-
-            vmpool->update(vm);
+            vm->unlock();
+            continue;
         }
+
+        vmd->poll(*it,vm->get_hostname(),vm->get_deploy_id());
+
+        vmpool->update(vm);
 
         vm->unlock();
     }

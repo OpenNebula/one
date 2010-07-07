@@ -33,8 +33,10 @@ module OCCIClient
         ######################################################################
         # Initialize client library
         ######################################################################
-        def initialize(endpoint_str=nil, user=nil, pass=nil, debug_flag=true)
-            @debug = debug_flag
+        def initialize(endpoint_str=nil, user=nil, pass=nil, 
+                       timeout=nil, debug_flag=true)
+            @debug   = debug_flag
+            @timeout = timeout
             
             # Server location
             if endpoint_str
@@ -78,7 +80,7 @@ module OCCIClient
             
             req.basic_auth @occiauth[0], @occiauth[1]
             
-            res = CloudClient::http_start(url) do |http|
+            res = CloudClient::http_start(url, @timeout) do |http|
                 http.request(req)
             end
 
@@ -98,7 +100,7 @@ module OCCIClient
             
             req.basic_auth @occiauth[0], @occiauth[1]
             
-            res = CloudClient::http_start(url) {|http|
+            res = CloudClient::http_start(url, @timeout) {|http|
                 http.request(req)
             }
             
@@ -123,7 +125,7 @@ module OCCIClient
             
             req.basic_auth @occiauth[0], @occiauth[1]
             
-            res = CloudClient::http_start(url) do |http|
+            res = CloudClient::http_start(url, @timeout) do |http|
                 http.request(req)
             end
             
@@ -143,7 +145,7 @@ module OCCIClient
             
             req.basic_auth @occiauth[0], @occiauth[1]
             
-            res = CloudClient::http_start(url) {|http|
+            res = CloudClient::http_start(url, @timeout) {|http|
                 http.request(req)
             }
             
@@ -203,7 +205,7 @@ module OCCIClient
                 
                 req.basic_auth @occiauth[0], @occiauth[1]
                 
-                res = CloudClient::http_start(url) do |http|
+                res = CloudClient::http_start(url, @timeout) do |http|
                     http.request(req)
                 end
 
@@ -226,7 +228,7 @@ module OCCIClient
             
             req.basic_auth @occiauth[0], @occiauth[1]
             
-            res = CloudClient::http_start(url) {|http|
+            res = CloudClient::http_start(url, @timeout) {|http|
                 http.request(req)
             }
             
@@ -250,7 +252,7 @@ module OCCIClient
             
             req.basic_auth @occiauth[0], @occiauth[1]
             
-            res = CloudClient::http_start(url) {|http|
+            res = CloudClient::http_start(url, @timeout) {|http|
                 http.request(req)
             }
             
@@ -276,7 +278,7 @@ module OCCIClient
             
             req.basic_auth @occiauth[0], @occiauth[1]
             
-            res = CloudClient::http_start(url) do |http|
+            res = CloudClient::http_start(url, @timeout) do |http|
                 http.request(req)
             end
             
@@ -296,7 +298,7 @@ module OCCIClient
             
             req.basic_auth @occiauth[0], @occiauth[1]
             
-            res = CloudClient::http_start(url) {|http|
+            res = CloudClient::http_start(url, @timeout) {|http|
                 http.request(req)
             }
 
@@ -317,7 +319,7 @@ module OCCIClient
             
             req.basic_auth @occiauth[0], @occiauth[1]
             
-            res = CloudClient::http_start(url) {|http|
+            res = CloudClient::http_start(url, @timeout) {|http|
                 http.request(req)
             }
 
@@ -337,7 +339,7 @@ module OCCIClient
             
             req.basic_auth @occiauth[0], @occiauth[1]
             
-            res = CloudClient::http_start(url) {|http|
+            res = CloudClient::http_start(url, @timeout) {|http|
                 http.request(req)
             }
 
@@ -358,7 +360,7 @@ module OCCIClient
             
             req.basic_auth @occiauth[0], @occiauth[1]
             
-            res = CloudClient::http_start(url) {|http|
+            res = CloudClient::http_start(url, @timeout) {|http|
                 http.request(req)
             }
 

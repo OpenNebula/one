@@ -87,9 +87,10 @@ public:
      * Get the 10 least monitored hosts
      *   @param discovered hosts, map to store the retrieved hosts hids and
      *   hostnames
+     *   @param host_limit max. number of hosts to monitor at a time
      *   @return int 0 if success
      */
-    int discover(map<int, string> * discovered_hosts);
+    int discover(map<int, string> * discovered_hosts, int host_limit);
 
     /**
      * Allocates a given capacity to the host

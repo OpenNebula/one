@@ -156,12 +156,9 @@ int VirtualMachinePool::allocate (
     bool           on_hold)
 {
     VirtualMachine * vm;
-    string  name;
 
     char *  error_msg;
-    int     rc, num_attr;
-
-    vector<Attribute *> attrs;
+    int     rc;
 
     // ------------------------------------------------------------------------
     // Build a new Virtual Machine object
@@ -180,7 +177,7 @@ int VirtualMachinePool::allocate (
     vm->uid = uid;
 
     // ------------------------------------------------------------------------
-    // Parse template and keep CONTEXT apart
+    // Parse template
     // ------------------------------------------------------------------------
     rc = vm->vm_template.parse(stemplate,&error_msg);
 
@@ -194,39 +191,14 @@ int VirtualMachinePool::allocate (
 
         delete vm;
 
-        return -2;
+        return -1;
     }
-
-    vm->vm_template.remove("CONTEXT",attrs);
-
 
     // ------------------------------------------------------------------------
     // Insert the Object in the pool
     // ------------------------------------------------------------------------
 
     *oid = PoolSQL::allocate(vm);
-
-    if ( *oid == -1 )
-    {
-        return -1;
-    }
-
-    // ------------------------------------------------------------------------
-    // Insert parsed context in the VM template and clean-up
-    // ------------------------------------------------------------------------
-
-    if ((num_attr = (int) attrs.size()) > 0)
-    {
-        generate_context(*oid,attrs[0]);
-
-        for (int i = 0; i < num_attr ; i++)
-        {
-            if (attrs[i] != 0)
-            {
-                delete attrs[i];
-            }
-        }
-    }
 
     return *oid;
 }
@@ -235,14 +207,18 @@ int VirtualMachinePool::allocate (
 /* -------------------------------------------------------------------------- */
 
 int VirtualMachinePool::get_running(
-    vector<int>&    oids)
+    vector<int>&    oids,
+    int             vm_limit,
+    time_t          last_poll)
 {
     ostringstream   os;
     string          where;
 
-    os << "state = " << VirtualMachine::ACTIVE
+    os << "last_poll <= " << last_poll << " and"
+       << " state = " << VirtualMachine::ACTIVE
        << " and ( lcm_state = " << VirtualMachine::RUNNING
-       << " or lcm_state = " << VirtualMachine::UNKNOWN << " )";
+       << " or lcm_state = " << VirtualMachine::UNKNOWN << " )"
+       << " ORDER BY last_poll ASC LIMIT " << vm_limit;
 
     where = os.str();
 
@@ -264,76 +240,6 @@ int VirtualMachinePool::get_pending(
 
     return PoolSQL::search(oids,VirtualMachine::table,where);
 };
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void VirtualMachinePool::generate_context(int vm_id, Attribute * attr)
-{
-    VirtualMachine *  vm;
-    VectorAttribute * context_parsed;
-    VectorAttribute * context;
-
-    string *          str;
-    string            parsed;
-
-    int               rc;
-
-    char *            error_msg;
-
-    context = dynamic_cast<VectorAttribute *>(attr);
-
-    if (context == 0)
-    {
-        return;
-    }
-
-    str = context->marshall(" @^_^@ ");
-
-    if (str == 0)
-    {
-        return;
-    }
-
-    rc = VirtualMachine::parse_template_attribute(vm_id,*str,parsed,&error_msg);
-
-    if ( rc != 0 )
-    {
-        if (error_msg != 0)
-        {
-            ostringstream oss;
-
-            oss << error_msg << ": " << *str;
-            free(error_msg);
-
-            NebulaLog::log("ONE", Log::ERROR, oss);
-        }
-
-        delete str;
-
-        return;
-    }
-
-    delete str;
-
-    context_parsed = new VectorAttribute("CONTEXT");
-    context_parsed->unmarshall(parsed," @^_^@ ");
-
-    vm = get(vm_id,true);
-
-    if ( vm == 0 )
-    {
-        delete context_parsed;
-        return;
-    }
-
-    if ( vm->insert_template_attribute(db,context_parsed) != 0 )
-    {
-        delete context_parsed;
-    }
-
-    vm->unlock();
-}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -360,18 +266,14 @@ int VirtualMachinePool::dump(ostringstream& oss, const string& where)
         static_cast<Callbackable::Callback>(&VirtualMachinePool::dump_cb),
         static_cast<void *>(&oss));
 
-    cmd << "SELECT " << VirtualMachine::table << ".*, "
-        << "user_pool.user_name, " << History::table << ".* FROM "
-        << VirtualMachine::table
-        << " LEFT OUTER JOIN ("
-        <<   "SELECT *,seq AS max_seq FROM " << History::table << " h1 WHERE "
-        <<     "seq=(SELECT MAX(seq) FROM " << History::table << " h2 WHERE h1.vid=h2.vid)) "
-        << "AS " << History::table
-        << " ON " << VirtualMachine::table << ".oid = "
-        << History::table << ".vid LEFT OUTER JOIN (SELECT oid,user_name FROM "
-        << "user_pool) AS user_pool ON "
-        << VirtualMachine::table << ".uid = user_pool.oid WHERE "
-        << VirtualMachine::table << ".state <> " << VirtualMachine::DONE;
+    cmd << "SELECT " << VirtualMachine::table << ".*, user_pool.user_name, "
+        << History::table << ".* FROM " << VirtualMachine::table
+        << " LEFT OUTER JOIN " << History::table << " ON "
+        << VirtualMachine::table << ".oid = " << History::table << ".vid AND "
+        << History::table << ".seq = " << VirtualMachine::table
+        << ".last_seq LEFT OUTER JOIN (SELECT oid,user_name FROM user_pool) "
+        << "AS user_pool ON " << VirtualMachine::table << ".uid = user_pool.oid"
+        << " WHERE " << VirtualMachine::table << ".state <> 6";
 
     if ( !where.empty() )
     {
@@ -382,5 +284,10 @@ int VirtualMachinePool::dump(ostringstream& oss, const string& where)
 
     oss << "</VM_POOL>";
 
+    unset_callback();
+
     return rc;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */

@@ -117,6 +117,8 @@ void  DispatchManager::done_action(int vid)
         vm->log("DiM", Log::INFO, "New VM state is DONE");
 
         vm->release_network_leases();
+
+        vm->release_disk_images();
     }
     else
     {

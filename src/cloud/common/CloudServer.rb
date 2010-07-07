@@ -44,7 +44,6 @@ class CloudServer
         # --- Load the Cloud Server configuration file ---
 
         @config = Configuration.new(config_file)
-        @auth   = "#{@config[:user]}:#{@config[:password]}"
         
         @instance_types = Hash.new
 
@@ -63,7 +62,7 @@ class CloudServer
 
         # --- Start an OpenNebula Session ---
         
-        @one_client = Client.new(@auth)
+        @one_client = Client.new()
         @user_pool  = UserPool.new(@one_client)
     end
 
