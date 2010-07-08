@@ -34,28 +34,28 @@ extern "C" void * hm_action_loop(void *arg)
     NebulaLog::log("HKM",Log::INFO,"Hook Manager started.");
 
     hm = static_cast<HookManager *>(arg);
-    
+
     hm->am.loop(0,0);
 
     NebulaLog::log("HKM",Log::INFO,"Hook Manager stopped.");
-    
+
     return 0;
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void HookManager::load_mads(int uid) 
+void HookManager::load_mads(int uid)
 {
     HookManagerDriver *     hm_mad;
     ostringstream           oss;
     const VectorAttribute * vattr;
     int                     rc;
-    
+
     NebulaLog::log("HKM",Log::INFO,"Loading Hook Manager driver.");
-    
+
     vattr = static_cast<const VectorAttribute *>(mad_conf[0]);
-    
+
     if ( vattr == 0 )
     {
         NebulaLog::log("HKM",Log::INFO,"Failed to load Hook Manager driver.");
@@ -63,18 +63,18 @@ void HookManager::load_mads(int uid)
     }
 
     VectorAttribute hook_conf("HOOK_MAD",vattr->value());
-        
+
     hook_conf.replace("NAME",hook_driver_name);
-    
+
     hm_mad = new HookManagerDriver(0,hook_conf.value(),false,vmpool);
-    
+
     rc = add(hm_mad);
-                
+
     if ( rc == 0 )
     {
-        oss.str("");            
+        oss.str("");
         oss << "\tHook Manager loaded";
-            
+
         NebulaLog::log("HKM",Log::INFO,oss);
     }
 }
@@ -95,7 +95,7 @@ int HookManager::start()
     }
 
     NebulaLog::log("HKM",Log::INFO,"Starting Hook Manager...");
-    
+
     pthread_attr_init (&pattr);
     pthread_attr_setdetachstate (&pattr, PTHREAD_CREATE_JOINABLE);
 
@@ -112,14 +112,14 @@ void HookManager::do_action(const string &action, void * arg)
     if (action == ACTION_FINALIZE)
     {
         NebulaLog::log("HKM",Log::INFO,"Stopping Hook Manager...");
-        
-        MadManager::stop();       
+
+        MadManager::stop();
     }
     else
     {
         ostringstream oss;
         oss << "Unknown action name: " << action;
-        
+
         NebulaLog::log("HKM", Log::ERROR, oss);
     }
 }
