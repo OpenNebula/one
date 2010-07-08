@@ -19,6 +19,7 @@
 
 #include "PoolSQL.h"
 #include "Host.h"
+#include "ClusterPool.h"
 
 #include <time.h>
 #include <sstream>
@@ -36,7 +37,7 @@ class HostPool : public PoolSQL
 {
 public:
 
-	HostPool(SqlDB * db):PoolSQL(db,Host::table){};
+    HostPool(SqlDB * db);
 
     ~HostPool(){};
 
@@ -81,6 +82,8 @@ public:
     static void bootstrap(SqlDB *_db)
     {
         Host::bootstrap(_db);
+
+        ClusterPool::bootstrap(_db);
     };
 
     /**
@@ -144,7 +147,113 @@ public:
      */
     int dump(ostringstream& oss, const string& where);
 
+
+    /* ---------------------------------------------------------------------- */
+    /* Methods for cluster management                                         */
+    /* ---------------------------------------------------------------------- */
+/*
+    ClusterPool * cluster_pool()
+    {
+        return &cluster_pool;
+    }
+//*/
+
+    /**
+     *  Returns true if the clid is an id for an existing cluster
+     *  @param clid ID of the cluster
+     *
+     *  @return true if the clid is an id for an existing cluster
+     */
+    bool exists_cluster(int clid)
+    {
+        return cluster_pool.exists(clid);
+    };
+
+    /**
+     *  Allocates a new cluster in the pool
+     *    @param clid the id assigned to the cluster
+     *    @return the id assigned to the cluster or -1 in case of failure
+     */
+    int allocate_cluster(int * clid, string name)
+    {
+        return cluster_pool.allocate(clid, name, db);
+    };
+
+    /**
+     *  Returns the xml representation of the given cluster
+     *    @param clid ID of the cluster
+     *
+     *    @return the xml representation of the given cluster
+     */
+    string info_cluster(int clid)
+    {
+        return cluster_pool.info(clid);
+    };
+
+    /**
+     *  Removes the given cluster from the pool and the DB
+     *    @param clid ID of the cluster
+     *
+     *    @return 0 on success
+     */
+    int drop_cluster(int clid)
+    {
+        return cluster_pool.drop(clid, db);
+    };
+
+    /**
+     *  Dumps the cluster pool in XML format.
+     *    @param oss the output stream to dump the pool contents
+     *
+     *    @return 0 on success
+     */
+    int dump_cluster(ostringstream& oss)
+    {
+        return cluster_pool.dump(oss);
+    };
+
+    /**
+     *  Assigns the host to the given cluster
+     *    @param host The host to assign
+     *    @param clid ID of the cluster
+     *
+     *    @return 0 on success
+     */
+    int set_cluster(Host* host, int clid)
+    {
+        map<int, string>::iterator it;
+
+        it = cluster_pool.cluster_names.find(clid);
+
+        if(it == cluster_pool.cluster_names.end())
+        {
+            return -1;
+        }
+
+        return host->set_cluster( it->second );
+    };
+
+
+    /**
+     *  Removes the host from the given cluster.
+     *  The result is the same as assigning the host to
+     *  the default cluster.
+     *    @param host The host to assign
+     *
+     *    @return 0 on success
+     */
+    int remove_cluster(Host* host)
+    {
+        // To remove a host from a cluster means
+        // moving it to the default cluster.
+        return set_cluster(host, 0);
+    };
+
 private:
+
+    ClusterPool         cluster_pool;
+
+
     /**
      *  Factory method to produce Host objects
      *    @return a pointer to the new Host
@@ -153,6 +262,15 @@ private:
     {
         return new Host;
     };
+
+    /**
+     *  Callback function to build the cluster pool
+     *    @param num the number of columns read from the DB
+     *    @param names the column names
+     *    @param vaues the column values
+     *    @return 0 on success
+     */
+    int init_cb(void *nil, int num, char **values, char **names);
 
     /**
      *  Callback function to get the IDs of the hosts to be monitored

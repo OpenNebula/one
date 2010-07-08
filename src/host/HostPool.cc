@@ -19,6 +19,48 @@
 /* ************************************************************************** */
 
 #include "HostPool.h"
+#include "ClusterPool.h"
+
+int HostPool::init_cb(void *nil, int num, char **values, char **names)
+{
+    if ( num != 2 || values == 0 || values[0] == 0 )
+    {
+        return -1;
+    }
+
+    cluster_pool.cluster_names.insert( make_pair(atoi(values[0]), values[1]) );
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+
+HostPool::HostPool(SqlDB* db):PoolSQL(db,Host::table)
+{
+    ostringstream   sql;
+
+    set_callback(static_cast<Callbackable::Callback>(&HostPool::init_cb));
+
+    sql << "SELECT " << ClusterPool::db_names << " FROM "
+        <<  ClusterPool::table;
+
+    db->exec(sql, this);
+
+    unset_callback();
+
+    if (cluster_pool.cluster_names.empty())
+    {
+        string default_name = "default";
+
+        // Insert the "default" cluster
+        int rc = cluster_pool.insert(0, default_name, db);
+        // TODO Check and log error
+    }
+
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 int HostPool::allocate (
     int *  oid,

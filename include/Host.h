@@ -188,6 +188,12 @@ public:
         return last_monitored;
     };
 
+    int set_cluster(string cluster_name)
+    {
+        cluster = cluster_name;
+        return 0;
+    };
+
     // ------------------------------------------------------------------------
     // Template
     // ------------------------------------------------------------------------
@@ -396,6 +402,11 @@ private:
      */
     time_t      last_monitored;
 
+    /**
+     *  Name of the cluster this host belongs to.
+     */
+    string      cluster;
+
     // -------------------------------------------------------------------------
     //  Host Attributes
     // -------------------------------------------------------------------------
@@ -472,7 +483,8 @@ protected:
         VM_MAD           = 4,
         TM_MAD           = 5,
         LAST_MON_TIME    = 6,
-        LIMIT            = 7
+        CLUSTER          = 7,
+        LIMIT            = 8
     };
 
     static const char * db_names;
