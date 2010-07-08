@@ -168,12 +168,36 @@ public:
 
         am->load_mads(0);
 
-        string astr="CREATION:VM:-1 USAGE:IMAGE:2 USAGE:NET:4 MANAGE:HOST:3";
+        //OBJECT:OBJECT_ID:ACTION:OWNER:PUBLIC
 
-        ar.add_auth(AuthRequest::CREATION,AuthRequest::VM,-1);
-        ar.add_auth(AuthRequest::USAGE,AuthRequest::IMAGE,2);
-        ar.add_auth(AuthRequest::USAGE,AuthRequest::NET,4);
-        ar.add_auth(AuthRequest::MANAGE,AuthRequest::HOST,3);
+        string astr="VM:dGhpcyBpcyBhIHNhbXBsZSB0ZW1wbGF0ZQ==:CREATE:-1:0 "
+                    "IMAGE:2:USE:3:0 "
+                    "NET:4:DELETE:5:1 "
+                    "HOST:6:MANAGE:7:1";
+
+        ar.add_auth(AuthRequest::VM,
+                    "dGhpcyBpcyBhIHNhbXBsZSB0ZW1wbGF0ZQ==",
+                    AuthRequest::CREATE,
+                    -1,
+                    false);
+
+        ar.add_auth(AuthRequest::IMAGE,
+                    2,
+                    AuthRequest::USE,
+                    3,
+                    false);
+
+        ar.add_auth(AuthRequest::NET,
+                    4,
+                    AuthRequest::DELETE,
+                    5,
+                    true);
+
+        ar.add_auth(AuthRequest::HOST,
+                    6,
+                    AuthRequest::MANAGE,
+                    7,
+                    true);
 
         am->trigger(AuthManager::AUTHORIZE,&ar);
         ar.wait();

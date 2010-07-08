@@ -271,10 +271,10 @@ public:
      */
     enum Operation
     {
-        CREATION, /** Authorization to create an object (host, vm, net, image)*/
-        DELETION, /** Authorization to delete an object */
-        USAGE,    /** Authorization to use an object */
-        MANAGE    /** Authorization to manage an object */
+        CREATE, /** Authorization to create an object (host, vm, net, image)*/
+        DELETE, /** Authorization to delete an object */
+        USE,    /** Authorization to use an object */
+        MANAGE  /** Authorization to manage an object */
     };
 
     /**
@@ -302,22 +302,23 @@ public:
     }
 
     /**
-     *  Adds a new authorization item to this requests
-     *  @param op the operation to be authorized
-     *  @param ob the object over which the operation will be performed
-     *  @param oid id of the object
+     *  Adds a new authorization item to this request
+     *
+     *        OBJECT:OBJECT_ID:ACTION:OWNER:PUBLIC
+     *
+     *    @param ob the object over which the operation will be performed
+     *    @param ob_id the object unique id
+     *    @param op the operation to be authorized
+     *    @param owner id of user that owns the object
+     *    @param pub public attribute
      */
-    void add_auth(Operation op, Object ob, int oid)
+    void add_auth(Object        ob,
+                  const string& ob_id,
+                  Operation     op,
+                  int           owner,
+                  bool          pub)
     {
         ostringstream oss;
-
-        switch (op)
-        {
-            case CREATION: oss << "CREATION:" ; break;
-            case DELETION: oss << "DELETION:" ; break;
-            case USAGE:    oss << "USAGE:" ; break;
-            case MANAGE:   oss << "MANAGE:" ; break;
-        }
 
         switch (ob)
         {
@@ -327,9 +328,34 @@ public:
             case IMAGE: oss << "IMAGE:" ; break;
         }
 
-        oss << oid;
+        oss << ob_id << ":";
+
+        switch (op)
+        {
+            case CREATE: oss << "CREATE:" ; break;
+            case DELETE: oss << "DELETE:" ; break;
+            case USE:    oss << "USE:" ; break;
+            case MANAGE: oss << "MANAGE:" ; break;
+        }
+
+        oss << owner << ":" << pub;
 
         auths.push_back(oss.str());
+    };
+
+    /**
+     *  Adds a new authorization item to this requests
+     */
+    void add_auth(Object        ob,
+                  int           ob_id,
+                  Operation     op,
+                  int           owner,
+                  bool          pub)
+    {
+        ostringstream oss;
+        oss << ob_id;
+
+        add_auth(ob,oss.str(),op,owner,pub);
     };
 
     /**
