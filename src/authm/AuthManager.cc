@@ -24,6 +24,8 @@
 
 time_t AuthManager::_time_out;
 
+const char * AuthManager::auth_driver_name = "auth_exe";
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -146,7 +148,7 @@ void AuthManager::authenticate_action(AuthRequest * ar)
     // Get the driver
     // ------------------------------------------------------------------------
 
-    authm_md = get(ar->auth_driver);
+    authm_md = get();
 
     if (authm_md == 0)
     {
@@ -189,7 +191,7 @@ void AuthManager::authorize_action(AuthRequest * ar)
     // Get the driver
     // ------------------------------------------------------------------------
 
-    authm_md = get(ar->auth_driver);
+    authm_md = get();
 
     if (authm_md == 0)
     {
@@ -318,39 +320,37 @@ void AuthManager::notify_request(int auth_id,bool result,const string& message)
 
 void AuthManager::load_mads(int uid)
 {
-    unsigned int                    i;
     ostringstream                   oss;
     const VectorAttribute *         vattr;
     int                             rc;
     string                          name;
     AuthManagerDriver *             authm_driver = 0;
 
-    oss << "Loading Authorization Manager drivers.";
+    oss << "Loading Auth. Manager driver.";
 
     NebulaLog::log("AuM",Log::INFO,oss);
 
-    for(i=0,oss.str("");i<mad_conf.size();i++,oss.str(""),authm_driver=0)
+    vattr = static_cast<const VectorAttribute *>(mad_conf[0]);
+
+    if ( vattr == 0 )
     {
-        vattr = static_cast<const VectorAttribute *>(mad_conf[i]);
+        NebulaLog::log("AuM",Log::ERROR,"Failed to load Auth. Manager driver.");
+        return;
+    }
 
-        name  = vattr->vector_value("NAME");
+    VectorAttribute auth_conf("AUTH_MAD",vattr->value());
 
-        oss << "\tLoading driver: " << name;
-        NebulaLog::log("AuM", Log::INFO, oss);
+    auth_conf.replace("NAME",auth_driver_name);
 
-        authm_driver = new AuthManagerDriver(uid,vattr->value(),(uid!=0),this);
+    authm_driver = new AuthManagerDriver(uid,auth_conf.value(),(uid!=0),this);
 
-        if ( authm_driver == 0 )
-            continue;
+    rc = add(authm_driver);
 
-        rc = add(authm_driver);
+    if ( rc == 0 )
+    {
+        oss.str("");
+        oss << "\tAuth Manager loaded";
 
-        if ( rc == 0 )
-        {
-            oss.str("");
-            oss << "\tDriver " << name << " loaded.";
-
-            NebulaLog::log("AuM",Log::INFO,oss);
-        }
+        NebulaLog::log("AuM",Log::INFO,oss);
     }
 }

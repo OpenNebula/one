@@ -153,6 +153,11 @@ private:
     time_t                  timer_period;
 
     /**
+     *  Generic name for the Auth driver
+     */
+     static const char *  auth_driver_name;
+
+    /**
      *  Returns a pointer to a Auth Manager driver.
      *    @param name of an attribute of the driver (e.g. its type)
      *    @param value of the attribute
@@ -174,12 +179,12 @@ private:
      *    @return the TM driver owned by uid with attribute name equal to value
      *    or 0 in not found
      */
-    const AuthManagerDriver * get(const string& name)
+    const AuthManagerDriver * get()
     {
-        string _name("NAME");
+        string name("NAME");
 
         return static_cast<const AuthManagerDriver *>
-               (MadManager::get(0,_name,name));
+               (MadManager::get(0,name,auth_driver_name));
     };
 
     /**
@@ -254,10 +259,9 @@ private:
 class AuthRequest : public ActionListener
 {
 public:
-    AuthRequest(int _uid, const string& _auth_driver):
+    AuthRequest(int _uid):
         result(false),
         timeout(false),
-        auth_driver(_auth_driver),
         uid(_uid),
         time_out(0),
         self_authorize(true)
@@ -452,11 +456,6 @@ private:
     ActionManager am;
 
     /**
-     *  The name of the Authorization driver to use with this request
-     */
-    string auth_driver;
-
-    /**
      *  The user id for this request
      */
     int uid;
@@ -477,7 +476,7 @@ private:
     string password;
 
     /**
-     *  Authentication token as sent in the XML-RPC call
+     *  Authentication token as sent in the XML-RPC call (user:session)
      */
     string session;
 

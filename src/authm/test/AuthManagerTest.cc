@@ -68,7 +68,7 @@ public:
 
         MadManager::mad_manager_system_init();
 
-        oss << "AUTH_MAD = [ name=\"dummy\", executable=\"/" << getenv("PWD")
+        oss << "AUTH_MAD = [ executable=\"/" << getenv("PWD")
             << "/dummy\"]" << endl;
 
         t = new Template();
@@ -107,7 +107,7 @@ public:
     void timeout()
     {
         int         rc;
-        AuthRequest ar(2,"dummy");
+        AuthRequest ar(2);
 
         rc = am->start();
 
@@ -136,7 +136,7 @@ public:
     void authenticate()
     {
         int         rc;
-        AuthRequest ar(2,"dummy");
+        AuthRequest ar(2);
 
         rc = am->start();
 
@@ -162,7 +162,7 @@ public:
     void authorize()
     {
         int         rc;
-        AuthRequest ar(2,"dummy");
+        AuthRequest ar(2);
 
         rc = am->start();
 
@@ -217,13 +217,13 @@ public:
 
     void self_authorize()
     {
-        AuthRequest ar(2,"dummy");
-        AuthRequest ar1(2,"dummy");
-        AuthRequest ar2(3,"dummy");
-        AuthRequest ar3(4,"dummy");
-        AuthRequest ar4(2,"dummy");
-        AuthRequest ar5(0,"dummy");
-        AuthRequest ar6(0,"dummy");
+        AuthRequest ar(2);
+        AuthRequest ar1(2);
+        AuthRequest ar2(3);
+        AuthRequest ar3(4);
+        AuthRequest ar4(2);
+        AuthRequest ar5(0);
+        AuthRequest ar6(0);
 
         ar.add_auth(AuthRequest::VM,"dGhpcy",AuthRequest::CREATE,2,false);
         ar.add_auth(AuthRequest::NET,2,AuthRequest::USE,2,false);
@@ -255,8 +255,8 @@ public:
 
     void self_authenticate()
     {
-        AuthRequest ar(2,"dummy");
-        AuthRequest ar1(2,"dummy");
+        AuthRequest ar(2);
+        AuthRequest ar1(2);
 
         ar.add_authenticate("the_user","the_pass","the_secret");
         CPPUNIT_ASSERT(ar.plain_authenticate() == false);
