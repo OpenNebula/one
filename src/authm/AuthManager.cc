@@ -239,7 +239,7 @@ void AuthManager::timer_action()
 
             ar->result  = false;
             ar->timeout = true;
-            ar->message.clear();
+            ar->message = "Auth request timeout";
 
             ar->notify();
         }
