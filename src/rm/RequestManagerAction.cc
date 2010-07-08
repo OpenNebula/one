@@ -49,7 +49,6 @@ void RequestManager::VirtualMachineAction::execute(
     action  = xmlrpc_c::value_string(paramList.getString(1));
     vid     = xmlrpc_c::value_int(paramList.getInt(2));
 
-
     // Get the VM
     vm  = VirtualMachineAction::vmpool->get(vid,true);
 
@@ -58,21 +57,34 @@ void RequestManager::VirtualMachineAction::execute(
         goto error_vm_get;
     }
 
-    uid = vm->get_uid(); 
-    
+    uid = vm->get_uid();
+
     vm->unlock();
 
-    // Only oneadmin or the VM owner can perform operations upon the VM
+    //Authenticate the user
     rc = VirtualMachineAction::upool->authenticate(session);
-    
-    if ( rc != 0 && rc != uid)                             
-    {                                            
-        goto error_authenticate;                     
+
+    if (rc == -1)
+    {
+        goto error_authenticate;
     }
-    
+
+    //Authorize the operation
+    if ( rc != 0 ) // rc == 0 means oneadmin
+    {
+        AuthRequest ar(rc);
+
+        ar.add_auth(AuthRequest::VM,vid,AuthRequest::MANAGE,uid,false);
+
+        if (upool->authorize(ar) == -1)
+        {
+            goto error_authorize;
+        }
+    }
+
     if (action == "shutdown")
     {
-        rc = dm->shutdown(vid);    
+        rc = dm->shutdown(vid);
     }
     else if (action == "hold")
     {
@@ -108,7 +120,7 @@ void RequestManager::VirtualMachineAction::execute(
     }
     else
     {
-        rc = -3;   
+        rc = -3;
     }
 
     if (rc != 0)
@@ -143,7 +155,12 @@ error_vm_get:
     goto error_common;
 
 error_authenticate:
-    oss << "User not authorized to perform operation upon VirtualMachine [" << vid << "]";
+    oss << "Error in user authentication";
+    goto error_common;
+
+error_authorize:
+    oss << "User not authorized to perform operation upon VirtualMachine ["
+        << vid << "]";
     goto error_common;
 
 error_common:
@@ -156,7 +173,6 @@ error_common:
     *retval = arrayresult_error;
 
     return;
- 
 }
 
 /* -------------------------------------------------------------------------- */
