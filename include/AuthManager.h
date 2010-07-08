@@ -259,7 +259,8 @@ public:
         timeout(false),
         auth_driver(_auth_driver),
         uid(_uid),
-        time_out(0)
+        time_out(0),
+        self_authorize(true)
     {
         am.addListener(this);
     };
@@ -309,7 +310,8 @@ public:
      *    @param ob the object over which the operation will be performed
      *    @param ob_id the object unique id
      *    @param op the operation to be authorized
-     *    @param owner id of user that owns the object
+     *    @param owner id of user that owns the object. For creates MUST equals
+          uid, hosts owner is uid=0
      *    @param pub public attribute
      */
     void add_auth(Object        ob,
@@ -319,6 +321,7 @@ public:
                   bool          pub)
     {
         ostringstream oss;
+        bool          auth = owner == uid;
 
         switch (ob)
         {
@@ -332,13 +335,30 @@ public:
 
         switch (op)
         {
-            case CREATE: oss << "CREATE:" ; break;
-            case DELETE: oss << "DELETE:" ; break;
-            case USE:    oss << "USE:" ; break;
-            case MANAGE: oss << "MANAGE:" ; break;
+            case CREATE:
+                oss << "CREATE:" ;
+                break;
+
+            case DELETE:
+                oss << "DELETE:" ;
+                break;
+
+            case USE:
+                oss << "USE:" ;
+                if ( ob == NET || ob == IMAGE )
+                {
+                    auth = auth || (pub == true);
+                }
+                break;
+
+            case MANAGE:
+                oss << "MANAGE:" ;
+                break;
         }
 
         oss << owner << ":" << pub;
+
+        self_authorize = self_authorize && auth;
 
         auths.push_back(oss.str());
     };
@@ -391,6 +411,16 @@ public:
 
         am.loop(0,0);
     };
+
+    bool plain_authorize()
+    {
+        return ( uid == 0 || self_authorize );
+    }
+
+    bool plain_authenticate()
+    {
+        return (password == session);
+    }
 
     /**
      *  The result of the request, true if authorized or authenticated
@@ -455,6 +485,11 @@ private:
      *  A list of authorization requests
      */
     vector<string> auths;
+
+    /**
+     *  Plain authorization for the request
+     */
+    bool self_authorize;
 
     /**
      *  No actions defined for the Auth request, just FINALIZE when done

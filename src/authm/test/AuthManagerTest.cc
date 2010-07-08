@@ -45,6 +45,8 @@ class AuthManagerTest : public CppUnit::TestFixture
     //CPPUNIT_TEST (timeout);
     CPPUNIT_TEST (authenticate);
     CPPUNIT_TEST (authorize);
+    CPPUNIT_TEST (self_authorize);
+    CPPUNIT_TEST (self_authenticate);
 
     CPPUNIT_TEST_SUITE_END ();
 
@@ -211,6 +213,58 @@ public:
 
         CPPUNIT_ASSERT(0==0);
     }
+
+
+    void self_authorize()
+    {
+        AuthRequest ar(2,"dummy");
+        AuthRequest ar1(2,"dummy");
+        AuthRequest ar2(3,"dummy");
+        AuthRequest ar3(4,"dummy");
+        AuthRequest ar4(2,"dummy");
+        AuthRequest ar5(0,"dummy");
+        AuthRequest ar6(0,"dummy");
+
+        ar.add_auth(AuthRequest::VM,"dGhpcy",AuthRequest::CREATE,2,false);
+        ar.add_auth(AuthRequest::NET,2,AuthRequest::USE,2,false);
+        ar.add_auth(AuthRequest::IMAGE,3,AuthRequest::USE,4,true);
+
+        CPPUNIT_ASSERT(ar.plain_authorize() == true);
+
+        ar1.add_auth(AuthRequest::VM,"dGhpcy",AuthRequest::CREATE,2,false);
+        ar1.add_auth(AuthRequest::NET,2,AuthRequest::USE,2,false);
+        ar1.add_auth(AuthRequest::IMAGE,3,AuthRequest::USE,4,false);
+
+        CPPUNIT_ASSERT(ar1.plain_authorize() == false);
+
+        ar2.add_auth(AuthRequest::HOST,"dGhpcy",AuthRequest::CREATE,0,false);
+        CPPUNIT_ASSERT(ar2.plain_authorize() == false);
+
+        ar3.add_auth(AuthRequest::VM,5,AuthRequest::MANAGE,2,false);
+        CPPUNIT_ASSERT(ar3.plain_authorize() == false);
+
+        ar4.add_auth(AuthRequest::VM,4,AuthRequest::MANAGE,2,false);
+        CPPUNIT_ASSERT(ar4.plain_authorize() == true);
+
+        ar5.add_auth(AuthRequest::HOST,4,AuthRequest::MANAGE,0,false);
+        CPPUNIT_ASSERT(ar5.plain_authorize() == true);
+
+        ar6.add_auth(AuthRequest::HOST,4,AuthRequest::CREATE,0,false);
+        CPPUNIT_ASSERT(ar6.plain_authorize() == true);
+    }
+
+    void self_authenticate()
+    {
+        AuthRequest ar(2,"dummy");
+        AuthRequest ar1(2,"dummy");
+
+        ar.add_authenticate("the_user","the_pass","the_secret");
+        CPPUNIT_ASSERT(ar.plain_authenticate() == false);
+
+        ar1.add_authenticate("the_user","the_pass","the_pass");
+        CPPUNIT_ASSERT(ar1.plain_authenticate() == true);
+    }
+
 private:
     AuthManager * am;
 
