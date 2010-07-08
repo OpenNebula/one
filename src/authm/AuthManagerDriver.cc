@@ -34,11 +34,19 @@ void AuthManagerDriver::authorize(int oid, int uid, const string& reqs) const
     write(os);
 }
 
-void AuthManagerDriver::authenticate(int oid, int uid, const string& ch) const
+void AuthManagerDriver::authenticate(int           oid,
+                      int           uid,
+                      const string& username,
+                      const string& password,
+                      const string& session) const
 {
     ostringstream os;
 
-    os << "AUTHENTICATE " << oid << " " << uid << " " << ch << endl;
+    os << "AUTHENTICATE " << oid << " "
+                          << uid << " "
+                          << username << " "
+                          << password << " "
+                          << session  << endl;
 
     write(os);
 }

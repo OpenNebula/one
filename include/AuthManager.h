@@ -145,12 +145,12 @@ private:
     /**
      *  Default timeout for Auth requests
      */
-    static time_t  _time_out;
+    static time_t           _time_out;
 
     /**
      *  Timer for the Manager (periocally triggers timer action)
      */
-    time_t  timer_period;
+    time_t                  timer_period;
 
     /**
      *  Returns a pointer to a Auth Manager driver.
@@ -292,9 +292,13 @@ public:
      *  Sets the challenge to authenticate an user
      *  @param challenge a driver specific authentication challenge
      */
-    void set_challenge(const string &ch)
+    void add_authenticate(const string &_username,
+                          const string &_password,
+                          const string &_session)
     {
-        challenge = ch;
+        username = _username;
+        password = _password;
+        session  = _session;
     }
 
     /**
@@ -407,9 +411,19 @@ private:
     time_t time_out;
 
     /**
-     *  Authentication challenge, as sent in the XML-RPC call
+     *  Username to authenticate the user
      */
-    string challenge;
+    string username;
+
+    /**
+     *  User password to authenticate the user
+     */
+    string password;
+
+    /**
+     *  Authentication token as sent in the XML-RPC call
+     */
+    string session;
 
     /**
      *  A list of authorization requests

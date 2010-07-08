@@ -77,12 +77,18 @@ private:
 
     /**
      *  Sends an authorization request to the MAD:
-     *    "AUTHENTICATE  OPERATION_ID USER_ID CHALLENGE"
+     *  "AUTHENTICATE REQUEST_ID USER_ID USER_NAME PASSWORD XMLRPC_TOKEN"
      *    @param oid an id to identify the request.
      *    @param uid the user id.
-     *    @param challenge to authenticate the user
+     *    @param username
+     *    @param password
+     *    @param session token from the xml-rpc parameter
      */
-    void authenticate(int oid, int uid, const string& ch) const;
+    void authenticate(int           oid,
+                      int           uid,
+                      const string& username,
+                      const string& password,
+                      const string& session) const;
 };
 
 /* -------------------------------------------------------------------------- */

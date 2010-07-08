@@ -161,10 +161,14 @@ void AuthManager::authenticate_action(AuthRequest * ar)
 
     // ------------------------------------------------------------------------
     // Make the request to the driver
-    // ------------------------------------------------------------------------
+    // ---- --------------------------------------------------------------------
 
-    authm_md->authenticate(ar->id,ar->uid,ar->challenge);
 
+    authm_md->authenticate(ar->id,
+                           ar->uid,
+                           ar->username,
+                           ar->password,
+                           ar->session);
     return;
 
 error_driver:

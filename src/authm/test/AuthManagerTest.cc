@@ -113,9 +113,10 @@ public:
 
         am->load_mads(0);
 
+        ar.add_authenticate("the_user","the_pass","the_secret");
+
         am->trigger(AuthManager::AUTHENTICATE,&ar);
 
-        ar.set_challenge("the_secret");
         ar.wait();
 
         CPPUNIT_ASSERT(ar.result==false);
@@ -141,7 +142,7 @@ public:
 
         am->load_mads(0);
 
-        ar.set_challenge("the_secret");
+        ar.add_authenticate("the_user","the_pass","the_secret");
 
         am->trigger(AuthManager::AUTHENTICATE,&ar);
         ar.wait();
