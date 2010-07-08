@@ -53,14 +53,8 @@ ShowTableUP={
         :left => true,
         :proc => lambda {|d,e| d[:password] }
     },
-    :enable => {
-        :name => "ENABLE",
-        :desc => "Wether the user is active or not",
-        :size => 6,
-        :proc => lambda {|d,e| d[:enabled] }
-    },
    
-    :default => [:id, :user, :password, :enable]
+    :default => [:id, :user, :password]
 }
 
 class UPShow
