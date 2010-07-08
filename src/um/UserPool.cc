@@ -20,8 +20,8 @@
 
 #include "UserPool.h"
 #include "NebulaLog.h"
-#include "AuthManager.h"
 #include "Nebula.h"
+#include "AuthManager.h"
 
 #include <fstream>
 #include <sys/types.h>
@@ -192,9 +192,12 @@ int UserPool::authenticate(string& session)
                 ar.add_authenticate(user->username,
                                     user->password,
                                     password);
-                if ( authm == 0 && ar.plain_authenticate() )
+                if (authm == 0)
                 {
-                    user_id = user->get_uid();
+                    if (ar.plain_authenticate())
+                    {
+                        user_id = user->get_uid();
+                    }
                 }
                 else
                 {
@@ -220,6 +223,43 @@ int UserPool::authenticate(string& session)
     }
 
     return user_id;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int UserPool::authorize(AuthRequest& ar)
+{
+    Nebula&       nd    = Nebula::instance();
+    AuthManager * authm = nd.get_authm();
+    int           rc    = -1;
+
+    if (authm == 0)
+    {
+        if (ar.plain_authorize())
+        {
+            rc = 0;
+        }
+    }
+    else
+    {
+        authm->trigger(AuthManager::AUTHORIZE,&ar);
+        ar.wait();
+
+        if (ar.result==true)
+        {
+            rc = 0;
+        }
+        else
+        {
+            ostringstream oss;
+            oss << "Auth Error: " << ar.message;
+
+            NebulaLog::log("AuM",Log::ERROR,oss);
+        }
+    }
+
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */
