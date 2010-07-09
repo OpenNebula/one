@@ -17,23 +17,25 @@
 #include "RequestManager.h"
 #include "NebulaLog.h"
 
+#include "AuthManager.h"
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 void RequestManager::HostAllocate::execute(
     xmlrpc_c::paramList const& paramList,
     xmlrpc_c::value *   const  retval)
-{ 
+{
     string              session;
 
     string              hostname;
-    string              im_mad_name; 
-    string              vmm_mad_name; 
+    string              im_mad_name;
+    string              vmm_mad_name;
     string              tm_mad_name;
 
-    int                 hid;   
+    int                 hid;
 
-    int                 rc;     
+    int                 rc;
     ostringstream       oss;
 
     /*   -- RPC specific vars --  */
@@ -49,25 +51,39 @@ void RequestManager::HostAllocate::execute(
     vmm_mad_name = xmlrpc_c::value_string(paramList.getString(3));
     tm_mad_name  = xmlrpc_c::value_string(paramList.getString(4));
 
-    // Only oneadmin can add new hosts
+    //Authenticate the user
     rc = HostAllocate::upool->authenticate(session);
-    
-    if ( rc != 0 )                             
-    {                                            
-        goto error_authenticate;                     
+
+    if ( rc == -1 )
+    {
+        goto error_authenticate;
     }
+
+    //Authorize the operation
+    if ( rc != 0 ) // rc == 0 means oneadmin
+    {
+        AuthRequest ar(rc);
+
+        ar.add_auth(AuthRequest::HOST,-1,AuthRequest::CREATE,0,false);
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            goto error_authorize;
+        }
+    }
+
     // Perform the allocation in the hostpool
     rc = HostAllocate::hpool->allocate(&hid,
                                        hostname,
-                                       im_mad_name, 
+                                       im_mad_name,
                                        vmm_mad_name,
-                                       tm_mad_name);                         
-    if ( rc == -1 )                             
-    {                                            
-        goto error_host_allocate;                     
+                                       tm_mad_name);
+    if ( rc == -1 )
+    {
+        goto error_host_allocate;
     }
-    
-    // All nice, return the new hid to client  
+
+    // All nice, return the new hid to client
     arrayData.push_back(xmlrpc_c::value_boolean(true)); // SUCCESS
     arrayData.push_back(xmlrpc_c::value_int(hid));
     arrayresult = new xmlrpc_c::value_array(arrayData);
@@ -79,25 +95,26 @@ void RequestManager::HostAllocate::execute(
     return;
 
 error_authenticate:
-    oss << "User not authorized to add new hosts";
+    oss << "Error in user authentication";
+    goto error_common;
+
+error_authorize:
+    oss << "User not authorized to allocate a new HOST";
     goto error_common;
 
 error_host_allocate:
-    oss << "Can not allocate host " << hostname << 
-           " in the HostPool, returned error code [" << rc << "]";
+    oss << "Error inserting HOST in the database, check oned.log";
     goto error_common;
 
 error_common:
-
     arrayData.push_back(xmlrpc_c::value_boolean(false));  // FAILURE
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
-    
-    NebulaLog::log("ReM",Log::ERROR,oss); 
-    
+
+    NebulaLog::log("ReM",Log::ERROR,oss);
+
     xmlrpc_c::value_array arrayresult_error(arrayData);
 
     *retval = arrayresult_error;
-    
     return;
 }
 

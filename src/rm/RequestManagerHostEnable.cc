@@ -17,13 +17,15 @@
 #include "RequestManager.h"
 #include "NebulaLog.h"
 
+#include "AuthManager.h"
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 void RequestManager::HostEnable::execute(
     xmlrpc_c::paramList const& paramList,
     xmlrpc_c::value *   const  retval)
-{ 
+{
     string              session;
 
     int                 hid;
@@ -43,39 +45,51 @@ void RequestManager::HostEnable::execute(
     hid     = xmlrpc_c::value_int(paramList.getInt(1));
     enable  = xmlrpc_c::value_boolean(paramList.getBoolean(2));
 
-    // Only oneadmin can enable hosts 
+    //Authenticate the user
     rc = HostEnable::upool->authenticate(session);
-    
-    if ( rc != 0)                             
-    {                                            
-        goto error_authenticate;                     
+
+    if ( rc == -1 )
+    {
+        goto error_authenticate;
     }
 
-    host = HostEnable::hpool->get(hid,true);    
-                                                 
-    if ( host == 0 )                             
-    {                                            
-        goto error_host_get;                     
+    //Authorize the operation
+    if ( rc != 0 ) // rc == 0 means oneadmin
+    {
+        AuthRequest ar(rc);
+
+        ar.add_auth(AuthRequest::HOST,hid,AuthRequest::MANAGE,0,false);
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            goto error_authorize;
+        }
     }
-    
+
+    host = HostEnable::hpool->get(hid,true);
+
+    if ( host == 0 )
+    {
+        goto error_host_get;
+    }
+
     if ( enable == true)
     {
-    	host->enable();
+        host->enable();
     }
     else
     {
-    	host->disable();
+        host->disable();
     }
 
     HostEnable::hpool->update(host);
-    
+
     host->unlock();
-  
+
     //Result
-    
     arrayData.push_back(xmlrpc_c::value_boolean(true));
     arrayresult = new xmlrpc_c::value_array(arrayData);
-    
+
     *retval = *arrayresult;
 
     delete arrayresult;
@@ -83,15 +97,19 @@ void RequestManager::HostEnable::execute(
     return;
 
 error_authenticate:
-    oss << "Only oneadmin can enable hosts";
+    oss << "Error in user authentication";
+    goto error_common;
+
+error_authorize:
+    oss << "User not authorized to enable HOST";
     goto error_common;
 
 error_host_get:
-    oss << "Error getting host with HID = " << hid;    
+    oss << "Error getting host with HID = " << hid;
     goto error_common;
 
 error_common:
-    NebulaLog::log("ReM",Log::ERROR,oss); 
+    NebulaLog::log("ReM",Log::ERROR,oss);
 
     arrayData.push_back(xmlrpc_c::value_boolean(false));
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
@@ -99,7 +117,7 @@ error_common:
     xmlrpc_c::value_array arrayresult_error(arrayData);
 
     *retval = arrayresult_error;
-    
+
     return;
 }
 

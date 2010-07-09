@@ -23,13 +23,13 @@
 void RequestManager::HostInfo::execute(
     xmlrpc_c::paramList const& paramList,
     xmlrpc_c::value *   const  retval)
-{ 
+{
     string  session;
 
-    int     hid;  
+    int     hid;
     int     rc;
     Host *  host;
-    
+
     ostringstream oss;
 
     /*   -- RPC specific vars --  */
@@ -42,7 +42,7 @@ void RequestManager::HostInfo::execute(
     session      = xmlrpc_c::value_string(paramList.getString(0));
     hid          = xmlrpc_c::value_int   (paramList.getInt(1));
 
-    // Check if it is a valid user
+    //Authenticate the user
     rc = HostInfo::upool->authenticate(session);
 
     if ( rc == -1 )
@@ -51,18 +51,18 @@ void RequestManager::HostInfo::execute(
     }
 
     // Get the host from the HostPool
-    host = HostInfo::hpool->get(hid,true);    
-                                                 
-    if ( host == 0 )                             
-    {                                            
-        goto error_host_get;                     
+    host = HostInfo::hpool->get(hid,true);
+
+    if ( host == 0 )
+    {
+        goto error_host_get;
     }
-    
+
     oss << *host;
-    
+
     host->unlock();
-    
-    // All nice, return the host info to the client  
+
+    // All nice, return the host info to the client
     arrayData.push_back(xmlrpc_c::value_boolean(true)); // SUCCESS
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
 
@@ -75,24 +75,24 @@ void RequestManager::HostInfo::execute(
     return;
 
 error_authenticate:
-    oss << "User not authenticated, HostInfo call aborted.";
+    oss << "Error in user authentication";
     goto error_common;
 
 error_host_get:
-    oss << "Error getting host with HID = " << hid; 
+    oss << "Error getting host with HID = " << hid;
     goto error_common;
 
 error_common:
 
     arrayData.push_back(xmlrpc_c::value_boolean(false)); // FAILURE
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
-    
-    NebulaLog::log("ReM",Log::ERROR,oss); 
-    
+
+    NebulaLog::log("ReM",Log::ERROR,oss);
+
     xmlrpc_c::value_array arrayresult_error(arrayData);
 
     *retval = arrayresult_error;
-    
+
     return;
 }
 
