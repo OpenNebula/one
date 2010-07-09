@@ -157,6 +157,7 @@ ETC_DIRS="$ETC_LOCATION/im_kvm \
           $ETC_LOCATION/tm_dummy \
           $ETC_LOCATION/tm_lvm \
           $ETC_LOCATION/hm \
+          $ETC_LOCATION/auth \
           $ETC_LOCATION/ec2query_templates \
           $ETC_LOCATION/occi_templates"
 
@@ -240,10 +241,11 @@ INSTALL_ETC_FILES[10]="TM_SSH_ETC_FILES:$ETC_LOCATION/tm_ssh"
 INSTALL_ETC_FILES[11]="TM_DUMMY_ETC_FILES:$ETC_LOCATION/tm_dummy"
 INSTALL_ETC_FILES[12]="TM_LVM_ETC_FILES:$ETC_LOCATION/tm_lvm"
 INSTALL_ETC_FILES[13]="HM_ETC_FILES:$ETC_LOCATION/hm"
-INSTALL_ETC_FILES[14]="ECO_ETC_FILES:$ETC_LOCATION"
-INSTALL_ETC_FILES[15]="ECO_ETC_TEMPLATE_FILES:$ETC_LOCATION/ec2query_templates"
-INSTALL_ETC_FILES[16]="OCCI_ETC_FILES:$ETC_LOCATION"
-INSTALL_ETC_FILES[17]="OCCI_ETC_TEMPLATE_FILES:$ETC_LOCATION/occi_templates"
+INSTALL_ETC_FILES[14]="AUTH_ETC_FILES:$ETC_LOCATION/auth"
+INSTALL_ETC_FILES[15]="ECO_ETC_FILES:$ETC_LOCATION"
+INSTALL_ETC_FILES[16]="ECO_ETC_TEMPLATE_FILES:$ETC_LOCATION/ec2query_templates"
+INSTALL_ETC_FILES[17]="OCCI_ETC_FILES:$ETC_LOCATION"
+INSTALL_ETC_FILES[18]="OCCI_ETC_TEMPLATE_FILES:$ETC_LOCATION/occi_templates"
 
 #-------------------------------------------------------------------------------
 # Binary files, to be installed under $BIN_LOCATION
@@ -281,7 +283,10 @@ RUBY_LIB_FILES="src/mad/ruby/one_mad.rb \
                 src/cli/client_utilities.rb \
                 src/cli/command_parse.rb \
                 src/oca/ruby/OpenNebula.rb \
-                src/tm_mad/TMScript.rb"
+                src/tm_mad/TMScript.rb \
+                src/authm_mad/one_usage.rb \
+                src/authm_mad/quota.rb \
+                src/authm_mad/simple_auth.rb"
 
 RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/OpenNebula/Host.rb \
                            src/oca/ruby/OpenNebula/HostPool.rb \
@@ -318,7 +323,9 @@ MADS_LIB_FILES="src/mad/sh/madcommon.sh \
               src/tm_mad/one_tm \
               src/tm_mad/one_tm.rb \
               src/hm_mad/one_hm.rb \
-              src/hm_mad/one_hm"
+              src/hm_mad/one_hm \
+              src/authm_mad/one_auth_mad.rb \
+              src/authm_mad/one_auth_mad"
               
 #-------------------------------------------------------------------------------
 # Information Manager Probes, to be installed under $LIB_LOCATION/im_probes
@@ -435,6 +442,12 @@ TM_LVM_ETC_FILES="src/tm_mad/lvm/tm_lvm.conf \
 #-------------------------------------------------------------------------------
 
 HM_ETC_FILES="src/hm_mad/hmrc"
+
+#-------------------------------------------------------------------------------
+# Hook Manager driver config. files, to be installed under $ETC_LOCATION/hm
+#-------------------------------------------------------------------------------
+
+AUTH_ETC_FILES="src/authm_mad/auth_mad"
 
 #-------------------------------------------------------------------------------
 # Sample files, to be installed under $SHARE_LOCATION/examples
