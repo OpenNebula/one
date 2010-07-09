@@ -290,7 +290,8 @@ public:
         VM,
         HOST,
         NET,
-        IMAGE
+        IMAGE,
+        USER
     };
 
     /**

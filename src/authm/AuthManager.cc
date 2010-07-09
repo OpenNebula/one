@@ -84,6 +84,7 @@ void AuthRequest::add_auth(Object        ob,
         case HOST:  oss << "HOST:" ; break;
         case NET:   oss << "NET:" ; break;
         case IMAGE: oss << "IMAGE:" ; break;
+        case USER:  oss << "USER:" ; break;
     }
 
     if (op == CREATE) //encode the ob_id, it is a template

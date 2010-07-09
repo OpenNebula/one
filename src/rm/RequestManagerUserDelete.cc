@@ -17,6 +17,8 @@
 #include "RequestManager.h"
 #include "NebulaLog.h"
 
+#include "AuthManager.h"
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -48,12 +50,28 @@ void RequestManager::UserDelete::execute(
         goto error_oneadmin_deletion;
     }
     
-    // Only oneadmin can delete users
     rc = UserDelete::upool->authenticate(session);
     
-    if ( rc != 0 )
+    if ( rc == -1 )
     {
         goto error_authenticate;
+    }
+    
+    //Authorize the operation
+    if ( rc != 0 ) // rc == 0 means oneadmin
+    {
+        AuthRequest ar(rc);
+
+        ar.add_auth(AuthRequest::USER,
+                    uid,
+                    AuthRequest::DELETE,
+                    0,
+                    false);
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            goto error_authorize;
+        }
     }
 
     // Now let's get the user 
@@ -89,7 +107,12 @@ error_oneadmin_deletion:
     goto error_common;
 
 error_authenticate:
-    oss << "User not authorized to delete users";
+    oss << "User not authenticated, aborting UserDelete call.";
+    goto error_common;
+
+error_authorize:
+    oss << "User not authorized to delete user with uid " << uid 
+        << ", aborting UserDelete call.";
     goto error_common;
     
 error_get_user:

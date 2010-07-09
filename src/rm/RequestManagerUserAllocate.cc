@@ -17,6 +17,8 @@
 #include "RequestManager.h"
 #include "NebulaLog.h"
 
+#include "AuthManager.h"
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -48,12 +50,28 @@ void RequestManager::UserAllocate::execute(
     username     = xmlrpc_c::value_string(paramList.getString(1));
     password     = xmlrpc_c::value_string(paramList.getString(2));
     
-    // Only oneadmin can add users
     rc = UserAllocate::upool->authenticate(session);
     
-    if ( rc != 0 )                             
+    if ( rc == -1 )                             
     {                                            
         goto error_authenticate;                     
+    }
+    
+    //Authorize the operation
+    if ( rc != 0 ) // rc == 0 means oneadmin
+    {
+        AuthRequest ar(rc);
+
+        ar.add_auth(AuthRequest::USER,
+                    -1,
+                    AuthRequest::CREATE,
+                    0,
+                    false);
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            goto error_authorize;
+        }
     }
 
     // Let's make sure that the user doesn't exist in the database
@@ -85,16 +103,20 @@ void RequestManager::UserAllocate::execute(
     return;
 
 error_authenticate:
-    oss << "User not authorized to add new users";
+    oss << "User not authenticated, aborting UserAllocate call.";
     goto error_common;
     
+error_authorize:
+    oss << "User not authorized to add new users, aborting UserAllocate call.";
+    goto error_common;  
+     
 error_duplicate:
-    oss << "Existing user, cannot duplicate";
+    oss << "Existing user, cannot duplicate.";
     goto error_common;
 
 
 error_allocate:
-    oss << "Error allocating user";
+    oss << "Error allocating user.";
     goto error_common;
 
 error_common:
