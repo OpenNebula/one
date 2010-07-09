@@ -16,6 +16,7 @@
 
 #include "VirtualNetworkPool.h"
 #include "NebulaLog.h"
+#include "AuthManager.h"
 
 #include <sstream>
 #include <ctype.h>
@@ -211,6 +212,43 @@ int VirtualNetworkPool::dump(ostringstream& oss, const string& where)
     oss << "</VNET_POOL>";
 
     unset_callback();
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualNetworkPool::nic_attribute(VectorAttribute * nic,
+                                      int               vid,
+                                      AuthRequest *     ar)
+{
+    string           network;
+    VirtualNetwork * vnet;
+
+    network = nic->vector_value("NETWORK");
+
+    if (network.empty())
+    {
+        return -2;
+    }
+
+    vnet = get(network,true);
+
+    if (vnet == 0)
+    {
+        return -1;
+    }
+
+    int rc = vnet->nic_attribute(nic,vid);
+
+    ar->add_auth(AuthRequest::NET,
+                 vnet->get_vnid(),
+                 AuthRequest::USE,
+                 vnet->get_uid(),
+                 vnet->isPublic());
+
+    vnet->unlock();
 
     return rc;
 }

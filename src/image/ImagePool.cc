@@ -19,6 +19,7 @@
 /* ************************************************************************** */
 
 #include "ImagePool.h"
+#include "AuthManager.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -187,3 +188,37 @@ int ImagePool::dump(ostringstream& oss, const string& where)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+int ImagePool::disk_attribute(VectorAttribute * disk,
+                              int *             index,
+                              AuthRequest *     ar)
+{
+    string  source;
+    Image * img;
+
+    source = disk->vector_value("NAME");
+
+    if (source.empty())
+    {
+        return -2;
+    }
+
+    img = get(source,true);
+
+    if (img == 0)
+    {
+        return -1;
+    }
+
+    int rc = img->disk_attribute(disk,index);
+
+    ar->add_auth(AuthRequest::IMAGE,
+                 img->get_iid(),
+                 AuthRequest::USE,
+                 img->get_uid(),
+                 img->isPublic());
+
+    img->unlock();
+
+    return rc;
+}

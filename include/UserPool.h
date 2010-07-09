@@ -138,7 +138,7 @@ public:
      *   @param ar, an Authorization Request
      *   @return -1 if authz failed, 0 otherwise
      */
-    int authorize(AuthRequest& ar);
+    static int authorize(AuthRequest& ar);
 
     /**
      *  Dumps the User pool in XML format. A filter can be also added to the

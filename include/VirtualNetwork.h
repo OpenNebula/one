@@ -59,6 +59,15 @@ public:
     // *************************************************************************
 
     /**
+     * Get the Vnet unique identifier VNID, that matches the OID of the object
+     *    @return VNID Image identifier
+     */
+    int get_vnid() const
+    {
+        return oid;
+    };
+
+    /**
      * Gets the uid of the owner of the Virtual Network
      * @return uid
      **/
@@ -71,7 +80,7 @@ public:
      *  Returns true if the Virtual Network is public
      *     @return true if the Virtual Network is public
      */
-    bool is_public()
+    bool isPublic()
     {
         return (public_vnet == 1);
     };

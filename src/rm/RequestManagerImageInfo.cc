@@ -23,14 +23,14 @@
 void RequestManager::ImageInfo::execute(
     xmlrpc_c::paramList const& paramList,
     xmlrpc_c::value *   const  retval)
-{ 
+{
     string  session;
 
-    int     iid; 
-    int     uid;  
+    int     iid;
+    int     uid;
     int     rc;
     Image * image;
-    
+
     ostringstream oss;
 
     /*   -- RPC specific vars --  */
@@ -42,30 +42,30 @@ void RequestManager::ImageInfo::execute(
     // Get the parameters
     session      = xmlrpc_c::value_string(paramList.getString(0));
     iid          = xmlrpc_c::value_int   (paramList.getInt(1));
-    
+
     // Get image from the ImagePool
-    image = ImageInfo::ipool->get(iid,true);    
-                                                 
-    if ( image == 0 )                             
-    {                                            
-        goto error_image_get;                     
+    image = ImageInfo::ipool->get(iid,true);
+
+    if ( image == 0 )
+    {
+        goto error_image_get;
     }
-    
+
     uid = image->get_uid();
 
     // Check if it is a valid user
     rc = ImageInfo::upool->authenticate(session);
 
-    if ( rc != 0 && rc != uid && !image->is_public())                             
-    {                                            
-        goto error_authenticate;                    
+    if ( rc != 0 && rc != uid && !image->isPublic())
+    {
+        goto error_authenticate;
     }
-    
+
     oss << *image;
-    
+
     image->unlock();
-    
-    // All nice, return the host info to the client  
+
+    // All nice, return the host info to the client
     arrayData.push_back(xmlrpc_c::value_boolean(true)); // SUCCESS
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
 
@@ -76,13 +76,13 @@ void RequestManager::ImageInfo::execute(
     delete arrayresult; // and get rid of the original
 
     return;
-    
+
 error_image_get:
-    oss << "Error getting image with ID = " << iid; 
+    oss << "Error getting image with ID = " << iid;
     goto error_common;
 
 error_authenticate:
-    oss << "User doesn't exist, or not authorized to use image with " << 
+    oss << "User doesn't exist, or not authorized to use image with " <<
     "ID = " << iid << " , ImageInfo call aborted.";
     image->unlock();
     goto error_common;
@@ -91,13 +91,13 @@ error_common:
 
     arrayData.push_back(xmlrpc_c::value_boolean(false)); // FAILURE
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
-    
-    NebulaLog::log("ReM",Log::ERROR,oss); 
-    
+
+    NebulaLog::log("ReM",Log::ERROR,oss);
+
     xmlrpc_c::value_array arrayresult_error(arrayData);
 
     *retval = arrayresult_error;
-    
+
     return;
 }
 

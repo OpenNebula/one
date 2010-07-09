@@ -27,24 +27,18 @@ void RequestManager::VirtualMachineAllocate::execute(
     xmlrpc_c::value *   const  retval)
 {
     string              session;
-    string              username;
-    string              password;
     string              vm_template;
 
     int                 vid;
-    int                 uid;
     int                 rc;
 
     Nebula&             nd = Nebula::instance();
     DispatchManager *   dm = nd.get_dm();
 
-    User            *   user;
-
     ostringstream       oss;
 
     vector<xmlrpc_c::value> arrayData;
     xmlrpc_c::value_array * arrayresult;
-
 
     NebulaLog::log("ReM",Log::DEBUG,"VirtualMachineAllocate invoked");
 
@@ -52,30 +46,15 @@ void RequestManager::VirtualMachineAllocate::execute(
     vm_template = xmlrpc_c::value_string(paramList.getString(1));
     vm_template += "\n";
 
-
-    // First, we need to authenticate the user
+    //Authenticate the user
     rc = VirtualMachineAllocate::upool->authenticate(session);
 
-    if ( rc == -1 )
+    if (rc == -1)
     {
         goto error_authenticate;
     }
 
-    User::split_secret(session,username,password);
-
-    // Now let's get the user
-    user = VirtualMachineAllocate::upool->get(username,true);
-
-    if ( user == 0 )
-    {
-        goto error_get_user;
-    }
-
-    uid = user->get_uid();
-
-    user->unlock();
-
-    rc = dm->allocate(uid,vm_template,&vid);
+    rc = dm->allocate(rc,vm_template,&vid);
 
     if ( rc < 0 )
     {
@@ -99,19 +78,8 @@ error_authenticate:
     oss << "User not authenticated, aborting RequestManagerAllocate call.";
     goto error_common;
 
-error_get_user:
-    oss << "User not recognized, cannot allocate VirtualMachine";
-    goto error_common;
-
 error_allocate:
-    if (rc == -1)
-    {
-        oss << "Error inserting VM in the database, check oned.log";
-    }
-    else
-    {
-        oss << "Error parsing VM template";
-    }
+    oss << "Error inserting VM in the database, check oned.log";
     goto error_common;
 
 error_common:

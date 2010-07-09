@@ -18,6 +18,7 @@
 #include "NebulaLog.h"
 
 #include "Nebula.h"
+#include "UserPool.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -76,7 +77,7 @@ void RequestManager::VirtualMachineAction::execute(
 
         ar.add_auth(AuthRequest::VM,vid,AuthRequest::MANAGE,uid,false);
 
-        if (upool->authorize(ar) == -1)
+        if (UserPool::authorize(ar) == -1)
         {
             goto error_authorize;
         }

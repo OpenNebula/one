@@ -105,7 +105,7 @@ public:
      *  Returns true if the image is public
      *     @return true if the image is public
      */
-    bool is_public()
+    bool isPublic()
     {
         return (public_img == 1);
     };
