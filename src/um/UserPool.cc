@@ -167,58 +167,98 @@ int UserPool::authenticate(string& session)
 {
     map<string, int>::iterator index;
 
+    User * user = 0;
     string username;
-    string password;
+    string secret, u_pass;
+    int    uid;
 
-    int   user_id = -1;
+    int user_id = -1;
+    int rc;
 
-    // session holds username:password
+    Nebula&     nd      = Nebula::instance();
+    AuthManager * authm = nd.get_authm();
 
-    if ( User::split_secret(session,username,password) == 0 )
+    rc = User::split_secret(session,username,secret);
+
+    if ( rc != 0 )
     {
-        index = known_users.find(username);
+        return -1;
+    }
 
-        if ( index != known_users.end() )
+    index = known_users.find(username);
+
+    if ( index != known_users.end() ) //User known to OpenNebula
+    {
+        user = get((int)index->second,true);
+
+        if ( user == 0 )
         {
-            User * user = get((int)index->second,true);
+            return -1;
+        }
 
-            if ( user != 0 )
+        u_pass = user->password;
+        uid    = user->get_uid();
+
+        user->unlock();
+    }
+    else //External User
+    {
+        u_pass = "-";
+        uid    = -1;
+    }
+
+    AuthRequest ar(uid);
+
+    ar.add_authenticate(username,u_pass,secret);
+
+    if ( uid == 0 ) //oneadmin
+    {
+        if (ar.plain_authenticate())
+        {
+            user_id = 0;
+        }
+    }
+    else if (authm == 0) //plain auth
+    {
+        if ( user != 0 && ar.plain_authenticate()) //no plain for external users
+        {
+            user_id = uid;
+        }
+    }
+    else //use the driver
+    {
+        authm->trigger(AuthManager::AUTHENTICATE,&ar);
+        ar.wait();
+
+        if (ar.result==true)
+        {
+            if ( user != 0 ) //knwon user_id
             {
-                AuthRequest ar(user->get_uid());
-
-                Nebula&     nd      = Nebula::instance();
-                AuthManager * authm = nd.get_authm();
-
-                ar.add_authenticate(user->username,
-                                    user->password,
-                                    password);
-                if (authm == 0)
-                {
-                    if (ar.plain_authenticate())
-                    {
-                        user_id = user->get_uid();
-                    }
-                }
-                else
-                {
-                    authm->trigger(AuthManager::AUTHENTICATE,&ar);
-                    ar.wait();
-
-                    if (ar.result==true)
-                    {
-                        user_id = user->get_uid();
-                    }
-                    else
-                    {
-                        ostringstream oss;
-                        oss << "Auth Error: " << ar.message;
-
-                        NebulaLog::log("AuM",Log::ERROR,oss);
-                    }
-                }
-
-                user->unlock();
+                user_id = uid;
             }
+            else //External user, user_id in driver message
+            {
+                istringstream is(ar.message);
+
+                if ( is.good() )
+                {
+                    is >> user_id;
+                }
+
+                if ( is.fail() || user_id <= 0 )
+                {
+                    ar.message = "Can't convert user_id from driver";
+                    user_id    = -1;
+                }
+            }
+        }
+
+        if (user_id == -1)
+        {
+            ostringstream oss;
+            oss << "Auth Error: " << ar.message;
+
+            NebulaLog::log("AuM",Log::ERROR,oss);
         }
     }
 
