@@ -127,7 +127,6 @@ void RequestManager::VirtualMachineAction::execute(
     if (rc != 0)
     {
         goto error_operation;
-
     }
 
     arrayData.push_back(xmlrpc_c::value_boolean(true));
@@ -160,8 +159,7 @@ error_authenticate:
     goto error_common;
 
 error_authorize:
-    oss << "User not authorized to perform operation upon VirtualMachine ["
-        << vid << "]";
+    oss << "User not authorized to perform VM operation";
     goto error_common;
 
 error_common:

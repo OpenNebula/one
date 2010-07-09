@@ -52,14 +52,12 @@ void RequestManager::VirtualMachineMigrate::execute(
     NebulaLog::log("ReM",Log::DEBUG,"VirtualMachineMigrate invoked");
 
     //Parse Arguments
-
     session = xmlrpc_c::value_string(paramList.getString(0));
     vid     = xmlrpc_c::value_int(paramList.getInt(1));
     hid     = xmlrpc_c::value_int(paramList.getInt(2));
     live    = xmlrpc_c::value_boolean(paramList.getBoolean(3));
 
-    //Get host info to deploy the VM
-
+    //Get host info to migrate the VM
     host = VirtualMachineMigrate::hpool->get(hid,true);
 
     if ( host == 0 )
@@ -76,7 +74,6 @@ void RequestManager::VirtualMachineMigrate::execute(
     host->unlock();
 
     //Get the VM and migrate it
-
     vm = VirtualMachineMigrate::vmpool->get(vid,true);
 
     if ( vm == 0 )
@@ -89,9 +86,23 @@ void RequestManager::VirtualMachineMigrate::execute(
     // Only oneadmin or the VM owner can perform operations upon the VM
     rc = VirtualMachineMigrate::upool->authenticate(session);
 
-    if ( rc != 0 && rc != uid)
+    if ( rc == -1)
     {
         goto error_authenticate;
+    }
+
+    //Authorize the operation
+    if ( rc != 0 ) // rc == 0 means oneadmin
+    {
+        AuthRequest ar(rc);
+
+        ar.add_auth(AuthRequest::VM,vid,AuthRequest::MANAGE,uid,false);
+        ar.add_auth(AuthRequest::HOST,hid,AuthRequest::USE,0,false);
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            goto error_authorize;
+        }
     }
 
     if ((vm->get_state() != VirtualMachine::ACTIVE) ||
@@ -123,7 +134,6 @@ void RequestManager::VirtualMachineMigrate::execute(
     vm->unlock();
 
     // Send results to client
-
     arrayData.push_back(xmlrpc_c::value_boolean(true));
 
     arrayresult = new xmlrpc_c::value_array(arrayData);
@@ -134,10 +144,6 @@ void RequestManager::VirtualMachineMigrate::execute(
 
     return;
 
-error_authenticate:
-    vm->unlock();
-    oss << "User not authorized to perform migration upon this VM";
-    goto error_common;
 
 error_host_get:
     oss << "The host " << hid << " does not exists";
@@ -147,20 +153,26 @@ error_vm_get:
     oss << "The virtual machine " << vid << " does not exists";
     goto error_common;
 
-error_history:
-	vm->unlock();
+error_authenticate:
+    oss << "Error in user authentication";
+    goto error_common_lock;
 
-    oss << "Can not migrate VM " << vid << ", can not insert history";
-    goto error_common;
+error_authorize:
+    oss << "User not authorized to migrate VM on host";
+    goto error_common_lock;
+
+error_history:
+    oss << "Can not insert history to migrate VM";
+    goto error_common_lock;
 
 error_state:
-	vm->unlock();
+    oss << "Can not migrate VM, wrong state";
+    goto error_common_lock;
 
-    oss << "Can not migrate VM " << vid << ", wrong state";
-    goto error_common;
+error_common_lock:
+    vm->unlock();
 
 error_common:
-
     arrayData.push_back(xmlrpc_c::value_boolean(false));
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
 

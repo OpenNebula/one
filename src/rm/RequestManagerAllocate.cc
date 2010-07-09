@@ -75,7 +75,7 @@ void RequestManager::VirtualMachineAllocate::execute(
     return;
 
 error_authenticate:
-    oss << "User not authenticated, aborting RequestManagerAllocate call.";
+    oss << "Error in user authentication";
     goto error_common;
 
 error_allocate:
