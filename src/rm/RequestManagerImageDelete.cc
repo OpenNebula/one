@@ -15,9 +15,11 @@
 /* -------------------------------------------------------------------------- */
 
 #include "RequestManager.h"
-#include "NebulaLog.h"
 
+#include "NebulaLog.h"
 #include "Nebula.h"
+
+#include "AuthManager.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -55,6 +57,19 @@ void RequestManager::ImageDelete::execute(
     }
 
     uid = rc;
+    
+    //Authorize the operation
+    if ( uid != 0 ) // uid == 0 means oneadmin
+    {
+        AuthRequest ar(uid);
+
+        ar.add_auth(AuthRequest::IMAGE,iid,AuthRequest::DELETE,0,false);
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            goto error_authorize;
+        }
+    }
 
     // Get image from the ImagePool
     image = ImageDelete::ipool->get(iid,true);
@@ -62,11 +77,6 @@ void RequestManager::ImageDelete::execute(
     if ( image == 0 )
     {
         goto error_image_get;
-    }
-
-    if ( uid != 0 && uid != image->get_uid() )
-    {
-        goto error_authorization;
     }
 
     rc = ImageDelete::ipool->drop(image);
@@ -98,9 +108,8 @@ error_image_get:
     oss << "Error getting image with ID = " << iid;
     goto error_common;
 
-error_authorization:
+error_authorize:
     oss << "User not authorized to delete image, aborting ImageDelete call.";
-    image->unlock();
     goto error_common;
 
 error_delete:

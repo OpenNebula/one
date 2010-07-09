@@ -17,6 +17,8 @@
 #include "RequestManager.h"
 #include "NebulaLog.h"
 
+#include "AuthManager.h"
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -27,8 +29,8 @@ void RequestManager::ImageInfo::execute(
     string  session;
 
     int     iid;
-    int     uid;
-    int     rc;
+    int     uid;     // Image owner user id
+    int     rc;      // Requesting user id 
     Image * image;
 
     ostringstream oss;
@@ -56,9 +58,26 @@ void RequestManager::ImageInfo::execute(
     // Check if it is a valid user
     rc = ImageInfo::upool->authenticate(session);
 
-    if ( rc != 0 && rc != uid && !image->isPublic())
+    if ( rc == -1 )
     {
         goto error_authenticate;
+    }
+    
+    //Authorize the operation
+    if ( rc != 0 ) // rc == 0 means oneadmin
+    {
+        AuthRequest ar(rc);
+
+        ar.add_auth(AuthRequest::IMAGE,
+                    iid,
+                    AuthRequest::USE,
+                    0,
+                    image->isPublic());
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            goto error_authorize;
+        }
     }
 
     oss << *image;
@@ -82,13 +101,17 @@ error_image_get:
     goto error_common;
 
 error_authenticate:
-    oss << "User doesn't exist, or not authorized to use image with " <<
+oss << "Cannot authenticate user, aborting ImageInfo call.";
+    image->unlock();
+    goto error_common;
+
+error_authorize:
+    oss << "User not authorized to use image with " <<
     "ID = " << iid << " , ImageInfo call aborted.";
     image->unlock();
     goto error_common;
 
 error_common:
-
     arrayData.push_back(xmlrpc_c::value_boolean(false)); // FAILURE
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
 

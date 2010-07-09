@@ -15,9 +15,11 @@
 /* -------------------------------------------------------------------------- */
 
 #include "RequestManager.h"
-#include "NebulaLog.h"
 
+#include "NebulaLog.h"
 #include "Nebula.h"
+
+#include "AuthManager.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -57,6 +59,23 @@ void RequestManager::ImagePublish::execute(
     
     uid = rc;
     
+    //Authorize the operation
+    if ( uid != 0 ) // uid == 0 means oneadmin
+    {
+        AuthRequest ar(uid);
+
+        ar.add_auth(AuthRequest::IMAGE,
+                    iid,
+                    AuthRequest::MANAGE,
+                    0,
+                    image->isPublic());
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            goto error_authorize;
+        }
+    }
+    
     // Get image from the ImagePool
     image = ImagePublish::ipool->get(iid,true);    
                                                  
@@ -65,11 +84,6 @@ void RequestManager::ImagePublish::execute(
         goto error_image_get;                     
     }
     
-    if ( uid != 0 && uid != image->get_uid() )
-    {
-        goto error_authorization;
-    }
-
     image->publish(publish_flag);
     
     ImagePublish::ipool->update(image);
@@ -95,10 +109,9 @@ error_image_get:
     oss << "[ImagePublish] Error getting image with ID = " << iid; 
     goto error_common;
     
-error_authorization:
+error_authorize:
     oss << "[ImagePublish] User not authorized to publish/unpublish image" << 
            ", aborting call.";
-    image->unlock();
     goto error_common;
 
 error_common:

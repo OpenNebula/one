@@ -15,9 +15,11 @@
 /* -------------------------------------------------------------------------- */
 
 #include "RequestManager.h"
-#include "NebulaLog.h"
 
+#include "NebulaLog.h"
 #include "Nebula.h"
+
+#include "AuthManager.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -58,6 +60,23 @@ void RequestManager::ImageUpdate::execute(
     }
 
     uid = rc;
+    
+    //Authorize the operation
+    if ( uid != 0 ) // uid == 0 means oneadmin
+    {
+        AuthRequest ar(uid);
+
+        ar.add_auth(AuthRequest::IMAGE,
+                    iid,
+                    AuthRequest::MANAGE,
+                    0,
+                    image->isPublic());
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            goto error_authorize;
+        }
+    }   
 
     // Get image from the ImagePool
     image = ImageUpdate::ipool->get(iid,true);
@@ -65,11 +84,6 @@ void RequestManager::ImageUpdate::execute(
     if ( image == 0 )
     {
         goto error_image_get;
-    }
-
-    if ( uid != 0 && uid != image->get_uid() )
-    {
-        goto error_authorization;
     }
 
     // This will perform the update on the DB as well,
@@ -102,10 +116,9 @@ error_image_get:
     oss << "Error getting image with ID = " << iid;
     goto error_common;
 
-error_authorization:
+error_authorize:
     oss << "User not authorized to modify image attributes " <<
            ", aborting ImageUpdate call.";
-    image->unlock();
     goto error_common;
 
 error_update:

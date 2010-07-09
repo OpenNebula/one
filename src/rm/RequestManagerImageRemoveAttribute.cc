@@ -15,9 +15,11 @@
 /* -------------------------------------------------------------------------- */
 
 #include "RequestManager.h"
-#include "NebulaLog.h"
 
+#include "NebulaLog.h"
 #include "Nebula.h"
+
+#include "AuthManager.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -56,6 +58,23 @@ void RequestManager::ImageRemoveAttribute::execute(
     }
 
     uid = rc;
+    
+    //Authorize the operation
+    if ( uid != 0 ) // uid == 0 means oneadmin
+    {
+        AuthRequest ar(uid);
+
+        ar.add_auth(AuthRequest::IMAGE,
+                    iid,
+                    AuthRequest::MANAGE,
+                    0,
+                    image->isPublic());
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            goto error_authorize;
+        }
+    }
 
     // Get image from the ImagePool
     image = ImageRemoveAttribute::ipool->get(iid,true);
@@ -63,12 +82,6 @@ void RequestManager::ImageRemoveAttribute::execute(
     if ( image == 0 )
     {
         goto error_image_get;
-    }
-
-
-    if ( uid != 0 && uid != image->get_uid() )
-    {
-        goto error_authorization;
     }
 
     rc = ImageRemoveAttribute::ipool->remove_attribute(image, name);
@@ -99,10 +112,9 @@ error_image_get:
     oss << "[ImageRemoveAttribute] Error getting image with ID = " << iid;
     goto error_common;
 
-error_authorization:
+error_authorize:
     oss << "[ImageRemoveAttribute] User not authorized to remove image" <<
            " attributes aborting call.";
-    image->unlock();
     goto error_common;
 
 error_remove_attribute:
