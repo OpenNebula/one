@@ -322,50 +322,7 @@ public:
                   const string& ob_id,
                   Operation     op,
                   int           owner,
-                  bool          pub)
-    {
-        ostringstream oss;
-        bool          auth = owner == uid;
-
-        switch (ob)
-        {
-            case VM:    oss << "VM:" ; break;
-            case HOST:  oss << "HOST:" ; break;
-            case NET:   oss << "NET:" ; break;
-            case IMAGE: oss << "IMAGE:" ; break;
-        }
-
-        oss << ob_id << ":";
-
-        switch (op)
-        {
-            case CREATE:
-                oss << "CREATE:" ;
-                break;
-
-            case DELETE:
-                oss << "DELETE:" ;
-                break;
-
-            case USE:
-                oss << "USE:" ;
-                if ( ob == NET || ob == IMAGE )
-                {
-                    auth = auth || (pub == true);
-                }
-                break;
-
-            case MANAGE:
-                oss << "MANAGE:" ;
-                break;
-        }
-
-        oss << owner << ":" << pub;
-
-        self_authorize = self_authorize && auth;
-
-        auths.push_back(oss.str());
-    };
+                  bool          pub);
 
     /**
      *  Adds a new authorization item to this requests
@@ -494,6 +451,15 @@ private:
      *  No actions defined for the Auth request, just FINALIZE when done
      */
     void do_action(const string &name, void *args){};
+
+   /**
+    *  Base 64 encoding
+    *    @param in the string to encoded
+    *    @return a pointer to the encoded string (must be freed) or 0 in case of
+    *    error
+    */
+    static string * base64_encode(const string& in);
+
 };
 
 #endif /*AUTH_MANAGER_H*/

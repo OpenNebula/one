@@ -172,13 +172,13 @@ public:
 
         //OBJECT:OBJECT_ID:ACTION:OWNER:PUBLIC
 
-        string astr="VM:dGhpcyBpcyBhIHNhbXBsZSB0ZW1wbGF0ZQ==:CREATE:-1:0 "
+        string astr="VM:VGhpcyBpcyBhIHRlbXBsYXRlCg==:CREATE:-1:0 "
                     "IMAGE:2:USE:3:0 "
                     "NET:4:DELETE:5:1 "
                     "HOST:6:MANAGE:7:1";
 
         ar.add_auth(AuthRequest::VM,
-                    "dGhpcyBpcyBhIHNhbXBsZSB0ZW1wbGF0ZQ==",
+                    "This is a template\n",
                     AuthRequest::CREATE,
                     -1,
                     false);

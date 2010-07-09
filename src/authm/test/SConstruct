@@ -59,7 +59,8 @@ main_env.Append(LIBS=[
     'nebula_log',
     'cppunit',
     'dl',
-    'pthread'
+    'pthread',
+    'ssl'
 ])
 
 # Compile flags

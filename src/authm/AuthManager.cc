@@ -19,12 +19,121 @@
 
 #include "Nebula.h"
 
+#include <openssl/sha.h>
+#include <openssl/hmac.h>
+#include <openssl/evp.h>
+#include <openssl/bio.h>
+#include <openssl/buffer.h>
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 time_t AuthManager::_time_out;
 
 const char * AuthManager::auth_driver_name = "auth_exe";
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string * AuthRequest::base64_encode(const string& in)
+{
+    BIO *     bio_mem;
+    BIO *     bio_64;
+
+    char *    encoded_c;
+    long int  size;
+
+    bio_64  = BIO_new(BIO_f_base64());
+    bio_mem = BIO_new(BIO_s_mem());
+
+    BIO_push(bio_64, bio_mem);
+
+    BIO_set_flags(bio_64,BIO_FLAGS_BASE64_NO_NL);
+
+    BIO_write(bio_64, in.c_str(), in.length());
+
+    if (BIO_flush(bio_64) != 1)
+    {
+        return 0;
+    }
+
+    size = BIO_get_mem_data(bio_mem,&encoded_c);
+
+    string * encoded = new string(encoded_c,size);
+
+    BIO_free_all(bio_64);
+
+    return encoded;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void AuthRequest::add_auth(Object        ob,
+                           const string& ob_id,
+                           Operation     op,
+                           int           owner,
+                           bool          pub)
+{
+    ostringstream oss;
+    bool          auth = owner == uid;
+
+    switch (ob)
+    {
+        case VM:    oss << "VM:" ; break;
+        case HOST:  oss << "HOST:" ; break;
+        case NET:   oss << "NET:" ; break;
+        case IMAGE: oss << "IMAGE:" ; break;
+    }
+
+    if (op == CREATE) //encode the ob_id, it is a template
+    {
+        string * encoded_id = base64_encode(ob_id);
+
+        if (encoded_id != 0)
+        {
+            oss << *encoded_id << ":";
+            delete (encoded_id);
+        }
+        else
+        {
+            oss << "-:";
+        }
+    }
+    else
+    {
+        oss << ob_id << ":";
+    }
+
+    switch (op)
+    {
+        case CREATE:
+            oss << "CREATE:" ;
+            break;
+
+        case DELETE:
+            oss << "DELETE:" ;
+            break;
+
+        case USE:
+            oss << "USE:" ;
+            if ( ob == NET || ob == IMAGE )
+            {
+                auth = auth || (pub == true);
+            }
+            break;
+
+        case MANAGE:
+            oss << "MANAGE:" ;
+            break;
+    }
+
+    oss << owner << ":" << pub;
+
+    self_authorize = self_authorize && auth;
+
+    auths.push_back(oss.str());
+};
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
