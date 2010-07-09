@@ -315,10 +315,10 @@ public:
         }
 
         // Discover the enabled hosts
-        rc = hp->discover(&dh,5);
+        rc = hp->discover(&dh,100);
 
         CPPUNIT_ASSERT(rc == 0);
-        CPPUNIT_ASSERT(dh.size() == 5);
+        CPPUNIT_ASSERT(dh.size() == 8);
 
         for(i=0,it=dh.begin(),oss.str("");it!=dh.end();it++,i++,oss.str(""))
         {
