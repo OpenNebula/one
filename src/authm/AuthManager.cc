@@ -121,6 +121,10 @@ void AuthRequest::add_auth(Object        ob,
             {
                 auth = auth || (pub == true);
             }
+            else if (ob == HOST)
+            {
+                auth = true;
+            }
             break;
 
         case MANAGE:
