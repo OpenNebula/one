@@ -17,6 +17,8 @@
 #include "RequestManager.h"
 #include "NebulaLog.h"
 
+#include "AuthManager.h"
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -51,12 +53,29 @@ void RequestManager::VirtualNetworkInfo::execute(
     {
         goto error_authenticate;
     }
-
+    
     vn = vnpool->get(nid,true);
                                               
     if ( vn == 0 )                             
     {                                            
         goto error_vn_get;                     
+    }
+    
+    //Authorize the operation
+    if ( rc != 0 ) // rc == 0 means oneadmin
+    {
+        AuthRequest ar(rc);
+
+        ar.add_auth(AuthRequest::NET,
+                    nid,
+                    AuthRequest::USE,
+                    0,
+                    vn->isPublic());
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            goto error_authorize;
+        }
     }
     
     oss << *vn;
@@ -82,9 +101,14 @@ error_authenticate:
 error_vn_get:
     oss << "Error getting Virtual Network with NID = " << nid; 
     goto error_common;
+    
+error_authorize:
+    vn->unlock();
+    oss << "User not authorized to view VirtualNetwork" << 
+           ", VirtualNetworkInfo call aborted.";
+    goto error_common;
 
 error_common:
-
     arrayData.push_back(xmlrpc_c::value_boolean(false)); // FAILURE
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
 
