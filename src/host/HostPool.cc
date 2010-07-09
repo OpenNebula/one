@@ -20,6 +20,7 @@
 
 #include "HostPool.h"
 #include "ClusterPool.h"
+#include "NebulaLog.h"
 
 int HostPool::init_cb(void *nil, int num, char **values, char **names)
 {
@@ -54,9 +55,13 @@ HostPool::HostPool(SqlDB* db):PoolSQL(db,Host::table)
 
         // Insert the "default" cluster
         int rc = cluster_pool.insert(0, default_name, db);
-        // TODO Check and log error
-    }
 
+        if(rc != 0)
+        {
+            NebulaLog::log("HOST",Log::ERROR,
+                "Cluster pool is empty but couldn't create default cluster.");
+        }
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -168,6 +173,47 @@ int HostPool::dump(ostringstream& oss, const string& where)
     oss << "</HOST_POOL>";
 
     unset_callback();
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int HostPool::drop_cluster(int clid)
+{
+    int                         rc;
+    map<int, string>::iterator  it;
+
+    it = cluster_pool.cluster_names.find(clid);
+
+    // try to drop the cluster from the pool and DB
+    rc = cluster_pool.drop(clid, db);
+
+    // Move the hosts assigned to the deleted cluster to the default one
+    if( rc == 0 )
+    {
+        // Search the hosts assigned to this cluster
+        Host*                   host;
+        vector<int>             hids;
+        vector<int>::iterator   hid_it;
+
+        string cluster_name = it->second;
+        string where        = "cluster = '" + cluster_name + "'";
+
+
+        search(hids, Host::table, where);
+
+        for ( hid_it=hids.begin() ; hid_it < hids.end(); hid_it++ )
+        {
+            host = get(*hid_it, true);
+
+            remove_cluster(host);
+            update(host);
+
+            host->unlock();
+        }
+    }
 
     return rc;
 }

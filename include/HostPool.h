@@ -196,10 +196,7 @@ public:
      *
      *    @return 0 on success
      */
-    int drop_cluster(int clid)
-    {
-        return cluster_pool.drop(clid, db);
-    };
+    int drop_cluster(int clid);
 
     /**
      *  Dumps the cluster pool in XML format.
