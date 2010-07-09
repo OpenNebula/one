@@ -255,6 +255,7 @@ BIN_FILES="src/nebula/oned \
            src/cli/onehost \
            src/cli/onevnet \
            src/cli/oneuser \
+           src/cli/onecluster \
            share/scripts/one"
 
 #-------------------------------------------------------------------------------
@@ -291,6 +292,8 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/OpenNebula/Host.rb \
                            src/oca/ruby/OpenNebula/VirtualMachinePool.rb \
                            src/oca/ruby/OpenNebula/VirtualNetwork.rb \
                            src/oca/ruby/OpenNebula/VirtualNetworkPool.rb \
+                           src/oca/ruby/OpenNebula/Cluster.rb \
+                           src/oca/ruby/OpenNebula/ClusterPool.rb \
                            src/oca/ruby/OpenNebula/XMLUtils.rb"
 #-------------------------------------------------------------------------------
 # Driver executable files, to be installed under $LIB_LOCATION/mads
