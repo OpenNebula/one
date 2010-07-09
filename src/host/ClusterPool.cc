@@ -58,7 +58,8 @@ int ClusterPool::allocate(int * clid, string name, SqlDB *db)
 error_existing_name:
 error_db:
 error_common:
-    return -1;
+    *clid = -1;
+    return *clid;
 }
 
 /* -------------------------------------------------------------------------- */
