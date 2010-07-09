@@ -65,9 +65,21 @@ void RequestManager::VirtualNetworkPublish::execute(
         goto error_vn_get;                     
     }
     
-    if ( uid != 0 && uid != vn->get_uid() )
+    //Authorize the operation
+    if ( uid != 0 ) // uid == 0 means oneadmin
     {
-        goto error_authorization;
+        AuthRequest ar(uid);
+
+        ar.add_auth(AuthRequest::NET,
+                    nid,
+                    AuthRequest::MANAGE,
+                    0,
+                    vn->isPublic());
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            goto error_authorize;
+        }
     }
 
     vn->publish(publish_flag);
@@ -95,7 +107,7 @@ error_vn_get:
     oss << "[VirtualNetworkPublish] Error getting VN with ID = " << nid; 
     goto error_common;
     
-error_authorization:
+error_authorize:
     oss << "[VirtualNetworkPublish] User not authorized to (un)publish VN" << 
            ", aborting call.";
     vn->unlock();

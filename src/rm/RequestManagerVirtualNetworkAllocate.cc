@@ -17,6 +17,8 @@
 #include "RequestManager.h"
 #include "NebulaLog.h"
 
+#include "AuthManager.h"
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -64,6 +66,19 @@ void RequestManager::VirtualNetworkAllocate::execute(
     uid = user->get_uid();
 
     user->unlock();
+    
+    //Authorize the operation
+    if ( uid != 0 ) // uid == 0 means oneadmin
+    {
+        AuthRequest ar(uid);
+
+        ar.add_auth(AuthRequest::NET,-1,AuthRequest::CREATE,0,false);
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            goto error_authorize;
+        }
+    }
 
     rc = vnpool->allocate(uid,stemplate,&nid);
 
@@ -90,6 +105,10 @@ error_session:
 
 error_get_user:
     oss << "User not recognized, cannot allocate VirtualNetwork";
+    goto error_common;
+    
+error_authorize:
+    oss << "User not authorized to create a VirtualNetwork";
     goto error_common;
 
 error_vn_allocate:

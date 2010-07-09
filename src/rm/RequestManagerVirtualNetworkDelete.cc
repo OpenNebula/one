@@ -17,6 +17,8 @@
 #include "RequestManager.h"
 #include "NebulaLog.h"
 
+#include "AuthManager.h"
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -45,6 +47,27 @@ void RequestManager::VirtualNetworkDelete::execute(
     session   = xmlrpc_c::value_string(paramList.getString(0));
     nid       = xmlrpc_c::value_int   (paramList.getInt   (1));
     
+    // Only oneadmin or the VN owner can perform operations upon the VN
+    rc = VirtualNetworkDelete::upool->authenticate(session);
+    
+    if ( rc == -1 )                             
+    {                                            
+        goto error_authenticate;                     
+    }
+    
+    //Authorize the operation
+    if ( rc != 0 ) // rc == 0 means oneadmin
+    {
+        AuthRequest ar(rc);
+
+        ar.add_auth(AuthRequest::NET,nid,AuthRequest::DELETE,0,false);
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            goto error_authorize;
+        }
+    }
+    
     // Retrieve VN from the pool 
     vn = vnpool->get(nid,true);    
    
@@ -54,14 +77,6 @@ void RequestManager::VirtualNetworkDelete::execute(
     }
 
     uid = vn->get_uid();
-
-    // Only oneadmin or the VN owner can perform operations upon the VN
-    rc = VirtualNetworkDelete::upool->authenticate(session);
-    
-    if ( rc != 0 && rc != uid)                             
-    {                                            
-        goto error_authenticate;                     
-    }
    
     rc = vnpool->drop(vn);
 
@@ -79,8 +94,11 @@ void RequestManager::VirtualNetworkDelete::execute(
     return;
 
 error_authenticate:
-    vn->unlock();
-    oss << "User cannot delete VN";
+    oss << "User not authenticated, aborting VirtualNetworkDelete call";
+    goto error_common;
+    
+error_authorize:
+    oss << "User not authorized to delete Virtual Network with NID = " << nid;
     goto error_common;
 
 error_vn_get:
