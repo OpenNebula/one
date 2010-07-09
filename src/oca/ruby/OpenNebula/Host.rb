@@ -86,10 +86,14 @@ module OpenNebula
             HOST_STATES[state]
         end
 
-
         # Returns the state of the Host (string value)
         def short_state_str
             SHORT_HOST_STATES[state_str]
+        end
+
+        # Returns the cluster of the Host 
+        def cluster
+            self['CLUSTER']
         end
 
 
