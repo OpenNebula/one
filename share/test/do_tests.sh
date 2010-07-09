@@ -78,7 +78,7 @@ elif [ "$VAL_CALL" = "yes" ] ; then
     CALLER="valgrind --tool=callgrind"
 fi
 
-TESTS=`find $TWD_DIR -name test -type d`
+TESTS=`find $TWD_DIR -name test -type d | grep -v ruby`
 
 for i in $TESTS ; do
     cd $BASE_DIR
