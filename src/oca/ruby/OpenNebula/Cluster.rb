@@ -53,23 +53,22 @@ module OpenNebula
         def delete()
             super(CLUSTER_METHODS[:delete])
         end
-        
+
         def add_host(host_id)
             return Error.new('ID not defined') if !@pe_id
 
             rc = @client.call(CLUSTER_METHODS[:addhost], host_id.to_i, @pe_id)
             rc = nil if !OpenNebula.is_error?(rc)
-        
-            return rc            
+
+            return rc
         end
-        
+
         def remove_host(host_id)
             return Error.new('ID not defined') if !@pe_id
 
-            # rc = @client.call(CLUSTER_METHODS[:removehost], host_id.to_i)
-            rc = @client.call(CLUSTER_METHODS[:removehost], host_id.to_i,  @pe_id)
+            rc = @client.call(CLUSTER_METHODS[:removehost], host_id.to_i)
             rc = nil if !OpenNebula.is_error?(rc)
-        
+
             return rc
         end
     end
