@@ -54,13 +54,6 @@ void RequestManager::ClusterAdd::execute(
         goto error_authenticate;
     }
 
-
-    // Check if cluster exists
-    if ( !ClusterAdd::hpool->exists_cluster(clid) )
-    {
-        goto error_cluster;
-    }
-
     // Check if host exists
     host = ClusterAdd::hpool->get(hid,true);
 
@@ -97,10 +90,6 @@ error_authenticate:
     oss << "User not authorized to add hosts to clusters";
     goto error_common;
 
-error_cluster:
-    oss << "Error getting cluster with CLID = " << clid;
-    goto error_common;
-
 error_host_get:
     oss << "The host " << hid << " does not exists";
     goto error_common;
@@ -108,7 +97,7 @@ error_host_get:
 error_cluster_add:
     host->unlock();
 
-    oss << "Can not add host " << hid << " to cluster " << clid << 
+    oss << "Can not add host " << hid << " to cluster " << clid <<
            ", returned error code [" << rc << "]";
     goto error_common;
 

@@ -50,15 +50,13 @@ void RequestManager::ClusterInfo::execute(
         goto error_authenticate;
     }
 
-    // Check if cluster exists
-    rc = ClusterInfo::hpool->exists_cluster(clid);
+    info = ClusterInfo::hpool->info_cluster(clid);
 
-    if ( rc != 0 )
+    // Cluster does not exists
+    if ( info.empty() )
     {
         goto error_cluster;
     }
-
-    info = ClusterInfo::hpool->info_cluster(clid);
 
     // All nice, return the cluster info to the client
     arrayData.push_back(xmlrpc_c::value_boolean(true)); // SUCCESS

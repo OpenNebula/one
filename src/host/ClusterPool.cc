@@ -25,6 +25,8 @@ const char * ClusterPool::db_bootstrap =
     "oid INTEGER PRIMARY KEY, cluster_name VARCHAR(128), "
     "UNIQUE(cluster_name) )";
 
+const string ClusterPool::DEFAULT_CLUSTER_NAME = "default";
+
 /* -------------------------------------------------------------------------- */
 
 int ClusterPool::allocate(int * clid, string name, SqlDB *db)
@@ -74,7 +76,7 @@ string ClusterPool::info(int clid)
 
     if(it != cluster_names.end())
     {
-        dump(oss, it->first, it->second);
+        dump_cluster(oss, it->first, it->second);
     }
 
     return oss.str();
@@ -116,7 +118,7 @@ int ClusterPool::dump(ostringstream& oss)
 
     for(it=cluster_names.begin();it!=cluster_names.end();it++)
     {
-        dump(oss, it->first, it->second);
+        dump_cluster(oss, it->first, it->second);
     }
 
     oss << "</CLUSTER_POOL>";
@@ -124,6 +126,7 @@ int ClusterPool::dump(ostringstream& oss)
     return 0;
 }
 
+/* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 int ClusterPool::insert(int oid, string name, SqlDB *db)
@@ -158,8 +161,9 @@ int ClusterPool::insert(int oid, string name, SqlDB *db)
 }
 
 /* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
-void ClusterPool::dump(ostringstream& oss, int id, string name)
+void ClusterPool::dump_cluster(ostringstream& oss, int id, string name)
 {
     oss <<
         "<CLUSTER>"     <<

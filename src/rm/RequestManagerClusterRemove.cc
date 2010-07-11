@@ -62,7 +62,7 @@ void RequestManager::ClusterRemove::execute(
     }
 
     // Remove host from cluster
-    rc = ClusterRemove::hpool->remove_cluster(host);
+    rc = ClusterRemove::hpool->set_default_cluster(host);
 
     if ( rc != 0 )
     {

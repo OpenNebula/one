@@ -87,7 +87,7 @@ public:
     };
 
     /**
-     * Get the 10 least monitored hosts
+     * Get the least monitored hosts
      *   @param discovered hosts, map to store the retrieved hosts hids and
      *   hostnames
      *   @param host_limit max. number of hosts to monitor at a time
@@ -147,16 +147,11 @@ public:
      */
     int dump(ostringstream& oss, const string& where);
 
-
+    /* ---------------------------------------------------------------------- */
     /* ---------------------------------------------------------------------- */
     /* Methods for cluster management                                         */
     /* ---------------------------------------------------------------------- */
-/*
-    ClusterPool * cluster_pool()
-    {
-        return &cluster_pool;
-    }
-//*/
+    /* ---------------------------------------------------------------------- */
 
     /**
      *  Returns true if the clid is an id for an existing cluster
@@ -164,10 +159,10 @@ public:
      *
      *  @return true if the clid is an id for an existing cluster
      */
-    bool exists_cluster(int clid)
+   /* bool exists_cluster(int clid)
     {
         return cluster_pool.exists(clid);
-    };
+    };*/
 
     /**
      *  Allocates a new cluster in the pool
@@ -222,7 +217,7 @@ public:
 
         it = cluster_pool.cluster_names.find(clid);
 
-        if(it == cluster_pool.cluster_names.end())
+        if (it == cluster_pool.cluster_names.end())
         {
             return -1;
         }
@@ -230,26 +225,22 @@ public:
         return host->set_cluster( it->second );
     };
 
-
     /**
-     *  Removes the host from the given cluster.
-     *  The result is the same as assigning the host to
-     *  the default cluster.
+     *  Removes the host from the given cluster setting the default one.
      *    @param host The host to assign
      *
      *    @return 0 on success
      */
-    int remove_cluster(Host* host)
+    int set_default_cluster(Host* host)
     {
-        // To remove a host from a cluster means
-        // moving it to the default cluster.
-        return set_cluster(host, 0);
+        return host->set_cluster(ClusterPool::DEFAULT_CLUSTER_NAME);
     };
 
 private:
-
-    ClusterPool         cluster_pool;
-
+    /**
+     *  ClusterPool, clusters defined and persistance functionality
+     */
+    ClusterPool  cluster_pool;
 
     /**
      *  Factory method to produce Host objects

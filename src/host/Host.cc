@@ -40,8 +40,8 @@ Host::Host(
         vmm_mad_name(_vmm_mad_name),
         tm_mad_name(_tm_mad_name),
         last_monitored(0),
-        host_template(id),
-        cluster("default")
+        cluster(ClusterPool::DEFAULT_CLUSTER_NAME),
+        host_template(id)
         {};
 
 
@@ -123,7 +123,6 @@ int Host::select(SqlDB *db)
     }
 
     // Get the template
-
     rc = host_template.select(db);
 
     if ( rc != 0 )
@@ -132,7 +131,6 @@ int Host::select(SqlDB *db)
     }
 
     // Select the host shares from the DB
-
     rc = host_share.select(db);
 
     if ( rc != 0 )
@@ -142,7 +140,6 @@ int Host::select(SqlDB *db)
 
     return 0;
 }
-
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
@@ -421,13 +418,12 @@ int Host::update_info(string &parse_str)
 
 ostream& operator<<(ostream& os, Host& host)
 {
-	string host_str;
+    string host_str;
 
-	os << host.to_xml(host_str);
+    os << host.to_xml(host_str);
 
     return os;
 };
-
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
@@ -435,7 +431,7 @@ ostream& operator<<(ostream& os, Host& host)
 string& Host::to_xml(string& xml) const
 {
     string template_xml;
-	string share_xml;
+    string share_xml;
     ostringstream   oss;
 
     oss <<
@@ -448,9 +444,9 @@ string& Host::to_xml(string& xml) const
        "<TM_MAD>"        << tm_mad_name    << "</TM_MAD>"        <<
        "<LAST_MON_TIME>" << last_monitored << "</LAST_MON_TIME>" <<
        "<CLUSTER>"       << cluster        << "</CLUSTER>"       <<
- 	   host_share.to_xml(share_xml)  <<
+       host_share.to_xml(share_xml)  <<
        host_template.to_xml(template_xml) <<
-	"</HOST>";
+    "</HOST>";
 
     xml = oss.str();
 
@@ -463,23 +459,23 @@ string& Host::to_xml(string& xml) const
 string& Host::to_str(string& str) const
 {
     string template_str;
-	string share_str;
+    string share_str;
 
     ostringstream   os;
 
     os <<
-		"ID      =  "  << oid            << endl <<
-    	"NAME = "      << hostname       << endl <<
-    	"STATE    = "  << state          << endl <<
-    	"IM MAD   = "  << im_mad_name    << endl <<
-    	"VMM MAD  = "  << vmm_mad_name   << endl <<
-    	"TM MAD   = "  << tm_mad_name    << endl <<
-    	"LAST_MON = "  << last_monitored << endl <<
+        "ID      =  "  << oid            << endl <<
+        "NAME = "      << hostname       << endl <<
+        "STATE    = "  << state          << endl <<
+        "IM MAD   = "  << im_mad_name    << endl <<
+        "VMM MAD  = "  << vmm_mad_name   << endl <<
+        "TM MAD   = "  << tm_mad_name    << endl <<
+        "LAST_MON = "  << last_monitored << endl <<
         "CLUSTER  = "  << cluster        << endl <<
         "ATTRIBUTES"   << endl << host_template.to_str(template_str) << endl <<
         "HOST SHARES"  << endl << host_share.to_str(share_str) <<endl;
 
-	str = os.str();
+    str = os.str();
 
-	return str;
+    return str;
 }

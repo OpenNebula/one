@@ -23,7 +23,7 @@
 void RequestManager::ClusterDelete::execute(
     xmlrpc_c::paramList const& paramList,
     xmlrpc_c::value *   const  retval)
-{ 
+{
     string              session;
 
     // <clid> of the cluster to delete from the HostPool
@@ -43,17 +43,10 @@ void RequestManager::ClusterDelete::execute(
 
     // Only oneadmin can delete clusters
     rc = ClusterDelete::upool->authenticate(session);
-    
+
     if ( rc != 0 )
     {
         goto error_authenticate;
-    }
-
-
-    // Check if cluster exists
-    if ( !ClusterDelete::hpool->exists_cluster(clid) )
-    {
-        goto error_cluster;
     }
 
     rc = ClusterDelete::hpool->drop_cluster(clid);
@@ -78,12 +71,8 @@ error_authenticate:
     oss << "User not authorized to delete clusters";
     goto error_common;
 
-error_cluster:
-    oss << "Error getting cluster with CLID = " << clid;
-    goto error_common;
-
 error_cluster_delete:
-    oss << "Can not delete cluster with CLID " << clid << 
+    oss << "Can not delete cluster with CLID " << clid <<
            " from the ClusterPool, returned error code [" << rc << "]";
     goto error_common;
 

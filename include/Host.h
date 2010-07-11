@@ -20,6 +20,7 @@
 #include "PoolSQL.h"
 #include "HostShare.h"
 #include "HostTemplate.h"
+#include "ClusterPool.h"
 
 using namespace std;
 
@@ -90,14 +91,14 @@ public:
 
         if ( state != DISABLED) //Don't change the state is host is disabled
         {
-        	if (success == true)
-        	{
-        		state = MONITORED;
-        	}
-        	else
-        	{
-        		state = ERROR;
-        	}
+            if (success == true)
+            {
+                state = MONITORED;
+            }
+            else
+            {
+                state = ERROR;
+            }
         }
     };
 
@@ -107,7 +108,7 @@ public:
      */
     void disable()
     {
-    	state = DISABLED;
+        state = DISABLED;
     };
 
     /**
@@ -116,17 +117,17 @@ public:
      */
     void enable()
     {
-    	state = INIT;
+        state = INIT;
     };
 
     /**
      *  Returns host host_name
      *     @return host_name Host's hostname
      */
- 	const string& get_hostname() const
+    const string& get_hostname() const
     {
-	    return hostname;
-	};
+        return hostname;
+    };
 
     /** Update host counters and update the whole host on the DB
      *    @param parse_str string with values to be parsed
@@ -188,7 +189,11 @@ public:
         return last_monitored;
     };
 
-    int set_cluster(string cluster_name)
+    /**
+     *  Sets the cluster for this host
+     *    @return time_t last monitored time
+     */
+    int set_cluster(const string& cluster_name)
     {
         cluster = cluster_name;
         return 0;

@@ -18,9 +18,14 @@
 /* Host Pool                                                    			  */
 /* ************************************************************************** */
 
+#include <stdexcept>
+
 #include "HostPool.h"
 #include "ClusterPool.h"
 #include "NebulaLog.h"
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 int HostPool::init_cb(void *nil, int num, char **values, char **names)
 {
@@ -51,15 +56,11 @@ HostPool::HostPool(SqlDB* db):PoolSQL(db,Host::table)
 
     if (cluster_pool.cluster_names.empty())
     {
-        string default_name = "default";
-
-        // Insert the "default" cluster
-        int rc = cluster_pool.insert(0, default_name, db);
+        int rc = cluster_pool.insert(0, ClusterPool::DEFAULT_CLUSTER_NAME, db);
 
         if(rc != 0)
         {
-            NebulaLog::log("HOST",Log::ERROR,
-                "Cluster pool is empty but couldn't create default cluster.");
+            throw runtime_error("Could not create default cluster HostPool");
         }
     }
 }
@@ -184,8 +185,16 @@ int HostPool::drop_cluster(int clid)
 {
     int                         rc;
     map<int, string>::iterator  it;
+    string                      cluster_name;
 
     it = cluster_pool.cluster_names.find(clid);
+
+    if ( it == cluster_pool.cluster_names.end() )
+    {
+        return -1;
+    }
+
+    cluster_name = it->second;
 
     // try to drop the cluster from the pool and DB
     rc = cluster_pool.drop(clid, db);
@@ -193,14 +202,11 @@ int HostPool::drop_cluster(int clid)
     // Move the hosts assigned to the deleted cluster to the default one
     if( rc == 0 )
     {
-        // Search the hosts assigned to this cluster
         Host*                   host;
         vector<int>             hids;
         vector<int>::iterator   hid_it;
 
-        string cluster_name = it->second;
-        string where        = "cluster = '" + cluster_name + "'";
-
+        string                  where = "cluster = '" + cluster_name + "'";
 
         search(hids, Host::table, where);
 
@@ -208,7 +214,13 @@ int HostPool::drop_cluster(int clid)
         {
             host = get(*hid_it, true);
 
-            remove_cluster(host);
+            if ( host == 0 )
+            {
+                continue;
+            }
+
+            set_default_cluster(host);
+
             update(host);
 
             host->unlock();

@@ -32,20 +32,21 @@ using namespace std;
  */
 class ClusterPool
 {
+public:
+    /**
+     *  Cluster name for the default cluster
+     */
+    static const string DEFAULT_CLUSTER_NAME;
+
 private:
-
-
     // -------------------------------------------------------------------------
     // Friends
     // -------------------------------------------------------------------------
-
     friend class HostPool;
-
 
     /* ---------------------------------------------------------------------- */
     /* Attributes                                                             */
     /* ---------------------------------------------------------------------- */
-
     /**
      *  This map stores the clusters
      */
@@ -121,7 +122,7 @@ private:
      *
      *    @return 0 on success
      */
-    void dump(ostringstream& oss, int id, string name);
+    void dump_cluster(ostringstream& oss, int id, string name);
 
 
     /* ---------------------------------------------------------------------- */
