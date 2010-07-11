@@ -15,7 +15,7 @@ module OpenNebula
             :publish  => "image.publish",
             :delete   => "image.delete"
         }
-        
+
         IMAGE_STATES=%w{INIT LOCKED READY USED DISABLED}
 
         SHORT_IMAGE_STATES={
@@ -25,7 +25,7 @@ module OpenNebula
             "USED"      => "used",
             "DISABLED"  => "disa"
         }
-        
+
         IMAGE_TYPES=%w{OS CDROM DATABLOCK}
 
         SHORT_IMAGE_TYPES={
@@ -62,7 +62,7 @@ module OpenNebula
         #######################################################################
         # XML-RPC Methods for the Image Object
         #######################################################################
-        
+
         def info()
             super(IMAGE_METHODS[:info], 'IMAGE')
         end
@@ -70,27 +70,27 @@ module OpenNebula
         def allocate(description)
             super(IMAGE_METHODS[:allocate],description)
         end
-        
+
         def update(name, value)
             super(IMAGE_METHODS[:update], name, value)
         end
-        
+
         def remove_attr(name)
             do_rm_attr(name)
         end
-        
+
         def enable
-            set_enabled(true) 
+            set_enabled(true)
         end
-        
+
         def disable
-            set_enabled(false) 
+            set_enabled(false)
         end
-        
+
         def publish
             set_publish(true)
         end
-        
+
         def unpublish
             set_publish(false)
         end
@@ -98,16 +98,16 @@ module OpenNebula
         def delete()
             super(IMAGE_METHODS[:delete])
         end
-        
+
         def copy(path, source)
             @immanager.copy(path, source)
         end
-        
+
         def mk_datablock(size, fstype, source)
             rc = @immanager.dd(size, source)
-            
+
             return rc if OpenNebula.is_error?(rc)
-            
+
             @immanager.mkfs(fstype, source)
         end
 
@@ -129,7 +129,7 @@ module OpenNebula
         def short_state_str
             SHORT_IMAGE_STATES[state_str]
         end
-        
+
         # Returns the type of the Image (numeric value)
         def type
             self['TYPE'].to_i
@@ -143,10 +143,10 @@ module OpenNebula
         # Returns the state of the Image (string value)
         def short_type_str
             SHORT_IMAGE_TYPES[type_str]
-        end 
-        
+        end
+
     private
-        
+
         def set_enabled(enabled)
             return Error.new('ID not defined') if !@pe_id
 
@@ -155,7 +155,7 @@ module OpenNebula
 
             return rc
         end
-        
+
         def set_publish(published)
             return Error.new('ID not defined') if !@pe_id
 
@@ -164,18 +164,18 @@ module OpenNebula
 
             return rc
         end
-        
+
         def do_rm_attr(name)
             return Error.new('ID not defined') if !@pe_id
 
             rc = @client.call(IMAGE_METHODS[:rmattr], @pe_id, name)
             rc = nil if !OpenNebula.is_error?(rc)
 
-            return rc            
+            return rc
         end
 
     end
-    
+
     class ImageManager
         # ---------------------------------------------------------------------
         # Constants and Class Methods
@@ -184,62 +184,53 @@ module OpenNebula
             :dd     => "/bin/dd",
             :mkfs   => "/bin/mkfs"
         }
-        
-        
+
         def copy(path, source)
-            if source.nil? and size.nil?
-                return OpenNebula::Error.new(
-                        "Cannot copy image (Missing parameters), aborting.")
+            if source.nil? or path.nil?
+                return OpenNebula::Error.new("copy Image: missing parameters.")
             end
 
             if !File.copy(path, source)
-                return OpenNebula::Error.new(
-                        "Cannot copy image, aborting.")
+                return OpenNebula::Error.new("copy Image: in File.copy")
             end
-            
+
             return nil
         end
-        
+
         def dd(size, source)
-            if source.nil? and size.nil?
-                return OpenNebula::Error.new(
-                        "Cannot create datablock " +
-                        "(Missing parameters), aborting.")
+            if source.nil? or size.nil?
+                return OpenNebula::Error.new("dd Image: missing parameters.")
             end
-            
+
             command = ""
             command << FS_UTILS[:dd]
             command << " if=/dev/zero of=#{source} ibs=1 count=1"
             command << " obs=1048576 oseek=#{size}"
-            
+
             local_command=LocalCommand.run(command)
-               
+
             if local_command.code!=0
-                return OpenNebula::Error.new(
-                        "Cannot create datablock, aborting.")
+                return OpenNebula::Error.new("dd Image: in dd command.")
             end
-            
+
             return nil
         end
-        
+
         def mkfs(fstype, source)
-            if source.nil? and fstype.nil?
-                return OpenNebula::Error.new(
-                        "Cannot format datablock " +
-                        "(Missing parameters), aborting.")
+            if source.nil? or fstype.nil?
+                return OpenNebula::Error.new("mkfs Image: missing parameters.")
             end
-            
+
             command = ""
             command << FS_UTILS[:mkfs]
             command << " -t #{fstype} -F #{source}"
-            
+
             local_command=LocalCommand.run(command)
-               
+
             if local_command.code!=0
-                return OpenNebula::Error.new(
-                       "Cannot format datablock, aborting.")
+                return OpenNebula::Error.new("mkfs Image: in mkfs command.")
             end
-            
+
             return nil
         end
     end
