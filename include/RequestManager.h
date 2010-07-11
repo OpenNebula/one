@@ -463,7 +463,166 @@ private:
         HostPool * hpool;
         UserPool * upool;
     };   
-    
+
+    /* ---------------------------------------------------------------------- */
+    /*                      Cluster Interface                                 */
+    /* ---------------------------------------------------------------------- */
+
+    class ClusterAllocate: public xmlrpc_c::method
+    {
+    public:
+        ClusterAllocate(
+            HostPool * _hpool,
+            UserPool * _upool):
+                hpool(_hpool),
+                upool(_upool)
+        {
+            _signature="A:ss";
+            _help="Allocates a cluster in the pool";
+        };
+
+        ~ClusterAllocate(){};
+
+        void execute(
+            xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP);
+
+    private:
+        HostPool * hpool;
+        UserPool * upool;
+    };
+
+    /* ---------------------------------------------------------------------- */
+
+    class ClusterInfo: public xmlrpc_c::method
+    {
+    public:
+        ClusterInfo(
+            HostPool * _hpool,
+            UserPool * _upool):
+                hpool(_hpool),
+                upool(_upool)
+        {
+            _signature="A:si";
+            _help="Returns cluster information";
+        };
+
+        ~ClusterInfo(){};
+
+        void execute(
+            xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP);
+
+    private:
+        HostPool * hpool;
+        UserPool * upool;
+    };
+
+    /* ---------------------------------------------------------------------- */
+
+    class ClusterDelete: public xmlrpc_c::method
+    {
+    public:
+        ClusterDelete(
+            HostPool * _hpool,
+            UserPool * _upool):
+                hpool(_hpool),
+                upool(_upool)
+        {
+            _signature="A:si";
+            _help="Deletes a cluster from the pool";
+        };
+
+        ~ClusterDelete(){};
+
+        void execute(
+            xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP);
+
+    private:
+        HostPool * hpool;
+        UserPool * upool;
+    };
+
+    /* ---------------------------------------------------------------------- */
+
+    class ClusterAdd: public xmlrpc_c::method
+    {
+    public:
+        ClusterAdd(
+            HostPool * _hpool,
+            UserPool * _upool):
+                hpool(_hpool),
+                upool(_upool)
+        {
+            _signature="A:sii";
+            _help="Adds a host to a cluster";
+        };
+
+        ~ClusterAdd(){};
+
+        void execute(
+            xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP);
+
+    private:
+        HostPool * hpool;
+        UserPool * upool;
+    };
+
+    /* ---------------------------------------------------------------------- */
+
+    class ClusterRemove: public xmlrpc_c::method
+    {
+    public:
+        ClusterRemove(
+            HostPool * _hpool,
+            UserPool * _upool):
+                hpool(_hpool),
+                upool(_upool)
+        {
+            _signature="A:si";
+            _help="Removes a host from its cluster";
+        };
+
+        ~ClusterRemove(){};
+
+        void execute(
+            xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP);
+
+    private:
+        HostPool * hpool;
+        UserPool * upool;
+    };
+
+    /* ---------------------------------------------------------------------- */
+
+    class ClusterPoolInfo: public xmlrpc_c::method
+    {
+    public:
+        ClusterPoolInfo(
+            HostPool * _hpool,
+            UserPool * _upool):
+                hpool(_hpool),
+                upool(_upool)
+        {
+            _signature="A:s";
+            _help="Returns the cluster pool information";
+        };
+
+        ~ClusterPoolInfo(){};
+
+        void execute(
+            xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP);
+
+    private:
+        HostPool * hpool;
+        UserPool * upool;
+    };
+
+
     /* ---------------------------------------------------------------------- */
     /*                      Virtual Network Interface                         */    
     /* ---------------------------------------------------------------------- */
