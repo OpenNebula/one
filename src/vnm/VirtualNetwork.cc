@@ -22,6 +22,9 @@
 #include "RangedLeases.h"
 #include "FixedLeases.h"
 
+#include "AuthManager.h"
+#include "UserPool.h"
+
 /* ************************************************************************** */
 /* Virtual Network :: Constructor/Destructor                                  */
 /* ************************************************************************** */
@@ -314,7 +317,28 @@ int VirtualNetwork::insert(SqlDB * db)
 
     vn_template.erase("PUBLIC");
 
-    // ------------ TEMPLATE --------------------
+    // ------------------------------------------------------------------------
+    // Authorize this request
+    // ------------------------------------------------------------------------
+
+    if ( uid != 0 ) // uid == 0 means oneadmin
+    {
+        string      t64;
+        AuthRequest ar(uid);
+
+        ar.add_auth(AuthRequest::NET,
+                    vn_template.to_xml(t64),
+                    AuthRequest::CREATE,
+                    uid,
+                    public_vnet);
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            goto error_authorize;
+        }
+    }
+
+    // ------------ INSERT THE TEMPLATE --------------------
 
     if ( vn_template.id == -1 )
     {
@@ -414,6 +438,10 @@ error_name:
 
 error_bridge:
     ose << "No BRIDGE in template for Virtual Network id " << oid;
+    goto error_common;
+
+error_authorize:
+    ose << "Error authorizing Virtual Network creation";
     goto error_common;
 
 error_template:

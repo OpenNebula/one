@@ -25,6 +25,8 @@
 #include "Image.h"
 #include "ImagePool.h"
 
+#include "AuthManager.h"
+#include "UserPool.h"
 
 /* ************************************************************************ */
 /* Image :: Constructor/Destructor                                           */
@@ -208,8 +210,29 @@ int Image::insert(SqlDB *db)
 
     source = tmp_sourcestream.str();
 
+    // ------------------------------------------------------------------------
+    // Authorize this request
+    // ------------------------------------------------------------------------
 
-    // Set up the template ID, to insert it
+    if ( uid != 0 ) // uid == 0 means oneadmin
+    {
+        string      t64;
+        AuthRequest ar(uid);
+
+        ar.add_auth(AuthRequest::IMAGE,
+                    image_template.to_xml(t64),
+                    AuthRequest::CREATE,
+                    uid,
+                    public_img);
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            goto error_authorize;
+        }
+    }
+
+    // ------------ INSERT THE TEMPLATE --------------------
+
     if ( image_template.id == -1 )
     {
         image_template.id = oid;
@@ -217,7 +240,6 @@ int Image::insert(SqlDB *db)
 
     state = DISABLED;
 
-    // Insert the Template
     rc = image_template.insert(db);
 
     if ( rc != 0 )
@@ -225,7 +247,10 @@ int Image::insert(SqlDB *db)
         return rc;
     }
 
-    //Insert the Image
+    //--------------------------------------------------------------------------
+    // Insert the Image
+    //--------------------------------------------------------------------------
+
     rc = insert_replace(db, false);
 
     if ( rc != 0 )
@@ -240,9 +265,15 @@ int Image::insert(SqlDB *db)
 error_name:
     NebulaLog::log("IMG", Log::ERROR, "NAME not present in image template");
     goto error_common;
+
 error_type:
     NebulaLog::log("IMG", Log::ERROR, "Incorrect TYPE in image template");
     goto error_common;
+
+error_authorize:
+    NebulaLog::log("IMG", Log::ERROR, "Error authorizing Image creation");
+    goto error_common;
+
 error_common:
     return -1;
 }
