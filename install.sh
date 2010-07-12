@@ -18,7 +18,7 @@
 
 #-------------------------------------------------------------------------------
 # Install program for OpenNebula. It will install it relative to
-# $ONE_LOCATION if defined with the -d option, otherwise it'll be installed 
+# $ONE_LOCATION if defined with the -d option, otherwise it'll be installed
 # under /. In this case you may specified the oneadmin user/group, so you do
 # not need run the OpenNebula daemon with root priviledges
 #-------------------------------------------------------------------------------
@@ -28,9 +28,9 @@
 #-------------------------------------------------------------------------------
 usage() {
  echo
- echo "Usage: install.sh [-u install_user] [-g install_group] [-k keep conf]" 
+ echo "Usage: install.sh [-u install_user] [-g install_group] [-k keep conf]"
  echo "                  [-d ONE_LOCATION] [-c occi|ec2] [-r] [-h]"
- echo 
+ echo
  echo "-u: user that will run opennebula, defults to user executing install.sh"
  echo "-g: group of the user that will run opennebula, defults to user"
  echo "    executing install.sh"
@@ -46,7 +46,7 @@ usage() {
 
 TEMP_OPT=`getopt -o hkrlc:u:g:d: -n 'install.sh' -- "$@"`
 
-if [ $? != 0 ] ; then 
+if [ $? != 0 ] ; then
     usage
     exit 1
 fi
@@ -98,12 +98,12 @@ if [ -z "$ROOT" ] ; then
     LOCK_LOCATION="/var/lock/one"
     INCLUDE_LOCATION="/usr/include"
     SHARE_LOCATION="/usr/share/doc/opennebula"
-    
+
     if [ "$CLIENT" = "no" ]; then
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION $VAR_LOCATION \
                    $INCLUDE_LOCATION $SHARE_LOCATION \
                    $LOG_LOCATION $RUN_LOCATION $LOCK_LOCATION"
-        
+
         DELETE_DIRS="$LIB_LOCATION $ETC_LOCATION $LOG_LOCATION $VAR_LOCATION \
                      $RUN_LOCATION $SHARE_DIRS"
 
@@ -127,7 +127,7 @@ else
     if [ "$CLIENT" = "no" ]; then
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION $VAR_LOCATION \
                    $INCLUDE_LOCATION $SHARE_LOCATION"
-                   
+
         DELETE_DIRS="$MAKE_DIRS"
 
         CHOWN_DIRS="$ROOT"
@@ -258,6 +258,7 @@ BIN_FILES="src/nebula/oned \
            src/cli/onevnet \
            src/cli/oneuser \
            src/cli/oneimage \
+           src/cli/onecluster \
            share/scripts/one"
 
 #-------------------------------------------------------------------------------
@@ -299,6 +300,8 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/OpenNebula/Host.rb \
                            src/oca/ruby/OpenNebula/VirtualNetworkPool.rb \
                            src/oca/ruby/OpenNebula/Image.rb \
                            src/oca/ruby/OpenNebula/ImagePool.rb \
+                           src/oca/ruby/OpenNebula/Cluster.rb \
+                           src/oca/ruby/OpenNebula/ClusterPool.rb \
                            src/oca/ruby/OpenNebula/XMLUtils.rb"
 #-------------------------------------------------------------------------------
 # Driver executable files, to be installed under $LIB_LOCATION/mads
@@ -325,8 +328,8 @@ MADS_LIB_FILES="src/mad/sh/madcommon.sh \
               src/hm_mad/one_hm.rb \
               src/hm_mad/one_hm \
               src/authm_mad/one_auth_mad.rb \
-              src/authm_mad/one_auth_mad"
-              
+              src/authm_mad/one_auth_mad \
+              src/hm_mad/one_hm"
 #-------------------------------------------------------------------------------
 # Information Manager Probes, to be installed under $LIB_LOCATION/im_probes
 #-------------------------------------------------------------------------------
@@ -490,7 +493,7 @@ COMMON_CLOUD_LIB_FILES="src/cloud/common/CloudServer.rb \
 COMMON_CLOUD_CLIENT_LIB_FILES="src/cloud/common/CloudClient.rb"
 
 #-------------------------------------------------------------------------------
-# EC2 Query for OpenNebula 
+# EC2 Query for OpenNebula
 #-------------------------------------------------------------------------------
 
 ECO_LIB_FILES="src/cloud/ec2/lib/EC2QueryClient.rb \
@@ -536,7 +539,7 @@ OCCI_LIB_FILES="src/cloud/occi/lib/OCCIServer.rb \
                 src/cloud/occi/lib/VirtualNetworkOCCI.rb \
                 src/cloud/occi/lib/VirtualNetworkPoolOCCI.rb \
                 src/cloud/occi/lib/ImageOCCI.rb \
-                src/cloud/occi/lib/ImagePoolOCCI.rb" 
+                src/cloud/occi/lib/ImagePoolOCCI.rb"
 
 OCCI_LIB_CLIENT_FILES="src/cloud/occi/lib/OCCIClient.rb"
 
@@ -563,7 +566,7 @@ OCCI_ETC_TEMPLATE_FILES="src/cloud/occi/etc/templates/small.erb \
 
 # --- Create OpenNebula directories ---
 
-if [ "$UNINSTALL" = "no" ] ; then 
+if [ "$UNINSTALL" = "no" ] ; then
     for d in $MAKE_DIRS; do
         mkdir -p $DESTDIR$d
     done
@@ -595,10 +598,10 @@ fi
 for i in ${INSTALL_SET[@]}; do
     SRC=$`echo $i | cut -d: -f1`
     DST=`echo $i | cut -d: -f2`
-    
-    eval SRC_FILES=$SRC 
-   
-    for f in $SRC_FILES; do 
+
+    eval SRC_FILES=$SRC
+
+    for f in $SRC_FILES; do
         do_file $f $DST
     done
 done
@@ -607,23 +610,23 @@ if [ "$CLIENT" = "no" -a "$INSTALL_ETC" = "yes" ] ; then
     for i in ${INSTALL_ETC_FILES[@]}; do
         SRC=$`echo $i | cut -d: -f1`
         DST=`echo $i | cut -d: -f2`
-    
+
         eval SRC_FILES=$SRC
-        
+
         OLD_LINK=$LINK
         LINK="no"
-        
-        for f in $SRC_FILES; do 
+
+        for f in $SRC_FILES; do
             do_file $f $DST
         done
-        
+
         LINK=$OLD_LINK
    done
 fi
 
 # --- Set ownership or remove OpenNebula directories ---
 
-if [ "$UNINSTALL" = "no" ] ; then 
+if [ "$UNINSTALL" = "no" ] ; then
     for d in $CHOWN_DIRS; do
         chown -R $ONEADMIN_USER:$ONEADMIN_GROUP $DESTDIR$d
     done

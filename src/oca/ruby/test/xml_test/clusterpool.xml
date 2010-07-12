@@ -1,0 +1,14 @@
+<CLUSTER_POOL>
+	<CLUSTER>
+	  <ID>0</ID>
+	  <NAME>default</NAME>
+	</CLUSTER>
+	<CLUSTER>
+	  <ID>1</ID>
+	  <NAME>Red</NAME>
+	</CLUSTER>
+	<CLUSTER>
+	  <ID>2</ID>
+	  <NAME>Black</NAME>
+	</CLUSTER>
+</CLUSTER_POOL>

@@ -132,24 +132,6 @@ class VNShow
             result
         end
     end
-    
-    def top(options=nil)
-        delay=1
-        delay=options[:delay] if options && options[:delay]
-        
-        result=nil
-        
-        begin
-            while true
-                scr_cls
-                scr_move(0,0)
-                result=list_short(options)
-                sleep delay
-            end
-        rescue Exception
-        end
-        result
-    end
 end
 
 class OneVNParse < CommandParse
