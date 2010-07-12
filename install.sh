@@ -328,8 +328,8 @@ MADS_LIB_FILES="src/mad/sh/madcommon.sh \
               src/hm_mad/one_hm.rb \
               src/hm_mad/one_hm \
               src/authm_mad/one_auth_mad.rb \
-              src/authm_mad/one_auth_mad \
-              src/hm_mad/one_hm"
+              src/authm_mad/one_auth_mad"
+
 #-------------------------------------------------------------------------------
 # Information Manager Probes, to be installed under $LIB_LOCATION/im_probes
 #-------------------------------------------------------------------------------
