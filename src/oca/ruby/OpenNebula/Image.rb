@@ -1,5 +1,4 @@
 require 'OpenNebula/Pool'
-require 'ftools'
 
 module OpenNebula
     class Image < PoolElement
@@ -56,7 +55,6 @@ module OpenNebula
             super(xml,client)
 
             @client = client
-            @immanager = ImageManager.new
         end
 
         #######################################################################
@@ -99,18 +97,6 @@ module OpenNebula
             super(IMAGE_METHODS[:delete])
         end
         
-        def copy(path, source)
-            @immanager.copy(path, source)
-        end
-        
-        def mk_datablock(size, fstype, source)
-            rc = @immanager.dd(size, source)
-            
-            return rc if OpenNebula.is_error?(rc)
-            
-            @immanager.mkfs(fstype, source)
-        end
-
         #######################################################################
         # Helpers to get Image information
         #######################################################################
@@ -146,7 +132,6 @@ module OpenNebula
         end 
         
     private
-        
         def set_enabled(enabled)
             return Error.new('ID not defined') if !@pe_id
 
@@ -174,73 +159,5 @@ module OpenNebula
             return rc            
         end
 
-    end
-    
-    class ImageManager
-        # ---------------------------------------------------------------------
-        # Constants and Class Methods
-        # ---------------------------------------------------------------------
-        FS_UTILS = {
-            :dd     => "/bin/dd",
-            :mkfs   => "/bin/mkfs"
-        }
-        
-        
-        def copy(path, source)
-            if source.nil? and size.nil?
-                return OpenNebula::Error.new(
-                        "Cannot copy image (Missing parameters), aborting.")
-            end
-
-            if !File.copy(path, source)
-                return OpenNebula::Error.new(
-                        "Cannot copy image, aborting.")
-            end
-            
-            return nil
-        end
-        
-        def dd(size, source)
-            if source.nil? and size.nil?
-                return OpenNebula::Error.new(
-                        "Cannot create datablock " +
-                        "(Missing parameters), aborting.")
-            end
-            
-            command = ""
-            command << FS_UTILS[:dd]
-            command << " if=/dev/zero of=#{source} ibs=1 count=1"
-            command << " obs=1048576 oseek=#{size}"
-            
-            local_command=LocalCommand.run(command)
-               
-            if local_command.code!=0
-                return OpenNebula::Error.new(
-                        "Cannot create datablock, aborting.")
-            end
-            
-            return nil
-        end
-        
-        def mkfs(fstype, source)
-            if source.nil? and fstype.nil?
-                return OpenNebula::Error.new(
-                        "Cannot format datablock " +
-                        "(Missing parameters), aborting.")
-            end
-            
-            command = ""
-            command << FS_UTILS[:mkfs]
-            command << " -t #{fstype} -F #{source}"
-            
-            local_command=LocalCommand.run(command)
-               
-            if local_command.code!=0
-                return OpenNebula::Error.new(
-                       "Cannot format datablock, aborting.")
-            end
-            
-            return nil
-        end
     end
 end
