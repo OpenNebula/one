@@ -76,7 +76,7 @@ void AuthRequest::add_auth(Object        ob,
                            bool          pub)
 {
     ostringstream oss;
-    bool          auth = owner == uid;
+    bool          auth;
 
     switch (ob)
     {
@@ -118,14 +118,6 @@ void AuthRequest::add_auth(Object        ob,
 
         case USE:
             oss << "USE:" ;
-            if ( ob == NET || ob == IMAGE )
-            {
-                auth = auth || (pub == true);
-            }
-            else if (ob == HOST)
-            {
-                auth = true;
-            }
             break;
 
         case MANAGE:
@@ -134,6 +126,48 @@ void AuthRequest::add_auth(Object        ob,
     }
 
     oss << owner << ":" << pub;
+
+    // -------------------------------------------------------------------------
+    // Authorize the request for self authorization
+    // -------------------------------------------------------------------------
+
+    if ( uid == 0 )
+    {
+        auth = true;
+    }
+    else
+    {
+        auth = false;
+
+        switch (op)
+        {
+            case CREATE:
+                if ( ob == VM || ob == NET || ob == IMAGE )
+                {
+                    auth = true;
+                }
+                break;
+
+            case DELETE:
+                auth = owner == uid;
+                break;
+
+            case USE:
+                if (ob == NET || ob == IMAGE)
+                {
+                    auth = (owner == uid) || pub
+                }
+                else if (ob == HOST)
+                {
+                    auth = true
+                }
+                break;
+
+            case MANAGE:
+                auth = owner == uid;
+                break;
+        }
+    }
 
     self_authorize = self_authorize && auth;
 
