@@ -49,7 +49,7 @@ end
 def print_header(format_str, str, underline)
     scr_bold
     scr_underline if underline
-    print format_str % str 
+    print format_str % str
     scr_restore
     puts
 end
@@ -80,7 +80,7 @@ ShowTableExample={
 # Class to print tables
 class ShowTable
     attr_accessor :ext, :columns
-    
+
     # table => definition of the table to print
     # ext => external variables (Hash), @ext
     def initialize(table, ext=nil)
@@ -89,7 +89,7 @@ class ShowTable
         @ext=ext if ext.kind_of?(Hash)
         @columns=@table[:default]
     end
-    
+
     # Returns a formated string for header
     def header_str
         @columns.collect {|c|
@@ -101,7 +101,7 @@ class ShowTable
             end
         }.compact.join(' ')
     end
-    
+
     # Returns an array with header titles
     def header_array
         @columns.collect {|c|
@@ -112,39 +112,39 @@ class ShowTable
             end
         }.compact
     end
-    
+
     def data_str(data, options=nil)
         # TODO: Use data_array so it can be ordered and/or filtered
         res_data=data_array(data, options)
-        
+
         res_data.collect {|d|
             (0..(@columns.length-1)).collect {|c|
                 dat=d[c]
                 col=@columns[c]
-                
+
                 format_data(col, dat) if @table[col]
             }.join(' ')
         }.join("\n")
-        
+
         #data.collect {|d|
         #    @columns.collect {|c|
         #        format_data(c, @table[c][:proc].call(d, @ext)) if @table[c]
         #    }.join(' ')
         #}.join("\n")
     end
-    
+
     def data_array(data, options=nil)
         res_data=data.collect {|d|
             @columns.collect {|c|
                 @table[c][:proc].call(d, @ext).to_s if @table[c]
             }
         }
-        
+
         if options
             filter_data!(res_data, options[:filter]) if options[:filter]
             sort_data!(res_data, options[:order]) if options[:order]
         end
-        
+
         res_data
     end
 
@@ -153,14 +153,14 @@ class ShowTable
         size=@table[field][:size]
         "%#{minus}#{size}.#{size}s" % [ data.to_s ]
     end
-    
+
     def get_order_column(column)
         desc=column.match(/^-/)
         col_name=column.gsub(/^-/, '')
         index=@columns.index(col_name.to_sym)
         [index, desc]
     end
-    
+
     def sort_data!(data, order)
         data.sort! {|a,b|
             # rows are equal by default
@@ -169,9 +169,9 @@ class ShowTable
                 # compare
                 pos, dec=get_order_column(o)
                 break if !pos
-                
+
                 r = (b[pos]<=>a[pos])
-                
+
                 # if diferent set res (return value) and exit loop
                 if r!=0
                     # change sign if the order is decreasing
@@ -183,7 +183,7 @@ class ShowTable
             res
         }
     end
-    
+
     def filter_data!(data, filters)
         filters.each {|key, value|
             pos=@columns.index(key.downcase.to_sym)
@@ -198,7 +198,7 @@ class ShowTable
             end
         }
     end
-    
+
     def print_help
         text=[]
         @table.each {|option, data|
@@ -207,7 +207,7 @@ class ShowTable
         }
         text.join("\n")
     end
-    
+
 end
 
 
@@ -251,9 +251,9 @@ def get_entity_id(name, pool_class)
     # TODO: Check for errors
 
     objects=pool.select {|object| object.name==name }
-    
+
     class_name=pool_class.name.split('::').last.gsub(/Pool$/, '')
-    
+
     if objects.length>0
         if objects.length>1
             puts "There are multiple #{class_name}'s with name #{name}."
@@ -265,7 +265,7 @@ def get_entity_id(name, pool_class)
         puts "#{class_name} named #{name} not found."
         exit -1
     end
-    
+
     result
 end
 
@@ -287,6 +287,10 @@ end
 
 def get_image_id(name)
     get_entity_id(name, OpenNebula::ImagePool)
+end
+
+def get_cluster_id(name)
+    get_entity_id(name, OpenNebula::ClusterPool)
 end
 
 def str_running_time(data)
@@ -317,9 +321,9 @@ def expand_range(param)
         last=match[4]
         post=match[5]
         size=0
-        
+
         result=Array.new
-        
+
         if operator=='-'
             range=(start.to_i..last.to_i)
             size=last.size
@@ -327,7 +331,7 @@ def expand_range(param)
             size=(start.to_i+last.to_i-1).to_s.size
             range=(start.to_i..(start.to_i+last.to_i-1))
         end
-        
+
         if start[0]==?0
             range.each do |num|
                 result<<sprintf("%s%0#{size}d%s", pre, num, post)

@@ -35,31 +35,27 @@ require 'command_parse'
 ShowTableUP={
     :id => {
         :name => "ID",
-        :desc => "ONE identifier for user",
+        :desc => "ONE identifier for cluster",
         :size => 4,
-        :proc => lambda {|d,e| d.id }
+        :proc => lambda {|d,e| 
+            d.id 
+        }
     },
-    :user => {
-        :name => "USER",
-        :desc => "name of the user",
-        :size => 15,
-        :left => true,
-        :proc => lambda {|d,e| d.name }
-    },
-    :password => {
-        :name => "PASSWORD",
-        :desc => "password of the user",
-        :size => 50,
-        :left => true,
-        :proc => lambda {|d,e| d[:password] }
+    :name => {
+        :name => "NAME",
+        :desc => "Name of the cluster",
+        :size => 8,
+        :proc => lambda {|d,e|
+            d.name
+        }
     },
    
-    :default => [:id, :user, :password]
+    :default => [:id, :name]
 }
 
 class UPShow
     def initialize
-        @userpool=OpenNebula::UserPool.new(get_one_client)
+        @clusterpool=OpenNebula::ClusterPool.new(get_one_client)
         @table=ShowTable.new(ShowTableUP)
     end
     
@@ -72,7 +68,7 @@ class UPShow
     end
     
     def list_short(options=nil)
-        res=@userpool.info
+        res=@clusterpool.info
         if options
             @table.columns=options[:columns] if options[:columns]
         end
@@ -83,7 +79,7 @@ class UPShow
             result=res
             header_up_small
             
-            puts @table.data_str(@userpool, options)
+            puts @table.data_str(@clusterpool, options)
             result
         end
     end
@@ -95,14 +91,20 @@ class OneUPParse < CommandParse
 Commands:
 
 * create (Creates a new user)
-    oneuser create username password
+    onecluster create clustername
     
-* delete (Removes a user)
-    oneuser delete <id>
+* delete (Removes a cluster)
+    onecluster delete <id>
     
-* list (Lists all the users in the pool)
-    oneuser list
+* list (Lists all the clusters in the pool)
+    onecluster list
 
+* addhost (Add a host to the cluster)
+    onecluster addhost <host_id> <cluster_id>
+        
+* removehost (Remove a host from the cluster)
+    onecluster removehost <host_id> <cluster_id>
+    
 EOT
 
     def text_commands
@@ -110,7 +112,7 @@ EOT
     end
 
     def text_command_name
-        "oneuser"
+        "onecluster"
     end
 
     def list_options
@@ -130,13 +132,12 @@ command=ARGV.shift
 
 case command
 when "create"
-    check_parameters("create", 2)
-    user=OpenNebula::User.new(
-        OpenNebula::User.build_xml, get_one_client)
-    sha_password = Digest::SHA1.hexdigest(ARGV[1])
-    result=user.allocate(ARGV[0],sha_password)
-    if !OpenNebula.is_error?(result)
-        puts "ID: " + user.id.to_s if ops[:verbose]
+    check_parameters("create", 1)
+    cluster=OpenNebula::Cluster.new(OpenNebula::Cluster.build_xml, get_one_client)
+    result=cluster.allocate(ARGV[0])
+    
+    if is_successful?(result)
+        puts "ID: " + cluster.id.to_s if ops[:verbose]
         exit 0
     end
     
@@ -145,40 +146,49 @@ when "delete"
     args=expand_args(ARGV)
 
     args.each do |param|
-        user_id=get_user_id(param)
-
-        # Check if the user has defined VM's
-        vms=false
-        vmpool=OpenNebula::VirtualMachinePool.new(
-            get_one_client, user_id.to_i)
-        vmpool.info
-        vmpool.each{ vms=true ; break }
-
-        if vms
-            puts "The user #{param} still has VMs defined, "+
-                "aborting user delete."
-            exit -1 
-        end
-        
-        # Check if the user has defined VN's
-        vns=false
-        vnpool=OpenNebula::VirtualNetworkPool.new(
-            get_one_client, user_id.to_i)
-
-        vnpool.info
-        vnpool.each{ vns=true ; break }
-
-        if vns
-            puts "The user #{param} still has Virtual Networks defined, "+
-                "aborting user delete."
-            exit -1 
-        end
-
-        user=OpenNebula::User.new(
-            OpenNebula::User.build_xml(user_id), get_one_client)
-        result=user.delete
+        cluster_id=get_cluster_id(param)
+        cluster=OpenNebula::Cluster.new(
+            OpenNebula::Cluster.build_xml(cluster_id), get_one_client)
+        result=cluster.delete
         if !OpenNebula.is_error?(result)
-            puts "User deleted" if ops[:verbose]
+            puts "Cluster deleted" if ops[:verbose]
+            break
+        end
+    end
+
+when "addhost"
+    check_parameters("addhost", 2)
+    cluster_id=get_cluster_id(ARGV[-1])
+    cluster=OpenNebula::Cluster.new(
+        OpenNebula::Cluster.build_xml(cluster_id), get_one_client)
+    args=expand_args(ARGV[0..-2])
+
+    args.each do |param|
+        host_id=get_host_id(param)
+
+        result=cluster.add_host(host_id)
+        if is_successful?(result)
+            puts "Added HOST to the Cluster" if ops[:verbose]
+        else
+            break
+        end
+    end
+    
+when "removehost"
+    check_parameters("removehost", 2)
+    cluster_id=get_cluster_id(ARGV[-1])
+    cluster=OpenNebula::Cluster.new(
+        OpenNebula::Cluster.build_xml(cluster_id), get_one_client)
+    args=expand_args(ARGV[0..-2])
+
+    args.each do |param|
+        host_id=get_host_id(param)
+
+        result=cluster.remove_host(host_id)
+        if is_successful?(result)
+            puts "Host removed from the Cluster" if ops[:verbose]
+        else
+            break
         end
     end
     
@@ -188,9 +198,9 @@ when "list"
         ops[:columns]=ops[:list] if ops[:list]
         result=uplist.list_short(ops)
     else
-        userpool=OpenNebula::UserPool.new(get_one_client)
-        userpool.info
-        puts userpool.to_xml(true)
+        clusterpool=OpenNebula::ClusterPool.new(get_one_client)
+        clusterpool.info
+        puts clusterpool.to_xml(true)
     end
     
 else
