@@ -177,6 +177,11 @@ public:
                 "ARCH = \"*64*\"",
                 "RUNNING_VMS < 100",
 
+                "CLUSTER = \"cluster A\"",
+                "CLUSTER = \"default\"",
+                "CLUSTER = clusterA",
+                "CLUSTER = \"Cluster A\"",
+
         /*
             // Boolean operators
             "HOSTNAME = \"ursa*\" & NETRX = \"13335836573\"",
@@ -191,6 +196,7 @@ public:
             bool results[] = { true, false, true, false,
                                true, true, false,
                                true, true, true,
+                               true, false, false, false
                             /*
                                true, true, false,
                             //*/
@@ -385,6 +391,7 @@ const string ObjectXMLTest::host =
   "<VM_MAD>vmm_kvm</VM_MAD>"
   "<TM_MAD>tm_nfs</TM_MAD>"
   "<LAST_MON_TIME>1273799044</LAST_MON_TIME>"
+  "<CLUSTER>cluster A</CLUSTER>"
   "<HOST_SHARE>"
   "  <HID>1</HID>"
   "  <DISK_USAGE>0</DISK_USAGE>"
