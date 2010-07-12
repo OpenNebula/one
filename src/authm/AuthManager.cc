@@ -155,11 +155,11 @@ void AuthRequest::add_auth(Object        ob,
             case USE:
                 if (ob == NET || ob == IMAGE)
                 {
-                    auth = (owner == uid) || pub
+                    auth = (owner == uid) || pub;
                 }
                 else if (ob == HOST)
                 {
-                    auth = true
+                    auth = true;
                 }
                 break;
 
