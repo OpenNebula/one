@@ -67,19 +67,6 @@ void RequestManager::VirtualNetworkAllocate::execute(
 
     user->unlock();
     
-    //Authorize the operation
-    if ( uid != 0 ) // uid == 0 means oneadmin
-    {
-        AuthRequest ar(uid);
-
-        ar.add_auth(AuthRequest::NET,-1,AuthRequest::CREATE,0,false);
-
-        if (UserPool::authorize(ar) == -1)
-        {
-            goto error_authorize;
-        }
-    }
-
     rc = vnpool->allocate(uid,stemplate,&nid);
 
     if ( rc < 0 )
@@ -107,10 +94,6 @@ error_get_user:
     oss << "User not recognized, cannot allocate VirtualNetwork";
     goto error_common;
     
-error_authorize:
-    oss << "User not authorized to create a VirtualNetwork";
-    goto error_common;
-
 error_vn_allocate:
     oss << "Error allocating VN with template: " << endl << stemplate;
     goto error_common;

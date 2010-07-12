@@ -24,6 +24,8 @@
 #include "VirtualNetworkPool.h"
 #include "ImagePool.h"
 
+#include "NebulaLog.h"
+
 #include <xmlrpc-c/base.hpp>
 #include <xmlrpc-c/registry.hpp>
 #include <xmlrpc-c/server_abyss.hpp>
@@ -166,7 +168,53 @@ private:
     void register_xml_methods();
     
     int setup_socket();
+    
+    // ----------------------------------------------------------------------
+    // ----------------------------------------------------------------------
+    //                          Error Messages
+    // ----------------------------------------------------------------------
+    // ----------------------------------------------------------------------   
+    
+    static string authorization_error (const string& method, 
+                                       const string &action, 
+                                       const string &object, 
+                                       int   uid,
+                                       int   id)
+    {
+        ostringstream oss;
+        oss << "[" << method << "]" << " User [" << uid << "] not authorized "               
+            << " to perform " << action << " on " << object 
+            << " [" << id << "]";
+               
+        NebulaLog::log("RM",Log::ERROR,oss);
+        
+        return oss.str();
+    }
+    
+    static string authenticate_error (const string& method)
+    {
+        ostringstream oss;
+        
+        oss << "[" << method << "]" << " User couldn't be authenticated," <<
+               " aborting call";
+        NebulaLog::log("RM",Log::ERROR,oss);
+        
+        return oss.str();
+    }
 
+    static string get_error (const string& method, 
+                             const string &object, 
+                             int id)
+    {
+        ostringstream oss;
+        
+        oss << "[" << method << "]" << " Error getting " << 
+               object  << " [" << id << "]";
+        NebulaLog::log("RM",Log::ERROR,oss);
+        
+        return oss.str();
+    }
+    
     // ----------------------------------------------------------------------
     // ----------------------------------------------------------------------
     //                          XML-RPC Methods
