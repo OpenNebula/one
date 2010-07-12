@@ -287,7 +287,8 @@ RUBY_LIB_FILES="src/mad/ruby/one_mad.rb \
                 src/tm_mad/TMScript.rb \
                 src/authm_mad/one_usage.rb \
                 src/authm_mad/quota.rb \
-                src/authm_mad/simple_auth.rb"
+                src/authm_mad/simple_auth.rb \
+                src/authm_mad/simple_permissions.rb"
 
 RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/OpenNebula/Host.rb \
                            src/oca/ruby/OpenNebula/HostPool.rb \

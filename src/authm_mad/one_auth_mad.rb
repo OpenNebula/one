@@ -32,12 +32,14 @@ require 'pp'
 
 require 'OpenNebulaDriver'
 require 'simple_auth'
+require 'simple_permissions'
 
 class AuthorizationManager < OpenNebulaDriver
     def initialize
         super(1, false)
         
         @authenticate=SimpleAuth.new
+        @permissions=SimplePermissions.new
         
         register_action(:AUTHENTICATE, method('action_authenticate'))
         register_action(:AUTHORIZE, method('action_authorize'))
@@ -55,7 +57,14 @@ class AuthorizationManager < OpenNebulaDriver
     end
     
     def action_authorize(request_id, user_id, *tokens)
-        send_message('AUTHORIZE', RESULT[:success], request_id, 'success')
+        auth=@permissions.auth(user_id, tokens.flatten)
+        if auth==true
+            send_message('AUTHORIZE', RESULT[:success],
+                request_id, 'success')
+        else
+            send_message('AUTHORIZE', RESULT[:failure],
+                request_id, auth)
+        end
     end
 end
 
