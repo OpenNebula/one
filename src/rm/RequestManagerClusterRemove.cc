@@ -17,6 +17,8 @@
 #include "RequestManager.h"
 #include "NebulaLog.h"
 
+#include "AuthManager.h"
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -43,15 +45,26 @@ void RequestManager::ClusterRemove::execute(
     session      = xmlrpc_c::value_string(paramList.getString(0));
     hid          = xmlrpc_c::value_int   (paramList.getInt(1));
 
-
-    // Only oneadmin can remove hosts from clusters
+    // Only oneadmin can delete clusters
     rc = ClusterRemove::upool->authenticate(session);
 
-    if ( rc != 0 )
+    if ( rc == -1 )
     {
         goto error_authenticate;
     }
 
+     //Authorize the operation
+    if ( rc != 0 ) // rc == 0 means oneadmin
+    {
+        AuthRequest ar(rc);
+
+        ar.add_auth(AuthRequest::HOST,hid,AuthRequest::MANAGE,0,false);
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            goto error_authorize;
+        }
+    }
 
     // Check if host exists
     host = ClusterRemove::hpool->get(hid,true);
@@ -87,6 +100,10 @@ void RequestManager::ClusterRemove::execute(
 
 error_authenticate:
     oss << "User not authorized to remove hosts from clusters";
+    goto error_common;
+
+error_authorize:
+    oss << "User not authorized to manage HOST";
     goto error_common;
 
 error_host_get:

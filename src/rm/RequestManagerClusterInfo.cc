@@ -17,6 +17,8 @@
 #include "RequestManager.h"
 #include "NebulaLog.h"
 
+#include "AuthManager.h"
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -42,7 +44,7 @@ void RequestManager::ClusterInfo::execute(
     session      = xmlrpc_c::value_string(paramList.getString(0));
     clid         = xmlrpc_c::value_int   (paramList.getInt(1));
 
-    // Check if it is a valid user
+    //Authenticate the user
     rc = ClusterInfo::upool->authenticate(session);
 
     if ( rc == -1 )

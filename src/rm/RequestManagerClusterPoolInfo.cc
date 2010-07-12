@@ -17,6 +17,8 @@
 #include "RequestManager.h"
 #include "NebulaLog.h"
 
+#include "AuthManager.h"
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -37,8 +39,7 @@ void RequestManager::ClusterPoolInfo::execute(
     // Get the parameters
     session = xmlrpc_c::value_string(paramList.getString(0));
 
-
-    // Check if it is a valid user
+    //Authenticate the user
     rc = ClusterPoolInfo::upool->authenticate(session);
 
     if ( rc == -1 )
@@ -46,7 +47,7 @@ void RequestManager::ClusterPoolInfo::execute(
         goto error_authenticate;
     }
 
-    // Perform the allocation in the vmpool 
+    // Perform the allocation in the vmpool
     rc = ClusterPoolInfo::hpool->dump_cluster(oss);
 
     if ( rc != 0 )
@@ -73,7 +74,7 @@ error_authenticate:
     goto error_common;
 
 error_dump:
-    oss << "Error getting Cluster pool"; 
+    oss << "Error getting Cluster pool";
     goto error_common;
 
 error_common:
@@ -81,7 +82,7 @@ error_common:
     arrayData.push_back(xmlrpc_c::value_boolean(false)); // FAILURE
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
 
-    NebulaLog::log("ReM",Log::ERROR,oss); 
+    NebulaLog::log("ReM",Log::ERROR,oss);
 
     xmlrpc_c::value_array arrayresult_error(arrayData);
 

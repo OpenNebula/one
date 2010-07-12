@@ -17,6 +17,8 @@
 #include "RequestManager.h"
 #include "NebulaLog.h"
 
+#include "AuthManager.h"
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -29,7 +31,7 @@ void RequestManager::ClusterDelete::execute(
     // <clid> of the cluster to delete from the HostPool
     int                 clid;
     ostringstream       oss;
-    int					rc;
+    int                 rc;
 
     /*   -- RPC specific vars --  */
     vector<xmlrpc_c::value> arrayData;
@@ -41,12 +43,25 @@ void RequestManager::ClusterDelete::execute(
     session      = xmlrpc_c::value_string(paramList.getString(0));
     clid         = xmlrpc_c::value_int   (paramList.getInt(1));
 
-    // Only oneadmin can delete clusters
+    //Authenticate the user
     rc = ClusterDelete::upool->authenticate(session);
 
-    if ( rc != 0 )
+    if ( rc == -1 )
     {
         goto error_authenticate;
+    }
+
+    //Authorize the operation
+    if ( rc != 0 ) // rc == 0 means oneadmin
+    {
+        AuthRequest ar(rc);
+
+        ar.add_auth(AuthRequest::HOST,-1,AuthRequest::MANAGE,0,false);
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            goto error_authorize;
+        }
     }
 
     rc = ClusterDelete::hpool->drop_cluster(clid);
@@ -69,6 +84,10 @@ void RequestManager::ClusterDelete::execute(
 
 error_authenticate:
     oss << "User not authorized to delete clusters";
+    goto error_common;
+
+error_authorize:
+    oss << "User not authorized to manage HOST";
     goto error_common;
 
 error_cluster_delete:
