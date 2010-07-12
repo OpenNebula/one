@@ -779,28 +779,6 @@ private:
         UserPool * upool;
     };
 
-
-    /* ---------------------------------------------------------------------- */
-    
-    class UserInfo: public xmlrpc_c::method
-    {
-    public:
-        UserInfo(UserPool * _upool):upool(_upool)
-        {
-            _signature="A:si";
-            _help="Returns the Info of the user";
-        };
-
-        ~UserInfo(){};
-
-        void execute(
-            xmlrpc_c::paramList const& paramList,
-            xmlrpc_c::value *   const  retvalP);
-
-    private:
-        UserPool * upool;
-    };
-
     /* ---------------------------------------------------------------------- */
 
     class UserDelete: public xmlrpc_c::method
