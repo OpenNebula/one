@@ -58,19 +58,6 @@ void RequestManager::ImageAllocate::execute(
     
     uid = rc;
     
-    //Authorize the operation
-    if ( uid != 0 ) // uid == 0 means oneadmin
-    {
-        AuthRequest ar(uid);
-
-        ar.add_auth(AuthRequest::IMAGE,-1,AuthRequest::CREATE,0,false);
-
-        if (UserPool::authorize(ar) == -1)
-        {
-            goto error_authorize;
-        }
-    }
-
     rc = ImageAllocate::ipool->allocate(uid,image_template,&iid);
 
     if ( rc < 0 )
@@ -94,10 +81,6 @@ error_authenticate:
     oss << "User not authenticated, aborting ImageAllocate call.";
     goto error_common;
     
-error_authorize:
-    oss << "User not authorized to allocate a new IMAGE";
-    goto error_common;
-
 error_allocate:
     if (rc == -1)
     {
