@@ -37,6 +37,8 @@ void RequestManager::UserAllocate::execute(
     ostringstream       oss;
 
     User              * user;
+    
+    const string        method_name = "UserAllocate";
 
     /*   -- RPC specific vars --  */
     vector<xmlrpc_c::value> arrayData;
@@ -103,20 +105,21 @@ void RequestManager::UserAllocate::execute(
     return;
 
 error_authenticate:
-    oss << "User not authenticated, aborting UserAllocate call.";
+    oss.str(authenticate_error(method_name));  
     goto error_common;
     
 error_authorize:
-    oss << "User not authorized to add new users, aborting UserAllocate call.";
+    oss.str(authorization_error(method_name, "CREATE", "USER", rc, NULL));
     goto error_common;  
      
 error_duplicate:
-    oss << "Existing user, cannot duplicate.";
+    oss.str(action_error(method_name, "CREATE", "USER", NULL, NULL));
+    oss << " Reason: Existing user, cannot duplicate.";
     goto error_common;
 
 
 error_allocate:
-    oss << "Error allocating user.";
+    oss.str(action_error(method_name, "CREATE", "USER", NULL, rc));
     goto error_common;
 
 error_common:

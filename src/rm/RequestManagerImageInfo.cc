@@ -28,12 +28,14 @@ void RequestManager::ImageInfo::execute(
 {
     string  session;
 
-    int     iid;
-    int     uid;     // Image owner user id
-    int     rc;      // Requesting user id 
-    Image * image;
-
+    int           iid;
+    int           uid;     // Image owner user id
+    int           rc;      // Requesting user id 
+    Image *       image;
+                  
     ostringstream oss;
+    
+    const string  method_name = "ImageInfo";
 
     /*   -- RPC specific vars --  */
     vector<xmlrpc_c::value> arrayData;
@@ -63,23 +65,6 @@ void RequestManager::ImageInfo::execute(
         goto error_authenticate;
     }
     
-    //Authorize the operation
-    if ( rc != 0 ) // rc == 0 means oneadmin
-    {
-        AuthRequest ar(rc);
-
-        ar.add_auth(AuthRequest::IMAGE,
-                    iid,
-                    AuthRequest::USE,
-                    0,
-                    image->isPublic());
-
-        if (UserPool::authorize(ar) == -1)
-        {
-            goto error_authorize;
-        }
-    }
-
     oss << *image;
 
     image->unlock();
@@ -97,17 +82,11 @@ void RequestManager::ImageInfo::execute(
     return;
 
 error_image_get:
-    oss << "Error getting image with ID = " << iid;
+    oss.str(get_error(method_name, "IMAGE", iid)); 
     goto error_common;
 
 error_authenticate:
-oss << "Cannot authenticate user, aborting ImageInfo call.";
-    image->unlock();
-    goto error_common;
-
-error_authorize:
-    oss << "User not authorized to use image with " <<
-    "ID = " << iid << " , ImageInfo call aborted.";
+    oss.str(authenticate_error(method_name));    
     image->unlock();
     goto error_common;
 

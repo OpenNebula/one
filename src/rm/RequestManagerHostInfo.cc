@@ -24,13 +24,15 @@ void RequestManager::HostInfo::execute(
     xmlrpc_c::paramList const& paramList,
     xmlrpc_c::value *   const  retval)
 {
-    string  session;
-
-    int     hid;
-    int     rc;
-    Host *  host;
+    string        session;
+                  
+    int           hid;
+    int           rc;
+    Host *        host;
 
     ostringstream oss;
+    
+    const string  method_name = "HostInfo";
 
     /*   -- RPC specific vars --  */
     vector<xmlrpc_c::value> arrayData;
@@ -75,15 +77,14 @@ void RequestManager::HostInfo::execute(
     return;
 
 error_authenticate:
-    oss << "Error in user authentication";
+    oss.str(authenticate_error(method_name));
     goto error_common;
 
 error_host_get:
-    oss << "Error getting host with HID = " << hid;
+    oss.str(get_error(method_name, "HOST", hid));
     goto error_common;
 
 error_common:
-
     arrayData.push_back(xmlrpc_c::value_boolean(false)); // FAILURE
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
 

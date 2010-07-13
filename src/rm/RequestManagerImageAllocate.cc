@@ -36,6 +36,8 @@ void RequestManager::ImageAllocate::execute(
     int                 rc;
 
     ostringstream       oss;
+    
+    const string        method_name = "ImageAllocate";
 
     vector<xmlrpc_c::value> arrayData;
     xmlrpc_c::value_array * arrayresult;
@@ -49,14 +51,12 @@ void RequestManager::ImageAllocate::execute(
 
 
     // First, we need to authenticate the user
-    rc = ImageAllocate::upool->authenticate(session);
+    uid = ImageAllocate::upool->authenticate(session);
 
-    if ( rc == -1 )
+    if ( uid == -1 )
     {
         goto error_authenticate;
     }
-    
-    uid = rc;
     
     rc = ImageAllocate::ipool->allocate(uid,image_template,&iid);
 
@@ -78,18 +78,11 @@ void RequestManager::ImageAllocate::execute(
     return;
 
 error_authenticate:
-    oss << "User not authenticated, aborting ImageAllocate call.";
+    oss.str(authenticate_error(method_name));
     goto error_common;
     
 error_allocate:
-    if (rc == -1)
-    {
-        oss << "Error allocating image, check oned.log";
-    }
-    else
-    {
-        oss << "Error parsing image template";
-    }
+    oss.str(action_error(method_name, "CREATE", "IMAGE", NULL, rc));
     goto error_common;
 
 error_common:

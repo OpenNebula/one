@@ -29,7 +29,9 @@ void RequestManager::VirtualMachineInfo::execute(
     int              vid, rc;
     VirtualMachine * vm;
 
-    ostringstream  oss;
+    ostringstream    oss;
+    
+    const string     method_name = "VirtualMachineInfo";
 
     /*   -- RPC specific vars --  */
     vector<xmlrpc_c::value> arrayData;
@@ -74,11 +76,11 @@ void RequestManager::VirtualMachineInfo::execute(
     return;
 
 error_authenticate:
-    oss << "Error in user authentication";
+    oss.str(authenticate_error(method_name));  
     goto error_common;
 
 error_vm_get:
-    oss << "Error getting VM " << vid;
+    oss.str(get_error(method_name, "VM", vid));
     goto error_common;
 
 error_common:

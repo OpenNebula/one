@@ -29,8 +29,9 @@ void RequestManager::ClusterAllocate::execute(
     string              session;
 
     string              clustername;
-
     int                 id;
+    
+    const string        method_name = "ClusterAllocate";
 
     int                 rc;
     ostringstream       oss;
@@ -58,7 +59,7 @@ void RequestManager::ClusterAllocate::execute(
     {
         AuthRequest ar(rc);
 
-        ar.add_auth(AuthRequest::HOST,-1,AuthRequest::MANAGE,0,false);
+        ar.add_auth(AuthRequest::CLUSTER,-1,AuthRequest::CREATE,0,false);
 
         if (UserPool::authorize(ar) == -1)
         {
@@ -86,16 +87,15 @@ void RequestManager::ClusterAllocate::execute(
     return;
 
 error_authenticate:
-    oss << "User not authorized to add new clusters";
+    oss.str(authenticate_error(method_name));
     goto error_common;
 
 error_authorize:
-    oss << "User not authorized to manage HOST";
+    oss.str(authorization_error(method_name, "CREATE", "CLUSTER", rc, -1));
     goto error_common;
 
 error_cluster_allocate:
-    oss << "Can not allocate cluster " << clustername <<
-           " in the ClusterPool, returned error code [" << rc << "]";
+    oss.str(action_error(method_name, "CREATE", "CLUSTER", NULL, rc));
     goto error_common;
 
 error_common:

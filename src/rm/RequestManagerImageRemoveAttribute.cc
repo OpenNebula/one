@@ -34,10 +34,15 @@ void RequestManager::ImageRemoveAttribute::execute(
     int                 iid;
     int                 uid;
     int                 rc;
+    
+    int                 image_owner;
+    bool                is_public;
 
     Image             * image;
 
     ostringstream       oss;
+    
+    const string        method_name = "ImageRemoveAttribute";
 
     vector<xmlrpc_c::value> arrayData;
     xmlrpc_c::value_array * arrayresult;
@@ -50,14 +55,25 @@ void RequestManager::ImageRemoveAttribute::execute(
     name     = xmlrpc_c::value_string(paramList.getString(2));
 
     // First, we need to authenticate the user
-    rc = ImageRemoveAttribute::upool->authenticate(session);
+    uid = ImageRemoveAttribute::upool->authenticate(session);
 
-    if ( rc == -1 )
+    if ( uid == -1 )
     {
         goto error_authenticate;
     }
+    
+    // Get image from the ImagePool
+    image = ImageRemoveAttribute::ipool->get(iid,true);
 
-    uid = rc;
+    if ( image == 0 )
+    {
+        goto error_image_get;
+    }
+    
+    image_owner = image->get_uid();
+    is_public   = image->isPublic();
+    
+    image->unlock();
     
     //Authorize the operation
     if ( uid != 0 ) // uid == 0 means oneadmin
@@ -67,8 +83,8 @@ void RequestManager::ImageRemoveAttribute::execute(
         ar.add_auth(AuthRequest::IMAGE,
                     iid,
                     AuthRequest::MANAGE,
-                    0,
-                    image->isPublic());
+                    image_owner,
+                    is_public);
 
         if (UserPool::authorize(ar) == -1)
         {
@@ -105,21 +121,19 @@ void RequestManager::ImageRemoveAttribute::execute(
     return;
 
 error_authenticate:
-    oss << "[ImageRemoveAttribute] User not authenticated, aborting call.";
+    oss.str(authenticate_error(method_name));    
     goto error_common;
 
 error_image_get:
-    oss << "[ImageRemoveAttribute] Error getting image with ID = " << iid;
+    oss.str(get_error(method_name, "IMAGE", iid)); 
     goto error_common;
 
 error_authorize:
-    oss << "[ImageRemoveAttribute] User not authorized to remove image" <<
-           " attributes aborting call.";
+    oss.str(authorization_error(method_name, "MANAGE", "IMAGE", uid, iid));
     goto error_common;
 
 error_remove_attribute:
-    oss << "[ImageRemoveAttribute] Cannot remove attribute with name = "
-        << name << " for image [" << iid << "]";
+    oss.str(action_error(method_name, "PUBLISH/UNPUBLISH", "IMAGE", iid, rc));
     image->unlock();
     goto error_common;
 

@@ -36,6 +36,8 @@ void RequestManager::VirtualNetworkDelete::execute(
     
     int                 rc;        
     ostringstream       oss;
+    
+    const string        method_name = "VirtualNetworkDelete";
 
     /*   -- RPC specific vars --  */
     vector<xmlrpc_c::value> arrayData;
@@ -94,19 +96,19 @@ void RequestManager::VirtualNetworkDelete::execute(
     return;
 
 error_authenticate:
-    oss << "User not authenticated, aborting VirtualNetworkDelete call";
+    oss.str(authenticate_error(method_name));
     goto error_common;
     
 error_authorize:
-    oss << "User not authorized to delete Virtual Network with NID = " << nid;
+    oss.str(authorization_error(method_name, "DELETE", "NET", rc, nid));
     goto error_common;
 
 error_vn_get:
-    oss << "Error getting Virtual Network with NID = " << nid;
+    oss.str(get_error(method_name, "NET", nid));
     goto error_common;
  
 error_common:
-    NebulaLog::log ("Rem",Log::ERROR,oss);
+    NebulaLog::log ("ReM",Log::ERROR,oss);
   
     arrayData.push_back(xmlrpc_c::value_boolean(false)); // FAILURE
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));

@@ -30,12 +30,14 @@ void RequestManager::HostEnable::execute(
 
     int                 hid;
     int                 rc;
-    bool				enable;
+    bool                enable;
     Host *              host;
     ostringstream       oss;
+    
+    const string  method_name = "HostEnable";
 
     /*   -- RPC specific vars --  */
-    vector<xmlrpc_c::value> arrayData;
+    vector<xmlrpc_c::value> arrayData;  
     xmlrpc_c::value_array * arrayresult;
 
     NebulaLog::log("ReM",Log::DEBUG,"HostEnable method invoked");
@@ -97,15 +99,15 @@ void RequestManager::HostEnable::execute(
     return;
 
 error_authenticate:
-    oss << "Error in user authentication";
+    oss.str(authenticate_error(method_name));
     goto error_common;
 
 error_authorize:
-    oss << "User not authorized to enable HOST";
+    oss.str(authorization_error(method_name, "MANAGE", "HOST", rc, hid));
     goto error_common;
 
 error_host_get:
-    oss << "Error getting host with HID = " << hid;
+    oss.str(get_error(method_name, "HOST", hid));
     goto error_common;
 
 error_common:

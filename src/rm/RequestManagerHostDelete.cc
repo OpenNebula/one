@@ -32,7 +32,9 @@ void RequestManager::HostDelete::execute(
     int                 hid;
     Host *              host;
     ostringstream       oss;
-    int					rc;
+    int                 rc;
+    
+    const string  method_name = "HostDelete";
 
     /*   -- RPC specific vars --  */
     vector<xmlrpc_c::value> arrayData;
@@ -89,15 +91,15 @@ void RequestManager::HostDelete::execute(
     return;
 
 error_authenticate:
-    oss << "Error in user authentication";
+    oss.str(authenticate_error(method_name));
     goto error_common;
 
 error_authorize:
-    oss << "User not authorized to delete HOST";
+    oss.str(authorization_error(method_name, "DELETE", "HOST", rc, hid));
     goto error_common;
 
 error_host_get:
-    oss << "Error getting host with HID = " <<hid;
+    oss.str(get_error(method_name, "HOST", hid));
     goto error_common;
 
 error_common:

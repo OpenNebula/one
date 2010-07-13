@@ -42,6 +42,8 @@ void RequestManager::VirtualMachineAction::execute(
     VirtualMachine *    vm;
 
     ostringstream       oss;
+    
+    const string  method_name = "VirtualMachineAction";
 
     NebulaLog::log("ReM",Log::DEBUG,"VirtualMachineAction invoked");
 
@@ -150,23 +152,24 @@ error_operation:
     goto error_common;
 
 error_vm_get:
-    oss << "The virtual machine " << vid << " does not exists";
+    oss.str(get_error(method_name, "VM", vid));
     goto error_common;
 
 error_authenticate:
-    oss << "Error in user authentication";
+    oss.str(authenticate_error(method_name));
     goto error_common;
 
 error_authorize:
-    oss << "User not authorized to perform VM operation";
+    oss.str(authorization_error(method_name, "MANAGE", "VM", rc, vid));
     goto error_common;
 
 error_common:
-
     arrayData.push_back(xmlrpc_c::value_boolean(false));
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
 
     xmlrpc_c::value_array arrayresult_error(arrayData);
+    
+    NebulaLog::log("ReM",Log::ERROR,oss);
 
     *retval = arrayresult_error;
 

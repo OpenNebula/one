@@ -33,10 +33,15 @@ void RequestManager::ImageDelete::execute(
     int                 iid;
     int                 uid;
     int                 rc;
+    
+    int                 image_owner;
+    bool                is_public;
 
     Image             * image;
 
     ostringstream       oss;
+    
+    const string        method_name = "ImageDelete";
 
     vector<xmlrpc_c::value> arrayData;
     xmlrpc_c::value_array * arrayresult;
@@ -49,21 +54,36 @@ void RequestManager::ImageDelete::execute(
 
 
     // First, we need to authenticate the user
-    rc = ImageDelete::upool->authenticate(session);
+    uid = ImageDelete::upool->authenticate(session);
 
-    if ( rc == -1 )
+    if ( uid == -1 )
     {
         goto error_authenticate;
     }
+    
+    // Get image from the ImagePool
+    image = ImageDelete::ipool->get(iid,true);
 
-    uid = rc;
+    if ( image == 0 )
+    {
+        goto error_image_get;
+    }
+    
+    image_owner = image->get_uid();
+    is_public   = image->isPublic();
+    
+    image->unlock();
     
     //Authorize the operation
     if ( uid != 0 ) // uid == 0 means oneadmin
     {
         AuthRequest ar(uid);
 
-        ar.add_auth(AuthRequest::IMAGE,iid,AuthRequest::DELETE,0,false);
+        ar.add_auth(AuthRequest::IMAGE,
+                    iid,
+                    AuthRequest::DELETE,
+                    image_owner,
+                    is_public);
 
         if (UserPool::authorize(ar) == -1)
         {
@@ -101,19 +121,20 @@ void RequestManager::ImageDelete::execute(
     return;
 
 error_authenticate:
-    oss << "User not authenticated, aborting ImageDelete call.";
+    oss.str(authenticate_error(method_name));
     goto error_common;
 
 error_image_get:
-    oss << "Error getting image with ID = " << iid;
+    oss.str(get_error(method_name, "IMAGE", iid));
     goto error_common;
 
 error_authorize:
-    oss << "User not authorized to delete image, aborting ImageDelete call.";
+    oss.str(authorization_error(method_name, "DELETE", "IMAGE", uid, iid));
     goto error_common;
 
 error_delete:
-    oss << "Cannot delete image, VMs might be running on it.";
+    oss.str(action_error(method_name, "DELETE", "IMAGE", iid, rc));
+    oss << " VMs might be running on it.";
     image->unlock();
     goto error_common;
 

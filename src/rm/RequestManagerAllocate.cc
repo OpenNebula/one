@@ -28,6 +28,8 @@ void RequestManager::VirtualMachineAllocate::execute(
 {
     string              session;
     string              vm_template;
+    
+    const string        method_name = "VirtualMachineAllocate";
 
     int                 vid;
     int                 rc;
@@ -75,11 +77,11 @@ void RequestManager::VirtualMachineAllocate::execute(
     return;
 
 error_authenticate:
-    oss << "Error in user authentication";
+    oss.str(authenticate_error(method_name));
     goto error_common;
 
 error_allocate:
-    oss << "Error inserting VM in the database, check oned.log";
+    oss.str(action_error(method_name, "CREATE", "VM", NULL, rc));
     goto error_common;
 
 error_common:

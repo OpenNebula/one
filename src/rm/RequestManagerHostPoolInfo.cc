@@ -26,7 +26,9 @@ void RequestManager::HostPoolInfo::execute(
 {
     string        session;
     ostringstream oss;
-	int			  rc;
+    int           rc;
+    
+    const string  method_name = "HostPoolInfo";
 
     /*   -- RPC specific vars --  */
     vector<xmlrpc_c::value> arrayData;
@@ -68,11 +70,11 @@ void RequestManager::HostPoolInfo::execute(
     return;
 
 error_authenticate:
-    oss << "Error in user authentication";
+    oss.str(authenticate_error(method_name));
     goto error_common;
 
 error_dump:
-    oss << "Error getting host pool";
+    oss.str(get_error(method_name, "HOST", -1));
     goto error_common;
 
 error_common:
