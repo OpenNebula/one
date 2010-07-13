@@ -1,5 +1,6 @@
 
 require 'quota'
+require 'base64'
 
 class SimplePermissions
     
@@ -11,7 +12,24 @@ class SimplePermissions
         result ? true : message
     end
     
+    def get_vm_usage(data)
+        vm_xml=Base64::decode64(data)
+        vm=OpenNebula::VirtualMachine.new(vm_xml)
+        vm_hash=vm.to_hash
+        
+        # Should set more sensible defaults or get driver configuration
+        cpu=vm_hash['TEMPLATE']['CPU']
+        cpu||=1.0
+        
+        memory=vm_hash['TEMPLATE']['MEMORY']
+        memory||=64
+        
+        VmUsage.new(cpu, memory)
+    end
+    
     def auth(uid, tokens)
+        STDERR.puts [uid, tokens].inspect
+        
         result=true
         
         tokens.each do |token|
@@ -39,8 +57,12 @@ class SimplePermissions
     def auth_vm(uid, object, id, action, owner, pub)
         case action
         when 'CREATE'
-            # add quota here
-            return true
+            STDERR.puts "create vm"
+            if @quota.check(uid, get_vm_usage(id))
+                return true
+            else
+                return "Quota exceeded"
+            end
         else
             auth_message(uid==owner, "You cannot manage VM #{id}")
         end

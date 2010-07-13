@@ -36,6 +36,9 @@ class Quota
             }
         }.merge(conf)
         
+        STDERR.puts conf.inspect
+        STDERR.puts @conf.inspect
+        
         @defaults=@conf[:defaults]
         
         @usage=OneUsage.new(@client)
@@ -92,6 +95,8 @@ class Quota
             usage.cpu+=new_vm.cpu
             usage.memory+=new_vm.memory
         end
+        
+        STDERR.puts [user_quota, usage, new_vm].inspect
         
         (!user_quota[:cpu] || usage.cpu<=user_quota[:cpu]) &&
             (!user_quota[:memory] || usage.memory<=user_quota[:memory])
