@@ -97,7 +97,7 @@ error_get_user:
     goto error_common;
     
 error_vn_allocate:
-    oss.str(action_error(method_name, "ALLOCATE", "NET", NULL, rc));
+    oss.str(action_error(method_name, "ALLOCATE", "NET", -1, rc));
     goto error_common;
 
 error_common:

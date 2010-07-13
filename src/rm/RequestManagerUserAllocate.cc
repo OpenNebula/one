@@ -109,16 +109,16 @@ error_authenticate:
     goto error_common;
     
 error_authorize:
-    oss.str(authorization_error(method_name, "CREATE", "USER", rc, NULL));
+    oss.str(authorization_error(method_name, "CREATE", "USER", rc, -1));
     goto error_common;  
      
 error_duplicate:
-    oss << action_error(method_name, "CREATE", "USER", NULL, NULL)
+    oss << action_error(method_name, "CREATE", "USER", -1, NULL)
         << ". Reason: Existing user, cannot duplicate.";
     goto error_common;
 
 error_allocate:
-    oss.str(action_error(method_name, "CREATE", "USER", NULL, rc));
+    oss.str(action_error(method_name, "CREATE", "USER", -1, rc));
     goto error_common;
 
 error_common:

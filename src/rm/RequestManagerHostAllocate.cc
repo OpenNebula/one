@@ -101,11 +101,11 @@ error_authenticate:
     goto error_common;
 
 error_authorize:
-    oss.str(authorization_error(method_name, "CREATE", "HOST", rc, NULL));
+    oss.str(authorization_error(method_name, "CREATE", "HOST", rc, -1));
     goto error_common;
 
 error_host_allocate:
-    oss.str(action_error(method_name, "CREATE", "HOST", NULL, rc));
+    oss.str(action_error(method_name, "CREATE", "HOST", -1, rc));
     goto error_common;
 
 error_common:

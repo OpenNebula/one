@@ -33,7 +33,6 @@ void RequestManager::VirtualNetworkPublish::execute(
     int                 nid;
     bool                publish_flag; 
     int                 uid;
-    int                 rc;
     
     VirtualNetwork *    vn;
 

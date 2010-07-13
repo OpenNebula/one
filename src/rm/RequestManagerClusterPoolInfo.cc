@@ -76,7 +76,7 @@ error_authenticate:
     goto error_common;
 
 error_dump:
-    oss.str(get_error(method_name, "CLUSTER", NULL));
+    oss.str(get_error(method_name, "CLUSTER", -1));
     goto error_common;
 
 error_common:
