@@ -14,17 +14,29 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require 'one_usage'
+
 # Quota functionality for auth driver. Stores in database limits for each
 # user and using OneUsage is able to retrieve resource usage from
 # OpenNebula daemon and check if it is below limits
 class Quota
+    attr_accessor :defaults
+    
     TABLE_NAME=:quotas
     
     # 'db' is a Sequel database where to store user limits and client
     # is OpenNebula::Client used to connect to OpenNebula daemon
-    def initialize(db, client)
+    def initialize(db, client, conf={})
         @db=db
         @client=client
+        @conf={
+            :defaults => {
+                :cpu => nil,
+                :memory => nil
+            }
+        }.merge(conf)
+        
+        @defaults=@conf[:defaults]
         
         @usage=OneUsage.new(@client)
         
@@ -45,18 +57,30 @@ class Quota
     end
     
     # Adds new user limits
-    def add(uid, cpu, memory, num_vms)
-        @table.insert(
-            :uid        => uid,
+    def set(uid, cpu, memory, num_vms)
+        data={
             :cpu        => cpu,
             :memory     => memory,
             :num_vms    => num_vms
-        )
+        }
+
+        quotas=@table.filter(:uid => uid)
+        
+        if quotas.first
+            quotas.update(data)
+        else
+            @table.insert(data.merge!(:uid => uid))
+        end
     end
     
     # Gets user limits
     def get(uid)
-        @table.filter(:uid => uid).first
+        limit=@table.filter(:uid => uid).first
+        if limit
+            limit
+        else
+            @defaults
+        end
     end
     
     # Checks if the user is below resource limits. If new_vm is defined
@@ -68,7 +92,9 @@ class Quota
             usage.cpu+=new_vm.cpu
             usage.memory+=new_vm.memory
         end
-        usage.cpu<=user_quota[:cpu] && usage.memory<=user_quota[:memory]
+        
+        (!user_quota[:cpu] || usage.cpu<=user_quota[:cpu]) &&
+            (!user_quota[:memory] || usage.memory<=user_quota[:memory])
     end
     
     # Updates user resource consuption
