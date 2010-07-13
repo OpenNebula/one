@@ -19,6 +19,7 @@ require 'pp'
 require 'db_helpers'
 
 $: << '../oca/ruby'
+$: << './spec'
 
 
 

@@ -16,6 +16,7 @@
 
 require 'spec_common'
 
+require 'client_mock'
 require 'quota'
 
 def check_quota(uid, cpu, memory, num_vms)
@@ -45,15 +46,15 @@ describe 'Quota' do
     end
     
     it 'should let add and retrieve quotas' do
-        @quota.add(0, 10.0, 1024, 10)
-        @quota.add(1, 20.0, 2048, 20)
-        @quota.add(2, 40.0, 4096, 40)
+        @quota.set(0, 10.0, 1024, 10)
+        @quota.set(1, 20.0, 2048, 20)
+        @quota.set(2, 40.0, 4096, 40)
         
         check_quota(0, 10.0, 1024, 10)
         check_quota(1, 20.0, 2048, 20)
         check_quota(2, 40.0, 4096, 40)
         
-        @quota.get(3).should == nil
+        @quota.get(3).should == @quota.defaults
     end
     
     it 'should check for quotas' do
@@ -75,6 +76,18 @@ describe 'Quota' do
         @quota.update(1)
         @quota.check(0).should == true
         @quota.check(1).should == true
+    end
+    
+    it 'should let update limits' do
+        @quota.set(0, nil, nil, nil)
+        check_quota(0, nil, nil, nil)
+    end
+    
+    it 'should understand unlimited quotas' do
+        vms=@quota.get_user(0)
+        vms[7]=VmUsage.new(9999999999.0, 99999999999)
+        @quota.check(0).should == true
+        @quota.check(0, VmUsage.new(999999999.0, 99999999)).should == true
     end
     
 end
