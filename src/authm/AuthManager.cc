@@ -80,11 +80,12 @@ void AuthRequest::add_auth(Object        ob,
 
     switch (ob)
     {
-        case VM:    oss << "VM:" ; break;
-        case HOST:  oss << "HOST:" ; break;
-        case NET:   oss << "NET:" ; break;
-        case IMAGE: oss << "IMAGE:" ; break;
-        case USER:  oss << "USER:" ; break;
+        case VM:       oss << "VM:" ; break;
+        case HOST:     oss << "HOST:" ; break;
+        case NET:      oss << "NET:" ; break;
+        case IMAGE:    oss << "IMAGE:" ; break;
+        case USER:     oss << "USER:" ; break;
+        case CLUSTER:  oss << "CLUSTER:" ; break;
     }
 
     if (op == CREATE) //encode the ob_id, it is a template
@@ -122,6 +123,10 @@ void AuthRequest::add_auth(Object        ob,
 
         case MANAGE:
             oss << "MANAGE:" ;
+            break;
+            
+        case INFO:
+            oss << "INFO:" ;
             break;
     }
 
@@ -165,6 +170,10 @@ void AuthRequest::add_auth(Object        ob,
 
             case MANAGE:
                 auth = owner == uid;
+                break;
+                
+            case INFO: // This is for completeness, as the only INFO existing 
+                       // is for UserPool, and just oneadmin can see it
                 break;
         }
     }

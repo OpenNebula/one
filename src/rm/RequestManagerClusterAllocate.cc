@@ -59,7 +59,7 @@ void RequestManager::ClusterAllocate::execute(
     {
         AuthRequest ar(rc);
 
-        ar.add_auth(AuthRequest::HOST,-1,AuthRequest::MANAGE,0,false);
+        ar.add_auth(AuthRequest::CLUSTER,-1,AuthRequest::CREATE,0,false);
 
         if (UserPool::authorize(ar) == -1)
         {
@@ -91,7 +91,7 @@ error_authenticate:
     goto error_common;
 
 error_authorize:
-    oss.str(authorization_error(method_name, "MANAGE", "HOST", rc, -1));
+    oss.str(authorization_error(method_name, "CREATE", "CLUSTER", rc, -1));
     goto error_common;
 
 error_cluster_allocate:

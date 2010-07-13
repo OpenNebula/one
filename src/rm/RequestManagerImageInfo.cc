@@ -28,14 +28,14 @@ void RequestManager::ImageInfo::execute(
 {
     string  session;
 
-    int     iid;
-    int     uid;     // Image owner user id
-    int     rc;      // Requesting user id 
-    Image * image;
-
+    int           iid;
+    int           uid;     // Image owner user id
+    int           rc;      // Requesting user id 
+    Image *       image;
+                  
     ostringstream oss;
     
-    const string        method_name = "ImageInfo";
+    const string  method_name = "ImageInfo";
 
     /*   -- RPC specific vars --  */
     vector<xmlrpc_c::value> arrayData;
@@ -65,23 +65,6 @@ void RequestManager::ImageInfo::execute(
         goto error_authenticate;
     }
     
-    //Authorize the operation
-    if ( rc != 0 ) // rc == 0 means oneadmin
-    {
-        AuthRequest ar(rc);
-
-        ar.add_auth(AuthRequest::IMAGE,
-                    iid,
-                    AuthRequest::USE,
-                    0,
-                    image->isPublic());
-
-        if (UserPool::authorize(ar) == -1)
-        {
-            goto error_authorize;
-        }
-    }
-
     oss << *image;
 
     image->unlock();
@@ -104,11 +87,6 @@ error_image_get:
 
 error_authenticate:
     oss.str(authenticate_error(method_name));    
-    image->unlock();
-    goto error_common;
-
-error_authorize:
-    oss.str(authorization_error(method_name, "USE", "IMAGE", rc, iid));
     image->unlock();
     goto error_common;
 

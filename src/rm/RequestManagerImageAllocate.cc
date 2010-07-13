@@ -51,14 +51,12 @@ void RequestManager::ImageAllocate::execute(
 
 
     // First, we need to authenticate the user
-    rc = ImageAllocate::upool->authenticate(session);
+    uid = ImageAllocate::upool->authenticate(session);
 
-    if ( rc == -1 )
+    if ( uid == -1 )
     {
         goto error_authenticate;
     }
-    
-    uid = rc;
     
     rc = ImageAllocate::ipool->allocate(uid,image_template,&iid);
 

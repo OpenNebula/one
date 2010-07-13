@@ -52,14 +52,12 @@ void RequestManager::VirtualNetworkPublish::execute(
     publish_flag = xmlrpc_c::value_boolean(paramList.getBoolean(2));
 
     // First, we need to authenticate the user
-    rc = VirtualNetworkPublish::upool->authenticate(session);
+    uid = VirtualNetworkPublish::upool->authenticate(session);
 
-    if ( rc == -1 )
+    if ( uid == -1 )
     {
         goto error_authenticate;
     }
-    
-    uid = rc;
     
     // Get virtual network from the VirtualNetworkPool
     vn = VirtualNetworkPublish::vnpool->get(nid,true);    

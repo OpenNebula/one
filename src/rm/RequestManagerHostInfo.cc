@@ -24,11 +24,11 @@ void RequestManager::HostInfo::execute(
     xmlrpc_c::paramList const& paramList,
     xmlrpc_c::value *   const  retval)
 {
-    string  session;
-
-    int     hid;
-    int     rc;
-    Host *  host;
+    string        session;
+                  
+    int           hid;
+    int           rc;
+    Host *        host;
 
     ostringstream oss;
     

@@ -61,8 +61,9 @@ void RequestManager::ClusterAdd::execute(
     if ( rc != 0 ) // rc == 0 means oneadmin
     {
         AuthRequest ar(rc);
-
+        
         ar.add_auth(AuthRequest::HOST,hid,AuthRequest::MANAGE,0,false);
+        ar.add_auth(AuthRequest::CLUSTER,clid,AuthRequest::USE,0,false);
 
         if (UserPool::authorize(ar) == -1)
         {
@@ -107,7 +108,7 @@ error_authenticate:
     goto error_common;
 
 error_authorize:
-    oss.str(authorization_error(method_name, "MANAGE", "HOST", rc, hid));
+    oss.str(authorization_error(method_name, "USE", "CLUSTER", rc, clid));
     goto error_common;
 
 error_host_get:
@@ -116,7 +117,7 @@ error_host_get:
 
 error_cluster_add:
     host->unlock();
-    oss.str(action_error(method_name, "MANAGE", "HOST", hid, rc));
+    oss.str(action_error(method_name, "USE", "CLUSTER", clid, rc));
     goto error_common;
 
 error_common:

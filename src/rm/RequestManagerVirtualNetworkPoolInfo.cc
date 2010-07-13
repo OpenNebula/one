@@ -63,6 +63,8 @@ void RequestManager::VirtualNetworkPoolInfo::execute(
      *     -1  :: User's VMs
      *    >=0  :: UID User's VMs
      **/
+     
+     // TODO define authorization (bug #278)
     if (filter_flag == -1)
     {
         User::split_secret(session,username,password);

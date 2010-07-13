@@ -34,6 +34,9 @@ void RequestManager::ImageRemoveAttribute::execute(
     int                 iid;
     int                 uid;
     int                 rc;
+    
+    int                 image_owner;
+    bool                is_public;
 
     Image             * image;
 
@@ -52,14 +55,25 @@ void RequestManager::ImageRemoveAttribute::execute(
     name     = xmlrpc_c::value_string(paramList.getString(2));
 
     // First, we need to authenticate the user
-    rc = ImageRemoveAttribute::upool->authenticate(session);
+    uid = ImageRemoveAttribute::upool->authenticate(session);
 
-    if ( rc == -1 )
+    if ( uid == -1 )
     {
         goto error_authenticate;
     }
+    
+    // Get image from the ImagePool
+    image = ImageRemoveAttribute::ipool->get(iid,true);
 
-    uid = rc;
+    if ( image == 0 )
+    {
+        goto error_image_get;
+    }
+    
+    image_owner = image->get_uid();
+    is_public   = image->isPublic();
+    
+    image->unlock();
     
     //Authorize the operation
     if ( uid != 0 ) // uid == 0 means oneadmin
@@ -69,8 +83,8 @@ void RequestManager::ImageRemoveAttribute::execute(
         ar.add_auth(AuthRequest::IMAGE,
                     iid,
                     AuthRequest::MANAGE,
-                    0,
-                    image->isPublic());
+                    image_owner,
+                    is_public);
 
         if (UserPool::authorize(ar) == -1)
         {

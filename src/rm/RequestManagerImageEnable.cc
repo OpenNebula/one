@@ -35,6 +35,9 @@ void RequestManager::ImageEnable::execute(
     int                 uid;
     int                 rc;
     
+    int                 image_owner;
+    bool                is_public;
+    
     Image             * image;
 
     ostringstream       oss;
@@ -52,21 +55,36 @@ void RequestManager::ImageEnable::execute(
     enable_flag = xmlrpc_c::value_boolean(paramList.getBoolean(2));
 
     // First, we need to authenticate the user
-    rc = ImageEnable::upool->authenticate(session);
+    uid = ImageEnable::upool->authenticate(session);
 
-    if ( rc == -1 )
+    if ( uid == -1 )
     {
         goto error_authenticate;
     }
     
-    uid = rc;
+    // Get image from the ImagePool
+    image = ImageEnable::ipool->get(iid,true);    
+                                                 
+    if ( image == 0 )                             
+    {                                            
+        goto error_image_get;                     
+    }
+    
+    image_owner = image->get_uid();
+    is_public   = image->isPublic();
+    
+    image->unlock();
     
     //Authorize the operation
     if ( uid != 0 ) // uid == 0 means oneadmin
     {
         AuthRequest ar(uid);
 
-        ar.add_auth(AuthRequest::IMAGE,iid,AuthRequest::MANAGE,0,false);
+        ar.add_auth(AuthRequest::IMAGE,
+                    iid,
+                    AuthRequest::MANAGE,
+                    image_owner,
+                    is_public);
 
         if (UserPool::authorize(ar) == -1)
         {

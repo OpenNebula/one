@@ -35,6 +35,9 @@ void RequestManager::ImageUpdate::execute(
     string              name;
     string              value;
     int                 rc;
+    
+    int                 image_owner;
+    bool                is_public;
 
     Image             * image;
 
@@ -53,14 +56,25 @@ void RequestManager::ImageUpdate::execute(
     value    = xmlrpc_c::value_string(paramList.getString(3));
 
     // First, we need to authenticate the user
-    rc = ImageUpdate::upool->authenticate(session);
+    uid = ImageUpdate::upool->authenticate(session);
 
-    if ( rc == -1 )
+    if ( uid == -1 )
     {
         goto error_authenticate;
     }
+    
+    // Get image from the ImagePool
+    image = ImageUpdate::ipool->get(iid,true);
 
-    uid = rc;
+    if ( image == 0 )
+    {
+        goto error_image_get;
+    }
+    
+    image_owner = image->get_uid();
+    is_public   = image->isPublic();
+    
+    image->unlock();    
     
     //Authorize the operation
     if ( uid != 0 ) // uid == 0 means oneadmin
@@ -70,8 +84,8 @@ void RequestManager::ImageUpdate::execute(
         ar.add_auth(AuthRequest::IMAGE,
                     iid,
                     AuthRequest::MANAGE,
-                    0,
-                    image->isPublic());
+                    image_owner,
+                    is_public);
 
         if (UserPool::authorize(ar) == -1)
         {

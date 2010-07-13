@@ -63,23 +63,6 @@ void RequestManager::VirtualNetworkInfo::execute(
         goto error_vn_get;                     
     }
     
-    //Authorize the operation
-    if ( rc != 0 ) // rc == 0 means oneadmin
-    {
-        AuthRequest ar(rc);
-
-        ar.add_auth(AuthRequest::NET,
-                    nid,
-                    AuthRequest::USE,
-                    0,
-                    vn->isPublic());
-
-        if (UserPool::authorize(ar) == -1)
-        {
-            goto error_authorize;
-        }
-    }
-    
     oss << *vn;
     
     vn->unlock();
@@ -104,11 +87,6 @@ error_vn_get:
     oss.str(get_error(method_name, "NET", nid));
     goto error_common;
     
-error_authorize:
-    vn->unlock();
-    oss.str(authorization_error(method_name, "USE", "NET", rc, nid));
-    goto error_common;
-
 error_common:
     arrayData.push_back(xmlrpc_c::value_boolean(false)); // FAILURE
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
