@@ -42,7 +42,8 @@ void RequestManager::ImageUpdate::execute(
 
     vector<xmlrpc_c::value> arrayData;
     xmlrpc_c::value_array * arrayresult;
-
+    
+    const string        method_name = "ImageUpdate";
 
     NebulaLog::log("ReM",Log::DEBUG,"ImageUpdate invoked");
 
@@ -109,20 +110,19 @@ void RequestManager::ImageUpdate::execute(
     return;
 
 error_authenticate:
-    oss << "User not authenticated, aborting ImageUpdate call.";
+    oss.str(authenticate_error(method_name));    
     goto error_common;
 
 error_image_get:
-    oss << "Error getting image with ID = " << iid;
+    oss.str(get_error(method_name, "IMAGE", iid)); 
     goto error_common;
 
 error_authorize:
-    oss << "User not authorized to modify image attributes " <<
-           ", aborting ImageUpdate call.";
+    oss.str(authorization_error(method_name, "MANAGE", "IMAGE", uid, iid));
     goto error_common;
 
 error_update:
-    oss << "Cannot modify image [" << iid << "] attribute with name = " << name;
+    oss.str(action_error(method_name, "UPDATE ATTRIBUTE", "IMAGE", iid, rc));
     image->unlock();
     goto error_common;
 

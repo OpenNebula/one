@@ -38,6 +38,8 @@ void RequestManager::ImageRemoveAttribute::execute(
     Image             * image;
 
     ostringstream       oss;
+    
+    const string        method_name = "ImageRemoveAttribute";
 
     vector<xmlrpc_c::value> arrayData;
     xmlrpc_c::value_array * arrayresult;
@@ -105,21 +107,19 @@ void RequestManager::ImageRemoveAttribute::execute(
     return;
 
 error_authenticate:
-    oss << "[ImageRemoveAttribute] User not authenticated, aborting call.";
+    oss.str(authenticate_error(method_name));    
     goto error_common;
 
 error_image_get:
-    oss << "[ImageRemoveAttribute] Error getting image with ID = " << iid;
+    oss.str(get_error(method_name, "IMAGE", iid)); 
     goto error_common;
 
 error_authorize:
-    oss << "[ImageRemoveAttribute] User not authorized to remove image" <<
-           " attributes aborting call.";
+    oss.str(authorization_error(method_name, "MANAGE", "IMAGE", uid, iid));
     goto error_common;
 
 error_remove_attribute:
-    oss << "[ImageRemoveAttribute] Cannot remove attribute with name = "
-        << name << " for image [" << iid << "]";
+    oss.str(action_error(method_name, "PUBLISH/UNPUBLISH", "IMAGE", iid, rc));
     image->unlock();
     goto error_common;
 

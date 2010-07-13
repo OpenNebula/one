@@ -31,6 +31,8 @@ void RequestManager::ClusterAdd::execute(
     int     hid;
     int     clid;
     int     rc;
+    
+    const string        method_name = "ClusterAdd";
 
     Host *  host;
 
@@ -101,22 +103,20 @@ void RequestManager::ClusterAdd::execute(
     return;
 
 error_authenticate:
-    oss << "User not authorized to add hosts to clusters";
+    oss.str(authenticate_error(method_name));
     goto error_common;
 
 error_authorize:
-    oss << "User not authorized to manage HOST";
+    oss.str(authorization_error(method_name, "MANAGE", "HOST", rc, hid));
     goto error_common;
 
 error_host_get:
-    oss << "The host " << hid << " does not exists";
+    oss.str(get_error(method_name, "HOST", hid));
     goto error_common;
 
 error_cluster_add:
     host->unlock();
-
-    oss << "Can not add host " << hid << " to cluster " << clid <<
-           ", returned error code [" << rc << "]";
+    oss.str(action_error(method_name, "MANAGE", "HOST", hid, rc));
     goto error_common;
 
 error_common:

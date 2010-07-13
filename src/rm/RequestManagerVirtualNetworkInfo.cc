@@ -35,6 +35,8 @@ void RequestManager::VirtualNetworkInfo::execute(
     VirtualNetwork *    vn;
     
     ostringstream       oss;
+    
+    const string        method_name = "VirtualNetworkInfo";
 
     /*   -- RPC specific vars --  */
     vector<xmlrpc_c::value> arrayData;
@@ -95,17 +97,16 @@ void RequestManager::VirtualNetworkInfo::execute(
     return;
 
 error_authenticate:
-    oss << "User not authenticated, VirtualNetworkInfo call aborted.";
+    oss.str(authenticate_error(method_name));
     goto error_common;
 
 error_vn_get:
-    oss << "Error getting Virtual Network with NID = " << nid; 
+    oss.str(get_error(method_name, "NET", nid));
     goto error_common;
     
 error_authorize:
     vn->unlock();
-    oss << "User not authorized to view VirtualNetwork" << 
-           ", VirtualNetworkInfo call aborted.";
+    oss.str(authorization_error(method_name, "USE", "NET", rc, nid));
     goto error_common;
 
 error_common:

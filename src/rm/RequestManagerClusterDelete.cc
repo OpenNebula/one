@@ -32,6 +32,8 @@ void RequestManager::ClusterDelete::execute(
     int                 clid;
     ostringstream       oss;
     int                 rc;
+    
+    const string        method_name = "ClusterDelete";
 
     /*   -- RPC specific vars --  */
     vector<xmlrpc_c::value> arrayData;
@@ -83,16 +85,15 @@ void RequestManager::ClusterDelete::execute(
     return;
 
 error_authenticate:
-    oss << "User not authorized to delete clusters";
+    oss.str(authenticate_error(method_name));
     goto error_common;
 
 error_authorize:
-    oss << "User not authorized to manage HOST";
+    oss.str(authorization_error(method_name, "MANAGE", "HOST", rc, -1));
     goto error_common;
 
 error_cluster_delete:
-    oss << "Can not delete cluster with CLID " << clid <<
-           " from the ClusterPool, returned error code [" << rc << "]";
+    oss.str(action_error(method_name, "DELETE", "CLUSTER", clid, rc));
     goto error_common;
 
 error_common:

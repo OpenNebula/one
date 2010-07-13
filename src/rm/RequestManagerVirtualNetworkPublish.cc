@@ -39,6 +39,8 @@ void RequestManager::VirtualNetworkPublish::execute(
 
     ostringstream       oss;
 
+    const string  method_name = "VirtualNetworkPublish";
+
     vector<xmlrpc_c::value> arrayData;
     xmlrpc_c::value_array * arrayresult;
 
@@ -102,16 +104,15 @@ void RequestManager::VirtualNetworkPublish::execute(
     return;
 
 error_authenticate:
-    oss << "[VirtualNetworkPublish] User not authenticated, aborting call.";
+     oss.str(authenticate_error(method_name));
     goto error_common;
     
 error_vn_get:
-    oss << "[VirtualNetworkPublish] Error getting VN with ID = " << nid; 
+    oss.str(get_error(method_name, "NET", nid));
     goto error_common;
     
 error_authorize:
-    oss << "[VirtualNetworkPublish] User not authorized to (un)publish VN" << 
-           ", aborting call.";
+    oss.str(authorization_error(method_name, "MANAGE", "NET", uid, nid));
     vn->unlock();
     goto error_common;
 

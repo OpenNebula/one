@@ -32,6 +32,8 @@ void RequestManager::HostAllocate::execute(
     string              im_mad_name;
     string              vmm_mad_name;
     string              tm_mad_name;
+    
+    const string  method_name = "HostAllocate";
 
     int                 hid;
 
@@ -95,15 +97,15 @@ void RequestManager::HostAllocate::execute(
     return;
 
 error_authenticate:
-    oss << "Error in user authentication";
+    oss.str(authenticate_error(method_name));
     goto error_common;
 
 error_authorize:
-    oss << "User not authorized to allocate a new HOST";
+    oss.str(authorization_error(method_name, "CREATE", "HOST", rc, NULL));
     goto error_common;
 
 error_host_allocate:
-    oss << "Error inserting HOST in the database, check oned.log";
+    oss.str(action_error(method_name, "CREATE", "HOST", NULL, rc));
     goto error_common;
 
 error_common:

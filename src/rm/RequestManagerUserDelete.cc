@@ -26,13 +26,15 @@ void RequestManager::UserDelete::execute(
     xmlrpc_c::paramList const& paramList,
     xmlrpc_c::value *   const  retval)
 { 
-    string session;
+    string        session;
 
-    int    uid;
-    User * user;
+    int           uid;
+    User *        user;
 
-    int rc;     
+    int           rc;     
     ostringstream oss;
+    
+    const string  method_name = "UserDelete";
 
     /*   -- RPC specific vars --  */
     vector<xmlrpc_c::value> arrayData;
@@ -103,24 +105,24 @@ void RequestManager::UserDelete::execute(
     return;
 
 error_oneadmin_deletion:
-    oss << "User oneadmin cannot be deleted";
+    oss.str(action_error(method_name, "DELETE", "USER", uid, NULL));
+    oss << " Reason: Oneadmin cannot be deleted.";
     goto error_common;
 
 error_authenticate:
-    oss << "User not authenticated, aborting UserDelete call.";
+    oss.str(authenticate_error(method_name));  
     goto error_common;
 
 error_authorize:
-    oss << "User not authorized to delete user with uid " << uid 
-        << ", aborting UserDelete call.";
+    oss.str(authorization_error(method_name, "DELETE", "USER", rc, uid));
     goto error_common;
     
 error_get_user:
-    oss << "Error retrieving user " << uid;
+    oss.str(get_error(method_name, "USER", uid));
     goto error_common;
 
 error_delete:
-    oss << "Error deleting user " << uid;
+    oss.str(action_error(method_name, "DELETE", "USER", uid, rc));
     goto error_common;
 
 error_common:

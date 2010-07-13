@@ -36,6 +36,8 @@ void RequestManager::VirtualMachineDeploy::execute(
     string              vmm_mad;
     string              tm_mad;
     string              vmdir;
+    
+    const string  method_name = "VirtualMachineDeploy";
 
     VirtualMachine *    vm;
     Host *              host;
@@ -138,27 +140,28 @@ void RequestManager::VirtualMachineDeploy::execute(
     return;
 
 error_host_get:
-    oss << "The host " << hid << " does not exists";
+    oss.str(get_error(method_name, "HOST", hid));
     goto error_common;
 
 error_vm_get:
-    oss << "The virtual machine " << vid << " does not exists";
+    oss.str(get_error(method_name, "VM", vid));
     goto error_common;
 
 error_state:
-    oss << "Can not deploy VM, wrong state";
+    oss.str(action_error(method_name, "MANAGE", "VM", vid, rc));
+    oss << " Reason: VM in wrong state.";
     goto error_common_lock;
 
 error_authenticate:
-    oss << "Error in user authentication";
+    oss.str(authenticate_error(method_name));
     goto error_common_lock;
 
 error_authorize:
-    oss << "User not authorized to deploy VM on host";
+    oss.str(authorization_error(method_name, "MANAGE", "VM", rc, vid));
     goto error_common_lock;
 
 error_history:
-    oss << "Can not insert history to deploy VM";
+    oss.str(action_error(method_name, "INSERT HISTORY", "VM", vid, rc));
     goto error_common_lock;
 
 error_common_lock:
@@ -167,6 +170,8 @@ error_common_lock:
 error_common:
     arrayData.push_back(xmlrpc_c::value_boolean(false));
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
+    
+    NebulaLog::log("ReM",Log::ERROR,oss);
 
     xmlrpc_c::value_array arrayresult_error(arrayData);
 

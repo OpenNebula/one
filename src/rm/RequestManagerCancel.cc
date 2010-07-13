@@ -29,6 +29,8 @@ void RequestManager::VirtualMachineCancel::execute(
     // <vid> of the vid to retrieve the information for
     int                 vid;
     int                 uid;
+    
+    const string        method_name = "VirtualMachineCancel";
 
     VirtualMachine *    vm;
 
@@ -95,15 +97,15 @@ void RequestManager::VirtualMachineCancel::execute(
     return;
 
 error_authenticate:
-    oss << "Error in user authentication";
+    oss.str(authenticate_error(method_name));
     goto error_common;
 
 error_authorize:
-    oss << "User not authorized to canel VM";
+    oss.str(authorization_error(method_name, "MANAGE", "VM", uid, vid));
     goto error_common;
 
 error_vm_get:
-    oss << "Error getting vm for cancelling with VID = " << vid;
+    oss.str(get_error(method_name, "VM", vid));
     goto error_common;
 
 error_common:

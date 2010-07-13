@@ -37,6 +37,8 @@ void RequestManager::VirtualMachinePoolInfo::execute(
     /*   -- RPC specific vars --  */
     vector<xmlrpc_c::value> arrayData;
     xmlrpc_c::value_array * arrayresult;
+    
+    const string     method_name = "VirtualMachinePoolInfo";
 
     NebulaLog::log("ReM",Log::DEBUG,"VirtualMachinePoolInfo method invoked");
 
@@ -86,11 +88,11 @@ void RequestManager::VirtualMachinePoolInfo::execute(
     return;
 
 error_authenticate:
-    oss << "Error in user authentication";
+    oss.str(authenticate_error(method_name));  
     goto error_common;
 
 error_dump:
-    oss << "Error getting the pool info";
+    oss.str(get_error(method_name, "VM", -1));
     goto error_common;
 
 error_common:

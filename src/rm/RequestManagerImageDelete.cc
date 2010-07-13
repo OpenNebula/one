@@ -37,6 +37,8 @@ void RequestManager::ImageDelete::execute(
     Image             * image;
 
     ostringstream       oss;
+    
+    const string        method_name = "ImageDelete";
 
     vector<xmlrpc_c::value> arrayData;
     xmlrpc_c::value_array * arrayresult;
@@ -101,19 +103,20 @@ void RequestManager::ImageDelete::execute(
     return;
 
 error_authenticate:
-    oss << "User not authenticated, aborting ImageDelete call.";
+    oss.str(authenticate_error(method_name));
     goto error_common;
 
 error_image_get:
-    oss << "Error getting image with ID = " << iid;
+    oss.str(get_error(method_name, "IMAGE", iid));
     goto error_common;
 
 error_authorize:
-    oss << "User not authorized to delete image, aborting ImageDelete call.";
+    oss.str(authorization_error(method_name, "DELETE", "IMAGE", uid, iid));
     goto error_common;
 
 error_delete:
-    oss << "Cannot delete image, VMs might be running on it.";
+    oss.str(action_error(method_name, "DELETE", "IMAGE", iid, rc));
+    oss << " VMs might be running on it.";
     image->unlock();
     goto error_common;
 

@@ -39,6 +39,8 @@ void RequestManager::VirtualNetworkAllocate::execute(
     User *              user;
 
     ostringstream       oss;
+    
+    const string        method_name = "VirtualNetworkAllocate";
 
     /*   -- RPC specific vars --  */
     vector<xmlrpc_c::value> arrayData;
@@ -52,7 +54,7 @@ void RequestManager::VirtualNetworkAllocate::execute(
 
     if ( User::split_secret(session,username,password) != 0 )
     {
-        goto error_session;
+        goto error_authenticate;
     }
 
     // Now let's get the user
@@ -86,16 +88,16 @@ void RequestManager::VirtualNetworkAllocate::execute(
     return;
 
 
-error_session:
-    oss << "Session information malformed, cannot allocate VirtualNetwork";
+error_authenticate:
+    oss.str(authenticate_error(method_name));
     goto error_common;
 
 error_get_user:
-    oss << "User not recognized, cannot allocate VirtualNetwork";
+    oss.str(get_error(method_name, "USER", -1));
     goto error_common;
     
 error_vn_allocate:
-    oss << "Error allocating VN with template: " << endl << stemplate;
+    oss.str(action_error(method_name, "ALLOCATE", "NET", NULL, rc));
     goto error_common;
 
 error_common:

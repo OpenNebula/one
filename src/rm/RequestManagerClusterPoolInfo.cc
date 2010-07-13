@@ -28,7 +28,9 @@ void RequestManager::ClusterPoolInfo::execute(
 {
     string        session;
     ostringstream oss;
-    int			  rc;
+    int           rc;
+    
+    const string  method_name = "ClusterPoolInfo";
 
     /*   -- RPC specific vars --  */
     vector<xmlrpc_c::value> arrayData;
@@ -70,11 +72,11 @@ void RequestManager::ClusterPoolInfo::execute(
     return;
 
 error_authenticate:
-    oss << "User not authenticated, RequestManagerClusterPoolInfo aborted.";
+    oss.str(authenticate_error(method_name));
     goto error_common;
 
 error_dump:
-    oss << "Error getting Cluster pool";
+    oss.str(get_error(method_name, "CLUSTER", NULL));
     goto error_common;
 
 error_common:

@@ -34,6 +34,8 @@ void RequestManager::ImageInfo::execute(
     Image * image;
 
     ostringstream oss;
+    
+    const string        method_name = "ImageInfo";
 
     /*   -- RPC specific vars --  */
     vector<xmlrpc_c::value> arrayData;
@@ -97,17 +99,16 @@ void RequestManager::ImageInfo::execute(
     return;
 
 error_image_get:
-    oss << "Error getting image with ID = " << iid;
+    oss.str(get_error(method_name, "IMAGE", iid)); 
     goto error_common;
 
 error_authenticate:
-oss << "Cannot authenticate user, aborting ImageInfo call.";
+    oss.str(authenticate_error(method_name));    
     image->unlock();
     goto error_common;
 
 error_authorize:
-    oss << "User not authorized to use image with " <<
-    "ID = " << iid << " , ImageInfo call aborted.";
+    oss.str(authorization_error(method_name, "USE", "IMAGE", rc, iid));
     image->unlock();
     goto error_common;
 

@@ -32,6 +32,8 @@ void RequestManager::ImagePoolInfo::execute(
     int           rc;
     int           uid;
     int           filter_flag;
+    
+    const string  method_name = "ImagePoolInfo";
 
     /*   -- RPC specific vars --  */
     vector<xmlrpc_c::value> arrayData;
@@ -109,11 +111,11 @@ void RequestManager::ImagePoolInfo::execute(
     return;
 
 error_authenticate:
-    oss << "User not authenticated, ImagePoolInfo call aborted.";
+    oss.str(authenticate_error(method_name));    
     goto error_common;
 
 error_authorization:
-    oss << "User not authorized to perform this operation.";
+    oss.str(authorization_error(method_name, "USE", "IMAGE", uid, NULL));
     goto error_common;
     
 error_filter_flag:
@@ -121,11 +123,10 @@ error_filter_flag:
     goto error_common;
 
 error_dump:
-    oss << "Error getting image pool"; 
+    oss.str(get_error(method_name, "IMAGE", -1));
     goto error_common;
 
 error_common:
-
     arrayData.push_back(xmlrpc_c::value_boolean(false)); // FAILURE
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
     

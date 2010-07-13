@@ -38,6 +38,8 @@ void RequestManager::ImagePublish::execute(
     Image             * image;
 
     ostringstream       oss;
+    
+    const string        method_name = "ImagePublish";
 
     vector<xmlrpc_c::value> arrayData;
     xmlrpc_c::value_array * arrayresult;
@@ -102,16 +104,15 @@ void RequestManager::ImagePublish::execute(
     return;
 
 error_authenticate:
-    oss << "[ImagePublish] User not authenticated, aborting call.";
+    oss.str(authenticate_error(method_name));    
     goto error_common;
     
 error_image_get:
-    oss << "[ImagePublish] Error getting image with ID = " << iid; 
+    oss.str(get_error(method_name, "IMAGE", iid)); 
     goto error_common;
     
 error_authorize:
-    oss << "[ImagePublish] User not authorized to publish/unpublish image" << 
-           ", aborting call.";
+    oss.str(authorization_error(method_name, "MANAGE", "IMAGE", uid, iid));
     goto error_common;
 
 error_common:

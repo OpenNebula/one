@@ -24,8 +24,6 @@
 #include "VirtualNetworkPool.h"
 #include "ImagePool.h"
 
-#include "NebulaLog.h"
-
 #include <xmlrpc-c/base.hpp>
 #include <xmlrpc-c/registry.hpp>
 #include <xmlrpc-c/server_abyss.hpp>
@@ -183,10 +181,17 @@ private:
     {
         ostringstream oss;
         oss << "[" << method << "]" << " User [" << uid << "] not authorized "               
-            << " to perform " << action << " on " << object 
-            << " [" << id << "]";
-               
-        NebulaLog::log("RM",Log::ERROR,oss);
+            << " to perform " << action << " on " << object; 
+            
+        
+        if ( id != (int)NULL )
+        {
+            oss << " [" << id << "].";
+        }
+        else
+        {
+            oss << " Pool";
+        }
         
         return oss.str();
     }
@@ -196,9 +201,8 @@ private:
         ostringstream oss;
         
         oss << "[" << method << "]" << " User couldn't be authenticated," <<
-               " aborting call";
-        NebulaLog::log("RM",Log::ERROR,oss);
-        
+               " aborting call.";
+      
         return oss.str();
     }
 
@@ -209,7 +213,41 @@ private:
         ostringstream oss;
         
         oss << "[" << method << "]" << " Error getting " << 
-               object  << " [" << id << "]";
+               object;
+               
+       if ( id != (int)NULL )
+       {
+           oss << " [" << id << "].";
+       }
+       else
+       {
+          oss << " Pool."; 
+       }
+        
+       return oss.str();
+    }
+    
+    static string action_error (const string& method,
+                                const string &action, 
+                                const string &object, 
+                                int id,
+                                int rc)
+    {
+        ostringstream oss;
+        
+        oss << "[" << method << "]" << " Error trying to " << action << " "
+            << object;
+        
+        if ( id != (int)NULL )
+        {
+            oss << " [" << id << "].";
+        }
+        
+        if ( rc != (int)NULL )
+        {
+            oss << " .Returned error code [" << rc << "].";       
+        }
+        
         NebulaLog::log("RM",Log::ERROR,oss);
         
         return oss.str();

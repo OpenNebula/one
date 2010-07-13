@@ -38,6 +38,8 @@ void RequestManager::ImageEnable::execute(
     Image             * image;
 
     ostringstream       oss;
+    
+    const string        method_name = "ImageEnable";
 
     vector<xmlrpc_c::value> arrayData;
     xmlrpc_c::value_array * arrayresult;
@@ -104,20 +106,19 @@ void RequestManager::ImageEnable::execute(
     return;
 
 error_authenticate:
-    oss << "[ImageEnable] User not authenticated, aborting call.";
+    oss.str(authenticate_error(method_name));    
     goto error_common;
     
 error_image_get:
-    oss << "[ImageEnable] Error getting image with ID = " << iid; 
+    oss.str(get_error(method_name, "IMAGE", iid)); 
     goto error_common;
     
 error_authorize:
-    oss << "[ImageEnable] User not authorized to enable/disable image" << 
-           " attributes, aborting call.";
+    oss.str(authorization_error(method_name, "MANAGE", "IMAGE", uid, iid));
     goto error_common;
     
 error_enable:
-    oss << "[ImageEnable] Cannot enable/disable image [" << iid << "]";
+    oss.str(action_error(method_name, "ENABLE/DISABLE", "IMAGE", iid, rc));
     image->unlock();
     goto error_common;
 

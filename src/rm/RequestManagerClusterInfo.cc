@@ -31,6 +31,8 @@ void RequestManager::ClusterInfo::execute(
 
     int     clid;
     int     rc;
+    
+    const string   method_name = "ClusterInfo";
 
     ostringstream oss;
 
@@ -73,11 +75,11 @@ void RequestManager::ClusterInfo::execute(
     return;
 
 error_authenticate:
-    oss << "User not authenticated, ClusterInfo call aborted.";
+    oss.str(authenticate_error(method_name));
     goto error_common;
 
 error_cluster:
-    oss << "Error getting cluster with CLID = " << clid;
+    oss.str(get_error(method_name, "CLUSTER", clid));
     goto error_common;
 
 error_common:
