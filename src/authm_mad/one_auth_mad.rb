@@ -30,16 +30,29 @@ $: << RUBY_LIB_LOCATION
 
 require 'pp'
 
+require 'rubygems'
 require 'OpenNebulaDriver'
 require 'simple_auth'
 require 'simple_permissions'
+require 'yaml'
+require 'sequel'
 
 class AuthorizationManager < OpenNebulaDriver
     def initialize
         super(1, false)
         
+        config_data=File.read(ETC_LOCATION+'/auth/auth.conf')
+        STDERR.puts(config_data)
+        @config=YAML::load(config_data)
+        
+        STDERR.puts @config.inspect
+        
+        database_url=@config[:database]
+        @db=Sequel.connect(database_url)
+        
         @authenticate=SimpleAuth.new
-        @permissions=SimplePermissions.new
+        @permissions=SimplePermissions.new(@db, OpenNebula::Client.new,
+            @config)
         
         register_action(:AUTHENTICATE, method('action_authenticate'))
         register_action(:AUTHORIZE, method('action_authorize'))
