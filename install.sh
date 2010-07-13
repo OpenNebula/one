@@ -451,7 +451,8 @@ HM_ETC_FILES="src/hm_mad/hmrc"
 # Hook Manager driver config. files, to be installed under $ETC_LOCATION/hm
 #-------------------------------------------------------------------------------
 
-AUTH_ETC_FILES="src/authm_mad/auth_mad"
+AUTH_ETC_FILES="src/authm_mad/auth_mad \
+                src/authm_mad/auth.conf"
 
 #-------------------------------------------------------------------------------
 # Sample files, to be installed under $SHARE_LOCATION/examples
