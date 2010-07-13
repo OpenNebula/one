@@ -1,8 +1,10 @@
 
+require 'quota'
+
 class SimplePermissions
     
-    def initialize(database=nil)
-        # initialize quota
+    def initialize(database, client, conf={})
+        @quota=Quota.new(database, client, conf[:quota] || {})
     end
     
     def auth_message(result, message)
@@ -22,7 +24,7 @@ class SimplePermissions
     end
     
     def auth_object(uid, object, id, action, owner, pub)
-        return true if uid==0
+        return true if uid=='0'
         
         case object
         when 'VM'
