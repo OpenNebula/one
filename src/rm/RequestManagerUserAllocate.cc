@@ -113,17 +113,15 @@ error_authorize:
     goto error_common;  
      
 error_duplicate:
-    oss.str(action_error(method_name, "CREATE", "USER", NULL, NULL));
-    oss << " Reason: Existing user, cannot duplicate.";
+    oss << action_error(method_name, "CREATE", "USER", NULL, NULL)
+        << ". Reason: Existing user, cannot duplicate.";
     goto error_common;
-
 
 error_allocate:
     oss.str(action_error(method_name, "CREATE", "USER", NULL, rc));
     goto error_common;
 
 error_common:
-
     arrayData.push_back(xmlrpc_c::value_boolean(false));  // FAILURE
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
     

@@ -105,8 +105,8 @@ void RequestManager::UserDelete::execute(
     return;
 
 error_oneadmin_deletion:
-    oss.str(action_error(method_name, "DELETE", "USER", uid, NULL));
-    oss << " Reason: Oneadmin cannot be deleted.";
+    oss << action_error(method_name, "DELETE", "USER", uid, NULL) 
+        << ". Reason: Oneadmin cannot be deleted.";
     goto error_common;
 
 error_authenticate:
