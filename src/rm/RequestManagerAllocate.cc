@@ -81,7 +81,7 @@ error_authenticate:
     goto error_common;
 
 error_allocate:
-    oss.str(action_error(method_name, "CREATE", "VM", -1, rc));
+    oss.str(action_error(method_name, "CREATE", "VM", -2, rc));
     goto error_common;
 
 error_common:

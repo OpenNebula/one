@@ -95,7 +95,7 @@ error_authorize:
     goto error_common;
 
 error_cluster_allocate:
-    oss.str(action_error(method_name, "CREATE", "CLUSTER", -1, rc));
+    oss.str(action_error(method_name, "CREATE", "CLUSTER", -2, rc));
     goto error_common;
 
 error_common:

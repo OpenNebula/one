@@ -82,7 +82,7 @@ error_authenticate:
     goto error_common;
     
 error_allocate:
-    oss.str(action_error(method_name, "CREATE", "IMAGE", NULL, rc));
+    oss.str(action_error(method_name, "CREATE", "IMAGE", -2, rc));
     goto error_common;
 
 error_common:
