@@ -118,7 +118,7 @@ error_duplicate:
     goto error_common;
 
 error_allocate:
-    oss.str(action_error(method_name, "CREATE", "USER", -1, rc));
+    oss.str(action_error(method_name, "CREATE", "USER", -2, rc));
     goto error_common;
 
 error_common:

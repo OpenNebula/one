@@ -237,16 +237,19 @@ private:
         
         oss << "[" << method << "]" << " Error trying to " << action << " "
             << object;
-        
-        if ( id != -1 )
+            
+        switch(id)
         {
-            oss << " [" << id << "].";
+            case -2:
+                break; 
+            case -1:
+                oss << "Pool.";
+                break;
+            default:
+                oss << " [" << id << "].";
+                break;
         }
-        else
-        {
-            oss << " Pool.";
-        }
-        
+                
         if ( rc != (int)NULL )
         {
             oss << " Returned error code [" << rc << "].";       

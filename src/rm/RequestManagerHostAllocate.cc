@@ -105,7 +105,7 @@ error_authorize:
     goto error_common;
 
 error_host_allocate:
-    oss.str(action_error(method_name, "CREATE", "HOST", -1, rc));
+    oss.str(action_error(method_name, "CREATE", "HOST", -2, rc));
     goto error_common;
 
 error_common:
