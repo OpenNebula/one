@@ -25,19 +25,19 @@
 void RequestManager::UserAllocate::execute(
     xmlrpc_c::paramList const& paramList,
     xmlrpc_c::value *   const  retval)
-{ 
+{
     string              session;
 
     string              username;
-    string              password; 
-    
+    string              password;
+
     int                 uid;
 
-    int                 rc;     
+    int                 rc;
     ostringstream       oss;
 
     User              * user;
-    
+
     const string        method_name = "UserAllocate";
 
     /*   -- RPC specific vars --  */
@@ -48,17 +48,17 @@ void RequestManager::UserAllocate::execute(
 
     // Get the parameters
     session      = xmlrpc_c::value_string(paramList.getString(0));
-    
+
     username     = xmlrpc_c::value_string(paramList.getString(1));
     password     = xmlrpc_c::value_string(paramList.getString(2));
-    
+
     rc = UserAllocate::upool->authenticate(session);
-    
-    if ( rc == -1 )                             
-    {                                            
-        goto error_authenticate;                     
+
+    if ( rc == -1 )
+    {
+        goto error_authenticate;
     }
-    
+
     //Authorize the operation
     if ( rc != 0 ) // rc == 0 means oneadmin
     {
@@ -83,37 +83,37 @@ void RequestManager::UserAllocate::execute(
     {
         goto error_duplicate;
     }
-    
+
     // Now let's add the user
     rc = UserAllocate::upool->allocate(&uid,username,password,true);
-    
-    if ( rc == -1 )                             
-    {                                            
-        goto error_allocate;                     
-    }    
-    
-    // All nice, return the new uid to client  
+
+    if ( rc == -1 )
+    {
+        goto error_allocate;
+    }
+
+    // All nice, return the new uid to client
     arrayData.push_back(xmlrpc_c::value_boolean(true)); // SUCCESS
     arrayData.push_back(xmlrpc_c::value_int(uid));
 
     // Copy arrayresult into retval mem space
     arrayresult = new xmlrpc_c::value_array(arrayData);
     *retval = *arrayresult;
-    
+
     delete arrayresult; // and get rid of the original
 
     return;
 
 error_authenticate:
-    oss.str(authenticate_error(method_name));  
+    oss.str(authenticate_error(method_name));
     goto error_common;
-    
+
 error_authorize:
     oss.str(authorization_error(method_name, "CREATE", "USER", rc, -1));
-    goto error_common;  
-     
+    goto error_common;
+
 error_duplicate:
-    oss << action_error(method_name, "CREATE", "USER", -1, NULL)
+    oss << action_error(method_name, "CREATE", "USER", -2, -1)
         << ". Reason: Existing user, cannot duplicate.";
     goto error_common;
 
@@ -124,13 +124,13 @@ error_allocate:
 error_common:
     arrayData.push_back(xmlrpc_c::value_boolean(false));  // FAILURE
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
-    
-    NebulaLog::log("ReM",Log::ERROR,oss); 
-    
+
+    NebulaLog::log("ReM",Log::ERROR,oss);
+
     xmlrpc_c::value_array arrayresult_error(arrayData);
 
     *retval = arrayresult_error;
-    
+
     return;
 }
 

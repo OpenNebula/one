@@ -151,19 +151,16 @@ VirtualMachinePool::VirtualMachinePool(SqlDB *                   db,
 
 int VirtualMachinePool::allocate (
     int            uid,
-    const  string& stemplate,
+    VirtualMachineTemplate * vm_template,
     int *          oid,
     bool           on_hold)
 {
     VirtualMachine * vm;
 
-    char *  error_msg;
-    int     rc;
-
     // ------------------------------------------------------------------------
     // Build a new Virtual Machine object
     // ------------------------------------------------------------------------
-    vm = new VirtualMachine;
+    vm = new VirtualMachine(-1,vm_template);
 
     if (on_hold == true)
     {
@@ -175,24 +172,6 @@ int VirtualMachinePool::allocate (
     }
 
     vm->uid = uid;
-
-    // ------------------------------------------------------------------------
-    // Parse template
-    // ------------------------------------------------------------------------
-    rc = vm->vm_template.parse(stemplate,&error_msg);
-
-    if ( rc != 0 )
-    {
-        ostringstream oss;
-
-        oss << error_msg;
-        NebulaLog::log("ONE", Log::ERROR, oss);
-        free(error_msg);
-
-        delete vm;
-
-        return -1;
-    }
 
     // ------------------------------------------------------------------------
     // Insert the Object in the pool

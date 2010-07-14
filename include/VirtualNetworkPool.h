@@ -22,6 +22,8 @@
 
 #include <time.h>
 
+class AuthRequest;
+
 using namespace std;
 
 /**
@@ -87,6 +89,13 @@ public:
      *    @return 0 on success, -1 error, -2 not using the pool
      */
     int nic_attribute(VectorAttribute * nic, int vid);
+
+    /**
+     *  Generates an Authorization token for a NIC attribute
+     *    @param nic the nic to be authorized
+     *    @param ar the AuthRequest
+     */
+    void authorize_nic(VectorAttribute * nic, AuthRequest * ar);
 
     /**
      *  Updates the template of a VN, adding a new attribute (replacing it if

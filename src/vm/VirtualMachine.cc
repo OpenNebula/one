@@ -36,12 +36,11 @@
 /* Virtual Machine :: Constructor/Destructor                                  */
 /* ************************************************************************** */
 
-VirtualMachine::VirtualMachine(int id):
+VirtualMachine::VirtualMachine(int id, VirtualMachineTemplate * _vm_template):
         PoolObjectSQL(id),
         uid(-1),
         last_poll(0),
         name(""),
-        vm_template(),
         state(INIT),
         lcm_state(LCM_INIT),
         stime(time(0)),
@@ -56,6 +55,14 @@ VirtualMachine::VirtualMachine(int id):
         previous_history(0),
         _log(0)
 {
+    if (_vm_template != 0)
+    {
+        vm_template = _vm_template;
+    }
+    else
+    {
+        vm_template = new VirtualMachineTemplate;
+    }
 }
 
 VirtualMachine::~VirtualMachine()
@@ -73,6 +80,11 @@ VirtualMachine::~VirtualMachine()
     if ( _log != 0 )
     {
         delete _log;
+    }
+
+    if ( vm_template != 0 )
+    {
+        delete vm_template;
     }
 }
 
@@ -140,7 +152,7 @@ int VirtualMachine::select_cb(void *nil, int num, char **values, char **names)
     last_seq    = atoi(values[LAST_SEQ]);
 
     // Virtual Machine template ID is the VM ID
-    vm_template.id = oid;
+    vm_template->id = oid;
 
     return 0;
 }
@@ -176,7 +188,7 @@ int VirtualMachine::select(SqlDB * db)
     }
 
     //Get the template
-    rc = vm_template.select(db);
+    rc = vm_template->select(db);
 
     if (rc != 0)
     {
@@ -270,9 +282,9 @@ int VirtualMachine::insert(SqlDB * db)
     // -----------------------------------------------------------------------
     // Set a template ID if it wasn't already assigned
     // ------------------------------------------------------------------------
-    if ( vm_template.id == -1 )
+    if ( vm_template->id == -1 )
     {
-        vm_template.id = oid;
+        vm_template->id = oid;
     }
 
     // -----------------------------------------------------------------------
@@ -283,7 +295,7 @@ int VirtualMachine::insert(SqlDB * db)
 
     attr = new SingleAttribute("VMID",value);
 
-    vm_template.set(attr);
+    vm_template->set(attr);
 
     get_template_attribute("NAME",name);
 
@@ -294,7 +306,7 @@ int VirtualMachine::insert(SqlDB * db)
         name = oss.str();
 
         attr = new SingleAttribute("NAME",name);
-        vm_template.set(attr);
+        vm_template->set(attr);
     }
 
     this->name = name;
@@ -345,7 +357,7 @@ int VirtualMachine::insert(SqlDB * db)
     // Insert the template first, so we get a valid template ID. Then the VM
     // ------------------------------------------------------------------------
 
-    rc = vm_template.insert(db);
+    rc = vm_template->insert(db);
 
     if ( rc != 0 )
     {
@@ -363,7 +375,7 @@ int VirtualMachine::insert(SqlDB * db)
 
 error_update:
     NebulaLog::log("ONE",Log::ERROR, "Can not update VM in the database");
-    vm_template.drop(db);
+    vm_template->drop(db);
     goto error_common;
 
 error_template:
@@ -406,7 +418,7 @@ int VirtualMachine::parse_context()
     string *            str;
     string              parsed;
 
-    num = vm_template.remove("CONTEXT", array_context);
+    num = vm_template->remove("CONTEXT", array_context);
 
     if ( num == 0 )
     {
@@ -438,7 +450,7 @@ int VirtualMachine::parse_context()
         context_parsed = new VectorAttribute("CONTEXT");
         context_parsed->unmarshall(parsed," @^_^@ ");
 
-        vm_template.set(context_parsed);
+        vm_template->set(context_parsed);
     }
 
     /* --- Delete old context attributes --- */
@@ -464,7 +476,7 @@ void VirtualMachine::parse_graphics()
     vector<Attribute *> array_graphics;
     VectorAttribute *   graphics;
 
-    num = vm_template.get("GRAPHICS", array_graphics);
+    num = vm_template->get("GRAPHICS", array_graphics);
 
     if ( num == 0 )
     {
@@ -511,7 +523,7 @@ int VirtualMachine::parse_requirements()
 
     string              parsed;
 
-    num = vm_template.remove("REQUIREMENTS", array_reqs);
+    num = vm_template->remove("REQUIREMENTS", array_reqs);
 
     if ( num == 0 )
     {
@@ -533,7 +545,7 @@ int VirtualMachine::parse_requirements()
         SingleAttribute * reqs_parsed;
 
         reqs_parsed = new SingleAttribute("REQUIREMENTS",parsed);
-        vm_template.set(reqs_parsed);
+        vm_template->set(reqs_parsed);
     }
 
     /* --- Delete old requirements attributes --- */
@@ -803,7 +815,7 @@ int VirtualMachine::get_disk_images()
     Nebula& nd = Nebula::instance();
     ipool      = nd.get_ipool();
 
-    num_disks  = vm_template.get("DISK",disks);
+    num_disks  = vm_template->get("DISK",disks);
 
     for(int i=0, index=0; i<num_disks; i++)
     {
@@ -886,7 +898,7 @@ int VirtualMachine::get_network_leases()
     Nebula& nd = Nebula::instance();
     vnpool     = nd.get_vnpool();
 
-    num_nics   = vm_template.get("NIC",nics);
+    num_nics   = vm_template->get("NIC",nics);
 
     for(int i=0; i<num_nics; i++)
     {
@@ -1126,7 +1138,7 @@ string& VirtualMachine::to_xml(string& xml) const
         << "<NET_TX>"    << net_tx    << "</NET_TX>"
         << "<NET_RX>"    << net_rx    << "</NET_RX>"
         << "<LAST_SEQ>"  << last_seq  << "</LAST_SEQ>"
-        << vm_template.to_xml(template_xml);
+        << vm_template->to_xml(template_xml);
 
     if ( hasHistory() )
     {
@@ -1163,7 +1175,7 @@ string& VirtualMachine::to_str(string& str) const
        << "NET TX            : " << net_tx << endl
        << "NET RX            : " << net_rx << endl
        << "LAST SEQ          : " << last_seq << endl
-       << "Template" << endl << vm_template.to_str(template_str) << endl;
+       << "Template" << endl << vm_template->to_str(template_str) << endl;
 
     if ( hasHistory() )
     {

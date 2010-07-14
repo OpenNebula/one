@@ -27,6 +27,8 @@
 #include <iostream>
 #include <vector>
 
+class AuthRequest;
+
 using namespace std;
 
 /**
@@ -169,6 +171,13 @@ public:
      *    @return 0 on success, -1 error, -2 not using the pool
      */
     int disk_attribute(VectorAttribute * disk, int * index);
+
+    /**
+     *  Generates an Authorization token for the DISK attribute
+     *    @param disk the disk to be authorized
+     *    @param ar the AuthRequest
+     */
+    void authorize_disk(VectorAttribute * disk, AuthRequest * ar);
 
     static const string& source_prefix()
     {

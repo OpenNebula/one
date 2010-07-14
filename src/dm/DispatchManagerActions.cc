@@ -18,18 +18,6 @@
 #include "NebulaLog.h"
 
 #include "Nebula.h"
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int DispatchManager::allocate (
-    int     uid,
-    const string& stemplate,
-    int *   oid)
-{
-    NebulaLog::log("DiM",Log::DEBUG,"Allocating a new VM");
-
-    return vmpool->allocate(uid,stemplate,oid);
-};
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

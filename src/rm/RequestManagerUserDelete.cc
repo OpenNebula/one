@@ -25,15 +25,15 @@
 void RequestManager::UserDelete::execute(
     xmlrpc_c::paramList const& paramList,
     xmlrpc_c::value *   const  retval)
-{ 
+{
     string        session;
 
     int           uid;
     User *        user;
 
-    int           rc;     
+    int           rc;
     ostringstream oss;
-    
+
     const string  method_name = "UserDelete";
 
     /*   -- RPC specific vars --  */
@@ -51,14 +51,14 @@ void RequestManager::UserDelete::execute(
     {
         goto error_oneadmin_deletion;
     }
-    
+
     rc = UserDelete::upool->authenticate(session);
-    
+
     if ( rc == -1 )
     {
         goto error_authenticate;
     }
-    
+
     //Authorize the operation
     if ( rc != 0 ) // rc == 0 means oneadmin
     {
@@ -76,24 +76,24 @@ void RequestManager::UserDelete::execute(
         }
     }
 
-    // Now let's get the user 
+    // Now let's get the user
     user = UserDelete::upool->get(uid,true);
-   
-    if ( user == 0) 
+
+    if ( user == 0)
     {
         goto error_get_user;
     }
-    
+
     rc = UserDelete::upool->drop(user);
 
     user->unlock();
-    
-    if ( rc != 0 )                             
-    {                                            
-        goto error_delete;                     
-    }    
-    
-    // All nice, return the new uid to client  
+
+    if ( rc != 0 )
+    {
+        goto error_delete;
+    }
+
+    // All nice, return the new uid to client
     arrayData.push_back(xmlrpc_c::value_boolean(true)); // SUCCESS
 
     // Copy arrayresult into retval mem space
@@ -105,18 +105,18 @@ void RequestManager::UserDelete::execute(
     return;
 
 error_oneadmin_deletion:
-    oss << action_error(method_name, "DELETE", "USER", uid, NULL) 
+    oss << action_error(method_name, "DELETE", "USER", uid, -1)
         << ". Reason: Oneadmin cannot be deleted.";
     goto error_common;
 
 error_authenticate:
-    oss.str(authenticate_error(method_name));  
+    oss.str(authenticate_error(method_name));
     goto error_common;
 
 error_authorize:
     oss.str(authorization_error(method_name, "DELETE", "USER", rc, uid));
     goto error_common;
-    
+
 error_get_user:
     oss.str(get_error(method_name, "USER", uid));
     goto error_common;
@@ -128,13 +128,13 @@ error_delete:
 error_common:
     arrayData.push_back(xmlrpc_c::value_boolean(false));  // FAILURE
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
-    
-    NebulaLog::log("ReM",Log::ERROR,oss); 
-    
+
+    NebulaLog::log("ReM",Log::ERROR,oss);
+
     xmlrpc_c::value_array arrayresult_error(arrayData);
 
     *retval = arrayresult_error;
-    
+
     return;
 }
 

@@ -36,7 +36,7 @@ void RequestManager::ImageAllocate::execute(
     int                 rc;
 
     ostringstream       oss;
-    
+
     const string        method_name = "ImageAllocate";
 
     vector<xmlrpc_c::value> arrayData;
@@ -57,7 +57,7 @@ void RequestManager::ImageAllocate::execute(
     {
         goto error_authenticate;
     }
-    
+
     rc = ImageAllocate::ipool->allocate(uid,image_template,&iid);
 
     if ( rc < 0 )
@@ -80,9 +80,9 @@ void RequestManager::ImageAllocate::execute(
 error_authenticate:
     oss.str(authenticate_error(method_name));
     goto error_common;
-    
+
 error_allocate:
-    oss.str(action_error(method_name, "CREATE", "IMAGE", NULL, rc));
+    oss.str(action_error(method_name, "CREATE", "IMAGE", -2, rc));
     goto error_common;
 
 error_common:
