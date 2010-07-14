@@ -24,8 +24,6 @@
 
 using namespace std;
 
-class AuthRequest;
-
 /**
  *  The Virtual Network Pool class. ...
  */
@@ -88,7 +86,7 @@ public:
      *    @param vid of the VM requesting the lease
      *    @return 0 on success, -1 error, -2 not using the pool
      */
-    int nic_attribute(VectorAttribute * nic, int vid, AuthRequest *ar);
+    int nic_attribute(VectorAttribute * nic, int vid);
 
     /**
      *  Updates the template of a VN, adding a new attribute (replacing it if

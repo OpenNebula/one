@@ -210,27 +210,6 @@ int Image::insert(SqlDB *db)
 
     source = tmp_sourcestream.str();
 
-    // ------------------------------------------------------------------------
-    // Authorize this request
-    // ------------------------------------------------------------------------
-
-    if ( uid != 0 ) // uid == 0 means oneadmin
-    {
-        string      t64;
-        AuthRequest ar(uid);
-
-        ar.add_auth(AuthRequest::IMAGE,
-                    image_template.to_xml(t64),
-                    AuthRequest::CREATE,
-                    uid,
-                    public_img);
-
-        if (UserPool::authorize(ar) == -1)
-        {
-            goto error_authorize;
-        }
-    }
-
     // ------------ INSERT THE TEMPLATE --------------------
 
     if ( image_template.id == -1 )
@@ -268,10 +247,6 @@ error_name:
 
 error_type:
     NebulaLog::log("IMG", Log::ERROR, "Incorrect TYPE in image template");
-    goto error_common;
-
-error_authorize:
-    NebulaLog::log("IMG", Log::ERROR, "Error authorizing Image creation");
     goto error_common;
 
 error_common:
@@ -560,12 +535,10 @@ int Image::disk_attribute(VectorAttribute * disk, int * index)
 {
     string  overwrite;
     string  saveas;
-    string  name;
     string  bus;
 
     ostringstream  iid;
 
-    name      = disk->vector_value("NAME");
     overwrite = disk->vector_value("OVERWRITE");
     saveas    = disk->vector_value("SAVE_AS");
     bus       = disk->vector_value("BUS");
@@ -595,10 +568,9 @@ int Image::disk_attribute(VectorAttribute * disk, int * index)
 
     map<string,string> new_disk;
 
-    new_disk.insert(make_pair("NAME",name));
-    new_disk.insert(make_pair("IID", iid.str()));
-
-    new_disk.insert(make_pair("SOURCE", source));
+    new_disk.insert(make_pair("IMAGE",    name));
+    new_disk.insert(make_pair("IMAGE_ID", iid.str()));
+    new_disk.insert(make_pair("SOURCE",   source));
 
     if (!overwrite.empty())
     {

@@ -31,8 +31,6 @@ using namespace std;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-class AuthRequest;
-
 /**
  *  The Virtual Machine class. It represents a VM...
  */
@@ -704,7 +702,7 @@ public:
      *  Get all network leases for this Virtual Machine
      *  @return 0 if success
      */
-    int get_network_leases(AuthRequest *ar);
+    int get_network_leases();
 
     /**
      *  Releases all network leases taken by this Virtual Machine
@@ -715,7 +713,7 @@ public:
      *  Get all disk images for this Virtual Machine
      *  @return 0 if success
      */
-    int get_disk_images(AuthRequest *ar);
+    int get_disk_images();
 
     /**
      *  Releases all disk images taken by this Virtual Machine

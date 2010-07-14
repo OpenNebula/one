@@ -29,8 +29,6 @@
 
 using namespace std;
 
-class AuthRequest;
-
 /**
  *  The Image Pool class.
  */
@@ -170,7 +168,7 @@ public:
      *    @param disk the disk to be generated
      *    @return 0 on success, -1 error, -2 not using the pool
      */
-    int disk_attribute(VectorAttribute * disk, int * index, AuthRequest * ar);
+    int disk_attribute(VectorAttribute * disk, int * index);
 
     static const string& source_prefix()
     {

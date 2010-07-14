@@ -26,7 +26,6 @@
 #include "VirtualMachine.h"
 #include "VirtualNetworkPool.h"
 #include "NebulaLog.h"
-#include "AuthManager.h"
 
 #include "Nebula.h"
 
@@ -268,8 +267,6 @@ int VirtualMachine::insert(SqlDB * db)
     string              value;
     ostringstream       oss;
 
-    AuthRequest ar(uid);
-
     // -----------------------------------------------------------------------
     // Set a template ID if it wasn't already assigned
     // ------------------------------------------------------------------------
@@ -306,7 +303,7 @@ int VirtualMachine::insert(SqlDB * db)
     // Get network leases
     // ------------------------------------------------------------------------
 
-    rc = get_network_leases(&ar);
+    rc = get_network_leases();
 
     if ( rc != 0 )
     {
@@ -317,7 +314,7 @@ int VirtualMachine::insert(SqlDB * db)
     // Get disk images
     // ------------------------------------------------------------------------
 
-    rc = get_disk_images(&ar);
+    rc = get_disk_images();
 
     if ( rc != 0 )
     {
@@ -343,26 +340,6 @@ int VirtualMachine::insert(SqlDB * db)
     }
 
     parse_graphics();
-
-    // ------------------------------------------------------------------------
-    // Authorize this request
-    // ------------------------------------------------------------------------
-
-    if ( uid != 0 ) // uid == 0 means oneadmin
-    {
-        string t64;
-
-        ar.add_auth(AuthRequest::VM,
-                    vm_template.to_xml(t64),
-                    AuthRequest::CREATE,
-                    uid,
-                    false);
-
-        if (UserPool::authorize(ar) == -1)
-        {
-            goto error_authorize;
-        }
-    }
 
     // ------------------------------------------------------------------------
     // Insert the template first, so we get a valid template ID. Then the VM
@@ -409,9 +386,6 @@ error_context:
 error_requirements:
     NebulaLog::log("ONE",Log::ERROR, "Could not parse REQUIREMENTS for VM");
     goto error_common;
-
-error_authorize:
-    NebulaLog::log("ONE",Log::ERROR, "Error authorizing VM creation");
 
 error_common:
     release_network_leases();
@@ -819,7 +793,7 @@ void VirtualMachine::get_requirements (int& cpu, int& memory, int& disk)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::get_disk_images(AuthRequest *ar)
+int VirtualMachine::get_disk_images()
 {
     int                   num_disks, rc;
     vector<Attribute  * > disks;
@@ -841,7 +815,7 @@ int VirtualMachine::get_disk_images(AuthRequest *ar)
             continue;
         }
 
-        rc = ipool->disk_attribute(disk, &index, ar);
+        rc = ipool->disk_attribute(disk, &index);
 
         if (rc == -1) // 0 OK, -2 not using the Image pool
         {
@@ -879,7 +853,7 @@ void VirtualMachine::release_disk_images()
             continue;
         }
 
-        iid = disk->vector_value("IID");
+        iid = disk->vector_value("IMAGE_ID");
 
         if ( iid.empty() )
         {
@@ -902,7 +876,7 @@ void VirtualMachine::release_disk_images()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::get_network_leases(AuthRequest *ar)
+int VirtualMachine::get_network_leases()
 {
     int                   num_nics, rc;
     vector<Attribute  * > nics;
@@ -923,7 +897,7 @@ int VirtualMachine::get_network_leases(AuthRequest *ar)
             continue;
         }
 
-        rc = vnpool->nic_attribute(nic, oid, ar);
+        rc = vnpool->nic_attribute(nic, oid);
 
         if (rc == -1)
         {
@@ -962,7 +936,7 @@ void VirtualMachine::release_network_leases()
             continue;
         }
 
-        vnid = nic->vector_value("VNID");
+        vnid = nic->vector_value("NETWORK_ID");
 
         if ( vnid.empty() )
         {
