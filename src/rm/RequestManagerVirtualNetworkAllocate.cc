@@ -77,12 +77,17 @@ void RequestManager::VirtualNetworkAllocate::execute(
     {
         AuthRequest ar(uid);
         string      t64;
+        string      pub;
+        string      pub_name = "PUBLIC";
+
+        vn_template->get(pub_name, pub);
+        transform (pub.begin(), pub.end(), pub.begin(),(int(*)(int))toupper);
 
         ar.add_auth(AuthRequest::NET,
                     vn_template->to_xml(t64),
                     AuthRequest::CREATE,
                     uid,
-                    false);
+                    (pub == "YES"));
 
         if (UserPool::authorize(ar) == -1)
         {
