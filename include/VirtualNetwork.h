@@ -195,7 +195,7 @@ public:
         string& name,
         vector<const Attribute*>& values) const
     {
-        return vn_template.get(name,values);
+        return vn_template->get(name,values);
     };
 
     /**
@@ -209,7 +209,7 @@ public:
         vector<const Attribute*>& values) const
     {
         string str=name;
-        return vn_template.get(str,values);
+        return vn_template->get(str,values);
     };
 
     /**
@@ -222,7 +222,7 @@ public:
         string&         value) const
     {
         string str=name;
-        vn_template.get(str,value);
+        vn_template->get(str,value);
     }
 
     /**
@@ -235,7 +235,7 @@ public:
         int&            value) const
     {
         string str=name;
-        vn_template.get(str,value);
+        vn_template->get(str,value);
     }
 
 private:
@@ -293,7 +293,7 @@ private:
     /**
      *  The Virtual Network template, holds the VNW attributes.
      */
-    VirtualNetworkTemplate  vn_template;
+    VirtualNetworkTemplate * vn_template;
 
     // *************************************************************************
     // DataBase implementation (Private)
@@ -355,7 +355,7 @@ private:
         int               rc;
 
         sattr = new SingleAttribute(name,value);
-        rc    = vn_template.replace_attribute(db,sattr);
+        rc    = vn_template->replace_attribute(db,sattr);
 
         if (rc != 0)
         {
@@ -371,7 +371,7 @@ protected:
     // Constructor
     //**************************************************************************
 
-    VirtualNetwork();
+    VirtualNetwork(VirtualNetworkTemplate * _vn_template = 0);
 
     ~VirtualNetwork();
 
@@ -428,7 +428,7 @@ protected:
     {
         int rc;
 
-        rc =  vn_template.drop(db);
+        rc =  vn_template->drop(db);
 
         rc += leases->drop(db);
 

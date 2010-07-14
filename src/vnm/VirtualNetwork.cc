@@ -29,13 +29,23 @@
 /* Virtual Network :: Constructor/Destructor                                  */
 /* ************************************************************************** */
 
-VirtualNetwork::VirtualNetwork():
+VirtualNetwork::VirtualNetwork(VirtualNetworkTemplate *_vn_template):
                 PoolObjectSQL(-1),
                 name(""),
                 uid(-1),
                 bridge(""),
                 type(UNINITIALIZED),
-                leases(0){};
+                leases(0)
+{
+    if (_vn_template != 0)
+    {
+        vn_template = _vn_template;
+    }
+    else
+    {
+        vn_template = new VirtualNetworkTemplate;
+    }
+};
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -45,6 +55,11 @@ VirtualNetwork::~VirtualNetwork()
     if (leases != 0)
     {
         delete leases;
+    }
+
+    if (vn_template != 0)
+    {
+        delete vn_template;
     }
 }
 
@@ -89,7 +104,7 @@ int VirtualNetwork::select_cb(void * nil, int num, char **values, char **names)
     public_vnet = atoi(values[PUBLIC]);
 
     // Virtual Network template ID is the Network ID
-    vn_template.id = oid;
+    vn_template->id = oid;
 
     return 0;
 }
@@ -128,7 +143,7 @@ int VirtualNetwork::select(SqlDB * db)
     }
 
     //Get the template
-    rc = vn_template.select(db);
+    rc = vn_template->select(db);
 
     if (rc != 0)
     {
@@ -315,16 +330,16 @@ int VirtualNetwork::insert(SqlDB * db)
 
     public_vnet = (pub == "YES");
 
-    vn_template.erase("PUBLIC");
+    vn_template->erase("PUBLIC");
 
     // ------------ INSERT THE TEMPLATE --------------------
 
-    if ( vn_template.id == -1 )
+    if ( vn_template->id == -1 )
     {
-        vn_template.id = oid;
+        vn_template->id = oid;
     }
 
-    rc = vn_template.insert(db);
+    rc = vn_template->insert(db);
 
     if ( rc != 0 )
     {
@@ -425,7 +440,7 @@ error_template:
 
 error_update:
     ose << "Can not update Virtual Network id " << oid;
-    vn_template.drop(db);
+    vn_template->drop(db);
     goto error_common;
 
 error_addr:
@@ -506,7 +521,7 @@ int VirtualNetwork::vn_drop(SqlDB * db)
     ostringstream   oss;
     int             rc;
 
-    vn_template.drop(db);
+    vn_template->drop(db);
 
     if ( leases != 0 )
     {
@@ -558,7 +573,7 @@ string& VirtualNetwork::to_xml(string& xml) const
             "<TYPE>"    << type         << "</TYPE>" <<
             "<BRIDGE>"  << bridge       << "</BRIDGE>" <<
             "<PUBLIC>"  << public_vnet  << "</PUBLIC>" <<
-            vn_template.to_xml(template_xml);
+            vn_template->to_xml(template_xml);
     if (leases)
     {
         os << leases->to_xml(leases_xml);
@@ -596,7 +611,8 @@ string& VirtualNetwork::to_str(string& str) const
     os << "Bridge            : " << bridge      << endl;
     os << "Public            : " << public_vnet << endl << endl;
 
-    os << "....: Template :...." << vn_template.to_str(template_str) << endl << endl;
+    os << "....: Template :...." << vn_template->to_str(template_str) << endl <<
+endl;
 
     if (leases)
     {

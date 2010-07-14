@@ -71,34 +71,14 @@ VirtualNetworkPool::VirtualNetworkPool(SqlDB * db,
 
 int VirtualNetworkPool::allocate (
     int            uid,
-    const  string& stemplate,
+    VirtualNetworkTemplate * vn_template,
     int *          oid)
 {
     VirtualNetwork *    vn;
-    char *              error_msg;
-    int                 rc;
 
-    // Build a new Virtual Network object
-    vn = new VirtualNetwork();
+    vn = new VirtualNetwork(vn_template);
 
     vn->uid = uid;
-
-    rc = vn->vn_template.parse(stemplate,&error_msg);
-
-    if ( rc != 0 )
-    {
-        ostringstream oss;
-
-        oss << error_msg;
-        NebulaLog::log("VNM", Log::ERROR, oss);
-        free(error_msg);
-
-        delete vn;
-
-        return -1;
-    }
-
-    // Insert the VN in the pool so we have a valid OID
 
     *oid = PoolSQL::allocate(vn);
 

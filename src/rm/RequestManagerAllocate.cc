@@ -70,7 +70,6 @@ void RequestManager::VirtualMachineAllocate::execute(
     //--------------------------------------------------------------------------
     //   Authorize this request
     //--------------------------------------------------------------------------
-
     vm_template = new VirtualMachineTemplate;
 
     rc = vm_template->parse(str_template,&error_msg);
@@ -129,7 +128,6 @@ void RequestManager::VirtualMachineAllocate::execute(
     //--------------------------------------------------------------------------
     //   Allocate the VirtualMAchine
     //--------------------------------------------------------------------------
-
     rc = vmpool->allocate(uid,vm_template,&vid,false);
 
     if ( rc < 0 )

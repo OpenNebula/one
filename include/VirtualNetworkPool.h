@@ -40,16 +40,15 @@ public:
     ~VirtualNetworkPool(){};
 
     /**
-     *  Function to allocate a new VN object
+     *  Function to allocate a new VNET object
      *    @param uid user identifier
-     *    @param stemplate a string describing the VN
+     *    @param vn_template a VirtualNetworkTemplate describing the VNET
      *    @param oid the id assigned to the VM (output)
-     *    @return oid on success, -1 error inserting in DB,-2 error parsing
-     *     the template, -3 wrong attributes in template
+     *    @return oid on success, -1 error
      */
     int allocate (
         int     uid,
-        const  string& stemplate,
+        VirtualNetworkTemplate * vn_template,
         int *  oid);
 
     /**

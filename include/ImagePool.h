@@ -55,9 +55,9 @@ public:
      *                  -2 in case of template parse failure
      */
     int allocate (
-        int            uid,
-        const  string& stemplate,
-        int *          oid);
+        int             uid,
+        ImageTemplate * img_template,
+        int *           oid);
 
     /**
      *  Function to get a Image from the pool, if the object is not in memory
@@ -133,7 +133,7 @@ public:
     {
         SingleAttribute * sattr = new SingleAttribute(name,value);
 
-        return image->image_template.replace_attribute(db,sattr);
+        return image->image_template->replace_attribute(db,sattr);
     }
 
     /** Delete an image attribute in the template (Image MUST be locked)
@@ -145,7 +145,7 @@ public:
         Image *       image,
         const string& name)
     {
-        return image->image_template.remove_attribute(db, name);
+        return image->image_template->remove_attribute(db, name);
     }
 
     /**

@@ -32,7 +32,7 @@
 /* Image :: Constructor/Destructor                                           */
 /* ************************************************************************ */
 
-Image::Image(int _uid):
+Image::Image(int _uid, ImageTemplate * _image_template):
         PoolObjectSQL(-1),
         uid(_uid),
         name(""),
@@ -41,9 +41,24 @@ Image::Image(int _uid):
         source(""),
         state(INIT),
         running_vms(0)
-        {};
+{
+    if (_image_template != 0)
+    {
+        image_template = _image_template;
+    }
+    else
+    {
+        image_template = new ImageTemplate;
+    }
+};
 
-Image::~Image(){};
+Image::~Image()
+{
+    if (image_template != 0)
+    {
+        delete image_template;
+    }
+};
 
 /* ************************************************************************ */
 /* Image :: Database Access Functions                                        */
@@ -93,7 +108,7 @@ int Image::select_cb(void * nil, int num, char **values, char ** names)
 
     running_vms = atoi(values[RUNNING_VMS]);
 
-    image_template.id  = oid;
+    image_template->id  = oid;
 
     return 0;
 }
@@ -123,7 +138,7 @@ int Image::select(SqlDB *db)
 
     // Get the template
 
-    rc = image_template.select(db);
+    rc = image_template->select(db);
 
     if ( rc != 0 )
     {
@@ -182,7 +197,7 @@ int Image::insert(SqlDB *db)
     // ------------ PUBLIC --------------------
 
     get_template_attribute("PUBLIC", public_attr);
-    image_template.erase("PUBLIC");
+    image_template->erase("PUBLIC");
 
     transform (public_attr.begin(), public_attr.end(), public_attr.begin(),
         (int(*)(int))toupper);
@@ -198,7 +213,7 @@ int Image::insert(SqlDB *db)
         SingleAttribute * dev_att = new SingleAttribute("DEV_PREFIX",
                                           ImagePool::default_dev_prefix());
 
-        image_template.set(dev_att);
+        image_template->set(dev_att);
     }
 
     // ------------ SOURCE (path to store the image)--------------------
@@ -212,14 +227,14 @@ int Image::insert(SqlDB *db)
 
     // ------------ INSERT THE TEMPLATE --------------------
 
-    if ( image_template.id == -1 )
+    if ( image_template->id == -1 )
     {
-        image_template.id = oid;
+        image_template->id = oid;
     }
 
     state = DISABLED;
 
-    rc = image_template.insert(db);
+    rc = image_template->insert(db);
 
     if ( rc != 0 )
     {
@@ -234,7 +249,7 @@ int Image::insert(SqlDB *db)
 
     if ( rc != 0 )
     {
-        image_template.drop(db);
+        image_template->drop(db);
 
         return rc;
     }
@@ -374,7 +389,7 @@ int Image::drop(SqlDB * db)
         return -1;
     }
 
-    image_template.drop(db);
+    image_template->drop(db);
 
     oss << "DELETE FROM " << table << " WHERE oid=" << oid;
 
@@ -424,7 +439,7 @@ string& Image::to_xml(string& xml) const
             "<SOURCE>"         << source      << "</SOURCE>"      <<
             "<STATE>"          << state       << "</STATE>"       <<
             "<RUNNING_VMS>"    << running_vms << "</RUNNING_VMS>" <<
-            image_template.to_xml(template_xml)                   <<
+            image_template->to_xml(template_xml)                   <<
         "</IMAGE>";
 
     xml = oss.str();
@@ -452,7 +467,7 @@ string& Image::to_str(string& str) const
         "STATE       = "    << state       << endl <<
         "RUNNING_VMS = "    << running_vms << endl <<
         "TEMPLATE"          << endl
-                            << image_template.to_str(template_str)
+                            << image_template->to_str(template_str)
                             << endl;
 
     str = os.str();
