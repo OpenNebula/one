@@ -62,7 +62,7 @@ class SimplePermissions
         case action
         when 'CREATE'
             STDERR.puts "create vm"
-            #@quota.update(uid.to_i)
+            @quota.update(uid.to_i)
             if @quota.check(uid.to_i, get_vm_usage(id))
                 return true
             else
