@@ -21,22 +21,15 @@ include OpenNebula
 class VirtualNetworkPoolOCCI < VirtualNetworkPool
     OCCI_NETWORK_POOL = %q{
         <NETWORK_COLLECTION>
-        <% if pool_hash['VNET_POOL'] && pool_hash['VNET_POOL']['VNET'] %>
-            <% vnlist=[pool_hash['VNET_POOL']['VNET']].flatten %>
-            <% vnlist.each{ |vn|  %>  
-            <NETWORK href="<%= base_url %>/network/<%= vn['ID'] %>"/>
+            <% self.each{ |vn|  %>  
+            <NETWORK href="<%= base_url %>/network/<%= vn.id.to_s  %>" name="<%= vn.name  %>"/>
             <% } %>
-        <% end %>
         </NETWORK_COLLECTION>       
     }
     
     
     # Creates the OCCI representation of a Virtual Machine Pool
-    def to_occi(base_url)
-        pool_hash = self.to_hash
-        return pool_hash, 500 if OpenNebula.is_error?(pool_hash)
-
-        begin
+    def to_occi(base_url)begin
             occi = ERB.new(OCCI_NETWORK_POOL)
             occi_text = occi.result(binding) 
         rescue Exception => e

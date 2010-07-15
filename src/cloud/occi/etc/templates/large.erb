@@ -7,11 +7,11 @@ NAME   = <%= vm_info['NAME'] %>
 	<% vm_info['DISK'].each do |disk| %>
 		<% if disk['STORAGE'] && disk['STORAGE']['href'] %>
 		DISK = [ IMAGE_ID = <%= disk['STORAGE']['href'].split('/').last %>
-			<% if disk['OVERWRITE'] %>
-				 OVERWRITE = yes
+			<% if disk.key?('OVERWRITE') %>
+				 ,OVERWRITE = "yes"
 			<% end %>
 			<% if disk['SAVE_AS'] %>
-				 SAVE_AS = "<%= disk['SAVE_AS'] %>"
+				 ,SAVE_AS = "<%= disk['SAVE_AS'] %>"
 			<% end %>
 		]
 		<% end %>
@@ -21,9 +21,9 @@ NAME   = <%= vm_info['NAME'] %>
 <% if vm_info['NIC'] %>
 	<% vm_info['NIC'].each do |nic| %>
 		<% if nic['NETWORK'] && nic['NETWORK']['href'] %>
-		NIC = [ NETWORK_ID = <%= nic['NETWORK']['href'].split('/').last %>,
+		NIC = [ NETWORK_ID = <%= nic['NETWORK']['href'].split('/').last %>
 			<% if nic['IP'] %>
-				 IP = <%= nic['IP'] %>
+				 ,IP = <%= nic['IP'] %>
 			<% end %>
 		]
 		<% end %>
@@ -31,4 +31,3 @@ NAME   = <%= vm_info['NAME'] %>
 <% end %>
 
 INSTANCE_TYPE = <%= vm_info['INSTANCE_TYPE']%>
-

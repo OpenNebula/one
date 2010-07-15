@@ -21,22 +21,15 @@ include OpenNebula
 class ImagePoolOCCI < ImagePool
     OCCI_IMAGE_POOL = %q{
         <STORAGE_COLLECTION>
-        <% if pool_hash['IMAGE_POOL'] && pool_hash['IMAGE_POOL']['IMAGE'] %>
-            <% imagelist=[pool_hash['IMAGE_POOL']['IMAGE']].flatten %>
-            <% imagelist.each{ |image|  %>  
-            <STORAGE href="<%= base_url %>/storage/<%= image['ID'] %>"/>
+            <% self.each{ |im|  %>  
+            <STORAGE href="<%= base_url %>/storage/<%= im.id.to_s  %>" name="<%= im.name  %>"/>
             <% } %>
-        <% end %>
         </STORAGE_COLLECTION>       
     }
     
     
     # Creates the OCCI representation of a Virtual Machine Pool
-    def to_occi(base_url)
-        pool_hash = self.to_hash
-        return pool_hash, 500 if OpenNebula.is_error?(pool_hash)
-
-        begin
+    def to_occi(base_url)begin
             occi = ERB.new(OCCI_IMAGE_POOL)
             occi_text = occi.result(binding) 
         rescue Exception => e

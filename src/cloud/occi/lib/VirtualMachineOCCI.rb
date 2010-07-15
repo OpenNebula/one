@@ -30,11 +30,10 @@ class VirtualMachineOCCI < VirtualMachine
             <% if template['DISK'] %>
                 <% template['DISK'].each do |disk| %> 
             <DISK>
-                <STORAGE href="<%= base_url %>/storage/<%= disk['IMAGE_ID'] %>"/>
-                <NAME><%= disk['NAME'] %></NAME>
+                <STORAGE href="<%= base_url %>/storage/<%= disk['IMAGE_ID'] %>" name="<%= disk['IMAGE'] %>"/>
                 <TYPE><%= disk['TYPE'] %></TYPE>
                 <TARGET><%= disk['TARGET'] %></TARGET>
-                <% if disk['CLONE'] %>
+                <% if disk['CLONE']=='NO' %>
                 <OVERWRITE/>
                 <% end %>
                 <% if disk['SAVE_AS'] %>
@@ -46,9 +45,12 @@ class VirtualMachineOCCI < VirtualMachine
             <% if template['NIC'] %>
                 <% template['NIC'].each do |nic| %> 
             <NIC>
-                <NETWORK href="<%= base_url %>/network/<%= nic['NETWORK_ID'] %>"/>
+                <NETWORK href="<%= base_url %>/network/<%= nic['NETWORK_ID'] %>" name="<%= nic['NETWORK'] %>"/>
                 <% if nic['IP'] %>
                 <IP><%= nic['IP'] %></IP>
+                <% end %>
+                <% if nic['MAC'] %>
+                <MAC><%= nic['MAC'] %></MAC>
                 <% end %>
             </NIC>
                 <% end %>

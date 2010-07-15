@@ -21,21 +21,15 @@ include OpenNebula
 class VirtualMachinePoolOCCI < VirtualMachinePool
     OCCI_VM_POOL = %q{
         <COMPUTE_COLLECTION>
-        <% if pool_hash['VM_POOL'] && pool_hash['VM_POOL']['VM'] %>
-            <% vmlist=[pool_hash['VM_POOL']['VM']].flatten %>
-            <% vmlist.each{ |vm|  %>  
-            <COMPUTE href="<%= base_url %>/compute/<%= vm['ID'] %>"/>
+            <% self.each{ |vm|  %>  
+            <COMPUTE href="<%= base_url %>/compute/<%= vm.id.to_s  %>" name="<%= vm.name  %>"/>
             <% } %>
-        <% end %>
         </COMPUTE_COLLECTION>       
     }
     
     
     # Creates the OCCI representation of a Virtual Machine Pool
     def to_occi(base_url)
-        pool_hash = self.to_hash
-        return pool_hash, 500 if OpenNebula.is_error?(pool_hash)
-
         begin
             occi = ERB.new(OCCI_VM_POOL)
             occi_text = occi.result(binding) 
