@@ -15,6 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include "ClusterPool.h"
+#include "NebulaLog.h"
 
 const char * ClusterPool::table = "cluster_pool";
 
@@ -31,9 +32,10 @@ const string ClusterPool::DEFAULT_CLUSTER_NAME = "default";
 
 int ClusterPool::allocate(int * clid, string name, SqlDB *db)
 {
-    int rc;
-
+    int                         rc;
     map<int, string>::iterator  it;
+
+    ostringstream               oss;
 
     // Return error if name already exists
     for(it=cluster_names.begin();it!=cluster_names.end();it++)
@@ -56,10 +58,20 @@ int ClusterPool::allocate(int * clid, string name, SqlDB *db)
 
     return *clid;
 
-// TODO: LOG ERRORS
+
 error_existing_name:
+    oss << "Could not allocate new cluster: Name \""
+        << name << "\" already exists.";
+
+    goto error_common;
 error_db:
+    oss << "Could not allocate new cluster \"" << name
+        << "\": Database returned error code " << rc << ".";
+    goto error_common;
+
 error_common:
+    NebulaLog::log("CLUSTER", Log::ERROR, oss);
+
     *clid = -1;
     return *clid;
 }
