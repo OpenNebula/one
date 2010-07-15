@@ -1015,6 +1015,91 @@ public:
 
     void vnpool_nic_attribute()
     {
+        VirtualNetworkPoolFriend * vnp =
+                                static_cast<VirtualNetworkPoolFriend *>(pool);
+
+        VectorAttribute *   disk;
+        int                 oid_0, oid_1;
+        string              value;
+
+        // ---------------------------------------------------------------------
+        // Allocate 2 vnets
+
+        string template_0 = "NAME   = \"Net 0\"\n"
+                            "TYPE   = FIXED\n"
+                            "BRIDGE = br1\n"
+                            "LEASES = [IP=130.10.0.1, MAC=50:20:20:20:20:20]";
+
+        string template_1 = "NAME   = \"Net 1\"\n"
+                            "TYPE   = FIXED\n"
+                            "BRIDGE = br2\n"
+                            "LEASES = [IP=130.10.0.5, MAC=50:20:20:20:20:25]";
+
+
+        vnp->allocate(0, template_0, &oid_0);
+        CPPUNIT_ASSERT( oid_0 == 0 );
+
+        vnp->allocate(0, template_1, &oid_1);
+        CPPUNIT_ASSERT( oid_1 == 1 );
+
+
+        // Disk using network 0
+        disk = new VectorAttribute("DISK");
+        disk->replace("NETWORK", "Net 0");
+
+        ((VirtualNetworkPool*)vnp)->nic_attribute(disk, 0);
+
+
+        value = "";
+        value = disk->vector_value("NETWORK");
+        CPPUNIT_ASSERT( value == "Net 0" );
+
+        value = "";
+        value = disk->vector_value("MAC");
+        CPPUNIT_ASSERT( value == "50:20:20:20:20:20" );
+
+        value = "";
+        value = disk->vector_value("BRIDGE");
+        CPPUNIT_ASSERT( value == "br1" );
+
+        value = "";
+        value = disk->vector_value("NETWORK_ID");
+        CPPUNIT_ASSERT( value == "0" );
+
+        value = "";
+        value = disk->vector_value("IP");
+        CPPUNIT_ASSERT( value == "130.10.0.1" );
+
+        delete disk;
+
+
+        // Disk using network 1 index
+        disk = new VectorAttribute("DISK");
+        disk->replace("NETWORK_ID", "1");
+
+        ((VirtualNetworkPool*)vnp)->nic_attribute(disk, 0);
+
+        value = "";
+        value = disk->vector_value("NETWORK");
+        CPPUNIT_ASSERT( value == "Net 1" );
+
+        value = "";
+        value = disk->vector_value("MAC");
+        CPPUNIT_ASSERT( value == "50:20:20:20:20:25" );
+
+        value = "";
+        value = disk->vector_value("BRIDGE");
+        CPPUNIT_ASSERT( value == "br2" );
+
+        value = "";
+        value = disk->vector_value("NETWORK_ID");
+        CPPUNIT_ASSERT( value == "1" );
+
+        value = "";
+        value = disk->vector_value("IP");
+        CPPUNIT_ASSERT( value == "130.10.0.5" );
+
+        delete disk;
     }
 
 };
