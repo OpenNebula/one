@@ -173,6 +173,16 @@ private:
     // ----------------------------------------------------------------------
     // ----------------------------------------------------------------------   
     
+    
+    /**
+     *  Logs authorization errors
+     *    @param method name of the RM method where the error arose
+     *    @param action authorization action
+     *    @param object object that needs to be authorized
+     *    @param uid user that is authorized
+     *    @param id id of the object, -1 for Pool
+     *    @returns string for logging
+     */
     static string authorization_error (const string& method, 
                                        const string &action, 
                                        const string &object, 
@@ -180,7 +190,7 @@ private:
                                        int   id)
     {
         ostringstream oss;
-        oss << "[" << method << "]" << " User [" << uid << "] not authorized "               
+        oss << "[" << method << "]" << " User [" << uid << "] not authorized"               
             << " to perform " << action << " on " << object; 
             
         
@@ -196,6 +206,11 @@ private:
         return oss.str();
     }
     
+    /**
+     *  Logs authenticate errors
+     *    @param method name of the RM method where the error arose
+     *    @returns string for logging
+     */   
     static string authenticate_error (const string& method)
     {
         ostringstream oss;
@@ -205,7 +220,14 @@ private:
       
         return oss.str();
     }
-
+    
+    /**
+     *  Logs get object errors
+     *    @param method name of the RM method where the error arose
+     *    @param object over which the get failed
+     *    @param id of the object over which the get failed
+     *    @returns string for logging
+     */
     static string get_error (const string& method, 
                              const string &object, 
                              int id)
@@ -227,6 +249,16 @@ private:
        return oss.str();
     }
     
+    /**
+     *  Logs action errors
+     *    @param method name of the RM method where the error arose
+     *    @param action that triggered the error
+     *    @param object over which the action was applied
+     *    @param id id of the object, -1 for Pool, -2 for no-id objects   
+     *              (allocate error, parse error)
+     *    @param rc returned error code (NULL to ignore)
+     *    @returns string for logging
+     */
     static string action_error (const string& method,
                                 const string &action, 
                                 const string &object, 
@@ -271,8 +303,14 @@ private:
     {
     public:
         VirtualMachineAllocate(
-            UserPool * _upool):
-		upool(_upool)
+            VirtualMachinePool * _vmpool,
+            VirtualNetworkPool * _vnpool,
+            ImagePool          * _ipool,
+            UserPool           * _upool):
+        vmpool(_vmpool),
+        vnpool(_vnpool),
+        ipool(_ipool),
+        upool(_upool)
         {
             _signature="A:ss";
             _help="Allocates a virtual machine in the pool";
@@ -284,6 +322,9 @@ private:
             xmlrpc_c::paramList const& paramList,
             xmlrpc_c::value *   const  retval);
     private:
+        VirtualMachinePool * vmpool;
+        VirtualNetworkPool * vnpool;
+        ImagePool          * ipool;
         UserPool           * upool;
     };
     
@@ -294,8 +335,8 @@ private:
     public:
         VirtualMachineDeploy(
             VirtualMachinePool * _vmpool,
-            HostPool *           _hpool,
-            UserPool *           _upool):
+            HostPool           * _hpool,
+            UserPool           * _upool):
                 vmpool(_vmpool),
                 hpool(_hpool),
                 upool(_upool)

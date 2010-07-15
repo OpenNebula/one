@@ -127,10 +127,10 @@ error_authorize:
     goto error_common;
 
 error_parse:
-    oss.str(action_error(method_name, "PARSE", "IMAGE TEMPLATE",-2,rc));
+    oss << action_error(method_name, "PARSE", "IMAGE TEMPLATE",-2,rc);
     if (error_msg != 0)
     {
-        oss << "Reason: " << error_msg;
+        oss << ". Reason: " << error_msg;
         free(error_msg);
     }
 

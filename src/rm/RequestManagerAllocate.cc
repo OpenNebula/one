@@ -34,11 +34,6 @@ void RequestManager::VirtualMachineAllocate::execute(
     int                 vid, uid;
     int                 rc;
 
-    Nebula&             nd    = Nebula::instance();
-    ImagePool *         ipool = nd.get_ipool();
-    VirtualNetworkPool* vnpool= nd.get_vnpool();
-    VirtualMachinePool* vmpool= nd.get_vmpool();
-
     ostringstream       oss;
 
     vector<xmlrpc_c::value> arrayData;
@@ -96,7 +91,7 @@ void RequestManager::VirtualMachineAllocate::execute(
                 continue;
             }
 
-            ipool->authorize_disk(vector,&ar);
+            VirtualMachineAllocate::ipool->authorize_disk(vector,&ar);
         }
 
         num = vm_template->get("NIC",vectors);
@@ -110,7 +105,7 @@ void RequestManager::VirtualMachineAllocate::execute(
                 continue;
             }
 
-            vnpool->authorize_nic(vector,&ar);
+            VirtualMachineAllocate::vnpool->authorize_nic(vector,&ar);
         }
 
         ar.add_auth(AuthRequest::VM,
@@ -128,7 +123,7 @@ void RequestManager::VirtualMachineAllocate::execute(
     //--------------------------------------------------------------------------
     //   Allocate the VirtualMAchine
     //--------------------------------------------------------------------------
-    rc = vmpool->allocate(uid,vm_template,&vid,false);
+    rc = VirtualMachineAllocate::vmpool->allocate(uid,vm_template,&vid,false);
 
     if ( rc < 0 )
     {
@@ -157,10 +152,10 @@ error_authorize:
     goto error_common;
 
 error_parse:
-    oss.str(action_error(method_name, "PARSE", "VM TEMPLATE",-2,rc));
+    oss << action_error(method_name, "PARSE", "VM TEMPLATE",-2,rc);
     if (error_msg != 0)
     {
-        oss << "Reason: " << error_msg;
+        oss << ". Reason: " << error_msg;
         free(error_msg);
     }
 

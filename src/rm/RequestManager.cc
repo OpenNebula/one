@@ -214,7 +214,7 @@ void RequestManager::do_action(
 void RequestManager::register_xml_methods()
 {
     xmlrpc_c::methodPtr vm_allocate(new 
-        RequestManager::VirtualMachineAllocate(upool));
+        RequestManager::VirtualMachineAllocate(vmpool, vnpool, ipool, upool));
         
     xmlrpc_c::methodPtr vm_deploy(new 
         RequestManager::VirtualMachineDeploy(vmpool,hpool,upool));
