@@ -164,7 +164,7 @@ module OCCIClient
             xml=File.read(xmlfile)
             image_info=Crack::XML.parse(xml)
             
-            file_path = image_info['DISK']['URL']
+            file_path = image_info['STORAGE']['URL']
             
             m=file_path.match(/^\w+:\/\/(.*)$/)
             
@@ -210,7 +210,7 @@ module OCCIClient
                 end
 
                 file.close
-                
+                pp res
                 if CloudClient::is_error?(res)
                     return res
                 else
@@ -357,6 +357,26 @@ module OCCIClient
         def get_image(image_uuid)
             url = URI.parse(@endpoint+"/storage/"+image_uuid)
             req = Net::HTTP::Get.new(url.path)
+            
+            req.basic_auth @occiauth[0], @occiauth[1]
+            
+            res = CloudClient::http_start(url, @timeout) {|http|
+                http.request(req)
+            }
+
+            if CloudClient::is_error?(res)
+                return res
+            else
+                return res.body
+            end
+        end
+        
+        ######################################################################
+        # :id VM identifier
+        ######################################################################
+        def delete_image(id)
+            url = URI.parse(@endpoint+"/storage/" + id.to_s)
+            req = Net::HTTP::Delete.new(url.path)
             
             req.basic_auth @occiauth[0], @occiauth[1]
             

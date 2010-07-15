@@ -14,7 +14,6 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'repo_manager'
 require 'Configuration'
 require 'OpenNebula'
 require 'pp'
@@ -54,11 +53,6 @@ class CloudServer
         else
             @instance_types[@config[:vm_type]['NAME']]=@config[:vm_type]
         end
-
-        # --- Start a Repository Manager ---
-    
-        @rm = RepoManager.new(@config[:database])
-        Image.image_dir = @config[:image_dir]
 
         # --- Start an OpenNebula Session ---
         
@@ -124,6 +118,31 @@ class CloudServer
         return user
    end
    
+   def xml_to_hash(xml)
+       begin
+           hash = Crack::XML.parse(xml)
+       rescue Exception => e
+           error = OpenNebula::Error.new(e.message)
+           return error
+       end    
+       
+       return hash
+   end
+   
+   def get_template_path(instance_type_name)
+       if instance_type_name.nil?
+           instance_type=@instance_types.first
+       end
+       
+       instance_type=@instance_types[instance_type_name]
+       
+       if !instance_type
+           error = OpenNebula::Error.new("Bad instance type")
+           return error    
+       end
+       
+       return @config[:template_location]+"/#{instance_type['TEMPLATE']}" 
+   end
 
     ###########################################################################
     # Repository Methods
@@ -134,18 +153,58 @@ class CloudServer
     # path:: _String_ path of the tmp file
     # metadata:: Additional metadata for the file
     # [return] _Image_ Newly created image object
-    def add_image(uid, file, metadata={})
-        image = @rm.add(uid,file.path,metadata)
-        file.unlink
+    def add_image(image, file=nil)
+        if file
+            if file[:tempfile]
+                file_path = file[:tempfile].path
+            else
+                error_msg = "Image not present, aborting."
+                error = OpenNebula::Error.new(error_msg)
+                return error
+            end
+        
+            if !File.exists?(file_path)
+                error_msg = "Image file could not be found, aborting."
+                error = OpenNebula::Error.new(error_msg)
+                return error
+            end
+        end
+            
+        template = image.to_one_template
 
-        return image
+        rc = image.allocate(template)
+        if OpenNebula.is_error?(rc)
+           return rc
+        end
+
+        # Copy the Image file
+        image.info
+        template=image.to_hash
+        template=template['IMAGE']['TEMPLATE']
+        
+        if file_path
+            rc = image.copy(file_path, image['SOURCE'])
+            file[:tempfile].unlink
+        elsif template['SIZE'] and template['FSTYPE']
+            rc = image.mk_datablock(
+                    template['SIZE'], 
+                    template['FSTYPE'], 
+                    image['SOURCE'])
+        end
+        
+        if OpenNebula.is_error?(rc)
+           image.delete
+           return rc
+        end
+ 
+        return nil
     end
 
     # Gets an image from the repository
     # image_id:: _Integer_ Image identifier
     # [return] _Image_ Image object
     def get_image(image_id)
-        return @rm.get(image_id)
+        return nil
     end
 end
 

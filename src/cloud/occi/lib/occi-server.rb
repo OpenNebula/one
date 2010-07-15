@@ -72,6 +72,8 @@ end
 helpers do
     def treat_response(result,rc)
         if OpenNebula::is_error?(result)
+            pp 'siiii'
+            pp rc
             halt rc, result.message
         end
         

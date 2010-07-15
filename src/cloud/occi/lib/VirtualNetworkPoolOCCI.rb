@@ -1,25 +1,49 @@
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
 require 'OpenNebula'
 
 include OpenNebula
 
 class VirtualNetworkPoolOCCI < VirtualNetworkPool
     OCCI_NETWORK_POOL = %q{
-        <NETWORKS><% 
-             if network_pool_hash['VNET_POOL'] != nil       
-                  vnlist=[network_pool_hash['VNET_POOL']['VNET']].flatten
-                  vnlist.each{|network|%>
-            <NETWORK href="<%= base_url %>/network/<%= network['ID'].strip
-%>"/><%
-                  } 
-              end %>
-        </NETWORKS>       
+        <NETWORK_COLLECTION>
+        <% if pool_hash['VNET_POOL'] && pool_hash['VNET_POOL']['VNET'] %>
+            <% vnlist=[pool_hash['VNET_POOL']['VNET']].flatten %>
+            <% vnlist.each{ |vn|  %>  
+            <NETWORK href="<%= base_url %>/network/<%= vn['ID'] %>"/>
+            <% } %>
+        <% end %>
+        </NETWORK_COLLECTION>       
     }
     
-    # Creates the OCCI representation of a Virtual Network
-    def to_occi(base_url)   
-      network_pool_hash=to_hash
-      
-      occi = ERB.new(OCCI_NETWORK_POOL)
-      return occi.result(binding).gsub(/\n\s*/,'')
+    
+    # Creates the OCCI representation of a Virtual Machine Pool
+    def to_occi(base_url)
+        pool_hash = self.to_hash
+        return pool_hash, 500 if OpenNebula.is_error?(pool_hash)
+
+        begin
+            occi = ERB.new(OCCI_NETWORK_POOL)
+            occi_text = occi.result(binding) 
+        rescue Exception => e
+            error = OpenNebula::Error.new(e.message)
+            return error
+        end
+
+        return occi_text.gsub(/\n\s*/,'')
     end
 end

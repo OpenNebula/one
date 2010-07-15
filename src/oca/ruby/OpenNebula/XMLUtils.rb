@@ -99,7 +99,12 @@ module OpenNebula
         
         def to_hash 
             if !@hash && @xml
-                @hash=Crack::XML.parse(to_xml)
+                begin
+                   @hash = Crack::XML.parse(to_xml)
+                rescue Exception => e
+                   error = OpenNebula::Error.new(e.message)
+                   return error
+                end
             end
             return @hash
         end

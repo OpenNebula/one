@@ -1,55 +1,34 @@
-NAME   = <%= vm_info['NAME']%>
-
 CPU    = 8
 MEMORY = 8192
 
-OS = [ kernel     = /vmlinuz,
-       initrd     = /initrd.img,
-       root       = sda1,
-       kernel_cmd = "ro xencons=tty console=tty1"]
-       
-<% if vm_info['STORAGE']
-       vm_info['STORAGE'].each do |key, image| 
-  image=[image].flatten
-case key
-    when "SWAP" 
-        image.each do |img|
-%>
-DISK = [ type = "swap", 
-         size=<%= img['size']%>, 
-         target=<%= img['dev']%> ]
-<% 
-        end
-    when "DISK"  
-        image.each do |img|  
-%>
-DISK = [ type = "disk", 
-         target=<%= img['dev']%>, 
-         source=<%= img['source']%>, 
-         image_id=<%= img['image']%> ]
-<%  
-        end
-    when "FS" 
-        image.each do |img| 
-%>
-DISK = [ type = "fs", 
-         target=<%= img['dev']%>, 
-         size=<%= img['size']%>,
-         format=<%= @config[:fs_format]||"ext3"%>  ]   
-<%      end %>
+NAME   = <%= vm_info['NAME'] %>
+
+<% if vm_info['DISK'] %>
+	<% vm_info['DISK'].each do |disk| %>
+		<% if disk['STORAGE'] && disk['STORAGE']['href'] %>
+		DISK = [ IMAGE_ID = <%= disk['STORAGE']['href'].split('/').last %>
+			<% if disk['OVERWRITE'] %>
+				 OVERWRITE = yes
+			<% end %>
+			<% if disk['SAVE_AS'] %>
+				 SAVE_AS = "<%= disk['SAVE_AS'] %>"
+			<% end %>
+		]
+		<% end %>
+	<% end %>
 <% end %>
+
+<% if vm_info['NIC'] %>
+	<% vm_info['NIC'].each do |nic| %>
+		<% if nic['NETWORK'] && nic['NETWORK']['href'] %>
+		NIC = [ NETWORK_ID = <%= nic['NETWORK']['href'].split('/').last %>,
+			<% if nic['IP'] %>
+				 IP = <%= nic['IP'] %>
+			<% end %>
+		]
+		<% end %>
+	<% end %>
 <% end %>
-<% end %>
-<% if vm_info['NETWORK'] and vm_info['NETWORK']['NIC'] %>
-<% vm_info['NETWORK']['NIC'].each do |nic| %>
-NIC = [ 
-<% if nic['ip'] %>
-        IP=<%= nic['ip'] %>,
-<% end %>
-        NETWORK="<%= nic['network']%>", 
-        NETWORK_ID=<%= nic['network_id'] %>      
-]
-<% end %>
-<% end %>
-INSTANCE_TYPE = <%= vm_info[:instance_type ]%>
+
+INSTANCE_TYPE = <%= vm_info['INSTANCE_TYPE']%>
 

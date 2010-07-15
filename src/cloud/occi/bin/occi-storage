@@ -82,7 +82,7 @@ require 'occi/OCCIClient'
 require 'CloudClient'
 require 'getoptlong'
 require "rexml/document"
-
+require 'pp'
 include CloudCLI
 
 opts = GetoptLong.new(
@@ -166,8 +166,14 @@ case ARGV[0].downcase
         rc = occi_client.get_image(image_id)
 
     when 'delete'
-        puts 'Delete not yet implemented'
-        exit(-1)
+        image_id = ARGV[1]
+
+        if !image_id 
+            puts "#{cmd_name} show: missing storage id parameter"
+            exit(-1)
+        end
+        
+        rc = occi_client.delete_image(image_id)
 
     else
         puts "Command #{ARGV[0]} not valid."
