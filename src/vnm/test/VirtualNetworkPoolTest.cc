@@ -998,14 +998,7 @@ public:
             CPPUNIT_ASSERT( vn != 0 );
 
 //cout << endl << i << ":expected " << results[i] << " got " << vn->is_public();
-
-// =============================================================================
-// =============================================================================
-//          Branch feature 203 doesn't have is_public method, but this test is
-//          still valid for master.
-//            CPPUNIT_ASSERT( vn->is_public() == results[i] );
-// =============================================================================
-// =============================================================================
+            CPPUNIT_ASSERT( vn->isPublic() == results[i] );
             i++;
         }
     }

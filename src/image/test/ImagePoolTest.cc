@@ -864,13 +864,7 @@ public:
             CPPUNIT_ASSERT( img != 0 );
 //cout << endl << i << " : exp. " << results[i] << " got " << img->is_public();
 
-// =============================================================================
-// =============================================================================
-//          Branch feature 203 doesn't have is_public method, but this test is
-//          still valid for master.
-//            CPPUNIT_ASSERT( img->is_public() == results[i] );
-// =============================================================================
-// =============================================================================
+            CPPUNIT_ASSERT( img->isPublic() == results[i] );
 
             i++;
         }
