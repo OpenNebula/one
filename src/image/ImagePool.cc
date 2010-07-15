@@ -19,6 +19,7 @@
 /* ************************************************************************** */
 
 #include "ImagePool.h"
+#include "AuthManager.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -88,55 +89,31 @@ ImagePool::ImagePool(   SqlDB * db,
 
 int ImagePool::allocate (
         int            uid,
-        const  string& stemplate,
+        ImageTemplate* img_template,
         int *          oid)
 {
-    int     rc;
     Image * img;
-
     string  name;
-    char *  error_msg;
 
     // ---------------------------------------------------------------------
     // Build a new Image object
     // ---------------------------------------------------------------------
-    img = new Image(uid);
-
-    // ---------------------------------------------------------------------
-    // Parse template
-    // ---------------------------------------------------------------------
-    rc = img->image_template.parse(stemplate, &error_msg);
-
-    if ( rc != 0 )
-    {
-        ostringstream oss;
-        oss << "ImagePool template parse error: " << error_msg;
-        NebulaLog::log("IMG", Log::ERROR, oss);
-
-        free(error_msg);
-        delete img;
-
-        return -1;
-    }
+    img = new Image(uid,img_template);
 
     img->get_template_attribute("NAME", name);
 
     // ---------------------------------------------------------------------
     // Insert the Object in the pool
     // ---------------------------------------------------------------------
-
     *oid = PoolSQL::allocate(img);
-
-    if ( *oid == -1 )
-    {
-        return -1;
-    }
 
     // ---------------------------------------------------------------------
     // Add the image name to the map of image_names
     // ---------------------------------------------------------------------
-
-    image_names.insert(make_pair(name, *oid));
+    if ( *oid != -1 )
+    {
+        image_names.insert(make_pair(name, *oid));
+    }
 
     return *oid;
 }
@@ -187,3 +164,96 @@ int ImagePool::dump(ostringstream& oss, const string& where)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+int ImagePool::disk_attribute(VectorAttribute * disk, int * index)
+{
+    string  source;
+    Image * img = 0;
+
+    source = disk->vector_value("IMAGE");
+
+    if (source.empty())
+    {
+        istringstream   is;
+        int             image_id;
+
+        source = disk->vector_value("IMAGE_ID");
+
+        if (source.empty())
+        {
+            return -2;
+        }
+
+        is.str(source);
+        is >> image_id;
+
+        if( !is.fail() )
+        {
+            img = get(image_id,true);
+        }
+    }
+    else
+    {
+        img = get(source,true);
+    }
+
+    if (img == 0)
+    {
+        return -1;
+    }
+
+    int rc = img->disk_attribute(disk,index);
+
+    img->unlock();
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void ImagePool::authorize_disk(VectorAttribute * disk, AuthRequest * ar)
+{
+    string  source;
+    Image * img = 0;
+
+    source = disk->vector_value("IMAGE");
+
+    if (source.empty())
+    {
+        istringstream   is;
+        int             image_id;
+
+        source = disk->vector_value("IMAGE_ID");
+
+        if (source.empty())
+        {
+            return;
+        }
+
+        is.str(source);
+        is >> image_id;
+
+        if( !is.fail() )
+        {
+            img = get(image_id,true);
+        }
+    }
+    else
+    {
+        img = get(source,true);
+    }
+
+    if (img == 0)
+    {
+        return;
+    }
+
+    ar->add_auth(AuthRequest::IMAGE,
+                 img->get_iid(),
+                 AuthRequest::USE,
+                 img->get_uid(),
+                 img->isPublic());
+
+    img->unlock();
+}

@@ -25,12 +25,14 @@
 #include "Image.h"
 #include "ImagePool.h"
 
+#include "AuthManager.h"
+#include "UserPool.h"
 
 /* ************************************************************************ */
 /* Image :: Constructor/Destructor                                           */
 /* ************************************************************************ */
 
-Image::Image(int _uid):
+Image::Image(int _uid, ImageTemplate * _image_template):
         PoolObjectSQL(-1),
         uid(_uid),
         name(""),
@@ -39,9 +41,24 @@ Image::Image(int _uid):
         source(""),
         state(INIT),
         running_vms(0)
-        {};
+{
+    if (_image_template != 0)
+    {
+        image_template = _image_template;
+    }
+    else
+    {
+        image_template = new ImageTemplate;
+    }
+};
 
-Image::~Image(){};
+Image::~Image()
+{
+    if (image_template != 0)
+    {
+        delete image_template;
+    }
+};
 
 /* ************************************************************************ */
 /* Image :: Database Access Functions                                        */
@@ -91,7 +108,7 @@ int Image::select_cb(void * nil, int num, char **values, char ** names)
 
     running_vms = atoi(values[RUNNING_VMS]);
 
-    image_template.id  = oid;
+    image_template->id  = oid;
 
     return 0;
 }
@@ -121,7 +138,7 @@ int Image::select(SqlDB *db)
 
     // Get the template
 
-    rc = image_template.select(db);
+    rc = image_template->select(db);
 
     if ( rc != 0 )
     {
@@ -180,7 +197,7 @@ int Image::insert(SqlDB *db)
     // ------------ PUBLIC --------------------
 
     get_template_attribute("PUBLIC", public_attr);
-    image_template.erase("PUBLIC");
+    image_template->erase("PUBLIC");
 
     transform (public_attr.begin(), public_attr.end(), public_attr.begin(),
         (int(*)(int))toupper);
@@ -196,7 +213,7 @@ int Image::insert(SqlDB *db)
         SingleAttribute * dev_att = new SingleAttribute("DEV_PREFIX",
                                           ImagePool::default_dev_prefix());
 
-        image_template.set(dev_att);
+        image_template->set(dev_att);
     }
 
     // ------------ SOURCE (path to store the image)--------------------
@@ -208,29 +225,31 @@ int Image::insert(SqlDB *db)
 
     source = tmp_sourcestream.str();
 
+    // ------------ INSERT THE TEMPLATE --------------------
 
-    // Set up the template ID, to insert it
-    if ( image_template.id == -1 )
+    if ( image_template->id == -1 )
     {
-        image_template.id = oid;
+        image_template->id = oid;
     }
 
     state = DISABLED;
 
-    // Insert the Template
-    rc = image_template.insert(db);
+    rc = image_template->insert(db);
 
     if ( rc != 0 )
     {
         return rc;
     }
 
-    //Insert the Image
+    //--------------------------------------------------------------------------
+    // Insert the Image
+    //--------------------------------------------------------------------------
+
     rc = insert_replace(db, false);
 
     if ( rc != 0 )
     {
-        image_template.drop(db);
+        image_template->drop(db);
 
         return rc;
     }
@@ -240,9 +259,11 @@ int Image::insert(SqlDB *db)
 error_name:
     NebulaLog::log("IMG", Log::ERROR, "NAME not present in image template");
     goto error_common;
+
 error_type:
     NebulaLog::log("IMG", Log::ERROR, "Incorrect TYPE in image template");
     goto error_common;
+
 error_common:
     return -1;
 }
@@ -368,7 +389,7 @@ int Image::drop(SqlDB * db)
         return -1;
     }
 
-    image_template.drop(db);
+    image_template->drop(db);
 
     oss << "DELETE FROM " << table << " WHERE oid=" << oid;
 
@@ -418,7 +439,7 @@ string& Image::to_xml(string& xml) const
             "<SOURCE>"         << source      << "</SOURCE>"      <<
             "<STATE>"          << state       << "</STATE>"       <<
             "<RUNNING_VMS>"    << running_vms << "</RUNNING_VMS>" <<
-            image_template.to_xml(template_xml)                   <<
+            image_template->to_xml(template_xml)                   <<
         "</IMAGE>";
 
     xml = oss.str();
@@ -446,7 +467,7 @@ string& Image::to_str(string& str) const
         "STATE       = "    << state       << endl <<
         "RUNNING_VMS = "    << running_vms << endl <<
         "TEMPLATE"          << endl
-                            << image_template.to_str(template_str)
+                            << image_template->to_str(template_str)
                             << endl;
 
     str = os.str();
@@ -529,12 +550,10 @@ int Image::disk_attribute(VectorAttribute * disk, int * index)
 {
     string  overwrite;
     string  saveas;
-    string  name;
     string  bus;
 
     ostringstream  iid;
 
-    name      = disk->vector_value("NAME");
     overwrite = disk->vector_value("OVERWRITE");
     saveas    = disk->vector_value("SAVE_AS");
     bus       = disk->vector_value("BUS");
@@ -564,10 +583,9 @@ int Image::disk_attribute(VectorAttribute * disk, int * index)
 
     map<string,string> new_disk;
 
-    new_disk.insert(make_pair("NAME",name));
-    new_disk.insert(make_pair("IID", iid.str()));
-
-    new_disk.insert(make_pair("SOURCE", source));
+    new_disk.insert(make_pair("IMAGE",    name));
+    new_disk.insert(make_pair("IMAGE_ID", iid.str()));
+    new_disk.insert(make_pair("SOURCE",   source));
 
     if (!overwrite.empty())
     {

@@ -188,22 +188,29 @@ extern "C" void expr_bool_error(
 
 void get_xml_attribute(ObjectXML * oxml, const char* attr, int& val)
 {
-    //TODO: pass xpath base
-    ostringstream  xpath_t;
-    ostringstream  xpath_s;
-
-    vector<string> results;
-
-    xpath_t << "/HOST/TEMPLATE/" << attr;
-    xpath_s << "/HOST/HOST_SHARE/" << attr;
-
     val = 0;
 
+    //TODO: pass xpath base
+    vector<string> results;
+    ostringstream  xpath_t;
+
+    xpath_t << "/HOST/TEMPLATE/" << attr;
     results = (*oxml)[xpath_t.str().c_str()];
 
     if (results.size() == 0)
     {
+        ostringstream  xpath_s;
+
+        xpath_s << "/HOST/HOST_SHARE/" << attr;
         results = (*oxml)[xpath_s.str().c_str()];
+
+        if (results.size() == 0)
+        {
+            ostringstream  xpath_h;
+
+            xpath_h << "/HOST/" << attr;
+            results = (*oxml)[xpath_h.str().c_str()];
+        }
     }
 
     if (results.size() != 0)
@@ -215,22 +222,29 @@ void get_xml_attribute(ObjectXML * oxml, const char* attr, int& val)
 
 void get_xml_attribute(ObjectXML * oxml, const char* attr, float& val)
 {
+    val = 0.0;
+
     //TODO: pass xpath base
     ostringstream  xpath_t;
-    ostringstream  xpath_s;
-
     vector<string> results;
 
     xpath_t << "/HOST/TEMPLATE/" << attr;
-    xpath_s << "/HOST/HOST_SHARE/" << attr;
-
-    val = 0.0;
-
     results = (*oxml)[xpath_t.str().c_str()];
 
     if (results.size() == 0)
     {
+        ostringstream  xpath_s;
+
+        xpath_s << "/HOST/HOST_SHARE/" << attr;
         results = (*oxml)[xpath_s.str().c_str()];
+
+        if (results.size() == 0)
+        {
+            ostringstream  xpath_h;
+
+            xpath_h << "/HOST/" << attr;
+            results = (*oxml)[xpath_h.str().c_str()];
+        }
     }
 
     if (results.size() != 0)
@@ -242,22 +256,29 @@ void get_xml_attribute(ObjectXML * oxml, const char* attr, float& val)
 
 void get_xml_attribute(ObjectXML * oxml, const char* attr, string& val)
 {
+    val = "";
+
     //TODO: pass xpath base
     ostringstream  xpath_t;
-    ostringstream  xpath_s;
-
     vector<string> results;
 
     xpath_t << "/HOST/TEMPLATE/" << attr;
-    xpath_s << "/HOST/HOST_SHARE/" << attr;
-
-    val = "";
-
     results = (*oxml)[xpath_t.str().c_str()];
 
     if (results.size() == 0)
     {
+        ostringstream  xpath_s;
+
+        xpath_s << "/HOST/HOST_SHARE/" << attr;
         results = (*oxml)[xpath_s.str().c_str()];
+
+        if (results.size() == 0)
+        {
+            ostringstream  xpath_h;
+
+            xpath_h << "/HOST/" << attr;
+            results = (*oxml)[xpath_h.str().c_str()];
+        }
     }
 
     if (results.size() != 0)

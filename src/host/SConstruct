@@ -26,6 +26,7 @@ source_files=[
     'HostShare.cc',
     'HostPool.cc',
     'HostTemplate.cc',
+    'ClusterPool.cc',
 ]
 
 # Build library

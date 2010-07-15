@@ -27,55 +27,103 @@ void RequestManager::VirtualMachineAllocate::execute(
     xmlrpc_c::value *   const  retval)
 {
     string              session;
-    string              username;
-    string              password;
-    string              vm_template;
+    string              str_template;
 
-    int                 vid;
-    int                 uid;
+    const string        method_name = "VirtualMachineAllocate";
+
+    int                 vid, uid;
     int                 rc;
-
-    Nebula&             nd = Nebula::instance();
-    DispatchManager *   dm = nd.get_dm();
-
-    User            *   user;
 
     ostringstream       oss;
 
     vector<xmlrpc_c::value> arrayData;
     xmlrpc_c::value_array * arrayresult;
 
+    VirtualMachineTemplate * vm_template;
+    char *                   error_msg = 0;
+
+    int                   num;
+    vector<Attribute  * > vectors;
+    VectorAttribute *     vector;
 
     NebulaLog::log("ReM",Log::DEBUG,"VirtualMachineAllocate invoked");
 
-    session     = xmlrpc_c::value_string(paramList.getString(0));
-    vm_template = xmlrpc_c::value_string(paramList.getString(1));
-    vm_template += "\n";
+    session      = xmlrpc_c::value_string(paramList.getString(0));
+    str_template = xmlrpc_c::value_string(paramList.getString(1));
+    str_template += "\n";
 
+    //--------------------------------------------------------------------------
+    //   Authenticate the user
+    //--------------------------------------------------------------------------
+    uid = VirtualMachineAllocate::upool->authenticate(session);
 
-    // First, we need to authenticate the user
-    rc = VirtualMachineAllocate::upool->authenticate(session);
-
-    if ( rc == -1 )
+    if (uid == -1)
     {
         goto error_authenticate;
     }
 
-    User::split_secret(session,username,password);
+    //--------------------------------------------------------------------------
+    //   Authorize this request
+    //--------------------------------------------------------------------------
+    vm_template = new VirtualMachineTemplate;
 
-    // Now let's get the user
-    user = VirtualMachineAllocate::upool->get(username,true);
+    rc = vm_template->parse(str_template,&error_msg);
 
-    if ( user == 0 )
+    if ( rc != 0 )
     {
-        goto error_get_user;
+        goto error_parse;
     }
 
-    uid = user->get_uid();
+    if ( uid != 0 )
+    {
+        AuthRequest ar(uid);
+        string      t64;
 
-    user->unlock();
+        num = vm_template->get("DISK",vectors);
 
-    rc = dm->allocate(uid,vm_template,&vid);
+        for(int i=0; i<num; i++)
+        {
+
+            vector = dynamic_cast<VectorAttribute * >(vectors[i]);
+
+            if ( vector == 0 )
+            {
+                continue;
+            }
+
+            VirtualMachineAllocate::ipool->authorize_disk(vector,&ar);
+        }
+
+        num = vm_template->get("NIC",vectors);
+
+        for(int i=0; i<num; i++)
+        {
+            vector = dynamic_cast<VectorAttribute * >(vectors[i]);
+
+            if ( vector == 0 )
+            {
+                continue;
+            }
+
+            VirtualMachineAllocate::vnpool->authorize_nic(vector,&ar);
+        }
+
+        ar.add_auth(AuthRequest::VM,
+                    vm_template->to_xml(t64),
+                    AuthRequest::CREATE,
+                    uid,
+                    false);
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            goto error_authorize;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+    //   Allocate the VirtualMAchine
+    //--------------------------------------------------------------------------
+    rc = VirtualMachineAllocate::vmpool->allocate(uid,vm_template,&vid,false);
 
     if ( rc < 0 )
     {
@@ -92,26 +140,30 @@ void RequestManager::VirtualMachineAllocate::execute(
 
     delete arrayresult; // and get rid of the original
 
-
     return;
 
 error_authenticate:
-    oss << "User not authenticated, aborting RequestManagerAllocate call.";
+    oss.str(authenticate_error(method_name));
     goto error_common;
 
-error_get_user:
-    oss << "User not recognized, cannot allocate VirtualMachine";
+error_authorize:
+    oss.str(authorization_error(method_name, "CREATE", "VM", uid, -1));
+    delete vm_template;
+    goto error_common;
+
+error_parse:
+    oss << action_error(method_name, "PARSE", "VM TEMPLATE",-2,rc);
+    if (error_msg != 0)
+    {
+        oss << ". Reason: " << error_msg;
+        free(error_msg);
+    }
+
+    delete vm_template;
     goto error_common;
 
 error_allocate:
-    if (rc == -1)
-    {
-        oss << "Error inserting VM in the database, check oned.log";
-    }
-    else
-    {
-        oss << "Error parsing VM template";
-    }
+    oss.str(action_error(method_name, "CREATE", "VM", -2, rc));
     goto error_common;
 
 error_common:

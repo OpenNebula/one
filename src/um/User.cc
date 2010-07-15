@@ -307,21 +307,6 @@ string& User::to_str(string& str) const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int User::authenticate(string _password)
-{
-    if (enabled && _password==password)
-    {
-        return oid;
-    }
-    else
-    {
-        return -1;
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 int User::split_secret(const string secret, string& user, string& pass)
 {
     size_t pos;

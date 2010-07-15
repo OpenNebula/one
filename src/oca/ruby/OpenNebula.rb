@@ -19,6 +19,8 @@ require 'OpenNebula/User'
 require 'OpenNebula/UserPool'
 require 'OpenNebula/Host'
 require 'OpenNebula/HostPool'
+require 'OpenNebula/Cluster'
+require 'OpenNebula/ClusterPool'
 
 module OpenNebula
 

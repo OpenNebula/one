@@ -18,7 +18,55 @@
 /* Host Pool                                                    			  */
 /* ************************************************************************** */
 
+#include <stdexcept>
+
 #include "HostPool.h"
+#include "ClusterPool.h"
+#include "NebulaLog.h"
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int HostPool::init_cb(void *nil, int num, char **values, char **names)
+{
+    if ( num != 2 || values == 0 || values[0] == 0 )
+    {
+        return -1;
+    }
+
+    cluster_pool.cluster_names.insert( make_pair(atoi(values[0]), values[1]) );
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+
+HostPool::HostPool(SqlDB* db):PoolSQL(db,Host::table)
+{
+    ostringstream   sql;
+
+    set_callback(static_cast<Callbackable::Callback>(&HostPool::init_cb));
+
+    sql << "SELECT " << ClusterPool::db_names << " FROM "
+        <<  ClusterPool::table;
+
+    db->exec(sql, this);
+
+    unset_callback();
+
+    if (cluster_pool.cluster_names.empty())
+    {
+        int rc = cluster_pool.insert(0, ClusterPool::DEFAULT_CLUSTER_NAME, db);
+
+        if(rc != 0)
+        {
+            throw runtime_error("Could not create default cluster HostPool");
+        }
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 int HostPool::allocate (
     int *  oid,
@@ -126,6 +174,58 @@ int HostPool::dump(ostringstream& oss, const string& where)
     oss << "</HOST_POOL>";
 
     unset_callback();
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int HostPool::drop_cluster(int clid)
+{
+    int                         rc;
+    map<int, string>::iterator  it;
+    string                      cluster_name;
+
+    it = cluster_pool.cluster_names.find(clid);
+
+    if ( it == cluster_pool.cluster_names.end() )
+    {
+        return -1;
+    }
+
+    cluster_name = it->second;
+
+    // try to drop the cluster from the pool and DB
+    rc = cluster_pool.drop(clid, db);
+
+    // Move the hosts assigned to the deleted cluster to the default one
+    if( rc == 0 )
+    {
+        Host*                   host;
+        vector<int>             hids;
+        vector<int>::iterator   hid_it;
+
+        string                  where = "cluster = '" + cluster_name + "'";
+
+        search(hids, Host::table, where);
+
+        for ( hid_it=hids.begin() ; hid_it < hids.end(); hid_it++ )
+        {
+            host = get(*hid_it, true);
+
+            if ( host == 0 )
+            {
+                continue;
+            }
+
+            set_default_cluster(host);
+
+            update(host);
+
+            host->unlock();
+        }
+    }
 
     return rc;
 }

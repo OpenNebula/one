@@ -80,6 +80,40 @@ const string xml_history_dump =
 
 const string replacement = "0000000000";
 
+/* ************************************************************************* */
+/* ************************************************************************* */
+
+class VirtualMachinePoolFriend : public VirtualMachinePool
+{
+public:
+    VirtualMachinePoolFriend(SqlDB * db, vector<const Attribute *> hook_mads):
+            VirtualMachinePool(db, hook_mads)
+        {};
+
+
+    int allocate (
+        int    uid,
+        const  string& stemplate,
+        int *  oid,
+        bool   on_hold = false)
+    {
+        VirtualMachineTemplate * vm_template;
+        char *          error_msg = 0;
+        int             rc;
+
+        vm_template = new VirtualMachineTemplate;
+        rc = vm_template->parse(stemplate,&error_msg);
+
+        if( rc == 0 )
+        {
+            return VirtualMachinePool::allocate(uid, vm_template, oid, on_hold);
+        }
+        else
+        {
+            return -1;
+        }
+    };
+};
 
 /* ************************************************************************* */
 /* ************************************************************************* */
@@ -114,15 +148,15 @@ protected:
     {
         // The VM pool needs a vector containing the vm hooks
         vector<const Attribute *> vm_hooks;
-        return new VirtualMachinePool(db, vm_hooks);
+        return new VirtualMachinePoolFriend(db, vm_hooks);
     };
 
     int allocate(int index)
     {
         int oid;
-        return ((VirtualMachinePool*)pool)->allocate(uids[index],
-                                                     templates[index],
-                                                     &oid, false);
+        return ((VirtualMachinePoolFriend*)pool)->allocate( uids[index],
+                                                            templates[index],
+                                                            &oid, false);
     };
 
     void check(int index, PoolObjectSQL* obj)
@@ -231,7 +265,8 @@ public:
 
     void dump()
     {
-        VirtualMachinePool * vmp = static_cast<VirtualMachinePool*>(pool);
+        VirtualMachinePoolFriend * vmp =
+                                static_cast<VirtualMachinePoolFriend*>(pool);
 
         set_up_user_pool();
 
@@ -253,7 +288,8 @@ public:
 
     void dump_where()
     {
-        VirtualMachinePool * vmp = static_cast<VirtualMachinePool*>(pool);
+        VirtualMachinePoolFriend * vmp =
+                                static_cast<VirtualMachinePoolFriend*>(pool);
 
         set_up_user_pool();
 
@@ -275,7 +311,8 @@ public:
 
     void dump_history()
     {
-        VirtualMachinePool * vmp = static_cast<VirtualMachinePool*>(pool);
+        VirtualMachinePoolFriend * vmp =
+                                static_cast<VirtualMachinePoolFriend*>(pool);
         VirtualMachine*      vm;
 
         string hostnames[] = {"A_hostname", "B_hostname", "C_hostname"};
@@ -374,8 +411,9 @@ public:
 
     void history()
     {
-        VirtualMachine *      vm;
-        VirtualMachinePool *  vmp = static_cast<VirtualMachinePool*>(pool);
+        VirtualMachine *           vm;
+        VirtualMachinePoolFriend * vmp =
+                                static_cast<VirtualMachinePoolFriend*>(pool);
 
         int rc, oid;
 
@@ -395,7 +433,7 @@ public:
         // Add a history item
         vm->add_history(0, hostname, vm_dir, vmm_mad, tm_mad);
 
-	rc = vmp->update(vm);
+        rc = vmp->update(vm);
         CPPUNIT_ASSERT( rc == 0 );
 
         rc = vmp->update_history(vm);
@@ -403,7 +441,7 @@ public:
 
         vm->add_history(0, new_hostname, vm_dir, vmm_mad, tm_mad);
 
-	rc = vmp->update(vm);
+        rc = vmp->update(vm);
         CPPUNIT_ASSERT( rc == 0 );
 
         vm->set_reason(History::USER);

@@ -40,6 +40,7 @@ Host::Host(
         vmm_mad_name(_vmm_mad_name),
         tm_mad_name(_tm_mad_name),
         last_monitored(0),
+        cluster(ClusterPool::DEFAULT_CLUSTER_NAME),
         host_template(id)
         {};
 
@@ -53,12 +54,13 @@ Host::~Host(){};
 const char * Host::table = "host_pool";
 
 const char * Host::db_names = "(oid,host_name,state,im_mad,vm_mad,"
-                              "tm_mad,last_mon_time)";
+                              "tm_mad,last_mon_time, cluster)";
 
 const char * Host::db_bootstrap = "CREATE TABLE IF NOT EXISTS host_pool ("
     "oid INTEGER PRIMARY KEY,host_name VARCHAR(512), state INTEGER,"
     "im_mad VARCHAR(128),vm_mad VARCHAR(128),tm_mad VARCHAR(128),"
-    "last_mon_time INTEGER, UNIQUE(host_name, im_mad, vm_mad, tm_mad) )";
+    "last_mon_time INTEGER, cluster VARCHAR(128), "
+    "UNIQUE(host_name, im_mad, vm_mad, tm_mad) )";
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
@@ -72,6 +74,7 @@ int Host::select_cb(void * nil, int num, char **values, char ** names)
         (!values[VM_MAD]) ||
         (!values[TM_MAD]) ||
         (!values[LAST_MON_TIME]) ||
+        (!values[CLUSTER]) ||
         (num != LIMIT ))
     {
         return -1;
@@ -86,6 +89,8 @@ int Host::select_cb(void * nil, int num, char **values, char ** names)
     tm_mad_name  = values[TM_MAD];
 
     last_monitored = static_cast<time_t>(atoi(values[LAST_MON_TIME]));
+
+    cluster = values[CLUSTER];
 
     host_template.id = oid;
     host_share.hsid  = oid;
@@ -118,7 +123,6 @@ int Host::select(SqlDB *db)
     }
 
     // Get the template
-
     rc = host_template.select(db);
 
     if ( rc != 0 )
@@ -127,7 +131,6 @@ int Host::select(SqlDB *db)
     }
 
     // Select the host shares from the DB
-
     rc = host_share.select(db);
 
     if ( rc != 0 )
@@ -137,7 +140,6 @@ int Host::select(SqlDB *db)
 
     return 0;
 }
-
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
@@ -238,6 +240,7 @@ int Host::insert_replace(SqlDB *db, bool replace)
     char * sql_im_mad_name;
     char * sql_tm_mad_name;
     char * sql_vmm_mad_name;
+    char * sql_cluster;
 
    // Update the Host
 
@@ -269,6 +272,13 @@ int Host::insert_replace(SqlDB *db, bool replace)
         goto error_vmm;
     }
 
+    sql_cluster = db->escape_str(cluster.c_str());
+
+    if ( sql_cluster == 0 )
+    {
+        goto error_cluster;
+    }
+
     if(replace)
     {
         oss << "REPLACE";
@@ -287,7 +297,8 @@ int Host::insert_replace(SqlDB *db, bool replace)
         << "'" << sql_im_mad_name << "',"
         << "'" << sql_vmm_mad_name << "',"
         << "'" << sql_tm_mad_name << "',"
-        << last_monitored << ")";
+        << last_monitored << ","
+        << "'" << sql_cluster << "')";
 
     rc = db->exec(oss);
 
@@ -295,9 +306,12 @@ int Host::insert_replace(SqlDB *db, bool replace)
     db->free_str(sql_im_mad_name);
     db->free_str(sql_tm_mad_name);
     db->free_str(sql_vmm_mad_name);
+    db->free_str(sql_cluster);
 
     return rc;
 
+error_cluster:
+    db->free_str(sql_vmm_mad_name);
 error_vmm:
     db->free_str(sql_tm_mad_name);
 error_tm:
@@ -320,6 +334,7 @@ int Host::dump(ostringstream& oss, int num, char **values, char **names)
         (!values[VM_MAD]) ||
         (!values[TM_MAD]) ||
         (!values[LAST_MON_TIME]) ||
+        (!values[CLUSTER]) ||
         (num != LIMIT + HostShare::LIMIT ))
     {
         return -1;
@@ -333,7 +348,8 @@ int Host::dump(ostringstream& oss, int num, char **values, char **names)
             "<IM_MAD>"       << values[IM_MAD]       <<"</IM_MAD>"       <<
             "<VM_MAD>"       << values[VM_MAD]       <<"</VM_MAD>"       <<
             "<TM_MAD>"       << values[TM_MAD]       <<"</TM_MAD>"       <<
-            "<LAST_MON_TIME>"<< values[LAST_MON_TIME]<<"</LAST_MON_TIME>";
+            "<LAST_MON_TIME>"<< values[LAST_MON_TIME]<<"</LAST_MON_TIME>"<<
+            "<CLUSTER>"      << values[CLUSTER]      <<"</CLUSTER>";
 
     HostShare::dump(oss,num - LIMIT, values + LIMIT, names + LIMIT);
 
@@ -402,13 +418,12 @@ int Host::update_info(string &parse_str)
 
 ostream& operator<<(ostream& os, Host& host)
 {
-	string host_str;
+    string host_str;
 
-	os << host.to_xml(host_str);
+    os << host.to_xml(host_str);
 
     return os;
 };
-
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
@@ -416,7 +431,7 @@ ostream& operator<<(ostream& os, Host& host)
 string& Host::to_xml(string& xml) const
 {
     string template_xml;
-	string share_xml;
+    string share_xml;
     ostringstream   oss;
 
     oss <<
@@ -428,9 +443,10 @@ string& Host::to_xml(string& xml) const
        "<VM_MAD>"        << vmm_mad_name   << "</VM_MAD>"        <<
        "<TM_MAD>"        << tm_mad_name    << "</TM_MAD>"        <<
        "<LAST_MON_TIME>" << last_monitored << "</LAST_MON_TIME>" <<
- 	   host_share.to_xml(share_xml)  <<
+       "<CLUSTER>"       << cluster        << "</CLUSTER>"       <<
+       host_share.to_xml(share_xml)  <<
        host_template.to_xml(template_xml) <<
-	"</HOST>";
+    "</HOST>";
 
     xml = oss.str();
 
@@ -443,22 +459,23 @@ string& Host::to_xml(string& xml) const
 string& Host::to_str(string& str) const
 {
     string template_str;
-	string share_str;
+    string share_str;
 
     ostringstream   os;
 
     os <<
-		"ID      =  "  << oid            << endl <<
-    	"NAME = "      << hostname       << endl <<
-    	"STATE    = "  << state          << endl <<
-    	"IM MAD   = "  << im_mad_name    << endl <<
-    	"VMM MAD  = "  << vmm_mad_name   << endl <<
-    	"TM MAD   = "  << tm_mad_name    << endl <<
-    	"LAST_MON = "  << last_monitored << endl <<
+        "ID      =  "  << oid            << endl <<
+        "NAME = "      << hostname       << endl <<
+        "STATE    = "  << state          << endl <<
+        "IM MAD   = "  << im_mad_name    << endl <<
+        "VMM MAD  = "  << vmm_mad_name   << endl <<
+        "TM MAD   = "  << tm_mad_name    << endl <<
+        "LAST_MON = "  << last_monitored << endl <<
+        "CLUSTER  = "  << cluster        << endl <<
         "ATTRIBUTES"   << endl << host_template.to_str(template_str) << endl <<
         "HOST SHARES"  << endl << host_share.to_str(share_str) <<endl;
 
-	str = os.str();
+    str = os.str();
 
-	return str;
+    return str;
 }

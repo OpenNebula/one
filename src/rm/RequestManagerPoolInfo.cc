@@ -23,22 +23,22 @@
 void RequestManager::VirtualMachinePoolInfo::execute(
     xmlrpc_c::paramList const& paramList,
     xmlrpc_c::value *   const  retval)
-{ 
+{
     string              session;
     string              username;
     string              password;
 
     int                 filter_flag;
     int                 rc;
-    
+
     ostringstream       oss;
     ostringstream       where_string;
-
-    User *              user;
 
     /*   -- RPC specific vars --  */
     vector<xmlrpc_c::value> arrayData;
     xmlrpc_c::value_array * arrayresult;
+    
+    const string     method_name = "VirtualMachinePoolInfo";
 
     NebulaLog::log("ReM",Log::DEBUG,"VirtualMachinePoolInfo method invoked");
 
@@ -54,43 +54,28 @@ void RequestManager::VirtualMachinePoolInfo::execute(
         goto error_authenticate;
     }
 
-    where_string.str("");
-
-    /** Filter flag meaning table
+    /*  Filter flag meaning table
      *    <=-2 :: ALL VMs
      *     -1  :: User's VMs
      *    >=0  :: UID User's VMs
-     **/
+     */
     if (filter_flag == -1)
     {
-        User::split_secret(session,username,password);
-        
-        // Now let's get the user
-        user = VirtualMachinePoolInfo::upool->get(username,true);
-
-        if ( user == 0 )
-        {
-            goto error_get_user;
-        }
-
-        where_string << "UID=" << user->get_uid();
-
-        user->unlock();
+        where_string << "UID=" << rc;
     }
     else if (filter_flag>=0)
-         {
-           where_string << "UID=" << filter_flag;
-         }
+    {
+        where_string << "UID=" << filter_flag;
+    }
 
-    // Perform the allocation in the vmpool 
     rc = VirtualMachinePoolInfo::vmpool->dump(oss,where_string.str());
-      
+
     if ( rc != 0 )
-    {                                            
+    {
         goto error_dump;
     }
-    
-    // All nice, return the vm info to the client  
+
+    // All nice, return the vm info to the client
     arrayData.push_back(xmlrpc_c::value_boolean(true)); // SUCCESS
 
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
@@ -103,28 +88,23 @@ void RequestManager::VirtualMachinePoolInfo::execute(
     return;
 
 error_authenticate:
-    oss << "User not authenticated, aborting RequestManagerPoolInfo call.";
-    goto error_common;
-
-error_get_user:
-    oss << "An error ocurred getting the user from the UserPool, aborting RequestManagerPoolInfo call";
+    oss.str(authenticate_error(method_name));  
     goto error_common;
 
 error_dump:
-    oss << "Error getting the pool info";
+    oss.str(get_error(method_name, "VM", -1));
     goto error_common;
 
 error_common:
-
     arrayData.push_back(xmlrpc_c::value_boolean(false)); // FAILURE
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
-    
+
     NebulaLog::log("ReM",Log::ERROR,oss);
-    
+
     xmlrpc_c::value_array arrayresult_error(arrayData);
 
     *retval = arrayresult_error;
-    
+
     return;
 }
 

@@ -17,24 +17,28 @@
 #include "RequestManager.h"
 #include "NebulaLog.h"
 
+#include "AuthManager.h"
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 void RequestManager::UserAllocate::execute(
     xmlrpc_c::paramList const& paramList,
     xmlrpc_c::value *   const  retval)
-{ 
+{
     string              session;
 
     string              username;
-    string              password; 
-    
+    string              password;
+
     int                 uid;
 
-    int                 rc;     
+    int                 rc;
     ostringstream       oss;
 
     User              * user;
+
+    const string        method_name = "UserAllocate";
 
     /*   -- RPC specific vars --  */
     vector<xmlrpc_c::value> arrayData;
@@ -44,16 +48,32 @@ void RequestManager::UserAllocate::execute(
 
     // Get the parameters
     session      = xmlrpc_c::value_string(paramList.getString(0));
-    
+
     username     = xmlrpc_c::value_string(paramList.getString(1));
     password     = xmlrpc_c::value_string(paramList.getString(2));
-    
-    // Only oneadmin can add users
+
     rc = UserAllocate::upool->authenticate(session);
-    
-    if ( rc != 0 )                             
-    {                                            
-        goto error_authenticate;                     
+
+    if ( rc == -1 )
+    {
+        goto error_authenticate;
+    }
+
+    //Authorize the operation
+    if ( rc != 0 ) // rc == 0 means oneadmin
+    {
+        AuthRequest ar(rc);
+
+        ar.add_auth(AuthRequest::USER,
+                    -1,
+                    AuthRequest::CREATE,
+                    0,
+                    false);
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            goto error_authorize;
+        }
     }
 
     // Let's make sure that the user doesn't exist in the database
@@ -63,51 +83,54 @@ void RequestManager::UserAllocate::execute(
     {
         goto error_duplicate;
     }
-    
+
     // Now let's add the user
     rc = UserAllocate::upool->allocate(&uid,username,password,true);
-    
-    if ( rc == -1 )                             
-    {                                            
-        goto error_allocate;                     
-    }    
-    
-    // All nice, return the new uid to client  
+
+    if ( rc == -1 )
+    {
+        goto error_allocate;
+    }
+
+    // All nice, return the new uid to client
     arrayData.push_back(xmlrpc_c::value_boolean(true)); // SUCCESS
     arrayData.push_back(xmlrpc_c::value_int(uid));
 
     // Copy arrayresult into retval mem space
     arrayresult = new xmlrpc_c::value_array(arrayData);
     *retval = *arrayresult;
-    
+
     delete arrayresult; // and get rid of the original
 
     return;
 
 error_authenticate:
-    oss << "User not authorized to add new users";
-    goto error_common;
-    
-error_duplicate:
-    oss << "Existing user, cannot duplicate";
+    oss.str(authenticate_error(method_name));
     goto error_common;
 
+error_authorize:
+    oss.str(authorization_error(method_name, "CREATE", "USER", rc, -1));
+    goto error_common;
+
+error_duplicate:
+    oss << action_error(method_name, "CREATE", "USER", -2, -1)
+        << ". Reason: Existing user, cannot duplicate.";
+    goto error_common;
 
 error_allocate:
-    oss << "Error allocating user";
+    oss.str(action_error(method_name, "CREATE", "USER", -2, rc));
     goto error_common;
 
 error_common:
-
     arrayData.push_back(xmlrpc_c::value_boolean(false));  // FAILURE
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
-    
-    NebulaLog::log("ReM",Log::ERROR,oss); 
-    
+
+    NebulaLog::log("ReM",Log::ERROR,oss);
+
     xmlrpc_c::value_array arrayresult_error(arrayData);
 
     *retval = arrayresult_error;
-    
+
     return;
 }
 

@@ -17,6 +17,8 @@
 #include "RequestManager.h"
 #include "NebulaLog.h"
 
+#include "AuthManager.h"
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -33,6 +35,8 @@ void RequestManager::VirtualNetworkInfo::execute(
     VirtualNetwork *    vn;
     
     ostringstream       oss;
+    
+    const string        method_name = "VirtualNetworkInfo";
 
     /*   -- RPC specific vars --  */
     vector<xmlrpc_c::value> arrayData;
@@ -51,7 +55,7 @@ void RequestManager::VirtualNetworkInfo::execute(
     {
         goto error_authenticate;
     }
-
+    
     vn = vnpool->get(nid,true);
                                               
     if ( vn == 0 )                             
@@ -76,15 +80,14 @@ void RequestManager::VirtualNetworkInfo::execute(
     return;
 
 error_authenticate:
-    oss << "User not authenticated, VirtualNetworkInfo call aborted.";
+    oss.str(authenticate_error(method_name));
     goto error_common;
 
 error_vn_get:
-    oss << "Error getting Virtual Network with NID = " << nid; 
+    oss.str(get_error(method_name, "NET", nid));
     goto error_common;
-
+    
 error_common:
-
     arrayData.push_back(xmlrpc_c::value_boolean(false)); // FAILURE
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
 

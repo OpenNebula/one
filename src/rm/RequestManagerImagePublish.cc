@@ -15,9 +15,11 @@
 /* -------------------------------------------------------------------------- */
 
 #include "RequestManager.h"
-#include "NebulaLog.h"
 
+#include "NebulaLog.h"
 #include "Nebula.h"
+
+#include "AuthManager.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -31,11 +33,15 @@ void RequestManager::ImagePublish::execute(
     int                 iid;
     bool                publish_flag; 
     int                 uid;
-    int                 rc;
+    
+    int                 image_owner;
+    bool                is_public;
     
     Image             * image;
 
     ostringstream       oss;
+    
+    const string        method_name = "ImagePublish";
 
     vector<xmlrpc_c::value> arrayData;
     xmlrpc_c::value_array * arrayresult;
@@ -48,14 +54,12 @@ void RequestManager::ImagePublish::execute(
     publish_flag = xmlrpc_c::value_boolean(paramList.getBoolean(2));
 
     // First, we need to authenticate the user
-    rc = ImagePublish::upool->authenticate(session);
+    uid = ImagePublish::upool->authenticate(session);
 
-    if ( rc == -1 )
+    if ( uid == -1 )
     {
         goto error_authenticate;
     }
-    
-    uid = rc;
     
     // Get image from the ImagePool
     image = ImagePublish::ipool->get(iid,true);    
@@ -65,11 +69,36 @@ void RequestManager::ImagePublish::execute(
         goto error_image_get;                     
     }
     
-    if ( uid != 0 && uid != image->get_uid() )
+    image_owner = image->get_uid();
+    is_public   = image->isPublic();
+    
+    image->unlock();
+    
+    //Authorize the operation
+    if ( uid != 0 ) // uid == 0 means oneadmin
     {
-        goto error_authorization;
-    }
+        AuthRequest ar(uid);
 
+        ar.add_auth(AuthRequest::IMAGE,
+                    iid,
+                    AuthRequest::MANAGE,
+                    image_owner,
+                    is_public);
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            goto error_authorize;
+        }
+    }
+    
+    // Get the image locked again
+    image = ImagePublish::ipool->get(iid,true);  
+    
+    if ( image == 0 )                             
+    {                                            
+        goto error_image_get;                     
+    } 
+    
     image->publish(publish_flag);
     
     ImagePublish::ipool->update(image);
@@ -88,17 +117,15 @@ void RequestManager::ImagePublish::execute(
     return;
 
 error_authenticate:
-    oss << "[ImagePublish] User not authenticated, aborting call.";
+    oss.str(authenticate_error(method_name));    
     goto error_common;
     
 error_image_get:
-    oss << "[ImagePublish] Error getting image with ID = " << iid; 
+    oss.str(get_error(method_name, "IMAGE", iid)); 
     goto error_common;
     
-error_authorization:
-    oss << "[ImagePublish] User not authorized to publish/unpublish image" << 
-           ", aborting call.";
-    image->unlock();
+error_authorize:
+    oss.str(authorization_error(method_name, "MANAGE", "IMAGE", uid, iid));
     goto error_common;
 
 error_common:

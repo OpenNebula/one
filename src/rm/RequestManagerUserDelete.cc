@@ -17,20 +17,24 @@
 #include "RequestManager.h"
 #include "NebulaLog.h"
 
+#include "AuthManager.h"
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 void RequestManager::UserDelete::execute(
     xmlrpc_c::paramList const& paramList,
     xmlrpc_c::value *   const  retval)
-{ 
-    string session;
+{
+    string        session;
 
-    int    uid;
-    User * user;
+    int           uid;
+    User *        user;
 
-    int rc;     
+    int           rc;
     ostringstream oss;
+
+    const string  method_name = "UserDelete";
 
     /*   -- RPC specific vars --  */
     vector<xmlrpc_c::value> arrayData;
@@ -47,33 +51,49 @@ void RequestManager::UserDelete::execute(
     {
         goto error_oneadmin_deletion;
     }
-    
-    // Only oneadmin can delete users
+
     rc = UserDelete::upool->authenticate(session);
-    
-    if ( rc != 0 )
+
+    if ( rc == -1 )
     {
         goto error_authenticate;
     }
 
-    // Now let's get the user 
+    //Authorize the operation
+    if ( rc != 0 ) // rc == 0 means oneadmin
+    {
+        AuthRequest ar(rc);
+
+        ar.add_auth(AuthRequest::USER,
+                    uid,
+                    AuthRequest::DELETE,
+                    0,
+                    false);
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            goto error_authorize;
+        }
+    }
+
+    // Now let's get the user
     user = UserDelete::upool->get(uid,true);
-   
-    if ( user == 0) 
+
+    if ( user == 0)
     {
         goto error_get_user;
     }
-    
+
     rc = UserDelete::upool->drop(user);
 
     user->unlock();
-    
-    if ( rc != 0 )                             
-    {                                            
-        goto error_delete;                     
-    }    
-    
-    // All nice, return the new uid to client  
+
+    if ( rc != 0 )
+    {
+        goto error_delete;
+    }
+
+    // All nice, return the new uid to client
     arrayData.push_back(xmlrpc_c::value_boolean(true)); // SUCCESS
 
     // Copy arrayresult into retval mem space
@@ -85,31 +105,36 @@ void RequestManager::UserDelete::execute(
     return;
 
 error_oneadmin_deletion:
-    oss << "User oneadmin cannot be deleted";
+    oss << action_error(method_name, "DELETE", "USER", uid, -1)
+        << ". Reason: Oneadmin cannot be deleted.";
     goto error_common;
 
 error_authenticate:
-    oss << "User not authorized to delete users";
+    oss.str(authenticate_error(method_name));
     goto error_common;
-    
+
+error_authorize:
+    oss.str(authorization_error(method_name, "DELETE", "USER", rc, uid));
+    goto error_common;
+
 error_get_user:
-    oss << "Error retrieving user " << uid;
+    oss.str(get_error(method_name, "USER", uid));
     goto error_common;
 
 error_delete:
-    oss << "Error deleting user " << uid;
+    oss.str(action_error(method_name, "DELETE", "USER", uid, rc));
     goto error_common;
 
 error_common:
     arrayData.push_back(xmlrpc_c::value_boolean(false));  // FAILURE
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
-    
-    NebulaLog::log("ReM",Log::ERROR,oss); 
-    
+
+    NebulaLog::log("ReM",Log::ERROR,oss);
+
     xmlrpc_c::value_array arrayresult_error(arrayData);
 
     *retval = arrayresult_error;
-    
+
     return;
 }
 

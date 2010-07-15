@@ -37,6 +37,8 @@ void RequestManager::VirtualMachineDeploy::execute(
     string              tm_mad;
     string              vmdir;
 
+    const string  method_name = "VirtualMachineDeploy";
+
     VirtualMachine *    vm;
     Host *              host;
 
@@ -56,10 +58,7 @@ void RequestManager::VirtualMachineDeploy::execute(
     vid     = xmlrpc_c::value_int(paramList.getInt(1));
     hid     = xmlrpc_c::value_int(paramList.getInt(2));
 
-    //We also need the hsid
-
     //Get host info to deploy the VM
-
     host = VirtualMachineDeploy::hpool->get(hid,true);
 
     if ( host == 0 )
@@ -76,7 +75,6 @@ void RequestManager::VirtualMachineDeploy::execute(
     host->unlock();
 
     //Get the VM
-
     vm = VirtualMachineDeploy::vmpool->get(vid,true);
 
     if ( vm == 0 )
@@ -86,21 +84,34 @@ void RequestManager::VirtualMachineDeploy::execute(
 
     uid = vm->get_uid();
 
-    // Only oneadmin or the VM owner can perform operations upon the VM
-    rc = VirtualMachineDeploy::upool->authenticate(session);
-
-    if ( rc != 0 && rc != uid)
-    {
-        goto error_authenticate;
-    }
-
     if ( vm->get_state() != VirtualMachine::PENDING )
     {
         goto error_state;
     }
 
-    //Update host info and share usage (cpu,mem....)
+    //Authenticate the user
+    rc = VirtualMachineDeploy::upool->authenticate(session);
 
+    if ( rc == -1 )
+    {
+        goto error_authenticate;
+    }
+
+    //Authorize the operation
+    if ( rc != 0 ) // rc == 0 means oneadmin
+    {
+        AuthRequest ar(rc);
+
+        ar.add_auth(AuthRequest::VM,vid,AuthRequest::MANAGE,uid,false);
+        ar.add_auth(AuthRequest::HOST,hid,AuthRequest::USE,0,false);
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            goto error_authorize;
+        }
+    }
+
+    //Update host info and share usage (cpu,mem....)
     vm->add_history(hid,hostname,vmdir,vmm_mad,tm_mad);
 
     rc = VirtualMachineDeploy::vmpool->update_history(vm);
@@ -113,13 +124,11 @@ void RequestManager::VirtualMachineDeploy::execute(
     vmpool->update(vm); //Insert last_seq in the DB
 
     //Deploy the VM
-
     dm->deploy(vm);
 
     vm->unlock();
 
     // Send results to client
-
     arrayData.push_back(xmlrpc_c::value_boolean(true));
 
     arrayresult = new xmlrpc_c::value_array(arrayData);
@@ -130,35 +139,39 @@ void RequestManager::VirtualMachineDeploy::execute(
 
     return;
 
-error_authenticate:
-    vm->unlock();
-    oss << "User not authorized to perform the deploy";
-    goto error_common;
-
 error_host_get:
-    oss << "The host " << hid << " does not exists";
+    oss.str(get_error(method_name, "HOST", hid));
     goto error_common;
 
 error_vm_get:
-    oss << "The virtual machine " << vid << " does not exists";
-    goto error_common;
-
-error_history:
-	vm->unlock();
-
-    oss << "Can not deploy VM " << vid << ", can not insert history";
+    oss.str(get_error(method_name, "VM", vid));
     goto error_common;
 
 error_state:
-	vm->unlock();
+    oss << action_error(method_name, "MANAGE", "VM", vid, -1)
+        << ". Reason: VM in wrong state.";
+    goto error_common_lock;
 
-    oss << "Can not deploy VM " << vid << ", wrong state";
-    goto error_common;
+error_authenticate:
+    oss.str(authenticate_error(method_name));
+    goto error_common_lock;
+
+error_authorize:
+    oss.str(authorization_error(method_name, "MANAGE", "VM", rc, vid));
+    goto error_common_lock;
+
+error_history:
+    oss.str(action_error(method_name, "INSERT HISTORY", "VM", vid, rc));
+    goto error_common_lock;
+
+error_common_lock:
+    vm->unlock();
 
 error_common:
-
     arrayData.push_back(xmlrpc_c::value_boolean(false));
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
+
+    NebulaLog::log("ReM",Log::ERROR,oss);
 
     xmlrpc_c::value_array arrayresult_error(arrayData);
 

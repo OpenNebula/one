@@ -20,6 +20,7 @@
 #include "PoolSQL.h"
 #include "HostShare.h"
 #include "HostTemplate.h"
+#include "ClusterPool.h"
 
 using namespace std;
 
@@ -90,14 +91,14 @@ public:
 
         if ( state != DISABLED) //Don't change the state is host is disabled
         {
-        	if (success == true)
-        	{
-        		state = MONITORED;
-        	}
-        	else
-        	{
-        		state = ERROR;
-        	}
+            if (success == true)
+            {
+                state = MONITORED;
+            }
+            else
+            {
+                state = ERROR;
+            }
         }
     };
 
@@ -107,7 +108,7 @@ public:
      */
     void disable()
     {
-    	state = DISABLED;
+        state = DISABLED;
     };
 
     /**
@@ -116,17 +117,17 @@ public:
      */
     void enable()
     {
-    	state = INIT;
+        state = INIT;
     };
 
     /**
      *  Returns host host_name
      *     @return host_name Host's hostname
      */
- 	const string& get_hostname() const
+    const string& get_hostname() const
     {
-	    return hostname;
-	};
+        return hostname;
+    };
 
     /** Update host counters and update the whole host on the DB
      *    @param parse_str string with values to be parsed
@@ -186,6 +187,16 @@ public:
     time_t get_last_monitored() const
     {
         return last_monitored;
+    };
+
+    /**
+     *  Sets the cluster for this host
+     *    @return time_t last monitored time
+     */
+    int set_cluster(const string& cluster_name)
+    {
+        cluster = cluster_name;
+        return 0;
     };
 
     // ------------------------------------------------------------------------
@@ -396,6 +407,11 @@ private:
      */
     time_t      last_monitored;
 
+    /**
+     *  Name of the cluster this host belongs to.
+     */
+    string      cluster;
+
     // -------------------------------------------------------------------------
     //  Host Attributes
     // -------------------------------------------------------------------------
@@ -472,7 +488,8 @@ protected:
         VM_MAD           = 4,
         TM_MAD           = 5,
         LAST_MON_TIME    = 6,
-        LIMIT            = 7
+        CLUSTER          = 7,
+        LIMIT            = 8
     };
 
     static const char * db_names;

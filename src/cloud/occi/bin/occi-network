@@ -192,7 +192,7 @@ else
     xml = doc.root
     
     if xml.nil?
-        puts "XML syntax error"
+        puts rc
         exit(-1)
     end
     

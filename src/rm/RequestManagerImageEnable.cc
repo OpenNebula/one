@@ -15,9 +15,11 @@
 /* -------------------------------------------------------------------------- */
 
 #include "RequestManager.h"
-#include "NebulaLog.h"
 
+#include "NebulaLog.h"
 #include "Nebula.h"
+
+#include "AuthManager.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -33,9 +35,14 @@ void RequestManager::ImageEnable::execute(
     int                 uid;
     int                 rc;
     
+    int                 image_owner;
+    bool                is_public;
+    
     Image             * image;
 
     ostringstream       oss;
+    
+    const string        method_name = "ImageEnable";
 
     vector<xmlrpc_c::value> arrayData;
     xmlrpc_c::value_array * arrayresult;
@@ -48,14 +55,12 @@ void RequestManager::ImageEnable::execute(
     enable_flag = xmlrpc_c::value_boolean(paramList.getBoolean(2));
 
     // First, we need to authenticate the user
-    rc = ImageEnable::upool->authenticate(session);
+    uid = ImageEnable::upool->authenticate(session);
 
-    if ( rc == -1 )
+    if ( uid == -1 )
     {
         goto error_authenticate;
     }
-    
-    uid = rc;
     
     // Get image from the ImagePool
     image = ImageEnable::ipool->get(iid,true);    
@@ -65,11 +70,36 @@ void RequestManager::ImageEnable::execute(
         goto error_image_get;                     
     }
     
-    if ( uid != 0 && uid != image->get_uid() )
+    image_owner = image->get_uid();
+    is_public   = image->isPublic();
+    
+    image->unlock();
+    
+    //Authorize the operation
+    if ( uid != 0 ) // uid == 0 means oneadmin
     {
-        goto error_authorization;
-    }
+        AuthRequest ar(uid);
 
+        ar.add_auth(AuthRequest::IMAGE,
+                    iid,
+                    AuthRequest::MANAGE,
+                    image_owner,
+                    is_public);
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            goto error_authorize;
+        }
+    }
+    
+    // Get image from the ImagePool
+    image = ImageEnable::ipool->get(iid,true);    
+                                                 
+    if ( image == 0 )                             
+    {                                            
+        goto error_image_get;                     
+    }
+    
     rc = image->enable(enable_flag);
 
     if ( rc < 0 )
@@ -94,21 +124,19 @@ void RequestManager::ImageEnable::execute(
     return;
 
 error_authenticate:
-    oss << "[ImageEnable] User not authenticated, aborting call.";
+    oss.str(authenticate_error(method_name));    
     goto error_common;
     
 error_image_get:
-    oss << "[ImageEnable] Error getting image with ID = " << iid; 
+    oss.str(get_error(method_name, "IMAGE", iid)); 
     goto error_common;
     
-error_authorization:
-    oss << "[ImageEnable] User not authorized to enable/disable image" << 
-           " attributes, aborting call.";
-    image->unlock();
+error_authorize:
+    oss.str(authorization_error(method_name, "MANAGE", "IMAGE", uid, iid));
     goto error_common;
     
 error_enable:
-    oss << "[ImageEnable] Cannot enable/disable image [" << iid << "]";
+    oss.str(action_error(method_name, "ENABLE/DISABLE", "IMAGE", iid, rc));
     image->unlock();
     goto error_common;
 

@@ -31,11 +31,13 @@ void RequestManager::VirtualNetworkPoolInfo::execute(
     ostringstream oss;
     ostringstream where_string;
 
-	int			  rc;
+    int           rc;
     int           filter_flag;
 
     User *        user;
-	
+    
+    const string  method_name = "VirtualNetworkPoolInfo";
+
     /*   -- RPC specific vars --  */
     vector<xmlrpc_c::value> arrayData;
     xmlrpc_c::value_array * arrayresult;
@@ -61,6 +63,8 @@ void RequestManager::VirtualNetworkPoolInfo::execute(
      *     -1  :: User's VMs
      *    >=0  :: UID User's VMs
      **/
+     
+     // TODO define authorization (bug #278)
     if (filter_flag == -1)
     {
         User::split_secret(session,username,password);
@@ -105,15 +109,15 @@ void RequestManager::VirtualNetworkPoolInfo::execute(
     return;
 
 error_authenticate:
-    oss << "User not authenticated, NetworkPoolInfo call aborted.";
+    oss.str(authenticate_error(method_name));
     goto error_common;
 
 error_get_user:
-    oss << "Error getting user, aborting NetworkPoolInfo call";
+    oss.str(get_error(method_name, "USER", -1));
     goto error_common;
 
 error_dump:
-    oss << "Error getting virtual network pool"; 
+    oss.str(get_error(method_name, "HOST", -1));
     goto error_common;
 
 error_common:

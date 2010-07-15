@@ -27,6 +27,8 @@
 #include <iostream>
 #include <vector>
 
+class AuthRequest;
+
 using namespace std;
 
 /**
@@ -53,9 +55,9 @@ public:
      *                  -2 in case of template parse failure
      */
     int allocate (
-        int            uid,
-        const  string& stemplate,
-        int *          oid);
+        int             uid,
+        ImageTemplate * img_template,
+        int *           oid);
 
     /**
      *  Function to get a Image from the pool, if the object is not in memory
@@ -131,7 +133,7 @@ public:
     {
         SingleAttribute * sattr = new SingleAttribute(name,value);
 
-        return image->image_template.replace_attribute(db,sattr);
+        return image->image_template->replace_attribute(db,sattr);
     }
 
     /** Delete an image attribute in the template (Image MUST be locked)
@@ -143,7 +145,7 @@ public:
         Image *       image,
         const string& name)
     {
-        return image->image_template.remove_attribute(db, name);
+        return image->image_template->remove_attribute(db, name);
     }
 
     /**
@@ -168,31 +170,14 @@ public:
      *    @param disk the disk to be generated
      *    @return 0 on success, -1 error, -2 not using the pool
      */
-    int disk_attribute(VectorAttribute * disk, int * index)
-    {
-        string  source;
-        Image * img;
+    int disk_attribute(VectorAttribute * disk, int * index);
 
-        source = disk->vector_value("NAME");
-
-        if (source.empty())
-        {
-            return -2;
-        }
-
-        img = get(source,true);
-
-        if (img == 0)
-        {
-            return -1;
-        }
-
-        int rc = img->disk_attribute(disk,index);
-
-        img->unlock();
-
-        return rc;
-    }
+    /**
+     *  Generates an Authorization token for the DISK attribute
+     *    @param disk the disk to be authorized
+     *    @param ar the AuthRequest
+     */
+    void authorize_disk(VectorAttribute * disk, AuthRequest * ar);
 
     static const string& source_prefix()
     {

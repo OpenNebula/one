@@ -17,6 +17,8 @@
 #include "RequestManager.h"
 #include "NebulaLog.h"
 
+#include "AuthManager.h"
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -25,18 +27,19 @@ void RequestManager::VirtualNetworkAllocate::execute(
     xmlrpc_c::value *   const  retval)
 {
     string              session;
-    string              username;
-    string              password;
     string              name;
-    string              stemplate;
+    string              str_template;
+
+    VirtualNetworkTemplate * vn_template;
 
     int                 nid;
     int                 uid;
     int                 rc;
-
-    User *              user;
+    char *              error_msg = 0;
 
     ostringstream       oss;
+
+    const string        method_name = "VirtualNetworkAllocate";
 
     /*   -- RPC specific vars --  */
     vector<xmlrpc_c::value> arrayData;
@@ -45,27 +48,57 @@ void RequestManager::VirtualNetworkAllocate::execute(
     NebulaLog::log("ReM",Log::DEBUG,"VirtualNetworkAllocate method invoked");
 
     // Get the parameters & host
-    session   = xmlrpc_c::value_string(paramList.getString(0));
-    stemplate = xmlrpc_c::value_string(paramList.getString(1));
+    session      = xmlrpc_c::value_string(paramList.getString(0));
+    str_template = xmlrpc_c::value_string(paramList.getString(1));
 
-    if ( User::split_secret(session,username,password) != 0 )
+    //--------------------------------------------------------------------------
+    //   Authorize this request
+    //--------------------------------------------------------------------------
+    uid = VirtualNetworkAllocate::upool->authenticate(session);
+
+    if ( uid == -1 )
     {
-        goto error_session;
+        goto error_authenticate;
     }
 
-    // Now let's get the user
-    user = VirtualNetworkAllocate::upool->get(username,true);
+    //--------------------------------------------------------------------------
+    //   Authorize this request
+    //--------------------------------------------------------------------------
+    vn_template = new VirtualNetworkTemplate;
 
-    if ( user == 0 )
+    rc = vn_template->parse(str_template,&error_msg);
+
+    if ( rc != 0 )
     {
-        goto error_get_user;
+        goto error_parse;
     }
 
-    uid = user->get_uid();
+    if ( uid != 0 )
+    {
+        AuthRequest ar(uid);
+        string      t64;
+        string      pub;
+        string      pub_name = "PUBLIC";
 
-    user->unlock();
+        vn_template->get(pub_name, pub);
+        transform (pub.begin(), pub.end(), pub.begin(),(int(*)(int))toupper);
 
-    rc = vnpool->allocate(uid,stemplate,&nid);
+        ar.add_auth(AuthRequest::NET,
+                    vn_template->to_xml(t64),
+                    AuthRequest::CREATE,
+                    uid,
+                    (pub == "YES"));
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            goto error_authorize;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+    //   Allocate the Virtual Network
+    //--------------------------------------------------------------------------
+    rc = vnpool->allocate(uid,vn_template,&nid);
 
     if ( rc < 0 )
     {
@@ -84,16 +117,28 @@ void RequestManager::VirtualNetworkAllocate::execute(
     return;
 
 
-error_session:
-    oss << "Session information malformed, cannot allocate VirtualNetwork";
+error_authenticate:
+    oss.str(authenticate_error(method_name));
     goto error_common;
 
-error_get_user:
-    oss << "User not recognized, cannot allocate VirtualNetwork";
+error_authorize:
+    oss.str(authorization_error(method_name, "CREATE", "VNET", uid, -1));
+    delete vn_template;
+    goto error_common;
+
+error_parse:
+    oss << action_error(method_name, "PARSE", "VNET TEMPLATE",-2,rc);
+    if (error_msg != 0)
+    {
+        oss << ". Reason: " << error_msg;
+        free(error_msg);
+    }
+
+    delete vn_template;
     goto error_common;
 
 error_vn_allocate:
-    oss << "Error allocating VN with template: " << endl << stemplate;
+    oss.str(action_error(method_name, "CREATE", "NET", -2, rc));
     goto error_common;
 
 error_common:

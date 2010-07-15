@@ -15,9 +15,11 @@
 /* -------------------------------------------------------------------------- */
 
 #include "RequestManager.h"
-#include "NebulaLog.h"
 
+#include "NebulaLog.h"
 #include "Nebula.h"
+
+#include "AuthManager.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -31,11 +33,12 @@ void RequestManager::VirtualNetworkPublish::execute(
     int                 nid;
     bool                publish_flag; 
     int                 uid;
-    int                 rc;
     
     VirtualNetwork *    vn;
 
     ostringstream       oss;
+
+    const string  method_name = "VirtualNetworkPublish";
 
     vector<xmlrpc_c::value> arrayData;
     xmlrpc_c::value_array * arrayresult;
@@ -48,14 +51,12 @@ void RequestManager::VirtualNetworkPublish::execute(
     publish_flag = xmlrpc_c::value_boolean(paramList.getBoolean(2));
 
     // First, we need to authenticate the user
-    rc = VirtualNetworkPublish::upool->authenticate(session);
+    uid = VirtualNetworkPublish::upool->authenticate(session);
 
-    if ( rc == -1 )
+    if ( uid == -1 )
     {
         goto error_authenticate;
     }
-    
-    uid = rc;
     
     // Get virtual network from the VirtualNetworkPool
     vn = VirtualNetworkPublish::vnpool->get(nid,true);    
@@ -65,9 +66,21 @@ void RequestManager::VirtualNetworkPublish::execute(
         goto error_vn_get;                     
     }
     
-    if ( uid != 0 && uid != vn->get_uid() )
+    //Authorize the operation
+    if ( uid != 0 ) // uid == 0 means oneadmin
     {
-        goto error_authorization;
+        AuthRequest ar(uid);
+
+        ar.add_auth(AuthRequest::NET,
+                    nid,
+                    AuthRequest::MANAGE,
+                    0,
+                    vn->isPublic());
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            goto error_authorize;
+        }
     }
 
     vn->publish(publish_flag);
@@ -88,16 +101,15 @@ void RequestManager::VirtualNetworkPublish::execute(
     return;
 
 error_authenticate:
-    oss << "[VirtualNetworkPublish] User not authenticated, aborting call.";
+     oss.str(authenticate_error(method_name));
     goto error_common;
     
 error_vn_get:
-    oss << "[VirtualNetworkPublish] Error getting VN with ID = " << nid; 
+    oss.str(get_error(method_name, "NET", nid));
     goto error_common;
     
-error_authorization:
-    oss << "[VirtualNetworkPublish] User not authorized to (un)publish VN" << 
-           ", aborting call.";
+error_authorize:
+    oss.str(authorization_error(method_name, "MANAGE", "NET", uid, nid));
     vn->unlock();
     goto error_common;
 
