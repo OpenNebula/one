@@ -105,7 +105,7 @@ public:
      *  Returns true if the image is public
      *     @return true if the image is public
      */
-    bool is_public()
+    bool isPublic()
     {
         return (public_img == 1);
     };
@@ -221,7 +221,7 @@ public:
         string& name,
         vector<const Attribute*>& values) const
     {
-        return image_template.get(name,values);
+        return image_template->get(name,values);
     };
 
     /**
@@ -235,7 +235,7 @@ public:
         vector<const Attribute*>& values) const
     {
         string str=name;
-        return image_template.get(str,values);
+        return image_template->get(str,values);
     };
 
     /**
@@ -248,7 +248,7 @@ public:
         string&         value) const
     {
         string str=name;
-        image_template.get(str,value);
+        image_template->get(str,value);
     }
 
     /**
@@ -261,7 +261,7 @@ public:
         int&            value) const
     {
         string str=name;
-        image_template.get(str,value);
+        image_template->get(str,value);
     }
 
     /**
@@ -270,7 +270,7 @@ public:
      */
     int remove_template_attribute(SqlDB * db, const string&   name)
     {
-        return image_template.remove_attribute(db, name);
+        return image_template->remove_attribute(db, name);
     }
 
 private:
@@ -332,7 +332,7 @@ private:
     /**
      *  The Image template, holds the Image attributes.
      */
-    ImageTemplate    image_template;
+    ImageTemplate *  image_template;
 
 
     // *************************************************************************
@@ -382,7 +382,7 @@ protected:
     // Constructor
     // *************************************************************************
 
-    Image(int id=-1);
+    Image(int uid=-1, ImageTemplate *img_template = 0);
 
     virtual ~Image();
 

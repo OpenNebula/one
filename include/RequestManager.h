@@ -166,7 +166,130 @@ private:
     void register_xml_methods();
     
     int setup_socket();
-
+    
+    // ----------------------------------------------------------------------
+    // ----------------------------------------------------------------------
+    //                          Error Messages
+    // ----------------------------------------------------------------------
+    // ----------------------------------------------------------------------   
+    
+    
+    /**
+     *  Logs authorization errors
+     *    @param method name of the RM method where the error arose
+     *    @param action authorization action
+     *    @param object object that needs to be authorized
+     *    @param uid user that is authorized
+     *    @param id id of the object, -1 for Pool
+     *    @returns string for logging
+     */
+    static string authorization_error (const string& method, 
+                                       const string &action, 
+                                       const string &object, 
+                                       int   uid,
+                                       int   id)
+    {
+        ostringstream oss;
+        oss << "[" << method << "]" << " User [" << uid << "] not authorized"               
+            << " to perform " << action << " on " << object; 
+            
+        
+        if ( id != -1 )
+        {
+            oss << " [" << id << "].";
+        }
+        else
+        {
+            oss << " Pool";
+        }
+        
+        return oss.str();
+    }
+    
+    /**
+     *  Logs authenticate errors
+     *    @param method name of the RM method where the error arose
+     *    @returns string for logging
+     */   
+    static string authenticate_error (const string& method)
+    {
+        ostringstream oss;
+        
+        oss << "[" << method << "]" << " User couldn't be authenticated," <<
+               " aborting call.";
+      
+        return oss.str();
+    }
+    
+    /**
+     *  Logs get object errors
+     *    @param method name of the RM method where the error arose
+     *    @param object over which the get failed
+     *    @param id of the object over which the get failed
+     *    @returns string for logging
+     */
+    static string get_error (const string& method, 
+                             const string &object, 
+                             int id)
+    {
+        ostringstream oss;
+        
+        oss << "[" << method << "]" << " Error getting " << 
+               object;
+               
+       if ( id != -1 )
+       {
+           oss << " [" << id << "].";
+       }
+       else
+       {
+          oss << " Pool."; 
+       }
+        
+       return oss.str();
+    }
+    
+    /**
+     *  Logs action errors
+     *    @param method name of the RM method where the error arose
+     *    @param action that triggered the error
+     *    @param object over which the action was applied
+     *    @param id id of the object, -1 for Pool, -2 for no-id objects   
+     *              (allocate error, parse error)
+     *    @param rc returned error code (NULL to ignore)
+     *    @returns string for logging
+     */
+    static string action_error (const string& method,
+                                const string &action, 
+                                const string &object, 
+                                int id,
+                                int rc)
+    {
+        ostringstream oss;
+        
+        oss << "[" << method << "]" << " Error trying to " << action << " "
+            << object;
+            
+        switch(id)
+        {
+            case -2:
+                break; 
+            case -1:
+                oss << "Pool.";
+                break;
+            default:
+                oss << " [" << id << "].";
+                break;
+        }
+                
+        if ( rc != (int)NULL )
+        {
+            oss << " Returned error code [" << rc << "].";       
+        }
+        
+        return oss.str();
+    }
+    
     // ----------------------------------------------------------------------
     // ----------------------------------------------------------------------
     //                          XML-RPC Methods
@@ -180,8 +303,14 @@ private:
     {
     public:
         VirtualMachineAllocate(
-            UserPool * _upool):
-		upool(_upool)
+            VirtualMachinePool * _vmpool,
+            VirtualNetworkPool * _vnpool,
+            ImagePool          * _ipool,
+            UserPool           * _upool):
+        vmpool(_vmpool),
+        vnpool(_vnpool),
+        ipool(_ipool),
+        upool(_upool)
         {
             _signature="A:ss";
             _help="Allocates a virtual machine in the pool";
@@ -193,6 +322,9 @@ private:
             xmlrpc_c::paramList const& paramList,
             xmlrpc_c::value *   const  retval);
     private:
+        VirtualMachinePool * vmpool;
+        VirtualNetworkPool * vnpool;
+        ImagePool          * ipool;
         UserPool           * upool;
     };
     
@@ -203,8 +335,8 @@ private:
     public:
         VirtualMachineDeploy(
             VirtualMachinePool * _vmpool,
-            HostPool *           _hpool,
-            UserPool *           _upool):
+            HostPool           * _hpool,
+            UserPool           * _upool):
                 vmpool(_vmpool),
                 hpool(_hpool),
                 upool(_upool)
@@ -770,28 +902,6 @@ private:
         };
 
         ~UserAllocate(){};
-
-        void execute(
-            xmlrpc_c::paramList const& paramList,
-            xmlrpc_c::value *   const  retvalP);
-
-    private:
-        UserPool * upool;
-    };
-
-
-    /* ---------------------------------------------------------------------- */
-    
-    class UserInfo: public xmlrpc_c::method
-    {
-    public:
-        UserInfo(UserPool * _upool):upool(_upool)
-        {
-            _signature="A:si";
-            _help="Returns the Info of the user";
-        };
-
-        ~UserInfo(){};
 
         void execute(
             xmlrpc_c::paramList const& paramList,

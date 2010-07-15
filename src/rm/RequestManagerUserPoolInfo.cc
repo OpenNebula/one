@@ -17,6 +17,8 @@
 #include "RequestManager.h"
 #include "NebulaLog.h"
 
+#include "AuthManager.h"
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -26,8 +28,11 @@ void RequestManager::UserPoolInfo::execute(
 { 
     string              session;
 
-    int                 rc;     
+    int                 rc; 
+    int                 uid;    
     ostringstream       oss;
+    
+    const string        method_name = "UserPoolInfo";
 
     /*   -- RPC specific vars --  */
     vector<xmlrpc_c::value> arrayData;
@@ -39,15 +44,31 @@ void RequestManager::UserPoolInfo::execute(
     session      = xmlrpc_c::value_string(paramList.getString(0));
 
     // Only oneadmin can list the whole user pool
-    rc = UserPoolInfo::upool->authenticate(session);
+    uid = UserPoolInfo::upool->authenticate(session);
     
-    if ( rc != 0 )                             
+    if ( uid == -1 )                             
     {                                            
         goto error_authenticate;                     
     }
     
-    // Now let's get the info
-        
+    //Authorize the operation
+    if ( uid != 0 ) // uid == 0 means oneadmin
+    {
+        AuthRequest ar(uid);
+
+        ar.add_auth(AuthRequest::USER,
+                    -1,
+                    AuthRequest::INFO,
+                    0,
+                    false);
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            goto error_authorize;
+        }
+    }
+    
+    // Now let's get the info    
     rc = UserPoolInfo::upool->dump(oss,"");
     
     if ( rc != 0 )                             
@@ -67,15 +88,18 @@ void RequestManager::UserPoolInfo::execute(
     return;
 
 error_authenticate:
-    oss << "User not authorized to pull user pool info. Error code: " << rc;
+    oss.str(authenticate_error(method_name));  
+    goto error_common;
+
+error_authorize:
+    oss.str(authorization_error(method_name, "INFO", "USER", uid, -1));
     goto error_common;
     
 error_dumping:
-    oss << "Error dumping pool info";
+    oss.str(get_error(method_name, "USER", -1));
     goto error_common;
 
 error_common:
-
     arrayData.push_back(xmlrpc_c::value_boolean(false));  // FAILURE
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
     

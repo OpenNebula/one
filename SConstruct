@@ -57,6 +57,7 @@ main_env.Append(LIBPATH=[
     cwd+'/src/vnm',
     cwd+'/src/hm',
     cwd+'/src/um',
+    cwd+'/src/authm',
 ])
 
 # Compile flags
@@ -161,6 +162,7 @@ build_scripts=[
     'src/vnm/SConstruct',
     'src/hm/SConstruct',
     'src/um/SConstruct',
+    'src/authm/SConstruct',
 ]
 
 for script in build_scripts:

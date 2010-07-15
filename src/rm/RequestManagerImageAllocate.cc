@@ -15,9 +15,11 @@
 /* -------------------------------------------------------------------------- */
 
 #include "RequestManager.h"
-#include "NebulaLog.h"
 
+#include "NebulaLog.h"
 #include "Nebula.h"
+
+#include "AuthManager.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -27,36 +29,76 @@ void RequestManager::ImageAllocate::execute(
     xmlrpc_c::value *   const  retval)
 {
     string              session;
-    string              image_template;
+    string              str_template;
+
+    ImageTemplate *     img_template;
 
     int                 iid;
     int                 uid;
     int                 rc;
+    char *              error_msg = 0;
 
     ostringstream       oss;
+
+    const string        method_name = "ImageAllocate";
 
     vector<xmlrpc_c::value> arrayData;
     xmlrpc_c::value_array * arrayresult;
 
-
     NebulaLog::log("ReM",Log::DEBUG,"ImageAllocate invoked");
 
-    session        = xmlrpc_c::value_string(paramList.getString(0));
-    image_template = xmlrpc_c::value_string(paramList.getString(1));
-    image_template += "\n";
+    session      = xmlrpc_c::value_string(paramList.getString(0));
+    str_template = xmlrpc_c::value_string(paramList.getString(1));
+    str_template += "\n";
 
+    //--------------------------------------------------------------------------
+    //   Authorize this request
+    //--------------------------------------------------------------------------
+    uid = ImageAllocate::upool->authenticate(session);
 
-    // First, we need to authenticate the user
-    rc = ImageAllocate::upool->authenticate(session);
-
-    if ( rc == -1 )
+    if ( uid == -1 )
     {
         goto error_authenticate;
     }
-    
-    uid = rc;
 
-    rc = ImageAllocate::ipool->allocate(uid,image_template,&iid);
+    //--------------------------------------------------------------------------
+    //   Authorize this request
+    //--------------------------------------------------------------------------
+    img_template = new ImageTemplate;
+
+    rc = img_template->parse(str_template,&error_msg);
+
+    if ( rc != 0 )
+    {
+        goto error_parse;
+    }
+
+    if ( uid != 0 )
+    {
+        AuthRequest ar(uid);
+        string      t64;
+        string      pub;
+        string      pub_name = "PUBLIC";
+
+        img_template->get(pub_name, pub);
+        transform (pub.begin(), pub.end(), pub.begin(),(int(*)(int))toupper);
+
+        ar.add_auth(AuthRequest::IMAGE,
+                    img_template->to_xml(t64),
+                    AuthRequest::CREATE,
+                    uid,
+                    (pub == "YES"));
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            goto error_authorize;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+    //   Allocate the Image
+    //--------------------------------------------------------------------------
+    rc = ImageAllocate::ipool->allocate(uid,img_template,&iid);
 
     if ( rc < 0 )
     {
@@ -76,18 +118,27 @@ void RequestManager::ImageAllocate::execute(
     return;
 
 error_authenticate:
-    oss << "User not authenticated, aborting ImageAllocate call.";
+    oss.str(authenticate_error(method_name));
+    goto error_common;
+
+error_authorize:
+    oss.str(authorization_error(method_name, "CREATE", "IMAGE", uid, -1));
+    delete img_template;
+    goto error_common;
+
+error_parse:
+    oss << action_error(method_name, "PARSE", "IMAGE TEMPLATE",-2,rc);
+    if (error_msg != 0)
+    {
+        oss << ". Reason: " << error_msg;
+        free(error_msg);
+    }
+
+    delete img_template;
     goto error_common;
 
 error_allocate:
-    if (rc == -1)
-    {
-        oss << "Error allocating image, check oned.log";
-    }
-    else
-    {
-        oss << "Error parsing image template";
-    }
+    oss.str(action_error(method_name, "CREATE", "IMAGE", -2, rc));
     goto error_common;
 
 error_common:

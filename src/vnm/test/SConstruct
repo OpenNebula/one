@@ -40,7 +40,9 @@ main_env.Append(CPPPATH=[
 
 # Library dirs
 main_env.Append(LIBPATH=[
+    cwd + '/src/authm',
     cwd + '/src/common',
+    cwd + '/src/mad',
     cwd + '/src/nebula',
     cwd + '/src/sql',
     cwd + '/src/log',
@@ -54,9 +56,11 @@ main_env.Append(LIBS=[
     'nebula_log',
     'nebula_um',
     'nebula_vnm',
+    'nebula_authm',
     'nebula_template',
     'nebula_pool',
     'nebula_common',
+    'nebula_mad',
     'nebula_core',
     'nebula_sql',
     'cppunit',

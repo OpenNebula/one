@@ -15,9 +15,11 @@
 /* -------------------------------------------------------------------------- */
 
 #include "RequestManager.h"
-#include "NebulaLog.h"
 
+#include "NebulaLog.h"
 #include "Nebula.h"
+
+#include "AuthManager.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -33,6 +35,9 @@ void RequestManager::ImageUpdate::execute(
     string              name;
     string              value;
     int                 rc;
+    
+    int                 image_owner;
+    bool                is_public;
 
     Image             * image;
 
@@ -40,7 +45,8 @@ void RequestManager::ImageUpdate::execute(
 
     vector<xmlrpc_c::value> arrayData;
     xmlrpc_c::value_array * arrayresult;
-
+    
+    const string        method_name = "ImageUpdate";
 
     NebulaLog::log("ReM",Log::DEBUG,"ImageUpdate invoked");
 
@@ -50,15 +56,13 @@ void RequestManager::ImageUpdate::execute(
     value    = xmlrpc_c::value_string(paramList.getString(3));
 
     // First, we need to authenticate the user
-    rc = ImageUpdate::upool->authenticate(session);
+    uid = ImageUpdate::upool->authenticate(session);
 
-    if ( rc == -1 )
+    if ( uid == -1 )
     {
         goto error_authenticate;
     }
-
-    uid = rc;
-
+    
     // Get image from the ImagePool
     image = ImageUpdate::ipool->get(iid,true);
 
@@ -66,10 +70,35 @@ void RequestManager::ImageUpdate::execute(
     {
         goto error_image_get;
     }
-
-    if ( uid != 0 && uid != image->get_uid() )
+    
+    image_owner = image->get_uid();
+    is_public   = image->isPublic();
+    
+    image->unlock();    
+    
+    //Authorize the operation
+    if ( uid != 0 ) // uid == 0 means oneadmin
     {
-        goto error_authorization;
+        AuthRequest ar(uid);
+
+        ar.add_auth(AuthRequest::IMAGE,
+                    iid,
+                    AuthRequest::MANAGE,
+                    image_owner,
+                    is_public);
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            goto error_authorize;
+        }
+    }   
+
+    // Get image from the ImagePool
+    image = ImageUpdate::ipool->get(iid,true);
+
+    if ( image == 0 )
+    {
+        goto error_image_get;
     }
 
     // This will perform the update on the DB as well,
@@ -95,21 +124,19 @@ void RequestManager::ImageUpdate::execute(
     return;
 
 error_authenticate:
-    oss << "User not authenticated, aborting ImageUpdate call.";
+    oss.str(authenticate_error(method_name));    
     goto error_common;
 
 error_image_get:
-    oss << "Error getting image with ID = " << iid;
+    oss.str(get_error(method_name, "IMAGE", iid)); 
     goto error_common;
 
-error_authorization:
-    oss << "User not authorized to modify image attributes " <<
-           ", aborting ImageUpdate call.";
-    image->unlock();
+error_authorize:
+    oss.str(authorization_error(method_name, "MANAGE", "IMAGE", uid, iid));
     goto error_common;
 
 error_update:
-    oss << "Cannot modify image [" << iid << "] attribute with name = " << name;
+    oss.str(action_error(method_name, "UPDATE ATTRIBUTE", "IMAGE", iid, rc));
     image->unlock();
     goto error_common;
 

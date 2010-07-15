@@ -42,13 +42,14 @@ void RequestManager::VirtualMachineAction::execute(
     VirtualMachine *    vm;
 
     ostringstream       oss;
+    
+    const string  method_name = "VirtualMachineAction";
 
     NebulaLog::log("ReM",Log::DEBUG,"VirtualMachineAction invoked");
 
     session = xmlrpc_c::value_string(paramList.getString(0));
     action  = xmlrpc_c::value_string(paramList.getString(1));
     vid     = xmlrpc_c::value_int(paramList.getInt(2));
-
 
     // Get the VM
     vm  = VirtualMachineAction::vmpool->get(vid,true);
@@ -58,21 +59,34 @@ void RequestManager::VirtualMachineAction::execute(
         goto error_vm_get;
     }
 
-    uid = vm->get_uid(); 
-    
+    uid = vm->get_uid();
+
     vm->unlock();
 
-    // Only oneadmin or the VM owner can perform operations upon the VM
+    //Authenticate the user
     rc = VirtualMachineAction::upool->authenticate(session);
-    
-    if ( rc != 0 && rc != uid)                             
-    {                                            
-        goto error_authenticate;                     
+
+    if (rc == -1)
+    {
+        goto error_authenticate;
     }
-    
+
+    //Authorize the operation
+    if ( rc != 0 ) // rc == 0 means oneadmin
+    {
+        AuthRequest ar(rc);
+
+        ar.add_auth(AuthRequest::VM,vid,AuthRequest::MANAGE,uid,false);
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            goto error_authorize;
+        }
+    }
+
     if (action == "shutdown")
     {
-        rc = dm->shutdown(vid);    
+        rc = dm->shutdown(vid);
     }
     else if (action == "hold")
     {
@@ -108,13 +122,12 @@ void RequestManager::VirtualMachineAction::execute(
     }
     else
     {
-        rc = -3;   
+        rc = -3;
     }
 
     if (rc != 0)
     {
         goto error_operation;
-
     }
 
     arrayData.push_back(xmlrpc_c::value_boolean(true));
@@ -139,24 +152,28 @@ error_operation:
     goto error_common;
 
 error_vm_get:
-    oss << "The virtual machine " << vid << " does not exists";
+    oss.str(get_error(method_name, "VM", vid));
     goto error_common;
 
 error_authenticate:
-    oss << "User not authorized to perform operation upon VirtualMachine [" << vid << "]";
+    oss.str(authenticate_error(method_name));
+    goto error_common;
+
+error_authorize:
+    oss.str(authorization_error(method_name, "MANAGE", "VM", rc, vid));
     goto error_common;
 
 error_common:
-
     arrayData.push_back(xmlrpc_c::value_boolean(false));
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
 
     xmlrpc_c::value_array arrayresult_error(arrayData);
+    
+    NebulaLog::log("ReM",Log::ERROR,oss);
 
     *retval = arrayresult_error;
 
     return;
- 
 }
 
 /* -------------------------------------------------------------------------- */

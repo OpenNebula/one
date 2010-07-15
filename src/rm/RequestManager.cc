@@ -214,7 +214,7 @@ void RequestManager::do_action(
 void RequestManager::register_xml_methods()
 {
     xmlrpc_c::methodPtr vm_allocate(new 
-        RequestManager::VirtualMachineAllocate(upool));
+        RequestManager::VirtualMachineAllocate(vmpool, vnpool, ipool, upool));
         
     xmlrpc_c::methodPtr vm_deploy(new 
         RequestManager::VirtualMachineDeploy(vmpool,hpool,upool));
@@ -281,9 +281,6 @@ void RequestManager::register_xml_methods()
 
     xmlrpc_c::methodPtr user_allocate(new    
         RequestManager::UserAllocate(upool));
-
-    xmlrpc_c::methodPtr user_info(new    
-        RequestManager::UserInfo(upool));
 
     xmlrpc_c::methodPtr user_delete(new    
         RequestManager::UserDelete(upool));
@@ -357,7 +354,6 @@ void RequestManager::register_xml_methods()
     /* User related methods*/
         
     RequestManagerRegistry.addMethod("one.user.allocate", user_allocate);
-    RequestManagerRegistry.addMethod("one.user.info",     user_info);
     RequestManagerRegistry.addMethod("one.user.delete",   user_delete);
 
     RequestManagerRegistry.addMethod("one.userpool.info", userpool_info);

@@ -23,11 +23,13 @@
 void RequestManager::HostPoolInfo::execute(
     xmlrpc_c::paramList const& paramList,
     xmlrpc_c::value *   const  retval)
-{ 
+{
     string        session;
     ostringstream oss;
-	int			  rc;
-	
+    int           rc;
+    
+    const string  method_name = "HostPoolInfo";
+
     /*   -- RPC specific vars --  */
     vector<xmlrpc_c::value> arrayData;
     xmlrpc_c::value_array * arrayresult;
@@ -37,8 +39,7 @@ void RequestManager::HostPoolInfo::execute(
     // Get the parameters
     session = xmlrpc_c::value_string(paramList.getString(0));
 
-
-    // Check if it is a valid user
+    //Authenticate the user
     rc = HostPoolInfo::upool->authenticate(session);
 
     if ( rc == -1 )
@@ -46,16 +47,16 @@ void RequestManager::HostPoolInfo::execute(
         goto error_authenticate;
     }
 
-    // Perform the allocation in the vmpool 
+    // Perform the allocation in the vmpool
     rc = HostPoolInfo::hpool->dump(oss,"");
-      
+
     if ( rc != 0 )
-    {                                            
+    {
         goto error_dump;
     }
-    
-    //All nice, return the host info to the client  
-    arrayData.push_back(xmlrpc_c::value_boolean(true)); // SUCCESS   
+
+    //All nice, return the host info to the client
+    arrayData.push_back(xmlrpc_c::value_boolean(true)); // SUCCESS
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
 
     arrayresult = new xmlrpc_c::value_array(arrayData);
@@ -69,24 +70,24 @@ void RequestManager::HostPoolInfo::execute(
     return;
 
 error_authenticate:
-    oss << "User not authenticated, RequestManagerHostPoolInfo aborted.";
+    oss.str(authenticate_error(method_name));
     goto error_common;
 
 error_dump:
-    oss << "Error getting host pool"; 
+    oss.str(get_error(method_name, "HOST", -1));
     goto error_common;
 
 error_common:
 
     arrayData.push_back(xmlrpc_c::value_boolean(false)); // FAILURE
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
-    
-    NebulaLog::log("ReM",Log::ERROR,oss); 
-    
+
+    NebulaLog::log("ReM",Log::ERROR,oss);
+
     xmlrpc_c::value_array arrayresult_error(arrayData);
 
     *retval = arrayresult_error;
-    
+
     return;
 }
 

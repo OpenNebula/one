@@ -17,6 +17,8 @@
 #include "RequestManager.h"
 #include "NebulaLog.h"
 
+#include "AuthManager.h"
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -24,12 +26,14 @@ void RequestManager::ClusterRemove::execute(
     xmlrpc_c::paramList const& paramList,
     xmlrpc_c::value *   const  retval)
 {
-    string  session;
+    string        session;
+                 
+    int           hid;
+    int           rc;
+    
+    const string  method_name = "ClusterRemove";
 
-    int     hid;
-    int     rc;
-
-    Host *  host;
+    Host *        host;
 
     ostringstream oss;
 
@@ -43,15 +47,26 @@ void RequestManager::ClusterRemove::execute(
     session      = xmlrpc_c::value_string(paramList.getString(0));
     hid          = xmlrpc_c::value_int   (paramList.getInt(1));
 
-
-    // Only oneadmin can remove hosts from clusters
+    // Only oneadmin can delete clusters
     rc = ClusterRemove::upool->authenticate(session);
 
-    if ( rc != 0 )
+    if ( rc == -1 )
     {
         goto error_authenticate;
     }
 
+     //Authorize the operation
+    if ( rc != 0 ) // rc == 0 means oneadmin
+    {
+        AuthRequest ar(rc);
+
+        ar.add_auth(AuthRequest::HOST,hid,AuthRequest::MANAGE,0,false);
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            goto error_authorize;
+        }
+    }
 
     // Check if host exists
     host = ClusterRemove::hpool->get(hid,true);
@@ -86,22 +101,23 @@ void RequestManager::ClusterRemove::execute(
     return;
 
 error_authenticate:
-    oss << "User not authorized to remove hosts from clusters";
+    oss.str(authenticate_error(method_name));
+    goto error_common;
+
+error_authorize:
+    oss.str(authorization_error(method_name, "MANAGE", "HOST", rc, -1));
     goto error_common;
 
 error_host_get:
-    oss << "The host " << hid << " does not exists";
+    oss.str(get_error(method_name, "HOST", hid));
     goto error_common;
 
 error_cluster_remove:
     host->unlock();
-
-    oss << "Can not remove host " << hid << " from its cluster, "
-        << "returned error code [" << rc << "]";
+    oss.str(action_error(method_name, "MANAGE", "HOST", hid, rc));
     goto error_common;
 
 error_common:
-
     arrayData.push_back(xmlrpc_c::value_boolean(false)); // FAILURE
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
 

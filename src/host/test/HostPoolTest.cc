@@ -336,7 +336,8 @@ public:
         }
 
         // Discover the enabled hosts
-        rc = hp->discover(&dh, 100);
+        rc = hp->discover(&dh,100);
+
         CPPUNIT_ASSERT(rc == 0);
         CPPUNIT_ASSERT(dh.size() == 8);
 

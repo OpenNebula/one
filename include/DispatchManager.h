@@ -55,7 +55,7 @@ public:
      *  Triggers specific actions to the Dispatch Manager. This function
      *  wraps the ActionManager trigger function.
      *    @param action the DM action
-     *    @param vid VM unique id. This is the argument of the passed to the 
+     *    @param vid VM unique id. This is the argument of the passed to the
      *    invoked action.
      */
     void trigger(
@@ -63,12 +63,12 @@ public:
         int     _vid);
 
     /**
-     *  This functions creates a new thread for the Dispatch Manager. This 
+     *  This functions creates a new thread for the Dispatch Manager. This
      *  thread will wait in an action loop till it receives ACTION_FINALIZE.
      *    @return 0 on success.
      */
     int start();
-    
+
     /**
      *  Gets the thread identification.
      *    @return pthread_t for the manager thread (that in the action loop).
@@ -81,132 +81,122 @@ public:
     //--------------------------------------------------------------------------
     // DM Actions, the RM and the Scheduler will invoke this methods
     //--------------------------------------------------------------------------
-
-    /**
-     *  Allocates a new virtual machine
-     *    @return 0 on success
-     */
-    int allocate (
-        int     uid,
-        const string& stemplate,
-        int *   oid);
-
     /**
      *  Deploys a VM. A new history record MUST be added before calling this
      *  function. Also the VM MUST have its mutex locked. If the function fails
      *  the calling funtion is responsible for recovering from the error.
      *    @param vm pointer to a VirtualMachine with its mutex locked.
-     *    @return 0 on success 
+     *    @return 0 on success
      */
     int deploy (
         VirtualMachine * vm);
 
     /**
-     *  Migrates a VM. The following actions must be performed before calling 
-     *  this function: 
+     *  Migrates a VM. The following actions must be performed before calling
+     *  this function:
      *    - Lock the VM mutex.
      *    - Update the History statistics of the current host.
-     *    - Add a new History record with the new host. 
-     *  If the function fails the calling funtion is responsible for recovering 
+     *    - Add a new History record with the new host.
+     *  If the function fails the calling funtion is responsible for recovering
      *  from the error.
      *    @param vm pointer to a VirtualMachine with its mutex locked.
-     *    @return 0 on success 
+     *    @return 0 on success
      */
     int migrate(
         VirtualMachine * vm);
 
     /**
-     *  Migrates a VM. The following actions must be performed before calling 
-     *  this function: 
+     *  Migrates a VM. The following actions must be performed before calling
+     *  this function:
      *    - Lock the VM mutex.
      *    - Update the History statistics of the current host.
-     *    - Add a new History record with the new host. 
-     *  If the function fails the calling funtion is responsible for recovering 
+     *    - Add a new History record with the new host.
+     *  If the function fails the calling funtion is responsible for recovering
      *  from the error.
      *    @param vm pointer to a VirtualMachine with its mutex locked.
-     *    @return 0 on success 
+     *    @return 0 on success
      */
     int live_migrate(
         VirtualMachine * vm);
-        
+
     /**
      *  Shuts down a VM.
      *    @param vid VirtualMachine identification
-     *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is 
-     *    in a wrong a state 
-     */            
+     *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is
+     *    in a wrong a state
+     */
     int shutdown (
         int vid);
 
     /**
      *  Holds a VM.
      *    @param vid VirtualMachine identification
-     *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is 
-     *    in a wrong a state 
-     */            
+     *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is
+     *    in a wrong a state
+     */
     int hold(
         int vid);
 
     /**
      *  Releases a VM.
      *    @param vid VirtualMachine identification
-     *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is 
-     *    in a wrong a state 
-     */            
+     *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is
+     *    in a wrong a state
+     */
     int release(
         int vid);
 
     /**
      *  Stops a VM.
      *    @param vid VirtualMachine identification
-     *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is 
-     *    in a wrong a state 
-     */       
+     *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is
+     *    in a wrong a state
+     */
     int stop(
         int vid);
 
     /**
      *  Cancels a VM.
      *    @param vid VirtualMachine identification
-     *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is 
-     *    in a wrong a state 
-     */       
+     *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is
+     *    in a wrong a state
+     */
     int cancel(
         int vid);
 
     /**
      *  Suspends a VM.
      *    @param vid VirtualMachine identification
-     *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is 
-     *    in a wrong a state 
-     */       
+     *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is
+     *    in a wrong a state
+     */
     int suspend(
         int vid);
 
     /**
      *  Resumes a VM.
      *    @param vid VirtualMachine identification
-     *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is 
-     *    in a wrong a state 
-     */       
+     *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is
+     *    in a wrong a state
+     */
     int resume(
         int vid);
-        
+
     /**
      * Restart a previusly deployed VM.
      *    @param vid VirtualMachine identification
-     *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is 
-     *    in a wrong a state 
-     */       
+     *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is
+     *    in a wrong a state
+     */
     int restart(
         int vid);
 
     /**
      *  Ends a VM life cycle inside ONE.
      *    @param vid VirtualMachine identification
-     *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is 
-     *    in a wrong a state 
-     */       
+     *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is
+     *    in a wrong a state
+     */
     int finalize(
         int vid);
 
@@ -232,7 +222,7 @@ private:
     ActionManager           am;
 
     /**
-     *  Function to execute the Manager action loop method within a new pthread 
+     *  Function to execute the Manager action loop method within a new pthread
      * (requires C linkage)
      */
     friend void * dm_action_loop(void *arg);
@@ -249,14 +239,14 @@ private:
     //--------------------------------------------------------------------------
     // DM Actions associated with a VM state transition
     //--------------------------------------------------------------------------
-    
+
     void  suspend_success_action(int vid);
 
     void  stop_success_action(int vid);
 
     void  done_action(int vid);
 
-    void  failed_action(int vid);    
+    void  failed_action(int vid);
 };
 
 #endif /*DISPATCH_MANAGER_H*/

@@ -233,19 +233,19 @@ void Nebula::start()
         vnpool = new VirtualNetworkPool(db,mac_prefix,size);
 
         upool  = new UserPool(db);
-                
+
         nebula_configuration->get("IMAGE_REPOSITORY_PATH", repository_path);
-        
+
         if (repository_path.empty()) // Defaults to ONE_LOCATION/var
         {
             repository_path = var_location;
         }
-        
+
         nebula_configuration->get("DEFAULT_IMAGE_TYPE", default_image_type);
         nebula_configuration->get("DEFAULT_DEVICE_PREFIX",
                                   default_device_prefix);
-           
-        ipool  = new ImagePool(db, 
+
+        ipool  = new ImagePool(db,
                                repository_path,
                                default_image_type,
                                default_device_prefix);
@@ -447,6 +447,38 @@ void Nebula::start()
        throw runtime_error("Could not start the Hook Manager");
     }
 
+    // ---- Auth Manager ----
+    try
+    {
+        vector<const Attribute *> auth_mads;
+
+        nebula_configuration->get("AUTH_MAD", auth_mads);
+
+        if (!auth_mads.empty())
+        {
+            //Defaults 60s to timeout auth requests
+            authm = new AuthManager(timer_period,60,auth_mads);
+        }
+        else
+        {
+            authm = 0; //Built-in authm/authz
+        }
+    }
+    catch (bad_alloc&)
+    {
+        throw;
+    }
+
+    if (authm != 0)
+    {
+        rc = authm->start();
+
+        if ( rc != 0 )
+        {
+          throw runtime_error("Could not start the Auth Manager");
+        }
+    }
+
     // -----------------------------------------------------------
     // Load mads
     // -----------------------------------------------------------
@@ -458,6 +490,11 @@ void Nebula::start()
     im->load_mads(0);
     tm->load_mads(0);
     hm->load_mads(0);
+
+    if ( authm != 0 )
+    {
+        authm->load_mads(0);
+    }
 
     // -----------------------------------------------------------
     // Wait for a SIGTERM or SIGINT signal

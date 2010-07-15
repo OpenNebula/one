@@ -17,6 +17,8 @@
 #include "RequestManager.h"
 #include "NebulaLog.h"
 
+#include "AuthManager.h"
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -29,6 +31,8 @@ void RequestManager::ClusterAdd::execute(
     int     hid;
     int     clid;
     int     rc;
+    
+    const string        method_name = "ClusterAdd";
 
     Host *  host;
 
@@ -45,13 +49,26 @@ void RequestManager::ClusterAdd::execute(
     hid          = xmlrpc_c::value_int   (paramList.getInt(1));
     clid         = xmlrpc_c::value_int   (paramList.getInt(2));
 
-
-    // Only oneadmin can add hosts to clusters
+    //Authenticate the user
     rc = ClusterAdd::upool->authenticate(session);
 
-    if ( rc != 0 )
+    if ( rc == -1 )
     {
         goto error_authenticate;
+    }
+
+     //Authorize the operation
+    if ( rc != 0 ) // rc == 0 means oneadmin
+    {
+        AuthRequest ar(rc);
+        
+        ar.add_auth(AuthRequest::HOST,hid,AuthRequest::MANAGE,0,false);
+        ar.add_auth(AuthRequest::CLUSTER,clid,AuthRequest::USE,0,false);
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            goto error_authorize;
+        }
     }
 
     // Check if host exists
@@ -87,18 +104,20 @@ void RequestManager::ClusterAdd::execute(
     return;
 
 error_authenticate:
-    oss << "User not authorized to add hosts to clusters";
+    oss.str(authenticate_error(method_name));
+    goto error_common;
+
+error_authorize:
+    oss.str(authorization_error(method_name, "USE", "CLUSTER", rc, clid));
     goto error_common;
 
 error_host_get:
-    oss << "The host " << hid << " does not exists";
+    oss.str(get_error(method_name, "HOST", hid));
     goto error_common;
 
 error_cluster_add:
     host->unlock();
-
-    oss << "Can not add host " << hid << " to cluster " << clid <<
-           ", returned error code [" << rc << "]";
+    oss.str(action_error(method_name, "USE", "CLUSTER", clid, rc));
     goto error_common;
 
 error_common:

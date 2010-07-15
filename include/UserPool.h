@@ -29,6 +29,8 @@
 
 using namespace std;
 
+class AuthRequest; //Forward definition of AuthRequest
+
 /**
  *  The User Pool class. ...
  */
@@ -127,9 +129,16 @@ public:
     /**
      * Returns whether there is a user with given username/password or not
      *   @param session, colon separated username and password string
-     *   @return -1 if there is no such a user, uid of the user if it exists
+     *   @return -1 if authn failed, uid of the user in other case
      */
     int authenticate(string& session);
+
+    /**
+     * Returns whether there is a user with given username/password or not
+     *   @param ar, an Authorization Request
+     *   @return -1 if authz failed, 0 otherwise
+     */
+    static int authorize(AuthRequest& ar);
 
     /**
      *  Dumps the User pool in XML format. A filter can be also added to the

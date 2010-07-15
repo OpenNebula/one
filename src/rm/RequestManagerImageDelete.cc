@@ -15,9 +15,11 @@
 /* -------------------------------------------------------------------------- */
 
 #include "RequestManager.h"
-#include "NebulaLog.h"
 
+#include "NebulaLog.h"
 #include "Nebula.h"
+
+#include "AuthManager.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -31,10 +33,15 @@ void RequestManager::ImageDelete::execute(
     int                 iid;
     int                 uid;
     int                 rc;
+    
+    int                 image_owner;
+    bool                is_public;
 
     Image             * image;
 
     ostringstream       oss;
+    
+    const string        method_name = "ImageDelete";
 
     vector<xmlrpc_c::value> arrayData;
     xmlrpc_c::value_array * arrayresult;
@@ -47,15 +54,13 @@ void RequestManager::ImageDelete::execute(
 
 
     // First, we need to authenticate the user
-    rc = ImageDelete::upool->authenticate(session);
+    uid = ImageDelete::upool->authenticate(session);
 
-    if ( rc == -1 )
+    if ( uid == -1 )
     {
         goto error_authenticate;
     }
-
-    uid = rc;
-
+    
     // Get image from the ImagePool
     image = ImageDelete::ipool->get(iid,true);
 
@@ -63,10 +68,35 @@ void RequestManager::ImageDelete::execute(
     {
         goto error_image_get;
     }
-
-    if ( uid != 0 && uid != image->get_uid() )
+    
+    image_owner = image->get_uid();
+    is_public   = image->isPublic();
+    
+    image->unlock();
+    
+    //Authorize the operation
+    if ( uid != 0 ) // uid == 0 means oneadmin
     {
-        goto error_authorization;
+        AuthRequest ar(uid);
+
+        ar.add_auth(AuthRequest::IMAGE,
+                    iid,
+                    AuthRequest::DELETE,
+                    image_owner,
+                    is_public);
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            goto error_authorize;
+        }
+    }
+
+    // Get image from the ImagePool
+    image = ImageDelete::ipool->get(iid,true);
+
+    if ( image == 0 )
+    {
+        goto error_image_get;
     }
 
     rc = ImageDelete::ipool->drop(image);
@@ -91,20 +121,20 @@ void RequestManager::ImageDelete::execute(
     return;
 
 error_authenticate:
-    oss << "User not authenticated, aborting ImageDelete call.";
+    oss.str(authenticate_error(method_name));
     goto error_common;
 
 error_image_get:
-    oss << "Error getting image with ID = " << iid;
+    oss.str(get_error(method_name, "IMAGE", iid));
     goto error_common;
 
-error_authorization:
-    oss << "User not authorized to delete image, aborting ImageDelete call.";
-    image->unlock();
+error_authorize:
+    oss.str(authorization_error(method_name, "DELETE", "IMAGE", uid, iid));
     goto error_common;
 
 error_delete:
-    oss << "Cannot delete image, VMs might be running on it.";
+    oss << action_error(method_name, "DELETE", "IMAGE", iid, rc)
+        << ". Reason: VMs might be running on it.";
     image->unlock();
     goto error_common;
 

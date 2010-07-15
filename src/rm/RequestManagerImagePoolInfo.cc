@@ -32,6 +32,8 @@ void RequestManager::ImagePoolInfo::execute(
     int           rc;
     int           uid;
     int           filter_flag;
+    
+    const string  method_name = "ImagePoolInfo";
 
     /*   -- RPC specific vars --  */
     vector<xmlrpc_c::value> arrayData;
@@ -44,14 +46,12 @@ void RequestManager::ImagePoolInfo::execute(
     filter_flag = xmlrpc_c::value_int(paramList.getInt(1));
 
     // Check if it is a valid user
-    rc = ImagePoolInfo::upool->authenticate(session);
+    uid = ImagePoolInfo::upool->authenticate(session);
 
-    if ( rc == -1 )
+    if ( uid == -1 )
     {
         goto error_authenticate;
     }
-
-    uid = rc;
     
     where_string.str("");
     
@@ -68,21 +68,13 @@ void RequestManager::ImagePoolInfo::execute(
     switch(filter_flag)
     {
         case -2:
-            if ( uid != 0 )
-            {
-                goto error_authorization;
-            }
+            // TODO define authentication bug #278
             // where remains empty.
             break;
         case -1:
             where_string << "UID=" << uid << " OR public = 'YES'";
             break;
         default:
-            // Only oneadmin or the user can list a specific user's images.
-            if ( uid != 0 && uid != filter_flag )
-            {
-                goto error_authorization;
-            }
             where_string << "UID=" << filter_flag;
     }
 
@@ -109,23 +101,18 @@ void RequestManager::ImagePoolInfo::execute(
     return;
 
 error_authenticate:
-    oss << "User not authenticated, ImagePoolInfo call aborted.";
+    oss.str(authenticate_error(method_name));    
     goto error_common;
 
-error_authorization:
-    oss << "User not authorized to perform this operation.";
-    goto error_common;
-    
 error_filter_flag:
     oss << "Incorrect filter_flag, must be >= -2.";
     goto error_common;
 
 error_dump:
-    oss << "Error getting image pool"; 
+    oss.str(get_error(method_name, "IMAGE", -1));
     goto error_common;
 
 error_common:
-
     arrayData.push_back(xmlrpc_c::value_boolean(false)); // FAILURE
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
     

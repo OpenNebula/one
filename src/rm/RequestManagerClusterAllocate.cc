@@ -17,6 +17,8 @@
 #include "RequestManager.h"
 #include "NebulaLog.h"
 
+#include "AuthManager.h"
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -27,8 +29,9 @@ void RequestManager::ClusterAllocate::execute(
     string              session;
 
     string              clustername;
-
     int                 id;
+    
+    const string        method_name = "ClusterAllocate";
 
     int                 rc;
     ostringstream       oss;
@@ -43,12 +46,25 @@ void RequestManager::ClusterAllocate::execute(
     session      = xmlrpc_c::value_string(paramList.getString(0));
     clustername  = xmlrpc_c::value_string(paramList.getString(1));
 
-    // Only oneadmin can add new clusters
+    //Authenticate the user
     rc = ClusterAllocate::upool->authenticate(session);
 
-    if ( rc != 0 )
+    if ( rc == -1 )
     {
         goto error_authenticate;
+    }
+
+    //Authorize the operation
+    if ( rc != 0 ) // rc == 0 means oneadmin
+    {
+        AuthRequest ar(rc);
+
+        ar.add_auth(AuthRequest::CLUSTER,-1,AuthRequest::CREATE,0,false);
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            goto error_authorize;
+        }
     }
 
     // Perform the allocation in the hostpool
@@ -71,12 +87,15 @@ void RequestManager::ClusterAllocate::execute(
     return;
 
 error_authenticate:
-    oss << "User not authorized to add new clusters";
+    oss.str(authenticate_error(method_name));
+    goto error_common;
+
+error_authorize:
+    oss.str(authorization_error(method_name, "CREATE", "CLUSTER", rc, -1));
     goto error_common;
 
 error_cluster_allocate:
-    oss << "Can not allocate cluster " << clustername << 
-           " in the ClusterPool, returned error code [" << rc << "]";
+    oss.str(action_error(method_name, "CREATE", "CLUSTER", -2, rc));
     goto error_common;
 
 error_common:
@@ -84,8 +103,8 @@ error_common:
     arrayData.push_back(xmlrpc_c::value_boolean(false));  // FAILURE
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
 
-    NebulaLog::log("ReM",Log::ERROR,oss); 
-    
+    NebulaLog::log("ReM",Log::ERROR,oss);
+
     xmlrpc_c::value_array arrayresult_error(arrayData);
 
     *retval = arrayresult_error;

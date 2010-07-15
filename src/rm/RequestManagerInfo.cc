@@ -23,13 +23,15 @@
 void RequestManager::VirtualMachineInfo::execute(
     xmlrpc_c::paramList const& paramList,
     xmlrpc_c::value *   const  retval)
-{ 
+{
     string  session;
 
-    int              vid;       
+    int              vid, rc;
     VirtualMachine * vm;
 
-    ostringstream  oss;
+    ostringstream    oss;
+    
+    const string     method_name = "VirtualMachineInfo";
 
     /*   -- RPC specific vars --  */
     vector<xmlrpc_c::value> arrayData;
@@ -41,19 +43,27 @@ void RequestManager::VirtualMachineInfo::execute(
     session      = xmlrpc_c::value_string(paramList.getString(0));
     vid          = xmlrpc_c::value_int   (paramList.getInt(1));
 
-    // Get the details of the virtual machine 
+    // Check if it is a valid user
+    rc = VirtualMachineInfo::upool->authenticate(session);
+
+    if ( rc == -1 )
+    {
+        goto error_authenticate;
+    }
+
+    // Get the details of the virtual machine
     vm = VirtualMachineInfo::vmpool->get(vid,true);
 
-    if ( vm == 0 )                             
-    {                                            
-        goto error_vm_get;                     
+    if ( vm == 0 )
+    {
+        goto error_vm_get;
     }
-    
+
     oss << *vm;
-    
+
     vm->unlock();
-    
-    // All nice, return the vm info to the client  
+
+    // All nice, return the vm info to the client
     arrayData.push_back(xmlrpc_c::value_boolean(true)); // SUCCESS
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
 
@@ -65,21 +75,24 @@ void RequestManager::VirtualMachineInfo::execute(
 
     return;
 
+error_authenticate:
+    oss.str(authenticate_error(method_name));  
+    goto error_common;
+
 error_vm_get:
-    oss << "Error getting vm with VID = " << vid; 
+    oss.str(get_error(method_name, "VM", vid));
     goto error_common;
 
 error_common:
-
     arrayData.push_back(xmlrpc_c::value_boolean(false)); // FAILURE
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
-    
-    NebulaLog::log("ReM",Log::ERROR,oss); 
-    
+
+    NebulaLog::log("ReM",Log::ERROR,oss);
+
     xmlrpc_c::value_array arrayresult_error(arrayData);
 
     *retval = arrayresult_error;
-    
+
     return;
 }
 

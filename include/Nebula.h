@@ -33,6 +33,7 @@
 #include "DispatchManager.h"
 #include "RequestManager.h"
 #include "HookManager.h"
+#include "AuthManager.h"
 
 class Nebula
 {
@@ -106,6 +107,12 @@ public:
     HookManager * get_hm()
     {
         return hm;
+    };
+
+
+    AuthManager * get_authm()
+    {
+        return authm;
     };
 
     // --------------------------------------------------------------
@@ -217,7 +224,7 @@ private:
     // -----------------------------------------------------------------------
 
     Nebula():nebula_configuration(0),db(0),vmpool(0),hpool(0),vnpool(0),upool(0),
-        ipool(0),lcm(0),vmm(0),im(0),tm(0),dm(0),rm(0)
+        ipool(0),lcm(0),vmm(0),im(0),tm(0),dm(0),rm(0),hm(0),authm(0)
     {
         const char * nl = getenv("ONE_LOCATION");
 
@@ -308,6 +315,11 @@ private:
             delete hm;
         }
 
+        if ( authm != 0)
+        {
+            delete authm;
+        }
+
         if ( nebula_configuration != 0)
         {
             delete nebula_configuration;
@@ -363,6 +375,7 @@ private:
     DispatchManager *       dm;
     RequestManager *        rm;
     HookManager *           hm;
+    AuthManager *           authm;
 
     // ---------------------------------------------------------------
     // Implementation functions

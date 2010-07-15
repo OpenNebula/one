@@ -39,7 +39,7 @@ public:
     /**
      *  Function to allocate a new VM object
      *    @param uid user id (the owner of the VM)
-     *    @param stemplate a string describing the VM
+     *    @param vm_template a VM Template object describing the VM
      *    @param oid the id assigned to the VM (output)
      *    @param on_hold flag to submit on hold
      *    @return oid on success, -1 error inserting in DB or -2 error parsing
@@ -47,7 +47,7 @@ public:
      */
     int allocate (
         int     uid,
-        const  string& stemplate,
+        VirtualMachineTemplate *vm_template,
         int *  oid,
         bool   on_hold = false);
 
@@ -99,9 +99,9 @@ public:
      *    @return 0 on success
      */
     int update_template_attribute(
-        VirtualMachine *	vm,
-        string&			 	name,
-        string&			 	value)
+        VirtualMachine *    vm,
+        string&             name,
+        string&             value)
     {
     	return vm->update_template_attribute(db,name,value);
     }

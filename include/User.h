@@ -50,7 +50,6 @@ public:
      */
     string& to_xml(string& xml) const;
 
-
     /**
      * Get the User unique identifier UID, that matches the OID of the object
      *    @return UID User identifier
@@ -118,12 +117,6 @@ public:
     {
         password = _password;
     };
-
-    /**
-     *  Looks for a match between _password and user password
-     *  @return -1 if disabled or wrong password, uid otherwise
-     **/
-    int authenticate(string _password);
 
     /**
      *  Splits an authentication token (<usr>:<pass>)
