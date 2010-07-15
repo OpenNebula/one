@@ -133,8 +133,8 @@ error_authorize:
     goto error_common;
 
 error_delete:
-    oss.str(action_error(method_name, "DELETE", "IMAGE", iid, rc));
-    oss << " VMs might be running on it.";
+    oss << action_error(method_name, "DELETE", "IMAGE", iid, rc)
+        << ". Reason: VMs might be running on it.";
     image->unlock();
     goto error_common;
 

@@ -27,36 +27,108 @@ void RequestManager::VirtualMachineAllocate::execute(
     xmlrpc_c::value *   const  retval)
 {
     string              session;
-    string              vm_template;
-    
+    string              str_template;
+
     const string        method_name = "VirtualMachineAllocate";
 
-    int                 vid;
+    int                 vid, uid;
     int                 rc;
 
-    Nebula&             nd = Nebula::instance();
-    DispatchManager *   dm = nd.get_dm();
+    Nebula&             nd    = Nebula::instance();
+    ImagePool *         ipool = nd.get_ipool();
+    VirtualNetworkPool* vnpool= nd.get_vnpool();
+    VirtualMachinePool* vmpool= nd.get_vmpool();
 
     ostringstream       oss;
 
     vector<xmlrpc_c::value> arrayData;
     xmlrpc_c::value_array * arrayresult;
 
+    VirtualMachineTemplate * vm_template;
+    char *                   error_msg = 0;
+
+    int                   num;
+    vector<Attribute  * > vectors;
+    VectorAttribute *     vector;
+
     NebulaLog::log("ReM",Log::DEBUG,"VirtualMachineAllocate invoked");
 
-    session     = xmlrpc_c::value_string(paramList.getString(0));
-    vm_template = xmlrpc_c::value_string(paramList.getString(1));
-    vm_template += "\n";
+    session      = xmlrpc_c::value_string(paramList.getString(0));
+    str_template = xmlrpc_c::value_string(paramList.getString(1));
+    str_template += "\n";
 
-    //Authenticate the user
-    rc = VirtualMachineAllocate::upool->authenticate(session);
+    //--------------------------------------------------------------------------
+    //   Authenticate the user
+    //--------------------------------------------------------------------------
+    uid = VirtualMachineAllocate::upool->authenticate(session);
 
-    if (rc == -1)
+    if (uid == -1)
     {
         goto error_authenticate;
     }
 
-    rc = dm->allocate(rc,vm_template,&vid);
+    //--------------------------------------------------------------------------
+    //   Authorize this request
+    //--------------------------------------------------------------------------
+    vm_template = new VirtualMachineTemplate;
+
+    rc = vm_template->parse(str_template,&error_msg);
+
+    if ( rc != 0 )
+    {
+        goto error_parse;
+    }
+
+    if ( uid != 0 )
+    {
+        AuthRequest ar(uid);
+        string      t64;
+
+        num = vm_template->get("DISK",vectors);
+
+        for(int i=0; i<num; i++)
+        {
+
+            vector = dynamic_cast<VectorAttribute * >(vectors[i]);
+
+            if ( vector == 0 )
+            {
+                continue;
+            }
+
+            ipool->authorize_disk(vector,&ar);
+        }
+
+        num = vm_template->get("NIC",vectors);
+
+        for(int i=0; i<num; i++)
+        {
+            vector = dynamic_cast<VectorAttribute * >(vectors[i]);
+
+            if ( vector == 0 )
+            {
+                continue;
+            }
+
+            vnpool->authorize_nic(vector,&ar);
+        }
+
+        ar.add_auth(AuthRequest::VM,
+                    vm_template->to_xml(t64),
+                    AuthRequest::CREATE,
+                    uid,
+                    false);
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            goto error_authorize;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+    //   Allocate the VirtualMAchine
+    //--------------------------------------------------------------------------
+    rc = vmpool->allocate(uid,vm_template,&vid,false);
 
     if ( rc < 0 )
     {
@@ -73,15 +145,30 @@ void RequestManager::VirtualMachineAllocate::execute(
 
     delete arrayresult; // and get rid of the original
 
-
     return;
 
 error_authenticate:
     oss.str(authenticate_error(method_name));
     goto error_common;
 
+error_authorize:
+    oss.str(authorization_error(method_name, "CREATE", "VM", uid, -1));
+    delete vm_template;
+    goto error_common;
+
+error_parse:
+    oss.str(action_error(method_name, "PARSE", "VM TEMPLATE",-2,rc));
+    if (error_msg != 0)
+    {
+        oss << "Reason: " << error_msg;
+        free(error_msg);
+    }
+
+    delete vm_template;
+    goto error_common;
+
 error_allocate:
-    oss.str(action_error(method_name, "CREATE", "VM", NULL, rc));
+    oss.str(action_error(method_name, "CREATE", "VM", -2, rc));
     goto error_common;
 
 error_common:

@@ -31,8 +31,6 @@ using namespace std;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-class AuthRequest;
-
 /**
  *  The Virtual Machine class. It represents a VM...
  */
@@ -555,7 +553,7 @@ public:
         string& name,
         vector<const Attribute*>& values) const
     {
-        return vm_template.get(name,values);
+        return vm_template->get(name,values);
     };
 
     /**
@@ -569,7 +567,7 @@ public:
         vector<const Attribute*>& values) const
     {
         string str=name;
-        return vm_template.get(str,values);
+        return vm_template->get(str,values);
     };
 
     /**
@@ -583,7 +581,7 @@ public:
         string&         value) const
     {
         string str=name;
-        vm_template.get(str,value);
+        vm_template->get(str,value);
     }
 
     /**
@@ -597,7 +595,7 @@ public:
         int&            value) const
     {
         string str=name;
-        vm_template.get(str,value);
+        vm_template->get(str,value);
     }
 
     /**
@@ -606,7 +604,7 @@ public:
      */
     void template_to_xml(string &xml) const
     {
-        vm_template.to_xml(xml);
+        vm_template->to_xml(xml);
     }
 
     /**
@@ -704,7 +702,7 @@ public:
      *  Get all network leases for this Virtual Machine
      *  @return 0 if success
      */
-    int get_network_leases(AuthRequest *ar);
+    int get_network_leases();
 
     /**
      *  Releases all network leases taken by this Virtual Machine
@@ -715,7 +713,7 @@ public:
      *  Get all disk images for this Virtual Machine
      *  @return 0 if success
      */
-    int get_disk_images(AuthRequest *ar);
+    int get_disk_images();
 
     /**
      *  Releases all disk images taken by this Virtual Machine
@@ -773,7 +771,7 @@ private:
     /**
      *  The Virtual Machine template, holds the VM attributes.
      */
-    VirtualMachineTemplate  vm_template;
+    VirtualMachineTemplate* vm_template;
 
     // Dynamic state of the Virtual Machine
 
@@ -932,7 +930,7 @@ private:
         int               rc;
 
         sattr = new SingleAttribute(name,value);
-        rc    = vm_template.replace_attribute(db,sattr);
+        rc    = vm_template->replace_attribute(db,sattr);
 
         if (rc != 0)
         {
@@ -951,7 +949,7 @@ private:
      */
     int insert_template_attribute(SqlDB * db, Attribute * attribute)
     {
-        return vm_template.insert_attribute(db,attribute);
+        return vm_template->insert_attribute(db,attribute);
     }
 
     // -------------------------------------------------------------------------
@@ -989,7 +987,7 @@ protected:
     // Constructor
     //**************************************************************************
 
-    VirtualMachine(int id=-1);
+    VirtualMachine(int id=-1, VirtualMachineTemplate * _vm_template = 0);
 
     virtual ~VirtualMachine();
 

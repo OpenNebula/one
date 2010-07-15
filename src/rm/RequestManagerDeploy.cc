@@ -36,7 +36,7 @@ void RequestManager::VirtualMachineDeploy::execute(
     string              vmm_mad;
     string              tm_mad;
     string              vmdir;
-    
+
     const string  method_name = "VirtualMachineDeploy";
 
     VirtualMachine *    vm;
@@ -148,8 +148,8 @@ error_vm_get:
     goto error_common;
 
 error_state:
-    oss.str(action_error(method_name, "MANAGE", "VM", vid, rc));
-    oss << " Reason: VM in wrong state.";
+    oss << action_error(method_name, "MANAGE", "VM", vid, -1)
+        << ". Reason: VM in wrong state.";
     goto error_common_lock;
 
 error_authenticate:
@@ -170,7 +170,7 @@ error_common_lock:
 error_common:
     arrayData.push_back(xmlrpc_c::value_boolean(false));
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
-    
+
     NebulaLog::log("ReM",Log::ERROR,oss);
 
     xmlrpc_c::value_array arrayresult_error(arrayData);

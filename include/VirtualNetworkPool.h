@@ -22,9 +22,9 @@
 
 #include <time.h>
 
-using namespace std;
-
 class AuthRequest;
+
+using namespace std;
 
 /**
  *  The Virtual Network Pool class. ...
@@ -40,16 +40,15 @@ public:
     ~VirtualNetworkPool(){};
 
     /**
-     *  Function to allocate a new VN object
+     *  Function to allocate a new VNET object
      *    @param uid user identifier
-     *    @param stemplate a string describing the VN
+     *    @param vn_template a VirtualNetworkTemplate describing the VNET
      *    @param oid the id assigned to the VM (output)
-     *    @return oid on success, -1 error inserting in DB,-2 error parsing
-     *     the template, -3 wrong attributes in template
+     *    @return oid on success, -1 error
      */
     int allocate (
         int     uid,
-        const  string& stemplate,
+        VirtualNetworkTemplate * vn_template,
         int *  oid);
 
     /**
@@ -88,7 +87,14 @@ public:
      *    @param vid of the VM requesting the lease
      *    @return 0 on success, -1 error, -2 not using the pool
      */
-    int nic_attribute(VectorAttribute * nic, int vid, AuthRequest *ar);
+    int nic_attribute(VectorAttribute * nic, int vid);
+
+    /**
+     *  Generates an Authorization token for a NIC attribute
+     *    @param nic the nic to be authorized
+     *    @param ar the AuthRequest
+     */
+    void authorize_nic(VectorAttribute * nic, AuthRequest * ar);
 
     /**
      *  Updates the template of a VN, adding a new attribute (replacing it if

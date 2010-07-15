@@ -184,7 +184,7 @@ private:
             << " to perform " << action << " on " << object; 
             
         
-        if ( id != (int)NULL )
+        if ( id != -1 )
         {
             oss << " [" << id << "].";
         }
@@ -215,7 +215,7 @@ private:
         oss << "[" << method << "]" << " Error getting " << 
                object;
                
-       if ( id != (int)NULL )
+       if ( id != -1 )
        {
            oss << " [" << id << "].";
        }
@@ -237,18 +237,23 @@ private:
         
         oss << "[" << method << "]" << " Error trying to " << action << " "
             << object;
-        
-        if ( id != (int)NULL )
+            
+        switch(id)
         {
-            oss << " [" << id << "].";
+            case -2:
+                break; 
+            case -1:
+                oss << "Pool.";
+                break;
+            default:
+                oss << " [" << id << "].";
+                break;
         }
-        
+                
         if ( rc != (int)NULL )
         {
-            oss << " .Returned error code [" << rc << "].";       
+            oss << " Returned error code [" << rc << "].";       
         }
-        
-        NebulaLog::log("RM",Log::ERROR,oss);
         
         return oss.str();
     }

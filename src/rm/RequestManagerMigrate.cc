@@ -168,8 +168,8 @@ error_history:
     goto error_common_lock;
 
 error_state:
-    oss.str(action_error(method_name, "MANAGE", "VM", vid, rc));
-    oss << " Reason: VM in wrong state.";
+    oss << action_error(method_name, "MANAGE", "VM", vid, rc) 
+        << ". Reason: VM in wrong state.";
     goto error_common_lock;
 
 error_common_lock:
