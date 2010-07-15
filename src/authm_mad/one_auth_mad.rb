@@ -39,7 +39,7 @@ require 'sequel'
 
 class AuthorizationManager < OpenNebulaDriver
     def initialize
-        super(1, false)
+        super(15, true)
         
         config_data=File.read(ETC_LOCATION+'/auth/auth.conf')
         STDERR.puts(config_data)
