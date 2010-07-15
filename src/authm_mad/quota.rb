@@ -92,8 +92,8 @@ class Quota
         usage=@usage.total(user)
         user_quota=get(user)
         if new_vm
-            usage.cpu+=new_vm.cpu
-            usage.memory+=new_vm.memory
+            usage.cpu+=new_vm.cpu.to_f
+            usage.memory+=new_vm.memory.to_i
         end
         
         STDERR.puts [user_quota, usage, new_vm].inspect
