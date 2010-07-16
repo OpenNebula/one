@@ -1,5 +1,5 @@
 require 'OpenNebula/Pool'
-require 'ftools'
+require 'fileutils'
 
 module OpenNebula
     class Image < PoolElement
@@ -190,7 +190,7 @@ module OpenNebula
                 return OpenNebula::Error.new("copy Image: missing parameters.")
             end
 
-            if !File.copy(path, source)
+            if !FileUtils.copy(path, source)
                 return OpenNebula::Error.new("copy Image: in File.copy")
             end
 
