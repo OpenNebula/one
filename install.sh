@@ -500,6 +500,7 @@ COMMON_CLOUD_CLIENT_LIB_FILES="src/cloud/common/CloudClient.rb"
 
 ECO_LIB_FILES="src/cloud/ec2/lib/EC2QueryClient.rb \
                src/cloud/ec2/lib/EC2QueryServer.rb \
+               src/cloud/ec2/lib/ImageEC2.rb \
                src/cloud/ec2/lib/econe-server.rb"
 
 ECO_LIB_CLIENT_FILES="src/cloud/ec2/lib/EC2QueryClient.rb"

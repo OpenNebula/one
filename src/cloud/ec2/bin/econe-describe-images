@@ -115,16 +115,21 @@ end
 
 images = rc['imagesSet']['item']
 
-fmt = "%-4s  %-36s  %s"  
+fmt = "%-8s %-20s %-30s %-40s %s"  
 
 if headers
-    puts fmt % ["Owner", "ImageId", "Location"]
+    puts fmt % ["Owner", "ImageId", "Status", "Visibility", "Location"]
     puts "------------------------------------------------------------------------------" 
 end
 
 if images 
     images.each { |img|
-        puts fmt % [img['imageOwnerId'],img['imageId'],img['imageLocation']]
+        if img['isPublic'] == 'true'
+            visibility = "public"
+        elsif img['isPublic'] == 'false'
+            visibility = "private"
+        end
+        puts fmt % [img['imageOwnerId'],img['imageId'], img['imageState'], visibility,img['imageLocation']]
     }
 end
 

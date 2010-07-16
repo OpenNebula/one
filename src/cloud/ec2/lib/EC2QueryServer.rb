@@ -19,8 +19,11 @@ require 'sinatra'
 require 'erb'
 require 'time'
 require 'AWS'
-require 'CloudServer'
 require 'base64'
+
+require 'CloudServer'
+
+require 'ImageEC2'
 
 ###############################################################################
 # The EC2Query Server implements a EC2 compatible server based on the 
@@ -149,27 +152,38 @@ class EC2QueryServer < CloudServer
     ###########################################################################
 
     def upload_image(params)
-        user  = get_user(params['AWSAccessKeyId'])
+        user       = get_user(params['AWSAccessKeyId'])
+        one_client = one_client_user(user)
 
-        image   = add_image(user[:id],params["file"][:tempfile])
-        erb_img_id = image.id
-	    erb_version = params['Version']
+        image = ImageEC2.new(Image.build_xml, one_client)
+        
+        rc = add_image(image, params['file'])
+        if OpenNebula.is_error?(rc)
+            return OpenNebula::Error.new('Unsupported'),400 
+        end
+        
+        erb_version = params['Version']
 
         response = ERB.new(File.read(@config[:views]+"/register_image.erb"))
         return response.result(binding), 200
     end
     
     def register_image(params)
-        user  = get_user(params['AWSAccessKeyId'])
-        image = get_image(params['ImageLocation'])
+        user       = get_user(params['AWSAccessKeyId'])
+        one_client = one_client_user(user)
+        
+        tmp, img=params['ImageLocation'].split('-')
 
-        if !image
+        image = Image.new(Image.build_xml(img.to_i), one_client)
+        
+        # Enable the new Image
+        rc = image.info
+        if OpenNebula.is_error?(rc)
             return OpenNebula::Error.new('InvalidAMIID.NotFound'), 400
-        elsif user[:id] != image[:owner]
-            return OpenNebula::Error.new('AuthFailure'), 400
         end
-
-        erb_img_id=image.id
+        
+        image.enable
+        
 	    erb_version = params['Version']
 
         response = ERB.new(File.read(@config[:views]+"/register_image.erb"))
@@ -177,13 +191,20 @@ class EC2QueryServer < CloudServer
     end
 
     def describe_images(params)
-        erb_user    = get_user(params['AWSAccessKeyId'])
-        erb_images  = Image.filter(:owner => erb_user[:id])
-	    erb_version = params['Version']
-       
-        response = ERB.new(File.read(@config[:views]+"/describe_images.erb"))
+        user       = get_user(params['AWSAccessKeyId'])
+        one_client = one_client_user(user) 
+
+        user_flag=-1
+        erb_impool = ImagePool.new(one_client, user_flag)
+        erb_impool.info
         
-        return response.result(binding), 200
+        erb_user_name = user[:name]
+	    erb_version = params['Version']
+		
+        response = ERB.new(File.read(@config[:views]+"/describe_images.erb"))
+        a = response.result(binding)
+        pp a
+        return a, 200
     end
 
     ###########################################################################
@@ -191,49 +212,46 @@ class EC2QueryServer < CloudServer
     ###########################################################################
 
     def run_instances(params)
-        # Get the instance type
+        user       = get_user(params['AWSAccessKeyId'])
+        one_client = one_client_user(user)
+
+        # Get the instance type and path
         instance_type_name = params['InstanceType']
         instance_type      = @instance_types[instance_type_name]
         
-        return OpenNebula::Error.new('Unsupported'),400 if !instance_type
-
+        path = get_template_path(params['InstanceType'])
+        if OpenNebula.is_error?(path)
+            return OpenNebula::Error.new('Unsupported'),400
+        end
+        
         # Get the image
 	    tmp, img=params['ImageId'].split('-')
-        image = get_image(img.to_i)
-        
-        return OpenNebula::Error.new('InvalidAMIID.NotFound'),400 if !image
-
-        # Get the user
-        user       = get_user(params['AWSAccessKeyId'])
-        one_client = one_client_user(user) 
-        erb_user_name = user[:name]
    
         # Build the VM 
         erb_vm_info=Hash.new
-
-        
-        erb_vm_info[:img_path]      = image.path
-        erb_vm_info[:img_id]        = params['ImageId']
+        erb_vm_info[:img_id]        = img.to_i
+        erb_vm_info[:ec2_img_id]    = params['ImageId']
         erb_vm_info[:instance_type] = instance_type_name
-        erb_vm_info[:template]      = @config[:template_location] + 
-                                       "/#{instance_type['TEMPLATE']}"
+        erb_vm_info[:template]      = path
         erb_vm_info[:user_data]     = params['UserData']
         
         template      = ERB.new(File.read(erb_vm_info[:template]))
         template_text = template.result(binding)
- 
-        #Start the VM.
+
+        # Start the VM.
         vm = VirtualMachine.new(VirtualMachine.build_xml, one_client)
 
         rc = vm.allocate(template_text)
+        if OpenNebula::is_error?(rc)
+            return OpenNebula::Error.new('Unsupported'),400
+        end
         
-        return OpenNebula::Error.new('Unsupported'),400 if OpenNebula::is_error?(rc)
-
         vm.info
      
         erb_vm_info[:vm_id]=vm.id
         erb_vm_info[:vm]=vm
-
+        erb_vm_info[:user_name]  = user[:name]
+        
 	    erb_version = params['Version']
         
         response = ERB.new(File.read(@config[:views]+"/run_instances.erb"))
@@ -248,12 +266,7 @@ class EC2QueryServer < CloudServer
 
         erb_user_name = user[:name]
 
-        if user[:id]==0
-            user_flag=-2
-        else
-            user_flag=-1
-        end
-
+        user_flag=-1
         erb_vmpool = VirtualMachinePool.new(one_client, user_flag)
         erb_vmpool.info
 
