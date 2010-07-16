@@ -62,8 +62,10 @@ done
 
 if [ "$MYSQL" = "yes" ] ; then
     TEST_ARGS="-m"
+    BUILD_ARGS="mysql=yes sqlite=no"
 else
     TEST_ARGS="-s"
+    BUILD_ARGS="mysql=no sqlite=yes"
 fi
 
 if [ "$LOGS" = "yes" ] ; then
@@ -88,9 +90,9 @@ for i in $TESTS ; do
 
     if [ "$CLEAR" = "yes" ] ; then
         scons -c
-        rm -f callgrind.out* test.db* test.log* memgrid.out*
+        rm -f callgrind.out* test.db* *.log* memgrid.out*
     elif [ "$BUILD" = "yes" ] ; then
-        scons
+        scons $BUILD_ARGS
     else
         for j in `ls test*` ; do
             $CALLER ./$j $TEST_ARGS

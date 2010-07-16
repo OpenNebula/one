@@ -85,6 +85,41 @@ const string xml_dump_where =
 /* ************************************************************************* */
 /* ************************************************************************* */
 
+class VirtualNetworkPoolFriend : public VirtualNetworkPool
+{
+public:
+
+    VirtualNetworkPoolFriend(   SqlDB *          db,
+                                const string&    str_mac_prefix,
+                                int              default_size):
+
+                VirtualNetworkPool( db, str_mac_prefix, default_size)
+                {};
+
+
+    int allocate(const int& uid, const std::string& stemplate, int* oid)
+    {
+        VirtualNetworkTemplate * vn_template;
+        char *          error_msg = 0;
+        int             rc;
+
+        vn_template = new VirtualNetworkTemplate;
+        rc = vn_template->parse(stemplate,&error_msg);
+
+        if( rc == 0 )
+        {
+            return VirtualNetworkPool::allocate(uid, vn_template, oid);
+        }
+        else
+        {
+            return -1;
+        }
+    };
+};
+
+/* ************************************************************************* */
+/* ************************************************************************* */
+
 class VirtualNetworkPoolTest : public PoolTest
 {
     CPPUNIT_TEST_SUITE (VirtualNetworkPoolTest);
@@ -107,6 +142,7 @@ class VirtualNetworkPoolTest : public PoolTest
     CPPUNIT_TEST (overlapping_leases_rr);
     CPPUNIT_TEST (drop_leases);
     CPPUNIT_TEST (public_attribute);
+    CPPUNIT_TEST (vnpool_nic_attribute);
 
     CPPUNIT_TEST_SUITE_END ();
 
@@ -127,7 +163,7 @@ protected:
     int allocate(int index)
     {
         int oid;
-        return ((VirtualNetworkPool*)pool)->allocate(uids[index],
+        return ((VirtualNetworkPoolFriend*)pool)->allocate(uids[index],
                                                      templates[index], &oid);
     };
 
@@ -181,9 +217,10 @@ public:
 
     void allocate_rcs()
     {
-        VirtualNetworkPool * vnpool = static_cast<VirtualNetworkPool *>(pool);
+        VirtualNetworkPoolFriend * vnpool =
+                                static_cast<VirtualNetworkPoolFriend *>(pool);
         VirtualNetwork * vn;
-        int rc;
+        int              rc;
 
         // Check case
         rc = allocate(2);
@@ -206,6 +243,9 @@ public:
         rc = allocate(6);
         CPPUNIT_ASSERT( rc == -1 );
     }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
     void get_using_name()
     {
@@ -235,6 +275,9 @@ public:
         check(1, vn);
     };
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
     void wrong_get_name()
     {
         VirtualNetworkPool * vnpool = static_cast<VirtualNetworkPool *>(pool);
@@ -252,16 +295,23 @@ public:
         CPPUNIT_ASSERT( vn == 0 );
     }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
     void update()
     {
         // TODO
     };
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
     void size()
     {
-        VirtualNetworkPool * vnpool = static_cast<VirtualNetworkPool*>(pool);
+        VirtualNetworkPoolFriend * vnpool =
+                                static_cast<VirtualNetworkPoolFriend*>(pool);
 
-        int rc;
+        int             rc;
         VirtualNetwork* vnet;
 
         string templ[] = {
@@ -338,10 +388,14 @@ public:
         }
     }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
     void duplicates()
     {
         int rc, oid_0, oid_1;
-        VirtualNetworkPool * vnpool = static_cast<VirtualNetworkPool *>(pool);
+        VirtualNetworkPoolFriend * vnpool =
+                                static_cast<VirtualNetworkPoolFriend *>(pool);
         VirtualNetwork     * vnet;
 
         // Allocate a vnet
@@ -382,9 +436,13 @@ public:
         check(0, vnet);
     }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
     void dump()
     {
-        VirtualNetworkPool * vnpool = static_cast<VirtualNetworkPool*>(pool);
+        VirtualNetworkPoolFriend * vnpool =
+                                static_cast<VirtualNetworkPoolFriend*>(pool);
         int oid, rc;
         ostringstream oss;
 
@@ -401,9 +459,13 @@ public:
         CPPUNIT_ASSERT( result == xml_dump );
     };
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
     void dump_where()
     {
-        VirtualNetworkPool * vnpool = static_cast<VirtualNetworkPool*>(pool);
+        VirtualNetworkPoolFriend * vnpool =
+                                static_cast<VirtualNetworkPoolFriend*>(pool);
         int oid, rc;
         ostringstream oss;
 
@@ -421,8 +483,13 @@ public:
         CPPUNIT_ASSERT( result == xml_dump_where );
     };
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
     void fixed_leases()
     {
+        VirtualNetworkPoolFriend * vnpool =
+                                static_cast<VirtualNetworkPoolFriend*>(pool);
         int rc, oid;
         VirtualNetwork *vn;
 
@@ -435,7 +502,7 @@ public:
         oid = allocate(0);
         CPPUNIT_ASSERT( oid != -1 );
 
-        vn = ((VirtualNetworkPool*)pool)->get(oid, false);
+        vn = vnpool->get(oid, false);
         CPPUNIT_ASSERT( vn != 0 );
 
         // Ask for an IP
@@ -454,7 +521,7 @@ public:
         pool->clean();
 
         // Read the Vnet from the DB
-        vn = ((VirtualNetworkPool*)pool)->get(oid, false);
+        vn = vnpool->get(oid, false);
         CPPUNIT_ASSERT( vn != 0 );
 
         // Ask for another IP
@@ -495,8 +562,13 @@ public:
         CPPUNIT_ASSERT( bridge  == "br1" );
     }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
     void ranged_leases()
     {
+        VirtualNetworkPoolFriend * vnpool =
+                                static_cast<VirtualNetworkPoolFriend*>(pool);
         int rc, oid;
         VirtualNetwork *vn;
 
@@ -512,10 +584,10 @@ public:
             "NETWORK_ADDRESS = 192.168.50.0\n";
 
 
-        ((VirtualNetworkPool*)pool)->allocate(45, tmpl, &oid);
+        vnpool->allocate(45, tmpl, &oid);
         CPPUNIT_ASSERT( oid != -1 );
 
-        vn = ((VirtualNetworkPool*)pool)->get(oid, false);
+        vn = vnpool->get(oid, false);
         CPPUNIT_ASSERT( vn != 0 );
 
         // Ask for an IP
@@ -533,7 +605,7 @@ public:
         pool->clean();
 
         // Read the Vnet from the DB
-        vn = ((VirtualNetworkPool*)pool)->get(oid, false);
+        vn = vnpool->get(oid, false);
         CPPUNIT_ASSERT( vn != 0 );
 
         // Ask for the IP already in use
@@ -587,8 +659,13 @@ public:
         CPPUNIT_ASSERT( bridge  == "bridge0" );
     }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
     void wrong_leases()
     {
+        VirtualNetworkPoolFriend * vnpool =
+                                static_cast<VirtualNetworkPoolFriend*>(pool);
         int rc, oid_0, oid_1;
         VirtualNetwork *vn;
 
@@ -601,7 +678,7 @@ public:
         oid_0 = allocate(0);
         CPPUNIT_ASSERT( oid_0 != -1 );
 
-        vn = ((VirtualNetworkPool*)pool)->get(oid_0, false);
+        vn = vnpool->get(oid_0, false);
         CPPUNIT_ASSERT( vn != 0 );
 
         // Ask for a non-defined IP
@@ -616,7 +693,7 @@ public:
         oid_1 = allocate(1);
         CPPUNIT_ASSERT( oid_1 != -1 );
 
-        vn = ((VirtualNetworkPool*)pool)->get(oid_1, false);
+        vn = vnpool->get(oid_1, false);
         CPPUNIT_ASSERT( vn != 0 );
 
         // Ask for an out of range IP
@@ -635,6 +712,9 @@ public:
         CPPUNIT_ASSERT( rc == -1 );
     }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
     void overlapping_leases_ff()
     {
         // It is a different Vnet from #0: different user, name, and bridge.
@@ -649,6 +729,9 @@ public:
         overlapping_leases(templates[0], tmpl_B);
     }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
     void overlapping_leases_fr()
     {
         // Now use a ranged network, also containig the IP 130.10.0.1
@@ -661,6 +744,9 @@ public:
 
         overlapping_leases(templates[0], tmpl_B);
     }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
     void overlapping_leases_rf()
     {
@@ -675,6 +761,9 @@ public:
 
         overlapping_leases(tmpl_A, templates[0]);
     }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
     void overlapping_leases_rr()
     {
@@ -697,10 +786,14 @@ public:
         overlapping_leases(tmpl_A, tmpl_B);
     }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
     // Runs a test using the given templates
     void overlapping_leases(string tmpl_A, string tmpl_B)
     {
+        VirtualNetworkPoolFriend * vnpool =
+                                static_cast<VirtualNetworkPoolFriend*>(pool);
         int rc, oid_0, oid_new;
         VirtualNetwork *vn;
 
@@ -712,15 +805,15 @@ public:
 
 
         // First VNet template
-        ((VirtualNetworkPool*)pool)->allocate(13, tmpl_A, &oid_0);
+        vnpool->allocate(13, tmpl_A, &oid_0);
         CPPUNIT_ASSERT( oid_0 != -1 );
 
         // Second VNet
-        ((VirtualNetworkPool*)pool)->allocate(45, tmpl_B, &oid_new);
+        vnpool->allocate(45, tmpl_B, &oid_new);
         CPPUNIT_ASSERT( oid_new != -1 );
 
         // Get this second VNet
-        vn = ((VirtualNetworkPool*)pool)->get(oid_new, false);
+        vn = vnpool->get(oid_new, false);
         CPPUNIT_ASSERT( vn != 0 );
 
         // Set a lease. Ask for the IP that both Vnets have
@@ -742,7 +835,7 @@ public:
 
 
         // Now check that the first VNet has that IP available
-        vn = ((VirtualNetworkPool*)pool)->get(oid_0, false);
+        vn = vnpool->get(oid_0, false);
         CPPUNIT_ASSERT( vn != 0 );
 
         // Ask the first VNet for the IP that both Vnets have
@@ -759,7 +852,7 @@ public:
 
 
         // Get again the second VNet
-        vn = ((VirtualNetworkPool*)pool)->get(oid_new, false);
+        vn = vnpool->get(oid_new, false);
         CPPUNIT_ASSERT( vn != 0 );
 
         // Ask for the IP, should be still used
@@ -778,8 +871,13 @@ public:
         CPPUNIT_ASSERT(results.size()  == 1);
     }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
     void drop_leases()
     {
+        VirtualNetworkPoolFriend * vnpool =
+                                static_cast<VirtualNetworkPoolFriend*>(pool);
         int rc, oid;
         VirtualNetwork *vn;
 
@@ -793,7 +891,7 @@ public:
         oid = allocate(0);
         CPPUNIT_ASSERT( oid != -1 );
 
-        vn = ((VirtualNetworkPool*)pool)->get(oid, false);
+        vn = vnpool->get(oid, false);
         CPPUNIT_ASSERT( vn != 0 );
 
         // Drop the VNet
@@ -808,11 +906,14 @@ public:
         CPPUNIT_ASSERT(results.size()  == 0);
     }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
     void public_attribute()
     {
         int oid;
-        VirtualNetworkPool * vnp = static_cast<VirtualNetworkPool *>(pool);
+        VirtualNetworkPoolFriend * vnp =
+                                static_cast<VirtualNetworkPoolFriend*>(pool);
         VirtualNetwork *     vn;
 
         string templates[] =
@@ -897,12 +998,103 @@ public:
             CPPUNIT_ASSERT( vn != 0 );
 
 //cout << endl << i << ":expected " << results[i] << " got " << vn->is_public();
-
-            CPPUNIT_ASSERT( vn->is_public() == results[i] );
-
+            CPPUNIT_ASSERT( vn->isPublic() == results[i] );
             i++;
         }
     }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+    void vnpool_nic_attribute()
+    {
+        VirtualNetworkPoolFriend * vnp =
+                                static_cast<VirtualNetworkPoolFriend *>(pool);
+
+        VectorAttribute *   disk;
+        int                 oid_0, oid_1;
+        string              value;
+
+        // ---------------------------------------------------------------------
+        // Allocate 2 vnets
+
+        string template_0 = "NAME   = \"Net 0\"\n"
+                            "TYPE   = FIXED\n"
+                            "BRIDGE = br1\n"
+                            "LEASES = [IP=130.10.0.1, MAC=50:20:20:20:20:20]";
+
+        string template_1 = "NAME   = \"Net 1\"\n"
+                            "TYPE   = FIXED\n"
+                            "BRIDGE = br2\n"
+                            "LEASES = [IP=130.10.0.5, MAC=50:20:20:20:20:25]";
+
+
+        vnp->allocate(0, template_0, &oid_0);
+        CPPUNIT_ASSERT( oid_0 == 0 );
+
+        vnp->allocate(0, template_1, &oid_1);
+        CPPUNIT_ASSERT( oid_1 == 1 );
+
+
+        // Disk using network 0
+        disk = new VectorAttribute("DISK");
+        disk->replace("NETWORK", "Net 0");
+
+        ((VirtualNetworkPool*)vnp)->nic_attribute(disk, 0);
+
+
+        value = "";
+        value = disk->vector_value("NETWORK");
+        CPPUNIT_ASSERT( value == "Net 0" );
+
+        value = "";
+        value = disk->vector_value("MAC");
+        CPPUNIT_ASSERT( value == "50:20:20:20:20:20" );
+
+        value = "";
+        value = disk->vector_value("BRIDGE");
+        CPPUNIT_ASSERT( value == "br1" );
+
+        value = "";
+        value = disk->vector_value("NETWORK_ID");
+        CPPUNIT_ASSERT( value == "0" );
+
+        value = "";
+        value = disk->vector_value("IP");
+        CPPUNIT_ASSERT( value == "130.10.0.1" );
+
+        delete disk;
+
+
+        // Disk using network 1 index
+        disk = new VectorAttribute("DISK");
+        disk->replace("NETWORK_ID", "1");
+
+        ((VirtualNetworkPool*)vnp)->nic_attribute(disk, 0);
+
+        value = "";
+        value = disk->vector_value("NETWORK");
+        CPPUNIT_ASSERT( value == "Net 1" );
+
+        value = "";
+        value = disk->vector_value("MAC");
+        CPPUNIT_ASSERT( value == "50:20:20:20:20:25" );
+
+        value = "";
+        value = disk->vector_value("BRIDGE");
+        CPPUNIT_ASSERT( value == "br2" );
+
+        value = "";
+        value = disk->vector_value("NETWORK_ID");
+        CPPUNIT_ASSERT( value == "1" );
+
+        value = "";
+        value = disk->vector_value("IP");
+        CPPUNIT_ASSERT( value == "130.10.0.5" );
+
+        delete disk;
+    }
+
 };
 
 /* ************************************************************************* */
