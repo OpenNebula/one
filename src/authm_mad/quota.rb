@@ -68,10 +68,13 @@ class Quota
         }
 
         quotas=@table.filter(:uid => uid)
+        pp quotas.first
         
         if quotas.first
+            STDERR.puts "updating"
             quotas.update(data)
         else
+            STDERR.puts "inserting"
             @table.insert(data.merge!(:uid => uid))
         end
     end

@@ -36,6 +36,7 @@ require 'simple_auth'
 require 'simple_permissions'
 require 'yaml'
 require 'sequel'
+require 'ssh_auth'
 
 class AuthorizationManager < OpenNebulaDriver
     def initialize
@@ -50,7 +51,8 @@ class AuthorizationManager < OpenNebulaDriver
         database_url=@config[:database]
         @db=Sequel.connect(database_url)
         
-        @authenticate=SimpleAuth.new
+        #@authenticate=SimpleAuth.new
+        @authenticate=SshAuth.new
         @permissions=SimplePermissions.new(@db, OpenNebula::Client.new,
             @config)
         
@@ -59,6 +61,7 @@ class AuthorizationManager < OpenNebulaDriver
     end
     
     def action_authenticate(request_id, user_id, user, password, token)
+        STDERR.puts [user_id, user, password, token].inspect
         auth=@authenticate.auth(user_id, user, password, token)
         if auth==true
             send_message('AUTHENTICATE', RESULT[:success],
