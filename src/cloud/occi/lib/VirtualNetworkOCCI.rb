@@ -20,7 +20,7 @@ include OpenNebula
 
 class VirtualNetworkOCCI < VirtualNetwork
     OCCI_NETWORK = %q{
-        <NETWORK>
+        <NETWORK href="<%= base_url %>/network/<%= self.id.to_s  %>">
             <ID><%= self.id.to_s %></ID>
             <NAME><%= self.name %></NAME>
             <ADDRESS><%= template['NETWORK_ADDRESS'] %></ADDRESS>
@@ -46,7 +46,7 @@ class VirtualNetworkOCCI < VirtualNetwork
     end
     
     # Creates the OCCI representation of a Virtual Network
-    def to_occi()        
+    def to_occi(base_url)        
         vn_hash = self.to_hash
         return vn_hash, 500 if OpenNebula.is_error?(vn_hash)
         

@@ -20,7 +20,7 @@ include OpenNebula
 
 class ImageOCCI < Image
     OCCI_IMAGE = %q{
-        <DISK>
+        <STORAGE href="<%= base_url %>/storage/<%= self.id.to_s  %>">
             <ID><%= self.id.to_s %></ID>
             <NAME><%= self.name %></NAME>
             <% if template['TYPE'] %>
@@ -32,7 +32,7 @@ class ImageOCCI < Image
             <% if size %>
             <SIZE><%= size %></SIZE>
             <% end %>
-        </DISK>
+        </STORAGE>
     }
 
 
@@ -60,7 +60,7 @@ class ImageOCCI < Image
     end
     
     # Creates the OCCI representation of an Image
-    def to_occi()
+    def to_occi(base_url)
         image_hash = self.to_hash
         return image_hash, 500 if OpenNebula.is_error?(image_hash)
         

@@ -20,7 +20,7 @@ include OpenNebula
 
 class VirtualMachineOCCI < VirtualMachine
     OCCI_VM = %q{
-        <COMPUTE>
+        <COMPUTE href="<%= base_url %>/compute/<%= self.id.to_s  %>">
             <ID><%= self.id.to_s%></ID>
             <NAME><%= self.name%></NAME>
             <% if template['INSTANCE_TYPE'] %> 

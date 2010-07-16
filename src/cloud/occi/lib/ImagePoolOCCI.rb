@@ -29,7 +29,8 @@ class ImagePoolOCCI < ImagePool
     
     
     # Creates the OCCI representation of a Virtual Machine Pool
-    def to_occi(base_url)begin
+    def to_occi(base_url)
+        begin
             occi = ERB.new(OCCI_IMAGE_POOL)
             occi_text = occi.result(binding) 
         rescue Exception => e
