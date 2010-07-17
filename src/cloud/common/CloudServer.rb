@@ -89,6 +89,25 @@ class CloudServer
         return client
     end
 
+    # Gets the data associated with a user
+    # name:: _String_ the name of the user
+    # [return] _Hash_ with the user data
+    def get_user(name)
+        user = nil
+
+        @user_pool.info
+        @user_pool.each{ |u|
+            if u.name==name
+                user=Hash.new
+
+                user[:id]       = u.id
+                user[:name]     = u.name
+                user[:password] = u[:password]
+            end
+        }
+        return user
+   end
+
     ###########################################################################
     # Repository Methods
     ###########################################################################
