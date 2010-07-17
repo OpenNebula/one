@@ -31,7 +31,7 @@ class CloudServer
     attr_reader :one_client
 
     # Initializes the Cloud server based on a config file
-    # config_file:: _String_ for the server. MUST include the following 
+    # config_file:: _String_ for the server. MUST include the following
     # variables:
     #   USER
     #   PASSWORD
@@ -43,7 +43,7 @@ class CloudServer
         # --- Load the Cloud Server configuration file ---
 
         @config = Configuration.new(config_file)
-        
+
         @instance_types = Hash.new
 
         if @config[:vm_type].kind_of?(Array)
@@ -55,7 +55,7 @@ class CloudServer
         end
 
         # --- Start an OpenNebula Session ---
-        
+
         @one_client = Client.new()
         @user_pool  = UserPool.new(@one_client)
     end
@@ -72,7 +72,7 @@ class CloudServer
         puts "--------------------------------------"
         puts "      Registered Instance Types       "
         puts "--------------------------------------"
-        pp @instance_types 
+        pp @instance_types
     end
 
     ###########################################################################
@@ -80,19 +80,19 @@ class CloudServer
     ###########################################################################
 
     # Generates an OpenNebula Session for the given user
-    # user:: _Hash_ the user information  
-    # [return] an OpenNebula client session 
+    # user:: _Hash_ the user information
+    # [return] an OpenNebula client session
     def one_client_user(user)
         client = Client.new("dummy:dummy")
         client.one_auth = "#{user[:name]}:#{user[:password]}"
-    
+
         return client
     end
 
     # Authenticates a user
     # name:: _String_ of the user
     # password:: _String_ of the user
-    # [return] true if authenticated    
+    # [return] true if authenticated
     def authenticate?(name, password)
         user = get_user(name)
 
@@ -104,7 +104,7 @@ class CloudServer
     # [return] _Hash_ with the user data
     def get_user(name)
         user = nil
-    
+
         @user_pool.info
         @user_pool.each{ |u|
             if u.name==name
@@ -117,31 +117,17 @@ class CloudServer
         }
         return user
    end
-   
-   def xml_to_hash(xml)
-       begin
-           hash = Crack::XML.parse(xml)
-       rescue Exception => e
-           error = OpenNebula::Error.new(e.message)
-           return error
-       end    
-       
-       return hash
-   end
-   
+
    def get_template_path(instance_type_name)
-       if instance_type_name.nil?
-           instance_type=@instance_types.first
-       end
-       
+
        instance_type=@instance_types[instance_type_name]
-       
+
        if !instance_type
            error = OpenNebula::Error.new("Bad instance type")
-           return error    
+           return error
        end
-       
-       return @config[:template_location]+"/#{instance_type['TEMPLATE']}" 
+
+       return @config[:template_location]+"/#{instance_type['TEMPLATE']}"
    end
 
     ###########################################################################
@@ -162,14 +148,14 @@ class CloudServer
                 error = OpenNebula::Error.new(error_msg)
                 return error
             end
-        
+
             if !File.exists?(file_path)
                 error_msg = "Image file could not be found, aborting."
                 error = OpenNebula::Error.new(error_msg)
                 return error
             end
         end
-            
+
         template = image.to_one_template
 
         rc = image.allocate(template)
@@ -181,22 +167,22 @@ class CloudServer
         image.info
         template=image.to_hash
         template=template['IMAGE']['TEMPLATE']
-        
+
         if file_path
             rc = image.copy(file_path, image['SOURCE'])
             file[:tempfile].unlink
         elsif template['SIZE'] and template['FSTYPE']
             rc = image.mk_datablock(
-                    template['SIZE'], 
-                    template['FSTYPE'], 
+                    template['SIZE'],
+                    template['FSTYPE'],
                     image['SOURCE'])
         end
-        
+
         if OpenNebula.is_error?(rc)
            image.delete
            return rc
         end
- 
+
         return nil
     end
 

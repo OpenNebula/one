@@ -7,7 +7,7 @@ module OpenNebula
     rescue LoadError
         NOKOGIRI=false
     end
-    
+
     # Require crack library if present, otherwise don't bother
     # This is just for OCCI use
     begin
@@ -17,7 +17,7 @@ module OpenNebula
 
     ###########################################################################
     # The XMLUtilsElement module provides an abstraction of the underlying
-    # XML parser engine. It provides XML-related methods for the Pool Elements  
+    # XML parser engine. It provides XML-related methods for the Pool Elements
     ###########################################################################
     module XMLUtilsElement
         # Initialize a XML document for the element
@@ -34,7 +34,7 @@ module OpenNebula
 
         # Extract an element from the XML description of the PoolElement.
         # key::_String_ The name of the element
-        # [return] _String_ the value of the element 
+        # [return] _String_ the value of the element
         # Examples:
         #   ['VID'] # gets VM id
         #   ['HISTORY/HOSTNAME'] # get the hostname from the history
@@ -47,16 +47,16 @@ module OpenNebula
             else
                 element=@xml.elements[key.to_s.upcase]
             end
-            
-            if element 
+
+            if element
                 element.text
             end
         end
-        
+
         def template_str(indent=true)
             template_like_str('TEMPLATE', indent)
         end
-            
+
         def template_like_str(root_element, indent=true)
             if NOKOGIRI
                 xml_template=@xml.xpath(root_element).to_s
@@ -64,7 +64,7 @@ module OpenNebula
             else
                 rexml=@xml.elements[root_element]
             end
-            
+
             if indent
                 ind_enter="\n"
                 ind_tab='  '
@@ -72,7 +72,7 @@ module OpenNebula
                 ind_enter=''
                 ind_tab=' '
             end
-            
+
             str=rexml.collect {|n|
                 if n.class==REXML::Element
                     str_line=""
@@ -93,11 +93,11 @@ module OpenNebula
                     str_line
                 end
             }.compact.join("\n")
-            
+
             str
         end
-        
-        def to_hash 
+
+        def to_hash
             if !@hash && @xml
                 begin
                    @hash = Crack::XML.parse(to_xml)
@@ -116,18 +116,29 @@ module OpenNebula
                 str = ""
                 if pretty
                     REXML::Formatters::Pretty.new(1).write(@xml,str)
-                else 
+                else
                     REXML::Formatters::Default.new.write(@xml,str)
                 end
                 str
             end
         end
-        
+
+        def XMLUtilsElement.xml_to_hash(xml)
+            begin
+                hash = Crack::XML.parse(xml)
+            rescue Exception => e
+                error = OpenNebula::Error.new(e.message)
+                return error
+            end
+
+            return hash
+        end
+
     end
-        
+
     ###########################################################################
     # The XMLUtilsPool module provides an abstraction of the underlying
-    # XML parser engine. It provides XML-related methods for the Pools  
+    # XML parser engine. It provides XML-related methods for the Pools
     ###########################################################################
     module XMLUtilsPool
 
@@ -141,9 +152,9 @@ module OpenNebula
                 xml=REXML::Document.new(xml).root
             end
         end
-        
+
         #Executes the given block for each element of the Pool
-        #block:: _Block_ 
+        #block:: _Block_
         def each_element(block)
             if NOKOGIRI
                 @xml.xpath(
@@ -165,14 +176,14 @@ module OpenNebula
                 str = ""
                 if pretty
                     REXML::Formatters::Pretty.new(1).write(@xml,str)
-                else 
+                else
                     REXML::Formatters::Default.new.write(@xml,str)
                 end
                 str
             end
         end
-        
-        def to_hash 
+
+        def to_hash
             if !@hash && @xml
                 @hash=Crack::XML.parse(to_xml)
             end

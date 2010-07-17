@@ -35,37 +35,37 @@ require 'pp'
 
 
 ##############################################################################
-# The OCCI Server provides an OCCI implementation based on the 
+# The OCCI Server provides an OCCI implementation based on the
 # OpenNebula Engine
 ##############################################################################
 class OCCIServer < CloudServer
-    
+
     # Server initializer
     # config_file:: _String_ path of the config file
-    # template:: _String_ path to the location of the templates 
+    # template:: _String_ path to the location of the templates
     def initialize(config_file,template)
         super(config_file)
-        
+
         @config.add_configuration_value("TEMPLATE_LOCATION",template)
-        
+
         if @config[:ssl_server]
             @base_url=@config[:ssl_server]
         else
             @base_url="http://#{@config[:server]}:#{@config[:port]}"
         end
-        
+
         print_configuration
     end
-    
+
     # Authorization function
     # requestenv:: _Hash_ Hash containing the environment of the request
-    # [return] _Boolean_ Whether the user is authorized or not  
+    # [return] _Boolean_ Whether the user is authorized or not
     def authenticate?(requestenv)
       auth ||=  Rack::Auth::Basic::Request.new(requestenv)
 
       if !(auth.provided? && auth.basic? && auth.credentials)
           return false
-      end 
+      end
 
       user = get_user(requestenv, auth)
 
@@ -85,7 +85,7 @@ class OCCIServer < CloudServer
         auth =  Rack::Auth::Basic::Request.new(requestenv) if !auth
         super(auth.credentials.first)
     end
-    
+
     # Retrieve a client with the user credentials
     # requestenv:: _Hash_ Hash containing the environment of the request
     # [return] _Client_ client with the user credentials
@@ -93,20 +93,20 @@ class OCCIServer < CloudServer
         user = get_user(requestenv)
         return one_client_user(user)
     end
-    
+
     # Prepare the OCCI XML Response
     # resource:: _Pool_ or _PoolElement_ that represents a OCCI resource
     # [return] _String_,_Integer_ Resource Representation or error, status code
     def to_occi_xml(resource)
         xml_response = resource.to_occi(@base_url)
         return xml_response, 500 if OpenNebula.is_error?(xml_response)
-        
-        return xml_response, 201 
+
+        return xml_response, 201
     end
-    
+
     def get_info_hash(body)
         if body
-            info = xml_to_hash(body.read)
+            info = XMLUtilsElement::xml_to_hash(body.read)
             return info
         else
             error_msg = "OCCI XML representation not present"
@@ -114,18 +114,18 @@ class OCCIServer < CloudServer
             return error
         end
     end
-    
+
     ###################################################
     # Pool Resources methods
     ###################################################
-    
+
     # Post a new compute to the COMPUTE pool
     # request:: _Hash_ hash containing the data of the request
-    # [return] _String_,_Integer_ COMPUTE Representation or error, status code    
+    # [return] _String_,_Integer_ COMPUTE Representation or error, status code
     def post_compute(request)
         # --- Get client with user credentials ---
         client = get_client(request.env)
-        
+
         # --- Check OCCI XML from POST ---
         vm_info = get_info_hash(request.body)
         return vm_info, 400 if OpenNebula.is_error?(vm_info)
@@ -134,16 +134,16 @@ class OCCIServer < CloudServer
         if vm_info['COMPUTE']
             path = get_template_path(vm_info['COMPUTE']['INSTANCE_TYPE'])
             return path, 500 if OpenNebula.is_error?(path)
-            
+
             vm_info['TEMPLATE_PATH'] = path
         end
 
         # --- Create the new Instance ---
         vm = VirtualMachineOCCI.new(
                     vm_info,
-                    VirtualMachine.build_xml, 
+                    VirtualMachine.build_xml,
                     client)
-        
+
         # --- Generate the template and Allocate the new Instance ---
         template = vm.to_one_template
         return template, 500 if OpenNebula.is_error?(template)
@@ -155,7 +155,7 @@ class OCCIServer < CloudServer
         vm.info
         return to_occi_xml(vm)
     end
-    
+
     # Gets the pool representation of COMPUTES
     # request:: _Hash_ hash containing the data of the request
     # [return] _String_,_Integer_ Pool Representation or error, status code
@@ -164,36 +164,29 @@ class OCCIServer < CloudServer
         client = get_client(request.env)
 
         # --- Get User's VMs ---
-        user_flag = -1  
+        user_flag = -1
         vmpool = VirtualMachinePoolOCCI.new(client, user_flag)
-        
+
         # --- Prepare XML Response ---
-        rc = vmpool.info  
+        rc = vmpool.info
         return rc, 404 if OpenNebula.is_error?(rc)
-        
+
         return to_occi_xml(vmpool)
     end
-    
+
     # Post a new network to the NETWORK pool
     # request:: _Hash_ hash containing the data of the request
     # [return] _String_,_Integer_ Network Representation or error, status code
     def post_network(request)
         # --- Get client with user credentials ---
         client = get_client(request.env)
-        
-        # --- Check OCCI XML from POST ---
-        network_info = get_info_hash(request.body)
-        return network_info, 400 if OpenNebula.is_error?(network_info)
-        
-        if network_info['NETWORK']
-            network_info['NETWORK']['BRIDGE'] = @config[:bridge] 
-        end
-        
+
         # --- Create the new Instance ---
         network = VirtualNetworkOCCI.new(
-                    network_info,
                     VirtualNetwork.build_xml,
-                    client)
+                    client,
+                    request.body,
+                    @config[:bridge])
 
         # --- Generate the template and Allocate the new Instance ---
         template = network.to_one_template
@@ -203,39 +196,39 @@ class OCCIServer < CloudServer
         return rc, 500 if OpenNebula.is_error?(rc)
 
         # --- Prepare XML Response ---
-        network.info   
+        network.info
         return to_occi_xml(network)
     end
-    
+
     # Gets the pool representation of NETWORKS
     # request:: _Hash_ hash containing the data of the request
-    # [return] _String_,_Integer_ Network pool representation or error, 
-    # =>                          status code  
+    # [return] _String_,_Integer_ Network pool representation or error,
+    # =>                          status code
     def get_networks(request)
         # --- Get client with user credentials ---
         client = get_client(request.env)
 
         # --- Get User's VNETs ---
-        user_flag = -1  
+        user_flag = -1
         network_pool = VirtualNetworkPoolOCCI.new(client, user_flag)
-        
-        rc = network_pool.info  
+
+        rc = network_pool.info
         return rc, 404 if OpenNebula.is_error?(rc)
-        
+
         # --- Prepare XML Response ---
         return to_occi_xml(network_pool)
     end
-    
+
     # Post a new image to the STORAGE pool
     # request:: _Hash_ hash containing the data of the request
-    # [return] _String_,_Integer_ Image representation or error, status code 
+    # [return] _String_,_Integer_ Image representation or error, status code
     def post_storage(request)
         # Get client with user credentials
         client = get_client(request.env)
-        
+
         # --- Check OCCI XML from POST ---
         if request.params['occixml']
-            image_info = xml_to_hash(request.params['occixml'])
+            image_info = XMLUtilsElement::xml_to_hash(request.params['occixml'])
             return image_info, 400 if OpenNebula.is_error?(image_info)
         else
             error_msg = "OCCI XML representation of Image" +
@@ -243,53 +236,53 @@ class OCCIServer < CloudServer
             error = OpenNebula::Error.new(error_msg)
             return error, 400
         end
- 
+
         # --- Create and Add the new Image ---
         image = ImageOCCI.new(image_info, Image.build_xml, client)
 
         rc = add_image(image, request.params['file'])
         return rc, 500 if OpenNebula.is_error?(rc)
-        
+
         # --- Enable the new Image ---
         rc = image.enable
         return rc, 500 if OpenNebula.is_error?(rc)
-        
+
         # --- Prepare XML Response ---
         return to_occi_xml(image)
     end
-    
+
     # Gets the pool representation of STORAGES
     # request:: _Hash_ hash containing the data of the request
-    # [return] _String_,_Integer_ Image pool representation or error, 
-    #                             status code 
+    # [return] _String_,_Integer_ Image pool representation or error,
+    #                             status code
     def get_storages(request)
         # --- Get client with user credentials ---
         client = get_client(request.env)
 
         # --- Get User's Images ---
-        user_flag = -1  
+        user_flag = -1
         image_pool = ImagePoolOCCI.new(client, user_flag)
-        
-        result = image_pool.info  
+
+        result = image_pool.info
         return result, 404 if OpenNebula.is_error?(result)
-        
+
         # --- Prepare XML Response ---
         return to_occi_xml(image_pool)
     end
-    
+
     ###################################################
     # Entity Resources methods
     ###################################################
-    
+
     # Get the representation of a COMPUTE resource
     # request:: _Hash_ hash containing the data of the request
-    # [return] _String_,_Integer_ COMPUTE representation or error, 
+    # [return] _String_,_Integer_ COMPUTE representation or error,
     #                             status code
     def get_compute(request, params)
         # --- Get client with user credentials ---
         client = get_client(request.env)
 
-        # --- Get the VM ---        
+        # --- Get the VM ---
         vm = VirtualMachineOCCI.new(
                 nil,
                 VirtualMachine.build_xml(params[:id]),
@@ -301,31 +294,31 @@ class OCCIServer < CloudServer
         # --- Prepare XML Response ---
         return to_occi_xml(vm)
     end
-    
+
     # Deletes a COMPUTE resource
     # request:: _Hash_ hash containing the data of the request
-    # [return] _String_,_Integer_ Delete confirmation msg or error, 
+    # [return] _String_,_Integer_ Delete confirmation msg or error,
     #                             status code
     def delete_compute(request, params)
         # --- Get client with user credentials ---
         client = get_client(request.env)
-        
+
         vm = VirtualMachineOCCI.new(
                 nil,
                 VirtualMachine.build_xml(params[:id]),
                 client)
-                      
+
         # --- Finalize the VM ---
         result = vm.finalize
         return result, 500 if OpenNebula::is_error?(result)
 
         return "", 204
     end
-    
+
     # Updates a COMPUTE resource
     # request:: _Hash_ hash containing the data of the request
-    # [return] _String_,_Integer_ Update confirmation msg or error, 
-    #                             status code  
+    # [return] _String_,_Integer_ Update confirmation msg or error,
+    #                             status code
     def put_compute(request, params)
         # --- Get client with user credentials ---
         client = get_client(request.env)
@@ -338,33 +331,32 @@ class OCCIServer < CloudServer
         if vm_info['COMPUTE'] && vm_info['COMPUTE']['STATE']
             vm = VirtualMachineOCCI.new(
                     vm_info,
-                    VirtualMachine.build_xml(params[:id]), 
+                    VirtualMachine.build_xml(params[:id]),
                     client)
-                    
+
             rc = vm.mk_action(vm_info['COMPUTE']['STATE'])
             return rc, 400 if OpenNebula.is_error?(rc)
         else
-            error_msg = "State not defined in the OCCI XML" 
+            error_msg = "State not defined in the OCCI XML"
             error = OpenNebula::Error.new(error_msg)
-            return error, 400            
+            return error, 400
         end
-        
+
         # --- Prepare XML Response ---
-        vm.info   
+        vm.info
         return to_occi_xml(vm)
     end
-    
+
     # Retrieves a NETWORK resource
     # request:: _Hash_ hash containing the data of the request
-    # [return] _String_,_Integer_ NETWORK occi representation or error, 
-    #                             status code 
+    # [return] _String_,_Integer_ NETWORK occi representation or error,
+    #                             status code
     def get_network(request, params)
         # --- Get client with user credentials ---
         client = get_client(request.env)
 
-        # --- Get the VM ---        
+        # --- Get the VM ---
         network = VirtualNetworkOCCI.new(
-                nil,
                 VirtualNetwork.build_xml(params[:id]),
                 client)
 
@@ -374,36 +366,35 @@ class OCCIServer < CloudServer
         # --- Prepare XML Response ---
         return to_occi_xml(network)
     end
-    
+
     # Deletes a NETWORK resource
     # request:: _Hash_ hash containing the data of the request
-    # [return] _String_,_Integer_ Delete confirmation msg or error, 
-    #                             status code 
+    # [return] _String_,_Integer_ Delete confirmation msg or error,
+    #                             status code
     def delete_network(request, params)
         # --- Get client with user credentials ---
         client = get_client(request.env)
-        
+
         vn = VirtualNetworkOCCI.new(
-                nil,
                 VirtualNetwork.build_xml(params[:id]),
                 client)
-                      
+
         # --- Delete the VNET ---
         result = vn.delete
         return result, 500 if OpenNebula::is_error?(result)
 
         return "", 204
     end
-    
+
     # Get a STORAGE resource
     # request:: _Hash_ hash containing the data of the request
-    # [return] _String_,_Integer_ STORAGE occi representation or error, 
-    #                             status code 
+    # [return] _String_,_Integer_ STORAGE occi representation or error,
+    #                             status code
     def get_storage(request, params)
         # --- Get client with user credentials ---
         client = get_client(request.env)
 
-        # --- Get the Image ---        
+        # --- Get the Image ---
         image = ImageOCCI.new(nil, Image.build_xml(params[:id]), client)
 
         result = image.info
@@ -412,17 +403,17 @@ class OCCIServer < CloudServer
         # --- Prepare XML Response ---
         return to_occi_xml(image)
     end
-    
+
     # Deletes a STORAGE resource (Not yet implemented)
     # request:: _Hash_ hash containing the data of the request
-    # [return] _String_,_Integer_ Delete confirmation msg or error, 
-    #                             status code 
+    # [return] _String_,_Integer_ Delete confirmation msg or error,
+    #                             status code
     def delete_storage(request, params)
         # --- Get client with user credentials ---
         client = get_client(request.env)
-        
+
         image = ImageOCCI.new(nil, Image.build_xml(params[:id]), client)
-                      
+
         # --- Delete the Image ---
         result = image.delete
         return result, 500 if OpenNebula::is_error?(result)
