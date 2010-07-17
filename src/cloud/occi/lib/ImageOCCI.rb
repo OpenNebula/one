@@ -23,13 +23,13 @@ class ImageOCCI < Image
         <STORAGE href="<%= base_url %>/storage/<%= self.id.to_s  %>">
             <ID><%= self.id.to_s %></ID>
             <NAME><%= self.name %></NAME>
-            <% if template['TYPE'] %>
-            <TYPE><%= template['TYPE'] %></TYPE>
+            <% if self['TEMPLATE/TYPE'] != nil %>
+            <TYPE><%= self['TEMPLATE/TYPE'] %></TYPE>
             <% end %>
-            <% if template['DESCRIPTION'] %>
-            <DESCRIPTION><%= template['DESCRIPTION'] %></DESCRIPTION>
+            <% if self['TEMPLATE/DESCRIPTION'] != nil %>
+            <DESCRIPTION><%= self['TEMPLATE/DESCRIPTION'] %></DESCRIPTION>
             <% end %>
-            <% if size %>
+            <% if size != nil %>
             <SIZE><%= size %></SIZE>
             <% end %>
         </STORAGE>
@@ -37,59 +37,62 @@ class ImageOCCI < Image
 
 
     ONE_IMAGE = %q{
-        NAME = "<%= image_info['NAME'] %>"
-        <% if image_info['DESCRIPTION'] %>
-        DESCRIPTION = "<%= image_info['DESCRIPTION'] %>"
+        NAME = "<%= @image_info.elements['NAME'].text %>"
+        <% if @image_info.elements['DESCRIPTION'] != nil %>
+        DESCRIPTION = "<%= @image_info.elements['DESCRIPTION'].text %>"
         <% end %>
-        <% if image_info['TYPE'] %>
-        TYPE = <%= image_info['TYPE'] %>
+        <% if @image_info.elements['TYPE'] != nil %>
+        TYPE = <%= @image_info.elements['TYPE'].text %>
         <% end %>
-        <% if image_info['FSTYPE'] %>
-        FSTYPE = <%= image_info['FSTYPE'] %>
+        <% if @image_info.elements['FSTYPE'] != nil %>
+        FSTYPE = <%= @image_info.elements['FSTYPE'].text %>
         <% end %>
-        <% if image_info['SIZE'] %>
-        SIZE = <%= image_info['SIZE'] %>
+        <% if @image_info.elements['SIZE'] != nil %>
+        SIZE = <%= @image_info.elements['SIZE'].text %>
         <% end %>
     }.gsub(/^        /, '')
 
     # Class constructor
-    def initialize(image_info, xml, client)
+    def initialize(xml, client, xml_info=nil)
         super(xml, client)
 
-        @image_info = image_info
+        if xml_info != nil
+            @image_info = REXML::Document.new(xml_info).root
+        else
+            @image_info = nil
+        end
     end
-    
+
     # Creates the OCCI representation of an Image
     def to_occi(base_url)
-        image_hash = self.to_hash
-        return image_hash, 500 if OpenNebula.is_error?(image_hash)
-        
-        template = image_hash['IMAGE']['TEMPLATE']
+        size = nil
+
         begin
-            size = File.stat(template['SOURCE']).size if template['SOURCE']
+            if self['TEMPLATE/SOURCE'] != nil
+                size = File.stat(self['TEMPLATE/SOURCE']).size
+            end
         rescue Exception => e
             error = OpenNebula::Error.new(e.message)
             return error
         end
-        
+
         occi = ERB.new(OCCI_IMAGE)
         return occi.result(binding).gsub(/\n\s*/,'')
     end
-    
+
     def to_one_template()
-        if @image_info['STORAGE']
-            image_info = @image_info['STORAGE']
-            if !image_info['NAME']
-                error_msg = "Missing Image NAME in the XML DISK section"
-                error = OpenNebula::Error.new(error_msg)
-                return error
-            end
-        else            
+        if @image_info.name != 'STORAGE'
             error_msg = "Missing STORAGE section in the XML body"
             error = OpenNebula::Error.new(error_msg)
             return error
         end
-            
+
+        if @image_info.elements['NAME'] == nil
+            error_msg = "Missing Image NAME in the XML DISK section"
+            error = OpenNebula::Error.new(error_msg)
+            return error
+        end
+
         one = ERB.new(ONE_IMAGE)
         return one.result(binding)
     end

@@ -190,8 +190,10 @@ module OpenNebula
                 return OpenNebula::Error.new("copy Image: missing parameters.")
             end
 
-            if !FileUtils.copy(path, source)
-                return OpenNebula::Error.new("copy Image: in File.copy")
+            begin
+                FileUtils.copy(path, source)
+            rescue Exception => e
+                return OpenNebula::Error.new(e.message)
             end
 
             return nil

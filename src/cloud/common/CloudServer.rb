@@ -156,25 +156,24 @@ class CloudServer
             end
         end
 
-        template = image.to_one_template
+        # ---------- Allocate the Image file ------------
 
-        rc = image.allocate(template)
+        rc = image.allocate(image.to_one_template)
         if OpenNebula.is_error?(rc)
            return rc
         end
 
-        # Copy the Image file
+        # ---------- Copy the Image file ------------
+
         image.info
-        template=image.to_hash
-        template=template['IMAGE']['TEMPLATE']
 
         if file_path
             rc = image.copy(file_path, image['SOURCE'])
             file[:tempfile].unlink
-        elsif template['SIZE'] and template['FSTYPE']
+        elsif image['TEMPLATE/SIZE'] and image['TEMPLATE/FSTYPE']
             rc = image.mk_datablock(
-                    template['SIZE'],
-                    template['FSTYPE'],
+                    image['TEMPLATE/SIZE'],
+                    image['TEMPLATE/FSTYPE'],
                     image['SOURCE'])
         end
 
@@ -183,13 +182,6 @@ class CloudServer
            return rc
         end
 
-        return nil
-    end
-
-    # Gets an image from the repository
-    # image_id:: _Integer_ Image identifier
-    # [return] _Image_ Image object
-    def get_image(image_id)
         return nil
     end
 end
