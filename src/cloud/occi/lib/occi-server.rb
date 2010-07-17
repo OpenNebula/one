@@ -15,7 +15,7 @@
 #--------------------------------------------------------------------------- #
 
 ##############################################################################
-# The OCCI Server provides  compatible server based on the 
+# The OCCI Server provides  compatible server based on the
 # OpenNebula Engine
 ##############################################################################
 
@@ -26,7 +26,7 @@ ONE_LOCATION=ENV["ONE_LOCATION"]
 
 if !ONE_LOCATION
     RUBY_LIB_LOCATION="/usr/lib/one/ruby"
-    TEMPLATE_LOCATION="/etc/one/occi_templates" 
+    TEMPLATE_LOCATION="/etc/one/occi_templates"
     CONFIGURATION_FILE = "/etc/one/occi-server.conf"
 else
     RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
@@ -72,13 +72,11 @@ end
 helpers do
     def treat_response(result,rc)
         if OpenNebula::is_error?(result)
-            pp 'siiii'
-            pp rc
             halt rc, result.message
         end
-        
+
         status rc
-        result 
+        result
     end
 end
 
@@ -90,12 +88,12 @@ end
 # Pool Resources methods
 ###################################################
 
-post '/compute' do    
-   result,rc = $occi_server.post_compute(request) 
+post '/compute' do
+   result,rc = $occi_server.post_compute(request)
    treat_response(result,rc)
 end
 
-get '/compute' do 
+get '/compute' do
     result,rc = $occi_server.get_computes(request)
     treat_response(result,rc)
 end
@@ -124,7 +122,7 @@ end
 # Entity Resources Methods
 ###################################################
 
-get '/compute/:id' do  
+get '/compute/:id' do
     result,rc = $occi_server.get_compute(request, params)
     treat_response(result,rc)
 end
@@ -136,20 +134,20 @@ end
 
 put '/compute/:id' do
     result,rc = $occi_server.put_compute(request, params)
-    treat_response(result,rc)  
+    treat_response(result,rc)
 end
 
-get '/network/:id' do  
+get '/network/:id' do
     result,rc = $occi_server.get_network(request, params)
     treat_response(result,rc)
 end
 
 delete '/network/:id' do
     result,rc = $occi_server.delete_network(request, params)
-    treat_response(result,rc)   
+    treat_response(result,rc)
 end
 
-get '/storage/:id' do  
+get '/storage/:id' do
     result,rc = $occi_server.get_storage(request, params)
     treat_response(result,rc)
 end
