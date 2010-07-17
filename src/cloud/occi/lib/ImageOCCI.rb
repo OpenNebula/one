@@ -37,29 +37,29 @@ class ImageOCCI < Image
 
 
     ONE_IMAGE = %q{
-        NAME = "<%= @image_info.elements['NAME'].text %>"
-        <% if @image_info.elements['DESCRIPTION'] != nil %>
-        DESCRIPTION = "<%= @image_info.elements['DESCRIPTION'].text %>"
+        NAME = "<%= @image_info['NAME'] %>"
+        <% if @image_info['DESCRIPTION'] != nil %>
+        DESCRIPTION = "<%= @image_info['DESCRIPTION'] %>"
         <% end %>
-        <% if @image_info.elements['TYPE'] != nil %>
-        TYPE = <%= @image_info.elements['TYPE'].text %>
+        <% if @image_info['TYPE'] != nil %>
+        TYPE = <%= @image_info['TYPE'] %>
         <% end %>
-        <% if @image_info.elements['FSTYPE'] != nil %>
-        FSTYPE = <%= @image_info.elements['FSTYPE'].text %>
+        <% if @image_info['FSTYPE'] != nil %>
+        FSTYPE = <%= @image_info['FSTYPE'] %>
         <% end %>
-        <% if @image_info.elements['SIZE'] != nil %>
-        SIZE = <%= @image_info.elements['SIZE'].text %>
+        <% if @image_info['SIZE'] != nil %>
+        SIZE = <%= @image_info['SIZE'] %>
         <% end %>
     }.gsub(/^        /, '')
 
     # Class constructor
     def initialize(xml, client, xml_info=nil)
         super(xml, client)
+        @image_info = nil
 
         if xml_info != nil
-            @image_info = REXML::Document.new(xml_info).root
-        else
-            @image_info = nil
+            xmldoc     = XMLUtilsElement.initialize_xml(xml_info, 'STORAGE')
+            @image_info = XMLElement.new(xmldoc) if xmldoc != nil
         end
     end
 
@@ -81,13 +81,13 @@ class ImageOCCI < Image
     end
 
     def to_one_template()
-        if @image_info.name != 'STORAGE'
+        if @image_info == nil
             error_msg = "Missing STORAGE section in the XML body"
             error = OpenNebula::Error.new(error_msg)
             return error
         end
 
-        if @image_info.elements['NAME'] == nil
+        if @image_info['NAME'] == nil
             error_msg = "Missing Image NAME in the XML DISK section"
             error = OpenNebula::Error.new(error_msg)
             return error

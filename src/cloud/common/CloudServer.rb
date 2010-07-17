@@ -82,53 +82,12 @@ class CloudServer
     # Generates an OpenNebula Session for the given user
     # user:: _Hash_ the user information
     # [return] an OpenNebula client session
-    def one_client_user(user)
+    def one_client_user(name, password)
         client = Client.new("dummy:dummy")
-        client.one_auth = "#{user[:name]}:#{user[:password]}"
+        client.one_auth = "#{name}:#{password}"
 
         return client
     end
-
-    # Authenticates a user
-    # name:: _String_ of the user
-    # password:: _String_ of the user
-    # [return] true if authenticated
-    def authenticate?(name, password)
-        user = get_user(name)
-
-        return user && user.password == password
-    end
-
-    # Gets the data associated with a user
-    # name:: _String_ the name of the user
-    # [return] _Hash_ with the user data
-    def get_user(name)
-        user = nil
-
-        @user_pool.info
-        @user_pool.each{ |u|
-            if u.name==name
-                user=Hash.new
-
-                user[:id]       = u.id
-                user[:name]     = u.name
-                user[:password] = u[:password]
-            end
-        }
-        return user
-   end
-
-   def get_template_path(instance_type_name)
-
-       instance_type=@instance_types[instance_type_name]
-
-       if !instance_type
-           error = OpenNebula::Error.new("Bad instance type")
-           return error
-       end
-
-       return @config[:template_location]+"/#{instance_type['TEMPLATE']}"
-   end
 
     ###########################################################################
     # Repository Methods

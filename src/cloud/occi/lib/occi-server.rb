@@ -61,13 +61,6 @@ set :port, $occi_server.config[:port]
 # Helpers
 ##############################################################################
 
-# Authentication
-before do
-    if !$occi_server.authenticate?(request.env)
-        halt 401, 'Invalid credentials'
-    end
-end
-
 # Response treatment
 helpers do
     def treat_response(result,rc)

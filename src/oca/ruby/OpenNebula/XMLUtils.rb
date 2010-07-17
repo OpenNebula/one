@@ -26,10 +26,18 @@ module OpenNebula
         # [return] _XML_ object for the underlying XML engine
         def self.initialize_xml(xml, root_element)
             if NOKOGIRI
-                Nokogiri::XML(xml).xpath("/#{root_element}")
+                xmldoc = Nokogiri::XML(xml).xpath("/#{root_element}")
+                if xmldoc.size == 0
+                    xmldoc = nil
+                end
             else
-                REXML::Document.new(xml).root
+                xmldoc = REXML::Document.new(xml).root
+                if xmldoc.name != root_element
+                    xmldoc = nil
+                end
             end
+
+            return xmldoc
         end
 
         # Extract an element from the XML description of the PoolElement.
@@ -50,6 +58,45 @@ module OpenNebula
 
             if element
                 element.text
+            end
+        end
+
+        # Gets an attribute from an elemenT
+        # key:: _String_ xpath for the element
+        # name:: _String_ name of the attribute
+        def attr(key,name)
+            value = nil
+
+            if NOKOGIRI
+                element=@xml.xpath(key.to_s.upcase)
+                if element.size == 0
+                    return nil
+                end
+
+                attribute = element.attr(name)
+
+                value = attribute.text if attribute != nil
+            else
+                element=@xml.elements[key.to_s.upcase]
+
+                value = element.attributes[name] if element != nil
+            end
+
+            return value
+        end
+
+        # Iterates over every Element in the XPath and calls the block with a
+        # a XMLElement
+        # block:: _Block_
+        def each(xpath_str,&block)
+            if NOKOGIRI
+                @xml.xpath(xpath_str).each { |pelem|
+                    block.call XMLElement.new(pelem)
+                }
+            else
+                @xml.elements.each(xpath_str) { |pelem|
+                    block.call XMLElement.new(pelem)
+                }
             end
         end
 
@@ -122,18 +169,6 @@ module OpenNebula
                 str
             end
         end
-
-        def XMLUtilsElement.xml_to_hash(xml)
-            begin
-                hash = Crack::XML.parse(xml)
-            rescue Exception => e
-                error = OpenNebula::Error.new(e.message)
-                return error
-            end
-
-            return hash
-        end
-
     end
 
     ###########################################################################
@@ -188,6 +223,14 @@ module OpenNebula
                 @hash=Crack::XML.parse(to_xml)
             end
             return @hash
+        end
+    end
+
+    class XMLElement
+        include XMLUtilsElement
+
+        def initialize(xml)
+            @xml = xml
         end
     end
 end

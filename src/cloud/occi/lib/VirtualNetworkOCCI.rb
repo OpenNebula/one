@@ -31,26 +31,22 @@ class VirtualNetworkOCCI < VirtualNetwork
     }
 
     ONE_NETWORK = %q{
-        NAME            = <%= @vnet_info.elements['NAME'].text %>
+        NAME            = <%= @vnet_info['NAME'] %>
         TYPE            = RANGED
-        BRIDGE          = <%= @vnet_info.elements['BRIDGE'].text %>
-        NETWORK_ADDRESS = <%= @vnet_info.elements['ADDRESS'].text %>
-        NETWORK_SIZE    = <%= @vnet_info.elements['SIZE'].text %>
+        BRIDGE          = <%= @bridge %>
+        NETWORK_ADDRESS = <%= @vnet_info['ADDRESS'] %>
+        NETWORK_SIZE    = <%= @vnet_info['SIZE']%>
     }.gsub(/^        /, '')
 
     # Class constructor
     def initialize(xml, client, xml_info=nil, bridge=nil)
         super(xml, client)
+        @bridge    = bridge
+        @vnet_info = nil
 
-        if xml_info != nil and bridge != nil
-            @vnet_info = REXML::Document.new(xml_info).root
-
-            bridge_element = REXML::Element.new("BRIDGE")
-            bridge_element.add_text(bridge)
-
-            @vnet_info.add(bridge_element)
-        else
-            @vnet_info = nil
+        if xml_info != nil
+            xmldoc     = XMLUtilsElement.initialize_xml(xml_info, 'NETWORK')
+            @vnet_info = XMLElement.new(xmldoc) if xmldoc != nil
         end
     end
 
@@ -68,7 +64,7 @@ class VirtualNetworkOCCI < VirtualNetwork
     end
 
     def to_one_template()
-        if @vnet_info.name != 'NETWORK'
+        if @vnet_info == nil
             error_msg = "Missing NETWORK section in the XML body"
             error = OpenNebula::Error.new(error_msg)
             return error

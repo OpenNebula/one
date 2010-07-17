@@ -31,7 +31,7 @@ $: << RUBY_LIB_LOCATION+"/cloud"
 COMMANDS_HELP=<<-EOT
 ** Synopsis
 occi-storage
- 
+
 Manages OCCI storage resource
 
 ** Usage
@@ -40,7 +40,7 @@ occi-storage <COMMAND> [OPTIONS] [PARAMETERS]
 COMMANDS
 
 create <occi xml file>
-       creates a new storage resource described by the provided 
+       creates a new storage resource described by the provided
        <occi xml file>
 
 list
@@ -81,7 +81,7 @@ EOT
 require 'occi/OCCIClient'
 require 'CloudClient'
 require 'getoptlong'
-require "rexml/document"
+require 'rexml/document'
 require 'pp'
 include CloudCLI
 
@@ -120,12 +120,12 @@ begin
             when '--debug'
                 debug = true
             when '--multipart'
-                curb = false            
+                curb = false
         end
     end
 rescue Exception => e
     exit(-1)
-end 
+end
 
 if !ARGV[0]
     puts "#{cmd_name}: [COMMAND] not present"
@@ -158,21 +158,21 @@ case ARGV[0].downcase
     when 'show'
         image_id = ARGV[1]
 
-        if !image_id 
+        if !image_id
             puts "#{cmd_name} show: missing storage id parameter"
             exit(-1)
         end
-        
+
         rc = occi_client.get_image(image_id)
 
     when 'delete'
         image_id = ARGV[1]
 
-        if !image_id 
+        if !image_id
             puts "#{cmd_name} show: missing storage id parameter"
             exit(-1)
         end
-        
+
         rc = occi_client.delete_image(image_id)
 
     else
@@ -182,22 +182,22 @@ end
 
 if CloudClient::is_error?(rc)
     puts rc.to_s()
-else 
+else
     begin
         doc = REXML::Document.new(rc)
     rescue REXML::ParseException => e
-        puts e.message 
+        puts e.message
         exit(-1)
     end
-    
+
     xml = doc.root
-    
+
     if xml.nil?
         puts rc
         exit(-1)
     end
-    
+
     str = ""
     REXML::Formatters::Pretty.new(4).write(xml,str)
-    puts "\n" + str + "\n " 
+    puts "\n" + str + "\n "
 end

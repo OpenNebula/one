@@ -23,12 +23,12 @@ class VirtualMachineOCCI < VirtualMachine
         <COMPUTE href="<%= base_url %>/compute/<%= self.id.to_s  %>">
             <ID><%= self.id.to_s%></ID>
             <NAME><%= self.name%></NAME>
-            <% if template['INSTANCE_TYPE'] %> 
-            <INSTANCE_TYPE><%= template['INSTANCE_TYPE'] %></INSTANCE_TYPE>
+            <% if self['TEMPLATE/INSTANCE_TYPE'] %>
+            <INSTANCE_TYPE><%= self['TEMPLATE/INSTANCE_TYPE'] %></INSTANCE_TYPE>
             <% end %>
             <STATE><%= self.state_str %></STATE>
-            <% if template['DISK'] %>
-                <% template['DISK'].each do |disk| %> 
+            <% if self['TEMPLATE/DISK'] %>
+                <% self.each('TEMPLATE/DISK') do |disk| %>
             <DISK>
                 <STORAGE href="<%= base_url %>/storage/<%= disk['IMAGE_ID'] %>" name="<%= disk['IMAGE'] %>"/>
                 <TYPE><%= disk['TYPE'] %></TYPE>
@@ -42,8 +42,8 @@ class VirtualMachineOCCI < VirtualMachine
             </DISK>
                 <% end %>
             <% end %>
-            <% if template['NIC'] %>
-                <% template['NIC'].each do |nic| %> 
+            <% if self['TEMPLATE/NIC'] %>
+                <% self.each('TEMPLATE/NIC') do |nic| %>
             <NIC>
                 <NETWORK href="<%= base_url %>/network/<%= nic['NETWORK_ID'] %>" name="<%= nic['NETWORK'] %>"/>
                 <% if nic['IP'] %>
@@ -55,19 +55,33 @@ class VirtualMachineOCCI < VirtualMachine
             </NIC>
                 <% end %>
             <% end %>
-        </COMPUTE>     
+        </COMPUTE>
     }
-    
-    # Class constructor
-    def initialize(vm_info, xml, client)
-        super(xml, client)
 
-        @vm_info = vm_info
+    # Class constructor
+    def initialize(xml, client, xml_info = nil, types=nil, base=nil)
+        super(xml, client)
+        @vm_info  = nil
+        @template = nil
+
+        if xml_info != nil
+            xmldoc   = XMLUtilsElement.initialize_xml(xml_info, 'COMPUTE')
+            @vm_info = XMLElement.new(xmldoc) if xmldoc != nil
+        end
+
+        if @vm_info != nil
+            itype = @vm_info['INSTANCE_TYPE']
+
+            if itype != nil and types[itype] != nil
+                @template = base + "/#{types[itype]['TEMPLATE']}"
+            end
+        end
+
     end
-    
+
     def mk_action(action_str)
         case action_str.downcase
-            when "stopped" 
+            when "stopped"
                 rc = self.stop
             when "suspended"
                 rc = self.suspend
@@ -77,55 +91,47 @@ class VirtualMachineOCCI < VirtualMachine
                 rc = self.cancel
             when "shutdown"
                 rc = self.shutdown
-            when "done"  
-                rc = self.finalize  
-            else 
+            when "done"
+                rc = self.finalize
+            else
                 error_msg = "Invalid state"
                 error = OpenNebula::Error.new(error_msg)
                 return error
         end
-        
+
         return rc
     end
-    
+
     def to_one_template()
-        if @vm_info['COMPUTE']
-            vm_info = @vm_info['COMPUTE']
-            vm_info['DISK'] = [vm_info['DISK']].flatten if vm_info['DISK']
-            vm_info['NIC'] = [vm_info['NIC']].flatten if vm_info['NIC']
-        else
+        if @vm_info == nil
             error_msg = "Missing COMPUTE section in the XML body"
-            error = OpenNebula::Error.new(error_msg)
-            return error, 400
-        end        
-        
+            return OpenNebula::Error.new(error_msg), 400
+        end
+
+        if @template == nil
+            return OpenNebula::Error.new("Bad instance type"), 500
+        end
+
         begin
-            template = ERB.new(File.read(@vm_info['TEMPLATE_PATH']))
-            template_text = template.result(binding) 
+            template = ERB.new(File.read(@template))
+            template_text = template.result(binding)
         rescue Exception => e
             error = OpenNebula::Error.new(e.message)
             return error
-        end    
+        end
 
-        return template_text 
+        return template_text
     end
-    
+
     # Creates the VMI representation of a Virtual Machine
     def to_occi(base_url)
-        vm_hash = self.to_hash
-        return vm_hash, 500 if OpenNebula.is_error?(vm_hash)
-        
-        template = vm_hash['VM']['TEMPLATE']
-        template['DISK']=[template['DISK']].flatten if template['DISK']
-        template['NIC']=[template['NIC']].flatten if template['NIC']
-
         begin
             occi_vm = ERB.new(OCCI_VM)
-            occi_vm_text = occi_vm.result(binding) 
+            occi_vm_text = occi_vm.result(binding)
         rescue Exception => e
             error = OpenNebula::Error.new(e.message)
             return error
-        end    
+        end
 
         return occi_vm_text.gsub(/\n\s*/,'')
     end

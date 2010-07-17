@@ -1,33 +1,40 @@
+#
+#  Virtual Machine Template generated for large instance types. Adjust this
+#  by setting the desired capacity (CPU,MEMORY) or adding specific
+#  attributes for your cloud (e.g. OS). You should not need to change the DISK
+#  and NIC sections
+#
+
 CPU    = 8
 MEMORY = 8192
 
-NAME   = <%= vm_info['NAME'] %>
+NAME   = <%= @vm_info['NAME'] %>
 
-<% if vm_info['DISK'] %>
-	<% vm_info['DISK'].each do |disk| %>
-		<% if disk['STORAGE'] && disk['STORAGE']['href'] %>
-		DISK = [ IMAGE_ID = <%= disk['STORAGE']['href'].split('/').last %>
-			<% if disk.key?('OVERWRITE') %>
-				 ,OVERWRITE = "yes"
-			<% end %>
-			<% if disk['SAVE_AS'] %>
-				 ,SAVE_AS = "<%= disk['SAVE_AS'] %>"
-			<% end %>
-		]
-		<% end %>
-	<% end %>
+<% if @vm_info['DISK'] %>
+    <% @vm_info.each('DISK') do |disk| %>
+        <% if disk['STORAGE'] && disk.attr('STORAGE','href') %>
+          DISK = [ IMAGE_ID = <%= disk.attr('STORAGE','href').split('/').last %>
+              <% if disk['OVERWRITE'] %>
+                   ,OVERWRITE = "yes"
+              <% end %>
+              <% if disk['SAVE_AS'] %>
+                  ,SAVE_AS = "<%= disk['SAVE_AS'] %>"
+              <% end %>
+               ]
+        <% end %>
+    <% end %>
 <% end %>
 
-<% if vm_info['NIC'] %>
-	<% vm_info['NIC'].each do |nic| %>
-		<% if nic['NETWORK'] && nic['NETWORK']['href'] %>
-		NIC = [ NETWORK_ID = <%= nic['NETWORK']['href'].split('/').last %>
-			<% if nic['IP'] %>
-				 ,IP = <%= nic['IP'] %>
-			<% end %>
-		]
-		<% end %>
-	<% end %>
+<% if @vm_info['NIC'] %>
+    <% @vm_info.each('NIC') do |nic| %>
+        <% if nic['NETWORK'] && nic.attr('NETWORK','href') %>
+          NIC = [ NETWORK_ID = <%= nic.attr('NETWORK','href').split('/').last %>
+              <% if nic['IP'] %>
+                  ,IP = <%= nic['IP'] %>
+              <% end %>
+              ]
+        <% end %>
+    <% end %>
 <% end %>
 
-INSTANCE_TYPE = <%= vm_info['INSTANCE_TYPE']%>
+INSTANCE_TYPE = <%= @vm_info['INSTANCE_TYPE']%>
