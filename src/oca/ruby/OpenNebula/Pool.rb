@@ -2,8 +2,10 @@
 module OpenNebula
     # The Pool class represents a generic OpenNebula Pool in XML format
     # and provides the basic functionality to handle the Pool elements
+    require 'pp'
     class Pool
         include Enumerable
+        include XMLUtilsElement
         include XMLUtilsPool
 
     protected
@@ -42,7 +44,7 @@ module OpenNebula
             rc = @client.call(xml_method,*args)
 
             if !OpenNebula.is_error?(rc)
-                @xml = initialize_xml(rc)
+                @xml = XMLUtilsElement::initialize_xml(rc,@pool_name)
                 rc   = nil
             end
             

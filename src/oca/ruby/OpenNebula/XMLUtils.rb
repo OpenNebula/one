@@ -48,12 +48,12 @@ module OpenNebula
         #   ['HISTORY/HOSTNAME'] # get the hostname from the history
         def [](key)
             if NOKOGIRI
-                element=@xml.xpath(key.to_s.upcase)
+                element=@xml.xpath(key.to_s)
                 if element.size == 0
                     return nil
                 end
             else
-                element=@xml.elements[key.to_s.upcase]
+                element=@xml.elements[key.to_s]
             end
 
             if element
@@ -177,17 +177,6 @@ module OpenNebula
     ###########################################################################
     module XMLUtilsPool
 
-        #Initialize a XML document for the element
-        #xml:: _String_ the XML document of the object
-        #[return] _XML_ object for the underlying XML engine
-        def initialize_xml(xml)
-            if NOKOGIRI
-                Nokogiri::XML(xml).xpath("/#{@pool_name}")
-            else
-                xml=REXML::Document.new(xml).root
-            end
-        end
-
         #Executes the given block for each element of the Pool
         #block:: _Block_
         def each_element(block)
@@ -204,19 +193,6 @@ module OpenNebula
             end
         end
 
-        def to_xml(pretty=false)
-            if NOKOGIRI
-                @xml.to_xml
-            else
-                str = ""
-                if pretty
-                    REXML::Formatters::Pretty.new(1).write(@xml,str)
-                else
-                    REXML::Formatters::Default.new.write(@xml,str)
-                end
-                str
-            end
-        end
 
         def to_hash
             if !@hash && @xml
