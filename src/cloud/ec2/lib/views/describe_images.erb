@@ -1,14 +1,14 @@
 <?xml version="1.0"?>
 <DescribeImagesResponse xmlns="http://ec2.amazonaws.com/doc/<%=erb_version%>/"> 
 	<imagesSet> 
-	   	<% erb_impool.each do |im| %>
+	   	<% impool.each do |im| %>
 	   	<% im.info %>
 	 	<item> 
 		   	<imageId>ami-<%= sprintf('%08i', im.id) %></imageId> 
 		   	<imageLocation><%= im['SOURCE'].split('/').last %></imageLocation> 
 			<% if im['STATE'] == '4' %>
 			<imageState>deregistered</imageState> 
-			<% elsif im['STATE'] == '3' %>
+			<% elsif im['STATE'] == '2' %>
 			<imageState>available</imageState> 
 			<% end %>
 			<imageOwnerId><%= erb_user_name %></imageOwnerId> 

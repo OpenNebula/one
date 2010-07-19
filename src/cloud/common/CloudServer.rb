@@ -95,7 +95,7 @@ class CloudServer
     def get_user_password(name)
         @user_pool.info
         return @user_pool["USER[NAME=\"#{name}\"]/PASSWORD"]
-   end
+    end
 
     ###########################################################################
     # Repository Methods
@@ -137,11 +137,13 @@ class CloudServer
         if file_path
             rc = image.copy(file_path, image['SOURCE'])
             file[:tempfile].unlink
-        elsif image['TEMPLATE/SIZE'] and image['TEMPLATE/FSTYPE']
+        elsif image['TEMPLATE/SIZE'] and 
+                        image['TEMPLATE/FSTYPE'] and 
+                        image['TEMPLATE/TYPE'] == 'DATABLOCK'
             rc = image.mk_datablock(
-                    image['TEMPLATE/SIZE'],
-                    image['TEMPLATE/FSTYPE'],
-                    image['SOURCE'])
+                            image['TEMPLATE/SIZE'],
+                            image['TEMPLATE/FSTYPE'],
+                            image['SOURCE'])
         end
 
         if OpenNebula.is_error?(rc)

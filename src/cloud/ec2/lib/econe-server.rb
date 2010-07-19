@@ -59,7 +59,9 @@ set :port, $econe_server.config[:port]
 ##############################################################################
 
 before do
-    if !$econe_server.authenticate?(params,env)
+    @client = $econe_server.authenticate(params,env)
+    
+    if @client.nil?
         error 400, error_xml("AuthFailure", 0)
     end
 end
@@ -92,27 +94,28 @@ helpers do
 end
 
 post '/' do
-    do_http_request(params)
+    do_http_request(params, @client)
 end
 
 get '/' do
-    do_http_request(params)
+    do_http_request(params, @client)
 end
 
-def do_http_request(params)
+def do_http_request(params, client)
+    
     case params['Action']
         when 'UploadImage'
-            result,rc = $econe_server.upload_image(params)
+            result,rc = $econe_server.upload_image(params, client)
         when 'RegisterImage'
-            result,rc = $econe_server.register_image(params)
+            result,rc = $econe_server.register_image(params, client)
         when 'DescribeImages'
-            result,rc = $econe_server.describe_images(params)
+            result,rc = $econe_server.describe_images(params, client)
         when 'RunInstances'
-            result,rc = $econe_server.run_instances(params)
+            result,rc = $econe_server.run_instances(params, client)
         when 'DescribeInstances'
-            result,rc = $econe_server.describe_instances(params)
+            result,rc = $econe_server.describe_instances(params, client)
         when 'TerminateInstances'
-            result,rc = $econe_server.terminate_instances(params)
+            result,rc = $econe_server.terminate_instances(params, client)
     end
 
     if OpenNebula::is_error?(result)

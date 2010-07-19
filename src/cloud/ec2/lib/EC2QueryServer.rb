@@ -79,15 +79,6 @@ class EC2QueryServer < CloudServer
         print_configuration
     end
 
-    # Retrieve a client with the user credentials
-    # requestenv:: _Hash_ Hash containing the environment of the request
-    # [return] _Client_ client with the user credentials
-    def get_client(params)
-        usepassword = get_user()
-        return one_client_user(params['AWSAccessKeyId'],
-                               get_user_()password)
-    end
-
     ###########################################################################
     # Authentication functions
     ###########################################################################
@@ -95,75 +86,31 @@ class EC2QueryServer < CloudServer
     # EC2 protocol authentication function
     # params:: of the request
     # [return] true if authenticated
-    def authenticate?(params,env)
-        user,password = get_user(params['AWSAccessKeyId'])
-        return false if !user
-
+    def authenticate(params,env)
+        password = get_user_password(params['AWSAccessKeyId'])
+        return nil if !password
+        
     	signature = case params['SignatureVersion']
-    	    when "1" then signature_version_1(params.clone, user[:password])
+    	    when "1" then signature_version_1(params.clone, password)
     	    when "2" then signature_version_2(params,
-    					      user[:password],
+    					      password,
     					      env,
     					      false)
     	end
 
-        return params['Signature']==signature
-    end
-
-    # Calculates signature version 1
-    def signature_version_1(params, secret_key, digest='sha1')
-        params.delete('Signature')
-        req_desc = params.sort {|x,y| x[0].downcase <=> y[0].downcase}.to_s
-
-        digest_generator = OpenSSL::Digest::Digest.new(digest)
-        digest = OpenSSL::HMAC.digest(digest_generator,
-                                      secret_key,
-                                      req_desc)
-        b64sig = Base64.b64encode(digest)
-        return b64sig.strip
-    end
-
-    # Calculates signature version 2
-    def signature_version_2(params, secret_key, env, urlencode=true)
-        signature_params = params.reject { |key,value|
-            key=='Signature' or key=='file' }
-
-
-	    server_str = @server_host
-	    server_str = server_str + ":" + @server_port unless %w{2008-12-01 2009-11-30}.include? params["Version"]
-
-        canonical_str = AWS.canonical_string(signature_params,
-					     server_str,
-					     env['REQUEST_METHOD'])
-
-
-        # Use the correct signature strength
-	    sha_strength = case params['SignatureMethod']
-	        when "HmacSHA1" then 'sha1'
-	        when "HmacSHA256" then 'sha256'
-	        else 'sha1'
-	    end
-
-	    digest = OpenSSL::Digest::Digest.new(sha_strength)
-	    b64hmac =
-      	    Base64.encode64(
-  	            OpenSSL::HMAC.digest(digest, secret_key, canonical_str)).gsub("\n","")
-
-	    if urlencode
-      	    return CGI::escape(b64hmac)
-	    else
-      	    return b64hmac
+        if params['Signature']==signature
+            return one_client_user(params['AWSAccessKeyId'], password)
+        else 
+            return nil
         end
     end
+
 
     ###########################################################################
     # Repository Interface
     ###########################################################################
 
-    def upload_image(params)
-        user       = get_user(params['AWSAccessKeyId'])
-        one_client = one_client_user(user)
-
+    def upload_image(params, one_client)
         image = ImageEC2.new(Image.build_xml, one_client)
 
         rc = add_image(image, params['file'])
@@ -177,10 +124,8 @@ class EC2QueryServer < CloudServer
         return response.result(binding), 200
     end
 
-    def register_image(params)
-        user       = get_user(params['AWSAccessKeyId'])
-        one_client = one_client_user(user)
-
+    def register_image(params, one_client)
+        # Get the Image ID
         tmp, img=params['ImageLocation'].split('-')
 
         image = Image.new(Image.build_xml(img.to_i), one_client)
@@ -199,38 +144,31 @@ class EC2QueryServer < CloudServer
         return response.result(binding), 200
     end
 
-    def describe_images(params)
-        user       = get_user(params['AWSAccessKeyId'])
-        one_client = one_client_user(user)
-
+    def describe_images(params, one_client)
         user_flag=-1
-        erb_impool = ImagePool.new(one_client, user_flag)
-        erb_impool.info
+        impool = ImagePool.new(one_client, user_flag)
+        impool.info
 
-        erb_user_name = user[:name]
+        erb_user_name = params['AWSAccessKeyId']
 	    erb_version = params['Version']
 
         response = ERB.new(File.read(@config[:views]+"/describe_images.erb"))
-        a = response.result(binding)
-        pp a
-        return a, 200
+        return response.result(binding), 200
     end
 
     ###########################################################################
     # Instance Interface
     ###########################################################################
 
-    def run_instances(params)
-        user       = get_user(params['AWSAccessKeyId'])
-        one_client = one_client_user(user)
-
+    def run_instances(params, one_client)
         # Get the instance type and path
-        instance_type_name = params['InstanceType']
-        instance_type      = @instance_types[instance_type_name]
+        if params['InstanceType'] != nil
+            instance_type_name = params['InstanceType']
+            instance_type      = @instance_types[instance_type_name]
 
-        path = get_template_path(params['InstanceType'])
-        if OpenNebula.is_error?(path)
-            return OpenNebula::Error.new('Unsupported'),400
+            if instance_type != nil
+                path = @config[:template_location] + "/#{instance_type['TEMPLATE']}"
+            end
         end
 
         # Get the image
@@ -259,8 +197,7 @@ class EC2QueryServer < CloudServer
 
         erb_vm_info[:vm_id]=vm.id
         erb_vm_info[:vm]=vm
-        erb_vm_info[:user_name]  = user[:name]
-
+        erb_user_name = params['AWSAccessKeyId']
 	    erb_version = params['Version']
 
         response = ERB.new(File.read(@config[:views]+"/run_instances.erb"))
@@ -268,43 +205,34 @@ class EC2QueryServer < CloudServer
     end
 
 
-    def describe_instances(params)
-        # Get the user
-        user       = get_user(params['AWSAccessKeyId'])
-        one_client = one_client_user(user)
-
-        erb_user_name = user[:name]
-
+    def describe_instances(params, one_client)
         user_flag=-1
-        erb_vmpool = VirtualMachinePool.new(one_client, user_flag)
-        erb_vmpool.info
+        vmpool = VirtualMachinePool.new(one_client, user_flag)
+        vmpool.info
 
 	    erb_version = params['Version']
-
+        erb_user_name = params['AWSAccessKeyId']
+        
         response = ERB.new(File.read(@config[:views]+"/describe_instances.erb"))
-
         return response.result(binding), 200
     end
 
-    def terminate_instances(params)
-        # Get the user
-        user       = get_user(params['AWSAccessKeyId'])
-        one_client = one_client_user(user)
-
+    def terminate_instances(params, one_client)
+        # Get the VM ID
         vmid=params['InstanceId.1']
         vmid=params['InstanceId.01'] if !vmid
 
 	    tmp, vmid=vmid.split('-') if vmid[0]==?i
 
-        erb_vm = VirtualMachine.new(VirtualMachine.build_xml(vmid),one_client)
-        rc      = erb_vm.info
+        vm = VirtualMachine.new(VirtualMachine.build_xml(vmid),one_client)
+        rc = vm.info
 
         return OpenNebula::Error.new('Unsupported'),400 if OpenNebula::is_error?(rc)
 
-        if erb_vm.status == 'runn'
-            rc = erb_vm.shutdown
+        if vm.status == 'runn'
+            rc = vm.shutdown
         else
-            rc = erb_vm.finalize
+            rc = vm.finalize
         end
 
         return OpenNebula::Error.new('Unsupported'),400 if OpenNebula::is_error?(rc)
@@ -316,6 +244,53 @@ class EC2QueryServer < CloudServer
     end
 
 private
+
+    # Calculates signature version 1
+    def signature_version_1(params, secret_key, digest='sha1')
+        params.delete('Signature')
+        req_desc = params.sort {|x,y| x[0].downcase <=> y[0].downcase}.to_s
+
+        digest_generator = OpenSSL::Digest::Digest.new(digest)
+        digest = OpenSSL::HMAC.digest(digest_generator,
+                                      secret_key,
+                                      req_desc)
+        b64sig = Base64.b64encode(digest)
+        return b64sig.strip
+    end
+
+    # Calculates signature version 2
+    def signature_version_2(params, secret_key, env, urlencode=true)
+        signature_params = params.reject { |key,value|
+            key=='Signature' or key=='file' }
+
+
+        server_str = @server_host
+        server_str = server_str + ":" + @server_port unless %w{2008-12-01 2009-11-30}.include? params["Version"]
+
+        canonical_str = AWS.canonical_string(signature_params,
+    				     server_str,
+    				     env['REQUEST_METHOD'])
+
+
+        # Use the correct signature strength
+        sha_strength = case params['SignatureMethod']
+            when "HmacSHA1" then 'sha1'
+            when "HmacSHA256" then 'sha256'
+            else 'sha1'
+        end
+
+        digest = OpenSSL::Digest::Digest.new(sha_strength)
+        b64hmac =
+      	    Base64.encode64(
+                OpenSSL::HMAC.digest(digest, secret_key, canonical_str)).gsub("\n","")
+
+        if urlencode
+      	    return CGI::escape(b64hmac)
+        else
+      	    return b64hmac
+        end
+    end
+    
     ###########################################################################
     # Helper functions
     ###########################################################################
