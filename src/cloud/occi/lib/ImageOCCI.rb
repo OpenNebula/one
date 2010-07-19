@@ -58,7 +58,7 @@ class ImageOCCI < Image
         @image_info = nil
 
         if xml_info != nil
-            xmldoc     = XMLUtilsElement.initialize_xml(xml_info, 'STORAGE')
+            xmldoc      = XMLUtilsElement.initialize_xml(xml_info, 'STORAGE')
             @image_info = XMLElement.new(xmldoc) if xmldoc != nil
         end
     end

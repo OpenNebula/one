@@ -33,7 +33,9 @@ class VirtualNetworkOCCI < VirtualNetwork
     ONE_NETWORK = %q{
         NAME            = <%= @vnet_info['NAME'] %>
         TYPE            = RANGED
+        <% if @bridge %>
         BRIDGE          = <%= @bridge %>
+        <% end %>
         NETWORK_ADDRESS = <%= @vnet_info['ADDRESS'] %>
         NETWORK_SIZE    = <%= @vnet_info['SIZE']%>
     }.gsub(/^        /, '')

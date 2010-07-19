@@ -272,10 +272,16 @@ module OCCIClient
         # :xmlfile Compute OCCI xml representation
         ######################################################################
         def put_vm(xmlfile)
-            xml=File.read(xmlfile)
-            vm_info=Crack::XML.parse(xml)
+            xml     = File.read(xmlfile)
+            vm_info = REXML::Document.new(xml).root
 
-            url = URI.parse(@endpoint+'/compute/' + vm_info['COMPUTE']['ID'])
+            if vm_info.elements['ID'] == nil
+                return CloudClient::Error.new("Can not find VM_ID")
+            end
+
+            vm_id = vm_info.elements['ID'].text
+
+            url = URI.parse(@endpoint+'/compute/' + vm_id)
 
             req = Net::HTTP::Put.new(url.path)
             req.body = xml
