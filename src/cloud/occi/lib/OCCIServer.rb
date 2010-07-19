@@ -216,7 +216,7 @@ class OCCIServer < CloudServer
     # [return] _String_,_Integer_ Update confirmation msg or error,
     #                             status code
     def put_compute(request, params)
-        vm_info = XMLUtilsElement.initialize_xml(xml_info, 'COMPUTE')
+        vm_info = XMLUtilsElement.initialize_xml(request.body.read, 'COMPUTE')
 
         # --- Get the VM and Action on it ---
         if vm_info['STATE'] != nil

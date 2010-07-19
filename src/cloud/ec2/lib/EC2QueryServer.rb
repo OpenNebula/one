@@ -26,7 +26,7 @@ require 'CloudServer'
 require 'ImageEC2'
 
 ###############################################################################
-# The EC2Query Server implements a EC2 compatible server based on the 
+# The EC2Query Server implements a EC2 compatible server based on the
 # OpenNebula Engine
 ###############################################################################
 class EC2QueryServer < CloudServer
@@ -67,7 +67,7 @@ class EC2QueryServer < CloudServer
         super(config_file)
         @config.add_configuration_value("TEMPLATE_LOCATION",template)
         @config.add_configuration_value("VIEWS",views)
-        
+
         if @config[:ssl_server]
             @server_host=@config[:ssl_server]
         else
@@ -79,6 +79,15 @@ class EC2QueryServer < CloudServer
         print_configuration
     end
 
+    # Retrieve a client with the user credentials
+    # requestenv:: _Hash_ Hash containing the environment of the request
+    # [return] _Client_ client with the user credentials
+    def get_client(params)
+        usepassword = get_user()
+        return one_client_user(params['AWSAccessKeyId'],
+                               get_user_()password)
+    end
+
     ###########################################################################
     # Authentication functions
     ###########################################################################
@@ -87,13 +96,13 @@ class EC2QueryServer < CloudServer
     # params:: of the request
     # [return] true if authenticated
     def authenticate?(params,env)
-        user = get_user(params['AWSAccessKeyId'])
+        user,password = get_user(params['AWSAccessKeyId'])
         return false if !user
 
     	signature = case params['SignatureVersion']
     	    when "1" then signature_version_1(params.clone, user[:password])
-    	    when "2" then signature_version_2(params, 
-    					      user[:password], 
+    	    when "2" then signature_version_2(params,
+    					      user[:password],
     					      env,
     					      false)
     	end
@@ -113,20 +122,20 @@ class EC2QueryServer < CloudServer
         b64sig = Base64.b64encode(digest)
         return b64sig.strip
     end
- 
-    # Calculates signature version 2 
+
+    # Calculates signature version 2
     def signature_version_2(params, secret_key, env, urlencode=true)
-        signature_params = params.reject { |key,value| 
+        signature_params = params.reject { |key,value|
             key=='Signature' or key=='file' }
 
 
 	    server_str = @server_host
 	    server_str = server_str + ":" + @server_port unless %w{2008-12-01 2009-11-30}.include? params["Version"]
 
-        canonical_str = AWS.canonical_string(signature_params, 
+        canonical_str = AWS.canonical_string(signature_params,
 					     server_str,
 					     env['REQUEST_METHOD'])
-					     
+
 
         # Use the correct signature strength
 	    sha_strength = case params['SignatureMethod']
@@ -136,10 +145,10 @@ class EC2QueryServer < CloudServer
 	    end
 
 	    digest = OpenSSL::Digest::Digest.new(sha_strength)
-	    b64hmac =	
+	    b64hmac =
       	    Base64.encode64(
   	            OpenSSL::HMAC.digest(digest, secret_key, canonical_str)).gsub("\n","")
-     
+
 	    if urlencode
       	    return CGI::escape(b64hmac)
 	    else
@@ -156,34 +165,34 @@ class EC2QueryServer < CloudServer
         one_client = one_client_user(user)
 
         image = ImageEC2.new(Image.build_xml, one_client)
-        
+
         rc = add_image(image, params['file'])
         if OpenNebula.is_error?(rc)
-            return OpenNebula::Error.new('Unsupported'),400 
+            return OpenNebula::Error.new('Unsupported'),400
         end
-        
+
         erb_version = params['Version']
 
         response = ERB.new(File.read(@config[:views]+"/register_image.erb"))
         return response.result(binding), 200
     end
-    
+
     def register_image(params)
         user       = get_user(params['AWSAccessKeyId'])
         one_client = one_client_user(user)
-        
+
         tmp, img=params['ImageLocation'].split('-')
 
         image = Image.new(Image.build_xml(img.to_i), one_client)
-        
+
         # Enable the new Image
         rc = image.info
         if OpenNebula.is_error?(rc)
             return OpenNebula::Error.new('InvalidAMIID.NotFound'), 400
         end
-        
+
         image.enable
-        
+
 	    erb_version = params['Version']
 
         response = ERB.new(File.read(@config[:views]+"/register_image.erb"))
@@ -192,15 +201,15 @@ class EC2QueryServer < CloudServer
 
     def describe_images(params)
         user       = get_user(params['AWSAccessKeyId'])
-        one_client = one_client_user(user) 
+        one_client = one_client_user(user)
 
         user_flag=-1
         erb_impool = ImagePool.new(one_client, user_flag)
         erb_impool.info
-        
+
         erb_user_name = user[:name]
 	    erb_version = params['Version']
-		
+
         response = ERB.new(File.read(@config[:views]+"/describe_images.erb"))
         a = response.result(binding)
         pp a
@@ -218,23 +227,23 @@ class EC2QueryServer < CloudServer
         # Get the instance type and path
         instance_type_name = params['InstanceType']
         instance_type      = @instance_types[instance_type_name]
-        
+
         path = get_template_path(params['InstanceType'])
         if OpenNebula.is_error?(path)
             return OpenNebula::Error.new('Unsupported'),400
         end
-        
+
         # Get the image
 	    tmp, img=params['ImageId'].split('-')
-   
-        # Build the VM 
+
+        # Build the VM
         erb_vm_info=Hash.new
         erb_vm_info[:img_id]        = img.to_i
         erb_vm_info[:ec2_img_id]    = params['ImageId']
         erb_vm_info[:instance_type] = instance_type_name
         erb_vm_info[:template]      = path
         erb_vm_info[:user_data]     = params['UserData']
-        
+
         template      = ERB.new(File.read(erb_vm_info[:template]))
         template_text = template.result(binding)
 
@@ -245,15 +254,15 @@ class EC2QueryServer < CloudServer
         if OpenNebula::is_error?(rc)
             return OpenNebula::Error.new('Unsupported'),400
         end
-        
+
         vm.info
-     
+
         erb_vm_info[:vm_id]=vm.id
         erb_vm_info[:vm]=vm
         erb_vm_info[:user_name]  = user[:name]
-        
+
 	    erb_version = params['Version']
-        
+
         response = ERB.new(File.read(@config[:views]+"/run_instances.erb"))
         return response.result(binding), 200
     end
@@ -262,7 +271,7 @@ class EC2QueryServer < CloudServer
     def describe_instances(params)
         # Get the user
         user       = get_user(params['AWSAccessKeyId'])
-        one_client = one_client_user(user) 
+        one_client = one_client_user(user)
 
         erb_user_name = user[:name]
 
@@ -271,37 +280,37 @@ class EC2QueryServer < CloudServer
         erb_vmpool.info
 
 	    erb_version = params['Version']
-        
+
         response = ERB.new(File.read(@config[:views]+"/describe_instances.erb"))
-        
+
         return response.result(binding), 200
     end
 
     def terminate_instances(params)
         # Get the user
         user       = get_user(params['AWSAccessKeyId'])
-        one_client = one_client_user(user) 
+        one_client = one_client_user(user)
 
         vmid=params['InstanceId.1']
         vmid=params['InstanceId.01'] if !vmid
 
 	    tmp, vmid=vmid.split('-') if vmid[0]==?i
-        
+
         erb_vm = VirtualMachine.new(VirtualMachine.build_xml(vmid),one_client)
         rc      = erb_vm.info
-        
+
         return OpenNebula::Error.new('Unsupported'),400 if OpenNebula::is_error?(rc)
-        
+
         if erb_vm.status == 'runn'
             rc = erb_vm.shutdown
         else
             rc = erb_vm.finalize
         end
-        
+
         return OpenNebula::Error.new('Unsupported'),400 if OpenNebula::is_error?(rc)
 
 	    erb_version = params['Version']
-        
+
         response =ERB.new(File.read(@config[:views]+"/terminate_instances.erb"))
         return response.result(binding), 200
     end
@@ -312,8 +321,8 @@ private
     ###########################################################################
     def render_state(vm)
         ec2_state = EC2_STATES[ONE_STATES[vm.status]]
-        
-        return "<code>#{ec2_state[:code]}</code> 
+
+        return "<code>#{ec2_state[:code]}</code>
         <name>#{ec2_state[:name]}</name>"
     end
 
