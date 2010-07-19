@@ -250,43 +250,38 @@ when "show"
     
     result=host.info
     if is_successful?(result)
-        #puts host.template_str
-    else
-        puts "Error: "+result.message
-        exit -1
-    end
+        if !ops[:xml]
+            str    = "%-22s: %-20s"
+            str_h1 = "%-80s"
     
-    if !ops[:xml]
-        str    = "%-22s: %-20s"
-        str_h1 = "%-80s"
+            print_header(str_h1, "HOST #{host_id} INFORMATION", true)
+
+            puts str % ["ID", host.id.to_s]
+            puts str % ["NAME", host.name]
+            puts str % ["CLUSTER", host['CLUSTER']]
+            puts str % ["STATE", host.state_str]
+            puts str % ["IM_MAD", host['IM_MAD']]
+            puts str % ["VM_MAD", host['VM_MAD']]
+            puts str % ["TM_MAD", host['TM_MAD']]
+            puts
+
+            print_header(str_h1, "HOST SHARES", false)
     
-        print_header(str_h1, "HOST #{host_id} INFORMATION", true)
+            puts str % ["MAX MEM", host['HOST_SHARE/MAX_MEM']]
+            puts str % ["USED MEM (REAL)", host['HOST_SHARE/USED_MEM']]
+            puts str % ["USED MEM (ALLOCATED)", host['HOST_SHARE/MEM_USAGE']]
+            puts str % ["MAX CPU", host['HOST_SHARE/MAX_CPU']]
+            puts str % ["USED CPU (REAL)", host['HOST_SHARE/USED_CPU']]
+            puts str % ["USED CPU (ALLOCATED)", host['HOST_SHARE/CPU_USAGE']]
+            puts str % ["RUNNING VMS", host['HOST_SHARE/RUNNING_VMS']]
+            puts
 
-        puts str % ["ID", host[:id]]
-        puts str % ["NAME", host[:name]]
-        puts str % ["CLUSTER", host[:cluster]]
-        puts str % ["STATE", host.state_str]
-        puts str % ["IM_MAD", host[:im_mad]]
-        puts str % ["VM_MAD", host[:vm_mad]]
-        puts str % ["TM_MAD", host[:tm_mad]]
-        puts
+            print_header(str_h1, "MONITORING INFORMATION", false)
 
-        print_header(str_h1, "HOST SHARES", false)
-    
-        puts str % ["MAX MEM", host['host_share/max_mem']]
-        puts str % ["USED MEM (REAL)", host['host_share/used_mem']]
-        puts str % ["USED MEM (ALLOCATED)", host['host_share/mem_usage']]
-        puts str % ["MAX CPU", host['host_share/max_cpu']]
-        puts str % ["USED CPU (REAL)", host['host_share/used_cpu']]
-        puts str % ["USED CPU (ALLOCATED)", host['host_share/cpu_usage']]
-        puts str % ["RUNNING VMS", host['host_share/running_vms']]
-        puts
-
-        print_header(str_h1, "MONITORING INFORMATION", false)
-
-        puts host.template_str
-    else
-        puts host.to_xml(true)
+            puts host.template_str
+        else
+            puts host.to_xml(true)
+        end
     end
 
 when "delete"

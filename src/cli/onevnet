@@ -217,7 +217,7 @@ when "show"
         
                 puts str % ["ID: ",vn.id.to_s]
                 puts str % ["UID: ",vn["UID"]]
-                if vn[:public].to_i == 1 
+                if vn['PUBLIC'].to_i == 1 
                     public_str = "Y" 
                 else 
                     public_str = "N" 
