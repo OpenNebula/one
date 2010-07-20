@@ -26,7 +26,7 @@ module OpenNebula
                 vn_xml = "<VNET></VNET>"
             end
 
-            XMLUtilsElement.initialize_xml(vn_xml, 'VNET')
+            XMLElement.build_xml(vn_xml, 'VNET')
         end
 
         # Class constructor
@@ -39,7 +39,7 @@ module OpenNebula
         #######################################################################
         # XML-RPC Methods for the Virtual Network Object
         #######################################################################
-        
+
         def info()
             super(VN_METHODS[:info], 'VNET')
         end
@@ -47,11 +47,11 @@ module OpenNebula
         def allocate(description)
             super(VN_METHODS[:allocate],description)
         end
-        
+
         def publish
             set_publish(true)
         end
-        
+
         def unpublish
             set_publish(false)
         end
@@ -59,7 +59,7 @@ module OpenNebula
         def delete()
             super(VN_METHODS[:delete])
         end
-        
+
     private
         def set_publish(published)
             return Error.new('ID not defined') if !@pe_id
@@ -69,6 +69,6 @@ module OpenNebula
 
             return rc
         end
-        
+
     end
 end

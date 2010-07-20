@@ -25,7 +25,7 @@ module OpenNebula
                 user_xml = "<USER></USER>"
             end
 
-            XMLUtilsElement.initialize_xml(user_xml, 'USER')
+            XMLElement.build_xml(user_xml, 'USER')
         end
 
         # ---------------------------------------------------------------------

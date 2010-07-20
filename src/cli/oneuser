@@ -51,7 +51,7 @@ ShowTableUP={
         :desc => "password of the user",
         :size => 50,
         :left => true,
-        :proc => lambda {|d,e| d[:password] }
+        :proc => lambda {|d,e| d['PASSWORD'] }
     },
    
     :default => [:id, :user, :password]

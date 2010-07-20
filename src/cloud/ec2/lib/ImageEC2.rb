@@ -14,53 +14,22 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'rubygems'
-require 'fileutils'
-require 'sequel'
-require 'logger'
+require 'uuid'
+require 'OpenNebula'
 
-module OpenNebula
-    class RepoManager
-        def initialize(rm_db=nil)
-            raise "DB not defined" if !rm_db
-            
-            @db=Sequel.sqlite(rm_db)
+include OpenNebula
 
-            require 'image'
-
-            Image.initialize_table
-            ImageAcl.initialize_table
-        end
-        
-        def add(owner, path, metadata={})
-            Image.create_image(owner, path, metadata)
-        end
-        
-        def get(image_id)
-            Image[:id => image_id]
-        end
-        
-        def update(image_id, metadata)
-            image=get(image_id)
-            image.update(metadata)
-        end
-        
-        
-    end
+class ImageEC2 < Image
     
-end
-
-=begin
-OpenNebula::Image.create_image(10, 'repo_manager.rb',
-    :name => 'nombre',
-    :noexiste => 'nada'
-)
-=end
-
-if $0 == __FILE__
-    rm=OpenNebula::RepoManager.new
-    img=rm.add_image(rand(100), 'image.rb', 
-        :name => 'nombre', 
-        :description => 'desc')
-    puts img.to_xml
+    ONE_IMAGE = %q{
+        NAME = "ec2-<%= uuid %>"
+        TYPE = OS
+    }.gsub(/^        /, '')
+    
+    def to_one_template()
+        uuid = UUID.generate
+        
+        one = ERB.new(ONE_IMAGE)
+        return one.result(binding)
+    end
 end

@@ -7,7 +7,7 @@ module OpenNebula
     rescue LoadError
         NOKOGIRI=false
     end
-    
+
     # Require crack library if present, otherwise don't bother
     # This is just for OCCI use
     begin
@@ -17,46 +17,109 @@ module OpenNebula
 
     ###########################################################################
     # The XMLUtilsElement module provides an abstraction of the underlying
-    # XML parser engine. It provides XML-related methods for the Pool Elements  
+    # XML parser engine. It provides XML-related methods for the Pool Elements
     ###########################################################################
-    module XMLUtilsElement
+    class XMLElement
+
+        def initialize(xml=nil)
+            @xml = xml
+        end
+
         # Initialize a XML document for the element
         # xml:: _String_ the XML document of the object
         # root_element:: _String_ Base xml element
-        # [return] _XML_ object for the underlying XML engine
-        def self.initialize_xml(xml, root_element)
+        def initialize_xml(xml, root_element)
             if NOKOGIRI
-                Nokogiri::XML(xml).xpath("/#{root_element}")
+                @xml = Nokogiri::XML(xml).xpath("/#{root_element}")
+                if @xml.size == 0
+                    @xml = nil
+                end
             else
-                REXML::Document.new(xml).root
+                @xml = REXML::Document.new(xml).root
+                if @xml.name != root_element
+                    @xml = nil
+                end
             end
         end
 
+        # Builds a XML document
+        # xml:: _String_ the XML document of the object
+        # root_element:: _String_ Base xml element
+        # [return] _XML_ object for the underlying XML engine
+        def self.build_xml(xml, root_element)
+            if NOKOGIRI
+                doc = Nokogiri::XML(xml).xpath("/#{root_element}")
+            else
+                doc = REXML::Document.new(xml).root
+            end
+
+            return doc
+        end
         # Extract an element from the XML description of the PoolElement.
         # key::_String_ The name of the element
-        # [return] _String_ the value of the element 
+        # [return] _String_ the value of the element
         # Examples:
         #   ['VID'] # gets VM id
         #   ['HISTORY/HOSTNAME'] # get the hostname from the history
         def [](key)
             if NOKOGIRI
-                element=@xml.xpath(key.to_s.upcase)
+                element=@xml.xpath(key.to_s)
+
                 if element.size == 0
                     return nil
                 end
             else
-                element=@xml.elements[key.to_s.upcase]
+                element=@xml.elements[key.to_s]
             end
-            
-            if element 
+
+            if element
                 element.text
             end
         end
-        
+
+        # Gets an attribute from an elemenT
+        # key:: _String_ xpath for the element
+        # name:: _String_ name of the attribute
+        def attr(key,name)
+            value = nil
+
+            if NOKOGIRI
+                element=@xml.xpath(key.to_s.upcase)
+                if element.size == 0
+                    return nil
+                end
+
+                attribute = element.attr(name)
+
+                value = attribute.text if attribute != nil
+            else
+                element=@xml.elements[key.to_s.upcase]
+
+                value = element.attributes[name] if element != nil
+            end
+
+            return value
+        end
+
+        # Iterates over every Element in the XPath and calls the block with a
+        # a XMLElement
+        # block:: _Block_
+        def each(xpath_str,&block)
+            if NOKOGIRI
+                @xml.xpath(xpath_str).each { |pelem|
+                    block.call XMLElement.new(pelem)
+                }
+            else
+                @xml.elements.each(xpath_str) { |pelem|
+                    block.call XMLElement.new(pelem)
+                }
+            end
+        end
+
         def template_str(indent=true)
             template_like_str('TEMPLATE', indent)
         end
-            
+
         def template_like_str(root_element, indent=true)
             if NOKOGIRI
                 xml_template=@xml.xpath(root_element).to_s
@@ -64,7 +127,7 @@ module OpenNebula
             else
                 rexml=@xml.elements[root_element]
             end
-            
+
             if indent
                 ind_enter="\n"
                 ind_tab='  '
@@ -72,7 +135,7 @@ module OpenNebula
                 ind_enter=''
                 ind_tab=' '
             end
-            
+
             str=rexml.collect {|n|
                 if n.class==REXML::Element
                     str_line=""
@@ -93,13 +156,18 @@ module OpenNebula
                     str_line
                 end
             }.compact.join("\n")
-            
+
             str
         end
-        
-        def to_hash 
+
+        def to_hash
             if !@hash && @xml
-                @hash=Crack::XML.parse(to_xml)
+                begin
+                   @hash = Crack::XML.parse(to_xml)
+                rescue Exception => e
+                   error = OpenNebula::Error.new(e.message)
+                   return error
+                end
             end
             return @hash
         end
@@ -111,34 +179,26 @@ module OpenNebula
                 str = ""
                 if pretty
                     REXML::Formatters::Pretty.new(1).write(@xml,str)
-                else 
+                else
                     REXML::Formatters::Default.new.write(@xml,str)
                 end
                 str
             end
         end
-        
     end
-        
+
     ###########################################################################
     # The XMLUtilsPool module provides an abstraction of the underlying
-    # XML parser engine. It provides XML-related methods for the Pools  
+    # XML parser engine. It provides XML-related methods for the Pools
     ###########################################################################
-    module XMLUtilsPool
+    class XMLPool < XMLElement
 
-        #Initialize a XML document for the element
-        #xml:: _String_ the XML document of the object
-        #[return] _XML_ object for the underlying XML engine
-        def initialize_xml(xml)
-            if NOKOGIRI
-                Nokogiri::XML(xml).xpath("/#{@pool_name}")
-            else
-                xml=REXML::Document.new(xml).root
-            end
+        def initialize(xml=nil)
+            super(xml)
         end
-        
+
         #Executes the given block for each element of the Pool
-        #block:: _Block_ 
+        #block:: _Block_
         def each_element(block)
             if NOKOGIRI
                 @xml.xpath(
@@ -153,27 +213,14 @@ module OpenNebula
             end
         end
 
-        def to_xml(pretty=false)
-            if NOKOGIRI
-                @xml.to_xml
-            else
-                str = ""
-                if pretty
-                    REXML::Formatters::Pretty.new(1).write(@xml,str)
-                else 
-                    REXML::Formatters::Default.new.write(@xml,str)
-                end
-                str
-            end
-        end
-        
-        def to_hash 
+        def to_hash
             if !@hash && @xml
                 @hash=Crack::XML.parse(to_xml)
             end
             return @hash
         end
     end
+
 end
 
 

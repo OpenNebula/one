@@ -15,24 +15,85 @@
 #--------------------------------------------------------------------------- #
 
 require 'OpenNebula'
-require 'erb'
 
 include OpenNebula
 
-module ImageOCCI
+class ImageOCCI < Image
     OCCI_IMAGE = %q{
-        <DISK>
-            <ID><%= self.id %></ID>
-            <NAME><%= name %></NAME>
-            <SIZE><%= ((size/1024)/1024).to_s %></SIZE>
-            <URL><%= description %></URL>
-        </DISK>
+        <STORAGE href="<%= base_url %>/storage/<%= self.id.to_s  %>">
+            <ID><%= self.id.to_s %></ID>
+            <NAME><%= self.name %></NAME>
+            <% if self['TEMPLATE/TYPE'] != nil %>
+            <TYPE><%= self['TEMPLATE/TYPE'] %></TYPE>
+            <% end %>
+            <% if self['TEMPLATE/DESCRIPTION'] != nil %>
+            <DESCRIPTION><%= self['TEMPLATE/DESCRIPTION'] %></DESCRIPTION>
+            <% end %>
+            <% if size != nil %>
+            <SIZE><%= size %></SIZE>
+            <% end %>
+        </STORAGE>
     }
 
 
+    ONE_IMAGE = %q{
+        NAME = "<%= @image_info['NAME'] %>"
+        <% if @image_info['DESCRIPTION'] != nil %>
+        DESCRIPTION = "<%= @image_info['DESCRIPTION'] %>"
+        <% end %>
+        <% if @image_info['TYPE'] != nil %>
+        TYPE = <%= @image_info['TYPE'] %>
+        <% end %>
+        <% if @image_info['FSTYPE'] != nil %>
+        FSTYPE = <%= @image_info['FSTYPE'] %>
+        <% end %>
+        <% if @image_info['SIZE'] != nil %>
+        SIZE = <%= @image_info['SIZE'] %>
+        <% end %>
+    }.gsub(/^        /, '')
+
+    # Class constructor
+    def initialize(xml, client, xml_info=nil)
+        super(xml, client)
+        @image_info = nil
+
+        if xml_info != nil
+            xmldoc      = XMLElement.build_xml(xml_info, 'STORAGE')
+            @image_info = XMLElement.new(xmldoc) if xmldoc != nil
+        end
+    end
+
     # Creates the OCCI representation of an Image
-    def to_occi()
+    def to_occi(base_url)
+        size = nil
+
+        begin
+            if self['TEMPLATE/SOURCE'] != nil
+                size = File.stat(self['TEMPLATE/SOURCE']).size
+            end
+        rescue Exception => e
+            error = OpenNebula::Error.new(e.message)
+            return error
+        end
+
         occi = ERB.new(OCCI_IMAGE)
         return occi.result(binding).gsub(/\n\s*/,'')
+    end
+
+    def to_one_template()
+        if @image_info == nil
+            error_msg = "Missing STORAGE section in the XML body"
+            error = OpenNebula::Error.new(error_msg)
+            return error
+        end
+
+        if @image_info['NAME'] == nil
+            error_msg = "Missing Image NAME in the XML DISK section"
+            error = OpenNebula::Error.new(error_msg)
+            return error
+        end
+
+        one = ERB.new(ONE_IMAGE)
+        return one.result(binding)
     end
 end
