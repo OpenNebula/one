@@ -546,13 +546,17 @@ void Image::release_image()
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-int Image::disk_attribute(VectorAttribute * disk, int * index)
+int Image::disk_attribute(  VectorAttribute * disk,
+                            int * index,
+                            ImageType& img_type)
 {
     string  overwrite;
     string  saveas;
     string  bus;
 
     ostringstream  iid;
+
+    img_type = type;
 
     overwrite = disk->vector_value("OVERWRITE");
     saveas    = disk->vector_value("SAVE_AS");
