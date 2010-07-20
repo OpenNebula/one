@@ -55,6 +55,7 @@ source_files=[
     'RequestManagerVirtualNetworkDelete.cc',
     'RequestManagerUserAllocate.cc',
     'RequestManagerUserDelete.cc',
+    'RequestManagerUserChangePassword.cc',
     'RequestManagerUserPoolInfo.cc'
 ]
 

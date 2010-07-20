@@ -284,7 +284,10 @@ void RequestManager::register_xml_methods()
 
     xmlrpc_c::methodPtr user_delete(new    
         RequestManager::UserDelete(upool));
-    
+
+    xmlrpc_c::methodPtr user_change_password(new
+        RequestManager::UserChangePassword(upool));
+
     xmlrpc_c::methodPtr userpool_info(new    
         RequestManager::UserPoolInfo(upool));
         
