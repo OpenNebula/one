@@ -42,14 +42,14 @@ ShowTableHost={
     :name => {
         :name => "NAME",
         :desc => "Hostname",
-        :size => 25,
+        :size => 15,
         :left => true,
         :proc => lambda {|d,e| d.name }
     },
     :cluster => {
         :name => "CLUSTER",
         :desc => "Clustername",
-        :size => 25,
+        :size => 15,
         :left => true,
         :proc => lambda {|d,e| d.cluster }
     },
@@ -216,7 +216,7 @@ def vms_in_host?(host_id)
         exit -1
     end
     
-    host['host_share/running_vms'].to_i
+    host['HOST_SHARE/RUNNING_VMS'].to_i
 
 end
 

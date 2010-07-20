@@ -2,7 +2,7 @@
 module OpenNebula
     # The Pool class represents a generic OpenNebula Pool in XML format
     # and provides the basic functionality to handle the Pool elements
-    require 'pp'
+    
     class Pool < XMLPool
         include Enumerable
 
