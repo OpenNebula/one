@@ -12,9 +12,9 @@ module OpenNebula
             :migrate  => "vm.migrate",
             :deploy   => "vm.deploy"
         }
-        
+
         VM_STATE=%w{INIT PENDING HOLD ACTIVE STOPPED SUSPENDED DONE FAILED}
-        
+
         LCM_STATE=%w{LCM_INIT PROLOG BOOT RUNNING MIGRATE SAVE_STOP SAVE_SUSPEND
             SAVE_MIGRATE PROLOG_MIGRATE PROLOG_RESUME EPILOG_STOP EPILOG
             SHUTDOWN CANCEL FAILURE DELETE UNKNOWN}
@@ -72,8 +72,8 @@ module OpenNebula
             else
                 vm_xml = "<VM></VM>"
             end
-            
-            XMLUtilsElement.initialize_xml(vm_xml, 'VM')
+
+            XMLElement.build_xml(vm_xml, 'VM')
         end
 
         def VirtualMachine.get_reason(reason)
@@ -88,7 +88,7 @@ module OpenNebula
         #######################################################################
         def initialize(xml, client)
             super(xml,client)
-            
+
             @element_name = "VM"
             @client       = client
         end
@@ -110,7 +110,7 @@ module OpenNebula
 
             rc = @client.call(VM_METHODS[:deploy], @pe_id, host_id.to_i)
             rc = nil if !OpenNebula.is_error?(rc)
-        
+
             return rc
         end
 
@@ -155,7 +155,7 @@ module OpenNebula
 
             rc = @client.call(VM_METHODS[:migrate], @pe_id, host_id.to_i, false)
             rc = nil if !OpenNebula.is_error?(rc)
-        
+
             return rc
         end
 
@@ -164,14 +164,14 @@ module OpenNebula
 
             rc = @client.call(VM_METHODS[:migrate], @pe_id, host_id.to_i, true)
             rc = nil if !OpenNebula.is_error?(rc)
-            
+
             return rc
         end
 
         #######################################################################
         # Helpers to get VirtualMachine information
         #######################################################################
-        
+
         # Returns the VM state of the VirtualMachine (numeric value)
         def state
             self['STATE'].to_i

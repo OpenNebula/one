@@ -65,7 +65,7 @@ class VirtualMachineOCCI < VirtualMachine
         @template = nil
 
         if xml_info != nil
-            xmldoc   = XMLUtilsElement.initialize_xml(xml_info, 'COMPUTE')
+            xmldoc   = XMLElement.build_xml(xml_info, 'COMPUTE')
             @vm_info = XMLElement.new(xmldoc) if xmldoc != nil
         end
 

@@ -48,7 +48,7 @@ module OpenNebula
                 image_xml = "<IMAGE></IMAGE>"
             end
 
-            XMLUtilsElement.initialize_xml(image_xml, 'IMAGE')
+            XMLElement.build_xml(image_xml,'IMAGE')
         end
 
         # Class constructor

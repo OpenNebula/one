@@ -47,7 +47,7 @@ class VirtualNetworkOCCI < VirtualNetwork
         @vnet_info = nil
 
         if xml_info != nil
-            xmldoc     = XMLUtilsElement.initialize_xml(xml_info, 'NETWORK')
+            xmldoc     = XMLElement.build_xml(xml_info, 'NETWORK')
             @vnet_info = XMLElement.new(xmldoc) if xmldoc != nil
         end
     end

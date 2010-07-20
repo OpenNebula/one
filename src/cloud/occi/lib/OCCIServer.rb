@@ -89,7 +89,7 @@ class OCCIServer < CloudServer
         # --- Get User's VMs ---
         user_flag = -1
         vmpool = VirtualMachinePoolOCCI.new(
-                        get_client(request.env), 
+                        get_client(request.env),
                         user_flag)
 
         # --- Prepare XML Response ---
@@ -108,7 +108,7 @@ class OCCIServer < CloudServer
         # --- Get User's VNETs ---
         user_flag = -1
         network_pool = VirtualNetworkPoolOCCI.new(
-                            get_client(request.env), 
+                            get_client(request.env),
                             user_flag)
 
         # --- Prepare XML Response ---
@@ -126,9 +126,9 @@ class OCCIServer < CloudServer
         # --- Get User's Images ---
         user_flag = -1
         image_pool = ImagePoolOCCI.new(
-                            get_client(request.env), 
+                            get_client(request.env),
                             user_flag)
-        
+
         # --- Prepare XML Response ---
         rc = image_pool.info
         return rc, 404 if OpenNebula.is_error?(rc)
@@ -179,7 +179,7 @@ class OCCIServer < CloudServer
         vm = VirtualMachineOCCI.new(
                     VirtualMachine.build_xml(params[:id]),
                     get_client(request.env))
-        
+
         # --- Prepare XML Response ---
         rc = vm.info
         return rc, 404 if OpenNebula::is_error?(rc)
@@ -210,7 +210,7 @@ class OCCIServer < CloudServer
     # [return] _String_,_Integer_ Update confirmation msg or error,
     #                             status code
     def put_compute(request, params)
-        xmldoc = XMLUtilsElement.initialize_xml(request.body, 'COMPUTE')
+        xmldoc  = XMLElement.build_xml(request.body, 'COMPUTE')
         vm_info = XMLElement.new(xmldoc) if xmldoc != nil
 
         # --- Get the VM and Action on it ---
