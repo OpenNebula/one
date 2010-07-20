@@ -16,11 +16,13 @@ module OpenNebula
     end
 
     ###########################################################################
-    # The XMLUtilsElement module provides an abstraction of the underlying
-    # XML parser engine. It provides XML-related methods for the Pool Elements
+    # The XMLElement class provides an abstraction of the underlying
+    # XML parser engine. It provides XML-related methods for the Pool and
+    # PoolElement classes
     ###########################################################################
     class XMLElement
 
+        # xml:: _opaque xml object_ an xml object as returned by build_xml
         def initialize(xml=nil)
             @xml = xml
         end
