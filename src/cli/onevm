@@ -686,7 +686,8 @@ when "show"
                 str="%-15s: %-20s"
                 str_h1="%-80s"
 
-                print_header(str_h1, "VIRTUAL MACHINE #{vm[:id]} INFORMATION", true)
+                print_header(str_h1, "VIRTUAL MACHINE #{vm['ID']} INFORMATION",
+true)
 
                 puts str % ["ID", vm.id.to_s]
                 puts str % ["NAME", vm.name]
