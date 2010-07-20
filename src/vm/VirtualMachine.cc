@@ -450,6 +450,20 @@ int VirtualMachine::parse_context()
         context_parsed = new VectorAttribute("CONTEXT");
         context_parsed->unmarshall(parsed," @^_^@ ");
 
+
+        string target = context_parsed->vector_value("TARGET");
+
+        if ( target.empty() )
+        {
+            Nebula&       nd = Nebula::instance();
+            string        dev_prefix;
+
+            nd.get_configuration_attribute("DEFAULT_DEVICE_PREFIX",dev_prefix);
+            dev_prefix += "b";
+
+            context_parsed->replace("TARGET", dev_prefix);
+        }
+
         vm_template->set(context_parsed);
     }
 
@@ -829,9 +843,35 @@ int VirtualMachine::get_disk_images()
 
         rc = ipool->disk_attribute(disk, &index);
 
-        if (rc == -1) // 0 OK, -2 not using the Image pool
+        if (rc == -1) // 0 OK, -1 ERROR
         {
             return -1;
+        }
+
+        // -2 not using the Image pool, and type is swap
+        if ( rc == -2 )
+        {
+            string type = disk->vector_value("TYPE");
+
+            transform (type.begin(), type.end(), type.begin(),
+                       (int(*)(int))toupper);
+
+            if( type == "SWAP" )
+            {
+                string target = disk->vector_value("TARGET");
+
+                if ( target.empty() )
+                {
+                    Nebula&       nd = Nebula::instance();
+                    string        dev_prefix;
+
+                    nd.get_configuration_attribute("DEFAULT_DEVICE_PREFIX",
+                                                    dev_prefix);
+                    dev_prefix += "d";
+
+                    disk->replace("TARGET", dev_prefix);
+                }
+            }
         }
     }
 
