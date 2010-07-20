@@ -30,7 +30,7 @@ $: << RUBY_LIB_LOCATION
 
 require 'OpenNebula'
 require 'client_utilities'
-require 'ftools'
+require 'fileutils'
 
 TYPES=%w{OS CDROM DATABLOCK}
 
@@ -40,43 +40,44 @@ end
 
 vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
 vm.info
-template=vm.to_hash
-template=template['VM']['TEMPLATE']
-disks=[template['DISK']].flatten if template['DISK']
-disks.each_with_index do |disk,i|
-    source_path=VMDIR+"/#{vm_id}/disk.#{i}"
-    if disk["NAME"] and File.exists?(source_path)
-        if disk["SAVE_AS"] 
-            # Get Type
-            image=OpenNebula::Image.new_with_id(disk['IID'], get_one_client)
-            image.info
-            type=image['TYPE']
-            # Perform the allocate if all goes well
-            image=OpenNebula::Image.new(
-                OpenNebula::Image.build_xml, get_one_client)
+template=vm['VM/TEMPLATE']
+if template['DISK']
+    i = 0
+    template.each('DISK') do |disk| 
+        source_path=VMDIR+"/#{vm_id}/disk.#{i}"
+        if disk["NAME"] and File.exists?(source_path)
+            if disk["SAVE_AS"] 
+                # Get Type
+                image=OpenNebula::Image.new_with_id(disk['IMAGE_ID'], get_one_client)
+                image.info
+                type=image['TYPE']
+                # Perform the allocate if all goes well
+                image=OpenNebula::Image.new(
+                    OpenNebula::Image.build_xml, get_one_client)
             
-            template="NAME=#{disk['SAVE_AS']}\n"
-            template+="TYPE=#{TYPES[type.to_i]}\n" if type
-            result=image.allocate(template)
+                template="NAME=#{disk['SAVE_AS']}\n"
+                template+="TYPE=#{TYPES[type.to_i]}\n" if type
+                result=image.allocate(template)
 
-            # Get the allocated image 
-            image=OpenNebula::Image.new_with_id(image.id, get_one_client)
-            image.info
-            template=image.to_hash
-            template=template['IMAGE']['TEMPLATE']
+                # Get the allocated image 
+                image=OpenNebula::Image.new_with_id(image.id, get_one_client)
+                image.info
+                template=image['IMAGE/TEMPLATE']
             
-            if !is_successful?(result) 
-                exit -1
+                if !is_successful?(result) 
+                    exit -1
+                end
+            elsif disk["OVERWRITE"]
+                # Get the allocated image 
+                image=OpenNebula::Image.new_with_id(disk['IMAGE_ID'], get_one_client)
+                image.info
+                image.disable                                        
             end
-        elsif disk["OVERWRITE"]
-            # Get the allocated image 
-            image=OpenNebula::Image.new_with_id(disk['IID'], get_one_client)
-            image.info
-            image.disable                                        
+            # Perform the copy to the image repo if needed
+            if FileUtils.copy(source_path, image['SOURCE'])
+                result=image.enable
+            end
         end
-        # Perform the copy to the image repo if needed
-        if File.copy(source_path, image['SOURCE'])
-            result=image.enable
-        end
+        i = i + 1
     end
 end

@@ -17,7 +17,6 @@
 
 require 'pp'
 require 'open3'
-require 'ftools'
 require 'CommandManager'
 
 =begin rdoc
@@ -84,7 +83,7 @@ class TMPlugin < Hash
         scripts_text=""
         
         if File.exist?(scripts_file)
-            scripts_text = open(scripts_file).read
+            scripts_text = File.read(scripts_file)
         else
             STDERR.puts("Can not open #{scripts_file}")
             STDERR.flush
