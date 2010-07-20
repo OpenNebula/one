@@ -8,7 +8,7 @@
 CPU    = 8
 MEMORY = 8192
 
-NAME   = <%= @vm_info['NAME'] %>
+NAME   = "<%= @vm_info['NAME'] %>"
 
 <% if @vm_info['DISK'] %>
     <% @vm_info.each('DISK') do |disk| %>
