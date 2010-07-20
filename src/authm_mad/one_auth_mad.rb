@@ -51,6 +51,8 @@ class AuthorizationManager < OpenNebulaDriver
         database_url=@config[:database]
         @db=Sequel.connect(database_url)
         
+        # TODO: select driver
+        
         #@authenticate=SimpleAuth.new
         @authenticate=SshAuth.new
         @permissions=SimplePermissions.new(@db, OpenNebula::Client.new,
