@@ -29,7 +29,9 @@ end
 
 begin
     require 'net/http/post/multipart'
+    MULTIPART_LOADED=true
 rescue LoadError
+    MULTIPART_LOADED=false
 end
 
 ###############################################################################

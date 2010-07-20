@@ -30,18 +30,19 @@ module EC2QueryClient
     #
     #
     ##########################################################################
-    class Client 
+    class Client
 
         API_VERSION = '2008-12-01'
-        
+
         ######################################################################
         #
         #
         ######################################################################
-        def initialize(secret=nil, endpoint=nil)
+        def initialize(secret=nil, endpoint=nil, timeout=nil)
             # Autentication
-            ec2auth=nil
-            
+            ec2auth  = nil
+            @timeout = nil
+
             if secret
                 ec2auth = secret.split(':')
             elsif ENV["EC2_ACCESS_KEY"] and ENV["EC2_SECRET_KEY"]
@@ -49,16 +50,16 @@ module EC2QueryClient
             else
                 ec2auth=CloudClient::get_one_auth
             end
-           
+
             if !ec2auth
                 raise "No authorization data present"
             end
-            
+
             @access_key_id     = ec2auth[0]
             @access_key_secret = Digest::SHA1.hexdigest(ec2auth[1])
-            
+
             # Server location
-            
+
             if !endpoint
                 if $ec2url
                     endpoint = $ec2url
@@ -66,9 +67,9 @@ module EC2QueryClient
                     endpoint = "http://localhost:4567"
                 end
             end
-            
+
             @uri = URI.parse(endpoint)
- 
+
             @ec2_connection = AWS::EC2::Base.new(
                 :access_key_id     => @access_key_id,
                 :secret_access_key => @access_key_secret,
@@ -89,7 +90,7 @@ module EC2QueryClient
                 error = CloudClient::Error.new(e.message)
                 return error
             end
-            
+
             return response
         end
 
@@ -106,12 +107,12 @@ module EC2QueryClient
                                 :instance_type  => type,
                                 :user_data      => user_data,
                                 :base64_encoded => true
-                           )            
+                           )
             rescue Exception => e
                 error = CloudClient::Error.new(e.message)
                 return error
             end
-            
+
             return response
         end
 
@@ -128,13 +129,13 @@ module EC2QueryClient
                 error = CloudClient::Error.new(e.message)
                 return error
             end
-            
+
             return response
         end
 
         ######################################################################
         #
-        #  Returns true if HTTP code is 200, 
+        #  Returns true if HTTP code is 200,
         ######################################################################
         def upload_image(file_name, curb=true)
             params = { "Action"           => "UploadImage",
@@ -146,10 +147,16 @@ module EC2QueryClient
 
             str = AWS.canonical_string(params, @uri.host)
             sig = AWS.encode(@access_key_secret, str, false)
-   
+
             post_fields = Array.new;
 
-            if curb and CURL_LOADED
+            if curb
+                if !CURL_LOADED
+                    error_msg = "curb gem not loaded"
+                    error = CloudClient::Error.new(error_msg)
+                    return error
+                end
+
                 params.each { |k,v|
                     post_fields << Curl::PostField.content(k,v)
                 }
@@ -168,6 +175,12 @@ module EC2QueryClient
                     return CloudClient::Error.new(connection.body_str)
                 end
             else
+                if !MULTIPART_LOADED
+                    error_msg = "multipart-post gem not loaded"
+                    error = CloudClient::Error.new(error_msg)
+                    return error
+                end
+
                 params["Signature"]=sig
 
                 file=File.open(file_name)
@@ -175,7 +188,7 @@ module EC2QueryClient
                     'application/octet-stream', file_name)
 
                 req = Net::HTTP::Post::Multipart.new('/', params)
-                res = CloudClient.http_start(@uri) do |http|
+                res = CloudClient.http_start(@uri,@timeout) do |http|
                     http.request(req)
                 end
 
@@ -202,7 +215,7 @@ module EC2QueryClient
                 error = CloudClient::Error.new(e.message)
                 return error
             end
-            
+
             return response
         end
 
@@ -218,7 +231,7 @@ module EC2QueryClient
                 error = CloudClient::Error.new(e.message)
                 return error
             end
-            
+
             return response
         end
     end

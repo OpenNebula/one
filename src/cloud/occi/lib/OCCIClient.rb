@@ -176,7 +176,13 @@ module OCCIClient
                 file_path="/"+m[1]
             end
 
-            if curb and CURL_LOADED
+            if curb
+                if !CURL_LOADED
+                    error_msg = "curb gem not loaded"
+                    error = CloudClient::Error.new(error_msg)
+                    return error
+                end
+
                 curl=Curl::Easy.new(@endpoint+"/storage")
 
                 curl.http_auth_types     = Curl::CURLAUTH_BASIC
@@ -195,6 +201,12 @@ module OCCIClient
 
                 return curl.body_str
             else
+                if !MULTIPART_LOADED
+                    error_msg = "multipart-post gem not loaded"
+                    error = CloudClient::Error.new(error_msg)
+                    return error
+                end
+
                 file=File.open(file_path)
 
                 params=Hash.new
