@@ -17,7 +17,7 @@
 require 'rubygems'
 require 'uri'
 
-require 'digest'
+require 'digest/sha1'
 require 'net/https'
 
 begin
