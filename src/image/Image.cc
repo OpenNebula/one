@@ -661,7 +661,7 @@ int Image::disk_attribute(VectorAttribute * disk, int * index)
         break;
 
         case DATABLOCK:
-            prefix += static_cast<char>(('d'+ *index));
+            prefix += static_cast<char>(('e'+ *index));
             *index  = *index + 1;
         break;
 
