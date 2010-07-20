@@ -42,14 +42,14 @@ ShowTableHost={
     :name => {
         :name => "NAME",
         :desc => "Hostname",
-        :size => 25,
+        :size => 17,
         :left => true,
         :proc => lambda {|d,e| d.name }
     },
     :cluster => {
         :name => "CLUSTER",
         :desc => "Clustername",
-        :size => 25,
+        :size => 8,
         :left => true,
         :proc => lambda {|d,e| d.cluster }
     },
