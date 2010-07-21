@@ -588,36 +588,20 @@ int Image::disk_attribute(  VectorAttribute * disk,
    //   TYPE, READONLY, CLONE, and SAVE attributes
    //---------------------------------------------------------------------------
 
+    new_disk.insert(make_pair("CLONE","YES"));
+    new_disk.insert(make_pair("SAVE","NO"));
+
     switch(type)
     {
         case OS:
         case DATABLOCK:
           new_disk.insert(make_pair("TYPE","DISK"));
           new_disk.insert(make_pair("READONLY","NO"));
-
-//          if (overwrite == "YES")
-          {
-              new_disk.insert(make_pair("CLONE","NO"));
-              new_disk.insert(make_pair("SAVE","YES"));
-          }
-//          else if (!saveas.empty())
-          {
-              new_disk.insert(make_pair("CLONE","YES"));
-              new_disk.insert(make_pair("SAVE","YES"));
-          }
-//          else
-          {
-              new_disk.insert(make_pair("CLONE","YES"));
-              new_disk.insert(make_pair("SAVE","NO"));
-          }
         break;
 
         case CDROM:
           new_disk.insert(make_pair("TYPE","CDROM"));
           new_disk.insert(make_pair("READONLY","YES"));
-
-          new_disk.insert(make_pair("CLONE","YES"));
-          new_disk.insert(make_pair("SAVE","NO"));
         break;
     }
 
