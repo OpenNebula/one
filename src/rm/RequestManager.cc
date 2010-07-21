@@ -224,7 +224,10 @@ void RequestManager::register_xml_methods()
         
     xmlrpc_c::methodPtr vm_action(new 
         RequestManager::VirtualMachineAction(vmpool,upool));
-        
+
+    xmlrpc_c::methodPtr vm_savedisk(new
+        RequestManager::VirtualMachineSaveDisk(vmpool,upool,ipool));
+
     xmlrpc_c::methodPtr vm_info(new 
         RequestManager::VirtualMachineInfo(vmpool,upool));
 
@@ -322,6 +325,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vm.action",  vm_action);
     RequestManagerRegistry.addMethod("one.vm.migrate", vm_migrate);
     RequestManagerRegistry.addMethod("one.vm.info",    vm_info);
+    RequestManagerRegistry.addMethod("one.vm.savedisk",vm_savedisk);
 
     RequestManagerRegistry.addMethod("one.vmpool.info", vm_pool_info);
      

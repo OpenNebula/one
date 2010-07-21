@@ -33,9 +33,6 @@ class VirtualMachineOCCI < VirtualMachine
                 <STORAGE href="<%= base_url %>/storage/<%= disk['IMAGE_ID'] %>" name="<%= disk['IMAGE'] %>"/>
                 <TYPE><%= disk['TYPE'] %></TYPE>
                 <TARGET><%= disk['TARGET'] %></TARGET>
-                <% if disk['CLONE']=='NO' %>
-                <OVERWRITE/>
-                <% end %>
                 <% if disk['SAVE_AS'] %>
                 <SAVE_AS><%= disk['SAVE_AS'] %></SAVE_AS>
                 <% end %>

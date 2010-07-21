@@ -198,6 +198,20 @@ module OpenNebula
 
             return nil
         end
+        
+        def move(path, source)
+            if source.nil? or path.nil?
+                return OpenNebula::Error.new("copy Image: missing parameters.")
+            end
+
+            begin
+                FileUtils.move(path, source)
+            rescue Exception => e
+                return OpenNebula::Error.new(e.message)
+            end
+
+            return nil
+        end
 
         def dd(size, source)
             if source.nil? or size.nil?

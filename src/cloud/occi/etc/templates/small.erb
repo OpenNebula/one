@@ -14,12 +14,6 @@ NAME   = "<%= @vm_info['NAME'] %>"
     <% @vm_info.each('DISK') do |disk| %>
         <% if disk['STORAGE'] && disk.attr('STORAGE','href') %>
           DISK = [ IMAGE_ID = <%= disk.attr('STORAGE','href').split('/').last %>
-              <% if disk['OVERWRITE'] %>
-                   ,OVERWRITE = "yes"
-              <% end %>
-              <% if disk['SAVE_AS'] %>
-                  ,SAVE_AS = "<%= disk['SAVE_AS'] %>"
-              <% end %>
                ]
         <% end %>
     <% end %>

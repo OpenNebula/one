@@ -45,10 +45,9 @@ public:
     enum ImageState
     {
         INIT      = 0, /** < Initialization state */
-        LOCKED    = 1, /** < FS operation on the image in progress, don't use */
-        READY     = 2, /** < Image ready to use */
-        USED      = 3, /** < Image in use */
-        DISABLED  = 4  /** < Image can not be instantiated by a VM */
+        READY     = 1, /** < Image ready to use */
+        USED      = 2, /** < Image in use */
+        DISABLED  = 3  /** < Image can not be instantiated by a VM */
     };
 
     /**
@@ -140,16 +139,16 @@ public:
 
     /**
      * Get an image to be used in a VM, and updates its state.
-     * @param overwrite true if the image is going to be overwritten
-     * @return 0 if success
+     *  @return 0 if success
      */
-    int acquire_image(bool overwrite);
+    int acquire_image();
 
 
     /**
      * Releases an image being used by a VM
+     *  @return true if the image needs to be updated
      */
-    void release_image();
+    bool release_image();
 
     /**
      *  Enables the image
@@ -208,7 +207,7 @@ public:
      *              automatically increased.
      * @param img_type will be set to the used image's type
      */
-    int disk_attribute(VectorAttribute * disk, int* index, ImageType& img_type);
+    int disk_attribute(VectorAttribute * disk, int* index, ImageType* img_type);
 
     // ------------------------------------------------------------------------
     // Template

@@ -478,7 +478,7 @@ string& Image::to_str(string& str) const
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-int Image::acquire_image(bool overwrite)
+int Image::acquire_image()
 {
     int rc = 0;
 
@@ -487,30 +487,14 @@ int Image::acquire_image(bool overwrite)
     {
         case READY:
             running_vms++;
-
-            if ( overwrite  == true)
-            {
-                state = LOCKED;
-            }
-            else
-            {
-                state = USED;
-            }
+            state = USED;
         break;
 
         case USED:
-            if ( overwrite == true)
-            {
-                rc = -1;
-            }
-            else
-            {
-                running_vms++;
-            }
+             running_vms++;
         break;
 
         case DISABLED:
-        case LOCKED:
         default:
            rc = -1;
         break;
@@ -522,18 +506,21 @@ int Image::acquire_image(bool overwrite)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-void Image::release_image()
+bool Image::release_image()
 {
+    bool dirty = false;
+
     switch (state)
     {
         case USED:
-        case LOCKED:
             running_vms--;
 
             if ( running_vms == 0)
             {
                 state = READY;
             }
+
+            dirty = true;
         break;
 
         case DISABLED:
@@ -541,30 +528,24 @@ void Image::release_image()
         default:
         break;
     }
+
+    return dirty;
 }
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
 int Image::disk_attribute(  VectorAttribute * disk,
-                            int * index,
-                            ImageType& img_type)
+                            int *             index,
+                            ImageType*        img_type)
 {
-    string  overwrite;
-    string  saveas;
     string  bus;
 
     ostringstream  iid;
 
-    img_type = type;
-
-    overwrite = disk->vector_value("OVERWRITE");
-    saveas    = disk->vector_value("SAVE_AS");
+    *img_type = type;
     bus       = disk->vector_value("BUS");
     iid << oid;
-
-    transform(overwrite.begin(), overwrite.end(), overwrite.begin(),
-        (int(*)(int))toupper);
 
     string template_bus;
     string prefix;
@@ -576,7 +557,7 @@ int Image::disk_attribute(  VectorAttribute * disk,
     //                       Acquire the image
     //--------------------------------------------------------------------------
 
-    if ( acquire_image(overwrite == "YES") != 0 )
+    if ( acquire_image() != 0 )
     {
         return -1;
     }
@@ -590,16 +571,6 @@ int Image::disk_attribute(  VectorAttribute * disk,
     new_disk.insert(make_pair("IMAGE",    name));
     new_disk.insert(make_pair("IMAGE_ID", iid.str()));
     new_disk.insert(make_pair("SOURCE",   source));
-
-    if (!overwrite.empty())
-    {
-        new_disk.insert(make_pair("OVERWRITE",overwrite));
-    }
-
-    if (!saveas.empty())
-    {
-        new_disk.insert(make_pair("SAVE_AS",saveas));
-    }
 
     if (bus.empty())
     {
@@ -617,36 +588,20 @@ int Image::disk_attribute(  VectorAttribute * disk,
    //   TYPE, READONLY, CLONE, and SAVE attributes
    //---------------------------------------------------------------------------
 
+    new_disk.insert(make_pair("CLONE","YES"));
+    new_disk.insert(make_pair("SAVE","NO"));
+
     switch(type)
     {
         case OS:
         case DATABLOCK:
           new_disk.insert(make_pair("TYPE","DISK"));
           new_disk.insert(make_pair("READONLY","NO"));
-
-          if (overwrite == "YES")
-          {
-              new_disk.insert(make_pair("CLONE","NO"));
-              new_disk.insert(make_pair("SAVE","YES"));
-          }
-          else if (!saveas.empty())
-          {
-              new_disk.insert(make_pair("CLONE","YES"));
-              new_disk.insert(make_pair("SAVE","YES"));
-          }
-          else
-          {
-              new_disk.insert(make_pair("CLONE","YES"));
-              new_disk.insert(make_pair("SAVE","NO"));
-          }
         break;
 
         case CDROM:
           new_disk.insert(make_pair("TYPE","CDROM"));
           new_disk.insert(make_pair("READONLY","YES"));
-
-          new_disk.insert(make_pair("CLONE","YES"));
-          new_disk.insert(make_pair("SAVE","NO"));
         break;
     }
 

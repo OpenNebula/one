@@ -168,14 +168,16 @@ public:
     /**
      *  Generates a DISK attribute for VM templates using the Image metadata
      *    @param disk the disk to be generated
+     *    @param disk_id the id for this disk
      *    @param index number of datablock images used by the same VM. Will be
      *                 automatically increased.
      *    @param img_type will be set to the used image's type
      *    @return 0 on success, -1 error, -2 not using the pool
      */
-    int disk_attribute(VectorAttribute * disk, int* index,
-                        Image::ImageType& img_type);
-
+    int disk_attribute(VectorAttribute *  disk,
+                       int                disk_id,
+                       int *              index,
+                       Image::ImageType * img_type);
     /**
      *  Generates an Authorization token for the DISK attribute
      *    @param disk the disk to be authorized
