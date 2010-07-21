@@ -10,7 +10,8 @@ module OpenNebula
             :allocate => "vm.allocate",
             :action   => "vm.action",
             :migrate  => "vm.migrate",
-            :deploy   => "vm.deploy"
+            :deploy   => "vm.deploy",
+            :savedisk => "vm.savedisk"
         }
 
         VM_STATE=%w{INIT PENDING HOLD ACTIVE STOPPED SUSPENDED DONE FAILED}
@@ -163,6 +164,15 @@ module OpenNebula
             return Error.new('ID not defined') if !@pe_id
 
             rc = @client.call(VM_METHODS[:migrate], @pe_id, host_id.to_i, true)
+            rc = nil if !OpenNebula.is_error?(rc)
+
+            return rc
+        end
+        
+        def save_as(disk_id, image_id)
+            return Error.new('ID not defined') if !@pe_id
+
+            rc = @client.call(VM_METHODS[:savedisk], @pe_id, disk_id, image_id)
             rc = nil if !OpenNebula.is_error?(rc)
 
             return rc
