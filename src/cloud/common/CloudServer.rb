@@ -153,5 +153,26 @@ class CloudServer
 
         return nil
     end
+
+    # Finds out if a port is available on ip
+    # ip:: _String_ IP address where the port to check is
+    # port:: _String_ port to find out whether is open 
+    # [return] _Boolean_ Newly created image object    
+    def self.is_port_open?(ip, port)
+      begin
+        Timeout::timeout(2) do
+          begin
+            s = TCPSocket.new(ip, port)
+            s.close
+            return true
+          rescue Errno::ECONNREFUSED, Errno::EHOSTUNREACH
+            return false
+          end
+        end
+      rescue Timeout::Error
+      end
+
+      return false
+    end
 end
 

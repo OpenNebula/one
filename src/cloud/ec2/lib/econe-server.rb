@@ -43,32 +43,13 @@ require 'sinatra'
 
 require 'EC2QueryServer'
 
-require 'socket'
-require 'timeout'
-
 include OpenNebula
 
 $econe_server = EC2QueryServer.new(CONFIGURATION_FILE,
     TEMPLATE_LOCATION, VIEWS_LOCATION)
 
-def is_port_open?(ip, port)
-  begin
-    Timeout::timeout(1) do
-      begin
-        s = TCPSocket.new(ip, port)
-        s.close
-        return true
-      rescue Errno::ECONNREFUSED, Errno::EHOSTUNREACH
-        return false
-      end
-    end
-  rescue Timeout::Error
-  end
-
-  return false
-end
-
-if is_port_open?($econe_server.config[:server], $econe_server.config[:port])
+if CloudServer.is_port_open?($econe_server.config[:server], 
+                             $econe_server.config[:port])
     puts "Port busy, please shutdown the service or move econe server port."
     exit
 end

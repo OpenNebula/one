@@ -51,6 +51,12 @@ include OpenNebula
 
 $occi_server = OCCIServer.new(CONFIGURATION_FILE, TEMPLATE_LOCATION)
 
+if CloudServer.is_port_open?($occi_server.config[:server], 
+                             $occi_server.config[:port])
+    puts "Port busy, please shutdown the service or move econe server port."
+    exit
+end
+
 ##############################################################################
 # Sinatra Configuration
 ##############################################################################
