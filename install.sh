@@ -636,3 +636,10 @@ else
         rmdir $d
     done
 fi
+
+# --- Substitute variables ---
+
+if [ $INSTALL_ETC="yes" ]; then
+    HOOK_LOCATION=$(cd $SHARE_LOCATION/hooks;pwd)
+    sed -i "s%\[ONE_HOOKS\]%$HOOK_LOCATION%" $ETC_LOCATION/oned.conf
+fi
