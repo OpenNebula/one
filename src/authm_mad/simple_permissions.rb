@@ -6,6 +6,7 @@ class SimplePermissions
     
     def initialize(database, client, conf={})
         @quota=Quota.new(database, client, conf[:quota] || {})
+        @quota_enabled=conf[:quota][:enabled]
     end
     
     def auth_message(result, message)
@@ -61,12 +62,16 @@ class SimplePermissions
     def auth_vm(uid, object, id, action, owner, pub)
         case action
         when 'CREATE'
-            STDERR.puts "create vm"
-            @quota.update(uid.to_i)
-            if @quota.check(uid.to_i, get_vm_usage(id))
-                return true
+            if @quota_enabled
+                STDERR.puts 'quota enabled'
+                @quota.update(uid.to_i)
+                if @quota.check(uid.to_i, get_vm_usage(id))
+                    return true
+                else
+                    return "Quota exceeded"
+                end
             else
-                return "Quota exceeded"
+                return true
             end
         else
             auth_message(uid==owner, "You cannot manage VM #{id}")
