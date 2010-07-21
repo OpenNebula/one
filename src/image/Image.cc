@@ -478,7 +478,7 @@ string& Image::to_str(string& str) const
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-int Image::acquire_image(bool overwrite)
+int Image::acquire_image()
 {
     int rc = 0;
 
@@ -487,30 +487,14 @@ int Image::acquire_image(bool overwrite)
     {
         case READY:
             running_vms++;
-
-            if ( overwrite  == true)
-            {
-                state = LOCKED;
-            }
-            else
-            {
-                state = USED;
-            }
+            state = USED;
         break;
 
         case USED:
-            if ( overwrite == true)
-            {
-                rc = -1;
-            }
-            else
-            {
-                running_vms++;
-            }
+             running_vms++;
         break;
 
         case DISABLED:
-        case LOCKED:
         default:
            rc = -1;
         break;
@@ -529,7 +513,6 @@ bool Image::release_image()
     switch (state)
     {
         case USED:
-        case LOCKED:
             running_vms--;
 
             if ( running_vms == 0)
@@ -553,15 +536,15 @@ bool Image::release_image()
 /* ------------------------------------------------------------------------ */
 
 int Image::disk_attribute(  VectorAttribute * disk,
-                            int * index,
-                            ImageType& img_type)
+                            int *             index,
+                            ImageType*        img_type)
 {
     string  bus;
 
     ostringstream  iid;
 
-    img_type = type;
-    bus      = disk->vector_value("BUS");
+    *img_type = type;
+    bus       = disk->vector_value("BUS");
     iid << oid;
 
     string template_bus;
@@ -574,7 +557,7 @@ int Image::disk_attribute(  VectorAttribute * disk,
     //                       Acquire the image
     //--------------------------------------------------------------------------
 
-    if ( acquire_image(true) != 0 )
+    if ( acquire_image() != 0 )
     {
         return -1;
     }

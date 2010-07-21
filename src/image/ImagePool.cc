@@ -165,12 +165,16 @@ int ImagePool::dump(ostringstream& oss, const string& where)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int ImagePool::disk_attribute(  VectorAttribute * disk,
-                                int * index,
-                                Image::ImageType& img_type)
+int ImagePool::disk_attribute(VectorAttribute *  disk,
+                              int                disk_id,
+                              int *              index,
+                              Image::ImageType * img_type)
 {
     string  source;
     Image * img = 0;
+    int     rc;
+
+    ostringstream oss;
 
     source = disk->vector_value("IMAGE");
 
@@ -181,37 +185,68 @@ int ImagePool::disk_attribute(  VectorAttribute * disk,
 
         source = disk->vector_value("IMAGE_ID");
 
-        if (source.empty())
+        if (!source.empty())
         {
-            return -2;
-        }
+            is.str(source);
+            is >> image_id;
 
-        is.str(source);
-        is >> image_id;
+            if( !is.fail() )
+            {
+                img = get(image_id,true);
 
-        if( !is.fail() )
-        {
-            img = get(image_id,true);
+                if (img == 0)
+                {
+                    return -1;
+                }
+            }
         }
     }
     else
     {
         img = get(source,true);
+
+        if (img == 0)
+        {
+            return -1;
+        }
     }
 
     if (img == 0)
     {
-        return -1;
+        string type = disk->vector_value("TYPE");
+
+        transform(type.begin(), type.end(), type.begin(), (int(*)(int))toupper);
+
+        if( type == "SWAP" )
+        {
+            string target = disk->vector_value("TARGET");
+
+            if ( target.empty() )
+            {
+                string  dev_prefix = _default_dev_prefix;
+
+                dev_prefix += "d";
+
+                disk->replace("TARGET", dev_prefix);
+            }
+        }
+
+        rc = -2;
     }
-
-    int rc = img->disk_attribute(disk,index, img_type);
-
-    if ( rc == 0 )
+    else
     {
-        update(img);
+        rc = img->disk_attribute(disk, index, img_type);
+
+        if ( rc == 0 )
+        {
+            update(img);
+        }
+
+        img->unlock();
     }
 
-    img->unlock();
+    oss << disk_id;
+    disk->replace("DISK_ID",oss.str());
 
     return rc;
 }
