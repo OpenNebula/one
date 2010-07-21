@@ -51,10 +51,19 @@ class AuthorizationManager < OpenNebulaDriver
         database_url=@config[:database]
         @db=Sequel.connect(database_url)
         
-        # TODO: select driver
+        begin
+            driver_prefix=@config[:authentication].capitalize
+            driver_name="#{driver_prefix}Auth"
+            driver=Kernel.const_get(driver_name.to_sym)
+            @authenticate=driver.new
+            
+            log('-', "Using '#{driver_prefix}' driver for authentication")
+        rescue
+            log('-', "Driver '#{driver_prefix}' not found, "<<
+                "using SimpleAuth instead")
+            @authenticate=SimpleAuth.new
+        end
         
-        #@authenticate=SimpleAuth.new
-        @authenticate=SshAuth.new
         @permissions=SimplePermissions.new(@db, OpenNebula::Client.new,
             @config)
         
