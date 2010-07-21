@@ -46,13 +46,16 @@ class OneAuthCli < CommandParse
 Commands:
 
 * create (Creates a new user)
-    oneuser create username password
+    oneauth create <username> <ssh public key>
     
-* delete (Removes a user)
-    oneuser delete <id>
+* quota set (sets quota for a user)
+    oneauth quota set <id> <cpu> <memory>
     
-* list (Lists all the users in the pool)
-    oneuser list
+* login (generates authentication proxy)
+    oneauth login <username> [<expire time in seconds>]
+    
+* key (gets public key)
+    oneauth key
 
 EOT
 
@@ -127,9 +130,7 @@ when "create"
     user=OpenNebula::User.new(
         OpenNebula::User.build_xml, OpenNebula::Client.new)
     password = ARGV[1]
-    
-    pp [ARGV[0], ARGV[1]]
-    
+        
     result=user.allocate(ARGV[0], password)
     if !OpenNebula.is_error?(result)
         puts "ID: " + user.id.to_s if ops[:verbose]
