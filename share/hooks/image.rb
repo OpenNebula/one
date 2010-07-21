@@ -28,56 +28,49 @@ end
 
 $: << RUBY_LIB_LOCATION
 
-require 'OpenNebula'
-require 'client_utilities'
 require 'fileutils'
 
-TYPES=%w{OS CDROM DATABLOCK}
+require 'OpenNebula'
+include OpenNebula
 
 if !(vm_id=ARGV[0])
     exit -1
 end
 
-vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
-vm.info
-template=vm['VM/TEMPLATE']
-if template['DISK']
-    i = 0
-    template.each('DISK') do |disk| 
-        source_path=VMDIR+"/#{vm_id}/disk.#{i}"
-        if disk["NAME"] and File.exists?(source_path)
-            if disk["SAVE_AS"] 
-                # Get Type
-                image=OpenNebula::Image.new_with_id(disk['IMAGE_ID'], get_one_client)
-                image.info
-                type=image['TYPE']
-                # Perform the allocate if all goes well
-                image=OpenNebula::Image.new(
-                    OpenNebula::Image.build_xml, get_one_client)
-            
-                template="NAME=#{disk['SAVE_AS']}\n"
-                template+="TYPE=#{TYPES[type.to_i]}\n" if type
-                result=image.allocate(template)
+client = Client.new()
 
-                # Get the allocated image 
-                image=OpenNebula::Image.new_with_id(image.id, get_one_client)
-                image.info
-                template=image['IMAGE/TEMPLATE']
-            
-                if !is_successful?(result) 
-                    exit -1
-                end
-            elsif disk["OVERWRITE"]
-                # Get the allocated image 
-                image=OpenNebula::Image.new_with_id(disk['IMAGE_ID'], get_one_client)
-                image.info
-                image.disable                                        
-            end
-            # Perform the copy to the image repo if needed
-            if FileUtils.copy(source_path, image['SOURCE'])
-                result=image.enable
-            end
+vm = VirtualMachine.new(
+                VirtualMachine.build_xml(vm_id),
+                client)
+vm.info
+
+if vm['TEMPLATE/DISK']
+    vm.each('TEMPLATE/DISK') do |disk| 
+        
+        disk_id     = disk["DISK_ID"]
+        source_path = VMDIR+"/#{vm_id}/disk.#{disk_id}"
+        
+        image_id = nil
+        if disk["SAVE_AS"] 
+            image_id = disk["SAVE_AS"]
         end
-        i = i + 1
+        
+        if image_id and source_path
+            image=Image.new(
+                    Image.build_xml(image_id), 
+                    client)
+                    
+            result = image.info
+            exit -1 if !is_successful?(result) 
+            
+            # Disable the Image for a safe overwriting
+            image.disable 
+        
+            # Save the image file
+            result = image.move(source_path, image['SOURCE']) 
+            exit -1 if !is_successful?(result) 
+        
+            image.enable
+        end
     end
 end
