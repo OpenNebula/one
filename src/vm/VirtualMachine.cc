@@ -967,7 +967,10 @@ void VirtualMachine::release_disk_images()
             continue;
         }
 
-        img->release_image();
+        if (img->release_image() == true)
+        {
+            ipool->update(img);
+        }
 
         img->unlock();
     }

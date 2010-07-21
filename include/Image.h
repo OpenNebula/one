@@ -140,16 +140,17 @@ public:
 
     /**
      * Get an image to be used in a VM, and updates its state.
-     * @param overwrite true if the image is going to be overwritten
-     * @return 0 if success
+     *  @param overwrite true if the image is going to be overwritten
+     *  @return 0 if success
      */
     int acquire_image(bool overwrite);
 
 
     /**
      * Releases an image being used by a VM
+     *  @return true if the image needs to be updated
      */
-    void release_image();
+    bool release_image();
 
     /**
      *  Enables the image

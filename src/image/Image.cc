@@ -522,8 +522,10 @@ int Image::acquire_image(bool overwrite)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-void Image::release_image()
+bool Image::release_image()
 {
+    bool dirty = false;
+
     switch (state)
     {
         case USED:
@@ -534,6 +536,8 @@ void Image::release_image()
             {
                 state = READY;
             }
+
+            dirty = true;
         break;
 
         case DISABLED:
@@ -541,6 +545,8 @@ void Image::release_image()
         default:
         break;
     }
+
+    return dirty;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -550,21 +556,13 @@ int Image::disk_attribute(  VectorAttribute * disk,
                             int * index,
                             ImageType& img_type)
 {
-    string  overwrite;
-    string  saveas;
     string  bus;
 
     ostringstream  iid;
 
     img_type = type;
-
-    overwrite = disk->vector_value("OVERWRITE");
-    saveas    = disk->vector_value("SAVE_AS");
-    bus       = disk->vector_value("BUS");
+    bus      = disk->vector_value("BUS");
     iid << oid;
-
-    transform(overwrite.begin(), overwrite.end(), overwrite.begin(),
-        (int(*)(int))toupper);
 
     string template_bus;
     string prefix;
@@ -576,7 +574,7 @@ int Image::disk_attribute(  VectorAttribute * disk,
     //                       Acquire the image
     //--------------------------------------------------------------------------
 
-    if ( acquire_image(overwrite == "YES") != 0 )
+    if ( acquire_image(true) != 0 )
     {
         return -1;
     }
@@ -590,16 +588,6 @@ int Image::disk_attribute(  VectorAttribute * disk,
     new_disk.insert(make_pair("IMAGE",    name));
     new_disk.insert(make_pair("IMAGE_ID", iid.str()));
     new_disk.insert(make_pair("SOURCE",   source));
-
-    if (!overwrite.empty())
-    {
-        new_disk.insert(make_pair("OVERWRITE",overwrite));
-    }
-
-    if (!saveas.empty())
-    {
-        new_disk.insert(make_pair("SAVE_AS",saveas));
-    }
 
     if (bus.empty())
     {
@@ -624,17 +612,17 @@ int Image::disk_attribute(  VectorAttribute * disk,
           new_disk.insert(make_pair("TYPE","DISK"));
           new_disk.insert(make_pair("READONLY","NO"));
 
-          if (overwrite == "YES")
+//          if (overwrite == "YES")
           {
               new_disk.insert(make_pair("CLONE","NO"));
               new_disk.insert(make_pair("SAVE","YES"));
           }
-          else if (!saveas.empty())
+//          else if (!saveas.empty())
           {
               new_disk.insert(make_pair("CLONE","YES"));
               new_disk.insert(make_pair("SAVE","YES"));
           }
-          else
+//          else
           {
               new_disk.insert(make_pair("CLONE","YES"));
               new_disk.insert(make_pair("SAVE","NO"));

@@ -206,6 +206,11 @@ int ImagePool::disk_attribute(  VectorAttribute * disk,
 
     int rc = img->disk_attribute(disk,index, img_type);
 
+    if ( rc == 0 )
+    {
+        update(img);
+    }
+
     img->unlock();
 
     return rc;
