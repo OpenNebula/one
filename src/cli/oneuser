@@ -103,6 +103,9 @@ Commands:
 * list (Lists all the users in the pool)
     oneuser list
 
+* passwd (Changes the given user's password)
+    oneuser passwd <id> password
+
 EOT
 
     def text_commands
@@ -181,7 +184,23 @@ when "delete"
             puts "User deleted" if ops[:verbose]
         end
     end
-    
+
+when "passwd"
+    check_parameters("passwd", 2)
+
+    user_id=get_user_id(ARGV[0])
+
+    user=OpenNebula::User.new_with_id(user_id, get_one_client)
+
+    sha_password = Digest::SHA1.hexdigest(ARGV[1])
+    result=user.passwd(sha_password)
+
+    if !OpenNebula.is_error?(result)
+        puts "Password changed" if ops[:verbose]
+    else
+        puts
+    end
+
 when "list"
     if !ops[:xml]
         uplist=UPShow.new

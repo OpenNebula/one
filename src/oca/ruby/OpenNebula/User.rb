@@ -8,7 +8,8 @@ module OpenNebula
         USER_METHODS = {
             :info     => "user.info",
             :allocate => "user.allocate",
-            :delete   => "user.delete"
+            :delete   => "user.delete",
+            :passwd   => "user.passwd"
         }
 
         # Creates a User description with just its identifier
@@ -51,5 +52,15 @@ module OpenNebula
         def delete()
             super(USER_METHODS[:delete])
         end
+
+        def passwd(password)
+            return Error.new('ID not defined') if !@pe_id
+
+            rc = @client.call(USER_METHODS[:passwd], @pe_id, password)
+            rc = nil if !OpenNebula.is_error?(rc)
+
+            return rc
+        end
+
     end
 end
