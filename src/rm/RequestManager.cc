@@ -358,6 +358,7 @@ void RequestManager::register_xml_methods()
         
     RequestManagerRegistry.addMethod("one.user.allocate", user_allocate);
     RequestManagerRegistry.addMethod("one.user.delete",   user_delete);
+    RequestManagerRegistry.addMethod("one.user.passwd",   user_change_password);
 
     RequestManagerRegistry.addMethod("one.userpool.info", userpool_info);
     
