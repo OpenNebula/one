@@ -36,7 +36,7 @@ module OpenNebula
                 host_xml = "<HOST></HOST>"
             end
 
-            XMLUtilsElement.initialize_xml(host_xml, 'HOST')
+            XMLElement.build_xml(host_xml, 'HOST')
         end
 
         #######################################################################
@@ -91,7 +91,7 @@ module OpenNebula
             SHORT_HOST_STATES[state_str]
         end
 
-        # Returns the cluster of the Host 
+        # Returns the cluster of the Host
         def cluster
             self['CLUSTER']
         end
@@ -103,7 +103,7 @@ module OpenNebula
 
             rc = @client.call(HOST_METHODS[:enable], @pe_id, enabled)
             rc = nil if !OpenNebula.is_error?(rc)
-        
+
             return rc
         end
     end

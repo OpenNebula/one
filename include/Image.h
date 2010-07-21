@@ -204,8 +204,11 @@ public:
      *    - Several DATABLOCK images can be mounted, they will be set to
      *      prefix + (d + index) :   hdd, hde, hdf...
      * @param disk attribute for the VM template
+     * @param index number of datablock images used by the same VM. Will be
+     *              automatically increased.
+     * @param img_type will be set to the used image's type
      */
-    int disk_attribute(VectorAttribute * disk, int * index);
+    int disk_attribute(VectorAttribute * disk, int* index, ImageType& img_type);
 
     // ------------------------------------------------------------------------
     // Template

@@ -62,12 +62,12 @@ ShowTableExample={
     :id => {
         :name => "ID",
         :size => 4,
-        :proc => lambda {|d,e| d["oid"] }
+        :proc => lambda {|d,e| d["OID"] }
     },
     :name => {
         :name => "NAME",
         :size => 8,
-        :proc => lambda {|d,e| d["deploy_id"] }
+        :proc => lambda {|d,e| d["DEPLOY_ID"] }
     },
     :stat => {
         :name => "STAT",
@@ -294,11 +294,11 @@ def get_cluster_id(name)
 end
 
 def str_running_time(data)
-    stime=Time.at(data["stime"].to_i)
-    if data["etime"]=="0"
+    stime=Time.at(data["STIME"].to_i)
+    if data["ETIME"]=="0"
         etime=Time.now
     else
-        etime=Time.at(data["etime"].to_i)
+        etime=Time.at(data["ETIME"].to_i)
     end
     dtime=Time.at(etime-stime).getgm
 

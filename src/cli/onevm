@@ -68,14 +68,14 @@ ShowTableVM={
         :desc => "CPU percentage used by the VM",
         :size => 3,
         :proc => lambda {|d,e|
-            d["cpu"]
+            d["CPU"]
         }
     },
     :mem => {
         :name => "MEM",
         :desc => "Memory used by the VM",
         :size => 7,
-        :proc => lambda {|d,e| d["memory"] }
+        :proc => lambda {|d,e| d["MEMORY"] }
     },
     :hostname => {
         :name => "HOSTNAME",
@@ -100,26 +100,26 @@ ShowTableHistory={
         :name => "ID",
         :desc => "ONE identifier for the VM",
         :size => 4,
-        :proc => lambda {|d,e| d["id"] }
+        :proc => lambda {|d,e| d["ID"] }
     },
     :seq => {
         :name => "SEQ",
         :desc => "Sequence number",
         :size => 3,
-        :proc => lambda {|d,e| d["seq"] }
+        :proc => lambda {|d,e| d["SEQ"] }
     },
     :hostname => {
         :name => "HOSTNAME",
         :desc => "Name of the host where the VM was submited",
         :size => 15,
-        :proc => lambda {|d,e| d["host_name"] }
+        :proc => lambda {|d,e| d["HOST_NAME"] }
     },
     :stime => {
         :name => "STIME",
         :desc => "Start time",
         :size => 14,
         :proc => lambda {|d,e|
-            t=Time.at(d["stime"].to_i)
+            t=Time.at(d["STIME"].to_i)
             t.strftime("%m/%d %H:%M:%S")
         }
     },
@@ -128,10 +128,10 @@ ShowTableHistory={
         :desc => "End time",
         :size => 14,
         :proc => lambda {|d,e|
-            if d["etime"].to_i==0
+            if d["ETIME"].to_i==0
                 "--"
             else
-                t=Time.at(d["etime"].to_i)
+                t=Time.at(d["ETIME"].to_i)
                 t.strftime("%m/%d %H:%M:%S")
             end
         }
@@ -141,7 +141,7 @@ ShowTableHistory={
         :desc => "Total time",
         :size => 11,
         :proc => lambda {|d,e|
-            d["time"]
+            d["TIME"]
         }
     },
     :reason => {
@@ -149,7 +149,7 @@ ShowTableHistory={
         :desc => "Reason for state change",
         :size => "6",
         :proc => lambda {|d,e|
-            OpenNebula::VirtualMachine.get_reason(d["reason"])
+            OpenNebula::VirtualMachine.get_reason(d["REASON"])
         }
     },
 
@@ -234,12 +234,12 @@ class VmShow
     def get_vm_history(vm)
         {
             'id'        => vm.id,
-            'seq'       => vm['history/seq'],
-            'host_name' => vm['history/hostname'],
-            'stime'     => vm['history/stime'],
-            'etime'     => vm['history/etime'],
+            'seq'       => vm['HISTORY/SEQ'],
+            'host_name' => vm['HISTORY/HOSTNAME'],
+            'stime'     => vm['HISTORY/STIME'],
+            'etime'     => vm['HISTORY/ETIME'],
             'time'      => str_running_time(vm),
-            'reason'    => vm['history/reason']
+            'reason'    => vm['HISTORY/REASON']
         }
     end
 
@@ -274,7 +274,7 @@ class VmShow
 
     def list_vm_history_array(ids, options=nil)
         get_vms_history(ids).each {|vm|
-            puts "History for VM #{vm['id']}"
+            puts "History for VM #{vm['ID']}"
             puts
             list_vm_history(vm, options)
             puts
@@ -680,45 +680,47 @@ when "show"
         vm_id=get_vm_id(param)
 
         vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
-        vm.info
+        result=vm.info
+        if is_successful?(result)
+            if !ops[:xml]
+                str="%-15s: %-20s"
+                str_h1="%-80s"
 
-        if !ops[:xml]
-            str="%-15s: %-20s"
-            str_h1="%-80s"
+                print_header(str_h1, "VIRTUAL MACHINE #{vm['ID']} INFORMATION",
+true)
 
-            print_header(str_h1, "VIRTUAL MACHINE #{vm[:id]} INFORMATION", true)
+                puts str % ["ID", vm.id.to_s]
+                puts str % ["NAME", vm.name]
+                puts str % ["STATE", vm.state_str]
+                puts str % ["LCM_STATE", vm.lcm_state_str]
 
-            puts str % ["ID", vm[:id]]
-            puts str % ["NAME", vm[:name]]
-            puts str % ["STATE", vm.state_str]
-            puts str % ["LCM_STATE", vm.lcm_state_str]
+                value=vm['STIME'].to_i
+                if value==0
+                    value='-'
+                else
+                    value=Time.at(value).strftime("%m/%d %H:%M:%S")
+                end
+                puts str % ["START TIME", value]
 
-            value=vm[:stime].to_i
-            if value==0
-                value='-'
+                value=vm['ETIME'].to_i
+                if value==0
+                    value='-'
+                else
+                    value=Time.at(value).strftime("%m/%d %H:%M:%S")
+                end
+                puts str % ["END TIME", value]
+
+                value=vm['DEPLOY_ID']
+                puts str % ["DEPLOY ID:", value=="" ? "-" : value]
+
+                puts
+
+                print_header(str_h1,"VIRTUAL MACHINE TEMPLATE",false)
+
+                puts vm.template_str
             else
-                value=Time.at(value).strftime("%m/%d %H:%M:%S")
+                puts vm.to_xml(true)
             end
-            puts str % ["START TIME", value]
-
-            value=vm[:etime].to_i
-            if value==0
-                value='-'
-            else
-                value=Time.at(value).strftime("%m/%d %H:%M:%S")
-            end
-            puts str % ["END TIME", value]
-
-            value=vm[:deploy_id]
-            puts str % ["DEPLOY ID:", value=="" ? "-" : value]
-
-            puts
-
-            print_header(str_h1,"VIRTUAL MACHINE TEMPLATE",false)
-
-            puts vm.template_str
-        else
-            puts vm.to_xml(true)
         end
      end
 else

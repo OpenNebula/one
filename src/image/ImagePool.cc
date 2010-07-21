@@ -165,7 +165,9 @@ int ImagePool::dump(ostringstream& oss, const string& where)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int ImagePool::disk_attribute(VectorAttribute * disk, int * index)
+int ImagePool::disk_attribute(  VectorAttribute * disk,
+                                int * index,
+                                Image::ImageType& img_type)
 {
     string  source;
     Image * img = 0;
@@ -202,7 +204,7 @@ int ImagePool::disk_attribute(VectorAttribute * disk, int * index)
         return -1;
     }
 
-    int rc = img->disk_attribute(disk,index);
+    int rc = img->disk_attribute(disk,index, img_type);
 
     img->unlock();
 

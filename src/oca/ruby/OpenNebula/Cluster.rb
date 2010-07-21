@@ -27,7 +27,7 @@ module OpenNebula
                 user_xml = "<CLUSTER></CLUSTER>"
             end
 
-            XMLUtilsElement.initialize_xml(user_xml, 'CLUSTER')
+            XMLElement.build_xml(user_xml,'CLUSTER')
         end
 
         # ---------------------------------------------------------------------

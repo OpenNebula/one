@@ -388,7 +388,6 @@ error_leases:
     return -1;
 
 error_images:
-    NebulaLog::log("ONE",Log::ERROR, "Could not get disk image for VM");
     goto error_common;
 
 error_context:
@@ -449,6 +448,20 @@ int VirtualMachine::parse_context()
 
         context_parsed = new VectorAttribute("CONTEXT");
         context_parsed->unmarshall(parsed," @^_^@ ");
+
+
+        string target = context_parsed->vector_value("TARGET");
+
+        if ( target.empty() )
+        {
+            Nebula&       nd = Nebula::instance();
+            string        dev_prefix;
+
+            nd.get_configuration_attribute("DEFAULT_DEVICE_PREFIX",dev_prefix);
+            dev_prefix += "b";
+
+            context_parsed->replace("TARGET", dev_prefix);
+        }
 
         vm_template->set(context_parsed);
     }
@@ -812,6 +825,10 @@ int VirtualMachine::get_disk_images()
     ImagePool *           ipool;
     VectorAttribute *     disk;
 
+    int     n_os = 0;
+    int     n_cd = 0;
+    string  type;
+
     Nebula& nd = Nebula::instance();
     ipool      = nd.get_ipool();
 
@@ -827,15 +844,86 @@ int VirtualMachine::get_disk_images()
             continue;
         }
 
-        rc = ipool->disk_attribute(disk, &index);
+        Image::ImageType img_type;
+        rc = ipool->disk_attribute(disk, &index, img_type);
 
-        if (rc == -1) // 0 OK, -2 not using the Image pool
+        switch(rc)
         {
-            return -1;
+            case 0: // OK
+                switch(img_type)
+                {
+                    case Image::OS:
+                        n_os++;
+                        break;
+                    case Image::CDROM:
+                        n_cd++;
+                        break;
+                    default:
+                        break;
+                }
+
+                if( n_os > 1 )  // Max. number of OS images is 1
+                {
+                    goto error_max_os;
+                }
+
+                if( n_cd > 1 )  // Max. number of CDROM images is 1
+                {
+                    goto error_max_cd;
+                }
+
+                break;
+
+            case -2:  // not using the Image pool
+                type = disk->vector_value("TYPE");
+
+                transform (type.begin(), type.end(), type.begin(),
+                           (int(*)(int))toupper);
+
+                if( type == "SWAP" )
+                {
+                    string target = disk->vector_value("TARGET");
+
+                    if ( target.empty() )
+                    {
+                        Nebula&       nd = Nebula::instance();
+                        string        dev_prefix;
+
+                        nd.get_configuration_attribute("DEFAULT_DEVICE_PREFIX",
+                                                        dev_prefix);
+                        dev_prefix += "d";
+
+                        disk->replace("TARGET", dev_prefix);
+                    }
+                }
+
+                break;
+
+            case -1: // ERROR
+                goto error_image;
+                break;
         }
     }
 
     return 0;
+
+
+error_max_os:
+    NebulaLog::log("ONE",Log::ERROR,
+                    "VM can not use more than one OS image.");
+    goto error_common;
+
+error_max_cd:
+    NebulaLog::log("ONE",Log::ERROR,
+                    "VM can not use more than one CDROM image.");
+    goto error_common;
+
+error_image:
+    NebulaLog::log("ONE",Log::ERROR, "Could not get disk image for VM");
+
+error_common:
+    return -1;
+
 }
 
 /* -------------------------------------------------------------------------- */

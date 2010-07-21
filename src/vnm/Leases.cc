@@ -251,7 +251,7 @@ const char * Leases::table        = "leases";
 const char * Leases::db_names     = "(oid,ip,mac_prefix,mac_suffix,vid,used)";
 
 const char * Leases::db_bootstrap = "CREATE TABLE IF NOT EXISTS leases ("
-                "oid INTEGER,ip BIGINT, mac_prefix INTEGER,mac_suffix INTEGER,"
+                "oid INTEGER, ip BIGINT, mac_prefix BIGINT, mac_suffix BIGINT,"
                 "vid INTEGER, used INTEGER, PRIMARY KEY(oid,ip))";
 
 /* -------------------------------------------------------------------------- */

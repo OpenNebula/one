@@ -17,7 +17,7 @@
 require 'rubygems'
 require 'uri'
 
-require 'digest'
+require 'digest/sha1'
 require 'net/https'
 
 begin
@@ -29,7 +29,9 @@ end
 
 begin
     require 'net/http/post/multipart'
+    MULTIPART_LOADED=true
 rescue LoadError
+    MULTIPART_LOADED=false
 end
 
 ###############################################################################

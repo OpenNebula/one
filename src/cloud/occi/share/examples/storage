@@ -1,0 +1,6 @@
+    <STORAGE>
+        <NAME>Ubuntu Desktop</NAME>
+        <DESCRIPTION>Ubuntu 10.04 desktop for students.</DESCRIPTION>
+        <TYPE>OS</TYPE>
+        <URL>file:///images/ubuntu/jaunty.img</URL>
+    </STORAGE>

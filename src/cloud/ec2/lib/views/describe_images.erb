@@ -1,16 +1,25 @@
 <?xml version="1.0"?>
-<DescribeImagesResponse xmlns="http://ec2.amazonaws.com/doc/<%= erb_version %>/"> 
-  <imagesSet> 
-  <% for image in erb_images %>
-    <item> 
-      <imageId>ami-<%= sprintf('%08i', image.id) %></imageId> 
-      <imageLocation><%= image.path.gsub(/^\//,'') %></imageLocation> 
-      <imageState>available</imageState> 
-      <imageOwnerId><%= erb_user[:name] %></imageOwnerId> 
-      <isPublic>false</isPublic> 
-      <architecture>i386</architecture> 
-      <imageType>machine</imageType> 
-    </item> 
-  <% end %>
-  </imagesSet> 
+<DescribeImagesResponse xmlns="http://ec2.amazonaws.com/doc/<%=erb_version%>/"> 
+	<imagesSet> 
+	   	<% impool.each do |im| %>
+	   	<% im.info %>
+	 	<item> 
+		   	<imageId>ami-<%= sprintf('%08i', im.id) %></imageId> 
+		   	<imageLocation><%= im['SOURCE'].split('/').last %></imageLocation> 
+			<% if im['STATE'] == '4' %>
+			<imageState>deregistered</imageState> 
+			<% elsif im['STATE'] == '2' %>
+			<imageState>available</imageState> 
+			<% end %>
+			<imageOwnerId><%= erb_user_name %></imageOwnerId> 
+			<% if im['PUBLIC'] == '0' %>
+			<isPublic>false</isPublic> 
+			<% elsif im['PUBLIC'] == '1' %>
+			<isPublic>true</isPublic> 
+			<% end %>
+			<architecture>i386</architecture> 
+			<imageType>machine</imageType> 
+		</item> 
+		<% end %>
+	</imagesSet> 
 </DescribeImagesResponse> 

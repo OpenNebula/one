@@ -16,25 +16,29 @@
 
 require 'OpenNebula'
 
-
 include OpenNebula
 
-class ImagePoolOCCI
+class ImagePoolOCCI < ImagePool
     OCCI_IMAGE_POOL = %q{
-        <STORAGE><% 
-            for image in @images do %>
-            <DISK href="<%= base_url%>/storage/<%= image[:id] %>"/><%  
-            end  %>
-        </STORAGE>
+        <STORAGE_COLLECTION>
+            <% self.each{ |im|  %>  
+            <STORAGE href="<%= base_url %>/storage/<%= im.id.to_s  %>" name="<%= im.name  %>"/>
+            <% } %>
+        </STORAGE_COLLECTION>       
     }
-        
-    def initialize(user_id)
-        @images=Image.filter(:owner => user_id)     
-    end 
     
+    
+    # Creates the OCCI representation of a Virtual Machine Pool
     def to_occi(base_url)
-        occi = ERB.new(OCCI_IMAGE_POOL)
-        return occi.result(binding).gsub(/\n\s*/,'')
+        begin
+            occi = ERB.new(OCCI_IMAGE_POOL)
+            occi_text = occi.result(binding) 
+        rescue Exception => e
+            error = OpenNebula::Error.new(e.message)
+            return error
+        end
+
+        return occi_text.gsub(/\n\s*/,'')
     end
 end
 

@@ -454,6 +454,7 @@ public:
         int                 oid;
         string              value;
         int                 index=0;
+        Image::ImageType    img_type;
 
         disk = new VectorAttribute("DISK");
 
@@ -465,11 +466,13 @@ public:
         CPPUNIT_ASSERT( oid == 0 );
 
         img->enable(true);
-        img->disk_attribute(disk, &index);
+        img->disk_attribute(disk, &index, img_type);
 
         value = disk->vector_value("TARGET");
 
         CPPUNIT_ASSERT( value == "hda" );
+        CPPUNIT_ASSERT( img_type == Image::OS );
+
         // clean up
         delete disk;
         value = "";
@@ -485,10 +488,11 @@ public:
         img = imp->get(oid, false);
 
         img->enable(true);
-        img->disk_attribute(disk, &index);
+        img->disk_attribute(disk, &index, img_type);
 
         value = disk->vector_value("TARGET");
         CPPUNIT_ASSERT(value == "hdc");
+        CPPUNIT_ASSERT( img_type == Image::CDROM );
 
         // clean up
         delete disk;
@@ -505,10 +509,11 @@ public:
         img = imp->get(oid, false);
 
         img->enable(true);
-        img->disk_attribute(disk, &index);
+        img->disk_attribute(disk, &index, img_type);
 
         value = disk->vector_value("TARGET");
-        CPPUNIT_ASSERT(value == "hdd");
+        CPPUNIT_ASSERT(value == "hde");
+        CPPUNIT_ASSERT( img_type == Image::DATABLOCK );
 
         // clean up
         delete disk;
@@ -525,10 +530,10 @@ public:
         img = imp->get(oid, false);
 
         img->enable(true);
-        img->disk_attribute(disk, &index);
+        img->disk_attribute(disk, &index, img_type);
 
         value = disk->vector_value("TARGET");
-        CPPUNIT_ASSERT(value == "sde");
+        CPPUNIT_ASSERT(value == "sdf");
 
         // clean up
         delete disk;
@@ -546,6 +551,8 @@ public:
         int                 oid;
         string              value;
         int                 index = 0;
+        Image::ImageType    img_type;
+
         // Allocate an OS type image
         oid = allocate(0);
         img = imp->get(oid, false);
@@ -555,7 +562,7 @@ public:
         disk = new VectorAttribute("DISK");
 
         img->enable(true);
-        img->disk_attribute(disk, &index);
+        img->disk_attribute(disk, &index, img_type);
 
         value = "";
         value = disk->vector_value("BUS");
@@ -575,7 +582,7 @@ public:
         disk->replace("BUS", "SCSI");
 
         img->enable(true);
-        img->disk_attribute(disk, &index);
+        img->disk_attribute(disk, &index, img_type);
 
         value = disk->vector_value("BUS");
         CPPUNIT_ASSERT( value == "SCSI" );
@@ -601,6 +608,7 @@ public:
         int                 oid, rc;
         string              value;
         int                 index = 0;
+        Image::ImageType    img_type;
 
         // ---------------------------------------------------------------------
         // Allocate an OS type image
@@ -614,7 +622,7 @@ public:
         disk->replace("OVERWRITE", "yes");
 
         img->enable(true);
-        rc = img->disk_attribute(disk, &index);
+        rc = img->disk_attribute(disk, &index, img_type);
         CPPUNIT_ASSERT( rc == 0 );
 
 
@@ -654,7 +662,7 @@ public:
         disk->replace("SAVE_AS", "path_to_save");
 
         img->enable(true);
-        rc = img->disk_attribute(disk, &index);
+        rc = img->disk_attribute(disk, &index, img_type);
         CPPUNIT_ASSERT( rc == 0 );
 
         value = "";
@@ -692,7 +700,7 @@ public:
         disk->replace("OVERWRITE", "NO");
 
         img->enable(true);
-        rc = img->disk_attribute(disk, &index);
+        rc = img->disk_attribute(disk, &index, img_type);
         CPPUNIT_ASSERT( rc == 0 );
 
         value = "";
@@ -730,6 +738,7 @@ public:
         VectorAttribute *   disk;
         int                 oid_0, oid_1;
         string              value;
+        Image::ImageType    img_type;
 
         // ---------------------------------------------------------------------
         // Allocate 2 images, with different dev_prefix
@@ -761,7 +770,7 @@ public:
         disk = new VectorAttribute("DISK");
         disk->replace("IMAGE", "Image 0");
 
-        ((ImagePool*)imp)->disk_attribute(disk, 0);
+        ((ImagePool*)imp)->disk_attribute(disk, 0, img_type);
 
         value = "";
         value = disk->vector_value("TARGET");
@@ -778,7 +787,7 @@ public:
         disk = new VectorAttribute("DISK");
         disk->replace("IMAGE_ID", "1");
 
-        ((ImagePool*)imp)->disk_attribute(disk, 0);
+        ((ImagePool*)imp)->disk_attribute(disk, 0, img_type);
 
         value = "";
         value = disk->vector_value("TARGET");

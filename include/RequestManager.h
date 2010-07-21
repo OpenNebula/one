@@ -932,7 +932,27 @@ private:
         UserPool * upool;
     };
 
-    
+    /* ---------------------------------------------------------------------- */
+
+    class UserChangePassword: public xmlrpc_c::method
+    {
+    public:
+        UserChangePassword(UserPool * _upool):upool(_upool)
+        {
+            _signature="A:sis";
+            _help="Changes the password for the given user.";
+        };
+
+        ~UserChangePassword(){};
+
+        void execute(
+            xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP);
+
+    private:
+        UserPool * upool;
+    };
+
     /* ---------------------------------------------------------------------- */
 
     class UserPoolInfo: public xmlrpc_c::method

@@ -11,7 +11,7 @@
         </item> 
       </groupSet> 
       <instancesSet> 
-        <% erb_vmpool.each do |vm| %>
+        <% vmpool.each do |vm| %>
         <% vm.info %>
         <item> 
           <instanceId>i-<%= vm.id %></instanceId> 

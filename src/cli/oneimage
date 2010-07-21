@@ -31,7 +31,6 @@ require 'OpenNebula'
 require 'CommandManager'
 require 'client_utilities'
 require 'command_parse'
-require 'ftools'
 
 ShowTableImage={
     :id => {
@@ -278,23 +277,19 @@ def get_user_flags
      ops
 end
 
-def get_type_and_path(image_template_file)
-    image_text = open(image_template_file).read
-    result=Hash.new
-    image_text.each_line {|line|
-        case line
-        when /^\s*(#.*)?$/
-            # skip empty or commented lines
-            next
-        when /^\s*(\w+)\s*=\s*(.*)\s*$/
-            name  = $1.strip.upcase
-            if name == "PATH" || name == "TYPE" ||
-               name == "SIZE" || name == "FSTYPE"
-                 result[name] = $2.strip
-            end 
-        end
-    }
-    result
+def get_template(template_path)
+    begin
+        template = File.read(ARGV[0])
+    rescue
+        result = OpenNebula::Error.new("Can not read template: #{ARGV[0]}")
+    end
+    
+    if !is_successful?(result) 
+        puts result.message
+        exit -1
+    end
+    
+    return template
 end
 
 oneimage_opts=OneImageParse.new
@@ -306,99 +301,59 @@ result=[false, "Unknown error"]
 command=ARGV.shift
 
 case command
-when "register", "create", "add"
+when "register", "create", "add"    
+    # ---------- Get the Template ------------
+    
     check_parameters("register", 1)
-    
-    # First, let's check we have everything we need in the template
+    template = get_template(ARGV[0])
 
-    # Get the path and type from the template file
-    parser_result = get_type_and_path(ARGV[0]) 
+    # ---------- Allocate the Image file ------------
     
-    if parser_result['TYPE']
-        type = parser_result['TYPE'].upcase 
-    else
-        type = "OS"
-    end 
+    image = OpenNebula::Image.new(
+                            OpenNebula::Image.build_xml, 
+                            get_one_client)
+                            
+    result = image.allocate(template)
     
-    result = true       
-    case type
-        when "OS", "CDROM"
-            if !parser_result['PATH'] 
-                result=OpenNebula::Error.new(
-                       "Image path not present, aborting.")
-            elsif !File.exists?(parser_result['PATH'])
-                result=OpenNebula::Error.new(
-                       "Image file could not be found, aborting.")
-            end
-        when "DATABLOCK"
-            if parser_result['PATH'] and !File.exists?(parser_result['PATH']) 
-                if !parser_result['SIZE'] || !parser_result['FSTYPE'] 
-                 result=OpenNebula::Error.new(
-                                "No image file present for DATABLOCK, " +
-                                "size and/or fstype also missing, aborting.") 
-                end   
-           end
-    end     
-                
     if !is_successful?(result) 
         puts result.message
         exit -1
     end
-    
-    # Perform the allocate if all goes well
-    image=OpenNebula::Image.new(
-        OpenNebula::Image.build_xml, get_one_client)
-    begin
-        template=File.read(ARGV[0])
-        result=image.allocate(template)
-    rescue
-        result=OpenNebula::Error.new("Can not read template: #{ARGV[0]}")
-    end
-    
-    if !is_successful?(result) 
-        exit -1
-    end
-    
-    # Get the allocated image 
-    image=OpenNebula::Image.new_with_id(image.id, get_one_client)
+
+    # ---------- Copy the Image file ------------
+
     image.info
-    template=image.to_hash
-    template=template['IMAGE']['TEMPLATE']
-    
-    # Perform the copy to the image repo if needed
-    if template['PATH']
-        if File.copy(template['PATH'], image['SOURCE'])
-            result = image.enable
-        else
-            result=OpenNebula::Error.new(
-                 "Cannot copy image, aborting.")
-            image.delete
-        end 
-    elsif parser_result['SIZE'] and parser_result['FSTYPE'] 
-        local_command=LocalCommand.run(
-           "dd if=/dev/zero of=#{image['SOURCE']} ibs=1 count=1 " \
-           "obs=1048576 oseek=#{parser_result['SIZE']}")
-        if local_command.code!=0
-            result=OpenNebula::Error.new(
-                 "Cannot create datablock, aborting.")   
-            image.delete
-        else
-            local_command=LocalCommand.run(
-               "mkfs -t #{parser_result['FSTYPE']} -F #{image['SOURCE']}")
-            if local_command.code!=0       
-                result=OpenNebula::Error.new(
-                     "Cannot format datablock, aborting.")   
-                image.delete
-            else
-                image.enable
-            end
-        end    
+
+    if image['TEMPLATE/PATH']
+        file_path = image['TEMPLATE/PATH']
+        
+        if !File.exists?(file_path)
+            error_msg = "Image file could not be found, aborting."
+            result = OpenNebula::Error.new(error_msg)
+        end
+        
+        result = image.copy(file_path, image['SOURCE'])       
+    elsif image['TEMPLATE/SIZE'] and 
+                    image['TEMPLATE/FSTYPE'] and 
+                    image['TEMPLATE/TYPE'] == 'DATABLOCK'
+        result = image.mk_datablock(
+                            image['TEMPLATE/SIZE'],
+                            image['TEMPLATE/FSTYPE'],
+                            image['SOURCE'])
+    else
+        error_msg = "Image not present, aborting."
+        result = OpenNebula::Error.new(error_msg)
     end
-           
+        
+
     if is_successful?(result) 
+        image.enable
         puts "ID: " + image.id.to_s if ops[:verbose]
         exit 0
-    end 
+    else
+        image.delete
+    end
+
     
 when "update" 
     check_parameters("update", 3)
@@ -493,42 +448,44 @@ when "show"
         image_id=get_image_id(param)
 
         image=OpenNebula::Image.new_with_id(image_id, get_one_client)
-        image.info
-
-        if !ops[:xml]
-            str="%-15s: %-20s"
-            str_h1="%-80s"
-
-            print_header(str_h1, "IMAGE #{image[:id]} INFORMATION", true)
-
-            puts str % ["ID", image[:id]]
-            puts str % ["NAME", image[:name]]
-            puts str % ["TYPE", image.type_str]            
+        result = image.info
         
-            value=image[:regtime].to_i
-            if value==0
-                value='-'
-            else
-                value=Time.at(value).strftime("%m/%d %H:%M:%S")
-            end
-            puts str % ["REGISTER TIME", value]
-            if image[:public].to_i == 1 
-                public_str = "Yes" 
-            else 
-                public_str = "No" 
-            end
-            puts str % ["PUBLIC", public_str]            
-            puts str % ["SOURCE", image[:source]]    
-            puts str % ["STATE", image.short_state_str]
-            puts str % ["RUNNING_VMS", image[:runningvms]]            
+        if is_successful?(result)
+            if !ops[:xml]
+                str="%-15s: %-20s"
+                str_h1="%-80s"
+
+                print_header(str_h1, "IMAGE #{image[:id]} INFORMATION", true)
+
+                puts str % ["ID", image.id.to_s]
+                puts str % ["NAME", image.name]
+                puts str % ["TYPE", image.type_str]            
+        
+                value=image['REGTIME'].to_i
+                if value==0
+                    value='-'
+                else
+                    value=Time.at(value).strftime("%m/%d %H:%M:%S")
+                end
+                puts str % ["REGISTER TIME", value]
+                if image['PUBLIC'].to_i == 1 
+                    public_str = "Yes" 
+                else 
+                    public_str = "No" 
+                end
+                puts str % ["PUBLIC", public_str]            
+                puts str % ["SOURCE", image['SOURCE']]    
+                puts str % ["STATE", image.short_state_str]
+                puts str % ["RUNNING_VMS", image['RUNNING_VMS']]            
             
-            puts
+                puts
         
-            print_header(str_h1,"IMAGE TEMPLATE",false)
+                print_header(str_h1,"IMAGE TEMPLATE",false)
         
-            puts image.template_str
-        else
-            puts image.to_xml
+                puts image.template_str
+            else
+                puts image.to_xml
+            end
         end
      end
     

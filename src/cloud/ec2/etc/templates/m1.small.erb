@@ -11,14 +11,11 @@ MEMORY = 256
 #       root       = sda1,
 #       kernel_cmd = "ro xencons=tty console=tty1"]
 
-DISK = [ source   = <%= erb_vm_info[:img_path] %>,
-         clone    = no,
-         target   = sda1,
-         readonly = no]
+DISK = [ IMAGE_ID   = <%= erb_vm_info[:img_id] %> ]
 
 NIC=[NETWORK="Public EC2"]
 
-IMAGE_ID = <%= erb_vm_info[:img_id] %>
+IMAGE_ID = <%= erb_vm_info[:ec2_img_id] %>
 INSTANCE_TYPE = <%= erb_vm_info[:instance_type ]%>
  
 <% if erb_vm_info[:user_data] %>

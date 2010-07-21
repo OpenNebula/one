@@ -15,38 +15,64 @@
 #--------------------------------------------------------------------------- #
 
 require 'OpenNebula'
-require 'erb'
 
 include OpenNebula
 
 class VirtualNetworkOCCI < VirtualNetwork
     OCCI_NETWORK = %q{
-        <NETWORK>
-            <ID><%= vn_hash['VNET']['ID'].strip %></ID>
-            <NAME><%= vn_hash['VNET']['NAME'].strip %></NAME>
-            <ADDRESS><%= vn_hash['VNET']['TEMPLATE']['NETWORK_ADDRESS'].strip %></ADDRESS>
-            <SIZE><%= vn_hash['VNET']['TEMPLATE']['NETWORK_SIZE'].strip %></SIZE>
+        <NETWORK href="<%= base_url %>/network/<%= self.id.to_s  %>">
+            <ID><%= self.id.to_s %></ID>
+            <NAME><%= self.name %></NAME>
+            <ADDRESS><%= self['TEMPLATE/NETWORK_ADDRESS'] %></ADDRESS>
+            <% if self['TEMPLATE/NETWORK_SIZE'] %>
+            <SIZE><%= self['TEMPLATE/NETWORK_SIZE'] %></SIZE>
+            <% end %>
         </NETWORK>
     }
 
     ONE_NETWORK = %q{
-        NAME            = <%= network_hash['NAME'] %>
+        NAME            = "<%= @vnet_info['NAME'] %>"
         TYPE            = RANGED
-        BRIDGE          = <%= bridge %>
-        NETWORK_ADDRESS = <%= network_hash['ADDRESS'] %>
-        NETWORK_SIZE    = <%= network_hash['SIZE'] %>
+        <% if @bridge %>
+        BRIDGE          = <%= @bridge %>
+        <% end %>
+        NETWORK_ADDRESS = <%= @vnet_info['ADDRESS'] %>
+        NETWORK_SIZE    = <%= @vnet_info['SIZE']%>
     }.gsub(/^        /, '')
 
-    # Creates the OCCI representation of a Virtual Network
-    def to_occi()
-        vn_hash = to_hash
+    # Class constructor
+    def initialize(xml, client, xml_info=nil, bridge=nil)
+        super(xml, client)
+        @bridge    = bridge
+        @vnet_info = nil
 
-        occi = ERB.new(OCCI_NETWORK)
-        return occi.result(binding).gsub(/\n\s*/,'')
+        if xml_info != nil
+            xmldoc     = XMLElement.build_xml(xml_info, 'NETWORK')
+            @vnet_info = XMLElement.new(xmldoc) if xmldoc != nil
+        end
     end
-    
-    def to_one_template(network_hash, bridge)
-         one = ERB.new(ONE_NETWORK)
-         return one.result(binding)
+
+    # Creates the OCCI representation of a Virtual Network
+    def to_occi(base_url)
+        begin
+            occi = ERB.new(OCCI_NETWORK)
+            occi_text = occi.result(binding)
+        rescue Exception => e
+            error = OpenNebula::Error.new(e.message)
+            return error
+        end
+
+        return occi_text.gsub(/\n\s*/,'')
+    end
+
+    def to_one_template()
+        if @vnet_info == nil
+            error_msg = "Missing NETWORK section in the XML body"
+            error = OpenNebula::Error.new(error_msg)
+            return error
+        end
+
+        one = ERB.new(ONE_NETWORK)
+        return one.result(binding)
     end
 end

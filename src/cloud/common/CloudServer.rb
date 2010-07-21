@@ -14,7 +14,6 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'repo_manager'
 require 'Configuration'
 require 'OpenNebula'
 require 'pp'
@@ -32,7 +31,7 @@ class CloudServer
     attr_reader :one_client
 
     # Initializes the Cloud server based on a config file
-    # config_file:: _String_ for the server. MUST include the following 
+    # config_file:: _String_ for the server. MUST include the following
     # variables:
     #   USER
     #   PASSWORD
@@ -44,7 +43,7 @@ class CloudServer
         # --- Load the Cloud Server configuration file ---
 
         @config = Configuration.new(config_file)
-        
+
         @instance_types = Hash.new
 
         if @config[:vm_type].kind_of?(Array)
@@ -55,13 +54,8 @@ class CloudServer
             @instance_types[@config[:vm_type]['NAME']]=@config[:vm_type]
         end
 
-        # --- Start a Repository Manager ---
-    
-        @rm = RepoManager.new(@config[:database])
-        Image.image_dir = @config[:image_dir]
-
         # --- Start an OpenNebula Session ---
-        
+
         @one_client = Client.new()
         @user_pool  = UserPool.new(@one_client)
     end
@@ -78,7 +72,7 @@ class CloudServer
         puts "--------------------------------------"
         puts "      Registered Instance Types       "
         puts "--------------------------------------"
-        pp @instance_types 
+        pp @instance_types
     end
 
     ###########################################################################
@@ -86,44 +80,22 @@ class CloudServer
     ###########################################################################
 
     # Generates an OpenNebula Session for the given user
-    # user:: _Hash_ the user information  
-    # [return] an OpenNebula client session 
-    def one_client_user(user)
+    # user:: _Hash_ the user information
+    # [return] an OpenNebula client session
+    def one_client_user(name, password)
         client = Client.new("dummy:dummy")
-        client.one_auth = "#{user[:name]}:#{user[:password]}"
-    
+        client.one_auth = "#{name}:#{password}"
+
         return client
-    end
-
-    # Authenticates a user
-    # name:: _String_ of the user
-    # password:: _String_ of the user
-    # [return] true if authenticated    
-    def authenticate?(name, password)
-        user = get_user(name)
-
-        return user && user.password == password
     end
 
     # Gets the data associated with a user
     # name:: _String_ the name of the user
     # [return] _Hash_ with the user data
-    def get_user(name)
-        user = nil
-    
+    def get_user_password(name)
         @user_pool.info
-        @user_pool.each{ |u|
-            if u.name==name
-                user=Hash.new
-
-                user[:id]       = u.id
-                user[:name]     = u.name
-                user[:password] = u[:password]
-            end
-        }
-        return user
-   end
-   
+        return @user_pool["USER[NAME=\"#{name}\"]/PASSWORD"]
+    end
 
     ###########################################################################
     # Repository Methods
@@ -134,18 +106,52 @@ class CloudServer
     # path:: _String_ path of the tmp file
     # metadata:: Additional metadata for the file
     # [return] _Image_ Newly created image object
-    def add_image(uid, file, metadata={})
-        image = @rm.add(uid,file.path,metadata)
-        file.unlink
+    def add_image(image, file=nil)
+        if file
+            if file[:tempfile]
+                file_path = file[:tempfile].path
+            else
+                error_msg = "Image not present, aborting."
+                error = OpenNebula::Error.new(error_msg)
+                return error
+            end
 
-        return image
-    end
+            if !File.exists?(file_path)
+                error_msg = "Image file could not be found, aborting."
+                error = OpenNebula::Error.new(error_msg)
+                return error
+            end
+        end
 
-    # Gets an image from the repository
-    # image_id:: _Integer_ Image identifier
-    # [return] _Image_ Image object
-    def get_image(image_id)
-        return @rm.get(image_id)
+        # ---------- Allocate the Image file ------------
+
+        rc = image.allocate(image.to_one_template)
+        if OpenNebula.is_error?(rc)
+           return rc
+        end
+
+        # ---------- Copy the Image file ------------
+
+        image.info
+
+        if file_path
+            rc = image.copy(file_path, image['SOURCE'])
+            file[:tempfile].unlink
+        elsif image['TEMPLATE/SIZE'] and 
+                        image['TEMPLATE/FSTYPE'] and 
+                        image['TEMPLATE/TYPE'] == 'DATABLOCK'
+            rc = image.mk_datablock(
+                            image['TEMPLATE/SIZE'],
+                            image['TEMPLATE/FSTYPE'],
+                            image['SOURCE'])
+        end
+
+        if OpenNebula.is_error?(rc)
+           image.delete
+           return rc
+        end
+
+        return nil
     end
 end
 

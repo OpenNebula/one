@@ -71,7 +71,7 @@ class OpenNebulaDriver < ActionManager
     def start_driver
         loop_thread = Thread.new { loop }
         start_listener
-        loop_thread.kill!
+        loop_thread.kill
     end
 
 private
