@@ -57,6 +57,14 @@ void RequestManager::VirtualMachineSaveDisk::execute(
     disk_id = xmlrpc_c::value_int(paramList.getInt(2));
     img_id  = xmlrpc_c::value_int(paramList.getInt(3));
 
+    //Authenticate the user
+    rc = VirtualMachineSaveDisk::upool->authenticate(session);
+
+    if ( rc == -1 )
+    {
+        goto error_authenticate;
+    }
+
     // Check that the image exists
     image = VirtualMachineSaveDisk::ipool->get(img_id,true);
 
@@ -78,19 +86,13 @@ void RequestManager::VirtualMachineSaveDisk::execute(
         goto error_vm_get;
     }
 
-    //Authenticate the user
-    rc = VirtualMachineSaveDisk::upool->authenticate(session);
+    vm_owner = vm->get_uid();
 
-    if ( rc == -1 )
-    {
-        goto error_authenticate;
-    }
+    vm->unlock();
 
     //Authorize the operation
     if ( rc != 0 ) // rc == 0 means oneadmin
     {
-        vm_owner  = vm->get_uid();
-
         AuthRequest ar(rc);
 
         ar.add_auth(AuthRequest::VM,vm_id,AuthRequest::MANAGE,vm_owner,false);
@@ -101,6 +103,13 @@ void RequestManager::VirtualMachineSaveDisk::execute(
         {
             goto error_authorize;
         }
+    }
+
+    vm = VirtualMachineSaveDisk::vmpool->get(vm_id,true);
+
+    if ( vm == 0 )
+    {
+        goto error_vm_get;
     }
 
     vm->save_disk(disk_id, img_id);

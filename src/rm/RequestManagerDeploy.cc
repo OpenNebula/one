@@ -53,12 +53,53 @@ void RequestManager::VirtualMachineDeploy::execute(
     NebulaLog::log("ReM",Log::DEBUG,"VirtualMachineDeploy invoked");
 
     //Parse Arguments
-
     session = xmlrpc_c::value_string(paramList.getString(0));
     vid     = xmlrpc_c::value_int(paramList.getInt(1));
     hid     = xmlrpc_c::value_int(paramList.getInt(2));
 
-    //Get host info to deploy the VM
+    // -------------------------------------------------------------------------
+    //                       Authenticate the user
+    // -------------------------------------------------------------------------
+    rc = VirtualMachineDeploy::upool->authenticate(session);
+
+    if ( rc == -1 )
+    {
+        goto error_authenticate;
+    }
+
+    // -------------------------------------------------------------------------
+    //                           Get user data
+    // -------------------------------------------------------------------------
+    vm = VirtualMachineDeploy::vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        goto error_vm_get;
+    }
+
+    uid = vm->get_uid();
+
+    vm->unlock();
+
+    // -------------------------------------------------------------------------
+    //                         Authorize the operation
+    // -------------------------------------------------------------------------
+    if ( rc != 0 ) // rc == 0 means oneadmin
+    {
+        AuthRequest ar(rc);
+
+        ar.add_auth(AuthRequest::VM,vid,AuthRequest::MANAGE,uid,false);
+        ar.add_auth(AuthRequest::HOST,hid,AuthRequest::USE,0,false);
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            goto error_authorize;
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    //                         Get host info to deploy the VM
+    // -------------------------------------------------------------------------
     host = VirtualMachineDeploy::hpool->get(hid,true);
 
     if ( host == 0 )
@@ -74,7 +115,9 @@ void RequestManager::VirtualMachineDeploy::execute(
 
     host->unlock();
 
-    //Get the VM
+    // -------------------------------------------------------------------------
+    //                         Deploy the VM
+    // -------------------------------------------------------------------------
     vm = VirtualMachineDeploy::vmpool->get(vid,true);
 
     if ( vm == 0 )
@@ -82,36 +125,11 @@ void RequestManager::VirtualMachineDeploy::execute(
         goto error_vm_get;
     }
 
-    uid = vm->get_uid();
-
     if ( vm->get_state() != VirtualMachine::PENDING )
     {
         goto error_state;
     }
 
-    //Authenticate the user
-    rc = VirtualMachineDeploy::upool->authenticate(session);
-
-    if ( rc == -1 )
-    {
-        goto error_authenticate;
-    }
-
-    //Authorize the operation
-    if ( rc != 0 ) // rc == 0 means oneadmin
-    {
-        AuthRequest ar(rc);
-
-        ar.add_auth(AuthRequest::VM,vid,AuthRequest::MANAGE,uid,false);
-        ar.add_auth(AuthRequest::HOST,hid,AuthRequest::USE,0,false);
-
-        if (UserPool::authorize(ar) == -1)
-        {
-            goto error_authorize;
-        }
-    }
-
-    //Update host info and share usage (cpu,mem....)
     vm->add_history(hid,hostname,vmdir,vmm_mad,tm_mad);
 
     rc = VirtualMachineDeploy::vmpool->update_history(vm);
@@ -123,12 +141,13 @@ void RequestManager::VirtualMachineDeploy::execute(
 
     vmpool->update(vm); //Insert last_seq in the DB
 
-    //Deploy the VM
     dm->deploy(vm);
 
     vm->unlock();
 
-    // Send results to client
+    // -------------------------------------------------------------------------
+    //                              Results
+    // -------------------------------------------------------------------------
     arrayData.push_back(xmlrpc_c::value_boolean(true));
 
     arrayresult = new xmlrpc_c::value_array(arrayData);
@@ -154,11 +173,11 @@ error_state:
 
 error_authenticate:
     oss.str(authenticate_error(method_name));
-    goto error_common_lock;
+    goto error_common;
 
 error_authorize:
     oss.str(authorization_error(method_name, "MANAGE", "VM", rc, vid));
-    goto error_common_lock;
+    goto error_common;
 
 error_history:
     oss.str(action_error(method_name, "INSERT HISTORY", "VM", vid, rc));
@@ -182,4 +201,3 @@ error_common:
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-
