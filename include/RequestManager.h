@@ -438,6 +438,34 @@ private:
         UserPool           * upool;
     };
 
+    /* ---------------------------------------------------------------------- */
+
+    class VirtualMachineSaveDisk: public xmlrpc_c::method
+    {
+    public:
+        VirtualMachineSaveDisk(
+            VirtualMachinePool * _vmpool,
+            UserPool           * _upool,
+            ImagePool          * _ipool):
+                vmpool(_vmpool),
+                upool(_upool),
+                ipool(_ipool)
+        {
+            _signature="A:siii";
+            _help="Sets the disk to be saved in the given image.";
+        };
+
+        ~VirtualMachineSaveDisk(){};
+
+        void execute(
+            xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retval);
+
+    private:
+        VirtualMachinePool * vmpool;
+        UserPool           * upool;
+        ImagePool          * ipool;
+    };
 
     /* ---------------------------------------------------------------------- */
 

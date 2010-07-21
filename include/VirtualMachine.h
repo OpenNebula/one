@@ -731,6 +731,18 @@ public:
      */
     int  generate_context(string &files);
 
+
+    // ------------------------------------------------------------------------
+    // Image repository related functions
+    // ------------------------------------------------------------------------
+    /**
+     *  Set the SAVE_AS attribute for the "disk_id"th disk.
+     *    @param  disk_id Index of the disk to save
+     *    @param  img_id ID of the image this disk will be saved to.
+     *    @return 0 if success
+     */
+    int  save_disk(int disk_id, int img_id);
+
 private:
 
     // -------------------------------------------------------------------------

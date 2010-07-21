@@ -1098,6 +1098,52 @@ int VirtualMachine::generate_context(string &files)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int VirtualMachine::save_disk(int disk_id, int img_id)
+{
+    int                   num_disks;
+    vector<Attribute  * > disks;
+    VectorAttribute *     disk;
+
+    string                disk_id_str;
+    int                   tmp_disk_id;
+
+    ostringstream oss;
+    istringstream iss;
+
+
+    num_disks  = vm_template->get("DISK",disks);
+
+    for(int i=0; i<num_disks; i++)
+    {
+        disk = dynamic_cast<VectorAttribute * >(disks[i]);
+
+        if ( disk == 0 )
+        {
+            continue;
+        }
+
+        disk_id_str = disk->vector_value("DISK_ID");
+
+        iss.str(disk_id_str);
+        iss >> tmp_disk_id;
+
+        if( tmp_disk_id == disk_id )
+        {
+            disk->replace("SAVE", "YES");
+
+            oss << (img_id);
+            disk->replace("SAVE_AS", oss.str());
+
+            return 0;
+        }
+    }
+
+    return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 pthread_mutex_t VirtualMachine::lex_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 extern "C"
