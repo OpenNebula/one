@@ -206,6 +206,7 @@ module OpenNebula
 
             begin
                 FileUtils.move(path, source)
+                FileUtils.chmod(0660, source)
             rescue Exception => e
                 return OpenNebula::Error.new(e.message)
             end
