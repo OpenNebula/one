@@ -49,49 +49,28 @@ class SimplePermissions
     def auth_object(uid, object, id, action, owner, pub)
         return true if uid=='0'
         
-        case object
-        when 'VM'
-            return auth_vm(uid, object, id, action, owner, pub)
-        when 'HOST'
-            return auth_host(uid, object, id, action, owner, pub)
-        else
-            return auth_generic(uid, object, id, action, owner, pub)
-        end
-    end
-    
-    def auth_vm(uid, object, id, action, owner, pub)
+        auth_result=false
+        
         case action
         when 'CREATE'
-            if @quota_enabled
-                STDERR.puts 'quota enabled'
-                @quota.update(uid.to_i)
-                if @quota.check(uid.to_i, get_vm_usage(id))
-                    return true
-                else
-                    return "Quota exceeded"
-                end
-            else
-                return true
-            end
-        else
-            auth_message(uid==owner, "You cannot manage VM #{id}")
-        end
-    end
-    
-    def auth_host(uid, object, id, action, owner, pub)
-        auth_message(action=='USE', 'Only oneadmin can manage hosts')
-    end
-    
-    def auth_generic(uid, object, id, action, owner, pub)
-        case action
-        when 'CREATE'
-            true
+            auth_result=true if %w{VM NET IMAGE}.include? object
+            
+        when 'DELETE'
+            auth_result = (owner == uid)
+            
         when 'USE'
-            auth_message(uid==owner || pub=='1', "You are not allowed to "<<
-                "#{action} #{object} #{id}")
-        else
-            auth_message(uid==owner, "You are not allowed to "<<
-                "#{action} #{object} #{id}")
+            if %w{VM NET IMAGE}.include? object
+                auth_result = ((owner == uid) || pub)
+            elsif object == 'HOST'
+                auth_result=true
+            end
+            
+        when 'MANAGE'
+            auth_result = (owner == uid)
+            
+        when 'INFO'
         end
+        
+        return auth_result
     end
 end
