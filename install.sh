@@ -94,6 +94,7 @@ if [ -z "$ROOT" ] ; then
     ETC_LOCATION="/etc/one"
     LOG_LOCATION="/var/log/one"
     VAR_LOCATION="/var/lib/one"
+    IMAGES_LOCATION="$VAR_LOCATION/images"
     RUN_LOCATION="/var/run/one"
     LOCK_LOCATION="/var/lock/one"
     INCLUDE_LOCATION="/usr/include"
@@ -102,7 +103,7 @@ if [ -z "$ROOT" ] ; then
     if [ "$CLIENT" = "no" ]; then
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION $VAR_LOCATION \
                    $INCLUDE_LOCATION $SHARE_LOCATION \
-                   $LOG_LOCATION $RUN_LOCATION $LOCK_LOCATION"
+                   $LOG_LOCATION $RUN_LOCATION $LOCK_LOCATION $IMAGES_LOCATION"
 
         DELETE_DIRS="$LIB_LOCATION $ETC_LOCATION $LOG_LOCATION $VAR_LOCATION \
                      $RUN_LOCATION $SHARE_DIRS"
@@ -121,12 +122,13 @@ else
     LIB_LOCATION="$ROOT/lib"
     ETC_LOCATION="$ROOT/etc"
     VAR_LOCATION="$ROOT/var"
+    IMAGES_LOCATION="$VAR_LOCATION/images"
     INCLUDE_LOCATION="$ROOT/include"
     SHARE_LOCATION="$ROOT/share"
 
     if [ "$CLIENT" = "no" ]; then
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION $VAR_LOCATION \
-                   $INCLUDE_LOCATION $SHARE_LOCATION"
+                   $INCLUDE_LOCATION $SHARE_LOCATION $IMAGES_LOCATION"
 
         DELETE_DIRS="$MAKE_DIRS"
 
@@ -481,7 +483,8 @@ TM_EXAMPLE_SHARE_FILES="share/examples/tm/tm_clone.sh \
 
 HOOK_SHARE_FILES="share/hooks/ebtables-xen \
                   share/hooks/ebtables-kvm \
-                  share/hooks/ebtables-flush"
+                  share/hooks/ebtables-flush \
+                  share/hooks/image.rb"
 
 #-------------------------------------------------------------------------------
 # Common Cloud Files
@@ -638,9 +641,16 @@ else
     done
 fi
 
+# --- Set correct permissions for Image Repository ---
+
+IMAGES_LOCATION=$(cd $IMAGES_LOCATION;pwd)
+chown 3770 $IMAGES_LOCATION
+
 # --- Substitute variables ---
 
-if [ $INSTALL_ETC="yes" ]; then
-    HOOK_LOCATION=$(cd $SHARE_LOCATION/hooks;pwd)
-    sed -i "s%\[ONE_HOOKS\]%$HOOK_LOCATION%" $ETC_LOCATION/oned.conf
+if [ "$CLIENT" = "no" -a $INSTALL_ETC="yes" ]; then
+    HOOKS_LOCATION=$(cd $SHARE_LOCATION/hooks;pwd)
+    sed -i -e "s%\[HOOKS_LOCATION\]%$HOOKS_LOCATION%" $ETC_LOCATION/oned.conf
+    sed -i -e "s%\[IMAGES_LOCATION\]%$IMAGES_LOCATION%" $ETC_LOCATION/oned.conf
 fi
+
