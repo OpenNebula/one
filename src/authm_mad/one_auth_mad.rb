@@ -36,10 +36,11 @@ require 'simple_auth'
 require 'simple_permissions'
 require 'yaml'
 require 'sequel'
+require 'ssh_auth'
 
 class AuthorizationManager < OpenNebulaDriver
     def initialize
-        super(1, false)
+        super(15, true)
         
         config_data=File.read(ETC_LOCATION+'/auth/auth.conf')
         STDERR.puts(config_data)
@@ -50,7 +51,19 @@ class AuthorizationManager < OpenNebulaDriver
         database_url=@config[:database]
         @db=Sequel.connect(database_url)
         
-        @authenticate=SimpleAuth.new
+        begin
+            driver_prefix=@config[:authentication].capitalize
+            driver_name="#{driver_prefix}Auth"
+            driver=Kernel.const_get(driver_name.to_sym)
+            @authenticate=driver.new
+            
+            log('-', "Using '#{driver_prefix}' driver for authentication")
+        rescue
+            log('-', "Driver '#{driver_prefix}' not found, "<<
+                "using SimpleAuth instead")
+            @authenticate=SimpleAuth.new
+        end
+        
         @permissions=SimplePermissions.new(@db, OpenNebula::Client.new,
             @config)
         
@@ -59,6 +72,7 @@ class AuthorizationManager < OpenNebulaDriver
     end
     
     def action_authenticate(request_id, user_id, user, password, token)
+        STDERR.puts [user_id, user, password, token].inspect
         auth=@authenticate.auth(user_id, user, password, token)
         if auth==true
             send_message('AUTHENTICATE', RESULT[:success],
