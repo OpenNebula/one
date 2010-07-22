@@ -644,7 +644,7 @@ fi
 # --- Set correct permissions for Image Repository ---
 
 IMAGES_LOCATION=$(cd $IMAGES_LOCATION;pwd)
-chown 3770 $IMAGES_LOCATION
+chmod 3770 $IMAGES_LOCATION
 
 # --- Substitute variables ---
 
