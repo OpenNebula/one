@@ -261,7 +261,8 @@ BIN_FILES="src/nebula/oned \
            src/cli/oneuser \
            src/cli/oneimage \
            src/cli/onecluster \
-           share/scripts/one"
+           share/scripts/one \
+           src/authm_mad/oneauth"
 
 #-------------------------------------------------------------------------------
 # C/C++ OpenNebula API Library & Development files

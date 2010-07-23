@@ -19,6 +19,16 @@ require 'spec_common'
 require 'client_mock'
 require 'simple_permissions'
 
+CONF=<<EOT
+:database: sqlite://auth.db
+:authentication: simple
+:quota:
+  :enabled: false
+  :defaults:
+    :cpu: 10.0
+    :memory: 1048576
+EOT
+
 def gen_tokens(user_, action_, options={})
     user=user_.to_s
     action=action_.to_s.upcase
@@ -48,8 +58,6 @@ def gen_tokens(user_, action_, options={})
     ]
     tokens<<"HOST:#{id}:#{action}:#{user}:#{pub}" if options[:host]
     
-    #pp tokens
-    
     tokens
 end
 
@@ -58,7 +66,7 @@ describe SimplePermissions do
         @db=Sequel.sqlite
         mock_data=YAML::load(File.read('spec/oca_vms.yaml'))
         client=ClientMock.new(mock_data)
-        @perm=SimplePermissions.new(@db, client)
+        @perm=SimplePermissions.new(@db, client, YAML::load(CONF))
     end
     
     it 'should let root manage everything' do

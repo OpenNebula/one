@@ -57,10 +57,10 @@ class AuthorizationManager < OpenNebulaDriver
             driver=Kernel.const_get(driver_name.to_sym)
             @authenticate=driver.new
             
-            log('-', "Using '#{driver_prefix}' driver for authentication")
+            STDERR.puts "Using '#{driver_prefix}' driver for authentication"
         rescue
-            log('-', "Driver '#{driver_prefix}' not found, "<<
-                "using SimpleAuth instead")
+            STDERR.puts "Driver '#{driver_prefix}' not found, "<<
+                "using SimpleAuth instead"
             @authenticate=SimpleAuth.new
         end
         
@@ -72,7 +72,6 @@ class AuthorizationManager < OpenNebulaDriver
     end
     
     def action_authenticate(request_id, user_id, user, password, token)
-        STDERR.puts [user_id, user, password, token].inspect
         auth=@authenticate.auth(user_id, user, password, token)
         if auth==true
             send_message('AUTHENTICATE', RESULT[:success],

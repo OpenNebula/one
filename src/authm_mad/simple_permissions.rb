@@ -33,8 +33,6 @@ class SimplePermissions
     end
     
     def auth(uid, tokens)
-        STDERR.puts [uid, tokens].inspect
-        
         result=true
         
         tokens.each do |token|
@@ -60,7 +58,7 @@ class SimplePermissions
             
         when 'USE'
             if %w{VM NET IMAGE}.include? object
-                auth_result = ((owner == uid) || pub)
+                auth_result = ((owner == uid) | pub)
             elsif object == 'HOST'
                 auth_result=true
             end

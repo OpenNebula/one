@@ -32,17 +32,17 @@ $: << RUBY_LIB_LOCATION
 
 
 require 'OpenNebula'
-require 'client_utilities'
-require 'command_parse'
 
 require 'rubygems'
 require 'sequel'
 require 'quota'
 require 'ssh_auth'
 
-class OneAuthCli < CommandParse
-    
-    COMMANDS_HELP=<<-EOT
+
+COMMANDS_HELP=<<-EOT
+Usage:
+    oneauth <command> [<parameters>]
+
 Commands:
 
 * create (Creates a new user)
@@ -56,22 +56,14 @@ Commands:
     
 * key (gets public key)
     oneauth key
+    
+* help (prints help)
+    oneauth help
 
 EOT
 
-    def text_commands
-        COMMANDS_HELP
-    end
-
-    def text_command_name
-        "oneauth"
-    end
-
-    def list_options
-        table=ShowTable.new(ShowTableUP)
-        table.print_help
-    end
-
+def print_help
+    puts COMMANDS_HELP
 end
 
 def get_database
@@ -88,9 +80,6 @@ def add_quota(uid, cpu, memory)
     quota.set(uid.to_i, cpu.to_f, memory.to_i, nil)
 end
 
-oneauth_opts=OneAuthCli.new
-oneauth_opts.parse(ARGV)
-ops=oneauth_opts.options
 
 result=[false, "Unknown error"]
 
@@ -143,8 +132,12 @@ when "key"
     
     exit 0
     
+when "help"
+    print_help
+    exit 0
+    
 else
-    oneauth_opts.print_help
+    print_help
     exit -1
 end
 
