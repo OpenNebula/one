@@ -16,16 +16,15 @@ class SimplePermissions
     def get_vm_usage(data)
         vm_xml=Base64::decode64(data)
         vm=OpenNebula::VirtualMachine.new(
-            OpenNebula::XMLUtilsElement.initialize_xml(vm_xml, 'VM'),
+            OpenNebula::XMLElement.build_xml(vm_xml, 'TEMPLATE'),
             OpenNebula::Client.new)
-        vm_hash=vm.to_hash
         
         # Should set more sensible defaults or get driver configuration
-        cpu=vm_hash['TEMPLATE']['CPU']
+        cpu=vm['CPU']
         cpu||=1.0
         cpu=cpu.to_f
         
-        memory=vm_hash['TEMPLATE']['MEMORY']
+        memory=vm['MEMORY']
         memory||=64
         memory=memory.to_f
         
@@ -52,6 +51,14 @@ class SimplePermissions
         case action
         when 'CREATE'
             auth_result=true if %w{VM NET IMAGE}.include? object
+            
+            if @quota_enabled and object=='VM' and auth_result
+                STDERR.puts 'quota enabled'
+                @quota.update(uid.to_i)
+                if !@quota.check(uid.to_i, get_vm_usage(id))
+                    auth_result="Quota exceeded"
+                end
+            end
             
         when 'DELETE'
             auth_result = (owner == uid)
