@@ -14,16 +14,19 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-
+# Password authentication module. This one just compares stored password
+# with the token sent by the client.
 class SimpleAuth
-    def initialize
-    end
-    
+    # Method called by authentication driver. It should awnser true if
+    # successful or a string with the error message if failure. All
+    # parameters are string extracted from the authorization message.
+    #
+    # * user_id: OpenNebula user identifier
+    # * user: user name
+    # * password: password stored in OpenNebula dabatase
+    # * token: password sent by the client trying to connect
     def auth(user_id, user, password, token)
-        STDERR.puts [user_id, user, password, token].inspect
-        STDERR.flush
         t_user, t_password=token.split(':')
-        #auth=(user==t_user && password==t_password)
         auth=(password==token)
         auth="Invalid credentials" if auth!=true
         auth
