@@ -37,6 +37,7 @@ require 'rubygems'
 require 'sequel'
 require 'quota'
 require 'ssh_auth'
+require 'client_utilities'
 
 
 COMMANDS_HELP=<<-EOT
@@ -122,7 +123,7 @@ when "create"
         
     result=user.allocate(ARGV[0], password)
     if !OpenNebula.is_error?(result)
-        puts "ID: " + user.id.to_s if ops[:verbose]
+        puts "ID: " + user.id.to_s
         exit 0
     end
     
