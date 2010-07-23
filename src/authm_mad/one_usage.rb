@@ -43,12 +43,8 @@ class OneUsage
     def update_user(user)
         @users[user]=Hash.new if !@users[user]
         
-        STDERR.puts Time.now.to_i
-        
         vmpool=OpenNebula::VirtualMachinePool.new(@client, user)
         vmpool.info
-        
-        STDERR.puts Time.now.to_i
         
         one_ids=vmpool.map {|vm| vm.id }
         vms=@users[user]
@@ -59,18 +55,13 @@ class OneUsage
         
         deleted_vms.each {|vmid| vms.delete(vmid) }
         
-        STDERR.puts Time.now.to_i
-        
         added_vms.each do |vmid|
             vm=OpenNebula::VirtualMachine.new(
                 OpenNebula::VirtualMachine.build_xml(vmid), @client)
-            STDERR.puts vm.info.inspect
-            STDERR.puts vm.inspect
-            STDERR.puts vm.to_hash.inspect
-            hash=vm.to_hash['VM']['TEMPLATE']
+            vm.info
             
-            STDERR.puts hash.inspect
-            usage=VmUsage.new(hash['CPU'].to_f, hash['MEMORY'].to_i)
+            usage=VmUsage.new(vm['TEMPLATE/CPU'].to_f,
+                vm['TEMPLATE/MEMORY'].to_i)
             vms[vmid.to_i]=usage
         end
         
