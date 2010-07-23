@@ -16,11 +16,10 @@ module OpenNebula
             :delete   => "image.delete"
         }
 
-        IMAGE_STATES=%w{INIT LOCKED READY USED DISABLED}
+        IMAGE_STATES=%w{INIT READY USED DISABLED}
 
         SHORT_IMAGE_STATES={
             "INIT"      => "init",
-            "LOCKED"    => "lock",
             "READY"     => "rdy",
             "USED"      => "used",
             "DISABLED"  => "disa"
