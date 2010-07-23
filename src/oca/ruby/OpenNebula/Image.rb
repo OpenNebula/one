@@ -180,8 +180,8 @@ module OpenNebula
         # Constants and Class Methods
         # ---------------------------------------------------------------------
         FS_UTILS = {
-            :dd     => "/bin/dd",
-            :mkfs   => "/bin/mkfs"
+            :dd     => "env dd",
+            :mkfs   => "env mkfs"
         }
 
         def copy(path, source)
@@ -221,7 +221,7 @@ module OpenNebula
             command = ""
             command << FS_UTILS[:dd]
             command << " if=/dev/zero of=#{source} ibs=1 count=1"
-            command << " obs=1048576 oseek=#{size}"
+            command << " obs=1048576 seek=#{size}"
 
             local_command=LocalCommand.run(command)
 
