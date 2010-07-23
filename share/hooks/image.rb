@@ -35,6 +35,7 @@ if !(vm_id=ARGV[0])
     exit -1
 end
 
+
 client = Client.new()
 
 vm = VirtualMachine.new(
@@ -53,18 +54,19 @@ vm.each('TEMPLATE/DISK') do |disk|
     
     if image_id and source_path
         image=Image.new(
-                Image.build_xml(image_id), 
+                Image.build_xml(image_id),
                 client)
                 
         result = image.info
-        exit -1 if !is_successful?(result) 
-        
+        exit -1 if OpenNebula.is_error?(result)
+
         # Disable the Image for a safe overwriting
         image.disable 
     
         # Save the image file
         result = image.move(source_path, image['SOURCE']) 
-        exit -1 if !is_successful?(result) 
+        
+        exit -1 if OpenNebula.is_error?(result)
     
         image.enable
     end
