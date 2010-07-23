@@ -717,7 +717,7 @@ when "saveas"
     
     # Build the template and allocate the new Image
     template = "NAME=#{image_name}\n"
-    template << "TYPE=#{image_type}\n" if type
+    template << "TYPE=#{image_type}\n" if image_type
 
     
     image = OpenNebula::Image.new(
@@ -731,7 +731,7 @@ when "saveas"
         exit -1
     end
     
-    result = vm.save_disk(disk_id.to_i, image.id)
+    result = vm.save_as(disk_id.to_i, image.id)
 
 when "save"
     check_parameters("save", 2)
@@ -751,7 +751,7 @@ when "save"
     
     image_id = vm["TEMPLATE/DISK[DISK_ID=\"#{disk_id}\"]/IMAGE_ID"]
     
-    result = vm.save_disk(disk_id.to_i, image_id)
+    result = vm.save_as(disk_id.to_i, image_id)
     
 when "show"
     check_parameters("get_info", 1)

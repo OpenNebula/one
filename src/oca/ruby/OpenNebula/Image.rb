@@ -192,6 +192,7 @@ module OpenNebula
 
             begin
                 FileUtils.copy(path, source)
+                FileUtils.chmod(0660, source)
             rescue Exception => e
                 return OpenNebula::Error.new(e.message)
             end
