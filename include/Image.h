@@ -159,11 +159,14 @@ public:
     {
         int rc = 0;
 
-        if ((to_enable == true) && (state == DISABLED))
+        if ( to_enable == true )
         {
-            state = READY;
+            if(state == DISABLED)
+            {
+                state = READY;
+            }
         }
-        else if ((to_enable == false) && (state == READY))
+        else if (state != USED) // to_enable == false
         {
             state = DISABLED;
         }

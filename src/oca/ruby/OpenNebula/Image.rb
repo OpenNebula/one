@@ -16,11 +16,10 @@ module OpenNebula
             :delete   => "image.delete"
         }
 
-        IMAGE_STATES=%w{INIT LOCKED READY USED DISABLED}
+        IMAGE_STATES=%w{INIT READY USED DISABLED}
 
         SHORT_IMAGE_STATES={
             "INIT"      => "init",
-            "LOCKED"    => "lock",
             "READY"     => "rdy",
             "USED"      => "used",
             "DISABLED"  => "disa"
@@ -181,8 +180,8 @@ module OpenNebula
         # Constants and Class Methods
         # ---------------------------------------------------------------------
         FS_UTILS = {
-            :dd     => "/bin/dd",
-            :mkfs   => "/bin/mkfs"
+            :dd     => "env dd",
+            :mkfs   => "env mkfs"
         }
 
         def copy(path, source)
@@ -192,6 +191,7 @@ module OpenNebula
 
             begin
                 FileUtils.copy(path, source)
+                FileUtils.chmod(0660, source)
             rescue Exception => e
                 return OpenNebula::Error.new(e.message)
             end
@@ -222,7 +222,7 @@ module OpenNebula
             command = ""
             command << FS_UTILS[:dd]
             command << " if=/dev/zero of=#{source} ibs=1 count=1"
-            command << " obs=1048576 oseek=#{size}"
+            command << " obs=1048576 seek=#{size}"
 
             local_command=LocalCommand.run(command)
 

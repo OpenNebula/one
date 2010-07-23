@@ -28,8 +28,6 @@ end
 
 $: << RUBY_LIB_LOCATION
 
-require 'fileutils'
-
 require 'OpenNebula'
 include OpenNebula
 
@@ -44,33 +42,30 @@ vm = VirtualMachine.new(
                 client)
 vm.info
 
-if vm['TEMPLATE/DISK']
-    vm.each('TEMPLATE/DISK') do |disk| 
+vm.each('TEMPLATE/DISK') do |disk| 
+    disk_id     = disk["DISK_ID"]
+    source_path = VMDIR+"/#{vm_id}/disk.#{disk_id}"
+    
+    image_id = nil
+    if disk["SAVE_AS"] 
+        image_id = disk["SAVE_AS"]
+    end
+    
+    if image_id and source_path
+        image=Image.new(
+                Image.build_xml(image_id), 
+                client)
+                
+        result = image.info
+        exit -1 if !is_successful?(result) 
         
-        disk_id     = disk["DISK_ID"]
-        source_path = VMDIR+"/#{vm_id}/disk.#{disk_id}"
-        
-        image_id = nil
-        if disk["SAVE_AS"] 
-            image_id = disk["SAVE_AS"]
-        end
-        
-        if image_id and source_path
-            image=Image.new(
-                    Image.build_xml(image_id), 
-                    client)
-                    
-            result = image.info
-            exit -1 if !is_successful?(result) 
-            
-            # Disable the Image for a safe overwriting
-            image.disable 
-        
-            # Save the image file
-            result = image.move(source_path, image['SOURCE']) 
-            exit -1 if !is_successful?(result) 
-        
-            image.enable
-        end
+        # Disable the Image for a safe overwriting
+        image.disable 
+    
+        # Save the image file
+        result = image.move(source_path, image['SOURCE']) 
+        exit -1 if !is_successful?(result) 
+    
+        image.enable
     end
 end

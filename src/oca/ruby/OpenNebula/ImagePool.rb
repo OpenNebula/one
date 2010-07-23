@@ -16,7 +16,7 @@ module OpenNebula
         
         # +client+ a Client object that represents a XML-RPC connection
         # +user_id+ is to refer to a Pool with Images from that user
-        def initialize(client, user_id=0)
+        def initialize(client, user_id=-1)
             super('IMAGE_POOL','IMAGE',client)
 
             @user_id  = user_id
