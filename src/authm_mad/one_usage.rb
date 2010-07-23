@@ -64,8 +64,6 @@ class OneUsage
                 vm['TEMPLATE/MEMORY'].to_i)
             vms[vmid.to_i]=usage
         end
-        
-        STDERR.puts Time.now.to_i
     end
     
     # Returns the cache of defined VMs for a user. It is a hash with
