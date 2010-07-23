@@ -101,6 +101,10 @@ module OpenNebula
         def copy(path, source)
             @immanager.copy(path, source)
         end
+        
+        def move(path, source)
+            @immanager.move(path, source)
+        end
 
         def mk_datablock(size, fstype, source)
             rc = @immanager.dd(size, source)
