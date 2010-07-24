@@ -29,6 +29,7 @@ void RequestManager::ImageEnable::execute(
     xmlrpc_c::value *   const  retval)
 {
     string              session;
+    string              err_msg;
 
     int                 iid;
     bool                enable_flag; 
@@ -136,7 +137,13 @@ error_authorize:
     goto error_common;
     
 error_enable:
-    oss.str(action_error(method_name, "ENABLE/DISABLE", "IMAGE", iid, rc));
+    if (enable_flag == TRUE)
+    {
+        err_msg = "ENABLE";
+    } else {
+        err_msg = "DISABLE";
+    }
+    oss.str(action_error(method_name, err_msg, "IMAGE", iid, rc));
     image->unlock();
     goto error_common;
 
