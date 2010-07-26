@@ -120,10 +120,16 @@ EOT
         table=ShowTable.new(ShowTableUP)
         table.print_help
     end
-
+    
+    def special_options(opts, options)
+        opts.on_tail("-n", "--no-hash", "Store plain password "<<
+                "into the database") do |o|
+            options[:no_hash]=true
+        end
+    end
 end
 
-oneup_opts=OneUPParse.new
+oneup_opts=OneUPParse.new([:list])
 oneup_opts.parse(ARGV)
 ops=oneup_opts.options
 
@@ -136,8 +142,12 @@ when "create"
     check_parameters("create", 2)
     user=OpenNebula::User.new(
         OpenNebula::User.build_xml, get_one_client)
-    sha_password = Digest::SHA1.hexdigest(ARGV[1])
-    result=user.allocate(ARGV[0],sha_password)
+    if ops[:no_hash]
+        sha_password = ARGV[1]
+    else
+        sha_password = Digest::SHA1.hexdigest(ARGV[1])
+    end
+    result=user.allocate(ARGV[0], sha_password)
     if !OpenNebula.is_error?(result)
         puts "ID: " + user.id.to_s if ops[:verbose]
         exit 0
