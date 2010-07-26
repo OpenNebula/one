@@ -65,7 +65,7 @@ class SimplePermissions
             
         when 'USE'
             if %w{VM NET IMAGE}.include? object
-                auth_result = ((owner == uid) | pub=='1')
+                auth_result = ((owner == uid) | (pub=='1'))
             elsif object == 'HOST'
                 auth_result=true
             end

@@ -61,13 +61,13 @@ vm.each('TEMPLATE/DISK') do |disk|
         exit -1 if OpenNebula.is_error?(result)
 
         # Disable the Image for a safe overwriting
-        image.disable 
+        # image.disable
     
         # Save the image file
         result = image.move(source_path, image['SOURCE']) 
         
         exit -1 if OpenNebula.is_error?(result)
     
-        image.enable
+        # image.enable
     end
 end

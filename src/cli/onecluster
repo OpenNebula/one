@@ -122,7 +122,7 @@ EOT
 
 end
 
-oneup_opts=OneUPParse.new
+oneup_opts=OneUPParse.new([:list, :xml])
 oneup_opts.parse(ARGV)
 ops=oneup_opts.options
 

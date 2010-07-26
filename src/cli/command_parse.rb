@@ -35,52 +35,24 @@ OpenNebula 1.5.0
 Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)
 EOT
     
-    def initialize
+    def initialize(standard_options=nil)
         @options=Hash.new
-    
+        if standard_options
+            @standard_options=standard_options
+        else
+            @standard_options=[:list, :top, :xml]
+        end
+        
         @cmdparse=OptionParser.new do |opts|
             opts.banner=text_banner
             
-            opts.on("-l x,y,z", "--list x,y,z", Array, 
-                    "Selects columns to display with list", "command") do |o|
-                @options[:list]=o.collect {|c| c.to_sym }
-            end
+            execute_standard_options(opts, @options)
+            special_options(opts, @options)
             
-            opts.on("--list-columns", "Information about the columns available",
-                    "to display, order or filter") do |o|
-                puts list_options
-                exit
-            end
-            
-            opts.on("-o x,y,z", "--order x,y,z", Array, 
-                    "Order by these columns, column starting",
-                    "with - means decreasing order") do |o|
-                @options[:order]=o
-            end
-            
-            opts.on("-f x,y,z", "--filter x,y,z", Array,
-                    "Filter data. An array is specified", "with column=value pairs.") do |o|
-                @options[:filter]=Hash.new
-                o.each {|i|
-                    k,v=i.split('=')
-                    @options[:filter][k]=v
-                }
-            end
-            
-            opts.on("-d seconds", "--delay seconds", Integer,
-                    "Sets the delay in seconds for top", "command") do |o|
-                @options[:delay]=o
-            end
-
-            opts.on("-v", "--verbose", 
+            opts.on("-v", "--verbose",
                     "Tells more information if the command",
                     "is successful") do |o|
                 @options[:verbose]=true
-            end
-
-            opts.on("-x", "--xml",
-                    "Returns xml instead of human readable text") do |o|
-                @options[:xml]=true
             end
             
             opts.on_tail("-h", "--help", "Shows this help message") do |o|
@@ -103,6 +75,62 @@ EOT
             puts e.message
             exit -1
         end
+    end
+    
+    def opts_list(opts, options)
+        opts.on("-l x,y,z", "--list x,y,z", Array,
+                "Selects columns to display with list", "command") do |o|
+            options[:list]=o.collect {|c| c.to_sym }
+        end
+        
+        opts.on("--list-columns", "Information about the columns available",
+                "to display, order or filter") do |o|
+            puts list_options
+            exit
+        end
+        
+        opts.on("-o x,y,z", "--order x,y,z", Array,
+                "Order by these columns, column starting",
+                "with - means decreasing order") do |o|
+            options[:order]=o
+        end
+        
+        opts.on("-f x,y,z", "--filter x,y,z", Array,
+                "Filter data. An array is specified", "with column=value pairs.") do |o|
+            options[:filter]=Hash.new
+            o.each {|i|
+                k,v=i.split('=')
+                options[:filter][k]=v
+            }
+        end
+    end
+    
+    def opts_top(opts, options)
+        opts.on("-d seconds", "--delay seconds", Integer,
+                "Sets the delay in seconds for top", "command") do |o|
+            options[:delay]=o
+        end
+    end
+    
+    def opts_xml(opts, options)
+        opts.on("-x", "--xml",
+                "Returns xml instead of human readable text") do |o|
+            options[:xml]=true
+        end
+    end
+    
+    def set_standard_options(options)
+        @standard_options=options
+    end
+    
+    def execute_standard_options(opts, options)
+        @standard_options.each do |op|
+            sym="opts_#{op}".to_sym
+            self.send(sym, opts, options) if self.respond_to?(sym)
+        end
+    end
+    
+    def special_options(opts, options)
     end
     
     def options
