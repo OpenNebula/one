@@ -180,7 +180,7 @@ EOT
 
 end
 
-onevn_opts=OneVNParse.new
+onevn_opts=OneVNParse.new([:list, :xml])
 onevn_opts.parse(ARGV)
 ops=onevn_opts.options
 
