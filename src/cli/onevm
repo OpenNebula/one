@@ -716,7 +716,7 @@ when "saveas"
     end
     
     # Build the template and allocate the new Image
-    template = "NAME=#{image_name}\n"
+    template = "NAME=\"#{image_name}\"\n"
     template << "TYPE=#{image_type}\n" if image_type
 
     
