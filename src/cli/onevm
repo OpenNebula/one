@@ -391,7 +391,8 @@ EOT
     end
 
     def special_options(opts, options)
-        opts.on_tail("-t", "--type", "Image type") do |o|
+        opts.on("-t type", "--type type", String,
+                "Image type") do |o|
             options[:type]=o
         end
     end
