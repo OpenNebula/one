@@ -1113,7 +1113,7 @@ int VirtualMachine::save_disk(int disk_id, int img_id)
 
     num_disks  = vm_template->get("DISK",disks);
 
-    for(int i=0; i<num_disks; i++)
+    for(int i=0; i<num_disks; i++, iss.clear())
     {
         disk = dynamic_cast<VectorAttribute * >(disks[i]);
 
