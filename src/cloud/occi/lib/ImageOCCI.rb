@@ -68,8 +68,8 @@ class ImageOCCI < Image
         size = nil
 
         begin
-            if self['TEMPLATE/SOURCE'] != nil
-                size = File.stat(self['TEMPLATE/SOURCE']).size
+            if self['SOURCE'] != nil and File.exists?(self['SOURCE'])
+                size = File.stat(self['SOURCE']).size
             end
         rescue Exception => e
             error = OpenNebula::Error.new(e.message)
