@@ -346,6 +346,9 @@ Commands:
 * saveas (Set the specified vm's disk to be saved in a new image (image_name) 
             when the vm shutdowns)
     onevm saveas <vm_id> <disk_id> <image_name>
+    
+         (Set a different type for the new Image)
+    onevm saveas <vm_id> <disk_id> <image_name> -t/--type <type>
         
 * delete (Deletes a VM from the pool and DB)
     onevm delete <vm_id>
@@ -387,6 +390,12 @@ EOT
         table.print_help
     end
 
+    def special_options(opts, options)
+        opts.on("-t type", "--type type", String,
+                "Image type") do |o|
+            options[:type]=o
+        end
+    end
 end
 
 
@@ -687,27 +696,27 @@ when "saveas"
                 get_one_client)
                 
     result = vm.info
-    if !is_successful?(result) 
+    if !is_successful?(result)
         puts result.message
         exit -1
     end
-    
-    image_id = vm["TEMPLATE/DISK[DISK_ID=\"#{disk_id}\"]/IMAGE_ID"]
-    
-    # Get the image type 
-    image = OpenNebula::Image.new(
-                OpenNebula::Image.build_xml(image_id),
-                get_one_client)
-    
-    result = image.info
-    if !is_successful?(result) 
-        puts result.message
-        exit -1
-    end
-    
+        
     if ops[:type]
         image_type = ops[:type]
     else
+        image_id = vm["TEMPLATE/DISK[DISK_ID=\"#{disk_id}\"]/IMAGE_ID"]
+        
+        # Get the image type 
+        image = OpenNebula::Image.new(
+                    OpenNebula::Image.build_xml(image_id),
+                    get_one_client)
+        
+        result = image.info
+        if !is_successful?(result)
+            puts result.message
+            exit -1
+        end
+        
         image_type = image.type_str
     end
     
@@ -717,12 +726,12 @@ when "saveas"
 
     
     image = OpenNebula::Image.new(
-                            OpenNebula::Image.build_xml, 
+                            OpenNebula::Image.build_xml,
                             get_one_client)
                             
     result = image.allocate(template)
     
-    if !is_successful?(result) 
+    if !is_successful?(result)
         puts result.message
         exit -1
     end

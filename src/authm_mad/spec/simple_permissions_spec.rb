@@ -92,7 +92,7 @@ describe SimplePermissions do
         @perm.auth(1, gen_tokens(1, :create, :host => false)).should == true
         @perm.auth(1, gen_tokens(1, :delete, :host => false)).should == true
         @perm.auth(1, gen_tokens(1, :manage, :host => false)).should == true
-        @perm.auth(1, gen_tokens(1, :use)).should == true        
+        @perm.auth(1, gen_tokens(1, :use)).should == true
     end
 end
 

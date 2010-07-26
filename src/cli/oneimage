@@ -492,24 +492,31 @@ when "show"
 when "delete"
     check_parameters("delete", 1)
     args=expand_args(ARGV)
-    
+
     args.each do |param|
         image_id=get_image_id(param)
-    
+
         image=OpenNebula::Image.new_with_id(image_id, get_one_client)
-    
-        result=image.delete
+
+        result = image.info
+
         if is_successful?(result)
-            puts "Image correctly deleted"  if ops[:verbose]
-        else
-            break
+
+            file_path = image['SOURCE']
+
+            result=image.delete
+
+            if is_successful?(result)
+                FileUtils.rm(file_path) if File.exists?(file_path)
+                puts "Image correctly deleted"  if ops[:verbose]
+            end
         end
     end
 
 else
     oneimage_opts.print_help
     exit -1
-end   
+end
 
 if OpenNebula.is_error?(result)
     puts "Error: " + result.message
