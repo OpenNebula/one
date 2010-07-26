@@ -28,28 +28,20 @@ module OpenNebula
                 vn.class.to_s.should eql("OpenNebula::VirtualNetwork")
                 if vn.id == 4
                     vn.name.should eql('Red LAN')
+                    vn['UID'].should eql('0')
+                    vn['USERNAME'].should eql('oneadmin')
+                    vn['TYPE'].should eql('0')
+                    vn['BRIDGE'].should eql('vbr0')
+                    vn['TOTAL_LEASES'].should eql('0')
                 elsif vn.id == 5
                     vn.name.should eql('Public')
+                    vn['UID'].should eql('0')
+                    vn['USERNAME'].should eql('oneadmin')
+                    vn['TYPE'].should eql('0')
+                    vn['BRIDGE'].should eql('vbr0')
+                    vn['TOTAL_LEASES'].should eql('1')
                 end
             }
-        end
-        
-        it "should get a hash representation of the VNET_POOL" do
-            vnet_hash = @vnet_pool.to_hash
-            vnet_hash['VNET_POOL']['VNET'][0]['ID'].should eql('4')
-            vnet_hash['VNET_POOL']['VNET'][0]['UID'].should eql('0')
-            vnet_hash['VNET_POOL']['VNET'][0]['USERNAME'].should eql('oneadmin')
-            vnet_hash['VNET_POOL']['VNET'][0]['NAME'].should eql('Red LAN')
-            vnet_hash['VNET_POOL']['VNET'][0]['TYPE'].should eql('0')
-            vnet_hash['VNET_POOL']['VNET'][0]['BRIDGE'].should eql('vbr0')
-            vnet_hash['VNET_POOL']['VNET'][0]['TOTAL_LEASES'].should eql('0')
-            vnet_hash['VNET_POOL']['VNET'][1]['ID'].should eql('5')
-            vnet_hash['VNET_POOL']['VNET'][1]['UID'].should eql('0')
-            vnet_hash['VNET_POOL']['VNET'][1]['USERNAME'].should eql('oneadmin')
-            vnet_hash['VNET_POOL']['VNET'][1]['NAME'].should eql('Public')
-            vnet_hash['VNET_POOL']['VNET'][1]['TYPE'].should eql('0')
-            vnet_hash['VNET_POOL']['VNET'][1]['BRIDGE'].should eql('vbr0')
-            vnet_hash['VNET_POOL']['VNET'][1]['TOTAL_LEASES'].should eql('1')
         end
     end
     
@@ -76,28 +68,20 @@ module OpenNebula
                 vn.class.to_s.should eql("OpenNebula::VirtualNetwork")
                 if vn.id == 4
                     vn.name.should eql('Red LAN')
+                    vn['UID'].should eql('0')
+                    vn['USERNAME'].should eql('oneadmin')
+                    vn['TYPE'].should eql('0')
+                    vn['BRIDGE'].should eql('vbr0')
+                    vn['TOTAL_LEASES'].should eql('0')
                 elsif vn.id == 5
                     vn.name.should eql('Public')
+                    vn['UID'].should eql('0')
+                    vn['USERNAME'].should eql('oneadmin')
+                    vn['TYPE'].should eql('0')
+                    vn['BRIDGE'].should eql('vbr0')
+                    vn['TOTAL_LEASES'].should eql('1')
                 end
             }
-        end
-        
-        it "should get a hash representation of the VNET_POOL" do
-            vnet_hash = @vnet_pool.to_hash
-            vnet_hash['VNET_POOL']['VNET'][0]['ID'].should eql('4')
-            vnet_hash['VNET_POOL']['VNET'][0]['UID'].should eql('0')
-            vnet_hash['VNET_POOL']['VNET'][0]['USERNAME'].should eql('oneadmin')
-            vnet_hash['VNET_POOL']['VNET'][0]['NAME'].should eql('Red LAN')
-            vnet_hash['VNET_POOL']['VNET'][0]['TYPE'].should eql('0')
-            vnet_hash['VNET_POOL']['VNET'][0]['BRIDGE'].should eql('vbr0')
-            vnet_hash['VNET_POOL']['VNET'][0]['TOTAL_LEASES'].should eql('0')
-            vnet_hash['VNET_POOL']['VNET'][1]['ID'].should eql('5')
-            vnet_hash['VNET_POOL']['VNET'][1]['UID'].should eql('0')
-            vnet_hash['VNET_POOL']['VNET'][1]['USERNAME'].should eql('oneadmin')
-            vnet_hash['VNET_POOL']['VNET'][1]['NAME'].should eql('Public')
-            vnet_hash['VNET_POOL']['VNET'][1]['TYPE'].should eql('0')
-            vnet_hash['VNET_POOL']['VNET'][1]['BRIDGE'].should eql('vbr0')
-            vnet_hash['VNET_POOL']['VNET'][1]['TOTAL_LEASES'].should eql('1')
         end
     end
 end

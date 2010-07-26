@@ -23,22 +23,14 @@ module OpenNebula
                 user.class.to_s.should eql("OpenNebula::User")
                 if user.id == 0
                     user.name.should eql('oneadmin')
+                    user['PASSWORD'].should eql('f13a1234833436f71ab846572d251c0d40391e72')
+                    user['ENABLED'].should eql('True')
                 elsif user.id == 1
                     user.name.should eql('dan')
+                    user['PASSWORD'].should eql('d22a12348334v33f71ba846572d25250d40701e72')
+                    user['ENABLED'].should eql('False')
                 end
             }
-        end
-        
-        it "should get a hash representation of the USER_POOL" do
-            user_hash = @user_pool.to_hash
-            user_hash['USER_POOL']['USER'][0]['ID'].should eql('0')
-            user_hash['USER_POOL']['USER'][0]['NAME'].should eql('oneadmin')
-            user_hash['USER_POOL']['USER'][0]['PASSWORD'].should eql('f13a1234833436f71ab846572d251c0d40391e72')
-            user_hash['USER_POOL']['USER'][0]['ENABLED'].should eql('True')
-            user_hash['USER_POOL']['USER'][1]['ID'].should eql('1')
-            user_hash['USER_POOL']['USER'][1]['NAME'].should eql('dan')
-            user_hash['USER_POOL']['USER'][1]['PASSWORD'].should eql('d22a12348334v33f71ba846572d25250d40701e72')
-            user_hash['USER_POOL']['USER'][1]['ENABLED'].should eql('False')
         end
     end
     
@@ -60,22 +52,14 @@ module OpenNebula
                 user.class.to_s.should eql("OpenNebula::User")
                 if user.id == 0
                     user.name.should eql('oneadmin')
+                    user['PASSWORD'].should eql('f13a1234833436f71ab846572d251c0d40391e72')
+                    user['ENABLED'].should eql('True')
                 elsif user.id == 1
                     user.name.should eql('dan')
+                    user['PASSWORD'].should eql('d22a12348334v33f71ba846572d25250d40701e72')
+                    user['ENABLED'].should eql('False')
                 end
             }
-        end
-        
-        it "should get a hash representation of the USER_POOL" do
-            user_hash = @user_pool.to_hash
-            user_hash['USER_POOL']['USER'][0]['ID'].should eql('0')
-            user_hash['USER_POOL']['USER'][0]['NAME'].should eql('oneadmin')
-            user_hash['USER_POOL']['USER'][0]['PASSWORD'].should eql('f13a1234833436f71ab846572d251c0d40391e72')
-            user_hash['USER_POOL']['USER'][0]['ENABLED'].should eql('True')
-            user_hash['USER_POOL']['USER'][1]['ID'].should eql('1')
-            user_hash['USER_POOL']['USER'][1]['NAME'].should eql('dan')
-            user_hash['USER_POOL']['USER'][1]['PASSWORD'].should eql('d22a12348334v33f71ba846572d25250d40701e72')
-            user_hash['USER_POOL']['USER'][1]['ENABLED'].should eql('False')
         end
     end
 end

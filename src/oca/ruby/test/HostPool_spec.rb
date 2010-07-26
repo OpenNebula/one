@@ -23,30 +23,22 @@ module OpenNebula
                 host.class.to_s.should eql("OpenNebula::Host")
                 if host.id == 0
                     host.name.should eql('dummyhost')
+                    host['STATE'].should eql('2')
+                    host['IM_MAD'].should eql('im_dummy')
+                    host['HOST_SHARE/MEM_USAGE'].should eql('1572864')
+                    host['HOST_SHARE/CPU_USAGE'].should eql('300')
+                    host['HOST_SHARE/FREE_MEM'].should eql('16777216')
+                    host['HOST_SHARE/RUNNING_VMS'].should eql('3')
                 elsif host.id == 1
                     host.name.should eql('thost')
+                    host['STATE'].should eql('2')
+                    host['IM_MAD'].should eql('im_dummy')
+                    host['HOST_SHARE/MEM_USAGE'].should eql('0')
+                    host['HOST_SHARE/CPU_USAGE'].should eql('0')
+                    host['HOST_SHARE/FREE_MEM'].should eql('16777216')
+                    host['HOST_SHARE/RUNNING_VMS'].should eql('0')
                 end
             }
-        end
-        
-        it "should get a hash representation of the HOST_POOL" do
-            host_hash = @host_pool.to_hash
-            host_hash['HOST_POOL']['HOST'][0]['ID'].should eql('0')
-            host_hash['HOST_POOL']['HOST'][0]['NAME'].should eql('dummyhost')
-            host_hash['HOST_POOL']['HOST'][0]['STATE'].should eql('2')
-            host_hash['HOST_POOL']['HOST'][0]['IM_MAD'].should eql('im_dummy')
-            host_hash['HOST_POOL']['HOST'][0]['HOST_SHARE']['MEM_USAGE'].should eql('1572864')
-            host_hash['HOST_POOL']['HOST'][0]['HOST_SHARE']['CPU_USAGE'].should eql('300')
-            host_hash['HOST_POOL']['HOST'][0]['HOST_SHARE']['FREE_MEM'].should eql('16777216')
-            host_hash['HOST_POOL']['HOST'][0]['HOST_SHARE']['RUNNING_VMS'].should eql('3')
-            host_hash['HOST_POOL']['HOST'][1]['ID'].should eql('1')
-            host_hash['HOST_POOL']['HOST'][1]['NAME'].should eql('thost')
-            host_hash['HOST_POOL']['HOST'][1]['STATE'].should eql('2')
-            host_hash['HOST_POOL']['HOST'][1]['IM_MAD'].should eql('im_dummy')
-            host_hash['HOST_POOL']['HOST'][1]['HOST_SHARE']['MEM_USAGE'].should eql('0')
-            host_hash['HOST_POOL']['HOST'][1]['HOST_SHARE']['CPU_USAGE'].should eql('0')
-            host_hash['HOST_POOL']['HOST'][1]['HOST_SHARE']['FREE_MEM'].should eql('16777216')
-            host_hash['HOST_POOL']['HOST'][1]['HOST_SHARE']['RUNNING_VMS'].should eql('0')
         end
     end
     
@@ -68,30 +60,22 @@ module OpenNebula
                 host.class.to_s.should eql("OpenNebula::Host")
                 if host.id == 0
                     host.name.should eql('dummyhost')
+                    host['STATE'].should eql('2')
+                    host['IM_MAD'].should eql('im_dummy')
+                    host['HOST_SHARE/MEM_USAGE'].should eql('1572864')
+                    host['HOST_SHARE/CPU_USAGE'].should eql('300')
+                    host['HOST_SHARE/FREE_MEM'].should eql('16777216')
+                    host['HOST_SHARE/RUNNING_VMS'].should eql('3')
                 elsif host.id == 1
                     host.name.should eql('thost')
+                    host['STATE'].should eql('2')
+                    host['IM_MAD'].should eql('im_dummy')
+                    host['HOST_SHARE/MEM_USAGE'].should eql('0')
+                    host['HOST_SHARE/CPU_USAGE'].should eql('0')
+                    host['HOST_SHARE/FREE_MEM'].should eql('16777216')
+                    host['HOST_SHARE/RUNNING_VMS'].should eql('0')
                 end
             }
-        end
-        
-        it "should get a hash representation of the HOST_POOL" do
-            host_hash = @host_pool.to_hash
-            host_hash['HOST_POOL']['HOST'][0]['ID'].should eql('0')
-            host_hash['HOST_POOL']['HOST'][0]['NAME'].should eql('dummyhost')
-            host_hash['HOST_POOL']['HOST'][0]['STATE'].should eql('2')
-            host_hash['HOST_POOL']['HOST'][0]['IM_MAD'].should eql('im_dummy')
-            host_hash['HOST_POOL']['HOST'][0]['HOST_SHARE']['MEM_USAGE'].should eql('1572864')
-            host_hash['HOST_POOL']['HOST'][0]['HOST_SHARE']['CPU_USAGE'].should eql('300')
-            host_hash['HOST_POOL']['HOST'][0]['HOST_SHARE']['FREE_MEM'].should eql('16777216')
-            host_hash['HOST_POOL']['HOST'][0]['HOST_SHARE']['RUNNING_VMS'].should eql('3')
-            host_hash['HOST_POOL']['HOST'][1]['ID'].should eql('1')
-            host_hash['HOST_POOL']['HOST'][1]['NAME'].should eql('thost')
-            host_hash['HOST_POOL']['HOST'][1]['STATE'].should eql('2')
-            host_hash['HOST_POOL']['HOST'][1]['IM_MAD'].should eql('im_dummy')
-            host_hash['HOST_POOL']['HOST'][1]['HOST_SHARE']['MEM_USAGE'].should eql('0')
-            host_hash['HOST_POOL']['HOST'][1]['HOST_SHARE']['CPU_USAGE'].should eql('0')
-            host_hash['HOST_POOL']['HOST'][1]['HOST_SHARE']['FREE_MEM'].should eql('16777216')
-            host_hash['HOST_POOL']['HOST'][1]['HOST_SHARE']['RUNNING_VMS'].should eql('0')
         end
     end
 end

@@ -67,22 +67,6 @@ module OpenNebula
             @host['TEMPLATE/HYPERVISOR'].should eql('dummy')
             @host['TEMPLATE/TOTALMEMORY'].should eql('16777216')
         end
-
-        it "should get a hash representation of the HOST" do
-            host_hash = @host.to_hash
-            host_hash['HOST']['ID'].should eql('7')
-            host_hash['HOST']['NAME'].should eql('dummyhost')
-            host_hash['HOST']['STATE'].should eql('2')
-            host_hash['HOST']['IM_MAD'].should eql('im_dummy')
-            host_hash['HOST']['LAST_MON_TIME'].should eql('1277733596')
-            host_hash['HOST']['HOST_SHARE']['MEM_USAGE'].should eql('1572864')
-            host_hash['HOST']['HOST_SHARE']['CPU_USAGE'].should eql('300')
-            host_hash['HOST']['HOST_SHARE']['FREE_CPU'].should eql('800')
-            host_hash['HOST']['HOST_SHARE']['RUNNING_VMS'].should eql('3')
-            host_hash['HOST']['TEMPLATE']['CPUSPEED'].should eql('2.2GHz')
-            host_hash['HOST']['TEMPLATE']['HYPERVISOR'].should eql('dummy')
-            host_hash['HOST']['TEMPLATE']['TOTALMEMORY'].should eql('16777216')
-        end
     end
 
     describe "Host using REXML" do
@@ -146,22 +130,6 @@ module OpenNebula
             @host['TEMPLATE/CPUSPEED'].should eql('2.2GHz')
             @host['TEMPLATE/HYPERVISOR'].should eql('dummy')
             @host['TEMPLATE/TOTALMEMORY'].should eql('16777216')
-        end
-
-        it "should get a hash representation of the HOST" do
-            host_hash = @host.to_hash
-            host_hash['HOST']['ID'].should eql('7')
-            host_hash['HOST']['NAME'].should eql('dummyhost')
-            host_hash['HOST']['STATE'].should eql('2')
-            host_hash['HOST']['IM_MAD'].should eql('im_dummy')
-            host_hash['HOST']['LAST_MON_TIME'].should eql('1277733596')
-            host_hash['HOST']['HOST_SHARE']['MEM_USAGE'].should eql('1572864')
-            host_hash['HOST']['HOST_SHARE']['CPU_USAGE'].should eql('300')
-            host_hash['HOST']['HOST_SHARE']['FREE_CPU'].should eql('800')
-            host_hash['HOST']['HOST_SHARE']['RUNNING_VMS'].should eql('3')
-            host_hash['HOST']['TEMPLATE']['CPUSPEED'].should eql('2.2GHz')
-            host_hash['HOST']['TEMPLATE']['HYPERVISOR'].should eql('dummy')
-            host_hash['HOST']['TEMPLATE']['TOTALMEMORY'].should eql('16777216')
         end
     end
 

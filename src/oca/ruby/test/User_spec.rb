@@ -44,14 +44,6 @@ module OpenNebula
             @user['PASSWORD'].should eql('d22a12348334v33f71ba846572d25250d40701e72')
             @user['ENABLED'].should eql('False')
         end
-
-        it "should get a hash representation of the USER" do
-            user_hash = @user.to_hash
-            user_hash['USER']['ID'].should eql('3')
-            user_hash['USER']['NAME'].should eql('dan')
-            user_hash['USER']['PASSWORD'].should eql('d22a12348334v33f71ba846572d25250d40701e72')
-            user_hash['USER']['ENABLED'].should eql('False')
-        end
     end
 
     describe "User using REXML" do
@@ -92,14 +84,6 @@ module OpenNebula
             @user['NAME'].should eql('dan')
             @user['PASSWORD'].should eql('d22a12348334v33f71ba846572d25250d40701e72')
             @user['ENABLED'].should eql('False')
-        end
-
-        it "should get a hash representation of the USER" do
-            user_hash = @user.to_hash
-            user_hash['USER']['ID'].should eql('3')
-            user_hash['USER']['NAME'].should eql('dan')
-            user_hash['USER']['PASSWORD'].should eql('d22a12348334v33f71ba846572d25250d40701e72')
-            user_hash['USER']['ENABLED'].should eql('False')
         end
     end
 

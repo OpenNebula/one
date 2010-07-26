@@ -8,12 +8,6 @@ module OpenNebula
         NOKOGIRI=false
     end
 
-    # Require crack library if present, otherwise don't bother
-    # This is just for OCCI use
-    begin
-        require 'crack'
-    rescue LoadError
-    end
 
     ###########################################################################
     # The XMLElement class provides an abstraction of the underlying
@@ -162,18 +156,6 @@ module OpenNebula
             str
         end
 
-        def to_hash
-            if !@hash && @xml
-                begin
-                   @hash = Crack::XML.parse(to_xml)
-                rescue Exception => e
-                   error = OpenNebula::Error.new(e.message)
-                   return error
-                end
-            end
-            return @hash
-        end
-
         def to_xml(pretty=false)
             if NOKOGIRI
                 @xml.to_xml
@@ -213,13 +195,6 @@ module OpenNebula
                     block.call self.factory(pelem)
                 }
             end
-        end
-
-        def to_hash
-            if !@hash && @xml
-                @hash=Crack::XML.parse(to_xml)
-            end
-            return @hash
         end
     end
 

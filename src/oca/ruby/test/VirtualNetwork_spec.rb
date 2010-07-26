@@ -47,20 +47,6 @@ module OpenNebula
             @vnet['LEASES/LEASE/IP'].should eql('192.168.0.1')
             @vnet['LEASES/LEASE/USED'].should eql('1')
         end
-
-        it "should get a hash representation of the VNET" do
-            vnet_hash = @vnet.to_hash
-            vnet_hash['VNET']['NAME'].should eql('Red LAN')
-            vnet_hash['VNET']['BRIDGE'].should eql('vbr0')
-            vnet_hash['VNET']['TEMPLATE']['NETWORK_ADDRESS'].should eql('192.168.0.0')
-            vnet_hash['VNET']['ID'].should eql('3')
-            vnet_hash['VNET']['NAME'].should eql('Red LAN')
-            vnet_hash['VNET']['BRIDGE'].should eql('vbr0')
-            vnet_hash['VNET']['TEMPLATE']['NETWORK_ADDRESS'].should eql('192.168.0.0')
-            vnet_hash['VNET']['TEMPLATE']['TYPE'].should eql('RANGED')
-            vnet_hash['VNET']['LEASES']['LEASE']['IP'].should eql('192.168.0.1')
-            vnet_hash['VNET']['LEASES']['LEASE']['USED'].should eql('1')
-        end
     end
 
     describe "VirtualNetwork using REXML" do
@@ -104,20 +90,6 @@ module OpenNebula
             @vnet['TEMPLATE/TYPE'].should eql('RANGED')
             @vnet['LEASES/LEASE/IP'].should eql('192.168.0.1')
             @vnet['LEASES/LEASE/USED'].should eql('1')
-        end
-
-        it "should get a hash representation of the VNET" do
-            vnet_hash = @vnet.to_hash
-            vnet_hash['VNET']['NAME'].should eql('Red LAN')
-            vnet_hash['VNET']['BRIDGE'].should eql('vbr0')
-            vnet_hash['VNET']['TEMPLATE']['NETWORK_ADDRESS'].should eql('192.168.0.0')
-            vnet_hash['VNET']['ID'].should eql('3')
-            vnet_hash['VNET']['NAME'].should eql('Red LAN')
-            vnet_hash['VNET']['BRIDGE'].should eql('vbr0')
-            vnet_hash['VNET']['TEMPLATE']['NETWORK_ADDRESS'].should eql('192.168.0.0')
-            vnet_hash['VNET']['TEMPLATE']['TYPE'].should eql('RANGED')
-            vnet_hash['VNET']['LEASES']['LEASE']['IP'].should eql('192.168.0.1')
-            vnet_hash['VNET']['LEASES']['LEASE']['USED'].should eql('1')
         end
     end
 

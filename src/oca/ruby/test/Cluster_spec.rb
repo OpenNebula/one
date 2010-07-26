@@ -54,12 +54,6 @@ module OpenNebula
             @cluster['ID'].should eql('5')
             @cluster['NAME'].should eql('Production')
         end
-
-        it "should get a hash representation of the CLUSTER" do
-            cluster_hash = @cluster.to_hash
-            cluster_hash['CLUSTER']['ID'].should eql('5')
-            cluster_hash['CLUSTER']['NAME'].should eql('Production')
-        end
     end
 
     describe "Cluster using REXML" do
@@ -110,12 +104,6 @@ module OpenNebula
         it "should access an attribute using []" do
             @cluster['ID'].should eql('5')
             @cluster['NAME'].should eql('Production')
-        end
-
-        it "should get a hash representation of the CLUSTER" do
-            cluster_hash = @cluster.to_hash
-            cluster_hash['CLUSTER']['ID'].should eql('5')
-            cluster_hash['CLUSTER']['NAME'].should eql('Production')
         end
     end
 
