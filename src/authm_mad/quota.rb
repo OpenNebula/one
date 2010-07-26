@@ -36,9 +36,6 @@ class Quota
             }
         }.merge(conf)
         
-        STDERR.puts conf.inspect
-        STDERR.puts @conf.inspect
-        
         @defaults=@conf[:defaults]
         
         @usage=OneUsage.new(@client)
@@ -68,13 +65,12 @@ class Quota
         }
 
         quotas=@table.filter(:uid => uid)
-        pp quotas.first
         
         if quotas.first
-            STDERR.puts "updating"
+            #STDERR.puts "updating"
             quotas.update(data)
         else
-            STDERR.puts "inserting"
+            #STDERR.puts "inserting"
             @table.insert(data.merge!(:uid => uid))
         end
     end

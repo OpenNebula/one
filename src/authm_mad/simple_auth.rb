@@ -26,7 +26,6 @@ class SimpleAuth
     # * password: password stored in OpenNebula dabatase
     # * token: password sent by the client trying to connect
     def auth(user_id, user, password, token)
-        t_user, t_password=token.split(':')
         auth=(password==token)
         auth="Invalid credentials" if auth!=true or token=='-'
         auth
