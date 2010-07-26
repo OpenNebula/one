@@ -143,11 +143,11 @@ when "create"
     user=OpenNebula::User.new(
         OpenNebula::User.build_xml, get_one_client)
     if ops[:no_hash]
-        sha_password = ARGV[1]
+        password = ARGV[1]
     else
-        sha_password = Digest::SHA1.hexdigest(ARGV[1])
+        password = Digest::SHA1.hexdigest(ARGV[1])
     end
-    result=user.allocate(ARGV[0], sha_password)
+    result=user.allocate(ARGV[0], password)
     if !OpenNebula.is_error?(result)
         puts "ID: " + user.id.to_s if ops[:verbose]
         exit 0
@@ -202,8 +202,12 @@ when "passwd"
 
     user=OpenNebula::User.new_with_id(user_id, get_one_client)
 
-    sha_password = Digest::SHA1.hexdigest(ARGV[1])
-    result=user.passwd(sha_password)
+    if ops[:no_hash]
+        password = ARGV[1]
+    else
+        password = Digest::SHA1.hexdigest(ARGV[1])
+    end
+    result=user.passwd(password)
 
     if !OpenNebula.is_error?(result)
         puts "Password changed" if ops[:verbose]
