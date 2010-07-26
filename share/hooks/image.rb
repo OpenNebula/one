@@ -47,12 +47,7 @@ vm.each('TEMPLATE/DISK') do |disk|
     disk_id     = disk["DISK_ID"]
     source_path = VMDIR+"/#{vm_id}/disk.#{disk_id}"
     
-    image_id = nil
-    if disk["SAVE_AS"] 
-        image_id = disk["SAVE_AS"]
-    end
-    
-    if image_id and source_path
+    if image_id = disk["SAVE_AS"]
         image=Image.new(
                 Image.build_xml(image_id),
                 client)
