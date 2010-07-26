@@ -143,7 +143,7 @@ when "create"
     user=OpenNebula::User.new(
         OpenNebula::User.build_xml, get_one_client)
     if ops[:no_hash]
-        password = ARGV[1]
+        password = ARGV[1].gsub(/\s/, '')
     else
         password = Digest::SHA1.hexdigest(ARGV[1])
     end
@@ -203,7 +203,7 @@ when "passwd"
     user=OpenNebula::User.new_with_id(user_id, get_one_client)
 
     if ops[:no_hash]
-        password = ARGV[1]
+        password = ARGV[1].gsub(/\s/, '')
     else
         password = Digest::SHA1.hexdigest(ARGV[1])
     end
