@@ -98,14 +98,22 @@ module OpenNebula
         # XML-RPC Methods for the Virtual Machine Object
         #######################################################################
 
+        # Retrieves the information of the given VirtualMachine.
         def info()
             super(VM_METHODS[:info], 'VM')
         end
-
+        
+        # Allocates a new VirtualMachine in OpenNebula
+        #
+        # +description+ A string containing the template of the VirtualMachine.
         def allocate(description)
             super(VM_METHODS[:allocate],description)
         end
-
+        
+        # Initiates the instance of the VM on the target host.
+        #
+        # +host_id+ The host id (hid) of the target host where
+        # the VM will be instantiated.
         def deploy(host_id)
             return Error.new('ID not defined') if !@pe_id
 
@@ -115,42 +123,52 @@ module OpenNebula
             return rc
         end
 
+        # Shutdowns an already deployed VM
         def shutdown
             action('shutdown')
         end
 
+        # Cancels a running VM
         def cancel
             action('cancel')
         end
 
+        # Sets a VM to hold state, scheduler will not deploy it
         def hold
             action('hold')
         end
 
+        # Releases a VM from hold state
         def release
             action('release')
         end
 
+        # Stops a running VM
         def stop
             action('stop')
         end
 
+        # Saves a running VM
         def suspend
             action('suspend')
         end
 
+        # Resumes the execution of a saved VM
         def resume
             action('resume')
         end
 
+        # Deletes a VM from the pool and DB
         def finalize
             action('finalize')
         end
 
+        # Resubmits the VM after failure
         def restart
             action('restart')
         end
 
+        # Saves a running VM and starts it again in the specified host
         def migrate(host_id)
             return Error.new('ID not defined') if !@pe_id
 
@@ -160,6 +178,7 @@ module OpenNebula
             return rc
         end
 
+        # Migrates a running VM to another host without downtime
         def live_migrate(host_id)
             return Error.new('ID not defined') if !@pe_id
 
@@ -169,6 +188,12 @@ module OpenNebula
             return rc
         end
         
+        # Set the specified vm's disk to be saved in a new image 
+        # when the VirtualMachine shutdowns
+        #
+        # +disk_id+ ID of the disk to be saved
+        #
+        # +image_id+ ID of the new image where the disk will be saved
         def save_as(disk_id, image_id)
             return Error.new('ID not defined') if !@pe_id
 

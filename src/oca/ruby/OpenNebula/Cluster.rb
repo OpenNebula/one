@@ -42,18 +42,27 @@ module OpenNebula
         # ---------------------------------------------------------------------
         # XML-RPC Methods for the User Object
         # ---------------------------------------------------------------------
+        
+        # Retrieves the information of the given Cluster.
         def info()
             super(CLUSTER_METHODS[:info], 'CLUSTER')
         end
 
+        # Allocates a new Cluster in OpenNebula
+        #
+        # +clustername+ A string containing the name of the Cluster.
         def allocate(clustername)
             super(CLUSTER_METHODS[:allocate], clustername)
         end
 
+        # Deletes the Cluster
         def delete()
             super(CLUSTER_METHODS[:delete])
         end
 
+        # Add a host to the cluster
+        #
+        # +host_id+ ID of the Host to be added to the Cluster
         def add_host(host_id)
             return Error.new('ID not defined') if !@pe_id
 
@@ -63,6 +72,9 @@ module OpenNebula
             return rc
         end
 
+        # Remove a host from the cluster
+        #
+        # +host_id+ ID of the Host to be removed from the Cluster
         def remove_host(host_id)
             return Error.new('ID not defined') if !@pe_id
 

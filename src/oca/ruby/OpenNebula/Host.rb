@@ -52,22 +52,36 @@ module OpenNebula
         #######################################################################
         # XML-RPC Methods for the Host
         #######################################################################
+        
+        # Retrieves the information of the given Host.
         def info()
             super(HOST_METHODS[:info], 'HOST')
         end
 
+        # Allocates a new Host in OpenNebula
+        #
+        # +hostname+ A string containing the name of the new Host.
+        #
+        # +im+ A string containing the name of the im_driver
+        #
+        # +vmm+ A string containing the name of the vmm_driver
+        #
+        # +tm+ A string containing the name of the tm_driver
         def allocate(hostname,im,vmm,tm)
             super(HOST_METHODS[:allocate],hostname,im,vmm,tm)
         end
 
+        # Deletes the Host
         def delete()
             super(HOST_METHODS[:delete])
         end
 
+        # Enables the Host
         def enable()
             set_enabled(true)
         end
 
+        # Disables the Host
         def disable()
             set_enabled(false)
         end

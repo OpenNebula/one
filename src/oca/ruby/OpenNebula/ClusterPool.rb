@@ -27,7 +27,8 @@ module OpenNebula
         # ---------------------------------------------------------------------
         # XML-RPC Methods for the User Object
         # ---------------------------------------------------------------------
-
+        
+        # Retrieves all the Clusters in the pool.
         def info()
             super(CLUSTER_POOL_METHODS[:info])
         end

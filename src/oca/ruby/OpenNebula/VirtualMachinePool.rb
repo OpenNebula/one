@@ -30,7 +30,8 @@ module OpenNebula
         #######################################################################
         # XML-RPC Methods for the Virtual Network Object
         #######################################################################
-
+        
+        # Retrieves all or part of the VirtualMachines in the pool.
         def info()
             super(VM_POOL_METHODS[:info],@user_id)
         end
