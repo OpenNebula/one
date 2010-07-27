@@ -46,9 +46,6 @@ Usage:
 
 Commands:
 
-* create (Creates a new user)
-    oneauth create <username> <ssh public key>
-    
 * quota set (sets quota for a user)
     oneauth quota set <id> <cpu> <memory>
     
@@ -115,17 +112,6 @@ when "login"
     
     ssh=SshAuth.new
     ssh.login(user, time)
-    
-when "create"
-    user=OpenNebula::User.new(
-        OpenNebula::User.build_xml, OpenNebula::Client.new)
-    password = ARGV[1]
-        
-    result=user.allocate(ARGV[0], password)
-    if !OpenNebula.is_error?(result)
-        puts "ID: " + user.id.to_s
-        exit 0
-    end
     
 when "key"
     ssh=SshAuth.new
