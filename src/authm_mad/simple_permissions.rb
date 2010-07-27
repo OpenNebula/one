@@ -9,10 +9,13 @@ class SimplePermissions
         @quota_enabled=conf[:quota][:enabled]
     end
     
+    # Returns message if result is false, true otherwise
     def auth_message(result, message)
         result ? true : message
     end
     
+    # Extracts cpu and memory resources from the VM template sent in
+    # authorization message
     def get_vm_usage(data)
         vm_xml=Base64::decode64(data)
         vm=OpenNebula::VirtualMachine.new(
@@ -31,6 +34,7 @@ class SimplePermissions
         VmUsage.new(cpu, memory)
     end
     
+    # Method called by authorization driver
     def auth(uid, tokens)
         result=true
         
@@ -43,6 +47,8 @@ class SimplePermissions
         result
     end
     
+    # Authorizes each of the tokens. All parameters are strings. Pub
+    # means public when "1" and private when "0"
     def auth_object(uid, object, id, action, owner, pub)
         return true if uid=='0'
         
