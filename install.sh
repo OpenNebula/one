@@ -35,7 +35,8 @@ usage() {
  echo "-g: group of the user that will run opennebula, defults to user"
  echo "    executing install.sh"
  echo "-k: keep current configuration files, useful when upgrading"
- echo "-d: target installation directory, if not defined it'd be root"
+ echo "-d: target installation directory, if not defined it'd be root. Must be"
+ echo "    an absolute path."
  echo "-c: install only 'occi' or 'ec2' client files"
  echo "-r: remove Opennebula, only useful if -d was not specified, otherwise"
  echo "    rm -rf \$ONE_LOCATION would do the job"
@@ -578,6 +579,19 @@ if [ "$UNINSTALL" = "no" ] ; then
     done
 fi
 
+# --- Prepare oned.conf ---
+
+if [ "$UNINSTALL" = "no" -a "$CLIENT" = "no" ]; then
+    TEMPLATE=share/etc/oned.conf.template
+    SOURCE=share/etc/oned.conf
+    cp $TEMPLATE $SOURCE
+    HOOKS_LOCATION=$SHARE_LOCATION/hooks
+    sed -i -e "s%\[HOOKS_LOCATION\]%$HOOKS_LOCATION%" \
+        $SOURCE
+    sed -i -e "s%\[IMAGES_LOCATION\]%$IMAGES_LOCATION%" \
+        $SOURCE
+fi
+
 # --- Install/Uninstall files ---
 
 do_file() {
@@ -636,22 +650,14 @@ if [ "$UNINSTALL" = "no" ] ; then
     for d in $CHOWN_DIRS; do
         chown -R $ONEADMIN_USER:$ONEADMIN_GROUP $DESTDIR$d
     done
+
+    # --- Set correct permissions for Image Repository ---
+
+    if [ -d "$IMAGES_LOCATION" ]; then
+        chmod 3770 $IMAGES_LOCATION
+    fi
 else
     for d in `echo $DELETE_DIRS | awk '{for (i=NF;i>=1;i--) printf $i" "}'`; do
         rmdir $d
     done
 fi
-
-# --- Set correct permissions for Image Repository ---
-
-IMAGES_LOCATION=$(cd $IMAGES_LOCATION;pwd)
-chmod 3770 $IMAGES_LOCATION
-
-# --- Substitute variables ---
-
-if [ "$CLIENT" = "no" -a $INSTALL_ETC="yes" ]; then
-    HOOKS_LOCATION=$(cd $SHARE_LOCATION/hooks;pwd)
-    sed -i -e "s%\[HOOKS_LOCATION\]%$HOOKS_LOCATION%" $ETC_LOCATION/oned.conf
-    sed -i -e "s%\[IMAGES_LOCATION\]%$IMAGES_LOCATION%" $ETC_LOCATION/oned.conf
-fi
-
