@@ -19,7 +19,7 @@
 class SimpleAuth
     # Method called by authentication driver. It should awnser true if
     # successful or a string with the error message if failure. All
-    # parameters are string extracted from the authorization message.
+    # parameters are strings extracted from the authorization message.
     #
     # * user_id: OpenNebula user identifier
     # * user: user name

@@ -51,6 +51,7 @@ class AuthorizationManager < OpenNebulaDriver
         database_url=@config[:database]
         @db=Sequel.connect(database_url)
         
+        # Get authentication driver
         begin
             driver_prefix=@config[:authentication].capitalize
             driver_name="#{driver_prefix}Auth"
