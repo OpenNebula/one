@@ -40,22 +40,29 @@ module OpenNebula
         # XML-RPC Methods for the Virtual Network Object
         #######################################################################
 
+        # Retrieves the information of the given VirtualNetwork.
         def info()
             super(VN_METHODS[:info], 'VNET')
         end
 
+        # Allocates a new VirtualNetwork in OpenNebula
+        #
+        # +description+ A string containing the template of the VirtualNetwork.
         def allocate(description)
             super(VN_METHODS[:allocate],description)
         end
-
+        
+        # Publishes the VirtualNetwork, to be used by other users
         def publish
             set_publish(true)
         end
 
+        # Unplubishes the VirtualNetwork
         def unpublish
             set_publish(false)
         end
 
+        # Deletes the VirtualNetwork
         def delete()
             super(VN_METHODS[:delete])
         end

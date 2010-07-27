@@ -62,38 +62,55 @@ module OpenNebula
         # XML-RPC Methods for the Image Object
         #######################################################################
 
+        # Retrieves the information of the given Image.
         def info()
             super(IMAGE_METHODS[:info], 'IMAGE')
         end
 
+        # Allocates a new Image in OpenNebula
+        #
+        # +description+ A string containing the template of the Image.
         def allocate(description)
             super(IMAGE_METHODS[:allocate],description)
         end
 
+        # Modifies an image attribute
+        #
+        # +name+ Name of the attribute to be changed
+        #
+        # +value+ New value for the attribute
         def update(name, value)
             super(IMAGE_METHODS[:update], name, value)
         end
 
+        # Deletes an Image attribute
+        #
+        # +name+ Name of the attribute to be deleted
         def remove_attr(name)
             do_rm_attr(name)
         end
 
+        # Enables an Image
         def enable
             set_enabled(true)
         end
 
+        # Disables an Image
         def disable
             set_enabled(false)
         end
 
+        # Publishes the Image, to be used by other users
         def publish
             set_publish(true)
         end
 
+        # Unplubishes the Image
         def unpublish
             set_publish(false)
         end
 
+        # Deletes the Image
         def delete()
             super(IMAGE_METHODS[:delete])
         end

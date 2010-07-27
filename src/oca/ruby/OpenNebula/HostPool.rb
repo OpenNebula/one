@@ -28,6 +28,7 @@ module OpenNebula
         # XML-RPC Methods for the Host Pool 
         #######################################################################
 
+        # Retrieves all the Hosts in the pool.
         def info()
             super(HOST_POOL_METHODS[:info])
         end

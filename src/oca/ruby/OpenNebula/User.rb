@@ -41,18 +41,29 @@ module OpenNebula
         # ---------------------------------------------------------------------
         # XML-RPC Methods for the User Object
         # ---------------------------------------------------------------------
+        
+        # Retrieves the information of the given User.
         def info()
             super(USER_METHODS[:info], 'USER')
         end
 
+        # Allocates a new User in OpenNebula
+        #
+        # +username+ Name of the new user.
+        #
+        # +password+ Password for the new user
         def allocate(username, password)
             super(USER_METHODS[:allocate], username, password)
         end
 
+        # Deletes the User
         def delete()
             super(USER_METHODS[:delete])
         end
 
+        # Changes the password of the given User
+        #
+        # +password+ String containing the new password
         def passwd(password)
             return Error.new('ID not defined') if !@pe_id
 

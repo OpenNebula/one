@@ -28,6 +28,7 @@ module OpenNebula
         # XML-RPC Methods for the User Object
         # ---------------------------------------------------------------------
 
+        # Retrieves all the Users in the pool.
         def info()
             super(USER_POOL_METHODS[:info])
         end
