@@ -311,6 +311,35 @@ public:
         CPPUNIT_ASSERT( n == 2 );
     }
 
+    /* --------------------------------------------------------------------- */
+
+    void test_from_xml()
+    {
+        string      str1;
+        string      str2;
+        Template    t_xml;
+        int         rc;
+
+        // Generate a xml from a Template generated from a text template
+        t1->to_xml(str1);
+        CPPUNIT_ASSERT(test_ok_xml == str1);
+
+        // Parse the xml in a new Template object
+        rc = t_xml.from_xml(str1);
+        CPPUNIT_ASSERT(rc == 0);
+
+        // Check correct output of this xml-generated Template object
+        t_xml.to_xml(str2);
+        CPPUNIT_ASSERT(str1 == str2);
+
+        str1 = "";
+        str2 = "";
+
+        t1->to_str(str1);
+        t_xml.to_str(str2);
+
+        CPPUNIT_ASSERT(str1 == str2);
+    }
 
     /* ********************************************************************* */
     /* ********************************************************************* */
@@ -350,6 +379,10 @@ public:
         ts->addTest(new CppUnit::TestCaller<TemplateTest>(
                     "erase() Test",
                     &TemplateTest::test_erase));
+
+        ts->addTest(new CppUnit::TestCaller<TemplateTest>(
+                    "from_xml() Test",
+                    &TemplateTest::test_from_xml));
 
         return ts;
     }
