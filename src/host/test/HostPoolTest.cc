@@ -486,8 +486,10 @@ public:
 
         // Allocate a host
         oid = allocate(0);
+        CPPUNIT_ASSERT(oid >= 0);
 
         host = hp->get(0, false);
+        CPPUNIT_ASSERT(host != 0);
 
         rc = hp->allocate_cluster(&clid, "cluster_a");
         CPPUNIT_ASSERT( rc == 1 );
@@ -518,8 +520,10 @@ public:
 
         // Allocate a host
         oid = allocate(0);
+        CPPUNIT_ASSERT(oid >= 0);
 
         host = hp->get(0, false);
+        CPPUNIT_ASSERT(host != 0);
 
         rc = hp->allocate_cluster(&clid, "cluster_a");
         CPPUNIT_ASSERT( rc == 1 );
