@@ -22,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdexcept>
+#include <libxml/parser.h>
 
 #include <signal.h>
 #include <unistd.h>
@@ -114,6 +115,11 @@ void Nebula::start()
     os << "\n--------------------------------------------";
 
     NebulaLog::log("ONE",Log::INFO,os);
+
+    // -----------------------------------------------------------
+    // Initialize the XML library
+    // -----------------------------------------------------------
+    xmlInitParser();
 
     // -----------------------------------------------------------
     // Pools
@@ -531,6 +537,9 @@ void Nebula::start()
     pthread_join(im->get_thread_id(),0);
     pthread_join(rm->get_thread_id(),0);
     pthread_join(hm->get_thread_id(),0);
+
+    //XML Library
+    xmlCleanupParser();
 
     NebulaLog::log("ONE", Log::INFO, "All modules finalized, exiting.\n");
 }

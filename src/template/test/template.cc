@@ -15,7 +15,7 @@ using namespace std;
 /* ************************************************************************* */
 /* ************************************************************************* */
 
-class TemplateTest : public CppUnit::TestFixture 
+class TemplateTest : public CppUnit::TestFixture
 {
 private:
     Template *t, *tr, *t1;
@@ -32,7 +32,7 @@ public:
 
     TemplateTest()
     {
-        test_ok = 
+        test_ok =
             "#This line is a comment\n"
             "  # Other comment\n"
             "MEMORY=345 # more comments behind an attribute\n"
@@ -89,6 +89,8 @@ public:
 
         t1= new Template();
         t1->parse(test_ok,&error);
+
+        xmlInitParser();
     }
 
     void tearDown()
@@ -96,6 +98,8 @@ public:
         delete t;
         delete tr;
         delete t1;
+
+        xmlCleanupParser();
     }
 
     /* ********************************************************************* */
@@ -108,7 +112,7 @@ public:
         string tmp;
 
         rc = t->parse(test_ok,&error);
-        
+
         if ( error != 0 )
         {
             cerr << error << endl;
@@ -139,7 +143,7 @@ public:
 
         CPPUNIT_ASSERT(test_ok_xml == tmp);
     }
-    
+
     /* --------------------------------------------------------------------- */
 
     void test_str()
@@ -157,21 +161,21 @@ public:
     {
         vector<Attribute*> attrs;
         string             *tmp;
-        
+
         CPPUNIT_ASSERT(t1->get("DISK",attrs) == 2 );
 
         CPPUNIT_ASSERT(attrs[0]->type() == Attribute::VECTOR);
 
         tmp = attrs[0]->to_xml();
-        CPPUNIT_ASSERT( *tmp == 
+        CPPUNIT_ASSERT( *tmp ==
             "<DISK><EXTRA><![CDATA[disk attribute ]]></EXTRA><FILE>"
             "<![CDATA[path1]]></FILE></DISK>");
         delete tmp;
 
         CPPUNIT_ASSERT(attrs[1]->type() == Attribute::VECTOR);
-        
+
         tmp = attrs[1]->to_xml();
-        CPPUNIT_ASSERT( *tmp == 
+        CPPUNIT_ASSERT( *tmp ==
             "<DISK><EXTRA><![CDATA[str]]></EXTRA><FILE><![CDATA[path2]]>"
             "</FILE><TYPE><![CDATA[disk]]></TYPE></DISK>");
         delete tmp;
@@ -179,7 +183,7 @@ public:
         CPPUNIT_ASSERT(t1->get("CPU",attrs) == 1 );
 
         CPPUNIT_ASSERT(attrs[2]->type() == Attribute::SIMPLE);
-        
+
         tmp = attrs[2]->to_xml();
         CPPUNIT_ASSERT( *tmp == "<CPU><![CDATA[4]]></CPU>");
         delete tmp;
@@ -203,7 +207,7 @@ public:
     void test_remove()
     {
         vector<Attribute*> attrs;
-        
+
         string t1_xml;
         string rm_xml="<TEMPLATE><CPU><![CDATA[4]]></CPU><EMPTY_VAR>"
             "<![CDATA[]]></EMPTY_VAR><GRAPHICS><PORT><![CDATA[12]]></PORT><VNC>"
@@ -235,7 +239,7 @@ public:
             "<![CDATA[HOSTNAME = \"host*.com\"]]></REQUIREMENTS><XTRA>"
             "<![CDATA[44]]></XTRA></TEMPLATE>";
         string xml;
-        
+
         string nattr = "XTRA";
         string vattr = "44";
 
@@ -351,7 +355,7 @@ public:
         ts->addTest(new CppUnit::TestCaller<TemplateTest>(
                     "parse() Test",
                     &TemplateTest::test_parser));
-        
+
         ts->addTest(new CppUnit::TestCaller<TemplateTest>(
                     "marshall() Test",
                     &TemplateTest::test_marshall));
@@ -395,7 +399,7 @@ public:
 int main(int argc, char ** argv)
 {
     CppUnit::TextUi::TestRunner tr;
-    
+
     tr.addTest(TemplateTest::suite());
     tr.run();
 

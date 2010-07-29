@@ -485,6 +485,8 @@ int Template::from_xml(const string &xml_str)
         }
     }
 
+    xmlFreeDoc(xml_doc);
+
     return 0;
 }
 
