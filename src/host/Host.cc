@@ -93,7 +93,6 @@ int Host::select_cb(void * nil, int num, char **values, char ** names)
 
     cluster = values[CLUSTER];
 
-    // TODO: Template needs to be cleared before?
     host_template.from_xml(values[TEMPLATE]);
 
     host_share.hsid  = oid;
