@@ -340,8 +340,8 @@ int Host::dump(ostringstream& oss, int num, char **values, char **names)
             "<VM_MAD>"       << values[VM_MAD]       <<"</VM_MAD>"       <<
             "<TM_MAD>"       << values[TM_MAD]       <<"</TM_MAD>"       <<
             "<LAST_MON_TIME>"<< values[LAST_MON_TIME]<<"</LAST_MON_TIME>"<<
-            "<CLUSTER>"      << values[CLUSTER]      <<"</CLUSTER>";
-                                values[TEMPLATE];
+            "<CLUSTER>"      << values[CLUSTER]      <<"</CLUSTER>"      <<
+            values[TEMPLATE];
 
     HostShare::dump(oss,num - LIMIT, values + LIMIT, names + LIMIT);
 
