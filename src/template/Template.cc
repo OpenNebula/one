@@ -388,6 +388,106 @@ ostream& operator << (ostream& os, const Template& t)
     return os;
 }
 
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+Attribute * Template::single_xml_att(const xmlNode * node)
+{
+    Attribute * attr = 0;
+    xmlNode *   child = node->children;
+
+    if( child != 0 && (child->type == XML_TEXT_NODE ||
+                       child->type == XML_CDATA_SECTION_NODE))
+    {
+        attr = new SingleAttribute(
+                            reinterpret_cast<const char *>(node->name),
+                            reinterpret_cast<const char *>(child->content) );
+    }
+
+    return attr;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+Attribute * Template::vector_xml_att(const xmlNode * node)
+{
+    VectorAttribute *   attr        = 0;
+
+    xmlNode *           child       = node->children;
+    xmlNode *           grandchild  = 0;
+
+    if(child != 0 && child->type == XML_ELEMENT_NODE)
+    {
+        attr = new VectorAttribute(
+                        reinterpret_cast<const char *>(node->name));
+
+        for(child = child; child != 0; child = child->next)
+        {
+            grandchild = child->children;
+
+            if( grandchild != 0 && (grandchild->type == XML_TEXT_NODE ||
+                                    grandchild->type == XML_CDATA_SECTION_NODE))
+            {
+                attr->replace(
+                        reinterpret_cast<const char *>(child->name),
+                        reinterpret_cast<const char *>(grandchild->content) );
+            }
+        }
+    }
+
+    return attr;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int Template::from_xml(const string &xml_str)
+{
+    xmlDocPtr xml_doc = 0;
+
+    xmlNode * root_element;
+    xmlNode * cur_node = 0;
+
+    Attribute * attr;
+
+
+    // Parse xml string as libxml document
+    xml_doc = xmlParseMemory (xml_str.c_str(),xml_str.length());
+
+    if (xml_doc == 0) // Error parsing XML Document
+    {
+        return -1;
+    }
+
+    // Get the <TEMPLATE> element
+    root_element = xmlDocGetRootElement(xml_doc);
+
+    // Get the root's children and try to build attributes.
+    for (cur_node = root_element->children;
+         cur_node != 0;
+         cur_node = cur_node->next)
+    {
+        if (cur_node->type == XML_ELEMENT_NODE)
+        {
+            // Try to build a single attr.
+            attr = single_xml_att(cur_node);
+            if(attr == 0)   // The xml element wasn't a single attr.
+            {
+                // Try with a vector attr.
+                attr = vector_xml_att(cur_node);
+            }
+
+            if(attr != 0)
+            {
+                set(attr);
+            }
+        }
+    }
+
+    return 0;
+}
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

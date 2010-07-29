@@ -140,6 +140,11 @@ else:
     shutil.rmtree('src/nebula/.xmlrpc_test', True)
     shutil.rmtree('src/scheduler/.xmlrpc_test', True)
 
+
+# libxml2
+main_env.ParseConfig('xml2-config --libs --cflags')
+
+
 # SCONS scripts to build
 build_scripts=[
     'src/sql/SConstruct',
