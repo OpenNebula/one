@@ -236,18 +236,31 @@ int UserPool::authenticate(string& session)
             {
                 user_id = uid;
             }
-            else //External user, user_id in driver message
+            else //External user, username & pass in driver message
             {
+                string mad_name;
+                string mad_pass;
+
                 istringstream is(ar.message);
 
                 if ( is.good() )
                 {
-                    is >> user_id;
+                    is >> mad_name >> ws >> mad_pass;
                 }
 
-                if ( is.fail() || user_id <= 0 )
+                if ( !is.fail() )
                 {
-                    ar.message = "Can't convert user_id from driver";
+                    allocate(&user_id,mad_name,mad_pass,true);
+                }
+
+                if ( user_id == -1 )
+                {
+                    ostringstream oss;
+
+                    oss << "Can't create user from driver response: "
+                        << ar.message;
+
+                    ar.message = oss.str();
                     user_id    = -1;
                 }
             }
