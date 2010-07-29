@@ -18,8 +18,8 @@
 #define HOST_H_
 
 #include "PoolSQL.h"
+#include "Template.h"
 #include "HostShare.h"
-#include "HostTemplate.h"
 #include "ClusterPool.h"
 
 using namespace std;
@@ -419,7 +419,7 @@ private:
     /**
      *  The Host template, holds the Host attributes.
      */
-    HostTemplate    host_template;
+    Template        host_template;
 
     /**
      *  The Share represents the logical capacity associated with the host
@@ -454,11 +454,9 @@ private:
     {
         ostringstream oss_host(Host::db_bootstrap);
         ostringstream oss_share(HostShare::db_bootstrap);
-        ostringstream oss_templ(HostTemplate::db_bootstrap);
 
         db->exec(oss_host);
         db->exec(oss_share);
-        db->exec(oss_templ);
     };
 
 protected:
@@ -489,7 +487,8 @@ protected:
         TM_MAD           = 5,
         LAST_MON_TIME    = 6,
         CLUSTER          = 7,
-        LIMIT            = 8
+        TEMPLATE         = 8,
+        LIMIT            = 9
     };
 
     static const char * db_names;
