@@ -118,6 +118,8 @@ const string xml_dump_like_a =
     "D_DISK>0</USED_DISK><USED_MEM>0</USED_MEM><USED_CPU>0</USED_CPU><RUNNING_V"
     "MS>0</RUNNING_VMS></HOST_SHARE></HOST></HOST_POOL>";
 
+const string host0_updated =
+    "<HOST><ID>0</ID><NAME>Host one</NAME><STATE>0</STATE><IM_MAD>im_mad</IM_MAD><VM_MAD>vmm_mad</VM_MAD><TM_MAD>tm_mad</TM_MAD><LAST_MON_TIME>0</LAST_MON_TIME><CLUSTER>default</CLUSTER><HOST_SHARE><HID>0</HID><DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</MEM_USAGE><CPU_USAGE>0</CPU_USAGE><MAX_DISK>0</MAX_DISK><MAX_MEM>0</MAX_MEM><MAX_CPU>0</MAX_CPU><FREE_DISK>0</FREE_DISK><FREE_MEM>0</FREE_MEM><FREE_CPU>0</FREE_CPU><USED_DISK>0</USED_DISK><USED_MEM>0</USED_MEM><USED_CPU>0</USED_CPU><RUNNING_VMS>0</RUNNING_VMS></HOST_SHARE><TEMPLATE><ATT_A><![CDATA[VALUE_A]]></ATT_A><ATT_B><![CDATA[VALUE_B]]></ATT_B></TEMPLATE></HOST>";
 
 const string cluster_default =
     "<CLUSTER><ID>0</ID><NAME>default</NAME></CLUSTER>";
@@ -149,6 +151,7 @@ class HostPoolTest : public PoolTest
     CPPUNIT_TEST (cluster_dump);
     CPPUNIT_TEST (set_cluster);
     CPPUNIT_TEST (remove_cluster);
+    CPPUNIT_TEST (update_info);
 
     CPPUNIT_TEST_SUITE_END ();
 
@@ -543,6 +546,40 @@ public:
         // The host should have been moved to the default cluster
         host->to_xml(xml_str);
         check(0, host);
+    }
+
+    /* ********************************************************************* */
+
+    void update_info()
+    {
+        int         rc;
+        int         oid_1;
+        HostPool *  hp = static_cast<HostPool *>(pool);
+        Host*       host;
+        string      str;
+
+        oid_1 = allocate(0);
+
+        host = hp->get(oid_1, false);
+        CPPUNIT_ASSERT( host != 0 );
+
+        string info = "ATT_A=VALUE_A ATT_B=VALUE_B";
+        rc = host->update_info(info);
+
+        CPPUNIT_ASSERT(rc == 0);
+
+        pool->update(host);
+
+        host = hp->get(oid_1,false);
+        CPPUNIT_ASSERT( host != 0 );
+        CPPUNIT_ASSERT( host->to_xml(str) == host0_updated );
+
+        //Now force access to DB
+        pool->clean();
+        host = hp->get(oid_1,false);
+
+        CPPUNIT_ASSERT( host != 0 );
+        CPPUNIT_ASSERT( host->to_xml(str) == host0_updated );
     }
 };
 
