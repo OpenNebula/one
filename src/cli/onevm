@@ -343,7 +343,7 @@ Commands:
 * resume (Resumes the execution of a saved VM)
     onevm resume <vm_id>
     
-* saveas (Set the specified vm's disk to be saved in a new image (image_name) 
+* saveas (Set the specified vms disk to be saved in a new image (image_name) 
             when the vm shutdowns)
     onevm saveas <vm_id> <disk_id> <image_name>
     
@@ -785,6 +785,19 @@ true)
                 print_header(str_h1,"VIRTUAL MACHINE TEMPLATE",false)
 
                 puts vm.template_str
+                puts
+                print_header(str_h1,"VIRTUAL MACHINE MONITORING",false)
+
+                poll_attrs = {
+                    "USED MEMORY" => "MEMORY",
+                    "USED CPU" => "CPU",
+                    "NET_TX" => "NET_TX",
+                    "NET_RX" => "NET_RX"
+                }
+
+                poll_attrs.each do |k,v|
+                    puts str % [k,vm[v]]
+                end
             else
                 puts vm.to_xml(true)
             end
