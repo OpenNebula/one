@@ -41,7 +41,7 @@ Host::Host(
         tm_mad_name(_tm_mad_name),
         last_monitored(0),
         cluster(ClusterPool::DEFAULT_CLUSTER_NAME),
-        host_template(id)
+        host_template(true,'=',"TEMPLATE")
         {};
 
 
