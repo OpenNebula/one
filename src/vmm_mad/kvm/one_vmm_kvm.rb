@@ -39,6 +39,7 @@ $: << RUBY_LIB_LOCATION
 
 require 'pp'
 require "VirtualMachineDriver"
+require 'rexml/document'
 
 # ---------------------------------------------------------------------------- #
 # The main class for the LibVirt driver                                        #
@@ -57,7 +58,9 @@ class LibVirtDriver < VirtualMachineDriver
         :save     => "virsh --connect #{LIBVIRT_URI} save",
         :restore  => "virsh --connect #{LIBVIRT_URI} restore",
         :migrate  => "virsh --connect #{LIBVIRT_URI} migrate --live",
-        :poll     => "virsh --connect #{LIBVIRT_URI} dominfo"
+        :poll     => "virsh --connect #{LIBVIRT_URI} dominfo",
+        :netstats => "virsh --connect #{LIBVIRT_URI} domifstat",
+        :dumpxml  => "virsh --connect #{LIBVIRT_URI} dumpxml" 
     }
 
     # ------------------------------------------------------------------------ #
@@ -144,6 +147,19 @@ class LibVirtDriver < VirtualMachineDriver
         exe  = SSHCommand.run("#{LIBVIRT[:poll]} #{deploy_id}", host,
                               log_method(id))
 
+        exe2  = SSHCommand.run("#{LIBVIRT[:dumpxml]} #{deploy_id}", host,
+                               log_method(id))
+
+        doc = REXML::Document.new(exe2.stdout)
+        interfaces = []
+
+        doc.elements.each('domain/devices/interface/target') do |ele|
+           interfaces << ele.attributes["dev"]
+        end
+
+        exe3  = SSHCommand.run("#{LIBVIRT[:netstats]} #{deploy_id} #{interfaces}", host,
+                               log_method(id))
+
         if exe.code != 0
             result = :failure
             info   = "-"
@@ -181,6 +197,16 @@ class LibVirtDriver < VirtualMachineDriver
                     info << " #{POLL_ATTRIBUTE[:state]}=#{state}"
             end
         }
+
+        exe3.stdout.each_line do |line|
+            columns=line.split(" ").collect {|c| c.strip }
+            case columns[1]
+                when 'rx_bytes'
+                    info << " #{POLL_ATTRIBUTE[:netrx]}="  << (columns[2].to_i).to_s
+                when 'tx_bytes'
+                    info << " #{POLL_ATTRIBUTE[:nettx]}="  << (columns[2].to_i).to_s
+            end
+        end
 
         send_message(ACTION[:poll], RESULT[:success], id, info)
     end
