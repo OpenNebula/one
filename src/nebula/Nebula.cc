@@ -241,12 +241,6 @@ void Nebula::start()
         upool  = new UserPool(db);
 
         nebula_configuration->get("IMAGE_REPOSITORY_PATH", repository_path);
-
-        if (repository_path.empty()) // Defaults to ONE_LOCATION/var
-        {
-            repository_path = var_location;
-        }
-
         nebula_configuration->get("DEFAULT_IMAGE_TYPE", default_image_type);
         nebula_configuration->get("DEFAULT_DEVICE_PREFIX",
                                   default_device_prefix);
