@@ -88,9 +88,6 @@ module OpenNebula
             result = image.info
 
             if !OpenNebula.is_error?(result)
-                # Disable the Image for a safe overwriting
-                image.disable
-
                 result = move(source, image['SOURCE'])
 
                 image.enable

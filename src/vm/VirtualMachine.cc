@@ -905,7 +905,6 @@ void VirtualMachine::release_disk_images()
 {
     string  iid;
     string  saveas;
-    int     saveas_id;
     int     num_disks;
 
     vector<Attribute const  * > disks;
@@ -943,47 +942,16 @@ void VirtualMachine::release_disk_images()
 
         img->release_image();
 
+        saveas = disk->vector_value("SAVE_AS");
 
-        // -------------- DISABLE THIS IMAGE IF OVERWRITTEN --------------------
-        saveas    = disk->vector_value("SAVE_AS");
-        saveas_id = -1;
-
-        if ( !saveas.empty() )
+        if ( !saveas.empty() && saveas == iid )
         {
-            if (saveas == id)
-            {
-                img->enable(false);
-            }
-            else
-            {
-                saveas_id = atoi(saveas.c_str())
-            }
+            img->enable(false);
         }
-
-        // ----------------------- UPDATE IMAGE --------------------------------
 
         ipool->update(img);
 
         img->unlock();
-
-        // ------------------- DISABLE IMAGE TO BE SAVED -----------------------
-
-        if (saveas_id != -1)
-        {
-            img = ipool->get(saveas_id,true);
-
-            if ( img == 0 )
-            {
-                continue;
-            }
-
-            img->enable(false);
-
-            ipool->update(img);
-
-            img->unlock();
-        }
-
     }
 }
 
