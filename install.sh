@@ -306,6 +306,7 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/OpenNebula/Host.rb \
                            src/oca/ruby/OpenNebula/VirtualNetworkPool.rb \
                            src/oca/ruby/OpenNebula/Image.rb \
                            src/oca/ruby/OpenNebula/ImagePool.rb \
+                           src/oca/ruby/OpenNebula/ImageRepository.rb \
                            src/oca/ruby/OpenNebula/Cluster.rb \
                            src/oca/ruby/OpenNebula/ClusterPool.rb \
                            src/oca/ruby/OpenNebula/XMLUtils.rb"
