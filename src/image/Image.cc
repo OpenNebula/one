@@ -540,17 +540,21 @@ int Image::disk_attribute(  VectorAttribute * disk,
                             ImageType*        img_type)
 {
     string  bus;
+    string  target;
 
     ostringstream  iid;
 
     *img_type = type;
     bus       = disk->vector_value("BUS");
+    target    = disk->vector_value("TARGET");
     iid << oid;
 
     string template_bus;
+    string template_target;
     string prefix;
 
     get_template_attribute("BUS", template_bus);
+    get_template_attribute("TARGET", template_target);
     get_template_attribute("DEV_PREFIX", prefix);
 
     //--------------------------------------------------------------------------
@@ -572,16 +576,13 @@ int Image::disk_attribute(  VectorAttribute * disk,
     new_disk.insert(make_pair("IMAGE_ID", iid.str()));
     new_disk.insert(make_pair("SOURCE",   source));
 
-    if (bus.empty())
-    {
-        if (!template_bus.empty())
-        {
-            new_disk.insert(make_pair("BUS",template_bus));
-        }
-    }
-    else
+    if (!bus.empty())
     {
         new_disk.insert(make_pair("BUS",bus));
+    }
+    else if (!template_bus.empty())
+    {
+            new_disk.insert(make_pair("BUS",template_bus));
     }
 
    //---------------------------------------------------------------------------
@@ -609,23 +610,35 @@ int Image::disk_attribute(  VectorAttribute * disk,
    //   TARGET attribute
    //---------------------------------------------------------------------------
 
-    switch(type)
+    if (!target.empty())
     {
-        case OS:
-            prefix += "a";
-        break;
-
-        case CDROM:
-            prefix += "c"; // b is for context
-        break;
-
-        case DATABLOCK:
-            prefix += static_cast<char>(('e'+ *index));
-            *index  = *index + 1;
-        break;
-
+        new_disk.insert(make_pair("TARGET", target));
     }
-    new_disk.insert(make_pair("TARGET", prefix));
+    else if (!template_target.empty())
+    {
+        new_disk.insert(make_pair("TARGET", template_target));
+    }
+    else
+    {
+        switch(type)
+        {
+            case OS:
+                prefix += "a";
+            break;
+
+            case CDROM:
+                prefix += "c"; // b is for context
+            break;
+
+            case DATABLOCK:
+                prefix += static_cast<char>(('e'+ *index));
+                *index  = *index + 1;
+            break;
+
+        }
+
+        new_disk.insert(make_pair("TARGET", prefix));
+    }
 
     disk->replace(new_disk);
 
