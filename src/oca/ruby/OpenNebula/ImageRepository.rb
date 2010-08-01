@@ -3,21 +3,21 @@ require 'fileutils'
 
 module OpenNebula
     class ImageRepository
-    
+
         def create(image, template, copy=true)
             if image.nil?
                 error_msg = "Image could not be found, aborting."
                 result = OpenNebula::Error.new(error_msg)
             end
-            
+
             # ------ Allocate the Image ------
             result = image.allocate(template)
 
-            if OpenNebula.is_error?(result) 
+            if OpenNebula.is_error?(result)
                 puts result.message
                 exit -1
             end
-            
+
 
             # ------ Copy the Image file ------
             image.info
@@ -38,7 +38,7 @@ module OpenNebula
                             image['TEMPLATE/TYPE'] == 'DATABLOCK'
                 # --- Empty DATABLOCK ---
                 result = dd(image['TEMPLATE/SIZE'], image['SOURCE'])
-            
+
                 if !OpenNebula.is_error?(result)
                     result = mkfs(image['TEMPLATE/FSTYPE'], image['SOURCE'])
                 end
@@ -49,21 +49,21 @@ module OpenNebula
 
 
             # ------ Enable the Image ------
-            if !OpenNebula.is_error?(result) 
+            if !OpenNebula.is_error?(result)
                 image.enable
             else
                 image.delete
             end
-            
+
             return result
         end
-        
+
         def delete(image)
             if image.nil?
                 error_msg = "Image could not be found, aborting."
                 result = OpenNebula::Error.new(error_msg)
             end
-            
+
             result = image.info
 
             if !OpenNebula.is_error?(result)
@@ -75,32 +75,32 @@ module OpenNebula
                     result = remove(file_path)
                 end
             end
-        
+
             return result
-        end 
-        
+        end
+
         def update_source(image, source)
             if image.nil?
                 error_msg = "Image could not be found, aborting."
                 result = OpenNebula::Error.new(error_msg)
             end
-            
+
             result = image.info
-            
+
             if !OpenNebula.is_error?(result)
                 # Disable the Image for a safe overwriting
-                # image.disable
+                image.disable
 
                 result = move(source, image['SOURCE'])
-                
-                # image.enable
+
+                image.enable
             end
-            
+
             return result
         end
-    
+
     private
-    
+
         FS_UTILS = {
             :dd     => "env dd",
             :mkfs   => "env mkfs"
@@ -120,7 +120,7 @@ module OpenNebula
 
             return nil
         end
-    
+
         def move(path, source)
             if source.nil? or path.nil?
                 return OpenNebula::Error.new("copy Image: missing parameters.")
@@ -172,7 +172,7 @@ module OpenNebula
 
             return nil
         end
-        
+
         def remove(source)
             if File.exists?(source)
                 begin
@@ -181,7 +181,7 @@ module OpenNebula
                     return OpenNebula::Error.new(e.message)
                 end
             end
-            
+
             return nil
         end
     end
