@@ -37,6 +37,7 @@ end
 
 
 client = Client.new()
+img_repo = ImageRepository.new
 
 vm = VirtualMachine.new(
                 VirtualMachine.build_xml(vm_id),
@@ -52,17 +53,8 @@ vm.each('TEMPLATE/DISK') do |disk|
                 Image.build_xml(image_id),
                 client)
                 
-        result = image.info
-        exit -1 if OpenNebula.is_error?(result)
-
-        # Disable the Image for a safe overwriting
-        # image.disable
-    
-        # Save the image file
-        result = image.move(source_path, image['SOURCE']) 
+        result = img_repo.update_source(image, source_path) 
         
         exit -1 if OpenNebula.is_error?(result)
-    
-        # image.enable
     end
 end

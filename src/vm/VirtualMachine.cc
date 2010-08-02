@@ -904,6 +904,7 @@ error_common:
 void VirtualMachine::release_disk_images()
 {
     string  iid;
+    string  saveas;
     int     num_disks;
 
     vector<Attribute const  * > disks;
@@ -939,10 +940,16 @@ void VirtualMachine::release_disk_images()
             continue;
         }
 
-        if (img->release_image() == true)
+        img->release_image();
+
+        saveas = disk->vector_value("SAVE_AS");
+
+        if ( !saveas.empty() && saveas == iid )
         {
-            ipool->update(img);
+            img->enable(false);
         }
+
+        ipool->update(img);
 
         img->unlock();
     }

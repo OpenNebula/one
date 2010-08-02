@@ -58,6 +58,7 @@ class CloudServer
 
         @one_client = Client.new()
         @user_pool  = UserPool.new(@one_client)
+        @img_repo = OpenNebula::ImageRepository.new
     end
 
     #
@@ -110,44 +111,20 @@ class CloudServer
         if file
             if file[:tempfile]
                 file_path = file[:tempfile].path
+                template = image.to_one_template
+                template << "\nPATH = #{file_path}"
             else
                 error_msg = "Image not present, aborting."
                 error = OpenNebula::Error.new(error_msg)
                 return error
             end
-
-            if !File.exists?(file_path)
-                error_msg = "Image file could not be found, aborting."
-                error = OpenNebula::Error.new(error_msg)
-                return error
-            end
         end
 
-        # ---------- Allocate the Image file ------------
+        rc = @img_repo.create(image, template)
 
-        rc = image.allocate(image.to_one_template)
+        file[:tempfile].unlink
+        
         if OpenNebula.is_error?(rc)
-           return rc
-        end
-
-        # ---------- Copy the Image file ------------
-
-        image.info
-
-        if file_path
-            rc = image.copy(file_path, image['SOURCE'])
-            file[:tempfile].unlink
-        elsif image['TEMPLATE/SIZE'] and 
-                        image['TEMPLATE/FSTYPE'] and 
-                        image['TEMPLATE/TYPE'] == 'DATABLOCK'
-            rc = image.mk_datablock(
-                            image['TEMPLATE/SIZE'],
-                            image['TEMPLATE/FSTYPE'],
-                            image['SOURCE'])
-        end
-
-        if OpenNebula.is_error?(rc)
-           image.delete
            return rc
         end
 

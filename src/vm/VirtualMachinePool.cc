@@ -25,7 +25,8 @@
 /* -------------------------------------------------------------------------- */
 
 VirtualMachinePool::VirtualMachinePool(SqlDB *                   db,
-                                       vector<const Attribute *> hook_mads)
+                                       vector<const Attribute *> hook_mads,
+                                       const string& hook_location)
     : PoolSQL(db,VirtualMachine::table)
 {
     const VectorAttribute * vattr;
@@ -77,6 +78,11 @@ VirtualMachinePool::VirtualMachinePool(SqlDB *                   db,
             {
                 remote = true;
             }
+        }
+
+        if (cmd[0] != '/')
+        {
+            cmd = hook_location + cmd;
         }
 
         if ( on == "CREATE" )

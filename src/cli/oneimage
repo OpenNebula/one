@@ -251,6 +251,11 @@ EOT
         table.print_help
     end
     
+    def special_options(opts, options)
+        opts.on_tail("-n", "--no-cp", "Do not copy the source") do |o|
+            options[:no_cp]=true
+        end
+    end
 end
 
 
@@ -300,58 +305,18 @@ result=[false, "Unknown error"]
 
 command=ARGV.shift
 
+img_repo = OpenNebula::ImageRepository.new
+
 case command
-when "register", "create", "add"    
-    # ---------- Get the Template ------------
-    
+when "register", "create", "add"
     check_parameters("register", 1)
     template = get_template(ARGV[0])
-
-    # ---------- Allocate the Image file ------------
     
-    image = OpenNebula::Image.new(
-                            OpenNebula::Image.build_xml, 
-                            get_one_client)
-                            
-    result = image.allocate(template)
-    
-    if !is_successful?(result) 
-        puts result.message
-        exit -1
-    end
+    image = OpenNebula::Image.new(OpenNebula::Image.build_xml, get_one_client)
 
-    # ---------- Copy the Image file ------------
-
-    image.info
-
-    if image['TEMPLATE/PATH']
-        file_path = image['TEMPLATE/PATH']
-        
-        if !File.exists?(file_path)
-            error_msg = "Image file could not be found, aborting."
-            result = OpenNebula::Error.new(error_msg)
-        end
-        
-        result = image.copy(file_path, image['SOURCE'])       
-    elsif image['TEMPLATE/SIZE'] and 
-                    image['TEMPLATE/FSTYPE'] and 
-                    image['TEMPLATE/TYPE'] == 'DATABLOCK'
-        result = image.mk_datablock(
-                            image['TEMPLATE/SIZE'],
-                            image['TEMPLATE/FSTYPE'],
-                            image['SOURCE'])
-    else
-        error_msg = "Image not present, aborting."
-        result = OpenNebula::Error.new(error_msg)
-    end
-        
-
-    if is_successful?(result) 
-        image.enable
+    result = img_repo.create(image, template, !ops[:no_cp])    
+    if is_successful?(result)
         puts "ID: " + image.id.to_s if ops[:verbose]
-        exit 0
-    else
-        image.delete
     end
 
     
@@ -494,22 +459,14 @@ when "delete"
     args=expand_args(ARGV)
 
     args.each do |param|
-        image_id=get_image_id(param)
+        image_id = get_image_id(param)
+        image = OpenNebula::Image.new(
+                        OpenNebula::Image.build_xml(image_id),
+                        get_one_client)
 
-        image=OpenNebula::Image.new_with_id(image_id, get_one_client)
-
-        result = image.info
-
+        result = img_repo.delete(image)
         if is_successful?(result)
-
-            file_path = image['SOURCE']
-
-            result=image.delete
-
-            if is_successful?(result)
-                FileUtils.rm(file_path) if File.exists?(file_path)
-                puts "Image correctly deleted"  if ops[:verbose]
-            end
+            puts "Image correctly deleted"  if ops[:verbose]
         end
     end
 
