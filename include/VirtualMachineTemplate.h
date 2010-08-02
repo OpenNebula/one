@@ -17,29 +17,25 @@
 #ifndef VIRTUAL_MACHINE_TEMPLATE_H_
 #define VIRTUAL_MACHINE_TEMPLATE_H_
 
-#include "TemplateSQL.h"
+#include "Template.h"
 
 using namespace std;
 
 /**
  *  Virtual Machine Template class, it represents a VM configuration file.
  */
-class VirtualMachineTemplate : public TemplateSQL
+class VirtualMachineTemplate : public Template
 {
 public:
-    VirtualMachineTemplate(int tid = -1):
-    	TemplateSQL(table,tid,false,'=',"TEMPLATE"){};
+    VirtualMachineTemplate():
+        Template(false,'=',"TEMPLATE"){};
 
     ~VirtualMachineTemplate(){};
-    
+
 private:
     friend class VirtualMachine;
-    
-    static const char * table;
-    
-    static const char * db_bootstrap;
 };
-    
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

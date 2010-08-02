@@ -103,7 +103,7 @@ public:
         string&             name,
         string&             value)
     {
-    	return vm->update_template_attribute(db,name,value);
+        return vm->update_template_attribute(name,value);
     }
 
     /**
