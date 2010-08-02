@@ -82,7 +82,7 @@ MAC_PREFIX   = "02:00"
 #       vd        KVM virtual disk
 #*******************************************************************************
 
-IMAGE_REPOSITORY_PATH = [IMAGES_LOCATION]
+#IMAGE_REPOSITORY_PATH = /srv/cloud/var/images
 DEFAULT_IMAGE_TYPE    = "OS"
 DEFAULT_DEVICE_PREFIX = "hd"
 
