@@ -32,7 +32,9 @@ class VirtualMachinePool : public PoolSQL
 {
 public:
 
-    VirtualMachinePool(SqlDB * db, vector<const Attribute *> hook_mads);
+    VirtualMachinePool(SqlDB * db,
+                       vector<const Attribute *> hook_mads,
+                       const string& hook_location);
 
     ~VirtualMachinePool(){};
 

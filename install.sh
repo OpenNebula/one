@@ -99,7 +99,7 @@ if [ -z "$ROOT" ] ; then
     RUN_LOCATION="/var/run/one"
     LOCK_LOCATION="/var/lock/one"
     INCLUDE_LOCATION="/usr/include"
-    SHARE_LOCATION="/usr/share/doc/opennebula"
+    SHARE_LOCATION="/usr/share/one"
 
     if [ "$CLIENT" = "no" ]; then
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION $VAR_LOCATION \
