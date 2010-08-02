@@ -782,10 +782,6 @@ true)
 
                 puts
 
-                print_header(str_h1,"VIRTUAL MACHINE TEMPLATE",false)
-
-                puts vm.template_str
-                puts
                 print_header(str_h1,"VIRTUAL MACHINE MONITORING",false)
 
                 poll_attrs = {
@@ -798,6 +794,12 @@ true)
                 poll_attrs.each do |k,v|
                     puts str % [k,vm[v]]
                 end
+                
+                puts
+                
+                print_header(str_h1,"VIRTUAL MACHINE TEMPLATE",false)
+
+                puts vm.template_str
             else
                 puts vm.to_xml(true)
             end
