@@ -66,7 +66,7 @@ Image::~Image()
 
 const char * Image::table = "image_pool";
 
-const char * Image::db_names = "(oid, uid, name, type, public, regtime, "
+const char * Image::db_names = "(oid, uid, name, type, public, persistent, regtime, "
                                "source, state, running_vms)";
 
 const char * Image::db_bootstrap = "CREATE TABLE IF NOT EXISTS image_pool ("

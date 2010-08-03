@@ -78,6 +78,13 @@ ShowTableImage={
         :proc => lambda {|d,e| 
             if d["PUBLIC"].to_i == 1 then "Yes" else "No" end}
     },
+    :persistent => {
+        :name => "PERSISTENT",
+        :desc => "Whether the Image is persistent or not",
+        :size => 3,
+        :proc => lambda {|d,e| 
+            if d["PERSISTENT"].to_i == 1 then "Yes" else "No" end}
+    },
     :state => {
         :name => "STAT",
         :desc => "State of the Image",
@@ -94,7 +101,7 @@ ShowTableImage={
     },
     
     :default => [:id, :user, :name, :type, :regtime, 
-                 :public, :state, :runningvms]
+                 :public, :persistent, :state, :runningvms]
 }
 
 
@@ -216,6 +223,12 @@ Commands:
     
 * unpublish (Unpublish an Image)
     oneimage unpublish <image_id>
+    
+* persistent (Makes an Image persistent)
+    oneimage persistent <image_id>
+
+* nonpersistent (Makes an Image non persistent)
+    oneimage nonpersistent <image_id>
     
 * list (Shows Images in the pool)
     oneimage list <filter_flag>
@@ -384,6 +397,28 @@ when "unpublish"
     result=image.unpublish
     if is_successful?(result)
         puts "Image unpublished" if ops[:verbose]
+    end
+    
+when "persistent"
+    check_parameters("publish", 1)
+    image_id=get_image_id(ARGV[0])
+
+    image=OpenNebula::Image.new_with_id(image_id, get_one_client)
+
+    result=image.persistent
+    if is_successful?(result)
+        puts "Image made persistent" if ops[:verbose]
+    end
+    
+when "nonpersistent"
+    check_parameters("nonpersistent", 1)
+    image_id=get_image_id(ARGV[0])
+
+    image=OpenNebula::Image.new_with_id(image_id, get_one_client)
+
+    result=image.nonpersistent
+    if is_successful?(result)
+        puts "Image made nonpersistent" if ops[:verbose]
     end
     
 when "list"

@@ -136,8 +136,8 @@ error_authorize:
     goto error_common;
 
 error_publish:
-    oss << action_error(method_name, "MANAGE", "IMAGE", iid, -1)
-        << ". Is the image persistent? An Image cannot be public and persistent.";
+    oss << action_error(method_name, "MANAGE", "IMAGE", iid, NULL)
+        << " Is the image persistent? An Image cannot be public and persistent.";
     goto error_common;
 
 error_common:

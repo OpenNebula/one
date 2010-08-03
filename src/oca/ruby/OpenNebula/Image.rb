@@ -7,13 +7,14 @@ module OpenNebula
         # Constants and Class Methods
         # ---------------------------------------------------------------------
         IMAGE_METHODS = {
-            :info     => "image.info",
-            :allocate => "image.allocate",
-            :update   => "image.update",
-            :rmattr   => "image.rmattr",
-            :enable   => "image.enable",
-            :publish  => "image.publish",
-            :delete   => "image.delete"
+            :info        => "image.info",
+            :allocate    => "image.allocate",
+            :update      => "image.update",
+            :rmattr      => "image.rmattr",
+            :enable      => "image.enable",
+            :publish     => "image.publish",
+            :persistent  => "image.persistent",
+            :delete      => "image.delete"
         }
 
         IMAGE_STATES=%w{INIT READY USED DISABLED}
@@ -108,6 +109,16 @@ module OpenNebula
         def unpublish
             set_publish(false)
         end
+        
+        # Makes the Image persistent
+        def persistent
+            set_persistent(true)
+        end
+
+        # Makes the Image non persistent
+        def unpublish
+            set_persistent(false)
+        end
 
         # Deletes the Image
         def delete()
@@ -164,6 +175,15 @@ module OpenNebula
             return Error.new('ID not defined') if !@pe_id
 
             rc = @client.call(IMAGE_METHODS[:publish], @pe_id, published)
+            rc = nil if !OpenNebula.is_error?(rc)
+
+            return rc
+        end
+        
+        def set_persistent(persistence)
+            return Error.new('ID not defined') if !@pe_id
+
+            rc = @client.call(IMAGE_METHODS[:persistent], @pe_id, persistence)
             rc = nil if !OpenNebula.is_error?(rc)
 
             return rc

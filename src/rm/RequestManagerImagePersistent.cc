@@ -103,7 +103,7 @@ void RequestManager::ImagePersistent::execute(
     
     response = image->persistent(persistent_flag);
     
-    if (response)
+    if (!response)
     {
         goto error_persistent;
     }
@@ -136,8 +136,8 @@ error_authorize:
     goto error_common;
     
 error_persistent:
-    oss << action_error(method_name, "MANAGE", "IMAGE", iid, -1)
-        << ". Is the image public? An Image cannot be public and persistent.";
+    oss << action_error(method_name, "MANAGE", "IMAGE", iid, NULL)
+        << " Is the image public? An Image cannot be public and persistent.";
     goto error_common;
 
 error_common:
