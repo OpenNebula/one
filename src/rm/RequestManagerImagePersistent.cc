@@ -24,39 +24,39 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void RequestManager::ImagePublish::execute(
+void RequestManager::ImagePersistent::execute(
     xmlrpc_c::paramList const& paramList,
     xmlrpc_c::value *   const  retval)
 {
     string              session;
 
     int                 iid;
-    bool                publish_flag; 
+    bool                persistent_flag; 
     int                 uid;
     
     int                 image_owner;
-    bool                is_public;
+    bool                is_persistent;
     
     Image             * image;
-    
-    bool                response;
 
     ostringstream       oss;
     
-    const string        method_name = "ImagePublish";
+    bool                response;
+    
+    const string        method_name = "ImagePersistent";
 
     vector<xmlrpc_c::value> arrayData;
     xmlrpc_c::value_array * arrayresult;
 
 
-    NebulaLog::log("ReM",Log::DEBUG,"ImagePublish invoked");
+    NebulaLog::log("ReM",Log::DEBUG,"ImagePersistent invoked");
 
-    session      = xmlrpc_c::value_string (paramList.getString(0));
-    iid          = xmlrpc_c::value_int    (paramList.getInt(1));
-    publish_flag = xmlrpc_c::value_boolean(paramList.getBoolean(2));
+    session         = xmlrpc_c::value_string (paramList.getString(0));
+    iid             = xmlrpc_c::value_int    (paramList.getInt(1));
+    persistent_flag = xmlrpc_c::value_boolean(paramList.getBoolean(2));
 
     // First, we need to authenticate the user
-    uid = ImagePublish::upool->authenticate(session);
+    uid = ImagePersistent::upool->authenticate(session);
 
     if ( uid == -1 )
     {
@@ -64,15 +64,15 @@ void RequestManager::ImagePublish::execute(
     }
     
     // Get image from the ImagePool
-    image = ImagePublish::ipool->get(iid,true);    
+    image = ImagePersistent::ipool->get(iid,true);    
                                                  
     if ( image == 0 )                             
     {                                            
         goto error_image_get;                     
     }
     
-    image_owner = image->get_uid();
-    is_public   = image->isPublic();
+    image_owner    = image->get_uid();
+    is_persistent  = image->isPersistent();
     
     image->unlock();
     
@@ -85,7 +85,7 @@ void RequestManager::ImagePublish::execute(
                     iid,
                     AuthRequest::MANAGE,
                     image_owner,
-                    is_public);
+                    false);
 
         if (UserPool::authorize(ar) == -1)
         {
@@ -94,21 +94,21 @@ void RequestManager::ImagePublish::execute(
     }
     
     // Get the image locked again
-    image = ImagePublish::ipool->get(iid,true);  
+    image = ImagePersistent::ipool->get(iid,true);  
     
     if ( image == 0 )                             
     {                                            
         goto error_image_get;                     
     } 
     
-    response = image->publish(publish_flag);
+    response = image->persistent(persistent_flag);
     
-    if (!response)
+    if (response)
     {
-        goto error_publish;
+        goto error_persistent;
     }
     
-    ImagePublish::ipool->update(image);
+    ImagePersistent::ipool->update(image);
 
     image->unlock();
 
@@ -134,10 +134,10 @@ error_image_get:
 error_authorize:
     oss.str(authorization_error(method_name, "MANAGE", "IMAGE", uid, iid));
     goto error_common;
-
-error_publish:
+    
+error_persistent:
     oss << action_error(method_name, "MANAGE", "IMAGE", iid, -1)
-        << ". Is the image persistent? An Image cannot be public and persistent.";
+        << ". Is the image public? An Image cannot be public and persistent.";
     goto error_common;
 
 error_common:

@@ -108,6 +108,15 @@ public:
     {
         return (public_img == 1);
     };
+    
+    /**
+     *  Returns true if the image is persistent
+     *     @return true if the image is persistent
+     */
+    bool isPersistent()
+    {
+        return (persistent_img == 1);
+    };
 
     /**
      *  Set enum type
@@ -183,16 +192,51 @@ public:
      *    @param pub true to publish the image
      *    @return 0 on success
      */
-    void publish(bool pub)
+    bool publish(bool pub)
     {
+        bool success = false;
+        
         if (pub == true)
         {
-            public_img = 1;
+            if (!isPersistent())
+            {
+                public_img = 1;
+                success    = true;
+            }
         }
         else
         {
             public_img = 0;
+            success    = true;
         }
+        
+        return success;
+    }
+    
+    /**
+     *  Set/Unset an image as persistant
+     *    @param persistent true to make an image persistant
+     *    @return 0 on success
+     */
+    bool persistent(bool persis)
+    {
+        bool success = false;
+        
+        if (persis == true)
+        {
+            if (!isPublic() && running_vms == 0)
+            {
+                persistent_img = 1;
+                success        = true;
+            }
+        }
+        else
+        {
+            persistent_img = 0;
+            success        = true;
+        }
+        
+        return success;
     }
 
     /**
@@ -309,6 +353,11 @@ private:
      *  Public scope of the Image
      */
     int          public_img;
+    
+    /**
+     *  Persistency of the Image
+     */
+    int          persistent_img;
 
     /**
      *  Registration time
@@ -402,12 +451,13 @@ protected:
         NAME             = 2,    /* Image name                  */
         TYPE             = 3,    /* 0) OS 1) CDROM 2) DATABLOCK */
         PUBLIC           = 4,    /* Public scope (YES OR NO)    */
-        REGTIME          = 5,    /* Time of registration        */
-        SOURCE           = 6,    /* Path to the image           */
-        STATE            = 7,    /* 0) INIT   1) ALLOCATED      */
+        PERSISTENT       = 5,    /* Peristency (YES OR NO)      */
+        REGTIME          = 6,    /* Time of registration        */
+        SOURCE           = 7,    /* Path to the image           */
+        STATE            = 8,    /* 0) INIT   1) ALLOCATED      */
                                  /* 2) READY  3) USED           */
-        RUNNING_VMS      = 8,    /* Number of VMs using the img */
-        LIMIT            = 9
+        RUNNING_VMS      = 9,    /* Number of VMs using the img */
+        LIMIT            = 10
     };
 
     static const char * db_names;

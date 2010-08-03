@@ -41,6 +41,7 @@ source_files=[
     'RequestManagerImageUpdate.cc',
     'RequestManagerImageRemoveAttribute.cc',
     'RequestManagerImagePublish.cc',
+    'RequestManagerImagePersistent.cc',
     'RequestManagerImageEnable.cc',
     'RequestManagerImagePoolInfo.cc',
     'RequestManagerClusterAdd.cc',
