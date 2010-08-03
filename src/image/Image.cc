@@ -358,7 +358,7 @@ int Image::dump(ostringstream& oss, int num, char **values, char **names)
             "<SOURCE>"         << values[SOURCE]      << "</SOURCE>"      <<
             "<STATE>"          << values[STATE]       << "</STATE>"       <<
             "<RUNNING_VMS>"    << values[RUNNING_VMS] << "</RUNNING_VMS>" <<
-            "<TEMPLATE>"       << values[TEMPLATE]    << "</TEMPLATE>"    <<
+                                  values[TEMPLATE]                        <<
         "</IMAGE>";
 
     return 0;
