@@ -126,14 +126,12 @@ public:
      *    @param new value for the attribute
      *    @return 0 on success, -1 otherwise
      */
-    int replace_attribute(
+    int update_template_attribute(
         Image *       image,
         const string& name,
         const string& value)
     {
-        SingleAttribute * sattr = new SingleAttribute(name,value);
-
-        return image->image_template->replace_attribute(db,sattr);
+        return image->update_template_attribute(name, value);
     }
 
     /** Delete an image attribute in the template (Image MUST be locked)
@@ -145,7 +143,7 @@ public:
         Image *       image,
         const string& name)
     {
-        return image->image_template->remove_attribute(db, name);
+        return image->remove_template_attribute(name);
     }
 
     /**
