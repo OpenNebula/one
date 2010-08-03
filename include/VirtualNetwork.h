@@ -313,11 +313,9 @@ private:
     static void bootstrap(SqlDB * db)
     {
         ostringstream oss_vnet(VirtualNetwork::db_bootstrap);
-        ostringstream oss_templ(VirtualNetworkTemplate::db_bootstrap);
         ostringstream oss_lease(Leases::db_bootstrap);
 
         db->exec(oss_vnet);
-        db->exec(oss_templ);
         db->exec(oss_lease);
     };
 
@@ -341,28 +339,22 @@ private:
     /**
      *  Updates the template of a VNW, adding a new attribute (replacing it if
      *  already defined), the VN's mutex SHOULD be locked
-     *    @param db pointer to the DB
      *    @param name of the new attribute
      *    @param value of the new attribute
      *    @return 0 on success
      */
     int update_template_attribute(
-        SqlDB * db,
         string& name,
         string& value)
     {
         SingleAttribute * sattr;
-        int               rc;
+
+        vn_template->erase(name);
 
         sattr = new SingleAttribute(name,value);
-        rc    = vn_template->replace_attribute(db,sattr);
+        vn_template->set(sattr);
 
-        if (rc != 0)
-        {
-            delete sattr;
-        }
-
-        return rc;
+        return 0;
     }
 
 protected:
@@ -387,7 +379,8 @@ protected:
         TYPE            = 3,
         BRIDGE          = 4,
         PUBLIC          = 5,
-        LIMIT           = 6
+        TEMPLATE        = 6,
+        LIMIT           = 7
     };
 
     static const char * table;
@@ -428,9 +421,7 @@ protected:
     {
         int rc;
 
-        rc =  vn_template->drop(db);
-
-        rc += leases->drop(db);
+        rc = leases->drop(db);
 
         rc += vn_drop(db);
 

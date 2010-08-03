@@ -109,7 +109,7 @@ public:
         string&             name,
         string&             value)
     {
-        return vn->update_template_attribute(db,name,value);
+        return vn->update_template_attribute(name,value);
     };
 
     /**

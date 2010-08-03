@@ -17,29 +17,22 @@
 #ifndef VIRTUAL_NETWORK_TEMPLATE_H_
 #define VIRTUAL_NETWORK_TEMPLATE_H_
 
-#include "TemplateSQL.h"
+#include "Template.h"
 
 using namespace std;
 
 /**
  *  Virtual Network Template class, it represents a VN configuration file.
  */
-class VirtualNetworkTemplate : public TemplateSQL
+class VirtualNetworkTemplate : public Template
 {
 public:
-    VirtualNetworkTemplate(int tid = -1):
-    	TemplateSQL(table,tid,false,'=',"TEMPLATE"){};
+    VirtualNetworkTemplate():
+        Template(false,'=',"TEMPLATE"){};
 
     ~VirtualNetworkTemplate(){};
-    
-private:
-    friend class VirtualNetwork;
-    
-    static const char * table;
-    
-    static const char * db_bootstrap;
 };
-    
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
