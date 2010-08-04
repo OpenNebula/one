@@ -88,7 +88,7 @@ class VirtualMachinePoolFriend : public VirtualMachinePool
 {
 public:
     VirtualMachinePoolFriend(SqlDB * db, vector<const Attribute *> hook_mads):
-            VirtualMachinePool(db, hook_mads)
+            VirtualMachinePool(db, hook_mads, "./")
         {};
 
 

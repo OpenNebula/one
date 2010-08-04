@@ -99,7 +99,7 @@ if [ -z "$ROOT" ] ; then
     RUN_LOCATION="/var/run/one"
     LOCK_LOCATION="/var/lock/one"
     INCLUDE_LOCATION="/usr/include"
-    SHARE_LOCATION="/usr/share/doc/opennebula"
+    SHARE_LOCATION="/usr/share/one"
 
     if [ "$CLIENT" = "no" ]; then
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION $VAR_LOCATION \
@@ -306,6 +306,7 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/OpenNebula/Host.rb \
                            src/oca/ruby/OpenNebula/VirtualNetworkPool.rb \
                            src/oca/ruby/OpenNebula/Image.rb \
                            src/oca/ruby/OpenNebula/ImagePool.rb \
+                           src/oca/ruby/OpenNebula/ImageRepository.rb \
                            src/oca/ruby/OpenNebula/Cluster.rb \
                            src/oca/ruby/OpenNebula/ClusterPool.rb \
                            src/oca/ruby/OpenNebula/XMLUtils.rb"

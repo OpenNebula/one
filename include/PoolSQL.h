@@ -46,7 +46,7 @@ public:
      *   @param table the name of the table supporting the pool (to set the oid
      *   counter). If null the OID counter is not updated.
      */
-    PoolSQL(SqlDB * _db, const char * table=0);
+    PoolSQL(SqlDB * _db, const char * table);
 
     virtual ~PoolSQL();
 

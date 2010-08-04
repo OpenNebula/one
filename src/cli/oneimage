@@ -78,6 +78,13 @@ ShowTableImage={
         :proc => lambda {|d,e| 
             if d["PUBLIC"].to_i == 1 then "Yes" else "No" end}
     },
+    :persistent => {
+        :name => "PERSISTENT",
+        :desc => "Whether the Image is persistent or not",
+        :size => 3,
+        :proc => lambda {|d,e| 
+            if d["PERSISTENT"].to_i == 1 then "Yes" else "No" end}
+    },
     :state => {
         :name => "STAT",
         :desc => "State of the Image",
@@ -94,7 +101,7 @@ ShowTableImage={
     },
     
     :default => [:id, :user, :name, :type, :regtime, 
-                 :public, :state, :runningvms]
+                 :public, :persistent, :state, :runningvms]
 }
 
 
@@ -217,6 +224,12 @@ Commands:
 * unpublish (Unpublish an Image)
     oneimage unpublish <image_id>
     
+* persistent (Makes an Image persistent)
+    oneimage persistent <image_id>
+
+* nonpersistent (Makes an Image non persistent)
+    oneimage nonpersistent <image_id>
+    
 * list (Shows Images in the pool)
     oneimage list <filter_flag>
     
@@ -251,6 +264,11 @@ EOT
         table.print_help
     end
     
+    def special_options(opts, options)
+        opts.on_tail("-n", "--no-cp", "Do not copy the source") do |o|
+            options[:no_cp]=true
+        end
+    end
 end
 
 
@@ -300,58 +318,18 @@ result=[false, "Unknown error"]
 
 command=ARGV.shift
 
+img_repo = OpenNebula::ImageRepository.new
+
 case command
-when "register", "create", "add"    
-    # ---------- Get the Template ------------
-    
+when "register", "create", "add"
     check_parameters("register", 1)
     template = get_template(ARGV[0])
-
-    # ---------- Allocate the Image file ------------
     
-    image = OpenNebula::Image.new(
-                            OpenNebula::Image.build_xml, 
-                            get_one_client)
-                            
-    result = image.allocate(template)
-    
-    if !is_successful?(result) 
-        puts result.message
-        exit -1
-    end
+    image = OpenNebula::Image.new(OpenNebula::Image.build_xml, get_one_client)
 
-    # ---------- Copy the Image file ------------
-
-    image.info
-
-    if image['TEMPLATE/PATH']
-        file_path = image['TEMPLATE/PATH']
-        
-        if !File.exists?(file_path)
-            error_msg = "Image file could not be found, aborting."
-            result = OpenNebula::Error.new(error_msg)
-        end
-        
-        result = image.copy(file_path, image['SOURCE'])       
-    elsif image['TEMPLATE/SIZE'] and 
-                    image['TEMPLATE/FSTYPE'] and 
-                    image['TEMPLATE/TYPE'] == 'DATABLOCK'
-        result = image.mk_datablock(
-                            image['TEMPLATE/SIZE'],
-                            image['TEMPLATE/FSTYPE'],
-                            image['SOURCE'])
-    else
-        error_msg = "Image not present, aborting."
-        result = OpenNebula::Error.new(error_msg)
-    end
-        
-
-    if is_successful?(result) 
-        image.enable
+    result = img_repo.create(image, template, !ops[:no_cp])    
+    if is_successful?(result)
         puts "ID: " + image.id.to_s if ops[:verbose]
-        exit 0
-    else
-        image.delete
     end
 
     
@@ -419,6 +397,28 @@ when "unpublish"
     result=image.unpublish
     if is_successful?(result)
         puts "Image unpublished" if ops[:verbose]
+    end
+    
+when "persistent"
+    check_parameters("publish", 1)
+    image_id=get_image_id(ARGV[0])
+
+    image=OpenNebula::Image.new_with_id(image_id, get_one_client)
+
+    result=image.persistent
+    if is_successful?(result)
+        puts "Image made persistent" if ops[:verbose]
+    end
+    
+when "nonpersistent"
+    check_parameters("nonpersistent", 1)
+    image_id=get_image_id(ARGV[0])
+
+    image=OpenNebula::Image.new_with_id(image_id, get_one_client)
+
+    result=image.nonpersistent
+    if is_successful?(result)
+        puts "Image made nonpersistent" if ops[:verbose]
     end
     
 when "list"
@@ -494,22 +494,14 @@ when "delete"
     args=expand_args(ARGV)
 
     args.each do |param|
-        image_id=get_image_id(param)
+        image_id = get_image_id(param)
+        image = OpenNebula::Image.new(
+                        OpenNebula::Image.build_xml(image_id),
+                        get_one_client)
 
-        image=OpenNebula::Image.new_with_id(image_id, get_one_client)
-
-        result = image.info
-
+        result = img_repo.delete(image)
         if is_successful?(result)
-
-            file_path = image['SOURCE']
-
-            result=image.delete
-
-            if is_successful?(result)
-                FileUtils.rm(file_path) if File.exists?(file_path)
-                puts "Image correctly deleted"  if ops[:verbose]
-            end
+            puts "Image correctly deleted"  if ops[:verbose]
         end
     end
 

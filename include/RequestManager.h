@@ -1156,6 +1156,31 @@ private:
     
     /* ---------------------------------------------------------------------- */
 
+    class ImagePersistent: public xmlrpc_c::method
+    {
+    public:
+        ImagePersistent(ImagePool * _ipool,
+                     UserPool  * _upool):
+                        ipool(_ipool),
+                        upool(_upool)
+        {
+            _signature="A:sib";
+            _help="Make an Image (non)persistent";
+        };
+
+        ~ImagePersistent(){};
+
+        void execute(
+            xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP);
+
+    private:
+        ImagePool * ipool;
+        UserPool  * upool;
+    };
+    
+    /* ---------------------------------------------------------------------- */
+
     class ImageEnable: public xmlrpc_c::method
     {
     public:

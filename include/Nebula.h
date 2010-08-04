@@ -236,6 +236,7 @@ private:
             etc_location = "/etc/one/";
             log_location = "/var/log/one/";
             var_location = "/var/lib/one/";
+            hook_location= "/usr/share/one/hooks/";
         }
         else
         {
@@ -250,6 +251,7 @@ private:
             etc_location = nebula_location + "etc/";
             log_location = nebula_location + "var/";
             var_location = nebula_location + "var/";
+            hook_location= nebula_location + "share/hooks/";
         }
     };
 
@@ -345,6 +347,7 @@ private:
     string	etc_location;
     string	log_location;
     string	var_location;
+    string  hook_location;
     string	hostname;
 
     // ---------------------------------------------------------------
