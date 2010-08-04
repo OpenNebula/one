@@ -35,7 +35,7 @@ void RequestManager::ImagePersistent::execute(
     int                 uid;
     
     int                 image_owner;
-    bool                is_persistent;
+    bool                is_public;
     
     Image             * image;
 
@@ -71,8 +71,8 @@ void RequestManager::ImagePersistent::execute(
         goto error_image_get;                     
     }
     
-    image_owner    = image->get_uid();
-    is_persistent  = image->isPersistent();
+    image_owner  = image->get_uid();
+    is_public    = image->isPublic();
     
     image->unlock();
     
@@ -85,7 +85,7 @@ void RequestManager::ImagePersistent::execute(
                     iid,
                     AuthRequest::MANAGE,
                     image_owner,
-                    false);
+                    is_public);
 
         if (UserPool::authorize(ar) == -1)
         {
