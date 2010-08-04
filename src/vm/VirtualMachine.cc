@@ -825,8 +825,9 @@ int VirtualMachine::get_disk_images()
     ImagePool *           ipool;
     VectorAttribute *     disk;
 
-    int     n_os = 0;
-    int     n_cd = 0;
+    int     n_os = 0; // Number of OS images
+    int     n_cd = 0; // Number of CDROMS
+    int     n_db = 0; // Number of DATABLOCKS
     string  type;
 
     ostringstream    oss;
@@ -858,6 +859,9 @@ int VirtualMachine::get_disk_images()
                 case Image::CDROM:
                     n_cd++;
                     break;
+                case Image::DATABLOCK:
+                    n_db++;
+                    break;
                 default:
                     break;
             }
@@ -870,6 +874,11 @@ int VirtualMachine::get_disk_images()
             if( n_cd > 1 )  // Max. number of CDROM images is 1
             {
                 goto error_max_cd;
+            }
+            
+            if( n_db > 10 )  // Max. number of DATABLOCK images is 10
+            {
+                goto error_max_db;
             }
         }
         else if ( rc == -1 )
@@ -888,6 +897,11 @@ error_max_os:
 error_max_cd:
     NebulaLog::log("ONE",Log::ERROR,
                     "VM can not use more than one CDROM image.");
+    goto error_common;
+    
+error_max_db:
+    NebulaLog::log("ONE",Log::ERROR,
+                    "VM can not use more than 10 DATABLOCK images.");
     goto error_common;
 
 error_image:
