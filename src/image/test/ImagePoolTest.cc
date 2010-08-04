@@ -254,9 +254,9 @@ public:
         CPPUNIT_ASSERT( img != 0 );
 
         // Image object should be cached. Let's change some template attributes
-        ip->update_template_attribute(img, description_name, new_description);
-        ip->update_template_attribute(img, attr_name,        new_attr_value);
-        ip->remove_attribute(img, "ORIGINAL_PATH");
+        img->replace_template_attribute(description_name, new_description);
+        img->replace_template_attribute(attr_name,        new_attr_value);
+        img->remove_template_attribute("ORIGINAL_PATH");
 
         ip->update(img);
 

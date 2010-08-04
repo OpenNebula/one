@@ -37,7 +37,6 @@ if env['parsers']=='yes':
 # Sources to generate the library
 source_files=[
     'Template.cc',
-    'TemplateSQL.cc',
     'template_parser.c',
     'template_syntax.cc'
 ]

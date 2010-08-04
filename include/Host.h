@@ -18,7 +18,7 @@
 #define HOST_H_
 
 #include "PoolSQL.h"
-#include "Template.h"
+#include "HostTemplate.h"
 #include "HostShare.h"
 #include "ClusterPool.h"
 
@@ -419,7 +419,7 @@ private:
     /**
      *  The Host template, holds the Host attributes.
      */
-    Template        host_template;
+    HostTemplate    host_template;
 
     /**
      *  The Share represents the logical capacity associated with the host

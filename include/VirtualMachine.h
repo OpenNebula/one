@@ -599,6 +599,28 @@ public:
     }
 
     /**
+     *  Adds a new attribute to the template (replacing it if
+     *  already defined), the vm's mutex SHOULD be locked
+     *    @param name of the new attribute
+     *    @param value of the new attribute
+     *    @return 0 on success
+     */
+    int replace_template_attribute(
+        string& name,
+        string& value)
+    {
+        SingleAttribute * sattr;
+
+        vm_template->erase(name);
+
+        sattr = new SingleAttribute(name,value);
+        vm_template->set(sattr);
+
+        return 0;
+    }
+
+
+    /**
      *  Generates a XML string for the template of the VM
      *    @param xml the string to store the XML description.
      */
@@ -923,43 +945,6 @@ private:
             return -1;
     };
 
-    /**
-     *  Updates the template of a VM, adding a new attribute (replacing it if
-     *  already defined), the vm's mutex SHOULD be locked
-     *    @param name of the new attribute
-     *    @param value of the new attribute
-     *    @return 0 on success
-     */
-    int update_template_attribute(
-        string& name,
-        string& value)
-    {
-        SingleAttribute * sattr;
-
-        vm_template->erase(name);
-
-        sattr = new SingleAttribute(name,value);
-        vm_template->set(sattr);
-
-        return 0;
-    }
-
-    /**
-     *  Inserts a new attribute in the template of a VM.
-     *  The vm's mutex SHOULD be locked.
-     *    @param attribute the new attribute for the template
-     *    @return 0 on success
-     */
-    int insert_template_attribute(Attribute * attribute)
-    {
-        if( attribute == 0 )
-        {
-            return -1;
-        }
-
-        vm_template->set(attribute);
-        return 0;
-    }
 
     // -------------------------------------------------------------------------
     // Attribute Parser

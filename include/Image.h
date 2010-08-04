@@ -279,13 +279,13 @@ public:
     }
 
     /**
-     *  Updates the template, adding a new attribute (replacing it if
+     *  Adds a new attribute to the template (replacing it if
      *  already defined), the image's mutex SHOULD be locked
      *    @param name of the new attribute
      *    @param value of the new attribute
      *    @return 0 on success
      */
-    int update_template_attribute(
+    int replace_template_attribute(
         const string& name,
         const string& value)
     {

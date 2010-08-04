@@ -237,7 +237,7 @@ public:
         vm->set_state(VirtualMachine::ACTIVE);
 
         // VirtualMachine object should be cached. Let's update the DB
-        vmp->update_template_attribute(vm, attribute, value);
+        vm->replace_template_attribute(attribute, value);
 
         vmp->update(vm);
 

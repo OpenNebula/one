@@ -17,30 +17,22 @@
 #ifndef HOST_TEMPLATE_H_
 #define HOST_TEMPLATE_H_
 
-#include "TemplateSQL.h"
+#include "Template.h"
 
 using namespace std;
 
 /**
  *  Host Template class, it represents the attributes of a Host
  */
-class HostTemplate : public TemplateSQL
+class HostTemplate : public Template
 {
 public:
-    HostTemplate(int        tid       = -1,
-                 const char separator = '='):
-                 TemplateSQL(table,tid,true,separator,"TEMPLATE"){};
+    HostTemplate() : Template(true,'=',"TEMPLATE"){};
 
     ~HostTemplate(){};
 
-private:
-    friend class Host;
-    
-    static const char * table;
-    
-    static const char * db_bootstrap;
 };
-    
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

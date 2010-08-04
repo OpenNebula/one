@@ -335,28 +335,6 @@ private:
     int vn_drop(SqlDB * db);
 
 
-
-    /**
-     *  Updates the template of a VNW, adding a new attribute (replacing it if
-     *  already defined), the VN's mutex SHOULD be locked
-     *    @param name of the new attribute
-     *    @param value of the new attribute
-     *    @return 0 on success
-     */
-    int update_template_attribute(
-        string& name,
-        string& value)
-    {
-        SingleAttribute * sattr;
-
-        vn_template->erase(name);
-
-        sattr = new SingleAttribute(name,value);
-        vn_template->set(sattr);
-
-        return 0;
-    }
-
 protected:
 
     //**************************************************************************
