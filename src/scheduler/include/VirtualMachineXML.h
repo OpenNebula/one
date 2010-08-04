@@ -28,7 +28,10 @@ using namespace std;
 class VirtualMachineXML : public ObjectXML
 {
 public:
+
     VirtualMachineXML(const string &xml_doc);
+
+    VirtualMachineXML(const xmlNodePtr node);
 
     ~VirtualMachineXML();
 
@@ -93,6 +96,11 @@ public:
     };
 
 protected:
+
+    /**
+     *  For constructors
+     */
+    void init();
 
     //--------------------------------------------------------------------------
     //--------------------------------------------------------------------------

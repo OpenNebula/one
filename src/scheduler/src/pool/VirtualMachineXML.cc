@@ -20,6 +20,16 @@
 
 VirtualMachineXML::VirtualMachineXML(const string &xml_doc):ObjectXML(xml_doc)
 {
+    init();
+}
+
+VirtualMachineXML::VirtualMachineXML(const xmlNodePtr node):ObjectXML(node)
+{
+    init();
+}
+
+void VirtualMachineXML::init()
+{
     vector<string> result;
 
     oid = atoi(((*this)["/VM/ID"] )[0].c_str() );
