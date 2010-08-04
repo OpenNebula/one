@@ -253,8 +253,8 @@ int VirtualNetwork::dump(ostringstream& oss,
             "<TYPE>"        << values[TYPE]     << "</TYPE>"        <<
             "<BRIDGE>"      << values[BRIDGE]   << "</BRIDGE>"      <<
             "<PUBLIC>"      << values[PUBLIC]   << "</PUBLIC>"      <<
-            "<TOTAL_LEASES>"<< values[LIMIT]    << "</TOTAL_LEASES>"<<
-            "<TEMPLATE>"    << values[TEMPLATE] << "</TEMPLATE>"    <<
+            "<TOTAL_LEASES>"<< values[LIMIT]    << "</TOTAL_LEASES>"
+                            << values[TEMPLATE] <<
         "</VNET>";
 
     return 0;
