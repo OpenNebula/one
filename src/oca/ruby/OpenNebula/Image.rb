@@ -116,7 +116,7 @@ module OpenNebula
         end
 
         # Makes the Image non persistent
-        def unpublish
+        def nonpersistent
             set_persistent(false)
         end
 
