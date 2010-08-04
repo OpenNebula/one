@@ -519,7 +519,7 @@ void VirtualMachineManagerDriver::protocol(
 
                     tiss >> val;
 
-                    vmpool->update_template_attribute(vm,var,val);
+                    vm->replace_template_attribute(var,val);
                 }
             }
 

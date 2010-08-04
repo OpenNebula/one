@@ -100,7 +100,12 @@ void RequestManager::ImageRemoveAttribute::execute(
         goto error_image_get;
     }
 
-    rc = ImageRemoveAttribute::ipool->remove_attribute(image, name);
+    rc = image->remove_template_attribute(name);
+
+    if(rc == 0)
+    {
+        rc = ImageRemoveAttribute::ipool->update(image);
+    }
 
     if ( rc < 0 )
     {

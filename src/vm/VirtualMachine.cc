@@ -96,14 +96,14 @@ const char * VirtualMachine::table = "vm_pool";
 
 const char * VirtualMachine::db_names =
     "(oid,uid,name,last_poll, state,lcm_state,stime,etime,deploy_id"
-    ",memory,cpu,net_tx,net_rx,last_seq)";
+    ",memory,cpu,net_tx,net_rx,last_seq, template)";
 
 const char * VirtualMachine::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
         "vm_pool ("
         "oid INTEGER PRIMARY KEY,uid INTEGER,name TEXT,"
         "last_poll INTEGER, state INTEGER,lcm_state INTEGER,"
         "stime INTEGER,etime INTEGER,deploy_id TEXT,memory INTEGER,cpu INTEGER,"
-        "net_tx INTEGER,net_rx INTEGER, last_seq INTEGER)";
+        "net_tx INTEGER,net_rx INTEGER, last_seq INTEGER, template TEXT)";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -123,6 +123,7 @@ int VirtualMachine::select_cb(void *nil, int num, char **values, char **names)
         (values[NET_TX] == 0) ||
         (values[NET_RX] == 0) ||
         (values[LAST_SEQ] == 0) ||
+        (values[TEMPLATE] == 0) ||
         (num != LIMIT ))
     {
         return -1;
@@ -151,8 +152,8 @@ int VirtualMachine::select_cb(void *nil, int num, char **values, char **names)
     net_rx      = atoi(values[NET_RX]);
     last_seq    = atoi(values[LAST_SEQ]);
 
-    // Virtual Machine template ID is the VM ID
-    vm_template->id = oid;
+    // Virtual Machine template
+    vm_template->from_xml(values[TEMPLATE]);
 
     return 0;
 }
@@ -187,14 +188,6 @@ int VirtualMachine::select(SqlDB * db)
         goto error_id;
     }
 
-    //Get the template
-    rc = vm_template->select(db);
-
-    if (rc != 0)
-    {
-        goto error_template;
-    }
-
     //Get the History Records
 
     if ( last_seq != -1 )
@@ -221,7 +214,7 @@ int VirtualMachine::select(SqlDB * db)
         }
     }
 
-    //Create support directory fo this VM
+    //Create support directory for this VM
 
     oss.str("");
     oss << nd.get_var_location() << oid;
@@ -229,7 +222,7 @@ int VirtualMachine::select(SqlDB * db)
     mkdir(oss.str().c_str(), 0777);
     chmod(oss.str().c_str(), 0777);
 
-    //Create Log support fo this VM
+    //Create Log support for this VM
 
     try
     {
@@ -248,11 +241,6 @@ int VirtualMachine::select(SqlDB * db)
 error_id:
     ose << "Error getting VM id: " << oid;
     log("VMM", Log::ERROR, ose);
-    return -1;
-
-error_template:
-    ose << "Can not get template for VM id: " << oid;
-    log("ONE", Log::ERROR, ose);
     return -1;
 
 error_history:
@@ -279,13 +267,6 @@ int VirtualMachine::insert(SqlDB * db)
     string              value;
     ostringstream       oss;
 
-    // -----------------------------------------------------------------------
-    // Set a template ID if it wasn't already assigned
-    // ------------------------------------------------------------------------
-    if ( vm_template->id == -1 )
-    {
-        vm_template->id = oid;
-    }
 
     // -----------------------------------------------------------------------
     // Set a name if the VM has not got one and VM_ID
@@ -354,15 +335,8 @@ int VirtualMachine::insert(SqlDB * db)
     parse_graphics();
 
     // ------------------------------------------------------------------------
-    // Insert the template first, so we get a valid template ID. Then the VM
+    // Insert the VM
     // ------------------------------------------------------------------------
-
-    rc = vm_template->insert(db);
-
-    if ( rc != 0 )
-    {
-        goto error_template;
-    }
 
     rc = insert_replace(db, false);
 
@@ -375,11 +349,6 @@ int VirtualMachine::insert(SqlDB * db)
 
 error_update:
     NebulaLog::log("ONE",Log::ERROR, "Can not update VM in the database");
-    vm_template->drop(db);
-    goto error_common;
-
-error_template:
-    NebulaLog::log("ONE",Log::ERROR, "Can not insert template in the database");
     goto error_common;
 
 error_leases:
@@ -590,23 +559,33 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace)
     ostringstream   oss;
     int             rc;
 
+    string xml_template;
     char * sql_deploy_id;
     char * sql_name;
+    char * sql_template;
 
     sql_deploy_id = db->escape_str(deploy_id.c_str());
 
     if ( sql_deploy_id == 0 )
     {
-        return -1;
+        goto error_deploy;
     }
 
     sql_name =  db->escape_str(name.c_str());
 
     if ( sql_name == 0 )
     {
-       db->free_str(sql_deploy_id);
-       return -1;
+        goto error_name;
     }
+
+    vm_template->to_xml(xml_template);
+    sql_template = db->escape_str(xml_template.c_str());
+
+    if ( sql_template == 0 )
+    {
+        goto error_template;
+    }
+
 
     if(replace)
     {
@@ -631,14 +610,23 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace)
         <<          cpu             << ","
         <<          net_tx          << ","
         <<          net_rx          << ","
-        <<          last_seq        << ")";
+        <<          last_seq        << ","
+        << "'" <<   sql_template    << "')";
 
     db->free_str(sql_deploy_id);
     db->free_str(sql_name);
+    db->free_str(sql_template);
 
     rc = db->exec(oss);
 
     return rc;
+
+error_template:
+    db->free_str(sql_name);
+error_name:
+    db->free_str(sql_deploy_id);
+error_deploy:
+    return -1;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -660,6 +648,7 @@ int VirtualMachine::dump(ostringstream& oss,int num,char **values,char **names)
         (!values[NET_TX])||
         (!values[NET_RX])||
         (!values[LAST_SEQ])||
+        (!values[TEMPLATE])||
         (num != (LIMIT + History::LIMIT + 1)))
     {
         return -1;
@@ -681,7 +670,8 @@ int VirtualMachine::dump(ostringstream& oss,int num,char **values,char **names)
             "<CPU>"      << values[CPU]      << "</CPU>"      <<
             "<NET_TX>"   << values[NET_TX]   << "</NET_TX>"   <<
             "<NET_RX>"   << values[NET_RX]   << "</NET_RX>"   <<
-            "<LAST_SEQ>" << values[LAST_SEQ] << "</LAST_SEQ>";
+            "<LAST_SEQ>" << values[LAST_SEQ] << "</LAST_SEQ>" <<
+                            values[TEMPLATE];
 
     History::dump(oss, num-LIMIT-1, values+LIMIT+1, names+LIMIT+1);
 

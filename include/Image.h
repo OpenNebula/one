@@ -273,9 +273,30 @@ public:
      *  Removes an Image attribute
      *    @param name of the attribute
      */
-    int remove_template_attribute(SqlDB * db, const string&   name)
+    int remove_template_attribute(const string&   name)
     {
-        return image_template->remove_attribute(db, name);
+        return image_template->erase(name);
+    }
+
+    /**
+     *  Adds a new attribute to the template (replacing it if
+     *  already defined), the image's mutex SHOULD be locked
+     *    @param name of the new attribute
+     *    @param value of the new attribute
+     *    @return 0 on success
+     */
+    int replace_template_attribute(
+        const string& name,
+        const string& value)
+    {
+        SingleAttribute * sattr;
+
+        image_template->erase(name);
+
+        sattr = new SingleAttribute(name,value);
+        image_template->set(sattr);
+
+        return 0;
     }
 
 private:
@@ -367,10 +388,8 @@ private:
     static void bootstrap(SqlDB * db)
     {
         ostringstream oss_image(Image::db_bootstrap);
-        ostringstream oss_templ(ImageTemplate::db_bootstrap);
 
         db->exec(oss_image);
-        db->exec(oss_templ);
     };
 
 
@@ -407,7 +426,8 @@ protected:
         STATE            = 7,    /* 0) INIT   1) ALLOCATED      */
                                  /* 2) READY  3) USED           */
         RUNNING_VMS      = 8,    /* Number of VMs using the img */
-        LIMIT            = 9
+        TEMPLATE         = 9,    /* Image template xml data     */
+        LIMIT            = 10
     };
 
     static const char * db_names;

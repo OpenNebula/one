@@ -101,9 +101,12 @@ void RequestManager::ImageUpdate::execute(
         goto error_image_get;
     }
 
-    // This will perform the update on the DB as well,
-    // so no need to do it manually
-    rc = ImageUpdate::ipool->replace_attribute(image, name, value);
+    rc = image->replace_template_attribute(name, value);
+
+    if(rc == 0)
+    {
+        rc = ImageUpdate::ipool->update(image);
+    }
 
     if ( rc < 0 )
     {

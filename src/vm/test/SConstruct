@@ -80,6 +80,9 @@ main_env.Append(LIBS=[
 main_env.Append(LIBPATH=["/usr/lib/mysql"])
 main_env.Append(CPPPATH=["/usr/include/mysql"])
 
+# libxml2
+main_env.ParseConfig('xml2-config --libs --cflags')
+
 sqlite=ARGUMENTS.get('sqlite', 'yes')
 if sqlite=='yes':
     main_env.Append(CPPFLAGS=["-DSQLITE_DB"])

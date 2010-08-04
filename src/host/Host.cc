@@ -41,7 +41,7 @@ Host::Host(
         tm_mad_name(_tm_mad_name),
         last_monitored(0),
         cluster(ClusterPool::DEFAULT_CLUSTER_NAME),
-        host_template(id)
+        host_template()
         {};
 
 
@@ -54,12 +54,12 @@ Host::~Host(){};
 const char * Host::table = "host_pool";
 
 const char * Host::db_names = "(oid,host_name,state,im_mad,vm_mad,"
-                              "tm_mad,last_mon_time, cluster)";
+                              "tm_mad,last_mon_time, cluster, template)";
 
 const char * Host::db_bootstrap = "CREATE TABLE IF NOT EXISTS host_pool ("
     "oid INTEGER PRIMARY KEY,host_name VARCHAR(512), state INTEGER,"
     "im_mad VARCHAR(128),vm_mad VARCHAR(128),tm_mad VARCHAR(128),"
-    "last_mon_time INTEGER, cluster VARCHAR(128), "
+    "last_mon_time INTEGER, cluster VARCHAR(128), template TEXT, "
     "UNIQUE(host_name, im_mad, vm_mad, tm_mad) )";
 
 /* ------------------------------------------------------------------------ */
@@ -75,6 +75,7 @@ int Host::select_cb(void * nil, int num, char **values, char ** names)
         (!values[TM_MAD]) ||
         (!values[LAST_MON_TIME]) ||
         (!values[CLUSTER]) ||
+        (!values[TEMPLATE]) ||
         (num != LIMIT ))
     {
         return -1;
@@ -92,7 +93,8 @@ int Host::select_cb(void * nil, int num, char **values, char ** names)
 
     cluster = values[CLUSTER];
 
-    host_template.id = oid;
+    host_template.from_xml(values[TEMPLATE]);
+
     host_share.hsid  = oid;
 
     return 0;
@@ -122,9 +124,6 @@ int Host::select(SqlDB *db)
         return -1;
     }
 
-    // Get the template
-    rc = host_template.select(db);
-
     if ( rc != 0 )
     {
         return -1;
@@ -149,24 +148,10 @@ int Host::insert(SqlDB *db)
     int rc;
     map<int,HostShare *>::iterator iter;
 
-    // Set up the template ID, to insert it
-    if ( host_template.id == -1 )
-    {
-        host_template.id = oid;
-    }
-
     // Set up the share ID, to insert it
     if ( host_share.hsid == -1 )
     {
         host_share.hsid = oid;
-    }
-
-    // Update the Template
-    rc = host_template.insert(db);
-
-    if ( rc != 0 )
-    {
-        return rc;
     }
 
     // Update the HostShare
@@ -174,7 +159,6 @@ int Host::insert(SqlDB *db)
 
     if ( rc != 0 )
     {
-        host_template.drop(db);
         return rc;
     }
 
@@ -183,7 +167,6 @@ int Host::insert(SqlDB *db)
 
     if ( rc != 0 )
     {
-        host_template.drop(db);
         host_share.drop(db);
 
         return rc;
@@ -198,14 +181,6 @@ int Host::insert(SqlDB *db)
 int Host::update(SqlDB *db)
 {
     int    rc;
-
-    // Update the Template needed by the monitoring action from IM
-    rc = host_template.update(db);
-
-    if ( rc != 0 )
-    {
-        return rc;
-    }
 
     // Update the HostShare
     rc = host_share.update(db);
@@ -235,12 +210,14 @@ int Host::insert_replace(SqlDB *db, bool replace)
     ostringstream   oss;
 
     int    rc;
+    string xml_template;
 
     char * sql_hostname;
     char * sql_im_mad_name;
     char * sql_tm_mad_name;
     char * sql_vmm_mad_name;
     char * sql_cluster;
+    char * sql_template;
 
    // Update the Host
 
@@ -279,6 +256,14 @@ int Host::insert_replace(SqlDB *db, bool replace)
         goto error_cluster;
     }
 
+    host_template.to_xml(xml_template);
+    sql_template = db->escape_str(xml_template.c_str());
+
+    if ( sql_template == 0 )
+    {
+        goto error_template;
+    }
+
     if(replace)
     {
         oss << "REPLACE";
@@ -291,14 +276,15 @@ int Host::insert_replace(SqlDB *db, bool replace)
     // Construct the SQL statement to Insert or Replace
 
     oss <<" INTO "<< table <<" "<< db_names <<" VALUES ("
-        << oid << ","
-        << "'" << sql_hostname << "',"
-        << state << ","
-        << "'" << sql_im_mad_name << "',"
-        << "'" << sql_vmm_mad_name << "',"
-        << "'" << sql_tm_mad_name << "',"
-        << last_monitored << ","
-        << "'" << sql_cluster << "')";
+        <<          oid                 << ","
+        << "'" <<   sql_hostname        << "',"
+        <<          state               << ","
+        << "'" <<   sql_im_mad_name     << "',"
+        << "'" <<   sql_vmm_mad_name    << "',"
+        << "'" <<   sql_tm_mad_name     << "',"
+        <<          last_monitored      << ","
+        << "'" <<   sql_cluster         << "',"
+        << "'" <<   sql_template        << "')";
 
     rc = db->exec(oss);
 
@@ -307,9 +293,12 @@ int Host::insert_replace(SqlDB *db, bool replace)
     db->free_str(sql_tm_mad_name);
     db->free_str(sql_vmm_mad_name);
     db->free_str(sql_cluster);
+    db->free_str(sql_template);
 
     return rc;
 
+error_template:
+    db->free_str(sql_cluster);
 error_cluster:
     db->free_str(sql_vmm_mad_name);
 error_vmm:
@@ -335,6 +324,7 @@ int Host::dump(ostringstream& oss, int num, char **values, char **names)
         (!values[TM_MAD]) ||
         (!values[LAST_MON_TIME]) ||
         (!values[CLUSTER]) ||
+        (!values[TEMPLATE]) ||
         (num != LIMIT + HostShare::LIMIT ))
     {
         return -1;
@@ -349,7 +339,8 @@ int Host::dump(ostringstream& oss, int num, char **values, char **names)
             "<VM_MAD>"       << values[VM_MAD]       <<"</VM_MAD>"       <<
             "<TM_MAD>"       << values[TM_MAD]       <<"</TM_MAD>"       <<
             "<LAST_MON_TIME>"<< values[LAST_MON_TIME]<<"</LAST_MON_TIME>"<<
-            "<CLUSTER>"      << values[CLUSTER]      <<"</CLUSTER>";
+            "<CLUSTER>"      << values[CLUSTER]      <<"</CLUSTER>"      <<
+            values[TEMPLATE];
 
     HostShare::dump(oss,num - LIMIT, values + LIMIT, names + LIMIT);
 
@@ -365,8 +356,6 @@ int Host::drop(SqlDB * db)
 {
     ostringstream oss;
     int rc;
-
-    host_template.drop(db);
 
     host_share.drop(db);
 

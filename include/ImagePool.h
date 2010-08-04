@@ -120,34 +120,6 @@ public:
         return rc;
     };
 
-    /** Modify an image attribute in the template (Image MUST be locked)
-     *    @param image pointer to Image
-     *    @param name of the attribute to be changed
-     *    @param new value for the attribute
-     *    @return 0 on success, -1 otherwise
-     */
-    int replace_attribute(
-        Image *       image,
-        const string& name,
-        const string& value)
-    {
-        SingleAttribute * sattr = new SingleAttribute(name,value);
-
-        return image->image_template->replace_attribute(db,sattr);
-    }
-
-    /** Delete an image attribute in the template (Image MUST be locked)
-     *    @param image pointer to Image
-     *    @param name of the attribute to be removed
-     *    @return 0 on success, -1 otherwise
-     */
-    int remove_attribute(
-        Image *       image,
-        const string& name)
-    {
-        return image->image_template->remove_attribute(db, name);
-    }
-
     /**
      *  Bootstraps the database table(s) associated to the Image pool
      */

@@ -460,6 +460,19 @@ int Template::from_xml(const string &xml_str)
         return -1;
     }
 
+    //Clear the template if not empty
+    if (!attributes.empty())
+    {
+        multimap<string,Attribute *>::iterator  it;
+
+        for ( it = attributes.begin(); it != attributes.end(); it++)
+        {
+            delete it->second;
+        }
+
+        attributes.clear();
+    }
+
     // Get the <TEMPLATE> element
     root_element = xmlDocGetRootElement(xml_doc);
 
@@ -484,6 +497,8 @@ int Template::from_xml(const string &xml_str)
             }
         }
     }
+
+    xmlFreeDoc(xml_doc);
 
     return 0;
 }
