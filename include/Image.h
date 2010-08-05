@@ -190,7 +190,7 @@ public:
     /**
      *  Publish or unpublish an image
      *    @param pub true to publish the image
-     *    @return 0 on success
+     *    @return true on success
      */
     bool publish(bool pub)
     {
@@ -216,7 +216,7 @@ public:
     /**
      *  Set/Unset an image as persistant
      *    @param persistent true to make an image persistant
-     *    @return 0 on success
+     *    @return true on success
      */
     bool persistent(bool persis)
     {
