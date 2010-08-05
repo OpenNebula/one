@@ -90,7 +90,8 @@ ImagePool::ImagePool(   SqlDB * db,
 int ImagePool::allocate (
         int            uid,
         ImageTemplate* img_template,
-        int *          oid)
+        int *          oid,
+        string&        error_str)
 {
     Image * img;
     string  name;
@@ -105,7 +106,7 @@ int ImagePool::allocate (
     // ---------------------------------------------------------------------
     // Insert the Object in the pool
     // ---------------------------------------------------------------------
-    *oid = PoolSQL::allocate(img);
+    *oid = PoolSQL::allocate(img, error_str);
 
     // ---------------------------------------------------------------------
     // Add the image name to the map of image_names

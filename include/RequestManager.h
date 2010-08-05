@@ -57,7 +57,7 @@ public:
     ;
 
     /**
-     *  This functions starts the associated listener thread (XML server), and 
+     *  This functions starts the associated listener thread (XML server), and
      *  creates a new thread for the Request Manager. This thread will wait in
      *  an action loop till it receives ACTION_FINALIZE.
      *    @return 0 on success.
@@ -74,7 +74,7 @@ public:
     };
 
     /**
-     * 
+     *
      */
     void finalize()
     {
@@ -110,17 +110,17 @@ private:
      *  Pointer to the Host Pool, to access hosts
      */
     HostPool           *    hpool;
-    
+
     /**
      *  Pointer to the VN Pool, to access Virtual Netowrks
      */
     VirtualNetworkPool *    vnpool;
-    
+
     /**
      *  Pointer to the User Pool, to access users
      */
     UserPool           *    upool;
-    
+
     /**
      *  Pointer to the Image Pool, to access images
      */
@@ -130,10 +130,10 @@ private:
      *  Port number where the connection will be open
      */
     int port;
-    
+
     /*
      *  FD for the XML server socket
-     */    
+     */
     int socket_fd;
 
     /**
@@ -164,16 +164,16 @@ private:
     void do_action(const string & action, void * arg);
 
     void register_xml_methods();
-    
+
     int setup_socket();
-    
+
     // ----------------------------------------------------------------------
     // ----------------------------------------------------------------------
     //                          Error Messages
     // ----------------------------------------------------------------------
-    // ----------------------------------------------------------------------   
-    
-    
+    // ----------------------------------------------------------------------
+
+
     /**
      *  Logs authorization errors
      *    @param method name of the RM method where the error arose
@@ -183,17 +183,17 @@ private:
      *    @param id id of the object, -1 for Pool
      *    @returns string for logging
      */
-    static string authorization_error (const string& method, 
-                                       const string &action, 
-                                       const string &object, 
+    static string authorization_error (const string& method,
+                                       const string &action,
+                                       const string &object,
                                        int   uid,
                                        int   id)
     {
         ostringstream oss;
-        oss << "[" << method << "]" << " User [" << uid << "] not authorized"               
-            << " to perform " << action << " on " << object; 
-            
-        
+        oss << "[" << method << "]" << " User [" << uid << "] not authorized"
+            << " to perform " << action << " on " << object;
+
+
         if ( id != -1 )
         {
             oss << " [" << id << "].";
@@ -202,25 +202,25 @@ private:
         {
             oss << " Pool";
         }
-        
+
         return oss.str();
     }
-    
+
     /**
      *  Logs authenticate errors
      *    @param method name of the RM method where the error arose
      *    @returns string for logging
-     */   
+     */
     static string authenticate_error (const string& method)
     {
         ostringstream oss;
-        
+
         oss << "[" << method << "]" << " User couldn't be authenticated," <<
                " aborting call.";
-      
+
         return oss.str();
     }
-    
+
     /**
      *  Logs get object errors
      *    @param method name of the RM method where the error arose
@@ -228,52 +228,52 @@ private:
      *    @param id of the object over which the get failed
      *    @returns string for logging
      */
-    static string get_error (const string& method, 
-                             const string &object, 
+    static string get_error (const string& method,
+                             const string &object,
                              int id)
     {
         ostringstream oss;
-        
-        oss << "[" << method << "]" << " Error getting " << 
+
+        oss << "[" << method << "]" << " Error getting " <<
                object;
-               
+
        if ( id != -1 )
        {
            oss << " [" << id << "].";
        }
        else
        {
-          oss << " Pool."; 
+          oss << " Pool.";
        }
-        
+
        return oss.str();
     }
-    
+
     /**
      *  Logs action errors
      *    @param method name of the RM method where the error arose
      *    @param action that triggered the error
      *    @param object over which the action was applied
-     *    @param id id of the object, -1 for Pool, -2 for no-id objects   
+     *    @param id id of the object, -1 for Pool, -2 for no-id objects
      *              (allocate error, parse error)
      *    @param rc returned error code (NULL to ignore)
      *    @returns string for logging
      */
     static string action_error (const string& method,
-                                const string &action, 
-                                const string &object, 
+                                const string &action,
+                                const string &object,
                                 int id,
                                 int rc)
     {
         ostringstream oss;
-        
+
         oss << "[" << method << "]" << " Error trying to " << action << " "
             << object;
-            
+
         switch(id)
         {
             case -2:
-                break; 
+                break;
             case -1:
                 oss << "Pool.";
                 break;
@@ -281,15 +281,15 @@ private:
                 oss << " [" << id << "].";
                 break;
         }
-                
-        if ( rc != (int)NULL )
+
+        if ( rc != 0 )
         {
-            oss << " Returned error code [" << rc << "].";       
+            oss << " Returned error code [" << rc << "].";
         }
-        
+
         return oss.str();
     }
-    
+
     // ----------------------------------------------------------------------
     // ----------------------------------------------------------------------
     //                          XML-RPC Methods
@@ -297,7 +297,7 @@ private:
     // ----------------------------------------------------------------------
 
     /* ---------------------------------------------------------------------- */
-    /*                     Virtual Machine Interface                          */    
+    /*                     Virtual Machine Interface                          */
     /* ---------------------------------------------------------------------- */
     class VirtualMachineAllocate: public xmlrpc_c::method
     {
@@ -327,9 +327,9 @@ private:
         ImagePool          * ipool;
         UserPool           * upool;
     };
-    
+
     /* ---------------------------------------------------------------------- */
-    
+
     class VirtualMachineDeploy: public xmlrpc_c::method
     {
     public:
@@ -356,7 +356,7 @@ private:
         HostPool           * hpool;
         UserPool           * upool;
     };
-    
+
     /* ---------------------------------------------------------------------- */
 
     class VirtualMachineAction: public xmlrpc_c::method
@@ -384,7 +384,7 @@ private:
     };
 
     /* ---------------------------------------------------------------------- */
-    
+
     class VirtualMachineMigrate: public xmlrpc_c::method
     {
     public:
@@ -410,10 +410,10 @@ private:
         VirtualMachinePool * vmpool;
         HostPool *           hpool;
         UserPool *           upool;
-    }; 
-    
+    };
+
     /* ---------------------------------------------------------------------- */
-    
+
     class VirtualMachineInfo: public xmlrpc_c::method
     {
     public:
@@ -491,10 +491,10 @@ private:
     private:
         VirtualMachinePool * vmpool;
         UserPool           *  upool;
-    };    
-    
+    };
+
     /* ---------------------------------------------------------------------- */
-    /*                            Host Interface                              */    
+    /*                            Host Interface                              */
     /* ---------------------------------------------------------------------- */
 
     class HostAllocate: public xmlrpc_c::method
@@ -522,7 +522,7 @@ private:
     };
 
     /* ---------------------------------------------------------------------- */
-     
+
     class HostInfo: public xmlrpc_c::method
     {
     public:
@@ -548,7 +548,7 @@ private:
     };
 
     /* ---------------------------------------------------------------------- */
-     
+
     class HostPoolInfo: public xmlrpc_c::method
     {
     public:
@@ -573,7 +573,7 @@ private:
     };
 
     /* ---------------------------------------------------------------------- */
-    
+
     class HostDelete: public xmlrpc_c::method
     {
     public:
@@ -597,9 +597,9 @@ private:
         HostPool * hpool;
         UserPool * upool;
     };
-    
+
     /* ---------------------------------------------------------------------- */
-    
+
     class HostEnable: public xmlrpc_c::method
     {
     public:
@@ -622,7 +622,7 @@ private:
     private:
         HostPool * hpool;
         UserPool * upool;
-    };   
+    };
 
     /* ---------------------------------------------------------------------- */
     /*                      Cluster Interface                                 */
@@ -784,10 +784,10 @@ private:
 
 
     /* ---------------------------------------------------------------------- */
-    /*                      Virtual Network Interface                         */    
+    /*                      Virtual Network Interface                         */
     /* ---------------------------------------------------------------------- */
-    
-    
+
+
     class VirtualNetworkAllocate: public xmlrpc_c::method
     {
     public:
@@ -810,10 +810,10 @@ private:
     private:
         VirtualNetworkPool * vnpool;
         UserPool           * upool;
-    }; 
-    
+    };
+
     /* ---------------------------------------------------------------------- */
-    
+
     class VirtualNetworkInfo: public xmlrpc_c::method
     {
     public:
@@ -832,14 +832,14 @@ private:
         void execute(
             xmlrpc_c::paramList const& paramList,
             xmlrpc_c::value *   const  retvalP);
-		
+
     private:
         VirtualNetworkPool * vnpool;
         UserPool           * upool;
     };
-    
+
     /* ---------------------------------------------------------------------- */
-     
+
     class VirtualNetworkPoolInfo: public xmlrpc_c::method
     {
     public:
@@ -862,7 +862,7 @@ private:
         VirtualNetworkPool * vnpool;
         UserPool           * upool;
     };
-    
+
     /* ---------------------------------------------------------------------- */
 
     class VirtualNetworkPublish: public xmlrpc_c::method
@@ -916,10 +916,10 @@ private:
     };
 
     /* ---------------------------------------------------------------------- */
-    /*                      User Management Interface                         */    
+    /*                      User Management Interface                         */
     /* ---------------------------------------------------------------------- */
-    
-    
+
+
     class UserAllocate: public xmlrpc_c::method
     {
     public:
@@ -1001,7 +1001,7 @@ private:
     private:
         UserPool * upool;
     };
-    
+
     /* ---------------------------------------------------------------------- */
     /*                      Image Pool Interface                              */
     /* ---------------------------------------------------------------------- */
@@ -1027,10 +1027,10 @@ private:
     private:
         ImagePool * ipool;
         UserPool  * upool;
-    };  
-    
+    };
+
     /* ---------------------------------------------------------------------- */
-    
+
     class ImageDelete: public xmlrpc_c::method
     {
     public:
@@ -1052,8 +1052,8 @@ private:
     private:
         ImagePool * ipool;
         UserPool  * upool;
-    };  
-    
+    };
+
     /* ---------------------------------------------------------------------- */
 
     class ImageInfo: public xmlrpc_c::method
@@ -1077,8 +1077,8 @@ private:
     private:
         ImagePool * ipool;
         UserPool  * upool;
-    }; 
-    
+    };
+
     /* ---------------------------------------------------------------------- */
 
     class ImageUpdate: public xmlrpc_c::method
@@ -1103,7 +1103,7 @@ private:
         ImagePool * ipool;
         UserPool  * upool;
     };
-    
+
     /* ---------------------------------------------------------------------- */
 
     class ImageRemoveAttribute: public xmlrpc_c::method
@@ -1128,7 +1128,7 @@ private:
         ImagePool * ipool;
         UserPool  * upool;
     };
-    
+
     /* ---------------------------------------------------------------------- */
 
     class ImagePublish: public xmlrpc_c::method
@@ -1153,7 +1153,7 @@ private:
         ImagePool * ipool;
         UserPool  * upool;
     };
-    
+
     /* ---------------------------------------------------------------------- */
 
     class ImagePersistent: public xmlrpc_c::method
@@ -1178,7 +1178,7 @@ private:
         ImagePool * ipool;
         UserPool  * upool;
     };
-    
+
     /* ---------------------------------------------------------------------- */
 
     class ImageEnable: public xmlrpc_c::method
@@ -1203,7 +1203,7 @@ private:
         ImagePool * ipool;
         UserPool  * upool;
     };
-    
+
     /* ---------------------------------------------------------------------- */
 
     class ImagePoolInfo: public xmlrpc_c::method
@@ -1230,7 +1230,7 @@ private:
     };
 
 };
-    
+
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

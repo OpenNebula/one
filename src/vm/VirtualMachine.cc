@@ -258,7 +258,7 @@ error_previous_history:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::insert(SqlDB * db)
+int VirtualMachine::insert(SqlDB * db, string& error_str)
 {
     int    rc;
     string name;
@@ -307,7 +307,7 @@ int VirtualMachine::insert(SqlDB * db)
     // Get disk images
     // ------------------------------------------------------------------------
 
-    rc = get_disk_images();
+    rc = get_disk_images(error_str);
 
     if ( rc != 0 )
     {
@@ -348,11 +348,12 @@ int VirtualMachine::insert(SqlDB * db)
     return 0;
 
 error_update:
-    NebulaLog::log("ONE",Log::ERROR, "Can not update VM in the database");
+    error_str = "Can not insert VM in the database";
     goto error_common;
 
 error_leases:
-    NebulaLog::log("ONE",Log::ERROR, "Could not get network lease for VM");
+    error_str = "Could not get network lease for VM";
+    NebulaLog::log("ONE",Log::ERROR, error_str);
     release_network_leases();
     return -1;
 
@@ -360,14 +361,15 @@ error_images:
     goto error_common;
 
 error_context:
-    NebulaLog::log("ONE",Log::ERROR, "Could not parse CONTEXT for VM");
+    error_str = "Could not parse CONTEXT for VM";
     goto error_common;
 
 error_requirements:
-    NebulaLog::log("ONE",Log::ERROR, "Could not parse REQUIREMENTS for VM");
+    error_str = "Could not parse REQUIREMENTS for VM";
     goto error_common;
 
 error_common:
+    NebulaLog::log("ONE",Log::ERROR, error_str);
     release_network_leases();
     release_disk_images();
     return -1;
@@ -808,7 +810,7 @@ void VirtualMachine::get_requirements (int& cpu, int& memory, int& disk)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::get_disk_images()
+int VirtualMachine::get_disk_images(string& error_str)
 {
     int                   num_disks, rc;
     vector<Attribute  * > disks;
@@ -865,7 +867,7 @@ int VirtualMachine::get_disk_images()
             {
                 goto error_max_cd;
             }
-            
+
             if( n_db > 10 )  // Max. number of DATABLOCK images is 10
             {
                 goto error_max_db;
@@ -880,26 +882,23 @@ int VirtualMachine::get_disk_images()
     return 0;
 
 error_max_os:
-    NebulaLog::log("ONE",Log::ERROR,
-                    "VM can not use more than one OS image.");
+    error_str = "VM can not use more than one OS image.";
     goto error_common;
 
 error_max_cd:
-    NebulaLog::log("ONE",Log::ERROR,
-                    "VM can not use more than one CDROM image.");
+    error_str = "VM can not use more than one CDROM image.";
     goto error_common;
-    
+
 error_max_db:
-    NebulaLog::log("ONE",Log::ERROR,
-                    "VM can not use more than 10 DATABLOCK images.");
+    error_str = "VM can not use more than 10 DATABLOCK images.";
     goto error_common;
 
 error_image:
-    NebulaLog::log("ONE",Log::ERROR, "Could not get disk image for VM");
+    error_str = "Could not get disk image for VM";
 
 error_common:
+    NebulaLog::log("ONE",Log::ERROR, error_str);
     return -1;
-
 }
 
 /* -------------------------------------------------------------------------- */

@@ -94,7 +94,8 @@ PoolSQL::~PoolSQL()
 /* -------------------------------------------------------------------------- */
 
 int PoolSQL::allocate(
-    PoolObjectSQL   *objsql)
+    PoolObjectSQL   *objsql,
+    string&         error_str)
 {
     int rc;
 
@@ -109,7 +110,7 @@ int PoolSQL::allocate(
 
     objsql->oid = ++lastOID;
 
-    rc = objsql->insert(db);
+    rc = objsql->insert(db,error_str);
 
     if ( rc != 0 )
     {

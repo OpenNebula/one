@@ -146,7 +146,7 @@ int Image::select(SqlDB *db)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-int Image::insert(SqlDB *db)
+int Image::insert(SqlDB *db, string& error_str)
 {
     int rc;
 
@@ -246,21 +246,27 @@ int Image::insert(SqlDB *db)
 
     rc = insert_replace(db, false);
 
+    if ( rc == -1 )
+    {
+        error_str = "Error inserting Image in DB";
+    }
+
     return rc;
 
 error_name:
-    NebulaLog::log("IMG", Log::ERROR, "NAME not present in image template");
+    error_str = "NAME not present in image template";
     goto error_common;
 
 error_type:
-    NebulaLog::log("IMG", Log::ERROR, "Incorrect TYPE in image template");
+    error_str = "Incorrect TYPE in image template";
     goto error_common;
 
 error_public_and_persistent:
-    NebulaLog::log("IMG", Log::ERROR, "Image cannot be public and persistant");
+    error_str = "Image cannot be public and persistant";
     goto error_common;
 
 error_common:
+    NebulaLog::log("IMG", Log::ERROR, error_str);
     return -1;
 }
 

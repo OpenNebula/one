@@ -57,7 +57,8 @@ public:
      *   @return the oid assigned to the object or -1 in case of failure
      */
     virtual int allocate(
-        PoolObjectSQL   *objsql);
+        PoolObjectSQL   *objsql,
+        string&          error_str);
 
     /**
      *  Gets an object from the pool (if needed the object is loaded from the

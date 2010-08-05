@@ -735,7 +735,7 @@ public:
      *  Get all disk images for this Virtual Machine
      *  @return 0 if success
      */
-    int get_disk_images();
+    int get_disk_images(string &error_str);
 
     /**
      *  Releases all disk images taken by this Virtual Machine
@@ -1027,7 +1027,7 @@ protected:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    virtual int insert(SqlDB * db);
+    virtual int insert(SqlDB * db, string& error_str);
 
     /**
      *  Writes/updates the Virtual Machine data fields in the database.

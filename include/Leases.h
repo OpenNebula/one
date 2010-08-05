@@ -284,7 +284,7 @@ private:
      *    @param db pointer to the database.
      *    @return 0 on success.
      */
-    int insert(SqlDB * db);
+    int insert(SqlDB * db, string& error_str);
 
     /**
      *  Leases are added/removed/updated through add/del interface

@@ -29,6 +29,7 @@ void RequestManager::VirtualNetworkAllocate::execute(
     string              session;
     string              name;
     string              str_template;
+    string              error_str;
 
     VirtualNetworkTemplate * vn_template;
 
@@ -98,7 +99,7 @@ void RequestManager::VirtualNetworkAllocate::execute(
     //--------------------------------------------------------------------------
     //   Allocate the Virtual Network
     //--------------------------------------------------------------------------
-    rc = vnpool->allocate(uid,vn_template,&nid);
+    rc = vnpool->allocate(uid,vn_template,&nid,error_str);
 
     if ( rc < 0 )
     {
@@ -138,7 +139,8 @@ error_parse:
     goto error_common;
 
 error_vn_allocate:
-    oss.str(action_error(method_name, "CREATE", "NET", -2, rc));
+    oss << action_error(method_name, "CREATE", "NET", -2, 0);
+    oss << ". " << error_str;
     goto error_common;
 
 error_common:

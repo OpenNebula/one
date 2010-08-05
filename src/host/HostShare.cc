@@ -197,11 +197,16 @@ int HostShare::select(SqlDB * db)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-int HostShare::insert(SqlDB * db)
+int HostShare::insert(SqlDB * db, string& error_str)
 {
     int rc;
 
     rc = insert_replace(db, false);
+
+    if ( rc == -1 )
+    {
+        error_str = "Error inserting Host Share in DB";
+    }
 
     return rc;
 }
@@ -225,7 +230,7 @@ int HostShare::insert_replace(SqlDB *db, bool replace)
 {
     ostringstream   oss;
     int             rc;
-    
+
     if(replace)
     {
         oss << "REPLACE";
@@ -234,7 +239,7 @@ int HostShare::insert_replace(SqlDB *db, bool replace)
     {
         oss << "INSERT";
     }
-     
+
     oss << " INTO " << table << " "<< db_names <<" VALUES ("
         << hsid << ","
         << disk_usage <<","<< mem_usage <<","<< cpu_usage<< ","
@@ -242,7 +247,7 @@ int HostShare::insert_replace(SqlDB *db, bool replace)
         << free_disk  <<","<< free_mem  <<","<< free_cpu << ","
         << used_disk  <<","<< used_mem  <<","<< used_cpu << ","
         << running_vms<< ")";
-        
+
     rc = db->exec(oss);
 
     return rc;

@@ -105,8 +105,10 @@ UserPool::UserPool(SqlDB * db):PoolSQL(db,User::table)
             {
                 if (User::split_secret(one_token,one_name,one_pass) == 0)
                 {
+                    string error_str;
                     string sha1_pass = User::sha1_digest(one_pass);
-                    allocate(&one_uid, one_name, sha1_pass, true);
+
+                    allocate(&one_uid, one_name, sha1_pass, true, error_str);
                 }
                 else
                 {
@@ -133,10 +135,11 @@ UserPool::UserPool(SqlDB * db):PoolSQL(db,User::table)
 /* -------------------------------------------------------------------------- */
 
 int UserPool::allocate (
-    int *  oid,
-    string username,
-    string password,
-    bool   enabled)
+    int *   oid,
+    string  username,
+    string  password,
+    bool    enabled,
+    string& error_str)
 {
     User *        user;
 
@@ -149,7 +152,7 @@ int UserPool::allocate (
 
     // Insert the Object in the pool
 
-    *oid = PoolSQL::allocate(user);
+    *oid = PoolSQL::allocate(user, error_str);
 
     if (*oid != -1)
     {
@@ -240,6 +243,7 @@ int UserPool::authenticate(string& session)
             {
                 string mad_name;
                 string mad_pass;
+                string error_str;
 
                 istringstream is(ar.message);
 
@@ -250,15 +254,15 @@ int UserPool::authenticate(string& session)
 
                 if ( !is.fail() )
                 {
-                    allocate(&user_id,mad_name,mad_pass,true);
+                    allocate(&user_id,mad_name,mad_pass,true,error_str);
                 }
 
                 if ( user_id == -1 )
                 {
                     ostringstream oss;
 
-                    oss << "Can't create user from driver response: "
-                        << ar.message;
+                    oss << "Can't create user: " << error_str <<
+                           ". Driver response: " << ar.message;
 
                     ar.message = oss.str();
                     user_id    = -1;

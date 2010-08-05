@@ -32,7 +32,9 @@ void RequestManager::HostAllocate::execute(
     string              im_mad_name;
     string              vmm_mad_name;
     string              tm_mad_name;
-    
+
+    string              error_str;
+
     const string  method_name = "HostAllocate";
 
     int                 hid;
@@ -79,7 +81,8 @@ void RequestManager::HostAllocate::execute(
                                        hostname,
                                        im_mad_name,
                                        vmm_mad_name,
-                                       tm_mad_name);
+                                       tm_mad_name,
+                                       error_str);
     if ( rc == -1 )
     {
         goto error_host_allocate;
@@ -105,7 +108,8 @@ error_authorize:
     goto error_common;
 
 error_host_allocate:
-    oss.str(action_error(method_name, "CREATE", "HOST", -2, rc));
+    oss << action_error(method_name, "CREATE", "HOST", -2, 0);
+    oss << ". " << error_str;
     goto error_common;
 
 error_common:

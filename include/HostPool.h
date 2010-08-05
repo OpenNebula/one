@@ -48,10 +48,11 @@ public:
      */
     int allocate (
         int *  oid,
-        string hostname,
-        string im_mad_name,
-        string vmm_mad_name,
-        string tm_mad_name);
+        const string& hostname,
+        const string& im_mad_name,
+        const string& vmm_mad_name,
+        const string& tm_mad_name,
+        string& error_str);
 
     /**
      *  Function to get a Host from the pool, if the object is not in memory

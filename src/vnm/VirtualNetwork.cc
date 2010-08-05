@@ -263,7 +263,7 @@ int VirtualNetwork::dump(ostringstream& oss,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualNetwork::insert(SqlDB * db)
+int VirtualNetwork::insert(SqlDB * db, string& error_str)
 {
     ostringstream   ose;
     int             rc;
@@ -427,6 +427,7 @@ error_leases:
     vn_drop(db);
 
 error_common:
+    error_str = ose.str();
     NebulaLog::log("VNM", Log::ERROR, ose);
     return -1;
 }

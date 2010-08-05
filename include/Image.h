@@ -190,7 +190,7 @@ public:
     /**
      *  Publish or unpublish an image
      *    @param pub true to publish the image
-     *    @return true on success
+     *    @return 0 on success
      */
     bool publish(bool pub)
     {
@@ -216,7 +216,7 @@ public:
     /**
      *  Set/Unset an image as persistant
      *    @param persistent true to make an image persistant
-     *    @return true on success
+     *    @return 0 on success
      */
     bool persistent(bool persis)
     {
@@ -497,7 +497,7 @@ protected:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    virtual int insert(SqlDB *db);
+    virtual int insert(SqlDB *db, string& error_str);
 
     /**
      *  Writes/updates the Images data fields in the database.

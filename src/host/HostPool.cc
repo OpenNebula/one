@@ -70,10 +70,11 @@ HostPool::HostPool(SqlDB* db):PoolSQL(db,Host::table)
 
 int HostPool::allocate (
     int *  oid,
-    string hostname,
-    string im_mad_name,
-    string vmm_mad_name,
-    string tm_mad_name)
+    const string& hostname,
+    const string& im_mad_name,
+    const string& vmm_mad_name,
+    const string& tm_mad_name,
+    string& error_str)
 {
     Host *        host;
 
@@ -87,7 +88,7 @@ int HostPool::allocate (
 
     // Insert the Object in the pool
 
-    *oid = PoolSQL::allocate(host);
+    *oid = PoolSQL::allocate(host, error_str);
 
     return *oid;
 }

@@ -72,7 +72,8 @@ VirtualNetworkPool::VirtualNetworkPool(SqlDB * db,
 int VirtualNetworkPool::allocate (
     int            uid,
     VirtualNetworkTemplate * vn_template,
-    int *          oid)
+    int *          oid,
+    string&        error_str)
 {
     VirtualNetwork *    vn;
 
@@ -80,7 +81,7 @@ int VirtualNetworkPool::allocate (
 
     vn->uid = uid;
 
-    *oid = PoolSQL::allocate(vn);
+    *oid = PoolSQL::allocate(vn, error_str);
 
     return *oid;
 }

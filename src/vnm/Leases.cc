@@ -347,9 +347,10 @@ int Leases::drop(SqlDB * db)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int Leases::insert(SqlDB * db)
+int Leases::insert(SqlDB * db, string& error_str)
 {
-	NebulaLog::log("VNM", Log::ERROR, "Should not access to Leases.insert()");
+    error_str = "Should not access to Leases.insert()";
+	NebulaLog::log("VNM", Log::ERROR, error_str);
     return -1;
 }
 
