@@ -119,7 +119,7 @@ int User::insert(SqlDB *db, string& error_str)
 
     if ( rc != 0 )
     {
-        error_str = "Error inserting User in DB";
+        error_str = "Error inserting User in DB.";
         return rc;
     }
 

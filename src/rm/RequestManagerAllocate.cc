@@ -167,7 +167,7 @@ error_parse:
 
 error_allocate:
     oss << action_error(method_name, "CREATE", "VM", -2, 0);
-    oss << ". " << error_str;
+    oss << " " << error_str;
     goto error_common;
 
 error_common:

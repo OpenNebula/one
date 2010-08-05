@@ -60,12 +60,12 @@ int ClusterPool::allocate(int * clid, string name, SqlDB *db, string& error_str)
 
 
 error_existing_name:
-    oss << "Could not allocate new cluster: Name \""
-        << name << "\" already exists";
+    oss << "Could not allocate new cluster: "
+        << name << ", already exists.";
 
     goto error_common;
 error_db:
-    oss << "Could not allocate new cluster \"" << name;
+    oss << "Could not allocate new cluster " << name << ".";
     goto error_common;
 
 error_common:

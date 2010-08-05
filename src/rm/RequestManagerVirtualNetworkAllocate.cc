@@ -140,7 +140,7 @@ error_parse:
 
 error_vn_allocate:
     oss << action_error(method_name, "CREATE", "NET", -2, 0);
-    oss << ". " << error_str;
+    oss << " " << error_str;
     goto error_common;
 
 error_common:

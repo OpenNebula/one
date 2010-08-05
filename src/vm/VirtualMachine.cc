@@ -348,11 +348,11 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     return 0;
 
 error_update:
-    error_str = "Can not insert VM in the database";
+    error_str = "Can not insert VM in the database.";
     goto error_common;
 
 error_leases:
-    error_str = "Could not get network lease for VM";
+    error_str = "Could not get network lease for VM.";
     NebulaLog::log("ONE",Log::ERROR, error_str);
     release_network_leases();
     return -1;
@@ -361,11 +361,11 @@ error_images:
     goto error_common;
 
 error_context:
-    error_str = "Could not parse CONTEXT for VM";
+    error_str = "Could not parse CONTEXT for VM.";
     goto error_common;
 
 error_requirements:
-    error_str = "Could not parse REQUIREMENTS for VM";
+    error_str = "Could not parse REQUIREMENTS for VM.";
     goto error_common;
 
 error_common:
@@ -894,7 +894,7 @@ error_max_db:
     goto error_common;
 
 error_image:
-    error_str = "Could not get disk image for VM";
+    error_str = "Could not get disk image for VM.";
 
 error_common:
     NebulaLog::log("ONE",Log::ERROR, error_str);

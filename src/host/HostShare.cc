@@ -205,7 +205,7 @@ int HostShare::insert(SqlDB * db, string& error_str)
 
     if ( rc == -1 )
     {
-        error_str = "Error inserting Host Share in DB";
+        error_str = "Error inserting Host Share in DB.";
     }
 
     return rc;

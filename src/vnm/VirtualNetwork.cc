@@ -327,7 +327,6 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
     //--------------------------------------------------------------------------
     // Insert the Virtual Network
     //--------------------------------------------------------------------------
-
     rc = insert_replace(db, false);
 
     if ( rc != 0 )
@@ -338,7 +337,6 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
     //--------------------------------------------------------------------------
     // Get the leases
     //--------------------------------------------------------------------------
-
     if (type == VirtualNetwork::RANGED)
     {
         string nclass = "";
@@ -401,32 +399,34 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
     return 0;
 
 error_type:
-    ose << "Wrong type in template for Virtual Network id " << oid;
+    ose << "Wrong type in template for Virtual Network, id: ";
     goto error_common;
 
 error_name:
-    ose << "No NAME in template for Virtual Network id " << oid;
+    ose << "No NAME in template for Virtual Network, id: ";
     goto error_common;
 
 error_bridge:
-    ose << "No BRIDGE in template for Virtual Network id " << oid;
+    ose << "No BRIDGE in template for Virtual Network, id: ";
     goto error_common;
 
 error_update:
-    ose << "Can not update Virtual Network id " << oid;
+    ose << "Can not update Virtual Network, id: ";
     goto error_common;
 
 error_addr:
-    ose << "Network address is not defined nid: " << oid;
+    ose << "Network address is not defined, id: ";
     goto error_leases;
 
 error_null_leases:
-    ose << "Error getting Virtual Network leases nid: " << oid;
+    ose << "Error getting Virtual Network leases, id: ";
 
 error_leases:
     vn_drop(db);
 
 error_common:
+    ose << oid << ".";
+
     error_str = ose.str();
     NebulaLog::log("VNM", Log::ERROR, ose);
     return -1;

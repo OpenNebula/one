@@ -97,7 +97,7 @@ error_authorize:
 
 error_cluster_allocate:
     oss << action_error(method_name, "CREATE", "CLUSTER", -2, 0);
-    oss << ". " << error_str;
+    oss << " " << error_str;
     goto error_common;
 
 error_common:

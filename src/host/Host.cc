@@ -167,7 +167,7 @@ int Host::insert(SqlDB *db, string& error_str)
 
     if ( rc != 0 )
     {
-        error_str = "Error inserting Host in DB";
+        error_str = "Error inserting Host in DB.";
         host_share.drop(db);
 
         return rc;

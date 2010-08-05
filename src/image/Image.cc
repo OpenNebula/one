@@ -248,21 +248,21 @@ int Image::insert(SqlDB *db, string& error_str)
 
     if ( rc == -1 )
     {
-        error_str = "Error inserting Image in DB";
+        error_str = "Error inserting Image in DB.";
     }
 
     return rc;
 
 error_name:
-    error_str = "NAME not present in image template";
+    error_str = "NAME not present in image template.";
     goto error_common;
 
 error_type:
-    error_str = "Incorrect TYPE in image template";
+    error_str = "Incorrect TYPE in image template.";
     goto error_common;
 
 error_public_and_persistent:
-    error_str = "Image cannot be public and persistant";
+    error_str = "Image cannot be public and persistant.";
     goto error_common;
 
 error_common:
