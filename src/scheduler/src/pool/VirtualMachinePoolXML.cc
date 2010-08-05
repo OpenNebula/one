@@ -51,23 +51,12 @@ void VirtualMachinePoolXML::add_object(xmlNodePtr node)
     {
         NebulaLog::log("VM",Log::ERROR,
                        "XML Node does not represent a valid Virtual Machine");
-
-       return;
+        return;
     }
 
-    try
-    {
-        VirtualMachineXML* vm = new VirtualMachineXML( node );
+    VirtualMachineXML* vm = new VirtualMachineXML(node);
 
-        objects.insert( pair<int,ObjectXML*>(vm->get_oid(), vm) );
-    }
-    catch(runtime_error& re)
-    {
-        ostringstream oss_re;
-
-        oss_re << re.what();
-        NebulaLog::log("VM",Log::ERROR,oss_re);
-    }
+    objects.insert(pair<int,ObjectXML*>(vm->get_oid(),vm));
 }
 
 /* -------------------------------------------------------------------------- */

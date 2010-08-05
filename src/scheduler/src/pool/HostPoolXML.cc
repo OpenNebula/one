@@ -52,7 +52,7 @@ void HostPoolXML::add_object(xmlNodePtr node)
         NebulaLog::log("HOST",Log::ERROR,
                        "XML Node does not represent a valid Host");
 
-       return;
+        return;
     }
 
     HostXML* host = new HostXML( node );
