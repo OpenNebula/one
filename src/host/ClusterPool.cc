@@ -30,7 +30,7 @@ const string ClusterPool::DEFAULT_CLUSTER_NAME = "default";
 
 /* -------------------------------------------------------------------------- */
 
-int ClusterPool::allocate(int * clid, string name, SqlDB *db)
+int ClusterPool::allocate(int * clid, string name, SqlDB *db, string& error_str)
 {
     int                         rc;
     map<int, string>::iterator  it;
@@ -61,15 +61,15 @@ int ClusterPool::allocate(int * clid, string name, SqlDB *db)
 
 error_existing_name:
     oss << "Could not allocate new cluster: Name \""
-        << name << "\" already exists.";
+        << name << "\" already exists";
 
     goto error_common;
 error_db:
-    oss << "Could not allocate new cluster \"" << name
-        << "\": Database returned error code " << rc << ".";
+    oss << "Could not allocate new cluster \"" << name;
     goto error_common;
 
 error_common:
+    error_str = oss.str();
     NebulaLog::log("CLUSTER", Log::ERROR, oss);
 
     *clid = -1;

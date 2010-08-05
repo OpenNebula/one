@@ -31,18 +31,18 @@ void RequestManager::ImagePersistent::execute(
     string              session;
 
     int                 iid;
-    bool                persistent_flag; 
+    bool                persistent_flag;
     int                 uid;
-    
+
     int                 image_owner;
     bool                is_public;
-    
+
     Image             * image;
 
     ostringstream       oss;
-    
+
     bool                response;
-    
+
     const string        method_name = "ImagePersistent";
 
     vector<xmlrpc_c::value> arrayData;
@@ -62,20 +62,20 @@ void RequestManager::ImagePersistent::execute(
     {
         goto error_authenticate;
     }
-    
+
     // Get image from the ImagePool
-    image = ImagePersistent::ipool->get(iid,true);    
-                                                 
-    if ( image == 0 )                             
-    {                                            
-        goto error_image_get;                     
+    image = ImagePersistent::ipool->get(iid,true);
+
+    if ( image == 0 )
+    {
+        goto error_image_get;
     }
-    
+
     image_owner  = image->get_uid();
     is_public    = image->isPublic();
-    
+
     image->unlock();
-    
+
     //Authorize the operation
     if ( uid != 0 ) // uid == 0 means oneadmin
     {
@@ -92,22 +92,22 @@ void RequestManager::ImagePersistent::execute(
             goto error_authorize;
         }
     }
-    
+
     // Get the image locked again
-    image = ImagePersistent::ipool->get(iid,true);  
-    
-    if ( image == 0 )                             
-    {                                            
-        goto error_image_get;                     
-    } 
-    
+    image = ImagePersistent::ipool->get(iid,true);
+
+    if ( image == 0 )
+    {
+        goto error_image_get;
+    }
+
     response = image->persistent(persistent_flag);
-    
+
     if (!response)
     {
         goto error_persistent;
     }
-    
+
     ImagePersistent::ipool->update(image);
 
     image->unlock();
@@ -124,20 +124,20 @@ void RequestManager::ImagePersistent::execute(
     return;
 
 error_authenticate:
-    oss.str(authenticate_error(method_name));    
+    oss.str(authenticate_error(method_name));
     goto error_common;
-    
+
 error_image_get:
-    oss.str(get_error(method_name, "IMAGE", iid)); 
+    oss.str(get_error(method_name, "IMAGE", iid));
     goto error_common;
-    
+
 error_authorize:
     oss.str(authorization_error(method_name, "MANAGE", "IMAGE", uid, iid));
     goto error_common;
-    
+
 error_persistent:
-    oss << action_error(method_name, "MANAGE", "IMAGE", iid, NULL)
-        << " Is the image public? An Image cannot be public and persistent.";
+    oss << action_error(method_name, "MANAGE", "IMAGE", iid, 0)
+        << ". Is the image public? An Image cannot be public and persistent.";
     goto error_common;
 
 error_common:

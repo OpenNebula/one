@@ -170,9 +170,9 @@ public:
      *    @param clid the id assigned to the cluster
      *    @return the id assigned to the cluster or -1 in case of failure
      */
-    int allocate_cluster(int * clid, string name)
+    int allocate_cluster(int * clid, const string& name, string& error_str)
     {
-        return cluster_pool.allocate(clid, name, db);
+        return cluster_pool.allocate(clid, name, db, error_str);
     };
 
     /**
