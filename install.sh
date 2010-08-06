@@ -580,19 +580,6 @@ if [ "$UNINSTALL" = "no" ] ; then
     done
 fi
 
-# --- Prepare oned.conf ---
-
-if [ "$UNINSTALL" = "no" -a "$CLIENT" = "no" ]; then
-    TEMPLATE=share/etc/oned.conf.template
-    SOURCE=share/etc/oned.conf
-    cp $TEMPLATE $SOURCE
-    HOOKS_LOCATION=$SHARE_LOCATION/hooks
-    sed -i -e "s%\[HOOKS_LOCATION\]%$HOOKS_LOCATION%" \
-        $SOURCE
-    sed -i -e "s%\[IMAGES_LOCATION\]%$IMAGES_LOCATION%" \
-        $SOURCE
-fi
-
 # --- Install/Uninstall files ---
 
 do_file() {
