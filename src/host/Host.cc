@@ -57,10 +57,10 @@ const char * Host::db_names = "(oid,host_name,state,im_mad,vm_mad,"
                               "tm_mad,last_mon_time, cluster, template)";
 
 const char * Host::db_bootstrap = "CREATE TABLE IF NOT EXISTS host_pool ("
-    "oid INTEGER PRIMARY KEY,host_name VARCHAR(512), state INTEGER,"
+    "oid INTEGER PRIMARY KEY,host_name VARCHAR(256), state INTEGER,"
     "im_mad VARCHAR(128),vm_mad VARCHAR(128),tm_mad VARCHAR(128),"
     "last_mon_time INTEGER, cluster VARCHAR(128), template TEXT, "
-    "UNIQUE(host_name, im_mad, vm_mad, tm_mad) )";
+    "UNIQUE(host_name))";
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
