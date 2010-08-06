@@ -136,8 +136,9 @@ error_authorize:
     goto error_common;
 
 error_persistent:
-    oss << action_error(method_name, "MANAGE", "IMAGE", iid, 0)
-        << ". Is the image public? An Image cannot be public and persistent.";
+    image->unlock();
+    oss << action_error(method_name, "MANAGE", "IMAGE", iid, NULL)
+        << " Is the image public? An Image cannot be public and persistent.";
     goto error_common;
 
 error_common:
