@@ -25,12 +25,14 @@ DISK = [
   source   = "/local/xen/domains/etch/swap.img",
   target   = "sda2",
   readonly = "no" ]
-DISK  = [ IMAGE ="pep2" ]
+
+DISK  = [ IMAGE ="Ubuntu Server" ]
+
 # --- 1 NIC ---
 
 NIC = [ mac="00:ff:72:17:20:27"]
 
-#NIC = [ NETWORK="Private LAN"]
+NIC = [ NETWORK="Private LAN"]
 
 
 # --- VNC server ---
