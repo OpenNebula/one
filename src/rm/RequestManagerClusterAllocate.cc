@@ -27,10 +27,11 @@ void RequestManager::ClusterAllocate::execute(
     xmlrpc_c::value *   const  retval)
 {
     string              session;
+    string              error_str;
 
     string              clustername;
     int                 id;
-    
+
     const string        method_name = "ClusterAllocate";
 
     int                 rc;
@@ -68,7 +69,7 @@ void RequestManager::ClusterAllocate::execute(
     }
 
     // Perform the allocation in the hostpool
-    rc = ClusterAllocate::hpool->allocate_cluster(&id, clustername);
+    rc = ClusterAllocate::hpool->allocate_cluster(&id, clustername, error_str);
 
     if ( rc == -1 )
     {
@@ -95,7 +96,8 @@ error_authorize:
     goto error_common;
 
 error_cluster_allocate:
-    oss.str(action_error(method_name, "CREATE", "CLUSTER", -2, rc));
+    oss << action_error(method_name, "CREATE", "CLUSTER", -2, 0);
+    oss << " " << error_str;
     goto error_common;
 
 error_common:

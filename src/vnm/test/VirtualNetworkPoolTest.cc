@@ -102,13 +102,14 @@ public:
         VirtualNetworkTemplate * vn_template;
         char *          error_msg = 0;
         int             rc;
+        string          err;
 
         vn_template = new VirtualNetworkTemplate;
         rc = vn_template->parse(stemplate,&error_msg);
 
         if( rc == 0 )
         {
-            return VirtualNetworkPool::allocate(uid, vn_template, oid);
+            return VirtualNetworkPool::allocate(uid, vn_template, oid, err);
         }
         else
         {
@@ -185,6 +186,7 @@ protected:
         // So the ONE_AUTH environment is forced to point to a test one_auth
         // file.
         ostringstream oss;
+        string        err;
 
         oss << getenv("PWD") << "/one_auth";
         setenv("ONE_AUTH", oss.str().c_str(), 1);
@@ -199,8 +201,8 @@ protected:
         string pass_1     = "A pass";
         string pass_2     = "B pass";
 
-        user_pool->allocate(&uid_1, username_1, pass_1, true);
-        user_pool->allocate(&uid_2, username_2, pass_2, true);
+        user_pool->allocate(&uid_1, username_1, pass_1, true, err);
+        user_pool->allocate(&uid_2, username_2, pass_2, true, err);
 
         delete user_pool;
     };

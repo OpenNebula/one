@@ -64,19 +64,27 @@ public:
     }
 
     static void log(
-        const char *            module,
-        const Log::MessageType  type,
-        const char *            message)
+        const char *           module,
+        const Log::MessageType type,
+        const char *           message)
     {
         logger->log(module,type,message);
     };
 
     static void log(
-        const char *            module,
-        const Log::MessageType  type,
+        const char *           module,
+        const Log::MessageType type,
         const ostringstream&   message)
     {
         logger->log(module,type,message.str().c_str());
+    };
+
+    static void log(
+        const char *           module,
+        const Log::MessageType type,
+        const string&          message)
+    {
+        logger->log(module,type,message.c_str());
     };
 
 private:

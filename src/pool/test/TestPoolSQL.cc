@@ -85,7 +85,7 @@ int TestObjectSQL::select(SqlDB *db)
 
 /* -------------------------------------------------------------------------- */
 
-int TestObjectSQL::insert(SqlDB *db)
+int TestObjectSQL::insert(SqlDB *db, string& str)
 {
     ostringstream   oss;
 

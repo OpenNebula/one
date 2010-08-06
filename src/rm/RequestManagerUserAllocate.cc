@@ -30,6 +30,7 @@ void RequestManager::UserAllocate::execute(
 
     string              username;
     string              password;
+    string              error_str;
 
     int                 uid;
 
@@ -85,7 +86,7 @@ void RequestManager::UserAllocate::execute(
     }
 
     // Now let's add the user
-    rc = UserAllocate::upool->allocate(&uid,username,password,true);
+    rc = UserAllocate::upool->allocate(&uid,username,password,true,error_str);
 
     if ( rc == -1 )
     {
@@ -118,7 +119,8 @@ error_duplicate:
     goto error_common;
 
 error_allocate:
-    oss.str(action_error(method_name, "CREATE", "USER", -2, rc));
+    oss << action_error(method_name, "CREATE", "USER", -2, 0);
+    oss << " " << error_str;
     goto error_common;
 
 error_common:

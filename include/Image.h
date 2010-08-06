@@ -497,7 +497,7 @@ protected:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    virtual int insert(SqlDB *db);
+    virtual int insert(SqlDB *db, string& error_str);
 
     /**
      *  Writes/updates the Images data fields in the database.

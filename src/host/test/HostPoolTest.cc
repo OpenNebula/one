@@ -169,9 +169,10 @@ protected:
 
     int allocate(int index)
     {
-        int oid;
+        int    oid;
+        string err;
         return ((HostPool*)pool)->allocate(&oid, names[index], im_mad,
-                                           vmm_mad, tm_mad);
+                                           vmm_mad, tm_mad, err);
     };
 
     void check(int index, PoolObjectSQL* obj)
@@ -235,22 +236,23 @@ public:
         int rc, oid_0, oid_1;
         HostPool * hp = static_cast<HostPool *>(pool);
         Host * host;
+        string err;
 
         string tm_mad_2 = "another_tm_mad";
 
 
         // If we try to allocate two hosts with the same name and drivers,
         // should fail
-        rc = hp->allocate(&oid_0, names[0], im_mad, vmm_mad, tm_mad);
+        rc = hp->allocate(&oid_0, names[0], im_mad, vmm_mad, tm_mad, err);
         CPPUNIT_ASSERT( oid_0 == 0 );
         CPPUNIT_ASSERT( rc    == oid_0 );
 
-        rc = hp->allocate(&oid_1, names[0], im_mad, vmm_mad, tm_mad);
+        rc = hp->allocate(&oid_1, names[0], im_mad, vmm_mad, tm_mad, err);
         CPPUNIT_ASSERT( oid_1 == -1 );
         CPPUNIT_ASSERT( rc    == oid_1 );
 
         // But if the drivers change, the hostname can be repeated
-        rc = hp->allocate(&oid_1, names[0], im_mad, vmm_mad, tm_mad_2);
+        rc = hp->allocate(&oid_1, names[0], im_mad, vmm_mad, tm_mad_2, err);
         CPPUNIT_ASSERT( oid_1 == 1 );
         CPPUNIT_ASSERT( rc    == oid_1 );
 
@@ -270,10 +272,12 @@ public:
     {
         string names[] = {"a", "a name", "a_name", "another name", "host"};
         int rc, oid;
+        string err;
 
         for(int i=0; i<5; i++)
         {
-            ((HostPool*)pool)->allocate(&oid, names[i], im_mad, vmm_mad, tm_mad);
+            ((HostPool*)pool)->allocate(&oid, names[i],
+                                        im_mad, vmm_mad, tm_mad, err);
         }
 
         ostringstream oss;
@@ -292,10 +296,12 @@ public:
     {
         string names[] = {"a", "a name", "a_name", "another name", "host"};
         int rc, oid;
+        string err;
 
         for(int i=0; i<5; i++)
         {
-            ((HostPool*)pool)->allocate(&oid, names[i], im_mad, vmm_mad, tm_mad);
+            ((HostPool*)pool)->allocate(&oid, names[i],
+                                        im_mad, vmm_mad, tm_mad, err);
         }
 
 
@@ -321,12 +327,13 @@ public:
         Host *     host;
         HostPool * hp = static_cast<HostPool *>(pool);
         ostringstream oss;
+        string err;
 
         for(i=0, oss.str(""); i<20; i++,oss.str(""))
         {
             oss << "host" << i;
 
-            hp->allocate(&oid, oss.str().c_str(), im_mad, vmm_mad, tm_mad);
+            hp->allocate(&oid, oss.str().c_str(), im_mad, vmm_mad, tm_mad, err);
             CPPUNIT_ASSERT(oid == i);
 
             if (i >=8 )
@@ -371,8 +378,9 @@ public:
     {
         HostPool * hp = static_cast<HostPool *>(pool);
         int clid, rc;
+        string err;
 
-        rc = hp->allocate_cluster(&clid, "new_cluster");
+        rc = hp->allocate_cluster(&clid, "new_cluster", err);
         CPPUNIT_ASSERT( rc == clid );
         CPPUNIT_ASSERT( clid == 1 );
 
@@ -380,7 +388,7 @@ public:
                 "<CLUSTER><ID>1</ID><NAME>new_cluster</NAME></CLUSTER>");
 
         // Try to allocate using the same name
-        rc = hp->allocate_cluster(&clid, "new_cluster");
+        rc = hp->allocate_cluster(&clid, "new_cluster", err);
         CPPUNIT_ASSERT( rc == clid );
         CPPUNIT_ASSERT( clid == -1 );
     }
@@ -391,13 +399,14 @@ public:
     {
         HostPool * hp = static_cast<HostPool *>(pool);
         int clid, rc;
+        string err;
 
         // Drop a non-existing cluster
         rc = hp->drop_cluster(20);
         CPPUNIT_ASSERT( rc == -1 );
 
         // Allocate a cluster and drop it
-        rc = hp->allocate_cluster(&clid, "new_cluster");
+        rc = hp->allocate_cluster(&clid, "new_cluster", err);
         CPPUNIT_ASSERT( clid == 1);
 
         rc = hp->drop_cluster(clid);
@@ -415,18 +424,19 @@ public:
         HostPool * hp = static_cast<HostPool *>(pool);
         int clid, rc;
         ostringstream oss;
+        string err;
 
         // Allocate some clusters
-        rc = hp->allocate_cluster(&clid, "cluster_a");
+        rc = hp->allocate_cluster(&clid, "cluster_a", err);
         CPPUNIT_ASSERT( rc == 1 );
 
-        rc = hp->allocate_cluster(&clid, "cluster_b");
+        rc = hp->allocate_cluster(&clid, "cluster_b", err);
         CPPUNIT_ASSERT( rc == 2 );
 
-        rc = hp->allocate_cluster(&clid, "cluster_c");
+        rc = hp->allocate_cluster(&clid, "cluster_c", err);
         CPPUNIT_ASSERT( rc == 3 );
 
-        rc = hp->allocate_cluster(&clid, "cluster_d");
+        rc = hp->allocate_cluster(&clid, "cluster_d", err);
         CPPUNIT_ASSERT( rc == 4 );
 
         // Drop id 2
@@ -434,7 +444,7 @@ public:
         CPPUNIT_ASSERT( rc == 0 );
 
         // Next one should use id 5, because the biggest id is 4
-        rc = hp->allocate_cluster(&clid, "cluster_e");
+        rc = hp->allocate_cluster(&clid, "cluster_e", err);
         CPPUNIT_ASSERT( rc == 5 );
 
         // Drop id 5
@@ -442,7 +452,7 @@ public:
         CPPUNIT_ASSERT( rc == 0 );
 
         // Next one should use id 5, because the biggest id is 4 again
-        rc = hp->allocate_cluster(&clid, "cluster_f");
+        rc = hp->allocate_cluster(&clid, "cluster_f", err);
         CPPUNIT_ASSERT( rc == 5 );
 
     }
@@ -454,18 +464,19 @@ public:
         HostPool * hp = static_cast<HostPool *>(pool);
         int clid, rc;
         ostringstream oss;
+        string err;
 
         // Allocate some clusters
-        rc = hp->allocate_cluster(&clid, "cluster_a");
+        rc = hp->allocate_cluster(&clid, "cluster_a", err);
         CPPUNIT_ASSERT( rc == 1 );
 
-        rc = hp->allocate_cluster(&clid, "cluster_b");
+        rc = hp->allocate_cluster(&clid, "cluster_b", err);
         CPPUNIT_ASSERT( rc == 2 );
 
-        rc = hp->allocate_cluster(&clid, "cluster_c");
+        rc = hp->allocate_cluster(&clid, "cluster_c", err);
         CPPUNIT_ASSERT( rc == 3 );
 
-        rc = hp->allocate_cluster(&clid, "cluster_d");
+        rc = hp->allocate_cluster(&clid, "cluster_d", err);
         CPPUNIT_ASSERT( rc == 4 );
 
 
@@ -485,7 +496,7 @@ public:
         HostPool *  hp = static_cast<HostPool *>(pool);
         Host*       host;
         int         clid, rc, oid;
-        string      xml_str;
+        string      xml_str, err;
 
         // Allocate a host
         oid = allocate(0);
@@ -494,7 +505,7 @@ public:
         host = hp->get(0, false);
         CPPUNIT_ASSERT(host != 0);
 
-        rc = hp->allocate_cluster(&clid, "cluster_a");
+        rc = hp->allocate_cluster(&clid, "cluster_a", err);
         CPPUNIT_ASSERT( rc == 1 );
 
         rc = hp->set_cluster(host, clid);
@@ -519,7 +530,7 @@ public:
         HostPool *  hp = static_cast<HostPool *>(pool);
         Host*       host;
         int         clid, rc, oid;
-        string      xml_str;
+        string      xml_str, err;
 
         // Allocate a host
         oid = allocate(0);
@@ -528,7 +539,7 @@ public:
         host = hp->get(0, false);
         CPPUNIT_ASSERT(host != 0);
 
-        rc = hp->allocate_cluster(&clid, "cluster_a");
+        rc = hp->allocate_cluster(&clid, "cluster_a", err);
         CPPUNIT_ASSERT( rc == 1 );
 
         // Set host 0 to cluster 1

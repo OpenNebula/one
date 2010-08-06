@@ -379,7 +379,7 @@ protected:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int insert(SqlDB * db);
+    int insert(SqlDB * db, string& error_str);
 
     /**
      *  Writes/updates the Virtual Network data fields in the database.

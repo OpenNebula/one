@@ -57,7 +57,8 @@ public:
     int allocate (
         int             uid,
         ImageTemplate * img_template,
-        int *           oid);
+        int *           oid,
+        string&         error_str);
 
     /**
      *  Function to get a Image from the pool, if the object is not in memory

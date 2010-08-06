@@ -28,6 +28,7 @@ void RequestManager::VirtualMachineAllocate::execute(
 {
     string              session;
     string              str_template;
+    string              error_str;
 
     const string        method_name = "VirtualMachineAllocate";
 
@@ -123,12 +124,14 @@ void RequestManager::VirtualMachineAllocate::execute(
     //--------------------------------------------------------------------------
     //   Allocate the VirtualMAchine
     //--------------------------------------------------------------------------
-    rc = VirtualMachineAllocate::vmpool->allocate(uid,vm_template,&vid,false);
-
+    rc = VirtualMachineAllocate::vmpool->allocate(uid,
+                                                  vm_template,
+                                                  &vid,
+                                                  error_str,
+                                                  false);
     if ( rc < 0 )
     {
         goto error_allocate;
-
     }
 
     arrayData.push_back(xmlrpc_c::value_boolean(true));
@@ -163,7 +166,8 @@ error_parse:
     goto error_common;
 
 error_allocate:
-    oss.str(action_error(method_name, "CREATE", "VM", -2, rc));
+    oss << action_error(method_name, "CREATE", "VM", -2, 0);
+    oss << " " << error_str;
     goto error_common;
 
 error_common:

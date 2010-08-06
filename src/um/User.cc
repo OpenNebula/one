@@ -111,7 +111,7 @@ int User::select(SqlDB *db)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int User::insert(SqlDB *db)
+int User::insert(SqlDB *db, string& error_str)
 {
     int rc;
 
@@ -119,6 +119,7 @@ int User::insert(SqlDB *db)
 
     if ( rc != 0 )
     {
+        error_str = "Error inserting User in DB.";
         return rc;
     }
 

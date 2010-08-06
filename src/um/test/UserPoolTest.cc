@@ -90,8 +90,10 @@ protected:
     int allocate(int index)
     {
         int oid;
+        string err;
+        
         return ((UserPool*)pool)->allocate(&oid, usernames[index],
-                                           passwords[index], true);
+                                           passwords[index], true, err);
     };
 
     void check(int index, PoolObjectSQL* obj)
@@ -260,20 +262,21 @@ public:
     void duplicates()
     {
         int rc, oid;
+        string err;
         UserPool * up = static_cast<UserPool *>(pool);
 
         // Allocate a user.
-        rc = up->allocate(&oid, usernames[0], passwords[0], true);
+        rc = up->allocate(&oid, usernames[0], passwords[0], true, err);
         CPPUNIT_ASSERT( oid == 1 );
         CPPUNIT_ASSERT( oid == rc );
 
         // Try to allocate twice the same user, should fail
-        rc = up->allocate(&oid, usernames[0], passwords[0], true);
+        rc = up->allocate(&oid, usernames[0], passwords[0], true, err);
         CPPUNIT_ASSERT( rc  == -1 );
         CPPUNIT_ASSERT( oid == rc );
 
         // Try again, with different password
-        rc = up->allocate(&oid, usernames[0], passwords[1], true);
+        rc = up->allocate(&oid, usernames[0], passwords[1], true, err);
         CPPUNIT_ASSERT( rc  == -1 );
         CPPUNIT_ASSERT( oid == rc );
     }
@@ -284,10 +287,11 @@ public:
         string d_pass[]  = {"p", "pass", "password", "secret", "1234"};
 
         int oid;
-
+        string err;
+        
         for(int i=0; i<5; i++)
         {
-            ((UserPool*)pool)->allocate(&oid, d_names[i], d_pass[i], true);
+            ((UserPool*)pool)->allocate(&oid, d_names[i], d_pass[i], true, err);
         }
 
         ostringstream oss;
@@ -302,10 +306,11 @@ public:
         string d_pass[]  = {"p", "pass", "password", "secret", "1234"};
 
         int oid;
+        string err;
 
         for(int i=0; i<5; i++)
         {
-            ((UserPool*)pool)->allocate(&oid, d_names[i], d_pass[i], true);
+            ((UserPool*)pool)->allocate(&oid, d_names[i], d_pass[i], true, err);
         }
 
         // Note: second parameter of dump is the WHERE constraint. The "order

@@ -143,7 +143,7 @@ int Host::select(SqlDB *db)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-int Host::insert(SqlDB *db)
+int Host::insert(SqlDB *db, string& error_str)
 {
     int rc;
     map<int,HostShare *>::iterator iter;
@@ -155,7 +155,7 @@ int Host::insert(SqlDB *db)
     }
 
     // Update the HostShare
-    rc = host_share.insert(db);
+    rc = host_share.insert(db, error_str);
 
     if ( rc != 0 )
     {
@@ -167,6 +167,7 @@ int Host::insert(SqlDB *db)
 
     if ( rc != 0 )
     {
+        error_str = "Error inserting Host in DB.";
         host_share.drop(db);
 
         return rc;

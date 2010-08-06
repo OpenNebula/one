@@ -30,6 +30,7 @@ void RequestManager::ImageAllocate::execute(
 {
     string              session;
     string              str_template;
+    string              error_str;
 
     ImageTemplate *     img_template;
 
@@ -98,7 +99,7 @@ void RequestManager::ImageAllocate::execute(
     //--------------------------------------------------------------------------
     //   Allocate the Image
     //--------------------------------------------------------------------------
-    rc = ImageAllocate::ipool->allocate(uid,img_template,&iid);
+    rc = ImageAllocate::ipool->allocate(uid,img_template,&iid, error_str);
 
     if ( rc < 0 )
     {
@@ -138,7 +139,8 @@ error_parse:
     goto error_common;
 
 error_allocate:
-    oss.str(action_error(method_name, "CREATE", "IMAGE", -2, rc));
+    oss << action_error(method_name, "CREATE", "IMAGE", -2, 0);
+    oss << " " << error_str;
     goto error_common;
 
 error_common:

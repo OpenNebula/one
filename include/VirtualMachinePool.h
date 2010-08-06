@@ -50,8 +50,9 @@ public:
     int allocate (
         int     uid,
         VirtualMachineTemplate *vm_template,
-        int *  oid,
-        bool   on_hold = false);
+        int *   oid,
+        string& error_str,
+        bool    on_hold = false);
 
     /**
      *  Function to get a VM from the pool, if the object is not in memory

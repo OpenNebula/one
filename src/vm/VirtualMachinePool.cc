@@ -159,6 +159,7 @@ int VirtualMachinePool::allocate (
     int            uid,
     VirtualMachineTemplate * vm_template,
     int *          oid,
+    string&        error_str,
     bool           on_hold)
 {
     VirtualMachine * vm;
@@ -183,7 +184,7 @@ int VirtualMachinePool::allocate (
     // Insert the Object in the pool
     // ------------------------------------------------------------------------
 
-    *oid = PoolSQL::allocate(vm);
+    *oid = PoolSQL::allocate(vm,error_str);
 
     return *oid;
 }

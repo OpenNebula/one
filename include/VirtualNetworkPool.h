@@ -49,7 +49,8 @@ public:
     int allocate (
         int     uid,
         VirtualNetworkTemplate * vn_template,
-        int *  oid);
+        int *   oid,
+        string& error_str);
 
     /**
      *  Function to get a VN from the pool, if the object is not in memory
