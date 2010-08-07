@@ -251,19 +251,15 @@ public:
         CPPUNIT_ASSERT( oid_1 == -1 );
         CPPUNIT_ASSERT( rc    == oid_1 );
 
-        // But if the drivers change, the hostname can be repeated
+        // the hostname can not be repeated if the drivers change
         rc = hp->allocate(&oid_1, names[0], im_mad, vmm_mad, tm_mad_2, err);
-        CPPUNIT_ASSERT( oid_1 == 1 );
+        CPPUNIT_ASSERT( oid_1 == -1 );
         CPPUNIT_ASSERT( rc    == oid_1 );
 
         // Get the hosts and check them
         host = hp->get(oid_0, false);
         CPPUNIT_ASSERT( host != 0 );
         CPPUNIT_ASSERT( host->get_tm_mad() == tm_mad );
-
-        host = hp->get(oid_1, false);
-        CPPUNIT_ASSERT( host != 0 );
-        CPPUNIT_ASSERT( host->get_tm_mad() == tm_mad_2 );
     }
 
     /* ********************************************************************* */

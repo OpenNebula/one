@@ -95,7 +95,9 @@ for i in $TESTS ; do
         scons $BUILD_ARGS
     else
         for j in `ls test*` ; do
-            $CALLER ./$j $TEST_ARGS
+	    if [ -x $j ] ; then
+            	$CALLER ./$j $TEST_ARGS
+            fi
         done
     fi
 done
