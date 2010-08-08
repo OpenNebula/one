@@ -55,7 +55,7 @@ typedef union YYSTYPE
 {
 
 /* Line 1685 of yacc.c  */
-#line 51 "template_syntax.y"
+#line 74 "template_syntax.y"
 
     char * val_str;
     void * val_attr;

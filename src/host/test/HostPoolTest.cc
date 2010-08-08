@@ -193,9 +193,9 @@ protected:
 
 
 public:
-    HostPoolTest(){};
+    HostPoolTest(){xmlInitParser();};
 
-    ~HostPoolTest(){};
+    ~HostPoolTest(){xmlCleanupParser();};
 
 
     /* ********************************************************************* */

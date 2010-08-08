@@ -206,9 +206,9 @@ protected:
     };
     
 public:
-    VirtualMachinePoolTest(){};
+    VirtualMachinePoolTest(){xmlInitParser();};
 
-    ~VirtualMachinePoolTest(){};
+    ~VirtualMachinePoolTest(){xmlCleanupParser();};
 
 
     /* ********************************************************************* */

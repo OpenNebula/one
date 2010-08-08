@@ -542,14 +542,16 @@ char *template_text;
 #include <pthread.h>
 
 #include "template_syntax.h"
+#include "mem_collector.h"
 
-#define YY_DECL int template_lex (YYSTYPE *lvalp, YYLTYPE *llocp)
+#define YY_DECL int template_lex (YYSTYPE *lvalp, YYLTYPE *llocp, \
+                                  mem_collector *mc)
 
-#define YY_USER_ACTION  llocp->first_line = template_lineno; 				\
-                        llocp->first_column = llocp->last_column;	\
+#define YY_USER_ACTION  llocp->first_line = template_lineno;   \
+                        llocp->first_column = llocp->last_column;   \
                         llocp->last_column += template_leng;
 
-#line 553 "template_parser.c"
+#line 555 "template_parser.c"
 
 #define INITIAL 0
 #define VALUE 1
@@ -730,13 +732,13 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 40 "template_parser.l"
+#line 42 "template_parser.l"
 
 
  /* ------------------------------------------------------------------------- */
  /* Comments (lines with an starting #), and empty lines                      */
  /* ------------------------------------------------------------------------- */
-#line 740 "template_parser.c"
+#line 742 "template_parser.c"
 
 	if ( !(yy_init) )
 		{
@@ -832,13 +834,13 @@ do_action:	/* This label is used only to access EOF actions. */
 case 1:
 /* rule 1 can match eol */
 YY_RULE_SETUP
-#line 45 "template_parser.l"
+#line 47 "template_parser.l"
 ;
 	YY_BREAK
 case 2:
 /* rule 2 can match eol */
 YY_RULE_SETUP
-#line 46 "template_parser.l"
+#line 48 "template_parser.l"
 ;
 	YY_BREAK
 /* ------------------------------------------------------------------------- */
@@ -846,8 +848,9 @@ YY_RULE_SETUP
 /* ------------------------------------------------------------------------- */
 case 3:
 YY_RULE_SETUP
-#line 51 "template_parser.l"
-{ lvalp->val_str = strdup(template_text); return VARIABLE;}
+#line 53 "template_parser.l"
+{ lvalp->val_str = mem_collector_strdup(mc,template_text);
+                 return VARIABLE; }
 	YY_BREAK
 /* ------------------------------------------------------------------------ */
 /* TOKENS                                                                   */
@@ -856,31 +859,31 @@ YY_RULE_SETUP
 /* ------------------------------------------------------------------------ */
 case 4:
 YY_RULE_SETUP
-#line 58 "template_parser.l"
+#line 61 "template_parser.l"
 { BEGIN VALUE; return EQUAL;}
 	YY_BREAK
 case 5:
 /* rule 5 can match eol */
 YY_RULE_SETUP
-#line 60 "template_parser.l"
+#line 63 "template_parser.l"
 { return EQUAL_EMPTY;}
 	YY_BREAK
 case 6:
 /* rule 6 can match eol */
 YY_RULE_SETUP
-#line 62 "template_parser.l"
+#line 65 "template_parser.l"
 { return COMMA;}
 	YY_BREAK
 case 7:
 /* rule 7 can match eol */
 YY_RULE_SETUP
-#line 64 "template_parser.l"
+#line 67 "template_parser.l"
 { return CBRACKET;}
 	YY_BREAK
 case 8:
 /* rule 8 can match eol */
 YY_RULE_SETUP
-#line 66 "template_parser.l"
+#line 69 "template_parser.l"
 { BEGIN(INITIAL); return OBRACKET;}
 	YY_BREAK
 /* ------------------------------------------------------------------------ */
@@ -891,8 +894,8 @@ YY_RULE_SETUP
 case 9:
 /* rule 9 can match eol */
 YY_RULE_SETUP
-#line 73 "template_parser.l"
-{ lvalp->val_str = strdup(template_text+1);
+#line 76 "template_parser.l"
+{ lvalp->val_str = mem_collector_strdup(mc,template_text+1);
                              lvalp->val_str[template_leng-2] = '\0';
                              BEGIN(INITIAL); return STRING; }
 	YY_BREAK
@@ -903,16 +906,16 @@ YY_RULE_SETUP
  */
 case 10:
 YY_RULE_SETUP
-#line 82 "template_parser.l"
-{ lvalp->val_str = strdup(template_text);
+#line 85 "template_parser.l"
+{ lvalp->val_str = mem_collector_strdup(mc,template_text);
                     BEGIN(INITIAL); return STRING;}
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 84 "template_parser.l"
+#line 87 "template_parser.l"
 ECHO;
 	YY_BREAK
-#line 916 "template_parser.c"
+#line 919 "template_parser.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(VALUE):
 	yyterminate();
@@ -1882,7 +1885,7 @@ void template_free (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 84 "template_parser.l"
+#line 87 "template_parser.l"
 
 
 

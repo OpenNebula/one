@@ -512,12 +512,12 @@ char *expr_text;
 #line 18 "expr_parser.l"
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 #include "expr_bool.h"
 #include "expr_arith.h"
+#include "mem_collector.h"
 
-#define YY_DECL int expr_lex (YYSTYPE *lvalp, YYLTYPE *llocp)
+#define YY_DECL int expr_lex (YYSTYPE *lvalp, YYLTYPE *llocp, mem_collector *mc)
 
 #define YY_USER_ACTION  llocp->first_line = expr_lineno; 				\
                         llocp->first_column = llocp->last_column;	\
@@ -808,7 +808,7 @@ YY_RULE_SETUP
 case 2:
 YY_RULE_SETUP
 #line 44 "expr_parser.l"
-{ lvalp->val_str = strdup(expr_text);
+{ lvalp->val_str = mem_collector_strdup(mc,expr_text);
                         return STRING;}
 	YY_BREAK
 case 3:
@@ -821,7 +821,7 @@ case 4:
 /* rule 4 can match eol */
 YY_RULE_SETUP
 #line 50 "expr_parser.l"
-{ lvalp->val_str = strdup(expr_text+1);
+{ lvalp->val_str = mem_collector_strdup(mc,expr_text+1);
               lvalp->val_str[expr_leng-2] = '\0';
               return STRING;}
 	YY_BREAK

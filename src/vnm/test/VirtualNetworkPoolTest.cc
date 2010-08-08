@@ -113,6 +113,12 @@ public:
         }
         else
         {
+            if (error_msg != 0 )
+            {
+                free(error_msg);
+            }
+
+            delete vn_template;
             return -1;
         }
     };
@@ -210,9 +216,9 @@ protected:
 
 
 public:
-    VirtualNetworkPoolTest(){};
+    VirtualNetworkPoolTest(){xmlInitParser();};
 
-    ~VirtualNetworkPoolTest(){};
+    ~VirtualNetworkPoolTest(){xmlCleanupParser();};
 
     /* ********************************************************************* */
     /* ********************************************************************* */
@@ -235,7 +241,6 @@ public:
         CPPUNIT_ASSERT( rc == -1 );
 
         // Parser error for Vnet template
-        //TODO: Check memory leak for allocating strings in template parser
         rc = allocate(4);
         CPPUNIT_ASSERT( rc == -1 );
 

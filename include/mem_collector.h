@@ -14,58 +14,47 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-%{
-#include <stdio.h>
-#include <stdlib.h>
+#ifndef MEM_COLLECTOR_H_
+#define MEM_COLLECTOR_H_
 
-#include "expr_bool.h"
-#include "expr_arith.h"
-#include "mem_collector.h"
+#define MEM_COLLECTOR_CHUNK 10
 
-#define YY_DECL int expr_lex (YYSTYPE *lvalp, YYLTYPE *llocp, mem_collector *mc)
-
-#define YY_USER_ACTION  llocp->first_line = yylineno; 				\
-                        llocp->first_column = llocp->last_column;	\
-                        llocp->last_column += yyleng;
-%}
-
-%option nounput
-%option prefix="expr_"
-%option outfile="expr_parser.c"
-%option yylineno
-
-%%
-   /* --- Tokens --- */
-
-[!&|=><()\*\+/\^-] { return *yytext;}
-
-  /* --- Strings, also quoted form --- */
-
-[A-Za-z][0-9A-Za-z_]* { lvalp->val_str = mem_collector_strdup(mc,yytext);
-                        return STRING;}
-
-\"\"        { lvalp->val_str = NULL;
-              return STRING;}
-
-\"[^\"]*\"  { lvalp->val_str = mem_collector_strdup(mc,yytext+1);
-              lvalp->val_str[yyleng-2] = '\0';
-              return STRING;}
-
-  /* --- Numbers --- */
-
--?[0-9]+         { lvalp->val_int = atoi(yytext);
-                   return INTEGER;}
-
--?[0-9]+\.[0-9]+ { lvalp->val_float = atof(yytext);
-                   return FLOAT;}
-
-    /* --- blanks --- */
-
-[[:blank:]]*
-
-%%
-
-int expr_wrap()
+/**
+ *  mem_collector. A simple struct to track strdup'ed strings in lex parsers.
+ *  It prevents memory leaks in case of parse errors
+ */
+typedef struct mem_collector_
 {
-    return 1;
-}
+    char** str_buffer;
+    int    size;
+} mem_collector;
+
+/**
+ *  Initialize mem_collector internal memory buffers. MUST be called before
+ *  using any relared function
+ *    @param mc pointer to the mem_collector
+ */
+void mem_collector_init(mem_collector * mc);
+
+/**
+ *  Frees mem_collector internal resources.
+ *    @param mc pointer to the mem_collector
+ */
+void mem_collector_cleanup(mem_collector * mc);
+
+/**
+ *  Strdup's a string
+ *    @param mc pointer to the mem_collector
+ *    @param str string to be copied
+ *    @return pointer to the new string
+ */
+char * mem_collector_strdup(mem_collector *mc, const char * str);
+
+/**
+ *  Frees a previously strdup'ed string with mem_collector_strdup
+ *    @param mc pointer to the mem_collector
+ *    @param str string to be freed
+ */
+void mem_collector_free(mem_collector *mc, const char * str);
+
+#endif /*MEM_COLLECTOR_H_*/

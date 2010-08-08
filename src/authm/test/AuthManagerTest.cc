@@ -31,6 +31,9 @@
 #include <ui/text/TestRunner.h>
 #include <cppunit/extensions/HelperMacros.h>
 
+#include <openssl/evp.h>
+#include <openssl/bio.h>
+
 using namespace std;
 
 
@@ -54,7 +57,13 @@ class AuthManagerTest : public CppUnit::TestFixture
 public:
     AuthManagerTest(){};
 
-    ~AuthManagerTest(){};
+    ~AuthManagerTest(){
+	/*OpenSSL internal tables are allocated when an application starts up.
+          Since such tables do not grow in size over time they are harmless. */
+
+ 	EVP_cleanup() ; 
+	CRYPTO_cleanup_all_ex_data();
+    };
 
 
     /* ********************************************************************* */

@@ -95,6 +95,12 @@ public:
         }
         else
         {
+            if (error_msg != 0 )
+            {
+                free(error_msg);
+            }
+
+            delete img_template;
             return -2;
         }
     };
@@ -198,9 +204,9 @@ protected:
 
 
 public:
-    ImagePoolTest(){};
+    ImagePoolTest(){xmlInitParser();};
 
-    ~ImagePoolTest(){};
+    ~ImagePoolTest(){xmlCleanupParser();};
 
 
     /* ********************************************************************* */

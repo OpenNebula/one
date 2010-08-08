@@ -63,14 +63,14 @@
 #define YYLSP_NEEDED 1
 
 /* Substitute the variable and function names.  */
-#define yyparse         expr_bool_parse
-#define yylex           expr_bool_lex
-#define yyerror         expr_bool_error
-#define yylval          expr_bool_lval
-#define yychar          expr_bool_char
-#define yydebug         expr_bool_debug
-#define yynerrs         expr_bool_nerrs
-#define yylloc          expr_bool_lloc
+#define yyparse         expr_bool__parse
+#define yylex           expr_bool__lex
+#define yyerror         expr_bool__error
+#define yylval          expr_bool__lval
+#define yychar          expr_bool__char
+#define yydebug         expr_bool__debug
+#define yynerrs         expr_bool__nerrs
+#define yylloc          expr_bool__lloc
 
 /* Copy the first part of user declarations.  */
 
@@ -91,20 +91,40 @@
 #include "ObjectXML.h"
 
 #define YYERROR_VERBOSE
-#define expr_bool_lex expr_lex
+#define expr_bool__lex expr_lex
 
 extern "C"
 {
-void expr_bool_error(
-    YYLTYPE *       llocp,
-    ObjectXML *     oxml,
-    bool&           result,
-    char **         error_msg,
-    const char *    str);
+    #include "mem_collector.h"
 
-int expr_bool_lex (YYSTYPE *lvalp, YYLTYPE *llocp);
+    void expr_bool__error(
+        YYLTYPE *       llocp,
+        mem_collector * mc,
+        ObjectXML *     oxml,
+        bool&           result,
+        char **         error_msg,
+        const char *    str);
 
-int expr_bool_parse(ObjectXML * oxml, bool& result, char ** errmsg);
+    int expr_bool__lex (YYSTYPE *lvalp, YYLTYPE *llocp, mem_collector * mc);
+
+    int expr_bool__parse(mem_collector * mc,
+                         ObjectXML *     oxml,
+                         bool&           result,
+                         char **         errmsg);
+
+    int expr_bool_parse(ObjectXML *oxml, bool& result, char ** errmsg)
+    {
+        mem_collector mc;
+        int           rc;
+
+        mem_collector_init(&mc);
+
+        rc = expr_bool__parse(&mc,oxml,result,errmsg);
+
+        mem_collector_cleanup(&mc);
+
+        return rc;
+    }
 }
 
 void get_xml_attribute(ObjectXML * oxml, const char* attr, int& val);
@@ -116,7 +136,7 @@ void get_xml_attribute(ObjectXML * oxml, const char* attr, string& val);
 
 
 /* Line 189 of yacc.c  */
-#line 120 "expr_bool.cc"
+#line 140 "expr_bool.cc"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -156,7 +176,7 @@ typedef union YYSTYPE
 {
 
 /* Line 214 of yacc.c  */
-#line 60 "expr_bool.y"
+#line 83 "expr_bool.y"
 
     char * 	val_str;
     int 	val_int;
@@ -165,7 +185,7 @@ typedef union YYSTYPE
 
 
 /* Line 214 of yacc.c  */
-#line 169 "expr_bool.cc"
+#line 189 "expr_bool.cc"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -190,7 +210,7 @@ typedef struct YYLTYPE
 
 
 /* Line 264 of yacc.c  */
-#line 194 "expr_bool.cc"
+#line 214 "expr_bool.cc"
 
 #ifdef short
 # undef short
@@ -481,8 +501,8 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    80,    80,    81,    84,    91,    98,   105,   112,   119,
-     126,   133,   140,   148,   156,   157,   158,   159
+       0,   103,   103,   104,   107,   114,   121,   128,   135,   142,
+     149,   156,   163,   171,   179,   180,   181,   182
 };
 #endif
 
@@ -619,7 +639,7 @@ do								\
     }								\
   else								\
     {								\
-      yyerror (&yylloc, oxml, result, error_msg, YY_("syntax error: cannot back up")); \
+      yyerror (&yylloc, mc, oxml, result, error_msg, YY_("syntax error: cannot back up")); \
       YYERROR;							\
     }								\
 while (YYID (0))
@@ -676,7 +696,7 @@ while (YYID (0))
 #ifdef YYLEX_PARAM
 # define YYLEX yylex (&yylval, &yylloc, YYLEX_PARAM)
 #else
-# define YYLEX yylex (&yylval, &yylloc)
+# define YYLEX yylex (&yylval, &yylloc, mc)
 #endif
 
 /* Enable debugging if requested.  */
@@ -699,7 +719,7 @@ do {									  \
     {									  \
       YYFPRINTF (stderr, "%s ", Title);					  \
       yy_symbol_print (stderr,						  \
-		  Type, Value, Location, oxml, result, error_msg); \
+		  Type, Value, Location, mc, oxml, result, error_msg); \
       YYFPRINTF (stderr, "\n");						  \
     }									  \
 } while (YYID (0))
@@ -713,22 +733,24 @@ do {									  \
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, ObjectXML * oxml, bool&  result, char ** error_msg)
+yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, mem_collector * mc, ObjectXML *     oxml, bool&           result, char **         error_msg)
 #else
 static void
-yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, oxml, result, error_msg)
+yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, mc, oxml, result, error_msg)
     FILE *yyoutput;
     int yytype;
     YYSTYPE const * const yyvaluep;
     YYLTYPE const * const yylocationp;
-    ObjectXML * oxml;
-    bool&  result;
-    char ** error_msg;
+    mem_collector * mc;
+    ObjectXML *     oxml;
+    bool&           result;
+    char **         error_msg;
 #endif
 {
   if (!yyvaluep)
     return;
   YYUSE (yylocationp);
+  YYUSE (mc);
   YYUSE (oxml);
   YYUSE (result);
   YYUSE (error_msg);
@@ -753,17 +775,18 @@ yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, oxml, result, er
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, ObjectXML * oxml, bool&  result, char ** error_msg)
+yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, mem_collector * mc, ObjectXML *     oxml, bool&           result, char **         error_msg)
 #else
 static void
-yy_symbol_print (yyoutput, yytype, yyvaluep, yylocationp, oxml, result, error_msg)
+yy_symbol_print (yyoutput, yytype, yyvaluep, yylocationp, mc, oxml, result, error_msg)
     FILE *yyoutput;
     int yytype;
     YYSTYPE const * const yyvaluep;
     YYLTYPE const * const yylocationp;
-    ObjectXML * oxml;
-    bool&  result;
-    char ** error_msg;
+    mem_collector * mc;
+    ObjectXML *     oxml;
+    bool&           result;
+    char **         error_msg;
 #endif
 {
   if (yytype < YYNTOKENS)
@@ -773,7 +796,7 @@ yy_symbol_print (yyoutput, yytype, yyvaluep, yylocationp, oxml, result, error_ms
 
   YY_LOCATION_PRINT (yyoutput, *yylocationp);
   YYFPRINTF (yyoutput, ": ");
-  yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, oxml, result, error_msg);
+  yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, mc, oxml, result, error_msg);
   YYFPRINTF (yyoutput, ")");
 }
 
@@ -816,16 +839,17 @@ do {								\
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yy_reduce_print (YYSTYPE *yyvsp, YYLTYPE *yylsp, int yyrule, ObjectXML * oxml, bool&  result, char ** error_msg)
+yy_reduce_print (YYSTYPE *yyvsp, YYLTYPE *yylsp, int yyrule, mem_collector * mc, ObjectXML *     oxml, bool&           result, char **         error_msg)
 #else
 static void
-yy_reduce_print (yyvsp, yylsp, yyrule, oxml, result, error_msg)
+yy_reduce_print (yyvsp, yylsp, yyrule, mc, oxml, result, error_msg)
     YYSTYPE *yyvsp;
     YYLTYPE *yylsp;
     int yyrule;
-    ObjectXML * oxml;
-    bool&  result;
-    char ** error_msg;
+    mem_collector * mc;
+    ObjectXML *     oxml;
+    bool&           result;
+    char **         error_msg;
 #endif
 {
   int yynrhs = yyr2[yyrule];
@@ -839,7 +863,7 @@ yy_reduce_print (yyvsp, yylsp, yyrule, oxml, result, error_msg)
       YYFPRINTF (stderr, "   $%d = ", yyi + 1);
       yy_symbol_print (stderr, yyrhs[yyprhs[yyrule] + yyi],
 		       &(yyvsp[(yyi + 1) - (yynrhs)])
-		       , &(yylsp[(yyi + 1) - (yynrhs)])		       , oxml, result, error_msg);
+		       , &(yylsp[(yyi + 1) - (yynrhs)])		       , mc, oxml, result, error_msg);
       YYFPRINTF (stderr, "\n");
     }
 }
@@ -847,7 +871,7 @@ yy_reduce_print (yyvsp, yylsp, yyrule, oxml, result, error_msg)
 # define YY_REDUCE_PRINT(Rule)		\
 do {					\
   if (yydebug)				\
-    yy_reduce_print (yyvsp, yylsp, Rule, oxml, result, error_msg); \
+    yy_reduce_print (yyvsp, yylsp, Rule, mc, oxml, result, error_msg); \
 } while (YYID (0))
 
 /* Nonzero means print parse trace.  It is left uninitialized so that
@@ -1098,21 +1122,23 @@ yysyntax_error (char *yyresult, int yystate, int yychar)
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep, YYLTYPE *yylocationp, ObjectXML * oxml, bool&  result, char ** error_msg)
+yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep, YYLTYPE *yylocationp, mem_collector * mc, ObjectXML *     oxml, bool&           result, char **         error_msg)
 #else
 static void
-yydestruct (yymsg, yytype, yyvaluep, yylocationp, oxml, result, error_msg)
+yydestruct (yymsg, yytype, yyvaluep, yylocationp, mc, oxml, result, error_msg)
     const char *yymsg;
     int yytype;
     YYSTYPE *yyvaluep;
     YYLTYPE *yylocationp;
-    ObjectXML * oxml;
-    bool&  result;
-    char ** error_msg;
+    mem_collector * mc;
+    ObjectXML *     oxml;
+    bool&           result;
+    char **         error_msg;
 #endif
 {
   YYUSE (yyvaluep);
   YYUSE (yylocationp);
+  YYUSE (mc);
   YYUSE (oxml);
   YYUSE (result);
   YYUSE (error_msg);
@@ -1138,7 +1164,7 @@ int yyparse ();
 #endif
 #else /* ! YYPARSE_PARAM */
 #if defined __STDC__ || defined __cplusplus
-int yyparse (ObjectXML * oxml, bool&  result, char ** error_msg);
+int yyparse (mem_collector * mc, ObjectXML *     oxml, bool&           result, char **         error_msg);
 #else
 int yyparse ();
 #endif
@@ -1166,13 +1192,14 @@ yyparse (YYPARSE_PARAM)
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 int
-yyparse (ObjectXML * oxml, bool&  result, char ** error_msg)
+yyparse (mem_collector * mc, ObjectXML *     oxml, bool&           result, char **         error_msg)
 #else
 int
-yyparse (oxml, result, error_msg)
-    ObjectXML * oxml;
-    bool&  result;
-    char ** error_msg;
+yyparse (mc, oxml, result, error_msg)
+    mem_collector * mc;
+    ObjectXML *     oxml;
+    bool&           result;
+    char **         error_msg;
 #endif
 #endif
 {
@@ -1454,171 +1481,171 @@ yyreduce:
         case 2:
 
 /* Line 1464 of yacc.c  */
-#line 80 "expr_bool.y"
+#line 103 "expr_bool.y"
     { result=(yyvsp[(1) - (1)].val_int);   ;}
     break;
 
   case 3:
 
 /* Line 1464 of yacc.c  */
-#line 81 "expr_bool.y"
+#line 104 "expr_bool.y"
     { result=true; ;}
     break;
 
   case 4:
 
 /* Line 1464 of yacc.c  */
-#line 84 "expr_bool.y"
+#line 107 "expr_bool.y"
     { int val;
 
             get_xml_attribute(oxml,(yyvsp[(1) - (3)].val_str),val);
             (yyval.val_int) = val == (yyvsp[(3) - (3)].val_int);
 
-            free((yyvsp[(1) - (3)].val_str));;}
+            mem_collector_free(mc,(yyvsp[(1) - (3)].val_str));;}
     break;
 
   case 5:
 
 /* Line 1464 of yacc.c  */
-#line 91 "expr_bool.y"
+#line 114 "expr_bool.y"
     { int val;
 
             get_xml_attribute(oxml,(yyvsp[(1) - (4)].val_str),val);
             (yyval.val_int) = val != (yyvsp[(4) - (4)].val_int);
 
-            free((yyvsp[(1) - (4)].val_str));;}
+            mem_collector_free(mc,(yyvsp[(1) - (4)].val_str));;}
     break;
 
   case 6:
 
 /* Line 1464 of yacc.c  */
-#line 98 "expr_bool.y"
+#line 121 "expr_bool.y"
     { int val;
 
             get_xml_attribute(oxml,(yyvsp[(1) - (3)].val_str),val);
             (yyval.val_int) = val > (yyvsp[(3) - (3)].val_int);
 
-            free((yyvsp[(1) - (3)].val_str));;}
+            mem_collector_free(mc,(yyvsp[(1) - (3)].val_str));;}
     break;
 
   case 7:
 
 /* Line 1464 of yacc.c  */
-#line 105 "expr_bool.y"
+#line 128 "expr_bool.y"
     { int val;
 
             get_xml_attribute(oxml,(yyvsp[(1) - (3)].val_str),val);
             (yyval.val_int) = val < (yyvsp[(3) - (3)].val_int);
 
-            free((yyvsp[(1) - (3)].val_str));;}
+            mem_collector_free(mc,(yyvsp[(1) - (3)].val_str));;}
     break;
 
   case 8:
 
 /* Line 1464 of yacc.c  */
-#line 112 "expr_bool.y"
+#line 135 "expr_bool.y"
     { float val;
 
             get_xml_attribute(oxml,(yyvsp[(1) - (3)].val_str),val);
             (yyval.val_int) = val == (yyvsp[(3) - (3)].val_float);
 
-            free((yyvsp[(1) - (3)].val_str));;}
+            mem_collector_free(mc,(yyvsp[(1) - (3)].val_str));;}
     break;
 
   case 9:
 
 /* Line 1464 of yacc.c  */
-#line 119 "expr_bool.y"
+#line 142 "expr_bool.y"
     { float val;
 
             get_xml_attribute(oxml,(yyvsp[(1) - (4)].val_str),val);
             (yyval.val_int) = val != (yyvsp[(4) - (4)].val_float);
 
-            free((yyvsp[(1) - (4)].val_str));;}
+            mem_collector_free(mc,(yyvsp[(1) - (4)].val_str));;}
     break;
 
   case 10:
 
 /* Line 1464 of yacc.c  */
-#line 126 "expr_bool.y"
+#line 149 "expr_bool.y"
     {float val;
 
             get_xml_attribute(oxml,(yyvsp[(1) - (3)].val_str),val);
             (yyval.val_int) = val > (yyvsp[(3) - (3)].val_float);
 
-            free((yyvsp[(1) - (3)].val_str));;}
+            mem_collector_free(mc,(yyvsp[(1) - (3)].val_str));;}
     break;
 
   case 11:
 
 /* Line 1464 of yacc.c  */
-#line 133 "expr_bool.y"
+#line 156 "expr_bool.y"
     {float val;
 
             get_xml_attribute(oxml,(yyvsp[(1) - (3)].val_str),val);
             (yyval.val_int) = val < (yyvsp[(3) - (3)].val_float);
 
-            free((yyvsp[(1) - (3)].val_str));;}
+            mem_collector_free(mc,(yyvsp[(1) - (3)].val_str));;}
     break;
 
   case 12:
 
 /* Line 1464 of yacc.c  */
-#line 140 "expr_bool.y"
+#line 163 "expr_bool.y"
     { string val;
 
             get_xml_attribute(oxml,(yyvsp[(1) - (3)].val_str),val);
             (yyval.val_int) = val.empty() ? false :fnmatch((yyvsp[(3) - (3)].val_str), val.c_str(), 0) == 0;
 
-            free((yyvsp[(1) - (3)].val_str));
-            free((yyvsp[(3) - (3)].val_str));;}
+            mem_collector_free(mc,(yyvsp[(1) - (3)].val_str));
+            mem_collector_free(mc,(yyvsp[(3) - (3)].val_str));;}
     break;
 
   case 13:
 
 /* Line 1464 of yacc.c  */
-#line 148 "expr_bool.y"
+#line 171 "expr_bool.y"
     { string val;
 
             get_xml_attribute(oxml,(yyvsp[(1) - (4)].val_str),val);
             (yyval.val_int) = val.empty() ? false : fnmatch((yyvsp[(4) - (4)].val_str), val.c_str(), 0) != 0;
 
-            free((yyvsp[(1) - (4)].val_str));
-            free((yyvsp[(4) - (4)].val_str));;}
+            mem_collector_free(mc,(yyvsp[(1) - (4)].val_str));
+            mem_collector_free(mc,(yyvsp[(4) - (4)].val_str));;}
     break;
 
   case 14:
 
 /* Line 1464 of yacc.c  */
-#line 156 "expr_bool.y"
+#line 179 "expr_bool.y"
     { (yyval.val_int) = (yyvsp[(1) - (3)].val_int) && (yyvsp[(3) - (3)].val_int); ;}
     break;
 
   case 15:
 
 /* Line 1464 of yacc.c  */
-#line 157 "expr_bool.y"
+#line 180 "expr_bool.y"
     { (yyval.val_int) = (yyvsp[(1) - (3)].val_int) || (yyvsp[(3) - (3)].val_int); ;}
     break;
 
   case 16:
 
 /* Line 1464 of yacc.c  */
-#line 158 "expr_bool.y"
+#line 181 "expr_bool.y"
     { (yyval.val_int) = ! (yyvsp[(2) - (2)].val_int); ;}
     break;
 
   case 17:
 
 /* Line 1464 of yacc.c  */
-#line 159 "expr_bool.y"
+#line 182 "expr_bool.y"
     { (yyval.val_int) =   (yyvsp[(2) - (3)].val_int); ;}
     break;
 
 
 
 /* Line 1464 of yacc.c  */
-#line 1622 "expr_bool.cc"
+#line 1649 "expr_bool.cc"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1654,7 +1681,7 @@ yyerrlab:
     {
       ++yynerrs;
 #if ! YYERROR_VERBOSE
-      yyerror (&yylloc, oxml, result, error_msg, YY_("syntax error"));
+      yyerror (&yylloc, mc, oxml, result, error_msg, YY_("syntax error"));
 #else
       {
 	YYSIZE_T yysize = yysyntax_error (0, yystate, yychar);
@@ -1678,11 +1705,11 @@ yyerrlab:
 	if (0 < yysize && yysize <= yymsg_alloc)
 	  {
 	    (void) yysyntax_error (yymsg, yystate, yychar);
-	    yyerror (&yylloc, oxml, result, error_msg, yymsg);
+	    yyerror (&yylloc, mc, oxml, result, error_msg, yymsg);
 	  }
 	else
 	  {
-	    yyerror (&yylloc, oxml, result, error_msg, YY_("syntax error"));
+	    yyerror (&yylloc, mc, oxml, result, error_msg, YY_("syntax error"));
 	    if (yysize != 0)
 	      goto yyexhaustedlab;
 	  }
@@ -1706,7 +1733,7 @@ yyerrlab:
       else
 	{
 	  yydestruct ("Error: discarding",
-		      yytoken, &yylval, &yylloc, oxml, result, error_msg);
+		      yytoken, &yylval, &yylloc, mc, oxml, result, error_msg);
 	  yychar = YYEMPTY;
 	}
     }
@@ -1763,7 +1790,7 @@ yyerrlab1:
 
       yyerror_range[0] = *yylsp;
       yydestruct ("Error: popping",
-		  yystos[yystate], yyvsp, yylsp, oxml, result, error_msg);
+		  yystos[yystate], yyvsp, yylsp, mc, oxml, result, error_msg);
       YYPOPSTACK (1);
       yystate = *yyssp;
       YY_STACK_PRINT (yyss, yyssp);
@@ -1803,7 +1830,7 @@ yyabortlab:
 | yyexhaustedlab -- memory exhaustion comes here.  |
 `-------------------------------------------------*/
 yyexhaustedlab:
-  yyerror (&yylloc, oxml, result, error_msg, YY_("memory exhausted"));
+  yyerror (&yylloc, mc, oxml, result, error_msg, YY_("memory exhausted"));
   yyresult = 2;
   /* Fall through.  */
 #endif
@@ -1811,7 +1838,7 @@ yyexhaustedlab:
 yyreturn:
   if (yychar != YYEMPTY)
      yydestruct ("Cleanup: discarding lookahead",
-		 yytoken, &yylval, &yylloc, oxml, result, error_msg);
+		 yytoken, &yylval, &yylloc, mc, oxml, result, error_msg);
   /* Do not reclaim the symbols of the rule which action triggered
      this YYABORT or YYACCEPT.  */
   YYPOPSTACK (yylen);
@@ -1819,7 +1846,7 @@ yyreturn:
   while (yyssp != yyss)
     {
       yydestruct ("Cleanup: popping",
-		  yystos[*yyssp], yyvsp, yylsp, oxml, result, error_msg);
+		  yystos[*yyssp], yyvsp, yylsp, mc, oxml, result, error_msg);
       YYPOPSTACK (1);
     }
 #ifndef yyoverflow
@@ -1837,11 +1864,12 @@ yyreturn:
 
 
 /* Line 1684 of yacc.c  */
-#line 162 "expr_bool.y"
+#line 185 "expr_bool.y"
 
 
-extern "C" void expr_bool_error(
+extern "C" void expr_bool__error(
     YYLTYPE *       llocp,
+    mem_collector * mc,
     ObjectXML *     oxml,
     bool&           result,
     char **         error_msg,
@@ -1863,6 +1891,8 @@ extern "C" void expr_bool_error(
             llocp->first_column,
             llocp->last_column);
     }
+
+    result = false;
 }
 
 void get_xml_attribute(ObjectXML * oxml, const char* attr, int& val)

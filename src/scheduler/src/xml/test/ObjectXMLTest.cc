@@ -240,7 +240,7 @@ public:
             // is not set to false.
             rc = obj.eval_bool( "TOTALCPU ^ * - = abc", res, &err );
             CPPUNIT_ASSERT( rc != 0 );
-            // CPPUNIT_ASSERT( res == false );
+            CPPUNIT_ASSERT( res == false );
 
             if (err != 0)
             {

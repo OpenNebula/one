@@ -51,7 +51,7 @@ typedef union YYSTYPE
 {
 
 /* Line 1685 of yacc.c  */
-#line 60 "expr_bool.y"
+#line 83 "expr_bool.y"
 
     char * 	val_str;
     int 	val_int;

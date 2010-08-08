@@ -37,7 +37,8 @@ main_env.Append(CPPPATH=[
 main_env.Append(LIBPATH=[
     cwd+'/..',
     cwd+'/../../xml',
-    cwd+'/../../../../log'
+    cwd+'/../../../../log',
+    cwd+'/../../../../common'
 ])
 
 # Compile flags
@@ -54,7 +55,8 @@ main_env.Append(LIBS=[
     'cppunit',
     'scheduler_xml',
     'scheduler_pool',
-    'nebula_log'
+    'nebula_log',
+    'nebula_common'
 ])
 
 main_env.Program('test_vm','VirtualMachineXMLTest.cc')

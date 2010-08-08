@@ -29,24 +29,46 @@
 #include "VirtualMachine.h"
 #include "Nebula.h"
 
+#define vm_var__lex vm_var_lex
+
 #define YYERROR_VERBOSE
 #define VM_VAR_TO_UPPER(S) transform (S.begin(),S.end(),S.begin(), \
 (int(*)(int))toupper)
 
 extern "C"
 {
-void vm_var_error(
-    YYLTYPE *        llocp,
-    VirtualMachine * vm,                
-    ostringstream *  parsed,
-    char **          errmsg,
-    const char *     str);
+    #include "mem_collector.h"
 
-int vm_var_lex (YYSTYPE *lvalp, YYLTYPE *llocp);
+    void vm_var__error(
+        YYLTYPE *        llocp,
+        mem_collector *  mc,
+        VirtualMachine * vm,
+        ostringstream *  parsed,
+        char **          errmsg,
+        const char *     str);
 
-int vm_var_parse (VirtualMachine * vm,
-                  ostringstream *  parsed,
-                  char **          errmsg);
+    int vm_var__lex (YYSTYPE *lvalp, YYLTYPE *llocp, mem_collector * mc);
+
+    int vm_var__parse (mem_collector *  mc,
+                       VirtualMachine * vm,
+                       ostringstream *  parsed,
+                       char **          errmsg);
+
+    int vm_var_parse (VirtualMachine * vm,
+                      ostringstream *  parsed,
+                      char **          errmsg)
+    {
+        mem_collector mc;
+        int           rc;
+
+        mem_collector_init(&mc);
+
+        rc = vm_var__parse(&mc, vm, parsed, errmsg);
+
+        mem_collector_cleanup(&mc);
+
+        return rc;
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -118,7 +140,7 @@ void insert_single(VirtualMachine * vm,
     string value = "";
 
     vm->get_template_attribute(name.c_str(),value);
-                    
+
     parsed << value;
 }
 
@@ -131,17 +153,17 @@ void insert_vector(VirtualMachine * vm,
                    const string&    vname,
                    const string&    vvar,
                    const string&    vval)
-                   
-{   
+
+{
     vector<const Attribute*> values;
     const VectorAttribute *  vattr = 0;
-    
+
     int    num;
 
     if ( name == "NETWORK")
     {
         string value;
-      
+
         get_network_attribute(vm,vname,vvar,vval,value);
 
         if (!value.empty())
@@ -156,19 +178,19 @@ void insert_vector(VirtualMachine * vm,
     {
         return;
     }
-    
+
     if ( vvar.empty() )
     {
-        vattr = dynamic_cast<const VectorAttribute *>(values[0]);        
+        vattr = dynamic_cast<const VectorAttribute *>(values[0]);
     }
     else
     {
         const VectorAttribute * tmp = 0;
-                
+
         for (int i=0 ; i < num ; i++)
         {
             tmp = dynamic_cast<const VectorAttribute *>(values[i]);
-    
+
             if ( tmp && ( tmp->vector_value(vvar.c_str()) == vval ))
             {
                 vattr = tmp;
@@ -182,15 +204,18 @@ void insert_vector(VirtualMachine * vm,
         parsed << vattr->vector_value(vname.c_str());
     }
 }
-  
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 %}
 
+%parse-param {mem_collector * mc}
 %parse-param {VirtualMachine * vm}
 %parse-param {ostringstream *  parsed}
 %parse-param {char **          errmsg}
+
+%lex-param {mem_collector * mc}
 
 %union {
     char * val_str;
@@ -201,7 +226,7 @@ void insert_vector(VirtualMachine * vm,
 %defines
 %locations
 %pure_parser
-%name-prefix = "vm_var_"
+%name-prefix = "vm_var__"
 %output      = "vm_var_syntax.cc"
 
 %token EQUAL COMMA OBRACKET CBRACKET
@@ -223,28 +248,28 @@ vm_string:  vm_variable
 vm_variable:RSTRING
     {
         (*parsed) << $1;
-        free($1);
+        mem_collector_free(mc,$1);
     }
     | VARIABLE EOA
     {
         string name($1);
-        
+
         VM_VAR_TO_UPPER(name);
-                            
+
         insert_single(vm,*parsed,name);
-                        
+
         if ( $2 != '\0' )
         {
             (*parsed) << $2;
         }
-        
-        free($1);
+
+        mem_collector_free(mc,$1);
     }
     | VARIABLE OBRACKET VARIABLE CBRACKET EOA
     {
         string name($1);
         string vname($3);
-        
+
         VM_VAR_TO_UPPER(name);
         VM_VAR_TO_UPPER(vname);
 
@@ -255,8 +280,8 @@ vm_variable:RSTRING
             (*parsed) << $5;
         }
 
-        free($1);
-        free($3);
+        mem_collector_free(mc,$1);
+        mem_collector_free(mc,$3);
     }
     | VARIABLE OBRACKET VARIABLE COMMA VARIABLE EQUAL STRING CBRACKET EOA
     {
@@ -270,22 +295,23 @@ vm_variable:RSTRING
         VM_VAR_TO_UPPER(vvar);
 
         insert_vector(vm,*parsed,name,vname,vvar,vval);
-                                                              
+
         if ( $9 != '\0' )
         {
             (*parsed) << $9;
         }
 
-        free($1);
-        free($3);
-        free($5);
-        free($7);
+        mem_collector_free(mc,$1);
+        mem_collector_free(mc,$3);
+        mem_collector_free(mc,$5);
+        mem_collector_free(mc,$7);
     }
     ;
 %%
 
-extern "C" void vm_var_error(
+extern "C" void vm_var__error(
     YYLTYPE *        llocp,
+    mem_collector *  mc,
     VirtualMachine * vm,
     ostringstream *  parsed,
     char **          error_msg,
@@ -296,7 +322,7 @@ extern "C" void vm_var_error(
     length = strlen(str)+ 64;
 
     *error_msg = (char *) malloc(sizeof(char)*length);
-    
+
     if (*error_msg != 0)
     {
         snprintf(*error_msg,

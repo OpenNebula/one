@@ -21,11 +21,13 @@
 #include <pthread.h>
 
 #include "vm_var_syntax.h"
+#include "mem_collector.h"
 
-#define YY_DECL int vm_var_lex (YYSTYPE *lvalp, YYLTYPE *llocp)
+#define YY_DECL int vm_var_lex (YYSTYPE *lvalp, YYLTYPE *llocp, \
+                                mem_collector *mc)
 
-#define YY_USER_ACTION  llocp->first_line = yylineno; 				\
-                        llocp->first_column = llocp->last_column;	\
+#define YY_USER_ACTION  llocp->first_line = yylineno;   \
+                        llocp->first_column = llocp->last_column;   \
                         llocp->last_column += yyleng;
 %}
 
@@ -52,10 +54,12 @@
 <VAR>\[[[:blank:]]*            { return OBRACKET;}
 <VAR>[[:blank:]]*\]            { return CBRACKET;}
 
-<VAR>[[:alnum:]_]+             { lvalp->val_str = strdup(yytext);
+<VAR>[[:alnum:]_]+             { lvalp->val_str =
+                                    mem_collector_strdup(mc,yytext);
                                  return VARIABLE;}
 
-<VAR>\"[^\"]*\"                { lvalp->val_str = strdup(yytext+1);
+<VAR>\"[^\"]*\"                { lvalp->val_str =
+                                    mem_collector_strdup(mc,yytext+1);
                                  lvalp->val_str[yyleng-2] = '\0';
                                  return STRING;}
 
@@ -74,7 +78,7 @@
  /* Just copy the string verbatim till we find a variable (starts with $)     */
  /* ------------------------------------------------------------------------- */
 
-[^\$]+  { lvalp->val_str = strdup(yytext); return RSTRING;}
+[^\$]+  { lvalp->val_str = mem_collector_strdup(mc,yytext); return RSTRING;}
 
 %%
 

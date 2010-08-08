@@ -51,10 +51,10 @@ typedef union YYSTYPE
 {
 
 /* Line 1685 of yacc.c  */
-#line 54 "expr_arith.y"
+#line 78 "expr_arith.y"
 
-    char * 	val_str;
-    int 	val_int;
+    char *  val_str;
+    int     val_int;
     float   val_float;
 
 
