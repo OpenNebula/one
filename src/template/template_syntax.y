@@ -104,9 +104,6 @@ attribute:  VARIABLE EQUAL STRING
                 pattr = new SingleAttribute(name,unescape(value));
 
                 tmpl->set(pattr);
-
-                mem_collector_free(mc,$1);
-                mem_collector_free(mc,$3);
             }
          |  VARIABLE EQUAL OBRACKET array_val CBRACKET
             {
@@ -120,7 +117,6 @@ attribute:  VARIABLE EQUAL STRING
                 tmpl->set(pattr);
 
                 delete amap;
-                mem_collector_free(mc,$1);
             }
          |  VARIABLE EQUAL_EMPTY
             {
@@ -131,8 +127,6 @@ attribute:  VARIABLE EQUAL STRING
                 pattr = new SingleAttribute(name,value);
 
                 tmpl->set(pattr);
-
-                mem_collector_free(mc,$1);
             }
         ;
 
@@ -148,9 +142,6 @@ array_val:  VARIABLE EQUAL STRING
                 vattr->insert(make_pair(name,unescape(value)));
 
                 $$ = static_cast<void *>(vattr);
-
-                mem_collector_free(mc,$1);
-                mem_collector_free(mc,$3);
             }
         |   array_val COMMA VARIABLE EQUAL STRING
             {
@@ -164,9 +155,6 @@ array_val:  VARIABLE EQUAL STRING
 
                 attrmap->insert(make_pair(name,unescape(value)));
                 $$ = $1;
-
-                mem_collector_free(mc,$3);
-                mem_collector_free(mc,$5);
             }
         ;
 %%

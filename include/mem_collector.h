@@ -17,7 +17,7 @@
 #ifndef MEM_COLLECTOR_H_
 #define MEM_COLLECTOR_H_
 
-#define MEM_COLLECTOR_CHUNK 10
+#define MEM_COLLECTOR_CHUNK 100
 
 /**
  *  mem_collector. A simple struct to track strdup'ed strings in lex parsers.
@@ -27,6 +27,7 @@ typedef struct mem_collector_
 {
     char** str_buffer;
     int    size;
+    int    next;
 } mem_collector;
 
 /**
@@ -49,12 +50,5 @@ void mem_collector_cleanup(mem_collector * mc);
  *    @return pointer to the new string
  */
 char * mem_collector_strdup(mem_collector *mc, const char * str);
-
-/**
- *  Frees a previously strdup'ed string with mem_collector_strdup
- *    @param mc pointer to the mem_collector
- *    @param str string to be freed
- */
-void mem_collector_free(mem_collector *mc, const char * str);
 
 #endif /*MEM_COLLECTOR_H_*/

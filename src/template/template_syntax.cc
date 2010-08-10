@@ -492,7 +492,7 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    94,    94,    95,    98,   111,   125,   139,   155
+       0,    94,    94,    95,    98,   108,   121,   133,   146
 };
 #endif
 
@@ -1466,16 +1466,13 @@ yyreduce:
                 pattr = new SingleAttribute(name,unescape(value));
 
                 tmpl->set(pattr);
-
-                mem_collector_free(mc,(yyvsp[(1) - (3)].val_str));
-                mem_collector_free(mc,(yyvsp[(3) - (3)].val_str));
             ;}
     break;
 
   case 5:
 
 /* Line 1464 of yacc.c  */
-#line 112 "template_syntax.y"
+#line 109 "template_syntax.y"
     {
                 Attribute * pattr;
                 string      name((yyvsp[(1) - (5)].val_str));
@@ -1487,14 +1484,13 @@ yyreduce:
                 tmpl->set(pattr);
 
                 delete amap;
-                mem_collector_free(mc,(yyvsp[(1) - (5)].val_str));
             ;}
     break;
 
   case 6:
 
 /* Line 1464 of yacc.c  */
-#line 126 "template_syntax.y"
+#line 122 "template_syntax.y"
     {
                 Attribute * pattr;
                 string      name((yyvsp[(1) - (2)].val_str));
@@ -1503,15 +1499,13 @@ yyreduce:
                 pattr = new SingleAttribute(name,value);
 
                 tmpl->set(pattr);
-
-                mem_collector_free(mc,(yyvsp[(1) - (2)].val_str));
             ;}
     break;
 
   case 7:
 
 /* Line 1464 of yacc.c  */
-#line 140 "template_syntax.y"
+#line 134 "template_syntax.y"
     {
                 map<string,string>* vattr;
                 string              name((yyvsp[(1) - (3)].val_str));
@@ -1523,16 +1517,13 @@ yyreduce:
                 vattr->insert(make_pair(name,unescape(value)));
 
                 (yyval.val_attr) = static_cast<void *>(vattr);
-
-                mem_collector_free(mc,(yyvsp[(1) - (3)].val_str));
-                mem_collector_free(mc,(yyvsp[(3) - (3)].val_str));
             ;}
     break;
 
   case 8:
 
 /* Line 1464 of yacc.c  */
-#line 156 "template_syntax.y"
+#line 147 "template_syntax.y"
     {
                 string               name((yyvsp[(3) - (5)].val_str));
                 string               value((yyvsp[(5) - (5)].val_str));
@@ -1544,16 +1535,13 @@ yyreduce:
 
                 attrmap->insert(make_pair(name,unescape(value)));
                 (yyval.val_attr) = (yyvsp[(1) - (5)].val_attr);
-
-                mem_collector_free(mc,(yyvsp[(3) - (5)].val_str));
-                mem_collector_free(mc,(yyvsp[(5) - (5)].val_str));
             ;}
     break;
 
 
 
 /* Line 1464 of yacc.c  */
-#line 1557 "template_syntax.cc"
+#line 1545 "template_syntax.cc"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1772,7 +1760,7 @@ yyreturn:
 
 
 /* Line 1684 of yacc.c  */
-#line 172 "template_syntax.y"
+#line 160 "template_syntax.y"
 
 
 string& unescape (string &str)

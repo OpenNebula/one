@@ -248,7 +248,6 @@ vm_string:  vm_variable
 vm_variable:RSTRING
     {
         (*parsed) << $1;
-        mem_collector_free(mc,$1);
     }
     | VARIABLE EOA
     {
@@ -262,8 +261,6 @@ vm_variable:RSTRING
         {
             (*parsed) << $2;
         }
-
-        mem_collector_free(mc,$1);
     }
     | VARIABLE OBRACKET VARIABLE CBRACKET EOA
     {
@@ -279,9 +276,6 @@ vm_variable:RSTRING
         {
             (*parsed) << $5;
         }
-
-        mem_collector_free(mc,$1);
-        mem_collector_free(mc,$3);
     }
     | VARIABLE OBRACKET VARIABLE COMMA VARIABLE EQUAL STRING CBRACKET EOA
     {
@@ -300,11 +294,6 @@ vm_variable:RSTRING
         {
             (*parsed) << $9;
         }
-
-        mem_collector_free(mc,$1);
-        mem_collector_free(mc,$3);
-        mem_collector_free(mc,$5);
-        mem_collector_free(mc,$7);
     }
     ;
 %%

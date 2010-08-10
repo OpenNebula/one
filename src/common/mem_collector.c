@@ -28,6 +28,7 @@ void mem_collector_init(mem_collector * mc)
 
     mc->str_buffer = (char **) malloc (sizeof(char*) * MEM_COLLECTOR_CHUNK);
     mc->size       = MEM_COLLECTOR_CHUNK;
+    mc->next       = 0;
 
     for (i=0; i< mc->size ; i++)
     {
@@ -48,6 +49,10 @@ void mem_collector_cleanup(mem_collector * mc)
         {
             free(mc->str_buffer[i]);
         }
+        else /* No str's left in the pool */
+        {
+            break;
+        }
     }
 
     free(mc->str_buffer);
@@ -58,53 +63,27 @@ void mem_collector_cleanup(mem_collector * mc)
 
 char * mem_collector_strdup(mem_collector *mc, const char * str)
 {
-    int    done = 0;
     int    i, old_size;
+    char * new_str;
 
-    for (i=0; i< mc->size ; i++)
-    {
-        if ( mc->str_buffer[i] == 0 )
-        {
-            done = 1;
-            break;
-        }
-    }
-
-    if (done == 0)
+    if ( mc->next == mc->size )
     {
         old_size = mc->size;
         mc->size = mc->size + MEM_COLLECTOR_CHUNK;
+
         mc->str_buffer = (char **) realloc(mc->str_buffer,
                                            sizeof(char*) * mc->size);
+
         for ( i = old_size ; i < mc->size ; i++)
         {
             mc->str_buffer[i] = 0;
         }
-
-        i = old_size;
     }
 
-    mc->str_buffer[i] = strdup(str);
+    new_str = strdup(str);
+    mc->str_buffer[mc->next++] = new_str;
 
-    return mc->str_buffer[i];
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void mem_collector_free(mem_collector *mc, const char * str)
-{
-    int    i;
-
-    for (i=0; i< mc->size ; i++)
-    {
-        if ( mc->str_buffer[i] == str )
-        {
-            free(mc->str_buffer[i]);
-            mc->str_buffer[i] = 0;
-            break;
-        }
-    }
+    return new_str;
 }
 
 /* -------------------------------------------------------------------------- */

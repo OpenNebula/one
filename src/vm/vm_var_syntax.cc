@@ -639,7 +639,7 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   244,   244,   245,   248,   253,   268,   286
+       0,   244,   244,   245,   248,   252,   265,   280
 };
 #endif
 
@@ -1615,14 +1615,13 @@ yyreduce:
 #line 249 "vm_var_syntax.y"
     {
         (*parsed) << (yyvsp[(1) - (1)].val_str);
-        mem_collector_free(mc,(yyvsp[(1) - (1)].val_str));
     ;}
     break;
 
   case 5:
 
 /* Line 1464 of yacc.c  */
-#line 254 "vm_var_syntax.y"
+#line 253 "vm_var_syntax.y"
     {
         string name((yyvsp[(1) - (2)].val_str));
 
@@ -1634,15 +1633,13 @@ yyreduce:
         {
             (*parsed) << (yyvsp[(2) - (2)].val_char);
         }
-
-        mem_collector_free(mc,(yyvsp[(1) - (2)].val_str));
     ;}
     break;
 
   case 6:
 
 /* Line 1464 of yacc.c  */
-#line 269 "vm_var_syntax.y"
+#line 266 "vm_var_syntax.y"
     {
         string name((yyvsp[(1) - (5)].val_str));
         string vname((yyvsp[(3) - (5)].val_str));
@@ -1656,16 +1653,13 @@ yyreduce:
         {
             (*parsed) << (yyvsp[(5) - (5)].val_char);
         }
-
-        mem_collector_free(mc,(yyvsp[(1) - (5)].val_str));
-        mem_collector_free(mc,(yyvsp[(3) - (5)].val_str));
     ;}
     break;
 
   case 7:
 
 /* Line 1464 of yacc.c  */
-#line 287 "vm_var_syntax.y"
+#line 281 "vm_var_syntax.y"
     {
         string name((yyvsp[(1) - (9)].val_str));
         string vname((yyvsp[(3) - (9)].val_str));
@@ -1682,18 +1676,13 @@ yyreduce:
         {
             (*parsed) << (yyvsp[(9) - (9)].val_char);
         }
-
-        mem_collector_free(mc,(yyvsp[(1) - (9)].val_str));
-        mem_collector_free(mc,(yyvsp[(3) - (9)].val_str));
-        mem_collector_free(mc,(yyvsp[(5) - (9)].val_str));
-        mem_collector_free(mc,(yyvsp[(7) - (9)].val_str));
     ;}
     break;
 
 
 
 /* Line 1464 of yacc.c  */
-#line 1697 "vm_var_syntax.cc"
+#line 1686 "vm_var_syntax.cc"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1912,7 +1901,7 @@ yyreturn:
 
 
 /* Line 1684 of yacc.c  */
-#line 310 "vm_var_syntax.y"
+#line 299 "vm_var_syntax.y"
 
 
 extern "C" void vm_var__error(

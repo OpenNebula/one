@@ -501,8 +501,8 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,   103,   103,   104,   107,   114,   121,   128,   135,   142,
-     149,   156,   163,   171,   179,   180,   181,   182
+       0,   103,   103,   104,   107,   112,   117,   122,   127,   132,
+     137,   142,   147,   152,   157,   158,   159,   160
 };
 #endif
 
@@ -1499,153 +1499,131 @@ yyreduce:
     { int val;
 
             get_xml_attribute(oxml,(yyvsp[(1) - (3)].val_str),val);
-            (yyval.val_int) = val == (yyvsp[(3) - (3)].val_int);
-
-            mem_collector_free(mc,(yyvsp[(1) - (3)].val_str));;}
+            (yyval.val_int) = val == (yyvsp[(3) - (3)].val_int);;}
     break;
 
   case 5:
 
 /* Line 1464 of yacc.c  */
-#line 114 "expr_bool.y"
+#line 112 "expr_bool.y"
     { int val;
 
             get_xml_attribute(oxml,(yyvsp[(1) - (4)].val_str),val);
-            (yyval.val_int) = val != (yyvsp[(4) - (4)].val_int);
-
-            mem_collector_free(mc,(yyvsp[(1) - (4)].val_str));;}
+            (yyval.val_int) = val != (yyvsp[(4) - (4)].val_int);;}
     break;
 
   case 6:
 
 /* Line 1464 of yacc.c  */
-#line 121 "expr_bool.y"
+#line 117 "expr_bool.y"
     { int val;
 
             get_xml_attribute(oxml,(yyvsp[(1) - (3)].val_str),val);
-            (yyval.val_int) = val > (yyvsp[(3) - (3)].val_int);
-
-            mem_collector_free(mc,(yyvsp[(1) - (3)].val_str));;}
+            (yyval.val_int) = val > (yyvsp[(3) - (3)].val_int);;}
     break;
 
   case 7:
 
 /* Line 1464 of yacc.c  */
-#line 128 "expr_bool.y"
+#line 122 "expr_bool.y"
     { int val;
 
             get_xml_attribute(oxml,(yyvsp[(1) - (3)].val_str),val);
-            (yyval.val_int) = val < (yyvsp[(3) - (3)].val_int);
-
-            mem_collector_free(mc,(yyvsp[(1) - (3)].val_str));;}
+            (yyval.val_int) = val < (yyvsp[(3) - (3)].val_int);;}
     break;
 
   case 8:
 
 /* Line 1464 of yacc.c  */
-#line 135 "expr_bool.y"
+#line 127 "expr_bool.y"
     { float val;
 
             get_xml_attribute(oxml,(yyvsp[(1) - (3)].val_str),val);
-            (yyval.val_int) = val == (yyvsp[(3) - (3)].val_float);
-
-            mem_collector_free(mc,(yyvsp[(1) - (3)].val_str));;}
+            (yyval.val_int) = val == (yyvsp[(3) - (3)].val_float);;}
     break;
 
   case 9:
 
 /* Line 1464 of yacc.c  */
-#line 142 "expr_bool.y"
+#line 132 "expr_bool.y"
     { float val;
 
             get_xml_attribute(oxml,(yyvsp[(1) - (4)].val_str),val);
-            (yyval.val_int) = val != (yyvsp[(4) - (4)].val_float);
-
-            mem_collector_free(mc,(yyvsp[(1) - (4)].val_str));;}
+            (yyval.val_int) = val != (yyvsp[(4) - (4)].val_float);;}
     break;
 
   case 10:
 
 /* Line 1464 of yacc.c  */
-#line 149 "expr_bool.y"
+#line 137 "expr_bool.y"
     {float val;
 
             get_xml_attribute(oxml,(yyvsp[(1) - (3)].val_str),val);
-            (yyval.val_int) = val > (yyvsp[(3) - (3)].val_float);
-
-            mem_collector_free(mc,(yyvsp[(1) - (3)].val_str));;}
+            (yyval.val_int) = val > (yyvsp[(3) - (3)].val_float);;}
     break;
 
   case 11:
 
 /* Line 1464 of yacc.c  */
-#line 156 "expr_bool.y"
+#line 142 "expr_bool.y"
     {float val;
 
             get_xml_attribute(oxml,(yyvsp[(1) - (3)].val_str),val);
-            (yyval.val_int) = val < (yyvsp[(3) - (3)].val_float);
-
-            mem_collector_free(mc,(yyvsp[(1) - (3)].val_str));;}
+            (yyval.val_int) = val < (yyvsp[(3) - (3)].val_float);;}
     break;
 
   case 12:
 
 /* Line 1464 of yacc.c  */
-#line 163 "expr_bool.y"
+#line 147 "expr_bool.y"
     { string val;
 
             get_xml_attribute(oxml,(yyvsp[(1) - (3)].val_str),val);
-            (yyval.val_int) = val.empty() ? false :fnmatch((yyvsp[(3) - (3)].val_str), val.c_str(), 0) == 0;
-
-            mem_collector_free(mc,(yyvsp[(1) - (3)].val_str));
-            mem_collector_free(mc,(yyvsp[(3) - (3)].val_str));;}
+            (yyval.val_int) = val.empty() ? false :fnmatch((yyvsp[(3) - (3)].val_str), val.c_str(), 0) == 0;;}
     break;
 
   case 13:
 
 /* Line 1464 of yacc.c  */
-#line 171 "expr_bool.y"
+#line 152 "expr_bool.y"
     { string val;
 
             get_xml_attribute(oxml,(yyvsp[(1) - (4)].val_str),val);
-            (yyval.val_int) = val.empty() ? false : fnmatch((yyvsp[(4) - (4)].val_str), val.c_str(), 0) != 0;
-
-            mem_collector_free(mc,(yyvsp[(1) - (4)].val_str));
-            mem_collector_free(mc,(yyvsp[(4) - (4)].val_str));;}
+            (yyval.val_int) = val.empty() ? false : fnmatch((yyvsp[(4) - (4)].val_str), val.c_str(), 0) != 0;;}
     break;
 
   case 14:
 
 /* Line 1464 of yacc.c  */
-#line 179 "expr_bool.y"
+#line 157 "expr_bool.y"
     { (yyval.val_int) = (yyvsp[(1) - (3)].val_int) && (yyvsp[(3) - (3)].val_int); ;}
     break;
 
   case 15:
 
 /* Line 1464 of yacc.c  */
-#line 180 "expr_bool.y"
+#line 158 "expr_bool.y"
     { (yyval.val_int) = (yyvsp[(1) - (3)].val_int) || (yyvsp[(3) - (3)].val_int); ;}
     break;
 
   case 16:
 
 /* Line 1464 of yacc.c  */
-#line 181 "expr_bool.y"
+#line 159 "expr_bool.y"
     { (yyval.val_int) = ! (yyvsp[(2) - (2)].val_int); ;}
     break;
 
   case 17:
 
 /* Line 1464 of yacc.c  */
-#line 182 "expr_bool.y"
+#line 160 "expr_bool.y"
     { (yyval.val_int) =   (yyvsp[(2) - (3)].val_int); ;}
     break;
 
 
 
 /* Line 1464 of yacc.c  */
-#line 1649 "expr_bool.cc"
+#line 1627 "expr_bool.cc"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1864,7 +1842,7 @@ yyreturn:
 
 
 /* Line 1684 of yacc.c  */
-#line 185 "expr_bool.y"
+#line 163 "expr_bool.y"
 
 
 extern "C" void expr_bool__error(

@@ -493,8 +493,8 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,   100,   100,   101,   104,   131,   132,   133,   134,   135,
-     136,   137,   138
+       0,   100,   100,   101,   104,   129,   130,   131,   132,   133,
+     134,   135,   136
 };
 #endif
 
@@ -1509,71 +1509,69 @@ yyreduce:
                               }
 
                               (yyval.val_float) = val;
-
-                              mem_collector_free(mc,(yyvsp[(1) - (1)].val_str));
                             ;}
     break;
 
   case 5:
 
 /* Line 1464 of yacc.c  */
-#line 131 "expr_arith.y"
+#line 129 "expr_arith.y"
     { (yyval.val_float) = (yyvsp[(1) - (1)].val_float); ;}
     break;
 
   case 6:
 
 /* Line 1464 of yacc.c  */
-#line 132 "expr_arith.y"
+#line 130 "expr_arith.y"
     { (yyval.val_float) = static_cast<float>((yyvsp[(1) - (1)].val_int)); ;}
     break;
 
   case 7:
 
 /* Line 1464 of yacc.c  */
-#line 133 "expr_arith.y"
+#line 131 "expr_arith.y"
     { (yyval.val_float) = (yyvsp[(1) - (3)].val_float) + (yyvsp[(3) - (3)].val_float);;}
     break;
 
   case 8:
 
 /* Line 1464 of yacc.c  */
-#line 134 "expr_arith.y"
+#line 132 "expr_arith.y"
     { (yyval.val_float) = (yyvsp[(1) - (3)].val_float) - (yyvsp[(3) - (3)].val_float);;}
     break;
 
   case 9:
 
 /* Line 1464 of yacc.c  */
-#line 135 "expr_arith.y"
+#line 133 "expr_arith.y"
     { (yyval.val_float) = (yyvsp[(1) - (3)].val_float) * (yyvsp[(3) - (3)].val_float);;}
     break;
 
   case 10:
 
 /* Line 1464 of yacc.c  */
-#line 136 "expr_arith.y"
+#line 134 "expr_arith.y"
     { (yyval.val_float) = (yyvsp[(1) - (3)].val_float) / (yyvsp[(3) - (3)].val_float);;}
     break;
 
   case 11:
 
 /* Line 1464 of yacc.c  */
-#line 137 "expr_arith.y"
+#line 135 "expr_arith.y"
     { (yyval.val_float) = - (yyvsp[(2) - (2)].val_float);;}
     break;
 
   case 12:
 
 /* Line 1464 of yacc.c  */
-#line 138 "expr_arith.y"
+#line 136 "expr_arith.y"
     { (yyval.val_float) = (yyvsp[(2) - (3)].val_float);;}
     break;
 
 
 
 /* Line 1464 of yacc.c  */
-#line 1577 "expr_arith.cc"
+#line 1575 "expr_arith.cc"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1792,7 +1790,7 @@ yyreturn:
 
 
 /* Line 1684 of yacc.c  */
-#line 141 "expr_arith.y"
+#line 139 "expr_arith.y"
 
 
 extern "C" void expr_arith__error(

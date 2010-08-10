@@ -107,74 +107,52 @@ stmt:   expr    { result=$1;   }
 expr:   STRING '=' INTEGER { int val;
 
             get_xml_attribute(oxml,$1,val);
-            $$ = val == $3;
-
-            mem_collector_free(mc,$1);}
+            $$ = val == $3;}
 
         | STRING '!' '=' INTEGER { int val;
 
             get_xml_attribute(oxml,$1,val);
-            $$ = val != $4;
-
-            mem_collector_free(mc,$1);}
+            $$ = val != $4;}
 
         | STRING '>' INTEGER { int val;
 
             get_xml_attribute(oxml,$1,val);
-            $$ = val > $3;
-
-            mem_collector_free(mc,$1);}
+            $$ = val > $3;}
 
         | STRING '<' INTEGER { int val;
 
             get_xml_attribute(oxml,$1,val);
-            $$ = val < $3;
-
-            mem_collector_free(mc,$1);}
+            $$ = val < $3;}
 
         | STRING '=' FLOAT { float val;
 
             get_xml_attribute(oxml,$1,val);
-            $$ = val == $3;
-
-            mem_collector_free(mc,$1);}
+            $$ = val == $3;}
 
         | STRING '!' '=' FLOAT { float val;
 
             get_xml_attribute(oxml,$1,val);
-            $$ = val != $4;
-
-            mem_collector_free(mc,$1);}
+            $$ = val != $4;}
 
         | STRING '>' FLOAT {float val;
 
             get_xml_attribute(oxml,$1,val);
-            $$ = val > $3;
-
-            mem_collector_free(mc,$1);}
+            $$ = val > $3;}
 
         | STRING '<' FLOAT {float val;
 
             get_xml_attribute(oxml,$1,val);
-            $$ = val < $3;
-
-            mem_collector_free(mc,$1);}
+            $$ = val < $3;}
 
         | STRING '=' STRING { string val;
 
             get_xml_attribute(oxml,$1,val);
-            $$ = val.empty() ? false :fnmatch($3, val.c_str(), 0) == 0;
-
-            mem_collector_free(mc,$1);
-            mem_collector_free(mc,$3);}
+            $$ = val.empty() ? false :fnmatch($3, val.c_str(), 0) == 0;}
 
         | STRING '!''=' STRING { string val;
 
             get_xml_attribute(oxml,$1,val);
-            $$ = val.empty() ? false : fnmatch($4, val.c_str(), 0) != 0;
-
-            mem_collector_free(mc,$1);
-            mem_collector_free(mc,$4);}
+            $$ = val.empty() ? false : fnmatch($4, val.c_str(), 0) != 0;}
 
         | expr '&' expr { $$ = $1 && $3; }
         | expr '|' expr { $$ = $1 || $3; }

@@ -125,8 +125,6 @@ expr:   STRING              { float val = 0.0;
                               }
 
                               $$ = val;
-
-                              mem_collector_free(mc,$1);
                             }
         | FLOAT             { $$ = $1; }
         | INTEGER           { $$ = static_cast<float>($1); }
