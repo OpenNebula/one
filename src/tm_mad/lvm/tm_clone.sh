@@ -49,7 +49,7 @@ log "DST: $DST_PATH"
 DST_DIR=`dirname $DST_PATH`
 
 log "Creating directory $DST_DIR"
-exec_and_log "ssh $DST_HOST mkdir -p $DST_DIR"
+exec_and_log "$SSH $DST_HOST mkdir -p $DST_DIR"
 
 case $SRC in
 #------------------------------------------------------------------------------
@@ -57,11 +57,11 @@ case $SRC in
 #------------------------------------------------------------------------------
 http://*)
     log "Creating LV $LV_NAME"
-    exec_and_log "ssh $DST_HOST sudo lvcreate -L$SIZE -n $LV_NAME $VG_NAME"
-    exec_and_log "ssh $DST_HOST ln -s /dev/$VG_NAME/$LV_NAME $DST_PATH"
+    exec_and_log "$SSH $DST_HOST $SUDO $LVCREATE -L$SIZE -n $LV_NAME $VG_NAME"
+    exec_and_log "$SSH $DST_HOST ln -s /dev/$VG_NAME/$LV_NAME $DST_PATH"
 
     log "Dumping Image into /dev/$VG_NAME/$LV_NAME"
-    exec_and_log "eval ssh $DST_HOST 'wget $SRC -q -O- | sudo dd of=/dev/$VG_NAME/$LV_NAME bs=64k'"
+    exec_and_log "eval $SSH $DST_HOST '$WGET $SRC -q -O- | $SUDO $DD of=/dev/$VG_NAME/$LV_NAME bs=64k'"
     ;;
 
 #------------------------------------------------------------------------------
@@ -69,8 +69,8 @@ http://*)
 #------------------------------------------------------------------------------
 *:/dev/*)
     log "Cloning LV $LV_NAME"
-    exec_and_log "ssh $DST_HOST sudo lvcreate -s -L$SIZE -n $LV_NAME $SRC_PATH"
-    exec_and_log "ssh $DST_HOST ln -s /dev/$VG_NAME/$LV_NAME $DST_PATH"
+    exec_and_log "$SSH $DST_HOST $SUDO $LVCREATE -s -L$SIZE -n $LV_NAME $SRC_PATH"
+    exec_and_log "$SSH $DST_HOST ln -s /dev/$VG_NAME/$LV_NAME $DST_PATH"
     ;;
 
 #------------------------------------------------------------------------------
@@ -78,10 +78,10 @@ http://*)
 #------------------------------------------------------------------------------
 *)
     log "Creating LV $LV_NAME"
-    exec_and_log "ssh $DST_HOST sudo lvcreate -L$SIZE -n $LV_NAME $VG_NAME"
-    exec_and_log "ssh $DST_HOST ln -s /dev/$VG_NAME/$LV_NAME $DST_PATH"
+    exec_and_log "$SSH $DST_HOST $SUDO $LVCREATE -L$SIZE -n $LV_NAME $VG_NAME"
+    exec_and_log "$SSH $DST_HOST ln -s /dev/$VG_NAME/$LV_NAME $DST_PATH"
 
     log "Dumping Image"
-    exec_and_log "eval cat $SRC_PATH | ssh $DST_HOST sudo dd of=/dev/$VG_NAME/$LV_NAME bs=64k"
+    exec_and_log "eval cat $SRC_PATH | $SSH $DST_HOST $SUDO $DD of=/dev/$VG_NAME/$LV_NAME bs=64k"
     ;;
 esac

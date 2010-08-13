@@ -41,7 +41,7 @@ fi
 DST_PATH=`arg_path $DST`
 DST_DIR=`dirname $DST_PATH`
 DST_FILE=`basename $DST_PATH`
-DST_HASH=`echo -n $DST | md5sum | awk '{print $1}'`
+DST_HASH=`echo -n $DST | $MD5SUM | $AWK '{print $1}'`
 TMP_DIR="$ONE_LOCATION/var/$DST_HASH"
 ISO_DIR="$TMP_DIR/isofiles"
 
@@ -51,7 +51,7 @@ exec_and_log "mkdir -p $ISO_DIR"
 for f in $SRC; do
     case $f in
     http://*)
-        exec_and_log "wget -O $ISO_DIR $f"
+        exec_and_log "$WGET -O $ISO_DIR $f"
         ;;
 
     *)
@@ -60,7 +60,7 @@ for f in $SRC; do
     esac
 done
 
-exec_and_log "mkisofs -o $TMP_DIR/$DST_FILE -J -R $ISO_DIR"
-exec_and_log "scp $TMP_DIR/$DST_FILE $DST"
+exec_and_log "$MKISOFS -o $TMP_DIR/$DST_FILE -J -R $ISO_DIR"
+exec_and_log "$SCP $TMP_DIR/$DST_FILE $DST"
 exec_and_log "rm -rf $TMP_DIR"
 

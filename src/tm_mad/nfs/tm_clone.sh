@@ -46,7 +46,7 @@ exec_and_log "chmod a+w $DST_DIR"
 case $SRC in
 http://*)
     log "Downloading $SRC"
-    exec_and_log "wget -O $DST_PATH $SRC"
+    exec_and_log "$WGET -O $DST_PATH $SRC"
     ;;
 
 *)

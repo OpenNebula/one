@@ -25,7 +25,7 @@ fi
 . $TMCOMMON
 
 # We just need the <vid> bit
-VM_ID=`echo $1 | sed -e 's/.*\/\([0-9]\+\)\/images\/.*/\1/'`
+VM_ID=`echo $1 | $SED -e 's/.*\/\([0-9]\+\)\/images\/.*/\1/'`
 
 log "Deleting $SRC_PATH"
 exec_and_log "rm -rf $DATASTORE_PATH/one-$VM_ID"

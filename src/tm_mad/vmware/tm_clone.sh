@@ -34,12 +34,12 @@ log "$1 $2"
 case $SRC in
 http://*)
     log "Downloading $SRC"
-    exec_and_log "ssh $DST_HOST wget -O $DST_PATH $SRC_PATH"
+    exec_and_log "$SSH $DST_HOST $WGET -O $DST_PATH $SRC_PATH"
     ;;
 
 *)
     log "Cloning $SRC"
-    VM_ID=`echo $DST | sed -e 's/.*\/\([0-9]\+\)\/images\/.*/\1/'`
+    VM_ID=`echo $DST | $SED -e 's/.*\/\([0-9]\+\)\/images\/.*/\1/'`
     cp -r $SRC_PATH $DATASTORE_PATH/one-$VM_ID &>/dev/null
     mv $DATASTORE_PATH/one-$VM_ID/*.vmx $DATASTORE_PATH/one-$VM_ID/one-$VM_ID.vmx
     ;;
