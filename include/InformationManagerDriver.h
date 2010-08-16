@@ -30,7 +30,7 @@ using namespace std;
 /**
  *  InformationManagerDriver provides a base class to implement IM
  *  Drivers. This class implements the protocol and recover functions
- *  from the Mad interface. This class may be used to further specialize 
+ *  from the Mad interface. This class may be used to further specialize
  *  the IM driver.
  */
 class InformationManagerDriver : public Mad
@@ -42,35 +42,28 @@ public:
         const map<string,string>&     attrs,
         bool                    sudo,
         HostPool *              pool):
-            Mad(userid,attrs,sudo),hpool(pool)
-    {}
-    ;
+            Mad(userid,attrs,sudo),hpool(pool){};
 
-    virtual ~InformationManagerDriver()
-    {}
-    ;
+    virtual ~InformationManagerDriver(){};
 
     /**
      *  Implements the IM driver protocol.
      *    @param message the string read from the driver
      */
-    void protocol(
-        string&     message);
+    void protocol(string& message);
 
     /**
      *  TODO: What do we need here? just poll the Hosts to recover..
      */
     void recover();
-	
+
 	/**
      *  Sends a monitor request to the MAD: "MONITOR  ID  HOSTNAME -"
      *    @param oid the virtual machine id.
      *    @param host the hostname
-     *    @param conf the filename of the deployment file
+     *    @param update the remotes directory in host
      */
-    void monitor (
-        int             oid,
-        const string&   host) const;
+    void monitor(int oid, const string& host, bool update) const;
 
 private:
     /**
@@ -78,8 +71,7 @@ private:
      */
     HostPool * hpool;
 
-    friend class InformationManager;      
-
+    friend class InformationManager;
 };
 
 /* -------------------------------------------------------------------------- */

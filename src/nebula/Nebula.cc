@@ -345,7 +345,11 @@ void Nebula::start()
 
         nebula_configuration->get("IM_MAD", im_mads);
 
-        im = new InformationManager(hpool,timer_period,monitor_period,im_mads);
+        im = new InformationManager(hpool,
+                                    timer_period,
+                                    monitor_period,
+                                    remotes_location,
+                                    im_mads);
     }
     catch (bad_alloc&)
     {
