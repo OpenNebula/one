@@ -67,7 +67,7 @@ main_env.Append(CPPFLAGS=[
 ])
 
 # Linking flags
-main_env.Append(LDFLAGS=["-g"])
+main_env.Append(LINKFLAGS=["-g"])
 
 #######################
 # EXTRA CONFIGURATION #
