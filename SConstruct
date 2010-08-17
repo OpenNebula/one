@@ -136,6 +136,7 @@ if not main_env.GetOption('clean'):
         print ""
         exit(-1)
 else:
+    main_env.Replace(mysql='yes')
     shutil.rmtree('.xmlrpc_test', True)
     shutil.rmtree('src/nebula/.xmlrpc_test', True)
     shutil.rmtree('src/scheduler/.xmlrpc_test', True)
