@@ -27,6 +27,19 @@ cwd=os.getcwd()
 main_env=Environment()
 main_env['ENV']['PATH']=os.environ['PATH']
 
+# snippet borrowed from http://dev.gentoo.org/~vapier/scons-blows.txt
+# makes scons aware of build related environment variables
+if os.environ.has_key('CC'):
+    main_env['CC'] = os.environ['CC']
+if os.environ.has_key('CFLAGS'):
+    main_env['CCFLAGS'] += SCons.Util.CLVar(os.environ['CFLAGS'])
+if os.environ.has_key('CXX'):
+    main_env['CXX'] = os.environ['CXX']
+if os.environ.has_key('CXXFLAGS'):
+    main_env['CXXFLAGS'] += SCons.Util.CLVar(os.environ['CXXFLAGS'])
+if os.environ.has_key('LDFLAGS'):
+    main_env['LINKFLAGS'] += SCons.Util.CLVar(os.environ['LDFLAGS'])
+
 # Add builders for flex and bison
 add_lex(main_env)
 add_bison(main_env)
