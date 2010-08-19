@@ -164,7 +164,11 @@ ETC_DIRS="$ETC_LOCATION/im_kvm \
           $ETC_LOCATION/ec2query_templates \
           $ETC_LOCATION/occi_templates"
 
-LIB_DIRS="$LIB_LOCATION/im_probes \
+LIB_DIRS="$LIB_LOCATION/remotes \
+          $LIB_LOCATION/remotes/im \
+          $LIB_LOCATION/remotes/im/common.d \
+          $LIB_LOCATION/remotes/im/kvm.d \
+          $LIB_LOCATION/remotes/im/xen.d \
           $LIB_LOCATION/ruby \
           $LIB_LOCATION/ruby/OpenNebula \
           $LIB_LOCATION/ruby/cloud/ \
@@ -207,20 +211,23 @@ INSTALL_FILES[2]="LIB_FILES:$LIB_LOCATION"
 INSTALL_FILES[3]="RUBY_LIB_FILES:$LIB_LOCATION/ruby"
 INSTALL_FILES[4]="RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/OpenNebula"
 INSTALL_FILES[5]="MADS_LIB_FILES:$LIB_LOCATION/mads"
-INSTALL_FILES[6]="IM_PROBES_LIB_FILES:$LIB_LOCATION/im_probes"
-INSTALL_FILES[7]="NFS_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/nfs"
-INSTALL_FILES[8]="SSH_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/ssh"
-INSTALL_FILES[9]="DUMMY_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/dummy"
-INSTALL_FILES[10]="LVM_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/lvm"
-INSTALL_FILES[11]="EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples"
-INSTALL_FILES[12]="TM_EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples/tm"
-INSTALL_FILES[13]="HOOK_SHARE_FILES:$SHARE_LOCATION/hooks"
-INSTALL_FILES[14]="COMMON_CLOUD_LIB_FILES:$LIB_LOCATION/ruby/cloud"
-INSTALL_FILES[15]="ECO_LIB_FILES:$LIB_LOCATION/ruby/cloud/econe"
-INSTALL_FILES[16]="ECO_LIB_VIEW_FILES:$LIB_LOCATION/ruby/cloud/econe/views"
-INSTALL_FILES[17]="ECO_BIN_FILES:$BIN_LOCATION"
-INSTALL_FILES[18]="OCCI_LIB_FILES:$LIB_LOCATION/ruby/cloud/occi"
-INSTALL_FILES[19]="OCCI_BIN_FILES:$BIN_LOCATION"
+INSTALL_FILES[6]="IM_PROBES_FILES:$LIB_LOCATION/remotes/im"
+INSTALL_FILES[7]="IM_PROBES_COMMON_FILES:$LIB_LOCATION/remotes/im/common.d"
+INSTALL_FILES[8]="IM_PROBES_KVM_FILES:$LIB_LOCATION/remotes/im/kvm.d"
+INSTALL_FILES[9]="IM_PROBES_XEN_FILES:$LIB_LOCATION/remotes/im/xen.d"
+INSTALL_FILES[10]="NFS_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/nfs"
+INSTALL_FILES[11]="SSH_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/ssh"
+INSTALL_FILES[12]="DUMMY_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/dummy"
+INSTALL_FILES[13]="LVM_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/lvm"
+INSTALL_FILES[14]="EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples"
+INSTALL_FILES[15]="TM_EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples/tm"
+INSTALL_FILES[16]="HOOK_SHARE_FILES:$SHARE_LOCATION/hooks"
+INSTALL_FILES[17]="COMMON_CLOUD_LIB_FILES:$LIB_LOCATION/ruby/cloud"
+INSTALL_FILES[18]="ECO_LIB_FILES:$LIB_LOCATION/ruby/cloud/econe"
+INSTALL_FILES[19]="ECO_LIB_VIEW_FILES:$LIB_LOCATION/ruby/cloud/econe/views"
+INSTALL_FILES[20]="ECO_BIN_FILES:$BIN_LOCATION"
+INSTALL_FILES[21]="OCCI_LIB_FILES:$LIB_LOCATION/ruby/cloud/occi"
+INSTALL_FILES[22]="OCCI_BIN_FILES:$BIN_LOCATION"
 
 INSTALL_ECO_CLIENT_FILES[0]="COMMON_CLOUD_CLIENT_LIB_FILES:$LIB_LOCATION/ruby/cloud"
 INSTALL_ECO_CLIENT_FILES[1]="ECO_LIB_CLIENT_FILES:$LIB_LOCATION/ruby/cloud/econe"
@@ -338,14 +345,19 @@ MADS_LIB_FILES="src/mad/sh/madcommon.sh \
               src/authm_mad/one_auth_mad"
 
 #-------------------------------------------------------------------------------
-# Information Manager Probes, to be installed under $LIB_LOCATION/im_probes
+# Information Manager Probes, to be installed under $LIB_LOCATION/remotes
 #-------------------------------------------------------------------------------
 
-IM_PROBES_LIB_FILES="src/im_mad/xen/xen.rb \
-                     src/im_mad/kvm/kvm.rb \
-                     src/im_mad/host_probes/architecture.sh \
-                     src/im_mad/host_probes/cpu.sh \
-                     src/im_mad/host_probes/name.sh"
+IM_PROBES_FILES="share/scripts/im/run_probes"
+
+IM_PROBES_COMMON_FILES="share/scripts/im/common.d/architecture.sh \
+                     share/scripts/im/common.d/cpu.sh \
+                     share/scripts/im/common.d/name.sh"
+
+IM_PROBES_XEN_FILES="share/scripts/im/xen.d/xen.rb"
+
+IM_PROBES_KVM_FILES="share/scripts/im/kvm.d/kvm.rb"
+
 
 #-------------------------------------------------------------------------------
 # Transfer Manager commands, to be installed under $LIB_LOCATION/tm_commands

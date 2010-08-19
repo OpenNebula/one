@@ -1,0 +1,28 @@
+#!/bin/bash
+
+HYPERVISOR_DIR=$1.d
+
+SCRIPTS_DIR=`dirname $0`
+cd $SCRIPTS_DIR
+
+
+function run_dir {
+    (
+    DIR=$1
+    cd $DIR
+    for i in `ls *`;do
+        if [ -x "$i" ]; then
+            ./$i
+        fi
+    done
+    )
+}
+
+data=$(
+    run_dir 'common.d'
+    if [ -d "$HYPERVISOR_DIR" ]; then
+        run_dir $HYPERVISOR_DIR
+    fi
+)
+
+echo $data | tr '\n' ' '
