@@ -1,5 +1,3 @@
-#!/bin/sh
-
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
@@ -16,10 +14,6 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-if [ -f /proc/cpuinfo ]; then
+export LIBVIRT_URI=qemu:///system
 
-    echo -n "MODELNAME=\""
-    grep -m 1 "model name" /proc/cpuinfo | cut -d: -f2 | sed -e 's/^ *//' | sed -e 's/$/"/'
-    
-fi
-
+export QEMU_PROTOCOL=qemu

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash -e
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
@@ -16,10 +16,8 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-if [ -f /proc/cpuinfo ]; then
+source $(dirname $0)/kvmrc
 
-    echo -n "MODELNAME=\""
-    grep -m 1 "model name" /proc/cpuinfo | cut -d: -f2 | sed -e 's/^ *//' | sed -e 's/$/"/'
-    
-fi
+file=$1
 
+virsh --connect $LIBVIRT_URI restore $file

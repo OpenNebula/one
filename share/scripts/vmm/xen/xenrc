@@ -1,5 +1,3 @@
-#!/bin/sh
-
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
@@ -16,10 +14,15 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-if [ -f /proc/cpuinfo ]; then
+export XM_PATH="/usr/sbin/xm"
+export XM_CANCEL="sudo $XM_PATH destroy"
+export XM_CREATE="sudo $XM_PATH create"
+export XM_CREDITS="sudo $XM_PATH sched-cred"
+export XM_MIGRATE="sudo $XM_PATH migrate -l"
+export XM_SAVE="sudo $XM_PATH save"
+export XM_RESTORE="sudo $XM_PATH restore"
+export XM_LIST="sudo $XM_PATH list"
+export XM_SHUTDOWN="sudo $XM_PATH shutdown"
+export XM_POLL="sudo /usr/sbin/xentop -bi2"
 
-    echo -n "MODELNAME=\""
-    grep -m 1 "model name" /proc/cpuinfo | cut -d: -f2 | sed -e 's/^ *//' | sed -e 's/$/"/'
-    
-fi
 

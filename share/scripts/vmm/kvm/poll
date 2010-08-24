@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash -e
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
@@ -16,10 +16,47 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-if [ -f /proc/cpuinfo ]; then
+source $(dirname $0)/kvmrc
 
-    echo -n "MODELNAME=\""
-    grep -m 1 "model name" /proc/cpuinfo | cut -d: -f2 | sed -e 's/^ *//' | sed -e 's/$/"/'
-    
-fi
+# Execution example
+# virsh dominfo one-108 | awk "`cat poll.awk`" | tr '\n' ' '
+
+AWK_SCRIPT='
+BEGIN { FS=":" };
+
+$1=="Used memory" {
+    split($2, data, " ");
+    print "USEDMEMORY=" data[1]
+};
+
+$1=="State" {
+    vstat=$2;
+    gsub(" ", "", vstat);
+
+    if(vstat=="running" ||
+       vstat=="blocked" ||
+       vstat=="shutdown" ||
+       vstat=="dying")
+        state="a";
+    else if(vstat=="paused") state="p";
+    else if(vstat=="crashed") state="c";
+    else state="u";
+
+    print "STATUS=" state
+}
+'
+
+deploy_id=$1
+
+virsh_cmd="virsh dominfo $deploy_id"
+awk_cmd="awk \'$AWK_SCRIPT\'"
+
+info=`$virsh_cmd 2>/dev/null | awk "$AWK_SCRIPT"`
+
+echo $info
+
+
+#virsh_info=`virsh dominfo $deploy_id`
+
+
 

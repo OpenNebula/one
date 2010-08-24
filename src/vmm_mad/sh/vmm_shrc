@@ -1,5 +1,3 @@
-#!/bin/sh
-
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
@@ -16,10 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-if [ -f /proc/cpuinfo ]; then
-
-    echo -n "MODELNAME=\""
-    grep -m 1 "model name" /proc/cpuinfo | cut -d: -f2 | sed -e 's/^ *//' | sed -e 's/$/"/'
-    
-fi
-
+# To change the directory where the VMM scripts are copied on the remote node
+# uncomment and change the path of IM_REMOTE_DIR
+#
+#VMM_REMOTE_DIR=/tmp/ne_im_scripts

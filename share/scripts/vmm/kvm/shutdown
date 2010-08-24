@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash -e
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
@@ -16,10 +16,33 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-if [ -f /proc/cpuinfo ]; then
+source $(dirname $0)/kvmrc
 
-    echo -n "MODELNAME=\""
-    grep -m 1 "model name" /proc/cpuinfo | cut -d: -f2 | sed -e 's/^ *//' | sed -e 's/$/"/'
-    
+deploy_id=$1
+
+POLL_INTERVAL=2
+TIMEOUT=20
+
+virsh --connect $LIBVIRT_URI shutdown $deploy_id
+
+exit_code=$?
+
+if [ "$exit_code" != "0" ]; then
+    exit $exit_code
 fi
 
+count=0
+while [ $(virsh --connect $LIBVIRT_URI dominfo $deploy_id > /dev/null 2>&1; echo $?) = "0" ]
+do 
+	sleep $POLL_INTERVAL
+	if [ "$count" -gt "$TIMEOUT" ]
+	then
+		echo "Timeout reached" >&2
+		exit 1
+	fi
+	let count=count+$POLL_INTERVAL
+done
+
+sleep 4
+
+exit 0

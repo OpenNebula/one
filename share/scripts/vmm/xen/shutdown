@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash -e
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
@@ -16,10 +16,27 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-if [ -f /proc/cpuinfo ]; then
+source $(dirname $0)/xenrc
 
-    echo -n "MODELNAME=\""
-    grep -m 1 "model name" /proc/cpuinfo | cut -d: -f2 | sed -e 's/^ *//' | sed -e 's/$/"/'
-    
+deploy_id=$1
+
+function gdm {
+    $XM_LIST | grep "$deploy_id "
+}
+
+$XM_SHUTDOWN $deploy_id || exit -1
+
+OUT=$(gdm)
+
+while [ -n "$OUT" -a $(echo $OUT | awk '{print $5}') != "---s--" ]; do
+    sleep 1
+    OUT=$(gdm)
+done
+
+OUT=$(gdm)
+
+if [ -n "$OUT" ]; then
+    $XM_CANCEL "$deploy_id"
 fi
+sleep 2
 
