@@ -478,7 +478,7 @@ private:
                 vmpool(_vmpool),
                 upool(_upool)
         {
-            _signature="A:si";
+            _signature="A:sibi";
             _help="Returns the virtual machine pool";
         };
 

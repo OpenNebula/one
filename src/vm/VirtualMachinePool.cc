@@ -239,27 +239,63 @@ int  VirtualMachinePool::dump_cb(void * _oss,int num,char **values,char **names)
     return VirtualMachine::dump(*oss, num, values, names);
 }
 
+int  VirtualMachinePool::dump_extended_cb(
+                                void * _oss,int num,char **values,char **names)
+{
+    ostringstream * oss;
+
+    oss = static_cast<ostringstream *>(_oss);
+
+    return VirtualMachine::dump_extended(*oss, num, values, names);
+}
+
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachinePool::dump(ostringstream& oss, const string& where)
+int VirtualMachinePool::dump(   ostringstream&  oss,
+                                bool            extended,
+                                int             state,
+                                const string&   where)
 {
     int             rc;
     ostringstream   cmd;
 
     oss << "<VM_POOL>";
 
-    set_callback(
-        static_cast<Callbackable::Callback>(&VirtualMachinePool::dump_cb),
-        static_cast<void *>(&oss));
+    if(extended)
+    {
+        set_callback(
+            static_cast<Callbackable::Callback>(
+                                        &VirtualMachinePool::dump_extended_cb),
+            static_cast<void *>(&oss));
 
-    cmd << "SELECT " << VirtualMachine::table << ".*, user_pool.user_name, "
+
+        cmd << "SELECT " << VirtualMachine::table << ".*, user_pool.user_name, "
         << History::table << ".* FROM " << VirtualMachine::table
         << " LEFT OUTER JOIN " << History::table << " ON "
         << VirtualMachine::table << ".oid = " << History::table << ".vid AND "
         << History::table << ".seq = " << VirtualMachine::table
         << ".last_seq LEFT OUTER JOIN (SELECT oid,user_name FROM user_pool) "
-        << "AS user_pool ON " << VirtualMachine::table << ".uid = user_pool.oid"
-        << " WHERE " << VirtualMachine::table << ".state <> 6";
+        << "AS user_pool ON " << VirtualMachine::table << ".uid = user_pool.oid";
+
+
+    }
+    else
+    {
+        set_callback(
+            static_cast<Callbackable::Callback>(&VirtualMachinePool::dump_cb),
+            static_cast<void *>(&oss));
+
+        cmd << "SELECT * FROM " << VirtualMachine::table;
+    }
+
+    if ( state != -1 )
+    {
+        cmd << " WHERE " << VirtualMachine::table << ".state = " << state;
+    }
+    else
+    {
+        cmd << " WHERE " << VirtualMachine::table << ".state <> 6";
+    }
 
     if ( !where.empty() )
     {

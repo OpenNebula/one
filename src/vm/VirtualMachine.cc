@@ -634,7 +634,60 @@ error_deploy:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::dump(ostringstream& oss,int num,char **values,char **names)
+int VirtualMachine::dump(  ostringstream& oss,
+                                    int num,
+                                    char **values,
+                                    char **names)
+{
+    if ((!values[OID])||
+        (!values[UID])||
+        (!values[NAME]) ||
+        (!values[LAST_POLL])||
+        (!values[STATE])||
+        (!values[LCM_STATE])||
+        (!values[STIME])||
+        (!values[ETIME])||
+        (!values[DEPLOY_ID])||
+        (!values[MEMORY])||
+        (!values[CPU])||
+        (!values[NET_TX])||
+        (!values[NET_RX])||
+        (!values[LAST_SEQ])||
+        (!values[TEMPLATE])||
+        (num != LIMIT))
+    {
+        return -1;
+    }
+
+    oss <<
+        "<VM>" <<
+            "<ID>"       << values[OID]      << "</ID>"       <<
+            "<UID>"      << values[UID]      << "</UID>"      <<
+            "<NAME>"     << values[NAME]     << "</NAME>"     <<
+            "<LAST_POLL>"<< values[LAST_POLL]<< "</LAST_POLL>"<<
+            "<STATE>"    << values[STATE]    << "</STATE>"    <<
+            "<LCM_STATE>"<< values[LCM_STATE]<< "</LCM_STATE>"<<
+            "<STIME>"    << values[STIME]    << "</STIME>"    <<
+            "<ETIME>"    << values[ETIME]    << "</ETIME>"    <<
+            "<DEPLOY_ID>"<< values[DEPLOY_ID]<< "</DEPLOY_ID>"<<
+            "<MEMORY>"   << values[MEMORY]   << "</MEMORY>"   <<
+            "<CPU>"      << values[CPU]      << "</CPU>"      <<
+            "<NET_TX>"   << values[NET_TX]   << "</NET_TX>"   <<
+            "<NET_RX>"   << values[NET_RX]   << "</NET_RX>"   <<
+            "<LAST_SEQ>" << values[LAST_SEQ] << "</LAST_SEQ>" <<
+                            values[TEMPLATE];
+    oss << "</VM>";
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::dump_extended(  ostringstream& oss,
+                                    int num,
+                                    char **values,
+                                    char **names)
 {
     if ((!values[OID])||
         (!values[UID])||

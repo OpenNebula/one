@@ -1057,6 +1057,18 @@ protected:
      *    @return 0 on success
      */
     static int dump(ostringstream& oss, int num, char ** values, char ** names);
+
+    /**
+     *  Dumps the contect of a set of VirtualMachine objects in the given stream
+     *  using XML format
+     *    @param oss the output stream
+     *    @param num the number of columns read from the DB
+     *    @param names the column names
+     *    @param vaues the column values
+     *    @return 0 on success
+     */
+    static int dump_extended(   ostringstream& oss,
+                                int num, char ** values, char ** names);
 };
 
 #endif /*VIRTUAL_MACHINE_H_*/

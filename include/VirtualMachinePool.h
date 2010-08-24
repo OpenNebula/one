@@ -132,7 +132,24 @@ public:
      *
      *  @return 0 on success
      */
-    int dump(ostringstream& oss, const string& where);
+    int dump(ostringstream& oss, const string& where)
+    {
+        return dump(oss, true, -1, where);
+    }
+
+    /**
+     *  Dumps the VM pool in XML format. A filter can be also added to the query
+     *  Also the hostname where the VirtualMachine is running is added to the
+     *  pool
+     *  @param oss the output stream to dump the pool contents
+     *  @param where filter for the objects, defaults to all
+     *  @param extended condition to include history and username data
+     *  @param state include only VMs in this state. -1 means any state,
+     *              except DONE
+     *
+     *  @return 0 on success
+     */
+    int dump(ostringstream& oss, bool extended, int state, const string& where);
 
 private:
     /**
@@ -153,6 +170,17 @@ private:
      *    @return 0 on success
      */
     int dump_cb(void * _oss, int num, char **values, char **names);
+
+    /**
+     *  Callback function to get output the vm pool in XML format
+     *  (VirtualMachinePool::dump)
+     *    @param num the number of columns read from the DB
+     *    @param names the column names
+     *    @param vaues the column values
+     *    @return 0 on success
+     */
+    int dump_extended_cb(void * _oss, int num, char **values, char **names);
+
 };
 
 #endif /*VIRTUAL_MACHINE_POOL_H_*/
