@@ -57,9 +57,7 @@ class InformationManager < OpenNebulaDriver
     # Execute the run_probes in the remote host
     #---------------------------------------------------------------------------
     def action_monitor(number, host, do_update)
-        STDERR.puts Time.now.to_s + ": do_update=" +do_update.inspect
         if do_update == "1"
-            STDERR.puts Time.now.to_s + ": Doing rsync"
             sync_cmd = "rsync -Laz #{REMOTES_LOCATION} #{host}:#{@remote_dir}"
             LocalCommand.run(sync_cmd)
         else

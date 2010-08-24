@@ -27,6 +27,9 @@ function error_exit() {
 
 domain=$1
 
+mkdir -p `dirname $domain`
+cat > $domain
+
 output=`$XM_CREATE $domain`
 
 error_exit $?
