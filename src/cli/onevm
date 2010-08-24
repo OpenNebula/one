@@ -705,19 +705,21 @@ when "saveas"
         image_type = ops[:type]
     else
         image_id = vm["TEMPLATE/DISK[DISK_ID=\"#{disk_id}\"]/IMAGE_ID"]
-        
-        # Get the image type 
-        image = OpenNebula::Image.new(
-                    OpenNebula::Image.build_xml(image_id),
-                    get_one_client)
-        
-        result = image.info
-        if !is_successful?(result)
-            puts result.message
-            exit -1
+
+        if (image_id != nil)
+            # Get the image type
+            image = OpenNebula::Image.new(
+                        OpenNebula::Image.build_xml(image_id),
+                        get_one_client)
+
+            result = image.info
+            if !is_successful?(result)
+                puts result.message
+                exit -1
+            end
+
+            image_type = image.type_str
         end
-        
-        image_type = image.type_str
     end
     
     # Build the template and allocate the new Image
