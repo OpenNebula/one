@@ -126,6 +126,9 @@ EOT
                 "into the database") do |o|
             options[:no_hash]=true
         end
+        opts.on_tail("-r", "--read-file", "Read password from file") do |o|
+            options[:read_file]=true
+        end
     end
 end
 
@@ -142,11 +145,22 @@ when "create"
     check_parameters("create", 2)
     user=OpenNebula::User.new(
         OpenNebula::User.build_xml, get_one_client)
-    if ops[:no_hash]
-        password = ARGV[1].gsub(/\s/, '')
+
+    if ops[:read_file]
+        begin
+            password = File.read(ARGV[1])
+        rescue
+            puts "Can not read file: #{ARGV[1]}"
+            exit -1
+        end
     else
-        password = Digest::SHA1.hexdigest(ARGV[1])
+        if ops[:no_hash]
+            password = ARGV[1].gsub(/\s/, '')
+        else
+            password = Digest::SHA1.hexdigest(ARGV[1])
+        end
     end
+
     result=user.allocate(ARGV[0], password)
     if !OpenNebula.is_error?(result)
         puts "ID: " + user.id.to_s if ops[:verbose]
@@ -202,10 +216,19 @@ when "passwd"
 
     user=OpenNebula::User.new_with_id(user_id, get_one_client)
 
-    if ops[:no_hash]
-        password = ARGV[1].gsub(/\s/, '')
+    if ops[:read_file]
+        begin
+            password = File.read(ARGV[1])
+        rescue
+            puts "Can not read file: #{ARGV[1]}"
+            exit -1
+        end
     else
-        password = Digest::SHA1.hexdigest(ARGV[1])
+        if ops[:no_hash]
+            password = ARGV[1].gsub(/\s/, '')
+        else
+            password = Digest::SHA1.hexdigest(ARGV[1])
+        end
     end
     result=user.passwd(password)
 
