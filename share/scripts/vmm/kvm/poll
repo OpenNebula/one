@@ -18,9 +18,6 @@
 
 source $(dirname $0)/kvmrc
 
-# Execution example
-# virsh dominfo one-108 | awk "`cat poll.awk`" | tr '\n' ' '
-
 AWK_SCRIPT='
 BEGIN { FS=":" };
 
@@ -48,15 +45,9 @@ $1=="State" {
 
 deploy_id=$1
 
-virsh_cmd="virsh dominfo $deploy_id"
+virsh_cmd="virsh --connect $LIBVIRT_URI --readonly dominfo $deploy_id"
 awk_cmd="awk \'$AWK_SCRIPT\'"
 
 info=`$virsh_cmd 2>/dev/null | awk "$AWK_SCRIPT"`
 
 echo $info
-
-
-#virsh_info=`virsh dominfo $deploy_id`
-
-
-

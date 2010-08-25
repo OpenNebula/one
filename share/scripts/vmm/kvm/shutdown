@@ -32,7 +32,7 @@ if [ "$exit_code" != "0" ]; then
 fi
 
 count=0
-while [ $(virsh --connect $LIBVIRT_URI dominfo $deploy_id > /dev/null 2>&1; echo $?) = "0" ]
+while [ $(virsh --connect $LIBVIRT_URI --readonly dominfo $deploy_id > /dev/null 2>&1; echo $?) = "0" ]
 do 
 	sleep $POLL_INTERVAL
 	if [ "$count" -gt "$TIMEOUT" ]
