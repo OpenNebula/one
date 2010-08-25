@@ -53,8 +53,7 @@ protected:
 
     int get_suitable_nodes(vector<xmlNodePtr>& content)
     {
-        // Return VMs in PENDING state (PENDING = 1)
-        return get_nodes("/VM_POOL/VM[STATE=1]", content);
+        return get_nodes("/VM_POOL/VM", content);
     };
 
     virtual void add_object(xmlNodePtr node);

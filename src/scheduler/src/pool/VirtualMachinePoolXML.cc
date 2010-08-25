@@ -21,9 +21,7 @@ int VirtualMachinePoolXML::set_up()
 {
     ostringstream   oss;
     int             rc;
-
     rc = PoolXML::set_up();
-
     if ( rc == 0 )
     {
         oss.str("");
@@ -68,10 +66,12 @@ int VirtualMachinePoolXML::load_info(xmlrpc_c::value &result)
     {
         client->call(client->get_endpoint(),           // serverUrl
                      "one.vmpool.info",                // methodName
-                     "si",                             // arguments format
+                     "sibi",                           // arguments format
                      &result,                          // resultP
-                     client->get_oneauth().c_str(),    // argument 0
-                     -2);                              // argument 1
+                     client->get_oneauth().c_str(),    // auth string
+                     -2,                               // VM from all users
+                     false,                            // not extended info
+                     1);                               // in pending state
         return 0;
     }
     catch (exception const& e)
