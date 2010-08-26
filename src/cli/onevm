@@ -75,6 +75,7 @@ ShowTableVM={
         :name => "MEM",
         :desc => "Memory used by the VM",
         :size => 7,
+        :kbytes => true,
         :proc => lambda {|d,e| d["MEMORY"] }
     },
     :hostname => {
