@@ -87,12 +87,14 @@ ShowTableHost={
         :name => "TMEM",
         :desc => "Total memory",
         :size => 7,
+        :kbytes => true,
         :proc => lambda {|d,e| d["HOST_SHARE/MAX_MEM"] }
     },
     :fmem => {
         :name => "FMEM",
         :desc => "Free memory",
         :size => 7,
+        :kbytes => true,
         :proc => lambda {|d,e| d["HOST_SHARE/FREE_MEM"] }
     },
     :stat => {

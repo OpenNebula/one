@@ -20,6 +20,24 @@ require 'OpenNebula'
 # CONSOLE UTILITIES #
 #####################
 
+BinarySufix = ["K", "M", "G", "T" ]
+
+def humanize_size(value)
+    i=0
+
+    while value > 1024 && i < 3 do
+        value /= 1024.0
+        i+=1
+    end
+
+    value = (value * 10).round / 10.0
+
+    value = value.to_i if value - value.round == 0
+    st = value.to_s + BinarySufix[i]
+
+    return st
+end
+
 # Sets bold font
 def scr_bold
     print "\33[1m"
@@ -121,6 +139,8 @@ class ShowTable
             (0..(@columns.length-1)).collect {|c|
                 dat=d[c]
                 col=@columns[c]
+
+                dat = humanize_size( Float(dat) ) if( @table[col][:kbytes] )
 
                 format_data(col, dat) if @table[col]
             }.join(' ')
