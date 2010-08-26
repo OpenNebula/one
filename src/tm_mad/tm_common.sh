@@ -14,7 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-if [ -z "$ONE_LOCATION" ]; then 
+if [ -z "$ONE_LOCATION" ]; then
     ONE_CONF=/etc/one/oned.conf
     ONE_LOCAL_VAR=/var/lib/one
 else
@@ -23,8 +23,9 @@ else
 fi
 
 # Paths for utilities
-AWK=/usr/bin/awk
+AWK=awk
 BASH=/bin/bash
+CUT=cut
 DATE=/bin/date
 DD=/bin/dd
 LVCREATE=/sbin/lvcreate
@@ -152,7 +153,7 @@ function timeout_exec_and_log
     # stops the execution until the command finalizes
     wait $CMD_PID 2>/dev/null
     CMD_CODE=$?
-    
+
     # if the script reaches here the command finished before it
     # consumes timeout seconds so we can kill timeout process
     kill $TIMEOUT_PID 2>/dev/null 1>/dev/null
