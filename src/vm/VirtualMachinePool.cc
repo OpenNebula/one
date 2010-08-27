@@ -268,7 +268,6 @@ int VirtualMachinePool::dump(   ostringstream&  oss,
                                         &VirtualMachinePool::dump_extended_cb),
             static_cast<void *>(&oss));
 
-
         cmd << "SELECT " << VirtualMachine::table << ".*, user_pool.user_name, "
         << History::table << ".* FROM " << VirtualMachine::table
         << " LEFT OUTER JOIN " << History::table << " ON "
@@ -276,8 +275,6 @@ int VirtualMachinePool::dump(   ostringstream&  oss,
         << History::table << ".seq = " << VirtualMachine::table
         << ".last_seq LEFT OUTER JOIN (SELECT oid,user_name FROM user_pool) "
         << "AS user_pool ON " << VirtualMachine::table << ".uid = user_pool.oid";
-
-
     }
     else
     {
