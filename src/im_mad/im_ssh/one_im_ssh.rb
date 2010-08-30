@@ -58,7 +58,11 @@ class InformationManager < OpenNebulaDriver
     #---------------------------------------------------------------------------
     def action_monitor(number, host, do_update)
         if do_update == "1"
-            sync_cmd = "rsync -Laz #{REMOTES_LOCATION} #{host}:#{@remote_dir}"
+            # Use SCP to sync:
+            sync_cmd = "scp -r #{REMOTES_LOCATION}/. #{host}:#{@remote_dir}"
+            
+            # Use rsync to sync:
+            # sync_cmd = "rsync -Laz #{REMOTES_LOCATION} #{host}:#{@remote_dir}"
             LocalCommand.run(sync_cmd)
         else
         end
@@ -86,6 +90,5 @@ remote_dir = ENV["IM_REMOTE_DIR"]
 remote_dir = "/tmp/one" if !remote_dir
 
 hypervisor = ARGV[0]||''
-
 im = InformationManager.new(remote_dir, hypervisor, 15)
 im.start_driver
