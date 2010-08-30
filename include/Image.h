@@ -214,8 +214,8 @@ public:
     }
 
     /**
-     *  Set/Unset an image as persistant
-     *    @param persistent true to make an image persistant
+     *  Set/Unset an image as persistent
+     *    @param persistent true to make an image persistent
      *    @return 0 on success
      */
     bool persistent(bool persis)

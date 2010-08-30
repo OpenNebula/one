@@ -262,7 +262,7 @@ error_type:
     goto error_common;
 
 error_public_and_persistent:
-    error_str = "Image cannot be public and persistant.";
+    error_str = "Image cannot be public and persistent.";
     goto error_common;
 
 error_common:
