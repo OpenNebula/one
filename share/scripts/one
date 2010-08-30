@@ -21,6 +21,7 @@ if [ -z "$ONE_LOCATION" ]; then
     ONE_SCHEDPID=/var/run/one/sched.pid
     ONE_CONF=/etc/one/oned.conf
     ONE_DB=/var/lib/one/one.db
+    ONE_LOG=/var/log/one/oned.log
 
     ONED=/usr/bin/oned
     ONE_SCHEDULER=/usr/bin/mm_sched
@@ -31,6 +32,7 @@ else
     ONE_SCHEDPID=$ONE_LOCATION/var/sched.pid
     ONE_CONF=$ONE_LOCATION/etc/oned.conf
     ONE_DB=$ONE_LOCATION/var/one.db
+    ONE_LOG=$ONE_LOCATION/var/oned.log
 
     ONED=$ONE_LOCATION/bin/oned
     ONE_SCHEDULER=$ONE_LOCATION/bin/mm_sched
@@ -92,6 +94,12 @@ start()
         fi
     fi
 		
+
+    # Backup oned.log
+    if [ "$BACKUP" = "true" ];then
+        [ -f "$ONE_LOG" ] && cp $ONE_LOG{,.$(date '+%Y%m%d%H%M')}
+    fi
+
 	# Start the one daemon
 	$ONED -f 2>&1 & 
 	
@@ -170,6 +178,10 @@ stop()
 	echo "oned and scheduler stopped"
 }
 
+if [ "$1" = "-b" ]; then
+    BACKUP=true
+    shift
+fi
 
 case "$1" in
   start)
@@ -180,7 +192,9 @@ case "$1" in
 	stop
 	;;
   *)
-	echo "Usage: one {start|stop}" >&2
+	echo "Usage: one [-b] {start|stop}" >&2
+	echo "Options:" >&2
+	echo "	-b	Backup log file." >&2
 	exit 3
 	;;
 esac
