@@ -21,7 +21,7 @@
 #  TODO : use virsh freecell when available
 ######
 
-nodeinfo_text = `virsh -c qemu:///system nodeinfo --readonly`
+nodeinfo_text = `virsh -c qemu:///system nodeinfo`
 
 nodeinfo_text.split(/\n/).each{|line|
     if     line.match('^CPU\(s\)') 
