@@ -357,41 +357,41 @@ MADS_LIB_FILES="src/mad/sh/madcommon.sh \
 # VMM SH Driver KVM scripts, to be installed under $REMOTES_LOCATION/vmm/kvm
 #-------------------------------------------------------------------------------
 
-VMM_SH_KVM_SCRIPTS="share/scripts/vmm/kvm/cancel \
-                    share/scripts/vmm/kvm/deploy \
-                    share/scripts/vmm/kvm/kvmrc \
-                    share/scripts/vmm/kvm/migrate \
-                    share/scripts/vmm/kvm/poll \
-                    share/scripts/vmm/kvm/restore \
-                    share/scripts/vmm/kvm/save \
-                    share/scripts/vmm/kvm/shutdown"
+VMM_SH_KVM_SCRIPTS="src/vmm_mad/remotes/kvm/cancel \
+                    src/vmm_mad/remotes/kvm/deploy \
+                    src/vmm_mad/remotes/kvm/kvmrc \
+                    src/vmm_mad/remotes/kvm/migrate \
+                    src/vmm_mad/remotes/kvm/poll \
+                    src/vmm_mad/remotes/kvm/restore \
+                    src/vmm_mad/remotes/kvm/save \
+                    src/vmm_mad/remotes/kvm/shutdown"
 
 #-------------------------------------------------------------------------------
 # VMM SH Driver Xen scripts, to be installed under $REMOTES_LOCATION/vmm/xen
 #-------------------------------------------------------------------------------
 
-VMM_SH_XEN_SCRIPTS="share/scripts/vmm/xen/cancel \
-                    share/scripts/vmm/xen/deploy \
-                    share/scripts/vmm/xen/xenrc \
-                    share/scripts/vmm/xen/migrate \
-                    share/scripts/vmm/xen/poll \
-                    share/scripts/vmm/xen/restore \
-                    share/scripts/vmm/xen/save \
-                    share/scripts/vmm/xen/shutdown"
+VMM_SH_XEN_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
+                    src/vmm_mad/remotes/xen/deploy \
+                    src/vmm_mad/remotes/xen/xenrc \
+                    src/vmm_mad/remotes/xen/migrate \
+                    src/vmm_mad/remotes/xen/poll \
+                    src/vmm_mad/remotes/xen/restore \
+                    src/vmm_mad/remotes/xen/save \
+                    src/vmm_mad/remotes/xen/shutdown"
 
 #-------------------------------------------------------------------------------
 # Information Manager Probes, to be installed under $LIB_LOCATION/remotes
 #-------------------------------------------------------------------------------
 
-IM_PROBES_FILES="share/scripts/im/run_probes"
+IM_PROBES_FILES="src/im_mad/remotes/run_probes"
 
-IM_PROBES_COMMON_FILES="share/scripts/im/common.d/architecture.sh \
-                     share/scripts/im/common.d/cpu.sh \
-                     share/scripts/im/common.d/name.sh"
+IM_PROBES_COMMON_FILES="src/im_mad/remotes/common.d/architecture.sh \
+                     src/im_mad/remotes/common.d/cpu.sh \
+                     src/im_mad/remotes/common.d/name.sh"
 
-IM_PROBES_XEN_FILES="share/scripts/im/xen.d/xen.rb"
+IM_PROBES_XEN_FILES="src/im_mad/remotes/xen.d/xen.rb"
 
-IM_PROBES_KVM_FILES="share/scripts/im/kvm.d/kvm.rb"
+IM_PROBES_KVM_FILES="src/im_mad/remotes/kvm.d/kvm.rb"
 
 
 #-------------------------------------------------------------------------------
