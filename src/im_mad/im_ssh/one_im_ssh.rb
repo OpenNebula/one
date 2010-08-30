@@ -83,7 +83,7 @@ end
 #-------------------------------------------------------------------------------
 
 remote_dir = ENV["IM_REMOTE_DIR"]
-remote_dir = "/tmp/one-im" if !remote_dir
+remote_dir = "/tmp/one" if !remote_dir
 
 hypervisor = ARGV[0]||''
 
