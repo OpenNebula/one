@@ -187,6 +187,9 @@ Commands:
 * top (Lists hosts continuously)
     onehost top
 
+* sync (synchronizes probes with remote hosts)
+    onehost sync
+
 EOT
 
     def text_commands
@@ -355,6 +358,14 @@ when "disable"
         else
             break
         end
+    end
+
+when "sync"
+    check_parameters("sync", 0)
+    if ONE_LOCATION
+        FileUtils.touch "#{ONE_LOCATION}/lib/remotes"
+    else
+        FileUtils.touch "/var/lib/one/remotes"
     end
 
 else
