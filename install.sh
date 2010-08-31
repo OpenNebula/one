@@ -285,10 +285,7 @@ LIB_FILES=""
 # Ruby library files, to be installed under $LIB_LOCATION/ruby
 #-------------------------------------------------------------------------------
 
-RUBY_LIB_FILES="src/mad/ruby/one_mad.rb \
-                src/mad/ruby/one_ssh.rb \
-                src/mad/ruby/ThreadScheduler.rb \
-                src/mad/ruby/ActionManager.rb \
+RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/mad/ruby/CommandManager.rb \
                 src/mad/ruby/OpenNebulaDriver.rb \
                 src/mad/ruby/VirtualMachineDriver.rb \
