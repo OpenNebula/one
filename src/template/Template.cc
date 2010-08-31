@@ -367,7 +367,7 @@ string& Template::to_str(string& str) const
     {
         s = it->second->marshall(",");
 
-        os << endl << "\t" << it->first << separator << *s;
+        os << it->first << separator << *s << endl;
 
         delete s;
     }
