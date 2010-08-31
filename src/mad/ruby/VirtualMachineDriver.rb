@@ -59,12 +59,16 @@ class VirtualMachineDriver < OpenNebulaDriver
         :deleted => 'd',
         :unknown => '-'
     }
+    
+    HOST_ARG = 2
 
     # -------------------------------------------------------------------------
     # Register default actions for the protocol
     # -------------------------------------------------------------------------
     def initialize(concurrency=10, threaded=true)
         super(concurrency,threaded)
+        
+        @hosts = Array.new
 
         register_action(ACTION[:deploy].to_sym, method("deploy"))
         register_action(ACTION[:shutdown].to_sym, method("shutdown"))
@@ -151,6 +155,28 @@ class VirtualMachineDriver < OpenNebulaDriver
     def poll(id, host, deploy_id, not_used)
         error = "Action not implemented by driver #{self.class}"
         send_message(ACTION[:poll],RESULT[:failure],id,error)
+    end
+    
+private
+
+    def delete_running_action(action_id)
+        action=@action_running[action_id]
+        if action
+            @hosts.delete(action[:args][HOST_ARG])
+            @action_running.delete(action_id)
+        end
+    end
+    
+    def get_runable_action
+        action=@action_queue.select do |a|
+            @hosts.include? a[:args][HOST_ARG]
+        end.first
+        
+        if action
+            @hosts << action[:args][HOST_ARG]
+            @action_queue.delete(action)
+        end
+        return action
     end
 end
 
