@@ -151,8 +151,6 @@ ETC_DIRS="$ETC_LOCATION/im_kvm \
           $ETC_LOCATION/im_xen \
           $ETC_LOCATION/im_ec2 \
           $ETC_LOCATION/im_eh \
-          $ETC_LOCATION/vmm_kvm \
-          $ETC_LOCATION/vmm_xen \
           $ETC_LOCATION/vmm_ec2 \
           $ETC_LOCATION/vmm_eh \
           $ETC_LOCATION/vmm_sh \
@@ -243,25 +241,21 @@ INSTALL_OCCI_CLIENT_FILES[1]="OCCI_LIB_CLIENT_FILES:$LIB_LOCATION/ruby/cloud/occ
 INSTALL_OCCI_CLIENT_FILES[2]="OCCI_BIN_CLIENT_FILES:$BIN_LOCATION"
 
 INSTALL_ETC_FILES[0]="ETC_FILES:$ETC_LOCATION"
-INSTALL_ETC_FILES[1]="VMM_XEN_ETC_FILES:$ETC_LOCATION/vmm_xen"
-INSTALL_ETC_FILES[2]="VMM_KVM_ETC_FILES:$ETC_LOCATION/vmm_kvm"
-INSTALL_ETC_FILES[3]="VMM_EC2_ETC_FILES:$ETC_LOCATION/vmm_ec2"
-INSTALL_ETC_FILES[4]="VMM_EH_ETC_FILES:$ETC_LOCATION/vmm_eh"
-INSTALL_ETC_FILES[5]="VMM_SH_ETC_FILES:$ETC_LOCATION/vmm_sh"
-INSTALL_ETC_FILES[6]="IM_XEN_ETC_FILES:$ETC_LOCATION/im_xen"
-INSTALL_ETC_FILES[7]="IM_KVM_ETC_FILES:$ETC_LOCATION/im_kvm"
-INSTALL_ETC_FILES[8]="IM_EC2_ETC_FILES:$ETC_LOCATION/im_ec2"
-INSTALL_ETC_FILES[9]="IM_EH_ETC_FILES:$ETC_LOCATION/im_eh"
-INSTALL_ETC_FILES[10]="TM_NFS_ETC_FILES:$ETC_LOCATION/tm_nfs"
-INSTALL_ETC_FILES[11]="TM_SSH_ETC_FILES:$ETC_LOCATION/tm_ssh"
-INSTALL_ETC_FILES[12]="TM_DUMMY_ETC_FILES:$ETC_LOCATION/tm_dummy"
-INSTALL_ETC_FILES[13]="TM_LVM_ETC_FILES:$ETC_LOCATION/tm_lvm"
-INSTALL_ETC_FILES[14]="HM_ETC_FILES:$ETC_LOCATION/hm"
-INSTALL_ETC_FILES[15]="AUTH_ETC_FILES:$ETC_LOCATION/auth"
-INSTALL_ETC_FILES[16]="ECO_ETC_FILES:$ETC_LOCATION"
-INSTALL_ETC_FILES[17]="ECO_ETC_TEMPLATE_FILES:$ETC_LOCATION/ec2query_templates"
-INSTALL_ETC_FILES[18]="OCCI_ETC_FILES:$ETC_LOCATION"
-INSTALL_ETC_FILES[19]="OCCI_ETC_TEMPLATE_FILES:$ETC_LOCATION/occi_templates"
+INSTALL_ETC_FILES[1]="VMM_EC2_ETC_FILES:$ETC_LOCATION/vmm_ec2"
+INSTALL_ETC_FILES[2]="VMM_EH_ETC_FILES:$ETC_LOCATION/vmm_eh"
+INSTALL_ETC_FILES[3]="VMM_SH_ETC_FILES:$ETC_LOCATION/vmm_sh"
+INSTALL_ETC_FILES[4]="IM_EC2_ETC_FILES:$ETC_LOCATION/im_ec2"
+INSTALL_ETC_FILES[5]="IM_EH_ETC_FILES:$ETC_LOCATION/im_eh"
+INSTALL_ETC_FILES[6]="TM_NFS_ETC_FILES:$ETC_LOCATION/tm_nfs"
+INSTALL_ETC_FILES[7]="TM_SSH_ETC_FILES:$ETC_LOCATION/tm_ssh"
+INSTALL_ETC_FILES[8]="TM_DUMMY_ETC_FILES:$ETC_LOCATION/tm_dummy"
+INSTALL_ETC_FILES[9]="TM_LVM_ETC_FILES:$ETC_LOCATION/tm_lvm"
+INSTALL_ETC_FILES[10]="HM_ETC_FILES:$ETC_LOCATION/hm"
+INSTALL_ETC_FILES[11]="AUTH_ETC_FILES:$ETC_LOCATION/auth"
+INSTALL_ETC_FILES[14]="ECO_ETC_FILES:$ETC_LOCATION"
+INSTALL_ETC_FILES[15]="ECO_ETC_TEMPLATE_FILES:$ETC_LOCATION/ec2query_templates"
+INSTALL_ETC_FILES[16]="OCCI_ETC_FILES:$ETC_LOCATION"
+INSTALL_ETC_FILES[17]="OCCI_ETC_TEMPLATE_FILES:$ETC_LOCATION/occi_templates"
 
 #-------------------------------------------------------------------------------
 # Binary files, to be installed under $BIN_LOCATION
@@ -330,10 +324,6 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/OpenNebula/Host.rb \
 
 MADS_LIB_FILES="src/mad/sh/madcommon.sh \
               src/tm_mad/tm_common.sh \
-              src/vmm_mad/xen/one_vmm_xen.rb \
-              src/vmm_mad/xen/one_vmm_xen \
-              src/vmm_mad/kvm/one_vmm_kvm.rb \
-              src/vmm_mad/kvm/one_vmm_kvm \
               src/vmm_mad/sh/one_vmm_sh.rb \
               src/vmm_mad/sh/one_vmm_sh \
               src/vmm_mad/ec2/one_vmm_ec2.rb \
@@ -437,18 +427,10 @@ ETC_FILES="share/etc/oned.conf \
 
 #-------------------------------------------------------------------------------
 # Virtualization drivers config. files, to be installed under $ETC_LOCATION
-#   - xen, $ETC_LOCATION/vmm_xen
-#   - kvm, $ETC_LOCATION/vmm_kvm
 #   - ec2, $ETC_LOCATION/vmm_ec2
 #   - eh, $ETC_LOCATION/vmm_eh
 #   - sh, $ETC_LOCATION/vmm_sh
 #-------------------------------------------------------------------------------
-
-VMM_XEN_ETC_FILES="src/vmm_mad/xen/vmm_xenrc \
-                   src/vmm_mad/xen/vmm_xen.conf"
-
-VMM_KVM_ETC_FILES="src/vmm_mad/kvm/vmm_kvmrc \
-                   src/vmm_mad/kvm/vmm_kvm.conf"
 
 VMM_EC2_ETC_FILES="src/vmm_mad/ec2/vmm_ec2rc \
                    src/vmm_mad/ec2/vmm_ec2.conf"
@@ -463,16 +445,8 @@ VMM_SH_ETC_FILES="src/vmm_mad/sh/vmm_shrc \
 
 #-------------------------------------------------------------------------------
 # Information drivers config. files, to be installed under $ETC_LOCATION
-#   - xen, $ETC_LOCATION/im_xen
-#   - kvm, $ETC_LOCATION/im_kvm
 #   - ec2, $ETC_LOCATION/im_ec2
 #-------------------------------------------------------------------------------
-
-IM_XEN_ETC_FILES="src/im_mad/xen/im_xenrc \
-                  src/im_mad/xen/im_xen.conf"
-
-IM_KVM_ETC_FILES="src/im_mad/kvm/im_kvmrc \
-                  src/im_mad/kvm/im_kvm.conf"
 
 IM_EC2_ETC_FILES="src/im_mad/ec2/im_ec2rc \
                   src/im_mad/ec2/im_ec2.conf"
