@@ -1,3 +1,5 @@
+#!/bin/bash -e
+
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
@@ -14,9 +16,9 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# To change the directory where the IM probes are copied on the remote node
-# uncomment and change the path of IM_REMOTE_DIR
-#
-#IM_REMOTE_DIR=/tmp/ne_im_scripts
+source $(dirname $0)/xenrc
 
+deploy_id=$1
+dest_host=$2
 
+$XM_MIGRATE $deploy_id $dest_host

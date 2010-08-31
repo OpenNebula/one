@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
@@ -16,38 +16,27 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-#Parse command line arguments
-while getopts r: option $@
-do
-    case $option in
-    r)  export IM_REMOTE_DIR="$OPTARG";;
-    esac
+source $(dirname $0)/xenrc
+
+deploy_id=$1
+
+function gdm {
+    $XM_LIST | grep "$deploy_id "
+}
+
+$XM_SHUTDOWN $deploy_id || exit -1
+
+OUT=$(gdm)
+
+while [ -n "$OUT" -a $(echo $OUT | awk '{print $5}') != "---s--" ]; do
+    sleep 1
+    OUT=$(gdm)
 done
-shift $(($OPTIND - 1))
 
-#Setup driver variables
-DRIVER_NAME=`basename $1 | cut -d. -f1`
+OUT=$(gdm)
 
-if [ -z "${ONE_LOCATION}" ]; then
-    DRIVERRC=/etc/one/${DRIVER_NAME}/${DRIVER_NAME}rc
-    MADCOMMON=/usr/lib/one/mads/madcommon.sh
-    VAR_LOCATION=/var/lib/one
-else
-    DRIVERRC=$ONE_LOCATION/etc/${DRIVER_NAME}/${DRIVER_NAME}rc
-    MADCOMMON=$ONE_LOCATION/lib/mads/madcommon.sh
-    VAR_LOCATION=$ONE_LOCATION/var
+if [ -n "$OUT" ]; then
+    $XM_CANCEL "$deploy_id"
 fi
+sleep 2
 
-. $MADCOMMON
-
-# Export the im_mad specific rc
-
-export_rc_vars $DRIVERRC
-
-# Go to var directory ONE_LOCATION/var or /var/lib/one
-cd $VAR_LOCATION
-
-LOG_FILE=one_im_ssh_$DRIVER_NAME
-
-# Execute the actual MAD
-execute_mad $*

@@ -13,5 +13,7 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
-LIBVIRT_DEFAULT_URI="qemu:///system"
 
+export LIBVIRT_URI=qemu:///system
+
+export QEMU_PROTOCOL=qemu

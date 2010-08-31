@@ -34,11 +34,13 @@ public:
         HostPool *                  _hpool,
         time_t                      _timer_period,
         time_t                      _monitor_period,
+        const string&               _remotes_location,
         vector<const Attribute*>&   _mads)
             :MadManager(_mads),
             hpool(_hpool),
             timer_period(_timer_period),
-            monitor_period(_monitor_period)
+            monitor_period(_monitor_period),
+            remotes_location(_remotes_location)
     {
         am.addListener(this);
     };
@@ -46,7 +48,7 @@ public:
     ~InformationManager(){};
 
     /**
-     *  This functions starts the associated listener thread, and creates a 
+     *  This functions starts the associated listener thread, and creates a
      *  new thread for the Information Manager. This thread will wait in
      *  an action loop till it receives ACTION_FINALIZE.
      *    @return 0 on success.
@@ -63,12 +65,12 @@ public:
     };
 
     /**
-     *  
+     *
      */
     void load_mads(int uid=0);
 
     /**
-     * 
+     *
      */
     void finalize()
     {
@@ -90,28 +92,33 @@ private:
      *  Timer period for the Virtual Machine Manager.
      */
     time_t          timer_period;
-       
+
     /**
      *  Host monitoring interval
      */
     time_t          monitor_period;
-    
+
+   /**
+    *  Path for the remote action programs
+    */
+    string          remotes_location;
+
     /**
      *  Action engine for the Manager
      */
     ActionManager   am;
 
     /**
-     *  Function to execute the Manager action loop method within a new pthread 
+     *  Function to execute the Manager action loop method within a new pthread
      * (requires C linkage)
      */
     friend void * im_action_loop(void *arg);
 
     /**
-     *  Returns a pointer to a Information Manager MAD. The driver is 
+     *  Returns a pointer to a Information Manager MAD. The driver is
      *  searched by its name and owned by gwadmin with uid=0.
      *    @param name of the driver
-     *    @return the VM driver owned by uid 0, with attribute "NAME" equal to 
+     *    @return the VM driver owned by uid 0, with attribute "NAME" equal to
      *    name or 0 in not found
      */
     const InformationManagerDriver * get(

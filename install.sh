@@ -151,10 +151,9 @@ ETC_DIRS="$ETC_LOCATION/im_kvm \
           $ETC_LOCATION/im_xen \
           $ETC_LOCATION/im_ec2 \
           $ETC_LOCATION/im_eh \
-          $ETC_LOCATION/vmm_kvm \
-          $ETC_LOCATION/vmm_xen \
           $ETC_LOCATION/vmm_ec2 \
           $ETC_LOCATION/vmm_eh \
+          $ETC_LOCATION/vmm_sh \
           $ETC_LOCATION/tm_nfs \
           $ETC_LOCATION/tm_ssh \
           $ETC_LOCATION/tm_dummy \
@@ -164,7 +163,13 @@ ETC_DIRS="$ETC_LOCATION/im_kvm \
           $ETC_LOCATION/ec2query_templates \
           $ETC_LOCATION/occi_templates"
 
-LIB_DIRS="$LIB_LOCATION/im_probes \
+LIB_DIRS="$LIB_LOCATION/remotes \
+          $LIB_LOCATION/remotes/im \
+          $LIB_LOCATION/remotes/im/common.d \
+          $LIB_LOCATION/remotes/im/kvm.d \
+          $LIB_LOCATION/remotes/im/xen.d \
+          $LIB_LOCATION/remotes/vmm/xen \
+          $LIB_LOCATION/remotes/vmm/kvm \
           $LIB_LOCATION/ruby \
           $LIB_LOCATION/ruby/OpenNebula \
           $LIB_LOCATION/ruby/cloud/ \
@@ -207,20 +212,25 @@ INSTALL_FILES[2]="LIB_FILES:$LIB_LOCATION"
 INSTALL_FILES[3]="RUBY_LIB_FILES:$LIB_LOCATION/ruby"
 INSTALL_FILES[4]="RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/OpenNebula"
 INSTALL_FILES[5]="MADS_LIB_FILES:$LIB_LOCATION/mads"
-INSTALL_FILES[6]="IM_PROBES_LIB_FILES:$LIB_LOCATION/im_probes"
-INSTALL_FILES[7]="NFS_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/nfs"
-INSTALL_FILES[8]="SSH_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/ssh"
-INSTALL_FILES[9]="DUMMY_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/dummy"
-INSTALL_FILES[10]="LVM_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/lvm"
-INSTALL_FILES[11]="EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples"
-INSTALL_FILES[12]="TM_EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples/tm"
-INSTALL_FILES[13]="HOOK_SHARE_FILES:$SHARE_LOCATION/hooks"
-INSTALL_FILES[14]="COMMON_CLOUD_LIB_FILES:$LIB_LOCATION/ruby/cloud"
-INSTALL_FILES[15]="ECO_LIB_FILES:$LIB_LOCATION/ruby/cloud/econe"
-INSTALL_FILES[16]="ECO_LIB_VIEW_FILES:$LIB_LOCATION/ruby/cloud/econe/views"
-INSTALL_FILES[17]="ECO_BIN_FILES:$BIN_LOCATION"
-INSTALL_FILES[18]="OCCI_LIB_FILES:$LIB_LOCATION/ruby/cloud/occi"
-INSTALL_FILES[19]="OCCI_BIN_FILES:$BIN_LOCATION"
+INSTALL_FILES[6]="IM_PROBES_FILES:$LIB_LOCATION/remotes/im"
+INSTALL_FILES[7]="IM_PROBES_COMMON_FILES:$LIB_LOCATION/remotes/im/common.d"
+INSTALL_FILES[8]="IM_PROBES_KVM_FILES:$LIB_LOCATION/remotes/im/kvm.d"
+INSTALL_FILES[9]="IM_PROBES_XEN_FILES:$LIB_LOCATION/remotes/im/xen.d"
+INSTALL_FILES[10]="VMM_SH_KVM_SCRIPTS:$LIB_LOCATION/remotes/vmm/kvm"
+INSTALL_FILES[11]="VMM_SH_XEN_SCRIPTS:$LIB_LOCATION/remotes/vmm/xen"
+INSTALL_FILES[12]="NFS_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/nfs"
+INSTALL_FILES[13]="SSH_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/ssh"
+INSTALL_FILES[14]="DUMMY_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/dummy"
+INSTALL_FILES[15]="LVM_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/lvm"
+INSTALL_FILES[16]="EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples"
+INSTALL_FILES[17]="TM_EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples/tm"
+INSTALL_FILES[18]="HOOK_SHARE_FILES:$SHARE_LOCATION/hooks"
+INSTALL_FILES[19]="COMMON_CLOUD_LIB_FILES:$LIB_LOCATION/ruby/cloud"
+INSTALL_FILES[20]="ECO_LIB_FILES:$LIB_LOCATION/ruby/cloud/econe"
+INSTALL_FILES[21]="ECO_LIB_VIEW_FILES:$LIB_LOCATION/ruby/cloud/econe/views"
+INSTALL_FILES[22]="ECO_BIN_FILES:$BIN_LOCATION"
+INSTALL_FILES[23]="OCCI_LIB_FILES:$LIB_LOCATION/ruby/cloud/occi"
+INSTALL_FILES[24]="OCCI_BIN_FILES:$BIN_LOCATION"
 
 INSTALL_ECO_CLIENT_FILES[0]="COMMON_CLOUD_CLIENT_LIB_FILES:$LIB_LOCATION/ruby/cloud"
 INSTALL_ECO_CLIENT_FILES[1]="ECO_LIB_CLIENT_FILES:$LIB_LOCATION/ruby/cloud/econe"
@@ -231,24 +241,21 @@ INSTALL_OCCI_CLIENT_FILES[1]="OCCI_LIB_CLIENT_FILES:$LIB_LOCATION/ruby/cloud/occ
 INSTALL_OCCI_CLIENT_FILES[2]="OCCI_BIN_CLIENT_FILES:$BIN_LOCATION"
 
 INSTALL_ETC_FILES[0]="ETC_FILES:$ETC_LOCATION"
-INSTALL_ETC_FILES[1]="VMM_XEN_ETC_FILES:$ETC_LOCATION/vmm_xen"
-INSTALL_ETC_FILES[2]="VMM_KVM_ETC_FILES:$ETC_LOCATION/vmm_kvm"
-INSTALL_ETC_FILES[3]="VMM_EC2_ETC_FILES:$ETC_LOCATION/vmm_ec2"
-INSTALL_ETC_FILES[4]="VMM_EH_ETC_FILES:$ETC_LOCATION/vmm_eh"
-INSTALL_ETC_FILES[5]="IM_XEN_ETC_FILES:$ETC_LOCATION/im_xen"
-INSTALL_ETC_FILES[6]="IM_KVM_ETC_FILES:$ETC_LOCATION/im_kvm"
-INSTALL_ETC_FILES[7]="IM_EC2_ETC_FILES:$ETC_LOCATION/im_ec2"
-INSTALL_ETC_FILES[8]="IM_EH_ETC_FILES:$ETC_LOCATION/im_eh"
-INSTALL_ETC_FILES[9]="TM_NFS_ETC_FILES:$ETC_LOCATION/tm_nfs"
-INSTALL_ETC_FILES[10]="TM_SSH_ETC_FILES:$ETC_LOCATION/tm_ssh"
-INSTALL_ETC_FILES[11]="TM_DUMMY_ETC_FILES:$ETC_LOCATION/tm_dummy"
-INSTALL_ETC_FILES[12]="TM_LVM_ETC_FILES:$ETC_LOCATION/tm_lvm"
-INSTALL_ETC_FILES[13]="HM_ETC_FILES:$ETC_LOCATION/hm"
-INSTALL_ETC_FILES[14]="AUTH_ETC_FILES:$ETC_LOCATION/auth"
-INSTALL_ETC_FILES[15]="ECO_ETC_FILES:$ETC_LOCATION"
-INSTALL_ETC_FILES[16]="ECO_ETC_TEMPLATE_FILES:$ETC_LOCATION/ec2query_templates"
-INSTALL_ETC_FILES[17]="OCCI_ETC_FILES:$ETC_LOCATION"
-INSTALL_ETC_FILES[18]="OCCI_ETC_TEMPLATE_FILES:$ETC_LOCATION/occi_templates"
+INSTALL_ETC_FILES[1]="VMM_EC2_ETC_FILES:$ETC_LOCATION/vmm_ec2"
+INSTALL_ETC_FILES[2]="VMM_EH_ETC_FILES:$ETC_LOCATION/vmm_eh"
+INSTALL_ETC_FILES[3]="VMM_SH_ETC_FILES:$ETC_LOCATION/vmm_sh"
+INSTALL_ETC_FILES[4]="IM_EC2_ETC_FILES:$ETC_LOCATION/im_ec2"
+INSTALL_ETC_FILES[5]="IM_EH_ETC_FILES:$ETC_LOCATION/im_eh"
+INSTALL_ETC_FILES[6]="TM_NFS_ETC_FILES:$ETC_LOCATION/tm_nfs"
+INSTALL_ETC_FILES[7]="TM_SSH_ETC_FILES:$ETC_LOCATION/tm_ssh"
+INSTALL_ETC_FILES[8]="TM_DUMMY_ETC_FILES:$ETC_LOCATION/tm_dummy"
+INSTALL_ETC_FILES[9]="TM_LVM_ETC_FILES:$ETC_LOCATION/tm_lvm"
+INSTALL_ETC_FILES[10]="HM_ETC_FILES:$ETC_LOCATION/hm"
+INSTALL_ETC_FILES[11]="AUTH_ETC_FILES:$ETC_LOCATION/auth"
+INSTALL_ETC_FILES[14]="ECO_ETC_FILES:$ETC_LOCATION"
+INSTALL_ETC_FILES[15]="ECO_ETC_TEMPLATE_FILES:$ETC_LOCATION/ec2query_templates"
+INSTALL_ETC_FILES[16]="OCCI_ETC_FILES:$ETC_LOCATION"
+INSTALL_ETC_FILES[17]="OCCI_ETC_TEMPLATE_FILES:$ETC_LOCATION/occi_templates"
 
 #-------------------------------------------------------------------------------
 # Binary files, to be installed under $BIN_LOCATION
@@ -310,16 +317,15 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/OpenNebula/Host.rb \
                            src/oca/ruby/OpenNebula/Cluster.rb \
                            src/oca/ruby/OpenNebula/ClusterPool.rb \
                            src/oca/ruby/OpenNebula/XMLUtils.rb"
+
 #-------------------------------------------------------------------------------
 # Driver executable files, to be installed under $LIB_LOCATION/mads
 #-------------------------------------------------------------------------------
 
 MADS_LIB_FILES="src/mad/sh/madcommon.sh \
               src/tm_mad/tm_common.sh \
-              src/vmm_mad/xen/one_vmm_xen.rb \
-              src/vmm_mad/xen/one_vmm_xen \
-              src/vmm_mad/kvm/one_vmm_kvm.rb \
-              src/vmm_mad/kvm/one_vmm_kvm \
+              src/vmm_mad/sh/one_vmm_sh.rb \
+              src/vmm_mad/sh/one_vmm_sh \
               src/vmm_mad/ec2/one_vmm_ec2.rb \
               src/vmm_mad/ec2/one_vmm_ec2 \
               src/vmm_mad/eh/one_vmm_eh.rb \
@@ -338,14 +344,45 @@ MADS_LIB_FILES="src/mad/sh/madcommon.sh \
               src/authm_mad/one_auth_mad"
 
 #-------------------------------------------------------------------------------
-# Information Manager Probes, to be installed under $LIB_LOCATION/im_probes
+# VMM SH Driver KVM scripts, to be installed under $REMOTES_LOCATION/vmm/kvm
 #-------------------------------------------------------------------------------
 
-IM_PROBES_LIB_FILES="src/im_mad/xen/xen.rb \
-                     src/im_mad/kvm/kvm.rb \
-                     src/im_mad/host_probes/architecture.sh \
-                     src/im_mad/host_probes/cpu.sh \
-                     src/im_mad/host_probes/name.sh"
+VMM_SH_KVM_SCRIPTS="src/vmm_mad/remotes/kvm/cancel \
+                    src/vmm_mad/remotes/kvm/deploy \
+                    src/vmm_mad/remotes/kvm/kvmrc \
+                    src/vmm_mad/remotes/kvm/migrate \
+                    src/vmm_mad/remotes/kvm/poll \
+                    src/vmm_mad/remotes/kvm/restore \
+                    src/vmm_mad/remotes/kvm/save \
+                    src/vmm_mad/remotes/kvm/shutdown"
+
+#-------------------------------------------------------------------------------
+# VMM SH Driver Xen scripts, to be installed under $REMOTES_LOCATION/vmm/xen
+#-------------------------------------------------------------------------------
+
+VMM_SH_XEN_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
+                    src/vmm_mad/remotes/xen/deploy \
+                    src/vmm_mad/remotes/xen/xenrc \
+                    src/vmm_mad/remotes/xen/migrate \
+                    src/vmm_mad/remotes/xen/poll \
+                    src/vmm_mad/remotes/xen/restore \
+                    src/vmm_mad/remotes/xen/save \
+                    src/vmm_mad/remotes/xen/shutdown"
+
+#-------------------------------------------------------------------------------
+# Information Manager Probes, to be installed under $LIB_LOCATION/remotes
+#-------------------------------------------------------------------------------
+
+IM_PROBES_FILES="src/im_mad/remotes/run_probes"
+
+IM_PROBES_COMMON_FILES="src/im_mad/remotes/common.d/architecture.sh \
+                     src/im_mad/remotes/common.d/cpu.sh \
+                     src/im_mad/remotes/common.d/name.sh"
+
+IM_PROBES_XEN_FILES="src/im_mad/remotes/xen.d/xen.rb"
+
+IM_PROBES_KVM_FILES="src/im_mad/remotes/kvm.d/kvm.rb"
+
 
 #-------------------------------------------------------------------------------
 # Transfer Manager commands, to be installed under $LIB_LOCATION/tm_commands
@@ -390,17 +427,10 @@ ETC_FILES="share/etc/oned.conf \
 
 #-------------------------------------------------------------------------------
 # Virtualization drivers config. files, to be installed under $ETC_LOCATION
-#   - xen, $ETC_LOCATION/vmm_xen
-#   - kvm, $ETC_LOCATION/vmm_kvm
 #   - ec2, $ETC_LOCATION/vmm_ec2
 #   - eh, $ETC_LOCATION/vmm_eh
+#   - sh, $ETC_LOCATION/vmm_sh
 #-------------------------------------------------------------------------------
-
-VMM_XEN_ETC_FILES="src/vmm_mad/xen/vmm_xenrc \
-                   src/vmm_mad/xen/vmm_xen.conf"
-
-VMM_KVM_ETC_FILES="src/vmm_mad/kvm/vmm_kvmrc \
-                   src/vmm_mad/kvm/vmm_kvm.conf"
 
 VMM_EC2_ETC_FILES="src/vmm_mad/ec2/vmm_ec2rc \
                    src/vmm_mad/ec2/vmm_ec2.conf"
@@ -408,18 +438,15 @@ VMM_EC2_ETC_FILES="src/vmm_mad/ec2/vmm_ec2rc \
 VMM_EH_ETC_FILES="src/vmm_mad/eh/vmm_ehrc \
                   src/vmm_mad/eh/vmm_eh.conf"
 
+VMM_SH_ETC_FILES="src/vmm_mad/sh/vmm_shrc \
+                  src/vmm_mad/sh/vmm_sh_kvm.conf \
+                  src/vmm_mad/sh/vmm_sh_xen.conf"
+
+
 #-------------------------------------------------------------------------------
 # Information drivers config. files, to be installed under $ETC_LOCATION
-#   - xen, $ETC_LOCATION/im_xen
-#   - kvm, $ETC_LOCATION/im_kvm
 #   - ec2, $ETC_LOCATION/im_ec2
 #-------------------------------------------------------------------------------
-
-IM_XEN_ETC_FILES="src/im_mad/xen/im_xenrc \
-                  src/im_mad/xen/im_xen.conf"
-
-IM_KVM_ETC_FILES="src/im_mad/kvm/im_kvmrc \
-                  src/im_mad/kvm/im_kvm.conf"
 
 IM_EC2_ETC_FILES="src/im_mad/ec2/im_ec2rc \
                   src/im_mad/ec2/im_ec2.conf"

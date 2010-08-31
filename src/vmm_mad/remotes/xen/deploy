@@ -1,3 +1,5 @@
+#!/bin/bash -e
+
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
@@ -14,10 +16,37 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-#---------------------------------------------------------------------------
-# Path to Xen utilities
-#---------------------------------------------------------------------------
+source $(dirname $0)/xenrc
 
-XENTOP_PATH="/usr/sbin/xentop"
+function error_exit() {
+    exit_code=$1
+    if [ "x$exit_code" != "x0" ]; then
+        exit $exit_code
+    fi
+}
 
-XM_PATH="/usr/sbin/xm"
+domain=$1
+
+mkdir -p `dirname $domain`
+cat > $domain
+
+output=`$XM_CREATE $domain`
+
+error_exit $?
+
+domain_name=`echo $output | grep 'Started domain' | sed 's/^.*Started domain //' | tr -d '\n'`
+
+out=`grep -e '^\#O CPU_CREDITS =' < $domain`
+
+if [ "x$?" != "x0" ]; then
+    credits=`echo $out | cut -d= -f2 | tr -d ' '`
+    
+    name=`grep -e '^name =' < $domain | cut -d= -f2 | tr -d ' '`
+    
+    $XM_CREDITS -d $name -w $credits
+    
+    error_exit $?
+fi
+
+echo $domain_name
+

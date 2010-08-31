@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
@@ -16,23 +16,10 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-if [ -z "${ONE_LOCATION}" ]; then
-    DRIVERRC=/etc/one/vmm_xen/vmm_xenrc
-    MADCOMMON=/usr/lib/one/mads/madcommon.sh
-    VAR_LOCATION=/var/lib/one
-else
-    DRIVERRC=$ONE_LOCATION/etc/vmm_xen/vmm_xenrc
-    MADCOMMON=$ONE_LOCATION/lib/mads/madcommon.sh
-    VAR_LOCATION=$ONE_LOCATION/var
+if [ -f /proc/cpuinfo ]; then
+
+    echo -n "MODELNAME=\""
+    grep -m 1 "model name" /proc/cpuinfo | cut -d: -f2 | sed -e 's/^ *//' | sed -e 's/$/"/'
+    
 fi
 
-. $MADCOMMON
-
-# Export the vmm_mad specific rc
-export_rc_vars $DRIVERRC
-
-# Go to ONE_LOCATION
-cd $VAR_LOCATION
-
-# Execute the actual MAD
-execute_mad $*

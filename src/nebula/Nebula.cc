@@ -64,6 +64,15 @@ void Nebula::start()
         throw runtime_error("Could not load nebula configuration file.");
     }
 
+    string   config_fname = log_location + "config";
+    ofstream config_file(config_fname.c_str(), ios_base::trunc & ios_base::out);
+
+    if (config_file.fail() == false)
+    {
+        config_file << *nebula_configuration << endl;
+        config_file.close();
+    }
+
     // -----------------------------------------------------------
     // Log system
     // -----------------------------------------------------------
@@ -109,10 +118,9 @@ void Nebula::start()
     NebulaLog::log("ONE",Log::INFO,"----------------------------------------");
 
     os.str("");
-
-    os << "\n--------------------------------------------";
+    os << "\n----------------------------------\n";
     os << *nebula_configuration;
-    os << "\n--------------------------------------------";
+    os << "----------------------------------";
 
     NebulaLog::log("ONE",Log::INFO,os);
 
@@ -345,7 +353,11 @@ void Nebula::start()
 
         nebula_configuration->get("IM_MAD", im_mads);
 
-        im = new InformationManager(hpool,timer_period,monitor_period,im_mads);
+        im = new InformationManager(hpool,
+                                    timer_period,
+                                    monitor_period,
+                                    remotes_location,
+                                    im_mads);
     }
     catch (bad_alloc&)
     {
