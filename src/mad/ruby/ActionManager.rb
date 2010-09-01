@@ -164,8 +164,7 @@ class ActionManager
     def start_listener
         while true
             @threads_mutex.synchronize {
-                while ((@concurrency - @num_running)==0) ||
-                        @action_queue.size==0
+                while ((@concurrency - @num_running)==0) || empty_queue
                     @threads_cond.wait(@threads_mutex)
 
                     return if (@finalize && @num_running == 0)
@@ -184,6 +183,10 @@ private
     
     def get_runable_action
         @action_queue.shift
+    end
+    
+    def empty_queue
+        @action_queue.size==0
     end
 
     def run_action

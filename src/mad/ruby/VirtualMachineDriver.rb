@@ -60,7 +60,7 @@ class VirtualMachineDriver < OpenNebulaDriver
         :unknown => '-'
     }
     
-    HOST_ARG = 2
+    HOST_ARG = 1
 
     # -------------------------------------------------------------------------
     # Register default actions for the protocol
@@ -167,21 +167,40 @@ private
         end
     end
     
+    def get_first_runable
+        action_index=@action_queue.index do |action|
+           if action[:args][HOST_ARG]
+               !@hosts.include? action[:args][HOST_ARG]
+           else
+               true
+           end
+        end
+        
+        if action_index
+            @action_queue[action_index]
+        else
+            nil
+        end
+    end
+    
     def get_runable_action
-        action=@action_queue.select do |a|
-            if a[:args][HOST_ARG]
-                @hosts.include? a[:args][HOST_ARG]
-            else
-                true
-            end
-        end.first
+        action=get_first_runable
         
         if action
             @hosts << action[:args][HOST_ARG] if action[:args][HOST_ARG]
             @action_queue.delete(action)
         end
-
+        
+        STDERR.puts "action: #{action.inspect}"
+        STDERR.puts "queue: #{@action_queue.inspect}"
+        STDERR.puts "hosts: #{@hosts.inspect}"
+        STDERR.flush
+        
         return action
+    end
+    
+    def empty_queue
+        get_first_runable==nil
     end
 end
 
