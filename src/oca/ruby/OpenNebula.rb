@@ -101,10 +101,13 @@ module OpenNebula
             else
                 @one_endpoint="http://localhost:2633/RPC2"
             end
+            
+            @server=XMLRPC::Client.new2(@one_endpoint)
         end
 
         def call(action, *args)
-            server=XMLRPC::Client.new2(@one_endpoint)
+            server=@server
+            
             if XMLPARSER
                 server.set_parser(XMLRPC::XMLParser::XMLStreamParser.new)
             end
