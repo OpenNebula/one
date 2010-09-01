@@ -169,13 +169,18 @@ private
     
     def get_runable_action
         action=@action_queue.select do |a|
-            @hosts.include? a[:args][HOST_ARG]
+            if a[:args][HOST_ARG]
+                @hosts.include? a[:args][HOST_ARG]
+            else
+                true
+            end
         end.first
         
         if action
-            @hosts << action[:args][HOST_ARG]
+            @hosts << action[:args][HOST_ARG] if action[:args][HOST_ARG]
             @action_queue.delete(action)
         end
+
         return action
     end
 end
