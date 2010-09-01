@@ -612,6 +612,7 @@ void  LifeCycleManager::cancel_success_action(int vid)
         return;
     }
 
+    vm->set_running_etime(the_time);
     vm->set_etime(the_time);
 
     vm->set_reason(History::CANCEL);
