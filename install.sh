@@ -327,12 +327,16 @@ MADS_LIB_FILES="src/mad/sh/madcommon.sh \
               src/vmm_mad/ec2/one_vmm_ec2 \
               src/vmm_mad/eh/one_vmm_eh.rb \
               src/vmm_mad/eh/one_vmm_eh \
+              src/vmm_mad/dummy/one_vmm_dummy.rb \
+              src/vmm_mad/dummy/one_vmm_dummy \
               src/im_mad/im_ssh/one_im_ssh.rb \
               src/im_mad/im_ssh/one_im_ssh \
               src/im_mad/ec2/one_im_ec2.rb \
               src/im_mad/ec2/one_im_ec2 \
               src/im_mad/eh/one_im_eh.rb \
               src/im_mad/eh/one_im_eh \
+              src/im_mad/dummy/one_im_dummy.rb \
+              src/im_mad/dummy/one_im_dummy \
               src/tm_mad/one_tm \
               src/tm_mad/one_tm.rb \
               src/hm_mad/one_hm.rb \
