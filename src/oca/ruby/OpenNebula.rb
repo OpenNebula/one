@@ -33,7 +33,7 @@ module OpenNebula
     # -------------------------------------------------------------------------
     class Error
         attr_reader :message
-        
+
         # +message+ a description of the error
         def initialize(message=nil)
             @message=message
@@ -51,21 +51,21 @@ module OpenNebula
     def self.is_error?(value)
         value.class==OpenNebula::Error
     end
- 
+
     # -------------------------------------------------------------------------
     # The client class, represents the connection with the core and handles the
     # xml-rpc calls.
     # -------------------------------------------------------------------------
     class Client
         attr_accessor :one_auth
-        
+
         begin
             require 'xmlparser'
             XMLPARSER=true
         rescue LoadError
             XMLPARSER=false
         end
-        
+
         def initialize(secret=nil, endpoint=nil)
             if secret
                 one_secret = secret
@@ -87,7 +87,7 @@ module OpenNebula
             one_secret=~/^(.+?):(.+)$/
             user=$1
             password=$2
-            
+
             if password.match(/^ssh:/)
                 @one_auth = "#{user}:#{password.split(':').last}"
             else
@@ -101,27 +101,26 @@ module OpenNebula
             else
                 @one_endpoint="http://localhost:2633/RPC2"
             end
-            
+
             @server=XMLRPC::Client.new2(@one_endpoint)
         end
 
         def call(action, *args)
-            server=@server
-            
+
             if XMLPARSER
-                server.set_parser(XMLRPC::XMLParser::XMLStreamParser.new)
+                @server.set_parser(XMLRPC::XMLParser::XMLStreamParser.new)
             end
 
             begin
-                response = server.call("one."+action, @one_auth, *args)
-                
+                response = @server.call("one."+action, @one_auth, *args)
+
                 if response[0] == false
                     Error.new(response[1])
                 else
-                    response[1] #response[1..-1] 
+                    response[1] #response[1..-1]
                 end
             rescue Exception => e
-                Error.new(e.message) 
+                Error.new(e.message)
             end
         end
     end
