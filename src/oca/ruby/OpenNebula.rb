@@ -112,7 +112,7 @@ module OpenNebula
             end
 
             begin
-                response = @server.call("one."+action, @one_auth, *args)
+                response = @server.call_async("one."+action, @one_auth, *args)
 
                 if response[0] == false
                     Error.new(response[1])
