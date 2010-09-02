@@ -41,7 +41,7 @@ WGET=/usr/bin/wget
 
 function get_vmdir
 {
-    VMDIR=`$ONE_CONF | grep '^VM_DIR=' $ONE_LOCAL_VAR | cut -d= -f2`
+    VMDIR=`grep '^VM_DIR=' $ONE_LOCAL_VAR | cut -d= -f2`
 }
 
 function fix_paths
