@@ -325,16 +325,6 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
     vn_template->erase("PUBLIC");
 
     //--------------------------------------------------------------------------
-    // Insert the Virtual Network
-    //--------------------------------------------------------------------------
-    rc = insert_replace(db, false);
-
-    if ( rc != 0 )
-    {
-        goto error_update;
-    }
-
-    //--------------------------------------------------------------------------
     // Get the leases
     //--------------------------------------------------------------------------
     if (type == VirtualNetwork::RANGED)
@@ -370,6 +360,14 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
 
         if (size == 0)
         {
+            SingleAttribute * attribute;
+            ostringstream     oss;
+
+            oss << default_size;
+
+            attribute = new SingleAttribute("NETWORK_SIZE",oss.str());
+            vn_template->set(attribute);
+
             size = default_size;
         }
 
@@ -396,6 +394,16 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
         goto error_null_leases;
     }
 
+    //--------------------------------------------------------------------------
+    // Insert the Virtual Network
+    //--------------------------------------------------------------------------
+    rc = insert_replace(db, false);
+
+    if ( rc != 0 )
+    {
+        goto error_update;
+    }
+
     return 0;
 
 error_type:
@@ -416,13 +424,10 @@ error_update:
 
 error_addr:
     ose << "Network address is not defined, id: ";
-    goto error_leases;
+    goto error_common;
 
 error_null_leases:
     ose << "Error getting Virtual Network leases, id: ";
-
-error_leases:
-    vn_drop(db);
 
 error_common:
     ose << oid << ".";
