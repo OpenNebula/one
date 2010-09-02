@@ -218,3 +218,4 @@ private:
 };
 
 #endif /*HISTORY_H_*/
+

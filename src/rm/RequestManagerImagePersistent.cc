@@ -137,7 +137,7 @@ error_authorize:
 
 error_persistent:
     image->unlock();
-    oss << action_error(method_name, "MANAGE", "IMAGE", iid, NULL)
+    oss << action_error(method_name, "MANAGE", "IMAGE", iid, 0)
         << " Is the image public? An Image cannot be public and persistent.";
     goto error_common;
 

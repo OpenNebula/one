@@ -29,7 +29,7 @@
 MadManager::MadManager(vector<const Attribute*>& _mads):mad_conf(_mads)
 {
     pthread_mutex_init(&mutex,0);
-};
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -37,7 +37,7 @@ MadManager::MadManager(vector<const Attribute*>& _mads):mad_conf(_mads)
 MadManager::~MadManager()
 {   
     pthread_mutex_destroy(&mutex);
-};
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -66,7 +66,7 @@ void MadManager::mad_manager_system_init()
     sigemptyset(&act.sa_mask);
 
     sigaction(SIGPIPE,&act,NULL);
-};
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -335,4 +335,4 @@ void MadManager::listener()
             }
         }
     }
-};
+}

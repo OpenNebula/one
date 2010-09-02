@@ -55,6 +55,12 @@ public:
         CPPUNIT_ASSERT(strcmp(mc.str_buffer[1],"ADIOS")==0);
         CPPUNIT_ASSERT(strcmp(mc.str_buffer[2],"HELLO")==0);
         CPPUNIT_ASSERT(strcmp(mc.str_buffer[3],"BYE")==0);
+        
+        //Check the content of the strings
+        CPPUNIT_ASSERT(strcmp(st1,"HOLA")==0);
+        CPPUNIT_ASSERT(strcmp(st2,"ADIOS")==0);
+        CPPUNIT_ASSERT(strcmp(st3,"HELLO")==0);
+        CPPUNIT_ASSERT(strcmp(st4,"BYE")==0);
 
         mem_collector_cleanup(&mc);
 

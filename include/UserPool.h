@@ -188,3 +188,4 @@ private:
 };
 
 #endif /*USER_POOL_H_*/
+

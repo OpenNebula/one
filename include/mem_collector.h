@@ -52,3 +52,4 @@ void mem_collector_cleanup(mem_collector * mc);
 char * mem_collector_strdup(mem_collector *mc, const char * str);
 
 #endif /*MEM_COLLECTOR_H_*/
+
