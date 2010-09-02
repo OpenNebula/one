@@ -30,6 +30,9 @@ void RequestManager::VirtualMachinePoolInfo::execute(
 
     int                 filter_flag;
     int                 rc;
+    int                 state;
+
+    bool                extended;
 
     ostringstream       oss;
     ostringstream       where_string;
@@ -37,10 +40,24 @@ void RequestManager::VirtualMachinePoolInfo::execute(
     /*   -- RPC specific vars --  */
     vector<xmlrpc_c::value> arrayData;
     xmlrpc_c::value_array * arrayresult;
-    
+
     const string     method_name = "VirtualMachinePoolInfo";
 
     NebulaLog::log("ReM",Log::DEBUG,"VirtualMachinePoolInfo method invoked");
+
+    switch (paramList.size())
+    {
+        case 2:
+            extended    = true;
+            state       = -1;
+            break;
+        case 4:
+            extended    = xmlrpc_c::value_boolean(paramList.getBoolean(2));
+            state       = xmlrpc_c::value_int (paramList.getInt(3));
+            break;
+        default:
+            paramList.verifyEnd(4);
+    }
 
     // Get the parameters
     session      = xmlrpc_c::value_string(paramList.getString(0));
@@ -68,7 +85,7 @@ void RequestManager::VirtualMachinePoolInfo::execute(
         where_string << "UID=" << filter_flag;
     }
 
-    rc = VirtualMachinePoolInfo::vmpool->dump(oss,where_string.str());
+    rc = VirtualMachinePoolInfo::vmpool->dump(oss, extended, state, where_string.str());
 
     if ( rc != 0 )
     {

@@ -26,27 +26,50 @@
 #include "template_syntax.h"
 #include "Template.h"
 
+#define template__lex template_lex
+
 #define YYERROR_VERBOSE
 #define TEMPLATE_TO_UPPER(S) transform (S.begin(),S.end(),S.begin(), \
 (int(*)(int))toupper)
 extern "C"
 {
-void template_error(
-	YYLTYPE *		llocp,
-	Template *		tmpl,
-	char **			error_msg,
-	const char *	str);
+    #include "mem_collector.h"
 
-int template_lex (YYSTYPE *lvalp, YYLTYPE *llocp);
+    void template__error(
+        YYLTYPE *       llocp,
+        mem_collector * mc,
+        Template *      tmpl,
+        char **         error_msg,
+        const char *    str);
 
-int template_parse(Template * tmpl, char ** errmsg);
+    int template__lex (YYSTYPE *lvalp, YYLTYPE *llocp, mem_collector * mc);
+
+    int template__parse(mem_collector * mc, Template * tmpl, char ** errmsg);
+
+    int template_parse(Template * tmpl, char ** errmsg)
+    {
+        mem_collector mc;
+        int           rc;
+
+        mem_collector_init(&mc);
+
+        rc = template__parse(&mc, tmpl, errmsg);
+
+        mem_collector_cleanup(&mc);
+
+        return rc;
+    }
+
+    static string& unescape (string &str);
 }
 
-static string& unescape (string &str);
 %}
 
-%parse-param {Template * tmpl}
-%parse-param {char ** error_msg}
+%parse-param {mem_collector * mc}
+%parse-param {Template *      tmpl}
+%parse-param {char **         error_msg}
+
+%lex-param {mem_collector * mc}
 
 %union {
     char * val_str;
@@ -56,7 +79,7 @@ static string& unescape (string &str);
 %defines
 %locations
 %pure_parser
-%name-prefix = "template_"
+%name-prefix = "template__"
 %output      = "template_syntax.cc"
 
 %token EQUAL COMMA OBRACKET CBRACKET EQUAL_EMPTY
@@ -81,9 +104,6 @@ attribute:  VARIABLE EQUAL STRING
                 pattr = new SingleAttribute(name,unescape(value));
 
                 tmpl->set(pattr);
-
-                free($1);
-                free($3);
             }
          |  VARIABLE EQUAL OBRACKET array_val CBRACKET
             {
@@ -97,7 +117,6 @@ attribute:  VARIABLE EQUAL STRING
                 tmpl->set(pattr);
 
                 delete amap;
-                free($1);
             }
          |  VARIABLE EQUAL_EMPTY
             {
@@ -108,8 +127,6 @@ attribute:  VARIABLE EQUAL STRING
                 pattr = new SingleAttribute(name,value);
 
                 tmpl->set(pattr);
-
-                free($1);
             }
         ;
 
@@ -125,9 +142,6 @@ array_val:  VARIABLE EQUAL STRING
                 vattr->insert(make_pair(name,unescape(value)));
 
                 $$ = static_cast<void *>(vattr);
-
-                free($1);
-                free($3);
             }
         |   array_val COMMA VARIABLE EQUAL STRING
             {
@@ -141,9 +155,6 @@ array_val:  VARIABLE EQUAL STRING
 
                 attrmap->insert(make_pair(name,unescape(value)));
                 $$ = $1;
-
-                free($3);
-                free($5);
             }
         ;
 %%
@@ -151,35 +162,36 @@ array_val:  VARIABLE EQUAL STRING
 string& unescape (string &str)
 {
     size_t  pos;
-    
+
     while ((pos = str.find("\\\"")) != string::npos)
     {
         str.replace(pos,2,"\"");
     }
-    
+
     return str;
 }
 
-extern "C" void template_error(
-	YYLTYPE *		llocp,
-	Template *		tmpl,
-	char **			error_msg,
-	const char *	str)
+extern "C" void template__error(
+    YYLTYPE *       llocp,
+    mem_collector * mc,
+    Template *      tmpl,
+    char **         error_msg,
+    const char *    str)
 {
-	int length;
+    int length;
 
-	length = strlen(str)+ 64;
+    length = strlen(str)+ 64;
 
-	*error_msg = (char *) malloc(sizeof(char)*length);
+    *error_msg = (char *) malloc(sizeof(char)*length);
 
-	if (*error_msg != 0)
-	{
-		snprintf(*error_msg,
-			length,
-			"%s at line %i, columns %i:%i",
-			str,
-	    	llocp->first_line,
-    		llocp->first_column,
-        	llocp->last_column);
-	}
+    if (*error_msg != 0)
+    {
+        snprintf(*error_msg,
+            length,
+            "%s at line %i, columns %i:%i",
+            str,
+            llocp->first_line,
+            llocp->first_column,
+            llocp->last_column);
+    }
 }

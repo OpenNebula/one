@@ -73,7 +73,7 @@ private:
      *    @param clid the id assigned to the cluster
      *    @return the id assigned to the cluster or -1 in case of failure
      */
-    int allocate(int * clid, string name, SqlDB *db);
+    int allocate(int * clid, string name, SqlDB *db, string& error_str);
 
     /**
      *  Returns the xml representation of the given cluster

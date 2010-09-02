@@ -29,20 +29,40 @@
 #include "ObjectXML.h"
 
 #define YYERROR_VERBOSE
-#define expr_bool_lex expr_lex
+#define expr_bool__lex expr_lex
 
 extern "C"
 {
-void expr_bool_error(
-    YYLTYPE *       llocp,
-    ObjectXML *     oxml,
-    bool&           result,
-    char **         error_msg,
-    const char *    str);
+    #include "mem_collector.h"
 
-int expr_bool_lex (YYSTYPE *lvalp, YYLTYPE *llocp);
+    void expr_bool__error(
+        YYLTYPE *       llocp,
+        mem_collector * mc,
+        ObjectXML *     oxml,
+        bool&           result,
+        char **         error_msg,
+        const char *    str);
 
-int expr_bool_parse(ObjectXML * oxml, bool& result, char ** errmsg);
+    int expr_bool__lex (YYSTYPE *lvalp, YYLTYPE *llocp, mem_collector * mc);
+
+    int expr_bool__parse(mem_collector * mc,
+                         ObjectXML *     oxml,
+                         bool&           result,
+                         char **         errmsg);
+
+    int expr_bool_parse(ObjectXML *oxml, bool& result, char ** errmsg)
+    {
+        mem_collector mc;
+        int           rc;
+
+        mem_collector_init(&mc);
+
+        rc = expr_bool__parse(&mc,oxml,result,errmsg);
+
+        mem_collector_cleanup(&mc);
+
+        return rc;
+    }
 }
 
 void get_xml_attribute(ObjectXML * oxml, const char* attr, int& val);
@@ -53,9 +73,12 @@ void get_xml_attribute(ObjectXML * oxml, const char* attr, string& val);
 
 %}
 
-%parse-param {ObjectXML * oxml}
-%parse-param {bool&  result}
-%parse-param {char ** error_msg}
+%parse-param {mem_collector * mc}
+%parse-param {ObjectXML *     oxml}
+%parse-param {bool&           result}
+%parse-param {char **         error_msg}
+
+%lex-param {mem_collector * mc}
 
 %union {
     char * 	val_str;
@@ -66,7 +89,7 @@ void get_xml_attribute(ObjectXML * oxml, const char* attr, string& val);
 %defines
 %locations
 %pure_parser
-%name-prefix = "expr_bool_"
+%name-prefix = "expr_bool__"
 %output      = "expr_bool.cc"
 
 %left '!' '&' '|'
@@ -84,74 +107,52 @@ stmt:   expr    { result=$1;   }
 expr:   STRING '=' INTEGER { int val;
 
             get_xml_attribute(oxml,$1,val);
-            $$ = val == $3;
-
-            free($1);}
+            $$ = val == $3;}
 
         | STRING '!' '=' INTEGER { int val;
 
             get_xml_attribute(oxml,$1,val);
-            $$ = val != $4;
-
-            free($1);}
+            $$ = val != $4;}
 
         | STRING '>' INTEGER { int val;
 
             get_xml_attribute(oxml,$1,val);
-            $$ = val > $3;
-
-            free($1);}
+            $$ = val > $3;}
 
         | STRING '<' INTEGER { int val;
 
             get_xml_attribute(oxml,$1,val);
-            $$ = val < $3;
-
-            free($1);}
+            $$ = val < $3;}
 
         | STRING '=' FLOAT { float val;
 
             get_xml_attribute(oxml,$1,val);
-            $$ = val == $3;
-
-            free($1);}
+            $$ = val == $3;}
 
         | STRING '!' '=' FLOAT { float val;
 
             get_xml_attribute(oxml,$1,val);
-            $$ = val != $4;
-
-            free($1);}
+            $$ = val != $4;}
 
         | STRING '>' FLOAT {float val;
 
             get_xml_attribute(oxml,$1,val);
-            $$ = val > $3;
-
-            free($1);}
+            $$ = val > $3;}
 
         | STRING '<' FLOAT {float val;
 
             get_xml_attribute(oxml,$1,val);
-            $$ = val < $3;
-
-            free($1);}
+            $$ = val < $3;}
 
         | STRING '=' STRING { string val;
 
             get_xml_attribute(oxml,$1,val);
-            $$ = val.empty() ? false :fnmatch($3, val.c_str(), 0) == 0;
-
-            free($1);
-            free($3);}
+            $$ = val.empty() ? false :fnmatch($3, val.c_str(), 0) == 0;}
 
         | STRING '!''=' STRING { string val;
 
             get_xml_attribute(oxml,$1,val);
-            $$ = val.empty() ? false : fnmatch($4, val.c_str(), 0) != 0;
-
-            free($1);
-            free($4);}
+            $$ = val.empty() ? false : fnmatch($4, val.c_str(), 0) != 0;}
 
         | expr '&' expr { $$ = $1 && $3; }
         | expr '|' expr { $$ = $1 || $3; }
@@ -161,8 +162,9 @@ expr:   STRING '=' INTEGER { int val;
 
 %%
 
-extern "C" void expr_bool_error(
+extern "C" void expr_bool__error(
     YYLTYPE *       llocp,
+    mem_collector * mc,
     ObjectXML *     oxml,
     bool&           result,
     char **         error_msg,
@@ -184,6 +186,8 @@ extern "C" void expr_bool_error(
             llocp->first_column,
             llocp->last_column);
     }
+
+    result = false;
 }
 
 void get_xml_attribute(ObjectXML * oxml, const char* attr, int& val)

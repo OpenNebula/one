@@ -99,7 +99,7 @@ int SqliteDB::exec(ostringstream& cmd, Callbackable* obj)
 
         rc = sqlite3_exec(db, c_str, callback, arg, &err_msg);
 
-        if (rc == SQLITE_BUSY || rc == SQLITE_IOERR_BLOCKED)
+        if (rc == SQLITE_BUSY || rc == SQLITE_IOERR)
         {
             struct timeval timeout;
             fd_set zero;
@@ -110,7 +110,7 @@ int SqliteDB::exec(ostringstream& cmd, Callbackable* obj)
 
             select(0, &zero, &zero, &zero, &timeout);
         }
-    }while( (rc == SQLITE_BUSY || rc == SQLITE_IOERR_BLOCKED) &&
+    }while( (rc == SQLITE_BUSY || rc == SQLITE_IOERR) &&
             (counter < 10));
 
     unlock();

@@ -43,7 +43,6 @@ main_env.Append(LIBPATH=[
     cwd + '/src/common',
     cwd + '/src/template',
     cwd + '/src/nebula',
-    cwd + '/src/sql',
     cwd + '/src/log',
 ])
 
@@ -51,7 +50,6 @@ main_env.Append(LIBS=[
     'nebula_template',
     'nebula_common',
     'nebula_core',
-    'nebula_sql',
     'nebula_log',
     'cppunit',
     'dl',
@@ -64,6 +62,9 @@ main_env.Append(CPPFLAGS=[
     "-Wall",
     "-Werror"
 ])
+
+# libxml2
+main_env.ParseConfig('xml2-config --libs --cflags')
 
 # MYSQL
 main_env.Append(LIBPATH=["/usr/lib/mysql"])
@@ -81,5 +82,4 @@ if mysql=='yes':
     main_env.Append(LIBS=[ 'mysqlclient', ])
 
 main_env.Program('test','template.cc')
-main_env.Program('test_sql','template_sql.cc')
 #

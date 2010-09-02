@@ -18,7 +18,7 @@
 
 #include "VirtualMachineXML.h"
 
-VirtualMachineXML::VirtualMachineXML(const string &xml_doc):ObjectXML(xml_doc)
+void VirtualMachineXML::init_attributes()
 {
     vector<string> result;
 
@@ -130,9 +130,9 @@ void VirtualMachineXML::set_priorities(vector<float>& total)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachineXML::get_host(int&          hid, 
+int VirtualMachineXML::get_host(int&          hid,
                                 HostPoolXML * hpool,
-                                map<int,int>& host_vms, 
+                                map<int,int>& host_vms,
                                 int           max_vms)
 {
     vector<VirtualMachineXML::Host *>::reverse_iterator  i;

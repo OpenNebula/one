@@ -48,10 +48,11 @@ public:
      */
     int allocate (
         int *  oid,
-        string hostname,
-        string im_mad_name,
-        string vmm_mad_name,
-        string tm_mad_name);
+        const string& hostname,
+        const string& im_mad_name,
+        const string& vmm_mad_name,
+        const string& tm_mad_name,
+        string& error_str);
 
     /**
      *  Function to get a Host from the pool, if the object is not in memory
@@ -169,9 +170,9 @@ public:
      *    @param clid the id assigned to the cluster
      *    @return the id assigned to the cluster or -1 in case of failure
      */
-    int allocate_cluster(int * clid, string name)
+    int allocate_cluster(int * clid, const string& name, string& error_str)
     {
-        return cluster_pool.allocate(clid, name, db);
+        return cluster_pool.allocate(clid, name, db, error_str);
     };
 
     /**

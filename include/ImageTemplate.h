@@ -17,29 +17,19 @@
 #ifndef IMAGE_TEMPLATE_H_
 #define IMAGE_TEMPLATE_H_
 
-#include "TemplateSQL.h"
+#include "Template.h"
 
 using namespace std;
 
 /**
  *  Image Template class, it represents the attributes of a Host
  */
-class ImageTemplate : public TemplateSQL
+class ImageTemplate : public Template
 {
 public:
-    ImageTemplate(int        tid       = -1,
-                 const char separator = '='):
-                 TemplateSQL(table,tid,true,separator,"TEMPLATE"){};
+    ImageTemplate() : Template(true,'=',"TEMPLATE"){};
 
     ~ImageTemplate(){};
-
-private:
-    friend class Image;
-    friend class ImagePool;
-    
-    static const char * table;
-    
-    static const char * db_bootstrap;
 };
     
 /* -------------------------------------------------------------------------- */

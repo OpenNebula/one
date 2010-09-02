@@ -36,7 +36,7 @@ SRC_HOST=`arg_host $SRC`
 VID=`get_vid $SRC_PATH`
 
 log "Deleting remote LVs"
-exec_and_log "ssh $SRC_HOST sudo lvremove -f \$(echo $VG_NAME/\$(sudo lvs --noheadings $VG_NAME|awk '{print \$1}'|grep lv-one-$VID))"
+exec_and_log "$SSH $SRC_HOST $SUDO $LVREMOVE -f \$(echo $VG_NAME/\$($SUDO $LVS --noheadings $VG_NAME|$AWK '{print \$1}'|grep lv-one-$VID))"
 
 log "Deleting $SRC_PATH"
-exec_and_log "ssh $SRC_HOST rm -rf $SRC_PATH"
+exec_and_log "$SSH $SRC_HOST rm -rf $SRC_PATH"

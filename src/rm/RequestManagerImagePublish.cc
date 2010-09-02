@@ -31,16 +31,18 @@ void RequestManager::ImagePublish::execute(
     string              session;
 
     int                 iid;
-    bool                publish_flag; 
+    bool                publish_flag;
     int                 uid;
-    
+
     int                 image_owner;
     bool                is_public;
-    
+
     Image             * image;
 
+    bool                response;
+
     ostringstream       oss;
-    
+
     const string        method_name = "ImagePublish";
 
     vector<xmlrpc_c::value> arrayData;
@@ -60,20 +62,20 @@ void RequestManager::ImagePublish::execute(
     {
         goto error_authenticate;
     }
-    
+
     // Get image from the ImagePool
-    image = ImagePublish::ipool->get(iid,true);    
-                                                 
-    if ( image == 0 )                             
-    {                                            
-        goto error_image_get;                     
+    image = ImagePublish::ipool->get(iid,true);
+
+    if ( image == 0 )
+    {
+        goto error_image_get;
     }
-    
+
     image_owner = image->get_uid();
     is_public   = image->isPublic();
-    
+
     image->unlock();
-    
+
     //Authorize the operation
     if ( uid != 0 ) // uid == 0 means oneadmin
     {
@@ -90,17 +92,22 @@ void RequestManager::ImagePublish::execute(
             goto error_authorize;
         }
     }
-    
+
     // Get the image locked again
-    image = ImagePublish::ipool->get(iid,true);  
-    
-    if ( image == 0 )                             
-    {                                            
-        goto error_image_get;                     
-    } 
-    
-    image->publish(publish_flag);
-    
+    image = ImagePublish::ipool->get(iid,true);
+
+    if ( image == 0 )
+    {
+        goto error_image_get;
+    }
+
+    response = image->publish(publish_flag);
+
+    if (!response)
+    {
+        goto error_publish;
+    }
+
     ImagePublish::ipool->update(image);
 
     image->unlock();
@@ -117,15 +124,20 @@ void RequestManager::ImagePublish::execute(
     return;
 
 error_authenticate:
-    oss.str(authenticate_error(method_name));    
+    oss.str(authenticate_error(method_name));
     goto error_common;
-    
+
 error_image_get:
-    oss.str(get_error(method_name, "IMAGE", iid)); 
+    oss.str(get_error(method_name, "IMAGE", iid));
     goto error_common;
-    
+
 error_authorize:
     oss.str(authorization_error(method_name, "MANAGE", "IMAGE", uid, iid));
+    goto error_common;
+
+error_publish:
+    oss<< action_error(method_name, "MANAGE", "IMAGE", iid, 0)
+       <<". Is the image persistent? An Image cannot be public and persistent.";
     goto error_common;
 
 error_common:

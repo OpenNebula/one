@@ -14,17 +14,34 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-if [ -z "$ONE_LOCATION" ]; then 
-    ONE_CONF=/etc/one/oned.conf
+if [ -z "$ONE_LOCATION" ]; then
     ONE_LOCAL_VAR=/var/lib/one
 else
-    ONE_CONF=$ONE_LOCATION/etc/oned.conf
     ONE_LOCAL_VAR=$ONE_LOCATION/var
 fi
 
+# Paths for utilities
+AWK=awk
+BASH=/bin/bash
+CUT=cut
+DATE=/bin/date
+DD=/bin/dd
+LVCREATE=/sbin/lvcreate
+LVREMOVE=/sbin/lvremove
+LVS=/sbin/lvs
+MD5SUM=/usr/bin/md5sum
+MKFS=/sbin/mkfs
+MKISOFS=/usr/bin/mkisofs
+MKSWAP=/sbin/mkswap
+SCP=/usr/bin/scp
+SED=/bin/sed
+SSH=/usr/bin/ssh
+SUDO=/usr/bin/sudo
+WGET=/usr/bin/wget
+
 function get_vmdir
 {
-    VMDIR=`cat $ONE_CONF | grep ^VM_DIR= | cut -d= -f2`
+    VMDIR=`grep '^VM_DIR=' $ONE_LOCAL_VAR/config | cut -d= -f2`
 }
 
 function fix_paths
@@ -55,7 +72,7 @@ SCRIPT_NAME=`basename $0`
 # Formats date for logs
 function log_date
 {
-    date +"%a %b %d %T %Y"
+    $DATE +"%a %b %d %T %Y"
 }
 
 # Logs a message
@@ -83,13 +100,13 @@ function error_message
 # Gets the host from an argument
 function arg_host
 {
-    echo $1 | sed -e 's/^\([^:]*\):.*$/\1/'
+    echo $1 | $SED -e 's/^\([^:]*\):.*$/\1/'
 }
 
 # Gets the path from an argument
 function arg_path
 {
-    echo $1 | sed -e 's/^[^:]*:\(.*\)$/\1/'
+    echo $1 | $SED -e 's/^[^:]*:\(.*\)$/\1/'
 }
 
 # Executes a command, if it fails return error message and exits
@@ -134,7 +151,7 @@ function timeout_exec_and_log
     # stops the execution until the command finalizes
     wait $CMD_PID 2>/dev/null
     CMD_CODE=$?
-    
+
     # if the script reaches here the command finished before it
     # consumes timeout seconds so we can kill timeout process
     kill $TIMEOUT_PID 2>/dev/null 1>/dev/null
@@ -145,3 +162,4 @@ function timeout_exec_and_log
         exit $CMD_CODE
     fi
 }
+

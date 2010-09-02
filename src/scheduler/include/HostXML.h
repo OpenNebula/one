@@ -25,8 +25,12 @@ using namespace std;
 class HostXML : public ObjectXML
 {
 public:
-
     HostXML(const string &xml_doc):ObjectXML(xml_doc)
+    {
+        init_attributes();
+    };
+
+    HostXML(const xmlNodePtr node):ObjectXML(node)
     {
         init_attributes();
     };

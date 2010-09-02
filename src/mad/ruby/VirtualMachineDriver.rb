@@ -59,12 +59,16 @@ class VirtualMachineDriver < OpenNebulaDriver
         :deleted => 'd',
         :unknown => '-'
     }
+    
+    HOST_ARG = 1
 
     # -------------------------------------------------------------------------
     # Register default actions for the protocol
     # -------------------------------------------------------------------------
     def initialize(concurrency=10, threaded=true)
         super(concurrency,threaded)
+        
+        @hosts = Array.new
 
         register_action(ACTION[:deploy].to_sym, method("deploy"))
         register_action(ACTION[:shutdown].to_sym, method("shutdown"))
@@ -151,6 +155,54 @@ class VirtualMachineDriver < OpenNebulaDriver
     def poll(id, host, deploy_id, not_used)
         error = "Action not implemented by driver #{self.class}"
         send_message(ACTION[:poll],RESULT[:failure],id,error)
+    end
+    
+private
+
+    def delete_running_action(action_id)
+        action=@action_running[action_id]
+        if action
+            @hosts.delete(action[:args][HOST_ARG])
+            @action_running.delete(action_id)
+        end
+    end
+    
+    def get_first_runable
+        action_index=@action_queue.index do |action|
+           if action[:args][HOST_ARG]
+               !@hosts.include? action[:args][HOST_ARG]
+           else
+               true
+           end
+        end
+        
+        return action_index
+    end
+    
+    def get_runable_action
+        action_index=get_first_runable
+        
+        if action_index
+            action=@action_queue[action_index]
+        else
+            action=nil
+        end
+        
+        if action
+            @hosts << action[:args][HOST_ARG] if action[:args][HOST_ARG]
+            @action_queue.delete_at(action_index)
+        end
+        
+        STDERR.puts "action: #{action.inspect}"
+        STDERR.puts "queue: #{@action_queue.inspect}"
+        STDERR.puts "hosts: #{@hosts.inspect}"
+        STDERR.flush
+        
+        return action
+    end
+    
+    def empty_queue
+        get_first_runable==nil
     end
 end
 

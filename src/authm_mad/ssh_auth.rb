@@ -77,7 +77,7 @@ class SshAuth
         time=Time.now.to_i+expire
         proxy_text="#{user}:#{time}"
         proxy_crypted=encrypt(proxy_text)
-        proxy="#{user}:ssh:#{proxy_crypted}"
+        proxy="#{user}:plain:#{proxy_crypted}"
         file=get_proxy_file
         file.write(proxy)
         file.close

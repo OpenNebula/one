@@ -37,7 +37,7 @@ fix_dst_path
 DST_DIR=`dirname $DST_PATH`
 
 exec_and_log "mkdir -p $DST_DIR"
-exec_and_log "dd if=/dev/zero of=$DST_PATH bs=1 count=1 seek=${SIZE}M"
-exec_and_log "mkfs -t $FSTYPE -F $DST_PATH"
+exec_and_log "$DD if=/dev/zero of=$DST_PATH bs=1 count=1 seek=${SIZE}M"
+exec_and_log "$MKFS -t $FSTYPE -F $DST_PATH"
 exec_and_log "chmod a+rw $DST_PATH"
 

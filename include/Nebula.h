@@ -203,7 +203,7 @@ public:
 
     static string version()
     {
-        return "OpenNebula 1.5.0";
+        return "OpenNebula 1.9.80";
     };
 
     void start();
@@ -232,10 +232,12 @@ private:
         {
             nebula_location = "/";
 
-            mad_location = "/usr/lib/one/mads/";
-            etc_location = "/etc/one/";
-            log_location = "/var/log/one/";
-            var_location = "/var/lib/one/";
+            mad_location     = "/usr/lib/one/mads/";
+            etc_location     = "/etc/one/";
+            log_location     = "/var/log/one/";
+            var_location     = "/var/lib/one/";
+            hook_location    = "/usr/share/one/hooks/";
+            remotes_location = "/usr/lib/one/remotes/";
         }
         else
         {
@@ -246,10 +248,12 @@ private:
                 nebula_location += "/";
             }
 
-            mad_location = nebula_location + "lib/mads/";
-            etc_location = nebula_location + "etc/";
-            log_location = nebula_location + "var/";
-            var_location = nebula_location + "var/";
+            mad_location     = nebula_location + "lib/mads/";
+            etc_location     = nebula_location + "etc/";
+            log_location     = nebula_location + "var/";
+            var_location     = nebula_location + "var/";
+            hook_location    = nebula_location + "share/hooks/";
+            remotes_location = nebula_location + "lib/remotes/";
         }
     };
 
@@ -345,6 +349,9 @@ private:
     string	etc_location;
     string	log_location;
     string	var_location;
+    string  hook_location;
+    string  remotes_location;
+
     string	hostname;
 
     // ---------------------------------------------------------------

@@ -49,7 +49,8 @@ public:
     int allocate (
         int     uid,
         VirtualNetworkTemplate * vn_template,
-        int *  oid);
+        int *   oid,
+        string& error_str);
 
     /**
      *  Function to get a VN from the pool, if the object is not in memory
@@ -95,22 +96,6 @@ public:
      *    @param ar the AuthRequest
      */
     void authorize_nic(VectorAttribute * nic, AuthRequest * ar);
-
-    /**
-     *  Updates the template of a VN, adding a new attribute (replacing it if
-     *  already defined), the VN's mutex SHOULD be locked
-     *    @param vn pointer to the virtual network object
-     *    @param name of the new attribute
-     *    @param value of the new attribute
-     *    @return 0 on success
-     */
-    int update_template_attribute(
-        VirtualNetwork *    vn,
-        string&             name,
-        string&             value)
-    {
-        return vn->update_template_attribute(db,name,value);
-    };
 
     /**
      *  Bootstraps the database table(s) associated to the VirtualNetwork pool

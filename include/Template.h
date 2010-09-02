@@ -21,6 +21,9 @@
 #include <map>
 #include <vector>
 
+#include <libxml/tree.h>
+#include <libxml/parser.h>
+
 #include "Attribute.h"
 
 using namespace std;
@@ -165,11 +168,35 @@ public:
 
     friend ostream& operator<<(ostream& os, const Template& t);
 
+    /**
+     *  Rebuilds the template from a xml formatted string
+     *    @param xml_str The xml-formatted string
+     *
+     *    @return 0 on success, -1 otherwise
+     */
+    int from_xml(const string &xml_str);
+
 protected:
     /**
      *  The template attributes
      */
     multimap<string,Attribute *>    attributes;
+
+    /**
+     *  Builds a SingleAttribute from the given node
+     *    @param node The xml element to build the attribute from.
+     *
+     *    @return the attribute, or 0 if the node doesn't contain a single att.
+     */
+    Attribute* single_xml_att(const xmlNode * node);
+
+    /**
+     *  Builds a VectorAttribute from the given node
+     *    @param node The xml element to build the attribute from.
+     *
+     *    @return the attribute, or 0 if the node doesn't contain a vector att.
+     */
+    Attribute* vector_xml_att(const xmlNode * node);
 
 private:
 

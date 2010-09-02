@@ -1,0 +1,10 @@
+    <COMPUTE>
+        <NAME>MyCompute</NAME>
+        <INSTANCE_TYPE>large</INSTANCE_TYPE>
+        <DISK>
+            <STORAGE href="http://www.opennebula.org/storage/4"/>
+        </DISK>
+        <NIC>
+            <NETWORK href="http://www.opennebula.org/network/2"/>
+        </NIC>
+    </COMPUTE>

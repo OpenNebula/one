@@ -521,14 +521,18 @@ char *vm_var_text;
 #include <pthread.h>
 
 #include "vm_var_syntax.h"
+#include "mem_collector.h"
 
-#define YY_DECL int vm_var_lex (YYSTYPE *lvalp, YYLTYPE *llocp)
+#define YY_NO_INPUT 
 
-#define YY_USER_ACTION  llocp->first_line = vm_var_lineno; 				\
-                        llocp->first_column = llocp->last_column;	\
+#define YY_DECL int vm_var_lex (YYSTYPE *lvalp, YYLTYPE *llocp, \
+                                mem_collector *mc)
+
+#define YY_USER_ACTION  llocp->first_line = vm_var_lineno;   \
+                        llocp->first_column = llocp->last_column;   \
                         llocp->last_column += vm_var_leng;
 
-#line 532 "vm_var_parser.c"
+#line 536 "vm_var_parser.c"
 
 #define INITIAL 0
 #define VAR 1
@@ -709,7 +713,7 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 38 "vm_var_parser.l"
+#line 42 "vm_var_parser.l"
 
 
  /* ------------------------------------------------------------------------- */
@@ -720,7 +724,7 @@ YY_DECL
  /*   $NUM.CONTEXT_VARIABLE                                                   */
  /* ------------------------------------------------------------------------- */
 
-#line 724 "vm_var_parser.c"
+#line 728 "vm_var_parser.c"
 
 	if ( !(yy_init) )
 		{
@@ -815,58 +819,60 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 48 "vm_var_parser.l"
+#line 52 "vm_var_parser.l"
 { BEGIN VAR;}
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 50 "vm_var_parser.l"
+#line 54 "vm_var_parser.l"
 { return EQUAL;}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 51 "vm_var_parser.l"
+#line 55 "vm_var_parser.l"
 { return COMMA;}
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 52 "vm_var_parser.l"
+#line 56 "vm_var_parser.l"
 { return OBRACKET;}
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 53 "vm_var_parser.l"
+#line 57 "vm_var_parser.l"
 { return CBRACKET;}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 55 "vm_var_parser.l"
-{ lvalp->val_str = strdup(vm_var_text);
+#line 59 "vm_var_parser.l"
+{ lvalp->val_str =
+                                    mem_collector_strdup(mc,vm_var_text);
                                  return VARIABLE;}
 	YY_BREAK
 case 7:
 /* rule 7 can match eol */
 YY_RULE_SETUP
-#line 58 "vm_var_parser.l"
-{ lvalp->val_str = strdup(vm_var_text+1);
+#line 63 "vm_var_parser.l"
+{ lvalp->val_str =
+                                    mem_collector_strdup(mc,vm_var_text+1);
                                  lvalp->val_str[vm_var_leng-2] = '\0';
                                  return STRING;}
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 62 "vm_var_parser.l"
+#line 68 "vm_var_parser.l"
 { lvalp->val_char = '\0';
                                  return EOA;}
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 65 "vm_var_parser.l"
+#line 71 "vm_var_parser.l"
 { lvalp->val_char = *vm_var_text;
                                  BEGIN(INITIAL);
                                  return EOA;}
 	YY_BREAK
 case YY_STATE_EOF(VAR):
-#line 69 "vm_var_parser.l"
+#line 75 "vm_var_parser.l"
 { lvalp->val_char = '\0';
                                  BEGIN(INITIAL);
                                  return EOA;}
@@ -877,15 +883,15 @@ case YY_STATE_EOF(VAR):
 case 10:
 /* rule 10 can match eol */
 YY_RULE_SETUP
-#line 77 "vm_var_parser.l"
-{ lvalp->val_str = strdup(vm_var_text); return RSTRING;}
+#line 83 "vm_var_parser.l"
+{ lvalp->val_str = mem_collector_strdup(mc,vm_var_text); return RSTRING;}
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 79 "vm_var_parser.l"
+#line 85 "vm_var_parser.l"
 ECHO;
 	YY_BREAK
-#line 889 "vm_var_parser.c"
+#line 895 "vm_var_parser.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1854,7 +1860,7 @@ void vm_var_free (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 79 "vm_var_parser.l"
+#line 85 "vm_var_parser.l"
 
 
 

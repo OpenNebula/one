@@ -28,12 +28,12 @@ DEFAULT_LV_SIZE="1G"
 # -------------------------------------------------------------------------- #
 
 function get_vid {
-    echo $1 |sed -e 's%^.*/\([^/]*\)/images.*$%\1%'
+    echo $1 |$SED -e 's%^.*/\([^/]*\)/images.*$%\1%'
 }
 
 function get_lv_name {
     VID=`get_vid $1`
-    DISK=`echo $1|awk -F. '{printf $NF}'`
+    DISK=`echo $1|$AWK -F. '{printf $NF}'`
     echo "lv-one-$VID-$DISK"
 }
 

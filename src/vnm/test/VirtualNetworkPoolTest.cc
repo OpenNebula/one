@@ -77,10 +77,10 @@ const string xmls[] =
 };
 
 const string xml_dump =
-    "<VNET_POOL><VNET><ID>0</ID><UID>1</UID><USERNAME>A user</USERNAME><NAME>Net number one</NAME><TYPE>1</TYPE><BRIDGE>br1</BRIDGE><PUBLIC>0</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES></VNET><VNET><ID>1</ID><UID>2</UID><USERNAME>B user</USERNAME><NAME>A virtual network</NAME><TYPE>0</TYPE><BRIDGE>br0</BRIDGE><PUBLIC>1</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES></VNET></VNET_POOL>";
+    "<VNET_POOL><VNET><ID>0</ID><UID>1</UID><USERNAME>A user</USERNAME><NAME>Net number one</NAME><TYPE>1</TYPE><BRIDGE>br1</BRIDGE><PUBLIC>0</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE><BRIDGE><![CDATA[br1]]></BRIDGE><LEASES><IP><![CDATA[130.10.0.1]]></IP><MAC><![CDATA[50:20:20:20:20:20]]></MAC></LEASES><NAME><![CDATA[Net number one]]></NAME><TYPE><![CDATA[FIXED]]></TYPE></TEMPLATE></VNET><VNET><ID>1</ID><UID>2</UID><USERNAME>B user</USERNAME><NAME>A virtual network</NAME><TYPE>0</TYPE><BRIDGE>br0</BRIDGE><PUBLIC>1</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE><BRIDGE><![CDATA[br0]]></BRIDGE><NAME><![CDATA[A virtual network]]></NAME><NETWORK_ADDRESS><![CDATA[192.168.0.0]]></NETWORK_ADDRESS><NETWORK_SIZE><![CDATA[C]]></NETWORK_SIZE><TYPE><![CDATA[RANGED]]></TYPE></TEMPLATE></VNET></VNET_POOL>";
 
 const string xml_dump_where =
-    "<VNET_POOL><VNET><ID>1</ID><UID>2</UID><USERNAME>B user</USERNAME><NAME>A virtual network</NAME><TYPE>0</TYPE><BRIDGE>br0</BRIDGE><PUBLIC>1</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES></VNET></VNET_POOL>";
+    "<VNET_POOL><VNET><ID>1</ID><UID>2</UID><USERNAME>B user</USERNAME><NAME>A virtual network</NAME><TYPE>0</TYPE><BRIDGE>br0</BRIDGE><PUBLIC>1</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE><BRIDGE><![CDATA[br0]]></BRIDGE><NAME><![CDATA[A virtual network]]></NAME><NETWORK_ADDRESS><![CDATA[192.168.0.0]]></NETWORK_ADDRESS><NETWORK_SIZE><![CDATA[C]]></NETWORK_SIZE><TYPE><![CDATA[RANGED]]></TYPE></TEMPLATE></VNET></VNET_POOL>";
 
 /* ************************************************************************* */
 /* ************************************************************************* */
@@ -102,16 +102,23 @@ public:
         VirtualNetworkTemplate * vn_template;
         char *          error_msg = 0;
         int             rc;
+        string          err;
 
         vn_template = new VirtualNetworkTemplate;
         rc = vn_template->parse(stemplate,&error_msg);
 
         if( rc == 0 )
         {
-            return VirtualNetworkPool::allocate(uid, vn_template, oid);
+            return VirtualNetworkPool::allocate(uid, vn_template, oid, err);
         }
         else
         {
+            if (error_msg != 0 )
+            {
+                free(error_msg);
+            }
+
+            delete vn_template;
             return -1;
         }
     };
@@ -185,6 +192,7 @@ protected:
         // So the ONE_AUTH environment is forced to point to a test one_auth
         // file.
         ostringstream oss;
+        string        err;
 
         oss << getenv("PWD") << "/one_auth";
         setenv("ONE_AUTH", oss.str().c_str(), 1);
@@ -199,8 +207,8 @@ protected:
         string pass_1     = "A pass";
         string pass_2     = "B pass";
 
-        user_pool->allocate(&uid_1, username_1, pass_1, true);
-        user_pool->allocate(&uid_2, username_2, pass_2, true);
+        user_pool->allocate(&uid_1, username_1, pass_1, true, err);
+        user_pool->allocate(&uid_2, username_2, pass_2, true, err);
 
         delete user_pool;
     };
@@ -208,9 +216,9 @@ protected:
 
 
 public:
-    VirtualNetworkPoolTest(){};
+    VirtualNetworkPoolTest(){xmlInitParser();};
 
-    ~VirtualNetworkPoolTest(){};
+    ~VirtualNetworkPoolTest(){xmlCleanupParser();};
 
     /* ********************************************************************* */
     /* ********************************************************************* */
@@ -233,7 +241,6 @@ public:
         CPPUNIT_ASSERT( rc == -1 );
 
         // Parser error for Vnet template
-        //TODO: Check memory leak for allocating strings in template parser
         rc = allocate(4);
         CPPUNIT_ASSERT( rc == -1 );
 

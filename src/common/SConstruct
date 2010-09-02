@@ -23,7 +23,8 @@ lib_name='nebula_common'
 # Sources to generate the library
 source_files=[
     'ActionManager.cc',
-    'Attribute.cc'
+    'Attribute.cc',
+    'mem_collector.c'
 ]
 
 # Build library

@@ -17,6 +17,9 @@
 #include "InformationManager.h"
 #include "NebulaLog.h"
 
+#include <sys/types.h>
+#include <sys/stat.h>
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -145,7 +148,7 @@ void InformationManager::timer_action()
     istringstream   iss;
 
     // -------------- Max. number of hosts to monitor. ---------------------
-    int             host_limit = 10;
+    int             host_limit = 15;
 
     mark = mark + timer_period;
 
@@ -163,6 +166,16 @@ void InformationManager::timer_action()
     }
 
     thetime = time(0);
+
+    struct stat sb;
+
+    if (stat(remotes_location.c_str(), &sb) == -1)
+    {
+        sb.st_mtime = 0;
+
+        NebulaLog::log("InM",Log::ERROR,"Could not stat remotes directory, "
+        "will not update remotes.");
+    }
 
     for(it=discovered_hosts.begin();it!=discovered_hosts.end();it++)
     {
@@ -204,7 +217,15 @@ void InformationManager::timer_action()
             }
             else
             {
-            	imd->monitor(it->first,host->get_hostname());
+                bool update_remotes = false;
+
+                if ((sb.st_mtime != 0) &&
+                    (sb.st_mtime > host->get_last_monitored()))
+                {
+                    update_remotes = true;
+                }
+
+            	imd->monitor(it->first,host->get_hostname(),update_remotes);
 
             	host->set_state(Host::MONITORING);
             }

@@ -110,6 +110,15 @@ public:
     };
 
     /**
+     *  Returns true if the image is persistent
+     *     @return true if the image is persistent
+     */
+    bool isPersistent()
+    {
+        return (persistent_img == 1);
+    };
+
+    /**
      *  Set enum type
      *     @return 0 on success, -1 otherwise
      */
@@ -183,16 +192,51 @@ public:
      *    @param pub true to publish the image
      *    @return 0 on success
      */
-    void publish(bool pub)
+    bool publish(bool pub)
     {
+        bool success = false;
+
         if (pub == true)
         {
-            public_img = 1;
+            if (!isPersistent())
+            {
+                public_img = 1;
+                success    = true;
+            }
         }
         else
         {
             public_img = 0;
+            success    = true;
         }
+
+        return success;
+    }
+
+    /**
+     *  Set/Unset an image as persistent
+     *    @param persistent true to make an image persistent
+     *    @return 0 on success
+     */
+    bool persistent(bool persis)
+    {
+        bool success = false;
+
+        if (persis == true)
+        {
+            if (!isPublic() && running_vms == 0)
+            {
+                persistent_img = 1;
+                success        = true;
+            }
+        }
+        else
+        {
+            persistent_img = 0;
+            success        = true;
+        }
+
+        return success;
     }
 
     /**
@@ -273,9 +317,30 @@ public:
      *  Removes an Image attribute
      *    @param name of the attribute
      */
-    int remove_template_attribute(SqlDB * db, const string&   name)
+    int remove_template_attribute(const string&   name)
     {
-        return image_template->remove_attribute(db, name);
+        return image_template->erase(name);
+    }
+
+    /**
+     *  Adds a new attribute to the template (replacing it if
+     *  already defined), the image's mutex SHOULD be locked
+     *    @param name of the new attribute
+     *    @param value of the new attribute
+     *    @return 0 on success
+     */
+    int replace_template_attribute(
+        const string& name,
+        const string& value)
+    {
+        SingleAttribute * sattr;
+
+        image_template->erase(name);
+
+        sattr = new SingleAttribute(name,value);
+        image_template->set(sattr);
+
+        return 0;
     }
 
 private:
@@ -309,6 +374,11 @@ private:
      *  Public scope of the Image
      */
     int          public_img;
+
+    /**
+     *  Persistency of the Image
+     */
+    int          persistent_img;
 
     /**
      *  Registration time
@@ -367,10 +437,8 @@ private:
     static void bootstrap(SqlDB * db)
     {
         ostringstream oss_image(Image::db_bootstrap);
-        ostringstream oss_templ(ImageTemplate::db_bootstrap);
 
         db->exec(oss_image);
-        db->exec(oss_templ);
     };
 
 
@@ -402,12 +470,13 @@ protected:
         NAME             = 2,    /* Image name                  */
         TYPE             = 3,    /* 0) OS 1) CDROM 2) DATABLOCK */
         PUBLIC           = 4,    /* Public scope (YES OR NO)    */
-        REGTIME          = 5,    /* Time of registration        */
-        SOURCE           = 6,    /* Path to the image           */
-        STATE            = 7,    /* 0) INIT   1) ALLOCATED      */
-                                 /* 2) READY  3) USED           */
-        RUNNING_VMS      = 8,    /* Number of VMs using the img */
-        LIMIT            = 9
+        PERSISTENT       = 5,    /* Peristency (YES OR NO)      */
+        REGTIME          = 6,    /* Time of registration        */
+        SOURCE           = 7,    /* Path to the image           */
+        STATE            = 8,    /* 0) INIT   1) ALLOCATED      */
+        RUNNING_VMS      = 9,    /* Number of VMs using the img */
+        TEMPLATE         = 10,    /* Image template xml data     */
+        LIMIT            = 11
     };
 
     static const char * db_names;
@@ -428,7 +497,7 @@ protected:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    virtual int insert(SqlDB *db);
+    virtual int insert(SqlDB *db, string& error_str);
 
     /**
      *  Writes/updates the Images data fields in the database.

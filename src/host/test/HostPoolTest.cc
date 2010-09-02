@@ -54,34 +54,34 @@ const string xmls[] =
 const string xml_dump =
     "<HOST_POOL><HOST><ID>0</ID><NAME>a</NAME><STATE>0</STATE><IM_MAD>im_mad</I"
     "M_MAD><VM_MAD>vmm_mad</VM_MAD><TM_MAD>tm_mad</TM_MAD><LAST_MON_TIME>0"
-    "</LAST_MON_TIME><CLUSTER>default</CLUSTER><HOST_SHARE><HID>0</HID><DISK_USAGE>0</DISK_USAGE><MEM"
+    "</LAST_MON_TIME><CLUSTER>default</CLUSTER><TEMPLATE></TEMPLATE><HOST_SHARE><HID>0</HID><DISK_USAGE>0</DISK_USAGE><MEM"
     "_USAGE>0</MEM_USAGE><CPU_USAGE>0</CPU_USAGE><MAX_DISK>0</MAX_DISK><MAX_MEM"
     ">0</MAX_MEM><MAX_CPU>0</MAX_CPU><FREE_DISK>0</FREE_DISK><FREE_MEM>0</FREE_"
     "MEM><FREE_CPU>0</FREE_CPU><USED_DISK>0</USED_DISK><USED_MEM>0</USED_MEM><U"
     "SED_CPU>0</USED_CPU><RUNNING_VMS>0</RUNNING_VMS></HOST_SHARE></HOST><HOST>"
     "<ID>1</ID><NAME>a name</NAME><STATE>0</STATE><IM_MAD>im_mad</IM_MAD><VM_MA"
     "D>vmm_mad</VM_MAD><TM_MAD>tm_mad</TM_MAD><LAST_MON_TIME>0</LAST_M"
-    "ON_TIME><CLUSTER>default</CLUSTER><HOST_SHARE><HID>1</HID><DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</ME"
+    "ON_TIME><CLUSTER>default</CLUSTER><TEMPLATE></TEMPLATE><HOST_SHARE><HID>1</HID><DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</ME"
     "M_USAGE><CPU_USAGE>0</CPU_USAGE><MAX_DISK>0</MAX_DISK><MAX_MEM>0</MAX_MEM>"
     "<MAX_CPU>0</MAX_CPU><FREE_DISK>0</FREE_DISK><FREE_MEM>0</FREE_MEM><FREE_CP"
     "U>0</FREE_CPU><USED_DISK>0</USED_DISK><USED_MEM>0</USED_MEM><USED_CPU>0</U"
     "SED_CPU><RUNNING_VMS>0</RUNNING_VMS></HOST_SHARE></HOST><HOST><ID>2</ID><N"
     "AME>a_name</NAME><STATE>0</STATE><IM_MAD>im_mad</IM_MAD><VM_MAD>vmm_mad</V"
-    "M_MAD><TM_MAD>tm_mad</TM_MAD><LAST_MON_TIME>0</LAST_MON_TIME><CLUSTER>default</CLUSTER><HOS"
+    "M_MAD><TM_MAD>tm_mad</TM_MAD><LAST_MON_TIME>0</LAST_MON_TIME><CLUSTER>default</CLUSTER><TEMPLATE></TEMPLATE><HOS"
     "T_SHARE><HID>2</HID><DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</MEM_USAGE><CPU"
     "_USAGE>0</CPU_USAGE><MAX_DISK>0</MAX_DISK><MAX_MEM>0</MAX_MEM><MAX_CPU>0</"
     "MAX_CPU><FREE_DISK>0</FREE_DISK><FREE_MEM>0</FREE_MEM><FREE_CPU>0</FREE_CP"
     "U><USED_DISK>0</USED_DISK><USED_MEM>0</USED_MEM><USED_CPU>0</USED_CPU><RUN"
     "NING_VMS>0</RUNNING_VMS></HOST_SHARE></HOST><HOST><ID>3</ID><NAME>another "
     "name</NAME><STATE>0</STATE><IM_MAD>im_mad</IM_MAD><VM_MAD>vmm_mad</VM_MAD>"
-    "<TM_MAD>tm_mad</TM_MAD><LAST_MON_TIME>0</LAST_MON_TIME><CLUSTER>default</CLUSTER><HOST_SHAR"
+    "<TM_MAD>tm_mad</TM_MAD><LAST_MON_TIME>0</LAST_MON_TIME><CLUSTER>default</CLUSTER><TEMPLATE></TEMPLATE><HOST_SHAR"
     "E><HID>3</HID><DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</MEM_USAGE><CPU_USAGE"
     ">0</CPU_USAGE><MAX_DISK>0</MAX_DISK><MAX_MEM>0</MAX_MEM><MAX_CPU>0</MAX_CP"
     "U><FREE_DISK>0</FREE_DISK><FREE_MEM>0</FREE_MEM><FREE_CPU>0</FREE_CPU><USE"
     "D_DISK>0</USED_DISK><USED_MEM>0</USED_MEM><USED_CPU>0</USED_CPU><RUNNING_V"
     "MS>0</RUNNING_VMS></HOST_SHARE></HOST><HOST><ID>4</ID><NAME>host</NAME><ST"
     "ATE>0</STATE><IM_MAD>im_mad</IM_MAD><VM_MAD>vmm_mad</VM_MAD><TM_MAD>tm_mad"
-    "</TM_MAD><LAST_MON_TIME>0</LAST_MON_TIME><CLUSTER>default</CLUSTER><HOST_SHARE><HID>4</HID>"
+    "</TM_MAD><LAST_MON_TIME>0</LAST_MON_TIME><CLUSTER>default</CLUSTER><TEMPLATE></TEMPLATE><HOST_SHARE><HID>4</HID>"
     "<DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</MEM_USAGE><CPU_USAGE>0</CPU_USAGE>"
     "<MAX_DISK>0</MAX_DISK><MAX_MEM>0</MAX_MEM><MAX_CPU>0</MAX_CPU><FREE_DISK>0"
     "</FREE_DISK><FREE_MEM>0</FREE_MEM><FREE_CPU>0</FREE_CPU><USED_DISK>0</USED"
@@ -91,33 +91,35 @@ const string xml_dump =
 const string xml_dump_like_a =
     "<HOST_POOL><HOST><ID>0</ID><NAME>a</NAME><STATE>0</STATE><IM_MAD>im_mad</I"
     "M_MAD><VM_MAD>vmm_mad</VM_MAD><TM_MAD>tm_mad</TM_MAD><LAST_MON_TIME>0"
-    "</LAST_MON_TIME><CLUSTER>default</CLUSTER><HOST_SHARE><HID>0</HID><DISK_USAGE>0</DISK_USAGE><MEM"
+    "</LAST_MON_TIME><CLUSTER>default</CLUSTER><TEMPLATE></TEMPLATE><HOST_SHARE><HID>0</HID><DISK_USAGE>0</DISK_USAGE><MEM"
     "_USAGE>0</MEM_USAGE><CPU_USAGE>0</CPU_USAGE><MAX_DISK>0</MAX_DISK><MAX_MEM"
     ">0</MAX_MEM><MAX_CPU>0</MAX_CPU><FREE_DISK>0</FREE_DISK><FREE_MEM>0</FREE_"
     "MEM><FREE_CPU>0</FREE_CPU><USED_DISK>0</USED_DISK><USED_MEM>0</USED_MEM><U"
     "SED_CPU>0</USED_CPU><RUNNING_VMS>0</RUNNING_VMS></HOST_SHARE></HOST><HOST>"
     "<ID>1</ID><NAME>a name</NAME><STATE>0</STATE><IM_MAD>im_mad</IM_MAD><VM_MA"
     "D>vmm_mad</VM_MAD><TM_MAD>tm_mad</TM_MAD><LAST_MON_TIME>0</LAST_M"
-    "ON_TIME><CLUSTER>default</CLUSTER><HOST_SHARE><HID>1</HID><DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</ME"
+    "ON_TIME><CLUSTER>default</CLUSTER><TEMPLATE></TEMPLATE><HOST_SHARE><HID>1</HID><DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</ME"
     "M_USAGE><CPU_USAGE>0</CPU_USAGE><MAX_DISK>0</MAX_DISK><MAX_MEM>0</MAX_MEM>"
     "<MAX_CPU>0</MAX_CPU><FREE_DISK>0</FREE_DISK><FREE_MEM>0</FREE_MEM><FREE_CP"
     "U>0</FREE_CPU><USED_DISK>0</USED_DISK><USED_MEM>0</USED_MEM><USED_CPU>0</U"
     "SED_CPU><RUNNING_VMS>0</RUNNING_VMS></HOST_SHARE></HOST><HOST><ID>2</ID><N"
     "AME>a_name</NAME><STATE>0</STATE><IM_MAD>im_mad</IM_MAD><VM_MAD>vmm_mad</V"
-    "M_MAD><TM_MAD>tm_mad</TM_MAD><LAST_MON_TIME>0</LAST_MON_TIME><CLUSTER>default</CLUSTER><HOS"
+    "M_MAD><TM_MAD>tm_mad</TM_MAD><LAST_MON_TIME>0</LAST_MON_TIME><CLUSTER>default</CLUSTER><TEMPLATE></TEMPLATE><HOS"
     "T_SHARE><HID>2</HID><DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</MEM_USAGE><CPU"
     "_USAGE>0</CPU_USAGE><MAX_DISK>0</MAX_DISK><MAX_MEM>0</MAX_MEM><MAX_CPU>0</"
     "MAX_CPU><FREE_DISK>0</FREE_DISK><FREE_MEM>0</FREE_MEM><FREE_CPU>0</FREE_CP"
     "U><USED_DISK>0</USED_DISK><USED_MEM>0</USED_MEM><USED_CPU>0</USED_CPU><RUN"
     "NING_VMS>0</RUNNING_VMS></HOST_SHARE></HOST><HOST><ID>3</ID><NAME>another "
     "name</NAME><STATE>0</STATE><IM_MAD>im_mad</IM_MAD><VM_MAD>vmm_mad</VM_MAD>"
-    "<TM_MAD>tm_mad</TM_MAD><LAST_MON_TIME>0</LAST_MON_TIME><CLUSTER>default</CLUSTER><HOST_SHAR"
+    "<TM_MAD>tm_mad</TM_MAD><LAST_MON_TIME>0</LAST_MON_TIME><CLUSTER>default</CLUSTER><TEMPLATE></TEMPLATE><HOST_SHAR"
     "E><HID>3</HID><DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</MEM_USAGE><CPU_USAGE"
     ">0</CPU_USAGE><MAX_DISK>0</MAX_DISK><MAX_MEM>0</MAX_MEM><MAX_CPU>0</MAX_CP"
     "U><FREE_DISK>0</FREE_DISK><FREE_MEM>0</FREE_MEM><FREE_CPU>0</FREE_CPU><USE"
     "D_DISK>0</USED_DISK><USED_MEM>0</USED_MEM><USED_CPU>0</USED_CPU><RUNNING_V"
     "MS>0</RUNNING_VMS></HOST_SHARE></HOST></HOST_POOL>";
 
+const string host0_updated =
+    "<HOST><ID>0</ID><NAME>Host one</NAME><STATE>0</STATE><IM_MAD>im_mad</IM_MAD><VM_MAD>vmm_mad</VM_MAD><TM_MAD>tm_mad</TM_MAD><LAST_MON_TIME>0</LAST_MON_TIME><CLUSTER>default</CLUSTER><HOST_SHARE><HID>0</HID><DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</MEM_USAGE><CPU_USAGE>0</CPU_USAGE><MAX_DISK>0</MAX_DISK><MAX_MEM>0</MAX_MEM><MAX_CPU>0</MAX_CPU><FREE_DISK>0</FREE_DISK><FREE_MEM>0</FREE_MEM><FREE_CPU>0</FREE_CPU><USED_DISK>0</USED_DISK><USED_MEM>0</USED_MEM><USED_CPU>0</USED_CPU><RUNNING_VMS>0</RUNNING_VMS></HOST_SHARE><TEMPLATE><ATT_A><![CDATA[VALUE_A]]></ATT_A><ATT_B><![CDATA[VALUE_B]]></ATT_B></TEMPLATE></HOST>";
 
 const string cluster_default =
     "<CLUSTER><ID>0</ID><NAME>default</NAME></CLUSTER>";
@@ -149,6 +151,7 @@ class HostPoolTest : public PoolTest
     CPPUNIT_TEST (cluster_dump);
     CPPUNIT_TEST (set_cluster);
     CPPUNIT_TEST (remove_cluster);
+    CPPUNIT_TEST (update_info);
 
     CPPUNIT_TEST_SUITE_END ();
 
@@ -166,9 +169,10 @@ protected:
 
     int allocate(int index)
     {
-        int oid;
+        int    oid;
+        string err;
         return ((HostPool*)pool)->allocate(&oid, names[index], im_mad,
-                                           vmm_mad, tm_mad);
+                                           vmm_mad, tm_mad, err);
     };
 
     void check(int index, PoolObjectSQL* obj)
@@ -189,9 +193,9 @@ protected:
 
 
 public:
-    HostPoolTest(){};
+    HostPoolTest(){xmlInitParser();};
 
-    ~HostPoolTest(){};
+    ~HostPoolTest(){xmlCleanupParser();};
 
 
     /* ********************************************************************* */
@@ -232,33 +236,30 @@ public:
         int rc, oid_0, oid_1;
         HostPool * hp = static_cast<HostPool *>(pool);
         Host * host;
+        string err;
 
         string tm_mad_2 = "another_tm_mad";
 
 
         // If we try to allocate two hosts with the same name and drivers,
         // should fail
-        rc = hp->allocate(&oid_0, names[0], im_mad, vmm_mad, tm_mad);
+        rc = hp->allocate(&oid_0, names[0], im_mad, vmm_mad, tm_mad, err);
         CPPUNIT_ASSERT( oid_0 == 0 );
         CPPUNIT_ASSERT( rc    == oid_0 );
 
-        rc = hp->allocate(&oid_1, names[0], im_mad, vmm_mad, tm_mad);
+        rc = hp->allocate(&oid_1, names[0], im_mad, vmm_mad, tm_mad, err);
         CPPUNIT_ASSERT( oid_1 == -1 );
         CPPUNIT_ASSERT( rc    == oid_1 );
 
-        // But if the drivers change, the hostname can be repeated
-        rc = hp->allocate(&oid_1, names[0], im_mad, vmm_mad, tm_mad_2);
-        CPPUNIT_ASSERT( oid_1 == 1 );
+        // the hostname can not be repeated if the drivers change
+        rc = hp->allocate(&oid_1, names[0], im_mad, vmm_mad, tm_mad_2, err);
+        CPPUNIT_ASSERT( oid_1 == -1 );
         CPPUNIT_ASSERT( rc    == oid_1 );
 
         // Get the hosts and check them
         host = hp->get(oid_0, false);
         CPPUNIT_ASSERT( host != 0 );
         CPPUNIT_ASSERT( host->get_tm_mad() == tm_mad );
-
-        host = hp->get(oid_1, false);
-        CPPUNIT_ASSERT( host != 0 );
-        CPPUNIT_ASSERT( host->get_tm_mad() == tm_mad_2 );
     }
 
     /* ********************************************************************* */
@@ -267,10 +268,12 @@ public:
     {
         string names[] = {"a", "a name", "a_name", "another name", "host"};
         int rc, oid;
+        string err;
 
         for(int i=0; i<5; i++)
         {
-            ((HostPool*)pool)->allocate(&oid, names[i], im_mad, vmm_mad, tm_mad);
+            ((HostPool*)pool)->allocate(&oid, names[i],
+                                        im_mad, vmm_mad, tm_mad, err);
         }
 
         ostringstream oss;
@@ -289,10 +292,12 @@ public:
     {
         string names[] = {"a", "a name", "a_name", "another name", "host"};
         int rc, oid;
+        string err;
 
         for(int i=0; i<5; i++)
         {
-            ((HostPool*)pool)->allocate(&oid, names[i], im_mad, vmm_mad, tm_mad);
+            ((HostPool*)pool)->allocate(&oid, names[i],
+                                        im_mad, vmm_mad, tm_mad, err);
         }
 
 
@@ -318,12 +323,13 @@ public:
         Host *     host;
         HostPool * hp = static_cast<HostPool *>(pool);
         ostringstream oss;
+        string err;
 
         for(i=0, oss.str(""); i<20; i++,oss.str(""))
         {
             oss << "host" << i;
 
-            hp->allocate(&oid, oss.str().c_str(), im_mad, vmm_mad, tm_mad);
+            hp->allocate(&oid, oss.str().c_str(), im_mad, vmm_mad, tm_mad, err);
             CPPUNIT_ASSERT(oid == i);
 
             if (i >=8 )
@@ -368,8 +374,9 @@ public:
     {
         HostPool * hp = static_cast<HostPool *>(pool);
         int clid, rc;
+        string err;
 
-        rc = hp->allocate_cluster(&clid, "new_cluster");
+        rc = hp->allocate_cluster(&clid, "new_cluster", err);
         CPPUNIT_ASSERT( rc == clid );
         CPPUNIT_ASSERT( clid == 1 );
 
@@ -377,7 +384,7 @@ public:
                 "<CLUSTER><ID>1</ID><NAME>new_cluster</NAME></CLUSTER>");
 
         // Try to allocate using the same name
-        rc = hp->allocate_cluster(&clid, "new_cluster");
+        rc = hp->allocate_cluster(&clid, "new_cluster", err);
         CPPUNIT_ASSERT( rc == clid );
         CPPUNIT_ASSERT( clid == -1 );
     }
@@ -388,13 +395,14 @@ public:
     {
         HostPool * hp = static_cast<HostPool *>(pool);
         int clid, rc;
+        string err;
 
         // Drop a non-existing cluster
         rc = hp->drop_cluster(20);
         CPPUNIT_ASSERT( rc == -1 );
 
         // Allocate a cluster and drop it
-        rc = hp->allocate_cluster(&clid, "new_cluster");
+        rc = hp->allocate_cluster(&clid, "new_cluster", err);
         CPPUNIT_ASSERT( clid == 1);
 
         rc = hp->drop_cluster(clid);
@@ -412,18 +420,19 @@ public:
         HostPool * hp = static_cast<HostPool *>(pool);
         int clid, rc;
         ostringstream oss;
+        string err;
 
         // Allocate some clusters
-        rc = hp->allocate_cluster(&clid, "cluster_a");
+        rc = hp->allocate_cluster(&clid, "cluster_a", err);
         CPPUNIT_ASSERT( rc == 1 );
 
-        rc = hp->allocate_cluster(&clid, "cluster_b");
+        rc = hp->allocate_cluster(&clid, "cluster_b", err);
         CPPUNIT_ASSERT( rc == 2 );
 
-        rc = hp->allocate_cluster(&clid, "cluster_c");
+        rc = hp->allocate_cluster(&clid, "cluster_c", err);
         CPPUNIT_ASSERT( rc == 3 );
 
-        rc = hp->allocate_cluster(&clid, "cluster_d");
+        rc = hp->allocate_cluster(&clid, "cluster_d", err);
         CPPUNIT_ASSERT( rc == 4 );
 
         // Drop id 2
@@ -431,7 +440,7 @@ public:
         CPPUNIT_ASSERT( rc == 0 );
 
         // Next one should use id 5, because the biggest id is 4
-        rc = hp->allocate_cluster(&clid, "cluster_e");
+        rc = hp->allocate_cluster(&clid, "cluster_e", err);
         CPPUNIT_ASSERT( rc == 5 );
 
         // Drop id 5
@@ -439,7 +448,7 @@ public:
         CPPUNIT_ASSERT( rc == 0 );
 
         // Next one should use id 5, because the biggest id is 4 again
-        rc = hp->allocate_cluster(&clid, "cluster_f");
+        rc = hp->allocate_cluster(&clid, "cluster_f", err);
         CPPUNIT_ASSERT( rc == 5 );
 
     }
@@ -451,18 +460,19 @@ public:
         HostPool * hp = static_cast<HostPool *>(pool);
         int clid, rc;
         ostringstream oss;
+        string err;
 
         // Allocate some clusters
-        rc = hp->allocate_cluster(&clid, "cluster_a");
+        rc = hp->allocate_cluster(&clid, "cluster_a", err);
         CPPUNIT_ASSERT( rc == 1 );
 
-        rc = hp->allocate_cluster(&clid, "cluster_b");
+        rc = hp->allocate_cluster(&clid, "cluster_b", err);
         CPPUNIT_ASSERT( rc == 2 );
 
-        rc = hp->allocate_cluster(&clid, "cluster_c");
+        rc = hp->allocate_cluster(&clid, "cluster_c", err);
         CPPUNIT_ASSERT( rc == 3 );
 
-        rc = hp->allocate_cluster(&clid, "cluster_d");
+        rc = hp->allocate_cluster(&clid, "cluster_d", err);
         CPPUNIT_ASSERT( rc == 4 );
 
 
@@ -482,14 +492,16 @@ public:
         HostPool *  hp = static_cast<HostPool *>(pool);
         Host*       host;
         int         clid, rc, oid;
-        string      xml_str;
+        string      xml_str, err;
 
         // Allocate a host
         oid = allocate(0);
+        CPPUNIT_ASSERT(oid >= 0);
 
         host = hp->get(0, false);
+        CPPUNIT_ASSERT(host != 0);
 
-        rc = hp->allocate_cluster(&clid, "cluster_a");
+        rc = hp->allocate_cluster(&clid, "cluster_a", err);
         CPPUNIT_ASSERT( rc == 1 );
 
         rc = hp->set_cluster(host, clid);
@@ -514,14 +526,16 @@ public:
         HostPool *  hp = static_cast<HostPool *>(pool);
         Host*       host;
         int         clid, rc, oid;
-        string      xml_str;
+        string      xml_str, err;
 
         // Allocate a host
         oid = allocate(0);
+        CPPUNIT_ASSERT(oid >= 0);
 
         host = hp->get(0, false);
+        CPPUNIT_ASSERT(host != 0);
 
-        rc = hp->allocate_cluster(&clid, "cluster_a");
+        rc = hp->allocate_cluster(&clid, "cluster_a", err);
         CPPUNIT_ASSERT( rc == 1 );
 
         // Set host 0 to cluster 1
@@ -539,6 +553,40 @@ public:
         // The host should have been moved to the default cluster
         host->to_xml(xml_str);
         check(0, host);
+    }
+
+    /* ********************************************************************* */
+
+    void update_info()
+    {
+        int         rc;
+        int         oid_1;
+        HostPool *  hp = static_cast<HostPool *>(pool);
+        Host*       host;
+        string      str;
+
+        oid_1 = allocate(0);
+
+        host = hp->get(oid_1, false);
+        CPPUNIT_ASSERT( host != 0 );
+
+        string info = "ATT_A=VALUE_A ATT_B=VALUE_B";
+        rc = host->update_info(info);
+
+        CPPUNIT_ASSERT(rc == 0);
+
+        pool->update(host);
+
+        host = hp->get(oid_1,false);
+        CPPUNIT_ASSERT( host != 0 );
+        CPPUNIT_ASSERT( host->to_xml(str) == host0_updated );
+
+        //Now force access to DB
+        pool->clean();
+        host = hp->get(oid_1,false);
+
+        CPPUNIT_ASSERT( host != 0 );
+        CPPUNIT_ASSERT( host->to_xml(str) == host0_updated );
     }
 };
 

@@ -63,14 +63,14 @@
 #define YYLSP_NEEDED 1
 
 /* Substitute the variable and function names.  */
-#define yyparse         expr_arith_parse
-#define yylex           expr_arith_lex
-#define yyerror         expr_arith_error
-#define yylval          expr_arith_lval
-#define yychar          expr_arith_char
-#define yydebug         expr_arith_debug
-#define yynerrs         expr_arith_nerrs
-#define yylloc          expr_arith_lloc
+#define yyparse         expr_arith__parse
+#define yylex           expr_arith__lex
+#define yyerror         expr_arith__error
+#define yylval          expr_arith__lval
+#define yychar          expr_arith__char
+#define yydebug         expr_arith__debug
+#define yynerrs         expr_arith__nerrs
+#define yylloc          expr_arith__lloc
 
 /* Copy the first part of user declarations.  */
 
@@ -82,6 +82,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <set>
 
 #include <ctype.h>
 #include <string.h>
@@ -91,26 +92,46 @@
 #include "ObjectXML.h"
 
 #define YYERROR_VERBOSE
-#define expr_arith_lex expr_lex
+#define expr_arith__lex expr_lex
 
 extern "C"
 {
-void expr_arith_error(
-    YYLTYPE *       llocp,
-    ObjectXML *     oxml,
-    int&            result,
-    char **         error_msg,
-    const char *    str);
+    #include "mem_collector.h"
 
-int expr_arith_lex (YYSTYPE *lvalp, YYLTYPE *llocp);
+    void expr_arith__error(
+        YYLTYPE *       llocp,
+        mem_collector * mc,
+        ObjectXML *     oxml,
+        int&            result,
+        char **         error_msg,
+        const char *    str);
 
-int expr_arith_parse(ObjectXML *oxml, int& result, char ** errmsg);
+    int expr_arith__lex (YYSTYPE *lvalp, YYLTYPE *llocp, mem_collector * mc);
+
+    int expr_arith__parse(mem_collector * mc,
+                          ObjectXML *     oxml,
+                          int&            result,
+                          char **         errmsg);
+
+    int expr_arith_parse(ObjectXML *oxml, int& result, char ** errmsg)
+    {
+        mem_collector mc;
+        int           rc;
+
+        mem_collector_init(&mc);
+
+        rc = expr_arith__parse(&mc,oxml,result,errmsg);
+
+        mem_collector_cleanup(&mc);
+
+        return rc;
+    }
 }
 
 
 
 /* Line 189 of yacc.c  */
-#line 114 "expr_arith.cc"
+#line 135 "expr_arith.cc"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -150,16 +171,16 @@ typedef union YYSTYPE
 {
 
 /* Line 214 of yacc.c  */
-#line 54 "expr_arith.y"
+#line 78 "expr_arith.y"
 
-    char * 	val_str;
-    int 	val_int;
+    char *  val_str;
+    int     val_int;
     float   val_float;
 
 
 
 /* Line 214 of yacc.c  */
-#line 163 "expr_arith.cc"
+#line 184 "expr_arith.cc"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -184,7 +205,7 @@ typedef struct YYLTYPE
 
 
 /* Line 264 of yacc.c  */
-#line 188 "expr_arith.cc"
+#line 209 "expr_arith.cc"
 
 #ifdef short
 # undef short
@@ -472,8 +493,8 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    76,    76,    77,    80,   107,   108,   109,   110,   111,
-     112,   113,   114
+       0,   100,   100,   101,   104,   129,   130,   131,   132,   133,
+     134,   135,   136
 };
 #endif
 
@@ -607,7 +628,7 @@ do								\
     }								\
   else								\
     {								\
-      yyerror (&yylloc, oxml, result, error_msg, YY_("syntax error: cannot back up")); \
+      yyerror (&yylloc, mc, oxml, result, error_msg, YY_("syntax error: cannot back up")); \
       YYERROR;							\
     }								\
 while (YYID (0))
@@ -664,7 +685,7 @@ while (YYID (0))
 #ifdef YYLEX_PARAM
 # define YYLEX yylex (&yylval, &yylloc, YYLEX_PARAM)
 #else
-# define YYLEX yylex (&yylval, &yylloc)
+# define YYLEX yylex (&yylval, &yylloc, mc)
 #endif
 
 /* Enable debugging if requested.  */
@@ -687,7 +708,7 @@ do {									  \
     {									  \
       YYFPRINTF (stderr, "%s ", Title);					  \
       yy_symbol_print (stderr,						  \
-		  Type, Value, Location, oxml, result, error_msg); \
+		  Type, Value, Location, mc, oxml, result, error_msg); \
       YYFPRINTF (stderr, "\n");						  \
     }									  \
 } while (YYID (0))
@@ -701,14 +722,15 @@ do {									  \
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, ObjectXML * oxml, int&        result, char **     error_msg)
+yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, mem_collector * mc, ObjectXML * oxml, int&        result, char **     error_msg)
 #else
 static void
-yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, oxml, result, error_msg)
+yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, mc, oxml, result, error_msg)
     FILE *yyoutput;
     int yytype;
     YYSTYPE const * const yyvaluep;
     YYLTYPE const * const yylocationp;
+    mem_collector * mc;
     ObjectXML * oxml;
     int&        result;
     char **     error_msg;
@@ -717,6 +739,7 @@ yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, oxml, result, er
   if (!yyvaluep)
     return;
   YYUSE (yylocationp);
+  YYUSE (mc);
   YYUSE (oxml);
   YYUSE (result);
   YYUSE (error_msg);
@@ -741,14 +764,15 @@ yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, oxml, result, er
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, ObjectXML * oxml, int&        result, char **     error_msg)
+yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, mem_collector * mc, ObjectXML * oxml, int&        result, char **     error_msg)
 #else
 static void
-yy_symbol_print (yyoutput, yytype, yyvaluep, yylocationp, oxml, result, error_msg)
+yy_symbol_print (yyoutput, yytype, yyvaluep, yylocationp, mc, oxml, result, error_msg)
     FILE *yyoutput;
     int yytype;
     YYSTYPE const * const yyvaluep;
     YYLTYPE const * const yylocationp;
+    mem_collector * mc;
     ObjectXML * oxml;
     int&        result;
     char **     error_msg;
@@ -761,7 +785,7 @@ yy_symbol_print (yyoutput, yytype, yyvaluep, yylocationp, oxml, result, error_ms
 
   YY_LOCATION_PRINT (yyoutput, *yylocationp);
   YYFPRINTF (yyoutput, ": ");
-  yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, oxml, result, error_msg);
+  yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, mc, oxml, result, error_msg);
   YYFPRINTF (yyoutput, ")");
 }
 
@@ -804,13 +828,14 @@ do {								\
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yy_reduce_print (YYSTYPE *yyvsp, YYLTYPE *yylsp, int yyrule, ObjectXML * oxml, int&        result, char **     error_msg)
+yy_reduce_print (YYSTYPE *yyvsp, YYLTYPE *yylsp, int yyrule, mem_collector * mc, ObjectXML * oxml, int&        result, char **     error_msg)
 #else
 static void
-yy_reduce_print (yyvsp, yylsp, yyrule, oxml, result, error_msg)
+yy_reduce_print (yyvsp, yylsp, yyrule, mc, oxml, result, error_msg)
     YYSTYPE *yyvsp;
     YYLTYPE *yylsp;
     int yyrule;
+    mem_collector * mc;
     ObjectXML * oxml;
     int&        result;
     char **     error_msg;
@@ -827,7 +852,7 @@ yy_reduce_print (yyvsp, yylsp, yyrule, oxml, result, error_msg)
       YYFPRINTF (stderr, "   $%d = ", yyi + 1);
       yy_symbol_print (stderr, yyrhs[yyprhs[yyrule] + yyi],
 		       &(yyvsp[(yyi + 1) - (yynrhs)])
-		       , &(yylsp[(yyi + 1) - (yynrhs)])		       , oxml, result, error_msg);
+		       , &(yylsp[(yyi + 1) - (yynrhs)])		       , mc, oxml, result, error_msg);
       YYFPRINTF (stderr, "\n");
     }
 }
@@ -835,7 +860,7 @@ yy_reduce_print (yyvsp, yylsp, yyrule, oxml, result, error_msg)
 # define YY_REDUCE_PRINT(Rule)		\
 do {					\
   if (yydebug)				\
-    yy_reduce_print (yyvsp, yylsp, Rule, oxml, result, error_msg); \
+    yy_reduce_print (yyvsp, yylsp, Rule, mc, oxml, result, error_msg); \
 } while (YYID (0))
 
 /* Nonzero means print parse trace.  It is left uninitialized so that
@@ -1086,14 +1111,15 @@ yysyntax_error (char *yyresult, int yystate, int yychar)
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep, YYLTYPE *yylocationp, ObjectXML * oxml, int&        result, char **     error_msg)
+yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep, YYLTYPE *yylocationp, mem_collector * mc, ObjectXML * oxml, int&        result, char **     error_msg)
 #else
 static void
-yydestruct (yymsg, yytype, yyvaluep, yylocationp, oxml, result, error_msg)
+yydestruct (yymsg, yytype, yyvaluep, yylocationp, mc, oxml, result, error_msg)
     const char *yymsg;
     int yytype;
     YYSTYPE *yyvaluep;
     YYLTYPE *yylocationp;
+    mem_collector * mc;
     ObjectXML * oxml;
     int&        result;
     char **     error_msg;
@@ -1101,6 +1127,7 @@ yydestruct (yymsg, yytype, yyvaluep, yylocationp, oxml, result, error_msg)
 {
   YYUSE (yyvaluep);
   YYUSE (yylocationp);
+  YYUSE (mc);
   YYUSE (oxml);
   YYUSE (result);
   YYUSE (error_msg);
@@ -1126,7 +1153,7 @@ int yyparse ();
 #endif
 #else /* ! YYPARSE_PARAM */
 #if defined __STDC__ || defined __cplusplus
-int yyparse (ObjectXML * oxml, int&        result, char **     error_msg);
+int yyparse (mem_collector * mc, ObjectXML * oxml, int&        result, char **     error_msg);
 #else
 int yyparse ();
 #endif
@@ -1154,10 +1181,11 @@ yyparse (YYPARSE_PARAM)
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 int
-yyparse (ObjectXML * oxml, int&        result, char **     error_msg)
+yyparse (mem_collector * mc, ObjectXML * oxml, int&        result, char **     error_msg)
 #else
 int
-yyparse (oxml, result, error_msg)
+yyparse (mc, oxml, result, error_msg)
+    mem_collector * mc;
     ObjectXML * oxml;
     int&        result;
     char **     error_msg;
@@ -1442,21 +1470,21 @@ yyreduce:
         case 2:
 
 /* Line 1464 of yacc.c  */
-#line 76 "expr_arith.y"
+#line 100 "expr_arith.y"
     { result = static_cast<int>((yyvsp[(1) - (1)].val_float));;}
     break;
 
   case 3:
 
 /* Line 1464 of yacc.c  */
-#line 77 "expr_arith.y"
+#line 101 "expr_arith.y"
     { result = 0; ;}
     break;
 
   case 4:
 
 /* Line 1464 of yacc.c  */
-#line 80 "expr_arith.y"
+#line 104 "expr_arith.y"
     { float val = 0.0;
 
                               ostringstream  xpath_t;
@@ -1481,71 +1509,69 @@ yyreduce:
                               }
 
                               (yyval.val_float) = val;
-
-                              free((yyvsp[(1) - (1)].val_str));
                             ;}
     break;
 
   case 5:
 
 /* Line 1464 of yacc.c  */
-#line 107 "expr_arith.y"
+#line 129 "expr_arith.y"
     { (yyval.val_float) = (yyvsp[(1) - (1)].val_float); ;}
     break;
 
   case 6:
 
 /* Line 1464 of yacc.c  */
-#line 108 "expr_arith.y"
+#line 130 "expr_arith.y"
     { (yyval.val_float) = static_cast<float>((yyvsp[(1) - (1)].val_int)); ;}
     break;
 
   case 7:
 
 /* Line 1464 of yacc.c  */
-#line 109 "expr_arith.y"
+#line 131 "expr_arith.y"
     { (yyval.val_float) = (yyvsp[(1) - (3)].val_float) + (yyvsp[(3) - (3)].val_float);;}
     break;
 
   case 8:
 
 /* Line 1464 of yacc.c  */
-#line 110 "expr_arith.y"
+#line 132 "expr_arith.y"
     { (yyval.val_float) = (yyvsp[(1) - (3)].val_float) - (yyvsp[(3) - (3)].val_float);;}
     break;
 
   case 9:
 
 /* Line 1464 of yacc.c  */
-#line 111 "expr_arith.y"
+#line 133 "expr_arith.y"
     { (yyval.val_float) = (yyvsp[(1) - (3)].val_float) * (yyvsp[(3) - (3)].val_float);;}
     break;
 
   case 10:
 
 /* Line 1464 of yacc.c  */
-#line 112 "expr_arith.y"
+#line 134 "expr_arith.y"
     { (yyval.val_float) = (yyvsp[(1) - (3)].val_float) / (yyvsp[(3) - (3)].val_float);;}
     break;
 
   case 11:
 
 /* Line 1464 of yacc.c  */
-#line 113 "expr_arith.y"
+#line 135 "expr_arith.y"
     { (yyval.val_float) = - (yyvsp[(2) - (2)].val_float);;}
     break;
 
   case 12:
 
 /* Line 1464 of yacc.c  */
-#line 114 "expr_arith.y"
+#line 136 "expr_arith.y"
     { (yyval.val_float) = (yyvsp[(2) - (3)].val_float);;}
     break;
 
 
 
 /* Line 1464 of yacc.c  */
-#line 1549 "expr_arith.cc"
+#line 1575 "expr_arith.cc"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1581,7 +1607,7 @@ yyerrlab:
     {
       ++yynerrs;
 #if ! YYERROR_VERBOSE
-      yyerror (&yylloc, oxml, result, error_msg, YY_("syntax error"));
+      yyerror (&yylloc, mc, oxml, result, error_msg, YY_("syntax error"));
 #else
       {
 	YYSIZE_T yysize = yysyntax_error (0, yystate, yychar);
@@ -1605,11 +1631,11 @@ yyerrlab:
 	if (0 < yysize && yysize <= yymsg_alloc)
 	  {
 	    (void) yysyntax_error (yymsg, yystate, yychar);
-	    yyerror (&yylloc, oxml, result, error_msg, yymsg);
+	    yyerror (&yylloc, mc, oxml, result, error_msg, yymsg);
 	  }
 	else
 	  {
-	    yyerror (&yylloc, oxml, result, error_msg, YY_("syntax error"));
+	    yyerror (&yylloc, mc, oxml, result, error_msg, YY_("syntax error"));
 	    if (yysize != 0)
 	      goto yyexhaustedlab;
 	  }
@@ -1633,7 +1659,7 @@ yyerrlab:
       else
 	{
 	  yydestruct ("Error: discarding",
-		      yytoken, &yylval, &yylloc, oxml, result, error_msg);
+		      yytoken, &yylval, &yylloc, mc, oxml, result, error_msg);
 	  yychar = YYEMPTY;
 	}
     }
@@ -1690,7 +1716,7 @@ yyerrlab1:
 
       yyerror_range[0] = *yylsp;
       yydestruct ("Error: popping",
-		  yystos[yystate], yyvsp, yylsp, oxml, result, error_msg);
+		  yystos[yystate], yyvsp, yylsp, mc, oxml, result, error_msg);
       YYPOPSTACK (1);
       yystate = *yyssp;
       YY_STACK_PRINT (yyss, yyssp);
@@ -1730,7 +1756,7 @@ yyabortlab:
 | yyexhaustedlab -- memory exhaustion comes here.  |
 `-------------------------------------------------*/
 yyexhaustedlab:
-  yyerror (&yylloc, oxml, result, error_msg, YY_("memory exhausted"));
+  yyerror (&yylloc, mc, oxml, result, error_msg, YY_("memory exhausted"));
   yyresult = 2;
   /* Fall through.  */
 #endif
@@ -1738,7 +1764,7 @@ yyexhaustedlab:
 yyreturn:
   if (yychar != YYEMPTY)
      yydestruct ("Cleanup: discarding lookahead",
-		 yytoken, &yylval, &yylloc, oxml, result, error_msg);
+		 yytoken, &yylval, &yylloc, mc, oxml, result, error_msg);
   /* Do not reclaim the symbols of the rule which action triggered
      this YYABORT or YYACCEPT.  */
   YYPOPSTACK (yylen);
@@ -1746,7 +1772,7 @@ yyreturn:
   while (yyssp != yyss)
     {
       yydestruct ("Cleanup: popping",
-		  yystos[*yyssp], yyvsp, yylsp, oxml, result, error_msg);
+		  yystos[*yyssp], yyvsp, yylsp, mc, oxml, result, error_msg);
       YYPOPSTACK (1);
     }
 #ifndef yyoverflow
@@ -1764,11 +1790,12 @@ yyreturn:
 
 
 /* Line 1684 of yacc.c  */
-#line 117 "expr_arith.y"
+#line 139 "expr_arith.y"
 
 
-extern "C" void expr_arith_error(
+extern "C" void expr_arith__error(
     YYLTYPE *       llocp,
+    mem_collector * mc,
     ObjectXML *     oxml,
     int&            result,
     char **         error_msg,

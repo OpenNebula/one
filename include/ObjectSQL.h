@@ -49,7 +49,8 @@ protected:
      *    @return 0 on success
      */
     virtual int insert(
-        SqlDB * db) = 0;
+        SqlDB * db,
+        string& error_str) = 0;
 
     /**
      *  Updates the ObjectSQL in the database.

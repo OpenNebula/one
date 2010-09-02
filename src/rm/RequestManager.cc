@@ -312,6 +312,9 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr image_publish(new    
         RequestManager::ImagePublish(ipool, upool));
         
+    xmlrpc_c::methodPtr image_persistent(new    
+        RequestManager::ImagePersistent(ipool, upool));
+        
     xmlrpc_c::methodPtr image_enable(new    
         RequestManager::ImageEnable(ipool, upool));
         
@@ -368,15 +371,16 @@ void RequestManager::register_xml_methods()
     
     /* Image related methods*/
     
-    RequestManagerRegistry.addMethod("one.image.allocate",image_allocate);
-    RequestManagerRegistry.addMethod("one.image.delete",  image_delete);
-    RequestManagerRegistry.addMethod("one.image.info",    image_info);
-    RequestManagerRegistry.addMethod("one.image.update",  image_update);     
-    RequestManagerRegistry.addMethod("one.image.rmattr",  image_rm_attribute);   
-    RequestManagerRegistry.addMethod("one.image.publish", image_publish);  
-    RequestManagerRegistry.addMethod("one.image.enable",  image_enable);    
+    RequestManagerRegistry.addMethod("one.image.allocate",   image_allocate);
+    RequestManagerRegistry.addMethod("one.image.delete",     image_delete);
+    RequestManagerRegistry.addMethod("one.image.info",       image_info);
+    RequestManagerRegistry.addMethod("one.image.update",     image_update);     
+    RequestManagerRegistry.addMethod("one.image.rmattr",     image_rm_attribute);   
+    RequestManagerRegistry.addMethod("one.image.publish",    image_publish);
+    RequestManagerRegistry.addMethod("one.image.persistent", image_persistent);  
+    RequestManagerRegistry.addMethod("one.image.enable",     image_enable);    
 
-    RequestManagerRegistry.addMethod("one.imagepool.info", imagepool_info);
+    RequestManagerRegistry.addMethod("one.imagepool.info",   imagepool_info);
     
 };
 

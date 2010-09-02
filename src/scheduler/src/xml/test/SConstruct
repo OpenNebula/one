@@ -34,6 +34,7 @@ main_env.Append(CPPPATH=[
 
 # Library dirs
 main_env.Append(LIBPATH=[
+    cwd+'/../../../../common',
     '../'
 ])
 
@@ -50,7 +51,8 @@ main_env.Append(LDFLAGS=["-g"])
 # Libraries
 main_env.Append(LIBS=[
     'cppunit',
-    'scheduler_xml'
+    'scheduler_xml',
+    'nebula_common'
 ])
 
 main_env.Program('test_xml','ObjectXMLTest.cc')

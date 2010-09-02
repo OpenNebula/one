@@ -135,7 +135,7 @@ void History::non_persistent_data()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int History::insert(SqlDB * db)
+int History::insert(SqlDB * db, string& error_str)
 {
     int             rc;
 
@@ -202,7 +202,7 @@ int History::insert_replace(SqlDB *db, bool replace)
     {
         goto error_tm;
     }
-    
+
     if(replace)
     {
         oss << "REPLACE";

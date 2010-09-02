@@ -31,6 +31,7 @@ const string templates[] =
 {
     "NAME          = \"Image one\"\n"
     "ORIGINAL_PATH = /tmp/image_test\n"
+    "PERSISTENT    = YES\n"
     "DESCRIPTION   = \"This is a very long description of an image, and to achieve the longness I will copy this over. This is a very long description of an image, and to achieve the longness I will copy this over. And over. This is a very long description of an image, and to achieve the longness I will copy this over. And over. This is a very long description of an image, and to achieve the longness I will copy this over. And over.This is a very long description of an image, and to achieve the longness I will copy this over.\"\n",
 
     "NAME          = \"Second Image\"\n"
@@ -48,20 +49,19 @@ const string templates[] =
 
 const string xmls[] =
 {
-    "<IMAGE><ID>0</ID><UID>0</UID><NAME>Image one</NAME><TYPE>0</TYPE><PUBLIC>0</PUBLIC><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/9ab4a4e021ee2883f57e3aeecc9e2aed7c3fa198</SOURCE><STATE>4</STATE><RUNNING_VMS>0</RUNNING_VMS><TEMPLATE><DESCRIPTION><![CDATA[This is a very long description of an image, and to achieve the longness I will copy this over. This is a very long description of an image, and to achieve the longness I will copy this over. And over. This is a very long description of an image, and to achieve the longness I will copy this over. And over. This is a very long description of an image, and to achieve the longness I will copy this over. And over.This is a very long description of an image, and to achieve the longness I will copy this over.]]></DESCRIPTION><DEV_PREFIX><![CDATA[hd]]></DEV_PREFIX><NAME><![CDATA[Image one]]></NAME><ORIGINAL_PATH><![CDATA[/tmp/image_test]]></ORIGINAL_PATH></TEMPLATE></IMAGE>",
+    "<IMAGE><ID>0</ID><UID>0</UID><NAME>Image one</NAME><TYPE>0</TYPE><PUBLIC>0</PUBLIC><PERSISTENT>1</PERSISTENT><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/9ab4a4e021ee2883f57e3aeecc9e2aed7c3fa198</SOURCE><STATE>3</STATE><RUNNING_VMS>0</RUNNING_VMS><TEMPLATE><DESCRIPTION><![CDATA[This is a very long description of an image, and to achieve the longness I will copy this over. This is a very long description of an image, and to achieve the longness I will copy this over. And over. This is a very long description of an image, and to achieve the longness I will copy this over. And over. This is a very long description of an image, and to achieve the longness I will copy this over. And over.This is a very long description of an image, and to achieve the longness I will copy this over.]]></DESCRIPTION><DEV_PREFIX><![CDATA[hd]]></DEV_PREFIX><NAME><![CDATA[Image one]]></NAME><ORIGINAL_PATH><![CDATA[/tmp/image_test]]></ORIGINAL_PATH></TEMPLATE></IMAGE>",
 
-    "<IMAGE><ID>1</ID><UID>1</UID><NAME>Second Image</NAME><TYPE>0</TYPE><PUBLIC>1</PUBLIC><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/c9d51800847467911c755e5e4c13dfe28c3a79f3</SOURCE><STATE>4</STATE><RUNNING_VMS>0</RUNNING_VMS><TEMPLATE><DESCRIPTION><![CDATA[This is a rather short description.]]></DESCRIPTION><DEV_PREFIX><![CDATA[hd]]></DEV_PREFIX><NAME><![CDATA[Second Image]]></NAME><ORIGINAL_PATH><![CDATA[/tmp/image_second_test]]></ORIGINAL_PATH></TEMPLATE></IMAGE>",
+    "<IMAGE><ID>1</ID><UID>1</UID><NAME>Second Image</NAME><TYPE>0</TYPE><PUBLIC>1</PUBLIC><PERSISTENT>0</PERSISTENT><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/c9d51800847467911c755e5e4c13dfe28c3a79f3</SOURCE><STATE>3</STATE><RUNNING_VMS>0</RUNNING_VMS><TEMPLATE><DESCRIPTION><![CDATA[This is a rather short description.]]></DESCRIPTION><DEV_PREFIX><![CDATA[hd]]></DEV_PREFIX><NAME><![CDATA[Second Image]]></NAME><ORIGINAL_PATH><![CDATA[/tmp/image_second_test]]></ORIGINAL_PATH></TEMPLATE></IMAGE>",
 
-    "<IMAGE><ID>0</ID><UID>2</UID><NAME>The third image</NAME><TYPE>0</TYPE><PUBLIC>0</PUBLIC><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/e50b0c738be9d431475bf5859629e5580301a7d6</SOURCE><STATE>4</STATE><RUNNING_VMS>0</RUNNING_VMS><TEMPLATE><BUS><![CDATA[SCSI]]></BUS><DEV_PREFIX><![CDATA[hd]]></DEV_PREFIX><NAME><![CDATA[The third image]]></NAME><ORIGINAL_PATH><![CDATA[/tmp/image_test]]></ORIGINAL_PATH><PROFILE><![CDATA[STUDENT]]></PROFILE></TEMPLATE></IMAGE>"
+    "<IMAGE><ID>0</ID><UID>2</UID><NAME>The third image</NAME><TYPE>0</TYPE><PUBLIC>0</PUBLIC><PERSISTENT>0</PERSISTENT><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/e50b0c738be9d431475bf5859629e5580301a7d6</SOURCE><STATE>3</STATE><RUNNING_VMS>0</RUNNING_VMS><TEMPLATE><BUS><![CDATA[SCSI]]></BUS><DEV_PREFIX><![CDATA[hd]]></DEV_PREFIX><NAME><![CDATA[The third image]]></NAME><ORIGINAL_PATH><![CDATA[/tmp/image_test]]></ORIGINAL_PATH><PROFILE><![CDATA[STUDENT]]></PROFILE></TEMPLATE></IMAGE>"
 };
 
 
 // This xml dump result has the STIMEs modified to 0000000000
 const string xml_dump =
-"<IMAGE_POOL><IMAGE><ID>0</ID><UID>0</UID><USERNAME>one_user_test</USERNAME><NAME>Image one</NAME><TYPE>0</TYPE><PUBLIC>0</PUBLIC><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/9ab4a4e021ee2883f57e3aeecc9e2aed7c3fa198</SOURCE><STATE>4</STATE><RUNNING_VMS>0</RUNNING_VMS></IMAGE><IMAGE><ID>1</ID><UID>1</UID><USERNAME>A user</USERNAME><NAME>Second Image</NAME><TYPE>0</TYPE><PUBLIC>1</PUBLIC><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/c9d51800847467911c755e5e4c13dfe28c3a79f3</SOURCE><STATE>4</STATE><RUNNING_VMS>0</RUNNING_VMS></IMAGE><IMAGE><ID>2</ID><UID>2</UID><USERNAME>B user</USERNAME><NAME>The third image</NAME><TYPE>0</TYPE><PUBLIC>0</PUBLIC><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/e50b0c738be9d431475bf5859629e5580301a7d6</SOURCE><STATE>4</STATE><RUNNING_VMS>0</RUNNING_VMS></IMAGE></IMAGE_POOL>";
-
+"<IMAGE_POOL><IMAGE><ID>0</ID><UID>0</UID><USERNAME>one_user_test</USERNAME><NAME>Image one</NAME><TYPE>0</TYPE><PUBLIC>0</PUBLIC><PERSISTENT>1</PERSISTENT><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/9ab4a4e021ee2883f57e3aeecc9e2aed7c3fa198</SOURCE><STATE>3</STATE><RUNNING_VMS>0</RUNNING_VMS><TEMPLATE><DESCRIPTION><![CDATA[This is a very long description of an image, and to achieve the longness I will copy this over. This is a very long description of an image, and to achieve the longness I will copy this over. And over. This is a very long description of an image, and to achieve the longness I will copy this over. And over. This is a very long description of an image, and to achieve the longness I will copy this over. And over.This is a very long description of an image, and to achieve the longness I will copy this over.]]></DESCRIPTION><DEV_PREFIX><![CDATA[hd]]></DEV_PREFIX><NAME><![CDATA[Image one]]></NAME><ORIGINAL_PATH><![CDATA[/tmp/image_test]]></ORIGINAL_PATH></TEMPLATE></IMAGE><IMAGE><ID>1</ID><UID>1</UID><USERNAME>A user</USERNAME><NAME>Second Image</NAME><TYPE>0</TYPE><PUBLIC>1</PUBLIC><PERSISTENT>0</PERSISTENT><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/c9d51800847467911c755e5e4c13dfe28c3a79f3</SOURCE><STATE>3</STATE><RUNNING_VMS>0</RUNNING_VMS><TEMPLATE><DESCRIPTION><![CDATA[This is a rather short description.]]></DESCRIPTION><DEV_PREFIX><![CDATA[hd]]></DEV_PREFIX><NAME><![CDATA[Second Image]]></NAME><ORIGINAL_PATH><![CDATA[/tmp/image_second_test]]></ORIGINAL_PATH></TEMPLATE></IMAGE><IMAGE><ID>2</ID><UID>2</UID><USERNAME>B user</USERNAME><NAME>The third image</NAME><TYPE>0</TYPE><PUBLIC>0</PUBLIC><PERSISTENT>0</PERSISTENT><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/e50b0c738be9d431475bf5859629e5580301a7d6</SOURCE><STATE>3</STATE><RUNNING_VMS>0</RUNNING_VMS><TEMPLATE><BUS><![CDATA[SCSI]]></BUS><DEV_PREFIX><![CDATA[hd]]></DEV_PREFIX><NAME><![CDATA[The third image]]></NAME><ORIGINAL_PATH><![CDATA[/tmp/image_test]]></ORIGINAL_PATH><PROFILE><![CDATA[STUDENT]]></PROFILE></TEMPLATE></IMAGE></IMAGE_POOL>";
 const string xml_dump_where =
-"<IMAGE_POOL><IMAGE><ID>0</ID><UID>0</UID><USERNAME>one_user_test</USERNAME><NAME>Image one</NAME><TYPE>0</TYPE><PUBLIC>0</PUBLIC><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/9ab4a4e021ee2883f57e3aeecc9e2aed7c3fa198</SOURCE><STATE>4</STATE><RUNNING_VMS>0</RUNNING_VMS></IMAGE><IMAGE><ID>1</ID><UID>1</UID><USERNAME>A user</USERNAME><NAME>Second Image</NAME><TYPE>0</TYPE><PUBLIC>1</PUBLIC><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/c9d51800847467911c755e5e4c13dfe28c3a79f3</SOURCE><STATE>4</STATE><RUNNING_VMS>0</RUNNING_VMS></IMAGE></IMAGE_POOL>";
+"<IMAGE_POOL><IMAGE><ID>0</ID><UID>0</UID><USERNAME>one_user_test</USERNAME><NAME>Image one</NAME><TYPE>0</TYPE><PUBLIC>0</PUBLIC><PERSISTENT>1</PERSISTENT><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/9ab4a4e021ee2883f57e3aeecc9e2aed7c3fa198</SOURCE><STATE>3</STATE><RUNNING_VMS>0</RUNNING_VMS><TEMPLATE><DESCRIPTION><![CDATA[This is a very long description of an image, and to achieve the longness I will copy this over. This is a very long description of an image, and to achieve the longness I will copy this over. And over. This is a very long description of an image, and to achieve the longness I will copy this over. And over. This is a very long description of an image, and to achieve the longness I will copy this over. And over.This is a very long description of an image, and to achieve the longness I will copy this over.]]></DESCRIPTION><DEV_PREFIX><![CDATA[hd]]></DEV_PREFIX><NAME><![CDATA[Image one]]></NAME><ORIGINAL_PATH><![CDATA[/tmp/image_test]]></ORIGINAL_PATH></TEMPLATE></IMAGE><IMAGE><ID>1</ID><UID>1</UID><USERNAME>A user</USERNAME><NAME>Second Image</NAME><TYPE>0</TYPE><PUBLIC>1</PUBLIC><PERSISTENT>0</PERSISTENT><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/c9d51800847467911c755e5e4c13dfe28c3a79f3</SOURCE><STATE>3</STATE><RUNNING_VMS>0</RUNNING_VMS><TEMPLATE><DESCRIPTION><![CDATA[This is a rather short description.]]></DESCRIPTION><DEV_PREFIX><![CDATA[hd]]></DEV_PREFIX><NAME><![CDATA[Second Image]]></NAME><ORIGINAL_PATH><![CDATA[/tmp/image_second_test]]></ORIGINAL_PATH></TEMPLATE></IMAGE></IMAGE_POOL>";
 
 const string replacement = "0000000000";
 
@@ -84,16 +84,23 @@ public:
         ImageTemplate * img_template;
         char *          error_msg = 0;
         int             rc;
+        string          err;
 
         img_template = new ImageTemplate;
         rc = img_template->parse(stemplate,&error_msg);
 
         if( rc == 0 )
         {
-            return ImagePool::allocate(uid, img_template, oid);
+            return ImagePool::allocate(uid, img_template, oid, err);
         }
         else
         {
+            if (error_msg != 0 )
+            {
+                free(error_msg);
+            }
+
+            delete img_template;
             return -2;
         }
     };
@@ -119,7 +126,7 @@ class ImagePoolTest : public PoolTest
     CPPUNIT_TEST ( target_generation );
     CPPUNIT_TEST ( bus_source_assignment );
     CPPUNIT_TEST ( public_attribute );
-    CPPUNIT_TEST ( disk_overwrite );
+    CPPUNIT_TEST ( persistence );
     CPPUNIT_TEST ( imagepool_disk_attribute );
     CPPUNIT_TEST ( dump );
     CPPUNIT_TEST ( dump_where );
@@ -174,6 +181,7 @@ protected:
         // So the ONE_AUTH environment is forced to point to a test one_auth
         // file.
         ostringstream oss;
+        string err;
 
         oss << getenv("PWD") << "/one_auth";
         setenv("ONE_AUTH", oss.str().c_str(), 1);
@@ -188,17 +196,17 @@ protected:
         string pass_1     = "A pass";
         string pass_2     = "B pass";
 
-        user_pool->allocate(&uid_1, username_1, pass_1, true);
-        user_pool->allocate(&uid_2, username_2, pass_2, true);
+        user_pool->allocate(&uid_1, username_1, pass_1, true, err);
+        user_pool->allocate(&uid_2, username_2, pass_2, true, err);
 
         delete user_pool;
     };
 
 
 public:
-    ImagePoolTest(){};
+    ImagePoolTest(){xmlInitParser();};
 
-    ~ImagePoolTest(){};
+    ~ImagePoolTest(){xmlCleanupParser();};
 
 
     /* ********************************************************************* */
@@ -255,9 +263,11 @@ public:
         CPPUNIT_ASSERT( img != 0 );
 
         // Image object should be cached. Let's change some template attributes
-        ip->replace_attribute(img, description_name, new_description);
-        ip->replace_attribute(img, attr_name,        new_attr_value);
-        ip->remove_attribute(img, "ORIGINAL_PATH");
+        img->replace_template_attribute(description_name, new_description);
+        img->replace_template_attribute(attr_name,        new_attr_value);
+        img->remove_template_attribute("ORIGINAL_PATH");
+
+        ip->update(img);
 
         img->unlock();
 
@@ -466,7 +476,7 @@ public:
         CPPUNIT_ASSERT( oid == 0 );
 
         img->enable(true);
-        img->disk_attribute(disk, &index, img_type);
+        img->disk_attribute(disk, &index, &img_type);
 
         value = disk->vector_value("TARGET");
 
@@ -488,7 +498,7 @@ public:
         img = imp->get(oid, false);
 
         img->enable(true);
-        img->disk_attribute(disk, &index, img_type);
+        img->disk_attribute(disk, &index, &img_type);
 
         value = disk->vector_value("TARGET");
         CPPUNIT_ASSERT(value == "hdc");
@@ -509,7 +519,7 @@ public:
         img = imp->get(oid, false);
 
         img->enable(true);
-        img->disk_attribute(disk, &index, img_type);
+        img->disk_attribute(disk, &index, &img_type);
 
         value = disk->vector_value("TARGET");
         CPPUNIT_ASSERT(value == "hde");
@@ -530,7 +540,7 @@ public:
         img = imp->get(oid, false);
 
         img->enable(true);
-        img->disk_attribute(disk, &index, img_type);
+        img->disk_attribute(disk, &index, &img_type);
 
         value = disk->vector_value("TARGET");
         CPPUNIT_ASSERT(value == "sdf");
@@ -548,7 +558,7 @@ public:
         Image *             img;
 
         VectorAttribute *   disk;
-        int                 oid;
+        int                 rc, oid;
         string              value;
         int                 index = 0;
         Image::ImageType    img_type;
@@ -562,7 +572,8 @@ public:
         disk = new VectorAttribute("DISK");
 
         img->enable(true);
-        img->disk_attribute(disk, &index, img_type);
+        rc = img->disk_attribute(disk, &index, &img_type);
+        CPPUNIT_ASSERT( rc == 0 );
 
         value = "";
         value = disk->vector_value("BUS");
@@ -574,6 +585,7 @@ public:
                     "source_prefix/9ab4a4e021ee2883f57e3aeecc9e2aed7c3fa198" );
 
         // clean up
+        img->release_image();
         delete disk;
 
         // ---------------------------------------------------------------------
@@ -582,7 +594,8 @@ public:
         disk->replace("BUS", "SCSI");
 
         img->enable(true);
-        img->disk_attribute(disk, &index, img_type);
+        rc = img->disk_attribute(disk, &index, &img_type);
+        CPPUNIT_ASSERT( rc == 0 );
 
         value = disk->vector_value("BUS");
         CPPUNIT_ASSERT( value == "SCSI" );
@@ -599,144 +612,13 @@ public:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-    void disk_overwrite()
-    {
-        ImagePool *         imp = static_cast<ImagePool *>(pool);
-        Image *             img;
-
-        VectorAttribute *   disk;
-        int                 oid, rc;
-        string              value;
-        int                 index = 0;
-        Image::ImageType    img_type;
-
-        // ---------------------------------------------------------------------
-        // Allocate an OS type image
-        oid = allocate(0);
-        CPPUNIT_ASSERT( oid > -1 );
-        img = imp->get(oid, false);
-
-        // Disk with overwrite=yes, save_as empty
-        disk = new VectorAttribute("DISK");
-
-        disk->replace("OVERWRITE", "yes");
-
-        img->enable(true);
-        rc = img->disk_attribute(disk, &index, img_type);
-        CPPUNIT_ASSERT( rc == 0 );
-
-
-        value = disk->vector_value("OVERWRITE");
-        CPPUNIT_ASSERT( value == "YES" );
-
-        value = "";
-        value = disk->vector_value("SAVE_AS");
-        CPPUNIT_ASSERT( value == "" );
-
-        value = "";
-        value = disk->vector_value("CLONE");
-        CPPUNIT_ASSERT( value == "NO" );
-
-        value = "";
-        value = disk->vector_value("SAVE");
-        CPPUNIT_ASSERT( value == "YES" );
-
-        value = "";
-        value = disk->vector_value("READONLY");
-        CPPUNIT_ASSERT( value == "NO" );
-
-        // clean up
-        delete disk;
-
-
-        // ---------------------------------------------------------------------
-        // Allocate an OS type image
-        oid = allocate(1);
-        CPPUNIT_ASSERT( oid > -1 );
-        img = imp->get(oid, false);
-
-        // Disk with overwrite=no, save_as not empty
-        disk = new VectorAttribute("DISK");
-
-        disk->replace("OVERWRITE", "NO");
-        disk->replace("SAVE_AS", "path_to_save");
-
-        img->enable(true);
-        rc = img->disk_attribute(disk, &index, img_type);
-        CPPUNIT_ASSERT( rc == 0 );
-
-        value = "";
-        value = disk->vector_value("OVERWRITE");
-        CPPUNIT_ASSERT( value == "NO" );
-
-        value = "";
-        value = disk->vector_value("SAVE_AS");
-        CPPUNIT_ASSERT( value == "path_to_save" );
-
-        value = "";
-        value = disk->vector_value("CLONE");
-        CPPUNIT_ASSERT( value == "YES" );
-
-        value = "";
-        value = disk->vector_value("SAVE");
-        CPPUNIT_ASSERT( value == "YES" );
-
-        value = "";
-        value = disk->vector_value("READONLY");
-        CPPUNIT_ASSERT( value == "NO" );
-
-        // clean up
-        delete disk;
-
-        // ---------------------------------------------------------------------
-        // Allocate an OS type image
-        oid = allocate(2);
-        CPPUNIT_ASSERT( oid > -1 );
-        img = imp->get(oid, false);
-
-        // Disk with overwrite=no, save_as not present
-        disk = new VectorAttribute("DISK");
-
-        disk->replace("OVERWRITE", "NO");
-
-        img->enable(true);
-        rc = img->disk_attribute(disk, &index, img_type);
-        CPPUNIT_ASSERT( rc == 0 );
-
-        value = "";
-        value = disk->vector_value("OVERWRITE");
-        CPPUNIT_ASSERT( value == "NO" );
-
-        value = "";
-        value = disk->vector_value("SAVE_AS");
-        CPPUNIT_ASSERT( value == "" );
-
-        value = "";
-        value = disk->vector_value("CLONE");
-        CPPUNIT_ASSERT( value == "YES" );
-
-        value = "";
-        value = disk->vector_value("SAVE");
-        CPPUNIT_ASSERT( value == "NO" );
-
-        value = "";
-        value = disk->vector_value("READONLY");
-        CPPUNIT_ASSERT( value == "NO" );
-
-        // clean up
-        delete disk;
-    }
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
     void imagepool_disk_attribute()
     {
         ImagePoolFriend *   imp = static_cast<ImagePoolFriend *>(pool);
         Image *             img;
 
         VectorAttribute *   disk;
-        int                 oid_0, oid_1;
+        int                 oid_0, oid_1, index;
         string              value;
         Image::ImageType    img_type;
 
@@ -770,7 +652,7 @@ public:
         disk = new VectorAttribute("DISK");
         disk->replace("IMAGE", "Image 0");
 
-        ((ImagePool*)imp)->disk_attribute(disk, 0, img_type);
+        ((ImagePool*)imp)->disk_attribute(disk, 0, &index, &img_type);
 
         value = "";
         value = disk->vector_value("TARGET");
@@ -787,7 +669,7 @@ public:
         disk = new VectorAttribute("DISK");
         disk->replace("IMAGE_ID", "1");
 
-        ((ImagePool*)imp)->disk_attribute(disk, 0, img_type);
+        ((ImagePool*)imp)->disk_attribute(disk, 0, &index, &img_type);
 
         value = "";
         value = disk->vector_value("TARGET");
@@ -877,6 +759,108 @@ public:
 
             i++;
         }
+
+        bool success;
+
+        // img 0 is not public.
+        img = imp->get( 0, false );
+        CPPUNIT_ASSERT( img != 0 );
+
+        success = img->publish(false);
+        CPPUNIT_ASSERT( success == true );
+        CPPUNIT_ASSERT( img->isPublic() == false );
+
+        success = img->publish(true);
+        CPPUNIT_ASSERT( success == true );
+        CPPUNIT_ASSERT( img->isPublic() == true );
+    }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+    void persistence()
+    {
+        int oid;
+        bool success;
+        ImagePoolFriend * imp = static_cast<ImagePoolFriend *>(pool);
+        Image *           img;
+
+        string templates [] =
+        {
+            "NAME       = \"Image 1\"\n"
+            "PERSISTENT = NO\n"
+            "PUBLIC     = NO\n",
+
+            "NAME       = \"Image 2\"\n"
+            "PERSISTENT = NO\n"
+            "PUBLIC     = YES\n",
+
+            "NAME       = \"Image 3\"\n"
+            "PERSISTENT = YES\n"
+            "PUBLIC     = NO\n",
+
+            "NAME       = \"Image 4\"\n"
+            "PERSISTENT = YES\n"
+            "PUBLIC     = YES\n",
+
+            "END"
+        };
+
+        bool results[]      = { true, true, true, false };
+        bool persistent[]   = { false, false, true };
+
+        int i = 0;
+        while( templates[i] != "END" )
+        {
+            imp->allocate(0, templates[i], &oid);
+//cout << endl << i << " : exp. " << results[i] << " got " << (oid >= 0);
+            CPPUNIT_ASSERT( (oid >= 0) == results[i] );
+
+            if( oid >= 0 )
+            {
+                img = imp->get( oid, false );
+                CPPUNIT_ASSERT( img != 0 );
+
+                CPPUNIT_ASSERT( img->isPersistent() == persistent[i] );
+            }
+
+            i++;
+        }
+
+        // img 0 is not persistent
+        img = imp->get( 0, false );
+        CPPUNIT_ASSERT( img != 0 );
+
+        // make it persistent
+        success = img->persistent(true);
+        CPPUNIT_ASSERT( success == true );
+        CPPUNIT_ASSERT( img->isPersistent() == true );
+
+        // it isn't public, try to unpublish
+        success = img->publish(false);
+        CPPUNIT_ASSERT( success == true );
+        CPPUNIT_ASSERT( img->isPublic() == false );
+
+        // try to publish, should fail because it is persistent
+        success = img->publish(true);
+        CPPUNIT_ASSERT( success == false );
+        CPPUNIT_ASSERT( img->isPublic() == false );
+
+
+        // make it non-persistent
+        success = img->persistent(false);
+        CPPUNIT_ASSERT( success == true );
+        CPPUNIT_ASSERT( img->isPersistent() == false );
+
+        // it isn't public, try to unpublish
+        success = img->publish(false);
+        CPPUNIT_ASSERT( success == true );
+        CPPUNIT_ASSERT( img->isPublic() == false );
+
+        // try to publish, now it should be possible
+        success = img->publish(true);
+        CPPUNIT_ASSERT( success == true );
+        CPPUNIT_ASSERT( img->isPublic() == true );
     }
 
 /* -------------------------------------------------------------------------- */
@@ -901,9 +885,9 @@ public:
 
         string result = oss.str();
 
-        result.replace(138,  10, replacement);
-        result.replace(403, 10, replacement);
-        result.replace(671, 10, replacement);
+        result.replace(164,  10, replacement);
+        result.replace(1154, 10, replacement);
+        result.replace(1684, 10, replacement);
 
         CPPUNIT_ASSERT( result == xml_dump );
     }
@@ -931,9 +915,8 @@ public:
         CPPUNIT_ASSERT(rc == 0);
 
         string result = oss.str();
-
-        result.replace(138, 10, replacement);
-        result.replace(403, 10, replacement);
+        result.replace(164,  10, replacement);
+        result.replace(1154, 10, replacement);
 
         CPPUNIT_ASSERT( result == xml_dump_where );
     }

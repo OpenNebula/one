@@ -48,10 +48,11 @@ public:
      *    @return the oid assigned to the object or -1 in case of failure
      */
     int allocate (
-        int *  oid,
-        string hostname,
-        string password,
-        bool   enabled);
+        int *   oid,
+        string  hostname,
+        string  password,
+        bool    enabled,
+        string& error_str);
 
     /**
      *  Function to get a User from the pool, if the object is not in memory

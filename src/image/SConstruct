@@ -22,7 +22,6 @@ lib_name='nebula_image'
 
 # Sources to generate the library
 source_files=[
-    'ImageTemplate.cc',
     'Image.cc',
     'ImagePool.cc'
 ]

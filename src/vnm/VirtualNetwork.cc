@@ -69,24 +69,26 @@ VirtualNetwork::~VirtualNetwork()
 
 const char * VirtualNetwork::table        = "network_pool";
 
-const char * VirtualNetwork::db_names     = "(oid,uid,name,type,bridge,public)";
+const char * VirtualNetwork::db_names     =
+                                "(oid,uid,name,type,bridge,public,template)";
 
 const char * VirtualNetwork::db_bootstrap = "CREATE TABLE IF NOT EXISTS"
     " network_pool ("
      "oid INTEGER PRIMARY KEY, uid INTEGER, name VARCHAR(256), type INTEGER, "
-     "bridge TEXT, public INTEGER, UNIQUE(name))";
+     "bridge TEXT, public INTEGER, template TEXT, UNIQUE(name))";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 int VirtualNetwork::select_cb(void * nil, int num, char **values, char **names)
 {
-    if ((!values[OID])  ||
-        (!values[UID])  ||
-        (!values[NAME]) ||
-        (!values[TYPE]) ||
-        (!values[BRIDGE]) ||
-        (!values[PUBLIC]) ||
+    if ((!values[OID])      ||
+        (!values[UID])      ||
+        (!values[NAME])     ||
+        (!values[TYPE])     ||
+        (!values[BRIDGE])   ||
+        (!values[PUBLIC])   ||
+        (!values[TEMPLATE]) ||
         (num != LIMIT ))
     {
         return -1;
@@ -103,8 +105,8 @@ int VirtualNetwork::select_cb(void * nil, int num, char **values, char **names)
 
     public_vnet = atoi(values[PUBLIC]);
 
-    // Virtual Network template ID is the Network ID
-    vn_template->id = oid;
+    // Virtual Network template
+    vn_template->from_xml(values[TEMPLATE]);
 
     return 0;
 }
@@ -142,21 +144,13 @@ int VirtualNetwork::select(SqlDB * db)
         goto error_id;
     }
 
-    //Get the template
-    rc = vn_template->select(db);
-
-    if (rc != 0)
-    {
-        goto error_template;
-    }
-
     //Get the leases
     if (type == RANGED)
     {
         string  nclass = "";
         int     size = 0;
 
-        // retrieve specific information from template
+        // retrieve specific information from the template
         get_template_attribute("NETWORK_ADDRESS",network_address);
 
         if (network_address.empty())
@@ -174,7 +168,7 @@ int VirtualNetwork::select(SqlDB * db)
         {
             size = 254;
         }
-        else if (!nclass.empty()) //Assume its a number
+        else if (!nclass.empty()) //Assume it's a number
         {
             istringstream iss(nclass);
             iss >> size;
@@ -213,10 +207,6 @@ error_id:
     ose << "Error getting Virtual Network nid: " << oid;
     goto error_common;
 
-error_template:
-    ose << "Can not get template for Virtual Network nid: " << oid;
-    goto error_common;
-
 error_leases:
     ose << "Error getting Virtual Network leases nid: " << oid;
     goto error_common;
@@ -241,13 +231,14 @@ int VirtualNetwork::dump(ostringstream& oss,
                          char **        values,
                          char **        names)
 {
-    if ((!values[OID])   ||
-        (!values[UID])   ||
-        (!values[NAME])  ||
-        (!values[TYPE])  ||
-        (!values[BRIDGE])||
-        (!values[PUBLIC])||
-        (!values[LIMIT]) ||
+    if ((!values[OID])      ||
+        (!values[UID])      ||
+        (!values[NAME])     ||
+        (!values[TYPE])     ||
+        (!values[BRIDGE])   ||
+        (!values[PUBLIC])   ||
+        (!values[TEMPLATE]) ||
+        (!values[LIMIT])    ||
         (num != LIMIT + 2 ))
     {
         return -1;
@@ -255,14 +246,15 @@ int VirtualNetwork::dump(ostringstream& oss,
 
     oss <<
         "<VNET>" <<
-            "<ID>"       << values[OID]     << "</ID>"        <<
-            "<UID>"      << values[UID]     << "</UID>"       <<
-            "<USERNAME>" << values[LIMIT+1]  << "</USERNAME>" <<
-            "<NAME>"     << values[NAME]    << "</NAME>"      <<
-            "<TYPE>"     << values[TYPE]    << "</TYPE>"      <<
-            "<BRIDGE>"   << values[BRIDGE]  << "</BRIDGE>"    <<
-            "<PUBLIC>"   << values[PUBLIC]  << "</PUBLIC>"    <<
-            "<TOTAL_LEASES>" << values[LIMIT]<< "</TOTAL_LEASES>" <<
+            "<ID>"          << values[OID]      << "</ID>"          <<
+            "<UID>"         << values[UID]      << "</UID>"         <<
+            "<USERNAME>"    << values[LIMIT+1]  << "</USERNAME>"    <<
+            "<NAME>"        << values[NAME]     << "</NAME>"        <<
+            "<TYPE>"        << values[TYPE]     << "</TYPE>"        <<
+            "<BRIDGE>"      << values[BRIDGE]   << "</BRIDGE>"      <<
+            "<PUBLIC>"      << values[PUBLIC]   << "</PUBLIC>"      <<
+            "<TOTAL_LEASES>"<< values[LIMIT]    << "</TOTAL_LEASES>"
+                            << values[TEMPLATE] <<
         "</VNET>";
 
     return 0;
@@ -271,7 +263,7 @@ int VirtualNetwork::dump(ostringstream& oss,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualNetwork::insert(SqlDB * db)
+int VirtualNetwork::insert(SqlDB * db, string& error_str)
 {
     ostringstream   ose;
     int             rc;
@@ -332,35 +324,9 @@ int VirtualNetwork::insert(SqlDB * db)
 
     vn_template->erase("PUBLIC");
 
-    // ------------ INSERT THE TEMPLATE --------------------
-
-    if ( vn_template->id == -1 )
-    {
-        vn_template->id = oid;
-    }
-
-    rc = vn_template->insert(db);
-
-    if ( rc != 0 )
-    {
-    	goto error_template;
-    }
-
-    //--------------------------------------------------------------------------
-    // Insert the Virtual Network
-    //--------------------------------------------------------------------------
-
-    rc = insert_replace(db, false);
-
-    if ( rc != 0 )
-    {
-        goto error_update;
-    }
-
     //--------------------------------------------------------------------------
     // Get the leases
     //--------------------------------------------------------------------------
-
     if (type == VirtualNetwork::RANGED)
     {
         string nclass = "";
@@ -394,6 +360,14 @@ int VirtualNetwork::insert(SqlDB * db)
 
         if (size == 0)
         {
+            SingleAttribute * attribute;
+            ostringstream     oss;
+
+            oss << default_size;
+
+            attribute = new SingleAttribute("NETWORK_SIZE",oss.str());
+            vn_template->set(attribute);
+
             size = default_size;
         }
 
@@ -420,40 +394,45 @@ int VirtualNetwork::insert(SqlDB * db)
         goto error_null_leases;
     }
 
+    //--------------------------------------------------------------------------
+    // Insert the Virtual Network
+    //--------------------------------------------------------------------------
+    rc = insert_replace(db, false);
+
+    if ( rc != 0 )
+    {
+        goto error_update;
+    }
+
     return 0;
 
 error_type:
-    ose << "Wrong type in template for Virtual Network id " << oid;
+    ose << "Wrong type in template for Virtual Network, id: ";
     goto error_common;
 
 error_name:
-    ose << "No NAME in template for Virtual Network id " << oid;
+    ose << "No NAME in template for Virtual Network, id: ";
     goto error_common;
 
 error_bridge:
-    ose << "No BRIDGE in template for Virtual Network id " << oid;
-    goto error_common;
-
-error_template:
-    ose << "Can not insert in DB template for Virtual Network id " << oid;
+    ose << "No BRIDGE in template for Virtual Network, id: ";
     goto error_common;
 
 error_update:
-    ose << "Can not update Virtual Network id " << oid;
-    vn_template->drop(db);
+    ose << "Can not update Virtual Network, id: ";
     goto error_common;
 
 error_addr:
-    ose << "Network address is not defined nid: " << oid;
-    goto error_leases;
+    ose << "Network address is not defined, id: ";
+    goto error_common;
 
 error_null_leases:
-    ose << "Error getting Virtual Network leases nid: " << oid;
-
-error_leases:
-    vn_drop(db);
+    ose << "Error getting Virtual Network leases, id: ";
 
 error_common:
+    ose << oid << ".";
+
+    error_str = ose.str();
     NebulaLog::log("VNM", Log::ERROR, ose);
     return -1;
 }
@@ -472,20 +451,36 @@ int VirtualNetwork::insert_replace(SqlDB *db, bool replace)
     ostringstream   oss;
     int             rc;
 
-    char * sql_name = db->escape_str(name.c_str());
+
+    string xml_template;
+
+    char * sql_name;
+    char * sql_bridge;
+    char * sql_template;
+
+
+    sql_name = db->escape_str(name.c_str());
 
     if ( sql_name == 0 )
     {
-        return -1;
+        goto error_name;
     }
 
-    char * sql_bridge = db->escape_str(bridge.c_str());
+    sql_bridge = db->escape_str(bridge.c_str());
 
     if ( sql_bridge == 0 )
     {
-        db->free_str(sql_name);
-        return -1;
+        goto error_bridge;
     }
+
+    vn_template->to_xml(xml_template);
+    sql_template = db->escape_str(xml_template.c_str());
+
+    if ( sql_template == 0 )
+    {
+        goto error_template;
+    }
+
 
     // Construct the SQL statement to Insert or Replace
     if(replace)
@@ -503,14 +498,23 @@ int VirtualNetwork::insert_replace(SqlDB *db, bool replace)
         << "'" <<   sql_name    << "',"
         <<          type        << ","
         << "'" <<   sql_bridge  << "',"
-        <<          public_vnet << ")";
+        <<          public_vnet << ","
+        << "'" <<   sql_template<< "')";
 
     rc = db->exec(oss);
 
     db->free_str(sql_name);
     db->free_str(sql_bridge);
+    db->free_str(sql_template);
 
     return rc;
+
+error_template:
+    db->free_str(sql_bridge);
+error_bridge:
+    db->free_str(sql_name);
+error_name:
+    return -1;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -520,8 +524,6 @@ int VirtualNetwork::vn_drop(SqlDB * db)
 {
     ostringstream   oss;
     int             rc;
-
-    vn_template->drop(db);
 
     if ( leases != 0 )
     {

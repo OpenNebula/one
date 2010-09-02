@@ -63,14 +63,14 @@
 #define YYLSP_NEEDED 1
 
 /* Substitute the variable and function names.  */
-#define yyparse         template_parse
-#define yylex           template_lex
-#define yyerror         template_error
-#define yylval          template_lval
-#define yychar          template_char
-#define yydebug         template_debug
-#define yynerrs         template_nerrs
-#define yylloc          template_lloc
+#define yyparse         template__parse
+#define yylex           template__lex
+#define yyerror         template__error
+#define yylval          template__lval
+#define yychar          template__char
+#define yydebug         template__debug
+#define yynerrs         template__nerrs
+#define yylloc          template__lloc
 
 /* Copy the first part of user declarations.  */
 
@@ -88,27 +88,47 @@
 #include "template_syntax.h"
 #include "Template.h"
 
+#define template__lex template_lex
+
 #define YYERROR_VERBOSE
 #define TEMPLATE_TO_UPPER(S) transform (S.begin(),S.end(),S.begin(), \
 (int(*)(int))toupper)
 extern "C"
 {
-void template_error(
-	YYLTYPE *		llocp,
-	Template *		tmpl,
-	char **			error_msg,
-	const char *	str);
+    #include "mem_collector.h"
 
-int template_lex (YYSTYPE *lvalp, YYLTYPE *llocp);
+    void template__error(
+        YYLTYPE *       llocp,
+        mem_collector * mc,
+        Template *      tmpl,
+        char **         error_msg,
+        const char *    str);
 
-int template_parse(Template * tmpl, char ** errmsg);
+    int template__lex (YYSTYPE *lvalp, YYLTYPE *llocp, mem_collector * mc);
+
+    int template__parse(mem_collector * mc, Template * tmpl, char ** errmsg);
+
+    int template_parse(Template * tmpl, char ** errmsg)
+    {
+        mem_collector mc;
+        int           rc;
+
+        mem_collector_init(&mc);
+
+        rc = template__parse(&mc, tmpl, errmsg);
+
+        mem_collector_cleanup(&mc);
+
+        return rc;
+    }
+
+    static string& unescape (string &str);
 }
 
-static string& unescape (string &str);
 
 
 /* Line 189 of yacc.c  */
-#line 112 "template_syntax.cc"
+#line 132 "template_syntax.cc"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -152,7 +172,7 @@ typedef union YYSTYPE
 {
 
 /* Line 214 of yacc.c  */
-#line 51 "template_syntax.y"
+#line 74 "template_syntax.y"
 
     char * val_str;
     void * val_attr;
@@ -160,7 +180,7 @@ typedef union YYSTYPE
 
 
 /* Line 214 of yacc.c  */
-#line 164 "template_syntax.cc"
+#line 184 "template_syntax.cc"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -185,7 +205,7 @@ typedef struct YYLTYPE
 
 
 /* Line 264 of yacc.c  */
-#line 189 "template_syntax.cc"
+#line 209 "template_syntax.cc"
 
 #ifdef short
 # undef short
@@ -472,7 +492,7 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    71,    71,    72,    75,    88,   102,   116,   132
+       0,    94,    94,    95,    98,   108,   121,   133,   146
 };
 #endif
 
@@ -602,7 +622,7 @@ do								\
     }								\
   else								\
     {								\
-      yyerror (&yylloc, tmpl, error_msg, YY_("syntax error: cannot back up")); \
+      yyerror (&yylloc, mc, tmpl, error_msg, YY_("syntax error: cannot back up")); \
       YYERROR;							\
     }								\
 while (YYID (0))
@@ -659,7 +679,7 @@ while (YYID (0))
 #ifdef YYLEX_PARAM
 # define YYLEX yylex (&yylval, &yylloc, YYLEX_PARAM)
 #else
-# define YYLEX yylex (&yylval, &yylloc)
+# define YYLEX yylex (&yylval, &yylloc, mc)
 #endif
 
 /* Enable debugging if requested.  */
@@ -682,7 +702,7 @@ do {									  \
     {									  \
       YYFPRINTF (stderr, "%s ", Title);					  \
       yy_symbol_print (stderr,						  \
-		  Type, Value, Location, tmpl, error_msg); \
+		  Type, Value, Location, mc, tmpl, error_msg); \
       YYFPRINTF (stderr, "\n");						  \
     }									  \
 } while (YYID (0))
@@ -696,21 +716,23 @@ do {									  \
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, Template * tmpl, char ** error_msg)
+yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, mem_collector * mc, Template *      tmpl, char **         error_msg)
 #else
 static void
-yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, tmpl, error_msg)
+yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, mc, tmpl, error_msg)
     FILE *yyoutput;
     int yytype;
     YYSTYPE const * const yyvaluep;
     YYLTYPE const * const yylocationp;
-    Template * tmpl;
-    char ** error_msg;
+    mem_collector * mc;
+    Template *      tmpl;
+    char **         error_msg;
 #endif
 {
   if (!yyvaluep)
     return;
   YYUSE (yylocationp);
+  YYUSE (mc);
   YYUSE (tmpl);
   YYUSE (error_msg);
 # ifdef YYPRINT
@@ -734,16 +756,17 @@ yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, tmpl, error_msg)
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, Template * tmpl, char ** error_msg)
+yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, mem_collector * mc, Template *      tmpl, char **         error_msg)
 #else
 static void
-yy_symbol_print (yyoutput, yytype, yyvaluep, yylocationp, tmpl, error_msg)
+yy_symbol_print (yyoutput, yytype, yyvaluep, yylocationp, mc, tmpl, error_msg)
     FILE *yyoutput;
     int yytype;
     YYSTYPE const * const yyvaluep;
     YYLTYPE const * const yylocationp;
-    Template * tmpl;
-    char ** error_msg;
+    mem_collector * mc;
+    Template *      tmpl;
+    char **         error_msg;
 #endif
 {
   if (yytype < YYNTOKENS)
@@ -753,7 +776,7 @@ yy_symbol_print (yyoutput, yytype, yyvaluep, yylocationp, tmpl, error_msg)
 
   YY_LOCATION_PRINT (yyoutput, *yylocationp);
   YYFPRINTF (yyoutput, ": ");
-  yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, tmpl, error_msg);
+  yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, mc, tmpl, error_msg);
   YYFPRINTF (yyoutput, ")");
 }
 
@@ -796,15 +819,16 @@ do {								\
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yy_reduce_print (YYSTYPE *yyvsp, YYLTYPE *yylsp, int yyrule, Template * tmpl, char ** error_msg)
+yy_reduce_print (YYSTYPE *yyvsp, YYLTYPE *yylsp, int yyrule, mem_collector * mc, Template *      tmpl, char **         error_msg)
 #else
 static void
-yy_reduce_print (yyvsp, yylsp, yyrule, tmpl, error_msg)
+yy_reduce_print (yyvsp, yylsp, yyrule, mc, tmpl, error_msg)
     YYSTYPE *yyvsp;
     YYLTYPE *yylsp;
     int yyrule;
-    Template * tmpl;
-    char ** error_msg;
+    mem_collector * mc;
+    Template *      tmpl;
+    char **         error_msg;
 #endif
 {
   int yynrhs = yyr2[yyrule];
@@ -818,7 +842,7 @@ yy_reduce_print (yyvsp, yylsp, yyrule, tmpl, error_msg)
       YYFPRINTF (stderr, "   $%d = ", yyi + 1);
       yy_symbol_print (stderr, yyrhs[yyprhs[yyrule] + yyi],
 		       &(yyvsp[(yyi + 1) - (yynrhs)])
-		       , &(yylsp[(yyi + 1) - (yynrhs)])		       , tmpl, error_msg);
+		       , &(yylsp[(yyi + 1) - (yynrhs)])		       , mc, tmpl, error_msg);
       YYFPRINTF (stderr, "\n");
     }
 }
@@ -826,7 +850,7 @@ yy_reduce_print (yyvsp, yylsp, yyrule, tmpl, error_msg)
 # define YY_REDUCE_PRINT(Rule)		\
 do {					\
   if (yydebug)				\
-    yy_reduce_print (yyvsp, yylsp, Rule, tmpl, error_msg); \
+    yy_reduce_print (yyvsp, yylsp, Rule, mc, tmpl, error_msg); \
 } while (YYID (0))
 
 /* Nonzero means print parse trace.  It is left uninitialized so that
@@ -1077,20 +1101,22 @@ yysyntax_error (char *yyresult, int yystate, int yychar)
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep, YYLTYPE *yylocationp, Template * tmpl, char ** error_msg)
+yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep, YYLTYPE *yylocationp, mem_collector * mc, Template *      tmpl, char **         error_msg)
 #else
 static void
-yydestruct (yymsg, yytype, yyvaluep, yylocationp, tmpl, error_msg)
+yydestruct (yymsg, yytype, yyvaluep, yylocationp, mc, tmpl, error_msg)
     const char *yymsg;
     int yytype;
     YYSTYPE *yyvaluep;
     YYLTYPE *yylocationp;
-    Template * tmpl;
-    char ** error_msg;
+    mem_collector * mc;
+    Template *      tmpl;
+    char **         error_msg;
 #endif
 {
   YYUSE (yyvaluep);
   YYUSE (yylocationp);
+  YYUSE (mc);
   YYUSE (tmpl);
   YYUSE (error_msg);
 
@@ -1115,7 +1141,7 @@ int yyparse ();
 #endif
 #else /* ! YYPARSE_PARAM */
 #if defined __STDC__ || defined __cplusplus
-int yyparse (Template * tmpl, char ** error_msg);
+int yyparse (mem_collector * mc, Template *      tmpl, char **         error_msg);
 #else
 int yyparse ();
 #endif
@@ -1143,12 +1169,13 @@ yyparse (YYPARSE_PARAM)
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 int
-yyparse (Template * tmpl, char ** error_msg)
+yyparse (mem_collector * mc, Template *      tmpl, char **         error_msg)
 #else
 int
-yyparse (tmpl, error_msg)
-    Template * tmpl;
-    char ** error_msg;
+yyparse (mc, tmpl, error_msg)
+    mem_collector * mc;
+    Template *      tmpl;
+    char **         error_msg;
 #endif
 #endif
 {
@@ -1430,7 +1457,7 @@ yyreduce:
         case 4:
 
 /* Line 1464 of yacc.c  */
-#line 76 "template_syntax.y"
+#line 99 "template_syntax.y"
     {
                 Attribute * pattr;
                 string      name((yyvsp[(1) - (3)].val_str));
@@ -1439,16 +1466,13 @@ yyreduce:
                 pattr = new SingleAttribute(name,unescape(value));
 
                 tmpl->set(pattr);
-
-                free((yyvsp[(1) - (3)].val_str));
-                free((yyvsp[(3) - (3)].val_str));
             ;}
     break;
 
   case 5:
 
 /* Line 1464 of yacc.c  */
-#line 89 "template_syntax.y"
+#line 109 "template_syntax.y"
     {
                 Attribute * pattr;
                 string      name((yyvsp[(1) - (5)].val_str));
@@ -1460,14 +1484,13 @@ yyreduce:
                 tmpl->set(pattr);
 
                 delete amap;
-                free((yyvsp[(1) - (5)].val_str));
             ;}
     break;
 
   case 6:
 
 /* Line 1464 of yacc.c  */
-#line 103 "template_syntax.y"
+#line 122 "template_syntax.y"
     {
                 Attribute * pattr;
                 string      name((yyvsp[(1) - (2)].val_str));
@@ -1476,15 +1499,13 @@ yyreduce:
                 pattr = new SingleAttribute(name,value);
 
                 tmpl->set(pattr);
-
-                free((yyvsp[(1) - (2)].val_str));
             ;}
     break;
 
   case 7:
 
 /* Line 1464 of yacc.c  */
-#line 117 "template_syntax.y"
+#line 134 "template_syntax.y"
     {
                 map<string,string>* vattr;
                 string              name((yyvsp[(1) - (3)].val_str));
@@ -1496,16 +1517,13 @@ yyreduce:
                 vattr->insert(make_pair(name,unescape(value)));
 
                 (yyval.val_attr) = static_cast<void *>(vattr);
-
-                free((yyvsp[(1) - (3)].val_str));
-                free((yyvsp[(3) - (3)].val_str));
             ;}
     break;
 
   case 8:
 
 /* Line 1464 of yacc.c  */
-#line 133 "template_syntax.y"
+#line 147 "template_syntax.y"
     {
                 string               name((yyvsp[(3) - (5)].val_str));
                 string               value((yyvsp[(5) - (5)].val_str));
@@ -1517,16 +1535,13 @@ yyreduce:
 
                 attrmap->insert(make_pair(name,unescape(value)));
                 (yyval.val_attr) = (yyvsp[(1) - (5)].val_attr);
-
-                free((yyvsp[(3) - (5)].val_str));
-                free((yyvsp[(5) - (5)].val_str));
             ;}
     break;
 
 
 
 /* Line 1464 of yacc.c  */
-#line 1530 "template_syntax.cc"
+#line 1545 "template_syntax.cc"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1562,7 +1577,7 @@ yyerrlab:
     {
       ++yynerrs;
 #if ! YYERROR_VERBOSE
-      yyerror (&yylloc, tmpl, error_msg, YY_("syntax error"));
+      yyerror (&yylloc, mc, tmpl, error_msg, YY_("syntax error"));
 #else
       {
 	YYSIZE_T yysize = yysyntax_error (0, yystate, yychar);
@@ -1586,11 +1601,11 @@ yyerrlab:
 	if (0 < yysize && yysize <= yymsg_alloc)
 	  {
 	    (void) yysyntax_error (yymsg, yystate, yychar);
-	    yyerror (&yylloc, tmpl, error_msg, yymsg);
+	    yyerror (&yylloc, mc, tmpl, error_msg, yymsg);
 	  }
 	else
 	  {
-	    yyerror (&yylloc, tmpl, error_msg, YY_("syntax error"));
+	    yyerror (&yylloc, mc, tmpl, error_msg, YY_("syntax error"));
 	    if (yysize != 0)
 	      goto yyexhaustedlab;
 	  }
@@ -1614,7 +1629,7 @@ yyerrlab:
       else
 	{
 	  yydestruct ("Error: discarding",
-		      yytoken, &yylval, &yylloc, tmpl, error_msg);
+		      yytoken, &yylval, &yylloc, mc, tmpl, error_msg);
 	  yychar = YYEMPTY;
 	}
     }
@@ -1671,7 +1686,7 @@ yyerrlab1:
 
       yyerror_range[0] = *yylsp;
       yydestruct ("Error: popping",
-		  yystos[yystate], yyvsp, yylsp, tmpl, error_msg);
+		  yystos[yystate], yyvsp, yylsp, mc, tmpl, error_msg);
       YYPOPSTACK (1);
       yystate = *yyssp;
       YY_STACK_PRINT (yyss, yyssp);
@@ -1711,7 +1726,7 @@ yyabortlab:
 | yyexhaustedlab -- memory exhaustion comes here.  |
 `-------------------------------------------------*/
 yyexhaustedlab:
-  yyerror (&yylloc, tmpl, error_msg, YY_("memory exhausted"));
+  yyerror (&yylloc, mc, tmpl, error_msg, YY_("memory exhausted"));
   yyresult = 2;
   /* Fall through.  */
 #endif
@@ -1719,7 +1734,7 @@ yyexhaustedlab:
 yyreturn:
   if (yychar != YYEMPTY)
      yydestruct ("Cleanup: discarding lookahead",
-		 yytoken, &yylval, &yylloc, tmpl, error_msg);
+		 yytoken, &yylval, &yylloc, mc, tmpl, error_msg);
   /* Do not reclaim the symbols of the rule which action triggered
      this YYABORT or YYACCEPT.  */
   YYPOPSTACK (yylen);
@@ -1727,7 +1742,7 @@ yyreturn:
   while (yyssp != yyss)
     {
       yydestruct ("Cleanup: popping",
-		  yystos[*yyssp], yyvsp, yylsp, tmpl, error_msg);
+		  yystos[*yyssp], yyvsp, yylsp, mc, tmpl, error_msg);
       YYPOPSTACK (1);
     }
 #ifndef yyoverflow
@@ -1745,42 +1760,43 @@ yyreturn:
 
 
 /* Line 1684 of yacc.c  */
-#line 149 "template_syntax.y"
+#line 160 "template_syntax.y"
 
 
 string& unescape (string &str)
 {
     size_t  pos;
-    
+
     while ((pos = str.find("\\\"")) != string::npos)
     {
         str.replace(pos,2,"\"");
     }
-    
+
     return str;
 }
 
-extern "C" void template_error(
-	YYLTYPE *		llocp,
-	Template *		tmpl,
-	char **			error_msg,
-	const char *	str)
+extern "C" void template__error(
+    YYLTYPE *       llocp,
+    mem_collector * mc,
+    Template *      tmpl,
+    char **         error_msg,
+    const char *    str)
 {
-	int length;
+    int length;
 
-	length = strlen(str)+ 64;
+    length = strlen(str)+ 64;
 
-	*error_msg = (char *) malloc(sizeof(char)*length);
+    *error_msg = (char *) malloc(sizeof(char)*length);
 
-	if (*error_msg != 0)
-	{
-		snprintf(*error_msg,
-			length,
-			"%s at line %i, columns %i:%i",
-			str,
-	    	llocp->first_line,
-    		llocp->first_column,
-        	llocp->last_column);
-	}
+    if (*error_msg != 0)
+    {
+        snprintf(*error_msg,
+            length,
+            "%s at line %i, columns %i:%i",
+            str,
+            llocp->first_line,
+            llocp->first_column,
+            llocp->last_column);
+    }
 }
 

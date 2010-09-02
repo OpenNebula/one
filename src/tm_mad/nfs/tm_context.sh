@@ -51,7 +51,7 @@ exec_and_log "mkdir -p $ISO_DIR"
 for f in $SRC; do
     case $f in
     http://*)
-        exec_and_log "wget -O $ISO_DIR $f"
+        exec_and_log "$WGET -O $ISO_DIR $f"
         ;;
 
     *)
@@ -60,7 +60,7 @@ for f in $SRC; do
     esac
 done
 
-exec_and_log "mkisofs -o $DST_PATH -J -R $ISO_DIR"
+exec_and_log "$MKISOFS -o $DST_PATH -J -R $ISO_DIR"
 
 exec_and_log "rm -rf $ISO_DIR"
 

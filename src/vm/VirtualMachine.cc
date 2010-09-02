@@ -96,14 +96,14 @@ const char * VirtualMachine::table = "vm_pool";
 
 const char * VirtualMachine::db_names =
     "(oid,uid,name,last_poll, state,lcm_state,stime,etime,deploy_id"
-    ",memory,cpu,net_tx,net_rx,last_seq)";
+    ",memory,cpu,net_tx,net_rx,last_seq, template)";
 
 const char * VirtualMachine::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
         "vm_pool ("
         "oid INTEGER PRIMARY KEY,uid INTEGER,name TEXT,"
         "last_poll INTEGER, state INTEGER,lcm_state INTEGER,"
         "stime INTEGER,etime INTEGER,deploy_id TEXT,memory INTEGER,cpu INTEGER,"
-        "net_tx INTEGER,net_rx INTEGER, last_seq INTEGER)";
+        "net_tx INTEGER,net_rx INTEGER, last_seq INTEGER, template TEXT)";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -123,6 +123,7 @@ int VirtualMachine::select_cb(void *nil, int num, char **values, char **names)
         (values[NET_TX] == 0) ||
         (values[NET_RX] == 0) ||
         (values[LAST_SEQ] == 0) ||
+        (values[TEMPLATE] == 0) ||
         (num != LIMIT ))
     {
         return -1;
@@ -151,8 +152,8 @@ int VirtualMachine::select_cb(void *nil, int num, char **values, char **names)
     net_rx      = atoi(values[NET_RX]);
     last_seq    = atoi(values[LAST_SEQ]);
 
-    // Virtual Machine template ID is the VM ID
-    vm_template->id = oid;
+    // Virtual Machine template
+    vm_template->from_xml(values[TEMPLATE]);
 
     return 0;
 }
@@ -187,14 +188,6 @@ int VirtualMachine::select(SqlDB * db)
         goto error_id;
     }
 
-    //Get the template
-    rc = vm_template->select(db);
-
-    if (rc != 0)
-    {
-        goto error_template;
-    }
-
     //Get the History Records
 
     if ( last_seq != -1 )
@@ -221,7 +214,7 @@ int VirtualMachine::select(SqlDB * db)
         }
     }
 
-    //Create support directory fo this VM
+    //Create support directory for this VM
 
     oss.str("");
     oss << nd.get_var_location() << oid;
@@ -229,7 +222,7 @@ int VirtualMachine::select(SqlDB * db)
     mkdir(oss.str().c_str(), 0777);
     chmod(oss.str().c_str(), 0777);
 
-    //Create Log support fo this VM
+    //Create Log support for this VM
 
     try
     {
@@ -250,11 +243,6 @@ error_id:
     log("VMM", Log::ERROR, ose);
     return -1;
 
-error_template:
-    ose << "Can not get template for VM id: " << oid;
-    log("ONE", Log::ERROR, ose);
-    return -1;
-
 error_history:
     ose << "Can not get history for VM id: " << oid;
     log("ONE", Log::ERROR, ose);
@@ -270,7 +258,7 @@ error_previous_history:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::insert(SqlDB * db)
+int VirtualMachine::insert(SqlDB * db, string& error_str)
 {
     int    rc;
     string name;
@@ -279,13 +267,6 @@ int VirtualMachine::insert(SqlDB * db)
     string              value;
     ostringstream       oss;
 
-    // -----------------------------------------------------------------------
-    // Set a template ID if it wasn't already assigned
-    // ------------------------------------------------------------------------
-    if ( vm_template->id == -1 )
-    {
-        vm_template->id = oid;
-    }
 
     // -----------------------------------------------------------------------
     // Set a name if the VM has not got one and VM_ID
@@ -326,7 +307,7 @@ int VirtualMachine::insert(SqlDB * db)
     // Get disk images
     // ------------------------------------------------------------------------
 
-    rc = get_disk_images();
+    rc = get_disk_images(error_str);
 
     if ( rc != 0 )
     {
@@ -354,15 +335,8 @@ int VirtualMachine::insert(SqlDB * db)
     parse_graphics();
 
     // ------------------------------------------------------------------------
-    // Insert the template first, so we get a valid template ID. Then the VM
+    // Insert the VM
     // ------------------------------------------------------------------------
-
-    rc = vm_template->insert(db);
-
-    if ( rc != 0 )
-    {
-        goto error_template;
-    }
 
     rc = insert_replace(db, false);
 
@@ -374,16 +348,12 @@ int VirtualMachine::insert(SqlDB * db)
     return 0;
 
 error_update:
-    NebulaLog::log("ONE",Log::ERROR, "Can not update VM in the database");
-    vm_template->drop(db);
-    goto error_common;
-
-error_template:
-    NebulaLog::log("ONE",Log::ERROR, "Can not insert template in the database");
+    error_str = "Can not insert VM in the database.";
     goto error_common;
 
 error_leases:
-    NebulaLog::log("ONE",Log::ERROR, "Could not get network lease for VM");
+    error_str = "Could not get network lease for VM.";
+    NebulaLog::log("ONE",Log::ERROR, error_str);
     release_network_leases();
     return -1;
 
@@ -391,14 +361,15 @@ error_images:
     goto error_common;
 
 error_context:
-    NebulaLog::log("ONE",Log::ERROR, "Could not parse CONTEXT for VM");
+    error_str = "Could not parse CONTEXT for VM.";
     goto error_common;
 
 error_requirements:
-    NebulaLog::log("ONE",Log::ERROR, "Could not parse REQUIREMENTS for VM");
+    error_str = "Could not parse REQUIREMENTS for VM.";
     goto error_common;
 
 error_common:
+    NebulaLog::log("ONE",Log::ERROR, error_str);
     release_network_leases();
     release_disk_images();
     return -1;
@@ -590,23 +561,33 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace)
     ostringstream   oss;
     int             rc;
 
+    string xml_template;
     char * sql_deploy_id;
     char * sql_name;
+    char * sql_template;
 
     sql_deploy_id = db->escape_str(deploy_id.c_str());
 
     if ( sql_deploy_id == 0 )
     {
-        return -1;
+        goto error_deploy;
     }
 
     sql_name =  db->escape_str(name.c_str());
 
     if ( sql_name == 0 )
     {
-       db->free_str(sql_deploy_id);
-       return -1;
+        goto error_name;
     }
+
+    vm_template->to_xml(xml_template);
+    sql_template = db->escape_str(xml_template.c_str());
+
+    if ( sql_template == 0 )
+    {
+        goto error_template;
+    }
+
 
     if(replace)
     {
@@ -631,20 +612,32 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace)
         <<          cpu             << ","
         <<          net_tx          << ","
         <<          net_rx          << ","
-        <<          last_seq        << ")";
+        <<          last_seq        << ","
+        << "'" <<   sql_template    << "')";
 
     db->free_str(sql_deploy_id);
     db->free_str(sql_name);
+    db->free_str(sql_template);
 
     rc = db->exec(oss);
 
     return rc;
+
+error_template:
+    db->free_str(sql_name);
+error_name:
+    db->free_str(sql_deploy_id);
+error_deploy:
+    return -1;
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::dump(ostringstream& oss,int num,char **values,char **names)
+int VirtualMachine::dump(  ostringstream& oss,
+                                    int num,
+                                    char **values,
+                                    char **names)
 {
     if ((!values[OID])||
         (!values[UID])||
@@ -660,6 +653,57 @@ int VirtualMachine::dump(ostringstream& oss,int num,char **values,char **names)
         (!values[NET_TX])||
         (!values[NET_RX])||
         (!values[LAST_SEQ])||
+        (!values[TEMPLATE])||
+        (num != LIMIT))
+    {
+        return -1;
+    }
+
+    oss <<
+        "<VM>" <<
+            "<ID>"       << values[OID]      << "</ID>"       <<
+            "<UID>"      << values[UID]      << "</UID>"      <<
+            "<NAME>"     << values[NAME]     << "</NAME>"     <<
+            "<LAST_POLL>"<< values[LAST_POLL]<< "</LAST_POLL>"<<
+            "<STATE>"    << values[STATE]    << "</STATE>"    <<
+            "<LCM_STATE>"<< values[LCM_STATE]<< "</LCM_STATE>"<<
+            "<STIME>"    << values[STIME]    << "</STIME>"    <<
+            "<ETIME>"    << values[ETIME]    << "</ETIME>"    <<
+            "<DEPLOY_ID>"<< values[DEPLOY_ID]<< "</DEPLOY_ID>"<<
+            "<MEMORY>"   << values[MEMORY]   << "</MEMORY>"   <<
+            "<CPU>"      << values[CPU]      << "</CPU>"      <<
+            "<NET_TX>"   << values[NET_TX]   << "</NET_TX>"   <<
+            "<NET_RX>"   << values[NET_RX]   << "</NET_RX>"   <<
+            "<LAST_SEQ>" << values[LAST_SEQ] << "</LAST_SEQ>" <<
+                            values[TEMPLATE];
+    oss << "</VM>";
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::dump_extended(  ostringstream& oss,
+                                    int num,
+                                    char **values,
+                                    char **names)
+{
+    if ((!values[OID])||
+        (!values[UID])||
+        (!values[NAME]) ||
+        (!values[LAST_POLL])||
+        (!values[STATE])||
+        (!values[LCM_STATE])||
+        (!values[STIME])||
+        (!values[ETIME])||
+        (!values[DEPLOY_ID])||
+        (!values[MEMORY])||
+        (!values[CPU])||
+        (!values[NET_TX])||
+        (!values[NET_RX])||
+        (!values[LAST_SEQ])||
+        (!values[TEMPLATE])||
         (num != (LIMIT + History::LIMIT + 1)))
     {
         return -1;
@@ -681,7 +725,8 @@ int VirtualMachine::dump(ostringstream& oss,int num,char **values,char **names)
             "<CPU>"      << values[CPU]      << "</CPU>"      <<
             "<NET_TX>"   << values[NET_TX]   << "</NET_TX>"   <<
             "<NET_RX>"   << values[NET_RX]   << "</NET_RX>"   <<
-            "<LAST_SEQ>" << values[LAST_SEQ] << "</LAST_SEQ>";
+            "<LAST_SEQ>" << values[LAST_SEQ] << "</LAST_SEQ>" <<
+                            values[TEMPLATE];
 
     History::dump(oss, num-LIMIT-1, values+LIMIT+1, names+LIMIT+1);
 
@@ -818,15 +863,16 @@ void VirtualMachine::get_requirements (int& cpu, int& memory, int& disk)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::get_disk_images()
+int VirtualMachine::get_disk_images(string& error_str)
 {
     int                   num_disks, rc;
     vector<Attribute  * > disks;
     ImagePool *           ipool;
     VectorAttribute *     disk;
 
-    int     n_os = 0;
-    int     n_cd = 0;
+    int     n_os = 0; // Number of OS images
+    int     n_cd = 0; // Number of CDROMS
+    int     n_db = 0; // Number of DATABLOCKS
     string  type;
 
     ostringstream    oss;
@@ -858,6 +904,9 @@ int VirtualMachine::get_disk_images()
                 case Image::CDROM:
                     n_cd++;
                     break;
+                case Image::DATABLOCK:
+                    n_db++;
+                    break;
                 default:
                     break;
             }
@@ -871,6 +920,11 @@ int VirtualMachine::get_disk_images()
             {
                 goto error_max_cd;
             }
+
+            if( n_db > 10 )  // Max. number of DATABLOCK images is 10
+            {
+                goto error_max_db;
+            }
         }
         else if ( rc == -1 )
         {
@@ -881,21 +935,23 @@ int VirtualMachine::get_disk_images()
     return 0;
 
 error_max_os:
-    NebulaLog::log("ONE",Log::ERROR,
-                    "VM can not use more than one OS image.");
+    error_str = "VM can not use more than one OS image.";
     goto error_common;
 
 error_max_cd:
-    NebulaLog::log("ONE",Log::ERROR,
-                    "VM can not use more than one CDROM image.");
+    error_str = "VM can not use more than one CDROM image.";
+    goto error_common;
+
+error_max_db:
+    error_str = "VM can not use more than 10 DATABLOCK images.";
     goto error_common;
 
 error_image:
-    NebulaLog::log("ONE",Log::ERROR, "Could not get disk image for VM");
+    error_str = "Could not get disk image for VM.";
 
 error_common:
+    NebulaLog::log("ONE",Log::ERROR, error_str);
     return -1;
-
 }
 
 /* -------------------------------------------------------------------------- */
@@ -904,6 +960,7 @@ error_common:
 void VirtualMachine::release_disk_images()
 {
     string  iid;
+    string  saveas;
     int     num_disks;
 
     vector<Attribute const  * > disks;
@@ -939,10 +996,16 @@ void VirtualMachine::release_disk_images()
             continue;
         }
 
-        if (img->release_image() == true)
+        img->release_image();
+
+        saveas = disk->vector_value("SAVE_AS");
+
+        if ( !saveas.empty() && saveas == iid )
         {
-            ipool->update(img);
+            img->enable(false);
         }
+
+        ipool->update(img);
 
         img->unlock();
     }

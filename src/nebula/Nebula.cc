@@ -22,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdexcept>
+#include <libxml/parser.h>
 
 #include <signal.h>
 #include <unistd.h>
@@ -61,6 +62,15 @@ void Nebula::start()
     if ( rc != 0 )
     {
         throw runtime_error("Could not load nebula configuration file.");
+    }
+
+    string   config_fname = log_location + "config";
+    ofstream config_file(config_fname.c_str(), ios_base::trunc & ios_base::out);
+
+    if (config_file.fail() == false)
+    {
+        config_file << *nebula_configuration << endl;
+        config_file.close();
     }
 
     // -----------------------------------------------------------
@@ -108,12 +118,16 @@ void Nebula::start()
     NebulaLog::log("ONE",Log::INFO,"----------------------------------------");
 
     os.str("");
-
-    os << "\n--------------------------------------------";
+    os << "\n----------------------------------\n";
     os << *nebula_configuration;
-    os << "\n--------------------------------------------";
+    os << "----------------------------------";
 
     NebulaLog::log("ONE",Log::INFO,os);
+
+    // -----------------------------------------------------------
+    // Initialize the XML library
+    // -----------------------------------------------------------
+    xmlInitParser();
 
     // -----------------------------------------------------------
     // Pools
@@ -224,7 +238,7 @@ void Nebula::start()
 
         nebula_configuration->get("VM_HOOK", vm_hooks);
 
-        vmpool = new VirtualMachinePool(db, vm_hooks);
+        vmpool = new VirtualMachinePool(db, vm_hooks,hook_location);
         hpool  = new HostPool(db);
 
         nebula_configuration->get("MAC_PREFIX", mac_prefix);
@@ -235,12 +249,6 @@ void Nebula::start()
         upool  = new UserPool(db);
 
         nebula_configuration->get("IMAGE_REPOSITORY_PATH", repository_path);
-
-        if (repository_path.empty()) // Defaults to ONE_LOCATION/var
-        {
-            repository_path = var_location;
-        }
-
         nebula_configuration->get("DEFAULT_IMAGE_TYPE", default_image_type);
         nebula_configuration->get("DEFAULT_DEVICE_PREFIX",
                                   default_device_prefix);
@@ -345,7 +353,11 @@ void Nebula::start()
 
         nebula_configuration->get("IM_MAD", im_mads);
 
-        im = new InformationManager(hpool,timer_period,monitor_period,im_mads);
+        im = new InformationManager(hpool,
+                                    timer_period,
+                                    monitor_period,
+                                    remotes_location,
+                                    im_mads);
     }
     catch (bad_alloc&)
     {
@@ -531,6 +543,9 @@ void Nebula::start()
     pthread_join(im->get_thread_id(),0);
     pthread_join(rm->get_thread_id(),0);
     pthread_join(hm->get_thread_id(),0);
+
+    //XML Library
+    xmlCleanupParser();
 
     NebulaLog::log("ONE", Log::INFO, "All modules finalized, exiting.\n");
 }

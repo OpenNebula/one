@@ -599,6 +599,28 @@ public:
     }
 
     /**
+     *  Adds a new attribute to the template (replacing it if
+     *  already defined), the vm's mutex SHOULD be locked
+     *    @param name of the new attribute
+     *    @param value of the new attribute
+     *    @return 0 on success
+     */
+    int replace_template_attribute(
+        string& name,
+        string& value)
+    {
+        SingleAttribute * sattr;
+
+        vm_template->erase(name);
+
+        sattr = new SingleAttribute(name,value);
+        vm_template->set(sattr);
+
+        return 0;
+    }
+
+
+    /**
      *  Generates a XML string for the template of the VM
      *    @param xml the string to store the XML description.
      */
@@ -713,7 +735,7 @@ public:
      *  Get all disk images for this Virtual Machine
      *  @return 0 if success
      */
-    int get_disk_images();
+    int get_disk_images(string &error_str);
 
     /**
      *  Releases all disk images taken by this Virtual Machine
@@ -869,11 +891,9 @@ private:
     static void bootstrap(SqlDB * db)
     {
         ostringstream oss_vm(VirtualMachine::db_bootstrap);
-        ostringstream oss_tmpl(VirtualMachineTemplate::db_bootstrap);
         ostringstream oss_hist(History::db_bootstrap);
 
         db->exec(oss_vm);
-        db->exec(oss_tmpl);
         db->exec(oss_hist);
     };
 
@@ -925,44 +945,6 @@ private:
             return -1;
     };
 
-    /**
-     *  Updates the template of a VM, adding a new attribute (replacing it if
-     *  already defined), the vm's mutex SHOULD be locked
-     *    @param db pointer to the database
-     *    @param name of the new attribute
-     *    @param value of the new attribute
-     *    @return 0 on success
-     */
-    int update_template_attribute(
-        SqlDB * db,
-        string& name,
-        string& value)
-    {
-        SingleAttribute * sattr;
-        int               rc;
-
-        sattr = new SingleAttribute(name,value);
-        rc    = vm_template->replace_attribute(db,sattr);
-
-        if (rc != 0)
-        {
-            delete sattr;
-        }
-
-        return rc;
-    }
-
-    /**
-     *  Inserts a new attribute in the template of a VM, also the DB is
-     *  updated. The vm's mutex SHOULD be locked
-     *    @param db pointer to the database
-     *    @param attribute the new attribute for the template
-     *    @return 0 on success
-     */
-    int insert_template_attribute(SqlDB * db, Attribute * attribute)
-    {
-        return vm_template->insert_attribute(db,attribute);
-    }
 
     // -------------------------------------------------------------------------
     // Attribute Parser
@@ -1023,7 +1005,8 @@ protected:
         NET_TX          = 11,
         NET_RX          = 12,
         LAST_SEQ        = 13,
-        LIMIT           = 14
+        TEMPLATE        = 14,
+        LIMIT           = 15
     };
 
     static const char * table;
@@ -1044,7 +1027,7 @@ protected:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    virtual int insert(SqlDB * db);
+    virtual int insert(SqlDB * db, string& error_str);
 
     /**
      *  Writes/updates the Virtual Machine data fields in the database.
@@ -1074,6 +1057,18 @@ protected:
      *    @return 0 on success
      */
     static int dump(ostringstream& oss, int num, char ** values, char ** names);
+
+    /**
+     *  Dumps the contect of a set of VirtualMachine objects in the given stream
+     *  using XML format
+     *    @param oss the output stream
+     *    @param num the number of columns read from the DB
+     *    @param names the column names
+     *    @param vaues the column values
+     *    @return 0 on success
+     */
+    static int dump_extended(   ostringstream& oss,
+                                int num, char ** values, char ** names);
 };
 
 #endif /*VIRTUAL_MACHINE_H_*/

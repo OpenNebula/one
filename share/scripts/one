@@ -16,11 +16,12 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-if [ -z "$ONE_LOCATION" ]; then 
+if [ -z "$ONE_LOCATION" ]; then
     ONE_PID=/var/run/one/oned.pid
     ONE_SCHEDPID=/var/run/one/sched.pid
     ONE_CONF=/etc/one/oned.conf
     ONE_DB=/var/lib/one/one.db
+    ONE_LOG=/var/log/one/oned.log
 
     ONED=/usr/bin/oned
     ONE_SCHEDULER=/usr/bin/mm_sched
@@ -31,29 +32,31 @@ else
     ONE_SCHEDPID=$ONE_LOCATION/var/sched.pid
     ONE_CONF=$ONE_LOCATION/etc/oned.conf
     ONE_DB=$ONE_LOCATION/var/one.db
+    ONE_LOG=$ONE_LOCATION/var/oned.log
 
     ONED=$ONE_LOCATION/bin/oned
     ONE_SCHEDULER=$ONE_LOCATION/bin/mm_sched
-    
+
     LOCK_FILE=$ONE_LOCATION/var/.lock
-fi 
+fi
 
 setup()
 {
-	PORT=`cat $ONE_CONF | grep ^PORT= | cut -d= -f2`
+    PORT=$(sed -n '/^[ \t]*PORT/s/^.*PORT\s*=\s*\([0-9]\+\)\s*.*$/\1/p' \
+            $ONE_CONF)
 
 	if [ $? -ne 0 ]; then
 		echo "Can not find PORT in $ONE_CONF."
 		exit 1
 	fi
-	
+
 	if [ -f $LOCK_FILE ]; then
 		if [ -f  $ONE_PID ]; then
 			ONEPID=`cat $ONE_PID`
 			ps $ONEPID > /dev/null 2>&1
 			if [ $? -eq 0 ]; then
 				echo "ONE is still running (PID:$ONEPID). Please try 'one stop' first."
-				exit 1 
+				exit 1
 			fi
 		fi
 		if [ -f  $ONE_SCHEDPID ]; then
@@ -73,12 +76,12 @@ start()
 {
 	if [ ! -x "$ONED" ]; then
 		echo "Can not find $ONED."
-		exit 1		
+		exit 1
 	fi
 
 	if [ ! -x "$ONE_SCHEDULER" ]; then
 		echo "Can not find $ONE_SCHEDULER."
-		exit 1		
+		exit 1
 	fi
 
     if [ ! -f "$ONE_DB" ]; then
@@ -91,28 +94,34 @@ start()
             fi
         fi
     fi
-		
+
+
+    # Backup oned.log
+    if [ "$BACKUP" = "true" ];then
+        [ -f "$ONE_LOG" ] && cp $ONE_LOG{,.$(date '+%Y%m%d%H%M')}
+    fi
+
 	# Start the one daemon
-	$ONED -f 2>&1 & 
-	
+	$ONED -f 2>&1 &
+
 	LASTRC=$?
 	LASTPID=$!
 
 	if [ $LASTRC -ne 0 ]; then
 		echo "Error executing $ONED"
-		exit 1			
+		exit 1
 	else
 		echo $LASTPID > $ONE_PID
 	fi
-	
+
 	sleep 1
 	ps $LASTPID > /dev/null 2>&1
-	
+
 	if [ $? -ne 0 ]; then
 		echo "Error executing $ONED."
 		exit 1
 	fi
-	
+
 	# Start the scheduler
         # The following command line arguments are supported by mm_shed:
         #  [-p port]           to connect to oned - default: 2633
@@ -123,7 +132,7 @@ start()
         #                      - default: 30
         #  [-h host dispatch]  max number of VMs dispatched to a given host in each
         #                      scheduling action - default: 1
-  
+
 	$ONE_SCHEDULER -p $PORT -t 30 -m 300 -d 30 -h 1&
 
 	LASTRC=$?
@@ -131,11 +140,11 @@ start()
 
 	if [ $LASTRC -ne 0 ]; then
 		echo "Error executing $ONE_SCHEDULER"
-		exit 1			
+		exit 1
 	else
 		echo $LASTPID > $ONE_SCHEDPID
 	fi
-	
+
 	echo "oned and scheduler started"
 }
 
@@ -159,7 +168,7 @@ stop()
 	kill `cat $ONE_PID` > /dev/null 2>&1
 
 	# Kill the scheduler
-	
+
 	kill `cat $ONE_SCHEDPID` > /dev/null 2>&1
 
 	# Remove pid files
@@ -170,6 +179,10 @@ stop()
 	echo "oned and scheduler stopped"
 }
 
+if [ "$1" = "-b" ]; then
+    BACKUP=true
+    shift
+fi
 
 case "$1" in
   start)
@@ -180,7 +193,10 @@ case "$1" in
 	stop
 	;;
   *)
-	echo "Usage: one {start|stop}" >&2
+	echo "Usage: one [-b] {start|stop}" >&2
+	echo "Options:" >&2
+	echo "	-b	Backup log file." >&2
 	exit 3
 	;;
 esac
+

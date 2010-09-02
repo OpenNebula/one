@@ -112,7 +112,7 @@ class ActionManager
                 return
             end
 
-            arity=@actions[aname][:method].arity 
+            arity=@actions[aname][:method].arity
             
             if arity < 0
                 # Last parameter is an array
@@ -140,13 +140,18 @@ class ActionManager
 
     def cancel_action(action_id)
         @threads_mutex.synchronize {
-            thread = @action_running[action_id]
+            action = @action_running[action_id]
+            if action
+                thread = action[:thread]
+            else
+                thread = nil
+            end
             
             if thread
                 thread.kill
 
                 @num_running -= 1
-                @action_running.delete(action_id)
+                delete_running_action(action_id)
 
                 @threads_cond.signal
             else
@@ -159,8 +164,7 @@ class ActionManager
     def start_listener
         while true
             @threads_mutex.synchronize {
-                while ((@concurrency - @num_running)==0) ||
-                        @action_queue.size==0
+                while ((@concurrency - @num_running)==0) || empty_queue
                     @threads_cond.wait(@threads_mutex)
 
                     return if (@finalize && @num_running == 0)
@@ -170,11 +174,23 @@ class ActionManager
             }
         end
     end
-
+    
 private
+    
+    def delete_running_action(action_id)
+        @action_running.delete(action_id)
+    end
+    
+    def get_runable_action
+        @action_queue.shift
+    end
+    
+    def empty_queue
+        @action_queue.size==0
+    end
 
     def run_action
-        action = @action_queue.shift
+        action = get_runable_action
 
         if action
             @num_running += 1
@@ -185,13 +201,14 @@ private
 
                     @threads_mutex.synchronize {
                         @num_running -= 1
-                        @action_running.delete(action[:id])
+                        delete_running_action(action[:id])
 
                         @threads_cond.signal
                     }
                 }
 
-                @action_running[action[:id]] = thread
+                action[:thread] = thread
+                @action_running[action[:id]] = action
             else
                 action[:method].call(*action[:args])
 
@@ -212,6 +229,17 @@ if __FILE__ == $0
             @am.register_action(:SLEEP,method("sleep_action"))
 #            @am.register_action(:SLEEP,Proc.new{|s,i| p s ; sleep(s)})
             @am.register_action(:NOP,method("nop_action"))
+            
+            def @am.get_runable_action
+                action = super
+                puts "getting: #{action.inspect}"
+                action
+            end
+            
+            def @am.delete_running_action(action_id)
+                puts "deleting: #{action_id}"
+                super(action_id)
+            end
        end
 
         def sleep_action(secs, id)
@@ -223,6 +251,7 @@ if __FILE__ == $0
         def nop_action
             p " - Just an action"
         end
+        
     end
 
     s = Sample.new

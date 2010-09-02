@@ -21,9 +21,7 @@ int VirtualMachinePoolXML::set_up()
 {
     ostringstream   oss;
     int             rc;
-
     rc = PoolXML::set_up();
-
     if ( rc == 0 )
     {
         oss.str("");
@@ -51,58 +49,12 @@ void VirtualMachinePoolXML::add_object(xmlNodePtr node)
     {
         NebulaLog::log("VM",Log::ERROR,
                        "XML Node does not represent a valid Virtual Machine");
-
-       return;
+        return;
     }
 
-    xmlChar *     str_ptr = xmlNodeGetContent(node->children);
-    istringstream iss(reinterpret_cast<char *>(str_ptr));
+    VirtualMachineXML* vm = new VirtualMachineXML(node);
 
-    int             vid;
-    xmlrpc_c::value result;
-
-    iss >> vid;
-    xmlFree(str_ptr);
-
-    client->call(client->get_endpoint(),           // serverUrl
-                  "one.vm.info",                    // methodName
-                  "si",                             // arguments format
-                  &result,                          // resultP
-                  client->get_oneauth().c_str(),    // argument 0
-                  vid);                             // argument 1
-
-    vector<xmlrpc_c::value> values =
-                    xmlrpc_c::value_array(result).vectorValueValue();
-
-    bool   success = xmlrpc_c::value_boolean( values[0] );
-    string message = xmlrpc_c::value_string(  values[1] );
-
-    if( !success )
-    {
-        ostringstream oss;
-
-        oss << "ONE returned error while retrieving info for VM " << vid;
-        oss << ":" << endl;
-        oss << message;
-
-        NebulaLog::log("VM",Log::ERROR,oss);
-    }
-    else
-    {
-        try
-        {
-            VirtualMachineXML* vm = new VirtualMachineXML( message );
-
-            objects.insert( pair<int,ObjectXML*>(vid, vm) );
-        }
-        catch(runtime_error& re)
-        {
-            ostringstream oss_re;
-
-            oss_re << re.what();
-            NebulaLog::log("VM",Log::ERROR,oss_re);
-        }
-    }
+    objects.insert(pair<int,ObjectXML*>(vm->get_oid(),vm));
 }
 
 /* -------------------------------------------------------------------------- */
@@ -114,10 +66,12 @@ int VirtualMachinePoolXML::load_info(xmlrpc_c::value &result)
     {
         client->call(client->get_endpoint(),           // serverUrl
                      "one.vmpool.info",                // methodName
-                     "si",                             // arguments format
+                     "sibi",                           // arguments format
                      &result,                          // resultP
-                     client->get_oneauth().c_str(),    // argument 0
-                     -2);                              // argument 1
+                     client->get_oneauth().c_str(),    // auth string
+                     -2,                               // VM from all users
+                     false,                            // not extended info
+                     1);                               // in pending state
         return 0;
     }
     catch (exception const& e)

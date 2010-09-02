@@ -302,11 +302,13 @@ void VirtualMachineManagerDriver::protocol(
 
         if (result == "SUCCESS")
         {
-            string              deploy_id;
+            string deploy_id;
+            time_t thetime = time(0);
 
             is >> deploy_id;
 
             vm->update_info(deploy_id);
+            vm->set_last_poll(thetime);
 
             vmpool->update(vm);
 
@@ -320,7 +322,7 @@ void VirtualMachineManagerDriver::protocol(
 
             os.str("");
             os << "Error deploying virtual machine";
-               
+
             if (info[0] != '-')
                os << ": " << info;
 
@@ -517,7 +519,7 @@ void VirtualMachineManagerDriver::protocol(
 
                     tiss >> val;
 
-                    vmpool->update_template_attribute(vm,var,val);
+                    vm->replace_template_attribute(var,val);
                 }
             }
 
@@ -525,7 +527,7 @@ void VirtualMachineManagerDriver::protocol(
 
             vmpool->update(vm);
 
-            if (state != '-' && 
+            if (state != '-' &&
                 (vm->get_lcm_state() == VirtualMachine::RUNNING ||
                  vm->get_lcm_state() == VirtualMachine::UNKNOWN))
             {
@@ -546,7 +548,7 @@ void VirtualMachineManagerDriver::protocol(
                     if ( vm->get_lcm_state() == VirtualMachine::UNKNOWN)
                     {
                         vm->log("VMM",Log::INFO,"VM was now found, new state is"
-                                " RUNNING"); 
+                                " RUNNING");
                         vm->set_state(VirtualMachine::RUNNING);
                         vmpool->update(vm);
                     }

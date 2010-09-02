@@ -26,6 +26,8 @@ DISK = [
   target   = "sda2",
   readonly = "no" ]
 
+DISK  = [ IMAGE ="Ubuntu Server" ]
+
 # --- 1 NIC ---
 
 NIC = [ mac="00:ff:72:17:20:27"]

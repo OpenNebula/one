@@ -21,11 +21,15 @@
 #include <pthread.h>
 
 #include "template_syntax.h"
+#include "mem_collector.h"
 
-#define YY_DECL int template_lex (YYSTYPE *lvalp, YYLTYPE *llocp)
+#define YY_NO_INPUT 
 
-#define YY_USER_ACTION  llocp->first_line = yylineno; 				\
-                        llocp->first_column = llocp->last_column;	\
+#define YY_DECL int template_lex (YYSTYPE *lvalp, YYLTYPE *llocp, \
+                                  mem_collector *mc)
+
+#define YY_USER_ACTION  llocp->first_line = yylineno;   \
+                        llocp->first_column = llocp->last_column;   \
                         llocp->last_column += yyleng;
 %}
 
@@ -48,7 +52,8 @@ STRING [^=#[:blank:]\n,\[\]]+
  /* ------------------------------------------------------------------------- */
  /* Variable: Alpha numeric charatcers and '_'                                */
  /* ------------------------------------------------------------------------- */
-[[:alnum:]_]+  { lvalp->val_str = strdup(yytext); return VARIABLE;}
+[[:alnum:]_]+  { lvalp->val_str = mem_collector_strdup(mc,yytext);
+                 return VARIABLE; }
 
  /* ------------------------------------------------------------------------ */
  /* TOKENS                                                                   */
@@ -70,7 +75,7 @@ STRING [^=#[:blank:]\n,\[\]]+
  /*   - String in double quoted form                                         */
  /*   - Anything but  =,][# and blanks                                       */
  /* ------------------------------------------------------------------------ */
-<VALUE>\"([^\"]|"\\\"")+\" { lvalp->val_str = strdup(yytext+1);
+<VALUE>\"([^\"]|"\\\"")+\" { lvalp->val_str = mem_collector_strdup(mc,yytext+1);
                              lvalp->val_str[yyleng-2] = '\0';
                              BEGIN(INITIAL); return STRING; }
 
@@ -79,7 +84,7 @@ STRING [^=#[:blank:]\n,\[\]]+
                     lvalp->val_str[yyleng-2] = '\0';
                     BEGIN(INITIAL); return STRING; }
  */
-<VALUE>{STRING}   { lvalp->val_str = strdup(yytext);
+<VALUE>{STRING}   { lvalp->val_str = mem_collector_strdup(mc,yytext);
                     BEGIN(INITIAL); return STRING;}
 %%
 

@@ -32,7 +32,9 @@ class VirtualMachinePool : public PoolSQL
 {
 public:
 
-    VirtualMachinePool(SqlDB * db, vector<const Attribute *> hook_mads);
+    VirtualMachinePool(SqlDB * db,
+                       vector<const Attribute *> hook_mads,
+                       const string& hook_location);
 
     ~VirtualMachinePool(){};
 
@@ -48,8 +50,9 @@ public:
     int allocate (
         int     uid,
         VirtualMachineTemplate *vm_template,
-        int *  oid,
-        bool   on_hold = false);
+        int *   oid,
+        string& error_str,
+        bool    on_hold = false);
 
     /**
      *  Function to get a VM from the pool, if the object is not in memory
@@ -91,22 +94,6 @@ public:
     //--------------------------------------------------------------------------
 
     /**
-     *  Updates the template of a VM, adding a new attribute (replacing it if
-     *  already defined), the vm's mutex SHOULD be locked
-     *    @param vm pointer to the virtual machine object
-     *    @param name of the new attribute
-     *    @param value of the new attribute
-     *    @return 0 on success
-     */
-    int update_template_attribute(
-        VirtualMachine *    vm,
-        string&             name,
-        string&             value)
-    {
-    	return vm->update_template_attribute(db,name,value);
-    }
-
-    /**
      *  Updates the history record of a VM, the vm's mutex SHOULD be locked
      *    @param vm pointer to the virtual machine object
      *    @return 0 on success
@@ -145,7 +132,24 @@ public:
      *
      *  @return 0 on success
      */
-    int dump(ostringstream& oss, const string& where);
+    int dump(ostringstream& oss, const string& where)
+    {
+        return dump(oss, true, -1, where);
+    }
+
+    /**
+     *  Dumps the VM pool in XML format. A filter can be also added to the query
+     *  Also the hostname where the VirtualMachine is running is added to the
+     *  pool
+     *  @param oss the output stream to dump the pool contents
+     *  @param where filter for the objects, defaults to all
+     *  @param extended condition to include history and username data
+     *  @param state include only VMs in this state. -1 means any state,
+     *              except DONE
+     *
+     *  @return 0 on success
+     */
+    int dump(ostringstream& oss, bool extended, int state, const string& where);
 
 private:
     /**
@@ -166,6 +170,17 @@ private:
      *    @return 0 on success
      */
     int dump_cb(void * _oss, int num, char **values, char **names);
+
+    /**
+     *  Callback function to get output the vm pool in XML format
+     *  (VirtualMachinePool::dump)
+     *    @param num the number of columns read from the DB
+     *    @param names the column names
+     *    @param vaues the column values
+     *    @return 0 on success
+     */
+    int dump_extended_cb(void * _oss, int num, char **values, char **names);
+
 };
 
 #endif /*VIRTUAL_MACHINE_POOL_H_*/

@@ -182,7 +182,7 @@ private:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int insert(SqlDB * db);
+    int insert(SqlDB * db, string& error_str);
 
     /**
      *  Writes/updates the HostShare data fields in the database.
@@ -197,13 +197,13 @@ private:
      *    @return 0 on success
      */
     int drop(SqlDB * db);
-    
+
     /**
-     *  Execute an INSERT or REPLACE Sql query. 
+     *  Execute an INSERT or REPLACE Sql query.
      *    @param db The SQL DB
-     *    @param replace Execute an INSERT or a REPLACE	
+     *    @param replace Execute an INSERT or a REPLACE
      *    @return 0 one success
-    */    
+    */
     int insert_replace(SqlDB *db, bool replace);
 
     /**

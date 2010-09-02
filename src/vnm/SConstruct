@@ -26,7 +26,6 @@ source_files=[
     'FixedLeases.cc',
     'RangedLeases.cc',
     'VirtualNetwork.cc',
-    'VirtualNetworkTemplate.cc',
     'VirtualNetworkPool.cc',
 ]
 

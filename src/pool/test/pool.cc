@@ -53,9 +53,10 @@ private:
 
     int create_allocate(int n, string st)
     {
+        string err;
         TestObjectSQL *obj = new TestObjectSQL(n,st);
 
-        return pool->allocate(obj);
+        return pool->allocate(obj, err);
     };
 
 public:

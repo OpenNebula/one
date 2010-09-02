@@ -47,7 +47,7 @@ export_rc_vars $DRIVERRC
 # Go to var directory ONE_LOCATION/var or /var/lib/one
 cd $VAR_LOCATION
 
-LOG_FILE=$DRIVER_NAME
+LOG_FILE=one_im_ssh_$DRIVER_NAME
 
 # Execute the actual MAD
 execute_mad $*

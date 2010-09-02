@@ -20,6 +20,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <set>
 
 #include <ctype.h>
 #include <string.h>
@@ -29,38 +30,61 @@
 #include "ObjectXML.h"
 
 #define YYERROR_VERBOSE
-#define expr_arith_lex expr_lex
+#define expr_arith__lex expr_lex
 
 extern "C"
 {
-void expr_arith_error(
-    YYLTYPE *       llocp,
-    ObjectXML *     oxml,
-    int&            result,
-    char **         error_msg,
-    const char *    str);
+    #include "mem_collector.h"
 
-int expr_arith_lex (YYSTYPE *lvalp, YYLTYPE *llocp);
+    void expr_arith__error(
+        YYLTYPE *       llocp,
+        mem_collector * mc,
+        ObjectXML *     oxml,
+        int&            result,
+        char **         error_msg,
+        const char *    str);
 
-int expr_arith_parse(ObjectXML *oxml, int& result, char ** errmsg);
+    int expr_arith__lex (YYSTYPE *lvalp, YYLTYPE *llocp, mem_collector * mc);
+
+    int expr_arith__parse(mem_collector * mc,
+                          ObjectXML *     oxml,
+                          int&            result,
+                          char **         errmsg);
+
+    int expr_arith_parse(ObjectXML *oxml, int& result, char ** errmsg)
+    {
+        mem_collector mc;
+        int           rc;
+
+        mem_collector_init(&mc);
+
+        rc = expr_arith__parse(&mc,oxml,result,errmsg);
+
+        mem_collector_cleanup(&mc);
+
+        return rc;
+    }
 }
 
 %}
 
+%parse-param {mem_collector * mc}
 %parse-param {ObjectXML * oxml}
 %parse-param {int&        result}
 %parse-param {char **     error_msg}
 
+%lex-param {mem_collector * mc}
+
 %union {
-    char * 	val_str;
-    int 	val_int;
+    char *  val_str;
+    int     val_int;
     float   val_float;
 };
 
 %defines
 %locations
 %pure_parser
-%name-prefix = "expr_arith_"
+%name-prefix = "expr_arith__"
 %output      = "expr_arith.cc"
 
 %left '+' '-'
@@ -101,8 +125,6 @@ expr:   STRING              { float val = 0.0;
                               }
 
                               $$ = val;
-
-                              free($1);
                             }
         | FLOAT             { $$ = $1; }
         | INTEGER           { $$ = static_cast<float>($1); }
@@ -116,8 +138,9 @@ expr:   STRING              { float val = 0.0;
 
 %%
 
-extern "C" void expr_arith_error(
+extern "C" void expr_arith__error(
     YYLTYPE *       llocp,
+    mem_collector * mc,
     ObjectXML *     oxml,
     int&            result,
     char **         error_msg,

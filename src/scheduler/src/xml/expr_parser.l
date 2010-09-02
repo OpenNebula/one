@@ -17,12 +17,14 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 #include "expr_bool.h"
 #include "expr_arith.h"
+#include "mem_collector.h"
 
-#define YY_DECL int expr_lex (YYSTYPE *lvalp, YYLTYPE *llocp)
+#define YY_NO_INPUT 
+
+#define YY_DECL int expr_lex (YYSTYPE *lvalp, YYLTYPE *llocp, mem_collector *mc)
 
 #define YY_USER_ACTION  llocp->first_line = yylineno; 				\
                         llocp->first_column = llocp->last_column;	\
@@ -41,13 +43,13 @@
 
   /* --- Strings, also quoted form --- */
 
-[A-Za-z][0-9A-Za-z_]* { lvalp->val_str = strdup(yytext);
+[A-Za-z][0-9A-Za-z_]* { lvalp->val_str = mem_collector_strdup(mc,yytext);
                         return STRING;}
 
 \"\"        { lvalp->val_str = NULL;
               return STRING;}
 
-\"[^\"]*\"  { lvalp->val_str = strdup(yytext+1);
+\"[^\"]*\"  { lvalp->val_str = mem_collector_strdup(mc,yytext+1);
               lvalp->val_str[yyleng-2] = '\0';
               return STRING;}
 

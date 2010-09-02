@@ -28,10 +28,18 @@ using namespace std;
 class VirtualMachineXML : public ObjectXML
 {
 public:
-    VirtualMachineXML(const string &xml_doc);
+
+    VirtualMachineXML(const string &xml_doc):ObjectXML(xml_doc)
+    {
+        init_attributes();
+    };
+
+    VirtualMachineXML(const xmlNodePtr node):ObjectXML(node)
+    {
+        init_attributes();
+    }
 
     ~VirtualMachineXML();
-
 
     int get_oid() const
     {
@@ -59,7 +67,7 @@ public:
     /**
      *
      */
-    int get_host(int& hid, 
+    int get_host(int& hid,
                  HostPoolXML * hpool,
                  map<int,int>& host_vms,
                  int max_vms);
@@ -93,6 +101,11 @@ public:
     };
 
 protected:
+
+    /**
+     *  For constructors
+     */
+    void init_attributes();
 
     //--------------------------------------------------------------------------
     //--------------------------------------------------------------------------

@@ -43,7 +43,7 @@ public:
     
     int select(SqlDB *db);
 
-    int insert(SqlDB *db);
+    int insert(SqlDB *db, string& err);
 
     int update(SqlDB *db);
 

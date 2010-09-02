@@ -23,13 +23,13 @@
 /* Driver ASCII Protocol Implementation                                       */
 /* ************************************************************************** */
 
-void InformationManagerDriver::monitor (
-    const int       oid,
-    const string&   host) const
+void InformationManagerDriver::monitor(int           oid,
+                                       const string& host,
+                                       bool          update) const
 {
     ostringstream os;
 
-    os << "MONITOR " << oid << " " << host << endl;
+    os << "MONITOR " << oid << " " << host << " " << update << endl;
 
     write(os);
 }
@@ -39,8 +39,8 @@ void InformationManagerDriver::monitor (
 
 void InformationManagerDriver::protocol(
     string&     message)
-{       
-    istringstream   is(message);   
+{
+    istringstream   is(message);
     //stores the action name
     string          action;
     //stores the action result
@@ -51,7 +51,7 @@ void InformationManagerDriver::protocol(
     ostringstream   ess;
     string          hinfo;
     Host *          host;
-    
+
     // Parse the driver message
 
     if ( is.good() )
@@ -84,61 +84,61 @@ void InformationManagerDriver::protocol(
     // -----------------------
     // Protocol implementation
     // -----------------------
-    
+
     if ( action == "MONITOR" )
     {
         host = hpool->get(id,true);
-        
+
         if ( host == 0 )
         {
             goto error_host;
         }
-        
+
         if (result == "SUCCESS")
-        {            
-            size_t  pos;            
+        {
+            size_t  pos;
             int     rc;
-            
+
             ostringstream oss;
-         
+
             getline (is,hinfo);
-               
+
             for (pos=hinfo.find(',');pos!=string::npos;pos=hinfo.find(','))
             {
                 hinfo.replace(pos,1,"\n");
             }
 
             hinfo += "\n";
-            
+
             oss << "Host " << id << " successfully monitored."; //, info: "<< hinfo;
             NebulaLog::log("InM",Log::DEBUG,oss);
-                                  
+
             rc = host->update_info(hinfo);
-            
+
             if (rc != 0)
             {
                 goto error_parse_info;
-            }                
+            }
         }
         else
         {
-        	goto error_driver_info;        	            
+        	goto error_driver_info;
         }
-        
+
         host->touch(true);
-        
+
         hpool->update(host);
 
-        host->unlock();        
+        host->unlock();
     }
     else if (action == "LOG")
     {
         string info;
-        
+
         getline(is,info);
         NebulaLog::log("InM",Log::INFO,info.c_str());
     }
-    
+
     return;
 
 error_driver_info:
@@ -146,27 +146,27 @@ error_driver_info:
 	NebulaLog::log("InM", Log::ERROR, ess);
 
 	goto  error_common_info;
-	
+
 error_parse_info:
     ess << "Error parsing host information: " << hinfo;
     NebulaLog::log("InM",Log::ERROR,ess);
-    
+
 error_common_info:
 
     host->touch(false);
-    
+
     hpool->update(host);
-    
+
     host->unlock();
-    
+
     return;
 
 error_host:
     ess << "Could not get host " << id;
     NebulaLog::log("InM",Log::ERROR,ess);
-    
+
     return;
-    
+
 error_parse:
 
     ess << "Error while parsing driver message: " << message;

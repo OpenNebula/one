@@ -59,9 +59,9 @@ main_env.Append(LIBS=[
     'nebula_authm',
     'nebula_template',
     'nebula_pool',
-    'nebula_common',
     'nebula_mad',
     'nebula_core',
+    'nebula_common',
     'nebula_sql',
     'cppunit',
     'dl',
@@ -72,6 +72,9 @@ main_env.Append(LIBS=[
 # MYSQL
 main_env.Append(LIBPATH=["/usr/lib/mysql"])
 main_env.Append(CPPPATH=["/usr/include/mysql"])
+
+# libxml2
+main_env.ParseConfig('xml2-config --libs --cflags')
 
 sqlite=ARGUMENTS.get('sqlite', 'yes')
 if sqlite=='yes':

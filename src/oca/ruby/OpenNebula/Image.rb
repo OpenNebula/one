@@ -7,13 +7,14 @@ module OpenNebula
         # Constants and Class Methods
         # ---------------------------------------------------------------------
         IMAGE_METHODS = {
-            :info     => "image.info",
-            :allocate => "image.allocate",
-            :update   => "image.update",
-            :rmattr   => "image.rmattr",
-            :enable   => "image.enable",
-            :publish  => "image.publish",
-            :delete   => "image.delete"
+            :info        => "image.info",
+            :allocate    => "image.allocate",
+            :update      => "image.update",
+            :rmattr      => "image.rmattr",
+            :enable      => "image.enable",
+            :publish     => "image.publish",
+            :persistent  => "image.persistent",
+            :delete      => "image.delete"
         }
 
         IMAGE_STATES=%w{INIT READY USED DISABLED}
@@ -55,7 +56,6 @@ module OpenNebula
             super(xml,client)
 
             @client = client
-            @immanager = ImageManager.new
         end
 
         #######################################################################
@@ -109,27 +109,22 @@ module OpenNebula
         def unpublish
             set_publish(false)
         end
+        
+        # Makes the Image persistent
+        def persistent
+            set_persistent(true)
+        end
+
+        # Makes the Image non persistent
+        def nonpersistent
+            set_persistent(false)
+        end
 
         # Deletes the Image
         def delete()
             super(IMAGE_METHODS[:delete])
         end
-
-        def copy(path, source)
-            @immanager.copy(path, source)
-        end
-        
-        def move(path, source)
-            @immanager.move(path, source)
-        end
-
-        def mk_datablock(size, fstype, source)
-            rc = @immanager.dd(size, source)
-
-            return rc if OpenNebula.is_error?(rc)
-
-            @immanager.mkfs(fstype, source)
-        end
+    
 
         #######################################################################
         # Helpers to get Image information
@@ -184,6 +179,15 @@ module OpenNebula
 
             return rc
         end
+        
+        def set_persistent(persistence)
+            return Error.new('ID not defined') if !@pe_id
+
+            rc = @client.call(IMAGE_METHODS[:persistent], @pe_id, persistence)
+            rc = nil if !OpenNebula.is_error?(rc)
+
+            return rc
+        end
 
         def do_rm_attr(name)
             return Error.new('ID not defined') if !@pe_id
@@ -194,82 +198,5 @@ module OpenNebula
             return rc
         end
 
-    end
-
-    class ImageManager
-        # ---------------------------------------------------------------------
-        # Constants and Class Methods
-        # ---------------------------------------------------------------------
-        FS_UTILS = {
-            :dd     => "env dd",
-            :mkfs   => "env mkfs"
-        }
-
-        def copy(path, source)
-            if source.nil? or path.nil?
-                return OpenNebula::Error.new("copy Image: missing parameters.")
-            end
-
-            begin
-                FileUtils.copy(path, source)
-                FileUtils.chmod(0660, source)
-            rescue Exception => e
-                return OpenNebula::Error.new(e.message)
-            end
-
-            return nil
-        end
-        
-        def move(path, source)
-            if source.nil? or path.nil?
-                return OpenNebula::Error.new("copy Image: missing parameters.")
-            end
-
-            begin
-                FileUtils.move(path, source)
-                FileUtils.chmod(0660, source)
-            rescue Exception => e
-                return OpenNebula::Error.new(e.message)
-            end
-
-            return nil
-        end
-
-        def dd(size, source)
-            if source.nil? or size.nil?
-                return OpenNebula::Error.new("dd Image: missing parameters.")
-            end
-
-            command = ""
-            command << FS_UTILS[:dd]
-            command << " if=/dev/zero of=#{source} ibs=1 count=1"
-            command << " obs=1048576 seek=#{size}"
-
-            local_command=LocalCommand.run(command)
-
-            if local_command.code!=0
-                return OpenNebula::Error.new("dd Image: in dd command.")
-            end
-
-            return nil
-        end
-
-        def mkfs(fstype, source)
-            if source.nil? or fstype.nil?
-                return OpenNebula::Error.new("mkfs Image: missing parameters.")
-            end
-
-            command = ""
-            command << FS_UTILS[:mkfs]
-            command << " -t #{fstype} -F #{source}"
-
-            local_command=LocalCommand.run(command)
-
-            if local_command.code!=0
-                return OpenNebula::Error.new("mkfs Image: in mkfs command.")
-            end
-
-            return nil
-        end
     end
 end
