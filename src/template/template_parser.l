@@ -23,6 +23,8 @@
 #include "template_syntax.h"
 #include "mem_collector.h"
 
+#define YY_NO_INPUT 
+
 #define YY_DECL int template_lex (YYSTYPE *lvalp, YYLTYPE *llocp, \
                                   mem_collector *mc)
 

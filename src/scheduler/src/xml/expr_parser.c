@@ -517,12 +517,14 @@ char *expr_text;
 #include "expr_arith.h"
 #include "mem_collector.h"
 
+#define YY_NO_INPUT 
+
 #define YY_DECL int expr_lex (YYSTYPE *lvalp, YYLTYPE *llocp, mem_collector *mc)
 
 #define YY_USER_ACTION  llocp->first_line = expr_lineno; 				\
                         llocp->first_column = llocp->last_column;	\
                         llocp->last_column += expr_leng;
-#line 526 "expr_parser.c"
+#line 528 "expr_parser.c"
 
 #define INITIAL 0
 
@@ -702,11 +704,11 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 37 "expr_parser.l"
+#line 39 "expr_parser.l"
 
    /* --- Tokens --- */
 
-#line 710 "expr_parser.c"
+#line 712 "expr_parser.c"
 
 	if ( !(yy_init) )
 		{
@@ -801,26 +803,26 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 40 "expr_parser.l"
+#line 42 "expr_parser.l"
 { return *expr_text;}
 	YY_BREAK
 /* --- Strings, also quoted form --- */
 case 2:
 YY_RULE_SETUP
-#line 44 "expr_parser.l"
+#line 46 "expr_parser.l"
 { lvalp->val_str = mem_collector_strdup(mc,expr_text);
                         return STRING;}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 47 "expr_parser.l"
+#line 49 "expr_parser.l"
 { lvalp->val_str = NULL;
               return STRING;}
 	YY_BREAK
 case 4:
 /* rule 4 can match eol */
 YY_RULE_SETUP
-#line 50 "expr_parser.l"
+#line 52 "expr_parser.l"
 { lvalp->val_str = mem_collector_strdup(mc,expr_text+1);
               lvalp->val_str[expr_leng-2] = '\0';
               return STRING;}
@@ -828,28 +830,28 @@ YY_RULE_SETUP
 /* --- Numbers --- */
 case 5:
 YY_RULE_SETUP
-#line 56 "expr_parser.l"
+#line 58 "expr_parser.l"
 { lvalp->val_int = atoi(expr_text);
                    return INTEGER;}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 59 "expr_parser.l"
+#line 61 "expr_parser.l"
 { lvalp->val_float = atof(expr_text);
                    return FLOAT;}
 	YY_BREAK
 /* --- blanks --- */
 case 7:
 YY_RULE_SETUP
-#line 64 "expr_parser.l"
+#line 66 "expr_parser.l"
 
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 66 "expr_parser.l"
+#line 68 "expr_parser.l"
 ECHO;
 	YY_BREAK
-#line 853 "expr_parser.c"
+#line 855 "expr_parser.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1818,7 +1820,7 @@ void expr_free (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 66 "expr_parser.l"
+#line 68 "expr_parser.l"
 
 
 
