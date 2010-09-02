@@ -176,19 +176,21 @@ private
            end
         end
         
-        if action_index
-            @action_queue[action_index]
-        else
-            nil
-        end
+        return action_index
     end
     
     def get_runable_action
-        action=get_first_runable
+        action_index=get_first_runable
+        
+        if action_index
+            action=@action_queue[action_index]
+        else
+            action=nil
+        end
         
         if action
             @hosts << action[:args][HOST_ARG] if action[:args][HOST_ARG]
-            @action_queue.delete(action)
+            @action_queue.delete_at(action_index)
         end
         
         STDERR.puts "action: #{action.inspect}"
