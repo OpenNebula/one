@@ -42,7 +42,7 @@ public:
      *    @param memory the host free memory
      *    @param threshold to consider the host totally free
      */
-    void get_capacity(int& cpu, int& memory, int threshold) const;
+    void get_capacity(int& cpu, int& memory, float threshold) const;
 
     /**
      *  Tests whether a new VM can be hosted by the host or not
@@ -76,9 +76,7 @@ public:
     };
 
 
-protected:
-
-        // TODO Check if any of these are not needed, and delete them.
+private:
     int oid;
 
     // Host share values
@@ -94,12 +92,7 @@ protected:
     int free_mem;   /**< Free memory from the IM monitor       */
     int free_cpu;   /**< Free cpu from the IM monitor          */
 
-    int used_disk;  /**< Used disk from the IM monitor         */
-    int used_mem;   /**< Used memory from the IM monitor       */
-    int used_cpu;   /**< Used cpu from the IM monitor          */
-
     int running_vms; /**< Number of running VMs in this Host   */
-
 
     void init_attributes();
 };
