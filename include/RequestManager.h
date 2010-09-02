@@ -282,7 +282,7 @@ private:
                 break;
         }
                 
-        if ( rc != (int)NULL )
+        if ( rc != 0 )
         {
             oss << " Returned error code [" << rc << "].";       
         }

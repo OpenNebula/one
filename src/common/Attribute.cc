@@ -180,4 +180,5 @@ string VectorAttribute::vector_value(const char *name) const
     {
         return it->second;
     }
-};
+}
+

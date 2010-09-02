@@ -42,10 +42,10 @@ Host::Host(
         last_monitored(0),
         cluster(ClusterPool::DEFAULT_CLUSTER_NAME),
         host_template(id)
-        {};
+        {}
 
 
-Host::~Host(){};
+Host::~Host(){}
 
 /* ************************************************************************ */
 /* Host :: Database Access Functions                                        */
@@ -423,7 +423,7 @@ ostream& operator<<(ostream& os, Host& host)
     os << host.to_xml(host_str);
 
     return os;
-};
+}
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */

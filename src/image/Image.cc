@@ -50,7 +50,7 @@ Image::Image(int _uid, ImageTemplate * _image_template):
     {
         image_template = new ImageTemplate;
     }
-};
+}
 
 Image::~Image()
 {
@@ -58,7 +58,7 @@ Image::~Image()
     {
         delete image_template;
     }
-};
+}
 
 /* ************************************************************************ */
 /* Image :: Database Access Functions                                        */
@@ -415,8 +415,7 @@ ostream& operator<<(ostream& os, Image& image)
 	os << image.to_xml(image_str);
 
     return os;
-};
-
+}
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */

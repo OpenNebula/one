@@ -69,3 +69,4 @@ protected:
 };
 
 #endif /*OBJECT_SQL_H_*/
+

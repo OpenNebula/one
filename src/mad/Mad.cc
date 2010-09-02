@@ -164,11 +164,12 @@ int Mad::start()
         
         if ( sudo_execution == true )
         {
-            rc = execlp("sudo","sudo","-H","-u",owner,executable,arguments,NULL);
+            rc = execlp("sudo","sudo","-H","-u",owner,executable,arguments,
+                     (char *) NULL);
         }
         else
         {
-            rc = execlp(executable,executable,arguments,NULL);            
+            rc = execlp(executable,executable,arguments,(char*)NULL);            
         }
 
         goto error_exec;
