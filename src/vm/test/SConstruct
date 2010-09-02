@@ -97,7 +97,8 @@ if mysql=='yes':
 # Compile flags
 main_env.Append(CPPFLAGS=[
     "-g",
-    "-Wall"
+    "-Wall",
+    "-Werror"
 ])
 
 # Linking flags

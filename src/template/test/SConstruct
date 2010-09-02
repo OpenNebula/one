@@ -59,7 +59,8 @@ main_env.Append(LIBS=[
 # Compile flags
 main_env.Append(CPPFLAGS=[
     "-g",
-    "-Wall"
+    "-Wall",
+    "-Werror"
 ])
 
 # libxml2
