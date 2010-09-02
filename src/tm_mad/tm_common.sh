@@ -15,10 +15,8 @@
 #--------------------------------------------------------------------------- #
 
 if [ -z "$ONE_LOCATION" ]; then
-    ONE_CONF=/etc/one/oned.conf
     ONE_LOCAL_VAR=/var/lib/one
 else
-    ONE_CONF=$ONE_LOCATION/etc/oned.conf
     ONE_LOCAL_VAR=$ONE_LOCATION/var
 fi
 
@@ -43,7 +41,7 @@ WGET=/usr/bin/wget
 
 function get_vmdir
 {
-    VMDIR=`cat $ONE_CONF | grep ^VM_DIR= | cut -d= -f2`
+    VMDIR=`$ONE_CONF | grep '^VM_DIR=' $ONE_LOCAL_VAR | cut -d= -f2`
 }
 
 function fix_paths
