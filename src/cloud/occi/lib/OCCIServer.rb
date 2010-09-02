@@ -311,10 +311,13 @@ class OCCIServer < CloudServer
         end
 
         # --- Create and Add the new Image ---
+        occixml = request.params['occixml']
+        occixml = occixml[:tempfile].read if occixml.class == Hash
+
         image = ImageOCCI.new(
                         Image.build_xml,
                         get_client(request.env),
-                        request.params['occixml'])
+                        occixml)
 
         rc = add_image(image, request.params['file'])
         return rc, 500 if OpenNebula.is_error?(rc)
