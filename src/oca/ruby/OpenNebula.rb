@@ -88,7 +88,7 @@ module OpenNebula
             user=$1
             password=$2
 
-            if password.match(/^ssh:/)
+            if password.match(/^plain:/)
                 @one_auth = "#{user}:#{password.split(':').last}"
             else
                 @one_auth = "#{user}:#{Digest::SHA1.hexdigest(password)}"
