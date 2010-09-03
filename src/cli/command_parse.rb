@@ -31,7 +31,7 @@ Options:
 EOT
 
     ONE_VERSION=<<-EOT
-OpenNebula 1.9.80
+OpenNebula 1.9.85
 Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)
 EOT
     
