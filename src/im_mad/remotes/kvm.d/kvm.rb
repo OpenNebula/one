@@ -16,6 +16,11 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+def print_info(name, value)
+    value = "0" if value.nil? or value.to_s.empty?
+    puts "#{name}=#{value}"
+end
+
 ######
 #  First, get all the posible info out of virsh 
 #  TODO : use virsh freecell when available
@@ -78,18 +83,18 @@ net_text.split(/\n/).each{|line|
     end
 }
 
-puts "HYPERVISOR=kvm" 
+print_info("HYPERVISOR","kvm")
 
-puts "TOTALCPU=#{$total_cpu}"
-puts "CPUSPEED=#{$cpu_speed}"
+print_info("TOTALCPU",$total_cpu)
+print_info("CPUSPEED",$cpu_speed)
 
-puts "TOTALMEMORY=#{$total_memory}"
-puts "USEDMEMORY=#{$used_memory}"
-puts "FREEMEMORY=#{$free_memory}"
+print_info("TOTALMEMORY",$total_memory)
+print_info("USEDMEMORY",$used_memory)
+print_info("FREEMEMORY",$free_memory)
 
-puts "FREECPU=#{$free_cpu}"
-puts "USEDCPU=#{$used_cpu}"
+print_info("FREECPU",$free_cpu)
+print_info("USEDCPU",$used_cpu)
 
-puts "NETRX=#{$netrx}"
-puts "NETTX=#{$nettx}"
+print_info("NETRX",$netrx)
+print_info("NETTX",$nettx)
 

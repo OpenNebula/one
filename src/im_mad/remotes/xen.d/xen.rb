@@ -21,6 +21,11 @@ require "pp"
 XENTOP_PATH="/usr/sbin/xentop"
 XM_PATH="/usr/sbin/xm"
 
+def print_info(name, value)
+    value = "0" if value.nil? or value.to_s.empty?
+    puts "#{name}=#{value}"
+end
+
 xentop_text=`sudo #{XENTOP_PATH} -bi2`
 xm_text=`sudo #{XM_PATH} info`
 
@@ -85,13 +90,13 @@ domains_info.each {|line|
 
 # WRITE INFO
 
-puts "HYPERVISOR=xen" 
-puts "TOTALCPU=" + cpu_info[:total].round.to_s
-puts "CPUSPEED=" + cpu_info[:speed]
-puts "TOTALMEMORY=" + memory_info[:total].to_s
-puts "FREEMEMORY=" + memory_info[:free].to_s
-puts "USEDMEMORY=" + memory_info[:used].to_s
-puts "USEDCPU=" + vm_info[:cpu].round.to_s
-puts "FREECPU=" + (cpu_info[:total]-vm_info[:cpu]).round.to_s
-puts "NETTX=" + vm_info[:nettx].to_s
-puts "NETRX=" + vm_info[:netrx].to_s
+print_info("HYPERVISOR","xen")
+print_info("TOTALCPU",cpu_info[:total].round.to_s)
+print_info("CPUSPEED",cpu_info[:speed])
+print_info("TOTALMEMORY",memory_info[:total].to_s)
+print_info("FREEMEMORY",memory_info[:free].to_s)
+print_info("USEDMEMORY",memory_info[:used].to_s)
+print_info("USEDCPU",vm_info[:cpu].round.to_s)
+print_info("FREECPU",(cpu_info[:total]-vm_info[:cpu]).round.to_s)
+print_info("NETTX",vm_info[:nettx].to_s)
+print_info("NETRX",vm_info[:netrx].to_s)
