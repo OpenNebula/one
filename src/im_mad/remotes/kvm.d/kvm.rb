@@ -27,6 +27,7 @@ end
 ######
 
 nodeinfo_text = `virsh -c qemu:///system nodeinfo`
+exit(-1) if $?!=0
 
 nodeinfo_text.split(/\n/).each{|line|
     if     line.match('^CPU\(s\)') 
@@ -45,6 +46,8 @@ nodeinfo_text.split(/\n/).each{|line|
 NETINTERFACE = "eth1"
 
 top_text=`top -bin2`
+exit(-1) if $?!=0
+
 top_text.gsub!(/^top.*^top.*?$/m, "") # Strip first top output
 
 top_text.split(/\n/).each{|line|
@@ -73,6 +76,7 @@ top_text.split(/\n/).each{|line|
 $free_memory=`free -k|grep "buffers\/cache"|awk '{print $4}'`
     
 net_text=`cat /proc/net/dev`
+exit(-1) if $?!=0
 
 net_text.split(/\n/).each{|line|
     if line.match("^ *#{NETINTERFACE}")

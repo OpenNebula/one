@@ -29,6 +29,11 @@ function run_dir {
     for i in `ls *`;do
         if [ -x "$i" ]; then
             ./$i
+            EXIT_CODE=$?
+            if [ "x$EXIT_CODE" != "x0" ]; then
+                echo "Error executing $i" 1>&2
+                exit $EXIT_CODE
+            fi
         fi
     done
     )
@@ -36,9 +41,23 @@ function run_dir {
 
 data=$(
     run_dir 'common.d'
+    
+    EXIT_CODE=$?
+    
+    if [ "x$EXIT_CODE" != "x0" ]; then
+        exit $EXIT_CODE
+    fi
+    
     if [ -d "$HYPERVISOR_DIR" ]; then
         run_dir $HYPERVISOR_DIR
     fi
 )
 
+EXIT_CODE=$?
+
 echo $data | tr '\n' ' '
+
+if [ "x$EXIT_CODE" != "x0" ]; then
+    exit $EXIT_CODE
+fi
+

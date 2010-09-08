@@ -206,6 +206,9 @@ Commands:
     
     template is a file name where the Image description is located
     
+* addattr (Add a new image attribute)
+    oneimage addattr <image_id> <attribute_name> <attribute_value>
+    
 * update (Modifies an image attribute)
     oneimage update <image_id> <attribute_name> <attribute_value>
     
@@ -333,7 +336,7 @@ when "register", "create", "add"
     end
 
     
-when "update" 
+when "update", "addattr"
     check_parameters("update", 3)
     image_id=get_image_id(ARGV[0])
     
