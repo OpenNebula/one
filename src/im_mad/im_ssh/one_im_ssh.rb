@@ -57,18 +57,21 @@ class InformationManager < OpenNebulaDriver
     # Execute the run_probes in the remote host
     #---------------------------------------------------------------------------
     def action_monitor(number, host, do_update)
+        log_lambda=lambda do |message|
+            log(number, message)
+        end
+        
         if do_update == "1"
             # Use SCP to sync:
             sync_cmd = "scp -r #{REMOTES_LOCATION}/. #{host}:#{@remote_dir}"
             
             # Use rsync to sync:
             # sync_cmd = "rsync -Laz #{REMOTES_LOCATION} #{host}:#{@remote_dir}"
-            LocalCommand.run(sync_cmd)
-        else
+            LocalCommand.run(sync_cmd, log_lambda)
         end
 
-        cmd = SSHCommand.run("#{@remote_dir}/im/run_probes #{@hypervisor}", 
-                                     host)
+        cmd = SSHCommand.run("#{@remote_dir}/im/run_probes #{@hypervisor}",
+                                     host, log_lambda)
 
         if cmd.code == 0
             send_message("MONITOR", RESULT[:success], number, cmd.stdout)
