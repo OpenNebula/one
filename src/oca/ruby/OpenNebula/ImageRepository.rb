@@ -7,15 +7,14 @@ module OpenNebula
         def create(image, template, copy=true)
             if image.nil?
                 error_msg = "Image could not be found, aborting."
-                result = OpenNebula::Error.new(error_msg)
+                return OpenNebula::Error.new(error_msg)
             end
 
             # ------ Allocate the Image ------
             result = image.allocate(template)
 
             if OpenNebula.is_error?(result)
-                puts result.message
-                exit -1
+                return result
             end
 
 
@@ -29,7 +28,7 @@ module OpenNebula
 
                     if !File.exists?(file_path)
                         error_msg = "Image file could not be found, aborting."
-                        result = OpenNebula::Error.new(error_msg)
+                        return OpenNebula::Error.new(error_msg)
                     end
 
                     result = copy(file_path, image['SOURCE'])
@@ -61,7 +60,7 @@ module OpenNebula
         def delete(image)
             if image.nil?
                 error_msg = "Image could not be found, aborting."
-                result = OpenNebula::Error.new(error_msg)
+                return OpenNebula::Error.new(error_msg)
             end
 
             result = image.info
@@ -82,7 +81,7 @@ module OpenNebula
         def update_source(image, source)
             if image.nil?
                 error_msg = "Image could not be found, aborting."
-                result = OpenNebula::Error.new(error_msg)
+                return OpenNebula::Error.new(error_msg)
             end
 
             result = image.info
