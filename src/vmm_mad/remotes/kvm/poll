@@ -39,7 +39,7 @@ $1=="State" {
     else if(vstat=="crashed") state="c";
     else state="u";
 
-    print "STATUS=" state
+    print "STATE=" state
 }
 '
 
