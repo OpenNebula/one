@@ -156,9 +156,6 @@ int Image::insert(SqlDB *db, string& error_str)
     string  persistent_attr;
     string  dev_prefix;
 
-    ostringstream tmp_hashstream;
-    ostringstream tmp_sourcestream;
-
     // ---------------------------------------------------------------------
     // Check default image attributes
     // ---------------------------------------------------------------------
@@ -230,13 +227,20 @@ int Image::insert(SqlDB *db, string& error_str)
 
     // ------------ SOURCE (path to store the image)--------------------
 
-    tmp_hashstream << uid << ":" << name;
+    get_template_attribute("SOURCE", source);
 
-    tmp_sourcestream << ImagePool::source_prefix() << "/";
-    tmp_sourcestream << sha1_digest(tmp_hashstream.str());
+    if (source.empty())
+    {
+        ostringstream tmp_hashstream;
+        ostringstream tmp_sourcestream;
 
-    source = tmp_sourcestream.str();
+        tmp_hashstream << uid << ":" << name;
 
+        tmp_sourcestream << ImagePool::source_prefix() << "/";
+        tmp_sourcestream << sha1_digest(tmp_hashstream.str());
+
+        source = tmp_sourcestream.str();
+    }
 
     state = DISABLED;
 
