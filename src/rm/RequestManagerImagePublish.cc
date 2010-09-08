@@ -105,6 +105,8 @@ void RequestManager::ImagePublish::execute(
 
     if (!response)
     {
+        image->unlock();
+
         goto error_publish;
     }
 
