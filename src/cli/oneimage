@@ -476,7 +476,11 @@ when "show"
                 else 
                     public_str = "No" 
                 end
-                puts str % ["PUBLIC", public_str]            
+                puts str % ["PUBLIC", public_str]
+                
+                persistent_str=(image["PERSISTENT"].to_i==1 ? "Yes" : "No")
+                puts str % ["PERSISTENT", persistent_str]
+                
                 puts str % ["SOURCE", image['SOURCE']]    
                 puts str % ["STATE", image.short_state_str]
                 puts str % ["RUNNING_VMS", image['RUNNING_VMS']]            
