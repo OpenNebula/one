@@ -4,7 +4,7 @@ require 'fileutils'
 module OpenNebula
     class ImageRepository
 
-        def create(image, template, copy=true)
+        def create(image, template)
             if image.nil?
                 error_msg = "Image could not be found, aborting."
                 return OpenNebula::Error.new(error_msg)
@@ -21,18 +21,16 @@ module OpenNebula
             # ------ Copy the Image file ------
             image.info
 
-            if image['TEMPLATE/PATH']
-                if copy
-                    # --- CDROM, DATABLOCK or OS based on a PATH ---
-                    file_path = image['TEMPLATE/PATH']
+            if image['TEMPLATE/PATH'] and image['TEMPLATE/SOURCE'].nil?
+                # --- CDROM, DATABLOCK or OS based on a PATH ---
+                file_path = image['TEMPLATE/PATH']
 
-                    if !File.exists?(file_path)
-                        error_msg = "Image file could not be found, aborting."
-                        return OpenNebula::Error.new(error_msg)
-                    end
-
-                    result = copy(file_path, image['SOURCE'])
+                if !File.exists?(file_path)
+                    error_msg = "Image file could not be found, aborting."
+                    return OpenNebula::Error.new(error_msg)
                 end
+
+                result = copy(file_path, image['SOURCE'])
             elsif image['TEMPLATE/SIZE'] and image['TEMPLATE/FSTYPE'] and  \
                             image['TEMPLATE/TYPE'] == 'DATABLOCK'
                 # --- Empty DATABLOCK ---
@@ -41,8 +39,12 @@ module OpenNebula
                 if !OpenNebula.is_error?(result)
                     result = mkfs(image['TEMPLATE/FSTYPE'], image['SOURCE'])
                 end
-            else
-                error_msg = "Image not present, aborting."
+            elsif image['TEMPLATE/PATH'].nil? and image['TEMPLATE/SOURCE'].nil?
+                error_msg = "Image path not present, aborting."
+                result = OpenNebula::Error.new(error_msg)
+            elsif image['TEMPLATE/PATH'] and image['TEMPLATE/SOURCE']
+                error_msg = "Template malformed, PATH and SOURCE are" <<
+                            " mutuallly exclusive"
                 result = OpenNebula::Error.new(error_msg)
             end
 

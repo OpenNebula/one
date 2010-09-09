@@ -266,12 +266,6 @@ EOT
         table=ShowTable.new(ShowTableImage)
         table.print_help
     end
-    
-    def special_options(opts, options)
-        opts.on_tail("-n", "--no-cp", "Do not copy the source") do |o|
-            options[:no_cp]=true
-        end
-    end
 end
 
 
@@ -330,7 +324,7 @@ when "register", "create", "add"
     
     image = OpenNebula::Image.new(OpenNebula::Image.build_xml, get_one_client)
 
-    result = img_repo.create(image, template, !ops[:no_cp])    
+    result = img_repo.create(image, template)    
     if is_successful?(result)
         puts "ID: " + image.id.to_s if ops[:verbose]
     end
