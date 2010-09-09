@@ -74,13 +74,11 @@ module OpenNebula
             elsif File.file?(ENV["HOME"]+"/.one/one_auth")
                 one_secret=File.read(ENV["HOME"]+"/.one/one_auth")
             else
-                puts "ONE_AUTH file not present"
-                exit -1
+                raise "ONE_AUTH file not present"
             end
 
             if !one_secret.match(".+:.+")
-                puts "Authorization file malformed"
-                exit -1
+                raise "Authorization file malformed"
             end
 
 
