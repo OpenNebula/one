@@ -45,8 +45,13 @@ require 'EC2QueryServer'
 
 include OpenNebula
 
-$econe_server = EC2QueryServer.new(CONFIGURATION_FILE,
-    TEMPLATE_LOCATION, VIEWS_LOCATION)
+begin
+    $econe_server = EC2QueryServer.new(CONFIGURATION_FILE,
+        TEMPLATE_LOCATION, VIEWS_LOCATION)
+rescue Exception => e
+    puts "Error starting server: #{e}"
+    exit(-1)
+end
 
 if CloudServer.is_port_open?($econe_server.config[:server], 
                              $econe_server.config[:port])

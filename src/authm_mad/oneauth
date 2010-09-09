@@ -91,7 +91,13 @@ when "quota"
     when 'set'
         check_parameters("quota set", 3)
         Dir.chdir VAR_LOCATION
-        add_quota(*ARGV[1..3])
+        
+        begin
+            add_quota(*ARGV[1..3])
+        rescue Exception => e
+            puts "Error starting server: #{e}"
+            exit(-1)
+        end
     else
         #default
     end

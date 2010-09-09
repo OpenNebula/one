@@ -84,7 +84,12 @@ class AuthorizationManager < OpenNebulaDriver
     end
     
     def action_authorize(request_id, user_id, *tokens)
-        auth=@permissions.auth(user_id, tokens.flatten)
+        begin
+            auth=@permissions.auth(user_id, tokens.flatten)
+        rescue Exception => e
+            auth="Error: #{e}"
+        end
+        
         if auth==true
             send_message('AUTHORIZE', RESULT[:success],
                 request_id, 'success')
@@ -95,7 +100,12 @@ class AuthorizationManager < OpenNebulaDriver
     end
 end
 
+begin
+    am=AuthorizationManager.new
+rescue Exception => e
+    puts "Error: #{e}"
+    exit(-1)
+end
 
-am=AuthorizationManager.new
 am.start_driver
 
