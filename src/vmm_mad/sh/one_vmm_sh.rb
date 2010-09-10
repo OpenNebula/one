@@ -41,10 +41,13 @@ class ShDriver < VirtualMachineDriver
     # ------------------------------------------------------------------------ #
     # ShDriver constructor                                                #
     # ------------------------------------------------------------------------ #
-    def initialize(hypervisor, remote_dir)
+    def initialize(hypervisor)
         super(15,true)
-        @remote_dir = remote_dir
+        
+        @config = read_configuration
+        
         @hypervisor = hypervisor
+        @remote_dir = @config['SCRIPTS_REMOTE_DIR'] || '/tmp/one'
     end
 
     # ------------------------------------------------------------------------ #
@@ -119,10 +122,7 @@ end
 # ---------------------------------------------------------------------------- #
 # ShDriver Main program
 # ---------------------------------------------------------------------------- #
-remote_dir = ENV["VMM_REMOTE_DIR"]
-remote_dir = "/tmp/one" if !remote_dir
-
 hypervisor = ARGV[0]
 
-sh_driver = ShDriver.new(hypervisor, remote_dir)
+sh_driver = ShDriver.new(hypervisor)
 sh_driver.start_driver

@@ -43,12 +43,14 @@ class InformationManager < OpenNebulaDriver
     #---------------------------------------------------------------------------
     # Init the driver
     #---------------------------------------------------------------------------
-    def initialize(remote_dir, hypervisor, num)
+    def initialize(hypervisor, num)
         super(num, true)
-
+        
+        @config = read_configuration
+        
         @hypervisor = hypervisor
-        @remote_dir = remote_dir
-
+        @remote_dir = @config['SCRIPTS_REMOTE_DIR'] || '/tmp/one'
+        
         # register actions
         register_action(:MONITOR, method("action_monitor"))
     end
@@ -89,9 +91,6 @@ end
 #-------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------
 
-remote_dir = ENV["IM_REMOTE_DIR"]
-remote_dir = "/tmp/one" if !remote_dir
-
 hypervisor = ARGV[0]||''
-im = InformationManager.new(remote_dir, hypervisor, 15)
+im = InformationManager.new(hypervisor, 15)
 im.start_driver
