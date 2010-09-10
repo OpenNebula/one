@@ -554,14 +554,6 @@ bool Image::release_image()
         break;
 
         case DISABLED:
-            if (running_vms == 1 && persistent_img == true )
-            {
-                running_vms = 0;
-                state       = READY;
-
-                dirty = true;
-            }
-        break;
         case READY:
         default:
         break;
