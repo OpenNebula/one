@@ -238,9 +238,6 @@ when "show"
             else
                 puts vn.to_xml(true)
             end
-        else
-            puts "Error: "+result.message
-            break
         end
     end
     
