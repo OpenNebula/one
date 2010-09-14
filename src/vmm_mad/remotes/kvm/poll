@@ -50,4 +50,10 @@ awk_cmd="awk \'$AWK_SCRIPT\'"
 
 info=`$virsh_cmd 2>/dev/null | awk "$AWK_SCRIPT"`
 
-echo $info
+if [ -n "$info" ]; then
+    echo $info
+    exit 0
+else
+    echo STATE=d
+    exit 1
+fi

@@ -55,6 +55,11 @@ function get_info() {
 
 info=`get_info $1 2>/dev/null | awk "$AWK_SCRIPT"`
 
-echo $info
 
-
+if [ -n "$info" ]; then
+    echo $info
+    exit 0
+else
+    echo STATE=d
+    exit 1
+fi
