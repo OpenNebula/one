@@ -30,6 +30,8 @@
 
 #include "ObjectXML.h"
 
+#include "test/one_test_common.h"
+
 /* ************************************************************************* */
 /* ************************************************************************* */
 
@@ -331,8 +333,12 @@ int main(int argc, char ** argv)
 {
     CppUnit::TextUi::TestRunner runner;
 
+    SETUP_XML_WRITER(runner, "ObjectXMLTest.xml");
+
     runner.addTest(ObjectXMLTest::suite());
     runner.run();
+
+    END_XML_WRITER
 
     return 0;
 }

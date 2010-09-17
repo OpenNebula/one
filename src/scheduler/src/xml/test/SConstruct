@@ -29,6 +29,7 @@ main_env['ENV']['PATH']=os.environ['PATH']
 # Include dirs
 main_env.Append(CPPPATH=[
     cwd+'/../../../include',
+    cwd+'/../../../../../include',
     '/usr/include/cppunit/'
 ])
 

@@ -10,6 +10,8 @@
 #include <TestCaller.h>
 #include <ui/text/TestRunner.h>
 
+#include "test/one_test_common.h"
+
 using namespace std;
 
 extern "C" void * addsub_loop(void *arg);
@@ -175,9 +177,13 @@ int main(int argc, char ** argv)
 {
     
     CppUnit::TextUi::TestRunner tr;
+
+    SETUP_XML_WRITER(tr, "action_manager.xml");
     
     tr.addTest(ActionManagerTest::suite());
     tr.run();
+
+    END_XML_WRITER
 
     return 0;
 }
