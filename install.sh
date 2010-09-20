@@ -150,9 +150,7 @@ SHARE_DIRS="$SHARE_LOCATION/examples \
 ETC_DIRS="$ETC_LOCATION/im_kvm \
           $ETC_LOCATION/im_xen \
           $ETC_LOCATION/im_ec2 \
-          $ETC_LOCATION/im_eh \
           $ETC_LOCATION/vmm_ec2 \
-          $ETC_LOCATION/vmm_eh \
           $ETC_LOCATION/vmm_sh \
           $ETC_LOCATION/tm_nfs \
           $ETC_LOCATION/tm_ssh \
@@ -242,20 +240,18 @@ INSTALL_OCCI_CLIENT_FILES[2]="OCCI_BIN_CLIENT_FILES:$BIN_LOCATION"
 
 INSTALL_ETC_FILES[0]="ETC_FILES:$ETC_LOCATION"
 INSTALL_ETC_FILES[1]="VMM_EC2_ETC_FILES:$ETC_LOCATION/vmm_ec2"
-INSTALL_ETC_FILES[2]="VMM_EH_ETC_FILES:$ETC_LOCATION/vmm_eh"
-INSTALL_ETC_FILES[3]="VMM_SH_ETC_FILES:$ETC_LOCATION/vmm_sh"
-INSTALL_ETC_FILES[4]="IM_EC2_ETC_FILES:$ETC_LOCATION/im_ec2"
-INSTALL_ETC_FILES[5]="IM_EH_ETC_FILES:$ETC_LOCATION/im_eh"
-INSTALL_ETC_FILES[6]="TM_NFS_ETC_FILES:$ETC_LOCATION/tm_nfs"
-INSTALL_ETC_FILES[7]="TM_SSH_ETC_FILES:$ETC_LOCATION/tm_ssh"
-INSTALL_ETC_FILES[8]="TM_DUMMY_ETC_FILES:$ETC_LOCATION/tm_dummy"
-INSTALL_ETC_FILES[9]="TM_LVM_ETC_FILES:$ETC_LOCATION/tm_lvm"
-INSTALL_ETC_FILES[10]="HM_ETC_FILES:$ETC_LOCATION/hm"
-INSTALL_ETC_FILES[11]="AUTH_ETC_FILES:$ETC_LOCATION/auth"
-INSTALL_ETC_FILES[14]="ECO_ETC_FILES:$ETC_LOCATION"
-INSTALL_ETC_FILES[15]="ECO_ETC_TEMPLATE_FILES:$ETC_LOCATION/ec2query_templates"
-INSTALL_ETC_FILES[16]="OCCI_ETC_FILES:$ETC_LOCATION"
-INSTALL_ETC_FILES[17]="OCCI_ETC_TEMPLATE_FILES:$ETC_LOCATION/occi_templates"
+INSTALL_ETC_FILES[2]="VMM_SH_ETC_FILES:$ETC_LOCATION/vmm_sh"
+INSTALL_ETC_FILES[3]="IM_EC2_ETC_FILES:$ETC_LOCATION/im_ec2"
+INSTALL_ETC_FILES[4]="TM_NFS_ETC_FILES:$ETC_LOCATION/tm_nfs"
+INSTALL_ETC_FILES[5]="TM_SSH_ETC_FILES:$ETC_LOCATION/tm_ssh"
+INSTALL_ETC_FILES[6]="TM_DUMMY_ETC_FILES:$ETC_LOCATION/tm_dummy"
+INSTALL_ETC_FILES[7]="TM_LVM_ETC_FILES:$ETC_LOCATION/tm_lvm"
+INSTALL_ETC_FILES[8]="HM_ETC_FILES:$ETC_LOCATION/hm"
+INSTALL_ETC_FILES[9]="AUTH_ETC_FILES:$ETC_LOCATION/auth"
+INSTALL_ETC_FILES[10]="ECO_ETC_FILES:$ETC_LOCATION"
+INSTALL_ETC_FILES[11]="ECO_ETC_TEMPLATE_FILES:$ETC_LOCATION/ec2query_templates"
+INSTALL_ETC_FILES[12]="OCCI_ETC_FILES:$ETC_LOCATION"
+INSTALL_ETC_FILES[13]="OCCI_ETC_TEMPLATE_FILES:$ETC_LOCATION/occi_templates"
 
 #-------------------------------------------------------------------------------
 # Binary files, to be installed under $BIN_LOCATION
@@ -325,16 +321,12 @@ MADS_LIB_FILES="src/mad/sh/madcommon.sh \
               src/vmm_mad/sh/one_vmm_sh \
               src/vmm_mad/ec2/one_vmm_ec2.rb \
               src/vmm_mad/ec2/one_vmm_ec2 \
-              src/vmm_mad/eh/one_vmm_eh.rb \
-              src/vmm_mad/eh/one_vmm_eh \
               src/vmm_mad/dummy/one_vmm_dummy.rb \
               src/vmm_mad/dummy/one_vmm_dummy \
               src/im_mad/im_ssh/one_im_ssh.rb \
               src/im_mad/im_ssh/one_im_ssh \
               src/im_mad/ec2/one_im_ec2.rb \
               src/im_mad/ec2/one_im_ec2 \
-              src/im_mad/eh/one_im_eh.rb \
-              src/im_mad/eh/one_im_eh \
               src/im_mad/dummy/one_im_dummy.rb \
               src/im_mad/dummy/one_im_dummy \
               src/tm_mad/one_tm \
@@ -429,20 +421,15 @@ ETC_FILES="share/etc/oned.conf \
 #-------------------------------------------------------------------------------
 # Virtualization drivers config. files, to be installed under $ETC_LOCATION
 #   - ec2, $ETC_LOCATION/vmm_ec2
-#   - eh, $ETC_LOCATION/vmm_eh
 #   - sh, $ETC_LOCATION/vmm_sh
 #-------------------------------------------------------------------------------
 
 VMM_EC2_ETC_FILES="src/vmm_mad/ec2/vmm_ec2rc \
                    src/vmm_mad/ec2/vmm_ec2.conf"
 
-VMM_EH_ETC_FILES="src/vmm_mad/eh/vmm_ehrc \
-                  src/vmm_mad/eh/vmm_eh.conf"
-
 VMM_SH_ETC_FILES="src/vmm_mad/sh/vmm_shrc \
                   src/vmm_mad/sh/vmm_sh_kvm.conf \
                   src/vmm_mad/sh/vmm_sh_xen.conf"
-
 
 #-------------------------------------------------------------------------------
 # Information drivers config. files, to be installed under $ETC_LOCATION
@@ -451,9 +438,6 @@ VMM_SH_ETC_FILES="src/vmm_mad/sh/vmm_shrc \
 
 IM_EC2_ETC_FILES="src/im_mad/ec2/im_ec2rc \
                   src/im_mad/ec2/im_ec2.conf"
-
-IM_EH_ETC_FILES="src/im_mad/eh/im_ehrc \
-                 src/im_mad/eh/im_eh.conf"
 
 #-------------------------------------------------------------------------------
 # Storage drivers config. files, to be installed under $ETC_LOCATION
