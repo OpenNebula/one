@@ -64,13 +64,13 @@ public:
             "</REQUIREMENTS></TEMPLATE>";
 
         test_ok_str=
-            "\n\tCPU=4"
-            "\n\tDISK=EXTRA=disk attribute ,FILE=path1"
-            "\n\tDISK=EXTRA=str,FILE=path2,TYPE=disk"
-            "\n\tEMPTY_VAR="
-            "\n\tGRAPHICS=PORT=12,VNC=127.0.0.1"
-            "\n\tMEMORY=345"
-            "\n\tREQUIREMENTS=HOSTNAME = \"host*.com\"";
+            "CPU=4\n"
+            "DISK=EXTRA=disk attribute ,FILE=path1\n"
+            "DISK=EXTRA=str,FILE=path2,TYPE=disk\n"
+            "EMPTY_VAR=\n"
+            "GRAPHICS=PORT=12,VNC=127.0.0.1\n"
+            "MEMORY=345\n"
+            "REQUIREMENTS=HOSTNAME = \"host*.com\"\n";
     }
 
     ~TemplateTest(){};

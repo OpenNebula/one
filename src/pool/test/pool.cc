@@ -66,7 +66,7 @@ public:
 
     void setUp()
     {
-        string db_name = "testdb";
+        string db_name = "ONE_test_database";
 
         if (mysql)
         {
