@@ -151,7 +151,7 @@ ETC_DIRS="$ETC_LOCATION/im_kvm \
           $ETC_LOCATION/im_xen \
           $ETC_LOCATION/im_ec2 \
           $ETC_LOCATION/vmm_ec2 \
-          $ETC_LOCATION/vmm_ssh \
+          $ETC_LOCATION/vmm_sh \
           $ETC_LOCATION/tm_nfs \
           $ETC_LOCATION/tm_ssh \
           $ETC_LOCATION/tm_dummy \
@@ -240,7 +240,7 @@ INSTALL_OCCI_CLIENT_FILES[2]="OCCI_BIN_CLIENT_FILES:$BIN_LOCATION"
 
 INSTALL_ETC_FILES[0]="ETC_FILES:$ETC_LOCATION"
 INSTALL_ETC_FILES[1]="VMM_EC2_ETC_FILES:$ETC_LOCATION/vmm_ec2"
-INSTALL_ETC_FILES[2]="VMM_SH_ETC_FILES:$ETC_LOCATION/vmm_ssh"
+INSTALL_ETC_FILES[2]="VMM_SH_ETC_FILES:$ETC_LOCATION/vmm_sh"
 INSTALL_ETC_FILES[3]="IM_EC2_ETC_FILES:$ETC_LOCATION/im_ec2"
 INSTALL_ETC_FILES[4]="TM_NFS_ETC_FILES:$ETC_LOCATION/tm_nfs"
 INSTALL_ETC_FILES[5]="TM_SSH_ETC_FILES:$ETC_LOCATION/tm_ssh"
@@ -317,8 +317,8 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/OpenNebula/Host.rb \
 
 MADS_LIB_FILES="src/mad/sh/madcommon.sh \
               src/tm_mad/tm_common.sh \
-              src/vmm_mad/ssh/one_vmm_ssh.rb \
-              src/vmm_mad/ssh/one_vmm_ssh \
+              src/vmm_mad/sh/one_vmm_sh.rb \
+              src/vmm_mad/sh/one_vmm_sh \
               src/vmm_mad/ec2/one_vmm_ec2.rb \
               src/vmm_mad/ec2/one_vmm_ec2 \
               src/vmm_mad/dummy/one_vmm_dummy.rb \
@@ -421,15 +421,15 @@ ETC_FILES="share/etc/oned.conf \
 #-------------------------------------------------------------------------------
 # Virtualization drivers config. files, to be installed under $ETC_LOCATION
 #   - ec2, $ETC_LOCATION/vmm_ec2
-#   - ssh, $ETC_LOCATION/vmm_ssh
+#   - sh, $ETC_LOCATION/vmm_sh
 #-------------------------------------------------------------------------------
 
 VMM_EC2_ETC_FILES="src/vmm_mad/ec2/vmm_ec2rc \
                    src/vmm_mad/ec2/vmm_ec2.conf"
 
-VMM_SH_ETC_FILES="src/vmm_mad/ssh/vmm_sshrc \
-                  src/vmm_mad/ssh/vmm_ssh_kvm.conf \
-                  src/vmm_mad/ssh/vmm_ssh_xen.conf"
+VMM_SH_ETC_FILES="src/vmm_mad/sh/vmm_shrc \
+                  src/vmm_mad/sh/vmm_sh_kvm.conf \
+                  src/vmm_mad/sh/vmm_sh_xen.conf"
 
 #-------------------------------------------------------------------------------
 # Information drivers config. files, to be installed under $ETC_LOCATION
