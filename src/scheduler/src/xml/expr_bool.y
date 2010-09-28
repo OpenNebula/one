@@ -134,12 +134,12 @@ expr:   STRING '=' INTEGER { int val;
             get_xml_attribute(oxml,$1,val);
             $$ = val != $4;}
 
-        | STRING '>' FLOAT {float val;
+        | STRING '>' FLOAT { float val;
 
             get_xml_attribute(oxml,$1,val);
             $$ = val > $3;}
 
-        | STRING '<' FLOAT {float val;
+        | STRING '<' FLOAT { float val;
 
             get_xml_attribute(oxml,$1,val);
             $$ = val < $3;}
@@ -147,12 +147,12 @@ expr:   STRING '=' INTEGER { int val;
         | STRING '=' STRING { string val;
 
             get_xml_attribute(oxml,$1,val);
-            $$ = val.empty() ? false :fnmatch($3, val.c_str(), 0) == 0;}
+            $$ = (val.empty() || $3==0) ? false : fnmatch($3,val.c_str(),0)==0;}
 
         | STRING '!''=' STRING { string val;
 
             get_xml_attribute(oxml,$1,val);
-            $$ = val.empty() ? false : fnmatch($4, val.c_str(), 0) != 0;}
+            $$ = (val.empty() || $4==0) ? false : fnmatch($4,val.c_str(),0)!=0;}
 
         | expr '&' expr { $$ = $1 && $3; }
         | expr '|' expr { $$ = $1 || $3; }
