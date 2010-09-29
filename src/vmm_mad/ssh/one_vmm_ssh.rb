@@ -37,9 +37,9 @@ require "VirtualMachineDriver"
 # ---------------------------------------------------------------------------- #
 # The main class for the Sh driver                                        #
 # ---------------------------------------------------------------------------- #
-class ShDriver < VirtualMachineDriver
+class SshDriver < VirtualMachineDriver
     # ------------------------------------------------------------------------ #
-    # ShDriver constructor                                                #
+    # SshDriver constructor                                                #
     # ------------------------------------------------------------------------ #
     def initialize(hypervisor)
         super(15,true)
@@ -120,9 +120,9 @@ class ShDriver < VirtualMachineDriver
 end
 
 # ---------------------------------------------------------------------------- #
-# ShDriver Main program
+# SshDriver Main program
 # ---------------------------------------------------------------------------- #
 hypervisor = ARGV[0]
 
-sh_driver = ShDriver.new(hypervisor)
-sh_driver.start_driver
+ssh_driver = SshDriver.new(hypervisor)
+ssh_driver.start_driver
