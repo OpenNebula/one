@@ -5,13 +5,13 @@ class MockClient
 
         case xmlrpc_action
             when "one.vn.info"
-                return File.read("xml_test/vnet.xml")
+                return File.read("fixtures/vnet.xml")
             when "one.vn.allocate"
                 return 3
             when "one.vn.delete"
                 return nil
             when "one.vm.info"
-                return File.read("xml_test/vm.xml")
+                return File.read("fixtures/vm.xml")
             when "one.vm.allocate"
                 return 6
             when "one.vm.delete"
@@ -23,7 +23,7 @@ class MockClient
             when "one.vm.migrate"
                 return nil
             when "one.host.info"
-                return File.read("xml_test/host.xml")
+                return File.read("fixtures/host.xml")
             when "one.host.allocate"
                 return 7
             when "one.host.delete"
@@ -33,13 +33,13 @@ class MockClient
             when "one.user.allocate"
                 return 3
             when "one.user.info"
-                return File.read("xml_test/user.xml")
+                return File.read("fixtures/user.xml")
             when "one.user.delete"
                 return nil
             when "one.cluster.allocate"
                 return 5
             when "one.cluster.info"
-                return File.read("xml_test/cluster.xml")
+                return File.read("fixtures/cluster.xml")
             when "one.cluster.delete"
                 return nil
             when "one.cluster.addhost"
@@ -47,15 +47,15 @@ class MockClient
             when "one.cluster.removehost"
                 return nil
             when "one.vnpool.info"
-                return File.read("xml_test/vnetpool.xml")
+                return File.read("fixtures/vnetpool.xml")
             when "one.vmpool.info"
-                return File.read("xml_test/vmpool.xml")
+                return File.read("fixtures/vmpool.xml")
             when "one.hostpool.info"
-                return File.read("xml_test/hostpool.xml")
+                return File.read("fixtures/hostpool.xml")
             when "one.userpool.info"
-                return File.read("xml_test/userpool.xml")
+                return File.read("fixtures/userpool.xml")
             when "one.clusterpool.info"
-                return File.read("xml_test/clusterpool.xml")
+                return File.read("fixtures/clusterpool.xml")
         end
     end
 end

@@ -10,6 +10,8 @@
 #include <TestCaller.h>
 #include <ui/text/TestRunner.h>
 
+#include "test/one_test_common.h"
+
 using namespace std;
 
 class VectorAttributeTest : public CppUnit::TestFixture 
@@ -156,9 +158,13 @@ int main(int argc, char ** argv)
 {
     
     CppUnit::TextUi::TestRunner tr;
+
+    SETUP_XML_WRITER(tr, "vector_attribute.xml");
     
     tr.addTest(VectorAttributeTest::suite());
     tr.run();
+
+    END_XML_WRITER
 
     return 0;
 }

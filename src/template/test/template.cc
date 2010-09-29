@@ -9,6 +9,8 @@
 #include <TestCaller.h>
 #include <ui/text/TestRunner.h>
 
+#include "test/one_test_common.h"
+
 using namespace std;
 
 /* ************************************************************************* */
@@ -400,8 +402,12 @@ int main(int argc, char ** argv)
 {
     CppUnit::TextUi::TestRunner tr;
 
+    SETUP_XML_WRITER(tr, "template.xml")
+
     tr.addTest(TemplateTest::suite());
     tr.run();
+
+    END_XML_WRITER
 
     return 0;
 }

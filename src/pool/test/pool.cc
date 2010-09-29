@@ -32,6 +32,8 @@
 #include "MySqlDB.h"
 #include "SqlDB.h"
 
+#include "test/one_test_common.h"
+
 using namespace std;
 
 /* ************************************************************************* */
@@ -287,11 +289,15 @@ int main(int argc, char ** argv)
         cout << "\nRunning MySQL tests...\n";
     }
 
+    SETUP_XML_WRITER(runner, "pool.xml")
+
     runner.addTest( PoolTest::suite() );
     runner.run();
 
     if (!log_flag)
         remove("test.log");
+
+    END_XML_WRITER
 
     NebulaLog::finalize_log_system();
 

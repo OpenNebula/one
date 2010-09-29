@@ -168,11 +168,16 @@ private
     end
     
     def get_first_runable
-        action_index=@action_queue.index do |action|
-           if action[:args][HOST_ARG]
-               !@hosts.include? action[:args][HOST_ARG]
+        action_index=nil
+        @action_queue.each_with_index do |action, index|
+            if action[:args][HOST_ARG]
+                if !@hosts.include?(action[:args][HOST_ARG])
+                    action_index=index
+                    break
+                end
            else
-               true
+               action_index=index
+               break
            end
         end
         

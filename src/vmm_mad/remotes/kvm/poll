@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
@@ -52,8 +52,7 @@ info=`$virsh_cmd 2>/dev/null | awk "$AWK_SCRIPT"`
 
 if [ -n "$info" ]; then
     echo $info
-    exit 0
 else
     echo STATE=d
-    exit 1
 fi
+exit 0

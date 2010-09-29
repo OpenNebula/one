@@ -1,7 +1,7 @@
 $: << '../'
 
 require 'OpenNebula'
-require 'MockClient'
+require 'helpers/MockClient'
 
 module OpenNebula
 

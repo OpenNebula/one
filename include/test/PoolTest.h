@@ -36,6 +36,8 @@
 #include "PoolSQL.h"
 #include "Nebula.h"
 
+#include "test/one_test_common.h"
+
 // Use this macro in sub-classes to add all the tests defined here
 #define ALL_POOLTEST_CPPUNIT_TESTS()    \
     CPPUNIT_TEST (oid_assignment);      \
@@ -339,6 +341,9 @@ public:
         NebulaLog::log("Test", Log::INFO, "Test started");
 
         CppUnit::TextUi::TestRunner runner;
+
+        SETUP_XML_WRITER(runner, "output.xml")
+
         runner.addTest( suite );
 
         if (sqlite_flag)
@@ -355,6 +360,8 @@ public:
         }
 
         runner.run();
+
+	END_XML_WRITER
 
         if (!log_flag)
             remove("test.log");
