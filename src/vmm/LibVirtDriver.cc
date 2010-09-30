@@ -805,7 +805,7 @@ int LibVirtDriver::deployment_description_vmware(
         {
             file << "\t\t<disk type='file' device='disk'>" << endl
                  << "\t\t\t<source file='[" <<  datastore <<"] " << vm->get_oid() 
-                 << "/images/disk." << i << ".vmdk'/>" << endl;
+                 << "/images/disk." << i << "/disk.vmdk'/>" << endl;
         }
 
         file << "\t\t\t<target dev='" << target << "'";
