@@ -44,6 +44,14 @@ private:
         const VirtualMachine *  vm, 
         const string&           file_name) const;
         
+    int deployment_description_kvm(
+        const VirtualMachine *  vm, 
+        const string&           file_name) const;
+    
+    int deployment_description_vmware(
+        const VirtualMachine *  vm, 
+        const string&           file_name) const;
+        
     const string emulator;
 };
 
