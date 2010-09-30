@@ -21,5 +21,4 @@ source $(dirname $0)/kvmrc
 deploy_id=$1
 file=$2
 
-touch $file
 virsh --connect $LIBVIRT_URI save $deploy_id $file
