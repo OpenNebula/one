@@ -727,7 +727,7 @@ int LibVirtDriver::deployment_description_vmware(
 
     if ( arch.empty() )
     {
-        get_default("OS","ARCH",arch);
+        get_default("OS","ARCHITECTURE",arch);
     }
     
     if (arch.empty())
