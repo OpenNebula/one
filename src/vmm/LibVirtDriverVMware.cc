@@ -242,6 +242,8 @@ int LibVirtDriver::deployment_description_vmware(
 
         file << "\t\t</disk>" << endl;
     }
+    
+    file << "\t</devices>" << endl;
 
     attrs.clear();
 
