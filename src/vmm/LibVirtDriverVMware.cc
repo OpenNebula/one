@@ -243,8 +243,6 @@ int LibVirtDriver::deployment_description_vmware(
 
         file << "\t\t</disk>" << endl;
     }
-    
-    file << "\t</devices>" << endl;
 
     attrs.clear();
     
@@ -331,6 +329,8 @@ int LibVirtDriver::deployment_description_vmware(
     }
 
     attrs.clear();
+    
+    file << "\t</devices>" << endl;
 
     // ------------------------------------------------------------------------
     // Raw KVM attributes
