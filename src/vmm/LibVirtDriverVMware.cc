@@ -38,6 +38,7 @@ int LibVirtDriver::deployment_description_vmware(
     string  arch       = "";
 
     const VectorAttribute * disk;
+    const VectorAttribute * context;
 
     string  type       = "";
     string  target     = "";
@@ -143,7 +144,7 @@ int LibVirtDriver::deployment_description_vmware(
 
     if ( arch.empty() )
     {
-        get_default("OS","ARCH",arch);
+        get_default("OS","ARCHITECTURE",arch);
     }
 
     if (arch.empty())
@@ -244,6 +245,33 @@ int LibVirtDriver::deployment_description_vmware(
     }
     
     file << "\t</devices>" << endl;
+
+    attrs.clear();
+    
+    // ------------------------------------------------------------------------
+    // Context Device
+    // ------------------------------------------------------------------------
+
+    if ( vm->get_template_attribute("CONTEXT",attrs) == 1 )
+    {
+        context = dynamic_cast<const VectorAttribute *>(attrs[0]);
+        target  = context->vector_value("TARGET");
+
+        if ( !target.empty() )
+        {
+            file << "\t\t<disk type='file' device='cdrom'>" << endl;
+            file << "\t\t\t<source file='[" <<  datastore <<"] " << vm->get_oid()
+                 << "/disk." << num << "'/>" << endl;
+            file << "\t\t\t<target dev='" << target << "'/>" << endl;
+            file << "\t\t\t<readonly/>" << endl;
+            file << "\t\t</disk>" << endl;
+        }
+        else
+        {
+            vm->log("VMM", Log::WARNING, "Could not find target device to"
+                " attach context, will continue without it.");
+        }
+    }
 
     attrs.clear();
 
