@@ -118,6 +118,21 @@ class VirtualMachineDriver < OpenNebulaDriver
 
         send_message(ACTION[action],RESULT[result],id)
     end
+    
+    # -------------------------------------------------------------------------
+    # Execute a command associated to an action and id on localhost
+    # -------------------------------------------------------------------------
+    def local_action(command, id, action)
+        command_exe = LocalCommand.run(command)
+
+        if command_exe.code == 0
+            result = :success
+        else
+            result = :failure
+        end
+
+        send_message(ACTION[action],RESULT[result],id)
+    end
 
     # -------------------------------------------------------------------------
     # Virtual Machine Manager Protocol Actions (generic implementation

@@ -333,7 +333,7 @@ int LibVirtDriver::deployment_description_vmware(
     file << "\t</devices>" << endl;
 
     // ------------------------------------------------------------------------
-    // Raw KVM attributes
+    // Raw VMware attributes
     // ------------------------------------------------------------------------
 
     num = vm->get_template_attribute("RAW",attrs);
