@@ -164,7 +164,6 @@ ETC_DIRS="$ETC_LOCATION/im_kvm \
 
 LIB_DIRS="$LIB_LOCATION/remotes \
           $LIB_LOCATION/remotes/im \
-          $LIB_LOCATION/remotes/im/common.d \
           $LIB_LOCATION/remotes/im/kvm.d \
           $LIB_LOCATION/remotes/im/xen.d \
           $LIB_LOCATION/remotes/vmm/xen \
@@ -212,24 +211,23 @@ INSTALL_FILES[3]="RUBY_LIB_FILES:$LIB_LOCATION/ruby"
 INSTALL_FILES[4]="RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/OpenNebula"
 INSTALL_FILES[5]="MADS_LIB_FILES:$LIB_LOCATION/mads"
 INSTALL_FILES[6]="IM_PROBES_FILES:$LIB_LOCATION/remotes/im"
-INSTALL_FILES[7]="IM_PROBES_COMMON_FILES:$LIB_LOCATION/remotes/im/common.d"
-INSTALL_FILES[8]="IM_PROBES_KVM_FILES:$LIB_LOCATION/remotes/im/kvm.d"
-INSTALL_FILES[9]="IM_PROBES_XEN_FILES:$LIB_LOCATION/remotes/im/xen.d"
-INSTALL_FILES[10]="VMM_SSH_KVM_SCRIPTS:$LIB_LOCATION/remotes/vmm/kvm"
-INSTALL_FILES[11]="VMM_SSH_XEN_SCRIPTS:$LIB_LOCATION/remotes/vmm/xen"
-INSTALL_FILES[12]="NFS_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/nfs"
-INSTALL_FILES[13]="SSH_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/ssh"
-INSTALL_FILES[14]="DUMMY_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/dummy"
-INSTALL_FILES[15]="LVM_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/lvm"
-INSTALL_FILES[16]="EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples"
-INSTALL_FILES[17]="TM_EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples/tm"
-INSTALL_FILES[18]="HOOK_SHARE_FILES:$SHARE_LOCATION/hooks"
-INSTALL_FILES[19]="COMMON_CLOUD_LIB_FILES:$LIB_LOCATION/ruby/cloud"
-INSTALL_FILES[20]="ECO_LIB_FILES:$LIB_LOCATION/ruby/cloud/econe"
-INSTALL_FILES[21]="ECO_LIB_VIEW_FILES:$LIB_LOCATION/ruby/cloud/econe/views"
-INSTALL_FILES[22]="ECO_BIN_FILES:$BIN_LOCATION"
-INSTALL_FILES[23]="OCCI_LIB_FILES:$LIB_LOCATION/ruby/cloud/occi"
-INSTALL_FILES[24]="OCCI_BIN_FILES:$BIN_LOCATION"
+INSTALL_FILES[7]="IM_PROBES_KVM_FILES:$LIB_LOCATION/remotes/im/kvm.d"
+INSTALL_FILES[8]="IM_PROBES_XEN_FILES:$LIB_LOCATION/remotes/im/xen.d"
+INSTALL_FILES[9]="VMM_SSH_KVM_SCRIPTS:$LIB_LOCATION/remotes/vmm/kvm"
+INSTALL_FILES[10]="VMM_SSH_XEN_SCRIPTS:$LIB_LOCATION/remotes/vmm/xen"
+INSTALL_FILES[11]="NFS_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/nfs"
+INSTALL_FILES[12]="SSH_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/ssh"
+INSTALL_FILES[13]="DUMMY_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/dummy"
+INSTALL_FILES[14]="LVM_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/lvm"
+INSTALL_FILES[15]="EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples"
+INSTALL_FILES[16]="TM_EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples/tm"
+INSTALL_FILES[17]="HOOK_SHARE_FILES:$SHARE_LOCATION/hooks"
+INSTALL_FILES[18]="COMMON_CLOUD_LIB_FILES:$LIB_LOCATION/ruby/cloud"
+INSTALL_FILES[19]="ECO_LIB_FILES:$LIB_LOCATION/ruby/cloud/econe"
+INSTALL_FILES[20]="ECO_LIB_VIEW_FILES:$LIB_LOCATION/ruby/cloud/econe/views"
+INSTALL_FILES[21]="ECO_BIN_FILES:$BIN_LOCATION"
+INSTALL_FILES[22]="OCCI_LIB_FILES:$LIB_LOCATION/ruby/cloud/occi"
+INSTALL_FILES[23]="OCCI_BIN_FILES:$BIN_LOCATION"
 
 INSTALL_ECO_CLIENT_FILES[0]="COMMON_CLOUD_CLIENT_LIB_FILES:$LIB_LOCATION/ruby/cloud"
 INSTALL_ECO_CLIENT_FILES[1]="ECO_LIB_CLIENT_FILES:$LIB_LOCATION/ruby/cloud/econe"
@@ -374,13 +372,15 @@ VMM_SSH_XEN_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
 
 IM_PROBES_FILES="src/im_mad/remotes/run_probes"
 
-IM_PROBES_COMMON_FILES="src/im_mad/remotes/common.d/architecture.sh \
-                     src/im_mad/remotes/common.d/cpu.sh \
-                     src/im_mad/remotes/common.d/name.sh"
+IM_PROBES_XEN_FILES="src/im_mad/remotes/xen.d/xen.rb \
+                    src/im_mad/remotes/xen.d/architecture.sh \
+                    src/im_mad/remotes/xen.d/cpu.sh \
+                    src/im_mad/remotes/xen.d/name.sh"
 
-IM_PROBES_XEN_FILES="src/im_mad/remotes/xen.d/xen.rb"
-
-IM_PROBES_KVM_FILES="src/im_mad/remotes/kvm.d/kvm.rb"
+IM_PROBES_KVM_FILES="src/im_mad/remotes/kvm.d/kvm.rb \
+                    src/im_mad/remotes/kvm.d/architecture.sh \
+                    src/im_mad/remotes/kvm.d/cpu.sh \
+                    src/im_mad/remotes/kvm.d/name.sh"
 
 
 #-------------------------------------------------------------------------------

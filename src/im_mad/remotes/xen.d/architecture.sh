@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
@@ -16,39 +16,4 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-HYPERVISOR_DIR=$1.d
-
-SCRIPTS_DIR=`dirname $0`
-cd $SCRIPTS_DIR
-
-
-function run_dir {
-    (
-    DIR=$1
-    cd $DIR
-    for i in `ls *`;do
-        if [ -x "$i" ]; then
-            ./$i
-            EXIT_CODE=$?
-            if [ "x$EXIT_CODE" != "x0" ]; then
-                echo "Error executing $i" 1>&2
-                exit $EXIT_CODE
-            fi
-        fi
-    done
-    )
-}
-
-data=$(
-    if [ -d "$HYPERVISOR_DIR" ]; then
-        run_dir $HYPERVISOR_DIR
-    fi
-)
-
-EXIT_CODE=$?
-
-echo $data | tr '\n' ' '
-
-if [ "x$EXIT_CODE" != "x0" ]; then
-    exit $EXIT_CODE
-fi
+echo ARCH=`uname -m`
