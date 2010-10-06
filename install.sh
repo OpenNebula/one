@@ -653,8 +653,8 @@ if [ "$UNINSTALL" = "no" ] ; then
 
     # --- Set correct permissions for Image Repository ---
 
-    if [ -d "$IMAGES_LOCATION" ]; then
-        chmod 3770 $IMAGES_LOCATION
+    if [ -d "$DESTDIR$IMAGES_LOCATION" ]; then
+        chmod 3770 $DESTDIR$IMAGES_LOCATION
     fi
 else
     for d in `echo $DELETE_DIRS | awk '{for (i=NF;i>=1;i--) printf $i" "}'`; do
