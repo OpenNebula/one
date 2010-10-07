@@ -16,17 +16,18 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+HYPERVISOR_DIR=$1.d
+ARGUMENTS=$*
+
 SCRIPTS_DIR=`dirname $0`
 cd $SCRIPTS_DIR
 
-
 function run_dir {
     (
-    DIR=$1.d
-    cd $DIR
+    cd $1
     for i in `ls *`;do
         if [ -x "$i" ]; then
-            ./$i $*
+            ./$i $ARGUMENTS
             EXIT_CODE=$?
             if [ "x$EXIT_CODE" != "x0" ]; then
                 echo "Error executing $i" 1>&2
@@ -39,7 +40,7 @@ function run_dir {
 
 data=$(
     if [ -d "$HYPERVISOR_DIR" ]; then
-        run_dir $*
+        run_dir "$HYPERVISOR_DIR"
     fi
 )
 
