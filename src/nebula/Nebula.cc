@@ -64,7 +64,7 @@ void Nebula::start()
         throw runtime_error("Could not load nebula configuration file.");
     }
 
-    string   config_fname = log_location + "config";
+    string   config_fname = var_location + "config";
     ofstream config_file(config_fname.c_str(), ios_base::trunc & ios_base::out);
 
     if (config_file.fail() == false)

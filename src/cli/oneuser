@@ -148,7 +148,7 @@ when "create"
 
     if ops[:read_file]
         begin
-            password = File.read(ARGV[1])
+            password = File.read(ARGV[1]).split("\n").first
         rescue
             puts "Can not read file: #{ARGV[1]}"
             exit -1
@@ -218,7 +218,7 @@ when "passwd"
 
     if ops[:read_file]
         begin
-            password = File.read(ARGV[1])
+            password = File.read(ARGV[1]).split("\n").first
         rescue
             puts "Can not read file: #{ARGV[1]}"
             exit -1

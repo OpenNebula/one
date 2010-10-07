@@ -22,7 +22,7 @@ XENTOP_PATH="/usr/sbin/xentop"
 XM_PATH="/usr/sbin/xm"
 
 def print_info(name, value)
-    value = "0" if value.nil? or value.to_s.empty?
+    value = "0" if value.nil? or value.to_s.strip.empty?
     puts "#{name}=#{value}"
 end
 

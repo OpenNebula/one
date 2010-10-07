@@ -17,7 +17,7 @@
 #--------------------------------------------------------------------------- #
 
 def print_info(name, value)
-    value = "0" if value.nil? or value.to_s.empty?
+    value = "0" if value.nil? or value.to_s.strip.empty?
     puts "#{name}=#{value}"
 end
 
@@ -30,7 +30,7 @@ nodeinfo_text = `virsh -c qemu:///system nodeinfo`
 exit(-1) if $?!=0
 
 nodeinfo_text.split(/\n/).each{|line|
-    if     line.match('^CPU\(s\)') 
+    if     line.match('^CPU\(s\)')
         $total_cpu   = line.split(":")[1].strip.to_i * 100
     elsif  line.match('^CPU frequency')
         $cpu_speed   = line.split(":")[1].strip.split(" ")[0]
@@ -51,7 +51,7 @@ exit(-1) if $?!=0
 top_text.gsub!(/^top.*^top.*?$/m, "") # Strip first top output
 
 top_text.split(/\n/).each{|line|
-    if line.match('^Mem')  
+    if line.match('^Mem')
         line[4..-1].split(",").each{|elemento|
             temp = elemento.strip.split("k ")
             if temp[1] == "used"
@@ -63,9 +63,9 @@ top_text.split(/\n/).each{|line|
         line[7..-1].split(",").each{|elemento|
             temp = elemento.strip.split("%")
             if temp[1]=="id"
-	        idle = temp[0] 
- 	        $free_cpu = idle.to_f * $total_cpu.to_f / 100 
- 	        $used_cpu = $total_cpu.to_f - $free_cpu                 
+            idle = temp[0]
+            $free_cpu = idle.to_f * $total_cpu.to_f / 100
+            $used_cpu = $total_cpu.to_f - $free_cpu
                 break
             end
 
