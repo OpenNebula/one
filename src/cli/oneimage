@@ -237,11 +237,10 @@ Commands:
     oneimage list <filter_flag>
     
     where filter_flag can be
-        a, all   --> all the known Images (admin users)
-        m, mine  --> the Images belonging to the user in ONE_AUTH 
-                     and all the  Public Images
-        uid      --> Images of the user identified by this uid (admin users)
-        user     --> Images of the user identified by the username (admin users)
+        a, all   --> all the known Images
+        m, mine  --> the Images belonging to the user in ONE_AUTH
+        uid      --> Images of the user identified by this uid
+        user     --> Images of the user identified by the username
         
 * top (Lists Images continuously)
     onevm top
