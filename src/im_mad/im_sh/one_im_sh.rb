@@ -49,7 +49,7 @@ class InformationManager < OpenNebulaDriver
         @config     = read_configuration
         @hypervisor = hypervisor
 
-        @cmd_path   = "#{ENV['ONE_LOCATION']}/lib/remotes/im/#{hypervisor}.d"
+        @cmd_path   = "#{ENV['ONE_LOCATION']}/lib/remotes/im"
 
         # register actions
         register_action(:MONITOR, method("action_monitor"))
@@ -63,7 +63,7 @@ class InformationManager < OpenNebulaDriver
             log(number, message)
         end
 
-        cmd_string  = "#{@remote_dir}/im/run_probes #{@hypervisor} #{host}"
+        cmd_string  = "#{@cmd_path}/run_probes #{@hypervisor} #{host}"
         monitor_exe = LocalCommand.run(cmd_string, host, log_method(id))
 
         if monitor_exe.code == 0
