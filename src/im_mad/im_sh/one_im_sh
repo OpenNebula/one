@@ -17,7 +17,7 @@
 #--------------------------------------------------------------------------- #
 
 #Setup driver variables
-DRIVER_NAME=`basename $1 | cut -d. -f1`
+DRIVER_NAME=`basename $0 | cut -d. -f1`
 
 if [ -z "${ONE_LOCATION}" ]; then
     DRIVERRC=/etc/one/${DRIVER_NAME}/${DRIVER_NAME}rc
