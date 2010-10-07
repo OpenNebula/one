@@ -45,12 +45,12 @@ class InformationManager < OpenNebulaDriver
     #---------------------------------------------------------------------------
     def initialize(hypervisor, num)
         super(num, true)
-        
-        @config     = read_configuration
-        @hypervisor = hypervisor 
 
-        @cmd_path   = "#{ENV['ONE_LOCATION']}/lib/remotes/im/#{hypervisor}.d"  
-             
+        @config     = read_configuration
+        @hypervisor = hypervisor
+
+        @cmd_path   = "#{ENV['ONE_LOCATION']}/lib/remotes/im/#{hypervisor}.d"
+
         # register actions
         register_action(:MONITOR, method("action_monitor"))
     end
@@ -62,11 +62,10 @@ class InformationManager < OpenNebulaDriver
         log_lambda=lambda do |message|
             log(number, message)
         end
-        
-        cmd = "#{@cmd_path}/#{@hypervisor}.rb #{host}"
 
-        monitor_exe = LocalCommand.run(cmd, host, log_method(id))
-        
+        cmd_string  = "#{@remote_dir}/im/run_probes #{@hypervisor} #{host}"
+        monitor_exe = LocalCommand.run(cmd_string, host, log_method(id))
+
         if monitor_exe.code == 0
             send_message("MONITOR", RESULT[:success], number, monitor_exe.stdout)
         else
