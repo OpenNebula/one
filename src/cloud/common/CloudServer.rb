@@ -44,6 +44,10 @@ class CloudServer
 
         @config = Configuration.new(config_file)
 
+        if @config[:vm_type] == nil
+            raise "No VM_TYPE defined."
+        end
+
         @instance_types = Hash.new
 
         if @config[:vm_type].kind_of?(Array)
@@ -56,8 +60,9 @@ class CloudServer
 
         # --- Start an OpenNebula Session ---
 
-        @one_client = Client.new()
+        @one_client = Client.new(nil,@config[:one_xmlrpc])
         @user_pool  = UserPool.new(@one_client)
+
         @img_repo = OpenNebula::ImageRepository.new
     end
 
@@ -123,7 +128,7 @@ class CloudServer
         rc = @img_repo.create(image, template)
 
         file[:tempfile].unlink
-        
+
         if OpenNebula.is_error?(rc)
            return rc
         end
@@ -133,8 +138,8 @@ class CloudServer
 
     # Finds out if a port is available on ip
     # ip:: _String_ IP address where the port to check is
-    # port:: _String_ port to find out whether is open 
-    # [return] _Boolean_ Newly created image object    
+    # port:: _String_ port to find out whether is open
+    # [return] _Boolean_ Newly created image object
     def self.is_port_open?(ip, port)
       begin
         Timeout::timeout(2) do
