@@ -23,16 +23,15 @@
 void RequestManager::ImagePoolInfo::execute(
     xmlrpc_c::paramList const& paramList,
     xmlrpc_c::value *   const  retval)
-{ 
+{
     string        session;
 
     ostringstream oss;
     ostringstream where_string;
 
     int           rc;
-    int           uid;
     int           filter_flag;
-    
+
     const string  method_name = "ImagePoolInfo";
 
     /*   -- RPC specific vars --  */
@@ -46,19 +45,17 @@ void RequestManager::ImagePoolInfo::execute(
     filter_flag = xmlrpc_c::value_int(paramList.getInt(1));
 
     // Check if it is a valid user
-    uid = ImagePoolInfo::upool->authenticate(session);
+    rc = ImagePoolInfo::upool->authenticate(session);
 
-    if ( uid == -1 )
+    if ( rc == -1 )
     {
         goto error_authenticate;
     }
-    
-    where_string.str("");
-    
+
     /** Filter flag meaning table
-     *      -2 :: All Images (just for oneadmin)
+     *      -2 :: All Images
      *      -1 :: User's Images AND public images belonging to any user
-     *    >= 0 :: UID User's Images (just for oneadmin)
+     *    >= 0 :: UID User's Images
      **/
     if ( filter_flag < -2 )
     {
@@ -69,10 +66,9 @@ void RequestManager::ImagePoolInfo::execute(
     {
         case -2:
             // TODO define authentication bug #278
-            // where remains empty.
             break;
         case -1:
-            where_string << "UID=" << uid << " OR public = 'YES'";
+            where_string << "UID=" << rc << " OR PUBLIC=1";
             break;
         default:
             where_string << "UID=" << filter_flag;
@@ -87,7 +83,7 @@ void RequestManager::ImagePoolInfo::execute(
     }
 
     // All nice, return pool info to the client
-    arrayData.push_back(xmlrpc_c::value_boolean(true)); // SUCCESS   
+    arrayData.push_back(xmlrpc_c::value_boolean(true)); // SUCCESS
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
 
     arrayresult = new xmlrpc_c::value_array(arrayData);
@@ -101,7 +97,7 @@ void RequestManager::ImagePoolInfo::execute(
     return;
 
 error_authenticate:
-    oss.str(authenticate_error(method_name));    
+    oss.str(authenticate_error(method_name));
     goto error_common;
 
 error_filter_flag:
@@ -115,13 +111,13 @@ error_dump:
 error_common:
     arrayData.push_back(xmlrpc_c::value_boolean(false)); // FAILURE
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
-    
-    NebulaLog::log("ReM",Log::ERROR,oss); 
-    
+
+    NebulaLog::log("ReM",Log::ERROR,oss);
+
     xmlrpc_c::value_array arrayresult_error(arrayData);
 
     *retval = arrayresult_error;
-    
+
     return;
 }
 
