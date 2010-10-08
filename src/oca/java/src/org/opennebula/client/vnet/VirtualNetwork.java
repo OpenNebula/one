@@ -31,6 +31,7 @@ public class VirtualNetwork extends PoolElement{
     private static final String ALLOCATE        = METHOD_PREFIX + "allocate";
     private static final String INFO            = METHOD_PREFIX + "info";
     private static final String DELETE          = METHOD_PREFIX + "delete";
+    private static final String PUBLISH         = METHOD_PREFIX + "publish";
 
 
     /**
@@ -96,6 +97,18 @@ public class VirtualNetwork extends PoolElement{
         return client.call(DELETE, id);
     }
 
+    /**
+     * Publishes or unpublishes a virtual network.
+     * 
+     * @param client XML-RPC Client.
+     * @param id The virtual network id (nid) of the target network.
+     * @param publish True for publishing, false for unpublishing.
+     * @return If successful the message contains the image id.
+     */
+    public static OneResponse publish(Client client, int id, boolean publish)
+    {
+        return client.call(PUBLISH, id, publish);
+    }
 
     // =================================
     // Instanced object XML-RPC methods
@@ -122,5 +135,51 @@ public class VirtualNetwork extends PoolElement{
     public OneResponse delete()
     {
         return delete(client, id);
+    }
+
+    /**
+     * Publishes or unpublishes the virtual network.
+     * 
+     * @param publish True for publishing, false for unpublishing.
+     * @return If successful the message contains the image id.
+     */
+    public OneResponse publish(boolean publish)
+    {
+        return publish(client, id, publish);
+    }
+
+    /**
+     * Publishes the virtual network.
+     * 
+     * @return If successful the message contains the image id.
+     */
+    public OneResponse publish()
+    {
+        return publish(true);
+    }
+
+    /**
+     * Unpublishes the virtual network.
+     * 
+     * @return If successful the message contains the image id.
+     */
+    public OneResponse unpublish()
+    {
+        return publish(false);
+    }
+
+    // =================================
+    // Helpers
+    // =================================
+
+    /**
+     * Returns true if the Virtual Network is public.
+     * 
+     * @return True if the Virtual Network is public.
+     */
+    public boolean isPublic()
+    {
+        String isPub = xpath("PUBLIC"); 
+        return isPub != null && isPub.equals("1");
     }
 }

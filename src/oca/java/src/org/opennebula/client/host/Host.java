@@ -161,6 +161,26 @@ public class Host extends PoolElement{
         return enable(client, id, enable);
     }
 
+    /**
+     * Enables the host.
+     * 
+     * @return A encapsulated response.
+     */
+    public OneResponse enable()
+    {
+        return enable(true);
+    }
+
+    /**
+     * Disables the host
+     * 
+     * @return A encapsulated response.
+     */
+    public OneResponse disable()
+    {
+        return enable(false);
+    }
+
     // =================================
     // Helpers
     // =================================
@@ -196,5 +216,25 @@ public class Host extends PoolElement{
             return "off";
         else
             return "on";
+    }
+
+    /**
+     * Returns true if the host is enabled.
+     * 
+     * @return True if the host is enabled.
+     */
+    public boolean isEnabled()
+    {
+        return state() != 4;
+    }
+
+    /**
+     * Returns the name of the cluster this host is assigned to.
+     * 
+     * @return The name of the cluster this host is assigned to.
+     */
+    public String getCluster()
+    {
+        return xpath("CLUSTER");
     }
 }

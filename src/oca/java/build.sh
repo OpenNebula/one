@@ -25,36 +25,41 @@ BIN_DIR="./bin"
 JAR_DIR="./jar"
 LIB_DIR="./lib"
 EXA_DIR="./share/examples"
+TEST_DIR="./test"
 
 OCA_JAR=$JAR_DIR"/org.opennebula.client.jar"
+JUNIT_JAR="/usr/share/java/junit4.jar"
 
 #-------------------------------------------------------------------------------
 # COMMAND LINE PARSING
 #-------------------------------------------------------------------------------
 usage() {
  echo
- echo "Usage: build.sh [-d ] [-h] [-s]"
+ echo "Usage: build.sh [-d ] [-h] [-s] [-t]"
  echo
  echo "-d: build the documentation"
  echo "-s: compile the examples"
  echo "-c: clean compilation files"
+ echo "-t: build the tests"
  echo "-h: prints this help"
 }
 #-------------------------------------------------------------------------------
 
-TEMP_OPT=`getopt -o hsdc -n 'build.sh' -- "$@"`
+TEMP_OPT=`getopt -o hsdct -n 'build.sh' -- "$@"`
 
 eval set -- "$TEMP_OPT"
 
 DO_DOC="no"
 DO_EXA="no"
 DO_CLEAN="no"
+DO_TESTS="no"
 
 while true ; do
     case "$1" in
         -h) usage; exit 0;;
         -d) DO_DOC="yes"; shift ;;
         -s) DO_EXA="yes"; shift ;;
+        -t) DO_TESTS="yes"; shift ;;
         -c) DO_CLEAN="yes"; shift ;;
         --) shift ; break ;;
         *)  usage; exit 1 ;;
@@ -105,6 +110,12 @@ do_examples()
     javac -d $EXA_DIR -classpath $OCA_JAR:$LIB_DIR `find share/examples -name *.java`
 }
 
+do_tests()
+{
+    echo "Compiling OpenNebula Cloud API Tests..."
+    javac -d $TEST_DIR -classpath $OCA_JAR:$LIB_DIR:$JUNIT_JAR `find $TEST_DIR -name *.java`
+}
+
 do_clean()
 {
     rm -rf $BIN_DIR > /dev/null 2>&1
@@ -126,5 +137,9 @@ fi
 
 if [ "$DO_EXA" = "yes" ] ; then
     do_examples
+fi
+
+if [ "$DO_TESTS" = "yes" ] ; then
+    do_tests
 fi
 

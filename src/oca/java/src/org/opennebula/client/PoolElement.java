@@ -73,7 +73,7 @@ public abstract class PoolElement {
 
         this.xml    = xmlElement;
         this.client = client;
-        this.id     = Integer.parseInt(xpath("id"));
+        this.id     = Integer.parseInt(xpath("ID"));
     }
 
     /**
@@ -109,13 +109,18 @@ public abstract class PoolElement {
       return Integer.toString(id);
     }
 
+    public int id()
+    {
+        return id;
+    }
+
     /**
      * Returns the element's name.
      * @return the element's name.
      */
     public String getName()
     {
-        return xpath("name");
+        return xpath("NAME");
     }
 
     /**
@@ -124,7 +129,7 @@ public abstract class PoolElement {
      */
     public int state()
     {
-        String state = xpath("state");
+        String state = xpath("STATE");
 
         return state != null ? Integer.parseInt( state ) : -1;
     }
@@ -145,7 +150,7 @@ public abstract class PoolElement {
 
         try
         {
-          result = xpath.evaluate(expression.toUpperCase(), xml);
+          result = xpath.evaluate(expression, xml);
         }
         catch (XPathExpressionException e) {}
 
