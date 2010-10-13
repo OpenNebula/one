@@ -320,7 +320,7 @@ int XenDriver::deployment_description(
 
         mac    = nic->vector_value("MAC");
         bridge = nic->vector_value("BRIDGE");
-        
+
         if( !mac.empty() )
         {
             file << "mac=" << mac;
@@ -367,7 +367,17 @@ int XenDriver::deployment_description(
 
                 if ( !port.empty() )
                 {
-                    file << ",vncdisplay=" << port;
+                    istringstream iss(port);
+                    int           display;
+
+                    iss >> display;
+
+                    if ( iss.fail() || display < 5900 )
+                    {
+                        goto error_vncdisplay;
+                    }
+
+                    file << ",vncdisplay=" << display - 5900;
                 }
 
                 if ( !passwd.empty() )
@@ -439,6 +449,13 @@ error_boot:
 
 error_disk:
     vm->log("VMM", Log::ERROR, "Wrong target value in DISK.");
+    file.close();
+    return -1;
+
+error_vncdisplay:
+    vm->log("VMM", Log::ERROR,
+            "Could not generate a valid xen vncdisplay number, "
+            "vnc port number must be equal or above 5900.");
     file.close();
     return -1;
 }
