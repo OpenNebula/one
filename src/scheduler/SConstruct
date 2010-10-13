@@ -55,7 +55,7 @@ main_env.Append(CPPFLAGS=[
 ])
 
 # Linking flags
-main_env.Append(LINKFLAGS=["-g"])
+main_env.Append(LINKFLAGS=['-g', '-pthread'])
 
 ################################################################################
 #                               EXTRA CONFIGURATION
