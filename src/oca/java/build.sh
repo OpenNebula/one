@@ -122,6 +122,7 @@ do_clean()
     mkdir -p $BIN_DIR
 
     find share/examples -name '*.class' -delete
+    find test/ -name '*.class' -delete
 }
 
 if [ "$DO_CLEAN" = "yes" ] ; then
