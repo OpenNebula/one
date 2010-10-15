@@ -122,7 +122,6 @@ public class UserTest
         assertTrue( res.getErrorMessage(), !res.isError() );
 
         res = user.info();
-        assertTrue( res.getErrorMessage(), !res.isError() );
-        assertTrue( !user.isEnabled() );
+        assertTrue( res.getErrorMessage(), res.isError() );
     }
 }
