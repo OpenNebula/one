@@ -33,6 +33,7 @@ public class VirtualMachine extends PoolElement{
     private static final String DEPLOY   = METHOD_PREFIX + "deploy";
     private static final String ACTION   = METHOD_PREFIX + "action";
     private static final String MIGRATE  = METHOD_PREFIX + "migrate";
+    private static final String SAVEDISK = METHOD_PREFIX + "savedisk";
 
     private static final String[] VM_STATES =
     {
@@ -216,6 +217,18 @@ public class VirtualMachine extends PoolElement{
         return client.call(MIGRATE, id, hostId, live);
     }
 
+    /**
+     * Sets the specified vm's disk to be saved in a new image when the
+     * VirtualMachine shutdowns.
+     * 
+     * @param diskId ID of the disk to be saved.
+     * @param imageId ID of the image where the disk will be saved.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse savedisk(int diskId, int imageId)
+    {
+        return client.call(SAVEDISK, diskId, imageId);
+    }
 
     // =================================
     // Helpers
@@ -391,4 +404,5 @@ public class VirtualMachine extends PoolElement{
         }
         return shortStateStr;
     }
+
 }

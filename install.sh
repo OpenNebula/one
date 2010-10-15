@@ -100,11 +100,13 @@ if [ -z "$ROOT" ] ; then
     LOCK_LOCATION="/var/lock/one"
     INCLUDE_LOCATION="/usr/include"
     SHARE_LOCATION="/usr/share/one"
+    MAN_LOCATION="/usr/share/man/man8"
 
     if [ "$CLIENT" = "no" ]; then
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION $VAR_LOCATION \
                    $INCLUDE_LOCATION $SHARE_LOCATION \
-                   $LOG_LOCATION $RUN_LOCATION $LOCK_LOCATION $IMAGES_LOCATION"
+                   $LOG_LOCATION $RUN_LOCATION $LOCK_LOCATION \
+                   $IMAGES_LOCATION $MAN_LOCATION"
 
         DELETE_DIRS="$LIB_LOCATION $ETC_LOCATION $LOG_LOCATION $VAR_LOCATION \
                      $RUN_LOCATION $SHARE_DIRS"
@@ -126,10 +128,12 @@ else
     IMAGES_LOCATION="$VAR_LOCATION/images"
     INCLUDE_LOCATION="$ROOT/include"
     SHARE_LOCATION="$ROOT/share"
+    MAN_LOCATION="$ROOT/share/man/man8"
 
     if [ "$CLIENT" = "no" ]; then
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION $VAR_LOCATION \
-                   $INCLUDE_LOCATION $SHARE_LOCATION $IMAGES_LOCATION"
+                   $INCLUDE_LOCATION $SHARE_LOCATION $IMAGES_LOCATION \
+                   $MAN_LOCATION"
 
         DELETE_DIRS="$MAKE_DIRS"
 
@@ -228,6 +232,7 @@ INSTALL_FILES[20]="ECO_LIB_VIEW_FILES:$LIB_LOCATION/ruby/cloud/econe/views"
 INSTALL_FILES[21]="ECO_BIN_FILES:$BIN_LOCATION"
 INSTALL_FILES[22]="OCCI_LIB_FILES:$LIB_LOCATION/ruby/cloud/occi"
 INSTALL_FILES[23]="OCCI_BIN_FILES:$BIN_LOCATION"
+INSTALL_FILES[24]="MAN_FILES:$MAN_LOCATION"
 
 INSTALL_ECO_CLIENT_FILES[0]="COMMON_CLOUD_CLIENT_LIB_FILES:$LIB_LOCATION/ruby/cloud"
 INSTALL_ECO_CLIENT_FILES[1]="ECO_LIB_CLIENT_FILES:$LIB_LOCATION/ruby/cloud/econe"
@@ -586,6 +591,18 @@ OCCI_ETC_FILES="src/cloud/occi/etc/occi-server.conf"
 OCCI_ETC_TEMPLATE_FILES="src/cloud/occi/etc/templates/small.erb \
                     src/cloud/occi/etc/templates/medium.erb \
                     src/cloud/occi/etc/templates/large.erb"
+
+#-----------------------------------------------------------------------------
+# MAN files
+#-----------------------------------------------------------------------------
+
+MAN_FILES="share/man/oneauth.8.gz \
+        share/man/onecluster.8.gz \
+        share/man/onehost.8.gz \
+        share/man/oneimage.8.gz \
+        share/man/oneuser.8.gz \
+        share/man/onevm.8.gz \
+        share/man/onevnet.8.gz"
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------

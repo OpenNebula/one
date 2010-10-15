@@ -38,6 +38,7 @@ require 'sequel'
 require 'quota'
 require 'ssh_auth'
 require 'client_utilities'
+require 'command_parse'
 
 
 COMMANDS_HELP=<<-EOT
@@ -128,6 +129,9 @@ when "key"
 when "help"
     print_help
     exit 0
+    
+when "--version"
+    puts CommandParse::ONE_VERSION
     
 else
     print_help

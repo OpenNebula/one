@@ -42,7 +42,7 @@ module OpenNebula
             @user['ID'].should eql('3')
             @user['NAME'].should eql('dan')
             @user['PASSWORD'].should eql('d22a12348334v33f71ba846572d25250d40701e72')
-            @user['ENABLED'].should eql('False')
+            @user['ENABLED'].should eql('0')
         end
     end
 
@@ -83,7 +83,7 @@ module OpenNebula
             @user['ID'].should eql('3')
             @user['NAME'].should eql('dan')
             @user['PASSWORD'].should eql('d22a12348334v33f71ba846572d25250d40701e72')
-            @user['ENABLED'].should eql('False')
+            @user['ENABLED'].should eql('0')
         end
     end
 
