@@ -108,7 +108,7 @@ public class UserTest
         assertTrue( res.getErrorMessage(), !res.isError() );
 
         assertTrue( user.xpath("NAME").equals(name) );
-        assertTrue( user.xpath("ENABLED").equals("True") );
+        assertTrue( user.xpath("ENABLED").equals("1") );
     }
 
     @Test

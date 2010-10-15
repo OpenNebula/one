@@ -162,6 +162,6 @@ public class User extends PoolElement{
     public boolean isEnabled()
     {
         String enabled = xpath("ENABLED");
-        return enabled != null && enabled.toLowerCase().equals("true");
+        return enabled != null && enabled.equals("1");
     }
 }
