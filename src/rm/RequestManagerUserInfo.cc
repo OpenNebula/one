@@ -69,7 +69,7 @@ void RequestManager::UserInfo::execute(
         }
     }    
     // Now let's get the user 
-    user = UserInfo::upool->get(uid,true);
+    user = UserInfo::upool->get(the_uid,true);
     
     if ( user == 0 )                             
     {                                            
