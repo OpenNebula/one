@@ -983,6 +983,27 @@ private:
 
     /* ---------------------------------------------------------------------- */
 
+    class UserInfo: public xmlrpc_c::method                                   
+    {
+    public:                                                                   
+        UserInfo(UserPool * _upool):upool(_upool)
+        {
+            _signature="A:si";
+            _help="Returns the information for a user";
+        };
+
+        ~UserInfo(){};
+
+        void execute(
+            xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP);
+
+    private:
+        UserPool * upool;
+    };
+
+    /* ---------------------------------------------------------------------- */
+
     class UserPoolInfo: public xmlrpc_c::method
     {
     public:
