@@ -15,16 +15,9 @@
  ******************************************************************************/
 package org.opennebula.client.user;
 
-import java.io.ByteArrayInputStream;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPathConstants;
-
 import org.opennebula.client.Client;
 import org.opennebula.client.OneResponse;
 import org.opennebula.client.PoolElement;
-import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 
@@ -36,6 +29,7 @@ public class User extends PoolElement{
 
     private static final String METHOD_PREFIX   = "user.";
     private static final String ALLOCATE        = METHOD_PREFIX + "allocate";
+    private static final String INFO            = METHOD_PREFIX + "info";
     private static final String DELETE          = METHOD_PREFIX + "delete";
     private static final String PASSWD          = METHOD_PREFIX + "passwd";
     
@@ -78,7 +72,20 @@ public class User extends PoolElement{
     {
         return client.call(ALLOCATE, username, password);
     }
-    
+
+    /** Retrieves the information of the given user.
+     * 
+     * @param client XML-RPC Client.
+     * @param id The user id (uid) for the user to
+     * retrieve the information from.
+     * @return if successful the message contains the
+     * string with the information about the user returned by OpenNebula.
+     */
+    public static OneResponse info(Client client, int id)
+    {
+        return client.call(INFO, id);
+    }
+
     /**
      * Deletes a user from OpenNebula.
      * 
@@ -107,36 +114,19 @@ public class User extends PoolElement{
     // =================================
     // Instanced object XML-RPC methods
     // =================================
-    
+
     /**
      * Loads the xml representation of the user.
      * The info is also stored internally.
      * 
+     * @see User#info(Client, int)
      */
     public OneResponse info()
     {
-        OneResponse response = client.call("userpool.info");
-        if(response.isError())
-        {
-            return response;
-        }
-        else
-        {
-            try
-            {
-                DocumentBuilder builder =
-                    DocumentBuilderFactory.newInstance().newDocumentBuilder();
-                Document doc = builder.parse(
-                    new ByteArrayInputStream(response.getMessage().getBytes()));
+        OneResponse response = info(client, id);
+        super.processInfo(response);
 
-                xml = (Node) xpath.evaluate(    "/USER_POOL/USER[ID="+id+"]",
-                                                doc.getDocumentElement(),
-                                                XPathConstants.NODE);
-            }
-            catch (Exception e) {}
-
-            return response;
-        }
+        return response;
     }
 
     /**
