@@ -1,25 +1,25 @@
 
 module OpenNebula
-    
+
     begin
         require 'nokogiri'
         NOKOGIRI=true
     rescue LoadError
         NOKOGIRI=false
     end
-    
+
     ###########################################################################
     # The XMLElement class provides an abstraction of the underlying
     # XML parser engine. It provides XML-related methods for the Pool and
     # PoolElement classes
     ###########################################################################
     class XMLElement
-        
+
         # xml:: _opaque xml object_ an xml object as returned by build_xml
         def initialize(xml=nil)
             @xml = xml
         end
-        
+
         # Initialize a XML document for the element
         # xml:: _String_ the XML document of the object
         # root_element:: _String_ Base xml element
@@ -36,7 +36,7 @@ module OpenNebula
                 end
             end
         end
-        
+
         # Builds a XML document
         # xml:: _String_ the XML document of the object
         # root_element:: _String_ Base xml element
@@ -47,7 +47,7 @@ module OpenNebula
             else
                 doc = REXML::Document.new(xml).root
             end
-            
+
             return doc
         end
         # Extract an element from the XML description of the PoolElement.
@@ -59,43 +59,43 @@ module OpenNebula
         def [](key)
             if NOKOGIRI
                 element=@xml.xpath(key.to_s)
-                
+
                 if element.size == 0
                     return nil
                 end
             else
                 element=@xml.elements[key.to_s]
             end
-            
+
             if element
                 element.text
             end
         end
-        
+
         # Gets an attribute from an elemenT
         # key:: _String_ xpath for the element
         # name:: _String_ name of the attribute
         def attr(key,name)
             value = nil
-            
+
             if NOKOGIRI
                 element=@xml.xpath(key.to_s.upcase)
                 if element.size == 0
                     return nil
                 end
-                
+
                 attribute = element.attr(name)
-                
+
                 value = attribute.text if attribute != nil
             else
                 element=@xml.elements[key.to_s.upcase]
-                
+
                 value = element.attributes[name] if element != nil
             end
-            
+
             return value
         end
-        
+
         # Iterates over every Element in the XPath and calls the block with a
         # a XMLElement
         # block:: _Block_
@@ -110,11 +110,11 @@ module OpenNebula
                 }
             end
         end
-        
+
         def name
             @xml.name
         end
-        
+
         def text
             if NOKOGIRI
                 @xml.content
@@ -122,27 +122,21 @@ module OpenNebula
                 @xml.text
             end
         end
-        
+
         def has_elements?(xpath_str)
             if NOKOGIRI
                 element = @xml.xpath(xpath_str.to_s.upcase)
-                if element && element.children.size > 0
-                    return true
-                end
+                return element == nil && element.children.size > 0
             else
                 element = @xml.elements[xpath_str.to_s]
-                if element
-                    return element.has_elements?
-                end
+                return element == nil && element.has_elements?
             end
-            
-            return false
         end
-        
+
         def template_str(indent=true)
             template_like_str('TEMPLATE', indent)
         end
-        
+
         def template_like_str(root_element, indent=true)
             if NOKOGIRI
                 xml_template=@xml.xpath(root_element).to_s
@@ -150,7 +144,7 @@ module OpenNebula
             else
                 rexml=@xml.elements[root_element]
             end
-            
+
             if indent
                 ind_enter="\n"
                 ind_tab='  '
@@ -158,13 +152,13 @@ module OpenNebula
                 ind_enter=''
                 ind_tab=' '
             end
-            
+
             str=rexml.collect {|n|
                 if n.class==REXML::Element
                     str_line=""
                     if n.has_elements?
                         str_line << n.name << "=[" << ind_enter
-                        
+
                         str_line << n.collect {|n2|
                             if n2 && n2.class==REXML::Element
                                 str = ind_tab + n2.name + "="
@@ -179,10 +173,10 @@ module OpenNebula
                     str_line
                 end
             }.compact.join("\n")
-            
+
             str
         end
-        
+
         def to_xml(pretty=false)
             if NOKOGIRI
                 @xml.to_xml
@@ -197,17 +191,17 @@ module OpenNebula
             end
         end
     end
-    
+
     ###########################################################################
     # The XMLUtilsPool module provides an abstraction of the underlying
     # XML parser engine. It provides XML-related methods for the Pools
     ###########################################################################
     class XMLPool < XMLElement
-        
+
         def initialize(xml=nil)
             super(xml)
         end
-        
+
         #Executes the given block for each element of the Pool
         #block:: _Block_
         def each_element(block)
@@ -224,5 +218,5 @@ module OpenNebula
             end
         end
     end
-    
+
 end
