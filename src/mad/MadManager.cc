@@ -147,6 +147,7 @@ int MadManager::add(Mad *mad)
 {
     char    buf = 'A';
     int     rc;
+    size_t  retval;
 
     if ( mad == 0 )
     {
@@ -166,7 +167,7 @@ int MadManager::add(Mad *mad)
 
     mads.push_back(mad);
 
-    write(pipe_w, &buf, sizeof(char));
+    retval = write(pipe_w, &buf, sizeof(char));
 
     unlock();
 
@@ -215,6 +216,7 @@ void MadManager::listener()
     int             greater;
     unsigned int    i,j;
     int             rc,mrc;
+    size_t          retval;
 
     char            c;
 
@@ -262,7 +264,7 @@ void MadManager::listener()
             {
                 if ( fd == pipe_r ) // Driver added, update the fd vector
                 {
-                    read(fd, (void *) &c, sizeof(char));
+                    retval = read(fd, (void *) &c, sizeof(char));
                     
                     lock();
 
