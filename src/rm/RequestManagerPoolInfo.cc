@@ -57,6 +57,7 @@ void RequestManager::VirtualMachinePoolInfo::execute(
             break;
         default:
             paramList.verifyEnd(4);
+            return;
     }
 
     // Get the parameters

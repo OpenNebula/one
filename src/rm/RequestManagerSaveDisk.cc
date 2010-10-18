@@ -149,14 +149,11 @@ error_vm_get_disk_id:
 
 error_authenticate:
     oss.str(authenticate_error(method_name));
-    goto error_common_lock;
+    goto error_common;
 
 error_authorize:
     oss.str(authorization_error(method_name, "MANAGE", "VM/IMAGE", rc, vm_id));
-    goto error_common_lock;
-
-error_common_lock:
-    vm->unlock();
+    goto error_common;
 
 error_common:
     arrayData.push_back(xmlrpc_c::value_boolean(false));

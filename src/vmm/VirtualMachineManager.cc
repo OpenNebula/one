@@ -171,7 +171,11 @@ void VirtualMachineManager::do_action(const string &action, void * arg)
     if ( arg == 0)
     {
         if ( action != ACTION_TIMER && action != ACTION_FINALIZE )
+        {
             return;
+        }
+        
+        vid = -1;
     }
     else
     {
