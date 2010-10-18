@@ -217,20 +217,18 @@ module OpenNebula
         #
         ########################################################################
         def remove(source)
-            if File.exists?(source)
+            if !File.exists?(source)
+                return nil
+            end
+       
+            begin
                 if File.directory?(source)
-                    begin
-                        FileUtils.rmdir(source)
-                    rescue Exception => e
-                        return OpenNebula::Error.new(e.message)
-                    end
+                    FileUtils.rmdir(source)
                 else
-                    begin
-                        FileUtils.rm(source)
-                    rescue Exception => e
-                        return OpenNebula::Error.new(e.message)
-                    end
+                    FileUtils.rm(source)
                 end
+            rescue Exception => e
+                return OpenNebula::Error.new(e.message)
             end
 
             return nil
