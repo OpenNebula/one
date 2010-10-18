@@ -11,7 +11,11 @@ sleep 4s;
 
 java -cp ../lib/*:../jar/*:$JUNIT_JAR:. org.junit.runner.JUnitCore $1
 
+CODE=$?
+
 pkill oned;
 sleep 4s;
 pkill -9 oned;
 rm $ONEDB
+
+exit $CODE
