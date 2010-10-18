@@ -126,10 +126,10 @@ module OpenNebula
         def has_elements?(xpath_str)
             if NOKOGIRI
                 element = @xml.xpath(xpath_str.to_s.upcase)
-                return element == nil && element.children.size > 0
+                return element != nil && element.children.size > 0
             else
                 element = @xml.elements[xpath_str.to_s]
-                return element == nil && element.has_elements?
+                return element != nil && element.has_elements?
             end
         end
 
