@@ -27,34 +27,33 @@ $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+"/cloud"
 
 COMMANDS_HELP=<<-EOT
-    ** Synopsis
-    -----------
-    econe-register 
- 
-    Register a previously uploaded image for use with an 
-    OpenNebula Cloud.
+econe-register
 
-    ** Usage
-    --------
+Register a previously uploaded image for use with an
+OpenNebula Cloud.
+
+Usage:
     econe-register [OPTIONS] IMAGE-ID
 
-    --help, -h:
+Options:
+
+    --help, -h
         Show help
 
-    --access-key <id>, -K <id>:
+    --access-key <id>, -K <id>
         The username of the user
 
-    --secret-key <key>, -S <key>:
+    --secret-key <key>, -S <key>
         The password of the user
 
-    --url <url>, -U <url>:
+    --url <url>, -U <url>
         Set url as the web service url to use
 
-    --headers, -H:
+    --headers, -H
         Display column headers
 
-    IMAGE-ID: The image identification as returned by
-    the econe-upload command
+IMAGE-ID: The image identification as returned by
+the econe-upload command
 
 EOT
 

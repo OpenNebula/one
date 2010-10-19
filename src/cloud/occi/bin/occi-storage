@@ -29,15 +29,12 @@ $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+"/cloud"
 
 COMMANDS_HELP=<<-EOT
-** Synopsis
-occi-storage
+occi-storage - Manages OCCI storage resource
 
-Manages OCCI storage resource
+Usage:
+    occi-storage <COMMAND> [OPTIONS] [PARAMETERS]
 
-** Usage
-occi-storage <COMMAND> [OPTIONS] [PARAMETERS]
-
-COMMANDS
+Commands:
 
 create <occi xml file>
        creates a new storage resource described by the provided
@@ -54,17 +51,18 @@ delete <storage id>
        deletes the storage resource idenfitied by <storage id>
 
 
-OPTIONS
---help, -h:
+Options:
+
+--help, -h
     Show help
 
---username <id>, -U <id>:
+--username <id>, -U <id>
     The username of the user
 
---password <key>, -P <key>:
+--password <key>, -P <key>
     The password of the user
 
---url <url>, -R <url>:
+--url <url>, -R <url>
     Set url as the web service url to use
 
 --timeout <seconds>, -T <seconds>
@@ -73,7 +71,7 @@ OPTIONS
 --debug, -D
     Enables verbosity
 
---multipart, -M:
+--multipart, -M
     Use 'multipart-post' library instead of Curb/Curl
 
 EOT

@@ -27,29 +27,28 @@ $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+"/cloud"
 
 COMMANDS_HELP=<<-EOT
-    ** Synopsis
-    -----------
-    econe-describe-instances 
- 
-    List and describe running instances
+econe-describe-instances
 
-    ** Usage
-    --------
+List and describe running instances
+
+Usage:
     econe-describe-instances [OPTIONS]
+    
+Options:
 
-    --help, -h:
+    --help, -h
         Show help
 
-    --access-key <id>, -K <id>:
+    --access-key <id>, -K <id>
         The username of the user
 
-    --secret-key <key>, -S <key>:
+    --secret-key <key>, -S <key>
         The password of the user
 
-    --url <url>, -U <url>:
+    --url <url>, -U <url>
         Set url as the web service url to use
 
-    --headers, -H:
+    --headers, -H
         Display column headers
 
 EOT
