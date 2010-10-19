@@ -63,6 +63,7 @@ include CloudCLI
 
 opts = GetoptLong.new(
             ['--help',       '-h',GetoptLong::NO_ARGUMENT],
+            ['--version',    '-v',GetoptLong::NO_ARGUMENT],
             ['--access-key', '-K',GetoptLong::REQUIRED_ARGUMENT],
             ['--secret-key', '-S',GetoptLong::REQUIRED_ARGUMENT],
             ['--url',        '-U',GetoptLong::REQUIRED_ARGUMENT]
@@ -79,6 +80,9 @@ begin
             when '--help'
                 puts COMMANDS_HELP
                 return
+            when '--version'
+                puts CloudCLI.version_text
+                exit 0
             when '--access-key'
                 access = arg
             when '--secret-key'

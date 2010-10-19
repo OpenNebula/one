@@ -88,6 +88,7 @@ include CloudCLI
 
 opts = GetoptLong.new(
             ['--help',         '-h',GetoptLong::NO_ARGUMENT],
+            ['--version',      '-v',GetoptLong::NO_ARGUMENT],
             ['--username',     '-U',GetoptLong::REQUIRED_ARGUMENT],
             ['--password',     '-P',GetoptLong::REQUIRED_ARGUMENT],
             ['--url',          '-R',GetoptLong::REQUIRED_ARGUMENT],
@@ -108,6 +109,9 @@ begin
             when '--help'
                 puts COMMANDS_HELP
                 return
+            when '--version'
+                puts CloudCLI.version_text
+                exit 0
             when '--username'
                 username = arg
             when '--password'
