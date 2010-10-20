@@ -68,7 +68,7 @@ protected:
                            const string& cmd,
                            const string& args,
                            bool          remote):
-        Hook(name, cmd, args, Hook::UPDATE, remote){};
+        Hook(name, cmd, args, Hook::UPDATE | Hook::ALLOCATE, remote){};
 
     virtual ~VirtualMachineStateMapHook(){};
 
