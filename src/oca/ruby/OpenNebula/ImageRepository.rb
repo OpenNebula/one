@@ -154,9 +154,7 @@ module OpenNebula
         #
         ########################################################################
         def move(path, source)
-            if source.nil? or path.nil?
-                return OpenNebula::Error.new("copy Image: missing parameters.")
-            elsif File.identical?(path,source)
+            if source.nil? || path.nil? || File.identical?(path,source)
                 return nil
             end
 
