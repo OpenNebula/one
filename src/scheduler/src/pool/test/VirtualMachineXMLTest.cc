@@ -32,6 +32,8 @@
 #include "VirtualMachinePoolXML.h"
 #include "HostPoolXML.h"
 
+#include "test/one_test_common.h"
+
 /* ************************************************************************* */
 /* ************************************************************************* */
 
@@ -317,8 +319,12 @@ int main(int argc, char ** argv)
 
     CppUnit::TextUi::TestRunner runner;
 
+    SETUP_XML_WRITER(runner, "VirtualMachineXMLTest.xml")
+
     runner.addTest(VirtualMachineXMLTest::suite());
     runner.run();
+
+    END_XML_WRITER
 
     remove("test.log");
     NebulaLog::finalize_log_system();

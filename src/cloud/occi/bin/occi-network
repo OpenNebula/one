@@ -29,15 +29,12 @@ $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+"/cloud"
 
 COMMANDS_HELP=<<-EOT
-** Synopsis
-occi-network
+occi-network - Manages virtual networks
 
-Manages virtual networks
+Usage:
+    occi-network <COMMAND> [OPTIONS] [ARGUMENTS]
 
-** Usage
-occi-network <COMMAND> [OPTIONS] [ARGUMENTS]
-
-COMMANDS
+Commands:
 
 create <occi xml file>
        creates a new virtual network described by the provided 
@@ -55,18 +52,18 @@ delete <network id>
 
 
 
-OPTIONS
+Options:
 
---help, -h:
+--help, -h
     Show help
 
---username <id>, -U <id>:
+--username <id>, -U <id>
     The username of the user
 
---password <key>, -P <key>:
+--password <key>, -P <key>
     The password of the user
 
---url <url>, -R <url>:
+--url <url>, -R <url>
     Set url as the web service url to use
     
 --timeout <seconds>, -T <seconds>
@@ -75,7 +72,7 @@ OPTIONS
 --debug, -D
     Enables verbosity
 
---multipart, -M:
+--multipart, -M
     Use 'multipart-post' library instead of Curb/Curl
 
 EOT
@@ -89,6 +86,7 @@ include CloudCLI
 
 opts = GetoptLong.new(
             ['--help',       '-h',GetoptLong::NO_ARGUMENT],
+            ['--version',    '-v',GetoptLong::NO_ARGUMENT],
             ['--username',   '-U',GetoptLong::REQUIRED_ARGUMENT],
             ['--password',   '-P',GetoptLong::REQUIRED_ARGUMENT],
             ['--url',        '-R',GetoptLong::REQUIRED_ARGUMENT],
@@ -109,6 +107,9 @@ begin
             when '--help'
                 puts COMMANDS_HELP
                 return
+            when '--version'
+                puts CloudCLI.version_text
+                exit 0
             when '--username'
                 username = arg
             when '--password'

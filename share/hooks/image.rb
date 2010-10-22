@@ -36,7 +36,13 @@ if !(vm_id=ARGV[0])
 end
 
 
-client = Client.new()
+begin
+    client = Client.new()
+rescue Exception => e
+    puts "Error: #{e}"
+    exit(-1)
+end
+
 img_repo = ImageRepository.new
 
 vm = VirtualMachine.new(

@@ -29,51 +29,48 @@ $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+"/cloud"
 
 COMMANDS_HELP=<<-EOT
-** Synopsis
-occi-compute
+occi-compute - Manages compute resources
 
-Manages compute resources
+Usage:
+    occi-compute <COMMAND> [OPTIONS] [ARGUMENTS]
 
-** Usage
-occi-compute <COMMAND> [OPTIONS] [ARGUMENTS]
+Commands:
 
-COMMANDS
-
-create <occi xml file>
+* create <occi xml file>
        creates a new compute resource described by the provided 
        <occi xml file>
 
-list
+* list
        lists available compute resources
 
-show <compute id>
+* show <compute id>
        retrieves the OCCI XML representation of the compute resource
        identified by <compute id>
 
-update <occi xml file>
+* update <occi xml file>
        updates the representation of the compute resource represented by the
        provided <occi xml file>
 
-delete <compute id>
+* delete <compute id>
        deletes the compute resource idenfitied by <compute id>
 
 
-OPTIONS
+Options:
 
---help, -h:
+--help, -h
     Show help
 
---username <id>, -U <id>:
+--username <id>, -U <id>
     The username of the user
 
---password <key>, -P <key>:
+--password <key>, -P <key>
     The password of the user
 
---url <url>, -R <url>:
+--url <url>, -R <url>
     Set url as the web service url to use
 
 --timeout <seconds>, -T <seconds>
-    Sets a timeout for the http connection 
+    Sets a timeout for the http connection
 
 --debug, -D
     Enables verbosity
@@ -88,6 +85,7 @@ include CloudCLI
 
 opts = GetoptLong.new(
             ['--help',         '-h',GetoptLong::NO_ARGUMENT],
+            ['--version',      '-v',GetoptLong::NO_ARGUMENT],
             ['--username',     '-U',GetoptLong::REQUIRED_ARGUMENT],
             ['--password',     '-P',GetoptLong::REQUIRED_ARGUMENT],
             ['--url',          '-R',GetoptLong::REQUIRED_ARGUMENT],
@@ -108,6 +106,9 @@ begin
             when '--help'
                 puts COMMANDS_HELP
                 return
+            when '--version'
+                puts CloudCLI.version_text
+                exit 0
             when '--username'
                 username = arg
             when '--password'

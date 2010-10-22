@@ -31,6 +31,7 @@ public class User extends PoolElement{
     private static final String ALLOCATE        = METHOD_PREFIX + "allocate";
     private static final String INFO            = METHOD_PREFIX + "info";
     private static final String DELETE          = METHOD_PREFIX + "delete";
+    private static final String PASSWD          = METHOD_PREFIX + "passwd";
     
     /**
      * Creates a new User representation.
@@ -76,15 +77,15 @@ public class User extends PoolElement{
      * 
      * @param client XML-RPC Client.
      * @param id The user id (uid) for the user to
-     * retrieve the information from. 
+     * retrieve the information from.
      * @return if successful the message contains the
-     * string with the information about the user returned by OpenNebula. 
+     * string with the information about the user returned by OpenNebula.
      */
     public static OneResponse info(Client client, int id)
     {
         return client.call(INFO, id);
     }
-    
+
     /**
      * Deletes a user from OpenNebula.
      * 
@@ -97,10 +98,23 @@ public class User extends PoolElement{
         return client.call(DELETE, id);
     }
 
+    /**
+     * Changes the password for the given user.
+     * 
+     * @param client XML-RPC Client.
+     * @param id The user id (uid) of the target user we want to modify.
+     * @param password The new password.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse passwd(Client client, int id, String password)
+    {
+        return client.call(PASSWD, id, password);
+    }
+
     // =================================
     // Instanced object XML-RPC methods
     // =================================
-    
+
     /**
      * Loads the xml representation of the user.
      * The info is also stored internally.
@@ -110,7 +124,6 @@ public class User extends PoolElement{
     public OneResponse info()
     {
         OneResponse response = info(client, id);
-
         super.processInfo(response);
 
         return response;
@@ -124,5 +137,31 @@ public class User extends PoolElement{
     public OneResponse delete()
     {
         return delete(client, id);
+    }
+
+    /**
+     * Changes the password for the user.
+     * 
+     * @param password The new password.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse passwd(String password)
+    {
+        return passwd(client, id, password);
+    }
+
+    // =================================
+    // Helpers
+    // =================================
+
+    /**
+     * Returns true if the user is enabled.
+     * 
+     * @return True if the user is enabled.
+     */
+    public boolean isEnabled()
+    {
+        String enabled = xpath("ENABLED");
+        return enabled != null && enabled.equals("1");
     }
 }

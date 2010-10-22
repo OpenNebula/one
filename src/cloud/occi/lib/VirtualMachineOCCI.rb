@@ -27,17 +27,14 @@ class VirtualMachineOCCI < VirtualMachine
             <INSTANCE_TYPE><%= self['TEMPLATE/INSTANCE_TYPE'] %></INSTANCE_TYPE>
             <% end %>
             <STATE><%= self.state_str %></STATE>
-            <% if self['TEMPLATE/DISK'] %>
-                <% self.each('TEMPLATE/DISK') do |disk| %>
+            <% self.each('TEMPLATE/DISK') do |disk| %>
             <DISK>
                 <STORAGE href="<%= base_url %>/storage/<%= disk['IMAGE_ID'] %>" name="<%= disk['IMAGE'] %>"/>
                 <TYPE><%= disk['TYPE'] %></TYPE>
                 <TARGET><%= disk['TARGET'] %></TARGET>
             </DISK>
-                <% end %>
             <% end %>
-            <% if self['TEMPLATE/NIC'] %>
-                <% self.each('TEMPLATE/NIC') do |nic| %>
+            <% self.each('TEMPLATE/NIC') do |nic| %>
             <NIC>
                 <NETWORK href="<%= base_url %>/network/<%= nic['NETWORK_ID'] %>" name="<%= nic['NETWORK'] %>"/>
                 <% if nic['IP'] %>
@@ -47,32 +44,41 @@ class VirtualMachineOCCI < VirtualMachine
                 <MAC><%= nic['MAC'] %></MAC>
                 <% end %>
             </NIC>
+            <% end %>
+            <% if self['TEMPLATE/CONTEXT'] %>
+            <CONTEXT>
+            <% self.each('TEMPLATE/CONTEXT/*') do |cont| %>
+                <% if cont.text %>
+                <<%= cont.name %>><%= cont.text %></<%= cont.name %>>
                 <% end %>
+            <% end %>
+            </CONTEXT>
             <% end %>
         </COMPUTE>
     }
-
+    
     # Class constructor
-    def initialize(xml, client, xml_info = nil, types=nil, base=nil)
+    def initialize(xml, client, xml_info=nil, types=nil, base=nil)
         super(xml, client)
         @vm_info  = nil
         @template = nil
-
+        @common_template = base + '/common.erb' if base
+        
         if xml_info != nil
             xmldoc   = XMLElement.build_xml(xml_info, 'COMPUTE')
             @vm_info = XMLElement.new(xmldoc) if xmldoc != nil
         end
-
+        
         if @vm_info != nil
             itype = @vm_info['INSTANCE_TYPE']
-
+            
             if itype != nil and types[itype] != nil
                 @template = base + "/#{types[itype]['TEMPLATE']}"
             end
         end
-
+        
     end
-
+    
     def mk_action(action_str)
         case action_str.downcase
             when "stopped"
@@ -92,31 +98,31 @@ class VirtualMachineOCCI < VirtualMachine
                 error = OpenNebula::Error.new(error_msg)
                 return error
         end
-
+        
         return rc
     end
-
+    
     def to_one_template()
         if @vm_info == nil
             error_msg = "Missing COMPUTE section in the XML body"
             return OpenNebula::Error.new(error_msg), 400
         end
-
+        
         if @template == nil
             return OpenNebula::Error.new("Bad instance type"), 500
         end
-
+        
         begin
-            template = ERB.new(File.read(@template))
-            template_text = template.result(binding)
+            template = ERB.new(File.read(@common_template)).result(binding)
+            template << ERB.new(File.read(@template)).result(binding)
         rescue Exception => e
             error = OpenNebula::Error.new(e.message)
             return error
         end
-
-        return template_text
+        
+        return template
     end
-
+    
     # Creates the VMI representation of a Virtual Machine
     def to_occi(base_url)
         begin
@@ -127,6 +133,7 @@ class VirtualMachineOCCI < VirtualMachine
             return error
         end
 
+        
         return occi_vm_text.gsub(/\n\s*/,'')
     end
 end

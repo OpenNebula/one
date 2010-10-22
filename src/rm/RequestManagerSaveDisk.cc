@@ -112,7 +112,13 @@ void RequestManager::VirtualMachineSaveDisk::execute(
         goto error_vm_get;
     }
 
-    vm->save_disk(disk_id, img_id);
+    rc = vm->save_disk(disk_id, img_id);
+
+    if ( rc == -1 )
+    {
+        vm->unlock();
+        goto error_vm_get_disk_id;
+    }
 
     VirtualMachineSaveDisk::vmpool->update(vm);
 
@@ -137,16 +143,17 @@ error_vm_get:
     oss.str(get_error(method_name, "VM", vm_id));
     goto error_common;
 
+error_vm_get_disk_id:
+    oss.str(get_error(method_name, "DISK from VM", vm_id));
+    goto error_common;
+
 error_authenticate:
     oss.str(authenticate_error(method_name));
-    goto error_common_lock;
+    goto error_common;
 
 error_authorize:
     oss.str(authorization_error(method_name, "MANAGE", "VM/IMAGE", rc, vm_id));
-    goto error_common_lock;
-
-error_common_lock:
-    vm->unlock();
+    goto error_common;
 
 error_common:
     arrayData.push_back(xmlrpc_c::value_boolean(false));

@@ -34,6 +34,8 @@
 #include <openssl/evp.h>
 #include <openssl/bio.h>
 
+#include "test/one_test_common.h"
+
 using namespace std;
 
 
@@ -291,9 +293,13 @@ int main(int argc, char ** argv)
   NebulaLog::init_log_system(NebulaLog::FILE, Log::DEBUG,"test.log");
   NebulaLog::log("Test", Log::INFO, "Test started");
 
+  SETUP_XML_WRITER(runner, "AuthManagerTest.xml");
+
   runner.addTest(AuthManagerTest::suite());
 
   runner.run();
+
+  END_XML_WRITER
 
   NebulaLog::finalize_log_system();
 

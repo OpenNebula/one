@@ -43,11 +43,13 @@ class InformationManager < OpenNebulaDriver
     #---------------------------------------------------------------------------
     # Init the driver
     #---------------------------------------------------------------------------
-    def initialize(remote_dir, hypervisor, num)
+    def initialize(hypervisor, num)
         super(num, true)
 
+        @config = read_configuration
+
         @hypervisor = hypervisor
-        @remote_dir = remote_dir
+        @remote_dir = @config['SCRIPTS_REMOTE_DIR'] || '/tmp/one'
 
         # register actions
         register_action(:MONITOR, method("action_monitor"))
@@ -57,18 +59,21 @@ class InformationManager < OpenNebulaDriver
     # Execute the run_probes in the remote host
     #---------------------------------------------------------------------------
     def action_monitor(number, host, do_update)
+        log_lambda=lambda do |message|
+            log(number, message)
+        end
+
         if do_update == "1"
             # Use SCP to sync:
             sync_cmd = "scp -r #{REMOTES_LOCATION}/. #{host}:#{@remote_dir}"
-            
+
             # Use rsync to sync:
             # sync_cmd = "rsync -Laz #{REMOTES_LOCATION} #{host}:#{@remote_dir}"
-            LocalCommand.run(sync_cmd)
-        else
+            LocalCommand.run(sync_cmd, log_lambda)
         end
 
-        cmd = SSHCommand.run("#{@remote_dir}/im/run_probes #{@hypervisor}", 
-                                     host)
+        cmd_string = "#{@remote_dir}/im/run_probes #{@hypervisor} #{host}"
+        cmd = SSHCommand.run(cmd_string, host, log_lambda)
 
         if cmd.code == 0
             send_message("MONITOR", RESULT[:success], number, cmd.stdout)
@@ -86,9 +91,6 @@ end
 #-------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------
 
-remote_dir = ENV["IM_REMOTE_DIR"]
-remote_dir = "/tmp/one" if !remote_dir
-
 hypervisor = ARGV[0]||''
-im = InformationManager.new(remote_dir, hypervisor, 15)
+im = InformationManager.new(hypervisor, 15)
 im.start_driver

@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash 
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
@@ -55,6 +55,10 @@ function get_info() {
 
 info=`get_info $1 2>/dev/null | awk "$AWK_SCRIPT"`
 
-echo $info
 
-
+if [ -n "$info" ]; then
+    echo $info
+else
+    echo STATE=d
+fi
+exit 0

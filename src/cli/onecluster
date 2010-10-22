@@ -88,6 +88,14 @@ end
 class OneUPParse < CommandParse
     
     COMMANDS_HELP=<<-EOT
+
+Description:
+
+This command enables the OpenNebula administrator to manage clusters. The
+administrator can create, delete, as well as add and remove hosts from them.
+Any user can list available clusters.
+
+
 Commands:
 
 * create (Creates a new user)

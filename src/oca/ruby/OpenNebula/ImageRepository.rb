@@ -2,38 +2,45 @@ require 'OpenNebula/Image'
 require 'fileutils'
 
 module OpenNebula
-    class ImageRepository
 
-        def create(image, template, copy=true)
+    ############################################################################
+    #  The ImageRepository class represents and abstraction of the Image
+    #  Repository, and it provides basic operations to manage and mantain it.
+    #  This class is used by the OpenNebula daemon (through the image hook) to
+    #  save and update images, and by the OpenNebula CLI to create and delete
+    #  them
+    ############################################################################
+    class ImageRepository
+        ########################################################################
+        #
+        ########################################################################
+        def create(image, template)
             if image.nil?
                 error_msg = "Image could not be found, aborting."
-                result = OpenNebula::Error.new(error_msg)
+                return OpenNebula::Error.new(error_msg)
             end
 
             # ------ Allocate the Image ------
             result = image.allocate(template)
 
             if OpenNebula.is_error?(result)
-                puts result.message
-                exit -1
+                return result
             end
 
 
             # ------ Copy the Image file ------
             image.info
 
-            if image['TEMPLATE/PATH']
-                if copy
-                    # --- CDROM, DATABLOCK or OS based on a PATH ---
-                    file_path = image['TEMPLATE/PATH']
+            if image['TEMPLATE/PATH'] and image['TEMPLATE/SOURCE'].nil?
+                # --- CDROM, DATABLOCK or OS based on a PATH ---
+                file_path = image['TEMPLATE/PATH']
 
-                    if !File.exists?(file_path)
-                        error_msg = "Image file could not be found, aborting."
-                        result = OpenNebula::Error.new(error_msg)
-                    end
-
-                    result = copy(file_path, image['SOURCE'])
+                if !File.exists?(file_path)
+                    error_msg = "Image file could not be found, aborting."
+                    return OpenNebula::Error.new(error_msg)
                 end
+
+                result = copy(file_path, image['SOURCE'])
             elsif image['TEMPLATE/SIZE'] and image['TEMPLATE/FSTYPE'] and  \
                             image['TEMPLATE/TYPE'] == 'DATABLOCK'
                 # --- Empty DATABLOCK ---
@@ -42,8 +49,12 @@ module OpenNebula
                 if !OpenNebula.is_error?(result)
                     result = mkfs(image['TEMPLATE/FSTYPE'], image['SOURCE'])
                 end
-            else
-                error_msg = "Image not present, aborting."
+            elsif image['TEMPLATE/PATH'].nil? and image['TEMPLATE/SOURCE'].nil?
+                error_msg = "Image path not present, aborting."
+                result = OpenNebula::Error.new(error_msg)
+            elsif image['TEMPLATE/PATH'] and image['TEMPLATE/SOURCE']
+                error_msg = "Template malformed, PATH and SOURCE are" <<
+                            " mutuallly exclusive"
                 result = OpenNebula::Error.new(error_msg)
             end
 
@@ -58,10 +69,13 @@ module OpenNebula
             return result
         end
 
+        ########################################################################
+        #
+        ########################################################################
         def delete(image)
             if image.nil?
                 error_msg = "Image could not be found, aborting."
-                result = OpenNebula::Error.new(error_msg)
+                return OpenNebula::Error.new(error_msg)
             end
 
             result = image.info
@@ -79,10 +93,13 @@ module OpenNebula
             return result
         end
 
+        ########################################################################
+        #
+        ########################################################################
         def update_source(image, source)
             if image.nil?
                 error_msg = "Image could not be found, aborting."
-                result = OpenNebula::Error.new(error_msg)
+                return OpenNebula::Error.new(error_msg)
             end
 
             result = image.info
@@ -97,12 +114,27 @@ module OpenNebula
         end
 
     private
-
         FS_UTILS = {
             :dd     => "env dd",
             :mkfs   => "env mkfs"
         }
 
+        ########################################################################
+        #
+        ########################################################################
+        def set_permissions(source)
+            if File.directory?(source)
+                perms = 0770
+            else
+                perms = 0660
+            end
+
+            FileUtils.chmod(perms, source)
+        end
+
+        ########################################################################
+        #
+        ########################################################################
         def copy(path, source)
             if source.nil? or path.nil?
                 return OpenNebula::Error.new("copy Image: missing parameters.")
@@ -110,7 +142,7 @@ module OpenNebula
 
             begin
                 FileUtils.copy(path, source)
-                FileUtils.chmod(0660, source)
+                set_permissions(source)
             rescue Exception => e
                 return OpenNebula::Error.new(e.message)
             end
@@ -118,14 +150,17 @@ module OpenNebula
             return nil
         end
 
+        ########################################################################
+        #
+        ########################################################################
         def move(path, source)
-            if source.nil? or path.nil?
-                return OpenNebula::Error.new("copy Image: missing parameters.")
+            if source.nil? || path.nil? || File.identical?(path,source)
+                return nil
             end
 
             begin
                 FileUtils.move(path, source)
-                FileUtils.chmod(0660, source)
+                set_permissions(source)
             rescue Exception => e
                 return OpenNebula::Error.new(e.message)
             end
@@ -133,6 +168,9 @@ module OpenNebula
             return nil
         end
 
+        ########################################################################
+        #
+        ########################################################################
         def dd(size, source)
             if source.nil? or size.nil?
                 return OpenNebula::Error.new("dd Image: missing parameters.")
@@ -152,6 +190,9 @@ module OpenNebula
             return nil
         end
 
+        ########################################################################
+        #
+        ########################################################################
         def mkfs(fstype, source)
             if source.nil? or fstype.nil?
                 return OpenNebula::Error.new("mkfs Image: missing parameters.")
@@ -170,13 +211,22 @@ module OpenNebula
             return nil
         end
 
+        ########################################################################
+        #
+        ########################################################################
         def remove(source)
-            if File.exists?(source)
-                begin
+            if !File.exists?(source)
+                return nil
+            end
+       
+            begin
+                if File.directory?(source)
+                    FileUtils.rmdir(source)
+                else
                     FileUtils.rm(source)
-                rescue Exception => e
-                    return OpenNebula::Error.new(e.message)
                 end
+            rescue Exception => e
+                return OpenNebula::Error.new(e.message)
             end
 
             return nil

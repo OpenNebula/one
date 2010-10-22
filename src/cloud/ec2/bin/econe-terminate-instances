@@ -28,30 +28,29 @@ $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+"/cloud"
 
 COMMANDS_HELP=<<-EOT
-    ** Synopsis
-    -----------
-    econe-terminate-instances
- 
-    Terminate the selected running instance
+econe-terminate-instances
 
-    ** Usage
-    --------
+Terminate the selected running instance
+
+Usage:
     econe-register [OPTIONS] INSTANCE-ID
 
-    --help, -h:
+Options:
+
+    --help, -h
         Show help
 
-    --access-key <id>, -K <id>:
+    --access-key <id>, -K <id>
         The username of the user
 
-    --secret-key <key>, -S <key>:
+    --secret-key <key>, -S <key>
         The password of the user
 
-    --url <url>, -U <url>:
+    --url <url>, -U <url>
         Set url as the web service url to use
 
-    INSTANCE-ID: The instance identification as returned by
-    the econe-run-instances command
+INSTANCE-ID: The instance identification as returned by
+the econe-run-instances command
 
 EOT
 
@@ -63,6 +62,7 @@ include CloudCLI
 
 opts = GetoptLong.new(
             ['--help',       '-h',GetoptLong::NO_ARGUMENT],
+            ['--version',    '-v',GetoptLong::NO_ARGUMENT],
             ['--access-key', '-K',GetoptLong::REQUIRED_ARGUMENT],
             ['--secret-key', '-S',GetoptLong::REQUIRED_ARGUMENT],
             ['--url',        '-U',GetoptLong::REQUIRED_ARGUMENT]
@@ -79,6 +79,9 @@ begin
             when '--help'
                 puts COMMANDS_HELP
                 return
+            when '--version'
+                puts CloudCLI.version_text
+                exit 0
             when '--access-key'
                 access = arg
             when '--secret-key'

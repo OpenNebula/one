@@ -51,7 +51,7 @@ http://*)
 
 *)
     log "Cloning $SRC_PATH"
-    exec_and_log "cp $SRC_PATH $DST_PATH"
+    exec_and_log "cp -r $SRC_PATH $DST_PATH"
     ;;
 esac
 

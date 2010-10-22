@@ -8,7 +8,6 @@ module OpenNebula
         NOKOGIRI=false
     end
 
-
     ###########################################################################
     # The XMLElement class provides an abstraction of the underlying
     # XML parser engine. It provides XML-related methods for the Pool and
@@ -112,6 +111,28 @@ module OpenNebula
             end
         end
 
+        def name
+            @xml.name
+        end
+
+        def text
+            if NOKOGIRI
+                @xml.content
+            else
+                @xml.text
+            end
+        end
+
+        def has_elements?(xpath_str)
+            if NOKOGIRI
+                element = @xml.xpath(xpath_str.to_s.upcase)
+                return element != nil && element.children.size > 0
+            else
+                element = @xml.elements[xpath_str.to_s]
+                return element != nil && element.has_elements?
+            end
+        end
+
         def template_str(indent=true)
             template_like_str('TEMPLATE', indent)
         end
@@ -199,5 +220,3 @@ module OpenNebula
     end
 
 end
-
-

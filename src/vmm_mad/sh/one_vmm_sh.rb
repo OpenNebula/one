@@ -41,10 +41,14 @@ class ShDriver < VirtualMachineDriver
     # ------------------------------------------------------------------------ #
     # ShDriver constructor                                                #
     # ------------------------------------------------------------------------ #
-    def initialize(hypervisor, remote_dir)
+    def initialize(hypervisor)
         super(15,true)
-        @remote_dir = remote_dir
+        
+        @config = read_configuration
         @hypervisor = hypervisor
+        
+        @actions_path   =
+                "#{ENV['ONE_LOCATION']}/lib/remotes/vmm/#{hypervisor}"
     end
 
     # ------------------------------------------------------------------------ #
@@ -58,19 +62,16 @@ class ShDriver < VirtualMachineDriver
                 "Can not open deployment file #{local_dfile}")
             return
         end
-
-        tmp    = File.new(local_dfile)
-        domain = tmp.read
-        tmp.close()
-
-        cmd = "#{@remote_dir}/vmm/#{@hypervisor}/deploy #{remote_dfile}"
-
-        deploy_exe = SSHCommand.run(cmd, host, log_method(id), domain)
+        
+        deploy_exe = nil
+        
+        cmd = "#{@actions_path}/deploy #{host} #{local_dfile}"
+        deploy_exe = LocalCommand.run(cmd, log_method(id))
 
 
         if deploy_exe.code != 0
             send_message(ACTION[:deploy],RESULT[:failure],id)
-       else
+        else
             send_message(ACTION[:deploy],RESULT[:success],id,deploy_exe.stdout)
         end
     end
@@ -79,35 +80,40 @@ class ShDriver < VirtualMachineDriver
     # Basic Domain Management Operations                                       #
     # ------------------------------------------------------------------------ #
     def shutdown(id, host, deploy_id, not_used)
-        ssh_action("#{@remote_dir}/vmm/#{@hypervisor}/shutdown #{deploy_id}",
-                    id, host, :shutdown)
+        local_action("#{@actions_path}/shutdown #{host} #{deploy_id}", 
+                     id, 
+                     :shutdown)
     end
 
     def cancel(id, host, deploy_id, not_used)
-        ssh_action("#{@remote_dir}/vmm/#{@hypervisor}/cancel #{deploy_id}",
-                    id, host, :cancel)
+        local_action("#{@actions_path}/cancel #{host} #{deploy_id}", 
+                     id, 
+                     :cancel)
     end
 
     def save(id, host, deploy_id, file)
-        ssh_action("#{@remote_dir}/vmm/#{@hypervisor}/save #{deploy_id} #{file}",
-                    id, host, :save)
+        local_action("#{@actions_path}/save #{host} #{deploy_id} #{file}", 
+                     id, 
+                     :save)
     end
 
     def restore(id, host, deploy_id, file)
-        ssh_action("#{@remote_dir}/vmm/#{@hypervisor}/restore #{file}",
-                    id, host, :restore)
+        local_action("#{@actions_path}/restore #{host} #{file}", 
+                     id, 
+                     :restore)
     end
 
     def migrate(id, host, deploy_id, dest_host)
-        ssh_action("#{@remote_dir}/vmm/#{@hypervisor}/migrate #{deploy_id} #{dest_host}",
-                    id, host, :migrate)
+        local_action(
+          "#{@actions_path}/migrate #{host} #{deploy_id} #{dest_host}",
+          id, 
+          :migrate)
     end
 
     def poll(id, host, deploy_id, not_used)
-        cmd = "#{@remote_dir}/vmm/#{@hypervisor}/poll #{deploy_id}"
-
-        poll_exe = SSHCommand.run(cmd, host, log_method(id))
-
+        cmd = "#{@actions_path}/poll #{host} #{deploy_id}"
+        poll_exe = LocalCommand.run(cmd, log_method(id))
+        
         if poll_exe.code != 0
             send_message(ACTION[:poll],RESULT[:failure],id)
         else
@@ -119,10 +125,7 @@ end
 # ---------------------------------------------------------------------------- #
 # ShDriver Main program
 # ---------------------------------------------------------------------------- #
-remote_dir = ENV["VMM_REMOTE_DIR"]
-remote_dir = "/tmp/one" if !remote_dir
-
 hypervisor = ARGV[0]
 
-sh_driver = ShDriver.new(hypervisor, remote_dir)
+sh_driver = ShDriver.new(hypervisor)
 sh_driver.start_driver

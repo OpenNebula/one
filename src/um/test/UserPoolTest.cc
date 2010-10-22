@@ -32,24 +32,24 @@ const string passwords[] = { "A pass", "B pass", "C pass", "D pass", "E pass" };
 const string dump_result =
     "<USER_POOL><USER><ID>0</ID><NAME>one_user_test</NAME>"
     "<PASSWORD>5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8</PASSWORD>"
-    "<ENABLED>True</ENABLED></USER><USER><ID>1</ID><NAME>a</NAME>"
-    "<PASSWORD>p</PASSWORD><ENABLED>True</ENABLED></USER><USER>"
+    "<ENABLED>1</ENABLED></USER><USER><ID>1</ID><NAME>a</NAME>"
+    "<PASSWORD>p</PASSWORD><ENABLED>1</ENABLED></USER><USER>"
     "<ID>2</ID><NAME>a name</NAME><PASSWORD>pass</PASSWORD>"
-    "<ENABLED>True</ENABLED></USER><USER><ID>3</ID><NAME>a_name</NAME>"
-    "<PASSWORD>password</PASSWORD><ENABLED>True</ENABLED></USER><USER>"
+    "<ENABLED>1</ENABLED></USER><USER><ID>3</ID><NAME>a_name</NAME>"
+    "<PASSWORD>password</PASSWORD><ENABLED>1</ENABLED></USER><USER>"
     "<ID>4</ID><NAME>another name</NAME><PASSWORD>secret</PASSWORD>"
-    "<ENABLED>True</ENABLED></USER><USER><ID>5</ID><NAME>user</NAME>"
-    "<PASSWORD>1234</PASSWORD><ENABLED>True</ENABLED></USER>"
+    "<ENABLED>1</ENABLED></USER><USER><ID>5</ID><NAME>user</NAME>"
+    "<PASSWORD>1234</PASSWORD><ENABLED>1</ENABLED></USER>"
     "</USER_POOL>";
 
 const string dump_where_result =
     "<USER_POOL><USER><ID>1</ID><NAME>a</NAME>"
-    "<PASSWORD>p</PASSWORD><ENABLED>True</ENABLED></USER><USER>"
+    "<PASSWORD>p</PASSWORD><ENABLED>1</ENABLED></USER><USER>"
     "<ID>2</ID><NAME>a name</NAME><PASSWORD>pass</PASSWORD>"
-    "<ENABLED>True</ENABLED></USER><USER><ID>3</ID><NAME>a_name</NAME>"
-    "<PASSWORD>password</PASSWORD><ENABLED>True</ENABLED></USER><USER>"
+    "<ENABLED>1</ENABLED></USER><USER><ID>3</ID><NAME>a_name</NAME>"
+    "<PASSWORD>password</PASSWORD><ENABLED>1</ENABLED></USER><USER>"
     "<ID>4</ID><NAME>another name</NAME><PASSWORD>secret</PASSWORD>"
-    "<ENABLED>True</ENABLED></USER></USER_POOL>";
+    "<ENABLED>1</ENABLED></USER></USER_POOL>";
 
 class UserPoolTest : public PoolTest
 {

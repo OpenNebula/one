@@ -171,7 +171,11 @@ void VirtualMachineManager::do_action(const string &action, void * arg)
     if ( arg == 0)
     {
         if ( action != ACTION_TIMER && action != ACTION_FINALIZE )
+        {
             return;
+        }
+        
+        vid = -1;
     }
     else
     {
@@ -919,6 +923,11 @@ void VirtualMachineManager::load_mads(int uid)
         {
             vmm_driver = new LibVirtDriver(uid, vattr->value(),
                                            (uid != 0),vmpool,"kvm");
+        }
+        else if ( type == "VMWARE" )
+        {
+            vmm_driver = new LibVirtDriver(uid, vattr->value(),
+                                           (uid != 0),vmpool,"vmware");
         }
         else if ( type == "XML" )
         {

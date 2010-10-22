@@ -31,8 +31,12 @@ Options:
 EOT
 
     ONE_VERSION=<<-EOT
-OpenNebula 1.9.80
+OpenNebula 2.0.0
 Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may
+not use this file except in compliance with the License. You may obtain
+a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
 EOT
     
     def initialize(standard_options=nil)

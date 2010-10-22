@@ -199,12 +199,21 @@ end
 class OneImageParse < CommandParse
 
     COMMANDS_HELP=<<-EOT
+
+Description:
+
+This command enables the user to manage images.
+
+
 Commands:
 
 * register (Registers an image, copying it to the repository if it applies)
     oneimage register <template>
     
     template is a file name where the Image description is located
+    
+* addattr (Add a new image attribute)
+    oneimage addattr <image_id> <attribute_name> <attribute_value>
     
 * update (Modifies an image attribute)
     oneimage update <image_id> <attribute_name> <attribute_value>
@@ -234,11 +243,11 @@ Commands:
     oneimage list <filter_flag>
     
     where filter_flag can be
-        a, all   --> all the known Images (admin users)
-        m, mine  --> the Images belonging to the user in ONE_AUTH 
-                     and all the  Public Images
-        uid      --> Images of the user identified by this uid (admin users)
-        user     --> Images of the user identified by the username (admin users)
+        a, all   --> all the known Images
+        m, mine  --> the Images belonging to the user in ONE_AUTH
+                        and all the  Public Images
+        uid      --> Images of the user identified by this uid
+        user     --> Images of the user identified by the username
         
 * top (Lists Images continuously)
     onevm top
@@ -262,12 +271,6 @@ EOT
     def list_options
         table=ShowTable.new(ShowTableImage)
         table.print_help
-    end
-    
-    def special_options(opts, options)
-        opts.on_tail("-n", "--no-cp", "Do not copy the source") do |o|
-            options[:no_cp]=true
-        end
     end
 end
 
@@ -327,13 +330,13 @@ when "register", "create", "add"
     
     image = OpenNebula::Image.new(OpenNebula::Image.build_xml, get_one_client)
 
-    result = img_repo.create(image, template, !ops[:no_cp])    
+    result = img_repo.create(image, template)    
     if is_successful?(result)
         puts "ID: " + image.id.to_s if ops[:verbose]
     end
 
     
-when "update" 
+when "update", "addattr"
     check_parameters("update", 3)
     image_id=get_image_id(ARGV[0])
     
@@ -473,7 +476,11 @@ when "show"
                 else 
                     public_str = "No" 
                 end
-                puts str % ["PUBLIC", public_str]            
+                puts str % ["PUBLIC", public_str]
+                
+                persistent_str=(image["PERSISTENT"].to_i==1 ? "Yes" : "No")
+                puts str % ["PERSISTENT", persistent_str]
+                
                 puts str % ["SOURCE", image['SOURCE']]    
                 puts str % ["STATE", image.short_state_str]
                 puts str % ["RUNNING_VMS", image['RUNNING_VMS']]            

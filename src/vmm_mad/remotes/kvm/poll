@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
@@ -39,7 +39,7 @@ $1=="State" {
     else if(vstat=="crashed") state="c";
     else state="u";
 
-    print "STATUS=" state
+    print "STATE=" state
 }
 '
 
@@ -50,4 +50,9 @@ awk_cmd="awk \'$AWK_SCRIPT\'"
 
 info=`$virsh_cmd 2>/dev/null | awk "$AWK_SCRIPT"`
 
-echo $info
+if [ -n "$info" ]; then
+    echo $info
+else
+    echo STATE=d
+fi
+exit 0

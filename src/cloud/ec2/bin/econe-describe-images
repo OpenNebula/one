@@ -28,30 +28,28 @@ $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+"/cloud"
 
 COMMANDS_HELP=<<-EOT
-    ** Synopsis
-    -----------
-    econe-describe-images 
+econe-describe-images
 
-    List and describe previously uploaded images of a user to be 
-    used with an OpenNebula Cloud.
+List and describe previously uploaded images of a user to be
+used with an OpenNebula Cloud.
 
-    ** Usage
-    --------
+Usage:
     econe-describe-images [OPTIONS]
 
-    --help, -h:
+Options:
+    --help, -h
         Show help
 
-    --access-key <id>, -K <id>:
+    --access-key <id>, -K <id>
         The username of the user
 
-    --secret-key <key>, -S <key>:
+    --secret-key <key>, -S <key>
         The password of the user
 
-    --url <url>, -U <url>:
+    --url <url>, -U <url>
         Set url as the web service url to use
 
-    --headers, -H:
+    --headers, -H
         Display column headers
         
 EOT
@@ -65,6 +63,7 @@ include CloudCLI
 
 opts = GetoptLong.new(
             ['--help',       '-h',GetoptLong::NO_ARGUMENT],
+            ['--version',    '-v',GetoptLong::NO_ARGUMENT],
             ['--access-key', '-K',GetoptLong::REQUIRED_ARGUMENT],
             ['--secret-key', '-S',GetoptLong::REQUIRED_ARGUMENT],
             ['--url',        '-U',GetoptLong::REQUIRED_ARGUMENT],
@@ -83,6 +82,9 @@ begin
             when '--help'
                 puts COMMANDS_HELP
                 return
+            when '--version'
+                puts CloudCLI.version_text
+                exit 0
             when '--access-key'
                 access = arg
             when '--secret-key'

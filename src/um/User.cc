@@ -216,14 +216,12 @@ int User::dump(ostringstream& oss, int num, char **values, char **names)
         return -1;
     }
 
-    string str_enabled = (atoi(values[ENABLED])==0)?"Fase":"True";
-
     oss <<
         "<USER>" <<
             "<ID>"      << values[OID]     <<"</ID>"      <<
             "<NAME>"    << values[USERNAME]<<"</NAME>"    <<
             "<PASSWORD>"<< values[PASSWORD]<<"</PASSWORD>"<<
-            "<ENABLED>" << str_enabled     <<"</ENABLED>" <<
+            "<ENABLED>" << values[ENABLED] <<"</ENABLED>" <<
         "</USER>";
 
     return 0;

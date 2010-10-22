@@ -49,7 +49,12 @@ require 'OpenNebula'
 
 include OpenNebula
 
-$occi_server = OCCIServer.new(CONFIGURATION_FILE, TEMPLATE_LOCATION)
+begin
+    $occi_server = OCCIServer.new(CONFIGURATION_FILE, TEMPLATE_LOCATION)
+rescue Exception => e
+    puts "Error starting server: #{e}"
+    exit(-1)
+end
 
 if CloudServer.is_port_open?($occi_server.config[:server], 
                              $occi_server.config[:port])

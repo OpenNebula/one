@@ -31,10 +31,13 @@ void RequestManager::VirtualNetworkPublish::execute(
     string              session;
 
     int                 nid;
-    bool                publish_flag; 
+    bool                publish_flag;
     int                 uid;
-    
+
     VirtualNetwork *    vn;
+
+    int                 network_owner;
+    bool                is_public;
 
     ostringstream       oss;
 
@@ -57,15 +60,20 @@ void RequestManager::VirtualNetworkPublish::execute(
     {
         goto error_authenticate;
     }
-    
+
     // Get virtual network from the VirtualNetworkPool
-    vn = VirtualNetworkPublish::vnpool->get(nid,true);    
-                                                 
-    if ( vn == 0 )                             
-    {                                            
-        goto error_vn_get;                     
+    vn = VirtualNetworkPublish::vnpool->get(nid,true);
+
+    if ( vn == 0 )
+    {
+        goto error_vn_get;
     }
-    
+
+    network_owner = vn->get_uid();
+    is_public     = vn->isPublic();
+
+    vn->unlock();
+
     //Authorize the operation
     if ( uid != 0 ) // uid == 0 means oneadmin
     {
@@ -74,8 +82,8 @@ void RequestManager::VirtualNetworkPublish::execute(
         ar.add_auth(AuthRequest::NET,
                     nid,
                     AuthRequest::MANAGE,
-                    0,
-                    vn->isPublic());
+                    network_owner,
+                    is_public);
 
         if (UserPool::authorize(ar) == -1)
         {
@@ -83,10 +91,18 @@ void RequestManager::VirtualNetworkPublish::execute(
         }
     }
 
+    // Get virtual network from the VirtualNetworkPool
+    vn = VirtualNetworkPublish::vnpool->get(nid,true);
+
+    if ( vn == 0 )
+    {
+        goto error_vn_get;
+    }
+
     vn->publish(publish_flag);
-    
+
     VirtualNetworkPublish::vnpool->update(vn);
-    
+
     vn->unlock();
 
     arrayData.push_back(xmlrpc_c::value_boolean(true));
@@ -103,11 +119,11 @@ void RequestManager::VirtualNetworkPublish::execute(
 error_authenticate:
      oss.str(authenticate_error(method_name));
     goto error_common;
-    
+
 error_vn_get:
     oss.str(get_error(method_name, "NET", nid));
     goto error_common;
-    
+
 error_authorize:
     oss.str(authorization_error(method_name, "MANAGE", "NET", uid, nid));
     vn->unlock();

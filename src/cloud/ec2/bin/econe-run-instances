@@ -28,40 +28,39 @@ $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+"/cloud"
 
 COMMANDS_HELP=<<-EOT
-    ** Synopsis
-    -----------
-    econe-run-instances 
- 
-    Runs an instance of a particular image
+econe-run-instances
 
-    ** Usage
-    --------
+Runs an instance of a particular image
+
+Usage:
     econe-run-instances [OPTIONS] IMAGE-ID
 
-    --help, -h:
+Options:
+
+    --help, -h
         Show help
 
-    --access-key <id>, -K <id>:
+    --access-key <id>, -K <id>
         The username of the user
 
-    --secret-key <key>, -S <key>:
+    --secret-key <key>, -S <key>
         The password of the user
 
-    --url <url>, -U <url>:
+    --url <url>, -U <url>
         Set url as the web service url to use
 
-    --type <type>, -t <type>:
+    --type <type>, -t <type>
         OpenNebula template in which is based this instance
         
-    -–user-data, -d:
+    --user-data, -d
         Specifies Base64-encoded MIME user data to be made 
         available to the instance
         
-    --headers, -H:
+    --headers, -H
         Display column headers
         
-    IMAGE-ID: The image identification as returned by
-    the econe-upload command
+IMAGE-ID: The image identification as returned by
+the econe-upload command
 
 EOT
 
@@ -73,6 +72,7 @@ include CloudCLI
 
 opts = GetoptLong.new(
             ['--help',       '-h',GetoptLong::NO_ARGUMENT],
+            ['--version',    '-v',GetoptLong::NO_ARGUMENT],
             ['--access-key', '-K',GetoptLong::REQUIRED_ARGUMENT],
             ['--secret-key', '-S',GetoptLong::REQUIRED_ARGUMENT],
             ['--url',        '-U',GetoptLong::REQUIRED_ARGUMENT],
@@ -95,6 +95,9 @@ begin
             when '--help'
                 puts COMMANDS_HELP
                 return
+            when '--version'
+                puts CloudCLI.version_text
+                exit 0
             when '--access-key'
                 access = arg
             when '--secret-key'

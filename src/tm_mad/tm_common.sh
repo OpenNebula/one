@@ -42,26 +42,44 @@ WGET=/usr/bin/wget
 function get_vmdir
 {
     VMDIR=`grep '^VM_DIR=' $ONE_LOCAL_VAR/config | cut -d= -f2`
+    fix_var_slashes
+}
+
+# Takes out uneeded slashes. Repeated and final directory slashes:
+# /some//path///somewhere/ -> /some/path/somewhere
+function fix_dir_slashes
+{
+    dirname "$1/file" | sed -E 's/\/+/\//g'
+}
+
+function fix_var_slashes
+{
+    ONE_LOCAL_VAR=`fix_dir_slashes "$ONE_LOCAL_VAR"`
+    VMDIR=`fix_dir_slashes "$VMDIR"`
 }
 
 function fix_paths
 {
-    if [ -n "$VMDIR" ]; then
+    if [ "x$ONE_LOCAL_VAR" != "x$VMDIR" ]; then
+        SRC_PATH=`fix_dir_slashes "$SRC_PATH"`
         SRC_PATH=${SRC_PATH/$VMDIR/$ONE_LOCAL_VAR}
+        DST_PATH=`fix_dir_slashes "$DST_PATH"`
         DST_PATH=${DST_PATH/$VMDIR/$ONE_LOCAL_VAR}
     fi
 }
 
 function fix_src_path
 {
-    if [ -n "$VMDIR" ]; then
+    if [ "x$ONE_LOCAL_VAR" != "x$VMDIR" ]; then
+        SRC_PATH=`fix_dir_slashes "$SRC_PATH"`
         SRC_PATH=${SRC_PATH/$VMDIR/$ONE_LOCAL_VAR}
     fi
 }
 
 function fix_dst_path
 {
-    if [ -n "$VMDIR" ]; then
+    if [ "x$ONE_LOCAL_VAR" != "x$VMDIR" ]; then
+        DST_PATH=`fix_dir_slashes "$DST_PATH"`
         DST_PATH=${DST_PATH/$VMDIR/$ONE_LOCAL_VAR}
     fi
 }

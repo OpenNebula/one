@@ -92,6 +92,16 @@ end
 class OneUPParse < CommandParse
     
     COMMANDS_HELP=<<-EOT
+
+Description:
+
+This command enables the OpenNebula administrator to manage users, adding,
+listing and deleting them.
+
+The create and passwd commands accept the [-r, –read-file] option. Use this
+option to store the contents of a file (without hashing it) as the password.
+
+
 Commands:
 
 * create (Creates a new user)
@@ -105,6 +115,15 @@ Commands:
 
 * passwd (Changes the given user's password)
     oneuser passwd <id> password
+
+
+Information Columns:
+
+* UID       User ID
+* NAME      Name of the user
+* PASSWORD  SHA1 encrypted password
+* ENABLE    Whether the user is enabled or not
+
 
 EOT
 
@@ -148,7 +167,7 @@ when "create"
 
     if ops[:read_file]
         begin
-            password = File.read(ARGV[1])
+            password = File.read(ARGV[1]).split("\n").first
         rescue
             puts "Can not read file: #{ARGV[1]}"
             exit -1
@@ -218,7 +237,7 @@ when "passwd"
 
     if ops[:read_file]
         begin
-            password = File.read(ARGV[1])
+            password = File.read(ARGV[1]).split("\n").first
         rescue
             puts "Can not read file: #{ARGV[1]}"
             exit -1

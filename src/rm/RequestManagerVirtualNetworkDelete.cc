@@ -25,7 +25,7 @@
 void RequestManager::VirtualNetworkDelete::execute(
     xmlrpc_c::paramList const& paramList,
     xmlrpc_c::value *   const  retval)
-{ 
+{
     string              session;
 
     string              name;
@@ -33,10 +33,13 @@ void RequestManager::VirtualNetworkDelete::execute(
     int                 uid;
 
     VirtualNetwork *    vn;
-    
-    int                 rc;        
+
+    int                 network_owner;
+    bool                is_public;
+
+    int                 rc;
     ostringstream       oss;
-    
+
     const string        method_name = "VirtualNetworkDelete";
 
     /*   -- RPC specific vars --  */
@@ -48,57 +51,75 @@ void RequestManager::VirtualNetworkDelete::execute(
     // Get the parameters & host
     session   = xmlrpc_c::value_string(paramList.getString(0));
     nid       = xmlrpc_c::value_int   (paramList.getInt   (1));
-    
-    // Only oneadmin or the VN owner can perform operations upon the VN
+
+    // First, we need to authenticate the user
     rc = VirtualNetworkDelete::upool->authenticate(session);
-    
-    if ( rc == -1 )                             
-    {                                            
-        goto error_authenticate;                     
+
+    if ( rc == -1 )
+    {
+        goto error_authenticate;
     }
-    
+
+    // Retrieve VN from the pool
+    vn = vnpool->get(nid,true);
+
+    if ( vn == 0 )
+    {
+        goto error_vn_get;
+    }
+
+    network_owner = vn->get_uid();
+    is_public     = vn->isPublic();
+
+    vn->unlock();
+
+
     //Authorize the operation
     if ( rc != 0 ) // rc == 0 means oneadmin
     {
         AuthRequest ar(rc);
 
-        ar.add_auth(AuthRequest::NET,nid,AuthRequest::DELETE,0,false);
+        ar.add_auth(AuthRequest::NET,
+                    nid,
+                    AuthRequest::DELETE,
+                    network_owner,
+                    is_public);
 
         if (UserPool::authorize(ar) == -1)
         {
             goto error_authorize;
         }
     }
-    
-    // Retrieve VN from the pool 
-    vn = vnpool->get(nid,true);    
-   
-    if ( vn == 0 )                             
-    {                                            
-        goto error_vn_get;                     
+
+    // Retrieve VN from the pool
+    vn = vnpool->get(nid,true);
+
+    if ( vn == 0 )
+    {
+        goto error_vn_get;
     }
 
     uid = vn->get_uid();
-   
+
     rc = vnpool->drop(vn);
 
     vn->unlock();
-   
-    // All nice, return the host info to the client  
+
+    // All nice, return the host info to the client
     arrayData.push_back(xmlrpc_c::value_boolean( rc == 0 )); // SUCCESS
     arrayresult = new xmlrpc_c::value_array(arrayData);
-   
+
     // Copy arrayresult into retval mem space
     *retval = *arrayresult;
     // and get rid of the original
     delete arrayresult;
-   
+
     return;
 
 error_authenticate:
     oss.str(authenticate_error(method_name));
     goto error_common;
-    
+
 error_authorize:
     oss.str(authorization_error(method_name, "DELETE", "NET", rc, nid));
     goto error_common;
@@ -106,17 +127,17 @@ error_authorize:
 error_vn_get:
     oss.str(get_error(method_name, "NET", nid));
     goto error_common;
- 
+
 error_common:
     NebulaLog::log ("ReM",Log::ERROR,oss);
-  
+
     arrayData.push_back(xmlrpc_c::value_boolean(false)); // FAILURE
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
-  
+
     xmlrpc_c::value_array arrayresult_error(arrayData);
-  
+
     *retval = arrayresult_error;
-  
+
     return;
 }
 

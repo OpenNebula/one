@@ -307,6 +307,14 @@ end
 class OnevmParse < CommandParse
 
     COMMANDS_HELP=<<-EOT
+
+Description:
+
+This command enables the user to manage virtual machines in the ONE server.
+The user can allocate, deploy, migrate, suspend, resume and shutdown a virtual
+machine with the functionality present in onevm.
+
+
 Commands:
 
 * create (Submits a new virtual machine, adding it to the ONE VM pool)
@@ -363,7 +371,7 @@ Commands:
             a, all   --> all the known VMs
             m, mine  --> the VMs belonging to the user in ONE_AUTH
             uid      --> VMs of the user identified by this uid
-            user--> VMs of the user identified by the username
+            user     --> VMs of the user identified by the username
 
 * show (Gets information about a specific VM)
     onevm show <vm_id>
@@ -375,6 +383,35 @@ Commands:
     onevm history [<vm_id> <vm_id> ...]
 
     if no vm_id is provided it will list history for all known VMs
+
+
+Information Columns:
+
+* ID        ONE VM identifier
+* USER      Username of the VM owner
+* NAME      Name of the ONE
+* STAT      Status of the VM
+* CPU       CPU percentage used by the VM
+* MEM       Memory used by the VM
+* HOSTNAME  Host where the VM is being or was run
+* TIME      Time since the submission of the VM (days hours:minutes:seconds)
+
+
+VM States:
+
+* pend	 pending
+* hold	 VM on hold (not runnable)
+* stop	 stopped
+* susp	 suspended
+* done	 finished
+* prol	 prolog
+* boot	 booting
+* runn	 running
+* migr	 migrating
+* save	 saving the VM to disk
+* epil	 epilog
+* shut	 shutting down
+* fail	 failed
 
 EOT
 
@@ -707,7 +744,13 @@ when "saveas"
     else
         image_id = vm["TEMPLATE/DISK[DISK_ID=\"#{disk_id}\"]/IMAGE_ID"]
 
-        if (image_id != nil)
+        if (image_id != nil) 
+            if vm["TEMPLATE/DISK[DISK_ID=\"#{disk_id}\"]/SAVE_AS"]
+                puts "Error: The disk #{disk_id} is already" <<
+                     " suppossed to be saved"
+                exit -1
+            end
+            
             # Get the image type
             image = OpenNebula::Image.new(
                         OpenNebula::Image.build_xml(image_id),
@@ -718,7 +761,7 @@ when "saveas"
                 puts result.message
                 exit -1
             end
-
+            
             image_type = image.type_str
         end
     end
@@ -733,13 +776,19 @@ when "saveas"
                             get_one_client)
                             
     result = image.allocate(template)
-    
     if !is_successful?(result)
         puts result.message
         exit -1
     end
     
     result = vm.save_as(disk_id.to_i, image.id)
+    if is_successful?(result)
+        puts "VM disk with ID #{disk_id} is prepared to be" << 
+             " saved"  if ops[:verbose]
+    else
+        image.delete
+    end
+    
 
 when "show"
     check_parameters("get_info", 1)

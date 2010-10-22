@@ -118,6 +118,21 @@ class VirtualMachineDriver < OpenNebulaDriver
 
         send_message(ACTION[action],RESULT[result],id)
     end
+    
+    # -------------------------------------------------------------------------
+    # Execute a command associated to an action and id on localhost
+    # -------------------------------------------------------------------------
+    def local_action(command, id, action)
+        command_exe = LocalCommand.run(command)
+
+        if command_exe.code == 0
+            result = :success
+        else
+            result = :failure
+        end
+
+        send_message(ACTION[action],RESULT[result],id)
+    end
 
     # -------------------------------------------------------------------------
     # Virtual Machine Manager Protocol Actions (generic implementation
@@ -168,11 +183,16 @@ private
     end
     
     def get_first_runable
-        action_index=@action_queue.index do |action|
-           if action[:args][HOST_ARG]
-               !@hosts.include? action[:args][HOST_ARG]
+        action_index=nil
+        @action_queue.each_with_index do |action, index|
+            if action[:args][HOST_ARG]
+                if !@hosts.include?(action[:args][HOST_ARG])
+                    action_index=index
+                    break
+                end
            else
-               true
+               action_index=index
+               break
            end
         end
         

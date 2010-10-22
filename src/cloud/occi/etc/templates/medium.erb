@@ -1,35 +1,9 @@
 #
 #  Virtual Machine Template generated for medium instance types. Adjust this
 #  by setting the desired capacity (CPU,MEMORY) or adding specific
-#  attributes for your cloud (e.g. OS). You should not need to change the DISK
-#  and NIC sections
+#  attributes for your cloud (e.g. OS).
 #
 
 CPU    = 4
 MEMORY = 4096
-
-NAME   = "<%= @vm_info['NAME'] %>"
-
-<% if @vm_info['DISK'] %>
-    <% @vm_info.each('DISK') do |disk| %>
-        <% if disk['STORAGE'] && disk.attr('STORAGE','href') %>
-          DISK = [ IMAGE_ID = <%= disk.attr('STORAGE','href').split('/').last %>
-               ]
-        <% end %>
-    <% end %>
-<% end %>
-
-<% if @vm_info['NIC'] %>
-    <% @vm_info.each('NIC') do |nic| %>
-        <% if nic['NETWORK'] && nic.attr('NETWORK','href') %>
-          NIC = [ NETWORK_ID = <%= nic.attr('NETWORK','href').split('/').last %>
-              <% if nic['IP'] %>
-                  ,IP = <%= nic['IP'] %>
-              <% end %>
-              ]
-        <% end %>
-    <% end %>
-<% end %>
-
-INSTANCE_TYPE = <%= @vm_info['INSTANCE_TYPE']%>
 

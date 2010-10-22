@@ -9,6 +9,8 @@
 #include <TestCaller.h>
 #include <ui/text/TestRunner.h>
 
+#include "test/one_test_common.h"
+
 using namespace std;
 
 class SingleAttributeTest : public CppUnit::TestFixture 
@@ -123,9 +125,13 @@ public:
 int main(int argc, char ** argv)
 {
     CppUnit::TextUi::TestRunner tr;
+
+    SETUP_XML_WRITER(tr, "single_attribute.xml");
     
     tr.addTest(SingleAttributeTest::suite());
     tr.run();
+
+    END_XML_WRITER
 
     return 0;
 }

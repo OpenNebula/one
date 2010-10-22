@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
@@ -20,6 +20,8 @@ source $(dirname $0)/xenrc
 
 deploy_id=$1
 file=$2
+
+touch $file
 
 $XM_SAVE $deploy_id $file
 
