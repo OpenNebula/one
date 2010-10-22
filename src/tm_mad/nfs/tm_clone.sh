@@ -55,5 +55,5 @@ http://*)
     ;;
 esac
 
-exec_and_log "chmod a+w $DST_PATH"
+exec_and_log "chmod a+rw $DST_PATH"
 
