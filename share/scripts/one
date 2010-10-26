@@ -89,7 +89,7 @@ start()
             if [ -z "$ONE_AUTH" ]; then
                 echo "You should have ONE_AUTH set the first time you start"
                 echo "OpenNebula as it is used to set the credentials for"
-                echo "the adminitrator user."
+                echo "the administrator user."
                 exit 1
             fi
         fi
