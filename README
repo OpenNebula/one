@@ -109,6 +109,11 @@ where **install_options** can be one or more of:
     -h      prints installer help
 
 
+## CONFIGURATION
+
+Information on how to configure OpenNebula is located at http://opennebula.org/documentation:rel2.0
+
+
 ## CONTACT
 
 OpenNebula web page: http://opennebula.org

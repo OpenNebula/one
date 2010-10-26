@@ -24,11 +24,11 @@ module OpenNebula
                 if user.id == 0
                     user.name.should eql('oneadmin')
                     user['PASSWORD'].should eql('f13a1234833436f71ab846572d251c0d40391e72')
-                    user['ENABLED'].should eql('True')
+                    user['ENABLED'].should eql('1')
                 elsif user.id == 1
                     user.name.should eql('dan')
                     user['PASSWORD'].should eql('d22a12348334v33f71ba846572d25250d40701e72')
-                    user['ENABLED'].should eql('False')
+                    user['ENABLED'].should eql('0')
                 end
             }
         end
@@ -53,11 +53,11 @@ module OpenNebula
                 if user.id == 0
                     user.name.should eql('oneadmin')
                     user['PASSWORD'].should eql('f13a1234833436f71ab846572d251c0d40391e72')
-                    user['ENABLED'].should eql('True')
+                    user['ENABLED'].should eql('1')
                 elsif user.id == 1
                     user.name.should eql('dan')
                     user['PASSWORD'].should eql('d22a12348334v33f71ba846572d25250d40701e72')
-                    user['ENABLED'].should eql('False')
+                    user['ENABLED'].should eql('0')
                 end
             }
         end

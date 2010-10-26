@@ -199,6 +199,12 @@ end
 class OneImageParse < CommandParse
 
     COMMANDS_HELP=<<-EOT
+
+Description:
+
+This command enables the user to manage images.
+
+
 Commands:
 
 * register (Registers an image, copying it to the repository if it applies)

@@ -137,6 +137,14 @@ end
 class OneVNParse < CommandParse
     
     COMMANDS_HELP=<<-EOT
+
+Description:
+
+This command enables the user to manage virtual networks in the OpenNebula
+server. It provides functionality to create, get information and delete a
+particular network or to list available and used IP's.
+
+
 Commands:
 
 * create (Creates a new virtual network)
@@ -159,11 +167,21 @@ Commands:
 * list (Lists virtual networks in the pool)
     onevnet list <filter_flag>
         where filter_flag can be
-            a, all   --> all the known VNs
-            m, mine  --> the VNs belonging to the user in ONE_AUTH
-                            and all the Public VNs
-            uid      --> VNs of the user identified by this uid
-            user --> VNs of the user identified by the username
+            a, all  : all the known VNs
+            m, mine : the VNs belonging to the user in ONE_AUTH
+                        and all the Public VNs
+            uid     : VNs of the user identified by this uid
+            user    : VNs of the user identified by the username
+            
+
+Information columns:
+
+* NID       Network ID
+* NAME      Name of the virtual network
+* TYPE      Type of virtual network (0=ranged, 1=fixed)
+* BRIDGE    Bridge associated to the virtual network
+* LEASES    Number of leases used from this virtual network
+
 EOT
 
     def text_commands

@@ -602,7 +602,16 @@ MAN_FILES="share/man/oneauth.8.gz \
         share/man/oneimage.8.gz \
         share/man/oneuser.8.gz \
         share/man/onevm.8.gz \
-        share/man/onevnet.8.gz"
+        share/man/onevnet.8.gz \
+        share/man/econe-describe-images.8.gz \
+        share/man/econe-describe-instances.8.gz \
+        share/man/econe-register.8.gz \
+        share/man/econe-run-instances.8.gz \
+        share/man/econe-terminate-instances.8.gz \
+        share/man/econe-upload.8.gz \
+        share/man/occi-compute.8.gz \
+        share/man/occi-network.8.gz \
+        share/man/occi-storage.8.gz"
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------

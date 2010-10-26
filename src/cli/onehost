@@ -166,6 +166,14 @@ end
 class OnehostParse < CommandParse
 
     COMMANDS_HELP=<<-EOT
+
+Description:
+
+This command enables the user to manage hosts in the Open Nebula server. It
+provides functionality to allocate, get information and delete a particular
+host or to list all the available hosts.
+
+
 Commands:
 
 * create (Adds a new machine to the pool)
@@ -191,6 +199,20 @@ Commands:
 
 * sync (synchronizes probes with remote hosts)
     onehost sync
+    
+
+Information Columns:
+
+* HID    Host ID
+* NAME   Host name
+* RVM    Number of running VMs
+* TCPU   Total CPU (percentage)
+* FCPU   Free CPU (percentage)
+* ACPU   Available CPU (not allocated by VMs)
+* TMEM   Total memory
+* FMEM   Free memory
+* STAT   Host status
+
 
 EOT
 

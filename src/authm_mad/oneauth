@@ -45,6 +45,12 @@ COMMANDS_HELP=<<-EOT
 Usage:
     oneauth <command> [<parameters>]
 
+
+Description:
+
+This command contains a set of utilities to manage authorization module.
+
+
 Commands:
 
 * quota set (sets quota for a user)

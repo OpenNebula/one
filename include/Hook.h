@@ -51,7 +51,7 @@ public:
     Hook(const string &_name,
          const string &_cmd,
          const string &_args,
-         HookType     _ht,
+         int           _ht,
          bool         _remote):
         name(_name), cmd(_cmd), args(_args), hook_type(_ht), remote(_remote){};
 
@@ -63,7 +63,7 @@ public:
     /**
      *  Returns the hook_type
      */
-     HookType type() const
+     int type() const
      {
         return hook_type;
      }
@@ -93,7 +93,7 @@ protected:
     /**
      *  The Hook Type
      */
-    HookType hook_type;
+    int      hook_type;
 
     /**
      *  True if the command is to be executed remotely

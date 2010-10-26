@@ -3,7 +3,7 @@
     <ID>0</ID>
     <NAME>oneadmin</NAME>
     <PASSWORD>f13a1234833436f71ab846572d251c0d40391e72</PASSWORD>
-    <ENABLED>0</ENABLED>
+    <ENABLED>1</ENABLED>
   </USER>
   <USER>
     <ID>1</ID>

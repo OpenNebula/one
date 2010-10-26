@@ -31,7 +31,7 @@ Options:
 EOT
 
     ONE_VERSION=<<-EOT
-OpenNebula 1.9.85
+OpenNebula 2.0.0
 Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may
