@@ -64,7 +64,7 @@ class InformationManager < OpenNebulaDriver
         end
 
         cmd_string  = "#{@cmd_path}/run_probes #{@hypervisor} #{host}"
-        monitor_exe = LocalCommand.run(cmd_string, host, log_method(id))
+        monitor_exe = LocalCommand.run(cmd_string, log_lambda)
 
         if monitor_exe.code == 0
             send_message("MONITOR", RESULT[:success], number, monitor_exe.stdout)
