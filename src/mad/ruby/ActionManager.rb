@@ -183,7 +183,7 @@ private
         if ENV['ONE_LOCATION']
             one_config=ENV['ONE_LOCATION']+'/var/config'
         else
-            one_config='/var/log/one/config'
+            one_config='/var/lib/one/config'
         end
         
         config=Hash.new
