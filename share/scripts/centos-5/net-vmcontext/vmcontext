@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# chkconfig: 2345 10 90
+# chkconfig: 2345 9 90
 # description:  network reconfigure
 #                                                     
 # -------------------------------------------------------------------------- #
