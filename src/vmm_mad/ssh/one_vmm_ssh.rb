@@ -47,7 +47,7 @@ class SshDriver < VirtualMachineDriver
         @config = read_configuration
         
         @hypervisor = hypervisor
-        @remote_dir = @config['SCRIPTS_REMOTE_DIR'] || '/tmp/one'
+        @remote_dir = @config['SCRIPTS_REMOTE_DIR']
     end
 
     # ------------------------------------------------------------------------ #
