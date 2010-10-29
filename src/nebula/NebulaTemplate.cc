@@ -52,6 +52,7 @@ NebulaTemplate::NebulaTemplate(string& etc_location, string& var_location)
 #  PORT
 #  DB
 #  VNC_BASE_PORT
+#  SCRIPTS_REMOTE_DIR
 #*******************************************************************************
 */
     // MONITOR_INTERVAL
@@ -94,6 +95,13 @@ NebulaTemplate::NebulaTemplate(string& etc_location, string& var_location)
 
     attribute = new SingleAttribute("PORT",value);
     conf_default.insert(make_pair(attribute->name(),attribute));
+
+    //SCRIPTS_REMOTE_DIR
+    value = "/var/tmp/one";
+
+    attribute = new SingleAttribute("SCRIPTS_REMOTE_DIR",value);
+    conf_default.insert(make_pair(attribute->name(),attribute));
+
 /*
 #*******************************************************************************
 # Physical Networks configuration
@@ -188,4 +196,3 @@ int NebulaTemplate::load_configuration()
 
     return 0;
 }
-
