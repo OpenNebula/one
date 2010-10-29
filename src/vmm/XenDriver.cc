@@ -57,6 +57,7 @@ int XenDriver::deployment_description(
 
     string mac        = "";
     string bridge     = "";
+    string model      = "";
 
     const VectorAttribute * graphics;
 
@@ -347,10 +348,17 @@ int XenDriver::deployment_description(
 
         mac    = nic->vector_value("MAC");
         bridge = nic->vector_value("BRIDGE");
+        model  = nic->vector_value("MODEL");
+
+        if( !model.empty() )
+        {
+            file << "type=" << model;
+            pre_char = ',';
+        }
 
         if( !mac.empty() )
         {
-            file << "mac=" << mac;
+            file << pre_char << "mac=" << mac;
             pre_char = ',';
         }
 
