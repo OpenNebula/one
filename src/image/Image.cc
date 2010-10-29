@@ -434,9 +434,9 @@ int Image::drop(SqlDB * db)
 
 ostream& operator<<(ostream& os, Image& image)
 {
-	string image_str;
+    string image_str;
 
-	os << image.to_xml(image_str);
+    os << image.to_xml(image_str);
 
     return os;
 }
@@ -571,20 +571,25 @@ int Image::disk_attribute(  VectorAttribute * disk,
 {
     string  bus;
     string  target;
+    string  driver;
 
     ostringstream  iid;
 
     *img_type = type;
     bus       = disk->vector_value("BUS");
     target    = disk->vector_value("TARGET");
+    driver    = disk->vector_value("DRIVER");
     iid << oid;
 
     string template_bus;
     string template_target;
     string prefix;
+    string template_driver;
 
     get_template_attribute("BUS", template_bus);
     get_template_attribute("TARGET", template_target);
+    get_template_attribute("DRIVER", template_driver);
+
     get_template_attribute("DEV_PREFIX", prefix);
 
     //--------------------------------------------------------------------------
@@ -612,7 +617,16 @@ int Image::disk_attribute(  VectorAttribute * disk,
     }
     else if (!template_bus.empty())
     {
-            new_disk.insert(make_pair("BUS",template_bus));
+        new_disk.insert(make_pair("BUS",template_bus));
+    }
+
+    if (!driver.empty())
+    {
+        new_disk.insert(make_pair("DRIVER",driver));
+    }
+    else if (!template_driver.empty())
+    {
+        new_disk.insert(make_pair("DRIVER",template_driver));
     }
 
    //---------------------------------------------------------------------------
@@ -714,4 +728,3 @@ string Image::sha1_digest(const string& pass)
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
-
