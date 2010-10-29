@@ -49,6 +49,8 @@ int XenDriver::deployment_description(
     string target     = "";
     string ro         = "";
     string type       = "";
+    string driver     = "";
+    string default_driver = "";
     string mode;
 
     const VectorAttribute * nic;
@@ -216,6 +218,13 @@ int XenDriver::deployment_description(
 
     num = vm->get_template_attribute("DISK",attrs);
 
+    get_default("DISK","DRIVER",default_driver);
+
+    if (default_driver.empty())
+    {
+        default_driver = "tap:aio:";
+    }
+
     file << "disk = [" << endl;
 
     for (int i=0; i < num ;i++)
@@ -230,6 +239,7 @@ int XenDriver::deployment_description(
         target = disk->vector_value("TARGET");
         type   = disk->vector_value("TYPE");
         ro     = disk->vector_value("READONLY");
+        driver = disk->vector_value("DRIVER");
 
         if ( target.empty() )
         {
@@ -253,13 +263,20 @@ int XenDriver::deployment_description(
             }
         }
 
-        if ( type == "BLOCK" )
+        if ( !driver.empty() )
         {
-            file << "    'phy:";
+            file << "    '" << driver;
         }
         else
         {
-            file << "    'tap:aio:";
+            if ( type == "BLOCK" )
+            {
+                file << "    'phy:";
+            }
+            else
+            {
+                file << "    '" << default_driver;
+            }
         }
 
         file << vm->get_remote_dir() << "/disk." << i << ","
@@ -278,12 +295,22 @@ int XenDriver::deployment_description(
     {
         context = dynamic_cast<const VectorAttribute *>(attrs[0]);
         target  = context->vector_value("TARGET");
+        driver  = context->vector_value("DRIVER");
 
         if ( !target.empty() )
         {
-            file << "    "
-                 << "'tap:aio:" << vm->get_remote_dir() << "/disk." << num <<","
-                 << target << ","
+            file << "    '";
+
+            if ( !driver.empty() )
+            {
+                file << driver;
+            }
+            else
+            {
+                file << default_driver;
+            }
+
+            file << vm->get_remote_dir() << "/disk." << num <<","<< target <<","
                  << "r'," << endl;
         }
         else
