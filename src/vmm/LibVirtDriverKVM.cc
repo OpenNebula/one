@@ -49,6 +49,8 @@ int LibVirtDriver::deployment_description_kvm(
     string  target     = "";
     string  bus        = "";
     string  ro         = "";
+    string  driver     = "";
+    string  default_driver = "";
     bool    readonly;
 
     const VectorAttribute * nic;
@@ -245,6 +247,13 @@ int LibVirtDriver::deployment_description_kvm(
         file << "\t\t<emulator>/usr/bin/kvm</emulator>" << endl;
     }
 
+    get_default("DISK","DRIVER",default_driver);
+
+    if (default_driver.empty())
+    {
+        default_driver = "raw";
+    }
+
     num = vm->get_template_attribute("DISK",attrs);
 
     for (int i=0; i < num ;i++)
@@ -260,6 +269,7 @@ int LibVirtDriver::deployment_description_kvm(
         target = disk->vector_value("TARGET");
         ro     = disk->vector_value("READONLY");
         bus    = disk->vector_value("BUS");
+        driver = disk->vector_value("DRIVER");
 
         if (target.empty())
         {
@@ -277,6 +287,8 @@ int LibVirtDriver::deployment_description_kvm(
                 readonly = true;
             }
         }
+
+        // ---- Disk type and source for the image ----
 
         if (type.empty() == false)
         {
@@ -302,7 +314,11 @@ int LibVirtDriver::deployment_description_kvm(
                  << i << "'/>" << endl;
         }
 
+        // ---- target device to map the disk ----
+
         file << "\t\t\t<target dev='" << target << "'";
+
+        // ---- bus ----
 
         if (!bus.empty())
         {
@@ -313,9 +329,24 @@ int LibVirtDriver::deployment_description_kvm(
             file << "/>" << endl;
         }
 
+        // ---- readonly attribute for the disk ----
+
         if (readonly)
         {
             file << "\t\t\t<readonly/>" << endl;
+        }
+
+        // ---- Image Format using qemu driver ----
+
+        file << "\t\t\t<driver name='qemu' type='";
+
+        if ( !driver.empty() )
+        {
+            file << driver << "'/>" << endl;
+        }
+        else
+        {
+            file << default_driver << "'/>" << endl;
         }
 
         file << "\t\t</disk>" << endl;
@@ -331,6 +362,7 @@ int LibVirtDriver::deployment_description_kvm(
     {
         context = dynamic_cast<const VectorAttribute *>(attrs[0]);
         target  = context->vector_value("TARGET");
+        driver  = context->vector_value("DRIVER");
 
         if ( !target.empty() )
         {
@@ -339,6 +371,18 @@ int LibVirtDriver::deployment_description_kvm(
                  << num << "'/>" << endl;
             file << "\t\t\t<target dev='" << target << "'/>" << endl;
             file << "\t\t\t<readonly/>" << endl;
+
+            file << "\t\t\t<driver name='qemu' type='";
+
+            if ( !driver.empty() )
+            {
+                file << driver << "'/>" << endl;
+            }
+            else
+            {
+                file << default_driver << "'/>" << endl;
+            }
+
             file << "\t\t</disk>" << endl;
         }
         else
@@ -587,4 +631,3 @@ error_disk:
     file.close();
     return -1;
 }
-

@@ -49,7 +49,7 @@ class InformationManager < OpenNebulaDriver
         @config = read_configuration
 
         @hypervisor = hypervisor
-        @remote_dir = @config['SCRIPTS_REMOTE_DIR'] || '/tmp/one'
+        @remote_dir = @config['SCRIPTS_REMOTE_DIR']
 
         # register actions
         register_action(:MONITOR, method("action_monitor"))
