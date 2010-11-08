@@ -42,7 +42,11 @@ DST_PATH=`arg_path $DST`
 DST_DIR=`dirname $DST_PATH`
 DST_FILE=`basename $DST_PATH`
 DST_HASH=`echo -n $DST | $MD5SUM | $AWK '{print $1}'`
-TMP_DIR="$ONE_LOCATION/var/$DST_HASH"
+if [ -z "$ONE_LOCATION" ]; then
+       TMP_DIR="/var/lib/one/$DST_HASH"
+else
+       TMP_DIR="$ONE_LOCATION/var/$DST_HASH"
+fi
 ISO_DIR="$TMP_DIR/isofiles"
 
 
