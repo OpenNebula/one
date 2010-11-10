@@ -44,6 +44,7 @@ class MySqlDB : public SqlDB
 public:
 
     MySqlDB(const string& server,
+            const int&    port,
             const string& user,
             const string& password,
             char * database);
@@ -109,6 +110,7 @@ public:
 
     MySqlDB(
             string server,
+            int    port,
             string user,
             string password,
             char * database)

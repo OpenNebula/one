@@ -141,6 +141,8 @@ void Nebula::start()
         bool   db_is_sqlite = true;
 
         string server  = "localhost";
+        string port_str;
+        int    port    = 0;
         string user    = "oneadmin";
         string passwd  = "oneadmin";
         string db_name = "opennebula";
@@ -162,6 +164,18 @@ void Nebula::start()
                 if (!value.empty())
                 {
                     server = value;
+                }
+
+                istringstream   is;
+
+                port_str = db->vector_value("PORT");
+
+                is.str(port_str);
+                is >> port;
+
+                if( is.fail() )
+                {
+                    port = 0;
                 }
 
                 value = db->vector_value("USER");
@@ -194,7 +208,7 @@ void Nebula::start()
         {
             ostringstream   oss;
 
-            db = new MySqlDB(server,user,passwd,0);
+            db = new MySqlDB(server,port,user,passwd,0);
 
             oss << "CREATE DATABASE IF NOT EXISTS " << db_name;
             rc = db->exec(oss);
