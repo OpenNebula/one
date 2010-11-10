@@ -41,6 +41,7 @@ int LibVirtDriver::deployment_description_kvm(
     string  root       = "";
     string  kernel_cmd = "";
     string  bootloader = "";
+    string  arch       = "";
 
     const VectorAttribute * disk;
     const VectorAttribute * context;
@@ -142,11 +143,6 @@ int LibVirtDriver::deployment_description_kvm(
 
     file << "\t<os>" << endl;
 
-    if (emulator == "kvm")
-    {
-        file << "\t\t<type>hvm</type>" << endl;
-    }
-
     num = vm->get_template_attribute("OS",attrs);
 
     // Get values & defaults
@@ -165,7 +161,18 @@ int LibVirtDriver::deployment_description_kvm(
             root       = os->vector_value("ROOT");
             kernel_cmd = os->vector_value("KERNEL_CMD");
             bootloader = os->vector_value("BOOTLOADER");
+            arch       = os->vector_value("ARCH");
         }
+    }
+
+    if ( arch.empty() )
+    {
+        get_default("OS","ARCH",arch);
+    }
+
+    if (emulator == "kvm")
+    {
+        file << "\t\t<type arch='" << arch << "'>hvm</type>" << endl;
     }
 
     if ( kernel.empty() )
