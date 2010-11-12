@@ -168,6 +168,11 @@ int LibVirtDriver::deployment_description_kvm(
     if ( arch.empty() )
     {
         get_default("OS","ARCH",arch);
+
+        if ( arch.empty() )
+        {
+            goto error_arch;
+        }
     }
 
     if (emulator == "kvm")
@@ -625,6 +630,11 @@ error_file:
 
 error_memory:
     vm->log("VMM", Log::ERROR, "No MEMORY defined and no default provided.");
+    file.close();
+    return -1;
+
+error_arch:
+    vm->log("VMM", Log::ERROR, "No ARCH defined and no default provided.");
     file.close();
     return -1;
 
