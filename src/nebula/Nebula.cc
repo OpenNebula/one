@@ -42,11 +42,11 @@ void Nebula::start()
     int             fd;
     sigset_t        mask;
     int             signal;
-    char 			hn[80];
+    char            hn[80];
 
     if ( gethostname(hn,79) != 0 )
     {
-    	throw runtime_error("Error getting hostname");
+        throw runtime_error("Error getting hostname");
     }
 
     hostname = hn;
@@ -81,9 +81,9 @@ void Nebula::start()
 
     try
     {
-        string 				log_fname;
-        int    				log_level_int;
-        Log::MessageType	clevel = Log::ERROR;
+        string              log_fname;
+        int                 log_level_int;
+        Log::MessageType    clevel = Log::ERROR;
 
         log_fname = log_location + "oned.log";
 
@@ -563,4 +563,3 @@ void Nebula::start()
 
     NebulaLog::log("ONE", Log::INFO, "All modules finalized, exiting.\n");
 }
-
