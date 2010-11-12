@@ -40,7 +40,7 @@ SUDO=/usr/bin/sudo
 WGET=/usr/bin/wget
 
 if [ "x$(uname -s)" = "xLinux" ]; then
-    SED="$SED -e"
+    SED="$SED -r"
 else
     SED="/usr/bin/sed -E"
 fi
