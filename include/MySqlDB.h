@@ -44,9 +44,10 @@ class MySqlDB : public SqlDB
 public:
 
     MySqlDB(const string& server,
+            int           port,
             const string& user,
             const string& password,
-            char * database);
+            char *        database);
 
     ~MySqlDB();
 
@@ -109,6 +110,7 @@ public:
 
     MySqlDB(
             string server,
+            int    port,
             string user,
             string password,
             char * database)
@@ -127,4 +129,3 @@ public:
 #endif
 
 #endif /*MYSQL_DB_H_*/
-

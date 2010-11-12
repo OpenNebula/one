@@ -72,7 +72,7 @@ public:
 
         if (mysql)
         {
-            db = new MySqlDB("localhost","oneadmin","oneadmin",NULL);
+            db = new MySqlDB("localhost",0,"oneadmin","oneadmin",NULL);
 
             ostringstream   oss1;
             oss1 << "DROP DATABASE IF EXISTS " << db_name;
