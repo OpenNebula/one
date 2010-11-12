@@ -24,9 +24,10 @@
 
 MySqlDB::MySqlDB(
         const string& server,
+        int           port,
         const string& user,
         const string& password,
-        char * database)
+        char *        database)
 {
 
     // Initialize the MySQL library
@@ -37,7 +38,7 @@ MySqlDB::MySqlDB(
 
     // Connect to the server
     if (!mysql_real_connect(db, server.c_str(), user.c_str(),
-                            password.c_str(), database, 0, NULL, 0))
+                            password.c_str(), database, port, NULL, 0))
     {
         throw runtime_error("Could not open database.");
     }
