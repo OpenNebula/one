@@ -132,25 +132,23 @@ int LibVirtDriver::deployment_description_vmware(
 
         if( os != 0 )
         {
-            arch = os->vector_value("ARCHITECTURE");
+            arch = os->vector_value("ARCH");
         }
     }
 
+    if ( arch.empty() )
+    {
+        get_default("OS","ARCH",arch);
+
+        if (arch.empty())
+        {
+            goto error_vmware_arch;
+        }
+    }
 
     // Start writing to the file with the info we got
 
     file << "\t<os>" << endl;
-
-
-    if ( arch.empty() )
-    {
-        get_default("OS","ARCHITECTURE",arch);
-    }
-
-    if (arch.empty())
-    {
-        goto error_vmware_arch;
-    }
 
     file << "\t\t<type arch='" << arch << "'>hvm</type>" << endl;
 
@@ -245,7 +243,7 @@ int LibVirtDriver::deployment_description_vmware(
     }
 
     attrs.clear();
-    
+
     // ------------------------------------------------------------------------
     // Context Device
     // ------------------------------------------------------------------------
@@ -329,7 +327,7 @@ int LibVirtDriver::deployment_description_vmware(
     }
 
     attrs.clear();
-    
+
     file << "\t</devices>" << endl;
 
     // ------------------------------------------------------------------------
@@ -369,7 +367,7 @@ error_vmware_file:
     return -1;
 
 error_vmware_arch:
-    vm->log("VMM", Log::ERROR, "No ARCHITECTURE defined and no default provided.");
+    vm->log("VMM", Log::ERROR, "No ARCH defined and no default provided.");
     file.close();
     return -1;
 
@@ -383,4 +381,3 @@ error_vmware_disk:
     file.close();
     return -1;
 }
-
