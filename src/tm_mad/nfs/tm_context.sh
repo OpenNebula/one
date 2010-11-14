@@ -16,9 +16,6 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# Parameters: a b c d e f g h
-# SRC: a b c d e f g
-# DST: h
 while (( "$#" )); do
     if [ "$#" == "1" ]; then
         DST=$1
