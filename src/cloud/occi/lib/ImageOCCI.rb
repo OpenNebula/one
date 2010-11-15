@@ -32,6 +32,9 @@ class ImageOCCI < Image
             <% if size != nil %>
             <SIZE><%= size %></SIZE>
             <% end %>
+            <% if fstype != nil %>
+            <FSTYPE><%= fstype %></FSTYPE>
+            <% end %>
         </STORAGE>
     }
 
@@ -69,8 +72,12 @@ class ImageOCCI < Image
 
         begin
             if self['SOURCE'] != nil and File.exists?(self['SOURCE'])
-                size = File.stat(self['SOURCE']).size
+                size = File.stat(self['SOURCE']).size 
+		size = size / 1024 
+		size = size / 1024 
             end
+
+            fstype = self['TEMPLATE/FSTYPE'] if self['TEMPLATE/FSTYPE']
         rescue Exception => e
             error = OpenNebula::Error.new(e.message)
             return error
