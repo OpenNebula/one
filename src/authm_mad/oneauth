@@ -54,7 +54,7 @@ This command contains a set of utilities to manage authorization module.
 Commands:
 
 * quota set (sets quota for a user)
-    oneauth quota set <id> <cpu> <memory>
+    oneauth quota set <id> <cpu> <memory> <num_vms>
     
 * login (generates authentication proxy)
     oneauth login <username> [<expire time in seconds>]
@@ -79,10 +79,10 @@ def get_database
     db=Sequel.connect(database_url)
 end
 
-def add_quota(uid, cpu, memory)
+def add_quota(uid, cpu, memory, num_vms=nil)
     db=get_database
     quota=Quota.new(db, OpenNebula::Client.new)
-    quota.set(uid.to_i, cpu.to_f, memory.to_i, nil)
+    quota.set(uid.to_i, cpu.to_f, memory.to_i, num_vms)
 end
 
 
@@ -100,7 +100,7 @@ when "quota"
         Dir.chdir VAR_LOCATION
         
         begin
-            add_quota(*ARGV[1..3])
+            add_quota(*ARGV[1..4])
         rescue Exception => e
             puts "Error starting server: #{e}"
             exit(-1)
