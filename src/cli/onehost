@@ -387,7 +387,7 @@ when "disable"
 when "sync"
     check_parameters("sync", 0)
     if ONE_LOCATION
-        FileUtils.touch "#{ONE_LOCATION}/lib/remotes"
+        FileUtils.touch "#{ONE_LOCATION}/var/remotes"
     else
         FileUtils.touch "/var/lib/one/remotes"
     end
