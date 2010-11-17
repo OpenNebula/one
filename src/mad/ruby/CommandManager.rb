@@ -153,7 +153,7 @@ class RemotesCommand < SSHCommand
     def self.run(command, host, remote_dir, logger=nil, stdin=nil)
         cmd_file = command.split(' ')[0]
         
-        cmd_string = "'if [ -x \"#{cmd_file}\" ]; then; #{command}; else;\
+        cmd_string = "'if [ -x \"#{cmd_file}\" ]; then #{command}; else\
                               exit #{MAGIC_RC}; fi'"
                               
         cmd = self.new(cmd_string, host, logger, stdin)
