@@ -71,7 +71,7 @@ class InformationManager < OpenNebulaDriver
         end
 
         cmd_string = "#{@remote_dir}/im/run_probes #{@hypervisor} #{host}"
-        cmd = SSHCommand.run(cmd_string, host, log_lambda)
+        cmd = RemotesCommand.run(cmd_string, host, @remote_dir, log_lambda)
 
         if cmd.code == 0
             send_message("MONITOR", RESULT[:success], number, cmd.stdout)

@@ -107,16 +107,19 @@ class VirtualMachineDriver < OpenNebulaDriver
     # -------------------------------------------------------------------------
     # Execute a command associated to an action and id in a remote host.
     # -------------------------------------------------------------------------
-    def ssh_action(command, id, host, action)
-        command_exe = SSHCommand.run(command, host, log_method(id))
+    def remotes_action(command, id, host, action, remote_dir, std_in=nil)
+        command_exe = RemotesCommand.run(
+                        command, host, remote_dir, log_method(id), std_in)
 
         if command_exe.code == 0
             result = :success
+            info   = command_exe.stdout
         else
             result = :failure
+            info   = command_exe.stderr
         end
 
-        send_message(ACTION[action],RESULT[result],id)
+        send_message(ACTION[action],RESULT[result],id,info)
     end
     
     # -------------------------------------------------------------------------
