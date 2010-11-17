@@ -67,7 +67,7 @@ class SshDriver < VirtualMachineDriver
         tmp.close()
 
         remotes_action("#{@remote_dir}/vmm/#{@hypervisor}/deploy #{remote_dfile}",
-                    id, host, :deploy, @remote_dir)
+                    id, host, :deploy, @remote_dir, domain)
     end
 
     # ------------------------------------------------------------------------ #
