@@ -7,6 +7,13 @@ module OpenNebula
     rescue LoadError
         NOKOGIRI=false
     end
+    
+    begin
+        require 'rexml/formatters/default'
+        REXML_FORMATTERS=true
+    rescue LoadError
+        REXML_FORMATTERS=false
+    end
 
     ###########################################################################
     # The XMLElement class provides an abstraction of the underlying
@@ -176,17 +183,18 @@ module OpenNebula
         end
 
         def to_xml(pretty=false)
-            if NOKOGIRI
-                @xml.to_xml
+            if NOKOGIRI && pretty
+                str = @xml.to_xml
+            elsif REXML_FORMATTERS && pretty
+                str = String.new
+                formatter = REXML::Formatters::Pretty.new
+                formatter.compact = true
+                str = formatter.write(@xml,str)
             else
-                str = ""
-                if pretty
-                    REXML::Formatters::Pretty.new(1).write(@xml,str)
-                else
-                    REXML::Formatters::Default.new.write(@xml,str)
-                end
-                str
+                str = @xml.to_s
             end
+            
+            return str
         end
     end
 
