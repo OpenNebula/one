@@ -159,8 +159,8 @@ class RemotesCommand < SSHCommand
         cmd = super(cmd_string, host, logger, stdin)
 
         if cmd.code == MAGIC_RC
-            RemotesCommand::update_remotes(host, remote_dir, logger)
-            cmd = super(command, host, logger, stdin)
+            self.update_remotes(host, remote_dir, logger)
+            cmd.run(command, host, logger, stdin)
         end
 
         cmd
