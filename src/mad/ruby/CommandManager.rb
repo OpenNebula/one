@@ -156,11 +156,14 @@ class RemotesCommand < SSHCommand
         cmd_string = "'if [ -x \"#{cmd_file}\" ]; then #{command}; else\
                               exit #{MAGIC_RC}; fi'"
 
-        cmd = super(cmd_string, host, logger, stdin)
+        cmd = self.new(cmd_string, host, logger, stdin)
+        cmd.run
 
         if cmd.code == MAGIC_RC
             self.update_remotes(host, remote_dir, logger)
-            cmd.run(command, host, logger, stdin)
+
+            @command = command
+            cmd.run
         end
 
         cmd
