@@ -7,9 +7,9 @@ module OpenNebula
     rescue LoadError
         NOKOGIRI=false
     end
-    
+
     begin
-        require 'rexml/formatters/default'
+        require 'rexml/formatters/pretty'
         REXML_FORMATTERS=true
     rescue LoadError
         REXML_FORMATTERS=false
@@ -187,13 +187,15 @@ module OpenNebula
                 str = @xml.to_xml
             elsif REXML_FORMATTERS && pretty
                 str = String.new
+
                 formatter = REXML::Formatters::Pretty.new
                 formatter.compact = true
-                str = formatter.write(@xml,str)
+
+                formatter.write(@xml,str)
             else
                 str = @xml.to_s
             end
-            
+
             return str
         end
     end
