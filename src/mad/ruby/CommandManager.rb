@@ -140,37 +140,36 @@ end
 
 class RemotesCommand < SSHCommand
     ONE_LOCATION=ENV["ONE_LOCATION"]
-    
+
     if !ONE_LOCATION
-        REMOTES_LOCATION="/usr/lib/one/remotes"
+        REMOTES_LOCATION="/var/lib/one/remotes"
     else
-        REMOTES_LOCATION=ONE_LOCATION+"/lib/remotes/"
+        REMOTES_LOCATION=ONE_LOCATION+"/var/remotes/"
     end
-    
+
     MAGIC_RC = 42
-    
+
     # Creates a command and runs it
     def self.run(command, host, remote_dir, logger=nil, stdin=nil)
         cmd_file = command.split(' ')[0]
-        
+
         cmd_string = "'if [ -x \"#{cmd_file}\" ]; then #{command}; else\
                               exit #{MAGIC_RC}; fi'"
-                              
-        cmd = self.new(cmd_string, host, logger, stdin)
-        cmd.run
-        
+
+        cmd = super(cmd_string, host, logger, stdin)
+
         if cmd.code == MAGIC_RC
             cmd.update_remotes(host, remote_dir, logger)
             cmd = super(command, host, logger, stdin)
         end
-        
+
         cmd
     end
 
     def update_remotes(host, remote_dir, logger=nil)
         log("Remote worker node files not found")
         log("Updating remotes")
-        
+
         # Use SCP to sync:
         sync_cmd = "scp -r #{REMOTES_LOCATION}/. #{host}:#{remote_dir}"
 
