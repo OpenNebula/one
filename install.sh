@@ -168,13 +168,7 @@ ETC_DIRS="$ETC_LOCATION/im_kvm \
           $ETC_LOCATION/ec2query_templates \
           $ETC_LOCATION/occi_templates"
 
-LIB_DIRS="$LIB_LOCATION/remotes \
-          $LIB_LOCATION/remotes/im \
-          $LIB_LOCATION/remotes/im/kvm.d \
-          $LIB_LOCATION/remotes/im/xen.d \
-          $LIB_LOCATION/remotes/vmm/xen \
-          $LIB_LOCATION/remotes/vmm/kvm \
-          $LIB_LOCATION/ruby \
+LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/ruby/OpenNebula \
           $LIB_LOCATION/ruby/cloud/ \
           $LIB_LOCATION/ruby/cloud/econe \
@@ -187,6 +181,13 @@ LIB_DIRS="$LIB_LOCATION/remotes \
           $LIB_LOCATION/tm_commands/lvm \
           $LIB_LOCATION/mads"
 
+VAR_DIRS="$VAR_LOCATION/remotes \
+          $VAR_LOCATION/remotes/im \
+          $VAR_LOCATION/remotes/im/kvm.d \
+          $VAR_LOCATION/remotes/im/xen.d \
+          $VAR_LOCATION/remotes/vmm/xen \
+          $VAR_LOCATION/remotes/vmm/kvm"
+
 LIB_ECO_CLIENT_DIRS="$LIB_LOCATION/ruby \
                  $LIB_LOCATION/ruby/OpenNebula
                  $LIB_LOCATION/ruby/cloud/ \
@@ -197,7 +198,7 @@ LIB_OCCI_CLIENT_DIRS="$LIB_LOCATION/ruby \
                  $LIB_LOCATION/ruby/cloud/occi"
 
 if [ "$CLIENT" = "no" ]; then
-    MAKE_DIRS="$MAKE_DIRS $SHARE_DIRS $ETC_DIRS $LIB_DIRS"
+    MAKE_DIRS="$MAKE_DIRS $SHARE_DIRS $ETC_DIRS $LIB_DIRS $VAR_DIRS"
 elif [ "$CLIENT" = "ec2" ]; then
     MAKE_DIRS="$MAKE_DIRS $LIB_ECO_CLIENT_DIRS"
 elif [ "$CLIENT" = "occi" ]; then
@@ -216,11 +217,11 @@ INSTALL_FILES[2]="LIB_FILES:$LIB_LOCATION"
 INSTALL_FILES[3]="RUBY_LIB_FILES:$LIB_LOCATION/ruby"
 INSTALL_FILES[4]="RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/OpenNebula"
 INSTALL_FILES[5]="MADS_LIB_FILES:$LIB_LOCATION/mads"
-INSTALL_FILES[6]="IM_PROBES_FILES:$LIB_LOCATION/remotes/im"
-INSTALL_FILES[7]="IM_PROBES_KVM_FILES:$LIB_LOCATION/remotes/im/kvm.d"
-INSTALL_FILES[8]="IM_PROBES_XEN_FILES:$LIB_LOCATION/remotes/im/xen.d"
-INSTALL_FILES[9]="VMM_SSH_KVM_SCRIPTS:$LIB_LOCATION/remotes/vmm/kvm"
-INSTALL_FILES[10]="VMM_SSH_XEN_SCRIPTS:$LIB_LOCATION/remotes/vmm/xen"
+INSTALL_FILES[6]="IM_PROBES_FILES:$VAR_LOCATION/remotes/im"
+INSTALL_FILES[7]="IM_PROBES_KVM_FILES:$VAR_LOCATION/remotes/im/kvm.d"
+INSTALL_FILES[8]="IM_PROBES_XEN_FILES:$VAR_LOCATION/remotes/im/xen.d"
+INSTALL_FILES[9]="VMM_SSH_KVM_SCRIPTS:$VAR_LOCATION/remotes/vmm/kvm"
+INSTALL_FILES[10]="VMM_SSH_XEN_SCRIPTS:$VAR_LOCATION/remotes/vmm/xen"
 INSTALL_FILES[11]="NFS_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/nfs"
 INSTALL_FILES[12]="SSH_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/ssh"
 INSTALL_FILES[13]="DUMMY_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/dummy"
