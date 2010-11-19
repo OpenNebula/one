@@ -159,14 +159,14 @@ class RemotesCommand < SSHCommand
         cmd = super(cmd_string, host, logger, stdin)
 
         if cmd.code == MAGIC_RC
-            cmd.update_remotes(host, remote_dir, logger)
+            RemotesCommand::update_remotes(host, remote_dir, logger)
             cmd = super(command, host, logger, stdin)
         end
 
         cmd
     end
 
-    def update_remotes(host, remote_dir, logger=nil)
+    def self.update_remotes(host, remote_dir, logger=nil)
         log("Remote worker node files not found")
         log("Updating remotes")
 
