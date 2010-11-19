@@ -55,6 +55,7 @@ int XenDriver::deployment_description(
 
     const VectorAttribute * nic;
 
+    string ip         = "";
     string mac        = "";
     string bridge     = "";
     string model      = "";
@@ -346,6 +347,7 @@ int XenDriver::deployment_description(
 
         file << "    '";
 
+        ip     = nic->vector_value("IP");
         mac    = nic->vector_value("MAC");
         bridge = nic->vector_value("BRIDGE");
         model  = nic->vector_value("MODEL");
@@ -359,6 +361,12 @@ int XenDriver::deployment_description(
         if( !mac.empty() )
         {
             file << pre_char << "mac=" << mac;
+            pre_char = ',';
+        }
+
+        if( !ip.empty() )
+        {
+            file << pre_char << "ip=" << ip;
             pre_char = ',';
         }
 
