@@ -21,13 +21,11 @@ ONE_LOCATION=ENV["ONE_LOCATION"]
 if !ONE_LOCATION
     RUBY_LIB_LOCATION="/usr/lib/one/ruby"
     ETC_LOCATION="/etc/one/"
-    PROBE_LOCATION="/usr/lib/one/im_probes/"
-    REMOTES_LOCATION="/usr/lib/one/remotes"
+    REMOTES_LOCATION="/var/lib/one/remotes"
 else
     RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
     ETC_LOCATION=ONE_LOCATION+"/etc/"
-    PROBE_LOCATION=ONE_LOCATION+"/lib/im_probes/"
-    REMOTES_LOCATION=ONE_LOCATION+"/lib/remotes/"
+    REMOTES_LOCATION=ONE_LOCATION+"/var/remotes/"
 end
 
 $: << RUBY_LIB_LOCATION
@@ -73,7 +71,7 @@ class InformationManager < OpenNebulaDriver
         end
 
         cmd_string = "#{@remote_dir}/im/run_probes #{@hypervisor} #{host}"
-        cmd = SSHCommand.run(cmd_string, host, log_lambda)
+        cmd = RemotesCommand.run(cmd_string, host, @remote_dir, log_lambda)
 
         if cmd.code == 0
             send_message("MONITOR", RESULT[:success], number, cmd.stdout)

@@ -21,13 +21,11 @@ ONE_LOCATION=ENV["ONE_LOCATION"]
 if !ONE_LOCATION
     RUBY_LIB_LOCATION="/usr/lib/one/ruby"
     ETC_LOCATION="/etc/one/"
-    PROBE_LOCATION="/usr/lib/one/im_probes/"
-    REMOTES_LOCATION="/usr/lib/one/remotes"
+    REMOTES_LOCATION="/var/lib/one/remotes"
 else
     RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
     ETC_LOCATION=ONE_LOCATION+"/etc/"
-    PROBE_LOCATION=ONE_LOCATION+"/lib/im_probes/"
-    REMOTES_LOCATION=ONE_LOCATION+"/lib/remotes/"
+    REMOTES_LOCATION=ONE_LOCATION+"/var/remotes/"
 end
 
 $: << RUBY_LIB_LOCATION
@@ -49,7 +47,7 @@ class InformationManager < OpenNebulaDriver
         @config     = read_configuration
         @hypervisor = hypervisor
 
-        @cmd_path   = "#{ENV['ONE_LOCATION']}/lib/remotes/im"
+        @cmd_path   = "#{REMOTES_LOCATION}/im"
 
         # register actions
         register_action(:MONITOR, method("action_monitor"))

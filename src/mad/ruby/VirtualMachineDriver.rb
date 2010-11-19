@@ -59,7 +59,7 @@ class VirtualMachineDriver < OpenNebulaDriver
         :deleted => 'd',
         :unknown => '-'
     }
-    
+
     HOST_ARG = 1
 
     # -------------------------------------------------------------------------
@@ -67,7 +67,7 @@ class VirtualMachineDriver < OpenNebulaDriver
     # -------------------------------------------------------------------------
     def initialize(concurrency=10, threaded=true)
         super(concurrency,threaded)
-        
+
         @hosts = Array.new
 
         register_action(ACTION[:deploy].to_sym, method("deploy"))
@@ -107,18 +107,23 @@ class VirtualMachineDriver < OpenNebulaDriver
     # -------------------------------------------------------------------------
     # Execute a command associated to an action and id in a remote host.
     # -------------------------------------------------------------------------
-    def ssh_action(command, id, host, action)
-        command_exe = SSHCommand.run(command, host, log_method(id))
+    def remotes_action(command, id, host, action, remote_dir, std_in=nil)
+        command_exe = RemotesCommand.run(
+                        command, host, remote_dir, log_method(id), std_in)
 
         if command_exe.code == 0
             result = :success
+            info   = command_exe.stdout
         else
             result = :failure
+            info   = command_exe.stderr
         end
 
-        send_message(ACTION[action],RESULT[result],id)
+        info = "-" if info == nil || info.empty?
+
+        send_message(ACTION[action],RESULT[result],id,info)
     end
-    
+
     # -------------------------------------------------------------------------
     # Execute a command associated to an action and id on localhost
     # -------------------------------------------------------------------------
@@ -127,9 +132,13 @@ class VirtualMachineDriver < OpenNebulaDriver
 
         if command_exe.code == 0
             result = :success
+            info   = command_exe.stdout
         else
             result = :failure
+            info   = command_exe.stderr
         end
+
+        info = "-" if info == nil || info.empty?
 
         send_message(ACTION[action],RESULT[result],id)
     end
@@ -171,7 +180,7 @@ class VirtualMachineDriver < OpenNebulaDriver
         error = "Action not implemented by driver #{self.class}"
         send_message(ACTION[:poll],RESULT[:failure],id,error)
     end
-    
+
 private
 
     def delete_running_action(action_id)
@@ -181,7 +190,7 @@ private
             @action_running.delete(action_id)
         end
     end
-    
+
     def get_first_runable
         action_index=nil
         @action_queue.each_with_index do |action, index|
@@ -195,32 +204,32 @@ private
                break
            end
         end
-        
+
         return action_index
     end
-    
+
     def get_runable_action
         action_index=get_first_runable
-        
+
         if action_index
             action=@action_queue[action_index]
         else
             action=nil
         end
-        
+
         if action
             @hosts << action[:args][HOST_ARG] if action[:args][HOST_ARG]
             @action_queue.delete_at(action_index)
         end
-        
+
         STDERR.puts "action: #{action.inspect}"
         STDERR.puts "queue: #{@action_queue.inspect}"
         STDERR.puts "hosts: #{@hosts.inspect}"
         STDERR.flush
-        
+
         return action
     end
-    
+
     def empty_queue
         get_first_runable==nil
     end
