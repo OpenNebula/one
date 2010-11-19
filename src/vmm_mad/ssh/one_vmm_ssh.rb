@@ -66,56 +66,41 @@ class SshDriver < VirtualMachineDriver
         domain = tmp.read
         tmp.close()
 
-        cmd = "#{@remote_dir}/vmm/#{@hypervisor}/deploy #{remote_dfile}"
-
-        deploy_exe = SSHCommand.run(cmd, host, log_method(id), domain)
-
-
-        if deploy_exe.code != 0
-            send_message(ACTION[:deploy],RESULT[:failure],id)
-       else
-            send_message(ACTION[:deploy],RESULT[:success],id,deploy_exe.stdout)
-        end
+        remotes_action("#{@remote_dir}/vmm/#{@hypervisor}/deploy #{remote_dfile}",
+                    id, host, :deploy, @remote_dir, domain)
     end
 
     # ------------------------------------------------------------------------ #
     # Basic Domain Management Operations                                       #
     # ------------------------------------------------------------------------ #
     def shutdown(id, host, deploy_id, not_used)
-        ssh_action("#{@remote_dir}/vmm/#{@hypervisor}/shutdown #{deploy_id}",
-                    id, host, :shutdown)
+        remotes_action("#{@remote_dir}/vmm/#{@hypervisor}/shutdown #{deploy_id}",
+                    id, host, :shutdown, @remote_dir)
     end
 
     def cancel(id, host, deploy_id, not_used)
-        ssh_action("#{@remote_dir}/vmm/#{@hypervisor}/cancel #{deploy_id}",
-                    id, host, :cancel)
+        remotes_action("#{@remote_dir}/vmm/#{@hypervisor}/cancel #{deploy_id}",
+                    id, host, :cancel, @remote_dir)
     end
 
     def save(id, host, deploy_id, file)
-        ssh_action("#{@remote_dir}/vmm/#{@hypervisor}/save #{deploy_id} #{file}",
-                    id, host, :save)
+        remotes_action("#{@remote_dir}/vmm/#{@hypervisor}/save #{deploy_id} #{file}",
+                    id, host, :save, @remote_dir)
     end
 
     def restore(id, host, deploy_id, file)
-        ssh_action("#{@remote_dir}/vmm/#{@hypervisor}/restore #{file}",
-                    id, host, :restore)
+        remotes_action("#{@remote_dir}/vmm/#{@hypervisor}/restore #{file}",
+                    id, host, :restore, @remote_dir)
     end
 
     def migrate(id, host, deploy_id, dest_host)
-        ssh_action("#{@remote_dir}/vmm/#{@hypervisor}/migrate #{deploy_id} #{dest_host}",
-                    id, host, :migrate)
+        remotes_action("#{@remote_dir}/vmm/#{@hypervisor}/migrate #{deploy_id} #{dest_host}",
+                    id, host, :migrate, @remote_dir)
     end
 
     def poll(id, host, deploy_id, not_used)
-        cmd = "#{@remote_dir}/vmm/#{@hypervisor}/poll #{deploy_id}"
-
-        poll_exe = SSHCommand.run(cmd, host, log_method(id))
-
-        if poll_exe.code != 0
-            send_message(ACTION[:poll],RESULT[:failure],id)
-        else
-            send_message(ACTION[:poll],RESULT[:success],id,poll_exe.stdout)
-        end
+        remotes_action("#{@remote_dir}/vmm/#{@hypervisor}/poll #{deploy_id}",
+                    id, host, :poll, @remote_dir)
     end
 end
 
