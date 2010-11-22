@@ -3,7 +3,7 @@
 # oned		This shell script takes care of starting and stopping
 #		the Opennebula subsystem (oned).
 #
-# chkconfig: - 65 35
+# chkconfig: 2345 65 35
 # description:	oned cloud server.
 # processname: oned
 # config: /etc/one/oned.conf
