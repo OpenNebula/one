@@ -72,9 +72,8 @@ class ImageOCCI < Image
 
         begin
             if self['SOURCE'] != nil and File.exists?(self['SOURCE'])
-                size = File.stat(self['SOURCE']).size 
-		size = size / 1024 
-		size = size / 1024 
+                size = File.stat(self['SOURCE']).size
+                size = size / 1024
             end
 
             fstype = self['TEMPLATE/FSTYPE'] if self['TEMPLATE/FSTYPE']
