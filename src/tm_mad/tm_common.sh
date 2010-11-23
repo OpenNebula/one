@@ -39,6 +39,12 @@ SSH=/usr/bin/ssh
 SUDO=/usr/bin/sudo
 WGET=/usr/bin/wget
 
+if [ "x$(uname -s)" = "xLinux" ]; then
+    SED="$SED -r"
+else
+    SED="/usr/bin/sed -E"
+fi
+
 function get_vmdir
 {
     VMDIR=`grep '^VM_DIR=' $ONE_LOCAL_VAR/config | cut -d= -f2`
@@ -49,7 +55,7 @@ function get_vmdir
 # /some//path///somewhere/ -> /some/path/somewhere
 function fix_dir_slashes
 {
-    dirname "$1/file" | sed -E 's/\/+/\//g'
+    dirname "$1/file" | $SED 's/\/+/\//g'
 }
 
 function fix_var_slashes
@@ -118,13 +124,13 @@ function error_message
 # Gets the host from an argument
 function arg_host
 {
-    echo $1 | $SED -e 's/^\([^:]*\):.*$/\1/'
+    echo $1 | $SED 's/^\([^:]*\):.*$/\1/'
 }
 
 # Gets the path from an argument
 function arg_path
 {
-    echo $1 | $SED -e 's/^[^:]*:\(.*\)$/\1/'
+    echo $1 | $SED 's/^[^:]*:\(.*\)$/\1/'
 }
 
 # Executes a command, if it fails return error message and exits
