@@ -76,8 +76,7 @@ main_env.Append(LIBPATH=[
 # Compile flags
 main_env.Append(CPPFLAGS=[
     "-g",
-    "-Wall",
-    "-Werror",
+    "-Wall"
 ])
 
 # Linking flags
