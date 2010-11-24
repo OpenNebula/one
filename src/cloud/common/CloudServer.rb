@@ -113,10 +113,11 @@ class CloudServer
     # metadata:: Additional metadata for the file
     # [return] _Image_ Newly created image object
     def add_image(image, file=nil)
+        template = image.to_one_template
+        
         if file
             if file[:tempfile]
                 file_path = file[:tempfile].path
-                template = image.to_one_template
                 template << "\nPATH = #{file_path}"
             else
                 error_msg = "Image not present, aborting."
@@ -127,7 +128,7 @@ class CloudServer
 
         rc = @img_repo.create(image, template)
 
-        file[:tempfile].unlink
+        file[:tempfile].unlink if file
 
         if OpenNebula.is_error?(rc)
            return rc
