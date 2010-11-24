@@ -1,0 +1,97 @@
+#!/bin/sh
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+### BEGIN INIT INFO
+# Provides:          ONE
+# Required-Start:    $remote_fs
+# Required-Stop:     $remote_fs
+# Default-Start:     3 5
+# Default-Stop:      0 1 2 6
+# Short-Description: OpenNebula Init Script
+# Description: OpenNebula Init Script
+### END INIT INFO
+
+ONE_BIN=/usr/bin/one
+
+. /etc/rc.status
+
+rc_reset
+
+case "$1" in
+    start)
+	echo -n "Starting ONE "
+	/sbin/startproc -u oneadmin $ONE_BIN start
+	rc_status -v
+	;;
+    stop)
+	echo -n "Shutting down ONE "
+	/sbin/startproc -u oneadmin $ONE_BIN stop
+	rc_status -v
+	;;
+    try-restart|condrestart)
+	if test "$1" = "condrestart"; then
+		echo "${attn} Use try-restart ${done}(LSB)${attn} rather than condrestart ${warn}(RH)${norm}"
+	fi
+	$0 status
+	if test $? = 0; then
+		$0 restart
+	else
+		rc_reset	# Not running is not a failure.
+	fi
+	# Remember status and be quiet
+	rc_status
+	;;
+    restart)
+	$0 stop
+	$0 start
+
+	rc_status
+	;;
+    force-reload)
+	$0 try-restart
+	rc_status
+	;;
+    reload)
+	rc_failed 3
+	rc_status -v
+	;;
+    status)
+	echo -n "Checking for service ONE "
+	## Check status with checkproc(8), if process is running
+	## checkproc will return with exit status 0.
+
+	# Return value is slightly different for the status command:
+	# 0 - service up and running
+	# 1 - service dead, but /var/run/  pid  file exists
+	# 2 - service dead, but /var/lock/ lock file exists
+	# 3 - service not running (unused)
+	# 4 - service status unknown :-(
+	# 5--199 reserved (5--99 LSB, 100--149 distro, 150--199 appl.)
+	
+	# NOTE: checkproc returns LSB compliant status values.
+	/sbin/checkproc $ONE_BIN
+	# NOTE: rc_status knows that we called this init script with
+	# "status" option and adapts its messages accordingly.
+	rc_status -v
+	;;
+    *)
+	echo "Usage: $0 {start|stop|status|try-restart|restart|force-reload|reload}"
+	exit 1
+	;;
+esac
+rc_exit
