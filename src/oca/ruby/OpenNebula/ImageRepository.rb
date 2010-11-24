@@ -1,5 +1,6 @@
 require 'OpenNebula/Image'
 require 'fileutils'
+require 'CommandManager'
 
 module OpenNebula
 
