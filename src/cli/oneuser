@@ -98,7 +98,7 @@ Description:
 This command enables the OpenNebula administrator to manage users, adding,
 listing and deleting them.
 
-The create and passwd commands accept the [-r, –read-file] option. Use this
+The create and passwd commands accept the [-r, --read-file] option. Use this
 option to store the contents of a file (without hashing it) as the password.
 
 
