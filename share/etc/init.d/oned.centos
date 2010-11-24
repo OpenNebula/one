@@ -1,0 +1,83 @@
+#!/bin/bash
+#
+#	/etc/rc.d/init.d/oned
+#
+# Starts the OpenNebula daemon
+#
+# chkconfig: 345 26 74
+# description: Starts the OpenNebula daemon
+# processname: oned
+
+### BEGIN INIT INFO
+# Provides: oned
+# Required-Start: $local_fs $remote_fs
+# Required-Stop: $local_fs $remote_fs
+# Default-Start:  2 3 4 5
+# Default-Stop: 0 1 6
+# Short-Description: start and stop oned
+# Description: start and stop oned
+### END INIT INFO
+
+ONE_BIN=/usr/bin/one
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+RETVAL=0
+
+check() {
+	# Check that we're a privileged user
+	[ `id -u` = 0 ] || exit 4
+	
+	# Check if oned is executable
+	test -x $ONE_BIN || exit 5
+}
+
+start() {
+
+	check
+	
+	echo -n $"Starting OpenNebula daemon: "	
+	daemon --user oneadmin $ONE_BIN start
+	RETVAL=$?
+	echo
+	return $RETVAL
+}
+
+stop() {
+
+	check
+	
+	echo -n $"Stopping OpenNebula daemon: "
+	su oneadmin -s /bin/sh -c "$ONE_BIN stop"
+	RETVAL=$?
+	echo
+    return $RETVAL
+}
+
+restart() {
+	stop
+	start
+}	
+
+
+case "$1" in
+start)
+	start
+	;;
+stop)
+	stop
+	;;
+restart)
+	restart
+	;;
+status)
+	status oned
+	RETVAL=$?
+	;;
+*)
+	echo $"Usage: $0 {start|stop|status|restart}"
+	RETVAL=2
+esac
+
+exit $RETVAL
