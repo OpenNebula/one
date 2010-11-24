@@ -1,195 +1,83 @@
 #!/bin/bash
 #
-# oned		This shell script takes care of starting and stopping
-#		the Opennebula subsystem (oned).
+#	/etc/rc.d/init.d/oned
 #
-# chkconfig: 2345 65 35
-# description:	oned cloud server.
+# Starts the OpenNebula daemon
+#
+# chkconfig: 345 26 74
+# description: Starts the OpenNebula daemon
 # processname: oned
-# config: /etc/one/oned.conf
-# pidfile: /var/run/one/oned.pid
+
+### BEGIN INIT INFO
+# Provides: oned
+# Required-Start: $local_fs $remote_fs
+# Required-Stop: $local_fs $remote_fs
+# Default-Start:  2 3 4 5
+# Default-Stop: 0 1 6
+# Short-Description: start and stop oned
+# Description: start and stop oned
+### END INIT INFO
+
+ONE_BIN=/usr/bin/one
 
 # Source function library.
 . /etc/rc.d/init.d/functions
 
-# Source networking configuration.
-. /etc/sysconfig/network
+RETVAL=0
 
-# Set the ONE_LOCATION
-# ONE_LOCATION="/srv/cloud/one"
-ONE_LOCATION=""
-
-prog="oned"
-
-if [ -z "$ONE_LOCATION" ]; then 
-    ONE_PID=/var/run/one/oned.pid
-    ONE_SCHEDPID=/var/run/one/sched.pid
-    ONE_CONF=/etc/one/oned.conf
-    ONE_DB=/var/lib/one/one.db
-
-    ONED=/usr/bin/oned
-    ONE_SCHEDULER=/usr/bin/mm_sched
-
-    LOCK_FILE=/var/lock/one/one
-else
-    ONE_PID=$ONE_LOCATION/var/oned.pid
-    ONE_SCHEDPID=$ONE_LOCATION/var/sched.pid
-    ONE_CONF=$ONE_LOCATION/etc/oned.conf
-    ONE_DB=$ONE_LOCATION/var/one.db
-
-    ONED=$ONE_LOCATION/bin/oned
-    ONE_SCHEDULER=$ONE_LOCATION/bin/mm_sched
-    
-    LOCK_FILE=$ONE_LOCATION/var/.lock
-fi 
-
-setup()
-{
-	PORT=`cat $ONE_CONF | grep ^PORT= | cut -d= -f2`
-
-	if [ $? -ne 0 ]; then
-		echo "Can not find PORT in $ONE_CONF."
-		exit 1
-	fi
+check() {
+	# Check that we're a privileged user
+	[ `id -u` = 0 ] || exit 4
 	
-	if [ -f $LOCK_FILE ]; then
-		if [ -f  $ONE_PID ]; then
-			ONEPID=`cat $ONE_PID`
-			ps $ONEPID > /dev/null 2>&1
-			if [ $? -eq 0 ]; then
-				echo "ONE is still running (PID:$ONEPID). Please try 'one stop' first."
-				exit 1 
-			fi
-		fi
-		if [ -f  $ONE_SCHEDPID ]; then
-			ONESCHEDPID=`cat $ONE_SCHEDPID`
-			ps $ONESCHEDPID > /dev/null 2>&1
-			if [ $? -eq 0 ]; then
-				echo "The scheduler is still running (PID:$ONEPID). Please try 'one stop' first."
-				exit 1
-			fi
-		fi
-		echo "Stale .lock detected. Erasing it."
-		rm $LOCK_FILE
-	fi
+	# Check if oned is executable
+	test -x $ONE_BIN || exit 5
 }
 
-start()
-{
-	if [ ! -x "$ONED" ]; then
-		echo "Can not find $ONED."
-		exit 1		
-	fi
+start() {
 
-	if [ ! -x "$ONE_SCHEDULER" ]; then
-		echo "Can not find $ONE_SCHEDULER."
-		exit 1		
-	fi
-
-    if [ ! -f "$ONE_DB" ]; then
-        if [ -f "$HOME/.one/one_auth" ]; then
-                . $HOME/.one/one_auth
-        elif [ -z "$ONE_AUTH" ]; then
-                echo "You should have ONE_AUTH set the first time you start"
-                echo "OpenNebula as it is used to set the credentials for"
-                echo "the adminitrator user."
-                exit 1
-        fi
-    fi
-		
-	# Start the one daemon
-	daemon --user=oneadmin $ONED -f 2>&1 & 
+	check
 	
-	LASTRC=$?
-	LASTPID=$!
-
-	if [ $LASTRC -ne 0 ]; then
-		echo "Error executing $ONED"
-		exit 1			
-	else
-		echo $LASTPID > $ONE_PID
-	fi
-	
-	sleep 1
-	ps $LASTPID > /dev/null 2>&1
-	
-	if [ $? -ne 0 ]; then
-		echo "Error executing $ONED."
-		exit 1
-	fi
-	
-	# Start the scheduler
-        # The following command line arguments are supported by mm_shed:
-        #  [-p port]           to connect to oned - default: 2633
-        #  [-t timer]          seconds between two scheduling actions - default: 30
-        #  [-m machines limit] max number of VMs managed in each scheduling action
-        #                      - default: 300
-        #  [-d dispatch limit] max number of VMs dispatched in each scheduling action
-        #                      - default: 30
-        #  [-h host dispatch]  max number of VMs dispatched to a given host in each
-        #                      scheduling action - default: 1
-  
-	daemon --user=oneadmin $ONE_SCHEDULER -p $PORT -t 30 -m 300 -d 30 -h 1&
-
-	LASTRC=$?
-	LASTPID=$!
-
-	if [ $LASTRC -ne 0 ]; then
-		echo "Error executing $ONE_SCHEDULER"
-		exit 1			
-	else
-		echo $LASTPID > $ONE_SCHEDPID
-	fi
-	
-	echo "oned and scheduler started"
+	echo -n $"Starting OpenNebula daemon: "	
+	daemon --user oneadmin $ONE_BIN start
+	RETVAL=$?
+	echo
+	return $RETVAL
 }
 
-#
-# Function that stops the daemon/service
-#
-stop()
-{
-	if [ ! -f $ONE_PID ]; then
-		echo "Couldn't find oned process pid."
-		exit 1
-	fi
+stop() {
 
-	if [ ! -f $ONE_SCHEDPID ]; then
-		echo "Couldn't find scheduler process pid."
-		exit 1
-	fi
-
-	# Kill the one daemon
-
-	killproc oned
-
-	# Kill the scheduler
+	check
 	
-	killproc mm_sched
-
-	# Remove pid files
-
-	rm -f $ONE_PID > /dev/null 2>&1
-	rm -f $ONE_SCHEDPID > /dev/null 2>&1
-
-	echo "oned and scheduler stopped"
+	echo -n $"Stopping OpenNebula daemon: "
+	su oneadmin -s /bin/sh -c "$ONE_BIN stop"
+	RETVAL=$?
+	echo
+    return $RETVAL
 }
+
+restart() {
+	stop
+	start
+}	
 
 
 case "$1" in
-  start)
-	setup
+start)
 	start
 	;;
-  stop)
+stop)
 	stop
 	;;
-  status)
+restart)
+	restart
+	;;
+status)
 	status oned
-	status mm_sched
+	RETVAL=$?
 	;;
-  *)
-	echo "Usage: one {start|stop|status}" >&2
-	exit 3
-	;;
+*)
+	echo $"Usage: $0 {start|stop|status|restart}"
+	RETVAL=2
 esac
+
+exit $RETVAL
