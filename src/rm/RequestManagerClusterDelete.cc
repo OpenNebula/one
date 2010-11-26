@@ -32,7 +32,7 @@ void RequestManager::ClusterDelete::execute(
     int                 clid;
     ostringstream       oss;
     int                 rc;
-    
+
     const string        method_name = "ClusterDelete";
 
     /*   -- RPC specific vars --  */
@@ -74,7 +74,7 @@ void RequestManager::ClusterDelete::execute(
     }
 
     // Return success
-    arrayData.push_back(xmlrpc_c::value_boolean( rc == 0 )); // SUCCESS
+    arrayData.push_back(xmlrpc_c::value_boolean(true)); // SUCCESS
     arrayresult = new xmlrpc_c::value_array(arrayData);
 
     // Copy arrayresult into retval mem space

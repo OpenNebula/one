@@ -105,8 +105,13 @@ void RequestManager::VirtualNetworkDelete::execute(
 
     vn->unlock();
 
+    if ( rc != 0 )
+    {
+        goto error_vn_drop;
+    }
+
     // All nice, return the host info to the client
-    arrayData.push_back(xmlrpc_c::value_boolean( rc == 0 )); // SUCCESS
+    arrayData.push_back(xmlrpc_c::value_boolean(true)); // SUCCESS
     arrayresult = new xmlrpc_c::value_array(arrayData);
 
     // Copy arrayresult into retval mem space
@@ -126,6 +131,10 @@ error_authorize:
 
 error_vn_get:
     oss.str(get_error(method_name, "NET", nid));
+    goto error_common;
+
+error_vn_drop:
+    oss.str(action_error(method_name, "DELETE", "NET",nid,rc));
     goto error_common;
 
 error_common:
