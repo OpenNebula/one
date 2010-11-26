@@ -14,16 +14,6 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-ONE_LOCATION=ENV["ONE_LOCATION"]
-
-if !ONE_LOCATION
-    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
-else
-    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
-end
-
-$: << RUBY_LIB_LOCATION
-
 require 'OpenNebula/Image'
 require 'fileutils'
 require 'CommandManager'
