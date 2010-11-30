@@ -145,7 +145,35 @@ start()
         echo $LASTPID > $ONE_SCHEDPID
     fi
 
-    echo "oned and scheduler started"
+
+    # Wait for the daemons to warm up
+    sleep 5
+
+    STARTED="true"
+
+    ps `cat $ONE_PID` > /dev/null 2>&1
+
+    if [ "x0" == "x0" ]; do
+        echo "oned started"
+    else
+        echo "oned failed to start"
+        STARTED="false"
+    fi
+
+
+    ps `cat $ONE_SCHEDPID` > /dev/null 2>&1
+
+    if [ "x0" == "x0" ]; do
+        echo "scheduler started"
+    else
+        echo "scheduler failed to start"
+        STARTED="false"
+    fi
+
+
+    if [ "$STARTED" == "false" ]; then
+        exit -1
+    fi
 }
 
 #
