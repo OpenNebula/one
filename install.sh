@@ -602,7 +602,8 @@ OCCI_BIN_CLIENT_FILES="src/cloud/occi/bin/occi-compute \
 
 OCCI_ETC_FILES="src/cloud/occi/etc/occi-server.conf"
 
-OCCI_ETC_TEMPLATE_FILES="src/cloud/occi/etc/templates/small.erb \
+OCCI_ETC_TEMPLATE_FILES="src/cloud/occi/etc/templates/common.erb \
+                    src/cloud/occi/etc/templates/small.erb \
                     src/cloud/occi/etc/templates/medium.erb \
                     src/cloud/occi/etc/templates/large.erb"
 
