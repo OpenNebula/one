@@ -30,6 +30,7 @@ class VirtualNetworkOCCI < VirtualNetwork
             <% if self['TEMPLATE/NETWORK_SIZE'] %>
             <SIZE><%= self['TEMPLATE/NETWORK_SIZE'] %></SIZE>
             <% end %>
+            <PUBLIC><%= self['PUBLIC'] == "0" ? "NO" : "YES"%></PUBLIC>
         </NETWORK>
     }
 
@@ -38,6 +39,9 @@ class VirtualNetworkOCCI < VirtualNetwork
         TYPE            = RANGED
         <% if @vnet_info['DESCRIPTION'] != nil %>
         DESCRIPTION     = "<%= @vnet_info['DESCRIPTION'] %>"
+        <% end %>
+        <% if @vnet_info['PUBLIC'] != nil %>
+        PUBLIC     = "<%= @vnet_info['PUBLIC'] %>"
         <% end %>
         <% if @bridge %>
         BRIDGE          = <%= @bridge %>

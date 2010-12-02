@@ -36,18 +36,22 @@ Usage:
 
 Commands:
 
-create <occi xml file>
+* create <occi xml file>
        creates a new virtual network described by the provided 
        <occi xml file>
 
-list
+* list
        lists available virtual networks
 
-show <network id>
+* show <network id>
        retrieves the OCCI XML representation of the virtual network
        identified by <network id>
 
-delete <network id>
+* update <occi xml file>
+      updates the representation of the network resource represented by the
+      provided <occi xml file>
+              
+* delete <network id>
        deletes the virtual network idenfitied by <network id>
 
 
@@ -164,6 +168,16 @@ case ARGV[0].downcase
         
         rc = occi_client.get_network(network_id)
 
+    when 'update'
+        network_xml = ARGV[1]
+
+        if !network_xml || !File.exists?(network_xml)
+            puts "#{cmd_name} update: missing OCCI-XML or file not found"
+            exit -1
+        end
+
+        rc = occi_client.put_network(network_xml)
+        
     when 'delete'
         network_id = ARGV[1]
 

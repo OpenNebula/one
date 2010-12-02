@@ -293,6 +293,34 @@ class OCCIServer < CloudServer
 
         return "", 204
     end
+    
+    # Updates a NETWORK resource
+    # request:: _Hash_ hash containing the data of the request
+    # [return] _String_,_Integer_ Update confirmation msg or error,
+    #                             status code
+    def put_network(request, params)
+        xmldoc    = XMLElement.build_xml(request.body, 'NETWORK')
+        vnet_info = XMLElement.new(xmldoc) if xmldoc != nil
+
+        vnet = VirtualNetworkOCCI.new(
+                    VirtualNetwork.build_xml(params[:id]),
+                    get_client(request.env))
+                    
+        rc = vnet.info
+        return rc, 400 if OpenNebula.is_error?(rc)
+        
+        if vnet_info['PUBLIC'] == 'YES'
+            rc = vnet.publish
+            return rc, 400 if OpenNebula.is_error?(rc)
+        elsif vnet_info['PUBLIC'] == 'NO'
+            rc = vnet.unpublish
+            return rc, 400 if OpenNebula.is_error?(rc)
+        end
+
+        # --- Prepare XML Response ---
+        vnet.info
+        return to_occi_xml(vnet, 202)
+    end
 
     ############################################################################
     # STORAGE Methods

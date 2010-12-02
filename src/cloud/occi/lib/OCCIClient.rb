@@ -353,6 +353,38 @@ module OCCIClient
         end
 
         ######################################################################
+        # Puts a new Network representation in order to change its state
+        # :xmlfile Network OCCI xml representation
+        ######################################################################
+        def put_network(xmlfile)
+            xml     = File.read(xmlfile)
+            vnet_info = REXML::Document.new(xml).root
+
+            if vnet_info.elements['ID'] == nil
+                return CloudClient::Error.new("Can not find NETWORK_ID")
+            end
+
+            vnet_id = vnet_info.elements['ID'].text
+
+            url = URI.parse(@endpoint+'/network/' + vnet_id)
+
+            req = Net::HTTP::Put.new(url.path)
+            req.body = xml
+
+            req.basic_auth @occiauth[0], @occiauth[1]
+
+            res = CloudClient::http_start(url, @timeout) do |http|
+                http.request(req)
+            end
+
+            if CloudClient::is_error?(res)
+                return res
+            else
+                return res.body
+            end
+        end
+        
+        ######################################################################
         # :id VM identifier
         ######################################################################
         def delete_network(id)
