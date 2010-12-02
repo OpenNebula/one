@@ -162,7 +162,13 @@ module OCCIClient
         ######################################################################
         def post_image(xmlfile, curb=true)
             xml        = File.read(xmlfile)
-            image_info = REXML::Document.new(xml).root
+
+            begin
+                image_info = REXML::Document.new(xml).root
+            rescue Exception => e
+                error = CloudClient::Error.new(e.message)
+                return error
+            end
 
             if image_info.elements['URL'] == nil
                 return CloudClient::Error.new("Can not find URL")
@@ -285,10 +291,16 @@ module OCCIClient
         ######################################################################
         def put_vm(xmlfile)
             xml     = File.read(xmlfile)
-            vm_info = REXML::Document.new(xml).root
+
+            begin
+                vm_info = REXML::Document.new(xml).root
+            rescue Exception => e
+                error = CloudClient::Error.new(e.message)
+                return error
+            end
 
             if vm_info.elements['ID'] == nil
-                return CloudClient::Error.new("Can not find VM_ID")
+                return CloudClient::Error.new("Can not find COMPUTE_ID")
             end
 
             vm_id = vm_info.elements['ID'].text
@@ -358,7 +370,13 @@ module OCCIClient
         ######################################################################
         def put_network(xmlfile)
             xml     = File.read(xmlfile)
-            vnet_info = REXML::Document.new(xml).root
+
+            begin
+                vnet_info = REXML::Document.new(xml).root
+            rescue Exception => e
+                error = CloudClient::Error.new(e.message)
+                return error
+            end
 
             if vnet_info.elements['ID'] == nil
                 return CloudClient::Error.new("Can not find NETWORK_ID")
@@ -431,6 +449,7 @@ module OCCIClient
         ######################################################################
         def put_image(xmlfile)
             xml     = File.read(xmlfile)
+            
             begin
                 image_info = REXML::Document.new(xml).root
             rescue Exception => e
