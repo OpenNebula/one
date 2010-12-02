@@ -106,7 +106,9 @@ module OpenNebula
                     return nil
                 end
 
-                value = element[name] if element != nil
+                attribute = element.attr(name)
+
+                value = attribute.text if attribute != nil
             else
                 element=@xml.elements[key.to_s.upcase]
 
