@@ -165,3 +165,8 @@ delete '/storage/:id' do
     result,rc = $occi_server.delete_storage(request, params)
     treat_response(result,rc)
 end
+
+put '/storage/:id' do
+    result,rc = $occi_server.put_storage(request, params)
+    treat_response(result,rc)
+end

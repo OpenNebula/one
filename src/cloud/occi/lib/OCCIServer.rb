@@ -391,4 +391,38 @@ class OCCIServer < CloudServer
 
         return "", 204
     end
+    
+    # Updates a STORAGE resource
+    # request:: _Hash_ hash containing the data of the request
+    # [return] _String_,_Integer_ Update confirmation msg or error,
+    #                             status code
+    def put_storage(request, params)
+        xmldoc     = XMLElement.build_xml(request.body, 'STORAGE')
+        image_info = XMLElement.new(xmldoc) if xmldoc != nil
+
+        image = ImageOCCI.new(
+                    Image.build_xml(params[:id]),
+                    get_client(request.env))
+                    
+        rc = image.info
+        return rc, 400 if OpenNebula.is_error?(rc)
+        
+        if image_info['PERSISTENT'] == 'YES'
+            rc = image.persistent
+            return rc, 400 if OpenNebula.is_error?(rc)
+        elsif image_info['PERSISTENT'] == 'NO'
+            rc = image.nonpersistent
+            return rc, 400 if OpenNebula.is_error?(rc)
+        elsif image_info['PUBLIC'] == 'YES'
+            rc = image.publish
+            return rc, 400 if OpenNebula.is_error?(rc)
+        elsif image_info['PUBLIC'] == 'NO'
+            rc = image.unpublish
+            return rc, 400 if OpenNebula.is_error?(rc)
+        end
+
+        # --- Prepare XML Response ---
+        image.info
+        return to_occi_xml(image, 202)
+    end
 end

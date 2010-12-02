@@ -36,18 +36,23 @@ Usage:
 
 Commands:
 
-create <occi xml file>
+* create <occi xml file>
        creates a new storage resource described by the provided
        <occi xml file>
 
-list
+* list
        lists available storage resources
 
-show <storage id>
+* show <storage id>
        retrieves the OCCI XML representation of the storage resource
        identified by <storage id>
 
-delete <storage id>
+
+* update <occi xml file>
+      updates the representation of the storage resource represented by the
+      provided <occi xml file>
+      
+* delete <storage id>
        deletes the storage resource idenfitied by <storage id>
 
 
@@ -165,6 +170,16 @@ case ARGV[0].downcase
         end
 
         rc = occi_client.get_image(image_id)
+
+    when 'update'
+        image_xml = ARGV[1]
+
+        if !image_xml || !File.exists?(image_xml)
+            puts "#{cmd_name} update: missing OCCI-XML or file not found"
+            exit -1
+        end
+
+        rc = occi_client.put_image(image_xml)
 
     when 'delete'
         image_id = ARGV[1]

@@ -426,6 +426,43 @@ module OCCIClient
         end
 
         ######################################################################
+        # Puts a new Storage representation in order to change its state
+        # :xmlfile Storage OCCI xml representation
+        ######################################################################
+        def put_image(xmlfile)
+            xml     = File.read(xmlfile)
+            begin
+                image_info = REXML::Document.new(xml).root
+            rescue Exception => e
+                error = OpenNebula::Error.new(e.message)
+                return error
+            end
+            
+            if image_info.elements['ID'] == nil
+                return CloudClient::Error.new("Can not find STORAGE_ID")
+            end
+
+            image_id = image_info.elements['ID'].text
+
+            url = URI.parse(@endpoint+'/storage/' + image_id)
+
+            req = Net::HTTP::Put.new(url.path)
+            req.body = xml
+
+            req.basic_auth @occiauth[0], @occiauth[1]
+
+            res = CloudClient::http_start(url, @timeout) do |http|
+                http.request(req)
+            end
+
+            if CloudClient::is_error?(res)
+                return res
+            else
+                return res.body
+            end
+        end
+        
+        ######################################################################
         # :id VM identifier
         ######################################################################
         def delete_image(id)
