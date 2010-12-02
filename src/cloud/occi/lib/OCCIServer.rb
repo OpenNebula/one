@@ -213,19 +213,40 @@ class OCCIServer < CloudServer
         xmldoc  = XMLElement.build_xml(request.body, 'COMPUTE')
         vm_info = XMLElement.new(xmldoc) if xmldoc != nil
 
-        # --- Get the VM and Action on it ---
-        if vm_info['STATE'] != nil
-            vm = VirtualMachineOCCI.new(
-                        VirtualMachine.build_xml(params[:id]),
-                        get_client(request.env))
+        vm = VirtualMachineOCCI.new(
+                    VirtualMachine.build_xml(params[:id]),
+                    get_client(request.env))
+        
+        rc = vm.info
+        return rc, 400 if OpenNebula.is_error?(rc)
+        
+        if image_name = vm_info.attr('DISK/SAVE_AS', 'name')
+            # Get the disk id
+            disk_id = vm_info.attr('DISK/SAVE_AS/..', 'id')
+            if disk_id.nil?
+                error_msg = "DISK id attribute not specified"
+                return OpenNebula::Error.new(error_msg), 400
+            else
+                disk_id = disk_id.to_i
+            end
+            
+            # Create a new Image to save the disk
+            template = "NAME=\"#{image_name}\"\n"
+            template << "TYPE=OS\n"
 
-            rc = vm.mk_action(vm_info['STATE'])
+            image = Image.new(Image.build_xml, one_client)
 
+            rc = image.allocate(template)
             return rc, 400 if OpenNebula.is_error?(rc)
-        else
-            error_msg = "State not defined in the OCCI XML"
-            error = OpenNebula::Error.new(error_msg)
-            return error, 400
+            
+            rc = vm.save_as(disk_id, image.id)
+            if OpenNebula.is_error?(rc)
+                image.delete
+                return rc, 400
+            end 
+        elsif state = vm_info['STATE']
+            rc = vm.mk_action(state)
+            return rc, 400 if OpenNebula.is_error?(rc)
         end
 
         # --- Prepare XML Response ---

@@ -30,7 +30,10 @@ class VirtualMachineOCCI < VirtualMachine
             <% end %>
             <STATE><%= self.state_str %></STATE>
             <% self.each('TEMPLATE/DISK') do |disk| %>
-            <DISK>
+            <DISK id="<%= disk['DISK_ID']%>">
+                <% if disk['SAVE_AS'] %>
+                <SAVE_AS href="<%= base_url %>/storage/<%= disk['SAVE_AS'] %>"/>
+                <% end %>
                 <STORAGE href="<%= base_url %>/storage/<%= disk['IMAGE_ID'] %>" name="<%= disk['IMAGE'] %>"/>
                 <TYPE><%= disk['TYPE'] %></TYPE>
                 <TARGET><%= disk['TARGET'] %></TARGET>
