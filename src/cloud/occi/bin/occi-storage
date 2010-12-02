@@ -79,8 +79,7 @@ EOT
 require 'occi/OCCIClient'
 require 'CloudClient'
 require 'getoptlong'
-require 'rexml/document'
-require 'pp'
+
 include CloudCLI
 
 opts = GetoptLong.new(
@@ -184,22 +183,9 @@ end
 
 if CloudClient::is_error?(rc)
     puts rc.to_s()
-else
-    begin
-        doc = REXML::Document.new(rc)
-    rescue REXML::ParseException => e
-        puts e.message
-        exit(-1)
-    end
-
-    xml = doc.root
-
-    if xml.nil?
-        puts rc
-        exit(-1)
-    end
-
-    str = ""
-    REXML::Formatters::Pretty.new(4).write(xml,str)
-    puts "\n" + str + "\n "
+    exit(-1)
+else 
+    str, code = print_xml(rc)
+    puts str
+    exit(code)
 end
