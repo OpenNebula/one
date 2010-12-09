@@ -254,7 +254,11 @@ class OCCIServer < CloudServer
             
             # Create a new Image to save the disk
             template = "NAME=\"#{image_name}\"\n"
-            template << "TYPE=OS\n"
+            if image_type
+                template << "TYPE=\"#{image_type}\"\n"
+            else
+                template << "TYPE=\"OS\"\n"
+            end
 
             image = Image.new(Image.build_xml, one_client)
 
