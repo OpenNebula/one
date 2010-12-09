@@ -234,7 +234,7 @@ class OCCIServer < CloudServer
         state = vm_info['STATE']
         
         if image_name && state
-            error_msg = "It is only allowed to change the state and save_as" <<
+            error_msg = "It is not allowed to change the state and save_as" <<
                         " a disk in the same request"
             return OpenNebula::Error.new(error_msg), 400
         elsif image_name
