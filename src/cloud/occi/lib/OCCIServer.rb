@@ -210,9 +210,6 @@ class OCCIServer < CloudServer
     # [return] _String_,_Integer_ Update confirmation msg or error,
     #                             status code
     def put_compute(request, params)
-        xmldoc  = XMLElement.build_xml(request.body, 'COMPUTE')
-        vm_info = XMLElement.new(xmldoc) if xmldoc != nil
-
         vm = VirtualMachineOCCI.new(
                     VirtualMachine.build_xml(params[:id]),
                     get_client(request.env))
@@ -220,14 +217,39 @@ class OCCIServer < CloudServer
         rc = vm.info
         return rc, 400 if OpenNebula.is_error?(rc)
         
-        if image_name = vm_info.attr('DISK/SAVE_AS', 'name')
+        xmldoc  = XMLElement.build_xml(request.body, 'COMPUTE')
+        vm_info = XMLElement.new(xmldoc) if xmldoc != nil
+        
+        # Check the number of changes in the request
+        image_name = nil
+        image_type = nil
+        vm_info.each('DISK/SAVE_AS') { |disk|
+            if image_name
+                error_msg = "It is only allowed one save_as per request"
+                return OpenNebula::Error.new(error_msg), 400
+            end
+            image_name = disk.attr('.', 'name')
+            image_type = disk.attr('.', 'type')
+        }
+        state = vm_info['STATE']
+        
+        if image_name && state
+            error_msg = "It is only allowed to change the state and save_as" <<
+                        " a disk in the same request"
+            return OpenNebula::Error.new(error_msg), 400
+        elsif image_name
             # Get the disk id
             disk_id = vm_info.attr('DISK/SAVE_AS/..', 'id')
             if disk_id.nil?
                 error_msg = "DISK id attribute not specified"
                 return OpenNebula::Error.new(error_msg), 400
-            else
-                disk_id = disk_id.to_i
+            end
+
+            disk_id = disk_id.to_i
+            if vm["TEMPLATE/DISK[DISK_ID=\"#{disk_id}\"]/SAVE_AS"]
+                error_msg = "The disk #{disk_id} is already" <<
+                            " suppossed to be saved"
+                return OpenNebula::Error.new(error_msg), 400
             end
             
             # Create a new Image to save the disk
@@ -244,7 +266,7 @@ class OCCIServer < CloudServer
                 image.delete
                 return rc, 400
             end 
-        elsif state = vm_info['STATE']
+        elsif state
             rc = vm.mk_action(state)
             return rc, 400 if OpenNebula.is_error?(rc)
         end
@@ -428,7 +450,10 @@ class OCCIServer < CloudServer
         rc = image.info
         return rc, 400 if OpenNebula.is_error?(rc)
         
-        if image_info['PERSISTENT'] == 'YES'
+        if image_info['PERSISTENT'] && image_info['PUBLIC']
+            error_msg = "It is not allowed more than one change per request"
+            return OpenNebula::Error.new(error_msg), 400
+        elsif image_info['PERSISTENT'] == 'YES'
             rc = image.persistent
             return rc, 400 if OpenNebula.is_error?(rc)
         elsif image_info['PERSISTENT'] == 'NO'
