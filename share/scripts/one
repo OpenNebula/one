@@ -153,7 +153,7 @@ start()
 
     ps `cat $ONE_PID` > /dev/null 2>&1
 
-    if [ "x0" == "x0" ]; do
+    if [ "x0" == "x0" ]; then
         echo "oned started"
     else
         echo "oned failed to start"
@@ -163,7 +163,7 @@ start()
 
     ps `cat $ONE_SCHEDPID` > /dev/null 2>&1
 
-    if [ "x0" == "x0" ]; do
+    if [ "x0" == "x0" ]; then
         echo "scheduler started"
     else
         echo "scheduler failed to start"
