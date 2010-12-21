@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.opennebula.client.Client;
 import org.opennebula.client.OneResponse;
 import org.opennebula.client.host.Host;
+import org.opennebula.client.image.Image;
 import org.opennebula.client.vm.VirtualMachine;
 import org.opennebula.client.vm.VirtualMachinePool;
 
@@ -36,9 +37,38 @@ public class VirtualMachineTest
     private static Client client;
 
     private static int hid_A, hid_B;
-    
+
     private static OneResponse res;
     private static String name = "new_test_machine";
+
+
+    /**
+     *  Wait until the VM changes to the specified state.
+     *  There is a time-out of 10 seconds.
+    */
+    void waitAssert(VirtualMachine vm, String state, String lcmState)
+    {
+        int n_steps     = 100;
+        int step        = 100;
+
+        int i = 0;
+
+        vm.info();
+
+        while( !( (vm.stateStr().equals(state) && (!state.equals("ACTIVE") || vm.lcmStateStr().equals(lcmState) ))|| i > n_steps ))
+        {
+            try{ Thread.sleep(step); } catch (Exception e){}
+
+            vm.info();
+            i++;
+        }
+
+        assertTrue( vm.stateStr().equals(state) );
+        if(state.equals("ACTIVE"))
+        {
+            assertTrue( vm.lcmStateStr().equals(lcmState) );
+        }
+    }
 
     /**
      * @throws java.lang.Exception
@@ -90,19 +120,14 @@ public class VirtualMachineTest
     public void tearDown() throws Exception
     {
         vm.finalizeVM();
+        waitAssert(vm, "DONE", "-");
+
+        vm = null;
     }
 
     @Test
     public void allocate()
     {
-//        String template = "NAME = " + name + "\n"+
-//                          "MEMORY = 512\n" +
-//                          "CONTEXT = [DNS = 192.169.1.4]";
-//
-//        res = VirtualMachine.allocate(client, template);
-//        assertTrue( !res.isError() );
-//        assertTrue( res.getMessage().equals("0") );
-
         vmPool.info();
 
         boolean found = false;
@@ -120,8 +145,6 @@ public class VirtualMachineTest
         res = vm.info();
         assertTrue( !res.isError() );
 
-//        assertTrue( vm.getId().equals("0") );
-//        assertTrue( vm.id() == 0 );
         assertTrue( vm.getName().equals(name) );
     }
 
@@ -130,6 +153,7 @@ public class VirtualMachineTest
     {
         res = vm.hold();
         assertTrue( !res.isError() );
+        waitAssert(vm, "HOLD", "-");
     }
 
     @Test
@@ -139,6 +163,7 @@ public class VirtualMachineTest
 
         res = vm.release();
         assertTrue( !res.isError() );
+        waitAssert(vm, "PENDING", "-");
     }
 
     @Test
@@ -146,85 +171,98 @@ public class VirtualMachineTest
     {
         res = vm.deploy(hid_A);
         assertTrue( !res.isError() );
+        waitAssert(vm, "ACTIVE", "RUNNING");
     }
 
     @Test
     public void migrate()
     {
         vm.deploy(hid_A);
-        try{ Thread.sleep(5000); } catch (Exception e){}
+        waitAssert(vm, "ACTIVE", "RUNNING");
 
         res = vm.migrate(hid_B);
         assertTrue( !res.isError() );
+        waitAssert(vm, "ACTIVE", "RUNNING");
     }
 
     @Test
     public void liveMigrate()
     {
         vm.deploy(hid_A);
-        try{ Thread.sleep(5000); } catch (Exception e){}
+        waitAssert(vm, "ACTIVE", "RUNNING");
 
         res = vm.liveMigrate(hid_B);
         assertTrue( !res.isError() );
+        waitAssert(vm, "ACTIVE", "RUNNING");
     }
 
     @Test
     public void shutdown()
     {
         vm.deploy(hid_A);
-        try{ Thread.sleep(5000); } catch (Exception e){}
+        waitAssert(vm, "ACTIVE", "RUNNING");
 
         res = vm.shutdown();
-        assertTrue( !res.isError() );        
+        assertTrue( !res.isError() );
+        waitAssert(vm, "DONE", "-");
     }
 
     @Test
     public void cancel()
     {
         vm.deploy(hid_A);
-        try{ Thread.sleep(5000); } catch (Exception e){}
+        waitAssert(vm, "ACTIVE", "RUNNING");
 
         res = vm.cancel();
         assertTrue( !res.isError() );
+        waitAssert(vm, "DONE", "-");
     }
 
     @Test
     public void stop()
     {
         vm.deploy(hid_A);
-        try{ Thread.sleep(5000); } catch (Exception e){}
+        waitAssert(vm, "ACTIVE", "RUNNING");
 
         res = vm.stop();
         assertTrue( !res.isError() );
+        waitAssert(vm, "STOPPED", "-");
     }
 
     @Test
     public void suspend()
     {
         vm.deploy(hid_A);
-        try{ Thread.sleep(5000); } catch (Exception e){}
+        waitAssert(vm, "ACTIVE", "RUNNING");
 
         res = vm.suspend();
         assertTrue( !res.isError() );
+        waitAssert(vm, "SUSPENDED", "-");
     }
 
     @Test
     public void resume()
     {
         vm.deploy(hid_A);
-        try{ Thread.sleep(5000); } catch (Exception e){}
+        waitAssert(vm, "ACTIVE", "RUNNING");
+
         vm.suspend();
-        try{ Thread.sleep(5000); } catch (Exception e){}
+        waitAssert(vm, "SUSPENDED", "-");
 
         res = vm.resume();
         assertTrue( !res.isError() );
+        waitAssert(vm, "ACTIVE", "RUNNING");
     }
 
     @Test
-    public void finalize()
+    public void finalizeVM()
     {
+        vm.deploy(hid_A);
+        waitAssert(vm, "ACTIVE", "RUNNING");
         res = vm.finalizeVM();
+
         assertTrue( !res.isError() );
+        waitAssert(vm, "DONE", "-");
     }
 
     @Test
@@ -244,5 +282,37 @@ public class VirtualMachineTest
 //        assertTrue( vm.xpath("ID").equals("0") );
         assertTrue( vm.xpath("TEMPLATE/MEMORY").equals("512") );
         assertTrue( vm.xpath("TEMPLATE/CONTEXT/DNS").equals("192.169.1.4") );
+    }
+
+    @Test
+    public void savedisk()
+    {
+        String template = "NAME = savedisk_vm\n"+
+                          "MEMORY = 512\n" +
+                          "CONTEXT = [DNS = 192.169.1.4]\n" +
+                          "DISK = [ TYPE = fs, SIZE = 4, " +
+                          "FORMAT = ext3, TARGET = sdg ]";
+
+        res = VirtualMachine.allocate(client, template);
+        int vmid = !res.isError() ? Integer.parseInt(res.getMessage()) : -1;
+
+        vm = new VirtualMachine(vmid, client);
+
+        String imgTemplate =
+            "NAME = \"image\"\n" +
+            "ATT1 = \"val1\"";
+
+        res = Image.allocate(client, imgTemplate);
+
+        int imgid = res.isError() ? -1 : Integer.parseInt(res.getMessage());
+
+        res = vm.savedisk(0, imgid);
+        assertTrue( !res.isError() );
+
+        res = vm.info();
+        assertTrue( !res.isError() );
+
+        assertTrue( vm.xpath("TEMPLATE/DISK/SAVE_AS").equals(Integer.toString(imgid)) );
+
     }
 }

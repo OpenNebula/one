@@ -227,7 +227,7 @@ public class VirtualMachine extends PoolElement{
      */
     public OneResponse savedisk(int diskId, int imageId)
     {
-        return client.call(SAVEDISK, diskId, imageId);
+        return client.call(SAVEDISK, id ,diskId, imageId);
     }
 
     // =================================

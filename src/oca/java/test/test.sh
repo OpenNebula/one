@@ -3,7 +3,18 @@
 # For instance: test.sh ImageTest
 
 JUNIT_JAR="/usr/share/java/junit4.jar"
-ONEDB="$ONE_LOCATION/var/one.db"
+
+if [ -z $ONE_LOCATION ]; then
+    echo "ONE_LOCATION not defined."
+    exit -1
+fi
+
+VAR_LOCATION="$ONE_LOCATION/var"
+
+if [ "$(ls -A $VAR_LOCATION)" ]; then
+    echo "$VAR_LOCATION is not empty."
+    exit -1
+fi
 
 PID=$$
 
@@ -18,6 +29,6 @@ CODE=$?
 pkill -P $PID oned
 sleep 4s;
 pkill -9 -P $PID oned
-rm $ONEDB
+rm -rf $VAR_LOCATION/*
 
 exit $CODE
