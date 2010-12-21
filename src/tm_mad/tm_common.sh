@@ -124,13 +124,13 @@ function error_message
 # Gets the host from an argument
 function arg_host
 {
-    echo $1 | $SED 's/^\([^:]*\):.*$/\1/'
+    echo $1 | $SED 's/^([^:]*):.*$/\1/'
 }
 
 # Gets the path from an argument
 function arg_path
 {
-    echo $1 | $SED 's/^[^:]*:\(.*\)$/\1/'
+    echo $1 | $SED 's/^[^:]*:(.*)$/\1/'
 }
 
 # Executes a command, if it fails return error message and exits

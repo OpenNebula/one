@@ -33,14 +33,14 @@ void RequestManager::ImageDelete::execute(
     int                 iid;
     int                 uid;
     int                 rc;
-    
+
     int                 image_owner;
     bool                is_public;
 
     Image             * image;
 
     ostringstream       oss;
-    
+
     const string        method_name = "ImageDelete";
 
     vector<xmlrpc_c::value> arrayData;
@@ -60,7 +60,7 @@ void RequestManager::ImageDelete::execute(
     {
         goto error_authenticate;
     }
-    
+
     // Get image from the ImagePool
     image = ImageDelete::ipool->get(iid,true);
 
@@ -68,12 +68,12 @@ void RequestManager::ImageDelete::execute(
     {
         goto error_image_get;
     }
-    
+
     image_owner = image->get_uid();
     is_public   = image->isPublic();
-    
+
     image->unlock();
-    
+
     //Authorize the operation
     if ( uid != 0 ) // uid == 0 means oneadmin
     {
@@ -101,13 +101,12 @@ void RequestManager::ImageDelete::execute(
 
     rc = ImageDelete::ipool->drop(image);
 
+    image->unlock();
+
     if ( rc < 0 )
     {
         goto error_delete;
-
     }
-
-    image->unlock();
 
     arrayData.push_back(xmlrpc_c::value_boolean(true));
     arrayData.push_back(xmlrpc_c::value_int(iid));

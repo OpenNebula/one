@@ -210,22 +210,69 @@ class OCCIServer < CloudServer
     # [return] _String_,_Integer_ Update confirmation msg or error,
     #                             status code
     def put_compute(request, params)
+        vm = VirtualMachineOCCI.new(
+                    VirtualMachine.build_xml(params[:id]),
+                    get_client(request.env))
+        
+        rc = vm.info
+        return rc, 400 if OpenNebula.is_error?(rc)
+        
         xmldoc  = XMLElement.build_xml(request.body, 'COMPUTE')
         vm_info = XMLElement.new(xmldoc) if xmldoc != nil
+        
+        # Check the number of changes in the request
+        image_name = nil
+        image_type = nil
+        vm_info.each('DISK/SAVE_AS') { |disk|
+            if image_name
+                error_msg = "It is only allowed one save_as per request"
+                return OpenNebula::Error.new(error_msg), 400
+            end
+            image_name = disk.attr('.', 'name')
+            image_type = disk.attr('.', 'type')
+        }
+        state = vm_info['STATE']
+        
+        if image_name && state
+            error_msg = "It is not allowed to change the state and save_as" <<
+                        " a disk in the same request"
+            return OpenNebula::Error.new(error_msg), 400
+        elsif image_name
+            # Get the disk id
+            disk_id = vm_info.attr('DISK/SAVE_AS/..', 'id')
+            if disk_id.nil?
+                error_msg = "DISK id attribute not specified"
+                return OpenNebula::Error.new(error_msg), 400
+            end
 
-        # --- Get the VM and Action on it ---
-        if vm_info['STATE'] != nil
-            vm = VirtualMachineOCCI.new(
-                        VirtualMachine.build_xml(params[:id]),
-                        get_client(request.env))
+            disk_id = disk_id.to_i
+            if vm["TEMPLATE/DISK[DISK_ID=\"#{disk_id}\"]/SAVE_AS"]
+                error_msg = "The disk #{disk_id} is already" <<
+                            " suppossed to be saved"
+                return OpenNebula::Error.new(error_msg), 400
+            end
+            
+            # Create a new Image to save the disk
+            template = "NAME=\"#{image_name}\"\n"
+            if image_type
+                template << "TYPE=\"#{image_type}\"\n"
+            else
+                template << "TYPE=\"OS\"\n"
+            end
 
-            rc = vm.mk_action(vm_info['STATE'])
+            image = Image.new(Image.build_xml, one_client)
 
+            rc = image.allocate(template)
             return rc, 400 if OpenNebula.is_error?(rc)
-        else
-            error_msg = "State not defined in the OCCI XML"
-            error = OpenNebula::Error.new(error_msg)
-            return error, 400
+            
+            rc = vm.save_as(disk_id, image.id)
+            if OpenNebula.is_error?(rc)
+                image.delete
+                return rc, 400
+            end 
+        elsif state
+            rc = vm.mk_action(state)
+            return rc, 400 if OpenNebula.is_error?(rc)
         end
 
         # --- Prepare XML Response ---
@@ -292,6 +339,34 @@ class OCCIServer < CloudServer
         return rc, 500 if OpenNebula::is_error?(rc)
 
         return "", 204
+    end
+    
+    # Updates a NETWORK resource
+    # request:: _Hash_ hash containing the data of the request
+    # [return] _String_,_Integer_ Update confirmation msg or error,
+    #                             status code
+    def put_network(request, params)
+        xmldoc    = XMLElement.build_xml(request.body, 'NETWORK')
+        vnet_info = XMLElement.new(xmldoc) if xmldoc != nil
+
+        vnet = VirtualNetworkOCCI.new(
+                    VirtualNetwork.build_xml(params[:id]),
+                    get_client(request.env))
+                    
+        rc = vnet.info
+        return rc, 400 if OpenNebula.is_error?(rc)
+        
+        if vnet_info['PUBLIC'] == 'YES'
+            rc = vnet.publish
+            return rc, 400 if OpenNebula.is_error?(rc)
+        elsif vnet_info['PUBLIC'] == 'NO'
+            rc = vnet.unpublish
+            return rc, 400 if OpenNebula.is_error?(rc)
+        end
+
+        # --- Prepare XML Response ---
+        vnet.info
+        return to_occi_xml(vnet, 202)
     end
 
     ############################################################################
@@ -362,5 +437,42 @@ class OCCIServer < CloudServer
         return rc, 500 if OpenNebula::is_error?(rc)
 
         return "", 204
+    end
+    
+    # Updates a STORAGE resource
+    # request:: _Hash_ hash containing the data of the request
+    # [return] _String_,_Integer_ Update confirmation msg or error,
+    #                             status code
+    def put_storage(request, params)
+        xmldoc     = XMLElement.build_xml(request.body, 'STORAGE')
+        image_info = XMLElement.new(xmldoc) if xmldoc != nil
+
+        image = ImageOCCI.new(
+                    Image.build_xml(params[:id]),
+                    get_client(request.env))
+                    
+        rc = image.info
+        return rc, 400 if OpenNebula.is_error?(rc)
+        
+        if image_info['PERSISTENT'] && image_info['PUBLIC']
+            error_msg = "It is not allowed more than one change per request"
+            return OpenNebula::Error.new(error_msg), 400
+        elsif image_info['PERSISTENT'] == 'YES'
+            rc = image.persistent
+            return rc, 400 if OpenNebula.is_error?(rc)
+        elsif image_info['PERSISTENT'] == 'NO'
+            rc = image.nonpersistent
+            return rc, 400 if OpenNebula.is_error?(rc)
+        elsif image_info['PUBLIC'] == 'YES'
+            rc = image.publish
+            return rc, 400 if OpenNebula.is_error?(rc)
+        elsif image_info['PUBLIC'] == 'NO'
+            rc = image.unpublish
+            return rc, 400 if OpenNebula.is_error?(rc)
+        end
+
+        # --- Prepare XML Response ---
+        image.info
+        return to_occi_xml(image, 202)
     end
 end

@@ -36,18 +36,23 @@ Usage:
 
 Commands:
 
-create <occi xml file>
+* create <occi xml file>
        creates a new storage resource described by the provided
        <occi xml file>
 
-list
+* list
        lists available storage resources
 
-show <storage id>
+* show <storage id>
        retrieves the OCCI XML representation of the storage resource
        identified by <storage id>
 
-delete <storage id>
+
+* update <occi xml file>
+      updates the representation of the storage resource represented by the
+      provided <occi xml file>
+      
+* delete <storage id>
        deletes the storage resource idenfitied by <storage id>
 
 
@@ -79,8 +84,7 @@ EOT
 require 'occi/OCCIClient'
 require 'CloudClient'
 require 'getoptlong'
-require 'rexml/document'
-require 'pp'
+
 include CloudCLI
 
 opts = GetoptLong.new(
@@ -167,6 +171,16 @@ case ARGV[0].downcase
 
         rc = occi_client.get_image(image_id)
 
+    when 'update'
+        image_xml = ARGV[1]
+
+        if !image_xml || !File.exists?(image_xml)
+            puts "#{cmd_name} update: missing OCCI-XML or file not found"
+            exit -1
+        end
+
+        rc = occi_client.put_image(image_xml)
+
     when 'delete'
         image_id = ARGV[1]
 
@@ -184,22 +198,9 @@ end
 
 if CloudClient::is_error?(rc)
     puts rc.to_s()
-else
-    begin
-        doc = REXML::Document.new(rc)
-    rescue REXML::ParseException => e
-        puts e.message
-        exit(-1)
-    end
-
-    xml = doc.root
-
-    if xml.nil?
-        puts rc
-        exit(-1)
-    end
-
-    str = ""
-    REXML::Formatters::Pretty.new(4).write(xml,str)
-    puts "\n" + str + "\n "
+    exit(-1)
+else 
+    str, code = print_xml(rc)
+    puts str
+    exit(code)
 end

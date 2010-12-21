@@ -22,13 +22,18 @@ class VirtualMachineOCCI < VirtualMachine
     OCCI_VM = %q{
         <COMPUTE href="<%= base_url %>/compute/<%= self.id.to_s  %>">
             <ID><%= self.id.to_s%></ID>
+            <CPU><%= self['TEMPLATE/CPU'] %></CPU>
+            <MEMORY><%= self['TEMPLATE/MEMORY'] %></MEMORY>
             <NAME><%= self.name%></NAME>
             <% if self['TEMPLATE/INSTANCE_TYPE'] %>
             <INSTANCE_TYPE><%= self['TEMPLATE/INSTANCE_TYPE'] %></INSTANCE_TYPE>
             <% end %>
             <STATE><%= self.state_str %></STATE>
             <% self.each('TEMPLATE/DISK') do |disk| %>
-            <DISK>
+            <DISK id="<%= disk['DISK_ID']%>">
+                <% if disk['SAVE_AS'] %>
+                <SAVE_AS href="<%= base_url %>/storage/<%= disk['SAVE_AS'] %>"/>
+                <% end %>
                 <STORAGE href="<%= base_url %>/storage/<%= disk['IMAGE_ID'] %>" name="<%= disk['IMAGE'] %>"/>
                 <TYPE><%= disk['TYPE'] %></TYPE>
                 <TARGET><%= disk['TARGET'] %></TARGET>

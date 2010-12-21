@@ -23,16 +23,26 @@ class VirtualNetworkOCCI < VirtualNetwork
         <NETWORK href="<%= base_url %>/network/<%= self.id.to_s  %>">
             <ID><%= self.id.to_s %></ID>
             <NAME><%= self.name %></NAME>
+            <% if self['TEMPLATE/DESCRIPTION'] != nil %>
+            <DESCRIPTION><%= self['TEMPLATE/DESCRIPTION'] %></DESCRIPTION>
+            <% end %>
             <ADDRESS><%= self['TEMPLATE/NETWORK_ADDRESS'] %></ADDRESS>
             <% if self['TEMPLATE/NETWORK_SIZE'] %>
             <SIZE><%= self['TEMPLATE/NETWORK_SIZE'] %></SIZE>
             <% end %>
+            <PUBLIC><%= self['PUBLIC'] == "0" ? "NO" : "YES"%></PUBLIC>
         </NETWORK>
     }
 
     ONE_NETWORK = %q{
         NAME            = "<%= @vnet_info['NAME'] %>"
         TYPE            = RANGED
+        <% if @vnet_info['DESCRIPTION'] != nil %>
+        DESCRIPTION     = "<%= @vnet_info['DESCRIPTION'] %>"
+        <% end %>
+        <% if @vnet_info['PUBLIC'] != nil %>
+        PUBLIC     = "<%= @vnet_info['PUBLIC'] %>"
+        <% end %>
         <% if @bridge %>
         BRIDGE          = <%= @bridge %>
         <% end %>

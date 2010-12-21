@@ -35,6 +35,8 @@ class ImageOCCI < Image
             <% if fstype != nil %>
             <FSTYPE><%= fstype %></FSTYPE>
             <% end %>
+            <PUBLIC><%= self['PUBLIC'] == "0" ? "NO" : "YES"%></PUBLIC>
+            <PERSISTENT><%= self['PERSISTENT'] == "0" ? "NO" : "YES"%></PERSISTENT>
         </STORAGE>
     }
 
@@ -43,6 +45,12 @@ class ImageOCCI < Image
         NAME = "<%= @image_info['NAME'] %>"
         <% if @image_info['DESCRIPTION'] != nil %>
         DESCRIPTION = "<%= @image_info['DESCRIPTION'] %>"
+        <% end %>
+        <% if @image_info['PUBLIC'] != nil %>
+        PUBLIC = "<%= @image_info['PUBLIC'] %>"
+        <% end %>
+        <% if @image_info['PERSISTENT'] != nil %>
+        PERSISTENT = "<%= @image_info['PERSISTENT'] %>"
         <% end %>
         <% if @image_info['TYPE'] != nil %>
         TYPE = <%= @image_info['TYPE'] %>

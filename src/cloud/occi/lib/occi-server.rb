@@ -151,6 +151,11 @@ delete '/network/:id' do
     treat_response(result,rc)
 end
 
+put '/network/:id' do
+    result,rc = $occi_server.put_network(request, params)
+    treat_response(result,rc)
+end
+
 get '/storage/:id' do
     result,rc = $occi_server.get_storage(request, params)
     treat_response(result,rc)
@@ -158,5 +163,10 @@ end
 
 delete '/storage/:id' do
     result,rc = $occi_server.delete_storage(request, params)
+    treat_response(result,rc)
+end
+
+put '/storage/:id' do
+    result,rc = $occi_server.put_storage(request, params)
     treat_response(result,rc)
 end

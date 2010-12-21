@@ -162,7 +162,13 @@ module OCCIClient
         ######################################################################
         def post_image(xmlfile, curb=true)
             xml        = File.read(xmlfile)
-            image_info = REXML::Document.new(xml).root
+
+            begin
+                image_info = REXML::Document.new(xml).root
+            rescue Exception => e
+                error = CloudClient::Error.new(e.message)
+                return error
+            end
 
             if image_info.elements['URL'] == nil
                 return CloudClient::Error.new("Can not find URL")
@@ -285,10 +291,16 @@ module OCCIClient
         ######################################################################
         def put_vm(xmlfile)
             xml     = File.read(xmlfile)
-            vm_info = REXML::Document.new(xml).root
+
+            begin
+                vm_info = REXML::Document.new(xml).root
+            rescue Exception => e
+                error = CloudClient::Error.new(e.message)
+                return error
+            end
 
             if vm_info.elements['ID'] == nil
-                return CloudClient::Error.new("Can not find VM_ID")
+                return CloudClient::Error.new("Can not find COMPUTE_ID")
             end
 
             vm_id = vm_info.elements['ID'].text
@@ -353,6 +365,44 @@ module OCCIClient
         end
 
         ######################################################################
+        # Puts a new Network representation in order to change its state
+        # :xmlfile Network OCCI xml representation
+        ######################################################################
+        def put_network(xmlfile)
+            xml     = File.read(xmlfile)
+
+            begin
+                vnet_info = REXML::Document.new(xml).root
+            rescue Exception => e
+                error = CloudClient::Error.new(e.message)
+                return error
+            end
+
+            if vnet_info.elements['ID'] == nil
+                return CloudClient::Error.new("Can not find NETWORK_ID")
+            end
+
+            vnet_id = vnet_info.elements['ID'].text
+
+            url = URI.parse(@endpoint+'/network/' + vnet_id)
+
+            req = Net::HTTP::Put.new(url.path)
+            req.body = xml
+
+            req.basic_auth @occiauth[0], @occiauth[1]
+
+            res = CloudClient::http_start(url, @timeout) do |http|
+                http.request(req)
+            end
+
+            if CloudClient::is_error?(res)
+                return res
+            else
+                return res.body
+            end
+        end
+        
+        ######################################################################
         # :id VM identifier
         ######################################################################
         def delete_network(id)
@@ -393,6 +443,44 @@ module OCCIClient
             end
         end
 
+        ######################################################################
+        # Puts a new Storage representation in order to change its state
+        # :xmlfile Storage OCCI xml representation
+        ######################################################################
+        def put_image(xmlfile)
+            xml     = File.read(xmlfile)
+            
+            begin
+                image_info = REXML::Document.new(xml).root
+            rescue Exception => e
+                error = OpenNebula::Error.new(e.message)
+                return error
+            end
+            
+            if image_info.elements['ID'] == nil
+                return CloudClient::Error.new("Can not find STORAGE_ID")
+            end
+
+            image_id = image_info.elements['ID'].text
+
+            url = URI.parse(@endpoint+'/storage/' + image_id)
+
+            req = Net::HTTP::Put.new(url.path)
+            req.body = xml
+
+            req.basic_auth @occiauth[0], @occiauth[1]
+
+            res = CloudClient::http_start(url, @timeout) do |http|
+                http.request(req)
+            end
+
+            if CloudClient::is_error?(res)
+                return res
+            else
+                return res.body
+            end
+        end
+        
         ######################################################################
         # :id VM identifier
         ######################################################################
