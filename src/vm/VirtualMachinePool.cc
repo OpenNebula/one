@@ -133,6 +133,16 @@ VirtualMachinePool::VirtualMachinePool(SqlDB *                   db,
 
             state_hook = true;
         }
+        else if ( on == "FAILED" )
+        {
+            VirtualMachineStateHook * hook;
+
+            hook = new VirtualMachineStateHook(name, cmd, arg, remote,
+                            VirtualMachine::LCM_INIT, VirtualMachine::FAILED);
+            add_hook(hook);
+
+            state_hook = true;
+        }
         else
         {
             ostringstream oss;
