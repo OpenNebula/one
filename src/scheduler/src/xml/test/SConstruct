@@ -72,8 +72,8 @@ if xmlrpc_dir!='none':
     main_env.Append(LIBPATH=[xmlrpc_dir+"/lib"])
     main_env.Append(CPPPATH=[xmlrpc_dir+"/include"])
 
-main_env.ParseConfig('../../../../../share/scons/get_xmlrpc_config client')
-
+main_env.ParseConfig(("LDFLAGS='%s' ../../../../../share/scons/"+
+    "get_xmlrpc_config client") % (os.environ['LDFLAGS'],))
 #-------------------------------------------------------------------------------
 # build lex/bison
 #-------------------------------------------------------------------------------
