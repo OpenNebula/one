@@ -107,8 +107,9 @@ void RequestManager::VirtualMachineMigrate::execute(
         }
     }
 
-    if ((vm->get_state() != VirtualMachine::ACTIVE) ||
-        (vm->get_lcm_state() != VirtualMachine::RUNNING))
+    if((vm->get_state()     != VirtualMachine::ACTIVE)  ||
+       (vm->get_lcm_state() != VirtualMachine::RUNNING) ||
+       (vm->hasPreviousHistory() && vm->get_previous_reason() == History::NONE))
     {
         goto error_state;
     }
