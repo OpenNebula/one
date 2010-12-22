@@ -250,7 +250,7 @@ Commands:
         user     --> Images of the user identified by the username
         
 * top (Lists Images continuously)
-    onevm top
+    oneimage top
 
 * show (Gets information about an specific Image)
     oneimage show <image_id>
