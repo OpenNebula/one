@@ -123,8 +123,10 @@ else:
 
 if not main_env.GetOption('clean'):
     try:
-        main_env.ParseConfig('share/scons/get_xmlrpc_config server')
-        main_env.ParseConfig('share/scons/get_xmlrpc_config client')
+        main_env.ParseConfig(("LDFLAGS='%s' share/scons/get_xmlrpc_config"+
+            " server") % (os.environ['LDFLAGS'],))
+        main_env.ParseConfig(("LDFLAGS='%s' share/scons/get_xmlrpc_config"+
+            " client") % (os.environ['LDFLAGS'],))
 
         if mysql=='yes':
             main_env.ParseConfig('mysql_config --cflags --libs')

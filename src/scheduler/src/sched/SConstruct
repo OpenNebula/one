@@ -16,6 +16,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+import os
 Import('env')
 
 lib_name='scheduler_sched'
@@ -38,6 +39,7 @@ env.Append(LIBS=[
 ])
 
 if not env.GetOption('clean'):
-    env.ParseConfig('../../../../share/scons/get_xmlrpc_config client')
+    env.ParseConfig(("LDFLAGS='%s' ../../../../share/scons/get_xmlrpc_config"+
+        " client") % (os.environ['LDFLAGS'],))
 
 env.Program('mm_sched.cc')
