@@ -163,7 +163,7 @@ void Nebula::start()
         {
             ostringstream   oss;
 
-            db = new MySqlDB(server,user,passwd,0);
+            db = new MySqlDB(server,0,user,passwd,"");
 
             oss << "DROP DATABASE IF EXISTS " << db_name;
             db->exec(oss);
@@ -208,10 +208,10 @@ void Nebula::start()
         string  default_image_type;
         string  default_device_prefix;
 
-        vector<const Attribute *> vm_hooks;
+        vector<const Attribute *> hooks;
 
-        vmpool = new VirtualMachinePool(db, vm_hooks,hook_location);
-        hpool  = new HostPool(db);
+        vmpool = new VirtualMachinePool(db, hooks,hook_location);
+        hpool  = new HostPool(db, hooks, hook_location);
         vnpool = new VirtualNetworkPool(db,mac_prefix,size);
         upool  = new UserPool(db);
         ipool  = new ImagePool(db,
@@ -304,7 +304,6 @@ void Nebula::start()
     // ---- Life-cycle Manager ----
     try
     {
-//        lcm = new LifeCycleManager(vmpool,hpool,vmm,tm,dm);
         lcm = new LifeCycleManager(vmpool,hpool);
     }
     catch (bad_alloc&)
@@ -327,4 +326,3 @@ void Nebula::start()
 
     vmm->load_mads(0);
 };
-

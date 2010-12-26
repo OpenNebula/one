@@ -311,7 +311,8 @@ public:
         if (mysql)
         {
             SqlDB * db;
-            db = new MySqlDB("localhost","oneadmin","oneadmin",NULL);
+
+            db = new MySqlDB("localhost",0,"oneadmin","oneadmin",db_name.c_str());
 
             ostringstream   oss;
             oss << "DROP DATABASE IF EXISTS " << db_name;
