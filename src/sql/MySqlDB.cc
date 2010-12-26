@@ -27,7 +27,7 @@ MySqlDB::MySqlDB(
         int           port,
         const string& user,
         const string& password,
-        char *        database)
+        const char *  database)
 {
 
     // Initialize the MySQL library
