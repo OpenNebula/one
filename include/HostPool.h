@@ -69,15 +69,6 @@ public:
         return static_cast<Host *>(PoolSQL::get(oid,lock));
     };
 
-    /** Update a particular Host
-     *    @param host pointer to Host
-     *    @return 0 on success
-     */
-    int update(Host * host)
-    {
-        return host->update(db);
-    };
-
     /**
      *  Bootstraps the database table(s) associated to the Host pool
      */
