@@ -36,8 +36,9 @@ using namespace std;
 class HostPool : public PoolSQL
 {
 public:
-
-    HostPool(SqlDB * db);
+    HostPool(SqlDB *                   db,
+             vector<const Attribute *> hook_mads,
+             const string&             hook_location);
 
     ~HostPool(){};
 
