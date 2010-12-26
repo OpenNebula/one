@@ -47,6 +47,8 @@ main_env.Append(LIBPATH=[
     cwd + '/src/pool',
     cwd + '/src/template',
     cwd + '/src/host',
+    cwd + '/src/hm',
+    cwd + '/src/mad',
 ])
 
 main_env.Append(LIBS=[
@@ -54,6 +56,8 @@ main_env.Append(LIBS=[
     'nebula_host',
     'nebula_template',
     'nebula_pool',
+    'nebula_mad',
+    'nebula_hm',
     'nebula_common',
     'nebula_core',
     'nebula_sql',
@@ -93,4 +97,5 @@ main_env.Append(CPPFLAGS=[
 main_env.Append(LDFLAGS=["-g "])
 
 main_env.Program('test','HostPoolTest.cc')
+main_env.Program('test_hook','HostHookTest.cc')
 

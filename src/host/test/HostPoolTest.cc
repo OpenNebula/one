@@ -164,7 +164,9 @@ protected:
 
     PoolSQL* create_pool(SqlDB* db)
     {
-        return new HostPool(db);
+        vector<const Attribute *> hook;
+
+        return new HostPool(db,hook,"./");
     };
 
     int allocate(int index)
