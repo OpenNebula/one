@@ -28,7 +28,8 @@ void  DispatchManager::suspend_success_action(int vid)
         return;
     }
 
-    if (vm->get_state() == VirtualMachine::ACTIVE )
+    if ((vm->get_state() == VirtualMachine::ACTIVE) &&
+        (vm->get_lcm_state() == VirtualMachine::SAVE_SUSPEND))
     {
         vm->set_state(VirtualMachine::SUSPENDED);
 
@@ -66,7 +67,8 @@ void  DispatchManager::stop_success_action(int vid)
         return;
     }
 
-    if (vm->get_state() == VirtualMachine::ACTIVE )
+    if ((vm->get_state() == VirtualMachine::ACTIVE) &&
+        (vm->get_lcm_state() == VirtualMachine::EPILOG_STOP))
     {
         vm->set_state(VirtualMachine::STOPPED);
 
@@ -95,7 +97,10 @@ void  DispatchManager::stop_success_action(int vid)
 
 void  DispatchManager::done_action(int vid)
 {
-    VirtualMachine *      vm;
+    VirtualMachine *         vm;
+
+    VirtualMachine::LcmState lcm_state;
+    VirtualMachine::VmState  dm_state;
 
     vm = vmpool->get(vid,true);
 
@@ -104,7 +109,13 @@ void  DispatchManager::done_action(int vid)
         return;
     }
 
-    if ( vm->get_state() == VirtualMachine::ACTIVE )
+    lcm_state = vm->get_lcm_state();
+    dm_state  = vm->get_state();
+
+    if ((dm_state == VirtualMachine::ACTIVE) &&
+          (lcm_state == VirtualMachine::EPILOG ||
+           lcm_state == VirtualMachine::CANCEL ||
+           lcm_state == VirtualMachine::DELETE ))
     {
         vm->set_state(VirtualMachine::DONE);
 
@@ -147,21 +158,24 @@ void  DispatchManager::failed_action(int vid)
         return;
     }
 
-    vm->set_state(VirtualMachine::LCM_INIT);
+    if (vm->get_lcm_state() == VirtualMachine::FAILURE)
+    {
 
-    vm->set_state(VirtualMachine::FAILED);
+        vm->set_state(VirtualMachine::LCM_INIT);
 
-    vm->set_exit_time(time(0));
+        vm->set_state(VirtualMachine::FAILED);
 
-    vmpool->update(vm);
+        vm->set_exit_time(time(0));
 
-    vm->log("DiM", Log::INFO, "New VM state is FAILED");
+        vmpool->update(vm);
 
-    vm->unlock();
+        vm->log("DiM", Log::INFO, "New VM state is FAILED");
+
+        vm->unlock();
+    }
 
     return;
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-
