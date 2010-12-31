@@ -518,10 +518,12 @@ void  LifeCycleManager::delete_action(int vid)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-/*
-void  LifeCycleManager::resubmit_action(int vid)
+void  LifeCycleManager::clean_action(int vid)
 {
     VirtualMachine * vm;
+
+    Nebula&           nd = Nebula::instance();
+    DispatchManager * dm = nd.get_dm();
 
     vm = vmpool->get(vid,true);
 
@@ -533,25 +535,20 @@ void  LifeCycleManager::resubmit_action(int vid)
     VirtualMachine::LcmState state = vm->get_lcm_state();
 
     if ((state == VirtualMachine::LCM_INIT) ||
-//TBD        (state == VirtualMachine::DELETE) ||
+        (state == VirtualMachine::CLEANUP) ||
         (state == VirtualMachine::FAILURE))
     {
         vm->unlock();
         return;
     }
 
-//TBD - reuse DELETE or rename to CLEAN  vm->set_state(VirtualMachine::DELETE);
-    vmpool->update(vm);
+    clean_up_vm(vm);
 
-    clean_up_vm(vm,state);
-
-//TBD    dm->trigger(DispatchManager::RESUBMIT,vid);
+    dm->trigger(DispatchManager::RESUBMIT,vid);
 
     vm->unlock();
-
-    return;
 }
-*/
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

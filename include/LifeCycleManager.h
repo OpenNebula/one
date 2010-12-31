@@ -68,6 +68,7 @@ public:
         SHUTDOWN,         /**< Sent by the DM to shutdown a running VM        */
         RESTART,          /**< Sent by the DM to restart a deployed VM        */
         DELETE,           /**< Sent by the DM to delete a VM                  */
+        CLEAN,            /**< Sent by the DM to cleanup a VM for resubmission*/
         FINALIZE
     };
 
@@ -194,6 +195,8 @@ private:
     void restart_action(int vid);
 
     void delete_action(int vid);
+
+    void clean_action(int vid);
 
     void timer_action();
 };

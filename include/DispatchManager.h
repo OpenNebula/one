@@ -44,10 +44,11 @@ public:
 
     enum Actions
     {
-        SUSPEND_SUCCESS, /**< Send by LCM when a VM is suspended*/
-        STOP_SUCCESS,    /**< Send by LCM when a VM is stopped*/
-        DONE,            /**< Send by LCM when a VM is shut down*/
-        FAILED,          /**< Send by LCM when one of the execution steps fails*/
+        SUSPEND_SUCCESS,/**< Send by LCM when a VM is suspended*/
+        STOP_SUCCESS,   /**< Send by LCM when a VM is stopped*/
+        DONE,           /**< Send by LCM when a VM is shut down*/
+        FAILED,         /**< Send by LCM when one of the execution steps fails*/
+        RESUBMIT,       /**< Send by LCM when a VM is ready for resubmission*/
         FINALIZE
     };
 
@@ -200,6 +201,15 @@ public:
     int finalize(
         int vid);
 
+    /**
+     *  Moves a VM to PENDING state preserving any resource (i.e. leases) and id
+     *    @param vid VirtualMachine identification
+     *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is
+     *    in a wrong a state
+     */
+    int resubmit(
+        int vid);
+
 private:
     /**
      *  Thread id for the Dispatch Manager
@@ -247,7 +257,8 @@ private:
     void  done_action(int vid);
 
     void  failed_action(int vid);
+
+    void  resubmit_action(int vid);
 };
 
 #endif /*DISPATCH_MANAGER_H*/
-

@@ -179,3 +179,34 @@ void  DispatchManager::failed_action(int vid)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+void  DispatchManager::resubmit_action(int vid)
+{
+    VirtualMachine *    vm;
+
+    vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return;
+    }
+
+    if (vm->get_lcm_state() == VirtualMachine::CLEANUP)
+    {
+
+        vm->set_state(VirtualMachine::LCM_INIT);
+
+        vm->set_state(VirtualMachine::PENDING);
+
+        vmpool->update(vm);
+
+        vm->log("DiM", Log::INFO, "New VM state is PENDING");
+
+        vm->unlock();
+    }
+
+    return;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
