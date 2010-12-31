@@ -38,7 +38,7 @@ class VirtualMachine : public PoolObjectSQL
 {
 public:
     // -------------------------------------------------------------------------
-	// VM States
+    // VM States
     // -------------------------------------------------------------------------
 
     /**
@@ -76,7 +76,7 @@ public:
         SHUTDOWN       = 12,
         CANCEL         = 13,
         FAILURE        = 14,
-        DELETE         = 15,
+        CLEANUP        = 15,
         UNKNOWN        = 16
     };
 
@@ -218,11 +218,11 @@ public:
      *  Adds a new history record an writes it in the database.
      */
     void add_history(
-        int         				hid,
-        string&     				hostname,
-        string&     				vm_dir,
-        string&     				vmm_mad,
-        string&     			 	tm_mad);
+        int                         hid,
+        string&                     hostname,
+        string&                     vm_dir,
+        string&                     vmm_mad,
+        string&                     tm_mad);
 
     /**
      *  Duplicates the last history record. Only the host related fields are
@@ -300,9 +300,9 @@ public:
 
     /**
      *  Returns the transfer filename. The transfer file is in the form:
-     *  		$ONE_LOCATION/var/$VM_ID/transfer.$SEQ
+     *          $ONE_LOCATION/var/$VM_ID/transfer.$SEQ
      *  or, in case that OpenNebula is installed in root
-     *  		/var/lib/one/$VM_ID/transfer.$SEQ
+     *          /var/lib/one/$VM_ID/transfer.$SEQ
      *  The hasHistory() function MUST be called before this one.
      *    @return the transfer filename
      */
@@ -313,9 +313,9 @@ public:
 
     /**
      *  Returns the deployment filename. The deployment file is in the form:
-     *  		$ONE_LOCATION/var/$VM_ID/deployment.$SEQ
+     *          $ONE_LOCATION/var/$VM_ID/deployment.$SEQ
      *  or, in case that OpenNebula is installed in root
-     *  		/var/lib/one/$VM_ID/deployment.$SEQ
+     *          /var/lib/one/$VM_ID/deployment.$SEQ
      *  The hasHistory() function MUST be called before this one.
      *    @return the deployment filename
      */
@@ -339,7 +339,7 @@ public:
 
     /**
      *  Returns the remote deployment filename. The file is in the form:
-     *  		$VM_DIR/$VM_ID/images/deployment.$SEQ
+     *          $VM_DIR/$VM_ID/images/deployment.$SEQ
      *  The hasHistory() function MUST be called before this one.
      *    @return the deployment filename
      */
@@ -351,7 +351,7 @@ public:
     /**
      *  Returns the checkpoint filename for the current host. The checkpoint file
      *  is in the form:
-     *  		$VM_DIR/$VM_ID/images/checkpoint
+     *          $VM_DIR/$VM_ID/images/checkpoint
      *  The hasHistory() function MUST be called before this one.
      *    @return the checkpoint filename
      */
@@ -362,9 +362,9 @@ public:
 
     /**
      *  Returns the remote VM directory. The VM remote dir is in the form:
-     *  		$VM_DIR/$VM_ID/
+     *          $VM_DIR/$VM_ID/
      *  or, in case that OpenNebula is installed in root
-     *  		/var/lib/one/$VM_ID/
+     *          /var/lib/one/$VM_ID/
      *  The hasHistory() function MUST be called before this one.
      *    @return the remote directory
      */
@@ -375,7 +375,7 @@ public:
 
     /**
      *  Returns the local VM directory. The VM local dir is in the form:
-     *  		$ONE_LOCATION/var/$VM_ID/
+     *          $ONE_LOCATION/var/$VM_ID/
      *  The hasHistory() function MUST be called before this one.
      *    @return the remote directory
      */
@@ -989,7 +989,7 @@ protected:
     // DataBase implementation
     // *************************************************************************
 
-	enum ColNames
+    enum ColNames
     {
         OID             = 0,
         UID             = 1,

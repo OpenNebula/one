@@ -34,7 +34,7 @@ module OpenNebula
 
         LCM_STATE=%w{LCM_INIT PROLOG BOOT RUNNING MIGRATE SAVE_STOP SAVE_SUSPEND
             SAVE_MIGRATE PROLOG_MIGRATE PROLOG_RESUME EPILOG_STOP EPILOG
-            SHUTDOWN CANCEL FAILURE DELETE UNKNOWN}
+            SHUTDOWN CANCEL FAILURE CLEANUP UNKNOWN}
 
         SHORT_VM_STATES={
             "INIT"      => "init",
@@ -62,7 +62,7 @@ module OpenNebula
             "SHUTDOWN"      => "shut",
             "CANCEL"        => "shut",
             "FAILURE"       => "fail",
-            "DELETE"        => "dele",
+            "CLEANUP"       => "clea",
             "UNKNOWN"       => "unkn"
         }
 
@@ -118,14 +118,14 @@ module OpenNebula
         def info()
             super(VM_METHODS[:info], 'VM')
         end
-        
+
         # Allocates a new VirtualMachine in OpenNebula
         #
         # +description+ A string containing the template of the VirtualMachine.
         def allocate(description)
             super(VM_METHODS[:allocate],description)
         end
-        
+
         # Initiates the instance of the VM on the target host.
         #
         # +host_id+ The host id (hid) of the target host where
@@ -203,8 +203,8 @@ module OpenNebula
 
             return rc
         end
-        
-        # Set the specified vm's disk to be saved in a new image 
+
+        # Set the specified vm's disk to be saved in a new image
         # when the VirtualMachine shutdowns
         #
         # +disk_id+ ID of the disk to be saved

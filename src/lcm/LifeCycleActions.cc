@@ -500,17 +500,14 @@ void  LifeCycleManager::delete_action(int vid)
     VirtualMachine::LcmState state = vm->get_lcm_state();
 
     if ((state == VirtualMachine::LCM_INIT) ||
-        (state == VirtualMachine::DELETE) ||
+        (state == VirtualMachine::CLEANUP) ||
         (state == VirtualMachine::FAILURE))
     {
         vm->unlock();
         return;
     }
 
-    vm->set_state(VirtualMachine::DELETE);
-    vmpool->update(vm);
-
-    clean_up_vm(vm,vid,state);
+    clean_up_vm(vm);
 
     dm->trigger(DispatchManager::DONE,vid);
 
@@ -558,9 +555,7 @@ void  LifeCycleManager::resubmit_action(int vid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void  LifeCycleManager::clean_up_vm(VirtualMachine *         vm,
-                                    int                      vid,
-                                    VirtualMachine::LcmState state)
+void  LifeCycleManager::clean_up_vm(VirtualMachine * vm)
 {
     int    cpu, mem, disk;
     time_t the_time = time(0);
@@ -569,6 +564,12 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine *         vm,
 
     TransferManager *       tm  = nd.get_tm();
     VirtualMachineManager * vmm = nd.get_vmm();
+
+    VirtualMachine::LcmState state = vm->get_lcm_state();
+    int                      vid   = vm->get_oid();
+
+    vm->set_state(VirtualMachine::CLEANUP);
+    vmpool->update(vm);
 
     vm->set_etime(the_time);
     vm->set_reason(History::USER);
@@ -666,7 +667,7 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine *         vm,
             tm->trigger(TransferManager::EPILOG_DELETE,vid);
         break;
 
-        default: //FAILURE,LCM_INIT,DELETE
+        default: //FAILURE,LCM_INIT,CLEANUP
         break;
     }
 

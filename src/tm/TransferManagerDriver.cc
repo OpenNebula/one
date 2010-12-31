@@ -26,8 +26,8 @@
 /* ************************************************************************** */
 
 void TransferManagerDriver::transfer (
-		const int oid,
-		const string& xfr_file) const
+        const int oid,
+        const string& xfr_file) const
 {
     ostringstream os;
 
@@ -96,8 +96,8 @@ void TransferManagerDriver::protocol(
         return;
     }
 
-    if ( vm->get_lcm_state() == VirtualMachine::DELETE ||
-         vm->get_lcm_state() == VirtualMachine::FAILURE||
+    if ( vm->get_lcm_state() == VirtualMachine::CLEANUP ||
+         vm->get_lcm_state() == VirtualMachine::FAILURE ||
          vm->get_lcm_state() == VirtualMachine::LCM_INIT )
     {
         os.str("");
@@ -118,22 +118,22 @@ void TransferManagerDriver::protocol(
 
         if (result == "SUCCESS")
         {
-        	switch (vm->get_lcm_state())
-        	{
-        		case VirtualMachine::PROLOG:
-        		case VirtualMachine::PROLOG_MIGRATE:
-        		case VirtualMachine::PROLOG_RESUME:
-       	        	lcm_action = LifeCycleManager::PROLOG_SUCCESS;
-        			break;
+            switch (vm->get_lcm_state())
+            {
+                case VirtualMachine::PROLOG:
+                case VirtualMachine::PROLOG_MIGRATE:
+                case VirtualMachine::PROLOG_RESUME:
+                    lcm_action = LifeCycleManager::PROLOG_SUCCESS;
+                    break;
 
-        		case VirtualMachine::EPILOG:
-        		case VirtualMachine::EPILOG_STOP:
-       	        	lcm_action = LifeCycleManager::EPILOG_SUCCESS;
-        			break;
+                case VirtualMachine::EPILOG:
+                case VirtualMachine::EPILOG_STOP:
+                    lcm_action = LifeCycleManager::EPILOG_SUCCESS;
+                    break;
 
-        		default:
-        			goto error_state;
-        	}
+                default:
+                    goto error_state;
+            }
         }
         else
         {
@@ -146,22 +146,22 @@ void TransferManagerDriver::protocol(
 
             vm->log("TM",Log::ERROR,os);
 
-        	switch (vm->get_lcm_state())
-        	{
-        		case VirtualMachine::PROLOG:
-        		case VirtualMachine::PROLOG_MIGRATE:
-        		case VirtualMachine::PROLOG_RESUME:
-       	        	lcm_action = LifeCycleManager::PROLOG_FAILURE;
-        			break;
+            switch (vm->get_lcm_state())
+            {
+                case VirtualMachine::PROLOG:
+                case VirtualMachine::PROLOG_MIGRATE:
+                case VirtualMachine::PROLOG_RESUME:
+                    lcm_action = LifeCycleManager::PROLOG_FAILURE;
+                    break;
 
-        		case VirtualMachine::EPILOG:
-        		case VirtualMachine::EPILOG_STOP:
-       	        	lcm_action = LifeCycleManager::EPILOG_FAILURE;
-        			break;
+                case VirtualMachine::EPILOG:
+                case VirtualMachine::EPILOG_STOP:
+                    lcm_action = LifeCycleManager::EPILOG_FAILURE;
+                    break;
 
-        		default:
-        			goto error_state;
-        	}
+                default:
+                    goto error_state;
+            }
         }
 
         lcm->trigger(lcm_action, id);
@@ -179,14 +179,14 @@ void TransferManagerDriver::protocol(
     return;
 
 error_state:
-	os.str("");
-	os << "Wrong state in TM answer for VM " << id;
+    os.str("");
+    os << "Wrong state in TM answer for VM " << id;
 
-	vm->log("TM",Log::ERROR,os);
+    vm->log("TM",Log::ERROR,os);
 
-	vm->unlock();
+    vm->unlock();
 
-	return;
+    return;
 }
 
 /* -------------------------------------------------------------------------- */

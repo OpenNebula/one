@@ -282,8 +282,8 @@ void VirtualMachineManagerDriver::protocol(
         return;
     }
 
-    if ( vm->get_lcm_state() == VirtualMachine::DELETE ||
-         vm->get_lcm_state() == VirtualMachine::FAILURE||
+    if ( vm->get_lcm_state() == VirtualMachine::CLEANUP ||
+         vm->get_lcm_state() == VirtualMachine::FAILURE ||
          vm->get_lcm_state() == VirtualMachine::LCM_INIT )
     {
         os.str("");
@@ -608,4 +608,3 @@ void VirtualMachineManagerDriver::recover()
 {
     NebulaLog::log("VMM",Log::INFO,"Recovering VMM drivers");
 }
-

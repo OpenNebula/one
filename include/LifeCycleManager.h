@@ -139,9 +139,7 @@ private:
      *  the history registers
      *      @param vm with the lock aquired
      */
-    void clean_up_vm (VirtualMachine *vm,
-                      int             vid,
-                      VirtualMachine::LcmState state);
+    void clean_up_vm (VirtualMachine *vm);
 
     void save_success_action(int vid);
 
