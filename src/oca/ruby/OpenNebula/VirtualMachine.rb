@@ -179,9 +179,14 @@ module OpenNebula
             action('finalize')
         end
 
-        # Resubmits the VM after failure
+        # Forces a re-deployment of a VM in UNKNOWN or BOOT state
         def restart
             action('restart')
+        end
+
+        # Resubmits a VM to PENDING state
+        def resubmit
+            action('resubmit')
         end
 
         # Saves a running VM and starts it again in the specified host
