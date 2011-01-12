@@ -210,9 +210,12 @@ class OCCIServer < CloudServer
     # [return] _String_,_Integer_ Update confirmation msg or error,
     #                             status code
     def put_compute(request, params)
+        
+        one_client = get_client(request.env)
+        
         vm = VirtualMachineOCCI.new(
                     VirtualMachine.build_xml(params[:id]),
-                    get_client(request.env))
+                    one_client)
         
         rc = vm.info
         return rc, 400 if OpenNebula.is_error?(rc)
