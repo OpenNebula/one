@@ -16,6 +16,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+import os
 Import('env')
 
 lib_name='nebula_core'
@@ -63,6 +64,7 @@ if env['mysql']=='yes':
 
 
 if not env.GetOption('clean'):
-    env.ParseConfig('../../share/scons/get_xmlrpc_config server')
+    env.ParseConfig(("LDFLAGS='%s' ../../share/scons/get_xmlrpc_config"+
+        " server") % (os.environ['LDFLAGS'],))
 
 env.Program('oned.cc')
