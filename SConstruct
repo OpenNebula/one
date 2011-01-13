@@ -39,6 +39,8 @@ if os.environ.has_key('CXXFLAGS'):
     main_env['CXXFLAGS'] += SCons.Util.CLVar(os.environ['CXXFLAGS'])
 if os.environ.has_key('LDFLAGS'):
     main_env['LINKFLAGS'] += SCons.Util.CLVar(os.environ['LDFLAGS'])
+else:
+    os.environ['LDFLAGS']=""
 
 # Add builders for flex and bison
 add_lex(main_env)
