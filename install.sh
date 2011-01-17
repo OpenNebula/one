@@ -527,6 +527,7 @@ TM_EXAMPLE_SHARE_FILES="share/examples/tm/tm_clone.sh \
 HOOK_SHARE_FILES="share/hooks/ebtables-xen \
                   share/hooks/ebtables-kvm \
                   share/hooks/ebtables-flush \
+                  share/hooks/host_error.rb \
                   share/hooks/image.rb"
 
 #-------------------------------------------------------------------------------

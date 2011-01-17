@@ -174,7 +174,7 @@ module OpenNebula
             action('resume')
         end
 
-        # Deletes a VM from the pool and DB
+        # Deletes a VM from the pool
         def finalize
             action('finalize')
         end
