@@ -46,6 +46,10 @@ if !(mode=ARGV[1]) # By default, resubmit VMs
     mode = "-r"
 end
 
+if !(force=ARGV[2]) # By default, don't resubmit/finalize suspended VMs
+    force = "n"
+end
+
 begin
     client = Client.new()
 rescue Exception => e
@@ -76,6 +80,21 @@ vm_ids_array.each do |vm_id|
         vm.resubmit
     elsif mode == "-d"
         vm.finalize
+    end
+end
+
+if force == "y" 
+    vm_ids_array = vms.retrieve_elements("/VM_POOL/VM[STATE=3]/HISTORY[HOSTNAME=\"#{host_name}\"]/../ID and /VM_POOL/VM[STATE=\"5\"]")
+
+    vm_ids_array.each do |vm_id| 
+        vm=OpenNebula::VirtualMachine.new_with_id(vm_id, client)
+        vm.info
+
+        if mode == "-r"
+            vm.resubmit
+        elsif mode == "-d"
+            vm.finalize
+        end
     end
 end
 
