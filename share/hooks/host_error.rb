@@ -65,27 +65,14 @@ host_name = host.name
 
 # Loop through all vms
 vms = VirtualMachinePool.new(client)
-exit -1 if OpenNebula.is_error?(host)
+exit -1 if OpenNebula.is_error?(vms)
 
 vms.info
 
-vm_ids_array = vms.retrieve_elements("/VM_POOL/VM[STATE=3]/HISTORY[HOSTNAME=\"#{host_name}\"]/../ID and /VM_POOL/VM[STATE=\"3\"]")
+vm_ids_array = vms.retrieve_elements("/VM_POOL/VM[STATE=3]/HISTORY[HOSTNAME=\"#{host_name}\"]/../ID")
 
- 
-vm_ids_array.each do |vm_id| 
-    vm=OpenNebula::VirtualMachine.new_with_id(vm_id, client)
-    vm.info
 
-    if mode == "-r"
-        vm.resubmit
-    elsif mode == "-d"
-        vm.finalize
-    end
-end
-
-if force == "y" 
-    vm_ids_array = vms.retrieve_elements("/VM_POOL/VM[STATE=3]/HISTORY[HOSTNAME=\"#{host_name}\"]/../ID and /VM_POOL/VM[STATE=\"5\"]")
-
+if vm_ids_array
     vm_ids_array.each do |vm_id| 
         vm=OpenNebula::VirtualMachine.new_with_id(vm_id, client)
         vm.info
@@ -94,6 +81,23 @@ if force == "y"
             vm.resubmit
         elsif mode == "-d"
             vm.finalize
+        end
+    end
+end
+
+if force == "y" 
+    vm_ids_array = vms.retrieve_elements("/VM_POOL/VM[STATE=5]/HISTORY[HOSTNAME=\"#{host_name}\"]/../ID")
+
+    if vm_ids_array
+        vm_ids_array.each do |vm_id| 
+            vm=OpenNebula::VirtualMachine.new_with_id(vm_id, client)
+            vm.info
+
+            if mode == "-r"
+                vm.resubmit
+            elsif mode == "-d"
+                vm.finalize
+            end
         end
     end
 end
