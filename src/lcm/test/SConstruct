@@ -46,6 +46,7 @@ add_bison(main_env)
 
 # Include dirs
 main_env.Append(CPPPATH=[
+    '.',
     cwd+'/include',
     '/usr/include/cppunit/'
 ])
@@ -186,7 +187,7 @@ lib_name='nebula_core_test'
 
 # Sources to generate the library
 source_files=[
-    'Nebula.cc',
+    '../../nebula/test/Nebula.cc',
     '../../nebula/NebulaTemplate.cc',
 ]
 

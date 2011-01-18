@@ -361,7 +361,7 @@ public:
 
         runner.run();
 
-	END_XML_WRITER
+        END_XML_WRITER
 
         if (!log_flag)
             remove("test.log");

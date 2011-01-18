@@ -17,7 +17,6 @@
 #include "LifeCycleManagerTest.h"
 
 string LifeCycleManagerTest::db_name;
-bool LifeCycleManagerTest::mysql;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -75,13 +74,13 @@ int main(int argc, char ** argv)
 
     if (sqlite_flag)
     {
-        LifeCycleManagerTest::mysql = false;
+        NebulaTest::instance().setMysql(false);
         NebulaLog::log("Test", Log::INFO, "Running Sqlite tests...");
         cout << "\nRunning Sqlite tests...\n";
     }
     else
     {
-        LifeCycleManagerTest::mysql = true;
+        NebulaTest::instance().setMysql(true);
         NebulaLog::log("Test", Log::INFO, "Running MySQL tests...");
         cout << "\nRunning MySQL tests...\n";
     }

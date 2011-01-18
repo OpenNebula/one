@@ -15,6 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include "Nebula.h"
+#include "NebulaTest.h"
 #include "DummyManager.h"
 
 #include "SqliteDB.h"
@@ -73,12 +74,15 @@ class LifeCycleManagerTest : public CppUnit::TestFixture
 
     CPPUNIT_TEST ( prolog_to_boot );
     CPPUNIT_TEST ( prolog_to_failed );
+    CPPUNIT_TEST ( prolog_to_pending );
 
     CPPUNIT_TEST ( prolog_resume_to_boot );
     CPPUNIT_TEST ( prolog_resume_to_failed );
+    CPPUNIT_TEST ( prolog_resume_to_pending );
 
     CPPUNIT_TEST ( boot_to_running );
     CPPUNIT_TEST ( boot_to_failed );
+    CPPUNIT_TEST ( boot_to_pending );
 
     CPPUNIT_TEST ( running_to_save_migrate );
     CPPUNIT_TEST ( running_to_save_stop );
@@ -86,33 +90,43 @@ class LifeCycleManagerTest : public CppUnit::TestFixture
     CPPUNIT_TEST ( running_to_save_suspend );
     CPPUNIT_TEST ( running_to_migrate );
     CPPUNIT_TEST ( running_to_cancel );
+    CPPUNIT_TEST ( running_to_pending );
 
     CPPUNIT_TEST ( save_migrate_to_prolog_migrate );
     CPPUNIT_TEST ( save_migrate_to_running );
+    CPPUNIT_TEST ( save_migrate_to_pending );
 
     CPPUNIT_TEST ( prolog_migrate_to_boot );
     CPPUNIT_TEST ( prolog_migrate_to_failed );
+//    CPPUNIT_TEST ( prolog_migrate_to_pending );
 
     CPPUNIT_TEST ( cancel_to_done );
     CPPUNIT_TEST ( cancel_to_running );
+//    CPPUNIT_TEST ( cancel_to_pending );
 
     CPPUNIT_TEST ( migrate_to_running );
     CPPUNIT_TEST ( migrate_to_failed );
+//    CPPUNIT_TEST ( migrate_to_pending );
 
     CPPUNIT_TEST ( save_suspend_to_suspended );
     CPPUNIT_TEST ( save_suspend_to_running );
+//    CPPUNIT_TEST ( save_suspend_to_pending );
 
     CPPUNIT_TEST ( shutdown_to_epilog );
     CPPUNIT_TEST ( shutdown_to_running );
+//    CPPUNIT_TEST ( shutdown_to_pending );
 
     CPPUNIT_TEST ( save_stop_to_epilog_stop );
     CPPUNIT_TEST ( save_stop_to_running );
+//    CPPUNIT_TEST ( save_stop_to_pending );
 
     CPPUNIT_TEST ( epilog_to_done );
     CPPUNIT_TEST ( epilog_to_failed );
+//    CPPUNIT_TEST ( epilog_to_pending );
 
     CPPUNIT_TEST ( epilog_stop_to_stop );
     CPPUNIT_TEST ( epilog_stop_to_failed );
+//    CPPUNIT_TEST ( epilog_stop_to_pending );
 
     CPPUNIT_TEST_SUITE_END ();
 
@@ -133,10 +147,6 @@ private:
     vector<LifeCycleManager::Actions> tm_actions;
     vector<LifeCycleManager::Actions> vmm_actions;
 
-    void wait(int nullllll)
-    {
-        sleep(2);
-    }
 
     /**
      *  Wait until the VM changes to the specified state.
@@ -257,13 +267,8 @@ private:
     }
 
 public:
-    static bool     mysql;
     static string   db_name;
 
-    static bool isMysql()
-    {
-        return mysql;
-    }
 
     void setUp()
     {
@@ -308,7 +313,7 @@ public:
         //XML Library
         xmlCleanupParser();
 
-        if (mysql)
+        if (NebulaTest::instance().isMysql())
         {
             SqlDB * db;
 
@@ -385,6 +390,18 @@ public:
 
 /* -------------------------------------------------------------------------- */
 
+    void prolog_to_pending()
+    {
+        vm = allocate_pending(0);
+        vm->unlock();
+
+        rc = dm->resubmit(vm->get_oid());
+
+        wait_assert(vm, VirtualMachine::PENDING);
+    }
+
+/* -------------------------------------------------------------------------- */
+
     void prolog_resume_to_boot()
     {
         vm = allocate_pending(0);
@@ -419,6 +436,23 @@ public:
 
 /* -------------------------------------------------------------------------- */
 
+    void prolog_resume_to_pending()
+    {
+        vm = allocate_pending(0);
+        vm->set_reason(History::STOP_RESUME);
+        vm->cp_history();
+
+        rc = dm->deploy(vm);
+        vm->unlock();
+
+        wait_assert(vm, VirtualMachine::ACTIVE, VirtualMachine::PROLOG_RESUME );
+
+        rc = dm->resubmit(vm->get_oid());
+        wait_assert(vm, VirtualMachine::PENDING);
+    }
+
+/* -------------------------------------------------------------------------- */
+
     void boot_to_running()
     {
         allocate_running(0);
@@ -440,6 +474,25 @@ public:
         vm->unlock();
 
         wait_assert(vm, VirtualMachine::FAILED );
+    }
+
+/* -------------------------------------------------------------------------- */
+
+    void boot_to_pending()
+    {
+        vm = allocate_pending(0);
+
+        tm_actions.push_back(LifeCycleManager::PROLOG_SUCCESS);
+        tm->set_actions(tm_actions);
+
+        rc = dm->deploy(vm);
+        vm->unlock();
+
+        wait_assert(vm, VirtualMachine::ACTIVE, VirtualMachine::BOOT );
+
+        rc = dm->resubmit(vm->get_oid());
+        CPPUNIT_ASSERT( rc == 0 );
+        wait_assert(vm, VirtualMachine::PENDING);
     }
 
 /* -------------------------------------------------------------------------- */
@@ -517,6 +570,17 @@ public:
 
 /* -------------------------------------------------------------------------- */
 
+    void running_to_pending()
+    {
+        vm = allocate_running(0);
+
+        rc = dm->resubmit(vm->get_oid());
+        CPPUNIT_ASSERT( rc == 0 );
+        wait_assert(vm, VirtualMachine::PENDING);
+    }
+
+/* -------------------------------------------------------------------------- */
+
     void save_migrate_to_prolog_migrate()
     {
         vm = allocate_running(0);
@@ -555,6 +619,28 @@ public:
         dm->migrate(vm);
 
         wait_assert(vm, VirtualMachine::ACTIVE, VirtualMachine::RUNNING );
+    }
+
+/* -------------------------------------------------------------------------- */
+
+    void save_migrate_to_pending()
+    {
+        vm = allocate_running(0);
+
+        vm->add_history(hid,hostname,vmdir,vmm_mad,tm_mad);
+
+        rc = vmpool->update_history(vm);
+        CPPUNIT_ASSERT( rc == 0 );
+
+        vmpool->update(vm); //Insert last_seq in the DB
+
+        dm->migrate(vm);
+
+        wait_assert(vm, VirtualMachine::ACTIVE, VirtualMachine::SAVE_MIGRATE );
+
+        rc = dm->resubmit(vm->get_oid());
+        CPPUNIT_ASSERT( rc == 0 );
+        wait_assert(vm, VirtualMachine::PENDING);
     }
 
 /* -------------------------------------------------------------------------- */

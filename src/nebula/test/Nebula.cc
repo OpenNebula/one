@@ -20,8 +20,7 @@
 #include "SqliteDB.h"
 #include "MySqlDB.h"
 
-#include "LifeCycleManagerTest.h"
-#include "DummyManager.h"
+#include "NebulaTest.h"
 
 #include <stdlib.h>
 #include <stdexcept>
@@ -119,6 +118,11 @@ void Nebula::start()
     }
 
 
+    // -----------------------------------------------------------
+    // Configuration
+    // -----------------------------------------------------------
+
+    // A self-contained structure in current directory is assumed
     nebula_location = "./";
 
     mad_location     = nebula_location + "lib/mads/";
@@ -146,7 +150,7 @@ void Nebula::start()
         vector<const Attribute *> dbs;
         int  rc;
 
-        bool   db_is_sqlite = ! LifeCycleManagerTest::isMysql();
+        bool   db_is_sqlite = ! NebulaTest::instance().isMysql();
 
         string server  = "localhost";
         string user    = "oneadmin";
@@ -208,16 +212,14 @@ void Nebula::start()
         string  default_image_type;
         string  default_device_prefix;
 
-        vector<const Attribute *> hooks;
-
-        vmpool = new VirtualMachinePool(db, hooks,hook_location);
-        hpool  = new HostPool(db, hooks, hook_location);
-        vnpool = new VirtualNetworkPool(db,mac_prefix,size);
-        upool  = new UserPool(db);
-        ipool  = new ImagePool(db,
-                               repository_path,
-                               default_image_type,
-                               default_device_prefix);
+       vmpool = NebulaTest::create_vmpool(db, hook_location);
+       hpool  = NebulaTest::create_hpool(db, hook_location);
+       vnpool = NebulaTest::create_vnpool(db, mac_prefix,size);
+       upool  = NebulaTest::create_upool(db);
+       ipool  = NebulaTest::create_ipool(db,
+                              repository_path,
+                              default_image_type,
+                              default_device_prefix);
     }
     catch (exception&)
     {
@@ -239,45 +241,84 @@ void Nebula::start()
     MadManager::mad_manager_system_init();
 
     time_t timer_period = 0;
+    rc = 0;
 
     // ---- Virtual Machine Manager ----
     try
     {
         time_t                    poll_period = 0;
-        vector<const Attribute *> vmm_mads;
 
-        vmm = new VirtualMachineManagerTest(
-            vmpool,
-            hpool,
-            timer_period,
-            poll_period,
-            vmm_mads);
+        vmm = NebulaTest::create_vmm(vmpool,hpool,timer_period,poll_period);
     }
     catch (bad_alloc&)
     {
         throw;
     }
 
-    rc = vmm->start();
+    if( vmm != 0)
+    {
+        rc = vmm->start();
+    }
 
     if ( rc != 0 )
     {
         throw runtime_error("Could not start the Virtual Machine Manager");
     }
 
-    // ---- Transfer Manager ----
+    // ---- Life-cycle Manager ----
     try
     {
-        vector<const Attribute *> tm_mads;
-
-        tm = new TransferManagerTest(vmpool, hpool, tm_mads);
+        lcm = NebulaTest::create_lcm(vmpool,hpool);
     }
     catch (bad_alloc&)
     {
         throw;
     }
 
-    rc = tm->start();
+    if( lcm != 0 )
+    {
+        rc = lcm->start();
+    }
+
+    if ( rc != 0 )
+    {
+        throw runtime_error("Could not start the Life-cycle Manager");
+    }
+
+    // ---- Information Manager ----
+    try
+    {
+        im = NebulaTest::create_im(hpool,timer_period,remotes_location);
+    }
+    catch (bad_alloc&)
+    {
+        throw;
+    }
+
+    if( im != 0 )
+    {
+        rc = im->start();
+    }
+
+    if ( rc != 0 )
+    {
+        throw runtime_error("Could not start the Information Manager");
+    }
+
+    // ---- Transfer Manager ----
+    try
+    {
+        tm = NebulaTest::create_tm(vmpool, hpool);
+    }
+    catch (bad_alloc&)
+    {
+        throw;
+    }
+
+    if( tm != 0 )
+    {
+        rc = tm->start();
+    }
 
     if ( rc != 0 )
     {
@@ -287,35 +328,83 @@ void Nebula::start()
     // ---- Dispatch Manager ----
     try
     {
-        dm = new DispatchManager(vmpool,hpool);
+        dm = NebulaTest::create_dm(vmpool,hpool);
     }
     catch (bad_alloc&)
     {
         throw;
     }
 
-    rc = dm->start();
+    if( dm != 0 )
+    {
+        rc = dm->start();
+    }
 
     if ( rc != 0 )
     {
        throw runtime_error("Could not start the Dispatch Manager");
     }
 
-    // ---- Life-cycle Manager ----
+    // ---- Request Manager ----
     try
     {
-        lcm = new LifeCycleManager(vmpool,hpool);
+        rm = NebulaTest::create_rm(vmpool,hpool,vnpool,upool,ipool,
+                        log_location + "one_xmlrpc.log");
+    }
+    catch (bad_alloc&)
+    {
+        NebulaLog::log("ONE", Log::ERROR, "Error starting RM");
+        throw;
+    }
+
+    if( rm != 0 )
+    {
+        rc = rm->start();
+    }
+
+    if ( rc != 0 )
+    {
+       throw runtime_error("Could not start the Request Manager");
+    }
+
+    // ---- Hook Manager ----
+    try
+    {
+        hm = NebulaTest::create_hm(vmpool);
     }
     catch (bad_alloc&)
     {
         throw;
     }
 
-    rc = lcm->start();
+    if( hm != 0 )
+    {
+        rc = hm->start();
+    }
 
     if ( rc != 0 )
     {
-        throw runtime_error("Could not start the Life-cycle Manager");
+       throw runtime_error("Could not start the Hook Manager");
+    }
+
+    // ---- Auth Manager ----
+    try
+    {
+        authm = NebulaTest::create_authm(timer_period);
+    }
+    catch (bad_alloc&)
+    {
+        throw;
+    }
+
+    if (authm != 0)
+    {
+        rc = authm->start();
+
+        if ( rc != 0 )
+        {
+          throw runtime_error("Could not start the Auth Manager");
+        }
     }
 
     // -----------------------------------------------------------
@@ -324,5 +413,28 @@ void Nebula::start()
 
     sleep(2);
 
-    vmm->load_mads(0);
+    if( vmm != 0 )
+    {
+        vmm->load_mads(0);
+    }
+
+    if( im != 0 )
+    {
+        im->load_mads(0);
+    }
+
+    if( tm != 0 )
+    {
+        tm->load_mads(0);
+    }
+
+    if( hm != 0 )
+    {
+        hm->load_mads(0);
+    }
+
+    if( authm != 0 )
+    {
+        authm->load_mads(0);
+    }
 };
