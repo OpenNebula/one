@@ -215,6 +215,55 @@ module OpenNebula
 
             return str
         end
+        
+        def to_hash
+            merge_element!({}, @xml.document.root)
+        end
+        
+        private
+        
+        def merge_element!(hash, element)
+            merge!(hash, element.name, prepare_element(element))
+        end
+
+        def prepare_element(element)
+            if NOKOGIRI
+                if element.children.length == 1
+                    element.children.first.text
+                else
+                    hash = {}
+                    element.children.each do |c|
+                        if c.element?
+                            merge_element!(hash, c)
+                        elsif c.text?
+                            next
+                        end
+                    end
+                    hash
+                end
+            else
+                if element.has_elements?
+                    hash = {}
+                    element.each_element {|child| merge_element!(hash, child) }
+                    hash
+                elsif element.has_text?
+                    element.text
+                end
+            end
+        end
+
+        def merge!(hash, key, value)
+            if hash.has_key?(key)
+                if hash[key].instance_of?(Array)
+                    hash[key] << value
+                else
+                    hash[key] = [hash[key], value]
+                end
+            else
+                hash[key] = value
+            end
+            hash
+        end
     end
 
     ###########################################################################
