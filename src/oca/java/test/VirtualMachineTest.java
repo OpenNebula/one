@@ -272,6 +272,17 @@ public class VirtualMachineTest
     }
 
     @Test
+    public void resubmit()
+    {
+        vm.deploy(hid_A);
+        waitAssert(vm, "ACTIVE", "RUNNING");
+        res = vm.resubmit();
+
+        assertTrue( !res.isError() );
+        waitAssert(vm, "PENDING", "-");
+    }
+
+    @Test
     public void attributes()
     {
         res = vm.info();
