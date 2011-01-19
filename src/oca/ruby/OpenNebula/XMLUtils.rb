@@ -216,52 +216,42 @@ module OpenNebula
             return str
         end
         
-        def to_hash
-            merge_element!({}, @xml.document.root)
-        end
-        
-        private
-        
-        def merge_element!(hash, element)
-            merge!(hash, element.name, prepare_element(element))
-        end
-
-        def prepare_element(element)
+        def to_hash(hash={}, element=nil)
+            element ||= @xml.document.root
+            
             if NOKOGIRI
                 if element.children.length == 1
-                    element.children.first.text
+                    r = element.children.first.text
                 else
-                    hash = {}
-                    element.children.each do |c|
+                    r = {}
+                    element.children.each { |c|
                         if c.element?
-                            merge_element!(hash, c)
+                            to_hash(r, c)
                         elsif c.text?
                             next
                         end
-                    end
-                    hash
+                    }
                 end
             else
                 if element.has_elements?
-                    hash = {}
-                    element.each_element {|child| merge_element!(hash, child) }
-                    hash
+                    r = {}
+                    element.each_element { |c| to_hash(r, c) }
                 elsif element.has_text?
-                    element.text
+                    r = element.text
                 end
             end
-        end
-
-        def merge!(hash, key, value)
+            
+            key = element.name
             if hash.has_key?(key)
                 if hash[key].instance_of?(Array)
-                    hash[key] << value
+                    hash[key] << r
                 else
-                    hash[key] = [hash[key], value]
+                    hash[key] = [hash[key], r]
                 end
             else
-                hash[key] = value
+                hash[key] = r
             end
+            
             hash
         end
     end
