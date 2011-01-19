@@ -60,6 +60,8 @@ class InformationManager < OpenNebulaDriver
         log_lambda=lambda do |message|
             log(number, message)
         end
+        
+        retries = 2
 
         if do_update == "1"
             # Use SCP to sync:
@@ -70,9 +72,16 @@ class InformationManager < OpenNebulaDriver
             LocalCommand.run(sync_cmd, log_lambda)
         end
 
-        cmd_string = "#{@remote_dir}/im/run_probes #{@hypervisor} #{host}"
+        cmd_string = "#{@remote_dir}/im/run_probes #{@hypervisor} #{host}"      
+
         cmd = RemotesCommand.run(cmd_string, host, @remote_dir, log_lambda)
 
+        while cmd.code != 0 or retries != 0
+            cmd = RemotesCommand.run(cmd_string, host, @remote_dir, log_lambda)
+            retries = retries - 1
+            sleep 1
+        end
+        
         if cmd.code == 0
             send_message("MONITOR", RESULT[:success], number, cmd.stdout)
         else
