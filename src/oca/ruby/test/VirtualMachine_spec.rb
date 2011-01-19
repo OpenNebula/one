@@ -123,6 +123,23 @@ module OpenNebula
             @vm['HISTORY/HOSTNAME'].should eql('dummyhost')
             @vm['HISTORY/PSTIME'].should eql('1277375186')
         end
+        
+        it "should access an attribute using to_hash" do
+            vm_hash = @vm.to_hash
+            
+            vm_hash['VM']['NAME'].should eql('vm-example')
+            vm_hash['VM']['DEPLOY_ID'].should eql('dummy')
+            vm_hash['VM']['TEMPLATE']['MEMORY'].should eql('512')
+            vm_hash['VM']['ID'].should eql('6')
+            vm_hash['VM']['NAME'].should eql('vm-example')
+            vm_hash['VM']['LCM_STATE'].should eql('3')
+            vm_hash['VM']['DEPLOY_ID'].should eql('dummy')
+            vm_hash['VM']['TEMPLATE']['MEMORY'].should eql('512')
+            vm_hash['VM']['TEMPLATE']['CONTEXT']['DNS'].should eql('192.169.1.4')
+            vm_hash['VM']['TEMPLATE']['DISK'][1]['SIZE'].should eql('1024')
+            vm_hash['VM']['HISTORY']['HOSTNAME'].should eql('dummyhost')
+            vm_hash['VM']['HISTORY']['PSTIME'].should eql('1277375186')
+        end
     end
 
     describe "VirtualMachine using REXML" do
