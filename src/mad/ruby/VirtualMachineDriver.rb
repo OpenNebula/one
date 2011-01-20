@@ -65,10 +65,11 @@ class VirtualMachineDriver < OpenNebulaDriver
     # -------------------------------------------------------------------------
     # Register default actions for the protocol
     # -------------------------------------------------------------------------
-    def initialize(concurrency=10, threaded=true)
+    def initialize(concurrency=10, threaded=true, retries=0)
         super(concurrency,threaded)
 
-        @hosts = Array.new
+        @hosts   = Array.new
+        @retries = retries
 
         register_action(ACTION[:deploy].to_sym, method("deploy"))
         register_action(ACTION[:shutdown].to_sym, method("shutdown"))
@@ -107,14 +108,14 @@ class VirtualMachineDriver < OpenNebulaDriver
     # -------------------------------------------------------------------------
     # Execute a command associated to an action and id in a remote host.
     # -------------------------------------------------------------------------
-    def remotes_action(command, id, host, action, remote_dir, std_in=nil, retries=1)
+    def remotes_action(command, id, host, action, remote_dir, std_in=nil)
+
         command_exe = RemotesCommand.run(command, 
                                          host, 
                                          remote_dir, 
                                          log_method(id),
                                          std_in, 
-                                         retries)
-
+                                         @retries)
         if command_exe.code == 0
             result = :success
             info   = command_exe.stdout

@@ -32,6 +32,7 @@ $: << RUBY_LIB_LOCATION
 
 require 'OpenNebulaDriver'
 require 'CommandManager'
+require 'getoptlong'
 
 #-------------------------------------------------------------------------------
 # The SSH Information Manager Driver
@@ -41,13 +42,14 @@ class InformationManager < OpenNebulaDriver
     #---------------------------------------------------------------------------
     # Init the driver
     #---------------------------------------------------------------------------
-    def initialize(hypervisor, num)
-        super(num, true)
+    def initialize(hypervisor, threads, retries)
+        super(threads, true)
 
         @config = read_configuration
 
         @hypervisor = hypervisor
         @remote_dir = @config['SCRIPTS_REMOTE_DIR']
+        @retries    = retries
 
         # register actions
         register_action(:MONITOR, method("action_monitor"))
@@ -72,8 +74,11 @@ class InformationManager < OpenNebulaDriver
 
         cmd_string = "#{@remote_dir}/im/run_probes #{@hypervisor} #{host}"      
 
-        cmd = RemotesCommand.run(cmd_string, host, @remote_dir, log_lambda, 2)
-    
+        cmd = RemotesCommand.run(cmd_string, 
+                                 host, 
+                                 @remote_dir, 
+                                 log_lambda, 
+                                 @retries)
         if cmd.code == 0
             send_message("MONITOR", RESULT[:success], number, cmd.stdout)
         else
@@ -90,6 +95,33 @@ end
 #-------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------
 
-hypervisor = ARGV[0]||''
-im = InformationManager.new(hypervisor, 15)
+opts = GetoptLong.new(
+    [ '--retries',    '-r', GetoptLong::OPTIONAL_ARGUMENT ],
+    [ '--threads',    '-t', GetoptLong::OPTIONAL_ARGUMENT ]
+)
+
+hypervisor = ''
+retries    = 0
+threads    = 15
+
+begin
+    opts.each do |opt, arg|
+        case opt
+            when '--retries'
+                retries = arg.to_i
+            when '--threads'
+                threads = arg.to_i
+        end
+    end
+rescue Exception => e
+    exit(-1)
+end 
+
+if ARGV.length >= 1 
+    hypervisor = ARGV.shift
+end
+
+puts retries, threads, hypervisor
+
+im = InformationManager.new(hypervisor, threads, retries)
 im.start_driver
