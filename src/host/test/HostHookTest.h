@@ -37,6 +37,7 @@
 
 using namespace std;
 
+static string  db_name     = "ONE_test_database";
 
 class HostHookTest : public CppUnit::TestFixture
 {
@@ -60,8 +61,6 @@ private:
     int     rc;
 
 public:
-    static string   db_name;
-
 
     void setUp()
     {

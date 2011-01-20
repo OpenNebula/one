@@ -62,7 +62,7 @@ static string  hostname    = "test_hostname";
 static string  vmm_mad     = "vmm_mad";
 static string  tm_mad      = "tm_mad";
 static string  vmdir       = "vmdir";
-
+static string  db_name     = "ONE_test_database";
 
 class LifeCycleManagerTest : public CppUnit::TestFixture
 {
@@ -98,35 +98,35 @@ class LifeCycleManagerTest : public CppUnit::TestFixture
 
     CPPUNIT_TEST ( prolog_migrate_to_boot );
     CPPUNIT_TEST ( prolog_migrate_to_failed );
-//    CPPUNIT_TEST ( prolog_migrate_to_pending );
+    CPPUNIT_TEST ( prolog_migrate_to_pending );
 
     CPPUNIT_TEST ( cancel_to_done );
     CPPUNIT_TEST ( cancel_to_running );
-//    CPPUNIT_TEST ( cancel_to_pending );
+    CPPUNIT_TEST ( cancel_to_pending );
 
     CPPUNIT_TEST ( migrate_to_running );
     CPPUNIT_TEST ( migrate_to_failed );
-//    CPPUNIT_TEST ( migrate_to_pending );
+    CPPUNIT_TEST ( migrate_to_pending );
 
     CPPUNIT_TEST ( save_suspend_to_suspended );
     CPPUNIT_TEST ( save_suspend_to_running );
-//    CPPUNIT_TEST ( save_suspend_to_pending );
+    CPPUNIT_TEST ( save_suspend_to_pending );
 
     CPPUNIT_TEST ( shutdown_to_epilog );
     CPPUNIT_TEST ( shutdown_to_running );
-//    CPPUNIT_TEST ( shutdown_to_pending );
+    CPPUNIT_TEST ( shutdown_to_pending );
 
     CPPUNIT_TEST ( save_stop_to_epilog_stop );
     CPPUNIT_TEST ( save_stop_to_running );
-//    CPPUNIT_TEST ( save_stop_to_pending );
+    CPPUNIT_TEST ( save_stop_to_pending );
 
     CPPUNIT_TEST ( epilog_to_done );
     CPPUNIT_TEST ( epilog_to_failed );
-//    CPPUNIT_TEST ( epilog_to_pending );
+    CPPUNIT_TEST ( epilog_to_pending );
 
     CPPUNIT_TEST ( epilog_stop_to_stop );
     CPPUNIT_TEST ( epilog_stop_to_failed );
-//    CPPUNIT_TEST ( epilog_stop_to_pending );
+    CPPUNIT_TEST ( epilog_stop_to_pending );
 
     CPPUNIT_TEST_SUITE_END ();
 
@@ -267,8 +267,6 @@ private:
     }
 
 public:
-    static string   db_name;
-
 
     void setUp()
     {
@@ -396,7 +394,6 @@ public:
         vm->unlock();
 
         rc = dm->resubmit(vm->get_oid());
-
         wait_assert(vm, VirtualMachine::PENDING);
     }
 
@@ -693,6 +690,30 @@ public:
 
 /* -------------------------------------------------------------------------- */
 
+    void prolog_migrate_to_pending()
+    {
+        vm = allocate_running(0);
+
+        vm->add_history(hid,hostname,vmdir,vmm_mad,tm_mad);
+
+        rc = vmpool->update_history(vm);
+        CPPUNIT_ASSERT( rc == 0 );
+
+        vmpool->update(vm); //Insert last_seq in the DB
+
+        vmm_actions.push_back(LifeCycleManager::SAVE_SUCCESS);
+        vmm->set_actions(vmm_actions);
+
+        dm->migrate(vm);
+
+        wait_assert(vm, VirtualMachine::ACTIVE,VirtualMachine::PROLOG_MIGRATE );
+
+        rc = dm->resubmit(vm->get_oid());
+        wait_assert(vm, VirtualMachine::PENDING);
+    }
+
+/* -------------------------------------------------------------------------- */
+
     void cancel_to_done()
     {
         vm = allocate_running(0);
@@ -717,6 +738,18 @@ public:
         dm->cancel(vm->get_oid());
 
         wait_assert(vm, VirtualMachine::ACTIVE, VirtualMachine::RUNNING );
+    }
+
+/* -------------------------------------------------------------------------- */
+
+    void cancel_to_pending()
+    {
+        vm = allocate_running(0);
+        dm->cancel(vm->get_oid());
+        wait_assert(vm, VirtualMachine::ACTIVE, VirtualMachine::CANCEL );
+
+        rc = dm->resubmit(vm->get_oid());
+        wait_assert(vm, VirtualMachine::PENDING);
     }
 
 /* -------------------------------------------------------------------------- */
@@ -767,6 +800,28 @@ public:
 
 /* -------------------------------------------------------------------------- */
 
+    void migrate_to_pending()
+    {
+        vm = allocate_running(0);
+
+        vm->add_history(hid,hostname,vmdir,vmm_mad,tm_mad);
+        rc = vmpool->update_history(vm);
+        CPPUNIT_ASSERT( rc == 0 );
+
+        vmpool->update(vm); //Insert last_seq in the DB
+
+        CPPUNIT_ASSERT( vm->hasHistory() );
+        CPPUNIT_ASSERT( vm->hasPreviousHistory() );
+
+        dm->live_migrate(vm);
+        wait_assert(vm, VirtualMachine::ACTIVE, VirtualMachine::MIGRATE );
+
+        rc = dm->resubmit(vm->get_oid());
+        wait_assert(vm, VirtualMachine::PENDING);
+    }
+
+/* -------------------------------------------------------------------------- */
+
     void save_suspend_to_suspended()
     {
         vm = allocate_running(0);
@@ -791,6 +846,18 @@ public:
         dm->suspend(vm->get_oid());
 
         wait_assert(vm, VirtualMachine::ACTIVE, VirtualMachine::RUNNING );
+    }
+
+/* -------------------------------------------------------------------------- */
+
+    void save_suspend_to_pending()
+    {
+        vm = allocate_running(0);
+        dm->suspend(vm->get_oid());
+        wait_assert(vm, VirtualMachine::ACTIVE, VirtualMachine::SAVE_SUSPEND );
+
+        rc = dm->resubmit(vm->get_oid());
+        wait_assert(vm, VirtualMachine::PENDING);
     }
 
 /* -------------------------------------------------------------------------- */
@@ -823,6 +890,18 @@ public:
 
 /* -------------------------------------------------------------------------- */
 
+    void shutdown_to_pending()
+    {
+        vm = allocate_running(0);
+        dm->shutdown(vm->get_oid());
+        wait_assert(vm, VirtualMachine::ACTIVE, VirtualMachine::SHUTDOWN );
+
+        rc = dm->resubmit(vm->get_oid());
+        wait_assert(vm, VirtualMachine::PENDING);
+    }
+
+/* -------------------------------------------------------------------------- */
+
     void save_stop_to_epilog_stop()
     {
         vm = allocate_running(0);
@@ -847,6 +926,19 @@ public:
         dm->stop(vm->get_oid());
 
         wait_assert(vm, VirtualMachine::ACTIVE, VirtualMachine::RUNNING );
+    }
+
+
+/* -------------------------------------------------------------------------- */
+
+    void save_stop_to_pending()
+    {
+        vm = allocate_running(0);
+        dm->stop(vm->get_oid());
+        wait_assert(vm, VirtualMachine::ACTIVE, VirtualMachine::SAVE_STOP );
+
+        rc = dm->resubmit(vm->get_oid());
+        wait_assert(vm, VirtualMachine::PENDING);
     }
 
 /* -------------------------------------------------------------------------- */
@@ -883,6 +975,22 @@ public:
         wait_assert(vm, VirtualMachine::FAILED );
     }
 
+/* -------------------------------------------------------------------------- */
+
+    void epilog_to_pending()
+    {
+        vm = allocate_running(0);
+
+        vmm_actions.push_back(LifeCycleManager::SHUTDOWN_SUCCESS);
+        vmm->set_actions(vmm_actions);
+
+        dm->shutdown(vm->get_oid());
+
+        wait_assert(vm, VirtualMachine::ACTIVE, VirtualMachine::EPILOG );
+
+        rc = dm->resubmit(vm->get_oid());
+        wait_assert(vm, VirtualMachine::PENDING);
+    }
 
 /* -------------------------------------------------------------------------- */
 
@@ -916,6 +1024,23 @@ public:
         dm->stop(vm->get_oid());
 
         wait_assert(vm, VirtualMachine::FAILED );
+    }
+
+/* -------------------------------------------------------------------------- */
+
+    void epilog_stop_to_pending()
+    {
+        vm = allocate_running(0);
+
+        vmm_actions.push_back(LifeCycleManager::SAVE_SUCCESS);
+        vmm->set_actions(vmm_actions);
+
+        dm->stop(vm->get_oid());
+
+        wait_assert(vm, VirtualMachine::ACTIVE, VirtualMachine::EPILOG_STOP );
+
+        rc = dm->resubmit(vm->get_oid());
+        wait_assert(vm, VirtualMachine::PENDING);
     }
 
 /* -------------------------------------------------------------------------- */
