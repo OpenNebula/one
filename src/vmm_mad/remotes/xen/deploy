@@ -38,10 +38,10 @@ domain_name=`echo $output | grep 'Started domain' | sed 's/^.*Started domain //'
 
 out=`grep -e '^\#O CPU_CREDITS =' < $domain`
 
-if [ "x$?" != "x0" ]; then
+if [ "x$?" = "x0" ]; then
     credits=`echo $out | cut -d= -f2 | tr -d ' '`
     
-    name=`grep -e '^name =' < $domain | cut -d= -f2 | tr -d ' '`
+    name=`grep -e '^name =' < $domain | cut -d= -f2 | tr -d ' ' | tr -d "\'"`
     
     $XM_CREDITS -d $name -w $credits
     
