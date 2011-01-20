@@ -14,107 +14,85 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#include <string>
-#include <iostream>
-#include <stdlib.h>
-#include <fstream>
+#include "HostHookTest.h"
 
-#include "HostPool.h"
-#include "PoolTest.h"
+string HostHookTest::db_name;
 
-using namespace std;
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
-/* ************************************************************************* */
-/* ************************************************************************* */
-
-class HostHookTest : public PoolTest
+void show_options ()
 {
-    CPPUNIT_TEST_SUITE (HostHookTest);
-
-    CPPUNIT_TEST (allocate_hook);
-//    CPPUNIT_TEST (error_hook);
-//    CPPUNIT_TEST (disable_hook);
-    CPPUNIT_TEST_SUITE_END ();
-
-protected:
-
-    void bootstrap(SqlDB* db)
-    {
-        HostPool::bootstrap(db);
-    };
-
-    PoolSQL* create_pool(SqlDB* db)
-    {
-        map<string,string> hook_value;
-        VectorAttribute *  hook;
-
-        vector<const Attribute *> host_hooks;
-
-        hook_value.insert(make_pair("NAME","create_test"));
-        hook_value.insert(make_pair("ON","ERROR"));
-        hook_value.insert(make_pair("COMMAND","/bin/touch"));
-        hook_value.insert(make_pair("ARGUMENTS","/tmp/host_$HID"));
-        hook_value.insert(make_pair("REMOTE","no"));
-
-        hook = new VectorAttribute("HOST_HOOK",hook_value);
-
-
-
-        host_hooks.push_back(hook);
-
-        return new HostPool(db,host_hooks,"./");
-    };
-
-    int allocate(int index){return 0;};
-    void check(int index, PoolObjectSQL* obj){};
-
-public:
-    HostHookTest(){xmlInitParser();};
-
-    ~HostHookTest(){xmlCleanupParser();};
-
-
-    /* ********************************************************************* */
-    /* ********************************************************************* */
-
-
-    void allocate_hook()
-    {
-        HostPool * hp = static_cast<HostPool *>(pool);
-
-        string err;
-        int    oid;
-
-        fstream fd;
-
-        hp->allocate(&oid, "host_test", "im_mad", "vmm_mad", "tm_mad", err);
-
-        Host* host = hp->get(oid, true);
-
-        CPPUNIT_ASSERT( host != 0 );
-
-        host->unlock();
-
-        ostringstream oss;
-
-        oss << "/tmp/host_" << oid ;
-
-        fd.open(oss.str().c_str(), fstream::in | fstream::out );
-
-        CPPUNIT_ASSERT( fd.fail() == false );
-
-        fd.close();
-    };
-
-    /* ********************************************************************* */
+    cout << "Options:\n";
+    cout << "    -h  --help         Show this help\n"
+            "    -s  --sqlite       Run Sqlite tests (default)\n"
+            "    -m  --mysql        Run MySQL tests\n"
+            "    -l  --log          Keep the log file, test.log\n";
 };
 
 
-/* ************************************************************************* */
-/* ************************************************************************* */
-/* ************************************************************************* */
-
 int main(int argc, char ** argv)
 {
-    return PoolTest::main(argc, argv, HostHookTest::suite());
+    // Option flags
+    bool sqlite_flag = true;
+    bool log_flag    = false;
+
+    // Long options
+    const struct option long_opt[] =
+    {
+        { "sqlite", 0,  NULL,   's'},
+        { "mysql",  0,  NULL,   'm'},
+        { "log",    0,  NULL,   'l'},
+        { "help",   0,  NULL,   'h'}
+    };
+
+    int c;
+    while ((c = getopt_long (argc, argv, "smlh", long_opt, NULL)) != -1)
+        switch (c)
+        {
+            case 'm':
+                sqlite_flag = false;
+                break;
+            case 'l':
+                log_flag = true;
+                break;
+            case 'h':
+                show_options();
+                return 0;
+        }
+
+    // We need to set the log file, otherwise it will end in a dead-lock
+    NebulaLog::init_log_system(NebulaLog::FILE, Log::DEBUG, "test.log");
+    NebulaLog::log("Test", Log::INFO, "Test started");
+
+
+    CppUnit::TextUi::TestRunner runner;
+
+    SETUP_XML_WRITER(runner, "output.xml")
+
+    runner.addTest( HostHookTest::suite() );
+
+    if (sqlite_flag)
+    {
+        NebulaTest::instance().setMysql(false);
+        NebulaLog::log("Test", Log::INFO, "Running Sqlite tests...");
+        cout << "\nRunning Sqlite tests...\n";
+    }
+    else
+    {
+        NebulaTest::instance().setMysql(true);
+        NebulaLog::log("Test", Log::INFO, "Running MySQL tests...");
+        cout << "\nRunning MySQL tests...\n";
+    }
+
+    runner.run();
+
+    END_XML_WRITER
+
+    if (!log_flag)
+        remove("test.log");
+
+    NebulaLog::finalize_log_system();
+
+    return 0;
 }

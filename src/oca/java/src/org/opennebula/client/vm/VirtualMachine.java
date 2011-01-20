@@ -310,12 +310,21 @@ public class VirtualMachine extends PoolElement{
     }
 
     /**
-     * Resubmits the virtual machine after failure.
+     * Forces a re-deployment of a VM in UNKNOWN or BOOT state.
      * @return If an error occurs the error message contains the reason.
      */
     public OneResponse restart()
     {
         return action("shutdown");
+    }
+
+    /**
+     * Resubmits a VM to PENDING state.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse resubmit()
+    {
+        return action("resubmit");
     }
 
     /**
