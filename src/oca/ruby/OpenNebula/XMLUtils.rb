@@ -215,20 +215,19 @@ module OpenNebula
 
             return str
         end
-        
+
         def to_hash(hash={}, element=nil)
             element ||= @xml.document.root
-            
+
             if NOKOGIRI
-                if element.children.length == 1
-                    r = element.children.first.text
+                array = element.children
+                if array.length == 1 and array.first.text?
+                    r = array.first.text
                 else
                     r = {}
-                    element.children.each { |c|
+                    array.each { |c|
                         if c.element?
                             to_hash(r, c)
-                        elsif c.text?
-                            next
                         end
                     }
                 end
@@ -240,7 +239,7 @@ module OpenNebula
                     r = element.text
                 end
             end
-            
+
             key = element.name
             if hash.has_key?(key)
                 if hash[key].instance_of?(Array)
@@ -251,7 +250,7 @@ module OpenNebula
             else
                 hash[key] = r
             end
-            
+
             hash
         end
     end
