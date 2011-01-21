@@ -80,10 +80,14 @@ elif [ "$VAL_CALL" = "yes" ] ; then
     CALLER="valgrind --tool=callgrind"
 fi
 
-TESTS=`find $TWD_DIR -name test -type d | grep -v ruby`
+TESTS=`find $TWD_DIR -name test -type d`
 
 for i in $TESTS ; do
     cd $BASE_DIR
+
+    if [ ! -f "$i/SConstruct" ] ; then
+        continue
+    fi
 
     echo ; echo
     echo "#####################################################################"
@@ -101,11 +105,11 @@ for i in $TESTS ; do
         scons $BUILD_ARGS
     else
         for j in `ls test*` ; do
-	    if [ -x $j ] ; then
-    	        echo ; echo "---------------------------------------------------------------------"
-    	        echo "Test Program: $j"
+            if [ -x $j ] ; then
+                echo ; echo "---------------------------------------------------------------------"
+                echo "Test Program: $j"
                 echo "---------------------------------------------------------------------"
-            	$CALLER ./$j $TEST_ARGS
+                $CALLER ./$j $TEST_ARGS
                 echo "---------------------------------------------------------------------"
             fi
         done

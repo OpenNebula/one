@@ -36,6 +36,7 @@ main_env.Append(CPPPATH=[
 # Library dirs
 main_env.Append(LIBPATH=[
     cwd+'/../../../../common',
+    cwd+'/../../../../log',
     '../'
 ])
 
@@ -52,6 +53,7 @@ main_env.Append(LDFLAGS=["-g"])
 # Libraries
 main_env.Append(LIBS=[
     'cppunit',
+    'nebula_log',
     'scheduler_xml',
     'nebula_common'
 ])

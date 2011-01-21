@@ -599,5 +599,5 @@ public:
 
 int main(int argc, char ** argv)
 {
-    return PoolTest::main(argc, argv, HostPoolTest::suite());
+    return PoolTest::main(argc, argv, HostPoolTest::suite(), "host_pool.xml");
 }

@@ -41,10 +41,12 @@ main_env.Append(CPPPATH=[
 # Library dirs
 main_env.Append(LIBPATH=[
     cwd + '/src/common',
+    cwd + '/src/log',
 ])
 
 main_env.Append(LIBS=[
     'nebula_common',
+    'nebula_log',
     'cppunit',
     'dl',
     'pthread'

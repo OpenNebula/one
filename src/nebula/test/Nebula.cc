@@ -20,6 +20,7 @@
 #include "SqliteDB.h"
 #include "MySqlDB.h"
 
+#include "OneUnitTest.h"
 #include "NebulaTest.h"
 
 #include <stdlib.h>
@@ -112,11 +113,6 @@ void Nebula::start()
         delete nebula_configuration;
     }
 
-    if ( db != 0 )
-    {
-        delete db;
-    }
-
 
     // -----------------------------------------------------------
     // Configuration
@@ -148,48 +144,8 @@ void Nebula::start()
     try
     {
         vector<const Attribute *> dbs;
-        int  rc;
 
-        bool   db_is_sqlite = ! NebulaTest::instance().isMysql();
-
-        string server  = "localhost";
-        string user    = "oneadmin";
-        string passwd  = "oneadmin";
-        string db_name = "ONE_test_database";
-
-        if ( db_is_sqlite )
-        {
-            string  db_name = var_location + "one.db";
-
-            db = new SqliteDB(db_name);
-        }
-        else
-        {
-            ostringstream   oss;
-
-            db = new MySqlDB(server,0,user,passwd,"");
-
-            oss << "DROP DATABASE IF EXISTS " << db_name;
-            db->exec(oss);
-
-            oss.str("");
-
-            oss << "CREATE DATABASE IF NOT EXISTS " << db_name;
-            rc = db->exec(oss);
-
-            if ( rc != 0 )
-            {
-                throw runtime_error("Could not create database.");
-            }
-
-            oss.str("");
-            oss << "USE " << db_name;
-            rc = db->exec(oss);
-            if ( rc != 0 )
-            {
-                throw runtime_error("Could not open database.");
-            }
-        }
+        db = OneUnitTest::get_db();
 
         NebulaLog::log("ONE",Log::INFO,"Bootstraping OpenNebula database.");
 
@@ -212,11 +168,11 @@ void Nebula::start()
         string  default_image_type;
         string  default_device_prefix;
 
-       vmpool = NebulaTest::create_vmpool(db, hook_location);
-       hpool  = NebulaTest::create_hpool(db, hook_location);
-       vnpool = NebulaTest::create_vnpool(db, mac_prefix,size);
-       upool  = NebulaTest::create_upool(db);
-       ipool  = NebulaTest::create_ipool(db,
+        vmpool = NebulaTest::create_vmpool(db, hook_location);
+        hpool  = NebulaTest::create_hpool(db, hook_location);
+        vnpool = NebulaTest::create_vnpool(db, mac_prefix,size);
+        upool  = NebulaTest::create_upool(db);
+        ipool  = NebulaTest::create_ipool(db,
                               repository_path,
                               default_image_type,
                               default_device_prefix);
@@ -225,6 +181,9 @@ void Nebula::start()
     {
         throw;
     }
+
+    // Set pointer to null, to prevent its deletion on the destructor
+    db = 0;
 
     // -----------------------------------------------------------
     // Block all signals before creating any Nebula thread

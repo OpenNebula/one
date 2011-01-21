@@ -14,83 +14,180 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#include "HostHookTest.h"
+#include "OneUnitTest.h"
+#include "Nebula.h"
+#include "NebulaTest.h"
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
+#include <string>
+#include <iostream>
+#include <stdlib.h>
 
-void show_options ()
+using namespace std;
+
+class HostHookTest : public OneUnitTest
 {
-    cout << "Options:\n";
-    cout << "    -h  --help         Show this help\n"
-            "    -s  --sqlite       Run Sqlite tests (default)\n"
-            "    -m  --mysql        Run MySQL tests\n"
-            "    -l  --log          Keep the log file, test.log\n";
+
+    CPPUNIT_TEST_SUITE (HostHookTest);
+
+    CPPUNIT_TEST (allocate_hook);
+    CPPUNIT_TEST (monitoring_error);
+    CPPUNIT_TEST (error_imd);
+    CPPUNIT_TEST (disable_hook);
+
+    CPPUNIT_TEST_SUITE_END ();
+
+private:
+
+    Host *          host;
+    HostPool *      hpool;
+    HookManager *   hm;
+
+    int     oid;
+    int     rc;
+
+public:
+
+    void setUp()
+    {
+        // Create var dir.
+        string command = "mkdir -p var";
+        std::system(command.c_str());
+
+        create_db();
+
+        Nebula& neb = Nebula::instance();
+        neb.start();
+
+        hpool   = neb.get_hpool();
+        hm      = static_cast<HookManager*>(neb.get_hm());
+    }
+
+    void tearDown()
+    {
+        // -----------------------------------------------------------
+        // Stop the managers & free resources
+        // -----------------------------------------------------------
+
+        hm->finalize();
+
+        //sleep to wait drivers???
+        pthread_join(hm->get_thread_id(),0);
+
+        //XML Library
+        xmlCleanupParser();
+
+        delete_db();
+
+        // Clean up var dir.
+        string command = "rm -r var";
+        std::system(command.c_str());
+    }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+    void allocate_hook()
+    {
+        string err;
+
+        hpool->allocate(&oid, "host_test", "im_mad", "vmm_mad", "tm_mad", err);
+        CPPUNIT_ASSERT( oid >= 0 );
+
+        sleep(1);
+
+        ostringstream oss;
+        oss << "ls ./var/hook_create_" << oid << " > /dev/null 2>&1";
+        rc = std::system(oss.str().c_str());
+
+        CPPUNIT_ASSERT( rc == 0 );
+    }
+
+/* -------------------------------------------------------------------------- */
+
+    void monitoring_error()
+    {
+        string err;
+
+        hpool->allocate(&oid, "host_test", "im_mad", "vmm_mad", "tm_mad", err);
+        CPPUNIT_ASSERT( oid >= 0 );
+
+        host = hpool->get(oid, true);
+        CPPUNIT_ASSERT( host != 0 );
+
+        host->touch(false);
+        hpool->update(host);
+
+        host->unlock();
+
+        sleep(1);
+
+        ostringstream oss;
+        oss << "ls ./var/hook_error_" << oid << " > /dev/null 2>&1";
+        rc = std::system(oss.str().c_str());
+
+        CPPUNIT_ASSERT( rc == 0 );
+    }
+
+/* -------------------------------------------------------------------------- */
+
+    void error_imd()
+    {
+        string err;
+
+        hpool->allocate(&oid, "host_test", "im_mad", "vmm_mad", "tm_mad", err);
+        CPPUNIT_ASSERT( oid >= 0 );
+
+        host = hpool->get(oid, true);
+        CPPUNIT_ASSERT( host != 0 );
+
+        host->set_state(Host::ERROR);
+        hpool->update(host);
+
+        host->unlock();
+
+        sleep(1);
+
+        ostringstream oss;
+        oss << "ls ./var/hook_error_" << oid << " > /dev/null 2>&1";
+        rc = std::system(oss.str().c_str());
+
+        CPPUNIT_ASSERT( rc == 0 );
+    }
+
+/* -------------------------------------------------------------------------- */
+
+    void disable_hook()
+    {
+        string err;
+
+        hpool->allocate(&oid, "host_test", "im_mad", "vmm_mad", "tm_mad", err);
+        CPPUNIT_ASSERT( oid >= 0 );
+
+        host = hpool->get(oid, true);
+        CPPUNIT_ASSERT( host != 0 );
+
+        host->disable();
+        hpool->update(host);
+
+        host->unlock();
+
+        sleep(1);
+
+        ostringstream oss;
+        oss << "ls ./var/hook_disable_" << oid << " > /dev/null 2>&1";
+        rc = std::system(oss.str().c_str());
+
+        CPPUNIT_ASSERT( rc == 0 );
+    }
+
+/* -------------------------------------------------------------------------- */
 };
 
+bool    OneUnitTest::mysql;
+SqlDB * OneUnitTest::db      = 0;
+string  OneUnitTest::db_name = "ONE_test_database";
 
 int main(int argc, char ** argv)
 {
-    // Option flags
-    bool sqlite_flag = true;
-    bool log_flag    = false;
-
-    // Long options
-    const struct option long_opt[] =
-    {
-        { "sqlite", 0,  NULL,   's'},
-        { "mysql",  0,  NULL,   'm'},
-        { "log",    0,  NULL,   'l'},
-        { "help",   0,  NULL,   'h'}
-    };
-
-    int c;
-    while ((c = getopt_long (argc, argv, "smlh", long_opt, NULL)) != -1)
-        switch (c)
-        {
-            case 'm':
-                sqlite_flag = false;
-                break;
-            case 'l':
-                log_flag = true;
-                break;
-            case 'h':
-                show_options();
-                return 0;
-        }
-
-    // We need to set the log file, otherwise it will end in a dead-lock
-    NebulaLog::init_log_system(NebulaLog::FILE, Log::DEBUG, "test.log");
-    NebulaLog::log("Test", Log::INFO, "Test started");
-
-
-    CppUnit::TextUi::TestRunner runner;
-
-    SETUP_XML_WRITER(runner, "output.xml")
-
-    runner.addTest( HostHookTest::suite() );
-
-    if (sqlite_flag)
-    {
-        NebulaTest::instance().setMysql(false);
-        NebulaLog::log("Test", Log::INFO, "Running Sqlite tests...");
-        cout << "\nRunning Sqlite tests...\n";
-    }
-    else
-    {
-        NebulaTest::instance().setMysql(true);
-        NebulaLog::log("Test", Log::INFO, "Running MySQL tests...");
-        cout << "\nRunning MySQL tests...\n";
-    }
-
-    runner.run();
-
-    END_XML_WRITER
-
-    if (!log_flag)
-        remove("test.log");
-
-    NebulaLog::finalize_log_system();
-
-    return 0;
+    return OneUnitTest::main(argc, argv, HostHookTest::suite(),"host_hook.xml");
 }

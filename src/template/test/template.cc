@@ -3,13 +3,7 @@
 #include <string>
 #include <iostream>
 
-#include <TestFixture.h>
-#include <TestAssert.h>
-#include <TestSuite.h>
-#include <TestCaller.h>
-#include <ui/text/TestRunner.h>
-
-#include "test/one_test_common.h"
+#include "test/OneUnitTest.h"
 
 using namespace std;
 
@@ -17,8 +11,22 @@ using namespace std;
 /* ************************************************************************* */
 /* ************************************************************************* */
 
-class TemplateTest : public CppUnit::TestFixture
+class TemplateTest : public OneUnitTest
 {
+    CPPUNIT_TEST_SUITE (TemplateTest);
+
+    CPPUNIT_TEST (test_parser);
+    CPPUNIT_TEST (test_marshall);
+    CPPUNIT_TEST (test_xml);
+    CPPUNIT_TEST (test_str);
+    CPPUNIT_TEST (test_get);
+    CPPUNIT_TEST (test_remove);
+    CPPUNIT_TEST (test_set);
+    CPPUNIT_TEST (test_erase);
+    CPPUNIT_TEST (test_from_xml);
+
+    CPPUNIT_TEST_SUITE_END ();
+
 private:
     Template *t, *tr, *t1;
 
@@ -346,68 +354,18 @@ public:
 
         CPPUNIT_ASSERT(str1 == str2);
     }
-
-    /* ********************************************************************* */
-    /* ********************************************************************* */
-
-    static CppUnit::TestSuite * suite()
-    {
-        CppUnit::TestSuite *ts=new CppUnit::TestSuite("Template Tests");
-
-        ts->addTest(new CppUnit::TestCaller<TemplateTest>(
-                    "parse() Test",
-                    &TemplateTest::test_parser));
-
-        ts->addTest(new CppUnit::TestCaller<TemplateTest>(
-                    "marshall() Test",
-                    &TemplateTest::test_marshall));
-
-        ts->addTest(new CppUnit::TestCaller<TemplateTest>(
-                    "xml() Test",
-                    &TemplateTest::test_xml));
-
-        ts->addTest(new CppUnit::TestCaller<TemplateTest>(
-                    "str() Test",
-                    &TemplateTest::test_str));
-
-        ts->addTest(new CppUnit::TestCaller<TemplateTest>(
-                    "get() Test",
-                    &TemplateTest::test_get));
-
-        ts->addTest(new CppUnit::TestCaller<TemplateTest>(
-                    "remove() Test",
-                    &TemplateTest::test_remove));
-
-        ts->addTest(new CppUnit::TestCaller<TemplateTest>(
-                    "set() Test",
-                    &TemplateTest::test_set));
-
-        ts->addTest(new CppUnit::TestCaller<TemplateTest>(
-                    "erase() Test",
-                    &TemplateTest::test_erase));
-
-        ts->addTest(new CppUnit::TestCaller<TemplateTest>(
-                    "from_xml() Test",
-                    &TemplateTest::test_from_xml));
-
-        return ts;
-    }
 };
 
 /* ************************************************************************* */
 /* ************************************************************************* */
 /* ************************************************************************* */
 
+
+bool    OneUnitTest::mysql;
+SqlDB * OneUnitTest::db      = 0;
+string  OneUnitTest::db_name = "ONE_test_database";
+
 int main(int argc, char ** argv)
 {
-    CppUnit::TextUi::TestRunner tr;
-
-    SETUP_XML_WRITER(tr, "template.xml")
-
-    tr.addTest(TemplateTest::suite());
-    tr.run();
-
-    END_XML_WRITER
-
-    return 0;
+    return OneUnitTest::main(argc, argv, TemplateTest::suite());
 }

@@ -21,7 +21,7 @@
 #include "PoolSQL.h"
 
 using namespace std;
-                               
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -31,7 +31,7 @@ class TestObjectSQL : public PoolObjectSQL
 public:
     //OBJECT ATTRIBUTES
     TestObjectSQL(int n=-1, string t="default"):number(n),text(t){};
-                    
+
     ~TestObjectSQL(){};
 
     int         number;
@@ -40,7 +40,7 @@ public:
 
     // OBJECTSQL INTERFACE
     int unmarshall(void * nil, int num, char **names, char ** values);
-    
+
     int select(SqlDB *db);
 
     int insert(SqlDB *db, string& err);

@@ -1,21 +1,42 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 #include "Attribute.h"
 
 #include <string>
 #include <iostream>
 #include <map>
 
-#include <TestFixture.h>
-#include <TestAssert.h>
-#include <TestSuite.h>
-#include <TestCaller.h>
-#include <ui/text/TestRunner.h>
-
-#include "test/one_test_common.h"
+#include "test/OneUnitTest.h"
 
 using namespace std;
 
-class VectorAttributeTest : public CppUnit::TestFixture 
+class VectorAttributeTest : public OneUnitTest
 {
+    CPPUNIT_TEST_SUITE (VectorAttributeTest);
+
+    CPPUNIT_TEST (test_type);
+    CPPUNIT_TEST (test_name);
+    CPPUNIT_TEST (test_value);
+    CPPUNIT_TEST (test_marshall);
+    CPPUNIT_TEST (test_xml);
+    CPPUNIT_TEST (test_replace);
+
+    CPPUNIT_TEST_SUITE_END ();
+
 private:
     VectorAttribute   *a, *b;
     map<string,string> b_value;
@@ -81,7 +102,7 @@ public:
         CPPUNIT_ASSERT(c.vector_value("attr1") == "val1");
         CPPUNIT_ASSERT(c.vector_value("attr2") == "val2");
         CPPUNIT_ASSERT(c.vector_value("attr3") == "val3");
-       
+
         delete am;
         delete bm;
     }
@@ -120,51 +141,15 @@ public:
         CPPUNIT_ASSERT(b->vector_value("attr3").empty() == true);
         CPPUNIT_ASSERT(b->value() == nm);
     }
-
-    static CppUnit::TestSuite * suite()
-    {
-        CppUnit::TestSuite *ts=new CppUnit::TestSuite("VectorAttribute Tests");
-
-        ts->addTest(new CppUnit::TestCaller<VectorAttributeTest>(
-                    "type() Test",
-                    &VectorAttributeTest::test_type));
-
-        ts->addTest(new CppUnit::TestCaller<VectorAttributeTest>(
-                    "name() Test",
-                    &VectorAttributeTest::test_name));
-        
-        ts->addTest(new CppUnit::TestCaller<VectorAttributeTest>(
-                    "value() Test",
-                    &VectorAttributeTest::test_value));
-        
-        ts->addTest(new CppUnit::TestCaller<VectorAttributeTest>(
-                    "marshall() Test",
-                    &VectorAttributeTest::test_marshall));
-       
-        ts->addTest(new CppUnit::TestCaller<VectorAttributeTest>(
-                    "to_xml() Test",
-                    &VectorAttributeTest::test_xml));
-
-        ts->addTest(new CppUnit::TestCaller<VectorAttributeTest>(
-                    "replace() Test",
-                    &VectorAttributeTest::test_replace));
- 
-        return ts;
-    }
-
 };
+
+
+bool    OneUnitTest::mysql;
+SqlDB * OneUnitTest::db      = 0;
+string  OneUnitTest::db_name = "ONE_test_database";
 
 int main(int argc, char ** argv)
 {
-    
-    CppUnit::TextUi::TestRunner tr;
-
-    SETUP_XML_WRITER(tr, "vector_attribute.xml");
-    
-    tr.addTest(VectorAttributeTest::suite());
-    tr.run();
-
-    END_XML_WRITER
-
-    return 0;
+    return OneUnitTest::main(argc, argv, VectorAttributeTest::suite(),
+                            "vector_attribute");
 }

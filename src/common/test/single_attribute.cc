@@ -1,23 +1,44 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 #include "Attribute.h"
 
 #include <string>
 #include <iostream>
 
-#include <TestFixture.h>
-#include <TestAssert.h>
-#include <TestSuite.h>
-#include <TestCaller.h>
-#include <ui/text/TestRunner.h>
-
-#include "test/one_test_common.h"
+#include "test/OneUnitTest.h"
 
 using namespace std;
 
-class SingleAttributeTest : public CppUnit::TestFixture 
+class SingleAttributeTest : public OneUnitTest
 {
+    CPPUNIT_TEST_SUITE (SingleAttributeTest);
+
+    CPPUNIT_TEST (test_type);
+    CPPUNIT_TEST (test_name);
+    CPPUNIT_TEST (test_value);
+    CPPUNIT_TEST (test_marshall);
+    CPPUNIT_TEST (test_xml);
+    CPPUNIT_TEST (test_replace);
+
+    CPPUNIT_TEST_SUITE_END ();
+
 private:
     SingleAttribute *a, *b;
-    
+
 public:
     void setUp()
     {
@@ -90,48 +111,14 @@ public:
 
         CPPUNIT_ASSERT(b->value() == "new_value_b");
     }
-
-    static CppUnit::TestSuite * suite()
-    {
-        CppUnit::TestSuite *ts=new CppUnit::TestSuite("SingleAttribute Tests");
-
-        ts->addTest(new CppUnit::TestCaller<SingleAttributeTest>(
-                    "type() Test",
-                    &SingleAttributeTest::test_type));
-
-        ts->addTest(new CppUnit::TestCaller<SingleAttributeTest>(
-                    "name() Test",
-                    &SingleAttributeTest::test_name));
-        
-        ts->addTest(new CppUnit::TestCaller<SingleAttributeTest>(
-                    "value() Test",
-                    &SingleAttributeTest::test_value));
-        
-        ts->addTest(new CppUnit::TestCaller<SingleAttributeTest>(
-                    "marshall() Test",
-                    &SingleAttributeTest::test_marshall));
-        
-        ts->addTest(new CppUnit::TestCaller<SingleAttributeTest>(
-                    "to_xml() Test",
-                    &SingleAttributeTest::test_xml));
-
-        ts->addTest(new CppUnit::TestCaller<SingleAttributeTest>(
-                    "replace() Test",
-                    &SingleAttributeTest::test_replace));
-        return ts;
-    }
 };
+
+bool    OneUnitTest::mysql;
+SqlDB * OneUnitTest::db      = 0;
+string  OneUnitTest::db_name = "ONE_test_database";
 
 int main(int argc, char ** argv)
 {
-    CppUnit::TextUi::TestRunner tr;
-
-    SETUP_XML_WRITER(tr, "single_attribute.xml");
-    
-    tr.addTest(SingleAttributeTest::suite());
-    tr.run();
-
-    END_XML_WRITER
-
-    return 0;
+    return OneUnitTest::main(argc, argv, SingleAttributeTest::suite(),
+                            "single_attribute.xml");
 }
