@@ -189,7 +189,9 @@ lib_name='nebula_core_test'
 # Sources to generate the library
 source_files=[
     '../../nebula/test/Nebula.cc',
+    '../../nebula/test/NebulaTest.cc',
     '../../nebula/NebulaTemplate.cc',
+    '../../../include/test/OneUnitTest.cc',
 ]
 
 # Build library
@@ -200,7 +202,6 @@ main_env.StaticLibrary(lib_name, source_files)
 main_env.Append(LIBS=[
     'nebula_lcm_dm',
     'nebula_core_test',
-
     'nebula_vmm',
     'nebula_im',
     'nebula_rm',

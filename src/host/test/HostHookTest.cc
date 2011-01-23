@@ -16,7 +16,7 @@
 
 #include "OneUnitTest.h"
 #include "Nebula.h"
-#include "NebulaTest.h"
+#include "NebulaTestHost.h"
 
 #include <string>
 #include <iostream>
@@ -42,6 +42,8 @@ private:
     HostPool *      hpool;
     HookManager *   hm;
 
+    NebulaTestHost * tester;
+
     int     oid;
     int     rc;
 
@@ -54,6 +56,8 @@ public:
         std::system(command.c_str());
 
         create_db();
+
+        tester = new NebulaTestHost();
 
         Nebula& neb = Nebula::instance();
         neb.start();
@@ -77,6 +81,8 @@ public:
         xmlCleanupParser();
 
         delete_db();
+        
+        delete tester;
 
         // Clean up var dir.
         string command = "rm -r var";
@@ -183,9 +189,6 @@ public:
 /* -------------------------------------------------------------------------- */
 };
 
-bool    OneUnitTest::mysql;
-SqlDB * OneUnitTest::db      = 0;
-string  OneUnitTest::db_name = "ONE_test_database";
 
 int main(int argc, char ** argv)
 {

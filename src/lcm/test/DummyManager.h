@@ -21,6 +21,7 @@
 #include "TransferManager.h"
 #include "VirtualMachineManager.h"
 #include "LifeCycleManager.h"
+#include "Nebula.h"
 
 /**
  *  The Dummy Manager will ignore any trigger calls but FINALIZE, unless the lcm
@@ -29,10 +30,11 @@
 class DummyManager
 {
 protected:
+    DummyManager():index(0){}
+    virtual ~DummyManager(){}
+
     vector<LifeCycleManager::Actions> actions;
     int index;
-
-    DummyManager():index(0){}
 
 public:
     void clear_actions()
@@ -55,10 +57,10 @@ public:
             index++;
         }
     }
-
 };
 
-class TransferManagerTest : public TransferManager, public DummyManager
+
+class TransferManagerTest:public TransferManager, public DummyManager
 {
 public:
     TransferManagerTest(
@@ -81,7 +83,7 @@ public:
 };
 
 
-class VirtualMachineManagerTest : public VirtualMachineManager, public DummyManager
+class VirtualMachineManagerTest:public VirtualMachineManager, public DummyManager
 {
 public:
     VirtualMachineManagerTest(

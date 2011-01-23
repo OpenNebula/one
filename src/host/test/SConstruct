@@ -190,7 +190,9 @@ lib_name='nebula_core_test'
 # Sources to generate the library
 source_files=[
     '../../nebula/test/Nebula.cc',
+    '../../nebula/test/NebulaTest.cc',
     '../../nebula/NebulaTemplate.cc',
+    '../../../include/test/OneUnitTest.cc',
 ]
 
 # Build library

@@ -41,79 +41,14 @@ using namespace std;
 
 void Nebula::start()
 {
+    int             rc;
+    sigset_t        mask;
+    time_t          timer_period;
 
-    // Clean up
-    if ( vmpool != 0)
-    {
-        delete vmpool;
-    }
+    NebulaTest *    tester;
 
-    if ( vnpool != 0)
-    {
-        delete vnpool;
-    }
-
-    if ( hpool != 0)
-    {
-        delete hpool;
-    }
-
-    if ( upool != 0)
-    {
-        delete upool;
-    }
-
-    if ( ipool != 0)
-    {
-        delete ipool;
-    }
-
-    if ( vmm != 0)
-    {
-        delete vmm;
-    }
-
-    if ( lcm != 0)
-    {
-        delete lcm;
-    }
-
-    if ( im != 0)
-    {
-        delete im;
-    }
-
-    if ( tm != 0)
-    {
-        delete tm;
-    }
-
-    if ( dm != 0)
-    {
-        delete dm;
-    }
-
-    if ( rm != 0)
-    {
-        delete rm;
-    }
-
-    if ( hm != 0)
-    {
-        delete hm;
-    }
-
-    if ( authm != 0)
-    {
-        delete authm;
-    }
-
-    if ( nebula_configuration != 0)
-    {
-        delete nebula_configuration;
-    }
-
-
+    tester = NebulaTest::instance();
+    
     // -----------------------------------------------------------
     // Configuration
     // -----------------------------------------------------------
@@ -128,13 +63,11 @@ void Nebula::start()
     hook_location    = nebula_location + "share/hooks/";
     remotes_location = nebula_location + "lib/remotes/";
 
+    if ( nebula_configuration != 0)
+    {
+        delete nebula_configuration;
+    }
 
-    int             rc;
-    sigset_t        mask;
-
-    // -----------------------------------------------------------
-    // Initialize the XML library
-    // -----------------------------------------------------------
     xmlInitParser();
 
     // -----------------------------------------------------------
@@ -160,6 +93,8 @@ void Nebula::start()
         throw;
     }
 
+    // -----------------------------------------------------------
+
     try
     {
         string  mac_prefix = "00:00";
@@ -168,14 +103,33 @@ void Nebula::start()
         string  default_image_type;
         string  default_device_prefix;
 
-        vmpool = NebulaTest::create_vmpool(db, hook_location);
-        hpool  = NebulaTest::create_hpool(db, hook_location);
-        vnpool = NebulaTest::create_vnpool(db, mac_prefix,size);
-        upool  = NebulaTest::create_upool(db);
-        ipool  = NebulaTest::create_ipool(db,
-                              repository_path,
-                              default_image_type,
-                              default_device_prefix);
+        if (tester->need_vm_pool)
+        {
+            vmpool = tester->create_vmpool(db,hook_location);
+        }
+
+        if (tester->need_host_pool)
+        {
+            hpool  = tester->create_hpool(db,hook_location);
+        }
+
+        if (tester->need_vnet_pool)
+        {
+            vnpool = tester->create_vnpool(db,mac_prefix,size);
+        }
+
+        if (tester->need_user_pool)
+        {
+            upool  = tester->create_upool(db);
+        }
+
+        if (tester->need_image_pool)
+        {
+            ipool  = tester->create_ipool(db,
+                                          repository_path,
+                                          default_image_type,
+                                          default_device_prefix);
+        }
     }
     catch (exception&)
     {
@@ -186,183 +140,203 @@ void Nebula::start()
     db = 0;
 
     // -----------------------------------------------------------
-    // Block all signals before creating any Nebula thread
+    //Managers
     // -----------------------------------------------------------
+
+    timer_period = 0;
+    rc = 0;
 
     sigfillset(&mask);
 
     pthread_sigmask(SIG_BLOCK, &mask, NULL);
 
-    // -----------------------------------------------------------
-    //Managers
-    // -----------------------------------------------------------
-
     MadManager::mad_manager_system_init();
 
-    time_t timer_period = 0;
-    rc = 0;
-
     // ---- Virtual Machine Manager ----
-    try
+    if (tester->need_vmm)
     {
-        time_t                    poll_period = 0;
+        try
+        {
+            time_t poll_period = 0;
 
-        vmm = NebulaTest::create_vmm(vmpool,hpool,timer_period,poll_period);
-    }
-    catch (bad_alloc&)
-    {
-        throw;
-    }
+            vmm = tester->create_vmm(vmpool,hpool,timer_period,poll_period);
+        }
+        catch (bad_alloc&)
+        {
+            throw;
+        }
 
-    if( vmm != 0)
-    {
-        rc = vmm->start();
-    }
-
-    if ( rc != 0 )
-    {
-        throw runtime_error("Could not start the Virtual Machine Manager");
-    }
-
-    // ---- Life-cycle Manager ----
-    try
-    {
-        lcm = NebulaTest::create_lcm(vmpool,hpool);
-    }
-    catch (bad_alloc&)
-    {
-        throw;
-    }
-
-    if( lcm != 0 )
-    {
-        rc = lcm->start();
-    }
-
-    if ( rc != 0 )
-    {
-        throw runtime_error("Could not start the Life-cycle Manager");
-    }
-
-    // ---- Information Manager ----
-    try
-    {
-        im = NebulaTest::create_im(hpool,timer_period,remotes_location);
-    }
-    catch (bad_alloc&)
-    {
-        throw;
-    }
-
-    if( im != 0 )
-    {
-        rc = im->start();
-    }
-
-    if ( rc != 0 )
-    {
-        throw runtime_error("Could not start the Information Manager");
-    }
-
-    // ---- Transfer Manager ----
-    try
-    {
-        tm = NebulaTest::create_tm(vmpool, hpool);
-    }
-    catch (bad_alloc&)
-    {
-        throw;
-    }
-
-    if( tm != 0 )
-    {
-        rc = tm->start();
-    }
-
-    if ( rc != 0 )
-    {
-        throw runtime_error("Could not start the Transfer Manager");
-    }
-
-    // ---- Dispatch Manager ----
-    try
-    {
-        dm = NebulaTest::create_dm(vmpool,hpool);
-    }
-    catch (bad_alloc&)
-    {
-        throw;
-    }
-
-    if( dm != 0 )
-    {
-        rc = dm->start();
-    }
-
-    if ( rc != 0 )
-    {
-       throw runtime_error("Could not start the Dispatch Manager");
-    }
-
-    // ---- Request Manager ----
-    try
-    {
-        rm = NebulaTest::create_rm(vmpool,hpool,vnpool,upool,ipool,
-                        log_location + "one_xmlrpc.log");
-    }
-    catch (bad_alloc&)
-    {
-        NebulaLog::log("ONE", Log::ERROR, "Error starting RM");
-        throw;
-    }
-
-    if( rm != 0 )
-    {
-        rc = rm->start();
-    }
-
-    if ( rc != 0 )
-    {
-       throw runtime_error("Could not start the Request Manager");
-    }
-
-    // ---- Hook Manager ----
-    try
-    {
-        hm = NebulaTest::create_hm(vmpool);
-    }
-    catch (bad_alloc&)
-    {
-        throw;
-    }
-
-    if( hm != 0 )
-    {
-        rc = hm->start();
-    }
-
-    if ( rc != 0 )
-    {
-       throw runtime_error("Could not start the Hook Manager");
-    }
-
-    // ---- Auth Manager ----
-    try
-    {
-        authm = NebulaTest::create_authm(timer_period);
-    }
-    catch (bad_alloc&)
-    {
-        throw;
-    }
-
-    if (authm != 0)
-    {
-        rc = authm->start();
+        if( vmm != 0)
+        {
+            rc = vmm->start();
+        }
 
         if ( rc != 0 )
         {
-          throw runtime_error("Could not start the Auth Manager");
+            throw runtime_error("Could not start the Virtual Machine Manager");
+        }
+    }
+
+    // ---- Life-cycle Manager ----
+    if (tester->need_lcm)
+    {
+        try
+        {
+            lcm = tester->create_lcm(vmpool,hpool);
+        }
+        catch (bad_alloc&)
+        {
+            throw;
+        }
+
+        if( lcm != 0 )
+        {
+            rc = lcm->start();
+        }
+
+        if ( rc != 0 )
+        {
+            throw runtime_error("Could not start the Life-cycle Manager");
+        }
+    }
+
+    // ---- Information Manager ----
+    if (tester->need_im)
+    {
+        try
+        {
+            im = tester->create_im(hpool,timer_period,remotes_location);
+        }
+        catch (bad_alloc&)
+        {
+            throw;
+        }
+
+        if( im != 0 )
+        {
+            rc = im->start();
+        }
+
+        if ( rc != 0 )
+        {
+            throw runtime_error("Could not start the Information Manager");
+        }
+    }
+
+    // ---- Transfer Manager ----
+    if (tester->need_tm)
+    {
+        try
+        {
+            tm = tester->create_tm(vmpool, hpool);
+        }
+        catch (bad_alloc&)
+        {
+            throw;
+        }
+
+        if( tm != 0 )
+        {
+            rc = tm->start();
+        }
+
+        if ( rc != 0 )
+        {
+            throw runtime_error("Could not start the Transfer Manager");
+        }
+    }
+
+    // ---- Dispatch Manager ----
+    if ( tester->need_dm )
+    {
+        try
+        {
+            dm = tester->create_dm(vmpool,hpool);
+        }
+        catch (bad_alloc&)
+        {
+            throw;
+        }
+
+        if( dm != 0 )
+        {
+            rc = dm->start();
+        }
+
+        if ( rc != 0 )
+        {
+           throw runtime_error("Could not start the Dispatch Manager");
+        }
+    }
+
+    // ---- Request Manager ----
+    if (tester->need_rm)
+    {
+        try
+        {
+            rm = tester->create_rm(vmpool,hpool,vnpool,upool,ipool,
+                                   log_location + "one_xmlrpc.log");
+        }
+        catch (bad_alloc&)
+        {
+            NebulaLog::log("ONE", Log::ERROR, "Error starting RM");
+            throw;
+        }
+
+        if( rm != 0 )
+        {
+            rc = rm->start();
+        }
+
+        if ( rc != 0 )
+        {
+           throw runtime_error("Could not start the Request Manager");
+        }
+    }
+
+    // ---- Hook Manager ----
+    if (tester->need_hm)
+    {
+        try
+        {
+            hm = tester->create_hm(vmpool);
+        }
+        catch (bad_alloc&)
+        {
+            throw;
+        }
+
+        if( hm != 0 )
+        {
+            rc = hm->start();
+        }
+
+        if ( rc != 0 )
+        {
+           throw runtime_error("Could not start the Hook Manager");
+        }
+    }
+
+    // ---- Auth Manager ----
+    if (tester->need_authm)
+    {
+        try
+        {
+            authm = tester->create_authm(timer_period);
+        }
+        catch (bad_alloc&)
+        {
+            throw;
+        }
+
+        if (authm != 0)
+        {
+            rc = authm->start();
+
+            if ( rc != 0 )
+            {
+              throw runtime_error("Could not start the Auth Manager");
+            }
         }
     }
 

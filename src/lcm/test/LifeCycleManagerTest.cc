@@ -16,7 +16,8 @@
 
 #include "OneUnitTest.h"
 #include "Nebula.h"
-#include "NebulaTest.h"
+#include "DummyManager.h"
+#include "NebulaTestLCM.h"
 
 using namespace std;
 
@@ -122,23 +123,24 @@ private:
     TransferManagerTest *       tm;
     DispatchManager *           dm;
 
+    NebulaTestLCM *                tester;
+
     int     oid;
     int     rc;
 
     vector<LifeCycleManager::Actions> tm_actions;
     vector<LifeCycleManager::Actions> vmm_actions;
 
-
     /**
      *  Wait until the VM changes to the specified state.
      *  There is a time-out of 3 seconds.
      */
-    void wait_assert(   VirtualMachine*          vm,
-                        VirtualMachine::VmState  state,
-                        VirtualMachine::LcmState lcm_state = VirtualMachine::RUNNING)
+    void wait_assert(VirtualMachine*        vm,
+                   VirtualMachine::VmState  state,
+                   VirtualMachine::LcmState lcm_state = VirtualMachine::RUNNING)
     {
-        int n_steps     = 100;
-        int step        = 30000;
+        int n_steps = 100;
+        int step    = 30000;
 
         int i = 0;
 
@@ -257,6 +259,8 @@ public:
 
         create_db();
 
+        tester = new NebulaTestLCM();
+
         Nebula& neb = Nebula::instance();
         neb.start();
 
@@ -299,6 +303,8 @@ public:
         // Clean var dir.
         string command = "rm -r var";
         std::system(command.c_str());
+
+        delete tester;
     }
 
 /* -------------------------------------------------------------------------- */
@@ -1018,10 +1024,6 @@ public:
 /* -------------------------------------------------------------------------- */
 
 };
-
-bool    OneUnitTest::mysql;
-SqlDB * OneUnitTest::db      = 0;
-string  OneUnitTest::db_name = "ONE_test_database";
 
 int main(int argc, char ** argv)
 {
