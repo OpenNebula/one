@@ -80,6 +80,21 @@ elif [ "$VAL_CALL" = "yes" ] ; then
     CALLER="valgrind --tool=callgrind"
 fi
 
+if [ "$BUILD" = "yes" ] ; then
+    cd ../..
+    scons testing=yes $BUILD_ARGS
+
+    cd $BASE_DIR
+    exit 0
+fi
+
+if [ "$CLEAR" = "yes" ] ; then
+    cd ../..
+    scons testing=yes -c
+
+    cd $BASE_DIR
+fi
+
 TESTS=`find $TWD_DIR -name test -type d`
 
 for i in $TESTS ; do
@@ -99,10 +114,7 @@ for i in $TESTS ; do
     cd $i
 
     if [ "$CLEAR" = "yes" ] ; then
-        scons -c
-        rm -f callgrind.out* test.db* *.log* memgrid.out*
-    elif [ "$BUILD" = "yes" ] ; then
-        scons $BUILD_ARGS
+        rm -f callgrind.out* test.db* *.log* memgrid.out* *.xml
     else
         for j in `ls test*` ; do
             if [ -x $j ] ; then

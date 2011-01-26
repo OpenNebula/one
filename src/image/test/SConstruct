@@ -14,49 +14,9 @@
 # limitations under the License.                                        
 # -------------------------------------------------------------------------- 
 
-import os
-import sys
-import shutil
-sys.path.append("../../../share/scons")
-from lex_bison import *
+Import('env')
 
-# This is the absolute path where the project is located
-cwd="../../../"
-
-# Environment that will be applied to each scons child
-main_env=Environment()
-main_env['ENV']['PATH']=os.environ['PATH']
-
-# Add builders for flex and bison
-add_lex(main_env)
-add_bison(main_env)
-
-# Include dirs
-main_env.Append(CPPPATH=[
-    cwd + '/include',
-    cwd + '/include/test',
-    '/usr/include/cppunit/',
-])
-
-# Library dirs
-main_env.Append(LIBPATH=[
-    cwd + '/src/common',
-    cwd + '/src/log',
-    cwd + '/src/nebula',
-    cwd + '/src/sql',
-    cwd + '/src/pool',
-    cwd + '/src/template',
-    cwd + '/src/vm',
-    cwd + '/src/hm',
-    cwd + '/src/mad',
-    cwd + '/src/vnm',
-    cwd + '/src/um',
-    cwd + '/src/authm',
-    cwd + '/src/image',
-    '/usr/include/openssl/',
-])
-
-main_env.Append(LIBS=[
+env.Append(LIBS=[
     'nebula_image',
     'nebula_um',
     'nebula_vm',
@@ -76,33 +36,16 @@ main_env.Append(LIBS=[
     'crypto',
 ])
 
-# MYSQL
-main_env.Append(LIBPATH=["/usr/lib/mysql"])
-main_env.Append(CPPPATH=["/usr/include/mysql"])
-
-# libxml2
-main_env.ParseConfig('xml2-config --libs --cflags')
-
 sqlite=ARGUMENTS.get('sqlite', 'yes')
 if sqlite=='yes':
-    main_env.Append(CPPFLAGS=["-DSQLITE_DB"])
-    main_env.Append(LIBS=[ 'sqlite3', ])
+    env.Append(CPPFLAGS=["-DSQLITE_DB"])
+    env.Append(LIBS=[ 'sqlite3', ])
 
 # MySQL
 mysql=ARGUMENTS.get('mysql', 'no')
 if mysql=='yes':
-    main_env.Append(CPPFLAGS=["-DMYSQL_DB"])
-    main_env.Append(LIBS=[ 'mysqlclient', ])
+    env.Append(CPPFLAGS=["-DMYSQL_DB"])
+    env.Append(LIBS=[ 'mysqlclient', ])
 
-# Compile flags
-main_env.Append(CPPFLAGS=[
-    "-g",
-    "-Wall",
-    "-Werror"
-])
-
-# Linking flags
-main_env.Append(LDFLAGS=["-g "])
-
-main_env.Program('test','ImagePoolTest.cc')
+env.Program('test','ImagePoolTest.cc')
 

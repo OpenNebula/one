@@ -39,6 +39,29 @@ public:
     }
 
     ~NebulaTestLCM(){};
+
+    TransferManager* create_tm(VirtualMachinePool* vmpool,
+                               HostPool*           hpool)
+    {
+        vector<const Attribute *> tm_mads;
+
+        return new TransferManagerTest(vmpool, hpool, tm_mads);
+    }
+
+
+    VirtualMachineManager* create_vmm(VirtualMachinePool* vmpool,
+                                      HostPool*           hpool,
+                                      time_t              timer_period,
+                                      time_t              poll_period)
+    {
+        vector<const Attribute *> vmm_mads;
+        return new VirtualMachineManagerTest(vmpool,
+                                            hpool,
+                                            timer_period,
+                                            poll_period,
+                                            vmm_mads);
+    }
+
 };
 
 #endif /*NEBULA_TEST_LCM_H_*/

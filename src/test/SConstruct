@@ -1,6 +1,7 @@
+# SConstruct for src/test
+
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2009, Distributed Systems Architecture Group, Universidad   #
-# Complutense de Madrid (dsa-research.org)                                   #
+# Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -17,26 +18,46 @@
 
 Import('env')
 
-env.Append(LIBS=[
-    'nebula_template',
-    'nebula_common',
-    'nebula_core',
-    'nebula_log',
-    'cppunit',
-    'dl',
-    'pthread'
-])
+# Build LCM and DM toguether in a lib
+lib_name='nebula_lcm_dm'
 
-sqlite=ARGUMENTS.get('sqlite', 'yes')
-if sqlite=='yes':
-    env.Append(CPPFLAGS=["-DSQLITE_DB"])
-    env.Append(LIBS=[ 'sqlite3', ])
+# Sources to generate the library
+source_files=[
+    '../lcm/LifeCycleManager.cc',
+    '../lcm/LifeCycleActions.cc',
+    '../lcm/LifeCycleStates.cc',
+    '../dm/DispatchManager.cc',
+    '../dm/DispatchManagerActions.cc',
+    '../dm/DispatchManagerStates.cc',
+]
 
-# MySQL
-mysql=ARGUMENTS.get('mysql', 'no')
-if mysql=='yes':
-    env.Append(CPPFLAGS=["-DMYSQL_DB"])
-    env.Append(LIBS=[ 'mysqlclient', ])
+# Build library
+env.StaticLibrary(lib_name, source_files)
 
-env.Program('test','template.cc')
-#
+
+# Build a modified Nebula lib
+lib_name='nebula_core_test'
+
+# Sources to generate the library
+source_files=[
+    'Nebula.cc',
+    'NebulaTest.cc',
+    '../nebula/NebulaTemplate.cc',
+]
+
+# Build library
+env.StaticLibrary(lib_name, source_files)
+
+
+# Build a modified Nebula lib
+lib_name='nebula_test_common'
+
+# Sources to generate the library
+source_files=[
+    'OneUnitTest.cc',
+]
+
+# Build library
+env.StaticLibrary(lib_name, source_files)
+
+

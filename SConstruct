@@ -107,6 +107,9 @@ if mysql=='yes':
 else:
     main_env.Append(mysql='no')
 
+# Testing
+testing=ARGUMENTS.get('testing', 'no')
+
 
 # xmlrpc
 xmlrpc_dir=ARGUMENTS.get('xmlrpc', 'none')
@@ -183,6 +186,37 @@ build_scripts=[
     'src/um/SConstruct',
     'src/authm/SConstruct',
 ]
+
+if testing=='yes':
+    main_env.Append(CPPPATH=[
+        cwd+'/include/test',
+        '/usr/include/cppunit/'
+    ])
+
+    main_env.Append(LIBPATH=[
+        cwd+'/src/test',
+    ])
+
+
+    main_env.Append(LIBS=[
+        'nebula_test_common',
+    ])
+
+    build_scripts.extend([
+        'src/authm/test/SConstruct',
+        'src/common/test/SConstruct',
+        'src/host/test/SConstruct',
+        'src/image/test/SConstruct',
+        'src/lcm/test/SConstruct',
+        'src/pool/test/SConstruct',
+        'src/scheduler/src/pool/test/SConstruct',
+        'src/scheduler/src/xml/test/SConstruct',
+        'src/template/test/SConstruct',
+        'src/test/SConstruct',
+        'src/um/test/SConstruct',
+        'src/vm/test/SConstruct',
+        'src/vnm/test/SConstruct',
+    ])
 
 for script in build_scripts:
     env=main_env.Clone()

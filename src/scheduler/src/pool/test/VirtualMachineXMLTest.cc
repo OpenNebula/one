@@ -302,10 +302,6 @@ public:
 /* ************************************************************************* */
 /* ************************************************************************* */
 
-bool    OneUnitTest::mysql;
-SqlDB * OneUnitTest::db      = 0;
-string  OneUnitTest::db_name = "ONE_test_database";
-
 int main(int argc, char ** argv)
 {
     return OneUnitTest::main(argc, argv, VirtualMachineXMLTest::suite(),

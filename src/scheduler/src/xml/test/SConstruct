@@ -37,7 +37,8 @@ main_env.Append(CPPPATH=[
 main_env.Append(LIBPATH=[
     cwd+'/../../../../common',
     cwd+'/../../../../log',
-    '../'
+    '../',
+    cwd+'/../../../../test',
 ])
 
 # Compile flags
@@ -55,7 +56,8 @@ main_env.Append(LIBS=[
     'cppunit',
     'nebula_log',
     'scheduler_xml',
-    'nebula_common'
+    'nebula_common',
+    'nebula_test_common',
 ])
 
 main_env.Program('test_xml','ObjectXMLTest.cc')

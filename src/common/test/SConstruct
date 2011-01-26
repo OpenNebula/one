@@ -15,36 +15,9 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-import os
-import sys
-import shutil
-sys.path.append("../../../share/scons")
-from lex_bison import *
+Import('env')
 
-# This is the absolute path where the project is located
-cwd="../../../"
-
-# Environment that will be applied to each scons child
-main_env=Environment()
-main_env['ENV']['PATH']=os.environ['PATH']
-
-# Add builders for flex and bison
-add_lex(main_env)
-add_bison(main_env)
-
-# Include dirs
-main_env.Append(CPPPATH=[
-    cwd + '/include',
-    '/usr/include/cppunit/'
-])
-
-# Library dirs
-main_env.Append(LIBPATH=[
-    cwd + '/src/common',
-    cwd + '/src/log',
-])
-
-main_env.Append(LIBS=[
+env.Append(LIBS=[
     'nebula_common',
     'nebula_log',
     'cppunit',
@@ -52,17 +25,7 @@ main_env.Append(LIBS=[
     'pthread'
 ])
 
-# Compile flags
-main_env.Append(CPPFLAGS=[
-    "-g",
-    "-Wall",
-    "-Werror"
-])
-
-# Linking flags
-main_env.Append(LDFLAGS=["-g"])
-
-main_env.Program('test_sa','single_attribute.cc')
-main_env.Program('test_va','vector_attribute.cc')
-main_env.Program('test_am','action_manager.cc')
-main_env.Program('test_collector','mem_collector.cc')
+env.Program('test_sa','single_attribute.cc')
+env.Program('test_va','vector_attribute.cc')
+env.Program('test_am','action_manager.cc')
+env.Program('test_collector','mem_collector.cc')

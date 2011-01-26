@@ -223,10 +223,6 @@ public:
     };
 };
 
-bool    OneUnitTest::mysql;
-SqlDB * OneUnitTest::db      = 0;
-string  OneUnitTest::db_name = "ONE_test_database";
-
 // -----------------------------------------------------------------------------
 
 #endif // POOL_TEST_H_
