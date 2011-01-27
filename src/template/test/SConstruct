@@ -21,22 +21,7 @@ env.Append(LIBS=[
     'nebula_template',
     'nebula_common',
     'nebula_core',
-    'nebula_log',
-    'cppunit',
-    'dl',
-    'pthread'
+    'nebula_log'
 ])
 
-sqlite=ARGUMENTS.get('sqlite', 'yes')
-if sqlite=='yes':
-    env.Append(CPPFLAGS=["-DSQLITE_DB"])
-    env.Append(LIBS=[ 'sqlite3', ])
-
-# MySQL
-mysql=ARGUMENTS.get('mysql', 'no')
-if mysql=='yes':
-    env.Append(CPPFLAGS=["-DMYSQL_DB"])
-    env.Append(LIBS=[ 'mysqlclient', ])
-
 env.Program('test','template.cc')
-#

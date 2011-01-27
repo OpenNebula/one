@@ -30,7 +30,7 @@ source_files=[
 env.StaticLibrary(lib_name, source_files)
 
 # Build daemon
-env.Append(LIBS=[
+env.Prepend(LIBS=[
     'nebula_core',
     'nebula_vmm',
     'nebula_lcm',
@@ -53,16 +53,5 @@ env.Append(LIBS=[
     'nebula_log',
     'crypto'
 ])
-
-# Sources to generate the library
-if env['sqlite']=='yes':
-    env.Append(LIBS=['sqlite3'])
-
-if env['mysql']=='yes':
-    env.Append(LIBS=['mysqlclient'])
-
-
-if not env.GetOption('clean'):
-    env.ParseConfig('../../share/scons/get_xmlrpc_config server')
 
 env.Program('oned.cc')

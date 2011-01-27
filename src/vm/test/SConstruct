@@ -16,7 +16,7 @@
 
 Import('env')
 
-env.Append(LIBS=[
+env.Prepend(LIBS=[
     'nebula_um',
     'nebula_vm',
     'nebula_hm',
@@ -30,22 +30,7 @@ env.Append(LIBS=[
     'nebula_log',
     'nebula_core',
     'nebula_sql',
-    'cppunit',
-    'dl',
-    'pthread',
-    'crypto',
+    'crypto'
 ])
 
-sqlite=ARGUMENTS.get('sqlite', 'yes')
-if sqlite=='yes':
-    env.Append(CPPFLAGS=["-DSQLITE_DB"])
-    env.Append(LIBS=[ 'sqlite3', ])
-
-# MySQL
-mysql=ARGUMENTS.get('mysql', 'no')
-if mysql=='yes':
-    env.Append(CPPFLAGS=["-DMYSQL_DB"])
-    env.Append(LIBS=[ 'mysqlclient', ])
-
 env.Program('test','VirtualMachinePoolTest.cc')
-

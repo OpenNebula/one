@@ -18,9 +18,8 @@
 
 Import('env')
 
-env.Append(LIBS=[
+env.Prepend(LIBS=[
     'nebula_core_test',
-
     'nebula_host',
     'nebula_vmm',
     'nebula_im',
@@ -36,21 +35,12 @@ env.Append(LIBS=[
     'nebula_hm',
     'nebula_authm',
     'nebula_common',
+    'nebula_lcm',
+    'nebula_dm',
     'nebula_sql',
     'nebula_log',
-
-    'nebula_lcm_dm',
-
-    'crypto',
-    'cppunit',
+    'crypto'
 ])
-
-# Sources to generate the library
-if env['sqlite']=='yes':
-    env.Append(LIBS=['sqlite3'])
-
-if env['mysql']=='yes':
-    env.Append(LIBS=['mysqlclient'])
 
 env.Program('test','HostPoolTest.cc')
 env.Program('test_hook','HostHookTest.cc')

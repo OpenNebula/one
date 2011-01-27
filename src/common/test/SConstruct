@@ -17,12 +17,9 @@
 
 Import('env')
 
-env.Append(LIBS=[
+env.Prepend(LIBS=[
     'nebula_common',
     'nebula_log',
-    'cppunit',
-    'dl',
-    'pthread'
 ])
 
 env.Program('test_sa','single_attribute.cc')

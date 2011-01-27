@@ -16,7 +16,7 @@
 
 Import('env')
 
-env.Append(LIBS=[
+env.Prepend(LIBS=[
     'nebula_image',
     'nebula_um',
     'nebula_vm',
@@ -27,25 +27,11 @@ env.Append(LIBS=[
     'nebula_pool',
     'nebula_mad',
     'nebula_common',
-    'nebula_log',
     'nebula_core',
     'nebula_sql',
-    'cppunit',
-    'dl',
-    'pthread',
-    'crypto',
+    'nebula_log',
+    'crypto'
 ])
-
-sqlite=ARGUMENTS.get('sqlite', 'yes')
-if sqlite=='yes':
-    env.Append(CPPFLAGS=["-DSQLITE_DB"])
-    env.Append(LIBS=[ 'sqlite3', ])
-
-# MySQL
-mysql=ARGUMENTS.get('mysql', 'no')
-if mysql=='yes':
-    env.Append(CPPFLAGS=["-DMYSQL_DB"])
-    env.Append(LIBS=[ 'mysqlclient', ])
 
 env.Program('test','ImagePoolTest.cc')
 

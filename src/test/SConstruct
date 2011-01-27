@@ -18,36 +18,17 @@
 
 Import('env')
 
-# Build LCM and DM toguether in a lib
-lib_name='nebula_lcm_dm'
-
-# Sources to generate the library
-source_files=[
-    '../lcm/LifeCycleManager.cc',
-    '../lcm/LifeCycleActions.cc',
-    '../lcm/LifeCycleStates.cc',
-    '../dm/DispatchManager.cc',
-    '../dm/DispatchManagerActions.cc',
-    '../dm/DispatchManagerStates.cc',
-]
-
-# Build library
-env.StaticLibrary(lib_name, source_files)
-
-
 # Build a modified Nebula lib
 lib_name='nebula_core_test'
 
 # Sources to generate the library
 source_files=[
     'Nebula.cc',
-    'NebulaTest.cc',
-    '../nebula/NebulaTemplate.cc',
+    'NebulaTest.cc'
 ]
 
 # Build library
 env.StaticLibrary(lib_name, source_files)
-
 
 # Build a modified Nebula lib
 lib_name='nebula_test_common'
@@ -59,5 +40,3 @@ source_files=[
 
 # Build library
 env.StaticLibrary(lib_name, source_files)
-
-
