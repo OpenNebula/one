@@ -95,8 +95,14 @@ VirtualMachine::~VirtualMachine()
 const char * VirtualMachine::table = "vm_pool";
 
 const char * VirtualMachine::db_names =
-    "(oid,uid,name,last_poll, state,lcm_state,stime,etime,deploy_id"
-    ",memory,cpu,net_tx,net_rx,last_seq, template)";
+    "oid,uid,name,last_poll, state,lcm_state,stime,etime,deploy_id"
+    ",memory,cpu,net_tx,net_rx,last_seq, template";
+
+const char * VirtualMachine::extended_db_names =
+    "vm_pool.oid, vm_pool.uid, vm_pool.name, vm_pool.last_poll, vm_pool.state, "
+    "vm_pool.lcm_state, vm_pool.stime, vm_pool.etime, vm_pool.deploy_id, "
+    "vm_pool.memory, vm_pool.cpu, vm_pool.net_tx, vm_pool.net_rx, "
+    "vm_pool.last_seq, vm_pool.template";
 
 const char * VirtualMachine::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
         "vm_pool ("
@@ -174,7 +180,7 @@ int VirtualMachine::select(SqlDB * db)
     set_callback(
         static_cast<Callbackable::Callback>(&VirtualMachine::select_cb));
 
-    oss << "SELECT * FROM " << table << " WHERE oid = " << oid;
+    oss << "SELECT " << db_names << " FROM " << table << " WHERE oid = " << oid;
 
     boid = oid;
     oid  = -1;
@@ -598,7 +604,7 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace)
         oss << "INSERT";
     }
 
-    oss << " INTO " << table << " "<< db_names <<" VALUES ("
+    oss << " INTO " << table << " ("<< db_names <<") VALUES ("
         <<          oid             << ","
         <<          uid             << ","
         << "'" <<   sql_name        << "',"

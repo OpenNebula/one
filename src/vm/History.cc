@@ -25,8 +25,14 @@
 
 const char * History::table = "history";
 
-const char * History::db_names = "(vid,seq,host_name,vm_dir,hid,vm_mad,tm_mad,stime,"
-    "etime,pstime,petime,rstime,retime,estime,eetime,reason)";
+const char * History::db_names = "vid,seq,host_name,vm_dir,hid,vm_mad,tm_mad,stime,"
+    "etime,pstime,petime,rstime,retime,estime,eetime,reason";
+
+const char * History::extended_db_names =
+    "history.vid, history.seq, history.host_name, history.vm_dir, history.hid, "
+    "history.vm_mad, history.tm_mad, history.stime, history.etime, "
+    "history.pstime, history.petime, history.rstime, history.retime, "
+    "history.estime, history.eetime, history.reason";
 
 const char * History::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
     "history (vid INTEGER,"
@@ -212,7 +218,7 @@ int History::insert_replace(SqlDB *db, bool replace)
         oss << "INSERT";
     }
 
-    oss << " INTO " << table << " "<< db_names <<" VALUES ("<<
+    oss << " INTO " << table << " ("<< db_names <<") VALUES ("<<
         oid << "," <<
         seq << "," <<
         "'" << sql_hostname << "',"<<
@@ -359,12 +365,13 @@ int History::select(SqlDB * db)
 
     if ( seq == -1)
     {
-        oss << "SELECT * FROM history WHERE vid = "<< oid <<
+        oss << "SELECT " << db_names << " FROM history WHERE vid = "<< oid <<
             " AND seq=(SELECT MAX(seq) FROM history WHERE vid = " << oid << ")";
     }
     else
     {
-        oss << "SELECT * FROM history WHERE vid = "<< oid <<" AND seq = "<< seq;
+        oss << "SELECT " << db_names << " FROM history WHERE vid = " << oid
+            << " AND seq = " << seq;
     }
 
     set_callback(static_cast<Callbackable::Callback>(&History::select_cb));

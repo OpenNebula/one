@@ -162,7 +162,8 @@ int HostPool::dump(ostringstream& oss, const string& where)
     set_callback(static_cast<Callbackable::Callback>(&HostPool::dump_cb),
                   static_cast<void *>(&oss));
 
-    cmd << "SELECT * FROM " << Host::table << " JOIN " << HostShare::table
+    cmd << "SELECT " << Host::db_names << " , " << HostShare::db_names
+        << " FROM " << Host::table << " JOIN " << HostShare::table
         << " ON " << Host::table << ".oid = " << HostShare::table << ".hid";
 
     if ( !where.empty() )

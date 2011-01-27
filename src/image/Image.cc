@@ -66,8 +66,13 @@ Image::~Image()
 
 const char * Image::table = "image_pool";
 
-const char * Image::db_names = "(oid, uid, name, type, public, persistent, regtime, "
-                               "source, state, running_vms, template)";
+const char * Image::db_names = "oid, uid, name, type, public, persistent, regtime, "
+                               "source, state, running_vms, template";
+
+const char * Image::extended_db_names = "image_pool.oid, image_pool.uid, "
+    "image_pool.name, image_pool.type, image_pool.public, "
+    "image_pool.persistent, image_pool.regtime, image_pool.source, "
+    "image_pool.state, image_pool.running_vms, image_pool.template";
 
 const char * Image::db_bootstrap = "CREATE TABLE IF NOT EXISTS image_pool ("
     "oid INTEGER PRIMARY KEY, uid INTEGER, name VARCHAR(128), "
@@ -127,7 +132,7 @@ int Image::select(SqlDB *db)
 
     set_callback(static_cast<Callbackable::Callback>(&Image::select_cb));
 
-    oss << "SELECT * FROM " << table << " WHERE oid = " << oid;
+    oss << "SELECT " << db_names << " FROM " << table << " WHERE oid = " << oid;
 
     boid = oid;
     oid  = -1;
@@ -332,7 +337,7 @@ int Image::insert_replace(SqlDB *db, bool replace)
 
     // Construct the SQL statement to Insert or Replace
 
-    oss <<" INTO "<< table <<" "<< db_names <<" VALUES ("
+    oss <<" INTO "<< table <<" ("<< db_names <<") VALUES ("
         <<          oid             << ","
         <<          uid             << ","
         << "'" <<   sql_name        << "',"
