@@ -114,7 +114,7 @@ for i in $TESTS ; do
     cd $i
 
     if [ "$CLEAR" = "yes" ] ; then
-        rm -f callgrind.out* test.db* *.log* memgrid.out* *.xml
+        rm -f callgrind.out* test.db* *.log* memgrid.out* *.xml ONE_test_database*
     else
         for j in `ls test*` ; do
             if [ -x $j ] ; then
