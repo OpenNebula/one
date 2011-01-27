@@ -82,7 +82,7 @@ fi
 
 if [ "$BUILD" = "yes" ] ; then
     cd ../..
-    scons testing=yes $BUILD_ARGS
+    scons tests=yes $BUILD_ARGS
 
     cd $BASE_DIR
     exit 0
@@ -90,7 +90,7 @@ fi
 
 if [ "$CLEAR" = "yes" ] ; then
     cd ../..
-    scons testing=yes -c
+    scons tests=yes -c
 
     cd $BASE_DIR
 fi
