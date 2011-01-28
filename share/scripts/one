@@ -114,14 +114,6 @@ start()
         echo $LASTPID > $ONE_PID
     fi
 
-    sleep 1
-    ps $LASTPID > /dev/null 2>&1
-
-    if [ $? -ne 0 ]; then
-        echo "Error executing $ONED."
-        exit 1
-    fi
-
     # Start the scheduler
         # The following command line arguments are supported by mm_shed:
         #  [-p port]           to connect to oned - default: 2633
@@ -145,31 +137,24 @@ start()
         echo $LASTPID > $ONE_SCHEDPID
     fi
 
-
     # Wait for the daemons to warm up
-    sleep 5
+    sleep 2
 
     STARTED="true"
 
     ps `cat $ONE_PID` > /dev/null 2>&1
 
-    if [ "x0" == "x0" ]; then
-        echo "oned started"
-    else
+    if [ $? -ne 0 ]; then
         echo "oned failed to start"
         STARTED="false"
     fi
 
-
     ps `cat $ONE_SCHEDPID` > /dev/null 2>&1
 
-    if [ "x0" == "x0" ]; then
-        echo "scheduler started"
-    else
+    if [ $? -ne 0 ]; then
         echo "scheduler failed to start"
         STARTED="false"
     fi
-
 
     if [ "$STARTED" == "false" ]; then
         exit -1
