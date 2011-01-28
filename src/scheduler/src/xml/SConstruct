@@ -16,27 +16,27 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-Import('env')
+Import('sched_env')
 
 lib_name='scheduler_xml'
 
-if env['parsers']=='yes':
+if sched_env['parsers']=='yes':
     # LEX
-    parser=env.Lex(
+    parser=sched_env.Lex(
         source='expr_parser.l'
     )
-    env.NoClean(parser)
+    sched_env.NoClean(parser)
 
     # BISON
-    parser=env.Bison(
+    parser=sched_env.Bison(
         source='expr_arith.y'
     )
-    env.NoClean(parser)
+    sched_env.NoClean(parser)
 
-    parser=env.Bison(
+    parser=sched_env.Bison(
         source='expr_bool.y'
     )
-    env.NoClean(parser)
+    sched_env.NoClean(parser)
 
 source_files=['ObjectXML.cc',
               'Client.cc',
@@ -45,4 +45,4 @@ source_files=['ObjectXML.cc',
               'expr_arith.cc']
 
 # Build library
-env.StaticLibrary(lib_name, source_files)
+sched_env.StaticLibrary(lib_name, source_files)

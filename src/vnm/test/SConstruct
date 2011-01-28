@@ -14,45 +14,9 @@
 # limitations under the License.
 # --------------------------------------------------------------------------
 
-import os
-import sys
-import shutil
-sys.path.append("../../../share/scons")
-from lex_bison import *
+Import('env')
 
-# This is the absolute path where the project is located
-cwd="../../../"
-
-# Environment that will be applied to each scons child
-main_env=Environment()
-main_env['ENV']['PATH']=os.environ['PATH']
-
-# Add builders for flex and bison
-add_lex(main_env)
-add_bison(main_env)
-
-# Include dirs
-main_env.Append(CPPPATH=[
-    cwd + '/include',
-    cwd + '/include/test',
-    '/usr/include/cppunit/',
-])
-
-# Library dirs
-main_env.Append(LIBPATH=[
-    cwd + '/src/authm',
-    cwd + '/src/common',
-    cwd + '/src/mad',
-    cwd + '/src/nebula',
-    cwd + '/src/sql',
-    cwd + '/src/log',
-    cwd + '/src/pool',
-    cwd + '/src/template',
-    cwd + '/src/um',
-    cwd + '/src/vnm',
-])
-
-main_env.Append(LIBS=[
+env.Prepend(LIBS=[
     'nebula_log',
     'nebula_um',
     'nebula_vnm',
@@ -63,39 +27,7 @@ main_env.Append(LIBS=[
     'nebula_core',
     'nebula_common',
     'nebula_sql',
-    'cppunit',
-    'dl',
-    'pthread',
-    'crypto',
+    'crypto'
 ])
 
-# MYSQL
-main_env.Append(LIBPATH=["/usr/lib/mysql"])
-main_env.Append(CPPPATH=["/usr/include/mysql"])
-
-# libxml2
-main_env.ParseConfig('xml2-config --libs --cflags')
-
-sqlite=ARGUMENTS.get('sqlite', 'yes')
-if sqlite=='yes':
-    main_env.Append(CPPFLAGS=["-DSQLITE_DB"])
-    main_env.Append(LIBS=[ 'sqlite3', ])
-
-# MySQL
-mysql=ARGUMENTS.get('mysql', 'no')
-if mysql=='yes':
-    main_env.Append(CPPFLAGS=["-DMYSQL_DB"])
-    main_env.Append(LIBS=[ 'mysqlclient', ])
-
-# Compile flags
-main_env.Append(CPPFLAGS=[
-    "-g",
-    "-Wall",
-    "-Werror"
-])
-
-# Linking flags
-main_env.Append(LDFLAGS=["-g "])
-
-main_env.Program('test','VirtualNetworkPoolTest.cc')
-
+env.Program('test','VirtualNetworkPoolTest.cc')

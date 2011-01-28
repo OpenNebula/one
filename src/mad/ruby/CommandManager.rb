@@ -150,7 +150,7 @@ class RemotesCommand < SSHCommand
     MAGIC_RC = 42
 
     # Creates a command and runs it
-    def self.run(command, host, remote_dir, logger=nil, stdin=nil)
+    def self.run(command, host, remote_dir, logger=nil, stdin=nil, retries=0)
         cmd_file = command.split(' ')[0]
 
         cmd_string = "'if [ -x \"#{cmd_file}\" ]; then #{command}; else\
@@ -158,12 +158,18 @@ class RemotesCommand < SSHCommand
 
         cmd = self.new(cmd_string, host, logger, stdin)
         cmd.run
-
+        
         if cmd.code == MAGIC_RC
             cmd.update_remotes(host, remote_dir, logger)
 
             @command = command
             cmd.run
+        end
+        
+        while cmd.code != 0 or retries != 0
+            sleep 1
+            cmd.run
+            retries = retries - 1
         end
 
         cmd

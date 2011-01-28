@@ -26,8 +26,6 @@ source_files=[
     'InformationManagerDriver.cc'
 ]
 
-test_names=[]
-
 # Build library
 env.StaticLibrary(lib_name, source_files)
 

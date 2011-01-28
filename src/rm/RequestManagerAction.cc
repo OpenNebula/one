@@ -120,6 +120,10 @@ void RequestManager::VirtualMachineAction::execute(
     {
         rc = dm->finalize(vid);
     }
+    else if (action == "resubmit")
+    {
+        rc = dm->resubmit(vid);
+    }
     else
     {
         rc = -3;

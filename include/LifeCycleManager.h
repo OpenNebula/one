@@ -34,7 +34,7 @@ class LifeCycleManager : public ActionListener
 public:
 
     LifeCycleManager(VirtualMachinePool * _vmpool, HostPool * _hpool):
-    	vmpool(_vmpool),hpool(_hpool)
+        vmpool(_vmpool),hpool(_hpool)
     {
         am.addListener(this);
     };
@@ -68,6 +68,7 @@ public:
         SHUTDOWN,         /**< Sent by the DM to shutdown a running VM        */
         RESTART,          /**< Sent by the DM to restart a deployed VM        */
         DELETE,           /**< Sent by the DM to delete a VM                  */
+        CLEAN,            /**< Sent by the DM to cleanup a VM for resubmission*/
         FINALIZE
     };
 
@@ -75,7 +76,7 @@ public:
      *  Triggers specific actions to the Life-cycle Manager. This function
      *  wraps the ActionManager trigger function.
      *    @param action the LCM action
-     *    @param vid VM unique id. This is the argument of the passed to the 
+     *    @param vid VM unique id. This is the argument of the passed to the
      *    invoked action.
      */
     void trigger(
@@ -83,7 +84,7 @@ public:
         int     vid);
 
     /**
-     *  This functions starts a new thread for the Life-cycle Manager. This 
+     *  This functions starts a new thread for the Life-cycle Manager. This
      *  thread will wait in  an action loop till it receives ACTION_FINALIZE.
      *    @return 0 on success.
      */
@@ -108,11 +109,11 @@ private:
      *  Pointer to the Virtual Machine Pool, to access VMs
      */
     VirtualMachinePool *    vmpool;
-    
+
     /**
      *  Pointer to the Host Pool, to access hosts
      */
-    HostPool *    			hpool;
+    HostPool *              hpool;
 
     /**
      *  Action engine for the Manager
@@ -120,7 +121,7 @@ private:
     ActionManager           am;
 
     /**
-     *  Function to execute the Manager action loop method within a new pthread 
+     *  Function to execute the Manager action loop method within a new pthread
      * (requires C linkage)
      */
     friend void * lcm_action_loop(void *arg);
@@ -134,6 +135,13 @@ private:
         const string &  action,
         void *          arg);
 
+    /**
+     *  Cleans up a VM, canceling any pending or ongoing action and closing
+     *  the history registers
+     *      @param vm with the lock aquired
+     */
+    void clean_up_vm (VirtualMachine *vm);
+
     void save_success_action(int vid);
 
     void save_failure_action(int vid);
@@ -145,24 +153,24 @@ private:
     void shutdown_success_action(int vid);
 
     void shutdown_failure_action(int vid);
-    
+
     void cancel_success_action(int vid);
-    
+
     void cancel_failure_action(int vid);
-    
+
     void monitor_failure_action(int vid);
-    
+
     void monitor_suspend_action(int vid);
 
     void monitor_done_action(int vid);
-    
+
     void prolog_success_action(int vid);
 
     void prolog_failure_action(int vid);
 
     void epilog_success_action(int vid);
 
-    void epilog_failure_action(int vid);    
+    void epilog_failure_action(int vid);
 
     void deploy_action(int vid);
 
@@ -173,7 +181,7 @@ private:
     void stop_action(int vid);
 
     void cancel_action(int vid);
-    
+
     void checkpoint_action(int vid);
 
     void migrate_action(int vid);
@@ -188,7 +196,9 @@ private:
 
     void delete_action(int vid);
 
-    void timer_action();        
+    void clean_action(int vid);
+
+    void timer_action();
 };
 
 #endif /*LIFE_CYCLE_MANAGER_H_*/

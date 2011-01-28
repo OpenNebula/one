@@ -47,7 +47,7 @@ public:
             int           port,
             const string& user,
             const string& password,
-            char *        database);
+            const char *  database);
 
     ~MySqlDB();
 
@@ -113,7 +113,7 @@ public:
             int    port,
             string user,
             string password,
-            char * database)
+            const char * database)
     {
         throw runtime_error("Aborting oned, MySQL support not compiled!");
     };

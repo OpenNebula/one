@@ -14,48 +14,24 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+Import('env')
 import os
-import sys
-import shutil
-sys.path.append("../../share/scons")
-
-from lex_bison import *
 
 # This is the absolute path where the project is located
 cwd=os.getcwd()
 
-# Environment that will be applied to each scons child set in the main SConstruct
-Import('env')
-main_env=env
-
-# Add builders for flex and bison
-add_lex(main_env)
-add_bison(main_env)
-
 # Include dirs
-main_env.Replace(CPPPATH=[
+env.Append(CPPPATH=[
     cwd + '/include/',
-    cwd + '../../../include/'
 ])
 
 # Library dirs
-main_env.Replace(LIBPATH=[
+
+env.Append(LIBPATH=[
     cwd+'/src/xml',
     cwd+'/src/pool',
-    cwd+'/src/sched',
-    cwd+'/../log',
-    cwd+'/../common',
+    cwd+'/src/sched'
 ])
-
-################################################################################
-#                               EXTRA CONFIGURATION
-################################################################################
-
-#-------------------------------------------------------------------------------
-# libxml2
-#-------------------------------------------------------------------------------
-
-main_env.ParseConfig('xml2-config --libs --cflags')
 
 ################################################################################
 # SCONS scripts to build
@@ -67,6 +43,12 @@ build_scripts=[
     'src/sched/SConstruct'
 ]
 
+if env['testing']=='yes':
+    build_scripts.extend([
+        'src/pool/test/SConstruct',
+        'src/xml/test/SConstruct',
+    ])
+
 for script in build_scripts:
-    env=main_env.Clone()
-    SConscript(script, exports='env')
+    sched_env=env.Clone()
+    SConscript(script, exports='sched_env')

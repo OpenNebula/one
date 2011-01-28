@@ -74,7 +74,7 @@ public class VirtualMachine extends PoolElement{
         "SHUTDOWN",
         "CANCEL",
         "FAILURE",
-        "DELETE",
+        "CLEANUP",
         "UNKNOWN" };
 
     private static final String[] SHORT_LCM_STATES =
@@ -220,7 +220,7 @@ public class VirtualMachine extends PoolElement{
     /**
      * Sets the specified vm's disk to be saved in a new image when the
      * VirtualMachine shutdowns.
-     * 
+     *
      * @param diskId ID of the disk to be saved.
      * @param imageId ID of the image where the disk will be saved.
      * @return If an error occurs the error message contains the reason.
@@ -310,12 +310,21 @@ public class VirtualMachine extends PoolElement{
     }
 
     /**
-     * Resubmits the virtual machine after failure.
+     * Forces a re-deployment of a VM in UNKNOWN or BOOT state.
      * @return If an error occurs the error message contains the reason.
      */
     public OneResponse restart()
     {
         return action("shutdown");
+    }
+
+    /**
+     * Resubmits a VM to PENDING state.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse resubmit()
+    {
+        return action("resubmit");
     }
 
     /**

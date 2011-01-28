@@ -21,18 +21,19 @@ extern "C"
 
 #include <string.h>
 
-#include <TestFixture.h>
-#include <TestAssert.h>
-#include <TestSuite.h>
-#include <TestCaller.h>
-#include <ui/text/TestRunner.h>
-
-#include "test/one_test_common.h"
+#include "test/OneUnitTest.h"
 
 using namespace std;
 
-class MemCollectorTest : public CppUnit::TestFixture
+class MemCollectorTest : public OneUnitTest
 {
+    CPPUNIT_TEST_SUITE (MemCollectorTest);
+
+    CPPUNIT_TEST (test_all_free);
+    CPPUNIT_TEST (test_realloc);
+
+    CPPUNIT_TEST_SUITE_END ();
+
 public:
     void setUp()
     {
@@ -57,7 +58,7 @@ public:
         CPPUNIT_ASSERT(strcmp(mc.str_buffer[1],"ADIOS")==0);
         CPPUNIT_ASSERT(strcmp(mc.str_buffer[2],"HELLO")==0);
         CPPUNIT_ASSERT(strcmp(mc.str_buffer[3],"BYE")==0);
-        
+
         //Check the content of the strings
         CPPUNIT_ASSERT(strcmp(st1,"HOLA")==0);
         CPPUNIT_ASSERT(strcmp(st2,"ADIOS")==0);
@@ -92,32 +93,10 @@ public:
 
         CPPUNIT_ASSERT(mc.size == MEM_COLLECTOR_CHUNK * 4);
     }
-
-    static CppUnit::TestSuite * suite()
-    {
-        CppUnit::TestSuite *ts=new CppUnit::TestSuite("mem_collector Tests");
-
-        ts->addTest(new CppUnit::TestCaller<MemCollectorTest>(
-                    "test_all_free() Test",
-                    &MemCollectorTest::test_all_free));
-
-        ts->addTest(new CppUnit::TestCaller<MemCollectorTest>(
-                    "test_realloc() Test",
-                    &MemCollectorTest::test_realloc));
-        return ts;
-    }
 };
 
 int main(int argc, char ** argv)
 {
-    CppUnit::TextUi::TestRunner tr;
-
-    SETUP_XML_WRITER(tr, "mem_collector.xml");
-
-    tr.addTest(MemCollectorTest::suite());
-    tr.run();
-
-    END_XML_WRITER
-
-    return 0;
+    return OneUnitTest::main(argc, argv, MemCollectorTest::suite(),
+                            "mem_collector.xml");
 }

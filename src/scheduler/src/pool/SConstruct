@@ -16,7 +16,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-Import('env')
+Import('sched_env')
 
 lib_name='scheduler_pool'
 
@@ -27,4 +27,4 @@ source_files=[
 	'VirtualMachineXML.cc']
 
 # Build library
-env.StaticLibrary(lib_name, source_files)
+sched_env.StaticLibrary(lib_name, source_files)

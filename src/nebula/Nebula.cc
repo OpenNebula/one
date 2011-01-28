@@ -249,11 +249,13 @@ void Nebula::start()
         string  default_device_prefix;
 
         vector<const Attribute *> vm_hooks;
+        vector<const Attribute *> host_hooks;
 
         nebula_configuration->get("VM_HOOK", vm_hooks);
+        nebula_configuration->get("HOST_HOOK", host_hooks);
 
-        vmpool = new VirtualMachinePool(db, vm_hooks,hook_location);
-        hpool  = new HostPool(db);
+        vmpool = new VirtualMachinePool(db, vm_hooks, hook_location);
+        hpool  = new HostPool(db, host_hooks, hook_location);
 
         nebula_configuration->get("MAC_PREFIX", mac_prefix);
         nebula_configuration->get("NETWORK_SIZE", size);

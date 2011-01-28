@@ -18,25 +18,10 @@
 #define POOL_TEST_H_
 
 #include <string>
-#include <iostream>
-#include <stdlib.h>
-#include <getopt.h>
 
-#include <TestFixture.h>
-#include <TestAssert.h>
-#include <TestSuite.h>
-#include <TestCaller.h>
-#include <ui/text/TestRunner.h>
-#include <cppunit/extensions/HelperMacros.h>
-#include <unistd.h>
-
-#include "SqlDB.h"
-#include "SqliteDB.h"
-#include "MySqlDB.h"
 #include "PoolSQL.h"
 #include "Nebula.h"
-
-#include "test/one_test_common.h"
+#include "OneUnitTest.h"
 
 // Use this macro in sub-classes to add all the tests defined here
 #define ALL_POOLTEST_CPPUNIT_TESTS()    \
@@ -52,21 +37,12 @@ using namespace std;
 /* ************************************************************************* */
 /* ************************************************************************* */
 
-class PoolTest : public CppUnit::TestFixture
+class PoolTest : public OneUnitTest
 {
-private:
-// Global flag to use either Sqlite or MySQL
-static bool mysql;
-
-
 protected:
 
-    PoolSQL * pool;
-    SqlDB * db;
-
-    PoolObjectSQL* obj;
-
-    static string db_name;
+    PoolSQL *       pool;
+    PoolObjectSQL * obj;
 
     /*
      * Bootstrap the DB with the neccessary tables for the test
@@ -89,35 +65,14 @@ protected:
      */
     virtual void check(int index, PoolObjectSQL* obj) = 0;
 
-    PoolTest():pool(0),db(0){};
+    PoolTest():pool(0){};
     virtual ~PoolTest(){};
 
 public:
 
     void setUp()
     {
-        if (mysql)
-        {
-            db = new MySqlDB("localhost",0,"oneadmin","oneadmin",NULL);
-
-            ostringstream   oss1;
-            oss1 << "DROP DATABASE IF EXISTS " << db_name;
-            db->exec(oss1);
-
-            ostringstream   oss;
-            oss << "CREATE DATABASE " << db_name;
-            db->exec(oss);
-
-            ostringstream   oss2;
-            oss2 << "use " << db_name;
-            db->exec(oss2);
-        }
-        else
-        {
-            unlink(db_name.c_str());
-
-            db = new SqliteDB(db_name);
-        }
+        create_db();
 
         bootstrap(db);
 
@@ -126,27 +81,12 @@ public:
 
     void tearDown()
     {
+        delete_db();
 
-        if (mysql)
+        if ( pool != 0 )
         {
-            ostringstream   oss;
-            oss << "DROP DATABASE IF EXISTS " << db_name;
-            db->exec(oss);
-        }
-        else
-        {
-            unlink(db_name.c_str());
-        }
-
-	if ( pool != 0 )
-	{
             delete pool;
-	}
-
-	if ( db != 0 )
-	{
-            delete db;
-	}
+        }
     };
 
 // *****************************************************************************
@@ -281,102 +221,7 @@ public:
         obj = pool->get(oid_1, false);
         check(1, obj);
     };
-
-
-// *****************************************************************************
-
-
-    static void show_options ()
-    {
-        cout << "Options:\n";
-        cout << "    -h  --help         Show this help\n"
-                "    -s  --sqlite       Run Sqlite tests (default)\n"
-                "    -m  --mysql        Run MySQL tests\n"
-                "    -l  --log          Keep the log file, test.log\n";
-    }
-
-
-    /*
-     * Not a true main, but a static method that can be called from the
-     * child classes' true main.
-     * Options:
-     *     s: run sqlite tests
-     *     m: run mysql tests
-     */
-    static int main(int argc, char ** argv, CPPUNIT_NS::TestSuite* suite)
-    {
-
-        // Option flags
-        bool sqlite_flag = true;
-        bool log_flag    = false;
-
-        // Long options
-        const struct option long_opt[] =
-        {
-            { "sqlite", 0,  NULL,   's'},
-            { "mysql",  0,  NULL,   'm'},
-            { "log",    0,  NULL,   'l'},
-            { "help",   0,  NULL,   'h'}
-        };
-
-        int c;
-        while ((c = getopt_long (argc, argv, "smlh", long_opt, NULL)) != -1)
-            switch (c)
-            {
-                case 'm':
-                    sqlite_flag = false;
-                    break;
-                case 'l':
-                    log_flag = true;
-                    break;
-                case 'h':
-                    show_options();
-                    return 0;
-            }
-
-
-        // When a DB query fails, it tries to log the error.
-        // We need to set the log file, otherwise it will end in a dead-lock
-        NebulaLog::init_log_system(NebulaLog::FILE, Log::DEBUG, "test.log");
-        NebulaLog::log("Test", Log::INFO, "Test started");
-
-        CppUnit::TextUi::TestRunner runner;
-
-        SETUP_XML_WRITER(runner, "output.xml")
-
-        runner.addTest( suite );
-
-        if (sqlite_flag)
-        {
-            PoolTest::mysql = false;
-            NebulaLog::log("Test", Log::INFO, "Running Sqlite tests...");
-            cout << "\nRunning Sqlite tests...\n";
-        }
-        else
-        {
-            PoolTest::mysql = true;
-            NebulaLog::log("Test", Log::INFO, "Running MySQL tests...");
-            cout << "\nRunning MySQL tests...\n";
-        }
-
-        runner.run();
-
-	END_XML_WRITER
-
-        if (!log_flag)
-            remove("test.log");
-
-        NebulaLog::finalize_log_system();
-
-        return 0;
-    }
 };
-
-// -----------------------------------------------------------------------------
-
-bool PoolTest::mysql;
-
-string PoolTest::db_name = "ONE_test_database";
 
 // -----------------------------------------------------------------------------
 
