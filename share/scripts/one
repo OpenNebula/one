@@ -40,6 +40,9 @@ else
     LOCK_FILE=$ONE_LOCATION/var/.lock
 fi
 
+#------------------------------------------------------------------------------
+# Function that checks for running daemons and gets PORT from conf
+#------------------------------------------------------------------------------
 setup()
 {
     PORT=$(sed -n '/^[ \t]*PORT/s/^.*PORT\s*=\s*\([0-9]\+\)\s*.*$/\1/p' \
@@ -72,6 +75,25 @@ setup()
     fi
 }
 
+#------------------------------------------------------------------------------
+# Function that stops the daemons
+#------------------------------------------------------------------------------
+stop()
+{
+    if [ -f $ONE_PID ]; then
+        kill `cat $ONE_PID` > /dev/null 2>&1
+        rm -f $ONE_PID > /dev/null 2>&1
+    fi
+
+    if [ -f $ONE_SCHEDPID ]; then
+        kill `cat $ONE_SCHEDPID` > /dev/null 2>&1
+        rm -f $ONE_SCHEDPID > /dev/null 2>&1
+    fi
+}
+
+#------------------------------------------------------------------------------
+# Function that starts the daemons
+#------------------------------------------------------------------------------
 start()
 {
     if [ ! -x "$ONED" ]; then
@@ -94,7 +116,6 @@ start()
             fi
         fi
     fi
-
 
     # Backup oned.log
     if [ "$BACKUP" = "true" ];then
@@ -157,40 +178,13 @@ start()
     fi
 
     if [ "$STARTED" == "false" ]; then
+        stop
         exit -1
     fi
 }
 
-#
-# Function that stops the daemon/service
-#
-stop()
-{
-    if [ ! -f $ONE_PID ]; then
-        echo "Couldn't find oned process pid."
-        exit 1
-    fi
-
-    if [ ! -f $ONE_SCHEDPID ]; then
-        echo "Couldn't find scheduler process pid."
-        exit 1
-    fi
-
-    # Kill the one daemon
-
-    kill `cat $ONE_PID` > /dev/null 2>&1
-
-    # Kill the scheduler
-
-    kill `cat $ONE_SCHEDPID` > /dev/null 2>&1
-
-    # Remove pid files
-
-    rm -f $ONE_PID > /dev/null 2>&1
-    rm -f $ONE_SCHEDPID > /dev/null 2>&1
-
-    echo "oned and scheduler stopped"
-}
+#------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 
 if [ "$1" = "-b" ]; then
     BACKUP=true
@@ -204,6 +198,7 @@ case "$1" in
         ;;
     stop)
         stop
+        echo "oned and scheduler stopped"
         ;;
     *)
         echo "Usage: one [-b] {start|stop}" >&2
@@ -212,4 +207,3 @@ case "$1" in
         exit 3
         ;;
 esac
-
