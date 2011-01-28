@@ -48,7 +48,80 @@ void Nebula::start()
     NebulaTest *    tester;
 
     tester = NebulaTest::instance();
-    
+
+    // Because Nebula is accessed only using ::instance(), it can't be
+    // deleted. Tests use the start method several times before the
+    // destructor is invoked, so this clean-up is necessary
+    if ( vmpool != 0)
+    {
+        delete vmpool;
+    }
+
+    if ( vnpool != 0)
+    {
+        delete vnpool;
+    }
+
+    if ( hpool != 0)
+    {
+        delete hpool;
+    }
+
+    if ( upool != 0)
+    {
+        delete upool;
+    }
+
+    if ( ipool != 0)
+    {
+        delete ipool;
+    }
+
+    if ( vmm != 0)
+    {
+        delete vmm;
+    }
+
+    if ( lcm != 0)
+    {
+        delete lcm;
+    }
+
+    if ( im != 0)
+    {
+        delete im;
+    }
+
+    if ( tm != 0)
+    {
+        delete tm;
+    }
+
+    if ( dm != 0)
+    {
+        delete dm;
+    }
+
+    if ( rm != 0)
+    {
+        delete rm;
+    }
+
+    if ( hm != 0)
+    {
+        delete hm;
+    }
+
+    if ( authm != 0)
+    {
+        delete authm;
+    }
+
+    if ( nebula_configuration != 0)
+    {
+        delete nebula_configuration;
+    }
+
     // -----------------------------------------------------------
     // Configuration
     // -----------------------------------------------------------
