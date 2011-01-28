@@ -17,6 +17,7 @@
 #--------------------------------------------------------------------------- #
 
 Import('sched_env')
+import os
 
 lib_name='scheduler_sched'
 
@@ -36,6 +37,6 @@ sched_env.Prepend(LIBS=[
 ])
 
 if not sched_env.GetOption('clean'):
-    sched_env.ParseConfig(("LDFLAGS='%s' ../../../../share/scons/get_xmlrpc_config" + " client") % (os.environ['LDFLAGS'],))
+    sched_env.ParseConfig(("LDFLAGS='%s' ../../../../share/scons/get_xmlrpc_config client") % (os.environ['LDFLAGS'],))
 
 sched_env.Program('mm_sched.cc')
