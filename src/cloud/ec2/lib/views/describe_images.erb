@@ -6,9 +6,9 @@
 	 	<item> 
 		   	<imageId>ami-<%= sprintf('%08i', im.id) %></imageId> 
 		   	<imageLocation><%= im['SOURCE'].split('/').last %></imageLocation> 
-			<% if im['STATE'] == '4' %>
+			<% if im['STATE'] == '3' %>
 			<imageState>deregistered</imageState> 
-			<% elsif im['STATE'] == '2' %>
+			<% elsif im['STATE'] == '1' || im['STATE'] == '2' %>
 			<imageState>available</imageState> 
 			<% end %>
 			<imageOwnerId><%= erb_user_name %></imageOwnerId> 
