@@ -65,7 +65,7 @@ class EC2InformationManagerDriver < OpenNebulaDriver
     #---------------------------------------------------------------------------
     # The monitor action, just print the capacity info and hostname
     #---------------------------------------------------------------------------
-    def action_monitor(num,host)
+    def action_monitor(num,host,not_used)
        send_message("MONITOR",RESULT[:success],num,"HOSTNAME=#{host},#{@info}")
     end
 end
