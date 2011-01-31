@@ -51,15 +51,7 @@ exit(-1) if $?!=0
 top_text.gsub!(/^top.*^top.*?$/m, "") # Strip first top output
 
 top_text.split(/\n/).each{|line|
-    if line.match('^Mem')
-        line[4..-1].split(",").each{|elemento|
-            temp = elemento.strip.split("k ")
-            if temp[1] == "used"
-                $used_memory = temp[0]
-            end
-        }
-    
-    elsif line.match('^Cpu')
+    if line.match('^Cpu')
         line[7..-1].split(",").each{|elemento|
             temp = elemento.strip.split("%")
             if temp[1]=="id"
@@ -73,8 +65,12 @@ top_text.split(/\n/).each{|line|
     end
 }
 
-$free_memory=`free -k|grep "buffers\/cache"|awk '{print $4}'`
-    
+$total_memory = `free -k|grep "Mem:" | awk '{print $2}'`
+tmp=`free -k|grep "buffers\/cache"|awk '{print $3 " " $4}'`.split
+
+$used_memory=tmp[0]
+$free_memory=tmp[1]
+
 net_text=`cat /proc/net/dev`
 exit(-1) if $?!=0
 
@@ -101,4 +97,3 @@ print_info("USEDCPU",$used_cpu)
 
 print_info("NETRX",$netrx)
 print_info("NETTX",$nettx)
-
