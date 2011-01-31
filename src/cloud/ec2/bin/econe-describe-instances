@@ -116,7 +116,7 @@ end
 instances = rc['reservationSet']['item'][0]['instancesSet']['item']
 owner     = rc['reservationSet']['item'][0]['ownerId']
 
-fmt = "%-10s  %-4s  %-36s  %-13s %-15s %-10s"  
+fmt = "%-12s  %-13s  %-13s  %-13s %-15s %-10s"  
 
 if headers
     puts fmt % ["Owner", "Id", "ImageId", "State", "IP", "Type"]
