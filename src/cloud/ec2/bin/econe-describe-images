@@ -117,7 +117,7 @@ end
 
 images = rc['imagesSet']['item']
 
-fmt = "%-8s %-20s %-30s %-40s %s"  
+fmt = "%-12s %-13s %-14s %-12s %s"  
 
 if headers
     puts fmt % ["Owner", "ImageId", "Status", "Visibility", "Location"]
