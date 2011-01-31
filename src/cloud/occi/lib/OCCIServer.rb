@@ -198,6 +198,9 @@ class OCCIServer < CloudServer
                     VirtualMachine.build_xml(params[:id]),
                     get_client(request.env))
 
+        rc = vm.info
+        return rc, 404 if OpenNebula::is_error?(rc)
+
         # --- Finalize the VM ---
         result = vm.finalize
         return result, 500 if OpenNebula::is_error?(result)
@@ -337,6 +340,9 @@ class OCCIServer < CloudServer
                         VirtualNetwork.build_xml(params[:id]),
                         get_client(request.env))
 
+        rc = network.info
+        return rc, 404 if OpenNebula::is_error?(rc)
+
         # --- Delete the VNET ---
         rc = network.delete
         return rc, 500 if OpenNebula::is_error?(rc)
@@ -434,6 +440,9 @@ class OCCIServer < CloudServer
         image = ImageOCCI.new(
                         Image.build_xml(params[:id]),
                         get_client(request.env))
+
+        rc = image.info
+        return rc, 404 if OpenNebula::is_error?(rc)
 
         # --- Delete the Image ---
         rc = @img_repo.delete(image)
