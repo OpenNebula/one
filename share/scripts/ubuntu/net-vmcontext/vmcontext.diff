@@ -1,0 +1,26 @@
+diff -uNr /etc/init.orig/networking.conf /etc/init/networking.conf
+--- /etc/init.orig/networking.conf	2010-12-25 13:43:14.910534106 +0100
++++ /etc/init/networking.conf	2010-12-25 13:43:58.930531358 +0100
+@@ -10,6 +10,10 @@
+ 
+ task
+ 
+-pre-start exec mkdir -p /var/run/network
++pre-start script
++    /etc/init.d/vmcontext
++    mkdir -p /var/run/network
++end script
++
+ 
+ exec ifup -a
+diff -uNr /etc/init.orig/network-interface.conf /etc/init/network-interface.conf
+--- /etc/init.orig/network-interface.conf	2010-12-25 13:44:10.570531196 +0100
++++ /etc/init/network-interface.conf	2010-12-25 13:42:29.850555861 +0100
+@@ -12,6 +12,7 @@
+ instance $INTERFACE
+ 
+ pre-start script
++    /etc/init.d/vmcontext
+     if [ "$INTERFACE" = lo ]; then
+ 	# bring this up even if /etc/network/interfaces is broken
+ 	ifconfig lo 127.0.0.1 up || true

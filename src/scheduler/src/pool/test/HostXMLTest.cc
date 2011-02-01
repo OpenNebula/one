@@ -19,19 +19,10 @@
 #include <stdlib.h>
 #include <stdexcept>
 
-
-#include <TestFixture.h>
-#include <TestAssert.h>
-#include <TestSuite.h>
-#include <TestCaller.h>
-#include <ui/text/TestRunner.h>
-#include <cppunit/extensions/HelperMacros.h>
-#include <unistd.h>
-
 #include "ObjectXML.h"
 #include "HostPoolXML.h"
 
-#include "test/one_test_common.h"
+#include "test/OneUnitTest.h"
 
 /* ************************************************************************* */
 /* ************************************************************************* */
@@ -86,7 +77,7 @@ protected:
 /* ************************************************************************* */
 /* ************************************************************************* */
 
-class HostXMLTest : public CppUnit::TestFixture
+class HostXMLTest : public OneUnitTest
 {
     CPPUNIT_TEST_SUITE( HostXMLTest );
 
@@ -259,25 +250,8 @@ public:
 
 int main(int argc, char ** argv)
 {
-    // We need to set the log file
-    NebulaLog::init_log_system(NebulaLog::FILE, Log::DEBUG, "test.log");
-    NebulaLog::log("Test", Log::INFO, "Test started");
-
-    CppUnit::TextUi::TestRunner runner;
-
-    SETUP_XML_WRITER(runner, "HostXMLTest.xml")
-
-    runner.addTest(HostXMLTest::suite());
-    runner.run();
-
-
-    END_XML_WRITER
-
-
-//    remove("test.log");
-    NebulaLog::finalize_log_system();
-
-    return 0;
+    return OneUnitTest::main(argc, argv, HostXMLTest::suite(),
+                            "HostXMLTest.xml");
 }
 
 // ----------------------------------------------------------------------------

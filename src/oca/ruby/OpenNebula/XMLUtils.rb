@@ -93,6 +93,23 @@ module OpenNebula
                 element.text
             end
         end
+        
+        def retrieve_elements(filter)
+            ids_array = Array.new            
+            if NOKOGIRI
+                elements=@xml.xpath(filter.to_s)
+
+                if elements.size == 0
+                    return nil
+                end
+                
+                elements.each{ |e| ids_array << e.text }
+            else
+                @xml.each(filter.to_s) { |e|  ids_array << e.text }
+            end
+            
+            return ids_array
+        end
 
         # Gets an attribute from an elemenT
         # key:: _String_ xpath for the element
@@ -214,6 +231,44 @@ module OpenNebula
             end
 
             return str
+        end
+
+        def to_hash(hash={}, element=nil)
+            element ||= @xml.document.root
+
+            if NOKOGIRI
+                array = element.children
+                if array.length == 1 and array.first.text?
+                    r = array.first.text
+                else
+                    r = {}
+                    array.each { |c|
+                        if c.element?
+                            to_hash(r, c)
+                        end
+                    }
+                end
+            else
+                if element.has_elements?
+                    r = {}
+                    element.each_element { |c| to_hash(r, c) }
+                elsif element.has_text?
+                    r = element.text
+                end
+            end
+
+            key = element.name
+            if hash.has_key?(key)
+                if hash[key].instance_of?(Array)
+                    hash[key] << r
+                else
+                    hash[key] = [hash[key], r]
+                end
+            else
+                hash[key] = r
+            end
+
+            hash
         end
     end
 

@@ -35,7 +35,7 @@ const char * TestObjectSQL::table = "test_pool";
 const char * TestObjectSQL::db_names = "(oid,number,text)";
 
 const char * TestObjectSQL::db_bootstrap = "CREATE TABLE test_pool ("
-	"oid INTEGER, number INTEGER, text TEXT, PRIMARY KEY(oid))";
+        "oid INTEGER, number INTEGER, text TEXT, PRIMARY KEY(oid))";
 
 /* -------------------------------------------------------------------------- */
 

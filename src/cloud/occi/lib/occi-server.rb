@@ -58,7 +58,7 @@ end
 
 if CloudServer.is_port_open?($occi_server.config[:server], 
                              $occi_server.config[:port])
-    puts "Port busy, please shutdown the service or move econe server port."
+    puts "Port busy, please shutdown the service or move occi server port."
     exit
 end
 

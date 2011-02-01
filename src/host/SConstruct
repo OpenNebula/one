@@ -26,6 +26,7 @@ source_files=[
     'HostShare.cc',
     'HostPool.cc',
     'ClusterPool.cc',
+    'HostHook.cc'
 ]
 
 # Build library

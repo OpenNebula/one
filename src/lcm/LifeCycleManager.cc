@@ -36,8 +36,8 @@ extern "C" void * lcm_action_loop(void *arg)
     lcm->am.loop(0,0);
 
     NebulaLog::log("LCM",Log::INFO,"Life-cycle Manager stopped.");
-    
-    return 0;    
+
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -51,7 +51,7 @@ int LifeCycleManager::start()
     pthread_attr_setdetachstate (&pattr, PTHREAD_CREATE_JOINABLE);
 
     NebulaLog::log("LCM",Log::INFO,"Starting Life-cycle Manager...");
-    
+
     rc = pthread_create(&lcm_thread,&pattr,lcm_action_loop,(void *) this);
 
     return rc;
@@ -88,7 +88,7 @@ void LifeCycleManager::trigger(Actions action, int _vid)
     case SHUTDOWN_SUCCESS:
         aname = "SHUTDOWN_SUCCESS";
         break;
-        
+
     case SHUTDOWN_FAILURE:
         aname = "SHUTDOWN_FAILURE";
         break;
@@ -96,7 +96,7 @@ void LifeCycleManager::trigger(Actions action, int _vid)
     case CANCEL_SUCCESS:
         aname = "CANCEL_SUCCESS";
         break;
-        
+
     case CANCEL_FAILURE:
         aname = "CANCEL_FAILURE";
         break;
@@ -104,7 +104,7 @@ void LifeCycleManager::trigger(Actions action, int _vid)
     case MONITOR_FAILURE:
         aname = "MONITOR_FAILURE";
         break;
-        
+
     case MONITOR_SUSPEND:
         aname = "MONITOR_SUSPEND";
         break;
@@ -132,7 +132,7 @@ void LifeCycleManager::trigger(Actions action, int _vid)
     case DEPLOY:
         aname = "DEPLOY";
         break;
-        
+
     case SUSPEND:
         aname = "SUSPEND";
         break;
@@ -160,7 +160,7 @@ void LifeCycleManager::trigger(Actions action, int _vid)
     case SHUTDOWN:
         aname = "SHUTDOWN";
         break;
-        
+
     case RESTART:
         aname = "RESTART";
         break;
@@ -169,10 +169,14 @@ void LifeCycleManager::trigger(Actions action, int _vid)
         aname = "DELETE";
         break;
 
+    case CLEAN:
+        aname = "CLEAN";
+        break;
+
     case FINALIZE:
         aname = ACTION_FINALIZE;
         break;
-        
+
     default:
         delete vid;
         return;
@@ -188,7 +192,7 @@ void LifeCycleManager::do_action(const string &action, void * arg)
 {
     int             vid;
     ostringstream   oss;
-    
+
     if (arg == 0)
     {
         return;
@@ -197,7 +201,7 @@ void LifeCycleManager::do_action(const string &action, void * arg)
     vid  = *(static_cast<int *>(arg));
 
     delete static_cast<int *>(arg);
-    
+
     if (action == "SAVE_SUCCESS")
     {
         save_success_action(vid);
@@ -232,16 +236,16 @@ void LifeCycleManager::do_action(const string &action, void * arg)
     }
     else if (action == "MONITOR_FAILURE")
     {
-    	monitor_failure_action(vid);
+        monitor_failure_action(vid);
     }
     else if (action == "MONITOR_SUSPEND")
     {
-    	monitor_suspend_action(vid);
+        monitor_suspend_action(vid);
     }
     else if (action == "MONITOR_DONE")
     {
-    	monitor_done_action(vid);
-    }    
+        monitor_done_action(vid);
+    }
     else if (action == "PROLOG_SUCCESS")
     {
         prolog_success_action(vid);
@@ -256,7 +260,7 @@ void LifeCycleManager::do_action(const string &action, void * arg)
     }
     else if (action == "EPILOG_FAILURE")
     {
-        epilog_failure_action(vid);    
+        epilog_failure_action(vid);
     }
     else if (action == "DEPLOY")
     {
@@ -298,6 +302,10 @@ void LifeCycleManager::do_action(const string &action, void * arg)
     {
         delete_action(vid);
     }
+    else if (action == "CLEAN")
+    {
+        clean_action(vid);
+    }
     else if (action == ACTION_FINALIZE)
     {
         NebulaLog::log("LCM",Log::INFO,"Stopping Life-cycle Manager...");
@@ -306,11 +314,10 @@ void LifeCycleManager::do_action(const string &action, void * arg)
     {
         ostringstream oss;
         oss << "Unknown action name: " << action;
-        
+
         NebulaLog::log("LCM", Log::ERROR, oss);
     }
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-

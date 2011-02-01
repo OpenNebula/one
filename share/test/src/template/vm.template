@@ -1,8 +1,0 @@
-MEMORY = 512
-Cpu    = 1
-
-DISK   = [ ImaGE="/local/VM/disk.img",device="sda",TYPE="hd" ]
-DISK   = [ image="../debian.iso",DEvice="sdb",TYPE="cdrom" ]
-
-nic    = [ MAC="00:01:02", TYPE="bridged", IP="147.3"]
-

@@ -134,7 +134,7 @@ void Scheduler::start()
 
     int fd;
 
-    fd = open("/dev/null", O_RDWR|O_CREAT);
+    fd = open("/dev/null", O_RDWR);
 
     dup2(fd,0);
     dup2(fd,1);

@@ -65,7 +65,7 @@ public:
      *    @param vid VM unique id. This is the argument of the passed to the 
      *    invoked action.
      */
-    void trigger(
+    virtual void trigger(
         Actions action,
         int     vid);
         

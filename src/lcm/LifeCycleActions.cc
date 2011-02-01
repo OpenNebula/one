@@ -33,8 +33,8 @@ void  LifeCycleManager::deploy_action(int vid)
     {
         Nebula&             nd = Nebula::instance();
         TransferManager *   tm = nd.get_tm();
-        time_t				thetime = time(0);
-        int					cpu,mem,disk;
+        time_t              thetime = time(0);
+        int                 cpu,mem,disk;
 
         VirtualMachine::LcmState vm_state;
         TransferManager::Actions tm_action;
@@ -48,11 +48,11 @@ void  LifeCycleManager::deploy_action(int vid)
 
         if (vm->hasPreviousHistory())
         {
-        	if (vm->get_previous_reason() == History::STOP_RESUME)
-        	{
-        		vm_state  = VirtualMachine::PROLOG_RESUME;
-        		tm_action = TransferManager::PROLOG_RESUME;
-        	}
+            if (vm->get_previous_reason() == History::STOP_RESUME)
+            {
+                vm_state  = VirtualMachine::PROLOG_RESUME;
+                tm_action = TransferManager::PROLOG_RESUME;
+            }
         }
 
         vm->set_state(vm_state);
@@ -192,7 +192,7 @@ void  LifeCycleManager::migrate_action(int vid)
     {
         Nebula&                 nd  = Nebula::instance();
         VirtualMachineManager * vmm = nd.get_vmm();
-        int						cpu,mem,disk;
+        int                     cpu,mem,disk;
 
         //----------------------------------------------------
         //                SAVE_MIGRATE STATE
@@ -246,7 +246,7 @@ void  LifeCycleManager::live_migrate_action(int vid)
     {
         Nebula&                 nd = Nebula::instance();
         VirtualMachineManager * vmm = nd.get_vmm();
-        int						cpu,mem,disk;
+        int                     cpu,mem,disk;
 
         //----------------------------------------------------
         //                   MIGRATE STATE
@@ -343,8 +343,8 @@ void  LifeCycleManager::restore_action(int vid)
     {
         Nebula&                 nd  = Nebula::instance();
         VirtualMachineManager * vmm = nd.get_vmm();
-        int						cpu,mem,disk;
-        time_t					the_time = time(0);
+        int                     cpu,mem,disk;
+        time_t                  the_time = time(0);
 
         vm->log("LCM", Log::INFO, "Restoring VM");
 
@@ -487,6 +487,8 @@ void  LifeCycleManager::delete_action(int vid)
 {
     VirtualMachine * vm;
 
+    Nebula&           nd = Nebula::instance();
+    DispatchManager * dm = nd.get_dm();
 
     vm = vmpool->get(vid,true);
 
@@ -498,25 +500,72 @@ void  LifeCycleManager::delete_action(int vid)
     VirtualMachine::LcmState state = vm->get_lcm_state();
 
     if ((state == VirtualMachine::LCM_INIT) ||
-        (state == VirtualMachine::DELETE) ||
+        (state == VirtualMachine::CLEANUP) ||
         (state == VirtualMachine::FAILURE))
     {
         vm->unlock();
         return;
     }
 
-    int    cpu;
-    int    mem;
-    int    disk;
+    clean_up_vm(vm);
+
+    dm->trigger(DispatchManager::DONE,vid);
+
+    vm->unlock();
+
+    return;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+void  LifeCycleManager::clean_action(int vid)
+{
+    VirtualMachine * vm;
+
+    Nebula&           nd = Nebula::instance();
+    DispatchManager * dm = nd.get_dm();
+
+    vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return;
+    }
+
+    VirtualMachine::LcmState state = vm->get_lcm_state();
+
+    if ((state == VirtualMachine::LCM_INIT) ||
+        (state == VirtualMachine::CLEANUP) ||
+        (state == VirtualMachine::FAILURE))
+    {
+        vm->unlock();
+        return;
+    }
+
+    clean_up_vm(vm);
+
+    dm->trigger(DispatchManager::RESUBMIT,vid);
+
+    vm->unlock();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void  LifeCycleManager::clean_up_vm(VirtualMachine * vm)
+{
+    int    cpu, mem, disk;
     time_t the_time = time(0);
 
     Nebula& nd = Nebula::instance();
 
     TransferManager *       tm  = nd.get_tm();
-    DispatchManager *       dm  = nd.get_dm();
     VirtualMachineManager * vmm = nd.get_vmm();
 
-    vm->set_state(VirtualMachine::DELETE);
+    VirtualMachine::LcmState state = vm->get_lcm_state();
+    int                      vid   = vm->get_oid();
+
+    vm->set_state(VirtualMachine::CLEANUP);
     vmpool->update(vm);
 
     vm->set_etime(the_time);
@@ -535,6 +584,7 @@ void  LifeCycleManager::delete_action(int vid)
             tm->trigger(TransferManager::DRIVER_CANCEL,vid);
             tm->trigger(TransferManager::EPILOG_DELETE,vid);
         break;
+
         case VirtualMachine::BOOT:
         case VirtualMachine::RUNNING:
         case VirtualMachine::UNKNOWN:
@@ -567,6 +617,7 @@ void  LifeCycleManager::delete_action(int vid)
 
             tm->trigger(TransferManager::EPILOG_DELETE,vid);
         break;
+
         case VirtualMachine::SAVE_STOP:
         case VirtualMachine::SAVE_SUSPEND:
             vm->set_running_etime(the_time);
@@ -577,6 +628,7 @@ void  LifeCycleManager::delete_action(int vid)
 
             tm->trigger(TransferManager::EPILOG_DELETE,vid);
         break;
+
         case VirtualMachine::SAVE_MIGRATE:
             vm->set_running_etime(the_time);
             vmpool->update_history(vm);
@@ -593,6 +645,7 @@ void  LifeCycleManager::delete_action(int vid)
 
             tm->trigger(TransferManager::EPILOG_DELETE_PREVIOUS,vid);
         break;
+
         case VirtualMachine::PROLOG_MIGRATE:
             vm->set_prolog_etime(the_time);
             vmpool->update_history(vm);
@@ -601,6 +654,7 @@ void  LifeCycleManager::delete_action(int vid)
             tm->trigger(TransferManager::EPILOG_DELETE,vid);
             tm->trigger(TransferManager::EPILOG_DELETE_PREVIOUS,vid);
         break;
+
         case VirtualMachine::EPILOG_STOP:
         case VirtualMachine::EPILOG:
             vm->set_epilog_etime(the_time);
@@ -609,14 +663,10 @@ void  LifeCycleManager::delete_action(int vid)
             tm->trigger(TransferManager::DRIVER_CANCEL,vid);
             tm->trigger(TransferManager::EPILOG_DELETE,vid);
         break;
-        default: //FAILURE,LCM_INIT,DELETE
+
+        default: //FAILURE,LCM_INIT,CLEANUP
         break;
     }
 
-    dm->trigger(DispatchManager::DONE,vid);
 
-    vm->unlock();
-
-    return;
 }
-

@@ -15,12 +15,13 @@
 /* -------------------------------------------------------------------------- */
 
 /* ************************************************************************** */
-/* Host Pool                                                    			  */
+/* Host Pool                                                                  */
 /* ************************************************************************** */
 
 #include <stdexcept>
 
 #include "HostPool.h"
+#include "HostHook.h"
 #include "ClusterPool.h"
 #include "NebulaLog.h"
 
@@ -41,8 +42,13 @@ int HostPool::init_cb(void *nil, int num, char **values, char **names)
 
 /* -------------------------------------------------------------------------- */
 
-HostPool::HostPool(SqlDB* db):PoolSQL(db,Host::table)
+HostPool::HostPool(SqlDB*                    db,
+                   vector<const Attribute *> hook_mads,
+                   const string&             hook_location)
+                        : PoolSQL(db,Host::table)
 {
+    // ------------------ Initialize Cluster Array ----------------------
+
     ostringstream   sql;
 
     set_callback(static_cast<Callbackable::Callback>(&HostPool::init_cb));
@@ -62,6 +68,103 @@ HostPool::HostPool(SqlDB* db):PoolSQL(db,Host::table)
         {
             throw runtime_error("Could not create default cluster HostPool");
         }
+    }
+
+    // ------------------ Initialize Hooks fot the pool ----------------------
+
+    const VectorAttribute * vattr;
+
+    string name;
+    string on;
+    string cmd;
+    string arg;
+    string rmt;
+    bool   remote;
+
+    bool state_hook = false;
+
+    for (unsigned int i = 0 ; i < hook_mads.size() ; i++ )
+    {
+        vattr = static_cast<const VectorAttribute *>(hook_mads[i]);
+
+        name = vattr->vector_value("NAME");
+        on   = vattr->vector_value("ON");
+        cmd  = vattr->vector_value("COMMAND");
+        arg  = vattr->vector_value("ARGUMENTS");
+        rmt  = vattr->vector_value("REMOTE");
+
+        transform (on.begin(),on.end(),on.begin(),(int(*)(int))toupper);
+
+        if ( on.empty() || cmd.empty() )
+        {
+            ostringstream oss;
+
+            oss << "Empty ON or COMMAND attribute in HOST_HOOK. Hook "
+                << "not registered!";
+            NebulaLog::log("VM",Log::WARNING,oss);
+
+            continue;
+        }
+
+        if ( name.empty() )
+        {
+            name = cmd;
+        }
+
+        remote = false;
+
+        if ( !rmt.empty() )
+        {
+            transform(rmt.begin(),rmt.end(),rmt.begin(),(int(*)(int))toupper);
+
+            if ( rmt == "YES" )
+            {
+                remote = true;
+            }
+        }
+
+        if (cmd[0] != '/')
+        {
+            cmd = hook_location + cmd;
+        }
+
+        if ( on == "CREATE" )
+        {
+            HostAllocateHook * hook;
+
+            hook = new HostAllocateHook(name,cmd,arg,remote);
+
+            add_hook(hook);
+        }
+        else if ( on == "DISABLE" )
+        {
+            HostStateHook * hook;
+
+            hook = new HostStateHook(name, cmd, arg, remote, Host::DISABLED);
+
+            add_hook(hook);
+
+            state_hook = true;
+        }
+        else if ( on == "ERROR" )
+        {
+            HostStateHook * hook;
+
+            hook = new HostStateHook(name, cmd, arg, remote, Host::ERROR);
+
+            add_hook(hook);
+
+            state_hook = true;
+        }
+    }
+
+    if ( state_hook )
+    {
+        HostUpdateStateHook * hook;
+
+        hook = new HostUpdateStateHook();
+
+        add_hook(hook);
     }
 }
 
@@ -162,7 +265,8 @@ int HostPool::dump(ostringstream& oss, const string& where)
     set_callback(static_cast<Callbackable::Callback>(&HostPool::dump_cb),
                   static_cast<void *>(&oss));
 
-    cmd << "SELECT * FROM " << Host::table << " JOIN " << HostShare::table
+    cmd << "SELECT " << Host::db_names << " , " << HostShare::db_names
+        << " FROM " << Host::table << " JOIN " << HostShare::table
         << " ON " << Host::table << ".oid = " << HostShare::table << ".hid";
 
     if ( !where.empty() )

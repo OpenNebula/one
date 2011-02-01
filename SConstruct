@@ -39,6 +39,8 @@ if os.environ.has_key('CXXFLAGS'):
     main_env['CXXFLAGS'] += SCons.Util.CLVar(os.environ['CXXFLAGS'])
 if os.environ.has_key('LDFLAGS'):
     main_env['LINKFLAGS'] += SCons.Util.CLVar(os.environ['LDFLAGS'])
+else:
+    os.environ['LDFLAGS']=""
 
 # Add builders for flex and bison
 add_lex(main_env)
@@ -96,6 +98,7 @@ sqlite=ARGUMENTS.get('sqlite', 'yes')
 if sqlite=='yes':
     main_env.Append(sqlite='yes')
     main_env.Append(CPPFLAGS=["-DSQLITE_DB"])
+    main_env.Append(LIBS=['sqlite3'])
 else:
     main_env.Append(sqlite='no')
 
@@ -104,9 +107,9 @@ mysql=ARGUMENTS.get('mysql', 'no')
 if mysql=='yes':
     main_env.Append(mysql='yes')
     main_env.Append(CPPFLAGS=["-DMYSQL_DB"])
+    main_env.Append(LIBS=['mysqlclient'])
 else:
     main_env.Append(mysql='no')
-
 
 # xmlrpc
 xmlrpc_dir=ARGUMENTS.get('xmlrpc', 'none')
@@ -123,8 +126,10 @@ else:
 
 if not main_env.GetOption('clean'):
     try:
-        main_env.ParseConfig('share/scons/get_xmlrpc_config server')
-        main_env.ParseConfig('share/scons/get_xmlrpc_config client')
+        main_env.ParseConfig(("LDFLAGS='%s' share/scons/get_xmlrpc_config"+
+            " server") % (os.environ['LDFLAGS'],))
+        main_env.ParseConfig(("LDFLAGS='%s' share/scons/get_xmlrpc_config"+
+            " client") % (os.environ['LDFLAGS'],))
 
         if mysql=='yes':
             main_env.ParseConfig('mysql_config --cflags --libs')
@@ -184,8 +189,44 @@ build_scripts=[
     'src/authm/SConstruct',
 ]
 
+# Testing
+testing=ARGUMENTS.get('tests', 'no')
+
+if testing=='yes':
+    main_env.Append(testing='yes')
+
+    main_env.ParseConfig('cppunit-config --cflags --libs')
+
+    main_env.Append(CPPPATH=[
+        cwd+'/include/test',
+        '/usr/include/cppunit/' #not provided by cppunit-config command
+    ])
+
+    main_env.Append(LIBPATH=[
+        cwd+'/src/test',
+    ])
+
+    main_env.Append(LIBS=[
+        'nebula_test_common',
+    ])
+
+    build_scripts.extend([
+        'src/authm/test/SConstruct',
+        'src/common/test/SConstruct',
+        'src/host/test/SConstruct',
+        'src/image/test/SConstruct',
+        'src/lcm/test/SConstruct',
+        'src/pool/test/SConstruct',
+        'src/template/test/SConstruct',
+        'src/test/SConstruct',
+        'src/um/test/SConstruct',
+        'src/vm/test/SConstruct',
+        'src/vnm/test/SConstruct',
+    ])
+else:
+    main_env.Append(testing='no')
+
+
 for script in build_scripts:
     env=main_env.Clone()
     SConscript(script, exports='env')
-
-

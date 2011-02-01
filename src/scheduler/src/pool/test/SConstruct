@@ -14,84 +14,16 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-import os
-import sys
-import shutil
-sys.path.append("../../../../../share/scons")
-
-# This is the absolute path where the project is located
-cwd=os.getcwd()
-
-# Environment that will be applied to each scons child
-main_env=Environment()
-main_env['ENV']['PATH']=os.environ['PATH']
-
-# Include dirs
-main_env.Append(CPPPATH=[
-    cwd+'/../../../include',
-    cwd+'/../../../../../include',
-    '/usr/include/cppunit/'
-])
-
-# Library dirs
-main_env.Append(LIBPATH=[
-    cwd+'/..',
-    cwd+'/../../xml',
-    cwd+'/../../../../log',
-    cwd+'/../../../../common'
-])
-
-# Compile flags
-main_env.Append(CPPFLAGS=[
-    "-g",
-    "-Wall",
-    "-Werror"
-])
-
-# Linking flags
-main_env.Append(LDFLAGS=["-g"])
+Import('sched_env')
 
 # Libraries
-main_env.Append(LIBS=[
-    'cppunit',
+sched_env.Prepend(LIBS=[
     'scheduler_xml',
     'scheduler_pool',
     'nebula_log',
-    'nebula_common'
+    'nebula_common',
+    'nebula_test_common',
 ])
 
-main_env.Program('test_vm','VirtualMachineXMLTest.cc')
-main_env.Program('test_host','HostXMLTest.cc')
-
-################################################################################
-#                               EXTRA CONFIGURATION
-################################################################################
-
-#-------------------------------------------------------------------------------
-# xmlrpc
-#-------------------------------------------------------------------------------
-
-xmlrpc_dir=ARGUMENTS.get('xmlrpc', 'none')
-
-if xmlrpc_dir!='none':
-    main_env.Append(LIBPATH=[xmlrpc_dir+"/lib"])
-    main_env.Append(CPPPATH=[xmlrpc_dir+"/include"])
-
-main_env.ParseConfig('../../../../../share/scons/get_xmlrpc_config client')
-
-#-------------------------------------------------------------------------------
-# build lex/bison
-#-------------------------------------------------------------------------------
-
-build_parsers=ARGUMENTS.get('parsers', 'no')
-
-if build_parsers=='yes':
-    main_env.Append(parsers='yes')
-else:
-    main_env.Append(parsers='no')
-
-#-------------------------------------------------------------------------------
-# libxml2
-#-------------------------------------------------------------------------------
-
-main_env.ParseConfig('xml2-config --libs --cflags')
+sched_env.Program('test_vm','VirtualMachineXMLTest.cc')
+sched_env.Program('test_host','HostXMLTest.cc')

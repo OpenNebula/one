@@ -145,7 +145,7 @@ end
 
 images = rc['instancesSet']['item']
 
-fmt = "%-10s  %-36s   %-10s %s"  
+fmt = "%-12s  %-13s   %-14s %s"  
 
 if headers
     puts fmt % ["Owner", "ImageId", "InstanceId", "InstanceType"]

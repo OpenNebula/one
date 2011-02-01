@@ -56,12 +56,12 @@ HostShare::HostShare(
 
 const char * HostShare::table = "host_shares";
 
-const char * HostShare::db_names = "(hid,"
+const char * HostShare::db_names = "hid,"
     "disk_usage, mem_usage, cpu_usage,"
     "max_disk,   max_mem,   max_cpu,"
     "free_disk,  free_mem,  free_cpu,"
     "used_disk,  used_mem,  used_cpu,"
-    "running_vms)";
+    "running_vms";
 
 const char * HostShare::db_bootstrap = "CREATE TABLE IF NOT EXISTS host_shares("
     "hid INTEGER PRIMARY KEY,"
@@ -177,7 +177,7 @@ int HostShare::select(SqlDB * db)
 
     set_callback(static_cast<Callbackable::Callback>(&HostShare::select_cb));
 
-    oss << "SELECT * FROM " << table << " WHERE hid = " << hsid;
+    oss << "SELECT "<< db_names << " FROM " << table << " WHERE hid = " << hsid;
 
     bhsid = hsid;
     hsid  = -1;
@@ -240,7 +240,7 @@ int HostShare::insert_replace(SqlDB *db, bool replace)
         oss << "INSERT";
     }
 
-    oss << " INTO " << table << " "<< db_names <<" VALUES ("
+    oss << " INTO " << table << " ("<< db_names <<") VALUES ("
         << hsid << ","
         << disk_usage <<","<< mem_usage <<","<< cpu_usage<< ","
         << max_disk   <<","<< max_mem   <<","<< max_cpu  << ","

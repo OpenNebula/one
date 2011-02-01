@@ -597,3 +597,58 @@ int DispatchManager::finalize(
     return 0;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int DispatchManager::resubmit(int vid)
+{
+    VirtualMachine * vm;
+    ostringstream    oss;
+    int              rc = 0;
+
+    Nebula&             nd  = Nebula::instance();
+    LifeCycleManager *  lcm = nd.get_lcm();
+
+    vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return -1;
+    }
+
+    switch (vm->get_state())
+    {
+        case VirtualMachine::SUSPENDED:
+            NebulaLog::log("DiM",Log::ERROR,
+                "Can not resubmit a suspended VM. Resume it first");
+            rc = -2;
+        break;
+
+        case VirtualMachine::INIT: // No need to do nothing here
+        case VirtualMachine::PENDING:
+        break;
+
+        case VirtualMachine::HOLD: // Move the VM to PENDING in any of these
+        case VirtualMachine::STOPPED:
+        case VirtualMachine::FAILED:
+            vm->set_state(VirtualMachine::LCM_INIT);
+            vm->set_state(VirtualMachine::PENDING);
+            vmpool->update(vm);
+
+            vm->log("DiM", Log::INFO, "New VM state is PENDING.");
+        break;
+
+        case VirtualMachine::ACTIVE: //Cleanup VM resources before PENDING
+            lcm->trigger(LifeCycleManager::CLEAN,vid);
+        break;
+        case VirtualMachine::DONE:
+            NebulaLog::log("DiM",Log::ERROR,
+                "Can not resubmit a VM already in DONE state");
+            rc = -2;
+        break;
+    }
+
+    vm->unlock();
+
+    return rc;
+}

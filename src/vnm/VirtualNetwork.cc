@@ -70,7 +70,11 @@ VirtualNetwork::~VirtualNetwork()
 const char * VirtualNetwork::table        = "network_pool";
 
 const char * VirtualNetwork::db_names     =
-                                "(oid,uid,name,type,bridge,public,template)";
+                                "oid,uid,name,type,bridge,public,template";
+
+const char * VirtualNetwork::extended_db_names =
+    "network_pool.oid, network_pool.uid, network_pool.name, network_pool.type, "
+    "network_pool.bridge, network_pool.public, network_pool.template";
 
 const char * VirtualNetwork::db_bootstrap = "CREATE TABLE IF NOT EXISTS"
     " network_pool ("
@@ -130,7 +134,7 @@ int VirtualNetwork::select(SqlDB * db)
     set_callback(
         static_cast<Callbackable::Callback>(&VirtualNetwork::select_cb));
 
-    oss << "SELECT * FROM " << table << " WHERE oid = " << oid;
+    oss << "SELECT " << db_names << " FROM " << table << " WHERE oid = " << oid;
 
     boid = oid;
     oid  = -1;
@@ -492,7 +496,7 @@ int VirtualNetwork::insert_replace(SqlDB *db, bool replace)
         oss << "INSERT";
     }
 
-    oss << " INTO " << table << " "<< db_names <<" VALUES ("
+    oss << " INTO " << table << " (" << db_names << ") VALUES ("
         <<          oid         << ","
         <<          uid         << ","
         << "'" <<   sql_name    << "',"

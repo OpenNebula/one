@@ -36,8 +36,9 @@ using namespace std;
 class HostPool : public PoolSQL
 {
 public:
-
-    HostPool(SqlDB * db);
+    HostPool(SqlDB *                   db,
+             vector<const Attribute *> hook_mads,
+             const string&             hook_location);
 
     ~HostPool(){};
 
@@ -66,15 +67,6 @@ public:
         bool    lock)
     {
         return static_cast<Host *>(PoolSQL::get(oid,lock));
-    };
-
-    /** Update a particular Host
-     *    @param host pointer to Host
-     *    @return 0 on success
-     */
-    int update(Host * host)
-    {
-        return host->update(db);
     };
 
     /**

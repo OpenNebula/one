@@ -20,21 +20,13 @@
 #include <unistd.h>
 #include <pthread.h>
 
+#include "test/OneUnitTest.h"
 #include "AuthManager.h"
 #include "Template.h"
 #include "NebulaLog.h"
 
-#include <TestFixture.h>
-#include <TestAssert.h>
-#include <TestSuite.h>
-#include <TestCaller.h>
-#include <ui/text/TestRunner.h>
-#include <cppunit/extensions/HelperMacros.h>
-
 #include <openssl/evp.h>
 #include <openssl/bio.h>
-
-#include "test/one_test_common.h"
 
 using namespace std;
 
@@ -42,7 +34,7 @@ using namespace std;
 /* ************************************************************************* */
 /* ************************************************************************* */
 
-class AuthManagerTest : public CppUnit::TestFixture
+class AuthManagerTest : public OneUnitTest
 {
     CPPUNIT_TEST_SUITE (AuthManagerTest);
 
@@ -288,20 +280,5 @@ private:
 
 int main(int argc, char ** argv)
 {
-  CppUnit::TextUi::TestRunner runner;
-
-  NebulaLog::init_log_system(NebulaLog::FILE, Log::DEBUG,"test.log");
-  NebulaLog::log("Test", Log::INFO, "Test started");
-
-  SETUP_XML_WRITER(runner, "AuthManagerTest.xml");
-
-  runner.addTest(AuthManagerTest::suite());
-
-  runner.run();
-
-  END_XML_WRITER
-
-  NebulaLog::finalize_log_system();
-
-  return 0;
+    return OneUnitTest::main(argc, argv, AuthManagerTest::suite());
 }

@@ -479,6 +479,8 @@ protected:
         LIMIT            = 11
     };
 
+    static const char * extended_db_names;
+
     static const char * db_names;
 
     static const char * db_bootstrap;

@@ -31,7 +31,7 @@ module OpenNebula
         #######################################################################
         
         # +client+ a Client object that represents a XML-RPC connection
-        # +user_id+ is to refer to a Pool with VirtualNetworks from that user
+        # +user_id+ is to refer to a Pool with VirtualMachines from that user
         def initialize(client, user_id=0)
             super('VM_POOL','VM',client)
 

@@ -14,80 +14,24 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+Import('env')
 import os
-import sys
-import shutil
-sys.path.append("../../share/scons")
-
-from lex_bison import *
 
 # This is the absolute path where the project is located
 cwd=os.getcwd()
 
-# Environment that will be applied to each scons child
-main_env=Environment()
-main_env['ENV']['PATH']=os.environ['PATH']
-
-# Add builders for flex and bison
-add_lex(main_env)
-add_bison(main_env)
-
 # Include dirs
-main_env.Append(CPPPATH=[
+env.Append(CPPPATH=[
     cwd + '/include/',
-    cwd + '../../../include/'
 ])
 
 # Library dirs
-main_env.Append(LIBPATH=[
+
+env.Append(LIBPATH=[
     cwd+'/src/xml',
     cwd+'/src/pool',
-    cwd+'/src/sched',
-    cwd+'/../log',
-    cwd+'/../common',
+    cwd+'/src/sched'
 ])
-
-# Compile flags
-main_env.Append(CPPFLAGS=[
-    "-g",
-    "-Wall"
-])
-
-# Linking flags
-main_env.Append(LINKFLAGS=['-g', '-pthread'])
-
-################################################################################
-#                               EXTRA CONFIGURATION
-################################################################################
-
-#-------------------------------------------------------------------------------
-# xmlrpc
-#-------------------------------------------------------------------------------
-
-xmlrpc_dir=ARGUMENTS.get('xmlrpc', 'none')
-
-if xmlrpc_dir!='none':
-    main_env.Append(LIBPATH=[xmlrpc_dir+"/lib"])
-    main_env.Append(CPPPATH=[xmlrpc_dir+"/include"])
-
-main_env.ParseConfig('../../share/scons/get_xmlrpc_config client')
-
-#-------------------------------------------------------------------------------
-# build lex/bison
-#-------------------------------------------------------------------------------
-
-build_parsers=ARGUMENTS.get('parsers', 'no')
-
-if build_parsers=='yes':
-    main_env.Append(parsers='yes')
-else:
-    main_env.Append(parsers='no')
-
-#-------------------------------------------------------------------------------
-# libxml2
-#-------------------------------------------------------------------------------
-
-main_env.ParseConfig('xml2-config --libs --cflags')
 
 ################################################################################
 # SCONS scripts to build
@@ -99,6 +43,12 @@ build_scripts=[
     'src/sched/SConstruct'
 ]
 
+if env['testing']=='yes':
+    build_scripts.extend([
+        'src/pool/test/SConstruct',
+        'src/xml/test/SConstruct',
+    ])
+
 for script in build_scripts:
-    env=main_env.Clone()
-    SConscript(script, exports='env')
+    sched_env=env.Clone()
+    SConscript(script, exports='sched_env')

@@ -18,29 +18,16 @@
 #include <iostream>
 #include <getopt.h>
 
-#include <TestFixture.h>
-#include <TestAssert.h>
-#include <TestSuite.h>
-#include <TestCaller.h>
-#include <ui/text/TestRunner.h>
-#include <cppunit/extensions/HelperMacros.h>
-#include <unistd.h>
-
+#include "test/OneUnitTest.h"
 #include "PoolSQL.h"
 #include "TestPoolSQL.h"
-#include "SqliteDB.h"
-#include "MySqlDB.h"
-#include "SqlDB.h"
-
-#include "test/one_test_common.h"
 
 using namespace std;
 
 /* ************************************************************************* */
 /* ************************************************************************* */
-bool mysql;
 
-class PoolTest : public CppUnit::TestFixture
+class PoolTest : public OneUnitTest
 {
     CPPUNIT_TEST_SUITE (PoolTest);
     CPPUNIT_TEST (allocate_get);
@@ -51,7 +38,6 @@ class PoolTest : public CppUnit::TestFixture
 
 private:
     TestPool * pool;
-    SqlDB * db;
 
     int create_allocate(int n, string st)
     {
@@ -68,30 +54,7 @@ public:
 
     void setUp()
     {
-        string db_name = "testdb";
-
-        if (mysql)
-        {
-            db = new MySqlDB("localhost",0,"oneadmin","oneadmin",NULL);
-
-            ostringstream   oss1;
-            oss1 << "DROP DATABASE IF EXISTS " << db_name;
-            db->exec(oss1);
-
-            ostringstream   oss;
-            oss << "CREATE DATABASE " << db_name;
-            db->exec(oss);
-
-            ostringstream   oss2;
-            oss2 << "use " << db_name;
-            db->exec(oss2);
-        }
-        else
-        {
-            unlink(db_name.c_str());
-
-            db = new SqliteDB(db_name);
-        }
+        create_db();
 
         TestObjectSQL::bootstrap(db);
 
@@ -100,7 +63,7 @@ public:
 
     void tearDown()
     {
-        delete db;
+        delete_db();
         delete pool;
     };
 
@@ -202,13 +165,13 @@ public:
         TestObjectSQL *obj;
         TestObjectSQL *obj_lock;
 
-	//pin object in the cache, it can't be removed -
+        //pin object in the cache, it can't be removed -
         //Should be set to MAX_POOL -1
-	for (int i=0 ; i < 14999 ; i++)
+        for (int i=0 ; i < 14999 ; i++)
         {
             create_allocate(i,"A Test object");
 
-	    obj_lock = pool->get(i, true);
+            obj_lock = pool->get(i, true);
             CPPUNIT_ASSERT(obj_lock != 0);
         }
 
@@ -227,10 +190,10 @@ public:
             obj->unlock();
         }
 
-	for (int i=0 ; i < 14999 ; i++)
+        for (int i=0 ; i < 14999 ; i++)
         {
-	    obj_lock = pool->get(i, false);
-	    obj_lock->unlock();
+            obj_lock = pool->get(i, false);
+            obj_lock->unlock();
         }
     };
 };
@@ -241,65 +204,5 @@ public:
 
 int main(int argc, char ** argv)
 {
-    CppUnit::TextUi::TestRunner runner;
-    // Option flags
-    bool sqlite_flag = true;
-    bool log_flag    = false;
-
-    // Long options
-    const struct option long_opt[] =
-    {
-            { "sqlite", 0,  NULL,   's'},
-            { "mysql",  0,  NULL,   'm'},
-            { "log",    0,  NULL,   'l'},
-            { "help",   0,  NULL,   'h'}
-    };
-
-    int c;
-    while ((c = getopt_long (argc, argv, "smlh", long_opt, NULL)) != -1)
-        switch (c)
-        {
-            case 'm':
-                sqlite_flag = false;
-                break;
-            case 'l':
-                log_flag = true;
-                break;
-            case 'h':
-                cout << "Options:\n";
-                cout << "    -h  --help         Show this help\n"
-                        "    -s  --sqlite       Run Sqlite tests (default)\n"
-                        "    -m  --mysql        Run MySQL tests\n"
-                        "    -l  --log          Keep the log file, test.log\n";
-                return 0;
-        }
-
-    NebulaLog::init_log_system(NebulaLog::FILE, Log::ERROR, "test.log");
-
-    if (sqlite_flag)
-    {
-        mysql = false;
-        NebulaLog::log("Test", Log::INFO, "Running Sqlite tests...");
-        cout << "\nRunning Sqlite tests...\n";
-    }
-    else
-    {
-        mysql = true;
-        NebulaLog::log("Test", Log::INFO, "Running MySQL tests...");
-        cout << "\nRunning MySQL tests...\n";
-    }
-
-    SETUP_XML_WRITER(runner, "pool.xml")
-
-    runner.addTest( PoolTest::suite() );
-    runner.run();
-
-    if (!log_flag)
-        remove("test.log");
-
-    END_XML_WRITER
-
-    NebulaLog::finalize_log_system();
-
-    return 0;
+    return OneUnitTest::main(argc, argv, PoolTest::suite());
 }

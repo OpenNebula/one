@@ -39,6 +39,7 @@ require 'quota'
 require 'ssh_auth'
 require 'client_utilities'
 require 'command_parse'
+require 'yaml'
 
 
 COMMANDS_HELP=<<-EOT

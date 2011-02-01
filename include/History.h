@@ -103,6 +103,8 @@ private:
 
     static const char * db_names;
 
+    static const char * extended_db_names;
+
     static const char * db_bootstrap;
 
     void non_persistent_data();
