@@ -136,7 +136,7 @@ int RangedLeases::add(
     int             rc;
 
     //Insert the lease in the database
-    oss << "INSERT INTO " << table << " "<< db_names <<" VALUES ("<<
+    oss << "INSERT INTO " << table << " ("<< db_names <<") VALUES ("<<
         oid << "," <<
         ip << "," <<
         mac[Lease::PREFIX] << "," <<

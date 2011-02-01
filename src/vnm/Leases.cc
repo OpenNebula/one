@@ -248,7 +248,7 @@ string& Leases::Lease::to_xml(string& str) const
 
 const char * Leases::table        = "leases";
 
-const char * Leases::db_names     = "(oid,ip,mac_prefix,mac_suffix,vid,used)";
+const char * Leases::db_names     = "oid,ip,mac_prefix,mac_suffix,vid,used";
 
 const char * Leases::db_bootstrap = "CREATE TABLE IF NOT EXISTS leases ("
                 "oid INTEGER, ip BIGINT, mac_prefix BIGINT, mac_suffix BIGINT,"
@@ -310,7 +310,7 @@ int Leases::select(SqlDB * db)
 
     set_callback(static_cast<Callbackable::Callback>(&Leases::select_cb));
 
-    oss << "SELECT * FROM " << table << " WHERE oid = " << oid;
+    oss << "SELECT " << db_names << " FROM " << table << " WHERE oid = " << oid;
 
     rc = db->exec(oss,this);
 

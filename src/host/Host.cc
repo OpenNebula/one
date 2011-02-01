@@ -52,8 +52,8 @@ Host::~Host(){}
 
 const char * Host::table = "host_pool";
 
-const char * Host::db_names = "(oid,host_name,state,im_mad,vm_mad,"
-                              "tm_mad,last_mon_time, cluster, template)";
+const char * Host::db_names = "oid,host_name,state,im_mad,vm_mad,"
+                              "tm_mad,last_mon_time, cluster, template";
 
 const char * Host::db_bootstrap = "CREATE TABLE IF NOT EXISTS host_pool ("
     "oid INTEGER PRIMARY KEY,host_name VARCHAR(256), state INTEGER,"
@@ -109,7 +109,7 @@ int Host::select(SqlDB *db)
 
     set_callback(static_cast<Callbackable::Callback>(&Host::select_cb));
 
-    oss << "SELECT * FROM " << table << " WHERE oid = " << oid;
+    oss << "SELECT " << db_names << " FROM " << table << " WHERE oid = " << oid;
 
     boid = oid;
     oid  = -1;
@@ -275,7 +275,7 @@ int Host::insert_replace(SqlDB *db, bool replace)
 
     // Construct the SQL statement to Insert or Replace
 
-    oss <<" INTO "<< table <<" "<< db_names <<" VALUES ("
+    oss <<" INTO "<< table <<" ("<< db_names <<") VALUES ("
         <<          oid                 << ","
         << "'" <<   sql_hostname        << "',"
         <<          state               << ","

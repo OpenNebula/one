@@ -72,7 +72,7 @@ int FixedLeases::add(const string& ip, const string& mac, int vid, bool used)
         goto error_mac;
     }
 
-    oss << "INSERT INTO " << table << " "<< db_names <<" VALUES (" <<
+    oss << "INSERT INTO " << table << " ("<< db_names <<") VALUES (" <<
         oid << "," <<
         _ip << "," <<
         _mac[Lease::PREFIX] << "," <<

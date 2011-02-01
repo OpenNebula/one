@@ -50,7 +50,7 @@ User::~User(){};
 
 const char * User::table = "user_pool";
 
-const char * User::db_names = "(oid,user_name,password,enabled)";
+const char * User::db_names = "oid,user_name,password,enabled";
 
 const char * User::db_bootstrap = "CREATE TABLE IF NOT EXISTS user_pool ("
     "oid INTEGER PRIMARY KEY, user_name VARCHAR(256), password TEXT,"
@@ -91,7 +91,7 @@ int User::select(SqlDB *db)
 
     set_callback(static_cast<Callbackable::Callback>(&User::select_cb));
 
-    oss << "SELECT * FROM " << table << " WHERE oid = " << oid;
+    oss << "SELECT " << db_names << " FROM " << table << " WHERE oid = " << oid;
 
     boid = oid;
     oid  = -1;
@@ -183,7 +183,7 @@ int User::insert_replace(SqlDB *db, bool replace)
         oss << "INSERT";
     }
 
-    oss << " INTO " << table << " "<< db_names <<" VALUES ("
+    oss << " INTO " << table << " ("<< db_names <<") VALUES ("
         << oid << ","
         << "'" << sql_username << "',"
         << "'" << sql_password << "',"

@@ -171,7 +171,7 @@ int VirtualNetworkPool::dump(ostringstream& oss, const string& where)
         static_cast<Callbackable::Callback>(&VirtualNetworkPool::dump_cb),
         static_cast<void *>(&oss));
 
-    cmd << "SELECT " << VirtualNetwork::table << ".*,COUNT("
+    cmd << "SELECT " << VirtualNetwork::extended_db_names << ",COUNT("
         << Leases::table << ".used), user_pool.user_name FROM "
         << VirtualNetwork::table
         << " LEFT OUTER JOIN " << Leases::table << " ON "

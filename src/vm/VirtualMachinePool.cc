@@ -278,13 +278,14 @@ int VirtualMachinePool::dump(   ostringstream&  oss,
                                         &VirtualMachinePool::dump_extended_cb),
             static_cast<void *>(&oss));
 
-        cmd << "SELECT " << VirtualMachine::table << ".*, user_pool.user_name, "
-        << History::table << ".* FROM " << VirtualMachine::table
+        cmd << "SELECT " << VirtualMachine::extended_db_names
+        << ", user_pool.user_name, "
+        << History::extended_db_names << " FROM " << VirtualMachine::table
         << " LEFT OUTER JOIN " << History::table << " ON "
         << VirtualMachine::table << ".oid = " << History::table << ".vid AND "
         << History::table << ".seq = " << VirtualMachine::table
         << ".last_seq LEFT OUTER JOIN (SELECT oid,user_name FROM user_pool) "
-        << "AS user_pool ON " << VirtualMachine::table << ".uid = user_pool.oid";
+        << "AS user_pool ON "<< VirtualMachine::table << ".uid = user_pool.oid";
     }
     else
     {
@@ -292,7 +293,8 @@ int VirtualMachinePool::dump(   ostringstream&  oss,
             static_cast<Callbackable::Callback>(&VirtualMachinePool::dump_cb),
             static_cast<void *>(&oss));
 
-        cmd << "SELECT * FROM " << VirtualMachine::table;
+        cmd << "SELECT " << VirtualMachine::db_names << " FROM "
+            << VirtualMachine::table;
     }
 
     if ( state != -1 )
