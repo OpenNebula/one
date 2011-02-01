@@ -19,6 +19,8 @@
 
 #include "Leases.h"
 
+#include <string.h>
+
 using namespace std;
 
 class RangedLeases : public Leases
@@ -61,6 +63,40 @@ public:
     void release(const string& ip)
     {
         del(ip);
+    }
+
+    /**
+     *  Adds New leases.
+     *  Only available for FIXED networks.
+     *    @param vector_leases vector of VectorAttribute objects. For the
+     *      moment, the vector can only contain one LEASE.
+     *    @param error_msg If the action fails, this message contains
+     *      the reason.
+     *    @return 0 on success
+     */
+    int add_leases(vector<const Attribute*>&    vector_leases,
+                   char **                      error_msg)
+    {
+        *error_msg = strdup(
+            "Adding new leases is only supported for FIXED networks.");
+        return -1;
+    }
+
+    /**
+     *  Removes leases; if they are not used.
+     *  Only available for FIXED networks.
+     *    @param vector_leases vector of VectorAttribute objects. For the
+     *      moment, the vector can only contain one LEASE.
+     *    @param error_msg If the action fails, this message contains
+     *      the reason.
+     *    @return 0 on success
+     */
+    int remove_leases(vector<const Attribute*>&    vector_leases,
+                      char **                      error_msg)
+    {
+        *error_msg = strdup(
+            "Removing leases is only supported for FIXED networks.");
+        return -1;
     }
 
     /**

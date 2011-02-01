@@ -103,6 +103,29 @@ public:
     }
 
     /**
+     *  Adds Leases to the virtual network.
+     *  Only available for FIXED networks.
+     *    @param leases_template template in the form LEASES = [IP=XX, MAC=XX].
+     *      MAC is optional. For the moment, the template can only contain one
+     *      LEASE definition.
+     *    @param error_msg If the action fails, this message contains
+     *      the reason.
+     *    @return 0 on success
+     */
+    int add_leases(VirtualNetworkTemplate * leases_template, char **error_msg);
+
+    /**
+     *  Removes Leases from the virtual network; if they are not used.
+     *  Only available for FIXED networks.
+     *    @param leases_template template in the form LEASES = [IP=XX].
+     *      For the moment, the template can only contain one LEASE definition.
+     *    @param error_msg If the action fails, this message contains
+     *      the reason.
+     *    @return 0 on success
+     */
+    int remove_leases(VirtualNetworkTemplate* leases_template,char **error_msg);
+
+    /**
      *    Gets a new lease for a specific VM
      *    @param vid VM identifier
      *    @param _ip pointer to string for IP to be stored into

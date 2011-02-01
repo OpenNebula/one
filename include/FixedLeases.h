@@ -74,8 +74,32 @@ public:
      */
     void release(const string& ip)
     {
-    	del(ip);
+        unset(ip);
     }
+
+    /**
+     *  Adds New leases.
+     *  Only available for FIXED networks.
+     *    @param vector_leases vector of VectorAttribute objects. For the
+     *      moment, the vector can only contain one LEASE
+     *    @param error_msg If the action fails, this message contains
+     *      the reason.
+     *    @return 0 on success
+     */
+    int add_leases(vector<const Attribute*>&    vector_leases,
+                   char **                      error_msg);
+
+    /**
+     *  Removes leases; if they are not used.
+     *  Only available for FIXED networks.
+     *    @param vector_leases vector of VectorAttribute objects. For the
+     *      moment, the vector can only contain one LEASE.
+     *    @param error_msg If the action fails, this message contains
+     *      the reason.
+     *    @return 0 on success
+     */
+    int remove_leases(vector<const Attribute*>&    vector_leases,
+                      char **                      error_msg);
 
     /**
      *  Loads the leases from the DB.
@@ -107,17 +131,31 @@ private:
      * @param ip ip of the lease
      * @param mac mac of the lease
      * @param vid identifier of the VM getting this lease
+     * @param error_msg If the action fails, this message contains the reason.
+     * @param used Flag to insert the lease as used.
+     * @param check If set to true, the IP will be checked for duplicates.
      * @return 0 if success
      */
-     int add(const string&	ip, const string& mac, int vid, bool used=true);
+     int add(const string&  ip,
+             const string&  mac,
+             int            vid,
+             char **        error_msg,
+             bool           used=true,
+             bool           check=false);
 
     /**
-     * Remove a lease, from the Lease interface
-     * @param db pointer to DB
+     *  Remove an existing lease, if it is not in use.
+     *    @param ip ip of the lease
+     *    @param error_msg If the action fails, this message contains the reason
+     */
+     int remove(const string& ip, char ** error_msg);
+
+    /**
+     * Sets a lease as not used, from the Lease interface
      * @param ip ip of the lease to be deleted
      * @return 0 if success
      */
-     int del(const string& ip);
+     int unset(const string& ip);
 };
 
 #endif /*FIXED_LEASES_H_*/

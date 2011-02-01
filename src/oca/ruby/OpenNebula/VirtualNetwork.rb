@@ -22,10 +22,12 @@ module OpenNebula
         # Constants and Class Methods
         # ---------------------------------------------------------------------
         VN_METHODS = {
-            :info     => "vn.info",
-            :allocate => "vn.allocate",
-            :publish  => "vn.publish",
-            :delete   => "vn.delete"
+            :info       => "vn.info",
+            :allocate   => "vn.allocate",
+            :publish    => "vn.publish",
+            :delete     => "vn.delete",
+            :addleases  => "vn.addleases",
+            :rmleases   => "vn.rmleases"
         }
 
         # Creates a VirtualNetwork description with just its identifier
@@ -81,6 +83,32 @@ module OpenNebula
         # Deletes the VirtualNetwork
         def delete()
             super(VN_METHODS[:delete])
+        end
+
+        # Adds a lease to the VirtualNetwork
+        def addleases(ip, mac = nil)
+            return Error.new('ID not defined') if !@pe_id
+
+            lease_template = "LEASES = [ IP = #{ip}"
+            lease_template << ", MAC = #{mac}" if mac
+            lease_template << " ]"
+
+            rc = @client.call(VN_METHODS[:addleases], @pe_id, lease_template)
+            rc = nil if !OpenNebula.is_error?(rc)
+
+            return rc
+        end
+
+        # Removes a lease from the VirtualNetwork
+        def rmleases(ip)
+            return Error.new('ID not defined') if !@pe_id
+
+            lease_template = "LEASES = [ IP = #{ip} ]"
+
+            rc = @client.call(VN_METHODS[:rmleases], @pe_id, lease_template)
+            rc = nil if !OpenNebula.is_error?(rc)
+
+            return rc
         end
 
     private

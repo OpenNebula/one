@@ -686,3 +686,28 @@ int VirtualNetwork::nic_attribute(VectorAttribute *nic, int vid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int VirtualNetwork::add_leases(VirtualNetworkTemplate * leases_template,
+                               char **                  error_msg)
+{
+    vector<const Attribute *> vector_leases;
+
+    leases_template->get("LEASES", vector_leases);
+
+    return leases->add_leases(vector_leases, error_msg);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualNetwork::remove_leases(VirtualNetworkTemplate * leases_template,
+                                  char **                  error_msg)
+{
+    vector<const Attribute *> vector_leases;
+
+    leases_template->get("LEASES", vector_leases);
+
+    return leases->remove_leases(vector_leases, error_msg);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
