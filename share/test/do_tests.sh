@@ -1,8 +1,23 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------
-# COMMAND LINE PARSING
+# DEFINE THE TESTS
 #-------------------------------------------------------------------------------
+TWD_DIR="../../src"
+BASE_DIR=$PWD
 
+TESTS="$TWD_DIR/vnm/test \
+       $TWD_DIR/scheduler/src/xml/test \
+       $TWD_DIR/scheduler/src/pool/test \
+       $TWD_DIR/hm_mad/test \
+       $TWD_DIR/common/test \
+       $TWD_DIR/host/test \
+       $TWD_DIR/template/test \
+       $TWD_DIR/image/test \
+       $TWD_DIR/authm/test \
+       $TWD_DIR/vm/test \
+       $TWD_DIR/um/test \
+       $TWD_DIR/lcm/test \
+       $TWD_DIR/pool/test"
 
 #-------------------------------------------------------------------------------
 # COMMAND LINE PARSING
@@ -38,8 +53,6 @@ LOGS="no"
 CLEAR="no"
 BUILD="no"
 
-TWD_DIR="../../src"
-BASE_DIR=$PWD
 
 while true ; do
     case "$1" in
