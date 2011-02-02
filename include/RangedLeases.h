@@ -19,8 +19,6 @@
 
 #include "Leases.h"
 
-#include <string.h>
-
 using namespace std;
 
 class RangedLeases : public Leases
@@ -74,11 +72,9 @@ public:
      *      the reason.
      *    @return 0 on success
      */
-    int add_leases(vector<const Attribute*>&    vector_leases,
-                   char **                      error_msg)
+    int add_leases(vector<const Attribute*>& vector_leases, string& error_msg)
     {
-        *error_msg = strdup(
-            "Adding new leases is only supported for FIXED networks.");
+        error_msg = "Adding new leases is only supported for FIXED networks.";
         return -1;
     }
 
@@ -91,11 +87,9 @@ public:
      *      the reason.
      *    @return 0 on success
      */
-    int remove_leases(vector<const Attribute*>&    vector_leases,
-                      char **                      error_msg)
+    int remove_leases(vector<const Attribute*>& vector_leases, string& error_msg)
     {
-        *error_msg = strdup(
-            "Removing leases is only supported for FIXED networks.");
+        error_msg = "Removing leases is only supported for FIXED networks.";
         return -1;
     }
 

@@ -35,10 +35,11 @@ void RequestManager::VirtualNetworkRemoveLeases::execute(
     int                 rc;
 
     string              str_template;
+    string              error_add;
     char *              error_msg = 0;
 
-    VirtualNetworkTemplate * leases_template;
-    VirtualNetwork *    vn;
+    VirtualNetworkTemplate leases_template;
+    VirtualNetwork *       vn;
 
     int                 network_owner;
     bool                is_public;
@@ -66,9 +67,7 @@ void RequestManager::VirtualNetworkRemoveLeases::execute(
     }
 
     // Check template syntax
-    leases_template = new VirtualNetworkTemplate;
-
-    rc = leases_template->parse(str_template,&error_msg);
+    rc = leases_template.parse(str_template,&error_msg);
 
     if ( rc != 0 )
     {
@@ -113,7 +112,7 @@ void RequestManager::VirtualNetworkRemoveLeases::execute(
         goto error_vn_get;
     }
 
-    rc = vn->remove_leases(leases_template, &error_msg);
+    rc = vn->remove_leases(&leases_template, error_add);
 
     if ( rc < 0 )
     {
@@ -131,12 +130,10 @@ void RequestManager::VirtualNetworkRemoveLeases::execute(
 
     delete arrayresult; // and get rid of the original
 
-    delete leases_template;
-
     return;
 
 error_authenticate:
-     oss.str(authenticate_error(method_name));
+    oss.str(authenticate_error(method_name));
     goto error_common;
 
 error_parse:
@@ -146,13 +143,11 @@ error_parse:
         oss << " Reason: " << error_msg;
         free(error_msg);
     }
-
-    goto error_delete;
+    goto error_common;
 
 error_vn_get:
     oss.str(get_error(method_name, "NET", nid));
-
-    goto error_delete;
+    goto error_common;
 
 error_authorize:
     oss.str(authorization_error(method_name, "MANAGE", "NET", uid, nid));
@@ -160,17 +155,9 @@ error_authorize:
 
 error_add:
     oss << action_error(method_name, "REMOVE LEASE", "NET", nid, rc);
+    oss << " Reason: " << error_add;
 
-    if (error_msg != 0)
-    {
-        oss << " Reason: " << error_msg;
-        free(error_msg);
-    }
     vn->unlock();
-    goto error_delete;
-
-error_delete:
-    delete leases_template;
 
 error_common:
     arrayData.push_back(xmlrpc_c::value_boolean(false));  // FAILURE

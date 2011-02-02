@@ -30,7 +30,7 @@ FixedLeases::FixedLeases(
     const VectorAttribute *	single_attr_lease;
     string _mac;
     string _ip;
-    char * error_msg = 0;
+    string error_msg;
 
     for (unsigned long i=0; i < vector_leases.size() ;i++)
     {
@@ -42,10 +42,9 @@ FixedLeases::FixedLeases(
             _ip  = single_attr_lease->vector_value("IP");
             _mac = single_attr_lease->vector_value("MAC");
 
-            if( add(_ip,_mac,-1,&error_msg,false,true) != 0 )
+            if( add(_ip,_mac,-1,error_msg,false) != 0 )
             {
                 NebulaLog::log("VNM", Log::ERROR, error_msg);
-                free(error_msg);
             }
         }
     }
@@ -57,7 +56,7 @@ FixedLeases::FixedLeases(
 /* -------------------------------------------------------------------------- */
 
 int FixedLeases::add(const string& ip, const string& mac, int vid,
-                     char** error_msg, bool used, bool check)
+                     string& error_msg, bool used)
 {
     ostringstream    oss;
     unsigned int     _ip;
@@ -70,7 +69,7 @@ int FixedLeases::add(const string& ip, const string& mac, int vid,
         goto error_ip;
     }
 
-    if ( check && leases.count(_ip) > 0 )
+    if ( leases.count(_ip) > 0 )
     {
         goto error_duplicate;
     }
@@ -121,18 +120,18 @@ error_duplicate:
 
 error_db:
     oss.str("");
-    oss << "Error inserting lease in database. Check oned.log";
-    goto error_common;
+    oss << "Error inserting lease in database.";
 
 error_common:
-    *error_msg = strdup( oss.str().c_str() );
+    NebulaLog::log("VNM", Log::ERROR, oss);
+    error_msg = oss.str();
     return -1;
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int FixedLeases::remove(const string& ip, char ** error_msg)
+int FixedLeases::remove(const string& ip, string& error_msg)
 {
     map<unsigned int,Lease *>::iterator it;
 
@@ -152,7 +151,8 @@ int FixedLeases::remove(const string& ip, char ** error_msg)
     {
         goto error_notfound;
     }
-    else if (it->second->used) //it is in use
+
+    if (it->second->used) //it is in use
     {
         goto error_used;
     }
@@ -188,11 +188,11 @@ error_used:
 
 error_db:
     oss.str("");
-    oss << "Error inserting lease in database. Check oned.log";
-    goto error_common;
+    oss << "Error inserting lease in database.";
 
 error_common:
-    *error_msg = strdup( oss.str().c_str() );
+    NebulaLog::log("VNM", Log::ERROR, oss);
+    error_msg = oss.str();
     return -1;
 }
 
@@ -326,27 +326,33 @@ int FixedLeases::set(int vid, const string&  ip, string&  mac)
 /* -------------------------------------------------------------------------- */
 
 int FixedLeases::add_leases(vector<const Attribute*>&   vector_leases,
-                            char **                     error_msg)
+                            string&                     error_msg)
 {
     const VectorAttribute * single_attr_lease;
+
     int     rc = -1;
     string  _mac;
     string  _ip;
 
     single_attr_lease = dynamic_cast<const VectorAttribute *>(vector_leases[0]);
 
-    if( single_attr_lease )
+    if( single_attr_lease != 0 )
     {
         _ip  = single_attr_lease->vector_value("IP");
         _mac = single_attr_lease->vector_value("MAC");
 
-        rc = add(_ip, _mac, -1, error_msg, false, true);
+        rc = add(_ip, _mac, -1, error_msg, false);
 
         if( rc == 0 )
         {
             size = leases.size();
         }
     }
+    else
+    {
+        error_msg = "Empty lease description.";
+    }
+
 
     return rc;
 }
@@ -355,7 +361,7 @@ int FixedLeases::add_leases(vector<const Attribute*>&   vector_leases,
 /* -------------------------------------------------------------------------- */
 
 int FixedLeases::remove_leases(vector<const Attribute*>&   vector_leases,
-                               char **                     error_msg)
+                               string&                     error_msg)
 {
     const VectorAttribute * single_attr_lease;
     int     rc = -1;
@@ -363,7 +369,7 @@ int FixedLeases::remove_leases(vector<const Attribute*>&   vector_leases,
 
     single_attr_lease = dynamic_cast<const VectorAttribute *>(vector_leases[0]);
 
-    if( single_attr_lease )
+    if( single_attr_lease != 0 )
     {
         _ip  = single_attr_lease->vector_value("IP");
 
@@ -373,6 +379,10 @@ int FixedLeases::remove_leases(vector<const Attribute*>&   vector_leases,
         {
             size = leases.size();
         }
+    }
+    else
+    {
+        error_msg = "Empty lease description.";
     }
 
     return rc;

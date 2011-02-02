@@ -28,34 +28,33 @@ void RequestManager::VirtualNetworkAddLeases::execute(
     xmlrpc_c::paramList const& paramList,
     xmlrpc_c::value *   const  retval)
 {
-    string              session;
+    string session;
 
-    int                 nid;
-    int                 uid;
-    int                 rc;
+    int nid;
+    int uid;
+    int rc;
 
-    string              str_template;
-    char *              error_msg = 0;
+    string str_template;
+    string error_add;
+    char*  error_msg = 0;
 
-    VirtualNetworkTemplate * leases_template;
-    VirtualNetwork *    vn;
+    VirtualNetworkTemplate leases_template;
+    VirtualNetwork *       vn;
 
-    int                 network_owner;
-    bool                is_public;
+    int  network_owner;
+    bool is_public;
 
-    ostringstream       oss;
-
+    ostringstream oss;
     const string  method_name = "VirtualNetworkAddLeases";
 
     vector<xmlrpc_c::value> arrayData;
     xmlrpc_c::value_array * arrayresult;
 
-
     NebulaLog::log("ReM",Log::DEBUG,"VirtualNetworkAddLeases invoked");
 
-    session         = xmlrpc_c::value_string (paramList.getString(0));
-    nid             = xmlrpc_c::value_int    (paramList.getInt(1));
-    str_template    = xmlrpc_c::value_string (paramList.getString(2));
+    session      = xmlrpc_c::value_string (paramList.getString(0));
+    nid          = xmlrpc_c::value_int    (paramList.getInt(1));
+    str_template = xmlrpc_c::value_string (paramList.getString(2));
 
     // First, we need to authenticate the user
     uid = VirtualNetworkAddLeases::upool->authenticate(session);
@@ -66,9 +65,8 @@ void RequestManager::VirtualNetworkAddLeases::execute(
     }
 
     // Check template syntax
-    leases_template = new VirtualNetworkTemplate;
 
-    rc = leases_template->parse(str_template,&error_msg);
+    rc = leases_template.parse(str_template,&error_msg);
 
     if ( rc != 0 )
     {
@@ -113,7 +111,7 @@ void RequestManager::VirtualNetworkAddLeases::execute(
         goto error_vn_get;
     }
 
-    rc = vn->add_leases(leases_template, &error_msg);
+    rc = vn->add_leases(&leases_template, error_add);
 
     if ( rc < 0 )
     {
@@ -131,12 +129,10 @@ void RequestManager::VirtualNetworkAddLeases::execute(
 
     delete arrayresult; // and get rid of the original
 
-    delete leases_template;
-
     return;
 
 error_authenticate:
-     oss.str(authenticate_error(method_name));
+    oss.str(authenticate_error(method_name));
     goto error_common;
 
 error_parse:
@@ -146,13 +142,11 @@ error_parse:
         oss << " Reason: " << error_msg;
         free(error_msg);
     }
-
-    goto error_delete;
+    goto error_common;
 
 error_vn_get:
     oss.str(get_error(method_name, "NET", nid));
-
-    goto error_delete;
+    goto error_common;
 
 error_authorize:
     oss.str(authorization_error(method_name, "MANAGE", "NET", uid, nid));
@@ -160,17 +154,8 @@ error_authorize:
 
 error_add:
     oss << action_error(method_name, "ADD LEASE", "NET", nid, rc);
-
-    if (error_msg != 0)
-    {
-        oss << " Reason: " << error_msg;
-        free(error_msg);
-    }
+    oss << " Reason: " << error_add;
     vn->unlock();
-    goto error_delete;
-
-error_delete:
-    delete leases_template;
 
 error_common:
     arrayData.push_back(xmlrpc_c::value_boolean(false));  // FAILURE

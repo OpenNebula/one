@@ -687,7 +687,7 @@ int VirtualNetwork::nic_attribute(VectorAttribute *nic, int vid)
 /* -------------------------------------------------------------------------- */
 
 int VirtualNetwork::add_leases(VirtualNetworkTemplate * leases_template,
-                               char **                  error_msg)
+                               string&                  error_msg)
 {
     vector<const Attribute *> vector_leases;
 
@@ -700,7 +700,7 @@ int VirtualNetwork::add_leases(VirtualNetworkTemplate * leases_template,
 /* -------------------------------------------------------------------------- */
 
 int VirtualNetwork::remove_leases(VirtualNetworkTemplate * leases_template,
-                                  char **                  error_msg)
+                                  string&                  error_msg)
 {
     vector<const Attribute *> vector_leases;
 
