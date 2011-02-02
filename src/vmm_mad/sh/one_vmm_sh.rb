@@ -35,20 +35,25 @@ $: << RUBY_LIB_LOCATION
 require "VirtualMachineDriver"
 
 # ---------------------------------------------------------------------------- #
-# The main class for the Sh driver                                        #
+# The main class for the Sh driver                                             #
 # ---------------------------------------------------------------------------- #
 class ShDriver < VirtualMachineDriver
     # ------------------------------------------------------------------------ #
-    # ShDriver constructor                                                #
+    # ShDriver constructor                                                     #
     # ------------------------------------------------------------------------ #
-    def initialize(hypervisor)
-        super(15,true)
+    def initialize(hypervisor,threads)
+        super(threads,true)
         
         @config = read_configuration
         @hypervisor = hypervisor
         
-        @actions_path   =
-                "#{ENV['ONE_LOCATION']}/lib/remotes/vmm/#{hypervisor}"
+        if ONE_LOCATION == nil 
+            @actions_path = "/usr/lib/one"
+        else
+            @actions_path = "#{ENV['ONE_LOCATION']}/lib"
+        end
+
+        @actions_path << "/remotes/vmm/#{hypervisor}"
     end
 
     # ------------------------------------------------------------------------ #
@@ -62,70 +67,68 @@ class ShDriver < VirtualMachineDriver
                 "Can not open deployment file #{local_dfile}")
             return
         end
-        
-        deploy_exe = nil
-        
-        cmd = "#{@actions_path}/deploy #{host} #{local_dfile}"
-        deploy_exe = LocalCommand.run(cmd, log_method(id))
-
-
-        if deploy_exe.code != 0
-            send_message(ACTION[:deploy],RESULT[:failure],id)
-        else
-            send_message(ACTION[:deploy],RESULT[:success],id,deploy_exe.stdout)
-        end
+       
+        local_action("#{@actions_path}/deploy #{host} #{local_dfile}",id,:deploy)
     end
 
     # ------------------------------------------------------------------------ #
     # Basic Domain Management Operations                                       #
     # ------------------------------------------------------------------------ #
     def shutdown(id, host, deploy_id, not_used)
-        local_action("#{@actions_path}/shutdown #{host} #{deploy_id}", 
-                     id, 
+        local_action("#{@actions_path}/shutdown #{host} #{deploy_id}", id, 
                      :shutdown)
     end
 
     def cancel(id, host, deploy_id, not_used)
-        local_action("#{@actions_path}/cancel #{host} #{deploy_id}", 
-                     id, 
-                     :cancel)
+        local_action("#{@actions_path}/cancel #{host} #{deploy_id}", id, :cancel)
     end
 
     def save(id, host, deploy_id, file)
-        local_action("#{@actions_path}/save #{host} #{deploy_id} #{file}", 
-                     id, 
+        local_action("#{@actions_path}/save #{host} #{deploy_id} #{file}", id, 
                      :save)
     end
 
     def restore(id, host, deploy_id, file)
-        local_action("#{@actions_path}/restore #{host} #{file}", 
-                     id, 
-                     :restore)
+        local_action("#{@actions_path}/restore #{host} #{file}", id, :restore)
     end
 
     def migrate(id, host, deploy_id, dest_host)
         local_action(
-          "#{@actions_path}/migrate #{host} #{deploy_id} #{dest_host}",
-          id, 
-          :migrate)
+              "#{@actions_path}/migrate #{host} #{deploy_id} #{dest_host}", id, 
+              :migrate)
     end
 
     def poll(id, host, deploy_id, not_used)
-        cmd = "#{@actions_path}/poll #{host} #{deploy_id}"
-        poll_exe = LocalCommand.run(cmd, log_method(id))
-        
-        if poll_exe.code != 0
-            send_message(ACTION[:poll],RESULT[:failure],id)
-        else
-            send_message(ACTION[:poll],RESULT[:success],id,poll_exe.stdout)
-        end
+        local_action("#{@actions_path}/poll #{host} #{deploy_id}",id,:poll)
     end
 end
 
 # ---------------------------------------------------------------------------- #
-# ShDriver Main program
+# ShDriver Main program                                                        #
 # ---------------------------------------------------------------------------- #
-hypervisor = ARGV[0]
+opts = GetoptLong.new(
+    [ '--threads',    '-t', GetoptLong::OPTIONAL_ARGUMENT ]
+)
 
-sh_driver = ShDriver.new(hypervisor)
+hypervisor = ''
+threads    = 15
+
+begin
+    opts.each do |opt, arg|
+        case opt
+            when '--threads'
+                threads = arg.to_i
+        end
+    end
+rescue Exception => e
+    exit(-1)
+end 
+
+if ARGV.length >= 1 
+    hypervisor = ARGV.shift
+else
+    exit(-1)
+end
+
+sh_driver = ShDriver.new(hypervisor,threads)
 sh_driver.start_driver

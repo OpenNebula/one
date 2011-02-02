@@ -1,20 +1,20 @@
 #!/usr/bin/env ruby
 
-# -------------------------------------------------------------------------- #
-# Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
-#                                                                            #
-# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
-# not use this file except in compliance with the License. You may obtain    #
-# a copy of the License at                                                   #
-#                                                                            #
-# http://www.apache.org/licenses/LICENSE-2.0                                 #
-#                                                                            #
-# Unless required by applicable law or agreed to in writing, software        #
-# distributed under the License is distributed on an "AS IS" BASIS,          #
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
-# See the License for the specific language governing permissions and        #
-# limitations under the License.                                             #
-#--------------------------------------------------------------------------- #
+# -------------------------------------------------------------------------.- #
+# Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)              #
+#                                                                             #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may     #
+# not use this file except in compliance with the License. You may obtain     #
+# a copy of the License at                                                    #
+#                                                                             #
+# http://www.apache.org/licenses/LICENSE-2.0                                  #
+#                                                                             #
+# Unless required by applicable law or agreed to in writing, software         #
+# distributed under the License is distributed on an "AS IS" BASIS,           #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.    #
+# See the License for the specific language governing permissions and         #
+# limitations under the License.                                              #
+#---------------------------------------------------------------------------- #
 
 # ---------------------------------------------------------------------------- #
 # Set up the environment for the driver                                        #
@@ -34,20 +34,31 @@ $: << RUBY_LIB_LOCATION
 
 require "VirtualMachineDriver"
 
-# ---------------------------------------------------------------------------- #
-# The main class for the Sh driver                                        #
-# ---------------------------------------------------------------------------- #
+# ---------------------------------------------------------------------------- 
+# The main class for the Sh driver
+# ---------------------------------------------------------------------------- 
 class SshDriver < VirtualMachineDriver
-    # ------------------------------------------------------------------------ #
-    # SshDriver constructor                                                #
-    # ------------------------------------------------------------------------ #
-    def initialize(hypervisor)
-        super(15,true)
+    # ------------------------------------------------------------------------ 
+    # SshDriver constructor                                                
+    # ------------------------------------------------------------------------ 
+    def initialize(hypervisor, threads, retries, localpoll)
+        super(threads,true,retries)
         
         @config = read_configuration
         
-        @hypervisor = hypervisor
-        @remote_dir = @config['SCRIPTS_REMOTE_DIR']
+        @hypervisor  = hypervisor
+        @remote_dir  = @config['SCRIPTS_REMOTE_DIR']
+        @remote_path = "#{@config['SCRIPTS_REMOTE_DIR']}/vmm/#{@hypervisor}"
+        
+        if ONE_LOCATION == nil 
+            @actions_path = "/usr/lib/one"
+        else
+            @actions_path = "#{ENV['ONE_LOCATION']}/lib"
+        end
+
+        @actions_path << "/remotes/vmm/#{hypervisor}"
+
+        @localpoll  = localpoll
     end
 
     # ------------------------------------------------------------------------ #
@@ -66,48 +77,83 @@ class SshDriver < VirtualMachineDriver
         domain = tmp.read
         tmp.close()
 
-        remotes_action("#{@remote_dir}/vmm/#{@hypervisor}/deploy #{remote_dfile}",
-                    id, host, :deploy, @remote_dir, domain)
+        remotes_action("#{@remote_path}/deploy #{remote_dfile}",
+                        id, host, :deploy, @remote_dir, domain)
     end
 
     # ------------------------------------------------------------------------ #
     # Basic Domain Management Operations                                       #
     # ------------------------------------------------------------------------ #
     def shutdown(id, host, deploy_id, not_used)
-        remotes_action("#{@remote_dir}/vmm/#{@hypervisor}/shutdown #{deploy_id}",
-                    id, host, :shutdown, @remote_dir)
+        remotes_action("#{@remote_path}/shutdown #{deploy_id}",
+                       id, host, :shutdown, @remote_dir)
     end
 
     def cancel(id, host, deploy_id, not_used)
-        remotes_action("#{@remote_dir}/vmm/#{@hypervisor}/cancel #{deploy_id}",
-                    id, host, :cancel, @remote_dir)
+        remotes_action("#{@remote_path}/cancel #{deploy_id}",
+                       id, host, :cancel, @remote_dir)
     end
 
     def save(id, host, deploy_id, file)
-        remotes_action("#{@remote_dir}/vmm/#{@hypervisor}/save #{deploy_id} #{file}",
-                    id, host, :save, @remote_dir)
+        remotes_action("#{@remote_path}/save #{deploy_id} #{file}",
+                       id, host, :save, @remote_dir)
     end
 
     def restore(id, host, deploy_id, file)
-        remotes_action("#{@remote_dir}/vmm/#{@hypervisor}/restore #{file}",
-                    id, host, :restore, @remote_dir)
+        remotes_action("#{@remote_path}/restore #{file}",
+                       id, host, :restore, @remote_dir)
     end
 
     def migrate(id, host, deploy_id, dest_host)
-        remotes_action("#{@remote_dir}/vmm/#{@hypervisor}/migrate #{deploy_id} #{dest_host}",
-                    id, host, :migrate, @remote_dir)
+        remotes_action("#{@remote_path}/migrate #{deploy_id} #{dest_host}",
+                       id, host, :migrate, @remote_dir)
     end
 
     def poll(id, host, deploy_id, not_used)
-        remotes_action("#{@remote_dir}/vmm/#{@hypervisor}/poll #{deploy_id}",
-                    id, host, :poll, @remote_dir)
+        if localpoll == true
+            local_action("#{@actions_path}/poll_local #{host} #{deploy_id}",id,
+                         :poll)
+        else
+            remotes_action("#{@remote_path}/poll #{deploy_id}",
+                           id, host, :poll, @remote_dir)
+        end 
     end
 end
 
 # ---------------------------------------------------------------------------- #
 # SshDriver Main program
 # ---------------------------------------------------------------------------- #
-hypervisor = ARGV[0]
+opts = GetoptLong.new(
+    [ '--retries',    '-r', GetoptLong::OPTIONAL_ARGUMENT ],
+    [ '--threads',    '-t', GetoptLong::OPTIONAL_ARGUMENT ],
+    [ '--localpoll',  '-l', GetoptLong::NO_ARGUMENT ]
+)
 
-ssh_driver = SshDriver.new(hypervisor)
+hypervisor = ''
+retries    = 0
+threads    = 15
+localpoll  = false
+
+begin
+    opts.each do |opt, arg|
+        case opt
+            when '--retries'
+                retries   = arg.to_i
+            when '--threads'
+                threads   = arg.to_i
+            when '--localpoll'
+                localpoll = true
+        end
+    end
+rescue Exception => e
+    exit(-1)
+end 
+
+if ARGV.length >= 1 
+    hypervisor = ARGV.shift
+else
+    exit(-1)
+end
+
+ssh_driver = SshDriver.new(hypervisor, threads, retries, localpoll)
 ssh_driver.start_driver
