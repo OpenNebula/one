@@ -37,16 +37,6 @@
 
 using namespace std;
 
-
-#define SETUP_XML_WRITER(runner, output) \
-        ofstream outputFile(output);                                      \
-        CppUnit::XmlOutputter* outputter =                                \
-          new CppUnit::XmlOutputter(&runner.result(), outputFile);        \
-                                                                          \
-        runner.setOutputter(outputter);
-
-#define END_XML_WRITER outputFile.close();
-
 /* ************************************************************************* */
 /* ************************************************************************* */
 
@@ -113,6 +103,18 @@ public:
         return db;
     }
 
+    static void set_one_auth(string path = "../../test/one_auth")
+    {
+        // The UserPool constructor checks if the DB contains at least
+        // one user, and adds one automatically from the ONE_AUTH file.
+        // So the ONE_AUTH environment is forced to point to a test one_auth
+        // file.
+        ostringstream oss;
+
+        oss << getenv("PWD") << "/" << path;
+        setenv("ONE_AUTH", oss.str().c_str(), 1);
+    }
+
 // *****************************************************************************
 // *****************************************************************************
 
@@ -123,7 +125,8 @@ public:
         cout << "    -h  --help         Show this help\n"
                 "    -s  --sqlite       Run Sqlite tests (default)\n"
                 "    -m  --mysql        Run MySQL tests\n"
-                "    -l  --log          Keep the log file, test.log\n";
+                "    -l  --log          Keep the log file, test.log\n"
+                "    -x  --xml          Create xml output files, for Hudson\n";
     }
 
 
@@ -143,6 +146,7 @@ public:
         // Option flags
         bool sqlite_flag = true;
         bool log_flag    = false;
+        bool xml_flag    = false;
 
         // Long options
         const struct option long_opt[] =
@@ -150,11 +154,12 @@ public:
             { "sqlite", 0,  NULL,   's'},
             { "mysql",  0,  NULL,   'm'},
             { "log",    0,  NULL,   'l'},
-            { "help",   0,  NULL,   'h'}
+            { "help",   0,  NULL,   'h'},
+            { "xml",    0,  NULL,   'x'}
         };
 
         int c;
-        while ((c = getopt_long (argc, argv, "smlh", long_opt, NULL)) != -1)
+        while ((c = getopt_long (argc, argv, "smlhx", long_opt, NULL)) != -1)
             switch (c)
             {
                 case 'm':
@@ -162,6 +167,9 @@ public:
                     break;
                 case 'l':
                     log_flag = true;
+                    break;
+                case 'x':
+                    xml_flag = true;
                     break;
                 case 'h':
                     show_options();
@@ -175,8 +183,16 @@ public:
         NebulaLog::log("Test", Log::INFO, "Test started");
 
         CppUnit::TextUi::TestRunner runner;
+        ofstream                    outputFile;
 
-        SETUP_XML_WRITER(runner, xml_name.c_str())
+        if( xml_flag )
+        {
+            outputFile.open(xml_name.c_str());
+            CppUnit::XmlOutputter* outputter =
+                    new CppUnit::XmlOutputter(&runner.result(), outputFile);
+
+            runner.setOutputter(outputter);
+        }
 
         runner.addTest( suite );
 
@@ -195,7 +211,10 @@ public:
 
         runner.run();
 
-        END_XML_WRITER
+        if( xml_flag )
+        {
+            outputFile.close();
+        }
 
         if (!log_flag)
             remove("test.log");

@@ -8,7 +8,6 @@ BASE_DIR=$PWD
 TESTS="$TWD_DIR/vnm/test \
        $TWD_DIR/scheduler/src/xml/test \
        $TWD_DIR/scheduler/src/pool/test \
-       $TWD_DIR/hm_mad/test \
        $TWD_DIR/common/test \
        $TWD_DIR/host/test \
        $TWD_DIR/template/test \
@@ -24,20 +23,20 @@ TESTS="$TWD_DIR/vnm/test \
 #-------------------------------------------------------------------------------
 usage() {
  echo
- echo "Usage: do_test.sh [-smvgclh]"
+ echo "Usage: do_test.sh [-smvgxclh]"
  echo
  echo "-m: use MyQSL backend (defaults to Sqlite)"
  echo "-v: run tests using valgrind (memcheck) output will be memgrind.out"
  echo "-g: run tests using valgrind (callgrind) output will be callgrind.out"
  echo "-l: keep logs"
- echo "-c: clear everything"
- echo "-b: just build the tests and do not run them"
+ echo "-x: create xml output files, for Hudson"
+ echo "-c: clear output files from previous executions"
  echo
  echo "-h: prints this help"
 }
 #-------------------------------------------------------------------------------
 
-TEMP_OPT=`getopt -o mvgclbh -n 'install.sh' -- "$@"`
+TEMP_OPT=`getopt -o mvgclbhx -n 'install.sh' -- "$@"`
 
 if [ $? != 0 ] ; then
     usage
@@ -50,8 +49,8 @@ MYSQL="no"
 VAL_MEM="no"
 VAL_CALL="no"
 LOGS="no"
+XMLS="no"
 CLEAR="no"
-BUILD="no"
 
 
 while true ; do
@@ -61,8 +60,8 @@ while true ; do
         -v) VAL_MEM="yes" ; shift ;;
         -g) VAL_CALL="yes"; shift ;;
         -l) LOGS="yes"    ; shift ;;
+        -x) XMLS="yes"    ; shift ;;
         -c) CLEAR="yes"   ; shift ;;
-        -b) BUILD="yes"   ; shift ;;
         --) shift ; break ;;
         *)  usage; exit 1 ;;
     esac
@@ -75,14 +74,16 @@ done
 
 if [ "$MYSQL" = "yes" ] ; then
     TEST_ARGS="-m"
-    BUILD_ARGS="mysql=yes sqlite=no"
 else
     TEST_ARGS="-s"
-    BUILD_ARGS="mysql=no sqlite=yes"
 fi
 
 if [ "$LOGS" = "yes" ] ; then
     TEST_ARGS="$TEST_ARGS -l"
+fi
+
+if [ "$XMLS" = "yes" ] ; then
+    TEST_ARGS="$TEST_ARGS -x"
 fi
 
 CALLER=""
@@ -93,28 +94,9 @@ elif [ "$VAL_CALL" = "yes" ] ; then
     CALLER="valgrind --tool=callgrind"
 fi
 
-if [ "$BUILD" = "yes" ] ; then
-    cd ../..
-    scons tests=yes $BUILD_ARGS
-
-    cd $BASE_DIR
-    exit 0
-fi
-
-if [ "$CLEAR" = "yes" ] ; then
-    cd ../..
-    scons tests=yes -c
-
-    cd $BASE_DIR
-fi
-
 
 for i in $TESTS ; do
     cd $BASE_DIR
-
-    if [ ! -f "$i/SConstruct" ] ; then
-        continue
-    fi
 
     echo ; echo
     echo "#####################################################################"
