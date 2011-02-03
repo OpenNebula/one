@@ -151,6 +151,18 @@ class VirtualNetworkPoolTest : public PoolTest
     CPPUNIT_TEST (public_attribute);
     CPPUNIT_TEST (vnpool_nic_attribute);
 
+    CPPUNIT_TEST (add_lease_fixed);
+    CPPUNIT_TEST (add_lease_ranged);
+    CPPUNIT_TEST (add_lease_wrong_ip);
+    CPPUNIT_TEST (add_lease_wrong_mac);
+    CPPUNIT_TEST (add_lease_duplicate_ip);
+
+    CPPUNIT_TEST (del_lease_fixed);
+    CPPUNIT_TEST (del_lease_ranged);
+    CPPUNIT_TEST (del_lease_wrong_ip);
+    CPPUNIT_TEST (del_lease_nonexistent_ip);
+    CPPUNIT_TEST (del_lease_used_ip);
+
     CPPUNIT_TEST_SUITE_END ();
 
 protected:
@@ -1102,6 +1114,423 @@ public:
         delete disk;
     }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+    void add_lease_fixed()
+    {
+        VirtualNetworkPoolFriend * vnpool =
+                                static_cast<VirtualNetworkPoolFriend *>(pool);
+        VirtualNetwork * vn;
+        int              nid, rc;
+        char *           error_msg = 0;
+        string           error_str;
+
+        string           ip     = "";
+        string           mac    = "";
+        string           bridge = "";
+
+        VirtualNetworkTemplate leases_template;
+
+
+        // Create a leases template as the RM would do
+        string str_template = "LEASES = [ IP = 130.10.0.2 ]";
+
+        rc = leases_template.parse(str_template,&error_msg);
+        CPPUNIT_ASSERT( rc == 0 );
+
+        // Allocate a fixed net with only 1 ip
+        nid = allocate(0);
+        CPPUNIT_ASSERT( nid >= 0 );
+        vn = vnpool->get(nid, false);
+        CPPUNIT_ASSERT( vn != 0 );
+
+        // Add one more lease
+        vn->lock();
+        rc = vn->add_leases(&leases_template, error_str);
+        vn->unlock();
+        CPPUNIT_ASSERT( rc == 0 );
+
+        // Request the first IP
+        vn->lock();
+        ip = "130.10.0.1";
+        rc = vn->set_lease(77, ip, mac, bridge);
+        vn->unlock();
+        CPPUNIT_ASSERT( rc == 0 );
+
+        // Ask for another IP, the added one should be granted
+        vn->lock();
+        ip = "";
+        rc = vn->get_lease(77, ip, mac, bridge);
+        vn->unlock();
+        CPPUNIT_ASSERT( rc == 0 );
+        CPPUNIT_ASSERT( ip == "130.10.0.2" );
+    }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+    void add_lease_ranged()
+    {
+        VirtualNetworkPoolFriend * vnpool =
+                                static_cast<VirtualNetworkPoolFriend *>(pool);
+        VirtualNetwork * vn;
+        int              nid, rc;
+        char *           error_msg = 0;
+        string           error_str;
+
+
+        VirtualNetworkTemplate leases_template;
+
+        // Create a leases template as the RM would do
+        string str_template = "LEASES = [ IP = 130.10.0.2 ]";
+
+        rc = leases_template.parse(str_template,&error_msg);
+        CPPUNIT_ASSERT( rc == 0 );
+
+        // Allocate a ranged net
+        nid = allocate(1);
+        CPPUNIT_ASSERT( nid >= 0 );
+        vn = vnpool->get(nid, false);
+        CPPUNIT_ASSERT( vn != 0 );
+
+        // Add one more lease
+        vn->lock();
+        rc = vn->add_leases(&leases_template, error_str);
+        vn->unlock();
+        CPPUNIT_ASSERT( rc != 0 );
+        CPPUNIT_ASSERT( error_str != "" );
+    }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+    void add_lease_wrong_ip()
+    {
+        VirtualNetworkPoolFriend * vnpool =
+                                static_cast<VirtualNetworkPoolFriend *>(pool);
+        VirtualNetwork * vn;
+        int              nid, rc;
+        char *           error_msg = 0;
+        string           error_str;
+
+        VirtualNetworkTemplate leases_template;
+
+
+        // Create a leases template as the RM would do
+        string str_template = "LEASES = [ IP = 130.0.2 ]";
+
+        rc = leases_template.parse(str_template,&error_msg);
+        CPPUNIT_ASSERT( rc == 0 );
+
+        // Allocate a fixed net with only 1 ip
+        nid = allocate(0);
+        CPPUNIT_ASSERT( nid >= 0 );
+        vn = vnpool->get(nid, false);
+        CPPUNIT_ASSERT( vn != 0 );
+
+        // Add one more lease
+        vn->lock();
+        rc = vn->add_leases(&leases_template, error_str);
+        vn->unlock();
+
+        CPPUNIT_ASSERT( rc != 0 );
+        CPPUNIT_ASSERT( error_str != "" );
+    }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+    void add_lease_wrong_mac()
+    {
+        VirtualNetworkPoolFriend * vnpool =
+                                static_cast<VirtualNetworkPoolFriend *>(pool);
+        VirtualNetwork * vn;
+        int              nid, rc;
+        char *           error_msg = 0;
+        string           error_str;
+
+        VirtualNetworkTemplate leases_template;
+
+
+        // Create a leases template as the RM would do
+        string str_template = "LEASES=[ IP=130.10.0.2, MAC=50:20:20.10.2 ]";
+
+        rc = leases_template.parse(str_template,&error_msg);
+        CPPUNIT_ASSERT( rc == 0 );
+
+        // Allocate a fixed net with only 1 ip
+        nid = allocate(0);
+        CPPUNIT_ASSERT( nid >= 0 );
+        vn = vnpool->get(nid, false);
+        CPPUNIT_ASSERT( vn != 0 );
+
+        // Add one more lease
+        vn->lock();
+        rc = vn->add_leases(&leases_template, error_str);
+        vn->unlock();
+
+        CPPUNIT_ASSERT( rc != 0 );
+        CPPUNIT_ASSERT( error_str != "" );
+    }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+    void add_lease_duplicate_ip()
+    {
+        VirtualNetworkPoolFriend * vnpool =
+                                static_cast<VirtualNetworkPoolFriend *>(pool);
+        VirtualNetwork * vn;
+        int              nid, rc;
+        char *           error_msg = 0;
+        string           error_str;
+
+        string           ip     = "";
+        string           mac    = "";
+        string           bridge = "";
+
+        VirtualNetworkTemplate leases_template;
+
+
+        // Create a leases template as the RM would do
+        string str_template = "LEASES = [ IP = 130.10.0.2 ]";
+
+        rc = leases_template.parse(str_template,&error_msg);
+        CPPUNIT_ASSERT( rc == 0 );
+
+        // Allocate a fixed net with only 1 ip
+        nid = allocate(0);
+        CPPUNIT_ASSERT( nid >= 0 );
+        vn = vnpool->get(nid, false);
+        CPPUNIT_ASSERT( vn != 0 );
+
+        // Add one more lease
+        vn->lock();
+        rc = vn->add_leases(&leases_template, error_str);
+        vn->unlock();
+        CPPUNIT_ASSERT( rc == 0 );
+
+        // Add the same lease once more
+        vn->lock();
+        rc = vn->add_leases(&leases_template, error_str);
+        vn->unlock();
+
+        CPPUNIT_ASSERT( rc != 0 );
+        CPPUNIT_ASSERT( error_str != "" );
+    }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+    void del_lease_fixed()
+    {
+        VirtualNetworkPoolFriend * vnpool =
+                                static_cast<VirtualNetworkPoolFriend *>(pool);
+        VirtualNetwork * vn;
+        int              nid, rc;
+        char *           error_msg = 0;
+        string           error_str;
+
+        string           ip     = "";
+        string           mac    = "";
+        string           bridge = "";
+
+        VirtualNetworkTemplate leases_template;
+
+
+        // Create a leases template as the RM would do
+        string str_template = "LEASES = [ IP = 130.10.0.1 ]";
+
+        rc = leases_template.parse(str_template,&error_msg);
+        CPPUNIT_ASSERT( rc == 0 );
+
+        // Allocate a fixed net with only 1 ip
+        nid = allocate(0);
+        CPPUNIT_ASSERT( nid >= 0 );
+        vn = vnpool->get(nid, false);
+        CPPUNIT_ASSERT( vn != 0 );
+
+        // Delete the only IP this network has
+        vn->lock();
+        rc = vn->remove_leases(&leases_template, error_str);
+        vn->unlock();
+        CPPUNIT_ASSERT( rc == 0 );
+
+        // Ask for an IP, it should fail because there aren't any left
+        vn->lock();
+        rc = vn->get_lease(77, ip, mac, bridge);
+        vn->unlock();
+
+        CPPUNIT_ASSERT( rc != 0 );
+    }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+    void del_lease_ranged()
+    {
+        VirtualNetworkPoolFriend * vnpool =
+                                static_cast<VirtualNetworkPoolFriend *>(pool);
+        VirtualNetwork * vn;
+        int              nid, rc;
+        char *           error_msg = 0;
+        string           error_str;
+
+        string           ip     = "";
+        string           mac    = "";
+        string           bridge = "";
+
+        VirtualNetworkTemplate leases_template;
+
+
+        // Create a leases template as the RM would do
+        string str_template = "LEASES = [ IP = 192.168.0.5 ]";
+
+        rc = leases_template.parse(str_template,&error_msg);
+        CPPUNIT_ASSERT( rc == 0 );
+
+        // Allocate a ranged net
+        nid = allocate(1);
+        CPPUNIT_ASSERT( nid >= 0 );
+        vn = vnpool->get(nid, false);
+        CPPUNIT_ASSERT( vn != 0 );
+
+        // Try to delete an IP
+        vn->lock();
+        rc = vn->remove_leases(&leases_template, error_str);
+        vn->unlock();
+
+        CPPUNIT_ASSERT( rc != 0 );
+        CPPUNIT_ASSERT( error_str != "" );
+    }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+    void del_lease_wrong_ip()
+    {
+        VirtualNetworkPoolFriend * vnpool =
+                                static_cast<VirtualNetworkPoolFriend *>(pool);
+        VirtualNetwork * vn;
+        int              nid, rc;
+        char *           error_msg = 0;
+        string           error_str;
+
+        string           ip     = "";
+        string           mac    = "";
+        string           bridge = "";
+
+        VirtualNetworkTemplate leases_template;
+
+
+        // Create a leases template as the RM would do
+        string str_template = "LEASES = [ IP = 130.1 ]";
+
+        rc = leases_template.parse(str_template,&error_msg);
+        CPPUNIT_ASSERT( rc == 0 );
+
+        // Allocate a fixed net with only 1 ip
+        nid = allocate(0);
+        CPPUNIT_ASSERT( nid >= 0 );
+        vn = vnpool->get(nid, false);
+        CPPUNIT_ASSERT( vn != 0 );
+
+        // Try to delete an IP
+        vn->lock();
+        rc = vn->remove_leases(&leases_template, error_str);
+        vn->unlock();
+
+        CPPUNIT_ASSERT( rc != 0 );
+        CPPUNIT_ASSERT( error_str != "" );
+    }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+    void del_lease_nonexistent_ip()
+    {
+        VirtualNetworkPoolFriend * vnpool =
+                                static_cast<VirtualNetworkPoolFriend *>(pool);
+        VirtualNetwork * vn;
+        int              nid, rc;
+        char *           error_msg = 0;
+        string           error_str;
+
+        string           ip     = "";
+        string           mac    = "";
+        string           bridge = "";
+
+        VirtualNetworkTemplate leases_template;
+
+
+        // Create a leases template as the RM would do
+        string str_template = "LEASES = [ IP = 130.10.0.10 ]";
+
+        rc = leases_template.parse(str_template,&error_msg);
+        CPPUNIT_ASSERT( rc == 0 );
+
+        // Allocate a fixed net with only 1 ip
+        nid = allocate(0);
+        CPPUNIT_ASSERT( nid >= 0 );
+        vn = vnpool->get(nid, false);
+        CPPUNIT_ASSERT( vn != 0 );
+
+        // Try to delete an IP not contained in this network
+        vn->lock();
+        rc = vn->remove_leases(&leases_template, error_str);
+        vn->unlock();
+
+        CPPUNIT_ASSERT( rc != 0 );
+        CPPUNIT_ASSERT( error_str != "" );
+    }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+    void del_lease_used_ip()
+    {
+        VirtualNetworkPoolFriend * vnpool =
+                                static_cast<VirtualNetworkPoolFriend *>(pool);
+        VirtualNetwork * vn;
+        int              nid, rc;
+        char *           error_msg = 0;
+        string           error_str;
+
+        string           ip     = "";
+        string           mac    = "";
+        string           bridge = "";
+
+        VirtualNetworkTemplate leases_template;
+
+
+        // Create a leases template as the RM would do
+        string str_template = "LEASES = [ IP = 130.10.0.1 ]";
+
+        rc = leases_template.parse(str_template,&error_msg);
+        CPPUNIT_ASSERT( rc == 0 );
+
+        // Allocate a fixed net with only 1 ip
+        nid = allocate(0);
+        CPPUNIT_ASSERT( nid >= 0 );
+        vn = vnpool->get(nid, false);
+        CPPUNIT_ASSERT( vn != 0 );
+
+        // Request the only IP this network has
+        vn->lock();
+        ip = "130.10.0.1";
+        rc = vn->set_lease(77, ip, mac, bridge);
+        vn->unlock();
+        CPPUNIT_ASSERT( rc == 0 );
+
+        // Try to delete that IP
+        vn->lock();
+        rc = vn->remove_leases(&leases_template, error_str);
+        vn->unlock();
+
+        CPPUNIT_ASSERT( rc != 0 );
+        CPPUNIT_ASSERT( error_str != "" );
+    }
 };
 
 /* ************************************************************************* */

@@ -118,6 +118,7 @@ do_tests()
 
 do_clean()
 {
+    echo "Cleaning .class files..."
     rm -rf $BIN_DIR > /dev/null 2>&1
     mkdir -p $BIN_DIR
 

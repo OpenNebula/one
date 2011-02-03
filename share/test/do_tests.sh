@@ -108,7 +108,6 @@ if [ "$CLEAR" = "yes" ] ; then
     cd $BASE_DIR
 fi
 
-TESTS=`find $TWD_DIR -name test -type d`
 
 for i in $TESTS ; do
     cd $BASE_DIR
