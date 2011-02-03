@@ -45,6 +45,12 @@ public class VirtualNetworkTest
                         "NETWORK_SIZE    = C\n" +
                         "NETWORK_ADDRESS = 192.168.0.0\n";
 
+    private static String fixed_template =
+                        "NAME   = \"Net number one\"\n" +
+                        "TYPE   = FIXED\n" +
+                        "BRIDGE = br1\n" +
+                        "LEASES = [IP=130.10.0.1]";
+
     /**
      * @throws java.lang.Exception
      */
@@ -142,5 +148,66 @@ public class VirtualNetworkTest
 
         res = vnet.info();
         assertTrue( res.isError() );
+    }
+
+    @Test
+    public void publish()
+    {
+        res = vnet.info();
+        assertTrue( !res.isError() );
+        assertTrue( !vnet.isPublic() );
+
+        // Publish it
+        res = vnet.publish();
+        assertTrue( !res.isError() );
+
+        res = vnet.info();
+        assertTrue( vnet.isPublic() );
+
+        // Unpublish it
+        res = vnet.unpublish();
+        assertTrue( !res.isError() );
+
+        res = vnet.info();
+        assertTrue( !vnet.isPublic() );
+    }
+
+    @Test
+    public void addLeases()
+    {
+        res = VirtualNetwork.allocate(client, fixed_template);
+        assertTrue( !res.isError() );
+
+        VirtualNetwork fixed_vnet =
+            new VirtualNetwork(Integer.parseInt(res.getMessage()), client);
+
+        res = fixed_vnet.addLeases("130.10.0.5");
+        assertTrue( !res.isError() );
+
+        res = fixed_vnet.addLeases("130.10.0.6", "50:20:20:20:20:20");
+        assertTrue( !res.isError() );
+
+        res = fixed_vnet.addLeases("130.10.0.6");
+        assertTrue( res.isError() );
+
+        fixed_vnet.delete();
+    }
+
+    @Test
+    public void rmLeases()
+    {
+        res = VirtualNetwork.allocate(client, fixed_template);
+        assertTrue( !res.isError() );
+
+        VirtualNetwork fixed_vnet =
+            new VirtualNetwork(Integer.parseInt(res.getMessage()), client);
+
+        res = fixed_vnet.rmLeases("130.10.0.1");
+        assertTrue( !res.isError() );
+
+        res = fixed_vnet.rmLeases("130.10.0.5");
+        assertTrue( res.isError() );
+
+        fixed_vnet.delete();
     }
 }

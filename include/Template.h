@@ -29,7 +29,7 @@
 using namespace std;
 
 /**
- *  Base class for file templates. A template is a file (or a tring for the
+ *  Base class for file templates. A template is a file (or a string for the
  *  matter of fact) containing a set of attribute definitions of the form:
  *  NAME = VALUE
  *  where NAME is a string representing the name of the attribute, and VALUE can

@@ -916,6 +916,57 @@ private:
     };
 
     /* ---------------------------------------------------------------------- */
+
+    class VirtualNetworkAddLeases: public xmlrpc_c::method
+    {
+    public:
+        VirtualNetworkAddLeases(
+            VirtualNetworkPool * _vnpool,
+            UserPool           * _upool):
+                vnpool(_vnpool),
+                upool(_upool)
+        {
+            _signature="A:sis";
+            _help="Adds leases to a virtual network";
+        };
+
+        ~VirtualNetworkAddLeases(){};
+
+        void execute(
+            xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP);
+
+    private:
+        VirtualNetworkPool * vnpool;
+        UserPool           * upool;
+    };
+
+    /* ---------------------------------------------------------------------- */
+
+    class VirtualNetworkRemoveLeases: public xmlrpc_c::method
+    {
+    public:
+        VirtualNetworkRemoveLeases(
+            VirtualNetworkPool * _vnpool,
+            UserPool           * _upool):
+                vnpool(_vnpool),
+                upool(_upool)
+        {
+            _signature="A:sis";
+            _help="Removes leases from a virtual network";
+        };
+
+        ~VirtualNetworkRemoveLeases(){};
+
+        void execute(
+            xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP);
+
+    private:
+        VirtualNetworkPool * vnpool;
+        UserPool           * upool;
+    };
+    /* ---------------------------------------------------------------------- */
     /*                      User Management Interface                         */
     /* ---------------------------------------------------------------------- */
 

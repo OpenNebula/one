@@ -282,6 +282,12 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vn_delete(new 
         RequestManager::VirtualNetworkDelete(vnpool, upool));
 
+    xmlrpc_c::methodPtr vn_addleases(new
+        RequestManager::VirtualNetworkAddLeases(vnpool, upool));
+
+    xmlrpc_c::methodPtr vn_rmleases(new
+        RequestManager::VirtualNetworkRemoveLeases(vnpool, upool));
+
     xmlrpc_c::methodPtr user_allocate(new    
         RequestManager::UserAllocate(upool));
 
@@ -355,11 +361,13 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.clusterpool.info", clusterpool_info);
 
     /* Network related methods*/
-     
+
     RequestManagerRegistry.addMethod("one.vn.allocate", vn_allocate);   
     RequestManagerRegistry.addMethod("one.vn.info", vn_info); 
     RequestManagerRegistry.addMethod("one.vn.publish", vn_publish);
     RequestManagerRegistry.addMethod("one.vn.delete", vn_delete);
+    RequestManagerRegistry.addMethod("one.vn.addleases", vn_addleases);
+    RequestManagerRegistry.addMethod("one.vn.rmleases", vn_rmleases);
 
     RequestManagerRegistry.addMethod("one.vnpool.info", vnpool_info); 
     

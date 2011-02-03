@@ -64,6 +64,36 @@ public:
     }
 
     /**
+     *  Adds New leases.
+     *  Only available for FIXED networks.
+     *    @param vector_leases vector of VectorAttribute objects. For the
+     *      moment, the vector can only contain one LEASE.
+     *    @param error_msg If the action fails, this message contains
+     *      the reason.
+     *    @return 0 on success
+     */
+    int add_leases(vector<const Attribute*>& vector_leases, string& error_msg)
+    {
+        error_msg = "Adding new leases is only supported for FIXED networks.";
+        return -1;
+    }
+
+    /**
+     *  Removes leases; if they are not used.
+     *  Only available for FIXED networks.
+     *    @param vector_leases vector of VectorAttribute objects. For the
+     *      moment, the vector can only contain one LEASE.
+     *    @param error_msg If the action fails, this message contains
+     *      the reason.
+     *    @return 0 on success
+     */
+    int remove_leases(vector<const Attribute*>& vector_leases, string& error_msg)
+    {
+        error_msg = "Removing leases is only supported for FIXED networks.";
+        return -1;
+    }
+
+    /**
      *  Loads the leases from the DB.
      */
     int select(SqlDB * db)

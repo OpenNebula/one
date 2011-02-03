@@ -32,6 +32,8 @@ public class VirtualNetwork extends PoolElement{
     private static final String INFO            = METHOD_PREFIX + "info";
     private static final String DELETE          = METHOD_PREFIX + "delete";
     private static final String PUBLISH         = METHOD_PREFIX + "publish";
+    private static final String ADDLEASES       = METHOD_PREFIX + "addleases";
+    private static final String RMLEASES        = METHOD_PREFIX + "rmleases";
 
 
     /**
@@ -110,6 +112,32 @@ public class VirtualNetwork extends PoolElement{
         return client.call(PUBLISH, id, publish);
     }
 
+    /**
+     * Adds a lease to the VirtualNetwork
+     *
+     * @param client XML-RPC Client.
+     * @param id The virtual network id (nid) of the target network.
+     * @param template IP to add, e.g. "LEASES = [ IP = 192.168.0.5 ]"
+     * @return A encapsulated response.
+     */
+    public static OneResponse addLeases(Client client, int id, String template)
+    {
+        return client.call(ADDLEASES, id, template);
+    }
+
+    /**
+     * Removes a lease from the VirtualNetwork
+     *
+     * @param client XML-RPC Client.
+     * @param id The virtual network id (nid) of the target network.
+     * @param template IP to remove, e.g. "LEASES = [ IP = 192.168.0.5 ]"
+     * @return A encapsulated response.
+     */
+    public static OneResponse rmLeases(Client client, int id, String template)
+    {
+        return client.call(RMLEASES, id, template);
+    }
+
     // =================================
     // Instanced object XML-RPC methods
     // =================================
@@ -166,6 +194,52 @@ public class VirtualNetwork extends PoolElement{
     public OneResponse unpublish()
     {
         return publish(false);
+    }
+
+    /**
+     * Adds a lease to the VirtualNetwork
+     *
+     * @param ip IP to add, e.g. "192.168.0.5"
+     * @return A encapsulated response.
+     */
+    public OneResponse addLeases(String ip)
+    {
+        return addLeases(ip, null);
+    }
+
+    /**
+     * Adds a lease to the VirtualNetwork
+     *
+     * @param ip IP to add, e.g. "192.168.0.5"
+     * @param mac MAC address associated to the IP. Can be null, in which case
+     * OpenNebula will generate it using the following rule:
+     * MAC = MAC_PREFFIX:IP
+     * @return A encapsulated response.
+     */
+    public OneResponse addLeases(String ip, String mac)
+    {
+        String lease_template = "LEASES = [ IP = " + ip;
+
+        if( mac != null )
+        {
+            lease_template += ", MAC = " + mac;
+        }
+
+        lease_template += " ]";
+
+        return addLeases(client, id, lease_template);
+    }
+
+    /**
+     * Removes a lease from the VirtualNetwork
+     *
+     * @param ip IP to remove, e.g. "192.168.0.5"
+     * @return A encapsulated response.
+     */
+    public OneResponse rmLeases(String ip)
+    {
+        String lease_template = "LEASES = [ IP = " + ip + " ]";
+        return rmLeases(client, id, lease_template);
     }
 
     // =================================

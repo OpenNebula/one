@@ -163,7 +163,13 @@ Commands:
     
 * delete (Removes a virtual network)
     onevnet delete <network_id>
-    
+
+* addleases (Adds a lease to the virtual network)
+    onevnet addleases <network_id> <IP> [<MAC>]
+
+* rmleases (Removes a lease fom the virtual network)
+    onevnet rmleases <network_id> <IP>
+
 * list (Lists virtual networks in the pool)
     onevnet list <filter_flag>
         where filter_flag can be
@@ -296,7 +302,29 @@ when "delete"
             break
         end
     end
-    
+
+when "addleases"
+    check_parameters("addleases", 2)
+    vn_id = get_vn_id(ARGV[0])
+
+    vn = OpenNebula::VirtualNetwork.new_with_id(vn_id, get_one_client)
+
+    result = vn.addleases(ARGV[1], ARGV[2])
+    if is_successful?(result)
+        puts "Leases added" if ops[:verbose]
+    end
+
+when "rmleases"
+    check_parameters("rmleases", 2)
+    vn_id = get_vn_id(ARGV[0])
+
+    vn = OpenNebula::VirtualNetwork.new_with_id(vn_id, get_one_client)
+
+    result = vn.rmleases(ARGV[1])
+    if is_successful?(result)
+        puts "Leases removed" if ops[:verbose]
+    end
+
 when "list"
     if ARGV[0]
         case ARGV[0]

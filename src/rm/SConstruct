@@ -55,6 +55,8 @@ source_files=[
     'RequestManagerVirtualNetworkPoolInfo.cc',
     'RequestManagerVirtualNetworkPublish.cc',
     'RequestManagerVirtualNetworkDelete.cc',
+    'RequestManagerVirtualNetworkAddLeases.cc',
+    'RequestManagerVirtualNetworkRemoveLeases.cc',
     'RequestManagerUserAllocate.cc',
     'RequestManagerUserDelete.cc',
     'RequestManagerUserChangePassword.cc',
