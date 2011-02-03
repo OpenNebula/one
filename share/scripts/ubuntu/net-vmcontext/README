@@ -1,0 +1,57 @@
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+Using the vmcontext script with upstart init daemon
+---------------------------------------------------
+
+If you are using a recent Ubuntu release it will be using upstart [1] instead of
+the classical system-V init scripts. In that case You have to change two files:
+
+* /etc/init/networking.conf:
+
+    diff -uNr /etc/init.orig/networking.conf /etc/init/networking.conf
+    --- /etc/init.orig/networking.conf	2010-12-25 13:43:14.910534106 +0100
+    +++ /etc/init/networking.conf	2010-12-25 13:43:58.930531358 +0100
+    @@ -10,6 +10,10 @@
+
+     task
+
+    -pre-start exec mkdir -p /var/run/network
+    +pre-start script
+    +    /etc/init.d/vmcontext
+    +    mkdir -p /var/run/network
+    +end script
+    +
+
+* /etc/init/network-interface.conf:
+
+    diff -uNr /etc/init.orig/network-interface.conf /etc/init/network-interface.conf
+    --- /etc/init.orig/network-interface.conf	2010-12-25 13:44:10.570531196 +0100
+    +++ /etc/init/network-interface.conf	2010-12-25 13:42:29.850555861 +0100
+    @@ -12,6 +12,7 @@
+     instance $INTERFACE
+
+     pre-start script
+    +    /etc/init.d/vmcontext
+         if [ "$INTERFACE" = lo ]; then
+        # bring this up even if /etc/network/interfaces is broken
+        ifconfig lo 127.0.0.1 up || true
+
+The previous diffs show an example on how they should be applied, but do not try
+to apply them exactly as is, since those files may change between Ubuntu
+releases.
+
+[1] http://upstart.ubuntu.com/
