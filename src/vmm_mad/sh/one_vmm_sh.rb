@@ -24,10 +24,10 @@ ONE_LOCATION = ENV["ONE_LOCATION"]
 
 if !ONE_LOCATION
     RUBY_LIB_LOCATION = "/usr/lib/one/ruby"
-    ETC_LOCATION      = "/etc/one/"
+    VAR_LOCATION      = "/var/lib/one"
 else
     RUBY_LIB_LOCATION = ONE_LOCATION + "/lib/ruby"
-    ETC_LOCATION      = ONE_LOCATION + "/etc/"
+    VAR_LOCATION      = ONE_LOCATION + "/var"
 end
 
 $: << RUBY_LIB_LOCATION
@@ -47,13 +47,7 @@ class ShDriver < VirtualMachineDriver
         @config = read_configuration
         @hypervisor = hypervisor
         
-        if ONE_LOCATION == nil 
-            @actions_path = "/usr/lib/one"
-        else
-            @actions_path = "#{ENV['ONE_LOCATION']}/lib"
-        end
-
-        @actions_path << "/remotes/vmm/#{hypervisor}"
+        @actions_path = "#{VAR_LOCATION}/remotes/vmm/#{hypervisor}"
     end
 
     # ------------------------------------------------------------------------ #
