@@ -117,25 +117,12 @@ public class VirtualNetwork extends PoolElement{
      *
      * @param client XML-RPC Client.
      * @param id The virtual network id (nid) of the target network.
-     * @param ip IP to add, e.g. "192.168.0.5"
-     * @param mac MAC address associated to the IP. Can be null, in which case
-     * OpenNebula will generate it using the following rule:
-     * MAC = MAC_PREFFIX:IP
+     * @param template IP to add, e.g. "LEASES = [ IP = 192.168.0.5 ]"
      * @return A encapsulated response.
      */
-    public static OneResponse addLeases(Client client, int id, String ip,
-                                        String mac)
+    public static OneResponse addLeases(Client client, int id, String template)
     {
-        String lease_template = "LEASES = [ IP = " + ip;
-
-        if( mac != null )
-        {
-            lease_template += ", MAC = " + mac;
-        }
-
-        lease_template += " ]";
-
-        return client.call(ADDLEASES, id, lease_template);
+        return client.call(ADDLEASES, id, template);
     }
 
     /**
@@ -143,13 +130,12 @@ public class VirtualNetwork extends PoolElement{
      *
      * @param client XML-RPC Client.
      * @param id The virtual network id (nid) of the target network.
-     * @param ip IP to remove, e.g. "192.168.0.5"
+     * @param template IP to remove, e.g. "LEASES = [ IP = 192.168.0.5 ]"
      * @return A encapsulated response.
      */
-    public static OneResponse rmLeases(Client client, int id, String ip)
+    public static OneResponse rmLeases(Client client, int id, String template)
     {
-        String lease_template = "LEASES = [ IP = " + ip + " ]";
-        return client.call(RMLEASES, id, lease_template);
+        return client.call(RMLEASES, id, template);
     }
 
     // =================================
@@ -232,7 +218,16 @@ public class VirtualNetwork extends PoolElement{
      */
     public OneResponse addLeases(String ip, String mac)
     {
-        return addLeases(client, id, ip, mac);
+        String lease_template = "LEASES = [ IP = " + ip;
+
+        if( mac != null )
+        {
+            lease_template += ", MAC = " + mac;
+        }
+
+        lease_template += " ]";
+
+        return addLeases(client, id, lease_template);
     }
 
     /**
@@ -243,7 +238,8 @@ public class VirtualNetwork extends PoolElement{
      */
     public OneResponse rmLeases(String ip)
     {
-        return rmLeases(client, id, ip);
+        String lease_template = "LEASES = [ IP = " + ip + " ]";
+        return rmLeases(client, id, lease_template);
     }
 
     // =================================
