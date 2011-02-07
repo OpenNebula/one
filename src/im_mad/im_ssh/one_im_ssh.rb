@@ -121,7 +121,5 @@ if ARGV.length >= 1
     hypervisor = ARGV.shift
 end
 
-puts retries, threads, hypervisor
-
 im = InformationManager.new(hypervisor, threads, retries)
 im.start_driver
