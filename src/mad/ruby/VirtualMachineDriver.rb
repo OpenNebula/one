@@ -145,7 +145,7 @@ class VirtualMachineDriver < OpenNebulaDriver
 
         info = "-" if info == nil || info.empty?
 
-        send_message(ACTION[action],RESULT[result],id)
+        send_message(ACTION[action],RESULT[result],id,info)
     end
 
     # -------------------------------------------------------------------------
