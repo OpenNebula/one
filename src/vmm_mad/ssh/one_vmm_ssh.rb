@@ -58,7 +58,7 @@ class SshDriver < VirtualMachineDriver
 
         @actions_path << "/remotes/vmm/#{hypervisor}"
 
-        @localpoll  = localpoll
+        @local_poll  = localpoll
     end
 
     # ------------------------------------------------------------------------ #
@@ -110,9 +110,9 @@ class SshDriver < VirtualMachineDriver
     end
 
     def poll(id, host, deploy_id, not_used)
-        if localpoll == true
-            local_action("#{@actions_path}/poll_local #{host} #{deploy_id}",id,
-                         :poll)
+        if @local_poll != nil
+            local_action("#{@actions_path}/#{@local_poll} #{host} #{deploy_id}",
+                         id, :poll)
         else
             remotes_action("#{@remote_path}/poll #{deploy_id}",
                            id, host, :poll, @remote_dir)
@@ -126,13 +126,13 @@ end
 opts = GetoptLong.new(
     [ '--retries',    '-r', GetoptLong::OPTIONAL_ARGUMENT ],
     [ '--threads',    '-t', GetoptLong::OPTIONAL_ARGUMENT ],
-    [ '--localpoll',  '-l', GetoptLong::NO_ARGUMENT ]
+    [ '--localpoll',  '-p', GetoptLong::REQUIRED_ARGUMENT ]
 )
 
 hypervisor = ''
 retries    = 0
 threads    = 15
-localpoll  = false
+localpoll  = nil
 
 begin
     opts.each do |opt, arg|
@@ -142,7 +142,7 @@ begin
             when '--threads'
                 threads   = arg.to_i
             when '--localpoll'
-                localpoll = true
+                localpoll = arg
         end
     end
 rescue Exception => e
