@@ -33,6 +33,7 @@ end
 $: << RUBY_LIB_LOCATION
 
 require "VirtualMachineDriver"
+require 'getoptlong'
 
 # ---------------------------------------------------------------------------- 
 # The main class for the Sh driver
