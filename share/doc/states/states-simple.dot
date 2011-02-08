@@ -1,0 +1,84 @@
+
+
+digraph OpenNebula {
+    graph [
+        nodesep= 0.5,
+        ratio=1,
+        pad=1,
+    ];
+
+    node [fontname="Helvetica"];
+    edge [fontname="Menlo"];
+    
+    user [
+        fillcolor="black",
+        style="filled", shape="box",
+        fontcolor="white", fontsize= "24.0"];
+
+    ANY [ shape="box" ];
+    "ANY \\ {suspended,done}" [ shape="box" ];
+
+    subgraph { rank = min; user}
+#    subgraph { rank = same; pending; hold; color="white"}
+    subgraph { rank = same; prolog; boot; color="white" }
+    subgraph { rank = same; migrate; save; shutdown; unknown; color="white" }
+    subgraph { rank = max; suspended; done; failure; stopped; color="white" }
+
+#   create
+    user -> pending [label="create"];
+
+#   deploy
+    pending     -> prolog [label="deploy"];
+    prolog      -> boot [style="dashed"];
+    boot        -> running [style="dashed"];
+
+#   shutdown
+    running     -> shutdown [label="shutdown"];
+    shutdown    -> epilog [label="shutdown", style="dashed"];
+    epilog      -> done [label="shutdown", style="dashed"];
+
+#   livemigrate
+    running     -> migrate [label="livemigrate"];
+    migrate     -> running [label="livemigrate", style="dashed"];
+
+#   migrate
+    running     -> save [label="migrate"];
+    save        -> migrate [label="migrate", style="dashed"];
+    migrate     -> boot [label="migrate", style="dashed"];
+
+#   hold
+    pending     -> hold [label="hold"];
+
+#   release
+    hold        -> pending [label="release"];
+
+#   stop
+    running     -> save [label="stop"];
+    save        -> epilog [label="stop", style="dashed"];
+    epilog      -> stopped [label="stop", style="dashed"];
+
+#   cancel
+    running     -> shutdown [label="cancel"];
+    shutdown    -> done [label="cancel", style="dashed"];
+
+#   suspend
+    running     -> save [label="suspend"];
+    save        -> suspended [label="suspend", style="dashed"];
+
+#   resume
+    stopped     -> pending [label="resume"];
+    suspended   -> boot [label="resume"];
+
+#   delete
+    ANY         -> done [label="delete"];
+
+#   restart
+    unknown     -> boot [label="restart"];
+    boot        -> boot [label="restart"];
+
+#   resubmit
+    "ANY \\ {suspended,done}" -> pending [label="resubmit"];
+
+#   failures and misc.
+    ANY         -> failure [style="dotted"];
+}
