@@ -66,6 +66,11 @@ module OpenNebula
                     result = copy(file_path, image['SOURCE'])
                 end
 
+                # If the copy failed, the file should be removed
+                if OpenNebula.is_error?(result)
+                    remove(image['SOURCE'])
+                end
+
             elsif image['TEMPLATE/SIZE'] and image['TEMPLATE/FSTYPE'] and  \
                             image['TEMPLATE/TYPE'] == 'DATABLOCK'
                 # --- Empty DATABLOCK ---
