@@ -48,16 +48,29 @@ module OpenNebula
             # ------ Copy the Image file ------
             image.info
 
-            if image['TEMPLATE/PATH'] and image['TEMPLATE/SOURCE'].nil?
+            if image['SOURCE'] and File.exists?(image['SOURCE'])
+                error_msg =
+                        "Destination file for image already exists, aborting."
+                result = OpenNebula::Error.new(error_msg)
+
+            elsif image['TEMPLATE/PATH'] and image['TEMPLATE/SOURCE'].nil?
                 # --- CDROM, DATABLOCK or OS based on a PATH ---
                 file_path = image['TEMPLATE/PATH']
 
                 if !File.exists?(file_path)
                     error_msg = "Image file could not be found, aborting."
-                    return OpenNebula::Error.new(error_msg)
+                    result = OpenNebula::Error.new(error_msg)
                 end
 
-                result = copy(file_path, image['SOURCE'])
+                if !OpenNebula.is_error?(result)
+                    result = copy(file_path, image['SOURCE'])
+                end
+
+                # If the copy failed, the file should be removed
+                if OpenNebula.is_error?(result)
+                    remove(image['SOURCE'])
+                end
+
             elsif image['TEMPLATE/SIZE'] and image['TEMPLATE/FSTYPE'] and  \
                             image['TEMPLATE/TYPE'] == 'DATABLOCK'
                 # --- Empty DATABLOCK ---
@@ -66,15 +79,22 @@ module OpenNebula
                 if !OpenNebula.is_error?(result)
                     result = mkfs(image['TEMPLATE/FSTYPE'], image['SOURCE'])
                 end
+
+                # If the dd or mkfs failed, the file should be removed
+                if OpenNebula.is_error?(result)
+                    remove(image['SOURCE'])
+                end
+
             elsif image['TEMPLATE/PATH'].nil? and image['TEMPLATE/SOURCE'].nil?
                 error_msg = "Image path not present, aborting."
                 result = OpenNebula::Error.new(error_msg)
+
             elsif image['TEMPLATE/PATH'] and image['TEMPLATE/SOURCE']
                 error_msg = "Template malformed, PATH and SOURCE are" <<
                             " mutuallly exclusive"
                 result = OpenNebula::Error.new(error_msg)
-            end
 
+            end
 
             # ------ Enable the Image ------
             if !OpenNebula.is_error?(result)
