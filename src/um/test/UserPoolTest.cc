@@ -107,17 +107,7 @@ protected:
 
 public:
 
-    UserPoolTest()
-    {
-        // The UserPool constructor checks if the DB contains at least
-        // one user, and adds one automatically from the ONE_AUTH file.
-        // So the ONE_AUTH environment is forced to point to a test one_auth
-        // file.
-        ostringstream oss;
-
-        oss << getenv("PWD") << "/one_auth";
-        setenv("ONE_AUTH", oss.str().c_str(), 1);
-    };
+    UserPoolTest(){};
 
     ~UserPoolTest(){};
 
@@ -329,5 +319,7 @@ public:
 
 int main(int argc, char ** argv)
 {
+    OneUnitTest::set_one_auth();
+
     return PoolTest::main(argc, argv, UserPoolTest::suite());
 }

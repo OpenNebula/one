@@ -1,0 +1,98 @@
+
+
+digraph OpenNebula {
+    graph [
+        nodesep= 0.5,
+        ratio=0.7,
+        pad=1,
+    ];
+
+    node [fontname="Helvetica"];
+    edge [fontname="Menlo"];
+    
+    user [
+        fillcolor="black",
+        style="filled", shape="box",
+        fontcolor="white", fontsize= "24.0"];
+
+    ANY [ shape="box" ];
+    "ANY \\ {suspended,done}" [ shape="box" ];
+
+    subgraph { rank = min; user}
+    subgraph { rank = same; pending; hold; color="white"}
+    subgraph { rank = same; prolog; prolog_resume; prolog_migrate;
+    color="white" }
+
+    subgraph { rank = max; suspended; done; cancel; failure;
+    stopped;color="white" }
+
+#   create
+    user -> pending [label="create"];
+
+#   deploy
+    pending     -> prolog_resume [label="deploy"];
+    prolog_resume -> boot [style="dashed"];
+
+    pending     -> prolog [label="deploy"];
+    prolog      -> boot [style="dashed"];
+    boot        -> running [style="dashed"];
+
+#   shutdown
+    running     -> shutdown [label="shutdown"];
+    shutdown    -> epilog [style="dashed"];
+    epilog      -> done [style="dashed"];
+
+#   livemigrate
+    running     -> migrate [label="livemigrate"];
+    migrate     -> running [style="dashed"];
+
+#   migrate
+    running         -> save_migrate [label="migrate"];
+    save_migrate    -> prolog_migrate [style="dashed"];
+    prolog_migrate  -> boot [style="dashed"];
+
+#   hold
+    pending     -> hold [label="hold"];
+
+#   release
+    hold        -> pending [label="release"];
+
+#   stop
+    running     -> save_stop [label="stop"];
+    save_stop   -> epilog_stop [style="dashed"];
+    epilog_stop -> stopped [style="dashed"];
+
+#   cancel
+    running     -> cancel [label="cancel"];
+    cancel      -> done [style="dashed"];
+
+#   suspend
+    running         -> save_suspend [label="suspend"];
+    save_suspend    -> suspended [style="dashed"];
+
+#   resume
+    stopped     -> pending [label="resume"];
+    suspended   -> boot [label="resume"];
+
+#   delete
+    ANY         -> done [label="delete"];
+
+#   restart
+    unknown     -> boot [label="restart"];
+    boot        -> boot [label="restart"];
+
+#   resubmit
+    "ANY \\ {suspended,done}" -> pending [label="resubmit"];
+
+#   failures and misc.
+    epilog_stop     -> failure [style="dotted"];
+    epilog          -> failure [style="dotted"];
+    prolog          -> failure [style="dotted"];
+    prolog_migrate  -> failure [style="dotted"];
+    prolog_resume   -> failure [style="dotted"];
+    boot            -> failure [style="dotted"];
+
+
+    running -> unknown [style="dashed"];
+    unknown -> running [style="dashed"];
+}

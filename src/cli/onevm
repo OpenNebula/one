@@ -310,7 +310,7 @@ class OnevmParse < CommandParse
 
 Description:
 
-This command enables the user to manage virtual machines in the ONE server.
+This command enables the user to manage virtual machines in OpenNebula.
 The user can allocate, deploy, migrate, suspend, resume and shutdown a virtual
 machine with the functionality present in onevm.
 
@@ -322,36 +322,56 @@ Commands:
 
     template is a file name where the VM description is located
 
-* deploy (Start a previously submitted VM in an specific host)
+* deploy (Starts an existing VM in an specific host)
     onevm deploy <vm_id> <host_id>
 
-* shutdown (Shutdown an already deployed VM)
+    States: PENDING
+
+* shutdown (Shuts down an already deployed VM)
     onevm shutdown <vm_id>
+
+    States: RUNNING
 
 * livemigrate (Migrates a running VM to another host without downtime)
     onevm livemigrate <vm_id> <host_id>
 
+    States: RUNNING
+
 * migrate (Saves a running VM and starts it again in the specified host)
     onevm migrate <vm_id> <host_id>
+
+    States: RUNNING
 
 * hold (Sets a VM to hold state, scheduler will not deploy it)
     onevm hold <vm_id>
 
-* release (Releases a VM from hold state)
+    States: PENDING
+
+* release (Releases a VM from hold state, setting it to pending)
     onevm release <vm_id>
+
+    States: HOLD
 
 * stop (Stops a running VM)
     onevm stop <vm_id>
 
+    States: RUNNING
+
 * cancel (Cancels a running VM)
     onevm cancel <vm_id>
+
+    States: RUNNING
 
 * suspend (Saves a running VM)
     onevm suspend <vm_id>
 
+    States: RUNNING
+
 * resume (Resumes the execution of a saved VM)
     onevm resume <vm_id>
-    
+
+    States: STOPPED, SUSPENDED
+
 * saveas (Set the specified vms disk to be saved in a new image (image_name) 
             when the vm shuts down)
     onevm saveas <vm_id> <disk_id> <image_name>
@@ -362,11 +382,17 @@ Commands:
 * delete (Deletes a VM from the pool)
     onevm delete <vm_id>
 
+    States: ANY
+
 * restart (Forces a re-deployment of a VM in UNKNOWN or BOOT state)
     onevm restart <vm_id>
 
+    States: UNKNOWN, BOOT
+
 * resubmit (Resubmits a VM to PENDING state)
     onevm resubmit <vm_id>
+
+    States: ANY, except SUSPENDED or DONE
 
 * list (Shows VMs in the pool)
     onevm list <filter_flag>
@@ -392,7 +418,7 @@ Information Columns:
 
 * ID        ONE VM identifier
 * USER      Username of the VM owner
-* NAME      Name of the ONE
+* NAME      Name of the VM
 * STAT      Status of the VM
 * CPU       CPU percentage used by the VM
 * MEM       Memory used by the VM

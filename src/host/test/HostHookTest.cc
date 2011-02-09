@@ -192,5 +192,7 @@ public:
 
 int main(int argc, char ** argv)
 {
+    OneUnitTest::set_one_auth();
+
     return OneUnitTest::main(argc, argv, HostHookTest::suite(),"host_hook.xml");
 }
