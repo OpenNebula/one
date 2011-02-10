@@ -133,13 +133,13 @@ private:
 
     /**
      *  Wait until the VM changes to the specified state.
-     *  There is a time-out of 3 seconds.
+     *  There is a time-out of 30 seconds.
      */
     void wait_assert(VirtualMachine*        vm,
                    VirtualMachine::VmState  state,
                    VirtualMachine::LcmState lcm_state = VirtualMachine::RUNNING)
     {
-        int n_steps = 100;
+        int n_steps = 1000;
         int step    = 30000;
 
         int i = 0;
