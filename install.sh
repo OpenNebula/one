@@ -35,7 +35,7 @@ usage() {
  echo "-g: group of the user that will run opennebula, defults to user"
  echo "    executing install.sh"
  echo "-k: keep configuration files of existing OpenNebula installation, useful"
- echo "    when upgrading. This flag should not be set when installing" 
+ echo "    when upgrading. This flag should not be set when installing"
  echo "    OpenNebula for the first time"
  echo "-d: target installation directory, if not defined it'd be root. Must be"
  echo "    an absolute path."
@@ -176,6 +176,7 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/remotes/im \
           $LIB_LOCATION/remotes/im/kvm.d \
           $LIB_LOCATION/remotes/im/xen.d \
+          $LIB_LOCATION/remotes/im/ganglia.d \
           $LIB_LOCATION/remotes/vmm/xen \
           $LIB_LOCATION/remotes/vmm/kvm"
 
@@ -183,6 +184,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im \
           $VAR_LOCATION/remotes/im/kvm.d \
           $VAR_LOCATION/remotes/im/xen.d \
+          $VAR_LOCATION/remotes/im/ganglia.d \
           $VAR_LOCATION/remotes/vmm/xen \
           $VAR_LOCATION/remotes/vmm/kvm"
 
@@ -220,13 +222,23 @@ INSTALL_FILES=(
     IM_PROBES_FILES:$VAR_LOCATION/remotes/im
     IM_PROBES_KVM_FILES:$VAR_LOCATION/remotes/im/kvm.d
     IM_PROBES_XEN_FILES:$VAR_LOCATION/remotes/im/xen.d
+    IM_PROBES_GANGLIA_FILES:$VAR_LOCATION/remotes/im/ganglia.d
     VMM_SSH_KVM_SCRIPTS:$VAR_LOCATION/remotes/vmm/kvm
     VMM_SSH_XEN_SCRIPTS:$VAR_LOCATION/remotes/vmm/xen
+    VMM_SSH_XEN_KVM_POLL:$VAR_LOCATION/remotes/vmm/kvm/poll
+    VMM_SSH_XEN_KVM_POLL:$VAR_LOCATION/remotes/vmm/xen/poll
+    VMM_SSH_GANGLIA_POLL:$VAR_LOCATION/remotes/vmm/kvm/poll_local
+    VMM_SSH_GANGLIA_POLL:$VAR_LOCATION/remotes/vmm/xen/poll_local
     IM_PROBES_FILES:$LIB_LOCATION/remotes/im
     IM_PROBES_KVM_FILES:$LIB_LOCATION/remotes/im/kvm.d
     IM_PROBES_XEN_FILES:$LIB_LOCATION/remotes/im/xen.d
+    IM_PROBES_GANGLIA_FILES:$LIB_LOCATION/remotes/im/ganglia.d
     VMM_SSH_KVM_SCRIPTS:$LIB_LOCATION/remotes/vmm/kvm
     VMM_SSH_XEN_SCRIPTS:$LIB_LOCATION/remotes/vmm/xen
+    VMM_SSH_XEN_KVM_POLL:$LIB_LOCATION/remotes/vmm/kvm/poll
+    VMM_SSH_XEN_KVM_POLL:$LIB_LOCATION/remotes/vmm/xen/poll
+    VMM_SSH_GANGLIA_POLL:$LIB_LOCATION/remotes/vmm/kvm/poll_local
+    VMM_SSH_GANGLIA_POLL:$LIB_LOCATION/remotes/vmm/xen/poll_local
     NFS_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/nfs
     SSH_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/ssh
     DUMMY_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/dummy
@@ -305,6 +317,7 @@ RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/mad/ruby/CommandManager.rb \
                 src/mad/ruby/OpenNebulaDriver.rb \
                 src/mad/ruby/VirtualMachineDriver.rb \
+                src/mad/ruby/Ganglia.rb \
                 src/cli/client_utilities.rb \
                 src/cli/command_parse.rb \
                 src/oca/ruby/OpenNebula.rb \
@@ -386,6 +399,13 @@ VMM_SSH_XEN_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
                     src/vmm_mad/remotes/xen/save \
                     src/vmm_mad/remotes/xen/shutdown"
 
+#-----------------------------------------------------------------------------
+# VMM SH Driver xen/kvm scripts, to be installed under $REMOTES_LOCATION/vmm/*
+#-----------------------------------------------------------------------------
+
+VMM_SSH_XEN_KVM_POLL="src/vmm_mad/remotes/poll_xen_kvm.rb"
+VMM_SSH_GANGLIA_POLL="src/vmm_mad/remotes/poll_ganglia.rb"
+
 #-------------------------------------------------------------------------------
 # Information Manager Probes, to be installed under $LIB_LOCATION/remotes
 #-------------------------------------------------------------------------------
@@ -401,6 +421,8 @@ IM_PROBES_KVM_FILES="src/im_mad/remotes/kvm.d/kvm.rb \
                     src/im_mad/remotes/kvm.d/architecture.sh \
                     src/im_mad/remotes/kvm.d/cpu.sh \
                     src/im_mad/remotes/kvm.d/name.sh"
+
+IM_PROBES_GANGLIA_FILES="src/im_mad/remotes/ganglia.d/ganglia_probe"
 
 
 #-------------------------------------------------------------------------------
@@ -457,7 +479,7 @@ VMM_EC2_ETC_FILES="src/vmm_mad/ec2/vmm_ec2rc \
 VMM_SSH_ETC_FILES="src/vmm_mad/ssh/vmm_sshrc \
                   src/vmm_mad/ssh/vmm_ssh_kvm.conf \
                   src/vmm_mad/ssh/vmm_ssh_xen.conf"
-                  
+
 VMM_SH_ETC_FILES="src/vmm_mad/sh/vmm_shrc"
 
 #-------------------------------------------------------------------------------
