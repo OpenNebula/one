@@ -1,7 +1,7 @@
-#!/bin/bash
+#!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -16,43 +16,87 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-source $(dirname $0)/kvmrc
+require 'pp'
 
-AWK_SCRIPT='
-BEGIN { FS=":" };
+def dom_info(vmid)
+    text=`virsh dominfo #{vmid}`
 
-$1=="Used memory" {
-    split($2, data, " ");
-    print "USEDMEMORY=" data[1]
-};
+    return nil if $?.exitstatus != 0
 
-$1=="State" {
-    vstat=$2;
-    gsub(" ", "", vstat);
+    lines=text.split(/\n/)
 
-    if(vstat=="running" ||
-       vstat=="blocked" ||
-       vstat=="shutdown" ||
-       vstat=="dying")
-        state="a";
-    else if(vstat=="paused") state="p";
-    else if(vstat=="crashed") state="c";
-    else state="u";
+    data=lines.map do |line|
+        parts=line.split(/:\s+/)
+    end
 
-    print "STATE=" state
-}
-'
+    Hash[data]
+end
 
-deploy_id=$1
+def process_info(uuid)
+    ps=`ps auxwww | grep -- '-uuid #{uuid}' | grep -v grep`
+    ps.split(/\s+/)
+end
 
-virsh_cmd="virsh --connect $LIBVIRT_URI --readonly dominfo $deploy_id"
-awk_cmd="awk \'$AWK_SCRIPT\'"
+def get_state(state)
+    case state
+    when *%w{running blocked shutdown dying}
+        'a'
+    when 'paused'
+        'p'
+    when 'crashed'
+        'c'
+    else
+        'u'
+    end
+end
 
-info=`$virsh_cmd 2>/dev/null | awk "$AWK_SCRIPT"`
+def print_data(name, value)
+    if value
+        "#{name}=\"#{value}\""
+    else
+        nil
+    end
+end
 
-if [ -n "$info" ]; then
-    echo $info
-else
-    echo STATE=d
-fi
-exit 0
+vm_id=ARGV[0]
+
+if !vm_id or vm_id.empty?
+    STDERR.puts "VM id not specified"
+    exit(-1)
+end
+
+data=dom_info(vm_id)
+
+if !data
+    #STDERR.puts "Error getting info for '#{vm_id}'"
+    #exit(-1)
+    puts "STATUS=d"
+    exit
+end
+
+
+ps_data=process_info(data['UUID'])
+
+
+monitor=Hash.new
+
+monitor[:cpu]=ps_data[2]
+monitor[:resident_memory]=ps_data[5].to_i
+monitor[:max_memory]=data['Max memory'].split(/\s+/).first.to_i
+
+monitor[:memory]=[monitor[:resident_memory], monitor[:max_memory]].max
+
+
+state=data['State']
+
+
+monitor[:state]=get_state(data['State'])
+monitor[:cpus]=data['CPU(s)']
+
+values=Array.new
+
+values << print_data('STATUS', monitor[:state])
+values << print_data('USEDCPU', monitor[:cpu])
+values << print_data('USEDMEMORY', monitor[:memory])
+
+puts values.zip.join(',')
