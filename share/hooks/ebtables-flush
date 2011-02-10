@@ -16,27 +16,50 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-def deactivate(rule)
-    system "sudo ebtables -D #{rule}"
-end
-
-def get_interfaces
-    brctl_exit=`brctl show`
-    brctl_exit.split("\n")[1..-1].collect{|l| l.split.last }
-end
+#------------------------------------------------------------------------------
+# Configuration Options for the script. Change it to fit your installation
+#------------------------------------------------------------------------------
+CONF = {
+  :ebtables => "sudo /sbin/ebtables",
+  :brctl => "/usr/sbin/brctl"
+}
+#------------------------------------------------------------------------------
 
 RULE_TYPES=[
     /-i ([\w\.\-]+) /,
     /-o ([\w\.\-]+) /
 ]
 
+#------------------------------------------------------------------------------
+# Applies a given rule to the ebtables
+#------------------------------------------------------------------------------
+def deactivate(rule)
+    system "#{CONF[:ebtables]} -D #{rule}"
+end
+#------------------------------------------------------------------------------
+
+#------------------------------------------------------------------------------
+# Gets the interfaces attached to a given bridge
+#------------------------------------------------------------------------------
+def get_interfaces
+    brctl_exit =`#{CONF[:brctl]} show`
+    brctl_exit.split("\n")[1..-1].collect{|l| l.split.last }
+end
+#------------------------------------------------------------------------------
+
+#------------------------------------------------------------------------------
+# Gets the interfaces attached to a given bridge
+#------------------------------------------------------------------------------
 def get_rules
-    rules=Array.new
+    rules = Array.new
+
     RULE_TYPES.each do |reg|
-        ebtables_exit=`sudo ebtables -L FORWARD`
+        ebtables_exit = `#{CONF[:ebtables]} -L FORWARD`
+
         rules << ebtables_exit.split("\n")[3..-1].collect do |l|
-            line=l.strip
-            m=line.match(reg)
+            line = l.strip
+            m    = line.match(reg)
+
             if m
                 interface=m[1]
                 {
@@ -48,14 +71,19 @@ def get_rules
             end
         end.compact
     end
+
     rules.flatten
 end
 
-# if executed on "done", we must wait a bit until the tap is detached from the bridge
+###############################################################################
+# Main
+###############################################################################
+
+# on "done", it waits a bit until the tap is detached from the bridge
 sleep 1
 
-interfaces=get_interfaces
-all_rules=get_rules
+interfaces = get_interfaces
+all_rules  = get_rules
 
 all_rules.each do |rule|
     if !interfaces.include?(rule[:interface])
