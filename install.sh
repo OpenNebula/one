@@ -39,7 +39,7 @@ usage() {
  echo "    OpenNebula for the first time"
  echo "-d: target installation directory, if not defined it'd be root. Must be"
  echo "    an absolute path."
- echo "-c: install only 'occi' or 'ec2' client files"
+ echo "-c: install client utilities: OpenNebula cli, occi and ec2 client files"
  echo "-r: remove Opennebula, only useful if -d was not specified, otherwise"
  echo "    rm -rf \$ONE_LOCATION would do the job"
  echo "-l: creates symlinks instead of copying files, useful for development"
@@ -47,7 +47,7 @@ usage() {
 }
 #-------------------------------------------------------------------------------
 
-TEMP_OPT=`getopt -o hkrlc:u:g:d: -n 'install.sh' -- "$@"`
+TEMP_OPT=`getopt -o hkrlcu:g:d: -n 'install.sh' -- "$@"`
 
 if [ $? != 0 ] ; then
     usage
@@ -70,7 +70,7 @@ while true ; do
         -k) INSTALL_ETC="no"   ; shift ;;
         -r) UNINSTALL="yes"   ; shift ;;
         -l) LINK="yes" ; shift ;;
-        -c) CLIENT="$2" ; shift 2;;
+        -c) CLIENT="yes" ; shift ;;
         -u) ONEADMIN_USER="$2" ; shift 2;;
         -g) ONEADMIN_GROUP="$2"; shift 2;;
         -d) ROOT="$2" ; shift 2 ;;
@@ -78,14 +78,6 @@ while true ; do
         *)  usage; exit 1 ;;
     esac
 done
-
-if echo "$CLIENT" | egrep -ivq '^(no|occi|ec2)$'; then
-    echo "ERROR: client '$CLIENT' not valid. Use either 'occi' or 'ec2'."
-    usage
-    exit 1
-else
-    CLIENT=`echo $CLIENT | tr [:upper:] [:lower:]`
-fi
 
 #-------------------------------------------------------------------------------
 # Definition of locations
@@ -195,20 +187,22 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/vmm/kvm"
 
 LIB_ECO_CLIENT_DIRS="$LIB_LOCATION/ruby \
-                 $LIB_LOCATION/ruby/OpenNebula
+                 $LIB_LOCATION/ruby/OpenNebula \
                  $LIB_LOCATION/ruby/cloud/ \
                  $LIB_LOCATION/ruby/cloud/econe"
 
 LIB_OCCI_CLIENT_DIRS="$LIB_LOCATION/ruby \
-                 $LIB_LOCATION/ruby/OpenNebula
+                 $LIB_LOCATION/ruby/OpenNebula \
                  $LIB_LOCATION/ruby/cloud/occi"
+
+LIB_CLI_DIRS="$LIB_LOCATION/ruby \
+              $LIB_LOCATION/ruby/OpenNebula"
 
 if [ "$CLIENT" = "no" ]; then
     MAKE_DIRS="$MAKE_DIRS $SHARE_DIRS $ETC_DIRS $LIB_DIRS $VAR_DIRS"
-elif [ "$CLIENT" = "ec2" ]; then
-    MAKE_DIRS="$MAKE_DIRS $LIB_ECO_CLIENT_DIRS"
-elif [ "$CLIENT" = "occi" ]; then
-    MAKE_DIRS="$MAKE_DIRS $LIB_OCCI_CLIENT_DIRS"
+else
+    MAKE_DIRS="$MAKE_DIRS $LIB_ECO_CLIENT_DIRS $LIB_OCCI_CLIENT_DIRS \
+               $LIB_CLI_DIRS"
 fi
 
 #-------------------------------------------------------------------------------
@@ -248,13 +242,15 @@ INSTALL_FILES[27]="OCCI_LIB_FILES:$LIB_LOCATION/ruby/cloud/occi"
 INSTALL_FILES[28]="OCCI_BIN_FILES:$BIN_LOCATION"
 INSTALL_FILES[29]="MAN_FILES:$MAN_LOCATION"
 
-INSTALL_ECO_CLIENT_FILES[0]="COMMON_CLOUD_CLIENT_LIB_FILES:$LIB_LOCATION/ruby/cloud"
-INSTALL_ECO_CLIENT_FILES[1]="ECO_LIB_CLIENT_FILES:$LIB_LOCATION/ruby/cloud/econe"
-INSTALL_ECO_CLIENT_FILES[2]="ECO_BIN_CLIENT_FILES:$BIN_LOCATION"
-
-INSTALL_OCCI_CLIENT_FILES[0]="COMMON_CLOUD_CLIENT_LIB_FILES:$LIB_LOCATION/ruby/cloud"
-INSTALL_OCCI_CLIENT_FILES[1]="OCCI_LIB_CLIENT_FILES:$LIB_LOCATION/ruby/cloud/occi"
-INSTALL_OCCI_CLIENT_FILES[2]="OCCI_BIN_CLIENT_FILES:$BIN_LOCATION"
+INSTALL_CLIENT_FILES[0]="COMMON_CLOUD_CLIENT_LIB_FILES:$LIB_LOCATION/ruby/cloud"
+INSTALL_CLIENT_FILES[1]="ECO_LIB_CLIENT_FILES:$LIB_LOCATION/ruby/cloud/econe"
+INSTALL_CLIENT_FILES[2]="ECO_BIN_CLIENT_FILES:$BIN_LOCATION"
+INSTALL_CLIENT_FILES[3]="COMMON_CLOUD_CLIENT_LIB_FILES:$LIB_LOCATION/ruby/cloud"
+INSTALL_CLIENT_FILES[4]="OCCI_LIB_CLIENT_FILES:$LIB_LOCATION/ruby/cloud/occi"
+INSTALL_CLIENT_FILES[5]="OCCI_BIN_CLIENT_FILES:$BIN_LOCATION"
+INSTALL_CLIENT_FILES[6]="CLI_BIN_FILES:$BIN_LOCATION"
+INSTALL_CLIENT_FILES[7]="CLI_LIB_FILES:$LIB_LOCATION/ruby"
+INSTALL_CLIENT_FILES[8]="RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/OpenNebula"
 
 INSTALL_ETC_FILES[0]="ETC_FILES:$ETC_LOCATION"
 INSTALL_ETC_FILES[1]="VMM_EC2_ETC_FILES:$ETC_LOCATION/vmm_ec2"
@@ -610,6 +606,22 @@ OCCI_ETC_TEMPLATE_FILES="src/cloud/occi/etc/templates/common.erb \
                     src/cloud/occi/etc/templates/large.erb"
 
 #-----------------------------------------------------------------------------
+# CLI files
+#-----------------------------------------------------------------------------
+
+CLI_LIB_FILES="src/mad/ruby/CommandManager.rb \
+               src/cli/client_utilities.rb \
+               src/cli/command_parse.rb \
+               src/oca/ruby/OpenNebula.rb"
+
+CLI_BIN_FILES="src/cli/onevm \
+               src/cli/onehost \
+               src/cli/onevnet \
+               src/cli/oneuser \
+               src/cli/oneimage \
+               src/cli/onecluster"
+
+#-----------------------------------------------------------------------------
 # MAN files
 #-----------------------------------------------------------------------------
 
@@ -661,10 +673,8 @@ do_file() {
 
 if [ "$CLIENT" = "no" ]; then
     INSTALL_SET=${INSTALL_FILES[@]}
-elif [ "$CLIENT" = "occi" ]; then
-    INSTALL_SET=${INSTALL_OCCI_CLIENT_FILES[@]}
-elif [ "$CLIENT" = "ec2" ]; then
-    INSTALL_SET=${INSTALL_ECO_CLIENT_FILES[@]}
+else
+    INSTALL_SET=${INSTALL_CLIENT_FILES[@]}
 fi
 
 for i in ${INSTALL_SET[@]}; do
