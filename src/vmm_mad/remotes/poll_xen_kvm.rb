@@ -97,12 +97,15 @@ private
         return nil if $?.exitstatus != 0
 
         lines=text.split(/\n/)
+        
+        hash=Hash.new
 
         data=lines.map do |line|
             parts=line.split(/:\s+/)
+            hash[parts[0]]=parts[1]
         end
 
-        Hash[data]
+        hash
     end
 
     def self.get_vm_names
