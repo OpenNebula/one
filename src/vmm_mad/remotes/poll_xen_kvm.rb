@@ -37,7 +37,7 @@ module KVM
         data=dom_info(vm_id)
 
         if !data
-            return {:STATUS => 'd'}
+            return {:STATE => 'd'}
         end
 
 
@@ -61,7 +61,7 @@ module KVM
 
         values=Hash.new
 
-        values[:status]=monitor[:state]
+        values[:state]=monitor[:state]
         values[:usedcpu]=monitor[:cpu]
         values[:usedmemory]=monitor[:memory]
 
@@ -249,9 +249,9 @@ def select_hypervisor
 
     if !hypervisor
         case $0
-        when %r{/kvm\.d/}
+        when %r{/vmm\/kvm/}
             hypervisor=KVM
-        when %r{/xen\.d/}
+        when %r{/vmm\/xen/}
             hypervisor=XEN
         end
     end
@@ -290,7 +290,7 @@ end
 
 def print_data(name, value)
     if value
-        "#{name.to_s.upcase}=\"#{value}\""
+        "#{name.to_s.upcase}=#{value}"
     else
         nil
     end

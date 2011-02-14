@@ -381,7 +381,6 @@ VMM_SSH_KVM_SCRIPTS="src/vmm_mad/remotes/kvm/cancel \
                     src/vmm_mad/remotes/kvm/deploy \
                     src/vmm_mad/remotes/kvm/kvmrc \
                     src/vmm_mad/remotes/kvm/migrate \
-                    src/vmm_mad/remotes/kvm/poll \
                     src/vmm_mad/remotes/kvm/restore \
                     src/vmm_mad/remotes/kvm/save \
                     src/vmm_mad/remotes/kvm/shutdown"
@@ -394,7 +393,6 @@ VMM_SSH_XEN_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
                     src/vmm_mad/remotes/xen/deploy \
                     src/vmm_mad/remotes/xen/xenrc \
                     src/vmm_mad/remotes/xen/migrate \
-                    src/vmm_mad/remotes/xen/poll \
                     src/vmm_mad/remotes/xen/restore \
                     src/vmm_mad/remotes/xen/save \
                     src/vmm_mad/remotes/xen/shutdown"
