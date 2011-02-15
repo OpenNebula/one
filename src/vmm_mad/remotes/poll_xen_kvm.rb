@@ -163,14 +163,14 @@ private
 
     def self.get_state(state)
         case state.gsub('-', '')
-        when *%w{running blocked shutdown dying}
+        when *%w{running blocked shutdown dying idle}
             'a'
         when 'paused'
             'p'
         when 'crashed'
-            'c'
+            'e'
         else
-            'u'
+            '-'
         end
     end
 end
@@ -224,9 +224,9 @@ module XEN
         when 'p'
             'p'
         when 'c'
-            'c'
+            'e'
         else
-            'u'
+            '-'
         end
     end
 end
