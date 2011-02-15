@@ -49,7 +49,7 @@ class GangliaHost
         self.new(xml, host)
     end
     
-    def self.new_fom_file(host, file)
+    def self.new_from_file(host, file)
         new_with_options(host, :file => file)
     end
     
