@@ -14,6 +14,8 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+export LANG=C
+
 export XM_PATH="/usr/sbin/xm"
 export XM_CANCEL="sudo $XM_PATH destroy"
 export XM_CREATE="sudo $XM_PATH create"

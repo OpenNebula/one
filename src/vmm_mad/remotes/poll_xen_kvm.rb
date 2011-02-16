@@ -19,6 +19,8 @@
 require 'pp'
 require 'rexml/document'
 
+ENV['LANG']='C'
+
 module KVM
     CONF={
         :dominfo    => 'virsh --connect LIBVIRT_URI --readonly dominfo',
