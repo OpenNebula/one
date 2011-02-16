@@ -181,7 +181,13 @@ module XEN
     }
     
     def self.get_vm_info(vm_id)
-        get_all_vm_info[vm_id]
+        data = get_all_vm_info[vm_id]
+
+        if !data
+            return {:STATE => 'd'}
+        else
+            return data
+        end
     end
     
     def self.get_all_vm_info
@@ -203,7 +209,7 @@ module XEN
             dom_hash[:name]=dom_data[0]
             dom_hash[:state]=get_state(dom_data[1])
             dom_hash[:usedcpu]=dom_data[3]
-            dom_hash[:usedmem]=dom_data[4]
+            dom_hash[:usedmemory]=dom_data[4]
             dom_hash[:nettx]=dom_data[10]
             dom_hash[:netrx]=dom_data[11]
             
@@ -218,7 +224,7 @@ module XEN
     end
     
     def self.get_state(state)
-        case state
+        case state.gsub('-', '')[-1..-1]
         when *%w{r b s d}
             'a'
         when 'p'
