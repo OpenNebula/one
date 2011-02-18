@@ -64,11 +64,16 @@ rescue
     exit -1
 end
 
-dom_info=ganglia.get_vms_information
+doms_info=ganglia.get_vms_information
+dom_id=domain.split('-').last
 
-if dom_info[domain]
-    info=dom_info[domain].map do |key, value|
-        "#{key.to_s.upcase}=\"#{value}\""
+# Get key one-<vmid> or <vmid> key from the hash
+dom_info=doms_info[domain]
+dom_info=doms_info[dom_id] if !dom_info
+
+if dom_info
+    info=dom_info.map do |key, value|
+        "#{key.to_s.upcase}=#{value}"
     end.join(' ')
     
     puts info
