@@ -246,7 +246,7 @@ module OpenNebula
 
             if NOKOGIRI
                 array = element.children
-                if array.length == 1 and array.first.text?
+                if array.length==1 and (array.first.text? or array.first.cdata?)
                     r = array.first.text
                 else
                     r = {}
@@ -257,8 +257,8 @@ module OpenNebula
                     }
                 end
             else
+                r = {}
                 if element.has_elements?
-                    r = {}
                     element.each_element { |c| to_hash(r, c) }
                 elsif element.has_text?
                     r = element.text
