@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>OpenNebula Admin Console Login</title>
+    <link rel="stylesheet" type="text/css" href="/css/login.css" />
+    <script type="text/javascript" src="/js/jquery-1.4.4.min.js"></script>
+    <script type="text/javascript" src="/js/opennebula.js"></script>
+    <script type="text/javascript" src="/js/base64.js"></script>
+    <script type="text/javascript" src="/js/login.js"></script>
+
+</head>
+
+
+<body>
+<div id="header">
+    <div id="logo">
+        The OpenNebula Cloud Operations Center
+    </div>
+</div>
+
+<div id="wrapper">
+      <div id="logo_sunstone">
+      </div>
+      <form id="login_form">
+        <div class="border" id="login">
+            <div class="content">
+                Username
+                <input type="text" size="15" name="username" id="username" class="box"/>
+                Password
+                <input type="password" size="15" name="password" id="password" class="box"/>
+                <br />
+                <input type="checkbox" id="check_remember">
+                <label id="label_remember" for="check_remember">Remember me</label>
+                <input type="button" id="login_btn" value="" />
+            </div>
+        </div>
+      </form>
+
+      <div id="auth_error" class="error_message">
+          Invalid username or password
+      </div>
+      <div id="one_error" class="error_message">
+          OpenNebula is not running
+      </div>
+</div>
+</body>
+</html>
+

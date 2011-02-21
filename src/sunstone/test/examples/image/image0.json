@@ -1,0 +1,7 @@
+{
+  "image": {
+    "name": "first_image",
+    "type": "OS",
+    "path": "/etc/hosts"
+  }
+}

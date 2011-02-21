@@ -1,0 +1,8 @@
+{
+  "action": {
+    "params": {
+      "host_id": "0"
+    },
+    "perform": "add_host"
+  }
+}
