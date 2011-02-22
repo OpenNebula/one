@@ -150,7 +150,11 @@ class SunstoneServer
     ############################################################################
     #
     ############################################################################
-    def get_configuration
+    def get_configuration(user_id)
+        if user_id != "0"
+            return [401, ""]
+        end
+        
         one_config = VAR_LOCATION + "/config"
         config = Hash.new
 
@@ -178,17 +182,21 @@ class SunstoneServer
     #
     ############################################################################
     def get_vm_log(id)
-        id = id.to_s
-        vm_log_file = VAR_LOCATION + "/#{id}/vm.log"
+        resource = retrieve_resource("vm", id)
+        if OpenNebula.is_error?(resource)
+            return [404, nil]
+        else
+            vm_log_file = VAR_LOCATION + "/#{id}/vm.log"
 
-        begin
-            log = File.read(vm_log_file)
-        rescue Exception => e
-            error = Error.new("Error: log for VM #{id} not available")
-            return [500, error.to_s]
+            begin
+                log = File.read(vm_log_file)
+            rescue Exception => e
+                error = Error.new("Error: log for VM #{id} not available")
+                return [500, error.to_s]
+            end
+
+            return [200, log]
         end
-
-        return [200, log]
     end
 
     private
