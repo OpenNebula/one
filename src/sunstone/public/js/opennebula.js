@@ -267,7 +267,7 @@ var OpenNebula = {
                 url: "/host",
                 type: "POST",
                 dataType: "json",
-                data: data,
+                data: JSON.stringify(data),
                 success: function(response)
                 {
                     if (callback)
