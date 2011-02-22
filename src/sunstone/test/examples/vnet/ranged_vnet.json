@@ -1,0 +1,9 @@
+{
+  "vnet": {
+    "type": "RANGED",
+    "bridge": "vbr1",
+    "network_size": "200",
+    "network_address": "10.0.0.0",
+    "name": "ranged_vnet"
+  }
+}

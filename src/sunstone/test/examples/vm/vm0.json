@@ -1,0 +1,12 @@
+{
+  "vm": {
+    "memory": "256",
+    "cpu": "1",
+    "disk": {
+      "type": "fs",
+      "format": "ext3",
+      "size": "1024"
+    },
+    "name": "vm1"
+  }
+}

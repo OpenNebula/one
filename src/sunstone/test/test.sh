@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -16,43 +16,34 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-source $(dirname $0)/kvmrc
-
-AWK_SCRIPT='
-BEGIN { FS=":" };
-
-$1=="Used memory" {
-    split($2, data, " ");
-    print "USEDMEMORY=" data[1]
-};
-
-$1=="State" {
-    vstat=$2;
-    gsub(" ", "", vstat);
-
-    if(vstat=="running" ||
-       vstat=="blocked" ||
-       vstat=="shutdown" ||
-       vstat=="dying")
-        state="a";
-    else if(vstat=="paused") state="p";
-    else if(vstat=="crashed") state="c";
-    else state="u";
-
-    print "STATE=" state
-}
-'
-
-deploy_id=$1
-
-virsh_cmd="virsh --connect $LIBVIRT_URI --readonly dominfo $deploy_id"
-awk_cmd="awk \'$AWK_SCRIPT\'"
-
-info=`$virsh_cmd 2>/dev/null | awk "$AWK_SCRIPT"`
-
-if [ -n "$info" ]; then
-    echo $info
-else
-    echo STATE=d
+if [ -z $ONE_LOCATION ]; then
+    echo "ONE_LOCATION not defined."
+    exit -1
 fi
-exit 0
+
+VAR_LOCATION="$ONE_LOCATION/var"
+
+if [ "$(ls -A $VAR_LOCATION)" ]; then
+    echo "$VAR_LOCATION is not empty."
+    exit -1
+fi
+
+for j in `ls ./spec/*_spec.rb` ; do
+    PID=$$
+
+    oned -f &
+    sleep 2s;
+
+    spec $j -f s
+    CODE=$?
+
+    pkill -P $PID oned
+    sleep 2s;
+    pkill -9 -P $PID oned
+
+    if [ $CODE != 0 ] ; then
+        exit 1
+    fi
+
+    find $VAR_LOCATION -mindepth 1 -delete
+done

@@ -28,7 +28,7 @@ DEFAULT_LV_SIZE="1G"
 # -------------------------------------------------------------------------- #
 
 function get_vid {
-    echo $1 |$SED -e 's%^.*/\([^/]*\)/images.*$%\1%'
+    echo $1 |$SED -e 's%^.*/([^/]*)/images.*$%\1%'
 }
 
 function get_lv_name {

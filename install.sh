@@ -35,11 +35,11 @@ usage() {
  echo "-g: group of the user that will run opennebula, defults to user"
  echo "    executing install.sh"
  echo "-k: keep configuration files of existing OpenNebula installation, useful"
- echo "    when upgrading. This flag should not be set when installing" 
+ echo "    when upgrading. This flag should not be set when installing"
  echo "    OpenNebula for the first time"
  echo "-d: target installation directory, if not defined it'd be root. Must be"
  echo "    an absolute path."
- echo "-c: install only 'occi' or 'ec2' client files"
+ echo "-c: install client utilities: OpenNebula cli, occi and ec2 client files"
  echo "-r: remove Opennebula, only useful if -d was not specified, otherwise"
  echo "    rm -rf \$ONE_LOCATION would do the job"
  echo "-l: creates symlinks instead of copying files, useful for development"
@@ -47,7 +47,7 @@ usage() {
 }
 #-------------------------------------------------------------------------------
 
-TEMP_OPT=`getopt -o hkrlc:u:g:d: -n 'install.sh' -- "$@"`
+TEMP_OPT=`getopt -o hkrlcu:g:d: -n 'install.sh' -- "$@"`
 
 if [ $? != 0 ] ; then
     usage
@@ -70,7 +70,7 @@ while true ; do
         -k) INSTALL_ETC="no"   ; shift ;;
         -r) UNINSTALL="yes"   ; shift ;;
         -l) LINK="yes" ; shift ;;
-        -c) CLIENT="$2" ; shift 2;;
+        -c) CLIENT="yes" ; shift ;;
         -u) ONEADMIN_USER="$2" ; shift 2;;
         -g) ONEADMIN_GROUP="$2"; shift 2;;
         -d) ROOT="$2" ; shift 2 ;;
@@ -78,14 +78,6 @@ while true ; do
         *)  usage; exit 1 ;;
     esac
 done
-
-if echo "$CLIENT" | egrep -ivq '^(no|occi|ec2)$'; then
-    echo "ERROR: client '$CLIENT' not valid. Use either 'occi' or 'ec2'."
-    usage
-    exit 1
-else
-    CLIENT=`echo $CLIENT | tr [:upper:] [:lower:]`
-fi
 
 #-------------------------------------------------------------------------------
 # Definition of locations
@@ -184,6 +176,7 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/remotes/im \
           $LIB_LOCATION/remotes/im/kvm.d \
           $LIB_LOCATION/remotes/im/xen.d \
+          $LIB_LOCATION/remotes/im/ganglia.d \
           $LIB_LOCATION/remotes/vmm/xen \
           $LIB_LOCATION/remotes/vmm/kvm"
 
@@ -191,24 +184,27 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im \
           $VAR_LOCATION/remotes/im/kvm.d \
           $VAR_LOCATION/remotes/im/xen.d \
+          $VAR_LOCATION/remotes/im/ganglia.d \
           $VAR_LOCATION/remotes/vmm/xen \
           $VAR_LOCATION/remotes/vmm/kvm"
 
 LIB_ECO_CLIENT_DIRS="$LIB_LOCATION/ruby \
-                 $LIB_LOCATION/ruby/OpenNebula
+                 $LIB_LOCATION/ruby/OpenNebula \
                  $LIB_LOCATION/ruby/cloud/ \
                  $LIB_LOCATION/ruby/cloud/econe"
 
 LIB_OCCI_CLIENT_DIRS="$LIB_LOCATION/ruby \
-                 $LIB_LOCATION/ruby/OpenNebula
+                 $LIB_LOCATION/ruby/OpenNebula \
                  $LIB_LOCATION/ruby/cloud/occi"
+
+LIB_CLI_DIRS="$LIB_LOCATION/ruby \
+              $LIB_LOCATION/ruby/OpenNebula"
 
 if [ "$CLIENT" = "no" ]; then
     MAKE_DIRS="$MAKE_DIRS $SHARE_DIRS $ETC_DIRS $LIB_DIRS $VAR_DIRS"
-elif [ "$CLIENT" = "ec2" ]; then
-    MAKE_DIRS="$MAKE_DIRS $LIB_ECO_CLIENT_DIRS"
-elif [ "$CLIENT" = "occi" ]; then
-    MAKE_DIRS="$MAKE_DIRS $LIB_OCCI_CLIENT_DIRS"
+else
+    MAKE_DIRS="$MAKE_DIRS $LIB_ECO_CLIENT_DIRS $LIB_OCCI_CLIENT_DIRS \
+               $LIB_CLI_DIRS"
 fi
 
 #-------------------------------------------------------------------------------
@@ -216,61 +212,78 @@ fi
 # FILE DEFINITION, WHAT IS GOING TO BE INSTALLED AND WHERE
 #-------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------
+INSTALL_FILES=(
+    BIN_FILES:$BIN_LOCATION
+    INCLUDE_FILES:$INCLUDE_LOCATION
+    LIB_FILES:$LIB_LOCATION
+    RUBY_LIB_FILES:$LIB_LOCATION/ruby
+    RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/OpenNebula
+    MADS_LIB_FILES:$LIB_LOCATION/mads
+    IM_PROBES_FILES:$VAR_LOCATION/remotes/im
+    IM_PROBES_KVM_FILES:$VAR_LOCATION/remotes/im/kvm.d
+    IM_PROBES_XEN_FILES:$VAR_LOCATION/remotes/im/xen.d
+    IM_PROBES_GANGLIA_FILES:$VAR_LOCATION/remotes/im/ganglia.d
+    VMM_SSH_KVM_SCRIPTS:$VAR_LOCATION/remotes/vmm/kvm
+    VMM_SSH_XEN_SCRIPTS:$VAR_LOCATION/remotes/vmm/xen
+    VMM_SSH_XEN_KVM_POLL:$VAR_LOCATION/remotes/vmm/kvm/poll
+    VMM_SSH_XEN_KVM_POLL:$VAR_LOCATION/remotes/vmm/xen/poll
+    VMM_SSH_GANGLIA_POLL:$VAR_LOCATION/remotes/vmm/kvm/poll_local
+    VMM_SSH_GANGLIA_POLL:$VAR_LOCATION/remotes/vmm/xen/poll_local
+    IM_PROBES_FILES:$LIB_LOCATION/remotes/im
+    IM_PROBES_KVM_FILES:$LIB_LOCATION/remotes/im/kvm.d
+    IM_PROBES_XEN_FILES:$LIB_LOCATION/remotes/im/xen.d
+    IM_PROBES_GANGLIA_FILES:$LIB_LOCATION/remotes/im/ganglia.d
+    VMM_SSH_KVM_SCRIPTS:$LIB_LOCATION/remotes/vmm/kvm
+    VMM_SSH_XEN_SCRIPTS:$LIB_LOCATION/remotes/vmm/xen
+    VMM_SSH_XEN_KVM_POLL:$LIB_LOCATION/remotes/vmm/kvm/poll
+    VMM_SSH_XEN_KVM_POLL:$LIB_LOCATION/remotes/vmm/xen/poll
+    VMM_SSH_GANGLIA_POLL:$LIB_LOCATION/remotes/vmm/kvm/poll_local
+    VMM_SSH_GANGLIA_POLL:$LIB_LOCATION/remotes/vmm/xen/poll_local
+    NFS_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/nfs
+    SSH_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/ssh
+    DUMMY_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/dummy
+    LVM_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/lvm
+    EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples
+    TM_EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples/tm
+    HOOK_SHARE_FILES:$SHARE_LOCATION/hooks
+    COMMON_CLOUD_LIB_FILES:$LIB_LOCATION/ruby/cloud
+    ECO_LIB_FILES:$LIB_LOCATION/ruby/cloud/econe
+    ECO_LIB_VIEW_FILES:$LIB_LOCATION/ruby/cloud/econe/views
+    ECO_BIN_FILES:$BIN_LOCATION
+    OCCI_LIB_FILES:$LIB_LOCATION/ruby/cloud/occi
+    OCCI_BIN_FILES:$BIN_LOCATION
+    MAN_FILES:$MAN_LOCATION
+)
 
-INSTALL_FILES[0]="BIN_FILES:$BIN_LOCATION"
-INSTALL_FILES[1]="INCLUDE_FILES:$INCLUDE_LOCATION"
-INSTALL_FILES[2]="LIB_FILES:$LIB_LOCATION"
-INSTALL_FILES[3]="RUBY_LIB_FILES:$LIB_LOCATION/ruby"
-INSTALL_FILES[4]="RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/OpenNebula"
-INSTALL_FILES[5]="MADS_LIB_FILES:$LIB_LOCATION/mads"
-INSTALL_FILES[6]="IM_PROBES_FILES:$VAR_LOCATION/remotes/im"
-INSTALL_FILES[7]="IM_PROBES_KVM_FILES:$VAR_LOCATION/remotes/im/kvm.d"
-INSTALL_FILES[8]="IM_PROBES_XEN_FILES:$VAR_LOCATION/remotes/im/xen.d"
-INSTALL_FILES[9]="VMM_SSH_KVM_SCRIPTS:$VAR_LOCATION/remotes/vmm/kvm"
-INSTALL_FILES[10]="VMM_SSH_XEN_SCRIPTS:$VAR_LOCATION/remotes/vmm/xen"
-INSTALL_FILES[11]="IM_PROBES_FILES:$LIB_LOCATION/remotes/im"
-INSTALL_FILES[12]="IM_PROBES_KVM_FILES:$LIB_LOCATION/remotes/im/kvm.d"
-INSTALL_FILES[13]="IM_PROBES_XEN_FILES:$LIB_LOCATION/remotes/im/xen.d"
-INSTALL_FILES[14]="VMM_SSH_KVM_SCRIPTS:$LIB_LOCATION/remotes/vmm/kvm"
-INSTALL_FILES[15]="VMM_SSH_XEN_SCRIPTS:$LIB_LOCATION/remotes/vmm/xen"
-INSTALL_FILES[16]="NFS_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/nfs"
-INSTALL_FILES[17]="SSH_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/ssh"
-INSTALL_FILES[18]="DUMMY_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/dummy"
-INSTALL_FILES[19]="LVM_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/lvm"
-INSTALL_FILES[20]="EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples"
-INSTALL_FILES[21]="TM_EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples/tm"
-INSTALL_FILES[22]="HOOK_SHARE_FILES:$SHARE_LOCATION/hooks"
-INSTALL_FILES[23]="COMMON_CLOUD_LIB_FILES:$LIB_LOCATION/ruby/cloud"
-INSTALL_FILES[24]="ECO_LIB_FILES:$LIB_LOCATION/ruby/cloud/econe"
-INSTALL_FILES[25]="ECO_LIB_VIEW_FILES:$LIB_LOCATION/ruby/cloud/econe/views"
-INSTALL_FILES[26]="ECO_BIN_FILES:$BIN_LOCATION"
-INSTALL_FILES[27]="OCCI_LIB_FILES:$LIB_LOCATION/ruby/cloud/occi"
-INSTALL_FILES[28]="OCCI_BIN_FILES:$BIN_LOCATION"
-INSTALL_FILES[29]="MAN_FILES:$MAN_LOCATION"
+INSTALL_CLIENT_FILES=(
+    COMMON_CLOUD_CLIENT_LIB_FILES:$LIB_LOCATION/ruby/cloud
+    ECO_LIB_CLIENT_FILES:$LIB_LOCATION/ruby/cloud/econe
+    ECO_BIN_CLIENT_FILES:$BIN_LOCATION
+    COMMON_CLOUD_CLIENT_LIB_FILES:$LIB_LOCATION/ruby/cloud
+    OCCI_LIB_CLIENT_FILES:$LIB_LOCATION/ruby/cloud/occi
+    OCCI_BIN_CLIENT_FILES:$BIN_LOCATION
+    CLI_BIN_FILES:$BIN_LOCATION
+    CLI_LIB_FILES:$LIB_LOCATION/ruby
+    RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/OpenNebula
+)
 
-INSTALL_ECO_CLIENT_FILES[0]="COMMON_CLOUD_CLIENT_LIB_FILES:$LIB_LOCATION/ruby/cloud"
-INSTALL_ECO_CLIENT_FILES[1]="ECO_LIB_CLIENT_FILES:$LIB_LOCATION/ruby/cloud/econe"
-INSTALL_ECO_CLIENT_FILES[2]="ECO_BIN_CLIENT_FILES:$BIN_LOCATION"
-
-INSTALL_OCCI_CLIENT_FILES[0]="COMMON_CLOUD_CLIENT_LIB_FILES:$LIB_LOCATION/ruby/cloud"
-INSTALL_OCCI_CLIENT_FILES[1]="OCCI_LIB_CLIENT_FILES:$LIB_LOCATION/ruby/cloud/occi"
-INSTALL_OCCI_CLIENT_FILES[2]="OCCI_BIN_CLIENT_FILES:$BIN_LOCATION"
-
-INSTALL_ETC_FILES[0]="ETC_FILES:$ETC_LOCATION"
-INSTALL_ETC_FILES[1]="VMM_EC2_ETC_FILES:$ETC_LOCATION/vmm_ec2"
-INSTALL_ETC_FILES[2]="VMM_SSH_ETC_FILES:$ETC_LOCATION/vmm_ssh"
-INSTALL_ETC_FILES[3]="VMM_SH_ETC_FILES:$ETC_LOCATION/vmm_sh"
-INSTALL_ETC_FILES[4]="IM_EC2_ETC_FILES:$ETC_LOCATION/im_ec2"
-INSTALL_ETC_FILES[5]="TM_NFS_ETC_FILES:$ETC_LOCATION/tm_nfs"
-INSTALL_ETC_FILES[6]="TM_SSH_ETC_FILES:$ETC_LOCATION/tm_ssh"
-INSTALL_ETC_FILES[7]="TM_DUMMY_ETC_FILES:$ETC_LOCATION/tm_dummy"
-INSTALL_ETC_FILES[8]="TM_LVM_ETC_FILES:$ETC_LOCATION/tm_lvm"
-INSTALL_ETC_FILES[9]="HM_ETC_FILES:$ETC_LOCATION/hm"
-INSTALL_ETC_FILES[10]="AUTH_ETC_FILES:$ETC_LOCATION/auth"
-INSTALL_ETC_FILES[11]="ECO_ETC_FILES:$ETC_LOCATION"
-INSTALL_ETC_FILES[12]="ECO_ETC_TEMPLATE_FILES:$ETC_LOCATION/ec2query_templates"
-INSTALL_ETC_FILES[13]="OCCI_ETC_FILES:$ETC_LOCATION"
-INSTALL_ETC_FILES[14]="OCCI_ETC_TEMPLATE_FILES:$ETC_LOCATION/occi_templates"
+INSTALL_ETC_FILES=(
+    ETC_FILES:$ETC_LOCATION
+    VMM_EC2_ETC_FILES:$ETC_LOCATION/vmm_ec2
+    VMM_SSH_ETC_FILES:$ETC_LOCATION/vmm_ssh
+    VMM_SH_ETC_FILES:$ETC_LOCATION/vmm_sh
+    IM_EC2_ETC_FILES:$ETC_LOCATION/im_ec2
+    TM_NFS_ETC_FILES:$ETC_LOCATION/tm_nfs
+    TM_SSH_ETC_FILES:$ETC_LOCATION/tm_ssh
+    TM_DUMMY_ETC_FILES:$ETC_LOCATION/tm_dummy
+    TM_LVM_ETC_FILES:$ETC_LOCATION/tm_lvm
+    HM_ETC_FILES:$ETC_LOCATION/hm
+    AUTH_ETC_FILES:$ETC_LOCATION/auth
+    ECO_ETC_FILES:$ETC_LOCATION
+    ECO_ETC_TEMPLATE_FILES:$ETC_LOCATION/ec2query_templates
+    OCCI_ETC_FILES:$ETC_LOCATION
+    OCCI_ETC_TEMPLATE_FILES:$ETC_LOCATION/occi_templates
+)
 
 #-------------------------------------------------------------------------------
 # Binary files, to be installed under $BIN_LOCATION
@@ -304,6 +317,7 @@ RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/mad/ruby/CommandManager.rb \
                 src/mad/ruby/OpenNebulaDriver.rb \
                 src/mad/ruby/VirtualMachineDriver.rb \
+                src/mad/ruby/Ganglia.rb \
                 src/cli/client_utilities.rb \
                 src/cli/command_parse.rb \
                 src/oca/ruby/OpenNebula.rb \
@@ -367,7 +381,6 @@ VMM_SSH_KVM_SCRIPTS="src/vmm_mad/remotes/kvm/cancel \
                     src/vmm_mad/remotes/kvm/deploy \
                     src/vmm_mad/remotes/kvm/kvmrc \
                     src/vmm_mad/remotes/kvm/migrate \
-                    src/vmm_mad/remotes/kvm/poll \
                     src/vmm_mad/remotes/kvm/restore \
                     src/vmm_mad/remotes/kvm/save \
                     src/vmm_mad/remotes/kvm/shutdown"
@@ -380,10 +393,16 @@ VMM_SSH_XEN_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
                     src/vmm_mad/remotes/xen/deploy \
                     src/vmm_mad/remotes/xen/xenrc \
                     src/vmm_mad/remotes/xen/migrate \
-                    src/vmm_mad/remotes/xen/poll \
                     src/vmm_mad/remotes/xen/restore \
                     src/vmm_mad/remotes/xen/save \
                     src/vmm_mad/remotes/xen/shutdown"
+
+#-----------------------------------------------------------------------------
+# VMM SH Driver xen/kvm scripts, to be installed under $REMOTES_LOCATION/vmm/*
+#-----------------------------------------------------------------------------
+
+VMM_SSH_XEN_KVM_POLL="src/vmm_mad/remotes/poll_xen_kvm.rb"
+VMM_SSH_GANGLIA_POLL="src/vmm_mad/remotes/poll_ganglia.rb"
 
 #-------------------------------------------------------------------------------
 # Information Manager Probes, to be installed under $LIB_LOCATION/remotes
@@ -400,6 +419,8 @@ IM_PROBES_KVM_FILES="src/im_mad/remotes/kvm.d/kvm.rb \
                     src/im_mad/remotes/kvm.d/architecture.sh \
                     src/im_mad/remotes/kvm.d/cpu.sh \
                     src/im_mad/remotes/kvm.d/name.sh"
+
+IM_PROBES_GANGLIA_FILES="src/im_mad/remotes/ganglia.d/ganglia_probe"
 
 
 #-------------------------------------------------------------------------------
@@ -456,7 +477,7 @@ VMM_EC2_ETC_FILES="src/vmm_mad/ec2/vmm_ec2rc \
 VMM_SSH_ETC_FILES="src/vmm_mad/ssh/vmm_sshrc \
                   src/vmm_mad/ssh/vmm_ssh_kvm.conf \
                   src/vmm_mad/ssh/vmm_ssh_xen.conf"
-                  
+
 VMM_SH_ETC_FILES="src/vmm_mad/sh/vmm_shrc"
 
 #-------------------------------------------------------------------------------
@@ -610,6 +631,22 @@ OCCI_ETC_TEMPLATE_FILES="src/cloud/occi/etc/templates/common.erb \
                     src/cloud/occi/etc/templates/large.erb"
 
 #-----------------------------------------------------------------------------
+# CLI files
+#-----------------------------------------------------------------------------
+
+CLI_LIB_FILES="src/mad/ruby/CommandManager.rb \
+               src/cli/client_utilities.rb \
+               src/cli/command_parse.rb \
+               src/oca/ruby/OpenNebula.rb"
+
+CLI_BIN_FILES="src/cli/onevm \
+               src/cli/onehost \
+               src/cli/onevnet \
+               src/cli/oneuser \
+               src/cli/oneimage \
+               src/cli/onecluster"
+
+#-----------------------------------------------------------------------------
 # MAN files
 #-----------------------------------------------------------------------------
 
@@ -661,10 +698,8 @@ do_file() {
 
 if [ "$CLIENT" = "no" ]; then
     INSTALL_SET=${INSTALL_FILES[@]}
-elif [ "$CLIENT" = "occi" ]; then
-    INSTALL_SET=${INSTALL_OCCI_CLIENT_FILES[@]}
-elif [ "$CLIENT" = "ec2" ]; then
-    INSTALL_SET=${INSTALL_ECO_CLIENT_FILES[@]}
+else
+    INSTALL_SET=${INSTALL_CLIENT_FILES[@]}
 fi
 
 for i in ${INSTALL_SET[@]}; do

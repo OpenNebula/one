@@ -1,0 +1,8 @@
+{
+  "host": {
+    "vm_mad": "vmm_dummy",
+    "tm_mad": "tm_dummy",
+    "name": "host_one",
+    "im_mad": "im_dummy"
+  }
+}

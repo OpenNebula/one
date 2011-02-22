@@ -46,15 +46,19 @@ module OpenNebula
         # xml:: _String_ the XML document of the object
         # root_element:: _String_ Base xml element
         def initialize_xml(xml, root_element)
-            if NOKOGIRI
-                @xml = Nokogiri::XML(xml).xpath("/#{root_element}")
-                if @xml.size == 0
-                    @xml = nil
-                end
+            @xml = XMLElement.build_xml(xml, root_element)
+
+            if OpenNebula.is_error?(@xml)
+                @xml = nil
             else
-                @xml = REXML::Document.new(xml).root
-                if @xml.name != root_element
-                    @xml = nil
+                if NOKOGIRI
+                    if @xml.size == 0
+                        @xml = nil
+                    end
+                else
+                    if @xml.name != root_element
+                        @xml = nil
+                    end
                 end
             end
         end
@@ -64,10 +68,14 @@ module OpenNebula
         # root_element:: _String_ Base xml element
         # [return] _XML_ object for the underlying XML engine
         def self.build_xml(xml, root_element)
-            if NOKOGIRI
-                doc = Nokogiri::XML(xml).xpath("/#{root_element}")
-            else
-                doc = REXML::Document.new(xml).root
+            begin
+                if NOKOGIRI
+                    doc = Nokogiri::XML(xml).xpath("/#{root_element}")
+                else
+                    doc = REXML::Document.new(xml).root
+                end
+            rescue Exception => e
+                return OpenNebula::Error.new(e.message)
             end
 
             return doc
@@ -238,7 +246,7 @@ module OpenNebula
 
             if NOKOGIRI
                 array = element.children
-                if array.length == 1 and array.first.text?
+                if array.length==1 and (array.first.text? or array.first.cdata?)
                     r = array.first.text
                 else
                     r = {}
@@ -249,8 +257,8 @@ module OpenNebula
                     }
                 end
             else
+                r = {}
                 if element.has_elements?
-                    r = {}
                     element.each_element { |c| to_hash(r, c) }
                 elsif element.has_text?
                     r = element.text

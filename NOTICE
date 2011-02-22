@@ -1,5 +1,5 @@
 OpenNebula Open Source Project
-Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)
+Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)
 -----------------------------------------
 
 You can find  more information about the project, release notes and
@@ -13,8 +13,9 @@ AUTHORS
 ACKNOWLEDGEMENTS
 
 The following people have contributed to the development of the technology
-- Javier Fontan Muiños (jfontan@fdi.ucm.es)
-- Constantino Vazquez Blanco (tinova@fdi.ucm.es)
-- Jaime Melis Bayo (j.melis@fdi.ucm.es)
-- Carlos Martin Sanchez (cmartins@fdi.ucm.es)
-- Daniel Molina Aranda (danmolin@pdi.ucm.es)
+- Javier Fontan Muiños (jfontan@opennebula.org)
+- Constantino Vazquez Blanco (tinova@opennebula.org)
+- Jaime Melis Bayo (jmelis@opennebula.org)
+- Carlos Martin Sanchez (cmartin@opennebula.org)
+- Daniel Molina Aranda (dmolina@opennebula.org)
+- Hector Sanjuan Redondo (hsanjuan@opennebula.org)

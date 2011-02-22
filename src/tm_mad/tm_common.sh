@@ -14,6 +14,8 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+export LANG=C
+
 if [ -z "$ONE_LOCATION" ]; then
     ONE_LOCAL_VAR=/var/lib/one
 else

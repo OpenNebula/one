@@ -1,0 +1,16 @@
+{
+  "vnet": {
+    "type": "FIXED",
+    "leases": [
+      {
+        "ip": "10.0.1.1"
+      },
+      {
+        "ip": "10.0.1.2"
+      }
+    ],
+    "bridge": "vbr2",
+    "network_address": "10.0.1.0",
+    "name": "fixed_vnet"
+  }
+}

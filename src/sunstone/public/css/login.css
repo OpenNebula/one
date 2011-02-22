@@ -1,0 +1,166 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
+body {
+    background: #FAFAFA;
+    margin: 0px;
+
+}
+
+
+#header {
+    height: 30px;
+    background-color: #353735;
+    padding: 0 10px 0 10px;
+}
+
+
+#logo {
+    padding-top: 6px;
+    font-size: 1.1em;
+    font-weight: bold;
+    color: white;
+    font-family:    Arial, Verdana, Geneva, Helvetica, sans-serif;
+    font-size:      13px;
+}
+
+#wrapper{
+    margin-left: auto;
+    margin-right: auto;
+    width: 900px;
+    text-align: center;
+}
+
+
+div#logo_sunstone {
+    position: relative;
+    height: 100px;
+    width: 600px;
+    top: 80px;
+    margin-left: auto;
+    margin-right: auto;
+    background: url(/images/opennebula-sunstone-big.png) no-repeat center ;
+
+    vertical-align: center;
+}
+
+div#login {
+    width: 400px;
+    height: 300px;
+    position: relative;
+
+    margin-left: auto;
+    margin-right: auto;
+    top: 90px;
+    padding-left: 80px;
+    padding-right: 80px;
+    background: url(../images/panel.png) no-repeat center ;
+
+    vertical-align: center;
+}
+
+
+.box {
+    font-size:0.8em;
+    width: 300px;
+    height: 25px;
+    background: #FFFFFF;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 10px;
+    border-bottom-color: gray;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+    border-left-color: gray;
+    border-left-style: solid;
+    border-left-width: 1px;
+    border-right-color: gray;
+    border-right-style: solid;
+    border-right-width: 1px;
+    border-top-color: gray;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-top-style: solid;
+    border-top-width: 1px;
+    -moz-border-radius: 5px;
+    -moz-border-radius-topleft: 5px;
+    -moz-border-radius-topright: 5px;
+    -moz-border-radius-bottomright: 5px;
+    -moz-border-radius-bottomleft: 5px;
+}
+
+
+
+div#login input#login_btn {
+    width: 130px;
+    height: 45px;
+    cursor: pointer;
+    margin-left: auto;
+    margin-right: 43px;
+    margin-top: 20px;
+    background-color: transparent;
+    border:0;
+    float: right;
+    background:  url(../images/login.png) no-repeat center ;
+}
+
+div#login input#login_btn:hover {
+  width: 130px;
+  height: 45px;
+  cursor: pointer;
+  margin-left: auto;
+  margin-right: 43px;
+  margin-top: 20px;
+  background-color: transparent;
+  border:0;
+  float: right;
+  background:  url(../images/login_over.png) no-repeat center ;
+}
+
+.error_message {
+  display: none;
+  position: relative;
+  top: 150px;
+  font-family: Arial, Helvetica, sans-serif;
+  color:red;
+  font-size:1.6em;
+}
+
+#label_remember {
+  color:#353735;
+  font-size:0.4em;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.content {
+  padding-top:40px;
+  font-size:1.8em;
+  margin-bottom:0px;
+  margin-left:50px;
+  text-align:left;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+#check_remember {
+
+  margin-top: 35px;
+  margin-left:0px;
+}
+
+
+

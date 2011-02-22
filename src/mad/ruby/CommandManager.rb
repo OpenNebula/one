@@ -166,7 +166,7 @@ class RemotesCommand < SSHCommand
             cmd.run
         end
         
-        while cmd.code != 0 or retries != 0
+        while cmd.code != 0 and retries != 0
             sleep 1
             cmd.run
             retries = retries - 1

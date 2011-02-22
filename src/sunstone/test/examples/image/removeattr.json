@@ -1,0 +1,8 @@
+{
+  "action": {
+    "params": {
+      "name": "FOO"
+    },
+    "perform": "rm_attr"
+  }
+}

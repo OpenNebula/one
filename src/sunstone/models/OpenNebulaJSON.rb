@@ -1,7 +1,5 @@
-#!/bin/bash 
-
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -16,49 +14,41 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-source $(dirname $0)/xenrc
+ONE_LOCATION = ENV["ONE_LOCATION"]
 
-INFO_MEM=4
-INFO_CPU=3
-INFO_NETTX=10
-INFO_NETRX=11
-INFO_STATE=1
-
-
-AWK_SCRIPT='
-{
-    mem=$5;
-    cpu=$4;
-    nettx=$11;
-    netrx=$12;
-    stat=$2
-    gsub("-", "", stat);
-
-    if(stat=="r" ||
-       stat=="b" ||
-       stat=="s" ||
-       stat=="d")
-        state="a";
-    else if(stat=="p") state="a";
-    else if(stat=="c") state="c";
-    else state="u";
-
-    print "USEDMEMORY=" mem " USEDCPU=" cpu " NETTX=" nettx " NETRX=" netrx " STATE=" state
-}
-'
-
-function get_info() {
-    $XM_POLL | egrep "^ *(migrating-)?$1 " | tail -1 | sed 's/^ *//' | sed 's/no limit/no_limit/'
-}
-
-
-
-info=`get_info $1 2>/dev/null | awk "$AWK_SCRIPT"`
-
-
-if [ -n "$info" ]; then
-    echo $info
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION = "/usr/lib/one/ruby"
+    VAR_LOCATION      = "/var/lib/one"
 else
-    echo STATE=d
-fi
-exit 0
+    RUBY_LIB_LOCATION = ONE_LOCATION+"/lib/ruby"
+    VAR_LOCATION      = ONE_LOCATION+"/var"
+end
+
+$: << RUBY_LIB_LOCATION
+
+require 'OpenNebula'
+include OpenNebula
+
+# TBD Change path for intallation tree
+#require 'OpenNebulaJSON/PoolJSON'
+#require 'OpenNebulaJSON/HostJSON'
+#require 'OpenNebulaJSON/JSONUtils'
+require 'models/OpenNebulaJSON/ClusterJSON'
+require 'models/OpenNebulaJSON/HostJSON'
+require 'models/OpenNebulaJSON/ImageJSON'
+require 'models/OpenNebulaJSON/JSONUtils'
+require 'models/OpenNebulaJSON/PoolJSON'
+require 'models/OpenNebulaJSON/UserJSON'
+require 'models/OpenNebulaJSON/VirtualMachineJSON'
+require 'models/OpenNebulaJSON/VirtualNetworkJSON'
+
+module OpenNebula
+    class Error
+        def to_json
+            message = { :message => @message }
+            error_hash = { :error => message }
+
+            return JSON.pretty_generate error_hash
+        end
+    end
+end

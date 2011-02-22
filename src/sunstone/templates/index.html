@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>OpenNebula Admin Console</title>
+	<meta http-equiv="content-type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" type="text/css" href="/css/demo_table_jui.css" />
+	<link type="text/css" href="/css/smoothness/jquery-ui-1.8.7.custom.css" rel="stylesheet" />
+    <link rel="stylesheet" type="text/css" href="/css/jquery.jgrowl.css" />
+    <link type="text/css" rel="stylesheet" href="/css/layout-default-latest.css" />
+    <link rel="stylesheet" type="text/css" href="/css/application.css" />
+    <link rel="stylesheet" type="text/css" href="/css/layout.css" />
+
+
+	<script type="text/javascript" src="/js/jquery-1.4.4.min.js"></script>
+	<script type="text/javascript" src="/js/jquery.jgrowl_minimized.js"></script>
+	<script type="text/javascript" src="/js/jquery-ui-1.8.7.custom.min.js"></script>
+    <script type="text/javascript" src="/js/jquery.layout.min-1.2.0.js"></script>
+	<script type="text/javascript" src="/js/jquery.dataTables.min.js"></script>
+
+	<script type="text/javascript" src="/js/opennebula.js"></script>
+	<script type="text/javascript" src="/js/one-ui_views.templates.js"></script>
+	<script type="text/javascript" src="/js/one-ui_views.js"></script>
+    <script type="text/javascript" src="/js/layout.js"></script>
+</head>
+<body>
+<div class="outer-center">
+	<div class="inner-center">
+        <div id="dashboard" class="tab"></div>
+        <div id="hosts" class="tab"></div>
+        <!--<div id="clusters" class="tab"></div>-->
+        <div id="virtualMachines" class="tab"></div>
+        <div id="virtualNetworks" class="tab"></div>
+        <div id="images" class="tab"></div>
+        <div id="users" class="tab"></div>
+    </div>
+    <div id="dialog" class="inner-south"></div>
+</div>
+
+<div id="menu" class="outer-west">
+    <ul id="navigation">
+        <li><a href="#dashboard">Dashboard</a></li>
+        <li><a href="#hosts">Hosts &amp; Clusters</a></li>
+        <!--<li><a href="#clusters">Clusters</a></li>-->
+        <li><a href="#virtualMachines">Virtual Machines</a></li>
+        <li><a href="#virtualNetworks">Virtual Networks</a></li>
+        <li><a href="#images">Images</a></li>
+        <li class="oneadmin"><a href="#users">Users</a></li>
+    </ul>
+</div>
+
+<div id="header" class="ui-layout-north">
+    <div id="logo">
+        <img src="/images/opennebula-sunstone-small.png"/>
+    </div>
+    <div id="login-info">
+        Welcome <span id="user"></span>&nbsp;|&nbsp;<a href="#" id="logout">Sign Out</a>
+    </div>
+    <div id="links">
+        <a href="http://opennebula.org/documentation:documentation" target="_blank">Documentation</a>&nbsp;|&nbsp;
+        <a href="http://opennebula.org/support:support" target="_blank">Support</a>&nbsp;|&nbsp;
+        <a href="http://opennebula.org/community:community" target="_blank">Community</a>
+    </div>
+</div>
+<div id="footer" class="ui-layout-south">
+    Copyright 2002-2011 &copy; OpenNebula Project Leads (<a href="http://opennebula.org" target="_blank">OpenNebula.org</a>). All Rights Reserved.
+</div>
+
+
+<div id="dialogs">
+    <div id="create_host_dialog" title="Create a new host">
+    </div>
+
+    <div id="create_cluster_dialog" title="Create a new cluster">
+    </div>
+
+    <div id="create_vn_dialog" title="Create a new Virtual Network">
+    </div>
+
+    <div id="create_vm_dialog" title="Create a new Virtual Machine">
+    </div>
+
+    <div id="create_user_dialog" title="Create a new user">
+    </div>
+
+    <div id="create_image_dialog" title="Create a new image">
+    </div>
+
+    <div id="host_info_dialog" title="Host Information">
+    </div>
+
+    <div id="vm_info_dialog" title="Virtual Machine Information">
+    </div>
+
+    <div id="vn_info_dialog" title="Virtual Network Information">
+    </div>
+</div>
+</body>
+</html>
