@@ -2253,18 +2253,24 @@ function hostElementArray(host_json){
 		if (!acpu) {acpu=100};
 	acpu = acpu - parseInt(host.HOST_SHARE.CPU_USAGE);
 
-
     total_mem = parseInt(host.HOST_SHARE.MAX_MEM);
     free_mem = parseInt(host.HOST_SHARE.FREE_MEM);
-    ratio_mem = Math.round(((total_mem - free_mem) / total_mem) * 100);
+
+    if (total_mem == 0) {
+        ratio_mem = 0;
+    } else {
+        ratio_mem = Math.round(((total_mem - free_mem) / total_mem) * 100);
+    }
 
 
     total_cpu = parseInt(host.HOST_SHARE.MAX_CPU);
     used_cpu = Math.max(total_cpu - parseInt(host.HOST_SHARE.USED_CPU),acpu);
 
-    ratio_cpu = Math.round(((total_cpu - used_cpu) / total_cpu) * 100);
-
-
+    if (total_cpu == 0) {
+        ratio_cpu = 0;
+    } else {
+        ratio_cpu = Math.round(((total_cpu - used_cpu) / total_cpu) * 100);
+    }
 
      pb_mem =
 '<div style="height:10px" class="ratiobar ui-progressbar ui-widget ui-widget-content ui-corner-all" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+ratio_mem+'">\
