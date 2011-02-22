@@ -20,7 +20,7 @@
 require 'models/OpenNebulaJSON'
 include OpenNebulaJSON
 
-class OneUI
+class SunstoneServer
     def initialize(username, password)
         # TBD one_client_user(name) from CloudServer
         @client = Client.new("dummy:dummy")
