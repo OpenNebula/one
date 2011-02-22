@@ -35,6 +35,8 @@ int LibVirtDriver::deployment_description_kvm(
 
     int     memory_in_kb = 0;
 
+    string  emulator_path = "";
+
     string  kernel     = "";
     string  initrd     = "";
     string  boot       = "";
@@ -256,7 +258,14 @@ int LibVirtDriver::deployment_description_kvm(
 
     if (emulator == "kvm")
     {
-        file << "\t\t<emulator>/usr/bin/kvm</emulator>" << endl;
+        get_default("EMULATOR",emulator_path);
+
+        if(emulator_path.empty())
+        {
+            emulator_path = "/usr/bin/kvm";
+        }
+
+        file << "\t\t<emulator>" << emulator_path << "</emulator>" << endl;
     }
 
     get_default("DISK","DRIVER",default_driver);
