@@ -2588,8 +2588,9 @@ function onError(request,error_json) {
     };
 
     //Parse known errors:
-    var action_error = new RegExp("^\\[(\\w+)\\] Error trying to (\\w+) (\\w+) \\[(\\w+)\\].*Reason: (.*)\.$");
-    var get_error = new RegExp("^\\[(\\w+)\\] Error getting (\\w+) \\[(\\w+)\\]\.$");
+    var action_error = /^\[(\w+)\] Error trying to (\w+) (\w+) \[(\w+)\].*Reason: (.*)\.$/;
+    var action_error_noid = /^\[(\w+)\] Error trying to (\w+) (\w+) (.*)\.$/;
+    var get_error = /^\[(\w+)\] Error getting (\w+) \[(\w+)\]\.$/;
     var auth_error = /^\[(\w+)\] User \[.\] not authorized to perform (\w+) on (\w+) \[?(\w+)\]?\.?$/;
 
     if (m = message.match(action_error)) {
@@ -2598,6 +2599,11 @@ function onError(request,error_json) {
         object  = m[3];
         id      = m[4];
         reason  = m[5];
+    } else if (m = message.match(action_error_noid)) {
+        method  = m[1];
+        action  = m[2];
+        object  = m[3];
+        reason  = m[4];
     } else if (m = message.match(get_error)) {
         method  = m[1];
         action  = "SHOW";
