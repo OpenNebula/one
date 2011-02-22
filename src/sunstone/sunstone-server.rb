@@ -17,28 +17,19 @@
 #--------------------------------------------------------------------------- #
 
 ##############################################################################
-# Environment Configuration for the Server
-##############################################################################
-HOST     = "127.0.0.1"
-PORT     = "4567"
-
-
-##############################################################################
 # Required libraries
 ##############################################################################
 require 'rubygems'
 require 'sinatra'
 
-require 'models/OneUI'
+require 'models/SunstoneServer'
 
 
 ##############################################################################
 # Sinatra Configuration
 ##############################################################################
-set :host, HOST
-set :port, PORT
-
 use Rack::Session::Pool
+
 
 ##############################################################################
 # Helpers
@@ -54,7 +45,7 @@ helpers do
             user = auth.credentials[0]
             sha1_pass = Digest::SHA1.hexdigest(auth.credentials[1])
 
-            rc = OneUI.authorize(user, sha1_pass)
+            rc = SunstoneServer.authorize(user, sha1_pass)
             if rc[1]
                 session["user"]       = user
                 session["user_id"]    = rc[1]
@@ -86,7 +77,7 @@ before do
     unless request.path=='/login' || request.path=='/'
         halt 401 unless authorized?
 
-        @OneUI = OneUI.new(session["user"], session["password"])
+        @SunstoneServer = SunstoneServer.new(session["user"], session["password"])
     end
 end
 
@@ -132,44 +123,44 @@ end
 # GET Pool information
 ##############################################################################
 get '/:pool' do
-    @OneUI.get_pool(params[:pool], session["user_id"])
+    @SunstoneServer.get_pool(params[:pool], session["user_id"])
 end
 
 ##############################################################################
 # GET Resource information
 ##############################################################################
 get '/:resource/:id' do
-    @OneUI.get_resource(params[:resource], params[:id])
+    @SunstoneServer.get_resource(params[:resource], params[:id])
 end
 
 ##############################################################################
 # Delete Resource
 ##############################################################################
 delete '/:resource/:id' do
-    @OneUI.delete_resource(params[:resource], params[:id])
+    @SunstoneServer.delete_resource(params[:resource], params[:id])
 end
 
 ##############################################################################
 # Create a new Resource
 ##############################################################################
 post '/:pool' do
-    @OneUI.create_resource(params[:pool], request.body.read)
+    @SunstoneServer.create_resource(params[:pool], request.body.read)
 end
 
 ##############################################################################
 # Perform an action on a Resource
 ##############################################################################
 post '/:resource/:id/action' do
-    @OneUI.perform_action(params[:resource], params[:id], request.body.read)
+    @SunstoneServer.perform_action(params[:resource], params[:id], request.body.read)
 end
 
 ##############################################################################
 # Config and Logs
 ##############################################################################
 get '/config' do
-    @OneUI.get_configuration
+    @SunstoneServer.get_configuration(session["user_id"])
 end
 
 get '/vm/:id/log' do
-    @OneUI.get_vm_log(params[:id].to_i)
+    @SunstoneServer.get_vm_log(params[:id])
 end
