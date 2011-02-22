@@ -18,29 +18,24 @@ ONE_LOCATION = ENV["ONE_LOCATION"]
 
 if !ONE_LOCATION
     RUBY_LIB_LOCATION = "/usr/lib/one/ruby"
-    VAR_LOCATION      = "/var/lib/one"
 else
     RUBY_LIB_LOCATION = ONE_LOCATION+"/lib/ruby"
-    VAR_LOCATION      = ONE_LOCATION+"/var"
 end
 
 $: << RUBY_LIB_LOCATION
+$: << File.dirname(__FILE__)
 
 require 'OpenNebula'
 include OpenNebula
 
-# TBD Change path for intallation tree
-#require 'OpenNebulaJSON/PoolJSON'
-#require 'OpenNebulaJSON/HostJSON'
-#require 'OpenNebulaJSON/JSONUtils'
-require 'models/OpenNebulaJSON/ClusterJSON'
-require 'models/OpenNebulaJSON/HostJSON'
-require 'models/OpenNebulaJSON/ImageJSON'
-require 'models/OpenNebulaJSON/JSONUtils'
-require 'models/OpenNebulaJSON/PoolJSON'
-require 'models/OpenNebulaJSON/UserJSON'
-require 'models/OpenNebulaJSON/VirtualMachineJSON'
-require 'models/OpenNebulaJSON/VirtualNetworkJSON'
+require 'OpenNebulaJSON/ClusterJSON'
+require 'OpenNebulaJSON/HostJSON'
+require 'OpenNebulaJSON/ImageJSON'
+require 'OpenNebulaJSON/JSONUtils'
+require 'OpenNebulaJSON/PoolJSON'
+require 'OpenNebulaJSON/UserJSON'
+require 'OpenNebulaJSON/VirtualMachineJSON'
+require 'OpenNebulaJSON/VirtualNetworkJSON'
 
 module OpenNebula
     class Error

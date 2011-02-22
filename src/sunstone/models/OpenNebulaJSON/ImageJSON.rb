@@ -14,7 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'models/OpenNebulaJSON/JSONUtils'
+require 'OpenNebulaJSON/JSONUtils'
 
 module OpenNebulaJSON
     class ImageJSON < OpenNebula::Image
