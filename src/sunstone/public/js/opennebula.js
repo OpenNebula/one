@@ -65,6 +65,25 @@ var OpenNebula = {
                             "DONE",
                             "FAILED"][value];
                     break;
+                case "VM_LCM","vm_lcm":
+                    return ["LCM_INIT",
+                            "PROLOG",
+                            "BOOT",
+                            "RUNNING",
+                            "MIGRATE",
+                            "SAVE_STOP",
+                            "SAVE_SUSPEND",
+                            "SAVE_MIGRATE",
+                            "PROLOG_MIGRATE",
+                            "PROLOG_RESUME",
+                            "EPILOG_STOP",
+                            "EPILOG",
+                            "SHUTDOWN",
+                            "CANCEL",
+                            "FAILURE",
+                            "CLEANUP",
+                            "UNKNOWN"][value];
+                    break;
                 case "IMAGE","image":
                     return ["INIT",
                             "READY",
