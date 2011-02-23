@@ -2235,9 +2235,17 @@ function tableCheckboxesListener(dataTable){
         dataTable = $(this).parents('table').dataTable();
         context = dataTable.parents('form');
         last_action_b = $('.last_action_button',context);
-        nodes_length = $('input:checked',dataTable.fnGetNodes()).length;
+        nodes = dataTable.fnGetNodes();
+        total_length = nodes.length;
+        checked_length = $('input:checked',nodes).length;
 
-        if (nodes_length){
+        if (total_length == checked_length){
+            $('.check_all',dataTable).attr("checked","checked");
+        } else {
+            $('.check_all',dataTable).removeAttr("checked");
+        }
+
+        if (checked_length){
             $('.top_button, .list_button',context).button("enable");
             if (last_action_b.length && last_action_b.val().length){
                 last_action_b.button("enable");
