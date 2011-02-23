@@ -18,7 +18,7 @@ Import('sched_env')
 
 # Libraries
 sched_env.Prepend(LIBS=[
-    'scheduler_xml',
+    'nebula_xml',
     'scheduler_pool',
     'nebula_log',
     'nebula_common',

@@ -14,14 +14,14 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-Import('sched_env')
+Import('env')
 
 # Libraries
-sched_env.Prepend(LIBS=[
+env.Prepend(LIBS=[
     'nebula_log',
-    'scheduler_xml',
+    'nebula_xml',
     'nebula_common',
     'nebula_test_common',
 ])
 
-sched_env.Program('test_xml','ObjectXMLTest.cc')
+env.Program('test_xml','ObjectXMLTest.cc')

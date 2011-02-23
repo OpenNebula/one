@@ -1,3 +1,5 @@
+# SConstruct for src/pool
+
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
@@ -14,40 +16,11 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-Import('env')
-import os
+Import('sched_env')
 
-# This is the absolute path where the project is located
-cwd=os.getcwd()
+lib_name='scheduler_client'
 
-# Include dirs
-env.Append(CPPPATH=[
-    cwd + '/include/',
-])
+source_files=['Client.cc']
 
-# Library dirs
-
-env.Append(LIBPATH=[
-    cwd+'/src/client',
-    cwd+'/src/pool',
-    cwd+'/src/sched'
-])
-
-################################################################################
-# SCONS scripts to build
-################################################################################
-
-build_scripts=[
-    'src/client/SConstruct',
-    'src/pool/SConstruct',
-    'src/sched/SConstruct'
-]
-
-if env['testing']=='yes':
-    build_scripts.extend([
-        'src/pool/test/SConstruct',
-    ])
-
-for script in build_scripts:
-    sched_env=env.Clone()
-    SConscript(script, exports='sched_env')
+# Build library
+sched_env.StaticLibrary(lib_name, source_files)
