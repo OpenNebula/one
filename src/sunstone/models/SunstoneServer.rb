@@ -16,6 +16,14 @@
 
 # TBD Change path for intallation tree
 
+ONE_LOCATION = ENV["ONE_LOCATION"]
+
+if !ONE_LOCATION
+    VAR_LOCATION = "/var/lib/one"
+else
+    VAR_LOCATION = ONE_LOCATION+"/var"
+end
+
 #require 'OpenNebulaJSON'
 require 'models/OpenNebulaJSON'
 include OpenNebulaJSON
@@ -154,7 +162,7 @@ class SunstoneServer
         if user_id != "0"
             return [401, ""]
         end
-        
+
         one_config = VAR_LOCATION + "/config"
         config = Hash.new
 
