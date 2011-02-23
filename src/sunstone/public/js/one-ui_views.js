@@ -826,7 +826,7 @@ function setupImageAttributesDialogs(){
         autoOpen:false,
         width:400,
         modal:true,
-        height:270,
+        height:200,
         resizable:false,
     });
 
