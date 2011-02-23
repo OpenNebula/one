@@ -2089,7 +2089,7 @@ function createImageDialog(){
                 break;
         }
         obj = { "image" : img_json };
-        OpenNebula.Image.create({data: obj,success: addImageElement,error: onError});
+        OpenNebula.Image.register({data: obj,success: addImageElement,error: onError});
 
         $create_image_dialog.dialog('close');
        return false;
