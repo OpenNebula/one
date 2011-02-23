@@ -3107,14 +3107,16 @@ function updateVNetworkInfo(request,vn){
 				<td class="key_td">Public</td>\
 				<td class="value_td">'+(parseInt(vn_info.PUBLIC) ? "yes" : "no" )+'</td>\
 			</tr>\
-		</table>\
-		<table id="vn_leases_info_table" class="info_table">\
+		</table>';
+    if (vn_info.TEMPLATE.TYPE == "FIXED"){
+		rendered_info += '<table id="vn_leases_info_table" class="info_table">\
 			<thead>\
 				<tr><th colspan="2">Leases information</th></tr>\
 			</thead>'+
 			prettyPrintJSON(vn_info.LEASES)+
-		'</table>\
-	</div>\
+		'</table>';
+    }
+	rendered_info += '</div>\
 	<div id="vn_template">\
 		<table id="vn_template_table" class="info_table">\
 		<thead><tr><th colspan="2">Virtual Network template</th></tr></thead>'+
