@@ -895,7 +895,7 @@ var userlist_tmpl =
 '<form id="user_form" action="" action="javascript:alert(\'js error!\');">\
   <div class="action_blocks">\
     <div class="action_block">\
-       <img src="/images/Refresh-icon.png" class="refresh_image" alt="OpenNebula.VM.list" />\
+       <img src="/images/Refresh-icon.png" class="refresh_image" alt="OpenNebula.User.list" />\
     </div>\
     <div class="action_block">\
 		<button class="create_user_button top_button new_button">+ New</button>\
