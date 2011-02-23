@@ -297,11 +297,10 @@ function initListButtons(){
                 prev_action_button.removeClass("confirm_button");
                 prev_action_button.removeClass("action_button");
                 prev_action_button.addClass($(this).attr("class"));
-                
                 prev_action_button.button("option","label",$(this).text());
                 prev_action_button.button("enable");
                 $(this).parents('ul').hide("blind",100);
-                return false;
+                //return false;
         });
 
 
