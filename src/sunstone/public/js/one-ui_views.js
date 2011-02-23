@@ -3160,11 +3160,11 @@ function updateImageInfo(request,img){
 			</tr>\
 			<tr>\
 				<td class="key_td">Public</td>\
-				<td class="value_td">'+(img_info.PUBLIC ? "yes" : "no")+'</td>\
+				<td class="value_td">'+(parseInt(img_info.PUBLIC) ? "yes" : "no")+'</td>\
 			</tr>\
 			<tr>\
 				<td class="key_td">Persistent</td>\
-				<td class="value_td">'+(img_info.PERSISTENT ? "yes" : "no")+'</td>\
+				<td class="value_td">'+(parseInt(img_info.PERSISTENT) ? "yes" : "no")+'</td>\
 			</tr>\
 			<tr>\
 				<td class="key_td">Source</td>\
@@ -3172,7 +3172,7 @@ function updateImageInfo(request,img){
 			</tr>\
 			<tr>\
 				<td class="key_td">State</td>\
-				<td class="value_td">'+OpenNebula.Helper.resource_state.("image",img_info.STATE)+'</td>\
+				<td class="value_td">'+OpenNebula.Helper.resource_state("image",img_info.STATE)+'</td>\
 			</tr>\
 		</table>\
     </div>\
