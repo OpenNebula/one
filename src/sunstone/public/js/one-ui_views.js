@@ -739,9 +739,8 @@ function actionButtonListener(){
                 nodes_id.push($(this).val());
 				//Calling action(id,callback,error_callback)
 				if (extra_param!=null){ //action with two parameters
-                    data = extra_param;
-                    data.id = $(this).val();
-					(eval(action)({data: data, success: callback, error: onError}));
+                    var data_arg = {cluster_id: extra_param, id: $(this).val()};
+					(eval(action)({data: data_arg, success: callback, error: onError}));
 				} else { //action with one parameter
 					(eval(action)({data:{id:$(this).val()},success: callback,error: onError}));
 				};
