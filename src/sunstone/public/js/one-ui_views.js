@@ -345,11 +345,11 @@ function refreshButtonListener(){
 				callback = updateHostsView;
                 waiting_nodes(dataTable_hosts);
 				OpenNebula.Host.list({success: callback, error: onError});
+                callback = updateClustersView;
+				OpenNebula.Cluster.list({success: callback, error: onError});
 				break;
 			case "OpenNebula.Cluster.list":
-				callback = updateClustersView;
-                waiting_nodes(dataTable_clusters);
-				OpenNebula.Cluster.list({success: callback, error: onError});
+				//we have no cluster button for this
 				break;
 			case "OpenNebula.VM.list":
 				callback = updateVMachinesView;
@@ -523,7 +523,7 @@ function confirmWithSelectListener(){
                 dataTable="null";
                 select_var = clusters_select;
                 callback = function (){
-                    OpenNebula.Host.list({success: updateClustersView,error: onError});
+                    OpenNebula.Cluster.list({success: updateClustersView,error: onError});
                 }
                 break;
 			case "OpenNebula.VM.deploy":
@@ -1045,7 +1045,7 @@ function createClusterDialog(){
 		//If it's successfull we refresh the list.
 		OpenNebula.Cluster.create({ data:cluster_json,
                                     success: function(){
-                                        OpenNebula.Cluster.list(updateClustersView,onError)},
+                                        OpenNebula.Cluster.list({success:updateClustersView,error:onError})},
                                     error: onError});
 		$create_cluster_dialog.dialog('close');
 		return false;
