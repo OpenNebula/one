@@ -3172,7 +3172,7 @@ function updateImageInfo(request,img){
 			</tr>\
 			<tr>\
 				<td class="key_td">State</td>\
-				<td class="value_td">'+img_info.STATE+'</td>\
+				<td class="value_td">'+OpenNebula.Helper.resource_state.("image",img_info.STATE)+'</td>\
 			</tr>\
 		</table>\
     </div>\
