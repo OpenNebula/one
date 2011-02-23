@@ -58,7 +58,15 @@ $(document).ready(function() {
     refreshButtonListener(); //listen to manual refresh image clicks
 	confirmButtonListener(); //listen to buttons that require confirmation
 	confirmWithSelectListener(); //listen to buttons requiring a selector
-	actionButtonListener(); //listens to all simple actions (not creates)
+    actionButtonListener(); //listens to all simple actions (not creates)
+    
+    hostInfoListener();
+    vMachineInfoListener();
+    vNetworkInfoListener();
+    imageInfoListener();
+    
+
+	
     setupImageAttributesDialogs(); //setups the add/update/remove attr dialogs
 
 	//Jquery-ui eye-candy
@@ -67,6 +75,12 @@ $(document).ready(function() {
 	emptyDashboard();
 	preloadTables();
 	setupAutoRefresh();
+    
+    tableCheckboxesListener(dataTable_hosts);
+    tableCheckboxesListener(dataTable_vMachines);
+    tableCheckboxesListener(dataTable_vNetworks);
+    tableCheckboxesListener(dataTable_users);
+    tableCheckboxesListener(dataTable_images);
 
 	$(".ui-widget-overlay").live("click", function (){
 		$("div:ui-dialog:visible").dialog("close");
@@ -366,7 +380,7 @@ function refreshButtonListener(){
 
 //Listens to ".confirm_button" elements. Shows a dialog allowing to
 //confirm or cancel an action, with a tip.
-function confirmButtonListener(target){
+function confirmButtonListener(){
 	//add this dialog to the dialogs if it does not exist
 	if (!($('div#confirm_dialog').length)){
         $('div#dialogs').append('<div id="confirm_dialog" title="Confirmation of action"></div>');
@@ -395,11 +409,7 @@ function confirmButtonListener(target){
 
     $('div#confirm_dialog button').button();
 
-	//add listeners
-    if (!target){
-        target='.confirm_button';
-    }
-	$(target).click(function(){
+	$('.confirm_button').live("click",function(){
 		val=$(this).val();
 		tip="";
 		//supported cases
@@ -465,7 +475,7 @@ function confirmButtonListener(target){
 //contain different values. If wanting to proceed, the action is
 //executed for each of the checked elements of the table, with the
 //selected item of the box as extra parameter.
-function confirmWithSelectListener(target){
+function confirmWithSelectListener(){
 		//add this dialog to the dialogs.
     if (!($('div#confirm_with_select_dialog').length)){
         $('div#dialogs').append('<div id="confirm_with_select_dialog" title="Confirmation of action"></div>');
@@ -493,11 +503,7 @@ function confirmWithSelectListener(target){
 
     $('div#confirm_with_select_dialog button').button();
 	
-    //add listeners
-    if (!target){
-        target = '.confirm_with_select_button';
-    }
-	$(target).click(function(){
+	$( '.confirm_with_select_button').live("click",function(){
 		val=$(this).val();
 		tip="";
 		dataTable=null;
@@ -613,15 +619,10 @@ function confirmWithSelectListener(target){
 //Listens to click on ".action_button" elements. According to the value
 //of the element, it sends actions to OpenNebula.js. This function
 //handles all the simple actions of the UI: delete, enables, disables, etc...
-function actionButtonListener(target){
-    
-    //if no target defined we add to all
-    if (!target) {
-        target = '.action_button';
-    }
+function actionButtonListener(){
 
 	//Listener
-	$(target).click(function(){
+	$('.action_button').live("click",function(){
 		dataTable=null; //Which dataTable should be updated afterwards?
 		callback = null; //Which callback function should be used on success?
 
@@ -2217,18 +2218,12 @@ function updateSingleElement(element,data_table,tag){
 	tr = $(tag).parents('tr')[0];
 	position = data_table.fnGetPosition(tr);
 	data_table.fnUpdate(element,position,0);
-    tableCheckboxesListener(data_table,target);
     $('input',data_table).trigger("change");
     
 }
 
-function tableCheckboxesListener(dataTable,target){
-    if (!target){
-        listen_target=dataTable;
-    } else {
-        listen_target=$(target,dataTable);
-    }
-    
+function tableCheckboxesListener(dataTable){
+
     context = dataTable.parents('form');
     last_action_b = $('.last_action_button',context);
     $('.top_button, .list_button',context).button("disable");
@@ -2238,7 +2233,7 @@ function tableCheckboxesListener(dataTable,target){
     $('.new_button',context).button("enable");
 
     //listen to changes
-    $('input',listen_target).change(function(){
+    $('input',dataTable).live("change",function(){
         dataTable = $(this).parents('table').dataTable();
         context = dataTable.parents('form');
         last_action_b = $('.last_action_button',context);
@@ -2265,14 +2260,8 @@ function deleteElement(data_table,tag){
     $('input',data_table).trigger("change");
 }
 
-function addElement(element,data_table,tag,info_listener){
+function addElement(element,data_table){
 	data_table.fnAddData(element);
-    tr = $(tag).parents('tr')[0];
-    if (info_listener) {
-        info_listener(tr);
-    }
-    tableCheckboxesListener(data_table,tr)
-    
 }
 
 function hostElementArray(host_json){
@@ -2339,12 +2328,8 @@ function hostElementArray(host_json){
 }
 
 //Adds a listener to show the extended info when clicking on a row
-function hostInfoListener(target){
-    if (!target){
-        target='#tbodyhosts tr';
-    }
-
-	$(target).click(function(e){
+function hostInfoListener(){
+	$('#tbodyhosts tr').live("click",function(e){
         
 		//do nothing if we are clicking a checkbox!
 		if ($(e.target).is('input')) {return true;}
@@ -2381,13 +2366,9 @@ function vMachineElementArray(vm_json){
 }
 
 //Adds a listener to show the extended info when clicking on a row
-function vMachineInfoListener(target){
+function vMachineInfoListener(){
 
-    if (!target){
-        target='#tbodyvmachines tr';
-    }
-    
-	$(target).click(function(e){
+	$('#tbodyvmachines tr').live("click", function(e){
 		if ($(e.target).is('input')) {return true;}
 		aData = dataTable_vMachines.fnGetData(this);
 		id = $(aData[0]).val();
@@ -2416,13 +2397,9 @@ function vNetworkElementArray(vn_json){
 		total_leases ];
 }
 //Adds a listener to show the extended info when clicking on a row
-function vNetworkInfoListener(target){
-    
-    if (!target){
-        target='#tbodyvnetworks tr';
-    }
-    
-	$(target).click(function(e){
+function vNetworkInfoListener(){
+ 
+	$('#tbodyvnetworks tr').live("click", function(e){
 		if ($(e.target).is('input')) {return true;}
 		aData = dataTable_vNetworks.fnGetData(this);
 		id = $(aData[0]).val();
@@ -2457,11 +2434,8 @@ function imageElementArray(image_json){
 }
 
 function imageInfoListener(target){
-    if (!target){
-        target='#tbodyimages tr';
-    }
     
-    $(target).click(function(e){
+    $('#tbodyimages tr').live("click",function(e){
         if ($(e.target).is('input')) {return true;}
         aData = dataTable_images.fnGetData(this);
         id = $(aData[0]).val();
@@ -2703,7 +2677,7 @@ function deleteHostElement(req){
 function addHostElement(request,host_json){
     id = host_json.HOST.ID;
 	element = hostElementArray(host_json);
-	addElement(element,dataTable_hosts,'#host_'+id,hostInfoListener);
+	addElement(element,dataTable_hosts);
 }
 
 function updateHostsView (request,host_list){
@@ -2718,10 +2692,6 @@ function updateHostsView (request,host_list){
 	updateView(host_list_array,dataTable_hosts);
 	updateHostSelect(host_list);
 	updateDashboard("hosts");
-
-	//We need to re-add this listener as list has been refreshed
-	hostInfoListener();
-    tableCheckboxesListener(dataTable_hosts);
 }
 
 
@@ -2767,7 +2737,7 @@ function addVMachineElement(request,vm_json){
     id = vm_json.VM,ID;
     notifySubmit('OpenNebula.VM.create',id);
 	element = vMachineElementArray(vm_json);
-	addElement(element,dataTable_vMachines,'#vm_'+id,vMachineInfoListener);
+	addElement(element,dataTable_vMachines);
     updateVMInfo(null,vm_json);
 }
 
@@ -2780,8 +2750,6 @@ function updateVMachinesView(request, vmachine_list){
 	});
 
 	updateView(vmachine_list_array,dataTable_vMachines);
-	vMachineInfoListener();
-    tableCheckboxesListener(dataTable_vMachines);
 	updateDashboard("vms");
 }
 
@@ -2797,9 +2765,8 @@ function deleteVNetworkElement(req){
 }
 
 function addVNetworkElement(request,vn_json){
-    id = vn_json.VNET.ID;
 	element = vNetworkElementArray(vn_json);
-	addElement(element,dataTable_vNetworks,'#vnetwork_'+id,vNetworkInfoListener);
+	addElement(element,dataTable_vNetworks);
 	
 }
 
@@ -2813,9 +2780,7 @@ function updateVNetworksView(request, network_list){
 
 	updateView(network_list_array,dataTable_vNetworks);
 	updateNetworkSelect(network_list);
-	vNetworkInfoListener();
 	updateDashboard("vnets");
-    tableCheckboxesListener(dataTable_vNetworks);
 
 }
 
@@ -2830,9 +2795,8 @@ function deleteUserElement(req){
 }
 
 function addUserElement(request,user_json){
-    id = user_json.USER.ID;
 	element = userElementArray(user_json);
-	addElement(element,dataTable_users,'#user_'+id);
+	addElement(element,dataTable_users);
 }
 
 function updateUsersView(request,users_list){
@@ -2844,7 +2808,6 @@ function updateUsersView(request,users_list){
 	});
 	updateView(user_list_array,dataTable_users);
 	updateDashboard("users");
-    tableCheckboxesListener(dataTable_users);
 }
 
 
@@ -2859,9 +2822,8 @@ function deleteImageElement(req){
 }
 
 function addImageElement(request, image_json){
-    id = image_json.IMAGE.ID;
     element = imageElementArray(image_json);
-    addElement(element,dataTable_images,'#image_'+id,imageInfoListener);
+    addElement(element,dataTable_images);
 }
 
 function updateImagesView(request, images_list){
@@ -2873,8 +2835,6 @@ function updateImagesView(request, images_list){
 
     updateView(image_list_array,dataTable_images);
     updateImageSelect(images_list);
-    imageInfoListener();
-    tableCheckboxesListener(dataTable_images);
     updateDashboard("images");
 
 
