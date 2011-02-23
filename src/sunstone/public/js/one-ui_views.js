@@ -2771,11 +2771,14 @@ function updateVNetworkElement(request, vn_json){
 
 function deleteVNetworkElement(req){
 	deleteElement(dataTable_vNetworks,'#vnetwork_'+req.request.data);
+    //How to delete vNetwork select option here?
 }
 
 function addVNetworkElement(request,vn_json){
 	element = vNetworkElementArray(vn_json);
 	addElement(element,dataTable_vNetworks);
+    vnetworks_select += "<option value=\""+vn_json.VNET.NAME+"\">"+vn_json.VNET.NAME+"</option>";
+    $('div.vm_section#networks select#NETWORK').html(vnetworks_select);
 	
 }
 
@@ -2828,11 +2831,14 @@ function updateImageElement(request, image_json){
 
 function deleteImageElement(req){
     deleteElement(dataTable_images,'#image_'+req.request.data);
+    //how to update the image select here?
 }
 
 function addImageElement(request, image_json){
     element = imageElementArray(image_json);
     addElement(element,dataTable_images);
+    images_select += "<option value=\""+image_json.IMAGE.NAME+"\">"+image_json.IMAGE.NAME+"</option>";
+    $('div.vm_section#disks select#IMAGE').html(images_select);
 }
 
 function updateImagesView(request, images_list){
