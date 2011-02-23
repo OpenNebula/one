@@ -809,11 +809,11 @@ function setupImageAttributesDialogs(){
             <div>\
                <input type="hidden" id="img_attr_action" />\
                 <label for="img_attr_name">Name:</label>\
-                <input type="text" id="img_attr_name" name="img_attr_name" value="NAME" />\
+                <input type="text" id="img_attr_name" name="img_attr_name" value="" />\
             </div>\
             <div>\
                 <label for="img_attr_value">Value:</label>\
-               <input type="text" id="img_attr_value" name="img_attr_value" value="value" />\
+               <input type="text" id="img_attr_value" name="img_attr_value" value="" />\
             </div>\
 			<div>\
 			  <button id="img_attr_proceed" value="">OK</button>\
