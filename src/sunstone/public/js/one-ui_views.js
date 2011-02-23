@@ -3021,7 +3021,7 @@ function updateVMInfo(request,vm){
 			</tr>\
 			<tr>\
 				<td class="key_td">Deploy ID</td>\
-				<td class="value_td">'+(vm_info.DEPLOY_ID ? vm_info.DEPLOY_ID : "-")+'</td>\
+				<td class="value_td">'+(typeof(vm_info.DEPLOY_ID) == "object" ? "-" : vm_info.DEPLOY_ID)+'</td>\
 			</tr>\
 		</table>\
 		<table id="vm_monitoring_table" class="info_table">\
