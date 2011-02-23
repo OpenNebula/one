@@ -237,7 +237,7 @@ function initListButtons(){
         $('.multi_action_slct').each(function(){
              //prepare replacement buttons
             buttonset = $('<div style="display:inline-block;" class="top_button"></div');
-            button1 = $('<button class="last_action_button" value="">Previous action</button>').button();
+            button1 = $('<button class="last_action_button action_button confirm_button confirm_with_select_button" value="">Previous action</button>').button();
             button1.attr("disabled","disabled");
             button2 = $('<button class="list_button" value="">See more</button>').button({
                 text:false,
@@ -281,10 +281,9 @@ function initListButtons(){
                 prev_action_button.val($(this).val());
                 prev_action_button.removeClass("confirm_with_select_button");
                 prev_action_button.removeClass("confirm_button");
+                prev_action_button.removeClass("action_button");
                 prev_action_button.addClass($(this).attr("class"));
-                confirmButtonListener();
-                confirmWithSelectListener();
-                actionButtonListener();
+                
                 prev_action_button.button("option","label",$(this).text());
                 prev_action_button.button("enable");
                 $(this).parents('ul').hide("blind",100);
@@ -367,7 +366,7 @@ function refreshButtonListener(){
 
 //Listens to ".confirm_button" elements. Shows a dialog allowing to
 //confirm or cancel an action, with a tip.
-function confirmButtonListener(){
+function confirmButtonListener(target){
 	//add this dialog to the dialogs if it does not exist
 	if (!($('div#confirm_dialog').length)){
         $('div#dialogs').append('<div id="confirm_dialog" title="Confirmation of action"></div>');
@@ -397,7 +396,10 @@ function confirmButtonListener(){
     $('div#confirm_dialog button').button();
 
 	//add listeners
-	$('.confirm_button').click(function(){
+    if (!target){
+        target='.confirm_button';
+    }
+	$(target).click(function(){
 		val=$(this).val();
 		tip="";
 		//supported cases
@@ -463,7 +465,7 @@ function confirmButtonListener(){
 //contain different values. If wanting to proceed, the action is
 //executed for each of the checked elements of the table, with the
 //selected item of the box as extra parameter.
-function confirmWithSelectListener(){
+function confirmWithSelectListener(target){
 		//add this dialog to the dialogs.
     if (!($('div#confirm_with_select_dialog').length)){
         $('div#dialogs').append('<div id="confirm_with_select_dialog" title="Confirmation of action"></div>');
@@ -490,8 +492,12 @@ function confirmWithSelectListener(){
 		});
 
     $('div#confirm_with_select_dialog button').button();
-	//add listeners
-	$('.confirm_with_select_button').click(function(){
+	
+    //add listeners
+    if (!target){
+        target = '.confirm_with_select_button';
+    }
+	$(target).click(function(){
 		val=$(this).val();
 		tip="";
 		dataTable=null;
@@ -607,9 +613,15 @@ function confirmWithSelectListener(){
 //Listens to click on ".action_button" elements. According to the value
 //of the element, it sends actions to OpenNebula.js. This function
 //handles all the simple actions of the UI: delete, enables, disables, etc...
-function actionButtonListener(){
+function actionButtonListener(target){
+    
+    //if no target defined we add to all
+    if (!target) {
+        target = '.action_button';
+    }
+
 	//Listener
-	$('.action_button').click(function(){
+	$(target).click(function(){
 		dataTable=null; //Which dataTable should be updated afterwards?
 		callback = null; //Which callback function should be used on success?
 
@@ -2205,10 +2217,18 @@ function updateSingleElement(element,data_table,tag){
 	tr = $(tag).parents('tr')[0];
 	position = data_table.fnGetPosition(tr);
 	data_table.fnUpdate(element,position,0);
+    tableCheckboxesListener(data_table,target);
     $('input',data_table).trigger("change");
+    
 }
 
-function tableCheckboxesListener(dataTable){
+function tableCheckboxesListener(dataTable,target){
+    if (!target){
+        listen_target=dataTable;
+    } else {
+        listen_target=$(target,dataTable);
+    }
+    
     context = dataTable.parents('form');
     last_action_b = $('.last_action_button',context);
     $('.top_button, .list_button',context).button("disable");
@@ -2218,7 +2238,7 @@ function tableCheckboxesListener(dataTable){
     $('.new_button',context).button("enable");
 
     //listen to changes
-    $('input',dataTable).change(function(){
+    $('input',listen_target).change(function(){
         dataTable = $(this).parents('table').dataTable();
         context = dataTable.parents('form');
         last_action_b = $('.last_action_button',context);
@@ -2245,8 +2265,14 @@ function deleteElement(data_table,tag){
     $('input',data_table).trigger("change");
 }
 
-function addElement(element,data_table){
+function addElement(element,data_table,tag,info_listener){
 	data_table.fnAddData(element);
+    tr = $(tag).parents('tr')[0];
+    if (info_listener) {
+        info_listener(tr);
+    }
+    tableCheckboxesListener(data_table,tr)
+    
 }
 
 function hostElementArray(host_json){
@@ -2313,8 +2339,13 @@ function hostElementArray(host_json){
 }
 
 //Adds a listener to show the extended info when clicking on a row
-function hostInfoListener(){
-	$('#tbodyhosts tr').click(function(e){
+function hostInfoListener(target){
+    if (!target){
+        target='#tbodyhosts tr';
+    }
+
+	$(target).click(function(e){
+        
 		//do nothing if we are clicking a checkbox!
 		if ($(e.target).is('input')) {return true;}
 
@@ -2350,8 +2381,13 @@ function vMachineElementArray(vm_json){
 }
 
 //Adds a listener to show the extended info when clicking on a row
-function vMachineInfoListener(){
-	$('#tbodyvmachines tr').click(function(e){
+function vMachineInfoListener(target){
+
+    if (!target){
+        target='#tbodyvmachines tr';
+    }
+    
+	$(target).click(function(e){
 		if ($(e.target).is('input')) {return true;}
 		aData = dataTable_vMachines.fnGetData(this);
 		id = $(aData[0]).val();
@@ -2362,9 +2398,9 @@ function vMachineInfoListener(){
 
 function vNetworkElementArray(vn_json){
 	network = vn_json.VNET;
-    if (network.TOTAL_LEASES != undefined){
+    if (network.TOTAL_LEASES){
         total_leases = network.TOTAL_LEASES;
-    }else if (network.LEASES.LEASE != undefined){
+    }else if (network.LEASES && network.LEASES.LEASE){
         total_leases = network.LEASES.LEASE.length ? network.LEASES.LEASE.length : "1";
     } else{
         total_leases = "0";
@@ -2380,8 +2416,13 @@ function vNetworkElementArray(vn_json){
 		total_leases ];
 }
 //Adds a listener to show the extended info when clicking on a row
-function vNetworkInfoListener(){
-	$('#tbodyvnetworks tr').click(function(e){
+function vNetworkInfoListener(target){
+    
+    if (!target){
+        target='#tbodyvnetworks tr';
+    }
+    
+	$(target).click(function(e){
 		if ($(e.target).is('input')) {return true;}
 		aData = dataTable_vNetworks.fnGetData(this);
 		id = $(aData[0]).val();
@@ -2415,8 +2456,12 @@ function imageElementArray(image_json){
         ];
 }
 
-function imageInfoListener(){
-    $('#tbodyimages tr').click(function(e){
+function imageInfoListener(target){
+    if (!target){
+        target='#tbodyimages tr';
+    }
+    
+    $(target).click(function(e){
         if ($(e.target).is('input')) {return true;}
         aData = dataTable_images.fnGetData(this);
         id = $(aData[0]).val();
@@ -2648,7 +2693,7 @@ function onError(request,error_json) {
 function updateHostElement(request, host_json){
 	id = host_json.HOST.ID;
 	element = hostElementArray(host_json);
-	updateSingleElement(element,dataTable_hosts,'#host_'+id)
+	updateSingleElement(element,dataTable_hosts,'#host_'+id);
 }
 
 function deleteHostElement(req){
@@ -2656,10 +2701,9 @@ function deleteHostElement(req){
 }
 
 function addHostElement(request,host_json){
+    id = host_json.HOST.ID;
 	element = hostElementArray(host_json);
-	addElement(element,dataTable_hosts);
-	hostInfoListener();
-    tableCheckboxesListener(dataTable_hosts);
+	addElement(element,dataTable_hosts,'#host_'+id,hostInfoListener);
 }
 
 function updateHostsView (request,host_list){
@@ -2720,12 +2764,11 @@ function deleteVMachineElement(req){
 }
 
 function addVMachineElement(request,vm_json){
-    notifySubmit('OpenNebula.VM.create',vm_json.VM.ID);
+    id = vm_json.VM,ID;
+    notifySubmit('OpenNebula.VM.create',id);
 	element = vMachineElementArray(vm_json);
-	addElement(element,dataTable_vMachines);
-	vMachineInfoListener();
+	addElement(element,dataTable_vMachines,'#vm_'+id,vMachineInfoListener);
     updateVMInfo(null,vm_json);
-    tableCheckboxesListener(dataTable_vMachines);
 }
 
 function updateVMachinesView(request, vmachine_list){
@@ -2747,7 +2790,6 @@ function updateVNetworkElement(request, vn_json){
 	id = vn_json.VNET.ID;
 	element = vNetworkElementArray(vn_json);
 	updateSingleElement(element,dataTable_vNetworks,'#vnetwork_'+id);
-    tableCheckboxesListener(dataTable_vNetworks);
 }
 
 function deleteVNetworkElement(req){
@@ -2755,9 +2797,10 @@ function deleteVNetworkElement(req){
 }
 
 function addVNetworkElement(request,vn_json){
+    id = vn_json.VNET.ID;
 	element = vNetworkElementArray(vn_json);
-	addElement(element,dataTable_vNetworks);
-	vNetworkInfoListener();
+	addElement(element,dataTable_vNetworks,'#vnetwork_'+id,vNetworkInfoListener);
+	
 }
 
 function updateVNetworksView(request, network_list){
@@ -2780,7 +2823,6 @@ function updateUserElement(request, user_json){
 	id = user_json.USER.ID;
 	element = userElementArray(user_json);
 	updateSingleElement(element,dataTable_users,'#user_'+id);
-    tableCheckboxesListener(dataTable_users);
 }
 
 function deleteUserElement(req){
@@ -2788,8 +2830,9 @@ function deleteUserElement(req){
 }
 
 function addUserElement(request,user_json){
+    id = user_json.USER.ID;
 	element = userElementArray(user_json);
-	addElement(element,dataTable_users);
+	addElement(element,dataTable_users,'#user_'+id);
 }
 
 function updateUsersView(request,users_list){
@@ -2809,8 +2852,6 @@ function updateImageElement(request, image_json){
     id = image_json.IMAGE.ID;
     element = imageElementArray(image_json);
     updateSingleElement(element,dataTable_images,'#image_'+id);
-    tableCheckboxesListener(dataTable_images);
-    imageInfoListener();
 }
 
 function deleteImageElement(req){
@@ -2818,8 +2859,9 @@ function deleteImageElement(req){
 }
 
 function addImageElement(request, image_json){
+    id = image_json.IMAGE.ID;
     element = imageElementArray(image_json);
-    addElement(element,dataTable_images);
+    addElement(element,dataTable_images,'#image_'+id,imageInfoListener);
 }
 
 function updateImagesView(request, images_list){
