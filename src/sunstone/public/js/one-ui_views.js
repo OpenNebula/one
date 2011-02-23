@@ -179,7 +179,8 @@ function initDataTables(){
       "aoColumnDefs": [
                         { "bSortable": false, "aTargets": ["check"] },
                         { "sWidth": "60px", "aTargets": [0] },
-                        { "sWidth": "35px", "aTargets": [1] }
+                        { "sWidth": "35px", "aTargets": [1] },
+                        { "sWidth": "100px", "aTargets": [2] }
                        ]
     });
 
@@ -190,8 +191,9 @@ function initDataTables(){
       "sPaginationType": "full_numbers",
       "aoColumnDefs": [
                         { "bSortable": false, "aTargets": ["check"] },
-                        { "sWidth": "60px", "aTargets": [0,5,6,7] },
-                        { "sWidth": "35px", "aTargets": [1] }
+                        { "sWidth": "60px", "aTargets": [0,4,5,6,7] },
+                        { "sWidth": "35px", "aTargets": [1] },
+                        { "sWidth": "100px", "aTargets": [2] }
                        ]
     });
 
@@ -217,7 +219,8 @@ function initDataTables(){
         "aoColumnDefs": [
                         { "bSortable": false, "aTargets": ["check"] },
                         { "sWidth": "60px", "aTargets": [0,3] },
-                        { "sWidth": "35px", "aTargets": [1] }
+                        { "sWidth": "35px", "aTargets": [1] },
+                        { "sWidth": "100px", "aTargets": [2,3] }
                        ]
     });
 
