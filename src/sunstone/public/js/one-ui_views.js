@@ -2733,7 +2733,7 @@ function deleteVMachineElement(req){
 }
 
 function addVMachineElement(request,vm_json){
-    id = vm_json.VM,ID;
+    id = vm_json.VM.ID;
     notifySubmit('OpenNebula.VM.create',id);
 	element = vMachineElementArray(vm_json);
 	addElement(element,dataTable_vMachines);
