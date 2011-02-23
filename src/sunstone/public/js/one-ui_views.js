@@ -2205,6 +2205,7 @@ function updateSingleElement(element,data_table,tag){
 	tr = $(tag).parents('tr')[0];
 	position = data_table.fnGetPosition(tr);
 	data_table.fnUpdate(element,position,0);
+    $('input',data_table).trigger("change");
 }
 
 function tableCheckboxesListener(dataTable){
@@ -2217,7 +2218,7 @@ function tableCheckboxesListener(dataTable){
     $('.new_button',context).button("enable");
 
     //listen to changes
-    $('input',dataTable).click(function(){
+    $('input',dataTable).change(function(){
         dataTable = $(this).parents('table').dataTable();
         context = dataTable.parents('form');
         last_action_b = $('.last_action_button',context);
@@ -2241,6 +2242,7 @@ function tableCheckboxesListener(dataTable){
 function deleteElement(data_table,tag){
 	tr = $(tag).parents('tr')[0];
 	data_table.fnDeleteRow(tr);
+    $('input',data_table).trigger("change");
 }
 
 function addElement(element,data_table){
