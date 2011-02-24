@@ -1,6 +1,5 @@
 #!/bin/bash 
 
-
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
@@ -19,10 +18,14 @@
 
 source $(dirname $0)/kvmrc
 
-deploy_id=$1
-
+#------------------------------------------------------------------------------
+# Wait the VM to shutdown TIMEOUT (xPOLL_INTERVAL) seconds.
+# Set to ~10min
+#------------------------------------------------------------------------------
 POLL_INTERVAL=2
-TIMEOUT=20
+TIMEOUT=300
+
+deploy_id=$1
 
 virsh --connect $LIBVIRT_URI shutdown $deploy_id
 
