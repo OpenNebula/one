@@ -14,8 +14,6 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# TBD Change path for intallation tree
-
 ONE_LOCATION = ENV["ONE_LOCATION"]
 
 if !ONE_LOCATION
@@ -24,7 +22,6 @@ else
     VAR_LOCATION = ONE_LOCATION+"/var"
 end
 
-#require 'OpenNebulaJSON'
 require 'models/OpenNebulaJSON'
 include OpenNebulaJSON
 
@@ -61,9 +58,8 @@ class SunstoneServer
     ############################################################################
     #
     ############################################################################
-    def get_pool(kind, user_id)
-        user_flag = user_id=="0" ? -2 : -1
-
+    def get_pool(kind)
+        user_flag = -1
         pool = case kind
             when "cluster" then ClusterPoolJSON.new(@client)
             when "host"    then HostPoolJSON.new(@client)
