@@ -4,6 +4,6 @@
       "disk_id": "0",
       "image_name": "new_image"
     },
-    "perform": "save_as"
+    "perform": "saveas"
   }
 }
