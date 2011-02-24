@@ -79,7 +79,9 @@ $(document).ready(function() {
     tableCheckboxesListener(dataTable_hosts);
     tableCheckboxesListener(dataTable_vMachines);
     tableCheckboxesListener(dataTable_vNetworks);
-    tableCheckboxesListener(dataTable_users);
+    if (uid == 0){
+        tableCheckboxesListener(dataTable_users);
+    }
     tableCheckboxesListener(dataTable_images);
 
 	$(".ui-widget-overlay").live("click", function (){
