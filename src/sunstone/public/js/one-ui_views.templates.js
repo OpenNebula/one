@@ -168,14 +168,14 @@ var hostlist_tmpl =
     </div>\
     <div class="action_block">\
 		<button class="create_cluster_button top_button new_button">+ New Cluster</button>\
+        <button class="confirm_with_select_button top_button new_button"  value="OpenNebula.Cluster.delete">Delete cluster</button>\
 		<select class="multi_action_slct" id="cluster_actions_select">\
-			<option class="confirm_with_select_button"  value="OpenNebula.Cluster.delete">Delete cluster</option>\
 			<option class="confirm_with_select_button"  value="OpenNebula.Cluster.addhost">Add host to cluster</option>\
 			<option class="action_button" value="OpenNebula.Cluster.removehost">Remove host from cluster</option>\
 		</select>\
     </div>\
     <div class="action_block" style="border:none;">\
-          <button class="action_button top_button" value="OpenNebula.Host.delete">Delete</button>\
+          <button class="action_button top_button" value="OpenNebula.Host.delete">Delete host</button>\
     </div>\
    </div>\
 <table id="datatable_hosts" class="display">\
