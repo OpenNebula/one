@@ -59,14 +59,14 @@ $(document).ready(function() {
 	confirmButtonListener(); //listen to buttons that require confirmation
 	confirmWithSelectListener(); //listen to buttons requiring a selector
     actionButtonListener(); //listens to all simple actions (not creates)
-    
+
     hostInfoListener();
     vMachineInfoListener();
     vNetworkInfoListener();
     imageInfoListener();
-    
 
-	
+
+
     setupImageAttributesDialogs(); //setups the add/update/remove attr dialogs
 
 	//Jquery-ui eye-candy
@@ -75,7 +75,7 @@ $(document).ready(function() {
 	emptyDashboard();
 	preloadTables();
 	setupAutoRefresh();
-    
+
     tableCheckboxesListener(dataTable_hosts);
     tableCheckboxesListener(dataTable_vMachines);
     tableCheckboxesListener(dataTable_vNetworks);
@@ -504,7 +504,7 @@ function confirmWithSelectListener(){
 		});
 
     $('div#confirm_with_select_dialog button').button();
-	
+
 	$( '.confirm_with_select_button').live("click",function(){
 		val=$(this).val();
 		tip="";
@@ -2220,7 +2220,7 @@ function updateSingleElement(element,data_table,tag){
 	position = data_table.fnGetPosition(tr);
 	data_table.fnUpdate(element,position,0);
     $('input',data_table).trigger("change");
-    
+
 }
 
 function tableCheckboxesListener(dataTable){
@@ -2339,7 +2339,7 @@ function hostElementArray(host_json){
 //Adds a listener to show the extended info when clicking on a row
 function hostInfoListener(){
 	$('#tbodyhosts tr').live("click",function(e){
-        
+
 		//do nothing if we are clicking a checkbox!
 		if ($(e.target).is('input')) {return true;}
 
@@ -2360,13 +2360,17 @@ function hostInfoListener(){
 //~ }
 
 function vMachineElementArray(vm_json){
-	vm = vm_json.VM;
+	var vm = vm_json.VM;
+    var state = OpenNebula.Helper.resource_state("vm",vm.STATE);
+    if (state == "ACTIVE") {
+        state = OpenNebula.Helper.resource_state("vm_lcm",vm.LCM_STATE);
+    }
 	return [
 			'<input type="checkbox" id="vm_'+vm.ID+'" name="selected_items" value="'+vm.ID+'"/>',
 			vm.ID,
 			vm.USERNAME ? vm.USERNAME : getUserName(vm.UID),
 			vm.NAME,
-			OpenNebula.Helper.resource_state("vm",vm.STATE),
+			state,
 			vm.CPU,
 			humanize_size(vm.MEMORY),
 			vm.HISTORY ? vm.HISTORY.HOSTNAME : "--",
@@ -2407,7 +2411,7 @@ function vNetworkElementArray(vn_json){
 }
 //Adds a listener to show the extended info when clicking on a row
 function vNetworkInfoListener(){
- 
+
 	$('#tbodyvnetworks tr').live("click", function(e){
 		if ($(e.target).is('input')) {return true;}
 		aData = dataTable_vNetworks.fnGetData(this);
@@ -2443,7 +2447,7 @@ function imageElementArray(image_json){
 }
 
 function imageInfoListener(target){
-    
+
     $('#tbodyimages tr').live("click",function(e){
         if ($(e.target).is('input')) {return true;}
         aData = dataTable_images.fnGetData(this);
@@ -2781,7 +2785,6 @@ function addVNetworkElement(request,vn_json){
 	addElement(element,dataTable_vNetworks);
     vnetworks_select += "<option value=\""+vn_json.VNET.NAME+"\">"+vn_json.VNET.NAME+"</option>";
     $('div.vm_section#networks select#NETWORK').html(vnetworks_select);
-	
 }
 
 function updateVNetworksView(request, network_list){
@@ -3045,7 +3048,7 @@ function updateVMInfo(request,vm){
 			</tr>\
 			<tr>\
 				<td class="key_td">LCM State</td>\
-				<td class="value_td">'+OpenNebula.Helper.resource_state("vm",vm_info.LCMSTATE)+'</td>\
+				<td class="value_td">'+OpenNebula.Helper.resource_state("vm_lcm",vm_info.LCM_STATE)+'</td>\
 			</tr>\
 			<tr>\
 				<td class="key_td">Start time</td>\

@@ -123,7 +123,7 @@ end
 # GET Pool information
 ##############################################################################
 get '/:pool' do
-    @SunstoneServer.get_pool(params[:pool], session["user_id"])
+    @SunstoneServer.get_pool(params[:pool])
 end
 
 ##############################################################################
