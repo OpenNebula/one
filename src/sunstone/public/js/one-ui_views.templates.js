@@ -757,7 +757,7 @@ var create_vm_tmpl =
 		<form>\
 		<h3 style="margin-bottom:10px;">Write the Virtual Machine template here</h3>\
 		  <fieldset style="border-top:none;">\
-			<textarea id="vm_template" style="width:100%; height:15em;"></textarea>\
+			<textarea id="textarea_vm_template" style="width:100%; height:15em;"></textarea>\
 			<div class="clear"></div>\
 		  </fieldset>\
 		  <fieldset>\

@@ -1901,10 +1901,10 @@ function createVMachineDialog(){
 	});
 
 	$('button#create_vm_form_manual').click(function(){
-		template = $('#vm_template').val();
+		template = $('#textarea_vm_template').val();
 
         //wrap it in the "vm" object
-        template = {vm: {vm_raw: template}};
+        template = {"vm": {"vm_raw": template}};
 
 		OpenNebula.VM.create({data: template,
 					success: addVMachineElement,
