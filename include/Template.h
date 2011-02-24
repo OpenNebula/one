@@ -206,12 +206,6 @@ protected:
      */
     Attribute* vector_xml_att(const xmlNode * node);
 
-    /**
-     *  Builds the template attribute from the node
-     *    @param root_element The xml element to build the template from.
-     */
-    void rebuild_attributes(const xmlNode * root_element);
-
 private:
 
     bool                            replace_mode;
@@ -229,6 +223,12 @@ private:
      *  Name of the Root element for the XML document
      */
     string							xml_root;
+
+    /**
+     *  Builds the template attribute from the node
+     *    @param root_element The xml element to build the template from.
+     */
+    void rebuild_attributes(const xmlNode * root_element);
 };
 
 /* -------------------------------------------------------------------------- */

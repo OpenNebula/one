@@ -147,17 +147,6 @@ public:
     /* ---------------------------------------------------------------------- */
 
     /**
-     *  Returns true if the clid is an id for an existing cluster
-     *  @param clid ID of the cluster
-     *
-     *  @return true if the clid is an id for an existing cluster
-     */
-   /* bool exists_cluster(int clid)
-    {
-        return cluster_pool.exists(clid);
-    };*/
-
-    /**
      *  Allocates a new cluster in the pool
      *    @param clid the id assigned to the cluster
      *    @return the id assigned to the cluster or -1 in case of failure

@@ -37,7 +37,9 @@ class PoolObjectSQL : public ObjectSQL, public ObjectXML
 {
 public:
 
-    PoolObjectSQL(int id=-1):oid(id),valid(true)
+    //TODO remove Defaults for Constructor Attributes
+    PoolObjectSQL(int id=-1, const char * _table = 0)
+            :ObjectSQL(),ObjectXML(),oid(id),valid(true),table(_table)
     {
         pthread_mutex_init(&mutex,0);
     };
@@ -129,8 +131,7 @@ protected:
             return -1;
         }
 
-        from_xml( values[0] );
-        return 0;
+        return from_xml(values[0]);
     };
 
     /**
@@ -147,7 +148,7 @@ protected:
         set_callback(
                 static_cast<Callbackable::Callback>(&PoolObjectSQL::select_cb));
 
-        oss << "SELECT body FROM " << table_name() << " WHERE oid = " << oid;
+        oss << "SELECT body FROM " << table << " WHERE oid = " << oid;
 
         boid = oid;
         oid  = -1;
@@ -174,7 +175,7 @@ protected:
         ostringstream oss;
         int rc;
 
-        oss << "DELETE FROM " << table_name() << " WHERE oid=" << oid;
+        oss << "DELETE FROM " << table << " WHERE oid=" << oid;
 
         rc = db->exec(oss);
 
@@ -215,17 +216,6 @@ protected:
      */
     bool valid;
 
-    /**
-     *  Table name
-     *    @return the object's table name
-     */
-//    virtual const char * table_name() = 0;
-//  TODO: change to pure virtual when all child classes implement it
-    virtual const char * table_name()
-    {
-        return "";
-    };
-
 private:
 
     /**
@@ -238,6 +228,11 @@ private:
      * IS LOCKED when the class destructor is called.
      */
     pthread_mutex_t mutex;
+
+    /**
+     *  Pointer to the SQL table for the PoolObjectSQL
+     */
+    const char * table;
 };
 
 #endif /*POOL_OBJECT_SQL_H_*/

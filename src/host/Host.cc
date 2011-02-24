@@ -33,7 +33,7 @@ Host::Host(
     string _im_mad_name,
     string _vmm_mad_name,
     string _tm_mad_name):
-        PoolObjectSQL(id),
+        PoolObjectSQL(id,table),
         hostname(_hostname),
         state(INIT),
         im_mad_name(_im_mad_name),
@@ -109,8 +109,7 @@ int Host::insert_replace(SqlDB *db, bool replace)
         goto error_hostname;
     }
 
-    to_xml(xml_body);
-    sql_xml = db->escape_str(xml_body.c_str());
+    sql_xml = db->escape_str(to_xml(xml_body).c_str());
 
     if ( sql_xml == 0 )
     {
@@ -128,7 +127,7 @@ int Host::insert_replace(SqlDB *db, bool replace)
 
     // Construct the SQL statement to Insert or Replace
 
-    oss <<" INTO "<< table <<" ("<< db_names <<") VALUES ("
+    oss <<" INTO "<<table <<" ("<< db_names <<") VALUES ("
         <<          oid                 << ","
         << "'" <<   sql_hostname        << "',"
         << "'" <<   sql_xml             << "',"

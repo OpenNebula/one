@@ -61,7 +61,7 @@ public:
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    virtual string& to_xml(string& xml) const;
+    string& to_xml(string& xml) const;
 
     /**
      *  Rebuilds the object from an xml formatted string
@@ -69,7 +69,7 @@ public:
      *
      *    @return 0 on success, -1 otherwise
      */
-    virtual int from_xml(const string &xml_str);
+    int from_xml(const string &xml_str);
 
     /**
      * Get the Host unique identifier HID, that matches the OID of the object
@@ -435,30 +435,6 @@ private:
     HostShare       host_share;
 
     // *************************************************************************
-    // DataBase implementation (Private)
-    // *************************************************************************
-
-    /**
-     *  Execute an INSERT or REPLACE Sql query.
-     *    @param db The SQL DB
-     *    @param replace Execute an INSERT or a REPLACE
-     *    @return 0 one success
-    */
-    int insert_replace(SqlDB *db, bool replace);
-
-    /**
-     *  Bootstraps the database table(s) associated to the Host
-     */
-    static void bootstrap(SqlDB * db)
-    {
-        ostringstream oss_host(Host::db_bootstrap);
-
-        db->exec(oss_host);
-    };
-
-protected:
-
-    // *************************************************************************
     // Constructor
     // *************************************************************************
 
@@ -471,7 +447,7 @@ protected:
     virtual ~Host();
 
     // *************************************************************************
-    // DataBase implementation
+    // DataBase implementation (Private)
     // *************************************************************************
 
     enum ColNames
@@ -495,27 +471,36 @@ protected:
     static const char * table;
 
     /**
-     *  Table name
-     *    @return the object's table name
+     *  Execute an INSERT or REPLACE Sql query.
+     *    @param db The SQL DB
+     *    @param replace Execute an INSERT or a REPLACE
+     *    @return 0 one success
+    */
+    int insert_replace(SqlDB *db, bool replace);
+
+    /**
+     *  Bootstraps the database table(s) associated to the Host
      */
-     virtual const char * table_name()
-     {
-         return table;
-     };
+    static void bootstrap(SqlDB * db)
+    {
+        ostringstream oss_host(Host::db_bootstrap);
+
+        db->exec(oss_host);
+    };
 
     /**
      *  Writes the Host and its associated HostShares in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    virtual int insert(SqlDB *db, string& error_str);
+    int insert(SqlDB *db, string& error_str);
 
     /**
      *  Writes/updates the Hosts data fields in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    virtual int update(SqlDB *db);
+    int update(SqlDB *db);
 };
 
 #endif /*HOST_H_*/

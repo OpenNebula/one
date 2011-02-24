@@ -31,6 +31,7 @@ HostShare::HostShare(
         int     _max_disk,
         int     _max_mem,
         int     _max_cpu):
+        ObjectXML(),
         disk_usage(0),
         mem_usage(0),
         cpu_usage(0),
@@ -43,9 +44,7 @@ HostShare::HostShare(
         used_disk(0),
         used_mem(0),
         used_cpu(0),
-        running_vms(0)
-{
-}
+        running_vms(0){};
 
 ostream& operator<<(ostream& os, HostShare& hs)
 {

@@ -25,7 +25,7 @@
 
 using namespace std;
 
-
+//TODO refactor ClusterPool
 /**
  *  A cluster helper class. It is not a normal PoolSQL,
  *  but a series of static methods related to clusters.

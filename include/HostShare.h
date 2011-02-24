@@ -106,14 +106,6 @@ public:
      */
     string& to_xml(string& xml) const;
 
-    /**
-     *  Rebuilds the object from an xml node
-     *    @param node The xml node pointer
-     *
-     *    @return 0 on success, -1 otherwise
-     */
-    int from_xml_node(const xmlNodePtr node);
-
 private:
 
     int disk_usage; /**< Disk allocated to VMs (in Mb).        */
@@ -132,7 +124,7 @@ private:
     int used_mem;   /**< Used memory from the IM monitor       */
     int used_cpu;   /**< Used cpu from the IM monitor          */
 
-    int running_vms; /**< Number of running VMs in this Host   */
+    int running_vms;/**< Number of running VMs in this Host   */
 
     // ----------------------------------------
     // Friends
@@ -141,7 +133,13 @@ private:
     friend class Host;
     friend class HostPool;
 
+    /**
+     *  Rebuilds the object from an xml node
+     *    @param node The xml node pointer
+     *
+     *    @return 0 on success, -1 otherwise
+     */
+    int from_xml_node(const xmlNodePtr node);
 };
-
 
 #endif /*HOST_SHARE_H_*/
