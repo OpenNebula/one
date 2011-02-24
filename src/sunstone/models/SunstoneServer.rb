@@ -195,8 +195,7 @@ class SunstoneServer
             begin
                 log = File.read(vm_log_file)
             rescue Exception => e
-                error = Error.new("Error: log for VM #{id} not available")
-                return [500, error.to_s]
+                return [200, "Log for VM #{id} not available"]
             end
 
             return [200, log]
