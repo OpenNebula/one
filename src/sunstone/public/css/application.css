@@ -21,20 +21,20 @@ body {
 p{
 	margin:0 10px 10px;
 	}
-a { 
-	color: #000C96; text-decoration: none; 
+a {
+	color: #000C96; text-decoration: none;
 	}
-a:hover { 
-	color: #127FE4; text-decoration: none; 
+a:hover {
+	color: #127FE4; text-decoration: none;
 	}
-select, button { 
-	padding: 2px; 
+select, button {
+	padding: 2px;
 	}
 
-h2 { 
-	float:left; 
-	font-size:20px; 
-	margin-bottom: 5px; 
+h2 {
+	float:left;
+	font-size:20px;
+	margin-bottom: 5px;
 	padding-bottom: 0}
 
 h3 {
@@ -296,7 +296,7 @@ textarea:focus{
 }
 
 .remove_button {
-	
+
 }
 
 tr.odd, tr.even {
@@ -479,6 +479,8 @@ tr.even:hover{
     top: 8px;
     cursor: pointer;
 }
+
+.ui-widget-overlay { background: #353735; opacity: .60; filter:Alpha(Opacity=60); }
 
 .ui-tabs .ui-tabs-nav li a {
     /*padding: .5em 1em;*/

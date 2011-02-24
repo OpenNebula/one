@@ -168,14 +168,14 @@ var hostlist_tmpl =
     </div>\
     <div class="action_block">\
 		<button class="create_cluster_button top_button new_button">+ New Cluster</button>\
+        <button class="confirm_with_select_button top_button new_button"  value="OpenNebula.Cluster.delete">Delete cluster</button>\
 		<select class="multi_action_slct" id="cluster_actions_select">\
-			<option class="confirm_with_select_button"  value="OpenNebula.Cluster.delete">Delete cluster</option>\
 			<option class="confirm_with_select_button"  value="OpenNebula.Cluster.addhost">Add host to cluster</option>\
 			<option class="action_button" value="OpenNebula.Cluster.removehost">Remove host from cluster</option>\
 		</select>\
     </div>\
     <div class="action_block" style="border:none;">\
-          <button class="action_button top_button" value="OpenNebula.Host.delete">Delete</button>\
+          <button class="action_button top_button" value="OpenNebula.Host.delete">Delete host</button>\
     </div>\
    </div>\
 <table id="datatable_hosts" class="display">\
@@ -757,7 +757,7 @@ var create_vm_tmpl =
 		<form>\
 		<h3 style="margin-bottom:10px;">Write the Virtual Machine template here</h3>\
 		  <fieldset style="border-top:none;">\
-			<textarea id="vm_template" style="width:100%; height:15em;"></textarea>\
+			<textarea id="textarea_vm_template" style="width:100%; height:15em;"></textarea>\
 			<div class="clear"></div>\
 		  </fieldset>\
 		  <fieldset>\
@@ -895,7 +895,7 @@ var userlist_tmpl =
 '<form id="user_form" action="" action="javascript:alert(\'js error!\');">\
   <div class="action_blocks">\
     <div class="action_block">\
-       <img src="/images/Refresh-icon.png" class="refresh_image" alt="OpenNebula.VM.list" />\
+       <img src="/images/Refresh-icon.png" class="refresh_image" alt="OpenNebula.User.list" />\
     </div>\
     <div class="action_block">\
 		<button class="create_user_button top_button new_button">+ New</button>\
@@ -1042,10 +1042,13 @@ var create_image_tmpl =
 			<fieldset>\
 					<div class="" id="src_path_select">\
 						<label style="height:3em;">Path vs. source:</label>\
-						<input type="radio" name="src_path" id="path_img" value="path">Provide a path</input><br />\
-						<input type="radio" name="src_path" id="source_img" value="source">Provide a source</input><br />\
-						<input type="radio" name="src_path" id="datablock_img" value="datablock">Create an empty datablock</input>\
-						<div class="tip">Please choose path if you have a file-based image. Choose source otherwise or create an empty datablock disk.</div>\
+						<input type="radio" name="src_path" id="path_img" value="path" />\
+                        <label style="float:none">Provide a path</label><br />\
+						<input type="radio" name="src_path" id="source_img" value="source" />\
+                        <label style="float:none">Provide a source</label><br />\
+						<input type="radio" name="src_path" id="datablock_img" value="datablock" />\
+                        <label style="float:none;vertical-align:top">Create an empty datablock</label>\
+						<div class="tip">Please choose path if you have a file-based image. Choose source otherwise or create an empty datablock disk.</div><br />\
 					</div>\
 					<div class="img_param">\
 						<label for="img_path">Path:</label>\

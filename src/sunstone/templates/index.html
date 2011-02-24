@@ -4,18 +4,18 @@
 	<title>OpenNebula Admin Console</title>
 	<meta http-equiv="content-type" content="text/html; charset=iso-8859-1">
     <link rel="stylesheet" type="text/css" href="/css/demo_table_jui.css" />
-	<link type="text/css" href="/css/smoothness/jquery-ui-1.8.7.custom.css" rel="stylesheet" />
+	<link type="text/css" href="/css/vendor/jquery-ui-1.8.7.custom.css" rel="stylesheet" />
     <link rel="stylesheet" type="text/css" href="/css/jquery.jgrowl.css" />
     <link type="text/css" rel="stylesheet" href="/css/layout-default-latest.css" />
     <link rel="stylesheet" type="text/css" href="/css/application.css" />
     <link rel="stylesheet" type="text/css" href="/css/layout.css" />
 
-
-	<script type="text/javascript" src="/js/jquery-1.4.4.min.js"></script>
-	<script type="text/javascript" src="/js/jquery.jgrowl_minimized.js"></script>
-	<script type="text/javascript" src="/js/jquery-ui-1.8.7.custom.min.js"></script>
-    <script type="text/javascript" src="/js/jquery.layout.min-1.2.0.js"></script>
-	<script type="text/javascript" src="/js/jquery.dataTables.min.js"></script>
+    <!-- Vendor Libraries -->
+	<script type="text/javascript" src="/js/vendor/jquery-1.4.4.min.js"></script>
+	<script type="text/javascript" src="/js/vendor/jquery.jgrowl_minimized.js"></script>
+	<script type="text/javascript" src="/js/vendor/jquery-ui-1.8.7.custom.min.js"></script>
+    <script type="text/javascript" src="/js/vendor/jquery.layout.min-1.2.0.js"></script>
+	<script type="text/javascript" src="/js/vendor/jquery.dataTables.min.js"></script>
 
 	<script type="text/javascript" src="/js/opennebula.js"></script>
 	<script type="text/javascript" src="/js/one-ui_views.templates.js"></script>
@@ -27,7 +27,6 @@
 	<div class="inner-center">
         <div id="dashboard" class="tab"></div>
         <div id="hosts" class="tab"></div>
-        <!--<div id="clusters" class="tab"></div>-->
         <div id="virtualMachines" class="tab"></div>
         <div id="virtualNetworks" class="tab"></div>
         <div id="images" class="tab"></div>
@@ -40,7 +39,6 @@
     <ul id="navigation">
         <li><a href="#dashboard">Dashboard</a></li>
         <li><a href="#hosts">Hosts &amp; Clusters</a></li>
-        <!--<li><a href="#clusters">Clusters</a></li>-->
         <li><a href="#virtualMachines">Virtual Machines</a></li>
         <li><a href="#virtualNetworks">Virtual Networks</a></li>
         <li><a href="#images">Images</a></li>

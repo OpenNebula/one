@@ -35,7 +35,7 @@ describe 'VirtualMachine tests' do
 
         @action_deploy  = File.read(EXAMPLES_PATH + '/vm/deploy.json')
         @action_hold    = File.read(EXAMPLES_PATH + '/vm/hold.json')
-        @action_saveas = File.read(EXAMPLES_PATH + '/vm/save_as.json')
+        @action_saveas = File.read(EXAMPLES_PATH + '/vm/saveas.json')
         @wrong_action   = File.read(EXAMPLES_PATH + '/error/wrong_action.json')
     end
 
@@ -125,7 +125,7 @@ describe 'VirtualMachine tests' do
     end
 
     ############################################################################
-    # Save_as
+    # Saveas
     ############################################################################
     it "should prepare the VirtualMachine 0 disk to be saved" do
         url = '/vm/0/action'
@@ -134,7 +134,7 @@ describe 'VirtualMachine tests' do
         last_response.status.should eql(204)
     end
 
-    it "should get VirtualMachine 0 information after save_as action" do
+    it "should get VirtualMachine 0 information after saveas action" do
         url = '/vm/0'
         get url
 

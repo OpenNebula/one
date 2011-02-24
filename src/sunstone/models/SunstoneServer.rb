@@ -14,13 +14,20 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# TBD Change path for intallation tree
+ONE_LOCATION = ENV["ONE_LOCATION"]
 
-#require 'OpenNebulaJSON'
+if !ONE_LOCATION
+    LOG_LOCATION = "/var/log/one"
+    VAR_LOCATION = "/var/lib/one"
+else
+    VAR_LOCATION = ONE_LOCATION+"/var"
+    LOG_LOCATION = ONE_LOCATION+"/var"
+end
+
 require 'models/OpenNebulaJSON'
 include OpenNebulaJSON
 
-class OneUI
+class SunstoneServer
     def initialize(username, password)
         # TBD one_client_user(name) from CloudServer
         @client = Client.new("dummy:dummy")
@@ -53,9 +60,8 @@ class OneUI
     ############################################################################
     #
     ############################################################################
-    def get_pool(kind, user_id)
-        user_flag = user_id=="0" ? -2 : -1
-
+    def get_pool(kind)
+        user_flag = -1
         pool = case kind
             when "cluster" then ClusterPoolJSON.new(@client)
             when "host"    then HostPoolJSON.new(@client)
@@ -150,7 +156,11 @@ class OneUI
     ############################################################################
     #
     ############################################################################
-    def get_configuration
+    def get_configuration(user_id)
+        if user_id != "0"
+            return [401, ""]
+        end
+
         one_config = VAR_LOCATION + "/config"
         config = Hash.new
 
@@ -178,17 +188,24 @@ class OneUI
     #
     ############################################################################
     def get_vm_log(id)
-        id = id.to_s
-        vm_log_file = VAR_LOCATION + "/#{id}/vm.log"
+        resource = retrieve_resource("vm", id)
+        if OpenNebula.is_error?(resource)
+            return [404, nil]
+        else
+            if !ONE_LOCATION
+                vm_log_file = LOG_LOCATION + "/#{id}.log"
+            else
+                vm_log_file = LOG_LOCATION + "/#{id}/vm.log"
+            end
 
-        begin
-            log = File.read(vm_log_file)
-        rescue Exception => e
-            error = Error.new("Error: log for VM #{id} not available")
-            return [500, error.to_s]
+            begin
+                log = File.read(vm_log_file)
+            rescue Exception => e
+                return [200, "Log for VM #{id} not available"]
+            end
+
+            return [200, log]
         end
-
-        return [200, log]
     end
 
     private
