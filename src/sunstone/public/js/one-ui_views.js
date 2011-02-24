@@ -2423,10 +2423,16 @@ function vNetworkInfoListener(){
 
 function userElementArray(user_json){
 	user = user_json.USER;
+    if (!user.NAME || user.NAME == {}){
+        name = "";
+    } else {
+        name = user.NAME;
+    }
+        
 	return [
 		'<input type="checkbox" id="user_'+user.ID+'" name="selected_items" value="'+user.ID+'"/>',
 		user.ID,
-		user.NAME
+		name
 		]
 }
 
