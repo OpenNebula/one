@@ -1042,10 +1042,13 @@ var create_image_tmpl =
 			<fieldset>\
 					<div class="" id="src_path_select">\
 						<label style="height:3em;">Path vs. source:</label>\
-						<input type="radio" name="src_path" id="path_img" value="path">Provide a path</input><br />\
-						<input type="radio" name="src_path" id="source_img" value="source">Provide a source</input><br />\
-						<input type="radio" name="src_path" id="datablock_img" value="datablock">Create an empty datablock</input>\
-						<div class="tip">Please choose path if you have a file-based image. Choose source otherwise or create an empty datablock disk.</div>\
+						<input type="radio" name="src_path" id="path_img" value="path" />\
+                        <label style="float:none">Provide a path</label><br />\
+						<input type="radio" name="src_path" id="source_img" value="source" />\
+                        <label style="float:none">Provide a source</label><br />\
+						<input type="radio" name="src_path" id="datablock_img" value="datablock" />\
+                        <label style="float:none;vertical-align:top">Create an empty datablock</label>\
+						<div class="tip">Please choose path if you have a file-based image. Choose source otherwise or create an empty datablock disk.</div><br />\
 					</div>\
 					<div class="img_param">\
 						<label for="img_path">Path:</label>\
