@@ -32,6 +32,14 @@ fi
 PORT="4567"
 HOST="127.0.0.1"
 
+usage() {
+ echo
+ echo "Usage: sunstone-server [-H host] [-p port]"
+ echo
+ echo "-H: Host for the Sunstone server, default value: localhost"
+ echo "-p: Port for incoming connections, default value: 4567"
+}
+
 setup()
 {
 
@@ -92,30 +100,25 @@ stop()
   # Kill the sunstone daemon
   kill -INT `cat $SUNSTONE_PID` &> /dev/null
 
+  # Remove pid files
+  rm -f $SUNSTONE_LOCK_FILE &> /dev/null
+
   echo "sunstone-server stopped"
 }
 
-while getopts "p:h:" OPTION
+while getopts "p:H:" OPTION
 do
   case $OPTION in
-    p)  PORT=$OPTARG;;
-    h)  HOST=$OPTARG;;
-    \?) echo "Invalid option: -$OPTARG" >&2; exit 3 ;;
+    p) PORT=$OPTARG;;
+    H) HOST=$OPTARG;;
+    *) usage; exit 3;;
   esac
 done
 
 shift $((OPTIND-1))
 
 case "$1" in
-  start)
-  setup
-  start
-  ;;
-  stop)
-  stop
-  ;;
-  *)
-  echo "Usage: sunstone {start|stop}" >&2
-  exit 3
-  ;;
+  start) setup; start;;
+  stop)  stop;;
+  *)     usage; exit 3;;
 esac
