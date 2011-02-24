@@ -17,9 +17,11 @@
 ONE_LOCATION = ENV["ONE_LOCATION"]
 
 if !ONE_LOCATION
+    LOG_LOCATION = "/var/log/one"
     VAR_LOCATION = "/var/lib/one"
 else
     VAR_LOCATION = ONE_LOCATION+"/var"
+    LOG_LOCATION = ONE_LOCATION+"/var"
 end
 
 require 'models/OpenNebulaJSON'
@@ -190,7 +192,11 @@ class SunstoneServer
         if OpenNebula.is_error?(resource)
             return [404, nil]
         else
-            vm_log_file = VAR_LOCATION + "/#{id}/vm.log"
+            if !ONE_LOCATION
+                vm_log_file = LOG_LOCATION + "/#{id}.log"
+            else
+                vm_log_file = LOG_LOCATION + "/#{id}/vm.log"
+            end
 
             begin
                 log = File.read(vm_log_file)
