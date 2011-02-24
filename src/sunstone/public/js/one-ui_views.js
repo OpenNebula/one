@@ -179,7 +179,8 @@ function initDataTables(){
       "aoColumnDefs": [
                         { "bSortable": false, "aTargets": ["check"] },
                         { "sWidth": "60px", "aTargets": [0] },
-                        { "sWidth": "35px", "aTargets": [1] }
+                        { "sWidth": "35px", "aTargets": [1] },
+                        { "sWidth": "100px", "aTargets": [2] }
                        ]
     });
 
@@ -190,8 +191,9 @@ function initDataTables(){
       "sPaginationType": "full_numbers",
       "aoColumnDefs": [
                         { "bSortable": false, "aTargets": ["check"] },
-                        { "sWidth": "60px", "aTargets": [0,5,6,7] },
-                        { "sWidth": "35px", "aTargets": [1] }
+                        { "sWidth": "60px", "aTargets": [0,4,5,6,7] },
+                        { "sWidth": "35px", "aTargets": [1] },
+                        { "sWidth": "100px", "aTargets": [2] }
                        ]
     });
 
@@ -217,7 +219,8 @@ function initDataTables(){
         "aoColumnDefs": [
                         { "bSortable": false, "aTargets": ["check"] },
                         { "sWidth": "60px", "aTargets": [0,3] },
-                        { "sWidth": "35px", "aTargets": [1] }
+                        { "sWidth": "35px", "aTargets": [1] },
+                        { "sWidth": "100px", "aTargets": [2,3] }
                        ]
     });
 
@@ -345,11 +348,11 @@ function refreshButtonListener(){
 				callback = updateHostsView;
                 waiting_nodes(dataTable_hosts);
 				OpenNebula.Host.list({success: callback, error: onError});
+                callback = updateClustersView;
+				OpenNebula.Cluster.list({success: callback, error: onError});
 				break;
 			case "OpenNebula.Cluster.list":
-				callback = updateClustersView;
-                waiting_nodes(dataTable_clusters);
-				OpenNebula.Cluster.list({success: callback, error: onError});
+				//we have no cluster button for this
 				break;
 			case "OpenNebula.VM.list":
 				callback = updateVMachinesView;
@@ -523,7 +526,7 @@ function confirmWithSelectListener(){
                 dataTable="null";
                 select_var = clusters_select;
                 callback = function (){
-                    OpenNebula.Host.list({success: updateClustersView,error: onError});
+                    OpenNebula.Cluster.list({success: updateClustersView,error: onError});
                 }
                 break;
 			case "OpenNebula.VM.deploy":
@@ -739,9 +742,8 @@ function actionButtonListener(){
                 nodes_id.push($(this).val());
 				//Calling action(id,callback,error_callback)
 				if (extra_param!=null){ //action with two parameters
-                    data = extra_param;
-                    data.id = $(this).val();
-					(eval(action)({data: data, success: callback, error: onError}));
+                    var data_arg = {cluster_id: extra_param, id: $(this).val()};
+					(eval(action)({data: data_arg, success: callback, error: onError}));
 				} else { //action with one parameter
 					(eval(action)({data:{id:$(this).val()},success: callback,error: onError}));
 				};
@@ -810,11 +812,11 @@ function setupImageAttributesDialogs(){
             <div>\
                <input type="hidden" id="img_attr_action" />\
                 <label for="img_attr_name">Name:</label>\
-                <input type="text" id="img_attr_name" name="img_attr_name" value="NAME" />\
+                <input type="text" id="img_attr_name" name="img_attr_name" value="" />\
             </div>\
             <div>\
                 <label for="img_attr_value">Value:</label>\
-               <input type="text" id="img_attr_value" name="img_attr_value" value="value" />\
+               <input type="text" id="img_attr_value" name="img_attr_value" value="" />\
             </div>\
 			<div>\
 			  <button id="img_attr_proceed" value="">OK</button>\
@@ -827,7 +829,7 @@ function setupImageAttributesDialogs(){
         autoOpen:false,
         width:400,
         modal:true,
-        height:270,
+        height:200,
         resizable:false,
     });
 
@@ -1046,7 +1048,7 @@ function createClusterDialog(){
 		//If it's successfull we refresh the list.
 		OpenNebula.Cluster.create({ data:cluster_json,
                                     success: function(){
-                                        OpenNebula.Cluster.list(updateClustersView,onError)},
+                                        OpenNebula.Cluster.list({success:updateClustersView,error:onError})},
                                     error: onError});
 		$create_cluster_dialog.dialog('close');
 		return false;
@@ -2090,7 +2092,7 @@ function createImageDialog(){
                 break;
         }
         obj = { "image" : img_json };
-        OpenNebula.Image.create({data: obj,success: addImageElement,error: onError});
+        OpenNebula.Image.register({data: obj,success: addImageElement,error: onError});
 
         $create_image_dialog.dialog('close');
        return false;
@@ -2236,9 +2238,17 @@ function tableCheckboxesListener(dataTable){
         dataTable = $(this).parents('table').dataTable();
         context = dataTable.parents('form');
         last_action_b = $('.last_action_button',context);
-        nodes_length = $('input:checked',dataTable.fnGetNodes()).length;
+        nodes = dataTable.fnGetNodes();
+        total_length = nodes.length;
+        checked_length = $('input:checked',nodes).length;
 
-        if (nodes_length){
+        if (total_length == checked_length){
+            $('.check_all',dataTable).attr("checked","checked");
+        } else {
+            $('.check_all',dataTable).removeAttr("checked");
+        }
+
+        if (checked_length){
             $('.top_button, .list_button',context).button("enable");
             if (last_action_b.length && last_action_b.val().length){
                 last_action_b.button("enable");
@@ -2765,12 +2775,14 @@ function updateVNetworkElement(request, vn_json){
 
 function deleteVNetworkElement(req){
 	deleteElement(dataTable_vNetworks,'#vnetwork_'+req.request.data);
+    //How to delete vNetwork select option here?
 }
 
 function addVNetworkElement(request,vn_json){
 	element = vNetworkElementArray(vn_json);
 	addElement(element,dataTable_vNetworks);
-
+    vnetworks_select += "<option value=\""+vn_json.VNET.NAME+"\">"+vn_json.VNET.NAME+"</option>";
+    $('div.vm_section#networks select#NETWORK').html(vnetworks_select);
 }
 
 function updateVNetworksView(request, network_list){
@@ -2822,11 +2834,14 @@ function updateImageElement(request, image_json){
 
 function deleteImageElement(req){
     deleteElement(dataTable_images,'#image_'+req.request.data);
+    //how to update the image select here?
 }
 
 function addImageElement(request, image_json){
     element = imageElementArray(image_json);
     addElement(element,dataTable_images);
+    images_select += "<option value=\""+image_json.IMAGE.NAME+"\">"+image_json.IMAGE.NAME+"</option>";
+    $('div.vm_section#disks select#IMAGE').html(images_select);
 }
 
 function updateImagesView(request, images_list){
@@ -3112,14 +3127,16 @@ function updateVNetworkInfo(request,vn){
 				<td class="key_td">Public</td>\
 				<td class="value_td">'+(parseInt(vn_info.PUBLIC) ? "yes" : "no" )+'</td>\
 			</tr>\
-		</table>\
-		<table id="vn_leases_info_table" class="info_table">\
+		</table>';
+    if (vn_info.TEMPLATE.TYPE == "FIXED"){
+		rendered_info += '<table id="vn_leases_info_table" class="info_table">\
 			<thead>\
 				<tr><th colspan="2">Leases information</th></tr>\
 			</thead>'+
 			prettyPrintJSON(vn_info.LEASES)+
-		'</table>\
-	</div>\
+		'</table>';
+    }
+	rendered_info += '</div>\
 	<div id="vn_template">\
 		<table id="vn_template_table" class="info_table">\
 		<thead><tr><th colspan="2">Virtual Network template</th></tr></thead>'+
@@ -3163,11 +3180,11 @@ function updateImageInfo(request,img){
 			</tr>\
 			<tr>\
 				<td class="key_td">Public</td>\
-				<td class="value_td">'+(img_info.PUBLIC ? "yes" : "no")+'</td>\
+				<td class="value_td">'+(parseInt(img_info.PUBLIC) ? "yes" : "no")+'</td>\
 			</tr>\
 			<tr>\
 				<td class="key_td">Persistent</td>\
-				<td class="value_td">'+(img_info.PERSISTENT ? "yes" : "no")+'</td>\
+				<td class="value_td">'+(parseInt(img_info.PERSISTENT) ? "yes" : "no")+'</td>\
 			</tr>\
 			<tr>\
 				<td class="key_td">Source</td>\
@@ -3175,7 +3192,7 @@ function updateImageInfo(request,img){
 			</tr>\
 			<tr>\
 				<td class="key_td">State</td>\
-				<td class="value_td">'+img_info.STATE+'</td>\
+				<td class="value_td">'+OpenNebula.Helper.resource_state("image",img_info.STATE)+'</td>\
 			</tr>\
 		</table>\
     </div>\

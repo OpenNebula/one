@@ -145,7 +145,9 @@ var OpenNebula = {
 
             var p_pool = [];
 
-            pool = response[pool_name][type];
+            if (response[pool_name]) {
+                pool = response[pool_name][type];
+            } else { pull = null };
 
             if (pool == null)
             {
