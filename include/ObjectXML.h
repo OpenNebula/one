@@ -74,7 +74,14 @@ public:
      *   XML resources are freed
      *   @param xml_doc the new xml document
      */
-    int update(const string &xml_doc);
+    int update_from_str(const string &xml_doc);
+
+    /**
+     *   Updates the object representation with a new XML document. Previous
+     *   XML resources are freed
+     *   @param xml_doc the new xml document
+     */
+    int update_from_node(const xmlNodePtr node);
 
     // ---------------------------------------------------------
     //  Lex & bison parser for requirements and rank expressions

@@ -125,7 +125,7 @@ public:
             CPPUNIT_ASSERT(hostnames[0] == "A_hostname");
             CPPUNIT_ASSERT(hostnames[1] == "C_hostname");
 
-            obj.update(xml_history_dump2);
+            obj.update_from_str(xml_history_dump2);
 
             hostnames = obj["/VM_POOL/VM/HISTORY/HOSTNAME"];
 

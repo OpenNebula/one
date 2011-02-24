@@ -84,7 +84,7 @@ public:
             return -1;
         }
 
-        update(message);
+        update_from_str(message);
 
         vector<xmlNodePtr> nodes;
         int                num_objs;

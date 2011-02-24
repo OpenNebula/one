@@ -17,8 +17,7 @@
 #ifndef HOST_SHARE_H_
 #define HOST_SHARE_H_
 
-#include "SqlDB.h"
-#include "ObjectSQL.h"
+#include "ObjectXML.h"
 #include <time.h>
 
 using namespace std;
@@ -29,12 +28,11 @@ using namespace std;
 /**
  *  The HostShare class. It represents a logical partition of a host...
  */
-class HostShare : public ObjectSQL
+class HostShare : public ObjectXML
 {
 public:
 
     HostShare(
-        int     _hsid=-1,
         int     _max_disk=0,
         int     _max_mem=0,
         int     _max_cpu=0);
@@ -108,9 +106,15 @@ public:
      */
     string& to_xml(string& xml) const;
 
-private:
+    /**
+     *  Rebuilds the object from an xml node
+     *    @param node The xml node pointer
+     *
+     *    @return 0 on success, -1 otherwise
+     */
+    int from_xml_node(const xmlNodePtr node);
 
-    int hsid; /**< HostShare identifier */
+private:
 
     int disk_usage; /**< Disk allocated to VMs (in Mb).        */
     int mem_usage;  /**< Memory allocated to VMs (in Mb)       */
@@ -136,94 +140,6 @@ private:
 
     friend class Host;
     friend class HostPool;
-
-    // ----------------------------------------
-    // DataBase implementation variables
-    // ----------------------------------------
-
-    enum ColNames
-    {
-        HID         = 0,
-        DISK_USAGE  = 1,
-        MEM_USAGE   = 2,
-        CPU_USAGE   = 3,
-        MAX_DISK    = 4,
-        MAX_MEMORY  = 5,
-        MAX_CPU     = 6,
-        FREE_DISK   = 7,
-        FREE_MEMORY = 8,
-        FREE_CPU    = 9,
-        USED_DISK   = 10,
-        USED_MEMORY = 11,
-        USED_CPU    = 12,
-        RUNNING_VMS = 13,
-        LIMIT       = 14
-    };
-
-    static const char * table;
-
-    static const char * db_names;
-
-    static const char * db_bootstrap;
-
-    // ----------------------------------------
-    // Database methods
-    // ----------------------------------------
-
-    /**
-     *  Reads the HostShare (identified with its HSID) from the database.
-     *    @param db pointer to the db
-     *    @return 0 on success
-     */
-    int select(SqlDB * db);
-
-    /**
-     *  Writes the HostShare in the database.
-     *    @param db pointer to the db
-     *    @return 0 on success
-     */
-    int insert(SqlDB * db, string& error_str);
-
-    /**
-     *  Writes/updates the HostShare data fields in the database.
-     *    @param db pointer to the db
-     *    @return 0 on success
-     */
-    int update(SqlDB * db);
-
-    /**
-     *  Drops hostshare from the database
-     *    @param db pointer to the db
-     *    @return 0 on success
-     */
-    int drop(SqlDB * db);
-
-    /**
-     *  Execute an INSERT or REPLACE Sql query.
-     *    @param db The SQL DB
-     *    @param replace Execute an INSERT or a REPLACE
-     *    @return 0 one success
-    */
-    int insert_replace(SqlDB *db, bool replace);
-
-    /**
-     *  Callback function to unmarshall a HostShare object (HostShare::select)
-     *    @param num the number of columns read from the DB
-     *    @para names the column names
-     *    @para vaues the column values
-     *    @return 0 on success
-     */
-    int select_cb(void * nil, int num, char **values, char **names);
-
-    /**
-     *  Function to unmarshall a HostShare object in to an output stream in XML
-     *    @param oss the output stream
-     *    @param num the number of columns read from the DB
-     *    @param names the column names
-     *    @param vaues the column values
-     *    @return 0 on success
-     */
-    static int dump(ostringstream& oss, int num, char **values, char **names);
 
 };
 

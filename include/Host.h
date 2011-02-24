@@ -49,19 +49,27 @@ public:
      */
      friend ostream& operator<<(ostream& os, Host& h);
 
-	/**
-	 * Function to print the Host object into a string in plain text
-	 *  @param str the resulting string
-	 *  @return a reference to the generated string
-	 */
-	string& to_str(string& str) const;
+    /**
+     * Function to print the Host object into a string in plain text
+     *  @param str the resulting string
+     *  @return a reference to the generated string
+     */
+    string& to_str(string& str) const;
 
-	/**
-	 * Function to print the Host object into a string in XML format
-	 *  @param xml the resulting XML string
-	 *  @return a reference to the generated string
-	 */
-	string& to_xml(string& xml) const;
+    /**
+     * Function to print the Host object into a string in XML format
+     *  @param xml the resulting XML string
+     *  @return a reference to the generated string
+     */
+    virtual string& to_xml(string& xml) const;
+
+    /**
+     *  Rebuilds the object from an xml formatted string
+     *    @param xml_str The xml-formatted string
+     *
+     *    @return 0 on success, -1 otherwise
+     */
+    virtual int from_xml(const string &xml_str);
 
     /**
      * Get the Host unique identifier HID, that matches the OID of the object
@@ -439,24 +447,13 @@ private:
     int insert_replace(SqlDB *db, bool replace);
 
     /**
-     *  Callback function to unmarshall a Host object (Host::select)
-     *    @param num the number of columns read from the DB
-     *    @param names the column names
-     *    @param vaues the column values
-     *    @return 0 on success
-     */
-    int select_cb(void *nil, int num, char **values, char **names);
-
-    /**
      *  Bootstraps the database table(s) associated to the Host
      */
     static void bootstrap(SqlDB * db)
     {
         ostringstream oss_host(Host::db_bootstrap);
-        ostringstream oss_share(HostShare::db_bootstrap);
 
         db->exec(oss_host);
-        db->exec(oss_share);
     };
 
 protected:
@@ -498,11 +495,13 @@ protected:
     static const char * table;
 
     /**
-     *  Reads the Host (identified with its OID=HID) from the database.
-     *    @param db pointer to the db
-     *    @return 0 on success
+     *  Table name
+     *    @return the object's table name
      */
-    virtual int select(SqlDB *db);
+     virtual const char * table_name()
+     {
+         return table;
+     };
 
     /**
      *  Writes the Host and its associated HostShares in the database.
@@ -517,23 +516,6 @@ protected:
      *    @return 0 on success
      */
     virtual int update(SqlDB *db);
-
-    /**
-     *  Drops host from the database
-     *    @param db pointer to the db
-     *    @return 0 on success
-     */
-    virtual int drop(SqlDB *db);
-
-    /**
-     *  Function to output a Host object in to an stream in XML format
-     *    @param oss the output stream
-     *    @param num the number of columns read from the DB
-     *    @param names the column names
-     *    @param vaues the column values
-     *    @return 0 on success
-     */
-    static int dump(ostringstream& oss, int num, char **values, char **names);
 };
 
 #endif /*HOST_H_*/

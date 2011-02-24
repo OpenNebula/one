@@ -28,12 +28,9 @@
 /* ************************************************************************ */
 
 HostShare::HostShare(
-        int     _hsid,
         int     _max_disk,
         int     _max_mem,
         int     _max_cpu):
-        ObjectSQL(),
-        hsid(_hsid),
         disk_usage(0),
         mem_usage(0),
         cpu_usage(0),
@@ -49,225 +46,6 @@ HostShare::HostShare(
         running_vms(0)
 {
 }
-
-/* ************************************************************************ */
-/* HostShare :: Database Access Functions                                   */
-/* ************************************************************************ */
-
-const char * HostShare::table = "host_shares";
-
-const char * HostShare::db_names = "hid,"
-    "disk_usage, mem_usage, cpu_usage,"
-    "max_disk,   max_mem,   max_cpu,"
-    "free_disk,  free_mem,  free_cpu,"
-    "used_disk,  used_mem,  used_cpu,"
-    "running_vms";
-
-const char * HostShare::db_bootstrap = "CREATE TABLE IF NOT EXISTS host_shares("
-    "hid INTEGER PRIMARY KEY,"
-    "disk_usage INTEGER, mem_usage INTEGER, cpu_usage INTEGER,"
-    "max_disk  INTEGER,  max_mem   INTEGER, max_cpu   INTEGER,"
-    "free_disk INTEGER,  free_mem  INTEGER, free_cpu  INTEGER,"
-    "used_disk INTEGER,  used_mem  INTEGER, used_cpu  INTEGER,"
-    "running_vms INTEGER)";
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
-int HostShare::select_cb(void * nil, int num, char **values, char **names)
-{
-    if ((!values[HID]) ||
-        (!values[DISK_USAGE]) ||
-        (!values[MEM_USAGE]) ||
-        (!values[CPU_USAGE]) ||
-        (!values[MAX_DISK]) ||
-        (!values[MAX_MEMORY]) ||
-        (!values[MAX_CPU]) ||
-        (!values[FREE_DISK]) ||
-        (!values[FREE_MEMORY]) ||
-        (!values[FREE_CPU]) ||
-        (!values[USED_DISK]) ||
-        (!values[USED_MEMORY]) ||
-        (!values[USED_CPU]) ||
-        (!values[RUNNING_VMS]) ||
-        (num != LIMIT ))
-    {
-        return -1;
-    }
-
-    hsid = atoi(values[HID]);
-
-    disk_usage = atoi(values[DISK_USAGE]);
-    mem_usage  = atoi(values[MEM_USAGE]);
-    cpu_usage  = atoi(values[CPU_USAGE]);
-
-    max_disk = atoi(values[MAX_DISK]);
-    max_mem  = atoi(values[MAX_MEMORY]);
-    max_cpu  = atoi(values[MAX_CPU]);
-
-    free_disk = atoi(values[FREE_DISK]);
-    free_mem  = atoi(values[FREE_MEMORY]);
-    free_cpu  = atoi(values[FREE_CPU]);
-
-    used_disk = atoi(values[USED_DISK]);
-    used_mem  = atoi(values[USED_MEMORY]);
-    used_cpu  = atoi(values[USED_CPU]);
-
-    running_vms = atoi(values[RUNNING_VMS]);
-
-    return 0;
-}
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
-int HostShare::dump(ostringstream& oss,
-                    int            num,
-                    char **        values,
-                    char **        names)
-{
-    if ((!values[HID]) ||
-        (!values[DISK_USAGE]) ||
-        (!values[MEM_USAGE]) ||
-        (!values[CPU_USAGE]) ||
-        (!values[MAX_DISK]) ||
-        (!values[MAX_MEMORY]) ||
-        (!values[MAX_CPU]) ||
-        (!values[FREE_DISK]) ||
-        (!values[FREE_MEMORY]) ||
-        (!values[FREE_CPU]) ||
-        (!values[USED_DISK]) ||
-        (!values[USED_MEMORY]) ||
-        (!values[USED_CPU]) ||
-        (!values[RUNNING_VMS]) ||
-        (num != LIMIT))
-    {
-        return -1;
-    }
-
-    oss <<
-    "<HOST_SHARE>"  <<
-        "<HID>"       << values[HID]         << "</HID>"       <<
-        "<DISK_USAGE>"<< values[DISK_USAGE]  << "</DISK_USAGE>"<<
-        "<MEM_USAGE>" << values[MEM_USAGE]   << "</MEM_USAGE>" <<
-        "<CPU_USAGE>" << values[CPU_USAGE]   << "</CPU_USAGE>" <<
-        "<MAX_DISK>"  << values[MAX_DISK]    << "</MAX_DISK>"  <<
-        "<MAX_MEM>"   << values[MAX_MEMORY]  << "</MAX_MEM>"   <<
-        "<MAX_CPU>"   << values[MAX_CPU]     << "</MAX_CPU>"   <<
-        "<FREE_DISK>" << values[FREE_DISK]   << "</FREE_DISK>" <<
-        "<FREE_MEM>"  << values[FREE_MEMORY] << "</FREE_MEM>"  <<
-        "<FREE_CPU>"  << values[FREE_CPU]    << "</FREE_CPU>"  <<
-        "<USED_DISK>" << values[USED_DISK]   << "</USED_DISK>" <<
-        "<USED_MEM>"  << values[USED_MEMORY] << "</USED_MEM>"  <<
-        "<USED_CPU>"  << values[USED_CPU]    << "</USED_CPU>"  <<
-        "<RUNNING_VMS>"<<values[RUNNING_VMS] << "</RUNNING_VMS>"<<
-    "</HOST_SHARE>";
-
-    return 0;
-}
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
-int HostShare::select(SqlDB * db)
-{
-    ostringstream   oss;
-    int             rc;
-    int             bhsid;
-
-    set_callback(static_cast<Callbackable::Callback>(&HostShare::select_cb));
-
-    oss << "SELECT "<< db_names << " FROM " << table << " WHERE hid = " << hsid;
-
-    bhsid = hsid;
-    hsid  = -1;
-
-    rc = db->exec(oss,this);
-
-    unset_callback();
-
-    if (hsid != bhsid )
-    {
-        rc = -1;
-    }
-
-    return rc;
-}
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
-int HostShare::insert(SqlDB * db, string& error_str)
-{
-    int rc;
-
-    rc = insert_replace(db, false);
-
-    if ( rc == -1 )
-    {
-        error_str = "Error inserting Host Share in DB.";
-    }
-
-    return rc;
-}
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
-int HostShare::update(SqlDB * db)
-{
-    int             rc;
-
-    rc = insert_replace(db, true);
-
-    return rc;
-}
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
-int HostShare::insert_replace(SqlDB *db, bool replace)
-{
-    ostringstream   oss;
-    int             rc;
-
-    if(replace)
-    {
-        oss << "REPLACE";
-    }
-    else
-    {
-        oss << "INSERT";
-    }
-
-    oss << " INTO " << table << " ("<< db_names <<") VALUES ("
-        << hsid << ","
-        << disk_usage <<","<< mem_usage <<","<< cpu_usage<< ","
-        << max_disk   <<","<< max_mem   <<","<< max_cpu  << ","
-        << free_disk  <<","<< free_mem  <<","<< free_cpu << ","
-        << used_disk  <<","<< used_mem  <<","<< used_cpu << ","
-        << running_vms<< ")";
-
-    rc = db->exec(oss);
-
-    return rc;
-}
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
-int HostShare::drop(SqlDB * db)
-{
-    ostringstream   oss;
-
-    oss << "DELETE FROM " << table << " WHERE hid=" << hsid;
-
-    return db->exec(oss);
-}
-
-/* ************************************************************************ */
-/* HostShare :: Misc                                                        */
-/* ************************************************************************ */
 
 ostream& operator<<(ostream& os, HostShare& hs)
 {
@@ -287,7 +65,6 @@ string& HostShare::to_xml(string& xml) const
     ostringstream   oss;
 
     oss << "<HOST_SHARE>"
-          << "<HID>"        << hsid       << "</HID>"
           << "<DISK_USAGE>" << disk_usage << "</DISK_USAGE>"
           << "<MEM_USAGE>"  << mem_usage  << "</MEM_USAGE>"
           << "<CPU_USAGE>"  << cpu_usage  << "</CPU_USAGE>"
@@ -311,13 +88,41 @@ string& HostShare::to_xml(string& xml) const
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
+int HostShare::from_xml_node(const xmlNodePtr node)
+{
+    // Initialize the internal XML object
+    ObjectXML::update_from_node(node);
+
+    disk_usage = atoi(((*this)["/HOST_SHARE/DISK_USAGE"] )[0].c_str() );
+    mem_usage  = atoi(((*this)["/HOST_SHARE/MEM_USAGE"] )[0].c_str() );
+    cpu_usage  = atoi(((*this)["/HOST_SHARE/CPU_USAGE"] )[0].c_str() );
+
+    max_disk = atoi(((*this)["/HOST_SHARE/MAX_DISK"] )[0].c_str() );
+    max_mem  = atoi(((*this)["/HOST_SHARE/MAX_MEM"] )[0].c_str() );
+    max_cpu  = atoi(((*this)["/HOST_SHARE/MAX_CPU"] )[0].c_str() );
+
+    free_disk = atoi(((*this)["/HOST_SHARE/FREE_DISK"] )[0].c_str() );
+    free_mem  = atoi(((*this)["/HOST_SHARE/FREE_MEM"] )[0].c_str() );
+    free_cpu  = atoi(((*this)["/HOST_SHARE/FREE_CPU"] )[0].c_str() );
+
+    used_disk = atoi(((*this)["/HOST_SHARE/USED_DISK"] )[0].c_str() );
+    used_mem  = atoi(((*this)["/HOST_SHARE/USED_MEM"] )[0].c_str() );
+    used_cpu  = atoi(((*this)["/HOST_SHARE/USED_CPU"] )[0].c_str() );
+
+    running_vms = atoi(((*this)["/HOST_SHARE/RUNNING_VMS"] )[0].c_str() );
+
+    return 0;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
 string& HostShare::to_str(string& str) const
 {
     string template_xml;
     ostringstream   oss;
 
-    oss<< "\tHID          = " << hsid
-       << "\tCPU_USAGE    = " << cpu_usage << endl
+    oss<< "\tCPU_USAGE    = " << cpu_usage << endl
        << "\tMEMORY_USAGE = " << mem_usage << endl
        << "\tDISK_USAGE   = " << disk_usage<< endl
        << "\tMAX_CPU      = " << max_cpu << endl

@@ -169,7 +169,7 @@ int ObjectXML::get_nodes (const char * xpath_expr, vector<xmlNodePtr>& content)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int ObjectXML::update(const string &xml_doc)
+int ObjectXML::update_from_str(const string &xml_doc)
 {
     if (xml != 0)
     {
@@ -189,6 +189,50 @@ int ObjectXML::update(const string &xml_doc)
     {
         return -1;
     }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int ObjectXML::update_from_node(const xmlNodePtr node)
+{
+    if (xml != 0)
+    {
+        xmlFreeDoc(xml);
+    }
+
+    if ( ctx != 0)
+    {
+        xmlXPathFreeContext(ctx);
+    }
+
+    xml = xmlNewDoc(reinterpret_cast<const xmlChar *>("1.0"));
+
+    if (xml == 0)
+    {
+        return -1;
+    }
+
+    ctx = xmlXPathNewContext(xml);
+
+    if (ctx == 0)
+    {
+        xmlFreeDoc(xml);
+        return -1;
+    }
+
+    xmlNodePtr root_node = xmlDocCopyNode(node,xml,1);
+
+    if (root_node == 0)
+    {
+        xmlXPathFreeContext(ctx);
+        xmlFreeDoc(xml);
+        return -1;
+    }
+
+    xmlDocSetRootElement(xml, root_node);
 
     return 0;
 }

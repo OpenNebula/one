@@ -18,6 +18,7 @@
 Import('env')
 
 env.Append(LIBS=[
+    'nebula_xml',
     'nebula_template',
     'nebula_common',
     'nebula_core',

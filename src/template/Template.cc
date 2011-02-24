@@ -445,12 +445,7 @@ Attribute * Template::vector_xml_att(const xmlNode * node)
 int Template::from_xml(const string &xml_str)
 {
     xmlDocPtr xml_doc = 0;
-
     xmlNode * root_element;
-    xmlNode * cur_node = 0;
-
-    Attribute * attr;
-
 
     // Parse xml string as libxml document
     xml_doc = xmlParseMemory (xml_str.c_str(),xml_str.length());
@@ -459,6 +454,44 @@ int Template::from_xml(const string &xml_str)
     {
         return -1;
     }
+
+    // Get the <TEMPLATE> element
+    root_element = xmlDocGetRootElement(xml_doc);
+    if( root_element == 0 )
+    {
+        return -1;
+    }
+
+    rebuild_attributes(root_element);
+
+    xmlFreeDoc(xml_doc);
+
+    return 0;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int Template::from_xml_node(const xmlNodePtr node)
+{
+    if (node == 0)
+    {
+        return -1;
+    }
+
+    rebuild_attributes(node);
+
+    return 0;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+void Template::rebuild_attributes(const xmlNode * root_element)
+{
+    xmlNode * cur_node = 0;
+
+    Attribute * attr;
 
     //Clear the template if not empty
     if (!attributes.empty())
@@ -472,9 +505,6 @@ int Template::from_xml(const string &xml_str)
 
         attributes.clear();
     }
-
-    // Get the <TEMPLATE> element
-    root_element = xmlDocGetRootElement(xml_doc);
 
     // Get the root's children and try to build attributes.
     for (cur_node = root_element->children;
@@ -497,10 +527,6 @@ int Template::from_xml(const string &xml_str)
             }
         }
     }
-
-    xmlFreeDoc(xml_doc);
-
-    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
