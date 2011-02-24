@@ -2497,7 +2497,9 @@ function updateImageSelect(image_list){
     images_select="";
     images_select += "<option value=\"\">Select an image</option>";
     $.each(image_list, function(){
-        images_select += "<option value=\""+this.IMAGE.NAME+"\">"+this.IMAGE.NAME+"</option>";
+        if ((this.IMAGE.STATE < 3) && (this.IMAGE.STATE > 0)){
+            images_select += '<option id="img_sel_'+this.IMAGE.ID+'" value="'+this.IMAGE.NAME+'">'+this.IMAGE.NAME+'</option>';
+        }
     });
 
     //update static selectors
@@ -2827,18 +2829,32 @@ function updateImageElement(request, image_json){
     id = image_json.IMAGE.ID;
     element = imageElementArray(image_json);
     updateSingleElement(element,dataTable_images,'#image_'+id);
+    if ((image_json.IMAGE.STATE < 3) && 
+        (image_json.IMAGE.STATE > 0) &&
+        ($('#img_sel_'+id,images_select).length == 0)){
+            images_select += '<option id="img_sel_'+id+'" value="'+image_json.IMAGE.NAME+'">'+image_json.IMAGE.NAME+'</option>';
+        }   
+    else {
+        tag = 'option#img_sel_'+id;
+        select = $('<select>'+images_select+'</select>');
+        $(tag,select).remove();
+        images_select = $(select).html();
+    }
+    $('div.vm_section#disks select#IMAGE').html(images_select);
 }
 
 function deleteImageElement(req){
     deleteElement(dataTable_images,'#image_'+req.request.data);
-    //how to update the image select here?
+    tag = 'option#img_sel_'+req.request.data;
+    select = $('<select>'+images_select+'</select>');
+    $(tag,select).remove();
+    images_select = $(select).html();
+    $('div.vm_section#disks select#IMAGE').html(images_select);    
 }
 
 function addImageElement(request, image_json){
     element = imageElementArray(image_json);
     addElement(element,dataTable_images);
-    images_select += "<option value=\""+image_json.IMAGE.NAME+"\">"+image_json.IMAGE.NAME+"</option>";
-    $('div.vm_section#disks select#IMAGE').html(images_select);
 }
 
 function updateImagesView(request, images_list){
