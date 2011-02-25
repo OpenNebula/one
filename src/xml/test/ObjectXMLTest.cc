@@ -34,6 +34,7 @@ class ObjectXMLTest : public OneUnitTest
     CPPUNIT_TEST( doc_update );
     CPPUNIT_TEST( requirements );
     CPPUNIT_TEST( rank );
+    CPPUNIT_TEST( xpath );
 
     CPPUNIT_TEST_SUITE_END ();
 
@@ -75,6 +76,40 @@ public:
         }
     };
 
+    void xpath()
+    {
+        try
+        {
+            ObjectXML obj(xml_history_dump);
+            string str_exists;
+            string str_no_exists;
+            
+            int    int_exists;
+            int    int_no_exists;
+            int    int_malformed;
+
+            obj.xpath(str_exists,"/VM_POOL/VM/HISTORY/HOSTNAME","default_host");
+            CPPUNIT_ASSERT(str_exists == "A_hostname");
+
+
+            obj.xpath(str_no_exists,"/VM_POOL/NOT_AN_ELEMENT","default_host");
+            CPPUNIT_ASSERT(str_no_exists == "default_host");
+
+            obj.xpath(int_exists,"/VM_POOL/VM/STATE",35);
+            CPPUNIT_ASSERT(int_exists == 1);
+
+            obj.xpath(int_no_exists,"/VM_POOL/NOT_AN_ELEMENT",35);
+            CPPUNIT_ASSERT(int_no_exists == 35);
+
+            obj.xpath(int_malformed,"/VM_POOL/VM/USERNAME",33);
+            CPPUNIT_ASSERT(int_malformed == 33);
+        }
+        catch(runtime_error& re)
+        {
+             cerr << re.what() << endl;
+             CPPUNIT_ASSERT(1 == 0);
+        }
+    };
 
     void node_constructor()
     {

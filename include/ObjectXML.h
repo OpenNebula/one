@@ -61,6 +61,24 @@ public:
     vector<string> operator[] (const char * xpath_expr);
 
     /**
+     *  Gets and sets a xpath attribute, if the attribute is not found a default
+     *  is used
+     *    @param value to set 
+     *    @param xpath_expr of the xml element
+     *    @param def default value if the element is not found
+     */
+    void xpath(string& value, const char * xpath_expr, const char * def);
+
+    /**
+     *  Gets and sets a xpath attribute, if the attribute is not found a default
+     *  is used
+     *    @param value to set 
+     *    @param xpath_expr of the xml element
+     *    @param def default value if the element is not found
+     */
+    void xpath(int& value, const char * xpath_expr, const int& def);
+
+    /**
      *  Get xml nodes by Xpath
      *    @param xpath_expr the Xpath for the elements
      *    @param content nodes for the given Xpath expression. The nodes are

@@ -17,7 +17,8 @@
 #include <ObjectXML.h>
 #include <stdexcept>
 #include <cstring>
-
+#include <iostream>
+#include <sstream>
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -127,6 +128,53 @@ vector<string> ObjectXML::operator[] (const char * xpath_expr)
 
     return content;
 };
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void ObjectXML::xpath(string& value, const char * xpath_expr, const char * def)
+{
+    vector<string> values;
+
+    values = (*this)[xpath_expr];
+
+    if ( values.empty() == true )
+    {
+        value = def;
+    }
+    else
+    {
+        value = values[0];
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void ObjectXML::xpath(int& value, const char * xpath_expr, const int& def)
+{
+    vector<string> values;
+
+    values = (*this)[xpath_expr];
+
+    if (values.empty() == true)
+    {
+        value = def;
+    }
+    else
+    {
+        istringstream iss;
+
+        iss.str(values[0]);
+
+        iss >> dec >> value;
+
+        if (iss.fail() == true)
+        {
+            value = def;
+        }
+    }
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
