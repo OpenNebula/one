@@ -92,23 +92,23 @@ int HostShare::from_xml_node(const xmlNodePtr node)
     // Initialize the internal XML object
     ObjectXML::update_from_node(node);
 
-    disk_usage = atoi(((*this)["/HOST_SHARE/DISK_USAGE"] )[0].c_str() );
-    mem_usage  = atoi(((*this)["/HOST_SHARE/MEM_USAGE"] )[0].c_str() );
-    cpu_usage  = atoi(((*this)["/HOST_SHARE/CPU_USAGE"] )[0].c_str() );
+    xpath(disk_usage, "/HOST_SHARE/DISK_USAGE", -1);
+    xpath(mem_usage,  "/HOST_SHARE/MEM_USAGE",  -1);
+    xpath(cpu_usage,  "/HOST_SHARE/CPU_USAGE",  -1);
 
-    max_disk = atoi(((*this)["/HOST_SHARE/MAX_DISK"] )[0].c_str() );
-    max_mem  = atoi(((*this)["/HOST_SHARE/MAX_MEM"] )[0].c_str() );
-    max_cpu  = atoi(((*this)["/HOST_SHARE/MAX_CPU"] )[0].c_str() );
+    xpath(max_disk,   "/HOST_SHARE/MAX_DISK",   -1);
+    xpath(max_mem ,   "/HOST_SHARE/MAX_MEM",    -1);
+    xpath(max_cpu ,   "/HOST_SHARE/MAX_CPU",    -1);
 
-    free_disk = atoi(((*this)["/HOST_SHARE/FREE_DISK"] )[0].c_str() );
-    free_mem  = atoi(((*this)["/HOST_SHARE/FREE_MEM"] )[0].c_str() );
-    free_cpu  = atoi(((*this)["/HOST_SHARE/FREE_CPU"] )[0].c_str() );
+    xpath(free_disk,  "/HOST_SHARE/FREE_DISK",  -1);
+    xpath(free_mem ,  "/HOST_SHARE/FREE_MEM",   -1);
+    xpath(free_cpu ,  "/HOST_SHARE/FREE_CPU",   -1);
 
-    used_disk = atoi(((*this)["/HOST_SHARE/USED_DISK"] )[0].c_str() );
-    used_mem  = atoi(((*this)["/HOST_SHARE/USED_MEM"] )[0].c_str() );
-    used_cpu  = atoi(((*this)["/HOST_SHARE/USED_CPU"] )[0].c_str() );
+    xpath(used_disk,  "/HOST_SHARE/USED_DISK",  -1);
+    xpath(used_mem ,  "/HOST_SHARE/USED_MEM",   -1);
+    xpath(used_cpu ,  "/HOST_SHARE/USED_CPU",   -1);
 
-    running_vms = atoi(((*this)["/HOST_SHARE/RUNNING_VMS"] )[0].c_str() );
+    xpath(running_vms,"/HOST_SHARE/RUNNING_VMS",-1);
 
     return 0;
 }

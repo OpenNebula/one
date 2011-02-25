@@ -224,25 +224,23 @@ string& Host::to_xml(string& xml) const
 int Host::from_xml(const string& xml)
 {
     vector<xmlNodePtr> content;
+    int int_state;
 
     // Initialize the internal XML object
     update_from_str(xml);
 
-    oid         = atoi(((*this)["/HOST/ID"] )[0].c_str() );
-    hostname    = ((*this)["/HOST/NAME"])[0];
-    state       = static_cast<HostState>(  atoi(((*this)["/HOST/STATE"])[0].c_str())  );
+    xpath(oid,      "/HOST/ID", -1);
+    xpath(hostname, "/HOST/NAME", "not_found");
+    xpath(int_state, "/HOST/STATE", 0);
+    state = static_cast<HostState>( int_state );
 
-//  TODO: create an ObjectXML method to allow this syntax:
-//    im_mad_name = xpath("/HOST/IM_MAD", "im_default");
+    xpath(im_mad_name,  "/HOST/IM_MAD", "not_found");
+    xpath(vmm_mad_name, "/HOST/VM_MAD", "not_found");
+    xpath(tm_mad_name,  "/HOST/TM_MAD", "not_found");
 
-    im_mad_name  = ((*this)["/HOST/IM_MAD"])[0];
-    vmm_mad_name = ((*this)["/HOST/VM_MAD"])[0];
-    tm_mad_name  = ((*this)["/HOST/TM_MAD"])[0];
+    xpath(last_monitored, "/HOST/LAST_MON_TIME", 0);
 
-
-    last_monitored = static_cast<time_t>(  atoi(((*this)["/HOST/LAST_MON_TIME"] )[0].c_str() )  );
-
-    cluster = ((*this)["/HOST/CLUSTER"])[0];
+    xpath(cluster, "/HOST/CLUSTER", "not_found");
 
     ObjectXML::get_nodes("/HOST/HOST_SHARE", content);
     host_share.from_xml_node( content[0] );

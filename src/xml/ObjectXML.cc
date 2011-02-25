@@ -179,6 +179,18 @@ void ObjectXML::xpath(int& value, const char * xpath_expr, const int& def)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void ObjectXML::xpath(time_t& value, const char * xpath_expr, const time_t& def)
+{
+    int int_val;
+    int int_def = static_cast<time_t>(def);
+
+    xpath(int_val, xpath_expr, int_def);
+    value = static_cast<time_t>(int_val);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int ObjectXML::xpath_value(string& value,const char *doc,const char *the_xpath)
 {
     int rc = 0;

@@ -79,6 +79,15 @@ public:
     void xpath(int& value, const char * xpath_expr, const int& def);
 
     /**
+     *  Gets and sets a xpath attribute, if the attribute is not found a default
+     *  is used
+     *    @param value to set
+     *    @param xpath_expr of the xml element
+     *    @param def default value if the element is not found
+     */
+    void xpath(time_t& value, const char * xpath_expr, const time_t& def);
+
+    /**
      *  Gets the value of an element from an xml string
      *    @param value the value of the element
      *    @param xml the xml string
