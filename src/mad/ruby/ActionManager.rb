@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- */
-# Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 # not use this file except in compliance with the License. You may obtain    */
 # a copy of the License at                                                   */
@@ -16,7 +16,7 @@
 require 'thread'
 
 =begin rdoc
-Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)
+Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)
 
 This class provides support to handle actions. Class methods, or actions, can be
 registered in the action manager. The manager will wait for actions to be
