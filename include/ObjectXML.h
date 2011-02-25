@@ -79,6 +79,16 @@ public:
     void xpath(int& value, const char * xpath_expr, const int& def);
 
     /**
+     *  Gets the value of an element from an xml string
+     *    @param value the value of the element
+     *    @param xml the xml string
+     *    @param xpath the xpath of the target element
+     *    
+     *    @return -1 if the element was not found
+     */
+    static int xpath_value(string& value, const char *xml, const char *xpath);
+
+    /**
      *  Get xml nodes by Xpath
      *    @param xpath_expr the Xpath for the elements
      *    @param content nodes for the given Xpath expression. The nodes are

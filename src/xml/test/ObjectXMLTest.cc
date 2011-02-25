@@ -35,6 +35,7 @@ class ObjectXMLTest : public OneUnitTest
     CPPUNIT_TEST( requirements );
     CPPUNIT_TEST( rank );
     CPPUNIT_TEST( xpath );
+    CPPUNIT_TEST( xpath_value );
 
     CPPUNIT_TEST_SUITE_END ();
 
@@ -74,6 +75,22 @@ public:
              cerr << re.what() << endl;
              CPPUNIT_ASSERT(1 == 0);
         }
+    };
+
+
+    void xpath_value()
+    {
+        int    rc;
+        string im_mad;
+
+        rc = ObjectXML::xpath_value(im_mad,host.c_str(),"/HOST/IM_MAD");
+
+        CPPUNIT_ASSERT(rc == 0);
+        CPPUNIT_ASSERT(im_mad == "im_kvm");
+
+        rc = ObjectXML::xpath_value(im_mad,host.c_str(),"/HOST/NO_IM_MAD");
+
+        CPPUNIT_ASSERT(rc == -1);
     };
 
     void xpath()

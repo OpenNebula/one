@@ -179,6 +179,37 @@ void ObjectXML::xpath(int& value, const char * xpath_expr, const int& def)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int ObjectXML::xpath_value(string& value,const char *doc,const char *the_xpath)
+{
+    int rc = 0;
+
+    try
+    {
+        ObjectXML      obj(doc);
+        vector<string> values;
+
+        values = obj[the_xpath];
+
+        if (values.empty() == true)
+        {
+            rc = -1;
+        }
+        else
+        {
+            value = values[0];
+        }
+    }
+    catch(runtime_error& re)
+    {
+        rc = -1;
+    }
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int ObjectXML::get_nodes (const char * xpath_expr, vector<xmlNodePtr>& content)
 {
     xmlXPathObjectPtr obj;
