@@ -50,13 +50,6 @@ public:
      friend ostream& operator<<(ostream& os, Host& h);
 
     /**
-     * Function to print the Host object into a string in plain text
-     *  @param str the resulting string
-     *  @return a reference to the generated string
-     */
-    string& to_str(string& str) const;
-
-    /**
      * Function to print the Host object into a string in XML format
      *  @param xml the resulting XML string
      *  @return a reference to the generated string

@@ -112,33 +112,3 @@ int HostShare::from_xml_node(const xmlNodePtr node)
 
     return 0;
 }
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
-string& HostShare::to_str(string& str) const
-{
-    string template_xml;
-    ostringstream   oss;
-
-    oss<< "\tCPU_USAGE    = " << cpu_usage << endl
-       << "\tMEMORY_USAGE = " << mem_usage << endl
-       << "\tDISK_USAGE   = " << disk_usage<< endl
-       << "\tMAX_CPU      = " << max_cpu << endl
-       << "\tMAX_MEMORY   = " << max_mem << endl
-       << "\tMAX_DISK     = " << max_disk<< endl
-       << "\tFREE_CPU     = " << free_cpu << endl
-       << "\tFREE_MEMORY  = " << free_mem << endl
-       << "\tFREE_DISK    = " << free_disk<< endl
-       << "\tUSED_CPU     = " << used_cpu << endl
-       << "\tUSED_MEMORY  = " << used_mem << endl
-       << "\tUSED_DISK    = " << used_disk<< endl
-       << "\tRUNNING_VMS  = " << running_vms<< endl;
-
-    str = oss.str();
-
-    return str;
-}
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */

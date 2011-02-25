@@ -254,30 +254,3 @@ int Host::from_xml(const string& xml)
     // TODO: check for errors (missing mandatory elements)
     return 0;
 }
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
-string& Host::to_str(string& str) const
-{
-    string template_str;
-    string share_str;
-
-    ostringstream   os;
-
-    os <<
-        "ID      =  "  << oid            << endl <<
-        "NAME = "      << hostname       << endl <<
-        "STATE    = "  << state          << endl <<
-        "IM MAD   = "  << im_mad_name    << endl <<
-        "VMM MAD  = "  << vmm_mad_name   << endl <<
-        "TM MAD   = "  << tm_mad_name    << endl <<
-        "LAST_MON = "  << last_monitored << endl <<
-        "CLUSTER  = "  << cluster        << endl <<
-        "ATTRIBUTES"   << endl << host_template.to_str(template_str) << endl <<
-        "HOST SHARES"  << endl << host_share.to_str(share_str) <<endl;
-
-    str = os.str();
-
-    return str;
-}
