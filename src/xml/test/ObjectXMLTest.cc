@@ -104,22 +104,27 @@ public:
             int    int_exists;
             int    int_no_exists;
             int    int_malformed;
+            int    rc;
 
-            obj.xpath(str_exists,"/VM_POOL/VM/HISTORY/HOSTNAME","default_host");
+            rc = obj.xpath(str_exists,"/VM_POOL/VM/HISTORY/HOSTNAME","default_host");
             CPPUNIT_ASSERT(str_exists == "A_hostname");
+            CPPUNIT_ASSERT(rc == 0);
 
-
-            obj.xpath(str_no_exists,"/VM_POOL/NOT_AN_ELEMENT","default_host");
+            rc = obj.xpath(str_no_exists,"/VM_POOL/NOT_AN_ELEMENT","default_host");
             CPPUNIT_ASSERT(str_no_exists == "default_host");
+            CPPUNIT_ASSERT(rc == -1);
 
-            obj.xpath(int_exists,"/VM_POOL/VM/STATE",35);
+            rc = obj.xpath(int_exists,"/VM_POOL/VM/STATE",35);
             CPPUNIT_ASSERT(int_exists == 1);
+            CPPUNIT_ASSERT(rc == 0);
 
-            obj.xpath(int_no_exists,"/VM_POOL/NOT_AN_ELEMENT",35);
+            rc = obj.xpath(int_no_exists,"/VM_POOL/NOT_AN_ELEMENT",35);
             CPPUNIT_ASSERT(int_no_exists == 35);
+            CPPUNIT_ASSERT(rc == -1);
 
-            obj.xpath(int_malformed,"/VM_POOL/VM/USERNAME",33);
+            rc = obj.xpath(int_malformed,"/VM_POOL/VM/USERNAME",33);
             CPPUNIT_ASSERT(int_malformed == 33);
+            CPPUNIT_ASSERT(rc == -1);
         }
         catch(runtime_error& re)
         {

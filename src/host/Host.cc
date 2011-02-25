@@ -224,39 +224,51 @@ string& Host::to_xml(string& xml) const
 int Host::from_xml(const string& xml)
 {
     vector<xmlNodePtr> content;
+    
     int int_state;
+    int rc = 0;
 
     // Initialize the internal XML object
     update_from_str(xml);
 
-    xpath(oid,      "/HOST/ID", -1);
-    xpath(hostname, "/HOST/NAME", "not_found");
-    xpath(int_state, "/HOST/STATE", 0);
+    // Get class base attributes
+    rc += xpath(oid, "/HOST/ID", -1);
+    rc += xpath(hostname, "/HOST/NAME", "not_found");
+    rc += xpath(int_state, "/HOST/STATE", 0);
+
+    rc += xpath(im_mad_name, "/HOST/IM_MAD", "not_found");
+    rc += xpath(vmm_mad_name, "/HOST/VM_MAD", "not_found");
+    rc += xpath(tm_mad_name, "/HOST/TM_MAD", "not_found");
+
+    rc += xpath(last_monitored, "/HOST/LAST_MON_TIME", 0);
+    rc += xpath(cluster, "/HOST/CLUSTER", "not_found");
+
     state = static_cast<HostState>( int_state );
 
-    xpath(im_mad_name,  "/HOST/IM_MAD", "not_found");
-    xpath(vmm_mad_name, "/HOST/VM_MAD", "not_found");
-    xpath(tm_mad_name,  "/HOST/TM_MAD", "not_found");
+    if (rc != 0)
+    {
+        return -1;
+    }
 
-    xpath(last_monitored, "/HOST/LAST_MON_TIME", 0);
-
-    xpath(cluster, "/HOST/CLUSTER", "not_found");
-
+    // Get associated classes
     ObjectXML::get_nodes("/HOST/HOST_SHARE", content);
 
     if( content.size() < 1 )
     {
         return -1;
     }
+
     host_share.from_xml_node( content[0] );
 
     content.clear();
+    
     ObjectXML::get_nodes("/HOST/TEMPLATE", content);
 
     if( content.size() < 1 )
     {
         return -1;
     }
+
     host_template.from_xml_node( content[0] );
 
     return 0;

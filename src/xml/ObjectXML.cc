@@ -132,34 +132,40 @@ vector<string> ObjectXML::operator[] (const char * xpath_expr)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void ObjectXML::xpath(string& value, const char * xpath_expr, const char * def)
+int ObjectXML::xpath(string& value, const char * xpath_expr, const char * def)
 {
     vector<string> values;
+    int rc = 0;
 
     values = (*this)[xpath_expr];
 
     if ( values.empty() == true )
     {
         value = def;
+        rc    = -1;
     }
     else
     {
         value = values[0];
     }
+
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void ObjectXML::xpath(int& value, const char * xpath_expr, const int& def)
+int ObjectXML::xpath(int& value, const char * xpath_expr, const int& def)
 {
     vector<string> values;
+    int rc = 0;
 
     values = (*this)[xpath_expr];
 
     if (values.empty() == true)
     {
         value = def;
+        rc = -1;
     }
     else
     {
@@ -172,20 +178,26 @@ void ObjectXML::xpath(int& value, const char * xpath_expr, const int& def)
         if (iss.fail() == true)
         {
             value = def;
+            rc    = -1;
         }
     }
+
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void ObjectXML::xpath(time_t& value, const char * xpath_expr, const time_t& def)
+int ObjectXML::xpath(time_t& value, const char * xpath_expr, const time_t& def)
 {
     int int_val;
     int int_def = static_cast<time_t>(def);
+    int rc;
 
-    xpath(int_val, xpath_expr, int_def);
+    rc = xpath(int_val, xpath_expr, int_def);
     value = static_cast<time_t>(int_val);
+
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */

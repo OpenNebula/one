@@ -66,8 +66,10 @@ public:
      *    @param value to set 
      *    @param xpath_expr of the xml element
      *    @param def default value if the element is not found
+     *
+     *    @return -1 if default was set
      */
-    void xpath(string& value, const char * xpath_expr, const char * def);
+    int xpath(string& value, const char * xpath_expr, const char * def);
 
     /**
      *  Gets and sets a xpath attribute, if the attribute is not found a default
@@ -75,8 +77,10 @@ public:
      *    @param value to set 
      *    @param xpath_expr of the xml element
      *    @param def default value if the element is not found
+     *
+     *    @return -1 if default was set
      */
-    void xpath(int& value, const char * xpath_expr, const int& def);
+    int xpath(int& value, const char * xpath_expr, const int& def);
 
     /**
      *  Gets and sets a xpath attribute, if the attribute is not found a default
@@ -84,8 +88,10 @@ public:
      *    @param value to set
      *    @param xpath_expr of the xml element
      *    @param def default value if the element is not found
+     *
+     *    @return -1 if default was set
      */
-    void xpath(time_t& value, const char * xpath_expr, const time_t& def);
+    int xpath(time_t& value, const char * xpath_expr, const time_t& def);
 
     /**
      *  Gets the value of an element from an xml string

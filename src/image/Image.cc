@@ -324,35 +324,44 @@ int Image::from_xml(const string& xml)
     int int_state;
     int int_type;
 
+    int rc = 0;
+
     // Initialize the internal XML object
     update_from_str(xml);
 
+    // Get class base attributes
+    rc += xpath(oid, "/IMAGE/ID", -1);
+    rc += xpath(uid, "/IMAGE/UID", -1);
+    rc += xpath(user_name, "/IMAGE/USERNAME", "not_found");
+    rc += xpath(name, "/IMAGE/NAME", "not_found");
 
-    xpath(oid,      "/IMAGE/ID",  -1);
-    xpath(uid,      "/IMAGE/UID", -1);
-    xpath(user_name,"/IMAGE/USERNAME", "not_found");
-    xpath(name,     "/IMAGE/NAME", "not_found");
+    rc += xpath(int_type, "/IMAGE/TYPE", 0);
+    rc += xpath(public_img, "/IMAGE/PUBLIC", 0);
+    rc += xpath(persistent_img, "/IMAGE/PERSISTENT", 0);
+    rc += xpath(regtime, "/IMAGE/REGTIME", 0);
 
-    xpath(int_type, "/IMAGE/TYPE", 0);
-    type = static_cast<ImageType>(int_type);
+    rc += xpath(source, "/IMAGE/SOURCE", "not_found");
+    rc += xpath(int_state, "/IMAGE/STATE", 0);
+    rc += xpath(running_vms, "/IMAGE/RUNNING_VMS", -1);
 
-    xpath(public_img,     "/IMAGE/PUBLIC",     0);
-    xpath(persistent_img, "/IMAGE/PERSISTENT", 0);
-    xpath(regtime,        "/IMAGE/REGTIME",    0);
-    xpath(source,         "/IMAGE/SOURCE",     "not_found");
+    if (rc != 0)
+    {
+        return -1;
+    }
 
-    xpath(int_state,      "/IMAGE/STATE",      0);
+    type  = static_cast<ImageType>(int_type);
     state = static_cast<ImageState>(int_state);
 
-    xpath(running_vms,    "/IMAGE/RUNNING_VMS", -1);
-
+    // Get associated classes
     ObjectXML::get_nodes("/IMAGE/TEMPLATE", content);
     if( content.size() < 1 )
     {
         return -1;
     }
 
-    return image_template->from_xml_node(content[0]);
+    image_template->from_xml_node(content[0]);
+
+    return 0;
 }
 
 /* ------------------------------------------------------------------------ */
