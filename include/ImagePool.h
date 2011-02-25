@@ -56,6 +56,7 @@ public:
      */
     int allocate (
         int             uid,
+        string          user_name,
         ImageTemplate * img_template,
         int *           oid,
         string&         error_str);
@@ -206,7 +207,7 @@ private:
      */
     PoolObjectSQL * create()
     {
-        return new Image;
+        return new Image(-1, "", 0);
     };
 
     /**

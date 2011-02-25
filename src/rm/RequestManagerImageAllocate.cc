@@ -31,8 +31,10 @@ void RequestManager::ImageAllocate::execute(
     string              session;
     string              str_template;
     string              error_str;
+    string              user_name;
 
-    ImageTemplate *     img_template;
+    ImageTemplate *     img_template = 0;
+    User *              user;
 
     int                 iid;
     int                 uid;
@@ -96,10 +98,28 @@ void RequestManager::ImageAllocate::execute(
         }
     }
 
+
+    //--------------------------------------------------------------------------
+    //   Get the User Name
+    //--------------------------------------------------------------------------
+
+    user = ImageAllocate::upool->get(uid,true);
+
+    if ( user == 0 )
+    {
+        goto error_user_get;
+    }
+
+    user_name = user->get_username();
+
+    user->unlock();
+
     //--------------------------------------------------------------------------
     //   Allocate the Image
     //--------------------------------------------------------------------------
-    rc = ImageAllocate::ipool->allocate(uid,img_template,&iid, error_str);
+
+    rc = ImageAllocate::ipool->allocate(uid,user_name,
+                                        img_template,&iid, error_str);
 
     if ( rc < 0 )
     {
@@ -118,13 +138,17 @@ void RequestManager::ImageAllocate::execute(
 
     return;
 
+
+error_user_get:
+    oss.str(get_error(method_name, "USER", uid));
+    goto error_common;
+
 error_authenticate:
     oss.str(authenticate_error(method_name));
     goto error_common;
 
 error_authorize:
     oss.str(authorization_error(method_name, "CREATE", "IMAGE", uid, -1));
-    delete img_template;
     goto error_common;
 
 error_parse:
@@ -135,7 +159,6 @@ error_parse:
         free(error_msg);
     }
 
-    delete img_template;
     goto error_common;
 
 error_allocate:
@@ -144,6 +167,11 @@ error_allocate:
     goto error_common;
 
 error_common:
+    if( img_template != 0 )
+    {
+        delete img_template;
+    }
+
     arrayData.push_back(xmlrpc_c::value_boolean(false));  // FAILURE
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
 

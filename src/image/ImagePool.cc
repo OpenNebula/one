@@ -89,6 +89,7 @@ ImagePool::ImagePool(   SqlDB * db,
 
 int ImagePool::allocate (
         int            uid,
+        string         user_name,
         ImageTemplate* img_template,
         int *          oid,
         string&        error_str)
@@ -99,7 +100,7 @@ int ImagePool::allocate (
     // ---------------------------------------------------------------------
     // Build a new Image object
     // ---------------------------------------------------------------------
-    img = new Image(uid,img_template);
+    img = new Image(uid, user_name, img_template);
 
     img->get_template_attribute("NAME", name);
 
@@ -144,10 +145,7 @@ int ImagePool::dump(ostringstream& oss, const string& where)
     set_callback(static_cast<Callbackable::Callback>(&ImagePool::dump_cb),
                   static_cast<void *>(&oss));
 
-    cmd << "SELECT "<< Image::extended_db_names << ", user_pool.user_name FROM "
-        << Image::table
-        << " LEFT OUTER JOIN (SELECT oid, user_name FROM user_pool) "
-        << "AS user_pool ON " << Image::table << ".uid = user_pool.oid";
+    cmd << "SELECT body FROM " << Image::table;
 
     if ( !where.empty() )
     {

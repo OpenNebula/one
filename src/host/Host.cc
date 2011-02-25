@@ -243,12 +243,21 @@ int Host::from_xml(const string& xml)
     xpath(cluster, "/HOST/CLUSTER", "not_found");
 
     ObjectXML::get_nodes("/HOST/HOST_SHARE", content);
+
+    if( content.size() < 1 )
+    {
+        return -1;
+    }
     host_share.from_xml_node( content[0] );
 
     content.clear();
     ObjectXML::get_nodes("/HOST/TEMPLATE", content);
+
+    if( content.size() < 1 )
+    {
+        return -1;
+    }
     host_template.from_xml_node( content[0] );
 
-    // TODO: check for errors (missing mandatory elements)
     return 0;
 }
