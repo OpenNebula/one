@@ -153,6 +153,8 @@ class HostPoolTest : public PoolTest
     CPPUNIT_TEST (remove_cluster);
     CPPUNIT_TEST (update_info);
 
+//    CPPUNIT_TEST (scale_test);
+
     CPPUNIT_TEST_SUITE_END ();
 
 protected:
@@ -384,6 +386,89 @@ public:
             host = hp->get(i, false);
             CPPUNIT_ASSERT(host!=0);
             CPPUNIT_ASSERT(host->isEnabled());
+        }
+    }
+
+    /* ********************************************************************* */
+
+    void scale_test()
+    {
+        time_t the_time, the_time2;
+        int oid,i,j,rc;
+
+        ostringstream oss,ossdump;
+        string        err;
+        Host * host;
+
+        string monitor = "ARCH=x86_64 MODELNAME=\"Intel(R) Core(TM)2 Duo CPU P9300 @ 2.26GHz\" HYPERVISOR=kvm TOTALCPU=200 CPUSPEED=800 TOTALMEMORY=4005416 USEDMEMORY=2351928 FREEMEMORY=2826904 FREECPU=188.4 USEDCPU=11.599999999999994 NETRX=0 NETTX=0 HOSTNAME=pc-ruben";
+
+        cout << endl << "Allocate Test" << endl;
+
+        tearDown();
+
+        for (i=1000; i<30000 ; i = i + 5000)
+        {
+            setUp();
+            
+            HostPool * hp = static_cast<HostPool *>(pool);
+
+            the_time = time(0);
+
+            for (j=0,oss.str(""); j<i ; j=j+1,oss.str(""))
+            {
+                oss << "host" << j;
+
+                hp->allocate(&oid, oss.str().c_str(),im_mad,vmm_mad,tm_mad,err);
+            }
+
+            the_time2 = time(0) - the_time;
+
+            hp->clean();
+
+            the_time = time(0);
+
+            rc = hp->dump(ossdump, "");
+
+            cout <<"\t"<<i<<"\t"<<the_time2<<"\t"<<time(0)-the_time<< endl;
+
+            tearDown();
+        } 
+
+        cout << endl << "Read Test" << endl;
+
+        setUp();
+
+
+        // Allocate a HostPool
+        setUp();
+
+        HostPool * hp = static_cast<HostPool *>(pool);
+
+        for (i=10000,oss.str(""); i<30000 ; i++,oss.str(""))
+        {
+            oss << "host" << i;
+            hp->allocate(&oid,oss.str().c_str(),im_mad,vmm_mad,tm_mad,err);
+
+            host = hp->get(oid, false);
+
+            host->update_info(monitor);
+            hp->update(host);
+        }
+           
+       //Load test 
+        for (i=0; i<25000; i=i+5000)
+        {
+            hp->clean();
+
+            the_time = time(0);
+
+            for (j=0; j<i ; j++)
+            {
+                host = hp->get(j,true);
+                host->unlock();
+            }
+
+            cout << "\t" << i << "\t" << time(0) - the_time << endl;
         }
     }
 
