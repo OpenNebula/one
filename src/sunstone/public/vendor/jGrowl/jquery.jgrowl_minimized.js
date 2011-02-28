@@ -1,3 +1,4 @@
+/* Licensed under the MIT license (http://www.opensource.org/licenses/mit-license.php). */
 
 (function($){$.jGrowl=function(m,o){if($('#jGrowl').size()==0)
 $('<div id="jGrowl"></div>').addClass((o&&o.position)?o.position:$.jGrowl.defaults.position).appendTo('body');$('#jGrowl').jGrowl(m,o);};$.fn.jGrowl=function(m,o){if($.isFunction(this.each)){var args=arguments;return this.each(function(){var self=this;if($(this).data('jGrowl.instance')==undefined){$(this).data('jGrowl.instance',$.extend(new $.fn.jGrowl(),{notifications:[],element:null,interval:null}));$(this).data('jGrowl.instance').startup(this);}

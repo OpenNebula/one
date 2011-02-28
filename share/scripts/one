@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/bin/bash
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
