@@ -207,9 +207,13 @@ SUNSTONE_DIRS="$SUNSTONE_LOCATION/models \
                $SUNSTONE_LOCATION/models/OpenNebulaJSON \
                $SUNSTONE_LOCATION/public \
                $SUNSTONE_LOCATION/public/js \
-               $SUNSTONE_LOCATION/public/js/vendor \
                $SUNSTONE_LOCATION/public/css \
-               $SUNSTONE_LOCATION/public/css/vendor \
+               $SUNSTONE_LOCATION/public/vendor \
+               $SUNSTONE_LOCATION/public/vendor/jQueryLayout \
+               $SUNSTONE_LOCATION/public/vendor/dataTables \
+               $SUNSTONE_LOCATION/public/vendor/jQueryUI \
+               $SUNSTONE_LOCATION/public/vendor/jQuery \
+               $SUNSTONE_LOCATION/public/vendor/jGrowl \
                $SUNSTONE_LOCATION/public/images \
                $SUNSTONE_LOCATION/templates"
 
@@ -309,9 +313,12 @@ INSTALL_SUNSTONE_FILES=(
     SUNSTONE_MODELS_JSON_FILES:$SUNSTONE_LOCATION/models/OpenNebulaJSON
     SUNSTONE_TEMPLATE_FILES:$SUNSTONE_LOCATION/templates
     SUNSTONE_PUBLIC_JS_FILES:$SUNSTONE_LOCATION/public/js
-    SUNSTONE_PUBLIC_JS_VENDOR_FILES:$SUNSTONE_LOCATION/public/js/vendor
     SUNSTONE_PUBLIC_CSS_FILES:$SUNSTONE_LOCATION/public/css
-    SUNSTONE_PUBLIC_CSS_VENDOR_FILES:$SUNSTONE_LOCATION/public/css/vendor
+    SUNSTONE_PUBLIC_VENDOR_DATATABLES:$SUNSTONE_LOCATION/public/vendor/dataTables
+    SUNSTONE_PUBLIC_VENDOR_JGROWL:$SUNSTONE_LOCATION/public/vendor/jGrowl
+    SUNSTONE_PUBLIC_VENDOR_JQUERY:$SUNSTONE_LOCATION/public/vendor/jQuery
+    SUNSTONE_PUBLIC_VENDOR_JQUERYUI:$SUNSTONE_LOCATION/public/vendor/jQueryUI
+    SUNSTONE_PUBLIC_VENDOR_JQUERYLAYOUT:$SUNSTONE_LOCATION/public/vendor/jQueryLayout
     SUNSTONE_PUBLIC_IMAGES_FILES:$SUNSTONE_LOCATION/public/images
 )
 
@@ -724,37 +731,51 @@ SUNSTONE_PUBLIC_JS_FILES="src/sunstone/public/js/layout.js \
                         src/sunstone/public/js/one-ui_views.templates.js \
                         src/sunstone/public/js/opennebula.js"
 
-SUNSTONE_PUBLIC_JS_VENDOR_FILES="src/sunstone/public/js/vendor/base64.js \
-                    src/sunstone/public/js/vendor/jquery-1.4.4.min.js \
-                    src/sunstone/public/js/vendor/jquery.dataTables.min.js \
-                    src/sunstone/public/js/vendor/jquery.jgrowl_minimized.js \
-                    src/sunstone/public/js/vendor/jquery.layout.min-1.2.0.js \
-                    src/sunstone/public/js/vendor/jquery-ui-1.8.7.custom.min.js"
-
 SUNSTONE_PUBLIC_CSS_FILES="src/sunstone/public/css/application.css \
-                           src/sunstone/public/css/demo_table_jui.css \
-                           src/sunstone/public/css/jquery.jgrowl.css \
                            src/sunstone/public/css/layout.css \
-                           src/sunstone/public/css/layout-default-latest.css \
                            src/sunstone/public/css/login.css"
 
-SUNSTONE_PUBLIC_CSS_VENDOR_FILES="\
-    src/sunstone/public/css/vendor/jquery-ui-1.8.7.custom.css \
-    src/sunstone/public/css/vendor/ui-bg_flat_0_575c5b_40x100.png \
-    src/sunstone/public/css/vendor/ui-bg_flat_0_8f9392_40x100.png \
-    src/sunstone/public/css/vendor/ui-bg_flat_0_aaaaaa_40x100.png \
-    src/sunstone/public/css/vendor/ui-bg_flat_75_ffffff_40x100.png \
-    src/sunstone/public/css/vendor/ui-bg_glass_55_fbf9ee_1x400.png \
-    src/sunstone/public/css/vendor/ui-bg_glass_65_ffffff_1x400.png \
-    src/sunstone/public/css/vendor/ui-bg_glass_75_dadada_1x400.png \
-    src/sunstone/public/css/vendor/ui-bg_glass_75_e6e6e6_1x400.png \
-    src/sunstone/public/css/vendor/ui-bg_glass_95_fef1ec_1x400.png \
-    src/sunstone/public/css/vendor/ui-bg_highlight-soft_75_cccccc_1x100.png \
-    src/sunstone/public/css/vendor/ui-icons_222222_256x240.png \
-    src/sunstone/public/css/vendor/ui-icons_2e83ff_256x240.png \
-    src/sunstone/public/css/vendor/ui-icons_454545_256x240.png \
-    src/sunstone/public/css/vendor/ui-icons_888888_256x240.png \
-    src/sunstone/public/css/vendor/ui-icons_cd0a0a_256x240.png"
+SUNSTONE_PUBLIC_VENDOR_DATATABLES="\
+                src/sunstone/public/vendor/dataTables/jquery.dataTables.min.js \
+                src/sunstone/public/vendor/dataTables/demo_table_jui.css \
+                src/sunstone/public/vendor/dataTables/BSD-LICENSE.txt \
+                src/sunstone/public/vendor/dataTables/NOTICE"
+
+SUNSTONE_PUBLIC_VENDOR_JGROWL="\
+                src/sunstone/public/vendor/jGrowl/jquery.jgrowl_minimized.js \
+                src/sunstone/public/vendor/jGrowl/jquery.jgrowl.css \
+                src/sunstone/public/vendor/jGrowl/NOTICE"
+
+SUNSTONE_PUBLIC_VENDOR_JQUERY="\
+                        src/sunstone/public/vendor/jQuery/jquery-1.4.4.min.js \
+                        src/sunstone/public/vendor/jQuery/MIT-LICENSE.txt \
+                        src/sunstone/public/vendor/jQuery/NOTICE"
+
+SUNSTONE_PUBLIC_VENDOR_JQUERYUI="\
+src/sunstone/public/vendor/jQueryUI/ui-bg_glass_75_dadada_1x400.png \
+src/sunstone/public/vendor/jQueryUI/ui-icons_cd0a0a_256x240.png \
+src/sunstone/public/vendor/jQueryUI/jquery-ui-1.8.7.custom.css \
+src/sunstone/public/vendor/jQueryUI/ui-bg_flat_0_aaaaaa_40x100.png \
+src/sunstone/public/vendor/jQueryUI/ui-bg_flat_0_8f9392_40x100.png \
+src/sunstone/public/vendor/jQueryUI/MIT-LICENSE.txt \
+src/sunstone/public/vendor/jQueryUI/jquery-ui-1.8.7.custom.min.js \
+src/sunstone/public/vendor/jQueryUI/ui-bg_highlight-soft_75_cccccc_1x100.png \
+src/sunstone/public/vendor/jQueryUI/ui-bg_glass_95_fef1ec_1x400.png \
+src/sunstone/public/vendor/jQueryUI/ui-bg_glass_55_fbf9ee_1x400.png \
+src/sunstone/public/vendor/jQueryUI/ui-icons_888888_256x240.png \
+src/sunstone/public/vendor/jQueryUI/ui-bg_glass_75_e6e6e6_1x400.png \
+src/sunstone/public/vendor/jQueryUI/ui-bg_flat_0_575c5b_40x100.png \
+src/sunstone/public/vendor/jQueryUI/ui-bg_glass_65_ffffff_1x400.png \
+src/sunstone/public/vendor/jQueryUI/ui-bg_flat_75_ffffff_40x100.png \
+src/sunstone/public/vendor/jQueryUI/ui-icons_2e83ff_256x240.png \
+src/sunstone/public/vendor/jQueryUI/ui-icons_454545_256x240.png \
+src/sunstone/public/vendor/jQueryUI/NOTICE \
+src/sunstone/public/vendor/jQueryUI/ui-icons_222222_256x240.png \
+"
+SUNSTONE_PUBLIC_VENDOR_JQUERYLAYOUT="\
+            src/sunstone/public/vendor/jQueryLayout/layout-default-latest.css \
+            src/sunstone/public/vendor/jQueryLayout/jquery.layout.min-1.2.0.js \
+            src/sunstone/public/vendor/jQueryLayout/NOTICE"
 
 SUNSTONE_PUBLIC_IMAGES_FILES="src/sunstone/public/images/ajax-loader.gif \
                         src/sunstone/public/images/login_over.png \
