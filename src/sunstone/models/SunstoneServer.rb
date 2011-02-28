@@ -19,10 +19,15 @@ ONE_LOCATION = ENV["ONE_LOCATION"]
 if !ONE_LOCATION
     LOG_LOCATION = "/var/log/one"
     VAR_LOCATION = "/var/lib/one"
+    RUBY_LIB_LOCATION = "/usr/lib/one/ruby"
 else
     VAR_LOCATION = ONE_LOCATION+"/var"
     LOG_LOCATION = ONE_LOCATION+"/var"
+    RUBY_LIB_LOCATION = ONE_LOCATION+"/lib/ruby"
 end
+
+$: << RUBY_LIB_LOCATION
+$: << File.dirname(__FILE__)
 
 require 'models/OpenNebulaJSON'
 include OpenNebulaJSON
