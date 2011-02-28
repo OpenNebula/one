@@ -61,7 +61,7 @@ class SunstoneServer
     #
     ############################################################################
     def get_pool(kind)
-        user_flag = -1
+        user_flag = -2
         pool = case kind
             when "cluster" then ClusterPoolJSON.new(@client)
             when "host"    then HostPoolJSON.new(@client)

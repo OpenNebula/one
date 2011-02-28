@@ -68,8 +68,8 @@ free_cpu=(data['cpu_idle'].to_f/100.0) * total_cpu
 info["FREECPU"]=free_cpu
 info["USEDCPU"]=total_cpu - free_cpu
 
-info["NETRX"]=data['bytes_out']
-info["NETTX"]=data['bytes_in']
+info["NETTX"]=data['bytes_out']
+info["NETRX"]=data['bytes_in']
 
 info["KVM_VERSION"]=data['KVM_VERSION']
 info["XEN_VERSION"]=data['XEN_VERSION']
