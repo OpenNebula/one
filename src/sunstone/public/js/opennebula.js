@@ -191,7 +191,7 @@ var OpenNebula = {
                 data: {remember: remember},
                 beforeSend : function(req) {
                     req.setRequestHeader( "Authorization",
-                                        "Basic " + base64.encode(username + ":" + password)
+                                        "Basic " + btoa(username + ":" + password)
                                         )
                 },
                 success: function(response)
