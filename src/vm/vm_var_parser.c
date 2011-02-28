@@ -500,7 +500,7 @@ int vm_var__flex_debug = 0;
 char *vm_var_text;
 #line 1 "vm_var_parser.l"
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
