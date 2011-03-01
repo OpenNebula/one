@@ -141,6 +141,7 @@ void RequestManager::ImageAllocate::execute(
 
 error_user_get:
     oss.str(get_error(method_name, "USER", uid));
+    delete img_template;
     goto error_common;
 
 error_authenticate:
@@ -149,6 +150,7 @@ error_authenticate:
 
 error_authorize:
     oss.str(authorization_error(method_name, "CREATE", "IMAGE", uid, -1));
+    delete img_template;
     goto error_common;
 
 error_parse:
@@ -159,6 +161,7 @@ error_parse:
         free(error_msg);
     }
 
+    delete img_template;
     goto error_common;
 
 error_allocate:
@@ -167,11 +170,6 @@ error_allocate:
     goto error_common;
 
 error_common:
-    if( img_template != 0 )
-    {
-        delete img_template;
-    }
-
     arrayData.push_back(xmlrpc_c::value_boolean(false));  // FAILURE
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
 

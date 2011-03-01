@@ -179,24 +179,6 @@ protected:
         CPPUNIT_ASSERT( xml_str == xmls[index]);
     };
 
-    void set_up_user_pool()
-    {
-        string err;
-
-        UserPool::bootstrap(db);
-        UserPool * user_pool = new UserPool(db);
-        int uid_1, uid_2;
-
-        string pass_1     = "A pass";
-        string pass_2     = "B pass";
-
-        user_pool->allocate(&uid_1, user_names[0], pass_1, true, err);
-        user_pool->allocate(&uid_2, user_names[1], pass_2, true, err);
-
-        delete user_pool;
-    };
-
-
 public:
     ImagePoolTest(){xmlInitParser();};
 
