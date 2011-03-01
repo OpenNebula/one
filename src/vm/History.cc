@@ -25,21 +25,10 @@
 
 const char * History::table = "history";
 
-const char * History::db_names = "vid,seq,host_name,vm_dir,hid,vm_mad,tm_mad,stime,"
-    "etime,pstime,petime,rstime,retime,estime,eetime,reason";
-
-const char * History::extended_db_names =
-    "history.vid, history.seq, history.host_name, history.vm_dir, history.hid, "
-    "history.vm_mad, history.tm_mad, history.stime, history.etime, "
-    "history.pstime, history.petime, history.rstime, history.retime, "
-    "history.estime, history.eetime, history.reason";
+const char * History::db_names = "vid, seq, body";
 
 const char * History::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
-    "history (vid INTEGER,"
-    "seq INTEGER,host_name TEXT,vm_dir TEXT,hid INTEGER,vm_mad TEXT,tm_mad TEXT,"
-    "stime INTEGER,etime INTEGER,pstime INTEGER,petime INTEGER,rstime INTEGER,"
-    "retime INTEGER,estime INTEGER,eetime INTEGER,reason INTEGER,"
-    "PRIMARY KEY(vid,seq))";
+    "history (vid INTEGER, seq INTEGER, body TEXT, PRIMARY KEY(vid,seq))";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -47,6 +36,7 @@ const char * History::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
 History::History(
     int _oid,
     int _seq):
+        ObjectXML(),
         oid(_oid),
         seq(_seq),
         hostname(""),
@@ -169,44 +159,21 @@ int History::insert_replace(SqlDB *db, bool replace)
 {
     ostringstream   oss;
 
-    int    rc;
+    string xml_body;
+    char * sql_xml;
 
-    char * sql_hostname;
-    char * sql_vm_dir;
-    char * sql_vmm_mad_name;
-    char * sql_tm_mad_name;
+    int    rc;
 
     if (seq == -1)
     {
         return 0;
     }
 
-    sql_hostname = db->escape_str(hostname.c_str());
+    sql_xml = db->escape_str(to_xml(xml_body).c_str());
 
-    if ( sql_hostname == 0 )
+    if ( sql_xml == 0 )
     {
-        goto error_hostname;
-    }
-
-    sql_vm_dir = db->escape_str(vm_dir.c_str());
-
-    if ( sql_vm_dir == 0 )
-    {
-        goto error_vm_dir;
-    }
-
-    sql_vmm_mad_name = db->escape_str(vmm_mad_name.c_str());
-
-    if ( sql_vmm_mad_name == 0 )
-    {
-        goto error_vmm;
-    }
-
-    sql_tm_mad_name = db->escape_str(tm_mad_name.c_str());
-
-    if ( sql_tm_mad_name == 0 )
-    {
-        goto error_tm;
+        goto error_body;
     }
 
     if(replace)
@@ -218,40 +185,18 @@ int History::insert_replace(SqlDB *db, bool replace)
         oss << "INSERT";
     }
 
-    oss << " INTO " << table << " ("<< db_names <<") VALUES ("<<
-        oid << "," <<
-        seq << "," <<
-        "'" << sql_hostname << "',"<<
-        "'" << sql_vm_dir << "'," <<
-        hid << "," <<
-        "'" << sql_vmm_mad_name << "'," <<
-        "'" << sql_tm_mad_name  << "'," <<
-        stime << "," <<
-        etime << "," <<
-        prolog_stime  << "," <<
-        prolog_etime  << "," <<
-        running_stime << "," <<
-        running_etime << "," <<
-        epilog_stime  << "," <<
-        epilog_etime  << "," <<
-        reason << ")";
+    oss << " INTO " << table << " ("<< db_names <<") VALUES ("
+        <<          oid             << ","
+        <<          seq             << ","
+        << "'" <<   sql_xml         << "')";
 
     rc = db->exec(oss);
 
-    db->free_str(sql_hostname);
-    db->free_str(sql_vm_dir);
-    db->free_str(sql_vmm_mad_name);
-    db->free_str(sql_tm_mad_name);
+    db->free_str(sql_xml);
 
     return rc;
 
-error_tm:
-    db->free_str(sql_vmm_mad_name);
-error_vmm:
-    db->free_str(sql_vm_dir);
-error_vm_dir:
-    db->free_str(sql_hostname);
-error_hostname:
+error_body:
     return -1;
 }
 
@@ -260,97 +205,15 @@ error_hostname:
 
 int History::select_cb(void *nil, int num, char **values, char **names)
 {
-    if ((!values[VID]) ||
-        (!values[SEQ]) ||
-        (!values[HOSTNAME]) ||
-        (!values[VM_DIR]) ||
-        (!values[HID]) ||
-        (!values[VMMMAD]) ||
-        (!values[TMMAD]) ||
-        (!values[STIME]) ||
-        (!values[ETIME]) ||
-        (!values[PROLOG_STIME]) ||
-        (!values[PROLOG_ETIME]) ||
-        (!values[RUNNING_STIME]) ||
-        (!values[RUNNING_ETIME]) ||
-        (!values[EPILOG_STIME]) ||
-        (!values[EPILOG_ETIME]) ||
-        (!values[REASON]) ||
-        (num != LIMIT ))
+    if ( (!values[0]) || (num != 1) )
     {
         return -1;
     }
 
-    oid      = atoi(values[VID]);
-    seq      = atoi(values[SEQ]);
-
-    hostname = values[HOSTNAME];
-    vm_dir   = values[VM_DIR];
-
-    hid      = atoi(values[HID]);
-
-    vmm_mad_name = values[VMMMAD];
-    tm_mad_name  = values[TMMAD];
-
-    stime = static_cast<time_t>(atoi(values[STIME]));
-    etime = static_cast<time_t>(atoi(values[ETIME]));
-
-    prolog_stime = static_cast<time_t>(atoi(values[PROLOG_STIME]));
-    prolog_etime = static_cast<time_t>(atoi(values[PROLOG_ETIME]));
-
-    running_stime = static_cast<time_t>(atoi(values[RUNNING_STIME]));
-    running_etime = static_cast<time_t>(atoi(values[RUNNING_ETIME]));
-
-    epilog_stime = static_cast<time_t>(atoi(values[EPILOG_STIME]));
-    epilog_etime = static_cast<time_t>(atoi(values[EPILOG_ETIME]));
-
-    reason = static_cast<MigrationReason>(atoi(values[REASON]));
-
-    return 0;
+    return from_xml(values[0]);
 }
 
 /* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int History::dump(ostringstream& oss, int num, char **values, char **names)
-{
-    if ((!values[VID])||
-        (!values[SEQ])||
-        (!values[HOSTNAME])||
-        (!values[HID])||
-        (!values[STIME])||
-        (!values[ETIME])||
-        (!values[PROLOG_STIME])||
-        (!values[PROLOG_ETIME])||
-        (!values[RUNNING_STIME])||
-        (!values[RUNNING_ETIME])||
-        (!values[EPILOG_STIME])||
-        (!values[EPILOG_ETIME])||
-        (!values[REASON])||
-        (num != LIMIT))
-    {
-        return -1;
-    }
-
-    oss <<
-        "<HISTORY>" <<
-          "<SEQ>"     << values[SEQ]           << "</SEQ>"     <<
-          "<HOSTNAME>"<< values[HOSTNAME]      << "</HOSTNAME>"<<
-          "<HID>"     << values[HID]           << "</HID>"     <<
-          "<STIME>"   << values[STIME]         << "</STIME>"   <<
-          "<ETIME>"   << values[ETIME]         << "</ETIME>"   <<
-          "<PSTIME>"  << values[PROLOG_STIME]  << "</PSTIME>"  <<
-          "<PETIME>"  << values[PROLOG_ETIME]  << "</PETIME>"  <<
-          "<RSTIME>"  << values[RUNNING_STIME] << "</RSTIME>"  <<
-          "<RETIME>"  << values[RUNNING_ETIME] << "</RETIME>"  <<
-          "<ESTIME>"  << values[EPILOG_STIME]  << "</ESTIME>"  <<
-          "<EETIME>"  << values[EPILOG_ETIME]  << "</EETIME>"  <<
-          "<REASON>"  << values[REASON]        << "</REASON>"  <<
-        "</HISTORY>";
-
-    return 0;
-}
-
 /* -------------------------------------------------------------------------- */
 
 int History::select(SqlDB * db)
@@ -365,12 +228,12 @@ int History::select(SqlDB * db)
 
     if ( seq == -1)
     {
-        oss << "SELECT " << db_names << " FROM history WHERE vid = "<< oid <<
+        oss << "SELECT body FROM history WHERE vid = "<< oid <<
             " AND seq=(SELECT MAX(seq) FROM history WHERE vid = " << oid << ")";
     }
     else
     {
-        oss << "SELECT " << db_names << " FROM history WHERE vid = " << oid
+        oss << "SELECT body FROM history WHERE vid = " << oid
             << " AND seq = " << seq;
     }
 
@@ -415,33 +278,6 @@ ostream& operator<<(ostream& os, const History& history)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-
-string& History::to_str(string& str) const
-{
-    ostringstream oss;
-
-    oss<< "\tSEQ      = " << seq           << endl
-       << "\tHOSTNAME = " << hostname      << endl
-       << "\tHID      = " << hid           << endl
-       << "\tSTIME    = " << stime         << endl
-       << "\tETIME    = " << etime         << endl
-       << "\tPSTIME   = " << prolog_stime  << endl
-       << "\tPETIME   = " << prolog_etime  << endl
-       << "\tRSTIME   = " << running_stime << endl
-       << "\tRETIME   = " << running_etime << endl
-       << "\tESTIME   = " << epilog_stime  << endl
-       << "\tEETIME   = " << epilog_etime  << endl
-       << "\tREASON   = " << reason;
-
-   str = oss.str();
-
-   return str;
-
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 string& History::to_xml(string& xml) const
 {
     ostringstream oss;
@@ -450,9 +286,12 @@ string& History::to_xml(string& xml) const
         "<HISTORY>" <<
           "<SEQ>"     << seq           << "</SEQ>"   <<
           "<HOSTNAME>"<< hostname      << "</HOSTNAME>"<<
+          "<VM_DIR>"  << vm_dir        << "</VM_DIR>"<<
           "<HID>"     << hid           << "</HID>"   <<
           "<STIME>"   << stime         << "</STIME>" <<
           "<ETIME>"   << etime         << "</ETIME>" <<
+          "<VMMMAD>"  << vmm_mad_name  << "</VMMMAD>"<<
+          "<TMMAD>"   << tm_mad_name   << "</TMMAD>" <<
           "<PSTIME>"  << prolog_stime  << "</PSTIME>"<<
           "<PETIME>"  << prolog_etime  << "</PETIME>"<<
           "<RSTIME>"  << running_stime << "</RSTIME>"<<
@@ -466,3 +305,62 @@ string& History::to_xml(string& xml) const
 
    return xml;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int History::from_xml_node(const xmlNodePtr node)
+{
+    // Initialize the internal XML object
+    ObjectXML::update_from_node(node);
+
+    return rebuild_attributes();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int History::from_xml(const string &xml_str)
+{
+    // Initialize the internal XML object
+    ObjectXML::update_from_str(xml_str);
+
+    return rebuild_attributes();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int History::rebuild_attributes()
+{
+    int int_reason;
+    int rc = 0;
+
+    rc += xpath(seq          , "/HISTORY/SEQ",      -1);
+    rc += xpath(hostname     , "/HISTORY/HOSTNAME", "not_found");
+    rc += xpath(vm_dir       , "/HISTORY/VM_DIR",   "not_found");
+    rc += xpath(hid          , "/HISTORY/HID",      -1);
+    rc += xpath(stime        , "/HISTORY/STIME",    0);
+    rc += xpath(etime        , "/HISTORY/ETIME",    0);
+    rc += xpath(vmm_mad_name , "/HISTORY/VMMMAD",   "not_found");
+    rc += xpath(tm_mad_name  , "/HISTORY/TMMAD",    "not_found");
+    rc += xpath(prolog_stime , "/HISTORY/PSTIME",   0);
+    rc += xpath(prolog_etime , "/HISTORY/PETIME",   0);
+    rc += xpath(running_stime, "/HISTORY/RSTIME",   0);
+    rc += xpath(running_etime, "/HISTORY/RETIME",   0);
+    rc += xpath(epilog_stime , "/HISTORY/ESTIME",   0);
+    rc += xpath(epilog_etime , "/HISTORY/EETIME",   0);
+    rc += xpath(int_reason   , "/HISTORY/REASON",   0);
+
+    reason = static_cast<MigrationReason>(int_reason);
+
+    if (rc != 0)
+    {
+        return -1;
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */

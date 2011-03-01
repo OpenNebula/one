@@ -25,7 +25,7 @@ using namespace std;
  *  The History class, it represents an execution record of a Virtual Machine.
  */
 
-class History:public ObjectSQL
+class History:public ObjectSQL, public ObjectXML
 {
 public:
     enum MigrationReason
@@ -57,14 +57,6 @@ public:
 
     /**
      * Function to print the History object into a string in
-     * plain text
-     *  @param str the resulting string
-     *  @return a reference to the generated string
-     */
-    string& to_str(string& str) const;
-
-    /**
-     * Function to print the History object into a string in
      * XML format
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
@@ -78,26 +70,6 @@ private:
     // ----------------------------------------
     // DataBase implementation variables
     // ----------------------------------------
-    enum ColNames
-    {
-        VID             = 0,
-        SEQ             = 1,
-        HOSTNAME        = 2,
-        VM_DIR          = 3,
-        HID             = 4,
-        VMMMAD          = 5,
-        TMMAD           = 6,
-        STIME           = 7,
-        ETIME           = 8,
-        PROLOG_STIME    = 9,
-        PROLOG_ETIME    = 10,
-        RUNNING_STIME   = 11,
-        RUNNING_ETIME   = 12,
-        EPILOG_STIME    = 13,
-        EPILOG_ETIME    = 14,
-        REASON          = 15,
-        LIMIT           = 16
-    };
 
     static const char * table;
 
@@ -108,21 +80,6 @@ private:
     static const char * db_bootstrap;
 
     void non_persistent_data();
-
-    static string column_name(const ColNames column)
-    {
-        switch (column)
-        {
-        case HID:
-            return "hid";
-        case ETIME:
-            return "etime";
-        case RUNNING_ETIME:
-            return "retime";
-        default:
-            return "";
-        }
-    }
 
     // ----------------------------------------
     // History fields
@@ -208,15 +165,25 @@ private:
     int select_cb(void *nil, int num, char **values, char **names);
 
     /**
-     *  Function to unmarshall a History object into an output stream with XML
-     *  format.
-     *    @param oss the output stream
-     *    @param num the number of columns read from the DB
-     *    @param names the column names
-     *    @param vaues the column values
-     *    @return 0 on success
+     *  Rebuilds the object from an xml node
+     *    @param node The xml node pointer
+     *
+     *    @return 0 on success, -1 otherwise
      */
-    static int dump(ostringstream& oss, int  num, char **names, char **values);
+    int from_xml_node(const xmlNodePtr node);
+
+    /**
+     *  Rebuilds the object from an xml formatted string
+     *    @param xml_str The xml-formatted string
+     *
+     *    @return 0 on success, -1 otherwise
+     */
+    int from_xml(const string &xml_str);
+
+    /**
+     *  Rebuilds the internal attributes using xpath
+     */
+    int rebuild_attributes();
 };
 
 #endif /*HISTORY_H_*/

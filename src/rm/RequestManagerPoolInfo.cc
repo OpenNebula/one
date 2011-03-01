@@ -32,8 +32,6 @@ void RequestManager::VirtualMachinePoolInfo::execute(
     int                 rc;
     int                 state;
 
-    bool                extended;
-
     ostringstream       oss;
     ostringstream       where_string;
 
@@ -45,14 +43,15 @@ void RequestManager::VirtualMachinePoolInfo::execute(
 
     NebulaLog::log("ReM",Log::DEBUG,"VirtualMachinePoolInfo method invoked");
 
+    // The extended information flag is not used, but for backwards
+    // compatibility, 2 or 4 arguments can be present.
     switch (paramList.size())
     {
         case 2:
-            extended    = true;
             state       = -1;
             break;
         case 4:
-            extended    = xmlrpc_c::value_boolean(paramList.getBoolean(2));
+//            extended    = xmlrpc_c::value_boolean(paramList.getBoolean(2));
             state       = xmlrpc_c::value_int (paramList.getInt(3));
             break;
         default:
@@ -86,7 +85,7 @@ void RequestManager::VirtualMachinePoolInfo::execute(
         where_string << "UID=" << filter_flag;
     }
 
-    rc = VirtualMachinePoolInfo::vmpool->dump(oss, extended, state, where_string.str());
+    rc = VirtualMachinePoolInfo::vmpool->dump(oss, state, where_string.str());
 
     if ( rc != 0 )
     {

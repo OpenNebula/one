@@ -121,19 +121,19 @@ public:
 
     /**
      * Function to print the VirtualMachine object into a string in
-     * plain text
-     *  @param str the resulting string
-     *  @return a reference to the generated string
-     */
-    string& to_str(string& str) const;
-
-    /**
-     * Function to print the VirtualMachine object into a string in
      * XML format
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
     string& to_xml(string& xml) const;
+
+    /**
+     *  Rebuilds the object from an xml formatted string
+     *    @param xml_str The xml-formatted string
+     *
+     *    @return 0 on success, -1 otherwise
+     */
+    int from_xml(const string &xml_str);
 
     // ------------------------------------------------------------------------
     // Dynamic Info
@@ -785,6 +785,11 @@ private:
      */
     int         uid;
 
+    /**
+     *  Owner's name
+     */
+    string      user_name;
+
     // -------------------------------------------------------------------------
     // VM Scheduling & Managing Information
     // -------------------------------------------------------------------------
@@ -981,33 +986,14 @@ protected:
     // Constructor
     //**************************************************************************
 
-    VirtualMachine(int id=-1, VirtualMachineTemplate * _vm_template = 0);
+    VirtualMachine(int id, string _user_name,
+                   VirtualMachineTemplate * _vm_template = 0);
 
     virtual ~VirtualMachine();
 
     // *************************************************************************
     // DataBase implementation
     // *************************************************************************
-
-    enum ColNames
-    {
-        OID             = 0,
-        UID             = 1,
-        NAME            = 2,
-        LAST_POLL       = 3,
-        STATE           = 4,
-        LCM_STATE       = 5,
-        STIME           = 6,
-        ETIME           = 7,
-        DEPLOY_ID       = 8,
-        MEMORY          = 9,
-        CPU             = 10,
-        NET_TX          = 11,
-        NET_RX          = 12,
-        LAST_SEQ        = 13,
-        TEMPLATE        = 14,
-        LIMIT           = 15
-    };
 
     static const char * table;
 
@@ -1048,29 +1034,6 @@ protected:
         NebulaLog::log("ONE",Log::ERROR, "VM Drop not implemented!");
         return -1;
     }
-
-    /**
-     *  Dumps the contect of a set of VirtualMachine objects in the given stream
-     *  using XML format
-     *    @param oss the output stream
-     *    @param num the number of columns read from the DB
-     *    @param names the column names
-     *    @param vaues the column values
-     *    @return 0 on success
-     */
-    static int dump(ostringstream& oss, int num, char ** values, char ** names);
-
-    /**
-     *  Dumps the contect of a set of VirtualMachine objects in the given stream
-     *  using XML format
-     *    @param oss the output stream
-     *    @param num the number of columns read from the DB
-     *    @param names the column names
-     *    @param vaues the column values
-     *    @return 0 on success
-     */
-    static int dump_extended(   ostringstream& oss,
-                                int num, char ** values, char ** names);
 };
 
 #endif /*VIRTUAL_MACHINE_H_*/

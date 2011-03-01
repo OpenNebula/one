@@ -185,7 +185,7 @@ private:
 
         if( rc == 0 )
         {
-            return vmpool->allocate(uids[index], vm_template, &oid,
+            return vmpool->allocate(uids[index], "username", vm_template, &oid,
                                                 err, false);
         }
         else
