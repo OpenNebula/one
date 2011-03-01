@@ -245,11 +245,6 @@ int Host::from_xml(const string& xml)
 
     state = static_cast<HostState>( int_state );
 
-    if (rc != 0)
-    {
-        return -1;
-    }
-
     // Get associated classes
     ObjectXML::get_nodes("/HOST/HOST_SHARE", content);
 
@@ -258,7 +253,7 @@ int Host::from_xml(const string& xml)
         return -1;
     }
 
-    host_share.from_xml_node( content[0] );
+    rc += host_share.from_xml_node( content[0] );
 
     content.clear();
     
@@ -269,7 +264,12 @@ int Host::from_xml(const string& xml)
         return -1;
     }
 
-    host_template.from_xml_node( content[0] );
+    rc += host_template.from_xml_node( content[0] );
+
+    if (rc != 0)
+    {
+        return -1;
+    }
 
     return 0;
 }

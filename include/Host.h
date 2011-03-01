@@ -443,20 +443,6 @@ private:
     // DataBase implementation (Private)
     // *************************************************************************
 
-    enum ColNames
-    {
-        OID              = 0,
-        HOST_NAME        = 1,
-        STATE            = 2,
-        IM_MAD           = 3,
-        VM_MAD           = 4,
-        TM_MAD           = 5,
-        LAST_MON_TIME    = 6,
-        CLUSTER          = 7,
-        TEMPLATE         = 8,
-        LIMIT            = 9
-    };
-
     static const char * db_names;
 
     static const char * db_bootstrap;

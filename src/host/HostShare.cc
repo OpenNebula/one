@@ -89,26 +89,33 @@ string& HostShare::to_xml(string& xml) const
 
 int HostShare::from_xml_node(const xmlNodePtr node)
 {
+    int rc = 0;
+
     // Initialize the internal XML object
     ObjectXML::update_from_node(node);
 
-    xpath(disk_usage, "/HOST_SHARE/DISK_USAGE", -1);
-    xpath(mem_usage,  "/HOST_SHARE/MEM_USAGE",  -1);
-    xpath(cpu_usage,  "/HOST_SHARE/CPU_USAGE",  -1);
+    rc += xpath(disk_usage, "/HOST_SHARE/DISK_USAGE", -1);
+    rc += xpath(mem_usage,  "/HOST_SHARE/MEM_USAGE",  -1);
+    rc += xpath(cpu_usage,  "/HOST_SHARE/CPU_USAGE",  -1);
 
-    xpath(max_disk,   "/HOST_SHARE/MAX_DISK",   -1);
-    xpath(max_mem ,   "/HOST_SHARE/MAX_MEM",    -1);
-    xpath(max_cpu ,   "/HOST_SHARE/MAX_CPU",    -1);
+    rc += xpath(max_disk,   "/HOST_SHARE/MAX_DISK",   -1);
+    rc += xpath(max_mem ,   "/HOST_SHARE/MAX_MEM",    -1);
+    rc += xpath(max_cpu ,   "/HOST_SHARE/MAX_CPU",    -1);
 
-    xpath(free_disk,  "/HOST_SHARE/FREE_DISK",  -1);
-    xpath(free_mem ,  "/HOST_SHARE/FREE_MEM",   -1);
-    xpath(free_cpu ,  "/HOST_SHARE/FREE_CPU",   -1);
+    rc += xpath(free_disk,  "/HOST_SHARE/FREE_DISK",  -1);
+    rc += xpath(free_mem ,  "/HOST_SHARE/FREE_MEM",   -1);
+    rc += xpath(free_cpu ,  "/HOST_SHARE/FREE_CPU",   -1);
 
-    xpath(used_disk,  "/HOST_SHARE/USED_DISK",  -1);
-    xpath(used_mem ,  "/HOST_SHARE/USED_MEM",   -1);
-    xpath(used_cpu ,  "/HOST_SHARE/USED_CPU",   -1);
+    rc += xpath(used_disk,  "/HOST_SHARE/USED_DISK",  -1);
+    rc += xpath(used_mem ,  "/HOST_SHARE/USED_MEM",   -1);
+    rc += xpath(used_cpu ,  "/HOST_SHARE/USED_CPU",   -1);
 
-    xpath(running_vms,"/HOST_SHARE/RUNNING_VMS",-1);
+    rc += xpath(running_vms,"/HOST_SHARE/RUNNING_VMS",-1);
+
+    if (rc != 0)
+    {
+        return -1;
+    }
 
     return 0;
 }
