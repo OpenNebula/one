@@ -860,11 +860,6 @@ private:
     int         net_rx;
 
     /**
-     *  Sequence number of the last history item.
-     */
-    int         last_seq;
-
-    /**
      *  History record, for the current host
      */
     History *   history;

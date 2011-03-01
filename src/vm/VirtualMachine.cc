@@ -53,7 +53,6 @@ VirtualMachine::VirtualMachine(int id,
         cpu(0),
         net_tx(0),
         net_rx(0),
-        last_seq(-1),
         history(0),
         previous_history(0),
         _log(0)
@@ -113,6 +112,7 @@ int VirtualMachine::select(SqlDB * db)
     ostringstream   ose;
 
     int             rc;
+    int             last_seq;
 
     Nebula&         nd = Nebula::instance();
 
@@ -125,17 +125,22 @@ int VirtualMachine::select(SqlDB * db)
     }
 
     //Get the History Records
-    // First history record is built in from_xml().
+    // First history record is built in from_xml() (if any).
     // Check if there is a previous history to be loaded from the DB:
-    if ( last_seq > 0 )
+    if( hasHistory() )
     {
-        previous_history = new History(oid, last_seq - 1);
+        last_seq = history->seq;
 
-        rc = previous_history->select(db);
-
-        if ( rc != 0)
+        if ( last_seq > 0 )
         {
-            goto error_previous_history;
+            previous_history = new History(oid, last_seq - 1);
+
+            rc = previous_history->select(db);
+
+            if ( rc != 0)
+            {
+                goto error_previous_history;
+            }
         }
     }
 
@@ -571,8 +576,6 @@ void VirtualMachine::add_history(
         previous_history = history;
     }
 
-    last_seq = seq;
-
     history = new History(oid,seq,hid,hostname,vm_dir,vmm_mad,tm_mad);
 };
 
@@ -604,8 +607,6 @@ void VirtualMachine::cp_history()
     previous_history = history;
 
     history = htmp;
-
-    last_seq = history->seq;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -633,8 +634,6 @@ void VirtualMachine::cp_previous_history()
     previous_history = history;
 
     history = htmp;
-
-    last_seq = history->seq;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1117,7 +1116,6 @@ string& VirtualMachine::to_xml(string& xml) const
         << "<CPU>"       << cpu       << "</CPU>"
         << "<NET_TX>"    << net_tx    << "</NET_TX>"
         << "<NET_RX>"    << net_rx    << "</NET_RX>"
-        << "<LAST_SEQ>"  << last_seq  << "</LAST_SEQ>"
         << vm_template->to_xml(template_xml);
 
     if ( hasHistory() )
@@ -1161,7 +1159,6 @@ int VirtualMachine::from_xml(const string &xml_str)
     rc += xpath(cpu,        "/VM/CPU",      0);
     rc += xpath(net_tx,     "/VM/NET_TX",   0);
     rc += xpath(net_rx,     "/VM/NET_RX",   0);
-    rc += xpath(last_seq,   "/VM/LAST_SEQ", -1);
 
     state     = static_cast<VmState>( int_state );
     lcm_state = static_cast<LcmState>( int_lcmstate );
