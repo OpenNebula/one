@@ -21,24 +21,27 @@
 
 var dataTable_hosts=null;
 //~ var dataTable_clusters=null;
-var dataTable_vMachines=null;
-var dataTable_vNetworks=null;
-var dataTable_users=null;
-var dataTable_images=null;
-var host_list_json = {};
-var cluster_list_json = {};
-var vmachine_list_json = {};
-var network_list_json = {};
-var user_list_json = {};
-var image_list_json = {};
-var hosts_select="";
-var clusters_select="";
-var vnetworks_select="";
-var images_select="";
+//~ var dataTable_vMachines=null;
+//~ var dataTable_vNetworks=null;
+//~ var dataTable_users=null;
+//~ var dataTable_images=null;
+//~ var host_list_json = {};
+//~ var cluster_list_json = {};
+//~ var vmachine_list_json = {};
+//~ var network_list_json = {};
+//~ var user_list_json = {};
+//~ var image_list_json = {};
+//~ var hosts_select="";
+//~ var clusters_select="";
+//~ var vnetworks_select="";
+//~ var images_select="";
 var cookie = {};
 var username = '';
 var uid = '';
 var spinner = '<img src="/images/ajax-loader.gif" alt="retrieving" class="loading_img"/>';
+
+
+
 
 /*######################################################################
  * DOCUMENT READY FUNCTIONS
@@ -229,12 +232,12 @@ function initDataTables(){
 }
 
 //Adds a listener to checks all the elements of a table
-function initCheckAllBoxes(){
+function initCheckAllBoxes(datatable){
 	//not showing nice in that position
 	//$('.check_all').button({ icons: {primary : "ui-icon-check" },
 	//							text : true});
-	$('.check_all').css({"border":"2px"});
-	$('.check_all').click(function(){
+	$('.check_all',datatable).css({"border":"2px"});
+	$('.check_all',datatable).click(function(){
 		if ($(this).attr("checked")) {
 			$('tbody input:checkbox',
 				$(this).parents("table")).each(function(){
@@ -760,6 +763,9 @@ function actionButtonListener(){
 		return false;
 	});
 }
+
+
+
 
 function preloadTables(){
     dataTable_hosts.fnClearTable();
@@ -2180,17 +2186,14 @@ function setupTips(){
 //Crawls the user dataTable for that. If such user is not found,
 //we return the uid.
 function getUserName(uid){
+    nodes = dataTable_users.fnGetData();
     user = "uid "+uid;
-    if (dataTable_users != null){
-        nodes = dataTable_users.fnGetData();
-        $.each(nodes,function(){
-            if (uid == this[1]) {
-            user = this[2];
-            return false;
-            }
-        });
-    };
-
+    $.each(nodes,function(){
+       if (uid == this[1]) {
+           user = this[2];
+           return false;
+       }
+    });
     return user;
 
 }
@@ -2556,13 +2559,13 @@ function emptyDashboard(){
     $("#dashboard .value_td span").html(spinner);
 }
 
-function updateDashboard(what){
+function updateDashboard(what,json_info){
 	db = $('#dashboard');
 	switch (what){
 		case "hosts":
-			total_hosts=host_list_json.length;
+			total_hosts=json_info.length;
 			active_hosts=0;
-			$.each(host_list_json,function(){
+			$.each(json_info,function(){
 				if (parseInt(this.HOST.STATE) < 3){
 					active_hosts++;}
 			});
@@ -2570,14 +2573,14 @@ function updateDashboard(what){
 			$('#active_hosts',db).html(active_hosts);
 			break;
 		case "clusters":
-			total_clusters=cluster_list_json.length;
+			total_clusters=json_info.length;
 			$('#total_clusters',db).html(total_clusters);
 			break;
 		case "vms":
-			total_vms=vmachine_list_json.length;
+			total_vms=json_info.length;
 			running_vms=0;
             failed_vms=0;
-			$.each(vmachine_list_json,function(){
+			$.each(json_info,function(){
                 vm_state = parseInt(this.VM.STATE);
 				if (vm_state == 3){
 					running_vms++;
@@ -2592,8 +2595,8 @@ function updateDashboard(what){
 			break;
 		case "vnets":
 			public_vnets=0;
-			total_vnets=network_list_json.length;
-			$.each(network_list_json,function(){
+			total_vnets=json_info.length;
+			$.each(json_info,function(){
 				if (parseInt(this.VNET.PUBLIC)){
 					public_vnets++;}
 			});
@@ -2601,13 +2604,13 @@ function updateDashboard(what){
 			$('#public_vnets',db).html(public_vnets);
 			break;
 		case "users":
-			total_users=user_list_json.length;
+			total_users=json_info.length;
 			$('#total_users',db).html(total_users);
 			break;
         case "images":
-            total_images=image_list_json.length;
+            total_images=json_info.length;
             public_images=0;
-            $.each(image_list_json,function(){
+            $.each(json_info,function(){
 				if (parseInt(this.IMAGE.PUBLIC)){
 					public_images++;}
 			});
