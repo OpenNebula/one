@@ -48,6 +48,7 @@ public:
      */
     int allocate (
         int     uid,
+        string  user_name,
         VirtualNetworkTemplate * vn_template,
         int *   oid,
         string& error_str);
@@ -150,7 +151,7 @@ private:
      */
     PoolObjectSQL * create()
     {
-        return new VirtualNetwork();
+        return new VirtualNetwork("", 0);
     };
 
     /**

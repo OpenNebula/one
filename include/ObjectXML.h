@@ -85,6 +85,18 @@ public:
     /**
      *  Gets and sets a xpath attribute, if the attribute is not found a default
      *  is used
+     *    @param value to set 
+     *    @param xpath_expr of the xml element
+     *    @param def default value if the element is not found
+     *
+     *    @return -1 if default was set
+     */
+    int xpath(unsigned int& value, const char * xpath_expr,
+              const unsigned int& def);
+
+    /**
+     *  Gets and sets a xpath attribute, if the attribute is not found a default
+     *  is used
      *    @param value to set
      *    @param xpath_expr of the xml element
      *    @param def default value if the element is not found

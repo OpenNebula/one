@@ -18,6 +18,7 @@
 #define LEASES_H_
 
 #include "ObjectSQL.h"
+#include "ObjectXML.h"
 #include "Attribute.h"
 
 #include <map>
@@ -40,7 +41,8 @@ public:
      * @param _size the max number of leases
      */
     Leases(SqlDB * _db, int _oid, unsigned long _size):
-        oid(_oid), size(_size), db(_db){};
+        ObjectSQL(),
+        oid(_oid), size(_size), n_used(0), db(_db){};
 
     virtual ~Leases()
     {
@@ -108,7 +110,7 @@ protected:
      *  The Lease class, it represents a pair of IP and MAC assigned to
      *  a Virtual Machine
      */
-    class Lease
+    class Lease : public ObjectXML
     {
     public:
         /**
@@ -129,12 +131,18 @@ protected:
         * @param _used, the lease is in use
         */
         Lease(unsigned int _ip, unsigned int _mac[], int _vid, bool _used=true)
-            :ip(_ip), vid(_vid), used(_used)
+            :ObjectXML(),ip(_ip), vid(_vid), used(_used)
         {
                 // TODO check size
                 mac[PREFIX]=_mac[PREFIX];
                 mac[SUFFIX]=_mac[SUFFIX];
         };
+
+        /**
+         *  Creates a new empty lease. Method from_xml should be called right
+         *  after this constructor.
+         */
+        Lease():ObjectXML(){};
 
         ~Lease(){};
 
@@ -174,19 +182,28 @@ protected:
 
         /**
          * Function to print the Lease object into a string in
-         * plain text
-         *  @param str the resulting string
-         *  @return a reference to the generated string
-         */
-        string& to_str(string& str) const;
-
-        /**
-         * Function to print the Lease object into a string in
          * XML format
          *  @param xml the resulting XML string
          *  @return a reference to the generated string
          */
         string& to_xml(string& xml) const;
+
+        /**
+         * Function to print the Lease object into a string in
+         * XML format. The output contains all the internal attributes,
+         * to be saved in the DB as a blob
+         *  @param xml the resulting XML string
+         *  @return a reference to the generated string
+         */
+        string& to_xml_db(string& xml) const;
+
+        /**
+         *  Rebuilds the object from an xml formatted string
+         *    @param xml_str The xml-formatted string
+         *
+         *    @return 0 on success, -1 otherwise
+         */
+        int from_xml(const string &xml_str);
 
         /**
          * Constants to access the array storing the MAC address
@@ -227,6 +244,11 @@ protected:
      */
     map<unsigned int, Lease *> leases;
 
+    /**
+     * Number of used leases
+     */
+    int n_used;
+
     // -------------------------------------------------------------------------
     // DataBase implementation variables
     // -------------------------------------------------------------------------
@@ -234,17 +256,6 @@ protected:
      * Pointer to the DataBase
      */
     SqlDB *  db;
-
-    enum ColNames
-    {
-        OID             = 0,
-        IP              = 1,
-        MAC_PREFIX      = 2,
-        MAC_SUFFIX      = 3,
-        VID             = 4,
-        USED            = 5,
-        LIMIT           = 6
-    };
 
     static const char * table;
 
@@ -273,14 +284,6 @@ protected:
     virtual int select(SqlDB * db);
 
     friend ostream& operator<<(ostream& os, Lease& _lease);
-
-    /**
-    * Function to print the Leases object into a string in
-    * plain text
-    *  @param str the resulting string
-    *  @return a reference to the generated string
-    */
-    string& to_str(string& str) const;
 
     /**
     * Function to print the Leases object into a string in

@@ -71,13 +71,14 @@ VirtualNetworkPool::VirtualNetworkPool(SqlDB * db,
 
 int VirtualNetworkPool::allocate (
     int            uid,
+    string         user_name,
     VirtualNetworkTemplate * vn_template,
     int *          oid,
     string&        error_str)
 {
     VirtualNetwork *    vn;
 
-    vn = new VirtualNetwork(vn_template);
+    vn = new VirtualNetwork(user_name, vn_template);
 
     vn->uid = uid;
 
@@ -171,22 +172,12 @@ int VirtualNetworkPool::dump(ostringstream& oss, const string& where)
         static_cast<Callbackable::Callback>(&VirtualNetworkPool::dump_cb),
         static_cast<void *>(&oss));
 
-    cmd << "SELECT " << VirtualNetwork::extended_db_names << ",COUNT("
-        << Leases::table << ".used), user_pool.user_name FROM "
-        << VirtualNetwork::table
-        << " LEFT OUTER JOIN " << Leases::table << " ON "
-        << VirtualNetwork::table << ".oid = " <<  Leases::table << ".oid"
-        << " AND " << Leases::table << ".used = 1"
-        << " LEFT OUTER JOIN (SELECT oid,user_name FROM user_pool) "
-        << " AS user_pool ON "<< VirtualNetwork::table
-        << ".uid = user_pool.oid";
+    cmd << "SELECT body FROM " << VirtualNetwork::table;
 
     if ( !where.empty() )
     {
         cmd << " WHERE " << where;
     }
-
-    cmd << " GROUP BY " << VirtualNetwork::table << ".oid";
 
     rc = db->exec(cmd,this);
 

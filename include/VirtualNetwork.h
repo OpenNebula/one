@@ -177,14 +177,6 @@ public:
 
     /**
      * Function to print the VirtualNetwork object into a string in
-     * plain text
-     *  @param str the resulting string
-     *  @return a reference to the generated string
-     */
-    string& to_str(string& str) const;
-
-    /**
-     * Function to print the VirtualNetwork object into a string in
      * XML format
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
@@ -283,6 +275,11 @@ private:
      */
     int     uid;
 
+    /**
+     *  Owner's name
+     */
+    string      user_name;
+
     // -------------------------------------------------------------------------
     // Binded physical attributes
     // -------------------------------------------------------------------------
@@ -350,11 +347,21 @@ private:
     int select_cb(void * nil, int num, char **values, char **names);
 
     /**
-     *  Function to drop VN entry in vn_pool
-     *    @return 0 on success
+     * Function to print the VirtualNetwork object into a string in
+     * XML format
+     *  @param xml the resulting XML string
+     *  @param extended If true, leases are included
+     *  @return a reference to the generated string
      */
-    int vn_drop(SqlDB * db);
+    string& to_xml_extended(string& xml, bool extended) const;
 
+    /**
+     *  Rebuilds the object from an xml formatted string
+     *    @param xml_str The xml-formatted string
+     *
+     *    @return 0 on success, -1 otherwise
+     */
+    int from_xml(const string &xml_str);
 
 protected:
 
@@ -362,25 +369,13 @@ protected:
     // Constructor
     //**************************************************************************
 
-    VirtualNetwork(VirtualNetworkTemplate * _vn_template = 0);
+    VirtualNetwork(string _user_name,VirtualNetworkTemplate * _vn_template = 0);
 
     ~VirtualNetwork();
 
     // *************************************************************************
     // DataBase implementation
     // *************************************************************************
-
-	enum ColNames
-    {
-        OID             = 0,
-        UID             = 1,
-        NAME            = 2,
-        TYPE            = 3,
-        BRIDGE          = 4,
-        PUBLIC          = 5,
-        TEMPLATE        = 6,
-        LIMIT           = 7
-    };
 
     static const char * table;
 
@@ -418,27 +413,7 @@ protected:
      *   @param db pointer to the db
      *   @return 0 on success
      */
-    int drop(SqlDB * db)
-    {
-        int rc;
-
-        rc = leases->drop(db);
-
-        rc += vn_drop(db);
-
-        return rc;
-    }
-
-    /**
-     *  Dumps the contect of a VirtualNetwork object in the given stream using
-     *  XML format
-     *    @param oss the output stream
-     *    @param num the number of columns read from the DB
-     *    @param names the column names
-     *    @param vaues the column values
-     *    @return 0 on success
-     */
-     static int dump(ostringstream& oss, int num, char **values, char **names);
+    int drop(SqlDB * db);
 };
 
 #endif /*VIRTUAL_NETWORK_H_*/

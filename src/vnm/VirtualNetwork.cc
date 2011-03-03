@@ -29,10 +29,12 @@
 /* Virtual Network :: Constructor/Destructor                                  */
 /* ************************************************************************** */
 
-VirtualNetwork::VirtualNetwork(VirtualNetworkTemplate *_vn_template):
-                PoolObjectSQL(-1),
+VirtualNetwork::VirtualNetwork(string _user_name,
+                               VirtualNetworkTemplate *_vn_template):
+                PoolObjectSQL(-1, table),
                 name(""),
                 uid(-1),
+                user_name(_user_name),
                 bridge(""),
                 type(UNINITIALIZED),
                 leases(0)
@@ -69,51 +71,11 @@ VirtualNetwork::~VirtualNetwork()
 
 const char * VirtualNetwork::table        = "network_pool";
 
-const char * VirtualNetwork::db_names     =
-                                "oid,uid,name,type,bridge,public,template";
-
-const char * VirtualNetwork::extended_db_names =
-    "network_pool.oid, network_pool.uid, network_pool.name, network_pool.type, "
-    "network_pool.bridge, network_pool.public, network_pool.template";
+const char * VirtualNetwork::db_names     = "oid, name, body";
 
 const char * VirtualNetwork::db_bootstrap = "CREATE TABLE IF NOT EXISTS"
-    " network_pool ("
-     "oid INTEGER PRIMARY KEY, uid INTEGER, name VARCHAR(256), type INTEGER, "
-     "bridge TEXT, public INTEGER, template TEXT, UNIQUE(name))";
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int VirtualNetwork::select_cb(void * nil, int num, char **values, char **names)
-{
-    if ((!values[OID])      ||
-        (!values[UID])      ||
-        (!values[NAME])     ||
-        (!values[TYPE])     ||
-        (!values[BRIDGE])   ||
-        (!values[PUBLIC])   ||
-        (!values[TEMPLATE]) ||
-        (num != LIMIT ))
-    {
-        return -1;
-    }
-
-    oid         = atoi(values[OID]);
-    uid         = atoi(values[UID]);
-
-    name        = values[NAME];
-
-    type        = (NetworkType)atoi(values[TYPE]);
-
-    bridge      = values[BRIDGE];
-
-    public_vnet = atoi(values[PUBLIC]);
-
-    // Virtual Network template
-    vn_template->from_xml(values[TEMPLATE]);
-
-    return 0;
-}
+    " network_pool "
+    "(oid INTEGER PRIMARY KEY, name VARCHAR(256), body TEXT, UNIQUE(name))";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -124,28 +86,19 @@ int VirtualNetwork::select(SqlDB * db)
     ostringstream   ose;
 
     int             rc;
-    int             boid;
 
     string          network_address;
 
     unsigned int default_size = VirtualNetworkPool::default_size();
     unsigned int mac_prefix   = VirtualNetworkPool::mac_prefix();
 
-    set_callback(
-        static_cast<Callbackable::Callback>(&VirtualNetwork::select_cb));
 
-    oss << "SELECT " << db_names << " FROM " << table << " WHERE oid = " << oid;
+    // Rebuld the VirtualNetwork object
+    rc = PoolObjectSQL::select(db);
 
-    boid = oid;
-    oid  = -1;
-
-    rc = db->exec(oss, this);
-
-    unset_callback();
-
-    if ((rc != 0) || (oid != boid ))
+    if( rc != 0 )
     {
-        goto error_id;
+        return rc;
     }
 
     //Get the leases
@@ -207,9 +160,6 @@ int VirtualNetwork::select(SqlDB * db)
 
     return leases->select(db);
 
-error_id:
-    ose << "Error getting Virtual Network nid: " << oid;
-    goto error_common;
 
 error_leases:
     ose << "Error getting Virtual Network leases nid: " << oid;
@@ -225,43 +175,6 @@ error_addr:
 error_common:
     NebulaLog::log("VNM", Log::ERROR, ose);
     return -1;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int VirtualNetwork::dump(ostringstream& oss,
-                         int            num,
-                         char **        values,
-                         char **        names)
-{
-    if ((!values[OID])      ||
-        (!values[UID])      ||
-        (!values[NAME])     ||
-        (!values[TYPE])     ||
-        (!values[BRIDGE])   ||
-        (!values[PUBLIC])   ||
-        (!values[TEMPLATE]) ||
-        (!values[LIMIT])    ||
-        (num != LIMIT + 2 ))
-    {
-        return -1;
-    }
-
-    oss <<
-        "<VNET>" <<
-            "<ID>"          << values[OID]      << "</ID>"          <<
-            "<UID>"         << values[UID]      << "</UID>"         <<
-            "<USERNAME>"    << values[LIMIT+1]  << "</USERNAME>"    <<
-            "<NAME>"        << values[NAME]     << "</NAME>"        <<
-            "<TYPE>"        << values[TYPE]     << "</TYPE>"        <<
-            "<BRIDGE>"      << values[BRIDGE]   << "</BRIDGE>"      <<
-            "<PUBLIC>"      << values[PUBLIC]   << "</PUBLIC>"      <<
-            "<TOTAL_LEASES>"<< values[LIMIT]    << "</TOTAL_LEASES>"
-                            << values[TEMPLATE] <<
-        "</VNET>";
-
-    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -444,11 +357,13 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-
 int VirtualNetwork::update(SqlDB * db)
 {
     return insert_replace(db, true);
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 int VirtualNetwork::insert_replace(SqlDB *db, bool replace)
 {
@@ -456,11 +371,10 @@ int VirtualNetwork::insert_replace(SqlDB *db, bool replace)
     int             rc;
 
 
-    string xml_template;
+    string xml_body;
 
     char * sql_name;
-    char * sql_bridge;
-    char * sql_template;
+    char * sql_xml;
 
 
     sql_name = db->escape_str(name.c_str());
@@ -470,21 +384,12 @@ int VirtualNetwork::insert_replace(SqlDB *db, bool replace)
         goto error_name;
     }
 
-    sql_bridge = db->escape_str(bridge.c_str());
+    sql_xml = db->escape_str(to_xml(xml_body).c_str());
 
-    if ( sql_bridge == 0 )
+    if ( sql_xml == 0 )
     {
-        goto error_bridge;
+        goto error_body;
     }
-
-    vn_template->to_xml(xml_template);
-    sql_template = db->escape_str(xml_template.c_str());
-
-    if ( sql_template == 0 )
-    {
-        goto error_template;
-    }
-
 
     // Construct the SQL statement to Insert or Replace
     if(replace)
@@ -498,24 +403,18 @@ int VirtualNetwork::insert_replace(SqlDB *db, bool replace)
 
     oss << " INTO " << table << " (" << db_names << ") VALUES ("
         <<          oid         << ","
-        <<          uid         << ","
         << "'" <<   sql_name    << "',"
-        <<          type        << ","
-        << "'" <<   sql_bridge  << "',"
-        <<          public_vnet << ","
-        << "'" <<   sql_template<< "')";
+        << "'" <<   sql_xml     << "')";
 
     rc = db->exec(oss);
 
     db->free_str(sql_name);
-    db->free_str(sql_bridge);
-    db->free_str(sql_template);
+    db->free_str(sql_xml);
 
     return rc;
 
-error_template:
-    db->free_str(sql_bridge);
-error_bridge:
+
+error_body:
     db->free_str(sql_name);
 error_name:
     return -1;
@@ -524,29 +423,19 @@ error_name:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualNetwork::vn_drop(SqlDB * db)
+int VirtualNetwork::drop(SqlDB * db)
 {
-    ostringstream   oss;
-    int             rc;
+    int rc;
 
-    if ( leases != 0 )
+    rc = PoolObjectSQL::drop(db);
+
+    if ( rc == 0 && leases != 0 )
     {
-        leases->drop(db);
-    }
-
-    oss << "DELETE FROM " << table << " WHERE OID=" << oid;
-
-    rc = db->exec(oss);
-
-    if ( rc == 0 )
-    {
-        set_valid(false);
+        rc += leases->drop(db);
     }
 
     return rc;
 }
-
-
 
 /* ************************************************************************** */
 /* Virtual Network :: Misc                                                    */
@@ -556,7 +445,7 @@ ostream& operator<<(ostream& os, VirtualNetwork& vn)
 {
     string vnet_xml;
 
-    os << vn.to_xml(vnet_xml);
+    os << vn.to_xml_extended(vnet_xml, true);
 
     return os;
 };
@@ -566,24 +455,44 @@ ostream& operator<<(ostream& os, VirtualNetwork& vn)
 
 string& VirtualNetwork::to_xml(string& xml) const
 {
+    return to_xml_extended(xml, false);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string& VirtualNetwork::to_xml_extended(string& xml, bool extended) const
+{
     ostringstream os;
 
     string template_xml;
     string leases_xml;
 
+    // Total leases is the number of used leases.
+    int total_leases = 0;
+
+    if (leases != 0)
+    {
+        total_leases = leases->n_used;
+    }
+
     os <<
         "<VNET>" <<
-            "<ID>"      << oid          << "</ID>"   <<
-            "<UID>"     << uid          << "</UID>"  <<
-            "<NAME>"    << name         << "</NAME>" <<
-            "<TYPE>"    << type         << "</TYPE>" <<
-            "<BRIDGE>"  << bridge       << "</BRIDGE>" <<
-            "<PUBLIC>"  << public_vnet  << "</PUBLIC>" <<
+            "<ID>"          << oid          << "</ID>"          <<
+            "<UID>"         << uid          << "</UID>"         <<
+            "<USERNAME>"    << user_name    << "</USERNAME>"    <<
+            "<NAME>"        << name         << "</NAME>"        <<
+            "<TYPE>"        << type         << "</TYPE>"        <<
+            "<BRIDGE>"      << bridge       << "</BRIDGE>"      <<
+            "<PUBLIC>"      << public_vnet  << "</PUBLIC>"      <<
+            "<TOTAL_LEASES>"<< total_leases << "</TOTAL_LEASES>"<<
             vn_template->to_xml(template_xml);
-    if (leases)
+
+    if (extended && leases != 0)
     {
         os << leases->to_xml(leases_xml);
     }
+
     os << "</VNET>";
 
     xml = os.str();
@@ -594,40 +503,44 @@ string& VirtualNetwork::to_xml(string& xml) const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-string& VirtualNetwork::to_str(string& str) const
+int VirtualNetwork::from_xml(const string &xml_str)
 {
-    ostringstream os;
+    vector<xmlNodePtr> content;
 
-    string template_str;
-    string leases_str;
+    int rc = 0;
+    int int_type;
 
-    os << "ID                : " << oid << endl;
-    os << "UID               : " << uid << endl;
-    os << "NAME              : " << name << endl;
-    os << "Type              : ";
-    if ( type==VirtualNetwork::RANGED )
+    // Initialize the internal XML object
+    update_from_str(xml_str);
+
+    // Get class base attributes
+    rc += xpath(oid,        "/VNET/ID",         -1);
+    rc += xpath(uid,        "/VNET/UID",        -1);
+    rc += xpath(user_name,  "/VNET/USERNAME",   "not_found");
+    rc += xpath(name,       "/VNET/NAME",       "not_found");
+    rc += xpath(int_type,   "/VNET/TYPE",       -1);
+    rc += xpath(bridge,     "/VNET/BRIDGE",     "not_found");
+    rc += xpath(public_vnet,"/VNET/PUBLIC",     0);
+
+    type = static_cast<NetworkType>( int_type );
+
+    // Get associated classes
+    ObjectXML::get_nodes("/VNET/TEMPLATE", content);
+
+    if( content.size() < 1 )
     {
-        os << "Ranged" << endl;
-    }
-    else
-    {
-       os << "Fixed" << endl;
-    }
-
-    os << "Bridge            : " << bridge      << endl;
-    os << "Public            : " << public_vnet << endl << endl;
-
-    os << "....: Template :...." << vn_template->to_str(template_str) << endl <<
-endl;
-
-    if (leases)
-    {
-        os << "....: Leases :...." << endl << leases->to_str(leases_str) << endl;
+        return -1;
     }
 
-    str = os.str();
+    // Virtual Network template
+    rc += vn_template->from_xml_node( content[0] );
 
-    return str;
+    if (rc != 0)
+    {
+        return -1;
+    }
+
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */

@@ -62,6 +62,10 @@ int FixedLeases::add(const string& ip, const string& mac, int vid,
     unsigned int     _ip;
     unsigned int     _mac [2];
 
+    Lease *         lease;
+    string          xml_body;
+    char *          sql_xml;
+
     int rc;
 
     if ( Leases::Lease::ip_to_number(ip,_ip) )
@@ -84,13 +88,19 @@ int FixedLeases::add(const string& ip, const string& mac, int vid,
         goto error_mac;
     }
 
-    oss << "INSERT INTO " << table << " ("<< db_names <<") VALUES (" <<
-        oid << "," <<
-        _ip << "," <<
-        _mac[Lease::PREFIX] << "," <<
-        _mac[Lease::SUFFIX] << "," <<
-        vid << "," <<
-        used << ")";
+    lease = new Lease(_ip,_mac,vid,used);
+
+    sql_xml = db->escape_str(lease->to_xml_db(xml_body).c_str());
+
+    if ( sql_xml == 0 )
+    {
+        goto error_body;
+    }
+
+    oss << "INSERT INTO " << table << " ("<< db_names <<") VALUES ("
+        <<          oid     << ","
+        <<          _ip     << ","
+        << "'" <<   sql_xml << "')";
 
     rc = db->exec(oss);
 
@@ -99,9 +109,20 @@ int FixedLeases::add(const string& ip, const string& mac, int vid,
         goto error_db;
     }
 
-    leases.insert(make_pair(_ip,new Lease(_ip,_mac,vid,used)));
+    leases.insert( make_pair(_ip,lease) );
+
+    if(lease->used)
+    {
+        n_used++;
+    }
+
     return rc;
 
+
+error_body:
+    oss.str("");
+    oss << "Error inserting lease, marshall error";
+    goto error_common;
 
 error_ip:
     oss.str("");
@@ -202,7 +223,6 @@ error_common:
 int FixedLeases::unset(const string& ip)
 {
     unsigned int     _ip;
-    ostringstream    oss;
 
     map<unsigned int, Lease *>::iterator  it_ip;
 
@@ -219,14 +239,11 @@ int FixedLeases::unset(const string& ip)
     }
 
     // Flip used flag to false
-
     it_ip->second->used = false;
     it_ip->second->vid  = -1;
 
-    oss << "UPDATE " << table << " SET used='0', vid='-1' "
-        << " WHERE oid=" << oid << " AND ip='" << _ip <<"'";
-
-    return db->exec(oss);
+    // Update the lease
+    return update_lease(it_ip->second);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -234,7 +251,7 @@ int FixedLeases::unset(const string& ip)
 
 int FixedLeases::get(int vid, string&  ip, string&  mac)
 {
-    int rc = -1;
+    int     rc = -1;
 
     if (leases.empty())
     {
@@ -252,22 +269,14 @@ int FixedLeases::get(int vid, string&  ip, string&  mac)
         {
             ostringstream oss;
 
-            oss << "UPDATE " << table << " SET used='1', vid='" << vid
-                << "' WHERE oid=" << oid
-                << " AND ip='" << current->second->ip <<"'";
+            current->second->used = true;
+            current->second->vid  = vid;
 
-            rc = db->exec(oss);
+            rc = update_lease(current->second);
 
-            if ( rc == 0 )
-            {
-                current->second->used = true;
-                current->second->vid  = vid;
+            current->second->to_string(ip,mac);
 
-                current->second->to_string(ip,mac);
-
-                current++;
-            }
-
+            current++;
             break;
         }
     }
@@ -282,7 +291,6 @@ int FixedLeases::set(int vid, const string&  ip, string&  mac)
 {
     map<unsigned int,Lease *>::iterator it;
 
-    ostringstream   oss;
     unsigned int    num_ip;
     int             rc;
 
@@ -304,22 +312,43 @@ int FixedLeases::set(int vid, const string&  ip, string&  mac)
         return -1;
     }
 
-    oss << "UPDATE " << table << " SET used='1', vid='" << vid << "'"
-        << " WHERE oid=" << oid << " AND ip='" << it->second->ip <<"'";
-
-    rc = db->exec(oss);
-
-    if ( rc != 0 )
-    {
-        return -1;
-    }
-
     it->second->used = true;
     it->second->vid  = vid;
 
     Leases::Lease::mac_to_string(it->second->mac,mac);
 
-    return 0;
+    return update_lease(it->second);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int FixedLeases::update_lease(Lease * lease)
+{
+    ostringstream   oss;
+    string          xml_body;
+    char *          sql_xml;
+
+    sql_xml = db->escape_str(lease->to_xml_db(xml_body).c_str());
+
+    if ( sql_xml == 0 )
+    {
+        return -1;
+    }
+
+    if( lease->used )
+    {
+        n_used++;
+    }
+    else
+    {
+        n_used--;
+    }
+
+    oss << "UPDATE " << table << " SET body='" << sql_xml << "'"
+        << " WHERE oid=" << oid << " AND ip='" << lease->ip <<"'";
+
+    return db->exec(oss);
 }
 
 /* -------------------------------------------------------------------------- */

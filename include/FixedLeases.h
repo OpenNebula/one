@@ -150,6 +150,13 @@ private:
      * @return 0 if success
      */
      int unset(const string& ip);
+
+    /**
+     * Updates the DB entry for this lease
+     * @param lease Lease to be updated
+     * @return 0 if success
+     */
+    int update_lease(Lease * lease);
 };
 
 #endif /*FIXED_LEASES_H_*/
