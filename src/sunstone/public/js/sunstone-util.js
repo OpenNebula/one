@@ -124,6 +124,11 @@ function humanize_size(value) {
     return st;
 }
 
+function addElement(element,data_table){
+	data_table.fnAddData(element);
+}
+
+
 function deleteElement(data_table,tag){
 	tr = $(tag).parents('tr')[0];
 	data_table.fnDeleteRow(tr);
@@ -258,3 +263,73 @@ function initCheckAllBoxes(datatable){
 			});			}
 	});
 }
+
+function onError(request,error_json) {
+    var method;
+    var action;
+    var object;
+    var id;
+    var reason;
+    var m;
+    var message = error_json.error.message;
+
+    //redirect to login if unauthenticated
+    if (error_json.error.http_status=="401") {
+      window.location.href = "/login";
+    };
+
+    //Parse known errors:
+    var action_error = /^\[(\w+)\] Error trying to (\w+) (\w+) \[(\w+)\].*Reason: (.*)\.$/;
+    var action_error_noid = /^\[(\w+)\] Error trying to (\w+) (\w+) (.*)\.$/;
+    var get_error = /^\[(\w+)\] Error getting (\w+) \[(\w+)\]\.$/;
+    var auth_error = /^\[(\w+)\] User \[.\] not authorized to perform (\w+) on (\w+) \[?(\w+)\]?\.?$/;
+
+    if (m = message.match(action_error)) {
+        method  = m[1];
+        action  = m[2];
+        object  = m[3];
+        id      = m[4];
+        reason  = m[5];
+    } else if (m = message.match(action_error_noid)) {
+        method  = m[1];
+        action  = m[2];
+        object  = m[3];
+        reason  = m[4];
+    } else if (m = message.match(get_error)) {
+        method  = m[1];
+        action  = "SHOW";
+        object  = m[2];
+        id      = m[3];
+    } else if (m = message.match(auth_error)) {
+        method = m[1];
+        action = m[2];
+        object = m[3];
+        id     = m[4];
+    }
+
+    if (m) {
+        var rows;
+        var i;
+        var value;
+        rows = ["method","action","object","id","reason"];
+        message = "";
+        for (i in rows){
+            key = rows[i];
+            value = eval(key);
+            if (value)
+                message += "<tr><td class=\"key_error\">"+key+"</td><td>"+value+"</td></tr>";
+        }
+        message = "<table>" + message + "</table>";
+    }
+
+    notifyError(message);
+    return true;
+}
+
+
+function True(){
+    return true;
+}
+function False(){
+    return false;
+}    

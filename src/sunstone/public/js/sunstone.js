@@ -22,12 +22,27 @@ var username = '';
 var uid = '';
 var spinner = '<img src="/images/ajax-loader.gif" alt="retrieving" class="loading_img"/>';
 
+var SunstoneCfg = {
+    "actions" : {
+            
+    
+     },
+        
+     "tabs" : { 
+           
+     },
+        
+     "info_panels" : {
+        
+     }
+};
+
 
 var Sunstone = {
     
     
     "addAction" : function (name,action_obj) {
-        SunstoneCfg.config.actions[name] = action_obj;
+        SunstoneCfg["actions"].name = action_obj;
     },
     
     "updateAction" : function(action,new_action) {
@@ -38,9 +53,10 @@ var Sunstone = {
         
     },
     
-    "addMainTab" : function(tab_id,title_arg,content_arg) {
+    "addMainTab" : function(title_arg,content_arg, buttons_arg,tab_id) {
         SunstoneCfg["tabs"][tab_id] = {title: title_arg,
-                                        content: content_arg};
+                                        content: content_arg,
+                                        buttons: buttons_arg };
     },
     
     "updateMainTab" : function(tab_id,new_content){
@@ -66,6 +82,9 @@ var Sunstone = {
         var err = action_cfg.callback;
         var notify = action_cfg.notify;
         
+        $('div#confirm_with_select_dialog').dialog("close");
+        $('div#confirm_dialog').dialog("close");
+        
         
         //We ease the use of:
         // * Create call
@@ -77,15 +96,6 @@ var Sunstone = {
             case "create","single":
                 call({data:data_arg, success: callback,error:err});
                 break;
-            case "confirm":
-                tip = actions.tip;
-                //popup confirm dialog (action,tip).
-                break;
-            case "confirm_with_select":
-                tip = OpenNebula.Views.Actions[action].tip;
-                select = OpenNebula.Views.Actions[action].select;
-                //popup confirm dialog with select(action,tip,select)
-                break;
             case "list":
                 call({success: callback, error:err});
                 break;
@@ -93,9 +103,9 @@ var Sunstone = {
                 //run on the list of nodes that come on the data
                 $.each(data_arg,function(){
                     if (extra_param){
-                        call(this,callback,error)
+                        //unsupported
                     } else {
-                        call(this,extra_param,callback,error)
+                        call({data:this, success: callback, error:err});
                     }
                 });
                 break;
@@ -115,136 +125,122 @@ var Sunstone = {
             var data = [];
             $.each(nodes,function(){
                 data.push($(this).val());
-            }
+            });
             runAction(action,data);
             
         } else {
-            notifyError("Unknown datatable");
+            runAction(action);
         };
     }//meter coma y seguir aquí
     
-}
+};
+        
+        
+         //~ "actions" : {
+            //~ 
+            //~ "VM.create" = {
+                //~ 
+            //~ },
+            //~ 
+            //~ "VM.deploy" = {
+                //~ 
+            //~ },
+            //~ 
+            //~ "VM.migrate" = {
+                //~ 
+            //~ },
+            //~ 
+            //~ "VM.livemigrate" = {
+                //~ 
+            //~ },
+            //~ 
+            //~ "VM.hold" = {
+                //~ 
+            //~ },
+            //~ 
+            //~ "VM.release" = {
+                //~ 
+            //~ },
+            //~ 
+            //~ "VM.suspend" = {
+                //~ 
+            //~ },
+            //~ 
+            //~ "VM.resume" = {
+                //~ 
+            //~ },
+            //~ 
+            //~ "VM.stop" = {
+                //~ 
+            //~ },
+            //~ 
+            //~ "VM.restart" = {
+                //~ 
+            //~ },
+            //~ 
+            //~ "VM.shutdown" = {
+                //~ 
+            //~ },
+            //~ 
+            //~ "VM.cancel" = {
+                //~ 
+            //~ },
+            //~ 
+            //~ "VM.delete" = {
+                //~ 
+            //~ },
+            //~ 
+            //~ "Network.publish" = {
+                //~ 
+            //~ },
+            //~ 
+            //~ "Network.unpublish" = {
+                //~ 
+            //~ },
+            //~ 
+            //~ "Network.delete" = {
+                //~ 
+            //~ },
+            //~ 
+            //~ "User.create" = {
+                //~ 
+            //~ },
+            //~ 
+            //~ "User.delete" = {
+                //~ 
+            //~ },
+            //~ 
+            //~ "Image.enable" = {
+                //~ 
+            //~ },
+            //~ 
+            //~ "Image.disable" = {
+                //~ 
+            //~ },
+            //~ 
+            //~ "Image.persistent" = {
+                //~ 
+            //~ },
+            //~ 
+            //~ "Image.nonpersistent" = {
+                //~ 
+            //~ },
+            //~ 
+            //~ "Image.publish" = {
+                //~ 
+            //~ },
+            //~ 
+            //~ "Image.unpublish" = {
+                //~ 
+            //~ },
+            //~ 
+            //~ "Image.delete" = {
+                //~ 
+            //~ }
 
-var SunstoneCfg = {
-    "config" = {
-        
-         "actions" : {
-            
-            "VM.create" = {
-                
-            },
-            
-            "VM.deploy" = {
-                
-            },
-            
-            "VM.migrate" = {
-                
-            },
-            
-            "VM.livemigrate" = {
-                
-            },
-            
-            "VM.hold" = {
-                
-            },
-            
-            "VM.release" = {
-                
-            },
-            
-            "VM.suspend" = {
-                
-            },
-            
-            "VM.resume" = {
-                
-            },
-            
-            "VM.stop" = {
-                
-            },
-            
-            "VM.restart" = {
-                
-            },
-            
-            "VM.shutdown" = {
-                
-            },
-            
-            "VM.cancel" = {
-                
-            },
-            
-            "VM.delete" = {
-                
-            },
-            
-            "Network.publish" = {
-                
-            },
-            
-            "Network.unpublish" = {
-                
-            },
-            
-            "Network.delete" = {
-                
-            },
-            
-            "User.create" = {
-                
-            },
-            
-            "User.delete" = {
-                
-            },
-            
-            "Image.enable" = {
-                
-            },
-            
-            "Image.disable" = {
-                
-            },
-            
-            "Image.persistent" = {
-                
-            },
-            
-            "Image.nonpersistent" = {
-                
-            },
-            
-            "Image.publish" = {
-                
-            },
-            
-            "Image.unpublish" = {
-                
-            },
-            
-            "Image.delete" = {
-                
-            }
-        },
-        
-        "tabs" = { 
-            
-        },
-        
-        "info_panels" = {
-            
-        }
-        
-    }
-    
-}
 
 //plugins have done their jobs when we execute this
-$(document).ready(){
+$(document).ready(function(){
     readCookie();
     setLogin();
     insertTabs();
@@ -253,32 +249,46 @@ $(document).ready(){
     
     initListButtons();
     setupCreateDialogs(); //listener for create
+    setupConfirmDialogs();
     setupTips();
     
-    //action button listener! -> plugins deal with that
+    $('.action_button').live("click",function(){
+        
+        var table = null;
+        if ($(this).parents('table').length){
+            table = $(this).parents('table').dataTable();
+        }
+        //if no table found the action will be run as custom
+        Sunstone.runActionOnDatatableNodes($(this).value,table);
+    });
+    
+    $('.confirm_button').live("click",function(){
+        popUpConfirmDialog(this);
+    });
+    
+    $('.confirm_with_select_button').live("click",function(){
+        popUpConfirmWithSelectDialog(this)
+    });
     
     
     $('button').button();
 	$('div#select_helpers').hide();
-	emptyDashboard();
+
     
     	$(".ui-widget-overlay").live("click", function (){
 		$("div:ui-dialog:visible").dialog("close");
     });
 
-    //Dashboard link listener
-    $("#dashboard_table h3 a").live("click", function (){
-        var tab = $(this).attr('href');
-        showTab(tab);
-        return false;
-    });
+
 
     //Close select lists...
     $('*:not(.action_list,.list_button)').click(function(){
        $('.action_list:visible').hide();
     });
     
-}
+});
+
+
 
 
 //reads the cookie and places its info in the 'cookie' var
@@ -310,11 +320,11 @@ function setLogin(){
 function insertTabs(){
     var tab_info;
     for (tab in SunstoneCfg["tabs"]){
-        tab_info = SunstoneCfg["tabs"].tab;
-        $("div.inner_center").append('<div id="'+tab_info.tab_id+'" class="tab"></div>');
-        $('div#'+tab_info.tab_id).html(tab_info.content);
+        tab_info = SunstoneCfg["tabs"][tab];
+        $("div.inner-center").append('<div id="'+tab+'" class="tab"></div>');
+        $('div#'+tab).html(tab_info.content);
         
-        $('ul#navigation').append('<li><a href="'+tab_info.tab_id+'">'+tab+'</a></li>');
+        $('ul#navigation').append('<li><a href="#'+tab+'">'+tab_info.title+'</a></li>');
         
     }
 }
@@ -331,25 +341,39 @@ function insertButtons(){
         if ($('div#'+tab+' .action_blocks').length){
             $.each(buttons,function(){
                 button_code = "";
-                if (!this.condition()) { return true };
+                if (this.condition()) {
                 
-                switch (this.type) {
-                    case "action":
-                        button_code = '<button class="action_button top_button" value="'+this.action+'">'+this.text+'</button>';
-                        break;
-                    case "create":
-                        button_code = '<button class="create top_button" value="'+this.action+'">'+this.text+'</button>';
-                        break;
-                    case "select":
+                  switch (this.type) {
+                      case "select":
                         button_code = '<select class="multi_action_slct">';
                         $.each(this.action,function(){
                             if (this.condition()){
-                                button_code += '<option value="'+this.value+'">'+this.text+'</option>';
+                                    switch (this.type){
+                                        case "create":
+                                            button_code += '<option class="create" value="'+this.value+'">'+this.text+'</option>';
+                                            break;
+                                        case "action":
+                                            button_code += '<option class="action_button" value="'+this.value+'">'+this.text+'</option>';
+                                        case "confirm":
+                                            button_code += '<option class="confirm_button" value="'+this.value+'">'+this.text+'</option>';
+                                        case "confirm_with_select":
+                                            button_code += '<option class="confirm_with_select_button" select_id="'+this.select+'" value="'+this.value+'">'+this.text+'</option>';
+                                    }
+                                
                             };
                         });
-                        button_code = '</select>';
+                        button_code += '</select>';
                         break;
+                      case "confirm_with_select":
+                        button_code = '<button class="confirm_with_select top_button" class="confirm_with_select_button" select_id="'+this.select+'" tip="'+this.tip+'" value="'+this.action+'">'+this.text+'</button>';
+                        break;
+                      case "action":
+                      case "create":
+                      case "confirm":
+                      default:
+                        button_code = '<button class="'+this.type+'_button top_button" value="'+this.action+'">'+this.text+'</button>';
                     
+                  }
                 }
                 $('div#'+tab+' .action_blocks').append(button_code);
                 
@@ -433,14 +457,101 @@ function initListButtons(){
 
 //Sets up all the "+ New Thing" dialogs.
 function setupCreateDialogs(){
-	createHostDialog();
-	createClusterDialog();
-	createVMachineDialog();
-	createVNetworkDialog();
-	createUserDialog();
-    createImageDialog();
+//	createHostDialog();
+//	createClusterDialog();
+//	createVMachineDialog();
+//	createVNetworkDialog();
+//	createUserDialog();
+//    createImageDialog();
     
     //Todo listener on "create" class to trigger the right dialog.
+}
+
+//Adds the dialogs bodies
+function setupConfirmDialogs(){
+    
+    //confirm
+    if (!($('div#confirm_dialog').length)){
+        $('div#dialogs').append('<div id="confirm_dialog" title="Confirmation of action"></div>');
+    };
+
+	$('div#confirm_dialog').html(
+			'<form action="javascript:alert(\'js error!\');">\
+			<div id="confirm_tip">Do you want to proceed?</div>\
+			<br />\
+			<div id="question">Do you want to proceed?</div>\
+			<br />\
+			<div class="form_buttons">\
+			  <button id="proceed" class="action_button" value="">OK</button>\
+			  <button id="cancel" value="">Cancel</button>\
+			</div>\
+			</form>');
+            
+    //prepare the jquery dialog
+	$('div#confirm_dialog').dialog({
+			resizable:false,
+			modal:true,
+			width:300,
+			heigth:200,
+			autoOpen:false
+		});
+
+    $('div#confirm_dialog button').button();
+    
+    if (!($('div#confirm_with_select_dialog').length)){
+        $('div#dialogs').append('<div id="confirm_with_select_dialog" title="Confirmation of action"></div>');
+    };
+
+	$('div#confirm_with_select_dialog').html(
+			'<form action="javascript:alert(\'js error!\');">\
+			<div id="confirm_with_select_tip"></div>\
+			<select style="margin: 10px 0;" id="confirm_select">\
+			</select>\
+			<div class="form_buttons">\
+			  <button id="action_button" value="">OK</button>\
+			  <button id="confirm_with_select_cancel" value="">Cancel</button>\
+			</div>\
+			</form>');
+            
+    	//prepare the jquery dialog
+	$('div#confirm_with_select_dialog').dialog({
+			resizable:false,
+			modal:true,
+			width:300,
+			heigth:300,
+			autoOpen:false
+		});
+        
+    $('div#confirm_with_select_dialog button').button();
+    
+    $('button.confirm_cancel').click(function(){
+		$('div#confirm_with_select_dialog').dialog("close");
+        $('div#confirm_dialog').dialog("close");
+		return false;
+	});
+    
+}
+
+function popUpConfirmDialog(target_elem){
+    button = $(target_elem);
+    value = button.val();
+    action = SunstoneCfg["actions"][value];
+    
+}
+
+function popUpConfirmWithSelectDialog(target_elem){
+    var button = $(target_elem);
+    var value = button.val();
+    var action = SunstoneCfg["actions"][value];
+    var select_var = eval(button.attr("select_id"));
+    var tip = button.attr(tip);
+    $('select#confirm_select').html(select_var);
+    $('div#confirm_with_select_tip').text(tip);
+    
+    $('button#confirm_with_select_proceed').val(val);
+    $('div#confirm_with_select_dialog').dialog("open");
+   
+   
 }
 
 //Replaces all class"tip" divs with an information icon that

@@ -16,7 +16,7 @@
 
 /*Host tab plugin*/
 
-var host_tab_content = 
+var hosts_tab_content = 
 '<form id="form_hosts" action="javascript:alert(\'js errors?!\')">\
   <div class="action_blocks">\
   </div>\
@@ -39,7 +39,10 @@ var host_tab_content =
 </form>';
 
 var hosts_select="";
+var clusters_select="";
 var host_list_json = {};
+var cluster_list_json = {};
+var dataTable_hosts = null;
 
 
 //Setup actions
@@ -47,87 +50,78 @@ var host_actions = {
             "Host.create" : {
                 type: "create",
                 call : OpenNebula.Host.create,
-                callback = addHostElement,
+                callback : addHostElement,
                 error : onError,
                 notify:true,
-                condition: true
             },
             
-            "Host.enable" = {
+            "Host.enable" : {
                 type: "multiple",
                 call : OpenNebula.Host.enable,
-                callback = host_update_callback,
+                callback : host_update_callback,
                 error : onError,
                 notify:true,
-                condition:true
             },
             
-            "Host.disable" = {
+            "Host.disable" : {
                 type: "multiple",
                 call : OpenNebula.Host.disable,
-                callback = host_update_callback,
+                callback : host_update_callback,
                 error : onError,
                 notify:true,
-                condition:true
             },
             
-            "Host.delete" = {
+            "Host.delete" : {
                 type: "multiple",
                 call : OpenNebula.Host.create,
-                callback = deleteHostElement,
+                callback : deleteHostElement,
                 error : onError,
                 notify:true,
-                condition:true
             },
             
-            "Host.list" = {
+            "Host.list" : {
                 type: "custom",
                 call : function() {
                     OpenNebula.Host.list({success: updateHostsView, error: onError});
                     OpenNebula.Cluster.list({success: updateClustersView, error: onError});
-                    }
-                callback: null,
+                    },
+                callback: function(){},
                 error: onError,
                 notify:true,
-                condition:true 
             },
             
-            "Cluster.create" = {
+            "Cluster.create" : {
                 type: "create",
                 call : OpenNebula.Cluster.create,
-                callback = addClusterElement
+                callback : function(){
+                    OpenNebula.Cluster.list({success: updateClustersView, error: onError});
+                },
                 error : onError,
                 notify:true,
-                condition : true
             },
             
-            "Cluster.delete" = {
+            "Cluster.delete" : {
                 type: "multiple",
                 call : OpenNebula.Host.create,
-                callback = addHostElement,
+                callback : addHostElement,
                 error : onError,
                 notify:true,
-                condition:true
             },
             
-            "Cluster.addhost" = {
-                type: "confirm_with_select",
-                select: cluster_select,
-                tip: "Select the cluster in which you would like to place the hosts",
+            "Cluster.addhost" : {
+                type: "multiple",
                 call : OpenNebula.Cluster.addhost,
-                callback = updateHostElement,
+                callback : updateHostElement,
                 error : onError,
                 notify:true,
-                condition : true
             },
             
-            "Cluster.removehost" = {
+            "Cluster.removehost" : {
                 type: "multiple",
                 call : OpenNebula.Cluster.removehost,
-                callback = deleteHostElement,
+                callback : deleteHostElement,
                 error : onError,
                 notify:true,
-                condition:true
             }
         };
 
@@ -137,61 +131,60 @@ var host_buttons = [
             type: "create",
             text: "+ New host",
             action: "Host.create",
-            condition : true
+            condition :True
         },
         {
             type: "action",
             text: "Enable",
             action: "Host.enable",
-            condition : true
+            condition : True
         },
         {
-            type: "action",
+            type: "confirm",
             text: "Disable",
             action: "Host.disable",
-            condition : true
+            tip: "Confirm disable",
+            condition : True
         },
         {
             type: "create",
             text: "+ New Cluster",
             action: "Cluster.create",
-            condition : true
+            condition : True
         },
         {
             type: "action",
             text: "Delete cluster",
             action: "Cluster.delete",
-            condition : true
-        }
+            condition : True
+        },
         {
             type: "select",
-            action: [{ text: "Add host to cluster", 
+            action: [{  type: "confirm_with_select",
+                        text: "Add host to cluster", 
                         value: "Cluster.addhost",
-                        condition: true},
-                     {  text: "Remove host from cluster",
+                        select: "cluster_select",
+                        tip: "Select the cluster in which you would like to place the hosts",
+                        condition: True},
+                     {  type: "action",
+                        text: "Remove host from cluster",
                         value: "Cluster.removehost",
-                        condition: true}],
-            condition : true
+                        condition: True}],
+            condition : True
         },
         {
             type: "action",
             text: "Delete host",
             value: "Host.delete",
-            condition : true
-        }]};
+            condition : True
+        }];
             
 for (action in host_actions){
     Sunstone.addAction(action,host_actions[action]);
 }
 
-Sunstone.addMainTab(hosts_tab_content,'hosts_tab');
-
-$.each(host_buttons,function(){
-    Sunstone.addButton(this,'#hosts_tab');
-}
-
-
-//Setup tab
+// title, content, buttons, id
+Sunstone.addMainTab('Hosts',hosts_tab_content,host_buttons,'hosts_tab');
 
 
 //Plugin functions
@@ -291,6 +284,20 @@ function updateHostSelect(host_list){
 }
 
 
+function updateClusterSelect(cluster_list){
+
+	//update select helper
+	clusters_select= "";
+	clusters_select+="<option value=\"\">Select a cluster</option>";
+	$.each(cluster_list, function(){
+		clusters_select += "<option value=\""+this.CLUSTER.ID+"\">"+this.CLUSTER.NAME+"</option>";
+	});
+
+	//update static selectors
+	//$('#host_cluster').html(clusters_select);
+
+}
+
 function updateHostElement(request, host_json){
 	id = host_json.HOST.ID;
 	element = hostElementArray(host_json);
@@ -320,6 +327,19 @@ function updateHostsView (request,host_list){
 	updateHostSelect(host_list);
 	updateDashboard("hosts",host_list_json);
 }
+
+function updateClustersView(request, cluster_list){
+	cluster_list_json = cluster_list;
+	//~ cluster_list_array = [];
+
+	//~ $.each(cluster_list, function(){
+		//~ cluster_list_array.push(clusterElementArray(this));
+	//~ });
+	//~ updateView(cluster_list_array,dataTable_clusters);
+	updateClusterSelect(cluster_list);
+	updateDashboard("clusters");
+}
+
 
 function updateHostInfo(request,host){
 	host_info = host.HOST
@@ -402,10 +422,10 @@ function updateHostInfo(request,host){
 }
 
 //Document ready
-$(document).ready(){
+$(document).ready(function(){
     
     //prepare host datatable
-    var dataTable_hosts = $("#datatable_hosts").dataTable({
+    dataTable_hosts = $("#datatable_hosts").dataTable({
       "bJQueryUI": true,
       "bSortClasses": false,
       "bAutoWidth":false,
@@ -432,13 +452,8 @@ $(document).ready(){
 		if (!nodes.length && !filter.length){
 			OpenNebula.Host.list({timeout: true, success: updateHostsView,error: onError});
 		}
-	},interval);
+	},60000);
     
     initCheckAllBoxes(dataTable_hosts);
-    
-    //.action button listener
-    $('#hosts_tab .action_button').click(function(){
-        Sunstone.runActionOnDatatableNodes($(this).val(),dataTable_hosts);
-    }
-    
-}
+        
+});
