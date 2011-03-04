@@ -51,7 +51,7 @@ UserPool::UserPool(SqlDB * db):PoolSQL(db,User::table)
 
     set_callback(static_cast<Callbackable::Callback>(&UserPool::init_cb));
 
-    sql  << "SELECT oid,user_name FROM " <<  User::table;
+    sql  << "SELECT oid, name FROM " <<  User::table;
 
     db->exec(sql, this);
 
