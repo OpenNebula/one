@@ -95,12 +95,7 @@ public:
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-//    virtual string& to_xml(string& xml) const = 0;
-//  TODO: change to pure virtual when all child classes implement it
-    string& to_xml(string& xml) const
-    {
-        return xml;
-    };
+    virtual string& to_xml(string& xml) const = 0;
 
     /**
      *  Rebuilds the object from an xml formatted string
@@ -108,12 +103,7 @@ public:
      *
      *    @return 0 on success, -1 otherwise
      */
-//    virtual int from_xml(const string &xml_str) = 0;
-//  TODO: change to pure virtual when all child classes implement it
-    virtual int from_xml(const string &xml_str)
-    {
-        return 0;
-    };
+    virtual int from_xml(const string &xml_str) = 0;
 
 protected:
 

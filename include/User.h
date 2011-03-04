@@ -37,13 +37,6 @@ public:
     friend ostream& operator<<(ostream& os, User& u);
 
     /**
-     * Function to print the User object into a string in plain text
-     *  @param str the resulting string
-     *  @return a reference to the generated string
-     */
-    string& to_str(string& str) const;
-
-    /**
      * Function to print the User object into a string in XML format
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
@@ -191,6 +184,14 @@ private:
         db->exec(oss_user);
     };
 
+    /**
+     *  Rebuilds the object from an xml formatted string
+     *    @param xml_str The xml-formatted string
+     *
+     *    @return 0 on success, -1 otherwise
+     */
+    int from_xml(const string &xml_str);
+
 protected:
 
     // *************************************************************************
@@ -208,27 +209,11 @@ protected:
     // DataBase implementation
     // *************************************************************************
 
-    enum ColNames
-    {
-        OID             = 0,
-        USERNAME        = 1,
-        PASSWORD        = 2,
-        ENABLED         = 3,     // 0 = false, 1 = true
-        LIMIT           = 4
-    };
-
     static const char * db_names;
 
     static const char * db_bootstrap;
 
     static const char * table;
-
-    /**
-     *  Reads the User (identified with its OID=UID) from the database.
-     *    @param db pointer to the db
-     *    @return 0 on success
-     */
-    virtual int select(SqlDB *db);
 
     /**
      *  Writes the User in the database.
@@ -243,23 +228,6 @@ protected:
      *    @return 0 on success
      */
     virtual int update(SqlDB *db);
-
-    /**
-     *  Drops USer from the database
-     *    @param db pointer to the db
-     *    @return 0 on success
-     */
-    virtual int drop(SqlDB *db);
-
-    /**
-     *  Function to output a User object in to an stream in XML format
-     *    @param oss the output stream
-     *    @param num the number of columns read from the DB
-     *    @param names the column names
-     *    @param vaues the column values
-     *    @return 0 on success
-     */
-    static int dump(ostringstream& oss, int num, char **values, char **names);
 };
 
 #endif /*USER_H_*/

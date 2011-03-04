@@ -343,7 +343,7 @@ int UserPool::dump(ostringstream& oss, const string& where)
     set_callback(static_cast<Callbackable::Callback>(&UserPool::dump_cb),
                  static_cast<void *>(&oss));
 
-    cmd << "SELECT " << User::db_names << " FROM " << User::table;
+    cmd << "SELECT body FROM " << User::table;
 
     if ( !where.empty() )
     {
