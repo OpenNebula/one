@@ -51,7 +51,7 @@ UserPool::UserPool(SqlDB * db):PoolSQL(db,User::table)
 
     set_callback(static_cast<Callbackable::Callback>(&UserPool::init_cb));
 
-    sql  << "SELECT oid,user_name FROM " <<  User::table;
+    sql  << "SELECT oid, name FROM " <<  User::table;
 
     db->exec(sql, this);
 
@@ -343,7 +343,7 @@ int UserPool::dump(ostringstream& oss, const string& where)
     set_callback(static_cast<Callbackable::Callback>(&UserPool::dump_cb),
                  static_cast<void *>(&oss));
 
-    cmd << "SELECT " << User::db_names << " FROM " << User::table;
+    cmd << "SELECT body FROM " << User::table;
 
     if ( !where.empty() )
     {

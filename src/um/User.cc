@@ -35,7 +35,7 @@ User::User(
     string  _username,
     string  _password,
     bool    _enabled):
-        PoolObjectSQL(id),
+        PoolObjectSQL(id, table),
         username     (_username),
         password     (_password),
         enabled      (_enabled)
@@ -50,63 +50,10 @@ User::~User(){};
 
 const char * User::table = "user_pool";
 
-const char * User::db_names = "oid,user_name,password,enabled";
+const char * User::db_names = "oid,name,body";
 
 const char * User::db_bootstrap = "CREATE TABLE IF NOT EXISTS user_pool ("
-    "oid INTEGER PRIMARY KEY, user_name VARCHAR(256), password TEXT,"
-    "enabled INTEGER, UNIQUE(user_name))";
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int User::select_cb(void *nil, int num, char **values, char **names)
-{
-    if ((!values[OID]) ||
-        (!values[USERNAME]) ||
-        (!values[PASSWORD]) ||
-        (!values[ENABLED]) ||
-        (num != LIMIT ))
-    {
-        return -1;
-    }
-
-    oid      = atoi(values[OID]);
-    username = values[USERNAME];
-    password = values[PASSWORD];
-    enabled  = (atoi(values[ENABLED])==0)?false:true;
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-/* -------------------------------------------------------------------------- */
-
-int User::select(SqlDB *db)
-{
-    ostringstream   oss;
-    int             rc;
-    int             boid;
-
-    set_callback(static_cast<Callbackable::Callback>(&User::select_cb));
-
-    oss << "SELECT " << db_names << " FROM " << table << " WHERE oid = " << oid;
-
-    boid = oid;
-    oid  = -1;
-
-    rc = db->exec(oss, this);
-
-    unset_callback();
-
-    if ((rc != 0) || (oid != boid ))
-    {
-        return -1;
-    }
-
-    return 0;
-}
+    "oid INTEGER PRIMARY KEY, name VARCHAR(256), body TEXT, UNIQUE(name))";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -151,11 +98,10 @@ int User::insert_replace(SqlDB *db, bool replace)
     ostringstream   oss;
 
     int    rc;
+    string xml_body;
 
     char * sql_username;
-    char * sql_password;
-
-    int    str_enabled = enabled?1:0;
+    char * sql_xml;
 
     // Update the User
 
@@ -166,11 +112,11 @@ int User::insert_replace(SqlDB *db, bool replace)
         goto error_username;
     }
 
-    sql_password = db->escape_str(password.c_str());
+    sql_xml = db->escape_str(to_xml(xml_body).c_str());
 
-    if ( sql_password == 0 )
+    if ( sql_xml == 0 )
     {
-        goto error_password;
+        goto error_body;
     }
 
     // Construct the SQL statement to Insert or Replace
@@ -184,67 +130,21 @@ int User::insert_replace(SqlDB *db, bool replace)
     }
 
     oss << " INTO " << table << " ("<< db_names <<") VALUES ("
-        << oid << ","
-        << "'" << sql_username << "',"
-        << "'" << sql_password << "',"
-        << str_enabled << ")";
+        <<          oid             << ","
+        << "'" <<   sql_username    << "',"
+        << "'" <<   sql_xml         << "')";
 
     rc = db->exec(oss);
 
     db->free_str(sql_username);
-    db->free_str(sql_password);
+    db->free_str(sql_xml);
 
     return rc;
 
-error_password:
+error_body:
     db->free_str(sql_username);
 error_username:
     return -1;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int User::dump(ostringstream& oss, int num, char **values, char **names)
-{
-    if ((!values[OID]) ||
-        (!values[USERNAME]) ||
-        (!values[PASSWORD]) ||
-        (!values[ENABLED]) ||
-        (num != LIMIT))
-    {
-        return -1;
-    }
-
-    oss <<
-        "<USER>" <<
-            "<ID>"      << values[OID]     <<"</ID>"      <<
-            "<NAME>"    << values[USERNAME]<<"</NAME>"    <<
-            "<PASSWORD>"<< values[PASSWORD]<<"</PASSWORD>"<<
-            "<ENABLED>" << values[ENABLED] <<"</ENABLED>" <<
-        "</USER>";
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int User::drop(SqlDB * db)
-{
-    ostringstream oss;
-    int rc;
-
-    oss << "DELETE FROM " << table << " WHERE oid=" << oid;
-
-    rc = db->exec(oss);
-
-    if ( rc == 0 )
-    {
-        set_valid(false);
-    }
-
-    return rc;
 }
 
 /* ************************************************************************** */
@@ -259,7 +159,6 @@ ostream& operator<<(ostream& os, User& user)
 
     return os;
 };
-
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -286,23 +185,28 @@ string& User::to_xml(string& xml) const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-string& User::to_str(string& str) const
+int User::from_xml(const string& xml)
 {
-    ostringstream   os;
+    int rc = 0;
+    int int_enabled;
 
-    string enabled_str = enabled?"True":"False";
+    // Initialize the internal XML object
+    update_from_str(xml);
 
-    os <<
-        "ID      = "   << oid      << endl <<
-        "NAME = "      << username << endl <<
-        "PASSWORD = "  << password << endl <<
-        "ENABLED  = "  << enabled_str;
+    rc += xpath(oid,         "/USER/ID",       -1);
+    rc += xpath(username,    "/USER/NAME",     "not_found");
+    rc += xpath(password,    "/USER/PASSWORD", "not_found");
+    rc += xpath(int_enabled, "/USER/ENABLED",  0);
 
-    str = os.str();
+    enabled = int_enabled;
 
-    return str;
+    if (rc != 0)
+    {
+        return -1;
+    }
+
+    return 0;
 }
-
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

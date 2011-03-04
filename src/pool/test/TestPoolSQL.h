@@ -71,6 +71,16 @@ public:
 
         db->exec(oss,0);
     };
+
+    string& to_xml(string& xml) const
+    {
+        return xml;
+    };
+
+    int from_xml(const string &xml_str)
+    {
+        return 0;
+    };
 };
 
 // THE POOL

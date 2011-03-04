@@ -287,6 +287,14 @@ public:
         ostringstream oss;
         ((UserPool*)pool)->dump(oss, "");
 
+/*
+        if( oss.str() != dump_result )
+        {
+            cout << endl << oss.str() << endl << "========"
+                 << endl << dump_result << endl << "--------";
+        }
+//*/
+
         CPPUNIT_ASSERT( oss.str() == dump_result );
     }
 
@@ -307,7 +315,15 @@ public:
         // by" is a dirty fix (SQL injection, actually) because MySQL orders the
         // results by user_name
         ostringstream oss;
-        ((UserPool*)pool)->dump(oss, "user_name LIKE 'a%' ORDER BY oid");
+        ((UserPool*)pool)->dump(oss, "name LIKE 'a%' ORDER BY oid");
+
+/*
+        if( oss.str() != dump_where_result )
+        {
+            cout << endl << oss.str() << endl << "========"
+                 << endl << dump_where_result << endl << "--------";
+        }
+//*/
 
         CPPUNIT_ASSERT( oss.str() == dump_where_result );
     }
