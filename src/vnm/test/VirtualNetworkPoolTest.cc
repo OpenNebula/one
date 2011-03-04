@@ -27,8 +27,8 @@ using namespace std;
 /* ************************************************************************* */
 /* ************************************************************************* */
 
-const int uids[] = {123, 261, 133};
-const string user_names[] = {"A user","B user","C user"};
+const int uids[] = {123, 261, 133, 78};
+const string user_names[] = {"A user","B user","C user","D user"};
 
 const string names[] = {"Net number one", "A virtual network","Net number two"};
 
@@ -267,7 +267,7 @@ public:
         CPPUNIT_ASSERT( oid >= 0 );
 
         // Get using its name
-        vn = vnpool->get(names[1], true);
+        vn = vnpool->get(names[1],uids[1], true);
         CPPUNIT_ASSERT(vn != 0);
         vn->unlock();
 
@@ -277,7 +277,7 @@ public:
         vnpool->clean();
 
         // Get using its name
-        vn = vnpool->get(names[1], false);
+        vn = vnpool->get(names[1], uids[1], false);
         check(1, vn);
     };
 
@@ -290,14 +290,14 @@ public:
         VirtualNetwork * vn;
 
         // Empty Pool
-        vn = vnpool->get("Wrong name", true);
+        vn = vnpool->get("Wrong name", 0, true);
         CPPUNIT_ASSERT( vn == 0 );
 
         // Allocate an object
         allocate(0);
 
         // Ask again for a non-existing name
-        vn = vnpool->get("Non existing name", true);
+        vn = vnpool->get("Non existing name", uids[0], true);
         CPPUNIT_ASSERT( vn == 0 );
     }
 
@@ -1098,7 +1098,7 @@ public:
         disk = new VectorAttribute("DISK");
         disk->replace("NETWORK", "Net 0");
 
-        ((VirtualNetworkPool*)vnp)->nic_attribute(disk, 0);
+        ((VirtualNetworkPool*)vnp)->nic_attribute(disk, 0, 0);
 
 
         value = "";
@@ -1128,7 +1128,7 @@ public:
         disk = new VectorAttribute("DISK");
         disk->replace("NETWORK_ID", "1");
 
-        ((VirtualNetworkPool*)vnp)->nic_attribute(disk, 0);
+        ((VirtualNetworkPool*)vnp)->nic_attribute(disk,0, 0);
 
         value = "";
         value = disk->vector_value("NETWORK");

@@ -59,24 +59,6 @@ public:
     // *************************************************************************
 
     /**
-     * Get the Vnet unique identifier VNID, that matches the OID of the object
-     *    @return VNID Image identifier
-     */
-    int get_vnid() const
-    {
-        return oid;
-    };
-
-    /**
-     * Gets the uid of the owner of the Virtual Network
-     * @return uid
-     **/
-    int get_uid()
-    {
-        return uid;
-    }
-
-    /**
      *  Returns true if the Virtual Network is public
      *     @return true if the Virtual Network is public
      */
@@ -266,16 +248,6 @@ private:
     // Identification variables
     // -------------------------------------------------------------------------
     /**
-     *  Name of the Virtual Network
-     */
-    string  name;
-
-    /**
-     *  Owner of the Virtual Network
-     */
-    int     uid;
-
-    /**
      *  Owner's name
      */
     string      user_name;
@@ -369,7 +341,9 @@ protected:
     // Constructor
     //**************************************************************************
 
-    VirtualNetwork(string _user_name,VirtualNetworkTemplate * _vn_template = 0);
+    VirtualNetwork(int                      uid, 
+                   string                   _user_name,
+                   VirtualNetworkTemplate * _vn_template = 0);
 
     ~VirtualNetwork();
 

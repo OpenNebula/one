@@ -118,7 +118,7 @@ void get_network_attribute(VirtualMachine * vm,
         return;
     }
 
-    vn = vnpool->get(network,true);
+    vn = vnpool->get(network, vm->get_uid(), true);
 
     if ( vn == 0 )
     {

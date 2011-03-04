@@ -124,9 +124,7 @@ int VirtualMachine::select(SqlDB * db)
         return rc;
     }
 
-    //Get the History Records
-    // First history record is built in from_xml() (if any).
-    // Check if there is a previous history to be loaded from the DB:
+    //Get History Records. Current history is record is built in from_xml() (if any).
     if( hasHistory() )
     {
         last_seq = history->seq;
@@ -145,7 +143,6 @@ int VirtualMachine::select(SqlDB * db)
     }
 
     //Create support directory for this VM
-
     oss.str("");
     oss << nd.get_var_location() << oid;
 
@@ -153,7 +150,6 @@ int VirtualMachine::select(SqlDB * db)
     chmod(oss.str().c_str(), 0777);
 
     //Create Log support for this VM
-
     try
     {
         _log = new FileLog(nd.get_vm_log_filename(oid),Log::DEBUG);
@@ -167,11 +163,6 @@ int VirtualMachine::select(SqlDB * db)
     }
 
     return 0;
-
-error_history:
-    ose << "Can not get history for VM id: " << oid;
-    log("ONE", Log::ERROR, ose);
-    return -1;
 
 error_previous_history:
     ose << "Can not get previous history record (seq:" << history->seq
@@ -698,7 +689,7 @@ int VirtualMachine::get_disk_images(string& error_str)
             continue;
         }
 
-        rc = ipool->disk_attribute(disk, i, &index, &img_type);
+        rc = ipool->disk_attribute(disk, i, &index, &img_type, uid);
 
         if (rc == 0 )
         {
@@ -841,7 +832,7 @@ int VirtualMachine::get_network_leases()
             continue;
         }
 
-        rc = vnpool->nic_attribute(nic, oid);
+        rc = vnpool->nic_attribute(nic, uid, oid);
 
         if (rc == -1)
         {

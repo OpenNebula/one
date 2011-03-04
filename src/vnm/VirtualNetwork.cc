@@ -29,11 +29,10 @@
 /* Virtual Network :: Constructor/Destructor                                  */
 /* ************************************************************************** */
 
-VirtualNetwork::VirtualNetwork(string _user_name,
+VirtualNetwork::VirtualNetwork(int uid,
+                               string _user_name,
                                VirtualNetworkTemplate *_vn_template):
-                PoolObjectSQL(-1, table),
-                name(""),
-                uid(-1),
+                PoolObjectSQL(-1,"",uid,table),
                 user_name(_user_name),
                 bridge(""),
                 type(UNINITIALIZED),
@@ -71,11 +70,11 @@ VirtualNetwork::~VirtualNetwork()
 
 const char * VirtualNetwork::table        = "network_pool";
 
-const char * VirtualNetwork::db_names     = "oid, name, body";
+const char * VirtualNetwork::db_names     = "oid, name, body, uid";
 
 const char * VirtualNetwork::db_bootstrap = "CREATE TABLE IF NOT EXISTS"
-    " network_pool "
-    "(oid INTEGER PRIMARY KEY, name VARCHAR(256), body TEXT, UNIQUE(name))";
+    " network_pool (oid INTEGER PRIMARY KEY, name VARCHAR(256),"
+    " body TEXT, uid INTEGER, UNIQUE(name))";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -91,7 +90,6 @@ int VirtualNetwork::select(SqlDB * db)
 
     unsigned int default_size = VirtualNetworkPool::default_size();
     unsigned int mac_prefix   = VirtualNetworkPool::mac_prefix();
-
 
     // Rebuld the VirtualNetwork object
     rc = PoolObjectSQL::select(db);
@@ -404,7 +402,8 @@ int VirtualNetwork::insert_replace(SqlDB *db, bool replace)
     oss << " INTO " << table << " (" << db_names << ") VALUES ("
         <<          oid         << ","
         << "'" <<   sql_name    << "',"
-        << "'" <<   sql_xml     << "')";
+        << "'" <<   sql_xml     << "',"
+        <<          uid         << ")";
 
     rc = db->exec(oss);
 

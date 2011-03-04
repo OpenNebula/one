@@ -38,11 +38,39 @@ const unsigned int PoolSQL::MAX_POOL_SIZE = 15000;
 
 int PoolSQL::init_cb(void *nil, int num, char **values, char **names)
 {
-    lastOID = -1;
+    int uid = 0;
+    int oid;
 
-    if ( values[0] != 0 )
+    if (num ==3) //with uid
     {
-        lastOID = atoi(values[0]);
+        if ((values[0] == 0) || (values[1] == 0) || (values[2] == 0))
+        {
+            return -1;
+        }
+
+        uid = atoi(values[2]);
+    }
+    else if (num == 2)
+    {
+        if ((values[0] == 0) || (values[1] == 0))
+        {
+            return -1;
+        }
+
+        uid = 0;
+    }
+    else
+    {
+        return -1; 
+    } 
+
+    oid = atoi(values[0]);
+
+    name_index.insert(make_pair(key(values[1],uid),oid));
+
+    if (lastOID < oid)
+    {
+        lastOID = oid;
     }
 
     return 0;
@@ -50,19 +78,33 @@ int PoolSQL::init_cb(void *nil, int num, char **values, char **names)
 
 /* -------------------------------------------------------------------------- */
 
-PoolSQL::PoolSQL(SqlDB * _db, const char * table): db(_db), lastOID(-1)
+PoolSQL::PoolSQL(SqlDB * _db, const char * table, bool with_uid):db(_db), lastOID(-1)
 {
     ostringstream   oss;
+    int             rc;
 
     pthread_mutex_init(&mutex,0);
 
     set_callback(static_cast<Callbackable::Callback>(&PoolSQL::init_cb));
 
-    oss << "SELECT MAX(oid) FROM " << table;
+    if (with_uid == true)
+    {
+        oss << "SELECT oid, name, uid FROM " << table;
+    }
+    else
+    {
+        oss << "SELECT oid, name FROM " << table;
+    }
 
-    db->exec(oss,this);
+    rc = db->exec(oss,this);
 
     unset_callback();
+
+    if ( rc == -1 )
+    {
+        throw runtime_error("Could not load the existing pool objects from the DB."); 
+    }
+
 };
 
 /* -------------------------------------------------------------------------- */
@@ -85,6 +127,7 @@ PoolSQL::~PoolSQL()
 
     pthread_mutex_destroy(&mutex);
 }
+
 
 /* ************************************************************************** */
 /* PoolSQL public interface                                                   */
@@ -120,6 +163,7 @@ int PoolSQL::allocate(
     else
     {
         rc = lastOID;
+        insert(objsql->get_name(),rc,objsql->get_uid());
     }
 
     do_hooks(objsql, Hook::ALLOCATE);
@@ -187,6 +231,7 @@ PoolObjectSQL * PoolSQL::get(
 
         pool.insert(make_pair(objectsql->oid,objectsql));
 
+
         if ( olock == true )
         {
             objectsql->lock();
@@ -238,7 +283,14 @@ void PoolSQL::replace()
         {
             PoolObjectSQL * tmp_ptr;
 
+            string name;
+            int    uid;
+
             tmp_ptr = index->second;
+
+            name = tmp_ptr->get_name();
+            uid  = tmp_ptr->get_uid();
+
             pool.erase(index);
 
             delete tmp_ptr;
@@ -272,6 +324,7 @@ void PoolSQL::clean()
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
 int PoolSQL:: search_cb(void * _oids, int num, char **values, char **names)
 {
     vector<int> *  oids;
@@ -309,3 +362,4 @@ int PoolSQL::search(
 
     return rc;
 }
+

@@ -32,7 +32,7 @@ unsigned int VirtualNetworkPool::_default_size;
 VirtualNetworkPool::VirtualNetworkPool(SqlDB * db,
     const string&   prefix,
     int             __default_size):
-    PoolSQL(db,VirtualNetwork::table)
+    PoolSQL(db,VirtualNetwork::table,true)
 {
     istringstream iss;
     size_t        pos   = 0;
@@ -78,70 +78,11 @@ int VirtualNetworkPool::allocate (
 {
     VirtualNetwork *    vn;
 
-    vn = new VirtualNetwork(user_name, vn_template);
-
-    vn->uid = uid;
+    vn = new VirtualNetwork(uid, user_name, vn_template);
 
     *oid = PoolSQL::allocate(vn, error_str);
 
     return *oid;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int VirtualNetworkPool::get_cb(void * _oid, int num, char **values,char **names)
-{
-    int * oid;
-
-    oid = static_cast<int *>(_oid);
-
-    if ( oid == 0 || values == 0 || values[0] == 0 )
-    {
-        return -1;
-    }
-
-    *oid = atoi(values[0]);
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-VirtualNetwork * VirtualNetworkPool::get(const string& name, bool lock)
-{
-    ostringstream   oss;
-
-    int oid = -1;
-    int rc;
-
-    char * sql_name = db->escape_str(name.c_str());
-
-    if ( sql_name == 0 )
-    {
-        return 0;
-    }
-
-    set_callback(
-        static_cast<Callbackable::Callback>(&VirtualNetworkPool::get_cb),
-        static_cast<void *>(&oid));
-
-    oss << "SELECT oid FROM " << VirtualNetwork::table << " WHERE name = '"
-        << sql_name << "'";
-
-    rc = db->exec(oss, this);
-
-    unset_callback();
-
-    db->free_str(sql_name);
-
-    if (rc != 0 || oid == -1)
-    {
-        return 0;
-    }
-
-    return get(oid,lock);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -191,7 +132,7 @@ int VirtualNetworkPool::dump(ostringstream& oss, const string& where)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualNetworkPool::nic_attribute(VectorAttribute * nic, int vid)
+int VirtualNetworkPool::nic_attribute(VectorAttribute * nic, int uid,  int vid)
 {
     string           network;
     VirtualNetwork * vnet = 0;
@@ -220,7 +161,7 @@ int VirtualNetworkPool::nic_attribute(VectorAttribute * nic, int vid)
     }
     else
     {
-        vnet = get(network,true);
+        vnet = get(network, uid, true);
     }
 
     if (vnet == 0)
@@ -238,7 +179,9 @@ int VirtualNetworkPool::nic_attribute(VectorAttribute * nic, int vid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualNetworkPool::authorize_nic(VectorAttribute * nic, AuthRequest * ar)
+void VirtualNetworkPool::authorize_nic(VectorAttribute * nic, 
+                                       int uid, 
+                                       AuthRequest * ar)
 {
     string           network;
     VirtualNetwork * vnet = 0;
@@ -267,7 +210,7 @@ void VirtualNetworkPool::authorize_nic(VectorAttribute * nic, AuthRequest * ar)
     }
     else
     {
-        vnet = get(network,true);
+        vnet = get(network, uid, true);
     }
 
     if (vnet == 0)
@@ -276,7 +219,7 @@ void VirtualNetworkPool::authorize_nic(VectorAttribute * nic, AuthRequest * ar)
     }
 
     ar->add_auth(AuthRequest::NET,
-                 vnet->get_vnid(),
+                 vnet->get_oid(),
                  AuthRequest::USE,
                  vnet->get_uid(),
                  vnet->isPublic());

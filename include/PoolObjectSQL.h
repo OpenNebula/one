@@ -38,8 +38,9 @@ class PoolObjectSQL : public ObjectSQL, public ObjectXML
 public:
 
     //TODO remove Defaults for Constructor Attributes
-    PoolObjectSQL(int id=-1, const char * _table = 0)
-            :ObjectSQL(),ObjectXML(),oid(id),valid(true),table(_table)
+    PoolObjectSQL(int id=-1, const string& _name ="", int _uid=0,const char *_table = 0)
+            :ObjectSQL(),ObjectXML(),oid(id),name(_name),uid(_uid),
+             valid(true),table(_table)
     {
         pthread_mutex_init(&mutex,0);
     };
@@ -51,10 +52,24 @@ public:
         pthread_mutex_destroy(&mutex);
     };
 
+    /* --------------------------------------------------------------------- */
+
     int get_oid() const
     {
         return oid;
     };
+
+    const string& get_name() const
+    {
+        return name;
+    };
+
+    int get_uid()
+    {
+        return uid;
+    };
+
+    /* --------------------------------------------------------------------- */
 
     /**
      *  Check if the object is valid
@@ -209,12 +224,22 @@ protected:
     /**
      *  The object's unique ID
      */
-    int  oid;
+    int     oid;
+
+    /**
+     *  The object's name
+     */
+    string  name;
+
+    /**
+     *  Object's owner
+     */
+    int     uid;
 
     /**
      *  The contents of this object are valid
      */
-    bool valid;
+    bool    valid;
 
 private:
 

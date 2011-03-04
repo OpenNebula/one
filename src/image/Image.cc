@@ -33,10 +33,8 @@
 /* ************************************************************************ */
 
 Image::Image(int _uid, string _user_name, ImageTemplate * _image_template):
-        PoolObjectSQL(-1,table),
-        uid(_uid),
+        PoolObjectSQL(-1,"",_uid,table),
         user_name(_user_name),
-        name(""),
         type(OS),
         regtime(time(0)),
         source(""),

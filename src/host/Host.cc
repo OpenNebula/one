@@ -33,8 +33,7 @@ Host::Host(
     string _im_mad_name,
     string _vmm_mad_name,
     string _tm_mad_name):
-        PoolObjectSQL(id,table),
-        hostname(_hostname),
+        PoolObjectSQL(id,_hostname,0,table),
         state(INIT),
         im_mad_name(_im_mad_name),
         vmm_mad_name(_vmm_mad_name),
@@ -102,7 +101,7 @@ int Host::insert_replace(SqlDB *db, bool replace)
 
    // Update the Host
 
-    sql_hostname = db->escape_str(hostname.c_str());
+    sql_hostname = db->escape_str(name.c_str());
 
     if ( sql_hostname == 0 )
     {
@@ -202,7 +201,7 @@ string& Host::to_xml(string& xml) const
     oss <<
     "<HOST>"
        "<ID>"            << oid       	   << "</ID>"            <<
-       "<NAME>"          << hostname 	   << "</NAME>"          <<
+       "<NAME>"          << name 	       << "</NAME>"          <<
        "<STATE>"         << state          << "</STATE>"         <<
        "<IM_MAD>"        << im_mad_name    << "</IM_MAD>"        <<
        "<VM_MAD>"        << vmm_mad_name   << "</VM_MAD>"        <<
@@ -233,7 +232,7 @@ int Host::from_xml(const string& xml)
 
     // Get class base attributes
     rc += xpath(oid, "/HOST/ID", -1);
-    rc += xpath(hostname, "/HOST/NAME", "not_found");
+    rc += xpath(name, "/HOST/NAME", "not_found");
     rc += xpath(int_state, "/HOST/STATE", 0);
 
     rc += xpath(im_mad_name, "/HOST/IM_MAD", "not_found");

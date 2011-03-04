@@ -186,7 +186,7 @@ protected:
         CPPUNIT_ASSERT( obj != 0 );
 
         string xml_str = "";
-        string name = host->get_hostname();
+        string name = host->get_name();
 
         CPPUNIT_ASSERT( name == names[index] );
 

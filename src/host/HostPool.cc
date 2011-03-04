@@ -45,7 +45,7 @@ int HostPool::init_cb(void *nil, int num, char **values, char **names)
 HostPool::HostPool(SqlDB*                    db,
                    vector<const Attribute *> hook_mads,
                    const string&             hook_location)
-                        : PoolSQL(db,Host::table)
+                        : PoolSQL(db,Host::table,false)
 {
     // ------------------ Initialize Cluster Array ----------------------
 

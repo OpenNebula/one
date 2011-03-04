@@ -45,8 +45,10 @@ public:
      *   @param _db a pointer to the database
      *   @param table the name of the table supporting the pool (to set the oid
      *   counter). If null the OID counter is not updated.
+     *   @param with_uid the Pool objects have an owner id (uid)
      */
-    PoolSQL(SqlDB * _db, const char * table);
+    //TODO REmove defaults
+    PoolSQL(SqlDB * _db, const char * table, bool with_uid=false);
 
     virtual ~PoolSQL();
 
@@ -68,10 +70,33 @@ public:
      *
      *   @return a pointer to the object, 0 in case of failure
      */
-    virtual PoolObjectSQL * get(
+    PoolObjectSQL * get(
         int     oid,
         bool    lock);
 
+    /**
+     *  Gets an object from the pool (if needed the object is loaded from the
+     *  database).
+     *   @param name of the object
+     *   @param uid id of owner
+     *   @param lock locks the object if true
+     *
+     *   @return a pointer to the object, 0 in case of failure
+     */
+    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    {
+        int oid;
+
+        oid = get_oid_by_name(name, uid);
+
+        if (oid == -1)
+        {
+            return 0;
+        }
+
+        return get(oid,lock);
+    }
+    
     /**
      *  Finds a set objects that satisfies a given condition
      *   @param oids a vector with the oids of the objects.
@@ -116,6 +141,8 @@ public:
     virtual int drop(
         PoolObjectSQL * objsql)
     {
+       erase(objsql->name,objsql->uid);
+
        return objsql->drop(db);
     };
 
@@ -165,6 +192,12 @@ private:
     map<int,PoolObjectSQL *>    pool;
 
     /**
+     *  This is a name index for the pool map. The key is the name of the object
+     *  , that may be combained with the owner id.
+     */
+    map<string,int>             name_index;
+
+    /**
      *  Factory method, must return an ObjectSQL pointer to an allocated pool
      *  specific object.
      */
@@ -199,6 +232,72 @@ private:
      *  back of the queue.
      */
     void replace();
+
+    /* ------------------------------------------------------------------------ */
+    /* Functions to manage the name index                                       */
+    /* ------------------------------------------------------------------------ */
+    
+    /**
+     *  Generate an index key for the object
+     *    @param name of the object
+     *    @param uid owner of the object, only used if needed
+     *    
+     *    @return the key, a string
+     */
+    string key(const string& name, int uid)
+    {
+        ostringstream key;
+
+        key << name << ':' << uid;
+
+        return key.str();
+    };
+
+    /**
+     *  Adds a new key-object_oid entry in the index
+     *    @param name of the object
+     *    @param oid of the object
+     *    @param uid owner of the object, only used if needed
+     */
+    void insert(const string& name, int oid, int uid)
+    {
+        name_index.insert(make_pair(key(name,uid),oid));
+    };
+
+    /**
+     *  Deletes a key-object_oid entry in the index
+     *    @param name of the object
+     *    @param uid owner of the object, only used if needed
+     */
+    void erase(const string& name, int uid)
+    {
+        name_index.erase(key(name,uid));
+    };
+
+    /**
+     *  Looks for the oid of an object in the in memory index
+     *    @param name of the object
+     *    @param uid owner of the object, only used if needed
+     *
+     *   @returns oid or -1 if the object was not found
+     */
+    int get_oid_by_name(const string& name, int uid)
+    {
+        map<string, int>::iterator index;
+        int oid = -1;
+
+        index = name_index.find(key(name,uid));
+
+        if ( index != name_index.end() )
+        {
+            oid = static_cast<int>(index->second);
+        }
+
+        return oid;
+    };
+
+    /* ------------------------------------------------------------------------ */
+    /* ------------------------------------------------------------------------ */
 
     /**
      *  Callback to set the lastOID (PoolSQL::PoolSQL)

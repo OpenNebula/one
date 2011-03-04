@@ -68,7 +68,7 @@ public:
     {
         return static_cast<Host *>(PoolSQL::get(oid,lock));
     };
-
+    
     /**
      *  Bootstraps the database table(s) associated to the Host pool
      */

@@ -65,15 +65,6 @@ public:
     int from_xml(const string &xml_str);
 
     /**
-     * Get the Host unique identifier HID, that matches the OID of the object
-     *    @return HID Host identifier
-     */
-    int get_hid() const
-    {
-        return oid;
-    };
-
-    /**
      *  Check if the host is enabled
      *    @return true if the host is enabled
      */
@@ -119,15 +110,6 @@ public:
     void enable()
     {
         state = INIT;
-    };
-
-    /**
-     *  Returns host host_name
-     *     @return host_name Host's hostname
-     */
-    const string& get_hostname() const
-    {
-        return hostname;
     };
 
     /** Update host counters and update the whole host on the DB
@@ -379,9 +361,6 @@ private:
     // -------------------------------------------------------------------------
     // Host Description
     // -------------------------------------------------------------------------
-
-    string      hostname;
-
     /**
      *  The state of the Host
      */

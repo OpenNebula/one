@@ -94,7 +94,7 @@ void RequestManager::VirtualMachineAllocate::execute(
                 continue;
             }
 
-            VirtualMachineAllocate::ipool->authorize_disk(vector,&ar);
+            VirtualMachineAllocate::ipool->authorize_disk(vector,uid,&ar);
         }
 
         num = vm_template->get("NIC",vectors);
@@ -108,7 +108,7 @@ void RequestManager::VirtualMachineAllocate::execute(
                 continue;
             }
 
-            VirtualMachineAllocate::vnpool->authorize_nic(vector,&ar);
+            VirtualMachineAllocate::vnpool->authorize_nic(vector,uid,&ar);
         }
 
         ar.add_auth(AuthRequest::VM,

@@ -192,7 +192,7 @@ public:
         ImagePool * imp;
         Image *     img;
 
-        // Allocate 2 users, so they are written to the DB.
+        // Allocate 2 images, so they are written to the DB.
         allocate(0);
         allocate(2);
 
@@ -200,13 +200,13 @@ public:
         // allocated images.
         imp = new ImagePool(db, "source_prefix", "OS", "hd");
 
-        img = imp->get(names[0], false);
+        img = imp->get(names[0], uids[0], false);
         CPPUNIT_ASSERT( img != 0 );
 
-        img = imp->get(names[1], false);
+        img = imp->get(names[1], uids[1], false);
         CPPUNIT_ASSERT( img == 0 );
 
-        img = imp->get(names[2], false);
+        img = imp->get(names[2], uids[2], false);
         CPPUNIT_ASSERT( img != 0 );
 
 
@@ -297,7 +297,7 @@ public:
         check(0, obj);
 
         // Get using its name
-        obj = imp->get(names[1], true);
+        obj = imp->get(names[1], uids[1], true);
         CPPUNIT_ASSERT( obj != 0 );
         obj->unlock();
 
@@ -309,7 +309,7 @@ public:
         pool->clean();
 
         // Get first object and check its integrity
-        obj = imp->get(names[0], false);
+        obj = imp->get(names[0], uids[0], false);
         check(0, obj);
 
         // Get using its name
@@ -326,14 +326,14 @@ public:
 
         // The pool is empty
         // Non existing name
-        obj = imp->get("Wrong name", true);
+        obj = imp->get("Wrong name", 0, true);
         CPPUNIT_ASSERT( obj == 0 );
 
         // Allocate an object
         allocate(0);
 
         // Ask again for a non-existing name
-        obj = imp->get("Non existing name", true);
+        obj = imp->get("Non existing name",uids[0], true);
         CPPUNIT_ASSERT( obj == 0 );
     }
 
@@ -632,7 +632,7 @@ public:
         disk = new VectorAttribute("DISK");
         disk->replace("IMAGE", "Image 0");
 
-        ((ImagePool*)imp)->disk_attribute(disk, 0, &index, &img_type);
+        ((ImagePool*)imp)->disk_attribute(disk, 0, &index, &img_type,0);
 
         value = "";
         value = disk->vector_value("TARGET");
@@ -649,7 +649,7 @@ public:
         disk = new VectorAttribute("DISK");
         disk->replace("IMAGE_ID", "1");
 
-        ((ImagePool*)imp)->disk_attribute(disk, 0, &index, &img_type);
+        ((ImagePool*)imp)->disk_attribute(disk, 0, &index, &img_type,0);
 
         value = "";
         value = disk->vector_value("TARGET");

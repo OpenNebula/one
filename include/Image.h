@@ -75,33 +75,6 @@ public:
     int from_xml(const string &xml_str);
 
     /**
-     * Get the Image unique identifier IID, that matches the OID of the object
-     *    @return IID Image identifier
-     */
-    int get_iid() const
-    {
-        return oid;
-    };
-
-    /**
-     * Gets the uid of the owner of the Image
-     * @return uid
-     **/
-    int get_uid()
-    {
-        return uid;
-    }
-
-    /**
-     *  Returns Image's name
-     *     @return name Image's name
-     */
-    const string& get_name() const
-    {
-        return name;
-    };
-
-    /**
      *  Returns true if the image is public
      *     @return true if the image is public
      */
@@ -357,19 +330,9 @@ private:
     // -------------------------------------------------------------------------
 
     /**
-     *  Owner of the image
-     */
-    int         uid;
-
-    /**
      *  Image owner's name
      */
     string      user_name;
-
-    /**
-     *  The name of the Image
-     */
-    string       name;
 
     /**
      *  Type of the Image

@@ -641,7 +641,7 @@ static int input (void );
 /* This used to be an fputs(), but since the string might contain NUL's,
  * we now use fwrite().
  */
-#define ECHO fwrite( template_text, template_leng, 1, template_out )
+#define ECHO do { if (fwrite( template_text, template_leng, 1, template_out )) {} } while (0)
 #endif
 
 /* Gets input and stuffs it into "buf".  number of characters read, or YY_NULL,
@@ -652,7 +652,7 @@ static int input (void );
 	if ( YY_CURRENT_BUFFER_LVALUE->yy_is_interactive ) \
 		{ \
 		int c = '*'; \
-		int n; \
+		unsigned n; \
 		for ( n = 0; n < max_size && \
 			     (c = getc( template_in )) != EOF && c != '\n'; ++n ) \
 			buf[n] = (char) c; \

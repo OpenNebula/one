@@ -122,7 +122,7 @@ public:
      *    returned as pointers to the object nodes.
      *    @return the number of nodes found
      */
-    int get_nodes (const char * xpath_expr, vector<xmlNodePtr>& content);
+    int get_nodes(const char * xpath_expr, vector<xmlNodePtr>& content);
 
     /**
      *   Updates the object representation with a new XML document. Previous

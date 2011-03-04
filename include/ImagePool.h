@@ -83,18 +83,10 @@ public:
      */
     Image * get(
         const string&  name,
+        int            uid,
         bool           lock)
     {
-        map<string, int>::iterator     index;
-
-        index = image_names.find(name);
-
-        if ( index != image_names.end() )
-        {
-            return get((int)index->second,lock);
-        }
-
-        return 0;
+        return static_cast<Image *>(PoolSQL::get(name,uid,lock));
     }
 
     /** Update a particular Image
@@ -112,14 +104,7 @@ public:
      */
     int drop(Image * image)
     {
-        int rc = PoolSQL::drop(image);
-
-        if ( rc == 0)
-        {
-            image_names.erase(image->get_name());
-        }
-
-        return rc;
+        return PoolSQL::drop(image);
     };
 
     /**
@@ -146,18 +131,21 @@ public:
      *    @param index number of datablock images used by the same VM. Will be
      *                 automatically increased.
      *    @param img_type will be set to the used image's type
+     *    @param uid owner of the VM (to look for the image id within its images)
      *    @return 0 on success, -1 error, -2 not using the pool
      */
     int disk_attribute(VectorAttribute *  disk,
                        int                disk_id,
                        int *              index,
-                       Image::ImageType * img_type);
+                       Image::ImageType * img_type,
+                       int                uid);
     /**
      *  Generates an Authorization token for the DISK attribute
      *    @param disk the disk to be authorized
+     *    @param uid owner of the VM (to look for the image id within its images)
      *    @param ar the AuthRequest
      */
-    void authorize_disk(VectorAttribute * disk, AuthRequest * ar);
+    void authorize_disk(VectorAttribute * disk, int uid, AuthRequest * ar);
 
     static const string& source_prefix()
     {
@@ -196,11 +184,6 @@ private:
     //--------------------------------------------------------------------------
     // Pool Attributes
     // -------------------------------------------------------------------------
-    /**
-     *  This map stores the association between IIDs and Image names
-     */
-    map<string, int>    image_names;
-
     /**
      *  Factory method to produce Image objects
      *    @return a pointer to the new Image

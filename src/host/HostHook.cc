@@ -55,7 +55,7 @@ void HostAllocateHook::do_hook(void *arg)
         {
             hmd->execute(host->get_oid(),
                          name,
-                         host->get_hostname(),
+                         host->get_name(),
                          cmd,
                          parsed_args);
         }
@@ -179,7 +179,7 @@ void HostStateHook::do_hook(void *arg)
             {
                 hmd->execute(host->get_oid(),
                              name,
-                             host->get_hostname(),
+                             host->get_name(),
                              cmd,
                              parsed_args);
             }
