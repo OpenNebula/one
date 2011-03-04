@@ -143,7 +143,7 @@ function tableCheckboxesListener(dataTable){
     if (last_action_b.length && last_action_b.val().length){
         last_action_b.button("disable");
     };
-    $('.new_button',context).button("enable");
+    $('.create_button',context).button("enable");
 
     //listen to changes
     $('input',dataTable).live("change",function(){
@@ -325,6 +325,13 @@ function onError(request,error_json) {
     notifyError(message);
     return true;
 }
+
+function waitingNodes(dataTable){
+    nodes = dataTable.fnGetData();
+    for (var i=0;i<nodes.length;i++){
+       dataTable.fnUpdate(spinner,i,0);
+    }
+};
 
 
 function True(){

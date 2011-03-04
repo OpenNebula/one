@@ -42,41 +42,79 @@ var hosts_select="";
 var clusters_select="";
 var host_list_json = {};
 var cluster_list_json = {};
-var dataTable_hosts = null;
-
+var dataTable_hosts;
 
 //Setup actions
 var host_actions = {
+    
             "Host.create" : {
                 type: "create",
                 call : OpenNebula.Host.create,
                 callback : addHostElement,
                 error : onError,
-                notify:true,
+                notify:False,
+            },
+            
+            "Host.list" : {
+                type: "list",
+                call: OpenNebula.Host.list,
+                callback: updateHostsView,
+                error: onError,
+                notify:False
+            },
+            
+            "Host.show" : {
+                type: "single",
+                call: OpenNebula.Host.show,
+                callback: updateHostElement,
+                error: onError,
+                notify:False
+            },
+            
+            "Host.showinfo" : {
+                type: "single",
+                call: OpenNebula.Host.show,
+                callback: updateHostInfo,
+                error: onError,
+                notify: False
+            },
+            
+            "Host.refresh" : {
+                type: "custom",
+                call: function(){
+                    waitingNodes(dataTable_hosts);
+                    Sunstone.runAction("Host.list");
+                },
+                callback: function(){},
+                error: onError,
+                notify: False
             },
             
             "Host.enable" : {
                 type: "multiple",
                 call : OpenNebula.Host.enable,
                 callback : host_update_callback,
+                dataTable: function() { return dataTable_hosts },
                 error : onError,
-                notify:true,
+                notify:True,
             },
             
             "Host.disable" : {
                 type: "multiple",
                 call : OpenNebula.Host.disable,
                 callback : host_update_callback,
+                dataTable: function() { return dataTable_hosts },
                 error : onError,
-                notify:true,
+                notify:True,
             },
             
             "Host.delete" : {
                 type: "multiple",
                 call : OpenNebula.Host.create,
                 callback : deleteHostElement,
+                dataTable: function() { return dataTable_hosts },
                 error : onError,
-                notify:true,
+                notify:True,
             },
             
             "Host.list" : {
@@ -87,33 +125,40 @@ var host_actions = {
                     },
                 callback: function(){},
                 error: onError,
-                notify:true,
+                notify:True,
             },
-            
+                        
             "Cluster.create" : {
                 type: "create",
                 call : OpenNebula.Cluster.create,
                 callback : function(){
-                    OpenNebula.Cluster.list({success: updateClustersView, error: onError});
+                    //OpenNebula.Cluster.list({success: updateClustersView, error: onError});
+                    Sunstone.runAction("Cluster.list");
                 },
                 error : onError,
-                notify:true,
+                notify:True,
             },
             
             "Cluster.delete" : {
-                type: "multiple",
-                call : OpenNebula.Host.create,
-                callback : addHostElement,
+                type: "single",
+                call : OpenNebula.Cluster.delete,
+                callback : function(){
+                    //OpenNebula.Cluster.list({success: updateClustersView, error: onError});
+                    Sunstone.runAction("Cluster.list");
+                },
                 error : onError,
-                notify:true,
+                notify:True,
             },
             
             "Cluster.addhost" : {
                 type: "multiple",
                 call : OpenNebula.Cluster.addhost,
-                callback : updateHostElement,
+                callback : function(req){
+                    Sunstone.runAction("Host.show",req.request.data);
+					},
+                dataTable: function() { return dataTable_hosts },
                 error : onError,
-                notify:true,
+                notify:True,
             },
             
             "Cluster.removehost" : {
@@ -121,63 +166,70 @@ var host_actions = {
                 call : OpenNebula.Cluster.removehost,
                 callback : deleteHostElement,
                 error : onError,
-                notify:true,
+                notify:True,
             }
         };
 
 
-var host_buttons = [
-        {
+var host_buttons = {
+        "Host.refresh" : {
+            type: "image",
+            text: "Refresh list",
+            img: "/images/Refresh-icon.png",
+            condition: True
+        },
+    
+        "Host.create" : {
             type: "create",
             text: "+ New host",
-            action: "Host.create",
             condition :True
         },
-        {
+        "Host.enable" : {
             type: "action",
             text: "Enable",
-            action: "Host.enable",
             condition : True
         },
-        {
+        "Host.disable" : {
             type: "confirm",
             text: "Disable",
-            action: "Host.disable",
-            tip: "Confirm disable",
+            tip: "This will disable the selected hosts.",
             condition : True
         },
-        {
+        "Cluster.create" : {
             type: "create",
             text: "+ New Cluster",
-            action: "Cluster.create",
             condition : True
         },
-        {
-            type: "action",
+        "Cluster.delete" : {
+            type: "confirm_with_select",
             text: "Delete cluster",
-            action: "Cluster.delete",
+            select: function(){return clusters_select},
+            tip: "Select the cluster you want to remove",
             condition : True
         },
-        {
+        "action_list" : { //Special button
             type: "select",
-            action: [{  type: "confirm_with_select",
-                        text: "Add host to cluster", 
-                        value: "Cluster.addhost",
-                        select: "cluster_select",
-                        tip: "Select the cluster in which you would like to place the hosts",
-                        condition: True},
-                     {  type: "action",
-                        text: "Remove host from cluster",
-                        value: "Cluster.removehost",
-                        condition: True}],
+            actions: { "Cluster.addhost": { 
+                            type: "confirm_with_select",
+                            text: "Add host to cluster", 
+                            select: function(){return clusters_select;},
+                            tip: "Select the cluster in which you would like to place the hosts",
+                            condition: True
+                        },
+                        "Cluster.removehost" : {
+                            type: "action",
+                            text: "Remove host from cluster",
+                            value: "Cluster.removehost",
+                            condition: True
+                        }},
             condition : True
         },
-        {
+        "Host.delete" : {
             type: "action",
             text: "Delete host",
-            value: "Host.delete",
             condition : True
-        }];
+        }
+        };
             
 for (action in host_actions){
     Sunstone.addAction(action,host_actions[action]);
@@ -265,7 +317,8 @@ function hostInfoListener(){
         popDialogLoading();
 		aData = dataTable_hosts.fnGetData(this);
 		id = $(aData[0]).val();
-		OpenNebula.Host.show({data:{id:id},success: updateHostInfo,error: onError});
+        Sunstone.runAction("Host.showinfo",id);
+		//OpenNebula.Host.show({data:{id:id},success: updateHostInfo,error: onError});
 		return false;
 	});
 }
@@ -337,7 +390,7 @@ function updateClustersView(request, cluster_list){
 	//~ });
 	//~ updateView(cluster_list_array,dataTable_clusters);
 	updateClusterSelect(cluster_list);
-	updateDashboard("clusters");
+	updateDashboard("clusters",cluster_list);
 }
 
 
@@ -443,7 +496,8 @@ $(document).ready(function(){
     addElement([
         spinner,
         '','','','','','',''],dataTable_hosts);
-	OpenNebula.Host.list({success: updateHostsView,error: onError});
+	//OpenNebula.Host.list({success: updateHostsView,error: onError});
+    Sunstone.runAction("Host.list");
     
     //set refresh interval
     setInterval(function(){
@@ -455,5 +509,7 @@ $(document).ready(function(){
 	},60000);
     
     initCheckAllBoxes(dataTable_hosts);
+    tableCheckboxesListener(dataTable_hosts);
+    hostInfoListener();
         
 });

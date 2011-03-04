@@ -42,7 +42,7 @@ var Sunstone = {
     
     
     "addAction" : function (name,action_obj) {
-        SunstoneCfg["actions"].name = action_obj;
+        SunstoneCfg["actions"][name] = action_obj;
     },
     
     "updateAction" : function(action,new_action) {
@@ -69,7 +69,7 @@ var Sunstone = {
     
     "runAction" : function(action, data_arg, extra_param){
     
-        var actions = Sunstone.actions;
+        var actions = SunstoneCfg["actions"];
         if (!actions[action]){
             notifyError("Action "+action+" not defined");
             return;
@@ -77,9 +77,9 @@ var Sunstone = {
         
         var action_cfg = actions[action];
         
-        var call = action_cfg.run;
-        var callback = action_cfg.callback;
-        var err = action_cfg.callback;
+        var call = action_cfg["call"];
+        var callback = action_cfg["callback"];
+        var err = action_cfg["error"];
         var notify = action_cfg.notify;
         
         $('div#confirm_with_select_dialog').dialog("close");
@@ -91,10 +91,10 @@ var Sunstone = {
         // * Confirm and confirm with select calls
         // * Calls on multiple elements
         // * Other calls
-        switch (actions[action].type){
+        switch (action_cfg.type){
             
             case "create","single":
-                call({data:data_arg, success: callback,error:err});
+                call({data:{id:data_arg}, success: callback,error:err});
                 break;
             case "list":
                 call({success: callback, error:err});
@@ -103,21 +103,23 @@ var Sunstone = {
                 //run on the list of nodes that come on the data
                 $.each(data_arg,function(){
                     if (extra_param){
-                        //unsupported
+                        call({data:{id:this,extra_param:extra_param}, success: callback, error: err});
                     } else {
-                        call({data:this, success: callback, error:err});
+                        call({data:{id:this}, success: callback, error:err});
                     }
                 });
                 break;
             default: 
                 //we have supposedly altered an action and we want it to do
                 //something completely different
-                call(data,extra_param);
+                if (data_arg && extra_param) {call(data_arg,extra_param);}
+                else if (data_arg) {call(data_arg);}
+                else {call();}
         }
         
     },
     
-    "runActionOnDatatableNodes": function(action,datatable){
+    "runActionOnDatatableNodes": function(action,dataTable,extra_param){
         if (dataTable != null){
             
             //Which rows of the datatable are checked?
@@ -126,11 +128,21 @@ var Sunstone = {
             $.each(nodes,function(){
                 data.push($(this).val());
             });
-            runAction(action,data);
+            Sunstone.runAction(action,data,extra_param);
             
         } else {
-            runAction(action);
+            Sunstone.runAction(action,extra_param);
         };
+    },
+    "getButton" : function(tab_name,button_name){
+            var button = null;
+            var buttons = SunstoneCfg["tabs"][tab_name]["buttons"];
+            button = buttons[button_name];
+            if (!button && buttons["action_list"]) //not found, is it in the list then?
+            {
+                button = buttons["action_list"]["actions"][button_name];
+            }
+            return button;            
     }//meter coma y seguir aquí
     
 };
@@ -255,19 +267,28 @@ $(document).ready(function(){
     $('.action_button').live("click",function(){
         
         var table = null;
-        if ($(this).parents('table').length){
-            table = $(this).parents('table').dataTable();
+        var value = $(this).attr("value");
+        var action = SunstoneCfg["actions"][value];
+        if (!action) { notifyError("Action "+value+" not defined."); return false;};
+        switch (action.type){
+            case "multiple": //find the datatable
+                table = action.dataTable();
+                Sunstone.runActionOnDatatableNodes(value,table);
+                break;
+            default:
+                Sunstone.runAction(value);
         }
-        //if no table found the action will be run as custom
-        Sunstone.runActionOnDatatableNodes($(this).value,table);
+        return false;
     });
     
     $('.confirm_button').live("click",function(){
         popUpConfirmDialog(this);
+        return false;
     });
     
     $('.confirm_with_select_button').live("click",function(){
-        popUpConfirmWithSelectDialog(this)
+        popUpConfirmWithSelectDialog(this);
+        return false;
     });
     
     
@@ -334,52 +355,41 @@ function insertButtons(){
     var buttons;
     var tab_id;
     var button_code;
+    var button_obj;
     
     for (tab in SunstoneCfg["tabs"]){
         buttons = SunstoneCfg["tabs"][tab].buttons;
         content = SunstoneCfg["tabs"][tab].content;
         if ($('div#'+tab+' .action_blocks').length){
-            $.each(buttons,function(){
+            for (button_name in buttons){
                 button_code = "";
-                if (this.condition()) {
-                
-                  switch (this.type) {
+                button = buttons[button_name];
+                if (button.condition()) {
+                    switch (button.type) {
                       case "select":
                         button_code = '<select class="multi_action_slct">';
-                        $.each(this.action,function(){
-                            if (this.condition()){
-                                    switch (this.type){
-                                        case "create":
-                                            button_code += '<option class="create" value="'+this.value+'">'+this.text+'</option>';
-                                            break;
-                                        case "action":
-                                            button_code += '<option class="action_button" value="'+this.value+'">'+this.text+'</option>';
-                                        case "confirm":
-                                            button_code += '<option class="confirm_button" value="'+this.value+'">'+this.text+'</option>';
-                                        case "confirm_with_select":
-                                            button_code += '<option class="confirm_with_select_button" select_id="'+this.select+'" value="'+this.value+'">'+this.text+'</option>';
-                                    }
-                                
+                        var sel_obj;
+                        for (sel_name in button.actions){
+                            sel_obj = button["actions"][sel_name];
+                            if (sel_obj.condition()){
+                                    button_code += '<option class="'+sel_obj.type+'_button" value="'+sel_name+'">'+sel_obj.text+'</option>';
                             };
-                        });
+                        };
                         button_code += '</select>';
                         break;
-                      case "confirm_with_select":
-                        button_code = '<button class="confirm_with_select top_button" class="confirm_with_select_button" select_id="'+this.select+'" tip="'+this.tip+'" value="'+this.action+'">'+this.text+'</button>';
+                      case "image":
+                        button_code = '<img src="'+button.img+'" class="action_button" value="'+button_name+'" alt="'+button.text+'" />';
                         break;
-                      case "action":
-                      case "create":
-                      case "confirm":
                       default:
-                        button_code = '<button class="'+this.type+'_button top_button" value="'+this.action+'">'+this.text+'</button>';
+                        button_code = '<button class="'+button.type+'_button top_button" value="'+button_name+'">'+button.text+'</button>';
                     
-                  }
+                    }
                 }
                 $('div#'+tab+' .action_blocks').append(button_code);
                 
-            });
-        }
-    }
+            }//for each button in tab
+        }//if tab exists
+    }//for each tab
     
 }
 
@@ -482,8 +492,8 @@ function setupConfirmDialogs(){
 			<div id="question">Do you want to proceed?</div>\
 			<br />\
 			<div class="form_buttons">\
-			  <button id="proceed" class="action_button" value="">OK</button>\
-			  <button id="cancel" value="">Cancel</button>\
+			  <button id="confirm_proceed" class="action_button" value="">OK</button>\
+			  <button class="confirm_cancel" value="">Cancel</button>\
 			</div>\
 			</form>');
             
@@ -508,8 +518,8 @@ function setupConfirmDialogs(){
 			<select style="margin: 10px 0;" id="confirm_select">\
 			</select>\
 			<div class="form_buttons">\
-			  <button id="action_button" value="">OK</button>\
-			  <button id="confirm_with_select_cancel" value="">Cancel</button>\
+			  <button id="confirm_with_select_proceed" class="" value="">OK</button>\
+			  <button class="confirm_cancel" value="">Cancel</button>\
 			</div>\
 			</form>');
             
@@ -530,25 +540,46 @@ function setupConfirmDialogs(){
 		return false;
 	});
     
+    $('button#confirm_with_select_proceed').click(function(){
+        var value = $(this).val();
+        var action = SunstoneCfg["actions"][value];
+        var param = $('select#confirm_select').val();
+        if (!action) { notifyError("Action "+value+" not defined."); return false;};
+        switch (action.type){
+            case "multiple": //find the datatable
+                table = SunstoneCfg["actions"][value].dataTable();
+                Sunstone.runActionOnDatatableNodes(value,table,param);
+                break;
+            default:
+                Sunstone.runAction(action,param);
+                break;
+        }
+        return false;
+        
+    });
+    
 }
 
 function popUpConfirmDialog(target_elem){
-    button = $(target_elem);
-    value = button.val();
-    action = SunstoneCfg["actions"][value];
-    
+    var value = $(target_elem).val();
+    var tab_id = $(target_elem).parents('.tab').attr('id');
+    var button = Sunstone.getButton(tab_id,value);
+    var tip = button.tip;
+    $('button#confirm_proceed').val(value);
+    $('div#confirm_tip').text(tip);
+    $('div#confirm_dialog').dialog("open");
 }
 
 function popUpConfirmWithSelectDialog(target_elem){
-    var button = $(target_elem);
-    var value = button.val();
-    var action = SunstoneCfg["actions"][value];
-    var select_var = eval(button.attr("select_id"));
-    var tip = button.attr(tip);
+    var value = $(target_elem).val();
+    var tab_id = $(target_elem).parents('.tab').attr('id');
+    var button = Sunstone.getButton(tab_id,value);
+    var tip = button.tip;
+    var select_var = button.select();
     $('select#confirm_select').html(select_var);
     $('div#confirm_with_select_tip').text(tip);
     
-    $('button#confirm_with_select_proceed').val(val);
+    $('button#confirm_with_select_proceed').val(value);
     $('div#confirm_with_select_dialog').dialog("open");
    
    

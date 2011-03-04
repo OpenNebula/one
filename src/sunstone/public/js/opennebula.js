@@ -801,7 +801,7 @@ var OpenNebula = {
             var callback = params.success;
             var callback_error = params.error;
             var id = params.data.id;
-            var host = params.data.host_id;
+            var host = params.data.extra_param;
 
             var method = "deploy";
             var action = OpenNebula.Helper.action(method, {"host_id": host});
@@ -864,7 +864,7 @@ var OpenNebula = {
             var callback = params.success;
             var callback_error = params.error;
             var id = params.data.id;
-            var host = params.data.host_id;
+            var host = params.data.extra_param;
 
             var method = "livemigrate";
             var action = OpenNebula.Helper.action(method,{"host_id": host});
@@ -896,7 +896,7 @@ var OpenNebula = {
             var callback = params.success;
             var callback_error = params.error;
             var id = params.data.id;
-            var host = params.data.host_id;
+            var host = params.data.extra_param;
 
             var method = "migrate";
             var action = OpenNebula.Helper.action(method,{"host_id": host});
@@ -1279,7 +1279,7 @@ var OpenNebula = {
             var callback = params.success;
             var callback_error = params.error;
             var host_id = params.data.id;
-            var cluster_id = params.data.cluster_id;
+            var cluster_id = params.data.extra_param;
 
             var method = "add_host";
             var action = OpenNebula.Helper.action(method, {
@@ -1313,7 +1313,7 @@ var OpenNebula = {
             var callback = params.success;
             var callback_error = params.error;
             var host_id = params.data.id;
-            var cluster_id = params.data.cluster_id;
+            var cluster_id = params.data.extra_param;
 
             var method = "remove_host";
             var action = OpenNebula.Helper.action(method,  {
