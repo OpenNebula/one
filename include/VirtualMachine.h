@@ -183,16 +183,6 @@ public:
         }
     };
 
-
-    /**
-     *  Returns the name of the VM
-     *    @return the VM name
-     */
-    const string& get_name() const
-    {
-        return name;
-    };
-
     /**
      *  Returns the deployment ID
      *    @return the VMM driver specific ID
@@ -687,7 +677,6 @@ public:
         return uid;
     };
 
-
     // ------------------------------------------------------------------------
     // Timers
     // ------------------------------------------------------------------------
@@ -753,7 +742,6 @@ public:
      */
     int  generate_context(string &files);
 
-
     // ------------------------------------------------------------------------
     // Image repository related functions
     // ------------------------------------------------------------------------
@@ -801,11 +789,6 @@ private:
     // -------------------------------------------------------------------------
     // Virtual Machine Description
     // -------------------------------------------------------------------------
-
-    /**
-     * Name of the VM
-     */
-    string                  name;
 
     /**
      *  The Virtual Machine template, holds the VM attributes.

@@ -44,15 +44,6 @@ public:
     string& to_xml(string& xml) const;
 
     /**
-     * Get the User unique identifier UID, that matches the OID of the object
-     *    @return UID User identifier
-     */
-    int get_uid() const
-    {
-        return oid;
-    };
-
-    /**
      *  Check if the user is enabled
      *    @return true if the user is enabled
      */
@@ -60,15 +51,6 @@ public:
      {
         return enabled;
      }
-
-    /**
-     *  Returns user username
-     *     @return username User's hostname
-     */
-    const string& get_username() const
-    {
-        return username;
-    };
 
     /**
      *  Returns user password
@@ -98,11 +80,11 @@ public:
     /**
      *  Sets user username
      */
-    void set_username(string _username)
+/*    void set_username(string _username)
     {
         username = _username;
     };
-
+*/
     /**
      *  Sets user password
      */
@@ -137,11 +119,6 @@ private:
     // -------------------------------------------------------------------------
     // User Attributes
     // -------------------------------------------------------------------------
-
-    /**
-     *  User's username
-     */
-    string      username;
 
     /**
      *  User's password

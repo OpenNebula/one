@@ -113,7 +113,7 @@ public:
 
         if ( rc == 0)
         {
-            known_users.erase(user->get_username());
+            known_users.erase(user->get_name());
         }
 
         return rc;

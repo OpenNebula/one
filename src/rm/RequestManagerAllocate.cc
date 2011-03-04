@@ -134,7 +134,7 @@ void RequestManager::VirtualMachineAllocate::execute(
         goto error_user_get;
     }
 
-    user_name = user->get_username();
+    user_name = user->get_name();
 
     user->unlock();
 

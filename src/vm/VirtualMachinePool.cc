@@ -27,7 +27,7 @@
 VirtualMachinePool::VirtualMachinePool(SqlDB *                   db,
                                        vector<const Attribute *> hook_mads,
                                        const string& hook_location)
-    : PoolSQL(db,VirtualMachine::table)
+    : PoolSQL(db,VirtualMachine::table,true)
 {
     const VectorAttribute * vattr;
 

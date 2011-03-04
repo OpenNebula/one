@@ -37,8 +37,7 @@ class PoolObjectSQL : public ObjectSQL, public ObjectXML
 {
 public:
 
-    //TODO remove Defaults for Constructor Attributes
-    PoolObjectSQL(int id=-1, const string& _name ="", int _uid=0,const char *_table = 0)
+    PoolObjectSQL(int id, const string& _name, int _uid,const char *_table)
             :ObjectSQL(),ObjectXML(),oid(id),name(_name),uid(_uid),
              valid(true),table(_table)
     {

@@ -100,7 +100,7 @@ protected:
     {
         CPPUNIT_ASSERT( obj != 0 );
 
-        string name = ((User*)obj)->get_username();
+        string name = ((User*)obj)->get_name();
         CPPUNIT_ASSERT( name == usernames[index] );
         CPPUNIT_ASSERT( ((User*)obj)->get_password() == passwords[index] );
     };
@@ -150,7 +150,7 @@ public:
         CPPUNIT_ASSERT(user != 0);
 
         CPPUNIT_ASSERT( user->get_uid()      == 0 );
-        CPPUNIT_ASSERT( user->get_username() == "one_user_test" );
+        CPPUNIT_ASSERT( user->get_name() == "one_user_test" );
         CPPUNIT_ASSERT( user->get_password() == User::sha1_digest("password") );
     }
 

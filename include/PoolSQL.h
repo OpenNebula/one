@@ -47,8 +47,7 @@ public:
      *   counter). If null the OID counter is not updated.
      *   @param with_uid the Pool objects have an owner id (uid)
      */
-    //TODO REmove defaults
-    PoolSQL(SqlDB * _db, const char * table, bool with_uid=false);
+    PoolSQL(SqlDB * _db, const char * table, bool with_uid);
 
     virtual ~PoolSQL();
 

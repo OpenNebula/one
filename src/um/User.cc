@@ -35,8 +35,7 @@ User::User(
     string  _username,
     string  _password,
     bool    _enabled):
-        PoolObjectSQL(id, table),
-        username     (_username),
+        PoolObjectSQL(id, _username, 0, table),
         password     (_password),
         enabled      (_enabled)
         {};
@@ -105,7 +104,7 @@ int User::insert_replace(SqlDB *db, bool replace)
 
     // Update the User
 
-    sql_username = db->escape_str(username.c_str());
+    sql_username = db->escape_str(name.c_str());
 
     if ( sql_username == 0 )
     {
@@ -172,7 +171,7 @@ string& User::to_xml(string& xml) const
     oss <<
     "<USER>"
          "<ID>"           << oid            <<"</ID>"        <<
-         "<NAME>"         << username       <<"</NAME>"      <<
+         "<NAME>"         << name           <<"</NAME>"      <<
          "<PASSWORD>"     << password       <<"</PASSWORD>"  <<
          "<ENABLED>"      << enabled_int    <<"</ENABLED>"   <<
     "</USER>";
@@ -194,7 +193,7 @@ int User::from_xml(const string& xml)
     update_from_str(xml);
 
     rc += xpath(oid,         "/USER/ID",       -1);
-    rc += xpath(username,    "/USER/NAME",     "not_found");
+    rc += xpath(name,        "/USER/NAME",     "not_found");
     rc += xpath(password,    "/USER/PASSWORD", "not_found");
     rc += xpath(int_enabled, "/USER/ENABLED",  0);
 

@@ -45,7 +45,7 @@ int UserPool::init_cb(void *nil, int num, char **values, char **names)
 
 /* -------------------------------------------------------------------------- */
 
-UserPool::UserPool(SqlDB * db):PoolSQL(db,User::table)
+UserPool::UserPool(SqlDB * db):PoolSQL(db,User::table,false)
 {
     ostringstream   sql;
 
