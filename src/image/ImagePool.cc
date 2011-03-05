@@ -34,7 +34,7 @@ ImagePool::ImagePool(   SqlDB * db,
                         const string&   __source_prefix,
                         const string&   __default_type,
                         const string&   __default_dev_prefix):
-                        PoolSQL(db,Image::table,true)
+                        PoolSQL(db,Image::table)
 {
     ostringstream sql;
 

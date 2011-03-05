@@ -81,23 +81,45 @@ const char * VirtualNetwork::db_bootstrap = "CREATE TABLE IF NOT EXISTS"
 
 int VirtualNetwork::select(SqlDB * db)
 {
+    int             rc;
+
+    rc = PoolObjectSQL::select(db);
+
+    if ( rc != 0 )
+    {
+        return rc;
+    }
+
+    return select_leases(db);
+}
+
+/* -------------------------------------------------------------------------- */
+
+int VirtualNetwork::select(SqlDB * db, const string& name, int uid)
+{
+    int             rc;
+
+    rc = PoolObjectSQL::select(db,name,uid);
+
+    if ( rc != 0 )
+    {
+        return rc;
+    }
+
+    return select_leases(db);
+}
+
+/* -------------------------------------------------------------------------- */
+
+int VirtualNetwork::select_leases(SqlDB * db)
+{
     ostringstream   oss;
     ostringstream   ose;
-
-    int             rc;
 
     string          network_address;
 
     unsigned int default_size = VirtualNetworkPool::default_size();
     unsigned int mac_prefix   = VirtualNetworkPool::mac_prefix();
-
-    // Rebuld the VirtualNetwork object
-    rc = PoolObjectSQL::select(db);
-
-    if( rc != 0 )
-    {
-        return rc;
-    }
 
     //Get the leases
     if (type == RANGED)

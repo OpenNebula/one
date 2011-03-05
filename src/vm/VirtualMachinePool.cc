@@ -27,7 +27,7 @@
 VirtualMachinePool::VirtualMachinePool(SqlDB *                   db,
                                        vector<const Attribute *> hook_mads,
                                        const string& hook_location)
-    : PoolSQL(db,VirtualMachine::table,true)
+    : PoolSQL(db,VirtualMachine::table)
 {
     const VectorAttribute * vattr;
 
@@ -178,7 +178,7 @@ int VirtualMachinePool::allocate (
     // ------------------------------------------------------------------------
     // Build a new Virtual Machine object
     // ------------------------------------------------------------------------
-    vm = new VirtualMachine(-1, user_name, vm_template);
+    vm = new VirtualMachine(-1, uid, user_name, vm_template);
 
     if (on_hold == true)
     {
@@ -188,8 +188,6 @@ int VirtualMachinePool::allocate (
     {
         vm->state = VirtualMachine::PENDING;
     }
-
-    vm->uid = uid;
 
     // ------------------------------------------------------------------------
     // Insert the Object in the pool

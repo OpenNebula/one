@@ -1086,20 +1086,17 @@ public:
                             "BRIDGE = br2\n"
                             "LEASES = [IP=130.10.0.5, MAC=50:20:20:20:20:25]";
 
-
         vnp->allocate(0, user_names[0], template_0, &oid_0);
         CPPUNIT_ASSERT( oid_0 == 0 );
 
         vnp->allocate(0, user_names[0], template_1, &oid_1);
         CPPUNIT_ASSERT( oid_1 == 1 );
 
-
         // Disk using network 0
         disk = new VectorAttribute("DISK");
         disk->replace("NETWORK", "Net 0");
 
         ((VirtualNetworkPool*)vnp)->nic_attribute(disk, 0, 0);
-
 
         value = "";
         value = disk->vector_value("NETWORK");

@@ -154,6 +154,8 @@ int RangedLeases::add(
         <<          ip      << ","
         << "'" <<   sql_xml << "')";
 
+    db->free_str(sql_xml);
+
     rc = db->exec(oss);
 
     if ( rc != 0 )

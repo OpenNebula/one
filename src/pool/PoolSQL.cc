@@ -38,39 +38,11 @@ const unsigned int PoolSQL::MAX_POOL_SIZE = 15000;
 
 int PoolSQL::init_cb(void *nil, int num, char **values, char **names)
 {
-    int uid = 0;
-    int oid;
+    lastOID = -1;
 
-    if (num ==3) //with uid
+    if ( values[0] != 0 )
     {
-        if ((values[0] == 0) || (values[1] == 0) || (values[2] == 0))
-        {
-            return -1;
-        }
-
-        uid = atoi(values[2]);
-    }
-    else if (num == 2)
-    {
-        if ((values[0] == 0) || (values[1] == 0))
-        {
-            return -1;
-        }
-
-        uid = 0;
-    }
-    else
-    {
-        return -1; 
-    } 
-
-    oid = atoi(values[0]);
-
-    name_index.insert(make_pair(key(values[1],uid),oid));
-
-    if (lastOID < oid)
-    {
-        lastOID = oid;
+        lastOID = atoi(values[0]);
     }
 
     return 0;
@@ -78,33 +50,19 @@ int PoolSQL::init_cb(void *nil, int num, char **values, char **names)
 
 /* -------------------------------------------------------------------------- */
 
-PoolSQL::PoolSQL(SqlDB * _db, const char * table, bool with_uid):db(_db), lastOID(-1)
+PoolSQL::PoolSQL(SqlDB * _db, const char * table): db(_db), lastOID(-1)
 {
     ostringstream   oss;
-    int             rc;
 
     pthread_mutex_init(&mutex,0);
 
     set_callback(static_cast<Callbackable::Callback>(&PoolSQL::init_cb));
 
-    if (with_uid == true)
-    {
-        oss << "SELECT oid, name, uid FROM " << table;
-    }
-    else
-    {
-        oss << "SELECT oid, name FROM " << table;
-    }
+    oss << "SELECT MAX(oid) FROM " << table;
 
-    rc = db->exec(oss,this);
+    db->exec(oss,this);
 
     unset_callback();
-
-    if ( rc == -1 )
-    {
-        throw runtime_error("Could not load the existing pool objects from the DB."); 
-    }
-
 };
 
 /* -------------------------------------------------------------------------- */
@@ -163,7 +121,6 @@ int PoolSQL::allocate(
     else
     {
         rc = lastOID;
-        insert(objsql->get_name(),rc,objsql->get_uid());
     }
 
     do_hooks(objsql, Hook::ALLOCATE);
@@ -229,8 +186,82 @@ PoolObjectSQL * PoolSQL::get(
             return 0;
         }
 
-        pool.insert(make_pair(objectsql->oid,objectsql));
+        string okey = key(objectsql->name,objectsql->uid);
 
+        pool.insert(make_pair(objectsql->oid,objectsql));
+        name_pool.insert(make_pair(okey, objectsql));
+
+        if ( olock == true )
+        {
+            objectsql->lock();
+        }
+
+        oid_queue.push(objectsql->oid);
+
+        if ( pool.size() > MAX_POOL_SIZE )
+        {
+            replace();
+        }
+
+        unlock();
+
+        return objectsql;
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+PoolObjectSQL * PoolSQL::get(const string& name, int ouid, bool olock)
+{
+    map<string,PoolObjectSQL *>::iterator  index;
+    
+    PoolObjectSQL *  objectsql;
+    int              rc;
+
+    lock();
+
+    index = name_pool.find(key(name,ouid));
+
+    if ( index != name_pool.end() )
+    {
+        if ( index->second->isValid() == false )
+        {
+            objectsql = 0;
+        }
+        else
+        {
+            objectsql = index->second;
+
+            if ( olock == true )
+            {
+                objectsql->lock();
+            }
+        }
+
+        unlock();
+
+        return objectsql;
+    }
+    else
+    {
+        objectsql = create();
+
+        rc = objectsql->select(db,name,ouid);
+
+        if ( rc != 0 )
+        {
+            delete objectsql;
+
+            unlock();
+
+            return 0;
+        }
+
+        string okey = key(objectsql->name,objectsql->uid);
+
+        pool.insert(make_pair(objectsql->oid, objectsql));
+        name_pool.insert(make_pair(okey, objectsql));
 
         if ( olock == true )
         {
@@ -281,17 +312,11 @@ void PoolSQL::replace()
         }
         else
         {
-            PoolObjectSQL * tmp_ptr;
-
-            string name;
-            int    uid;
-
-            tmp_ptr = index->second;
-
-            name = tmp_ptr->get_name();
-            uid  = tmp_ptr->get_uid();
+            PoolObjectSQL * tmp_ptr = index->second;
+            string          okey    = key(tmp_ptr->name,tmp_ptr->uid);
 
             pool.erase(index);
+            name_pool.erase(okey);
 
             delete tmp_ptr;
 
@@ -318,6 +343,7 @@ void PoolSQL::clean()
     }
 
     pool.clear();
+    name_pool.clear();
 
     unlock();
 }

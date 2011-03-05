@@ -60,9 +60,7 @@ public:
      *    @param lock locks the VN mutex
      *    @return a pointer to the VN, 0 if the VN could not be loaded
      */
-    VirtualNetwork * get(
-        int     oid,
-        bool    lock)
+    VirtualNetwork * get(int oid, bool lock)
     {
         return static_cast<VirtualNetwork *>(PoolSQL::get(oid,lock));
     };
@@ -75,10 +73,7 @@ public:
      *    @param lock locks the VN mutex
      *    @return a pointer to the VN, 0 if the VN could not be loaded
      */
-    VirtualNetwork * get(
-        const string&  name,
-        int            uid,
-        bool           lock)
+    VirtualNetwork * get(const string& name, int uid, bool lock)
     {
         return static_cast<VirtualNetwork *>(PoolSQL::get(name,uid,lock));
     };

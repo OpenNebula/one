@@ -35,7 +35,7 @@ User::User(
     string  _username,
     string  _password,
     bool    _enabled):
-        PoolObjectSQL(id, _username, 0, table),
+        PoolObjectSQL(id, _username, -1, table),
         password     (_password),
         enabled      (_enabled)
         {};

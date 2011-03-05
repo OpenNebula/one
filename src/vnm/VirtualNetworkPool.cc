@@ -32,7 +32,7 @@ unsigned int VirtualNetworkPool::_default_size;
 VirtualNetworkPool::VirtualNetworkPool(SqlDB * db,
     const string&   prefix,
     int             __default_size):
-    PoolSQL(db,VirtualNetwork::table,true)
+    PoolSQL(db,VirtualNetwork::table)
 {
     istringstream iss;
     size_t        pos   = 0;
@@ -132,7 +132,7 @@ int VirtualNetworkPool::dump(ostringstream& oss, const string& where)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualNetworkPool::nic_attribute(VectorAttribute * nic, int uid,  int vid)
+int VirtualNetworkPool::nic_attribute(VectorAttribute * nic, int uid, int vid)
 {
     string           network;
     VirtualNetwork * vnet = 0;

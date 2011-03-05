@@ -102,6 +102,8 @@ int FixedLeases::add(const string& ip, const string& mac, int vid,
         <<          _ip     << ","
         << "'" <<   sql_xml << "')";
 
+    db->free_str(sql_xml);
+
     rc = db->exec(oss);
 
     if ( rc != 0 )
@@ -118,12 +120,6 @@ int FixedLeases::add(const string& ip, const string& mac, int vid,
 
     return rc;
 
-
-error_body:
-    oss.str("");
-    oss << "Error inserting lease, marshall error";
-    goto error_common;
-
 error_ip:
     oss.str("");
     oss << "Error inserting lease, malformed IP = " << ip;
@@ -139,9 +135,16 @@ error_duplicate:
     oss << "Error inserting lease, IP " << ip << " already exists";
     goto error_common;
 
+error_body:
+    oss.str("");
+    oss << "Error inserting lease, marshall error";
+    delete lease;
+    goto error_common;
+
 error_db:
     oss.str("");
     oss << "Error inserting lease in database.";
+    delete lease;
 
 error_common:
     NebulaLog::log("VNM", Log::ERROR, oss);
@@ -188,7 +191,10 @@ int FixedLeases::remove(const string& ip, string& error_msg)
         goto error_db;
     }
 
+    delete it->second;
+    
     leases.erase(it);
+
     return rc;
 
 
@@ -347,6 +353,8 @@ int FixedLeases::update_lease(Lease * lease)
 
     oss << "UPDATE " << table << " SET body='" << sql_xml << "'"
         << " WHERE oid=" << oid << " AND ip='" << lease->ip <<"'";
+
+    db->free_str(sql_xml);
 
     return db->exec(oss);
 }

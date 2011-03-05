@@ -33,7 +33,7 @@ Host::Host(
     string _im_mad_name,
     string _vmm_mad_name,
     string _tm_mad_name):
-        PoolObjectSQL(id,_hostname,0,table),
+        PoolObjectSQL(id,_hostname,-1,table),
         state(INIT),
         im_mad_name(_im_mad_name),
         vmm_mad_name(_vmm_mad_name),

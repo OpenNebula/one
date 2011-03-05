@@ -159,7 +159,7 @@ private:
      */
     PoolObjectSQL * create()
     {
-        return new VirtualMachine(-1, "", 0);
+        return new VirtualMachine(-1,-1,"", 0);
     };
 
     /**

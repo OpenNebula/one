@@ -37,9 +37,10 @@
 /* ************************************************************************** */
 
 VirtualMachine::VirtualMachine(int id,
+                               int _uid,
                                string _user_name,
                                VirtualMachineTemplate * _vm_template):
-        PoolObjectSQL(id,"",-1,table),
+        PoolObjectSQL(id,"",_uid,table),
         user_name(_user_name),
         last_poll(0),
         state(INIT),

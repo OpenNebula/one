@@ -964,7 +964,7 @@ protected:
     // Constructor
     //**************************************************************************
 
-    VirtualMachine(int id, string _user_name,
+    VirtualMachine(int id, int uid, string _user_name,
                    VirtualMachineTemplate * _vm_template = 0);
 
     virtual ~VirtualMachine();

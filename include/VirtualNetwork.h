@@ -310,15 +310,6 @@ private:
     };
 
     /**
-     *  Callback function to unmarshall a VNW object (VirtualNetwork::select)
-     *    @param num the number of columns read from the DB
-     *    @param names the column names
-     *    @param vaues the column values
-     *    @return 0 on success
-     */
-    int select_cb(void * nil, int num, char **values, char **names);
-
-    /**
      * Function to print the VirtualNetwork object into a string in
      * XML format
      *  @param xml the resulting XML string
@@ -334,8 +325,6 @@ private:
      *    @return 0 on success, -1 otherwise
      */
     int from_xml(const string &xml_str);
-
-protected:
 
     //**************************************************************************
     // Constructor
@@ -365,6 +354,23 @@ protected:
      *    @return 0 on success
      */
     int select(SqlDB * db);
+
+    /**
+     *  Reads the Virtual Network (identified with its OID) from the database.
+     *    @param db pointer to the db
+     *    @param name of the network
+     *    @param uid of the owner 
+     * 
+     *    @return 0 on success
+     */
+    int select(SqlDB * db, const string& name, int uid);
+
+    /**
+     *  Reads the Virtual Network leases from the database.
+     *    @param db pointer to the db
+     *    @return 0 on success
+     */
+    int select_leases(SqlDB * db);
 
     /**
      *  Writes the Virtual Network and its associated template and leases in the database.
