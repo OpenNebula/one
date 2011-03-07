@@ -67,6 +67,50 @@ var Sunstone = {
         
     },
     
+    "getInfoPanelHTML" : function(name){
+        var info_panel = $('<div id="'+name+'"><ul></ul></div>');
+        var tabs = SunstoneCfg["info_panels"][name];
+        var tab=null;
+        for (tab_name in tabs){
+              tab=tabs[tab_name];
+              $('ul',info_panel).append('<li><a href="#'+tab_name+'">'+tab.title+'</a></li>');
+              info_panel.append('<div id="'+tab_name+'">'+tab.content+'</div>');
+        }
+        return info_panel.tabs({selected: 0});
+        
+    },
+    
+    "addInfoPanel" : function(name, info_panel){
+        SunstoneCfg["info_panels"][name]=info_panel;
+    },
+    
+    "updateInfoPanel" : function(name, info_panel,refresh){
+        SunstoneCfg["info_panels"][name]=info_panel;
+        if (refresh){
+            refreshInfoPanel(name);
+        }
+    },
+    
+    "removeInfoPanel" : function(name){
+        SunstoneCfg["info_panels"][name] = null;
+    },
+    
+    "addInfoTab" : function(info_panel, tab_name, tab){
+        SunstoneCfg["info_panels"][info_panel][tab_name] = tab;
+    },
+    
+    "updateInfoTab" : function(info_panel, tab_name, tab, refresh){
+        SunstoneCfg["info_panels"][info_panel][tab_name] = tab;
+        if (refresh){
+            refreshInfoPanelTab(info_panel,tab_name);
+        }
+    },
+    
+    
+    "removeInfoTab" : function(info_panel,tab_name){
+        SunstoneCfg["info_panels"][info_panel][tab_name] = null;
+    },
+    
     "runAction" : function(action, data_arg, extra_param){
     
         var actions = SunstoneCfg["actions"];
@@ -93,7 +137,10 @@ var Sunstone = {
         // * Other calls
         switch (action_cfg.type){
             
-            case "create","single":
+            case "create":
+                call({data:data_arg, success: callback, error:err});
+                break;
+            case "single":
                 call({data:{id:data_arg}, success: callback,error:err});
                 break;
             case "list":
@@ -258,7 +305,6 @@ $(document).ready(function(){
     insertTabs();
     insertButtons();
     
-    
     initListButtons();
     setupCreateDialogs(); //listener for create
     setupConfirmDialogs();
@@ -380,6 +426,9 @@ function insertButtons(){
                       case "image":
                         button_code = '<img src="'+button.img+'" class="action_button" value="'+button_name+'" alt="'+button.text+'" />';
                         break;
+                      case "create_dialog":
+                        button_code = '<button class="'+button.type+'_button action_button top_button" value="'+button_name+'">'+button.text+'</button>';
+                        break;
                       default:
                         button_code = '<button class="'+button.type+'_button top_button" value="'+button_name+'">'+button.text+'</button>';
                     
@@ -391,6 +440,56 @@ function insertButtons(){
         }//if tab exists
     }//for each tab
     
+}
+
+// We do not insert info panels code, we generate it dinamicly when
+// we need it with getInfoPanelHTML()
+//~ function insertInfoPanels(){
+    //~ var panels = SunstoneCfg["info_panels"];
+    //~ tabs = null;
+    //~ //For each defined dialog
+    //~ for (panel in panels) {
+        //~ addInfoPanel(panel);
+    //~ }
+//~ }
+//~ 
+//~ function addInfoPanel(name){
+    //~ var tabs = SunstoneCfg["info_panels"][name];
+    //~ $('#info_panels').append('<div id="'+name+'"></div>');
+    //~ for (tab in tabs){
+        //~ addInfoPanelTab(name,tab);
+    //~ }
+    //~ //at this point jquery tabs structure is ready, so we enable it
+    //~ $('div#'+name).tabs();
+//~ }
+//~ 
+//~ function refreshInfoPanel(name){
+    //~ $('#info_panels div#'+name).tabs("destroy");
+    //~ $('#info_panels div#'+name).remove();
+    //~ $('#info_panels').append('<div id="'+name+'"></div>');
+    //~ var tabs = SunstoneCfg["info_panels"][name];
+     //~ for (tab in tabs){
+        //~ addInfoPanelTab(name,tab);
+    //~ }
+     //~ //at this point jquery tabs structure is ready, so we enable it
+    //~ $('div#'+name).tabs();
+//~ }
+//~ 
+//~ function addInfoPanelTab(panel_name,tab_name){
+    //~ var tab = SunstoneCfg["info_panels"][panel_name][tab_name];
+    //~ if ( !$('div#'+panel_name+' ul').length ) {
+        //~ $('div#'+panel_name).prepend('<ul></ul>');
+    //~ }
+    //~ $('div#'+panel_name+' ul').append('<li><a href="#'+tab_name+'">'+tab.title+'</a></li>');
+    //~ $('div#'+panel_name).append('<div id="'+tab_name+'">'+tab.content+'</div>');
+//~ }
+//~ 
+
+
+//Tries to refresh a tab content if it is somewhere in the DOM
+function refreshInfoPanelTab(panel_name,tab_name){
+    var tab = SunstoneCfg["info_panels"][panel_name][tab_name];
+    $('div#'+panel_name+' div#'+tab_name).html(tab.content);
 }
 
 //Converts selects into buttons which show a of actions when clicked

@@ -143,7 +143,7 @@ function tableCheckboxesListener(dataTable){
     if (last_action_b.length && last_action_b.val().length){
         last_action_b.button("disable");
     };
-    $('.create_button',context).button("enable");
+    $('.create_dialog_button',context).button("enable");
 
     //listen to changes
     $('input',dataTable).live("change",function(){

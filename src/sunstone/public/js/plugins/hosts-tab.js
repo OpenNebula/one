@@ -38,6 +38,65 @@ var hosts_tab_content =
 </table>\
 </form>';
 
+var create_host_tmpl =
+'<div class="create_form"><form id="create_host_form" action="">\
+  <fieldset>\
+  <legend style="display:none;">Host parameters</legend>\
+  <label for="name">Name: </label><input type="text" name="name" id="name" />\
+  </fieldset>\
+  <h3>Drivers</h3>\
+  <fieldset>\
+    <div class="manager clear" id="vmm_mads">\
+	  <label>Virtualization Manager:</label>\
+	  <select id="vmm_mad" name="vmm">\
+	    <option value="vmm_kvm">KVM</option>\
+		<option value="vmm_xen">XEN</option>\
+		<option value="vmm_ec2">EC2</option>\
+		<option value="vmm_dummy">Dummy</option>\
+	  </select>\
+    </div>\
+    <div class="manager clear" id="im_mads">\
+      <label>Information Manager:</label>\
+      <select id="im_mad" name="im">\
+	    <option value="im_kvm">KVM</option>\
+		<option value="im_xen">XEN</option>\
+		<option value="im_ec2">EC2</option>\
+		<option value="im_dummy">Dummy</option>\
+	  </select>\
+    </div>\
+    <div class="manager clear" id="tm_mads">\
+      <label>Transfer Manager:</label>\
+       <select id="tm_mad" name="tm">\
+	    <option value="tm_nfs">NFS</option>\
+		<option value="tm_ssh">SSH</option>\
+		<option value="tm_dummy">Dummy</option>\
+	  </select>\
+    </div>\
+    </fieldset>\
+    <fieldset>\
+    <div class="form_buttons">\
+		<div><button class="button" id="create_host_submit" value="OpenNebula.Host.create">Create</button>\
+		<button class="button" type="reset" value="reset">Reset</button></div>\
+	</div>\
+  </fieldset>\
+</form></div>';
+
+var create_cluster_tmpl =
+'<form id="create_cluster_form" action="">\
+  <fieldset style="border:none;">\
+	<div>\
+		<label for="name">Cluster name:</label>\
+		<input type="text" name="name" id="name" /><br />\
+	</div>\
+  </fieldset>\
+  <fieldset>\
+	<div class="form_buttons">\
+		<button class="button" id="create_cluster_submit" value="cluster/create">Create</button>\
+		<button class="button" type="reset" value="reset">Reset</button>\
+	</div>\
+  </fieldset>\
+</form>';
+
 var hosts_select="";
 var clusters_select="";
 var host_list_json = {};
@@ -53,6 +112,11 @@ var host_actions = {
                 callback : addHostElement,
                 error : onError,
                 notify:False,
+            },
+            
+            "Host.create_dialog" : {
+                type: "custom",
+                call: popUpCreateHostDialog
             },
             
             "Host.list" : {
@@ -110,7 +174,7 @@ var host_actions = {
             
             "Host.delete" : {
                 type: "multiple",
-                call : OpenNebula.Host.create,
+                call : OpenNebula.Host.delete,
                 callback : deleteHostElement,
                 dataTable: function() { return dataTable_hosts },
                 error : onError,
@@ -136,7 +200,20 @@ var host_actions = {
                     Sunstone.runAction("Cluster.list");
                 },
                 error : onError,
-                notify:True,
+                notify:True
+            },
+            
+            "Cluster.create_dialog" : {
+                type: "custom",
+                call: popUpCreateClusterDialog
+            },
+            
+            "Cluster.list" : {
+                type: "list",
+                call: OpenNebula.Cluster.list,
+                callback: updateClustersView,
+                error: onError,
+                notify:True
             },
             
             "Cluster.delete" : {
@@ -178,9 +255,8 @@ var host_buttons = {
             img: "/images/Refresh-icon.png",
             condition: True
         },
-    
-        "Host.create" : {
-            type: "create",
+        "Host.create_dialog" : {
+            type: "create_dialog",
             text: "+ New host",
             condition :True
         },
@@ -195,8 +271,8 @@ var host_buttons = {
             tip: "This will disable the selected hosts.",
             condition : True
         },
-        "Cluster.create" : {
-            type: "create",
+        "Cluster.create_dialog" : {
+            type: "create_dialog",
             text: "+ New Cluster",
             condition : True
         },
@@ -231,12 +307,25 @@ var host_buttons = {
         }
         };
             
+var host_info_panel = {
+    "info_host_tab" : {
+        title: "Host information",
+        content:""
+    },
+    
+    "host_template_tab" : {
+        title: "Host template",
+        content: ""
+    }
+};
+            
 for (action in host_actions){
     Sunstone.addAction(action,host_actions[action]);
 }
 
 // title, content, buttons, id
 Sunstone.addMainTab('Hosts',hosts_tab_content,host_buttons,'hosts_tab');
+Sunstone.addInfoPanel("host_info_panel",host_info_panel);
 
 
 //Plugin functions
@@ -395,15 +484,11 @@ function updateClustersView(request, cluster_list){
 
 
 function updateHostInfo(request,host){
-	host_info = host.HOST
-	rendered_info =
-'<div id="host_informations">\
-	<ul>\
-		<li><a href="#info_host">Host information</a></li>\
-		<li><a href="#host_template">Host template</a></li>\
-	</ul>\
-	<div id="info_host">\
-		<table id="info_host_table" class="info_table">\
+	var host_info = host.HOST;
+    var info_host_tab = {
+        title : "Host information",
+        content :
+    '<table id="info_host_table" class="info_table">\
 			<thead>\
 				<tr><th colspan="2">Host information - '+host_info.NAME+'</th></tr>\
 			</thead>\
@@ -460,19 +545,91 @@ function updateHostInfo(request,host){
 				<td class="key_td">Running VMs</td>\
 				<td class="value_td">'+host_info.HOST_SHARE.RUNNING_VMS+'</td>\
 			</tr>\
-		</table>\
-	</div>\
-	<div id="host_template">\
-		<table id="host_template_table" class="info_table">\
+		</table>'
+    }
+    
+    var host_template_tab = {
+        title : "Host template",
+        content : 
+    	'<table id="host_template_table" class="info_table">\
 		<thead><tr><th colspan="2">Host template</th></tr></thead>'+
 		prettyPrintJSON(host_info.TEMPLATE)+
-		'</table>\
-	</div>\
-</div>';
-    popDialog(rendered_info);
-    $('#host_informations').tabs();
+		'</table>'
+    }
+    
+    Sunstone.updateInfoTab("host_info_panel","info_host_tab",info_host_tab);
+    Sunstone.updateInfoTab("host_info_panel","host_template_tab",host_template_tab);
+    popDialog(Sunstone.getInfoPanelHTML("host_info_panel"));
 
 }
+
+function setUpCreateHostDialog(){
+    $('div#dialogs').append('<div title="Create host" id="create_host_dialog"></div>');
+    $('div#create_host_dialog').html(create_host_tmpl);
+    $('#create_host_dialog').dialog({
+		autoOpen: false,
+		modal: true,
+		width: 500
+	});
+    
+    $('#create_host_dialog button').button();
+    
+    //Handle the form submission
+	$('#create_host_form').submit(function(){
+        if (!($('#name',this).val().length)){
+            notifyError("Host name missing!");
+            return false;
+        }
+		host_json = { "host": { "name": $('#name',this).val(),
+							"tm_mad": $('#tm_mad :selected',this).val(),
+							"vm_mad": $('#vmm_mad :selected',this).val(),
+							"im_mad": $('#im_mad :selected',this).val()}}
+
+		//Create the OpenNebula.Host.
+		//If it's successfull we refresh the list.
+        Sunstone.runAction("Host.create",host_json);
+		//OpenNebula.Host.create({data: host_json, success: addHostElement, error: onError});
+		$('#create_host_dialog').dialog('close');
+		return false;
+	});
+    
+}
+
+function setUpCreateClusterDialog(){
+    $('div#dialogs').append('<div title="Create cluster" id="create_cluster_dialog"></div>');
+    $('#create_cluster_dialog').html(create_cluster_tmpl);
+
+    $('#create_cluster_dialog').dialog({
+		autoOpen: false,
+		modal: true,
+		width: 400
+	});
+    
+    $('#create_cluster_dialog button').button();
+    
+    $('#create_cluster_form').submit(function(){
+		name=$('#name',this).val();
+		cluster_json = { "cluster" : { "name" : name }};
+        Sunstone.runAction("Cluster.create",cluster_json);
+		$('#create_cluster_dialog').dialog('close');
+		return false;
+	});
+
+}
+
+
+
+function popUpCreateHostDialog(){
+    $('#create_host_dialog').dialog('open');
+    return false;
+}
+
+function popUpCreateClusterDialog(){
+    $('#create_cluster_dialog').dialog('open');
+    return false;
+}
+
+
 
 //Document ready
 $(document).ready(function(){
@@ -499,6 +656,9 @@ $(document).ready(function(){
 	//OpenNebula.Host.list({success: updateHostsView,error: onError});
     Sunstone.runAction("Host.list");
     
+    setUpCreateHostDialog();
+    setUpCreateClusterDialog();
+    
     //set refresh interval
     setInterval(function(){
 		nodes = $('input:checked',dataTable_hosts.fnGetNodes());
@@ -511,5 +671,6 @@ $(document).ready(function(){
     initCheckAllBoxes(dataTable_hosts);
     tableCheckboxesListener(dataTable_hosts);
     hostInfoListener();
+    
         
 });
