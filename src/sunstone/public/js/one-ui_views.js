@@ -1856,7 +1856,8 @@ function createVMachineDialog(){
 			notifyError("There are mandatory fields missing in the OS Boot options section");
 			return false;
 		};
-		addSectionJSON(vm_json,scope);
+        vm_json["OS"] = {};
+		addSectionJSON(vm_json["OS"],scope);
 
 		//process disks
 		scope = section_disks;

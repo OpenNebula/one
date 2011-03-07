@@ -392,7 +392,7 @@ var create_vm_tmpl =
 				  <label for="ARCH">Architecture:</label>\
 				  <select id="ARCH" name="arch">\
 					<option value="i686">i686</option>\
-					<option value="x86-64">x86-64</option>\
+					<option value="x86_64">x86_64</option>\
 				  </select>\
 				  <div class="tip">CPU architecture to virtualization</div>\
 				</div>\
