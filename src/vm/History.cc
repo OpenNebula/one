@@ -57,13 +57,13 @@ History::History(
 /* -------------------------------------------------------------------------- */
 
 History::History(
-    int     		_oid,
-    int     		_seq,
-    int     		_hid,
-    string& 		_hostname,
-    string& 		_vm_dir,
-    string& 		_vmm,
-    string& 		_tm):
+    int	_oid,
+    int	_seq,
+    int	_hid,
+    const string& _hostname,
+    const string& _vm_dir,
+    const string& _vmm,
+    const string& _tm):
         oid(_oid),
         seq(_seq),
         hostname(_hostname),
@@ -126,30 +126,6 @@ void History::non_persistent_data()
     os << vm_rhome << "/deployment." << seq;
 
     rdeployment_file = os.str();
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int History::insert(SqlDB * db, string& error_str)
-{
-    int             rc;
-
-    rc = insert_replace(db, false);
-
-    return rc;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int History::update(SqlDB * db)
-{
-    int             rc;
-
-    rc = insert_replace(db, true);
-
-    return rc;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -304,28 +280,6 @@ string& History::to_xml(string& xml) const
    xml = oss.str();
 
    return xml;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int History::from_xml_node(const xmlNodePtr node)
-{
-    // Initialize the internal XML object
-    ObjectXML::update_from_node(node);
-
-    return rebuild_attributes();
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int History::from_xml(const string &xml_str)
-{
-    // Initialize the internal XML object
-    ObjectXML::update_from_str(xml_str);
-
-    return rebuild_attributes();
 }
 
 /* -------------------------------------------------------------------------- */

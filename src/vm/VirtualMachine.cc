@@ -463,14 +463,6 @@ int VirtualMachine::parse_requirements()
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-int VirtualMachine::update(SqlDB * db)
-{
-    return insert_replace(db, true);
-}
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
 int VirtualMachine::insert_replace(SqlDB *db, bool replace)
 {
     ostringstream   oss;
@@ -541,11 +533,11 @@ error_deploy:
 /* -------------------------------------------------------------------------- */
 
 void VirtualMachine::add_history(
-    int     hid,
-    string& hostname,
-    string& vm_dir,
-    string& vmm_mad,
-    string& tm_mad)
+    int   hid,
+    const string& hostname,
+    const string& vm_dir,
+    const string& vmm_mad,
+    const string& tm_mad)
 {
     ostringstream os;
     int           seq;
@@ -1162,7 +1154,7 @@ int VirtualMachine::from_xml(const string &xml_str)
     }
 
     // Virtual Machine template
-    rc += vm_template->from_xml_node( content[0] );
+    rc += vm_template->from_xml_node(content[0]);
 
     // Last history entry
     content.clear();
@@ -1171,7 +1163,7 @@ int VirtualMachine::from_xml(const string &xml_str)
     if( !content.empty() )
     {
         history = new History(oid);
-        rc += history->from_xml_node( content[0] );
+        rc += history->from_xml_node(content[0]);
     }
 
     if (rc != 0)

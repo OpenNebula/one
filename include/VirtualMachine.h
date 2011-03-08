@@ -208,11 +208,11 @@ public:
      *  Adds a new history record an writes it in the database.
      */
     void add_history(
-        int                         hid,
-        string&                     hostname,
-        string&                     vm_dir,
-        string&                     vmm_mad,
-        string&                     tm_mad);
+        int     hid,
+        const string& hostname,
+        const string& vm_dir,
+        const string& vmm_mad,
+        const string& tm_mad);
 
     /**
      *  Duplicates the last history record. Only the host related fields are
@@ -950,7 +950,7 @@ protected:
     //**************************************************************************
 
     VirtualMachine(int id, int uid, string _user_name,
-                   VirtualMachineTemplate * _vm_template = 0);
+                   VirtualMachineTemplate * _vm_template);
 
     virtual ~VirtualMachine();
 
@@ -961,8 +961,6 @@ protected:
     static const char * table;
 
     static const char * db_names;
-
-    static const char * extended_db_names;
 
     static const char * db_bootstrap;
 
@@ -978,21 +976,24 @@ protected:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    virtual int insert(SqlDB * db, string& error_str);
+    int insert(SqlDB * db, string& error_str);
 
     /**
      *  Writes/updates the Virtual Machine data fields in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    virtual int update(SqlDB * db);
+    int update(SqlDB * db)
+    {
+        return insert_replace(db, true);
+    }
 
     /**
      * Deletes a VM from the database and all its associated information
      *   @param db pointer to the db
      *   @return -1
      */
-    virtual int drop(SqlDB * db)
+    int drop(SqlDB * db)
     {
         NebulaLog::log("ONE",Log::ERROR, "VM Drop not implemented!");
         return -1;

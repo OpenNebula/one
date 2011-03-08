@@ -40,13 +40,13 @@ public:
     History(int oid, int _seq = -1);
 
     History(
-        int             oid,
-        int             seq,
-        int             hid,
-        string&         hostname,
-        string&         vm_dir,
-        string&         vmm,
-        string&         tm);
+        int oid,
+        int seq,
+        int hid,
+        const string& hostname,
+        const string& vm_dir,
+        const string& vmm,
+        const string& tm);
 
     ~History(){};
 
@@ -74,8 +74,6 @@ private:
     static const char * table;
 
     static const char * db_names;
-
-    static const char * extended_db_names;
 
     static const char * db_bootstrap;
 
@@ -124,7 +122,12 @@ private:
      *    @param db pointer to the database.
      *    @return 0 on success.
      */
-    int insert(SqlDB * db, string& error_str);
+    int insert(SqlDB * db, string& error_str)
+    {
+        error_str.clear();
+
+        return insert_replace(db, false);
+    }
 
     /**
      *  Reads the history record from the DB
@@ -138,7 +141,10 @@ private:
      *    @param db pointer to the database.
      *    @return 0 on success.
      */
-     int update(SqlDB * db);
+     int update(SqlDB * db)
+     {
+        return insert_replace(db, true);
+     }
 
     /**
      *  Removes the all history records from the DB
@@ -170,7 +176,12 @@ private:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int from_xml_node(const xmlNodePtr node);
+    int from_xml_node(const xmlNodePtr node)
+    {
+        ObjectXML::update_from_node(node);
+
+        return rebuild_attributes();
+    }
 
     /**
      *  Rebuilds the object from an xml formatted string
@@ -178,7 +189,12 @@ private:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int from_xml(const string &xml_str);
+    int from_xml(const string &xml_str)
+    {
+        ObjectXML::update_from_str(xml_str);
+
+        return rebuild_attributes();
+    }
 
     /**
      *  Rebuilds the internal attributes using xpath

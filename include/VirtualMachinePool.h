@@ -48,12 +48,12 @@ public:
      *  the template
      */
     int allocate (
-        int     uid,
-        string  user_name,
-        VirtualMachineTemplate *vm_template,
-        int *   oid,
-        string& error_str,
-        bool    on_hold = false);
+        int                      uid,
+        string                   user_name,
+        VirtualMachineTemplate * vm_template,
+        int *                    oid,
+        string&                  error_str,
+        bool                     on_hold = false);
 
     /**
      *  Function to get a VM from the pool, if the object is not in memory
