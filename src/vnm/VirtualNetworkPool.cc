@@ -77,10 +77,30 @@ int VirtualNetworkPool::allocate (
     string&        error_str)
 {
     VirtualNetwork *    vn;
+    VirtualNetwork *    vn_aux;
+    string              name;
 
     vn = new VirtualNetwork(uid, user_name, vn_template);
 
-    *oid = PoolSQL::allocate(vn, error_str);
+    // Check for duplicates
+    vn->get_template_attribute("NAME", name);
+    vn_aux = get(name,uid,false);
+
+    if( vn_aux != 0 )
+    {
+        ostringstream oss;
+
+        oss << "NAME is already taken by NET " << vn_aux->get_oid() << ".";
+        error_str = oss.str();
+
+        *oid = -1;
+
+        delete vn;
+    }
+    else
+    {
+        *oid = PoolSQL::allocate(vn, error_str);
+    }
 
     return *oid;
 }
