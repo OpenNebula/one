@@ -344,8 +344,6 @@ private:
 
     static const char * db_names;
 
-    static const char * extended_db_names;
-
     static const char * db_bootstrap;
 
     /**
@@ -384,7 +382,10 @@ private:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int update(SqlDB * db);
+    int update(SqlDB * db)
+    {
+        return insert_replace(db, true);
+    }
 
     /**
      * Deletes a VNW from the database and all its associated information:

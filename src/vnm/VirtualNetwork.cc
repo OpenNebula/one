@@ -377,14 +377,6 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualNetwork::update(SqlDB * db)
-{
-    return insert_replace(db, true);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 int VirtualNetwork::insert_replace(SqlDB *db, bool replace)
 {
     ostringstream   oss;
@@ -466,7 +458,7 @@ ostream& operator<<(ostream& os, VirtualNetwork& vn)
 {
     string vnet_xml;
 
-    os << vn.to_xml_extended(vnet_xml, true);
+    os << vn.to_xml_extended(vnet_xml,true);
 
     return os;
 };
@@ -476,7 +468,7 @@ ostream& operator<<(ostream& os, VirtualNetwork& vn)
 
 string& VirtualNetwork::to_xml(string& xml) const
 {
-    return to_xml_extended(xml, false);
+    return to_xml_extended(xml,false);
 }
 
 /* -------------------------------------------------------------------------- */
