@@ -82,10 +82,12 @@ int ImagePool::allocate (
     {
         ostringstream oss;
 
-        oss << "NAME is already taken by image " << img_aux->get_oid() << ".";
+        oss << "NAME is already taken by IMAGE " << img_aux->get_oid() << ".";
         error_str = oss.str();
 
         *oid = -1;
+
+        delete img;
     }
     else
     {
