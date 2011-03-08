@@ -64,6 +64,7 @@ int ImagePool::allocate (
         string&        error_str)
 {
     Image * img;
+    Image * img_aux;
     string  name;
 
     // ---------------------------------------------------------------------
@@ -72,9 +73,27 @@ int ImagePool::allocate (
     img = new Image(uid, user_name, img_template);
 
     // ---------------------------------------------------------------------
-    // Insert the Object in the pool
+    // Check for duplicates
     // ---------------------------------------------------------------------
-    *oid = PoolSQL::allocate(img, error_str);
+    img->get_template_attribute("NAME", name);
+    img_aux = get(name,uid,false);
+
+    if( img_aux != 0 )
+    {
+        ostringstream oss;
+
+        oss << "NAME is already taken by image " << img_aux->get_oid() << ".";
+        error_str = oss.str();
+
+        *oid = -1;
+    }
+    else
+    {
+        // ---------------------------------------------------------------------
+        // Insert the Object in the pool
+        // ---------------------------------------------------------------------
+        *oid = PoolSQL::allocate(img, error_str);
+    }
 
     return *oid;
 }

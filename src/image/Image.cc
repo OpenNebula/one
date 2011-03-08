@@ -73,7 +73,7 @@ const char * Image::db_names = "oid, name, body, uid, public";
 
 const char * Image::db_bootstrap = "CREATE TABLE IF NOT EXISTS image_pool ("
     "oid INTEGER PRIMARY KEY, name VARCHAR(256), body TEXT, uid INTEGER, "
-    "public INTEGER, UNIQUE(name) )";
+    "public INTEGER, UNIQUE(name,uid) )";
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
