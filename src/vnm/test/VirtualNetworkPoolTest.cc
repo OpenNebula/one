@@ -399,7 +399,7 @@ public:
 
     void duplicates()
     {
-        int rc, oid_0, oid_1;
+        int rc, oid_0, oid_1, oid_2, oid_3;
         VirtualNetworkPoolFriend * vnpool =
                                 static_cast<VirtualNetworkPoolFriend *>(pool);
         VirtualNetwork     * vnet;
@@ -414,15 +414,15 @@ public:
         CPPUNIT_ASSERT( rc ==  oid_1 );
         CPPUNIT_ASSERT( rc == -1 );
 
-        // With different user ID
-        rc = vnpool->allocate(uids[1], user_names[1], templates[0], &oid_1);
-        CPPUNIT_ASSERT( rc ==  oid_1 );
-        CPPUNIT_ASSERT( rc == -1 );
+        // Same VNet, with different user ID
+        rc = vnpool->allocate(uids[1], user_names[1], templates[0], &oid_2);
+        CPPUNIT_ASSERT( rc ==  oid_2 );
+        CPPUNIT_ASSERT( rc == 1 );
 
         // Insert a different template, with the same user ID
-        rc = vnpool->allocate(uids[1], user_names[1], templates[1], &oid_1);
-        CPPUNIT_ASSERT( rc == oid_1 );
-        CPPUNIT_ASSERT( rc == 1 );
+        rc = vnpool->allocate(uids[1], user_names[1], templates[1], &oid_3);
+        CPPUNIT_ASSERT( rc == oid_3 );
+        CPPUNIT_ASSERT( rc == 2 );
 
 
         // Make sure the table contains only one vnet with name[0]
@@ -434,8 +434,9 @@ public:
 
         ret = pool->search(results, table, where);
         CPPUNIT_ASSERT(ret             == 0);
-        CPPUNIT_ASSERT(results.size()  == 1);
+        CPPUNIT_ASSERT(results.size()  == 2);
         CPPUNIT_ASSERT(results.at(0)   == oid_0);
+        CPPUNIT_ASSERT(results.at(1)   == oid_2);
 
         // Get the vnet and check it, to make sure the user id was not rewritten
         vnet = vnpool->get(oid_0, false);
