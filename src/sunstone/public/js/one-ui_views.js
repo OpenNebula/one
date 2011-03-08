@@ -1258,6 +1258,9 @@ function createVMachineDialog(){
 		$('select#boot_method option').removeAttr("selected");
         $('.kernel, .bootloader', $('div#os_boot_opts')).hide();
 
+        $('div#disks select#BUS').append(
+        '<option id="virtio" value="virtio">virtio</option>');
+
 		$('input#TYPE', section_raw).val("kvm");
 
 		$(section_inputs).show();
@@ -1281,6 +1284,7 @@ function createVMachineDialog(){
         $('select#boot_method option#no_boot').html("Please choose");
 		$('.kernel, .bootloader', $('div#os_boot_opts')).hide();
 
+        $('div#disks select#BUS option#virtio').remove();
 
 		$('input#TYPE', section_raw).val("kvm");
 		$(section_inputs).hide(); //not present for xen
