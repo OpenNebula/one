@@ -81,7 +81,7 @@ public:
      *   @return a pointer to the object, 0 in case of failure
      */
     PoolObjectSQL * get(const string& name, int uid, bool lock);
-    
+
     /**
      *  Finds a set objects that satisfies a given condition
      *   @param oids a vector with the oids of the objects.
@@ -220,7 +220,7 @@ private:
      *  back of the queue.
      */
     void replace();
-    
+
     /**
      *  Generate an index key for the object
      *    @param name of the object

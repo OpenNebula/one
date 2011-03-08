@@ -355,9 +355,9 @@ public:
         CPPUNIT_ASSERT( rc  == -1 );
         CPPUNIT_ASSERT( oid == rc );
 
-        // Try again, with different uid
+        // Try again, this time with different uid. Should be allowed
         rc = imp->allocate(uids[1], templates[0], &oid);
-        CPPUNIT_ASSERT( rc  == -1 );
+        CPPUNIT_ASSERT( rc  >= 0 );
         CPPUNIT_ASSERT( oid == rc );
     }
 
