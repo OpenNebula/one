@@ -28,11 +28,15 @@
 #include "AuthManager.h"
 #include "UserPool.h"
 
+#define TO_UPPER(S) transform(S.begin(),S.end(),S.begin(),(int(*)(int))toupper)
+
 /* ************************************************************************ */
-/* Image :: Constructor/Destructor                                           */
+/* Image :: Constructor/Destructor                                          */
 /* ************************************************************************ */
 
-Image::Image(int _uid, string _user_name, ImageTemplate * _image_template):
+Image::Image(int             _uid, 
+             const string&   _user_name, 
+             ImageTemplate * _image_template):
         PoolObjectSQL(-1,"",_uid,table),
         user_name(_user_name),
         type(OS),
@@ -60,7 +64,7 @@ Image::~Image()
 }
 
 /* ************************************************************************ */
-/* Image :: Database Access Functions                                        */
+/* Image :: Database Access Functions                                       */
 /* ************************************************************************ */
 
 const char * Image::table = "image_pool";
@@ -78,11 +82,11 @@ int Image::insert(SqlDB *db, string& error_str)
 {
     int rc;
 
-    string  source_att;
-    string  type_att;
-    string  public_attr;
-    string  persistent_attr;
-    string  dev_prefix;
+    string source_att;
+    string type_att;
+    string public_attr;
+    string persistent_attr;
+    string dev_prefix;
 
     // ---------------------------------------------------------------------
     // Check default image attributes
@@ -101,8 +105,7 @@ int Image::insert(SqlDB *db, string& error_str)
 
     get_template_attribute("TYPE", type_att);
 
-    transform (type_att.begin(), type_att.end(), type_att.begin(),
-        (int(*)(int))toupper);
+    TO_UPPER(type_att);
 
     if ( type_att.empty() == true )
     {
@@ -117,20 +120,20 @@ int Image::insert(SqlDB *db, string& error_str)
     // ------------ PUBLIC --------------------
 
     get_template_attribute("PUBLIC", public_attr);
+
     image_template->erase("PUBLIC");
 
-    transform (public_attr.begin(), public_attr.end(), public_attr.begin(),
-        (int(*)(int))toupper);
+    TO_UPPER(public_attr);
 
     public_img = (public_attr == "YES");
 
     // ------------ PERSISTENT --------------------
 
     get_template_attribute("PERSISTENT", persistent_attr);
+
     image_template->erase("PERSISTENT");
 
-    transform (persistent_attr.begin(), persistent_attr.end(), persistent_attr.begin(),
-        (int(*)(int))toupper);
+    TO_UPPER(persistent_attr);
 
     persistent_img = (persistent_attr == "YES");
 
@@ -342,11 +345,6 @@ int Image::from_xml(const string& xml)
     rc += xpath(int_state, "/IMAGE/STATE", 0);
     rc += xpath(running_vms, "/IMAGE/RUNNING_VMS", -1);
 
-    if (rc != 0)
-    {
-        return -1;
-    }
-
     type  = static_cast<ImageType>(int_type);
     state = static_cast<ImageState>(int_state);
 
@@ -357,7 +355,12 @@ int Image::from_xml(const string& xml)
         return -1;
     }
 
-    image_template->from_xml_node(content[0]);
+    rc += image_template->from_xml_node(content[0]);
+
+    if (rc != 0)
+    {
+        return -1;
+    }
 
     return 0;
 }

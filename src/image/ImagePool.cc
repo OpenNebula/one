@@ -30,25 +30,25 @@ string ImagePool::_default_dev_prefix;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-ImagePool::ImagePool(   SqlDB * db,
-                        const string&   __source_prefix,
-                        const string&   __default_type,
-                        const string&   __default_dev_prefix):
+ImagePool::ImagePool(SqlDB *       db,
+                     const string& __source_prefix,
+                     const string& __default_type,
+                     const string& __default_dev_prefix):
                         PoolSQL(db,Image::table)
 {
     ostringstream sql;
 
     // Init static defaults
-    _source_prefix       = __source_prefix;
-    _default_type        = __default_type;
-    _default_dev_prefix  = __default_dev_prefix;
+    _source_prefix      = __source_prefix;
+    _default_type       = __default_type;
+    _default_dev_prefix = __default_dev_prefix;
 
     // Set default type
     if (_default_type != "OS"       &&
         _default_type != "CDROM"    &&
         _default_type != "DATABLOCK" )
     {
-        NebulaLog::log("IMG", Log::ERROR, "Bad default for image type, setting OS");
+        NebulaLog::log("IMG", Log::ERROR, "Bad default for type, setting OS");
         _default_type = "OS";
     }
 }
@@ -70,8 +70,6 @@ int ImagePool::allocate (
     // Build a new Image object
     // ---------------------------------------------------------------------
     img = new Image(uid, user_name, img_template);
-
-    img->get_template_attribute("NAME", name);
 
     // ---------------------------------------------------------------------
     // Insert the Object in the pool

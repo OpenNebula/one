@@ -38,10 +38,10 @@ class ImagePool : public PoolSQL
 {
 public:
 
-    ImagePool(SqlDB * db,
-              const string&   _source_prefix,
-              const string&   _default_type,
-              const string&   _default_dev_prefix);
+    ImagePool(SqlDB *       db,
+              const string& _source_prefix,
+              const string& _default_type,
+              const string& _default_dev_prefix);
 
     ~ImagePool(){};
 
@@ -62,7 +62,7 @@ public:
         string&         error_str);
 
     /**
-     *  Function to get a Image from the pool, if the object is not in memory
+     **  Function to get a Image from the pool, if the object is not in memory
      *  it is loaded from the DB
      *    @param oid Image unique id
      *    @param lock locks the Image mutex
@@ -77,14 +77,15 @@ public:
      *  Function to get an Image from the pool using the image name
      *    @param name of the image
      *    @param lock locks the User mutex
-     *    @return a pointer to the Image, 0 if the User could not be loaded
+     *    @return a pointer to the Image, 0 if the image could not be loaded
      */
     Image * get(const string&  name, int uid, bool lock)
     {
         return static_cast<Image *>(PoolSQL::get(name,uid,lock));
     }
 
-    /** Update a particular Image
+    /** 
+     *  Update a particular Image
      *    @param image pointer to Image
      *    @return 0 on success
      */
@@ -126,7 +127,7 @@ public:
      *    @param index number of datablock images used by the same VM. Will be
      *                 automatically increased.
      *    @param img_type will be set to the used image's type
-     *    @param uid owner of the VM (to look for the image id within its images)
+     *    @param uid of VM owner (to look for the image id within its images)
      *    @return 0 on success, -1 error, -2 not using the pool
      */
     int disk_attribute(VectorAttribute *  disk,
@@ -137,7 +138,7 @@ public:
     /**
      *  Generates an Authorization token for the DISK attribute
      *    @param disk the disk to be authorized
-     *    @param uid owner of the VM (to look for the image id within its images)
+     *    @param uid of owner (to look for the image id within her images)
      *    @param ar the AuthRequest
      */
     void authorize_disk(VectorAttribute * disk, int uid, AuthRequest * ar);
@@ -164,17 +165,17 @@ private:
     /**
      * Path to the image repository
      **/
-    static string       _source_prefix;
+    static string  _source_prefix;
 
     /**
      * Default image type
      **/
-    static string       _default_type;
+    static string  _default_type;
 
     /**
      * Default device prefix
      **/
-    static string       _default_dev_prefix;
+    static string  _default_dev_prefix;
 
     //--------------------------------------------------------------------------
     // Pool Attributes
@@ -185,7 +186,7 @@ private:
      */
     PoolObjectSQL * create()
     {
-        return new Image(-1, "", 0);
+        return new Image(-1,"",0);
     };
 
     /**
@@ -197,16 +198,6 @@ private:
      *    @return 0 on success
      */
     int dump_cb(void * _oss, int num, char **values, char **names);
-
-    /**
-     *  Callback function to build the image_names map
-     *    @param num the number of columns read from the DB
-     *    @param names the column names
-     *    @param vaues the column values
-     *    @return 0 on success
-     */
-    int init_cb(void *nil, int num, char **values, char **names);
-
 };
 
 #endif /*IMAGE_POOL_H_*/

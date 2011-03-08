@@ -337,22 +337,22 @@ private:
     /**
      *  Type of the Image
      */
-    ImageType    type;
+    ImageType   type;
 
     /**
      *  Public scope of the Image
      */
-    int          public_img;
+    int         public_img;
 
     /**
      *  Persistency of the Image
      */
-    int          persistent_img;
+    int         persistent_img;
 
     /**
      *  Registration time
      */
-    time_t       regtime;
+    time_t      regtime;
 
     /**
      *  Path to the image
@@ -415,7 +415,9 @@ protected:
     // Constructor
     // *************************************************************************
 
-    Image(int uid, string _user_name, ImageTemplate *img_template);
+    Image(int            uid, 
+          const string&  user_name, 
+          ImageTemplate* img_template);
 
     virtual ~Image();
 
