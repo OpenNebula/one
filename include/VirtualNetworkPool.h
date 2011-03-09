@@ -153,16 +153,6 @@ private:
     {
         return new VirtualNetwork(0,"",0);
     };
-
-    /**
-     *  Callback function to get output the virtual network pool in XML format
-     *  (VirtualNetworkPool::dump)
-     *    @param num the number of columns read from the DB
-     *    @param names the column names
-     *    @param vaues the column values
-     *    @return 0 on success
-     */
-    int dump_cb(void * _oss, int num, char **values, char **names);
 };
 
 #endif /*VIRTUAL_NETWORK_POOL_H_*/

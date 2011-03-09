@@ -251,16 +251,6 @@ private:
      *    @return 0 on success
      */
     int discover_cb(void * _map, int num, char **values, char **names);
-
-    /**
-     *  Callback function to get output the host pool in XML format
-     *  (Host::dump)
-     *    @param num the number of columns read from the DB
-     *    @param names the column names
-     *    @param vaues the column values
-     *    @return 0 on success
-     */
-    int dump_cb(void * _oss, int num, char **values, char **names);
 };
 
 #endif /*HOST_POOL_H_*/

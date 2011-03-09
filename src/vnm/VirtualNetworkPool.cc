@@ -108,45 +108,9 @@ int VirtualNetworkPool::allocate (
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualNetworkPool::dump_cb(void * _oss,
-                                int     num,
-                                char ** values,
-                                char ** names)
-{
-    ostringstream * oss;
-
-    oss = static_cast<ostringstream *>(_oss);
-
-    return VirtualNetwork::dump(*oss, num, values, names);
-}
-
-/* -------------------------------------------------------------------------- */
-
 int VirtualNetworkPool::dump(ostringstream& oss, const string& where)
 {
-    int             rc;
-    ostringstream   cmd;
-
-    oss << "<VNET_POOL>";
-
-    set_callback(
-        static_cast<Callbackable::Callback>(&VirtualNetworkPool::dump_cb),
-        static_cast<void *>(&oss));
-
-    cmd << "SELECT body FROM " << VirtualNetwork::table;
-
-    if ( !where.empty() )
-    {
-        cmd << " WHERE " << where;
-    }
-
-    rc = db->exec(cmd,this);
-
-    oss << "</VNET_POOL>";
-
-    unset_callback();
-
-    return rc;
+    return PoolSQL::dump(oss, "VNET_POOL", VirtualNetwork::table,where);
 }
 
 /* -------------------------------------------------------------------------- */

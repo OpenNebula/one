@@ -103,42 +103,9 @@ int ImagePool::allocate (
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int ImagePool::dump_cb(void * _oss, int num, char **values, char **names)
-{
-    ostringstream * oss;
-
-    oss = static_cast<ostringstream *>(_oss);
-
-    return Image::dump(*oss, num, values, names);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 int ImagePool::dump(ostringstream& oss, const string& where)
 {
-    int             rc;
-    ostringstream   cmd;
-
-    oss << "<IMAGE_POOL>";
-
-    set_callback(static_cast<Callbackable::Callback>(&ImagePool::dump_cb),
-                  static_cast<void *>(&oss));
-
-    cmd << "SELECT body FROM " << Image::table;
-
-    if ( !where.empty() )
-    {
-        cmd << " WHERE " << where;
-    }
-
-    rc = db->exec(cmd, this);
-
-    oss << "</IMAGE_POOL>";
-
-    unset_callback();
-
-    return rc;
+    return PoolSQL::dump(oss, "IMAGE_POOL", Image::table, where);
 }
 
 /* -------------------------------------------------------------------------- */
