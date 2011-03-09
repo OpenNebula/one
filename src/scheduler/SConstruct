@@ -15,9 +15,6 @@
 #--------------------------------------------------------------------------- #
 
 import os
-import sys
-import shutil
-sys.path.append("../../share/scons")
 
 from lex_bison import *
 
@@ -33,29 +30,19 @@ add_lex(main_env)
 add_bison(main_env)
 
 # Include dirs
-main_env.Replace(CPPPATH=[
+main_env.Append(CPPPATH=[
     cwd + '/include/',
     cwd + '../../../include/'
 ])
 
 # Library dirs
-main_env.Replace(LIBPATH=[
+main_env.Append(LIBPATH=[
     cwd+'/src/xml',
     cwd+'/src/pool',
     cwd+'/src/sched',
     cwd+'/../log',
     cwd+'/../common',
 ])
-
-################################################################################
-#                               EXTRA CONFIGURATION
-################################################################################
-
-#-------------------------------------------------------------------------------
-# libxml2
-#-------------------------------------------------------------------------------
-
-main_env.ParseConfig('xml2-config --libs --cflags')
 
 ################################################################################
 # SCONS scripts to build
