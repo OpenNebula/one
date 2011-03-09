@@ -107,9 +107,9 @@ protected:
 
 public:
 
-    UserPoolTest(){};
+    UserPoolTest(){xmlInitParser();};
 
-    ~UserPoolTest(){};
+    ~UserPoolTest(){xmlCleanupParser();};
 
     /* ********************************************************************* */
     /* ********************************************************************* */
