@@ -161,16 +161,6 @@ private:
     {
         return new VirtualMachine(-1,-1,"", 0);
     };
-
-    /**
-     *  Callback function to get output the vm pool in XML format
-     *  (VirtualMachinePool::dump)
-     *    @param num the number of columns read from the DB
-     *    @param names the column names
-     *    @param vaues the column values
-     *    @return 0 on success
-     */
-    int dump_cb(void * _oss, int num, char **values, char **names);
 };
 
 #endif /*VIRTUAL_MACHINE_POOL_H_*/

@@ -250,41 +250,9 @@ int HostPool::discover(map<int, string> * discovered_hosts, int host_limit)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int HostPool::dump_cb(void * _oss, int num, char **values, char **names)
-{
-    ostringstream * oss;
-
-    oss = static_cast<ostringstream *>(_oss);
-
-    return Host::dump(*oss, num, values, names);
-}
-
-/* -------------------------------------------------------------------------- */
-
 int HostPool::dump(ostringstream& oss, const string& where)
 {
-    int             rc;
-    ostringstream   cmd;
-
-    oss << "<HOST_POOL>";
-
-    set_callback(static_cast<Callbackable::Callback>(&HostPool::dump_cb),
-                  static_cast<void *>(&oss));
-
-    cmd << "SELECT body FROM " << Host::table;
-
-    if ( !where.empty() )
-    {
-        cmd << " WHERE " << where;
-    }
-
-    rc = db->exec(cmd, this);
-
-    oss << "</HOST_POOL>";
-
-    unset_callback();
-
-    return rc;
+    return PoolSQL::dump(oss, "HOST_POOL", Host::table, where);
 }
 
 /* -------------------------------------------------------------------------- */

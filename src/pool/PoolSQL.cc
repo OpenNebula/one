@@ -351,6 +351,55 @@ void PoolSQL::clean()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int PoolSQL::dump_cb(void * _oss, int num, char **values, char **names)
+{
+    ostringstream * oss;
+
+    oss = static_cast<ostringstream *>(_oss);
+
+    if ( (!values[0]) || (num != 1) )
+    {
+        return -1;
+    }
+
+    *oss << values[0];
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+
+int PoolSQL::dump(ostringstream& oss,
+                  const string& elem_name,
+                  const char * table,
+                  const string& where)
+{
+    int             rc;
+    ostringstream   cmd;
+
+    oss << "<" << elem_name << ">";
+
+    set_callback(static_cast<Callbackable::Callback>(&PoolSQL::dump_cb),
+                  static_cast<void *>(&oss));
+
+    cmd << "SELECT body FROM " << table;
+
+    if ( !where.empty() )
+    {
+        cmd << " WHERE " << where;
+    }
+
+    rc = db->exec(cmd, this);
+
+    oss << "</" << elem_name << ">";
+
+    unset_callback();
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int PoolSQL:: search_cb(void * _oids, int num, char **values, char **names)
 {
     vector<int> *  oids;

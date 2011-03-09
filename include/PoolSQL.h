@@ -151,6 +151,19 @@ protected:
      */
     SqlDB * db;
 
+    /**
+     *  Dumps the pool in XML format. A filter can be also added to the
+     *  query
+     *  @param oss the output stream to dump the pool contents
+     *  @param elem_name Name of the root xml pool name
+     *  @param table Pool table name
+     *  @param where filter for the objects, defaults to all
+     *
+     *  @return 0 on success
+     */
+    int dump(ostringstream& oss, const string& elem_name,
+             const char * table, const string& where);
+
 private:
 
     pthread_mutex_t             mutex;
@@ -249,6 +262,15 @@ private:
      *  Callback to store the IDs of pool objects (PoolSQL::search)
      */
     int  search_cb(void *_oids, int num, char **values, char **names);
+
+    /**
+     *  Callback function to get output in XML format
+     *    @param num the number of columns read from the DB
+     *    @param names the column names
+     *    @param vaues the column values
+     *    @return 0 on success
+     */
+    int dump_cb(void * _oss, int num, char **values, char **names);
 };
 
 #endif /*POOL_SQL_H_*/

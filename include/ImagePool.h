@@ -188,16 +188,6 @@ private:
     {
         return new Image(-1,"",0);
     };
-
-    /**
-     *  Callback function to get output the image pool in XML format
-     *  (Image::dump)
-     *    @param num the number of columns read from the DB
-     *    @param names the column names
-     *    @param vaues the column values
-     *    @return 0 on success
-     */
-    int dump_cb(void * _oss, int num, char **values, char **names);
 };
 
 #endif /*IMAGE_POOL_H_*/

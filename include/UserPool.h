@@ -136,17 +136,6 @@ private:
     {
         return new User(-1,"","",true);
     };
-
-    /**
-     *  Callback function to get output the user pool in XML format
-     *  (User::dump)
-     *    @param _oss pointer to the output stream
-     *    @param num the number of columns read from the DB
-     *    @param names the column names
-     *    @param vaues the column values
-     *    @return 0 on success
-     */
-    int dump_cb(void * _oss, int num, char **values, char **names);
 };
 
 #endif /*USER_POOL_H_*/

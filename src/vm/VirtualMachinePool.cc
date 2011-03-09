@@ -239,54 +239,27 @@ int VirtualMachinePool::get_pending(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int  VirtualMachinePool::dump_cb(void * _oss,int num,char **values,char **names)
-{
-    ostringstream * oss;
-
-    oss = static_cast<ostringstream *>(_oss);
-
-    return VirtualMachine::dump(*oss, num, values, names);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 int VirtualMachinePool::dump(   ostringstream&  oss,
                                 int             state,
                                 const string&   where)
 {
-    int             rc;
-    ostringstream   cmd;
-
-    oss << "<VM_POOL>";
-
-    set_callback(
-        static_cast<Callbackable::Callback>(&VirtualMachinePool::dump_cb),
-        static_cast<void *>(&oss));
-
-    cmd << "SELECT body FROM " << VirtualMachine::table;
+    ostringstream where_oss;
 
     if ( state != -1 )
     {
-        cmd << " WHERE " << VirtualMachine::table << ".state = " << state;
+        where_oss << VirtualMachine::table << ".state = " << state;
     }
     else
     {
-        cmd << " WHERE " << VirtualMachine::table << ".state <> 6";
+        where_oss << VirtualMachine::table << ".state <> 6";
     }
 
     if ( !where.empty() )
     {
-        cmd << " AND " << where;
+        where_oss << " AND " << where;
     }
 
-    rc = db->exec(cmd,this);
-
-    oss << "</VM_POOL>";
-
-    unset_callback();
-
-    return rc;
+    return PoolSQL::dump(oss, "VM_POOL", VirtualMachine::table,where_oss.str());
 }
 
 /* -------------------------------------------------------------------------- */
