@@ -149,7 +149,7 @@ var dashboard_tab_content =
 </table>';
 
 
-Sunstone.addMainTab('Dashboard',dashboard_tab_content,null,'dashboard_tab');
+Sunstone.addMainTab('dashboard_tab','Dashboard',dashboard_tab_content,null);
 
 $(document).ready(function(){
     //Dashboard link listener

@@ -45,26 +45,43 @@ var Sunstone = {
         SunstoneCfg["actions"][name] = action_obj;
     },
     
-    "updateAction" : function(action,new_action) {
-        
+    "updateAction" : function(name,action_obj) {
+         SunstoneCfg["actions"][name] = action_obj;
     },
     
     "removeAction" : function(action) {
-        
+         SunstoneCfg["actions"][action] = null;
     },
     
-    "addMainTab" : function(title_arg,content_arg, buttons_arg,tab_id) {
+    "addMainTab" : function(tab_id,title_arg,content_arg, buttons_arg,refresh) {
         SunstoneCfg["tabs"][tab_id] = {title: title_arg,
                                         content: content_arg,
                                         buttons: buttons_arg };
+        if (refresh){
+            
+        }
     },
     
-    "updateMainTab" : function(tab_id,new_content){
-        
+    "updateMainTabContent" : function(tab_id,content_arg,refresh){
+        SunstoneCfg["tabs"][tab_id]["content"]=content_arg;
+        if (refresh){
+            $('div#'+tab).html(tab_info.content);
+        }
     },
     
-    "removeMainTab" : function(tab_id) {
-        
+    "updateMainTabButtons" : function(tab_id,buttons_arg,refresh){
+        SunstoneCfg["tabs"][tab_id]["buttons"]=buttons_arg;
+        if (refresh){
+            $('div#'+tab_name+' .action_blocks').empty();
+            insertButtonsInTab(tab_name);
+        }
+    },
+    
+    "removeMainTab" : function(tab_id,refresh) {
+         SunstoneCfg["tabs"][tab_id]=null;
+         if (refresh) {
+             $('div#'+tab_name).remove();
+         }
     },
     
     "getInfoPanelHTML" : function(name){
@@ -84,22 +101,23 @@ var Sunstone = {
         SunstoneCfg["info_panels"][name]=info_panel;
     },
     
-    "updateInfoPanel" : function(name, info_panel,refresh){
+    "updateInfoPanel" : function(name, info_panel){
         SunstoneCfg["info_panels"][name]=info_panel;
-        if (refresh){
-            refreshInfoPanel(name);
-        }
     },
     
     "removeInfoPanel" : function(name){
         SunstoneCfg["info_panels"][name] = null;
     },
     
-    "addInfoTab" : function(info_panel, tab_name, tab){
+    "popUpInfoPanel" : function(name){
+        popDialog(Sunstone.getInfoPanelHTML(name));
+    },
+    
+    "addInfoPanelTab" : function(info_panel, tab_name, tab){
         SunstoneCfg["info_panels"][info_panel][tab_name] = tab;
     },
     
-    "updateInfoTab" : function(info_panel, tab_name, tab, refresh){
+    "updateInfoPanelTab" : function(info_panel, tab_name, tab, refresh){
         SunstoneCfg["info_panels"][info_panel][tab_name] = tab;
         if (refresh){
             refreshInfoPanelTab(info_panel,tab_name);
@@ -107,7 +125,7 @@ var Sunstone = {
     },
     
     
-    "removeInfoTab" : function(info_panel,tab_name){
+    "removeInfoPanelTab" : function(info_panel,tab_name){
         SunstoneCfg["info_panels"][info_panel][tab_name] = null;
     },
     
@@ -190,112 +208,12 @@ var Sunstone = {
                 button = buttons["action_list"]["actions"][button_name];
             }
             return button;            
-    }//meter coma y seguir aquí
+    } //end sunstone methods
     
 };
         
-        
-         //~ "actions" : {
-            //~ 
-            //~ "VM.create" = {
-                //~ 
-            //~ },
-            //~ 
-            //~ "VM.deploy" = {
-                //~ 
-            //~ },
-            //~ 
-            //~ "VM.migrate" = {
-                //~ 
-            //~ },
-            //~ 
-            //~ "VM.livemigrate" = {
-                //~ 
-            //~ },
-            //~ 
-            //~ "VM.hold" = {
-                //~ 
-            //~ },
-            //~ 
-            //~ "VM.release" = {
-                //~ 
-            //~ },
-            //~ 
-            //~ "VM.suspend" = {
-                //~ 
-            //~ },
-            //~ 
-            //~ "VM.resume" = {
-                //~ 
-            //~ },
-            //~ 
-            //~ "VM.stop" = {
-                //~ 
-            //~ },
-            //~ 
-            //~ "VM.restart" = {
-                //~ 
-            //~ },
-            //~ 
-            //~ "VM.shutdown" = {
-                //~ 
-            //~ },
-            //~ 
-            //~ "VM.cancel" = {
-                //~ 
-            //~ },
-            //~ 
-            //~ "VM.delete" = {
-                //~ 
-            //~ },
-            //~ 
-            //~ "Network.publish" = {
-                //~ 
-            //~ },
-            //~ 
-            //~ "Network.unpublish" = {
-                //~ 
-            //~ },
-            //~ 
-            //~ "Network.delete" = {
-                //~ 
-            //~ },
-            //~ 
-            //~ "User.create" = {
-                //~ 
-            //~ },
-            //~ 
-            //~ "User.delete" = {
-                //~ 
-            //~ },
-            //~ 
-            //~ "Image.enable" = {
-                //~ 
-            //~ },
-            //~ 
-            //~ "Image.disable" = {
-                //~ 
-            //~ },
-            //~ 
-            //~ "Image.persistent" = {
-                //~ 
-            //~ },
-            //~ 
-            //~ "Image.nonpersistent" = {
-                //~ 
-            //~ },
-            //~ 
-            //~ "Image.publish" = {
-                //~ 
-            //~ },
-            //~ 
-            //~ "Image.unpublish" = {
-                //~ 
-            //~ },
-            //~ 
-            //~ "Image.delete" = {
-                //~ 
-            //~ }
+    
+
 
 
 //plugins have done their jobs when we execute this
@@ -398,48 +316,48 @@ function insertTabs(){
 
 
 function insertButtons(){
-    var buttons;
-    var tab_id;
-    var button_code;
-    var button_obj;
+     for (tab in SunstoneCfg["tabs"]){
+        insertButtonsInTab(tab)
+    }
+}
+
+function insertButtonsInTab(tab_name){
+    var buttons = SunstoneCfg["tabs"][tab_name]["buttons"];
+    var button_code="";
+    var sel_obj=null;
     
-    for (tab in SunstoneCfg["tabs"]){
-        buttons = SunstoneCfg["tabs"][tab].buttons;
-        content = SunstoneCfg["tabs"][tab].content;
-        if ($('div#'+tab+' .action_blocks').length){
-            for (button_name in buttons){
-                button_code = "";
-                button = buttons[button_name];
-                if (button.condition()) {
-                    switch (button.type) {
-                      case "select":
-                        button_code = '<select class="multi_action_slct">';
-                        var sel_obj;
-                        for (sel_name in button.actions){
-                            sel_obj = button["actions"][sel_name];
-                            if (sel_obj.condition()){
-                                    button_code += '<option class="'+sel_obj.type+'_button" value="'+sel_name+'">'+sel_obj.text+'</option>';
-                            };
+    if ($('div#'+tab_name+' .action_blocks').length){
+        for (button_name in buttons){
+            button_code = "";
+            button = buttons[button_name];
+            if (button.condition()) {
+                switch (button.type) {
+                  case "select":
+                    button_code = '<select class="multi_action_slct">';
+                 
+                    for (sel_name in button.actions){
+                        sel_obj = button["actions"][sel_name];
+                        if (sel_obj.condition()){
+                                button_code += '<option class="'+sel_obj.type+'_button" value="'+sel_name+'">'+sel_obj.text+'</option>';
                         };
-                        button_code += '</select>';
-                        break;
-                      case "image":
-                        button_code = '<img src="'+button.img+'" class="action_button" value="'+button_name+'" alt="'+button.text+'" />';
-                        break;
-                      case "create_dialog":
-                        button_code = '<button class="'+button.type+'_button action_button top_button" value="'+button_name+'">'+button.text+'</button>';
-                        break;
-                      default:
-                        button_code = '<button class="'+button.type+'_button top_button" value="'+button_name+'">'+button.text+'</button>';
-                    
-                    }
-                }
-                $('div#'+tab+' .action_blocks').append(button_code);
+                    };
+                    button_code += '</select>';
+                    break;
+                  case "image":
+                    button_code = '<img src="'+button.img+'" class="action_button" value="'+button_name+'" alt="'+button.text+'" />';
+                    break;
+                  case "create_dialog":
+                    button_code = '<button class="'+button.type+'_button action_button top_button" value="'+button_name+'">'+button.text+'</button>';
+                    break;
+                  default:
+                    button_code = '<button class="'+button.type+'_button top_button" value="'+button_name+'">'+button.text+'</button>';
                 
-            }//for each button in tab
-        }//if tab exists
-    }//for each tab
-    
+                }
+            }
+            $('div#'+tab_name+' .action_blocks').append(button_code);
+                
+        }//for each button in tab
+    }//if tab exists
 }
 
 // We do not insert info panels code, we generate it dinamicly when

@@ -119,13 +119,14 @@ var host_actions = {
                 call: popUpCreateHostDialog
             },
             
-            "Host.list" : {
-                type: "list",
-                call: OpenNebula.Host.list,
-                callback: updateHostsView,
-                error: onError,
-                notify:False
-            },
+            //Custom below
+            //~ "Host.list" : {
+                //~ type: "list",
+                //~ call: OpenNebula.Host.list,
+                //~ callback: updateHostsView,
+                //~ error: onError,
+                //~ notify:False
+            //~ },
             
             "Host.show" : {
                 type: "single",
@@ -157,7 +158,9 @@ var host_actions = {
             "Host.enable" : {
                 type: "multiple",
                 call : OpenNebula.Host.enable,
-                callback : host_update_callback,
+                callback : function (req) {
+                    Sunstone.runAction("Host.show",req.request.data[0]);
+                },
                 dataTable: function() { return dataTable_hosts },
                 error : onError,
                 notify:True,
@@ -166,7 +169,9 @@ var host_actions = {
             "Host.disable" : {
                 type: "multiple",
                 call : OpenNebula.Host.disable,
-                callback : host_update_callback,
+                callback : function (req) {
+                    Sunstone.runAction("Host.show",req.request.data[0]);
+                },
                 dataTable: function() { return dataTable_hosts },
                 error : onError,
                 notify:True,
@@ -247,7 +252,6 @@ var host_actions = {
             }
         };
 
-
 var host_buttons = {
         "Host.refresh" : {
             type: "image",
@@ -257,7 +261,7 @@ var host_buttons = {
         },
         "Host.create_dialog" : {
             type: "create_dialog",
-            text: "+ New host",
+            text: "+ New",
             condition :True
         },
         "Host.enable" : {
@@ -266,9 +270,8 @@ var host_buttons = {
             condition : True
         },
         "Host.disable" : {
-            type: "confirm",
+            type: "action",
             text: "Disable",
-            tip: "This will disable the selected hosts.",
             condition : True
         },
         "Cluster.create_dialog" : {
@@ -295,7 +298,6 @@ var host_buttons = {
                         "Cluster.removehost" : {
                             type: "action",
                             text: "Remove host from cluster",
-                            value: "Cluster.removehost",
                             condition: True
                         }},
             condition : True
@@ -324,14 +326,9 @@ for (action in host_actions){
 }
 
 // title, content, buttons, id
-Sunstone.addMainTab('Hosts',hosts_tab_content,host_buttons,'hosts_tab');
+Sunstone.addMainTab('hosts_tab','Hosts',hosts_tab_content,host_buttons);
 Sunstone.addInfoPanel("host_info_panel",host_info_panel);
 
-
-//Plugin functions
-function host_update_callback(req){
-    OpenNebula.Host.show({data:{id:req.request.data[0]},success: updateHostElement,error: onError});
-}
 
 function hostElementArray(host_json){
 	host = host_json.HOST;
@@ -382,18 +379,6 @@ function hostElementArray(host_json){
 			pb_mem,
 			OpenNebula.Helper.resource_state("host",host.STATE) ];
 
-
-	//~ return [ '<input type="checkbox" id="host_'+host.ID+'" name="selected_items" value="'+host.ID+'"/>',
-			//~ host.ID,
-			//~ host.NAME,
-			//~ host.CLUSTER,
-			//~ host.HOST_SHARE.RUNNING_VMS, //rvm
-			//~ host.HOST_SHARE.MAX_CPU, //tcpu
-			//~ parseInt(host.HOST_SHARE.MAX_CPU) - parseInt(host.HOST_SHARE.USED_CPU), //fcpu
-			//~ acpu,
-			//~ humanize_size(host.HOST_SHARE.MAX_MEM),
-			//~ humanize_size(host.HOST_SHARE.FREE_MEM),
-			//~ OpenNebula.Helper.resource_state("host",host.STATE) ];
 }
 
 
@@ -557,9 +542,9 @@ function updateHostInfo(request,host){
 		'</table>'
     }
     
-    Sunstone.updateInfoTab("host_info_panel","info_host_tab",info_host_tab);
-    Sunstone.updateInfoTab("host_info_panel","host_template_tab",host_template_tab);
-    popDialog(Sunstone.getInfoPanelHTML("host_info_panel"));
+    Sunstone.updateInfoPanelTab("host_info_panel","info_host_tab",info_host_tab);
+    Sunstone.updateInfoPanelTab("host_info_panel","host_template_tab",host_template_tab);
+    Sunstone.popUpInfoPanel("host_info_panel");
 
 }
 
