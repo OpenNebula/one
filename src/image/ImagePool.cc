@@ -103,14 +103,6 @@ int ImagePool::allocate (
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int ImagePool::dump(ostringstream& oss, const string& where)
-{
-    return PoolSQL::dump(oss, "IMAGE_POOL", Image::table, where);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 int ImagePool::disk_attribute(VectorAttribute *  disk,
                               int                disk_id,
                               int *              index,

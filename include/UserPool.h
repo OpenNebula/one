@@ -125,7 +125,10 @@ public:
      *
      *  @return 0 on success
      */
-    int dump(ostringstream& oss, const string& where);
+    int dump(ostringstream& oss, const string& where)
+    {
+        return PoolSQL::dump(oss, "USER_POOL", User::table, where);
+    }
 
 private:
     /**

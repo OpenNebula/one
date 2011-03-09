@@ -114,7 +114,10 @@ public:
      *
      *  @return 0 on success
      */
-    int dump(ostringstream& oss, const string& where);
+    int dump(ostringstream& oss, const string& where)
+    {
+        return PoolSQL::dump(oss, "VNET_POOL", VirtualNetwork::table,where);
+    }
 
     /**
      *  Get the mac prefix

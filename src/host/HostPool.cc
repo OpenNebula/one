@@ -250,14 +250,6 @@ int HostPool::discover(map<int, string> * discovered_hosts, int host_limit)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int HostPool::dump(ostringstream& oss, const string& where)
-{
-    return PoolSQL::dump(oss, "HOST_POOL", Host::table, where);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 int HostPool::drop_cluster(int clid)
 {
     int                         rc;

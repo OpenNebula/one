@@ -118,7 +118,10 @@ public:
      *  @param where filter for the objects, defaults to all
      *  @return 0 on success
      */
-    int dump(ostringstream& oss, const string& where);
+    int dump(ostringstream& oss, const string& where)
+    {
+        return PoolSQL::dump(oss, "IMAGE_POOL", Image::table, where);
+    }
 
     /**
      *  Generates a DISK attribute for VM templates using the Image metadata

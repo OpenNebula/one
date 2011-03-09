@@ -108,14 +108,6 @@ int VirtualNetworkPool::allocate (
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualNetworkPool::dump(ostringstream& oss, const string& where)
-{
-    return PoolSQL::dump(oss, "VNET_POOL", VirtualNetwork::table,where);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 int VirtualNetworkPool::nic_attribute(VectorAttribute * nic, int uid, int vid)
 {
     string           network;

@@ -293,10 +293,3 @@ int UserPool::authorize(AuthRequest& ar)
     return rc;
 }
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int UserPool::dump(ostringstream& oss, const string& where)
-{
-    return PoolSQL::dump(oss, "USER_POOL", User::table, where);
-}
