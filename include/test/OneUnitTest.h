@@ -182,6 +182,11 @@ public:
         NebulaLog::init_log_system(NebulaLog::FILE, Log::DEBUG, "test.log");
         NebulaLog::log("Test", Log::INFO, "Test started");
 
+        // Set the opennebula install location to be the current dir.
+        // This will prevent some of the tests from writing the individual
+        // VM log files in an existing OpenNebula installation
+        setenv("ONE_LOCATION", ".", 1);
+
         CppUnit::TextUi::TestRunner runner;
         ofstream                    outputFile;
 
