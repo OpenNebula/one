@@ -61,15 +61,10 @@ public:
      *    @param lock locks the User mutex
      *    @return a pointer to the Host, 0 if the User could not be loaded
      */
-    User * get(
-        int     oid,
-        bool    lock)
+    User * get(int oid, bool lock)
     {
-        User * user = static_cast<User *>(PoolSQL::get(oid,lock));
-
-        return user;
+        return static_cast<User *>(PoolSQL::get(oid,lock));
     }
-
 
     /**
      *  Function to get a User from the pool, if the object is not in memory
@@ -78,20 +73,9 @@ public:
      *    @param lock locks the User mutex
      *    @return a pointer to the User, 0 if the User could not be loaded
      */
-    User * get(
-        string  username,
-        bool    lock)
+    User * get(string name, bool lock)
     {
-        map<string, int>::iterator     index;
-
-        index = known_users.find(username);
-
-        if ( index != known_users.end() )
-        {
-            return get((int)index->second,lock);
-        }
-
-        return 0;
+        return static_cast<User *>(PoolSQL::get(name,-1,lock));
     }
 
     /** Update a particular User
@@ -103,20 +87,12 @@ public:
         return user->update(db);
     };
 
-
     /** Drops a user from the DB, the user mutex MUST BE locked
      *    @param user pointer to User
      */
     int drop(User * user)
     {
-        int rc = PoolSQL::drop(user);
-
-        if ( rc == 0)
-        {
-            known_users.erase(user->get_name());
-        }
-
-        return rc;
+        return PoolSQL::drop(user);
     };
 
     /**
@@ -158,13 +134,8 @@ private:
      */
     PoolObjectSQL * create()
     {
-        return new User;
+        return new User(-1,"","",true);
     };
-
-    /**
-     *  This map stores the association between UIDs and Usernames
-     */
-    map<string, int>	known_users;
 
     /**
      *  Callback function to get output the user pool in XML format
@@ -176,15 +147,6 @@ private:
      *    @return 0 on success
      */
     int dump_cb(void * _oss, int num, char **values, char **names);
-
-    /**
-     *  Callback function to build the knwon_user map (User::User)
-     *    @param num the number of columns read from the DB
-     *    @param names the column names
-     *    @param vaues the column values
-     *    @return 0 on success
-     */
-    int init_cb(void *nil, int num, char **values, char **names);
 };
 
 #endif /*USER_POOL_H_*/

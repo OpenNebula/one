@@ -27,19 +27,12 @@
 #include "User.h"
 
 /* ************************************************************************** */
-/* User :: Constructor/Destructor                                  */
+/* User :: Constructor/Destructor                                             */
 /* ************************************************************************** */
 
-User::User(
-    int     id,
-    string  _username,
-    string  _password,
-    bool    _enabled):
-        PoolObjectSQL(id, _username, -1, table),
-        password     (_password),
-        enabled      (_enabled)
+User::User(int id, string name, string pass, bool _enabled):
+        PoolObjectSQL(id,name,-1,table), password(pass), enabled(_enabled)
         {};
-
 
 User::~User(){};
 
@@ -66,23 +59,6 @@ int User::insert(SqlDB *db, string& error_str)
     if ( rc != 0 )
     {
         error_str = "Error inserting User in DB.";
-        return rc;
-    }
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int User::update(SqlDB *db)
-{
-    int rc;
-
-    rc = insert_replace(db, true);
-
-    if ( rc != 0 )
-    {
         return rc;
     }
 

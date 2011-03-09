@@ -78,14 +78,6 @@ public:
     };
 
     /**
-     *  Sets user username
-     */
-/*    void set_username(string _username)
-    {
-        username = _username;
-    };
-*/
-    /**
      *  Sets user password
      */
     void set_password(string _password)
@@ -175,10 +167,10 @@ protected:
     // Constructor
     // *************************************************************************
 
-    User(int     id=-1,
-         string _username="",
-         string _password="",
-         bool   _enabled=true);
+    User(int     id,
+         string _username,
+         string _password,
+         bool   _enabled);
 
     virtual ~User();
 
@@ -197,14 +189,17 @@ protected:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    virtual int insert(SqlDB *db, string& error_str);
+    int insert(SqlDB *db, string& error_str);
 
     /**
      *  Writes/updates the User data fields in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    virtual int update(SqlDB *db);
+    int update(SqlDB *db)
+    {
+        return insert_replace(db, true);
+    }
 };
 
 #endif /*USER_H_*/
