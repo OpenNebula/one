@@ -43,6 +43,8 @@ FileLog::FileLog(const string&   file_name,
 
     if (file.fail() == true)
     {
+        free(log_file);
+
         throw runtime_error("Could not open log file");
     }
 
