@@ -143,99 +143,21 @@ protected:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    virtual int select(SqlDB *db)
-    {
-        ostringstream   oss;
-        int             rc;
-        int             boid;
-
-        set_callback(
-                static_cast<Callbackable::Callback>(&PoolObjectSQL::select_cb));
-
-        oss << "SELECT body FROM " << table << " WHERE oid = " << oid;
-
-        boid = oid;
-        oid  = -1;
-
-        rc = db->exec(oss, this);
-
-        unset_callback();
-
-        if ((rc != 0) || (oid != boid ))
-        {
-            return -1;
-        }
-
-        return 0;
-    };
+    virtual int select(SqlDB *db);
 
     /**
      *  Reads the PoolObjectSQL (identified by its OID) from the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    virtual int select(SqlDB *db, const string& _name, int _uid)
-    {
-        ostringstream oss;
-
-        int rc;
-        char * sql_name;
-
-        sql_name = db->escape_str(_name.c_str());
-
-        if ( sql_name == 0 )
-        {
-            return -1;
-        }
-
-        set_callback(
-                static_cast<Callbackable::Callback>(&PoolObjectSQL::select_cb));
-
-        oss << "SELECT body FROM " << table << " WHERE name = '" <<_name << "'";
-
-        if ( _uid != -1 )
-        {
-            oss << " AND uid = " << _uid;
-        }
-
-        name  = "";
-        uid   = -1;
-
-        rc = db->exec(oss, this);
-
-        unset_callback();
-
-        db->free_str(sql_name);
-
-        if ((rc != 0) || (_name != name) || (_uid != uid))
-        {
-            return -1;
-        }
-
-        return 0;
-    };
+    virtual int select(SqlDB *db, const string& _name, int _uid);
 
     /**
      *  Drops object from the database
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    virtual int drop(SqlDB *db)
-    {
-        ostringstream oss;
-        int rc;
-
-        oss << "DELETE FROM " << table << " WHERE oid=" << oid;
-
-        rc = db->exec(oss);
-
-        if ( rc == 0 )
-        {
-            set_valid(false);
-        }
-
-        return rc;
-    };
+    virtual int drop(SqlDB *db);
 
     /**
      *  Function to output a pool object into a stream in XML format
