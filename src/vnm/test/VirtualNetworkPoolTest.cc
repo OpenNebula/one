@@ -20,13 +20,15 @@
 
 #include "VirtualNetworkPool.h"
 #include "PoolTest.h"
+#include "ObjectXML.h"
 
 using namespace std;
 
 /* ************************************************************************* */
 /* ************************************************************************* */
 
-const int uids[] = {123, 261, 133};
+const int uids[] = {123, 261, 133, 78};
+const string user_names[] = {"A user","B user","C user","D user"};
 
 const string names[] = {"Net number one", "A virtual network","Net number two"};
 
@@ -69,11 +71,11 @@ const string templates[] =
 
 const string xmls[] =
 {
-    "<VNET><ID>0</ID><UID>123</UID><NAME>Net number one</NAME><TYPE>1</TYPE><BRIDGE>br1</BRIDGE><PUBLIC>0</PUBLIC><TEMPLATE><BRIDGE><![CDATA[br1]]></BRIDGE><LEASES><IP><![CDATA[130.10.0.1]]></IP><MAC><![CDATA[50:20:20:20:20:20]]></MAC></LEASES><NAME><![CDATA[Net number one]]></NAME><TYPE><![CDATA[FIXED]]></TYPE></TEMPLATE><LEASES><LEASE><IP>130.10.0.1</IP><MAC>50:20:20:20:20:20</MAC><USED>0</USED><VID>-1</VID></LEASE></LEASES></VNET>",
+    "<VNET><ID>0</ID><UID>123</UID><USERNAME>A user</USERNAME><NAME>Net number one</NAME><TYPE>1</TYPE><BRIDGE>br1</BRIDGE><PUBLIC>0</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE><BRIDGE><![CDATA[br1]]></BRIDGE><LEASES><IP><![CDATA[130.10.0.1]]></IP><MAC><![CDATA[50:20:20:20:20:20]]></MAC></LEASES><NAME><![CDATA[Net number one]]></NAME><TYPE><![CDATA[FIXED]]></TYPE></TEMPLATE><LEASES><LEASE><IP>130.10.0.1</IP><MAC>50:20:20:20:20:20</MAC><USED>0</USED><VID>-1</VID></LEASE></LEASES></VNET>",
 
-    "<VNET><ID>1</ID><UID>261</UID><NAME>A virtual network</NAME><TYPE>0</TYPE><BRIDGE>br0</BRIDGE><PUBLIC>1</PUBLIC><TEMPLATE><BRIDGE><![CDATA[br0]]></BRIDGE><NAME><![CDATA[A virtual network]]></NAME><NETWORK_ADDRESS><![CDATA[192.168.0.0]]></NETWORK_ADDRESS><NETWORK_SIZE><![CDATA[C]]></NETWORK_SIZE><TYPE><![CDATA[RANGED]]></TYPE></TEMPLATE><LEASES></LEASES></VNET>",
+    "<VNET><ID>1</ID><UID>261</UID><USERNAME>B user</USERNAME><NAME>A virtual network</NAME><TYPE>0</TYPE><BRIDGE>br0</BRIDGE><PUBLIC>1</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE><BRIDGE><![CDATA[br0]]></BRIDGE><NAME><![CDATA[A virtual network]]></NAME><NETWORK_ADDRESS><![CDATA[192.168.0.0]]></NETWORK_ADDRESS><NETWORK_SIZE><![CDATA[C]]></NETWORK_SIZE><TYPE><![CDATA[RANGED]]></TYPE></TEMPLATE><LEASES></LEASES></VNET>",
 
-    "<VNET><ID>0</ID><UID>133</UID><NAME>Net number two</NAME><TYPE>1</TYPE><BRIDGE>br1</BRIDGE><PUBLIC>0</PUBLIC><TEMPLATE><BRIDGE><![CDATA[br1]]></BRIDGE><LEASES><IP><![CDATA[130.10.2.1]]></IP><MAC><![CDATA[50:20:20:20:20:20]]></MAC></LEASES><NAME><![CDATA[Net number two]]></NAME><TYPE><![CDATA[fixed]]></TYPE></TEMPLATE><LEASES><LEASE><IP>130.10.2.1</IP><MAC>50:20:20:20:20:20</MAC><USED>0</USED><VID>-1</VID></LEASE></LEASES></VNET>"
+    "<VNET><ID>0</ID><UID>133</UID><USERNAME>C user</USERNAME><NAME>Net number two</NAME><TYPE>1</TYPE><BRIDGE>br1</BRIDGE><PUBLIC>0</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE><BRIDGE><![CDATA[br1]]></BRIDGE><LEASES><IP><![CDATA[130.10.2.1]]></IP><MAC><![CDATA[50:20:20:20:20:20]]></MAC></LEASES><NAME><![CDATA[Net number two]]></NAME><TYPE><![CDATA[fixed]]></TYPE></TEMPLATE><LEASES><LEASE><IP>130.10.2.1</IP><MAC>50:20:20:20:20:20</MAC><USED>0</USED><VID>-1</VID></LEASE></LEASES></VNET>"
 };
 
 const string xml_dump =
@@ -97,7 +99,8 @@ public:
                 {};
 
 
-    int allocate(const int& uid, const std::string& stemplate, int* oid)
+    int allocate(const int& uid, const std::string& user_name,
+                 const std::string& stemplate, int* oid)
     {
         VirtualNetworkTemplate * vn_template;
         char *          error_msg = 0;
@@ -109,7 +112,8 @@ public:
 
         if( rc == 0 )
         {
-            return VirtualNetworkPool::allocate(uid, vn_template, oid, err);
+            return VirtualNetworkPool::allocate(uid, user_name,
+                                                vn_template, oid, err);
         }
         else
         {
@@ -182,40 +186,32 @@ protected:
     int allocate(int index)
     {
         int oid;
-        return ((VirtualNetworkPoolFriend*)pool)->allocate(uids[index],
-                                                     templates[index], &oid);
+        return ((VirtualNetworkPoolFriend*)pool)->allocate(
+                        uids[index],user_names[index],templates[index], &oid);
     };
 
     void check(int index, PoolObjectSQL* obj)
     {
         CPPUNIT_ASSERT( obj != 0 );
 
-        string xml_str = "";
+        string xml_str;
+        ostringstream       oss;
+
+        ((VirtualNetwork*)obj)->to_xml(xml_str);
+        oss << * ((VirtualNetwork*)obj);
+
+        xml_str = oss.str();
+/*
+        if( xml_str != xmls[index] )
+        {
+            cout << endl << xml_str << endl << "========"
+                 << endl << xmls[index] << endl << "--------";
+        }
+//*/
 
         CPPUNIT_ASSERT( ((VirtualNetwork*)obj)->get_uid()       == uids[index] );
-        CPPUNIT_ASSERT( ((VirtualNetwork*)obj)->to_xml(xml_str) == xmls[index] );
+        CPPUNIT_ASSERT( xml_str == xmls[index] );
     };
-
-    void set_up_user_pool()
-    {
-        string        err;
-
-        UserPool::bootstrap(db);
-        UserPool * user_pool = new UserPool(db);
-        int uid_1, uid_2;
-
-        string username_1 = "A user";
-        string username_2 = "B user";
-
-        string pass_1     = "A pass";
-        string pass_2     = "B pass";
-
-        user_pool->allocate(&uid_1, username_1, pass_1, true, err);
-        user_pool->allocate(&uid_2, username_2, pass_2, true, err);
-
-        delete user_pool;
-    };
-
 
 
 public:
@@ -271,7 +267,7 @@ public:
         CPPUNIT_ASSERT( oid >= 0 );
 
         // Get using its name
-        vn = vnpool->get(names[1], true);
+        vn = vnpool->get(names[1],uids[1], true);
         CPPUNIT_ASSERT(vn != 0);
         vn->unlock();
 
@@ -281,7 +277,7 @@ public:
         vnpool->clean();
 
         // Get using its name
-        vn = vnpool->get(names[1], false);
+        vn = vnpool->get(names[1], uids[1], false);
         check(1, vn);
     };
 
@@ -294,14 +290,14 @@ public:
         VirtualNetwork * vn;
 
         // Empty Pool
-        vn = vnpool->get("Wrong name", true);
+        vn = vnpool->get("Wrong name", 0, true);
         CPPUNIT_ASSERT( vn == 0 );
 
         // Allocate an object
         allocate(0);
 
         // Ask again for a non-existing name
-        vn = vnpool->get("Non existing name", true);
+        vn = vnpool->get("Non existing name", uids[0], true);
         CPPUNIT_ASSERT( vn == 0 );
     }
 
@@ -380,7 +376,7 @@ public:
 
         for (int i = 0 ; i < 7 ; i++)
         {
-            rc   = vnpool->allocate(uids[0], templ[i], &oid[i]);
+            rc   = vnpool->allocate(uids[0], user_names[0], templ[i], &oid[i]);
             CPPUNIT_ASSERT( rc >= 0 );
 
             vnet = vnpool->get(oid[i], false);
@@ -403,30 +399,30 @@ public:
 
     void duplicates()
     {
-        int rc, oid_0, oid_1;
+        int rc, oid_0, oid_1, oid_2, oid_3;
         VirtualNetworkPoolFriend * vnpool =
                                 static_cast<VirtualNetworkPoolFriend *>(pool);
         VirtualNetwork     * vnet;
 
         // Allocate a vnet
-        rc = vnpool->allocate(uids[0], templates[0], &oid_0);
+        rc = vnpool->allocate(uids[0], user_names[0], templates[0], &oid_0);
         CPPUNIT_ASSERT( rc == oid_0 );
         CPPUNIT_ASSERT( rc == 0 );
 
         // Allocate the same vnet twice, with the same user ID
-        rc = vnpool->allocate(uids[0], templates[0], &oid_1);
+        rc = vnpool->allocate(uids[0], user_names[0], templates[0], &oid_1);
         CPPUNIT_ASSERT( rc ==  oid_1 );
         CPPUNIT_ASSERT( rc == -1 );
 
-        // With different user ID
-        rc = vnpool->allocate(uids[1], templates[0], &oid_1);
-        CPPUNIT_ASSERT( rc ==  oid_1 );
-        CPPUNIT_ASSERT( rc == -1 );
+        // Same VNet, with different user ID
+        rc = vnpool->allocate(uids[1], user_names[1], templates[0], &oid_2);
+        CPPUNIT_ASSERT( rc ==  oid_2 );
+        CPPUNIT_ASSERT( rc == 1 );
 
         // Insert a different template, with the same user ID
-        rc = vnpool->allocate(uids[1], templates[1], &oid_1);
-        CPPUNIT_ASSERT( rc == oid_1 );
-        CPPUNIT_ASSERT( rc == 1 );
+        rc = vnpool->allocate(uids[1], user_names[1], templates[1], &oid_3);
+        CPPUNIT_ASSERT( rc == oid_3 );
+        CPPUNIT_ASSERT( rc == 2 );
 
 
         // Make sure the table contains only one vnet with name[0]
@@ -438,8 +434,9 @@ public:
 
         ret = pool->search(results, table, where);
         CPPUNIT_ASSERT(ret             == 0);
-        CPPUNIT_ASSERT(results.size()  == 1);
+        CPPUNIT_ASSERT(results.size()  == 2);
         CPPUNIT_ASSERT(results.at(0)   == oid_0);
+        CPPUNIT_ASSERT(results.at(1)   == oid_2);
 
         // Get the vnet and check it, to make sure the user id was not rewritten
         vnet = vnpool->get(oid_0, false);
@@ -456,16 +453,23 @@ public:
         int oid, rc;
         ostringstream oss;
 
-        set_up_user_pool();
-
-        vnpool->allocate(1, templates[0], &oid);
-        vnpool->allocate(2, templates[1], &oid);
+        vnpool->allocate(1, user_names[0], templates[0], &oid);
+        vnpool->allocate(2, user_names[1], templates[1], &oid);
 
         rc = pool->dump(oss, "");
 
         CPPUNIT_ASSERT(rc == 0);
 
         string result = oss.str();
+
+/*
+        if( result != xml_dump )
+        {
+            cout << endl << result << endl << "========"
+                 << endl << xml_dump << endl << "--------";
+        }
+//*/
+
         CPPUNIT_ASSERT( result == xml_dump );
     };
 
@@ -479,17 +483,24 @@ public:
         int oid, rc;
         ostringstream oss;
 
-        set_up_user_pool();
+        vnpool->allocate(1, user_names[0], templates[0], &oid);
+        vnpool->allocate(2, user_names[1], templates[1], &oid);
 
-        vnpool->allocate(1, templates[0], &oid);
-        vnpool->allocate(2, templates[1], &oid);
-
-        string where = "uid > 1";
+        string where = "name LIKE '%virtual%'";
         rc = pool->dump(oss, where);
 
         CPPUNIT_ASSERT(rc == 0);
 
         string result = oss.str();
+
+/*
+        if( result != xml_dump_where )
+        {
+            cout << endl << result << endl << "========"
+                 << endl << xml_dump_where << endl << "--------";
+        }
+//*/
+
         CPPUNIT_ASSERT( result == xml_dump_where );
     };
 
@@ -594,7 +605,7 @@ public:
             "NETWORK_ADDRESS = 192.168.50.0\n";
 
 
-        vnpool->allocate(45, tmpl, &oid);
+        vnpool->allocate(45, user_names[0], tmpl, &oid);
         CPPUNIT_ASSERT( oid != -1 );
 
         vn = vnpool->get(oid, false);
@@ -811,15 +822,18 @@ public:
         string mac    = "";
         string bridge = "";
 
+        ostringstream   oss;
+        string          xpath;
+
         vector<int>     results;
 
 
         // First VNet template
-        vnpool->allocate(13, tmpl_A, &oid_0);
+        vnpool->allocate(13, user_names[0], tmpl_A, &oid_0);
         CPPUNIT_ASSERT( oid_0 != -1 );
 
         // Second VNet
-        vnpool->allocate(45, tmpl_B, &oid_new);
+        vnpool->allocate(45, user_names[0], tmpl_B, &oid_new);
         CPPUNIT_ASSERT( oid_new != -1 );
 
         // Get this second VNet
@@ -833,15 +847,31 @@ public:
 
         CPPUNIT_ASSERT( rc == 0 );
 
-
+        // ---------------------------------------------------------------------
         // The IP ...1 should be tagged as used only in the second Vnet
 
-        const char *    table   = "leases";
-        string          where   = "used = 1 AND vid = 1234";
+        // Clean the cache, forcing the pool to read the objects from the DB
+        pool->clean();
 
-        rc = pool->search(results, table, where);
-        CPPUNIT_ASSERT(rc              == 0);
-        CPPUNIT_ASSERT(results.size()  == 1);
+        // First VNet
+        vn = vnpool->get(oid_0, false);
+        CPPUNIT_ASSERT( vn != 0 );
+        oss << *vn;
+
+        // 0 Used leases
+        ObjectXML::xpath_value(xpath, oss.str().c_str(), "/VNET/TOTAL_LEASES" );
+        CPPUNIT_ASSERT( xpath == "0" );
+
+        // Second VNet
+        vn = vnpool->get(oid_new, false);
+        CPPUNIT_ASSERT( vn != 0 );
+        oss.str("");
+        oss << *vn;
+
+        // 1 Used leases
+        ObjectXML::xpath_value(xpath, oss.str().c_str(), "/VNET/TOTAL_LEASES" );
+        CPPUNIT_ASSERT( xpath == "1" );
+        // ---------------------------------------------------------------------
 
 
         // Now check that the first VNet has that IP available
@@ -872,13 +902,32 @@ public:
 
         CPPUNIT_ASSERT( rc != 0 );
 
+        // ---------------------------------------------------------------------
         // Check that in the DB, only one lease is used
-        where   = "used = 1";
-        // Clean the reults
-        results.resize(0);
-        rc = pool->search(results, table, where);
-        CPPUNIT_ASSERT(rc              == 0);
-        CPPUNIT_ASSERT(results.size()  == 1);
+
+        // Clean the cache, forcing the pool to read the objects from the DB
+        pool->clean();
+
+        // First VNet
+        vn = vnpool->get(oid_0, false);
+        CPPUNIT_ASSERT( vn != 0 );
+        oss.str("");
+        oss << *vn;
+
+        // 0 Used leases
+        ObjectXML::xpath_value(xpath, oss.str().c_str(), "/VNET/TOTAL_LEASES" );
+        CPPUNIT_ASSERT( xpath == "0" );
+
+        // Second VNet
+        vn = vnpool->get(oid_new, false);
+        CPPUNIT_ASSERT( vn != 0 );
+        oss.str("");
+        oss << *vn;
+
+        // 1 Used leases
+        ObjectXML::xpath_value(xpath, oss.str().c_str(), "/VNET/TOTAL_LEASES" );
+        CPPUNIT_ASSERT( xpath == "1" );
+        // ---------------------------------------------------------------------
     }
 
 /* -------------------------------------------------------------------------- */
@@ -1000,7 +1049,7 @@ public:
         while( templates[i] != "END" )
         {
 
-            vnp->allocate(0, templates[i], &oid);
+            vnp->allocate(0, user_names[0], templates[i], &oid);
 
             CPPUNIT_ASSERT( oid >= 0 );
 
@@ -1038,20 +1087,17 @@ public:
                             "BRIDGE = br2\n"
                             "LEASES = [IP=130.10.0.5, MAC=50:20:20:20:20:25]";
 
-
-        vnp->allocate(0, template_0, &oid_0);
+        vnp->allocate(0, user_names[0], template_0, &oid_0);
         CPPUNIT_ASSERT( oid_0 == 0 );
 
-        vnp->allocate(0, template_1, &oid_1);
+        vnp->allocate(0, user_names[0], template_1, &oid_1);
         CPPUNIT_ASSERT( oid_1 == 1 );
-
 
         // Disk using network 0
         disk = new VectorAttribute("DISK");
         disk->replace("NETWORK", "Net 0");
 
-        ((VirtualNetworkPool*)vnp)->nic_attribute(disk, 0);
-
+        ((VirtualNetworkPool*)vnp)->nic_attribute(disk, 0, 0);
 
         value = "";
         value = disk->vector_value("NETWORK");
@@ -1080,7 +1126,7 @@ public:
         disk = new VectorAttribute("DISK");
         disk->replace("NETWORK_ID", "1");
 
-        ((VirtualNetworkPool*)vnp)->nic_attribute(disk, 0);
+        ((VirtualNetworkPool*)vnp)->nic_attribute(disk,0, 0);
 
         value = "";
         value = disk->vector_value("NETWORK");
@@ -1530,7 +1576,5 @@ public:
 
 int main(int argc, char ** argv)
 {
-    OneUnitTest::set_one_auth();
-
     return PoolTest::main(argc, argv, VirtualNetworkPoolTest::suite());
 }

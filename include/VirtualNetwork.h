@@ -59,24 +59,6 @@ public:
     // *************************************************************************
 
     /**
-     * Get the Vnet unique identifier VNID, that matches the OID of the object
-     *    @return VNID Image identifier
-     */
-    int get_vnid() const
-    {
-        return oid;
-    };
-
-    /**
-     * Gets the uid of the owner of the Virtual Network
-     * @return uid
-     **/
-    int get_uid()
-    {
-        return uid;
-    }
-
-    /**
      *  Returns true if the Virtual Network is public
      *     @return true if the Virtual Network is public
      */
@@ -177,14 +159,6 @@ public:
 
     /**
      * Function to print the VirtualNetwork object into a string in
-     * plain text
-     *  @param str the resulting string
-     *  @return a reference to the generated string
-     */
-    string& to_str(string& str) const;
-
-    /**
-     * Function to print the VirtualNetwork object into a string in
      * XML format
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
@@ -274,14 +248,9 @@ private:
     // Identification variables
     // -------------------------------------------------------------------------
     /**
-     *  Name of the Virtual Network
+     *  Owner's name
      */
-    string  name;
-
-    /**
-     *  Owner of the Virtual Network
-     */
-    int     uid;
+    string      user_name;
 
     // -------------------------------------------------------------------------
     // Binded physical attributes
@@ -341,28 +310,29 @@ private:
     };
 
     /**
-     *  Callback function to unmarshall a VNW object (VirtualNetwork::select)
-     *    @param num the number of columns read from the DB
-     *    @param names the column names
-     *    @param vaues the column values
-     *    @return 0 on success
+     * Function to print the VirtualNetwork object into a string in
+     * XML format
+     *  @param xml the resulting XML string
+     *  @param extended If true, leases are included
+     *  @return a reference to the generated string
      */
-    int select_cb(void * nil, int num, char **values, char **names);
+    string& to_xml_extended(string& xml, bool extended) const;
 
     /**
-     *  Function to drop VN entry in vn_pool
-     *    @return 0 on success
+     *  Rebuilds the object from an xml formatted string
+     *    @param xml_str The xml-formatted string
+     *
+     *    @return 0 on success, -1 otherwise
      */
-    int vn_drop(SqlDB * db);
-
-
-protected:
+    int from_xml(const string &xml_str);
 
     //**************************************************************************
     // Constructor
     //**************************************************************************
 
-    VirtualNetwork(VirtualNetworkTemplate * _vn_template = 0);
+    VirtualNetwork(int                      uid, 
+                   string                   _user_name,
+                   VirtualNetworkTemplate * _vn_template = 0);
 
     ~VirtualNetwork();
 
@@ -370,23 +340,9 @@ protected:
     // DataBase implementation
     // *************************************************************************
 
-	enum ColNames
-    {
-        OID             = 0,
-        UID             = 1,
-        NAME            = 2,
-        TYPE            = 3,
-        BRIDGE          = 4,
-        PUBLIC          = 5,
-        TEMPLATE        = 6,
-        LIMIT           = 7
-    };
-
     static const char * table;
 
     static const char * db_names;
-
-    static const char * extended_db_names;
 
     static const char * db_bootstrap;
 
@@ -396,6 +352,23 @@ protected:
      *    @return 0 on success
      */
     int select(SqlDB * db);
+
+    /**
+     *  Reads the Virtual Network (identified with its OID) from the database.
+     *    @param db pointer to the db
+     *    @param name of the network
+     *    @param uid of the owner 
+     * 
+     *    @return 0 on success
+     */
+    int select(SqlDB * db, const string& name, int uid);
+
+    /**
+     *  Reads the Virtual Network leases from the database.
+     *    @param db pointer to the db
+     *    @return 0 on success
+     */
+    int select_leases(SqlDB * db);
 
     /**
      *  Writes the Virtual Network and its associated template and leases in the database.
@@ -409,7 +382,10 @@ protected:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int update(SqlDB * db);
+    int update(SqlDB * db)
+    {
+        return insert_replace(db, true);
+    }
 
     /**
      * Deletes a VNW from the database and all its associated information:
@@ -418,27 +394,7 @@ protected:
      *   @param db pointer to the db
      *   @return 0 on success
      */
-    int drop(SqlDB * db)
-    {
-        int rc;
-
-        rc = leases->drop(db);
-
-        rc += vn_drop(db);
-
-        return rc;
-    }
-
-    /**
-     *  Dumps the contect of a VirtualNetwork object in the given stream using
-     *  XML format
-     *    @param oss the output stream
-     *    @param num the number of columns read from the DB
-     *    @param names the column names
-     *    @param vaues the column values
-     *    @return 0 on success
-     */
-     static int dump(ostringstream& oss, int num, char **values, char **names);
+    int drop(SqlDB * db);
 };
 
 #endif /*VIRTUAL_NETWORK_H_*/

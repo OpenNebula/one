@@ -33,7 +33,7 @@ const string xmls[] =
 {
     "<HOST><ID>0</ID><NAME>Host one</NAME><STATE>0</STATE>"
     "<IM_MAD>im_mad</IM_MAD><VM_MAD>vmm_mad</VM_MAD><TM_MAD>tm_mad</TM_MAD>"
-    "<LAST_MON_TIME>0</LAST_MON_TIME><CLUSTER>default</CLUSTER><HOST_SHARE><HID>0</HID>"
+    "<LAST_MON_TIME>0</LAST_MON_TIME><CLUSTER>default</CLUSTER><HOST_SHARE>"
     "<DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</MEM_USAGE><CPU_USAGE>0</CPU_USAGE>"
     "<MAX_DISK>0</MAX_DISK><MAX_MEM>0</MAX_MEM><MAX_CPU>0</MAX_CPU>"
     "<FREE_DISK>0</FREE_DISK><FREE_MEM>0</FREE_MEM><FREE_CPU>0</FREE_CPU>"
@@ -42,7 +42,7 @@ const string xmls[] =
 
     "<HOST><ID>1</ID><NAME>Second host</NAME><STATE>0</STATE>"
     "<IM_MAD>im_mad</IM_MAD><VM_MAD>vmm_mad</VM_MAD><TM_MAD>tm_mad</TM_MAD>"
-    "<LAST_MON_TIME>0</LAST_MON_TIME><CLUSTER>default</CLUSTER><HOST_SHARE><HID>1</HID>"
+    "<LAST_MON_TIME>0</LAST_MON_TIME><CLUSTER>default</CLUSTER><HOST_SHARE>"
     "<DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</MEM_USAGE><CPU_USAGE>0</CPU_USAGE>"
     "<MAX_DISK>0</MAX_DISK><MAX_MEM>0</MAX_MEM><MAX_CPU>0</MAX_CPU>"
     "<FREE_DISK>0</FREE_DISK><FREE_MEM>0</FREE_MEM><FREE_CPU>0</FREE_CPU>"
@@ -54,72 +54,72 @@ const string xmls[] =
 const string xml_dump =
     "<HOST_POOL><HOST><ID>0</ID><NAME>a</NAME><STATE>0</STATE><IM_MAD>im_mad</I"
     "M_MAD><VM_MAD>vmm_mad</VM_MAD><TM_MAD>tm_mad</TM_MAD><LAST_MON_TIME>0"
-    "</LAST_MON_TIME><CLUSTER>default</CLUSTER><TEMPLATE></TEMPLATE><HOST_SHARE><HID>0</HID><DISK_USAGE>0</DISK_USAGE><MEM"
+    "</LAST_MON_TIME><CLUSTER>default</CLUSTER><HOST_SHARE><DISK_USAGE>0</DISK_USAGE><MEM"
     "_USAGE>0</MEM_USAGE><CPU_USAGE>0</CPU_USAGE><MAX_DISK>0</MAX_DISK><MAX_MEM"
     ">0</MAX_MEM><MAX_CPU>0</MAX_CPU><FREE_DISK>0</FREE_DISK><FREE_MEM>0</FREE_"
     "MEM><FREE_CPU>0</FREE_CPU><USED_DISK>0</USED_DISK><USED_MEM>0</USED_MEM><U"
-    "SED_CPU>0</USED_CPU><RUNNING_VMS>0</RUNNING_VMS></HOST_SHARE></HOST><HOST>"
+    "SED_CPU>0</USED_CPU><RUNNING_VMS>0</RUNNING_VMS></HOST_SHARE><TEMPLATE></TEMPLATE></HOST><HOST>"
     "<ID>1</ID><NAME>a name</NAME><STATE>0</STATE><IM_MAD>im_mad</IM_MAD><VM_MA"
     "D>vmm_mad</VM_MAD><TM_MAD>tm_mad</TM_MAD><LAST_MON_TIME>0</LAST_M"
-    "ON_TIME><CLUSTER>default</CLUSTER><TEMPLATE></TEMPLATE><HOST_SHARE><HID>1</HID><DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</ME"
+    "ON_TIME><CLUSTER>default</CLUSTER><HOST_SHARE><DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</ME"
     "M_USAGE><CPU_USAGE>0</CPU_USAGE><MAX_DISK>0</MAX_DISK><MAX_MEM>0</MAX_MEM>"
     "<MAX_CPU>0</MAX_CPU><FREE_DISK>0</FREE_DISK><FREE_MEM>0</FREE_MEM><FREE_CP"
     "U>0</FREE_CPU><USED_DISK>0</USED_DISK><USED_MEM>0</USED_MEM><USED_CPU>0</U"
-    "SED_CPU><RUNNING_VMS>0</RUNNING_VMS></HOST_SHARE></HOST><HOST><ID>2</ID><N"
+    "SED_CPU><RUNNING_VMS>0</RUNNING_VMS></HOST_SHARE><TEMPLATE></TEMPLATE></HOST><HOST><ID>2</ID><N"
     "AME>a_name</NAME><STATE>0</STATE><IM_MAD>im_mad</IM_MAD><VM_MAD>vmm_mad</V"
-    "M_MAD><TM_MAD>tm_mad</TM_MAD><LAST_MON_TIME>0</LAST_MON_TIME><CLUSTER>default</CLUSTER><TEMPLATE></TEMPLATE><HOS"
-    "T_SHARE><HID>2</HID><DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</MEM_USAGE><CPU"
+    "M_MAD><TM_MAD>tm_mad</TM_MAD><LAST_MON_TIME>0</LAST_MON_TIME><CLUSTER>default</CLUSTER><HOS"
+    "T_SHARE><DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</MEM_USAGE><CPU"
     "_USAGE>0</CPU_USAGE><MAX_DISK>0</MAX_DISK><MAX_MEM>0</MAX_MEM><MAX_CPU>0</"
     "MAX_CPU><FREE_DISK>0</FREE_DISK><FREE_MEM>0</FREE_MEM><FREE_CPU>0</FREE_CP"
     "U><USED_DISK>0</USED_DISK><USED_MEM>0</USED_MEM><USED_CPU>0</USED_CPU><RUN"
-    "NING_VMS>0</RUNNING_VMS></HOST_SHARE></HOST><HOST><ID>3</ID><NAME>another "
+    "NING_VMS>0</RUNNING_VMS></HOST_SHARE><TEMPLATE></TEMPLATE></HOST><HOST><ID>3</ID><NAME>another "
     "name</NAME><STATE>0</STATE><IM_MAD>im_mad</IM_MAD><VM_MAD>vmm_mad</VM_MAD>"
-    "<TM_MAD>tm_mad</TM_MAD><LAST_MON_TIME>0</LAST_MON_TIME><CLUSTER>default</CLUSTER><TEMPLATE></TEMPLATE><HOST_SHAR"
-    "E><HID>3</HID><DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</MEM_USAGE><CPU_USAGE"
+    "<TM_MAD>tm_mad</TM_MAD><LAST_MON_TIME>0</LAST_MON_TIME><CLUSTER>default</CLUSTER><HOST_SHAR"
+    "E><DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</MEM_USAGE><CPU_USAGE"
     ">0</CPU_USAGE><MAX_DISK>0</MAX_DISK><MAX_MEM>0</MAX_MEM><MAX_CPU>0</MAX_CP"
     "U><FREE_DISK>0</FREE_DISK><FREE_MEM>0</FREE_MEM><FREE_CPU>0</FREE_CPU><USE"
     "D_DISK>0</USED_DISK><USED_MEM>0</USED_MEM><USED_CPU>0</USED_CPU><RUNNING_V"
-    "MS>0</RUNNING_VMS></HOST_SHARE></HOST><HOST><ID>4</ID><NAME>host</NAME><ST"
+    "MS>0</RUNNING_VMS></HOST_SHARE><TEMPLATE></TEMPLATE></HOST><HOST><ID>4</ID><NAME>host</NAME><ST"
     "ATE>0</STATE><IM_MAD>im_mad</IM_MAD><VM_MAD>vmm_mad</VM_MAD><TM_MAD>tm_mad"
-    "</TM_MAD><LAST_MON_TIME>0</LAST_MON_TIME><CLUSTER>default</CLUSTER><TEMPLATE></TEMPLATE><HOST_SHARE><HID>4</HID>"
+    "</TM_MAD><LAST_MON_TIME>0</LAST_MON_TIME><CLUSTER>default</CLUSTER><HOST_SHARE>"
     "<DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</MEM_USAGE><CPU_USAGE>0</CPU_USAGE>"
     "<MAX_DISK>0</MAX_DISK><MAX_MEM>0</MAX_MEM><MAX_CPU>0</MAX_CPU><FREE_DISK>0"
     "</FREE_DISK><FREE_MEM>0</FREE_MEM><FREE_CPU>0</FREE_CPU><USED_DISK>0</USED"
     "_DISK><USED_MEM>0</USED_MEM><USED_CPU>0</USED_CPU><RUNNING_VMS>0</RUNNING_"
-    "VMS></HOST_SHARE></HOST></HOST_POOL>";
+    "VMS></HOST_SHARE><TEMPLATE></TEMPLATE></HOST></HOST_POOL>";
 
 const string xml_dump_like_a =
     "<HOST_POOL><HOST><ID>0</ID><NAME>a</NAME><STATE>0</STATE><IM_MAD>im_mad</I"
     "M_MAD><VM_MAD>vmm_mad</VM_MAD><TM_MAD>tm_mad</TM_MAD><LAST_MON_TIME>0"
-    "</LAST_MON_TIME><CLUSTER>default</CLUSTER><TEMPLATE></TEMPLATE><HOST_SHARE><HID>0</HID><DISK_USAGE>0</DISK_USAGE><MEM"
+    "</LAST_MON_TIME><CLUSTER>default</CLUSTER><HOST_SHARE><DISK_USAGE>0</DISK_USAGE><MEM"
     "_USAGE>0</MEM_USAGE><CPU_USAGE>0</CPU_USAGE><MAX_DISK>0</MAX_DISK><MAX_MEM"
     ">0</MAX_MEM><MAX_CPU>0</MAX_CPU><FREE_DISK>0</FREE_DISK><FREE_MEM>0</FREE_"
     "MEM><FREE_CPU>0</FREE_CPU><USED_DISK>0</USED_DISK><USED_MEM>0</USED_MEM><U"
-    "SED_CPU>0</USED_CPU><RUNNING_VMS>0</RUNNING_VMS></HOST_SHARE></HOST><HOST>"
+    "SED_CPU>0</USED_CPU><RUNNING_VMS>0</RUNNING_VMS></HOST_SHARE><TEMPLATE></TEMPLATE></HOST><HOST>"
     "<ID>1</ID><NAME>a name</NAME><STATE>0</STATE><IM_MAD>im_mad</IM_MAD><VM_MA"
     "D>vmm_mad</VM_MAD><TM_MAD>tm_mad</TM_MAD><LAST_MON_TIME>0</LAST_M"
-    "ON_TIME><CLUSTER>default</CLUSTER><TEMPLATE></TEMPLATE><HOST_SHARE><HID>1</HID><DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</ME"
+    "ON_TIME><CLUSTER>default</CLUSTER><HOST_SHARE><DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</ME"
     "M_USAGE><CPU_USAGE>0</CPU_USAGE><MAX_DISK>0</MAX_DISK><MAX_MEM>0</MAX_MEM>"
     "<MAX_CPU>0</MAX_CPU><FREE_DISK>0</FREE_DISK><FREE_MEM>0</FREE_MEM><FREE_CP"
     "U>0</FREE_CPU><USED_DISK>0</USED_DISK><USED_MEM>0</USED_MEM><USED_CPU>0</U"
-    "SED_CPU><RUNNING_VMS>0</RUNNING_VMS></HOST_SHARE></HOST><HOST><ID>2</ID><N"
+    "SED_CPU><RUNNING_VMS>0</RUNNING_VMS></HOST_SHARE><TEMPLATE></TEMPLATE></HOST><HOST><ID>2</ID><N"
     "AME>a_name</NAME><STATE>0</STATE><IM_MAD>im_mad</IM_MAD><VM_MAD>vmm_mad</V"
-    "M_MAD><TM_MAD>tm_mad</TM_MAD><LAST_MON_TIME>0</LAST_MON_TIME><CLUSTER>default</CLUSTER><TEMPLATE></TEMPLATE><HOS"
-    "T_SHARE><HID>2</HID><DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</MEM_USAGE><CPU"
+    "M_MAD><TM_MAD>tm_mad</TM_MAD><LAST_MON_TIME>0</LAST_MON_TIME><CLUSTER>default</CLUSTER><HOS"
+    "T_SHARE><DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</MEM_USAGE><CPU"
     "_USAGE>0</CPU_USAGE><MAX_DISK>0</MAX_DISK><MAX_MEM>0</MAX_MEM><MAX_CPU>0</"
     "MAX_CPU><FREE_DISK>0</FREE_DISK><FREE_MEM>0</FREE_MEM><FREE_CPU>0</FREE_CP"
     "U><USED_DISK>0</USED_DISK><USED_MEM>0</USED_MEM><USED_CPU>0</USED_CPU><RUN"
-    "NING_VMS>0</RUNNING_VMS></HOST_SHARE></HOST><HOST><ID>3</ID><NAME>another "
+    "NING_VMS>0</RUNNING_VMS></HOST_SHARE><TEMPLATE></TEMPLATE></HOST><HOST><ID>3</ID><NAME>another "
     "name</NAME><STATE>0</STATE><IM_MAD>im_mad</IM_MAD><VM_MAD>vmm_mad</VM_MAD>"
-    "<TM_MAD>tm_mad</TM_MAD><LAST_MON_TIME>0</LAST_MON_TIME><CLUSTER>default</CLUSTER><TEMPLATE></TEMPLATE><HOST_SHAR"
-    "E><HID>3</HID><DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</MEM_USAGE><CPU_USAGE"
+    "<TM_MAD>tm_mad</TM_MAD><LAST_MON_TIME>0</LAST_MON_TIME><CLUSTER>default</CLUSTER><HOST_SHAR"
+    "E><DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</MEM_USAGE><CPU_USAGE"
     ">0</CPU_USAGE><MAX_DISK>0</MAX_DISK><MAX_MEM>0</MAX_MEM><MAX_CPU>0</MAX_CP"
     "U><FREE_DISK>0</FREE_DISK><FREE_MEM>0</FREE_MEM><FREE_CPU>0</FREE_CPU><USE"
     "D_DISK>0</USED_DISK><USED_MEM>0</USED_MEM><USED_CPU>0</USED_CPU><RUNNING_V"
-    "MS>0</RUNNING_VMS></HOST_SHARE></HOST></HOST_POOL>";
+    "MS>0</RUNNING_VMS></HOST_SHARE><TEMPLATE></TEMPLATE></HOST></HOST_POOL>";
 
 const string host0_updated =
-    "<HOST><ID>0</ID><NAME>Host one</NAME><STATE>0</STATE><IM_MAD>im_mad</IM_MAD><VM_MAD>vmm_mad</VM_MAD><TM_MAD>tm_mad</TM_MAD><LAST_MON_TIME>0</LAST_MON_TIME><CLUSTER>default</CLUSTER><HOST_SHARE><HID>0</HID><DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</MEM_USAGE><CPU_USAGE>0</CPU_USAGE><MAX_DISK>0</MAX_DISK><MAX_MEM>0</MAX_MEM><MAX_CPU>0</MAX_CPU><FREE_DISK>0</FREE_DISK><FREE_MEM>0</FREE_MEM><FREE_CPU>0</FREE_CPU><USED_DISK>0</USED_DISK><USED_MEM>0</USED_MEM><USED_CPU>0</USED_CPU><RUNNING_VMS>0</RUNNING_VMS></HOST_SHARE><TEMPLATE><ATT_A><![CDATA[VALUE_A]]></ATT_A><ATT_B><![CDATA[VALUE_B]]></ATT_B></TEMPLATE></HOST>";
+    "<HOST><ID>0</ID><NAME>Host one</NAME><STATE>0</STATE><IM_MAD>im_mad</IM_MAD><VM_MAD>vmm_mad</VM_MAD><TM_MAD>tm_mad</TM_MAD><LAST_MON_TIME>0</LAST_MON_TIME><CLUSTER>default</CLUSTER><HOST_SHARE><DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</MEM_USAGE><CPU_USAGE>0</CPU_USAGE><MAX_DISK>0</MAX_DISK><MAX_MEM>0</MAX_MEM><MAX_CPU>0</MAX_CPU><FREE_DISK>0</FREE_DISK><FREE_MEM>0</FREE_MEM><FREE_CPU>0</FREE_CPU><USED_DISK>0</USED_DISK><USED_MEM>0</USED_MEM><USED_CPU>0</USED_CPU><RUNNING_VMS>0</RUNNING_VMS></HOST_SHARE><TEMPLATE><ATT_A><![CDATA[VALUE_A]]></ATT_A><ATT_B><![CDATA[VALUE_B]]></ATT_B></TEMPLATE></HOST>";
 
 const string cluster_default =
     "<CLUSTER><ID>0</ID><NAME>default</NAME></CLUSTER>";
@@ -128,7 +128,7 @@ const string cluster_xml_dump =
     "<CLUSTER_POOL><CLUSTER><ID>0</ID><NAME>default</NAME></CLUSTER><CLUSTER><ID>1</ID><NAME>cluster_a</NAME></CLUSTER><CLUSTER><ID>3</ID><NAME>cluster_c</NAME></CLUSTER><CLUSTER><ID>4</ID><NAME>cluster_d</NAME></CLUSTER></CLUSTER_POOL>";
 
 const string host_0_cluster =
-    "<HOST><ID>0</ID><NAME>Host one</NAME><STATE>0</STATE><IM_MAD>im_mad</IM_MAD><VM_MAD>vmm_mad</VM_MAD><TM_MAD>tm_mad</TM_MAD><LAST_MON_TIME>0</LAST_MON_TIME><CLUSTER>cluster_a</CLUSTER><HOST_SHARE><HID>0</HID><DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</MEM_USAGE><CPU_USAGE>0</CPU_USAGE><MAX_DISK>0</MAX_DISK><MAX_MEM>0</MAX_MEM><MAX_CPU>0</MAX_CPU><FREE_DISK>0</FREE_DISK><FREE_MEM>0</FREE_MEM><FREE_CPU>0</FREE_CPU><USED_DISK>0</USED_DISK><USED_MEM>0</USED_MEM><USED_CPU>0</USED_CPU><RUNNING_VMS>0</RUNNING_VMS></HOST_SHARE><TEMPLATE></TEMPLATE></HOST>";
+    "<HOST><ID>0</ID><NAME>Host one</NAME><STATE>0</STATE><IM_MAD>im_mad</IM_MAD><VM_MAD>vmm_mad</VM_MAD><TM_MAD>tm_mad</TM_MAD><LAST_MON_TIME>0</LAST_MON_TIME><CLUSTER>cluster_a</CLUSTER><HOST_SHARE><DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</MEM_USAGE><CPU_USAGE>0</CPU_USAGE><MAX_DISK>0</MAX_DISK><MAX_MEM>0</MAX_MEM><MAX_CPU>0</MAX_CPU><FREE_DISK>0</FREE_DISK><FREE_MEM>0</FREE_MEM><FREE_CPU>0</FREE_CPU><USED_DISK>0</USED_DISK><USED_MEM>0</USED_MEM><USED_CPU>0</USED_CPU><RUNNING_VMS>0</RUNNING_VMS></HOST_SHARE><TEMPLATE></TEMPLATE></HOST>";
 /* ************************************************************************* */
 /* ************************************************************************* */
 
@@ -152,6 +152,8 @@ class HostPoolTest : public PoolTest
     CPPUNIT_TEST (set_cluster);
     CPPUNIT_TEST (remove_cluster);
     CPPUNIT_TEST (update_info);
+
+//    CPPUNIT_TEST (scale_test);
 
     CPPUNIT_TEST_SUITE_END ();
 
@@ -184,12 +186,21 @@ protected:
         CPPUNIT_ASSERT( obj != 0 );
 
         string xml_str = "";
-        string name = host->get_hostname();
+        string name = host->get_name();
 
         CPPUNIT_ASSERT( name == names[index] );
 
         // Get the xml
         host->to_xml(xml_str);
+
+//  A little help for debugging
+/*
+        if( xml_str != xmls[index] )
+        {
+            cout << endl << xml_str << endl << "========"
+                 << endl << xmls[index];
+        }
+//*/
         CPPUNIT_ASSERT( xml_str == xmls[index]);
     };
 
@@ -285,6 +296,15 @@ public:
 
         string result = oss.str();
 
+//  A little help for debugging
+/*
+        if( result != xml_dump )
+        {
+            cout << endl << result << endl << "========"
+                 << endl << xml_dump;
+        }
+//*/
+
         CPPUNIT_ASSERT( result == xml_dump );
     }
 
@@ -304,11 +324,20 @@ public:
 
 
         ostringstream oss;
-        rc = ((HostPool*)pool)->dump(oss, "host_name LIKE 'a%'");
+        rc = ((HostPool*)pool)->dump(oss, "name LIKE 'a%' ORDER BY oid");
         CPPUNIT_ASSERT(rc == 0);
 
 
         string result = oss.str();
+
+//  A little help for debugging
+/*
+        if( result != xml_dump_like_a )
+        {
+            cout << endl << result << endl << "========"
+                 << endl << xml_dump_like_a;
+        }
+//*/
 
         CPPUNIT_ASSERT( result == xml_dump_like_a );
     }
@@ -357,6 +386,89 @@ public:
             host = hp->get(i, false);
             CPPUNIT_ASSERT(host!=0);
             CPPUNIT_ASSERT(host->isEnabled());
+        }
+    }
+
+    /* ********************************************************************* */
+
+    void scale_test()
+    {
+        time_t the_time, the_time2;
+        int oid,i,j,rc;
+
+        ostringstream oss,ossdump;
+        string        err;
+        Host * host;
+
+        string monitor = "ARCH=x86_64 MODELNAME=\"Intel(R) Core(TM)2 Duo CPU P9300 @ 2.26GHz\" HYPERVISOR=kvm TOTALCPU=200 CPUSPEED=800 TOTALMEMORY=4005416 USEDMEMORY=2351928 FREEMEMORY=2826904 FREECPU=188.4 USEDCPU=11.599999999999994 NETRX=0 NETTX=0 HOSTNAME=pc-ruben";
+
+        cout << endl << "Allocate Test" << endl;
+
+        tearDown();
+
+        for (i=1000; i<30000 ; i = i + 5000)
+        {
+            setUp();
+            
+            HostPool * hp = static_cast<HostPool *>(pool);
+
+            the_time = time(0);
+
+            for (j=0,oss.str(""); j<i ; j=j+1,oss.str(""))
+            {
+                oss << "host" << j;
+
+                hp->allocate(&oid, oss.str().c_str(),im_mad,vmm_mad,tm_mad,err);
+            }
+
+            the_time2 = time(0) - the_time;
+
+            hp->clean();
+
+            the_time = time(0);
+
+            rc = hp->dump(ossdump, "");
+
+            cout <<"\t"<<i<<"\t"<<the_time2<<"\t"<<time(0)-the_time<< endl;
+
+            tearDown();
+        } 
+
+        cout << endl << "Read Test" << endl;
+
+        setUp();
+
+
+        // Allocate a HostPool
+        setUp();
+
+        HostPool * hp = static_cast<HostPool *>(pool);
+
+        for (i=10000,oss.str(""); i<30000 ; i++,oss.str(""))
+        {
+            oss << "host" << i;
+            hp->allocate(&oid,oss.str().c_str(),im_mad,vmm_mad,tm_mad,err);
+
+            host = hp->get(oid, false);
+
+            host->update_info(monitor);
+            hp->update(host);
+        }
+           
+       //Load test 
+        for (i=0; i<25000; i=i+5000)
+        {
+            hp->clean();
+
+            the_time = time(0);
+
+            for (j=0; j<i ; j++)
+            {
+                host = hp->get(j,true);
+                host->unlock();
+            }
+
+            cout << "\t" << i << "\t" << time(0) - the_time << endl;
         }
     }
 

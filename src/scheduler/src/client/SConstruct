@@ -1,7 +1,7 @@
 # SConstruct for src/pool
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -18,31 +18,9 @@
 
 Import('sched_env')
 
-lib_name='scheduler_xml'
+lib_name='scheduler_client'
 
-if sched_env['parsers']=='yes':
-    # LEX
-    parser=sched_env.Lex(
-        source='expr_parser.l'
-    )
-    sched_env.NoClean(parser)
-
-    # BISON
-    parser=sched_env.Bison(
-        source='expr_arith.y'
-    )
-    sched_env.NoClean(parser)
-
-    parser=sched_env.Bison(
-        source='expr_bool.y'
-    )
-    sched_env.NoClean(parser)
-
-source_files=['ObjectXML.cc',
-              'Client.cc',
-              'expr_parser.c',
-              'expr_bool.cc',
-              'expr_arith.cc']
+source_files=['Client.cc']
 
 # Build library
 sched_env.StaticLibrary(lib_name, source_files)

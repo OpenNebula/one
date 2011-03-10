@@ -49,28 +49,20 @@ public:
      */
      friend ostream& operator<<(ostream& os, Host& h);
 
-	/**
-	 * Function to print the Host object into a string in plain text
-	 *  @param str the resulting string
-	 *  @return a reference to the generated string
-	 */
-	string& to_str(string& str) const;
-
-	/**
-	 * Function to print the Host object into a string in XML format
-	 *  @param xml the resulting XML string
-	 *  @return a reference to the generated string
-	 */
-	string& to_xml(string& xml) const;
+    /**
+     * Function to print the Host object into a string in XML format
+     *  @param xml the resulting XML string
+     *  @return a reference to the generated string
+     */
+    string& to_xml(string& xml) const;
 
     /**
-     * Get the Host unique identifier HID, that matches the OID of the object
-     *    @return HID Host identifier
+     *  Rebuilds the object from an xml formatted string
+     *    @param xml_str The xml-formatted string
+     *
+     *    @return 0 on success, -1 otherwise
      */
-    int get_hid() const
-    {
-        return oid;
-    };
+    int from_xml(const string &xml_str);
 
     /**
      *  Check if the host is enabled
@@ -118,15 +110,6 @@ public:
     void enable()
     {
         state = INIT;
-    };
-
-    /**
-     *  Returns host host_name
-     *     @return host_name Host's hostname
-     */
-    const string& get_hostname() const
-    {
-        return hostname;
     };
 
     /** Update host counters and update the whole host on the DB
@@ -378,9 +361,6 @@ private:
     // -------------------------------------------------------------------------
     // Host Description
     // -------------------------------------------------------------------------
-
-    string      hostname;
-
     /**
      *  The state of the Host
      */
@@ -427,41 +407,6 @@ private:
     HostShare       host_share;
 
     // *************************************************************************
-    // DataBase implementation (Private)
-    // *************************************************************************
-
-    /**
-     *  Execute an INSERT or REPLACE Sql query.
-     *    @param db The SQL DB
-     *    @param replace Execute an INSERT or a REPLACE
-     *    @return 0 one success
-    */
-    int insert_replace(SqlDB *db, bool replace);
-
-    /**
-     *  Callback function to unmarshall a Host object (Host::select)
-     *    @param num the number of columns read from the DB
-     *    @param names the column names
-     *    @param vaues the column values
-     *    @return 0 on success
-     */
-    int select_cb(void *nil, int num, char **values, char **names);
-
-    /**
-     *  Bootstraps the database table(s) associated to the Host
-     */
-    static void bootstrap(SqlDB * db)
-    {
-        ostringstream oss_host(Host::db_bootstrap);
-        ostringstream oss_share(HostShare::db_bootstrap);
-
-        db->exec(oss_host);
-        db->exec(oss_share);
-    };
-
-protected:
-
-    // *************************************************************************
     // Constructor
     // *************************************************************************
 
@@ -474,22 +419,8 @@ protected:
     virtual ~Host();
 
     // *************************************************************************
-    // DataBase implementation
+    // DataBase implementation (Private)
     // *************************************************************************
-
-    enum ColNames
-    {
-        OID              = 0,
-        HOST_NAME        = 1,
-        STATE            = 2,
-        IM_MAD           = 3,
-        VM_MAD           = 4,
-        TM_MAD           = 5,
-        LAST_MON_TIME    = 6,
-        CLUSTER          = 7,
-        TEMPLATE         = 8,
-        LIMIT            = 9
-    };
 
     static const char * db_names;
 
@@ -498,42 +429,36 @@ protected:
     static const char * table;
 
     /**
-     *  Reads the Host (identified with its OID=HID) from the database.
-     *    @param db pointer to the db
-     *    @return 0 on success
+     *  Execute an INSERT or REPLACE Sql query.
+     *    @param db The SQL DB
+     *    @param replace Execute an INSERT or a REPLACE
+     *    @return 0 one success
+    */
+    int insert_replace(SqlDB *db, bool replace);
+
+    /**
+     *  Bootstraps the database table(s) associated to the Host
      */
-    virtual int select(SqlDB *db);
+    static void bootstrap(SqlDB * db)
+    {
+        ostringstream oss_host(Host::db_bootstrap);
+
+        db->exec(oss_host);
+    };
 
     /**
      *  Writes the Host and its associated HostShares in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    virtual int insert(SqlDB *db, string& error_str);
+    int insert(SqlDB *db, string& error_str);
 
     /**
      *  Writes/updates the Hosts data fields in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    virtual int update(SqlDB *db);
-
-    /**
-     *  Drops host from the database
-     *    @param db pointer to the db
-     *    @return 0 on success
-     */
-    virtual int drop(SqlDB *db);
-
-    /**
-     *  Function to output a Host object in to an stream in XML format
-     *    @param oss the output stream
-     *    @param num the number of columns read from the DB
-     *    @param names the column names
-     *    @param vaues the column values
-     *    @return 0 on success
-     */
-    static int dump(ostringstream& oss, int num, char **values, char **names);
+    int update(SqlDB *db);
 };
 
 #endif /*HOST_H_*/

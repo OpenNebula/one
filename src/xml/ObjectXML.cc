@@ -17,7 +17,8 @@
 #include <ObjectXML.h>
 #include <stdexcept>
 #include <cstring>
-
+#include <iostream>
+#include <sstream>
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -131,6 +132,142 @@ vector<string> ObjectXML::operator[] (const char * xpath_expr)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int ObjectXML::xpath(string& value, const char * xpath_expr, const char * def)
+{
+    vector<string> values;
+    int rc = 0;
+
+    values = (*this)[xpath_expr];
+
+    if ( values.empty() == true )
+    {
+        value = def;
+        rc    = -1;
+    }
+    else
+    {
+        value = values[0];
+    }
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int ObjectXML::xpath(int& value, const char * xpath_expr, const int& def)
+{
+    vector<string> values;
+    int rc = 0;
+
+    values = (*this)[xpath_expr];
+
+    if (values.empty() == true)
+    {
+        value = def;
+        rc = -1;
+    }
+    else
+    {
+        istringstream iss;
+
+        iss.str(values[0]);
+
+        iss >> dec >> value;
+
+        if (iss.fail() == true)
+        {
+            value = def;
+            rc    = -1;
+        }
+    }
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int ObjectXML::xpath(unsigned int& value, const char * xpath_expr,
+                     const unsigned int& def)
+{
+    vector<string> values;
+    int rc = 0;
+
+    values = (*this)[xpath_expr];
+
+    if (values.empty() == true)
+    {
+        value = def;
+        rc = -1;
+    }
+    else
+    {
+        istringstream iss;
+
+        iss.str(values[0]);
+
+        iss >> dec >> value;
+
+        if (iss.fail() == true)
+        {
+            value = def;
+            rc    = -1;
+        }
+    }
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int ObjectXML::xpath(time_t& value, const char * xpath_expr, const time_t& def)
+{
+    int int_val;
+    int int_def = static_cast<time_t>(def);
+    int rc;
+
+    rc = xpath(int_val, xpath_expr, int_def);
+    value = static_cast<time_t>(int_val);
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int ObjectXML::xpath_value(string& value,const char *doc,const char *the_xpath)
+{
+    int rc = 0;
+
+    try
+    {
+        ObjectXML      obj(doc);
+        vector<string> values;
+
+        values = obj[the_xpath];
+
+        if (values.empty() == true)
+        {
+            rc = -1;
+        }
+        else
+        {
+            value = values[0];
+        }
+    }
+    catch(runtime_error& re)
+    {
+        rc = -1;
+    }
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int ObjectXML::get_nodes (const char * xpath_expr, vector<xmlNodePtr>& content)
 {
     xmlXPathObjectPtr obj;
@@ -169,7 +306,7 @@ int ObjectXML::get_nodes (const char * xpath_expr, vector<xmlNodePtr>& content)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int ObjectXML::update(const string &xml_doc)
+int ObjectXML::update_from_str(const string &xml_doc)
 {
     if (xml != 0)
     {
@@ -189,6 +326,50 @@ int ObjectXML::update(const string &xml_doc)
     {
         return -1;
     }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int ObjectXML::update_from_node(const xmlNodePtr node)
+{
+    if (xml != 0)
+    {
+        xmlFreeDoc(xml);
+    }
+
+    if ( ctx != 0)
+    {
+        xmlXPathFreeContext(ctx);
+    }
+
+    xml = xmlNewDoc(reinterpret_cast<const xmlChar *>("1.0"));
+
+    if (xml == 0)
+    {
+        return -1;
+    }
+
+    ctx = xmlXPathNewContext(xml);
+
+    if (ctx == 0)
+    {
+        xmlFreeDoc(xml);
+        return -1;
+    }
+
+    xmlNodePtr root_node = xmlDocCopyNode(node,xml,1);
+
+    if (root_node == 0)
+    {
+        xmlXPathFreeContext(ctx);
+        xmlFreeDoc(xml);
+        return -1;
+    }
+
+    xmlDocSetRootElement(xml, root_node);
 
     return 0;
 }

@@ -141,7 +141,7 @@ public:
 
         vector<int>     results;
         const char *    table   = "test_pool";
-        string          where   = "text = '" + stB + "'";
+        string          where   = "name = '" + stB + "'";
         int             ret;
 
         ret = pool->search(results, table, where);

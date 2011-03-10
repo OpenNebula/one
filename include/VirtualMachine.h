@@ -121,19 +121,19 @@ public:
 
     /**
      * Function to print the VirtualMachine object into a string in
-     * plain text
-     *  @param str the resulting string
-     *  @return a reference to the generated string
-     */
-    string& to_str(string& str) const;
-
-    /**
-     * Function to print the VirtualMachine object into a string in
      * XML format
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
     string& to_xml(string& xml) const;
+
+    /**
+     *  Rebuilds the object from an xml formatted string
+     *    @param xml_str The xml-formatted string
+     *
+     *    @return 0 on success, -1 otherwise
+     */
+    int from_xml(const string &xml_str);
 
     // ------------------------------------------------------------------------
     // Dynamic Info
@@ -183,16 +183,6 @@ public:
         }
     };
 
-
-    /**
-     *  Returns the name of the VM
-     *    @return the VM name
-     */
-    const string& get_name() const
-    {
-        return name;
-    };
-
     /**
      *  Returns the deployment ID
      *    @return the VMM driver specific ID
@@ -218,11 +208,11 @@ public:
      *  Adds a new history record an writes it in the database.
      */
     void add_history(
-        int                         hid,
-        string&                     hostname,
-        string&                     vm_dir,
-        string&                     vmm_mad,
-        string&                     tm_mad);
+        int     hid,
+        const string& hostname,
+        const string& vm_dir,
+        const string& vmm_mad,
+        const string& tm_mad);
 
     /**
      *  Duplicates the last history record. Only the host related fields are
@@ -678,16 +668,6 @@ public:
         lcm_state = s;
     };
 
-    /**
-     *  Gets the user id of the owner of this VM
-     *    @return the VM uid
-     */
-    int get_uid() const
-    {
-        return uid;
-    };
-
-
     // ------------------------------------------------------------------------
     // Timers
     // ------------------------------------------------------------------------
@@ -753,7 +733,6 @@ public:
      */
     int  generate_context(string &files);
 
-
     // ------------------------------------------------------------------------
     // Image repository related functions
     // ------------------------------------------------------------------------
@@ -779,11 +758,10 @@ private:
     // -------------------------------------------------------------------------
     // Identification variables
     // -------------------------------------------------------------------------
-
     /**
-     *  User (owner) id
+     *  Owner's name
      */
-    int         uid;
+    string      user_name;
 
     // -------------------------------------------------------------------------
     // VM Scheduling & Managing Information
@@ -796,11 +774,6 @@ private:
     // -------------------------------------------------------------------------
     // Virtual Machine Description
     // -------------------------------------------------------------------------
-
-    /**
-     * Name of the VM
-     */
-    string                  name;
 
     /**
      *  The Virtual Machine template, holds the VM attributes.
@@ -853,11 +826,6 @@ private:
      *  Network usage, received Kilobytes
      */
     int         net_rx;
-
-    /**
-     *  Sequence number of the last history item.
-     */
-    int         last_seq;
 
     /**
      *  History record, for the current host
@@ -981,7 +949,8 @@ protected:
     // Constructor
     //**************************************************************************
 
-    VirtualMachine(int id=-1, VirtualMachineTemplate * _vm_template = 0);
+    VirtualMachine(int id, int uid, string _user_name,
+                   VirtualMachineTemplate * _vm_template);
 
     virtual ~VirtualMachine();
 
@@ -989,31 +958,9 @@ protected:
     // DataBase implementation
     // *************************************************************************
 
-    enum ColNames
-    {
-        OID             = 0,
-        UID             = 1,
-        NAME            = 2,
-        LAST_POLL       = 3,
-        STATE           = 4,
-        LCM_STATE       = 5,
-        STIME           = 6,
-        ETIME           = 7,
-        DEPLOY_ID       = 8,
-        MEMORY          = 9,
-        CPU             = 10,
-        NET_TX          = 11,
-        NET_RX          = 12,
-        LAST_SEQ        = 13,
-        TEMPLATE        = 14,
-        LIMIT           = 15
-    };
-
     static const char * table;
 
     static const char * db_names;
-
-    static const char * extended_db_names;
 
     static const char * db_bootstrap;
 
@@ -1029,48 +976,28 @@ protected:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    virtual int insert(SqlDB * db, string& error_str);
+    int insert(SqlDB * db, string& error_str);
 
     /**
      *  Writes/updates the Virtual Machine data fields in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    virtual int update(SqlDB * db);
+    int update(SqlDB * db)
+    {
+        return insert_replace(db, true);
+    }
 
     /**
      * Deletes a VM from the database and all its associated information
      *   @param db pointer to the db
      *   @return -1
      */
-    virtual int drop(SqlDB * db)
+    int drop(SqlDB * db)
     {
         NebulaLog::log("ONE",Log::ERROR, "VM Drop not implemented!");
         return -1;
     }
-
-    /**
-     *  Dumps the contect of a set of VirtualMachine objects in the given stream
-     *  using XML format
-     *    @param oss the output stream
-     *    @param num the number of columns read from the DB
-     *    @param names the column names
-     *    @param vaues the column values
-     *    @return 0 on success
-     */
-    static int dump(ostringstream& oss, int num, char ** values, char ** names);
-
-    /**
-     *  Dumps the contect of a set of VirtualMachine objects in the given stream
-     *  using XML format
-     *    @param oss the output stream
-     *    @param num the number of columns read from the DB
-     *    @param names the column names
-     *    @param vaues the column values
-     *    @return 0 on success
-     */
-    static int dump_extended(   ostringstream& oss,
-                                int num, char ** values, char ** names);
 };
 
 #endif /*VIRTUAL_MACHINE_H_*/

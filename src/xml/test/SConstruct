@@ -1,5 +1,3 @@
-# SConstruct for src/pool
-
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
@@ -16,28 +14,14 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-Import('sched_env')
-import os
+Import('env')
 
-lib_name='scheduler_sched'
-
-source_files=['Scheduler.cc']
-
-# Build library
-sched_env.StaticLibrary(lib_name, source_files)
-
-# Build daemon
-sched_env.Prepend(LIBS=[
-    'scheduler_sched',
-    'scheduler_pool',
+# Libraries
+env.Prepend(LIBS=[
     'nebula_log',
-    'scheduler_client',
     'nebula_xml',
     'nebula_common',
-    'crypto',
+    'nebula_test_common',
 ])
 
-if not sched_env.GetOption('clean'):
-    sched_env.ParseConfig(("LDFLAGS='%s' ../../../../share/scons/get_xmlrpc_config client") % (os.environ['LDFLAGS'],))
-
-sched_env.Program('mm_sched.cc')
+env.Program('test_xml','ObjectXMLTest.cc')

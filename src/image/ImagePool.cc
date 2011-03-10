@@ -27,60 +27,29 @@ string ImagePool::_source_prefix;
 string ImagePool::_default_type;
 string ImagePool::_default_dev_prefix;
 
-int ImagePool::init_cb(void *nil, int num, char **values, char **names)
-{
-    if ( num == 0 || values == 0 || values[0] == 0 )
-    {
-        return -1;
-    }
-
-    image_names.insert(make_pair(values[1],atoi(values[0])));
-
-    return 0;
-}
-
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-
-ImagePool::ImagePool(   SqlDB * db,
-                        const string&   __source_prefix,
-                        const string&   __default_type,
-                        const string&   __default_dev_prefix):
-
+ImagePool::ImagePool(SqlDB *       db,
+                     const string& __source_prefix,
+                     const string& __default_type,
+                     const string& __default_dev_prefix):
                         PoolSQL(db,Image::table)
 {
-    ostringstream   sql;
-    int             rc;
+    ostringstream sql;
 
     // Init static defaults
-    _source_prefix       = __source_prefix;
-    _default_type        = __default_type;
-    _default_dev_prefix  = __default_dev_prefix;
+    _source_prefix      = __source_prefix;
+    _default_type       = __default_type;
+    _default_dev_prefix = __default_dev_prefix;
 
     // Set default type
     if (_default_type != "OS"       &&
         _default_type != "CDROM"    &&
         _default_type != "DATABLOCK" )
     {
-        NebulaLog::log("IMG", Log::ERROR,
-                 "Bad default for image type, setting OS");
+        NebulaLog::log("IMG", Log::ERROR, "Bad default for type, setting OS");
         _default_type = "OS";
-    }
-
-    // Read from the DB the existing images, and build the ID:Name map
-    set_callback(static_cast<Callbackable::Callback>(&ImagePool::init_cb));
-
-    sql  << "SELECT oid, name FROM " <<  Image::table;
-
-    rc = db->exec(sql, this);
-
-    unset_callback();
-
-    if ( rc != 0 )
-    {
-        NebulaLog::log("IMG", Log::ERROR,
-                 "Could not load the existing images from the DB.");
     }
 }
 
@@ -89,31 +58,43 @@ ImagePool::ImagePool(   SqlDB * db,
 
 int ImagePool::allocate (
         int            uid,
+        string         user_name,
         ImageTemplate* img_template,
         int *          oid,
         string&        error_str)
 {
     Image * img;
+    Image * img_aux;
     string  name;
 
     // ---------------------------------------------------------------------
     // Build a new Image object
     // ---------------------------------------------------------------------
-    img = new Image(uid,img_template);
+    img = new Image(uid, user_name, img_template);
 
+    // ---------------------------------------------------------------------
+    // Check for duplicates
+    // ---------------------------------------------------------------------
     img->get_template_attribute("NAME", name);
+    img_aux = get(name,uid,false);
 
-    // ---------------------------------------------------------------------
-    // Insert the Object in the pool
-    // ---------------------------------------------------------------------
-    *oid = PoolSQL::allocate(img, error_str);
-
-    // ---------------------------------------------------------------------
-    // Add the image name to the map of image_names
-    // ---------------------------------------------------------------------
-    if ( *oid != -1 )
+    if( img_aux != 0 )
     {
-        image_names.insert(make_pair(name, *oid));
+        ostringstream oss;
+
+        oss << "NAME is already taken by IMAGE " << img_aux->get_oid() << ".";
+        error_str = oss.str();
+
+        *oid = -1;
+
+        delete img;
+    }
+    else
+    {
+        // ---------------------------------------------------------------------
+        // Insert the Object in the pool
+        // ---------------------------------------------------------------------
+        *oid = PoolSQL::allocate(img, error_str);
     }
 
     return *oid;
@@ -122,54 +103,11 @@ int ImagePool::allocate (
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int ImagePool::dump_cb(void * _oss, int num, char **values, char **names)
-{
-    ostringstream * oss;
-
-    oss = static_cast<ostringstream *>(_oss);
-
-    return Image::dump(*oss, num, values, names);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int ImagePool::dump(ostringstream& oss, const string& where)
-{
-    int             rc;
-    ostringstream   cmd;
-
-    oss << "<IMAGE_POOL>";
-
-    set_callback(static_cast<Callbackable::Callback>(&ImagePool::dump_cb),
-                  static_cast<void *>(&oss));
-
-    cmd << "SELECT "<< Image::extended_db_names << ", user_pool.user_name FROM "
-        << Image::table
-        << " LEFT OUTER JOIN (SELECT oid, user_name FROM user_pool) "
-        << "AS user_pool ON " << Image::table << ".uid = user_pool.oid";
-
-    if ( !where.empty() )
-    {
-        cmd << " WHERE " << where;
-    }
-
-    rc = db->exec(cmd, this);
-
-    oss << "</IMAGE_POOL>";
-
-    unset_callback();
-
-    return rc;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 int ImagePool::disk_attribute(VectorAttribute *  disk,
                               int                disk_id,
                               int *              index,
-                              Image::ImageType * img_type)
+                              Image::ImageType * img_type,
+                              int                uid)
 {
     string  source;
     Image * img = 0;
@@ -204,7 +142,7 @@ int ImagePool::disk_attribute(VectorAttribute *  disk,
     }
     else
     {
-        img = get(source,true);
+        img = get(source,uid,true);
 
         if (img == 0)
         {
@@ -255,7 +193,7 @@ int ImagePool::disk_attribute(VectorAttribute *  disk,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void ImagePool::authorize_disk(VectorAttribute * disk, AuthRequest * ar)
+void ImagePool::authorize_disk(VectorAttribute * disk,int uid, AuthRequest * ar)
 {
     string  source;
     Image * img = 0;
@@ -284,7 +222,7 @@ void ImagePool::authorize_disk(VectorAttribute * disk, AuthRequest * ar)
     }
     else
     {
-        img = get(source,true);
+        img = get(source,uid,true);
     }
 
     if (img == 0)
@@ -293,7 +231,7 @@ void ImagePool::authorize_disk(VectorAttribute * disk, AuthRequest * ar)
     }
 
     ar->add_auth(AuthRequest::IMAGE,
-                 img->get_iid(),
+                 img->get_oid(),
                  AuthRequest::USE,
                  img->get_uid(),
                  img->isPublic());

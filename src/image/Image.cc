@@ -28,14 +28,17 @@
 #include "AuthManager.h"
 #include "UserPool.h"
 
+#define TO_UPPER(S) transform(S.begin(),S.end(),S.begin(),(int(*)(int))toupper)
+
 /* ************************************************************************ */
-/* Image :: Constructor/Destructor                                           */
+/* Image :: Constructor/Destructor                                          */
 /* ************************************************************************ */
 
-Image::Image(int _uid, ImageTemplate * _image_template):
-        PoolObjectSQL(-1),
-        uid(_uid),
-        name(""),
+Image::Image(int             _uid, 
+             const string&   _user_name, 
+             ImageTemplate * _image_template):
+        PoolObjectSQL(-1,"",_uid,table),
+        user_name(_user_name),
         type(OS),
         regtime(time(0)),
         source(""),
@@ -61,92 +64,16 @@ Image::~Image()
 }
 
 /* ************************************************************************ */
-/* Image :: Database Access Functions                                        */
+/* Image :: Database Access Functions                                       */
 /* ************************************************************************ */
 
 const char * Image::table = "image_pool";
 
-const char * Image::db_names = "oid, uid, name, type, public, persistent, regtime, "
-                               "source, state, running_vms, template";
-
-const char * Image::extended_db_names = "image_pool.oid, image_pool.uid, "
-    "image_pool.name, image_pool.type, image_pool.public, "
-    "image_pool.persistent, image_pool.regtime, image_pool.source, "
-    "image_pool.state, image_pool.running_vms, image_pool.template";
+const char * Image::db_names = "oid, name, body, uid, public";
 
 const char * Image::db_bootstrap = "CREATE TABLE IF NOT EXISTS image_pool ("
-    "oid INTEGER PRIMARY KEY, uid INTEGER, name VARCHAR(128), "
-    "type INTEGER, public INTEGER, persistent INTEGER, regtime INTEGER, source TEXT, state INTEGER, "
-    "running_vms INTEGER, template TEXT, UNIQUE(name) )";
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
-int Image::select_cb(void * nil, int num, char **values, char ** names)
-{
-    if ((!values[OID])          ||
-        (!values[UID])          ||
-        (!values[NAME])         ||
-        (!values[TYPE])         ||
-        (!values[PUBLIC])       ||
-        (!values[PERSISTENT])   ||
-        (!values[REGTIME])      ||
-        (!values[SOURCE])       ||
-        (!values[STATE])        ||
-        (!values[RUNNING_VMS])  ||
-        (!values[TEMPLATE])     ||
-        (num != LIMIT ))
-    {
-        return -1;
-    }
-
-    oid         = atoi(values[OID]);
-    uid         = atoi(values[UID]);
-
-    name        = values[NAME];
-
-    type           = static_cast<ImageType>(atoi(values[TYPE]));
-    public_img     = atoi(values[PUBLIC]);
-    persistent_img = atoi(values[PERSISTENT]);
-    regtime        = static_cast<time_t>(atoi(values[REGTIME]));
-
-    source      = values[SOURCE];
-
-    state       = static_cast<ImageState>(atoi(values[STATE]));
-
-    running_vms = atoi(values[RUNNING_VMS]);
-
-    image_template->from_xml(values[TEMPLATE]);
-
-    return 0;
-}
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
-int Image::select(SqlDB *db)
-{
-    ostringstream   oss;
-    int             rc;
-    int             boid;
-
-    set_callback(static_cast<Callbackable::Callback>(&Image::select_cb));
-
-    oss << "SELECT " << db_names << " FROM " << table << " WHERE oid = " << oid;
-
-    boid = oid;
-    oid  = -1;
-
-    rc = db->exec(oss, this);
-
-    if ((rc != 0) || (oid != boid ))
-    {
-        return -1;
-    }
-
-    return 0;
-}
-
+    "oid INTEGER PRIMARY KEY, name VARCHAR(256), body TEXT, uid INTEGER, "
+    "public INTEGER, UNIQUE(name,uid) )";
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
@@ -155,11 +82,11 @@ int Image::insert(SqlDB *db, string& error_str)
 {
     int rc;
 
-    string  source_att;
-    string  type_att;
-    string  public_attr;
-    string  persistent_attr;
-    string  dev_prefix;
+    string source_att;
+    string type_att;
+    string public_attr;
+    string persistent_attr;
+    string dev_prefix;
 
     // ---------------------------------------------------------------------
     // Check default image attributes
@@ -178,8 +105,7 @@ int Image::insert(SqlDB *db, string& error_str)
 
     get_template_attribute("TYPE", type_att);
 
-    transform (type_att.begin(), type_att.end(), type_att.begin(),
-        (int(*)(int))toupper);
+    TO_UPPER(type_att);
 
     if ( type_att.empty() == true )
     {
@@ -194,20 +120,20 @@ int Image::insert(SqlDB *db, string& error_str)
     // ------------ PUBLIC --------------------
 
     get_template_attribute("PUBLIC", public_attr);
+
     image_template->erase("PUBLIC");
 
-    transform (public_attr.begin(), public_attr.end(), public_attr.begin(),
-        (int(*)(int))toupper);
+    TO_UPPER(public_attr);
 
     public_img = (public_attr == "YES");
 
     // ------------ PERSISTENT --------------------
 
     get_template_attribute("PERSISTENT", persistent_attr);
+
     image_template->erase("PERSISTENT");
 
-    transform (persistent_attr.begin(), persistent_attr.end(), persistent_attr.begin(),
-        (int(*)(int))toupper);
+    TO_UPPER(persistent_attr);
 
     persistent_img = (persistent_attr == "YES");
 
@@ -296,11 +222,10 @@ int Image::insert_replace(SqlDB *db, bool replace)
 
     int    rc;
 
-    string xml_template;
+    string xml_body;
 
     char * sql_name;
-    char * sql_source;
-    char * sql_template;
+    char * sql_xml;
 
     // Update the Image
 
@@ -311,19 +236,11 @@ int Image::insert_replace(SqlDB *db, bool replace)
         goto error_name;
     }
 
-    sql_source = db->escape_str(source.c_str());
+    sql_xml = db->escape_str(to_xml(xml_body).c_str());
 
-    if ( sql_source == 0 )
+    if ( sql_xml == 0 )
     {
-        goto error_source;
-    }
-
-    image_template->to_xml(xml_template);
-    sql_template = db->escape_str(xml_template.c_str());
-
-    if ( sql_template == 0 )
-    {
-        goto error_template;
+        goto error_body;
     }
 
     if(replace)
@@ -339,99 +256,23 @@ int Image::insert_replace(SqlDB *db, bool replace)
 
     oss <<" INTO "<< table <<" ("<< db_names <<") VALUES ("
         <<          oid             << ","
-        <<          uid             << ","
         << "'" <<   sql_name        << "',"
-        <<          type            << ","
-        <<          public_img      << ","
-        <<          persistent_img  << ","
-        <<          regtime         << ","
-        << "'" <<   sql_source      << "',"
-        <<          state           << ","
-        <<          running_vms     << ","
-        << "'" <<   sql_template    << "')";
+        << "'" <<   sql_xml         << "',"
+        <<          uid             << ","
+        <<          public_img      << ")";
 
     rc = db->exec(oss);
 
     db->free_str(sql_name);
-    db->free_str(sql_source);
-    db->free_str(sql_template);
+    db->free_str(sql_xml);
 
     return rc;
 
-error_template:
-    db->free_str(sql_source);
-error_source:
+error_body:
     db->free_str(sql_name);
 error_name:
     return -1;
 }
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
-int Image::dump(ostringstream& oss, int num, char **values, char **names)
-{
-    if ((!values[OID])          ||
-        (!values[UID])          ||
-        (!values[NAME])         ||
-        (!values[TYPE])         ||
-        (!values[PUBLIC])       ||
-        (!values[PERSISTENT])   ||
-        (!values[REGTIME])      ||
-        (!values[SOURCE])       ||
-        (!values[STATE])        ||
-        (!values[RUNNING_VMS])  ||
-        (!values[TEMPLATE])     ||
-        (num != LIMIT + 1))
-    {
-        return -1;
-    }
-
-    oss <<
-        "<IMAGE>" <<
-            "<ID>"             << values[OID]         << "</ID>"          <<
-            "<UID>"            << values[UID]         << "</UID>"         <<
-            "<USERNAME>"       << values[LIMIT]       << "</USERNAME>"    <<
-            "<NAME>"           << values[NAME]        << "</NAME>"        <<
-            "<TYPE>"           << values[TYPE]        << "</TYPE>"        <<
-            "<PUBLIC>"         << values[PUBLIC]      << "</PUBLIC>"      <<
-            "<PERSISTENT>"     << values[PERSISTENT]  << "</PERSISTENT>"  <<
-            "<REGTIME>"        << values[REGTIME]     << "</REGTIME>"     <<
-            "<SOURCE>"         << values[SOURCE]      << "</SOURCE>"      <<
-            "<STATE>"          << values[STATE]       << "</STATE>"       <<
-            "<RUNNING_VMS>"    << values[RUNNING_VMS] << "</RUNNING_VMS>" <<
-                                  values[TEMPLATE]                        <<
-        "</IMAGE>";
-
-    return 0;
-}
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
-int Image::drop(SqlDB * db)
-{
-    ostringstream oss;
-    int rc;
-
-    // Only delete the VM
-    if (running_vms != 0)
-    {
-        return -1;
-    }
-
-    oss << "DELETE FROM " << table << " WHERE oid=" << oid;
-
-    rc = db->exec(oss);
-
-    if ( rc == 0 )
-    {
-        set_valid(false);
-    }
-
-    return rc;
-}
-
 
 /* ************************************************************************ */
 /* Image :: Misc                                                             */
@@ -458,6 +299,7 @@ string& Image::to_xml(string& xml) const
         "<IMAGE>" <<
             "<ID>"             << oid             << "</ID>"          <<
             "<UID>"            << uid             << "</UID>"         <<
+            "<USERNAME>"       << user_name       << "</USERNAME>"    <<
             "<NAME>"           << name            << "</NAME>"        <<
             "<TYPE>"           << type            << "</TYPE>"        <<
             "<PUBLIC>"         << public_img      << "</PUBLIC>"      <<
@@ -477,30 +319,50 @@ string& Image::to_xml(string& xml) const
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-string& Image::to_str(string& str) const
+int Image::from_xml(const string& xml)
 {
-    string template_str;
+    vector<xmlNodePtr> content;
+    int int_state;
+    int int_type;
 
-    ostringstream   os;
+    int rc = 0;
 
-    os <<
-        "ID          = "    << oid             << endl <<
-        "UID         = "    << uid             << endl <<
-        "NAME        = "    << name            << endl <<
-        "TYPE        = "    << type            << endl <<
-        "PUBLIC      = "    << public_img      << endl <<
-        "PERSISTENT  = "    << persistent_img  << endl <<
-        "REGTIME     = "    << regtime         << endl <<
-        "SOURCE      = "    << source          << endl <<
-        "STATE       = "    << state           << endl <<
-        "RUNNING_VMS = "    << running_vms     << endl <<
-        "TEMPLATE"          << endl
-                            << image_template->to_str(template_str)
-                            << endl;
+    // Initialize the internal XML object
+    update_from_str(xml);
 
-    str = os.str();
+    // Get class base attributes
+    rc += xpath(oid, "/IMAGE/ID", -1);
+    rc += xpath(uid, "/IMAGE/UID", -1);
+    rc += xpath(user_name, "/IMAGE/USERNAME", "not_found");
+    rc += xpath(name, "/IMAGE/NAME", "not_found");
 
-    return str;
+    rc += xpath(int_type, "/IMAGE/TYPE", 0);
+    rc += xpath(public_img, "/IMAGE/PUBLIC", 0);
+    rc += xpath(persistent_img, "/IMAGE/PERSISTENT", 0);
+    rc += xpath(regtime, "/IMAGE/REGTIME", 0);
+
+    rc += xpath(source, "/IMAGE/SOURCE", "not_found");
+    rc += xpath(int_state, "/IMAGE/STATE", 0);
+    rc += xpath(running_vms, "/IMAGE/RUNNING_VMS", -1);
+
+    type  = static_cast<ImageType>(int_type);
+    state = static_cast<ImageState>(int_state);
+
+    // Get associated classes
+    ObjectXML::get_nodes("/IMAGE/TEMPLATE", content);
+    if( content.size() < 1 )
+    {
+        return -1;
+    }
+
+    rc += image_template->from_xml_node(content[0]);
+
+    if (rc != 0)
+    {
+        return -1;
+    }
+
+    return 0;
 }
 
 /* ------------------------------------------------------------------------ */

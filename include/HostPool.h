@@ -68,7 +68,7 @@ public:
     {
         return static_cast<Host *>(PoolSQL::get(oid,lock));
     };
-
+    
     /**
      *  Bootstraps the database table(s) associated to the Host pool
      */
@@ -138,24 +138,16 @@ public:
      *
      *  @return 0 on success
      */
-    int dump(ostringstream& oss, const string& where);
+    int dump(ostringstream& oss, const string& where)
+    {
+        return PoolSQL::dump(oss, "HOST_POOL", Host::table, where);
+    }
 
     /* ---------------------------------------------------------------------- */
     /* ---------------------------------------------------------------------- */
     /* Methods for cluster management                                         */
     /* ---------------------------------------------------------------------- */
     /* ---------------------------------------------------------------------- */
-
-    /**
-     *  Returns true if the clid is an id for an existing cluster
-     *  @param clid ID of the cluster
-     *
-     *  @return true if the clid is an id for an existing cluster
-     */
-   /* bool exists_cluster(int clid)
-    {
-        return cluster_pool.exists(clid);
-    };*/
 
     /**
      *  Allocates a new cluster in the pool
@@ -262,16 +254,6 @@ private:
      *    @return 0 on success
      */
     int discover_cb(void * _map, int num, char **values, char **names);
-
-    /**
-     *  Callback function to get output the host pool in XML format
-     *  (Host::dump)
-     *    @param num the number of columns read from the DB
-     *    @param names the column names
-     *    @param vaues the column values
-     *    @return 0 on success
-     */
-    int dump_cb(void * _oss, int num, char **values, char **names);
 };
 
 #endif /*HOST_POOL_H_*/

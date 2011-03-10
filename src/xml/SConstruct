@@ -1,3 +1,5 @@
+# SConstruct for src/xml
+
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
@@ -14,14 +16,32 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-Import('sched_env')
+Import('env')
 
-# Libraries
-sched_env.Prepend(LIBS=[
-    'nebula_log',
-    'scheduler_xml',
-    'nebula_common',
-    'nebula_test_common',
-])
+lib_name='nebula_xml'
 
-sched_env.Program('test_xml','ObjectXMLTest.cc')
+if env['parsers']=='yes':
+    # LEX
+    parser=env.Lex(
+        source='expr_parser.l'
+    )
+    env.NoClean(parser)
+
+    # BISON
+    parser=env.Bison(
+        source='expr_arith.y'
+    )
+    env.NoClean(parser)
+
+    parser=env.Bison(
+        source='expr_bool.y'
+    )
+    env.NoClean(parser)
+
+source_files=['ObjectXML.cc',
+              'expr_parser.c',
+              'expr_bool.cc',
+              'expr_arith.cc']
+
+# Build library
+env.StaticLibrary(lib_name, source_files)

@@ -45,6 +45,7 @@ public:
      *   @param _db a pointer to the database
      *   @param table the name of the table supporting the pool (to set the oid
      *   counter). If null the OID counter is not updated.
+     *   @param with_uid the Pool objects have an owner id (uid)
      */
     PoolSQL(SqlDB * _db, const char * table);
 
@@ -68,9 +69,18 @@ public:
      *
      *   @return a pointer to the object, 0 in case of failure
      */
-    virtual PoolObjectSQL * get(
-        int     oid,
-        bool    lock);
+    PoolObjectSQL * get(int oid, bool lock);
+
+    /**
+     *  Gets an object from the pool (if needed the object is loaded from the
+     *  database).
+     *   @param name of the object
+     *   @param uid id of owner
+     *   @param lock locks the object if true
+     *
+     *   @return a pointer to the object, 0 in case of failure
+     */
+    PoolObjectSQL * get(const string& name, int uid, bool lock);
 
     /**
      *  Finds a set objects that satisfies a given condition
@@ -141,6 +151,19 @@ protected:
      */
     SqlDB * db;
 
+    /**
+     *  Dumps the pool in XML format. A filter can be also added to the
+     *  query
+     *  @param oss the output stream to dump the pool contents
+     *  @param elem_name Name of the root xml pool name
+     *  @param table Pool table name
+     *  @param where filter for the objects, defaults to all
+     *
+     *  @return 0 on success
+     */
+    int dump(ostringstream& oss, const string& elem_name,
+             const char * table, const string& where);
+
 private:
 
     pthread_mutex_t             mutex;
@@ -163,6 +186,17 @@ private:
      *  OID as key.
      */
     map<int,PoolObjectSQL *>    pool;
+
+    /**
+     *  This is a name index for the pool map. The key is the name of the object
+     *  , that may be combained with the owner id.
+     */
+    map<string,PoolObjectSQL *> name_pool;
+
+    /**
+     *  If set to true the objects of the pool will be indexed by its name also
+     */
+    bool                        use_index;
 
     /**
      *  Factory method, must return an ObjectSQL pointer to an allocated pool
@@ -201,6 +235,25 @@ private:
     void replace();
 
     /**
+     *  Generate an index key for the object
+     *    @param name of the object
+     *    @param uid owner of the object, only used if needed
+     *    
+     *    @return the key, a string
+     */
+    string key(const string& name, int uid)
+    {
+        ostringstream key;
+
+        key << name << ':' << uid;
+
+        return key.str();
+    };
+
+    /* ---------------------------------------------------------------------- */
+    /* ---------------------------------------------------------------------- */
+
+    /**
      *  Callback to set the lastOID (PoolSQL::PoolSQL)
      */
     int  init_cb(void *nil, int num, char **values, char **names);
@@ -209,6 +262,15 @@ private:
      *  Callback to store the IDs of pool objects (PoolSQL::search)
      */
     int  search_cb(void *_oids, int num, char **values, char **names);
+
+    /**
+     *  Callback function to get output in XML format
+     *    @param num the number of columns read from the DB
+     *    @param names the column names
+     *    @param vaues the column values
+     *    @return 0 on success
+     */
+    int dump_cb(void * _oss, int num, char **values, char **names);
 };
 
 #endif /*POOL_SQL_H_*/

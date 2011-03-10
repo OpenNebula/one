@@ -29,6 +29,7 @@ void RequestManager::VirtualMachineAllocate::execute(
     string              session;
     string              str_template;
     string              error_str;
+    string              user_name;
 
     const string        method_name = "VirtualMachineAllocate";
 
@@ -41,6 +42,7 @@ void RequestManager::VirtualMachineAllocate::execute(
     xmlrpc_c::value_array * arrayresult;
 
     VirtualMachineTemplate * vm_template;
+    User *                   user;
     char *                   error_msg = 0;
 
     int                   num;
@@ -92,7 +94,7 @@ void RequestManager::VirtualMachineAllocate::execute(
                 continue;
             }
 
-            VirtualMachineAllocate::ipool->authorize_disk(vector,&ar);
+            VirtualMachineAllocate::ipool->authorize_disk(vector,uid,&ar);
         }
 
         num = vm_template->get("NIC",vectors);
@@ -106,7 +108,7 @@ void RequestManager::VirtualMachineAllocate::execute(
                 continue;
             }
 
-            VirtualMachineAllocate::vnpool->authorize_nic(vector,&ar);
+            VirtualMachineAllocate::vnpool->authorize_nic(vector,uid,&ar);
         }
 
         ar.add_auth(AuthRequest::VM,
@@ -122,9 +124,25 @@ void RequestManager::VirtualMachineAllocate::execute(
     }
 
     //--------------------------------------------------------------------------
+    //   Get the User Name
+    //--------------------------------------------------------------------------
+
+    user = VirtualMachineAllocate::upool->get(uid,true);
+
+    if ( user == 0 )
+    {
+        goto error_user_get;
+    }
+
+    user_name = user->get_name();
+
+    user->unlock();
+
+    //--------------------------------------------------------------------------
     //   Allocate the VirtualMAchine
     //--------------------------------------------------------------------------
     rc = VirtualMachineAllocate::vmpool->allocate(uid,
+                                                  user_name,
                                                   vm_template,
                                                   &vid,
                                                   error_str,
@@ -144,6 +162,13 @@ void RequestManager::VirtualMachineAllocate::execute(
     delete arrayresult; // and get rid of the original
 
     return;
+
+
+error_user_get:
+    oss.str(get_error(method_name, "USER", uid));
+
+    delete vm_template;
+    goto error_common;
 
 error_authenticate:
     oss.str(authenticate_error(method_name));

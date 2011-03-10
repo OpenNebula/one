@@ -202,18 +202,24 @@ int HostPool::allocate (
 int HostPool::discover_cb(void * _map, int num, char **values, char **names)
 {
     map<int, string> *  discovered_hosts;
-    string              im_mad(values[1]);
+    string              im_mad;
     int                 hid;
+    int                 rc;
 
     discovered_hosts = static_cast<map<int, string> *>(_map);
 
-    if ( (num<=0) || (values[0] == 0) )
+    if ( (num<2) || (values[0] == 0) || (values[1] == 0) )
     {
         return -1;
     }
 
-    hid    = atoi(values[0]);
-    im_mad = values[1];
+    hid = atoi(values[0]);
+    rc  = ObjectXML::xpath_value(im_mad,values[1],"/HOST/IM_MAD");
+
+    if( rc != 0)
+    {
+        return -1;
+    }
 
     discovered_hosts->insert(make_pair(hid,im_mad));
 
@@ -230,53 +236,11 @@ int HostPool::discover(map<int, string> * discovered_hosts, int host_limit)
     set_callback(static_cast<Callbackable::Callback>(&HostPool::discover_cb),
                  static_cast<void *>(discovered_hosts));
 
-    sql << "SELECT oid, im_mad FROM "
+    sql << "SELECT oid, body FROM "
         << Host::table << " WHERE state != "
         << Host::DISABLED << " ORDER BY last_mon_time ASC LIMIT " << host_limit;
 
     rc = db->exec(sql,this);
-
-    unset_callback();
-
-    return rc;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int HostPool::dump_cb(void * _oss, int num, char **values, char **names)
-{
-    ostringstream * oss;
-
-    oss = static_cast<ostringstream *>(_oss);
-
-    return Host::dump(*oss, num, values, names);
-}
-
-/* -------------------------------------------------------------------------- */
-
-int HostPool::dump(ostringstream& oss, const string& where)
-{
-    int             rc;
-    ostringstream   cmd;
-
-    oss << "<HOST_POOL>";
-
-    set_callback(static_cast<Callbackable::Callback>(&HostPool::dump_cb),
-                  static_cast<void *>(&oss));
-
-    cmd << "SELECT " << Host::db_names << " , " << HostShare::db_names
-        << " FROM " << Host::table << " JOIN " << HostShare::table
-        << " ON " << Host::table << ".oid = " << HostShare::table << ".hid";
-
-    if ( !where.empty() )
-    {
-        cmd << " WHERE " << where;
-    }
-
-    rc = db->exec(cmd, this);
-
-    oss << "</HOST_POOL>";
 
     unset_callback();
 

@@ -107,7 +107,7 @@ void RequestManager::VirtualMachineDeploy::execute(
         goto error_host_get;
     }
 
-    hostname = host->get_hostname();
+    hostname = host->get_name();
     vmm_mad  = host->get_vmm_mad();
     tm_mad   = host->get_tm_mad();
 

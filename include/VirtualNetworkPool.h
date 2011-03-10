@@ -48,6 +48,7 @@ public:
      */
     int allocate (
         int     uid,
+        string  user_name,
         VirtualNetworkTemplate * vn_template,
         int *   oid,
         string& error_str);
@@ -59,9 +60,7 @@ public:
      *    @param lock locks the VN mutex
      *    @return a pointer to the VN, 0 if the VN could not be loaded
      */
-    VirtualNetwork * get(
-        int     oid,
-        bool    lock)
+    VirtualNetwork * get(int oid, bool lock)
     {
         return static_cast<VirtualNetwork *>(PoolSQL::get(oid,lock));
     };
@@ -70,12 +69,14 @@ public:
      *  Function to get a VN from the pool using the network name
      *  If the object is not in memory it is loaded from the DB
      *    @param name VN unique name
+     *    @param uid of the VN owner
      *    @param lock locks the VN mutex
      *    @return a pointer to the VN, 0 if the VN could not be loaded
      */
-    VirtualNetwork * get(
-        const string&  name,
-        bool           lock);
+    VirtualNetwork * get(const string& name, int uid, bool lock)
+    {
+        return static_cast<VirtualNetwork *>(PoolSQL::get(name,uid,lock));
+    };
 
     //--------------------------------------------------------------------------
     // Virtual Network DB access functions
@@ -88,14 +89,14 @@ public:
      *    @param vid of the VM requesting the lease
      *    @return 0 on success, -1 error, -2 not using the pool
      */
-    int nic_attribute(VectorAttribute * nic, int vid);
+    int nic_attribute(VectorAttribute * nic, int uid, int vid);
 
     /**
      *  Generates an Authorization token for a NIC attribute
      *    @param nic the nic to be authorized
      *    @param ar the AuthRequest
      */
-    void authorize_nic(VectorAttribute * nic, AuthRequest * ar);
+    void authorize_nic(VectorAttribute * nic, int uid, AuthRequest * ar);
 
     /**
      *  Bootstraps the database table(s) associated to the VirtualNetwork pool
@@ -113,7 +114,10 @@ public:
      *
      *  @return 0 on success
      */
-    int dump(ostringstream& oss, const string& where);
+    int dump(ostringstream& oss, const string& where)
+    {
+        return PoolSQL::dump(oss, "VNET_POOL", VirtualNetwork::table,where);
+    }
 
     /**
      *  Get the mac prefix
@@ -150,28 +154,8 @@ private:
      */
     PoolObjectSQL * create()
     {
-        return new VirtualNetwork();
+        return new VirtualNetwork(0,"",0);
     };
-
-    /**
-     *  Callback function to get output the virtual network pool in XML format
-     *  (VirtualNetworkPool::dump)
-     *    @param num the number of columns read from the DB
-     *    @param names the column names
-     *    @param vaues the column values
-     *    @return 0 on success
-     */
-    int dump_cb(void * _oss, int num, char **values, char **names);
-
-    /**
-     *  Callback function to get the ID of a given virtual network
-     *  (VirtualNetworkPool::get)
-     *    @param num the number of columns read from the DB
-     *    @param names the column names
-     *    @param vaues the column values
-     *    @return 0 on success
-     */
-    int get_cb(void * _oss, int num, char **values, char **names);
 };
 
 #endif /*VIRTUAL_NETWORK_POOL_H_*/

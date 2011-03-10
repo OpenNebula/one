@@ -73,6 +73,7 @@ main_env.Append(LIBPATH=[
     cwd+'/src/hm',
     cwd+'/src/um',
     cwd+'/src/authm',
+    cwd+'/src/xml',
 ])
 
 # Compile flags
@@ -187,6 +188,7 @@ build_scripts=[
     'src/hm/SConstruct',
     'src/um/SConstruct',
     'src/authm/SConstruct',
+    'src/xml/SConstruct',
 ]
 
 # Testing
@@ -222,6 +224,7 @@ if testing=='yes':
         'src/um/test/SConstruct',
         'src/vm/test/SConstruct',
         'src/vnm/test/SConstruct',
+        'src/xml/test/SConstruct',
     ])
 else:
     main_env.Append(testing='no')

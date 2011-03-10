@@ -176,6 +176,14 @@ public:
      */
     int from_xml(const string &xml_str);
 
+    /**
+     *  Rebuilds the object from an xml node
+     *    @param node The xml node pointer
+     *
+     *    @return 0 on success, -1 otherwise
+     */
+    int from_xml_node(const xmlNodePtr node);
+
 protected:
     /**
      *  The template attributes
@@ -215,6 +223,12 @@ private:
      *  Name of the Root element for the XML document
      */
     string							xml_root;
+
+    /**
+     *  Builds the template attribute from the node
+     *    @param root_element The xml element to build the template from.
+     */
+    void rebuild_attributes(const xmlNode * root_element);
 };
 
 /* -------------------------------------------------------------------------- */
