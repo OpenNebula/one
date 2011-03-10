@@ -20,18 +20,19 @@ module OpenNebulaJSON
     class ImageJSON < OpenNebula::Image
         include JSONUtils
 
-        def allocate(template_json)
+        def create(template_json)
             image_hash = parse_json(template_json, 'image')
             if OpenNebula.is_error?(image_hash)
                 return image_hash
             end
 
             if image_hash['image_raw']
-                super(image_hash['image_raw'])
+                template = image_hash['image_raw']
             else
                 template = template_to_str(image_hash)
-                super(template)
             end
+
+            OpenNebula::ImageRepository.new.create(self, template)
         end
 
         def perform_action(template_json)

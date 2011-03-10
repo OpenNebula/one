@@ -20,18 +20,19 @@ module OpenNebulaJSON
     class VirtualNetworkJSON < OpenNebula::VirtualNetwork
         include JSONUtils
 
-        def allocate(template_json)
+        def create(template_json)
             vnet_hash = parse_json(template_json, 'vnet')
             if OpenNebula.is_error?(vnet_hash)
                 return vnet_hash
             end
 
             if vnet_hash['vnet_raw']
-                super(vnet_hash['vnet_raw'])
+                template = vnet_hash['vnet_raw']
             else
                 template = template_to_str(vnet_hash)
-                super(template)
             end
+            
+            self.allocate(template)
         end
 
         def perform_action(template_json)

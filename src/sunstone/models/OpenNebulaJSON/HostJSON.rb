@@ -20,14 +20,16 @@ module OpenNebulaJSON
     class HostJSON < OpenNebula::Host
         include JSONUtils
 
-        def allocate(template_json)
+        def create(template_json)
             host_hash = parse_json(template_json, 'host')
             if OpenNebula.is_error?(host_hash)
                 return host_hash
             end
 
-            super(host_hash['name'], host_hash['im_mad'], host_hash['vm_mad'],
-                host_hash['tm_mad'])
+            self.allocate(host_hash['name'],
+                        host_hash['im_mad'],
+                        host_hash['vm_mad'],
+                        host_hash['tm_mad'])
         end
 
         def delete
