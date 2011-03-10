@@ -115,7 +115,7 @@ class SunstoneServer
                 return [404, error.to_json]
         end
 
-        rc = resource.allocate(template)
+        rc = resource.create(template)
         if OpenNebula.is_error?(rc)
             return [500, rc.to_json]
         else
