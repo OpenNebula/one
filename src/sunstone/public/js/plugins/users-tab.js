@@ -112,3 +112,121 @@ var user_buttons = {
         condition: True
     }
 }
+
+for (action in user_actions){
+    Sunstone.addAction(action,user_actions[action]);
+}
+
+Sunstone.addMainTab('users_tab',"Users",users_tab_content,user_buttons,false,function(){return uid==0;});
+
+
+function userElementArray(user_json){
+	user = user_json.USER;
+    if (!user.NAME || user.NAME == {}){
+        name = "";
+    } else {
+        name = user.NAME;
+    }
+        
+	return [
+		'<input type="checkbox" id="user_'+user.ID+'" name="selected_items" value="'+user.ID+'"/>',
+		user.ID,
+		name
+		]
+}
+
+
+
+function updateUserElement(request, user_json){
+	id = user_json.USER.ID;
+	element = userElementArray(user_json);
+	updateSingleElement(element,dataTable_users,'#user_'+id);
+}
+
+function deleteUserElement(req){
+	deleteElement(dataTable_users,'#user_'+req.request.data);
+}
+
+function addUserElement(request,user_json){
+	element = userElementArray(user_json);
+	addElement(element,dataTable_users);
+}
+
+function updateUsersView(request,users_list){
+	user_list_json = users_list;
+	user_list_array = [];
+
+	$.each(user_list_json,function(){
+		user_list_array.push(userElementArray(this));
+	});
+	updateView(user_list_array,dataTable_users);
+	updateDashboard("users",user_list_json);
+}
+
+function setupCreateUserDialog(){
+     $('div#dialogs').append('<div title="Create user" id="create_user_dialog"></div>');
+     $('#create_user_dialog').html(create_user_tmpl);
+
+	//Prepare jquery dialog
+	$('#create_user_dialog').dialog({
+		autoOpen: false,
+		modal:true,
+		width: 400
+	});
+    
+    $('#create_user_dialog button').button();
+    
+    $('#create_user_form').submit(function(){
+		var user_name=$('#username',this).val();
+		var user_password=$('#pass',this).val();
+		var user_json = { "user" :
+						{ "name" : user_name,
+						  "password" : user_password }
+					  };
+		Sunstone.runAction("User.create",user_json);
+		$('#create_user_dialog').dialog('close');
+		return false;
+	});
+}
+
+function popUpCreateUserDialog(){
+    $('#create_user_dialog').dialog('open');
+}
+
+
+$(document).ready(function(){
+    
+    
+    dataTable_users = $("#datatable_users").dataTable({
+          "bJQueryUI": true,
+          "bSortClasses": false,
+          "sPaginationType": "full_numbers",
+          "bAutoWidth":false,
+          "aoColumnDefs": [
+                            { "bSortable": false, "aTargets": ["check"] },
+                            { "sWidth": "60px", "aTargets": [0] },
+                            { "sWidth": "35px", "aTargets": [1] }
+                           ]
+    });    
+    
+    dataTable_users.fnClearTable();
+    addElement([
+            spinner,
+            '',''],dataTable_users);
+    Sunstone.runAction("User.list");
+    
+    setupCreateUserDialog();
+    
+    //TODO user oneadmin
+    setInterval(function(){
+		var nodes = $('input:checked',dataTable_users.fnGetNodes());
+        var filter = $("#datatable_users_filter input").attr("value");
+		if (!nodes.length && !filter.length){
+			OpenNebula.User.list({timeout: true, success: updateUsersView, error: onError});
+		}
+    },74000); //so that not all refreshing is done at the same time
+    
+    initCheckAllBoxes(dataTable_users);
+    tableCheckboxesListener(dataTable_users);
+    
+}

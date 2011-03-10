@@ -310,12 +310,12 @@ var host_buttons = {
         };
             
 var host_info_panel = {
-    "info_host_tab" : {
+    "info_tab" : {
         title: "Host information",
         content:""
     },
     
-    "host_template_tab" : {
+    "template_tab" : {
         title: "Host template",
         content: ""
     }
@@ -470,7 +470,7 @@ function updateClustersView(request, cluster_list){
 
 function updateHostInfo(request,host){
 	var host_info = host.HOST;
-    var info_host_tab = {
+    var info_tab = {
         title : "Host information",
         content :
     '<table id="info_host_table" class="info_table">\
@@ -533,7 +533,7 @@ function updateHostInfo(request,host){
 		</table>'
     }
     
-    var host_template_tab = {
+    var template_tab = {
         title : "Host template",
         content : 
     	'<table id="host_template_table" class="info_table">\
@@ -542,13 +542,13 @@ function updateHostInfo(request,host){
 		'</table>'
     }
     
-    Sunstone.updateInfoPanelTab("host_info_panel","info_host_tab",info_host_tab);
-    Sunstone.updateInfoPanelTab("host_info_panel","host_template_tab",host_template_tab);
+    Sunstone.updateInfoPanelTab("host_info_panel","host_info_tab",info_tab);
+    Sunstone.updateInfoPanelTab("host_info_panel","host_template_tab",template_tab);
     Sunstone.popUpInfoPanel("host_info_panel");
 
 }
 
-function setUpCreateHostDialog(){
+function setupCreateHostDialog(){
     $('div#dialogs').append('<div title="Create host" id="create_host_dialog"></div>');
     $('div#create_host_dialog').html(create_host_tmpl);
     $('#create_host_dialog').dialog({
@@ -580,7 +580,7 @@ function setUpCreateHostDialog(){
     
 }
 
-function setUpCreateClusterDialog(){
+function setupCreateClusterDialog(){
     $('div#dialogs').append('<div title="Create cluster" id="create_cluster_dialog"></div>');
     $('#create_cluster_dialog').html(create_cluster_tmpl);
 
@@ -638,20 +638,24 @@ $(document).ready(function(){
     addElement([
         spinner,
         '','','','','','',''],dataTable_hosts);
-	//OpenNebula.Host.list({success: updateHostsView,error: onError});
     Sunstone.runAction("Host.list");
+    Sunstone.runAction("Cluster.list");
     
-    setUpCreateHostDialog();
-    setUpCreateClusterDialog();
+    setupCreateHostDialog();
+    setupCreateClusterDialog();
     
     //set refresh interval
     setInterval(function(){
-		nodes = $('input:checked',dataTable_hosts.fnGetNodes());
-        filter = $("#datatable_hosts_filter input").attr("value");
+		var nodes = $('input:checked',dataTable_hosts.fnGetNodes());
+        var  filter = $("#datatable_hosts_filter input").attr("value");
 		if (!nodes.length && !filter.length){
 			OpenNebula.Host.list({timeout: true, success: updateHostsView,error: onError});
 		}
 	},60000);
+    
+    setInterval(function(){
+        OpenNebula.Cluster.list({timeout: true, success: updateClustersView,error: onError});
+	},64000);
     
     initCheckAllBoxes(dataTable_hosts);
     tableCheckboxesListener(dataTable_hosts);

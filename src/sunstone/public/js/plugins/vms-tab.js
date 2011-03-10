@@ -457,7 +457,7 @@ var create_vm_tmpl =
 				<button class="button" id="create_vm_form_easy" value="OpenNebula.VM.create">\
 				Create\
 				</button>\
-				<button class="button" id="reset" type="reset" value="reset">Reset</button>\
+				<button class="button" id="reset_vm_form" type="reset" value="reset">Reset</button>\
 			  </div>\
 			</fieldset>\
 		</form>\
@@ -659,6 +659,34 @@ var vm_actions = {
         dataTable: function(){return dataTable_vMachines},
         error: onError,
         notify:  False                     
+    },
+    
+    "VM.log" : {
+        type: "single"
+        call: OpenNebula.VM.log,
+        callback: function(req,res) {
+            var log_lines = res.split("\n");
+            var colored_log = '';
+            for (line in log_lines){
+                line = log_lines[line];
+                if (line.match(/\[E\]/)){
+                    line = '<span class="vm_log_error">'+line+'</span>'
+                }
+                colored_log += line + "\n";
+            }
+            var log_tab = {
+                title: "VM log",
+                content: '<pre>'+colored_log+'</pre>'
+            }
+            Sunstone.updateInfoPanelTab("vm_info_panel","log_tab",log_tab);
+            Sunstone.popUpInfoPanel("vm_info_panel",2);
+            
+        },
+        error: function(request,error_json){
+            $("#vm_log pre").html('');
+            onError(request,error_json);
+        },
+        notify: False
     }
 }
 
@@ -774,3 +802,930 @@ var vm_buttons = {
         condition: True
     }
 }
+
+var vm_info_panel = {
+    "info_tab" : {
+        
+    },
+    "template_tab" : {
+        
+    },
+    "log_tab" : {
+        
+    }
+}
+
+for (action in vm_actions){
+    Sunstone.addAction(action,vm_actions[action]);
+}
+
+Sunstone.addMainTab('vms_tab',"Virtual Machines",vms_tab_content,vm_buttons);
+Sunstone.addInfoPanel('vm_info_panel',vm_info_panel);
+
+
+function vMachineElementArray(vm_json){
+	var vm = vm_json.VM;
+    var state = OpenNebula.Helper.resource_state("vm",vm.STATE);
+    if (state == "ACTIVE") {
+        state = OpenNebula.Helper.resource_state("vm_lcm",vm.LCM_STATE);
+    }
+	return [
+			'<input type="checkbox" id="vm_'+vm.ID+'" name="selected_items" value="'+vm.ID+'"/>',
+			vm.ID,
+			vm.USERNAME ? vm.USERNAME : getUserName(vm.UID),
+			vm.NAME,
+			state,
+			vm.CPU,
+			humanize_size(vm.MEMORY),
+			vm.HISTORY ? vm.HISTORY.HOSTNAME : "--",
+			str_start_time(vm)
+		]
+}
+
+function vMachineInfoListener(){
+
+	$('#tbodyvmachines tr').live("click", function(e){
+		if ($(e.target).is('input')) {return true;}
+		aData = dataTable_vMachines.fnGetData(this);
+		id = $(aData[0]).val();
+        Sunstone.runAction("VM.showinfo",id);
+		return false;
+	});
+}
+
+
+function updateVMachineElement(request, vm_json){
+	id = vm_json.VM.ID;
+	element = vMachineElementArray(vm_json);
+	updateSingleElement(element,dataTable_vMachines,'#vm_'+id)
+}
+
+function deleteVMachineElement(req){
+	deleteElement(dataTable_vMachines,'#vm_'+req.request.data);
+}
+
+function addVMachineElement(request,vm_json){
+    id = vm_json.VM.ID;
+    notifySubmit('OpenNebula.VM.create',id);
+	element = vMachineElementArray(vm_json);
+	addElement(element,dataTable_vMachines);
+    updateVMInfo(null,vm_json);
+}
+
+function updateVMachinesView(request, vmachine_list){
+	vmachine_list_json = vmachine_list;
+	vmachine_list_array = [];
+
+	$.each(vmachine_list,function(){
+		vmachine_list_array.push( vMachineElementArray(this));
+	});
+
+	updateView(vmachine_list_array,dataTable_vMachines);
+	updateDashboard("vms",vmachine_list_json);
+}
+
+function updateVMInfo(request,vm){
+	var vm_info = vm.VM;
+	var info_tab = {
+        title : "VM information",
+        content: '<table id="info_vm_table" class="info_table">\
+			<thead>\
+				<tr><th colspan="2">Virtual Machine information - '+vm_info.NAME+'</th></tr>\
+			</thead>\
+			<tr>\
+				<td class="key_td">ID</td>\
+				<td class="value_td">'+vm_info.ID+'</td>\
+			</tr>\
+			<tr>\
+				<td class="key_td">Name</td>\
+				<td class="value_td">'+vm_info.NAME+'</td>\
+			</tr>\
+			<tr>\
+				<td class="key_td">State</td>\
+				<td class="value_td">'+OpenNebula.Helper.resource_state("vm",vm_info.STATE)+'</td>\
+			</tr>\
+			<tr>\
+				<td class="key_td">LCM State</td>\
+				<td class="value_td">'+OpenNebula.Helper.resource_state("vm_lcm",vm_info.LCM_STATE)+'</td>\
+			</tr>\
+			<tr>\
+				<td class="key_td">Start time</td>\
+				<td class="value_td">'+pretty_time(vm_info.STIME)+'</td>\
+			</tr>\
+			<tr>\
+				<td class="key_td">Deploy ID</td>\
+				<td class="value_td">'+(typeof(vm_info.DEPLOY_ID) == "object" ? "-" : vm_info.DEPLOY_ID)+'</td>\
+			</tr>\
+		</table>\
+		<table id="vm_monitoring_table" class="info_table">\
+			<thead>\
+				<tr><th colspan="2">Monitoring information</th></tr>\
+			</thead>\
+			<tr>\
+				<td class="key_td">Net_TX</td>\
+				<td class="value_td">'+vm_info.NET_TX+'</td>\
+			</tr>\
+			<tr>\
+				<td class="key_td">Net_RX</td>\
+				<td class="value_td">'+vm_info.NET_RX+'</td>\
+			</tr>\
+			<tr>\
+				<td class="key_td">Used Memory</td>\
+				<td class="value_td">'+humanize_size(vm_info.MEMORY)+'</td>\
+			</tr>\
+			<tr>\
+				<td class="key_td">Used CPU</td>\
+				<td class="value_td">'+vm_info.CPU+'</td>\
+			</tr>\
+		</table>'
+    }
+    
+    var template_tab = {
+        title: "VM Template",
+        content: '<table id="vm_template_table" class="info_table">\
+		<thead><tr><th colspan="2">VM template</th></tr></thead>'+
+		prettyPrintJSON(vm_info.TEMPLATE)+
+		'</table>'        
+    }
+    
+    var log_tab = {
+        title: "VM log",
+        content: '<pre>'+spinner+'</pre>'
+    }
+        
+	Sunstone.updateInfoPanelTab("vm_info_panel","vm_info_tab",info_tab);
+    Sunstone.updateInfoPanelTab("vm_info_panel","vm_template_tab",template_tab);
+    Sunstone.updateInfoPanelTab("vm_info_panel","vm_log_tab",log_tab);
+    
+    Sunstone.popUpInfoPanel("vm_info_panel");
+
+}
+
+function setupCreateVMDialog(){
+    	/* #### createVMachineDialog() helper functions #### */
+
+    vmTabChange = function(event,ui){
+	// ui.tab     // anchor element of the selected (clicked) tab
+	// ui.panel   // element, that contains the selected/clicked tab contents
+	// ui.index   // zero-based index of the selected (clicked) tab
+        switch(ui.index){
+            case 0:
+                enable_kvm();
+                break;
+            case 1:
+                enable_xen();
+                break;
+            case 2:
+                break;
+            case 3:
+                break;
+        }
+    }
+
+	update_dynamic_css = function(){
+        //This function used to be useful to add specific
+        //css to elements that changed.
+        //Now its not needed anymore apparently
+        /*
+		if (templ_type=="kvm"){
+			$(xen_man_items).css({"font-weight":"normal"});
+			$(kvm_man_items).css({"background":"green","font-weight":"bold"});
+			$(kvm_opt_items).css({"background":"yellow"});
+		} else if (templ_type=="xen"){
+			$(kvm_man_items).css({"font-weight":"normal"});
+			$(xen_man_items).css({"background":"green","font-weight":"bold"});
+			$(xen_opt_items).css({"background":"yellow"});
+		};*/
+	};
+
+	enable_kvm = function(){
+		man_class="kvm";
+		opt_class="kvm_opt";
+		$(xen_items).attr("disabled","disabled");
+		$(xen_items).css("background","");
+		$(kvm_items).removeAttr("disabled");
+		//$(items+':disabled').hide();
+
+
+		//particularities
+		$('div#disks select#TYPE option:selected').removeAttr("selected");
+		$('div#disks select#TYPE').prepend(
+		'<option id="no_type" value="">None</option>');
+		$('div#disks select#TYPE option#no_type').attr("selected","selected");
+
+        $('select#boot_method option').removeAttr("selected");
+		$('select#boot_method option#no_boot').html("Driver default");
+		$('select#boot_method option').removeAttr("selected");
+        $('.kernel, .bootloader', $('div#os_boot_opts')).hide();
+
+		$('input#TYPE', section_raw).val("kvm");
+
+		$(section_inputs).show();
+
+        update_dynamic_css();
+	};
+
+	enable_xen = function(){
+		man_class="xen";
+		opt_class="xen_opt";
+		$(kvm_items).attr("disabled","disabled");
+		$(kvm_items).css("background","");
+		$(xen_items).removeAttr("disabled");
+		//$(items+':disabled').hide();
+
+
+		//particularities
+		$('div#disks select#TYPE option#no_type').remove();
+
+		$('select#boot_method option:selected').removeAttr("selected");
+        $('select#boot_method option#no_boot').html("Please choose");
+		$('.kernel, .bootloader', $('div#os_boot_opts')).hide();
+
+
+		$('input#TYPE', section_raw).val("kvm");
+		$(section_inputs).hide(); //not present for xen
+		update_dynamic_css();
+	};
+
+	mandatory_filter = function(context){
+			man_items = "";
+			if (templ_type == "kvm")
+			{ man_items = ".kvm"; }
+			else if (templ_type == "xen")
+			{ man_items = ".xen"; }
+			else {return false;};
+
+			//find enabled mandatory items in this context
+			man_items = $(man_items+' input:visible',context);
+			r = true;
+			$.each(man_items,function(){
+				if ($(this).parents(".vm_param").attr("disabled") ||
+					!($(this).val().length)) {
+					r = false;
+					return false;
+				};
+			});
+			return r;
+
+		};
+
+	box_add_element = function(context,box_tag,filter){
+			value="";
+			params= $('.vm_param',context);
+			inputs= $('input:enabled',params);
+			selects = $('select:enabled',params);
+			fields = $.merge(inputs,selects);
+
+			//are fields correctly set?
+			result = filter();
+			if (!result) {
+				notifyError("There are mandatory parameters missing in this section");
+				return false;
+			}
+
+			value={};
+			$.each(fields,function(){
+				if (!($(this).parents(".vm_param").attr("disabled")) &&
+					$(this).val().length){
+					id = $(this).attr('id').length ? $(this).attr('id') :  $(this).parent().attr('id');
+					value[id] = $(this).val();
+				}
+			});
+			string = JSON.stringify(value);
+			option= '<option value=\''+string+'\'>'+
+					stringJSON(value)+
+					'</option>';
+			$('select'+box_tag,context).append(option);
+			return false;
+	};
+
+	box_remove_element = function(section_tag,box_tag){
+			context = $(section_tag);
+			$('select'+box_tag+' :selected',context).remove();
+			return false;
+	};
+
+	addSectionJSON = function(template_json,context){
+			params= $('.vm_param',context);
+			inputs= $('input:enabled',params);
+			selects = $('select:enabled',params);
+			fields = $.merge(inputs,selects);
+
+			fields.each(function(){
+				if (!($(this).parents(".vm_param").attr("disabled"))){ //if ! disabled
+					if ($(this).val().length){ //if has a length
+						template_json[$(this).attr('id')]=$(this).val();
+					}
+				}
+			});
+	}
+
+	addBoxJSON = function(array,context,box_tag){
+		$('select'+box_tag+' option',context).each(function(){
+				array.push( JSON.parse($(this).val()) );
+		});
+	}
+
+    removeEmptyObjects = function(obj){
+        for (elem in obj){
+            remove = false;
+            value = obj[elem];
+            if (value instanceof Array)
+            {
+                if (value.length == 0)
+                    remove = true;
+            }
+            else if (value instanceof Object)
+            {
+                var obj_length = 0;
+                for (e in value)
+                    obj_length += 1;
+                if (obj_length == 0)
+                    remove = true;
+            }
+            else
+            {
+                value = String(value);
+                if (value.length == 0)
+                    remove = true;
+            }
+            if (remove)
+                delete obj[elem];
+        }
+        return obj;
+    }
+
+	iconToggle = function(){
+		$('.icon_right').toggle(
+			function(e){
+				$('span',e.currentTarget).removeClass("ui-icon-plusthick");
+				$('span',e.currentTarget).addClass("ui-icon-minusthick");
+			},function(e){
+				$('span',e.currentTarget).removeClass("ui-icon-minusthick");
+				$('span',e.currentTarget).addClass("ui-icon-plusthick");
+			});
+	}
+
+	capacity_setup = function(){
+
+		//$('fieldset',section_capacity).hide();
+
+		//~ $('#add_capacity',section_capacity).click(function(){
+				//~ $('fieldset',section_capacity).toggle();
+				//~ return false;
+		//~ });
+
+	}
+
+	os_boot_setup = function(){
+		$('fieldset',section_os_boot).hide();
+		$('.bootloader, .kernel',section_os_boot).hide();
+
+		$('#add_os_boot_opts',section_os_boot).click(function(){
+			$('fieldset',section_os_boot).toggle();
+            return false;
+		});
+
+
+        //Chrome workaround
+        $('#boot_method').change(function(){
+            $(this).trigger("click");
+        });
+
+        $('#boot_method',section_os_boot).click(function(){
+			select = $(this).val();
+			switch (select)
+			{
+				case "kernel":
+					$('.bootloader',section_os_boot).hide();
+					$('.bootloader',section_os_boot).attr("disabled","disabled");
+					$('.kernel',section_os_boot).show();
+					$('.kernel',section_os_boot).removeAttr("disabled");
+					break;
+				case "bootloader":
+					$('.kernel',section_os_boot).hide();
+					$('.kernel',section_os_boot).attr("disabled","disabled");
+					$('.bootloader',section_os_boot).show();
+					$('.bootloader',section_os_boot).removeAttr("disabled");
+					break;
+				default:
+					$('.kernel, .bootloader',section_os_boot).hide();
+					$('.kernel, .bootloader',section_os_boot).attr("disabled","disabled");
+					$('.kernel input, .bootloader input',section_os_boot).val("");
+			};
+		});
+	};
+
+	disks_setup = function(){
+
+		$('fieldset',section_disks).hide();
+		$('.vm_param', section_disks).hide();
+		//$('#image_vs_disk',section_disks).show();
+
+		$('#add_disks', section_disks).click(function(){
+			$('fieldset',section_disks).toggle();
+            return false;
+		});
+
+		$('#image_vs_disk input',section_disks).click(function(){
+			//$('fieldset',section_disks).show();
+            $('.vm_param', section_disks).show();
+			select = $('#image_vs_disk :checked',section_disks).val();
+			switch (select)
+			{
+				case "disk":
+					$('.add_image',section_disks).hide();
+					$('.add_image',section_disks).attr("disabled","disabled");
+					$('.add_disk',section_disks).show();
+					$('.add_disk',section_disks).removeAttr("disabled");
+					$('#TARGET',section_disks).parent().removeClass(opt_class);
+					$('#TARGET',section_disks).parent().addClass(man_class);
+					break;
+				case "image":
+					$('.add_disk',section_disks).hide();
+					$('.add_disk',section_disks).attr("disabled","disabled");
+					$('.add_image',section_disks).show();
+					$('.add_image',section_disks).removeAttr("disabled");
+					$('#TARGET',section_disks).parent().removeClass(man_class);
+					$('#TARGET',section_disks).parent().addClass(opt_class);
+					break;
+			}
+			$('#SIZE',section_disks).parent().hide();
+			$('#SIZE',section_disks).parent().attr("disabled","disabled");
+			$('#FORMAT',section_disks).parent().hide();
+			$('#SIZE',section_disks).parent().attr("disabled","disabled");
+			$('#TYPE :selected',section_disks).removeAttr("selected");
+
+			update_dynamic_css();
+		});
+
+
+
+		//activate correct mandatory attributes when
+		//selecting disk type
+
+        //Chrome workaround
+        $('select#TYPE',section_disks).change(function(){
+           $(this).trigger('click');
+        });
+
+		$('select#TYPE',section_disks).click(function(){
+			select = $(this).val();
+			switch (select) {
+				//size,format,target
+				case "swap":
+					//size mandatory
+					$('#SIZE',section_disks).parent().show();
+					$('#SIZE',section_disks).parent().removeAttr("disabled");
+					$('#SIZE',section_disks).parent().removeClass(opt_class);
+					$('#SIZE',section_disks).parent().addClass(man_class);
+
+					//target optional
+					$('#TARGET',section_disks).parent().removeClass(man_class);
+					$('#TARGET',section_disks).parent().addClass(opt_class);
+
+					//format hidden
+					$('#FORMAT',section_disks).parent().hide();
+					$('#FORMAT',section_disks).parent().attr("disabled","disabled");
+					break;
+				case "fs":
+					//size mandatory
+					$('#SIZE',section_disks).parent().show();
+					$('#SIZE',section_disks).parent().removeAttr("disabled");
+					$('#SIZE',section_disks).parent().removeClass(opt_class);
+					$('#SIZE',section_disks).parent().addClass(man_class);
+
+					//target mandatory
+					$('#TARGET',section_disks).parent().removeClass(opt_class);
+					$('#TARGET',section_disks).parent().addClass(man_class);
+
+					//format mandatory
+					$('#FORMAT',section_disks).parent().show();
+					$('#FORMAT',section_disks).parent().removeAttr("disabled");
+					$('#FORMAT',section_disks).parent().removeClass(opt_class);
+					$('#FORMAT',section_disks).parent().addClass(man_class);
+
+					break;
+				case "block":
+					//size shown and optional
+					$('#SIZE',section_disks).parent().show();
+					$('#SIZE',section_disks).parent().removeAttr("disabled");
+					$('#SIZE',section_disks).parent().removeClass(man_class);
+					$('#SIZE',section_disks).parent().addClass(opt_class);
+
+					//target mandatory
+					$('#TARGET',section_disks).parent().removeClass(opt_class);
+					$('#TARGET',section_disks).parent().addClass(man_class);
+
+					//format hidden
+					$('#FORMAT',section_disks).parent().hide();
+					$('#FORMAT',section_disks).parent().attr("disabled","disabled");
+					break;
+				case "floppy":
+				case "disk":
+				case "cdrom":
+					//size hidden
+					$('#SIZE',section_disks).parent().hide();
+					$('#SIZE',section_disks).parent().attr("disabled","disabled");
+
+					//target mandatory
+					$('#TARGET',section_disks).parent().removeClass(opt_class);
+					$('#TARGET',section_disks).parent().addClass(man_class);
+
+					//format optional
+				    $('#FORMAT',section_disks).parent().hide();
+				    $('#FORMAT',section_disks).parent().attr("disabled","disabled");
+
+			}
+			update_dynamic_css();
+		});
+
+		diskFilter = function(){
+			return mandatory_filter(section_disks);
+		};
+
+		$('#add_disk_button',section_disks).click(function(){
+			box_add_element(section_disks,'#disks_box',diskFilter);
+			return false;
+			});
+		$('#remove_disk_button',section_disks).click(function(){
+			box_remove_element(section_disks,'#disks_box');
+			return false;
+			});
+	};
+
+	networks_setup = function(){
+
+		$('.vm_param',section_networks).hide();
+		$('fieldset',section_networks).hide();
+
+		$('#add_networks',section_networks).click(function(){
+			$('fieldset',section_networks).toggle();
+            return false;
+		});
+
+		$('#network_vs_niccfg input',section_networks).click(function(){
+
+			select = $('#network_vs_niccfg :checked',section_networks).val();
+			switch (select) {
+				case "network":
+					$('.niccfg',section_networks).hide();
+					$('.niccfg',section_networks).attr("disabled","disabled");
+					$('.network',section_networks).show();
+					$('.network',section_networks).removeAttr("disabled");
+					break;
+				case "niccfg":
+					$('.network',section_networks).hide();
+					$('.network',section_networks).attr("disabled","disabled");
+					$('.niccfg',section_networks).show();
+					$('.niccfg',section_networks).removeAttr("disabled");
+					break;
+			}
+		});
+
+	nicFilter = function(){
+			network = $('select#network :selected',section_networks).attr('id');
+			ip = $('#IP',section_networks).val();
+			mac = $('#MAC',section_networks).val();
+
+			return (network != "no_network" || ip.length || mac.length);
+		};
+
+		$('#add_nic_button',section_networks).click(function(){
+			box_add_element(section_networks,'#nics_box',nicFilter);
+			return false;
+			});
+		$('#remove_nic_button',section_networks).click(function(){
+			box_remove_element(section_networks,'#nics_box');
+			return false;
+			});
+
+	};
+
+	inputs_setup = function() {
+		$('fieldset',section_inputs).hide();
+
+		$('#add_inputs',section_inputs).click(function(){
+				$('fieldset',section_inputs).toggle();
+                return false;
+		});
+
+		$('#add_input_button',section_inputs).click(function(){
+			//no filter
+			box_add_element(section_inputs,'#inputs_box',function(){return true;});
+			return false;
+			});
+		$('#remove_input_button',section_inputs).click(function(){
+			box_remove_element(section_inputs,'#inputs_box');
+			return false;
+			});
+	};
+
+	graphics_setup = function(){
+		$('fieldset',section_graphics).hide();
+        $('.vm_param',section_graphics).hide();
+        $('select#TYPE',section_graphics).parent().show();
+
+		$('#add_graphics',section_graphics).click(function(){
+			$('fieldset',section_graphics).toggle();
+            return false;
+		});
+
+        //Chrome workaround
+        $('select#TYPE',section_graphics).change(function(){
+            $(this).trigger("click");
+        });
+		$('select#TYPE',section_graphics).click(function(){
+			g_type = $(this).val();
+			switch (g_type) {
+				case "vnc":
+                    $('#LISTEN',section_graphics).parent().show();
+					$('#PORT',section_graphics).parent().show();
+					$('#PASSWD',section_graphics).parent().show();
+					$('#KEYMAP',section_graphics).parent().show();
+					$('#PORT',section_graphics).parent().removeAttr("disabled");
+					$('#PASSWD',section_graphics).parent().removeAttr("disabled");
+					$('#KEYMAP',section_graphics).parent().removeAttr("disabled");
+					break;
+				case "sdl":
+                    $('#LISTEN',section_graphics).parent().show();
+					$('#PORT',section_graphics).parent().hide();
+					$('#PASSWD',section_graphics).parent().hide();
+					$('#KEYMAP',section_graphics).parent().hide();
+					$('#PORT',section_graphics).parent().attr("disabled","disabled");
+					$('#PASSWD',section_graphics).parent().attr("disabled","disabled");
+					$('#KEYMAP',section_graphics).parent().attr("disabled","disabled");
+					break;
+                default:
+                    $('#LISTEN',section_graphics).parent().hide();
+					$('#PORT',section_graphics).parent().hide();
+					$('#PASSWD',section_graphics).parent().hide();
+					$('#KEYMAP',section_graphics).parent().hide();
+
+			}
+		});
+
+	}
+
+	context_setup = function(){
+		$('fieldset',section_context).hide();
+
+		$('#add_context',section_context).click(function(){
+				$('fieldset',section_context).toggle();
+                return false;
+		});
+
+	};
+
+	placement_setup = function(){
+		$('fieldset',section_placement).hide();
+
+		$('#add_placement',section_placement).click(function(){
+				$('fieldset',section_placement).toggle();
+                return false;
+		});
+
+	};
+
+	raw_setup = function(){
+		$('fieldset',section_raw).hide();
+
+		$('#add_raw',section_raw).click(function(){
+				$('fieldset',section_raw).toggle();
+                return false;
+		});
+	};
+    
+    //***CREATE VM DIALOG MAIN BODY***
+    
+    $('div#dialogs').append('<div title="Create Virtual Machine" id="create_vm_dialog"></div>');
+	//Insert HTML in place
+	$('#create_vm_dialog').html(create_vm_tmpl);
+	$('#vm_create_tabs').tabs({
+        select:vmTabChange
+        });
+
+	//Prepare jquery dialog
+    var height = Math.floor($(window).height()*0.8); //set height to a percentage of the window
+	$('#create_vm_dialog').dialog({
+		autoOpen: false,
+		modal: true,
+		width: 700,
+        height: height
+	});
+    
+    $('#create_vm_dialog button').button();
+    
+    iconToggle(); //toogle +/- buttons
+
+	//Sections, used to stay within their scope
+	section_capacity = $('#capacity');
+	section_os_boot = $('#os_boot_opts');
+	section_disks = $('#disks');
+	section_networks = $('#networks');
+	section_inputs = $('#inputs');
+	section_graphics = $('#graphics');
+	section_context = $('#context');
+	section_placement = $('#placement');
+	section_raw = $('#raw');
+
+	//Different selector for items of kvm and xen (mandatory and optional)
+	items = '.vm_section input,.vm_section select';
+	kvm_man_items = '.kvm input,.kvm select';
+	kvm_opt_items = '.kvm_opt input, .kvm_opt select';
+	kvm_items = kvm_man_items +','+kvm_opt_items;
+	xen_man_items = '.xen input,.xen select';
+	xen_opt_items = '.xen_opt input, .xen_opt select';
+	xen_items = xen_man_items +','+ xen_opt_items;
+
+	//Starting template type, optional items class and mandatory items class
+	templ_type = "kvm";
+	opt_class=".kvm_opt";
+	man_class=".kvm";
+
+	$('#template_type #kvm').attr("checked","checked"); //check KVM
+	enable_kvm(); //enable all kvm options
+
+	//handle change between templates.
+	$("#template_type input").click(function(){
+		templ_type = $("#template_type :checked").val();
+		switch (templ_type)
+		{
+			case "kvm":
+				enable_kvm();
+				break;
+			case "xen":
+				enable_xen();
+				break;
+		}
+	});
+
+    $('#fold_unfold_vm_params').toggle(
+        function(){
+            $('.vm_section fieldset').show();
+            return false;
+        },
+        function(){
+            $('.vm_section fieldset').hide();
+            $('.vm_section fieldset').first().show();
+            return false;
+        });
+
+	capacity_setup();
+	os_boot_setup();
+	disks_setup();
+	networks_setup();
+	inputs_setup();
+	graphics_setup();
+	context_setup();
+	placement_setup();
+	raw_setup();
+
+	$('button#create_vm_form_easy').click(function(){
+		//validate form
+
+		vm_json = {};
+
+		//process capacity options
+		scope = section_capacity;
+
+		if (!mandatory_filter(scope)){
+			notifyError("There are mandatory fields missing in the capacity section");
+			return false;
+		};
+		addSectionJSON(vm_json,scope);
+
+		//process os_boot_opts
+		scope= section_os_boot;
+		switch (templ_type){
+			case "xen":
+                boot_method = $('#boot_method option:selected',scope).val();
+				if (!boot_method.length){
+					notifyError("Xen templates must specify a boot method");
+					return false;}
+		};
+
+		if (!mandatory_filter(scope)){
+			notifyError("There are mandatory fields missing in the OS Boot options section");
+			return false;
+		};
+		addSectionJSON(vm_json,scope);
+
+		//process disks
+		scope = section_disks;
+		vm_json["DISK"] = [];
+		addBoxJSON(vm_json["DISK"],scope,'#disks_box');
+
+		//process nics -> fetch from box
+		scope = section_networks;
+		vm_json["NIC"] = [];
+		addBoxJSON(vm_json["NIC"],scope,'#nics_box');
+
+		//process inputs -> fetch from box
+		scope = section_inputs;
+		vm_json["INPUT"] = [];
+		addBoxJSON(vm_json["INPUT"],scope,'#inputs_box');
+
+		//process graphics -> fetch fields with value
+		scope = section_graphics;
+		vm_json["GRAPHICS"] = {};
+		addSectionJSON(vm_json["GRAPHICS"],scope);
+
+		//context -> include
+		scope = section_context;
+        var context = $('#CONTEXT',scope).val();
+        if (context)
+            vm_json["CONTEXT"] = context;
+
+		//placement -> fetch with value
+		scope = section_placement;
+		addSectionJSON(vm_json,scope);
+
+		//raw -> if value set type to driver and fetch
+		scope = section_raw;
+		vm_json["RAW"] = {};
+		addSectionJSON(vm_json["RAW"],scope);
+
+        // remove empty elements
+        vm_json = removeEmptyObjects(vm_json);
+
+        //wrap it in the "vm" object
+        vm_json = {vm: vm_json};
+        
+        
+        Sunstone.runAction("VM.create",vm_json);
+		
+        //OpenNebula.VM.create({data: vm_json,
+		//		success: addVMachineElement,
+		//		error: onError});
+
+        $('#create_vm_dialog').dialog('close');
+		return false;
+	});
+
+	$('button#create_vm_form_manual').click(function(){
+		template = $('#textarea_vm_template').val();
+
+        //wrap it in the "vm" object
+        template = {"vm": {"vm_raw": template}};
+
+        Sunstone.runAction("VM.create",template);
+		//OpenNebula.VM.create({data: template,
+		//			success: addVMachineElement,
+		//			error: onError});
+		 $('#create_vm_dialog').dialog('close');
+		return false;
+	});
+
+	$('button#reset_vm_form').click(function(){
+		$('select#disks_box option',section_disks).remove();
+		$('select#nics_box option',section_networks).remove();
+		$('select#inputs_box option',section_inputs).remove();
+		return true;
+	});
+
+
+}
+
+function popUpCreateVMDialog(){
+    $('#create_vm_dialog').dialog('open');
+}
+
+$(document).ready(function(){
+    
+    dataTable_vMachines = $("#datatable_vmachines").dataTable({
+      "bJQueryUI": true,
+      "bSortClasses": false,
+      "sPaginationType": "full_numbers",
+      "bAutoWidth":false,
+      "aoColumnDefs": [
+                        { "bSortable": false, "aTargets": ["check"] },
+                        { "sWidth": "60px", "aTargets": [0] },
+                        { "sWidth": "35px", "aTargets": [1] },
+                        { "sWidth": "100px", "aTargets": [2] }
+                       ]
+    });
+    
+    dataTable_vMachines.fnClearTable();
+    addElement([
+        spinner,
+        '','','','','','','',''],dataTable_vMachines);
+	Sunstone.runAction("VM.list");
+    
+    setupCreateVMDialog();
+    
+    setInterval(function(){
+		var nodes = $('input:checked',dataTable_vMachines.fnGetNodes());
+        var filter = $("#datatable_vmachines_filter input").attr("value");
+		if (!nodes.length && !filter.length){
+			OpenNebula.VM.list({timeout: true, success: updateVMachinesView,error: onError});
+		}
+	},72000); //so that not all refreshing is done at the same time
+    
+    initCheckAllBoxes(dataTable_vMachines);
+    tableCheckboxesListener(dataTable_vMachines);
+    vMachineInfoListener();
+    
+    
+}
+

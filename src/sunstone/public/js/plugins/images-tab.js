@@ -160,9 +160,9 @@ var dataTable_images;
 
 var image_actions = {
     
-    "Image.create" : {
+    "Image.register" : {
         type: "create",
-        call: OpenNebula.Image.create,
+        call: OpenNebula.Image.register,
         callback: addImageElement,
         error: onError,
         notify: False,
@@ -387,3 +387,358 @@ var image_buttons = {
         condition: True
     }
 }
+
+var image_info_panel = {
+    "info_tab" : {
+        
+    },
+    
+    "template_tab" : {
+        
+    }
+    
+}
+
+for (action in image_actions){
+    Sunstone.addAction(action,image_actions[action]);
+}
+
+
+Sunstone.addMainTab('images_tab',"Images",images_tab_content,image_buttons);
+Sunstone.addInfoPanel('image_info_panel',image_info_panel);
+
+
+function imageElementArray(image_json){
+    image = image_json.IMAGE;
+    return [
+        '<input type="checkbox" id="image_'+image.ID+'" name="selected_items" value="'+image.ID+'"/>',
+        image.ID,
+        image.USERNAME ? image.USERNAME : getUserName(image.ID),
+        image.NAME,
+        OpenNebula.Helper.image_type(image.TYPE),
+        pretty_time(image.REGTIME),
+        parseInt(image.PUBLIC) ? "yes" : "no",
+        parseInt(image.PERSISTENT) ? "yes" : "no",
+        OpenNebula.Helper.resource_state("image",image.STATE),
+        image.RUNNING_VMS
+        ];
+}
+
+function imageInfoListener(target){
+
+    $('#tbodyimages tr').live("click",function(e){
+        if ($(e.target).is('input')) {return true;}
+        aData = dataTable_images.fnGetData(this);
+        id = $(aData[0]).val();
+        Sunstone.runAction("Image.showinfo",id);
+        return false;
+    });
+}
+
+function updateImageSelect(image_list){
+    images_select="";
+    images_select += "<option value=\"\">Select an image</option>";
+    $.each(image_list, function(){
+        if ((this.IMAGE.STATE < 3) && (this.IMAGE.STATE > 0)){
+            images_select += '<option id="img_sel_'+this.IMAGE.ID+'" value="'+this.IMAGE.NAME+'">'+this.IMAGE.NAME+'</option>';
+        }
+    });
+
+    //update static selectors
+    $('div.vm_section#disks select#IMAGE').html(images_select);
+}
+
+function updateImageElement(request, image_json){
+    id = image_json.IMAGE.ID;
+    element = imageElementArray(image_json);
+    updateSingleElement(element,dataTable_images,'#image_'+id);
+    if ((image_json.IMAGE.STATE < 3) && 
+        (image_json.IMAGE.STATE > 0) &&
+        ($('#img_sel_'+id,images_select).length == 0)){
+            images_select += '<option id="img_sel_'+id+'" value="'+image_json.IMAGE.NAME+'">'+image_json.IMAGE.NAME+'</option>';
+        }   
+    else {
+        tag = 'option#img_sel_'+id;
+        select = $('<select>'+images_select+'</select>');
+        $(tag,select).remove();
+        images_select = $(select).html();
+    }
+    $('div.vm_section#disks select#IMAGE').html(images_select);
+}
+
+function deleteImageElement(req){
+    deleteElement(dataTable_images,'#image_'+req.request.data);
+    tag = 'option#img_sel_'+req.request.data;
+    select = $('<select>'+images_select+'</select>');
+    $(tag,select).remove();
+    images_select = $(select).html();
+    $('div.vm_section#disks select#IMAGE').html(images_select);    
+}
+
+function addImageElement(request, image_json){
+    element = imageElementArray(image_json);
+    addElement(element,dataTable_images);
+}
+
+function updateImagesView(request, images_list){
+    image_list_json = images_list;
+    image_list_array = [];
+    $.each(image_list_json,function(){
+       image_list_array.push(imageElementArray(this));
+    });
+
+    updateView(image_list_array,dataTable_images);
+    updateImageSelect(images_list);
+    updateDashboard("images",image_list_json);
+
+}
+
+function updateImageInfo(request,img){
+    var img_info = img.IMAGE;
+    var info_tab = {
+        title: "Image information",
+        content:        
+        '<table id="info_img_table" class="info_table">\
+			<thead>\
+				<tr><th colspan="2">Image "'+img_info.NAME+'" information</th></tr>\
+			</thead>\
+			<tr>\
+				<td class="key_td">ID</td>\
+				<td class="value_td">'+img_info.ID+'</td>\
+			</tr>\
+			<tr>\
+				<td class="key_td">Name</td>\
+				<td class="value_td">'+img_info.NAME+'</td>\
+			</tr>\
+			<tr>\
+				<td class="key_td">Type</td>\
+				<td class="value_td">'+OpenNebula.Helper.image_type(img_info.TYPE)+'</td>\
+			</tr>\
+			<tr>\
+				<td class="key_td">Register time</td>\
+				<td class="value_td">'+pretty_time(img_info.REGTIME)+'</td>\
+			</tr>\
+			<tr>\
+				<td class="key_td">Public</td>\
+				<td class="value_td">'+(parseInt(img_info.PUBLIC) ? "yes" : "no")+'</td>\
+			</tr>\
+			<tr>\
+				<td class="key_td">Persistent</td>\
+				<td class="value_td">'+(parseInt(img_info.PERSISTENT) ? "yes" : "no")+'</td>\
+			</tr>\
+			<tr>\
+				<td class="key_td">Source</td>\
+				<td class="value_td">'+img_info.SOURCE+'</td>\
+			</tr>\
+			<tr>\
+				<td class="key_td">State</td>\
+				<td class="value_td">'+OpenNebula.Helper.resource_state("image",img_info.STATE)+'</td>\
+			</tr>\
+		</table>'
+    }
+    
+    var template_tab = {
+        title: "Image template",
+        content: '<table id="img_template_table" class="info_table">\
+		<thead><tr><th colspan="2">Image template</th></tr></thead>'+
+		prettyPrintJSON(img_info.TEMPLATE)+
+		'</table>'
+    }
+    
+    Sunstone.updateInfoPanelTab("image_info_panel","image_info_tab",info_tab);
+    Sunstone.updateInfoPanelTab("image_info_panel","image_template_tab",template_tab);
+        
+    Sunstone.popUpInfoPanel("image_info_panel");
+
+}
+
+function setupCreateImageDialog(){
+     $('div#dialogs').append('<div title="Create Image" id="create_image_dialog"></div>');
+     
+      //Insert HTML in place
+    $('#create_image_dialog').html(create_image_tmpl);
+
+    //Prepare jquery dialog
+    $('#create_image_dialog').dialog({
+		autoOpen: false,
+		modal:true,
+		width: 520
+	});
+    
+    $('#img_tabs').tabs();
+    $('#create_image_dialog button').button();
+    $('#img_type option').first().attr("selected","selected");
+    $('#datablock_img').attr("disabled","disabled");
+
+   //Chrome workaround
+    $('select#img_type').change(function(){
+        $(this).trigger("click");
+    });
+
+    $('select#img_type').click(function(){
+        value = $(this).val();
+        switch (value){
+            case "DATABLOCK":
+                $('#datablock_img').removeAttr("disabled");
+                break;
+            default:
+                $('#datablock_img').attr("disabled","disabled");
+                $('#path_img').attr("checked","checked");
+                $('#img_source,#img_fstype,#img_size').parent().hide();
+                $('#img_path').parent().show();
+        }
+    });
+
+    $('#img_source,#img_fstype,#img_size').parent().hide();
+    $('#path_img').attr("checked","checked");
+    $('#img_path').parent().addClass("img_man");
+
+    $('#img_public').click(function(){
+       $('#img_persistent').removeAttr("checked");
+    });
+
+    $('#img_persistent').click(function(){
+       $('#img_public').removeAttr("checked");
+    });
+
+
+
+    $('#src_path_select input').click(function(){
+        value = $(this).val();
+        switch (value){
+            case "path":
+                $('#img_source,#img_fstype,#img_size').parent().hide();
+                $('#img_source,#img_fstype,#img_size').parent().removeClass("img_man");
+                $('#img_path').parent().show();
+                $('#img_path').parent().addClass("img_man");
+                break;
+            case "source":
+                $('#img_path,#img_fstype,#img_size').parent().hide();
+                $('#img_path,#img_fstype,#img_size').parent().removeClass("img_man");
+                $('#img_source').parent().show();
+                 $('#img_source').parent().addClass("img_man");
+                break;
+            case "datablock":
+                $('#img_source,#img_path').parent().hide();
+                $('#img_source,#img_path').parent().removeClass("img_man");
+                $('#img_fstype,#img_size').parent().show();
+                $('#img_fstype,#img_size').parent().addClass("img_man");
+                break;
+        }
+    });
+
+
+    $('#create_image_form_easy').submit(function(){
+        var exit = false;
+        $('.img_man',this).each(function(){
+           if (!$('input',this).val().length){
+               notifyError("There are mandatory missing parameters");
+               exit = true;
+               return false;
+           }
+        });
+        if (exit) { return false; }
+        var img_json = {};
+
+        var name = $('#img_name').val();
+        img_json["NAME"] = name;
+
+        var desc = $('#img_desc').val();
+        if (desc.length){
+            img_json["DESCRIPTION"] = desc;
+        }
+
+        var type = $('#img_type').val();
+        img_json["TYPE"]= type;
+
+        img_json["PUBLIC"] = $('#img_public:checked').length ? "YES" : "NO";
+
+        img_json["PERSISTENT"] = $('#img_persistent:checked').length ? "YES" : "NO";
+
+        var dev_prefix = $('#img_dev_prefix').val();
+        if (dev_prefix.length){
+            img_json["DEV_PREFIX"] = dev_prefix;
+        }
+
+        var bus = $('#img_bus').val();
+        img_json["BUS"] = bus;
+
+        switch ($('#src_path_select input:checked').val()){
+            case "path":
+                path = $('#img_path').val();
+                img_json["PATH"] = path;
+                break;
+            case "source":
+                source = $('#img_source').val();
+                img_json["SOURCE"] = source;
+                break;
+            case "datablock":
+                size = $('#img_size').val();
+                fstype = $('#img_fstype').val();
+                img_json["SIZE"] = size;
+                img_json["FSTYPE"] = fstype;
+                break;
+        }
+        var obj = { "image" : img_json };
+        Sunstone.runAction("Image.register", obj);
+
+        $('#create_image_dialog').dialog('close');
+       return false;
+    });
+
+    $('#create_image_form_manual').submit(function(){
+		var template=$('#template',this).val();
+        Sunstone.runAction("Image.register",template);
+		$('#create_image_dialog').dialog('close');
+       return false;
+    });
+
+}
+
+function popUpCreateImageDialog(){
+    $('#create_image_dialog').dialog('open');
+}
+
+$(document).ready(function(){
+    
+   dataTable_images = $("#datatable_images").dataTable({
+        "bJQueryUI": true,
+        "bSortClasses": false,
+        "bAutoWidth":false,
+        "sPaginationType": "full_numbers",
+        "aoColumnDefs": [
+                        { "bSortable": false, "aTargets": ["check"] },
+                        { "sWidth": "60px", "aTargets": [0,3] },
+                        { "sWidth": "35px", "aTargets": [1] },
+                        { "sWidth": "100px", "aTargets": [2,3] }
+                       ]
+    });
+    
+    dataTable_images.fnClearTable();
+    addElement([
+        spinner,
+        '','','','','','','','',''],dataTable_images);
+    Sunstone.runAction("Image.list");
+    
+    setupCreateImageDialog();
+    
+    setInterval(function(){
+		var nodes = $('input:checked',dataTable_images.fnGetNodes());
+        var filter = $("#datatable_images_filter input").attr("value");
+		if (!nodes.length && !filter.length){
+			OpenNebula.Image.list({timeout: true, success: updateImagesView, error: onError});
+		}
+	},78000);
+    
+    initCheckAllBoxes(dataTable_images);
+    tableCheckboxesListener(dataTable_images);
+    imageInfoListener();
+    
+}
+
+
+
+
+
+
+

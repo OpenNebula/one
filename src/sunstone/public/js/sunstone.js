@@ -53,10 +53,11 @@ var Sunstone = {
          SunstoneCfg["actions"][action] = null;
     },
     
-    "addMainTab" : function(tab_id,title_arg,content_arg, buttons_arg,refresh) {
+    "addMainTab" : function(tab_id,title_arg,content_arg, buttons_arg,refresh,condition_f) {
         SunstoneCfg["tabs"][tab_id] = {title: title_arg,
                                         content: content_arg,
-                                        buttons: buttons_arg };
+                                        buttons: buttons_arg.
+                                        condition: condition_f };
         if (refresh){
             
         }
@@ -84,7 +85,7 @@ var Sunstone = {
          }
     },
     
-    "getInfoPanelHTML" : function(name){
+    "getInfoPanelHTML" : function(name,selected_tab){
         var info_panel = $('<div id="'+name+'"><ul></ul></div>');
         var tabs = SunstoneCfg["info_panels"][name];
         var tab=null;
@@ -92,6 +93,9 @@ var Sunstone = {
               tab=tabs[tab_name];
               $('ul',info_panel).append('<li><a href="#'+tab_name+'">'+tab.title+'</a></li>');
               info_panel.append('<div id="'+tab_name+'">'+tab.content+'</div>');
+        }
+        if (selected){
+            return info_panel.tabs({selected: selected_tab});
         }
         return info_panel.tabs({selected: 0});
         
@@ -109,8 +113,8 @@ var Sunstone = {
         SunstoneCfg["info_panels"][name] = null;
     },
     
-    "popUpInfoPanel" : function(name){
-        popDialog(Sunstone.getInfoPanelHTML(name));
+    "popUpInfoPanel" : function(name, selected_tab){
+        popDialog(Sunstone.getInfoPanelHTML(name, selected_tab));
     },
     
     "addInfoPanelTab" : function(info_panel, tab_name, tab){
@@ -306,6 +310,9 @@ function insertTabs(){
     var tab_info;
     for (tab in SunstoneCfg["tabs"]){
         tab_info = SunstoneCfg["tabs"][tab];
+        
+        //skip this tab if we do not meet the condition
+        if (tab_info.condition && !tab_info.condition()) {continue;}
         $("div.inner-center").append('<div id="'+tab+'" class="tab"></div>');
         $('div#'+tab).html(tab_info.content);
         
