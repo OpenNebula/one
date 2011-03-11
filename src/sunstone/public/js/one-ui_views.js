@@ -2451,7 +2451,7 @@ function imageElementArray(image_json){
     return [
         '<input type="checkbox" id="image_'+image.ID+'" name="selected_items" value="'+image.ID+'"/>',
         image.ID,
-        image.USERNAME ? image.USERNAME : getUserName(image.ID),
+        image.USERNAME ? image.USERNAME : getUserName(image.UID),
         image.NAME,
         OpenNebula.Helper.image_type(image.TYPE),
         pretty_time(image.REGTIME),
