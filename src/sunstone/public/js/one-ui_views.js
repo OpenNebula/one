@@ -2107,7 +2107,7 @@ function createImageDialog(){
 
     $('#create_image_form_manual').submit(function(){
 		template=$('#template',this).val();
-		OpenNebula.Image.create({data: template,success: addImageElement,error: onError});
+		OpenNebula.Image.register({data: template,success: addImageElement,error: onError});
 		$create_image_dialog.dialog('close');
        return false;
     });
