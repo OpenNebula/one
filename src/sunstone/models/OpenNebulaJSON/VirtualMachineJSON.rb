@@ -20,18 +20,19 @@ module OpenNebulaJSON
     class VirtualMachineJSON < OpenNebula::VirtualMachine
         include JSONUtils
 
-        def allocate(template_json)
+        def create(template_json)
             vm_hash = parse_json(template_json, 'vm')
             if OpenNebula.is_error?(vm_hash)
                 return vm_hash
             end
 
             if vm_hash['vm_raw']
-                super(vm_hash['vm_raw'])
+                template = vm_hash['vm_raw']
             else
                 template = template_to_str(vm_hash)
-                super(template)
             end
+
+            self.allocate(template)
        end
 
         def perform_action(template_json)
