@@ -19,9 +19,9 @@ var dashboard_tab_content =
   <tr>\
       <td>\
       <div class="panel">\
-        <h3><a href="#hosts">Hosts</a>\
+        <h3><a href="#hosts_tab">Hosts</a>\
         <div class="new-resource">\
-                <a class="create_host_button" href="#">+</a>\
+                <a class="action_button" href="#hosts_tab" value="Host.create_dialog">+</a>\
             </div>\
         </h3>\
         <div class="panel_info">\
@@ -40,9 +40,9 @@ var dashboard_tab_content =
     </td>\
     <td>\
       <div class="panel">\
-        <h3><a href="#clusters">Clusters</a>\
+        <h3><a href="#hosts_tab">Clusters</a>\
             <div class="new-resource">\
-                <a class="create_cluster_button" href="#">+</a>\
+                <a class="action_button" href="#hosts_tab" value="Cluster.create_dialog">+</a>\
             </div>\
         </h3>\
         <div class="panel_info">\
@@ -59,9 +59,9 @@ var dashboard_tab_content =
   <tr>\
     <td>\
       <div class="panel">\
-        <h3><a href="#virtualMachines">Virtual Machines</a>\
+        <h3><a href="#vms_tab">Virtual Machines</a>\
             <div class="new-resource">\
-                <a class="create_vm_button" href="#">+</a>\
+                <a class="action_button" href="#vms_tab" value="VM.create_dialog">+</a>\
             </div>\
         </h3>\
         <div class="panel_info">\
@@ -84,9 +84,9 @@ var dashboard_tab_content =
     </td>\
     <td>\
       <div class="panel">\
-        <h3><a href="#virtualNetworks">Virtual Networks</a>\
+        <h3><a href="#vnets_tab">Virtual Networks</a>\
             <div class="new-resource">\
-                <a class="create_vn_button" href="#">+</a>\
+                <a class="action_button" href="#vnets_tab" value="Network.create_dialog">+</a>\
             </div>\
         </h3>\
         <div class="panel_info">\
@@ -109,9 +109,9 @@ var dashboard_tab_content =
     <td>\
       <div class="panel">\
         <h3>\
-            <a href="#images">Images</a>\
+            <a href="#images_tab">Images</a>\
             <div class="new-resource">\
-                <a class="create_image_button" href="#">+</a>\
+                <a class="action_button" href="#images_tab" value="Image.create_dialog">+</a>\
             </div>\
         </h3>\
         <div class="panel_info">\
@@ -130,9 +130,9 @@ var dashboard_tab_content =
     </td>\
     <td class="oneadmin">\
       <div class="panel">\
-       <h3><a href="#users">Users</a>\
+       <h3><a href="#users_tab">Users</a>\
        <div class="new-resource">\
-                <a class="create_user_button" href="#">+</a>\
+                <a class="action_button" href="#users_tab" value="User.create_dialog">+</a>\
             </div>\
         </h3>\
         <div class="panel_info">\

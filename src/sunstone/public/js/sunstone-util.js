@@ -154,7 +154,7 @@ function tableCheckboxesListener(dataTable){
         total_length = nodes.length;
         checked_length = $('input:checked',nodes).length;
 
-        if (total_length == checked_length){
+        if (total_length == checked_length && total_length != 0){
             $('.check_all',dataTable).attr("checked","checked");
         } else {
             $('.check_all',dataTable).removeAttr("checked");
@@ -165,11 +165,11 @@ function tableCheckboxesListener(dataTable){
             if (last_action_b.length && last_action_b.val().length){
                 last_action_b.button("enable");
             };
-            $('.new_button',context).button("enable");
+            $('.create_dialog_button',context).button("enable");
         } else {
             $('.top_button, .list_button',context).button("disable");
             last_action_b.button("disable");
-            $('.new_button',context).button("enable");
+            $('.create_dialog_button',context).button("enable");
         }
     });
 
@@ -332,6 +332,52 @@ function waitingNodes(dataTable){
        dataTable.fnUpdate(spinner,i,0);
     }
 };
+
+function getUserName(uid){
+    var user = "uid "+uid;
+    if (typeof(dataTable_users) == "undefined") {
+        return user;
+        } 
+    nodes = dataTable_users.fnGetData();
+    
+    $.each(nodes,function(){
+       if (uid == this[1]) {
+           user = this[2];
+           return false;
+       }
+    });
+    return user;
+
+}
+
+
+//Replaces all class"tip" divs with an information icon that
+//displays the tip information on mouseover.
+function setupTips(context){
+		$('div.tip',context).each(function(){
+				tip = $(this).html();
+				$(this).html('<span class="ui-icon ui-icon-info info_icon"></span>');
+                $(this).append('<span class="tipspan"></span>');
+
+                $(this).append('<span class="ui-icon ui-icon-alert man_icon" />');
+
+
+				$('span.tipspan',this).html(tip);
+                $(this).parent().append('<div class="clear"></div>');
+				$('span.tipspan',this).hide();
+				$('span.info_icon',this).hover(function(e){
+                    var top, left;
+                    top = e.pageY - 15;// - $(this).parents('#create_vm_dialog').offset().top - 15;
+                    left = e.pageX + 15;// - $(this).parents('#create_vm_dialog').offset().left;
+                    $(this).next().css(
+                        {"top":top+"px",
+                        "left":left+"px"});
+					$(this).next().fadeIn();
+				},function(){
+					$(this).next().fadeOut();
+				});
+		});
+}
 
 
 function True(){

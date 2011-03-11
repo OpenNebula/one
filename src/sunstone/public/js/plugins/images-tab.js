@@ -208,8 +208,21 @@ var image_actions = {
     
     "Image.addattr" : {
         type: "multiple",
-        call: OpenNebula.Image.addattr,
-        callback: function (req) {
+        call: function(obj){
+            var id_attr = obj.data.id;
+            var name = $('#img_attr_name').val();
+            var value = $('#img_attr_value').val();
+            OpenNebula.Image.addattr(
+                {data: {
+                    id: id_attr,
+                    name: name,
+                    value: value
+                    },
+                success: obj.success,
+                error: obj.error
+            });
+        },
+        callback : function (req) {
             Sunstone.runAction("Image.show",req.request.data[0]);
         },
         dataTable: function(){return dataTable_images},
@@ -222,9 +235,25 @@ var image_actions = {
         call: popUpImageAddattrDialog
     },
     
+    "Image.updateattr_dialog" : {
+        type: "custom",
+        call: popUpImageAddattrDialog
+    },
+    
     "Image.rmattr" : {
         type: "multiple",
-        call: OpenNebula.Image.rmattr,
+        call: function(obj){
+            var id_attr = obj.data.id;
+            var name = $('#img_attr_name').val();
+            OpenNebula.Image.rmattr(
+                {data: {
+                    id: id_attr,
+                    name: name
+                    },
+                success: obj.success,
+                error: obj.error
+            });
+        },
         callback: function (req) {
             Sunstone.runAction("Image.show",req.request.data[0]);
         },
@@ -234,9 +263,8 @@ var image_actions = {
     },
     
     "Image.rmattr_dialog" : {
-        type: "custom"
+        type: "custom",
         call: popUpImageRmattrDialog,
-        notify: False
     },
     
     "Image.enable" : {
@@ -335,12 +363,12 @@ var image_buttons = {
         text: "Add attribute",
         condition: True
     },
-    "Image.addattr_dialog" : {
+    "Image.updateattr_dialog" : {
         type: "action",
         text: "Update attribute",
         condition: True
     },
-    "Image.rmattr_dialog:" : {
+    "Image.rmattr_dialog" : {
         type: "action",
         text: "Remove attribute",
         condition: True
@@ -389,12 +417,14 @@ var image_buttons = {
 }
 
 var image_info_panel = {
-    "info_tab" : {
-        
+    "image_info_tab" : {
+        title: "Image information",
+        content: ""
     },
     
-    "template_tab" : {
-        
+    "image_template_tab" : {
+        title: "Image template",
+        content: ""
     }
     
 }
@@ -492,6 +522,73 @@ function updateImagesView(request, images_list){
     updateDashboard("images",image_list_json);
 
 }
+
+function setupImageAttributesDialogs(){
+    $('div#dialogs').append('<div id="image_attributes_dialog" title="Image attributes"></div>');
+
+    $('#image_attributes_dialog').html(
+        '<form action="javascript:alert(\'js error!\');">\
+            <fieldset>\
+            <div id="img_attr_action_desc">\
+            </div>\
+            <div>\
+                <label for="img_attr_name">Name:</label>\
+                <input type="text" id="img_attr_name" name="img_attr_name" value="" />\
+            </div>\
+            <div>\
+                <label for="img_attr_value">Value:</label>\
+               <input type="text" id="img_attr_value" name="img_attr_value" value="" />\
+            </div>\
+			<div class="form_buttons">\
+			  <button class="action_button" id="img_attr_proceed" value="">OK</button>\
+			  <button id="img_attr_cancel" value="">Cancel</button>\
+			</div>\
+            </fieldset>\
+        </form>');
+
+    $('#image_attributes_dialog').dialog({
+        autoOpen:false,
+        width:400,
+        modal:true,
+        height:220,
+        resizable:false,
+    });
+
+    $('#image_attributes_dialog button').button();
+
+    $('#img_attr_name').keyup(function(){
+       $(this).val($(this).val().toUpperCase());
+    });
+
+    $('#image_attributes_dialog #img_attr_cancel').click(function(){
+        $('#image_attributes_dialog').dialog('close');
+        return false;
+    });
+
+}
+
+function popUpImageAddattrDialog(){
+
+        $('#img_attr_value').show();
+        $('#img_attr_value').prev().show();
+        var desc = "Please write the name and value of the attribute. It will be added or updated in all selected images:";
+        $('#img_attr_proceed').val("Image.addattr");
+        $('#img_attr_action_desc').html(desc);
+        $('#image_attributes_dialog').dialog('open');
+        return false;
+}
+
+function popUpImageRmattrDialog(){
+    
+        $('#img_attr_value').hide();
+        $('#img_attr_value').prev().hide();
+        var desc = "Please type the attribute you want to remove:";
+        $('#img_attr_proceed').val("Image.rmattr");
+        $('#img_attr_action_desc').html(desc);
+        $('#image_attributes_dialog').dialog('open');
+        return false;
+}
+
 
 function updateImageInfo(request,img){
     var img_info = img.IMAGE;
@@ -721,6 +818,8 @@ $(document).ready(function(){
     Sunstone.runAction("Image.list");
     
     setupCreateImageDialog();
+    setupImageAttributesDialogs();
+    setupTips($('#create_image_dialog'));
     
     setInterval(function(){
 		var nodes = $('input:checked',dataTable_images.fnGetNodes());
@@ -734,11 +833,4 @@ $(document).ready(function(){
     tableCheckboxesListener(dataTable_images);
     imageInfoListener();
     
-}
-
-
-
-
-
-
-
+})

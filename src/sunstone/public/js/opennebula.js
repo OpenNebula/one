@@ -1275,7 +1275,6 @@ var OpenNebula = {
             var callback = params.success;
             var callback_error = params.error;
             var timeout = params.timeout || false;
-            var resource = OpenNebula.Cluster.resource;
 
             var resource = OpenNebula.Cluster.resource;
             var request = OpenNebula.Helper.request(resource,"list");
@@ -1444,7 +1443,7 @@ var OpenNebula = {
             var callback_error = params.error;
             var timeout = params.timeout || false;
 
-            var resource = OpenNebula.Cluster.resource;
+            var resource = OpenNebula.User.resource;
             var request = OpenNebula.Helper.request(resource,"list");
 
             $.ajax({

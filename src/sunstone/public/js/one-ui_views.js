@@ -2186,8 +2186,12 @@ function setupTips(){
 //Crawls the user dataTable for that. If such user is not found,
 //we return the uid.
 function getUserName(uid){
+    var user = "uid "+uid;
+    if (!dataTable_users) {
+        return user;
+        } 
     nodes = dataTable_users.fnGetData();
-    user = "uid "+uid;
+    
     $.each(nodes,function(){
        if (uid == this[1]) {
            user = this[2];

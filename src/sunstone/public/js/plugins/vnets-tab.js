@@ -137,7 +137,7 @@ var vnet_actions = {
     
     "Network.create_dialog" : {
         type: "custom",
-        call: popUpCreateNetworkDialog
+        call: popUpCreateVnetDialog
     },
     
     "Network.list" : {
@@ -162,7 +162,7 @@ var vnet_actions = {
         callback: updateVNetworkInfo,
         error: onError,
         notify: False
-        }
+        
     },
     
     "Network.refresh" : {
@@ -242,11 +242,13 @@ var vnet_buttons = {
 }
 
 var vnet_info_panel = {
-    "info_tab" : {
-        
+    "vnet_info_tab" : {
+        title: "Virtual network information",
+        content: ""
     },
-    "template_tab" : {
-        
+    "vnet_template_tab" : {
+        title: "Virtual network template",
+        content: ""
     }
 }
 
@@ -389,10 +391,11 @@ function updateVNetworkInfo(request,vn){
 }
 
 
-function setupCreateVNetDialog {
-     
+function setupCreateVNetDialog() {
      
     $('div#dialogs').append('<div title="Create Virtual Network" id="create_vn_dialog"></div>');
+     $('#create_vn_dialog').html(create_vn_tmpl);
+    
     
     //Prepare the jquery-ui dialog. Set style options here.
 	$('#create_vn_dialog').dialog({
@@ -519,7 +522,7 @@ function setupCreateVNetDialog {
 	});
 }
 
-function popUpCreateVnetDialog {
+function popUpCreateVnetDialog() {
     $('#create_vn_dialog').dialog('open');
 }
 
@@ -557,8 +560,7 @@ $(document).ready(function(){
     
     initCheckAllBoxes(dataTable_vNetworks);
     tableCheckboxesListener(dataTable_vNetworks);
-    vNetworkInfoListener()
+    vNetworkInfoListener();
     
     
-}
-
+});

@@ -56,8 +56,9 @@ var Sunstone = {
     "addMainTab" : function(tab_id,title_arg,content_arg, buttons_arg,refresh,condition_f) {
         SunstoneCfg["tabs"][tab_id] = {title: title_arg,
                                         content: content_arg,
-                                        buttons: buttons_arg.
-                                        condition: condition_f };
+                                        buttons: buttons_arg,
+                                        condition: condition_f 
+                                        };
         if (refresh){
             
         }
@@ -94,7 +95,7 @@ var Sunstone = {
               $('ul',info_panel).append('<li><a href="#'+tab_name+'">'+tab.title+'</a></li>');
               info_panel.append('<div id="'+tab_name+'">'+tab.content+'</div>');
         }
-        if (selected){
+        if (selected_tab){
             return info_panel.tabs({selected: selected_tab});
         }
         return info_panel.tabs({selected: 0});
@@ -230,7 +231,6 @@ $(document).ready(function(){
     initListButtons();
     setupCreateDialogs(); //listener for create
     setupConfirmDialogs();
-    setupTips();
     
     $('.action_button').live("click",function(){
         
@@ -351,7 +351,7 @@ function insertButtonsInTab(tab_name){
                     button_code += '</select>';
                     break;
                   case "image":
-                    button_code = '<img src="'+button.img+'" class="action_button" value="'+button_name+'" alt="'+button.text+'" />';
+                    button_code = '<a href="#" class="action_button" value="'+button_name+'"><img class="image_button" src="'+button.img+'" alt="'+button.text+'" /></a>';
                     break;
                   case "create_dialog":
                     button_code = '<button class="'+button.type+'_button action_button top_button" value="'+button_name+'">'+button.text+'</button>';
@@ -609,30 +609,4 @@ function popUpConfirmWithSelectDialog(target_elem){
    
 }
 
-//Replaces all class"tip" divs with an information icon that
-//displays the tip information on mouseover.
-function setupTips(){
-		$('div.tip').each(function(){
-				tip = $(this).html();
-				$(this).html('<span class="ui-icon ui-icon-info info_icon"></span>');
-                $(this).append('<span class="tipspan"></span>');
 
-                $(this).append('<span class="ui-icon ui-icon-alert man_icon" />');
-
-
-				$('span.tipspan',this).html(tip);
-                $(this).parent().append('<div class="clear"></div>');
-				$('span.tipspan',this).hide();
-				$('span.info_icon',this).hover(function(e){
-                    var top, left;
-                    top = e.pageY - 15;// - $(this).parents('#create_vm_dialog').offset().top - 15;
-                    left = e.pageX + 15;// - $(this).parents('#create_vm_dialog').offset().left;
-                    $(this).next().css(
-                        {"top":top+"px",
-                        "left":left+"px"});
-					$(this).next().fadeIn();
-				},function(){
-					$(this).next().fadeOut();
-				});
-		});
-}

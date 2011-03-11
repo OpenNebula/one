@@ -494,12 +494,12 @@ var vm_actions = {
     },
             
     "VM.create_dialog" : {
-        type: "custom"
+        type: "custom",
         call: popUpCreateVMDialog,
     },
     
     "VM.list" : {
-        type: "list"
+        type: "list",
         call: OpenNebula.VM.list,
         callback: updateVMachinesView,
         error: onError,
@@ -662,7 +662,7 @@ var vm_actions = {
     },
     
     "VM.log" : {
-        type: "single"
+        type: "single",
         call: OpenNebula.VM.log,
         callback: function(req,res) {
             var log_lines = res.split("\n");
@@ -798,20 +798,23 @@ var vm_buttons = {
     "VM.delete" : {
         type: "confirm",
         text: "Delete",
-        tip: "This will delete the selected VMs from the database"
+        tip: "This will delete the selected VMs from the database",
         condition: True
     }
 }
 
 var vm_info_panel = {
-    "info_tab" : {
-        
+    "vm_info_tab" : {
+        title: "Virtual Machine information",
+        content: ""
     },
-    "template_tab" : {
-        
+    "vm_template_tab" : {
+        title: "VM template",
+        content: ""
     },
-    "log_tab" : {
-        
+    "vm_log_tab" : {
+        title: "VM log",
+        content: ""
     }
 }
 
@@ -1725,7 +1728,7 @@ $(document).ready(function(){
     initCheckAllBoxes(dataTable_vMachines);
     tableCheckboxesListener(dataTable_vMachines);
     vMachineInfoListener();
+    setupTips($('#create_vm_dialog'));
     
     
-}
-
+})

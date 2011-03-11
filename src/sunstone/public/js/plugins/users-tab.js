@@ -70,7 +70,7 @@ var user_actions = {
     
     "User.list" : {
         type: "list",
-        call: OpenNebula.User.list
+        call: OpenNebula.User.list,
         callback: updateUsersView,
         error: onError,
         notify: False
@@ -229,4 +229,4 @@ $(document).ready(function(){
     initCheckAllBoxes(dataTable_users);
     tableCheckboxesListener(dataTable_users);
     
-}
+})
