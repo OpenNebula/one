@@ -75,6 +75,11 @@ public:
         return ipool;
     };
 
+    ClusterPool * get_cpool()
+    {
+        return cpool;
+    };
+
     // --------------------------------------------------------------
     // Manager Accessors
     // --------------------------------------------------------------
@@ -224,7 +229,7 @@ private:
     // -----------------------------------------------------------------------
 
     Nebula():nebula_configuration(0),db(0),vmpool(0),hpool(0),vnpool(0),upool(0),
-        ipool(0),lcm(0),vmm(0),im(0),tm(0),dm(0),rm(0),hm(0),authm(0)
+        ipool(0),cpool(0),lcm(0),vmm(0),im(0),tm(0),dm(0),rm(0),hm(0),authm(0)
     {
         const char * nl = getenv("ONE_LOCATION");
 
@@ -282,6 +287,11 @@ private:
         if ( ipool != 0)
         {
             delete ipool;
+        }
+
+        if ( cpool != 0)
+        {
+            delete cpool;
         }
 
         if ( vmm != 0)
@@ -370,6 +380,7 @@ private:
     VirtualNetworkPool * vnpool;
     UserPool           * upool;
     ImagePool          * ipool;
+    ClusterPool        * cpool;
 
     // ---------------------------------------------------------------
     // Nebula Managers

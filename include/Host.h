@@ -20,7 +20,6 @@
 #include "PoolSQL.h"
 #include "HostTemplate.h"
 #include "HostShare.h"
-#include "ClusterPool.h"
 
 using namespace std;
 
@@ -357,6 +356,7 @@ private:
     // -------------------------------------------------------------------------
 
     friend class HostPool;
+    friend class ClusterPool;
 
     // -------------------------------------------------------------------------
     // Host Description

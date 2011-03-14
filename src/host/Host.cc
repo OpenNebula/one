@@ -21,6 +21,7 @@
 #include <sstream>
 
 #include "Host.h"
+#include "ClusterPool.h"
 #include "NebulaLog.h"
 
 /* ************************************************************************ */
@@ -51,11 +52,11 @@ Host::~Host(){}
 
 const char * Host::table = "host_pool";
 
-const char * Host::db_names = "oid, name, body, state, last_mon_time";
+const char * Host::db_names = "oid, name, body, state, last_mon_time, cluster";
 
 const char * Host::db_bootstrap = "CREATE TABLE IF NOT EXISTS host_pool ("
     "oid INTEGER PRIMARY KEY, name VARCHAR(256), body TEXT, state INTEGER, "
-    "last_mon_time INTEGER, UNIQUE(name))";
+    "last_mon_time INTEGER, cluster VARCHAR(128), UNIQUE(name))";
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
@@ -97,6 +98,7 @@ int Host::insert_replace(SqlDB *db, bool replace)
     string xml_body;
 
     char * sql_hostname;
+    char * sql_cluster;
     char * sql_xml;
 
    // Update the Host
@@ -106,6 +108,13 @@ int Host::insert_replace(SqlDB *db, bool replace)
     if ( sql_hostname == 0 )
     {
         goto error_hostname;
+    }
+
+    sql_cluster = db->escape_str(cluster.c_str());
+
+    if ( sql_cluster == 0 )
+    {
+        goto error_cluster;
     }
 
     sql_xml = db->escape_str(to_xml(xml_body).c_str());
@@ -131,16 +140,20 @@ int Host::insert_replace(SqlDB *db, bool replace)
         << "'" <<   sql_hostname        << "',"
         << "'" <<   sql_xml             << "',"
         <<          state               << ","
-        <<          last_monitored      << ")";
+        <<          last_monitored      << ","
+        << "'" <<   sql_cluster         << "')";
 
     rc = db->exec(oss);
 
     db->free_str(sql_hostname);
+    db->free_str(sql_cluster);
     db->free_str(sql_xml);
 
     return rc;
 
 error_body:
+    db->free_str(sql_cluster);
+error_cluster:
     db->free_str(sql_hostname);
 error_hostname:
     return -1;

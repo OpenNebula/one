@@ -29,7 +29,7 @@ void RequestManager::ClusterPoolInfo::execute(
     string        session;
     ostringstream oss;
     int           rc;
-    
+
     const string  method_name = "ClusterPoolInfo";
 
     /*   -- RPC specific vars --  */
@@ -49,8 +49,8 @@ void RequestManager::ClusterPoolInfo::execute(
         goto error_authenticate;
     }
 
-    // Perform the allocation in the vmpool
-    rc = ClusterPoolInfo::hpool->dump_cluster(oss);
+    // Dump the pool
+    rc = ClusterPoolInfo::cpool->dump(oss, "");
 
     if ( rc != 0 )
     {

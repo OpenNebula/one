@@ -25,6 +25,7 @@
 #include "VirtualNetworkPool.h"
 #include "HostPool.h"
 #include "UserPool.h"
+#include "ClusterPool.h"
 
 #include "VirtualMachineManager.h"
 #include "LifeCycleManager.h"
@@ -41,7 +42,7 @@ protected:
 
     NebulaTest():mysql(false), need_host_pool(false), need_vm_pool(false),
                 need_vnet_pool(false), need_image_pool(false), 
-                need_user_pool(false), need_vmm(false),
+                need_user_pool(false), need_cluster_pool(false),need_vmm(false),
                 need_im(false), need_tm(false),
                 need_lcm(false), need_dm(false),
                 need_rm(false), need_hm(false),
@@ -60,6 +61,7 @@ public:
     bool need_vnet_pool;
     bool need_image_pool;
     bool need_user_pool;
+    bool need_cluster_pool;
 
     bool need_vmm;
     bool need_im;
@@ -94,6 +96,8 @@ public:
                                     string default_image_type,
                                     string default_device_prefix);
 
+    virtual ClusterPool* create_cpool(SqlDB* db);
+
     // ------------------------------------------------------------------------
     // Managers
     // ------------------------------------------------------------------------
@@ -122,6 +126,7 @@ public:
                     VirtualNetworkPool *    vnpool,
                     UserPool           *    upool,
                     ImagePool          *    ipool,
+                    ClusterPool        *    cpool,
                     string                  log_file);
 
     virtual HookManager* create_hm(VirtualMachinePool * vmpool);

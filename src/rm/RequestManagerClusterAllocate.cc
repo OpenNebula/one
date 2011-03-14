@@ -69,7 +69,7 @@ void RequestManager::ClusterAllocate::execute(
     }
 
     // Perform the allocation in the hostpool
-    rc = ClusterAllocate::hpool->allocate_cluster(&id, clustername, error_str);
+    rc = ClusterAllocate::cpool->allocate(&id, clustername, error_str);
 
     if ( rc == -1 )
     {

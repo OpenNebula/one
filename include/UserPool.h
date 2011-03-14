@@ -59,12 +59,12 @@ public:
      *  it is loaded from the DB
      *    @param oid User unique id
      *    @param lock locks the User mutex
-     *    @return a pointer to the Host, 0 if the User could not be loaded
+     *    @return a pointer to the User, 0 if the User could not be loaded
      */
     User * get(int oid, bool lock)
     {
         return static_cast<User *>(PoolSQL::get(oid,lock));
-    }
+    };
 
     /**
      *  Function to get a User from the pool, if the object is not in memory
@@ -76,7 +76,7 @@ public:
     User * get(string name, bool lock)
     {
         return static_cast<User *>(PoolSQL::get(name,-1,lock));
-    }
+    };
 
     /** Update a particular User
      *    @param user pointer to User
@@ -128,7 +128,7 @@ public:
     int dump(ostringstream& oss, const string& where)
     {
         return PoolSQL::dump(oss, "USER_POOL", User::table, where);
-    }
+    };
 
 private:
     /**
