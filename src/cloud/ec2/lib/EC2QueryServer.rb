@@ -20,7 +20,6 @@ require 'erb'
 require 'time'
 require 'AWS'
 require 'base64'
-
 require 'CloudServer'
 
 require 'ImageEC2'
@@ -74,7 +73,7 @@ class EC2QueryServer < CloudServer
             @server_host=@config[:server]
         end
 
-	    @server_port=@config[:port]
+        @server_port=@config[:port]
 
         print_configuration
     end
@@ -89,20 +88,32 @@ class EC2QueryServer < CloudServer
     def authenticate(params,env)
         password = get_user_password(params['AWSAccessKeyId'])
         return nil if !password
-        
-    	signature = case params['SignatureVersion']
-    	    when "1" then signature_version_1(params.clone, password)
-    	    when "2" then signature_version_2(params,
-    					      password,
-    					      env,
-    					      false)
-    	end
+
+        signature = case params['SignatureVersion']
+            when "1" then signature_version_1(params.clone, password)
+            when "2" then signature_version_2(params,
+                              password,
+                              env,
+                              true,
+                              false)
+        end
 
         if params['Signature']==signature
             return one_client_user(params['AWSAccessKeyId'], password)
-        else 
-            return nil
+        else
+            if params['SignatureVersion']=="2"
+                signature = signature_version_2(params,
+                                  password,
+                                  env,
+                                  false,
+                                  false)
+                if params['Signature']==signature
+                    return one_client_user(params['AWSAccessKeyId'], password)
+                end
+            end
         end
+
+        return nil
     end
 
 
@@ -138,7 +149,7 @@ class EC2QueryServer < CloudServer
 
         image.enable
 
-	    erb_version = params['Version']
+        erb_version = params['Version']
 
         response = ERB.new(File.read(@config[:views]+"/register_image.erb"))
         return response.result(binding), 200
@@ -150,7 +161,7 @@ class EC2QueryServer < CloudServer
         impool.info
 
         erb_user_name = params['AWSAccessKeyId']
-	    erb_version = params['Version']
+        erb_version = params['Version']
 
         response = ERB.new(File.read(@config[:views]+"/describe_images.erb"))
         return response.result(binding), 200
@@ -172,7 +183,7 @@ class EC2QueryServer < CloudServer
         end
 
         # Get the image
-	    tmp, img=params['ImageId'].split('-')
+        tmp, img=params['ImageId'].split('-')
 
         # Build the VM
         erb_vm_info=Hash.new
@@ -198,19 +209,18 @@ class EC2QueryServer < CloudServer
         erb_vm_info[:vm_id]=vm.id
         erb_vm_info[:vm]=vm
         erb_user_name = params['AWSAccessKeyId']
-	    erb_version = params['Version']
+        erb_version = params['Version']
 
         response = ERB.new(File.read(@config[:views]+"/run_instances.erb"))
         return response.result(binding), 200
     end
-
 
     def describe_instances(params, one_client)
         user_flag=-1
         vmpool = VirtualMachinePool.new(one_client, user_flag)
         vmpool.info
 
-	    erb_version = params['Version']
+        erb_version = params['Version']
         erb_user_name = params['AWSAccessKeyId']
         
         response = ERB.new(File.read(@config[:views]+"/describe_instances.erb"))
@@ -222,7 +232,7 @@ class EC2QueryServer < CloudServer
         vmid=params['InstanceId.1']
         vmid=params['InstanceId.01'] if !vmid
 
-	    tmp, vmid=vmid.split('-') if vmid[0]==?i
+        tmp, vmid=vmid.split('-') if vmid[0]==?i
 
         vm = VirtualMachine.new(VirtualMachine.build_xml(vmid),one_client)
         rc = vm.info
@@ -237,7 +247,7 @@ class EC2QueryServer < CloudServer
 
         return OpenNebula::Error.new('Unsupported'),400 if OpenNebula::is_error?(rc)
 
-	    erb_version = params['Version']
+        erb_version = params['Version']
 
         response =ERB.new(File.read(@config[:views]+"/terminate_instances.erb"))
         return response.result(binding), 200
@@ -259,18 +269,19 @@ private
     end
 
     # Calculates signature version 2
-    def signature_version_2(params, secret_key, env, urlencode=true)
+    def signature_version_2(params, secret_key, env, includeport=true, urlencode=true)
         signature_params = params.reject { |key,value|
             key=='Signature' or key=='file' }
 
-
-        server_str = @server_host
-        server_str = server_str + ":" + @server_port unless %w{2008-12-01 2009-11-30}.include? params["Version"]
+        if includeport
+            server_str = @server_host + ':' + @server_port
+        else
+            server_str = @server_host
+        end
 
         canonical_str = AWS.canonical_string(signature_params,
-    				     server_str,
-    				     env['REQUEST_METHOD'])
-
+                         server_str,
+                         env['REQUEST_METHOD'])
 
         # Use the correct signature strength
         sha_strength = case params['SignatureMethod']
@@ -281,13 +292,13 @@ private
 
         digest = OpenSSL::Digest::Digest.new(sha_strength)
         b64hmac =
-      	    Base64.encode64(
+            Base64.encode64(
                 OpenSSL::HMAC.digest(digest, secret_key, canonical_str)).gsub("\n","")
 
         if urlencode
-      	    return CGI::escape(b64hmac)
+            return CGI::escape(b64hmac)
         else
-      	    return b64hmac
+            return b64hmac
         end
     end
     
