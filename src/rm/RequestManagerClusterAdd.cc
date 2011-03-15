@@ -126,6 +126,7 @@ error_host_get:
     goto error_common;
 
 error_cluster_get:
+    host->unlock();
     oss.str(get_error(method_name, "CLUSTER", clid));
     goto error_common;
 
