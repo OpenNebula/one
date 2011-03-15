@@ -218,8 +218,7 @@ if testing=='yes':
         'src/authm/test/SConstruct',
         'src/common/test/SConstruct',
         'src/host/test/SConstruct',
-#       TODO
-#        'src/cluster/test/SConstruct',
+        'src/cluster/test/SConstruct',
         'src/image/test/SConstruct',
         'src/lcm/test/SConstruct',
         'src/pool/test/SConstruct',

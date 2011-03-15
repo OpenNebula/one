@@ -23,6 +23,7 @@
 #include "HostPool.h"
 #include "HostHook.h"
 #include "NebulaLog.h"
+#include "ClusterPool.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -149,7 +150,8 @@ int HostPool::allocate (
         hostname,
         im_mad_name,
         vmm_mad_name,
-        tm_mad_name);
+        tm_mad_name,
+        ClusterPool::DEFAULT_CLUSTER_NAME);
 
     // Insert the Object in the pool
 

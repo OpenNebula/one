@@ -117,7 +117,7 @@ int ClusterPool::drop(Cluster * cluster)
     // Move the hosts assigned to the deleted cluster to the default one
     if( rc == 0 )
     {
-        hpool->search(hids, Host::table, where);
+        hpool->search(hids, where);
 
         for ( hid_it=hids.begin() ; hid_it < hids.end(); hid_it++ )
         {

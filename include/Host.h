@@ -414,7 +414,8 @@ private:
          string _hostname="",
          string _im_mad_name="",
          string _vmm_mad_name="",
-         string _tm_mad_name="");
+         string _tm_mad_name="",
+         string _cluster="");
 
     virtual ~Host();
 

@@ -21,7 +21,6 @@
 #include <sstream>
 
 #include "Host.h"
-#include "ClusterPool.h"
 #include "NebulaLog.h"
 
 /* ************************************************************************ */
@@ -33,14 +32,15 @@ Host::Host(
     string _hostname,
     string _im_mad_name,
     string _vmm_mad_name,
-    string _tm_mad_name):
+    string _tm_mad_name,
+    string _cluster):
         PoolObjectSQL(id,_hostname,-1,table),
         state(INIT),
         im_mad_name(_im_mad_name),
         vmm_mad_name(_vmm_mad_name),
         tm_mad_name(_tm_mad_name),
         last_monitored(0),
-        cluster(ClusterPool::DEFAULT_CLUSTER_NAME),
+        cluster(_cluster),
         host_template()
         {}
 

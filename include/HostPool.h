@@ -140,6 +140,19 @@ public:
         return PoolSQL::dump(oss, "HOST_POOL", Host::table, where);
     };
 
+    /**
+     *  Finds a set objects that satisfies a given condition
+     *   @param oids a vector with the oids of the objects.
+     *   @param the name of the DB table.
+     *   @param where condition in SQL format.
+     *
+     *   @return 0 on success
+     */
+    int search(vector<int>& oids, const string& where)
+    {
+        return PoolSQL::search(oids, Host::table, where);
+    };
+
 private:
 
     /**
