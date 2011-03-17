@@ -29,11 +29,11 @@
 
 Host::Host(
     int     id,
-    string _hostname,
-    string _im_mad_name,
-    string _vmm_mad_name,
-    string _tm_mad_name,
-    string _cluster):
+    const string& _hostname,
+    const string& _im_mad_name,
+    const string& _vmm_mad_name,
+    const string& _tm_mad_name,
+    const string& _cluster):
         PoolObjectSQL(id,_hostname,-1,table),
         state(INIT),
         im_mad_name(_im_mad_name),

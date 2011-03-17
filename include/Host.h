@@ -356,7 +356,6 @@ private:
     // -------------------------------------------------------------------------
 
     friend class HostPool;
-    friend class ClusterPool;
 
     // -------------------------------------------------------------------------
     // Host Description
@@ -382,7 +381,7 @@ private:
 	string      tm_mad_name;
 
 	/**
-     *  If Host State = MONITORED  last time it got fully monitored or 1 Jan 1970
+     *  If Host State= MONITORED  last time it got fully monitored or 1 Jan 1970
      *     Host State = MONITORING last time it got a signal to be monitored
      */
     time_t      last_monitored;
@@ -410,12 +409,12 @@ private:
     // Constructor
     // *************************************************************************
 
-    Host(int     id=-1,
-         string _hostname="",
-         string _im_mad_name="",
-         string _vmm_mad_name="",
-         string _tm_mad_name="",
-         string _cluster="");
+    Host(int           id=-1,
+         const string& hostname="",
+         const string& im_mad_name="",
+         const string& vmm_mad_name="",
+         const string& tm_mad_name="",
+         const string& cluster="");
 
     virtual ~Host();
 

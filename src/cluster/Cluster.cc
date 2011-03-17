@@ -35,13 +35,9 @@ const char * Cluster::db_bootstrap = "CREATE TABLE IF NOT EXISTS cluster_pool ("
 /* Cluster :: Constructor/Destructor                                        */
 /* ************************************************************************ */
 
-Cluster::Cluster(
-    int     id,
-    string _name):
-        PoolObjectSQL(id,_name,-1,table)
-        {}
+Cluster::Cluster(int id, const string& name):PoolObjectSQL(id,name,-1,table){};
 
-Cluster::~Cluster(){}
+Cluster::~Cluster(){};
 
 /* ************************************************************************ */
 /* Cluster :: Database Access Functions                                     */
@@ -155,9 +151,9 @@ string& Cluster::to_xml(string& xml) const
     ostringstream   oss;
 
     oss <<
-    "<CLUSTER>"     <<
-        "<ID>"      << oid      << "</ID>"      <<
-        "<NAME>"    << name     << "</NAME>"    <<
+    "<CLUSTER>"  <<
+        "<ID>"   << oid  << "</ID>"   <<
+        "<NAME>" << name << "</NAME>" <<
     "</CLUSTER>";
 
     xml = oss.str();
@@ -176,8 +172,8 @@ int Cluster::from_xml(const string& xml)
     update_from_str(xml);
 
     // Get class base attributes
-    rc += xpath(oid,    "/CLUSTER/ID",      -1);
-    rc += xpath(name,   "/CLUSTER/NAME",    "not_found");
+    rc += xpath(oid, "/CLUSTER/ID",   -1);
+    rc += xpath(name,"/CLUSTER/NAME", "not_found");
 
     if (rc != 0)
     {

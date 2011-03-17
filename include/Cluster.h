@@ -82,7 +82,7 @@ private:
     // Constructor
     // *************************************************************************
 
-    Cluster(int id, string _name);
+    Cluster(int id, const string& name);
 
     virtual ~Cluster();
 

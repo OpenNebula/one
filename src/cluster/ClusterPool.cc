@@ -25,11 +25,10 @@ const string ClusterPool::DEFAULT_CLUSTER_NAME = "default";
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-ClusterPool::ClusterPool(SqlDB * db):
-    PoolSQL(db, Cluster::table)
+ClusterPool::ClusterPool(SqlDB * db):PoolSQL(db, Cluster::table)
 {
     // lastOID is set in PoolSQL::init_cb
-    if (lastOID == -1)
+    if (get_lastOID() == -1)
     {
         int         rc;
         Cluster *   cluster;
