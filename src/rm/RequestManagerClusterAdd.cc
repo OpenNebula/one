@@ -72,14 +72,6 @@ void RequestManager::ClusterAdd::execute(
         }
     }
 
-    // Check if host exists
-    host = ClusterAdd::hpool->get(hid,true);
-
-    if ( host == 0 )
-    {
-        goto error_host_get;
-    }
-
     // Check if cluster exists
     cluster = ClusterAdd::cpool->get(clid,true);
 
@@ -88,8 +80,16 @@ void RequestManager::ClusterAdd::execute(
         goto error_cluster_get;
     }
 
+    // Check if host exists
+    host = ClusterAdd::hpool->get(hid,true);
+
+    if ( host == 0 )
+    {
+        goto error_host_get;
+    }
+
     // Set cluster
-    rc = host->set_cluster( cluster->get_name() );
+    rc = host->set_cluster(cluster->get_name());
 
     if ( rc != 0 )
     {
@@ -100,6 +100,7 @@ void RequestManager::ClusterAdd::execute(
     ClusterAdd::hpool->update(host);
 
     host->unlock();
+
     cluster->unlock();
 
     // All nice, return success to the client
@@ -122,16 +123,17 @@ error_authorize:
     goto error_common;
 
 error_host_get:
+    cluster->unlock();
     oss.str(get_error(method_name, "HOST", hid));
     goto error_common;
 
 error_cluster_get:
-    host->unlock();
     oss.str(get_error(method_name, "CLUSTER", clid));
     goto error_common;
 
 error_cluster_add:
     host->unlock();
+    cluster->unlock();
     oss.str(action_error(method_name, "USE", "CLUSTER", clid, rc));
     goto error_common;
 
