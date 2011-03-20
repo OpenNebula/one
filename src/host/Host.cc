@@ -29,17 +29,18 @@
 
 Host::Host(
     int     id,
-    string _hostname,
-    string _im_mad_name,
-    string _vmm_mad_name,
-    string _tm_mad_name):
+    const string& _hostname,
+    const string& _im_mad_name,
+    const string& _vmm_mad_name,
+    const string& _tm_mad_name,
+    const string& _cluster):
         PoolObjectSQL(id,_hostname,-1,table),
         state(INIT),
         im_mad_name(_im_mad_name),
         vmm_mad_name(_vmm_mad_name),
         tm_mad_name(_tm_mad_name),
         last_monitored(0),
-        cluster(ClusterPool::DEFAULT_CLUSTER_NAME),
+        cluster(_cluster),
         host_template()
         {}
 
@@ -51,11 +52,11 @@ Host::~Host(){}
 
 const char * Host::table = "host_pool";
 
-const char * Host::db_names = "oid, name, body, state, last_mon_time";
+const char * Host::db_names = "oid, name, body, state, last_mon_time, cluster";
 
 const char * Host::db_bootstrap = "CREATE TABLE IF NOT EXISTS host_pool ("
     "oid INTEGER PRIMARY KEY, name VARCHAR(256), body TEXT, state INTEGER, "
-    "last_mon_time INTEGER, UNIQUE(name))";
+    "last_mon_time INTEGER, cluster VARCHAR(128), UNIQUE(name))";
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
@@ -97,6 +98,7 @@ int Host::insert_replace(SqlDB *db, bool replace)
     string xml_body;
 
     char * sql_hostname;
+    char * sql_cluster;
     char * sql_xml;
 
    // Update the Host
@@ -106,6 +108,13 @@ int Host::insert_replace(SqlDB *db, bool replace)
     if ( sql_hostname == 0 )
     {
         goto error_hostname;
+    }
+
+    sql_cluster = db->escape_str(cluster.c_str());
+
+    if ( sql_cluster == 0 )
+    {
+        goto error_cluster;
     }
 
     sql_xml = db->escape_str(to_xml(xml_body).c_str());
@@ -131,16 +140,20 @@ int Host::insert_replace(SqlDB *db, bool replace)
         << "'" <<   sql_hostname        << "',"
         << "'" <<   sql_xml             << "',"
         <<          state               << ","
-        <<          last_monitored      << ")";
+        <<          last_monitored      << ","
+        << "'" <<   sql_cluster         << "')";
 
     rc = db->exec(oss);
 
     db->free_str(sql_hostname);
+    db->free_str(sql_cluster);
     db->free_str(sql_xml);
 
     return rc;
 
 error_body:
+    db->free_str(sql_cluster);
+error_cluster:
     db->free_str(sql_hostname);
 error_hostname:
     return -1;

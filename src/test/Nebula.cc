@@ -77,6 +77,11 @@ void Nebula::start()
         delete ipool;
     }
 
+    if ( cpool != 0)
+    {
+        delete cpool;
+    }
+
     if ( vmm != 0)
     {
         delete vmm;
@@ -160,6 +165,7 @@ void Nebula::start()
         VirtualNetworkPool::bootstrap(db);
         UserPool::bootstrap(db);
         ImagePool::bootstrap(db);
+        ClusterPool::bootstrap(db);
     }
     catch (exception&)
     {
@@ -202,6 +208,11 @@ void Nebula::start()
                                           repository_path,
                                           default_image_type,
                                           default_device_prefix);
+        }
+
+        if (tester->need_cluster_pool)
+        {
+            cpool  = tester->create_cpool(db);
         }
     }
     catch (exception&)
@@ -347,7 +358,7 @@ void Nebula::start()
     {
         try
         {
-            rm = tester->create_rm(vmpool,hpool,vnpool,upool,ipool,
+            rm = tester->create_rm(vmpool,hpool,vnpool,upool,ipool,cpool,
                                    log_location + "one_xmlrpc.log");
         }
         catch (bad_alloc&)

@@ -29,12 +29,14 @@ void RequestManager::ClusterInfo::execute(
     string  session;
     string  info;
 
-    int     clid;
-    int     rc;
-    
+    Cluster *       cluster;
+    ostringstream   oss;
+
+    int             clid;
+    int             rc;
+
     const string   method_name = "ClusterInfo";
 
-    ostringstream oss;
 
     /*   -- RPC specific vars --  */
     vector<xmlrpc_c::value> arrayData;
@@ -54,13 +56,17 @@ void RequestManager::ClusterInfo::execute(
         goto error_authenticate;
     }
 
-    info = ClusterInfo::hpool->info_cluster(clid);
+    // Get the cluster
+    cluster = ClusterInfo::cpool->get(clid,true);
 
-    // Cluster does not exists
-    if ( info.empty() )
+    if ( cluster == 0 )
     {
-        goto error_cluster;
+        goto error_cluster_get;
     }
+
+    oss << *cluster;
+
+    cluster->unlock();
 
     // All nice, return the cluster info to the client
     arrayData.push_back(xmlrpc_c::value_boolean(true)); // SUCCESS
@@ -78,7 +84,7 @@ error_authenticate:
     oss.str(authenticate_error(method_name));
     goto error_common;
 
-error_cluster:
+error_cluster_get:
     oss.str(get_error(method_name, "CLUSTER", clid));
     goto error_common;
 

@@ -43,19 +43,17 @@ void RequestManager::VirtualMachinePoolInfo::execute(
 
     NebulaLog::log("ReM",Log::DEBUG,"VirtualMachinePoolInfo method invoked");
 
-    // The extended information flag is not used, but for backwards
-    // compatibility, 2 or 4 arguments can be present.
+    // For backwards compatibility, 2 or 3 arguments can be present.
     switch (paramList.size())
     {
         case 2:
             state       = -1;
             break;
-        case 4:
-//            extended    = xmlrpc_c::value_boolean(paramList.getBoolean(2));
+        case 3:
             state       = xmlrpc_c::value_int (paramList.getInt(3));
             break;
         default:
-            paramList.verifyEnd(4);
+            paramList.verifyEnd(3);
             return;
     }
 

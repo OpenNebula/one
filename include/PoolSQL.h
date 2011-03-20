@@ -164,6 +164,14 @@ protected:
     int dump(ostringstream& oss, const string& elem_name,
              const char * table, const string& where);
 
+    /**
+     *  Returns the value of the last identifier assigned by the pool
+     */
+    int get_lastOID()
+    {
+        return lastOID;
+    };
+
 private:
 
     pthread_mutex_t             mutex;
@@ -179,7 +187,7 @@ private:
      *  Last object ID assigned to an object. It must be initialized by the
      *  target pool.
      */
-    int                         lastOID;
+    int     lastOID;
 
     /**
      *  The pool is implemented with a Map of SQL object pointers, using the
