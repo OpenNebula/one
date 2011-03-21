@@ -67,7 +67,19 @@ public:
     {
         return static_cast<Host *>(PoolSQL::get(oid,lock));
     };
-    
+
+    /**
+     *  Function to get a Host from the pool, if the object is not in memory
+     *  it is loaded from the DB
+     *    @param hostname
+     *    @param lock locks the Host mutex
+     *    @return a pointer to the Host, 0 if the Host could not be loaded
+     */
+    Host * get(string name, bool lock)
+    {
+        return static_cast<Host *>(PoolSQL::get(name,-1,lock));
+    };
+
     /**
      *  Bootstraps the database table(s) associated to the Host pool
      */
