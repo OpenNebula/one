@@ -1718,6 +1718,25 @@ function createVMachineDialog(){
 				$('fieldset',section_context).toggle();
                 return false;
 		});
+              
+        $('#add_context_button', section_context).click(function(){
+            var name = $('#var_name',section_context).val();
+            var value = $('#var_value',section_context).val();
+            if (!name.length || !value.length) {
+                notifyError("Context variable name and value must be filled in");
+                return false;
+            }
+            option= '<option value=\''+value+'\' name=\''+name+'\'>'+
+            name+'='+value+
+            '</option>';
+            $('select#context_box',section_context).append(option);
+            return false; 
+        });
+        
+        $('#remove_context_button', section_context).click(function(){
+           box_remove_element(section_context,'#context_box');
+           return false; 
+        });
 
 	};
 
@@ -1879,11 +1898,15 @@ function createVMachineDialog(){
 		vm_json["GRAPHICS"] = {};
 		addSectionJSON(vm_json["GRAPHICS"],scope);
 
-		//context -> include
+		//context
 		scope = section_context;
-        var context = $('#CONTEXT',scope).val();
-        if (context)
-            vm_json["CONTEXT"] = context;
+        vm_json["CONTEXT"] = {};
+        var pair;
+        $('#context_box option',scope).each(function(){
+            name = $(this).attr("name");
+            value = $(this).val();
+            vm_json["CONTEXT"][name]=value;
+        });
 
 		//placement -> fetch with value
 		scope = section_placement;
