@@ -202,11 +202,6 @@ private:
     map<string,PoolObjectSQL *> name_pool;
 
     /**
-     *  If set to true the objects of the pool will be indexed by its name also
-     */
-    bool                        use_index;
-
-    /**
      *  Factory method, must return an ObjectSQL pointer to an allocated pool
      *  specific object.
      */

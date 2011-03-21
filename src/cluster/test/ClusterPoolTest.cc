@@ -80,6 +80,8 @@ class ClusterPoolTest : public PoolTest
     CPPUNIT_TEST (wrong_get);
     CPPUNIT_TEST (drop_and_get);
 
+    CPPUNIT_TEST (name_pool);
+
     CPPUNIT_TEST (duplicates);
     CPPUNIT_TEST (set_cluster);
     CPPUNIT_TEST (remove_cluster);
@@ -191,6 +193,53 @@ public:
     };
 
     /* ********************************************************************* */
+    /* ********************************************************************* */
+
+    // Test intended to check the PoolSQL name index functionallity
+    void name_pool()
+    {
+        Cluster *   cluster;
+        int         oid;
+        string      err;
+
+
+        // Allocate some clusters
+        cpool->allocate(&oid, "name_1", err);
+        CPPUNIT_ASSERT( oid == 1 );
+
+        cpool->allocate(&oid, "name_2", err);
+        CPPUNIT_ASSERT( oid == 2 );
+
+        cpool->allocate(&oid, "name_3", err);
+        CPPUNIT_ASSERT( oid == 3 );
+
+        // Clean the cache
+        cpool->clean();
+
+        cpool->allocate(&oid, "name_4", err);
+        CPPUNIT_ASSERT( oid == 4 );
+
+        cpool->allocate(&oid, "name_5", err);
+        CPPUNIT_ASSERT( oid == 5 );
+
+        // Cluster names 0-3 should be unknown, and 4-5 cached
+        // Ask for a cached object
+        cluster = cpool->get("name_5", false);
+        CPPUNIT_ASSERT( cluster != 0 );
+        CPPUNIT_ASSERT( cluster->get_oid() == 5 );
+        CPPUNIT_ASSERT( cluster->get_name() == "name_5" );
+
+        // Ask for non-cached object
+        cluster = cpool->get("name_2", false);
+        CPPUNIT_ASSERT( cluster != 0 );
+        CPPUNIT_ASSERT( cluster->get_oid() == 2 );
+        CPPUNIT_ASSERT( cluster->get_name() == "name_2" );
+
+        // Ask for non-existing object
+        cluster = cpool->get("name_X", false);
+        CPPUNIT_ASSERT( cluster == 0 );
+    };
+
     /* ********************************************************************* */
 
     void duplicates()
