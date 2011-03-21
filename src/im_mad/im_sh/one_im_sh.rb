@@ -68,7 +68,8 @@ class InformationManager < OpenNebulaDriver
             send_message("MONITOR", RESULT[:success], number, monitor_exe.stdout)
         else
             send_message("MONITOR", RESULT[:failure], number,
-                "Could not monitor host #{host}.")
+                "Could not monitor host #{host}. " +
+                "#{monitor_exe.get_error_message}")
         end
     end
 

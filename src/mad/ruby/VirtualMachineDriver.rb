@@ -121,7 +121,7 @@ class VirtualMachineDriver < OpenNebulaDriver
             info   = command_exe.stdout
         else
             result = :failure
-            info   = command_exe.stderr
+            info   = command_exe.get_error_message
         end
 
         info = "-" if info == nil || info.empty?
