@@ -27,6 +27,20 @@ require 'stringio'
 # * +stdout+: string of the standard output. Read-only
 # * +stderr+: string of the standard error. Read-only
 # * +command+: command to execute. Read-only
+#
+# The protocol for scripts to log is as follows:
+#
+# * Log messages will be sent to STDOUT
+# * The script will return 0 if it succeded or any other value
+#   if there was a failure
+# * In case of failure the cause of the error will be written to STDERR
+#   wrapped by start and end marks as follows:
+#
+#     ERROR MESSAGE --8<------
+#     error message for the failure
+#     ERROR MESSAGE ------>8--
+
+
 class GenericCommand
     attr_reader :code, :stdout, :stderr, :command
 
@@ -77,6 +91,13 @@ class GenericCommand
         end
 
         return @code
+    end
+    
+    # Parses error message from +stderr+ output
+    def get_error_message
+        tmp=@stderr.scan(/^ERROR MESSAGE --8<------\n(.*?)ERROR MESSAGE ------>8--$/m)
+        return "Error message not available" if !tmp[0]
+        tmp[0].join(' ').strip
     end
 
 private
