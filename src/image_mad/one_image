@@ -1,4 +1,4 @@
-# SConstruct for src/vm
+#!/bin/bash
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
@@ -16,18 +16,29 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-Import('env')
+#Setup driver variables
+DRIVER_NAME=`basename $0 | cut -d. -f1`
 
-lib_name='nebula_image'
+if [ -z "${ONE_LOCATION}" ]; then
+    DRIVERRC=/etc/one/${DRIVER_NAME}/${DRIVER_NAME}rc
+    MADCOMMON=/usr/lib/one/mads/madcommon.sh
+    VAR_LOCATION=/var/lib/one
+else
+    DRIVERRC=$ONE_LOCATION/etc/${DRIVER_NAME}/${DRIVER_NAME}rc
+    MADCOMMON=$ONE_LOCATION/lib/mads/madcommon.sh
+    VAR_LOCATION=$ONE_LOCATION/var
+fi
 
-# Sources to generate the library
-source_files=[
-    'Image.cc',
-    'ImagePool.cc',
-    'ImageManagerDriver.cc',
-    'ImageManager.cc',
-    'ImageManagerActions.cc'
-]
+. $MADCOMMON
 
-# Build library
-env.StaticLibrary(lib_name, source_files)
+# Export the im_mad specific rc
+
+export_rc_vars $DRIVERRC
+
+# Go to var directory ONE_LOCATION/var or /var/lib/one
+cd $VAR_LOCATION
+
+LOG_FILE=$DRIVER_NAME
+
+# Execute the actual MAD
+execute_mad $*

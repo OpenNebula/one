@@ -47,7 +47,9 @@ public:
         INIT      = 0, /** < Initialization state */
         READY     = 1, /** < Image ready to use */
         USED      = 2, /** < Image in use */
-        DISABLED  = 3  /** < Image can not be instantiated by a VM */
+        DISABLED  = 3, /** < Image can not be instantiated by a VM */
+        LOCKED    = 4, /** < FS operation for the Image in process */
+        ERROR     = 5  /** < Error state the operation FAILED*/
     };
 
     /**
@@ -93,6 +95,40 @@ public:
     };
 
     /**
+     *  Returns the image state
+     *     @return state of image
+     */
+    ImageState get_state()
+    {
+        return state;
+    }
+
+    /**
+     *  Sets the image state
+     *     @param state of image
+     */
+    void set_state(ImageState _state)
+    {
+        state = _state;
+    }
+
+    /**
+     *
+     */
+    int dec_running ()
+    {
+        return --running_vms;
+    }
+
+    /**
+     *
+     */
+    int inc_running()
+    {
+        return ++running_vms;
+    }
+
+    /**
      *  Set enum type
      *     @return 0 on success, -1 otherwise
      */
@@ -111,47 +147,6 @@ public:
         else if ( _type == "DATABLOCK" )
         {
             type = DATABLOCK;
-        }
-        else
-        {
-            rc = -1;
-        }
-
-        return rc;
-    }
-
-    /**
-     * Get an image to be used in a VM, and updates its state.
-     *  @return 0 if success
-     */
-    int acquire_image();
-
-
-    /**
-     * Releases an image being used by a VM
-     *  @return true if the image needs to be updated
-     */
-    bool release_image();
-
-    /**
-     *  Enables the image
-     *    @param to_enable true will enable the image.
-     *    @return 0 on success
-     */
-    int enable(bool to_enable)
-    {
-        int rc = 0;
-
-        if ( to_enable == true )
-        {
-            if(state == DISABLED)
-            {
-                state = READY;
-            }
-        }
-        else if (state != USED) // to_enable == false
-        {
-            state = DISABLED;
         }
         else
         {

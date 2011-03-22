@@ -368,70 +368,6 @@ int Image::from_xml(const string& xml)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-int Image::acquire_image()
-{
-    int rc = 0;
-
-
-    switch (state)
-    {
-        case READY:
-            running_vms++;
-            state = USED;
-        break;
-
-        case USED:
-             if (persistent_img)
-             {
-                 rc = -1;
-             }
-             else
-             {
-                 running_vms++;
-             }
-        break;
-
-        case DISABLED:
-        default:
-           rc = -1;
-        break;
-    }
-
-    return rc;
-}
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
-bool Image::release_image()
-{
-    bool dirty = false;
-
-    switch (state)
-    {
-        case USED:
-            running_vms--;
-
-            if ( running_vms == 0)
-            {
-                state = READY;
-            }
-
-            dirty = true;
-        break;
-
-        case DISABLED:
-        case READY:
-        default:
-        break;
-    }
-
-    return dirty;
-}
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
 int Image::disk_attribute(  VectorAttribute * disk,
                             int *             index,
                             ImageType*        img_type)
@@ -462,12 +398,12 @@ int Image::disk_attribute(  VectorAttribute * disk,
     //--------------------------------------------------------------------------
     //                       Acquire the image
     //--------------------------------------------------------------------------
-
+/* TODO
     if ( acquire_image() != 0 )
     {
         return -1;
     }
-
+*/
    //---------------------------------------------------------------------------
    //                       NEW DISK ATTRIBUTES
    //---------------------------------------------------------------------------

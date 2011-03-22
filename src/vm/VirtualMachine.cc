@@ -784,13 +784,13 @@ void VirtualMachine::release_disk_images()
             continue;
         }
 
-        img->release_image();
+//TODO        img->release_image();
 
         saveas = disk->vector_value("SAVE_AS");
 
         if ( !saveas.empty() && saveas == iid )
         {
-            img->enable(false);
+//TODO       img->enable(false);
         }
 
         ipool->update(img);

@@ -193,7 +193,8 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/remotes/im/xen.d \
           $LIB_LOCATION/remotes/im/ganglia.d \
           $LIB_LOCATION/remotes/vmm/xen \
-          $LIB_LOCATION/remotes/vmm/kvm"
+          $LIB_LOCATION/remotes/vmm/kvm \
+          $LIB_LOCATION/remotes/image/fs"
 
 VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im \
@@ -277,6 +278,7 @@ INSTALL_FILES=(
     SSH_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/ssh
     DUMMY_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/dummy
     LVM_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/lvm
+    IMAGE_DRIVER_FS_SCRIPTS:$LIB_LOCATION/remotes/image/fs
     EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples
     TM_EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples/tm
     HOOK_SHARE_FILES:$SHARE_LOCATION/hooks
@@ -426,7 +428,9 @@ MADS_LIB_FILES="src/mad/sh/madcommon.sh \
               src/hm_mad/one_hm.rb \
               src/hm_mad/one_hm \
               src/authm_mad/one_auth_mad.rb \
-              src/authm_mad/one_auth_mad"
+              src/authm_mad/one_auth_mad \
+              src/image_mad/one_image.rb \
+              src/image_mad/one_image"
 
 #-------------------------------------------------------------------------------
 # VMM SH Driver KVM scripts, to be installed under $REMOTES_LOCATION/vmm/kvm
@@ -511,6 +515,15 @@ LVM_TM_COMMANDS_LIB_FILES="src/tm_mad/lvm/tm_clone.sh \
                            src/tm_mad/lvm/tm_mkimage.sh \
                            src/tm_mad/lvm/tm_mv.sh \
                            src/tm_mad/lvm/tm_context.sh"
+
+#-------------------------------------------------------------------------------
+# Image Repository drivers, to be installed under $REMOTES_LOCTION/image
+#   - FS based Image Repository, $REMOTES_LOCATION/image/fs
+#-------------------------------------------------------------------------------
+IMAGE_DRIVER_FS_SCRIPTS="src/image_mad/remotes/fs/cp \
+                         src/image_mad/remotes/fs/mkfs \
+                         src/image_mad/remotes/fs/mv \
+                         src/image_mad/remotes/fs/rm"
 
 #-------------------------------------------------------------------------------
 # Configuration files for OpenNebula, to be installed under $ETC_LOCATION
