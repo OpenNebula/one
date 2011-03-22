@@ -395,15 +395,6 @@ int Image::disk_attribute(  VectorAttribute * disk,
 
     get_template_attribute("DEV_PREFIX", prefix);
 
-    //--------------------------------------------------------------------------
-    //                       Acquire the image
-    //--------------------------------------------------------------------------
-/* TODO
-    if ( acquire_image() != 0 )
-    {
-        return -1;
-    }
-*/
    //---------------------------------------------------------------------------
    //                       NEW DISK ATTRIBUTES
    //---------------------------------------------------------------------------
@@ -440,8 +431,6 @@ int Image::disk_attribute(  VectorAttribute * disk,
     {
         new_disk.insert(make_pair("CLONE","NO"));
         new_disk.insert(make_pair("SAVE","YES"));
-
-        new_disk.insert(make_pair("SAVE_AS", iid.str())); // Tells the hook to overwrite
     }
     else
     {

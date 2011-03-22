@@ -20,6 +20,7 @@
 
 #include "ImagePool.h"
 #include "AuthManager.h"
+#include "Nebula.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -67,14 +68,8 @@ int ImagePool::allocate (
     Image * img_aux;
     string  name;
 
-    // ---------------------------------------------------------------------
-    // Build a new Image object
-    // ---------------------------------------------------------------------
     img = new Image(uid, user_name, img_template);
 
-    // ---------------------------------------------------------------------
-    // Check for duplicates
-    // ---------------------------------------------------------------------
     img->get_template_attribute("NAME", name);
     img_aux = get(name,uid,false);
 
@@ -91,9 +86,6 @@ int ImagePool::allocate (
     }
     else
     {
-        // ---------------------------------------------------------------------
-        // Insert the Object in the pool
-        // ---------------------------------------------------------------------
         *oid = PoolSQL::allocate(img, error_str);
     }
 
@@ -115,6 +107,9 @@ int ImagePool::disk_attribute(VectorAttribute *  disk,
 
     ostringstream oss;
 
+    Nebula&        nd     = Nebula::instance();
+    ImageManager * imagem = nd.get_imagem();
+
     source = disk->vector_value("IMAGE");
 
     if (source.empty())
@@ -131,7 +126,7 @@ int ImagePool::disk_attribute(VectorAttribute *  disk,
 
             if( !is.fail() )
             {
-                img = get(image_id,true);
+                img = imagem->acquire_image(image_id);
 
                 if (img == 0)
                 {
@@ -142,7 +137,7 @@ int ImagePool::disk_attribute(VectorAttribute *  disk,
     }
     else
     {
-        img = get(source,uid,true);
+        img = imagem->acquire_image(source,uid);
 
         if (img == 0)
         {
@@ -154,7 +149,7 @@ int ImagePool::disk_attribute(VectorAttribute *  disk,
     {
         string type = disk->vector_value("TYPE");
 
-        transform(type.begin(), type.end(), type.begin(), (int(*)(int))toupper);
+        transform(type.begin(),type.end(),type.begin(),(int(*)(int))toupper);
 
         if( type == "SWAP" )
         {
@@ -174,12 +169,9 @@ int ImagePool::disk_attribute(VectorAttribute *  disk,
     }
     else
     {
-        rc = img->disk_attribute(disk, index, img_type);
+        img->disk_attribute(disk, index, img_type);
 
-        if ( rc == 0 )
-        {
-            update(img);
-        }
+        update(img);
 
         img->unlock();
     }

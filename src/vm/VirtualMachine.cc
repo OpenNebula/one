@@ -123,7 +123,7 @@ int VirtualMachine::select(SqlDB * db)
         return rc;
     }
 
-    //Get History Records. Current history is record is built in from_xml() (if any).
+    //Get History Records. Current history is built in from_xml() (if any).
     if( hasHistory() )
     {
         last_seq = history->seq;
@@ -752,13 +752,19 @@ void VirtualMachine::release_disk_images()
     int     num_disks;
 
     vector<Attribute const  * > disks;
-    Image *                     img;
-    ImagePool *                 ipool;
+    ImageManager *              imagem;
+
+    string  disk_base_path = "";
 
     Nebula& nd = Nebula::instance();
-    ipool      = nd.get_ipool();
+    imagem     = nd.get_imagem();
 
     num_disks   = get_template_attribute("DISK",disks);
+
+    if (hasHistory() != 0)
+    {
+        disk_base_path = get_local_dir();
+    }
 
     for(int i=0; i<num_disks; i++)
     {
@@ -777,25 +783,9 @@ void VirtualMachine::release_disk_images()
             continue;
         }
 
-        img = ipool->get(atoi(iid.c_str()),true);
-
-        if ( img == 0 )
-        {
-            continue;
-        }
-
-//TODO        img->release_image();
-
         saveas = disk->vector_value("SAVE_AS");
 
-        if ( !saveas.empty() && saveas == iid )
-        {
-//TODO       img->enable(false);
-        }
-
-        ipool->update(img);
-
-        img->unlock();
+        imagem->release_image(iid,disk_base_path,i,saveas);
     }
 }
 

@@ -80,19 +80,31 @@ public:
     /**************************************************************************/
 
     /**
-     *
-     *
+     *  Try to acquire an image from the repository for a VM.
+     *    @param image_id id of image
+     *    @return pointer to the image or 0 if could not be acquired
      */
-    int acquire_image(Image *img);
+    Image * acquire_image(int image_id);
 
     /**
-     *
-     *
+     *  Try to acquire an image from the repository for a VM.
+     *    @param name of the image
+     *    @param id of owner
+     *    @return pointer to the image or 0 if could not be acquired
      */
-    int release_image(Image *img);
+    Image * acquire_image(const string& name, int uid);
 
-    int saveas_image(int image_id, const string& src);
-
+    /**
+     *  Releases an image and triggers any needed operations in the repo
+     *    @param iid image id of the image to be released
+     *    @param disk_path base path for disk location
+     *    @param disk number for this image in the VM
+     *    @param saveid id of image to save the current image
+     */
+    void release_image(const string& iid,
+                       const string& disk_path, 
+                       int           disk_num, 
+                       const string& saveid);
     /**
      *  Enables the image
      *    @param to_enable true will enable the image.
@@ -153,6 +165,13 @@ private:
     void do_action(
         const string &  action,
         void *          arg);
+
+    /**
+     *  Acquires an image updating its state.
+     *    @param image pointer to image, it should be locked
+     *    @return 0 on success
+     */
+    int acquire_image(Image *img);
 };
 
 #endif /*IMAGE_MANAGER_H*/

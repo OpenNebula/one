@@ -21,6 +21,56 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+Image * ImageManager::acquire_image(int image_id)
+{
+    Image * img;
+    int     rc;
+
+    img = ipool->get(image_id,true);
+
+    if ( img == 0 )
+    {
+        return 0;
+    }
+
+    rc = acquire_image(img);
+
+    if ( rc != 0 )
+    {
+        img->unlock();
+        img = 0;
+    }
+
+    return img;
+}
+
+/* -------------------------------------------------------------------------- */
+
+Image * ImageManager::acquire_image(const string& name, int uid)
+{
+    Image * img;
+    int     rc;
+
+    img = ipool->get(name,uid,true);
+
+    if ( img == 0 )
+    {
+        return 0;
+    }
+
+    rc = acquire_image(img);
+
+    if ( rc != 0 )
+    {
+        img->unlock();
+        img = 0;
+    }
+
+    return img;
+}
+
+/* -------------------------------------------------------------------------- */
+
 int ImageManager::acquire_image(Image *img)
 {
     int rc = 0;
@@ -57,10 +107,36 @@ int ImageManager::acquire_image(Image *img)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int ImageManager::release_image(Image *img)
+void ImageManager::release_image(const string& image_id,
+                                 const string& disk_path, 
+                                 int           disk_num, 
+                                 const string& save_id)
 {
-    int rc = 0;
     int rvms;
+
+    int iid;
+    int sid = -1;
+
+    istringstream iss;
+    Image *       img;
+
+    iss.str(image_id);
+
+    iss >> iid;
+
+    if ( save_id.empty() == false )
+    {
+        iss.str(save_id);
+
+        iss >> sid;
+    }
+
+    img = ipool->get(iid,true);
+
+    if ( img == 0 )
+    {
+        return;
+    }
 
     switch (img->get_state())
     {
@@ -70,10 +146,34 @@ int ImageManager::release_image(Image *img)
             if ( img->isPersistent() )
             {
                 img->set_state(Image::LOCKED);
+
+                //TODO issue move from disk to source (imgage)
+
+                img->unlock();
+
             }
-            else if ( rvms == 0)
+            else 
             {
-                img->set_state(Image::READY);
+                if ( rvms == 0)
+                {
+                    img->set_state(Image::READY);
+                }
+
+                img->unlock();
+
+                if ( sid != -1 )
+                {
+                    img = ipool->get(sid,true);
+
+                    if ( img == 0 )
+                    {
+                        //TODO Warning in oned.log
+                    }
+
+                    //TODO issue move from disk to source (save_image)
+
+                    img->unlock();
+                }
             }
         break;
 
@@ -82,21 +182,10 @@ int ImageManager::release_image(Image *img)
         case Image::ERROR:
         case Image::LOCKED:
         default:
-            rc = -1;
+            img->unlock();
         break;
     }
-
-    return rc;
 }
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int ImageManager::saveas_image(int image_id, const string& src)
-{
-
-}
-
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -135,10 +224,12 @@ int ImageManager::enable_image(Image *img, bool to_enable)
     return rc;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int ImageManager::register_image(Image *img)
 {
     /* TEmplate src.... */
     /* CALL DRIVER */
-
-    
+    return 0;
 }
