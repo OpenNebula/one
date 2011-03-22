@@ -16,70 +16,10 @@
 
 
 /* Some useful functions for Sunstone default plugins */
+var INTERVAL=60000;
 
-function emptyDashboard(){
-    $("#dashboard .value_td span").html(spinner);
-}
-
-function updateDashboard(what,json_info){
-	db = $('#dashboard');
-	switch (what){
-		case "hosts":
-			total_hosts=json_info.length;
-			active_hosts=0;
-			$.each(json_info,function(){
-				if (parseInt(this.HOST.STATE) < 3){
-					active_hosts++;}
-			});
-			$('#total_hosts',db).html(total_hosts);
-			$('#active_hosts',db).html(active_hosts);
-			break;
-		case "clusters":
-			total_clusters=json_info.length;
-			$('#total_clusters',db).html(total_clusters);
-			break;
-		case "vms":
-			total_vms=json_info.length;
-			running_vms=0;
-            failed_vms=0;
-			$.each(json_info,function(){
-                vm_state = parseInt(this.VM.STATE);
-				if (vm_state == 3){
-					running_vms++;
-                }
-                else if (vm_state == 7) {
-                    failed_vms++;
-                }
-			});
-			$('#total_vms',db).html(total_vms);
-			$('#running_vms',db).html(running_vms);
-			$('#failed_vms',db).html(failed_vms);
-			break;
-		case "vnets":
-			public_vnets=0;
-			total_vnets=json_info.length;
-			$.each(json_info,function(){
-				if (parseInt(this.VNET.PUBLIC)){
-					public_vnets++;}
-			});
-			$('#total_vnets',db).html(total_vnets);
-			$('#public_vnets',db).html(public_vnets);
-			break;
-		case "users":
-			total_users=json_info.length;
-			$('#total_users',db).html(total_users);
-			break;
-        case "images":
-            total_images=json_info.length;
-            public_images=0;
-            $.each(json_info,function(){
-				if (parseInt(this.IMAGE.PUBLIC)){
-					public_images++;}
-			});
-            $('#total_images',db).html(total_images);
-			$('#public_images',db).html(public_images);
-            break;
-	}
+function someTime(){
+    return Math.floor(Math.random()*30000);
 }
 
 function pad(number,length) {

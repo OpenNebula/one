@@ -57,7 +57,7 @@ function showTab(tabname){
 $(document).ready(function () {
     $(".tab").hide();
 
-    $(".outer-west ul li a").click(function(){
+    $(".outer-west ul li a").live("click",function(){
         var tab = $(this).attr('href');
         showTab(tab);
         return false;
@@ -97,6 +97,5 @@ $(document).ready(function () {
     ,	spacing_closed:			12 // ALL panes
     });
 
-    showTab("#dashboard");
 });
 

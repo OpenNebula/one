@@ -110,8 +110,7 @@ var host_actions = {
                 type: "create",
                 call : OpenNebula.Host.create,
                 callback : addHostElement,
-                error : onError,
-                notify:False,
+                error : onError
             },
             
             "Host.create_dialog" : {
@@ -132,16 +131,14 @@ var host_actions = {
                 type: "single",
                 call: OpenNebula.Host.show,
                 callback: updateHostElement,
-                error: onError,
-                notify:False
+                error: onError
             },
             
             "Host.showinfo" : {
                 type: "single",
                 call: OpenNebula.Host.show,
                 callback: updateHostInfo,
-                error: onError,
-                notify: False
+                error: onError
             },
             
             "Host.refresh" : {
@@ -152,7 +149,13 @@ var host_actions = {
                 },
                 callback: function(){},
                 error: onError,
-                notify: False
+            },
+            
+            "Host.autorefresh" : {
+                type: "custom",
+                call : function() {
+                    OpenNebula.Host.list({timeout: true, success: updateHostsView,error: onError});
+                }
             },
             
             "Host.enable" : {
@@ -162,8 +165,7 @@ var host_actions = {
                     Sunstone.runAction("Host.show",req.request.data[0]);
                 },
                 dataTable: function() { return dataTable_hosts },
-                error : onError,
-                notify:True,
+                error : onError
             },
             
             "Host.disable" : {
@@ -173,8 +175,7 @@ var host_actions = {
                     Sunstone.runAction("Host.show",req.request.data[0]);
                 },
                 dataTable: function() { return dataTable_hosts },
-                error : onError,
-                notify:True,
+                error : onError
             },
             
             "Host.delete" : {
@@ -182,8 +183,7 @@ var host_actions = {
                 call : OpenNebula.Host.delete,
                 callback : deleteHostElement,
                 dataTable: function() { return dataTable_hosts },
-                error : onError,
-                notify:True,
+                error : onError
             },
             
             "Host.list" : {
@@ -193,8 +193,7 @@ var host_actions = {
                     OpenNebula.Cluster.list({success: updateClustersView, error: onError});
                     },
                 callback: function(){},
-                error: onError,
-                notify:True,
+                error: onError
             },
                         
             "Cluster.create" : {
@@ -204,8 +203,7 @@ var host_actions = {
                     //OpenNebula.Cluster.list({success: updateClustersView, error: onError});
                     Sunstone.runAction("Cluster.list");
                 },
-                error : onError,
-                notify:True
+                error : onError
             },
             
             "Cluster.create_dialog" : {
@@ -218,7 +216,13 @@ var host_actions = {
                 call: OpenNebula.Cluster.list,
                 callback: updateClustersView,
                 error: onError,
-                notify:True
+            },
+            
+            "Cluster.autorefresh" : {
+                type: "custom",
+                call: function () {
+                    OpenNebula.Cluster.list({timeout: true, success: updateClustersView,error: onError});
+                }
             },
             
             "Cluster.delete" : {
@@ -228,8 +232,7 @@ var host_actions = {
                     //OpenNebula.Cluster.list({success: updateClustersView, error: onError});
                     Sunstone.runAction("Cluster.list");
                 },
-                error : onError,
-                notify:True,
+                error : onError
             },
             
             "Cluster.addhost" : {
@@ -239,16 +242,14 @@ var host_actions = {
                     Sunstone.runAction("Host.show",req.request.data);
 					},
                 dataTable: function() { return dataTable_hosts },
-                error : onError,
-                notify:True,
+                error : onError
             },
             
             "Cluster.removehost" : {
                 type: "multiple",
                 call : OpenNebula.Cluster.removehost,
                 callback : deleteHostElement,
-                error : onError,
-                notify:True,
+                error : onError
             }
         };
 
@@ -286,6 +287,7 @@ var host_buttons = {
             tip: "Select the cluster you want to remove",
             condition : True
         },
+                
         "action_list" : { //Special button
             type: "select",
             actions: { "Cluster.addhost": { 
@@ -321,9 +323,8 @@ var host_info_panel = {
     }
 };
             
-for (action in host_actions){
-    Sunstone.addAction(action,host_actions[action]);
-}
+
+Sunstone.addActions(host_actions);
 
 // title, content, buttons, id
 Sunstone.addMainTab('hosts_tab','Hosts &amp; Clusters',hosts_tab_content,host_buttons);
@@ -614,7 +615,21 @@ function popUpCreateClusterDialog(){
     return false;
 }
 
+function setHostAutorefresh() {
+     setInterval(function(){
+		var checked = $('input:checked',dataTable_hosts.fnGetNodes());
+        var  filter = $("#datatable_hosts_filter input").attr("value");
+		if (!checked.length && !filter.length){
+			Sunstone.runAction("Host.autorefresh");
+		}
+	},INTERVAL+someTime());
+}
 
+function setClusterAutorefresh(){
+    setInterval(function(){
+        Sunstone.runAction("Cluster.autorefresh");
+	},INTERVAL+someTime());
+}
 
 //Document ready
 $(document).ready(function(){
@@ -643,19 +658,9 @@ $(document).ready(function(){
     
     setupCreateHostDialog();
     setupCreateClusterDialog();
+    setHostAutorefresh();
+    setClusterAutorefresh();
     
-    //set refresh interval
-    setInterval(function(){
-		var nodes = $('input:checked',dataTable_hosts.fnGetNodes());
-        var  filter = $("#datatable_hosts_filter input").attr("value");
-		if (!nodes.length && !filter.length){
-			OpenNebula.Host.list({timeout: true, success: updateHostsView,error: onError});
-		}
-	},60000);
-    
-    setInterval(function(){
-        OpenNebula.Cluster.list({timeout: true, success: updateClustersView,error: onError});
-	},64000);
     
     initCheckAllBoxes(dataTable_hosts);
     tableCheckboxesListener(dataTable_hosts);

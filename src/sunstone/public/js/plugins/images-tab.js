@@ -164,8 +164,7 @@ var image_actions = {
         type: "create",
         call: OpenNebula.Image.register,
         callback: addImageElement,
-        error: onError,
-        notify: False,
+        error: onError
     },
     
     "Image.create_dialog" : {
@@ -177,24 +176,21 @@ var image_actions = {
         type: "list",
         call: OpenNebula.Image.list,
         callback: updateImagesView,
-        error: onError,
-        notify: False
+        error: onError
     },
     
     "Image.show" : {
         type : "single",
         call: OpenNebula.Image.show,
         callback: updateImageElement,
-        error: onError,
-        notify: False
+        error: onError
     },
     
     "Image.showinfo" : {
         type: "single",
         call: OpenNebula.Image.show,
         callback: updateImageInfo,
-        error: onError,
-        notify : False
+        error: onError
     },
     
     "Image.refresh" : {
@@ -203,7 +199,13 @@ var image_actions = {
             waitingNodes(dataTable_images);
             Sunstone.runAction("Image.list");
         },
-        notify: False
+    },
+    
+    "Image.autorefresh" : {
+        type: "custom",
+        call: function() {
+            OpenNebula.Image.list({timeout: true, success: updateImagesView, error: onError});
+        }
     },
     
     "Image.addattr" : {
@@ -226,9 +228,8 @@ var image_actions = {
             Sunstone.runAction("Image.show",req.request.data[0]);
         },
         dataTable: function(){return dataTable_images},
-        error: onError,
-        notify:  False
-        },
+        error: onError
+    },
     
     "Image.addattr_dialog" : {
         type: "custom",
@@ -259,7 +260,6 @@ var image_actions = {
         },
         dataTable: function(){return dataTable_images},
         error: onError,
-        notify:  False
     },
     
     "Image.rmattr_dialog" : {
@@ -274,8 +274,7 @@ var image_actions = {
             Sunstone.runAction("Image.show",req.request.data[0]);
         },
         dataTable: function(){return dataTable_images},
-        error: onError,
-        notify:  False          
+        error: onError
      },
             
      "Image.disable" : {
@@ -285,8 +284,7 @@ var image_actions = {
             Sunstone.runAction("Image.show",req.request.data[0]);
         },
         dataTable: function(){return dataTable_images},
-        error: onError,
-        notify:  False               
+        error: onError
      },
             
      "Image.persistent" : {
@@ -296,8 +294,7 @@ var image_actions = {
             Sunstone.runAction("Image.show",req.request.data[0]);
         },
         dataTable: function(){return dataTable_images},
-        error: onError,
-        notify:  False               
+        error: onError
      },
             
      "Image.nonpersistent" : {
@@ -307,8 +304,7 @@ var image_actions = {
             Sunstone.runAction("Image.show",req.request.data[0]);
         },
         dataTable: function(){return dataTable_images},
-        error: onError,
-        notify:  False           
+        error: onError           
      },
             
      "Image.publish" : {
@@ -318,8 +314,7 @@ var image_actions = {
             Sunstone.runAction("Image.show",req.request.data[0]);
         },
         dataTable: function(){return dataTable_images},
-        error: onError,
-        notify:  False                 
+        error: onError                 
      },
             
      "Image.unpublish" : {
@@ -329,8 +324,7 @@ var image_actions = {
             Sunstone.runAction("Image.show",req.request.data[0]);
         },
         dataTable: function(){return dataTable_images},
-        error: onError,
-        notify:  False               
+        error: onError               
      },
             
      "Image.delete" : {
@@ -340,8 +334,7 @@ var image_actions = {
             Sunstone.runAction("Image.show",req.request.data[0]);
         },
         dataTable: function(){return dataTable_images},
-        error: onError,
-        notify:  False                
+        error: onError                
      }
 }
 
@@ -429,11 +422,7 @@ var image_info_panel = {
     
 }
 
-for (action in image_actions){
-    Sunstone.addAction(action,image_actions[action]);
-}
-
-
+Sunstone.addActions(image_actions);
 Sunstone.addMainTab('images_tab',"Images",images_tab_content,image_buttons);
 Sunstone.addInfoPanel('image_info_panel',image_info_panel);
 
@@ -796,6 +785,16 @@ function popUpCreateImageDialog(){
     $('#create_image_dialog').dialog('open');
 }
 
+function setImageAutorefresh() {
+     setInterval(function(){
+		var checked = $('input:checked',dataTable_images.fnGetNodes());
+        var filter = $("#datatable_images_filter input").attr("value");
+		if (!checked.length && !filter.length){
+            Sunstone.runAction("Image.autorefresh");
+		}
+	},INTERVAL+someTime());
+}
+
 $(document).ready(function(){
     
    dataTable_images = $("#datatable_images").dataTable({
@@ -820,14 +819,7 @@ $(document).ready(function(){
     setupCreateImageDialog();
     setupImageAttributesDialogs();
     setupTips($('#create_image_dialog'));
-    
-    setInterval(function(){
-		var nodes = $('input:checked',dataTable_images.fnGetNodes());
-        var filter = $("#datatable_images_filter input").attr("value");
-		if (!nodes.length && !filter.length){
-			OpenNebula.Image.list({timeout: true, success: updateImagesView, error: onError});
-		}
-	},78000);
+    setImageAutorefresh();
     
     initCheckAllBoxes(dataTable_images);
     tableCheckboxesListener(dataTable_images);

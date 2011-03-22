@@ -489,8 +489,7 @@ var vm_actions = {
         type: "create",
         call: OpenNebula.VM.create,
         callback: addVMachineElement,
-        error: onError,
-        notify: False
+        error: onError
     },
             
     "VM.create_dialog" : {
@@ -502,24 +501,21 @@ var vm_actions = {
         type: "list",
         call: OpenNebula.VM.list,
         callback: updateVMachinesView,
-        error: onError,
-        notify: False
+        error: onError
     },
     
     "VM.show" : {
         type: "single",
         call: OpenNebula.VM.show,
         callback: updateVMachineElement,
-        error: onError,
-        notify: False
+        error: onError
     },
     
     "VM.showinfo" : {
         type: "single",
         call: OpenNebula.VM.show,
         callback: updateVMInfo,
-        error: onError,
-        notify: False
+        error: onError
     },
     
     "VM.refresh" : {
@@ -528,7 +524,13 @@ var vm_actions = {
             waitingNodes(dataTable_vMachines);
             Sunstone.runAction("VM.list");
         },
-        notify: False
+    },
+    
+    "VM.autorefresh" : {
+        type: "custom",
+        call : function() {
+            OpenNebula.VM.list({timeout: true, success: updateVMachinesView,error: onError});
+        },
     },
             
     "VM.deploy" : {
@@ -539,7 +541,6 @@ var vm_actions = {
         },
         dataTable: function(){return dataTable_vMachines},
         error: onError,
-        notify:  False
     },
             
     "VM.migrate" : {
@@ -549,8 +550,7 @@ var vm_actions = {
             Sunstone.runAction("VM.show",req.request.data[0]);
         },
         dataTable: function(){return dataTable_vMachines},
-        error: onError,
-        notify:  False                 
+        error: onError
     },
             
     "VM.livemigrate" : {
@@ -560,8 +560,7 @@ var vm_actions = {
             Sunstone.runAction("VM.show",req.request.data[0]);
         },
         dataTable: function(){return dataTable_vMachines},
-        error: onError,
-        notify:  False           
+        error: onError
     },
             
     "VM.hold" : {
@@ -571,8 +570,7 @@ var vm_actions = {
             Sunstone.runAction("VM.show",req.request.data[0]);
         },
         dataTable: function(){return dataTable_vMachines},
-        error: onError,
-        notify:  False                     
+        error: onError
     },
             
     "VM.release" : {
@@ -582,8 +580,7 @@ var vm_actions = {
             Sunstone.runAction("VM.show",req.request.data[0]);
         },
         dataTable: function(){return dataTable_vMachines},
-        error: onError,
-        notify:  False                     
+        error: onError
     },
             
     "VM.suspend" : {
@@ -593,8 +590,7 @@ var vm_actions = {
             Sunstone.runAction("VM.show",req.request.data[0]);
         },
         dataTable: function(){return dataTable_vMachines},
-        error: onError,
-        notify:  False                  
+        error: onError
     },
             
     "VM.resume" : {
@@ -604,8 +600,7 @@ var vm_actions = {
             Sunstone.runAction("VM.show",req.request.data[0]);
         },
         dataTable: function(){return dataTable_vMachines},
-        error: onError,
-        notify:  False               
+        error: onError
     },
             
     "VM.stop" : {
@@ -615,8 +610,7 @@ var vm_actions = {
             Sunstone.runAction("VM.show",req.request.data[0]);
         },
         dataTable: function(){return dataTable_vMachines},
-        error: onError,
-        notify:  False                     
+        error: onError
     },
             
     "VM.restart" : {
@@ -626,8 +620,7 @@ var vm_actions = {
             Sunstone.runAction("VM.show",req.request.data[0]);
         },
         dataTable: function(){return dataTable_vMachines},
-        error: onError,
-        notify:  False                   
+        error: onError
     },
             
     "VM.shutdown" : {
@@ -637,8 +630,7 @@ var vm_actions = {
             Sunstone.runAction("VM.show",req.request.data[0]);
         },
         dataTable: function(){return dataTable_vMachines},
-        error: onError,
-        notify:  False                
+        error: onError
     },
             
     "VM.cancel" : {
@@ -648,8 +640,7 @@ var vm_actions = {
             Sunstone.runAction("VM.show",req.request.data[0]);
         },
         dataTable: function(){return dataTable_vMachines},
-        error: onError,
-        notify:  False                      
+        error: onError
     },
             
     "VM.delete" : {
@@ -657,8 +648,7 @@ var vm_actions = {
         call: OpenNebula.VM.delete,
         callback: deleteVMachineElement,
         dataTable: function(){return dataTable_vMachines},
-        error: onError,
-        notify:  False                     
+        error: onError
     },
     
     "VM.log" : {
@@ -685,12 +675,9 @@ var vm_actions = {
         error: function(request,error_json){
             $("#vm_log pre").html('');
             onError(request,error_json);
-        },
-        notify: False
+        }
     }
 }
-
-
 
 
 
@@ -818,10 +805,7 @@ var vm_info_panel = {
     }
 }
 
-for (action in vm_actions){
-    Sunstone.addAction(action,vm_actions[action]);
-}
-
+Sunstone.addActions(vm_actions);
 Sunstone.addMainTab('vms_tab',"Virtual Machines",vms_tab_content,vm_buttons);
 Sunstone.addInfoPanel('vm_info_panel',vm_info_panel);
 
@@ -1694,6 +1678,16 @@ function popUpCreateVMDialog(){
     $('#create_vm_dialog').dialog('open');
 }
 
+function setVMAutorefresh(){
+     setInterval(function(){
+		var checked = $('input:checked',dataTable_vMachines.fnGetNodes());
+        var filter = $("#datatable_vmachines_filter input").attr("value");
+		if (!checked.length && !filter.length){
+            Sunstone.runAction("VM.autorefresh");
+		}
+	},INTERVAL+someTime()); //so that not all refreshing is done at the same time
+}
+
 $(document).ready(function(){
     
     dataTable_vMachines = $("#datatable_vmachines").dataTable({
@@ -1716,14 +1710,7 @@ $(document).ready(function(){
 	Sunstone.runAction("VM.list");
     
     setupCreateVMDialog();
-    
-    setInterval(function(){
-		var nodes = $('input:checked',dataTable_vMachines.fnGetNodes());
-        var filter = $("#datatable_vmachines_filter input").attr("value");
-		if (!nodes.length && !filter.length){
-			OpenNebula.VM.list({timeout: true, success: updateVMachinesView,error: onError});
-		}
-	},72000); //so that not all refreshing is done at the same time
+    setVMAutorefresh();
     
     initCheckAllBoxes(dataTable_vMachines);
     tableCheckboxesListener(dataTable_vMachines);

@@ -59,8 +59,7 @@ var user_actions = {
         type: "create",
         call: OpenNebula.User.create,
         callback: addUserElement,
-        error: onError,
-        notify: False
+        error: onError
     },
     
     "User.create_dialog" : {
@@ -72,8 +71,7 @@ var user_actions = {
         type: "list",
         call: OpenNebula.User.list,
         callback: updateUsersView,
-        error: onError,
-        notify: False
+        error: onError
     },
     
     "User.refresh" : {
@@ -81,16 +79,24 @@ var user_actions = {
         call: function () {
             waitingNodes(dataTable_users);
             Sunstone.runAction("User.list");
-        }
+        },
     },
-            
+    
+    "User.autorefresh" : {
+        type: "custom",
+        call: function(){
+            OpenNebula.User.list({timeout: true, success: updateUsersView, error: onError});
+        },
+        condition: function(){ uid == 0 },
+        notify: false
+    },
+    
     "User.delete" : {
         type: "multiple",
         call: OpenNebula.User.delete,
         callback: deleteUserElement,
         dataTable: function(){return dataTable_users},
-        error: onError,
-        notify:  False  
+        error: onError
     },
 }
 
@@ -113,10 +119,7 @@ var user_buttons = {
     }
 }
 
-for (action in user_actions){
-    Sunstone.addAction(action,user_actions[action]);
-}
-
+Sunstone.addActions(user_actions);
 Sunstone.addMainTab('users_tab',"Users",users_tab_content,user_buttons,false,function(){return uid==0;});
 
 
@@ -194,39 +197,46 @@ function popUpCreateUserDialog(){
 }
 
 
+function setUserAutorefresh(){
+    setInterval(function(){
+		var checked = $('input:checked',dataTable_users.fnGetNodes());
+        var filter = $("#datatable_users_filter input").attr("value");
+		if (!checked.length && !filter.length){
+            Sunstone.runAction("User.autorefresh");
+		}
+    },INTERVAL+someTime());
+}
+
 $(document).ready(function(){
     
-    
-    dataTable_users = $("#datatable_users").dataTable({
-          "bJQueryUI": true,
-          "bSortClasses": false,
-          "sPaginationType": "full_numbers",
-          "bAutoWidth":false,
-          "aoColumnDefs": [
-                            { "bSortable": false, "aTargets": ["check"] },
-                            { "sWidth": "60px", "aTargets": [0] },
-                            { "sWidth": "35px", "aTargets": [1] }
-                           ]
-    });    
-    
-    dataTable_users.fnClearTable();
-    addElement([
+    if (uid==0) {
+        dataTable_users = $("#datatable_users").dataTable({
+            "bJQueryUI": true,
+            "bSortClasses": false,
+            "sPaginationType": "full_numbers",
+            "bAutoWidth":false,
+            "aoColumnDefs": [
+                                { "bSortable": false, "aTargets": ["check"] },
+                                { "sWidth": "60px", "aTargets": [0] },
+                                { "sWidth": "35px", "aTargets": [1] }
+                            ]
+        });    
+        dataTable_users.fnClearTable();
+        addElement([
             spinner,
             '',''],dataTable_users);
-    Sunstone.runAction("User.list");
+            
+        Sunstone.runAction("User.list");
     
-    setupCreateUserDialog();
+        setupCreateUserDialog();
+        setUserAutorefresh();
+        
+        initCheckAllBoxes(dataTable_users);
+        tableCheckboxesListener(dataTable_users);
+    }
     
-    //TODO user oneadmin
-    setInterval(function(){
-		var nodes = $('input:checked',dataTable_users.fnGetNodes());
-        var filter = $("#datatable_users_filter input").attr("value");
-		if (!nodes.length && !filter.length){
-			OpenNebula.User.list({timeout: true, success: updateUsersView, error: onError});
-		}
-    },74000); //so that not all refreshing is done at the same time
-    
-    initCheckAllBoxes(dataTable_users);
-    tableCheckboxesListener(dataTable_users);
+            
+            
+
     
 })

@@ -53,6 +53,12 @@ var Sunstone = {
          SunstoneCfg["actions"][action] = null;
     },
     
+    "addActions" : function(actions) {
+        for (action in actions){
+            Sunstone.addAction(action,actions[action]);
+        }  
+    },
+    
     "addMainTab" : function(tab_id,title_arg,content_arg, buttons_arg,refresh,condition_f) {
         SunstoneCfg["tabs"][tab_id] = {title: title_arg,
                                         content: content_arg,
@@ -143,11 +149,20 @@ var Sunstone = {
         }
         
         var action_cfg = actions[action];
+        var notify = action_cfg.notify;
+        
+        var condition = action_cfg["condition"];
+        if (condition && !condition() && notify){
+            //we do not meet the condition to run this action
+            notifyError("This action cannot be run");
+            return;
+        }
         
         var call = action_cfg["call"];
         var callback = action_cfg["callback"];
         var err = action_cfg["error"];
-        var notify = action_cfg.notify;
+       
+        
         
         $('div#confirm_with_select_dialog').dialog("close");
         $('div#confirm_dialog').dialog("close");
@@ -275,6 +290,8 @@ $(document).ready(function(){
        $('.action_list:visible').hide();
     });
     
+    showTab('#dashboard_tab');
+    
 });
 
 
@@ -367,7 +384,7 @@ function insertButtonsInTab(tab_name){
     }//if tab exists
 }
 
-// We do not insert info panels code, we generate it dinamicly when
+// We do not insert info panels code, we generate it dynamicly when
 // we need it with getInfoPanelHTML()
 //~ function insertInfoPanels(){
     //~ var panels = SunstoneCfg["info_panels"];

@@ -174,6 +174,13 @@ var vnet_actions = {
         notify: False
     },
     
+    "Network.autorefresh" : {
+        type: "custom",
+        call: function() {
+            OpenNebula.Network.list({timeout: true, success: updateVNetworksView, error: onError});
+        }
+    },
+    
     "Network.publish" : {
         type: "multiple",
         call: OpenNebula.Network.publish,
@@ -252,10 +259,7 @@ var vnet_info_panel = {
     }
 }
 
-for (action in vnet_actions){
-    Sunstone.addAction(action,vnet_actions[action]);
-}
-
+Sunstone.addActions(vnet_actions);
 Sunstone.addMainTab('vnets_tab',"Virtual Networks",vnets_tab_content, vnet_buttons);
 Sunstone.addInfoPanel('vnet_info_panel',vnet_info_panel);
 
@@ -526,6 +530,16 @@ function popUpCreateVnetDialog() {
     $('#create_vn_dialog').dialog('open');
 }
 
+function setVNetAutorefresh() {
+    setInterval(function(){
+		var checked = $('input:checked',dataTable_vNetworks.fnGetNodes());
+        var filter = $("#datatable_vnetworks_filter input").attr("value");
+		if (!checked.length && !filter.length){
+			Sunstone.runAction("Network.autorefresh");
+		}
+	},INTERVAL+someTime());
+}
+
 
 $(document).ready(function(){
     
@@ -549,14 +563,7 @@ $(document).ready(function(){
     Sunstone.runAction("Network.list");
     
     setupCreateVNetDialog();
-    
-    setInterval(function(){
-		var nodes = $('input:checked',dataTable_vNetworks.fnGetNodes());
-        var filter = $("#datatable_vnetworks_filter input").attr("value");
-		if (!nodes.length && !filter.length){
-			OpenNebula.Network.list({timeout: true, success: updateVNetworksView, error: onError});
-		}
-	},68000);
+    setVNetAutorefresh();
     
     initCheckAllBoxes(dataTable_vNetworks);
     tableCheckboxesListener(dataTable_vNetworks);

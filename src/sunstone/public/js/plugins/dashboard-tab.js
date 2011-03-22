@@ -160,6 +160,9 @@ $(document).ready(function(){
     });
     
     emptyDashboard();
+    if (uid!=0) {
+        $("td.oneadmin").hide();
+    }
     
     
 });
