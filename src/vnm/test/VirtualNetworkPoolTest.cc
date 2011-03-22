@@ -409,12 +409,12 @@ public:
         CPPUNIT_ASSERT( rc == oid_0 );
         CPPUNIT_ASSERT( rc == 0 );
 
-        // Allocate the same vnet twice, with the same user ID
+        // Allocate the same vnet twice, with the same user ID. Should fail
         rc = vnpool->allocate(uids[0], user_names[0], templates[0], &oid_1);
         CPPUNIT_ASSERT( rc ==  oid_1 );
         CPPUNIT_ASSERT( rc == -1 );
 
-        // Same VNet, with different user ID
+        // Same VNet, with different user ID. Should succeed
         rc = vnpool->allocate(uids[1], user_names[1], templates[0], &oid_2);
         CPPUNIT_ASSERT( rc ==  oid_2 );
         CPPUNIT_ASSERT( rc == 1 );
@@ -425,7 +425,7 @@ public:
         CPPUNIT_ASSERT( rc == 2 );
 
 
-        // Make sure the table contains only one vnet with name[0]
+        // Make sure the table contains two vnets with name[0]
         vector<int>     results;
         int             ret;
         const char *    table   = "network_pool";

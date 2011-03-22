@@ -144,18 +144,32 @@ int HostPool::allocate (
 {
     Host *        host;
 
-    // Build a new Host object
+    host = get(hostname,false);
 
-    host = new Host(-1,
-        hostname,
-        im_mad_name,
-        vmm_mad_name,
-        tm_mad_name,
-        ClusterPool::DEFAULT_CLUSTER_NAME);
+    if ( host !=0)
+    {
+        ostringstream oss;
 
-    // Insert the Object in the pool
+        oss << "NAME is already taken by HOST " << host->get_oid() << ".";
+        error_str = oss.str();
 
-    *oid = PoolSQL::allocate(host, error_str);
+        *oid = -1;
+    }
+    else
+    {
+        // Build a new Host object
+
+        host = new Host(-1,
+            hostname,
+            im_mad_name,
+            vmm_mad_name,
+            tm_mad_name,
+            ClusterPool::DEFAULT_CLUSTER_NAME);
+
+        // Insert the Object in the pool
+
+        *oid = PoolSQL::allocate(host, error_str);
+    }
 
     return *oid;
 }

@@ -120,26 +120,39 @@ int UserPool::allocate (
     string& error_str)
 {
     User *        user;
+    ostringstream oss;
+
+    if ( username.empty() )
+    {
+        goto error_name;
+    }
 
     user = get(username,false);
 
-    if ( user !=0)
+    if ( user !=0 )
     {
-        ostringstream oss;
-
-        oss << "NAME is already taken by USER " << user->get_oid() << ".";
-        error_str = oss.str();
-
-        *oid = -1;
+        goto error_duplicated;
     }
-    else
-    {
-        // Build a new User object
-        user = new User(-1, username, password, enabled);
 
-        // Insert the Object in the pool
-        *oid = PoolSQL::allocate(user, error_str);
-    }
+    // Build a new User object
+    user = new User(-1, username, password, enabled);
+
+    // Insert the Object in the pool
+    *oid = PoolSQL::allocate(user, error_str);
+
+    return *oid;
+
+
+error_name:
+    oss << "NAME cannot be empty.";
+    goto error_common;
+
+error_duplicated:
+    oss << "NAME is already taken by USER " << user->get_oid() << ".";
+
+error_common:
+    *oid = -1;
+    error_str = oss.str();
 
     return *oid;
 }

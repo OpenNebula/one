@@ -57,30 +57,41 @@ ClusterPool::ClusterPool(SqlDB * db):PoolSQL(db, Cluster::table)
 
 int ClusterPool::allocate(int * oid, string name, string& error_str)
 {
-    Cluster *   cluster;
-    Cluster *   cluster_aux;
+    Cluster *       cluster;
+    ostringstream   oss;
+
+    if ( name.empty() )
+    {
+        goto error_name;
+    }
 
     // Check for duplicates
-    cluster_aux = get(name, false);
+    cluster = get(name, false);
 
-    if( cluster_aux != 0 )
+    if( cluster != 0 )
     {
-        ostringstream oss;
-
-        oss << "NAME is already taken by CLUSTER "
-            << cluster_aux->get_oid() << ".";
-        error_str = oss.str();
-
-        *oid = -1;
+        goto error_duplicated;
     }
-    else
-    {
-        // Build a new Cluster object
-        cluster = new Cluster(-1, name);
 
-        // Insert the Object in the pool
-        *oid = PoolSQL::allocate(cluster, error_str);
-    }
+    // Build a new Cluster object
+    cluster = new Cluster(-1, name);
+
+    // Insert the Object in the pool
+    *oid = PoolSQL::allocate(cluster, error_str);
+
+    return *oid;
+
+
+error_name:
+    oss << "NAME cannot be empty.";
+    goto error_common;
+
+error_duplicated:
+    oss << "NAME is already taken by CLUSTER " << cluster->get_oid() << ".";
+
+error_common:
+    *oid = -1;
+    error_str = oss.str();
 
     return *oid;
 }
