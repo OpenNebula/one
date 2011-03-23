@@ -422,8 +422,15 @@ var image_info_panel = {
     
 }
 
+var images_tab = {
+    title: "Images",
+    content: images_tab_content,
+    buttons: image_buttons,
+    condition: True
+}
+
 Sunstone.addActions(image_actions);
-Sunstone.addMainTab('images_tab',"Images",images_tab_content,image_buttons);
+Sunstone.addMainTab('images_tab',images_tab);
 Sunstone.addInfoPanel('image_info_panel',image_info_panel);
 
 

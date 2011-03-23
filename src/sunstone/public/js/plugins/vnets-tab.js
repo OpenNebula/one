@@ -259,8 +259,15 @@ var vnet_info_panel = {
     }
 }
 
+var vnets_tab = {
+    title: "Virtual Networks",
+    content: vnets_tab_content,
+    buttons: vnet_buttons,
+    condition: True
+}
+
 Sunstone.addActions(vnet_actions);
-Sunstone.addMainTab('vnets_tab',"Virtual Networks",vnets_tab_content, vnet_buttons);
+Sunstone.addMainTab('vnets_tab',vnets_tab);
 Sunstone.addInfoPanel('vnet_info_panel',vnet_info_panel);
 
 

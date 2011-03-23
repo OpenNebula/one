@@ -119,8 +119,15 @@ var user_buttons = {
     }
 }
 
+var users_tab = {
+    title: "Users",
+    content: users_tab_content,
+    buttons: user_buttons,
+    condition: function(){ return uid == 0; }
+}
+
 Sunstone.addActions(user_actions);
-Sunstone.addMainTab('users_tab',"Users",users_tab_content,user_buttons,false,function(){return uid==0;});
+Sunstone.addMainTab('users_tab',users_tab);
 
 
 function userElementArray(user_json){

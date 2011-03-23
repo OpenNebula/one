@@ -805,8 +805,15 @@ var vm_info_panel = {
     }
 }
 
+var vms_tab = {
+    title: "Virtual Machines",
+    content: vms_tab_content,
+    buttons: vm_buttons,
+    condition: True
+}
+
 Sunstone.addActions(vm_actions);
-Sunstone.addMainTab('vms_tab',"Virtual Machines",vms_tab_content,vm_buttons);
+Sunstone.addMainTab('vms_tab',vms_tab);
 Sunstone.addInfoPanel('vm_info_panel',vm_info_panel);
 
 

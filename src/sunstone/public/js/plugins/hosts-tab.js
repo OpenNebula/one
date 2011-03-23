@@ -322,12 +322,17 @@ var host_info_panel = {
         content: ""
     }
 };
-            
+
+
+var hosts_tab = {
+    title: 'Hosts &amp; Clusters',
+    content: hosts_tab_content,
+    buttons: host_buttons,
+    condition: True
+}            
 
 Sunstone.addActions(host_actions);
-
-// title, content, buttons, id
-Sunstone.addMainTab('hosts_tab','Hosts &amp; Clusters',hosts_tab_content,host_buttons);
+Sunstone.addMainTab('hosts_tab',hosts_tab);
 Sunstone.addInfoPanel("host_info_panel",host_info_panel);
 
 

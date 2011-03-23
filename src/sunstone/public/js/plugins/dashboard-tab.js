@@ -149,7 +149,13 @@ var dashboard_tab_content =
 </table>';
 
 
-Sunstone.addMainTab('dashboard_tab','Dashboard',dashboard_tab_content,null);
+var dashboard_tab = {
+    title: 'Dashboard',
+    content: dashboard_tab_content,
+    condition : True
+}
+
+Sunstone.addMainTab('dashboard_tab',dashboard_tab);
 
 $(document).ready(function(){
     //Dashboard link listener
