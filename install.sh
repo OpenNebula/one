@@ -581,7 +581,6 @@ AUTH_ETC_FILES="src/authm_mad/auth_mad \
 #-------------------------------------------------------------------------------
 
 EXAMPLE_SHARE_FILES="share/examples/vm.template \
-                     share/examples/vm.schema \
                      share/examples/private.net \
                      share/examples/public.net"
 
