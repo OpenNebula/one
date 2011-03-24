@@ -22,6 +22,7 @@ function someTime(){
     return Math.floor(Math.random()*30000);
 }
 
+//introduces 0s before a number until in reaches 'length'.
 function pad(number,length) {
     var str = '' + number;
     while (str.length < length)
@@ -29,6 +30,7 @@ function pad(number,length) {
     return str;
 }
 
+//turns a Unix-formatted time into a human readable string
 function pretty_time(time_seconds)
 {
     var d = new Date();
@@ -44,6 +46,7 @@ function pretty_time(time_seconds)
     return hour + ":" + mins +":" + secs + "&nbsp;" + month + "/" + day + "/" + year;
 }
 
+//returns a human readable size in Kilo, Mega, Giga or Tera bytes
 function humanize_size(value) {
     if (typeof(value) === "undefined") {
         value = 0;
@@ -64,21 +67,27 @@ function humanize_size(value) {
     return st;
 }
 
+//Wrapper to add an element to a dataTable
 function addElement(element,data_table){
 	data_table.fnAddData(element);
 }
 
-
+//deletes an element with id 'tag' from a dataTable
 function deleteElement(data_table,tag){
-	tr = $(tag).parents('tr')[0];
+	var tr = $(tag).parents('tr')[0];
 	data_table.fnDeleteRow(tr);
     $('input',data_table).trigger("change");
 }
 
+//Listens to the checkboxes of the datatable. This function is used
+//by standard sunstone plugins to enable/disable certain action buttons
+//according to the number of elements checked in the dataTables.
+//It also checks the "check-all" box when all elements are checked
 function tableCheckboxesListener(dataTable){
 
-    context = dataTable.parents('form');
-    last_action_b = $('.last_action_button',context);
+    //Initialization - disable all buttons
+    var context = dataTable.parents('form');
+    var last_action_b = $('.last_action_button',context);
     $('.top_button, .list_button',context).button("disable");
     if (last_action_b.length && last_action_b.val().length){
         last_action_b.button("disable");
@@ -87,35 +96,40 @@ function tableCheckboxesListener(dataTable){
 
     //listen to changes
     $('input',dataTable).live("change",function(){
-        dataTable = $(this).parents('table').dataTable();
-        context = dataTable.parents('form');
-        last_action_b = $('.last_action_button',context);
-        nodes = dataTable.fnGetNodes();
-        total_length = nodes.length;
-        checked_length = $('input:checked',nodes).length;
-
+        var dataTable = $(this).parents('table').dataTable();
+        var context = dataTable.parents('form');
+        var last_action_b = $('.last_action_button',context);
+        var nodes = dataTable.fnGetNodes();
+        var total_length = nodes.length;
+        var checked_length = $('input:checked',nodes).length;
+        
+        //if all elements are checked we check the check-all box
         if (total_length == checked_length && total_length != 0){
             $('.check_all',dataTable).attr("checked","checked");
         } else {
             $('.check_all',dataTable).removeAttr("checked");
         }
 
+        //if some element is checked, we enable buttons, otherwise
+        //we disable them.
         if (checked_length){
             $('.top_button, .list_button',context).button("enable");
+            //check if the last_action_button should be enabled
             if (last_action_b.length && last_action_b.val().length){
                 last_action_b.button("enable");
             };
-            $('.create_dialog_button',context).button("enable");
         } else {
             $('.top_button, .list_button',context).button("disable");
             last_action_b.button("disable");
-            $('.create_dialog_button',context).button("enable");
         }
+        
+        //any case the create dialog buttons should always be enabled.
+        $('.create_dialog_button',context).button("enable");
     });
 
 }
 
-// Updates a data_table, with a 2D array containing
+// Updates a data_table, with a 2D array containing the new values
 // Does a partial redraw, so the filter and pagination are kept
 function updateView(item_list,data_table){
 	if (data_table!=null) {
@@ -125,9 +139,10 @@ function updateView(item_list,data_table){
 	};
 }
 
+//replaces an element with id 'tag' in a dataTable with a new one
 function updateSingleElement(element,data_table,tag){
-	tr = $(tag).parents('tr')[0];
-	position = data_table.fnGetPosition(tr);
+	var tr = $(tag).parents('tr')[0];
+	var position = data_table.fnGetPosition(tr);
 	data_table.fnUpdate(element,position,0);
     $('input',data_table).trigger("change");
 
@@ -136,20 +151,15 @@ function updateSingleElement(element,data_table,tag){
 // Returns an string in the form key=value key=value ...
 // Does not explore objects in depth.
 function stringJSON(json){
-	str = ""
+	var str = ""
 	for (field in json) {
 		str+= field + '=' + json[field] + ' ';
 	}
 	return str;
 }
 
-// Returns the running time data
-function str_start_time(vm){
-    return pretty_time(vm.STIME);
-}
-
-
 //Notifications
+//Notification of submission of action
 function notifySubmit(action, args, extra_param){
     var action_text = action.replace(/OpenNebula\./,'').replace(/\./,' ');
 
@@ -161,6 +171,7 @@ function notifySubmit(action, args, extra_param){
     $.jGrowl(msg, {theme: "jGrowl-notify-submit"});
 }
 
+//Notification on error
 function notifyError(msg){
     msg = "<h1>Error</h1>" + msg;
 
@@ -172,7 +183,7 @@ function notifyError(msg){
 // It recursively explores objects, and flattens their contents in
 // the result.
 function prettyPrintJSON(template_json){
-	str = ""
+	var str = ""
 	for (field in template_json) {
 		if (typeof template_json[field] == 'object'){
 			str += prettyPrintJSON(template_json[field]) + '<tr><td></td><td></td></tr>';
@@ -183,11 +194,14 @@ function prettyPrintJSON(template_json){
 	return str;
 }
 
-//Adds a listener to checks all the elements of a table
+//Add a listener to the check-all box of a datatable, enabling it to
+//check and uncheck all the checkboxes of its elements.
 function initCheckAllBoxes(datatable){
 	//not showing nice in that position
 	//$('.check_all').button({ icons: {primary : "ui-icon-check" },
 	//							text : true});
+    
+    //small css hack
 	$('.check_all',datatable).css({"border":"2px"});
 	$('.check_all',datatable).click(function(){
 		if ($(this).attr("checked")) {
@@ -204,6 +218,8 @@ function initCheckAllBoxes(datatable){
 	});
 }
 
+//standard handling for the server errors on ajax requests.
+//Pops up a message with the information.
 function onError(request,error_json) {
     var method;
     var action;
@@ -266,19 +282,26 @@ function onError(request,error_json) {
     return true;
 }
 
+//Replaces the checkboxes of a datatable with a ajax-loading spinner.
+//Used when refreshing elements of a datatable.
 function waitingNodes(dataTable){
-    nodes = dataTable.fnGetData();
+    var nodes = dataTable.fnGetData();
     for (var i=0;i<nodes.length;i++){
        dataTable.fnUpdate(spinner,i,0);
     }
 };
 
+
+//given a user ID, returns an string with the user name.
+//To do this it finds the user name in the user dataTable. If it is
+//not defined then it returns "uid UID".
+//TODO not very nice to hardcode a dataTable here...
 function getUserName(uid){
     var user = "uid "+uid;
     if (typeof(dataTable_users) == "undefined") {
         return user;
         } 
-    nodes = dataTable_users.fnGetData();
+    var nodes = dataTable_users.fnGetData();
     
     $.each(nodes,function(){
        if (uid == this[1]) {
@@ -294,17 +317,26 @@ function getUserName(uid){
 //Replaces all class"tip" divs with an information icon that
 //displays the tip information on mouseover.
 function setupTips(context){
+    
+        //For each tip in this context
 		$('div.tip',context).each(function(){
-				tip = $(this).html();
+                //store the text
+				var tip = $(this).html();
+                //replace the text with an icon and spans
 				$(this).html('<span class="ui-icon ui-icon-info info_icon"></span>');
                 $(this).append('<span class="tipspan"></span>');
 
                 $(this).append('<span class="ui-icon ui-icon-alert man_icon" />');
 
-
+                //add the text to .tipspan
 				$('span.tipspan',this).html(tip);
+                //make sure it is not floating in the wrong place
                 $(this).parent().append('<div class="clear"></div>');
+                //hide the text
 				$('span.tipspan',this).hide();
+                
+                //When the mouse is hovering on the icon we fadein/out
+                //the tip text
 				$('span.info_icon',this).hover(function(e){
                     var top, left;
                     top = e.pageY - 15;// - $(this).parents('#create_vm_dialog').offset().top - 15;
@@ -319,7 +351,7 @@ function setupTips(context){
 		});
 }
 
-
+//functions that used as true and false conditions for testing mainly
 function True(){
     return true;
 }

@@ -200,7 +200,6 @@ var host_actions = {
                 type: "create",
                 call : OpenNebula.Cluster.create,
                 callback : function(){
-                    //OpenNebula.Cluster.list({success: updateClustersView, error: onError});
                     Sunstone.runAction("Cluster.list");
                 },
                 error : onError
@@ -336,39 +335,44 @@ Sunstone.addMainTab('hosts_tab',hosts_tab);
 Sunstone.addInfoPanel("host_info_panel",host_info_panel);
 
 
+
+//Creates an array to be added to the dataTable from the JSON of a host.
 function hostElementArray(host_json){
-	host = host_json.HOST;
-	acpu = parseInt(host.HOST_SHARE.MAX_CPU);
+    
+	var host = host_json.HOST;
+	
+    //Calculate some values
+    var acpu = parseInt(host.HOST_SHARE.MAX_CPU);
 		if (!acpu) {acpu=100};
 	acpu = acpu - parseInt(host.HOST_SHARE.CPU_USAGE);
 
-    total_mem = parseInt(host.HOST_SHARE.MAX_MEM);
-    free_mem = parseInt(host.HOST_SHARE.FREE_MEM);
+    var total_mem = parseInt(host.HOST_SHARE.MAX_MEM);
+    var free_mem = parseInt(host.HOST_SHARE.FREE_MEM);
 
-    if (total_mem == 0) {
-        ratio_mem = 0;
-    } else {
+    var ratio_mem = 0;
+    if (total_mem) {
         ratio_mem = Math.round(((total_mem - free_mem) / total_mem) * 100);
     }
 
 
-    total_cpu = parseInt(host.HOST_SHARE.MAX_CPU);
-    used_cpu = Math.max(total_cpu - parseInt(host.HOST_SHARE.USED_CPU),acpu);
+    var total_cpu = parseInt(host.HOST_SHARE.MAX_CPU);
+    var used_cpu = Math.max(total_cpu - parseInt(host.HOST_SHARE.USED_CPU),acpu);
 
-    if (total_cpu == 0) {
-        ratio_cpu = 0;
-    } else {
+    var ratio_cpu = 0;
+    if (total_cpu){
         ratio_cpu = Math.round(((total_cpu - used_cpu) / total_cpu) * 100);
     }
 
-     pb_mem =
+
+    //progressbars html code - hardcoded jquery html result
+     var pb_mem =
 '<div style="height:10px" class="ratiobar ui-progressbar ui-widget ui-widget-content ui-corner-all" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+ratio_mem+'">\
     <div class="ui-progressbar-value ui-widget-header ui-corner-left ui-corner-right" style="width: '+ratio_mem+'%;"/>\
     <span style="position:relative;left:45px;top:-4px;font-size:0.6em">'+ratio_mem+'%</span>\
     </div>\
 </div>';
 
-    pb_cpu =
+    var pb_cpu =
 '<div style="height:10px" class="ratiobar ui-progressbar ui-widget ui-widget-content ui-corner-all" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+ratio_cpu+'">\
     <div class="ui-progressbar-value ui-widget-header ui-corner-left ui-corner-right" style="width: '+ratio_cpu+'%;"/>\
     <span style="position:relative;left:45px;top:-4px;font-size:0.6em">'+ratio_cpu+'%</span>\
@@ -387,7 +391,7 @@ function hostElementArray(host_json){
 
 }
 
-
+//Listen to clicks on the tds of the tables and shows the info dialogs.
 function hostInfoListener(){
 	$('#tbodyhosts tr').live("click",function(e){
 
@@ -395,14 +399,14 @@ function hostInfoListener(){
 		if ($(e.target).is('input')) {return true;}
 
         popDialogLoading();
-		aData = dataTable_hosts.fnGetData(this);
-		id = $(aData[0]).val();
+		var aData = dataTable_hosts.fnGetData(this);
+		var id = $(aData[0]).val();
         Sunstone.runAction("Host.showinfo",id);
-		//OpenNebula.Host.show({data:{id:id},success: updateHostInfo,error: onError});
 		return false;
 	});
 }
 
+//updates the host select by refreshing the options in it
 function updateHostSelect(host_list){
 
 	//update select helper
@@ -412,11 +416,9 @@ function updateHostSelect(host_list){
 		hosts_select += "<option value=\""+this.HOST.ID+"\">"+this.HOST.NAME+"</option>";
 	});
 
-	//update static selectors
-	$('#vm_host').html(hosts_select);
 }
 
-
+//updates the cluster select by refreshing the options in it
 function updateClusterSelect(cluster_list){
 
 	//update select helper
@@ -425,31 +427,32 @@ function updateClusterSelect(cluster_list){
 	$.each(cluster_list, function(){
 		clusters_select += "<option value=\""+this.CLUSTER.ID+"\">"+this.CLUSTER.NAME+"</option>";
 	});
-
-	//update static selectors
-	//$('#host_cluster').html(clusters_select);
-
 }
 
+//callback for an action affecting a host element
 function updateHostElement(request, host_json){
-	id = host_json.HOST.ID;
-	element = hostElementArray(host_json);
+	var id = host_json.HOST.ID;
+	var element = hostElementArray(host_json);
 	updateSingleElement(element,dataTable_hosts,'#host_'+id);
 }
 
+//callback for actions deleting a host element
 function deleteHostElement(req){
 	deleteElement(dataTable_hosts,'#host_'+req.request.data);
 }
 
+//call back for actions creating a host element
 function addHostElement(request,host_json){
-    id = host_json.HOST.ID;
-	element = hostElementArray(host_json);
+    var id = host_json.HOST.ID;
+	var element = hostElementArray(host_json);
+    hosts_select += "<option value=\""+host_json.HOST.NAME+"\">"+host_json.HOST.NAME+"</option>";
 	addElement(element,dataTable_hosts);
 }
 
+//callback to update the list of hosts.
 function updateHostsView (request,host_list){
 	host_list_json = host_list;
-	host_list_array = []
+	var host_list_array = []
 
 	$.each(host_list,function(){
 	//Grab table data from the host_list
@@ -458,24 +461,22 @@ function updateHostsView (request,host_list){
 
 	updateView(host_list_array,dataTable_hosts);
 	updateHostSelect(host_list);
+    //dependency with the dashboard plugin
 	updateDashboard("hosts",host_list_json);
 }
 
+//updates the list of clusters
 function updateClustersView(request, cluster_list){
 	cluster_list_json = cluster_list;
-	//~ cluster_list_array = [];
-
-	//~ $.each(cluster_list, function(){
-		//~ cluster_list_array.push(clusterElementArray(this));
-	//~ });
-	//~ updateView(cluster_list_array,dataTable_clusters);
 	updateClusterSelect(cluster_list);
 	updateDashboard("clusters",cluster_list);
 }
 
-
+//Updates the host info panel tab's content and pops it up
 function updateHostInfo(request,host){
 	var host_info = host.HOST;
+    
+    //Information tab
     var info_tab = {
         title : "Host information",
         content :
@@ -539,6 +540,7 @@ function updateHostInfo(request,host){
 		</table>'
     }
     
+    //Template tab
     var template_tab = {
         title : "Host template",
         content : 
@@ -548,12 +550,14 @@ function updateHostInfo(request,host){
 		'</table>'
     }
     
+    //Sunstone.updateInfoPanelTab(info_panel_name,tab_name, new tab object);
     Sunstone.updateInfoPanelTab("host_info_panel","host_info_tab",info_tab);
     Sunstone.updateInfoPanelTab("host_info_panel","host_template_tab",template_tab);
     Sunstone.popUpInfoPanel("host_info_panel");
 
 }
 
+//Prepares the host creation dialog
 function setupCreateHostDialog(){
     $('div#dialogs').append('<div title="Create host" id="create_host_dialog"></div>');
     $('div#create_host_dialog').html(create_host_tmpl);
@@ -571,7 +575,7 @@ function setupCreateHostDialog(){
             notifyError("Host name missing!");
             return false;
         }
-		host_json = { "host": { "name": $('#name',this).val(),
+		var host_json = { "host": { "name": $('#name',this).val(),
 							"tm_mad": $('#tm_mad :selected',this).val(),
 							"vm_mad": $('#vmm_mad :selected',this).val(),
 							"im_mad": $('#im_mad :selected',this).val()}}
@@ -586,6 +590,7 @@ function setupCreateHostDialog(){
     
 }
 
+//Prepares the dialog to create a cluster
 function setupCreateClusterDialog(){
     $('div#dialogs').append('<div title="Create cluster" id="create_cluster_dialog"></div>');
     $('#create_cluster_dialog').html(create_cluster_tmpl);
@@ -599,8 +604,8 @@ function setupCreateClusterDialog(){
     $('#create_cluster_dialog button').button();
     
     $('#create_cluster_form').submit(function(){
-		name=$('#name',this).val();
-		cluster_json = { "cluster" : { "name" : name }};
+		var name=$('#name',this).val();
+		var cluster_json = { "cluster" : { "name" : name }};
         Sunstone.runAction("Cluster.create",cluster_json);
 		$('#create_cluster_dialog').dialog('close');
 		return false;
@@ -609,7 +614,7 @@ function setupCreateClusterDialog(){
 }
 
 
-
+//Open creation dialogs
 function popUpCreateHostDialog(){
     $('#create_host_dialog').dialog('open');
     return false;
@@ -620,6 +625,7 @@ function popUpCreateClusterDialog(){
     return false;
 }
 
+//Prepares the autorefresh for hosts
 function setHostAutorefresh() {
      setInterval(function(){
 		var checked = $('input:checked',dataTable_hosts.fnGetNodes());
@@ -630,13 +636,16 @@ function setHostAutorefresh() {
 	},INTERVAL+someTime());
 }
 
+//Prepares the autorefresh for clusters
 function setClusterAutorefresh(){
     setInterval(function(){
         Sunstone.runAction("Cluster.autorefresh");
 	},INTERVAL+someTime());
 }
 
-//Document ready
+//This is executed after the sunstone.js ready() is run.
+//Here we can basicly init the host datatable, preload it 
+//and add specific listeners
 $(document).ready(function(){
     
     //prepare host datatable
@@ -663,13 +672,12 @@ $(document).ready(function(){
     
     setupCreateHostDialog();
     setupCreateClusterDialog();
+    
     setHostAutorefresh();
     setClusterAutorefresh();
-    
     
     initCheckAllBoxes(dataTable_hosts);
     tableCheckboxesListener(dataTable_hosts);
     hostInfoListener();
     
-        
 });

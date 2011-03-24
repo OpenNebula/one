@@ -190,7 +190,8 @@ var Sunstone = {
         //      function with an extraparam if defined.
         switch (action_cfg.type){
             
-            case "create","register":
+            case "create":
+            case "register":
                 call({data:data_arg, success: callback, error:err});
                 break;
             case "single":

@@ -270,18 +270,23 @@ Sunstone.addActions(vnet_actions);
 Sunstone.addMainTab('vnets_tab',vnets_tab);
 Sunstone.addInfoPanel('vnet_info_panel',vnet_info_panel);
 
-
+//returns an array with the VNET information fetched from the JSON object
 function vNetworkElementArray(vn_json){
-	network = vn_json.VNET;
+	var network = vn_json.VNET;
+    var total_leases = "0";
+    
     if (network.TOTAL_LEASES){
         total_leases = network.TOTAL_LEASES;
-    }else if (network.LEASES && network.LEASES.LEASE){
+    } else if (network.LEASES && network.LEASES.LEASE){
         total_leases = network.LEASES.LEASE.length ? network.LEASES.LEASE.length : "1";
-    } else{
-        total_leases = "0";
     }
-	username = network.USERNAME? network.USERNAME : getUserName(network.UID)
-	return ['<input type="checkbox" id="vnetwork_'+network.ID+'" name="selected_items" value="'+network.ID+'"/>',
+    
+    //Does the JSON bring a username field? Otherwise try
+    //to get it from the users dataTable
+	var username = network.USERNAME? network.USERNAME : getUserName(network.UID)
+	
+    
+    return ['<input type="checkbox" id="vnetwork_'+network.ID+'" name="selected_items" value="'+network.ID+'"/>',
 		network.ID,
 		username,
 		network.NAME,
@@ -297,15 +302,15 @@ function vNetworkInfoListener(){
 
 	$('#tbodyvnetworks tr').live("click", function(e){
 		if ($(e.target).is('input')) {return true;}
-		aData = dataTable_vNetworks.fnGetData(this);
-		id = $(aData[0]).val();
+		var aData = dataTable_vNetworks.fnGetData(this);
+		var id = $(aData[0]).val();
 		Sunstone.runAction("Network.showinfo",id);
 		return false;
 	});
 }
 
+//updates the vnet select different options
 function updateNetworkSelect(network_list){
-	//update select helper
 	vnetworks_select="";
 	vnetworks_select += "<option value=\"\">Select a network</option>";
 	$.each(network_list, function(){
@@ -313,31 +318,38 @@ function updateNetworkSelect(network_list){
 
 	});
 
-	//update static selectors
+	//update static selectors:
+    //in the VM creation dialog
 	$('div.vm_section#networks select#NETWORK').html(vnetworks_select);
 }
 
+//Callback to update a vnet element after an action on it
 function updateVNetworkElement(request, vn_json){
 	id = vn_json.VNET.ID;
 	element = vNetworkElementArray(vn_json);
 	updateSingleElement(element,dataTable_vNetworks,'#vnetwork_'+id);
 }
 
+//Callback to delete a vnet element from the table
 function deleteVNetworkElement(req){
 	deleteElement(dataTable_vNetworks,'#vnetwork_'+req.request.data);
-    //How to delete vNetwork select option here?
+    //TODO: Delete vNetwork select option here?
 }
 
+//Callback to add a new element
 function addVNetworkElement(request,vn_json){
-	element = vNetworkElementArray(vn_json);
+	var element = vNetworkElementArray(vn_json);
 	addElement(element,dataTable_vNetworks);
+    
+    //update select variable and 
     vnetworks_select += "<option value=\""+vn_json.VNET.NAME+"\">"+vn_json.VNET.NAME+"</option>";
     $('div.vm_section#networks select#NETWORK').html(vnetworks_select);
 }
 
+//updates the list of virtual networks
 function updateVNetworksView(request, network_list){
 	network_list_json = network_list;
-	network_list_array = [];
+	var network_list_array = [];
 
 	$.each(network_list,function(){
 		network_list_array.push(vNetworkElementArray(this));
@@ -345,11 +357,12 @@ function updateVNetworksView(request, network_list){
 
 	updateView(network_list_array,dataTable_vNetworks);
 	updateNetworkSelect(network_list);
+    //dependency with dashboard
 	updateDashboard("vnets",network_list_json);
 
 }
 
-
+//updates the information panel tabs and pops the panel up
 function updateVNetworkInfo(request,vn){
 	var vn_info = vn.VNET;
     var info_tab_content = 
@@ -370,7 +383,8 @@ function updateVNetworkInfo(request,vn){
 				<td class="value_td">'+(parseInt(vn_info.PUBLIC) ? "yes" : "no" )+'</td>\
 			</tr>\
 		</table>';
-      
+    
+    //if it is a fixed VNET we can add leases information  
     if (vn_info.TEMPLATE.TYPE == "FIXED"){
 		info_tab_content += '<table id="vn_leases_info_table" class="info_table">\
 			<thead>\
@@ -402,6 +416,7 @@ function updateVNetworkInfo(request,vn){
 }
 
 
+//Prepares the vnet creation dialog
 function setupCreateVNetDialog() {
      
     $('div#dialogs').append('<div title="Create Virtual Network" id="create_vn_dialog"></div>');
@@ -477,7 +492,7 @@ function setupCreateVNetDialog() {
 		var bridge = $('#bridge',this).val();
 		var type = $('input:checked',this).val();
 
-		//TBD: Name and bridge provided?!
+		//TODO: Name and bridge provided?!
 
 		var network_json = null;
 		if (type == "fixed") {
@@ -568,6 +583,7 @@ $(document).ready(function(){
         spinner,
         '','','','','','',''],dataTable_vNetworks);
     Sunstone.runAction("Network.list");
+    
     
     setupCreateVNetDialog();
     setVNetAutorefresh();
