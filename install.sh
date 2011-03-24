@@ -194,6 +194,7 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/remotes/im/ganglia.d \
           $LIB_LOCATION/remotes/vmm/xen \
           $LIB_LOCATION/remotes/vmm/kvm \
+          $LIB_LOCATION/remotes/image \
           $LIB_LOCATION/remotes/image/fs"
 
 VAR_DIRS="$VAR_LOCATION/remotes \
@@ -202,7 +203,9 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im/xen.d \
           $VAR_LOCATION/remotes/im/ganglia.d \
           $VAR_LOCATION/remotes/vmm/xen \
-          $VAR_LOCATION/remotes/vmm/kvm"
+          $VAR_LOCATION/remotes/vmm/kvm \
+          $VAR_LOCATION/remotes/image \
+          $VAR_LOCATION/remotes/image/fs"
 
 SUNSTONE_DIRS="$SUNSTONE_LOCATION/models \
                $SUNSTONE_LOCATION/models/OpenNebulaJSON \
@@ -279,6 +282,7 @@ INSTALL_FILES=(
     DUMMY_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/dummy
     LVM_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/lvm
     IMAGE_DRIVER_FS_SCRIPTS:$LIB_LOCATION/remotes/image/fs
+    IMAGE_DRIVER_FS_SCRIPTS:$VAR_LOCATION/remotes/image/fs
     EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples
     TM_EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples/tm
     HOOK_SHARE_FILES:$SHARE_LOCATION/hooks

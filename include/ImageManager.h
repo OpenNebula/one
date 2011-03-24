@@ -116,7 +116,7 @@ public:
      *
      *
      */
-    int register_image(Image *img);
+    int register_image(int iid);
 
 private:
     /**

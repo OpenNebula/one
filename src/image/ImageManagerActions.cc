@@ -266,16 +266,25 @@ int ImageManager::enable_image(Image *img, bool to_enable)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int ImageManager::register_image(Image *img)
+int ImageManager::register_image(int iid)
 {
     const ImageManagerDriver* imd = get();
     ostringstream oss;
+
     string path;
+    Image* img;
 
     if ( imd == 0 )
     {
         NebulaLog::log("ImM",Log::ERROR,
                 "Could not get driver to update repository");
+        return -1;
+    }
+
+    img = ipool->get(iid,true);
+
+    if (img == 0)
+    {
         return -1;
     }
 
@@ -315,6 +324,8 @@ int ImageManager::register_image(Image *img)
     }
     
     NebulaLog::log("ImM",Log::INFO,oss);
+
+    img->unlock();
 
     return 0;
 }

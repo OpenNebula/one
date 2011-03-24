@@ -48,6 +48,9 @@ void RequestManager::ImageAllocate::execute(
     vector<xmlrpc_c::value> arrayData;
     xmlrpc_c::value_array * arrayresult;
 
+    Nebula&              nd = Nebula::instance();
+    ImageManager *   imagem = nd.get_imagem();
+
     NebulaLog::log("ReM",Log::DEBUG,"ImageAllocate invoked");
 
     session      = xmlrpc_c::value_string(paramList.getString(0));
@@ -124,7 +127,11 @@ void RequestManager::ImageAllocate::execute(
     if ( rc < 0 )
     {
         goto error_allocate;
+    }
 
+    if ( imagem->register_image(rc) == -1 )
+    {
+        goto error_register;
     }
 
     arrayData.push_back(xmlrpc_c::value_boolean(true));
@@ -169,6 +176,11 @@ error_allocate:
     oss << " " << error_str;
     goto error_common;
 
+error_register:
+    oss << action_error(method_name, "CREATE", "IMAGE", -2, 0);
+    oss << " Failed to copy image to repository. Image left in ERROR state.";
+    goto error_common;
+    
 error_common:
     arrayData.push_back(xmlrpc_c::value_boolean(false));  // FAILURE
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));

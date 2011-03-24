@@ -208,6 +208,7 @@ void ImageManagerDriver::protocol(
         NebulaLog::log("ImM", Log::INFO, info.c_str());
     }
 
+    return;
 
 error_cp:
     os.str("");

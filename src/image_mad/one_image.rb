@@ -74,7 +74,7 @@ class ImageDriver < OpenNebulaDriver
 
         if command_exe.code == 0
             result = :success
-            info   = command_exe.stdout
+            info   = "-"
         else
             result = :failure
             info   = command_exe.stderr
@@ -86,7 +86,7 @@ class ImageDriver < OpenNebulaDriver
     end
 
     # -------------------------------------------------------------------------
-    # Virtual Machine Manager Protocol Actions (generic implementation
+    # Image Manager Protocol Actions (generic implementation
     # -------------------------------------------------------------------------
     def mv(id, src, dst)
         local_action("#{@actions_path}/mv #{src} #{dst}",id,:mv)
@@ -101,7 +101,7 @@ class ImageDriver < OpenNebulaDriver
     end
 
     def mkfs(id, dst, fs, size)
-        local_action("#{@actions_path}/mkfs #{src} #{fs} #{size}",id,:mkfs)
+        local_action("#{@actions_path}/mkfs #{dst} #{fs} #{size}",id,:mkfs)
     end
 end
 
