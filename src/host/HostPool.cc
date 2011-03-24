@@ -143,17 +143,33 @@ int HostPool::allocate (
     string& error_str)
 {
     Host *        host;
+    ostringstream oss;
+
+    if ( hostname.empty() )
+    {
+        goto error_name;
+    }
+
+    if ( im_mad_name.empty() )
+    {
+        goto error_im;
+    }
+
+    if ( vmm_mad_name.empty() )
+    {
+        goto error_vmm;
+    }
+
+    if ( tm_mad_name.empty() )
+    {
+        goto error_tm;
+    }
 
     host = get(hostname,false);
 
     if ( host !=0)
     {
-        ostringstream oss;
-
-        oss << "NAME is already taken by HOST " << host->get_oid() << ".";
-        error_str = oss.str();
-
-        *oid = -1;
+        goto error_duplicated;
     }
     else
     {
@@ -170,6 +186,32 @@ int HostPool::allocate (
 
         *oid = PoolSQL::allocate(host, error_str);
     }
+
+    return *oid;
+
+
+error_name:
+    oss << "NAME cannot be empty.";
+    goto error_common;
+
+error_im:
+    oss << "IM_MAD_NAME cannot be empty.";
+    goto error_common;
+
+error_vmm:
+    oss << "VMM_MAD_NAME cannot be empty.";
+    goto error_common;
+
+error_tm:
+    oss << "TM_MAD_NAME cannot be empty.";
+    goto error_common;
+
+error_duplicated:
+    oss << "NAME is already taken by HOST " << host->get_oid() << ".";
+
+error_common:
+    *oid = -1;
+    error_str = oss.str();
 
     return *oid;
 }

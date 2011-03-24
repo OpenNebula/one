@@ -64,30 +64,48 @@ int ImagePool::allocate (
         int *          oid,
         string&        error_str)
 {
-    Image * img;
-    Image * img_aux;
-    string  name;
+    Image *         img;
+    Image *         img_aux;
+    string          name;
+    ostringstream   oss;
 
     img = new Image(uid, user_name, img_template);
 
+    // Check name
     img->get_template_attribute("NAME", name);
+
+    if ( name.empty() )
+    {
+        goto error_name;
+    }
+
+    // Check for duplicates
     img_aux = get(name,uid,false);
 
     if( img_aux != 0 )
     {
-        ostringstream oss;
-
-        oss << "NAME is already taken by IMAGE " << img_aux->get_oid() << ".";
-        error_str = oss.str();
-
-        *oid = -1;
-
-        delete img;
+        goto error_duplicated;
     }
-    else
-    {
-        *oid = PoolSQL::allocate(img, error_str);
-    }
+
+    // ---------------------------------------------------------------------
+    // Insert the Object in the pool
+    // ---------------------------------------------------------------------
+    *oid = PoolSQL::allocate(img, error_str);
+
+    return *oid;
+
+error_name:
+    oss << "NAME cannot be empty.";
+    goto error_common;
+
+error_duplicated:
+    oss << "NAME is already taken by IMAGE " << img_aux->get_oid() << ".";
+
+error_common:
+    delete img;
+
+    *oid = -1;
+    error_str = oss.str();
 
     return *oid;
 }

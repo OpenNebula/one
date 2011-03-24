@@ -713,6 +713,7 @@ public:
 
     /**
      *  Get all disk images for this Virtual Machine
+     *  @param error_str Returns the error reason, if any
      *  @return 0 if success
      */
     int get_disk_images(string &error_str);
@@ -926,16 +927,18 @@ private:
     /**
      *  Parse the "CONTEXT" attribute of the template by substituting
      *  $VARIABLE, $VARIABLE[ATTR] and $VARIABLE[ATTR, ATTR = VALUE]
+     *    @param error_str Returns the error reason, if any
      *    @return 0 on success
      */
-    int parse_context();
+    int parse_context(string& error_str);
 
     /**
      *  Parse the "REQUIREMENTS" attribute of the template by substituting
      *  $VARIABLE, $VARIABLE[ATTR] and $VARIABLE[ATTR, ATTR = VALUE]
+     *    @param error_str Returns the error reason, if any
      *    @return 0 on success
      */
-    int parse_requirements();
+    int parse_requirements(string& error_str);
 
     /**
      *  Parse the "GRAPHICS" attribute and generates a default PORT if not

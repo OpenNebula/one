@@ -82,7 +82,7 @@ int Image::insert(SqlDB *db, string& error_str)
 {
     int rc;
 
-    string source_att;
+    string path_attr;
     string type_att;
     string public_attr;
     string persistent_attr;
@@ -95,11 +95,6 @@ int Image::insert(SqlDB *db, string& error_str)
     // ------------ NAME --------------------
 
     get_template_attribute("NAME", name);
-
-    if ( name.empty() == true )
-    {
-        goto error_name;
-    }
 
     // ------------ TYPE --------------------
 
@@ -156,9 +151,31 @@ int Image::insert(SqlDB *db, string& error_str)
         image_template->set(dev_att);
     }
 
-    // ------------ SOURCE (path to store the image)--------------------
+    // ------------ PATH --------------------
+    get_template_attribute("PATH", path_attr);
 
+    // ------------ SOURCE (path to store the image) --------------------
     get_template_attribute("SOURCE", source);
+
+    // The template should contain PATH or SOURCE
+    if ( source.empty() && path_attr.empty() )
+    {
+        string size_attr;
+        string fstype_attr;
+
+        get_template_attribute("SIZE",   size_attr);
+        get_template_attribute("FSTYPE", fstype_attr);
+
+        // It could be an empty DATABLOCK image, if it declares SIZE and FSTYPE
+        if ( type_att != "DATABLOCK" || size_attr.empty() || fstype_attr.empty() )
+        {
+            goto error_no_path;
+        }
+    }
+    else if ( !source.empty() && !path_attr.empty() )
+    {
+        goto error_path_and_source;
+    }
 
     if (source.empty())
     {
@@ -188,16 +205,28 @@ int Image::insert(SqlDB *db, string& error_str)
 
     return rc;
 
-error_name:
-    error_str = "NAME not present in image template.";
-    goto error_common;
-
 error_type:
-    error_str = "Incorrect TYPE in image template.";
+    error_str = "Incorrect TYPE in template.";
     goto error_common;
 
 error_public_and_persistent:
     error_str = "Image cannot be public and persistent.";
+    goto error_common;
+
+error_no_path:
+    if ( type_att == "DATABLOCK" )
+    {
+        error_str = "A DATABLOCK type IMAGE has to declare a PATH, or both "
+                    "SIZE and FSTYPE.";
+    }
+    else
+    {
+        error_str = "No PATH in template.";
+    }
+    goto error_common;
+
+error_path_and_source:
+    error_str = "Template malformed, PATH and SOURCE are mutuallly exclusive.";
     goto error_common;
 
 error_common:

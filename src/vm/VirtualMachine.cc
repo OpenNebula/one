@@ -233,14 +233,14 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     // Parse the context & requirements
     // -------------------------------------------------------------------------
 
-    rc = parse_context();
+    rc = parse_context(error_str);
 
     if ( rc != 0 )
     {
         goto error_context;
     }
 
-    rc = parse_requirements();
+    rc = parse_requirements(error_str);
 
     if ( rc != 0 )
     {
@@ -276,11 +276,9 @@ error_images:
     goto error_common;
 
 error_context:
-    error_str = "Could not parse CONTEXT for VM.";
     goto error_common;
 
 error_requirements:
-    error_str = "Could not parse REQUIREMENTS for VM.";
     goto error_common;
 
 error_common:
@@ -293,7 +291,7 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::parse_context()
+int VirtualMachine::parse_context(string& error_str)
 {
     int rc, num;
 
@@ -309,12 +307,17 @@ int VirtualMachine::parse_context()
     {
         return 0;
     }
+    else if ( num > 1 )
+    {
+        error_str = "Only one CONTEXT attribute can be defined.";
+        return -1;
+    }
 
     context = dynamic_cast<VectorAttribute *>(array_context[0]);
 
     if ( context == 0 )
     {
-        NebulaLog::log("ONE",Log::ERROR, "Wrong format for CONTEXT attribute");
+        error_str = "Wrong format for CONTEXT attribute.";
         return -1;
     }
 
@@ -413,7 +416,7 @@ void VirtualMachine::parse_graphics()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::parse_requirements()
+int VirtualMachine::parse_requirements(string& error_str)
 {
     int rc, num;
 
@@ -428,12 +431,17 @@ int VirtualMachine::parse_requirements()
     {
         return 0;
     }
+    else if ( num > 1 )
+    {
+        error_str = "Only one REQUIREMENTS attribute can be defined.";
+        return -1;
+    }
 
     reqs = dynamic_cast<SingleAttribute *>(array_reqs[0]);
 
     if ( reqs == 0 )
     {
-        NebulaLog::log("ONE",Log::ERROR,"Wrong format for REQUIREMENTS");
+        error_str = "Wrong format for REQUIREMENTS attribute.";
         return -1;
     }
 
