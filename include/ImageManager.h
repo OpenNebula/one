@@ -172,6 +172,13 @@ private:
      *    @return 0 on success
      */
     int acquire_image(Image *img);
+
+    /**
+     *  Moves a file to an image in the repository
+     *    @param image to be updated (it's source attribute)
+     *    @param source path of the disk file 
+     */
+    void move_image(Image *img, const string& source);
 };
 
 #endif /*IMAGE_MANAGER_H*/

@@ -80,6 +80,7 @@ int ImageManager::acquire_image(Image *img)
         case Image::READY:
             img->inc_running();
             img->set_state(Image::USED);
+            ipool->update(img);
         break;
 
         case Image::USED:
@@ -90,6 +91,7 @@ int ImageManager::acquire_image(Image *img)
              else
              {
                  img->inc_running();
+                 ipool->update(img);
              }
         break;
 
@@ -102,6 +104,28 @@ int ImageManager::acquire_image(Image *img)
     }
 
     return rc;
+}
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void ImageManager::move_image(Image *img, const string& source)
+{
+    const ImageManagerDriver* imd = get();
+    ostringstream oss;
+
+    if ( imd == 0 )
+    {
+        NebulaLog::log("ImM",Log::ERROR,
+                "Could not get driver to update repository");
+        return;
+    }
+
+    oss << "Moving disk " << source << " to repository image " 
+        << img->get_oid() << " as " << img->get_source();
+
+    imd->mv(img->get_oid(),source,img->get_source());
+
+    NebulaLog::log("ImM",Log::INFO,oss);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -119,6 +143,8 @@ void ImageManager::release_image(const string& image_id,
 
     istringstream iss;
     Image *       img;
+
+    ostringstream disk_file;
 
     iss.str(image_id);
 
@@ -145,12 +171,15 @@ void ImageManager::release_image(const string& image_id,
 
             if ( img->isPersistent() )
             {
+                disk_file << disk_path << "/disk." << disk_num;
+
                 img->set_state(Image::LOCKED);
 
-                //TODO issue move from disk to source (imgage)
+                move_image(img,disk_file.str());
+
+                ipool->update(img);
 
                 img->unlock();
-
             }
             else 
             {
@@ -158,6 +187,8 @@ void ImageManager::release_image(const string& image_id,
                 {
                     img->set_state(Image::READY);
                 }
+
+                ipool->update(img);
 
                 img->unlock();
 
@@ -167,10 +198,15 @@ void ImageManager::release_image(const string& image_id,
 
                     if ( img == 0 )
                     {
-                        //TODO Warning in oned.log
+                        NebulaLog::log("ImM",Log::ERROR,
+                            "Could not get image to saveas disk.");
                     }
+                    else
+                    {
+                        disk_file << disk_path << "/disk." << disk_num;
 
-                    //TODO issue move from disk to source (save_image)
+                        move_image(img,disk_file.str());
+                    }
 
                     img->unlock();
                 }
@@ -181,6 +217,8 @@ void ImageManager::release_image(const string& image_id,
         case Image::READY:
         case Image::ERROR:
         case Image::LOCKED:
+            NebulaLog::log("ImM",Log::ERROR,
+                "Trying to release image in wrong state.");
         default:
             img->unlock();
         break;

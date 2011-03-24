@@ -28,7 +28,7 @@
 
 void ImageManagerDriver::cp(int           oid, 
                             const string& source, 
-                            const string& destination)
+                            const string& destination) const
 {
     ostringstream os;
 
@@ -41,7 +41,7 @@ void ImageManagerDriver::cp(int           oid,
 
 void ImageManagerDriver::mv(int           oid, 
                             const string& source, 
-                            const string& destination)
+                            const string& destination) const
 {
     ostringstream os;
 
@@ -55,7 +55,7 @@ void ImageManagerDriver::mv(int           oid,
 void ImageManagerDriver::mkfs(int           oid, 
                               const string& destination, 
                               const string& fs,
-                              int           size_mb)
+                              int           size_mb) const
 {
     ostringstream os;
 
@@ -66,7 +66,7 @@ void ImageManagerDriver::mkfs(int           oid,
 
 /* -------------------------------------------------------------------------- */
 
-void ImageManagerDriver::rm(int oid, const string& destination)
+void ImageManagerDriver::rm(int oid, const string& destination) const
 {
     ostringstream os;
 

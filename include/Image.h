@@ -95,6 +95,15 @@ public:
     };
 
     /**
+     *  Returns the source path of the image
+     *     @return source of image
+     */
+    const string& get_source()
+    {
+        return source;
+    }
+
+    /**
      *  Returns the image state
      *     @return state of image
      */
