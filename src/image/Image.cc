@@ -147,14 +147,12 @@ int Image::insert(SqlDB *db, string& error_str)
     {
         SingleAttribute * dev_att = new SingleAttribute("DEV_PREFIX",
                                           ImagePool::default_dev_prefix());
-
         image_template->set(dev_att);
     }
 
-    // ------------ PATH --------------------
-    get_template_attribute("PATH", path_attr);
+    // ------------ PATH & SOURCE --------------------
 
-    // ------------ SOURCE (path to store the image) --------------------
+    get_template_attribute("PATH", path_attr);
     get_template_attribute("SOURCE", source);
 
     // The template should contain PATH or SOURCE
@@ -163,13 +161,25 @@ int Image::insert(SqlDB *db, string& error_str)
         string size_attr;
         string fstype_attr;
 
+        istringstream iss;
+        int size_mb;
+
         get_template_attribute("SIZE",   size_attr);
         get_template_attribute("FSTYPE", fstype_attr);
 
-        // It could be an empty DATABLOCK image, if it declares SIZE and FSTYPE
-        if ( type_att != "DATABLOCK" || size_attr.empty() || fstype_attr.empty() )
+        // DATABLOCK image needs SIZE and FSTYPE
+        if (type != DATABLOCK || size_attr.empty() || fstype_attr.empty())
         {
             goto error_no_path;
+        }
+
+        iss.str(size_attr);
+
+        iss >> size_mb;
+
+        if (iss.fail() == true)
+        {
+            goto error_size_format;
         }
     }
     else if ( !source.empty() && !path_attr.empty() )
@@ -190,7 +200,7 @@ int Image::insert(SqlDB *db, string& error_str)
         source = tmp_sourcestream.str();
     }
 
-    state = DISABLED;
+    state = LOCKED; //LOCKED till the ImageManager copies it to the Repository
 
     //--------------------------------------------------------------------------
     // Insert the Image
@@ -214,7 +224,7 @@ error_public_and_persistent:
     goto error_common;
 
 error_no_path:
-    if ( type_att == "DATABLOCK" )
+    if ( type == DATABLOCK )
     {
         error_str = "A DATABLOCK type IMAGE has to declare a PATH, or both "
                     "SIZE and FSTYPE.";
@@ -223,6 +233,10 @@ error_no_path:
     {
         error_str = "No PATH in template.";
     }
+    goto error_common;
+
+error_size_format:
+    error_str = "Wrong number in SIZE.";
     goto error_common;
 
 error_path_and_source:

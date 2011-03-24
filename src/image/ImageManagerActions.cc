@@ -105,6 +105,7 @@ int ImageManager::acquire_image(Image *img)
 
     return rc;
 }
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -267,7 +268,53 @@ int ImageManager::enable_image(Image *img, bool to_enable)
 
 int ImageManager::register_image(Image *img)
 {
-    /* TEmplate src.... */
-    /* CALL DRIVER */
+    const ImageManagerDriver* imd = get();
+    ostringstream oss;
+    string path;
+
+    if ( imd == 0 )
+    {
+        NebulaLog::log("ImM",Log::ERROR,
+                "Could not get driver to update repository");
+        return -1;
+    }
+
+    img->get_template_attribute("PATH",path);
+
+    switch (img->get_type())
+    {
+        case Image::DATABLOCK:
+            if (path.empty() == true)
+            {
+                string fs;
+                string size;
+
+                img->get_template_attribute("SIZE",   size);
+                img->get_template_attribute("FSTYPE", fs);
+
+                imd->mkfs(img->get_oid(), img->get_source(), fs, size);
+             
+                oss << "Creating disk at " << img->get_source() 
+                    << " of " << size << "Mb with format " << fs;
+            }
+            else
+            {
+                imd->cp(img->get_oid(),path, img->get_source());
+
+                oss << "Copying file " << path << " to " << img->get_source();
+            }
+        break;
+
+        case Image::CDROM:
+        case Image::OS:
+            imd->cp(img->get_oid(),path, img->get_source());
+            oss << "Copying file " << path << " to " << img->get_source();
+        break;
+        default:
+        break;
+    }
+    
+    NebulaLog::log("ImM",Log::INFO,oss);
+
     return 0;
 }

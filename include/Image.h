@@ -104,6 +104,14 @@ public:
     }
 
     /**
+     *  Returns the type of the image
+     *     @return type
+     */
+    ImageType get_type()
+    {
+        return type;
+    }
+    /**
      *  Returns the image state
      *     @return state of image
      */

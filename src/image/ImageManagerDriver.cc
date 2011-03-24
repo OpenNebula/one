@@ -55,7 +55,7 @@ void ImageManagerDriver::mv(int           oid,
 void ImageManagerDriver::mkfs(int           oid, 
                               const string& destination, 
                               const string& fs,
-                              int           size_mb) const
+                              const string& size_mb) const
 {
     ostringstream os;
 
@@ -93,6 +93,8 @@ void ImageManagerDriver::protocol(
 
     int           id;
     Image *       image;
+
+    string        info;
 
     os << "Message received: " << message;
     NebulaLog::log("ImG", Log::DEBUG, os);
@@ -141,61 +143,106 @@ void ImageManagerDriver::protocol(
     // Driver Actions
     if ( action == "CP" )
     {
-//        Nebula        &ne = Nebula::instance();
-//        ImageManager* imgm= ne.get_imgm();
-
         if ( result == "SUCCESS" )
         {
-            NebulaLog::log("ImG", Log::INFO, "CP SUCCESS");
+            image->set_state(Image::READY);
+            ipool->update(image);
+
+            image->unlock();
+
+            NebulaLog::log("ImM", Log::INFO, "Image copied and ready to use.");
         }
         else
         {
-            NebulaLog::log("ImG", Log::INFO, "CP FAILURE");
+            goto error_cp;
         }
     }
     else if ( action == "MV" )
     {
         if ( result == "SUCCESS" )
         {
-            NebulaLog::log("ImG", Log::INFO, "MV SUCCESS");
+            image->set_state(Image::READY);
+            ipool->update(image);
+
+            image->unlock();
+
+            NebulaLog::log("ImM", Log::INFO, "Image saved and ready to use.");
         }
         else
         {
-            NebulaLog::log("ImG", Log::INFO, "MV FAILURE");
+            goto error_mv;
         }
     }
     else if ( action == "MKFS" )
     {
         if ( result == "SUCCESS" )
         {
-            NebulaLog::log("ImG", Log::INFO, "MKFS SUCCESS");
+            image->set_state(Image::READY);
+            ipool->update(image);
+
+            image->unlock();
+
+            NebulaLog::log("ImM", Log::INFO, "Image created and ready to use");
         }
         else
         {
-            NebulaLog::log("ImG", Log::INFO, "MKFS FAILURE");
+            goto error_mkfs;
         }
     }
     else if ( action == "RM" )
     {
+        goto error_rm;
+        /* TODO
         if ( result == "SUCCESS" )
         {
-            NebulaLog::log("ImG", Log::INFO, "RM SUCCESS");
+            
         }
         else
-            NebulaLog::log("ImG", Log::INFO, "RM FAILURE");
         {
         }
+        */
     }
     else if (action == "LOG")
     {
-        string info;
-
         getline(is,info);
-        NebulaLog::log("ImG", Log::INFO, info.c_str());
+        NebulaLog::log("ImM", Log::INFO, info.c_str());
     }
 
-    image->unlock();
 
+error_cp:
+    os.str("");
+    os << "Error copying image in the repository";
+    goto error_common;
+
+error_mv:
+    os.str("");
+    os << "Error saving image to the repository";
+    goto error_common;
+
+error_mkfs:
+    os.str("");
+    os << "Error creating datablock";
+    goto error_common;
+
+error_rm:
+    os.str("");
+    os << "Error removing image. Removed it manually and delete image";
+    goto error_common;
+
+error_common:
+    getline(is,info);
+
+    if (!info.empty() && (info[0] != '-'))
+    {
+        os << ": " << info;
+    }
+
+    NebulaLog::log("ImM", Log::ERROR, os);
+
+    image->set_state(Image::ERROR);
+    ipool->update(image);
+
+    image->unlock();
     return;
 }
 
@@ -206,3 +253,4 @@ void ImageManagerDriver::recover()
 {
     NebulaLog::log("ImG",Log::INFO,"Recovering Image Repository drivers");
 }
+
