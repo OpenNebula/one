@@ -817,6 +817,11 @@ Sunstone.addMainTab('vms_tab',vms_tab);
 Sunstone.addInfoPanel('vm_info_panel',vm_info_panel);
 
 
+// Returns a human readable running time for a VM
+function str_start_time(vm){
+    return pretty_time(vm.STIME);
+}
+
 function vMachineElementArray(vm_json){
 	var vm = vm_json.VM;
     var state = OpenNebula.Helper.resource_state("vm",vm.STATE);
