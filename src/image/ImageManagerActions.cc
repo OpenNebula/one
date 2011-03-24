@@ -229,9 +229,17 @@ void ImageManager::release_image(const string& image_id,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int ImageManager::enable_image(Image *img, bool to_enable)
+int ImageManager::enable_image(int iid, bool to_enable)
 {
     int rc = 0;
+    Image * img;
+
+    img = ipool->get(iid,true);
+
+    if ( img == 0 )
+    {
+        return -1;
+    }
 
     if ( to_enable == true )
     {
@@ -240,6 +248,7 @@ int ImageManager::enable_image(Image *img, bool to_enable)
             case Image::DISABLED:
             case Image::ERROR:
                 img->set_state(Image::READY);
+                ipool->update(img);
             break;
             default:
                 rc = -1;
@@ -253,6 +262,7 @@ int ImageManager::enable_image(Image *img, bool to_enable)
             case Image::USED:
             case Image::ERROR:
                 img->set_state(Image::DISABLED);
+                ipool->update(img);
             break;
             default:
                 rc = -1;
@@ -260,7 +270,54 @@ int ImageManager::enable_image(Image *img, bool to_enable)
         }
     }
 
+    img->unlock();
+
     return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int ImageManager::delete_image(int iid)
+{
+    Image * img;
+
+    img = ipool->get(iid,true);
+
+    if ( img == 0 )
+    {
+        return -1;
+    }
+
+    switch(img->get_state())
+    {
+        case Image::READY:
+            if ( img->get_running() != 0 )
+            {
+                img->unlock();
+                return -1; //Can not remove images in use
+            }
+        break; 
+
+        case Image::USED:
+            img->unlock();
+            return -1; //Can not remove images in use
+        break;
+
+        case Image::INIT:
+        case Image::DISABLED:
+        case Image::LOCKED:
+        case Image::ERROR:
+        break;
+    }
+
+    const ImageManagerDriver* imd = get();
+
+    imd->rm(img->get_oid(),img->get_source());
+
+    img->unlock();
+
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -329,3 +386,7 @@ int ImageManager::register_image(int iid)
 
     return 0;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+

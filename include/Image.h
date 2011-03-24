@@ -146,6 +146,14 @@ public:
     }
 
     /**
+     *
+     */
+    int get_running()
+    {
+        return running_vms;
+    }
+
+    /**
      *  Set enum type
      *     @return 0 on success, -1 otherwise
      */

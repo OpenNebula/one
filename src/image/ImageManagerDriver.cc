@@ -191,16 +191,33 @@ void ImageManagerDriver::protocol(
     }
     else if ( action == "RM" )
     {
-        goto error_rm;
-        /* TODO
+        int    rc;
+        string source;
+
+        source = image->get_source();
+            
+        ipool->drop(image);
+
+        image->unlock();
+
+        if ( rc < 0 )
+        {
+            NebulaLog::log("ImM",Log::ERROR,"Image could not be removed from DB");
+        }
+
         if ( result == "SUCCESS" )
         {
-            
+            NebulaLog::log("ImM",Log::ERROR,"Image successfully removed.");
         }
         else
         {
+            ostringstream oss;
+
+            oss << "Error removing image from repository. Remove file " << source 
+                << "  to completely delete image.";
+
+            NebulaLog::log("ImM",Log::ERROR,oss);
         }
-        */
     }
     else if (action == "LOG")
     {
@@ -223,12 +240,6 @@ error_mv:
 error_mkfs:
     os.str("");
     os << "Error creating datablock";
-    goto error_common;
-
-error_rm:
-    os.str("");
-    os << "Error removing image. Removed it manually and delete image";
-    goto error_common;
 
 error_common:
     getline(is,info);

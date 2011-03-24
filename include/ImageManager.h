@@ -110,13 +110,21 @@ public:
      *    @param to_enable true will enable the image.
      *    @return 0 on success
      */
-    int enable_image(Image *img, bool to_enable);
+    int enable_image(int iid, bool to_enable);
 
     /**
-     *
-     *
+     *  Adds a new image to the repository copying or creating it as needed
+     *    @param iid id of image
+     *    @return 0 on success
      */
     int register_image(int iid);
+
+    /**
+     *  Deletes an image from the repository and the DB
+     *    @param iid id of image
+     *    @return 0 on success
+     */
+    int delete_image(int iid);
 
 private:
     /**
