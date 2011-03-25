@@ -131,8 +131,7 @@ var vnet_actions = {
         type: "create",
         call: OpenNebula.Network.create,
         callback: addVNetworkElement,
-        error: onError,
-        notify: False
+        error: onError
     },
     
     "Network.create_dialog" : {
@@ -144,24 +143,21 @@ var vnet_actions = {
         type: "list",
         call: OpenNebula.Network.list,
         callback: updateVNetworksView,
-        error: onError,
-        notify: False
+        error: onError
     },
     
     "Network.show" : {
         type: "single",
         call: OpenNebula.Network.show,
         callback: updateVNetworkElement,
-        error: onError,
-        notify: False
+        error: onError
     },
     
     "Network.showinfo" : {
         type: "single",
         call: OpenNebula.Network.show,
         callback: updateVNetworkInfo,
-        error: onError,
-        notify: False
+        error: onError
         
     },
     
@@ -170,8 +166,7 @@ var vnet_actions = {
         call: function(){
             waitingNodes(dataTable_vNetworks);
             Sunstone.runAction("Network.list");
-        },
-        notify: False
+        }
     },
     
     "Network.autorefresh" : {
@@ -188,8 +183,7 @@ var vnet_actions = {
             Sunstone.runAction("Network.show",req.request.data[0]);
         },
         dataTable: function() { return dataTable_vNetworks; },
-        error: onError,
-        notify:  False        
+        error: onError
     },
             
     "Network.unpublish" : {
@@ -199,8 +193,7 @@ var vnet_actions = {
             Sunstone.runAction("Network.show",req.request.data[0]);
         },
         dataTable: function() { return dataTable_vNetworks; },
-        error: onError,
-        notify:  False                       
+        error: onError
     },
             
     "Network.delete" : {
@@ -208,8 +201,7 @@ var vnet_actions = {
         call: OpenNebula.Network.delete,
         callback: deleteVNetworkElement,
         dataTable: function() { return dataTable_vNetworks; },
-        error: onError,
-        notify:  False                            
+        error: onError
     }
     
 }
@@ -302,6 +294,7 @@ function vNetworkInfoListener(){
 
 	$('#tbodyvnetworks tr').live("click", function(e){
 		if ($(e.target).is('input')) {return true;}
+        popDialogLoading();
 		var aData = dataTable_vNetworks.fnGetData(this);
 		var id = $(aData[0]).val();
 		Sunstone.runAction("Network.showinfo",id);
@@ -562,7 +555,8 @@ function setVNetAutorefresh() {
 	},INTERVAL+someTime());
 }
 
-
+//The DOM is ready and the ready() from sunstone.js 
+//has been executed at this point. 
 $(document).ready(function(){
     
    dataTable_vNetworks = $("#datatable_vnetworks").dataTable({
