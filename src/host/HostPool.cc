@@ -171,21 +171,19 @@ int HostPool::allocate (
     {
         goto error_duplicated;
     }
-    else
-    {
-        // Build a new Host object
 
-        host = new Host(-1,
-            hostname,
-            im_mad_name,
-            vmm_mad_name,
-            tm_mad_name,
-            ClusterPool::DEFAULT_CLUSTER_NAME);
+    // Build a new Host object
 
-        // Insert the Object in the pool
+    host = new Host(-1,
+        hostname,
+        im_mad_name,
+        vmm_mad_name,
+        tm_mad_name,
+        ClusterPool::DEFAULT_CLUSTER_NAME);
 
-        *oid = PoolSQL::allocate(host, error_str);
-    }
+    // Insert the Object in the pool
+
+    *oid = PoolSQL::allocate(host, error_str);
 
     return *oid;
 
