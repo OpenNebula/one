@@ -165,7 +165,8 @@ var host_actions = {
                     Sunstone.runAction("Host.show",req.request.data[0]);
                 },
                 dataTable: function() { return dataTable_hosts },
-                error : onError
+                error : onError,
+                notify: true
             },
             
             "Host.disable" : {

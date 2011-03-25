@@ -217,6 +217,11 @@ var Sunstone = {
                 else if (data_arg) {call(data_arg);}
                 else {call();}
         }
+        //notify submission
+        if (notify) {
+            notifySubmit(action,data_arg,extra_param);
+        }
+        
         
     },
     
