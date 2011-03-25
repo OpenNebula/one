@@ -1286,7 +1286,7 @@ function createVMachineDialog(){
 
         $('div#disks select#BUS option#virtio').remove();
 
-		$('input#TYPE', section_raw).val("kvm");
+		$('input#TYPE', section_raw).val("xen");
 		$(section_inputs).hide(); //not present for xen
 		update_dynamic_css();
 	};
