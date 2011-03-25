@@ -398,7 +398,6 @@ function hostInfoListener(){
 
 		//do nothing if we are clicking a checkbox!
 		if ($(e.target).is('input')) {return true;}
-
         popDialogLoading();
 		var aData = dataTable_hosts.fnGetData(this);
 		var id = $(aData[0]).val();

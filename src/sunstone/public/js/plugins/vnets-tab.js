@@ -305,7 +305,7 @@ function vNetworkInfoListener(){
 //updates the vnet select different options
 function updateNetworkSelect(network_list){
 	vnetworks_select="";
-	vnetworks_select += "<option value=\"\">Select a network</option>";
+	vnetworks_select += "<option id=\"no_network\" value=\"\">Select a network</option>";
 	$.each(network_list, function(){
 		vnetworks_select += "<option value=\""+this.VNET.NAME+"\">"+this.VNET.NAME+"</option>";
 

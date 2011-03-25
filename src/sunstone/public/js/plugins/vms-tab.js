@@ -655,6 +655,9 @@ var vm_actions = {
         type: "single",
         call: OpenNebula.VM.log,
         callback: function(req,res) {
+            //after calling VM.log we process the answer
+            //update the tab and pop it up again with the updated
+            //info and the log tab selected
             var log_lines = res.split("\n");
             var colored_log = '';
             for (line in log_lines){
@@ -668,8 +671,8 @@ var vm_actions = {
                 title: "VM log",
                 content: '<pre>'+colored_log+'</pre>'
             }
-            Sunstone.updateInfoPanelTab("vm_info_panel","log_tab",log_tab);
-            Sunstone.popUpInfoPanel("vm_info_panel",2);
+            Sunstone.updateInfoPanelTab("vm_info_panel","vm_log_tab",log_tab);
+            Sunstone.popUpInfoPanel("vm_info_panel",0);
             
         },
         error: function(request,error_json){
@@ -822,6 +825,8 @@ function str_start_time(vm){
     return pretty_time(vm.STIME);
 }
 
+// Returns an array formed by the information contained in the vm_json
+// and ready to be introduced in a dataTable
 function vMachineElementArray(vm_json){
 	var vm = vm_json.VM;
     var state = OpenNebula.Helper.resource_state("vm",vm.STATE);
@@ -841,39 +846,46 @@ function vMachineElementArray(vm_json){
 		]
 }
 
+
+//Creates a listener for the TDs of the VM table
 function vMachineInfoListener(){
 
 	$('#tbodyvmachines tr').live("click", function(e){
 		if ($(e.target).is('input')) {return true;}
-		aData = dataTable_vMachines.fnGetData(this);
-		id = $(aData[0]).val();
+        popDialogLoading();
+		var aData = dataTable_vMachines.fnGetData(this);
+		var id = $(aData[0]).val();
         Sunstone.runAction("VM.showinfo",id);
 		return false;
 	});
 }
 
-
+// Callback to refresh a single element from the list
 function updateVMachineElement(request, vm_json){
-	id = vm_json.VM.ID;
-	element = vMachineElementArray(vm_json);
+	var id = vm_json.VM.ID;
+	var element = vMachineElementArray(vm_json);
 	updateSingleElement(element,dataTable_vMachines,'#vm_'+id)
 }
 
+// Callback to delete a single element from the list
 function deleteVMachineElement(req){
 	deleteElement(dataTable_vMachines,'#vm_'+req.request.data);
 }
 
+// Callback to add an element to the list
 function addVMachineElement(request,vm_json){
-    id = vm_json.VM.ID;
-    notifySubmit('OpenNebula.VM.create',id);
-	element = vMachineElementArray(vm_json);
+    var id = vm_json.VM.ID;
+	var element = vMachineElementArray(vm_json);
 	addElement(element,dataTable_vMachines);
+    //Popup info panel after creation.
     updateVMInfo(null,vm_json);
 }
 
+
+// Callback to refresh the list of Virtual Machines
 function updateVMachinesView(request, vmachine_list){
 	vmachine_list_json = vmachine_list;
-	vmachine_list_array = [];
+	var vmachine_list_array = [];
 
 	$.each(vmachine_list,function(){
 		vmachine_list_array.push( vMachineElementArray(this));
@@ -883,6 +895,8 @@ function updateVMachinesView(request, vmachine_list){
 	updateDashboard("vms",vmachine_list_json);
 }
 
+
+// Refreshes the information panel for a VM
 function updateVMInfo(request,vm){
 	var vm_info = vm.VM;
 	var info_tab = {
@@ -956,14 +970,23 @@ function updateVMInfo(request,vm){
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_template_tab",template_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_log_tab",log_tab);
     
+    
+    //Here it is special, as we will let the callback from the VM.log
+    //action popUp the info panel again when the info is received.
     Sunstone.popUpInfoPanel("vm_info_panel");
+    Sunstone.runAction("VM.log",vm_info.ID);
 
 }
 
+// Sets up the create-VM dialog and all the processing associated to it,
+// which is a lot.
 function setupCreateVMDialog(){
-    	/* #### createVMachineDialog() helper functions #### */
 
-    vmTabChange = function(event,ui){
+    //Helper functions for the dialog operations
+
+    // Called when changing tabs. Since we use the same form for both
+    // KVM, XEN and others we need to do some operation to update it
+    var vmTabChange = function(event,ui){
 	// ui.tab     // anchor element of the selected (clicked) tab
 	// ui.panel   // element, that contains the selected/clicked tab contents
 	// ui.index   // zero-based index of the selected (clicked) tab
@@ -981,32 +1004,21 @@ function setupCreateVMDialog(){
         }
     }
 
-	update_dynamic_css = function(){
-        //This function used to be useful to add specific
-        //css to elements that changed.
-        //Now its not needed anymore apparently
-        /*
-		if (templ_type=="kvm"){
-			$(xen_man_items).css({"font-weight":"normal"});
-			$(kvm_man_items).css({"background":"green","font-weight":"bold"});
-			$(kvm_opt_items).css({"background":"yellow"});
-		} else if (templ_type=="xen"){
-			$(kvm_man_items).css({"font-weight":"normal"});
-			$(xen_man_items).css({"background":"green","font-weight":"bold"});
-			$(xen_opt_items).css({"background":"yellow"});
-		};*/
-	};
-
-	enable_kvm = function(){
+    //Using kvm wizard. Updates mandatory tag, optional tags, disable
+    //XEN-only (and others) items, enables KVM items
+	var enable_kvm = function(){
 		man_class="kvm";
 		opt_class="kvm_opt";
 		$(xen_items).attr("disabled","disabled");
-		$(xen_items).css("background","");
 		$(kvm_items).removeAttr("disabled");
 		//$(items+':disabled').hide();
 
 
-		//particularities
+		//KVM particularities:
+        // * Add no_type option for disks
+        // * Add driver default option for boot and select it - hide some fields
+        // * Set the raw type to kvm
+        // * Show the inputs section
 		$('div#disks select#TYPE option:selected').removeAttr("selected");
 		$('div#disks select#TYPE').prepend(
 		'<option id="no_type" value="">None</option>');
@@ -1020,10 +1032,10 @@ function setupCreateVMDialog(){
 		$('input#TYPE', section_raw).val("kvm");
 
 		$(section_inputs).show();
-
-        update_dynamic_css();
 	};
 
+    // Using XEN wizard. Update mandatory and optional classes, disable
+    // KVM-only (and other) items, enable XEN fields...
 	enable_xen = function(){
 		man_class="xen";
 		opt_class="xen_opt";
@@ -1033,7 +1045,11 @@ function setupCreateVMDialog(){
 		//$(items+':disabled').hide();
 
 
-		//particularities
+		// XEN particularities:
+        // * Remove no_type option from disks
+        // * Remove driver default boot method
+        // * Set the raw section to XEN
+        // * Hide the inputs section
 		$('div#disks select#TYPE option#no_type').remove();
 
 		$('select#boot_method option:selected').removeAttr("selected");
@@ -1041,22 +1057,20 @@ function setupCreateVMDialog(){
 		$('.kernel, .bootloader', $('div#os_boot_opts')).hide();
 
 
-		$('input#TYPE', section_raw).val("kvm");
+		$('input#TYPE', section_raw).val("xen");
 		$(section_inputs).hide(); //not present for xen
-		update_dynamic_css();
 	};
 
-	mandatory_filter = function(context){
-			man_items = "";
-			if (templ_type == "kvm")
-			{ man_items = ".kvm"; }
-			else if (templ_type == "xen")
-			{ man_items = ".xen"; }
-			else {return false;};
+    //This function checks that all mandatory items within a section
+    //have some value. Returns true if so, false if not.
+	var mandatory_filter = function(context){
+			var man_items = "."+man_class;
 
 			//find enabled mandatory items in this context
 			man_items = $(man_items+' input:visible',context);
-			r = true;
+			var r = true;
+            
+            //we fail it the item is enabled and has no value
 			$.each(man_items,function(){
 				if ($(this).parents(".vm_param").attr("disabled") ||
 					!($(this).val().length)) {
@@ -1068,47 +1082,57 @@ function setupCreateVMDialog(){
 
 		};
 
-	box_add_element = function(context,box_tag,filter){
-			value="";
-			params= $('.vm_param',context);
-			inputs= $('input:enabled',params);
-			selects = $('select:enabled',params);
-			fields = $.merge(inputs,selects);
+    //Adds an option element to a multiple select box. Before doing so,
+    //it checks that the desired filter is passed
+	var box_add_element = function(context,box_tag,filter){
+			var value="";
+			var params= $('.vm_param',context);
+			var inputs= $('input:enabled',params);
+			var selects = $('select:enabled',params);
+			var fields = $.merge(inputs,selects);
 
-			//are fields correctly set?
-			result = filter();
+			//are fields passing the filter?
+			var result = filter();
 			if (!result) {
 				notifyError("There are mandatory parameters missing in this section");
 				return false;
 			}
 
 			value={};
+            
+            //With each enabled field we form a JSON object
+            var id = null;
 			$.each(fields,function(){
 				if (!($(this).parents(".vm_param").attr("disabled")) &&
 					$(this).val().length){
+                    //Pick up parent's ID if we do not have one    
 					id = $(this).attr('id').length ? $(this).attr('id') :  $(this).parent().attr('id');
 					value[id] = $(this).val();
 				}
 			});
-			string = JSON.stringify(value);
-			option= '<option value=\''+string+'\'>'+
+			var value_string = JSON.stringify(value);
+			var option= '<option value=\''+value_string+'\'>'+
 					stringJSON(value)+
 					'</option>';
 			$('select'+box_tag,context).append(option);
 			return false;
 	};
 
-	box_remove_element = function(section_tag,box_tag){
-			context = $(section_tag);
+    //Removes selected elements from a multiple select box
+	var box_remove_element = function(section_tag,box_tag){
+			var context = $(section_tag);
 			$('select'+box_tag+' :selected',context).remove();
 			return false;
 	};
 
-	addSectionJSON = function(template_json,context){
-			params= $('.vm_param',context);
-			inputs= $('input:enabled',params);
-			selects = $('select:enabled',params);
-			fields = $.merge(inputs,selects);
+    //Given the JSON of a VM template (or of a section of it), it crawls
+    //the fields of certain section (context) and add their name and 
+    //values to the template JSON.
+	var addSectionJSON = function(template_json,context){
+			var params= $('.vm_param',context);
+			var inputs= $('input:enabled',params);
+			var selects = $('select:enabled',params);
+			var fields = $.merge(inputs,selects);
 
 			fields.each(function(){
 				if (!($(this).parents(".vm_param").attr("disabled"))){ //if ! disabled
@@ -1119,16 +1143,23 @@ function setupCreateVMDialog(){
 			});
 	}
 
-	addBoxJSON = function(array,context,box_tag){
+    // Given an array (usually empty), a section (context) and a tag for
+    // a multiple select in that section, it adds the contents of the 
+    // box as objects in the array.
+    // TODO: Make it return a new array?
+	var addBoxJSON = function(array,context,box_tag){
 		$('select'+box_tag+' option',context).each(function(){
 				array.push( JSON.parse($(this).val()) );
 		});
 	}
 
-    removeEmptyObjects = function(obj){
+    //Given an object, removes those elements which are empty
+    //Used to clean up a template JSON before submitting 
+    //it to opennebula.js
+    var removeEmptyObjects = function(obj){
         for (elem in obj){
-            remove = false;
-            value = obj[elem];
+            var remove = false;
+            var value = obj[elem];
             if (value instanceof Array)
             {
                 if (value.length == 0)
@@ -1154,7 +1185,8 @@ function setupCreateVMDialog(){
         return obj;
     }
 
-	iconToggle = function(){
+    //Toggles the icon when a section is folded/unfolded
+	var iconToggle = function(){
 		$('.icon_right').toggle(
 			function(e){
 				$('span',e.currentTarget).removeClass("ui-icon-plusthick");
@@ -1165,18 +1197,22 @@ function setupCreateVMDialog(){
 			});
 	}
 
-	capacity_setup = function(){
-
-		//$('fieldset',section_capacity).hide();
-
-		//~ $('#add_capacity',section_capacity).click(function(){
-				//~ $('fieldset',section_capacity).toggle();
-				//~ return false;
-		//~ });
+    // Set ups the capacity section
+	var capacity_setup = function(){
+        //Actually there is nothing to set up, but it used to be
+        //possible to hide it like others
+        /*
+		$('fieldset',section_capacity).hide();
+		$('#add_capacity',section_capacity).click(function(){
+				$('fieldset',section_capacity).toggle();
+				return false;
+		});
+        */
 
 	}
-
-	os_boot_setup = function(){
+    
+    //Sets up the OS_BOOT section
+	var os_boot_setup = function(){
 		$('fieldset',section_os_boot).hide();
 		$('.bootloader, .kernel',section_os_boot).hide();
 
@@ -1191,6 +1227,7 @@ function setupCreateVMDialog(){
             $(this).trigger("click");
         });
 
+        //Depending on the boot method we enable/disable some options
         $('#boot_method',section_os_boot).click(function(){
 			select = $(this).val();
 			switch (select)
@@ -1215,7 +1252,8 @@ function setupCreateVMDialog(){
 		});
 	};
 
-	disks_setup = function(){
+    // Sets up the disk section
+	var disks_setup = function(){
 
 		$('fieldset',section_disks).hide();
 		$('.vm_param', section_disks).hide();
@@ -1226,10 +1264,12 @@ function setupCreateVMDialog(){
             return false;
 		});
 
+        //Depending on adding a disk or a image we need to show/hide
+        //different options and make then mandatory or not
 		$('#image_vs_disk input',section_disks).click(function(){
 			//$('fieldset',section_disks).show();
             $('.vm_param', section_disks).show();
-			select = $('#image_vs_disk :checked',section_disks).val();
+			var select = $('#image_vs_disk :checked',section_disks).val();
 			switch (select)
 			{
 				case "disk":
@@ -1254,22 +1294,17 @@ function setupCreateVMDialog(){
 			$('#FORMAT',section_disks).parent().hide();
 			$('#SIZE',section_disks).parent().attr("disabled","disabled");
 			$('#TYPE :selected',section_disks).removeAttr("selected");
-
-			update_dynamic_css();
 		});
-
-
-
-		//activate correct mandatory attributes when
-		//selecting disk type
 
         //Chrome workaround
         $('select#TYPE',section_disks).change(function(){
            $(this).trigger('click');
         });
 
+        //Depending on the type of disk we need to show/hide
+        //different options and make then mandatory or not
 		$('select#TYPE',section_disks).click(function(){
-			select = $(this).val();
+			var select = $(this).val();
 			switch (select) {
 				//size,format,target
 				case "swap":
@@ -1336,10 +1371,11 @@ function setupCreateVMDialog(){
 				    $('#FORMAT',section_disks).parent().attr("disabled","disabled");
 
 			}
-			update_dynamic_css();
 		});
 
-		diskFilter = function(){
+        //Our filter for the disks section fields is the mandatory
+        //filter for this section
+		var diskFilter = function(){
 			return mandatory_filter(section_disks);
 		};
 
@@ -1353,7 +1389,8 @@ function setupCreateVMDialog(){
 			});
 	};
 
-	networks_setup = function(){
+    // Sets up the network section
+	var networks_setup = function(){
 
 		$('.vm_param',section_networks).hide();
 		$('fieldset',section_networks).hide();
@@ -1363,6 +1400,8 @@ function setupCreateVMDialog(){
             return false;
 		});
 
+        //Depending on adding predefined network or not we show/hide
+        //some fields
 		$('#network_vs_niccfg input',section_networks).click(function(){
 
 			select = $('#network_vs_niccfg :checked',section_networks).val();
@@ -1382,10 +1421,13 @@ function setupCreateVMDialog(){
 			}
 		});
 
-	nicFilter = function(){
-			network = $('select#network :selected',section_networks).attr('id');
-			ip = $('#IP',section_networks).val();
-			mac = $('#MAC',section_networks).val();
+    //The filter to add a new network checks that we have selected a 
+    //network, or that the ip or mac are set
+    //TODO: Improve this check
+        var nicFilter = function(){
+			var network = $('select#NETWORK :selected',section_networks).attr('id');
+			var ip = $('#IP',section_networks).val();
+			var mac = $('#MAC',section_networks).val();
 
 			return (network != "no_network" || ip.length || mac.length);
 		};
@@ -1401,7 +1443,8 @@ function setupCreateVMDialog(){
 
 	};
 
-	inputs_setup = function() {
+    //Sets up the input section - basicly enabling adding and removing from box
+	var inputs_setup = function() {
 		$('fieldset',section_inputs).hide();
 
 		$('#add_inputs',section_inputs).click(function(){
@@ -1411,7 +1454,7 @@ function setupCreateVMDialog(){
 
 		$('#add_input_button',section_inputs).click(function(){
 			//no filter
-			box_add_element(section_inputs,'#inputs_box',function(){return true;});
+			box_add_element(section_inputs,'#inputs_box',True);
 			return false;
 			});
 		$('#remove_input_button',section_inputs).click(function(){
@@ -1419,8 +1462,9 @@ function setupCreateVMDialog(){
 			return false;
 			});
 	};
-
-	graphics_setup = function(){
+    
+    //Set up the graphics section
+	var graphics_setup = function(){
 		$('fieldset',section_graphics).hide();
         $('.vm_param',section_graphics).hide();
         $('select#TYPE',section_graphics).parent().show();
@@ -1466,7 +1510,8 @@ function setupCreateVMDialog(){
 
 	}
 
-	context_setup = function(){
+    //Set up the context section - TODO: Apply improvements here...
+	var context_setup = function(){
 		$('fieldset',section_context).hide();
 
 		$('#add_context',section_context).click(function(){
@@ -1476,7 +1521,8 @@ function setupCreateVMDialog(){
 
 	};
 
-	placement_setup = function(){
+    // Set up the placement section
+	var placement_setup = function(){
 		$('fieldset',section_placement).hide();
 
 		$('#add_placement',section_placement).click(function(){
@@ -1486,7 +1532,8 @@ function setupCreateVMDialog(){
 
 	};
 
-	raw_setup = function(){
+    // Set up the raw section
+	var raw_setup = function(){
 		$('fieldset',section_raw).hide();
 
 		$('#add_raw',section_raw).click(function(){
@@ -1500,6 +1547,7 @@ function setupCreateVMDialog(){
     $('div#dialogs').append('<div title="Create Virtual Machine" id="create_vm_dialog"></div>');
 	//Insert HTML in place
 	$('#create_vm_dialog').html(create_vm_tmpl);
+    //Enable tabs
 	$('#vm_create_tabs').tabs({
         select:vmTabChange
         });
@@ -1513,52 +1561,40 @@ function setupCreateVMDialog(){
         height: height
 	});
     
+    // Enhace buttons
     $('#create_vm_dialog button').button();
     
+    //Enable different icon for folded/unfolded categories
     iconToggle(); //toogle +/- buttons
 
 	//Sections, used to stay within their scope
-	section_capacity = $('#capacity');
-	section_os_boot = $('#os_boot_opts');
-	section_disks = $('#disks');
-	section_networks = $('#networks');
-	section_inputs = $('#inputs');
-	section_graphics = $('#graphics');
-	section_context = $('#context');
-	section_placement = $('#placement');
-	section_raw = $('#raw');
+	var section_capacity = $('#capacity');
+	var section_os_boot = $('#os_boot_opts');
+	var section_disks = $('#disks');
+	var section_networks = $('#networks');
+	var section_inputs = $('#inputs');
+	var section_graphics = $('#graphics');
+	var section_context = $('#context');
+	var section_placement = $('#placement');
+	var section_raw = $('#raw');
 
 	//Different selector for items of kvm and xen (mandatory and optional)
-	items = '.vm_section input,.vm_section select';
-	kvm_man_items = '.kvm input,.kvm select';
-	kvm_opt_items = '.kvm_opt input, .kvm_opt select';
-	kvm_items = kvm_man_items +','+kvm_opt_items;
-	xen_man_items = '.xen input,.xen select';
-	xen_opt_items = '.xen_opt input, .xen_opt select';
-	xen_items = xen_man_items +','+ xen_opt_items;
+	var items = '.vm_section input,.vm_section select';
+	var kvm_man_items = '.kvm input,.kvm select';
+	var kvm_opt_items = '.kvm_opt input, .kvm_opt select';
+	var kvm_items = kvm_man_items +','+kvm_opt_items;
+	var xen_man_items = '.xen input,.xen select';
+	var xen_opt_items = '.xen_opt input, .xen_opt select';
+	var xen_items = xen_man_items +','+ xen_opt_items;
 
 	//Starting template type, optional items class and mandatory items class
-	templ_type = "kvm";
-	opt_class=".kvm_opt";
-	man_class=".kvm";
+	var templ_type = "kvm";
+	var opt_class=".kvm_opt";
+	var man_class=".kvm";
 
-	$('#template_type #kvm').attr("checked","checked"); //check KVM
 	enable_kvm(); //enable all kvm options
 
-	//handle change between templates.
-	$("#template_type input").click(function(){
-		templ_type = $("#template_type :checked").val();
-		switch (templ_type)
-		{
-			case "kvm":
-				enable_kvm();
-				break;
-			case "xen":
-				enable_xen();
-				break;
-		}
-	});
-
+    //Fold/unfold all sections button
     $('#fold_unfold_vm_params').toggle(
         function(){
             $('.vm_section fieldset').show();
@@ -1566,10 +1602,11 @@ function setupCreateVMDialog(){
         },
         function(){
             $('.vm_section fieldset').hide();
-            $('.vm_section fieldset').first().show();
+            $('.vm_section fieldset').first().show(); //Show capacity opts
             return false;
         });
 
+    //initialise all sections
 	capacity_setup();
 	os_boot_setup();
 	disks_setup();
@@ -1580,13 +1617,14 @@ function setupCreateVMDialog(){
 	placement_setup();
 	raw_setup();
 
+    //Process form
 	$('button#create_vm_form_easy').click(function(){
 		//validate form
 
-		vm_json = {};
+		var vm_json = {};
 
 		//process capacity options
-		scope = section_capacity;
+		var scope = section_capacity;
 
 		if (!mandatory_filter(scope)){
 			notifyError("There are mandatory fields missing in the capacity section");
@@ -1610,7 +1648,7 @@ function setupCreateVMDialog(){
 		};
 		addSectionJSON(vm_json,scope);
 
-		//process disks
+		//process disks -> fetch from box
 		scope = section_disks;
 		vm_json["DISK"] = [];
 		addBoxJSON(vm_json["DISK"],scope,'#disks_box');
@@ -1654,28 +1692,23 @@ function setupCreateVMDialog(){
         
         Sunstone.runAction("VM.create",vm_json);
 		
-        //OpenNebula.VM.create({data: vm_json,
-		//		success: addVMachineElement,
-		//		error: onError});
-
         $('#create_vm_dialog').dialog('close');
 		return false;
 	});
 
+    //Handle manual forms
 	$('button#create_vm_form_manual').click(function(){
-		template = $('#textarea_vm_template').val();
+		var template = $('#textarea_vm_template').val();
 
         //wrap it in the "vm" object
         template = {"vm": {"vm_raw": template}};
 
         Sunstone.runAction("VM.create",template);
-		//OpenNebula.VM.create({data: template,
-		//			success: addVMachineElement,
-		//			error: onError});
 		 $('#create_vm_dialog').dialog('close');
 		return false;
 	});
 
+    //Reset form - empty boxes
 	$('button#reset_vm_form').click(function(){
 		$('select#disks_box option',section_disks).remove();
 		$('select#nics_box option',section_networks).remove();
@@ -1686,10 +1719,12 @@ function setupCreateVMDialog(){
 
 }
 
+// Open creation dialog
 function popUpCreateVMDialog(){
     $('#create_vm_dialog').dialog('open');
 }
 
+//Prepares autorefresh
 function setVMAutorefresh(){
      setInterval(function(){
 		var checked = $('input:checked',dataTable_vMachines.fnGetNodes());
@@ -1700,6 +1735,7 @@ function setVMAutorefresh(){
 	},INTERVAL+someTime()); //so that not all refreshing is done at the same time
 }
 
+// At this point the DOM is ready and the sunstone.js ready() has been run.
 $(document).ready(function(){
     
     dataTable_vMachines = $("#datatable_vmachines").dataTable({
@@ -1728,6 +1764,4 @@ $(document).ready(function(){
     tableCheckboxesListener(dataTable_vMachines);
     vMachineInfoListener();
     setupTips($('#create_vm_dialog'));
-    
-    
 })

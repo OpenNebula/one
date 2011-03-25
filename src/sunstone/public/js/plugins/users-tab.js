@@ -129,9 +129,10 @@ var users_tab = {
 Sunstone.addActions(user_actions);
 Sunstone.addMainTab('users_tab',users_tab);
 
-
+// Returns an array with the values from the user_json ready to be
+// added to the dataTable
 function userElementArray(user_json){
-	user = user_json.USER;
+	var user = user_json.USER;
     if (!user.NAME || user.NAME == {}){
         name = "";
     } else {
@@ -146,25 +147,28 @@ function userElementArray(user_json){
 }
 
 
-
+// Callback to refresh a single element from the dataTable
 function updateUserElement(request, user_json){
-	id = user_json.USER.ID;
-	element = userElementArray(user_json);
+	var id = user_json.USER.ID;
+	var element = userElementArray(user_json);
 	updateSingleElement(element,dataTable_users,'#user_'+id);
 }
 
+// Callback to delete a single element from the dataTable
 function deleteUserElement(req){
 	deleteElement(dataTable_users,'#user_'+req.request.data);
 }
 
+// Callback to add a single user element
 function addUserElement(request,user_json){
-	element = userElementArray(user_json);
+	var element = userElementArray(user_json);
 	addElement(element,dataTable_users);
 }
 
+// Callback to update the list of users
 function updateUsersView(request,users_list){
 	user_list_json = users_list;
-	user_list_array = [];
+	var user_list_array = [];
 
 	$.each(user_list_json,function(){
 		user_list_array.push(userElementArray(this));
@@ -173,6 +177,7 @@ function updateUsersView(request,users_list){
 	updateDashboard("users",user_list_json);
 }
 
+// Prepare the user creation dialog
 function setupCreateUserDialog(){
      $('div#dialogs').append('<div title="Create user" id="create_user_dialog"></div>');
      $('#create_user_dialog').html(create_user_tmpl);
@@ -203,7 +208,7 @@ function popUpCreateUserDialog(){
     $('#create_user_dialog').dialog('open');
 }
 
-
+// Prepare the autorefresh of the list
 function setUserAutorefresh(){
     setInterval(function(){
 		var checked = $('input:checked',dataTable_users.fnGetNodes());
@@ -216,6 +221,7 @@ function setUserAutorefresh(){
 
 $(document).ready(function(){
     
+    //if we are not oneadmin, our tab will not even be in the DOM.
     if (uid==0) {
         dataTable_users = $("#datatable_users").dataTable({
             "bJQueryUI": true,
@@ -241,9 +247,4 @@ $(document).ready(function(){
         initCheckAllBoxes(dataTable_users);
         tableCheckboxesListener(dataTable_users);
     }
-    
-            
-            
-
-    
 })

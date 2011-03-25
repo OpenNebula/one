@@ -433,9 +433,10 @@ Sunstone.addActions(image_actions);
 Sunstone.addMainTab('images_tab',images_tab);
 Sunstone.addInfoPanel('image_info_panel',image_info_panel);
 
-
+// Returns an array containing the values of the image_json and ready
+// to be inserted in the dataTable
 function imageElementArray(image_json){
-    image = image_json.IMAGE;
+    var image = image_json.IMAGE;
     return [
         '<input type="checkbox" id="image_'+image.ID+'" name="selected_items" value="'+image.ID+'"/>',
         image.ID,
@@ -450,65 +451,77 @@ function imageElementArray(image_json){
         ];
 }
 
-function imageInfoListener(target){
+// Set up the listener on the table TDs to show the info panel
+function imageInfoListener(){
 
     $('#tbodyimages tr').live("click",function(e){
         if ($(e.target).is('input')) {return true;}
-        aData = dataTable_images.fnGetData(this);
-        id = $(aData[0]).val();
+        popDialogLoading();
+        var aData = dataTable_images.fnGetData(this);
+        var id = $(aData[0]).val();
         Sunstone.runAction("Image.showinfo",id);
         return false;
     });
 }
 
+//Updates the select input field with an option for each image
 function updateImageSelect(image_list){
     images_select="";
     images_select += "<option value=\"\">Select an image</option>";
     $.each(image_list, function(){
+        //Only add if the state says the image is usable
         if ((this.IMAGE.STATE < 3) && (this.IMAGE.STATE > 0)){
             images_select += '<option id="img_sel_'+this.IMAGE.ID+'" value="'+this.IMAGE.NAME+'">'+this.IMAGE.NAME+'</option>';
         }
     });
 
-    //update static selectors
+    //update static selectors:
+    //in the VM section
     $('div.vm_section#disks select#IMAGE').html(images_select);
 }
 
+// Callback to update an element in the dataTable
 function updateImageElement(request, image_json){
-    id = image_json.IMAGE.ID;
-    element = imageElementArray(image_json);
+    var id = image_json.IMAGE.ID;
+    var element = imageElementArray(image_json);
     updateSingleElement(element,dataTable_images,'#image_'+id);
+    //Update the image select but only if the image is enabled...
     if ((image_json.IMAGE.STATE < 3) && 
         (image_json.IMAGE.STATE > 0) &&
         ($('#img_sel_'+id,images_select).length == 0)){
             images_select += '<option id="img_sel_'+id+'" value="'+image_json.IMAGE.NAME+'">'+image_json.IMAGE.NAME+'</option>';
         }   
-    else {
-        tag = 'option#img_sel_'+id;
-        select = $('<select>'+images_select+'</select>');
+    else { //delete the element if it is in the list
+        var tag = 'option#img_sel_'+id;
+        var select = $('<select>'+images_select+'</select>');
         $(tag,select).remove();
         images_select = $(select).html();
     }
     $('div.vm_section#disks select#IMAGE').html(images_select);
 }
 
+// Callback to remove an element from the dataTable
 function deleteImageElement(req){
     deleteElement(dataTable_images,'#image_'+req.request.data);
-    tag = 'option#img_sel_'+req.request.data;
-    select = $('<select>'+images_select+'</select>');
+    var tag = 'option#img_sel_'+req.request.data;
+    var select = $('<select>'+images_select+'</select>');
     $(tag,select).remove();
     images_select = $(select).html();
     $('div.vm_section#disks select#IMAGE').html(images_select);    
 }
 
+// Callback to add an image element
 function addImageElement(request, image_json){
-    element = imageElementArray(image_json);
+    var element = imageElementArray(image_json);
     addElement(element,dataTable_images);
+    //NOTE that the select is not updated because newly added images
+    //are disabled by default
 }
 
+// Callback to refresh the list of images
 function updateImagesView(request, images_list){
     image_list_json = images_list;
-    image_list_array = [];
+    var image_list_array = [];
     $.each(image_list_json,function(){
        image_list_array.push(imageElementArray(this));
     });
@@ -519,9 +532,13 @@ function updateImagesView(request, images_list){
 
 }
 
+// Prepare the dialog to add/remove/update image attributes
 function setupImageAttributesDialogs(){
+    
+    //Append to DOM
     $('div#dialogs').append('<div id="image_attributes_dialog" title="Image attributes"></div>');
 
+    //Put HTML in place
     $('#image_attributes_dialog').html(
         '<form action="javascript:alert(\'js error!\');">\
             <fieldset>\
@@ -552,6 +569,7 @@ function setupImageAttributesDialogs(){
 
     $('#image_attributes_dialog button').button();
 
+    //Upcase variable names
     $('#img_attr_name').keyup(function(){
        $(this).val($(this).val().toUpperCase());
     });
@@ -563,8 +581,10 @@ function setupImageAttributesDialogs(){
 
 }
 
+// Popup a dialog to add/update an attribute
 function popUpImageAddattrDialog(){
 
+        //Show value field and label
         $('#img_attr_value').show();
         $('#img_attr_value').prev().show();
         var desc = "Please write the name and value of the attribute. It will be added or updated in all selected images:";
@@ -574,8 +594,10 @@ function popUpImageAddattrDialog(){
         return false;
 }
 
+// Popup a dialog to remove an attribute
 function popUpImageRmattrDialog(){
     
+        //Hide value field and label
         $('#img_attr_value').hide();
         $('#img_attr_value').prev().hide();
         var desc = "Please type the attribute you want to remove:";
@@ -585,7 +607,7 @@ function popUpImageRmattrDialog(){
         return false;
 }
 
-
+// Callback to update the information panel tabs and pop it up
 function updateImageInfo(request,img){
     var img_info = img.IMAGE;
     var info_tab = {
@@ -645,6 +667,7 @@ function updateImageInfo(request,img){
 
 }
 
+// Prepare the image creation dialog
 function setupCreateImageDialog(){
      $('div#dialogs').append('<div title="Create Image" id="create_image_dialog"></div>');
      
@@ -669,7 +692,7 @@ function setupCreateImageDialog(){
     });
 
     $('select#img_type').click(function(){
-        value = $(this).val();
+        var value = $(this).val();
         switch (value){
             case "DATABLOCK":
                 $('#datablock_img').removeAttr("disabled");
@@ -697,7 +720,7 @@ function setupCreateImageDialog(){
 
 
     $('#src_path_select input').click(function(){
-        value = $(this).val();
+        var value = $(this).val();
         switch (value){
             case "path":
                 $('#img_source,#img_fstype,#img_size').parent().hide();
@@ -792,6 +815,7 @@ function popUpCreateImageDialog(){
     $('#create_image_dialog').dialog('open');
 }
 
+// Set the autorefresh interval for the datatable
 function setImageAutorefresh() {
      setInterval(function(){
 		var checked = $('input:checked',dataTable_images.fnGetNodes());
@@ -802,6 +826,7 @@ function setImageAutorefresh() {
 	},INTERVAL+someTime());
 }
 
+//The DOM is ready at this point
 $(document).ready(function(){
     
    dataTable_images = $("#datatable_images").dataTable({
