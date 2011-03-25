@@ -313,6 +313,11 @@ int ImageManager::delete_image(int iid)
 
     const ImageManagerDriver* imd = get();
 
+    if ( imd == 0 )
+    {
+        return -1;
+    }
+
     imd->rm(img->get_oid(),img->get_source());
 
     img->unlock();

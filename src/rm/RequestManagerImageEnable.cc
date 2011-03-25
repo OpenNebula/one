@@ -48,9 +48,9 @@ void RequestManager::ImageEnable::execute(
     vector<xmlrpc_c::value> arrayData;
     xmlrpc_c::value_array * arrayresult;
 
-    Nebula&              nd = Nebula::instance();
+    Nebula&          nd     = Nebula::instance();
     ImageManager *   imagem = nd.get_imagem();
-  
+
     NebulaLog::log("ReM",Log::DEBUG,"ImageEnable invoked");
 
     session     = xmlrpc_c::value_string (paramList.getString(0));
@@ -95,26 +95,14 @@ void RequestManager::ImageEnable::execute(
         }
     }
     
-    // Get image from the ImagePool
-    image = ImageEnable::ipool->get(iid,true);    
-                                                 
-    if ( image == 0 )                             
-    {                                            
-        goto error_image_get;                     
-    }
-    
-//TODO    rc = image->enable(enable_flag);
+    // Enable the Image 
+    rc = imagem->enable_image(iid,enable_flag);
 
     if ( rc < 0 )
     {
         goto error_enable;
-
     }
     
-    ImageEnable::ipool->update(image);
-    
-    image->unlock();
-
     arrayData.push_back(xmlrpc_c::value_boolean(true));
     arrayData.push_back(xmlrpc_c::value_int(iid));
 

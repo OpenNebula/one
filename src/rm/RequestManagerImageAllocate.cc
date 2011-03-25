@@ -48,7 +48,7 @@ void RequestManager::ImageAllocate::execute(
     vector<xmlrpc_c::value> arrayData;
     xmlrpc_c::value_array * arrayresult;
 
-    Nebula&              nd = Nebula::instance();
+    Nebula&          nd     = Nebula::instance();
     ImageManager *   imagem = nd.get_imagem();
 
     NebulaLog::log("ReM",Log::DEBUG,"ImageAllocate invoked");
@@ -58,7 +58,7 @@ void RequestManager::ImageAllocate::execute(
     str_template += "\n";
 
     //--------------------------------------------------------------------------
-    //   Authorize this request
+    //   Authenticate this request
     //--------------------------------------------------------------------------
     uid = ImageAllocate::upool->authenticate(session);
 
@@ -101,7 +101,6 @@ void RequestManager::ImageAllocate::execute(
         }
     }
 
-
     //--------------------------------------------------------------------------
     //   Get the User Name
     //--------------------------------------------------------------------------
@@ -129,6 +128,9 @@ void RequestManager::ImageAllocate::execute(
         goto error_allocate;
     }
 
+    //--------------------------------------------------------------------------
+    //   Register the Image in the repository
+    //--------------------------------------------------------------------------
     if ( imagem->register_image(rc) == -1 )
     {
         goto error_register;

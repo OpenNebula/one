@@ -196,7 +196,7 @@ void ImageManagerDriver::protocol(
 
         source = image->get_source();
             
-        ipool->drop(image);
+        rc = ipool->drop(image);
 
         image->unlock();
 
@@ -213,8 +213,8 @@ void ImageManagerDriver::protocol(
         {
             ostringstream oss;
 
-            oss << "Error removing image from repository. Remove file " << source 
-                << "  to completely delete image.";
+            oss <<"Error removing image from repository. Remove file " << source
+                <<"  to completely delete image.";
 
             NebulaLog::log("ImM",Log::ERROR,oss);
         }
