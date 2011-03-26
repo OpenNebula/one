@@ -35,6 +35,7 @@
 #include "RequestManager.h"
 #include "HookManager.h"
 #include "AuthManager.h"
+#include "ImageManager.h"
 
 class NebulaTest
 {
@@ -71,6 +72,7 @@ public:
     bool need_rm;
     bool need_hm;
     bool need_authm;
+    bool need_imagem;
 
     static NebulaTest * instance()
     {
@@ -132,6 +134,8 @@ public:
     virtual HookManager* create_hm(VirtualMachinePool * vmpool);
 
     virtual AuthManager* create_authm(time_t timer_period);
+
+    virtual ImageManager* create_imagem(ImagePool * ipool);
 };
 
 #endif /*NEBULA_TEST_H_*/

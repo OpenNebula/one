@@ -451,7 +451,7 @@ public:
         CPPUNIT_ASSERT( img != 0 );
         CPPUNIT_ASSERT( oid == 0 );
 
-        img->enable(true);
+        img->set_state(Image::READY);
         img->disk_attribute(disk, &index, &img_type);
 
         value = disk->vector_value("TARGET");
@@ -474,7 +474,7 @@ public:
         img = imp->get(oid, false);
         CPPUNIT_ASSERT( img != 0 );
 
-        img->enable(true);
+        img->set_state(Image::READY);
         img->disk_attribute(disk, &index, &img_type);
 
         value = disk->vector_value("TARGET");
@@ -496,7 +496,7 @@ public:
         img = imp->get(oid, false);
         CPPUNIT_ASSERT( img != 0 );
 
-        img->enable(true);
+        img->set_state(Image::READY);
         img->disk_attribute(disk, &index, &img_type);
 
         value = disk->vector_value("TARGET");
@@ -518,7 +518,7 @@ public:
         img = imp->get(oid, false);
         CPPUNIT_ASSERT( img != 0 );
 
-        img->enable(true);
+        img->set_state(Image::READY);
         img->disk_attribute(disk, &index, &img_type);
 
         value = disk->vector_value("TARGET");
@@ -551,7 +551,7 @@ public:
         // A disk without a BUS attribute should not have it added.
         disk = new VectorAttribute("DISK");
 
-        img->enable(true);
+        img->set_state(Image::READY);
         rc = img->disk_attribute(disk, &index, &img_type);
         CPPUNIT_ASSERT( rc == 0 );
 
@@ -565,7 +565,7 @@ public:
                     "source_prefix/9ab4a4e021ee2883f57e3aeecc9e2aed7c3fa198" );
 
         // clean up
-        img->release_image();
+        //img->release_image();
         delete disk;
 
         // ---------------------------------------------------------------------
@@ -573,7 +573,7 @@ public:
         disk = new VectorAttribute("DISK");
         disk->replace("BUS", "SCSI");
 
-        img->enable(true);
+        img->set_state(Image::READY);
         rc = img->disk_attribute(disk, &index, &img_type);
         CPPUNIT_ASSERT( rc == 0 );
 
@@ -621,11 +621,11 @@ public:
 
         img = imp->get(oid_0, false);
         CPPUNIT_ASSERT( img != 0 );
-        img->enable(true);
+        img->set_state(Image::READY);
 
         img = imp->get(oid_1, false);
         CPPUNIT_ASSERT( img != 0 );
-        img->enable(true);
+        img->set_state(Image::READY);
 
 
         // Disk using image 0
