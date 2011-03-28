@@ -36,11 +36,13 @@
 /* Virtual Machine :: Constructor/Destructor                                  */
 /* ************************************************************************** */
 
-VirtualMachine::VirtualMachine(int id, VirtualMachineTemplate * _vm_template):
-        PoolObjectSQL(id),
-        uid(-1),
+VirtualMachine::VirtualMachine(int id,
+                               int _uid,
+                               string _user_name,
+                               VirtualMachineTemplate * _vm_template):
+        PoolObjectSQL(id,"",_uid,table),
+        user_name(_user_name),
         last_poll(0),
-        name(""),
         state(INIT),
         lcm_state(LCM_INIT),
         stime(time(0)),
@@ -50,7 +52,6 @@ VirtualMachine::VirtualMachine(int id, VirtualMachineTemplate * _vm_template):
         cpu(0),
         net_tx(0),
         net_rx(0),
-        last_seq(-1),
         history(0),
         previous_history(0),
         _log(0)
@@ -95,75 +96,13 @@ VirtualMachine::~VirtualMachine()
 const char * VirtualMachine::table = "vm_pool";
 
 const char * VirtualMachine::db_names =
-    "oid,uid,name,last_poll, state,lcm_state,stime,etime,deploy_id"
-    ",memory,cpu,net_tx,net_rx,last_seq, template";
-
-const char * VirtualMachine::extended_db_names =
-    "vm_pool.oid, vm_pool.uid, vm_pool.name, vm_pool.last_poll, vm_pool.state, "
-    "vm_pool.lcm_state, vm_pool.stime, vm_pool.etime, vm_pool.deploy_id, "
-    "vm_pool.memory, vm_pool.cpu, vm_pool.net_tx, vm_pool.net_rx, "
-    "vm_pool.last_seq, vm_pool.template";
+    "oid, name, body, uid, last_poll, state, lcm_state";
 
 const char * VirtualMachine::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
-        "vm_pool ("
-        "oid INTEGER PRIMARY KEY,uid INTEGER,name TEXT,"
-        "last_poll INTEGER, state INTEGER,lcm_state INTEGER,"
-        "stime INTEGER,etime INTEGER,deploy_id TEXT,memory INTEGER,cpu INTEGER,"
-        "net_tx INTEGER,net_rx INTEGER, last_seq INTEGER, template TEXT)";
+        "vm_pool (oid INTEGER PRIMARY KEY, name TEXT, body TEXT, uid INTEGER, "
+        "last_poll INTEGER, state INTEGER, lcm_state INTEGER)";
 
 /* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int VirtualMachine::select_cb(void *nil, int num, char **values, char **names)
-{
-    if ((values[OID] == 0) ||
-        (values[UID] == 0) ||
-        (values[NAME] == 0) ||
-        (values[LAST_POLL] == 0) ||
-        (values[STATE] == 0) ||
-        (values[LCM_STATE] == 0) ||
-        (values[STIME] == 0) ||
-        (values[ETIME] == 0) ||
-        (values[MEMORY] == 0) ||
-        (values[CPU] == 0) ||
-        (values[NET_TX] == 0) ||
-        (values[NET_RX] == 0) ||
-        (values[LAST_SEQ] == 0) ||
-        (values[TEMPLATE] == 0) ||
-        (num != LIMIT ))
-    {
-        return -1;
-    }
-
-    oid  = atoi(values[OID]);
-    uid  = atoi(values[UID]);
-    name = values[NAME];
-
-    last_poll = static_cast<time_t>(atoi(values[LAST_POLL]));
-
-    state     = static_cast<VmState>(atoi(values[STATE]));
-    lcm_state = static_cast<LcmState>(atoi(values[LCM_STATE]));
-
-    stime = static_cast<time_t>(atoi(values[STIME]));
-    etime = static_cast<time_t>(atoi(values[ETIME]));
-
-    if ( values[DEPLOY_ID] != 0 )
-    {
-        deploy_id = values[DEPLOY_ID];
-    }
-
-    memory      = atoi(values[MEMORY]);
-    cpu         = atoi(values[CPU]);
-    net_tx      = atoi(values[NET_TX]);
-    net_rx      = atoi(values[NET_RX]);
-    last_seq    = atoi(values[LAST_SEQ]);
-
-    // Virtual Machine template
-    vm_template->from_xml(values[TEMPLATE]);
-
-    return 0;
-}
-
 /* -------------------------------------------------------------------------- */
 
 int VirtualMachine::select(SqlDB * db)
@@ -172,56 +111,37 @@ int VirtualMachine::select(SqlDB * db)
     ostringstream   ose;
 
     int             rc;
-    int             boid;
+    int             last_seq;
 
-    string          filename;
     Nebula&         nd = Nebula::instance();
 
-    set_callback(
-        static_cast<Callbackable::Callback>(&VirtualMachine::select_cb));
+    // Rebuld the VirtualMachine object
+    rc = PoolObjectSQL::select(db);
 
-    oss << "SELECT " << db_names << " FROM " << table << " WHERE oid = " << oid;
-
-    boid = oid;
-    oid  = -1;
-
-    rc = db->exec(oss,this);
-
-    unset_callback();
-
-    if ((rc != 0) || (oid != boid ))
+    if( rc != 0 )
     {
-        goto error_id;
+        return rc;
     }
 
-    //Get the History Records
-
-    if ( last_seq != -1 )
+    //Get History Records. Current history is record is built in from_xml() (if any).
+    if( hasHistory() )
     {
-        history = new History(oid, last_seq);
+        last_seq = history->seq;
 
-        rc = history->select(db);
-
-        if (rc != 0)
+        if ( last_seq > 0 )
         {
-            goto error_history;
-        }
-    }
+            previous_history = new History(oid, last_seq - 1);
 
-    if ( last_seq > 0 )
-    {
-        previous_history = new History(oid, last_seq - 1);
+            rc = previous_history->select(db);
 
-        rc = previous_history->select(db);
-
-        if ( rc != 0)
-        {
-            goto error_previous_history;
+            if ( rc != 0)
+            {
+                goto error_previous_history;
+            }
         }
     }
 
     //Create support directory for this VM
-
     oss.str("");
     oss << nd.get_var_location() << oid;
 
@@ -229,7 +149,6 @@ int VirtualMachine::select(SqlDB * db)
     chmod(oss.str().c_str(), 0777);
 
     //Create Log support for this VM
-
     try
     {
         _log = new FileLog(nd.get_vm_log_filename(oid),Log::DEBUG);
@@ -243,16 +162,6 @@ int VirtualMachine::select(SqlDB * db)
     }
 
     return 0;
-
-error_id:
-    ose << "Error getting VM id: " << oid;
-    log("VMM", Log::ERROR, ose);
-    return -1;
-
-error_history:
-    ose << "Can not get history for VM id: " << oid;
-    log("ONE", Log::ERROR, ose);
-    return -1;
 
 error_previous_history:
     ose << "Can not get previous history record (seq:" << history->seq
@@ -324,14 +233,14 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     // Parse the context & requirements
     // -------------------------------------------------------------------------
 
-    rc = parse_context();
+    rc = parse_context(error_str);
 
     if ( rc != 0 )
     {
         goto error_context;
     }
 
-    rc = parse_requirements();
+    rc = parse_requirements(error_str);
 
     if ( rc != 0 )
     {
@@ -367,11 +276,9 @@ error_images:
     goto error_common;
 
 error_context:
-    error_str = "Could not parse CONTEXT for VM.";
     goto error_common;
 
 error_requirements:
-    error_str = "Could not parse REQUIREMENTS for VM.";
     goto error_common;
 
 error_common:
@@ -384,7 +291,7 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::parse_context()
+int VirtualMachine::parse_context(string& error_str)
 {
     int rc, num;
 
@@ -400,12 +307,17 @@ int VirtualMachine::parse_context()
     {
         return 0;
     }
+    else if ( num > 1 )
+    {
+        error_str = "Only one CONTEXT attribute can be defined.";
+        return -1;
+    }
 
     context = dynamic_cast<VectorAttribute *>(array_context[0]);
 
     if ( context == 0 )
     {
-        NebulaLog::log("ONE",Log::ERROR, "Wrong format for CONTEXT attribute");
+        error_str = "Wrong format for CONTEXT attribute.";
         return -1;
     }
 
@@ -504,7 +416,7 @@ void VirtualMachine::parse_graphics()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::parse_requirements()
+int VirtualMachine::parse_requirements(string& error_str)
 {
     int rc, num;
 
@@ -519,12 +431,17 @@ int VirtualMachine::parse_requirements()
     {
         return 0;
     }
+    else if ( num > 1 )
+    {
+        error_str = "Only one REQUIREMENTS attribute can be defined.";
+        return -1;
+    }
 
     reqs = dynamic_cast<SingleAttribute *>(array_reqs[0]);
 
     if ( reqs == 0 )
     {
-        NebulaLog::log("ONE",Log::ERROR,"Wrong format for REQUIREMENTS");
+        error_str = "Wrong format for REQUIREMENTS attribute.";
         return -1;
     }
 
@@ -554,23 +471,15 @@ int VirtualMachine::parse_requirements()
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-int VirtualMachine::update(SqlDB * db)
-{
-    return insert_replace(db, true);
-}
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
 int VirtualMachine::insert_replace(SqlDB *db, bool replace)
 {
     ostringstream   oss;
     int             rc;
 
-    string xml_template;
+    string xml_body;
     char * sql_deploy_id;
     char * sql_name;
-    char * sql_template;
+    char * sql_xml;
 
     sql_deploy_id = db->escape_str(deploy_id.c_str());
 
@@ -586,14 +495,12 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace)
         goto error_name;
     }
 
-    vm_template->to_xml(xml_template);
-    sql_template = db->escape_str(xml_template.c_str());
+    sql_xml = db->escape_str(to_xml(xml_body).c_str());
 
-    if ( sql_template == 0 )
+    if ( sql_xml == 0 )
     {
-        goto error_template;
+        goto error_body;
     }
-
 
     if(replace)
     {
@@ -606,30 +513,23 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace)
 
     oss << " INTO " << table << " ("<< db_names <<") VALUES ("
         <<          oid             << ","
-        <<          uid             << ","
         << "'" <<   sql_name        << "',"
+        << "'" <<   sql_xml         << "',"
+        <<          uid             << ","
         <<          last_poll       << ","
         <<          state           << ","
-        <<          lcm_state       << ","
-        <<          stime           << ","
-        <<          etime           << ","
-        << "'" <<   sql_deploy_id   << "',"
-        <<          memory          << ","
-        <<          cpu             << ","
-        <<          net_tx          << ","
-        <<          net_rx          << ","
-        <<          last_seq        << ","
-        << "'" <<   sql_template    << "')";
+        <<          lcm_state       << ")";
 
     db->free_str(sql_deploy_id);
     db->free_str(sql_name);
-    db->free_str(sql_template);
+    db->free_str(sql_xml);
 
     rc = db->exec(oss);
 
     return rc;
 
-error_template:
+
+error_body:
     db->free_str(sql_name);
 error_name:
     db->free_str(sql_deploy_id);
@@ -640,116 +540,12 @@ error_deploy:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::dump(  ostringstream& oss,
-                                    int num,
-                                    char **values,
-                                    char **names)
-{
-    if ((!values[OID])||
-        (!values[UID])||
-        (!values[NAME]) ||
-        (!values[LAST_POLL])||
-        (!values[STATE])||
-        (!values[LCM_STATE])||
-        (!values[STIME])||
-        (!values[ETIME])||
-        (!values[DEPLOY_ID])||
-        (!values[MEMORY])||
-        (!values[CPU])||
-        (!values[NET_TX])||
-        (!values[NET_RX])||
-        (!values[LAST_SEQ])||
-        (!values[TEMPLATE])||
-        (num != LIMIT))
-    {
-        return -1;
-    }
-
-    oss <<
-        "<VM>" <<
-            "<ID>"       << values[OID]      << "</ID>"       <<
-            "<UID>"      << values[UID]      << "</UID>"      <<
-            "<NAME>"     << values[NAME]     << "</NAME>"     <<
-            "<LAST_POLL>"<< values[LAST_POLL]<< "</LAST_POLL>"<<
-            "<STATE>"    << values[STATE]    << "</STATE>"    <<
-            "<LCM_STATE>"<< values[LCM_STATE]<< "</LCM_STATE>"<<
-            "<STIME>"    << values[STIME]    << "</STIME>"    <<
-            "<ETIME>"    << values[ETIME]    << "</ETIME>"    <<
-            "<DEPLOY_ID>"<< values[DEPLOY_ID]<< "</DEPLOY_ID>"<<
-            "<MEMORY>"   << values[MEMORY]   << "</MEMORY>"   <<
-            "<CPU>"      << values[CPU]      << "</CPU>"      <<
-            "<NET_TX>"   << values[NET_TX]   << "</NET_TX>"   <<
-            "<NET_RX>"   << values[NET_RX]   << "</NET_RX>"   <<
-            "<LAST_SEQ>" << values[LAST_SEQ] << "</LAST_SEQ>" <<
-                            values[TEMPLATE];
-    oss << "</VM>";
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int VirtualMachine::dump_extended(  ostringstream& oss,
-                                    int num,
-                                    char **values,
-                                    char **names)
-{
-    if ((!values[OID])||
-        (!values[UID])||
-        (!values[NAME]) ||
-        (!values[LAST_POLL])||
-        (!values[STATE])||
-        (!values[LCM_STATE])||
-        (!values[STIME])||
-        (!values[ETIME])||
-        (!values[DEPLOY_ID])||
-        (!values[MEMORY])||
-        (!values[CPU])||
-        (!values[NET_TX])||
-        (!values[NET_RX])||
-        (!values[LAST_SEQ])||
-        (!values[TEMPLATE])||
-        (num != (LIMIT + History::LIMIT + 1)))
-    {
-        return -1;
-    }
-
-    oss <<
-        "<VM>" <<
-            "<ID>"       << values[OID]      << "</ID>"       <<
-            "<UID>"      << values[UID]      << "</UID>"      <<
-            "<USERNAME>" << values[LIMIT]     << "</USERNAME>"<<
-            "<NAME>"     << values[NAME]     << "</NAME>"     <<
-            "<LAST_POLL>"<< values[LAST_POLL]<< "</LAST_POLL>"<<
-            "<STATE>"    << values[STATE]    << "</STATE>"    <<
-            "<LCM_STATE>"<< values[LCM_STATE]<< "</LCM_STATE>"<<
-            "<STIME>"    << values[STIME]    << "</STIME>"    <<
-            "<ETIME>"    << values[ETIME]    << "</ETIME>"    <<
-            "<DEPLOY_ID>"<< values[DEPLOY_ID]<< "</DEPLOY_ID>"<<
-            "<MEMORY>"   << values[MEMORY]   << "</MEMORY>"   <<
-            "<CPU>"      << values[CPU]      << "</CPU>"      <<
-            "<NET_TX>"   << values[NET_TX]   << "</NET_TX>"   <<
-            "<NET_RX>"   << values[NET_RX]   << "</NET_RX>"   <<
-            "<LAST_SEQ>" << values[LAST_SEQ] << "</LAST_SEQ>" <<
-                            values[TEMPLATE];
-
-    History::dump(oss, num-LIMIT-1, values+LIMIT+1, names+LIMIT+1);
-
-    oss << "</VM>";
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 void VirtualMachine::add_history(
-    int     hid,
-    string& hostname,
-    string& vm_dir,
-    string& vmm_mad,
-    string& tm_mad)
+    int   hid,
+    const string& hostname,
+    const string& vm_dir,
+    const string& vmm_mad,
+    const string& tm_mad)
 {
     ostringstream os;
     int           seq;
@@ -769,8 +565,6 @@ void VirtualMachine::add_history(
 
         previous_history = history;
     }
-
-    last_seq = seq;
 
     history = new History(oid,seq,hid,hostname,vm_dir,vmm_mad,tm_mad);
 };
@@ -803,8 +597,6 @@ void VirtualMachine::cp_history()
     previous_history = history;
 
     history = htmp;
-
-    last_seq = history->seq;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -832,8 +624,6 @@ void VirtualMachine::cp_previous_history()
     previous_history = history;
 
     history = htmp;
-
-    last_seq = history->seq;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -898,7 +688,7 @@ int VirtualMachine::get_disk_images(string& error_str)
             continue;
         }
 
-        rc = ipool->disk_attribute(disk, i, &index, &img_type);
+        rc = ipool->disk_attribute(disk, i, &index, &img_type, uid);
 
         if (rc == 0 )
         {
@@ -1041,7 +831,7 @@ int VirtualMachine::get_network_leases()
             continue;
         }
 
-        rc = vnpool->nic_attribute(nic, oid);
+        rc = vnpool->nic_attribute(nic, uid, oid);
 
         if (rc == -1)
         {
@@ -1304,6 +1094,7 @@ string& VirtualMachine::to_xml(string& xml) const
     oss << "<VM>"
         << "<ID>"        << oid       << "</ID>"
         << "<UID>"       << uid       << "</UID>"
+        << "<USERNAME>"  << user_name << "</USERNAME>"
         << "<NAME>"      << name      << "</NAME>"
         << "<LAST_POLL>" << last_poll << "</LAST_POLL>"
         << "<STATE>"     << state     << "</STATE>"
@@ -1315,7 +1106,6 @@ string& VirtualMachine::to_xml(string& xml) const
         << "<CPU>"       << cpu       << "</CPU>"
         << "<NET_TX>"    << net_tx    << "</NET_TX>"
         << "<NET_RX>"    << net_rx    << "</NET_RX>"
-        << "<LAST_SEQ>"  << last_seq  << "</LAST_SEQ>"
         << vm_template->to_xml(template_xml);
 
     if ( hasHistory() )
@@ -1330,39 +1120,66 @@ string& VirtualMachine::to_xml(string& xml) const
     return xml;
 }
 
-/* -------------------------------------------------------------------------- */
-
-string& VirtualMachine::to_str(string& str) const
+int VirtualMachine::from_xml(const string &xml_str)
 {
-    string template_str;
-    string history_str;
+    vector<xmlNodePtr> content;
 
-    ostringstream	oss;
+    int int_state;
+    int int_lcmstate;
+    int rc = 0;
 
-    oss<< "ID                : " << oid << endl
-       << "UID               : " << uid << endl
-       << "NAME              : " << name << endl
-       << "STATE             : " << state << endl
-       << "LCM STATE         : " << lcm_state << endl
-       << "DEPLOY ID         : " << deploy_id << endl
-       << "MEMORY            : " << memory << endl
-       << "CPU               : " << cpu << endl
-       << "LAST POLL         : " << last_poll << endl
-       << "START TIME        : " << stime << endl
-       << "STOP TIME         : " << etime << endl
-       << "NET TX            : " << net_tx << endl
-       << "NET RX            : " << net_rx << endl
-       << "LAST SEQ          : " << last_seq << endl
-       << "Template" << endl << vm_template->to_str(template_str) << endl;
+    // Initialize the internal XML object
+    update_from_str(xml_str);
 
-    if ( hasHistory() )
+    // Get class base attributes
+    rc += xpath(oid,        "/VM/ID",       -1);
+    rc += xpath(uid,        "/VM/UID",      -1);
+    rc += xpath(user_name,  "/VM/USERNAME", "not_found");
+    rc += xpath(name,       "/VM/NAME",     "not_found");
+
+    rc += xpath(last_poll,  "/VM/LAST_POLL",0);
+    rc += xpath(int_state,  "/VM/STATE",    0);
+    rc += xpath(int_lcmstate,"/VM/LCM_STATE", 0);
+
+    rc += xpath(stime,      "/VM/STIME",    0);
+    rc += xpath(etime,      "/VM/ETIME",    0);
+    rc += xpath(deploy_id,  "/VM/DEPLOY_ID","");
+
+    rc += xpath(memory,     "/VM/MEMORY",   0);
+    rc += xpath(cpu,        "/VM/CPU",      0);
+    rc += xpath(net_tx,     "/VM/NET_TX",   0);
+    rc += xpath(net_rx,     "/VM/NET_RX",   0);
+
+    state     = static_cast<VmState>( int_state );
+    lcm_state = static_cast<LcmState>( int_lcmstate );
+
+    // Get associated classes
+    ObjectXML::get_nodes("/VM/TEMPLATE", content);
+
+    if( content.size() < 1 )
     {
-        oss << "Last History Record" << endl << history->to_str(history_str);
+        return -1;
     }
 
-    str = oss.str();
+    // Virtual Machine template
+    rc += vm_template->from_xml_node(content[0]);
 
-    return str;
+    // Last history entry
+    content.clear();
+    ObjectXML::get_nodes("/VM/HISTORY", content);
+
+    if( !content.empty() )
+    {
+        history = new History(oid);
+        rc += history->from_xml_node(content[0]);
+    }
+
+    if (rc != 0)
+    {
+        return -1;
+    }
+
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */

@@ -67,7 +67,7 @@ void RequestManager::HostDelete::execute(
         }
     }
 
-    // Perform the allocation in the hostpool
+    // Perform the deletion from the hostpool
     host = HostDelete::hpool->get(hid,true);
 
     if ( host == 0 )

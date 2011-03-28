@@ -23,6 +23,7 @@
 #include "UserPool.h"
 #include "VirtualNetworkPool.h"
 #include "ImagePool.h"
+#include "ClusterPool.h"
 
 #include <xmlrpc-c/base.hpp>
 #include <xmlrpc-c/registry.hpp>
@@ -44,10 +45,12 @@ public:
         VirtualNetworkPool *    _vnpool,
         UserPool           *    _upool,
         ImagePool          *    _ipool,
+        ClusterPool        *    _cpool,
         int                     _port,
         string                  _xml_log_file)
             :vmpool(_vmpool),hpool(_hpool),vnpool(_vnpool),upool(_upool),
-            ipool(_ipool),port(_port),socket_fd(-1),xml_log_file(_xml_log_file)
+            ipool(_ipool),cpool(_cpool),port(_port),socket_fd(-1),
+            xml_log_file(_xml_log_file)
     {
         am.addListener(this);
     };
@@ -125,6 +128,11 @@ private:
      *  Pointer to the Image Pool, to access images
      */
     ImagePool          *    ipool;
+
+    /**
+     *  Pointer to the Image Pool, to access images
+     */
+    ClusterPool        *    cpool;
 
     /**
      *  Port number where the connection will be open
@@ -478,7 +486,7 @@ private:
                 vmpool(_vmpool),
                 upool(_upool)
         {
-            _signature="A:sibi";
+            _signature="A:sii";
             _help="Returns the virtual machine pool";
         };
 
@@ -632,10 +640,10 @@ private:
     {
     public:
         ClusterAllocate(
-            HostPool * _hpool,
-            UserPool * _upool):
-                hpool(_hpool),
-                upool(_upool)
+            UserPool *      _upool,
+            ClusterPool *   _cpool):
+                upool(_upool),
+                cpool(_cpool)
         {
             _signature="A:ss";
             _help="Allocates a cluster in the pool";
@@ -648,8 +656,8 @@ private:
             xmlrpc_c::value *   const  retvalP);
 
     private:
-        HostPool * hpool;
-        UserPool * upool;
+        UserPool *      upool;
+        ClusterPool *   cpool;
     };
 
     /* ---------------------------------------------------------------------- */
@@ -658,10 +666,10 @@ private:
     {
     public:
         ClusterInfo(
-            HostPool * _hpool,
-            UserPool * _upool):
-                hpool(_hpool),
-                upool(_upool)
+            UserPool *      _upool,
+            ClusterPool *   _cpool):
+                upool(_upool),
+                cpool(_cpool)
         {
             _signature="A:si";
             _help="Returns cluster information";
@@ -674,8 +682,8 @@ private:
             xmlrpc_c::value *   const  retvalP);
 
     private:
-        HostPool * hpool;
-        UserPool * upool;
+        UserPool *      upool;
+        ClusterPool *   cpool;
     };
 
     /* ---------------------------------------------------------------------- */
@@ -684,10 +692,10 @@ private:
     {
     public:
         ClusterDelete(
-            HostPool * _hpool,
-            UserPool * _upool):
-                hpool(_hpool),
-                upool(_upool)
+            UserPool *      _upool,
+            ClusterPool *   _cpool):
+                upool(_upool),
+                cpool(_cpool)
         {
             _signature="A:si";
             _help="Deletes a cluster from the pool";
@@ -700,8 +708,8 @@ private:
             xmlrpc_c::value *   const  retvalP);
 
     private:
-        HostPool * hpool;
-        UserPool * upool;
+        UserPool *      upool;
+        ClusterPool *   cpool;
     };
 
     /* ---------------------------------------------------------------------- */
@@ -710,10 +718,12 @@ private:
     {
     public:
         ClusterAdd(
-            HostPool * _hpool,
-            UserPool * _upool):
+            HostPool *      _hpool,
+            UserPool *      _upool,
+            ClusterPool *   _cpool):
                 hpool(_hpool),
-                upool(_upool)
+                upool(_upool),
+                cpool(_cpool)
         {
             _signature="A:sii";
             _help="Adds a host to a cluster";
@@ -726,8 +736,9 @@ private:
             xmlrpc_c::value *   const  retvalP);
 
     private:
-        HostPool * hpool;
-        UserPool * upool;
+        HostPool *      hpool;
+        UserPool *      upool;
+        ClusterPool *   cpool;
     };
 
     /* ---------------------------------------------------------------------- */
@@ -736,10 +747,12 @@ private:
     {
     public:
         ClusterRemove(
-            HostPool * _hpool,
-            UserPool * _upool):
+            HostPool *      _hpool,
+            UserPool *      _upool,
+            ClusterPool *   _cpool):
                 hpool(_hpool),
-                upool(_upool)
+                upool(_upool),
+                cpool(_cpool)
         {
             _signature="A:si";
             _help="Removes a host from its cluster";
@@ -752,8 +765,9 @@ private:
             xmlrpc_c::value *   const  retvalP);
 
     private:
-        HostPool * hpool;
-        UserPool * upool;
+        HostPool *      hpool;
+        UserPool *      upool;
+        ClusterPool *   cpool;
     };
 
     /* ---------------------------------------------------------------------- */
@@ -762,10 +776,10 @@ private:
     {
     public:
         ClusterPoolInfo(
-            HostPool * _hpool,
-            UserPool * _upool):
-                hpool(_hpool),
-                upool(_upool)
+            UserPool *      _upool,
+            ClusterPool *   _cpool):
+                upool(_upool),
+                cpool(_cpool)
         {
             _signature="A:s";
             _help="Returns the cluster pool information";
@@ -778,8 +792,8 @@ private:
             xmlrpc_c::value *   const  retvalP);
 
     private:
-        HostPool * hpool;
-        UserPool * upool;
+        UserPool *      upool;
+        ClusterPool *   cpool;
     };
 
 

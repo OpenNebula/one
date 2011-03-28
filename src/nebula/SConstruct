@@ -46,12 +46,14 @@ env.Prepend(LIBS=[
     'nebula_template',
     'nebula_image',
     'nebula_pool',
+    'nebula_cluster',
     'nebula_host',
     'nebula_vnm',
     'nebula_vm',
     'nebula_common',
     'nebula_sql',
     'nebula_log',
+    'nebula_xml',
     'crypto'
 ])
 

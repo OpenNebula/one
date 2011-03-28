@@ -86,6 +86,7 @@ PoolSQL::~PoolSQL()
     pthread_mutex_destroy(&mutex);
 }
 
+
 /* ************************************************************************** */
 /* PoolSQL public interface                                                   */
 /* ************************************************************************** */
@@ -185,7 +186,82 @@ PoolObjectSQL * PoolSQL::get(
             return 0;
         }
 
+        string okey = key(objectsql->name,objectsql->uid);
+
         pool.insert(make_pair(objectsql->oid,objectsql));
+        name_pool.insert(make_pair(okey, objectsql));
+
+        if ( olock == true )
+        {
+            objectsql->lock();
+        }
+
+        oid_queue.push(objectsql->oid);
+
+        if ( pool.size() > MAX_POOL_SIZE )
+        {
+            replace();
+        }
+
+        unlock();
+
+        return objectsql;
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+PoolObjectSQL * PoolSQL::get(const string& name, int ouid, bool olock)
+{
+    map<string,PoolObjectSQL *>::iterator  index;
+    
+    PoolObjectSQL *  objectsql;
+    int              rc;
+
+    lock();
+
+    index = name_pool.find(key(name,ouid));
+
+    if ( index != name_pool.end() )
+    {
+        if ( index->second->isValid() == false )
+        {
+            objectsql = 0;
+        }
+        else
+        {
+            objectsql = index->second;
+
+            if ( olock == true )
+            {
+                objectsql->lock();
+            }
+        }
+
+        unlock();
+
+        return objectsql;
+    }
+    else
+    {
+        objectsql = create();
+
+        rc = objectsql->select(db,name,ouid);
+
+        if ( rc != 0 )
+        {
+            delete objectsql;
+
+            unlock();
+
+            return 0;
+        }
+
+        string okey = key(objectsql->name,objectsql->uid);
+
+        pool.insert(make_pair(objectsql->oid, objectsql));
+        name_pool.insert(make_pair(okey, objectsql));
 
         if ( olock == true )
         {
@@ -236,10 +312,11 @@ void PoolSQL::replace()
         }
         else
         {
-            PoolObjectSQL * tmp_ptr;
+            PoolObjectSQL * tmp_ptr = index->second;
+            string          okey    = key(tmp_ptr->name,tmp_ptr->uid);
 
-            tmp_ptr = index->second;
             pool.erase(index);
+            name_pool.erase(okey);
 
             delete tmp_ptr;
 
@@ -266,12 +343,63 @@ void PoolSQL::clean()
     }
 
     pool.clear();
+    name_pool.clear();
 
     unlock();
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+int PoolSQL::dump_cb(void * _oss, int num, char **values, char **names)
+{
+    ostringstream * oss;
+
+    oss = static_cast<ostringstream *>(_oss);
+
+    if ( (!values[0]) || (num != 1) )
+    {
+        return -1;
+    }
+
+    *oss << values[0];
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+
+int PoolSQL::dump(ostringstream& oss,
+                  const string& elem_name,
+                  const char * table,
+                  const string& where)
+{
+    int             rc;
+    ostringstream   cmd;
+
+    oss << "<" << elem_name << ">";
+
+    set_callback(static_cast<Callbackable::Callback>(&PoolSQL::dump_cb),
+                  static_cast<void *>(&oss));
+
+    cmd << "SELECT body FROM " << table;
+
+    if ( !where.empty() )
+    {
+        cmd << " WHERE " << where;
+    }
+
+    rc = db->exec(cmd, this);
+
+    oss << "</" << elem_name << ">";
+
+    unset_callback();
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int PoolSQL:: search_cb(void * _oids, int num, char **values, char **names)
 {
     vector<int> *  oids;
@@ -309,3 +437,4 @@ int PoolSQL::search(
 
     return rc;
 }
+

@@ -61,20 +61,82 @@ public:
     vector<string> operator[] (const char * xpath_expr);
 
     /**
+     *  Gets and sets a xpath attribute, if the attribute is not found a default
+     *  is used
+     *    @param value to set 
+     *    @param xpath_expr of the xml element
+     *    @param def default value if the element is not found
+     *
+     *    @return -1 if default was set
+     */
+    int xpath(string& value, const char * xpath_expr, const char * def);
+
+    /**
+     *  Gets and sets a xpath attribute, if the attribute is not found a default
+     *  is used
+     *    @param value to set 
+     *    @param xpath_expr of the xml element
+     *    @param def default value if the element is not found
+     *
+     *    @return -1 if default was set
+     */
+    int xpath(int& value, const char * xpath_expr, const int& def);
+
+    /**
+     *  Gets and sets a xpath attribute, if the attribute is not found a default
+     *  is used
+     *    @param value to set 
+     *    @param xpath_expr of the xml element
+     *    @param def default value if the element is not found
+     *
+     *    @return -1 if default was set
+     */
+    int xpath(unsigned int& value, const char * xpath_expr,
+              const unsigned int& def);
+
+    /**
+     *  Gets and sets a xpath attribute, if the attribute is not found a default
+     *  is used
+     *    @param value to set
+     *    @param xpath_expr of the xml element
+     *    @param def default value if the element is not found
+     *
+     *    @return -1 if default was set
+     */
+    int xpath(time_t& value, const char * xpath_expr, const time_t& def);
+
+    /**
+     *  Gets the value of an element from an xml string
+     *    @param value the value of the element
+     *    @param xml the xml string
+     *    @param xpath the xpath of the target element
+     *    
+     *    @return -1 if the element was not found
+     */
+    static int xpath_value(string& value, const char *xml, const char *xpath);
+
+    /**
      *  Get xml nodes by Xpath
      *    @param xpath_expr the Xpath for the elements
      *    @param content nodes for the given Xpath expression. The nodes are
      *    returned as pointers to the object nodes.
      *    @return the number of nodes found
      */
-    int get_nodes (const char * xpath_expr, vector<xmlNodePtr>& content);
+    int get_nodes(const char * xpath_expr, vector<xmlNodePtr>& content);
 
     /**
      *   Updates the object representation with a new XML document. Previous
      *   XML resources are freed
      *   @param xml_doc the new xml document
      */
-    int update(const string &xml_doc);
+    int update_from_str(const string &xml_doc);
+
+    /**
+     *   Updates the object representation with a new XML document. Previous
+     *   XML resources are freed
+     *   @param xml_doc the new xml document
+     */
+    int update_from_node(const xmlNodePtr node);
 
     // ---------------------------------------------------------
     //  Lex & bison parser for requirements and rank expressions

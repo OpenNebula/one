@@ -30,7 +30,7 @@ class TestObjectSQL : public PoolObjectSQL
 {
 public:
     //OBJECT ATTRIBUTES
-    TestObjectSQL(int n=-1, string t="default"):number(n),text(t){};
+    TestObjectSQL(int n=-1, string t="default"):PoolObjectSQL(-1,"",0,0),number(n),text(t){};
 
     ~TestObjectSQL(){};
 
@@ -70,6 +70,16 @@ public:
         oss.str(TestObjectSQL::db_bootstrap);
 
         db->exec(oss,0);
+    };
+
+    string& to_xml(string& xml) const
+    {
+        return xml;
+    };
+
+    int from_xml(const string &xml_str)
+    {
+        return 0;
     };
 };
 
