@@ -402,16 +402,29 @@ var create_vm_tmpl =
 			  <!--context textarea? -->\
 			  <div class="vm_section" id="context">\
 			  	<div class="show_hide" id="add_context_cb">\
-			  	  <h3>Add context <a id="add_context" class="icon_left" href="#"><span class="ui-icon ui-icon-plus" /></a></h3>\
+			  	  <h3>Add context variables <a id="add_context" class="icon_left" href="#"><span class="ui-icon ui-icon-plus" /></a></h3>\
 			    </div>\
 			  <fieldset><legend>Context</legend>\
-			  <div class="vm_param kvm_opt xen_opt">\
-			  <label for="CONTEXT">Context:</label>\
-			  <input type="text" id="CONTEXT" name="context" />\
-			  <!--<textarea id="CONTEXT" style="width:320px;height:15em;"></textarea>-->\
-			  </div>\
-			  </fieldset>\
-			  </div>\
+              <div class="vm_param kvm_opt xen_opt">\
+                                 <label for="var_name">Name:</label>\
+                                 <input type="text" id="var_name" name="var_name" />\
+                                 <div class="tip">Name for the context variable</div>\
+                           </div>\
+                           <div class="vm_param kvm_opt xen_opt">\
+                                 <label for="var_value">Value:</label>\
+                                 <input type="text" id="var_value" name="var_value" />\
+                                 <div class="tip">Value of the context variable</div>\
+              </div>\
+                <div class="">\
+                                       <button class="add_remove_button add_button" id="add_context_button" value="add_context">Add</button>\
+                                       <button class="add_remove_button" id="remove_context_button" value="remove_input">Remove selected</button>\
+                                       <div class="clear"></div>\
+                                       <label for="context_box">Current variables:</label>\
+                                       <select id="context_box" name="context_box" style="width:150px;height:100px;" multiple>\
+                                       </select>\
+                </div>\
+              </fieldset>\
+              </div>\
 \
 \
 			  <!--placement requirements rank -->\
@@ -1521,9 +1534,29 @@ function setupCreateVMDialog(){
 		$('fieldset',section_context).hide();
 
 		$('#add_context',section_context).click(function(){
-				$('fieldset',section_context).toggle();
+                $('fieldset',section_context).toggle();
                 return false;
 		});
+        
+        $('#add_context_button', section_context).click(function(){
+            var name = $('#var_name',section_context).val();
+            var value = $('#var_value',section_context).val();
+            if (!name.length || !value.length) {
+                notifyError("Context variable name and value must be filled in");
+                return false;
+            }
+            option= '<option value=\''+value+'\' name=\''+name+'\'>'+
+            name+'='+value+
+            '</option>';
+            $('select#context_box',section_context).append(option);
+            return false; 
+        });
+        
+        $('#remove_context_button', section_context).click(function(){
+           box_remove_element(section_context,'#context_box');
+           return false; 
+        });
+
 
 	};
 
@@ -1675,11 +1708,15 @@ function setupCreateVMDialog(){
 		vm_json["GRAPHICS"] = {};
 		addSectionJSON(vm_json["GRAPHICS"],scope);
 
-		//context -> include
-		scope = section_context;
+        //context
+        scope = section_context;
         var context = $('#CONTEXT',scope).val();
-        if (context)
-            vm_json["CONTEXT"] = context;
+        vm_json["CONTEXT"] = {};
+        $('#context_box option',scope).each(function(){
+            name = $(this).attr("name");
+            value = $(this).val();
+            vm_json["CONTEXT"][name]=value;
+        });
 
 		//placement -> fetch with value
 		scope = section_placement;
