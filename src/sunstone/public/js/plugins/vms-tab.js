@@ -145,9 +145,9 @@ var create_vm_tmpl =
 				  <label for="BOOT">Boot:</label>\
 				  <select id="BOOT" name="boot">\
 					<option value="hd">hd</option>\
-					<option value="hd">fd</option>\
-					<option value="hd">cdrom</option>\
-					<option value="hd">network</option>\
+					<option value="fd">fd</option>\
+					<option value="cdrom">cdrom</option>\
+					<option value="network">network</option>\
 				  </select>\
 				  <div class="tip">Boot device type</div>\
 			    </div>\
