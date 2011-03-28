@@ -1026,8 +1026,13 @@ function setupCreateVMDialog(){
 
         $('select#boot_method option').removeAttr("selected");
 		$('select#boot_method option#no_boot').html("Driver default");
-		$('select#boot_method option').removeAttr("selected");
+        $('select#boot_method option').removeAttr("selected");
         $('.kernel, .bootloader', $('div#os_boot_opts')).hide();
+
+        $('div#disks select#BUS').append(
+            '<option id="virtio" value="virtio">virtio</option>');
+
+
 
 		$('input#TYPE', section_raw).val("kvm");
 
@@ -1056,6 +1061,7 @@ function setupCreateVMDialog(){
         $('select#boot_method option#no_boot').html("Please choose");
 		$('.kernel, .bootloader', $('div#os_boot_opts')).hide();
 
+        $('div#disks select#BUS option#virtio').remove();
 
 		$('input#TYPE', section_raw).val("xen");
 		$(section_inputs).hide(); //not present for xen
