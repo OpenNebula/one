@@ -83,7 +83,7 @@ do_documentation()
       -doctitle 'OpenNebula Cloud API Specification' \
       -header '<b>OpenNebula</b><br><font size="-1">Cloud API</font>' \
       -bottom 'Visit <a
-href="http://opennebula.org/">OpenNebula.org</a><br>Copyright 2002-2010 &copy;
+href="http://opennebula.org/">OpenNebula.org</a><br>Copyright 2002-2011 &copy;
 OpenNebula Project Leads (OpenNebula.org).'
 }
 
