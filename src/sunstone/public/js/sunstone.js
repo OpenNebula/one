@@ -228,22 +228,22 @@ var Sunstone = {
     //Runs a predefined action on the selected nodes of a datatable.
     //Optionally they are run with an extra_parameter.
     //If no datatable is provided, it simply runs the action.
-    "runActionOnDatatableNodes": function(action,dataTable,extra_param){
-        if (dataTable != null){
-            
-            //Which rows of the datatable are checked?
-            var nodes = $('input:checked',dataTable.fnGetNodes());
-            var data = [];
-            $.each(nodes,function(){
-                data.push($(this).val());
-            });
-            Sunstone.runAction(action,data,extra_param);
-            
-        } else {
-            Sunstone.runAction(action,extra_param);
-        };
-    },
-    
+    //~ "runActionOnDatatableNodes": function(action,dataTable,extra_param){
+        //~ if (dataTable != null){
+            //~ 
+            //~ //Which rows of the datatable are checked?
+            //~ var nodes = $('input:checked',dataTable.fnGetNodes());
+            //~ var data = [];
+            //~ $.each(nodes,function(){
+                //~ data.push($(this).val());
+            //~ });
+            //~ Sunstone.runAction(action,data,extra_param);
+            //~ 
+        //~ } else {
+            //~ Sunstone.runAction(action,extra_param);
+        //~ };
+    //~ },
+    //~ 
     //returns a button object from the desired tab
     "getButton" : function(tab_name,button_name){
             var button = null;
@@ -290,8 +290,8 @@ $(document).ready(function(){
         if (!action) { notifyError("Action "+value+" not defined."); return false;};
         switch (action.type){
             case "multiple": //find the datatable
-                table = action.dataTable();
-                Sunstone.runActionOnDatatableNodes(value,table);
+                var nodes = action.elements();
+                Sunstone.runAction(value,nodes);
                 break;
             default:
                 Sunstone.runAction(value);
@@ -610,11 +610,11 @@ function setupConfirmDialogs(){
         if (!action) { notifyError("Action "+value+" not defined."); return false;};
         switch (action.type){
             case "multiple": //find the datatable
-                var table = SunstoneCfg["actions"][value].dataTable();
-                Sunstone.runActionOnDatatableNodes(value,table,param);
+                var nodes = action.elements();
+                Sunstone.runAction(value,nodes,param);
                 break;
             default:
-                Sunstone.runAction(action,param);
+                Sunstone.runAction(value,param);
                 break;
         }
         return false;

@@ -164,7 +164,7 @@ var host_actions = {
                 callback : function (req) {
                     Sunstone.runAction("Host.show",req.request.data[0]);
                 },
-                dataTable: function() { return dataTable_hosts },
+                elements: function() { return getSelectedNodes(dataTable_hosts); },
                 error : onError,
                 notify: true
             },
@@ -175,7 +175,7 @@ var host_actions = {
                 callback : function (req) {
                     Sunstone.runAction("Host.show",req.request.data[0]);
                 },
-                dataTable: function() { return dataTable_hosts },
+                elements: function() { return getSelectedNodes(dataTable_hosts); },
                 error : onError
             },
             
@@ -183,7 +183,7 @@ var host_actions = {
                 type: "multiple",
                 call : OpenNebula.Host.delete,
                 callback : deleteHostElement,
-                dataTable: function() { return dataTable_hosts },
+                elements: function() { return getSelectedNodes(dataTable_hosts); },
                 error : onError
             },
             
@@ -241,7 +241,7 @@ var host_actions = {
                 callback : function(req){
                     Sunstone.runAction("Host.show",req.request.data);
 					},
-                dataTable: function() { return dataTable_hosts },
+                elements: function() { return getSelectedNodes(dataTable_hosts); },
                 error : onError
             },
             

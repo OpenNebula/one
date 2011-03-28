@@ -351,6 +351,19 @@ function setupTips(context){
 		});
 }
 
+//returns an array of ids of selected elements in a dataTable
+function getSelectedNodes(dataTable){
+    var selected_nodes = [];
+    if (dataTable != null){
+            //Which rows of the datatable are checked?
+            var nodes = $('input:checked',dataTable.fnGetNodes());
+            $.each(nodes,function(){
+                selected_nodes.push($(this).val());
+            });
+    }
+    return selected_nodes;
+}
+
 //functions that used as true and false conditions for testing mainly
 function True(){
     return true;

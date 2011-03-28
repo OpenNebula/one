@@ -227,7 +227,7 @@ var image_actions = {
         callback : function (req) {
             Sunstone.runAction("Image.show",req.request.data[0]);
         },
-        dataTable: function(){return dataTable_images},
+        elements: function() { return getSelectedNodes(dataTable_images); },
         error: onError
     },
     
@@ -258,7 +258,7 @@ var image_actions = {
         callback: function (req) {
             Sunstone.runAction("Image.show",req.request.data[0]);
         },
-        dataTable: function(){return dataTable_images},
+        elements: function() { return getSelectedNodes(dataTable_images); },
         error: onError,
     },
     
@@ -273,7 +273,7 @@ var image_actions = {
         callback: function (req) {
             Sunstone.runAction("Image.show",req.request.data[0]);
         },
-        dataTable: function(){return dataTable_images},
+        elements: function() { return getSelectedNodes(dataTable_images); },
         error: onError
      },
             
@@ -283,7 +283,7 @@ var image_actions = {
         callback: function (req) {
             Sunstone.runAction("Image.show",req.request.data[0]);
         },
-        dataTable: function(){return dataTable_images},
+        elements: function() { return getSelectedNodes(dataTable_images); },
         error: onError
      },
             
@@ -293,7 +293,7 @@ var image_actions = {
         callback: function (req) {
             Sunstone.runAction("Image.show",req.request.data[0]);
         },
-        dataTable: function(){return dataTable_images},
+        elements: function() { return getSelectedNodes(dataTable_images); },
         error: onError
      },
             
@@ -303,7 +303,7 @@ var image_actions = {
         callback: function (req) {
             Sunstone.runAction("Image.show",req.request.data[0]);
         },
-        dataTable: function(){return dataTable_images},
+        elements: function() { return getSelectedNodes(dataTable_images); },
         error: onError           
      },
             
@@ -313,7 +313,7 @@ var image_actions = {
         callback: function (req) {
             Sunstone.runAction("Image.show",req.request.data[0]);
         },
-        dataTable: function(){return dataTable_images},
+        elements: function() { return getSelectedNodes(dataTable_images); },
         error: onError                 
      },
             
@@ -323,7 +323,7 @@ var image_actions = {
         callback: function (req) {
             Sunstone.runAction("Image.show",req.request.data[0]);
         },
-        dataTable: function(){return dataTable_images},
+        elements: function() { return getSelectedNodes(dataTable_images); },
         error: onError               
      },
             
@@ -333,7 +333,7 @@ var image_actions = {
         callback: function (req) {
             Sunstone.runAction("Image.show",req.request.data[0]);
         },
-        dataTable: function(){return dataTable_images},
+        elements: function() { return getSelectedNodes(dataTable_images); },
         error: onError                
      }
 }

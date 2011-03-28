@@ -95,7 +95,7 @@ var user_actions = {
         type: "multiple",
         call: OpenNebula.User.delete,
         callback: deleteUserElement,
-        dataTable: function(){return dataTable_users},
+        elements: function() { return getSelectedNodes(dataTable_users); },
         error: onError
     },
 }

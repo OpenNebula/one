@@ -182,7 +182,7 @@ var vnet_actions = {
         callback: function (req) {
             Sunstone.runAction("Network.show",req.request.data[0]);
         },
-        dataTable: function() { return dataTable_vNetworks; },
+        elements: function() { return getSelectedNodes(dataTable_vNetworks); },
         error: onError
     },
             
@@ -192,7 +192,7 @@ var vnet_actions = {
         callback:  function (req) {
             Sunstone.runAction("Network.show",req.request.data[0]);
         },
-        dataTable: function() { return dataTable_vNetworks; },
+        elements: function() { return getSelectedNodes(dataTable_vNetworks); },
         error: onError
     },
             
@@ -200,7 +200,7 @@ var vnet_actions = {
         type: "multiple",
         call: OpenNebula.Network.delete,
         callback: deleteVNetworkElement,
-        dataTable: function() { return dataTable_vNetworks; },
+        elements: function() { return getSelectedNodes(dataTable_vNetworks); },
         error: onError
     }
     

@@ -552,7 +552,7 @@ var vm_actions = {
         callback: function (req) {
             Sunstone.runAction("VM.show",req.request.data[0]);
         },
-        dataTable: function(){return dataTable_vMachines},
+        elements: function() { return getSelectedNodes(dataTable_vMachines); },
         error: onError,
     },
             
@@ -562,7 +562,7 @@ var vm_actions = {
         callback: function (req) {
             Sunstone.runAction("VM.show",req.request.data[0]);
         },
-        dataTable: function(){return dataTable_vMachines},
+        elements: function() { return getSelectedNodes(dataTable_vMachines); },
         error: onError
     },
             
@@ -572,7 +572,7 @@ var vm_actions = {
         callback: function (req) {
             Sunstone.runAction("VM.show",req.request.data[0]);
         },
-        dataTable: function(){return dataTable_vMachines},
+        elements: function() { return getSelectedNodes(dataTable_vMachines); },
         error: onError
     },
             
@@ -582,7 +582,7 @@ var vm_actions = {
         callback: function (req) {
             Sunstone.runAction("VM.show",req.request.data[0]);
         },
-        dataTable: function(){return dataTable_vMachines},
+        elements: function() { return getSelectedNodes(dataTable_vMachines); },
         error: onError
     },
             
@@ -592,7 +592,7 @@ var vm_actions = {
         callback: function (req) {
             Sunstone.runAction("VM.show",req.request.data[0]);
         },
-        dataTable: function(){return dataTable_vMachines},
+        elements: function() { return getSelectedNodes(dataTable_vMachines); },
         error: onError
     },
             
@@ -602,7 +602,7 @@ var vm_actions = {
         callback: function (req) {
             Sunstone.runAction("VM.show",req.request.data[0]);
         },
-        dataTable: function(){return dataTable_vMachines},
+        elements: function() { return getSelectedNodes(dataTable_vMachines); },
         error: onError
     },
             
@@ -612,7 +612,7 @@ var vm_actions = {
         callback: function (req) {
             Sunstone.runAction("VM.show",req.request.data[0]);
         },
-        dataTable: function(){return dataTable_vMachines},
+        elements: function() { return getSelectedNodes(dataTable_vMachines); },
         error: onError
     },
             
@@ -622,7 +622,7 @@ var vm_actions = {
         callback: function (req) {
             Sunstone.runAction("VM.show",req.request.data[0]);
         },
-        dataTable: function(){return dataTable_vMachines},
+        elements: function() { return getSelectedNodes(dataTable_vMachines); },
         error: onError
     },
             
@@ -632,7 +632,7 @@ var vm_actions = {
         callback: function (req) {
             Sunstone.runAction("VM.show",req.request.data[0]);
         },
-        dataTable: function(){return dataTable_vMachines},
+        elements: function() { return getSelectedNodes(dataTable_vMachines); },
         error: onError
     },
             
@@ -642,7 +642,7 @@ var vm_actions = {
         callback: function (req) {
             Sunstone.runAction("VM.show",req.request.data[0]);
         },
-        dataTable: function(){return dataTable_vMachines},
+        elements: function() { return getSelectedNodes(dataTable_vMachines); },
         error: onError
     },
             
@@ -652,7 +652,7 @@ var vm_actions = {
         callback: function (req) {
             Sunstone.runAction("VM.show",req.request.data[0]);
         },
-        dataTable: function(){return dataTable_vMachines},
+        elements: function() { return getSelectedNodes(dataTable_vMachines); },
         error: onError
     },
             
@@ -660,7 +660,7 @@ var vm_actions = {
         type: "multiple",
         call: OpenNebula.VM.delete,
         callback: deleteVMachineElement,
-        dataTable: function(){return dataTable_vMachines},
+        elements: function() { return getSelectedNodes(dataTable_vMachines); },
         error: onError
     },
     
