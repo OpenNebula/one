@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -234,6 +234,7 @@ void Nebula::start()
         VirtualNetworkPool::bootstrap(db);
         UserPool::bootstrap(db);
         ImagePool::bootstrap(db);
+        ClusterPool::bootstrap(db);
     }
     catch (exception&)
     {
@@ -273,6 +274,8 @@ void Nebula::start()
                                repository_path,
                                default_image_type,
                                default_device_prefix);
+
+        cpool = new ClusterPool(db);
     }
     catch (exception&)
     {
@@ -438,6 +441,7 @@ void Nebula::start()
             vnpool,
             upool,
             ipool,
+            cpool,
             rm_port,
             log_location + "one_xmlrpc.log");
     }

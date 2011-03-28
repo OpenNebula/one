@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,7 +19,6 @@
 
 #include "PoolSQL.h"
 #include "Host.h"
-#include "ClusterPool.h"
 
 #include <time.h>
 #include <sstream>
@@ -70,13 +69,23 @@ public:
     };
 
     /**
+     *  Function to get a Host from the pool, if the object is not in memory
+     *  it is loaded from the DB
+     *    @param hostname
+     *    @param lock locks the Host mutex
+     *    @return a pointer to the Host, 0 if the Host could not be loaded
+     */
+    Host * get(string name, bool lock)
+    {
+        return static_cast<Host *>(PoolSQL::get(name,-1,lock));
+    };
+
+    /**
      *  Bootstraps the database table(s) associated to the Host pool
      */
     static void bootstrap(SqlDB *_db)
     {
         Host::bootstrap(_db);
-
-        ClusterPool::bootstrap(_db);
     };
 
     /**
@@ -138,102 +147,25 @@ public:
      *
      *  @return 0 on success
      */
-    int dump(ostringstream& oss, const string& where);
-
-    /* ---------------------------------------------------------------------- */
-    /* ---------------------------------------------------------------------- */
-    /* Methods for cluster management                                         */
-    /* ---------------------------------------------------------------------- */
-    /* ---------------------------------------------------------------------- */
-
-    /**
-     *  Returns true if the clid is an id for an existing cluster
-     *  @param clid ID of the cluster
-     *
-     *  @return true if the clid is an id for an existing cluster
-     */
-   /* bool exists_cluster(int clid)
+    int dump(ostringstream& oss, const string& where)
     {
-        return cluster_pool.exists(clid);
-    };*/
-
-    /**
-     *  Allocates a new cluster in the pool
-     *    @param clid the id assigned to the cluster
-     *    @return the id assigned to the cluster or -1 in case of failure
-     */
-    int allocate_cluster(int * clid, const string& name, string& error_str)
-    {
-        return cluster_pool.allocate(clid, name, db, error_str);
+        return PoolSQL::dump(oss, "HOST_POOL", Host::table, where);
     };
 
     /**
-     *  Returns the xml representation of the given cluster
-     *    @param clid ID of the cluster
+     *  Finds a set objects that satisfies a given condition
+     *   @param oids a vector with the oids of the objects.
+     *   @param the name of the DB table.
+     *   @param where condition in SQL format.
      *
-     *    @return the xml representation of the given cluster
+     *   @return 0 on success
      */
-    string info_cluster(int clid)
+    int search(vector<int>& oids, const string& where)
     {
-        return cluster_pool.info(clid);
-    };
-
-    /**
-     *  Removes the given cluster from the pool and the DB
-     *    @param clid ID of the cluster
-     *
-     *    @return 0 on success
-     */
-    int drop_cluster(int clid);
-
-    /**
-     *  Dumps the cluster pool in XML format.
-     *    @param oss the output stream to dump the pool contents
-     *
-     *    @return 0 on success
-     */
-    int dump_cluster(ostringstream& oss)
-    {
-        return cluster_pool.dump(oss);
-    };
-
-    /**
-     *  Assigns the host to the given cluster
-     *    @param host The host to assign
-     *    @param clid ID of the cluster
-     *
-     *    @return 0 on success
-     */
-    int set_cluster(Host* host, int clid)
-    {
-        map<int, string>::iterator it;
-
-        it = cluster_pool.cluster_names.find(clid);
-
-        if (it == cluster_pool.cluster_names.end())
-        {
-            return -1;
-        }
-
-        return host->set_cluster( it->second );
-    };
-
-    /**
-     *  Removes the host from the given cluster setting the default one.
-     *    @param host The host to assign
-     *
-     *    @return 0 on success
-     */
-    int set_default_cluster(Host* host)
-    {
-        return host->set_cluster(ClusterPool::DEFAULT_CLUSTER_NAME);
+        return PoolSQL::search(oids, Host::table, where);
     };
 
 private:
-    /**
-     *  ClusterPool, clusters defined and persistance functionality
-     */
-    ClusterPool  cluster_pool;
 
     /**
      *  Factory method to produce Host objects
@@ -245,15 +177,6 @@ private:
     };
 
     /**
-     *  Callback function to build the cluster pool
-     *    @param num the number of columns read from the DB
-     *    @param names the column names
-     *    @param vaues the column values
-     *    @return 0 on success
-     */
-    int init_cb(void *nil, int num, char **values, char **names);
-
-    /**
      *  Callback function to get the IDs of the hosts to be monitored
      *  (Host::discover)
      *    @param num the number of columns read from the DB
@@ -262,16 +185,6 @@ private:
      *    @return 0 on success
      */
     int discover_cb(void * _map, int num, char **values, char **names);
-
-    /**
-     *  Callback function to get output the host pool in XML format
-     *  (Host::dump)
-     *    @param num the number of columns read from the DB
-     *    @param names the column names
-     *    @param vaues the column values
-     *    @return 0 on success
-     */
-    int dump_cb(void * _oss, int num, char **values, char **names);
 };
 
 #endif /*HOST_POOL_H_*/

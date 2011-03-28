@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -173,8 +173,8 @@ module CloudCLI
     
     def version_text
         version=<<EOT
-OpenNebula 2.1.0
-Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)
+OpenNebula 2.3.0
+Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may
 not use this file except in compliance with the License. You may obtain

@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -32,7 +32,8 @@ class Quota
         @conf={
             :defaults => {
                 :cpu => nil,
-                :memory => nil
+                :memory => nil,
+                :num_vms => nil
             }
         }.merge(conf)
         
@@ -93,12 +94,14 @@ class Quota
         if new_vm
             usage.cpu+=new_vm.cpu.to_f
             usage.memory+=new_vm.memory.to_i
+            usage.num_vms+=1
         end
         
         STDERR.puts [user_quota, usage, new_vm].inspect
         
         (!user_quota[:cpu] || usage.cpu<=user_quota[:cpu]) &&
-            (!user_quota[:memory] || usage.memory<=user_quota[:memory])
+            (!user_quota[:memory] || usage.memory<=user_quota[:memory]) &&
+            (!user_quota[:num_vms] || usage.num_vms<=user_quota[:num_vms])
     end
     
     # Updates user resource consuption

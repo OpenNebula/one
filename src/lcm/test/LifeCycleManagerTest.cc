@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -185,7 +185,7 @@ private:
 
         if( rc == 0 )
         {
-            return vmpool->allocate(uids[index], vm_template, &oid,
+            return vmpool->allocate(uids[index], "username", vm_template, &oid,
                                                 err, false);
         }
         else

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -100,16 +100,16 @@ protected:
     {
         CPPUNIT_ASSERT( obj != 0 );
 
-        string name = ((User*)obj)->get_username();
+        string name = ((User*)obj)->get_name();
         CPPUNIT_ASSERT( name == usernames[index] );
         CPPUNIT_ASSERT( ((User*)obj)->get_password() == passwords[index] );
     };
 
 public:
 
-    UserPoolTest(){};
+    UserPoolTest(){xmlInitParser();};
 
-    ~UserPoolTest(){};
+    ~UserPoolTest(){xmlCleanupParser();};
 
     /* ********************************************************************* */
     /* ********************************************************************* */
@@ -149,8 +149,8 @@ public:
         User* user = (User*) pool->get(0, false);
         CPPUNIT_ASSERT(user != 0);
 
-        CPPUNIT_ASSERT( user->get_uid()      == 0 );
-        CPPUNIT_ASSERT( user->get_username() == "one_user_test" );
+        CPPUNIT_ASSERT( user->get_oid()      == 0 );
+        CPPUNIT_ASSERT( user->get_name() == "one_user_test" );
         CPPUNIT_ASSERT( user->get_password() == User::sha1_digest("password") );
     }
 
@@ -287,6 +287,14 @@ public:
         ostringstream oss;
         ((UserPool*)pool)->dump(oss, "");
 
+/*
+        if( oss.str() != dump_result )
+        {
+            cout << endl << oss.str() << endl << "========"
+                 << endl << dump_result << endl << "--------";
+        }
+//*/
+
         CPPUNIT_ASSERT( oss.str() == dump_result );
     }
 
@@ -307,7 +315,15 @@ public:
         // by" is a dirty fix (SQL injection, actually) because MySQL orders the
         // results by user_name
         ostringstream oss;
-        ((UserPool*)pool)->dump(oss, "user_name LIKE 'a%' ORDER BY oid");
+        ((UserPool*)pool)->dump(oss, "name LIKE 'a%' ORDER BY oid");
+
+/*
+        if( oss.str() != dump_where_result )
+        {
+            cout << endl << oss.str() << endl << "========"
+                 << endl << dump_where_result << endl << "--------";
+        }
+//*/
 
         CPPUNIT_ASSERT( oss.str() == dump_where_result );
     }

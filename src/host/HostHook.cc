@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -55,7 +55,7 @@ void HostAllocateHook::do_hook(void *arg)
         {
             hmd->execute(host->get_oid(),
                          name,
-                         host->get_hostname(),
+                         host->get_name(),
                          cmd,
                          parsed_args);
         }
@@ -179,7 +179,7 @@ void HostStateHook::do_hook(void *arg)
             {
                 hmd->execute(host->get_oid(),
                              name,
-                             host->get_hostname(),
+                             host->get_name(),
                              cmd,
                              parsed_args);
             }

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -27,10 +27,10 @@ void RequestManager::ClusterRemove::execute(
     xmlrpc_c::value *   const  retval)
 {
     string        session;
-                 
+
     int           hid;
     int           rc;
-    
+
     const string  method_name = "ClusterRemove";
 
     Host *        host;
@@ -77,7 +77,7 @@ void RequestManager::ClusterRemove::execute(
     }
 
     // Remove host from cluster
-    rc = ClusterRemove::hpool->set_default_cluster(host);
+    rc = ClusterRemove::cpool->set_default_cluster(host);
 
     if ( rc != 0 )
     {

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -47,6 +47,11 @@ ImagePool* NebulaTest::create_ipool( SqlDB* db,
 {
     return new ImagePool(db,repository_path,default_image_type,
                          default_device_prefix);
+}
+
+ClusterPool* NebulaTest::create_cpool(SqlDB* db)
+{
+    return new ClusterPool(db);
 }
 
 // -----------------------------------------------------------
@@ -106,6 +111,7 @@ RequestManager* NebulaTest::create_rm(
                 VirtualNetworkPool *    vnpool,
                 UserPool           *    upool,
                 ImagePool          *    ipool,
+                ClusterPool        *    cpool,
                 string                  log_file)
 {
     int rm_port = 2633;
@@ -115,6 +121,7 @@ RequestManager* NebulaTest::create_rm(
                               vnpool,
                               upool,
                               ipool,
+                              cpool,
                               rm_port,
                               log_file);
 }

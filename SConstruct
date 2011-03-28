@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -57,6 +57,7 @@ main_env.Append(LIBPATH=[
     cwd+'/src/log',
     cwd+'/src/sql',
     cwd+'/src/host',
+    cwd+'/src/cluster',
     cwd+'/src/mad',
     cwd+'/src/nebula',
     cwd+'/src/pool',
@@ -73,6 +74,7 @@ main_env.Append(LIBPATH=[
     cwd+'/src/hm',
     cwd+'/src/um',
     cwd+'/src/authm',
+    cwd+'/src/xml',
 ])
 
 # Compile flags
@@ -171,6 +173,7 @@ build_scripts=[
     'src/common/SConstruct',
     'src/template/SConstruct',
     'src/host/SConstruct',
+    'src/cluster/SConstruct',
     'src/mad/SConstruct',
     'src/nebula/SConstruct',
     'src/pool/SConstruct',
@@ -187,6 +190,7 @@ build_scripts=[
     'src/hm/SConstruct',
     'src/um/SConstruct',
     'src/authm/SConstruct',
+    'src/xml/SConstruct',
 ]
 
 # Testing
@@ -214,6 +218,7 @@ if testing=='yes':
         'src/authm/test/SConstruct',
         'src/common/test/SConstruct',
         'src/host/test/SConstruct',
+        'src/cluster/test/SConstruct',
         'src/image/test/SConstruct',
         'src/lcm/test/SConstruct',
         'src/pool/test/SConstruct',
@@ -222,6 +227,7 @@ if testing=='yes':
         'src/um/test/SConstruct',
         'src/vm/test/SConstruct',
         'src/vnm/test/SConstruct',
+        'src/xml/test/SConstruct',
     ])
 else:
     main_env.Append(testing='no')

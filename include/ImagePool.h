@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -38,10 +38,10 @@ class ImagePool : public PoolSQL
 {
 public:
 
-    ImagePool(SqlDB * db,
-              const string&   _source_prefix,
-              const string&   _default_type,
-              const string&   _default_dev_prefix);
+    ImagePool(SqlDB *       db,
+              const string& _source_prefix,
+              const string& _default_type,
+              const string& _default_dev_prefix);
 
     ~ImagePool(){};
 
@@ -56,20 +56,19 @@ public:
      */
     int allocate (
         int             uid,
+        string          user_name,
         ImageTemplate * img_template,
         int *           oid,
         string&         error_str);
 
     /**
-     *  Function to get a Image from the pool, if the object is not in memory
+     **  Function to get a Image from the pool, if the object is not in memory
      *  it is loaded from the DB
      *    @param oid Image unique id
      *    @param lock locks the Image mutex
      *    @return a pointer to the Image, 0 if the Image could not be loaded
      */
-    Image * get(
-        int     oid,
-        bool    lock)
+    Image * get(int oid, bool lock)
     {
         return static_cast<Image *>(PoolSQL::get(oid,lock));
     };
@@ -78,25 +77,15 @@ public:
      *  Function to get an Image from the pool using the image name
      *    @param name of the image
      *    @param lock locks the User mutex
-     *    @return a pointer to the Image, 0 if the User could not be loaded
+     *    @return a pointer to the Image, 0 if the image could not be loaded
      */
-    Image * get(
-        const string&  name,
-        bool           lock)
+    Image * get(const string&  name, int uid, bool lock)
     {
-        map<string, int>::iterator     index;
-
-        index = image_names.find(name);
-
-        if ( index != image_names.end() )
-        {
-            return get((int)index->second,lock);
-        }
-
-        return 0;
+        return static_cast<Image *>(PoolSQL::get(name,uid,lock));
     }
 
-    /** Update a particular Image
+    /** 
+     *  Update a particular Image
      *    @param image pointer to Image
      *    @return 0 on success
      */
@@ -111,14 +100,7 @@ public:
      */
     int drop(Image * image)
     {
-        int rc = PoolSQL::drop(image);
-
-        if ( rc == 0)
-        {
-            image_names.erase(image->get_name());
-        }
-
-        return rc;
+        return PoolSQL::drop(image);
     };
 
     /**
@@ -136,7 +118,10 @@ public:
      *  @param where filter for the objects, defaults to all
      *  @return 0 on success
      */
-    int dump(ostringstream& oss, const string& where);
+    int dump(ostringstream& oss, const string& where)
+    {
+        return PoolSQL::dump(oss, "IMAGE_POOL", Image::table, where);
+    }
 
     /**
      *  Generates a DISK attribute for VM templates using the Image metadata
@@ -145,18 +130,21 @@ public:
      *    @param index number of datablock images used by the same VM. Will be
      *                 automatically increased.
      *    @param img_type will be set to the used image's type
+     *    @param uid of VM owner (to look for the image id within its images)
      *    @return 0 on success, -1 error, -2 not using the pool
      */
     int disk_attribute(VectorAttribute *  disk,
                        int                disk_id,
                        int *              index,
-                       Image::ImageType * img_type);
+                       Image::ImageType * img_type,
+                       int                uid);
     /**
      *  Generates an Authorization token for the DISK attribute
      *    @param disk the disk to be authorized
+     *    @param uid of owner (to look for the image id within her images)
      *    @param ar the AuthRequest
      */
-    void authorize_disk(VectorAttribute * disk, AuthRequest * ar);
+    void authorize_disk(VectorAttribute * disk, int uid, AuthRequest * ar);
 
     static const string& source_prefix()
     {
@@ -180,54 +168,29 @@ private:
     /**
      * Path to the image repository
      **/
-    static string       _source_prefix;
+    static string  _source_prefix;
 
     /**
      * Default image type
      **/
-    static string       _default_type;
+    static string  _default_type;
 
     /**
      * Default device prefix
      **/
-    static string       _default_dev_prefix;
+    static string  _default_dev_prefix;
 
     //--------------------------------------------------------------------------
     // Pool Attributes
     // -------------------------------------------------------------------------
-    /**
-     *  This map stores the association between IIDs and Image names
-     */
-    map<string, int>    image_names;
-
     /**
      *  Factory method to produce Image objects
      *    @return a pointer to the new Image
      */
     PoolObjectSQL * create()
     {
-        return new Image;
+        return new Image(-1,"",0);
     };
-
-    /**
-     *  Callback function to get output the image pool in XML format
-     *  (Image::dump)
-     *    @param num the number of columns read from the DB
-     *    @param names the column names
-     *    @param vaues the column values
-     *    @return 0 on success
-     */
-    int dump_cb(void * _oss, int num, char **values, char **names);
-
-    /**
-     *  Callback function to build the image_names map
-     *    @param num the number of columns read from the DB
-     *    @param names the column names
-     *    @param vaues the column values
-     *    @return 0 on success
-     */
-    int init_cb(void *nil, int num, char **values, char **names);
-
 };
 
 #endif /*IMAGE_POOL_H_*/

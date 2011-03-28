@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -166,14 +166,14 @@ public:
     {
         // The pool is empty
         // Non existing oid
-        obj = pool->get(13, true);
+        obj = pool->get(13, false);
         CPPUNIT_ASSERT( obj == 0 );
 
         // Allocate an object
         allocate(0);
 
         // Ask again for a non-existing oid
-        obj = pool->get(213, true);
+        obj = pool->get(213, false);
         CPPUNIT_ASSERT( obj == 0 );
     }
 

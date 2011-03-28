@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -29,7 +29,7 @@ void RequestManager::ClusterPoolInfo::execute(
     string        session;
     ostringstream oss;
     int           rc;
-    
+
     const string  method_name = "ClusterPoolInfo";
 
     /*   -- RPC specific vars --  */
@@ -49,8 +49,8 @@ void RequestManager::ClusterPoolInfo::execute(
         goto error_authenticate;
     }
 
-    // Perform the allocation in the vmpool
-    rc = ClusterPoolInfo::hpool->dump_cluster(oss);
+    // Dump the pool
+    rc = ClusterPoolInfo::cpool->dump(oss, "");
 
     if ( rc != 0 )
     {

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -75,6 +75,11 @@ void Nebula::start()
     if ( ipool != 0)
     {
         delete ipool;
+    }
+
+    if ( cpool != 0)
+    {
+        delete cpool;
     }
 
     if ( vmm != 0)
@@ -160,6 +165,7 @@ void Nebula::start()
         VirtualNetworkPool::bootstrap(db);
         UserPool::bootstrap(db);
         ImagePool::bootstrap(db);
+        ClusterPool::bootstrap(db);
     }
     catch (exception&)
     {
@@ -202,6 +208,11 @@ void Nebula::start()
                                           repository_path,
                                           default_image_type,
                                           default_device_prefix);
+        }
+
+        if (tester->need_cluster_pool)
+        {
+            cpool  = tester->create_cpool(db);
         }
     }
     catch (exception&)
@@ -347,7 +358,7 @@ void Nebula::start()
     {
         try
         {
-            rm = tester->create_rm(vmpool,hpool,vnpool,upool,ipool,
+            rm = tester->create_rm(vmpool,hpool,vnpool,upool,ipool,cpool,
                                    log_location + "one_xmlrpc.log");
         }
         catch (bad_alloc&)

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -69,7 +69,7 @@ void RequestManager::ClusterAllocate::execute(
     }
 
     // Perform the allocation in the hostpool
-    rc = ClusterAllocate::hpool->allocate_cluster(&id, clustername, error_str);
+    rc = ClusterAllocate::cpool->allocate(&id, clustername, error_str);
 
     if ( rc == -1 )
     {

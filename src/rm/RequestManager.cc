@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -250,22 +250,22 @@ void RequestManager::register_xml_methods()
         RequestManager::HostEnable(hpool,upool));
 
     xmlrpc_c::methodPtr cluster_allocate(new 
-        RequestManager::ClusterAllocate(hpool,upool));
+        RequestManager::ClusterAllocate(upool,cpool));
 
     xmlrpc_c::methodPtr cluster_info(new 
-        RequestManager::ClusterInfo(hpool,upool));
+        RequestManager::ClusterInfo(upool,cpool));
 
     xmlrpc_c::methodPtr cluster_delete(new 
-        RequestManager::ClusterDelete(hpool,upool));
+        RequestManager::ClusterDelete(upool,cpool));
 
     xmlrpc_c::methodPtr cluster_add(new 
-        RequestManager::ClusterAdd(hpool,upool));
+        RequestManager::ClusterAdd(hpool,upool,cpool));
 
     xmlrpc_c::methodPtr cluster_remove(new 
-        RequestManager::ClusterRemove(hpool,upool));
+        RequestManager::ClusterRemove(hpool,upool,cpool));
 
     xmlrpc_c::methodPtr clusterpool_info(new 
-        RequestManager::ClusterPoolInfo(hpool,upool));
+        RequestManager::ClusterPoolInfo(upool,cpool));
 
     xmlrpc_c::methodPtr vn_allocate(new 
         RequestManager::VirtualNetworkAllocate(vnpool,upool));

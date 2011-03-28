@@ -14,20 +14,20 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'models/OpenNebulaJSON/JSONUtils'
+require 'OpenNebulaJSON/JSONUtils'
 
 module OpenNebulaJSON
     class UserJSON < OpenNebula::User
         include JSONUtils
 
-        def allocate(template_json)
+        def create(template_json)
             user_hash = parse_json(template_json, 'user')
             if OpenNebula.is_error?(user_hash)
                 return user_hash
             end
 
             password = Digest::SHA1.hexdigest(user_hash['password'])
-            super(user_hash['name'], password)
+            self.allocate(user_hash['name'], password)
         end
 
         def perform_action(template_json)

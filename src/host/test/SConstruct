@@ -1,7 +1,7 @@
 # SConstruct for src/host/test
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -21,6 +21,8 @@ Import('env')
 env.Prepend(LIBS=[
     'nebula_core_test',
     'nebula_host',
+    'nebula_cluster',
+    'nebula_xml',
     'nebula_vmm',
     'nebula_im',
     'nebula_rm',

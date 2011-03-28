@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -181,6 +181,8 @@ void Leases::Lease::mac_to_string(const unsigned int i_mac[], string& mac)
     mac = oss.str();
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 ostream& operator<<(ostream& os, Leases::Lease& _lease)
 {
@@ -191,32 +193,8 @@ ostream& operator<<(ostream& os, Leases::Lease& _lease)
     return os;
 }
 
-string& Leases::Lease::to_str(string& str) const
-{
-    string ip;
-    string mac;
-
-    ostringstream os;
-
-    to_string(ip,mac);
-
-    ip = "IP = " + ip;
-    mac = "MAC = " + mac;
-
-    os.width(20);
-    os << left << ip;
-
-    os.width(24);
-    os << left << mac;
-
-    os << left << " USED = " << used;
-    os << left << " VID = "  << vid;
-
-    str = os.str();
-
-    return str;
-}
-
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 string& Leases::Lease::to_xml(string& str) const
 {
@@ -229,15 +207,63 @@ string& Leases::Lease::to_xml(string& str) const
 
     os <<
         "<LEASE>" <<
-            "<IP>"<< ip << "</IP>" <<
-            "<MAC>" << mac << "</MAC>" <<
-            "<USED>" << used << "</USED>" <<
-            "<VID>" << vid << "</VID>" <<
+            "<IP>"  << ip   << "</IP>"  <<
+            "<MAC>" << mac  << "</MAC>" <<
+            "<USED>"<< used << "</USED>"<<
+            "<VID>" << vid  << "</VID>" <<
         "</LEASE>";
 
     str = os.str();
 
     return str;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string& Leases::Lease::to_xml_db(string& str) const
+{
+    ostringstream os;
+
+    os <<
+        "<LEASE>" <<
+            "<IP>"          << ip                   << "</IP>"  <<
+            "<MAC_PREFIX>"  << mac[Lease::PREFIX]   << "</MAC_PREFIX>" <<
+            "<MAC_SUFFIX>"  << mac[Lease::SUFFIX]   << "</MAC_SUFFIX>" <<
+            "<USED>"        << used                 << "</USED>"<<
+            "<VID>"         << vid                  << "</VID>" <<
+        "</LEASE>";
+
+    str = os.str();
+
+    return str;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int Leases::Lease::from_xml(const string &xml_str)
+{
+    int rc = 0;
+    int int_used;
+
+    // Initialize the internal XML object
+    update_from_str(xml_str);
+
+    rc += xpath(ip                , "/LEASE/IP"         , 0);
+    rc += xpath(mac[Lease::PREFIX], "/LEASE/MAC_PREFIX" , 0);
+    rc += xpath(mac[Lease::SUFFIX], "/LEASE/MAC_SUFFIX" , 0);
+    rc += xpath(int_used          , "/LEASE/USED"       , 0);
+    rc += xpath(vid               , "/LEASE/VID"        , 0);
+
+    used = static_cast<bool>(int_used);
+
+    if (rc != 0)
+    {
+        return -1;
+    }
+
+    return 0;
 }
 
 /* ************************************************************************** */
@@ -248,55 +274,38 @@ string& Leases::Lease::to_xml(string& str) const
 
 const char * Leases::table        = "leases";
 
-const char * Leases::db_names     = "oid,ip,mac_prefix,mac_suffix,vid,used";
+const char * Leases::db_names     = "oid, ip, body";
 
 const char * Leases::db_bootstrap = "CREATE TABLE IF NOT EXISTS leases ("
-                "oid INTEGER, ip BIGINT, mac_prefix BIGINT, mac_suffix BIGINT,"
-                "vid INTEGER, used INTEGER, PRIMARY KEY(oid,ip))";
+                "oid INTEGER, ip BIGINT, body TEXT, PRIMARY KEY(oid,ip))";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 int Leases::select_cb(void *nil, int num, char **values, char **names)
 {
-    if (    (values[OID] == 0)        ||
-            (values[IP]  == 0)        ||
-            (values[MAC_PREFIX] == 0) ||
-            (values[MAC_SUFFIX] == 0) ||
-            (values[VID] == 0)        ||
-            (values[USED]== 0)        ||
-            (num != LIMIT ))
+    Lease *         lease;
+    int             rc;
+
+    if ( (!values[0]) || (num != 1) )
     {
         return -1;
     }
 
-    unsigned int mac[2];
-    unsigned int ip;
-    int          vid;
-    bool         used;
+    lease = new Lease();
+    rc = lease->from_xml(values[0]);
 
-    istringstream iss;
+    if (rc != 0)
+    {
+        return -1;
+    }
 
-    iss.str(values[IP]);
-    iss >> ip;
+    leases.insert(make_pair(lease->ip, lease));
 
-    iss.clear();
-    iss.str(values[MAC_PREFIX]);
-    iss >> mac[Lease::PREFIX];
-
-    iss.clear();
-    iss.str(values[MAC_SUFFIX]);
-    iss >> mac[Lease::SUFFIX];
-
-    iss.clear();
-    iss.str(values[VID]);
-    iss >> vid;
-
-    iss.clear();
-    iss.str(values[USED]);
-    iss >> used;
-
-    leases.insert(make_pair(ip,new Lease(ip,mac,vid,used)));
+    if(lease->used)
+    {
+        n_used++;
+    }
 
     return 0;
 }
@@ -308,9 +317,12 @@ int Leases::select(SqlDB * db)
     ostringstream   oss;
     int             rc;
 
+    // Reset the used leases counter
+    n_used = 0;
+
     set_callback(static_cast<Callbackable::Callback>(&Leases::select_cb));
 
-    oss << "SELECT " << db_names << " FROM " << table << " WHERE oid = " << oid;
+    oss << "SELECT body FROM " << table << " WHERE oid = " << oid;
 
     rc = db->exec(oss,this);
 
@@ -429,25 +441,6 @@ string& Leases::to_xml(string& xml) const
     xml = os.str();
 
     return xml;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-string& Leases::to_str(string& str) const
-{
-    map<unsigned int, Leases::Lease *>::const_iterator  it;
-    ostringstream os;
-    string        lease_str;
-
-    for(it=leases.begin();it!=leases.end();it++)
-    {
-        os << it->second->to_str(lease_str) << endl;
-    }
-
-    str = os.str();
-
-    return str;
 }
 
 /* -------------------------------------------------------------------------- */

@@ -1,7 +1,7 @@
 # SConstruct for src/pool
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -31,7 +31,8 @@ sched_env.Prepend(LIBS=[
     'scheduler_sched',
     'scheduler_pool',
     'nebula_log',
-    'scheduler_xml',
+    'scheduler_client',
+    'nebula_xml',
     'nebula_common',
     'crypto',
 ])

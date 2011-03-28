@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -73,6 +73,11 @@ public:
     ImagePool * get_ipool()
     {
         return ipool;
+    };
+
+    ClusterPool * get_cpool()
+    {
+        return cpool;
     };
 
     // --------------------------------------------------------------
@@ -203,7 +208,7 @@ public:
 
     static string version()
     {
-        return "OpenNebula 2.1.0";
+        return "OpenNebula 2.3.0";
     };
 
     void start();
@@ -224,7 +229,7 @@ private:
     // -----------------------------------------------------------------------
 
     Nebula():nebula_configuration(0),db(0),vmpool(0),hpool(0),vnpool(0),upool(0),
-        ipool(0),lcm(0),vmm(0),im(0),tm(0),dm(0),rm(0),hm(0),authm(0)
+        ipool(0),cpool(0),lcm(0),vmm(0),im(0),tm(0),dm(0),rm(0),hm(0),authm(0)
     {
         const char * nl = getenv("ONE_LOCATION");
 
@@ -282,6 +287,11 @@ private:
         if ( ipool != 0)
         {
             delete ipool;
+        }
+
+        if ( cpool != 0)
+        {
+            delete cpool;
         }
 
         if ( vmm != 0)
@@ -370,6 +380,7 @@ private:
     VirtualNetworkPool * vnpool;
     UserPool           * upool;
     ImagePool          * ipool;
+    ClusterPool        * cpool;
 
     // ---------------------------------------------------------------
     // Nebula Managers

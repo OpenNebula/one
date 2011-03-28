@@ -500,7 +500,7 @@ int vm_var__flex_debug = 0;
 char *vm_var_text;
 #line 1 "vm_var_parser.l"
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -620,7 +620,7 @@ static int input (void );
 /* This used to be an fputs(), but since the string might contain NUL's,
  * we now use fwrite().
  */
-#define ECHO fwrite( vm_var_text, vm_var_leng, 1, vm_var_out )
+#define ECHO do { if (fwrite( vm_var_text, vm_var_leng, 1, vm_var_out )) {} } while (0)
 #endif
 
 /* Gets input and stuffs it into "buf".  number of characters read, or YY_NULL,
@@ -631,7 +631,7 @@ static int input (void );
 	if ( YY_CURRENT_BUFFER_LVALUE->yy_is_interactive ) \
 		{ \
 		int c = '*'; \
-		int n; \
+		unsigned n; \
 		for ( n = 0; n < max_size && \
 			     (c = getc( vm_var_in )) != EOF && c != '\n'; ++n ) \
 			buf[n] = (char) c; \

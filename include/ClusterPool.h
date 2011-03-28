@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -17,124 +17,123 @@
 #ifndef CLUSTER_POOL_H_
 #define CLUSTER_POOL_H_
 
-#include <string>
-#include <sstream>
-#include <map>
-
+#include "Cluster.h"
+#include "Host.h"
 #include "SqlDB.h"
 
 using namespace std;
-
 
 /**
  *  A cluster helper class. It is not a normal PoolSQL,
  *  but a series of static methods related to clusters.
  */
-class ClusterPool
+class ClusterPool : public PoolSQL
 {
 public:
+    ClusterPool(SqlDB * db);
+
+    ~ClusterPool(){};
+
+    /**
+     *  Removes the host from the given cluster setting the default one.
+     *    @param host The host to assign
+     *
+     *    @return 0 on success
+     */
+    int set_default_cluster(Host * host)
+    {
+        return host->set_cluster(ClusterPool::DEFAULT_CLUSTER_NAME);
+    };
+
     /**
      *  Cluster name for the default cluster
      */
     static const string DEFAULT_CLUSTER_NAME;
 
-private:
-    // -------------------------------------------------------------------------
-    // Friends
-    // -------------------------------------------------------------------------
-    friend class HostPool;
-
     /* ---------------------------------------------------------------------- */
-    /* Attributes                                                             */
+    /* Methods for DB management                                              */
     /* ---------------------------------------------------------------------- */
-    /**
-     *  This map stores the clusters
-     */
-    map<int, string>	cluster_names;
-
-
-    /* ---------------------------------------------------------------------- */
-    /* Methods for cluster management                                         */
-    /* ---------------------------------------------------------------------- */
-
-    /**
-     *  Returns true if the clid is an id for an existing cluster
-     *  @param clid ID of the cluster
-     *
-     *  @return true if the clid is an id for an existing cluster
-     */
-    bool exists(int clid)
-    {
-        return cluster_names.count(clid) > 0;
-    };
 
     /**
      *  Allocates a new cluster in the pool
      *    @param clid the id assigned to the cluster
      *    @return the id assigned to the cluster or -1 in case of failure
      */
-    int allocate(int * clid, string name, SqlDB *db, string& error_str);
+    int allocate(int * oid, string name, string& error_str);
 
     /**
-     *  Returns the xml representation of the given cluster
-     *    @param clid ID of the cluster
-     *
-     *    @return the xml representation of the given cluster
+     *  Function to get a Cluster from the pool, if the object is not in memory
+     *  it is loaded from the DB
+     *    @param oid Cluster unique id
+     *    @param lock locks the Cluster mutex
+     *    @return a pointer to the Cluster, 0 if the Cluster could not be loaded
      */
-    string info(int clid);
-
-    /**
-     *  Removes the given cluster from the pool and the DB
-     *    @param clid ID of the cluster
-     *
-     *    @return 0 on success
-     */
-    int drop(int clid, SqlDB *db);
-
-    /**
-     *  Dumps the cluster pool in XML format.
-     *    @param oss the output stream to dump the pool contents
-     *
-     *    @return 0 on success
-     */
-    int dump(ostringstream& oss);
-
-    /**
-     *  Bootstraps the database table(s) associated to the Cluster
-     */
-    static void bootstrap(SqlDB * db)
+    Cluster * get(int oid, bool lock)
     {
-        ostringstream oss(ClusterPool::db_bootstrap);
-        db->exec(oss);
+        return static_cast<Cluster *>(PoolSQL::get(oid,lock));
     };
 
     /**
-     *  Function to insert new Cluster in the pool
-     *    @param oid the id assigned to the Cluster
-     *    @param name the Cluster's name
-     *    @return 0 on success, -1 in case of failure
-     */
-    int insert (int oid, string name, SqlDB *db);
-
-    /**
-     *  Formats as XML the given id and name.
-     *    @param oss the output stream to dump the pool contents
+     *  Gets an object from the pool (if needed the object is loaded from the
+     *  database).
+     *   @param name of the object
+     *   @param lock locks the object if true
      *
+     *   @return a pointer to the object, 0 in case of failure
+     */
+    Cluster * get(const string& name, bool lock)
+    {
+        return static_cast<Cluster *>(PoolSQL::get(name,-1,lock));
+    };
+
+    /** Update a particular Cluster
+     *    @param user pointer to Cluster
      *    @return 0 on success
      */
-    void dump_cluster(ostringstream& oss, int id, string name);
+    int update(Cluster * cluster)
+    {
+        return cluster->update(db);
+    };
 
+    /**
+     *  Drops the Cluster from the data base. The object mutex SHOULD be
+     *  locked.
+     *    @param cluster a pointer to the object
+     *    @return 0 on success.
+     */
+    int drop(Cluster * cluster);
 
-    /* ---------------------------------------------------------------------- */
-    /* DB manipulation                                                        */
-    /* ---------------------------------------------------------------------- */
+    /**
+     *  Bootstraps the database table(s) associated to the Cluster pool
+     */
+    static void bootstrap(SqlDB * _db)
+    {
+        Cluster::bootstrap(_db);
+    };
 
-    static const char * db_names;
+    /**
+     *  Dumps the Cluster pool in XML format. A filter can be also added to the
+     *  query
+     *  @param oss the output stream to dump the pool contents
+     *  @param where filter for the objects, defaults to all
+     *
+     *  @return 0 on success
+     */
+    int dump(ostringstream& oss, const string& where)
+    {
+        return PoolSQL::dump(oss, "CLUSTER_POOL", Cluster::table, where);
+    };
 
-    static const char * db_bootstrap;
+private:
 
-    static const char * table;
-
+    /**
+     *  Factory method to produce objects
+     *    @return a pointer to the new object
+     */
+    PoolObjectSQL * create()
+    {
+        return new Cluster(-1,"");
+    };
 };
 
 #endif /*CLUSTER_POOL_H_*/

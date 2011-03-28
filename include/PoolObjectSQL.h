@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -18,7 +18,9 @@
 #define POOL_OBJECT_SQL_H_
 
 #include "ObjectSQL.h"
+#include "ObjectXML.h"
 #include <pthread.h>
+#include <string.h>
 
 using namespace std;
 
@@ -31,11 +33,13 @@ using namespace std;
  * is called.
  */
 
-class PoolObjectSQL : public ObjectSQL
+class PoolObjectSQL : public ObjectSQL, public ObjectXML
 {
 public:
 
-	PoolObjectSQL(int id=-1):oid(id),valid(true)
+    PoolObjectSQL(int id, const string& _name, int _uid,const char *_table)
+            :ObjectSQL(),ObjectXML(),oid(id),name(_name),uid(_uid),
+             valid(true),table(_table)
     {
         pthread_mutex_init(&mutex,0);
     };
@@ -47,10 +51,24 @@ public:
         pthread_mutex_destroy(&mutex);
     };
 
+    /* --------------------------------------------------------------------- */
+
     int get_oid() const
     {
         return oid;
     };
+
+    const string& get_name() const
+    {
+        return name;
+    };
+
+    int get_uid()
+    {
+        return uid;
+    };
+
+    /* --------------------------------------------------------------------- */
 
     /**
      *  Check if the object is valid
@@ -68,7 +86,7 @@ public:
     void set_valid(const bool _valid)
     {
         valid = _valid;
-    }
+    };
 
     /**
      *  Function to lock the object
@@ -86,17 +104,99 @@ public:
         pthread_mutex_unlock(&mutex);
     };
 
+    /**
+     * Function to print the object into a string in XML format
+     *  @param xml the resulting XML string
+     *  @return a reference to the generated string
+     */
+    virtual string& to_xml(string& xml) const = 0;
+
+    /**
+     *  Rebuilds the object from an xml formatted string
+     *    @param xml_str The xml-formatted string
+     *
+     *    @return 0 on success, -1 otherwise
+     */
+    virtual int from_xml(const string &xml_str) = 0;
+
 protected:
 
     /**
-     *  The object unique ID
+     *  Callback function to unmarshall a PoolObjectSQL
+     *    @param num the number of columns read from the DB
+     *    @param names the column names
+     *    @param vaues the column values
+     *    @return 0 on success
      */
-    int  oid;
+    int select_cb(void *nil, int num, char **values, char **names)
+    {
+        if ( (!values[0]) || (num != 1) )
+        {
+            return -1;
+        }
+
+        return from_xml(values[0]);
+    };
 
     /**
-     *  The contents ob this object are valid
+     *  Reads the PoolObjectSQL (identified by its OID) from the database.
+     *    @param db pointer to the db
+     *    @return 0 on success
      */
-    bool valid;
+    virtual int select(SqlDB *db);
+
+    /**
+     *  Reads the PoolObjectSQL (identified by its OID) from the database.
+     *    @param db pointer to the db
+     *    @return 0 on success
+     */
+    virtual int select(SqlDB *db, const string& _name, int _uid);
+
+    /**
+     *  Drops object from the database
+     *    @param db pointer to the db
+     *    @return 0 on success
+     */
+    virtual int drop(SqlDB *db);
+
+    /**
+     *  Function to output a pool object into a stream in XML format
+     *    @param oss the output stream
+     *    @param num the number of columns read from the DB
+     *    @param names the column names
+     *    @param vaues the column values
+     *    @return 0 on success
+     */
+    static int dump(ostringstream& oss, int num, char **values, char **names)
+    {
+        if ( (!values[0]) || (num != 1) )
+        {
+            return -1;
+        }
+
+        oss << values[0];
+        return 0;
+    };
+
+    /**
+     *  The object's unique ID
+     */
+    int     oid;
+
+    /**
+     *  The object's name
+     */
+    string  name;
+
+    /**
+     *  Object's owner, set it to -1 if owner is not used
+     */
+    int     uid;
+
+    /**
+     *  The contents of this object are valid
+     */
+    bool    valid;
 
 private:
 
@@ -110,6 +210,11 @@ private:
      * IS LOCKED when the class destructor is called.
      */
     pthread_mutex_t mutex;
+
+    /**
+     *  Pointer to the SQL table for the PoolObjectSQL
+     */
+    const char * table;
 };
 
 #endif /*POOL_OBJECT_SQL_H_*/

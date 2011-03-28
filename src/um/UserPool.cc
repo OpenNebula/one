@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -31,103 +31,81 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int UserPool::init_cb(void *nil, int num, char **values, char **names)
-{
-    if ( num == 0 || values == 0 || values[0] == 0 )
-    {
-        return -1;
-    }
-
-    known_users.insert(make_pair(values[1],atoi(values[0])));
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-
 UserPool::UserPool(SqlDB * db):PoolSQL(db,User::table)
 {
-    ostringstream   sql;
+    int           one_uid = -1;
+    ostringstream oss;
+    string        one_token;
+    string        one_name;
+    string        one_pass;
+    string        one_auth_file;
 
-    set_callback(static_cast<Callbackable::Callback>(&UserPool::init_cb));
+    const char *  one_auth;
+    ifstream      file;
 
-    sql  << "SELECT oid,user_name FROM " <<  User::table;
-
-    db->exec(sql, this);
-
-    unset_callback();
-
-    if ((int) known_users.size() == 0)
+    if (get(0,false) != 0)
     {
-        // User oneadmin needs to be added in the bootstrap
-        int           one_uid = -1;
-        ostringstream oss;
-        string        one_token;
-        string        one_name;
-        string        one_pass;
-        string        one_auth_file;
+        return;
+    }
 
-        const char *  one_auth;
-        ifstream      file;
+    // User oneadmin needs to be added in the bootstrap
+    one_auth = getenv("ONE_AUTH");
 
-        one_auth = getenv("ONE_AUTH");
+    if (!one_auth)
+    {
+        struct passwd * pw_ent;
 
-        if (!one_auth)
+        pw_ent = getpwuid(getuid());
+
+        if ((pw_ent != NULL) && (pw_ent->pw_dir != NULL))
         {
-            struct passwd * pw_ent;
+            one_auth_file = pw_ent->pw_dir;
+            one_auth_file += "/.one/one_auth";
 
-            pw_ent = getpwuid(getuid());
-
-            if ((pw_ent != NULL) && (pw_ent->pw_dir != NULL))
-            {
-                one_auth_file = pw_ent->pw_dir;
-                one_auth_file += "/.one/one_auth";
-
-                one_auth = one_auth_file.c_str();
-            }
-            else
-            {
-                oss << "Could not get one_auth file location";
-            }
-        }
-
-        file.open(one_auth);
-
-        if (file.good())
-        {
-            getline(file,one_token);
-
-            if (file.fail())
-            {
-                oss << "Error reading file: " << one_auth;
-            }
-            else
-            {
-                if (User::split_secret(one_token,one_name,one_pass) == 0)
-                {
-                    string error_str;
-                    string sha1_pass = User::sha1_digest(one_pass);
-
-                    allocate(&one_uid, one_name, sha1_pass, true, error_str);
-                }
-                else
-                {
-                    oss << "Wrong format must be <username>:<password>";
-                }
-            }
+            one_auth = one_auth_file.c_str();
         }
         else
         {
-            oss << "Cloud not open file: " << one_auth;
+            oss << "Could not get one_auth file location";
         }
+    }
 
-        file.close();
+    file.open(one_auth);
 
-        if (one_uid != 0)
+    if (file.good())
+    {
+        getline(file,one_token);
+
+        if (file.fail())
         {
-            NebulaLog::log("ONE",Log::ERROR,oss);
-            throw;
+            oss << "Error reading file: " << one_auth;
         }
+        else
+        {
+            if (User::split_secret(one_token,one_name,one_pass) == 0)
+            {
+                string error_str;
+                string sha1_pass = User::sha1_digest(one_pass);
+
+                allocate(&one_uid, one_name, sha1_pass, true, error_str);
+            }
+            else
+            {
+                oss << "Wrong format must be <username>:<password>";
+            }
+        }
+    }
+    else
+    {
+        oss << "Cloud not open file: " << one_auth;
+    }
+
+    file.close();
+
+    if (one_uid != 0)
+    {
+        NebulaLog::log("ONE",Log::ERROR,oss);
+        throw;
     }
 }
 
@@ -142,23 +120,39 @@ int UserPool::allocate (
     string& error_str)
 {
     User *        user;
+    ostringstream oss;
+
+    if ( username.empty() )
+    {
+        goto error_name;
+    }
+
+    user = get(username,false);
+
+    if ( user !=0 )
+    {
+        goto error_duplicated;
+    }
 
     // Build a new User object
-
-    user = new User(-1,
-        username,
-        password,
-        enabled);
+    user = new User(-1, username, password, enabled);
 
     // Insert the Object in the pool
-
     *oid = PoolSQL::allocate(user, error_str);
 
-    if (*oid != -1)
-    {
-        // Add the user to the map of known_users
-        known_users.insert(make_pair(username,*oid));
-    }
+    return *oid;
+
+
+error_name:
+    oss << "NAME cannot be empty.";
+    goto error_common;
+
+error_duplicated:
+    oss << "NAME is already taken by USER " << user->get_oid() << ".";
+
+error_common:
+    *oid = -1;
+    error_str = oss.str();
 
     return *oid;
 }
@@ -188,19 +182,12 @@ int UserPool::authenticate(string& session)
         return -1;
     }
 
-    index = known_users.find(username);
+    user = get(username,true);
 
-    if ( index != known_users.end() ) //User known to OpenNebula
+    if (user != 0) //User known to OpenNebula
     {
-        user = get((int)index->second,true);
-
-        if ( user == 0 )
-        {
-            return -1;
-        }
-
         u_pass = user->password;
-        uid    = user->get_uid();
+        uid    = user->oid;
 
         user->unlock();
     }
@@ -319,42 +306,3 @@ int UserPool::authorize(AuthRequest& ar)
     return rc;
 }
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int UserPool::dump_cb(void * _oss, int num, char **values, char **names)
-{
-    ostringstream * oss;
-
-    oss = static_cast<ostringstream *>(_oss);
-
-    return User::dump(*oss, num, values, names);
-}
-
-/* -------------------------------------------------------------------------- */
-
-int UserPool::dump(ostringstream& oss, const string& where)
-{
-    int             rc;
-    ostringstream   cmd;
-
-    oss << "<USER_POOL>";
-
-    set_callback(static_cast<Callbackable::Callback>(&UserPool::dump_cb),
-                 static_cast<void *>(&oss));
-
-    cmd << "SELECT " << User::db_names << " FROM " << User::table;
-
-    if ( !where.empty() )
-    {
-        cmd << " WHERE " << where;
-    }
-
-    rc = db->exec(cmd, this);
-
-    unset_callback();
-
-    oss << "</USER_POOL>";
-
-    return rc;
-}

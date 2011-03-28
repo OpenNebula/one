@@ -58,7 +58,15 @@ $(document).ready(function() {
     refreshButtonListener(); //listen to manual refresh image clicks
 	confirmButtonListener(); //listen to buttons that require confirmation
 	confirmWithSelectListener(); //listen to buttons requiring a selector
-	actionButtonListener(); //listens to all simple actions (not creates)
+    actionButtonListener(); //listens to all simple actions (not creates)
+
+    hostInfoListener();
+    vMachineInfoListener();
+    vNetworkInfoListener();
+    imageInfoListener();
+
+
+
     setupImageAttributesDialogs(); //setups the add/update/remove attr dialogs
 
 	//Jquery-ui eye-candy
@@ -67,6 +75,14 @@ $(document).ready(function() {
 	emptyDashboard();
 	preloadTables();
 	setupAutoRefresh();
+
+    tableCheckboxesListener(dataTable_hosts);
+    tableCheckboxesListener(dataTable_vMachines);
+    tableCheckboxesListener(dataTable_vNetworks);
+    if (uid == 0){
+        tableCheckboxesListener(dataTable_users);
+    }
+    tableCheckboxesListener(dataTable_images);
 
 	$(".ui-widget-overlay").live("click", function (){
 		$("div:ui-dialog:visible").dialog("close");
@@ -165,7 +181,8 @@ function initDataTables(){
       "aoColumnDefs": [
                         { "bSortable": false, "aTargets": ["check"] },
                         { "sWidth": "60px", "aTargets": [0] },
-                        { "sWidth": "35px", "aTargets": [1] }
+                        { "sWidth": "35px", "aTargets": [1] },
+                        { "sWidth": "100px", "aTargets": [2] }
                        ]
     });
 
@@ -176,8 +193,9 @@ function initDataTables(){
       "sPaginationType": "full_numbers",
       "aoColumnDefs": [
                         { "bSortable": false, "aTargets": ["check"] },
-                        { "sWidth": "60px", "aTargets": [0,5,6,7] },
-                        { "sWidth": "35px", "aTargets": [1] }
+                        { "sWidth": "60px", "aTargets": [0,4,5,6,7] },
+                        { "sWidth": "35px", "aTargets": [1] },
+                        { "sWidth": "100px", "aTargets": [2] }
                        ]
     });
 
@@ -203,7 +221,8 @@ function initDataTables(){
         "aoColumnDefs": [
                         { "bSortable": false, "aTargets": ["check"] },
                         { "sWidth": "60px", "aTargets": [0,3] },
-                        { "sWidth": "35px", "aTargets": [1] }
+                        { "sWidth": "35px", "aTargets": [1] },
+                        { "sWidth": "100px", "aTargets": [2,3] }
                        ]
     });
 
@@ -237,7 +256,7 @@ function initListButtons(){
         $('.multi_action_slct').each(function(){
              //prepare replacement buttons
             buttonset = $('<div style="display:inline-block;" class="top_button"></div');
-            button1 = $('<button class="last_action_button" value="">Previous action</button>').button();
+            button1 = $('<button class="last_action_button action_button confirm_button confirm_with_select_button" value="">Previous action</button>').button();
             button1.attr("disabled","disabled");
             button2 = $('<button class="list_button" value="">See more</button>').button({
                 text:false,
@@ -281,14 +300,12 @@ function initListButtons(){
                 prev_action_button.val($(this).val());
                 prev_action_button.removeClass("confirm_with_select_button");
                 prev_action_button.removeClass("confirm_button");
+                prev_action_button.removeClass("action_button");
                 prev_action_button.addClass($(this).attr("class"));
-                confirmButtonListener();
-                confirmWithSelectListener();
-                actionButtonListener();
                 prev_action_button.button("option","label",$(this).text());
                 prev_action_button.button("enable");
                 $(this).parents('ul').hide("blind",100);
-                return false;
+                //return false;
         });
 
 
@@ -333,11 +350,11 @@ function refreshButtonListener(){
 				callback = updateHostsView;
                 waiting_nodes(dataTable_hosts);
 				OpenNebula.Host.list({success: callback, error: onError});
+                callback = updateClustersView;
+				OpenNebula.Cluster.list({success: callback, error: onError});
 				break;
 			case "OpenNebula.Cluster.list":
-				callback = updateClustersView;
-                waiting_nodes(dataTable_clusters);
-				OpenNebula.Cluster.list({success: callback, error: onError});
+				//we have no cluster button for this
 				break;
 			case "OpenNebula.VM.list":
 				callback = updateVMachinesView;
@@ -396,8 +413,7 @@ function confirmButtonListener(){
 
     $('div#confirm_dialog button').button();
 
-	//add listeners
-	$('.confirm_button').click(function(){
+	$('.confirm_button').live("click",function(){
 		val=$(this).val();
 		tip="";
 		//supported cases
@@ -490,8 +506,8 @@ function confirmWithSelectListener(){
 		});
 
     $('div#confirm_with_select_dialog button').button();
-	//add listeners
-	$('.confirm_with_select_button').click(function(){
+
+	$( '.confirm_with_select_button').live("click",function(){
 		val=$(this).val();
 		tip="";
 		dataTable=null;
@@ -512,7 +528,7 @@ function confirmWithSelectListener(){
                 dataTable="null";
                 select_var = clusters_select;
                 callback = function (){
-                    OpenNebula.Host.list({success: updateClustersView,error: onError});
+                    OpenNebula.Cluster.list({success: updateClustersView,error: onError});
                 }
                 break;
 			case "OpenNebula.VM.deploy":
@@ -608,8 +624,9 @@ function confirmWithSelectListener(){
 //of the element, it sends actions to OpenNebula.js. This function
 //handles all the simple actions of the UI: delete, enables, disables, etc...
 function actionButtonListener(){
+
 	//Listener
-	$('.action_button').click(function(){
+	$('.action_button').live("click",function(){
 		dataTable=null; //Which dataTable should be updated afterwards?
 		callback = null; //Which callback function should be used on success?
 
@@ -727,9 +744,8 @@ function actionButtonListener(){
                 nodes_id.push($(this).val());
 				//Calling action(id,callback,error_callback)
 				if (extra_param!=null){ //action with two parameters
-                    data = extra_param;
-                    data.id = $(this).val();
-					(eval(action)({data: data, success: callback, error: onError}));
+                    var data_arg = {cluster_id: extra_param, id: $(this).val()};
+					(eval(action)({data: data_arg, success: callback, error: onError}));
 				} else { //action with one parameter
 					(eval(action)({data:{id:$(this).val()},success: callback,error: onError}));
 				};
@@ -798,11 +814,11 @@ function setupImageAttributesDialogs(){
             <div>\
                <input type="hidden" id="img_attr_action" />\
                 <label for="img_attr_name">Name:</label>\
-                <input type="text" id="img_attr_name" name="img_attr_name" value="NAME" />\
+                <input type="text" id="img_attr_name" name="img_attr_name" value="" />\
             </div>\
             <div>\
                 <label for="img_attr_value">Value:</label>\
-               <input type="text" id="img_attr_value" name="img_attr_value" value="value" />\
+               <input type="text" id="img_attr_value" name="img_attr_value" value="" />\
             </div>\
 			<div>\
 			  <button id="img_attr_proceed" value="">OK</button>\
@@ -815,7 +831,7 @@ function setupImageAttributesDialogs(){
         autoOpen:false,
         width:400,
         modal:true,
-        height:270,
+        height:200,
         resizable:false,
     });
 
@@ -1034,7 +1050,7 @@ function createClusterDialog(){
 		//If it's successfull we refresh the list.
 		OpenNebula.Cluster.create({ data:cluster_json,
                                     success: function(){
-                                        OpenNebula.Cluster.list(updateClustersView,onError)},
+                                        OpenNebula.Cluster.list({success:updateClustersView,error:onError})},
                                     error: onError});
 		$create_cluster_dialog.dialog('close');
 		return false;
@@ -1242,6 +1258,9 @@ function createVMachineDialog(){
 		$('select#boot_method option').removeAttr("selected");
         $('.kernel, .bootloader', $('div#os_boot_opts')).hide();
 
+        $('div#disks select#BUS').append(
+        '<option id="virtio" value="virtio">virtio</option>');
+
 		$('input#TYPE', section_raw).val("kvm");
 
 		$(section_inputs).show();
@@ -1265,8 +1284,9 @@ function createVMachineDialog(){
         $('select#boot_method option#no_boot').html("Please choose");
 		$('.kernel, .bootloader', $('div#os_boot_opts')).hide();
 
+        $('div#disks select#BUS option#virtio').remove();
 
-		$('input#TYPE', section_raw).val("kvm");
+		$('input#TYPE', section_raw).val("xen");
 		$(section_inputs).hide(); //not present for xen
 		update_dynamic_css();
 	};
@@ -1698,6 +1718,25 @@ function createVMachineDialog(){
 				$('fieldset',section_context).toggle();
                 return false;
 		});
+              
+        $('#add_context_button', section_context).click(function(){
+            var name = $('#var_name',section_context).val();
+            var value = $('#var_value',section_context).val();
+            if (!name.length || !value.length) {
+                notifyError("Context variable name and value must be filled in");
+                return false;
+            }
+            option= '<option value=\''+value+'\' name=\''+name+'\'>'+
+            name+'='+value+
+            '</option>';
+            $('select#context_box',section_context).append(option);
+            return false; 
+        });
+        
+        $('#remove_context_button', section_context).click(function(){
+           box_remove_element(section_context,'#context_box');
+           return false; 
+        });
 
 	};
 
@@ -1836,7 +1875,8 @@ function createVMachineDialog(){
 			notifyError("There are mandatory fields missing in the OS Boot options section");
 			return false;
 		};
-		addSectionJSON(vm_json,scope);
+        vm_json["OS"] = {};
+		addSectionJSON(vm_json["OS"],scope);
 
 		//process disks
 		scope = section_disks;
@@ -1858,11 +1898,15 @@ function createVMachineDialog(){
 		vm_json["GRAPHICS"] = {};
 		addSectionJSON(vm_json["GRAPHICS"],scope);
 
-		//context -> include
+		//context
 		scope = section_context;
-        var context = $('#CONTEXT',scope).val();
-        if (context)
-            vm_json["CONTEXT"] = context;
+        vm_json["CONTEXT"] = {};
+        var pair;
+        $('#context_box option',scope).each(function(){
+            name = $(this).attr("name");
+            value = $(this).val();
+            vm_json["CONTEXT"][name]=value;
+        });
 
 		//placement -> fetch with value
 		scope = section_placement;
@@ -1887,10 +1931,10 @@ function createVMachineDialog(){
 	});
 
 	$('button#create_vm_form_manual').click(function(){
-		template = $('#vm_template').val();
+		template = $('#textarea_vm_template').val();
 
         //wrap it in the "vm" object
-        template = {vm: {vm_raw: template}};
+        template = {"vm": {"vm_raw": template}};
 
 		OpenNebula.VM.create({data: template,
 					success: addVMachineElement,
@@ -2078,7 +2122,7 @@ function createImageDialog(){
                 break;
         }
         obj = { "image" : img_json };
-        OpenNebula.Image.create({data: obj,success: addImageElement,error: onError});
+        OpenNebula.Image.register({data: obj,success: addImageElement,error: onError});
 
         $create_image_dialog.dialog('close');
        return false;
@@ -2086,7 +2130,7 @@ function createImageDialog(){
 
     $('#create_image_form_manual').submit(function(){
 		template=$('#template',this).val();
-		OpenNebula.Image.create({data: template,success: addImageElement,error: onError});
+		OpenNebula.Image.register({data: template,success: addImageElement,error: onError});
 		$create_image_dialog.dialog('close');
        return false;
     });
@@ -2164,14 +2208,17 @@ function setupTips(){
 //Crawls the user dataTable for that. If such user is not found,
 //we return the uid.
 function getUserName(uid){
-    nodes = dataTable_users.fnGetData();
     user = "uid "+uid;
-    $.each(nodes,function(){
-       if (uid == this[1]) {
-           user = this[2];
-           return false;
-       }
-    });
+    if (dataTable_users != null){
+        nodes = dataTable_users.fnGetData();
+        $.each(nodes,function(){
+            if (uid == this[1]) {
+            user = this[2];
+            return false;
+            }
+        });
+    };
+
     return user;
 
 }
@@ -2205,9 +2252,12 @@ function updateSingleElement(element,data_table,tag){
 	tr = $(tag).parents('tr')[0];
 	position = data_table.fnGetPosition(tr);
 	data_table.fnUpdate(element,position,0);
+    $('input',data_table).trigger("change");
+
 }
 
 function tableCheckboxesListener(dataTable){
+
     context = dataTable.parents('form');
     last_action_b = $('.last_action_button',context);
     $('.top_button, .list_button',context).button("disable");
@@ -2217,13 +2267,21 @@ function tableCheckboxesListener(dataTable){
     $('.new_button',context).button("enable");
 
     //listen to changes
-    $('input',dataTable).click(function(){
+    $('input',dataTable).live("change",function(){
         dataTable = $(this).parents('table').dataTable();
         context = dataTable.parents('form');
         last_action_b = $('.last_action_button',context);
-        nodes_length = $('input:checked',dataTable.fnGetNodes()).length;
+        nodes = dataTable.fnGetNodes();
+        total_length = nodes.length;
+        checked_length = $('input:checked',nodes).length;
 
-        if (nodes_length){
+        if (total_length == checked_length){
+            $('.check_all',dataTable).attr("checked","checked");
+        } else {
+            $('.check_all',dataTable).removeAttr("checked");
+        }
+
+        if (checked_length){
             $('.top_button, .list_button',context).button("enable");
             if (last_action_b.length && last_action_b.val().length){
                 last_action_b.button("enable");
@@ -2241,6 +2299,7 @@ function tableCheckboxesListener(dataTable){
 function deleteElement(data_table,tag){
 	tr = $(tag).parents('tr')[0];
 	data_table.fnDeleteRow(tr);
+    $('input',data_table).trigger("change");
 }
 
 function addElement(element,data_table){
@@ -2253,18 +2312,24 @@ function hostElementArray(host_json){
 		if (!acpu) {acpu=100};
 	acpu = acpu - parseInt(host.HOST_SHARE.CPU_USAGE);
 
-
     total_mem = parseInt(host.HOST_SHARE.MAX_MEM);
     free_mem = parseInt(host.HOST_SHARE.FREE_MEM);
-    ratio_mem = Math.round(((total_mem - free_mem) / total_mem) * 100);
+
+    if (total_mem == 0) {
+        ratio_mem = 0;
+    } else {
+        ratio_mem = Math.round(((total_mem - free_mem) / total_mem) * 100);
+    }
 
 
     total_cpu = parseInt(host.HOST_SHARE.MAX_CPU);
     used_cpu = Math.max(total_cpu - parseInt(host.HOST_SHARE.USED_CPU),acpu);
 
-    ratio_cpu = Math.round(((total_cpu - used_cpu) / total_cpu) * 100);
-
-
+    if (total_cpu == 0) {
+        ratio_cpu = 0;
+    } else {
+        ratio_cpu = Math.round(((total_cpu - used_cpu) / total_cpu) * 100);
+    }
 
      pb_mem =
 '<div style="height:10px" class="ratiobar ui-progressbar ui-widget ui-widget-content ui-corner-all" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+ratio_mem+'">\
@@ -2306,7 +2371,8 @@ function hostElementArray(host_json){
 
 //Adds a listener to show the extended info when clicking on a row
 function hostInfoListener(){
-	$('#tbodyhosts tr').click(function(e){
+	$('#tbodyhosts tr').live("click",function(e){
+
 		//do nothing if we are clicking a checkbox!
 		if ($(e.target).is('input')) {return true;}
 
@@ -2327,13 +2393,17 @@ function hostInfoListener(){
 //~ }
 
 function vMachineElementArray(vm_json){
-	vm = vm_json.VM;
+	var vm = vm_json.VM;
+    var state = OpenNebula.Helper.resource_state("vm",vm.STATE);
+    if (state == "ACTIVE") {
+        state = OpenNebula.Helper.resource_state("vm_lcm",vm.LCM_STATE);
+    }
 	return [
 			'<input type="checkbox" id="vm_'+vm.ID+'" name="selected_items" value="'+vm.ID+'"/>',
 			vm.ID,
 			vm.USERNAME ? vm.USERNAME : getUserName(vm.UID),
 			vm.NAME,
-			OpenNebula.Helper.resource_state("vm",vm.STATE),
+			state,
 			vm.CPU,
 			humanize_size(vm.MEMORY),
 			vm.HISTORY ? vm.HISTORY.HOSTNAME : "--",
@@ -2343,7 +2413,8 @@ function vMachineElementArray(vm_json){
 
 //Adds a listener to show the extended info when clicking on a row
 function vMachineInfoListener(){
-	$('#tbodyvmachines tr').click(function(e){
+
+	$('#tbodyvmachines tr').live("click", function(e){
 		if ($(e.target).is('input')) {return true;}
 		aData = dataTable_vMachines.fnGetData(this);
 		id = $(aData[0]).val();
@@ -2354,9 +2425,9 @@ function vMachineInfoListener(){
 
 function vNetworkElementArray(vn_json){
 	network = vn_json.VNET;
-    if (network.TOTAL_LEASES != undefined){
+    if (network.TOTAL_LEASES){
         total_leases = network.TOTAL_LEASES;
-    }else if (network.LEASES.LEASE != undefined){
+    }else if (network.LEASES && network.LEASES.LEASE){
         total_leases = network.LEASES.LEASE.length ? network.LEASES.LEASE.length : "1";
     } else{
         total_leases = "0";
@@ -2373,7 +2444,8 @@ function vNetworkElementArray(vn_json){
 }
 //Adds a listener to show the extended info when clicking on a row
 function vNetworkInfoListener(){
-	$('#tbodyvnetworks tr').click(function(e){
+
+	$('#tbodyvnetworks tr').live("click", function(e){
 		if ($(e.target).is('input')) {return true;}
 		aData = dataTable_vNetworks.fnGetData(this);
 		id = $(aData[0]).val();
@@ -2384,10 +2456,16 @@ function vNetworkInfoListener(){
 
 function userElementArray(user_json){
 	user = user_json.USER;
+    if (!user.NAME || user.NAME == {}){
+        name = "";
+    } else {
+        name = user.NAME;
+    }
+        
 	return [
 		'<input type="checkbox" id="user_'+user.ID+'" name="selected_items" value="'+user.ID+'"/>',
 		user.ID,
-		user.NAME
+		name
 		]
 }
 
@@ -2396,7 +2474,7 @@ function imageElementArray(image_json){
     return [
         '<input type="checkbox" id="image_'+image.ID+'" name="selected_items" value="'+image.ID+'"/>',
         image.ID,
-        image.USERNAME ? image.USERNAME : getUserName(image.ID),
+        image.USERNAME ? image.USERNAME : getUserName(image.UID),
         image.NAME,
         OpenNebula.Helper.image_type(image.TYPE),
         pretty_time(image.REGTIME),
@@ -2407,8 +2485,9 @@ function imageElementArray(image_json){
         ];
 }
 
-function imageInfoListener(){
-    $('#tbodyimages tr').click(function(e){
+function imageInfoListener(target){
+
+    $('#tbodyimages tr').live("click",function(e){
         if ($(e.target).is('input')) {return true;}
         aData = dataTable_images.fnGetData(this);
         id = $(aData[0]).val();
@@ -2461,7 +2540,9 @@ function updateImageSelect(image_list){
     images_select="";
     images_select += "<option value=\"\">Select an image</option>";
     $.each(image_list, function(){
-        images_select += "<option value=\""+this.IMAGE.NAME+"\">"+this.IMAGE.NAME+"</option>";
+        if ((this.IMAGE.STATE < 3) && (this.IMAGE.STATE > 0)){
+            images_select += '<option id="img_sel_'+this.IMAGE.ID+'" value="'+this.IMAGE.NAME+'">'+this.IMAGE.NAME+'</option>';
+        }
     });
 
     //update static selectors
@@ -2582,8 +2663,9 @@ function onError(request,error_json) {
     };
 
     //Parse known errors:
-    var action_error = new RegExp("^\\[(\\w+)\\] Error trying to (\\w+) (\\w+) \\[(\\w+)\\].*Reason: (.*)\.$");
-    var get_error = new RegExp("^\\[(\\w+)\\] Error getting (\\w+) \\[(\\w+)\\]\.$");
+    var action_error = /^\[(\w+)\] Error trying to (\w+) (\w+) \[(\w+)\].*Reason: (.*)\.$/;
+    var action_error_noid = /^\[(\w+)\] Error trying to (\w+) (\w+) (.*)\.$/;
+    var get_error = /^\[(\w+)\] Error getting (\w+) \[(\w+)\]\.$/;
     var auth_error = /^\[(\w+)\] User \[.\] not authorized to perform (\w+) on (\w+) \[?(\w+)\]?\.?$/;
 
     if (m = message.match(action_error)) {
@@ -2592,6 +2674,11 @@ function onError(request,error_json) {
         object  = m[3];
         id      = m[4];
         reason  = m[5];
+    } else if (m = message.match(action_error_noid)) {
+        method  = m[1];
+        action  = m[2];
+        object  = m[3];
+        reason  = m[4];
     } else if (m = message.match(get_error)) {
         method  = m[1];
         action  = "SHOW";
@@ -2634,7 +2721,7 @@ function onError(request,error_json) {
 function updateHostElement(request, host_json){
 	id = host_json.HOST.ID;
 	element = hostElementArray(host_json);
-	updateSingleElement(element,dataTable_hosts,'#host_'+id)
+	updateSingleElement(element,dataTable_hosts,'#host_'+id);
 }
 
 function deleteHostElement(req){
@@ -2642,10 +2729,9 @@ function deleteHostElement(req){
 }
 
 function addHostElement(request,host_json){
+    id = host_json.HOST.ID;
 	element = hostElementArray(host_json);
 	addElement(element,dataTable_hosts);
-	hostInfoListener();
-    tableCheckboxesListener(dataTable_hosts);
 }
 
 function updateHostsView (request,host_list){
@@ -2660,10 +2746,6 @@ function updateHostsView (request,host_list){
 	updateView(host_list_array,dataTable_hosts);
 	updateHostSelect(host_list);
 	updateDashboard("hosts");
-
-	//We need to re-add this listener as list has been refreshed
-	hostInfoListener();
-    tableCheckboxesListener(dataTable_hosts);
 }
 
 
@@ -2706,12 +2788,11 @@ function deleteVMachineElement(req){
 }
 
 function addVMachineElement(request,vm_json){
-    notifySubmit('OpenNebula.VM.create',vm_json.VM.ID);
+    id = vm_json.VM.ID;
+    notifySubmit('OpenNebula.VM.create',id);
 	element = vMachineElementArray(vm_json);
 	addElement(element,dataTable_vMachines);
-	vMachineInfoListener();
     updateVMInfo(null,vm_json);
-    tableCheckboxesListener(dataTable_vMachines);
 }
 
 function updateVMachinesView(request, vmachine_list){
@@ -2723,8 +2804,6 @@ function updateVMachinesView(request, vmachine_list){
 	});
 
 	updateView(vmachine_list_array,dataTable_vMachines);
-	vMachineInfoListener();
-    tableCheckboxesListener(dataTable_vMachines);
 	updateDashboard("vms");
 }
 
@@ -2733,17 +2812,18 @@ function updateVNetworkElement(request, vn_json){
 	id = vn_json.VNET.ID;
 	element = vNetworkElementArray(vn_json);
 	updateSingleElement(element,dataTable_vNetworks,'#vnetwork_'+id);
-    tableCheckboxesListener(dataTable_vNetworks);
 }
 
 function deleteVNetworkElement(req){
 	deleteElement(dataTable_vNetworks,'#vnetwork_'+req.request.data);
+    //How to delete vNetwork select option here?
 }
 
 function addVNetworkElement(request,vn_json){
 	element = vNetworkElementArray(vn_json);
 	addElement(element,dataTable_vNetworks);
-	vNetworkInfoListener();
+    vnetworks_select += "<option value=\""+vn_json.VNET.NAME+"\">"+vn_json.VNET.NAME+"</option>";
+    $('div.vm_section#networks select#NETWORK').html(vnetworks_select);
 }
 
 function updateVNetworksView(request, network_list){
@@ -2756,9 +2836,7 @@ function updateVNetworksView(request, network_list){
 
 	updateView(network_list_array,dataTable_vNetworks);
 	updateNetworkSelect(network_list);
-	vNetworkInfoListener();
 	updateDashboard("vnets");
-    tableCheckboxesListener(dataTable_vNetworks);
 
 }
 
@@ -2766,7 +2844,6 @@ function updateUserElement(request, user_json){
 	id = user_json.USER.ID;
 	element = userElementArray(user_json);
 	updateSingleElement(element,dataTable_users,'#user_'+id);
-    tableCheckboxesListener(dataTable_users);
 }
 
 function deleteUserElement(req){
@@ -2787,7 +2864,6 @@ function updateUsersView(request,users_list){
 	});
 	updateView(user_list_array,dataTable_users);
 	updateDashboard("users");
-    tableCheckboxesListener(dataTable_users);
 }
 
 
@@ -2795,12 +2871,27 @@ function updateImageElement(request, image_json){
     id = image_json.IMAGE.ID;
     element = imageElementArray(image_json);
     updateSingleElement(element,dataTable_images,'#image_'+id);
-    tableCheckboxesListener(dataTable_images);
-    imageInfoListener();
+    if ((image_json.IMAGE.STATE < 3) && 
+        (image_json.IMAGE.STATE > 0) &&
+        ($('#img_sel_'+id,images_select).length == 0)){
+            images_select += '<option id="img_sel_'+id+'" value="'+image_json.IMAGE.NAME+'">'+image_json.IMAGE.NAME+'</option>';
+        }   
+    else {
+        tag = 'option#img_sel_'+id;
+        select = $('<select>'+images_select+'</select>');
+        $(tag,select).remove();
+        images_select = $(select).html();
+    }
+    $('div.vm_section#disks select#IMAGE').html(images_select);
 }
 
 function deleteImageElement(req){
     deleteElement(dataTable_images,'#image_'+req.request.data);
+    tag = 'option#img_sel_'+req.request.data;
+    select = $('<select>'+images_select+'</select>');
+    $(tag,select).remove();
+    images_select = $(select).html();
+    $('div.vm_section#disks select#IMAGE').html(images_select);    
 }
 
 function addImageElement(request, image_json){
@@ -2817,8 +2908,6 @@ function updateImagesView(request, images_list){
 
     updateView(image_list_array,dataTable_images);
     updateImageSelect(images_list);
-    imageInfoListener();
-    tableCheckboxesListener(dataTable_images);
     updateDashboard("images");
 
 
@@ -2998,7 +3087,7 @@ function updateVMInfo(request,vm){
 			</tr>\
 			<tr>\
 				<td class="key_td">LCM State</td>\
-				<td class="value_td">'+OpenNebula.Helper.resource_state("vm",vm_info.LCMSTATE)+'</td>\
+				<td class="value_td">'+OpenNebula.Helper.resource_state("vm_lcm",vm_info.LCM_STATE)+'</td>\
 			</tr>\
 			<tr>\
 				<td class="key_td">Start time</td>\
@@ -3006,7 +3095,7 @@ function updateVMInfo(request,vm){
 			</tr>\
 			<tr>\
 				<td class="key_td">Deploy ID</td>\
-				<td class="value_td">'+(vm_info.DEPLOY_ID ? vm_info.DEPLOY_ID : "-")+'</td>\
+				<td class="value_td">'+(typeof(vm_info.DEPLOY_ID) == "object" ? "-" : vm_info.DEPLOY_ID)+'</td>\
 			</tr>\
 		</table>\
 		<table id="vm_monitoring_table" class="info_table">\
@@ -3093,14 +3182,16 @@ function updateVNetworkInfo(request,vn){
 				<td class="key_td">Public</td>\
 				<td class="value_td">'+(parseInt(vn_info.PUBLIC) ? "yes" : "no" )+'</td>\
 			</tr>\
-		</table>\
-		<table id="vn_leases_info_table" class="info_table">\
+		</table>';
+    if (vn_info.TEMPLATE.TYPE == "FIXED"){
+		rendered_info += '<table id="vn_leases_info_table" class="info_table">\
 			<thead>\
 				<tr><th colspan="2">Leases information</th></tr>\
 			</thead>'+
 			prettyPrintJSON(vn_info.LEASES)+
-		'</table>\
-	</div>\
+		'</table>';
+    }
+	rendered_info += '</div>\
 	<div id="vn_template">\
 		<table id="vn_template_table" class="info_table">\
 		<thead><tr><th colspan="2">Virtual Network template</th></tr></thead>'+
@@ -3144,11 +3235,11 @@ function updateImageInfo(request,img){
 			</tr>\
 			<tr>\
 				<td class="key_td">Public</td>\
-				<td class="value_td">'+(img_info.PUBLIC ? "yes" : "no")+'</td>\
+				<td class="value_td">'+(parseInt(img_info.PUBLIC) ? "yes" : "no")+'</td>\
 			</tr>\
 			<tr>\
 				<td class="key_td">Persistent</td>\
-				<td class="value_td">'+(img_info.PERSISTENT ? "yes" : "no")+'</td>\
+				<td class="value_td">'+(parseInt(img_info.PERSISTENT) ? "yes" : "no")+'</td>\
 			</tr>\
 			<tr>\
 				<td class="key_td">Source</td>\
@@ -3156,7 +3247,7 @@ function updateImageInfo(request,img){
 			</tr>\
 			<tr>\
 				<td class="key_td">State</td>\
-				<td class="value_td">'+img_info.STATE+'</td>\
+				<td class="value_td">'+OpenNebula.Helper.resource_state("image",img_info.STATE)+'</td>\
 			</tr>\
 		</table>\
     </div>\

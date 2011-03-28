@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -71,17 +71,36 @@ VirtualNetworkPool::VirtualNetworkPool(SqlDB * db,
 
 int VirtualNetworkPool::allocate (
     int            uid,
+    string         user_name,
     VirtualNetworkTemplate * vn_template,
     int *          oid,
     string&        error_str)
 {
     VirtualNetwork *    vn;
+    VirtualNetwork *    vn_aux;
+    string              name;
 
-    vn = new VirtualNetwork(vn_template);
+    vn = new VirtualNetwork(uid, user_name, vn_template);
 
-    vn->uid = uid;
+    // Check for duplicates
+    vn->get_template_attribute("NAME", name);
+    vn_aux = get(name,uid,false);
 
-    *oid = PoolSQL::allocate(vn, error_str);
+    if( vn_aux != 0 )
+    {
+        ostringstream oss;
+
+        oss << "NAME is already taken by NET " << vn_aux->get_oid() << ".";
+        error_str = oss.str();
+
+        *oid = -1;
+
+        delete vn;
+    }
+    else
+    {
+        *oid = PoolSQL::allocate(vn, error_str);
+    }
 
     return *oid;
 }
@@ -89,118 +108,7 @@ int VirtualNetworkPool::allocate (
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualNetworkPool::get_cb(void * _oid, int num, char **values,char **names)
-{
-    int * oid;
-
-    oid = static_cast<int *>(_oid);
-
-    if ( oid == 0 || values == 0 || values[0] == 0 )
-    {
-        return -1;
-    }
-
-    *oid = atoi(values[0]);
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-VirtualNetwork * VirtualNetworkPool::get(const string& name, bool lock)
-{
-    ostringstream   oss;
-
-    int oid = -1;
-    int rc;
-
-    char * sql_name = db->escape_str(name.c_str());
-
-    if ( sql_name == 0 )
-    {
-        return 0;
-    }
-
-    set_callback(
-        static_cast<Callbackable::Callback>(&VirtualNetworkPool::get_cb),
-        static_cast<void *>(&oid));
-
-    oss << "SELECT oid FROM " << VirtualNetwork::table << " WHERE name = '"
-        << sql_name << "'";
-
-    rc = db->exec(oss, this);
-
-    unset_callback();
-
-    db->free_str(sql_name);
-
-    if (rc != 0 || oid == -1)
-    {
-        return 0;
-    }
-
-    return get(oid,lock);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int VirtualNetworkPool::dump_cb(void * _oss,
-                                int     num,
-                                char ** values,
-                                char ** names)
-{
-    ostringstream * oss;
-
-    oss = static_cast<ostringstream *>(_oss);
-
-    return VirtualNetwork::dump(*oss, num, values, names);
-}
-
-/* -------------------------------------------------------------------------- */
-
-int VirtualNetworkPool::dump(ostringstream& oss, const string& where)
-{
-    int             rc;
-    ostringstream   cmd;
-
-    oss << "<VNET_POOL>";
-
-    set_callback(
-        static_cast<Callbackable::Callback>(&VirtualNetworkPool::dump_cb),
-        static_cast<void *>(&oss));
-
-    cmd << "SELECT " << VirtualNetwork::extended_db_names << ",COUNT("
-        << Leases::table << ".used), user_pool.user_name FROM "
-        << VirtualNetwork::table
-        << " LEFT OUTER JOIN " << Leases::table << " ON "
-        << VirtualNetwork::table << ".oid = " <<  Leases::table << ".oid"
-        << " AND " << Leases::table << ".used = 1"
-        << " LEFT OUTER JOIN (SELECT oid,user_name FROM user_pool) "
-        << " AS user_pool ON "<< VirtualNetwork::table
-        << ".uid = user_pool.oid";
-
-    if ( !where.empty() )
-    {
-        cmd << " WHERE " << where;
-    }
-
-    cmd << " GROUP BY " << VirtualNetwork::table << ".oid";
-
-    rc = db->exec(cmd,this);
-
-    oss << "</VNET_POOL>";
-
-    unset_callback();
-
-    return rc;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int VirtualNetworkPool::nic_attribute(VectorAttribute * nic, int vid)
+int VirtualNetworkPool::nic_attribute(VectorAttribute * nic, int uid, int vid)
 {
     string           network;
     VirtualNetwork * vnet = 0;
@@ -229,7 +137,7 @@ int VirtualNetworkPool::nic_attribute(VectorAttribute * nic, int vid)
     }
     else
     {
-        vnet = get(network,true);
+        vnet = get(network, uid, true);
     }
 
     if (vnet == 0)
@@ -247,7 +155,9 @@ int VirtualNetworkPool::nic_attribute(VectorAttribute * nic, int vid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualNetworkPool::authorize_nic(VectorAttribute * nic, AuthRequest * ar)
+void VirtualNetworkPool::authorize_nic(VectorAttribute * nic, 
+                                       int uid, 
+                                       AuthRequest * ar)
 {
     string           network;
     VirtualNetwork * vnet = 0;
@@ -276,7 +186,7 @@ void VirtualNetworkPool::authorize_nic(VectorAttribute * nic, AuthRequest * ar)
     }
     else
     {
-        vnet = get(network,true);
+        vnet = get(network, uid, true);
     }
 
     if (vnet == 0)
@@ -285,7 +195,7 @@ void VirtualNetworkPool::authorize_nic(VectorAttribute * nic, AuthRequest * ar)
     }
 
     ar->add_auth(AuthRequest::NET,
-                 vnet->get_vnid(),
+                 vnet->get_oid(),
                  AuthRequest::USE,
                  vnet->get_uid(),
                  vnet->isPublic());

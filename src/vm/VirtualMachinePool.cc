@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -167,6 +167,7 @@ VirtualMachinePool::VirtualMachinePool(SqlDB *                   db,
 
 int VirtualMachinePool::allocate (
     int            uid,
+    string         user_name,
     VirtualMachineTemplate * vm_template,
     int *          oid,
     string&        error_str,
@@ -177,7 +178,7 @@ int VirtualMachinePool::allocate (
     // ------------------------------------------------------------------------
     // Build a new Virtual Machine object
     // ------------------------------------------------------------------------
-    vm = new VirtualMachine(-1,vm_template);
+    vm = new VirtualMachine(-1, uid, user_name, vm_template);
 
     if (on_hold == true)
     {
@@ -187,8 +188,6 @@ int VirtualMachinePool::allocate (
     {
         vm->state = VirtualMachine::PENDING;
     }
-
-    vm->uid = uid;
 
     // ------------------------------------------------------------------------
     // Insert the Object in the pool
@@ -240,84 +239,27 @@ int VirtualMachinePool::get_pending(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int  VirtualMachinePool::dump_cb(void * _oss,int num,char **values,char **names)
-{
-    ostringstream * oss;
-
-    oss = static_cast<ostringstream *>(_oss);
-
-    return VirtualMachine::dump(*oss, num, values, names);
-}
-
-int  VirtualMachinePool::dump_extended_cb(
-                                void * _oss,int num,char **values,char **names)
-{
-    ostringstream * oss;
-
-    oss = static_cast<ostringstream *>(_oss);
-
-    return VirtualMachine::dump_extended(*oss, num, values, names);
-}
-
-/* -------------------------------------------------------------------------- */
-
 int VirtualMachinePool::dump(   ostringstream&  oss,
-                                bool            extended,
                                 int             state,
                                 const string&   where)
 {
-    int             rc;
-    ostringstream   cmd;
-
-    oss << "<VM_POOL>";
-
-    if(extended)
-    {
-        set_callback(
-            static_cast<Callbackable::Callback>(
-                                        &VirtualMachinePool::dump_extended_cb),
-            static_cast<void *>(&oss));
-
-        cmd << "SELECT " << VirtualMachine::extended_db_names
-        << ", user_pool.user_name, "
-        << History::extended_db_names << " FROM " << VirtualMachine::table
-        << " LEFT OUTER JOIN " << History::table << " ON "
-        << VirtualMachine::table << ".oid = " << History::table << ".vid AND "
-        << History::table << ".seq = " << VirtualMachine::table
-        << ".last_seq LEFT OUTER JOIN (SELECT oid,user_name FROM user_pool) "
-        << "AS user_pool ON "<< VirtualMachine::table << ".uid = user_pool.oid";
-    }
-    else
-    {
-        set_callback(
-            static_cast<Callbackable::Callback>(&VirtualMachinePool::dump_cb),
-            static_cast<void *>(&oss));
-
-        cmd << "SELECT " << VirtualMachine::db_names << " FROM "
-            << VirtualMachine::table;
-    }
+    ostringstream where_oss;
 
     if ( state != -1 )
     {
-        cmd << " WHERE " << VirtualMachine::table << ".state = " << state;
+        where_oss << VirtualMachine::table << ".state = " << state;
     }
     else
     {
-        cmd << " WHERE " << VirtualMachine::table << ".state <> 6";
+        where_oss << VirtualMachine::table << ".state <> 6";
     }
 
     if ( !where.empty() )
     {
-        cmd << " AND " << where;
+        where_oss << " AND " << where;
     }
 
-    rc = db->exec(cmd,this);
-
-    oss << "</VM_POOL>";
-
-    unset_callback();
-
-    return rc;
+    return PoolSQL::dump(oss, "VM_POOL", VirtualMachine::table,where_oss.str());
 }
 
 /* -------------------------------------------------------------------------- */

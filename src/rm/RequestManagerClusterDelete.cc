@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -26,14 +26,14 @@ void RequestManager::ClusterDelete::execute(
     xmlrpc_c::paramList const& paramList,
     xmlrpc_c::value *   const  retval)
 {
-    string              session;
+    string          session;
 
-    // <clid> of the cluster to delete from the HostPool
-    int                 clid;
-    ostringstream       oss;
-    int                 rc;
+    int             clid;
+    Cluster *       cluster;
+    ostringstream   oss;
+    int             rc;
 
-    const string        method_name = "ClusterDelete";
+    const string    method_name = "ClusterDelete";
 
     /*   -- RPC specific vars --  */
     vector<xmlrpc_c::value> arrayData;
@@ -66,7 +66,17 @@ void RequestManager::ClusterDelete::execute(
         }
     }
 
-    rc = ClusterDelete::hpool->drop_cluster(clid);
+    // Perform the deletion from the pool
+    cluster = ClusterDelete::cpool->get(clid,true);
+
+    if ( cluster == 0 )
+    {
+        goto error_cluster_get;
+    }
+
+    rc = ClusterDelete::cpool->drop(cluster);
+
+    cluster->unlock();
 
     if ( rc != 0 )
     {
@@ -90,6 +100,10 @@ error_authenticate:
 
 error_authorize:
     oss.str(authorization_error(method_name, "DELETE", "CLUSTER", rc, clid));
+    goto error_common;
+
+error_cluster_get:
+    oss.str(get_error(method_name, "CLUSTER", clid));
     goto error_common;
 
 error_cluster_delete:

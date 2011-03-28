@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -201,7 +201,7 @@ void InformationManager::timer_action()
             (thetime - host->get_last_monitored() >= monitor_period))
         {
             oss.str("");
-            oss << "Monitoring host " << host->get_hostname()
+            oss << "Monitoring host " << host->get_name()
                 << " (" << it->first << ")";
             NebulaLog::log("InM",Log::INFO,oss);
 
@@ -225,7 +225,7 @@ void InformationManager::timer_action()
                     update_remotes = true;
                 }
 
-            	imd->monitor(it->first,host->get_hostname(),update_remotes);
+            	imd->monitor(it->first,host->get_name(),update_remotes);
 
             	host->set_state(Host::MONITORING);
             }

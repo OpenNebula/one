@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -30,7 +30,7 @@ class TestObjectSQL : public PoolObjectSQL
 {
 public:
     //OBJECT ATTRIBUTES
-    TestObjectSQL(int n=-1, string t="default"):number(n),text(t){};
+    TestObjectSQL(int n=-1, string t="default"):PoolObjectSQL(-1,"",0,0),number(n),text(t){};
 
     ~TestObjectSQL(){};
 
@@ -70,6 +70,16 @@ public:
         oss.str(TestObjectSQL::db_bootstrap);
 
         db->exec(oss,0);
+    };
+
+    string& to_xml(string& xml) const
+    {
+        return xml;
+    };
+
+    int from_xml(const string &xml_str)
+    {
+        return 0;
     };
 };
 

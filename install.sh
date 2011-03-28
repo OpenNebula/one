@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -40,6 +40,7 @@ usage() {
  echo "-d: target installation directory, if not defined it'd be root. Must be"
  echo "    an absolute path."
  echo "-c: install client utilities: OpenNebula cli, occi and ec2 client files"
+ echo "-s: install OpenNebula Sunstone"
  echo "-r: remove Opennebula, only useful if -d was not specified, otherwise"
  echo "    rm -rf \$ONE_LOCATION would do the job"
  echo "-l: creates symlinks instead of copying files, useful for development"
@@ -47,7 +48,7 @@ usage() {
 }
 #-------------------------------------------------------------------------------
 
-TEMP_OPT=`getopt -o hkrlcu:g:d: -n 'install.sh' -- "$@"`
+TEMP_OPT=`getopt -o hkrlcsu:g:d: -n 'install.sh' -- "$@"`
 
 if [ $? != 0 ] ; then
     usage
@@ -60,6 +61,7 @@ INSTALL_ETC="yes"
 UNINSTALL="no"
 LINK="no"
 CLIENT="no"
+SUNSTONE="no"
 ONEADMIN_USER=`id -u`
 ONEADMIN_GROUP=`id -g`
 SRC_DIR=$PWD
@@ -70,7 +72,8 @@ while true ; do
         -k) INSTALL_ETC="no"   ; shift ;;
         -r) UNINSTALL="yes"   ; shift ;;
         -l) LINK="yes" ; shift ;;
-        -c) CLIENT="yes" ; shift ;;
+        -c) CLIENT="yes"; INSTALL_ETC="no" ; shift ;;
+        -s) SUNSTONE="yes"; INSTALL_ETC="no" ; shift ;;
         -u) ONEADMIN_USER="$2" ; shift 2;;
         -g) ONEADMIN_GROUP="$2"; shift 2;;
         -d) ROOT="$2" ; shift 2 ;;
@@ -89,6 +92,7 @@ if [ -z "$ROOT" ] ; then
     ETC_LOCATION="/etc/one"
     LOG_LOCATION="/var/log/one"
     VAR_LOCATION="/var/lib/one"
+    SUNSTONE_LOCATION="$LIB_LOCATION/sunstone"
     IMAGES_LOCATION="$VAR_LOCATION/images"
     RUN_LOCATION="/var/run/one"
     LOCK_LOCATION="/var/lock/one"
@@ -96,7 +100,19 @@ if [ -z "$ROOT" ] ; then
     SHARE_LOCATION="/usr/share/one"
     MAN_LOCATION="/usr/share/man/man8"
 
-    if [ "$CLIENT" = "no" ]; then
+    if [ "$CLIENT" = "yes" ]; then
+        MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION"
+
+        DELETE_DIRS=""
+
+        CHOWN_DIRS=""
+    elif [ "$SUNSTONE" = "yes" ]; then
+        MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $VAR_LOCATION $SUNSTONE_LOCATION"
+
+        DELETE_DIRS="$MAKE_DIRS"
+
+        CHOWN_DIRS=""
+    else
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION $VAR_LOCATION \
                    $INCLUDE_LOCATION $SHARE_LOCATION \
                    $LOG_LOCATION $RUN_LOCATION $LOCK_LOCATION \
@@ -106,12 +122,6 @@ if [ -z "$ROOT" ] ; then
                      $RUN_LOCATION $SHARE_DIRS"
 
         CHOWN_DIRS="$LOG_LOCATION $VAR_LOCATION $RUN_LOCATION $LOCK_LOCATION"
-    else
-        MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION"
-
-        DELETE_DIRS=""
-
-        CHOWN_DIRS=""
     fi
 
 else
@@ -119,12 +129,21 @@ else
     LIB_LOCATION="$ROOT/lib"
     ETC_LOCATION="$ROOT/etc"
     VAR_LOCATION="$ROOT/var"
+    SUNSTONE_LOCATION="$LIB_LOCATION/sunstone"
     IMAGES_LOCATION="$VAR_LOCATION/images"
     INCLUDE_LOCATION="$ROOT/include"
     SHARE_LOCATION="$ROOT/share"
     MAN_LOCATION="$ROOT/share/man/man8"
 
-    if [ "$CLIENT" = "no" ]; then
+    if [ "$CLIENT" = "yes" ]; then
+        MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION"
+
+        DELETE_DIRS="$MAKE_DIRS"
+    elif [ "$SUNSTONE" = "yes" ]; then
+        MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $VAR_LOCATION $SUNSTONE_LOCATION"
+
+        DELETE_DIRS="$MAKE_DIRS"
+    else
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION $VAR_LOCATION \
                    $INCLUDE_LOCATION $SHARE_LOCATION $IMAGES_LOCATION \
                    $MAN_LOCATION"
@@ -132,10 +151,6 @@ else
         DELETE_DIRS="$MAKE_DIRS"
 
         CHOWN_DIRS="$ROOT"
-    else
-        MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION"
-
-        DELETE_DIRS="$MAKE_DIRS"
     fi
 
     CHOWN_DIRS="$ROOT"
@@ -188,6 +203,20 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/vmm/xen \
           $VAR_LOCATION/remotes/vmm/kvm"
 
+SUNSTONE_DIRS="$SUNSTONE_LOCATION/models \
+               $SUNSTONE_LOCATION/models/OpenNebulaJSON \
+               $SUNSTONE_LOCATION/public \
+               $SUNSTONE_LOCATION/public/js \
+               $SUNSTONE_LOCATION/public/css \
+               $SUNSTONE_LOCATION/public/vendor \
+               $SUNSTONE_LOCATION/public/vendor/jQueryLayout \
+               $SUNSTONE_LOCATION/public/vendor/dataTables \
+               $SUNSTONE_LOCATION/public/vendor/jQueryUI \
+               $SUNSTONE_LOCATION/public/vendor/jQuery \
+               $SUNSTONE_LOCATION/public/vendor/jGrowl \
+               $SUNSTONE_LOCATION/public/images \
+               $SUNSTONE_LOCATION/templates"
+
 LIB_ECO_CLIENT_DIRS="$LIB_LOCATION/ruby \
                  $LIB_LOCATION/ruby/OpenNebula \
                  $LIB_LOCATION/ruby/cloud/ \
@@ -197,14 +226,19 @@ LIB_OCCI_CLIENT_DIRS="$LIB_LOCATION/ruby \
                  $LIB_LOCATION/ruby/OpenNebula \
                  $LIB_LOCATION/ruby/cloud/occi"
 
+LIB_OCA_CLIENT_DIRS="$LIB_LOCATION/ruby \
+                 $LIB_LOCATION/ruby/OpenNebula"
+
 LIB_CLI_DIRS="$LIB_LOCATION/ruby \
               $LIB_LOCATION/ruby/OpenNebula"
 
-if [ "$CLIENT" = "no" ]; then
-    MAKE_DIRS="$MAKE_DIRS $SHARE_DIRS $ETC_DIRS $LIB_DIRS $VAR_DIRS"
-else
+if [ "$CLIENT" = "yes" ]; then
     MAKE_DIRS="$MAKE_DIRS $LIB_ECO_CLIENT_DIRS $LIB_OCCI_CLIENT_DIRS \
                $LIB_CLI_DIRS"
+elif [ "$SUNSTONE" = "yes" ]; then
+    MAKE_DIRS="$MAKE_DIRS $SUNSTONE_DIRS $LIB_OCA_CLIENT_DIRS"
+else
+    MAKE_DIRS="$MAKE_DIRS $SHARE_DIRS $ETC_DIRS $LIB_DIRS $VAR_DIRS $SUNSTONE_DIRS"
 fi
 
 #-------------------------------------------------------------------------------
@@ -265,6 +299,27 @@ INSTALL_CLIENT_FILES=(
     CLI_BIN_FILES:$BIN_LOCATION
     CLI_LIB_FILES:$LIB_LOCATION/ruby
     RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/OpenNebula
+)
+
+INSTALL_SUNSTONE_RUBY_FILES=(
+    SUNSTONE_RUBY_LIB_FILES:$LIB_LOCATION/ruby
+    RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/OpenNebula
+)
+
+INSTALL_SUNSTONE_FILES=(
+    SUNSTONE_FILES:$SUNSTONE_LOCATION
+    SUNSTONE_BIN_FILES:$BIN_LOCATION
+    SUNSTONE_MODELS_FILES:$SUNSTONE_LOCATION/models
+    SUNSTONE_MODELS_JSON_FILES:$SUNSTONE_LOCATION/models/OpenNebulaJSON
+    SUNSTONE_TEMPLATE_FILES:$SUNSTONE_LOCATION/templates
+    SUNSTONE_PUBLIC_JS_FILES:$SUNSTONE_LOCATION/public/js
+    SUNSTONE_PUBLIC_CSS_FILES:$SUNSTONE_LOCATION/public/css
+    SUNSTONE_PUBLIC_VENDOR_DATATABLES:$SUNSTONE_LOCATION/public/vendor/dataTables
+    SUNSTONE_PUBLIC_VENDOR_JGROWL:$SUNSTONE_LOCATION/public/vendor/jGrowl
+    SUNSTONE_PUBLIC_VENDOR_JQUERY:$SUNSTONE_LOCATION/public/vendor/jQuery
+    SUNSTONE_PUBLIC_VENDOR_JQUERYUI:$SUNSTONE_LOCATION/public/vendor/jQueryUI
+    SUNSTONE_PUBLIC_VENDOR_JQUERYLAYOUT:$SUNSTONE_LOCATION/public/vendor/jQueryLayout
+    SUNSTONE_PUBLIC_IMAGES_FILES:$SUNSTONE_LOCATION/public/images
 )
 
 INSTALL_ETC_FILES=(
@@ -526,7 +581,6 @@ AUTH_ETC_FILES="src/authm_mad/auth_mad \
 #-------------------------------------------------------------------------------
 
 EXAMPLE_SHARE_FILES="share/examples/vm.template \
-                     share/examples/vm.schema \
                      share/examples/private.net \
                      share/examples/public.net"
 
@@ -647,6 +701,94 @@ CLI_BIN_FILES="src/cli/onevm \
                src/cli/onecluster"
 
 #-----------------------------------------------------------------------------
+# Sunstone files
+#-----------------------------------------------------------------------------
+
+SUNSTONE_FILES="src/sunstone/config.ru \
+                src/sunstone/sunstone-server.rb"
+
+SUNSTONE_BIN_FILES="src/sunstone/bin/sunstone-server"
+
+SUNSTONE_MODELS_FILES="src/sunstone/models/OpenNebulaJSON.rb \
+                       src/sunstone/models/SunstoneServer.rb"
+
+SUNSTONE_MODELS_JSON_FILES="src/sunstone/models/OpenNebulaJSON/ClusterJSON.rb \
+                    src/sunstone/models/OpenNebulaJSON/HostJSON.rb \
+                    src/sunstone/models/OpenNebulaJSON/ImageJSON.rb \
+                    src/sunstone/models/OpenNebulaJSON/JSONUtils.rb \
+                    src/sunstone/models/OpenNebulaJSON/PoolJSON.rb \
+                    src/sunstone/models/OpenNebulaJSON/UserJSON.rb \
+                    src/sunstone/models/OpenNebulaJSON/VirtualMachineJSON.rb \
+                    src/sunstone/models/OpenNebulaJSON/VirtualNetworkJSON.rb"
+
+SUNSTONE_TEMPLATE_FILES="src/sunstone/templates/index.html \
+                         src/sunstone/templates/login.html"
+
+SUNSTONE_PUBLIC_JS_FILES="src/sunstone/public/js/layout.js \
+                        src/sunstone/public/js/login.js \
+                        src/sunstone/public/js/one-ui_views.js \
+                        src/sunstone/public/js/one-ui_views.templates.js \
+                        src/sunstone/public/js/opennebula.js"
+
+SUNSTONE_PUBLIC_CSS_FILES="src/sunstone/public/css/application.css \
+                           src/sunstone/public/css/layout.css \
+                           src/sunstone/public/css/login.css"
+
+SUNSTONE_PUBLIC_VENDOR_DATATABLES="\
+                src/sunstone/public/vendor/dataTables/jquery.dataTables.min.js \
+                src/sunstone/public/vendor/dataTables/demo_table_jui.css \
+                src/sunstone/public/vendor/dataTables/BSD-LICENSE.txt \
+                src/sunstone/public/vendor/dataTables/NOTICE"
+
+SUNSTONE_PUBLIC_VENDOR_JGROWL="\
+                src/sunstone/public/vendor/jGrowl/jquery.jgrowl_minimized.js \
+                src/sunstone/public/vendor/jGrowl/jquery.jgrowl.css \
+                src/sunstone/public/vendor/jGrowl/NOTICE"
+
+SUNSTONE_PUBLIC_VENDOR_JQUERY="\
+                        src/sunstone/public/vendor/jQuery/jquery-1.4.4.min.js \
+                        src/sunstone/public/vendor/jQuery/MIT-LICENSE.txt \
+                        src/sunstone/public/vendor/jQuery/NOTICE"
+
+SUNSTONE_PUBLIC_VENDOR_JQUERYUI="\
+src/sunstone/public/vendor/jQueryUI/ui-bg_glass_75_dadada_1x400.png \
+src/sunstone/public/vendor/jQueryUI/ui-icons_cd0a0a_256x240.png \
+src/sunstone/public/vendor/jQueryUI/jquery-ui-1.8.7.custom.css \
+src/sunstone/public/vendor/jQueryUI/ui-bg_flat_0_aaaaaa_40x100.png \
+src/sunstone/public/vendor/jQueryUI/ui-bg_flat_0_8f9392_40x100.png \
+src/sunstone/public/vendor/jQueryUI/MIT-LICENSE.txt \
+src/sunstone/public/vendor/jQueryUI/jquery-ui-1.8.7.custom.min.js \
+src/sunstone/public/vendor/jQueryUI/ui-bg_highlight-soft_75_cccccc_1x100.png \
+src/sunstone/public/vendor/jQueryUI/ui-bg_glass_95_fef1ec_1x400.png \
+src/sunstone/public/vendor/jQueryUI/ui-bg_glass_55_fbf9ee_1x400.png \
+src/sunstone/public/vendor/jQueryUI/ui-icons_888888_256x240.png \
+src/sunstone/public/vendor/jQueryUI/ui-bg_glass_75_e6e6e6_1x400.png \
+src/sunstone/public/vendor/jQueryUI/ui-bg_flat_0_575c5b_40x100.png \
+src/sunstone/public/vendor/jQueryUI/ui-bg_glass_65_ffffff_1x400.png \
+src/sunstone/public/vendor/jQueryUI/ui-bg_flat_75_ffffff_40x100.png \
+src/sunstone/public/vendor/jQueryUI/ui-icons_2e83ff_256x240.png \
+src/sunstone/public/vendor/jQueryUI/ui-icons_454545_256x240.png \
+src/sunstone/public/vendor/jQueryUI/NOTICE \
+src/sunstone/public/vendor/jQueryUI/ui-icons_222222_256x240.png \
+"
+SUNSTONE_PUBLIC_VENDOR_JQUERYLAYOUT="\
+            src/sunstone/public/vendor/jQueryLayout/layout-default-latest.css \
+            src/sunstone/public/vendor/jQueryLayout/jquery.layout.min-1.2.0.js \
+            src/sunstone/public/vendor/jQueryLayout/NOTICE"
+
+SUNSTONE_PUBLIC_IMAGES_FILES="src/sunstone/public/images/ajax-loader.gif \
+                        src/sunstone/public/images/login_over.png \
+                        src/sunstone/public/images/login.png \
+                        src/sunstone/public/images/opennebula-sunstone-big.png \
+                        src/sunstone/public/images/opennebula-sunstone-small.png \
+                        src/sunstone/public/images/panel.png \
+                        src/sunstone/public/images/pbar.gif \
+                        src/sunstone/public/images/Refresh-icon.png"
+
+SUNSTONE_RUBY_LIB_FILES="src/mad/ruby/CommandManager.rb \
+                         src/oca/ruby/OpenNebula.rb"
+
+#-----------------------------------------------------------------------------
 # MAN files
 #-----------------------------------------------------------------------------
 
@@ -696,10 +838,12 @@ do_file() {
 }
 
 
-if [ "$CLIENT" = "no" ]; then
-    INSTALL_SET=${INSTALL_FILES[@]}
-else
+if [ "$CLIENT" = "yes" ]; then
     INSTALL_SET=${INSTALL_CLIENT_FILES[@]}
+elif [ "$SUNSTONE" = "yes" ]; then
+    INSTALL_SET="${INSTALL_SUNSTONE_RUBY_FILES[@]} ${INSTALL_SUNSTONE_FILES[@]}"
+else
+    INSTALL_SET="${INSTALL_FILES[@]} ${INSTALL_SUNSTONE_FILES[@]}"
 fi
 
 for i in ${INSTALL_SET[@]}; do
@@ -713,7 +857,7 @@ for i in ${INSTALL_SET[@]}; do
     done
 done
 
-if [ "$CLIENT" = "no" -a "$INSTALL_ETC" = "yes" ] ; then
+if [ "$INSTALL_ETC" = "yes" ] ; then
     for i in ${INSTALL_ETC_FILES[@]}; do
         SRC=$`echo $i | cut -d: -f1`
         DST=`echo $i | cut -d: -f2`

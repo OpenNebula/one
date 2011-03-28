@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)           */
+/* Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)           */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -60,13 +60,6 @@ public:
     // *************************************************************************
 
     /**
-     * Function to print the Image object into a string in plain text
-     *  @param str the resulting string
-     *  @return a reference to the generated string
-     */
-    string& to_str(string& str) const;
-
-    /**
      * Function to print the Image object into a string in XML format
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
@@ -74,31 +67,12 @@ public:
     string& to_xml(string& xml) const;
 
     /**
-     * Get the Image unique identifier IID, that matches the OID of the object
-     *    @return IID Image identifier
+     *  Rebuilds the object from an xml formatted string
+     *    @param xml_str The xml-formatted string
+     *
+     *    @return 0 on success, -1 otherwise
      */
-    int get_iid() const
-    {
-        return oid;
-    };
-
-    /**
-     * Gets the uid of the owner of the Image
-     * @return uid
-     **/
-    int get_uid()
-    {
-        return uid;
-    }
-
-    /**
-     *  Returns Image's name
-     *     @return name Image's name
-     */
-    const string& get_name() const
-    {
-        return name;
-    };
+    int from_xml(const string &xml_str);
 
     /**
      *  Returns true if the image is public
@@ -356,34 +330,29 @@ private:
     // -------------------------------------------------------------------------
 
     /**
-     *  Owner if the image
+     *  Image owner's name
      */
-    int         uid;
-
-    /**
-     *  The name of the Image
-     */
-    string       name;
+    string      user_name;
 
     /**
      *  Type of the Image
      */
-    ImageType    type;
+    ImageType   type;
 
     /**
      *  Public scope of the Image
      */
-    int          public_img;
+    int         public_img;
 
     /**
      *  Persistency of the Image
      */
-    int          persistent_img;
+    int         persistent_img;
 
     /**
      *  Registration time
      */
-    time_t       regtime;
+    time_t      regtime;
 
     /**
      *  Path to the image
@@ -423,15 +392,6 @@ private:
     int insert_replace(SqlDB *db, bool replace);
 
     /**
-     *  Callback function to unmarshall a Image object (Image::select)
-     *    @param num the number of columns read from the DB
-     *    @param names  the column names
-     *    @param values the column values
-     *    @return 0 on success
-     */
-    int select_cb(void *nil, int num, char **values, char **names);
-
-    /**
      *  Bootstraps the database table(s) associated to the Image
      */
     static void bootstrap(SqlDB * db)
@@ -455,7 +415,9 @@ protected:
     // Constructor
     // *************************************************************************
 
-    Image(int uid=-1, ImageTemplate *img_template = 0);
+    Image(int            uid, 
+          const string&  user_name, 
+          ImageTemplate* img_template);
 
     virtual ~Image();
 
@@ -463,36 +425,11 @@ protected:
     // DataBase implementation
     // *************************************************************************
 
-    enum ColNames
-    {
-        OID              = 0,    /* Image identifier (IID)      */
-        UID              = 1,    /* Image owner id              */
-        NAME             = 2,    /* Image name                  */
-        TYPE             = 3,    /* 0) OS 1) CDROM 2) DATABLOCK */
-        PUBLIC           = 4,    /* Public scope (YES OR NO)    */
-        PERSISTENT       = 5,    /* Peristency (YES OR NO)      */
-        REGTIME          = 6,    /* Time of registration        */
-        SOURCE           = 7,    /* Path to the image           */
-        STATE            = 8,    /* 0) INIT   1) ALLOCATED      */
-        RUNNING_VMS      = 9,    /* Number of VMs using the img */
-        TEMPLATE         = 10,    /* Image template xml data     */
-        LIMIT            = 11
-    };
-
-    static const char * extended_db_names;
-
     static const char * db_names;
 
     static const char * db_bootstrap;
 
     static const char * table;
-
-    /**
-     *  Reads the Image (identified with its OID=IID) from the database.
-     *    @param db pointer to the db
-     *    @return 0 on success
-     */
-    virtual int select(SqlDB *db);
 
     /**
      *  Writes the Image in the database.
@@ -507,23 +444,6 @@ protected:
      *    @return 0 on success
      */
     virtual int update(SqlDB *db);
-
-    /**
-     *  Drops Image and associated template from the database
-     *    @param db pointer to the db
-     *    @return 0 on success
-     */
-     virtual int drop(SqlDB *db);
-
-    /**
-     *  Function to output an Image object in to an stream in XML format
-     *    @param oss the output stream
-     *    @param num the number of columns read from the DB
-     *    @param names the column names
-     *    @param vaues the column values
-     *    @return 0 on success
-     */
-    static int dump(ostringstream& oss, int num, char **values, char **names);
 };
 
 #endif /*IMAGE_H_*/

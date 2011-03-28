@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -28,7 +28,7 @@ env.Append(CPPPATH=[
 # Library dirs
 
 env.Append(LIBPATH=[
-    cwd+'/src/xml',
+    cwd+'/src/client',
     cwd+'/src/pool',
     cwd+'/src/sched'
 ])
@@ -38,7 +38,7 @@ env.Append(LIBPATH=[
 ################################################################################
 
 build_scripts=[
-    'src/xml/SConstruct',
+    'src/client/SConstruct',
     'src/pool/SConstruct',
     'src/sched/SConstruct'
 ]
@@ -46,7 +46,6 @@ build_scripts=[
 if env['testing']=='yes':
     build_scripts.extend([
         'src/pool/test/SConstruct',
-        'src/xml/test/SConstruct',
     ])
 
 for script in build_scripts:

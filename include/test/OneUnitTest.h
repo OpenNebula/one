@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -181,6 +181,11 @@ public:
         // We need to set the log file, otherwise it will end in a dead-lock
         NebulaLog::init_log_system(NebulaLog::FILE, Log::DEBUG, "test.log");
         NebulaLog::log("Test", Log::INFO, "Test started");
+
+        // Set the opennebula install location to be the current dir.
+        // This will prevent some of the tests from writing the individual
+        // VM log files in an existing OpenNebula installation
+        setenv("ONE_LOCATION", ".", 1);
 
         CppUnit::TextUi::TestRunner runner;
         ofstream                    outputFile;

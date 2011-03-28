@@ -19,6 +19,6 @@
 # TBD Change path for intallation tree
 $: << File.dirname(__FILE__)
 
-require 'one-ui.rb'
+require 'sunstone-server.rb'
 
 run Sinatra::Application

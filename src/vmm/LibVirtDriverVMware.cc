@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -46,6 +46,8 @@ int LibVirtDriver::deployment_description_vmware(
     string  ro         = "";
     string  source     = "";
     string  datastore  = "";
+    string  driver     = "";
+    string  default_driver = "";
     bool    readonly;
 
     const VectorAttribute * nic;
@@ -161,6 +163,13 @@ int LibVirtDriver::deployment_description_vmware(
     // ------------------------------------------------------------------------
 
     file << "\t<devices>" << endl;
+    
+    get_default("DISK","DRIVER",default_driver);
+
+    if (default_driver.empty())
+    {
+        default_driver = "raw";
+    }
 
     num = vm->get_template_attribute("DISK",attrs);
 
@@ -183,6 +192,7 @@ int LibVirtDriver::deployment_description_vmware(
         ro     = disk->vector_value("READONLY");
         bus    = disk->vector_value("BUS");
         source = disk->vector_value("SOURCE");
+        driver = disk->vector_value("DRIVER");
 
         if (target.empty())
         {
@@ -232,6 +242,17 @@ int LibVirtDriver::deployment_description_vmware(
         else
         {
             file << "/>" << endl;
+        }
+        
+        file << "\t\t\t<driver name='";
+
+        if ( !driver.empty() )
+        {
+            file << driver << "'/>" << endl;
+        }
+        else
+        {
+            file << default_driver << "'/>" << endl;
         }
 
         if (readonly)

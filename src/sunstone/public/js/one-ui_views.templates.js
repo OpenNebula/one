@@ -168,14 +168,14 @@ var hostlist_tmpl =
     </div>\
     <div class="action_block">\
 		<button class="create_cluster_button top_button new_button">+ New Cluster</button>\
+        <button class="confirm_with_select_button top_button new_button"  value="OpenNebula.Cluster.delete">Delete cluster</button>\
 		<select class="multi_action_slct" id="cluster_actions_select">\
-			<option class="confirm_with_select_button"  value="OpenNebula.Cluster.delete">Delete cluster</option>\
 			<option class="confirm_with_select_button"  value="OpenNebula.Cluster.addhost">Add host to cluster</option>\
 			<option class="action_button" value="OpenNebula.Cluster.removehost">Remove host from cluster</option>\
 		</select>\
     </div>\
     <div class="action_block" style="border:none;">\
-          <button class="action_button top_button" value="OpenNebula.Host.delete">Delete</button>\
+          <button class="action_button top_button" value="OpenNebula.Host.delete">Delete host</button>\
     </div>\
    </div>\
 <table id="datatable_hosts" class="display">\
@@ -392,7 +392,7 @@ var create_vm_tmpl =
 				  <label for="ARCH">Architecture:</label>\
 				  <select id="ARCH" name="arch">\
 					<option value="i686">i686</option>\
-					<option value="x86-64">x86-64</option>\
+					<option value="x86_64">x86_64</option>\
 				  </select>\
 				  <div class="tip">CPU architecture to virtualization</div>\
 				</div>\
@@ -436,9 +436,9 @@ var create_vm_tmpl =
 				  <label for="BOOT">Boot:</label>\
 				  <select id="BOOT" name="boot">\
 					<option value="hd">hd</option>\
-					<option value="hd">fd</option>\
-					<option value="hd">cdrom</option>\
-					<option value="hd">network</option>\
+					<option value="fd">fd</option>\
+					<option value="cdrom">cdrom</option>\
+					<option value="network">network</option>\
 				  </select>\
 				  <div class="tip">Boot device type</div>\
 			    </div>\
@@ -693,14 +693,27 @@ var create_vm_tmpl =
 			  <!--context textarea? -->\
 			  <div class="vm_section" id="context">\
 			  	<div class="show_hide" id="add_context_cb">\
-			  	  <h3>Add context <a id="add_context" class="icon_left" href="#"><span class="ui-icon ui-icon-plus" /></a></h3>\
+			  	  <h3>Add context variables <a id="add_context" class="icon_left" href="#"><span class="ui-icon ui-icon-plus" /></a></h3>\
 			    </div>\
 			  <fieldset><legend>Context</legend>\
-			  <div class="vm_param kvm_opt xen_opt">\
-			  <label for="CONTEXT">Context:</label>\
-			  <input type="text" id="CONTEXT" name="context" />\
-			  <!--<textarea id="CONTEXT" style="width:320px;height:15em;"></textarea>-->\
-			  </div>\
+              <div class="vm_param kvm_opt xen_opt">\
+				  <label for="var_name">Name:</label>\
+				  <input type="text" id="var_name" name="var_name" />\
+				  <div class="tip">Name for the context variable</div>\
+			    </div>\
+			    <div class="vm_param kvm_opt xen_opt">\
+				  <label for="var_value">Value:</label>\
+				  <input type="text" id="var_value" name="var_value" />\
+				  <div class="tip">Value of the context variable</div>\
+              </div>\
+                <div class="">\
+					<button class="add_remove_button add_button" id="add_context_button" value="add_context">Add</button>\
+					<button class="add_remove_button" id="remove_context_button" value="remove_input">Remove selected</button>\
+					<div class="clear"></div>\
+					<label for="context_box">Current variables:</label>\
+					<select id="context_box" name="context_box" style="width:150px;height:100px;" multiple>\
+					</select>\
+                </div>\
 			  </fieldset>\
 			  </div>\
 \
@@ -757,7 +770,7 @@ var create_vm_tmpl =
 		<form>\
 		<h3 style="margin-bottom:10px;">Write the Virtual Machine template here</h3>\
 		  <fieldset style="border-top:none;">\
-			<textarea id="vm_template" style="width:100%; height:15em;"></textarea>\
+			<textarea id="textarea_vm_template" style="width:100%; height:15em;"></textarea>\
 			<div class="clear"></div>\
 		  </fieldset>\
 		  <fieldset>\
@@ -895,7 +908,7 @@ var userlist_tmpl =
 '<form id="user_form" action="" action="javascript:alert(\'js error!\');">\
   <div class="action_blocks">\
     <div class="action_block">\
-       <img src="/images/Refresh-icon.png" class="refresh_image" alt="OpenNebula.VM.list" />\
+       <img src="/images/Refresh-icon.png" class="refresh_image" alt="OpenNebula.User.list" />\
     </div>\
     <div class="action_block">\
 		<button class="create_user_button top_button new_button">+ New</button>\
@@ -1042,10 +1055,13 @@ var create_image_tmpl =
 			<fieldset>\
 					<div class="" id="src_path_select">\
 						<label style="height:3em;">Path vs. source:</label>\
-						<input type="radio" name="src_path" id="path_img" value="path">Provide a path</input><br />\
-						<input type="radio" name="src_path" id="source_img" value="source">Provide a source</input><br />\
-						<input type="radio" name="src_path" id="datablock_img" value="datablock">Create an empty datablock</input>\
-						<div class="tip">Please choose path if you have a file-based image. Choose source otherwise or create an empty datablock disk.</div>\
+						<input type="radio" name="src_path" id="path_img" value="path" />\
+                        <label style="float:none">Provide a path</label><br />\
+						<input type="radio" name="src_path" id="source_img" value="source" />\
+                        <label style="float:none">Provide a source</label><br />\
+						<input type="radio" name="src_path" id="datablock_img" value="datablock" />\
+                        <label style="float:none;vertical-align:top">Create an empty datablock</label>\
+						<div class="tip">Please choose path if you have a file-based image. Choose source otherwise or create an empty datablock disk.</div><br />\
 					</div>\
 					<div class="img_param">\
 						<label for="img_path">Path:</label>\

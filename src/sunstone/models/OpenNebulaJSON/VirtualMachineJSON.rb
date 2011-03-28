@@ -14,24 +14,25 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'models/OpenNebulaJSON/JSONUtils'
+require 'OpenNebulaJSON/JSONUtils'
 
 module OpenNebulaJSON
     class VirtualMachineJSON < OpenNebula::VirtualMachine
         include JSONUtils
 
-        def allocate(template_json)
+        def create(template_json)
             vm_hash = parse_json(template_json, 'vm')
             if OpenNebula.is_error?(vm_hash)
                 return vm_hash
             end
 
             if vm_hash['vm_raw']
-                super(vm_hash['vm_raw'])
+                template = vm_hash['vm_raw']
             else
                 template = template_to_str(vm_hash)
-                super(template)
             end
+
+            self.allocate(template)
        end
 
         def perform_action(template_json)
@@ -45,14 +46,14 @@ module OpenNebulaJSON
                 when "deploy"       then self.deploy(action_hash['params'])
                 when "finalize"     then self.finalize
                 when "hold"         then self.hold
-                when "live_migrate" then self.live_migrate(action_hash['params'])
+                when "livemigrate" then self.live_migrate(action_hash['params'])
                 when "migrate"      then self.migrate(action_hash['params'])
                 when "resume"       then self.resume
                 when "release"      then self.release
                 when "stop"         then self.stop
                 when "suspend"      then self.suspend
                 when "restart"      then self.restart
-                when "save_as"      then self.save_as(action_hash['params'])
+                when "saveas"      then self.save_as(action_hash['params'])
                 when "shutdown"     then self.shutdown
                 else
                     error_msg = "#{action_hash['perform']} action not " <<

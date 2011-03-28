@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -32,10 +32,10 @@
 
 const char * TestObjectSQL::table = "test_pool";
 
-const char * TestObjectSQL::db_names = "(oid,number,text)";
+const char * TestObjectSQL::db_names = "(oid,number,name)";
 
 const char * TestObjectSQL::db_bootstrap = "CREATE TABLE test_pool ("
-        "oid INTEGER, number INTEGER, text TEXT, PRIMARY KEY(oid))";
+        "oid INTEGER, number INTEGER, name TEXT, PRIMARY KEY(oid))";
 
 /* -------------------------------------------------------------------------- */
 

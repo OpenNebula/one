@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -20,10 +20,11 @@ require 'OpenNebula'
 # total usage for a user. Variables inside are cpu and memory
 # consumption
 class VmUsage
-    attr_accessor :cpu, :memory
-    def initialize(cpu, memory)
+    attr_accessor :cpu, :memory, :num_vms
+    def initialize(cpu, memory, num_vms=0)
         @cpu=cpu
         @memory=memory
+        @num_vms=num_vms
     end
 end
 
@@ -76,11 +77,12 @@ class OneUsage
     
     # Returns total consumption by a user into a VmUsage object
     def total(user)
-        usage=VmUsage.new(0.0, 0)
+        usage=VmUsage.new(0.0, 0, 0)
         
         @users[user].each do |id, vm|
             usage.cpu+=vm.cpu
             usage.memory+=vm.memory
+            usage.num_vms+=1
         end if @users[user]
         
         usage

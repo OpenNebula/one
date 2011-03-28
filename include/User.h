@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -37,27 +37,11 @@ public:
     friend ostream& operator<<(ostream& os, User& u);
 
     /**
-     * Function to print the User object into a string in plain text
-     *  @param str the resulting string
-     *  @return a reference to the generated string
-     */
-    string& to_str(string& str) const;
-
-    /**
      * Function to print the User object into a string in XML format
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
     string& to_xml(string& xml) const;
-
-    /**
-     * Get the User unique identifier UID, that matches the OID of the object
-     *    @return UID User identifier
-     */
-    int get_uid() const
-    {
-        return oid;
-    };
 
     /**
      *  Check if the user is enabled
@@ -67,15 +51,6 @@ public:
      {
         return enabled;
      }
-
-    /**
-     *  Returns user username
-     *     @return username User's hostname
-     */
-    const string& get_username() const
-    {
-        return username;
-    };
 
     /**
      *  Returns user password
@@ -100,14 +75,6 @@ public:
     void disable()
     {
         enabled = false;
-    };
-
-    /**
-     *  Sets user username
-     */
-    void set_username(string _username)
-    {
-        username = _username;
     };
 
     /**
@@ -144,11 +111,6 @@ private:
     // -------------------------------------------------------------------------
     // User Attributes
     // -------------------------------------------------------------------------
-
-    /**
-     *  User's username
-     */
-    string      username;
 
     /**
      *  User's password
@@ -191,31 +153,30 @@ private:
         db->exec(oss_user);
     };
 
+    /**
+     *  Rebuilds the object from an xml formatted string
+     *    @param xml_str The xml-formatted string
+     *
+     *    @return 0 on success, -1 otherwise
+     */
+    int from_xml(const string &xml_str);
+
 protected:
 
     // *************************************************************************
     // Constructor
     // *************************************************************************
 
-    User(int     id=-1,
-         string _username="",
-         string _password="",
-         bool   _enabled=true);
+    User(int     id,
+         string _username,
+         string _password,
+         bool   _enabled);
 
     virtual ~User();
 
     // *************************************************************************
     // DataBase implementation
     // *************************************************************************
-
-    enum ColNames
-    {
-        OID             = 0,
-        USERNAME        = 1,
-        PASSWORD        = 2,
-        ENABLED         = 3,     // 0 = false, 1 = true
-        LIMIT           = 4
-    };
 
     static const char * db_names;
 
@@ -224,42 +185,21 @@ protected:
     static const char * table;
 
     /**
-     *  Reads the User (identified with its OID=UID) from the database.
-     *    @param db pointer to the db
-     *    @return 0 on success
-     */
-    virtual int select(SqlDB *db);
-
-    /**
      *  Writes the User in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    virtual int insert(SqlDB *db, string& error_str);
+    int insert(SqlDB *db, string& error_str);
 
     /**
      *  Writes/updates the User data fields in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    virtual int update(SqlDB *db);
-
-    /**
-     *  Drops USer from the database
-     *    @param db pointer to the db
-     *    @return 0 on success
-     */
-    virtual int drop(SqlDB *db);
-
-    /**
-     *  Function to output a User object in to an stream in XML format
-     *    @param oss the output stream
-     *    @param num the number of columns read from the DB
-     *    @param names the column names
-     *    @param vaues the column values
-     *    @return 0 on success
-     */
-    static int dump(ostringstream& oss, int num, char **values, char **names);
+    int update(SqlDB *db)
+    {
+        return insert_replace(db, true);
+    }
 };
 
 #endif /*USER_H_*/

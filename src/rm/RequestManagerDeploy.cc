@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -107,7 +107,7 @@ void RequestManager::VirtualMachineDeploy::execute(
         goto error_host_get;
     }
 
-    hostname = host->get_hostname();
+    hostname = host->get_name();
     vmm_mad  = host->get_vmm_mad();
     tm_mad   = host->get_tm_mad();
 
