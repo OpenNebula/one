@@ -45,7 +45,7 @@ function log_date
 # Logs a message
 function log
 {
-    echo "$SCRIPT_NAME: $1"
+    echo "$SCRIPT_NAME: $1" 1>&2
 }
 
 # Logs an error message
