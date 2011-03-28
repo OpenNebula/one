@@ -101,7 +101,7 @@ var create_vm_tmpl =
 				  <label for="ARCH">Architecture:</label>\
 				  <select id="ARCH" name="arch">\
 					<option value="i686">i686</option>\
-					<option value="x86-64">x86-64</option>\
+					<option value="x86_64">x86_64</option>\
 				  </select>\
 				  <div class="tip">CPU architecture to virtualization</div>\
 				</div>\
@@ -1652,7 +1652,8 @@ function setupCreateVMDialog(){
 			notifyError("There are mandatory fields missing in the OS Boot options section");
 			return false;
 		};
-		addSectionJSON(vm_json,scope);
+        vm_json["OS"] = {};
+		addSectionJSON(vm_json["OS"],scope);
 
 		//process disks -> fetch from box
 		scope = section_disks;
