@@ -86,17 +86,17 @@ class GenericCommand
 
         if @code!=0
             log("Command execution fail: #{command}")
-            log("STDERR follows.")
-            log(@stderr)
         end
+
+        log(@stderr)
 
         return @code
     end
-    
+
     # Parses error message from +stderr+ output
     def get_error_message
         tmp=@stderr.scan(/^ERROR MESSAGE --8<------\n(.*?)ERROR MESSAGE ------>8--$/m)
-        return "Error message not available" if !tmp[0]
+        return "-" if !tmp[0]
         tmp[0].join(' ').strip
     end
 
@@ -179,14 +179,14 @@ class RemotesCommand < SSHCommand
 
         cmd = self.new(cmd_string, host, logger, stdin)
         cmd.run
-        
+
         if cmd.code == MAGIC_RC
             cmd.update_remotes(host, remote_dir, logger)
 
             @command = command
             cmd.run
         end
-        
+
         while cmd.code != 0 and retries != 0
             sleep 1
             cmd.run
