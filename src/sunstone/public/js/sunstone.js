@@ -75,8 +75,8 @@ var Sunstone = {
     "updateMainTabButtons" : function(tab_id,buttons_arg,refresh){
         SunstoneCfg["tabs"][tab_id]["buttons"]=buttons_arg;
         if (refresh){
-            $('div#'+tab_name+' .action_blocks').empty();
-            insertButtonsInTab(tab_name);
+            $('div#'+tab_id+' .action_blocks').empty();
+            insertButtonsInTab(tab_id);
         }
     },
     
@@ -84,7 +84,8 @@ var Sunstone = {
     "removeMainTab" : function(tab_id,refresh) {
          delete SunstoneCfg["tabs"][tab_id];
          if (refresh) {
-             $('div#'+tab_name).remove();
+             $('div#'+tab_id).remove();
+              $('ul#navigation li#li_'+tab_id).remove();
          }
     },
     
@@ -382,7 +383,7 @@ function insertTab(tab_name){
     $("div.inner-center").append('<div id="'+tab_name+'" class="tab"></div>');
     $('div#'+tab_name).html(tab_info.content);
        
-    $('ul#navigation').append('<li><a href="#'+tab_name+'">'+tab_info.title+'</a></li>');
+    $('ul#navigation').append('<li id="li_'+tab_name+'"><a href="#'+tab_name+'">'+tab_info.title+'</a></li>');
 }
 
 
@@ -448,6 +449,7 @@ function insertButtonsInTab(tab_name){
             $('div#'+tab_name+' .action_blocks').append(button_code);
                 
         }//for each button in tab
+        $('.top_button').button();
     }//if tab exists
 }
 
