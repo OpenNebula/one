@@ -249,6 +249,7 @@ int ImageManager::enable_image(int iid, bool to_enable)
             case Image::ERROR:
                 img->set_state(Image::READY);
                 ipool->update(img);
+            case Image::READY:
             break;
             default:
                 rc = -1;
@@ -259,10 +260,11 @@ int ImageManager::enable_image(int iid, bool to_enable)
     {
         switch (img->get_state())
         {
-            case Image::USED:
+            case Image::READY:
             case Image::ERROR:
                 img->set_state(Image::DISABLED);
                 ipool->update(img);
+            case Image::DISABLED:
             break;
             default:
                 rc = -1;
