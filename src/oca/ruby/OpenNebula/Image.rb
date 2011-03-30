@@ -33,13 +33,15 @@ module OpenNebula
             :delete      => "image.delete"
         }
 
-        IMAGE_STATES=%w{INIT READY USED DISABLED}
+        IMAGE_STATES=%w{INIT READY USED DISABLED LOCKED ERROR}
 
         SHORT_IMAGE_STATES={
             "INIT"      => "init",
             "READY"     => "rdy",
             "USED"      => "used",
-            "DISABLED"  => "disa"
+            "DISABLED"  => "disa",
+            "LOCKED"    => "lock",
+            "ERROR"     => "err"
         }
 
         IMAGE_TYPES=%w{OS CDROM DATABLOCK}
