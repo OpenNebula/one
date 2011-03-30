@@ -293,7 +293,8 @@ public:
         NET,
         IMAGE,
         USER,
-        CLUSTER
+        CLUSTER,
+        TEMPLATE
     };
 
     /**

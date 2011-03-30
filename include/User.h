@@ -141,7 +141,7 @@ private:
      *    @param vaues the column values
      *    @return 0 on success
      */
-    int select_cb(void *nil, int num, char **values, char **names);
+//    int select_cb(void *nil, int num, char **values, char **names);
 
     /**
      *  Bootstraps the database table(s) associated to the User

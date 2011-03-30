@@ -235,6 +235,7 @@ void Nebula::start()
         UserPool::bootstrap(db);
         ImagePool::bootstrap(db);
         ClusterPool::bootstrap(db);
+        VMTemplatePool::bootstrap(db);
     }
     catch (exception&)
     {
@@ -276,6 +277,8 @@ void Nebula::start()
                                default_device_prefix);
 
         cpool = new ClusterPool(db);
+
+        tpool = new VMTemplatePool(db);
     }
     catch (exception&)
     {
@@ -442,6 +445,7 @@ void Nebula::start()
             upool,
             ipool,
             cpool,
+            tpool,
             rm_port,
             log_location + "one_xmlrpc.log");
     }

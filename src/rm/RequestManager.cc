@@ -233,7 +233,28 @@ void RequestManager::register_xml_methods()
 
     xmlrpc_c::methodPtr vm_pool_info(new
         RequestManager::VirtualMachinePoolInfo(vmpool,upool));
-        
+
+    xmlrpc_c::methodPtr template_allocate(new
+        RequestManager::TemplateAllocate(tpool,upool));
+
+    xmlrpc_c::methodPtr template_delete(new
+        RequestManager::TemplateDelete(tpool, upool));
+
+    xmlrpc_c::methodPtr template_info(new
+        RequestManager::TemplateInfo(tpool, upool));
+
+    xmlrpc_c::methodPtr template_update(new
+        RequestManager::TemplateUpdate(tpool, upool));
+
+    xmlrpc_c::methodPtr template_rm_attribute(new
+        RequestManager::TemplateRemoveAttribute(tpool, upool));
+
+    xmlrpc_c::methodPtr template_publish(new
+        RequestManager::TemplatePublish(tpool, upool));
+
+    xmlrpc_c::methodPtr template_pool_info(new
+        RequestManager::TemplatePoolInfo(tpool,upool));
+
     xmlrpc_c::methodPtr host_allocate(new 
         RequestManager::HostAllocate(hpool,upool));
         
@@ -340,7 +361,12 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vm.savedisk", vm_savedisk);
 
     RequestManagerRegistry.addMethod("one.vmpool.info", vm_pool_info);
-     
+
+    /* VM Template related methods*/
+
+    RequestManagerRegistry.addMethod("one.template.allocate",template_allocate);
+    RequestManagerRegistry.addMethod("one.templatepool.info",template_pool_info);
+
     /* Host related methods*/
      
     RequestManagerRegistry.addMethod("one.host.allocate", host_allocate);   

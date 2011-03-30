@@ -61,7 +61,14 @@ source_files=[
     'RequestManagerUserDelete.cc',
     'RequestManagerUserChangePassword.cc',
     'RequestManagerUserInfo.cc',
-    'RequestManagerUserPoolInfo.cc'
+    'RequestManagerUserPoolInfo.cc',
+    'RequestManagerTemplateAllocate.cc',
+    'RequestManagerTemplateDelete.cc',
+    'RequestManagerTemplateInfo.cc',
+    'RequestManagerTemplateUpdate.cc',
+    'RequestManagerTemplateRemoveAttribute.cc',
+    'RequestManagerTemplatePublish.cc',
+    'RequestManagerTemplatePoolInfo.cc',
 ]
 
 # Build library
