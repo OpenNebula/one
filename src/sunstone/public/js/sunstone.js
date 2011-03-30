@@ -34,18 +34,18 @@ var SunstoneCfg = {
 var Sunstone = {
     
     //Adds a predifined action
-    "addAction" : function (name,action_obj) {
-        SunstoneCfg["actions"][name] = action_obj;
+    "addAction" : function (action_name,action_obj) {
+        SunstoneCfg["actions"][action_name] = action_obj;
     },
     
     //Replaces a predefined action
-    "updateAction" : function(name,action_obj) {
-         SunstoneCfg["actions"][name] = action_obj;
+    "updateAction" : function(action_name,action_obj) {
+         SunstoneCfg["actions"][action_name] = action_obj;
     },
     
     //Deletes a predefined action.
-    "removeAction" : function(action) {
-         delete SunstoneCfg["actions"][action];
+    "removeAction" : function(action_name) {
+         delete SunstoneCfg["actions"][action_name];
     },
     
     //Adds several actions encapsulated in an js object.
@@ -67,7 +67,7 @@ var Sunstone = {
     "updateMainTabContent" : function(tab_id,content_arg,refresh){
         SunstoneCfg["tabs"][tab_id]["content"]=content_arg;
         if (refresh){ //if not present it won't be updated
-            $('div#'+tab).html(tab_info.content);
+            $('div#'+tab_id).html(content_arg);
         }
     },
     
@@ -91,9 +91,9 @@ var Sunstone = {
     
     //Generates and returns the HTML div element for an info panel, with
     //Jquery tabs.
-    "getInfoPanelHTML" : function(name,selected_tab){
-        var info_panel = $('<div id="'+name+'"><ul></ul></div>');
-        var tabs = SunstoneCfg["info_panels"][name];
+    "getInfoPanelHTML" : function(panel_name,selected_tab){
+        var info_panel = $('<div id="'+panel_name+'"><ul></ul></div>');
+        var tabs = SunstoneCfg["info_panels"][panel_name];
         var tab=null;
         for (tab_name in tabs){
               tab=tabs[tab_name];
@@ -108,41 +108,43 @@ var Sunstone = {
     },
     
     //Adds a new info panel
-    "addInfoPanel" : function(name, info_panel){
-        SunstoneCfg["info_panels"][name]=info_panel;
+    "addInfoPanel" : function(panel_name, panel_obj){
+        SunstoneCfg["info_panels"][panel_name]=panel_obj;
     },
     
     //Replaces an existing info panel
-    "updateInfoPanel" : function(name, info_panel){
-        SunstoneCfg["info_panels"][name]=info_panel;
+    "updateInfoPanel" : function(panel_name,panel_obj){
+        SunstoneCfg["info_panels"][panel_name]=panel_obj;
     },
     
     //Removes an info panel
-    "removeInfoPanel" : function(name){
-        delete SunstoneCfg["info_panels"][name];
+    "removeInfoPanel" : function(panel_name){
+        delete SunstoneCfg["info_panels"][panel_name];
     },
     
     //Makes an info panel content pop up in the screen.
-    "popUpInfoPanel" : function(name, selected_tab){
-        popDialog(Sunstone.getInfoPanelHTML(name, selected_tab));
+    "popUpInfoPanel" : function(panel_name, selected_tab){
+        popDialog(Sunstone.getInfoPanelHTML(panel_name, selected_tab));
     },
     
     //adds a tab to an info panel.
-    "addInfoPanelTab" : function(info_panel, tab_name, tab){
-        SunstoneCfg["info_panels"][info_panel][tab_name] = tab;
+    "addInfoPanelTab" : function(panel_name, panel_tab_id, panel_tab_obj){
+        SunstoneCfg["info_panels"][panel_name][panel_tab_id] = panel_tab_obj;
     },
     
     //Replaces a tab from an info panel. Refreshes the DOM if wanted.
-    "updateInfoPanelTab" : function(info_panel, tab_name, tab, refresh){
-        SunstoneCfg["info_panels"][info_panel][tab_name] = tab;
+    "updateInfoPanelTab" : function(panel_name, panel_tab_id, 
+                                        panel_tab_obj, refresh){
+        SunstoneCfg["info_panels"][panel_name][panel_tab_id] = panel_tab_obj;
         if (refresh){
-            refreshInfoPanelTab(info_panel,tab_name);
+            var tab_content = panel_tab_obj.content;
+            $('div#'+panel_name+' div#'+panel_tab_id).html(tab_content);
         }
     },
     
     //Removes a tab from an info panel configuration.
-    "removeInfoPanelTab" : function(info_panel,tab_name){
-        delete SunstoneCfg["info_panels"][info_panel][tab_name];
+    "removeInfoPanelTab" : function(panel_name,panel_tab_id){
+        delete SunstoneCfg["info_panels"][panel_name][panel_tab_id];
     },
     
     //Runs a predefined action. Wraps the calls to opennebula.js and
@@ -246,9 +248,9 @@ var Sunstone = {
     //~ },
     //~ 
     //returns a button object from the desired tab
-    "getButton" : function(tab_name,button_name){
+    "getButton" : function(tab_id,button_name){
             var button = null;
-            var buttons = SunstoneCfg["tabs"][tab_name]["buttons"];
+            var buttons = SunstoneCfg["tabs"][tab_id]["buttons"];
             button = buttons[button_name];
             //not found, is it in the list then?
             if (!button && buttons["action_list"]) 
@@ -451,13 +453,6 @@ function insertButtonsInTab(tab_name){
         }//for each button in tab
         $('.top_button').button();
     }//if tab exists
-}
-
-//Tries to refresh a tab content if it is somewhere in the DOM
-//Useful for plugins wanting to update certain information.
-function refreshInfoPanelTab(panel_name,tab_name){
-    var tab_content = SunstoneCfg["info_panels"][panel_name][tab_name].content;
-    $('div#'+panel_name+' div#'+tab_name).html(tab_content);
 }
 
 //Converts selects into buttons which show a list of actions when 
