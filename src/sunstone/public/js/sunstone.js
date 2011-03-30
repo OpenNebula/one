@@ -89,24 +89,6 @@ var Sunstone = {
          }
     },
     
-    //Generates and returns the HTML div element for an info panel, with
-    //Jquery tabs.
-    "getInfoPanelHTML" : function(panel_name,selected_tab){
-        var info_panel = $('<div id="'+panel_name+'"><ul></ul></div>');
-        var tabs = SunstoneCfg["info_panels"][panel_name];
-        var tab=null;
-        for (tab_name in tabs){
-              tab=tabs[tab_name];
-              $('ul',info_panel).append('<li><a href="#'+tab_name+'">'+tab.title+'</a></li>');
-              info_panel.append('<div id="'+tab_name+'">'+tab.content+'</div>');
-        }
-        if (selected_tab){
-            return info_panel.tabs({selected: selected_tab});
-        }
-        return info_panel.tabs({selected: 0});
-        
-    },
-    
     //Adds a new info panel
     "addInfoPanel" : function(panel_name, panel_obj){
         SunstoneCfg["info_panels"][panel_name]=panel_obj;
@@ -125,6 +107,24 @@ var Sunstone = {
     //Makes an info panel content pop up in the screen.
     "popUpInfoPanel" : function(panel_name, selected_tab){
         popDialog(Sunstone.getInfoPanelHTML(panel_name, selected_tab));
+    },
+    
+    //Generates and returns the HTML div element for an info panel, with
+    //Jquery tabs.
+    "getInfoPanelHTML" : function(panel_name,selected_tab){
+        var info_panel = $('<div id="'+panel_name+'"><ul></ul></div>');
+        var tabs = SunstoneCfg["info_panels"][panel_name];
+        var tab=null;
+        for (tab_name in tabs){
+              tab=tabs[tab_name];
+              $('ul',info_panel).append('<li><a href="#'+tab_name+'">'+tab.title+'</a></li>');
+              info_panel.append('<div id="'+tab_name+'">'+tab.content+'</div>');
+        }
+        if (selected_tab){
+            return info_panel.tabs({selected: selected_tab});
+        }
+        return info_panel.tabs({selected: 0});
+        
     },
     
     //adds a tab to an info panel.
@@ -540,7 +540,7 @@ function setupConfirmDialogs(){
     //add the HTML with the standard question and buttons.
 	$('div#confirm_dialog').html(
 			'<form action="javascript:alert(\'js error!\');">\
-			<div id="confirm_tip">Do you want to proceed?</div>\
+			<div id="confirm_tip">You have to confirm this action.</div>\
 			<br />\
 			<div id="question">Do you want to proceed?</div>\
 			<br />\
@@ -569,7 +569,7 @@ function setupConfirmDialogs(){
 
 	$('div#confirm_with_select_dialog').html(
 			'<form action="javascript:alert(\'js error!\');">\
-			<div id="confirm_with_select_tip"></div>\
+			<div id="confirm_with_select_tip">You need to select something.</div>\
 			<select style="margin: 10px 0;" id="confirm_select">\
 			</select>\
 			<div class="form_buttons">\

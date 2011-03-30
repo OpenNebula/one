@@ -196,9 +196,7 @@ var host_actions = {
                 call : function() {
                     OpenNebula.Host.list({success: updateHostsView, error: onError});
                     OpenNebula.Cluster.list({success: updateClustersView, error: onError});
-                    },
-                callback: function(){},
-                error: onError
+                    }
             },
                         
             "Cluster.create" : {
