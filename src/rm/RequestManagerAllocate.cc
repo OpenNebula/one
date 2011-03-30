@@ -97,6 +97,8 @@ void RequestManager::VirtualMachineAllocate::execute(
             VirtualMachineAllocate::ipool->authorize_disk(vector,uid,&ar);
         }
 
+        vectors.clear();
+
         num = vm_template->get("NIC",vectors);
 
         for(int i=0; i<num; i++)

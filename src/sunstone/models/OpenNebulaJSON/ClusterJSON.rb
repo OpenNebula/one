@@ -20,13 +20,13 @@ module OpenNebulaJSON
     class ClusterJSON < OpenNebula::Cluster
         include JSONUtils
 
-        def allocate(template_json)
+        def create(template_json)
             cluster_hash = parse_json(template_json,'cluster')
             if OpenNebula.is_error?(cluster_hash)
                 return cluster_hash
             end
 
-            super(cluster_hash['name'])
+            self.allocate(cluster_hash['name'])
         end
 
         def perform_action(template_json)

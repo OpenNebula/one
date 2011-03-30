@@ -392,7 +392,7 @@ var create_vm_tmpl =
 				  <label for="ARCH">Architecture:</label>\
 				  <select id="ARCH" name="arch">\
 					<option value="i686">i686</option>\
-					<option value="x86-64">x86-64</option>\
+					<option value="x86_64">x86_64</option>\
 				  </select>\
 				  <div class="tip">CPU architecture to virtualization</div>\
 				</div>\
@@ -436,9 +436,9 @@ var create_vm_tmpl =
 				  <label for="BOOT">Boot:</label>\
 				  <select id="BOOT" name="boot">\
 					<option value="hd">hd</option>\
-					<option value="hd">fd</option>\
-					<option value="hd">cdrom</option>\
-					<option value="hd">network</option>\
+					<option value="fd">fd</option>\
+					<option value="cdrom">cdrom</option>\
+					<option value="network">network</option>\
 				  </select>\
 				  <div class="tip">Boot device type</div>\
 			    </div>\
@@ -693,14 +693,27 @@ var create_vm_tmpl =
 			  <!--context textarea? -->\
 			  <div class="vm_section" id="context">\
 			  	<div class="show_hide" id="add_context_cb">\
-			  	  <h3>Add context <a id="add_context" class="icon_left" href="#"><span class="ui-icon ui-icon-plus" /></a></h3>\
+			  	  <h3>Add context variables <a id="add_context" class="icon_left" href="#"><span class="ui-icon ui-icon-plus" /></a></h3>\
 			    </div>\
 			  <fieldset><legend>Context</legend>\
-			  <div class="vm_param kvm_opt xen_opt">\
-			  <label for="CONTEXT">Context:</label>\
-			  <input type="text" id="CONTEXT" name="context" />\
-			  <!--<textarea id="CONTEXT" style="width:320px;height:15em;"></textarea>-->\
-			  </div>\
+              <div class="vm_param kvm_opt xen_opt">\
+				  <label for="var_name">Name:</label>\
+				  <input type="text" id="var_name" name="var_name" />\
+				  <div class="tip">Name for the context variable</div>\
+			    </div>\
+			    <div class="vm_param kvm_opt xen_opt">\
+				  <label for="var_value">Value:</label>\
+				  <input type="text" id="var_value" name="var_value" />\
+				  <div class="tip">Value of the context variable</div>\
+              </div>\
+                <div class="">\
+					<button class="add_remove_button add_button" id="add_context_button" value="add_context">Add</button>\
+					<button class="add_remove_button" id="remove_context_button" value="remove_input">Remove selected</button>\
+					<div class="clear"></div>\
+					<label for="context_box">Current variables:</label>\
+					<select id="context_box" name="context_box" style="width:150px;height:100px;" multiple>\
+					</select>\
+                </div>\
 			  </fieldset>\
 			  </div>\
 \

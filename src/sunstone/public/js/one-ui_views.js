@@ -1258,6 +1258,9 @@ function createVMachineDialog(){
 		$('select#boot_method option').removeAttr("selected");
         $('.kernel, .bootloader', $('div#os_boot_opts')).hide();
 
+        $('div#disks select#BUS').append(
+        '<option id="virtio" value="virtio">virtio</option>');
+
 		$('input#TYPE', section_raw).val("kvm");
 
 		$(section_inputs).show();
@@ -1281,8 +1284,9 @@ function createVMachineDialog(){
         $('select#boot_method option#no_boot').html("Please choose");
 		$('.kernel, .bootloader', $('div#os_boot_opts')).hide();
 
+        $('div#disks select#BUS option#virtio').remove();
 
-		$('input#TYPE', section_raw).val("kvm");
+		$('input#TYPE', section_raw).val("xen");
 		$(section_inputs).hide(); //not present for xen
 		update_dynamic_css();
 	};
@@ -1714,6 +1718,25 @@ function createVMachineDialog(){
 				$('fieldset',section_context).toggle();
                 return false;
 		});
+              
+        $('#add_context_button', section_context).click(function(){
+            var name = $('#var_name',section_context).val();
+            var value = $('#var_value',section_context).val();
+            if (!name.length || !value.length) {
+                notifyError("Context variable name and value must be filled in");
+                return false;
+            }
+            option= '<option value=\''+value+'\' name=\''+name+'\'>'+
+            name+'='+value+
+            '</option>';
+            $('select#context_box',section_context).append(option);
+            return false; 
+        });
+        
+        $('#remove_context_button', section_context).click(function(){
+           box_remove_element(section_context,'#context_box');
+           return false; 
+        });
 
 	};
 
@@ -1852,7 +1875,8 @@ function createVMachineDialog(){
 			notifyError("There are mandatory fields missing in the OS Boot options section");
 			return false;
 		};
-		addSectionJSON(vm_json,scope);
+        vm_json["OS"] = {};
+		addSectionJSON(vm_json["OS"],scope);
 
 		//process disks
 		scope = section_disks;
@@ -1874,11 +1898,15 @@ function createVMachineDialog(){
 		vm_json["GRAPHICS"] = {};
 		addSectionJSON(vm_json["GRAPHICS"],scope);
 
-		//context -> include
+		//context
 		scope = section_context;
-        var context = $('#CONTEXT',scope).val();
-        if (context)
-            vm_json["CONTEXT"] = context;
+        vm_json["CONTEXT"] = {};
+        var pair;
+        $('#context_box option',scope).each(function(){
+            name = $(this).attr("name");
+            value = $(this).val();
+            vm_json["CONTEXT"][name]=value;
+        });
 
 		//placement -> fetch with value
 		scope = section_placement;
@@ -2102,7 +2130,7 @@ function createImageDialog(){
 
     $('#create_image_form_manual').submit(function(){
 		template=$('#template',this).val();
-		OpenNebula.Image.create({data: template,success: addImageElement,error: onError});
+		OpenNebula.Image.register({data: template,success: addImageElement,error: onError});
 		$create_image_dialog.dialog('close');
        return false;
     });
@@ -2446,7 +2474,7 @@ function imageElementArray(image_json){
     return [
         '<input type="checkbox" id="image_'+image.ID+'" name="selected_items" value="'+image.ID+'"/>',
         image.ID,
-        image.USERNAME ? image.USERNAME : getUserName(image.ID),
+        image.USERNAME ? image.USERNAME : getUserName(image.UID),
         image.NAME,
         OpenNebula.Helper.image_type(image.TYPE),
         pretty_time(image.REGTIME),
