@@ -164,7 +164,8 @@ var image_actions = {
         type: "create",
         call: OpenNebula.Image.register,
         callback: addImageElement,
-        error: onError
+        error: onError,
+        notify:true
     },
     
     "Image.create_dialog" : {
@@ -228,7 +229,8 @@ var image_actions = {
             Sunstone.runAction("Image.show",req.request.data[0]);
         },
         elements: function() { return getSelectedNodes(dataTable_images); },
-        error: onError
+        error: onError,
+        notify: true
     },
     
     "Image.addattr_dialog" : {
@@ -260,6 +262,7 @@ var image_actions = {
         },
         elements: function() { return getSelectedNodes(dataTable_images); },
         error: onError,
+        notify: true
     },
     
     "Image.rmattr_dialog" : {
@@ -274,7 +277,8 @@ var image_actions = {
             Sunstone.runAction("Image.show",req.request.data[0]);
         },
         elements: function() { return getSelectedNodes(dataTable_images); },
-        error: onError
+        error: onError,
+        notify: true
      },
             
      "Image.disable" : {
@@ -284,7 +288,8 @@ var image_actions = {
             Sunstone.runAction("Image.show",req.request.data[0]);
         },
         elements: function() { return getSelectedNodes(dataTable_images); },
-        error: onError
+        error: onError,
+        notify: true
      },
             
      "Image.persistent" : {
@@ -294,7 +299,8 @@ var image_actions = {
             Sunstone.runAction("Image.show",req.request.data[0]);
         },
         elements: function() { return getSelectedNodes(dataTable_images); },
-        error: onError
+        error: onError,
+        notify: true
      },
             
      "Image.nonpersistent" : {
@@ -304,7 +310,8 @@ var image_actions = {
             Sunstone.runAction("Image.show",req.request.data[0]);
         },
         elements: function() { return getSelectedNodes(dataTable_images); },
-        error: onError           
+        error: onError,
+        notify: true
      },
             
      "Image.publish" : {
@@ -314,7 +321,8 @@ var image_actions = {
             Sunstone.runAction("Image.show",req.request.data[0]);
         },
         elements: function() { return getSelectedNodes(dataTable_images); },
-        error: onError                 
+        error: onError,
+        notify: true
      },
             
      "Image.unpublish" : {
@@ -324,7 +332,8 @@ var image_actions = {
             Sunstone.runAction("Image.show",req.request.data[0]);
         },
         elements: function() { return getSelectedNodes(dataTable_images); },
-        error: onError               
+        error: onError,
+        notify: true
      },
             
      "Image.delete" : {
@@ -334,7 +343,8 @@ var image_actions = {
             Sunstone.runAction("Image.show",req.request.data[0]);
         },
         elements: function() { return getSelectedNodes(dataTable_images); },
-        error: onError                
+        error: onError,
+        notify: true
      }
 }
 

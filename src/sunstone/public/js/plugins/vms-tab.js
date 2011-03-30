@@ -502,7 +502,8 @@ var vm_actions = {
         type: "create",
         call: OpenNebula.VM.create,
         callback: addVMachineElement,
-        error: onError
+        error: onError,
+        notify: true
     },
             
     "VM.create_dialog" : {
@@ -554,6 +555,7 @@ var vm_actions = {
         },
         elements: function() { return getSelectedNodes(dataTable_vMachines); },
         error: onError,
+        notify: true
     },
             
     "VM.migrate" : {
@@ -563,7 +565,8 @@ var vm_actions = {
             Sunstone.runAction("VM.show",req.request.data[0]);
         },
         elements: function() { return getSelectedNodes(dataTable_vMachines); },
-        error: onError
+        error: onError,
+        notify: true
     },
             
     "VM.livemigrate" : {
@@ -573,7 +576,8 @@ var vm_actions = {
             Sunstone.runAction("VM.show",req.request.data[0]);
         },
         elements: function() { return getSelectedNodes(dataTable_vMachines); },
-        error: onError
+        error: onError,
+        notify: true
     },
             
     "VM.hold" : {
@@ -583,7 +587,8 @@ var vm_actions = {
             Sunstone.runAction("VM.show",req.request.data[0]);
         },
         elements: function() { return getSelectedNodes(dataTable_vMachines); },
-        error: onError
+        error: onError,
+        notify: true
     },
             
     "VM.release" : {
@@ -593,7 +598,8 @@ var vm_actions = {
             Sunstone.runAction("VM.show",req.request.data[0]);
         },
         elements: function() { return getSelectedNodes(dataTable_vMachines); },
-        error: onError
+        error: onError,
+        notify: true
     },
             
     "VM.suspend" : {
@@ -603,7 +609,8 @@ var vm_actions = {
             Sunstone.runAction("VM.show",req.request.data[0]);
         },
         elements: function() { return getSelectedNodes(dataTable_vMachines); },
-        error: onError
+        error: onError,
+        notify: true
     },
             
     "VM.resume" : {
@@ -613,7 +620,8 @@ var vm_actions = {
             Sunstone.runAction("VM.show",req.request.data[0]);
         },
         elements: function() { return getSelectedNodes(dataTable_vMachines); },
-        error: onError
+        error: onError,
+        notify: true
     },
             
     "VM.stop" : {
@@ -623,7 +631,8 @@ var vm_actions = {
             Sunstone.runAction("VM.show",req.request.data[0]);
         },
         elements: function() { return getSelectedNodes(dataTable_vMachines); },
-        error: onError
+        error: onError,
+        notify: true
     },
             
     "VM.restart" : {
@@ -633,7 +642,8 @@ var vm_actions = {
             Sunstone.runAction("VM.show",req.request.data[0]);
         },
         elements: function() { return getSelectedNodes(dataTable_vMachines); },
-        error: onError
+        error: onError,
+        notify: true
     },
             
     "VM.shutdown" : {
@@ -643,7 +653,8 @@ var vm_actions = {
             Sunstone.runAction("VM.show",req.request.data[0]);
         },
         elements: function() { return getSelectedNodes(dataTable_vMachines); },
-        error: onError
+        error: onError,
+        notify: true
     },
             
     "VM.cancel" : {
@@ -653,7 +664,8 @@ var vm_actions = {
             Sunstone.runAction("VM.show",req.request.data[0]);
         },
         elements: function() { return getSelectedNodes(dataTable_vMachines); },
-        error: onError
+        error: onError,
+        notify: true
     },
             
     "VM.delete" : {
@@ -661,7 +673,8 @@ var vm_actions = {
         call: OpenNebula.VM.delete,
         callback: deleteVMachineElement,
         elements: function() { return getSelectedNodes(dataTable_vMachines); },
-        error: onError
+        error: onError,
+        notify: true
     },
     
     "VM.log" : {
@@ -669,8 +682,7 @@ var vm_actions = {
         call: OpenNebula.VM.log,
         callback: function(req,res) {
             //after calling VM.log we process the answer
-            //update the tab and pop it up again with the updated
-            //info and the log tab selected
+            //update the tab and pop it up again
             var log_lines = res.split("\n");
             var colored_log = '';
             for (line in log_lines){

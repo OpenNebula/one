@@ -110,7 +110,8 @@ var host_actions = {
                 type: "create",
                 call : OpenNebula.Host.create,
                 callback : addHostElement,
-                error : onError
+                error : onError,
+                notify: true
             },
             
             "Host.create_dialog" : {
@@ -149,6 +150,7 @@ var host_actions = {
                 },
                 callback: function(){},
                 error: onError,
+                notify:true
             },
             
             "Host.autorefresh" : {
@@ -176,7 +178,8 @@ var host_actions = {
                     Sunstone.runAction("Host.show",req.request.data[0]);
                 },
                 elements: function() { return getSelectedNodes(dataTable_hosts); },
-                error : onError
+                error : onError,
+                notify:true
             },
             
             "Host.delete" : {
@@ -184,7 +187,8 @@ var host_actions = {
                 call : OpenNebula.Host.delete,
                 callback : deleteHostElement,
                 elements: function() { return getSelectedNodes(dataTable_hosts); },
-                error : onError
+                error : onError,
+                notify:true
             },
             
             "Host.list" : {
@@ -203,7 +207,8 @@ var host_actions = {
                 callback : function(){
                     Sunstone.runAction("Cluster.list");
                 },
-                error : onError
+                error : onError,
+                notify: true
             },
             
             "Cluster.create_dialog" : {
@@ -232,7 +237,8 @@ var host_actions = {
                     //OpenNebula.Cluster.list({success: updateClustersView, error: onError});
                     Sunstone.runAction("Cluster.list");
                 },
-                error : onError
+                error : onError,
+                notify:true
             },
             
             "Cluster.addhost" : {
@@ -242,14 +248,16 @@ var host_actions = {
                     Sunstone.runAction("Host.show",req.request.data);
 					},
                 elements: function() { return getSelectedNodes(dataTable_hosts); },
-                error : onError
+                error : onError,
+                notify:true
             },
             
             "Cluster.removehost" : {
                 type: "multiple",
                 call : OpenNebula.Cluster.removehost,
                 callback : deleteHostElement,
-                error : onError
+                error : onError,
+                notify:true
             }
         };
 

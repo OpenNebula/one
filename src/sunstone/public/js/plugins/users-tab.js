@@ -59,7 +59,8 @@ var user_actions = {
         type: "create",
         call: OpenNebula.User.create,
         callback: addUserElement,
-        error: onError
+        error: onError,
+        notify: true
     },
     
     "User.create_dialog" : {
@@ -96,7 +97,8 @@ var user_actions = {
         call: OpenNebula.User.delete,
         callback: deleteUserElement,
         elements: function() { return getSelectedNodes(dataTable_users); },
-        error: onError
+        error: onError,
+        notify: true
     },
 }
 
