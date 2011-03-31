@@ -164,7 +164,11 @@ function notifySubmit(action, args, extra_param){
     var action_text = action.replace(/OpenNebula\./,'').replace(/\./,' ');
 
     var msg = "<h1>Submitted</h1>";
-    msg += action_text + ": " + args;
+    if (typeof args == 'object'){
+        msg += action_text;
+    } else {
+        msg += action_text + ": " + args;
+    }
     if (extra_param != null)
         msg += " >> " + extra_param;
 
