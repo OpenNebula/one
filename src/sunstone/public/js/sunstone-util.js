@@ -233,6 +233,11 @@ function onError(request,error_json) {
     if (error_json.error.http_status=="401") {
       window.location.href = "/login";
     };
+    
+    if (!message){
+        notifyError("Cannot contact server: is Sunstone server running and reachable?");
+        return false;
+    }
 
     //Parse known errors:
     var action_error = /^\[(\w+)\] Error trying to (\w+) (\w+) \[(\w+)\].*Reason: (.*)\.$/;
