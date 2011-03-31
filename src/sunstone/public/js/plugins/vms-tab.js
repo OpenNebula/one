@@ -1389,6 +1389,7 @@ function setupCreateVMDialog(){
 				case "floppy":
 				case "disk":
 				case "cdrom":
+                default:
 					//size hidden
 					$('#SIZE',section_disks).parent().hide();
 					$('#SIZE',section_disks).parent().attr("disabled","disabled");
@@ -1400,7 +1401,6 @@ function setupCreateVMDialog(){
 					//format optional
 				    $('#FORMAT',section_disks).parent().hide();
 				    $('#FORMAT',section_disks).parent().attr("disabled","disabled");
-
 			}
 		});
 
