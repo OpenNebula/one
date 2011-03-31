@@ -1098,7 +1098,7 @@ function setupCreateVMDialog(){
 			var man_items = "."+man_class;
 
 			//find enabled mandatory items in this context
-			man_items = $(man_items+' input:visible',context);
+			man_items = $(man_items+' input:visible, '+man_items+' select:visible',context);
 			var r = true;
             
             //we fail it the item is enabled and has no value
