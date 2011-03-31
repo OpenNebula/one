@@ -196,6 +196,11 @@ function setupCreateUserDialog(){
     $('#create_user_form').submit(function(){
 		var user_name=$('#username',this).val();
 		var user_password=$('#pass',this).val();
+        if (!user_name.length && !user_password.length){
+            notifyError("User name and password must be filled in");
+            return false;
+        }
+        
 		var user_json = { "user" :
 						{ "name" : user_name,
 						  "password" : user_password }
