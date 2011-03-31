@@ -365,6 +365,12 @@ void RequestManager::register_xml_methods()
     /* VM Template related methods*/
 
     RequestManagerRegistry.addMethod("one.template.allocate",template_allocate);
+    RequestManagerRegistry.addMethod("one.template.delete", template_delete);
+    RequestManagerRegistry.addMethod("one.template.info", template_info);
+    RequestManagerRegistry.addMethod("one.template.update", template_update);
+    RequestManagerRegistry.addMethod("one.template.rmattr", template_rm_attribute);
+    RequestManagerRegistry.addMethod("one.template.publish", template_publish);
+
     RequestManagerRegistry.addMethod("one.templatepool.info",template_pool_info);
 
     /* Host related methods*/

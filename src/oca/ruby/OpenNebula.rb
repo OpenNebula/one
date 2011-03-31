@@ -38,6 +38,8 @@ require 'OpenNebula/Host'
 require 'OpenNebula/HostPool'
 require 'OpenNebula/Cluster'
 require 'OpenNebula/ClusterPool'
+require 'OpenNebula/Template'
+require 'OpenNebula/TemplatePool'
 
 module OpenNebula
 

@@ -313,6 +313,10 @@ def get_cluster_id(name)
     get_entity_id(name, OpenNebula::ClusterPool)
 end
 
+def get_template_id(name)
+    get_entity_id(name, OpenNebula::TemplatePool)
+end
+
 def str_running_time(data)
     stime=Time.at(data["STIME"].to_i)
     if data["ETIME"]=="0"
