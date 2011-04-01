@@ -254,6 +254,7 @@ var host_actions = {
                 type: "multiple",
                 call : OpenNebula.Cluster.removehost,
                 callback : deleteHostElement,
+                elements: function() { return getSelectedNodes(dataTable_hosts); },
                 error : onError,
                 notify:true
             }
