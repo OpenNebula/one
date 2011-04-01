@@ -475,16 +475,9 @@ function imageInfoListener(){
 }
 
 //Updates the select input field with an option for each image
-function updateImageSelect(image_list){
-    images_select="";
-    images_select += "<option value=\"\">Select an image</option>";
-    $.each(image_list, function(){
-        //Only add if the state says the image is usable
-        if ((this.IMAGE.STATE < 3) && (this.IMAGE.STATE > 0)){
-            images_select += '<option id="img_sel_'+this.IMAGE.ID+'" value="'+this.IMAGE.NAME+'">'+this.IMAGE.NAME+'</option>';
-        }
-    });
-
+function updateImageSelect(){
+    images_select = makeSelectOptions(dataTable_images,1,3,8,"DISABLED");
+   
     //update static selectors:
     //in the VM section
     $('div.vm_section#disks select#IMAGE').html(images_select);
@@ -495,29 +488,13 @@ function updateImageElement(request, image_json){
     var id = image_json.IMAGE.ID;
     var element = imageElementArray(image_json);
     updateSingleElement(element,dataTable_images,'#image_'+id);
-    //Update the image select but only if the image is enabled...
-    if ((image_json.IMAGE.STATE < 3) && 
-        (image_json.IMAGE.STATE > 0) &&
-        ($('#img_sel_'+id,images_select).length == 0)){
-            images_select += '<option id="img_sel_'+id+'" value="'+image_json.IMAGE.NAME+'">'+image_json.IMAGE.NAME+'</option>';
-        }   
-    else { //delete the element if it is in the list
-        var tag = 'option#img_sel_'+id;
-        var select = $('<select>'+images_select+'</select>');
-        $(tag,select).remove();
-        images_select = $(select).html();
-    }
-    $('div.vm_section#disks select#IMAGE').html(images_select);
+    updateImageSelect();
 }
 
 // Callback to remove an element from the dataTable
 function deleteImageElement(req){
     deleteElement(dataTable_images,'#image_'+req.request.data);
-    var tag = 'option#img_sel_'+req.request.data;
-    var select = $('<select>'+images_select+'</select>');
-    $(tag,select).remove();
-    images_select = $(select).html();
-    $('div.vm_section#disks select#IMAGE').html(images_select);    
+    updateImageSelect();
 }
 
 // Callback to add an image element
@@ -537,7 +514,7 @@ function updateImagesView(request, images_list){
     });
 
     updateView(image_list_array,dataTable_images);
-    updateImageSelect(images_list);
+    updateImageSelect();
     updateDashboard("images",image_list_json);
 
 }

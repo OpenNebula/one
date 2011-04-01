@@ -414,23 +414,17 @@ function hostInfoListener(){
 }
 
 //updates the host select by refreshing the options in it
-function updateHostSelect(host_list){
+function updateHostSelect(){
 
-	//update select helper
-	hosts_select="";
-	hosts_select += "<option value=\"\">Select a Host</option>";
-	$.each(host_list, function(){
-		hosts_select += "<option value=\""+this.HOST.ID+"\">"+this.HOST.NAME+"</option>";
-	});
+    hosts_select = makeSelectOptions(dataTable_hosts,1,2,7,"DISABLED");
 
 }
 
 //updates the cluster select by refreshing the options in it
 function updateClusterSelect(cluster_list){
 
-	//update select helper
-	clusters_select= "";
-	clusters_select+="<option value=\"\">Select a cluster</option>";
+	//manual, as there is not dataTable for it
+	clusters_select="<option value=\"\">Select a cluster</option>";
 	$.each(cluster_list, function(){
 		clusters_select += "<option value=\""+this.CLUSTER.ID+"\">"+this.CLUSTER.NAME+"</option>";
 	});
@@ -441,19 +435,21 @@ function updateHostElement(request, host_json){
 	var id = host_json.HOST.ID;
 	var element = hostElementArray(host_json);
 	updateSingleElement(element,dataTable_hosts,'#host_'+id);
+    updateHostSelect();
 }
 
 //callback for actions deleting a host element
 function deleteHostElement(req){
 	deleteElement(dataTable_hosts,'#host_'+req.request.data);
+    updateHostSelect();
 }
 
 //call back for actions creating a host element
 function addHostElement(request,host_json){
     var id = host_json.HOST.ID;
 	var element = hostElementArray(host_json);
-    hosts_select += "<option value=\""+host_json.HOST.NAME+"\">"+host_json.HOST.NAME+"</option>";
 	addElement(element,dataTable_hosts);
+    updateHostSelect();
 }
 
 //callback to update the list of hosts.
@@ -467,7 +463,7 @@ function updateHostsView (request,host_list){
 	});
 
 	updateView(host_list_array,dataTable_hosts);
-	updateHostSelect(host_list);
+	updateHostSelect();
     //dependency with the dashboard plugin
 	updateDashboard("hosts",host_list_json);
 }

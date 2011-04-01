@@ -376,6 +376,23 @@ function getSelectedNodes(dataTable){
     return selected_nodes;
 }
 
+//returns a HTML string with a select input code generated from
+//a dataTable
+function makeSelectOptions(dataTable,id_col,name_col,status_col,status_bad){
+    var nodes = dataTable.fnGetData();
+    var select = "<option value=\"\">Please select</option>";
+    var array;
+    $.each(nodes,function(){
+        var id = this[id_col];
+        var name = this[name_col];
+        var status = this[status_col];
+        if (status != status_bad){
+            select +='<option value="'+id+'">'+name+'</option>';
+        }
+    });
+    return select;
+}
+
 //functions that used as true and false conditions for testing mainly
 function True(){
     return true;

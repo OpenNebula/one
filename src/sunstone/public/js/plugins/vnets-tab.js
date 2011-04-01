@@ -307,13 +307,8 @@ function vNetworkInfoListener(){
 }
 
 //updates the vnet select different options
-function updateNetworkSelect(network_list){
-	vnetworks_select="";
-	vnetworks_select += "<option id=\"no_network\" value=\"\">Select a network</option>";
-	$.each(network_list, function(){
-		vnetworks_select += "<option value=\""+this.VNET.NAME+"\">"+this.VNET.NAME+"</option>";
-
-	});
+function updateNetworkSelect(){
+	vnetworks_select= makeSelectOptions(dataTable_vNetworks,1,3,6,"no")
 
 	//update static selectors:
     //in the VM creation dialog
@@ -325,22 +320,20 @@ function updateVNetworkElement(request, vn_json){
 	id = vn_json.VNET.ID;
 	element = vNetworkElementArray(vn_json);
 	updateSingleElement(element,dataTable_vNetworks,'#vnetwork_'+id);
+    updateNetworkSelect();
 }
 
 //Callback to delete a vnet element from the table
 function deleteVNetworkElement(req){
 	deleteElement(dataTable_vNetworks,'#vnetwork_'+req.request.data);
-    //TODO: Delete vNetwork select option here?
+    updateNetworkSelect();
 }
 
 //Callback to add a new element
 function addVNetworkElement(request,vn_json){
 	var element = vNetworkElementArray(vn_json);
 	addElement(element,dataTable_vNetworks);
-    
-    //update select variable and 
-    vnetworks_select += "<option value=\""+vn_json.VNET.NAME+"\">"+vn_json.VNET.NAME+"</option>";
-    $('div.vm_section#networks select#NETWORK').html(vnetworks_select);
+    updateNetworkSelect();
 }
 
 //updates the list of virtual networks
@@ -353,7 +346,7 @@ function updateVNetworksView(request, network_list){
 	});
 
 	updateView(network_list_array,dataTable_vNetworks);
-	updateNetworkSelect(network_list);
+	updateNetworkSelect();
     //dependency with dashboard
 	updateDashboard("vnets",network_list_json);
 
