@@ -1457,12 +1457,7 @@ function setupCreateVMDialog(){
     //TODO: Improve this check
         var nicFilter = function(){
             return mandatory_filter(section_networks);
-			//~ var network = $('select#NETWORK :selected',section_networks).attr('id');
-			//~ var ip = $('#IP',section_networks).val();
-			//~ var mac = $('#MAC',section_networks).val();
-//~ 
-			//~ return (network != "no_network" || ip.length || mac.length);
-		};
+        };
 
 		$('#add_nic_button',section_networks).click(function(){
 			box_add_element(section_networks,'#nics_box',nicFilter);
