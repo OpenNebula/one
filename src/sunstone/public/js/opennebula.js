@@ -1136,14 +1136,13 @@ var OpenNebula = {
         {
             var callback = params.success;
             var callback_error = params.error;
-            var vm_id = params.data.vm_id;
+            var id = params.data.vm_id;
             var disk_id = params.data.disk_id;
             var image_name = params.data.image_name;
             var type = params.data.type;
 
             var method = "saveas";
             var saveas_params = {
-                "vm_id"     : vm_id,
                 "disk_id"   : disk_id,
                 "image_name": image_name,
                 "type"      : type
@@ -1151,7 +1150,7 @@ var OpenNebula = {
             var resource = OpenNebula.VM.resource;
             
             var action = OpenNebula.Helper.action(method,saveas_params)
-            var request = OpenNebula.Helper.request(resource,method, [vm_id, disk_id, image_name, type]);
+            var request = OpenNebula.Helper.request(resource,method, [id,disk_id, image_name, type]);
 
             $.ajax({
                 url: "/vm/" + id + "/action",
@@ -1182,6 +1181,38 @@ var OpenNebula = {
             var resource = OpenNebula.VM.resource;
 
             var method = "restart";
+            var action = OpenNebula.Helper.action(method);
+            var request = OpenNebula.Helper.request(resource,method, id);
+
+            $.ajax({
+                url: "/vm/" + id + "/action",
+                type: "POST",
+                data: JSON.stringify(action),
+                success: function()
+                {
+                    if (callback)
+                    {
+                        callback(request);
+                    }
+                },
+                error: function(response)
+                {
+                    if (callback_error)
+                    {
+                        callback_error(request, OpenNebula.Error(response));
+                    }
+                }
+            });
+        },
+        
+        "resubmit": function(params)
+        {
+            var callback = params.success;
+            var callback_error = params.error;
+            var id = params.data.id;
+            var resource = OpenNebula.VM.resource;
+
+            var method = "resubmit";
             var action = OpenNebula.Helper.action(method);
             var request = OpenNebula.Helper.request(resource,method, id);
 

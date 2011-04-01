@@ -645,6 +645,39 @@ var vm_actions = {
         error: onError,
         notify: true
     },
+    
+    "VM.resubmit" : {
+        type: "multiple",
+        call: OpenNebula.VM.resubmit,
+        callback: function (req) {
+            Sunstone.runAction("VM.show",req.request.data[0]);
+        },
+        elements: function() { return getSelectedNodes(dataTable_vMachines); },
+        error: onError,
+        notify: true
+    },
+    
+    "VM.saveasmultiple" : {
+        type: "custom",
+        call: function(){
+            var elems = vm_actions["VM.saveasmultiple"].elements();
+            popUpSaveasDialog(elems);
+        },
+        elements: function() { return getSelectedNodes(dataTable_vMachines); }
+    },
+    
+    "VM.saveas" : {
+        type: "custom",
+        call: function(obj) {
+            OpenNebula.VM.saveas(
+                        {data:obj, 
+                         success: function (req) {
+                                Sunstone.runAction("VM.show",
+                                                    req.request.data[0]);
+                        },
+                         error: onError });
+        }
+    },
             
     "VM.shutdown" : {
         type: "multiple",
@@ -799,6 +832,17 @@ var vm_buttons = {
                 text: "Restart",
                 tip: "This will redeploy selected VMs (in UNKNOWN or BOOT state)",
                 condition: True                  
+            },
+            "VM.resubmit" : {
+                type: "confirm",
+                text: "Resubmit",
+                tip: "This will resubmits VMs to PENDING state",
+                condition: True                  
+            },
+            "VM.saveasmultiple" : {
+                type: "action",
+                text: "Save as",
+                condition: True
             },
             "VM.cancel" : {
                 type: "confirm",
@@ -1776,6 +1820,111 @@ function popUpCreateVMDialog(){
     $('#create_vm_dialog').dialog('open');
 }
 
+//Prepares a dialog to saveas a VM
+function setupSaveasDialog(){
+    //Append to DOM
+    $('div#dialogs').append('<div id="saveas_vm_dialog" title="VM Save As"></div>');
+
+    //Put HTML in place
+    $('#saveas_vm_dialog').html('\
+        <form action="javascript:alert(\'js error!\');">\
+            <div id="saveas_tabs">\
+            </div>\
+			<div class="form_buttons">\
+			  <button id="vm_saveas_proceed" value="">OK</button>\
+			  <button id="vm_saveas_cancel" value="">Cancel</button>\
+			</div>\
+            </fieldset>\
+       </form>');
+       
+    $('#saveas_vm_dialog').dialog({
+        autoOpen:false,
+        width:600,
+        modal:true,
+        height:350,
+        resizable:true,
+    });
+    
+    $('#saveas_vm_dialog #vm_saveas_proceed').click(function(){
+        var elems = $('#saveas_vm_dialog #saveas_tabs div.saveas_tab');
+        var args = [];
+        $.each(elems,function(){
+            var id = $('#vm_id',this).text();
+            var disk_id = $('#vm_disk_id',this).val();
+            var image_name = $('#image_name',this).val();
+            var type = $('#image_type',this).val();
+            
+            if (!id.length || !disk_id.length || !image_name.length) {
+                notifyError("Skipping VM "+id+
+                    ". No disk id or image name specified");
+                }
+            else {
+                var obj = {
+                    vm_id: id,
+                    disk_id : disk_id,
+                    image_name : image_name,
+                    type: type
+                };
+                args.push(id);
+                Sunstone.runAction("VM.saveas",obj);
+            }
+        });
+        if (args.length > 0){
+            notifySubmit("VM.saveas",args);
+        }
+ 
+        $('#saveas_vm_dialog').dialog('close'); 
+        return false;
+    });
+    
+    $('#saveas_vm_dialog #vm_saveas_cancel').click(function(){
+       $('#saveas_vm_dialog').dialog('close'); 
+       return false;
+    });
+        
+}
+
+function popUpSaveasDialog(elems){
+    $('#saveas_vm_dialog #saveas_tabs').tabs('destroy');
+    $('#saveas_vm_dialog #saveas_tabs').empty();
+    $('#saveas_vm_dialog #saveas_tabs').html('<ul></ul>');
+    
+    $.each(elems,function(){
+        var li = '<li><a href="#saveas_tab_'+this+'">VM '+this+'</a></li>'
+        $('#saveas_vm_dialog #saveas_tabs ul').append(li);
+        var tab = '<div class="saveas_tab" id="saveas_tab_'+this+'">\
+        <div id="vm_id_text">Saveas for VM with ID <span id="vm_id">'+this+'</span></div>\
+            <fieldset>\
+            <div>\
+                <label for="vm_disk_id">Disk id:</label>\
+                <input type="text" id="vm_disk_id" name="vm_disk_id" value="" size="2"/>\
+            </div>\
+            <div>\
+                <label for="image_name">Image name:</label>\
+                <input type="text" id="image_name" name="image_name" value="" />\
+            </div>\
+            <div>\
+                <label for="img_attr_value">Type:</label>\
+                <select id="image_type" name="image_type">\
+                    <option value="">Default</option>\
+					<option value="disk">Disk</option>\
+					<option value="floppy">Floppy</option>\
+					<option value="cdrom">CD-ROM</option>\
+					<option value="swap">Swap</option>\
+					<option value="fs">FS</option>\
+					<option value="block">Block</option>\
+				  </select>\
+            </div>\
+            </fieldset>\
+        </div>';
+        $('#saveas_vm_dialog #saveas_tabs').append(tab);
+    });
+    $('#saveas_vm_dialog #saveas_tabs').tabs();
+    $('#saveas_vm_dialog button').button();
+       
+    $('#saveas_vm_dialog').dialog('open');
+}
+
 //Prepares autorefresh
 function setVMAutorefresh(){
      setInterval(function(){
@@ -1810,6 +1959,7 @@ $(document).ready(function(){
 	Sunstone.runAction("VM.list");
     
     setupCreateVMDialog();
+    setupSaveasDialog();
     setVMAutorefresh();
     
     initCheckAllBoxes(dataTable_vMachines);
