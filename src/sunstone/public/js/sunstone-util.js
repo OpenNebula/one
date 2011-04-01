@@ -143,9 +143,10 @@ function updateView(item_list,data_table){
 
 //replaces an element with id 'tag' in a dataTable with a new one
 function updateSingleElement(element,data_table,tag){
-	var tr = $(tag).parents('tr')[0];
+    var nodes = data_table.fnGetNodes();
+	var tr = $(tag,nodes).parents('tr')[0];
 	var position = data_table.fnGetPosition(tr);
-	data_table.fnUpdate(element,position,0);
+	data_table.fnUpdate(element,position,0,false);
     $('input',data_table).trigger("change");
 
 }
