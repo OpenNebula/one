@@ -174,7 +174,7 @@ var create_vm_tmpl =
 			    <div class="clear"></div>\
 			    <div class="vm_param kvm xen add_image">\
 				  <label for="IMAGE">Image:</label>\
-				  <select type="text" id="IMAGE" name="image">\
+				  <select type="text" id="IMAGE_ID" name="image_id">\
 				  </select>\
 				  <div class="tip">Name of the image to use</div>\
 			    </div>\
@@ -279,7 +279,7 @@ var create_vm_tmpl =
 			    <div class="clear"></div>\
 				<div class="vm_param kvm xen network">\
 				  <label for="NETWORK">Network:</label>\
-				  <select type="text" id="NETWORK" name="network">\
+				  <select type="text" id="NETWORK_ID" name="network_id">\
 				  </select>\
 				  <div class="tip">Name of the network to attach this device</div>\
 			    </div>\

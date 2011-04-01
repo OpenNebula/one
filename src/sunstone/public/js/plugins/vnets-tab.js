@@ -312,7 +312,7 @@ function updateNetworkSelect(){
 
 	//update static selectors:
     //in the VM creation dialog
-	$('div.vm_section#networks select#NETWORK').html(vnetworks_select);
+	$('div.vm_section#networks select#NETWORK_ID').html(vnetworks_select);
 }
 
 //Callback to update a vnet element after an action on it

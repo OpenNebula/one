@@ -480,7 +480,7 @@ function updateImageSelect(){
    
     //update static selectors:
     //in the VM section
-    $('div.vm_section#disks select#IMAGE').html(images_select);
+    $('div.vm_section#disks select#IMAGE_ID').html(images_select);
 }
 
 // Callback to update an element in the dataTable
