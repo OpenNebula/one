@@ -277,7 +277,7 @@ var create_vm_tmpl =
 				  <!--<div class="tip"></div>-->\
 			    </div>\
 			    <div class="clear"></div>\
-				<div class="vm_param kvm_opt xen_opt network">\
+				<div class="vm_param kvm xen network">\
 				  <label for="NETWORK">Network:</label>\
 				  <select type="text" id="NETWORK" name="network">\
 				  </select>\
@@ -1456,11 +1456,12 @@ function setupCreateVMDialog(){
     //network, or that the ip or mac are set
     //TODO: Improve this check
         var nicFilter = function(){
-			var network = $('select#NETWORK :selected',section_networks).attr('id');
-			var ip = $('#IP',section_networks).val();
-			var mac = $('#MAC',section_networks).val();
-
-			return (network != "no_network" || ip.length || mac.length);
+            return mandatory_filter(section_networks);
+			//~ var network = $('select#NETWORK :selected',section_networks).attr('id');
+			//~ var ip = $('#IP',section_networks).val();
+			//~ var mac = $('#MAC',section_networks).val();
+//~ 
+			//~ return (network != "no_network" || ip.length || mac.length);
 		};
 
 		$('#add_nic_button',section_networks).click(function(){
