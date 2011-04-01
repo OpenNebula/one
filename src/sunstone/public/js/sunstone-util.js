@@ -221,7 +221,9 @@ function initCheckAllBoxes(datatable){
 			$('tbody input:checkbox',
 				$(this).parents("table")).each(function(){
 					$(this).removeAttr("checked");
-			});			}
+			});			
+        }
+        $('tbody input:checkbox',$(this).parents("table")).trigger("change");
 	});
 }
 
