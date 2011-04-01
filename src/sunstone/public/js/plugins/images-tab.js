@@ -735,7 +735,7 @@ function setupCreateImageDialog(){
         var exit = false;
         $('.img_man',this).each(function(){
            if (!$('input',this).val().length){
-               notifyError("There are mandatory missing parameters");
+               notifyError("There are mandatory parameters missing");
                exit = true;
                return false;
            }
