@@ -30,10 +30,11 @@ void RequestManager::VirtualMachineAllocate::execute(
     string              str_template;
     string              error_str;
     string              user_name;
+    string              att_name;
 
     const string        method_name = "VirtualMachineAllocate";
 
-    int                 vid, uid;
+    int                 vid, uid, tid;
     int                 rc;
 
     ostringstream       oss;
@@ -43,6 +44,11 @@ void RequestManager::VirtualMachineAllocate::execute(
 
     VirtualMachineTemplate * vm_template;
     User *                   user;
+    VMTemplate *             registered_template;
+    bool                     using_template_pool;
+    int                      template_owner;
+    bool                     template_public;
+
     char *                   error_msg = 0;
 
     int                   num;
@@ -77,10 +83,45 @@ void RequestManager::VirtualMachineAllocate::execute(
         goto error_parse;
     }
 
+    //--------------------------------------------------------------------------
+    //   Look for a template id
+    //--------------------------------------------------------------------------
+    att_name = "TEMPLATE_ID";
+    using_template_pool = vm_template->get(att_name, tid);
+
+    if( using_template_pool )
+    {
+        // Get the registered template
+        registered_template = VirtualMachineAllocate::tpool->get(tid, true);
+
+        if( registered_template == 0 )
+        {
+            goto error_template_get;
+        }
+
+        delete vm_template;
+
+        // Use the template contents
+        vm_template     = registered_template->get_template_contents();
+        template_owner  = registered_template->get_uid();
+        template_public = registered_template->isPublic();
+
+        registered_template->unlock();
+    }
+
     if ( uid != 0 )
     {
         AuthRequest ar(uid);
         string      t64;
+
+        if( using_template_pool )
+        {
+            ar.add_auth(AuthRequest::TEMPLATE,
+                        tid,
+                        AuthRequest::USE,
+                        template_owner,
+                        template_public);
+        }
 
         num = vm_template->get("DISK",vectors);
 
@@ -165,6 +206,11 @@ void RequestManager::VirtualMachineAllocate::execute(
 
     return;
 
+error_template_get:
+    oss.str(get_error(method_name, "TEMPLATE", tid));
+
+    delete vm_template;
+    goto error_common;
 
 error_user_get:
     oss.str(get_error(method_name, "USER", uid));

@@ -161,8 +161,10 @@ public:
      *    @param name the attribute name.
      *    @param value the attribute value, an int, 0 if the attribute is not
      *    defined or not Single
+     *
+     *    @returns True if the Single attribute was found
      */
-    virtual void get(
+    virtual bool get(
         string& name,
         int&    value) const;
 

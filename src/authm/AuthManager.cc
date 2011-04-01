@@ -148,7 +148,7 @@ void AuthRequest::add_auth(Object        ob,
         switch (op)
         {
             case CREATE:
-                if ( ob == VM || ob == NET || ob == IMAGE )
+                if ( ob == VM || ob == NET || ob == IMAGE || ob == TEMPLATE )
                 {
                     auth = true;
                 }
@@ -159,7 +159,7 @@ void AuthRequest::add_auth(Object        ob,
                 break;
 
             case USE:
-                if (ob == NET || ob == IMAGE)
+                if (ob == NET || ob == IMAGE || ob == TEMPLATE)
                 {
                     auth = (owner == uid) || pub;
                 }

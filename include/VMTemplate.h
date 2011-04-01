@@ -74,6 +74,11 @@ public:
     // Template Contents
     // ------------------------------------------------------------------------
 
+    VirtualMachineTemplate * get_template_contents() const
+    {
+        return new VirtualMachineTemplate(*template_contents);
+    }
+
     /**
      *  Gets the values of a template attribute
      *    @param name of the attribute
@@ -178,11 +183,15 @@ private:
      */
     VirtualMachineTemplate* template_contents;
 
-
     /**
      *  Public scope of the VMTemplate
      */
     int         public_template;
+
+    /**
+     *  Registration time
+     */
+    time_t      regtime;
 
     // *************************************************************************
     // DataBase implementation (Private)

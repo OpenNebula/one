@@ -28,7 +28,8 @@ VMTemplate::VMTemplate(int id,
                        string _user_name,
                        VirtualMachineTemplate * _template_contents):
         PoolObjectSQL(id,"",_uid,table),
-        user_name(_user_name)
+        user_name(_user_name),
+        regtime(time(0))
 {
     if (_template_contents != 0)
     {
@@ -61,7 +62,7 @@ const char * VMTemplate::db_names = "oid, name, body, uid, public";
 
 const char * VMTemplate::db_bootstrap =
     "CREATE TABLE IF NOT EXISTS template_pool (oid INTEGER PRIMARY KEY, "
-    "name VARCHAR(256), body TEXT, uid INTEGER, public INTEGER, UNIQUE(name))";
+    "name VARCHAR(256), body TEXT, uid INTEGER, public INTEGER)";
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
@@ -197,6 +198,7 @@ string& VMTemplate::to_xml(string& xml) const
             << "<USERNAME>" << user_name        << "</USERNAME>"
             << "<NAME>"     << name             << "</NAME>"
             << "<PUBLIC>"   << public_template  << "</PUBLIC>"
+            << "<REGTIME>"  << regtime          << "</REGTIME>"
             << template_contents->to_xml(template_xml)
         << "</VMTEMPLATE>";
 
@@ -222,6 +224,7 @@ int VMTemplate::from_xml(const string& xml)
     rc += xpath(user_name,      "/VMTEMPLATE/USERNAME", "not_found");
     rc += xpath(name,           "/VMTEMPLATE/NAME",     "not_found");
     rc += xpath(public_template,"/VMTEMPLATE/PUBLIC",   0);
+    rc += xpath(regtime,        "/VMTEMPLATE/REGTIME",  0);
 
     // Get associated classes
     ObjectXML::get_nodes("/VMTEMPLATE/TEMPLATE", content);

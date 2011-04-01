@@ -321,10 +321,12 @@ private:
             VirtualMachinePool * _vmpool,
             VirtualNetworkPool * _vnpool,
             ImagePool          * _ipool,
+            VMTemplatePool     * _tpool,
             UserPool           * _upool):
         vmpool(_vmpool),
         vnpool(_vnpool),
         ipool(_ipool),
+        tpool(_tpool),
         upool(_upool)
         {
             _signature="A:ss";
@@ -340,6 +342,7 @@ private:
         VirtualMachinePool * vmpool;
         VirtualNetworkPool * vnpool;
         ImagePool          * ipool;
+        VMTemplatePool     * tpool;
         UserPool           * upool;
     };
 

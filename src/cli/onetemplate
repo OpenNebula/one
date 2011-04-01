@@ -70,14 +70,8 @@ ShowTableTemplate={
         :proc => lambda {|d,e|
             if d["PUBLIC"].to_i == 1 then "Yes" else "No" end}
     },
-    :runningvms => {
-        :name => "#VMS",
-        :desc => "Number of VMs currently running from this Template",
-        :size => 5,
-        :proc => lambda {|d,e| d['RUNNING_VMS'] }
-    },
 
-    :default => [:id, :user, :name, :regtime, :public, :runningvms]
+    :default => [:id, :user, :name, :regtime, :public]
 }
 
 
@@ -377,8 +371,6 @@ when "show"
                 end
                 puts str % ["PUBLIC", public_str]
 
-                puts str % ["RUNNING_VMS", template['RUNNING_VMS']]
-
                 puts
 
                 print_header(str_h1,"TEMPLATE CONTENTS",false)
@@ -400,7 +392,7 @@ when "delete"
                         OpenNebula::Template.build_xml(template_id),
                         get_one_client)
 
-        result = img_repo.delete(template)
+        result = template.delete
         if is_successful?(result)
             puts "Template correctly deleted"  if ops[:verbose]
         end
