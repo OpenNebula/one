@@ -150,7 +150,7 @@ var host_actions = {
                 },
                 callback: function(){},
                 error: onError,
-                notify:true
+                notify:false
             },
             
             "Host.autorefresh" : {
