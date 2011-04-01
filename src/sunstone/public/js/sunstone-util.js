@@ -94,14 +94,16 @@ function tableCheckboxesListener(dataTable){
     };
     $('.create_dialog_button',context).button("enable");
 
-    //listen to changes
-    $('input',dataTable).live("change",function(){
-        var dataTable = $(this).parents('table').dataTable();
-        var context = dataTable.parents('form');
-        var last_action_b = $('.last_action_button',context);
-        var nodes = dataTable.fnGetNodes();
+    //listen to changes in the visible inputs
+    $('tbody input',dataTable).live("change",function(){
+        var table = $(this).parents('tbody');
+        var context = table.parents('form');
+        var nodes = $('tr',table);
         var total_length = nodes.length;
-        var checked_length = $('input:checked',nodes).length;
+        var checked_length = $('input:checked',nodes).length;        
+        
+        var last_action_b = $('.last_action_button',context);
+        
         
         //if all elements are checked we check the check-all box
         if (total_length == checked_length && total_length != 0){
@@ -365,7 +367,7 @@ function getSelectedNodes(dataTable){
     var selected_nodes = [];
     if (dataTable != null){
             //Which rows of the datatable are checked?
-            var nodes = $('input:checked',dataTable.fnGetNodes());
+            var nodes = $('input:checked',$('tbody',dataTable));
             $.each(nodes,function(){
                 selected_nodes.push($(this).val());
             });
