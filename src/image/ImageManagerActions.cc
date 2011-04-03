@@ -354,37 +354,36 @@ int ImageManager::register_image(int iid)
 
     img->get_template_attribute("PATH",path);
 
-    switch (img->get_type())
+    if ( path.empty() == true ) //NO PATH -> USE SOURCE OR MKFS FOR DATABLOCK
     {
-        case Image::DATABLOCK:
-            if (path.empty() == true)
-            {
-                string fs;
-                string size;
+        string fs;
+        string size;
 
-                img->get_template_attribute("SIZE",   size);
-                img->get_template_attribute("FSTYPE", fs);
+        img->get_template_attribute("SIZE",   size);
+        img->get_template_attribute("FSTYPE", fs);
 
-                imd->mkfs(img->get_oid(), img->get_source(), fs, size);
-             
-                oss << "Creating disk at " << img->get_source() 
-                    << " of " << size << "Mb with format " << fs;
-            }
-            else
-            {
-                imd->cp(img->get_oid(),path, img->get_source());
+        if ( img->get_type() == Image::DATABLOCK &&
+             !size.empty() && !fs.empty() )
+        {
+            imd->mkfs(img->get_oid(), img->get_source(), fs, size);
+         
+            oss << "Creating disk at " << img->get_source() << " of " 
+                << size << "Mb with format " << fs;
+        }
+        else
+        {
+            img->set_state(Image::READY);
+            ipool->update(img);
 
-                oss << "Copying file " << path << " to " << img->get_source();
-            }
-        break;
-
-        case Image::CDROM:
-        case Image::OS:
-            imd->cp(img->get_oid(),path, img->get_source());
-            oss << "Copying file " << path << " to " << img->get_source();
-        break;
-        default:
-        break;
+            oss << "Using source " << img->get_source() 
+                << " from template for image " << img->get_name();
+        }
+    }
+    else //PATH -> COPY TO REPOSITORY AS SOURCE
+    {
+        imd->cp(img->get_oid(), path, img->get_source());
+        oss << "Copying image " << path 
+            << " to repository as " << img->get_source();
     }
     
     NebulaLog::log("ImM",Log::INFO,oss);
