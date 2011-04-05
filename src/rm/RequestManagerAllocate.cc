@@ -43,6 +43,7 @@ void RequestManager::VirtualMachineAllocate::execute(
     xmlrpc_c::value_array * arrayresult;
 
     VirtualMachineTemplate * vm_template;
+    VirtualMachineTemplate * vm_template_aux;
     User *                   user;
     VMTemplate *             registered_template;
     bool                     using_template_pool;
@@ -99,14 +100,22 @@ void RequestManager::VirtualMachineAllocate::execute(
             goto error_template_get;
         }
 
-        delete vm_template;
-
         // Use the template contents
-        vm_template     = registered_template->get_template_contents();
+        vm_template_aux = registered_template->get_template_contents();
         template_owner  = registered_template->get_uid();
         template_public = registered_template->isPublic();
 
         registered_template->unlock();
+
+        rc = vm_template_aux->merge(vm_template, &error_msg);
+
+        delete vm_template;
+        vm_template = vm_template_aux;
+
+        if ( rc != 0 )
+        {
+            goto error_parse;
+        }
     }
 
     if ( uid != 0 )
@@ -154,11 +163,22 @@ void RequestManager::VirtualMachineAllocate::execute(
             VirtualMachineAllocate::vnpool->authorize_nic(vector,uid,&ar);
         }
 
-        ar.add_auth(AuthRequest::VM,
-                    vm_template->to_xml(t64),
-                    AuthRequest::CREATE,
-                    uid,
-                    false);
+        if( using_template_pool )
+        {
+            ar.add_auth(AuthRequest::VM,
+                        vm_template->to_xml(t64),
+                        AuthRequest::INSTANTIATE,
+                        uid,
+                        false);
+        }
+        else
+        {
+            ar.add_auth(AuthRequest::VM,
+                        vm_template->to_xml(t64),
+                        AuthRequest::CREATE,
+                        uid,
+                        false);
+        }
 
         if (UserPool::authorize(ar) == -1)
         {

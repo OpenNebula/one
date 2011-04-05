@@ -74,10 +74,21 @@ public:
     // Template Contents
     // ------------------------------------------------------------------------
 
+    /**
+     *  Returns a copy of the VirtualMachineTemplate
+     *    @return A copy of the VirtualMachineTemplate
+     */
     VirtualMachineTemplate * get_template_contents() const
     {
-        return new VirtualMachineTemplate(*template_contents);
-    }
+        // TODO: Check if there is a more efficient way to do this copy.
+        string xml_str;
+        VirtualMachineTemplate * new_template = new VirtualMachineTemplate();
+
+        template_contents->to_xml(xml_str);
+        new_template->from_xml(xml_str);
+
+        return new_template;
+    };
 
     /**
      *  Gets the values of a template attribute

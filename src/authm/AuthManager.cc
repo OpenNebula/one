@@ -89,7 +89,7 @@ void AuthRequest::add_auth(Object        ob,
         case TEMPLATE: oss << "TEMPLATE:" ; break;
     }
 
-    if (op == CREATE) //encode the ob_id, it is a template
+    if (op == CREATE || op == INSTANTIATE) //encode the ob_id, it is a template
     {
         string * encoded_id = base64_encode(ob_id);
 
@@ -129,6 +129,10 @@ void AuthRequest::add_auth(Object        ob,
         case INFO:
             oss << "INFO:" ;
             break;
+
+        case INSTANTIATE:
+            oss << "INSTANTIATE:" ;
+            break;
     }
 
     oss << owner << ":" << pub;
@@ -149,6 +153,13 @@ void AuthRequest::add_auth(Object        ob,
         {
             case CREATE:
                 if ( ob == VM || ob == NET || ob == IMAGE || ob == TEMPLATE )
+                {
+                    auth = true;
+                }
+                break;
+
+            case INSTANTIATE:
+                if ( ob == VM )
                 {
                     auth = true;
                 }

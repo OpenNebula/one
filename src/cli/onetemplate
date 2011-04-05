@@ -274,7 +274,7 @@ when "create", "register", "add"
         exit 0
     end
 
-when "addattr"
+when "update", "addattr"
     check_parameters("update", 3)
     template_id = get_template_id(ARGV[0])
 

@@ -276,11 +276,12 @@ public:
      */
     enum Operation
     {
-        CREATE,  /** Authorization to create an object (host, vm, net, image)*/
-        DELETE,  /** Authorization to delete an object */
-        USE,     /** Authorization to use an object */
-        MANAGE,  /** Authorization to manage an object */
-        INFO     /** Authorization to view an object */
+        CREATE,     /** Authorization to create an object   */
+        DELETE,     /** Authorization to delete an object   */
+        USE,        /** Authorization to use an object      */
+        MANAGE,     /** Authorization to manage an object   */
+        INFO,       /** Authorization to view an object     */
+        INSTANTIATE /** Authorization to instantiate a VM from a TEMPLATE   */
     };
 
     /**
