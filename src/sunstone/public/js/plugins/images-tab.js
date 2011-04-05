@@ -560,7 +560,11 @@ function setupImageAttributesDialogs(){
     $('#img_attr_name').keyup(function(){
        $(this).val($(this).val().toUpperCase());
     });
-
+    
+    $('#image_attributes_dialog #img_attr_proceed').click(function(){
+        $('#image_attributes_dialog').dialog('close');
+    });
+    
     $('#image_attributes_dialog #img_attr_cancel').click(function(){
         $('#image_attributes_dialog').dialog('close');
         return false;
