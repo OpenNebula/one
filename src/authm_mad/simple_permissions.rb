@@ -48,7 +48,20 @@ class SimplePermissions
         
         VmUsage.new(cpu, memory)
     end
-    
+
+    # Checks if the quota is enabled, and if it is not exceeded
+    def check_quota_enabled(uid, object, id, auth_result)
+        if @quota_enabled and object=='VM' and auth_result
+            STDERR.puts 'quota enabled'
+            @quota.update(uid.to_i)
+            if !@quota.check(uid.to_i, get_vm_usage(id))
+                auth_result="Quota exceeded"
+            end
+        end
+
+        return auth_result
+    end
+
     # Method called by authorization driver
     def auth(uid, tokens)
         result=true
@@ -71,21 +84,18 @@ class SimplePermissions
         
         case action
         when 'CREATE'
-            auth_result=true if %w{VM NET IMAGE}.include? object
-            
-            if @quota_enabled and object=='VM' and auth_result
-                STDERR.puts 'quota enabled'
-                @quota.update(uid.to_i)
-                if !@quota.check(uid.to_i, get_vm_usage(id))
-                    auth_result="Quota exceeded"
-                end
-            end
-            
+            auth_result=true if %w{VM NET IMAGE TEMPLATE}.include? object
+            auth_result = check_quota_enabled(uid, object, id, auth_result)
+
+        when 'INSTANTIATE'
+            auth_result = true if %w{VM}.include? object
+            auth_result = check_quota_enabled(uid, object, id, auth_result)
+
         when 'DELETE'
             auth_result = (owner == uid)
             
         when 'USE'
-            if %w{VM NET IMAGE}.include? object
+            if %w{VM NET IMAGE TEMPLATE}.include? object
                 auth_result = ((owner == uid) | (pub=='1'))
             elsif object == 'HOST'
                 auth_result=true
