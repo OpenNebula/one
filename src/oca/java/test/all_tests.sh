@@ -7,3 +7,4 @@
 ./test.sh UserTest
 ./test.sh VirtualMachineTest
 ./test.sh VirtualNetworkTest
+./test.sh TemplateTest

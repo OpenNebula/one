@@ -29,6 +29,7 @@ CODE=$?
 pkill -P $PID oned
 sleep 4s;
 pkill -9 -P $PID oned
-rm -rf $VAR_LOCATION/*
+rm -rf $VAR_LOCATION
+mkdir $VAR_LOCATION
 
 exit $CODE

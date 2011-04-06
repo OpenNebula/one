@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,25 +22,24 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opennebula.client.Client;
 import org.opennebula.client.OneResponse;
-import org.opennebula.client.image.*;
+import org.opennebula.client.template.*;
 
 
 
-public class ImageTest
+public class TemplateTest
 {
 
-    private static Image image;
-    private static ImagePool imagePool;
+    private static Template template;
+    private static TemplatePool templatePool;
 
     private static Client client;
 
     private static OneResponse res;
-    private static String name = "new_test_img";
+    private static String name = "new_test_template";
 
 
-    private static String template =
+    private static String template_str =
         "NAME = \"" + name + "\"\n" +
-        "PATH = /etc/hosts\n" +
         "ATT1 = \"val1\"";
 
     /**
@@ -49,8 +48,8 @@ public class ImageTest
     @BeforeClass
     public static void setUpBeforeClass() throws Exception
     {
-        client      = new Client();
-        imagePool   = new ImagePool(client);
+        client          = new Client();
+        templatePool    = new TemplatePool(client);
     }
 
     /**
@@ -67,10 +66,10 @@ public class ImageTest
     @Before
     public void setUp() throws Exception
     {
-        res = Image.allocate(client, template);
+        res = Template.allocate(client, template_str);
 
-        int imgid = res.isError() ? -1 : Integer.parseInt(res.getMessage()); 
-        image = new Image(imgid, client);
+        int oid = res.isError() ? -1 : Integer.parseInt(res.getMessage());
+        template = new Template(oid, client);
     }
 
     /**
@@ -79,27 +78,27 @@ public class ImageTest
     @After
     public void tearDown() throws Exception
     {
-        image.delete();
+        template.delete();
     }
 
     @Test
     public void allocate()
     {
-        image.delete();
+        template.delete();
 
-        res = Image.allocate(client, template);
+        res = Template.allocate(client, template_str);
         assertTrue( !res.isError() );
 
-        int imgid = res.isError() ? -1 : Integer.parseInt(res.getMessage()); 
-        image = new Image(imgid, client);
+        int oid = res.isError() ? -1 : Integer.parseInt(res.getMessage());
+        template = new Template(oid, client);
 
 
-        imagePool.info();
+        templatePool.info();
 
         boolean found = false;
-        for(Image img : imagePool)
+        for(Template temp : templatePool)
         {
-            found = found || img.getName().equals(name);
+            found = found || temp.getName().equals(name);
         }
 
         assertTrue( found );
@@ -108,103 +107,83 @@ public class ImageTest
     @Test
     public void info()
     {
-        res = image.info();
+        res = template.info();
         assertTrue( !res.isError() );
-        
-//        assertTrue( image.getId().equals("0") );
-//        assertTrue( image.id() == 0 );
-        assertTrue( image.getName().equals(name) );
+
+//        assertTrue( template.getId().equals("0") );
+//        assertTrue( template.id() == 0 );
+        assertTrue( template.getName().equals(name) );
     }
 
     @Test
     public void update()
     {
         // Update an existing att.
-        res = image.update("ATT1", "new_val_1");
+        res = template.update("ATT1", "new_val_1");
         assertTrue( !res.isError() );
 
-        res = image.info();
+        res = template.info();
         assertTrue( !res.isError() );
-        assertTrue( image.xpath("TEMPLATE/ATT1").equals("new_val_1") );
+        assertTrue( template.xpath("TEMPLATE/ATT1").equals("new_val_1") );
 
         // Create a new att.
-        res = image.update("ATT2", "new_val_2");
+        res = template.update("ATT2", "new_val_2");
         assertTrue( !res.isError() );
 
-        res = image.info();
+        res = template.info();
         assertTrue( !res.isError() );
-        assertTrue( image.xpath("TEMPLATE/ATT2").equals("new_val_2") );
+        assertTrue( template.xpath("TEMPLATE/ATT2").equals("new_val_2") );
     }
 
     @Test
     public void rmattr()
     {
-        res = image.rmattr("ATT1");
+        res = template.rmattr("ATT1");
         assertTrue( !res.isError() );
 
-        res = image.info();
+        res = template.info();
         assertTrue( !res.isError() );
 
-        assertTrue( image.xpath("ATT1").equals("") );
-    }
-
-    @Test
-    public void enable()
-    {
-        res = image.enable();
-        assertTrue( !res.isError() );
-
-        image.info();
-        assertTrue( image.isEnabled() );
-    }
-
-    @Test
-    public void disable()
-    {
-        res = image.disable();
-        assertTrue( !res.isError() );
-
-        image.info();
-        assertTrue( !image.isEnabled() );
+        assertTrue( template.xpath("ATT1").equals("") );
     }
 
     @Test
     public void publish()
     {
-        res = image.publish();
+        res = template.publish();
         assertTrue( !res.isError() );
 
-        image.info();
-        assertTrue( image.isPublic() );
+        template.info();
+        assertTrue( template.isPublic() );
     }
 
     @Test
     public void unpublish()
     {
-        res = image.unpublish();
+        res = template.unpublish();
         assertTrue( !res.isError() );
 
-        image.info();
-        assertTrue( !image.isPublic() );
+        template.info();
+        assertTrue( !template.isPublic() );
     }
 
     @Test
     public void attributes()
     {
-        res = image.info();
+        res = template.info();
         assertTrue( !res.isError() );
 
-//        assertTrue( image.xpath("ID").equals("0") );
-        assertTrue( image.xpath("NAME").equals(name) );
+//        assertTrue( template.xpath("ID").equals("0") );
+        assertTrue( template.xpath("NAME").equals(name) );
     }
 
 //    @Test
     public void delete()
     {
-        res = image.delete();
+        res = template.delete();
         assertTrue( !res.isError() );
 
-        res = image.info();
+        res = template.info();
         assertTrue( res.isError() );
     }
 }
