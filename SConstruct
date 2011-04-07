@@ -230,6 +230,7 @@ if testing=='yes':
         'src/vm/test/SConstruct',
         'src/vnm/test/SConstruct',
         'src/xml/test/SConstruct',
+        'src/vm_template/test/SConstruct',
     ])
 else:
     main_env.Append(testing='no')
