@@ -407,7 +407,7 @@ tr.even:hover{
 .top_button {
     font-size: 0.8em;
     height: 25px;
-    margin: 3px 0;
+    margin: 3px 2px;
     vertical-align: middle;
     /*width: 89px;*/
 }
@@ -415,6 +415,13 @@ tr.even:hover{
 	font-size: 0.9em;
 	height: 25px;
 	vertical-align: middle;
+}
+
+.image_button {
+  font-size: 0.8em;
+  margin: 3px 2px;
+  vertical-align: middle;
+  border:0;
 }
 
 /*

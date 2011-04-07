@@ -20,31 +20,28 @@
     <link rel="stylesheet" type="text/css" href="/css/application.css" />
     <link rel="stylesheet" type="text/css" href="/css/layout.css" />
     <script type="text/javascript" src="/js/opennebula.js"></script>
-    <script type="text/javascript" src="/js/one-ui_views.templates.js"></script>
-    <script type="text/javascript" src="/js/one-ui_views.js"></script>
     <script type="text/javascript" src="/js/layout.js"></script>
+    <script type="text/javascript" src="/js/sunstone.js"></script>
+    <script type="text/javascript" src="/js/sunstone-util.js"></script>
+    <script type="text/javascript" src="/js/plugins/dashboard-tab.js"></script>
+    <script type="text/javascript" src="/js/plugins/hosts-tab.js"></script>
+    <script type="text/javascript" src="/js/plugins/vms-tab.js"></script>
+    <script type="text/javascript" src="/js/plugins/vnets-tab.js"></script>
+    <script type="text/javascript" src="/js/plugins/images-tab.js"></script>
+    <script type="text/javascript" src="/js/plugins/users-tab.js"></script>
+    
+    <!--<script type="text/javascript" src="/js/plugins/dummy-plugin.js"></script>-->
+    
 </head>
 <body>
 <div class="outer-center">
     <div class="inner-center">
-        <div id="dashboard" class="tab"></div>
-        <div id="hosts" class="tab"></div>
-        <div id="virtualMachines" class="tab"></div>
-        <div id="virtualNetworks" class="tab"></div>
-        <div id="images" class="tab"></div>
-        <div id="users" class="tab"></div>
     </div>
     <div id="dialog" class="inner-south"></div>
 </div>
 
 <div id="menu" class="outer-west">
     <ul id="navigation">
-        <li><a href="#dashboard">Dashboard</a></li>
-        <li><a href="#hosts">Hosts &amp; Clusters</a></li>
-        <li><a href="#virtualMachines">Virtual Machines</a></li>
-        <li><a href="#virtualNetworks">Virtual Networks</a></li>
-        <li><a href="#images">Images</a></li>
-        <li class="oneadmin"><a href="#users">Users</a></li>
     </ul>
 </div>
 
@@ -67,32 +64,8 @@
 
 
 <div id="dialogs">
-    <div id="create_host_dialog" title="Create a new host">
-    </div>
 
-    <div id="create_cluster_dialog" title="Create a new cluster">
-    </div>
-
-    <div id="create_vn_dialog" title="Create a new Virtual Network">
-    </div>
-
-    <div id="create_vm_dialog" title="Create a new Virtual Machine">
-    </div>
-
-    <div id="create_user_dialog" title="Create a new user">
-    </div>
-
-    <div id="create_image_dialog" title="Create a new image">
-    </div>
-
-    <div id="host_info_dialog" title="Host Information">
-    </div>
-
-    <div id="vm_info_dialog" title="Virtual Machine Information">
-    </div>
-
-    <div id="vn_info_dialog" title="Virtual Network Information">
-    </div>
 </div>
+<div id="info_panels"></div>
 </body>
 </html>

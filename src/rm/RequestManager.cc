@@ -300,6 +300,9 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr user_change_password(new
         RequestManager::UserChangePassword(upool));
 
+    xmlrpc_c::methodPtr user_authenticate(new
+        RequestManager::UserAuthenticate(upool));
+
     xmlrpc_c::methodPtr userpool_info(new    
         RequestManager::UserPoolInfo(upool));
         
@@ -378,6 +381,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.user.delete", user_delete);
     RequestManagerRegistry.addMethod("one.user.info", user_info);
     RequestManagerRegistry.addMethod("one.user.passwd", user_change_password);
+    RequestManagerRegistry.addMethod("one.user.authenticate",user_authenticate);
 
     RequestManagerRegistry.addMethod("one.userpool.info", userpool_info);
     
