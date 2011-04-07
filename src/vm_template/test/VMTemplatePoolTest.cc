@@ -109,6 +109,7 @@ class VMTemplatePoolTest : public PoolTest
     CPPUNIT_TEST ( update );
     CPPUNIT_TEST ( get_using_name );
     CPPUNIT_TEST ( wrong_get_name );
+    CPPUNIT_TEST ( duplicates );
     CPPUNIT_TEST ( public_attribute );
     CPPUNIT_TEST ( dump );
     CPPUNIT_TEST ( dump_where );
@@ -311,6 +312,30 @@ public:
         // Ask again for a non-existing name
         obj = pool->get("Non existing name",uids[0], true);
         CPPUNIT_ASSERT( obj == 0 );
+    }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+    void duplicates()
+    {
+        int rc, oid;
+        VMTemplatePoolFriend * tpool = static_cast<VMTemplatePoolFriend*>(pool);
+
+        // Allocate a template
+        rc = tpool->allocate(uids[0], templates[0], &oid);
+        CPPUNIT_ASSERT( oid == 0 );
+        CPPUNIT_ASSERT( oid == rc );
+
+        // Try to allocate twice the same template, should fail
+        rc = tpool->allocate(uids[0], templates[0], &oid);
+        CPPUNIT_ASSERT( rc  == -1 );
+        CPPUNIT_ASSERT( oid == rc );
+
+        // Try again, this time with different uid. Should be allowed
+        rc = tpool->allocate(uids[1], templates[0], &oid);
+        CPPUNIT_ASSERT( rc  >= 0 );
+        CPPUNIT_ASSERT( oid == rc );
     }
 
 /* -------------------------------------------------------------------------- */
