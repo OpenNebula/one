@@ -47,19 +47,19 @@ Image::Image(int             _uid,
 {
     if (_image_template != 0)
     {
-        image_template = _image_template;
+        obj_template = _image_template;
     }
     else
     {
-        image_template = new ImageTemplate;
+        obj_template = new ImageTemplate;
     }
 }
 
 Image::~Image()
 {
-    if (image_template != 0)
+    if (obj_template != 0)
     {
-        delete image_template;
+        delete obj_template;
     }
 }
 
@@ -132,7 +132,7 @@ int Image::insert(SqlDB *db, string& error_str)
 
     get_template_attribute("PUBLIC", public_attr);
 
-    image_template->erase("PUBLIC");
+    obj_template->erase("PUBLIC");
 
     TO_UPPER(public_attr);
 
@@ -142,7 +142,7 @@ int Image::insert(SqlDB *db, string& error_str)
 
     get_template_attribute("PERSISTENT", persistent_attr);
 
-    image_template->erase("PERSISTENT");
+    obj_template->erase("PERSISTENT");
 
     TO_UPPER(persistent_attr);
 
@@ -163,7 +163,7 @@ int Image::insert(SqlDB *db, string& error_str)
     {
         SingleAttribute * dev_att = new SingleAttribute("DEV_PREFIX",
                                           ImagePool::default_dev_prefix());
-        image_template->set(dev_att);
+        obj_template->set(dev_att);
     }
 
     // ------------ PATH & SOURCE --------------------
@@ -359,7 +359,7 @@ string& Image::to_xml(string& xml) const
             "<SOURCE>"         << source          << "</SOURCE>"      <<
             "<STATE>"          << state           << "</STATE>"       <<
             "<RUNNING_VMS>"    << running_vms     << "</RUNNING_VMS>" <<
-            image_template->to_xml(template_xml)                      <<
+            obj_template->to_xml(template_xml)                      <<
         "</IMAGE>";
 
     xml = oss.str();
@@ -406,7 +406,7 @@ int Image::from_xml(const string& xml)
         return -1;
     }
 
-    rc += image_template->from_xml_node(content[0]);
+    rc += obj_template->from_xml_node(content[0]);
 
     if (rc != 0)
     {

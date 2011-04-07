@@ -250,93 +250,6 @@ public:
      */
     int disk_attribute(VectorAttribute * disk, int* index, ImageType* img_type);
 
-    // ------------------------------------------------------------------------
-    // Template
-    // ------------------------------------------------------------------------
-
-    /**
-     *  Gets the values of a template attribute
-     *    @param name of the attribute
-     *    @param values of the attribute
-     *    @return the number of values
-     */
-    int get_template_attribute(
-        string& name,
-        vector<const Attribute*>& values) const
-    {
-        return image_template->get(name,values);
-    };
-
-    /**
-     *  Gets the values of a template attribute
-     *    @param name of the attribute
-     *    @param values of the attribute
-     *    @return the number of values
-     */
-    int get_template_attribute(
-        const char *name,
-        vector<const Attribute*>& values) const
-    {
-        string str=name;
-        return image_template->get(str,values);
-    };
-
-    /**
-     *  Gets a string based Image attribute
-     *    @param name of the attribute
-     *    @param value of the attribute (a string), will be "" if not defined
-     */
-    void get_template_attribute(
-        const char *    name,
-        string&         value) const
-    {
-        string str=name;
-        image_template->get(str,value);
-    }
-
-    /**
-     *  Gets a string based Image attribute
-     *    @param name of the attribute
-     *    @param value of the attribute (an int), will be 0 if not defined
-     */
-    void get_template_attribute(
-        const char *    name,
-        int&            value) const
-    {
-        string str=name;
-        image_template->get(str,value);
-    }
-
-    /**
-     *  Removes an Image attribute
-     *    @param name of the attribute
-     */
-    int remove_template_attribute(const string&   name)
-    {
-        return image_template->erase(name);
-    }
-
-    /**
-     *  Adds a new attribute to the template (replacing it if
-     *  already defined), the image's mutex SHOULD be locked
-     *    @param name of the new attribute
-     *    @param value of the new attribute
-     *    @return 0 on success
-     */
-    int replace_template_attribute(
-        const string& name,
-        const string& value)
-    {
-        SingleAttribute * sattr;
-
-        image_template->erase(name);
-
-        sattr = new SingleAttribute(name,value);
-        image_template->set(sattr);
-
-        return 0;
-    }
-
     /**
      *  Generates the source path for the repository.
      *    @param uid of the image owner
@@ -396,16 +309,6 @@ private:
      * Number of VMs using the image
      */
     int running_vms;
-
-    // -------------------------------------------------------------------------
-    //  Image Attributes
-    // -------------------------------------------------------------------------
-
-    /**
-     *  The Image template, holds the Image attributes.
-     */
-    ImageTemplate *  image_template;
-
 
     // *************************************************************************
     // DataBase implementation (Private)
