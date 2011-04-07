@@ -78,6 +78,22 @@ const char * Image::db_bootstrap = "CREATE TABLE IF NOT EXISTS image_pool ("
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
+string Image::generate_source(int uid, const string& name)
+{
+    ostringstream tmp_hashstream;
+    ostringstream tmp_sourcestream;
+
+    tmp_hashstream << uid << ":" << name;
+
+    tmp_sourcestream << ImagePool::source_prefix() << "/";
+    tmp_sourcestream << sha1_digest(tmp_hashstream.str());
+
+    return tmp_sourcestream.str();
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
 int Image::insert(SqlDB *db, string& error_str)
 {
     int rc;
@@ -189,15 +205,7 @@ int Image::insert(SqlDB *db, string& error_str)
 
     if (source.empty())
     {
-        ostringstream tmp_hashstream;
-        ostringstream tmp_sourcestream;
-
-        tmp_hashstream << uid << ":" << name;
-
-        tmp_sourcestream << ImagePool::source_prefix() << "/";
-        tmp_sourcestream << sha1_digest(tmp_hashstream.str());
-
-        source = tmp_sourcestream.str();
+        source = Image::generate_source(uid,name);
     }
 
     state = LOCKED; //LOCKED till the ImageManager copies it to the Repository

@@ -784,16 +784,20 @@ void VirtualMachine::release_disk_images()
             continue;
         }
 
-        iid = disk->vector_value("IMAGE_ID");
+        iid    = disk->vector_value("IMAGE_ID");
+        saveas = disk->vector_value("SAVE_AS");
 
         if ( iid.empty() )
         {
-            continue;
+            if (!saveas.empty())
+            {
+                imagem->disk_to_image(disk_base_path,i,saveas);
+            }
         }
-
-        saveas = disk->vector_value("SAVE_AS");
-
-        imagem->release_image(iid,disk_base_path,i,saveas);
+        else
+        {
+            imagem->release_image(iid,disk_base_path,i,saveas);
+        }
     }
 }
 

@@ -105,6 +105,17 @@ public:
                        const string& disk_path, 
                        int           disk_num, 
                        const string& saveid);
+
+    /**
+     *  Moves a VM disk to the Image Repository
+     *    @param disk_path base path for disk location
+     *    @param disk number for this image in the VM
+     *    @param saveid id of image to save the current image
+     */
+    void disk_to_image(const string& disk_path, 
+                       int           disk_num, 
+                       const string& save_id);
+
     /**
      *  Enables the image
      *    @param to_enable true will enable the image.

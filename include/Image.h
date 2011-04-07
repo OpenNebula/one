@@ -337,6 +337,14 @@ public:
         return 0;
     }
 
+    /**
+     *  Generates the source path for the repository.
+     *    @param uid of the image owner
+     *    @param name of the image
+     *    @return source for the image 
+     */
+    static string generate_source(int uid, const string& name);
+
 private:
 
     // -------------------------------------------------------------------------
@@ -421,13 +429,12 @@ private:
         db->exec(oss_image);
     };
 
-
     /**
      *  "Encrypts" the password with SHA1 digest
      *  @param password
      *  @return sha1 encrypted password
      */
-    string sha1_digest(const string& pass);
+    static string sha1_digest(const string& pass);
 
 protected:
 

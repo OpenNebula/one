@@ -132,6 +132,40 @@ void ImageManager::move_image(Image *img, const string& source)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void ImageManager::disk_to_image(const string& disk_path, 
+                                 int           disk_num, 
+                                 const string& save_id)
+{
+    int sid;
+
+    istringstream iss;
+    Image *       img;
+
+    ostringstream disk_file;
+
+    iss.str(save_id);
+
+    iss >> sid;
+
+    img = ipool->get(sid,true);
+
+    if ( img == 0 )
+    {
+        NebulaLog::log("ImM",Log::ERROR,"Could not get image to saveas disk.");
+    }
+    else
+    {
+        disk_file << disk_path << "/disk." << disk_num;
+
+        move_image(img,disk_file.str());
+    }
+
+    img->unlock();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void ImageManager::release_image(const string& image_id,
                                  const string& disk_path, 
                                  int           disk_num, 
@@ -153,6 +187,7 @@ void ImageManager::release_image(const string& image_id,
 
     if ( save_id.empty() == false )
     {
+        iss.clear();
         iss.str(save_id);
 
         iss >> sid;

@@ -459,7 +459,7 @@ private:
                 upool(_upool),
                 ipool(_ipool)
         {
-            _signature="A:siii";
+            _signature="A:siis";
             _help="Sets the disk to be saved in the given image.";
         };
 
