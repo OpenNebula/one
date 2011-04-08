@@ -84,93 +84,10 @@ public:
         string xml_str;
         VirtualMachineTemplate * new_template = new VirtualMachineTemplate();
 
-        template_contents->to_xml(xml_str);
+        obj_template->to_xml(xml_str);
         new_template->from_xml(xml_str);
 
         return new_template;
-    };
-
-    /**
-     *  Gets the values of a template attribute
-     *    @param name of the attribute
-     *    @param values of the attribute
-     *    @return the number of values
-     */
-    int get_template_attribute(
-        string& name,
-        vector<const Attribute*>& values) const
-    {
-        return template_contents->get(name,values);
-    };
-
-    /**
-     *  Gets the values of a template attribute
-     *    @param name of the attribute
-     *    @param values of the attribute
-     *    @return the number of values
-     */
-    int get_template_attribute(
-        const char *name,
-        vector<const Attribute*>& values) const
-    {
-        string str=name;
-        return template_contents->get(str,values);
-    };
-
-    /**
-     *  Gets a string based attribute
-     *    @param name of the attribute
-     *    @param value of the attribute (a string), will be "" if not defined
-     */
-    void get_template_attribute(
-        const char *    name,
-        string&         value) const
-    {
-        string str=name;
-        template_contents->get(str,value);
-    };
-
-    /**
-     *  Gets a string based attribute
-     *    @param name of the attribute
-     *    @param value of the attribute (an int), will be 0 if not defined
-     */
-    void get_template_attribute(
-        const char *    name,
-        int&            value) const
-    {
-        string str=name;
-        template_contents->get(str,value);
-    };
-
-    /**
-     *  Removes an attribute
-     *    @param name of the attribute
-     */
-    int remove_template_attribute(const string&   name)
-    {
-        return template_contents->erase(name);
-    };
-
-    /**
-     *  Adds a new attribute to the template (replacing it if
-     *  already defined), the object's mutex SHOULD be locked
-     *    @param name of the new attribute
-     *    @param value of the new attribute
-     *    @return 0 on success
-     */
-    int replace_template_attribute(
-        const string& name,
-        const string& value)
-    {
-        SingleAttribute * sattr;
-
-        template_contents->erase(name);
-
-        sattr = new SingleAttribute(name,value);
-        template_contents->set(sattr);
-
-        return 0;
     };
 
 private:
@@ -188,11 +105,6 @@ private:
      *  Owner's name
      */
     string      user_name;
-
-    /**
-     *  The Virtual Machine template, holds the VM attributes.
-     */
-    VirtualMachineTemplate* template_contents;
 
     /**
      *  Public scope of the VMTemplate

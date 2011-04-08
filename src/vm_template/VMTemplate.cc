@@ -33,11 +33,11 @@ VMTemplate::VMTemplate(int id,
 {
     if (_template_contents != 0)
     {
-        template_contents = _template_contents;
+        obj_template = _template_contents;
     }
     else
     {
-        template_contents = new VirtualMachineTemplate;
+        obj_template = new VirtualMachineTemplate;
     }
 }
 
@@ -46,9 +46,9 @@ VMTemplate::VMTemplate(int id,
 
 VMTemplate::~VMTemplate()
 {
-    if ( template_contents != 0 )
+    if ( obj_template != 0 )
     {
-        delete template_contents;
+        delete obj_template;
     }
 }
 
@@ -91,7 +91,7 @@ int VMTemplate::insert(SqlDB *db, string& error_str)
     // ------------ PUBLIC --------------------
     get_template_attribute("PUBLIC", public_attr);
 
-    template_contents->erase("PUBLIC");
+    obj_template->erase("PUBLIC");
 
     TO_UPPER(public_attr);
 
@@ -199,7 +199,7 @@ string& VMTemplate::to_xml(string& xml) const
             << "<NAME>"     << name             << "</NAME>"
             << "<PUBLIC>"   << public_template  << "</PUBLIC>"
             << "<REGTIME>"  << regtime          << "</REGTIME>"
-            << template_contents->to_xml(template_xml)
+            << obj_template->to_xml(template_xml)
         << "</VMTEMPLATE>";
 
     xml = oss.str();
@@ -235,7 +235,7 @@ int VMTemplate::from_xml(const string& xml)
     }
 
     // Template contents
-    rc += template_contents->from_xml_node(content[0]);
+    rc += obj_template->from_xml_node(content[0]);
 
     if (rc != 0)
     {
