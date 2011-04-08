@@ -15,6 +15,6 @@
 #--------------------------------------------------------------------------- #
 
 # To change the directory where the VMM scripts are copied on the remote node
-# uncomment and change the path of IM_REMOTE_DIR
+# uncomment and change the path of VMMM_REMOTE_DIR
 #
 #VMM_REMOTE_DIR=/tmp/ne_im_scripts
