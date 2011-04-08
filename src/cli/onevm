@@ -318,9 +318,15 @@ machine with the functionality present in onevm.
 Commands:
 
 * create (Submits a new virtual machine, adding it to the ONE VM pool)
-    onevm create <template>
+    onevm create [OPTION] {<template-file-path>, <template-id>, <template-name>}
 
-    template is a file name where the VM description is located
+    <template-file-path> is a file name where the VM description is located.
+    <template-id> is the numeric ID of a registered template (using onetemplate)
+    <template-name> is the name of a registered template (using onetemplate)
+
+    OPTION: -n STRING, --name=STRING
+        Replaces the NAME attribute if the VM is being created from a registered
+        Template
 
 * deploy (Starts an existing VM in an specific host)
     onevm deploy <vm_id> <host_id>
@@ -462,6 +468,10 @@ EOT
                 "Image type") do |o|
             options[:type]=o
         end
+        opts.on_tail("-n vm_name", "--name vm_name", String,
+                "Set VM name") do |o|
+            options[:vm_name] = o
+        end
     end
 end
 
@@ -502,12 +512,32 @@ when "submit", "create"
     check_parameters("create", 1)
     vm=OpenNebula::VirtualMachine.new(
         OpenNebula::VirtualMachine.build_xml, get_one_client)
-    begin
-        template=File.read(ARGV[0])
-        result=vm.allocate(template)
-    rescue
-        result=OpenNebula::Error.new("Can not read template: #{ARGV[0]}")
+
+    template = ""
+    success = false
+
+    if( File.file?(ARGV[0]) )
+        # argument is a file path
+        begin
+            template = File.read(ARGV[0])
+            success = true
+        rescue
+            result = OpenNebula::Error.new("Can not read template: #{ARGV[0]}")
+        end
+    else
+        # argument could be a template ID or a template name
+        template_id = get_template_id(ARGV[0])
+
+        template = "TEMPLATE_ID = #{template_id}"
+        template << "\nNAME = #{ops[:vm_name]}" if ops[:vm_name]
+
+        success = true
     end
+
+    if( success )
+        result = vm.allocate(template)
+    end
+
     if is_successful?(result)
         puts "ID: " + vm.id.to_s if ops[:verbose]
         exit 0
