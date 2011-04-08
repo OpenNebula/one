@@ -112,6 +112,7 @@ void RequestManager::VirtualMachineSaveDisk::execute(
 
     if ( vm == 0 )
     {
+        delete img_template;
         goto error_vm_get;
     }
 
@@ -198,7 +199,6 @@ error_image_get:
 
 error_vm_get:
     oss.str(get_error(method_name, "VM", vm_id));
-    delete img_template;
     goto error_common;
 
 error_vm_get_disk_id:
