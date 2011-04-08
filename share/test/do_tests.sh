@@ -6,10 +6,11 @@ TWD_DIR="../../src"
 BASE_DIR=$PWD
 
 TESTS="$TWD_DIR/vnm/test \
-       $TWD_DIR/scheduler/src/xml/test \
+       $TWD_DIR/xml/test \
        $TWD_DIR/scheduler/src/pool/test \
        $TWD_DIR/common/test \
        $TWD_DIR/host/test \
+       $TWD_DIR/cluster/test \
        $TWD_DIR/template/test \
        $TWD_DIR/image/test \
        $TWD_DIR/authm/test \

@@ -1,5 +1,7 @@
+# SConstruct for src/cluster
+
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2002-2010, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -14,14 +16,15 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-Import('sched_env')
+Import('env')
 
-# Libraries
-sched_env.Prepend(LIBS=[
-    'nebula_log',
-    'scheduler_xml',
-    'nebula_common',
-    'nebula_test_common',
-])
+lib_name='nebula_cluster'
 
-sched_env.Program('test_xml','ObjectXMLTest.cc')
+# Sources to generate the library
+source_files=[
+    'ClusterPool.cc',
+    'Cluster.cc'
+]
+
+# Build library
+env.StaticLibrary(lib_name, source_files)

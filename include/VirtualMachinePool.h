@@ -48,11 +48,12 @@ public:
      *  the template
      */
     int allocate (
-        int     uid,
-        VirtualMachineTemplate *vm_template,
-        int *   oid,
-        string& error_str,
-        bool    on_hold = false);
+        int                      uid,
+        string                   user_name,
+        VirtualMachineTemplate * vm_template,
+        int *                    oid,
+        string&                  error_str,
+        bool                     on_hold = false);
 
     /**
      *  Function to get a VM from the pool, if the object is not in memory
@@ -134,7 +135,7 @@ public:
      */
     int dump(ostringstream& oss, const string& where)
     {
-        return dump(oss, true, -1, where);
+        return dump(oss, -1, where);
     }
 
     /**
@@ -149,7 +150,7 @@ public:
      *
      *  @return 0 on success
      */
-    int dump(ostringstream& oss, bool extended, int state, const string& where);
+    int dump(ostringstream& oss, int state, const string& where);
 
 private:
     /**
@@ -158,29 +159,8 @@ private:
      */
     PoolObjectSQL * create()
     {
-        return new VirtualMachine;
+        return new VirtualMachine(-1,-1,"", 0);
     };
-
-    /**
-     *  Callback function to get output the vm pool in XML format
-     *  (VirtualMachinePool::dump)
-     *    @param num the number of columns read from the DB
-     *    @param names the column names
-     *    @param vaues the column values
-     *    @return 0 on success
-     */
-    int dump_cb(void * _oss, int num, char **values, char **names);
-
-    /**
-     *  Callback function to get output the vm pool in XML format
-     *  (VirtualMachinePool::dump)
-     *    @param num the number of columns read from the DB
-     *    @param names the column names
-     *    @param vaues the column values
-     *    @return 0 on success
-     */
-    int dump_extended_cb(void * _oss, int num, char **values, char **names);
-
 };
 
 #endif /*VIRTUAL_MACHINE_POOL_H_*/

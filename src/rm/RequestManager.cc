@@ -250,22 +250,22 @@ void RequestManager::register_xml_methods()
         RequestManager::HostEnable(hpool,upool));
 
     xmlrpc_c::methodPtr cluster_allocate(new 
-        RequestManager::ClusterAllocate(hpool,upool));
+        RequestManager::ClusterAllocate(upool,cpool));
 
     xmlrpc_c::methodPtr cluster_info(new 
-        RequestManager::ClusterInfo(hpool,upool));
+        RequestManager::ClusterInfo(upool,cpool));
 
     xmlrpc_c::methodPtr cluster_delete(new 
-        RequestManager::ClusterDelete(hpool,upool));
+        RequestManager::ClusterDelete(upool,cpool));
 
     xmlrpc_c::methodPtr cluster_add(new 
-        RequestManager::ClusterAdd(hpool,upool));
+        RequestManager::ClusterAdd(hpool,upool,cpool));
 
     xmlrpc_c::methodPtr cluster_remove(new 
-        RequestManager::ClusterRemove(hpool,upool));
+        RequestManager::ClusterRemove(hpool,upool,cpool));
 
     xmlrpc_c::methodPtr clusterpool_info(new 
-        RequestManager::ClusterPoolInfo(hpool,upool));
+        RequestManager::ClusterPoolInfo(upool,cpool));
 
     xmlrpc_c::methodPtr vn_allocate(new 
         RequestManager::VirtualNetworkAllocate(vnpool,upool));
@@ -299,6 +299,9 @@ void RequestManager::register_xml_methods()
 
     xmlrpc_c::methodPtr user_change_password(new
         RequestManager::UserChangePassword(upool));
+
+    xmlrpc_c::methodPtr user_authenticate(new
+        RequestManager::UserAuthenticate(upool));
 
     xmlrpc_c::methodPtr userpool_info(new    
         RequestManager::UserPoolInfo(upool));
@@ -378,6 +381,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.user.delete", user_delete);
     RequestManagerRegistry.addMethod("one.user.info", user_info);
     RequestManagerRegistry.addMethod("one.user.passwd", user_change_password);
+    RequestManagerRegistry.addMethod("one.user.authenticate",user_authenticate);
 
     RequestManagerRegistry.addMethod("one.userpool.info", userpool_info);
     

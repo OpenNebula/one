@@ -22,24 +22,10 @@
 
 #include "HostPool.h"
 #include "HostHook.h"
-#include "ClusterPool.h"
 #include "NebulaLog.h"
+#include "ClusterPool.h"
 
 /* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int HostPool::init_cb(void *nil, int num, char **values, char **names)
-{
-    if ( num != 2 || values == 0 || values[0] == 0 )
-    {
-        return -1;
-    }
-
-    cluster_pool.cluster_names.insert( make_pair(atoi(values[0]), values[1]) );
-
-    return 0;
-}
-
 /* -------------------------------------------------------------------------- */
 
 HostPool::HostPool(SqlDB*                    db,
@@ -47,29 +33,6 @@ HostPool::HostPool(SqlDB*                    db,
                    const string&             hook_location)
                         : PoolSQL(db,Host::table)
 {
-    // ------------------ Initialize Cluster Array ----------------------
-
-    ostringstream   sql;
-
-    set_callback(static_cast<Callbackable::Callback>(&HostPool::init_cb));
-
-    sql << "SELECT " << ClusterPool::db_names << " FROM "
-        <<  ClusterPool::table;
-
-    db->exec(sql, this);
-
-    unset_callback();
-
-    if (cluster_pool.cluster_names.empty())
-    {
-        int rc = cluster_pool.insert(0, ClusterPool::DEFAULT_CLUSTER_NAME, db);
-
-        if(rc != 0)
-        {
-            throw runtime_error("Could not create default cluster HostPool");
-        }
-    }
-
     // ------------------ Initialize Hooks fot the pool ----------------------
 
     const VectorAttribute * vattr;
@@ -180,6 +143,34 @@ int HostPool::allocate (
     string& error_str)
 {
     Host *        host;
+    ostringstream oss;
+
+    if ( hostname.empty() )
+    {
+        goto error_name;
+    }
+
+    if ( im_mad_name.empty() )
+    {
+        goto error_im;
+    }
+
+    if ( vmm_mad_name.empty() )
+    {
+        goto error_vmm;
+    }
+
+    if ( tm_mad_name.empty() )
+    {
+        goto error_tm;
+    }
+
+    host = get(hostname,false);
+
+    if ( host !=0)
+    {
+        goto error_duplicated;
+    }
 
     // Build a new Host object
 
@@ -187,11 +178,38 @@ int HostPool::allocate (
         hostname,
         im_mad_name,
         vmm_mad_name,
-        tm_mad_name);
+        tm_mad_name,
+        ClusterPool::DEFAULT_CLUSTER_NAME);
 
     // Insert the Object in the pool
 
     *oid = PoolSQL::allocate(host, error_str);
+
+    return *oid;
+
+
+error_name:
+    oss << "NAME cannot be empty.";
+    goto error_common;
+
+error_im:
+    oss << "IM_MAD_NAME cannot be empty.";
+    goto error_common;
+
+error_vmm:
+    oss << "VMM_MAD_NAME cannot be empty.";
+    goto error_common;
+
+error_tm:
+    oss << "TM_MAD_NAME cannot be empty.";
+    goto error_common;
+
+error_duplicated:
+    oss << "NAME is already taken by HOST " << host->get_oid() << ".";
+
+error_common:
+    *oid = -1;
+    error_str = oss.str();
 
     return *oid;
 }
@@ -202,18 +220,24 @@ int HostPool::allocate (
 int HostPool::discover_cb(void * _map, int num, char **values, char **names)
 {
     map<int, string> *  discovered_hosts;
-    string              im_mad(values[1]);
+    string              im_mad;
     int                 hid;
+    int                 rc;
 
     discovered_hosts = static_cast<map<int, string> *>(_map);
 
-    if ( (num<=0) || (values[0] == 0) )
+    if ( (num<2) || (values[0] == 0) || (values[1] == 0) )
     {
         return -1;
     }
 
-    hid    = atoi(values[0]);
-    im_mad = values[1];
+    hid = atoi(values[0]);
+    rc  = ObjectXML::xpath_value(im_mad,values[1],"/HOST/IM_MAD");
+
+    if( rc != 0)
+    {
+        return -1;
+    }
 
     discovered_hosts->insert(make_pair(hid,im_mad));
 
@@ -230,107 +254,13 @@ int HostPool::discover(map<int, string> * discovered_hosts, int host_limit)
     set_callback(static_cast<Callbackable::Callback>(&HostPool::discover_cb),
                  static_cast<void *>(discovered_hosts));
 
-    sql << "SELECT oid, im_mad FROM "
+    sql << "SELECT oid, body FROM "
         << Host::table << " WHERE state != "
         << Host::DISABLED << " ORDER BY last_mon_time ASC LIMIT " << host_limit;
 
     rc = db->exec(sql,this);
 
     unset_callback();
-
-    return rc;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int HostPool::dump_cb(void * _oss, int num, char **values, char **names)
-{
-    ostringstream * oss;
-
-    oss = static_cast<ostringstream *>(_oss);
-
-    return Host::dump(*oss, num, values, names);
-}
-
-/* -------------------------------------------------------------------------- */
-
-int HostPool::dump(ostringstream& oss, const string& where)
-{
-    int             rc;
-    ostringstream   cmd;
-
-    oss << "<HOST_POOL>";
-
-    set_callback(static_cast<Callbackable::Callback>(&HostPool::dump_cb),
-                  static_cast<void *>(&oss));
-
-    cmd << "SELECT " << Host::db_names << " , " << HostShare::db_names
-        << " FROM " << Host::table << " JOIN " << HostShare::table
-        << " ON " << Host::table << ".oid = " << HostShare::table << ".hid";
-
-    if ( !where.empty() )
-    {
-        cmd << " WHERE " << where;
-    }
-
-    rc = db->exec(cmd, this);
-
-    oss << "</HOST_POOL>";
-
-    unset_callback();
-
-    return rc;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int HostPool::drop_cluster(int clid)
-{
-    int                         rc;
-    map<int, string>::iterator  it;
-    string                      cluster_name;
-
-    it = cluster_pool.cluster_names.find(clid);
-
-    if ( it == cluster_pool.cluster_names.end() )
-    {
-        return -1;
-    }
-
-    cluster_name = it->second;
-
-    // try to drop the cluster from the pool and DB
-    rc = cluster_pool.drop(clid, db);
-
-    // Move the hosts assigned to the deleted cluster to the default one
-    if( rc == 0 )
-    {
-        Host*                   host;
-        vector<int>             hids;
-        vector<int>::iterator   hid_it;
-
-        string                  where = "cluster = '" + cluster_name + "'";
-
-        search(hids, Host::table, where);
-
-        for ( hid_it=hids.begin() ; hid_it < hids.end(); hid_it++ )
-        {
-            host = get(*hid_it, true);
-
-            if ( host == 0 )
-            {
-                continue;
-            }
-
-            set_default_cluster(host);
-
-            update(host);
-
-            host->unlock();
-        }
-    }
 
     return rc;
 }

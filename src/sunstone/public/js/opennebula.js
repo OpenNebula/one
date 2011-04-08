@@ -182,8 +182,8 @@ var OpenNebula = {
             var password = params.data.password;
             var remember = params.remember;
 
-            var resource = this.resource;
-            var request = OpenNebula.Helper.request(this.resource,"login");
+            var resource = OpenNebula.Auth.resource;            
+            var request = OpenNebula.Helper.request(resource,"login");
 
             $.ajax({
                 url: "/login",
@@ -216,8 +216,8 @@ var OpenNebula = {
             var callback = params.success;
             var callback_error = params.error;
 
-            var resource = this.resource;
-            var request = OpenNebula.Helper.request(this.resource,"logout");
+            var resource = OpenNebula.Auth.resource;
+            var request = OpenNebula.Helper.request(resource,"logout");
 
             $.ajax({
                 url: "/logout",
@@ -248,8 +248,8 @@ var OpenNebula = {
             var callback = params.success;
             var callback_error = params.error;
 
-            var resource = this.resource;
-            var request = OpenNebula.Helper.request(this.resource,"list");
+            var resource = OpenNebula.Config.resource;
+            var request = OpenNebula.Helper.request(resource,"list");
 
             $.ajax({
                 url: "/config",
@@ -281,8 +281,9 @@ var OpenNebula = {
             var callback = params.success;
             var callback_error = params.error;
             var data = params.data;
+            var resource = OpenNebula.Host.resource;
 
-            var request = OpenNebula.Helper.request(this.resource,"create", data);
+            var request = OpenNebula.Helper.request(resource,"create", data);
 
             $.ajax({
                 url: "/host",
@@ -311,9 +312,10 @@ var OpenNebula = {
             var callback = params.success;
             var callback_error = params.error;
             var id = params.data.id;
+            var resource = OpenNebula.Host.resource;
 
 
-            var request = OpenNebula.Helper.request(this.resource,"delete", id);
+            var request = OpenNebula.Helper.request(resource,"delete", id);
 
             $.ajax({
                 url: "/host/" + id,
@@ -341,8 +343,8 @@ var OpenNebula = {
             var callback_error = params.error;
             var timeout = params.timeout || false;
 
-            var resource = this.resource;
-            var request = OpenNebula.Helper.request(this.resource,"list");
+            var resource = OpenNebula.Host.resource;
+            var request = OpenNebula.Helper.request(resource,"list");
 
             $.ajax({
                 url: "/host",
@@ -374,8 +376,8 @@ var OpenNebula = {
             var callback_error = params.error;
             var id = params.data.id;
 
-            var resource = this.resource;
-            var request = OpenNebula.Helper.request(this.resource,"show", id);
+            var resource = OpenNebula.Host.resource;
+            var request = OpenNebula.Helper.request(resource,"show", id);
 
             $.ajax({
                 url: "/host/" + id,
@@ -403,10 +405,11 @@ var OpenNebula = {
             var callback = params.success;
             var callback_error = params.error;
             var id = params.data.id;
+            var resource = OpenNebula.Host.resource;
 
             var method = "enable";
             var action = OpenNebula.Helper.action(method);
-            var request = OpenNebula.Helper.request(this.resource,method, id);
+            var request = OpenNebula.Helper.request(resource,method, id);
 
             $.ajax({
                 url: "/host/" + id + "/action",
@@ -434,10 +437,11 @@ var OpenNebula = {
             var callback = params.success;
             var callback_error = params.error;
             var id = params.data.id;
+            var resource = OpenNebula.Host.resource;
 
             var method = "disable";
             var action = OpenNebula.Helper.action(method);
-            var request = OpenNebula.Helper.request(this.resource,method, id);
+            var request = OpenNebula.Helper.request(resource,method, id);
 
             $.ajax({
                 url: "/host/" + id + "/action",
@@ -469,8 +473,9 @@ var OpenNebula = {
             var callback = params.success;
             var callback_error = params.error;
             var data = params.data;
+            var resource = OpenNebula.Network.resource;
 
-            var request = OpenNebula.Helper.request(this.resource,"create",data);
+            var request = OpenNebula.Helper.request(resource,"create",data);
 
             $.ajax({
                 url: "/vnet",
@@ -499,8 +504,9 @@ var OpenNebula = {
             var callback = params.success;
             var callback_error = params.error;
             var id = params.data.id;
+            var resource = OpenNebula.Network.resource;
 
-            var request = OpenNebula.Helper.request(this.resource,"delete", id);
+            var request = OpenNebula.Helper.request(resource,"delete", id);
 
             $.ajax({
                 url: "/vnet/" + id,
@@ -527,9 +533,9 @@ var OpenNebula = {
             var callback = params.success;
             var callback_error = params.error;
             var timeout = params.timeout || false;
-
-            var resource = this.resource;
-            var request = OpenNebula.Helper.request(this.resource,"list");
+            var resource = OpenNebula.Network.resource;
+            
+            var request = OpenNebula.Helper.request(resource,"list");
 
             $.ajax({
                 url: "/vnet",
@@ -559,8 +565,9 @@ var OpenNebula = {
             var callback = params.success;
             var callback_error = params.error;
             var id = params.data.id;
+            var resource = OpenNebula.Network.resource;
 
-            var request = OpenNebula.Helper.request(this.resource,"show", id);
+            var request = OpenNebula.Helper.request(resource,"show", id);
 
             $.ajax({
                 url: "/vnet/" + id,
@@ -588,10 +595,11 @@ var OpenNebula = {
             var callback = params.success;
             var callback_error = params.error;
             var id = params.data.id;
+            var resource = OpenNebula.Network.resource;
 
             var method = "publish";
             var action = OpenNebula.Helper.action(method);
-            var request = OpenNebula.Helper.request(this.resource,method, id);
+            var request = OpenNebula.Helper.request(resource,method, id);
 
             $.ajax({
                 url: "/vnet/" + id + "/action",
@@ -619,10 +627,11 @@ var OpenNebula = {
             var callback = params.success;
             var callback_error = params.error;
             var id = params.data.id;
+            var resource = OpenNebula.Network.resource;
 
             var method = "unpublish";
             var action = OpenNebula.Helper.action(method);
-            var request = OpenNebula.Helper.request(this.resource,method, id);
+            var request = OpenNebula.Helper.request(resource,method, id);
 
             $.ajax({
                 url: "/vnet/" + id + "/action",
@@ -654,8 +663,9 @@ var OpenNebula = {
             var callback = params.success;
             var callback_error = params.error;
             var data = params.data;
+            var resource = OpenNebula.VM.resource;
 
-            var request = OpenNebula.Helper.request(this.resource,"create",data);
+            var request = OpenNebula.Helper.request(resource,"create",data);
 
             $.ajax({
                 url: "/vm",
@@ -684,8 +694,9 @@ var OpenNebula = {
             var callback = params.success;
             var callback_error = params.error;
             var id = params.data.id;
+            var resource = OpenNebula.Network.resource;
 
-            var request = OpenNebula.Helper.request(this.resource,"delete", id);
+            var request = OpenNebula.Helper.request(resource,"delete", id);
 
             $.ajax({
                 url: "/vm/" + id,
@@ -713,8 +724,8 @@ var OpenNebula = {
             var callback_error = params.error;
             var timeout = params.timeout || false;
 
-            var resource = this.resource;
-            var request = OpenNebula.Helper.request(this.resource,"list");
+            var resource = OpenNebula.VM.resource;
+            var request = OpenNebula.Helper.request(resource,"list");
 
             $.ajax({
                 url: "/vm",
@@ -744,8 +755,9 @@ var OpenNebula = {
             var callback = params.success;
             var callback_error = params.error;
             var id = params.data.id;
+            var resource = OpenNebula.VM.resource;
 
-            var request = OpenNebula.Helper.request(this.resource,"log", id);
+            var request = OpenNebula.Helper.request(resource,"log", id);
 
             $.ajax({
                 url: "/vm/" + id + "/log",
@@ -772,8 +784,9 @@ var OpenNebula = {
             var callback = params.success;
             var callback_error = params.error;
             var id = params.data.id;
+            var resource = OpenNebula.VM.resource;
 
-            var request = OpenNebula.Helper.request(this.resource,"show", id);
+            var request = OpenNebula.Helper.request(resource,"show", id);
 
             $.ajax({
                 url: "/vm/" + id,
@@ -801,11 +814,12 @@ var OpenNebula = {
             var callback = params.success;
             var callback_error = params.error;
             var id = params.data.id;
-            var host = params.data.host_id;
+            var host = params.data.extra_param;
+            var resource = OpenNebula.VM.resource;
 
             var method = "deploy";
             var action = OpenNebula.Helper.action(method, {"host_id": host});
-            var request = OpenNebula.Helper.request(this.resource,method, [id, host]);
+            var request = OpenNebula.Helper.request(resource,method, [id, host]);
 
             $.ajax({
                 url: "/vm/" + id + "/action",
@@ -833,10 +847,11 @@ var OpenNebula = {
             var callback = params.success;
             var callback_error = params.error;
             var id = params.data.id;
+            var resource = OpenNebula.VM.resource;
 
             var method = "shutdown";
             var action = OpenNebula.Helper.action(method);
-            var request = OpenNebula.Helper.request(this.resource,method, id);
+            var request = OpenNebula.Helper.request(resource,method, id);
 
             $.ajax({
                 url: "/vm/" + id + "/action",
@@ -864,11 +879,12 @@ var OpenNebula = {
             var callback = params.success;
             var callback_error = params.error;
             var id = params.data.id;
-            var host = params.data.host_id;
+            var host = params.data.extra_param;
+            var resource = OpenNebula.VM.resource;
 
             var method = "livemigrate";
             var action = OpenNebula.Helper.action(method,{"host_id": host});
-            var request = OpenNebula.Helper.request(this.resource,method, [id, host]);
+            var request = OpenNebula.Helper.request(resource,method, [id, host]);
 
             $.ajax({
                 url: "/vm/" + id + "/action",
@@ -896,11 +912,12 @@ var OpenNebula = {
             var callback = params.success;
             var callback_error = params.error;
             var id = params.data.id;
-            var host = params.data.host_id;
+            var host = params.data.extra_param;
+            var resource = OpenNebula.VM.resource;
 
             var method = "migrate";
             var action = OpenNebula.Helper.action(method,{"host_id": host});
-            var request = OpenNebula.Helper.request(this.resource,method, [id, host]);
+            var request = OpenNebula.Helper.request(resource,method, [id, host]);
 
             $.ajax({
                 url: "/vm/" + id + "/action",
@@ -928,10 +945,11 @@ var OpenNebula = {
             var callback = params.success;
             var callback_error = params.error;
             var id = params.data.id;
+            var resource = OpenNebula.VM.resource;
 
             var method = "hold";
             var action = OpenNebula.Helper.action(method);
-            var request = OpenNebula.Helper.request(this.resource,method, id);
+            var request = OpenNebula.Helper.request(resource,method, id);
 
             $.ajax({
                 url: "/vm/" + id + "/action",
@@ -959,10 +977,11 @@ var OpenNebula = {
             var callback = params.success;
             var callback_error = params.error;
             var id = params.data.id;
+            var resource = OpenNebula.VM.resource;
 
             var method = "release";
             var action = OpenNebula.Helper.action(method);
-            var request = OpenNebula.Helper.request(this.resource,method, id);
+            var request = OpenNebula.Helper.request(resource,method, id);
 
             $.ajax({
                 url: "/vm/" + id + "/action",
@@ -990,10 +1009,11 @@ var OpenNebula = {
             var callback = params.success;
             var callback_error = params.error;
             var id = params.data.id;
+            var resource = OpenNebula.VM.resource;
 
             var method = "stop";
             var action = OpenNebula.Helper.action(method);
-            var request = OpenNebula.Helper.request(this.resource,method, id);
+            var request = OpenNebula.Helper.request(resource,method, id);
 
             $.ajax({
                 url: "/vm/" + id + "/action",
@@ -1021,10 +1041,11 @@ var OpenNebula = {
             var callback = params.success;
             var callback_error = params.error;
             var id = params.data.id;
+            var resource = OpenNebula.VM.resource;
 
             var method = "cancel";
             var action = OpenNebula.Helper.action(method);
-            var request = OpenNebula.Helper.request(this.resource,method, id);
+            var request = OpenNebula.Helper.request(resource,method, id);
 
             $.ajax({
                 url: "/vm/" + id + "/action",
@@ -1052,10 +1073,11 @@ var OpenNebula = {
             var callback = params.success;
             var callback_error = params.error;
             var id = params.data.id;
-
+            var resource = OpenNebula.VM.resource;
+            
             var method = "suspend";
             var action = OpenNebula.Helper.action(method);
-            var request = OpenNebula.Helper.request(this.resource,method, id);
+            var request = OpenNebula.Helper.request(resource,method, id);
 
             $.ajax({
                 url: "/vm/" + id + "/action",
@@ -1083,10 +1105,11 @@ var OpenNebula = {
             var callback = params.success;
             var callback_error = params.error;
             var id = params.data.id;
+            var resource = OpenNebula.VM.resource;
 
             var method = "resume";
             var action = OpenNebula.Helper.action(method);
-            var request = OpenNebula.Helper.request(this.resource,method, id);
+            var request = OpenNebula.Helper.request(resource,method, id);
 
             $.ajax({
                 url: "/vm/" + id + "/action",
@@ -1113,20 +1136,21 @@ var OpenNebula = {
         {
             var callback = params.success;
             var callback_error = params.error;
-            var vm_id = params.data.vm_id;
+            var id = params.data.vm_id;
             var disk_id = params.data.disk_id;
             var image_name = params.data.image_name;
             var type = params.data.type;
 
             var method = "saveas";
             var saveas_params = {
-                "vm_id"     : vm_id,
                 "disk_id"   : disk_id,
                 "image_name": image_name,
                 "type"      : type
             }
+            var resource = OpenNebula.VM.resource;
+            
             var action = OpenNebula.Helper.action(method,saveas_params)
-            var request = OpenNebula.Helper.request(this.resource,method, [vm_id, disk_id, image_name, type]);
+            var request = OpenNebula.Helper.request(resource,method, [id,disk_id, image_name, type]);
 
             $.ajax({
                 url: "/vm/" + id + "/action",
@@ -1154,10 +1178,43 @@ var OpenNebula = {
             var callback = params.success;
             var callback_error = params.error;
             var id = params.data.id;
+            var resource = OpenNebula.VM.resource;
 
             var method = "restart";
             var action = OpenNebula.Helper.action(method);
-            var request = OpenNebula.Helper.request(this.resource,method, id);
+            var request = OpenNebula.Helper.request(resource,method, id);
+
+            $.ajax({
+                url: "/vm/" + id + "/action",
+                type: "POST",
+                data: JSON.stringify(action),
+                success: function()
+                {
+                    if (callback)
+                    {
+                        callback(request);
+                    }
+                },
+                error: function(response)
+                {
+                    if (callback_error)
+                    {
+                        callback_error(request, OpenNebula.Error(response));
+                    }
+                }
+            });
+        },
+        
+        "resubmit": function(params)
+        {
+            var callback = params.success;
+            var callback_error = params.error;
+            var id = params.data.id;
+            var resource = OpenNebula.VM.resource;
+
+            var method = "resubmit";
+            var action = OpenNebula.Helper.action(method);
+            var request = OpenNebula.Helper.request(resource,method, id);
 
             $.ajax({
                 url: "/vm/" + id + "/action",
@@ -1189,8 +1246,9 @@ var OpenNebula = {
             var callback = params.success;
             var callback_error = params.error;
             var data = params.data;
+            var resource = OpenNebula.Cluster.resource;
 
-            var request = OpenNebula.Helper.request(this.resource,"create", name);
+            var request = OpenNebula.Helper.request(resource,"create", name);
 
             $.ajax({
                 url: "/cluster",
@@ -1219,8 +1277,9 @@ var OpenNebula = {
             var callback = params.success;
             var callback_error = params.error;
             var id = params.data.id;
+            var resource = OpenNebula.Cluster.resource;
 
-            var request = OpenNebula.Helper.request(this.resource,"delete", id);
+            var request = OpenNebula.Helper.request(resource,"delete", id);
 
             $.ajax({
                 url: "/cluster/" + id,
@@ -1248,8 +1307,8 @@ var OpenNebula = {
             var callback_error = params.error;
             var timeout = params.timeout || false;
 
-            var resource = this.resource;
-            var request = OpenNebula.Helper.request(this.resource,"list");
+            var resource = OpenNebula.Cluster.resource;
+            var request = OpenNebula.Helper.request(resource,"list");
 
             $.ajax({
                 url: "/cluster",
@@ -1279,13 +1338,14 @@ var OpenNebula = {
             var callback = params.success;
             var callback_error = params.error;
             var host_id = params.data.id;
-            var cluster_id = params.data.cluster_id;
+            var cluster_id = params.data.extra_param;
+            var resource = OpenNebula.Cluster.resource;
 
             var method = "add_host";
             var action = OpenNebula.Helper.action(method, {
                                                 "host_id"   : host_id
                                                 });
-            var request = OpenNebula.Helper.request(this.resource,method, [host_id, cluster_id]);
+            var request = OpenNebula.Helper.request(resource,method, [host_id, cluster_id]);
 
             $.ajax({
                 url: "/cluster/" + cluster_id + "/action",
@@ -1313,13 +1373,15 @@ var OpenNebula = {
             var callback = params.success;
             var callback_error = params.error;
             var host_id = params.data.id;
-            var cluster_id = params.data.cluster_id;
+            var cluster_id = params.data.extra_param;
 
             var method = "remove_host";
             var action = OpenNebula.Helper.action(method,  {
                                                 "host_id"   : host_id
                                                 });
-            var request = OpenNebula.Helper.request(this.resource,method, [host_id, cluster_id]);
+            var resource = OpenNebula.Cluster.resource;
+                                                
+            var request = OpenNebula.Helper.request(resource,method, [host_id, cluster_id]);
 
             $.ajax({
                 url: "/cluster/" + cluster_id + "/action",
@@ -1351,8 +1413,9 @@ var OpenNebula = {
             var callback = params.success;
             var callback_error = params.error;
             var data = params.data;
+            var resource = OpenNebula.User.resource;
 
-            var request = OpenNebula.Helper.request(this.resource,"create",data);
+            var request = OpenNebula.Helper.request(resource,"create",data);
 
             $.ajax({
                 url: "/user",
@@ -1381,8 +1444,9 @@ var OpenNebula = {
             var callback = params.success;
             var callback_error = params.error;
             var id = params.data.id;
+            var resource = OpenNebula.User.resource;
 
-            var request = OpenNebula.Helper.request(this.resource,"delete", id);
+            var request = OpenNebula.Helper.request(resource,"delete", id);
 
             $.ajax({
                 url: "/user/" + id,
@@ -1410,8 +1474,8 @@ var OpenNebula = {
             var callback_error = params.error;
             var timeout = params.timeout || false;
 
-            var resource = this.resource;
-            var request = OpenNebula.Helper.request(this.resource,"list");
+            var resource = OpenNebula.User.resource;
+            var request = OpenNebula.Helper.request(resource,"list");
 
             $.ajax({
                 url: "/user",
@@ -1447,7 +1511,9 @@ var OpenNebula = {
             var action = OpenNebula.Helper.action(method,  {
                                                 "password"   : passwd
                                                 });
-            var request = OpenNebula.Helper.request(this.resource,method, passwd);
+                                                
+            var resource = OpenNebula.User.resource;
+            var request = OpenNebula.Helper.request(resource,method, passwd);
 
             $.ajax({
                 url: "/user/" + id + "/action",
@@ -1479,8 +1545,9 @@ var OpenNebula = {
             var callback = params.success;
             var callback_error = params.error;
             var data = params.data;
+            var resource = OpenNebula.Image.resource;
 
-            var request = OpenNebula.Helper.request(this.resource,"register",data);
+            var request = OpenNebula.Helper.request(resource,"register",data);
 
             $.ajax({
                 url: "/image",
@@ -1509,8 +1576,9 @@ var OpenNebula = {
             var callback = params.success;
             var callback_error = params.error;
             var id = params.data.id;
+            var resource = OpenNebula.Image.resource;
 
-            var request = OpenNebula.Helper.request(this.resource,"delete", id);
+            var request = OpenNebula.Helper.request(resource,"delete", id);
 
             $.ajax({
                 url: "/image/" + id,
@@ -1538,8 +1606,8 @@ var OpenNebula = {
             var callback_error = params.error;
             var timeout = params.timeout || false;
 
-            var resource = this.resource;
-            var request = OpenNebula.Helper.request(this.resource,"list");
+            var resource = OpenNebula.Image.resource;
+            var request = OpenNebula.Helper.request(resource,"list");
 
             $.ajax({
                 url: "/image",
@@ -1570,7 +1638,8 @@ var OpenNebula = {
             var callback_error = params.error;
             var id = params.data.id;
 
-            var request = OpenNebula.Helper.request(this.resource,"show", id);
+            var resource = OpenNebula.Image.resource;
+            var request = OpenNebula.Helper.request(resource,"show", id);
 
             $.ajax({
                 url: "/image/" + id,
@@ -1606,7 +1675,9 @@ var OpenNebula = {
                                                 "name"      : name,
                                                 "value"     : value
                                                 });
-            var request = OpenNebula.Helper.request(this.resource,method, [id, name, value]);
+                                                
+            var resource = OpenNebula.Image.resource;                                                
+            var request = OpenNebula.Helper.request(resource,method, [id, name, value]);
 
             $.ajax({
                 url: "/image/" + id + "/action",
@@ -1641,7 +1712,9 @@ var OpenNebula = {
             var action = OpenNebula.Helper.action(method,  {
                                                 "name"      : name
                                                 });
-            var request = OpenNebula.Helper.request(this.resource,method, [id, name]);
+                                                
+            var resource = OpenNebula.Image.resource;                                        
+            var request = OpenNebula.Helper.request(resource,method, [id, name]);
 
             $.ajax({
                 url: "/image/" + id + "/action",
@@ -1672,7 +1745,9 @@ var OpenNebula = {
 
             var method = "enable";
             var action = OpenNebula.Helper.action(method);
-            var request = OpenNebula.Helper.request(this.resource,method, id);
+            
+            var resource = OpenNebula.Image.resource;
+            var request = OpenNebula.Helper.request(resource,method, id);
 
             $.ajax({
                 url: "/image/" + id + "/action",
@@ -1703,7 +1778,8 @@ var OpenNebula = {
 
             var method = "disable";
             var action = OpenNebula.Helper.action(method);
-            var request = OpenNebula.Helper.request(this.resource,method, id);
+            var resource = OpenNebula.Image.resource;
+            var request = OpenNebula.Helper.request(resource,method, id);
 
             $.ajax({
                 url: "/image/" + id + "/action",
@@ -1734,7 +1810,8 @@ var OpenNebula = {
 
             var method = "publish";
             var action = OpenNebula.Helper.action(method);
-            var request = OpenNebula.Helper.request(this.resource,method, id);
+            var resource = OpenNebula.Image.resource;
+            var request = OpenNebula.Helper.request(resource,method, id);
 
             $.ajax({
                 url: "/image/" + id + "/action",
@@ -1765,7 +1842,8 @@ var OpenNebula = {
 
             var method = "unpublish";
             var action = OpenNebula.Helper.action(method);
-            var request = OpenNebula.Helper.request(this.resource,method, id);
+            var resource = OpenNebula.Image.resource;
+            var request = OpenNebula.Helper.request(resource,method, id);
 
             $.ajax({
                 url: "/image/" + id + "/action",
@@ -1796,7 +1874,9 @@ var OpenNebula = {
 
             var method = "persistent";
             var action = OpenNebula.Helper.action(method);
-            var request = OpenNebula.Helper.request(this.resource,method, id);
+            
+            var resource = OpenNebula.Image.resource;
+            var request = OpenNebula.Helper.request(resource,method, id);
 
             $.ajax({
                 url: "/image/" + id + "/action",
@@ -1827,7 +1907,9 @@ var OpenNebula = {
 
             var method = "nonpersistent";
             var action = OpenNebula.Helper.action(method);
-            var request = OpenNebula.Helper.request(this.resource,method, id);
+            
+            var resource = OpenNebula.Image.resource;
+            var request = OpenNebula.Helper.request(resource,method, id);
 
             $.ajax({
                 url: "/image/" + id + "/action",

@@ -34,6 +34,8 @@ class ObjectXMLTest : public OneUnitTest
     CPPUNIT_TEST( doc_update );
     CPPUNIT_TEST( requirements );
     CPPUNIT_TEST( rank );
+    CPPUNIT_TEST( xpath );
+    CPPUNIT_TEST( xpath_value );
 
     CPPUNIT_TEST_SUITE_END ();
 
@@ -75,6 +77,61 @@ public:
         }
     };
 
+
+    void xpath_value()
+    {
+        int    rc;
+        string im_mad;
+
+        rc = ObjectXML::xpath_value(im_mad,host.c_str(),"/HOST/IM_MAD");
+
+        CPPUNIT_ASSERT(rc == 0);
+        CPPUNIT_ASSERT(im_mad == "im_kvm");
+
+        rc = ObjectXML::xpath_value(im_mad,host.c_str(),"/HOST/NO_IM_MAD");
+
+        CPPUNIT_ASSERT(rc == -1);
+    };
+
+    void xpath()
+    {
+        try
+        {
+            ObjectXML obj(xml_history_dump);
+            string str_exists;
+            string str_no_exists;
+            
+            int    int_exists;
+            int    int_no_exists;
+            int    int_malformed;
+            int    rc;
+
+            rc = obj.xpath(str_exists,"/VM_POOL/VM/HISTORY/HOSTNAME","default_host");
+            CPPUNIT_ASSERT(str_exists == "A_hostname");
+            CPPUNIT_ASSERT(rc == 0);
+
+            rc = obj.xpath(str_no_exists,"/VM_POOL/NOT_AN_ELEMENT","default_host");
+            CPPUNIT_ASSERT(str_no_exists == "default_host");
+            CPPUNIT_ASSERT(rc == -1);
+
+            rc = obj.xpath(int_exists,"/VM_POOL/VM/STATE",35);
+            CPPUNIT_ASSERT(int_exists == 1);
+            CPPUNIT_ASSERT(rc == 0);
+
+            rc = obj.xpath(int_no_exists,"/VM_POOL/NOT_AN_ELEMENT",35);
+            CPPUNIT_ASSERT(int_no_exists == 35);
+            CPPUNIT_ASSERT(rc == -1);
+
+            rc = obj.xpath(int_malformed,"/VM_POOL/VM/USERNAME",33);
+            CPPUNIT_ASSERT(int_malformed == 33);
+            CPPUNIT_ASSERT(rc == -1);
+        }
+        catch(runtime_error& re)
+        {
+             cerr << re.what() << endl;
+             CPPUNIT_ASSERT(1 == 0);
+        }
+    };
 
     void node_constructor()
     {
@@ -125,7 +182,7 @@ public:
             CPPUNIT_ASSERT(hostnames[0] == "A_hostname");
             CPPUNIT_ASSERT(hostnames[1] == "C_hostname");
 
-            obj.update(xml_history_dump2);
+            obj.update_from_str(xml_history_dump2);
 
             hostnames = obj["/VM_POOL/VM/HISTORY/HOSTNAME"];
 

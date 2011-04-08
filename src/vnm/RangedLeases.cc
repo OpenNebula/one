@@ -132,26 +132,56 @@ int RangedLeases::add(
     int             vid,
     bool            used)
 {
-    ostringstream   oss;
-    int             rc;
+    ostringstream    oss;
 
-    //Insert the lease in the database
-    oss << "INSERT INTO " << table << " ("<< db_names <<") VALUES ("<<
-        oid << "," <<
-        ip << "," <<
-        mac[Lease::PREFIX] << "," <<
-        mac[Lease::SUFFIX] << "," <<
-        vid << "," <<
-        used << ")";
+    Lease *         lease;
+    string          xml_body;
+    char *          sql_xml;
+
+    int rc;
+
+    lease = new Lease(ip,mac,vid,used);
+
+    sql_xml = db->escape_str(lease->to_xml_db(xml_body).c_str());
+
+    if ( sql_xml == 0 )
+    {
+        goto error_body;
+    }
+
+    oss << "INSERT INTO " << table << " ("<< db_names <<") VALUES ("
+        <<          oid     << ","
+        <<          ip      << ","
+        << "'" <<   sql_xml << "')";
+
+    db->free_str(sql_xml);
 
     rc = db->exec(oss);
 
-    if ( rc == 0 )
+    if ( rc != 0 )
     {
-        leases.insert(make_pair(ip,new Lease(ip,mac,vid,used)));
+        goto error_db;
     }
 
+    leases.insert( make_pair(ip,lease) );
+
+    n_used++;
+
     return rc;
+
+
+error_body:
+    oss.str("");
+    oss << "Error inserting lease, marshall error";
+    goto error_common;
+
+error_db:
+    oss.str("");
+    oss << "Error inserting lease in database.";
+
+error_common:
+    NebulaLog::log("VNM", Log::ERROR, oss);
+    return -1;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -187,6 +217,8 @@ int  RangedLeases::del(const string& ip)
 
     if ( rc == 0 )
     {
+        n_used--;
+
         delete it_ip->second;
 
         leases.erase(it_ip);
