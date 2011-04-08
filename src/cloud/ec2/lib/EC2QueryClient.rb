@@ -140,7 +140,7 @@ module EC2QueryClient
         def upload_image(file_name, curb=true)
             params = { "Action"           => "UploadImage",
                        "SignatureVersion" => "2",
-                       "SignatureMethod"  => 'HmacSHA1',
+                       "SignatureMethod"  => 'HmacSHA256',
                        "AWSAccessKeyId"   => @access_key_id,
                        "Version"          => API_VERSION,
                        "Timestamp"        => Time.now.getutc.iso8601 }

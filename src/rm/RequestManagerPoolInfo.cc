@@ -50,7 +50,7 @@ void RequestManager::VirtualMachinePoolInfo::execute(
             state       = -1;
             break;
         case 3:
-            state       = xmlrpc_c::value_int (paramList.getInt(3));
+            state       = xmlrpc_c::value_int (paramList.getInt(2));
             break;
         default:
             paramList.verifyEnd(3);

@@ -26,59 +26,88 @@ void RequestManager::VirtualMachineSaveDisk::execute(
     xmlrpc_c::paramList const& paramList,
     xmlrpc_c::value *   const  retval)
 {
-    string              session;
+    string session;
 
-    int                 vm_id;
-    int                 disk_id;
-    int                 img_id;
+    int    vm_id;
+    int    disk_id;
+    int    iid;
+    string img_name;
 
-    int                 vm_owner;
-    int                 img_owner;
-    bool                img_public;
+    int    vm_owner;
+    string user_name;
 
-    int                 rc;
+    int    rc;
+    int    uid;
+    string estr;
+    char * error_str;
 
     const string  method_name = "VirtualMachineSaveDisk";
 
-    VirtualMachine *    vm;
-    Image *             image;
+    VirtualMachine * vm;
+    Image *          image;
+    ImageTemplate *  img_template;
+    User *           user;
 
     vector<xmlrpc_c::value> arrayData;
     xmlrpc_c::value_array * arrayresult;
 
-    ostringstream       oss;
+    ostringstream    oss;
+
+    Nebula&          nd     = Nebula::instance();
+    ImageManager *   imagem = nd.get_imagem();
 
     NebulaLog::log("ReM",Log::DEBUG,"VirtualMachineSaveDisk invoked");
 
     //Parse Arguments
+    session  = xmlrpc_c::value_string(paramList.getString(0));
+    vm_id    = xmlrpc_c::value_int(paramList.getInt(1));
+    disk_id  = xmlrpc_c::value_int(paramList.getInt(2));
+    img_name = xmlrpc_c::value_string(paramList.getString(3));
 
-    session = xmlrpc_c::value_string(paramList.getString(0));
-    vm_id   = xmlrpc_c::value_int(paramList.getInt(1));
-    disk_id = xmlrpc_c::value_int(paramList.getInt(2));
-    img_id  = xmlrpc_c::value_int(paramList.getInt(3));
+    //-------------------------------------------------------------------------
+    //                       Authenticate the user
+    //-------------------------------------------------------------------------
+    uid = VirtualMachineSaveDisk::upool->authenticate(session);
 
-    //Authenticate the user
-    rc = VirtualMachineSaveDisk::upool->authenticate(session);
-
-    if ( rc == -1 )
+    if ( uid == -1 )
     {
         goto error_authenticate;
     }
 
-    // Check that the image exists
-    image = VirtualMachineSaveDisk::ipool->get(img_id,true);
+    user = VirtualMachineSaveDisk::upool->get(uid,true);
 
-    if ( image == 0 )
+    if ( user == 0 )
+    {
+        goto error_user_get;
+    }
+
+    user_name = user->get_name();
+
+    user->unlock();
+
+    //-------------------------------------------------------------------------
+    // Check that the image does not exist & prepare the template
+    //-------------------------------------------------------------------------
+    image = VirtualMachineSaveDisk::ipool->get(img_name,uid,false);
+
+    if ( image != 0 )
     {
         goto error_image_get;
     }
 
-    img_owner = image->get_uid();
-    img_public = image->isPublic();
+    oss << "NAME= " << img_name << endl;
+    oss << "PUBLIC = NO " << endl;
+    oss << "SOURCE = " << Image::generate_source(uid,img_name);
 
-    image->unlock();
+    img_template = new ImageTemplate;
 
-    //Get the VM
+    img_template->parse(oss.str(),&error_str);
+
+    oss.str("");
+
+    //--------------------------------------------------------------------------
+    // Get the VM
+    //--------------------------------------------------------------------------
     vm = VirtualMachineSaveDisk::vmpool->get(vm_id,true);
 
     if ( vm == 0 )
@@ -90,14 +119,20 @@ void RequestManager::VirtualMachineSaveDisk::execute(
 
     vm->unlock();
 
-    //Authorize the operation
-    if ( rc != 0 ) // rc == 0 means oneadmin
+    //--------------------------------------------------------------------------
+    // Authorize the operation
+    //--------------------------------------------------------------------------
+    if ( uid != 0 )
     {
-        AuthRequest ar(rc);
+        AuthRequest ar(uid);
+        string t64;
 
         ar.add_auth(AuthRequest::VM,vm_id,AuthRequest::MANAGE,vm_owner,false);
-        ar.add_auth(AuthRequest::IMAGE,img_id,
-                    AuthRequest::MANAGE,img_owner,img_public);
+        ar.add_auth(AuthRequest::IMAGE,
+                    img_template->to_xml(t64),
+                    AuthRequest::CREATE,
+                    uid,
+                    false);
 
         if (UserPool::authorize(ar) == -1)
         {
@@ -105,6 +140,25 @@ void RequestManager::VirtualMachineSaveDisk::execute(
         }
     }
 
+    //--------------------------------------------------------------------------
+    // Create the image
+    //--------------------------------------------------------------------------
+    rc = VirtualMachineSaveDisk::ipool->allocate(uid,user_name,img_template,
+            &iid,estr);
+
+    if ( rc < 0 )
+    {
+        goto error_allocate;
+    }
+
+    oss << "Image " << img_name << " created to store disk.";
+
+    NebulaLog::log("ReM",Log::INFO,oss);
+    oss.str("");
+
+    //--------------------------------------------------------------------------
+    // Store image id to save the disk in the VM template
+    //--------------------------------------------------------------------------
     vm = VirtualMachineSaveDisk::vmpool->get(vm_id,true);
 
     if ( vm == 0 )
@@ -112,7 +166,7 @@ void RequestManager::VirtualMachineSaveDisk::execute(
         goto error_vm_get;
     }
 
-    rc = vm->save_disk(disk_id, img_id);
+    rc = vm->save_disk(disk_id, iid);
 
     if ( rc == -1 )
     {
@@ -124,7 +178,9 @@ void RequestManager::VirtualMachineSaveDisk::execute(
 
     vm->unlock();
 
+    //--------------------------------------------------------------------------
     // Send results to client
+    //--------------------------------------------------------------------------
     arrayData.push_back(xmlrpc_c::value_boolean(true));
 
     arrayresult = new xmlrpc_c::value_array(arrayData);
@@ -136,15 +192,23 @@ void RequestManager::VirtualMachineSaveDisk::execute(
     return;
 
 error_image_get:
-    oss.str(get_error(method_name, "IMAGE", img_id));
+    oss << action_error(method_name, "CREATE", "IMAGE", -2, 0);
+    oss << ". Image " << img_name << " already exists in the repository.";
     goto error_common;
 
 error_vm_get:
     oss.str(get_error(method_name, "VM", vm_id));
+    delete img_template;
     goto error_common;
 
 error_vm_get_disk_id:
     oss.str(get_error(method_name, "DISK from VM", vm_id));
+    oss << ". Deleting Image " << img_name;
+    imagem->delete_image(iid);
+    goto error_common;
+
+error_user_get:
+    oss.str(get_error(method_name, "USER", uid));
     goto error_common;
 
 error_authenticate:
@@ -152,7 +216,13 @@ error_authenticate:
     goto error_common;
 
 error_authorize:
-    oss.str(authorization_error(method_name, "MANAGE", "VM/IMAGE", rc, vm_id));
+    oss.str(authorization_error(method_name, "MANAGE", "VM/IMAGE", uid, vm_id));
+    delete img_template;
+    goto error_common;
+
+error_allocate:
+    oss << action_error(method_name, "CREATE", "IMAGE", -2, 0);
+    oss << " " << estr;
     goto error_common;
 
 error_common:

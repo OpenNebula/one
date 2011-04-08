@@ -170,16 +170,16 @@ module OCCIClient
                 return error
             end
 
-            if image_info.elements['URL'] == nil
+            if image_info.elements['URL']
+                file_path = image_info.elements['URL'].text
+
+                m = file_path.match(/^\w+:\/\/(.*)$/)
+
+                if m
+                    file_path="/"+m[1]
+                end
+            elsif !image_info.elements['TYPE'] == "DATABLOCK"
                 return CloudClient::Error.new("Can not find URL")
-            end
-
-            file_path = image_info.elements['URL'].text
-
-            m = file_path.match(/^\w+:\/\/(.*)$/)
-
-            if m
-                file_path="/"+m[1]
             end
 
             if curb
@@ -197,10 +197,14 @@ module OCCIClient
                 curl.multipart_form_post = true
 
                 begin
-                    curl.http_post(
-                      Curl::PostField.content('occixml', xml),
-                      Curl::PostField.file('file', file_path)
-                    )
+                    postfields = Array.new
+                    postfields << Curl::PostField.content('occixml', xml)
+
+                    if file_path
+                        postfields << Curl::PostField.file('file', file_path)
+                    end
+
+                    curl.http_post(*postfields)
                 rescue Exception => e
                     return CloudClient::Error.new(e.message)
                 end
@@ -213,11 +217,13 @@ module OCCIClient
                     return error
                 end
 
-                file=File.open(file_path)
-
                 params=Hash.new
-                params["file"]=UploadIO.new(file,
-                    'application/octet-stream', file_path)
+
+                if file_path
+                    file=File.open(file_path)
+                    params["file"]=UploadIO.new(file,
+                        'application/octet-stream', file_path)
+                end
 
                 params['occixml'] = xml
 
@@ -231,8 +237,8 @@ module OCCIClient
                     http.request(req)
                 end
 
-                file.close
-                pp res
+                file.close if file_path
+
                 if CloudClient::is_error?(res)
                     return res
                 else

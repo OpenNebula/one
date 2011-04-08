@@ -434,6 +434,29 @@ void Nebula::start()
         }
     }
 
+    // ---- Auth Manager ----
+    if (tester->need_imagem)
+    {
+        try
+        {
+            imagem = tester->create_imagem(ipool);
+        }
+        catch (bad_alloc&)
+        {
+            throw;
+        }
+
+        if (imagem != 0)
+        {
+            rc = imagem->start();
+
+            if ( rc != 0 )
+            {
+              throw runtime_error("Could not start the Image Manager");
+            }
+        }
+    }
+
     // -----------------------------------------------------------
     // Load mads
     // -----------------------------------------------------------

@@ -321,8 +321,6 @@ result=[false, "Unknown error"]
 
 command=ARGV.shift
 
-img_repo = OpenNebula::ImageRepository.new
-
 case command
 when "register", "create", "add"
     check_parameters("register", 1)
@@ -330,7 +328,7 @@ when "register", "create", "add"
     
     image = OpenNebula::Image.new(OpenNebula::Image.build_xml, get_one_client)
 
-    result = img_repo.create(image, template)    
+    result = image.allocate(template)
     if is_successful?(result)
         puts "ID: " + image.id.to_s if ops[:verbose]
     end
@@ -506,7 +504,7 @@ when "delete"
                         OpenNebula::Image.build_xml(image_id),
                         get_one_client)
 
-        result = img_repo.delete(image)
+        result = image.delete
         if is_successful?(result)
             puts "Image correctly deleted"  if ops[:verbose]
         end

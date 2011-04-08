@@ -401,16 +401,18 @@ class OCCIServer < CloudServer
         image = ImageOCCI.new(
                         Image.build_xml,
                         get_client(request.env),
-                        occixml)
+                        occixml,
+                        request.params['file'])
 
-        rc = add_image(image, request.params['file'])
-        return rc, 500 if OpenNebula.is_error?(rc)
+        # --- Generate the template and Allocate the new Instance ---
+        template = image.to_one_template
+        return template, 500 if OpenNebula.is_error?(template)
 
-        # --- Enable the new Image ---
-        rc = image.enable
+        rc = image.allocate(template)
         return rc, 500 if OpenNebula.is_error?(rc)
 
         # --- Prepare XML Response ---
+        image.info
         return to_occi_xml(image, 201)
     end
 
