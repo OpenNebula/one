@@ -36,64 +36,8 @@ public:
 
     VirtualMachineTemplate(VirtualMachineTemplate& vmt):Template(vmt){};    
 
-    /**
-     *  Copies the attributes of the original template into this one.
-     *    @param original Original template
-     *    @param error_msg error string, must be freed by the calling funtion.
-     *    This string is null if no error occurred.
-     */
-    int merge(const VirtualMachineTemplate * original, char **error_msg)
-    {
-        int                         rc;
-
-        *error_msg = 0;
-
-        rc = merge_att(original, "TEMPLATE_ID");
-
-        if( rc != 0 )
-        {
-            goto error_tid;
-        }
-
-        merge_att(original, "NAME");
-        return 0;
-
-    error_tid:
-        *error_msg = strdup("TEMPLATE_ID attribute not found");
-        return -1;
-    };
-
 private:
     friend class VirtualMachine;
-
-    int merge_att(const VirtualMachineTemplate * original, const char * name)
-    {
-        vector<const Attribute *>   attrs;
-        SingleAttribute *           sattr;
-        const SingleAttribute *     original_attr;
-        int                         number;
-
-        string att_name = name;
-
-        number = original->get(att_name,attrs);
-
-        if( number == 0 )
-        {
-            return -1;
-        }
-
-        original_attr = dynamic_cast<const SingleAttribute *>(attrs[0]);
-
-        if ( original_attr != 0 )
-        {
-            erase(att_name);
-
-            sattr = new SingleAttribute(*original_attr);
-            set(sattr);
-        }
-
-        return 0;
-    };
 };
 
 /* -------------------------------------------------------------------------- */

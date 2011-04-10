@@ -30,7 +30,7 @@ void RequestManager::VirtualMachineAllocate::execute(
     string              str_template;
     string              error_str;
     string              user_name;
-    string              att_name;
+    string              template_id_str = "TEMPLATE_ID";;
 
     const string        method_name = "VirtualMachineAllocate";
 
@@ -87,12 +87,14 @@ void RequestManager::VirtualMachineAllocate::execute(
     //--------------------------------------------------------------------------
     //   Look for a template id
     //--------------------------------------------------------------------------
-    att_name = "TEMPLATE_ID";
-    using_template_pool = vm_template->get(att_name, tid);
+    using_template_pool = vm_template->get(template_id_str, tid);
 
     if( using_template_pool )
     {
-        // Get the registered template
+        string name_str = "NAME";
+        string name_val;
+        ostringstream template_id_val;
+           
         registered_template = VirtualMachineAllocate::tpool->get(tid, true);
 
         if( registered_template == 0 )
@@ -107,15 +109,25 @@ void RequestManager::VirtualMachineAllocate::execute(
 
         registered_template->unlock();
 
-        rc = vm_template_aux->merge(vm_template, &error_msg);
+        // Set NAME & TEMPLATE_ID for the new template
+        vm_template->get(name_str,name_val);
+
+        if ( !name_val.empty() )
+        {
+            vm_template_aux->erase(name_str);
+            vm_template_aux->set(new SingleAttribute(name_str,name_val));
+        }
+
+        vm_template_aux->erase(template_id_str);
+
+        template_id_val << tid;
+
+        vm_template_aux->set(new 
+                SingleAttribute(template_id_str,template_id_val.str()));
 
         delete vm_template;
-        vm_template = vm_template_aux;
 
-        if ( rc != 0 )
-        {
-            goto error_parse;
-        }
+        vm_template = vm_template_aux;
     }
 
     if ( uid != 0 )
