@@ -106,6 +106,7 @@ class VMTemplatePoolTest : public PoolTest
     ALL_POOLTEST_CPPUNIT_TESTS();
 
     CPPUNIT_TEST ( names_initialization );
+    CPPUNIT_TEST ( clone_template );
     CPPUNIT_TEST ( update );
     CPPUNIT_TEST ( get_using_name );
     CPPUNIT_TEST ( wrong_get_name );
@@ -193,6 +194,54 @@ public:
         delete tpool;
     }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+    void clone_template()
+    {
+        string      attr_temp;
+        string      attr_vmt;
+
+        string      name1 = "NAME";
+        string      name2 = "MEMORY";
+
+        VMTemplatePoolFriend *   tpool;
+        VMTemplate *             temp;
+        VirtualMachineTemplate * vmt;
+
+        int                     oid_1;
+
+        tpool = static_cast<VMTemplatePoolFriend *>(pool);
+        oid_1 = allocate(0);
+
+        temp = tpool->get(oid_1, true);
+        CPPUNIT_ASSERT( temp != 0 );
+
+        vmt = temp->clone_template();
+
+        vmt->get(name1,attr_vmt);
+        CPPUNIT_ASSERT( attr_vmt == "Template one");
+
+        temp->get_template_attribute(name1.c_str(), attr_temp);
+        CPPUNIT_ASSERT( attr_temp == "Template one");
+
+        temp->replace_template_attribute(name2.c_str(), "1024");
+
+        vmt->get(name2,attr_vmt);
+        CPPUNIT_ASSERT( attr_vmt == "128");
+
+        temp->get_template_attribute(name2.c_str(), attr_temp);
+        CPPUNIT_ASSERT( attr_temp == "1024");
+
+        delete vmt;
+
+        temp->get_template_attribute(name2.c_str(), attr_temp);
+        CPPUNIT_ASSERT( attr_temp == "1024");
+
+        tpool->update(temp);
+
+        temp->unlock();
+    };
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

@@ -78,16 +78,19 @@ public:
      *  Returns a copy of the VirtualMachineTemplate
      *    @return A copy of the VirtualMachineTemplate
      */
-    VirtualMachineTemplate * get_template_contents() const
+    VirtualMachineTemplate * clone_template() const
     {
+        return new VirtualMachineTemplate(
+                *(static_cast<VirtualMachineTemplate *>(obj_template)));
+
         // TODO: Check if there is a more efficient way to do this copy.
-        string xml_str;
+        /*string xml_str;
         VirtualMachineTemplate * new_template = new VirtualMachineTemplate();
 
         obj_template->to_xml(xml_str);
         new_template->from_xml(xml_str);
 
-        return new_template;
+        return new_template;*/
     };
 
 private:

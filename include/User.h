@@ -135,15 +135,6 @@ private:
     int insert_replace(SqlDB *db, bool replace);
 
     /**
-     *  Callback function to unmarshall a User object (User::select)
-     *    @param num the number of columns read from the DB
-     *    @param names the column names
-     *    @param vaues the column values
-     *    @return 0 on success
-     */
-//    int select_cb(void *nil, int num, char **values, char **names);
-
-    /**
      *  Bootstraps the database table(s) associated to the User
      */
     static void bootstrap(SqlDB * db)

@@ -34,6 +34,8 @@ public:
 
     ~VirtualMachineTemplate(){};
 
+    VirtualMachineTemplate(VirtualMachineTemplate& vmt):Template(vmt){};    
+
     /**
      *  Copies the attributes of the original template into this one.
      *    @param original Original template

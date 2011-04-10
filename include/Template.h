@@ -47,6 +47,20 @@ public:
                  separator(_separator),
                  xml_root(_xml_root){};
 
+    Template(const Template& t)
+    {
+        multimap<string,Attribute *>::const_iterator it;
+
+        replace_mode = t.replace_mode;
+        separator    = t.separator;
+        xml_root     = t.xml_root;
+
+        for (it = t.attributes.begin() ; it != t.attributes.end() ; it++)
+        {
+            attributes.insert(make_pair(it->first,(it->second)->clone()));
+        }
+    }
+
     /**
      *  The class destructor frees all the attributes conforming the template
      */

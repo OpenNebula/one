@@ -101,7 +101,7 @@ void RequestManager::VirtualMachineAllocate::execute(
         }
 
         // Use the template contents
-        vm_template_aux = registered_template->get_template_contents();
+        vm_template_aux = registered_template->clone_template();
         template_owner  = registered_template->get_uid();
         template_public = registered_template->isPublic();
 
