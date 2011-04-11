@@ -26,12 +26,8 @@ void RequestManager::UserAuthenticate::execute(
     xmlrpc_c::paramList const& paramList,
     xmlrpc_c::value *   const  retval)
 {
-    string          session;
-    int             uid;
-
-    ostringstream   oss;
-    const string    method_name = "UserAuthenticate";
-
+    string              session;
+    int                 rc;
 
     /*   -- RPC specific vars --  */
     vector<xmlrpc_c::value> arrayData;  
@@ -43,35 +39,16 @@ void RequestManager::UserAuthenticate::execute(
     session  = xmlrpc_c::value_string(paramList.getString(0));
 
     // Try to authenticate the user
-    uid = UserAuthenticate::upool->authenticate(session);
-
-    if( uid == -1 )
-    {
-        goto error_common;
-    }
+    rc = UserAuthenticate::upool->authenticate(session);
 
     //Result
-    arrayData.push_back(xmlrpc_c::value_boolean( true ));
-    arrayData.push_back(xmlrpc_c::value_int(uid));
+    arrayData.push_back(xmlrpc_c::value_boolean( rc == 0 ));
     arrayresult = new xmlrpc_c::value_array(arrayData);
 
     *retval = *arrayresult;
 
     delete arrayresult;
 
-    return;
-
-error_common:
-    oss.str(authenticate_error(method_name));
-
-    arrayData.push_back(xmlrpc_c::value_boolean(false));  // FAILURE
-    arrayData.push_back(xmlrpc_c::value_string( authenticate_error(method_name) );
-
-    NebulaLog::log("ReM",Log::ERROR,oss);
-
-    xmlrpc_c::value_array arrayresult_error(arrayData);
-
-    *retval = arrayresult_error;
     return;
 }
 
