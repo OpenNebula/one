@@ -65,7 +65,7 @@ error_common:
     oss.str(authenticate_error(method_name));
 
     arrayData.push_back(xmlrpc_c::value_boolean(false));  // FAILURE
-    arrayData.push_back(xmlrpc_c::value_string(authenticate_error(method_name)));
+    arrayData.push_back(xmlrpc_c::value_string( authenticate_error(method_name) );
 
     NebulaLog::log("ReM",Log::ERROR,oss);
 
