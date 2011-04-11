@@ -207,6 +207,7 @@ SUNSTONE_DIRS="$SUNSTONE_LOCATION/models \
                $SUNSTONE_LOCATION/models/OpenNebulaJSON \
                $SUNSTONE_LOCATION/public \
                $SUNSTONE_LOCATION/public/js \
+               $SUNSTONE_LOCATION/public/js/plugins \
                $SUNSTONE_LOCATION/public/css \
                $SUNSTONE_LOCATION/public/vendor \
                $SUNSTONE_LOCATION/public/vendor/jQueryLayout \
@@ -313,6 +314,7 @@ INSTALL_SUNSTONE_FILES=(
     SUNSTONE_MODELS_JSON_FILES:$SUNSTONE_LOCATION/models/OpenNebulaJSON
     SUNSTONE_TEMPLATE_FILES:$SUNSTONE_LOCATION/templates
     SUNSTONE_PUBLIC_JS_FILES:$SUNSTONE_LOCATION/public/js
+    SUNSTONE_PUBLIC_JS_PLUGINS_FILES:$SUNSTONE_LOCATION/public/js/plugins
     SUNSTONE_PUBLIC_CSS_FILES:$SUNSTONE_LOCATION/public/css
     SUNSTONE_PUBLIC_VENDOR_DATATABLES:$SUNSTONE_LOCATION/public/vendor/dataTables
     SUNSTONE_PUBLIC_VENDOR_JGROWL:$SUNSTONE_LOCATION/public/vendor/jGrowl
@@ -726,9 +728,17 @@ SUNSTONE_TEMPLATE_FILES="src/sunstone/templates/index.html \
 
 SUNSTONE_PUBLIC_JS_FILES="src/sunstone/public/js/layout.js \
                         src/sunstone/public/js/login.js \
-                        src/sunstone/public/js/one-ui_views.js \
-                        src/sunstone/public/js/one-ui_views.templates.js \
+                        src/sunstone/public/js/sunstone.js \
+                        src/sunstone/public/js/sunstone-util.js \
                         src/sunstone/public/js/opennebula.js"
+
+SUNSTONE_PUBLIC_JS_PLUGINS_FILES="\
+                            src/sunstone/public/js/plugins/dashboard-tab.js \
+                            src/sunstone/public/js/plugins/hosts-tab.js \
+                            src/sunstone/public/js/plugins/images-tab.js \
+                            src/sunstone/public/js/plugins/users-tab.js \
+                            src/sunstone/public/js/plugins/vms-tab.js \
+                            src/sunstone/public/js/plugins/vnets-tab.js"
 
 SUNSTONE_PUBLIC_CSS_FILES="src/sunstone/public/css/application.css \
                            src/sunstone/public/css/layout.css \
