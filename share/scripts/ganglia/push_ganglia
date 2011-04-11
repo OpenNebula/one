@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
@@ -14,7 +16,19 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# To change the directory where the VMM scripts are copied on the remote node
-# uncomment and change the path of VMMM_REMOTE_DIR
-#
-#VMM_REMOTE_DIR=/tmp/ne_im_scripts
+data=STDIN.read.strip
+
+data.each_line do |line|
+    next if !/^([^=]+?)=(.*)$/.match line
+
+    var_name="OPENNEBULA_#{$1}"
+    var_data=$2
+
+    var_type=/^\d+$/.match(var_data) ? 'uint32' : 'string'
+
+    command="gmetric -n #{var_name} -v \"#{var_data}\" -t #{var_type}"
+
+    system command
+end
+
+

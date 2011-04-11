@@ -98,7 +98,7 @@ Any user can list available clusters.
 
 Commands:
 
-* create (Creates a new user)
+* create (Creates a new cluster)
     onecluster create clustername
     
 * delete (Removes a cluster)
