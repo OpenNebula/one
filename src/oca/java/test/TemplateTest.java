@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.opennebula.client.Client;
 import org.opennebula.client.OneResponse;
 import org.opennebula.client.template.*;
+import org.opennebula.client.vm.VirtualMachine;
 
 
 
@@ -177,7 +178,7 @@ public class TemplateTest
         assertTrue( template.xpath("NAME").equals(name) );
     }
 
-//    @Test
+    @Test
     public void delete()
     {
         res = template.delete();
@@ -185,5 +186,16 @@ public class TemplateTest
 
         res = template.info();
         assertTrue( res.isError() );
+    }
+
+    @Test
+    public void allocateFromTemplate()
+    {
+        template.info();
+        assertTrue( !res.isError() );
+
+        res = VirtualMachine.allocateFromTemplate(client, template);
+        assertTrue( !res.isError() );
+        assertTrue( res.getMessage().equals("0") );
     }
 }
