@@ -656,7 +656,7 @@ public:
      *    @param  img_id ID of the image this disk will be saved to.
      *    @return 0 if success
      */
-    int  save_disk(int disk_id, int img_id);
+    int  save_disk(int disk_id, int img_id, string& error_str);
 
 private:
 

@@ -39,7 +39,8 @@ void RequestManager::VirtualMachineSaveDisk::execute(
     int    rc;
     int    uid;
     string estr;
-    char * error_str;
+    char * error_char;
+    string error_str;
 
     const string  method_name = "VirtualMachineSaveDisk";
 
@@ -47,6 +48,10 @@ void RequestManager::VirtualMachineSaveDisk::execute(
     Image *          image;
     ImageTemplate *  img_template;
     User *           user;
+
+    Image *     source_img;
+    int         source_img_id;
+    bool        source_img_persistent = false;
 
     vector<xmlrpc_c::value> arrayData;
     xmlrpc_c::value_array * arrayresult;
@@ -92,7 +97,7 @@ void RequestManager::VirtualMachineSaveDisk::execute(
 
     if ( image != 0 )
     {
-        goto error_image_get;
+        goto error_image_exists;
     }
 
     oss << "NAME= " << img_name << endl;
@@ -101,7 +106,7 @@ void RequestManager::VirtualMachineSaveDisk::execute(
 
     img_template = new ImageTemplate;
 
-    img_template->parse(oss.str(),&error_str);
+    img_template->parse(oss.str(),&error_char);
 
     oss.str("");
 
@@ -158,7 +163,7 @@ void RequestManager::VirtualMachineSaveDisk::execute(
     oss.str("");
 
     //--------------------------------------------------------------------------
-    // Store image id to save the disk in the VM template
+    // Get the VM
     //--------------------------------------------------------------------------
     vm = VirtualMachineSaveDisk::vmpool->get(vm_id,true);
 
@@ -167,7 +172,35 @@ void RequestManager::VirtualMachineSaveDisk::execute(
         goto error_vm_get;
     }
 
-    rc = vm->save_disk(disk_id, iid);
+    //--------------------------------------------------------------------------
+    // Check if the disk has a persistent source image
+    //--------------------------------------------------------------------------
+    oss << "/VM/TEMPLATE/DISK[DISK_ID=" << disk_id << "]/IMAGE_ID";
+    rc = vm->xpath(source_img_id, oss.str().c_str(), -1);
+    oss.str("");
+
+    if( rc == 0 )               // The disk was created from an Image
+    {
+        source_img = VirtualMachineSaveDisk::ipool->get(source_img_id, true);
+
+        if( source_img != 0 )   // The Image still exists
+        {
+            source_img_persistent = source_img->isPersistent();
+            source_img->unlock();
+
+            if( source_img_persistent )
+            {
+                vm->unlock();
+                goto error_img_persistent;
+            }
+        }
+    }
+
+    //--------------------------------------------------------------------------
+    // Store image id to save the disk in the VM template
+    //--------------------------------------------------------------------------
+
+    rc = vm->save_disk(disk_id, iid, error_str);
 
     if ( rc == -1 )
     {
@@ -193,18 +226,25 @@ void RequestManager::VirtualMachineSaveDisk::execute(
 
     return;
 
-error_image_get:
+error_image_exists:
     oss << action_error(method_name, "CREATE", "IMAGE", -2, 0);
-    oss << ". Image " << img_name << " already exists in the repository.";
+    oss << " Image " << img_name << " already exists in the repository.";
     goto error_common;
 
 error_vm_get:
     oss.str(get_error(method_name, "VM", vm_id));
     goto error_common;
 
+error_img_persistent:
+    oss << action_error(method_name, "SAVEDISK", "DISK", disk_id, 0);
+    oss << " Source IMAGE " << source_img_id << " is persistent.";
+
+    goto error_common;
+
 error_vm_get_disk_id:
     oss.str(get_error(method_name, "DISK from VM", vm_id));
-    oss << ". Deleting Image " << img_name;
+    oss << " " << error_str;
+    oss << " Deleting Image " << img_name;
     imagem->delete_image(iid);
     goto error_common;
 

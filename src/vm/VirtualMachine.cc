@@ -951,7 +951,7 @@ int VirtualMachine::generate_context(string &files)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::save_disk(int disk_id, int img_id)
+int VirtualMachine::save_disk(int disk_id, int img_id, string& error_str)
 {
     int                   num_disks;
     vector<Attribute  * > disks;
@@ -959,6 +959,8 @@ int VirtualMachine::save_disk(int disk_id, int img_id)
 
     string                disk_id_str;
     int                   tmp_disk_id;
+    string                tmp_img_id_str;
+    int                   tmp_img_id;
 
     ostringstream oss;
     istringstream iss;
@@ -982,6 +984,11 @@ int VirtualMachine::save_disk(int disk_id, int img_id)
 
         if( tmp_disk_id == disk_id )
         {
+            if( disk->vector_value("SAVE_AS") != "" )
+            {
+                goto error_saved;
+            }
+
             disk->replace("SAVE", "YES");
 
             oss << (img_id);
@@ -990,6 +997,19 @@ int VirtualMachine::save_disk(int disk_id, int img_id)
             return 0;
         }
     }
+
+    goto error_not_found;
+
+error_saved:
+    oss << "The DISK " << disk_id << " is already suppossed to be saved.";
+    goto error_common;
+
+error_not_found:
+    oss << "The DISK " << disk_id << " does not exist for VM " << oid << ".";
+
+error_common:
+    NebulaLog::log("VM",Log::ERROR, oss);
+    error_str = oss.str();
 
     return -1;
 }
