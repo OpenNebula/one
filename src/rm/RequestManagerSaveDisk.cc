@@ -183,6 +183,7 @@ void RequestManager::VirtualMachineSaveDisk::execute(
     // Send results to client
     //--------------------------------------------------------------------------
     arrayData.push_back(xmlrpc_c::value_boolean(true));
+    arrayData.push_back(xmlrpc_c::value_int(iid));
 
     arrayresult = new xmlrpc_c::value_array(arrayData);
 
