@@ -470,7 +470,8 @@ private:
                 ipool(_ipool)
         {
             _signature="A:siis";
-            _help="Sets the disk to be saved in the given image.";
+            _help = "Sets the disk to be saved in a new Image with the given "
+                    "name.";
         };
 
         ~VirtualMachineSaveDisk(){};

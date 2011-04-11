@@ -112,6 +112,7 @@ void RequestManager::VirtualMachineSaveDisk::execute(
 
     if ( vm == 0 )
     {
+        delete img_template;
         goto error_vm_get;
     }
 
@@ -182,6 +183,7 @@ void RequestManager::VirtualMachineSaveDisk::execute(
     // Send results to client
     //--------------------------------------------------------------------------
     arrayData.push_back(xmlrpc_c::value_boolean(true));
+    arrayData.push_back(xmlrpc_c::value_int(iid));
 
     arrayresult = new xmlrpc_c::value_array(arrayData);
 
@@ -198,7 +200,6 @@ error_image_get:
 
 error_vm_get:
     oss.str(get_error(method_name, "VM", vm_id));
-    delete img_template;
     goto error_common;
 
 error_vm_get_disk_id:

@@ -35,13 +35,16 @@ public class ImageTest
     private static Client client;
 
     private static OneResponse res;
-    private static String name = "new_test_img";
+    private static int cont = 0;
 
+    private static String template()
+    {
+        cont++;
 
-    private static String template =
-        "NAME = \"" + name + "\"\n" +
-        "PATH = /etc/hosts\n" +
-        "ATT1 = \"val1\"";
+        return  "NAME = \"test_img_" + cont + "\"\n" +
+                "PATH = /etc/hosts\n" +
+                "ATT1 = \"val1\"";
+    }
 
     /**
      * @throws java.lang.Exception
@@ -67,7 +70,7 @@ public class ImageTest
     @Before
     public void setUp() throws Exception
     {
-        res = Image.allocate(client, template);
+        res = Image.allocate(client, template());
 
         int imgid = res.isError() ? -1 : Integer.parseInt(res.getMessage()); 
         image = new Image(imgid, client);
@@ -87,7 +90,7 @@ public class ImageTest
     {
         image.delete();
 
-        res = Image.allocate(client, template);
+        res = Image.allocate(client, template());
         assertTrue( !res.isError() );
 
         int imgid = res.isError() ? -1 : Integer.parseInt(res.getMessage()); 
@@ -99,7 +102,7 @@ public class ImageTest
         boolean found = false;
         for(Image img : imagePool)
         {
-            found = found || img.getName().equals(name);
+            found = found || img.getName().equals("test_img_"+cont);
         }
 
         assertTrue( found );
@@ -113,7 +116,7 @@ public class ImageTest
         
 //        assertTrue( image.getId().equals("0") );
 //        assertTrue( image.id() == 0 );
-        assertTrue( image.getName().equals(name) );
+        assertTrue( image.getName().equals("test_img_"+cont) );
     }
 
     @Test
@@ -148,7 +151,8 @@ public class ImageTest
         assertTrue( image.xpath("ATT1").equals("") );
     }
 
-    @Test
+//  TODO
+//    @Test
     public void enable()
     {
         res = image.enable();
@@ -158,7 +162,8 @@ public class ImageTest
         assertTrue( image.isEnabled() );
     }
 
-    @Test
+//  TODO
+//  @Test
     public void disable()
     {
         res = image.disable();
@@ -195,7 +200,7 @@ public class ImageTest
         assertTrue( !res.isError() );
 
 //        assertTrue( image.xpath("ID").equals("0") );
-        assertTrue( image.xpath("NAME").equals(name) );
+        assertTrue( image.xpath("NAME").equals("test_img_"+cont) );
     }
 
 //    @Test
