@@ -21,13 +21,13 @@ module OpenNebulaJSON
         include JSONUtils
 
         def create(template_json)
-            template_hash = parse_json(template_json, 'template')
+            template_hash = parse_json(template_json, 'vmtemplate')
             if OpenNebula.is_error?(template_hash)
                 return template_hash
             end
 
             if template_hash['template_raw']
-                template = vm_hash['template_raw']
+                template = template_hash['template_raw']
             else
                 template = template_to_str(template_hash)
             end
