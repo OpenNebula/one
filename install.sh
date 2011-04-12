@@ -195,7 +195,8 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/remotes/vmm/xen \
           $LIB_LOCATION/remotes/vmm/kvm \
           $LIB_LOCATION/remotes/image \
-          $LIB_LOCATION/remotes/image/fs"
+          $LIB_LOCATION/remotes/image/fs \
+          $LIB_LOCATION/sh"
 
 VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im \
@@ -257,6 +258,7 @@ INSTALL_FILES=(
     LIB_FILES:$LIB_LOCATION
     RUBY_LIB_FILES:$LIB_LOCATION/ruby
     RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/OpenNebula
+    MAD_SH_LIB_FILES:$LIB_LOCATION/sh
     MADS_LIB_FILES:$LIB_LOCATION/mads
     IM_PROBES_FILES:$VAR_LOCATION/remotes/im
     IM_PROBES_KVM_FILES:$VAR_LOCATION/remotes/im/kvm.d
@@ -405,6 +407,14 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/OpenNebula/Host.rb \
                            src/oca/ruby/OpenNebula/Cluster.rb \
                            src/oca/ruby/OpenNebula/ClusterPool.rb \
                            src/oca/ruby/OpenNebula/XMLUtils.rb"
+
+
+#-----------------------------------------------------------------------------
+# MAD ShellScript library files, to be installed under $LIB_LOCATION/sh
+# and remotes directory
+#-----------------------------------------------------------------------------
+
+MAD_SH_LIB_FILES="src/mad/sh/scripts_common.sh"
 
 #-------------------------------------------------------------------------------
 # Driver executable files, to be installed under $LIB_LOCATION/mads
