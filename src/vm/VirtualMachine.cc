@@ -959,8 +959,6 @@ int VirtualMachine::save_disk(int disk_id, int img_id, string& error_str)
 
     string                disk_id_str;
     int                   tmp_disk_id;
-    string                tmp_img_id_str;
-    int                   tmp_img_id;
 
     ostringstream oss;
     istringstream iss;
