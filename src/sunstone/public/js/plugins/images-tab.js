@@ -339,9 +339,7 @@ var image_actions = {
      "Image.delete" : {
         type: "multiple",
         call: OpenNebula.Image.delete,
-        callback: function (req) {
-            Sunstone.runAction("Image.show",req.request.data[0]);
-        },
+        callback: deleteImageElement,
         elements: function() { return getSelectedNodes(dataTable_images); },
         error: onError,
         notify: true
