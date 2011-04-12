@@ -17,7 +17,7 @@
 require 'OpenNebulaJSON/JSONUtils'
 
 module OpenNebulaJSON
-    class TemplateJSON < OpenNebula::VirtualMachine
+    class TemplateJSON < OpenNebula::Template
         include JSONUtils
 
         def create(template_json)

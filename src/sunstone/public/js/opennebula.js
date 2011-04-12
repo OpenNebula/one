@@ -142,7 +142,14 @@ var OpenNebula = {
             {
                 return Error('Incorrect Pool');
             }
-
+            
+            
+            //HACK!!!
+            if (pool_name == "TEMPLATE_POOL")
+            {
+                type = "VMTEMPLATE";
+            }
+            
             var p_pool = [];
 
             if (response[pool_name]) {
@@ -1934,7 +1941,7 @@ var OpenNebula = {
     },
     
     "Template" : {
-        "resource" : "TEMPLATE",
+        "resource" : "VMTEMPLATE",
         
         "create" : function(params)
         {
@@ -2157,7 +2164,7 @@ var OpenNebula = {
                 {
                     if (callback)
                     {
-                        var template_pool = OpenNebula.Helper.pool(resource,response);
+                        var template_pool = OpenNebula.Helper.pool("TEMPLATE",response);
                         callback(request, template_pool);
                     }
                 },
