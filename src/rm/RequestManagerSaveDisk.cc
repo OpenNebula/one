@@ -179,18 +179,17 @@ void RequestManager::VirtualMachineSaveDisk::execute(
     rc = vm->xpath(source_img_id, oss.str().c_str(), -1);
     oss.str("");
 
-    if( rc == 0 )               // The disk was created from an Image
+    if( rc == 0 ) //The disk was created from an Image
     {
         source_img = VirtualMachineSaveDisk::ipool->get(source_img_id, true);
 
-        if( source_img != 0 )   // The Image still exists
+        if( source_img != 0 ) //The Image still exists
         {
             source_img_persistent = source_img->isPersistent();
             source_img->unlock();
 
             if( source_img_persistent )
             {
-                vm->unlock();
                 goto error_img_persistent;
             }
         }
@@ -199,12 +198,10 @@ void RequestManager::VirtualMachineSaveDisk::execute(
     //--------------------------------------------------------------------------
     // Store image id to save the disk in the VM template
     //--------------------------------------------------------------------------
-
     rc = vm->save_disk(disk_id, iid, error_str);
 
     if ( rc == -1 )
     {
-        vm->unlock();
         goto error_vm_get_disk_id;
     }
 
@@ -238,7 +235,7 @@ error_vm_get:
 error_img_persistent:
     oss << action_error(method_name, "SAVEDISK", "DISK", disk_id, 0);
     oss << " Source IMAGE " << source_img_id << " is persistent.";
-
+    vm->unlock();
     goto error_common;
 
 error_vm_get_disk_id:
@@ -246,6 +243,7 @@ error_vm_get_disk_id:
     oss << " " << error_str;
     oss << " Deleting Image " << img_name;
     imagem->delete_image(iid);
+    vm->unlock();
     goto error_common;
 
 error_user_get:

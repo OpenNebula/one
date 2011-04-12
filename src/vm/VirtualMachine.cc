@@ -982,9 +982,9 @@ int VirtualMachine::save_disk(int disk_id, int img_id, string& error_str)
         iss.str(disk_id_str);
         iss >> tmp_disk_id;
 
-        if( tmp_disk_id == disk_id )
+        if ( tmp_disk_id == disk_id )
         {
-            if( disk->vector_value("SAVE_AS") != "" )
+            if(!((disk->vector_value("SAVE_AS")).empty()))
             {
                 goto error_saved;
             }
