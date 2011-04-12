@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+    <head><title>Input Test</title></head>
+    <body>
+        <br><br>
+
+        Canvas:<br>
+        <canvas id="canvas" width="640" height="20"
+                style="border-style: dotted; border-width: 1px;">
+            Canvas not supported.
+        </canvas>
+
+        <br>
+        Results:<br>
+        <textarea id="messages" style="font-size: 9;" cols=80 rows=25></textarea>
+    </body>
+
+    <!--
+    <script type='text/javascript' 
+        src='http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js'></script>
+    -->
+    <script src="../include/util.js"></script>
+    <script src="../include/webutil.js"></script> 
+    <script src="../include/base64.js"></script>
+    <script src="../include/input.js"></script> 
+    <script src="../include/canvas.js"></script>
+    <script>
+        var msg_cnt = 0;
+        var width = 400, height = 200;
+        var iterations;
+
+        var newline = "\n";
+        if (Util.Engine.trident) {
+            var newline = "<br>\n";
+        }
+
+        function message(str) {
+            console.log(str);
+            cell = $D('messages');
+            cell.innerHTML += msg_cnt + ": " + str + newline;
+            cell.scrollTop = cell.scrollHeight;
+            msg_cnt++;
+        }
+
+        function mouseButton(x, y, down, bmask) {
+            msg = 'mouse x,y: ' + x + ',' + y + '  down: ' + down;
+            msg += ' bmask: ' + bmask;
+            message(msg);
+        }
+
+        function mouseMove(x, y) {
+            msg = 'mouse x,y: ' + x + ',' + y;
+            //console.log(msg);
+        }
+
+        function keyPress(keysym, down, e) {
+            var d = down ? "down" : " up ";
+            msg = "keyPress " + d + " keysym: " + keysym +
+                  " (key: " + e.keyCode + ", char: " + e.charCode +
+                  ", which: " + e.which +")";
+            message(msg);
+        }
+
+        window.onload = function() {
+            var canvas = new Canvas({'target' : $D('canvas')});
+            keyboard = new Keyboard({'target': document,
+                                    'keyPress': keyPress});
+            mouse    = new Mouse({'target': $D('canvas'),
+                                'mouseButton': mouseButton,
+                                'mouseMove': mouseMove});
+            canvas.resize(width, height, true);
+            keyboard.grab();
+            mouse.grab();
+            message("Canvas initialized");
+        }
+    </script>
+</html>

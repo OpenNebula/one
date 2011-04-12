@@ -32,6 +32,7 @@ var vms_tab_content =
       <th>Memory</th>\
       <th>Hostname</th>\
       <th>Start Time</th>\
+      <th>VNC Access</th>\
     </tr>\
   </thead>\
   <tbody id="tbodyvmachines">\
@@ -496,6 +497,7 @@ var create_vm_tmpl =
 
 var vmachine_list_json = {};
 var dataTable_vMachines;
+var rfb;
 
 var vm_actions = {
     "VM.create" : {
@@ -720,10 +722,12 @@ var vm_actions = {
             var colored_log = '';
             for (line in log_lines){
                 line = log_lines[line];
-                if (line.match(/\[E\]/)){
-                    line = '<span class="vm_log_error">'+line+'</span>'
+                if (typeof line == "string") {
+                    if (line.match(/\[E\]/)){
+                        line = '<span class="vm_log_error">'+line+'</span>'
+                    }
+                    colored_log += line + "\n";
                 }
-                colored_log += line + "\n";
             }
             var log_tab = {
                 title: "VM log",
@@ -902,6 +906,8 @@ function vMachineElementArray(vm_json){
     if (state == "ACTIVE") {
         state = OpenNebula.Helper.resource_state("vm_lcm",vm.LCM_STATE);
     }
+    
+   
 	return [
 			'<input type="checkbox" id="vm_'+vm.ID+'" name="selected_items" value="'+vm.ID+'"/>',
 			vm.ID,
@@ -911,7 +917,8 @@ function vMachineElementArray(vm_json){
 			vm.CPU,
 			humanize_size(vm.MEMORY),
 			vm.HISTORY ? vm.HISTORY.HOSTNAME : "--",
-			str_start_time(vm)
+			str_start_time(vm),
+            vncIcon(vm)
 		]
 }
 
@@ -920,7 +927,7 @@ function vMachineElementArray(vm_json){
 function vMachineInfoListener(){
 
 	$('#tbodyvmachines tr').live("click", function(e){
-		if ($(e.target).is('input')) {return true;}
+		if ($(e.target).is('input') || $(e.target).is('a img')) {return true;}
         popDialogLoading();
 		var aData = dataTable_vMachines.fnGetData(this);
 		var id = $(aData[0]).val();
@@ -1018,6 +1025,10 @@ function updateVMInfo(request,vm){
 			<tr>\
 				<td class="key_td">Used CPU</td>\
 				<td class="value_td">'+vm_info.CPU+'</td>\
+			</tr>\
+            <tr>\
+				<td class="key_td">VNC Session</td>\
+				<td class="value_td">'+vncIcon(vm_info)+'</td>\
 			</tr>\
 		</table>'
     }
@@ -1936,6 +1947,110 @@ function setVMAutorefresh(){
 	},INTERVAL+someTime()); //so that not all refreshing is done at the same time
 }
 
+//setups VNC application
+function setupVNC(){
+
+    var updateVNCState = function updateState(rfb, state, oldstate, msg) {
+            var s, sb, cad, klass;
+            s = $D('VNC_status');
+            sb = $D('VNC_status_bar');
+            cad = $D('sendCtrlAltDelButton');
+            switch (state) {
+                case 'failed':
+                case 'fatal':
+                    klass = "VNC_status_error";
+                    break;
+                case 'normal':
+                    klass = "VNC_status_normal";
+                    break;
+                case 'disconnected':
+                case 'loaded':
+                    klass = "VNC_status_normal";
+                    break;
+                case 'password':
+                    klass = "VNC_status_warn";
+                    break;
+                default:
+                    klass = "VNC_status_warn";
+            }
+
+            if (state === "normal") { cad.disabled = false; }
+            else                    { cad.disabled = true; }
+
+            if (typeof(msg) !== 'undefined') {
+                sb.setAttribute("class", klass);
+                s.innerHTML = msg;
+            }
+        }
+
+    //Append to DOM
+    $('div#dialogs').append('<div id="vnc_dialog" title="VNC connection"></div>');
+    
+    $('#vnc_dialog').html('\
+      <div id="VNC_status_bar" class="VNC_status_bar" style="margin-top: 0px;">\
+                <table border=0 width="100%"><tr>\
+                    <td><div id="VNC_status">Loading</div></td>\
+                    <td width="1%"><div id="VNC_buttons">\
+                        <input type=button value="Send CtrlAltDel"\
+                            id="sendCtrlAltDelButton">\
+                            </div></td>\
+                </tr></table>\
+            </div>\
+            <canvas id="VNC_canvas" width="640px" height="20px">\
+                Canvas not supported.\
+            </canvas>\
+    ');
+    
+    $('#sendCtrlAltDelButton').click(function(){ 
+        rfb.sendCtrlAltDel();
+        return false;        
+    });
+    
+    $('#vnc_dialog').dialog({
+        autoOpen:false,
+        width:700,
+        modal:true,
+        height:500,
+        resizable:true,
+    });
+    
+    $('.vnc').live("click",function(){
+        rfb = new RFB({'target':       $D('VNC_canvas'),
+                        'encrypt':      false,
+                        'true_color':   true,
+                        'local_cursor': true,
+                        'shared':       true,
+                        'updateState':  updateVNCState});
+        //fetch things from clicked element host - port - password
+        var port=$(this).attr("vnc_port");
+        var pw=$(this).attr("vnc_pw");
+        rfb.connect(host, port, pw);
+
+        $('#vnc_dialog').dialog('open');
+        
+        
+    });
+
+}
+
+function vncIcon(vm){
+    var graphics = vm.TEMPLATE.GRAPHICS;
+    var state = OpenNebula.Helper.resource_state("vm",vm.STATE);
+    var gr_icon, host, port, password;
+    if (graphics && graphics.TYPE == "vnc" && state == "ACTIVE" && vm.HISTORY.HOSTNAME){
+        host = vm.HISTORY.HOSTNAME;
+        port = graphics.PORT ? graphics.PORT : "";
+        password = graphics.PASSWD ? graphics.PASSWD : "";
+        gr_icon = '<a class="vnc" href="#" vnc_host="'+host+'" vnc_port="'+port+'" vnc_pw="'+password+'">';
+        gr_icon += '<img src="images/vnc_on.png" alt="Open VNC Session" /></a>';
+    }
+    else {
+        gr_icon = '<img src="images/vnc_off.png" alt="VNC Disabled" />';
+    }
+    return gr_icon;
+    
+}
+
 // At this point the DOM is ready and the sunstone.js ready() has been run.
 $(document).ready(function(){
     
@@ -1947,7 +2062,7 @@ $(document).ready(function(){
       "aoColumnDefs": [
                         { "bSortable": false, "aTargets": ["check"] },
                         { "sWidth": "60px", "aTargets": [0] },
-                        { "sWidth": "35px", "aTargets": [1] },
+                        { "sWidth": "35px", "aTargets": [1,9] },
                         { "sWidth": "100px", "aTargets": [2] }
                        ]
     });
@@ -1955,12 +2070,13 @@ $(document).ready(function(){
     dataTable_vMachines.fnClearTable();
     addElement([
         spinner,
-        '','','','','','','',''],dataTable_vMachines);
+        '','','','','','','','',''],dataTable_vMachines);
 	Sunstone.runAction("VM.list");
     
     setupCreateVMDialog();
     setupSaveasDialog();
     setVMAutorefresh();
+    setupVNC();
     
     initCheckAllBoxes(dataTable_vMachines);
     tableCheckboxesListener(dataTable_vMachines);

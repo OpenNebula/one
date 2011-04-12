@@ -1,0 +1,5 @@
+*.pyc
+*.o
+wsproxy
+tests/data_*.js
+utils/rebind.so
