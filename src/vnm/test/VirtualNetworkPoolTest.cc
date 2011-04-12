@@ -19,6 +19,7 @@
 #include <stdlib.h>
 
 #include "VirtualNetworkPool.h"
+#include "VirtualNetworkTemplate.h"
 #include "PoolTest.h"
 #include "ObjectXML.h"
 

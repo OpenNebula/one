@@ -459,8 +459,9 @@ private:
                 upool(_upool),
                 ipool(_ipool)
         {
-            _signature="A:siii";
-            _help="Sets the disk to be saved in the given image.";
+            _signature="A:siis";
+            _help = "Sets the disk to be saved in a new Image with the given "
+                    "name.";
         };
 
         ~VirtualMachineSaveDisk(){};

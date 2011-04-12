@@ -40,11 +40,18 @@ Host::Host(
         vmm_mad_name(_vmm_mad_name),
         tm_mad_name(_tm_mad_name),
         last_monitored(0),
-        cluster(_cluster),
-        host_template()
-        {}
+        cluster(_cluster)
+{
+    obj_template = new HostTemplate;        
+}
 
-Host::~Host(){}
+Host::~Host()
+{
+    if ( obj_template != 0 )
+    {
+        delete obj_template;
+    }
+}
 
 /* ************************************************************************ */
 /* Host :: Database Access Functions                                        */
@@ -167,7 +174,7 @@ int Host::update_info(string &parse_str)
     char *  error_msg;
     int     rc;
 
-    rc = host_template.parse(parse_str, &error_msg);
+    rc = obj_template->parse(parse_str, &error_msg);
 
     if ( rc != 0 )
     {
@@ -222,7 +229,7 @@ string& Host::to_xml(string& xml) const
        "<LAST_MON_TIME>" << last_monitored << "</LAST_MON_TIME>" <<
        "<CLUSTER>"       << cluster        << "</CLUSTER>"       <<
        host_share.to_xml(share_xml)  <<
-       host_template.to_xml(template_xml) <<
+       obj_template->to_xml(template_xml) <<
     "</HOST>";
 
     xml = oss.str();
@@ -276,7 +283,7 @@ int Host::from_xml(const string& xml)
         return -1;
     }
 
-    rc += host_template.from_xml_node( content[0] );
+    rc += obj_template->from_xml_node( content[0] );
 
     if (rc != 0)
     {

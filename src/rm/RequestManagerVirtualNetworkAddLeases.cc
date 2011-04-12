@@ -19,6 +19,7 @@
 #include "NebulaLog.h"
 #include "Nebula.h"
 
+#include "VirtualNetworkTemplate.h"
 #include "AuthManager.h"
 
 /* -------------------------------------------------------------------------- */

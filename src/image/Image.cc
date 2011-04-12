@@ -47,19 +47,19 @@ Image::Image(int             _uid,
 {
     if (_image_template != 0)
     {
-        image_template = _image_template;
+        obj_template = _image_template;
     }
     else
     {
-        image_template = new ImageTemplate;
+        obj_template = new ImageTemplate;
     }
 }
 
 Image::~Image()
 {
-    if (image_template != 0)
+    if (obj_template != 0)
     {
-        delete image_template;
+        delete obj_template;
     }
 }
 
@@ -74,6 +74,22 @@ const char * Image::db_names = "oid, name, body, uid, public";
 const char * Image::db_bootstrap = "CREATE TABLE IF NOT EXISTS image_pool ("
     "oid INTEGER PRIMARY KEY, name VARCHAR(256), body TEXT, uid INTEGER, "
     "public INTEGER, UNIQUE(name,uid) )";
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+string Image::generate_source(int uid, const string& name)
+{
+    ostringstream tmp_hashstream;
+    ostringstream tmp_sourcestream;
+
+    tmp_hashstream << uid << ":" << name;
+
+    tmp_sourcestream << ImagePool::source_prefix() << "/";
+    tmp_sourcestream << sha1_digest(tmp_hashstream.str());
+
+    return tmp_sourcestream.str();
+}
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
@@ -116,7 +132,7 @@ int Image::insert(SqlDB *db, string& error_str)
 
     get_template_attribute("PUBLIC", public_attr);
 
-    image_template->erase("PUBLIC");
+    obj_template->erase("PUBLIC");
 
     TO_UPPER(public_attr);
 
@@ -126,7 +142,7 @@ int Image::insert(SqlDB *db, string& error_str)
 
     get_template_attribute("PERSISTENT", persistent_attr);
 
-    image_template->erase("PERSISTENT");
+    obj_template->erase("PERSISTENT");
 
     TO_UPPER(persistent_attr);
 
@@ -147,14 +163,12 @@ int Image::insert(SqlDB *db, string& error_str)
     {
         SingleAttribute * dev_att = new SingleAttribute("DEV_PREFIX",
                                           ImagePool::default_dev_prefix());
-
-        image_template->set(dev_att);
+        obj_template->set(dev_att);
     }
 
-    // ------------ PATH --------------------
-    get_template_attribute("PATH", path_attr);
+    // ------------ PATH & SOURCE --------------------
 
-    // ------------ SOURCE (path to store the image) --------------------
+    get_template_attribute("PATH", path_attr);
     get_template_attribute("SOURCE", source);
 
     // The template should contain PATH or SOURCE
@@ -163,13 +177,25 @@ int Image::insert(SqlDB *db, string& error_str)
         string size_attr;
         string fstype_attr;
 
+        istringstream iss;
+        int size_mb;
+
         get_template_attribute("SIZE",   size_attr);
         get_template_attribute("FSTYPE", fstype_attr);
 
-        // It could be an empty DATABLOCK image, if it declares SIZE and FSTYPE
-        if ( type_att != "DATABLOCK" || size_attr.empty() || fstype_attr.empty() )
+        // DATABLOCK image needs SIZE and FSTYPE
+        if (type != DATABLOCK || size_attr.empty() || fstype_attr.empty())
         {
             goto error_no_path;
+        }
+
+        iss.str(size_attr);
+
+        iss >> size_mb;
+
+        if (iss.fail() == true)
+        {
+            goto error_size_format;
         }
     }
     else if ( !source.empty() && !path_attr.empty() )
@@ -179,18 +205,10 @@ int Image::insert(SqlDB *db, string& error_str)
 
     if (source.empty())
     {
-        ostringstream tmp_hashstream;
-        ostringstream tmp_sourcestream;
-
-        tmp_hashstream << uid << ":" << name;
-
-        tmp_sourcestream << ImagePool::source_prefix() << "/";
-        tmp_sourcestream << sha1_digest(tmp_hashstream.str());
-
-        source = tmp_sourcestream.str();
+        source = Image::generate_source(uid,name);
     }
 
-    state = DISABLED;
+    state = LOCKED; //LOCKED till the ImageManager copies it to the Repository
 
     //--------------------------------------------------------------------------
     // Insert the Image
@@ -214,7 +232,7 @@ error_public_and_persistent:
     goto error_common;
 
 error_no_path:
-    if ( type_att == "DATABLOCK" )
+    if ( type == DATABLOCK )
     {
         error_str = "A DATABLOCK type IMAGE has to declare a PATH, or both "
                     "SIZE and FSTYPE.";
@@ -223,6 +241,10 @@ error_no_path:
     {
         error_str = "No PATH in template.";
     }
+    goto error_common;
+
+error_size_format:
+    error_str = "Wrong number in SIZE.";
     goto error_common;
 
 error_path_and_source:
@@ -337,7 +359,7 @@ string& Image::to_xml(string& xml) const
             "<SOURCE>"         << source          << "</SOURCE>"      <<
             "<STATE>"          << state           << "</STATE>"       <<
             "<RUNNING_VMS>"    << running_vms     << "</RUNNING_VMS>" <<
-            image_template->to_xml(template_xml)                      <<
+            obj_template->to_xml(template_xml)                      <<
         "</IMAGE>";
 
     xml = oss.str();
@@ -384,7 +406,7 @@ int Image::from_xml(const string& xml)
         return -1;
     }
 
-    rc += image_template->from_xml_node(content[0]);
+    rc += obj_template->from_xml_node(content[0]);
 
     if (rc != 0)
     {
@@ -392,70 +414,6 @@ int Image::from_xml(const string& xml)
     }
 
     return 0;
-}
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
-int Image::acquire_image()
-{
-    int rc = 0;
-
-
-    switch (state)
-    {
-        case READY:
-            running_vms++;
-            state = USED;
-        break;
-
-        case USED:
-             if (persistent_img)
-             {
-                 rc = -1;
-             }
-             else
-             {
-                 running_vms++;
-             }
-        break;
-
-        case DISABLED:
-        default:
-           rc = -1;
-        break;
-    }
-
-    return rc;
-}
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
-bool Image::release_image()
-{
-    bool dirty = false;
-
-    switch (state)
-    {
-        case USED:
-            running_vms--;
-
-            if ( running_vms == 0)
-            {
-                state = READY;
-            }
-
-            dirty = true;
-        break;
-
-        case DISABLED:
-        case READY:
-        default:
-        break;
-    }
-
-    return dirty;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -487,15 +445,6 @@ int Image::disk_attribute(  VectorAttribute * disk,
     get_template_attribute("DRIVER", template_driver);
 
     get_template_attribute("DEV_PREFIX", prefix);
-
-    //--------------------------------------------------------------------------
-    //                       Acquire the image
-    //--------------------------------------------------------------------------
-
-    if ( acquire_image() != 0 )
-    {
-        return -1;
-    }
 
    //---------------------------------------------------------------------------
    //                       NEW DISK ATTRIBUTES
@@ -533,8 +482,6 @@ int Image::disk_attribute(  VectorAttribute * disk,
     {
         new_disk.insert(make_pair("CLONE","NO"));
         new_disk.insert(make_pair("SAVE","YES"));
-
-        new_disk.insert(make_pair("SAVE_AS", iid.str())); // Tells the hook to overwrite
     }
     else
     {

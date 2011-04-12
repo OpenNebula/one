@@ -1,25 +1,27 @@
 <?xml version="1.0"?>
 <DescribeImagesResponse xmlns="http://ec2.amazonaws.com/doc/<%=erb_version%>/"> 
-	<imagesSet> 
+	<imagesSet>
 	   	<% impool.each do |im| %>
 	   	<% im.info %>
-	 	<item> 
+	 	<item>
 		   	<imageId>ami-<%= sprintf('%08i', im.id) %></imageId> 
 		   	<imageLocation><%= im['SOURCE'].split('/').last %></imageLocation> 
-			<% if im['STATE'] == '3' %>
-			<imageState>deregistered</imageState> 
+			<% if im['STATE'] == '3' || im['STATE'] == '5' %>
+			<imageState>failed</imageState>
 			<% elsif im['STATE'] == '1' || im['STATE'] == '2' %>
-			<imageState>available</imageState> 
+			<imageState>available</imageState>
+			<% elsif im['STATE'] == '4'%>
+			<imageState>pending</imageState>
 			<% end %>
-			<imageOwnerId><%= erb_user_name %></imageOwnerId> 
+			<imageOwnerId><%= erb_user_name %></imageOwnerId>
 			<% if im['PUBLIC'] == '0' %>
-			<isPublic>false</isPublic> 
+			<isPublic>false</isPublic>
 			<% elsif im['PUBLIC'] == '1' %>
-			<isPublic>true</isPublic> 
+			<isPublic>true</isPublic>
 			<% end %>
-			<architecture>i386</architecture> 
-			<imageType>machine</imageType> 
-		</item> 
+			<architecture>i386</architecture>
+			<imageType>machine</imageType>
+		</item>
 		<% end %>
-	</imagesSet> 
-</DescribeImagesResponse> 
+	</imagesSet>
+</DescribeImagesResponse>
