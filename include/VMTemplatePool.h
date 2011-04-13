@@ -108,7 +108,7 @@ public:
      */
     int dump(ostringstream& oss, const string& where)
     {
-        return PoolSQL::dump(oss, "TEMPLATE_POOL",VMTemplate::table,where);
+        return PoolSQL::dump(oss, "VMTEMPLATE_POOL",VMTemplate::table,where);
     };
 
     /**

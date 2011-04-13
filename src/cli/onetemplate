@@ -270,7 +270,7 @@ when "create", "register", "add"
 
     result=template.allocate(template_contents)
     if !OpenNebula.is_error?(result)
-        puts "ID: " + vn.id.to_s if ops[:verbose]
+        puts "ID: " + template.id.to_s if ops[:verbose]
         exit 0
     end
 

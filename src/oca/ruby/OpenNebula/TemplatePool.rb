@@ -33,7 +33,7 @@ module OpenNebula
         # +client+ a Client object that represents an XML-RPC connection
         # +user_id+ used to refer to a Pool with Templates from that user
         def initialize(client, user_id=-1)
-            super('TEMPLATE_POOL','VMTEMPLATE',client)
+            super('VMTEMPLATE_POOL','VMTEMPLATE',client)
 
             @user_id  = user_id
         end
