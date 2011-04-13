@@ -143,13 +143,6 @@ var OpenNebula = {
                 return Error('Incorrect Pool');
             }
             
-            
-            //HACK!!!
-            if (pool_name == "TEMPLATE_POOL")
-            {
-                type = "VMTEMPLATE";
-            }
-            
             var p_pool = [];
 
             if (response[pool_name]) {
