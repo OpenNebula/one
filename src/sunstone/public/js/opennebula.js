@@ -2157,7 +2157,7 @@ var OpenNebula = {
                 {
                     if (callback)
                     {
-                        var template_pool = OpenNebula.Helper.pool("TEMPLATE",response);
+                        var template_pool = OpenNebula.Helper.pool(resource,response);
                         callback(request, template_pool);
                     }
                 },
