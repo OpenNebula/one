@@ -156,14 +156,14 @@ void HookManagerDriver::protocol(
         
         if ( is.good() )
         {
-            is >> hook_name >> ws;
+            getline(is,hook_name);
         }
         
         getline (is,info);
         
         if (result == "SUCCESS")
         {   
-            oss << "Hook " << hook_name << " successfully executed. " << info;
+            oss << "Success executing Hook: " << hook_name << ". " << info;
             vm->log("HKM",Log::INFO,oss);
         }
         else

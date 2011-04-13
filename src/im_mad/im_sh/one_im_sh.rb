@@ -31,18 +31,18 @@ end
 $: << RUBY_LIB_LOCATION
 
 require 'OpenNebulaDriver'
-require 'CommandManager'
+require 'getoptlong'
 
 #-------------------------------------------------------------------------------
 # The Local Information Manager Driver
 #-------------------------------------------------------------------------------
-class InformationManager < OpenNebulaDriver
+class InformationManagerDriverSH < OpenNebulaDriver
 
     #---------------------------------------------------------------------------
     # Init the driver
     #---------------------------------------------------------------------------
     def initialize(hypervisor, num)
-        super(num, true)
+        super(num, true, 0)
 
         @config     = read_configuration
         @hypervisor = hypervisor
@@ -57,30 +57,40 @@ class InformationManager < OpenNebulaDriver
     # Execute the run_probes in the remote host
     #---------------------------------------------------------------------------
     def action_monitor(number, host, unused)
-        log_lambda=lambda do |message|
-            log(number, message)
-        end
-
         cmd_string  = "#{@cmd_path}/run_probes #{@hypervisor} #{host}"
-        monitor_exe = LocalCommand.run(cmd_string, log_lambda)
 
-        if monitor_exe.code == 0
-            send_message("MONITOR", RESULT[:success], number, monitor_exe.stdout)
-        else
-            send_message("MONITOR", RESULT[:failure], number,
-                "Could not monitor host #{host}. " +
-                "#{monitor_exe.get_error_message}")
-        end
+        local_action(cmd_string, number, "MONITOR")
     end
 
 end
 
 #-------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------
-# Information Manager main program
+# IM Driver main program
 #-------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------
 
-hypervisor = ARGV[0]
-im = InformationManager.new(hypervisor, 15)
+opts = GetoptLong.new(
+    [ '--threads',    '-t', GetoptLong::OPTIONAL_ARGUMENT ]
+)
+
+hypervisor = ''
+threads    = 15
+
+begin
+    opts.each do |opt, arg|
+        case opt
+            when '--threads'
+                threads = arg.to_i
+        end
+    end
+rescue Exception => e
+    exit(-1)
+end 
+
+if ARGV.length >= 1 
+    hypervisor = ARGV.shift
+end
+
+im = InformationManagerDriverSH.new(hypervisor,threads)
 im.start_driver
