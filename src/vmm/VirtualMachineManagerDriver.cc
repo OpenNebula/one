@@ -243,7 +243,7 @@ static void log_error(VirtualMachine* vm,
     os.str("");
     os << msg;
 
-    if (info[0] != '-')
+    if (!info.empty() && info[0] != '-')
     {
         os << ": " << info;
         vm->set_template_error_message(os.str());

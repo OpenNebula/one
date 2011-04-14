@@ -170,7 +170,7 @@ void HookManagerDriver::protocol(
         {
             oss << "Error executing Hook: " << hook_name << ". " << info;
            
-            if ( info[0] != '-' )
+            if ( !info.empty() && info[0] != '-' )
             { 
                 vm->set_template_error_message(os.str());
                 vmpool->update(vm);
