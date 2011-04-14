@@ -24,12 +24,12 @@
 # ------------ Set up the environment to source common tools ------------ 
 
 if [ -z "${ONE_LOCATION}" ]; then
-    TMCOMMON=/usr/lib/one/mads/tm_common.sh
+    LIB_LOCATION=/usr/lib/one
 else
-    TMCOMMON=$ONE_LOCATION/lib/mads/tm_common.sh
+    LIB_LOCATION=$ONE_LOCATION/lib
 fi
 
-. $TMCOMMON
+. $LIB_LOCATION/sh/scripts_common.sh
 
 # ------------ Create the image to the repository ------------ 
 
