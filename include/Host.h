@@ -182,63 +182,6 @@ public:
     };
 
     // ------------------------------------------------------------------------
-    // Template
-    // ------------------------------------------------------------------------
-
-    /**
-     *  Gets the values of a template attribute
-     *    @param name of the attribute
-     *    @param values of the attribute
-     *    @return the number of values
-     */
-    int get_template_attribute(
-        string& name,
-        vector<const Attribute*>& values) const
-    {
-        return host_template.get(name,values);
-    };
-
-    /**
-     *  Gets the values of a template attribute
-     *    @param name of the attribute
-     *    @param values of the attribute
-     *    @return the number of values
-     */
-    int get_template_attribute(
-        const char *name,
-        vector<const Attribute*>& values) const
-    {
-        string str=name;
-        return host_template.get(str,values);
-    };
-
-    /**
-     *  Gets a string based host attribute
-     *    @param name of the attribute
-     *    @param value of the attribute (a string), will be "" if not defined
-     */
-    void get_template_attribute(
-        const char *    name,
-        string&         value) const
-    {
-        string str=name;
-        host_template.get(str,value);
-    }
-
-    /**
-     *  Gets a string based host attribute
-     *    @param name of the attribute
-     *    @param value of the attribute (an int), will be 0 if not defined
-     */
-    void get_template_attribute(
-        const char *    name,
-        int&            value) const
-    {
-        string str=name;
-        host_template.get(str,value);
-    }
-
-    // ------------------------------------------------------------------------
     // Share functions
     // ------------------------------------------------------------------------
 
@@ -394,12 +337,6 @@ private:
     // -------------------------------------------------------------------------
     //  Host Attributes
     // -------------------------------------------------------------------------
-
-    /**
-     *  The Host template, holds the Host attributes.
-     */
-    HostTemplate    host_template;
-
     /**
      *  The Share represents the logical capacity associated with the host
      */

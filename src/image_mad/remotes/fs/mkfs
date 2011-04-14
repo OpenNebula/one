@@ -1,4 +1,4 @@
-# SConstruct for src/vm
+#!/bin/bash
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
@@ -16,18 +16,27 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-Import('env')
+###############################################################################
+# This script is used to create a VM image (SRC) of size (SIZE) and formatted
+# as (FS)
+###############################################################################
 
-lib_name='nebula_image'
+# ------------ Set up the environment to source common tools ------------ 
 
-# Sources to generate the library
-source_files=[
-    'Image.cc',
-    'ImagePool.cc',
-    'ImageManagerDriver.cc',
-    'ImageManager.cc',
-    'ImageManagerActions.cc'
-]
+if [ -z "${ONE_LOCATION}" ]; then
+    TMCOMMON=/usr/lib/one/mads/tm_common.sh
+else
+    TMCOMMON=$ONE_LOCATION/lib/mads/tm_common.sh
+fi
 
-# Build library
-env.StaticLibrary(lib_name, source_files)
+. $TMCOMMON
+
+# ------------ Create the image to the repository ------------ 
+
+DST=$1
+FSTYPE=$2
+SIZE=$3
+
+exec_and_log "$DD if=/dev/zero of=$DST bs=1 count=1 seek=${SIZE}M"
+exec_and_log "$MKFS -t $FSTYPE -F $DST"
+exec_and_log "chmod 0660 $DST"

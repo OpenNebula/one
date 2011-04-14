@@ -58,11 +58,11 @@ VirtualMachine::VirtualMachine(int id,
 {
     if (_vm_template != 0)
     {
-        vm_template = _vm_template;
+        obj_template = _vm_template;
     }
     else
     {
-        vm_template = new VirtualMachineTemplate;
+        obj_template = new VirtualMachineTemplate;
     }
 }
 
@@ -83,9 +83,9 @@ VirtualMachine::~VirtualMachine()
         delete _log;
     }
 
-    if ( vm_template != 0 )
+    if ( obj_template != 0 )
     {
-        delete vm_template;
+        delete obj_template;
     }
 }
 
@@ -123,7 +123,7 @@ int VirtualMachine::select(SqlDB * db)
         return rc;
     }
 
-    //Get History Records. Current history is record is built in from_xml() (if any).
+    //Get History Records. Current history is built in from_xml() (if any).
     if( hasHistory() )
     {
         last_seq = history->seq;
@@ -191,7 +191,7 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
 
     attr = new SingleAttribute("VMID",value);
 
-    vm_template->set(attr);
+    obj_template->set(attr);
 
     get_template_attribute("NAME",name);
 
@@ -202,7 +202,7 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
         name = oss.str();
 
         attr = new SingleAttribute("NAME",name);
-        vm_template->set(attr);
+        obj_template->set(attr);
     }
 
     this->name = name;
@@ -301,7 +301,7 @@ int VirtualMachine::parse_context(string& error_str)
     string *            str;
     string              parsed;
 
-    num = vm_template->remove("CONTEXT", array_context);
+    num = obj_template->remove("CONTEXT", array_context);
 
     if ( num == 0 )
     {
@@ -352,7 +352,7 @@ int VirtualMachine::parse_context(string& error_str)
             context_parsed->replace("TARGET", dev_prefix);
         }
 
-        vm_template->set(context_parsed);
+        obj_template->set(context_parsed);
     }
 
     /* --- Delete old context attributes --- */
@@ -378,7 +378,7 @@ void VirtualMachine::parse_graphics()
     vector<Attribute *> array_graphics;
     VectorAttribute *   graphics;
 
-    num = vm_template->get("GRAPHICS", array_graphics);
+    num = obj_template->get("GRAPHICS", array_graphics);
 
     if ( num == 0 )
     {
@@ -425,7 +425,7 @@ int VirtualMachine::parse_requirements(string& error_str)
 
     string              parsed;
 
-    num = vm_template->remove("REQUIREMENTS", array_reqs);
+    num = obj_template->remove("REQUIREMENTS", array_reqs);
 
     if ( num == 0 )
     {
@@ -452,7 +452,7 @@ int VirtualMachine::parse_requirements(string& error_str)
         SingleAttribute * reqs_parsed;
 
         reqs_parsed = new SingleAttribute("REQUIREMENTS",parsed);
-        vm_template->set(reqs_parsed);
+        obj_template->set(reqs_parsed);
     }
 
     /* --- Delete old requirements attributes --- */
@@ -677,7 +677,7 @@ int VirtualMachine::get_disk_images(string& error_str)
     Nebula& nd = Nebula::instance();
     ipool      = nd.get_ipool();
 
-    num_disks  = vm_template->get("DISK",disks);
+    num_disks  = obj_template->get("DISK",disks);
 
     for(int i=0, index=0; i<num_disks; i++)
     {
@@ -760,13 +760,19 @@ void VirtualMachine::release_disk_images()
     int     num_disks;
 
     vector<Attribute const  * > disks;
-    Image *                     img;
-    ImagePool *                 ipool;
+    ImageManager *              imagem;
+
+    string  disk_base_path = "";
 
     Nebula& nd = Nebula::instance();
-    ipool      = nd.get_ipool();
+    imagem     = nd.get_imagem();
 
     num_disks   = get_template_attribute("DISK",disks);
+
+    if (hasHistory() != 0)
+    {
+        disk_base_path = get_local_dir();
+    }
 
     for(int i=0; i<num_disks; i++)
     {
@@ -778,32 +784,20 @@ void VirtualMachine::release_disk_images()
             continue;
         }
 
-        iid = disk->vector_value("IMAGE_ID");
+        iid    = disk->vector_value("IMAGE_ID");
+        saveas = disk->vector_value("SAVE_AS");
 
         if ( iid.empty() )
         {
-            continue;
+            if (!saveas.empty())
+            {
+                imagem->disk_to_image(disk_base_path,i,saveas);
+            }
         }
-
-        img = ipool->get(atoi(iid.c_str()),true);
-
-        if ( img == 0 )
+        else
         {
-            continue;
+            imagem->release_image(iid,disk_base_path,i,saveas);
         }
-
-        img->release_image();
-
-        saveas = disk->vector_value("SAVE_AS");
-
-        if ( !saveas.empty() && saveas == iid )
-        {
-            img->enable(false);
-        }
-
-        ipool->update(img);
-
-        img->unlock();
     }
 }
 
@@ -820,7 +814,7 @@ int VirtualMachine::get_network_leases()
     Nebula& nd = Nebula::instance();
     vnpool     = nd.get_vnpool();
 
-    num_nics   = vm_template->get("NIC",nics);
+    num_nics   = obj_template->get("NIC",nics);
 
     for(int i=0; i<num_nics; i++)
     {
@@ -957,7 +951,7 @@ int VirtualMachine::generate_context(string &files)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::save_disk(int disk_id, int img_id)
+int VirtualMachine::save_disk(int disk_id, int img_id, string& error_str)
 {
     int                   num_disks;
     vector<Attribute  * > disks;
@@ -970,7 +964,7 @@ int VirtualMachine::save_disk(int disk_id, int img_id)
     istringstream iss;
 
 
-    num_disks  = vm_template->get("DISK",disks);
+    num_disks  = obj_template->get("DISK",disks);
 
     for(int i=0; i<num_disks; i++, iss.clear())
     {
@@ -986,8 +980,13 @@ int VirtualMachine::save_disk(int disk_id, int img_id)
         iss.str(disk_id_str);
         iss >> tmp_disk_id;
 
-        if( tmp_disk_id == disk_id )
+        if ( tmp_disk_id == disk_id )
         {
+            if(!((disk->vector_value("SAVE_AS")).empty()))
+            {
+                goto error_saved;
+            }
+
             disk->replace("SAVE", "YES");
 
             oss << (img_id);
@@ -996,6 +995,19 @@ int VirtualMachine::save_disk(int disk_id, int img_id)
             return 0;
         }
     }
+
+    goto error_not_found;
+
+error_saved:
+    oss << "The DISK " << disk_id << " is already suppossed to be saved.";
+    goto error_common;
+
+error_not_found:
+    oss << "The DISK " << disk_id << " does not exist for VM " << oid << ".";
+
+error_common:
+    NebulaLog::log("VM",Log::ERROR, oss);
+    error_str = oss.str();
 
     return -1;
 }
@@ -1106,7 +1118,7 @@ string& VirtualMachine::to_xml(string& xml) const
         << "<CPU>"       << cpu       << "</CPU>"
         << "<NET_TX>"    << net_tx    << "</NET_TX>"
         << "<NET_RX>"    << net_rx    << "</NET_RX>"
-        << vm_template->to_xml(template_xml);
+        << obj_template->to_xml(template_xml);
 
     if ( hasHistory() )
     {
@@ -1162,7 +1174,7 @@ int VirtualMachine::from_xml(const string &xml_str)
     }
 
     // Virtual Machine template
-    rc += vm_template->from_xml_node(content[0]);
+    rc += obj_template->from_xml_node(content[0]);
 
     // Last history entry
     content.clear();
