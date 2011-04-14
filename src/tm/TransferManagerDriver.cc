@@ -147,7 +147,9 @@ void TransferManagerDriver::protocol(
             if (info[0] != '-')
             {
                 os << ": " << info;
-                vm->set_error_message(os.str());
+
+                vm->set_template_error_message(os.str());
+                vmpool->update(vm);
             }
             
             vm->log("TM",Log::ERROR,os);

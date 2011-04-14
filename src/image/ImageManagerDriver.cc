@@ -93,6 +93,7 @@ void ImageManagerDriver::protocol(
 
     int           id;
     Image *       image;
+    string        source;
 
     string        info;
 
@@ -123,7 +124,7 @@ void ImageManagerDriver::protocol(
                 is.clear();
                 getline(is,info);
 
-                NebulaLog::log("ImG",Log::INFO, info.c_str());
+                NebulaLog::log("ImG",log_type(result[0]), info.c_str());
             }
 
             return;
@@ -148,8 +149,6 @@ void ImageManagerDriver::protocol(
             image->set_state(Image::READY);
             ipool->update(image);
 
-            image->unlock();
-
             NebulaLog::log("ImM", Log::INFO, "Image copied and ready to use.");
         }
         else
@@ -163,8 +162,6 @@ void ImageManagerDriver::protocol(
         {
             image->set_state(Image::READY);
             ipool->update(image);
-
-            image->unlock();
 
             NebulaLog::log("ImM", Log::INFO, "Image saved and ready to use.");
         }
@@ -180,8 +177,6 @@ void ImageManagerDriver::protocol(
             image->set_state(Image::READY);
             ipool->update(image);
 
-            image->unlock();
-
             NebulaLog::log("ImM", Log::INFO, "Image created and ready to use");
         }
         else
@@ -192,13 +187,10 @@ void ImageManagerDriver::protocol(
     else if ( action == "RM" )
     {
         int    rc;
-        string source;
 
         source = image->get_source();
             
         rc = ipool->drop(image);
-
-        image->unlock();
 
         if ( rc < 0 )
         {
@@ -211,19 +203,16 @@ void ImageManagerDriver::protocol(
         }
         else
         {
-            ostringstream oss;
-
-            oss <<"Error removing image from repository. Remove file " << source
-                <<"  to completely delete image.";
-
-            NebulaLog::log("ImM",Log::ERROR,oss);
+            goto error_rm;
         }
     }
     else if (action == "LOG")
     {
         getline(is,info);
-        NebulaLog::log("ImM", Log::INFO, info.c_str());
+        NebulaLog::log("ImM", log_type(result[0]), info.c_str());
     }
+
+    image->unlock();
 
     return;
 
@@ -240,6 +229,12 @@ error_mv:
 error_mkfs:
     os.str("");
     os << "Error creating datablock";
+    goto error_common;
+
+error_rm:
+    os.str("");
+    os << "Error removing image from repository. Remove file " << source
+       << "  to completely delete image.";
 
 error_common:
     getline(is,info);
@@ -247,6 +242,7 @@ error_common:
     if (!info.empty() && (info[0] != '-'))
     {
         os << ": " << info;
+        image->set_template_error_message(os.str());
     }
 
     NebulaLog::log("ImM", Log::ERROR, os);

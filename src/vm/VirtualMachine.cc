@@ -102,8 +102,6 @@ const char * VirtualMachine::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
         "vm_pool (oid INTEGER PRIMARY KEY, name TEXT, body TEXT, uid INTEGER, "
         "last_poll INTEGER, state INTEGER, lcm_state INTEGER)";
 
-const char * VirtualMachine::error_attribute_name = "ERROR_MESSAGE";
-
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -1012,33 +1010,6 @@ error_common:
     error_str = oss.str();
 
     return -1;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-void VirtualMachine::set_error_message(const string& message)
-{
-    SingleAttribute * attr;
-    ostringstream     error;
-    
-    char        str[26];
-    time_t      the_time;
-
-    the_time = time(NULL);
-
-#ifdef SOLARIS
-    ctime_r(&(the_time),str,sizeof(char)*26);
-#else
-    ctime_r(&(the_time),str);
-#endif
-    // Get rid of final enter character
-    str[24] = '\0';
-
-    error << str << ": " << message;
-
-    attr = new SingleAttribute(error_attribute_name,error.str());
-
-    obj_template->set(attr);
 }
 
 /* -------------------------------------------------------------------------- */

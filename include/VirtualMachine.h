@@ -541,17 +541,9 @@ public:
      */
     int  parse_template_attribute(const string& attribute, string& parsed);
 
-    /**
-     *  Sets an error message for the VM in the template
-     *    @param message
-     *    @return 0 on success
-     */
-    void set_error_message(const string& message);
-
     // ------------------------------------------------------------------------
     // States
     // ------------------------------------------------------------------------
-
     /**
      *  Returns the VM state (Dispatch Manager)
      *    @return the VM state
@@ -826,14 +818,9 @@ private:
             return -1;
     };
 
-
     // -------------------------------------------------------------------------
     // Attribute Parser
     // -------------------------------------------------------------------------
-    /**
-     *  Name for the error messages attribute
-     */
-    static const char * error_attribute_name;
 
     /**
      * Mutex to perform just one attribute parse at a time

@@ -246,7 +246,7 @@ static void log_error(VirtualMachine* vm,
     if (info[0] != '-')
     {
         os << ": " << info;
-        vm->set_error_message(os.str());
+        vm->set_template_error_message(os.str());
     }
 
     vm->log("VMM",Log::ERROR,os);
@@ -346,6 +346,7 @@ void VirtualMachineManagerDriver::protocol(
         else
         {
             log_error(vm,os,is,"Error deploying virtual machine");
+            vmpool->update(vm);
 
             lcm->trigger(LifeCycleManager::DEPLOY_FAILURE, id);
         }
@@ -362,6 +363,7 @@ void VirtualMachineManagerDriver::protocol(
         else
         {
             log_error(vm,os,is,"Error shuting down VM");
+            vmpool->update(vm);
 
             lcm->trigger(LifeCycleManager::SHUTDOWN_FAILURE, id);
         }
@@ -378,6 +380,7 @@ void VirtualMachineManagerDriver::protocol(
         else
         {
             log_error(vm,os,is,"Error canceling VM");
+            vmpool->update(vm);
 
             lcm->trigger(LifeCycleManager::CANCEL_FAILURE, id);
         }
@@ -394,6 +397,7 @@ void VirtualMachineManagerDriver::protocol(
         else
         {
             log_error(vm,os,is,"Error saving VM state");
+            vmpool->update(vm);
 
             lcm->trigger(LifeCycleManager::SAVE_FAILURE, id);
         }
@@ -410,6 +414,7 @@ void VirtualMachineManagerDriver::protocol(
         else
         {
             log_error(vm,os,is,"Error restoring VM");
+            vmpool->update(vm);
 
             lcm->trigger(LifeCycleManager::DEPLOY_FAILURE, id);
         }
@@ -426,6 +431,7 @@ void VirtualMachineManagerDriver::protocol(
         else
         {
             log_error(vm,os,is,"Error live migrating VM");
+            vmpool->update(vm);
 
             lcm->trigger(LifeCycleManager::DEPLOY_FAILURE, id);
         }
@@ -565,6 +571,7 @@ void VirtualMachineManagerDriver::protocol(
         else
         {
             log_error(vm,os,is,"Error monitoring VM");
+            vmpool->update(vm);
 
             vm->log("VMM",Log::ERROR,os);
         }

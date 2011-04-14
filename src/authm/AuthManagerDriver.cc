@@ -91,7 +91,7 @@ void AuthManagerDriver::protocol(
             {
                 is.clear();
                 getline(is,info);
-                NebulaLog::log("AuM",Log::INFO, info.c_str());
+                NebulaLog::log("AuM", log_type(result[0]), info.c_str());
             }
 
             return;

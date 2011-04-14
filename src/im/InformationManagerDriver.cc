@@ -110,7 +110,7 @@ void InformationManagerDriver::protocol(
 
             hinfo += "\n";
 
-            oss << "Host " << id << " successfully monitored."; //, info: "<< hinfo;
+            oss << "Host " << id << " successfully monitored."; 
             NebulaLog::log("InM",Log::DEBUG,oss);
 
             rc = host->update_info(hinfo);
@@ -136,7 +136,7 @@ void InformationManagerDriver::protocol(
         string info;
 
         getline(is,info);
-        NebulaLog::log("InM",Log::INFO,info.c_str());
+        NebulaLog::log("InM",log_type(result[0]),info.c_str());
     }
 
     return;
