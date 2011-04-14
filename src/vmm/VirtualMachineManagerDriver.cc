@@ -227,17 +227,68 @@ void VirtualMachineManagerDriver::poll (
 /* MAD Interface                                                              */
 /* ************************************************************************** */
 
+/* -------------------------------------------------------------------------- */
+/* Helpers for the protocol function                                          */
+/* -------------------------------------------------------------------------- */
+
+static void log_error(VirtualMachine* vm, 
+                      ostringstream&  os, 
+                      istringstream&  is,
+                      const char *    msg)
+{
+    string info;
+
+    getline(is,info);
+
+    os.str("");
+    os << msg;
+
+    if (info[0] != '-')
+    {
+        os << ": " << info;
+        vm->set_error_message(os.str());
+    }
+
+    vm->log("VMM",Log::ERROR,os);
+}
+
+static Log::MessageType log_type(const char r)
+{
+    Log::MessageType lt;
+
+    switch (r)
+    {
+        case 'E':
+            lt = Log::ERROR;
+            break;
+        case 'I':
+            lt = Log::INFO;
+            break;
+        case 'D':
+            lt = Log::DEBUG;
+            break;
+        default:
+            lt = Log::INFO;
+    }
+
+    return lt;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void VirtualMachineManagerDriver::protocol(
     string&     message)
 {
-    istringstream           is(message);
-    ostringstream           os;
+    istringstream is(message);
+    ostringstream os;
 
-    string                  action;
-    string                  result;
+    string action;
+    string result;
 
-    int                     id;
-    VirtualMachine *        vm;
+    int              id;
+    VirtualMachine * vm;
+
 
     os << "Message received: " << message;
     NebulaLog::log("VMM", Log::DEBUG, os);
@@ -265,7 +316,7 @@ void VirtualMachineManagerDriver::protocol(
 
                 is.clear();
                 getline(is,info);
-                NebulaLog::log("VMM",Log::INFO, info.c_str());
+                NebulaLog::log("VMM", log_type(result[0]), info.c_str());
             }
 
             return;
@@ -316,17 +367,7 @@ void VirtualMachineManagerDriver::protocol(
         }
         else
         {
-            string info;
-
-            getline(is,info);
-
-            os.str("");
-            os << "Error deploying virtual machine";
-
-            if (info[0] != '-')
-               os << ": " << info;
-
-            vm->log("VMM",Log::ERROR,os);
+            log_error(vm,os,is,"Error deploying virtual machine");
 
             lcm->trigger(LifeCycleManager::DEPLOY_FAILURE, id);
         }
@@ -342,14 +383,7 @@ void VirtualMachineManagerDriver::protocol(
         }
         else
         {
-            string          info;
-
-            getline(is,info);
-
-            os.str("");
-            os << "Error shuting down VM, " << info;
-
-            vm->log("VMM",Log::ERROR,os);
+            log_error(vm,os,is,"Error shuting down VM");
 
             lcm->trigger(LifeCycleManager::SHUTDOWN_FAILURE, id);
         }
@@ -365,14 +399,7 @@ void VirtualMachineManagerDriver::protocol(
         }
         else
         {
-            string  info;
-
-            getline(is,info);
-
-            os.str("");
-            os << "Error canceling VM, " << info;
-
-            vm->log("VMM",Log::ERROR,os);
+            log_error(vm,os,is,"Error canceling VM");
 
             lcm->trigger(LifeCycleManager::CANCEL_FAILURE, id);
         }
@@ -388,14 +415,7 @@ void VirtualMachineManagerDriver::protocol(
         }
         else
         {
-            string          info;
-
-            getline(is,info);
-
-            os.str("");
-            os << "Error saving VM state, " << info;
-
-            vm->log("VMM",Log::ERROR,os);
+            log_error(vm,os,is,"Error saving VM state");
 
             lcm->trigger(LifeCycleManager::SAVE_FAILURE, id);
         }
@@ -411,14 +431,7 @@ void VirtualMachineManagerDriver::protocol(
         }
         else
         {
-            string          info;
-
-            getline(is,info);
-
-            os.str("");
-            os << "Error restoring VM, " << info;
-
-            vm->log("VMM",Log::ERROR,os);
+            log_error(vm,os,is,"Error restoring VM");
 
             lcm->trigger(LifeCycleManager::DEPLOY_FAILURE, id);
         }
@@ -434,14 +447,7 @@ void VirtualMachineManagerDriver::protocol(
         }
         else
         {
-            string          info;
-
-            getline(is,info);
-
-            os.str("");
-            os << "Error live-migrating VM, " << info;
-
-            vm->log("VMM",Log::ERROR,os);
+            log_error(vm,os,is,"Error live migrating VM");
 
             lcm->trigger(LifeCycleManager::DEPLOY_FAILURE, id);
         }
@@ -507,7 +513,7 @@ void VirtualMachineManagerDriver::protocol(
                 {
                     tiss >> state;
                 }
-                else
+                else if (!var.empty())
                 {
                     string val;
 
@@ -580,12 +586,7 @@ void VirtualMachineManagerDriver::protocol(
         }
         else
         {
-            string          info;
-
-            getline(is,info);
-
-            os.str("");
-            os << "Error monitoring VM, " << info;
+            log_error(vm,os,is,"Error monitoring VM");
 
             vm->log("VMM",Log::ERROR,os);
         }
@@ -595,7 +596,7 @@ void VirtualMachineManagerDriver::protocol(
         string info;
 
         getline(is,info);
-        vm->log("VMM",Log::INFO,info.c_str());
+        vm->log("VMM",log_type(result[0]),info.c_str());
     }
 
     vm->unlock();
