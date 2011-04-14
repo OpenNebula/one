@@ -118,7 +118,7 @@ private
         lines=text.split(/\n/)[2..-1]
 
         lines.map do |line|
-            line.split(/\s+/)[1]
+            line.split(/\s+/).delete_if {|d| d.empty? }[1]
         end
     end
 
