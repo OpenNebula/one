@@ -230,7 +230,7 @@ div.tip span.ui-icon{
 div.tip span.man_icon {
 	display:none;
 }
-.kvm .man_icon,.xen .man_icon,.img_man .man_icon {
+.img_man .man_icon {
 	display:inline-block!important;
 }
 
