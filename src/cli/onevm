@@ -785,56 +785,17 @@ when "saveas"
         exit -1
     end
         
-    if ops[:type]
-        image_type = ops[:type]
-    else
-        image_id = vm["TEMPLATE/DISK[DISK_ID=\"#{disk_id}\"]/IMAGE_ID"]
-
-        if (image_id != nil) 
-            if vm["TEMPLATE/DISK[DISK_ID=\"#{disk_id}\"]/SAVE_AS"]
-                puts "Error: The disk #{disk_id} is already" <<
-                     " suppossed to be saved"
-                exit -1
-            end
-            
-            # Get the image type
-            image = OpenNebula::Image.new(
-                        OpenNebula::Image.build_xml(image_id),
-                        get_one_client)
-
-            result = image.info
-            if !is_successful?(result)
-                puts result.message
-                exit -1
-            end
-            
-            image_type = image.type_str
-        end
-    end
-    
-    # Build the template and allocate the new Image
-    template = "NAME=\"#{image_name}\"\n"
-    template << "TYPE=#{image_type}\n" if image_type
-
-    
-    image = OpenNebula::Image.new(
-                            OpenNebula::Image.build_xml,
-                            get_one_client)
-                            
-    result = image.allocate(template)
-    if !is_successful?(result)
-        puts result.message
+    if vm["TEMPLATE/DISK[DISK_ID=\"#{disk_id}\"]/SAVE_AS"]
+        puts "Error: The disk #{disk_id} is already" <<
+             " suppossed to be saved"
         exit -1
     end
-    
-    result = vm.save_as(disk_id.to_i, image.id)
+
+    result = vm.save_as(disk_id.to_i, image_name)
     if is_successful?(result)
         puts "VM disk with ID #{disk_id} is prepared to be" << 
              " saved"  if ops[:verbose]
-    else
-        image.delete
     end
-    
 
 when "show"
     check_parameters("get_info", 1)

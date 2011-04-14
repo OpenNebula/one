@@ -23,7 +23,6 @@ import org.junit.Test;
 import org.opennebula.client.Client;
 import org.opennebula.client.OneResponse;
 import org.opennebula.client.host.Host;
-import org.opennebula.client.image.Image;
 import org.opennebula.client.vm.VirtualMachine;
 import org.opennebula.client.vm.VirtualMachinePool;
 
@@ -309,21 +308,14 @@ public class VirtualMachineTest
 
         vm = new VirtualMachine(vmid, client);
 
-        String imgTemplate =
-            "NAME = \"image\"\n" +
-            "ATT1 = \"val1\"";
-
-        res = Image.allocate(client, imgTemplate);
-
-        int imgid = res.isError() ? -1 : Integer.parseInt(res.getMessage());
-
-        res = vm.savedisk(0, imgid);
+        res = vm.savedisk(0, "New_image");
         assertTrue( !res.isError() );
+        assertTrue( res.getMessage().equals("0") );
 
         res = vm.info();
         assertTrue( !res.isError() );
 
-        assertTrue( vm.xpath("TEMPLATE/DISK/SAVE_AS").equals(Integer.toString(imgid)) );
+        assertTrue( vm.xpath("TEMPLATE/DISK/SAVE_AS").equals(("0")) );
 
     }
 }

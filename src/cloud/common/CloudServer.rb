@@ -62,8 +62,6 @@ class CloudServer
 
         @one_client = Client.new(nil,@config[:one_xmlrpc])
         @user_pool  = UserPool.new(@one_client)
-
-        @img_repo = OpenNebula::ImageRepository.new
     end
 
     #
@@ -103,39 +101,6 @@ class CloudServer
         return @user_pool["USER[NAME=\"#{name}\"]/PASSWORD"]
     end
 
-    ###########################################################################
-    # Repository Methods
-    ###########################################################################
-
-    # Adds a new image to the repository and deletes the temp_file
-    # uid:: _Integer_ owner of the image
-    # path:: _String_ path of the tmp file
-    # metadata:: Additional metadata for the file
-    # [return] _Image_ Newly created image object
-    def add_image(image, file=nil)
-        template = image.to_one_template
-        
-        if file
-            if file[:tempfile]
-                file_path = file[:tempfile].path
-                template << "\nPATH = #{file_path}"
-            else
-                error_msg = "Image not present, aborting."
-                error = OpenNebula::Error.new(error_msg)
-                return error
-            end
-        end
-
-        rc = @img_repo.create(image, template)
-
-        file[:tempfile].unlink if file
-
-        if OpenNebula.is_error?(rc)
-           return rc
-        end
-
-        return nil
-    end
 
     # Finds out if a port is available on ip
     # ip:: _String_ IP address where the port to check is

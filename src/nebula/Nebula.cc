@@ -511,6 +511,27 @@ void Nebula::start()
         }
     }
 
+    // ---- Image Manager ----
+    try
+    {
+        vector<const Attribute *> image_mads;
+
+        nebula_configuration->get("IMAGE_MAD", image_mads);
+
+        imagem = new ImageManager(ipool,image_mads);
+    }
+    catch (bad_alloc&)
+    {
+        throw;
+    }
+
+    rc = imagem->start();
+
+    if ( rc != 0 )
+    {
+       throw runtime_error("Could not start the Image Manager");
+    }
+
     // -----------------------------------------------------------
     // Load mads
     // -----------------------------------------------------------
@@ -522,6 +543,7 @@ void Nebula::start()
     im->load_mads(0);
     tm->load_mads(0);
     hm->load_mads(0);
+    imagem->load_mads(0);
 
     if ( authm != 0 )
     {
@@ -552,6 +574,7 @@ void Nebula::start()
     im->finalize();
     rm->finalize();
     hm->finalize();
+    imagem->finalize();
 
     //sleep to wait drivers???
 
@@ -563,6 +586,7 @@ void Nebula::start()
     pthread_join(im->get_thread_id(),0);
     pthread_join(rm->get_thread_id(),0);
     pthread_join(hm->get_thread_id(),0);
+    pthread_join(imagem->get_thread_id(),0);
 
     //XML Library
     xmlCleanupParser();

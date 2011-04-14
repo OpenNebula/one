@@ -19,7 +19,6 @@
 
 
 #include "PoolSQL.h"
-#include "VirtualNetworkTemplate.h"
 #include "Leases.h"
 
 #include <vector>
@@ -33,10 +32,11 @@ using namespace std;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+class VirtualNetworkTemplate;
 
 /**
- *  The Virtual Network class. It represents a Virtual Network at manages its leases.
- *  One lease is formed by one IP and one MAC address.
+ *  The Virtual Network class. It represents a Virtual Network at manages its 
+ *  leases. One lease is formed by one IP and one MAC address.
  *  MAC address are derived from IP addresses.
  */
 class VirtualNetwork : public PoolObjectSQL
@@ -176,63 +176,6 @@ public:
      */
     int nic_attribute(VectorAttribute * nic, int vid);
 
-    //------------------------------------------------------------------------
-    // Template
-    // ------------------------------------------------------------------------
-
-    /**
-     *  Gets the values of a template attribute
-     *    @param name of the attribute
-     *    @param values of the attribute
-     *    @return the number of values
-     */
-    int get_template_attribute(
-        string& name,
-        vector<const Attribute*>& values) const
-    {
-        return vn_template->get(name,values);
-    };
-
-    /**
-     *  Gets the values of a template attribute
-     *    @param name of the attribute
-     *    @param values of the attribute
-     *    @return the number of values
-     */
-    int get_template_attribute(
-        const char *name,
-        vector<const Attribute*>& values) const
-    {
-        string str=name;
-        return vn_template->get(str,values);
-    };
-
-    /**
-     *  Gets a string based VN attribute
-     *    @param name of the attribute
-     *    @param value of the attribute (a string), will be "" if not defined
-     */
-    void get_template_attribute(
-        const char *    name,
-        string&         value) const
-    {
-        string str=name;
-        vn_template->get(str,value);
-    }
-
-    /**
-     *  Gets a string based VN attribute
-     *    @param name of the attribute
-     *    @param value of the attribute (an int), will be 0 if not defined
-     */
-    void get_template_attribute(
-        const char *    name,
-        int&            value) const
-    {
-        string str=name;
-        vn_template->get(str,value);
-    }
-
 private:
 
     // -------------------------------------------------------------------------
@@ -279,11 +222,6 @@ private:
      *  Holds information on given (and, optionally, possible) leases
      */
     Leases *    leases;
-
-    /**
-     *  The Virtual Network template, holds the VNW attributes.
-     */
-    VirtualNetworkTemplate * vn_template;
 
     // *************************************************************************
     // DataBase implementation (Private)

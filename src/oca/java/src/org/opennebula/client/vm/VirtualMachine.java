@@ -222,12 +222,12 @@ public class VirtualMachine extends PoolElement{
      * VirtualMachine shutdowns.
      *
      * @param diskId ID of the disk to be saved.
-     * @param imageId ID of the image where the disk will be saved.
+     * @param imageName Name of the new Image that will be created.
      * @return If an error occurs the error message contains the reason.
      */
-    public OneResponse savedisk(int diskId, int imageId)
+    public OneResponse savedisk(int diskId, String imageName)
     {
-        return client.call(SAVEDISK, id ,diskId, imageId);
+        return client.call(SAVEDISK, id ,diskId, imageName);
     }
 
     // =================================

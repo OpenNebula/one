@@ -46,6 +46,9 @@ class ImageOCCI < Image
         <% if @image_info['DESCRIPTION'] != nil %>
         DESCRIPTION = "<%= @image_info['DESCRIPTION'] %>"
         <% end %>
+        <% if @image_file != nil %>
+        PATH = "<%= @image_file %>"
+        <% end %>
         <% if @image_info['PUBLIC'] != nil %>
         PUBLIC = "<%= @image_info['PUBLIC'] %>"
         <% end %>
@@ -64,9 +67,14 @@ class ImageOCCI < Image
     }.gsub(/^        /, '')
 
     # Class constructor
-    def initialize(xml, client, xml_info=nil)
+    def initialize(xml, client, xml_info=nil, file=nil)
         super(xml, client)
         @image_info = nil
+        @image_file = file
+
+        if file && file[:tempfile]
+            @image_file = file[:tempfile].path
+        end
 
         if xml_info != nil
             xmldoc      = XMLElement.build_xml(xml_info, 'STORAGE')

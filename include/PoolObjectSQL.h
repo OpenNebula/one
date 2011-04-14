@@ -19,6 +19,7 @@
 
 #include "ObjectSQL.h"
 #include "ObjectXML.h"
+#include "Template.h"
 #include <pthread.h>
 #include <string.h>
 
@@ -32,14 +33,13 @@ using namespace std;
  * implementation assumes that the mutex IS LOCKED when the class destructor
  * is called.
  */
-
 class PoolObjectSQL : public ObjectSQL, public ObjectXML
 {
 public:
 
     PoolObjectSQL(int id, const string& _name, int _uid,const char *_table)
             :ObjectSQL(),ObjectXML(),oid(id),name(_name),uid(_uid),
-             valid(true),table(_table)
+             valid(true),obj_template(0),table(_table)
     {
         pthread_mutex_init(&mutex,0);
     };
@@ -119,6 +119,104 @@ public:
      */
     virtual int from_xml(const string &xml_str) = 0;
 
+    // ------------------------------------------------------------------------
+    // Template
+    // ------------------------------------------------------------------------
+
+    /**
+     *  Gets the values of a template attribute
+     *    @param name of the attribute
+     *    @param values of the attribute
+     *    @return the number of values
+     */
+    int get_template_attribute(
+        string& name,
+        vector<const Attribute*>& values) const
+    {
+        return obj_template->get(name,values);
+    };
+
+    /**
+     *  Gets the values of a template attribute
+     *    @param name of the attribute
+     *    @param values of the attribute
+     *    @return the number of values
+     */
+    int get_template_attribute(
+        const char *name,
+        vector<const Attribute*>& values) const
+    {
+        string str=name;
+        return obj_template->get(str,values);
+    };
+
+    /**
+     *  Gets a string based attribute (single)
+     *    @param name of the attribute
+     *    @param value of the attribute (a string), will be "" if not defined or
+     *    not a single attribute
+     */
+    void get_template_attribute(
+        const char *    name,
+        string&         value) const
+    {
+        string str=name;
+        obj_template->get(str,value);
+    }
+
+    /**
+     *  Gets an int based attribute (single)
+     *    @param name of the attribute
+     *    @param value of the attribute (an int), will be 0 if not defined or
+     *    not a single attribute
+     */
+    void get_template_attribute(
+        const char *    name,
+        int&            value) const
+    {
+        string str=name;
+        obj_template->get(str,value);
+    }
+
+    /**
+     *  Adds a new attribute to the template (replacing it if
+     *  already defined), the object's mutex SHOULD be locked
+     *    @param name of the new attribute
+     *    @param value of the new attribute
+     *    @return 0 on success
+     */
+    int replace_template_attribute(
+        const string& name,
+        const string& value)
+    {
+        SingleAttribute * sattr;
+
+        obj_template->erase(name);
+
+        sattr = new SingleAttribute(name,value);
+        obj_template->set(sattr);
+
+        return 0;
+    }
+
+    /**
+     *  Generates a XML string for the template of the Object
+     *    @param xml the string to store the XML description.
+     */
+    void template_to_xml(string &xml) const
+    {
+        obj_template->to_xml(xml);
+    }
+
+    /**
+     *  Removes an Image attribute
+     *    @param name of the attribute
+     */
+    int remove_template_attribute(const string& name)
+    {
+        return obj_template->erase(name);
+    }
+
 protected:
 
     /**
@@ -197,6 +295,11 @@ protected:
      *  The contents of this object are valid
      */
     bool    valid;
+
+    /**
+     *  Template for this object, will be allocated if needed
+     */
+    Template * obj_template;
 
 private:
 
