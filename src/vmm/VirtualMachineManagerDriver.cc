@@ -252,28 +252,6 @@ static void log_error(VirtualMachine* vm,
     vm->log("VMM",Log::ERROR,os);
 }
 
-static Log::MessageType log_type(const char r)
-{
-    Log::MessageType lt;
-
-    switch (r)
-    {
-        case 'E':
-            lt = Log::ERROR;
-            break;
-        case 'I':
-            lt = Log::INFO;
-            break;
-        case 'D':
-            lt = Log::DEBUG;
-            break;
-        default:
-            lt = Log::INFO;
-    }
-
-    return lt;
-}
-
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
