@@ -60,11 +60,11 @@ class OpenNebulaDriver < ActionManager
     # -------------------------------------------------------------------------
     def remotes_action(command, id, host, aname, remote_dir, std_in=nil)
 
-        command_exe = RemotesCommand.run(command, 
-                                         host, 
-                                         remote_dir, 
+        command_exe = RemotesCommand.run(command,
+                                         host,
+                                         remote_dir,
                                          log_method(id),
-                                         std_in, 
+                                         std_in,
                                          @retries)
         if command_exe.code == 0
             result = RESULT[:success]
@@ -82,7 +82,7 @@ class OpenNebulaDriver < ActionManager
     # -------------------------------------------------------------------------
     # Execute a command associated to an action and id on localhost
     # -------------------------------------------------------------------------
-    def local_action(command, id, action)
+    def local_action(command, id, aname)
         command_exe = LocalCommand.run(command, log_method(id))
 
         if command_exe.code == 0
@@ -108,7 +108,7 @@ class OpenNebulaDriver < ActionManager
             send_message("LOG", "-", number, line.strip)
         }
     end
-    
+
     # -------------------------------------------------------------------------
     # Generates a proc with that calls log with a hardcoded number. It will
     # be used to add loging to command actions
@@ -156,7 +156,7 @@ private
             if action == :DRIVER_CANCEL
                 cancel_action(action_id)
                 log(action_id,"Driver command for #{action_id} cancelled")
-            else 
+            else
                 trigger_action(action,action_id,*args)
             end
         end
