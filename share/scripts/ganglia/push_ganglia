@@ -1,4 +1,4 @@
-# SConstruct for src/vm
+#!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
@@ -16,18 +16,19 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-Import('env')
+data=STDIN.read.strip
 
-lib_name='nebula_image'
+data.each_line do |line|
+    next if !/^([^=]+?)=(.*)$/.match line
 
-# Sources to generate the library
-source_files=[
-    'Image.cc',
-    'ImagePool.cc',
-    'ImageManagerDriver.cc',
-    'ImageManager.cc',
-    'ImageManagerActions.cc'
-]
+    var_name="OPENNEBULA_#{$1}"
+    var_data=$2
 
-# Build library
-env.StaticLibrary(lib_name, source_files)
+    var_type=/^\d+$/.match(var_data) ? 'uint32' : 'string'
+
+    command="gmetric -n #{var_name} -v \"#{var_data}\" -t #{var_type}"
+
+    system command
+end
+
+

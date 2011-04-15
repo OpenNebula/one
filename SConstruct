@@ -128,13 +128,25 @@ else:
 
 if not main_env.GetOption('clean'):
     try:
+        if mysql=='yes':
+            main_env.ParseConfig('mysql_config --cflags --libs')
+    except Exception, e:
+        print ""
+        print "mysql_config was not found in the path"
+        print ""
+        print "Check that mysql development package is installed and"
+        print "mysql_config is in the path. If your mysql config tool"
+        print "is called mysql5_config make a symlink as mysql_config"
+        print "to a directory in the path."
+        print ""
+        exit(-1)
+
+
+    try:
         main_env.ParseConfig(("LDFLAGS='%s' share/scons/get_xmlrpc_config"+
             " server") % (os.environ['LDFLAGS'],))
         main_env.ParseConfig(("LDFLAGS='%s' share/scons/get_xmlrpc_config"+
             " client") % (os.environ['LDFLAGS'],))
-
-        if mysql=='yes':
-            main_env.ParseConfig('mysql_config --cflags --libs')
 
     except Exception, e:
         print ""

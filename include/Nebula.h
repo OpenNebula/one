@@ -34,6 +34,7 @@
 #include "RequestManager.h"
 #include "HookManager.h"
 #include "AuthManager.h"
+#include "ImageManager.h"
 
 class Nebula
 {
@@ -114,10 +115,14 @@ public:
         return hm;
     };
 
-
     AuthManager * get_authm()
     {
         return authm;
+    };
+
+    ImageManager * get_imagem()
+    {
+        return imagem;
     };
 
     // --------------------------------------------------------------
@@ -229,7 +234,8 @@ private:
     // -----------------------------------------------------------------------
 
     Nebula():nebula_configuration(0),db(0),vmpool(0),hpool(0),vnpool(0),upool(0),
-        ipool(0),cpool(0),lcm(0),vmm(0),im(0),tm(0),dm(0),rm(0),hm(0),authm(0)
+        ipool(0),cpool(0),lcm(0),vmm(0),im(0),tm(0),dm(0),rm(0),hm(0),authm(0),
+        imagem(0)
     {
         const char * nl = getenv("ONE_LOCATION");
 
@@ -334,6 +340,11 @@ private:
             delete authm;
         }
 
+        if ( imagem != 0)
+        {
+            delete imagem;
+        }
+
         if ( nebula_configuration != 0)
         {
             delete nebula_configuration;
@@ -394,6 +405,7 @@ private:
     RequestManager *        rm;
     HookManager *           hm;
     AuthManager *           authm;
+    ImageManager *          imagem;
 
     // ---------------------------------------------------------------
     // Implementation functions

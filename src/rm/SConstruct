@@ -60,7 +60,6 @@ source_files=[
     'RequestManagerUserAllocate.cc',
     'RequestManagerUserDelete.cc',
     'RequestManagerUserChangePassword.cc',
-    'RequestManagerUserAuthenticate.cc',
     'RequestManagerUserInfo.cc',
     'RequestManagerUserPoolInfo.cc'
 ]

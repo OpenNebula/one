@@ -17,6 +17,7 @@
 
 #include "VirtualNetwork.h"
 #include "VirtualNetworkPool.h"
+#include "VirtualNetworkTemplate.h"
 
 #include "NebulaLog.h"
 #include "RangedLeases.h"
@@ -40,11 +41,11 @@ VirtualNetwork::VirtualNetwork(int uid,
 {
     if (_vn_template != 0)
     {
-        vn_template = _vn_template;
+        obj_template = _vn_template;
     }
     else
     {
-        vn_template = new VirtualNetworkTemplate;
+        obj_template = new VirtualNetworkTemplate;
     }
 };
 
@@ -58,9 +59,9 @@ VirtualNetwork::~VirtualNetwork()
         delete leases;
     }
 
-    if (vn_template != 0)
+    if (obj_template != 0)
     {
-        delete vn_template;
+        delete obj_template;
     }
 }
 
@@ -70,11 +71,11 @@ VirtualNetwork::~VirtualNetwork()
 
 const char * VirtualNetwork::table        = "network_pool";
 
-const char * VirtualNetwork::db_names     = "oid, name, body, uid";
+const char * VirtualNetwork::db_names     = "oid, name, body, uid, public";
 
 const char * VirtualNetwork::db_bootstrap = "CREATE TABLE IF NOT EXISTS"
     " network_pool (oid INTEGER PRIMARY KEY, name VARCHAR(256),"
-    " body TEXT, uid INTEGER, UNIQUE(name,uid))";
+    " body TEXT, uid INTEGER, public INTEGER, UNIQUE(name,uid))";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -263,7 +264,7 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
 
     public_vnet = (pub == "YES");
 
-    vn_template->erase("PUBLIC");
+    obj_template->erase("PUBLIC");
 
     //--------------------------------------------------------------------------
     // Get the leases
@@ -307,7 +308,7 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
             oss << default_size;
 
             attribute = new SingleAttribute("NETWORK_SIZE",oss.str());
-            vn_template->set(attribute);
+            obj_template->set(attribute);
 
             size = default_size;
         }
@@ -423,7 +424,8 @@ int VirtualNetwork::insert_replace(SqlDB *db, bool replace)
         <<          oid         << ","
         << "'" <<   sql_name    << "',"
         << "'" <<   sql_xml     << "',"
-        <<          uid         << ")";
+        <<          uid         << ","
+        <<          public_vnet << ")";
 
     rc = db->exec(oss);
 
@@ -505,7 +507,7 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended) const
             "<BRIDGE>"      << bridge       << "</BRIDGE>"      <<
             "<PUBLIC>"      << public_vnet  << "</PUBLIC>"      <<
             "<TOTAL_LEASES>"<< total_leases << "</TOTAL_LEASES>"<<
-            vn_template->to_xml(template_xml);
+            obj_template->to_xml(template_xml);
 
     if (extended && leases != 0)
     {
@@ -552,7 +554,7 @@ int VirtualNetwork::from_xml(const string &xml_str)
     }
 
     // Virtual Network template
-    rc += vn_template->from_xml_node( content[0] );
+    rc += obj_template->from_xml_node( content[0] );
 
     if (rc != 0)
     {

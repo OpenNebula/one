@@ -122,11 +122,16 @@ class EC2QueryServer < CloudServer
     ###########################################################################
 
     def upload_image(params, one_client)
-        image = ImageEC2.new(Image.build_xml, one_client)
+        image = ImageEC2.new(Image.build_xml, one_client, params['file'])
 
-        rc = add_image(image, params['file'])
+        template = image.to_one_template
+        if OpenNebula.is_error?(template)
+            return OpenNebula::Error.new('Unsupported'), 400
+        end
+
+        rc = image.allocate(template)
         if OpenNebula.is_error?(rc)
-            return OpenNebula::Error.new('Unsupported'),400
+            return OpenNebula::Error.new('Unsupported'), 400
         end
 
         erb_version = params['Version']

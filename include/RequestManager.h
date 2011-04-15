@@ -459,8 +459,9 @@ private:
                 upool(_upool),
                 ipool(_ipool)
         {
-            _signature="A:siii";
-            _help="Sets the disk to be saved in the given image.";
+            _signature="A:siis";
+            _help = "Sets the disk to be saved in a new Image with the given "
+                    "name.";
         };
 
         ~VirtualMachineSaveDisk(){};
@@ -1037,27 +1038,6 @@ private:
         };
 
         ~UserChangePassword(){};
-
-        void execute(
-            xmlrpc_c::paramList const& paramList,
-            xmlrpc_c::value *   const  retvalP);
-
-    private:
-        UserPool * upool;
-    };
-
-    /* ---------------------------------------------------------------------- */
-
-    class UserAuthenticate: public xmlrpc_c::method
-    {
-    public:
-        UserAuthenticate(UserPool * _upool):upool(_upool)
-        {
-            _signature="A:s";
-            _help="Authenticates the user.";
-        };
-
-        ~UserAuthenticate(){};
 
         void execute(
             xmlrpc_c::paramList const& paramList,

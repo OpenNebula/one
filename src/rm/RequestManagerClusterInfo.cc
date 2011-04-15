@@ -27,7 +27,6 @@ void RequestManager::ClusterInfo::execute(
     xmlrpc_c::value *   const  retval)
 {
     string  session;
-    string  info;
 
     Cluster *       cluster;
     ostringstream   oss;
@@ -70,7 +69,7 @@ void RequestManager::ClusterInfo::execute(
 
     // All nice, return the cluster info to the client
     arrayData.push_back(xmlrpc_c::value_boolean(true)); // SUCCESS
-    arrayData.push_back(xmlrpc_c::value_string(info));
+    arrayData.push_back(xmlrpc_c::value_string(oss.str()));
 
     // Copy arrayresult into retval mem space
     arrayresult = new xmlrpc_c::value_array(arrayData);

@@ -24,8 +24,21 @@ class ImageEC2 < Image
     ONE_IMAGE = %q{
         NAME = "ec2-<%= uuid %>"
         TYPE = OS
+        <% if @image_file != nil %>
+        PATH = "<%= @image_file %>"
+        <% end %>
     }.gsub(/^        /, '')
-    
+
+    def initialize(xml, client, file=nil)
+        super(xml, client)
+        @image_info = nil
+        @image_file = file
+
+        if file && file[:tempfile]
+            @image_file = file[:tempfile].path
+        end
+    end
+
     def to_one_template()
         uuid = UUID.generate
         

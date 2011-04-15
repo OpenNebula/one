@@ -66,11 +66,10 @@ int VirtualMachinePoolXML::load_info(xmlrpc_c::value &result)
     {
         client->call(client->get_endpoint(),           // serverUrl
                      "one.vmpool.info",                // methodName
-                     "sibi",                           // arguments format
+                     "sii",                           // arguments format
                      &result,                          // resultP
                      client->get_oneauth().c_str(),    // auth string
                      -2,                               // VM from all users
-                     false,                            // not extended info
                      1);                               // in pending state
         return 0;
     }
