@@ -103,9 +103,38 @@ class OpenNebulaDriver < ActionManager
     # be automatically splitted by lines.
     # -------------------------------------------------------------------------
     def log(number, message)
+        in_error_message=false
         msg=message.strip
         msg.each_line {|line|
-            send_message("LOG", "-", number, line.strip)
+            severity='I'
+
+            l=line.strip
+
+            if l=='ERROR MESSAGE --8<------'
+                in_error_message=true
+                next
+            elsif l=='ERROR MESSAGE ------>8--'
+                in_error_message=false
+                next
+            else
+                if in_error_message
+                    severity='E'
+                elsif line.match(/^(ERROR|DEBUG|INFO):(.*)$/)
+                    line=$2
+                    case $1
+                    when 'ERROR'
+                        severity='E'
+                    when 'DEBUG'
+                        severity='D'
+                    when 'INFO'
+                        severity='I'
+                    else
+                        severity='I'
+                    end
+                end
+            end
+
+            send_message("LOG", severity, number, line.strip)
         }
     end
 

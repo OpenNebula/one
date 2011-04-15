@@ -42,16 +42,35 @@ function log_date
     $DATE +"%a %b %d %T %Y"
 }
 
-# Logs a message
+# Logs a message, alias to log_info
 function log
 {
-    echo "$SCRIPT_NAME: $1" 1>&2
+    log_info $1
+}
+
+# Log function that knows how to deal with severities and adds the
+# script name
+function log_function
+{
+    echo "$1: $SCRIPT_NAME: $2" 1>&2
+}
+
+# Logs an info message
+function log_info
+{
+    log_function "INFO" "$1"
 }
 
 # Logs an error message
 function log_error
 {
-    log "ERROR: $1"
+    log_function "ERROR" "$1"
+}
+
+# Logs a debug message
+function log_debug
+{
+    log_function "DEBUG" "$1"
 }
 
 # This function is used to pass error message to the mad
