@@ -278,7 +278,7 @@ int LibVirtDriver::deployment_description_vmware(
         {
             file << "\t\t<disk type='file' device='cdrom'>" << endl;
             file << "\t\t\t<source file='[" <<  datastore <<"] " << vm->get_oid()
-                 << "/disk." << num << "'/>" << endl;
+                 << "/disk." << num << ".iso'/>" << endl;
             file << "\t\t\t<target dev='" << target << "'/>" << endl;
             file << "\t\t\t<readonly/>" << endl;
             file << "\t\t</disk>" << endl;
