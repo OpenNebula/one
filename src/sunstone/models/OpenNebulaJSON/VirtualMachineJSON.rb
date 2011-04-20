@@ -28,6 +28,12 @@ module OpenNebulaJSON
 
             if vm_hash['vm_raw']
                 template = vm_hash['vm_raw']
+            elsif vm_hash['template_id']
+                template_id = vm_hash['template_id']
+
+                template = "TEMPLATE_ID = #{template_id}"
+                template << "\nNAME = #{vm_hash[:vm_name]}" if vm_hash[:vm_name]
+
             else
                 template = template_to_str(vm_hash)
             end
@@ -55,7 +61,7 @@ module OpenNebulaJSON
                 when "restart"      then self.restart
                 when "saveas"       then self.save_as(action_hash['params'])
                 when "shutdown"     then self.shutdown
-		when "resubmit"     then self.resubmit
+                when "resubmit"     then self.resubmit
                 else
                     error_msg = "#{action_hash['perform']} action not " <<
                                 " available for this resource"
