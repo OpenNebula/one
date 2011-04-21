@@ -112,12 +112,12 @@ int PoolObjectSQL::drop(SqlDB *db)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-const char * PoolObjectSQL::error_attribute_name = "ERROR_MESSAGE";
+const char * PoolObjectSQL::error_attribute_name = "ERROR";
 
 void PoolObjectSQL::set_template_error_message(const string& message)
 {
-    SingleAttribute * attr;
-    ostringstream     error;
+    VectorAttribute *  attr;
+    map<string,string> error_value;
     
     char   str[26];
     time_t the_time;
@@ -129,12 +129,13 @@ void PoolObjectSQL::set_template_error_message(const string& message)
 #else
     ctime_r(&(the_time),str);
 #endif
-    // Get rid of final enter character
-    str[24] = '\0';
 
-    error << str << ": " << message;
+    str[24] = '\0'; // Get rid of final enter character
 
-    attr = new SingleAttribute(error_attribute_name,error.str());
+    error_value.insert(make_pair("TIME_STAMP",str));
+    error_value.insert(make_pair("MESSAGE",message));
+
+    attr = new VectorAttribute(error_attribute_name,error_value);
 
     obj_template->set(attr);
 }
