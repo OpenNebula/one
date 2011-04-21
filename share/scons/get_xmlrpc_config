@@ -69,24 +69,24 @@ main(int argc, char **) {
         vector<xmlrpc_c::value> const paramArrayValue(resultArray.vectorValueValue());
 
         //check posible Errors:
-        xmlrpc_c::value * firstvalue;
-        firstvalue = &(static_cast<xmlrpc_c::value>(paramArrayValue[0]));
-        xmlrpc_c::value_boolean * status = &(static_cast<xmlrpc_c::value_boolean>(*firstvalue));
+        xmlrpc_c::value firstvalue;
+        firstvalue = static_cast<xmlrpc_c::value>(paramArrayValue[0]);
+        xmlrpc_c::value_boolean status = static_cast<xmlrpc_c::value_boolean>(firstvalue);
 
-        xmlrpc_c::value * secondvalue;
-        secondvalue = &(static_cast<xmlrpc_c::value>(paramArrayValue[1]));
-        xmlrpc_c::value_string * valueS = &(static_cast<xmlrpc_c::value_string>(*secondvalue));
+        xmlrpc_c::value secondvalue;
+        secondvalue = static_cast<xmlrpc_c::value>(paramArrayValue[1]);
+        xmlrpc_c::value_string valueS = static_cast<xmlrpc_c::value_string>(secondvalue);
 
-        if(static_cast<bool>(*status)) {
+        if(static_cast<bool>(status)) {
             //Success, returns the id assigned to the VM:
-            cout << "vmid returned: " << static_cast<string>(*valueS) << endl;
+            cout << "vmid returned: " << static_cast<string>(valueS) << endl;
             return 0;
         }
         else{ //Failure:
-            string error_value=static_cast<string>(*valueS);
+            string error_value=static_cast<string>(valueS);
             if (error_value.find("Error inserting",0)!=string::npos ) cout << "Error inserting VM in the database" << endl;
             else if (error_value.find("Error parsing",0)!=string::npos ) cout << "Error parsing VM template" << endl;
-            else cout << "Unknown error " << static_cast<string>(*valueS) << endl;
+            else cout << "Unknown error " << static_cast<string>(valueS) << endl;
         };
     } catch (girerr::error const error) {
         cerr << "Client threw error: " << error.what() << endl;
