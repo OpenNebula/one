@@ -30,7 +30,6 @@ void RequestManager::VirtualNetworkDelete::execute(
 
     string              name;
     int                 nid;
-    int                 uid;
 
     VirtualNetwork *    vn;
 
@@ -98,8 +97,6 @@ void RequestManager::VirtualNetworkDelete::execute(
     {
         goto error_vn_get;
     }
-
-    uid = vn->get_uid();
 
     rc = vnpool->drop(vn);
 

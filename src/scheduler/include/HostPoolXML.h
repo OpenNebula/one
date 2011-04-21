@@ -39,7 +39,7 @@ public:
      */
     HostXML * get(int oid) const
     {
-        return static_cast<const HostXML *>(PoolXML::get(oid));
+        return static_cast<HostXML *>(PoolXML::get(oid));
     };
 
 protected:

@@ -70,12 +70,11 @@ protected:
     {
         string        str;
         const char *  cstr;
-        size_t        retval;
         
         str  = os.str();
         cstr = str.c_str();
 
-        retval = ::write(nebula_mad_pipe, cstr, str.size());
+        ::write(nebula_mad_pipe, cstr, str.size());
     };
 
     /**
