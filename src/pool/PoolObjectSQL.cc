@@ -132,7 +132,7 @@ void PoolObjectSQL::set_template_error_message(const string& message)
 
     str[24] = '\0'; // Get rid of final enter character
 
-    error_value.insert(make_pair("TIME_STAMP",str));
+    error_value.insert(make_pair("TIMESTAMP",str));
     error_value.insert(make_pair("MESSAGE",message));
 
     attr = new VectorAttribute(error_attribute_name,error_value);

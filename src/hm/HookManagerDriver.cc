@@ -172,7 +172,7 @@ void HookManagerDriver::protocol(
            
             if ( !info.empty() && info[0] != '-' )
             { 
-                vm->set_template_error_message(os.str());
+                vm->set_template_error_message(oss.str());
                 vmpool->update(vm);
             }
 
