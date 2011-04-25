@@ -40,7 +40,7 @@ var create_template_tmpl = '<div id="template_create_tabs">\
 	<ul>\
 		<li><a href="#easy">Wizard KVM</a></li>\
 		<li><a href="#easy">Wizard XEN</a></li>\
-		<li><a href="#easy">VMWare</a></li>\
+		<li><a href="#easy">Wizard VMware</a></li>\
 		<li><a href="#manual">Advanced mode</a></li>\
 	</ul>\
 	<div id="easy">\
@@ -73,7 +73,7 @@ var create_template_tmpl = '<div id="template_create_tabs">\
 				  <input type="text" id="MEMORY" name="memory" size="4" />\
 				  <div class="tip">Amount of RAM required for the VM, in Megabytes.</div>\
 			    </div>\
-     		    <div class="vm_param kvm_opt xen_opt">\
+     		    <div class="vm_param kvm_opt xen_opt vmware_opt">\
 				<label for="CPU">CPU:</label>\
 				  <input type="text" id="CPU" name="cpu" size="2"/>\
 				  <div class="tip">Percentage of CPU divided by 100 required for the Virtual Machine. Half a processor is written 0.5.</div>\
@@ -140,10 +140,6 @@ var create_template_tmpl = '<div id="template_create_tabs">\
 			    <div class="vm_param kvm">\
 				  <label for="BOOT">Boot:</label>\
 				  <select id="BOOT" name="boot">\
-					<option value="hd">hd</option>\
-					<option value="fd">fd</option>\
-					<option value="cdrom">cdrom</option>\
-					<option value="network">network</option>\
 				  </select>\
 				  <div class="tip">Boot device type</div>\
 			    </div>\
@@ -205,7 +201,7 @@ var create_template_tmpl = '<div id="template_create_tabs">\
 			    <!--Mandatory for swap, fs and block images-->\
 				  <label for="SIZE">Size:</label>\
 				  <input type="text" id="SIZE" name="size" />\
-				  <div class="tip">Disk file location path or URL. Mandatory for swap, fs and block images</div>\
+				  <div class="tip">Size in MB</div>\
 			    </div>\
 			    <div class="vm_param kvm_opt xen_opt add_disk ">\
 			    <!--mandatory for fs images-->\
@@ -967,6 +963,14 @@ function setupCreateTemplateDialog(){
 			<option value="block">Block</option>';
         
 		$('div#disks select#TYPE').html(type_opts);
+        
+        var boot_opts = 
+                    '<option value="hd">hd</option>\
+					<option value="fd">fd</option>\
+					<option value="cdrom">cdrom</option>\
+					<option value="network">network</option>';
+                    
+        $('div#os_boot_opts select#BOOT').html(boot_opts);
 
 
         $('div#kernel_bootloader',section_os_boot).show();
@@ -1019,6 +1023,7 @@ function setupCreateTemplateDialog(){
             
         $('div#disks select#TYPE').html(type_opts);
 
+        $('div#os_boot_opts select#BOOT').empty();
 
         $('div#kernel_bootloader',section_os_boot).show();
 		$('select#boot_method option:selected').removeAttr("selected");
@@ -1058,7 +1063,9 @@ function setupCreateTemplateDialog(){
 			<option value="cdrom">CD-ROM</option>\
 			<option value="block">Block</option>';
             
-        $('div#disks select#TYPE').html(type_opts);
+        $('div#os_boot_opts select#BOOT').empty();
+        
+        $('div#disks select#BOOT').empty();
 
         $('select#boot_method option').removeAttr("selected");
 		$('select#boot_method option#no_boot').html("Driver default");
