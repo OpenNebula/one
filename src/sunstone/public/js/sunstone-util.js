@@ -185,6 +185,12 @@ function notifyError(msg){
     $.jGrowl(msg, {theme: "jGrowl-notify-error", sticky: true });
 }
 
+function notifyMessage(msg){
+    msg = "<h1>Info</h1>" + msg;
+
+    $.jGrowl(msg, {theme: "jGrowl-notify-submit"});
+}
+
 // Returns an HTML string with the json keys and values in the form
 // key: value<br />
 // It recursively explores objects, and flattens their contents in

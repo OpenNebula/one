@@ -213,6 +213,29 @@ class SunstoneServer
         end
     end
 
+
+    ########################################################################
+    # VNC
+    ########################################################################
+
+    def startvnc(id)
+        rc = retrieve_resource("vm", id)
+        if OpenNebula.is_error?(rc)
+            return rc
+        end
+        return rc.startvnc(id)
+    end
+    
+    def stopvnc(id,pipe)
+       rc = retrieve_resource("vm", id)
+       if OpenNebula.is_error?(rc)
+           return rc
+       end
+       return rc.stopvnc(pipe)
+       
+    end
+
+
     private
 
     def retrieve_resource(kind, id)

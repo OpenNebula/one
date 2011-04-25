@@ -741,6 +741,21 @@ var vm_actions = {
             $("#vm_log pre").html('');
             onError(request,error_json);
         }
+    },
+    
+    "VM.startvnc" : {
+        type: "single",
+        call: OpenNebula.VM.startvnc,
+        callback: vncCallback,
+        error: onError
+    },
+    
+    "VM.stopvnc" : {
+        type: "single",
+        call: OpenNebula.VM.stopvnc,
+        callback: null,
+        error: onError,
+        notify: true
     }
 }
 
@@ -1947,10 +1962,8 @@ function setVMAutorefresh(){
 	},INTERVAL+someTime()); //so that not all refreshing is done at the same time
 }
 
-//setups VNC application
-function setupVNC(){
 
-    var updateVNCState = function updateState(rfb, state, oldstate, msg) {
+function updateVNCState(rfb, state, oldstate, msg) {
             var s, sb, cad, klass;
             s = $D('VNC_status');
             sb = $D('VNC_status_bar');
@@ -1983,6 +1996,9 @@ function setupVNC(){
             }
         }
 
+//setups VNC application
+function setupVNC(){
+
     //Append to DOM
     $('div#dialogs').append('<div id="vnc_dialog" title="VNC connection"></div>');
     
@@ -2014,7 +2030,24 @@ function setupVNC(){
         resizable:true,
     });
     
+    $( "#vnc_dialog" ).bind( "dialogclose", function(event, ui) {
+        var id = $("#vnc_dialog").attr("vm_id");
+        Sunstone.runAction("VM.stopvnc",id);
+            
+    });
+    
     $('.vnc').live("click",function(){
+        //Which VM is it?
+        var id = $(this).attr("vm_id");
+        //Set attribute to dialog
+        $('#vnc_dialog').attr("vm_id",id);
+        //Request proxy server start
+        Sunstone.runAction("VM.startvnc",id);
+    });
+
+}
+
+function vncCallback(request,response){
         rfb = new RFB({'target':       $D('VNC_canvas'),
                         'encrypt':      false,
                         'true_color':   true,
@@ -2022,26 +2055,26 @@ function setupVNC(){
                         'shared':       true,
                         'updateState':  updateVNCState});
         //fetch things from clicked element host - port - password
-        var port=$(this).attr("vnc_port");
-        var pw=$(this).attr("vnc_pw");
+        var port = response["port"];
+        
+        //Hopefully this is returning sunstone server address, where
+        //the proxy is running
+        var host = window.location.hostname;
+        var pw = response["password"];
+        
         rfb.connect(host, port, pw);
 
+        //And voilà, we can open the dialog
         $('#vnc_dialog').dialog('open');
-        
-        
-    });
-
+    
 }
 
 function vncIcon(vm){
     var graphics = vm.TEMPLATE.GRAPHICS;
     var state = OpenNebula.Helper.resource_state("vm",vm.STATE);
-    var gr_icon, host, port, password;
-    if (graphics && graphics.TYPE == "vnc" && state == "ACTIVE" && vm.HISTORY.HOSTNAME){
-        host = vm.HISTORY.HOSTNAME;
-        port = graphics.PORT ? graphics.PORT : "";
-        password = graphics.PASSWD ? graphics.PASSWD : "";
-        gr_icon = '<a class="vnc" href="#" vnc_host="'+host+'" vnc_port="'+port+'" vnc_pw="'+password+'">';
+    var gr_icon;
+    if (graphics && graphics.TYPE == "vnc" && state == "ACTIVE"){
+        gr_icon = '<a class="vnc" href="#" vm_id="'+vm.ID+'">';
         gr_icon += '<img src="images/vnc_on.png" alt="Open VNC Session" /></a>';
     }
     else {

@@ -163,6 +163,55 @@ post '/:pool' do
     @SunstoneServer.create_resource(params[:pool], request.body.read)
 end
 
+post '/vm/:id/stopvnc' do
+    vm = params[:id]
+    vnc_hash = session['vnc']
+    
+    if !vnc_hash
+        msg = "Ups, no VNC sessions information found. Cannot stop VNC"
+        return [500, OpenNebula::Error.new(msg).to_json]
+    elsif !vnc_hash[vm]
+        msg = "It seems there is no VNC proxy running for this machine"
+        return [500, OpenNebula::Error.new(msg).to_json]
+    end
+    
+    pipe = session['vnc'][vm]
+    rc = @SunstoneServer.stopvnc(vm,pipe)
+    
+    if (OpenNebula.is_error?(rc))
+        return [500, rc.to_json]
+    else
+        session['vnc'].delete(vm)
+        return    
+    end
+    
+end
+
+post '/vm/:id/startvnc' do
+    vm = params[:id]
+    info = @SunstoneServer.startvnc(vm)
+    
+    if OpenNebula.is_error?(info)
+        return [500,info.to_json]
+    end
+    
+    port = info[:port] #port to connect to
+    pw = info[:password]
+    pipe = info[:pipe]
+    
+    vnc_hash = session['vnc']
+    
+    if !vnc_hash 
+        session['vnc']= {}
+    elsif vnc_hash and vnc_hash[vm]
+        return [500, OpenNebula::Error.new("There is a VNC server running for this VM").to_json]
+    end
+    
+    session['vnc'][vm]=pipe;
+    return {:port => port, :password => pw }.to_json
+    
+end
+
 ##############################################################################
 # Perform an action on a Resource
 ##############################################################################
