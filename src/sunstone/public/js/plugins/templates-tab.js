@@ -421,12 +421,12 @@ var create_template_tmpl = '<div id="template_create_tabs">\
 			      <h3>Add placement options <a id="add_placement" class="icon_left" href="#"><span class="ui-icon ui-icon-plus" /></a></h3>\
 			   </div>\
 			  <fieldset><legend>Placement</legend>\
-	     	    <div class="vm_param kvm_opt xen_opt">\
+	     	    <div class="vm_param kvm_opt xen_opt vmware_opt">\
 				  <label for="REQUIREMENTS">Requirements:</label>\
 				  <input type="text" id="REQUIREMENTS" name="requirements" />\
 				  <div class="tip">Boolean expression that rules out provisioning hosts from list of machines suitable to run this VM</div>\
 			    </div>\
-			    <div class="vm_param kvm_opt xen_opt">\
+			    <div class="vm_param kvm_opt xen_opt vmware_opt">\
 				  <label for="RANK">Rank:</label>\
 				  <input type="text" id="RANK" name="rank" />\
 				  <div class="tip">	This field sets which attribute will be used to sort the suitable hosts for this VM. Basically, it defines which hosts are more suitable than others</div>\
