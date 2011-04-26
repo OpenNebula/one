@@ -142,7 +142,7 @@ var OpenNebula = {
             {
                 return Error('Incorrect Pool');
             }
-
+            
             var p_pool = [];
 
             if (response[pool_name]) {
@@ -1930,6 +1930,302 @@ var OpenNebula = {
                     }
                 }
             });
+        }
+    },
+    
+    "Template" : {
+        "resource" : "VMTEMPLATE",
+        
+        "create" : function(params)
+        {
+            var callback = params.success;
+            var callback_error = params.error;
+            var data = params.data;
+            var resource = OpenNebula.Template.resource;
+
+            var request = OpenNebula.Helper.request(resource,"create",data);
+
+            $.ajax({
+                url: "/template",
+                type: "POST",
+                dataType: "json",
+                data: JSON.stringify(data),
+                success: function(response)
+                {
+                    if (callback)
+                    {
+                        callback(request, response);
+                    }
+                },
+                error: function(response)
+                {
+                    if (callback_error)
+                    {
+                        callback_error(request, OpenNebula.Error(response));
+                    }
+                }
+            });
+            
+        },
+        "addattr" : function(params)
+        {
+            var callback = params.success;
+            var callback_error = params.error;
+            var id = params.data.id;
+            var name = params.data.name;
+            var value = params.data.value;
+
+            var method = "update";
+            var action = OpenNebula.Helper.action(method,  {
+                                                "name"      : name,
+                                                "value"     : value
+                                                });
+                                                
+            var resource = OpenNebula.Template.resource;                                                
+            var request = OpenNebula.Helper.request(resource,method, [id, name, value]);
+
+            $.ajax({
+                url: "/template/" + id + "/action",
+                type: "POST",
+                data: JSON.stringify(action),
+                success: function(response)
+                {
+                    if (callback)
+                    {
+                        callback(request, response);
+                    }
+                },
+                error: function(response)
+                {
+                    if (callback_error)
+                    {
+                        callback_error(request, OpenNebula.Error(response));
+                    }
+                }
+            });            
+        },
+        "update" : function(params)
+        {
+            var callback = params.success;
+            var callback_error = params.error;
+            var id = params.data.id;
+            var name = params.data.name;
+            var value = params.data.value;
+
+            var method = "update";
+            var action = OpenNebula.Helper.action(method,  {
+                                                "name"      : name,
+                                                "value"     : value
+                                                });
+                                                
+            var resource = OpenNebula.Template.resource;                                                
+            var request = OpenNebula.Helper.request(resource,method, [id, name, value]);
+
+            $.ajax({
+                url: "/template/" + id + "/action",
+                type: "POST",
+                data: JSON.stringify(action),
+                success: function(response)
+                {
+                    if (callback)
+                    {
+                        callback(request, response);
+                    }
+                },
+                error: function(response)
+                {
+                    if (callback_error)
+                    {
+                        callback_error(request, OpenNebula.Error(response));
+                    }
+                }
+            }); 
+        },
+        "rmattr" : function(params)
+        {
+                        var callback = params.success;
+            var callback_error = params.error;
+            var id = params.data.id;
+            var name = params.data.name;
+            var value = params.data.value;
+
+            var method = "rm_attr";
+            var action = OpenNebula.Helper.action(method,  {
+                                                "name"      : name
+                                                });
+                                                
+            var resource = OpenNebula.Template.resource;                                        
+            var request = OpenNebula.Helper.request(resource,method, [id, name]);
+
+            $.ajax({
+                url: "/template/" + id + "/action",
+                type: "POST",
+                data: JSON.stringify(action),
+                success: function(response)
+                {
+                    if (callback)
+                    {
+                        callback(request, response);
+                    }
+                },
+                error: function(response)
+                {
+                    if (callback_error)
+                    {
+                        callback_error(request, OpenNebula.Error(response));
+                    }
+                }
+            });
+        },
+        "publish" : function(params)
+        {
+            var callback = params.success;
+            var callback_error = params.error;
+            var id = params.data.id;
+
+            var method = "publish";
+            var action = OpenNebula.Helper.action(method);
+            var resource = OpenNebula.Template.resource;
+            var request = OpenNebula.Helper.request(resource,method, id);
+
+            $.ajax({
+                url: "/template/" + id + "/action",
+                type: "POST",
+                data: JSON.stringify(action),
+                success: function()
+                {
+                    if (callback)
+                    {
+                        callback(request);
+                    }
+                },
+                error: function(response)
+                {
+                    if(callback_error)
+                    {
+                        callback_error(request, OpenNebula.Error(response));
+                    }
+                }
+            });
+        },
+        "unpublish" : function(params)
+        {
+            var callback = params.success;
+            var callback_error = params.error;
+            var id = params.data.id;
+
+            var method = "unpublish";
+            var action = OpenNebula.Helper.action(method);
+            var resource = OpenNebula.Template.resource;
+            var request = OpenNebula.Helper.request(resource,method, id);
+
+            $.ajax({
+                url: "/template/" + id + "/action",
+                type: "POST",
+                data: JSON.stringify(action),
+                success: function()
+                {
+                    if (callback)
+                    {
+                        callback(request);
+                    }
+                },
+                error: function(response)
+                {
+                    if(callback_error)
+                    {
+                        callback_error(request, OpenNebula.Error(response));
+                    }
+                }
+            });
+        },
+        "list" : function(params)
+        {
+            var callback = params.success;
+            var callback_error = params.error;
+            var timeout = params.timeout || false;
+
+            var resource = OpenNebula.Template.resource;
+            var request = OpenNebula.Helper.request(resource,"list");
+
+            $.ajax({
+                url: "/template",
+                type: "GET",
+                dataType: "json",
+                data: {timeout: timeout},
+                success: function(response)
+                {
+                    if (callback)
+                    {
+                        var template_pool = OpenNebula.Helper.pool(resource,response);
+                        callback(request, template_pool);
+                    }
+                },
+                error: function(response)
+                {
+                    if (callback_error)
+                    {
+                        callback_error(request, OpenNebula.Error(response));
+                    }
+                }
+            });
+        },
+        "show" : function(params)
+        {
+            var callback = params.success;
+            var callback_error = params.error;
+            var id = params.data.id;
+
+            var resource = OpenNebula.Template.resource;
+            var request = OpenNebula.Helper.request(resource,"show", id);
+
+            $.ajax({
+                url: "/template/" + id,
+                type: "GET",
+                dataType: "json",
+                success: function(response)
+                {
+                    if (callback)
+                    {
+                        callback(request, response);
+                    }
+                },
+                error: function(response)
+                {
+                    if (callback_error)
+                    {
+                        callback_error(request, OpenNebula.Error(response));
+                    }
+                }
+            });    
+        },
+        "delete" : function(params)
+        {
+            var callback = params.success;
+            var callback_error = params.error;
+            var id = params.data.id;
+            var resource = OpenNebula.Template.resource;
+
+            var request = OpenNebula.Helper.request(resource,"delete", id);
+
+            $.ajax({
+                url: "/template/" + id,
+                type: "DELETE",
+                success: function()
+                {
+                    if (callback)
+                    {
+                        callback(request);
+                    }
+                },
+                error: function(response)
+                {
+                    if (callback_error)
+                    {
+                        callback_error(request, OpenNebula.Error(response));
+                    }
+                }
+            });    
         }
     }
 }

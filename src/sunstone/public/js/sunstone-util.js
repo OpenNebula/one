@@ -93,6 +93,7 @@ function tableCheckboxesListener(dataTable){
         last_action_b.button("disable");
     };
     $('.create_dialog_button',context).button("enable");
+    $('.alwaysActive',context).button("enable");
 
     //listen to changes in the visible inputs
     $('tbody input',dataTable).live("change",function(){
@@ -127,6 +128,7 @@ function tableCheckboxesListener(dataTable){
         
         //any case the create dialog buttons should always be enabled.
         $('.create_dialog_button',context).button("enable");
+        $('.alwaysActive',context).button("enable");
     });
 
 }
