@@ -19,6 +19,8 @@
 
 #include "Template.h"
 
+#include <string.h>
+
 using namespace std;
 
 /**
@@ -31,6 +33,8 @@ public:
         Template(false,'=',"TEMPLATE"){};
 
     ~VirtualMachineTemplate(){};
+
+    VirtualMachineTemplate(VirtualMachineTemplate& vmt):Template(vmt){};    
 
 private:
     friend class VirtualMachine;

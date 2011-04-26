@@ -19,6 +19,7 @@ package org.opennebula.client.vm;
 import org.opennebula.client.Client;
 import org.opennebula.client.OneResponse;
 import org.opennebula.client.PoolElement;
+import org.opennebula.client.template.Template;
 import org.w3c.dom.Node;
 
 /**
@@ -132,6 +133,56 @@ public class VirtualMachine extends PoolElement{
     public static OneResponse allocate(Client client, String description)
     {
         return client.call(ALLOCATE, description);
+    }
+
+    /**
+     * Allocates a new VM in OpenNebula from a registered Template.
+     * 
+     * @param client XML-RPC Client.
+     * @param templateId The source Template's ID
+     * @param newName Name for the new VM, replaces the Template's one.
+     * Can be null.
+     * @return If successful the message contains the associated
+     * id generated for this VM.
+     */
+    public static OneResponse allocateFromTemplate(Client client,
+            int templateId, String newName)
+    {
+        String template = "TEMPLATE_ID = " + templateId;
+        if( newName != null )
+        {
+            template += "\nNAME = " + newName;
+        }
+
+        return allocate(client, template);
+    }
+
+    /**
+     * Allocates a new VM in OpenNebula from a registered Template.
+     * 
+     * @param client XML-RPC Client.
+     * @param templateId The source Template's ID
+     * @return If successful the message contains the associated
+     * id generated for this VM.
+     */
+    public static OneResponse allocateFromTemplate(Client client,
+            int templateId)
+    {
+        return allocateFromTemplate(client, templateId, null);
+    }
+
+    /**
+     * Allocates a new VM in OpenNebula from a registered Template.
+     * 
+     * @param client XML-RPC Client.
+     * @param template The source Template.
+     * @return If successful the message contains the associated
+     * id generated for this VM.
+     */
+    public static OneResponse allocateFromTemplate(Client client,
+            Template template)
+    {
+        return allocateFromTemplate(client, template.id());
     }
 
     /**

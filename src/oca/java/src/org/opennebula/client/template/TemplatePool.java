@@ -1,19 +1,19 @@
 /*******************************************************************************
  * Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.opennebula.client.image;
+package org.opennebula.client.template;
 
 import java.util.AbstractList;
 import java.util.Iterator;
@@ -25,43 +25,43 @@ import org.opennebula.client.PoolElement;
 import org.w3c.dom.Node;
 
 /**
- * This class represents an OpenNebula Image pool.
+ * This class represents an OpenNebula Template pool.
  * It also offers static XML-RPC call wrappers.
  */
-public class ImagePool extends Pool implements Iterable<Image>
+public class TemplatePool extends Pool implements Iterable<Template>
 {
-    private static final String ELEMENT_NAME = "IMAGE";
-    private static final String INFO_METHOD  = "imagepool.info";
+    private static final String ELEMENT_NAME = "VMTEMPLATE";
+    private static final String INFO_METHOD  = "templatepool.info";
 
     private int filter;
 
     /**
-     * Creates a new Image pool with the default filter flag value
-     * set to 0 (Images belonging to user with UID 0)
-     * 
+     * Creates a new Template pool with the default filter flag value
+     * set to 0 (Templates belonging to user with UID 0)
+     *
      * @param client XML-RPC Client.
-     * 
-     * @see ImagePool#ImagePool(Client, int)
+     *
+     * @see TemplatePool#TemplatePool(Client, int)
      */
-    public ImagePool(Client client)
+    public TemplatePool(Client client)
     {
         super(ELEMENT_NAME, client);
         this.filter = 0;
     }
 
     /**
-     * Creates a new Image pool.
-     * 
+     * Creates a new Template pool.
+     *
      * @param client XML-RPC Client.
      * @param filter Filter flag used by default in the method
-     * {@link ImagePool#info()}. Possible values:
+     * {@link TemplatePool#info()}. Possible values:
      * <ul>
-     * <li><= -2: All Images</li>
-     * <li>-1: Connected user's Images and public ones</li>
-     * <li>>= 0: UID User's Images</li>
+     * <li><= -2: All Templates</li>
+     * <li>-1: Connected user's Templates and public ones</li>
+     * <li>>= 0: UID User's Templates</li>
      * </ul>
      */
-    public ImagePool(Client client, int filter)
+    public TemplatePool(Client client, int filter)
     {
         super(ELEMENT_NAME, client);
         this.filter = filter;
@@ -73,19 +73,19 @@ public class ImagePool extends Pool implements Iterable<Image>
     @Override
     public PoolElement factory(Node node)
     {
-        return new Image(node, client);
+        return new Template(node, client);
     }
 
     /**
-     * Retrieves all or part of the images in the pool.
-     *  
+     * Retrieves all or part of the templates in the pool.
+     *
      * @param client XML-RPC Client.
      * @param filter Filter flag used by default in the method
-     * {@link ImagePool#info()}. Possible values:
+     * {@link TemplatePool#info()}. Possible values:
      * <ul>
-     * <li><= -2: All Images</li>
-     * <li>-1: Connected user's Images and public ones</li>
-     * <li>>= 0: UID User's Images</li>
+     * <li><= -2: All Templates</li>
+     * <li>-1: Connected user's Templates and public ones</li>
+     * <li>>= 0: UID User's Templates</li>
      * </ul>
      * @return If successful the message contains the string
      * with the information returned by OpenNebula.
@@ -97,11 +97,11 @@ public class ImagePool extends Pool implements Iterable<Image>
 
     /**
      * Loads the xml representation of all or part of the
-     * Images in the pool. The filter used is the one set in
+     * Templates in the pool. The filter used is the one set in
      * the constructor.
-     * 
-     * @see ImagePool#info(Client, int)
-     * 
+     *
+     * @see TemplatePool#info(Client, int)
+     *
      * @return If successful the message contains the string
      * with the information returned by OpenNebula.
      */
@@ -112,18 +112,18 @@ public class ImagePool extends Pool implements Iterable<Image>
         return response;
     }
 
-    public Iterator<Image> iterator()
+    public Iterator<Template> iterator()
     {
-        AbstractList<Image> ab = new AbstractList<Image>()
+        AbstractList<Template> ab = new AbstractList<Template>()
         {
             public int size()
             {
                 return getLength();
             }
 
-            public Image get(int index)
+            public Template get(int index)
             {
-                return (Image) item(index);
+                return (Template) item(index);
             }
         };
 

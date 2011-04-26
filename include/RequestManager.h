@@ -24,6 +24,7 @@
 #include "VirtualNetworkPool.h"
 #include "ImagePool.h"
 #include "ClusterPool.h"
+#include "VMTemplatePool.h"
 
 #include <xmlrpc-c/base.hpp>
 #include <xmlrpc-c/registry.hpp>
@@ -46,10 +47,11 @@ public:
         UserPool           *    _upool,
         ImagePool          *    _ipool,
         ClusterPool        *    _cpool,
+        VMTemplatePool     *    _tpool,
         int                     _port,
         string                  _xml_log_file)
             :vmpool(_vmpool),hpool(_hpool),vnpool(_vnpool),upool(_upool),
-            ipool(_ipool),cpool(_cpool),port(_port),socket_fd(-1),
+            ipool(_ipool),cpool(_cpool),tpool(_tpool),port(_port),socket_fd(-1),
             xml_log_file(_xml_log_file)
     {
         am.addListener(this);
@@ -130,9 +132,14 @@ private:
     ImagePool          *    ipool;
 
     /**
-     *  Pointer to the Image Pool, to access images
+     *  Pointer to the Cluster Pool, to access clusters
      */
     ClusterPool        *    cpool;
+
+    /**
+     *  Pointer to the Template Pool, to access templates
+     */
+    VMTemplatePool     *    tpool;
 
     /**
      *  Port number where the connection will be open
@@ -314,10 +321,12 @@ private:
             VirtualMachinePool * _vmpool,
             VirtualNetworkPool * _vnpool,
             ImagePool          * _ipool,
+            VMTemplatePool     * _tpool,
             UserPool           * _upool):
         vmpool(_vmpool),
         vnpool(_vnpool),
         ipool(_ipool),
+        tpool(_tpool),
         upool(_upool)
         {
             _signature="A:ss";
@@ -333,6 +342,7 @@ private:
         VirtualMachinePool * vmpool;
         VirtualNetworkPool * vnpool;
         ImagePool          * ipool;
+        VMTemplatePool     * tpool;
         UserPool           * upool;
     };
 
@@ -500,6 +510,185 @@ private:
     private:
         VirtualMachinePool * vmpool;
         UserPool           *  upool;
+    };
+
+    /* ---------------------------------------------------------------------- */
+    /*                            Template Interface                          */
+    /* ---------------------------------------------------------------------- */
+
+    class TemplateAllocate: public xmlrpc_c::method
+    {
+    public:
+        TemplateAllocate(
+            VMTemplatePool * _tpool,
+            UserPool * _upool):
+                tpool(_tpool),
+                upool(_upool)
+        {
+            _signature="A:ss";
+            _help="Allocates a template in the pool";
+        };
+
+        ~TemplateAllocate(){};
+
+        void execute(
+            xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP);
+
+    private:
+        VMTemplatePool * tpool;
+        UserPool *       upool;
+    };
+
+    /* ---------------------------------------------------------------------- */
+
+    class TemplateDelete: public xmlrpc_c::method
+    {
+    public:
+        TemplateDelete(VMTemplatePool * _tpool,
+                       UserPool *       _upool):
+                            tpool(_tpool),
+                            upool(_upool)
+        {
+            _signature="A:si";
+            _help="Deletes a Template";
+        };
+
+        ~TemplateDelete(){};
+
+        void execute(
+            xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP);
+
+    private:
+        VMTemplatePool * tpool;
+        UserPool  *      upool;
+    };
+
+    /* ---------------------------------------------------------------------- */
+
+    class TemplateInfo: public xmlrpc_c::method
+    {
+    public:
+        TemplateInfo(VMTemplatePool * _tpool,
+                     UserPool *       _upool):
+                      tpool(_tpool),
+                      upool(_upool)
+        {
+            _signature="A:si";
+            _help="Returns information for a Template";
+        };
+
+        ~TemplateInfo(){};
+
+        void execute(
+            xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP);
+
+    private:
+        VMTemplatePool * tpool;
+        UserPool  *      upool;
+    };
+
+    /* ---------------------------------------------------------------------- */
+
+    class TemplateUpdate: public xmlrpc_c::method
+    {
+    public:
+        TemplateUpdate(VMTemplatePool * _tpool,
+                       UserPool *       _upool):
+                        tpool(_tpool),
+                        upool(_upool)
+        {
+            _signature="A:siss";
+            _help="Modifies Template attribute";
+        };
+
+        ~TemplateUpdate(){};
+
+        void execute(
+            xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP);
+
+    private:
+        VMTemplatePool * tpool;
+        UserPool  *      upool;
+    };
+
+    /* ---------------------------------------------------------------------- */
+
+    class TemplateRemoveAttribute: public xmlrpc_c::method
+    {
+    public:
+        TemplateRemoveAttribute(VMTemplatePool * _tpool,
+                             UserPool *          _upool):
+                        tpool(_tpool),
+                        upool(_upool)
+        {
+            _signature="A:sis";
+            _help="Removes Template attribute";
+        };
+
+        ~TemplateRemoveAttribute(){};
+
+        void execute(
+            xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP);
+
+    private:
+        VMTemplatePool * tpool;
+        UserPool  *      upool;
+    };
+
+    /* ---------------------------------------------------------------------- */
+
+    class TemplatePublish: public xmlrpc_c::method
+    {
+    public:
+        TemplatePublish(VMTemplatePool * _tpool,
+                     UserPool *          _upool):
+                        tpool(_tpool),
+                        upool(_upool)
+        {
+            _signature="A:sib";
+            _help="Publish/Unpublish the Template";
+        };
+
+        ~TemplatePublish(){};
+
+        void execute(
+            xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP);
+
+    private:
+        VMTemplatePool * tpool;
+        UserPool  *      upool;
+    };
+
+    /* ---------------------------------------------------------------------- */
+
+    class TemplatePoolInfo: public xmlrpc_c::method
+    {
+    public:
+        TemplatePoolInfo(
+            VMTemplatePool * _tpool,
+            UserPool * _upool):
+                tpool(_tpool),
+                upool(_upool)
+        {
+            _signature="A:sii";
+            _help="Returns the template pool";
+        };
+
+        ~TemplatePoolInfo(){};
+
+        void execute(
+            xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP);
+
+    private:
+        VMTemplatePool * tpool;
+        UserPool *       upool;
     };
 
     /* ---------------------------------------------------------------------- */

@@ -15,83 +15,107 @@
 /* -------------------------------------------------------------------------- */
 
 #include "RequestManager.h"
+
 #include "NebulaLog.h"
+#include "Nebula.h"
+
+#include "AuthManager.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void RequestManager::ImagePoolInfo::execute(
+void RequestManager::TemplateDelete::execute(
     xmlrpc_c::paramList const& paramList,
     xmlrpc_c::value *   const  retval)
 {
-    string        session;
+    string              session;
 
-    ostringstream oss;
-    ostringstream where_string;
+    int                 oid;
+    int                 uid;
+    int                 rc;
 
-    int           rc;
-    int           filter_flag;
+    int                 owner;
+    bool                is_public;
 
-    const string  method_name = "ImagePoolInfo";
+    VMTemplate *        vm_template;
 
-    /*   -- RPC specific vars --  */
+    ostringstream       oss;
+
+    const string        method_name = "TemplateDelete";
+
     vector<xmlrpc_c::value> arrayData;
     xmlrpc_c::value_array * arrayresult;
 
-    NebulaLog::log("ReM",Log::DEBUG,"ImagePoolInfo method invoked");
 
-    // Get the parameters
-    session     = xmlrpc_c::value_string(paramList.getString(0));
-    filter_flag = xmlrpc_c::value_int(paramList.getInt(1));
+    NebulaLog::log("ReM",Log::DEBUG,"TemplateDelete invoked");
 
-    // Check if it is a valid user
-    rc = ImagePoolInfo::upool->authenticate(session);
+    session  = xmlrpc_c::value_string(paramList.getString(0));
+    oid      = xmlrpc_c::value_int   (paramList.getInt(1));
 
-    if ( rc == -1 )
+
+    // First, we need to authenticate the user
+    uid = TemplateDelete::upool->authenticate(session);
+
+    if ( uid == -1 )
     {
         goto error_authenticate;
     }
 
-    /** Filter flag meaning table
-     *      -2 :: All Images
-     *      -1 :: User's Images AND public images belonging to any user
-     *    >= 0 :: UID User's Images
-     **/
-    if ( filter_flag < -2 )
+    // Get template from the pool
+    vm_template = TemplateDelete::tpool->get(oid,true);
+
+    if ( vm_template == 0 )
     {
-        goto error_filter_flag;
+        goto error_get;
     }
 
-    switch(filter_flag)
+    owner       = vm_template->get_uid();
+    is_public   = vm_template->isPublic();
+
+    vm_template->unlock();
+
+    //Authorize the operation
+    if ( uid != 0 ) // uid == 0 means oneadmin
     {
-        case -2:
-            break;
-        case -1:
-            where_string << "UID=" << rc << " OR PUBLIC=1";
-            break;
-        default:
-            where_string << "UID=" << filter_flag;
+        AuthRequest ar(uid);
+
+        ar.add_auth(AuthRequest::TEMPLATE,
+                    oid,
+                    AuthRequest::DELETE,
+                    owner,
+                    is_public);
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            goto error_authorize;
+        }
     }
 
-    // Call the image pool dump
-    rc = ImagePoolInfo::ipool->dump(oss,where_string.str());
+    // Get template from the pool
+    vm_template = TemplateDelete::tpool->get(oid,true);
 
-    if ( rc != 0 )
+    if ( vm_template == 0 )
     {
-        goto error_dump;
+        goto error_get;
     }
 
-    // All nice, return pool info to the client
-    arrayData.push_back(xmlrpc_c::value_boolean(true)); // SUCCESS
-    arrayData.push_back(xmlrpc_c::value_string(oss.str()));
+    rc = TemplateDelete::tpool->drop(vm_template);
 
-    arrayresult = new xmlrpc_c::value_array(arrayData);
+    vm_template->unlock();
+
+    if ( rc < 0 )
+    {
+        goto error_delete;
+    }
+
+    arrayData.push_back(xmlrpc_c::value_boolean(true));
+    arrayData.push_back(xmlrpc_c::value_int(oid));
 
     // Copy arrayresult into retval mem space
+    arrayresult = new xmlrpc_c::value_array(arrayData);
     *retval = *arrayresult;
 
-    // and get rid of the original
-    delete arrayresult;
+    delete arrayresult; // and get rid of the original
 
     return;
 
@@ -99,16 +123,21 @@ error_authenticate:
     oss.str(authenticate_error(method_name));
     goto error_common;
 
-error_filter_flag:
-    oss << "Incorrect filter_flag, must be >= -2.";
+error_get:
+    oss.str(get_error(method_name, "TEMPLATE", oid));
     goto error_common;
 
-error_dump:
-    oss.str(get_error(method_name, "IMAGE", -1));
+error_authorize:
+    oss.str(authorization_error(method_name, "DELETE", "TEMPLATE", uid, oid));
+    goto error_common;
+
+error_delete:
+    oss.str(action_error(method_name, "DELETE", "TEMPLATE", oid, rc));
+    vm_template->unlock();
     goto error_common;
 
 error_common:
-    arrayData.push_back(xmlrpc_c::value_boolean(false)); // FAILURE
+    arrayData.push_back(xmlrpc_c::value_boolean(false));  // FAILURE
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
 
     NebulaLog::log("ReM",Log::ERROR,oss);
