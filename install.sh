@@ -360,6 +360,7 @@ BIN_FILES="src/nebula/oned \
            src/cli/oneuser \
            src/cli/oneimage \
            src/cli/onecluster \
+           src/cli/onetemplate \
            share/scripts/one \
            src/authm_mad/oneauth"
 
@@ -404,6 +405,8 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/OpenNebula/Host.rb \
                            src/oca/ruby/OpenNebula/ImagePool.rb \
                            src/oca/ruby/OpenNebula/Cluster.rb \
                            src/oca/ruby/OpenNebula/ClusterPool.rb \
+                           src/oca/ruby/OpenNebula/Template.rb \
+                           src/oca/ruby/OpenNebula/TemplatePool.rb \
                            src/oca/ruby/OpenNebula/XMLUtils.rb"
 
 #-------------------------------------------------------------------------------
@@ -716,7 +719,8 @@ CLI_BIN_FILES="src/cli/onevm \
                src/cli/onevnet \
                src/cli/oneuser \
                src/cli/oneimage \
-               src/cli/onecluster"
+               src/cli/onecluster \
+               src/cli/onetemplate"
 
 #-----------------------------------------------------------------------------
 # Sunstone files
@@ -825,6 +829,7 @@ MAN_FILES="share/man/oneauth.8.gz \
         share/man/oneuser.8.gz \
         share/man/onevm.8.gz \
         share/man/onevnet.8.gz \
+        share/man/onetemplate.8.gz \
         share/man/econe-describe-images.8.gz \
         share/man/econe-describe-instances.8.gz \
         share/man/econe-register.8.gz \

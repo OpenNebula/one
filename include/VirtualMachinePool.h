@@ -41,8 +41,10 @@ public:
     /**
      *  Function to allocate a new VM object
      *    @param uid user id (the owner of the VM)
+     *    @param user_name Owner's user name
      *    @param vm_template a VM Template object describing the VM
      *    @param oid the id assigned to the VM (output)
+     *    @param error_str Returns the error reason, if any
      *    @param on_hold flag to submit on hold
      *    @return oid on success, -1 error inserting in DB or -2 error parsing
      *  the template

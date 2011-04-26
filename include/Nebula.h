@@ -25,6 +25,7 @@
 #include "VirtualNetworkPool.h"
 #include "HostPool.h"
 #include "UserPool.h"
+#include "VMTemplatePool.h"
 
 #include "VirtualMachineManager.h"
 #include "LifeCycleManager.h"
@@ -79,6 +80,11 @@ public:
     ClusterPool * get_cpool()
     {
         return cpool;
+    };
+
+    VMTemplatePool * get_tpool()
+    {
+        return tpool;
     };
 
     // --------------------------------------------------------------
@@ -233,9 +239,9 @@ private:
     //Constructors and = are private to only access the class through instance
     // -----------------------------------------------------------------------
 
-    Nebula():nebula_configuration(0),db(0),vmpool(0),hpool(0),vnpool(0),upool(0),
-        ipool(0),cpool(0),lcm(0),vmm(0),im(0),tm(0),dm(0),rm(0),hm(0),authm(0),
-        imagem(0)
+    Nebula():nebula_configuration(0),db(0),vmpool(0),hpool(0),vnpool(0),
+        upool(0),ipool(0),cpool(0),tpool(0),lcm(0),vmm(0),im(0),tm(0),dm(0),
+        rm(0),hm(0),authm(0),imagem(0)
     {
         const char * nl = getenv("ONE_LOCATION");
 
@@ -298,6 +304,11 @@ private:
         if ( cpool != 0)
         {
             delete cpool;
+        }
+
+        if ( tpool != 0)
+        {
+            delete tpool;
         }
 
         if ( vmm != 0)
@@ -392,6 +403,7 @@ private:
     UserPool           * upool;
     ImagePool          * ipool;
     ClusterPool        * cpool;
+    VMTemplatePool     * tpool;
 
     // ---------------------------------------------------------------
     // Nebula Managers

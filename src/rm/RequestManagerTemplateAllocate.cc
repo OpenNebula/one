@@ -22,7 +22,7 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void RequestManager::VirtualMachineAllocate::execute(
+void RequestManager::TemplateAllocate::execute(
     xmlrpc_c::paramList const& paramList,
     xmlrpc_c::value *   const  retval)
 {
@@ -30,11 +30,10 @@ void RequestManager::VirtualMachineAllocate::execute(
     string              str_template;
     string              error_str;
     string              user_name;
-    string              template_id_str = "TEMPLATE_ID";;
 
-    const string        method_name = "VirtualMachineAllocate";
+    const string        method_name = "TemplateAllocate";
 
-    int                 vid, uid, tid;
+    int                 oid, uid;
     int                 rc;
 
     ostringstream       oss;
@@ -42,21 +41,12 @@ void RequestManager::VirtualMachineAllocate::execute(
     vector<xmlrpc_c::value> arrayData;
     xmlrpc_c::value_array * arrayresult;
 
-    VirtualMachineTemplate * vm_template;
-    VirtualMachineTemplate * vm_template_aux;
+    VirtualMachineTemplate * template_contents;
     User *                   user;
-    VMTemplate *             registered_template;
-    bool                     using_template_pool;
-    int                      template_owner;
-    bool                     template_public;
-
     char *                   error_msg = 0;
 
-    int                   num;
-    vector<Attribute  * > vectors;
-    VectorAttribute *     vector;
 
-    NebulaLog::log("ReM",Log::DEBUG,"VirtualMachineAllocate invoked");
+    NebulaLog::log("ReM",Log::DEBUG,"TemplateAllocate invoked");
 
     session      = xmlrpc_c::value_string(paramList.getString(0));
     str_template = xmlrpc_c::value_string(paramList.getString(1));
@@ -65,7 +55,7 @@ void RequestManager::VirtualMachineAllocate::execute(
     //--------------------------------------------------------------------------
     //   Authenticate the user
     //--------------------------------------------------------------------------
-    uid = VirtualMachineAllocate::upool->authenticate(session);
+    uid = TemplateAllocate::upool->authenticate(session);
 
     if (uid == -1)
     {
@@ -73,11 +63,11 @@ void RequestManager::VirtualMachineAllocate::execute(
     }
 
     //--------------------------------------------------------------------------
-    //   Authorize this request
+    //   Check the template syntax
     //--------------------------------------------------------------------------
-    vm_template = new VirtualMachineTemplate;
+    template_contents = new VirtualMachineTemplate;
 
-    rc = vm_template->parse(str_template,&error_msg);
+    rc = template_contents->parse(str_template,&error_msg);
 
     if ( rc != 0 )
     {
@@ -85,112 +75,18 @@ void RequestManager::VirtualMachineAllocate::execute(
     }
 
     //--------------------------------------------------------------------------
-    //   Look for a template id
+    //   Authorize this request
     //--------------------------------------------------------------------------
-    using_template_pool = vm_template->get(template_id_str, tid);
-
-    if( using_template_pool )
-    {
-        string name_str = "NAME";
-        string name_val;
-        ostringstream template_id_val;
-           
-        registered_template = VirtualMachineAllocate::tpool->get(tid, true);
-
-        if( registered_template == 0 )
-        {
-            goto error_template_get;
-        }
-
-        // Use the template contents
-        vm_template_aux = registered_template->clone_template();
-        template_owner  = registered_template->get_uid();
-        template_public = registered_template->isPublic();
-
-        registered_template->unlock();
-
-        // Set NAME & TEMPLATE_ID for the new template
-        vm_template->get(name_str,name_val);
-
-        if ( !name_val.empty() )
-        {
-            vm_template_aux->erase(name_str);
-            vm_template_aux->set(new SingleAttribute(name_str,name_val));
-        }
-
-        vm_template_aux->erase(template_id_str);
-
-        template_id_val << tid;
-
-        vm_template_aux->set(new 
-                SingleAttribute(template_id_str,template_id_val.str()));
-
-        delete vm_template;
-
-        vm_template = vm_template_aux;
-    }
-
     if ( uid != 0 )
     {
         AuthRequest ar(uid);
         string      t64;
 
-        if( using_template_pool )
-        {
-            ar.add_auth(AuthRequest::TEMPLATE,
-                        tid,
-                        AuthRequest::USE,
-                        template_owner,
-                        template_public);
-        }
-
-        num = vm_template->get("DISK",vectors);
-
-        for(int i=0; i<num; i++)
-        {
-
-            vector = dynamic_cast<VectorAttribute * >(vectors[i]);
-
-            if ( vector == 0 )
-            {
-                continue;
-            }
-
-            VirtualMachineAllocate::ipool->authorize_disk(vector,uid,&ar);
-        }
-
-        vectors.clear();
-
-        num = vm_template->get("NIC",vectors);
-
-        for(int i=0; i<num; i++)
-        {
-            vector = dynamic_cast<VectorAttribute * >(vectors[i]);
-
-            if ( vector == 0 )
-            {
-                continue;
-            }
-
-            VirtualMachineAllocate::vnpool->authorize_nic(vector,uid,&ar);
-        }
-
-        if( using_template_pool )
-        {
-            ar.add_auth(AuthRequest::VM,
-                        vm_template->to_xml(t64),
-                        AuthRequest::INSTANTIATE,
-                        uid,
-                        false);
-        }
-        else
-        {
-            ar.add_auth(AuthRequest::VM,
-                        vm_template->to_xml(t64),
-                        AuthRequest::CREATE,
-                        uid,
-                        false);
-        }
+        ar.add_auth(AuthRequest::TEMPLATE,
+                    template_contents->to_xml(t64),
+                    AuthRequest::CREATE,
+                    uid,
+                    false);
 
         if (UserPool::authorize(ar) == -1)
         {
@@ -202,7 +98,7 @@ void RequestManager::VirtualMachineAllocate::execute(
     //   Get the User Name
     //--------------------------------------------------------------------------
 
-    user = VirtualMachineAllocate::upool->get(uid,true);
+    user = TemplateAllocate::upool->get(uid,true);
 
     if ( user == 0 )
     {
@@ -214,21 +110,21 @@ void RequestManager::VirtualMachineAllocate::execute(
     user->unlock();
 
     //--------------------------------------------------------------------------
-    //   Allocate the VirtualMAchine
+    //   Allocate the VMTemplate
     //--------------------------------------------------------------------------
-    rc = VirtualMachineAllocate::vmpool->allocate(uid,
-                                                  user_name,
-                                                  vm_template,
-                                                  &vid,
-                                                  error_str,
-                                                  false);
+    rc = TemplateAllocate::tpool->allocate(uid,
+                                           user_name,
+                                           template_contents,
+                                           &oid,
+                                           error_str);
+
     if ( rc < 0 )
     {
         goto error_allocate;
     }
 
     arrayData.push_back(xmlrpc_c::value_boolean(true));
-    arrayData.push_back(xmlrpc_c::value_int(vid));
+    arrayData.push_back(xmlrpc_c::value_int(oid));
 
     // Copy arrayresult into retval mem space
     arrayresult = new xmlrpc_c::value_array(arrayData);
@@ -238,16 +134,11 @@ void RequestManager::VirtualMachineAllocate::execute(
 
     return;
 
-error_template_get:
-    oss.str(get_error(method_name, "TEMPLATE", tid));
-
-    delete vm_template;
-    goto error_common;
 
 error_user_get:
     oss.str(get_error(method_name, "USER", uid));
 
-    delete vm_template;
+    delete template_contents;
     goto error_common;
 
 error_authenticate:
@@ -255,8 +146,8 @@ error_authenticate:
     goto error_common;
 
 error_authorize:
-    oss.str(authorization_error(method_name, "CREATE", "VM", uid, -1));
-    delete vm_template;
+    oss.str(authorization_error(method_name, "CREATE", "TEMPLATE", uid, -1));
+    delete template_contents;
     goto error_common;
 
 error_parse:
@@ -267,11 +158,11 @@ error_parse:
         free(error_msg);
     }
 
-    delete vm_template;
+    delete template_contents;
     goto error_common;
 
 error_allocate:
-    oss << action_error(method_name, "CREATE", "VM", -2, 0);
+    oss << action_error(method_name, "CREATE", "TEMPLATE", -2, 0);
     oss << " " << error_str;
     goto error_common;
 

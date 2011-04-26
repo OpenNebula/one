@@ -82,6 +82,11 @@ void Nebula::start()
         delete cpool;
     }
 
+    if ( tpool != 0)
+    {
+        delete tpool;
+    }
+
     if ( vmm != 0)
     {
         delete vmm;
@@ -213,6 +218,11 @@ void Nebula::start()
         if (tester->need_cluster_pool)
         {
             cpool  = tester->create_cpool(db);
+        }
+
+        if (tester->need_template_pool)
+        {
+            tpool  = tester->create_tpool(db);
         }
     }
     catch (exception&)
@@ -358,7 +368,7 @@ void Nebula::start()
     {
         try
         {
-            rm = tester->create_rm(vmpool,hpool,vnpool,upool,ipool,cpool,
+            rm = tester->create_rm(vmpool,hpool,vnpool,upool,ipool,cpool,tpool,
                                    log_location + "one_xmlrpc.log");
         }
         catch (bad_alloc&)

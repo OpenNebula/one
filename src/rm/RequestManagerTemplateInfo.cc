@@ -17,94 +17,77 @@
 #include "RequestManager.h"
 #include "NebulaLog.h"
 
+#include "AuthManager.h"
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void RequestManager::ImagePoolInfo::execute(
+void RequestManager::TemplateInfo::execute(
     xmlrpc_c::paramList const& paramList,
     xmlrpc_c::value *   const  retval)
 {
-    string        session;
+    string  session;
+
+    int           oid;
+    int           uid;     // owner user id
+    int           rc;      // Requesting user id
+    VMTemplate  * vm_template;
 
     ostringstream oss;
-    ostringstream where_string;
 
-    int           rc;
-    int           filter_flag;
-
-    const string  method_name = "ImagePoolInfo";
+    const string  method_name = "TemplateInfo";
 
     /*   -- RPC specific vars --  */
     vector<xmlrpc_c::value> arrayData;
     xmlrpc_c::value_array * arrayresult;
 
-    NebulaLog::log("ReM",Log::DEBUG,"ImagePoolInfo method invoked");
+    NebulaLog::log("ReM",Log::DEBUG,"TemplateInfo method invoked");
 
     // Get the parameters
-    session     = xmlrpc_c::value_string(paramList.getString(0));
-    filter_flag = xmlrpc_c::value_int(paramList.getInt(1));
+    session      = xmlrpc_c::value_string(paramList.getString(0));
+    oid          = xmlrpc_c::value_int   (paramList.getInt(1));
+
+    // Get template from the pool
+    vm_template = TemplateInfo::tpool->get(oid,true);
+
+    if ( vm_template == 0 )
+    {
+        goto error_get;
+    }
+
+    uid = vm_template->get_uid();
 
     // Check if it is a valid user
-    rc = ImagePoolInfo::upool->authenticate(session);
+    rc = TemplateInfo::upool->authenticate(session);
 
     if ( rc == -1 )
     {
         goto error_authenticate;
     }
 
-    /** Filter flag meaning table
-     *      -2 :: All Images
-     *      -1 :: User's Images AND public images belonging to any user
-     *    >= 0 :: UID User's Images
-     **/
-    if ( filter_flag < -2 )
-    {
-        goto error_filter_flag;
-    }
+    oss << *vm_template;
 
-    switch(filter_flag)
-    {
-        case -2:
-            break;
-        case -1:
-            where_string << "UID=" << rc << " OR PUBLIC=1";
-            break;
-        default:
-            where_string << "UID=" << filter_flag;
-    }
+    vm_template->unlock();
 
-    // Call the image pool dump
-    rc = ImagePoolInfo::ipool->dump(oss,where_string.str());
-
-    if ( rc != 0 )
-    {
-        goto error_dump;
-    }
-
-    // All nice, return pool info to the client
+    // All nice, return the host info to the client
     arrayData.push_back(xmlrpc_c::value_boolean(true)); // SUCCESS
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
 
-    arrayresult = new xmlrpc_c::value_array(arrayData);
-
     // Copy arrayresult into retval mem space
+    arrayresult = new xmlrpc_c::value_array(arrayData);
     *retval = *arrayresult;
 
-    // and get rid of the original
-    delete arrayresult;
+    delete arrayresult; // and get rid of the original
 
     return;
 
+error_get:
+    oss.str(get_error(method_name, "TEMPLATE", oid));
+    goto error_common;
+
 error_authenticate:
     oss.str(authenticate_error(method_name));
-    goto error_common;
-
-error_filter_flag:
-    oss << "Incorrect filter_flag, must be >= -2.";
-    goto error_common;
-
-error_dump:
-    oss.str(get_error(method_name, "IMAGE", -1));
+    vm_template->unlock();
     goto error_common;
 
 error_common:

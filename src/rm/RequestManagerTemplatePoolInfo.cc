@@ -20,7 +20,7 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void RequestManager::ImagePoolInfo::execute(
+void RequestManager::TemplatePoolInfo::execute(
     xmlrpc_c::paramList const& paramList,
     xmlrpc_c::value *   const  retval)
 {
@@ -32,20 +32,20 @@ void RequestManager::ImagePoolInfo::execute(
     int           rc;
     int           filter_flag;
 
-    const string  method_name = "ImagePoolInfo";
+    const string  method_name = "TemplatePoolInfo";
 
     /*   -- RPC specific vars --  */
     vector<xmlrpc_c::value> arrayData;
     xmlrpc_c::value_array * arrayresult;
 
-    NebulaLog::log("ReM",Log::DEBUG,"ImagePoolInfo method invoked");
+    NebulaLog::log("ReM",Log::DEBUG,"TemplatePoolInfo method invoked");
 
     // Get the parameters
     session     = xmlrpc_c::value_string(paramList.getString(0));
     filter_flag = xmlrpc_c::value_int(paramList.getInt(1));
 
     // Check if it is a valid user
-    rc = ImagePoolInfo::upool->authenticate(session);
+    rc = TemplatePoolInfo::upool->authenticate(session);
 
     if ( rc == -1 )
     {
@@ -53,9 +53,9 @@ void RequestManager::ImagePoolInfo::execute(
     }
 
     /** Filter flag meaning table
-     *      -2 :: All Images
-     *      -1 :: User's Images AND public images belonging to any user
-     *    >= 0 :: UID User's Images
+     *      -2 :: All Templates
+     *      -1 :: User's Templates AND public templates belonging to any user
+     *    >= 0 :: UID User's Templates
      **/
     if ( filter_flag < -2 )
     {
@@ -73,8 +73,8 @@ void RequestManager::ImagePoolInfo::execute(
             where_string << "UID=" << filter_flag;
     }
 
-    // Call the image pool dump
-    rc = ImagePoolInfo::ipool->dump(oss,where_string.str());
+    // Call the template pool dump
+    rc = TemplatePoolInfo::tpool->dump(oss,where_string.str());
 
     if ( rc != 0 )
     {
@@ -104,7 +104,7 @@ error_filter_flag:
     goto error_common;
 
 error_dump:
-    oss.str(get_error(method_name, "IMAGE", -1));
+    oss.str(get_error(method_name, "TEMPLATE", -1));
     goto error_common;
 
 error_common:

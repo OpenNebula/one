@@ -14,113 +14,110 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#ifndef USER_H_
-#define USER_H_
+#ifndef VMTEMPLATE_H_
+#define VMTEMPLATE_H_
 
-#include "PoolSQL.h"
-
-using namespace std;
+#include "PoolObjectSQL.h"
+#include "VirtualMachineTemplate.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 /**
- *  The User class.
+ *  The VMTemplate class.
  */
-class User : public PoolObjectSQL
+class VMTemplate : public PoolObjectSQL
 {
 public:
 
     /**
-     *  Function to write a User on an output stream
+     *  Function to write a VMTemplate on an output stream
      */
-    friend ostream& operator<<(ostream& os, User& u);
+    friend ostream& operator<<(ostream& os, VMTemplate& u);
 
     /**
-     * Function to print the User object into a string in XML format
+     * Function to print the VMTemplate object into a string in XML format
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
     string& to_xml(string& xml) const;
 
     /**
-     *  Check if the user is enabled
-     *    @return true if the user is enabled
+     *  Returns true if the object is public
+     *     @return true if the Virtual Network is public
      */
-     bool isEnabled() const
-     {
-        return enabled;
-     }
-
-    /**
-     *  Returns user password
-     *     @return username User's hostname
-     */
-    const string& get_password() const
+    bool isPublic()
     {
-        return password;
+        return (public_template == 1);
     };
 
     /**
-     *   Enables the current user
-     */
-    void enable()
-    {
-        enabled = true;
-    };
-
-    /**
-     *   Disables the current user
-     */
-    void disable()
-    {
-        enabled = false;
-    };
-
-    /**
-     *  Sets user password
-     */
-    void set_password(string _password)
-    {
-        password = _password;
-    };
-
-    /**
-     *  Splits an authentication token (<usr>:<pass>)
-     *    @param secret, the authentication token
-     *    @param username
-     *    @param password
+     *  Publish or unpublish an object
+     *    @param pub true to publish the object
      *    @return 0 on success
-     **/
-    static int split_secret(const string secret, string& user, string& pass);
+     */
+    bool publish(bool pub)
+    {
+        if (pub == true)
+        {
+            public_template = 1;
+        }
+        else
+        {
+            public_template = 0;
+        }
+
+        return true;
+    };
+
+    // ------------------------------------------------------------------------
+    // Template Contents
+    // ------------------------------------------------------------------------
 
     /**
-     *  "Encrypts" the password with SHA1 digest
-     *  @param password
-     *  @return sha1 encrypted password
+     *  Returns a copy of the VirtualMachineTemplate
+     *    @return A copy of the VirtualMachineTemplate
      */
-    static string sha1_digest(const string& pass);
+    VirtualMachineTemplate * clone_template() const
+    {
+        return new VirtualMachineTemplate(
+                *(static_cast<VirtualMachineTemplate *>(obj_template)));
+
+        // TODO: Check if there is a more efficient way to do this copy.
+        /*string xml_str;
+        VirtualMachineTemplate * new_template = new VirtualMachineTemplate();
+
+        obj_template->to_xml(xml_str);
+        new_template->from_xml(xml_str);
+
+        return new_template;*/
+    };
 
 private:
     // -------------------------------------------------------------------------
     // Friends
     // -------------------------------------------------------------------------
 
-    friend class UserPool;
+    friend class VMTemplatePool;
 
     // -------------------------------------------------------------------------
-    // User Attributes
+    // VMTemplate Attributes
     // -------------------------------------------------------------------------
 
     /**
-     *  User's password
+     *  Owner's name
      */
-    string      password;
+    string      user_name;
 
     /**
-     * Flag marking user enabled/disabled
+     *  Public scope of the VMTemplate
      */
-    bool        enabled;
+    int         public_template;
+
+    /**
+     *  Registration time
+     */
+    time_t      regtime;
 
     // *************************************************************************
     // DataBase implementation (Private)
@@ -135,13 +132,13 @@ private:
     int insert_replace(SqlDB *db, bool replace);
 
     /**
-     *  Bootstraps the database table(s) associated to the User
+     *  Bootstraps the database table(s) associated to the VMTemplate
      */
     static void bootstrap(SqlDB * db)
     {
-        ostringstream oss_user(User::db_bootstrap);
+        ostringstream oss(VMTemplate::db_bootstrap);
 
-        db->exec(oss_user);
+        db->exec(oss);
     };
 
     /**
@@ -157,13 +154,10 @@ protected:
     // *************************************************************************
     // Constructor
     // *************************************************************************
+    VMTemplate(int id, int uid, string _user_name,
+                   VirtualMachineTemplate * _template_contents);
 
-    User(int     id,
-         string _username,
-         string _password,
-         bool   _enabled);
-
-    virtual ~User();
+    ~VMTemplate();
 
     // *************************************************************************
     // DataBase implementation
@@ -176,21 +170,21 @@ protected:
     static const char * table;
 
     /**
-     *  Writes the User in the database.
+     *  Writes the VMTemplate in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
     int insert(SqlDB *db, string& error_str);
 
     /**
-     *  Writes/updates the User data fields in the database.
+     *  Writes/updates the VMTemplate data fields in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
     int update(SqlDB *db)
     {
         return insert_replace(db, true);
-    }
+    };
 };
 
-#endif /*USER_H_*/
+#endif /*VMTEMPLATE_H_*/
