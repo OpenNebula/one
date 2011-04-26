@@ -17,6 +17,7 @@
 #--------------------------------------------------------------------------- #
 
 source $(dirname $0)/kvmrc
+source $(dirname $0)/../../scripts_common.sh
 
 domain=$1
 
@@ -28,5 +29,6 @@ data=`virsh --connect $LIBVIRT_URI create $domain`
 if [ "x$?" = "x0" ]; then
     echo $data | sed 's/Domain //' | sed 's/ created from .*$//'
 else
+    error_message "Could not create domain from $domain"
     exit -1
 fi

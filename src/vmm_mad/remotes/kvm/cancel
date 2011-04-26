@@ -17,7 +17,17 @@
 #--------------------------------------------------------------------------- #
 
 source $(dirname $0)/kvmrc
+source $(dirname $0)/../../scripts_common.sh
 
 deploy_id=$1
 
 virsh --connect $LIBVIRT_URI destroy $deploy_id
+
+error_code=$?
+
+if [ "x$?" = "x0" ]; then
+    exit $error_code
+else
+    error_message "Could not destroy $deploy_id"
+    exit $error_code
+fi

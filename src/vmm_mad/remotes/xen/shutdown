@@ -17,6 +17,7 @@
 #--------------------------------------------------------------------------- #
 
 source $(dirname $0)/xenrc
+source $(dirname $0)/../../scripts_common.sh
 
 deploy_id=$1
 
@@ -24,7 +25,16 @@ function gdm {
     $XM_LIST | grep "$deploy_id "
 }
 
-$XM_SHUTDOWN $deploy_id || exit -1
+$XM_SHUTDOWN $deploy_id
+
+error_code=$?
+
+if [ "x$?" = "x0" ]; then
+    exit $error_code
+else
+    error_message "Could not shutdown $deploy_id"
+    exit $error_code
+fi
 
 OUT=$(gdm)
 
