@@ -747,7 +747,8 @@ var vm_actions = {
         type: "single",
         call: OpenNebula.VM.startvnc,
         callback: vncCallback,
-        error: onError
+        error: onError,
+        notify: true
     },
     
     "VM.stopvnc" : {
@@ -2055,25 +2056,27 @@ function vncCallback(request,response){
                         'shared':       true,
                         'updateState':  updateVNCState});
         //fetch things from clicked element host - port - password
-        var port = response["port"];
+        vnc_port = response["port"];
         
         //Hopefully this is returning sunstone server address, where
         //the proxy is running
-        var host = window.location.hostname;
-        var pw = response["password"];
+        vnc_host = window.location.hostname;
+        vnc_pw = response["password"];
         
-        rfb.connect(host, port, pw);
-
-        //And voilà, we can open the dialog
-        $('#vnc_dialog').dialog('open');
+        setTimeout(function(){
+            rfb.connect(vnc_host, vnc_port, vnc_pw);
+            $('#vnc_dialog').dialog('open');
+        },4000);
+        
+        
     
 }
 
 function vncIcon(vm){
     var graphics = vm.TEMPLATE.GRAPHICS;
-    var state = OpenNebula.Helper.resource_state("vm",vm.STATE);
+    var state = OpenNebula.Helper.resource_state("vm_lcm",vm.LCM_STATE);
     var gr_icon;
-    if (graphics && graphics.TYPE == "vnc" && state == "ACTIVE"){
+    if (graphics && graphics.TYPE == "vnc" && state == "RUNNING"){
         gr_icon = '<a class="vnc" href="#" vm_id="'+vm.ID+'">';
         gr_icon += '<img src="images/vnc_on.png" alt="Open VNC Session" /></a>';
     }
