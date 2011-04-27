@@ -83,19 +83,28 @@ function error_message
     ) 1>&2
 }
 
-# Executes a command, if it fails return error message and exits
+# Executes a command, if it fails returns error message and exits
+# If a second parameter is present it is used as the error message when
+# the command fails
 function exec_and_log
 {
+    message=$2
     output=`$1 2>&1 1>/dev/null`
     code=$?
     if [ "x$code" != "x0" ]; then
         log_error "Command \"$1\" failed."
         log_error "$output"
-        error_message "$output"
+        if [ -n "$message" ]; then
+            error_message "$output"
+        else
+            error_message "$message"
+        fi
         exit $code
     fi
     log "Executed \"$1\"."
 }
+
+
 
 # Like exec_and_log but the first argument is the number of seconds
 # before here is timeout and kills the command
