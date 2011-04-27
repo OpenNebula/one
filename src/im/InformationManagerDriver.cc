@@ -143,15 +143,16 @@ void InformationManagerDriver::protocol(
 
 error_driver_info:
 	ess << "Error monitoring host " << id << " : " << is.str();
-	NebulaLog::log("InM", Log::ERROR, ess);
-
 	goto  error_common_info;
 
 error_parse_info:
     ess << "Error parsing host information: " << hinfo;
-    NebulaLog::log("InM",Log::ERROR,ess);
+	goto  error_common_info;
 
 error_common_info:
+    NebulaLog::log("InM",Log::ERROR,ess);
+
+    host->set_template_error_message(ess.str());
 
     host->touch(false);
 
