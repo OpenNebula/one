@@ -17,6 +17,7 @@
 #--------------------------------------------------------------------------- #
 
 source $(dirname $0)/kvmrc
+source $(dirname $0)/../../scripts_common.sh
 
 deploy_id=$1
 file=$2
@@ -26,4 +27,5 @@ if [ ! -f $file ]; then
     chmod 666 $file
 fi
 
-virsh --connect $LIBVIRT_URI save $deploy_id $file
+exec_and_log "virsh --connect $LIBVIRT_URI save $deploy_id $file" \
+    "Could not save $deploy_id to $file"

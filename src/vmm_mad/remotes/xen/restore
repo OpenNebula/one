@@ -17,8 +17,10 @@
 #--------------------------------------------------------------------------- #
 
 source $(dirname $0)/xenrc
+source $(dirname $0)/../../scripts_common.sh
 
 file=$1
 
-$XM_RESTORE $file
+exec_and_log "$XM_RESTORE $file" \
+    "Could not restore from $file"
 

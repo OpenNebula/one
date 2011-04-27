@@ -17,9 +17,10 @@
 #--------------------------------------------------------------------------- #
 
 source $(dirname $0)/xenrc
+source $(dirname $0)/../../scripts_common.sh
 
 deploy_id=$1
 file=$2
 
-$XM_SAVE $deploy_id $file
-
+exec_and_log "$XM_SAVE $deploy_id $file" \
+    "Could not save $deploy_id to $file"
