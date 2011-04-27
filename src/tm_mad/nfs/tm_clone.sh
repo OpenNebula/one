@@ -34,8 +34,8 @@ DST_PATH=`arg_path $DST`
 
 fix_paths
 
-log "$1 $2"
-log "DST: $DST_PATH"
+log_debug "$1 $2"
+log_debug "DST: $DST_PATH"
 
 DST_DIR=`dirname $DST_PATH`
 
@@ -46,12 +46,14 @@ exec_and_log "chmod a+w $DST_DIR"
 case $SRC in
 http://*)
     log "Downloading $SRC"
-    exec_and_log "$WGET -O $DST_PATH $SRC"
+    exec_and_log "$WGET -O $DST_PATH $SRC" \
+        "Error downloading $SRC"
     ;;
 
 *)
     log "Cloning $SRC_PATH"
-    exec_and_log "cp -r $SRC_PATH $DST_PATH"
+    exec_and_log "cp -r $SRC_PATH $DST_PATH" \
+        "Error copying $SRC to $DST"
     ;;
 esac
 

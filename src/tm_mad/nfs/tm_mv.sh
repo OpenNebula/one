@@ -43,7 +43,8 @@ else
         log "Will not move, is not saving image"
     else
         log "Moving $SRC_PATH"
-        exec_and_log "mv $SRC_PATH $DST_PATH"
+        exec_and_log "mv $SRC_PATH $DST_PATH" \
+            "Could not move $SRC_PATH to $DST_PATH"
     fi
 fi
 
