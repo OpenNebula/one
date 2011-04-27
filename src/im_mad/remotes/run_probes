@@ -16,6 +16,8 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+source $(dirname $0)/../scripts_common.sh
+
 export LANG=C
 
 HYPERVISOR_DIR=$1.d
@@ -29,12 +31,7 @@ function run_dir {
     cd $1
     for i in `ls *`;do
         if [ -x "$i" ]; then
-            ./$i $ARGUMENTS
-            EXIT_CODE=$?
-            if [ "x$EXIT_CODE" != "x0" ]; then
-                echo "Error executing $i" 1>&2
-                exit $EXIT_CODE
-            fi
+            exec_and_log "./$i $ARGUMENTS" "Error executing $i"
         fi
     done
     )
