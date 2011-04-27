@@ -37,6 +37,8 @@ DST=$1
 FSTYPE=$2
 SIZE=$3
 
-exec_and_log "$DD if=/dev/zero of=$DST bs=1 count=1 seek=${SIZE}M"
-exec_and_log "$MKFS -t $FSTYPE -F $DST"
+exec_and_log "$DD if=/dev/zero of=$DST bs=1 count=1 seek=${SIZE}M" \
+    "Could not create image $DST"
+exec_and_log "$MKFS -t $FSTYPE -F $DST" \
+    "Unable to create filesystem $FSTYPE in $DST"
 exec_and_log "chmod 0660 $DST"

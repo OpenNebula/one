@@ -39,12 +39,14 @@ DST=$2
 case $SRC in
 http://*)
     log "Downloading $SRC to the image repository"
-    exec_and_log "$WGET -O $DST $SRC"
+    exec_and_log "$WGET -O $DST $SRC" \
+        "Error downloading $SRC"
     ;;
 
 *)
     log "Copying local image $SRC to the image repository"
-    exec_and_log "cp -f $SRC $DST"
+    exec_and_log "cp -f $SRC $DST" \
+        "Error copying $SRC to $DST"
     ;;
 esac
 
