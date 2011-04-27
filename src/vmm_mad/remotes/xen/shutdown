@@ -25,16 +25,8 @@ function gdm {
     $XM_LIST | grep "$deploy_id "
 }
 
-$XM_SHUTDOWN $deploy_id
-
-error_code=$?
-
-if [ "x$?" = "x0" ]; then
-    exit $error_code
-else
-    error_message "Could not shutdown $deploy_id"
-    exit $error_code
-fi
+exec_and_log "$XM_SHUTDOWN $deploy_id" \
+    "Could not shutdown $deploy_id"
 
 OUT=$(gdm)
 

@@ -21,14 +21,6 @@ source $(dirname $0)/../../scripts_common.sh
 
 file=$1
 
-$XM_RESTORE $file
-
-error_code=$?
-
-if [ "x$?" = "x0" ]; then
-    exit $error_code
-else
-    error_message "Could not restore from $file"
-    exit $error_code
-fi
+exec_and_log "$XM_RESTORE $file" \
+    "Could not restore from $file"
 

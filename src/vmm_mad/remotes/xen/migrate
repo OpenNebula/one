@@ -22,13 +22,5 @@ source $(dirname $0)/../../scripts_common.sh
 deploy_id=$1
 dest_host=$2
 
-$XM_MIGRATE $deploy_id $dest_host
-
-error_code=$?
-
-if [ "x$?" = "x0" ]; then
-    exit $error_code
-else
-    error_message "Could not migrate $deploy_id to $dest_host"
-    exit $error_code
-fi
+exec_and_log "$XM_MIGRATE $deploy_id $dest_host" \
+    "Could not migrate $deploy_id to $dest_host"

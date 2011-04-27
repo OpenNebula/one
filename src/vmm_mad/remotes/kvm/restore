@@ -21,13 +21,5 @@ source $(dirname $0)/../../scripts_common.sh
 
 file=$1
 
-virsh --connect $LIBVIRT_URI restore $file
-
-error_code=$?
-
-if [ "x$?" = "x0" ]; then
-    exit $error_code
-else
-    error_message "Could not restore from $file"
-    exit $error_code
-fi
+exec_and_log "virsh --connect $LIBVIRT_URI restore $file" \
+    "Could not restore from $file"
