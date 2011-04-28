@@ -175,11 +175,11 @@ public:
 
     void get_using_name()
     {
-        int oid_0, oid_1;
+        int oid_0;
 
         // Allocate two objects
         oid_0 = allocate(0);
-        oid_1 = allocate(1);
+        allocate(1);
 
         // ---------------------------------
         // Get first object and check its integrity

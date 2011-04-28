@@ -39,7 +39,6 @@ Mad::~Mad()
     char    buf[]="FINALIZE\n";
     int     status;
     pid_t   rp;
-    size_t  retval;
     
     if ( pid==-1)
     {
@@ -47,7 +46,7 @@ Mad::~Mad()
     }
     
     // Finish the driver
-    retval = ::write(nebula_mad_pipe, buf, strlen(buf));
+    ::write(nebula_mad_pipe, buf, strlen(buf));
 
     close(mad_nebula_pipe);
     close(nebula_mad_pipe);
@@ -68,7 +67,6 @@ int Mad::start()
 {
     int                            ne_mad_pipe[2];
     int                            mad_ne_pipe[2];
-    size_t                         retval;
 
     map<string,string>::iterator   it;
 
@@ -191,7 +189,7 @@ int Mad::start()
         fcntl(nebula_mad_pipe, F_SETFD, FD_CLOEXEC);
         fcntl(mad_nebula_pipe, F_SETFD, FD_CLOEXEC);
 
-        retval = ::write(nebula_mad_pipe, buf, strlen(buf));
+        ::write(nebula_mad_pipe, buf, strlen(buf));
                     
         do
         {
@@ -291,11 +289,9 @@ int Mad::reload()
     int     status;
     int     rc;
     pid_t   rp;
-    size_t  retval;
 
     // Finish the driver
-
-    retval = ::write(nebula_mad_pipe, buf, strlen(buf));
+    ::write(nebula_mad_pipe, buf, strlen(buf));
 
     close(nebula_mad_pipe);
     close(mad_nebula_pipe);

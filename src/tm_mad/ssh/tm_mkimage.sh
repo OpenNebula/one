@@ -32,7 +32,10 @@ DST_PATH=`arg_path $DST`
 DST_HOST=`arg_host $DST`
 DST_DIR=`dirname $DST_PATH`
 
-exec_and_log "$SSH $DST_HOST mkdir -p $DST_DIR"
-exec_and_log "$SSH $DST_HOST $DD if=/dev/zero of=$DST_PATH bs=1 count=1 seek=${SIZE}M"
-exec_and_log "$SSH $DST_HOST $MKFS -t $FSTYPE -F $DST_PATH"
+exec_and_log "$SSH $DST_HOST mkdir -p $DST_DIR" \
+    "Error creating directory $DST_DIR"
+exec_and_log "$SSH $DST_HOST $DD if=/dev/zero of=$DST_PATH bs=1 count=1 seek=${SIZE}M" \
+    "Could not create image $DST_PATH"
+exec_and_log "$SSH $DST_HOST $MKFS -t $FSTYPE -F $DST_PATH" \
+    "Unable to create filesystem $FSTYPE in $DST_PATH"
 exec_and_log "$SSH $DST_HOST chmod a+rw $DST_PATH"

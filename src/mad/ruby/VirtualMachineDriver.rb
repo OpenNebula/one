@@ -66,10 +66,9 @@ class VirtualMachineDriver < OpenNebulaDriver
     # Register default actions for the protocol
     # -------------------------------------------------------------------------
     def initialize(concurrency=10, threaded=true, retries=0)
-        super(concurrency,threaded)
+        super(concurrency,threaded,retries)
 
         @hosts   = Array.new
-        @retries = retries
 
         register_action(ACTION[:deploy].to_sym, method("deploy"))
         register_action(ACTION[:shutdown].to_sym, method("shutdown"))
@@ -109,43 +108,14 @@ class VirtualMachineDriver < OpenNebulaDriver
     # Execute a command associated to an action and id in a remote host.
     # -------------------------------------------------------------------------
     def remotes_action(command, id, host, action, remote_dir, std_in=nil)
-
-        command_exe = RemotesCommand.run(command, 
-                                         host, 
-                                         remote_dir, 
-                                         log_method(id),
-                                         std_in, 
-                                         @retries)
-        if command_exe.code == 0
-            result = :success
-            info   = command_exe.stdout
-        else
-            result = :failure
-            info   = command_exe.stderr
-        end
-
-        info = "-" if info == nil || info.empty?
-
-        send_message(ACTION[action],RESULT[result],id,info)
+        super(command,id,host,ACTION[action],remote_dir,std_in)
     end
 
     # -------------------------------------------------------------------------
     # Execute a command associated to an action and id on localhost
     # -------------------------------------------------------------------------
     def local_action(command, id, action)
-        command_exe = LocalCommand.run(command)
-
-        if command_exe.code == 0
-            result = :success
-            info   = command_exe.stdout
-        else
-            result = :failure
-            info   = command_exe.stderr
-        end
-
-        info = "-" if info == nil || info.empty?
-
-        send_message(ACTION[action],RESULT[result],id,info)
+        super(command,id,ACTION[action])
     end
 
     # -------------------------------------------------------------------------
@@ -187,7 +157,9 @@ class VirtualMachineDriver < OpenNebulaDriver
     end
 
 private
-
+    # -------------------------------------------------------------------------
+    # Interface to handle the pending events from the ActionManager Interface 
+    # -------------------------------------------------------------------------
     def delete_running_action(action_id)
         action=@action_running[action_id]
         if action
@@ -227,11 +199,6 @@ private
             @action_queue.delete_at(action_index)
         end
 
-        STDERR.puts "action: #{action.inspect}"
-        STDERR.puts "queue: #{@action_queue.inspect}"
-        STDERR.puts "hosts: #{@hosts.inspect}"
-        STDERR.flush
-
         return action
     end
 
@@ -240,6 +207,10 @@ private
     end
 end
 
+# -------------------------------------------------------------------------
+# -------------------------------------------------------------------------
+# -------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 if __FILE__ == $0
 
 class TemplateDriver < VirtualMachineDriver

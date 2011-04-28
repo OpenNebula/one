@@ -32,7 +32,6 @@ end
 $: << RUBY_LIB_LOCATION
 
 require "OpenNebulaDriver"
-require "CommandManager"
 require 'getoptlong'
 
 # This class provides basic messaging and logging functionality
@@ -56,7 +55,7 @@ class ImageDriver < OpenNebulaDriver
     # Register default actions for the protocol
     # -------------------------------------------------------------------------
     def initialize(fs_type, concurrency=10, threaded=true)
-        super(concurrency,threaded)
+        super(concurrency,threaded,0)
 
         @actions_path = "#{VAR_LOCATION}/remotes/image/#{fs_type}"
 
@@ -64,25 +63,6 @@ class ImageDriver < OpenNebulaDriver
         register_action(ACTION[:cp].to_sym, method("cp"))
         register_action(ACTION[:rm].to_sym, method("rm"))
         register_action(ACTION[:mkfs].to_sym, method("mkfs"))
-    end
-
-    # -------------------------------------------------------------------------
-    # Execute a command associated to an action and id on localhost
-    # -------------------------------------------------------------------------
-    def local_action(command, id, action)
-        command_exe = LocalCommand.run(command)
-
-        if command_exe.code == 0
-            result = :success
-            info   = "-"
-        else
-            result = :failure
-            info   = command_exe.stderr
-        end
-
-        info = "-" if info == nil || info.empty?
-
-        send_message(ACTION[action],RESULT[result],id,info)
     end
 
     # -------------------------------------------------------------------------

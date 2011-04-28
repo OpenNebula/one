@@ -34,23 +34,26 @@ SRC_HOST=`arg_host $SRC`
 DST_HOST=`arg_host $DST`
 
 
-log "$1 $2"
-log "DST: $DST_PATH"
+log_debug "$1 $2"
+log_debug "DST: $DST_PATH"
 
 DST_DIR=`dirname $DST_PATH`
 
 log "Creating directory $DST_DIR"
-exec_and_log "$SSH $DST_HOST mkdir -p $DST_DIR"
+exec_and_log "$SSH $DST_HOST mkdir -p $DST_DIR" \
+    "Error creating directory $DST_DIR"
 
 case $SRC in
 http://*)
     log "Downloading $SRC"
-    exec_and_log "$SSH $DST_HOST $WGET -O $DST_PATH $SRC"
+    exec_and_log "$SSH $DST_HOST $WGET -O $DST_PATH $SRC" \
+        "Error downloading $SRC"
     ;;
 
 *)
     log "Cloning $SRC"
-    exec_and_log "$SCP $SRC $DST"
+    exec_and_log "$SCP $SRC $DST" \
+        "Error copying $SRC to $DST"
     ;;
 esac
 

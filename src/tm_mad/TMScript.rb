@@ -27,18 +27,7 @@ are the names of the commands (uppercase) and contain the path of
 the script that will be executed for that command.
 
 It also contains some methods to execute the scripts, get the output
-of the script (success/failure, error and log messages). The protocol
-for scripts to do so is as follows:
-
-* Log messages will be sent to STDOUT
-* The script will return 0 if it succeded or any other value
-  if there was a failure
-* In case of failure the cause of the error will be written to STDERR
-  wrapped by start and end marks as follows:
-
-    ERROR MESSAGE --8<------
-    error message for the failure
-    ERROR MESSAGE ------>8--
+of the script (success/failure, error and log messages).
 
 =end
 class TMPlugin < Hash
@@ -150,7 +139,7 @@ class TMScript
                 if res.code == 0
                     res = [true, ""]
                 else
-                    res = [false, get_error_message(res.stderr)]
+                    res = [false, res.get_error_message]
                 end
             end
 
@@ -175,13 +164,6 @@ class TMScript
             command[0].upcase!
             @lines<< command
         }
-    end
-   
-    # Parses error message from +stderr+ output
-    def get_error_message(str)
-        tmp=str.scan(/^ERROR MESSAGE --8<------\n(.*?)ERROR MESSAGE ------>8--$/m)
-        return "Error message not available" if !tmp[0]
-        tmp[0][0].strip
     end
 end
 

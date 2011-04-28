@@ -125,7 +125,7 @@ void HookManagerDriver::protocol(
 
                 is.clear();
                 getline(is,info);
-                NebulaLog::log("HKM",Log::INFO, info.c_str());
+                NebulaLog::log("HKM", log_type(result[0]), info.c_str());
             }
 
             return;
@@ -156,19 +156,26 @@ void HookManagerDriver::protocol(
         
         if ( is.good() )
         {
-            is >> hook_name >> ws;
+            getline(is,hook_name);
         }
         
         getline (is,info);
         
         if (result == "SUCCESS")
         {   
-            oss << "Hook " << hook_name << " successfully executed. " << info;
+            oss << "Success executing Hook: " << hook_name << ". " << info;
             vm->log("HKM",Log::INFO,oss);
         }
         else
         {
             oss << "Error executing Hook: " << hook_name << ". " << info;
+           
+            if ( !info.empty() && info[0] != '-' )
+            { 
+                vm->set_template_error_message(oss.str());
+                vmpool->update(vm);
+            }
+
             vm->log("HKM",Log::ERROR,oss);
         }        
     }
@@ -177,7 +184,7 @@ void HookManagerDriver::protocol(
         string info;
 
         getline(is,info);
-        vm->log("HKM",Log::INFO,info.c_str());
+        vm->log("HKM",log_type(result[0]),info.c_str());
     }
     
     vm->unlock();

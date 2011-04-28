@@ -108,3 +108,38 @@ int PoolObjectSQL::drop(SqlDB *db)
 
     return rc;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+const char * PoolObjectSQL::error_attribute_name = "ERROR";
+
+void PoolObjectSQL::set_template_error_message(const string& message)
+{
+    VectorAttribute *  attr;
+    map<string,string> error_value;
+    
+    char   str[26];
+    time_t the_time;
+
+    the_time = time(NULL);
+
+#ifdef SOLARIS
+    ctime_r(&(the_time),str,sizeof(char)*26);
+#else
+    ctime_r(&(the_time),str);
+#endif
+
+    str[24] = '\0'; // Get rid of final enter character
+
+    error_value.insert(make_pair("TIMESTAMP",str));
+    error_value.insert(make_pair("MESSAGE",message));
+
+    attr = new VectorAttribute(error_attribute_name,error_value);
+
+    obj_template->set(attr);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
