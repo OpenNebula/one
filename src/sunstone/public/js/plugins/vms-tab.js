@@ -2044,6 +2044,7 @@ function setupVNC(){
         $('#vnc_dialog').attr("vm_id",id);
         //Request proxy server start
         Sunstone.runAction("VM.startvnc",id);
+        return false;
     });
 
 }

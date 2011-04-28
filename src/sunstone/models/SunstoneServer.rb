@@ -33,6 +33,8 @@ require 'models/OpenNebulaJSON'
 include OpenNebulaJSON
 
 class SunstoneServer
+    VNC_PROXY_BASE_PORT = 29876
+
     def initialize(username, password)
         # TBD one_client_user(name) from CloudServer
         @client = Client.new("dummy:dummy")
@@ -219,20 +221,59 @@ class SunstoneServer
     ########################################################################
 
     def startvnc(id)
-        rc = retrieve_resource("vm", id)
-        if OpenNebula.is_error?(rc)
-            return rc
+        resource = retrieve_resource("vm", id)
+        if OpenNebula.is_error?(resource)
+            return [404, resource.to_json]
         end
-        return rc.startvnc(id)
+
+        if resource['LCM_STATE'] != "3"
+            error = OpenNebula::Error.new("VM is not running")
+            return [403, error.to_json]
+        end
+
+        if resource['TEMPLATE/GRAPHICS/TYPE'] != "vnc"
+            error = OpenNebula::Error.new("VM has no VNC configured")
+            return [403, error.to_json]
+        end
+
+        vnc_port = resource['TEMPLATE/GRAPHICS/PORT']
+        host = resource['HISTORY/HOSTNAME']
+
+        proxy_port = VNC_PROXY_BASE_PORT + vnc_port.to_i
+
+        # puts "Launch noVNC on #{final_port} listenting to #{host}:#{vnc_port}"
+        # So here we launch the noVNC server listening on the final_port
+        # and serving as proxy for the VM host on the configured VNC port.
+        # TODO - This path is in public...
+        begin
+            pipe = IO.popen("#{File.dirname(__FILE__)}/../public/vendor/noVNC/utils/launch.sh --listen #{proxy_port} --vnc #{host}:#{vnc_port}")
+        rescue Exception => e
+            error = Error.new(e.message)
+            return [500, error.to_json]
+        end
+
+        vnc_pw = resource['TEMPLATE/GRAPHICS/PASSWD']
+
+        info = {:pipe => pipe, :port => proxy_port, :password => vnc_pw}
+        return [200, info]
     end
-    
+
     def stopvnc(id,pipe)
-       rc = retrieve_resource("vm", id)
-       if OpenNebula.is_error?(rc)
-           return rc
-       end
-       return rc.stopvnc(pipe)
-       
+        resource = retrieve_resource("vm", id)
+        if OpenNebula.is_error?(resource)
+            return [404, resource.to_json]
+        end
+
+        # puts "Killing noVNC with pid #{pid}"
+        begin
+            Process.kill('KILL',pipe.pid)
+            pipe.close
+        rescue Exception => e
+            error = Error.new(e.message)
+            return [500, error.to_json]
+        end
+
+        return [200, nil]
     end
 
 

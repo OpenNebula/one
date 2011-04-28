@@ -17,6 +17,7 @@
 require 'OpenNebulaJSON/JSONUtils'
 
 module OpenNebulaJSON
+
     class VirtualMachineJSON < OpenNebula::VirtualMachine
         include JSONUtils
 
@@ -56,8 +57,6 @@ module OpenNebulaJSON
                 when "saveas"       then self.save_as(action_hash['params'])
                 when "shutdown"     then self.shutdown
                 when "resubmit"     then self.resubmit
-                when "startvnc"     then self.startvnc
-                when "stopvnc"      then self.stopvnc
                 else
                     error_msg = "#{action_hash['perform']} action not " <<
                                 " available for this resource"
@@ -120,61 +119,5 @@ module OpenNebulaJSON
 
             super(params['disk_id'].to_i, image.id)
         end
-        
-        def startvnc(port)
-            result = self.info();
-            if OpenNebula.is_error?(result)
-                return result
-            end
-            
-            if self['LCM_STATE'] != "3"
-                return OpenNebula::Error.new("VM is not running");
-            end
-            
-            if self['TEMPLATE/GRAPHICS/TYPE'] != "vnc"
-                return OpenNebula::Error.new("VM has no VNC configured");
-            end
-                      
-            if self['TEMPLATE/GRAPHICS/PORT']
-                vnc_port = self['TEMPLATE/GRAPHICS/PORT']
-            else
-                return OpenNebula::Error.new("VM has no VNC port set");
-            end
-            
-            if self['TEMPLATE/GRAPHICS/PASSWD']
-                vnc_pw = self['TEMPLATE/GRAPHICS/PASSWD']
-            else
-                vnc_pw = ""
-            end
-            
-            host = self['HISTORY/HOSTNAME']
-            
-            #we are ready for the party
-            
-            final_port = 29876+port.to_i;
-            
-            # puts "Launch noVNC on #{final_port} listenting to #{host}:#{vnc_port}"
-            # So here we launch the noVNC server listening on the final_port 
-            # and serving as proxy for the VM host on the configured VNC port.
-            # TODO - This path is in public...            
-            pipe = IO.popen("#{File.dirname(__FILE__)}/../../public/vendor/noVNC/utils/launch.sh --listen #{final_port} --vnc #{host}:#{vnc_port}")
-            
-            return {:pipe => pipe, :port => final_port, :password => vnc_pw}
-            
-        end
-        
-        def stopvnc(pipe)
-            #am I allowed to do something affecting this machine?
-            result = self.info();
-            if OpenNebula.is_error?(result)
-                return result
-            end
-            pid = pipe.pid
-            # puts "Killing noVNC with pid #{pid}"
-            Process.kill('KILL',pid)
-            pipe.close
-            return
-        end
-        
     end
 end
