@@ -45,7 +45,7 @@ function log_date
 # Logs a message, alias to log_info
 function log
 {
-    log_info $1
+    log_info "$1"
 }
 
 # Log function that knows how to deal with severities and adds the
