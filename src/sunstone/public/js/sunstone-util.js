@@ -313,7 +313,7 @@ function waitingNodes(dataTable){
 //not defined then it returns "uid UID".
 //TODO not very nice to hardcode a dataTable here...
 function getUserName(uid){
-    var user = "uid "+uid;
+    var user = uid;
     if (typeof(dataTable_users) == "undefined") {
         return user;
         } 
@@ -382,7 +382,11 @@ function getSelectedNodes(dataTable){
 
 //returns a HTML string with a select input code generated from
 //a dataTable
-function makeSelectOptions(dataTable,id_col,name_col,status_col,status_bad){
+function makeSelectOptions(dataTable,
+                            id_col,name_col,
+                            status_col,
+                            status_bad,
+                            user_col){
     var nodes = dataTable.fnGetData();
     var select = "<option value=\"\">Please select</option>";
     var array;
@@ -390,7 +394,11 @@ function makeSelectOptions(dataTable,id_col,name_col,status_col,status_bad){
         var id = this[id_col];
         var name = this[name_col];
         var status = this[status_col];
-        if (status != status_bad){
+        var user = user_col > 0 ? this[user_col] : false;
+        var isMine = user ? (username == user) || (uid == user) : true;
+        
+        
+        if ((status != status_bad) || isMine ){
             select +='<option value="'+id+'">'+name+'</option>';
         }
     });

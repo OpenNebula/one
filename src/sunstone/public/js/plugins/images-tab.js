@@ -474,7 +474,8 @@ function imageInfoListener(){
 
 //Updates the select input field with an option for each image
 function updateImageSelect(){
-    images_select = makeSelectOptions(dataTable_images,1,3,8,"DISABLED");
+    images_select = 
+        makeSelectOptions(dataTable_images,1,3,8,"DISABLED",2);
    
     //update static selectors:
     //in the VM section
@@ -499,8 +500,7 @@ function deleteImageElement(req){
 function addImageElement(request, image_json){
     var element = imageElementArray(image_json);
     addElement(element,dataTable_images);
-    //NOTE that the select is not updated because newly added images
-    //are disabled by default
+    updateImageSelect();
 }
 
 // Callback to refresh the list of images

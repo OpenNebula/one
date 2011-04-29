@@ -724,7 +724,8 @@ function templateInfoListener(){
 
 //Updates the select input field with an option for each template
 function updateTemplateSelect(){
-    templates_select = makeSelectOptions(dataTable_templates,1,3,5,"No");
+    templates_select = 
+        makeSelectOptions(dataTable_templates,1,3,5,"no",2);
    
     //update static selectors:
     $('#create_vm_dialog #template_id').html(templates_select);
@@ -748,8 +749,7 @@ function deleteTemplateElement(req){
 function addTemplateElement(request, template_json){
     var element = templateElementArray(template_json);
     addElement(element,dataTable_templates);
-    //NOTE that the select is not updated because newly added templates
-    //are not public
+    updateTemplateSelect();
 }
 
 // Callback to refresh the list of templates

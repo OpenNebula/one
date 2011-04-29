@@ -416,7 +416,7 @@ function hostInfoListener(){
 //updates the host select by refreshing the options in it
 function updateHostSelect(){
 
-    hosts_select = makeSelectOptions(dataTable_hosts,1,2,7,"DISABLED");
+    hosts_select = makeSelectOptions(dataTable_hosts,1,2,7,"DISABLED",-1);
 
 }
 
