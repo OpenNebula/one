@@ -55,6 +55,13 @@ var OpenNebula = {
                             "ERROR",
                             "DISABLED"][value];
                     break;
+                case "HOST_SIMPLE","host_simple":
+                    return ["ON",
+                            "ON",
+                            "ON",
+                            "ERROR",
+                            "OFF"][value];
+                    break;
                 case "VM","vm":
                     return ["INIT",
                             "PENDING",
