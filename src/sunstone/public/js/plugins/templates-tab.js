@@ -1349,6 +1349,11 @@ function setupCreateTemplateDialog(){
 					//format hidden
 					$('#FORMAT',section_disks).parent().hide();
 					$('#FORMAT',section_disks).parent().attr("disabled","disabled");
+
+                    //source hidden
+                    $('#SOURCE',section_disks).parent().hide();
+                    $('#SOURCE',section_disks).parent().
+                                        attr("disabled","disabled");
 					break;
 				case "fs":
 					//size mandatory
@@ -1367,6 +1372,10 @@ function setupCreateTemplateDialog(){
 					$('#FORMAT',section_disks).parent().removeClass(opt_class);
 					$('#FORMAT',section_disks).parent().addClass(man_class);
 
+                    //source hidden
+                    $('#SOURCE',section_disks).parent().hide();
+                    $('#SOURCE',section_disks).parent().
+                                        attr("disabled","disabled");
 					break;
 				case "block":
 					//size shown and optional
@@ -1382,6 +1391,11 @@ function setupCreateTemplateDialog(){
 					//format hidden
 					$('#FORMAT',section_disks).parent().hide();
 					$('#FORMAT',section_disks).parent().attr("disabled","disabled");
+                    
+                    //source hidden
+                    $('#SOURCE',section_disks).parent().hide();
+                    $('#SOURCE',section_disks).parent().
+                                        attr("disabled","disabled");
 					break;
 				case "floppy":
 				case "disk":
@@ -1398,6 +1412,11 @@ function setupCreateTemplateDialog(){
 					//format optional
 				    $('#FORMAT',section_disks).parent().hide();
 				    $('#FORMAT',section_disks).parent().attr("disabled","disabled");
+
+                    //source shown
+                    $('#SOURCE',section_disks).parent().show();
+                    $('#SOURCE',section_disks).parent().
+                                        removeAttr("disabled");
 			}
             //hide_disabled(section_disks);
 		});
