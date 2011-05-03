@@ -40,7 +40,7 @@ function pretty_time(time_seconds)
     var hour = pad(d.getHours(),2);
     var mins = pad(d.getMinutes(),2);
     var day = pad(d.getDate(),2);
-    var month = pad(d.getMonth(),2);
+    var month = pad(d.getMonth()+1,2); //getMonths returns 0-11
     var year = d.getFullYear();
 
     return hour + ":" + mins +":" + secs + "&nbsp;" + month + "/" + day + "/" + year;
