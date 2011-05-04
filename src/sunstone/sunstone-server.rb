@@ -163,6 +163,9 @@ post '/:pool' do
     @SunstoneServer.create_resource(params[:pool], request.body.read)
 end
 
+##############################################################################
+# Stop the VNC Session of a target VM
+##############################################################################
 post '/vm/:id/stopvnc' do
     vm_id = params[:id]
     vnc_hash = session['vnc']
@@ -180,6 +183,9 @@ post '/vm/:id/stopvnc' do
     rc
 end
 
+##############################################################################
+# Start a VNC Session for a target VM
+##############################################################################
 post '/vm/:id/startvnc' do
     vm_id = params[:id]
 
