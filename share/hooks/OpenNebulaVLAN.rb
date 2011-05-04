@@ -1,5 +1,21 @@
 #!/usr/bin/env ruby
 
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
 require 'rexml/document'
 
 CONF = {
@@ -100,6 +116,8 @@ class OpenNebulaVLAN
         when "kvm"
             @vm_info[:dumpxml] = `#{COMMANDS[:virsh]} dumpxml #{@deploy_id}`
         when "xen"
+            @vm_info[:domid]    =`#{CONF[:xm]} domid #{VM_NAME}`.strip
+            @vm_info[:networks] =`#{CONF[:xm]} network-list #{vm_id}`
         end
 
         @nics = get_nics
@@ -179,7 +197,7 @@ class OpenvSwitchVLAN < OpenNebulaVLAN
     def activate
         process do |nic|
             cmd =   "#{COMMANDS[:ovs_vsctl]} set Port #{nic[:tap]} "
-            cmd <<  "tap=#{nic[:network_id].to_i+CONF[:start_vlan]}"
+            cmd <<  "tap=#{nic[:network_id].to_i + CONF[:start_vlan]}"
 
             #TODO: execute command
             puts cmd
@@ -191,5 +209,27 @@ end
 class EbtablesVLAN < OpenNebulaVLAN
     def initialize(vm, hypervisor = nil)
         super(vm,hypervisor)
+    end
+
+    def ebtables(rule)
+        system "#{CONF[:ebtables]} -A #{rule}"
+    end
+
+    def activate
+        process do |nic|
+            tap = nic[:tap]
+            iface_mac = nic[:mac]
+         
+            mac     = iface_mac.split(':')
+            mac[-1] = '00'
+
+            net_mac = mac.join(':')
+         
+            in_rule="FORWARD -s ! #{net_mac}/ff:ff:ff:ff:ff:00 -o #{tap} -j DROP"
+            out_rule="FORWARD -s ! #{iface_mac} -i #{tap} -j DROP"
+         
+            ebtables(in_rule)
+            ebtables(out_rule)
+        end
     end
 end
