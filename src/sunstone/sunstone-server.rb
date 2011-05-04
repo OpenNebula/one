@@ -172,7 +172,7 @@ post '/vm/:id/stopvnc' do
         return [403, OpenNebula::Error.new(msg).to_json]
     end
 
-    rc = @SunstoneServer.stopvnc(vm_id, vnc_hash[vm_id])
+    rc = @SunstoneServer.stopvnc(vm_id, vnc_hash[vm_id][:pipe])
     if rc[0] == 200
         session['vnc'].delete(vm_id)
     end
@@ -188,14 +188,17 @@ post '/vm/:id/startvnc' do
     if !vnc_hash
         session['vnc']= {}
     elsif vnc_hash[vm_id]
-        msg = "There is a VNC server running for this VM"
-        return [403, OpenNebula::Error.new(msg).to_json]
+        #return existing information
+        info = vnc_hash[vm_id].clone
+        info.delete(:pipe)
+
+        return [200, info.to_json]
     end
 
     rc = @SunstoneServer.startvnc(vm_id)
     if rc[0] == 200
         info = rc[1]
-        session['vnc'][vm_id] = info[:pipe]
+        session['vnc'][vm_id] = info.clone
         info.delete(:pipe)
 
         [200, info.to_json]

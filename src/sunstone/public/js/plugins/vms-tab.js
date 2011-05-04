@@ -15,6 +15,12 @@
 /* -------------------------------------------------------------------------- */
 
 /*Virtual Machines tab plugin*/
+var INCLUDE_URI = "vendor/noVNC/include/";
+function loadVNC(){
+    var script = '<script src="vendor/noVNC/include/vnc.js"></script>';
+    document.write(script);
+}
+loadVNC();
 
 var vms_tab_content = 
 '<form id="virtualMachine_list" action="javascript:alert(\'js error!\');">\

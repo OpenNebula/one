@@ -246,7 +246,7 @@ class SunstoneServer
         # and serving as proxy for the VM host on the configured VNC port.
         # TODO - This path is in public...
         begin
-            pipe = IO.popen("#{File.dirname(__FILE__)}/../public/vendor/noVNC/utils/launch.sh --listen #{proxy_port} --vnc #{host}:#{vnc_port}")
+            pipe = IO.popen("#{File.dirname(__FILE__)}/../lib/vendor/noVNC/utils/launch.sh --listen #{proxy_port} --vnc #{host}:#{vnc_port}")
         rescue Exception => e
             error = Error.new(e.message)
             return [500, error.to_json]
