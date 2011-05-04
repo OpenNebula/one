@@ -13,7 +13,6 @@
 /*
  * Load supporting scripts
  */
-var INCLUDE_URI="vendor/noVNC/include/";
  
 function get_INCLUDE_URI() {
     return (typeof INCLUDE_URI !== "undefined") ? INCLUDE_URI : "include/";
