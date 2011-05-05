@@ -99,7 +99,7 @@ end
 
 
 class OpenNebulaVLAN
-    attr_reader :vm_info, :hypervisor
+    attr_reader :vm_info, :hypervisor, :nics
 
     def initialize(vm_tpl, hypervisor=nil)
         @vm_root = REXML::Document.new(vm_tpl).root
@@ -212,7 +212,7 @@ class EbtablesVLAN < OpenNebulaVLAN
     end
 
     def ebtables(rule)
-        system "#{CONF[:ebtables]} -A #{rule}"
+        system("#{CONF[:ebtables]} -A #{rule}")
     end
 
     def activate
