@@ -94,7 +94,7 @@ function exec_and_log
     if [ "x$code" != "x0" ]; then
         log_error "Command \"$1\" failed."
         log_error "$output"
-        if [ -n "$message" ]; then
+        if [ -z "$message" ]; then
             error_message "$output"
         else
             error_message "$message"
