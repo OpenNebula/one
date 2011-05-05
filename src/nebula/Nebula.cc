@@ -624,8 +624,7 @@ void Nebula::bootstrap()
 
     oss.str("");
     oss << "INSERT INTO db_versioning (oid, version, timestamp, comment) "
-        << "VALUES ((SELECT MAX(oid) FROM db_versioning)+1, "
-        << db_version() << ", " << time(0)
+        << "VALUES (0, " << db_version() << ", " << time(0)
         << ", '" << version() << " daemon bootstrap')";
 
     db->exec(oss);
