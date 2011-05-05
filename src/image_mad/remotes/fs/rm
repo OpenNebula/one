@@ -23,14 +23,12 @@
 # ------------ Set up the environment to source common tools ------------ 
 
 if [ -z "${ONE_LOCATION}" ]; then
-    TMCOMMON=/usr/lib/one/mads/tm_common.sh
-    VAR_LOCATION=/var/lib/one/
+    LIB_LOCATION=/usr/lib/one
 else
-    TMCOMMON=$ONE_LOCATION/lib/mads/tm_common.sh
-    VAR_LOCATION=$ONE_LOCATION/var/
+    LIB_LOCATION=$ONE_LOCATION/lib
 fi
 
-. $TMCOMMON
+. $LIB_LOCATION/sh/scripts_common.sh
 
 # ------------ Remove the image to the repository ------------ 
 
@@ -38,5 +36,6 @@ SRC=$1
 
 if [ -e $SRC ] ; then
     log "Removing $SRC from the image repository"
-    exec_and_log "rm $SRC"
+    exec_and_log "rm $SRC" \
+        "Error deleting $SRC"
 fi

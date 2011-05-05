@@ -54,6 +54,11 @@ ClusterPool* NebulaTest::create_cpool(SqlDB* db)
     return new ClusterPool(db);
 }
 
+VMTemplatePool* NebulaTest::create_tpool(SqlDB* db)
+{
+    return new VMTemplatePool(db);
+}
+
 // -----------------------------------------------------------
 // Managers
 // -----------------------------------------------------------
@@ -112,6 +117,7 @@ RequestManager* NebulaTest::create_rm(
                 UserPool           *    upool,
                 ImagePool          *    ipool,
                 ClusterPool        *    cpool,
+                VMTemplatePool     *    tpool,
                 string                  log_file)
 {
     int rm_port = 2633;
@@ -122,6 +128,7 @@ RequestManager* NebulaTest::create_rm(
                               upool,
                               ipool,
                               cpool,
+                              tpool,
                               rm_port,
                               log_file);
 }

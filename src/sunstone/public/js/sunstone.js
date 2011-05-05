@@ -448,6 +448,10 @@ function insertButtonsInTab(tab_name){
             
             }
             
+            if (button.alwaysActive) {
+                button_code = $(button_code).addClass("alwaysActive");
+            }
+            
             $('div#'+tab_name+' .action_blocks').append(button_code);
                 
         }//for each button in tab

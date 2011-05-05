@@ -17,7 +17,8 @@ TESTS="$TWD_DIR/vnm/test \
        $TWD_DIR/vm/test \
        $TWD_DIR/um/test \
        $TWD_DIR/lcm/test \
-       $TWD_DIR/pool/test"
+       $TWD_DIR/pool/test \
+       $TWD_DIR/vm_template/test"
 
 #-------------------------------------------------------------------------------
 # COMMAND LINE PARSING

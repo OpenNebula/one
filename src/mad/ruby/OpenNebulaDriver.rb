@@ -12,10 +12,12 @@
 # See the License for the specific language governing permissions and        */
 # limitations under the License.                                             */
 # -------------------------------------------------------------------------- */
+
 require "ActionManager"
+require "CommandManager"
 
 # Author:: dsa-research.org
-# Copyright:: (c) 2009 Universidad Computense de Madrid
+# Copyright:: (c) OpenNebula Project Leads (OpenNebula.org)
 # License:: Apache License
 
 # This class provides basic messaging and logging functionality
@@ -34,14 +36,18 @@ class OpenNebulaDriver < ActionManager
         :failure => "FAILURE"
     }
 
-    def initialize(concurrency=10, threaded=true)
+    def initialize(concurrency=10, threaded=true, retries=0)
         super(concurrency,threaded)
 
-        register_action(:INIT, method("init"))
-
+        @retries = retries
         @send_mutex=Mutex.new
+
+        register_action(:INIT, method("init"))
     end
 
+    # -------------------------------------------------------------------------
+    # Sends a message to the OpenNebula core through stdout
+    # -------------------------------------------------------------------------
     def send_message(action="-", result=RESULT[:failure], id="-", info="-")
         @send_mutex.synchronize {
             STDOUT.puts "#{action} #{result} #{id} #{info}"
@@ -49,25 +55,103 @@ class OpenNebulaDriver < ActionManager
         }
     end
 
+    # -------------------------------------------------------------------------
+    # Execute a command associated to an action and id in a remote host.
+    # -------------------------------------------------------------------------
+    def remotes_action(command, id, host, aname, remote_dir, std_in=nil)
+
+        command_exe = RemotesCommand.run(command,
+                                         host,
+                                         remote_dir,
+                                         log_method(id),
+                                         std_in,
+                                         @retries)
+        if command_exe.code == 0
+            result = RESULT[:success]
+            info   = command_exe.stdout
+        else
+            result = RESULT[:failure]
+            info   = command_exe.get_error_message
+        end
+
+        info = "-" if info == nil || info.empty?
+
+        send_message(aname,result,id,info)
+    end
+
+    # -------------------------------------------------------------------------
+    # Execute a command associated to an action and id on localhost
+    # -------------------------------------------------------------------------
+    def local_action(command, id, aname)
+        command_exe = LocalCommand.run(command, log_method(id))
+
+        if command_exe.code == 0
+            result = RESULT[:success]
+            info   = command_exe.stdout
+        else
+            result = RESULT[:failure]
+            info   = command_exe.get_error_message
+        end
+
+        info = "-" if info == nil || info.empty?
+
+        send_message(aname,result,id,info)
+    end
+
+    # -------------------------------------------------------------------------
     # Sends a log message to ONE. The +message+ can be multiline, it will
     # be automatically splitted by lines.
+    # -------------------------------------------------------------------------
     def log(number, message)
+        in_error_message=false
         msg=message.strip
         msg.each_line {|line|
-            send_message("LOG", "-", number, line.strip)
+            severity='I'
+
+            l=line.strip
+
+            if l=='ERROR MESSAGE --8<------'
+                in_error_message=true
+                next
+            elsif l=='ERROR MESSAGE ------>8--'
+                in_error_message=false
+                next
+            else
+                if in_error_message
+                    severity='E'
+                elsif line.match(/^(ERROR|DEBUG|INFO):(.*)$/)
+                    line=$2
+                    case $1
+                    when 'ERROR'
+                        severity='E'
+                    when 'DEBUG'
+                        severity='D'
+                    when 'INFO'
+                        severity='I'
+                    else
+                        severity='I'
+                    end
+                end
+            end
+
+            send_message("LOG", severity, number, line.strip)
         }
     end
-    
+
+    # -------------------------------------------------------------------------
     # Generates a proc with that calls log with a hardcoded number. It will
     # be used to add loging to command actions
+    # -------------------------------------------------------------------------
     def log_method(num)
         lambda {|message|
             log(num, message)
         }
     end
 
+    # -------------------------------------------------------------------------
     # Start the driver. Reads from STDIN and executes methods associated with
     # the messages
+    # -------------------------------------------------------------------------
     def start_driver
         loop_thread = Thread.new { loop }
         start_listener
@@ -101,13 +185,17 @@ private
             if action == :DRIVER_CANCEL
                 cancel_action(action_id)
                 log(action_id,"Driver command for #{action_id} cancelled")
-            else 
+            else
                 trigger_action(action,action_id,*args)
             end
         end
     end
 end
 
+# -------------------------------------------------------------------------
+# -------------------------------------------------------------------------
+# -------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 if __FILE__ == $0
 
     class SampleDriver < OpenNebulaDriver

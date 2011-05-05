@@ -31,4 +31,5 @@ SRC_PATH=`arg_path $SRC`
 SRC_HOST=`arg_host $SRC`
 
 log "Deleting $SRC_PATH"
-exec_and_log "$SSH $SRC_HOST rm -rf $SRC_PATH"
+exec_and_log "$SSH $SRC_HOST rm -rf $SRC_PATH" \
+    "Error deleting $SRC_PATH"

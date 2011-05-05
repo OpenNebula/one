@@ -17,6 +17,7 @@
 #--------------------------------------------------------------------------- #
 
 source $(dirname $0)/kvmrc
+source $(dirname $0)/../../scripts_common.sh
 
 #------------------------------------------------------------------------------
 # Wait the VM to shutdown TIMEOUT (xPOLL_INTERVAL) seconds.
@@ -32,6 +33,7 @@ virsh --connect $LIBVIRT_URI shutdown $deploy_id
 exit_code=$?
 
 if [ "$exit_code" != "0" ]; then
+    error_message "Could not shutdown $deploy_id"
     exit $exit_code
 fi
 
@@ -41,6 +43,7 @@ do
 	sleep $POLL_INTERVAL
 	if [ "$count" -gt "$TIMEOUT" ]
 	then
+	    error_message "Timeout reached and VM $deploy_id is still alive"
 		echo "Timeout reached" >&2
 		exit 1
 	fi

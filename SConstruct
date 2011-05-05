@@ -63,6 +63,7 @@ main_env.Append(LIBPATH=[
     cwd+'/src/pool',
     cwd+'/src/template',
     cwd+'/src/vm',
+    cwd+'/src/vm_template',
     cwd+'/src/vmm',
     cwd+'/src/lcm',
     cwd+'/src/tm',
@@ -190,6 +191,7 @@ build_scripts=[
     'src/nebula/SConstruct',
     'src/pool/SConstruct',
     'src/vm/SConstruct',
+    'src/vm_template/SConstruct',
     'src/vmm/SConstruct',
     'src/lcm/SConstruct',
     'src/rm/SConstruct',
@@ -240,6 +242,7 @@ if testing=='yes':
         'src/vm/test/SConstruct',
         'src/vnm/test/SConstruct',
         'src/xml/test/SConstruct',
+        'src/vm_template/test/SConstruct',
     ])
 else:
     main_env.Append(testing='no')

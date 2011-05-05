@@ -28,14 +28,11 @@ end
 
 $: << RUBY_LIB_LOCATION
 
-require 'pp'
 require 'OpenNebulaDriver'
-require 'CommandManager'
-
 
 class HookManagerDriver < OpenNebulaDriver
     def initialize(num)
-        super(num, true)
+        super(num, true, 0)
 
         register_action(:EXECUTE, method("action_execute"))
     end
@@ -51,13 +48,14 @@ class HookManagerDriver < OpenNebulaDriver
         end
 
         if cmd.code==0
-            send_message("EXECUTE", RESULT[:success], number, hook_name)
+            message = "#{hook_name}: #{cmd.stdout}"
+            send_message("EXECUTE", RESULT[:success], number, message)
         else
-            send_message("EXECUTE", RESULT[:failure], number, hook_name)
+            message = "#{hook_name}: #{cmd.get_error_message}"
+            send_message("EXECUTE", RESULT[:failure], number, message)
         end
     end
 end
 
 hm=HookManagerDriver.new(15)
 hm.start_driver
-

@@ -68,15 +68,8 @@ int MySqlDB::exec(ostringstream& cmd, Callbackable* obj)
     const char * c_str;
     string       str;
 
-
-    int   (*callback)(void*,int,char**,char**);
-    void * arg;
-
     str   = cmd.str();
     c_str = str.c_str();
-
-    callback = 0;
-    arg      = 0;
 
     lock();
 

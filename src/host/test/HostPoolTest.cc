@@ -386,7 +386,7 @@ public:
     void scale_test()
     {
         time_t the_time, the_time2;
-        int oid,i,j,rc;
+        int oid,i,j;
 
         ostringstream oss,ossdump;
         string        err;
@@ -419,7 +419,7 @@ public:
 
             the_time = time(0);
 
-            rc = hp->dump(ossdump, "");
+            hp->dump(ossdump, "");
 
             cout <<"\t"<<i<<"\t"<<the_time2<<"\t"<<time(0)-the_time<< endl;
 

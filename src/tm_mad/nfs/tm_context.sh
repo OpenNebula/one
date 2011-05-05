@@ -48,16 +48,19 @@ exec_and_log "mkdir -p $ISO_DIR"
 for f in $SRC; do
     case $f in
     http://*)
-        exec_and_log "$WGET -O $ISO_DIR $f"
+        exec_and_log "$WGET -O $ISO_DIR $f" \
+            "Error downloading $f"
         ;;
 
     *)
-        exec_and_log "cp -R $f $ISO_DIR"
+        exec_and_log "cp -R $f $ISO_DIR" \
+            "Error copying $f to $ISO_DIR"
         ;;
     esac
 done
 
-exec_and_log "$MKISOFS -o $DST_PATH -J -R $ISO_DIR"
+exec_and_log "$MKISOFS -o $DST_PATH -J -R $ISO_DIR" \
+    "Error creating iso fs"
 
 exec_and_log "rm -rf $ISO_DIR"
 

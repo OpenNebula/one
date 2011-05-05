@@ -217,6 +217,13 @@ public:
         return obj_template->erase(name);
     }
 
+    /**
+     *  Sets an error message for the VM in the template
+     *    @param message
+     *    @return 0 on success
+     */
+    void set_template_error_message(const string& message);
+
 protected:
 
     /**
@@ -318,6 +325,11 @@ private:
      *  Pointer to the SQL table for the PoolObjectSQL
      */
     const char * table;
+
+    /**
+     *  Name for the error messages attribute
+     */
+    static const char * error_attribute_name;
 };
 
 #endif /*POOL_OBJECT_SQL_H_*/
