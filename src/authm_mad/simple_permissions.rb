@@ -54,8 +54,8 @@ class SimplePermissions
         if @quota_enabled and object=='VM' and auth_result
             STDERR.puts 'quota enabled'
             @quota.update(uid.to_i)
-            if !@quota.check(uid.to_i, get_vm_usage(id))
-                auth_result="Quota exceeded"
+            if message=@quota.check(uid.to_i, get_vm_usage(id))
+                auth_result=message
             end
         end
 
