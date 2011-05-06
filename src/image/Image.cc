@@ -447,31 +447,21 @@ int Image::disk_attribute(  VectorAttribute * disk,
     get_template_attribute("DEV_PREFIX", prefix);
 
    //---------------------------------------------------------------------------
-   //                       NEW DISK ATTRIBUTES
+   //                       BASE DISK ATTRIBUTES
    //---------------------------------------------------------------------------
 
-    map<string,string> new_disk;
+    disk->replace("IMAGE",    name);
+    disk->replace("IMAGE_ID", iid.str());
+    disk->replace("SOURCE",   source);
 
-    new_disk.insert(make_pair("IMAGE",    name));
-    new_disk.insert(make_pair("IMAGE_ID", iid.str()));
-    new_disk.insert(make_pair("SOURCE",   source));
-
-    if (!bus.empty())
+    if (bus.empty() && !template_bus.empty()) //BUS in Image, not in DISK
     {
-        new_disk.insert(make_pair("BUS",bus));
-    }
-    else if (!template_bus.empty())
-    {
-        new_disk.insert(make_pair("BUS",template_bus));
+        disk->replace("BUS",template_bus);
     }
 
-    if (!driver.empty())
+    if (driver.empty() && !template_driver.empty())//DRIVER in Image,not in DISK
     {
-        new_disk.insert(make_pair("DRIVER",driver));
-    }
-    else if (!template_driver.empty())
-    {
-        new_disk.insert(make_pair("DRIVER",template_driver));
+        disk->replace("DRIVER",template_driver);
     }
 
    //---------------------------------------------------------------------------
@@ -480,26 +470,26 @@ int Image::disk_attribute(  VectorAttribute * disk,
 
     if ( persistent_img )
     {
-        new_disk.insert(make_pair("CLONE","NO"));
-        new_disk.insert(make_pair("SAVE","YES"));
+        disk->replace("CLONE","NO");
+        disk->replace("SAVE","YES");
     }
     else
     {
-        new_disk.insert(make_pair("CLONE","YES"));
-        new_disk.insert(make_pair("SAVE","NO"));
+        disk->replace("CLONE","YES");
+        disk->replace("SAVE","NO");
     }
 
     switch(type)
     {
         case OS:
         case DATABLOCK:
-          new_disk.insert(make_pair("TYPE","DISK"));
-          new_disk.insert(make_pair("READONLY","NO"));
+          disk->replace("TYPE","DISK");
+          disk->replace("READONLY","NO");
         break;
 
         case CDROM:
-          new_disk.insert(make_pair("TYPE","CDROM"));
-          new_disk.insert(make_pair("READONLY","YES"));
+          disk->replace("TYPE","CDROM");
+          disk->replace("READONLY","YES");
         break;
     }
 
@@ -507,37 +497,34 @@ int Image::disk_attribute(  VectorAttribute * disk,
    //   TARGET attribute
    //---------------------------------------------------------------------------
 
-    if (!target.empty())
+    if (target.empty()) //No TARGET in DISK attribute
     {
-        new_disk.insert(make_pair("TARGET", target));
-    }
-    else if (!template_target.empty())
-    {
-        new_disk.insert(make_pair("TARGET", template_target));
-    }
-    else
-    {
-        switch(type)
+        if (!template_target.empty())
         {
-            case OS:
-                prefix += "a";
-            break;
-
-            case CDROM:
-                prefix += "c"; // b is for context
-            break;
-
-            case DATABLOCK:
-                prefix += static_cast<char>(('e'+ *index));
-                *index  = *index + 1;
-            break;
-
+            disk->replace("TARGET", template_target);
         }
+        else
+        {
+            switch(type)
+            {
+                case OS:
+                    prefix += "a";
+                break;
 
-        new_disk.insert(make_pair("TARGET", prefix));
+                case CDROM:
+                    prefix += "c"; // b is for context
+                break;
+
+                case DATABLOCK:
+                    prefix += static_cast<char>(('e'+ *index));
+                    *index  = *index + 1;
+                break;
+
+            }
+
+            disk->replace("TARGET", prefix);
+        }
     }
-
-    disk->replace(new_disk);
 
     return 0;
 }
