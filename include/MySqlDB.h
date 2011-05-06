@@ -43,11 +43,11 @@ class MySqlDB : public SqlDB
 {
 public:
 
-    MySqlDB(const string& server,
-            int           port,
-            const string& user,
-            const string& password,
-            const char *  database);
+    MySqlDB(const string& _server,
+            int           _port,
+            const string& _user,
+            const string& _password,
+            const string& _database);
 
     ~MySqlDB();
 
@@ -80,6 +80,19 @@ private:
      * The MySql connection handler
      */
     MYSQL *             db;
+
+    /**
+     *  MySQL Connection parameters
+     */
+    string              server;
+
+    int                 port;
+
+    string              user;
+
+    string              password;
+
+    string              database;
 
     /**
      *  Fine-grain mutex for DB access

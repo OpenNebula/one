@@ -15,6 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include "MySqlDB.h"
+#include <mysql/errmsg.h>
 
 /*********
  * Doc: http://dev.mysql.com/doc/refman/5.5/en/c-api-function-overview.html
@@ -23,12 +24,17 @@
 /* -------------------------------------------------------------------------- */
 
 MySqlDB::MySqlDB(
-        const string& server,
-        int           port,
-        const string& user,
-        const string& password,
-        const char *  database)
+        const string& _server,
+        int           _port,
+        const string& _user,
+        const string& _password,
+        const string& _database)
 {
+    server   = _server;
+    port     = _port;
+    user     = _user;
+    password = _password;
+    database = _database;
 
     // Initialize the MySQL library
     mysql_library_init(0, NULL, NULL);
@@ -38,7 +44,7 @@ MySqlDB::MySqlDB(
 
     // Connect to the server
     if (!mysql_real_connect(db, server.c_str(), user.c_str(),
-                            password.c_str(), database, port, NULL, 0))
+                            password.c_str(), database.c_str(), port, NULL, 0))
     {
         throw runtime_error("Could not open database.");
     }
@@ -81,8 +87,27 @@ int MySqlDB::exec(ostringstream& cmd, Callbackable* obj)
         const char *    err_msg = mysql_error(db);
         int             err_num = mysql_errno(db);
 
-        oss << "SQL command was: " << c_str;
-        oss << ", error " << err_num << " : " << err_msg;
+        if( err_num == CR_SERVER_GONE_ERROR || err_num == CR_SERVER_LOST )
+        {
+            oss << "MySQL connection error " << err_num << " : " << err_msg;
+
+            // Try to re-connect
+            if (mysql_real_connect(db, server.c_str(), user.c_str(),
+                                    password.c_str(), database.c_str(),
+                                    port, NULL, 0))
+            {
+                oss << "... Reconnected.";
+            }
+            else
+            {
+                oss << "... Reconnection attempt failed.";
+            }
+        }
+        else
+        {
+            oss << "SQL command was: " << c_str;
+            oss << ", error " << err_num << " : " << err_msg;
+        }
 
         NebulaLog::log("ONE",Log::ERROR,oss);
 
