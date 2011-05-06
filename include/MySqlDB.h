@@ -126,7 +126,7 @@ public:
             int    port,
             string user,
             string password,
-            const char * database)
+            string database)
     {
         throw runtime_error("Aborting oned, MySQL support not compiled!");
     };
