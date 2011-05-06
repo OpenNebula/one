@@ -104,16 +104,15 @@ module OpenNebula
         
         def retrieve_elements(filter)
             ids_array = Array.new            
-            if NOKOGIRI
-                elements=@xml.xpath(filter.to_s)
 
-                if elements.size == 0
-                    return nil
-                end
-                
-                elements.each{ |e| ids_array << e.text }
+            if NOKOGIRI
+                @xml.xpath(filter).each { |pelem|
+                    ids_array << pelem.text
+                 }
             else
-                @xml.each(filter.to_s) { |e|  ids_array << e.text }
+                @xml.elements.each(filter) { |pelem|
+                    ids_array << pelem.text
+                }
             end
             
             return ids_array
