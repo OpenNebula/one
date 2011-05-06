@@ -44,7 +44,7 @@ MySqlDB::MySqlDB(
 
     // Connect to the server
     if (!mysql_real_connect(db, server.c_str(), user.c_str(),
-                            password.c_str(), database.c_str(), port, NULL, 0))
+                            password.c_str(), 0, port, NULL, 0))
     {
         throw runtime_error("Could not open database.");
     }

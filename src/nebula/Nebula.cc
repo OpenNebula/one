@@ -217,6 +217,14 @@ void Nebula::start()
             {
                 throw runtime_error("Could not create database.");
             }
+
+            oss.str("");
+            oss << "USE " << db_name;
+            rc = db->exec(oss);
+            if ( rc != 0 )
+            {
+                throw runtime_error("Could not open database.");
+            }
         }
 
         NebulaLog::log("ONE",Log::INFO,"Bootstraping OpenNebula database.");

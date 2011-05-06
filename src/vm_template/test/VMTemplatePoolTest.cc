@@ -491,9 +491,9 @@ public:
 
         string result = oss.str();
 
-        result.replace(128, 10, replacement);
-        result.replace(391, 10, replacement);
-        result.replace(656, 10, replacement);
+        result.replace(130, 10, replacement);
+        result.replace(393, 10, replacement);
+        result.replace(658, 10, replacement);
 
 /*
         if( result != xml_dump )
@@ -527,8 +527,8 @@ public:
 
         string result = oss.str();
 
-        result.replace(128, 10, replacement);
-        result.replace(391, 10, replacement);
+        result.replace(130, 10, replacement);
+        result.replace(393, 10, replacement);
 
 /*
         if( result != xml_dump_where )
