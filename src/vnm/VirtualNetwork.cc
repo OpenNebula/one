@@ -571,15 +571,11 @@ int VirtualNetwork::nic_attribute(VectorAttribute *nic, int vid)
 {
     int rc;
 
-    string  model;
     string  ip;
     string  mac;
 
     ostringstream  vnid;
 
-    map<string,string> new_nic;
-
-    model   = nic->vector_value("MODEL");
     ip      = nic->vector_value("IP");
     vnid   << oid;
 
@@ -605,18 +601,11 @@ int VirtualNetwork::nic_attribute(VectorAttribute *nic, int vid)
     //                       NEW NIC ATTRIBUTES
     //--------------------------------------------------------------------------
 
-    new_nic.insert(make_pair("NETWORK"   ,name));
-    new_nic.insert(make_pair("MAC"       ,mac));
-    new_nic.insert(make_pair("BRIDGE"    ,bridge));
-    new_nic.insert(make_pair("NETWORK_ID",vnid.str()));
-    new_nic.insert(make_pair("IP"        ,ip));
-
-    if (!model.empty())
-    {
-        new_nic.insert(make_pair("MODEL",model));
-    }
-
-    nic->replace(new_nic);
+    nic->replace("NETWORK"   ,name);
+    nic->replace("NETWORK_ID",vnid.str());
+    nic->replace("BRIDGE"    ,bridge);
+    nic->replace("MAC"       ,mac);
+    nic->replace("IP"        ,ip);
 
     return 0;
 }
