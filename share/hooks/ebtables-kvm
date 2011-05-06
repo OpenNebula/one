@@ -17,7 +17,7 @@
 #--------------------------------------------------------------------------- #
 
 require 'rexml/document'
- 
+
 #------------------------------------------------------------------------------
 # Configuration Options for the script. Change it to fit your installation
 #------------------------------------------------------------------------------
@@ -26,6 +26,9 @@ CONF = {
   :brctl => "/usr/sbin/brctl",
   :virsh => "virsh -c qemu:///system"
 }
+
+# Uncomment to act only on the listed bridges.
+#FILTERED_BRIDGES = ['br0']
 #------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------
@@ -39,25 +42,34 @@ end
 #------------------------------------------------------------------------------
 # Gets the interfaces attached to a given bridge
 #------------------------------------------------------------------------------
-def get_interfaces
+def get_bridges
     bridges    = Hash.new
     brctl_exit =`#{CONF[:brctl]} show`
     cur_bridge = ""
 
-    brctl_exit.split("\n")[1..-1].each do |l| 
+    brctl_exit.split("\n")[1..-1].each do |l|
         l = l.split
 
         if l.length > 1
             cur_bridge = l[0]
 
             bridges[cur_bridge] = Array.new
-            bridges[cur_bridge] << l[3]
+            bridges[cur_bridge] << l[3] if l[3]
         else
             bridges[cur_bridge] << l[0]
         end
     end
 
     bridges
+end
+
+def get_interfaces
+    bridges = get_bridges
+    if defined? FILTERED_BRIDGES
+        FILTERED_BRIDGES.collect {|k,v| bridges[k]}.flatten
+    else
+        bridges.values.flatten
+    end
 end
 #------------------------------------------------------------------------------
 
@@ -73,20 +85,20 @@ doc  = REXML::Document.new(nets).root
 interfaces = get_interfaces()
 
 doc.elements.each('/domain/devices/interface') {|net|
-    
+
     tap = net.elements['target'].attributes['dev']
 
     if interfaces.include? tap
         iface_mac = net.elements['mac'].attributes['address']
-     
+
         mac     = iface_mac.split(':')
         mac[-1] = '00'
 
         net_mac = mac.join(':')
-     
+
         in_rule="FORWARD -s ! #{net_mac}/ff:ff:ff:ff:ff:00 -o #{tap} -j DROP"
         out_rule="FORWARD -s ! #{iface_mac} -i #{tap} -j DROP"
-     
+
         activate(in_rule)
         activate(out_rule)
     end

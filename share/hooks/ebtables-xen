@@ -24,6 +24,9 @@ CONF = {
   :brctl => "/usr/sbin/brctl",
   :xm => "sudo /usr/sbin/xm"
 }
+
+# Uncomment to act only on the listed bridges.
+#FILTERED_BRIDGES = ['br0']
 #------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------
@@ -37,7 +40,7 @@ end
 #------------------------------------------------------------------------------
 # Gets the interfaces attached to a given bridge
 #------------------------------------------------------------------------------
-def get_interfaces
+def get_bridges
     bridges    = Hash.new
     brctl_exit =`#{CONF[:brctl]} show`
     cur_bridge = ""
@@ -49,13 +52,22 @@ def get_interfaces
             cur_bridge = l[0]
 
             bridges[cur_bridge] = Array.new
-            bridges[cur_bridge] << l[3]
+            bridges[cur_bridge] << l[3] if l[3]
         else
             bridges[cur_bridge] << l[0]
         end
     end
 
     bridges
+end
+
+def get_interfaces
+    bridges = get_bridges
+    if defined? FILTERED_BRIDGES
+        FILTERED_BRIDGES.collect {|k,v| bridges[k]}.flatten
+    else
+        bridges.values.flatten
+    end
 end
 #------------------------------------------------------------------------------
 
