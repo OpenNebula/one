@@ -70,12 +70,13 @@ private:
 	 */
 	//Template	driver_conf;
 
-    void cp(int oid, const string& source, const string& destination) const;
+    void cp(int oid, const string& source) const;
 
     /**
      *  Sends a move request to the MAD: "MV IMAGE_ID SRC_PATH DST_PATH"
      *    @param oid the image id.
-     *    @param destination is the path to the image to be created
+     *    @param destination is a driver specific location or "-" if not 
+     *           initialized
      *    @param size_mb of the image to be created
      */
     void mv(int oid, const string& source, const string& destination) const;
@@ -83,12 +84,10 @@ private:
     /**
      *  Sends a make filesystem request to the MAD: "MKFS IMAGE_ID PATH SIZE_MB"
      *    @param oid the image id.
-     *    @param destination is the path to the image to be created
      *    @param fs type
      *    @param size_mb of the image to be created
      */
     void mkfs(int           oid, 
-              const string& destination, 
               const string& fs, 
               const string& size_mb) const;
     /**

@@ -41,7 +41,7 @@ Image::Image(int             _uid,
         user_name(_user_name),
         type(OS),
         regtime(time(0)),
-        source(""),
+        source("-"),
         state(INIT),
         running_vms(0)
 {
@@ -74,22 +74,6 @@ const char * Image::db_names = "oid, name, body, uid, public";
 const char * Image::db_bootstrap = "CREATE TABLE IF NOT EXISTS image_pool ("
     "oid INTEGER PRIMARY KEY, name VARCHAR(256), body TEXT, uid INTEGER, "
     "public INTEGER, UNIQUE(name,uid) )";
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
-string Image::generate_source(int uid, const string& name)
-{
-    ostringstream tmp_hashstream;
-    ostringstream tmp_sourcestream;
-
-    tmp_hashstream << uid << ":" << name;
-
-    tmp_sourcestream << ImagePool::source_prefix() << "/";
-    tmp_sourcestream << sha1_digest(tmp_hashstream.str());
-
-    return tmp_sourcestream.str();
-}
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
@@ -163,6 +147,7 @@ int Image::insert(SqlDB *db, string& error_str)
     {
         SingleAttribute * dev_att = new SingleAttribute("DEV_PREFIX",
                                           ImagePool::default_dev_prefix());
+
         obj_template->set(dev_att);
     }
 
@@ -201,11 +186,6 @@ int Image::insert(SqlDB *db, string& error_str)
     else if ( !source.empty() && !path_attr.empty() )
     {
         goto error_path_and_source;
-    }
-
-    if (source.empty())
-    {
-        source = Image::generate_source(uid,name);
     }
 
     state = LOCKED; //LOCKED till the ImageManager copies it to the Repository
@@ -527,33 +507,6 @@ int Image::disk_attribute(  VectorAttribute * disk,
     }
 
     return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-string Image::sha1_digest(const string& pass)
-{
-    EVP_MD_CTX     mdctx;
-    unsigned char  md_value[EVP_MAX_MD_SIZE];
-    unsigned int   md_len;
-    ostringstream  oss;
-
-    EVP_MD_CTX_init(&mdctx);
-    EVP_DigestInit_ex(&mdctx, EVP_sha1(), NULL);
-
-    EVP_DigestUpdate(&mdctx, pass.c_str(), pass.length());
-
-    EVP_DigestFinal_ex(&mdctx,md_value,&md_len);
-    EVP_MD_CTX_cleanup(&mdctx);
-
-    for(unsigned int i = 0; i<md_len; i++)
-    {
-        oss << setfill('0') << setw(2) << hex << nouppercase
-            << (unsigned short) md_value[i];
-    }
-
-    return oss.str();
 }
 
 /* ------------------------------------------------------------------------ */

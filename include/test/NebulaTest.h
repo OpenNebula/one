@@ -97,7 +97,6 @@ public:
     virtual UserPool* create_upool(SqlDB* db);
 
     virtual ImagePool* create_ipool( SqlDB* db,
-                                    string repository_path,
                                     string default_image_type,
                                     string default_device_prefix);
 

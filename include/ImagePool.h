@@ -39,7 +39,6 @@ class ImagePool : public PoolSQL
 public:
 
     ImagePool(SqlDB *       db,
-              const string& _source_prefix,
               const string& _default_type,
               const string& _default_dev_prefix);
 
@@ -146,11 +145,6 @@ public:
      */
     void authorize_disk(VectorAttribute * disk, int uid, AuthRequest * ar);
 
-    static const string& source_prefix()
-    {
-        return _source_prefix;
-    };
-
     static const string& default_type()
     {
         return _default_type;
@@ -165,10 +159,6 @@ private:
     //--------------------------------------------------------------------------
     // Configuration Attributes for Images
     // -------------------------------------------------------------------------
-    /**
-     * Path to the image repository
-     **/
-    static string  _source_prefix;
 
     /**
      * Default image type

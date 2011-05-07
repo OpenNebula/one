@@ -29,7 +29,6 @@ void RequestManager::TemplateInfo::execute(
     string  session;
 
     int           oid;
-    int           uid;     // owner user id
     int           rc;      // Requesting user id
     VMTemplate  * vm_template;
 
@@ -54,8 +53,6 @@ void RequestManager::TemplateInfo::execute(
     {
         goto error_get;
     }
-
-    uid = vm_template->get_uid();
 
     // Check if it is a valid user
     rc = TemplateInfo::upool->authenticate(session);

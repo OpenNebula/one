@@ -69,19 +69,19 @@ class ImageDriver < OpenNebulaDriver
     # Image Manager Protocol Actions (generic implementation
     # -------------------------------------------------------------------------
     def mv(id, src, dst)
-        local_action("#{@actions_path}/mv #{src} #{dst}",id,ACTION[:mv])
+        local_action("#{@actions_path}/mv #{src} #{dst} #{id}",id,ACTION[:mv])
     end
 
-    def cp(id, src, dst)
-        local_action("#{@actions_path}/cp #{src} #{dst}",id,ACTION[:cp])
+    def cp(id, src)
+        local_action("#{@actions_path}/cp #{src} #{id}",id,ACTION[:cp])
     end
 
     def rm(id, dst)
-        local_action("#{@actions_path}/rm #{dst}",id,ACTION[:rm])
+        local_action("#{@actions_path}/rm #{dst} #{id}",id,ACTION[:rm])
     end
 
-    def mkfs(id, dst, fs, size)
-        local_action("#{@actions_path}/mkfs #{dst} #{fs} #{size}",id,ACTION[:mkfs])
+    def mkfs(id, fs, size)
+        local_action("#{@actions_path}/mkfs #{fs} #{size} #{id}",id,ACTION[:mkfs])
     end
 end
 

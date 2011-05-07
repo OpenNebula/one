@@ -70,12 +70,10 @@ class ImagePoolFriend : public ImagePool
 {
 public:
     ImagePoolFriend(SqlDB * db,
-                    const string&   _source_prefix,
                     const string&   _default_type,
                     const string&   _default_dev_prefix):
 
                     ImagePool(  db,
-                                _source_prefix,
                                 _default_type,
                                 _default_dev_prefix){};
 
@@ -147,7 +145,7 @@ protected:
     PoolSQL* create_pool(SqlDB* db)
     {
         ImagePoolFriend * imp =
-                        new ImagePoolFriend(db, "source_prefix", "OS", "hd");
+                        new ImagePoolFriend(db, "OS", "hd");
         return imp;
     };
 
@@ -201,7 +199,7 @@ public:
 
         // Create a new pool, using the same DB. This new pool should read the
         // allocated images.
-        imp = new ImagePool(db, "source_prefix", "OS", "hd");
+        imp = new ImagePool(db,"OS", "hd");
 
         img = imp->get(names[0], uids[0], false);
         CPPUNIT_ASSERT( img != 0 );

@@ -122,7 +122,7 @@ void ImageManager::move_image(Image *img, const string& source)
     }
 
     oss << "Moving disk " << source << " to repository image " 
-        << img->get_oid() << " as " << img->get_source();
+        << img->get_oid();
 
     imd->mv(img->get_oid(),source,img->get_source());
 
@@ -400,7 +400,7 @@ int ImageManager::register_image(int iid)
         if ( img->get_type() == Image::DATABLOCK &&
              !size.empty() && !fs.empty() )
         {
-            imd->mkfs(img->get_oid(), img->get_source(), fs, size);
+            imd->mkfs(img->get_oid(), fs, size);
          
             oss << "Creating disk at " << img->get_source() << " of " 
                 << size << "Mb with format " << fs;
@@ -416,9 +416,8 @@ int ImageManager::register_image(int iid)
     }
     else //PATH -> COPY TO REPOSITORY AS SOURCE
     {
-        imd->cp(img->get_oid(), path, img->get_source());
-        oss << "Copying image " << path 
-            << " to repository as " << img->get_source();
+        imd->cp(img->get_oid(), path);
+        oss << "Copying " << path <<" to repository for image "<<img->get_oid();
     }
     
     NebulaLog::log("ImM",Log::INFO,oss);
