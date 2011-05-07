@@ -30,6 +30,7 @@ else
 fi
 
 . $LIB_LOCATION/sh/scripts_common.sh
+source $(dirname $0)/fsrc
 
 # ------------ Create the image to the repository ------------ 
 

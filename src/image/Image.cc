@@ -87,6 +87,7 @@ int Image::insert(SqlDB *db, string& error_str)
     string public_attr;
     string persistent_attr;
     string dev_prefix;
+    string source_attr;
 
     // ---------------------------------------------------------------------
     // Check default image attributes
@@ -154,10 +155,10 @@ int Image::insert(SqlDB *db, string& error_str)
     // ------------ PATH & SOURCE --------------------
 
     get_template_attribute("PATH", path_attr);
-    get_template_attribute("SOURCE", source);
+    get_template_attribute("SOURCE", source_attr);
 
     // The template should contain PATH or SOURCE
-    if ( source.empty() && path_attr.empty() )
+    if ( source_attr.empty() && path_attr.empty() )
     {
         string size_attr;
         string fstype_attr;
@@ -183,9 +184,13 @@ int Image::insert(SqlDB *db, string& error_str)
             goto error_size_format;
         }
     }
-    else if ( !source.empty() && !path_attr.empty() )
+    else if ( !source_attr.empty() && !path_attr.empty() )
     {
         goto error_path_and_source;
+    }
+    else if ( !source_attr.empty() )
+    {
+        source = source_attr;
     }
 
     state = LOCKED; //LOCKED till the ImageManager copies it to the Repository
