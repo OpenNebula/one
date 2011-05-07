@@ -543,6 +543,7 @@ LVM_TM_COMMANDS_LIB_FILES="src/tm_mad/lvm/tm_clone.sh \
 IMAGE_DRIVER_FS_SCRIPTS="src/image_mad/remotes/fs/cp \
                          src/image_mad/remotes/fs/mkfs \
                          src/image_mad/remotes/fs/mv \
+                         src/image_mad/remotes/fs/fsrc \
                          src/image_mad/remotes/fs/rm"
 
 #-------------------------------------------------------------------------------
