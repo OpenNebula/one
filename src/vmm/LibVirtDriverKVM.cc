@@ -53,7 +53,9 @@ int LibVirtDriver::deployment_description_kvm(
     string  bus        = "";
     string  ro         = "";
     string  driver     = "";
-    string  default_driver = "";
+    string  cache      = "";
+    string  default_driver       = "";
+    string  default_driver_cache = "";
     bool    readonly;
 
     const VectorAttribute * nic;
@@ -254,9 +256,8 @@ int LibVirtDriver::deployment_description_kvm(
     attrs.clear();
 
     // ------------------------------------------------------------------------
-    // Disks
+    // DEVICES SECTION
     // ------------------------------------------------------------------------
-
     file << "\t<devices>" << endl;
 
     if (emulator == "kvm")
@@ -271,12 +272,24 @@ int LibVirtDriver::deployment_description_kvm(
         file << "\t\t<emulator>" << emulator_path << "</emulator>" << endl;
     }
 
+    // ------------------------------------------------------------------------
+    // Disks
+    // ------------------------------------------------------------------------
     get_default("DISK","DRIVER",default_driver);
 
     if (default_driver.empty())
     {
         default_driver = "raw";
     }
+
+    get_default("DISK","CACHE",default_driver_cache);
+
+    if (default_driver_cache.empty())
+    {
+       default_driver_cache = "default";
+    }
+
+    // ------------------------------------------------------------------------
 
     num = vm->get_template_attribute("DISK",attrs);
 
@@ -294,6 +307,7 @@ int LibVirtDriver::deployment_description_kvm(
         ro     = disk->vector_value("READONLY");
         bus    = disk->vector_value("BUS");
         driver = disk->vector_value("DRIVER");
+        cache  = disk->vector_value("CACHE");
 
         if (target.empty())
         {
@@ -366,11 +380,22 @@ int LibVirtDriver::deployment_description_kvm(
 
         if ( !driver.empty() )
         {
-            file << driver << "'/>" << endl;
+            file << driver;
         }
         else
         {
-            file << default_driver << "'/>" << endl;
+            file << default_driver;
+        }
+
+        file << "' cache='";
+
+        if ( !cache.empty() )
+        {
+            file << cache << "'/>" << endl;
+        }
+        else
+        {
+            file << default_driver_cache << "'/>" << endl;
         }
 
         file << "\t\t</disk>" << endl;
