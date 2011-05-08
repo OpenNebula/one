@@ -453,6 +453,9 @@ void VirtualMachineManagerDriver::protocol(
             int             net_rx = -1;
             char            state  = '-';
 
+            string monitor_str = is.str();
+            bool   parse_error = false;
+
             while(is.good())
             {
                 is >> tmp >> ws;
@@ -461,12 +464,8 @@ void VirtualMachineManagerDriver::protocol(
 
                 if ( pos == string::npos )
                 {
-                    os.str("");
-                    os << "Error parsing monitoring attribute: " << tmp;
-
-                    vm->log("VMM",Log::ERROR,os);
-
-                    break;
+                    parse_error = true;
+                    continue;
                 }
 
                 tmp.replace(pos,1," ");
@@ -475,7 +474,13 @@ void VirtualMachineManagerDriver::protocol(
 
                 tiss.str(tmp);
 
-                tiss >> var;
+                tiss >> var >> ws;
+
+                if (!tiss.good())
+                {
+                    parse_error = true;
+                    continue;
+                }
 
                 if (var == "USEDMEMORY")
                 {
@@ -502,8 +507,7 @@ void VirtualMachineManagerDriver::protocol(
                     string val;
 
                     os.str("");
-                    os << "Unknown monitoring attribute (adding/updating"
-                       << " template): " << tmp;
+                    os << "Adding custom monitoring attribute: " << tmp;
 
                     vm->log("VMM",Log::WARNING,os);
 
@@ -511,6 +515,20 @@ void VirtualMachineManagerDriver::protocol(
 
                     vm->replace_template_attribute(var,val);
                 }
+            }
+
+            if (parse_error)
+            {
+                os.str("");
+                os << "Error parsing monitoring str:\"" << monitor_str <<"\"";
+
+                vm->log("VMM",Log::ERROR,os);
+
+                vm->set_template_error_message(os.str());
+                vmpool->update(vm);
+
+                vm->unlock();
+                return;
             }
 
             vm->update_info(memory,cpu,net_tx,net_rx);

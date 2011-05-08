@@ -39,6 +39,17 @@ public:
             attribute_name.end(),
             attribute_name.begin(),
             (int(*)(int))toupper);
+
+        // FIX Attribute name if it does not conform XML element
+        // naming conventions
+
+        int size = attribute_name.size();
+
+        if  ((size >0 && !isalpha(aname[0]))||
+             (size >=3 && (aname[0]=='X' && aname[1]=='M' && aname[2]=='L')))
+        {
+            attribute_name.insert(0,"ONE_");    
+        }
     };
 
     virtual ~Attribute(){};
