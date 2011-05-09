@@ -43,7 +43,7 @@ class Migrator < MigratorBase
 
             body = "<USER><ID>#{oid}</ID><NAME>#{name}</NAME><PASSWORD>#{row[:password]}</PASSWORD><ENABLED>#{row[:enabled]}</ENABLED></USER>"
 
-            @db.run "INSERT INTO 'user_pool' VALUES(#{oid},'#{name}','#{body}');"
+            @db.run "INSERT INTO user_pool VALUES(#{oid},'#{name}','#{body}');"
         end
 
         # Delete old user_pool
@@ -69,7 +69,7 @@ class Migrator < MigratorBase
 
             body = "<CLUSTER><ID>#{oid}</ID><NAME>#{name}</NAME></CLUSTER>"
 
-            @db.run "INSERT INTO 'cluster_pool' VALUES(#{oid},'#{name}','#{body}');"
+            @db.run "INSERT INTO cluster_pool VALUES(#{oid},'#{name}','#{body}');"
         end
 
         # Delete old table
@@ -105,7 +105,7 @@ class Migrator < MigratorBase
 
             body = "<HOST><ID>#{oid}</ID><NAME>#{name}</NAME><STATE>#{state}</STATE><IM_MAD>#{row[:im_mad]}</IM_MAD><VM_MAD>#{row[:vm_mad]}</VM_MAD><TM_MAD>#{row[:tm_mad]}</TM_MAD><LAST_MON_TIME>#{last_mon_time}</LAST_MON_TIME><CLUSTER>#{cluster}</CLUSTER>#{host_share}#{row[:template]}</HOST>"
 
-            @db.run "INSERT INTO 'host_pool' VALUES(#{oid},'#{name}','#{body}', #{state}, #{last_mon_time}, '#{cluster}');"
+            @db.run "INSERT INTO host_pool VALUES(#{oid},'#{name}','#{body}', #{state}, #{last_mon_time}, '#{cluster}');"
         end
 
         # Delete old table
@@ -138,7 +138,7 @@ class Migrator < MigratorBase
             # from 0 to 5, but the meaning is the same for states 0 to 3
             body = "<IMAGE><ID>#{oid}</ID><UID>#{row[:uid]}</UID><USERNAME>#{username}</USERNAME><NAME>#{name}</NAME><TYPE>#{row[:type]}</TYPE><PUBLIC>#{public}</PUBLIC><PERSISTENT>#{row[:persistent]}</PERSISTENT><REGTIME>#{row[:regtime]}</REGTIME><SOURCE>#{row[:source]}</SOURCE><STATE>#{row[:state]}</STATE><RUNNING_VMS>#{row[:running_vms]}</RUNNING_VMS>#{row[:template]}</IMAGE>"
 
-            @db.run "INSERT INTO 'image_pool' VALUES(#{oid},'#{name}','#{body}', #{uid}, #{public});"
+            @db.run "INSERT INTO image_pool VALUES(#{oid},'#{name}','#{body}', #{uid}, #{public});"
         end
 
         # Delete old table
@@ -168,7 +168,7 @@ class Migrator < MigratorBase
 
             body = "<HISTORY><SEQ>#{seq}</SEQ><HOSTNAME>#{row[:host_name]}</HOSTNAME><VM_DIR>#{row[:vm_dir]}</VM_DIR><HID>#{row[:hid]}</HID><STIME>#{row[:stime]}</STIME><ETIME>#{row[:etime]}</ETIME><VMMMAD>#{row[:vm_mad]}</VMMMAD><TMMAD>#{row[:tm_mad]}</TMMAD><PSTIME>#{row[:pstime]}</PSTIME><PETIME>#{row[:petime]}</PETIME><RSTIME>#{row[:rstime]}</RSTIME><RETIME>#{row[:retime]}</RETIME><ESTIME>#{row[:estime]}</ESTIME><EETIME>#{row[:eetime]}</EETIME><REASON>#{row[:reason]}</REASON></HISTORY>"
 
-            @db.run "INSERT INTO 'history' VALUES(#{vid},'#{seq}','#{body}');"
+            @db.run "INSERT INTO history VALUES(#{vid},'#{seq}','#{body}');"
         end
 
 
@@ -191,7 +191,7 @@ class Migrator < MigratorBase
 
             body = "<VM><ID>#{oid}</ID><UID>#{uid}</UID><USERNAME>#{username}</USERNAME><NAME>#{name}</NAME><LAST_POLL>#{last_poll}</LAST_POLL><STATE>#{state}</STATE><LCM_STATE>#{lcm_state}</LCM_STATE><STIME>#{row[:stime]}</STIME><ETIME>#{row[:etime]}</ETIME><DEPLOY_ID>#{row[:deploy_id]}</DEPLOY_ID><MEMORY>#{row[:memory]}</MEMORY><CPU>#{row[:cpu]}</CPU><NET_TX>#{row[:net_tx]}</NET_TX><NET_RX>#{row[:net_rx]}</NET_RX>#{row[:template]}#{history}</VM>"
 
-            @db.run "INSERT INTO 'vm_pool' VALUES(#{oid},'#{name}','#{body}', #{uid}, #{last_poll}, #{state}, #{lcm_state});"
+            @db.run "INSERT INTO vm_pool VALUES(#{oid},'#{name}','#{body}', #{uid}, #{last_poll}, #{state}, #{lcm_state});"
         end
 
 
@@ -230,7 +230,7 @@ class Migrator < MigratorBase
             # network is listed. So setting it to 0 is safe
             body = "<VNET><ID>#{oid}</ID><UID>#{uid}</UID><USERNAME>#{username}</USERNAME><NAME>#{name}</NAME><TYPE>#{row[:type]}</TYPE><BRIDGE>#{row[:bridge]}</BRIDGE><PUBLIC>#{public}</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES>#{row[:template]}</VNET>"
 
-            @db.run "INSERT INTO 'network_pool' VALUES(#{oid},'#{name}','#{body}', #{uid}, #{public});"
+            @db.run "INSERT INTO network_pool VALUES(#{oid},'#{name}','#{body}', #{uid}, #{public});"
         end
 
         # Read each entry in the old table, and insert into new table
@@ -240,7 +240,7 @@ class Migrator < MigratorBase
 
             body = "<LEASE><IP>#{ip}</IP><MAC_PREFIX>#{row[:mac_prefix]}</MAC_PREFIX><MAC_SUFFIX>#{row[:mac_suffix]}</MAC_SUFFIX><USED>#{row[:used]}</USED><VID>#{row[:vid]}</VID></LEASE>"
 
-            @db.run "INSERT INTO 'leases' VALUES(#{oid}, #{ip}, '#{body}');"
+            @db.run "INSERT INTO leases VALUES(#{oid}, #{ip}, '#{body}');"
         end
 
         # Delete old tables
@@ -254,6 +254,17 @@ class Migrator < MigratorBase
 
         @db.run "CREATE TABLE db_versioning (oid INTEGER PRIMARY KEY, version INTEGER, timestamp INTEGER, comment VARCHAR(256));"
         @db.run "CREATE TABLE template_pool (oid INTEGER PRIMARY KEY, name VARCHAR(256), body TEXT, uid INTEGER, public INTEGER);"
+
+        # New pool_control table contains the last_oid used, must be rebuilt
+        @db.run "CREATE TABLE pool_control (tablename VARCHAR(32) PRIMARY KEY, last_oid BIGINT UNSIGNED)"
+
+        for table in ["user_pool", "cluster_pool", "host_pool", "image_pool", "vm_pool", "network_pool"] do
+            @db.fetch("SELECT MAX(oid) FROM #{table}") do |row|
+                if( row[:"MAX(oid)"] != nil )
+                    @db.run "INSERT INTO pool_control (tablename, last_oid) VALUES ('#{table}', #{row[:"MAX(oid)"]});"
+                end
+            end
+        end
 
         return true
     end

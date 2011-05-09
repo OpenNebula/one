@@ -617,6 +617,11 @@ void Nebula::bootstrap()
 {
     ostringstream   oss;
 
+    oss <<  "CREATE TABLE pool_control (tablename VARCHAR(32) PRIMARY KEY, "
+            "last_oid BIGINT UNSIGNED)";
+    db->exec(oss);
+
+    oss.str("");
     oss <<  "CREATE TABLE db_versioning (oid INTEGER PRIMARY KEY, "
             "version INTEGER, timestamp INTEGER, comment VARCHAR(256))";
 

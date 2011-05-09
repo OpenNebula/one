@@ -47,7 +47,7 @@ public:
      *   counter). If null the OID counter is not updated.
      *   @param with_uid the Pool objects have an owner id (uid)
      */
-    PoolSQL(SqlDB * _db, const char * table);
+    PoolSQL(SqlDB * _db, const char * _table);
 
     virtual ~PoolSQL();
 
@@ -190,6 +190,11 @@ private:
     int     lastOID;
 
     /**
+     *  Tablename for this pool
+     */
+    string  table;
+
+    /**
      *  The pool is implemented with a Map of SQL object pointers, using the
      *  OID as key.
      */
@@ -252,6 +257,11 @@ private:
 
         return key.str();
     };
+
+    /**
+     *  Inserts the last oid into the pool_control table
+     */
+    void update_lastOID();
 
     /* ---------------------------------------------------------------------- */
     /* ---------------------------------------------------------------------- */
