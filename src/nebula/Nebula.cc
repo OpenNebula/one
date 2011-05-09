@@ -208,7 +208,7 @@ void Nebula::start()
         {
             ostringstream   oss;
 
-            db = new MySqlDB(server,port,user,passwd,0);
+            db = new MySqlDB(server,port,user,passwd,db_name);
 
             oss << "CREATE DATABASE IF NOT EXISTS " << db_name;
             rc = db->exec(oss);
@@ -246,7 +246,6 @@ void Nebula::start()
     {
         string  mac_prefix;
         int     size;
-        string  repository_path;
         string  default_image_type;
         string  default_device_prefix;
 
@@ -266,13 +265,11 @@ void Nebula::start()
 
         upool  = new UserPool(db);
 
-        nebula_configuration->get("IMAGE_REPOSITORY_PATH", repository_path);
         nebula_configuration->get("DEFAULT_IMAGE_TYPE", default_image_type);
         nebula_configuration->get("DEFAULT_DEVICE_PREFIX",
                                   default_device_prefix);
 
         ipool  = new ImagePool(db,
-                               repository_path,
                                default_image_type,
                                default_device_prefix);
 

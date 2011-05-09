@@ -104,6 +104,15 @@ public:
     }
 
     /**
+     *  Returns the source path of the image
+     *     @return source of image
+     */
+    void set_source(const string& _source)
+    {
+        source = _source;
+    }
+
+    /**
      *  Returns the type of the image
      *     @return type
      */
@@ -249,14 +258,6 @@ public:
      * @param img_type will be set to the used image's type
      */
     int disk_attribute(VectorAttribute * disk, int* index, ImageType* img_type);
-
-    /**
-     *  Generates the source path for the repository.
-     *    @param uid of the image owner
-     *    @param name of the image
-     *    @return source for the image 
-     */
-    static string generate_source(int uid, const string& name);
 
 private:
 

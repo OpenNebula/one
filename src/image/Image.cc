@@ -41,7 +41,7 @@ Image::Image(int             _uid,
         user_name(_user_name),
         type(OS),
         regtime(time(0)),
-        source(""),
+        source("-"),
         state(INIT),
         running_vms(0)
 {
@@ -78,22 +78,6 @@ const char * Image::db_bootstrap = "CREATE TABLE IF NOT EXISTS image_pool ("
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-string Image::generate_source(int uid, const string& name)
-{
-    ostringstream tmp_hashstream;
-    ostringstream tmp_sourcestream;
-
-    tmp_hashstream << uid << ":" << name;
-
-    tmp_sourcestream << ImagePool::source_prefix() << "/";
-    tmp_sourcestream << sha1_digest(tmp_hashstream.str());
-
-    return tmp_sourcestream.str();
-}
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
 int Image::insert(SqlDB *db, string& error_str)
 {
     int rc;
@@ -103,6 +87,7 @@ int Image::insert(SqlDB *db, string& error_str)
     string public_attr;
     string persistent_attr;
     string dev_prefix;
+    string source_attr;
 
     // ---------------------------------------------------------------------
     // Check default image attributes
@@ -163,16 +148,17 @@ int Image::insert(SqlDB *db, string& error_str)
     {
         SingleAttribute * dev_att = new SingleAttribute("DEV_PREFIX",
                                           ImagePool::default_dev_prefix());
+
         obj_template->set(dev_att);
     }
 
     // ------------ PATH & SOURCE --------------------
 
     get_template_attribute("PATH", path_attr);
-    get_template_attribute("SOURCE", source);
+    get_template_attribute("SOURCE", source_attr);
 
     // The template should contain PATH or SOURCE
-    if ( source.empty() && path_attr.empty() )
+    if ( source_attr.empty() && path_attr.empty() )
     {
         string size_attr;
         string fstype_attr;
@@ -198,14 +184,13 @@ int Image::insert(SqlDB *db, string& error_str)
             goto error_size_format;
         }
     }
-    else if ( !source.empty() && !path_attr.empty() )
+    else if ( !source_attr.empty() && !path_attr.empty() )
     {
         goto error_path_and_source;
     }
-
-    if (source.empty())
+    else if ( !source_attr.empty() )
     {
-        source = Image::generate_source(uid,name);
+        source = source_attr;
     }
 
     state = LOCKED; //LOCKED till the ImageManager copies it to the Repository
@@ -447,31 +432,21 @@ int Image::disk_attribute(  VectorAttribute * disk,
     get_template_attribute("DEV_PREFIX", prefix);
 
    //---------------------------------------------------------------------------
-   //                       NEW DISK ATTRIBUTES
+   //                       BASE DISK ATTRIBUTES
    //---------------------------------------------------------------------------
 
-    map<string,string> new_disk;
+    disk->replace("IMAGE",    name);
+    disk->replace("IMAGE_ID", iid.str());
+    disk->replace("SOURCE",   source);
 
-    new_disk.insert(make_pair("IMAGE",    name));
-    new_disk.insert(make_pair("IMAGE_ID", iid.str()));
-    new_disk.insert(make_pair("SOURCE",   source));
-
-    if (!bus.empty())
+    if (bus.empty() && !template_bus.empty()) //BUS in Image, not in DISK
     {
-        new_disk.insert(make_pair("BUS",bus));
-    }
-    else if (!template_bus.empty())
-    {
-        new_disk.insert(make_pair("BUS",template_bus));
+        disk->replace("BUS",template_bus);
     }
 
-    if (!driver.empty())
+    if (driver.empty() && !template_driver.empty())//DRIVER in Image,not in DISK
     {
-        new_disk.insert(make_pair("DRIVER",driver));
-    }
-    else if (!template_driver.empty())
-    {
-        new_disk.insert(make_pair("DRIVER",template_driver));
+        disk->replace("DRIVER",template_driver);
     }
 
    //---------------------------------------------------------------------------
@@ -480,26 +455,26 @@ int Image::disk_attribute(  VectorAttribute * disk,
 
     if ( persistent_img )
     {
-        new_disk.insert(make_pair("CLONE","NO"));
-        new_disk.insert(make_pair("SAVE","YES"));
+        disk->replace("CLONE","NO");
+        disk->replace("SAVE","YES");
     }
     else
     {
-        new_disk.insert(make_pair("CLONE","YES"));
-        new_disk.insert(make_pair("SAVE","NO"));
+        disk->replace("CLONE","YES");
+        disk->replace("SAVE","NO");
     }
 
     switch(type)
     {
         case OS:
         case DATABLOCK:
-          new_disk.insert(make_pair("TYPE","DISK"));
-          new_disk.insert(make_pair("READONLY","NO"));
+          disk->replace("TYPE","DISK");
+          disk->replace("READONLY","NO");
         break;
 
         case CDROM:
-          new_disk.insert(make_pair("TYPE","CDROM"));
-          new_disk.insert(make_pair("READONLY","YES"));
+          disk->replace("TYPE","CDROM");
+          disk->replace("READONLY","YES");
         break;
     }
 
@@ -507,66 +482,36 @@ int Image::disk_attribute(  VectorAttribute * disk,
    //   TARGET attribute
    //---------------------------------------------------------------------------
 
-    if (!target.empty())
+    if (target.empty()) //No TARGET in DISK attribute
     {
-        new_disk.insert(make_pair("TARGET", target));
-    }
-    else if (!template_target.empty())
-    {
-        new_disk.insert(make_pair("TARGET", template_target));
-    }
-    else
-    {
-        switch(type)
+        if (!template_target.empty())
         {
-            case OS:
-                prefix += "a";
-            break;
-
-            case CDROM:
-                prefix += "c"; // b is for context
-            break;
-
-            case DATABLOCK:
-                prefix += static_cast<char>(('e'+ *index));
-                *index  = *index + 1;
-            break;
-
+            disk->replace("TARGET", template_target);
         }
+        else
+        {
+            switch(type)
+            {
+                case OS:
+                    prefix += "a";
+                break;
 
-        new_disk.insert(make_pair("TARGET", prefix));
+                case CDROM:
+                    prefix += "c"; // b is for context
+                break;
+
+                case DATABLOCK:
+                    prefix += static_cast<char>(('e'+ *index));
+                    *index  = *index + 1;
+                break;
+
+            }
+
+            disk->replace("TARGET", prefix);
+        }
     }
-
-    disk->replace(new_disk);
 
     return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-string Image::sha1_digest(const string& pass)
-{
-    EVP_MD_CTX     mdctx;
-    unsigned char  md_value[EVP_MAX_MD_SIZE];
-    unsigned int   md_len;
-    ostringstream  oss;
-
-    EVP_MD_CTX_init(&mdctx);
-    EVP_DigestInit_ex(&mdctx, EVP_sha1(), NULL);
-
-    EVP_DigestUpdate(&mdctx, pass.c_str(), pass.length());
-
-    EVP_DigestFinal_ex(&mdctx,md_value,&md_len);
-    EVP_MD_CTX_cleanup(&mdctx);
-
-    for(unsigned int i = 0; i<md_len; i++)
-    {
-        oss << setfill('0') << setw(2) << hex << nouppercase
-            << (unsigned short) md_value[i];
-    }
-
-    return oss.str();
 }
 
 /* ------------------------------------------------------------------------ */

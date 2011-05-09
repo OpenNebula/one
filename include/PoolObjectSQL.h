@@ -189,11 +189,10 @@ public:
         const string& name,
         const string& value)
     {
-        SingleAttribute * sattr;
+        SingleAttribute * sattr = new SingleAttribute(name,value);
 
-        obj_template->erase(name);
+        obj_template->erase(sattr->name());
 
-        sattr = new SingleAttribute(name,value);
         obj_template->set(sattr);
 
         return 0;

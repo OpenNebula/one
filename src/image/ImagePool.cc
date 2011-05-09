@@ -24,7 +24,6 @@
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-string ImagePool::_source_prefix;
 string ImagePool::_default_type;
 string ImagePool::_default_dev_prefix;
 
@@ -32,7 +31,6 @@ string ImagePool::_default_dev_prefix;
 /* -------------------------------------------------------------------------- */
 
 ImagePool::ImagePool(SqlDB *       db,
-                     const string& __source_prefix,
                      const string& __default_type,
                      const string& __default_dev_prefix):
                         PoolSQL(db,Image::table)
@@ -40,7 +38,6 @@ ImagePool::ImagePool(SqlDB *       db,
     ostringstream sql;
 
     // Init static defaults
-    _source_prefix      = __source_prefix;
     _default_type       = __default_type;
     _default_dev_prefix = __default_dev_prefix;
 

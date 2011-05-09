@@ -41,12 +41,10 @@ UserPool* NebulaTest::create_upool(SqlDB* db)
 }
 
 ImagePool* NebulaTest::create_ipool( SqlDB* db,
-                                string repository_path,
                                 string default_image_type,
                                 string default_device_prefix)
 {
-    return new ImagePool(db,repository_path,default_image_type,
-                         default_device_prefix);
+    return new ImagePool(db,default_image_type,default_device_prefix);
 }
 
 ClusterPool* NebulaTest::create_cpool(SqlDB* db)

@@ -50,19 +50,19 @@ const string templates[] =
 
 const string xmls[] =
 {
-    "<IMAGE><ID>0</ID><UID>0</UID><USERNAME>A user</USERNAME><NAME>Image one</NAME><TYPE>0</TYPE><PUBLIC>0</PUBLIC><PERSISTENT>1</PERSISTENT><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/9ab4a4e021ee2883f57e3aeecc9e2aed7c3fa198</SOURCE><STATE>4</STATE><RUNNING_VMS>0</RUNNING_VMS><TEMPLATE><DESCRIPTION><![CDATA[This is a very long description of an image, and to achieve the longness I will copy this over. This is a very long description of an image, and to achieve the longness I will copy this over. And over. This is a very long description of an image, and to achieve the longness I will copy this over. And over. This is a very long description of an image, and to achieve the longness I will copy this over. And over.This is a very long description of an image, and to achieve the longness I will copy this over.]]></DESCRIPTION><DEV_PREFIX><![CDATA[hd]]></DEV_PREFIX><NAME><![CDATA[Image one]]></NAME><PATH><![CDATA[/tmp/image_test]]></PATH></TEMPLATE></IMAGE>",
+    "<IMAGE><ID>0</ID><UID>0</UID><USERNAME>A user</USERNAME><NAME>Image one</NAME><TYPE>0</TYPE><PUBLIC>0</PUBLIC><PERSISTENT>1</PERSISTENT><REGTIME>0000000000</REGTIME><SOURCE>-</SOURCE><STATE>4</STATE><RUNNING_VMS>0</RUNNING_VMS><TEMPLATE><DESCRIPTION><![CDATA[This is a very long description of an image, and to achieve the longness I will copy this over. This is a very long description of an image, and to achieve the longness I will copy this over. And over. This is a very long description of an image, and to achieve the longness I will copy this over. And over. This is a very long description of an image, and to achieve the longness I will copy this over. And over.This is a very long description of an image, and to achieve the longness I will copy this over.]]></DESCRIPTION><DEV_PREFIX><![CDATA[hd]]></DEV_PREFIX><NAME><![CDATA[Image one]]></NAME><PATH><![CDATA[/tmp/image_test]]></PATH></TEMPLATE></IMAGE>",
 
-    "<IMAGE><ID>1</ID><UID>1</UID><USERNAME>B user</USERNAME><NAME>Second Image</NAME><TYPE>0</TYPE><PUBLIC>1</PUBLIC><PERSISTENT>0</PERSISTENT><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/c9d51800847467911c755e5e4c13dfe28c3a79f3</SOURCE><STATE>4</STATE><RUNNING_VMS>0</RUNNING_VMS><TEMPLATE><DESCRIPTION><![CDATA[This is a rather short description.]]></DESCRIPTION><DEV_PREFIX><![CDATA[hd]]></DEV_PREFIX><NAME><![CDATA[Second Image]]></NAME><PATH><![CDATA[/tmp/image_second_test]]></PATH></TEMPLATE></IMAGE>",
+    "<IMAGE><ID>1</ID><UID>1</UID><USERNAME>B user</USERNAME><NAME>Second Image</NAME><TYPE>0</TYPE><PUBLIC>1</PUBLIC><PERSISTENT>0</PERSISTENT><REGTIME>0000000000</REGTIME><SOURCE>-</SOURCE><STATE>4</STATE><RUNNING_VMS>0</RUNNING_VMS><TEMPLATE><DESCRIPTION><![CDATA[This is a rather short description.]]></DESCRIPTION><DEV_PREFIX><![CDATA[hd]]></DEV_PREFIX><NAME><![CDATA[Second Image]]></NAME><PATH><![CDATA[/tmp/image_second_test]]></PATH></TEMPLATE></IMAGE>",
 
-    "<IMAGE><ID>0</ID><UID>2</UID><USERNAME>C user</USERNAME><NAME>The third image</NAME><TYPE>0</TYPE><PUBLIC>0</PUBLIC><PERSISTENT>0</PERSISTENT><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/e50b0c738be9d431475bf5859629e5580301a7d6</SOURCE><STATE>4</STATE><RUNNING_VMS>0</RUNNING_VMS><TEMPLATE><BUS><![CDATA[SCSI]]></BUS><DEV_PREFIX><![CDATA[hd]]></DEV_PREFIX><NAME><![CDATA[The third image]]></NAME><PATH><![CDATA[/tmp/image_test]]></PATH><PROFILE><![CDATA[STUDENT]]></PROFILE></TEMPLATE></IMAGE>"
+    "<IMAGE><ID>0</ID><UID>2</UID><USERNAME>C user</USERNAME><NAME>The third image</NAME><TYPE>0</TYPE><PUBLIC>0</PUBLIC><PERSISTENT>0</PERSISTENT><REGTIME>0000000000</REGTIME><SOURCE>-</SOURCE><STATE>4</STATE><RUNNING_VMS>0</RUNNING_VMS><TEMPLATE><BUS><![CDATA[SCSI]]></BUS><DEV_PREFIX><![CDATA[hd]]></DEV_PREFIX><NAME><![CDATA[The third image]]></NAME><PATH><![CDATA[/tmp/image_test]]></PATH><PROFILE><![CDATA[STUDENT]]></PROFILE></TEMPLATE></IMAGE>"
 };
 
 
 // This xml dump result has the STIMEs modified to 0000000000
 const string xml_dump =
-"<IMAGE_POOL><IMAGE><ID>0</ID><UID>0</UID><USERNAME>A user</USERNAME><NAME>Image one</NAME><TYPE>0</TYPE><PUBLIC>0</PUBLIC><PERSISTENT>1</PERSISTENT><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/9ab4a4e021ee2883f57e3aeecc9e2aed7c3fa198</SOURCE><STATE>4</STATE><RUNNING_VMS>0</RUNNING_VMS><TEMPLATE><DESCRIPTION><![CDATA[This is a very long description of an image, and to achieve the longness I will copy this over. This is a very long description of an image, and to achieve the longness I will copy this over. And over. This is a very long description of an image, and to achieve the longness I will copy this over. And over. This is a very long description of an image, and to achieve the longness I will copy this over. And over.This is a very long description of an image, and to achieve the longness I will copy this over.]]></DESCRIPTION><DEV_PREFIX><![CDATA[hd]]></DEV_PREFIX><NAME><![CDATA[Image one]]></NAME><PATH><![CDATA[/tmp/image_test]]></PATH></TEMPLATE></IMAGE><IMAGE><ID>1</ID><UID>1</UID><USERNAME>B user</USERNAME><NAME>Second Image</NAME><TYPE>0</TYPE><PUBLIC>1</PUBLIC><PERSISTENT>0</PERSISTENT><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/c9d51800847467911c755e5e4c13dfe28c3a79f3</SOURCE><STATE>4</STATE><RUNNING_VMS>0</RUNNING_VMS><TEMPLATE><DESCRIPTION><![CDATA[This is a rather short description.]]></DESCRIPTION><DEV_PREFIX><![CDATA[hd]]></DEV_PREFIX><NAME><![CDATA[Second Image]]></NAME><PATH><![CDATA[/tmp/image_second_test]]></PATH></TEMPLATE></IMAGE><IMAGE><ID>2</ID><UID>2</UID><USERNAME>C user</USERNAME><NAME>The third image</NAME><TYPE>0</TYPE><PUBLIC>0</PUBLIC><PERSISTENT>0</PERSISTENT><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/e50b0c738be9d431475bf5859629e5580301a7d6</SOURCE><STATE>4</STATE><RUNNING_VMS>0</RUNNING_VMS><TEMPLATE><BUS><![CDATA[SCSI]]></BUS><DEV_PREFIX><![CDATA[hd]]></DEV_PREFIX><NAME><![CDATA[The third image]]></NAME><PATH><![CDATA[/tmp/image_test]]></PATH><PROFILE><![CDATA[STUDENT]]></PROFILE></TEMPLATE></IMAGE></IMAGE_POOL>";
+"<IMAGE_POOL><IMAGE><ID>0</ID><UID>0</UID><USERNAME>A user</USERNAME><NAME>Image one</NAME><TYPE>0</TYPE><PUBLIC>0</PUBLIC><PERSISTENT>1</PERSISTENT><REGTIME>0000000000</REGTIME><SOURCE>-</SOURCE><STATE>4</STATE><RUNNING_VMS>0</RUNNING_VMS><TEMPLATE><DESCRIPTION><![CDATA[This is a very long description of an image, and to achieve the longness I will copy this over. This is a very long description of an image, and to achieve the longness I will copy this over. And over. This is a very long description of an image, and to achieve the longness I will copy this over. And over. This is a very long description of an image, and to achieve the longness I will copy this over. And over.This is a very long description of an image, and to achieve the longness I will copy this over.]]></DESCRIPTION><DEV_PREFIX><![CDATA[hd]]></DEV_PREFIX><NAME><![CDATA[Image one]]></NAME><PATH><![CDATA[/tmp/image_test]]></PATH></TEMPLATE></IMAGE><IMAGE><ID>1</ID><UID>1</UID><USERNAME>B user</USERNAME><NAME>Second Image</NAME><TYPE>0</TYPE><PUBLIC>1</PUBLIC><PERSISTENT>0</PERSISTENT><REGTIME>0000000000</REGTIME><SOURCE>-</SOURCE><STATE>4</STATE><RUNNING_VMS>0</RUNNING_VMS><TEMPLATE><DESCRIPTION><![CDATA[This is a rather short description.]]></DESCRIPTION><DEV_PREFIX><![CDATA[hd]]></DEV_PREFIX><NAME><![CDATA[Second Image]]></NAME><PATH><![CDATA[/tmp/image_second_test]]></PATH></TEMPLATE></IMAGE><IMAGE><ID>2</ID><UID>2</UID><USERNAME>C user</USERNAME><NAME>The third image</NAME><TYPE>0</TYPE><PUBLIC>0</PUBLIC><PERSISTENT>0</PERSISTENT><REGTIME>0000000000</REGTIME><SOURCE>-</SOURCE><STATE>4</STATE><RUNNING_VMS>0</RUNNING_VMS><TEMPLATE><BUS><![CDATA[SCSI]]></BUS><DEV_PREFIX><![CDATA[hd]]></DEV_PREFIX><NAME><![CDATA[The third image]]></NAME><PATH><![CDATA[/tmp/image_test]]></PATH><PROFILE><![CDATA[STUDENT]]></PROFILE></TEMPLATE></IMAGE></IMAGE_POOL>";
 const string xml_dump_where =
-"<IMAGE_POOL><IMAGE><ID>0</ID><UID>0</UID><USERNAME>A user</USERNAME><NAME>Image one</NAME><TYPE>0</TYPE><PUBLIC>0</PUBLIC><PERSISTENT>1</PERSISTENT><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/9ab4a4e021ee2883f57e3aeecc9e2aed7c3fa198</SOURCE><STATE>4</STATE><RUNNING_VMS>0</RUNNING_VMS><TEMPLATE><DESCRIPTION><![CDATA[This is a very long description of an image, and to achieve the longness I will copy this over. This is a very long description of an image, and to achieve the longness I will copy this over. And over. This is a very long description of an image, and to achieve the longness I will copy this over. And over. This is a very long description of an image, and to achieve the longness I will copy this over. And over.This is a very long description of an image, and to achieve the longness I will copy this over.]]></DESCRIPTION><DEV_PREFIX><![CDATA[hd]]></DEV_PREFIX><NAME><![CDATA[Image one]]></NAME><PATH><![CDATA[/tmp/image_test]]></PATH></TEMPLATE></IMAGE><IMAGE><ID>1</ID><UID>1</UID><USERNAME>B user</USERNAME><NAME>Second Image</NAME><TYPE>0</TYPE><PUBLIC>1</PUBLIC><PERSISTENT>0</PERSISTENT><REGTIME>0000000000</REGTIME><SOURCE>source_prefix/c9d51800847467911c755e5e4c13dfe28c3a79f3</SOURCE><STATE>4</STATE><RUNNING_VMS>0</RUNNING_VMS><TEMPLATE><DESCRIPTION><![CDATA[This is a rather short description.]]></DESCRIPTION><DEV_PREFIX><![CDATA[hd]]></DEV_PREFIX><NAME><![CDATA[Second Image]]></NAME><PATH><![CDATA[/tmp/image_second_test]]></PATH></TEMPLATE></IMAGE></IMAGE_POOL>";
+"<IMAGE_POOL><IMAGE><ID>0</ID><UID>0</UID><USERNAME>A user</USERNAME><NAME>Image one</NAME><TYPE>0</TYPE><PUBLIC>0</PUBLIC><PERSISTENT>1</PERSISTENT><REGTIME>0000000000</REGTIME><SOURCE>-</SOURCE><STATE>4</STATE><RUNNING_VMS>0</RUNNING_VMS><TEMPLATE><DESCRIPTION><![CDATA[This is a very long description of an image, and to achieve the longness I will copy this over. This is a very long description of an image, and to achieve the longness I will copy this over. And over. This is a very long description of an image, and to achieve the longness I will copy this over. And over. This is a very long description of an image, and to achieve the longness I will copy this over. And over.This is a very long description of an image, and to achieve the longness I will copy this over.]]></DESCRIPTION><DEV_PREFIX><![CDATA[hd]]></DEV_PREFIX><NAME><![CDATA[Image one]]></NAME><PATH><![CDATA[/tmp/image_test]]></PATH></TEMPLATE></IMAGE><IMAGE><ID>1</ID><UID>1</UID><USERNAME>B user</USERNAME><NAME>Second Image</NAME><TYPE>0</TYPE><PUBLIC>1</PUBLIC><PERSISTENT>0</PERSISTENT><REGTIME>0000000000</REGTIME><SOURCE>-</SOURCE><STATE>4</STATE><RUNNING_VMS>0</RUNNING_VMS><TEMPLATE><DESCRIPTION><![CDATA[This is a rather short description.]]></DESCRIPTION><DEV_PREFIX><![CDATA[hd]]></DEV_PREFIX><NAME><![CDATA[Second Image]]></NAME><PATH><![CDATA[/tmp/image_second_test]]></PATH></TEMPLATE></IMAGE></IMAGE_POOL>";
 
 const string replacement = "0000000000";
 
@@ -70,12 +70,10 @@ class ImagePoolFriend : public ImagePool
 {
 public:
     ImagePoolFriend(SqlDB * db,
-                    const string&   _source_prefix,
                     const string&   _default_type,
                     const string&   _default_dev_prefix):
 
                     ImagePool(  db,
-                                _source_prefix,
                                 _default_type,
                                 _default_dev_prefix){};
 
@@ -147,7 +145,7 @@ protected:
     PoolSQL* create_pool(SqlDB* db)
     {
         ImagePoolFriend * imp =
-                        new ImagePoolFriend(db, "source_prefix", "OS", "hd");
+                        new ImagePoolFriend(db, "OS", "hd");
         return imp;
     };
 
@@ -201,7 +199,7 @@ public:
 
         // Create a new pool, using the same DB. This new pool should read the
         // allocated images.
-        imp = new ImagePool(db, "source_prefix", "OS", "hd");
+        imp = new ImagePool(db,"OS", "hd");
 
         img = imp->get(names[0], uids[0], false);
         CPPUNIT_ASSERT( img != 0 );
@@ -565,8 +563,7 @@ public:
 
         value = "";
         value = disk->vector_value("SOURCE");
-        CPPUNIT_ASSERT( value ==
-                    "source_prefix/9ab4a4e021ee2883f57e3aeecc9e2aed7c3fa198" );
+        CPPUNIT_ASSERT( value == "-" );
 
         // clean up
         //img->release_image();
@@ -586,8 +583,7 @@ public:
 
         value = "";
         value = disk->vector_value("SOURCE");
-        CPPUNIT_ASSERT( value ==
-                    "source_prefix/9ab4a4e021ee2883f57e3aeecc9e2aed7c3fa198" );
+        CPPUNIT_ASSERT( value == "-" );
 
         // clean up
         delete disk;
@@ -874,15 +870,15 @@ public:
         string result = oss.str();
 
         result.replace(157,  10, replacement);
-        result.replace(1129, 10, replacement);
-        result.replace(1641, 10, replacement);
+        result.replace(1076, 10, replacement);
+        result.replace(1535, 10, replacement);
 
 /*
         if( result != xml_dump )
         {
             cout << endl << result << endl << xml_dump << endl;
         }
-//*/
+*/
 
         CPPUNIT_ASSERT( result == xml_dump );
     }
@@ -909,14 +905,14 @@ public:
 
         string result = oss.str();
         result.replace(157,  10, replacement);
-        result.replace(1129, 10, replacement);
+        result.replace(1076, 10, replacement);
 
-/*
+
         if( result != xml_dump_where )
         {
             cout << endl << result << endl << xml_dump_where << endl;
         }
-//*/
+
 
         CPPUNIT_ASSERT( result == xml_dump_where );
     }
