@@ -258,6 +258,9 @@ INSTALL_FILES=(
     LIB_FILES:$LIB_LOCATION
     RUBY_LIB_FILES:$LIB_LOCATION/ruby
     RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/OpenNebula
+    MAD_RUBY_LIB_FILES:$LIB_LOCATION/ruby
+    MAD_RUBY_LIB_FILES:$LIB_LOCATION/remotes
+    MAD_RUBY_LIB_FILES:$VAR_LOCATION/remotes
     MAD_SH_LIB_FILES:$LIB_LOCATION/sh
     MAD_SH_LIB_FILES:$LIB_LOCATION/remotes
     MAD_SH_LIB_FILES:$VAR_LOCATION/remotes
@@ -415,11 +418,12 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/OpenNebula/Host.rb \
 
 
 #-----------------------------------------------------------------------------
-# MAD ShellScript library files, to be installed under $LIB_LOCATION/sh
+# MAD Script library files, to be installed under $LIB_LOCATION/<script lang>
 # and remotes directory
 #-----------------------------------------------------------------------------
 
 MAD_SH_LIB_FILES="src/mad/sh/scripts_common.sh"
+MAD_RUBY_LIB_FILES="src/mad/ruby/scripts_common.rb"
 
 #-------------------------------------------------------------------------------
 # Driver executable files, to be installed under $LIB_LOCATION/mads
