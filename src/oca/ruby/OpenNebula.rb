@@ -39,6 +39,8 @@ require 'OpenNebula/Cluster'
 require 'OpenNebula/ClusterPool'
 require 'OpenNebula/Template'
 require 'OpenNebula/TemplatePool'
+require 'OpenNebula/Group'
+require 'OpenNebula/GroupPool'
 
 module OpenNebula
 

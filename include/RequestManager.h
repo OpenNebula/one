@@ -25,6 +25,7 @@
 #include "ImagePool.h"
 #include "ClusterPool.h"
 #include "VMTemplatePool.h"
+#include "GroupPool.h"
 
 #include <xmlrpc-c/base.hpp>
 #include <xmlrpc-c/registry.hpp>
@@ -48,11 +49,12 @@ public:
         ImagePool          *    _ipool,
         ClusterPool        *    _cpool,
         VMTemplatePool     *    _tpool,
+        GroupPool          *    _gpool,
         int                     _port,
         string                  _xml_log_file)
             :vmpool(_vmpool),hpool(_hpool),vnpool(_vnpool),upool(_upool),
-            ipool(_ipool),cpool(_cpool),tpool(_tpool),port(_port),socket_fd(-1),
-            xml_log_file(_xml_log_file)
+            ipool(_ipool),cpool(_cpool),tpool(_tpool),gpool(_gpool),port(_port),
+            socket_fd(-1),xml_log_file(_xml_log_file)
     {
         am.addListener(this);
     };
@@ -140,6 +142,11 @@ private:
      *  Pointer to the Template Pool, to access templates
      */
     VMTemplatePool     *    tpool;
+
+    /**
+     *  Pointer to the Group Pool, to access groups
+     */
+    GroupPool          *    gpool;
 
     /**
      *  Port number where the connection will be open
@@ -984,6 +991,113 @@ private:
     private:
         UserPool *      upool;
         ClusterPool *   cpool;
+    };
+
+
+    /* ---------------------------------------------------------------------- */
+    /*                      Group Interface                                   */
+    /* ---------------------------------------------------------------------- */
+
+    class GroupAllocate: public xmlrpc_c::method
+    {
+    public:
+        GroupAllocate(
+            UserPool *      _upool,
+            GroupPool *     _gpool):
+                upool(_upool),
+                gpool(_gpool)
+        {
+            _signature="A:ss";
+            _help="Allocates a group in the pool";
+        };
+
+        ~GroupAllocate(){};
+
+        void execute(
+            xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP);
+
+    private:
+        UserPool *      upool;
+        GroupPool *     gpool;
+    };
+
+    /* ---------------------------------------------------------------------- */
+
+    class GroupInfo: public xmlrpc_c::method
+    {
+    public:
+        GroupInfo(
+            UserPool *      _upool,
+            GroupPool *     _gpool):
+                upool(_upool),
+                gpool(_gpool)
+        {
+            _signature="A:si";
+            _help="Returns group information";
+        };
+
+        ~GroupInfo(){};
+
+        void execute(
+            xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP);
+
+    private:
+        UserPool *      upool;
+        GroupPool *     gpool;
+    };
+
+    /* ---------------------------------------------------------------------- */
+
+    class GroupDelete: public xmlrpc_c::method
+    {
+    public:
+        GroupDelete(
+            UserPool *      _upool,
+            GroupPool *     _gpool):
+                upool(_upool),
+                gpool(_gpool)
+        {
+            _signature="A:si";
+            _help="Deletes a group from the pool";
+        };
+
+        ~GroupDelete(){};
+
+        void execute(
+            xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP);
+
+    private:
+        UserPool *      upool;
+        GroupPool *     gpool;
+    };
+
+    /* ---------------------------------------------------------------------- */
+
+    class GroupPoolInfo: public xmlrpc_c::method
+    {
+    public:
+        GroupPoolInfo(
+            UserPool *      _upool,
+            GroupPool *     _gpool):
+                upool(_upool),
+                gpool(_gpool)
+        {
+            _signature="A:s";
+            _help="Returns the group pool information";
+        };
+
+        ~GroupPoolInfo(){};
+
+        void execute(
+            xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP);
+
+    private:
+        UserPool *      upool;
+        GroupPool *     gpool;
     };
 
 

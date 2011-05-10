@@ -45,7 +45,8 @@ protected:
     NebulaTest():mysql(false), need_host_pool(false), need_vm_pool(false),
                 need_vnet_pool(false), need_image_pool(false), 
                 need_user_pool(false), need_cluster_pool(false),
-                need_template_pool(false),need_vmm(false),
+                need_template_pool(false), need_group_pool(false),
+                need_vmm(false),
                 need_im(false), need_tm(false),
                 need_lcm(false), need_dm(false),
                 need_rm(false), need_hm(false),
@@ -66,6 +67,7 @@ public:
     bool need_user_pool;
     bool need_cluster_pool;
     bool need_template_pool;
+    bool need_group_pool;
 
     bool need_vmm;
     bool need_im;
@@ -104,6 +106,8 @@ public:
 
     virtual VMTemplatePool* create_tpool(SqlDB* db);
 
+    virtual GroupPool* create_gpool(SqlDB* db);
+
     // ------------------------------------------------------------------------
     // Managers
     // ------------------------------------------------------------------------
@@ -134,6 +138,7 @@ public:
                     ImagePool          *    ipool,
                     ClusterPool        *    cpool,
                     VMTemplatePool     *    tpool,
+                    GroupPool          *    gpool,
                     string                  log_file);
 
     virtual HookManager* create_hm(VirtualMachinePool * vmpool);

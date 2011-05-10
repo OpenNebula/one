@@ -87,6 +87,11 @@ void Nebula::start()
         delete tpool;
     }
 
+    if ( gpool != 0)
+    {
+        delete gpool;
+    }
+
     if ( vmm != 0)
     {
         delete vmm;
@@ -171,6 +176,8 @@ void Nebula::start()
         UserPool::bootstrap(db);
         ImagePool::bootstrap(db);
         ClusterPool::bootstrap(db);
+        VMTemplatePool::bootstrap(db);
+        GroupPool::bootstrap(db);
     }
     catch (exception&)
     {
@@ -221,6 +228,11 @@ void Nebula::start()
         if (tester->need_template_pool)
         {
             tpool  = tester->create_tpool(db);
+        }
+
+        if (tester->need_group_pool)
+        {
+            gpool  = tester->create_gpool(db);
         }
     }
     catch (exception&)
@@ -367,7 +379,7 @@ void Nebula::start()
         try
         {
             rm = tester->create_rm(vmpool,hpool,vnpool,upool,ipool,cpool,tpool,
-                                   log_location + "one_xmlrpc.log");
+                                   gpool,log_location + "one_xmlrpc.log");
         }
         catch (bad_alloc&)
         {

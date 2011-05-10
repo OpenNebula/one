@@ -54,4 +54,4 @@ env.Prepend(LIBS=[
     'crypto'
 ])
 
-env.Program('test','ClusterPoolTest.cc')
+env.Program('test','GroupPoolTest.cc')

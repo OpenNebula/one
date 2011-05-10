@@ -321,6 +321,10 @@ def get_template_id(name)
     get_entity_id(name, OpenNebula::TemplatePool)
 end
 
+def get_group_id(name)
+    get_entity_id(name, OpenNebula::GroupPool)
+end
+
 def str_running_time(data)
     stime=Time.at(data["STIME"].to_i)
     if data["ETIME"]=="0"

@@ -295,7 +295,8 @@ public:
         IMAGE,
         USER,
         CLUSTER,
-        TEMPLATE
+        TEMPLATE,
+        GROUP
     };
 
     /**

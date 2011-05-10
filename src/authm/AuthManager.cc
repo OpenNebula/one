@@ -87,6 +87,7 @@ void AuthRequest::add_auth(Object        ob,
         case USER:     oss << "USER:" ; break;
         case CLUSTER:  oss << "CLUSTER:" ; break;
         case TEMPLATE: oss << "TEMPLATE:" ; break;
+        case GROUP:    oss << "GROUP:" ; break;
     }
 
     if (op == CREATE || op == INSTANTIATE) //encode the ob_id, it is a template

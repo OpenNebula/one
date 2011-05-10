@@ -288,6 +288,18 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr clusterpool_info(new 
         RequestManager::ClusterPoolInfo(upool,cpool));
 
+    xmlrpc_c::methodPtr group_allocate(new 
+        RequestManager::GroupAllocate(upool,gpool));
+
+    xmlrpc_c::methodPtr group_info(new 
+        RequestManager::GroupInfo(upool,gpool));
+
+    xmlrpc_c::methodPtr group_delete(new 
+        RequestManager::GroupDelete(upool,gpool));
+
+    xmlrpc_c::methodPtr grouppool_info(new 
+        RequestManager::GroupPoolInfo(upool,gpool));
+
     xmlrpc_c::methodPtr vn_allocate(new 
         RequestManager::VirtualNetworkAllocate(vnpool,upool));
         
@@ -391,6 +403,14 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.cluster.remove", cluster_remove);
 
     RequestManagerRegistry.addMethod("one.clusterpool.info", clusterpool_info);
+
+    /* Group related methods */
+
+    RequestManagerRegistry.addMethod("one.group.allocate",  group_allocate);
+    RequestManagerRegistry.addMethod("one.group.info",      group_info);
+    RequestManagerRegistry.addMethod("one.group.delete",    group_delete);
+
+    RequestManagerRegistry.addMethod("one.grouppool.info",  grouppool_info);
 
     /* Network related methods*/
 
