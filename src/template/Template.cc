@@ -14,8 +14,6 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#include <sqlite3.h>
-
 #include "Template.h"
 #include "template_syntax.h"
 
