@@ -773,6 +773,7 @@ SUNSTONE_PUBLIC_JS_PLUGINS_FILES="\
                             src/sunstone/public/js/plugins/dashboard-tab.js \
                             src/sunstone/public/js/plugins/hosts-tab.js \
                             src/sunstone/public/js/plugins/images-tab.js \
+                            src/sunstone/public/js/plugins/templates-tab.js \
                             src/sunstone/public/js/plugins/users-tab.js \
                             src/sunstone/public/js/plugins/vms-tab.js \
                             src/sunstone/public/js/plugins/vnets-tab.js"
