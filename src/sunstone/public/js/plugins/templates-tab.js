@@ -1749,9 +1749,15 @@ function setupCreateTemplateDialog(){
             vm_json["CONTEXT"][name]=value;
         });
 
-		//placement -> fetch with value
-		scope = section_placement;
-		addSectionJSON(vm_json,scope);
+        //placement -> fetch with value, escape double quotes
+        scope = section_placement;
+        var requirements = $('input#REQUIREMENTS',scope).val();
+        requirements = escapeDoubleQuotes(requirements);
+        $('input#REQUIREMENTS',scope).val(requirements);
+        var rank = $('input#RANK',scope).val();
+        rank = escapeDoubleQuotes(rank);
+        $('input#RANK',scope).val(rank);
+        addSectionJSON(vm_json,scope);
 
 		//raw -> if value set type to driver and fetch
 		scope = section_raw;

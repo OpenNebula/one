@@ -405,6 +405,12 @@ function makeSelectOptions(dataTable,
     return select;
 }
 
+//Escape " in a string and return it
+function escapeDoubleQuotes(string){
+    string = string.replace(/\\"/g,'"');
+    return string.replace(/"/g,'\\"');
+}
+
 //functions that used as true and false conditions for testing mainly
 function True(){
     return true;
