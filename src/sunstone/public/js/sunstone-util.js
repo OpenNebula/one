@@ -189,18 +189,22 @@ function notifyError(msg){
 
 // Returns an HTML string with the json keys and values in the form
 // key: value<br />
-// It recursively explores objects, and flattens their contents in
-// the result.
-function prettyPrintJSON(template_json){
-	var str = ""
-	for (field in template_json) {
-		if (typeof template_json[field] == 'object'){
-			str += prettyPrintJSON(template_json[field]) + '<tr><td></td><td></td></tr>';
-		} else {
-			str += '<tr><td class="key_td">'+field+'</td><td class="value_td">'+template_json[field]+'</td></tr>';
-		};
-	};
-	return str;
+// It recursively explores objects
+function prettyPrintJSON(template_json,padding,weight, border_bottom){
+    var str = ""
+    if (!padding) {padding=0};
+    if (!weight) {weight="bold";}
+    if (!border_bottom) {border_bottom = "1px solid #CCCCCC";}
+
+    for (field in template_json) {
+        if (typeof template_json[field] == 'object'){
+            str += '<tr><td class="key_td" style="padding-left:'+padding+'px;font-weight:'+weight+';border-bottom:'+border_bottom+'">'+field+'</td><td class="value_td" style="border-bottom:'+border_bottom+'"></td></tr>';
+            str += prettyPrintJSON(template_json[field],padding+25,"normal","0") + '<tr><td class="key_td" style="padding-left:'+(padding+10)+'px"></td><td class="value_td"></td></tr>';
+        } else {
+            str += '<tr><td class="key_td" style="padding-left:'+padding+'px;font-weight:'+weight+';border-bottom:'+border_bottom+'">'+field+'</td><td class="value_td" style="border-bottom:'+border_bottom+'">'+template_json[field]+'</td></tr>';
+        };
+    };
+    return str;
 }
 
 //Add a listener to the check-all box of a datatable, enabling it to

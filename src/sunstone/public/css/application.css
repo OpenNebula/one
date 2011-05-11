@@ -384,10 +384,6 @@ tr.even:hover{
 	font-weight:bold;
 }
 
-.info_table td.key_td:after{
-	content:":";
-}
-
 .info_table td.value_td{
 	text-align:left;
 }
