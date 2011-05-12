@@ -56,7 +56,6 @@ ImagePool::ImagePool(SqlDB *       db,
 
 int ImagePool::allocate (
         int            uid,
-        string         user_name,
         ImageTemplate* img_template,
         int *          oid,
         string&        error_str)
@@ -66,7 +65,7 @@ int ImagePool::allocate (
     string          name;
     ostringstream   oss;
 
-    img = new Image(uid, user_name, img_template);
+    img = new Image(uid, img_template);
 
     // Check name
     img->get_template_attribute("NAME", name);

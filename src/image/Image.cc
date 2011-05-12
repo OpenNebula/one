@@ -34,11 +34,9 @@
 /* Image :: Constructor/Destructor                                          */
 /* ************************************************************************ */
 
-Image::Image(int             _uid, 
-             const string&   _user_name, 
+Image::Image(int             _uid,
              ImageTemplate * _image_template):
         PoolObjectSQL(-1,"",_uid,table),
-        user_name(_user_name),
         type(OS),
         regtime(time(0)),
         source("-"),
@@ -335,7 +333,6 @@ string& Image::to_xml(string& xml) const
         "<IMAGE>" <<
             "<ID>"             << oid             << "</ID>"          <<
             "<UID>"            << uid             << "</UID>"         <<
-            "<USERNAME>"       << user_name       << "</USERNAME>"    <<
             "<NAME>"           << name            << "</NAME>"        <<
             "<TYPE>"           << type            << "</TYPE>"        <<
             "<PUBLIC>"         << public_img      << "</PUBLIC>"      <<
@@ -369,7 +366,6 @@ int Image::from_xml(const string& xml)
     // Get class base attributes
     rc += xpath(oid, "/IMAGE/ID", -1);
     rc += xpath(uid, "/IMAGE/UID", -1);
-    rc += xpath(user_name, "/IMAGE/USERNAME", "not_found");
     rc += xpath(name, "/IMAGE/NAME", "not_found");
 
     rc += xpath(int_type, "/IMAGE/TYPE", 0);

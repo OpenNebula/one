@@ -29,7 +29,6 @@ void RequestManager::TemplateAllocate::execute(
     string              session;
     string              str_template;
     string              error_str;
-    string              user_name;
 
     const string        method_name = "TemplateAllocate";
 
@@ -42,7 +41,6 @@ void RequestManager::TemplateAllocate::execute(
     xmlrpc_c::value_array * arrayresult;
 
     VirtualMachineTemplate * template_contents;
-    User *                   user;
     char *                   error_msg = 0;
 
 
@@ -95,25 +93,9 @@ void RequestManager::TemplateAllocate::execute(
     }
 
     //--------------------------------------------------------------------------
-    //   Get the User Name
-    //--------------------------------------------------------------------------
-
-    user = TemplateAllocate::upool->get(uid,true);
-
-    if ( user == 0 )
-    {
-        goto error_user_get;
-    }
-
-    user_name = user->get_name();
-
-    user->unlock();
-
-    //--------------------------------------------------------------------------
     //   Allocate the VMTemplate
     //--------------------------------------------------------------------------
     rc = TemplateAllocate::tpool->allocate(uid,
-                                           user_name,
                                            template_contents,
                                            &oid,
                                            error_str);
@@ -134,12 +116,6 @@ void RequestManager::TemplateAllocate::execute(
 
     return;
 
-
-error_user_get:
-    oss.str(get_error(method_name, "USER", uid));
-
-    delete template_contents;
-    goto error_common;
 
 error_authenticate:
     oss.str(authenticate_error(method_name));

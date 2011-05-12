@@ -24,7 +24,6 @@
 using namespace std;
 
 const int uids[] = {0,1,2};
-const string user_names[] = {"A user","B user","C user"};
 
 const string names[] = {"Template one", "Second Template", "Third Template"};
 
@@ -46,21 +45,19 @@ const string templates[] =
 
 const string xmls[] =
 {
-    "<VMTEMPLATE><ID>0</ID><UID>0</UID><USERNAME>A user</USERNAME><NAME>Template one</NAME><PUBLIC>0</PUBLIC><REGTIME>0000000000</REGTIME><TEMPLATE><CPU><![CDATA[1]]></CPU><MEMORY><![CDATA[128]]></MEMORY><NAME><![CDATA[Template one]]></NAME></TEMPLATE></VMTEMPLATE>",
+    "<VMTEMPLATE><ID>0</ID><UID>0</UID><NAME>Template one</NAME><PUBLIC>0</PUBLIC><REGTIME>0000000000</REGTIME><TEMPLATE><CPU><![CDATA[1]]></CPU><MEMORY><![CDATA[128]]></MEMORY><NAME><![CDATA[Template one]]></NAME></TEMPLATE></VMTEMPLATE>",
 
-    "<VMTEMPLATE><ID>1</ID><UID>1</UID><USERNAME>B user</USERNAME><NAME>Second Template</NAME><PUBLIC>0</PUBLIC><REGTIME>0000000000</REGTIME><TEMPLATE><CPU><![CDATA[2]]></CPU><MEMORY><![CDATA[256]]></MEMORY><NAME><![CDATA[Second Template]]></NAME></TEMPLATE></VMTEMPLATE>",
+    "<VMTEMPLATE><ID>1</ID><UID>1</UID><NAME>Second Template</NAME><PUBLIC>0</PUBLIC><REGTIME>0000000000</REGTIME><TEMPLATE><CPU><![CDATA[2]]></CPU><MEMORY><![CDATA[256]]></MEMORY><NAME><![CDATA[Second Template]]></NAME></TEMPLATE></VMTEMPLATE>",
 
-    "<VMTEMPLATE><ID>2</ID><UID>2</UID><USERNAME>C user</USERNAME><NAME>Third Template</NAME><PUBLIC>0</PUBLIC><REGTIME>0000000000</REGTIME><TEMPLATE><CPU><![CDATA[3]]></CPU><MEMORY><![CDATA[1024]]></MEMORY><NAME><![CDATA[Third Template]]></NAME></TEMPLATE></VMTEMPLATE>"
+    "<VMTEMPLATE><ID>2</ID><UID>2</UID><NAME>Third Template</NAME><PUBLIC>0</PUBLIC><REGTIME>0000000000</REGTIME><TEMPLATE><CPU><![CDATA[3]]></CPU><MEMORY><![CDATA[1024]]></MEMORY><NAME><![CDATA[Third Template]]></NAME></TEMPLATE></VMTEMPLATE>"
 };
 
 
 // This xml dump result has the STIMEs modified to 0000000000
 const string xml_dump =
-    "<VMTEMPLATE_POOL><VMTEMPLATE><ID>0</ID><UID>0</UID><USERNAME>A user</USERNAME><NAME>Template one</NAME><PUBLIC>0</PUBLIC><REGTIME>0000000000</REGTIME><TEMPLATE><CPU><![CDATA[1]]></CPU><MEMORY><![CDATA[128]]></MEMORY><NAME><![CDATA[Template one]]></NAME></TEMPLATE></VMTEMPLATE><VMTEMPLATE><ID>1</ID><UID>1</UID><USERNAME>B user</USERNAME><NAME>Second Template</NAME><PUBLIC>0</PUBLIC><REGTIME>0000000000</REGTIME><TEMPLATE><CPU><![CDATA[2]]></CPU><MEMORY><![CDATA[256]]></MEMORY><NAME><![CDATA[Second Template]]></NAME></TEMPLATE></VMTEMPLATE><VMTEMPLATE><ID>2</ID><UID>2</UID><USERNAME>C user</USERNAME><NAME>Third Template</NAME><PUBLIC>0</PUBLIC><REGTIME>0000000000</REGTIME><TEMPLATE><CPU><![CDATA[3]]></CPU><MEMORY><![CDATA[1024]]></MEMORY><NAME><![CDATA[Third Template]]></NAME></TEMPLATE></VMTEMPLATE></VMTEMPLATE_POOL>";
+    "<VMTEMPLATE_POOL><VMTEMPLATE><ID>0</ID><UID>0</UID><NAME>Template one</NAME><PUBLIC>0</PUBLIC><REGTIME>0000000000</REGTIME><TEMPLATE><CPU><![CDATA[1]]></CPU><MEMORY><![CDATA[128]]></MEMORY><NAME><![CDATA[Template one]]></NAME></TEMPLATE></VMTEMPLATE><VMTEMPLATE><ID>1</ID><UID>1</UID><NAME>Second Template</NAME><PUBLIC>0</PUBLIC><REGTIME>0000000000</REGTIME><TEMPLATE><CPU><![CDATA[2]]></CPU><MEMORY><![CDATA[256]]></MEMORY><NAME><![CDATA[Second Template]]></NAME></TEMPLATE></VMTEMPLATE><VMTEMPLATE><ID>2</ID><UID>2</UID><NAME>Third Template</NAME><PUBLIC>0</PUBLIC><REGTIME>0000000000</REGTIME><TEMPLATE><CPU><![CDATA[3]]></CPU><MEMORY><![CDATA[1024]]></MEMORY><NAME><![CDATA[Third Template]]></NAME></TEMPLATE></VMTEMPLATE></VMTEMPLATE_POOL>";
 const string xml_dump_where =
-    "<VMTEMPLATE_POOL><VMTEMPLATE><ID>0</ID><UID>0</UID><USERNAME>A user</USERNAME><NAME>Template one</NAME><PUBLIC>0</PUBLIC><REGTIME>0000000000</REGTIME><TEMPLATE><CPU><![CDATA[1]]></CPU><MEMORY><![CDATA[128]]></MEMORY><NAME><![CDATA[Template one]]></NAME></TEMPLATE></VMTEMPLATE><VMTEMPLATE><ID>1</ID><UID>1</UID><USERNAME>B user</USERNAME><NAME>Second Template</NAME><PUBLIC>0</PUBLIC><REGTIME>0000000000</REGTIME><TEMPLATE><CPU><![CDATA[2]]></CPU><MEMORY><![CDATA[256]]></MEMORY><NAME><![CDATA[Second Template]]></NAME></TEMPLATE></VMTEMPLATE></VMTEMPLATE_POOL>";
-
-const string replacement = "0000000000";
+    "<VMTEMPLATE_POOL><VMTEMPLATE><ID>0</ID><UID>0</UID><NAME>Template one</NAME><PUBLIC>0</PUBLIC><REGTIME>0000000000</REGTIME><TEMPLATE><CPU><![CDATA[1]]></CPU><MEMORY><![CDATA[128]]></MEMORY><NAME><![CDATA[Template one]]></NAME></TEMPLATE></VMTEMPLATE><VMTEMPLATE><ID>1</ID><UID>1</UID><NAME>Second Template</NAME><PUBLIC>0</PUBLIC><REGTIME>0000000000</REGTIME><TEMPLATE><CPU><![CDATA[2]]></CPU><MEMORY><![CDATA[256]]></MEMORY><NAME><![CDATA[Second Template]]></NAME></TEMPLATE></VMTEMPLATE></VMTEMPLATE_POOL>";
 
 class VMTemplatePoolFriend : public VMTemplatePool
 {
@@ -81,7 +78,7 @@ public:
 
         if( rc == 0 )
         {
-            return VMTemplatePool::allocate(uid, user_names[uid], template_contents, oid, err);
+            return VMTemplatePool::allocate(uid, template_contents, oid, err);
         }
         else
         {
@@ -147,7 +144,7 @@ protected:
         // Get the xml and replace the REGTIME to 0, so we can compare
         // it.
         ((VMTemplate*)obj)->to_xml(xml_str);
-        xml_str.replace( xml_str.find("<REGTIME>")+9, 10, replacement);
+        fix_regtimes( xml_str );
 
 /*
         if( xml_str != xmls[index] )
@@ -490,10 +487,7 @@ public:
         CPPUNIT_ASSERT(rc == 0);
 
         string result = oss.str();
-
-        result.replace(130, 10, replacement);
-        result.replace(393, 10, replacement);
-        result.replace(658, 10, replacement);
+        fix_regtimes(result);
 
 /*
         if( result != xml_dump )
@@ -526,9 +520,7 @@ public:
         CPPUNIT_ASSERT(rc == 0);
 
         string result = oss.str();
-
-        result.replace(130, 10, replacement);
-        result.replace(393, 10, replacement);
+        fix_regtimes(result);
 
 /*
         if( result != xml_dump_where )

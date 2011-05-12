@@ -38,10 +38,8 @@
 
 VirtualMachine::VirtualMachine(int id,
                                int _uid,
-                               string _user_name,
                                VirtualMachineTemplate * _vm_template):
         PoolObjectSQL(id,"",_uid,table),
-        user_name(_user_name),
         last_poll(0),
         state(INIT),
         lcm_state(LCM_INIT),
@@ -1106,7 +1104,6 @@ string& VirtualMachine::to_xml(string& xml) const
     oss << "<VM>"
         << "<ID>"        << oid       << "</ID>"
         << "<UID>"       << uid       << "</UID>"
-        << "<USERNAME>"  << user_name << "</USERNAME>"
         << "<NAME>"      << name      << "</NAME>"
         << "<LAST_POLL>" << last_poll << "</LAST_POLL>"
         << "<STATE>"     << state     << "</STATE>"
@@ -1146,7 +1143,6 @@ int VirtualMachine::from_xml(const string &xml_str)
     // Get class base attributes
     rc += xpath(oid,        "/VM/ID",       -1);
     rc += xpath(uid,        "/VM/UID",      -1);
-    rc += xpath(user_name,  "/VM/USERNAME", "not_found");
     rc += xpath(name,       "/VM/NAME",     "not_found");
 
     rc += xpath(last_poll,  "/VM/LAST_POLL",0);

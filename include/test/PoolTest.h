@@ -68,6 +68,45 @@ protected:
     PoolTest():pool(0){};
     virtual ~PoolTest(){};
 
+    /**
+     *  Replaces all <REGTIME> elements, padding them with 0
+     */
+    string fix_regtimes(string& xml)
+    {
+        return fix_time(xml, "REGTIME");
+    }
+
+    string fix_stimes(string& xml)
+    {
+        return fix_time(xml, "STIME");
+    }
+
+    string fix_time(string& xml, string elem_name)
+    {
+        string start = "<"  + elem_name + ">";
+        string end   = "</" + elem_name + ">";
+
+        string replacement = "0000000000";
+        unsigned int pos = 0;
+        unsigned int end_pos = 0;
+
+        unsigned int length;
+
+        pos = xml.find(start, pos+1);
+
+        while( pos != xml.npos )
+        {
+            end_pos = xml.find(end, pos);
+            length = end_pos - pos - start.size();
+
+            xml.replace( pos+start.size(), length, replacement, 0, length);
+
+            pos = xml.find(start, pos+2);
+        }
+
+        return xml;
+    }
+
 public:
 
     void setUp()

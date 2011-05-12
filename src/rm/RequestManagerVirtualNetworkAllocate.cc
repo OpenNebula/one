@@ -29,12 +29,10 @@ void RequestManager::VirtualNetworkAllocate::execute(
 {
     string              session;
     string              name;
-    string              user_name;
     string              str_template;
     string              error_str;
 
     VirtualNetworkTemplate * vn_template;
-    User *                   user;
 
     int                 nid;
     int                 uid;
@@ -100,24 +98,9 @@ void RequestManager::VirtualNetworkAllocate::execute(
     }
 
     //--------------------------------------------------------------------------
-    //   Get the User Name
-    //--------------------------------------------------------------------------
-
-    user = VirtualNetworkAllocate::upool->get(uid,true);
-
-    if ( user == 0 )
-    {
-        goto error_user_get;
-    }
-
-    user_name = user->get_name();
-
-    user->unlock();
-
-    //--------------------------------------------------------------------------
     //   Allocate the Virtual Network
     //--------------------------------------------------------------------------
-    rc = vnpool->allocate(uid,user_name,vn_template,&nid,error_str);
+    rc = vnpool->allocate(uid,vn_template,&nid,error_str);
 
     if ( rc < 0 )
     {
@@ -135,12 +118,6 @@ void RequestManager::VirtualNetworkAllocate::execute(
 
     return;
 
-
-error_user_get:
-    oss.str(get_error(method_name, "USER", uid));
-
-    delete vn_template;
-    goto error_common;
 
 error_authenticate:
     oss.str(authenticate_error(method_name));

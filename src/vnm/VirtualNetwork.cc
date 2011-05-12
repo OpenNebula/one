@@ -24,17 +24,16 @@
 #include "FixedLeases.h"
 
 #include "AuthManager.h"
-#include "UserPool.h"
+// TODO: check not needed
+//#include "UserPool.h"
 
 /* ************************************************************************** */
 /* Virtual Network :: Constructor/Destructor                                  */
 /* ************************************************************************** */
 
 VirtualNetwork::VirtualNetwork(int uid,
-                               string _user_name,
                                VirtualNetworkTemplate *_vn_template):
                 PoolObjectSQL(-1,"",uid,table),
-                user_name(_user_name),
                 bridge(""),
                 type(UNINITIALIZED),
                 leases(0)
@@ -501,7 +500,6 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended) const
         "<VNET>" <<
             "<ID>"          << oid          << "</ID>"          <<
             "<UID>"         << uid          << "</UID>"         <<
-            "<USERNAME>"    << user_name    << "</USERNAME>"    <<
             "<NAME>"        << name         << "</NAME>"        <<
             "<TYPE>"        << type         << "</TYPE>"        <<
             "<BRIDGE>"      << bridge       << "</BRIDGE>"      <<
@@ -537,7 +535,6 @@ int VirtualNetwork::from_xml(const string &xml_str)
     // Get class base attributes
     rc += xpath(oid,        "/VNET/ID",         -1);
     rc += xpath(uid,        "/VNET/UID",        -1);
-    rc += xpath(user_name,  "/VNET/USERNAME",   "not_found");
     rc += xpath(name,       "/VNET/NAME",       "not_found");
     rc += xpath(int_type,   "/VNET/TYPE",       -1);
     rc += xpath(bridge,     "/VNET/BRIDGE",     "not_found");

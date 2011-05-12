@@ -669,14 +669,6 @@ private:
     // *************************************************************************
 
     // -------------------------------------------------------------------------
-    // Identification variables
-    // -------------------------------------------------------------------------
-    /**
-     *  Owner's name
-     */
-    string      user_name;
-
-    // -------------------------------------------------------------------------
     // VM Scheduling & Managing Information
     // -------------------------------------------------------------------------
     /**
@@ -855,8 +847,7 @@ protected:
     // Constructor
     //**************************************************************************
 
-    VirtualMachine(int id, int uid, string _user_name,
-                   VirtualMachineTemplate * _vm_template);
+    VirtualMachine(int id, int uid, VirtualMachineTemplate * _vm_template);
 
     virtual ~VirtualMachine();
 

@@ -44,14 +44,14 @@ public:
      *    @param uid user identifier
      *    @param vn_template a VirtualNetworkTemplate describing the VNET
      *    @param oid the id assigned to the VM (output)
+     *    @param error_str Returns the error reason, if any
      *    @return oid on success, -1 error
      */
     int allocate (
-        int     uid,
-        string  user_name,
-        VirtualNetworkTemplate * vn_template,
-        int *   oid,
-        string& error_str);
+        int                         uid,
+        VirtualNetworkTemplate *    vn_template,
+        int *                       oid,
+        string&                     error_str);
 
     /**
      *  Function to get a VN from the pool, if the object is not in memory
@@ -154,7 +154,7 @@ private:
      */
     PoolObjectSQL * create()
     {
-        return new VirtualNetwork(0,"",0);
+        return new VirtualNetwork(0, 0);
     };
 };
 

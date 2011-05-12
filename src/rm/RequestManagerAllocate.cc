@@ -29,7 +29,6 @@ void RequestManager::VirtualMachineAllocate::execute(
     string              session;
     string              str_template;
     string              error_str;
-    string              user_name;
     string              template_id_str = "TEMPLATE_ID";;
 
     const string        method_name = "VirtualMachineAllocate";
@@ -44,7 +43,6 @@ void RequestManager::VirtualMachineAllocate::execute(
 
     VirtualMachineTemplate * vm_template;
     VirtualMachineTemplate * vm_template_aux;
-    User *                   user;
     VMTemplate *             registered_template;
     bool                     using_template_pool;
     int                      template_owner;
@@ -199,25 +197,9 @@ void RequestManager::VirtualMachineAllocate::execute(
     }
 
     //--------------------------------------------------------------------------
-    //   Get the User Name
-    //--------------------------------------------------------------------------
-
-    user = VirtualMachineAllocate::upool->get(uid,true);
-
-    if ( user == 0 )
-    {
-        goto error_user_get;
-    }
-
-    user_name = user->get_name();
-
-    user->unlock();
-
-    //--------------------------------------------------------------------------
     //   Allocate the VirtualMAchine
     //--------------------------------------------------------------------------
     rc = VirtualMachineAllocate::vmpool->allocate(uid,
-                                                  user_name,
                                                   vm_template,
                                                   &vid,
                                                   error_str,
@@ -240,12 +222,6 @@ void RequestManager::VirtualMachineAllocate::execute(
 
 error_template_get:
     oss.str(get_error(method_name, "TEMPLATE", tid));
-
-    delete vm_template;
-    goto error_common;
-
-error_user_get:
-    oss.str(get_error(method_name, "USER", uid));
 
     delete vm_template;
     goto error_common;

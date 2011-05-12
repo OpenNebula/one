@@ -34,7 +34,6 @@ void RequestManager::VirtualMachineSaveDisk::execute(
     string img_name;
 
     int    vm_owner;
-    string user_name;
 
     int    rc;
     int    uid;
@@ -47,7 +46,6 @@ void RequestManager::VirtualMachineSaveDisk::execute(
     VirtualMachine * vm;
     Image *          image;
     ImageTemplate *  img_template;
-    User *           user;
 
     Image *     source_img;
     int         source_img_id;
@@ -78,17 +76,6 @@ void RequestManager::VirtualMachineSaveDisk::execute(
     {
         goto error_authenticate;
     }
-
-    user = VirtualMachineSaveDisk::upool->get(uid,true);
-
-    if ( user == 0 )
-    {
-        goto error_user_get;
-    }
-
-    user_name = user->get_name();
-
-    user->unlock();
 
     //-------------------------------------------------------------------------
     // Check that the image does not exist & prepare the template
@@ -148,8 +135,7 @@ void RequestManager::VirtualMachineSaveDisk::execute(
     //--------------------------------------------------------------------------
     // Create the image
     //--------------------------------------------------------------------------
-    rc = VirtualMachineSaveDisk::ipool->allocate(uid,user_name,img_template,
-            &iid,estr);
+    rc = VirtualMachineSaveDisk::ipool->allocate(uid, img_template, &iid,estr);
 
     if ( rc < 0 )
     {
@@ -243,10 +229,6 @@ error_vm_get_disk_id:
     oss << " Deleting Image " << img_name;
     imagem->delete_image(iid);
     vm->unlock();
-    goto error_common;
-
-error_user_get:
-    oss.str(get_error(method_name, "USER", uid));
     goto error_common;
 
 error_authenticate:

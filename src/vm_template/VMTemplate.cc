@@ -25,10 +25,8 @@
 
 VMTemplate::VMTemplate(int id,
                        int _uid,
-                       string _user_name,
                        VirtualMachineTemplate * _template_contents):
         PoolObjectSQL(id,"",_uid,table),
-        user_name(_user_name),
         regtime(time(0))
 {
     if (_template_contents != 0)
@@ -195,7 +193,6 @@ string& VMTemplate::to_xml(string& xml) const
     oss << "<VMTEMPLATE>"
             << "<ID>"       << oid              << "</ID>"
             << "<UID>"      << uid              << "</UID>"
-            << "<USERNAME>" << user_name        << "</USERNAME>"
             << "<NAME>"     << name             << "</NAME>"
             << "<PUBLIC>"   << public_template  << "</PUBLIC>"
             << "<REGTIME>"  << regtime          << "</REGTIME>"
@@ -221,7 +218,6 @@ int VMTemplate::from_xml(const string& xml)
     // Get class base attributes
     rc += xpath(oid,            "/VMTEMPLATE/ID",       -1);
     rc += xpath(uid,            "/VMTEMPLATE/UID",      -1);
-    rc += xpath(user_name,      "/VMTEMPLATE/USERNAME", "not_found");
     rc += xpath(name,           "/VMTEMPLATE/NAME",     "not_found");
     rc += xpath(public_template,"/VMTEMPLATE/PUBLIC",   0);
     rc += xpath(regtime,        "/VMTEMPLATE/REGTIME",  0);

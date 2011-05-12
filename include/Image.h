@@ -272,11 +272,6 @@ private:
     // -------------------------------------------------------------------------
 
     /**
-     *  Image owner's name
-     */
-    string      user_name;
-
-    /**
      *  Type of the Image
      */
     ImageType   type;
@@ -346,8 +341,7 @@ protected:
     // Constructor
     // *************************************************************************
 
-    Image(int            uid, 
-          const string&  user_name, 
+    Image(int            uid,
           ImageTemplate* img_template);
 
     virtual ~Image();

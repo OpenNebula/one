@@ -25,7 +25,6 @@
 using namespace std;
 
 const int uids[] = {123, 261, 123};
-const string user_names[] = {"A user","B user","C user"};
 
 const string names[] = {"VM one", "Second VM", "VM one"};
 
@@ -47,21 +46,21 @@ const string templates[] =
 
 const string xmls[] =
 {
-    "<VM><ID>0</ID><UID>123</UID><USERNAME>A user</USERNAME><NAME>VM one</NAME><LAST_POLL>0</LAST_POLL><ST"
+    "<VM><ID>0</ID><UID>123</UID><NAME>VM one</NAME><LAST_POLL>0</LAST_POLL><ST"
     "ATE>1</STATE><LCM_STATE>0</LCM_STATE><STIME>0000000000</STIME><ETIME>0</ET"
     "IME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</MEMORY><CPU>0</CPU><NET_TX>0</NET_TX"
     "><NET_RX>0</NET_RX><TEMPLATE><CPU><![CDATA[1]]></CPU><MEMORY><![CDATA[128]"
     "]></MEMORY><NAME><![CDATA[VM one]]></NAME><VMID><![CDATA[0]]></VMID>"
     "</TEMPLATE></VM>",
 
-    "<VM><ID>1</ID><UID>261</UID><USERNAME>B user</USERNAME><NAME>Second VM</NAME><LAST_POLL>0</LAST_POLL>"
+    "<VM><ID>1</ID><UID>261</UID><NAME>Second VM</NAME><LAST_POLL>0</LAST_POLL>"
     "<STATE>1</STATE><LCM_STATE>0</LCM_STATE><STIME>0000000000</STIME><ETIME>0<"
     "/ETIME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</MEMORY><CPU>0</CPU><NET_TX>0</NET"
     "_TX><NET_RX>0</NET_RX><TEMPLATE><CPU><![CDATA[2]]></CPU><MEMORY>"
     "<![CDATA[256]]></MEMORY><NAME><![CDATA[Second VM]]></NAME><VMID>"
     "<![CDATA[1]]></VMID></TEMPLATE></VM>",
 
-    "<VM><ID>0</ID><UID>123</UID><USERNAME>A user</USERNAME><NAME>VM one</NAME><LAST_POLL>0</LAST_POLL><ST"
+    "<VM><ID>0</ID><UID>123</UID><NAME>VM one</NAME><LAST_POLL>0</LAST_POLL><ST"
     "ATE>1</STATE><LCM_STATE>0</LCM_STATE><STIME>0000000000</STIME><ETIME>0</ET"
     "IME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</MEMORY><CPU>0</CPU><NET_TX>0</NET_TX"
     "><NET_RX>0</NET_RX><TEMPLATE><CPU>1</CPU><MEMORY>1024</MEMORY><NAME>VM one"
@@ -71,15 +70,14 @@ const string xmls[] =
 
 // This xml dump result has the STIMEs modified to 0000000000
 const string xml_dump =
-    "<VM_POOL><VM><ID>0</ID><UID>1</UID><USERNAME>A user</USERNAME><NAME>VM one</NAME><LAST_POLL>0</LAST_POLL><STATE>1</STATE><LCM_STATE>0</LCM_STATE><STIME>0000000000</STIME><ETIME>0</ETIME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</MEMORY><CPU>0</CPU><NET_TX>0</NET_TX><NET_RX>0</NET_RX><TEMPLATE><CPU><![CDATA[1]]></CPU><MEMORY><![CDATA[128]]></MEMORY><NAME><![CDATA[VM one]]></NAME><VMID><![CDATA[0]]></VMID></TEMPLATE></VM><VM><ID>1</ID><UID>2</UID><USERNAME>B user</USERNAME><NAME>Second VM</NAME><LAST_POLL>0</LAST_POLL><STATE>2</STATE><LCM_STATE>0</LCM_STATE><STIME>0000000000</STIME><ETIME>0</ETIME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</MEMORY><CPU>0</CPU><NET_TX>0</NET_TX><NET_RX>0</NET_RX><TEMPLATE><CPU><![CDATA[2]]></CPU><MEMORY><![CDATA[256]]></MEMORY><NAME><![CDATA[Second VM]]></NAME><VMID><![CDATA[1]]></VMID></TEMPLATE></VM></VM_POOL>";
+    "<VM_POOL><VM><ID>0</ID><UID>1</UID><NAME>VM one</NAME><LAST_POLL>0</LAST_POLL><STATE>1</STATE><LCM_STATE>0</LCM_STATE><STIME>0000000000</STIME><ETIME>0</ETIME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</MEMORY><CPU>0</CPU><NET_TX>0</NET_TX><NET_RX>0</NET_RX><TEMPLATE><CPU><![CDATA[1]]></CPU><MEMORY><![CDATA[128]]></MEMORY><NAME><![CDATA[VM one]]></NAME><VMID><![CDATA[0]]></VMID></TEMPLATE></VM><VM><ID>1</ID><UID>2</UID><NAME>Second VM</NAME><LAST_POLL>0</LAST_POLL><STATE>2</STATE><LCM_STATE>0</LCM_STATE><STIME>0000000000</STIME><ETIME>0</ETIME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</MEMORY><CPU>0</CPU><NET_TX>0</NET_TX><NET_RX>0</NET_RX><TEMPLATE><CPU><![CDATA[2]]></CPU><MEMORY><![CDATA[256]]></MEMORY><NAME><![CDATA[Second VM]]></NAME><VMID><![CDATA[1]]></VMID></TEMPLATE></VM></VM_POOL>";
 
 const string xml_dump_where =
-    "<VM_POOL><VM><ID>0</ID><UID>1</UID><USERNAME>A user</USERNAME><NAME>VM one</NAME><LAST_POLL>0</LAST_POLL><STATE>1</STATE><LCM_STATE>0</LCM_STATE><STIME>0000000000</STIME><ETIME>0</ETIME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</MEMORY><CPU>0</CPU><NET_TX>0</NET_TX><NET_RX>0</NET_RX><TEMPLATE><CPU><![CDATA[1]]></CPU><MEMORY><![CDATA[128]]></MEMORY><NAME><![CDATA[VM one]]></NAME><VMID><![CDATA[0]]></VMID></TEMPLATE></VM></VM_POOL>";
+    "<VM_POOL><VM><ID>0</ID><UID>1</UID><NAME>VM one</NAME><LAST_POLL>0</LAST_POLL><STATE>1</STATE><LCM_STATE>0</LCM_STATE><STIME>0000000000</STIME><ETIME>0</ETIME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</MEMORY><CPU>0</CPU><NET_TX>0</NET_TX><NET_RX>0</NET_RX><TEMPLATE><CPU><![CDATA[1]]></CPU><MEMORY><![CDATA[128]]></MEMORY><NAME><![CDATA[VM one]]></NAME><VMID><![CDATA[0]]></VMID></TEMPLATE></VM></VM_POOL>";
 
 const string xml_history_dump =
-    "<VM_POOL><VM><ID>0</ID><UID>0</UID><USERNAME>one_user_test</USERNAME><NAME>VM one</NAME><LAST_POLL>0</LAST_POLL><STATE>1</STATE><LCM_STATE>0</LCM_STATE><STIME>0000000000</STIME><ETIME>0</ETIME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</MEMORY><CPU>0</CPU><NET_TX>0</NET_TX><NET_RX>0</NET_RX><TEMPLATE><CPU><![CDATA[1]]></CPU><MEMORY><![CDATA[128]]></MEMORY><NAME><![CDATA[VM one]]></NAME><VMID><![CDATA[0]]></VMID></TEMPLATE></VM><VM><ID>1</ID><UID>0</UID><USERNAME>one_user_test</USERNAME><NAME>Second VM</NAME><LAST_POLL>0</LAST_POLL><STATE>2</STATE><LCM_STATE>0</LCM_STATE><STIME>0000000000</STIME><ETIME>0</ETIME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</MEMORY><CPU>0</CPU><NET_TX>0</NET_TX><NET_RX>0</NET_RX><TEMPLATE><CPU><![CDATA[2]]></CPU><MEMORY><![CDATA[256]]></MEMORY><NAME><![CDATA[Second VM]]></NAME><VMID><![CDATA[1]]></VMID></TEMPLATE><HISTORY><SEQ>0</SEQ><HOSTNAME>A_hostname</HOSTNAME><VM_DIR>A_vm_dir</VM_DIR><HID>0</HID><STIME>0</STIME><ETIME>0</ETIME><VMMMAD>A_vmm_mad</VMMMAD><TMMAD>A_tm_mad</TMMAD><PSTIME>0</PSTIME><PETIME>0</PETIME><RSTIME>0</RSTIME><RETIME>0</RETIME><ESTIME>0</ESTIME><EETIME>0</EETIME><REASON>0</REASON></HISTORY></VM><VM><ID>2</ID><UID>0</UID><USERNAME>one_user_test</USERNAME><NAME>VM one</NAME><LAST_POLL>0</LAST_POLL><STATE>2</STATE><LCM_STATE>0</LCM_STATE><STIME>0000000000</STIME><ETIME>0</ETIME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</MEMORY><CPU>0</CPU><NET_TX>0</NET_TX><NET_RX>0</NET_RX><TEMPLATE><CPU><![CDATA[1]]></CPU><MEMORY><![CDATA[1024]]></MEMORY><NAME><![CDATA[VM one]]></NAME><VMID><![CDATA[2]]></VMID></TEMPLATE><HISTORY><SEQ>1</SEQ><HOSTNAME>C_hostname</HOSTNAME><VM_DIR>C_vm_dir</VM_DIR><HID>2</HID><STIME>0</STIME><ETIME>0</ETIME><VMMMAD>C_vmm_mad</VMMMAD><TMMAD>C_tm_mad</TMMAD><PSTIME>0</PSTIME><PETIME>0</PETIME><RSTIME>0</RSTIME><RETIME>0</RETIME><ESTIME>0</ESTIME><EETIME>0</EETIME><REASON>0</REASON></HISTORY></VM></VM_POOL>";
+    "<VM_POOL><VM><ID>0</ID><UID>0</UID><NAME>VM one</NAME><LAST_POLL>0</LAST_POLL><STATE>1</STATE><LCM_STATE>0</LCM_STATE><STIME>0000000000</STIME><ETIME>0</ETIME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</MEMORY><CPU>0</CPU><NET_TX>0</NET_TX><NET_RX>0</NET_RX><TEMPLATE><CPU><![CDATA[1]]></CPU><MEMORY><![CDATA[128]]></MEMORY><NAME><![CDATA[VM one]]></NAME><VMID><![CDATA[0]]></VMID></TEMPLATE></VM><VM><ID>1</ID><UID>0</UID><NAME>Second VM</NAME><LAST_POLL>0</LAST_POLL><STATE>2</STATE><LCM_STATE>0</LCM_STATE><STIME>0000000000</STIME><ETIME>0</ETIME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</MEMORY><CPU>0</CPU><NET_TX>0</NET_TX><NET_RX>0</NET_RX><TEMPLATE><CPU><![CDATA[2]]></CPU><MEMORY><![CDATA[256]]></MEMORY><NAME><![CDATA[Second VM]]></NAME><VMID><![CDATA[1]]></VMID></TEMPLATE><HISTORY><SEQ>0</SEQ><HOSTNAME>A_hostname</HOSTNAME><VM_DIR>A_vm_dir</VM_DIR><HID>0</HID><STIME>0</STIME><ETIME>0</ETIME><VMMMAD>A_vmm_mad</VMMMAD><TMMAD>A_tm_mad</TMMAD><PSTIME>0</PSTIME><PETIME>0</PETIME><RSTIME>0</RSTIME><RETIME>0</RETIME><ESTIME>0</ESTIME><EETIME>0</EETIME><REASON>0</REASON></HISTORY></VM><VM><ID>2</ID><UID>0</UID><NAME>VM one</NAME><LAST_POLL>0</LAST_POLL><STATE>2</STATE><LCM_STATE>0</LCM_STATE><STIME>0000000000</STIME><ETIME>0</ETIME><DEPLOY_ID></DEPLOY_ID><MEMORY>0</MEMORY><CPU>0</CPU><NET_TX>0</NET_TX><NET_RX>0</NET_RX><TEMPLATE><CPU><![CDATA[1]]></CPU><MEMORY><![CDATA[1024]]></MEMORY><NAME><![CDATA[VM one]]></NAME><VMID><![CDATA[2]]></VMID></TEMPLATE><HISTORY><SEQ>1</SEQ><HOSTNAME>C_hostname</HOSTNAME><VM_DIR>C_vm_dir</VM_DIR><HID>2</HID><STIME>0</STIME><ETIME>0</ETIME><VMMMAD>C_vmm_mad</VMMMAD><TMMAD>C_tm_mad</TMMAD><PSTIME>0</PSTIME><PETIME>0</PETIME><RSTIME>0</RSTIME><RETIME>0</RETIME><ESTIME>0</ESTIME><EETIME>0</EETIME><REASON>0</REASON></HISTORY></VM></VM_POOL>";
 
-const string replacement = "0000000000";
 
 /* ************************************************************************* */
 /* ************************************************************************* */
@@ -94,7 +92,6 @@ public:
 
     int allocate (
         int    uid,
-        const  string& user_name,
         const  string& stemplate,
         int *  oid,
         bool   on_hold = false)
@@ -109,8 +106,8 @@ public:
 
         if( rc == 0 )
         {
-            return VirtualMachinePool::allocate(uid, user_name,
-                                                vm_template, oid, err, on_hold);
+            return VirtualMachinePool::allocate(uid, vm_template,
+                                                oid, err, on_hold);
         }
         else
         {
@@ -159,7 +156,6 @@ protected:
     {
         int oid;
         return ((VirtualMachinePoolFriend*)pool)->allocate( uids[index],
-                                                            user_names[index],
                                                             templates[index],
                                                             &oid, false);
     };
@@ -172,7 +168,7 @@ protected:
 
         // Get the xml and replace the STIME to 0, so we can compare it
         ((VirtualMachine*)obj)->to_xml(xml_str);
-        xml_str.replace( xml_str.find("<STIME>")+7, 10, replacement);
+        fix_stimes(xml_str);
 
 /*
         if( xml_str != xmls[index] )
@@ -256,15 +252,14 @@ public:
         ostringstream oss;
         int oid, rc;
 
-        vmp->allocate(1, user_names[0], templates[0], &oid, false);
-        vmp->allocate(2, user_names[1], templates[1], &oid, true);
+        vmp->allocate(1, templates[0], &oid, false);
+        vmp->allocate(2, templates[1], &oid, true);
 
         rc = vmp->dump(oss, "");
         CPPUNIT_ASSERT(rc == 0);
 
         string result = oss.str();
-        result.replace(152, 10, replacement);
-        result.replace(560, 10, replacement);
+        fix_stimes(result);
 
 /*
         if( result != xml_dump )
@@ -286,15 +281,16 @@ public:
         ostringstream oss;
         ostringstream where;
 
-        vmp->allocate(1, user_names[0], templates[0], &oid, false);
-        vmp->allocate(2, user_names[1], templates[1], &oid, true);
+        vmp->allocate(1, templates[0], &oid, false);
+        vmp->allocate(2, templates[1], &oid, true);
 
         where << "uid < 2";
         rc = vmp->dump(oss, where.str());
         CPPUNIT_ASSERT(rc == 0);
 
         string result = oss.str();
-        result.replace(152, 10, replacement);
+        fix_stimes(result);
+
         CPPUNIT_ASSERT( result == xml_dump_where );
     }
 
@@ -315,13 +311,13 @@ public:
 
 
         // Allocate a VM
-        rc = vmp->allocate(0, "one_user_test", templates[0], &oid, false);
+        rc = vmp->allocate(0, templates[0], &oid, false);
         CPPUNIT_ASSERT( rc == oid );
         CPPUNIT_ASSERT( oid >= 0 );
         //----------------------------------------------------------------------
 
         // Allocate a VM with one history item
-        rc = vmp->allocate(0, "one_user_test", templates[1], &oid, true);
+        rc = vmp->allocate(0, templates[1], &oid, true);
         CPPUNIT_ASSERT( rc == oid );
         CPPUNIT_ASSERT( oid >= 0 );
 
@@ -339,7 +335,7 @@ public:
         //----------------------------------------------------------------------
 
         // Allocate a VM with two history items
-        rc = vmp->allocate(0, "one_user_test", templates[2], &oid, true);
+        rc = vmp->allocate(0, templates[2], &oid, true);
         CPPUNIT_ASSERT( rc == oid );
         CPPUNIT_ASSERT( oid >= 0 );
 
@@ -366,7 +362,7 @@ public:
         //----------------------------------------------------------------------
 
         // Allocate a VM, will be set to DONE
-        rc = vmp->allocate(1, "one_user_test", templates[0], &oid, false);
+        rc = vmp->allocate(1, templates[0], &oid, false);
         CPPUNIT_ASSERT( rc == oid );
         CPPUNIT_ASSERT( oid >= 0 );
 
@@ -388,10 +384,7 @@ public:
 
         // Get the xml and replace the STIME to 0, so we can compare it
         string result = oss.str();
-
-        result.replace(159, 10, replacement);
-        result.replace(574, 10, replacement);
-        result.replace(1295,10, replacement);
+        fix_stimes(result);
 
 /*
         if( result != xml_history_dump )

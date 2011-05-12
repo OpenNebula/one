@@ -105,11 +105,6 @@ private:
     // -------------------------------------------------------------------------
 
     /**
-     *  Owner's name
-     */
-    string      user_name;
-
-    /**
      *  Public scope of the VMTemplate
      */
     int         public_template;
@@ -154,8 +149,7 @@ protected:
     // *************************************************************************
     // Constructor
     // *************************************************************************
-    VMTemplate(int id, int uid, string _user_name,
-                   VirtualMachineTemplate * _template_contents);
+    VMTemplate(int id, int uid, VirtualMachineTemplate * _template_contents);
 
     ~VMTemplate();
 
