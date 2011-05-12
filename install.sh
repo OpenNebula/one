@@ -181,6 +181,7 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/ruby/cloud/econe \
           $LIB_LOCATION/ruby/cloud/econe/views \
           $LIB_LOCATION/ruby/cloud/occi \
+          $LIB_LOCATION/onedb \
           $LIB_LOCATION/tm_commands \
           $LIB_LOCATION/tm_commands/nfs \
           $LIB_LOCATION/tm_commands/ssh \
@@ -264,6 +265,7 @@ INSTALL_FILES=(
     MAD_SH_LIB_FILES:$LIB_LOCATION/sh
     MAD_SH_LIB_FILES:$LIB_LOCATION/remotes
     MAD_SH_LIB_FILES:$VAR_LOCATION/remotes
+    ONEDB_MIGRATOR_FILES:$LIB_LOCATION/onedb
     MADS_LIB_FILES:$LIB_LOCATION/mads
     IM_PROBES_FILES:$VAR_LOCATION/remotes/im
     IM_PROBES_KVM_FILES:$VAR_LOCATION/remotes/im/kvm.d
@@ -368,6 +370,7 @@ BIN_FILES="src/nebula/oned \
            src/cli/oneimage \
            src/cli/onecluster \
            src/cli/onetemplate \
+           src/cli/onedb \
            share/scripts/one \
            src/authm_mad/oneauth"
 
@@ -549,6 +552,11 @@ IMAGE_DRIVER_FS_SCRIPTS="src/image_mad/remotes/fs/cp \
                          src/image_mad/remotes/fs/mv \
                          src/image_mad/remotes/fs/fsrc \
                          src/image_mad/remotes/fs/rm"
+
+#-------------------------------------------------------------------------------
+# Migration scripts for onedb command, to be installed under $LIB_LOCATION
+#-------------------------------------------------------------------------------
+ONEDB_MIGRATOR_FILES="src/onedb/1.rb"
 
 #-------------------------------------------------------------------------------
 # Configuration files for OpenNebula, to be installed under $ETC_LOCATION
@@ -849,6 +857,7 @@ MAN_FILES="share/man/oneauth.8.gz \
         share/man/onevm.8.gz \
         share/man/onevnet.8.gz \
         share/man/onetemplate.8.gz \
+        share/man/onedb.8.gz \
         share/man/econe-describe-images.8.gz \
         share/man/econe-describe-instances.8.gz \
         share/man/econe-register.8.gz \
