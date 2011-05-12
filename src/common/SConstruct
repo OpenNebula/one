@@ -24,7 +24,8 @@ lib_name='nebula_common'
 source_files=[
     'ActionManager.cc',
     'Attribute.cc',
-    'mem_collector.c'
+    'mem_collector.c',
+    'SSLTools.cc'
 ]
 
 # Build library
