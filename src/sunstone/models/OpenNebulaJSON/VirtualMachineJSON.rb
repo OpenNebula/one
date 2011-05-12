@@ -86,43 +86,7 @@ module OpenNebulaJSON
         end
 
         def save_as(params=Hash.new)
-            if params['image_type']
-                image_type = params['image_type']
-            else
-                image_id = self["TEMPLATE/DISK[DISK_ID=\"#{params[:disk_id]}\"]/IMAGE_ID"]
-
-                if (image_id != nil)
-                    if self["TEMPLATE/DISK[DISK_ID=\"#{disk_id}\"]/SAVE_AS"]
-                        error_msg = "Error: The disk #{disk_id} is already" <<
-                                    " supposed to be saved"
-                        return OpenNebula::Error.new(error_msg)
-                    end
-
-                    # Get the image type
-                    image = OpenNebula::Image.new(
-                                OpenNebula::Image.build_xml(image_id), @client)
-
-                    result = image.info
-                    if OpenNebula.is_error?(result)
-                        return result
-                    end
-
-                    image_type = image.type_str
-                end
-            end
-
-            # Build the template and allocate the new Image
-            template = "NAME=\"#{params['image_name']}\"\n"
-            template << "TYPE=#{image_type}\n" if image_type
-
-            image = OpenNebula::Image.new(OpenNebula::Image.build_xml, @client)
-
-            result = image.allocate(template)
-            if OpenNebula.is_error?(result)
-                return result
-            end
-
-            super(params['disk_id'].to_i, image.id)
+            super(params['disk_id'].to_i, params['image_name'])
         end
     end
 end
