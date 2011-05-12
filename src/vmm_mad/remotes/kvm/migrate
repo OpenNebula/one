@@ -17,8 +17,10 @@
 #--------------------------------------------------------------------------- #
 
 source $(dirname $0)/kvmrc
+source $(dirname $0)/../../scripts_common.sh
 
 deploy_id=$1
 dest_host=$2
 
-virsh --connect $LIBVIRT_URI migrate --live $deploy_id $QEMU_PROTOCOL://$dest_host/system
+exec_and_log "virsh --connect $LIBVIRT_URI migrate --live $deploy_id $QEMU_PROTOCOL://$dest_host/system" \
+    "Could not migrate $deploy_id to $dest_host"

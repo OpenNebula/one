@@ -82,6 +82,11 @@ void Nebula::start()
         delete cpool;
     }
 
+    if ( tpool != 0)
+    {
+        delete tpool;
+    }
+
     if ( vmm != 0)
     {
         delete vmm;
@@ -178,7 +183,6 @@ void Nebula::start()
     {
         string  mac_prefix = "00:00";
         int     size = 1;
-        string  repository_path;
         string  default_image_type;
         string  default_device_prefix;
 
@@ -205,7 +209,6 @@ void Nebula::start()
         if (tester->need_image_pool)
         {
             ipool  = tester->create_ipool(db,
-                                          repository_path,
                                           default_image_type,
                                           default_device_prefix);
         }
@@ -213,6 +216,11 @@ void Nebula::start()
         if (tester->need_cluster_pool)
         {
             cpool  = tester->create_cpool(db);
+        }
+
+        if (tester->need_template_pool)
+        {
+            tpool  = tester->create_tpool(db);
         }
     }
     catch (exception&)
@@ -358,7 +366,7 @@ void Nebula::start()
     {
         try
         {
-            rm = tester->create_rm(vmpool,hpool,vnpool,upool,ipool,cpool,
+            rm = tester->create_rm(vmpool,hpool,vnpool,upool,ipool,cpool,tpool,
                                    log_location + "one_xmlrpc.log");
         }
         catch (bad_alloc&)
@@ -420,6 +428,29 @@ void Nebula::start()
             if ( rc != 0 )
             {
               throw runtime_error("Could not start the Auth Manager");
+            }
+        }
+    }
+
+    // ---- Auth Manager ----
+    if (tester->need_imagem)
+    {
+        try
+        {
+            imagem = tester->create_imagem(ipool);
+        }
+        catch (bad_alloc&)
+        {
+            throw;
+        }
+
+        if (imagem != 0)
+        {
+            rc = imagem->start();
+
+            if ( rc != 0 )
+            {
+              throw runtime_error("Could not start the Image Manager");
             }
         }
     }

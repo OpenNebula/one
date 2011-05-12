@@ -214,11 +214,11 @@ module OpenNebula
         #
         # +disk_id+ ID of the disk to be saved
         #
-        # +image_id+ ID of the new image where the disk will be saved
-        def save_as(disk_id, image_id)
+        # +image_name+ Name for the new image where the disk will be saved
+        def save_as(disk_id, image_name)
             return Error.new('ID not defined') if !@pe_id
 
-            rc = @client.call(VM_METHODS[:savedisk], @pe_id, disk_id, image_id)
+            rc = @client.call(VM_METHODS[:savedisk], @pe_id, disk_id, image_name)
             rc = nil if !OpenNebula.is_error?(rc)
 
             return rc

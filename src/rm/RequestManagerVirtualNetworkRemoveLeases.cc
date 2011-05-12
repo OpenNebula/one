@@ -15,6 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include "RequestManager.h"
+#include "VirtualNetworkTemplate.h"
 
 #include "NebulaLog.h"
 #include "Nebula.h"

@@ -31,25 +31,23 @@ end
 $: << RUBY_LIB_LOCATION
 
 require 'OpenNebulaDriver'
-require 'CommandManager'
 require 'getoptlong'
 
 #-------------------------------------------------------------------------------
 # The SSH Information Manager Driver
 #-------------------------------------------------------------------------------
-class InformationManager < OpenNebulaDriver
+class InformationManagerDriverSSH < OpenNebulaDriver
 
     #---------------------------------------------------------------------------
     # Init the driver
     #---------------------------------------------------------------------------
     def initialize(hypervisor, threads, retries)
-        super(threads, true)
+        super(threads, true, retries)
 
         @config = read_configuration
 
         @hypervisor = hypervisor
         @remote_dir = @config['SCRIPTS_REMOTE_DIR']
-        @retries    = retries
 
         # register actions
         register_action(:MONITOR, method("action_monitor"))
@@ -59,34 +57,19 @@ class InformationManager < OpenNebulaDriver
     # Execute the run_probes in the remote host
     #---------------------------------------------------------------------------
     def action_monitor(number, host, do_update)
-        log_lambda=lambda do |message|
-            log(number, message)
-        end
-
         if do_update == "1"
             # Use SCP to sync:
             sync_cmd = "scp -r #{REMOTES_LOCATION}/. #{host}:#{@remote_dir}"
 
             # Use rsync to sync:
             # sync_cmd = "rsync -Laz #{REMOTES_LOCATION} #{host}:#{@remote_dir}"
-            LocalCommand.run(sync_cmd, log_lambda)
+            LocalCommand.run(sync_cmd, log_method(number))
         end
 
         cmd_string = "#{@remote_dir}/im/run_probes #{@hypervisor} #{host}"      
 
-        cmd = RemotesCommand.run(cmd_string, 
-                                 host, 
-                                 @remote_dir, 
-                                 log_lambda, 
-                                 @retries)
-        if cmd.code == 0
-            send_message("MONITOR", RESULT[:success], number, cmd.stdout)
-        else
-            send_message("MONITOR", RESULT[:failure], number,
-                "Could not monitor host #{host}.")
-        end
+        remotes_action(cmd_string, number, host, "MONITOR", @remote_dir)
     end
-
 end
 
 #-------------------------------------------------------------------------------
@@ -121,5 +104,5 @@ if ARGV.length >= 1
     hypervisor = ARGV.shift
 end
 
-im = InformationManager.new(hypervisor, threads, retries)
+im = InformationManagerDriverSSH.new(hypervisor, threads, retries)
 im.start_driver

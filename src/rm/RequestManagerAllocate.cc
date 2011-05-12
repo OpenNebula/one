@@ -30,10 +30,11 @@ void RequestManager::VirtualMachineAllocate::execute(
     string              str_template;
     string              error_str;
     string              user_name;
+    string              template_id_str = "TEMPLATE_ID";;
 
     const string        method_name = "VirtualMachineAllocate";
 
-    int                 vid, uid;
+    int                 vid, uid, tid;
     int                 rc;
 
     ostringstream       oss;
@@ -42,7 +43,13 @@ void RequestManager::VirtualMachineAllocate::execute(
     xmlrpc_c::value_array * arrayresult;
 
     VirtualMachineTemplate * vm_template;
+    VirtualMachineTemplate * vm_template_aux;
     User *                   user;
+    VMTemplate *             registered_template;
+    bool                     using_template_pool;
+    int                      template_owner;
+    bool                     template_public;
+
     char *                   error_msg = 0;
 
     int                   num;
@@ -77,10 +84,65 @@ void RequestManager::VirtualMachineAllocate::execute(
         goto error_parse;
     }
 
+    //--------------------------------------------------------------------------
+    //   Look for a template id
+    //--------------------------------------------------------------------------
+    using_template_pool = vm_template->get(template_id_str, tid);
+
+    if( using_template_pool )
+    {
+        string name_str = "NAME";
+        string name_val;
+        ostringstream template_id_val;
+           
+        registered_template = VirtualMachineAllocate::tpool->get(tid, true);
+
+        if( registered_template == 0 )
+        {
+            goto error_template_get;
+        }
+
+        // Use the template contents
+        vm_template_aux = registered_template->clone_template();
+        template_owner  = registered_template->get_uid();
+        template_public = registered_template->isPublic();
+
+        registered_template->unlock();
+
+        // Set NAME & TEMPLATE_ID for the new template
+        vm_template->get(name_str,name_val);
+
+        if ( !name_val.empty() )
+        {
+            vm_template_aux->erase(name_str);
+            vm_template_aux->set(new SingleAttribute(name_str,name_val));
+        }
+
+        vm_template_aux->erase(template_id_str);
+
+        template_id_val << tid;
+
+        vm_template_aux->set(new 
+                SingleAttribute(template_id_str,template_id_val.str()));
+
+        delete vm_template;
+
+        vm_template = vm_template_aux;
+    }
+
     if ( uid != 0 )
     {
         AuthRequest ar(uid);
         string      t64;
+
+        if( using_template_pool )
+        {
+            ar.add_auth(AuthRequest::TEMPLATE,
+                        tid,
+                        AuthRequest::USE,
+                        template_owner,
+                        template_public);
+        }
 
         num = vm_template->get("DISK",vectors);
 
@@ -113,11 +175,22 @@ void RequestManager::VirtualMachineAllocate::execute(
             VirtualMachineAllocate::vnpool->authorize_nic(vector,uid,&ar);
         }
 
-        ar.add_auth(AuthRequest::VM,
-                    vm_template->to_xml(t64),
-                    AuthRequest::CREATE,
-                    uid,
-                    false);
+        if( using_template_pool )
+        {
+            ar.add_auth(AuthRequest::VM,
+                        vm_template->to_xml(t64),
+                        AuthRequest::INSTANTIATE,
+                        uid,
+                        false);
+        }
+        else
+        {
+            ar.add_auth(AuthRequest::VM,
+                        vm_template->to_xml(t64),
+                        AuthRequest::CREATE,
+                        uid,
+                        false);
+        }
 
         if (UserPool::authorize(ar) == -1)
         {
@@ -165,6 +238,11 @@ void RequestManager::VirtualMachineAllocate::execute(
 
     return;
 
+error_template_get:
+    oss.str(get_error(method_name, "TEMPLATE", tid));
+
+    delete vm_template;
+    goto error_common;
 
 error_user_get:
     oss.str(get_error(method_name, "USER", uid));

@@ -20,10 +20,10 @@
 
 #include "ImagePool.h"
 #include "AuthManager.h"
+#include "Nebula.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-string ImagePool::_source_prefix;
 string ImagePool::_default_type;
 string ImagePool::_default_dev_prefix;
 
@@ -31,7 +31,6 @@ string ImagePool::_default_dev_prefix;
 /* -------------------------------------------------------------------------- */
 
 ImagePool::ImagePool(SqlDB *       db,
-                     const string& __source_prefix,
                      const string& __default_type,
                      const string& __default_dev_prefix):
                         PoolSQL(db,Image::table)
@@ -39,7 +38,6 @@ ImagePool::ImagePool(SqlDB *       db,
     ostringstream sql;
 
     // Init static defaults
-    _source_prefix      = __source_prefix;
     _default_type       = __default_type;
     _default_dev_prefix = __default_dev_prefix;
 
@@ -68,9 +66,6 @@ int ImagePool::allocate (
     string          name;
     ostringstream   oss;
 
-    // ---------------------------------------------------------------------
-    // Build a new Image object
-    // ---------------------------------------------------------------------
     img = new Image(uid, user_name, img_template);
 
     // Check name
@@ -95,7 +90,6 @@ int ImagePool::allocate (
     *oid = PoolSQL::allocate(img, error_str);
 
     return *oid;
-
 
 error_name:
     oss << "NAME cannot be empty.";
@@ -128,6 +122,9 @@ int ImagePool::disk_attribute(VectorAttribute *  disk,
 
     ostringstream oss;
 
+    Nebula&        nd     = Nebula::instance();
+    ImageManager * imagem = nd.get_imagem();
+
     source = disk->vector_value("IMAGE");
 
     if (source.empty())
@@ -144,7 +141,7 @@ int ImagePool::disk_attribute(VectorAttribute *  disk,
 
             if( !is.fail() )
             {
-                img = get(image_id,true);
+                img = imagem->acquire_image(image_id);
 
                 if (img == 0)
                 {
@@ -155,7 +152,7 @@ int ImagePool::disk_attribute(VectorAttribute *  disk,
     }
     else
     {
-        img = get(source,uid,true);
+        img = imagem->acquire_image(source,uid);
 
         if (img == 0)
         {
@@ -167,7 +164,7 @@ int ImagePool::disk_attribute(VectorAttribute *  disk,
     {
         string type = disk->vector_value("TYPE");
 
-        transform(type.begin(), type.end(), type.begin(), (int(*)(int))toupper);
+        transform(type.begin(),type.end(),type.begin(),(int(*)(int))toupper);
 
         if( type == "SWAP" )
         {
@@ -187,12 +184,9 @@ int ImagePool::disk_attribute(VectorAttribute *  disk,
     }
     else
     {
-        rc = img->disk_attribute(disk, index, img_type);
+        img->disk_attribute(disk, index, img_type);
 
-        if ( rc == 0 )
-        {
-            update(img);
-        }
+        update(img);
 
         img->unlock();
     }

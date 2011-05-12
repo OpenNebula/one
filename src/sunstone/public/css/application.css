@@ -230,7 +230,7 @@ div.tip span.ui-icon{
 div.tip span.man_icon {
 	display:none;
 }
-.kvm .man_icon,.xen .man_icon,.img_man .man_icon {
+.img_man .man_icon {
 	display:inline-block!important;
 }
 
@@ -382,10 +382,6 @@ tr.even:hover{
 	width: 100%;
 	text-align:left;
 	font-weight:bold;
-}
-
-.info_table td.key_td:after{
-	content:":";
 }
 
 .info_table td.value_td{

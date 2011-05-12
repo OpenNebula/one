@@ -41,17 +41,20 @@ UserPool* NebulaTest::create_upool(SqlDB* db)
 }
 
 ImagePool* NebulaTest::create_ipool( SqlDB* db,
-                                string repository_path,
                                 string default_image_type,
                                 string default_device_prefix)
 {
-    return new ImagePool(db,repository_path,default_image_type,
-                         default_device_prefix);
+    return new ImagePool(db,default_image_type,default_device_prefix);
 }
 
 ClusterPool* NebulaTest::create_cpool(SqlDB* db)
 {
     return new ClusterPool(db);
+}
+
+VMTemplatePool* NebulaTest::create_tpool(SqlDB* db)
+{
+    return new VMTemplatePool(db);
 }
 
 // -----------------------------------------------------------
@@ -112,6 +115,7 @@ RequestManager* NebulaTest::create_rm(
                 UserPool           *    upool,
                 ImagePool          *    ipool,
                 ClusterPool        *    cpool,
+                VMTemplatePool     *    tpool,
                 string                  log_file)
 {
     int rm_port = 2633;
@@ -122,6 +126,7 @@ RequestManager* NebulaTest::create_rm(
                               upool,
                               ipool,
                               cpool,
+                              tpool,
                               rm_port,
                               log_file);
 }
@@ -144,4 +149,19 @@ HookManager* NebulaTest::create_hm(VirtualMachinePool * vmpool)
 AuthManager* NebulaTest::create_authm(time_t timer_period)
 {
     return 0;
+}
+
+ImageManager* NebulaTest::create_imagem(ImagePool * ipool)
+{
+    map<string,string>          mad_value;
+    VectorAttribute *           mad;
+
+    vector<const Attribute *>   im_mads;
+
+    mad_value.insert(make_pair("executable","one_image"));
+
+    mad = new VectorAttribute("HM_MAD",mad_value);
+    im_mads.push_back(mad);
+
+    return new ImageManager(ipool,im_mads);
 }

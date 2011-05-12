@@ -29,6 +29,12 @@ module OpenNebulaJSON
 
             if vm_hash['vm_raw']
                 template = vm_hash['vm_raw']
+            elsif vm_hash['template_id']
+                template_id = vm_hash['template_id']
+
+                template = "TEMPLATE_ID = #{template_id}"
+                template << "\nNAME = #{vm_hash[:vm_name]}" if vm_hash[:vm_name]
+
             else
                 template = template_to_str(vm_hash)
             end

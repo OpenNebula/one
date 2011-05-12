@@ -65,7 +65,6 @@ void RequestManager::ImagePoolInfo::execute(
     switch(filter_flag)
     {
         case -2:
-            // TODO define authentication bug #278
             break;
         case -1:
             where_string << "UID=" << rc << " OR PUBLIC=1";

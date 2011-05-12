@@ -11,10 +11,11 @@ fi
 
 VAR_LOCATION="$ONE_LOCATION/var"
 
-if [ "$(ls -A $VAR_LOCATION)" ]; then
-    echo "$VAR_LOCATION is not empty."
+if [ -f $VAR_LOCATION/one.db ]; then
+    echo "$VAR_LOCATION/one.db has to be overwritten, move it to a safe place."
     exit -1
 fi
+
 
 PID=$$
 
@@ -29,6 +30,6 @@ CODE=$?
 pkill -P $PID oned
 sleep 4s;
 pkill -9 -P $PID oned
-rm -rf $VAR_LOCATION/*
+rm -f $VAR_LOCATION/one.db
 
 exit $CODE

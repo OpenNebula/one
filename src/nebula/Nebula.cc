@@ -208,7 +208,7 @@ void Nebula::start()
         {
             ostringstream   oss;
 
-            db = new MySqlDB(server,port,user,passwd,0);
+            db = new MySqlDB(server,port,user,passwd,db_name);
 
             oss << "CREATE DATABASE IF NOT EXISTS " << db_name;
             rc = db->exec(oss);
@@ -235,6 +235,7 @@ void Nebula::start()
         UserPool::bootstrap(db);
         ImagePool::bootstrap(db);
         ClusterPool::bootstrap(db);
+        VMTemplatePool::bootstrap(db);
     }
     catch (exception&)
     {
@@ -245,7 +246,6 @@ void Nebula::start()
     {
         string  mac_prefix;
         int     size;
-        string  repository_path;
         string  default_image_type;
         string  default_device_prefix;
 
@@ -265,17 +265,17 @@ void Nebula::start()
 
         upool  = new UserPool(db);
 
-        nebula_configuration->get("IMAGE_REPOSITORY_PATH", repository_path);
         nebula_configuration->get("DEFAULT_IMAGE_TYPE", default_image_type);
         nebula_configuration->get("DEFAULT_DEVICE_PREFIX",
                                   default_device_prefix);
 
         ipool  = new ImagePool(db,
-                               repository_path,
                                default_image_type,
                                default_device_prefix);
 
         cpool = new ClusterPool(db);
+
+        tpool = new VMTemplatePool(db);
     }
     catch (exception&)
     {
@@ -442,6 +442,7 @@ void Nebula::start()
             upool,
             ipool,
             cpool,
+            tpool,
             rm_port,
             log_location + "one_xmlrpc.log");
     }
@@ -511,6 +512,27 @@ void Nebula::start()
         }
     }
 
+    // ---- Image Manager ----
+    try
+    {
+        vector<const Attribute *> image_mads;
+
+        nebula_configuration->get("IMAGE_MAD", image_mads);
+
+        imagem = new ImageManager(ipool,image_mads);
+    }
+    catch (bad_alloc&)
+    {
+        throw;
+    }
+
+    rc = imagem->start();
+
+    if ( rc != 0 )
+    {
+       throw runtime_error("Could not start the Image Manager");
+    }
+
     // -----------------------------------------------------------
     // Load mads
     // -----------------------------------------------------------
@@ -522,6 +544,7 @@ void Nebula::start()
     im->load_mads(0);
     tm->load_mads(0);
     hm->load_mads(0);
+    imagem->load_mads(0);
 
     if ( authm != 0 )
     {
@@ -552,6 +575,7 @@ void Nebula::start()
     im->finalize();
     rm->finalize();
     hm->finalize();
+    imagem->finalize();
 
     //sleep to wait drivers???
 
@@ -563,6 +587,7 @@ void Nebula::start()
     pthread_join(im->get_thread_id(),0);
     pthread_join(rm->get_thread_id(),0);
     pthread_join(hm->get_thread_id(),0);
+    pthread_join(imagem->get_thread_id(),0);
 
     //XML Library
     xmlCleanupParser();

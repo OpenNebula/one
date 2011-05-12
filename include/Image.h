@@ -47,7 +47,9 @@ public:
         INIT      = 0, /** < Initialization state */
         READY     = 1, /** < Image ready to use */
         USED      = 2, /** < Image in use */
-        DISABLED  = 3  /** < Image can not be instantiated by a VM */
+        DISABLED  = 3, /** < Image can not be instantiated by a VM */
+        LOCKED    = 4, /** < FS operation for the Image in process */
+        ERROR     = 5  /** < Error state the operation FAILED*/
     };
 
     /**
@@ -93,6 +95,74 @@ public:
     };
 
     /**
+     *  Returns the source path of the image
+     *     @return source of image
+     */
+    const string& get_source()
+    {
+        return source;
+    }
+
+    /**
+     *  Returns the source path of the image
+     *     @return source of image
+     */
+    void set_source(const string& _source)
+    {
+        source = _source;
+    }
+
+    /**
+     *  Returns the type of the image
+     *     @return type
+     */
+    ImageType get_type()
+    {
+        return type;
+    }
+    /**
+     *  Returns the image state
+     *     @return state of image
+     */
+    ImageState get_state()
+    {
+        return state;
+    }
+
+    /**
+     *  Sets the image state
+     *     @param state of image
+     */
+    void set_state(ImageState _state)
+    {
+        state = _state;
+    }
+
+    /**
+     *
+     */
+    int dec_running ()
+    {
+        return --running_vms;
+    }
+
+    /**
+     *
+     */
+    int inc_running()
+    {
+        return ++running_vms;
+    }
+
+    /**
+     *
+     */
+    int get_running()
+    {
+        return running_vms;
+    }
+
+    /**
      *  Set enum type
      *     @return 0 on success, -1 otherwise
      */
@@ -111,47 +181,6 @@ public:
         else if ( _type == "DATABLOCK" )
         {
             type = DATABLOCK;
-        }
-        else
-        {
-            rc = -1;
-        }
-
-        return rc;
-    }
-
-    /**
-     * Get an image to be used in a VM, and updates its state.
-     *  @return 0 if success
-     */
-    int acquire_image();
-
-
-    /**
-     * Releases an image being used by a VM
-     *  @return true if the image needs to be updated
-     */
-    bool release_image();
-
-    /**
-     *  Enables the image
-     *    @param to_enable true will enable the image.
-     *    @return 0 on success
-     */
-    int enable(bool to_enable)
-    {
-        int rc = 0;
-
-        if ( to_enable == true )
-        {
-            if(state == DISABLED)
-            {
-                state = READY;
-            }
-        }
-        else if (state != USED) // to_enable == false
-        {
-            state = DISABLED;
         }
         else
         {
@@ -230,93 +259,6 @@ public:
      */
     int disk_attribute(VectorAttribute * disk, int* index, ImageType* img_type);
 
-    // ------------------------------------------------------------------------
-    // Template
-    // ------------------------------------------------------------------------
-
-    /**
-     *  Gets the values of a template attribute
-     *    @param name of the attribute
-     *    @param values of the attribute
-     *    @return the number of values
-     */
-    int get_template_attribute(
-        string& name,
-        vector<const Attribute*>& values) const
-    {
-        return image_template->get(name,values);
-    };
-
-    /**
-     *  Gets the values of a template attribute
-     *    @param name of the attribute
-     *    @param values of the attribute
-     *    @return the number of values
-     */
-    int get_template_attribute(
-        const char *name,
-        vector<const Attribute*>& values) const
-    {
-        string str=name;
-        return image_template->get(str,values);
-    };
-
-    /**
-     *  Gets a string based Image attribute
-     *    @param name of the attribute
-     *    @param value of the attribute (a string), will be "" if not defined
-     */
-    void get_template_attribute(
-        const char *    name,
-        string&         value) const
-    {
-        string str=name;
-        image_template->get(str,value);
-    }
-
-    /**
-     *  Gets a string based Image attribute
-     *    @param name of the attribute
-     *    @param value of the attribute (an int), will be 0 if not defined
-     */
-    void get_template_attribute(
-        const char *    name,
-        int&            value) const
-    {
-        string str=name;
-        image_template->get(str,value);
-    }
-
-    /**
-     *  Removes an Image attribute
-     *    @param name of the attribute
-     */
-    int remove_template_attribute(const string&   name)
-    {
-        return image_template->erase(name);
-    }
-
-    /**
-     *  Adds a new attribute to the template (replacing it if
-     *  already defined), the image's mutex SHOULD be locked
-     *    @param name of the new attribute
-     *    @param value of the new attribute
-     *    @return 0 on success
-     */
-    int replace_template_attribute(
-        const string& name,
-        const string& value)
-    {
-        SingleAttribute * sattr;
-
-        image_template->erase(name);
-
-        sattr = new SingleAttribute(name,value);
-        image_template->set(sattr);
-
-        return 0;
-    }
-
 private:
 
     // -------------------------------------------------------------------------
@@ -369,16 +311,6 @@ private:
      */
     int running_vms;
 
-    // -------------------------------------------------------------------------
-    //  Image Attributes
-    // -------------------------------------------------------------------------
-
-    /**
-     *  The Image template, holds the Image attributes.
-     */
-    ImageTemplate *  image_template;
-
-
     // *************************************************************************
     // DataBase implementation (Private)
     // *************************************************************************
@@ -401,13 +333,12 @@ private:
         db->exec(oss_image);
     };
 
-
     /**
      *  "Encrypts" the password with SHA1 digest
      *  @param password
      *  @return sha1 encrypted password
      */
-    string sha1_digest(const string& pass);
+    static string sha1_digest(const string& pass);
 
 protected:
 

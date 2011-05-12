@@ -37,7 +37,8 @@ fix_dst_path
 DST_DIR=`dirname $DST_PATH`
 
 log "Creating directory $DST_DIR"
-exec_and_log "mkdir -p $DST_DIR"
+exec_and_log "mkdir -p $DST_DIR" \
+    "Could not create directory $DST_DIR"
 exec_and_log "chmod a+w $DST_DIR"
 
 log "Link $SRC_PATH"

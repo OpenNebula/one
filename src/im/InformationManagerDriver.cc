@@ -110,7 +110,7 @@ void InformationManagerDriver::protocol(
 
             hinfo += "\n";
 
-            oss << "Host " << id << " successfully monitored."; //, info: "<< hinfo;
+            oss << "Host " << id << " successfully monitored."; 
             NebulaLog::log("InM",Log::DEBUG,oss);
 
             rc = host->update_info(hinfo);
@@ -136,22 +136,23 @@ void InformationManagerDriver::protocol(
         string info;
 
         getline(is,info);
-        NebulaLog::log("InM",Log::INFO,info.c_str());
+        NebulaLog::log("InM",log_type(result[0]),info.c_str());
     }
 
     return;
 
 error_driver_info:
 	ess << "Error monitoring host " << id << " : " << is.str();
-	NebulaLog::log("InM", Log::ERROR, ess);
-
 	goto  error_common_info;
 
 error_parse_info:
     ess << "Error parsing host information: " << hinfo;
-    NebulaLog::log("InM",Log::ERROR,ess);
+	goto  error_common_info;
 
 error_common_info:
+    NebulaLog::log("InM",Log::ERROR,ess);
+
+    host->set_template_error_message(ess.str());
 
     host->touch(false);
 

@@ -39,6 +39,17 @@ public:
             attribute_name.end(),
             attribute_name.begin(),
             (int(*)(int))toupper);
+
+        // FIX Attribute name if it does not conform XML element
+        // naming conventions
+
+        int size = attribute_name.size();
+
+        if  ((size >0 && !isalpha(aname[0]))||
+             (size >=3 && (aname[0]=='X' && aname[1]=='M' && aname[2]=='L')))
+        {
+            attribute_name.insert(0,"ONE_");    
+        }
     };
 
     virtual ~Attribute(){};
@@ -82,8 +93,12 @@ public:
      */
     virtual AttributeType type() = 0;
 
-private:
+    /**
+     *  Clones the current attribute
+     */
+    virtual Attribute* clone() const = 0;
 
+protected:
     /**
      *  The attribute name.
      */
@@ -106,6 +121,11 @@ public:
 
     SingleAttribute(const string& name, const string& value):
         Attribute(name),attribute_value(value){};
+
+    SingleAttribute(const SingleAttribute& sa):Attribute(sa.attribute_name)
+    {
+        attribute_value = sa.attribute_value;
+    };
 
     ~SingleAttribute(){};
 
@@ -173,6 +193,14 @@ public:
         return SIMPLE;
     };
 
+    /**
+     *  Clones the current attribute
+     */
+    Attribute* clone() const
+    {
+        return new SingleAttribute(*this);   
+    };
+
 private:
 
     string attribute_value;
@@ -194,6 +222,11 @@ public:
 
     VectorAttribute(const string& name,const  map<string,string>& value):
             Attribute(name),attribute_value(value){};
+
+    VectorAttribute(const VectorAttribute& va):Attribute(va.attribute_name)
+    {
+        attribute_value = va.attribute_value;
+    };
 
     ~VectorAttribute(){};
 
@@ -254,6 +287,14 @@ public:
     AttributeType type()
     {
         return VECTOR;
+    };
+
+    /**
+     *  Clones the current attribute
+     */
+    Attribute* clone() const
+    {
+        return new VectorAttribute(*this);   
     };
 
 private:

@@ -89,19 +89,43 @@ class Quota
     # Checks if the user is below resource limits. If new_vm is defined
     # checks if its requirements fit in limits
     def check(user, new_vm=nil)
-        usage=@usage.total(user)
+        use=@usage.total(user)
+        use_after=use.clone
         user_quota=get(user)
         if new_vm
-            usage.cpu+=new_vm.cpu.to_f
-            usage.memory+=new_vm.memory.to_i
-            usage.num_vms+=1
+            use_after.cpu+=new_vm.cpu.to_f
+            use_after.memory+=new_vm.memory.to_i
+            use_after.num_vms+=1
         end
-        
-        STDERR.puts [user_quota, usage, new_vm].inspect
-        
-        (!user_quota[:cpu] || usage.cpu<=user_quota[:cpu]) &&
-            (!user_quota[:memory] || usage.memory<=user_quota[:memory]) &&
-            (!user_quota[:num_vms] || usage.num_vms<=user_quota[:num_vms])
+
+        STDERR.puts [user_quota, use_after, new_vm].inspect
+
+        error_message=""
+
+        if !(!user_quota[:cpu] || use_after.cpu<=user_quota[:cpu])
+            error_message<<"Cpu quota exceeded (Quota: #{user_quota[:cpu]}, "+
+                "Used: #{use.cpu}"
+            error_message<<", asked: #{new_vm.cpu.to_f}" if new_vm
+            error_message<<")."
+        end
+
+        if !(!user_quota[:memory] || use_after.memory<=user_quota[:memory])
+            error_message<<" Memory quota exceeded (Quota: "+
+                "#{user_quota[:memory]}, Used: #{use.memory}"
+            error_message<<", asked: #{new_vm.memory.to_i}" if new_vm
+            error_message<<")."
+        end
+
+        if !(!user_quota[:num_vms] || use_after.num_vms<=user_quota[:num_vms])
+            error_message<<" Num VMS quota exceeded (Quota: "+
+                "#{user_quota[:memory]}, Used: #{use.num_vms})."
+        end
+
+        if error_message==""
+            false
+        else
+            error_message.strip
+        end
     end
     
     # Updates user resource consuption

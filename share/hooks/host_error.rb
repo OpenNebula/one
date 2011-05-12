@@ -64,7 +64,7 @@ host.info
 host_name = host.name
 
 # Loop through all vms
-vms = VirtualMachinePool.new(client)
+vms = VirtualMachinePool.new(client, -2)
 exit -1 if OpenNebula.is_error?(vms)
 
 vms.info

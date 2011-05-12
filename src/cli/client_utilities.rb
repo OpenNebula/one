@@ -268,15 +268,19 @@ def get_entity_id(name, pool_class)
     pool=pool_class.new(get_one_client)
     result=pool.info
 
-    # TODO: Check for errors
+    class_name=pool_class.name.split('::').last.gsub(/Pool$/, '')
+
+    if( OpenNebula.is_error?(result) )
+        puts "Error: #{class_name} Pool info could not be retrieved. " +
+            result.message
+        exit -1
+    end
 
     objects=pool.select {|object| object.name==name }
 
-    class_name=pool_class.name.split('::').last.gsub(/Pool$/, '')
-
     if objects.length>0
         if objects.length>1
-            puts "There are multiple #{class_name}'s with name #{name}."
+            puts "There are multiple #{class_name}s with name #{name}."
             exit -1
         else
             result=objects.first.id
@@ -311,6 +315,10 @@ end
 
 def get_cluster_id(name)
     get_entity_id(name, OpenNebula::ClusterPool)
+end
+
+def get_template_id(name)
+    get_entity_id(name, OpenNebula::TemplatePool)
 end
 
 def str_running_time(data)

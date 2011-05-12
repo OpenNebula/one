@@ -126,17 +126,10 @@ NebulaTemplate::NebulaTemplate(string& etc_location, string& var_location)
 #*******************************************************************************
 # Image Repository Configuration
 #*******************************************************************************
-#  IMAGE_REPOSITORY_PATH
 #  DEFAULT_IMAGE_TYPE
 #  DEFAULT_DEVICE_PREFIX
 #*******************************************************************************
 */
-    //IMAGE_REPOSITORY_PATH
-    value = var_location + "/images";
-
-    attribute = new SingleAttribute("IMAGE_REPOSITORY_PATH",value);
-    conf_default.insert(make_pair(attribute->name(),attribute));
-
     //DEFAULT_IMAGE_TYPE
     value = "OS";
 

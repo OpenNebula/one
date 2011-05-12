@@ -46,6 +46,8 @@ void RequestManager::ImageDelete::execute(
     vector<xmlrpc_c::value> arrayData;
     xmlrpc_c::value_array * arrayresult;
 
+    Nebula&          nd     = Nebula::instance();
+    ImageManager *   imagem = nd.get_imagem();
 
     NebulaLog::log("ReM",Log::DEBUG,"ImageDelete invoked");
 
@@ -91,17 +93,8 @@ void RequestManager::ImageDelete::execute(
         }
     }
 
-    // Get image from the ImagePool
-    image = ImageDelete::ipool->get(iid,true);
-
-    if ( image == 0 )
-    {
-        goto error_image_get;
-    }
-
-    rc = ImageDelete::ipool->drop(image);
-
-    image->unlock();
+    // Delete the Image from the repository
+    rc = imagem->delete_image(iid);
 
     if ( rc < 0 )
     {
@@ -133,7 +126,7 @@ error_authorize:
 
 error_delete:
     oss << action_error(method_name, "DELETE", "IMAGE", iid, rc)
-        << ". Reason: VMs might be running on it.";
+        << ". Image is in use.";
     image->unlock();
     goto error_common;
 

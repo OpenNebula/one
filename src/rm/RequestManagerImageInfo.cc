@@ -29,7 +29,6 @@ void RequestManager::ImageInfo::execute(
     string  session;
 
     int           iid;
-    int           uid;     // Image owner user id
     int           rc;      // Requesting user id 
     Image *       image;
                   
@@ -47,22 +46,20 @@ void RequestManager::ImageInfo::execute(
     session      = xmlrpc_c::value_string(paramList.getString(0));
     iid          = xmlrpc_c::value_int   (paramList.getInt(1));
 
-    // Get image from the ImagePool
-    image = ImageInfo::ipool->get(iid,true);
-
-    if ( image == 0 )
-    {
-        goto error_image_get;
-    }
-
-    uid = image->get_uid();
-
     // Check if it is a valid user
     rc = ImageInfo::upool->authenticate(session);
 
     if ( rc == -1 )
     {
         goto error_authenticate;
+    }
+
+    // Get image from the ImagePool
+    image = ImageInfo::ipool->get(iid,true);
+
+    if ( image == 0 )
+    {
+        goto error_image_get;
     }
     
     oss << *image;
@@ -87,7 +84,6 @@ error_image_get:
 
 error_authenticate:
     oss.str(authenticate_error(method_name));    
-    image->unlock();
     goto error_common;
 
 error_common:

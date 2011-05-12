@@ -70,12 +70,13 @@ class SunstoneServer
     def get_pool(kind)
         user_flag = -2
         pool = case kind
-            when "cluster" then ClusterPoolJSON.new(@client)
-            when "host"    then HostPoolJSON.new(@client)
-            when "image"   then ImagePoolJSON.new(@client, user_flag)
-            when "vm"      then VirtualMachinePoolJSON.new(@client, user_flag)
-            when "vnet"    then VirtualNetworkPoolJSON.new(@client, user_flag)
-            when "user"    then UserPoolJSON.new(@client)
+            when "cluster"  then ClusterPoolJSON.new(@client)
+            when "host"     then HostPoolJSON.new(@client)
+            when "image"    then ImagePoolJSON.new(@client, user_flag)
+            when "template" then TemplatePoolJSON.new(@client, user_flag)
+            when "vm"       then VirtualMachinePoolJSON.new(@client, user_flag)
+            when "vnet"     then VirtualNetworkPoolJSON.new(@client, user_flag)
+            when "user"     then UserPoolJSON.new(@client)
             else
                 error = Error.new("Error: #{kind} resource not supported")
                 return [404, error.to_json]
@@ -106,12 +107,13 @@ class SunstoneServer
     ############################################################################
     def create_resource(kind, template)
         resource = case kind
-            when "cluster" then ClusterJSON.new(Cluster.build_xml, @client)
-            when "host"    then HostJSON.new(Host.build_xml, @client)
-            when "image"   then ImageJSON.new(Image.build_xml, @client)
-            when "vm"      then VirtualMachineJSON.new(VirtualMachine.build_xml,@client)
-            when "vnet"    then VirtualNetworkJSON.new(VirtualNetwork.build_xml, @client)
-            when "user"    then UserJSON.new(User.build_xml, @client)
+            when "cluster"  then ClusterJSON.new(Cluster.build_xml, @client)
+            when "host"     then HostJSON.new(Host.build_xml, @client)
+            when "image"    then ImageJSON.new(Image.build_xml, @client)
+            when "template" then TemplateJSON.new(Template.build_xml, @client)
+            when "vm"       then VirtualMachineJSON.new(VirtualMachine.build_xml,@client)
+            when "vnet"     then VirtualNetworkJSON.new(VirtualNetwork.build_xml, @client)
+            when "user"     then UserJSON.new(User.build_xml, @client)
             else
                 error = Error.new("Error: #{kind} resource not supported")
                 return [404, error.to_json]
@@ -283,12 +285,13 @@ class SunstoneServer
 
     def retrieve_resource(kind, id)
         resource = case kind
-            when "cluster" then ClusterJSON.new_with_id(id, @client)
-            when "host"    then HostJSON.new_with_id(id, @client)
-            when "image"   then ImageJSON.new_with_id(id, @client)
-            when "vm"      then VirtualMachineJSON.new_with_id(id, @client)
-            when "vnet"    then VirtualNetworkJSON.new_with_id(id, @client)
-            when "user"    then UserJSON.new_with_id(id, @client)
+            when "cluster"  then ClusterJSON.new_with_id(id, @client)
+            when "host"     then HostJSON.new_with_id(id, @client)
+            when "image"    then ImageJSON.new_with_id(id, @client)
+            when "template" then TemplateJSON.new_with_id(id, @client)
+            when "vm"       then VirtualMachineJSON.new_with_id(id, @client)
+            when "vnet"     then VirtualNetworkJSON.new_with_id(id, @client)
+            when "user"     then UserJSON.new_with_id(id, @client)
             else
                 error = Error.new("Error: #{kind} resource not supported")
                 return error

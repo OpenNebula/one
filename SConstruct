@@ -63,6 +63,7 @@ main_env.Append(LIBPATH=[
     cwd+'/src/pool',
     cwd+'/src/template',
     cwd+'/src/vm',
+    cwd+'/src/vm_template',
     cwd+'/src/vmm',
     cwd+'/src/lcm',
     cwd+'/src/tm',
@@ -128,13 +129,25 @@ else:
 
 if not main_env.GetOption('clean'):
     try:
+        if mysql=='yes':
+            main_env.ParseConfig('mysql_config --cflags --libs')
+    except Exception, e:
+        print ""
+        print "mysql_config was not found in the path"
+        print ""
+        print "Check that mysql development package is installed and"
+        print "mysql_config is in the path. If your mysql config tool"
+        print "is called mysql5_config make a symlink as mysql_config"
+        print "to a directory in the path."
+        print ""
+        exit(-1)
+
+
+    try:
         main_env.ParseConfig(("LDFLAGS='%s' share/scons/get_xmlrpc_config"+
             " server") % (os.environ['LDFLAGS'],))
         main_env.ParseConfig(("LDFLAGS='%s' share/scons/get_xmlrpc_config"+
             " client") % (os.environ['LDFLAGS'],))
-
-        if mysql=='yes':
-            main_env.ParseConfig('mysql_config --cflags --libs')
 
     except Exception, e:
         print ""
@@ -178,6 +191,7 @@ build_scripts=[
     'src/nebula/SConstruct',
     'src/pool/SConstruct',
     'src/vm/SConstruct',
+    'src/vm_template/SConstruct',
     'src/vmm/SConstruct',
     'src/lcm/SConstruct',
     'src/rm/SConstruct',
@@ -228,6 +242,7 @@ if testing=='yes':
         'src/vm/test/SConstruct',
         'src/vnm/test/SConstruct',
         'src/xml/test/SConstruct',
+        'src/vm_template/test/SConstruct',
     ])
 else:
     main_env.Append(testing='no')

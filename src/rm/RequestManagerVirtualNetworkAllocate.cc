@@ -16,6 +16,7 @@
 
 #include "RequestManager.h"
 #include "NebulaLog.h"
+#include "VirtualNetworkTemplate.h"
 
 #include "AuthManager.h"
 

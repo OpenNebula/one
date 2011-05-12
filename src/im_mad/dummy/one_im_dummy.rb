@@ -51,7 +51,7 @@ class DummyInformationManager < OpenNebulaDriver
     #---------------------------------------------------------------------------
     def action_monitor(number, host, not_used)
         results =  "HYPERVISOR=dummy,"
-        results << "NAME=#{host},"
+        results << "HOSTNAME=#{host},"
 
         results << "TOTALCPU=800,"
         results << "CPUSPEED=2.2GHz,"

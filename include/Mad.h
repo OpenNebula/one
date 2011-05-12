@@ -26,6 +26,8 @@
 
 #include <unistd.h>
 
+#include "Log.h"
+
 using namespace std;
 
 /**
@@ -68,12 +70,11 @@ protected:
     {
         string        str;
         const char *  cstr;
-        size_t        retval;
         
         str  = os.str();
         cstr = str.c_str();
 
-        retval = ::write(nebula_mad_pipe, cstr, str.size());
+        ::write(nebula_mad_pipe, cstr, str.size());
     };
 
     /**
@@ -89,6 +90,32 @@ protected:
         write(os);
     };
 
+    /**
+     *  Sets the log message type as specify by the driver.
+     *    @param first character of the type string
+     *    @return the message type
+     */
+    Log::MessageType log_type(const char r)
+    {
+        Log::MessageType lt;
+
+        switch (r)
+        {
+            case 'E':
+                lt = Log::ERROR;
+                break;
+            case 'I':
+                lt = Log::INFO;
+                break;
+            case 'D':
+                lt = Log::DEBUG;
+                break;
+            default:
+                lt = Log::INFO;
+        }
+
+        return lt;
+    }
 
 private:
     friend class MadManager;
@@ -141,7 +168,7 @@ private:
      *    @return 0 on success
      */
     int reload();
-        
+
     /**
      *  Implements the driver specific protocol, this function should trigger
      *  actions on the associated manager.

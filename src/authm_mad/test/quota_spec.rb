@@ -60,8 +60,8 @@ describe 'Quota' do
     it 'should check for quotas' do
         @quota.update(0)
         @quota.update(1)
-        @quota.check(0).should == true
-        @quota.check(1).should == true
+        @quota.check(0).should == false
+        @quota.check(1).should == false
         
         vms=@quota.get_user(0)
         vms[5]=VmUsage.new(40.0, 8192)
@@ -69,13 +69,13 @@ describe 'Quota' do
         vms=@quota.get_user(1)
         vms[6]=VmUsage.new(40.0, 8192)
         
-        @quota.check(0).should == false
-        @quota.check(1).should == false
+        @quota.check(0).class.should == String
+        @quota.check(1).class.should == String
         
         @quota.update(0)
         @quota.update(1)
-        @quota.check(0).should == true
-        @quota.check(1).should == true
+        @quota.check(0).should == false
+        @quota.check(1).should == false
     end
     
     it 'should let update limits' do
@@ -86,8 +86,8 @@ describe 'Quota' do
     it 'should understand unlimited quotas' do
         vms=@quota.get_user(0)
         vms[7]=VmUsage.new(9999999999.0, 99999999999)
-        @quota.check(0).should == true
-        @quota.check(0, VmUsage.new(999999999.0, 99999999)).should == true
+        @quota.check(0).should == false
+        @quota.check(0, VmUsage.new(999999999.0, 99999999)).should == false
     end
     
 end

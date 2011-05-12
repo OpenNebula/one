@@ -22,7 +22,6 @@ import org.opennebula.client.Client;
 import org.opennebula.client.OneResponse;
 import org.opennebula.client.Pool;
 import org.opennebula.client.PoolElement;
-import org.opennebula.client.vm.VirtualMachinePool;
 import org.w3c.dom.Node;
 
 /**
@@ -42,7 +41,7 @@ public class ImagePool extends Pool implements Iterable<Image>
      * 
      * @param client XML-RPC Client.
      * 
-     * @see VirtualMachinePool#VirtualMachinePool(Client, int)
+     * @see ImagePool#ImagePool(Client, int)
      */
     public ImagePool(Client client)
     {
@@ -58,8 +57,8 @@ public class ImagePool extends Pool implements Iterable<Image>
      * {@link ImagePool#info()}. Possible values:
      * <ul>
      * <li><= -2: All Images</li>
-     * <li>-1: Connected user's Images</li>
-     * <li>>= 0: UID User's VMs</li>
+     * <li>-1: Connected user's Images and public ones</li>
+     * <li>>= 0: UID User's Images</li>
      * </ul>
      */
     public ImagePool(Client client, int filter)
@@ -85,8 +84,8 @@ public class ImagePool extends Pool implements Iterable<Image>
      * {@link ImagePool#info()}. Possible values:
      * <ul>
      * <li><= -2: All Images</li>
-     * <li>-1: Connected user's Images</li>
-     * <li>>= 0: UID User's VMs</li>
+     * <li>-1: Connected user's Images and public ones</li>
+     * <li>>= 0: UID User's Images</li>
      * </ul>
      * @return If successful the message contains the string
      * with the information returned by OpenNebula.

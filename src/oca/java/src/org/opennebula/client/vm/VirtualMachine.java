@@ -19,6 +19,7 @@ package org.opennebula.client.vm;
 import org.opennebula.client.Client;
 import org.opennebula.client.OneResponse;
 import org.opennebula.client.PoolElement;
+import org.opennebula.client.template.Template;
 import org.w3c.dom.Node;
 
 /**
@@ -135,6 +136,56 @@ public class VirtualMachine extends PoolElement{
     }
 
     /**
+     * Allocates a new VM in OpenNebula from a registered Template.
+     * 
+     * @param client XML-RPC Client.
+     * @param templateId The source Template's ID
+     * @param newName Name for the new VM, replaces the Template's one.
+     * Can be null.
+     * @return If successful the message contains the associated
+     * id generated for this VM.
+     */
+    public static OneResponse allocateFromTemplate(Client client,
+            int templateId, String newName)
+    {
+        String template = "TEMPLATE_ID = " + templateId;
+        if( newName != null )
+        {
+            template += "\nNAME = " + newName;
+        }
+
+        return allocate(client, template);
+    }
+
+    /**
+     * Allocates a new VM in OpenNebula from a registered Template.
+     * 
+     * @param client XML-RPC Client.
+     * @param templateId The source Template's ID
+     * @return If successful the message contains the associated
+     * id generated for this VM.
+     */
+    public static OneResponse allocateFromTemplate(Client client,
+            int templateId)
+    {
+        return allocateFromTemplate(client, templateId, null);
+    }
+
+    /**
+     * Allocates a new VM in OpenNebula from a registered Template.
+     * 
+     * @param client XML-RPC Client.
+     * @param template The source Template.
+     * @return If successful the message contains the associated
+     * id generated for this VM.
+     */
+    public static OneResponse allocateFromTemplate(Client client,
+            Template template)
+    {
+        return allocateFromTemplate(client, template.id());
+    }
+
+    /**
      * Retrieves the information of the given VM.
      *
      * @param client XML-RPC Client.
@@ -222,12 +273,12 @@ public class VirtualMachine extends PoolElement{
      * VirtualMachine shutdowns.
      *
      * @param diskId ID of the disk to be saved.
-     * @param imageId ID of the image where the disk will be saved.
+     * @param imageName Name of the new Image that will be created.
      * @return If an error occurs the error message contains the reason.
      */
-    public OneResponse savedisk(int diskId, int imageId)
+    public OneResponse savedisk(int diskId, String imageName)
     {
-        return client.call(SAVEDISK, id ,diskId, imageId);
+        return client.call(SAVEDISK, id ,diskId, imageName);
     }
 
     // =================================

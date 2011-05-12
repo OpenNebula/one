@@ -79,7 +79,7 @@ void TransferManagerDriver::protocol(
 
                 is.clear();
                 getline(is,info);
-                NebulaLog::log("TM",Log::INFO, info.c_str());
+                NebulaLog::log("TM",log_type(result[0]), info.c_str());
             }
 
             return;
@@ -142,8 +142,16 @@ void TransferManagerDriver::protocol(
             getline(is,info);
 
             os.str("");
-            os << "Error excuting image transfer script: " << info;
+            os << "Error excuting image transfer script";
+            
+            if (!info.empty() && info[0] != '-')
+            {
+                os << ": " << info;
 
+                vm->set_template_error_message(os.str());
+                vmpool->update(vm);
+            }
+            
             vm->log("TM",Log::ERROR,os);
 
             switch (vm->get_lcm_state())
@@ -171,7 +179,7 @@ void TransferManagerDriver::protocol(
         string info;
 
         getline(is,info);
-        vm->log("TM",Log::INFO,info.c_str());
+        vm->log("TM",log_type(result[0]),info.c_str());
     }
 
     vm->unlock();

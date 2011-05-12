@@ -23,7 +23,10 @@ lib_name='nebula_image'
 # Sources to generate the library
 source_files=[
     'Image.cc',
-    'ImagePool.cc'
+    'ImagePool.cc',
+    'ImageManagerDriver.cc',
+    'ImageManager.cc',
+    'ImageManagerActions.cc'
 ]
 
 # Build library

@@ -14,8 +14,6 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#include <sqlite3.h>
-
 #include "Template.h"
 #include "template_syntax.h"
 
@@ -309,7 +307,7 @@ void Template::get(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void Template::get(
+bool Template::get(
         string& name,
         int&    value) const
 {
@@ -320,12 +318,13 @@ void Template::get(
     if ( sval == "" )
     {
         value = 0;
-        return;
+        return false;
     }
 
     istringstream iss(sval);
 
     iss >> value;
+    return true;
 }
 
 /* -------------------------------------------------------------------------- */

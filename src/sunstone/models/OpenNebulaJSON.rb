@@ -20,6 +20,7 @@ include OpenNebula
 require 'OpenNebulaJSON/ClusterJSON'
 require 'OpenNebulaJSON/HostJSON'
 require 'OpenNebulaJSON/ImageJSON'
+require 'OpenNebulaJSON/TemplateJSON'
 require 'OpenNebulaJSON/JSONUtils'
 require 'OpenNebulaJSON/PoolJSON'
 require 'OpenNebulaJSON/UserJSON'

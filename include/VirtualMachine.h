@@ -532,93 +532,6 @@ public:
     // ------------------------------------------------------------------------
     // Template
     // ------------------------------------------------------------------------
-
-    /**
-     *  Gets the values of a template attribute
-     *    @param name of the attribute
-     *    @param values of the attribute
-     *    @return the number of values
-     */
-    int get_template_attribute(
-        string& name,
-        vector<const Attribute*>& values) const
-    {
-        return vm_template->get(name,values);
-    };
-
-    /**
-     *  Gets the values of a template attribute
-     *    @param name of the attribute
-     *    @param values of the attribute
-     *    @return the number of values
-     */
-    int get_template_attribute(
-        const char *name,
-        vector<const Attribute*>& values) const
-    {
-        string str=name;
-        return vm_template->get(str,values);
-    };
-
-    /**
-     *  Gets a string based VM attribute (single)
-     *    @param name of the attribute
-     *    @param value of the attribute (a string), will be "" if not defined or
-     *    not a single attribute
-     */
-    void get_template_attribute(
-        const char *    name,
-        string&         value) const
-    {
-        string str=name;
-        vm_template->get(str,value);
-    }
-
-    /**
-     *  Gets an int based VM attribute (single)
-     *    @param name of the attribute
-     *    @param value of the attribute (an int), will be 0 if not defined or
-     *    not a single attribute
-     */
-    void get_template_attribute(
-        const char *    name,
-        int&            value) const
-    {
-        string str=name;
-        vm_template->get(str,value);
-    }
-
-    /**
-     *  Adds a new attribute to the template (replacing it if
-     *  already defined), the vm's mutex SHOULD be locked
-     *    @param name of the new attribute
-     *    @param value of the new attribute
-     *    @return 0 on success
-     */
-    int replace_template_attribute(
-        string& name,
-        string& value)
-    {
-        SingleAttribute * sattr;
-
-        vm_template->erase(name);
-
-        sattr = new SingleAttribute(name,value);
-        vm_template->set(sattr);
-
-        return 0;
-    }
-
-
-    /**
-     *  Generates a XML string for the template of the VM
-     *    @param xml the string to store the XML description.
-     */
-    void template_to_xml(string &xml) const
-    {
-        vm_template->to_xml(xml);
-    }
-
     /**
      *  Parse a string and substitute variables (e.g. $NAME) using the VM
      *  template values:
@@ -626,12 +539,11 @@ public:
      *    @param parsed, the resulting parsed string
      *    @return 0 on success.
      */
-    int  parse_template_attribute(const string& attribute,
-                                  string&       parsed);
+    int  parse_template_attribute(const string& attribute, string& parsed);
+
     // ------------------------------------------------------------------------
     // States
     // ------------------------------------------------------------------------
-
     /**
      *  Returns the VM state (Dispatch Manager)
      *    @return the VM state
@@ -743,7 +655,7 @@ public:
      *    @param  img_id ID of the image this disk will be saved to.
      *    @return 0 if success
      */
-    int  save_disk(int disk_id, int img_id);
+    int  save_disk(int disk_id, int img_id, string& error_str);
 
 private:
 
@@ -775,14 +687,6 @@ private:
     // -------------------------------------------------------------------------
     // Virtual Machine Description
     // -------------------------------------------------------------------------
-
-    /**
-     *  The Virtual Machine template, holds the VM attributes.
-     */
-    VirtualMachineTemplate* vm_template;
-
-    // Dynamic state of the Virtual Machine
-
     /**
      *  The state of the virtual machine.
      */
@@ -913,7 +817,6 @@ private:
         else
             return -1;
     };
-
 
     // -------------------------------------------------------------------------
     // Attribute Parser
