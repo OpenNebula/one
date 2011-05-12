@@ -758,6 +758,7 @@ SUNSTONE_MODELS_JSON_FILES="src/sunstone/models/OpenNebulaJSON/ClusterJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/PoolJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/UserJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/VirtualMachineJSON.rb \
+                    src/sunstone/models/OpenNebulaJSON/TemplateJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/VirtualNetworkJSON.rb"
 
 SUNSTONE_TEMPLATE_FILES="src/sunstone/templates/index.html \
