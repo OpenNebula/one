@@ -50,7 +50,8 @@ int PoolSQL::init_cb(void *nil, int num, char **values, char **names)
 
 /* -------------------------------------------------------------------------- */
 
-PoolSQL::PoolSQL(SqlDB * _db, const char * table): db(_db), lastOID(-1)
+PoolSQL::PoolSQL(SqlDB * _db, const char * _table):
+    db(_db), lastOID(-1), table(_table)
 {
     ostringstream   oss;
 
@@ -58,7 +59,7 @@ PoolSQL::PoolSQL(SqlDB * _db, const char * table): db(_db), lastOID(-1)
 
     set_callback(static_cast<Callbackable::Callback>(&PoolSQL::init_cb));
 
-    oss << "SELECT MAX(oid) FROM " << table;
+    oss << "SELECT last_oid FROM pool_control WHERE tablename='" << table <<"'";
 
     db->exec(oss,this);
 
@@ -129,9 +130,27 @@ int PoolSQL::allocate(
 
     delete objsql;
 
+    if( rc != -1 )
+    {
+        update_lastOID();
+    }
+
     unlock();
 
     return rc;
+}
+
+void PoolSQL::update_lastOID()
+{
+    // db->escape_str is not used for 'table' since its name can't be set in
+    // any way by the user, it is hardcoded.
+
+    ostringstream oss;
+    oss << "REPLACE INTO pool_control (tablename, last_oid) VALUES ("
+        << "'" <<   table       << "',"
+        <<          lastOID     << ")";
+
+    db->exec(oss);
 }
 
 /* -------------------------------------------------------------------------- */

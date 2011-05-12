@@ -32,7 +32,7 @@ module OpenNebulaJSON
                 template = template_to_str(image_hash)
             end
 
-            OpenNebula::ImageRepository.new.create(self, template)
+            self.allocate(template)
         end
 
         def perform_action(template_json)

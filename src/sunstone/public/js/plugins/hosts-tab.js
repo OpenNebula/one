@@ -376,14 +376,14 @@ function hostElementArray(host_json){
      var pb_mem =
 '<div style="height:10px" class="ratiobar ui-progressbar ui-widget ui-widget-content ui-corner-all" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+ratio_mem+'">\
     <div class="ui-progressbar-value ui-widget-header ui-corner-left ui-corner-right" style="width: '+ratio_mem+'%;"/>\
-    <span style="position:relative;left:45px;top:-4px;font-size:0.6em">'+ratio_mem+'%</span>\
+    <span style="position:relative;left:90px;top:-4px;font-size:0.6em">'+ratio_mem+'%</span>\
     </div>\
 </div>';
 
     var pb_cpu =
 '<div style="height:10px" class="ratiobar ui-progressbar ui-widget ui-widget-content ui-corner-all" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+ratio_cpu+'">\
     <div class="ui-progressbar-value ui-widget-header ui-corner-left ui-corner-right" style="width: '+ratio_cpu+'%;"/>\
-    <span style="position:relative;left:45px;top:-4px;font-size:0.6em">'+ratio_cpu+'%</span>\
+    <span style="position:relative;left:90px;top:-4px;font-size:0.6em">'+ratio_cpu+'%</span>\
     </div>\
 </div>';
 
@@ -395,7 +395,7 @@ function hostElementArray(host_json){
 			host.HOST_SHARE.RUNNING_VMS, //rvm
             pb_cpu,
 			pb_mem,
-			OpenNebula.Helper.resource_state("host",host.STATE) ];
+			OpenNebula.Helper.resource_state("host_simple",host.STATE) ];
 
 }
 
@@ -416,7 +416,7 @@ function hostInfoListener(){
 //updates the host select by refreshing the options in it
 function updateHostSelect(){
 
-    hosts_select = makeSelectOptions(dataTable_hosts,1,2,7,"DISABLED");
+    hosts_select = makeSelectOptions(dataTable_hosts,1,2,7,"DISABLED",-1);
 
 }
 
@@ -661,7 +661,7 @@ $(document).ready(function(){
                         { "bSortable": false, "aTargets": ["check"] },
                         { "sWidth": "60px", "aTargets": [0,4] },
                         { "sWidth": "35px", "aTargets": [1] },
-                        { "sWidth": "120px", "aTargets": [5,6] }
+                        { "sWidth": "200px", "aTargets": [5,6] }
                        ]
     });
     

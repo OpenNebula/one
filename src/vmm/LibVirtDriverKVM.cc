@@ -513,7 +513,7 @@ int LibVirtDriver::deployment_description_kvm(
 
             if ( the_filter != 0 )
             {
-                file <<"\t\t\t<filterref filter='"<< *the_filter <<"'/>"<<endl;
+                file <<"\t\t\t<filterref filter='"<< *the_filter <<"'>"<<endl;
                 file << "\t\t\t\t<parameter name='IP' value='" 
                      << ip << "'/>" << endl;
                 file << "\t\t\t</filterref>" << endl; 
