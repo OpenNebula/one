@@ -166,11 +166,6 @@ int LibVirtDriver::deployment_description_vmware(
     
     get_default("DISK","DRIVER",default_driver);
 
-    if (default_driver.empty())
-    {
-        default_driver = "raw";
-    }
-
     num = vm->get_template_attribute("DISK",attrs);
 
     if (num!=0)
@@ -252,7 +247,10 @@ int LibVirtDriver::deployment_description_vmware(
         }
         else
         {
-            file << default_driver << "'/>" << endl;
+            if (!default_driver.empty())
+            {
+                file << default_driver << "'/>" << endl;            
+            }
         }
 
         if (readonly)

@@ -9,7 +9,7 @@ distributed data center infrastructures.
 
 Complete documentation can be found at
 
-  http://opennebula.org/documentation:rel2.0
+  http://opennebula.org/documentation:rel2.4
 
 ## INSTALLATION
 
@@ -111,7 +111,7 @@ where **install_options** can be one or more of:
 
 ## CONFIGURATION
 
-Information on how to configure OpenNebula is located at http://opennebula.org/documentation:rel2.0
+Information on how to configure OpenNebula is located at http://opennebula.org/documentation:rel2.4
 
 
 ## CONTACT
