@@ -677,6 +677,21 @@ var template_actions = {
         elements: function() { return getSelectedNodes(dataTable_templates); },
         error: onError,
         notify: true
+     },
+
+     "Template.instantiate" : {
+         type: "custom",
+         call: function(){
+             nodes = getSelectedNodes(dataTable_templates);
+             $.each(nodes,function(){
+                Sunstone.runAction("VM.create",
+                    {vm : {
+                        template_id: this
+                        }
+                    });
+            });
+         },
+         notify: false
      }
 }
 
@@ -691,6 +706,11 @@ var template_buttons = {
     "Template.create_dialog" : {
         type: "create_dialog",
         text: "+ New",
+        condition: True
+    },
+    "Template.instantiate" : {
+        type: "action",
+        text: "Instantiate",
         condition: True
     },
     "Template.addattr_dialog" : {
