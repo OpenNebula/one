@@ -923,9 +923,8 @@ function popUpTemplateRmattrDialog(){
 function updateTemplateInfo(request,template){
     var template_info = template.VMTEMPLATE;
     var info_tab = {
-        title: "Template information",
-        content:        
-        '<table id="info_template_table" class="info_table">\
+        title: "Information",
+        content: '<table id="info_template_table" class="info_table">\
 			<thead>\
 				<tr><th colspan="2">Template "'+template_info.NAME+'" information</th></tr>\
 			</thead>\
@@ -945,16 +944,20 @@ function updateTemplateInfo(request,template){
 				<td class="key_td">Public</td>\
 				<td class="value_td">'+(parseInt(template_info.PUBLIC) ? "yes" : "no")+'</td>\
 			</tr>\
-		</table>\
-        <table id="template_template_table" class="info_table">\
-		<thead><tr><th colspan="2">Template</th></tr></thead>'+
-		prettyPrintJSON(template_info.TEMPLATE)+
-		'</table>'
-    }
-    
-    
+		</table>'
+    };
+    var template_tab = {
+        title: "Template",
+        content: '<table id="template_template_table" class="info_table">\
+        <thead><tr><th colspan="2">Template</th></tr></thead>'+
+        prettyPrintJSON(template_info.TEMPLATE)+
+        '</table>'
+    };
+
+
     Sunstone.updateInfoPanelTab("template_info_panel","template_info_tab",info_tab);
-        
+    Sunstone.updateInfoPanelTab("template_info_panel","template_template_tab",template_tab);
+
     Sunstone.popUpInfoPanel("template_info_panel");
 
 }
