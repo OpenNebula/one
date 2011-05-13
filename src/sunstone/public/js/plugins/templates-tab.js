@@ -147,6 +147,34 @@ var create_template_tmpl = '<div id="template_create_tabs">\
 			  </div>\
 \
 \
+            <!-- FEATURES SECTION pae,acpi-->\
+              <div class="vm_section" id="features">\
+                <div class="show_hide" id="add_features_cb">\
+                    <h3>Features <a id="add_features" class="icon_left" href="#"><span class="ui-icon ui-icon-plus" /></a></h3>\
+                </div>\
+                <fieldset><legend>Features</legend>\
+                <div class="vm_param kvm_opt xen_opt vmware_opt">\
+                    <label for="PAE">PAE:</label>\
+                    <select id="PAE" name="PAE">\
+                        <option value="">Default</option>\
+                        <option value="yes">Enable</option>\
+                        <option value="no">Disable</option>\
+                    </select>\
+                    <div class="tip">Physical address extension mode allows 32-bit guests to address more than 4 GB of memory</div>\
+                </div>\
+                <div class="vm_param kvm_opt xen_opt vmware_opt">\
+                    <label for="ACPI">ACPI:</label>\
+                    <select id="ACPI" name="ACPI">\
+                        <option value="">Default</option>\
+                        <option value="yes">Enable</option>\
+                        <option value="no">Disable</option>\
+                    </select>\
+                    <div class="tip">Useful for power management, for example, normally required for graceful shutdown to work</div>\
+                </div>\
+                </fieldset>\
+              </div>\
+\
+\
 			  <!--disks section using image or declaring\
 			  image, image ID, bus, target, driver\
 			  type, source, size, format, clone, save,\
@@ -1305,6 +1333,16 @@ function setupCreateTemplateDialog(){
 		});
 	};
 
+    // Sets up the features section
+    var features_setup = function(){
+        $('fieldset',section_features).hide();
+
+        $('#add_features',section_features).click(function(){
+            $('fieldset',section_features).toggle();
+            return false;
+        });
+    };
+
     // Sets up the disk section
 	var disks_setup = function(){
 
@@ -1695,6 +1733,7 @@ function setupCreateTemplateDialog(){
 	//Sections, used to stay within their scope
 	var section_capacity = $('#capacity');
 	var section_os_boot = $('#os_boot_opts');
+    var section_features = $('#features');
 	var section_disks = $('#disks');
 	var section_networks = $('#networks');
 	var section_inputs = $('#inputs');
@@ -1738,6 +1777,7 @@ function setupCreateTemplateDialog(){
     //initialise all sections
 	capacity_setup();
 	os_boot_setup();
+    features_setup();
 	disks_setup();
 	networks_setup();
 	inputs_setup();
@@ -1779,6 +1819,11 @@ function setupCreateTemplateDialog(){
 		};
         vm_json["OS"] = {};
 		addSectionJSON(vm_json["OS"],scope);
+
+        //Fetch pae and acpi options
+        scope = section_features;
+        vm_json["FEATURES"] = {};
+        addSectionJSON(vm_json["FEATURES"],scope);
 
 		//process disks -> fetch from box
 		scope = section_disks;
