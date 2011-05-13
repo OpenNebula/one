@@ -292,6 +292,7 @@ INSTALL_FILES=(
     IMAGE_DRIVER_FS_SCRIPTS:$LIB_LOCATION/remotes/image/fs
     IMAGE_DRIVER_FS_SCRIPTS:$VAR_LOCATION/remotes/image/fs
     EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples
+    INSTALL_NOVNC_SHARE_FILE:$SHARE_LOCATION
     TM_EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples/tm
     HOOK_SHARE_FILES:$SHARE_LOCATION/hooks
     COMMON_CLOUD_LIB_FILES:$LIB_LOCATION/ruby/cloud
@@ -643,6 +644,8 @@ HOOK_SHARE_FILES="share/hooks/ebtables-xen \
                   share/hooks/ebtables-flush \
                   share/hooks/host_error.rb \
                   share/hooks/image.rb"
+
+INSTALL_NOVNC_SHARE_FILE="share/install_novnc.sh"
 
 #-------------------------------------------------------------------------------
 # Common Cloud Files
