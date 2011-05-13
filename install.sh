@@ -188,15 +188,6 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/tm_commands/dummy \
           $LIB_LOCATION/tm_commands/lvm \
           $LIB_LOCATION/mads \
-          $LIB_LOCATION/remotes \
-          $LIB_LOCATION/remotes/im \
-          $LIB_LOCATION/remotes/im/kvm.d \
-          $LIB_LOCATION/remotes/im/xen.d \
-          $LIB_LOCATION/remotes/im/ganglia.d \
-          $LIB_LOCATION/remotes/vmm/xen \
-          $LIB_LOCATION/remotes/vmm/kvm \
-          $LIB_LOCATION/remotes/image \
-          $LIB_LOCATION/remotes/image/fs \
           $LIB_LOCATION/sh"
 
 VAR_DIRS="$VAR_LOCATION/remotes \
@@ -260,10 +251,8 @@ INSTALL_FILES=(
     RUBY_LIB_FILES:$LIB_LOCATION/ruby
     RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/OpenNebula
     MAD_RUBY_LIB_FILES:$LIB_LOCATION/ruby
-    MAD_RUBY_LIB_FILES:$LIB_LOCATION/remotes
     MAD_RUBY_LIB_FILES:$VAR_LOCATION/remotes
     MAD_SH_LIB_FILES:$LIB_LOCATION/sh
-    MAD_SH_LIB_FILES:$LIB_LOCATION/remotes
     MAD_SH_LIB_FILES:$VAR_LOCATION/remotes
     ONEDB_MIGRATOR_FILES:$LIB_LOCATION/onedb
     MADS_LIB_FILES:$LIB_LOCATION/mads
@@ -277,21 +266,10 @@ INSTALL_FILES=(
     VMM_SSH_XEN_KVM_POLL:$VAR_LOCATION/remotes/vmm/xen/poll
     VMM_SSH_GANGLIA_POLL:$VAR_LOCATION/remotes/vmm/kvm/poll_local
     VMM_SSH_GANGLIA_POLL:$VAR_LOCATION/remotes/vmm/xen/poll_local
-    IM_PROBES_FILES:$LIB_LOCATION/remotes/im
-    IM_PROBES_KVM_FILES:$LIB_LOCATION/remotes/im/kvm.d
-    IM_PROBES_XEN_FILES:$LIB_LOCATION/remotes/im/xen.d
-    IM_PROBES_GANGLIA_FILES:$LIB_LOCATION/remotes/im/ganglia.d
-    VMM_SSH_KVM_SCRIPTS:$LIB_LOCATION/remotes/vmm/kvm
-    VMM_SSH_XEN_SCRIPTS:$LIB_LOCATION/remotes/vmm/xen
-    VMM_SSH_XEN_KVM_POLL:$LIB_LOCATION/remotes/vmm/kvm/poll
-    VMM_SSH_XEN_KVM_POLL:$LIB_LOCATION/remotes/vmm/xen/poll
-    VMM_SSH_GANGLIA_POLL:$LIB_LOCATION/remotes/vmm/kvm/poll_local
-    VMM_SSH_GANGLIA_POLL:$LIB_LOCATION/remotes/vmm/xen/poll_local
     NFS_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/nfs
     SSH_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/ssh
     DUMMY_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/dummy
     LVM_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/lvm
-    IMAGE_DRIVER_FS_SCRIPTS:$LIB_LOCATION/remotes/image/fs
     IMAGE_DRIVER_FS_SCRIPTS:$VAR_LOCATION/remotes/image/fs
     EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples
     TM_EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples/tm
