@@ -190,18 +190,59 @@ function notifyError(msg){
 // Returns an HTML string with the json keys and values in the form
 // key: value<br />
 // It recursively explores objects
-function prettyPrintJSON(template_json,padding,weight, border_bottom){
+function prettyPrintJSON(template_json,padding,weight, border_bottom,padding_top_bottom){
     var str = ""
     if (!padding) {padding=0};
     if (!weight) {weight="bold";}
     if (!border_bottom) {border_bottom = "1px solid #CCCCCC";}
+    if (!padding_top_bottom) {padding_top_bottom=6;}
 
     for (field in template_json) {
         if (typeof template_json[field] == 'object'){
-            str += '<tr><td class="key_td" style="padding-left:'+padding+'px;font-weight:'+weight+';border-bottom:'+border_bottom+'">'+field+'</td><td class="value_td" style="border-bottom:'+border_bottom+'"></td></tr>';
-            str += prettyPrintJSON(template_json[field],padding+25,"normal","0") + '<tr><td class="key_td" style="padding-left:'+(padding+10)+'px"></td><td class="value_td"></td></tr>';
+            //name of field row
+            str += '<tr>\
+                <td class="key_td" style=\
+                    "padding-left:'+padding+'px;\
+                    font-weight:'+weight+';\
+                    border-bottom:'+border_bottom+';\
+                    padding-top:'+padding_top_bottom+'px;\
+                    padding-bottom:'+padding_top_bottom+'px;">'
+                    +field+
+                '</td>\
+                <td class="value_td" style=\
+                    "border-bottom:'+border_bottom+';\
+                    padding-top:'+padding_top_bottom+'px;\
+                    padding-bottom:'+padding_top_bottom+'px">\
+                </td>\
+                </tr>';
+            //attributes rows
+            //empty row - prettyprint - empty row
+            str += '<tr>\
+                <td class="key_td" style="border-bottom:0"></td>\
+                <td class="value_td" style="border-bottom:0"></td>\
+                </tr>' + 
+                prettyPrintJSON(template_json[field],padding+25,"normal","0",1) + 
+                '<tr>\
+                    <td class="key_td"></td>\
+                    <td class="value_td"></td>\
+                </tr>';
         } else {
-            str += '<tr><td class="key_td" style="padding-left:'+padding+'px;font-weight:'+weight+';border-bottom:'+border_bottom+'">'+field+'</td><td class="value_td" style="border-bottom:'+border_bottom+'">'+template_json[field]+'</td></tr>';
+            str += '<tr>\
+                <td class="key_td" style="\
+                    padding-left:'+padding+'px;\
+                    font-weight:'+weight+';\
+                    border-bottom:'+border_bottom+';\
+                    padding-top:'+padding_top_bottom+'px;\
+                    padding-bottom:'+padding_top_bottom+'px">'+
+                    field+
+                '</td>\
+                <td class="value_td" style="\
+                    border-bottom:'+border_bottom+';\
+                    padding-top:'+padding_top_bottom+'px;\
+                    padding-bottom:'+padding_top_bottom+'px">'+
+                    template_json[field]+
+                '</td>\
+            </tr>';
         };
     };
     return str;
