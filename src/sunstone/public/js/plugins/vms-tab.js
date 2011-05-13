@@ -511,8 +511,6 @@ function addVMachineElement(request,vm_json){
     var id = vm_json.VM.ID;
 	var element = vMachineElementArray(vm_json);
 	addElement(element,dataTable_vMachines);
-    //Popup info panel after creation.
-    updateVMInfo(null,vm_json);
 }
 
 
