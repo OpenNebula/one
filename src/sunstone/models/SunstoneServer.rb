@@ -14,27 +14,10 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-ONE_LOCATION = ENV["ONE_LOCATION"]
-
-if !ONE_LOCATION
-    LOG_LOCATION = "/var/log/one"
-    VAR_LOCATION = "/var/lib/one"
-    RUBY_LIB_LOCATION = "/usr/lib/one/ruby"
-else
-    VAR_LOCATION = ONE_LOCATION+"/var"
-    LOG_LOCATION = ONE_LOCATION+"/var"
-    RUBY_LIB_LOCATION = ONE_LOCATION+"/lib/ruby"
-end
-
-$: << RUBY_LIB_LOCATION
-$: << File.dirname(__FILE__)
-
-require 'models/OpenNebulaJSON'
+require 'OpenNebulaJSON'
 include OpenNebulaJSON
 
 class SunstoneServer
-    VNC_PROXY_BASE_PORT = 29876
-
     def initialize(username, password)
         # TBD one_client_user(name) from CloudServer
         @client = Client.new("dummy:dummy")
@@ -221,7 +204,7 @@ class SunstoneServer
     ########################################################################
     # VNC
     ########################################################################
-    def startvnc(id)
+    def startvnc(id, config)
         resource = retrieve_resource("vm", id)
         if OpenNebula.is_error?(resource)
             return [404, resource.to_json]
@@ -237,17 +220,17 @@ class SunstoneServer
             return [403, error.to_json]
         end
 
-        vnc_port = resource['TEMPLATE/GRAPHICS/PORT']
+        # The VM host and its VNC port
         host = resource['HISTORY/HOSTNAME']
+        vnc_port = resource['TEMPLATE/GRAPHICS/PORT']
 
-        proxy_port = VNC_PROXY_BASE_PORT + vnc_port.to_i
+        # The noVNC proxy_port
+        proxy_port = config[:vnc_proxy_base_port] + vnc_port.to_i
 
-        # puts "Launch noVNC on #{final_port} listenting to #{host}:#{vnc_port}"
-        # So here we launch the noVNC server listening on the final_port
-        # and serving as proxy for the VM host on the configured VNC port.
-        # TODO - This path is in public...
         begin
-            pipe = IO.popen("#{File.dirname(__FILE__)}/../lib/vendor/noVNC/utils/launch.sh --listen #{proxy_port} --vnc #{host}:#{vnc_port}")
+            novnc_cmd = "#{config[:novnc_path]}/utils/launch.sh"
+            pipe = IO.popen("#{novnc_cmd} --listen #{proxy_port} \
+                                          --vnc #{host}:#{vnc_port}")
         rescue Exception => e
             error = Error.new(e.message)
             return [500, error.to_json]
@@ -268,7 +251,6 @@ class SunstoneServer
             return [404, resource.to_json]
         end
 
-        # puts "Killing noVNC with pid #{pid}"
         begin
             Process.kill('KILL',pipe.pid)
             pipe.close

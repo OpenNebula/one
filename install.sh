@@ -353,6 +353,7 @@ INSTALL_ETC_FILES=(
     ECO_ETC_TEMPLATE_FILES:$ETC_LOCATION/ec2query_templates
     OCCI_ETC_FILES:$ETC_LOCATION
     OCCI_ETC_TEMPLATE_FILES:$ETC_LOCATION/occi_templates
+    SUNSTONE_ETC_FILES:$ETC_LOCATION
 )
 
 #-------------------------------------------------------------------------------
@@ -747,6 +748,8 @@ SUNSTONE_FILES="src/sunstone/config.ru \
                 src/sunstone/sunstone-server.rb"
 
 SUNSTONE_BIN_FILES="src/sunstone/bin/sunstone-server"
+
+SUNSTONE_ETC_FILES="src/sunstone/etc/sunstone-server.conf"
 
 SUNSTONE_MODELS_FILES="src/sunstone/models/OpenNebulaJSON.rb \
                        src/sunstone/models/SunstoneServer.rb"

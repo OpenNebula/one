@@ -16,20 +16,40 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+ONE_LOCATION = ENV["ONE_LOCATION"]
+
+if !ONE_LOCATION
+    LOG_LOCATION = "/var/log/one"
+    VAR_LOCATION = "/var/lib/one"
+    RUBY_LIB_LOCATION = "/usr/lib/one/ruby"
+    CONFIGURATION_FILE = "/etc/one/sunstone-server.conf"
+else
+    VAR_LOCATION = ONE_LOCATION+"/var"
+    LOG_LOCATION = ONE_LOCATION+"/var"
+    RUBY_LIB_LOCATION = ONE_LOCATION+"/lib/ruby"
+    CONFIGURATION_FILE = ONE_LOCATION+"/etc/sunstone-server.conf"
+end
+
+$: << RUBY_LIB_LOCATION
+$: << File.dirname(__FILE__)+'/models'
+
 ##############################################################################
 # Required libraries
 ##############################################################################
 require 'rubygems'
 require 'sinatra'
 
-require 'models/SunstoneServer'
+require 'cloud/Configuration'
+require 'SunstoneServer'
 
+@config = Configuration.new(CONFIGURATION_FILE)
 
 ##############################################################################
 # Sinatra Configuration
 ##############################################################################
 use Rack::Session::Pool
-
+set :host, @config[:host]
+set :port, @config[:port]
 
 ##############################################################################
 # Helpers
@@ -201,7 +221,7 @@ post '/vm/:id/startvnc' do
         return [200, info.to_json]
     end
 
-    rc = @SunstoneServer.startvnc(vm_id)
+    rc = @SunstoneServer.startvnc(vm_id, @config)
     if rc[0] == 200
         info = rc[1]
         session['vnc'][vm_id] = info.clone
