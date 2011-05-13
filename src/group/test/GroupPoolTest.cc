@@ -28,13 +28,12 @@ const string names[] = {"First name", "Second name"};
 
 const string xmls[] =
 {
-    "<GROUP><ID>1</ID><UID>0</UID><NAME>First name</NAME></GROUP>",
-    "<GROUP><ID>2</ID><UID>1</UID><NAME>Second name</NAME></GROUP>"
+    "<GROUP><ID>100</ID><UID>0</UID><NAME>First name</NAME></GROUP>",
+    "<GROUP><ID>101</ID><UID>1</UID><NAME>Second name</NAME></GROUP>"
 };
 
 const string group_xml_dump =
-    "<GROUP_POOL><GROUP><ID>0</ID><UID>0</UID><NAME>default</NAME></GROUP><GROUP><ID>1</ID><UID>5</UID><NAME>group_a</NAME></GROUP><GROUP><ID>3</ID><UID>5</UID><NAME>group_c</NAME></GROUP><GROUP><ID>4</ID><UID>5</UID><NAME>group_d</NAME></GROUP></GROUP_POOL>";
-
+    "<GROUP_POOL><GROUP><ID>0</ID><UID>0</UID><NAME>oneadmin</NAME></GROUP><GROUP><ID>1</ID><UID>0</UID><NAME>users</NAME></GROUP><GROUP><ID>100</ID><UID>5</UID><NAME>group_a</NAME></GROUP><GROUP><ID>102</ID><UID>5</UID><NAME>group_c</NAME></GROUP><GROUP><ID>103</ID><UID>5</UID><NAME>group_d</NAME></GROUP></GROUP_POOL>";
 /* ************************************************************************* */
 /* ************************************************************************* */
 
@@ -57,7 +56,7 @@ class GroupPoolTest : public PoolTest
     CPPUNIT_TEST_SUITE (GroupPoolTest);
 
     // Not all tests from PoolTest can be used. Because
-    // of the initial default group added to the DB, the
+    // of the initial default groups added to the DB, the
     // oid_assignment would fail.
     CPPUNIT_TEST (get_from_cache);
     CPPUNIT_TEST (get_from_db);
@@ -166,7 +165,7 @@ public:
 
         // Allocate a group
         rc = gpool->allocate(uids[0], names[0], &oid, err);
-        CPPUNIT_ASSERT( oid == 1 );
+        CPPUNIT_ASSERT( oid == 100 );
         CPPUNIT_ASSERT( oid == rc );
 
         // Try to allocate twice the same group, should fail
@@ -192,19 +191,19 @@ public:
 
         // Allocate some groups
         rc = gpool->allocate(5, "group_a", &oid, err);
-        CPPUNIT_ASSERT( rc == 1 );
+        CPPUNIT_ASSERT( rc == 100 );
 
         rc = gpool->allocate(5, "group_b", &oid, err);
-        CPPUNIT_ASSERT( rc == 2 );
+        CPPUNIT_ASSERT( rc == 101 );
 
         rc = gpool->allocate(5, "group_c", &oid, err);
-        CPPUNIT_ASSERT( rc == 3 );
+        CPPUNIT_ASSERT( rc == 102 );
 
         rc = gpool->allocate(5, "group_d", &oid, err);
-        CPPUNIT_ASSERT( rc == 4 );
+        CPPUNIT_ASSERT( rc == 103 );
 
         // Drop one of them
-        group = gpool->get(2, false);
+        group = gpool->get(101, false);
         CPPUNIT_ASSERT( group != 0 );
 
         rc = gpool->drop(group);

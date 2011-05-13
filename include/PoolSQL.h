@@ -165,12 +165,23 @@ protected:
              const char * table, const string& where);
 
     /**
+     *  Last object ID assigned to an object. It must be initialized by the
+     *  target pool.
+     */
+    int     lastOID;
+
+    /**
      *  Returns the value of the last identifier assigned by the pool
      */
     int get_lastOID()
     {
         return lastOID;
     };
+
+    /**
+     *  Inserts the last oid into the pool_control table
+     */
+    void update_lastOID();
 
 private:
 
@@ -182,12 +193,6 @@ private:
      *  accessed simultaneously.
      */
     static const unsigned int   MAX_POOL_SIZE;
-
-    /**
-     *  Last object ID assigned to an object. It must be initialized by the
-     *  target pool.
-     */
-    int     lastOID;
 
     /**
      *  Tablename for this pool
@@ -257,11 +262,6 @@ private:
 
         return key.str();
     };
-
-    /**
-     *  Inserts the last oid into the pool_control table
-     */
-    void update_lastOID();
 
     /* ---------------------------------------------------------------------- */
     /* ---------------------------------------------------------------------- */

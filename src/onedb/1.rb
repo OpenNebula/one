@@ -255,6 +255,11 @@ class Migrator < MigratorBase
         @db.run "CREATE TABLE db_versioning (oid INTEGER PRIMARY KEY, version INTEGER, timestamp INTEGER, comment VARCHAR(256));"
         @db.run "CREATE TABLE template_pool (oid INTEGER PRIMARY KEY, name VARCHAR(256), body TEXT, uid INTEGER, public INTEGER);"
 
+        # The group pool has two default ones
+        @db.run "CREATE TABLE group_pool (oid INTEGER PRIMARY KEY, name VARCHAR(256), body TEXT, uid INTEGER, UNIQUE(name));"
+        @db.run "INSERT INTO group_pool VALUES(0,'oneadmin','<GROUP><ID>0</ID><UID>0</UID><NAME>oneadmin</NAME></GROUP>',0);"
+        @db.run "INSERT INTO group_pool VALUES(1,'users','<GROUP><ID>1</ID><UID>0</UID><NAME>users</NAME></GROUP>',0);"
+
         # New pool_control table contains the last_oid used, must be rebuilt
         @db.run "CREATE TABLE pool_control (tablename VARCHAR(32) PRIMARY KEY, last_oid BIGINT UNSIGNED)"
 
@@ -265,6 +270,10 @@ class Migrator < MigratorBase
                 end
             end
         end
+
+        # First 100 group Ids are reserved for system groups.
+        # Regular ones start from ID 100
+        @db.run "INSERT INTO pool_control (tablename, last_oid) VALUES ('group_pool', 99);"
 
         return true
     end

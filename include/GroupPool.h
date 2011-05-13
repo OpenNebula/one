@@ -31,9 +31,10 @@ public:
     ~GroupPool(){};
 
     /**
-     *  Cluster name for the default cluster
+     *  Names for the default groups
      */
-    static const string DEFAULT_GROUP_NAME;
+    static const string ONEADMIN_GROUP_NAME;
+    static const string USERS_GROUP_NAME;
 
     /* ---------------------------------------------------------------------- */
     /* Methods for DB management                                              */

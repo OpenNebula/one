@@ -20,7 +20,8 @@
 
 #include <stdexcept>
 
-const string GroupPool::DEFAULT_GROUP_NAME = "default";
+const string GroupPool::ONEADMIN_GROUP_NAME = "oneadmin";
+const string GroupPool::USERS_GROUP_NAME    = "users";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -34,13 +35,13 @@ GroupPool::GroupPool(SqlDB * db):PoolSQL(db, Group::table)
         Group *     group;
         string      error_str;
 
-        // Build a new Group object
-        group = new Group(0, 0, GroupPool::DEFAULT_GROUP_NAME);
+        // Build the default groups
+        group = new Group(0, 0, GroupPool::ONEADMIN_GROUP_NAME);
 
         // Insert the Object in the pool
         rc = PoolSQL::allocate(group, error_str);
 
-        if(rc != 0)
+        if(rc < 0)
         {
             ostringstream oss;
 
@@ -49,6 +50,26 @@ GroupPool::GroupPool(SqlDB * db):PoolSQL(db, Group::table)
 
             throw runtime_error(oss.str());
         }
+
+        group = new Group(1, 0, GroupPool::USERS_GROUP_NAME);
+
+        // Insert the Object in the pool
+        rc = PoolSQL::allocate(group, error_str);
+
+        if(rc < 0)
+        {
+            ostringstream oss;
+
+            oss << "Error trying to create default group: " << error_str;
+            NebulaLog::log("GROUP",Log::ERROR,oss);
+
+            throw runtime_error(oss.str());
+        }
+
+        // First 100 group Ids are reserved for system groups.
+        // Regular ones start from ID 100
+        lastOID=99;
+        update_lastOID();
     }
 }
 
@@ -103,11 +124,11 @@ int GroupPool::drop(Group * group)
 {
     int         rc;
 
-    // Return error if group is 'default'
-    if( group->get_oid() == 0 )
+    // Return error if the group is a default one.
+    if( group->get_oid() < 100 )
     {
-        NebulaLog::log("GROUP",Log::WARNING,
-                       "Default group cannot be deleted.");
+        NebulaLog::log("GROUP",Log::ERROR,
+                       "Groups with ID less than 100 cannot be deleted.");
 
         return -1;
     }

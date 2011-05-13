@@ -50,7 +50,7 @@ protected:
                 need_im(false), need_tm(false),
                 need_lcm(false), need_dm(false),
                 need_rm(false), need_hm(false),
-                need_authm(false)
+                need_authm(false), need_imagem(false)
     {};
 
     virtual ~NebulaTest(){};

@@ -170,6 +170,7 @@ void Nebula::start()
 
         NebulaLog::log("ONE",Log::INFO,"Bootstraping OpenNebula database.");
 
+        bootstrap();
         VirtualMachinePool::bootstrap(db);
         HostPool::bootstrap(db);
         VirtualNetworkPool::bootstrap(db);
@@ -498,3 +499,15 @@ void Nebula::start()
         authm->load_mads(0);
     }
 };
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void Nebula::bootstrap()
+{
+    ostringstream   oss;
+
+    oss <<  "CREATE TABLE pool_control (tablename VARCHAR(32) PRIMARY KEY, "
+            "last_oid BIGINT UNSIGNED)";
+    db->exec(oss);
+}
