@@ -392,8 +392,8 @@ static void yy_fatal_error (yyconst char msg[]  );
 	*yy_cp = '\0'; \
 	(yy_c_buf_p) = yy_cp;
 
-#define YY_NUM_RULES 11
-#define YY_END_OF_BUFFER 12
+#define YY_NUM_RULES 12
+#define YY_END_OF_BUFFER 13
 /* This struct is not used in this scanner,
    but its presence is necessary. */
 struct yy_trans_info
@@ -401,11 +401,12 @@ struct yy_trans_info
 	flex_int32_t yy_verify;
 	flex_int32_t yy_nxt;
 	};
-static yyconst flex_int16_t yy_accept[30] =
+static yyconst flex_int16_t yy_accept[34] =
     {   0,
-        0,    0,    0,    0,   12,   10,    1,    9,    9,   11,
-        9,    8,    3,    6,    2,    4,    5,   10,    0,    3,
-        2,    5,    0,    7,    3,    6,    2,    4,    0
+        0,    0,    0,    0,    0,    0,   13,   11,    1,   10,
+       10,   12,    9,    3,    6,    2,    4,    5,   12,    8,
+       11,    0,    3,    2,    5,    3,    6,    2,    4,    0,
+        7,    8,    0
     } ;
 
 static yyconst flex_int32_t yy_ec[256] =
@@ -419,7 +420,7 @@ static yyconst flex_int32_t yy_ec[256] =
         8,    1,    1,    1,    7,    7,    7,    7,    7,    7,
         7,    7,    7,    7,    7,    7,    7,    7,    7,    7,
         7,    7,    7,    7,    7,    7,    7,    7,    7,    7,
-        9,    1,   10,    1,    7,    1,    7,    7,    7,    7,
+        9,    1,   10,    1,   11,    1,    7,    7,    7,    7,
 
         7,    7,    7,    7,    7,    7,    7,    7,    7,    7,
         7,    7,    7,    7,    7,    7,    7,    7,    7,    7,
@@ -440,49 +441,52 @@ static yyconst flex_int32_t yy_ec[256] =
         1,    1,    1,    1,    1
     } ;
 
-static yyconst flex_int32_t yy_meta[11] =
+static yyconst flex_int32_t yy_meta[12] =
     {   0,
-        1,    1,    1,    1,    2,    1,    1,    1,    1,    1
+        1,    1,    1,    1,    2,    1,    3,    1,    1,    1,
+        3
     } ;
 
-static yyconst flex_int16_t yy_base[33] =
+static yyconst flex_int16_t yy_base[39] =
     {   0,
-       29,   28,    0,    0,   32,    0,   35,   35,    9,   35,
-       27,   35,   28,   22,   26,   25,   35,    0,    0,   24,
-       23,   35,   20,   35,   16,    9,   12,   11,   35,   19,
-       11,   21
+       41,   40,    0,    0,    8,   12,   44,    0,   47,   47,
+       18,   47,   47,   41,    0,   40,   39,   47,   32,   20,
+        0,    0,   23,   21,   47,   20,    0,   19,   16,   13,
+       47,    7,   47,   28,   31,   34,   10,   37
     } ;
 
-static yyconst flex_int16_t yy_def[33] =
+static yyconst flex_int16_t yy_def[39] =
     {   0,
-       30,   30,   29,    3,   29,   31,   29,   29,   29,   29,
-       32,   29,   29,   29,   29,   29,   29,   31,    9,   29,
-       29,   29,   32,   29,   29,   29,   29,   29,    0,   29,
-       29,   29
+       34,   34,   33,    3,   35,   35,   33,   36,   33,   33,
+       33,   33,   33,   33,   37,   33,   33,   33,   38,   33,
+       36,   11,   33,   33,   33,   33,   37,   33,   33,   38,
+       33,   33,    0,   33,   33,   33,   33,   33
     } ;
 
-static yyconst flex_int16_t yy_nxt[46] =
+static yyconst flex_int16_t yy_nxt[59] =
     {   0,
-        8,    9,   10,   11,   12,   13,   14,   15,   16,   17,
-       19,   18,   28,   27,   20,   26,   21,   25,   22,    6,
-        6,   23,   23,   24,   27,   25,   28,   27,   26,   25,
-       24,   29,    7,    7,    5,   29,   29,   29,   29,   29,
-       29,   29,   29,   29,   29
+       10,   11,   12,   10,   13,   14,   15,   16,   17,   18,
+       15,   19,   27,   32,   20,   19,   31,   29,   20,   22,
+       28,   26,   28,   23,   26,   24,   32,   25,    8,    8,
+        8,   12,   12,   12,   21,   31,   21,   30,   30,   30,
+       29,   28,   26,   33,    9,    9,    7,   33,   33,   33,
+       33,   33,   33,   33,   33,   33,   33,   33
     } ;
 
-static yyconst flex_int16_t yy_chk[46] =
+static yyconst flex_int16_t yy_chk[59] =
     {   0,
         3,    3,    3,    3,    3,    3,    3,    3,    3,    3,
-        9,   31,   28,   27,    9,   26,    9,   25,    9,   30,
-       30,   32,   32,   23,   21,   20,   16,   15,   14,   13,
-       11,    5,    2,    1,   29,   29,   29,   29,   29,   29,
-       29,   29,   29,   29,   29
+        3,    5,   37,   32,    5,    6,   30,   29,    6,   11,
+       28,   26,   24,   11,   23,   11,   20,   11,   34,   34,
+       34,   35,   35,   35,   36,   19,   36,   38,   38,   38,
+       17,   16,   14,    7,    2,    1,   33,   33,   33,   33,
+       33,   33,   33,   33,   33,   33,   33,   33
     } ;
 
 /* Table of booleans, true if rule could match eol. */
-static yyconst flex_int32_t yy_rule_can_match_eol[12] =
+static yyconst flex_int32_t yy_rule_can_match_eol[13] =
     {   0,
-0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0,     };
+0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0,     };
 
 static yy_state_type yy_last_accepting_state;
 static char *yy_last_accepting_cpos;
@@ -532,10 +536,12 @@ char *vm_var_text;
                         llocp->first_column = llocp->last_column;   \
                         llocp->last_column += vm_var_leng;
 
-#line 536 "vm_var_parser.c"
+
+#line 541 "vm_var_parser.c"
 
 #define INITIAL 0
 #define VAR 1
+#define VALUE 2
 
 #ifndef YY_NO_UNISTD_H
 /* Special case for "unistd.h", since it is non-ANSI. We include it way
@@ -713,7 +719,7 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 42 "vm_var_parser.l"
+#line 43 "vm_var_parser.l"
 
 
  /* ------------------------------------------------------------------------- */
@@ -724,7 +730,7 @@ YY_DECL
  /*   $NUM.CONTEXT_VARIABLE                                                   */
  /* ------------------------------------------------------------------------- */
 
-#line 728 "vm_var_parser.c"
+#line 734 "vm_var_parser.c"
 
 	if ( !(yy_init) )
 		{
@@ -777,13 +783,13 @@ yy_match:
 			while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 				{
 				yy_current_state = (int) yy_def[yy_current_state];
-				if ( yy_current_state >= 30 )
+				if ( yy_current_state >= 34 )
 					yy_c = yy_meta[(unsigned int) yy_c];
 				}
 			yy_current_state = yy_nxt[yy_base[yy_current_state] + (unsigned int) yy_c];
 			++yy_cp;
 			}
-		while ( yy_base[yy_current_state] != 35 );
+		while ( yy_base[yy_current_state] != 47 );
 
 yy_find_action:
 		yy_act = yy_accept[yy_current_state];
@@ -819,60 +825,69 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 52 "vm_var_parser.l"
+#line 53 "vm_var_parser.l"
 { BEGIN VAR;}
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 54 "vm_var_parser.l"
-{ return EQUAL;}
+#line 55 "vm_var_parser.l"
+{ BEGIN VALUE; return EQUAL; }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 55 "vm_var_parser.l"
+#line 56 "vm_var_parser.l"
 { return COMMA;}
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 56 "vm_var_parser.l"
+#line 57 "vm_var_parser.l"
 { return OBRACKET;}
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 57 "vm_var_parser.l"
+#line 58 "vm_var_parser.l"
 { return CBRACKET;}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 59 "vm_var_parser.l"
+#line 60 "vm_var_parser.l"
 { lvalp->val_str =
-                                    mem_collector_strdup(mc,vm_var_text);
+                                 mem_collector_strdup(mc,vm_var_text);
                                  return VARIABLE;}
 	YY_BREAK
 case 7:
 /* rule 7 can match eol */
 YY_RULE_SETUP
-#line 63 "vm_var_parser.l"
+#line 64 "vm_var_parser.l"
 { lvalp->val_str =
-                                    mem_collector_strdup(mc,vm_var_text+1);
+                                 mem_collector_strdup(mc,vm_var_text+1);
                                  lvalp->val_str[vm_var_leng-2] = '\0';
+                                 BEGIN(VAR);
                                  return STRING;}
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 68 "vm_var_parser.l"
-{ lvalp->val_char = '\0';
-                                 return EOA;}
+#line 70 "vm_var_parser.l"
+{ lvalp->val_str =
+                                 mem_collector_strdup(mc,vm_var_text);
+                                 BEGIN(VAR);
+                                 return STRING;}
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 71 "vm_var_parser.l"
+#line 75 "vm_var_parser.l"
+{ lvalp->val_char = '\0';
+                                 return EOA;}
+	YY_BREAK
+case 10:
+YY_RULE_SETUP
+#line 78 "vm_var_parser.l"
 { lvalp->val_char = *vm_var_text;
                                  BEGIN(INITIAL);
                                  return EOA;}
 	YY_BREAK
 case YY_STATE_EOF(VAR):
-#line 75 "vm_var_parser.l"
+#line 82 "vm_var_parser.l"
 { lvalp->val_char = '\0';
                                  BEGIN(INITIAL);
                                  return EOA;}
@@ -880,19 +895,20 @@ case YY_STATE_EOF(VAR):
 /* ------------------------------------------------------------------------- */
 /* Just copy the string verbatim till we find a variable (starts with $)     */
 /* ------------------------------------------------------------------------- */
-case 10:
-/* rule 10 can match eol */
+case 11:
+/* rule 11 can match eol */
 YY_RULE_SETUP
-#line 83 "vm_var_parser.l"
+#line 90 "vm_var_parser.l"
 { lvalp->val_str = mem_collector_strdup(mc,vm_var_text); return RSTRING;}
 	YY_BREAK
-case 11:
+case 12:
 YY_RULE_SETUP
-#line 85 "vm_var_parser.l"
+#line 92 "vm_var_parser.l"
 ECHO;
 	YY_BREAK
-#line 895 "vm_var_parser.c"
+#line 910 "vm_var_parser.c"
 case YY_STATE_EOF(INITIAL):
+case YY_STATE_EOF(VALUE):
 	yyterminate();
 
 	case YY_END_OF_BUFFER:
@@ -1183,7 +1199,7 @@ static int yy_get_next_buffer (void)
 		while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 			{
 			yy_current_state = (int) yy_def[yy_current_state];
-			if ( yy_current_state >= 30 )
+			if ( yy_current_state >= 34 )
 				yy_c = yy_meta[(unsigned int) yy_c];
 			}
 		yy_current_state = yy_nxt[yy_base[yy_current_state] + (unsigned int) yy_c];
@@ -1211,11 +1227,11 @@ static int yy_get_next_buffer (void)
 	while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 		{
 		yy_current_state = (int) yy_def[yy_current_state];
-		if ( yy_current_state >= 30 )
+		if ( yy_current_state >= 34 )
 			yy_c = yy_meta[(unsigned int) yy_c];
 		}
 	yy_current_state = yy_nxt[yy_base[yy_current_state] + (unsigned int) yy_c];
-	yy_is_jam = (yy_current_state == 29);
+	yy_is_jam = (yy_current_state == 33);
 
 	return yy_is_jam ? 0 : yy_current_state;
 }
@@ -1860,7 +1876,7 @@ void vm_var_free (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 85 "vm_var_parser.l"
+#line 92 "vm_var_parser.l"
 
 
 

@@ -82,6 +82,11 @@ public:
 
 private:
 
+    /**
+     *  Default message size for XML data off the network
+     */
+    static const int MESSAGE_SIZE;
+
     string  one_auth;
     string  one_endpoint;
 
@@ -92,13 +97,6 @@ private:
     int read_oneauth(string &secret);
 
     int split_secret(const string secret, string& user, string& pass);
-
-    string sha1_digest(const string& pass);
-
-    /**
-     *  Default message size for XML data off the network
-     */
-    static const int MESSAGE_SIZE;
 };
 
 #endif /*ONECLIENT_H_*/
