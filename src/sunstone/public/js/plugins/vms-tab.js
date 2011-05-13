@@ -15,6 +15,12 @@
 /* -------------------------------------------------------------------------- */
 
 /*Virtual Machines tab plugin*/
+var INCLUDE_URI = "vendor/noVNC/include/";
+function loadVNC(){
+    var script = '<script src="vendor/noVNC/include/vnc.js"></script>';
+    document.write(script);
+}
+loadVNC();
 
 var vms_tab_content = 
 '<form id="virtualMachine_list" action="javascript:alert(\'js error!\');">\
@@ -32,6 +38,7 @@ var vms_tab_content =
       <th>Memory</th>\
       <th>Hostname</th>\
       <th>Start Time</th>\
+      <th>VNC Access</th>\
     </tr>\
   </thead>\
   <tbody id="tbodyvmachines">\
@@ -59,6 +66,7 @@ var create_vm_tmpl ='<form id="create_vm_form" action="">\
 
 var vmachine_list_json = {};
 var dataTable_vMachines;
+var rfb;
 
 var vm_actions = {
     "VM.create" : {
@@ -283,10 +291,12 @@ var vm_actions = {
             var colored_log = '';
             for (line in log_lines){
                 line = log_lines[line];
-                if (line.match(/\[E\]/)){
-                    line = '<span class="vm_log_error">'+line+'</span>'
+                if (typeof line == "string") {
+                    if (line.match(/\[E\]/)){
+                        line = '<span class="vm_log_error">'+line+'</span>'
+                    }
+                    colored_log += line + "\n";
                 }
-                colored_log += line + "\n";
             }
             var log_tab = {
                 title: "VM log",
@@ -300,6 +310,22 @@ var vm_actions = {
             $("#vm_log pre").html('');
             onError(request,error_json);
         }
+    },
+    
+    "VM.startvnc" : {
+        type: "single",
+        call: OpenNebula.VM.startvnc,
+        callback: vncCallback,
+        error: onError,
+        notify: true
+    },
+    
+    "VM.stopvnc" : {
+        type: "single",
+        call: OpenNebula.VM.stopvnc,
+        callback: null,
+        error: onError,
+        notify: true
     }
 }
 
@@ -467,6 +493,8 @@ function vMachineElementArray(vm_json){
     if (state == "ACTIVE") {
         state = OpenNebula.Helper.resource_state("vm_lcm",vm.LCM_STATE);
     }
+    
+   
 	return [
 			'<input type="checkbox" id="vm_'+vm.ID+'" name="selected_items" value="'+vm.ID+'"/>',
 			vm.ID,
@@ -476,7 +504,8 @@ function vMachineElementArray(vm_json){
 			vm.CPU,
 			humanize_size(vm.MEMORY),
 			vm.HISTORY ? vm.HISTORY.HOSTNAME : "--",
-			str_start_time(vm)
+			str_start_time(vm),
+            vncIcon(vm)
 		]
 }
 
@@ -485,7 +514,7 @@ function vMachineElementArray(vm_json){
 function vMachineInfoListener(){
 
 	$('#tbodyvmachines tr').live("click", function(e){
-		if ($(e.target).is('input')) {return true;}
+		if ($(e.target).is('input') || $(e.target).is('a img')) {return true;}
         popDialogLoading();
 		var aData = dataTable_vMachines.fnGetData(this);
 		var id = $(aData[0]).val();
@@ -581,6 +610,10 @@ function updateVMInfo(request,vm){
 			<tr>\
 				<td class="key_td">Used CPU</td>\
 				<td class="value_td">'+vm_info.CPU+'</td>\
+			</tr>\
+            <tr>\
+				<td class="key_td">VNC Session</td>\
+				<td class="value_td">'+vncIcon(vm_info)+'</td>\
 			</tr>\
 		</table>'
     }
@@ -763,6 +796,131 @@ function setVMAutorefresh(){
 	},INTERVAL+someTime()); //so that not all refreshing is done at the same time
 }
 
+
+function updateVNCState(rfb, state, oldstate, msg) {
+            var s, sb, cad, klass;
+            s = $D('VNC_status');
+            sb = $D('VNC_status_bar');
+            cad = $D('sendCtrlAltDelButton');
+            switch (state) {
+                case 'failed':
+                case 'fatal':
+                    klass = "VNC_status_error";
+                    break;
+                case 'normal':
+                    klass = "VNC_status_normal";
+                    break;
+                case 'disconnected':
+                case 'loaded':
+                    klass = "VNC_status_normal";
+                    break;
+                case 'password':
+                    klass = "VNC_status_warn";
+                    break;
+                default:
+                    klass = "VNC_status_warn";
+            }
+
+            if (state === "normal") { cad.disabled = false; }
+            else                    { cad.disabled = true; }
+
+            if (typeof(msg) !== 'undefined') {
+                sb.setAttribute("class", klass);
+                s.innerHTML = msg;
+            }
+        }
+
+//setups VNC application
+function setupVNC(){
+
+    //Append to DOM
+    $('div#dialogs').append('<div id="vnc_dialog" title="VNC connection"></div>');
+    
+    $('#vnc_dialog').html('\
+      <div id="VNC_status_bar" class="VNC_status_bar" style="margin-top: 0px;">\
+                <table border=0 width="100%"><tr>\
+                    <td><div id="VNC_status">Loading</div></td>\
+                    <td width="1%"><div id="VNC_buttons">\
+                        <input type=button value="Send CtrlAltDel"\
+                            id="sendCtrlAltDelButton">\
+                            </div></td>\
+                </tr></table>\
+            </div>\
+            <canvas id="VNC_canvas" width="640px" height="20px">\
+                Canvas not supported.\
+            </canvas>\
+    ');
+    
+    $('#sendCtrlAltDelButton').click(function(){ 
+        rfb.sendCtrlAltDel();
+        return false;        
+    });
+    
+    $('#vnc_dialog').dialog({
+        autoOpen:false,
+        width:700,
+        modal:true,
+        height:500,
+        resizable:true,
+    });
+    
+    $( "#vnc_dialog" ).bind( "dialogclose", function(event, ui) {
+        var id = $("#vnc_dialog").attr("vm_id");
+        Sunstone.runAction("VM.stopvnc",id);
+            
+    });
+    
+    $('.vnc').live("click",function(){
+        //Which VM is it?
+        var id = $(this).attr("vm_id");
+        //Set attribute to dialog
+        $('#vnc_dialog').attr("vm_id",id);
+        //Request proxy server start
+        Sunstone.runAction("VM.startvnc",id);
+        return false;
+    });
+
+}
+
+function vncCallback(request,response){
+        rfb = new RFB({'target':       $D('VNC_canvas'),
+                        'encrypt':      false,
+                        'true_color':   true,
+                        'local_cursor': true,
+                        'shared':       true,
+                        'updateState':  updateVNCState});
+        //fetch things from clicked element host - port - password
+        vnc_port = response["port"];
+        
+        //Hopefully this is returning sunstone server address, where
+        //the proxy is running
+        vnc_host = window.location.hostname;
+        vnc_pw = response["password"];
+        
+        setTimeout(function(){
+            rfb.connect(vnc_host, vnc_port, vnc_pw);
+            $('#vnc_dialog').dialog('open');
+        },4000);
+        
+        
+    
+}
+
+function vncIcon(vm){
+    var graphics = vm.TEMPLATE.GRAPHICS;
+    var state = OpenNebula.Helper.resource_state("vm_lcm",vm.LCM_STATE);
+    var gr_icon;
+    if (graphics && graphics.TYPE == "vnc" && state == "RUNNING"){
+        gr_icon = '<a class="vnc" href="#" vm_id="'+vm.ID+'">';
+        gr_icon += '<img src="images/vnc_on.png" alt="Open VNC Session" /></a>';
+    }
+    else {
+        gr_icon = '<img src="images/vnc_off.png" alt="VNC Disabled" />';
+    }
+    return gr_icon;
+    
+}
+
 // At this point the DOM is ready and the sunstone.js ready() has been run.
 $(document).ready(function(){
     
@@ -774,7 +932,7 @@ $(document).ready(function(){
       "aoColumnDefs": [
                         { "bSortable": false, "aTargets": ["check"] },
                         { "sWidth": "60px", "aTargets": [0] },
-                        { "sWidth": "35px", "aTargets": [1] },
+                        { "sWidth": "35px", "aTargets": [1,9] },
                         { "sWidth": "100px", "aTargets": [2] }
                        ]
     });
@@ -782,12 +940,13 @@ $(document).ready(function(){
     dataTable_vMachines.fnClearTable();
     addElement([
         spinner,
-        '','','','','','','',''],dataTable_vMachines);
+        '','','','','','','','',''],dataTable_vMachines);
 	Sunstone.runAction("VM.list");
     
     setupCreateVMDialog();
     setupSaveasDialog();
     setVMAutorefresh();
+    setupVNC();
     
     initCheckAllBoxes(dataTable_vMachines);
     tableCheckboxesListener(dataTable_vMachines);

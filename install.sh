@@ -272,6 +272,7 @@ INSTALL_FILES=(
     LVM_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/lvm
     IMAGE_DRIVER_FS_SCRIPTS:$VAR_LOCATION/remotes/image/fs
     EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples
+    INSTALL_NOVNC_SHARE_FILE:$SHARE_LOCATION
     TM_EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples/tm
     HOOK_SHARE_FILES:$SHARE_LOCATION/hooks
     COMMON_CLOUD_LIB_FILES:$LIB_LOCATION/ruby/cloud
@@ -333,6 +334,7 @@ INSTALL_ETC_FILES=(
     ECO_ETC_TEMPLATE_FILES:$ETC_LOCATION/ec2query_templates
     OCCI_ETC_FILES:$ETC_LOCATION
     OCCI_ETC_TEMPLATE_FILES:$ETC_LOCATION/occi_templates
+    SUNSTONE_ETC_FILES:$ETC_LOCATION
 )
 
 #-------------------------------------------------------------------------------
@@ -629,6 +631,8 @@ HOOK_SHARE_FILES="share/hooks/ebtables-xen \
                   share/hooks/host_error.rb \
                   share/hooks/image.rb"
 
+INSTALL_NOVNC_SHARE_FILE="share/install_novnc.sh"
+
 #-------------------------------------------------------------------------------
 # Common Cloud Files
 #-------------------------------------------------------------------------------
@@ -733,6 +737,8 @@ SUNSTONE_FILES="src/sunstone/config.ru \
                 src/sunstone/sunstone-server.rb"
 
 SUNSTONE_BIN_FILES="src/sunstone/bin/sunstone-server"
+
+SUNSTONE_ETC_FILES="src/sunstone/etc/sunstone-server.conf"
 
 SUNSTONE_MODELS_FILES="src/sunstone/models/OpenNebulaJSON.rb \
                        src/sunstone/models/SunstoneServer.rb"
