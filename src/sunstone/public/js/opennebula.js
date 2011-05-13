@@ -95,7 +95,9 @@ var OpenNebula = {
                     return ["INIT",
                             "READY",
                             "USED",
-                            "DISABLED"][value];
+                            "DISABLED",
+                            "LOCKED",
+                            "ERROR"][value];
                     break;
                 default:
                     return;
