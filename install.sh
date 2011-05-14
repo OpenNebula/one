@@ -824,7 +824,9 @@ SUNSTONE_PUBLIC_IMAGES_FILES="src/sunstone/public/images/ajax-loader.gif \
                         src/sunstone/public/images/opennebula-sunstone-small.png \
                         src/sunstone/public/images/panel.png \
                         src/sunstone/public/images/pbar.gif \
-                        src/sunstone/public/images/Refresh-icon.png"
+                        src/sunstone/public/images/Refresh-icon.png \
+                        src/sunstone/public/images/vnc_off.png \
+                        src/sunstone/public/images/vnc_on.png"
 
 SUNSTONE_RUBY_LIB_FILES="src/mad/ruby/CommandManager.rb \
                          src/oca/ruby/OpenNebula.rb"
