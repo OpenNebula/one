@@ -225,7 +225,7 @@ class SunstoneServer
         vnc_port = resource['TEMPLATE/GRAPHICS/PORT']
 
         # The noVNC proxy_port
-        proxy_port = config[:vnc_proxy_base_port] + vnc_port.to_i
+        proxy_port = config[:vnc_proxy_base_port].to_i + vnc_port.to_i
 
         begin
             novnc_cmd = "#{config[:novnc_path]}/utils/launch.sh"

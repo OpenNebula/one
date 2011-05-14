@@ -42,14 +42,14 @@ require 'sinatra'
 require 'cloud/Configuration'
 require 'SunstoneServer'
 
-@config = Configuration.new(CONFIGURATION_FILE)
+set :config, Configuration.new(CONFIGURATION_FILE)
 
 ##############################################################################
 # Sinatra Configuration
 ##############################################################################
 use Rack::Session::Pool
-set :host, @config[:host]
-set :port, @config[:port]
+set :host, settings.config[:host]
+set :port, settings.config[:port]
 
 ##############################################################################
 # Helpers
@@ -221,7 +221,7 @@ post '/vm/:id/startvnc' do
         return [200, info.to_json]
     end
 
-    rc = @SunstoneServer.startvnc(vm_id, @config)
+    rc = @SunstoneServer.startvnc(vm_id, settings.config)
     if rc[0] == 200
         info = rc[1]
         session['vnc'][vm_id] = info.clone
