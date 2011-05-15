@@ -38,7 +38,7 @@ ID=$3
 
 # ------------ Generate a filename for the image ------------
 
-if [ $DST -eq "-" ] ; then 
+if [ "$DST" = "-" ] ; then 
     DST=`generate_image_path`
 fi
 
