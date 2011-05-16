@@ -244,12 +244,20 @@ var vm_actions = {
                         {data:obj, 
                          success: function (req) {
                                 Sunstone.runAction("VM.show",
-                                                    req.request.data[0]);
+                                                    req.request.data[0][0]);
                         },
                          error: onError });
         }
     },
-            
+
+    "VM.saveas_disks" : {
+        type: "single",
+        call: OpenNebula.VM.show,
+        callback: saveasDisksCallback,
+        error: onError,
+        notify: false
+    },
+
     "VM.shutdown" : {
         type: "multiple",
         call: OpenNebula.VM.shutdown,
@@ -289,15 +297,14 @@ var vm_actions = {
             //update the tab and pop it up again
             var log_lines = res.split("\n");
             var colored_log = '';
-            for (line in log_lines){
-                line = log_lines[line];
-                if (typeof line == "string") {
-                    if (line.match(/\[E\]/)){
-                        line = '<span class="vm_log_error">'+line+'</span>'
-                    }
-                    colored_log += line + "\n";
+            for (var i = 0; i < log_lines.length;i++){
+                var line = log_lines[i];
+                if (line.match(/\[E\]/)){
+                    line = '<span class="vm_log_error">'+line+'</span>';
                 }
+                colored_log += line + "\n";
             }
+
             var log_tab = {
                 title: "VM log",
                 content: '<pre>'+colored_log+'</pre>'
@@ -690,10 +697,10 @@ function setupSaveasDialog(){
         <form action="javascript:alert(\'js error!\');">\
             <div id="saveas_tabs">\
             </div>\
-			<div class="form_buttons">\
-			  <button id="vm_saveas_proceed" value="">OK</button>\
-			  <button id="vm_saveas_cancel" value="">Cancel</button>\
-			</div>\
+            <div class="form_buttons">\
+                <button id="vm_saveas_proceed" value="">OK</button>\
+                <button id="vm_saveas_cancel" value="">Cancel</button>\
+            </div>\
             </fieldset>\
        </form>');
        
@@ -712,7 +719,7 @@ function setupSaveasDialog(){
             var id = $('#vm_id',this).text();
             var disk_id = $('#vm_disk_id',this).val();
             var image_name = $('#image_name',this).val();
-            var type = $('#image_type',this).val();
+            //var type = $('#image_type',this).val();
             
             if (!id.length || !disk_id.length || !image_name.length) {
                 notifyError("Skipping VM "+id+
@@ -722,8 +729,8 @@ function setupSaveasDialog(){
                 var obj = {
                     vm_id: id,
                     disk_id : disk_id,
-                    image_name : image_name,
-                    type: type
+                    image_name : image_name
+                    //type: type
                 };
                 args.push(id);
                 Sunstone.runAction("VM.saveas",obj);
@@ -756,33 +763,66 @@ function popUpSaveasDialog(elems){
         <div id="vm_id_text">Saveas for VM with ID <span id="vm_id">'+this+'</span></div>\
             <fieldset>\
             <div>\
-                <label for="vm_disk_id">Disk id:</label>\
-                <input type="text" id="vm_disk_id" name="vm_disk_id" value="" size="2"/>\
+                <label for="vm_disk_id">Select disk:</label>\
+                <select id="vm_disk_id" name="vm_disk_id">\
+                    <option value="">Retrieving...</option>\
+                </select>\
             </div>\
             <div>\
                 <label for="image_name">Image name:</label>\
                 <input type="text" id="image_name" name="image_name" value="" />\
             </div>\
+            <!-- not used anymore\
             <div>\
                 <label for="img_attr_value">Type:</label>\
                 <select id="image_type" name="image_type">\
                     <option value="">Default</option>\
-					<option value="disk">Disk</option>\
-					<option value="floppy">Floppy</option>\
-					<option value="cdrom">CD-ROM</option>\
-					<option value="swap">Swap</option>\
-					<option value="fs">FS</option>\
-					<option value="block">Block</option>\
-				  </select>\
+                    <option value="disk">Disk</option>\
+                    <option value="floppy">Floppy</option>\
+                    <option value="cdrom">CD-ROM</option>\
+                    <option value="swap">Swap</option>\
+                    <option value="fs">FS</option>\
+                    <option value="block">Block</option>\
+                </select>\
             </div>\
+            -->\
             </fieldset>\
         </div>';
         $('#saveas_vm_dialog #saveas_tabs').append(tab);
+        Sunstone.runAction("VM.saveas_disks",this);
     });
     $('#saveas_vm_dialog #saveas_tabs').tabs();
     $('#saveas_vm_dialog button').button();
-       
     $('#saveas_vm_dialog').dialog('open');
+}
+
+function saveasDisksCallback(req,response){
+    var vm_info = response.VM;
+    var id=vm_info.ID;
+    var select="";
+
+    var gen_option = function(id, name, source){
+        if (name){
+            return '<option value="'+id+'">'+name+' (disk id: '+id+')</option>';
+        }
+        else {
+            return '<option value="'+id+'">'+source+' (disk id: '+id+')</option>';
+        }
+    }
+
+    var disks = vm_info.TEMPLATE.DISK;
+    if (!disks) { select = '<option value="">No disks defined</option>';}
+    else if (disks.constructor == Array) //several disks
+    {
+        for (var i=0;i<disks.length;i++){
+            select += gen_option(disks[i].DISK_ID,disks[i].IMAGE,disks[i].SOURCE);
+        }
+    } else {
+        select+= gen_option(disks.DISK_ID,disks.IMAGE,disks.SOURCE);
+    }
+    //introduce options in the right tab
+    $('#saveas_tabs #saveas_tab_'+id+' #vm_disk_id').html(select);
+
 }
 
 //Prepares autorefresh

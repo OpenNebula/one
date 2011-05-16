@@ -295,7 +295,7 @@ var create_template_tmpl = '<div id="template_create_tabs">\
 				  </select>\
 				  <div class="tip">Name of the network to attach this device</div>\
 			    </div>\
-			    <div class="vm_param kvm_opt xen_opt niccfg">\
+			    <div class="vm_param kvm_opt xen_opt niccfg network">\
 				  <label for="IP">IP:</label>\
 				  <input type="text" id="IP" name="ip" />\
 				  <div class="tip">Request an specific IP from the Network</div>\
