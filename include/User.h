@@ -161,7 +161,8 @@ protected:
     User(int     id,
          string _username,
          string _password,
-         bool   _enabled);
+         bool   _enabled,
+         int    _gid);
 
     virtual ~User();
 

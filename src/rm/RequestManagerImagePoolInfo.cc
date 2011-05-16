@@ -30,7 +30,9 @@ void RequestManager::ImagePoolInfo::execute(
     ostringstream where_string;
 
     int           rc;
+    int           gid;
     int           filter_flag;
+    User *        user;
 
     const string  method_name = "ImagePoolInfo";
 
@@ -53,21 +55,36 @@ void RequestManager::ImagePoolInfo::execute(
     }
 
     /** Filter flag meaning table
+     *      -3 :: User's Images
      *      -2 :: All Images
-     *      -1 :: User's Images AND public images belonging to any user
+     *      -1 :: User's Images and all ones that belong to his groups
      *    >= 0 :: UID User's Images
      **/
-    if ( filter_flag < -2 )
+    if ( filter_flag < -3 )
     {
         goto error_filter_flag;
     }
 
     switch(filter_flag)
     {
+        case -3:
+            where_string << "UID=" << rc;
+            break;
         case -2:
             break;
         case -1:
-            where_string << "UID=" << rc << " OR PUBLIC=1";
+            //   Get the User Group
+            user = ImagePoolInfo::upool->get(rc,true);
+
+            if ( user == 0 )
+            {
+                goto error_user_get;
+            }
+
+            gid = user->get_gid();
+            user->unlock();
+
+            where_string << "UID=" << rc << " OR GID=" << gid;
             break;
         default:
             where_string << "UID=" << filter_flag;
@@ -100,7 +117,11 @@ error_authenticate:
     goto error_common;
 
 error_filter_flag:
-    oss << "Incorrect filter_flag, must be >= -2.";
+    oss << "Incorrect filter_flag, must be >= -3.";
+    goto error_common;
+
+error_user_get:
+    oss.str(get_error(method_name, "USER", rc));
     goto error_common;
 
 error_dump:

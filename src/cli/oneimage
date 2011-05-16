@@ -47,6 +47,22 @@ ShowTableImage={
             d["USERNAME"]
         }
     },
+    :uid=> {
+        :name => "UID",
+        :desc => "Id of the owner",
+        :size => 4,
+        :proc => lambda {|d,e|
+            d["UID"]
+        }
+    },
+    :gid=> {
+        :name => "GID",
+        :desc => "Id of the group",
+        :size => 4,
+        :proc => lambda {|d,e|
+            d["GID"]
+        }
+    },
     :name => {
         :name => "NAME",
         :desc => "Name of the Image",
@@ -245,7 +261,8 @@ Commands:
     where filter_flag can be
         a, all   --> all the known Images
         m, mine  --> the Images belonging to the user in ONE_AUTH
-                        and all the  Public Images
+        g, group --> 'mine' plus the Images belonging to the groups
+                        the user is member of
         uid      --> Images of the user identified by this uid
         user     --> Images of the user identified by the username
         
@@ -282,6 +299,8 @@ def get_user_flags
             when "a", "all"
                 ops[:filter_user]="-2"
             when "m", "mine"
+                ops[:filter_user]="-3"
+            when "g", "group"
                 ops[:filter_user]="-1"
             else
                 if !ARGV[0].match(/^[0123456789]+$/)

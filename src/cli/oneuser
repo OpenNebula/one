@@ -39,6 +39,14 @@ ShowTableUP={
         :size => 4,
         :proc => lambda {|d,e| d.id }
     },
+    :gid=> {
+        :name => "GID",
+        :desc => "Id of the group",
+        :size => 4,
+        :proc => lambda {|d,e|
+            d["GID"]
+        }
+    },
     :user => {
         :name => "USER",
         :desc => "name of the user",
@@ -54,7 +62,7 @@ ShowTableUP={
         :proc => lambda {|d,e| d['PASSWORD'] }
     },
    
-    :default => [:id, :user, :password]
+    :default => [:id, :gid, :user, :password]
 }
 
 class UPShow

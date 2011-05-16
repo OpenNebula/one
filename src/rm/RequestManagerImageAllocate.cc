@@ -33,9 +33,11 @@ void RequestManager::ImageAllocate::execute(
     string              error_str;
 
     ImageTemplate *     img_template = 0;
+    User *              user;
 
     int                 iid;
     int                 uid;
+    int                 gid;
     int                 rc;
     char *              error_msg = 0;
 
@@ -100,10 +102,25 @@ void RequestManager::ImageAllocate::execute(
     }
 
     //--------------------------------------------------------------------------
+    //   Get the User Group
+    //--------------------------------------------------------------------------
+
+    user = ImageAllocate::upool->get(uid,true);
+
+    if ( user == 0 )
+    {
+        goto error_user_get;
+    }
+
+    gid = user->get_gid();
+
+    user->unlock();
+
+    //--------------------------------------------------------------------------
     //   Allocate the Image
     //--------------------------------------------------------------------------
 
-    rc = ImageAllocate::ipool->allocate(uid, img_template, &iid, error_str);
+    rc = ImageAllocate::ipool->allocate(uid,gid, img_template,&iid, error_str);
 
     if ( rc < 0 )
     {
@@ -129,6 +146,11 @@ void RequestManager::ImageAllocate::execute(
 
     return;
 
+
+error_user_get:
+    oss.str(get_error(method_name, "USER", uid));
+    delete img_template;
+    goto error_common;
 
 error_authenticate:
     oss.str(authenticate_error(method_name));

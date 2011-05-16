@@ -39,9 +39,10 @@ class Migrator < MigratorBase
         # Read each entry in the old user_pool, and insert into new user_pool
         @db.fetch("SELECT * FROM old_user_pool") do |row|
             oid  = row[:oid]
+            gid  = (oid == 0) ? 0 : 1
             name = row[:user_name]
 
-            body = "<USER><ID>#{oid}</ID><NAME>#{name}</NAME><PASSWORD>#{row[:password]}</PASSWORD><ENABLED>#{row[:enabled]}</ENABLED></USER>"
+            body = "<USER><ID>#{oid}</ID><NAME>#{name}</NAME><GID>#{gid}</GID><PASSWORD>#{row[:password]}</PASSWORD><ENABLED>#{row[:enabled]}</ENABLED></USER>"
 
             @db.run "INSERT INTO user_pool VALUES(#{oid},'#{name}','#{body}');"
         end
@@ -123,22 +124,21 @@ class Migrator < MigratorBase
         @db.run "ALTER TABLE image_pool RENAME TO old_image_pool;"
 
         # Create new table
-        @db.run "CREATE TABLE image_pool (oid INTEGER PRIMARY KEY, name VARCHAR(256), body TEXT, uid INTEGER, public INTEGER, UNIQUE(name,uid) );"
+        @db.run "CREATE TABLE image_pool (oid INTEGER PRIMARY KEY, name VARCHAR(256), body TEXT, uid INTEGER, gid INTEGER, public INTEGER, UNIQUE(name,uid) );"
 
         # Read each entry in the old table, and insert into new table
         @db.fetch("SELECT * FROM old_image_pool") do |row|
             oid    = row[:oid]
             name   = row[:name]
             uid    = row[:uid]
+            gid    = (uid == 0) ? 0 : 1
             public = row[:public]
-
-            username = get_username(uid)
 
             # In OpenNebula 2.0 Image States go from 0 to 3, in 3.0 go
             # from 0 to 5, but the meaning is the same for states 0 to 3
-            body = "<IMAGE><ID>#{oid}</ID><UID>#{row[:uid]}</UID><USERNAME>#{username}</USERNAME><NAME>#{name}</NAME><TYPE>#{row[:type]}</TYPE><PUBLIC>#{public}</PUBLIC><PERSISTENT>#{row[:persistent]}</PERSISTENT><REGTIME>#{row[:regtime]}</REGTIME><SOURCE>#{row[:source]}</SOURCE><STATE>#{row[:state]}</STATE><RUNNING_VMS>#{row[:running_vms]}</RUNNING_VMS>#{row[:template]}</IMAGE>"
+            body = "<IMAGE><ID>#{oid}</ID><UID>#{row[:uid]}</UID><GID>#{gid}</GID><NAME>#{name}</NAME><TYPE>#{row[:type]}</TYPE><PUBLIC>#{public}</PUBLIC><PERSISTENT>#{row[:persistent]}</PERSISTENT><REGTIME>#{row[:regtime]}</REGTIME><SOURCE>#{row[:source]}</SOURCE><STATE>#{row[:state]}</STATE><RUNNING_VMS>#{row[:running_vms]}</RUNNING_VMS>#{row[:template]}</IMAGE>"
 
-            @db.run "INSERT INTO image_pool VALUES(#{oid},'#{name}','#{body}', #{uid}, #{public});"
+            @db.run "INSERT INTO image_pool VALUES(#{oid},'#{name}','#{body}', #{uid}, #{gid}, #{public});"
         end
 
         # Delete old table
@@ -157,7 +157,7 @@ class Migrator < MigratorBase
         @db.run "ALTER TABLE history RENAME TO old_history;"
 
         # Create new tables
-        @db.run "CREATE TABLE vm_pool (oid INTEGER PRIMARY KEY, name TEXT, body TEXT, uid INTEGER, last_poll INTEGER, state INTEGER, lcm_state INTEGER);"
+        @db.run "CREATE TABLE vm_pool (oid INTEGER PRIMARY KEY, name TEXT, body TEXT, uid INTEGER, gid INTEGER, last_poll INTEGER, state INTEGER, lcm_state INTEGER);"
         @db.run "CREATE TABLE history (vid INTEGER, seq INTEGER, body TEXT, PRIMARY KEY(vid,seq));"
 
 
@@ -177,11 +177,10 @@ class Migrator < MigratorBase
             oid       = row[:oid]
             name      = row[:name]
             uid       = row[:uid]
+            gid       = (uid == 0) ? 0 : 1
             last_poll = row[:last_poll]
             state     = row[:state]
             lcm_state = row[:lcm_state]
-
-            username = get_username(uid)
 
             # If the VM has History items, the last one is included in the XML
             history = ""
@@ -189,9 +188,9 @@ class Migrator < MigratorBase
                 history = history_row[:body]
             end
 
-            body = "<VM><ID>#{oid}</ID><UID>#{uid}</UID><USERNAME>#{username}</USERNAME><NAME>#{name}</NAME><LAST_POLL>#{last_poll}</LAST_POLL><STATE>#{state}</STATE><LCM_STATE>#{lcm_state}</LCM_STATE><STIME>#{row[:stime]}</STIME><ETIME>#{row[:etime]}</ETIME><DEPLOY_ID>#{row[:deploy_id]}</DEPLOY_ID><MEMORY>#{row[:memory]}</MEMORY><CPU>#{row[:cpu]}</CPU><NET_TX>#{row[:net_tx]}</NET_TX><NET_RX>#{row[:net_rx]}</NET_RX>#{row[:template]}#{history}</VM>"
+            body = "<VM><ID>#{oid}</ID><UID>#{uid}</UID><GID>#{gid}</GID><NAME>#{name}</NAME><LAST_POLL>#{last_poll}</LAST_POLL><STATE>#{state}</STATE><LCM_STATE>#{lcm_state}</LCM_STATE><STIME>#{row[:stime]}</STIME><ETIME>#{row[:etime]}</ETIME><DEPLOY_ID>#{row[:deploy_id]}</DEPLOY_ID><MEMORY>#{row[:memory]}</MEMORY><CPU>#{row[:cpu]}</CPU><NET_TX>#{row[:net_tx]}</NET_TX><NET_RX>#{row[:net_rx]}</NET_RX>#{row[:template]}#{history}</VM>"
 
-            @db.run "INSERT INTO vm_pool VALUES(#{oid},'#{name}','#{body}', #{uid}, #{last_poll}, #{state}, #{lcm_state});"
+            @db.run "INSERT INTO vm_pool VALUES(#{oid},'#{name}','#{body}', #{uid}, #{gid}, #{last_poll}, #{state}, #{lcm_state});"
         end
 
 
@@ -213,7 +212,7 @@ class Migrator < MigratorBase
         @db.run "ALTER TABLE leases RENAME TO old_leases;"
 
         # Create new tables
-        @db.run "CREATE TABLE network_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, public INTEGER, UNIQUE(name,uid));"
+        @db.run "CREATE TABLE network_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, public INTEGER, UNIQUE(name,uid));"
         @db.run "CREATE TABLE leases (oid INTEGER, ip BIGINT, body TEXT, PRIMARY KEY(oid,ip));"
 
         # Read each entry in the old table, and insert into new table
@@ -221,16 +220,15 @@ class Migrator < MigratorBase
             oid    = row[:oid]
             name   = row[:name]
             uid    = row[:uid]
+            gid    = (uid == 0) ? 0 : 1
             public = row[:public]
-
-            username = get_username(uid)
 
             # <TOTAL_LEASES> is stored in the DB, but it is not used to rebuild
             # the VirtualNetwork object, and it is generated each time the
             # network is listed. So setting it to 0 is safe
-            body = "<VNET><ID>#{oid}</ID><UID>#{uid}</UID><USERNAME>#{username}</USERNAME><NAME>#{name}</NAME><TYPE>#{row[:type]}</TYPE><BRIDGE>#{row[:bridge]}</BRIDGE><PUBLIC>#{public}</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES>#{row[:template]}</VNET>"
+            body = "<VNET><ID>#{oid}</ID><UID>#{uid}</UID><GID>#{gid}</GID><NAME>#{name}</NAME><TYPE>#{row[:type]}</TYPE><BRIDGE>#{row[:bridge]}</BRIDGE><PUBLIC>#{public}</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES>#{row[:template]}</VNET>"
 
-            @db.run "INSERT INTO network_pool VALUES(#{oid},'#{name}','#{body}', #{uid}, #{public});"
+            @db.run "INSERT INTO network_pool VALUES(#{oid},'#{name}','#{body}', #{uid}, #{gid}, #{public});"
         end
 
         # Read each entry in the old table, and insert into new table
@@ -276,15 +274,5 @@ class Migrator < MigratorBase
         @db.run "INSERT INTO pool_control (tablename, last_oid) VALUES ('group_pool', 99);"
 
         return true
-    end
-
-    def get_username(uid)
-        username = ""
-
-        @db.fetch("SELECT name FROM user_pool WHERE oid=#{uid}") do |user|
-            username = user[:name]
-        end
-
-        return username
     end
 end

@@ -37,8 +37,6 @@ void RequestManager::UserAllocate::execute(
     int                 rc;
     ostringstream       oss;
 
-    User              * user;
-
     const string        method_name = "UserAllocate";
 
     /*   -- RPC specific vars --  */
@@ -77,16 +75,8 @@ void RequestManager::UserAllocate::execute(
         }
     }
 
-    // Let's make sure that the user doesn't exist in the database
-    user = UserAllocate::upool->get(username,false);
-
-    if (user != 0 )
-    {
-        goto error_duplicate;
-    }
-
     // Now let's add the user
-    rc = UserAllocate::upool->allocate(&uid,username,password,true,error_str);
+    rc = UserAllocate::upool->allocate(&uid,username,password,true,GroupPool::USERS_ID,error_str);
 
     if ( rc == -1 )
     {
@@ -111,11 +101,6 @@ error_authenticate:
 
 error_authorize:
     oss.str(authorization_error(method_name, "CREATE", "USER", rc, -1));
-    goto error_common;
-
-error_duplicate:
-    oss << action_error(method_name, "CREATE", "USER", -2, -1)
-        << ". Reason: Existing user, cannot duplicate.";
     goto error_common;
 
 error_allocate:

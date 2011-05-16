@@ -30,25 +30,25 @@ const string usernames[] = { "A user", "B user", "C user", "D user", "E user" };
 const string passwords[] = { "A pass", "B pass", "C pass", "D pass", "E pass" };
 
 const string dump_result =
-    "<USER_POOL><USER><ID>0</ID><NAME>one_user_test</NAME>"
+    "<USER_POOL><USER><ID>0</ID><NAME>one_user_test</NAME><GID>0</GID>"
     "<PASSWORD>5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8</PASSWORD>"
-    "<ENABLED>1</ENABLED></USER><USER><ID>1</ID><NAME>a</NAME>"
+    "<ENABLED>1</ENABLED></USER><USER><ID>1</ID><NAME>a</NAME><GID>0</GID>"
     "<PASSWORD>p</PASSWORD><ENABLED>1</ENABLED></USER><USER>"
-    "<ID>2</ID><NAME>a name</NAME><PASSWORD>pass</PASSWORD>"
-    "<ENABLED>1</ENABLED></USER><USER><ID>3</ID><NAME>a_name</NAME>"
+    "<ID>2</ID><NAME>a name</NAME><GID>0</GID><PASSWORD>pass</PASSWORD>"
+    "<ENABLED>1</ENABLED></USER><USER><ID>3</ID><NAME>a_name</NAME><GID>0</GID>"
     "<PASSWORD>password</PASSWORD><ENABLED>1</ENABLED></USER><USER>"
-    "<ID>4</ID><NAME>another name</NAME><PASSWORD>secret</PASSWORD>"
-    "<ENABLED>1</ENABLED></USER><USER><ID>5</ID><NAME>user</NAME>"
+    "<ID>4</ID><NAME>another name</NAME><GID>0</GID><PASSWORD>secret</PASSWORD>"
+    "<ENABLED>1</ENABLED></USER><USER><ID>5</ID><NAME>user</NAME><GID>0</GID>"
     "<PASSWORD>1234</PASSWORD><ENABLED>1</ENABLED></USER>"
     "</USER_POOL>";
 
 const string dump_where_result =
-    "<USER_POOL><USER><ID>1</ID><NAME>a</NAME>"
+    "<USER_POOL><USER><ID>1</ID><NAME>a</NAME><GID>0</GID>"
     "<PASSWORD>p</PASSWORD><ENABLED>1</ENABLED></USER><USER>"
-    "<ID>2</ID><NAME>a name</NAME><PASSWORD>pass</PASSWORD>"
-    "<ENABLED>1</ENABLED></USER><USER><ID>3</ID><NAME>a_name</NAME>"
+    "<ID>2</ID><NAME>a name</NAME><GID>0</GID><PASSWORD>pass</PASSWORD>"
+    "<ENABLED>1</ENABLED></USER><USER><ID>3</ID><NAME>a_name</NAME><GID>0</GID>"
     "<PASSWORD>password</PASSWORD><ENABLED>1</ENABLED></USER><USER>"
-    "<ID>4</ID><NAME>another name</NAME><PASSWORD>secret</PASSWORD>"
+    "<ID>4</ID><NAME>another name</NAME><GID>0</GID><PASSWORD>secret</PASSWORD>"
     "<ENABLED>1</ENABLED></USER></USER_POOL>";
 
 class UserPoolTest : public PoolTest
@@ -93,7 +93,7 @@ protected:
         string err;
         
         return ((UserPool*)pool)->allocate(&oid, usernames[index],
-                                           passwords[index], true, err);
+                                           passwords[index], true, 0, err);
     };
 
     void check(int index, PoolObjectSQL* obj)
@@ -256,17 +256,17 @@ public:
         UserPool * up = static_cast<UserPool *>(pool);
 
         // Allocate a user.
-        rc = up->allocate(&oid, usernames[0], passwords[0], true, err);
+        rc = up->allocate(&oid, usernames[0], passwords[0], true, 0, err);
         CPPUNIT_ASSERT( oid == 1 );
         CPPUNIT_ASSERT( oid == rc );
 
         // Try to allocate twice the same user, should fail
-        rc = up->allocate(&oid, usernames[0], passwords[0], true, err);
+        rc = up->allocate(&oid, usernames[0], passwords[0], true, 0, err);
         CPPUNIT_ASSERT( rc  == -1 );
         CPPUNIT_ASSERT( oid == rc );
 
         // Try again, with different password
-        rc = up->allocate(&oid, usernames[0], passwords[1], true, err);
+        rc = up->allocate(&oid, usernames[0], passwords[1], true, 0, err);
         CPPUNIT_ASSERT( rc  == -1 );
         CPPUNIT_ASSERT( oid == rc );
     }
@@ -281,7 +281,7 @@ public:
         
         for(int i=0; i<5; i++)
         {
-            ((UserPool*)pool)->allocate(&oid, d_names[i], d_pass[i], true, err);
+            ((UserPool*)pool)->allocate(&oid, d_names[i], d_pass[i], true, 0, err);
         }
 
         ostringstream oss;
@@ -308,7 +308,7 @@ public:
 
         for(int i=0; i<5; i++)
         {
-            ((UserPool*)pool)->allocate(&oid, d_names[i], d_pass[i], true, err);
+            ((UserPool*)pool)->allocate(&oid, d_names[i], d_pass[i], true, 0, err);
         }
 
         // Note: second parameter of dump is the WHERE constraint. The "order

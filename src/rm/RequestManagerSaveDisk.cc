@@ -37,6 +37,7 @@ void RequestManager::VirtualMachineSaveDisk::execute(
 
     int    rc;
     int    uid;
+    int    gid;
     string estr;
     char * error_char;
     string error_str;
@@ -46,6 +47,7 @@ void RequestManager::VirtualMachineSaveDisk::execute(
     VirtualMachine * vm;
     Image *          image;
     ImageTemplate *  img_template;
+    User *           user;
 
     Image *     source_img;
     int         source_img_id;
@@ -133,9 +135,25 @@ void RequestManager::VirtualMachineSaveDisk::execute(
     }
 
     //--------------------------------------------------------------------------
+    //   Get the User Group
+    //--------------------------------------------------------------------------
+
+    user = VirtualMachineSaveDisk::upool->get(uid,true);
+
+    if ( user == 0 )
+    {
+        goto error_user_get;
+    }
+
+    gid = user->get_gid();
+
+    user->unlock();
+
+    //--------------------------------------------------------------------------
     // Create the image
     //--------------------------------------------------------------------------
-    rc = VirtualMachineSaveDisk::ipool->allocate(uid, img_template, &iid,estr);
+    rc = VirtualMachineSaveDisk::ipool->allocate(uid, gid, img_template,
+                                                 &iid,estr);
 
     if ( rc < 0 )
     {
@@ -243,6 +261,11 @@ error_authorize:
 error_allocate:
     oss << action_error(method_name, "CREATE", "IMAGE", -2, 0);
     oss << " " << estr;
+    goto error_common;
+
+error_user_get:
+    oss.str(get_error(method_name, "USER", uid));
+    delete img_template;
     goto error_common;
 
 error_common:

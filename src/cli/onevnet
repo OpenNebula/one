@@ -53,6 +53,22 @@ ShowTableVN={
         :left => true,
         :proc => lambda {|d,e| d["USERNAME"] }
     },
+    :uid=> {
+        :name => "UID",
+        :desc => "Id of the owner",
+        :size => 4,
+        :proc => lambda {|d,e|
+            d["UID"]
+        }
+    },
+    :gid=> {
+        :name => "GID",
+        :desc => "Id of the group",
+        :size => 4,
+        :proc => lambda {|d,e|
+            d["GID"]
+        }
+    },
     :type => {
         :name => "TYPE",
         :desc => "NType of virtual network",
@@ -172,13 +188,14 @@ Commands:
 
 * list (Lists virtual networks in the pool)
     onevnet list <filter_flag>
-        where filter_flag can be
-            a, all  : all the known VNs
-            m, mine : the VNs belonging to the user in ONE_AUTH
-                        and all the Public VNs
-            uid     : VNs of the user identified by this uid
-            user    : VNs of the user identified by the username
-            
+
+    where filter_flag can be
+        a, all   --> all the known VNets
+        m, mine  --> the VNets belonging to the user in ONE_AUTH
+        g, group --> 'mine' plus the VNets belonging to the groups
+                        the user is member of
+        uid      --> VNets of the user identified by this uid
+        user     --> VNets of the user identified by the username
 
 Information columns:
 
@@ -331,6 +348,8 @@ when "list"
         when "a", "all"
             filter_flag="-2"
         when "m", "mine"
+            filter_flag="-3"
+        when "g", "group"
             filter_flag="-1"
         else
             if !ARGV[0].match(/^[0123456789]+$/)

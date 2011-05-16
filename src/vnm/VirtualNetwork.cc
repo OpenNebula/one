@@ -24,16 +24,15 @@
 #include "FixedLeases.h"
 
 #include "AuthManager.h"
-// TODO: check not needed
-//#include "UserPool.h"
 
 /* ************************************************************************** */
 /* Virtual Network :: Constructor/Destructor                                  */
 /* ************************************************************************** */
 
-VirtualNetwork::VirtualNetwork(int uid,
+VirtualNetwork::VirtualNetwork(int _uid,
+                               int _gid,
                                VirtualNetworkTemplate *_vn_template):
-                PoolObjectSQL(-1,"",uid,table),
+                PoolObjectSQL(-1,"",_uid,_gid,table),
                 bridge(""),
                 type(UNINITIALIZED),
                 leases(0)
@@ -70,11 +69,11 @@ VirtualNetwork::~VirtualNetwork()
 
 const char * VirtualNetwork::table        = "network_pool";
 
-const char * VirtualNetwork::db_names     = "oid, name, body, uid, public";
+const char * VirtualNetwork::db_names     = "oid, name, body, uid, gid, public";
 
 const char * VirtualNetwork::db_bootstrap = "CREATE TABLE IF NOT EXISTS"
     " network_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128),"
-    " body TEXT, uid INTEGER, public INTEGER, UNIQUE(name,uid))";
+    " body TEXT, uid INTEGER, gid INTEGER, public INTEGER, UNIQUE(name,uid))";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -424,6 +423,7 @@ int VirtualNetwork::insert_replace(SqlDB *db, bool replace)
         << "'" <<   sql_name    << "',"
         << "'" <<   sql_xml     << "',"
         <<          uid         << ","
+        <<          gid         << ","
         <<          public_vnet << ")";
 
     rc = db->exec(oss);
@@ -500,6 +500,7 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended) const
         "<VNET>" <<
             "<ID>"          << oid          << "</ID>"          <<
             "<UID>"         << uid          << "</UID>"         <<
+            "<GID>"         << gid          << "</GID>"         <<
             "<NAME>"        << name         << "</NAME>"        <<
             "<TYPE>"        << type         << "</TYPE>"        <<
             "<BRIDGE>"      << bridge       << "</BRIDGE>"      <<
@@ -535,6 +536,7 @@ int VirtualNetwork::from_xml(const string &xml_str)
     // Get class base attributes
     rc += xpath(oid,        "/VNET/ID",         -1);
     rc += xpath(uid,        "/VNET/UID",        -1);
+    rc += xpath(gid,        "/VNET/GID",        -1);
     rc += xpath(name,       "/VNET/NAME",       "not_found");
     rc += xpath(int_type,   "/VNET/TYPE",       -1);
     rc += xpath(bridge,     "/VNET/BRIDGE",     "not_found");

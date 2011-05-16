@@ -32,6 +32,9 @@ void RequestManager::VirtualMachinePoolInfo::execute(
     int                 rc;
     int                 state;
 
+    int                 gid;
+    User *              user;
+
     ostringstream       oss;
     ostringstream       where_string;
 
@@ -69,18 +72,40 @@ void RequestManager::VirtualMachinePoolInfo::execute(
         goto error_authenticate;
     }
 
-    /*  Filter flag meaning table
-     *    <=-2 :: ALL VMs
-     *     -1  :: User's VMs
-     *    >=0  :: UID User's VMs
-     */
-    if (filter_flag == -1)
+    /** Filter flag meaning table
+     *      -3 :: User's VMs
+     *      -2 :: All VMs
+     *      -1 :: User's VMs and all ones that belong to his groups
+     *    >= 0 :: UID User's Images
+     **/
+    if ( filter_flag < -3 )
     {
-        where_string << "UID=" << rc;
+        goto error_filter_flag;
     }
-    else if (filter_flag>=0)
+
+    switch(filter_flag)
     {
-        where_string << "UID=" << filter_flag;
+        case -3:
+            where_string << "UID=" << rc;
+            break;
+        case -2:
+            break;
+        case -1:
+            //   Get the User Group
+            user = VirtualMachinePoolInfo::upool->get(rc,true);
+
+            if ( user == 0 )
+            {
+                goto error_user_get;
+            }
+
+            gid = user->get_gid();
+            user->unlock();
+
+            where_string << "UID=" << rc << " OR GID=" << gid;
+            break;
+        default:
+            where_string << "UID=" << filter_flag;
     }
 
     rc = VirtualMachinePoolInfo::vmpool->dump(oss, state, where_string.str());
@@ -104,6 +129,14 @@ void RequestManager::VirtualMachinePoolInfo::execute(
 
 error_authenticate:
     oss.str(authenticate_error(method_name));  
+    goto error_common;
+
+error_filter_flag:
+    oss << "Incorrect filter_flag, must be >= -3.";
+    goto error_common;
+
+error_user_get:
+    oss.str(get_error(method_name, "USER", rc));
     goto error_common;
 
 error_dump:

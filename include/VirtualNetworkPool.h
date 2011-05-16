@@ -42,6 +42,7 @@ public:
     /**
      *  Function to allocate a new VNET object
      *    @param uid user identifier
+     *    @param gid the id of the group this object is assigned to
      *    @param vn_template a VirtualNetworkTemplate describing the VNET
      *    @param oid the id assigned to the VM (output)
      *    @param error_str Returns the error reason, if any
@@ -49,6 +50,7 @@ public:
      */
     int allocate (
         int                         uid,
+        int                         gid,
         VirtualNetworkTemplate *    vn_template,
         int *                       oid,
         string&                     error_str);
@@ -154,7 +156,7 @@ private:
      */
     PoolObjectSQL * create()
     {
-        return new VirtualNetwork(0, 0);
+        return new VirtualNetwork(-1,-1, 0);
     };
 };
 

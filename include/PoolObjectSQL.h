@@ -37,8 +37,9 @@ class PoolObjectSQL : public ObjectSQL, public ObjectXML
 {
 public:
 
-    PoolObjectSQL(int id, const string& _name, int _uid,const char *_table)
-            :ObjectSQL(),ObjectXML(),oid(id),name(_name),uid(_uid),
+    PoolObjectSQL(int id, const string& _name, int _uid,
+                  int _gid, const char *_table)
+            :ObjectSQL(),ObjectXML(),oid(id),name(_name),uid(_uid),gid(_gid),
              valid(true),obj_template(0),table(_table)
     {
         pthread_mutex_init(&mutex,0);
@@ -66,6 +67,16 @@ public:
     int get_uid()
     {
         return uid;
+    };
+
+    int get_gid()
+    {
+        return gid;
+    };
+
+    void set_gid(int _gid)
+    {
+        gid = _gid;
     };
 
     /* --------------------------------------------------------------------- */
@@ -296,6 +307,11 @@ protected:
      *  Object's owner, set it to -1 if owner is not used
      */
     int     uid;
+
+    /**
+     *  Object's group, set it to -1 if group is not used
+     */
+    int     gid;
 
     /**
      *  The contents of this object are valid

@@ -37,7 +37,7 @@ const char * Group::db_bootstrap = "CREATE TABLE IF NOT EXISTS group_pool ("
 /* ************************************************************************ */
 
 Group::Group(int id, int uid, const string& name):
-    PoolObjectSQL(id,name,uid,table){};
+    PoolObjectSQL(id,name,uid,-1,table){};
 
 Group::~Group(){};
 

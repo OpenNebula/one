@@ -33,9 +33,11 @@ public:
     /**
      *  Names for the default groups
      */
-    static const string ONEADMIN_GROUP_NAME;
-    static const string USERS_GROUP_NAME;
+    static const string ONEADMIN_NAME;
+    static const string USERS_NAME;
 
+    static const int ONEADMIN_ID;
+    static const int USERS_ID;
     /* ---------------------------------------------------------------------- */
     /* Methods for DB management                                              */
     /* ---------------------------------------------------------------------- */

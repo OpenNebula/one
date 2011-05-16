@@ -38,8 +38,9 @@
 
 VirtualMachine::VirtualMachine(int id,
                                int _uid,
+                               int _gid,
                                VirtualMachineTemplate * _vm_template):
-        PoolObjectSQL(id,"",_uid,table),
+        PoolObjectSQL(id,"",_uid,_gid,table),
         last_poll(0),
         state(INIT),
         lcm_state(LCM_INIT),
@@ -94,11 +95,11 @@ VirtualMachine::~VirtualMachine()
 const char * VirtualMachine::table = "vm_pool";
 
 const char * VirtualMachine::db_names =
-    "oid, name, body, uid, last_poll, state, lcm_state";
+    "oid, name, body, uid, gid, last_poll, state, lcm_state";
 
 const char * VirtualMachine::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
         "vm_pool (oid INTEGER PRIMARY KEY, name TEXT, body TEXT, uid INTEGER, "
-        "last_poll INTEGER, state INTEGER, lcm_state INTEGER)";
+        "gid INTEGER, last_poll INTEGER, state INTEGER, lcm_state INTEGER)";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -514,6 +515,7 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace)
         << "'" <<   sql_name        << "',"
         << "'" <<   sql_xml         << "',"
         <<          uid             << ","
+        <<          gid             << ","
         <<          last_poll       << ","
         <<          state           << ","
         <<          lcm_state       << ")";
@@ -1104,6 +1106,7 @@ string& VirtualMachine::to_xml(string& xml) const
     oss << "<VM>"
         << "<ID>"        << oid       << "</ID>"
         << "<UID>"       << uid       << "</UID>"
+        << "<GID>"       << gid       << "</GID>"
         << "<NAME>"      << name      << "</NAME>"
         << "<LAST_POLL>" << last_poll << "</LAST_POLL>"
         << "<STATE>"     << state     << "</STATE>"
@@ -1143,6 +1146,7 @@ int VirtualMachine::from_xml(const string &xml_str)
     // Get class base attributes
     rc += xpath(oid,        "/VM/ID",       -1);
     rc += xpath(uid,        "/VM/UID",      -1);
+    rc += xpath(gid,        "/VM/GID",      -1);
     rc += xpath(name,       "/VM/NAME",     "not_found");
 
     rc += xpath(last_poll,  "/VM/LAST_POLL",0);

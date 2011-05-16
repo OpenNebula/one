@@ -39,6 +39,22 @@ ShowTableVM={
         :size => 5,
         :proc => lambda {|d,e| d.id }
     },
+    :uid=> {
+        :name => "UID",
+        :desc => "Id of the owner",
+        :size => 4,
+        :proc => lambda {|d,e|
+            d["UID"]
+        }
+    },
+    :gid=> {
+        :name => "GID",
+        :desc => "Id of the group",
+        :size => 4,
+        :proc => lambda {|d,e|
+            d["GID"]
+        }
+    },
     :name => {
         :name => "NAME",
         :desc => "Name of the domain",
@@ -402,11 +418,14 @@ Commands:
 
 * list (Shows VMs in the pool)
     onevm list <filter_flag>
-        where filter_flag can be
-            a, all   --> all the known VMs
-            m, mine  --> the VMs belonging to the user in ONE_AUTH
-            uid      --> VMs of the user identified by this uid
-            user     --> VMs of the user identified by the username
+
+    where filter_flag can be
+        a, all   --> all the known VMs
+        m, mine  --> the VMs belonging to the user in ONE_AUTH
+        g, group --> 'mine' plus the VMs belonging to the groups
+                        the user is member of
+        uid      --> VMs of the user identified by this uid
+        user     --> VMs of the user identified by the username
 
 * show (Gets information about a specific VM)
     onevm show <vm_id>
@@ -483,6 +502,8 @@ def get_user_flags
             when "a", "all"
                 ops[:filter_user]="-2"
             when "m", "mine"
+                ops[:filter_user]="-3"
+            when "g", "group"
                 ops[:filter_user]="-1"
             else
                 if !ARGV[0].match(/^[0123456789]+$/)

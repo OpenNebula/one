@@ -260,7 +260,8 @@ private:
     // Constructor
     //**************************************************************************
 
-    VirtualNetwork(int                      uid, 
+    VirtualNetwork(int                      uid,
+                   int                      gid,
                    VirtualNetworkTemplate * _vn_template = 0);
 
     ~VirtualNetwork();

@@ -35,8 +35,9 @@
 /* ************************************************************************ */
 
 Image::Image(int             _uid,
+             int             _gid,
              ImageTemplate * _image_template):
-        PoolObjectSQL(-1,"",_uid,table),
+        PoolObjectSQL(-1,"",_uid,_gid,table),
         type(OS),
         regtime(time(0)),
         source("-"),
@@ -67,11 +68,11 @@ Image::~Image()
 
 const char * Image::table = "image_pool";
 
-const char * Image::db_names = "oid, name, body, uid, public";
+const char * Image::db_names = "oid, name, body, uid, gid, public";
 
 const char * Image::db_bootstrap = "CREATE TABLE IF NOT EXISTS image_pool ("
     "oid INTEGER PRIMARY KEY, name VARCHAR(256), body TEXT, uid INTEGER, "
-    "public INTEGER, UNIQUE(name,uid) )";
+    "gid INTEGER, public INTEGER, UNIQUE(name,uid) )";
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
@@ -293,6 +294,7 @@ int Image::insert_replace(SqlDB *db, bool replace)
         << "'" <<   sql_name        << "',"
         << "'" <<   sql_xml         << "',"
         <<          uid             << ","
+        <<          gid             << ","
         <<          public_img      << ")";
 
     rc = db->exec(oss);
@@ -333,6 +335,7 @@ string& Image::to_xml(string& xml) const
         "<IMAGE>" <<
             "<ID>"             << oid             << "</ID>"          <<
             "<UID>"            << uid             << "</UID>"         <<
+            "<GID>"            << gid             << "</GID>"         <<
             "<NAME>"           << name            << "</NAME>"        <<
             "<TYPE>"           << type            << "</TYPE>"        <<
             "<PUBLIC>"         << public_img      << "</PUBLIC>"      <<
@@ -366,6 +369,7 @@ int Image::from_xml(const string& xml)
     // Get class base attributes
     rc += xpath(oid, "/IMAGE/ID", -1);
     rc += xpath(uid, "/IMAGE/UID", -1);
+    rc += xpath(gid, "/IMAGE/GID", -1);
     rc += xpath(name, "/IMAGE/NAME", "not_found");
 
     rc += xpath(int_type, "/IMAGE/TYPE", 0);

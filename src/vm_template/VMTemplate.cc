@@ -25,8 +25,9 @@
 
 VMTemplate::VMTemplate(int id,
                        int _uid,
+                       int _gid,
                        VirtualMachineTemplate * _template_contents):
-        PoolObjectSQL(id,"",_uid,table),
+        PoolObjectSQL(id,"",_uid,_gid,table),
         regtime(time(0))
 {
     if (_template_contents != 0)
@@ -56,11 +57,11 @@ VMTemplate::~VMTemplate()
 
 const char * VMTemplate::table = "template_pool";
 
-const char * VMTemplate::db_names = "oid, name, body, uid, public";
+const char * VMTemplate::db_names = "oid, name, body, uid, gid, public";
 
 const char * VMTemplate::db_bootstrap =
     "CREATE TABLE IF NOT EXISTS template_pool (oid INTEGER PRIMARY KEY, "
-    "name VARCHAR(256), body TEXT, uid INTEGER, public INTEGER)";
+    "name VARCHAR(256), body TEXT, uid INTEGER, gid INTEGER, public INTEGER)";
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
@@ -154,6 +155,7 @@ int VMTemplate::insert_replace(SqlDB *db, bool replace)
         << "'" <<   sql_name            << "',"
         << "'" <<   sql_xml             << "',"
         <<          uid                 << ","
+        <<          gid                 << ","
         <<          public_template     << ")";
 
     rc = db->exec(oss);
@@ -193,6 +195,7 @@ string& VMTemplate::to_xml(string& xml) const
     oss << "<VMTEMPLATE>"
             << "<ID>"       << oid              << "</ID>"
             << "<UID>"      << uid              << "</UID>"
+            << "<GID>"      << gid              << "</GID>"
             << "<NAME>"     << name             << "</NAME>"
             << "<PUBLIC>"   << public_template  << "</PUBLIC>"
             << "<REGTIME>"  << regtime          << "</REGTIME>"
@@ -218,6 +221,7 @@ int VMTemplate::from_xml(const string& xml)
     // Get class base attributes
     rc += xpath(oid,            "/VMTEMPLATE/ID",       -1);
     rc += xpath(uid,            "/VMTEMPLATE/UID",      -1);
+    rc += xpath(gid,            "/VMTEMPLATE/GID",      -1);
     rc += xpath(name,           "/VMTEMPLATE/NAME",     "not_found");
     rc += xpath(public_template,"/VMTEMPLATE/PUBLIC",   0);
     rc += xpath(regtime,        "/VMTEMPLATE/REGTIME",  0);

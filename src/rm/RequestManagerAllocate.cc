@@ -29,11 +29,11 @@ void RequestManager::VirtualMachineAllocate::execute(
     string              session;
     string              str_template;
     string              error_str;
-    string              template_id_str = "TEMPLATE_ID";;
+    string              template_id_str = "TEMPLATE_ID";
 
     const string        method_name = "VirtualMachineAllocate";
 
-    int                 vid, uid, tid;
+    int                 vid, uid, gid, tid;
     int                 rc;
 
     ostringstream       oss;
@@ -43,6 +43,7 @@ void RequestManager::VirtualMachineAllocate::execute(
 
     VirtualMachineTemplate * vm_template;
     VirtualMachineTemplate * vm_template_aux;
+    User *                   user;
     VMTemplate *             registered_template;
     bool                     using_template_pool;
     int                      template_owner;
@@ -92,7 +93,7 @@ void RequestManager::VirtualMachineAllocate::execute(
         string name_str = "NAME";
         string name_val;
         ostringstream template_id_val;
-           
+
         registered_template = VirtualMachineAllocate::tpool->get(tid, true);
 
         if( registered_template == 0 )
@@ -104,6 +105,9 @@ void RequestManager::VirtualMachineAllocate::execute(
         vm_template_aux = registered_template->clone_template();
         template_owner  = registered_template->get_uid();
         template_public = registered_template->isPublic();
+
+        // The new VM will have the Template Group
+        gid = registered_template->get_gid();
 
         registered_template->unlock();
 
@@ -120,7 +124,7 @@ void RequestManager::VirtualMachineAllocate::execute(
 
         template_id_val << tid;
 
-        vm_template_aux->set(new 
+        vm_template_aux->set(new
                 SingleAttribute(template_id_str,template_id_val.str()));
 
         delete vm_template;
@@ -197,9 +201,28 @@ void RequestManager::VirtualMachineAllocate::execute(
     }
 
     //--------------------------------------------------------------------------
+    //   Get the User Group
+    //--------------------------------------------------------------------------
+
+    if( !using_template_pool )
+    {
+        user = VirtualMachineAllocate::upool->get(uid,true);
+
+        if ( user == 0 )
+        {
+            goto error_user_get;
+        }
+
+        gid = user->get_gid();
+
+        user->unlock();
+    }
+
+    //--------------------------------------------------------------------------
     //   Allocate the VirtualMAchine
     //--------------------------------------------------------------------------
     rc = VirtualMachineAllocate::vmpool->allocate(uid,
+                                                  gid,
                                                   vm_template,
                                                   &vid,
                                                   error_str,
@@ -222,6 +245,12 @@ void RequestManager::VirtualMachineAllocate::execute(
 
 error_template_get:
     oss.str(get_error(method_name, "TEMPLATE", tid));
+
+    delete vm_template;
+    goto error_common;
+
+error_user_get:
+    oss.str(get_error(method_name, "USER", uid));
 
     delete vm_template;
     goto error_common;

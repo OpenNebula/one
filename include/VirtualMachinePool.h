@@ -41,6 +41,7 @@ public:
     /**
      *  Function to allocate a new VM object
      *    @param uid user id (the owner of the VM)
+     *    @param gid the id of the group this object is assigned to
      *    @param vm_template a VM Template object describing the VM
      *    @param oid the id assigned to the VM (output)
      *    @param error_str Returns the error reason, if any
@@ -50,6 +51,7 @@ public:
      */
     int allocate (
         int                      uid,
+        int                      gid,
         VirtualMachineTemplate * vm_template,
         int *                    oid,
         string&                  error_str,
@@ -158,7 +160,7 @@ private:
      */
     PoolObjectSQL * create()
     {
-        return new VirtualMachine(-1,-1, 0);
+        return new VirtualMachine(-1,-1,-1,0);
     };
 };
 

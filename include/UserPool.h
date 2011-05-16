@@ -19,6 +19,7 @@
 
 #include "PoolSQL.h"
 #include "User.h"
+#include "GroupPool.h"
 
 #include <time.h>
 #include <sstream>
@@ -49,9 +50,10 @@ public:
      */
     int allocate (
         int *   oid,
-        string  hostname,
+        string  username,
         string  password,
         bool    enabled,
+        int     gid,
         string& error_str);
 
     /**
@@ -137,7 +139,7 @@ private:
      */
     PoolObjectSQL * create()
     {
-        return new User(-1,"","",true);
+        return new User(-1,"","",true,GroupPool::USERS_ID);
     };
 };
 

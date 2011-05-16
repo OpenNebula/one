@@ -35,7 +35,8 @@ const char * Cluster::db_bootstrap = "CREATE TABLE IF NOT EXISTS cluster_pool ("
 /* Cluster :: Constructor/Destructor                                        */
 /* ************************************************************************ */
 
-Cluster::Cluster(int id, const string& name):PoolObjectSQL(id,name,-1,table){};
+Cluster::Cluster(int id, const string& name)
+    :PoolObjectSQL(id,name,-1,-1,table){};
 
 Cluster::~Cluster(){};
 

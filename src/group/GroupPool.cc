@@ -20,8 +20,12 @@
 
 #include <stdexcept>
 
-const string GroupPool::ONEADMIN_GROUP_NAME = "oneadmin";
-const string GroupPool::USERS_GROUP_NAME    = "users";
+const string GroupPool::ONEADMIN_NAME = "oneadmin";
+const int    GroupPool::ONEADMIN_ID   = 0;
+
+const string GroupPool::USERS_NAME    = "users";
+const int    GroupPool::USERS_ID      = 1;
+
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -36,7 +40,7 @@ GroupPool::GroupPool(SqlDB * db):PoolSQL(db, Group::table)
         string      error_str;
 
         // Build the default groups
-        group = new Group(0, 0, GroupPool::ONEADMIN_GROUP_NAME);
+        group = new Group(ONEADMIN_ID, 0, ONEADMIN_NAME);
 
         // Insert the Object in the pool
         rc = PoolSQL::allocate(group, error_str);
@@ -51,7 +55,7 @@ GroupPool::GroupPool(SqlDB * db):PoolSQL(db, Group::table)
             throw runtime_error(oss.str());
         }
 
-        group = new Group(1, 0, GroupPool::USERS_GROUP_NAME);
+        group = new Group(USERS_ID, 0, USERS_NAME);
 
         // Insert the Object in the pool
         rc = PoolSQL::allocate(group, error_str);

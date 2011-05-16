@@ -35,6 +35,7 @@ public:
      *  Allocates a new object, writting it in the pool database. No memory is
      *  allocated for the object.
      *    @param uid user id (the owner of the Template)
+     *    @param gid the id of the group this object is assigned to
      *    @param template_contents a VM Template object
      *    @param oid the id assigned to the Template
      *    @param error_str Returns the error reason, if any
@@ -42,6 +43,7 @@ public:
      *    @return the oid assigned to the object, -1 in case of failure
      */
     int allocate(int                      uid,
+                 int                      gid,
                  VirtualMachineTemplate * template_contents,
                  int *                    oid,
                  string&                  error_str);
@@ -137,7 +139,7 @@ private:
      */
     PoolObjectSQL * create()
     {
-        return new VMTemplate(-1,-1, 0);
+        return new VMTemplate(-1,-1,-1,0);
     };
 };
 

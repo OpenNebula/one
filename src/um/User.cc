@@ -30,8 +30,8 @@
 /* User :: Constructor/Destructor                                             */
 /* ************************************************************************** */
 
-User::User(int id, string name, string pass, bool _enabled):
-        PoolObjectSQL(id,name,-1,table), password(pass), enabled(_enabled)
+User::User(int id, string name, string pass, bool _enabled, int _gid):
+        PoolObjectSQL(id,name,-1,_gid,table), password(pass), enabled(_enabled)
         {};
 
 User::~User(){};
@@ -148,6 +148,7 @@ string& User::to_xml(string& xml) const
     "<USER>"
          "<ID>"           << oid            <<"</ID>"        <<
          "<NAME>"         << name           <<"</NAME>"      <<
+         "<GID>"          << gid            <<"</GID>"       <<
          "<PASSWORD>"     << password       <<"</PASSWORD>"  <<
          "<ENABLED>"      << enabled_int    <<"</ENABLED>"   <<
     "</USER>";
@@ -170,6 +171,7 @@ int User::from_xml(const string& xml)
 
     rc += xpath(oid,         "/USER/ID",       -1);
     rc += xpath(name,        "/USER/NAME",     "not_found");
+    rc += xpath(gid,         "/USER/GID",      -1);
     rc += xpath(password,    "/USER/PASSWORD", "not_found");
     rc += xpath(int_enabled, "/USER/ENABLED",  0);
 

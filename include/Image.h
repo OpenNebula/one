@@ -342,6 +342,7 @@ protected:
     // *************************************************************************
 
     Image(int            uid,
+          int            gid,
           ImageTemplate* img_template);
 
     virtual ~Image();
