@@ -297,8 +297,8 @@ var vm_actions = {
             //update the tab and pop it up again
             var log_lines = res.split("\n");
             var colored_log = '';
-            for (var line = 0; line < log_lines.length;++line){
-                line = log_lines[line];
+            for (var i = 0; i < log_lines.length;i++){
+                var line = log_lines[i];
                 if (line.match(/\[E\]/)){
                     line = '<span class="vm_log_error">'+line+'</span>';
                 }

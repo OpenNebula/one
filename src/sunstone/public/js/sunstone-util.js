@@ -352,7 +352,7 @@ function onError(request,error_json) {
         var value;
         rows = ["method","action","object","id","reason"];
         message = "";
-        for (i = 0; i<rows.length; ++i){
+        for (i = 0; i<rows.length; i++){
             key = rows[i];
             value = eval(key);
             if (value)
