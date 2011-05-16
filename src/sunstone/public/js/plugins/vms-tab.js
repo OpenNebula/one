@@ -289,15 +289,14 @@ var vm_actions = {
             //update the tab and pop it up again
             var log_lines = res.split("\n");
             var colored_log = '';
-            for (line in log_lines){
+            for (var line = 0; line < log_lines.length;++line){
                 line = log_lines[line];
-                if (typeof line == "string") {
-                    if (line.match(/\[E\]/)){
-                        line = '<span class="vm_log_error">'+line+'</span>'
-                    }
-                    colored_log += line + "\n";
+                if (line.match(/\[E\]/)){
+                    line = '<span class="vm_log_error">'+line+'</span>';
                 }
+                colored_log += line + "\n";
             }
+
             var log_tab = {
                 title: "VM log",
                 content: '<pre>'+colored_log+'</pre>'
