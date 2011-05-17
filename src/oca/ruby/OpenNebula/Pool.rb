@@ -173,6 +173,21 @@ module OpenNebula
             return rc
         end
 
+        # Calls to the corresponding chown method to modify
+        # the object's owner and group
+        # xml_method:: _String_ the name of the XML-RPC method
+        # uid:: _Integer_ the new owner id. Set to -1 to leave the current one
+        # gid:: _Integer_ the new group id. Set to -1 to leave the current one
+        # [return] nil in case of success or an Error object
+        def chown(xml_method, uid, gid)
+            return Error.new('ID not defined') if !@pe_id
+
+            rc = @client.call(xml_method,@pe_id, uid, gid)
+            rc = nil if !OpenNebula.is_error?(rc)
+
+            return rc
+        end
+
     public
 
         # Creates new element specifying its id

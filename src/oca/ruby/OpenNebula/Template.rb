@@ -27,7 +27,8 @@ module OpenNebula
             :update      => "template.update",
             :rmattr      => "template.rmattr",
             :publish     => "template.publish",
-            :delete      => "template.delete"
+            :delete      => "template.delete",
+            :chown       => "template.chown"
         }
 
         # Creates a Template description with just its identifier
@@ -101,6 +102,14 @@ module OpenNebula
         # Unplubishes the Image
         def unpublish
             set_publish(false)
+        end
+
+        # Changes the owner/group
+        # uid:: _Integer_ the new owner id. Set to -1 to leave the current one
+        # gid:: _Integer_ the new group id. Set to -1 to leave the current one
+        # [return] nil in case of success or an Error object
+        def chown(uid, gid)
+            super(TEMPLATE_METHODS[:chown], uid, gid)
         end
 
         # ---------------------------------------------------------------------

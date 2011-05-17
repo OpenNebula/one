@@ -416,6 +416,12 @@ Commands:
 
     States: ANY, except SUSPENDED or DONE
 
+* chown (Changes the VM owner and group)
+    onevm chown <vm_id> <owner_id> [<group_id>]
+
+* chgrp (Changes the VM group)
+    onevm chgrp <vm_id> <group_id>
+
 * list (Shows VMs in the pool)
     onevm list <filter_flag>
 
@@ -768,6 +774,34 @@ when "resubmit"
         else
             break
         end
+    end
+
+when "chown"
+    check_parameters("chown", 2)
+
+    obj_id  = get_vm_id(ARGV[0])
+    new_uid = ARGV[1].to_i
+    new_gid = ( ARGV.length > 2 ) ? ARGV[2].to_i : -1
+
+    obj = OpenNebula::VirtualMachine.new_with_id(obj_id, get_one_client)
+
+    result = obj.chown( new_uid, new_gid )
+    if is_successful?(result)
+        puts "VM user/group changed" if ops[:verbose]
+    end
+
+when "chgrp"
+    check_parameters("chgrp", 2)
+
+    obj_id = get_vm_id(ARGV[0])
+    new_uid  = -1
+    new_gid  = ARGV[1].to_i
+
+    obj = OpenNebula::VirtualMachine.new_with_id(obj_id, get_one_client)
+
+    result = obj.chown( new_uid, new_gid )
+    if is_successful?(result)
+        puts "VM group changed" if ops[:verbose]
     end
 
 when "list"

@@ -73,6 +73,7 @@ source_files=[
     'RequestManagerTemplateRemoveAttribute.cc',
     'RequestManagerTemplatePublish.cc',
     'RequestManagerTemplatePoolInfo.cc',
+    'RequestManagerChown.cc',
 ]
 
 # Build library

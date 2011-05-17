@@ -254,7 +254,13 @@ Commands:
 
 * nonpersistent (Makes an Image non persistent)
     oneimage nonpersistent <image_id>
-    
+
+* chown (Changes the Image owner and group)
+    oneimage chown <image_id> <owner_id> [<group_id>]
+
+* chgrp (Changes the Image group)
+    oneimage chgrp <image_id> <group_id>
+
 * list (Shows Images in the pool)
     oneimage list <filter_flag>
     
@@ -440,7 +446,35 @@ when "nonpersistent"
     if is_successful?(result)
         puts "Image made nonpersistent" if ops[:verbose]
     end
-    
+
+when "chown"
+    check_parameters("chown", 2)
+
+    image_id = get_image_id(ARGV[0])
+    new_uid  = ARGV[1].to_i
+    new_gid = ( ARGV.length > 2 ) ? ARGV[2].to_i : -1
+
+    image = OpenNebula::Image.new_with_id(image_id, get_one_client)
+
+    result = image.chown( new_uid, new_gid )
+    if is_successful?(result)
+        puts "Image user/group changed" if ops[:verbose]
+    end
+
+when "chgrp"
+    check_parameters("chgrp", 2)
+
+    image_id = get_image_id(ARGV[0])
+    new_uid  = -1
+    new_gid  = ARGV[1].to_i
+
+    image = OpenNebula::Image.new_with_id(image_id, get_one_client)
+
+    result = image.chown( new_uid, new_gid )
+    if is_successful?(result)
+        puts "Image group changed" if ops[:verbose]
+    end
+
 when "list"
     ops.merge!(get_user_flags)
     if !ops[:xml]

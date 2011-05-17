@@ -195,6 +195,12 @@ Commands:
 * unpublish (Unpublish an Template)
     onetemplate unpublish <template_id>
 
+* chown (Changes the Template owner and group)
+    onetemplate chown <template_id> <owner_id> [<group_id>]
+
+* chgrp (Changes the Template group)
+    onetemplate chgrp <template_id> <group_id>
+
 * list (Shows Templates in the pool)
     onetemplate list <filter_flag>
 
@@ -335,6 +341,34 @@ when "unpublish"
     result = template.unpublish
     if is_successful?(result)
         puts "Template unpublished" if ops[:verbose]
+    end
+
+when "chown"
+    check_parameters("chown", 2)
+
+    obj_id = get_template_id(ARGV[0])
+    new_uid  = ARGV[1].to_i
+    new_gid = ( ARGV.length > 2 ) ? ARGV[2].to_i : -1
+
+    obj = OpenNebula::Template.new_with_id(obj_id, get_one_client)
+
+    result = obj.chown( new_uid, new_gid )
+    if is_successful?(result)
+        puts "Template user/group changed" if ops[:verbose]
+    end
+
+when "chgrp"
+    check_parameters("chgrp", 2)
+
+    obj_id = get_template_id(ARGV[0])
+    new_uid  = -1
+    new_gid  = ARGV[1].to_i
+
+    obj = OpenNebula::Template.new_with_id(obj_id, get_one_client)
+
+    result = obj.chown( new_uid, new_gid )
+    if is_successful?(result)
+        puts "Template group changed" if ops[:verbose]
     end
 
 when "list"

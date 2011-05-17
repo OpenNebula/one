@@ -312,11 +312,104 @@ private:
         return oss.str();
     }
 
+
+    // ----------------------------------------------------------------------
+    // ----------------------------------------------------------------------
+    //                          Constants
+    // ----------------------------------------------------------------------
+    // ----------------------------------------------------------------------
+
+    // TODO: enum of Objects is maintained in AuthManager.h, could be moved
+    // to Nebula.h
+    enum Object
+    {
+        VM,
+        HOST,
+        NET,
+        IMAGE,
+        USER,
+        CLUSTER,
+        TEMPLATE,
+        GROUP
+    };
+
+    PoolSQL * get_pool(Object ob)
+    {
+        switch (ob)
+        {
+            case VM:       return static_cast<PoolSQL*>(vmpool);
+            case HOST:     return static_cast<PoolSQL*>(hpool);
+            case NET:      return static_cast<PoolSQL*>(vnpool);
+            case IMAGE:    return static_cast<PoolSQL*>(ipool);
+            case USER:     return static_cast<PoolSQL*>(upool);
+            case CLUSTER:  return static_cast<PoolSQL*>(cpool);
+            case TEMPLATE: return static_cast<PoolSQL*>(tpool);
+            case GROUP:    return static_cast<PoolSQL*>(gpool);
+        }
+    };
+
+    string get_method_prefix(Object ob)
+    {
+        switch (ob)
+        {
+            case VM:       return "VirtualMachine";
+            case HOST:     return "Host";
+            case NET:      return "VirtualNetwork";
+            case IMAGE:    return "Image";
+            case USER:     return "User";
+            case CLUSTER:  return "Cluster";
+            case TEMPLATE: return "Template";
+            case GROUP:    return "Group";
+        }
+    };
+
+    string get_object_name(Object ob)
+    {
+        switch (ob)
+        {
+            case VM:       return "VM";
+            case HOST:     return "HOST";
+            case NET:      return "NET";
+            case IMAGE:    return "IMAGE";
+            case USER:     return "USER";
+            case CLUSTER:  return "CLUSTER";
+            case TEMPLATE: return "TEMPLATE";
+            case GROUP:    return "GROUP";
+        }
+    };
+
     // ----------------------------------------------------------------------
     // ----------------------------------------------------------------------
     //                          XML-RPC Methods
     // ----------------------------------------------------------------------
     // ----------------------------------------------------------------------
+
+    /* ---------------------------------------------------------------------- */
+    /*                     Generic Helpers                                    */
+    /* ---------------------------------------------------------------------- */
+
+    class GenericChown: public xmlrpc_c::method
+    {
+    public:
+        GenericChown(RequestManager  *  _rm,
+                     Object             _ob):
+                        rm(_rm),
+                        ob(_ob)
+        {
+            _signature="A:siii";
+            _help="Changes the owner and/or group";
+        };
+
+        ~GenericChown(){};
+
+        void execute(
+            xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP);
+
+    private:
+        RequestManager *    rm;
+        Object              ob;
+    };
 
     /* ---------------------------------------------------------------------- */
     /*                     Virtual Machine Interface                          */

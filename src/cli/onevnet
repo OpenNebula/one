@@ -186,6 +186,12 @@ Commands:
 * rmleases (Removes a lease fom the virtual network)
     onevnet rmleases <network_id> <IP>
 
+* chown (Changes the virtual network owner and group)
+    onevnet chown <network_id> <owner_id> [<group_id>]
+
+* chgrp (Changes the virtual network group)
+    onevnet chgrp <network_id> <group_id>
+
 * list (Lists virtual networks in the pool)
     onevnet list <filter_flag>
 
@@ -340,6 +346,34 @@ when "rmleases"
     result = vn.rmleases(ARGV[1])
     if is_successful?(result)
         puts "Leases removed" if ops[:verbose]
+    end
+
+when "chown"
+    check_parameters("chown", 2)
+
+    obj_id  = get_vn_id(ARGV[0])
+    new_uid = ARGV[1].to_i
+    new_gid = ( ARGV.length > 2 ) ? ARGV[2].to_i : -1
+
+    obj = OpenNebula::VirtualNetwork.new_with_id(obj_id, get_one_client)
+
+    result = obj.chown( new_uid, new_gid )
+    if is_successful?(result)
+        puts "Virtual Network user/group changed" if ops[:verbose]
+    end
+
+when "chgrp"
+    check_parameters("chgrp", 2)
+
+    obj_id   = get_vn_id(ARGV[0])
+    new_uid  = -1
+    new_gid  = ARGV[1].to_i
+
+    obj = OpenNebula::VirtualNetwork.new_with_id(obj_id, get_one_client)
+
+    result = obj.chown( new_uid, new_gid )
+    if is_successful?(result)
+        puts "Virtual Network group changed" if ops[:verbose]
     end
 
 when "list"

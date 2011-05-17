@@ -69,14 +69,28 @@ public:
         return uid;
     };
 
+    // TODO: Check if uid == -1?
+    // What happens with user, is the user his owner, or uid = -1?
+    int set_uid(int _uid)
+    {
+        uid = _uid;
+        return 0;
+    }
+
     int get_gid()
     {
         return gid;
     };
 
-    void set_gid(int _gid)
+    int set_gid(int _gid)
     {
+        if( gid == -1 )
+        {
+            return -1;
+        }
+
         gid = _gid;
+        return 0;
     };
 
     /* --------------------------------------------------------------------- */

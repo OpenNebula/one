@@ -25,7 +25,8 @@ module OpenNebula
             :info     => "user.info",
             :allocate => "user.allocate",
             :delete   => "user.delete",
-            :passwd   => "user.passwd"
+            :passwd   => "user.passwd",
+            :chown    => "user.chown"
         }
 
         # Creates a User description with just its identifier
@@ -87,6 +88,13 @@ module OpenNebula
             rc = nil if !OpenNebula.is_error?(rc)
 
             return rc
+        end
+
+        # Changes the owner/group
+        # gid:: _Integer_ the new group id. Set to -1 to leave the current one
+        # [return] nil in case of success or an Error object
+        def chgrp(gid)
+            chown(USER_METHODS[:chown], -1, gid)
         end
 
         # ---------------------------------------------------------------------

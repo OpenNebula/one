@@ -30,7 +30,8 @@ module OpenNebula
             :enable      => "image.enable",
             :publish     => "image.publish",
             :persistent  => "image.persistent",
-            :delete      => "image.delete"
+            :delete      => "image.delete",
+            :chown       => "image.chown"
         }
 
         IMAGE_STATES=%w{INIT READY USED DISABLED LOCKED ERROR}
@@ -142,7 +143,14 @@ module OpenNebula
         def delete()
             super(IMAGE_METHODS[:delete])
         end
-    
+
+        # Changes the owner/group
+        # uid:: _Integer_ the new owner id. Set to -1 to leave the current one
+        # gid:: _Integer_ the new group id. Set to -1 to leave the current one
+        # [return] nil in case of success or an Error object
+        def chown(uid, gid)
+            super(IMAGE_METHODS[:chown], uid, gid)
+        end
 
         #######################################################################
         # Helpers to get Image information
