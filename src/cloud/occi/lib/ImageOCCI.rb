@@ -30,7 +30,7 @@ class ImageOCCI < Image
             <DESCRIPTION><%= self['TEMPLATE/DESCRIPTION'] %></DESCRIPTION>
             <% end %>
             <% if size != nil %>
-            <SIZE><%= size %></SIZE>
+            <SIZE><%= size.to_i / 1024 %></SIZE>
             <% end %>
             <% if fstype != nil %>
             <FSTYPE><%= fstype %></FSTYPE>

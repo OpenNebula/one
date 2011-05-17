@@ -1,0 +1,614 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- */
+# Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+# not use this file except in compliance with the License. You may obtain    */
+# a copy of the License at                                                   */
+#                                                                            */
+# http://www.apache.org/licenses/LICENSE-2.0                                 */
+#                                                                            */
+# Unless required by applicable law or agreed to in writing, software        */
+# distributed under the License is distributed on an "AS IS" BASIS,          */
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+# See the License for the specific language governing permissions and        */
+# limitations under the License.                                             */
+# -------------------------------------------------------------------------- */
+
+# ----------------------------------------------------------------------------
+# Set up the environment
+# ----------------------------------------------------------------------------
+
+ONE_LOCATION = ENV["ONE_LOCATION"]
+
+if !ONE_LOCATION
+    LIB_LOCATION      = "/usr/lib/one"
+    RUBY_LIB_LOCATION = LIB_LOCATION + "/ruby"
+    VAR_LOCATION      = "/var/lib/one"
+    ETC_LOCATION      = "/etc/one"
+    LOCK_FILE         = "/var/lock/one/one"
+else
+    LIB_LOCATION      = ONE_LOCATION + "/lib"
+    RUBY_LIB_LOCATION = LIB_LOCATION + "/ruby"
+    VAR_LOCATION      = ONE_LOCATION + "/var"
+    ETC_LOCATION      = ONE_LOCATION + "/etc"
+    LOCK_FILE         = VAR_LOCATION + "/.lock"
+end
+
+$: << RUBY_LIB_LOCATION
+
+
+require 'OpenNebula'
+require 'command_parse'
+
+# TODO: Move the Configuration file to OpenNebula ruby lib?
+require "#{RUBY_LIB_LOCATION}/cloud/Configuration"
+
+require 'rubygems'
+require 'sequel'
+
+class MigratorBase
+    attr_reader :db_version
+    attr_reader :one_version
+    @verbose
+
+    def initialize(db, verbose)
+        @db = db
+        @verbose = verbose
+    end
+
+    def up
+        puts "Method up not implemented for version #{@version}"
+        return false
+    end
+end
+
+class OneDBParse < CommandParse
+
+    COMMANDS_HELP=<<-EOT
+DB Connection options:
+
+By default, onedb reads the connection data from oned.conf
+If any of these options is set, oned.conf is ignored (i.e. if you set MySQL's
+port onedb won't look for the rest of the options in oned.conf)
+
+Description:
+
+This command enables the user to manage the OpenNebula database. It provides
+information about the DB version, means to upgrade it to the latest version, and
+backup tools.
+
+Commands:
+
+* upgrade (Upgrades the DB to the latest version)
+    onedb upgrade [<version>]
+
+    where <version> : DB version (e.g. 1, 3) to upgrade. By default the DB is
+                      upgraded to the latest version
+
+* version (Prints the current DB version. Use -v flag to see also OpenNebula version)
+    onedb version
+
+* history (Prints the upgrades history)
+    onedb history
+
+* backup (Dumps the DB to a file)
+    onedb backup [<output_file>]
+
+    where <output_file> : Same as --backup
+
+* restore (Restores the DB from a backup file. Only restores backups generated 
+           from the same backend (SQLite or MySQL))
+    onedb restore [<backup_file>]
+
+    where <backup_file> : Same as --backup
+
+EOT
+
+    def text_commands
+        COMMANDS_HELP
+    end
+
+    def text_command_name
+        "onedb"
+    end
+
+    def special_options(opts, options)
+        opts.on_tail("-f", "--force", "Forces the backup even if the DB exists") do |o|
+            options[:force] = true
+        end
+
+        opts.on_tail("--backup file", "Use this file to store/read SQL dump", String) do |o|
+            options[:backup] = o
+        end
+
+        opts.on_tail("-s file", "--sqlite file", "SQLite DB file", String) do |o|
+            options[:backend] = :sqlite
+            options[:sqlite]  = o
+        end
+
+        opts.on_tail("--server host", "MySQL server hostname or IP. Defaults "<<
+                                         "to localhost", String) do |o|
+            options[:backend] = :mysql
+            options[:server]  = o
+        end
+
+        opts.on_tail("--port port", "MySQL server port. Defaults to 3306", Integer) do |o|
+            options[:backend] = :mysql
+            options[:port]    = o
+        end
+
+        opts.on_tail("--user username", "MySQL username", String) do |o|
+            options[:backend] = :mysql
+            options[:user]    = o
+        end
+
+        opts.on_tail("--passwd password", "MySQL password. Leave unset to be "<<
+                        "prompted for it", String) do |o|
+            options[:backend] = :mysql
+            options[:passwd]  = o
+        end
+
+        opts.on_tail("--dbname name", "MySQL DB name for OpenNebula", String) do |o|
+            options[:backend] = :mysql
+            options[:dbname]  = o
+        end
+
+    end
+end
+
+
+################################################################################
+# Helpers
+################################################################################
+
+def connection_params()
+    if( @ops[:backend] == nil )
+        read_onedconf()
+    else
+        @backend = @ops[:backend]
+        if( @backend == :sqlite )
+            @sqlite_file = @ops[:sqlite]
+
+        else
+            @server  = @ops[:server]
+            @port    = @ops[:port]
+            @user    = @ops[:user]
+            @passwd  = @ops[:passwd]
+            @db_name = @ops[:dbname]
+
+            # Check for errors:
+            error   = false
+            missing = ""
+
+            (error = true; missing = "--user"  )  if @user    == nil
+            (error = true; missing = "--dbname")  if @db_name == nil
+
+            if error
+                puts "MySQL option #{missing} is needed"
+                 exit -1
+             end
+
+            # Check for defaults:
+            @server = "localhost"   if @server  == nil
+            @port   = 0             if @port    == nil
+
+            if @passwd  == nil
+                # Hide input characters
+                `stty -echo`
+                print "MySQL Password: "
+                @passwd = STDIN.gets.strip
+                `stty echo`
+                puts ""
+            end
+
+        end
+    end
+end
+
+def read_onedconf()
+
+    config = Configuration.new("#{ETC_LOCATION}/oned.conf")
+
+    if config[:db] == nil
+        puts "No DB defined."
+        exit -1
+    end
+
+    if config[:db]["BACKEND"].upcase.include? "SQLITE"
+        @backend = :sqlite
+        @sqlite_file = "#{VAR_LOCATION}/one.db"
+
+    elsif config[:db]["BACKEND"].upcase.include? "MYSQL"
+        @backend = :mysql
+
+        @server  = config[:db]["SERVER"]
+        @port    = config[:db]["PORT"]
+        @user    = config[:db]["USER"]
+        @passwd  = config[:db]["PASSWD"]
+        @db_name = config[:db]["DB_NAME"]
+
+        # In OpenNebula 2.0 PORT wasn't present in oned.conf, set default
+        @port = "0" if @port == nil
+
+        # Check for errors:
+        error   = false
+        missing = ""
+
+        (error = true; missing = "SERVER" )  if @server  == nil
+        (error = true; missing = "USER"   )  if @user    == nil
+        (error = true; missing = "PASSWD" )  if @passwd  == nil
+        (error = true; missing = "DB_NAME")  if @db_name == nil
+
+        if error
+            puts "MySQL attribute #{missing} not found in " +
+                 "#{ETC_LOCATION}/oned.conf"
+
+             exit -1
+         end
+
+         # Clean leading and trailing quotes, if any
+         @server  = @server [1..-2] if @server [0] == ?"
+         @port    = @port   [1..-2] if @port   [0] == ?"
+         @user    = @user   [1..-2] if @user   [0] == ?"
+         @passwd  = @passwd [1..-2] if @passwd [0] == ?"
+         @db_name = @db_name[1..-2] if @db_name[0] == ?"
+
+    else
+        puts "Could not load DB configuration from #{ETC_LOCATION}/oned.conf"
+        exit -1
+    end
+end
+
+def get_bck_file()
+    bck_file = ""
+
+    if( @ops[:backup] != nil )
+        bck_file = @ops[:backup]
+    elsif @backend == :sqlite
+        bck_file = "#{VAR_LOCATION}/one.db.bck"
+    elsif @backend == :mysql
+        bck_file = "#{VAR_LOCATION}/mysql_#{@server}_#{@db_name}.sql"
+    end
+
+    return bck_file
+end
+
+def backup_db()
+    bck_file = get_bck_file()
+
+    if( !@ops[:force] && File.exists?(bck_file) )
+        puts "File #{bck_file} exists, backup aborted. Use -f to overwrite."
+        exit -1
+    end
+
+    case @backend
+    when :sqlite
+        if( ! File.exists?(@sqlite_file) )
+            puts "File #{@sqlite_file} doesn't exist, backup aborted."
+            exit -1
+        end
+
+        FileUtils.cp(@sqlite_file, "#{bck_file}")
+        puts "Sqlite database backup stored in #{bck_file}"
+        puts "Use 'onedb restore' or copy the file back to restore the DB."
+
+    when :mysql
+        cmd = "mysqldump -u #{@user} -p#{@passwd} -h #{@server} " +
+              "-P #{@port} #{@db_name} > #{bck_file}"
+
+        rc = system(cmd)
+
+        if( !rc )
+            puts "Unknown error running '#{cmd}'"
+            exit -1
+        end
+
+        puts "MySQL dump stored in #{bck_file}"
+        puts "Use 'onedb restore' or restore the DB using the mysql command:"
+        puts "mysql -u user -h server -P port db_name < backup_file"
+
+    else
+        puts "Unknown DB #{@backend}"
+        exit -1
+    end
+
+    puts ""
+end
+
+def connect_db()
+    case @backend
+    when :sqlite
+        if( ! File.exists?(@sqlite_file) )
+            puts "File #{@sqlite_file} doesn't exist."
+            exit -1
+        end
+        @db = Sequel.sqlite(@sqlite_file)
+
+    when :mysql
+        @db = Sequel.connect(
+            "mysql://#{@user}:#{@passwd}@#{@server}:#{@port}/#{@db_name}")
+
+    else
+        puts "Unknown DB #{@backend}"
+        exit -1
+    end
+end
+
+def read_db_version()
+    version   = 0
+    timestamp = 0
+    comment   = ""
+
+    @db.fetch("SELECT version, timestamp, comment FROM db_versioning " +
+              "WHERE oid=(SELECT MAX(oid) FROM db_versioning)") do |row|
+        version   = row[:version]
+        timestamp = row[:timestamp]
+        comment   = row[:comment]
+    end
+
+    return [version.to_i, timestamp, comment]
+
+rescue
+    # If the DB doesn't have db_versioning table, it means it is empty or a 2.x
+    # OpenNebula DB
+    begin
+        # User with ID 0 (oneadmin) always exists
+        @db.fetch("SELECT * FROM user_pool WHERE oid=0") do |row|
+        end
+    rescue
+        puts "Database schema does not look to be created by OpenNebula:"
+        puts "table user_pool is missing or empty."
+
+        exit -1
+    end
+
+    begin
+        # Table image_pool is present only in 2.X DBs
+        @db.fetch("SELECT * FROM image_pool") do |row|
+        end
+    rescue
+        puts "Database schema looks to be created by OpenNebula 1.X."
+        puts "This tool only works with databases created by 2.X versions."
+
+        exit -1
+    end
+
+    comment = "Could not read any previous db_versioning data, assuming it is "+
+              "an OpenNebula 2.0 or 2.2 DB."
+
+    return [0, 0, comment]
+end
+
+def one_not_running()
+    if File.exists?(LOCK_FILE)
+        puts "First stop OpenNebula. Lock file found: #{LOCK_FILE}"
+        exit -1
+    end
+end
+
+
+################################################################################
+################################################################################
+
+
+onedb_opts = OneDBParse.new([])
+onedb_opts.parse(ARGV)
+@ops = onedb_opts.options
+
+@verbose = @ops[:verbose]
+
+command = ARGV.shift
+
+case command
+when "upgrade"
+    # Check opennebula is not running
+    one_not_running()
+
+    # Get DB connection parameters, from oned.conf or command arguments
+    connection_params()
+
+    # Connect to DB
+    connect_db()
+
+    # Read DB's version
+    version, timestamp, comment = read_db_version()
+
+    if( @verbose )
+        puts "Version read:"
+        puts "#{version} : #{comment}"
+        puts ""
+    end
+
+    # Upgrade, using the scripts in $LIB_LOCATION/onedb/xx.rb
+
+    max_version = nil
+    if( ARGV[0] )
+        max_version = ARGV[0].to_i
+    end
+
+    migrator_version = version + 1
+    migrator = nil
+    file = "#{LIB_LOCATION}/onedb/#{migrator_version}.rb"
+
+    if( File.exists?(file) &&
+        (max_version == nil || migrator_version <= max_version) )
+
+        # At least one upgrade will be executed, make DB backup
+        backup_db()
+    end
+
+    while( File.exists?(file) &&
+           (max_version == nil || migrator_version <= max_version) )
+
+        puts "  > Running migrator #{file}" if @verbose
+
+        load(file)
+        migrator = Migrator.new(@db, @verbose)
+        result = migrator.up
+
+        if( !result )
+            puts "Error while upgrading from #{migrator_version-1} to #{migrator.db_version}"
+            return -1
+        end
+
+        puts "  > Done" if @verbose
+        puts "" if @verbose
+
+        migrator_version += 1
+        file = "#{LIB_LOCATION}/onedb/#{migrator_version}.rb"
+    end
+
+    # Modify db_versioning table
+    if( migrator != nil )
+        comment = "Database migrated from #{version} to #{migrator.db_version}"+
+                  " (#{migrator.one_version}) by onedb command."
+
+        max_oid = nil
+        @db.fetch("SELECT MAX(oid) FROM db_versioning") do |row|
+            max_oid = row[:"MAX(oid)"].to_i
+        end
+
+        max_oid = 0 if max_oid == nil
+
+        @db.run "INSERT INTO db_versioning (oid, version, timestamp, comment) "+
+                "VALUES ("                                                     +
+                    "#{max_oid+1}, "                                           +
+                    "'#{migrator.db_version}', "                               +
+                    "#{Time.new.to_i}, "                                       +
+                    "'#{comment}')"
+
+        puts comment
+    else
+        puts "Database already uses version #{version}"
+    end
+
+when "version"
+    connection_params()
+    connect_db()
+
+    version, timestamp, comment = read_db_version()
+
+    if(@verbose)
+        puts "Version:   #{version}"
+
+        time = version == 0 ? Time.now : Time.at(timestamp)
+        # TODO: UTC or Local time?
+        puts "Timestamp: #{time.getgm.strftime("%b %d, %Y %H:%M")}"
+
+        puts "Comment:   #{comment}"
+    else
+        puts version
+    end
+
+when "history"
+    connection_params()
+    connect_db()
+
+    begin
+        @db.fetch("SELECT version, timestamp, comment FROM db_versioning") do |row|
+            puts "Version:   #{row[:version]}"
+
+            time = version == 0 ? Time.now : Time.at(row[:timestamp])
+            # TODO: UTC or Local time?
+            puts "Timestamp: #{time.getgm.strftime("%b %d, %Y %H:%M")}"
+
+            puts "Comment:   #{row[:comment]}"
+
+            puts ""
+        end
+    rescue Exception => e
+        puts "No version records found. Error message:"
+        puts e.message
+    end
+
+when "backup"
+    if( ARGV[0] != nil )
+        @ops[:backup] = ARGV[0]
+    end
+
+    connection_params()
+    backup_db()
+
+when "restore"
+    if( ARGV[0] != nil )
+        @ops[:backup] = ARGV[0]
+    end
+
+    connection_params()
+
+    # Source sql dump file
+    bck_file = get_bck_file()
+
+    if( ! File.exists?(bck_file) )
+        puts "File #{bck_file} doesn't exist, backup restoration aborted."
+        exit -1
+    end
+
+    one_not_running()
+
+    case @backend
+    when :sqlite
+        if( !@ops[:force] && File.exists?(@sqlite_file) )
+            puts "File #{@sqlite_file} exists, use -f to overwrite."
+            exit -1
+        end
+
+        FileUtils.cp(bck_file, @sqlite_file)
+        puts "Sqlite database backup restored in #{@sqlite_file}"
+
+    when :mysql
+
+        connect_db()
+
+        # Check if target database exists
+        exists = false
+        begin
+            # User with ID 0 (oneadmin) always exists
+            @db.fetch("SELECT * FROM user_pool WHERE oid=0") do |row|
+            end
+            exists = true
+        rescue
+        end
+
+        if( !@ops[:force] && exists )
+            puts "MySQL database #{@db_name} at #{@server} exists, use -f to overwrite."
+            exit -1
+        end
+
+        mysql_cmd = "mysql -u #{@user} -p#{@passwd} -h #{@server} " +
+                    "-P #{@port} "
+
+        rc = system( mysql_cmd + "-e 'DROP DATABASE IF EXISTS #{@db_name};'")
+        if( !rc )
+            puts "Error dropping MySQL DB #{@db_name} at #{@server}."
+            exit -1
+        end
+
+        rc = system( mysql_cmd + "-e 'CREATE DATABASE IF NOT EXISTS #{@db_name};'")
+        if( !rc )
+            puts "Error creating MySQL DB #{@db_name} at #{@server}."
+            exit -1
+        end
+
+        rc = system( mysql_cmd + "#{@db_name} < #{bck_file}")
+        if( !rc )
+            puts "Error while restoring MySQL DB #{@db_name} at #{@server}."
+            exit -1
+        end
+
+        puts "MySQL DB #{@db_name} at #{@server} restored."
+
+    else
+        puts "Unknown DB #{@backend}"
+        exit -1
+    end
+
+else
+    onedb_opts.print_help
+
+    exit -1
+end
+
+
+exit 0

@@ -14,22 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-ONE_LOCATION = ENV["ONE_LOCATION"]
-
-if !ONE_LOCATION
-    LOG_LOCATION = "/var/log/one"
-    VAR_LOCATION = "/var/lib/one"
-    RUBY_LIB_LOCATION = "/usr/lib/one/ruby"
-else
-    VAR_LOCATION = ONE_LOCATION+"/var"
-    LOG_LOCATION = ONE_LOCATION+"/var"
-    RUBY_LIB_LOCATION = ONE_LOCATION+"/lib/ruby"
-end
-
-$: << RUBY_LIB_LOCATION
-$: << File.dirname(__FILE__)
-
-require 'models/OpenNebulaJSON'
+require 'OpenNebulaJSON'
 include OpenNebulaJSON
 
 class SunstoneServer
@@ -214,6 +199,69 @@ class SunstoneServer
             return [200, log]
         end
     end
+
+
+    ########################################################################
+    # VNC
+    ########################################################################
+    def startvnc(id, config)
+        resource = retrieve_resource("vm", id)
+        if OpenNebula.is_error?(resource)
+            return [404, resource.to_json]
+        end
+
+        if resource['LCM_STATE'] != "3"
+            error = OpenNebula::Error.new("VM is not running")
+            return [403, error.to_json]
+        end
+
+        if resource['TEMPLATE/GRAPHICS/TYPE'] != "vnc"
+            error = OpenNebula::Error.new("VM has no VNC configured")
+            return [403, error.to_json]
+        end
+
+        # The VM host and its VNC port
+        host = resource['HISTORY/HOSTNAME']
+        vnc_port = resource['TEMPLATE/GRAPHICS/PORT']
+
+        # The noVNC proxy_port
+        proxy_port = config[:vnc_proxy_base_port].to_i + vnc_port.to_i
+
+        begin
+            novnc_cmd = "#{config[:novnc_path]}/utils/launch.sh"
+            pipe = IO.popen("#{novnc_cmd} --listen #{proxy_port} \
+                                          --vnc #{host}:#{vnc_port}")
+        rescue Exception => e
+            error = Error.new(e.message)
+            return [500, error.to_json]
+        end
+
+        vnc_pw = resource['TEMPLATE/GRAPHICS/PASSWD']
+
+        info = {:pipe => pipe, :port => proxy_port, :password => vnc_pw}
+        return [200, info]
+    end
+
+    ############################################################################
+    #
+    ############################################################################
+    def stopvnc(id,pipe)
+        resource = retrieve_resource("vm", id)
+        if OpenNebula.is_error?(resource)
+            return [404, resource.to_json]
+        end
+
+        begin
+            Process.kill('KILL',pipe.pid)
+            pipe.close
+        rescue Exception => e
+            error = Error.new(e.message)
+            return [500, error.to_json]
+        end
+
+        return [200, nil]
+    end
+
 
     private
 

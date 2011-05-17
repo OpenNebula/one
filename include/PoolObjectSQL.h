@@ -106,6 +106,14 @@ public:
 
     /**
      * Function to print the object into a string in XML format
+     * base64 encoded
+     *  @param xml the resulting XML string
+     *  @return a reference to the generated string
+     */
+    virtual string& to_xml64(string &xml64);
+
+    /**
+     * Function to print the object into a string in XML format
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
@@ -189,11 +197,10 @@ public:
         const string& name,
         const string& value)
     {
-        SingleAttribute * sattr;
+        SingleAttribute * sattr = new SingleAttribute(name,value);
 
-        obj_template->erase(name);
+        obj_template->erase(sattr->name());
 
-        sattr = new SingleAttribute(name,value);
         obj_template->set(sattr);
 
         return 0;

@@ -37,7 +37,9 @@
 #include "AuthManager.h"
 #include "ImageManager.h"
 
-class Nebula
+#include "Callbackable.h"
+
+class Nebula : public Callbackable
 {
 public:
 
@@ -220,6 +222,11 @@ public:
     static string version()
     {
         return "OpenNebula 2.3.0";
+    };
+
+    static int db_version()
+    {
+        return 1;
     };
 
     void start();
@@ -424,6 +431,28 @@ private:
     // ---------------------------------------------------------------
 
     friend void nebula_signal_handler (int sig);
+
+    /**
+     *  Bootstraps the database control tables
+     */
+    void bootstrap();
+
+    /**
+     *  Callback function to TODO
+     *    @param _loaded_db_version TODO
+     *    @param num the number of columns read from the DB
+     *    @param names the column names
+     *    @param vaues the column values
+     *    @return 0 on success
+     */
+    int select_cb(void *_loaded_db_version, int num, char **values,
+                  char **names);
+
+    /*
+     *  TODO
+     *    @return 0 ok, -1 version mismatch, -2 needs bootstrap
+     */
+    int check_db_version();
 };
 
 #endif /*NEBULA_H_*/

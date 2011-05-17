@@ -17,10 +17,10 @@ Import('env')
 
 env.Prepend(LIBS=[
     'nebula_template',
+    'nebula_authm',
     'nebula_common',
     'nebula_core',
     'nebula_mad',
-    'nebula_authm',
     'nebula_sql',
     'nebula_log',
     'crypto'

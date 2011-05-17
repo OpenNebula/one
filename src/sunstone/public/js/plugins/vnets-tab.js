@@ -308,7 +308,8 @@ function vNetworkInfoListener(){
 
 //updates the vnet select different options
 function updateNetworkSelect(){
-	vnetworks_select= makeSelectOptions(dataTable_vNetworks,1,3,6,"no")
+    vnetworks_select= 
+        makeSelectOptions(dataTable_vNetworks,1,3,6,"no",2);
 
 	//update static selectors:
     //in the VM creation dialog
@@ -380,7 +381,7 @@ function updateVNetworkInfo(request,vn){
 			<thead>\
 				<tr><th colspan="2">Leases information</th></tr>\
 			</thead>'+
-			prettyPrintJSON(vn_info.LEASES)+
+			prettyPrintJSON(vn_info.LEASES.LEASE)+
 		'</table>';
     }
     

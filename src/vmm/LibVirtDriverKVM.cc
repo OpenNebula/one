@@ -53,7 +53,9 @@ int LibVirtDriver::deployment_description_kvm(
     string  bus        = "";
     string  ro         = "";
     string  driver     = "";
-    string  default_driver = "";
+    string  cache      = "";
+    string  default_driver       = "";
+    string  default_driver_cache = "";
     bool    readonly;
 
     const VectorAttribute * nic;
@@ -62,6 +64,9 @@ int LibVirtDriver::deployment_description_kvm(
     string  bridge     = "";
     string  script     = "";
     string  model      = "";
+    string  ip         = "";
+    string  filter     = "";
+    string  default_filter = "";
 
     const VectorAttribute * graphics;
 
@@ -251,9 +256,8 @@ int LibVirtDriver::deployment_description_kvm(
     attrs.clear();
 
     // ------------------------------------------------------------------------
-    // Disks
+    // DEVICES SECTION
     // ------------------------------------------------------------------------
-
     file << "\t<devices>" << endl;
 
     if (emulator == "kvm")
@@ -268,12 +272,24 @@ int LibVirtDriver::deployment_description_kvm(
         file << "\t\t<emulator>" << emulator_path << "</emulator>" << endl;
     }
 
+    // ------------------------------------------------------------------------
+    // Disks
+    // ------------------------------------------------------------------------
     get_default("DISK","DRIVER",default_driver);
 
     if (default_driver.empty())
     {
         default_driver = "raw";
     }
+
+    get_default("DISK","CACHE",default_driver_cache);
+
+    if (default_driver_cache.empty())
+    {
+       default_driver_cache = "default";
+    }
+
+    // ------------------------------------------------------------------------
 
     num = vm->get_template_attribute("DISK",attrs);
 
@@ -291,6 +307,7 @@ int LibVirtDriver::deployment_description_kvm(
         ro     = disk->vector_value("READONLY");
         bus    = disk->vector_value("BUS");
         driver = disk->vector_value("DRIVER");
+        cache  = disk->vector_value("CACHE");
 
         if (target.empty())
         {
@@ -363,11 +380,22 @@ int LibVirtDriver::deployment_description_kvm(
 
         if ( !driver.empty() )
         {
-            file << driver << "'/>" << endl;
+            file << driver;
         }
         else
         {
-            file << default_driver << "'/>" << endl;
+            file << default_driver;
+        }
+
+        file << "' cache='";
+
+        if ( !cache.empty() )
+        {
+            file << cache << "'/>" << endl;
+        }
+        else
+        {
+            file << default_driver_cache << "'/>" << endl;
         }
 
         file << "\t\t</disk>" << endl;
@@ -419,6 +447,8 @@ int LibVirtDriver::deployment_description_kvm(
     // Network interfaces
     // ------------------------------------------------------------------------
 
+    get_default("NIC","FILTER",default_filter);
+
     num = vm->get_template_attribute("NIC",attrs);
 
     for(int i=0; i<num; i++)
@@ -435,6 +465,8 @@ int LibVirtDriver::deployment_description_kvm(
         target = nic->vector_value("TARGET");
         script = nic->vector_value("SCRIPT");
         model  = nic->vector_value("MODEL");
+        ip     = nic->vector_value("IP");
+        filter = nic->vector_value("FILTER");
 
         if ( bridge.empty() )
         {
@@ -466,8 +498,29 @@ int LibVirtDriver::deployment_description_kvm(
             file << "\t\t\t<model type='" << model << "'/>" << endl;
         }
 
-        file << "\t\t</interface>" << endl;
+        if (!ip.empty() )
+        {
+            string * the_filter = 0;
 
+            if (!filter.empty())
+            {
+                the_filter = &filter;
+            } 
+            else if (!default_filter.empty())
+            {
+                the_filter = &default_filter;
+            }
+
+            if ( the_filter != 0 )
+            {
+                file <<"\t\t\t<filterref filter='"<< *the_filter <<"'>"<<endl;
+                file << "\t\t\t\t<parameter name='IP' value='" 
+                     << ip << "'/>" << endl;
+                file << "\t\t\t</filterref>" << endl; 
+            }
+        }
+
+        file << "\t\t</interface>" << endl;
     }
 
     attrs.clear();

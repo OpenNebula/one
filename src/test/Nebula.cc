@@ -144,7 +144,7 @@ void Nebula::start()
     log_location     = nebula_location + "var/";
     var_location     = nebula_location + "var/";
     hook_location    = nebula_location + "share/hooks/";
-    remotes_location = nebula_location + "lib/remotes/";
+    remotes_location = nebula_location + "var/remotes/";
 
     if ( nebula_configuration != 0)
     {
@@ -183,7 +183,6 @@ void Nebula::start()
     {
         string  mac_prefix = "00:00";
         int     size = 1;
-        string  repository_path;
         string  default_image_type;
         string  default_device_prefix;
 
@@ -210,7 +209,6 @@ void Nebula::start()
         if (tester->need_image_pool)
         {
             ipool  = tester->create_ipool(db,
-                                          repository_path,
                                           default_image_type,
                                           default_device_prefix);
         }

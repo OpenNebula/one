@@ -814,12 +814,6 @@ when "saveas"
         puts result.message
         exit -1
     end
-        
-    if vm["TEMPLATE/DISK[DISK_ID=\"#{disk_id}\"]/SAVE_AS"]
-        puts "Error: The disk #{disk_id} is already" <<
-             " suppossed to be saved"
-        exit -1
-    end
 
     result = vm.save_as(disk_id.to_i, image_name)
     if is_successful?(result)

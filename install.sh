@@ -31,8 +31,8 @@ usage() {
  echo "Usage: install.sh [-u install_user] [-g install_group] [-k keep conf]"
  echo "                  [-d ONE_LOCATION] [-c occi|ec2] [-r] [-h]"
  echo
- echo "-u: user that will run opennebula, defults to user executing install.sh"
- echo "-g: group of the user that will run opennebula, defults to user"
+ echo "-u: user that will run opennebula, defaults to user executing install.sh"
+ echo "-g: group of the user that will run opennebula, defaults to user"
  echo "    executing install.sh"
  echo "-k: keep configuration files of existing OpenNebula installation, useful"
  echo "    when upgrading. This flag should not be set when installing"
@@ -98,7 +98,7 @@ if [ -z "$ROOT" ] ; then
     LOCK_LOCATION="/var/lock/one"
     INCLUDE_LOCATION="/usr/include"
     SHARE_LOCATION="/usr/share/one"
-    MAN_LOCATION="/usr/share/man/man8"
+    MAN_LOCATION="/usr/share/man/man1"
 
     if [ "$CLIENT" = "yes" ]; then
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION"
@@ -133,7 +133,7 @@ else
     IMAGES_LOCATION="$VAR_LOCATION/images"
     INCLUDE_LOCATION="$ROOT/include"
     SHARE_LOCATION="$ROOT/share"
-    MAN_LOCATION="$ROOT/share/man/man8"
+    MAN_LOCATION="$ROOT/share/man/man1"
 
     if [ "$CLIENT" = "yes" ]; then
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION"
@@ -181,21 +181,13 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/ruby/cloud/econe \
           $LIB_LOCATION/ruby/cloud/econe/views \
           $LIB_LOCATION/ruby/cloud/occi \
+          $LIB_LOCATION/onedb \
           $LIB_LOCATION/tm_commands \
           $LIB_LOCATION/tm_commands/nfs \
           $LIB_LOCATION/tm_commands/ssh \
           $LIB_LOCATION/tm_commands/dummy \
           $LIB_LOCATION/tm_commands/lvm \
           $LIB_LOCATION/mads \
-          $LIB_LOCATION/remotes \
-          $LIB_LOCATION/remotes/im \
-          $LIB_LOCATION/remotes/im/kvm.d \
-          $LIB_LOCATION/remotes/im/xen.d \
-          $LIB_LOCATION/remotes/im/ganglia.d \
-          $LIB_LOCATION/remotes/vmm/xen \
-          $LIB_LOCATION/remotes/vmm/kvm \
-          $LIB_LOCATION/remotes/image \
-          $LIB_LOCATION/remotes/image/fs \
           $LIB_LOCATION/sh"
 
 VAR_DIRS="$VAR_LOCATION/remotes \
@@ -258,9 +250,11 @@ INSTALL_FILES=(
     LIB_FILES:$LIB_LOCATION
     RUBY_LIB_FILES:$LIB_LOCATION/ruby
     RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/OpenNebula
+    MAD_RUBY_LIB_FILES:$LIB_LOCATION/ruby
+    MAD_RUBY_LIB_FILES:$VAR_LOCATION/remotes
     MAD_SH_LIB_FILES:$LIB_LOCATION/sh
-    MAD_SH_LIB_FILES:$LIB_LOCATION/remotes
     MAD_SH_LIB_FILES:$VAR_LOCATION/remotes
+    ONEDB_MIGRATOR_FILES:$LIB_LOCATION/onedb
     MADS_LIB_FILES:$LIB_LOCATION/mads
     IM_PROBES_FILES:$VAR_LOCATION/remotes/im
     IM_PROBES_KVM_FILES:$VAR_LOCATION/remotes/im/kvm.d
@@ -272,23 +266,13 @@ INSTALL_FILES=(
     VMM_SSH_XEN_KVM_POLL:$VAR_LOCATION/remotes/vmm/xen/poll
     VMM_SSH_GANGLIA_POLL:$VAR_LOCATION/remotes/vmm/kvm/poll_local
     VMM_SSH_GANGLIA_POLL:$VAR_LOCATION/remotes/vmm/xen/poll_local
-    IM_PROBES_FILES:$LIB_LOCATION/remotes/im
-    IM_PROBES_KVM_FILES:$LIB_LOCATION/remotes/im/kvm.d
-    IM_PROBES_XEN_FILES:$LIB_LOCATION/remotes/im/xen.d
-    IM_PROBES_GANGLIA_FILES:$LIB_LOCATION/remotes/im/ganglia.d
-    VMM_SSH_KVM_SCRIPTS:$LIB_LOCATION/remotes/vmm/kvm
-    VMM_SSH_XEN_SCRIPTS:$LIB_LOCATION/remotes/vmm/xen
-    VMM_SSH_XEN_KVM_POLL:$LIB_LOCATION/remotes/vmm/kvm/poll
-    VMM_SSH_XEN_KVM_POLL:$LIB_LOCATION/remotes/vmm/xen/poll
-    VMM_SSH_GANGLIA_POLL:$LIB_LOCATION/remotes/vmm/kvm/poll_local
-    VMM_SSH_GANGLIA_POLL:$LIB_LOCATION/remotes/vmm/xen/poll_local
     NFS_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/nfs
     SSH_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/ssh
     DUMMY_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/dummy
     LVM_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/lvm
-    IMAGE_DRIVER_FS_SCRIPTS:$LIB_LOCATION/remotes/image/fs
     IMAGE_DRIVER_FS_SCRIPTS:$VAR_LOCATION/remotes/image/fs
     EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples
+    INSTALL_NOVNC_SHARE_FILE:$SHARE_LOCATION
     TM_EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples/tm
     HOOK_SHARE_FILES:$SHARE_LOCATION/hooks
     COMMON_CLOUD_LIB_FILES:$LIB_LOCATION/ruby/cloud
@@ -350,6 +334,7 @@ INSTALL_ETC_FILES=(
     ECO_ETC_TEMPLATE_FILES:$ETC_LOCATION/ec2query_templates
     OCCI_ETC_FILES:$ETC_LOCATION
     OCCI_ETC_TEMPLATE_FILES:$ETC_LOCATION/occi_templates
+    SUNSTONE_ETC_FILES:$ETC_LOCATION
 )
 
 #-------------------------------------------------------------------------------
@@ -365,6 +350,7 @@ BIN_FILES="src/nebula/oned \
            src/cli/oneimage \
            src/cli/onecluster \
            src/cli/onetemplate \
+           src/cli/onedb \
            share/scripts/one \
            src/authm_mad/oneauth"
 
@@ -415,11 +401,12 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/OpenNebula/Host.rb \
 
 
 #-----------------------------------------------------------------------------
-# MAD ShellScript library files, to be installed under $LIB_LOCATION/sh
+# MAD Script library files, to be installed under $LIB_LOCATION/<script lang>
 # and remotes directory
 #-----------------------------------------------------------------------------
 
 MAD_SH_LIB_FILES="src/mad/sh/scripts_common.sh"
+MAD_RUBY_LIB_FILES="src/mad/ruby/scripts_common.rb"
 
 #-------------------------------------------------------------------------------
 # Driver executable files, to be installed under $LIB_LOCATION/mads
@@ -543,7 +530,13 @@ LVM_TM_COMMANDS_LIB_FILES="src/tm_mad/lvm/tm_clone.sh \
 IMAGE_DRIVER_FS_SCRIPTS="src/image_mad/remotes/fs/cp \
                          src/image_mad/remotes/fs/mkfs \
                          src/image_mad/remotes/fs/mv \
+                         src/image_mad/remotes/fs/fsrc \
                          src/image_mad/remotes/fs/rm"
+
+#-------------------------------------------------------------------------------
+# Migration scripts for onedb command, to be installed under $LIB_LOCATION
+#-------------------------------------------------------------------------------
+ONEDB_MIGRATOR_FILES="src/onedb/1.rb"
 
 #-------------------------------------------------------------------------------
 # Configuration files for OpenNebula, to be installed under $ETC_LOCATION
@@ -637,6 +630,8 @@ HOOK_SHARE_FILES="share/hooks/ebtables-xen \
                   share/hooks/ebtables-flush \
                   share/hooks/host_error.rb \
                   share/hooks/image.rb"
+
+INSTALL_NOVNC_SHARE_FILE="share/install_novnc.sh"
 
 #-------------------------------------------------------------------------------
 # Common Cloud Files
@@ -743,6 +738,8 @@ SUNSTONE_FILES="src/sunstone/config.ru \
 
 SUNSTONE_BIN_FILES="src/sunstone/bin/sunstone-server"
 
+SUNSTONE_ETC_FILES="src/sunstone/etc/sunstone-server.conf"
+
 SUNSTONE_MODELS_FILES="src/sunstone/models/OpenNebulaJSON.rb \
                        src/sunstone/models/SunstoneServer.rb"
 
@@ -753,6 +750,7 @@ SUNSTONE_MODELS_JSON_FILES="src/sunstone/models/OpenNebulaJSON/ClusterJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/PoolJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/UserJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/VirtualMachineJSON.rb \
+                    src/sunstone/models/OpenNebulaJSON/TemplateJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/VirtualNetworkJSON.rb"
 
 SUNSTONE_TEMPLATE_FILES="src/sunstone/templates/index.html \
@@ -768,6 +766,7 @@ SUNSTONE_PUBLIC_JS_PLUGINS_FILES="\
                             src/sunstone/public/js/plugins/dashboard-tab.js \
                             src/sunstone/public/js/plugins/hosts-tab.js \
                             src/sunstone/public/js/plugins/images-tab.js \
+                            src/sunstone/public/js/plugins/templates-tab.js \
                             src/sunstone/public/js/plugins/users-tab.js \
                             src/sunstone/public/js/plugins/vms-tab.js \
                             src/sunstone/public/js/plugins/vnets-tab.js"
@@ -825,7 +824,9 @@ SUNSTONE_PUBLIC_IMAGES_FILES="src/sunstone/public/images/ajax-loader.gif \
                         src/sunstone/public/images/opennebula-sunstone-small.png \
                         src/sunstone/public/images/panel.png \
                         src/sunstone/public/images/pbar.gif \
-                        src/sunstone/public/images/Refresh-icon.png"
+                        src/sunstone/public/images/Refresh-icon.png \
+                        src/sunstone/public/images/vnc_off.png \
+                        src/sunstone/public/images/vnc_on.png"
 
 SUNSTONE_RUBY_LIB_FILES="src/mad/ruby/CommandManager.rb \
                          src/oca/ruby/OpenNebula.rb"
@@ -834,23 +835,24 @@ SUNSTONE_RUBY_LIB_FILES="src/mad/ruby/CommandManager.rb \
 # MAN files
 #-----------------------------------------------------------------------------
 
-MAN_FILES="share/man/oneauth.8.gz \
-        share/man/onecluster.8.gz \
-        share/man/onehost.8.gz \
-        share/man/oneimage.8.gz \
-        share/man/oneuser.8.gz \
-        share/man/onevm.8.gz \
-        share/man/onevnet.8.gz \
-        share/man/onetemplate.8.gz \
-        share/man/econe-describe-images.8.gz \
-        share/man/econe-describe-instances.8.gz \
-        share/man/econe-register.8.gz \
-        share/man/econe-run-instances.8.gz \
-        share/man/econe-terminate-instances.8.gz \
-        share/man/econe-upload.8.gz \
-        share/man/occi-compute.8.gz \
-        share/man/occi-network.8.gz \
-        share/man/occi-storage.8.gz"
+MAN_FILES="share/man/oneauth.1.gz \
+        share/man/onecluster.1.gz \
+        share/man/onehost.1.gz \
+        share/man/oneimage.1.gz \
+        share/man/oneuser.1.gz \
+        share/man/onevm.1.gz \
+        share/man/onevnet.1.gz \
+        share/man/onetemplate.1.gz \
+        share/man/onedb.1.gz \
+        share/man/econe-describe-images.1.gz \
+        share/man/econe-describe-instances.1.gz \
+        share/man/econe-register.1.gz \
+        share/man/econe-run-instances.1.gz \
+        share/man/econe-terminate-instances.1.gz \
+        share/man/econe-upload.1.gz \
+        share/man/occi-compute.1.gz \
+        share/man/occi-network.1.gz \
+        share/man/occi-storage.1.gz"
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------

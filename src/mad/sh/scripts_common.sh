@@ -32,6 +32,7 @@ SED=/bin/sed
 SSH=/usr/bin/ssh
 SUDO=/usr/bin/sudo
 WGET=/usr/bin/wget
+READLINK=/bin/readlink
 
 # Used for log messages
 SCRIPT_NAME=`basename $0`
@@ -94,7 +95,7 @@ function exec_and_log
     if [ "x$code" != "x0" ]; then
         log_error "Command \"$1\" failed."
         log_error "$output"
-        if [ -n "$message" ]; then
+        if [ -z "$message" ]; then
             error_message "$output"
         else
             error_message "$message"

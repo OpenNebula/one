@@ -40,7 +40,7 @@ function pretty_time(time_seconds)
     var hour = pad(d.getHours(),2);
     var mins = pad(d.getMinutes(),2);
     var day = pad(d.getDate(),2);
-    var month = pad(d.getMonth(),2);
+    var month = pad(d.getMonth()+1,2); //getMonths returns 0-11
     var year = d.getFullYear();
 
     return hour + ":" + mins +":" + secs + "&nbsp;" + month + "/" + day + "/" + year;
@@ -187,20 +187,87 @@ function notifyError(msg){
     $.jGrowl(msg, {theme: "jGrowl-notify-error", sticky: true });
 }
 
+function notifyMessage(msg){
+    msg = "<h1>Info</h1>" + msg;
+
+    $.jGrowl(msg, {theme: "jGrowl-notify-submit"});
+}
+
 // Returns an HTML string with the json keys and values in the form
 // key: value<br />
-// It recursively explores objects, and flattens their contents in
-// the result.
-function prettyPrintJSON(template_json){
-	var str = ""
-	for (field in template_json) {
-		if (typeof template_json[field] == 'object'){
-			str += prettyPrintJSON(template_json[field]) + '<tr><td></td><td></td></tr>';
-		} else {
-			str += '<tr><td class="key_td">'+field+'</td><td class="value_td">'+template_json[field]+'</td></tr>';
-		};
-	};
-	return str;
+// It recursively explores objects
+function prettyPrintJSON(template_json,padding,weight, border_bottom,padding_top_bottom){
+    var str = ""
+    if (!template_json){ return "Not defined";}
+    if (!padding) {padding=0};
+    if (!weight) {weight="bold";}
+    if (!border_bottom) {border_bottom = "1px solid #CCCCCC";}
+    if (!padding_top_bottom) {padding_top_bottom=6;}
+    var field = null;
+
+    if (template_json.constructor == Array){
+        for (field = 0; field < template_json.length; ++field){
+            str += prettyPrintRowJSON(field,template_json[field],padding,weight, border_bottom,padding_top_bottom);
+        }
+    } else {
+        for (field in template_json) {
+            str += prettyPrintRowJSON(field,template_json[field],padding,weight, border_bottom,padding_top_bottom);
+        }
+    }
+    return str;
+}
+
+function prettyPrintRowJSON(field,value,padding,weight, border_bottom,padding_top_bottom){
+    var str="";
+
+    if (typeof value == 'object'){
+        //name of field row
+        str += '<tr>\
+            <td class="key_td" style=\
+                "padding-left:'+padding+'px;\
+                font-weight:'+weight+';\
+                border-bottom:'+border_bottom+';\
+                padding-top:'+padding_top_bottom+'px;\
+                padding-bottom:'+padding_top_bottom+'px;">'
+                +field+
+            '</td>\
+            <td class="value_td" style=\
+                "border-bottom:'+border_bottom+';\
+                padding-top:'+padding_top_bottom+'px;\
+                padding-bottom:'+padding_top_bottom+'px">\
+            </td>\
+            </tr>';
+        //attributes rows
+        //empty row - prettyprint - empty row
+        str += '<tr>\
+            <td class="key_td" style="border-bottom:0"></td>\
+            <td class="value_td" style="border-bottom:0"></td>\
+            </tr>' +
+            prettyPrintJSON(value,padding+25,"normal","0",1) +
+            '<tr>\
+                <td class="key_td"></td>\
+                <td class="value_td"></td>\
+            </tr>';
+        } else {
+        str += '<tr>\
+            <td class="key_td" style="\
+                padding-left:'+padding+'px;\
+                font-weight:'+weight+';\
+                border-bottom:'+border_bottom+';\
+                padding-top:'+padding_top_bottom+'px;\
+                padding-bottom:'+padding_top_bottom+'px">'+
+                field+
+            '</td>\
+            <td class="value_td" style="\
+                border-bottom:'+border_bottom+';\
+                padding-top:'+padding_top_bottom+'px;\
+                padding-bottom:'+padding_top_bottom+'px">'+
+                value+
+            '</td>\
+        </tr>';
+    };
+
+    return str;
 }
 
 //Add a listener to the check-all box of a datatable, enabling it to
@@ -285,7 +352,7 @@ function onError(request,error_json) {
         var value;
         rows = ["method","action","object","id","reason"];
         message = "";
-        for (i in rows){
+        for (i = 0; i<rows.length; i++){
             key = rows[i];
             value = eval(key);
             if (value)
@@ -313,7 +380,7 @@ function waitingNodes(dataTable){
 //not defined then it returns "uid UID".
 //TODO not very nice to hardcode a dataTable here...
 function getUserName(uid){
-    var user = "uid "+uid;
+    var user = uid;
     if (typeof(dataTable_users) == "undefined") {
         return user;
         } 
@@ -382,7 +449,11 @@ function getSelectedNodes(dataTable){
 
 //returns a HTML string with a select input code generated from
 //a dataTable
-function makeSelectOptions(dataTable,id_col,name_col,status_col,status_bad){
+function makeSelectOptions(dataTable,
+                            id_col,name_col,
+                            status_col,
+                            status_bad,
+                            user_col){
     var nodes = dataTable.fnGetData();
     var select = "<option value=\"\">Please select</option>";
     var array;
@@ -390,11 +461,21 @@ function makeSelectOptions(dataTable,id_col,name_col,status_col,status_bad){
         var id = this[id_col];
         var name = this[name_col];
         var status = this[status_col];
-        if (status != status_bad){
+        var user = user_col > 0 ? this[user_col] : false;
+        var isMine = user ? (username == user) || (uid == user) : true;
+        
+        
+        if ((status != status_bad) || isMine ){
             select +='<option value="'+id+'">'+name+'</option>';
         }
     });
     return select;
+}
+
+//Escape " in a string and return it
+function escapeDoubleQuotes(string){
+    string = string.replace(/\\"/g,'"');
+    return string.replace(/"/g,'\\"');
 }
 
 //functions that used as true and false conditions for testing mainly

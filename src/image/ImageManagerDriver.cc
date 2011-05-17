@@ -27,12 +27,11 @@
 /* ************************************************************************** */
 
 void ImageManagerDriver::cp(int           oid, 
-                            const string& source, 
-                            const string& destination) const
+                            const string& source) const
 {
     ostringstream os;
 
-    os << "CP " << oid << " " << source << " " << destination << endl;
+    os << "CP " << oid << " " << source << endl;
 
     write(os);
 }
@@ -53,14 +52,12 @@ void ImageManagerDriver::mv(int           oid,
 /* -------------------------------------------------------------------------- */
 
 void ImageManagerDriver::mkfs(int           oid, 
-                              const string& destination, 
                               const string& fs,
                               const string& size_mb) const
 {
     ostringstream os;
 
-    os << "MKFS " << oid << " " << destination << " " << 
-                     fs << " " << size_mb << endl;
+    os << "MKFS " << oid << " " << fs << " " << size_mb << endl;
     write(os);
 }
 
@@ -146,7 +143,21 @@ void ImageManagerDriver::protocol(
     {
         if ( result == "SUCCESS" )
         {
+            string source;
+
+            if ( is.good() )
+            {
+                is >> source >> ws;
+            }
+            
+            if ( is.fail() )
+            {
+                goto error_cp;
+            }
+
+            image->set_source(source);
             image->set_state(Image::READY);
+
             ipool->update(image);
 
             NebulaLog::log("ImM", Log::INFO, "Image copied and ready to use.");
@@ -160,6 +171,23 @@ void ImageManagerDriver::protocol(
     {
         if ( result == "SUCCESS" )
         {
+            if (image->get_source() == "-")
+            {
+                string source;
+
+                if ( is.good() )
+                {
+                    is >> source >> ws;
+                }
+            
+                if ( is.fail() )
+                {
+                    goto error_mv;
+                }
+
+                image->set_source(source);
+            }
+
             image->set_state(Image::READY);
             ipool->update(image);
 
@@ -174,7 +202,21 @@ void ImageManagerDriver::protocol(
     {
         if ( result == "SUCCESS" )
         {
+            string source;
+
+            if ( is.good() )
+            {
+                is >> source >> ws;
+            }
+        
+            if ( is.fail() )
+            {
+                goto error_mkfs;
+            }
+
+            image->set_source(source);
             image->set_state(Image::READY);
+
             ipool->update(image);
 
             NebulaLog::log("ImM", Log::INFO, "Image created and ready to use");

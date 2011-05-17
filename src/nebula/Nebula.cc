@@ -208,7 +208,7 @@ void Nebula::start()
         {
             ostringstream   oss;
 
-            db = new MySqlDB(server,port,user,passwd,0);
+            db = new MySqlDB(server,port,user,passwd,db_name);
 
             oss << "CREATE DATABASE IF NOT EXISTS " << db_name;
             rc = db->exec(oss);
@@ -227,15 +227,27 @@ void Nebula::start()
             }
         }
 
-        NebulaLog::log("ONE",Log::INFO,"Bootstraping OpenNebula database.");
+        NebulaLog::log("ONE",Log::INFO,"Checking database version.");
+        rc = check_db_version();
 
-        VirtualMachinePool::bootstrap(db);
-        HostPool::bootstrap(db);
-        VirtualNetworkPool::bootstrap(db);
-        UserPool::bootstrap(db);
-        ImagePool::bootstrap(db);
-        ClusterPool::bootstrap(db);
-        VMTemplatePool::bootstrap(db);
+        if( rc == -1 )
+        {
+            throw runtime_error("Database version mismatch.");
+        }
+
+        if( rc == -2 )
+        {
+            NebulaLog::log("ONE",Log::INFO,"Bootstraping OpenNebula database.");
+
+            bootstrap();
+            VirtualMachinePool::bootstrap(db);
+            HostPool::bootstrap(db);
+            VirtualNetworkPool::bootstrap(db);
+            UserPool::bootstrap(db);
+            ImagePool::bootstrap(db);
+            ClusterPool::bootstrap(db);
+            VMTemplatePool::bootstrap(db);
+        }
     }
     catch (exception&)
     {
@@ -246,7 +258,6 @@ void Nebula::start()
     {
         string  mac_prefix;
         int     size;
-        string  repository_path;
         string  default_image_type;
         string  default_device_prefix;
 
@@ -266,13 +277,11 @@ void Nebula::start()
 
         upool  = new UserPool(db);
 
-        nebula_configuration->get("IMAGE_REPOSITORY_PATH", repository_path);
         nebula_configuration->get("DEFAULT_IMAGE_TYPE", default_image_type);
         nebula_configuration->get("DEFAULT_DEVICE_PREFIX",
                                   default_device_prefix);
 
         ipool  = new ImagePool(db,
-                               repository_path,
                                default_image_type,
                                default_device_prefix);
 
@@ -597,3 +606,99 @@ void Nebula::start()
 
     NebulaLog::log("ONE", Log::INFO, "All modules finalized, exiting.\n");
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void Nebula::bootstrap()
+{
+    ostringstream   oss;
+
+    oss <<  "CREATE TABLE pool_control (tablename VARCHAR(32) PRIMARY KEY, "
+            "last_oid BIGINT UNSIGNED)";
+    db->exec(oss);
+
+    oss.str("");
+    oss <<  "CREATE TABLE db_versioning (oid INTEGER PRIMARY KEY, "
+            "version INTEGER, timestamp INTEGER, comment VARCHAR(256))";
+
+    db->exec(oss);
+
+    oss.str("");
+    oss << "INSERT INTO db_versioning (oid, version, timestamp, comment) "
+        << "VALUES (0, " << db_version() << ", " << time(0)
+        << ", '" << version() << " daemon bootstrap')";
+
+    db->exec(oss);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int Nebula::check_db_version()
+{
+    int             rc;
+    ostringstream   oss;
+
+
+    int loaded_db_version = 0;
+
+    // Try to read latest version
+    set_callback( static_cast<Callbackable::Callback>(&Nebula::select_cb),
+                  static_cast<void *>(&loaded_db_version) );
+
+    oss << "SELECT version FROM db_versioning "
+        << "WHERE oid=(SELECT MAX(oid) FROM db_versioning)";
+
+    db->exec(oss, this);
+
+    oss.str("");
+    unset_callback();
+
+    if( loaded_db_version == 0 )
+    {
+        // Table user_pool is present for all OpenNebula versions, and it
+        // always contains at least the oneadmin user.
+        oss << "SELECT MAX(oid) FROM user_pool";
+        rc = db->exec(oss);
+
+        oss.str("");
+
+        if( rc != 0 )   // Database needs bootstrap
+        {
+            return -2;
+        }
+    }
+
+    if( db_version() != loaded_db_version )
+    {
+        oss << "Database version mismatch. "
+            << "Installed " << version() << " uses DB version '" << db_version()
+            << "', and existing DB version is '"
+            << loaded_db_version << "'.";
+
+        NebulaLog::log("ONE",Log::ERROR,oss);
+        return -1;
+    }
+
+    return 0;
+}
+
+int Nebula::select_cb(void *_loaded_db_version, int num, char **values,
+                      char **names)
+{
+    istringstream   iss;
+    int *           loaded_db_version;
+
+    loaded_db_version = static_cast<int *>(_loaded_db_version);
+
+    *loaded_db_version = 0;
+
+    if ( (values[0]) && (num == 1) )
+    {
+        iss.str(values[0]);
+        iss >> *loaded_db_version;
+    }
+
+    return 0;
+};

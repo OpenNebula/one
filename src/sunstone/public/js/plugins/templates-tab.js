@@ -147,6 +147,34 @@ var create_template_tmpl = '<div id="template_create_tabs">\
 			  </div>\
 \
 \
+            <!-- FEATURES SECTION pae,acpi-->\
+              <div class="vm_section" id="features">\
+                <div class="show_hide" id="add_features_cb">\
+                    <h3>Features <a id="add_features" class="icon_left" href="#"><span class="ui-icon ui-icon-plus" /></a></h3>\
+                </div>\
+                <fieldset><legend>Features</legend>\
+                <div class="vm_param kvm_opt xen_opt vmware_opt">\
+                    <label for="PAE">PAE:</label>\
+                    <select id="PAE" name="PAE">\
+                        <option value="">Default</option>\
+                        <option value="yes">Enable</option>\
+                        <option value="no">Disable</option>\
+                    </select>\
+                    <div class="tip">Physical address extension mode allows 32-bit guests to address more than 4 GB of memory</div>\
+                </div>\
+                <div class="vm_param kvm_opt xen_opt vmware_opt">\
+                    <label for="ACPI">ACPI:</label>\
+                    <select id="ACPI" name="ACPI">\
+                        <option value="">Default</option>\
+                        <option value="yes">Enable</option>\
+                        <option value="no">Disable</option>\
+                    </select>\
+                    <div class="tip">Useful for power management, for example, normally required for graceful shutdown to work</div>\
+                </div>\
+                </fieldset>\
+              </div>\
+\
+\
 			  <!--disks section using image or declaring\
 			  image, image ID, bus, target, driver\
 			  type, source, size, format, clone, save,\
@@ -267,7 +295,7 @@ var create_template_tmpl = '<div id="template_create_tabs">\
 				  </select>\
 				  <div class="tip">Name of the network to attach this device</div>\
 			    </div>\
-			    <div class="vm_param kvm_opt xen_opt niccfg">\
+			    <div class="vm_param kvm_opt xen_opt niccfg network">\
 				  <label for="IP">IP:</label>\
 				  <input type="text" id="IP" name="ip" />\
 				  <div class="tip">Request an specific IP from the Network</div>\
@@ -448,6 +476,32 @@ var create_template_tmpl = '<div id="template_create_tabs">\
 			  </div>\
 \
 \
+              <!--custom variables -->\
+			  <div class="vm_section" id="custom_var">\
+			  	<div class="show_hide" id="add_context_cb">\
+			  	  <h3>Add custom variables <a id="add_custom_var" class="icon_left" href="#"><span class="ui-icon ui-icon-plus" /></a></h3>\
+			    </div>\
+			  <fieldset><legend>Custom variables</legend>\
+              <div class="vm_param kvm_opt xen_opt vmware_opt">\
+                    <label for="custom_var_name">Name:</label>\
+                    <input type="text" id="custom_var_name" name="custom_var_name" />\
+                    <div class="tip">Name for the custom variable</div>\
+              </div>\
+              <div class="vm_param kvm_opt xen_opt">\
+                    <label for="custom_var_value">Value:</label>\
+                    <input type="text" id="custom_var_value" name="custom_var_value" />\
+                    <div class="tip">Value of the custom variable</div>\
+              </div>\
+              <div class="">\
+                    <button class="add_remove_button add_button" id="add_custom_var_button" value="add_custom_var">Add</button>\
+                    <button class="add_remove_button" id="remove_custom_var_button" value="remove_custom_var">Remove selected</button>\
+                    <div class="clear"></div>\
+                    <label for="custom_var_box">Current variables:</label>\
+                    <select id="custom_var_box" name="custom_var_box" style="width:150px;height:100px;" multiple>\
+                    </select>\
+              </div>\
+              </fieldset>\
+              </div>\
 			  <!-- submit -->\
 			 <fieldset>\
 			  <div class="form_buttons">\
@@ -623,6 +677,21 @@ var template_actions = {
         elements: function() { return getSelectedNodes(dataTable_templates); },
         error: onError,
         notify: true
+     },
+
+     "Template.instantiate" : {
+         type: "custom",
+         call: function(){
+             nodes = getSelectedNodes(dataTable_templates);
+             $.each(nodes,function(){
+                Sunstone.runAction("VM.create",
+                    {vm : {
+                        template_id: this
+                        }
+                    });
+            });
+         },
+         notify: false
      }
 }
 
@@ -637,6 +706,11 @@ var template_buttons = {
     "Template.create_dialog" : {
         type: "create_dialog",
         text: "+ New",
+        condition: True
+    },
+    "Template.instantiate" : {
+        type: "action",
+        text: "Instantiate",
         condition: True
     },
     "Template.addattr_dialog" : {
@@ -724,7 +798,8 @@ function templateInfoListener(){
 
 //Updates the select input field with an option for each template
 function updateTemplateSelect(){
-    templates_select = makeSelectOptions(dataTable_templates,1,3,5,"No");
+    templates_select = 
+        makeSelectOptions(dataTable_templates,1,3,5,"no",2);
    
     //update static selectors:
     $('#create_vm_dialog #template_id').html(templates_select);
@@ -748,8 +823,7 @@ function deleteTemplateElement(req){
 function addTemplateElement(request, template_json){
     var element = templateElementArray(template_json);
     addElement(element,dataTable_templates);
-    //NOTE that the select is not updated because newly added templates
-    //are not public
+    updateTemplateSelect();
 }
 
 // Callback to refresh the list of templates
@@ -849,9 +923,8 @@ function popUpTemplateRmattrDialog(){
 function updateTemplateInfo(request,template){
     var template_info = template.VMTEMPLATE;
     var info_tab = {
-        title: "Template information",
-        content:        
-        '<table id="info_template_table" class="info_table">\
+        title: "Information",
+        content: '<table id="info_template_table" class="info_table">\
 			<thead>\
 				<tr><th colspan="2">Template "'+template_info.NAME+'" information</th></tr>\
 			</thead>\
@@ -871,16 +944,20 @@ function updateTemplateInfo(request,template){
 				<td class="key_td">Public</td>\
 				<td class="value_td">'+(parseInt(template_info.PUBLIC) ? "yes" : "no")+'</td>\
 			</tr>\
-		</table>\
-        <table id="template_template_table" class="info_table">\
-		<thead><tr><th colspan="2">Template</th></tr></thead>'+
-		prettyPrintJSON(template_info.TEMPLATE)+
-		'</table>'
-    }
-    
-    
+		</table>'
+    };
+    var template_tab = {
+        title: "Template",
+        content: '<table id="template_template_table" class="info_table">\
+        <thead><tr><th colspan="2">Template</th></tr></thead>'+
+        prettyPrintJSON(template_info.TEMPLATE)+
+        '</table>'
+    };
+
+
     Sunstone.updateInfoPanelTab("template_info_panel","template_info_tab",info_tab);
-        
+    Sunstone.updateInfoPanelTab("template_info_panel","template_template_tab",template_tab);
+
     Sunstone.popUpInfoPanel("template_info_panel");
 
 }
@@ -1279,6 +1356,16 @@ function setupCreateTemplateDialog(){
 		});
 	};
 
+    // Sets up the features section
+    var features_setup = function(){
+        $('fieldset',section_features).hide();
+
+        $('#add_features',section_features).click(function(){
+            $('fieldset',section_features).toggle();
+            return false;
+        });
+    };
+
     // Sets up the disk section
 	var disks_setup = function(){
 
@@ -1349,6 +1436,11 @@ function setupCreateTemplateDialog(){
 					//format hidden
 					$('#FORMAT',section_disks).parent().hide();
 					$('#FORMAT',section_disks).parent().attr("disabled","disabled");
+
+                    //source hidden
+                    $('#SOURCE',section_disks).parent().hide();
+                    $('#SOURCE',section_disks).parent().
+                                        attr("disabled","disabled");
 					break;
 				case "fs":
 					//size mandatory
@@ -1367,6 +1459,10 @@ function setupCreateTemplateDialog(){
 					$('#FORMAT',section_disks).parent().removeClass(opt_class);
 					$('#FORMAT',section_disks).parent().addClass(man_class);
 
+                    //source hidden
+                    $('#SOURCE',section_disks).parent().hide();
+                    $('#SOURCE',section_disks).parent().
+                                        attr("disabled","disabled");
 					break;
 				case "block":
 					//size shown and optional
@@ -1382,6 +1478,11 @@ function setupCreateTemplateDialog(){
 					//format hidden
 					$('#FORMAT',section_disks).parent().hide();
 					$('#FORMAT',section_disks).parent().attr("disabled","disabled");
+                    
+                    //source hidden
+                    $('#SOURCE',section_disks).parent().hide();
+                    $('#SOURCE',section_disks).parent().
+                                        attr("disabled","disabled");
 					break;
 				case "floppy":
 				case "disk":
@@ -1398,6 +1499,11 @@ function setupCreateTemplateDialog(){
 					//format optional
 				    $('#FORMAT',section_disks).parent().hide();
 				    $('#FORMAT',section_disks).parent().attr("disabled","disabled");
+
+                    //source shown
+                    $('#SOURCE',section_disks).parent().show();
+                    $('#SOURCE',section_disks).parent().
+                                        removeAttr("disabled");
 			}
             //hide_disabled(section_disks);
 		});
@@ -1588,6 +1694,38 @@ function setupCreateTemplateDialog(){
 		});
 	};
     
+    //set up the custom variables section
+    var custom_variables_setup = function(){
+        $('fieldset',section_custom_var).hide();
+
+        $('#add_custom_var',section_custom_var).click(function(){
+                $('fieldset',section_custom_var).toggle();
+                return false;
+        });
+
+        $('#add_custom_var_button', section_custom_var).click(
+        function(){
+            var name = $('#custom_var_name',section_custom_var).val();
+            var value = $('#custom_var_value',section_custom_var).val();
+            if (!name.length || !value.length) {
+                notifyError("Custom variable name and value must be\
+                filled in");
+                return false;
+            }
+            option= '<option value=\''+value+'\' name=\''+name+'\'>'+
+            name+'='+value+
+            '</option>';
+            $('select#custom_var_box',section_custom_var).append(option);
+            return false; 
+        });
+
+        $('#remove_custom_var_button', section_custom_var).click(
+            function(){
+                box_remove_element(section_custom_var,'#custom_var_box');
+                return false; 
+        });
+    }
+
     //***CREATE VM DIALOG MAIN BODY***
     
     $('div#dialogs').append('<div title="Create VM Template" id="create_template_dialog"></div>');
@@ -1618,6 +1756,7 @@ function setupCreateTemplateDialog(){
 	//Sections, used to stay within their scope
 	var section_capacity = $('#capacity');
 	var section_os_boot = $('#os_boot_opts');
+    var section_features = $('#features');
 	var section_disks = $('#disks');
 	var section_networks = $('#networks');
 	var section_inputs = $('#inputs');
@@ -1625,6 +1764,7 @@ function setupCreateTemplateDialog(){
 	var section_context = $('#context');
 	var section_placement = $('#placement');
 	var section_raw = $('#raw');
+    var section_custom_var = $('#custom_var');
 
 	//Different selector for items of kvm and xen (mandatory and optional)
 	var items = '.vm_param input,.vm_param select';
@@ -1660,6 +1800,7 @@ function setupCreateTemplateDialog(){
     //initialise all sections
 	capacity_setup();
 	os_boot_setup();
+    features_setup();
 	disks_setup();
 	networks_setup();
 	inputs_setup();
@@ -1667,12 +1808,14 @@ function setupCreateTemplateDialog(){
 	context_setup();
 	placement_setup();
 	raw_setup();
+    custom_variables_setup();
 
     //Process form
 	$('button#create_template_form_easy').click(function(){
 		//validate form
 
 		var vm_json = {};
+        var name,value,boot_method;
 
 		//process capacity options
 		var scope = section_capacity;
@@ -1700,6 +1843,11 @@ function setupCreateTemplateDialog(){
         vm_json["OS"] = {};
 		addSectionJSON(vm_json["OS"],scope);
 
+        //Fetch pae and acpi options
+        scope = section_features;
+        vm_json["FEATURES"] = {};
+        addSectionJSON(vm_json["FEATURES"],scope);
+
 		//process disks -> fetch from box
 		scope = section_disks;
 		vm_json["DISK"] = [];
@@ -1722,7 +1870,6 @@ function setupCreateTemplateDialog(){
 
         //context
         scope = section_context;
-        var context = $('#CONTEXT',scope).val();
         vm_json["CONTEXT"] = {};
         $('#context_box option',scope).each(function(){
             name = $(this).attr("name");
@@ -1730,14 +1877,28 @@ function setupCreateTemplateDialog(){
             vm_json["CONTEXT"][name]=value;
         });
 
-		//placement -> fetch with value
-		scope = section_placement;
-		addSectionJSON(vm_json,scope);
+        //placement -> fetch with value, escape double quotes
+        scope = section_placement;
+        var requirements = $('input#REQUIREMENTS',scope).val();
+        requirements = escapeDoubleQuotes(requirements);
+        $('input#REQUIREMENTS',scope).val(requirements);
+        var rank = $('input#RANK',scope).val();
+        rank = escapeDoubleQuotes(rank);
+        $('input#RANK',scope).val(rank);
+        addSectionJSON(vm_json,scope);
 
 		//raw -> if value set type to driver and fetch
 		scope = section_raw;
 		vm_json["RAW"] = {};
 		addSectionJSON(vm_json["RAW"],scope);
+
+        //custom vars
+        scope = section_custom_var;
+        $('#custom_var_box option',scope).each(function(){
+            name = $(this).attr("name");
+            value = $(this).val();
+            vm_json[name]=value;
+        });
 
         // remove empty elements
         vm_json = removeEmptyObjects(vm_json);

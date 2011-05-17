@@ -94,13 +94,6 @@ public:
      **/
     static int split_secret(const string secret, string& user, string& pass);
 
-    /**
-     *  "Encrypts" the password with SHA1 digest
-     *  @param password
-     *  @return sha1 encrypted password
-     */
-    static string sha1_digest(const string& pass);
-
 private:
     // -------------------------------------------------------------------------
     // Friends
