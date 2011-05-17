@@ -102,20 +102,27 @@ module OpenNebula
             end
         end
         
+        # Gets an array of text from elemenets extracted 
+        # using  the XPATH  expression passed as filter
         def retrieve_elements(filter)
-            ids_array = Array.new            
+            elements_array = Array.new            
 
             if NOKOGIRI
-                @xml.xpath(filter).each { |pelem|
-                    ids_array << pelem.text
+                @xml.xpath(filter.to_s).each { |pelem|
+                    elements_array << pelem.text if !pelem.text
                  }
             else
-                @xml.elements.each(filter) { |pelem|
-                    ids_array << pelem.text
+                @xml.elements.each(filter.to_s) { |pelem|
+                    elements_array << pelem.text if !pelem.text
                 }
             end
             
-            return ids_array
+            if elements_array.size == 0 
+                return nil
+            else
+                return elements_array
+            end
+            
         end
 
         # Gets an attribute from an elemenT
