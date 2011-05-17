@@ -1,0 +1,19 @@
+#!/usr/bin/env ruby
+
+$: << File.dirname(__FILE__)
+
+require 'base64'
+require 'OpenNebulaVLAN'
+
+action      = ARGV[0]
+template    = ARGV[1]
+
+vm_xml =  Base64::decode64(template)
+onevlan = EbtablesVLAN.new(vm_xml)
+
+case action
+when "on"
+    onevlan.activate
+when "off"
+    onevlan.deactivate
+end

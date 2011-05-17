@@ -8,6 +8,9 @@ class OpenNebulaVLAN
 end
 
 class NicXen < Nic
+    def initialize
+        super(nil)
+    end
     def get_tap(vm)
         #TODO
         self
