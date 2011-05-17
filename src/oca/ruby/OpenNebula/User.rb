@@ -89,5 +89,15 @@ module OpenNebula
             return rc
         end
 
+        # ---------------------------------------------------------------------
+        # Helpers to get User information
+        # ---------------------------------------------------------------------
+
+        # Returns the group identifier
+        # [return] _Integer_ the element's group ID
+        def gid
+            self['GID'].to_i
+        end
+
     end
 end

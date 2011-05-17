@@ -46,12 +46,18 @@ ShowTableHost={
         :left => true,
         :proc => lambda {|d,e| d.name }
     },
+    :cid => {
+        :name => "CID",
+        :desc => "Cluster ID",
+        :size => 4,
+        :proc => lambda {|d,e| d.cluster_id }
+    },
     :cluster => {
         :name => "CLUSTER",
         :desc => "Clustername",
         :size => 8,
         :left => true,
-        :proc => lambda {|d,e| d.cluster }
+        :proc => lambda { "TODO" }
     },
     :rvm => {
         :name => "RVM",

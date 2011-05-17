@@ -111,6 +111,16 @@ module OpenNebula
             return rc
         end
 
+        # ---------------------------------------------------------------------
+        # Helpers to get VirtualNetwork information
+        # ---------------------------------------------------------------------
+
+        # Returns the group identifier
+        # [return] _Integer_ the element's group ID
+        def gid
+            self['GID'].to_i
+        end
+
     private
         def set_publish(published)
             return Error.new('ID not defined') if !@pe_id

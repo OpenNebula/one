@@ -21,6 +21,7 @@
 #include <stdexcept>
 
 const string ClusterPool::DEFAULT_CLUSTER_NAME = "default";
+const int    ClusterPool::DEFAULT_CLUSTER_ID   = 0;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -35,7 +36,7 @@ ClusterPool::ClusterPool(SqlDB * db):PoolSQL(db, Cluster::table)
         string      error_str;
 
         // Build a new Cluster object
-        cluster = new Cluster(0, ClusterPool::DEFAULT_CLUSTER_NAME);
+        cluster = new Cluster(DEFAULT_CLUSTER_ID, DEFAULT_CLUSTER_NAME);
 
         // Insert the Object in the pool
         rc = PoolSQL::allocate(cluster, error_str);
@@ -110,11 +111,13 @@ int ClusterPool::drop(Cluster * cluster)
     Nebula&     nd = Nebula::instance();
     HostPool *  hpool = nd.get_hpool();
 
-    string      cluster_name = cluster->get_name();
-    string      where = "cluster = '" + cluster_name + "'";
+    int         cluster_id = cluster->get_oid();
+
+    ostringstream where;
+    where << "cid = " << cluster_id;
 
     // Return error if cluster is 'default'
-    if( cluster->get_oid() == 0 )
+    if( cluster->get_oid() == DEFAULT_CLUSTER_ID )
     {
         NebulaLog::log("CLUSTER",Log::WARNING,
                        "Default cluster cannot be deleted.");
@@ -127,7 +130,7 @@ int ClusterPool::drop(Cluster * cluster)
     // Move the hosts assigned to the deleted cluster to the default one
     if( rc == 0 )
     {
-        hpool->search(hids, where);
+        hpool->search(hids, where.str());
 
         for ( hid_it=hids.begin() ; hid_it < hids.end(); hid_it++ )
         {

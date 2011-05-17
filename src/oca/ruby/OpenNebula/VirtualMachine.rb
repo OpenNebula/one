@@ -259,6 +259,12 @@ module OpenNebula
             short_state_str
         end
 
+        # Returns the group identifier
+        # [return] _Integer_ the element's group ID
+        def gid
+            self['GID'].to_i
+        end
+
     private
         def action(name)
             return Error.new('ID not defined') if !@pe_id

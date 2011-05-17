@@ -44,7 +44,7 @@ ShowTableTemplate={
         :desc => "Name of the owner",
         :size => 8,
         :proc => lambda {|d,e|
-            d["USERNAME"]
+            "TODO"
         }
     },
     :uid=> {
@@ -60,7 +60,7 @@ ShowTableTemplate={
         :desc => "Id of the group",
         :size => 4,
         :proc => lambda {|d,e|
-            d["GID"]
+            d.gid
         }
     },
     :name => {

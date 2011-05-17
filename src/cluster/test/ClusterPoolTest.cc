@@ -38,12 +38,12 @@ const string cluster_xml_dump =
     "<CLUSTER_POOL><CLUSTER><ID>0</ID><NAME>default</NAME></CLUSTER><CLUSTER><ID>1</ID><NAME>cluster_a</NAME></CLUSTER><CLUSTER><ID>3</ID><NAME>cluster_c</NAME></CLUSTER><CLUSTER><ID>4</ID><NAME>cluster_d</NAME></CLUSTER></CLUSTER_POOL>";
 
 const string host_0_cluster =
-    "<HOST><ID>0</ID><NAME>Host one</NAME><STATE>0</STATE><IM_MAD>im_mad</IM_MAD><VM_MAD>vmm_mad</VM_MAD><TM_MAD>tm_mad</TM_MAD><LAST_MON_TIME>0</LAST_MON_TIME><CLUSTER>cluster_a</CLUSTER><HOST_SHARE><DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</MEM_USAGE><CPU_USAGE>0</CPU_USAGE><MAX_DISK>0</MAX_DISK><MAX_MEM>0</MAX_MEM><MAX_CPU>0</MAX_CPU><FREE_DISK>0</FREE_DISK><FREE_MEM>0</FREE_MEM><FREE_CPU>0</FREE_CPU><USED_DISK>0</USED_DISK><USED_MEM>0</USED_MEM><USED_CPU>0</USED_CPU><RUNNING_VMS>0</RUNNING_VMS></HOST_SHARE><TEMPLATE></TEMPLATE></HOST>";
+    "<HOST><ID>0</ID><NAME>Host one</NAME><STATE>0</STATE><IM_MAD>im_mad</IM_MAD><VM_MAD>vmm_mad</VM_MAD><TM_MAD>tm_mad</TM_MAD><LAST_MON_TIME>0</LAST_MON_TIME><CID>1</CID><HOST_SHARE><DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</MEM_USAGE><CPU_USAGE>0</CPU_USAGE><MAX_DISK>0</MAX_DISK><MAX_MEM>0</MAX_MEM><MAX_CPU>0</MAX_CPU><FREE_DISK>0</FREE_DISK><FREE_MEM>0</FREE_MEM><FREE_CPU>0</FREE_CPU><USED_DISK>0</USED_DISK><USED_MEM>0</USED_MEM><USED_CPU>0</USED_CPU><RUNNING_VMS>0</RUNNING_VMS></HOST_SHARE><TEMPLATE></TEMPLATE></HOST>";
 
 const string host_0_default =
     "<HOST><ID>0</ID><NAME>Host one</NAME><STATE>0</STATE>"
     "<IM_MAD>im_mad</IM_MAD><VM_MAD>vmm_mad</VM_MAD><TM_MAD>tm_mad</TM_MAD>"
-    "<LAST_MON_TIME>0</LAST_MON_TIME><CLUSTER>default</CLUSTER><HOST_SHARE>"
+    "<LAST_MON_TIME>0</LAST_MON_TIME><CID>0</CID><HOST_SHARE>"
     "<DISK_USAGE>0</DISK_USAGE><MEM_USAGE>0</MEM_USAGE><CPU_USAGE>0</CPU_USAGE>"
     "<MAX_DISK>0</MAX_DISK><MAX_MEM>0</MAX_MEM><MAX_CPU>0</MAX_CPU>"
     "<FREE_DISK>0</FREE_DISK><FREE_MEM>0</FREE_MEM><FREE_CPU>0</FREE_CPU>"
@@ -271,7 +271,7 @@ public:
         host = hpool->get(0, false);
         CPPUNIT_ASSERT(host != 0);
 
-        rc = host->set_cluster("cluster_a");
+        rc = host->set_cluster(1);
         CPPUNIT_ASSERT( rc == 0 );
 
         hpool->update(host);
@@ -295,7 +295,7 @@ public:
         CPPUNIT_ASSERT(host != 0);
 
         // Set cluster
-        rc = host->set_cluster("cluster_a");
+        rc = host->set_cluster(1);
         CPPUNIT_ASSERT( rc == 0 );
 
         hpool->update(host);
@@ -339,7 +339,7 @@ public:
         cluster = cpool->get(1, false);
 
         // Set cluster
-        rc = host->set_cluster(cluster->get_name());
+        rc = host->set_cluster(cluster->get_oid());
         CPPUNIT_ASSERT( rc == 0 );
 
         hpool->update(host);

@@ -51,7 +51,7 @@ ShowTableVN={
         :desc => "Username of the virtual network owner",
         :size => 8,
         :left => true,
-        :proc => lambda {|d,e| d["USERNAME"] }
+        :proc => lambda {|d,e| "TODO" }
     },
     :uid=> {
         :name => "UID",
@@ -66,7 +66,7 @@ ShowTableVN={
         :desc => "Id of the group",
         :size => 4,
         :proc => lambda {|d,e|
-            d["GID"]
+            d.gid
         }
     },
     :type => {

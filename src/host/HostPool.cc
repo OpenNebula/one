@@ -175,11 +175,11 @@ int HostPool::allocate (
     // Build a new Host object
 
     host = new Host(-1,
+        ClusterPool::DEFAULT_CLUSTER_ID,
         hostname,
         im_mad_name,
         vmm_mad_name,
-        tm_mad_name,
-        ClusterPool::DEFAULT_CLUSTER_NAME);
+        tm_mad_name);
 
     // Insert the Object in the pool
 

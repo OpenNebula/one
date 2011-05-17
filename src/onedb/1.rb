@@ -88,7 +88,7 @@ class Migrator < MigratorBase
         @db.run "ALTER TABLE host_pool RENAME TO old_host_pool;"
 
         # Create new table
-        @db.run "CREATE TABLE host_pool (oid INTEGER PRIMARY KEY, name VARCHAR(256), body TEXT, state INTEGER, last_mon_time INTEGER, cluster VARCHAR(128), UNIQUE(name));"
+        @db.run "CREATE TABLE host_pool (oid INTEGER PRIMARY KEY, name VARCHAR(256), body TEXT, state INTEGER, last_mon_time INTEGER, cid INTEGER, UNIQUE(name));"
 
         # Read each entry in the old table, and insert into new table
         @db.fetch("SELECT * FROM old_host_pool") do |row|
@@ -98,13 +98,19 @@ class Migrator < MigratorBase
             last_mon_time   = row[:last_mon_time]
             cluster         = row[:cluster]
 
+            # OpenNebula 2.X stored the cluster name, we need the cluster ID
+            cluster_id = 0
+            @db.fetch("SELECT oid FROM cluster_pool WHERE name='#{cluster}'") do |cluster_row|
+                cluster_id = cluster_row[:oid]
+            end
+
             # There is one host share for each host
             host_share = ""
             @db.fetch("SELECT * FROM host_shares WHERE hid=#{oid}") do |share|
                 host_share = "<HOST_SHARE><DISK_USAGE>#{share[:disk_usage]}</DISK_USAGE><MEM_USAGE>#{share[:mem_usage]}</MEM_USAGE><CPU_USAGE>#{share[:cpu_usage]}</CPU_USAGE><MAX_DISK>#{share[:max_disk]}</MAX_DISK><MAX_MEM>#{share[:max_mem]}</MAX_MEM><MAX_CPU>#{share[:max_cpu]}</MAX_CPU><FREE_DISK>#{share[:free_disk]}</FREE_DISK><FREE_MEM>#{share[:free_mem]}</FREE_MEM><FREE_CPU>#{share[:free_cpu]}</FREE_CPU><USED_DISK>#{share[:used_disk]}</USED_DISK><USED_MEM>#{share[:used_mem]}</USED_MEM><USED_CPU>#{share[:used_cpu]}</USED_CPU><RUNNING_VMS>#{share[:running_vms]}</RUNNING_VMS></HOST_SHARE>"
             end
 
-            body = "<HOST><ID>#{oid}</ID><NAME>#{name}</NAME><STATE>#{state}</STATE><IM_MAD>#{row[:im_mad]}</IM_MAD><VM_MAD>#{row[:vm_mad]}</VM_MAD><TM_MAD>#{row[:tm_mad]}</TM_MAD><LAST_MON_TIME>#{last_mon_time}</LAST_MON_TIME><CLUSTER>#{cluster}</CLUSTER>#{host_share}#{row[:template]}</HOST>"
+            body = "<HOST><ID>#{oid}</ID><NAME>#{name}</NAME><STATE>#{state}</STATE><IM_MAD>#{row[:im_mad]}</IM_MAD><VM_MAD>#{row[:vm_mad]}</VM_MAD><TM_MAD>#{row[:tm_mad]}</TM_MAD><LAST_MON_TIME>#{last_mon_time}</LAST_MON_TIME><CID>#{cluster_id}</CID>#{host_share}#{row[:template]}</HOST>"
 
             @db.run "INSERT INTO host_pool VALUES(#{oid},'#{name}','#{body}', #{state}, #{last_mon_time}, '#{cluster}');"
         end

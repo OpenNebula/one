@@ -103,6 +103,16 @@ module OpenNebula
             set_publish(false)
         end
 
+        # ---------------------------------------------------------------------
+        # Helpers to get Template information
+        # ---------------------------------------------------------------------
+
+        # Returns the group identifier
+        # [return] _Integer_ the element's group ID
+        def gid
+            self['GID'].to_i
+        end
+
     private
 
         def set_publish(published)

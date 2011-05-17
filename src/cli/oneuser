@@ -44,7 +44,7 @@ ShowTableUP={
         :desc => "Id of the group",
         :size => 4,
         :proc => lambda {|d,e|
-            d["GID"]
+            d.gid
         }
     },
     :user => {

@@ -173,11 +173,12 @@ public:
 
     /**
      *  Sets the cluster for this host
-     *    @return time_t last monitored time
+     *    @param cluster_id Cluster's oid
+     *    @return 0 on success
      */
-    int set_cluster(const string& cluster_name)
+    int set_cluster(int cluster_id)
     {
-        cluster = cluster_name;
+        gid = cluster_id;
         return 0;
     };
 
@@ -329,11 +330,6 @@ private:
      */
     time_t      last_monitored;
 
-    /**
-     *  Name of the cluster this host belongs to.
-     */
-    string      cluster;
-
     // -------------------------------------------------------------------------
     //  Host Attributes
     // -------------------------------------------------------------------------
@@ -347,11 +343,11 @@ private:
     // *************************************************************************
 
     Host(int           id=-1,
+         int           cluster_id=-1,
          const string& hostname="",
          const string& im_mad_name="",
          const string& vmm_mad_name="",
-         const string& tm_mad_name="",
-         const string& cluster="");
+         const string& tm_mad_name="");
 
     virtual ~Host();
 

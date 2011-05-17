@@ -89,7 +89,7 @@ void RequestManager::ClusterAdd::execute(
     }
 
     // Set cluster
-    rc = host->set_cluster(cluster->get_name());
+    rc = host->set_cluster(cluster->get_oid());
 
     if ( rc != 0 )
     {

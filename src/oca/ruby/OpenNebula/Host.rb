@@ -121,9 +121,9 @@ module OpenNebula
             SHORT_HOST_STATES[state_str]
         end
 
-        # Returns the cluster of the Host
-        def cluster
-            self['CLUSTER']
+        # Returns the cluster ID of the Host
+        def cluster_id
+            self['CID']
         end
 
 
