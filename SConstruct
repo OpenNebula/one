@@ -205,6 +205,7 @@ build_scripts=[
     'src/um/SConstruct',
     'src/authm/SConstruct',
     'src/xml/SConstruct',
+    'share/man/SConstruct'
 ]
 
 # Testing

@@ -98,7 +98,7 @@ if [ -z "$ROOT" ] ; then
     LOCK_LOCATION="/var/lock/one"
     INCLUDE_LOCATION="/usr/include"
     SHARE_LOCATION="/usr/share/one"
-    MAN_LOCATION="/usr/share/man/man8"
+    MAN_LOCATION="/usr/share/man/man1"
 
     if [ "$CLIENT" = "yes" ]; then
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION"
@@ -133,7 +133,7 @@ else
     IMAGES_LOCATION="$VAR_LOCATION/images"
     INCLUDE_LOCATION="$ROOT/include"
     SHARE_LOCATION="$ROOT/share"
-    MAN_LOCATION="$ROOT/share/man/man8"
+    MAN_LOCATION="$ROOT/share/man/man1"
 
     if [ "$CLIENT" = "yes" ]; then
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION"
@@ -835,24 +835,24 @@ SUNSTONE_RUBY_LIB_FILES="src/mad/ruby/CommandManager.rb \
 # MAN files
 #-----------------------------------------------------------------------------
 
-MAN_FILES="share/man/oneauth.8.gz \
-        share/man/onecluster.8.gz \
-        share/man/onehost.8.gz \
-        share/man/oneimage.8.gz \
-        share/man/oneuser.8.gz \
-        share/man/onevm.8.gz \
-        share/man/onevnet.8.gz \
-        share/man/onetemplate.8.gz \
-        share/man/onedb.8.gz \
-        share/man/econe-describe-images.8.gz \
-        share/man/econe-describe-instances.8.gz \
-        share/man/econe-register.8.gz \
-        share/man/econe-run-instances.8.gz \
-        share/man/econe-terminate-instances.8.gz \
-        share/man/econe-upload.8.gz \
-        share/man/occi-compute.8.gz \
-        share/man/occi-network.8.gz \
-        share/man/occi-storage.8.gz"
+MAN_FILES="share/man/oneauth.1.gz \
+        share/man/onecluster.1.gz \
+        share/man/onehost.1.gz \
+        share/man/oneimage.1.gz \
+        share/man/oneuser.1.gz \
+        share/man/onevm.1.gz \
+        share/man/onevnet.1.gz \
+        share/man/onetemplate.1.gz \
+        share/man/onedb.1.gz \
+        share/man/econe-describe-images.1.gz \
+        share/man/econe-describe-instances.1.gz \
+        share/man/econe-register.1.gz \
+        share/man/econe-run-instances.1.gz \
+        share/man/econe-terminate-instances.1.gz \
+        share/man/econe-upload.1.gz \
+        share/man/occi-compute.1.gz \
+        share/man/occi-network.1.gz \
+        share/man/occi-storage.1.gz"
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------

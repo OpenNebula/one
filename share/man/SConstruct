@@ -1,4 +1,4 @@
-# SConstruct for src/authm
+# SConstruct for share/man
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
@@ -16,15 +16,6 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-Import('env')
+import os
 
-lib_name='nebula_authm'
-
-# Sources to generate the library
-source_files=[
-    'AuthManager.cc',
-    'AuthManagerDriver.cc'
-]
-
-# Build library
-env.StaticLibrary(lib_name, source_files)
+os.system("gzip *.1 &>/dev/null")
