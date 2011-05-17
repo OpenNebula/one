@@ -2,7 +2,7 @@
 
 require 'rubygems'
 require 'rspec'
-require 'open3'
+require 'SystemMock'
 require 'pp'
 
 require File.expand_path(File.dirname(__FILE__) + '/../OpenNebulaVLAN')
@@ -13,33 +13,7 @@ Dir[File.dirname(__FILE__) + "/output/**"].each do |f|
     OUTPUT[key] = File.read(f)
 end
 
-def execute_cmd(cmd)
-    if $capture_commands
-        $capture_commands.each do |regex, output|
-            if cmd.match(regex)
-                return output
-            end
-        end
-    end
-    Open3.popen3(cmd){|stdin, stdout, stderr| stdout.read}
-end
-
-def `(cmd)
-    log_command(:backtick, cmd)
-    execute_cmd(cmd)
-end
-
-def system(cmd)
-    log_command(:system, cmd)
-    execute_cmd(cmd)
-    nil
-end
-
-def log_command(facility, msg)
-    $collector = Hash.new if !$collector
-    $collector[facility] = Array.new if !$collector[facility]
-    $collector[facility] << msg
-end
+include SystemMock
 
 RSpec.configure do |config|
     config.before(:all) do
@@ -92,5 +66,23 @@ describe 'ebtables' do
         "sudo /sbin/ebtables -A FORWARD -s ! 02:00:0a:01:02:00/ff:ff:ff:ff:ff:00 -o vnet2 -j DROP",
         "sudo /sbin/ebtables -A FORWARD -s ! 02:00:0a:01:02:01 -i vnet2 -j DROP"]
         $collector[:system].should == ebtables_cmds
+    end
+end
+
+describe 'openvswitch' do
+    it "tag tun/tap devices with vlans in kvm" do
+        $capture_commands = {
+            /virsh.*dumpxml/ => OUTPUT[:virsh_dumpxml],
+            /ovs-vsctl/      => nil
+        }
+        onevlan = OpenvSwitchVLAN.new(OUTPUT[:onevm_show],"kvm")
+        onevlan.activate
+        openvswitch_tags = [
+            "sudo /usr/local/bin/ovs-vsctl set Port vnet0 tap=2",
+            "sudo /usr/local/bin/ovs-vsctl set Port vnet1 tap=3",
+            "sudo /usr/local/bin/ovs-vsctl set Port vnet2 tap=4"
+            ]
+
+        $collector[:system].should == openvswitch_tags
     end
 end
