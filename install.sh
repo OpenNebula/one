@@ -31,8 +31,8 @@ usage() {
  echo "Usage: install.sh [-u install_user] [-g install_group] [-k keep conf]"
  echo "                  [-d ONE_LOCATION] [-c occi|ec2] [-r] [-h]"
  echo
- echo "-u: user that will run opennebula, defults to user executing install.sh"
- echo "-g: group of the user that will run opennebula, defults to user"
+ echo "-u: user that will run opennebula, defaults to user executing install.sh"
+ echo "-g: group of the user that will run opennebula, defaults to user"
  echo "    executing install.sh"
  echo "-k: keep configuration files of existing OpenNebula installation, useful"
  echo "    when upgrading. This flag should not be set when installing"
