@@ -1,0 +1,10 @@
+#!/usr/bin/env ruby
+
+$: << File.dirname(__FILE__)
+
+require 'base64'
+require 'OpenNebulaVLAN'
+vm_xml =  Base64::decode64(ARGV[0])
+
+onevlan = OpenvSwitchVLAN.new(vm_xml)
+onevlan.activate

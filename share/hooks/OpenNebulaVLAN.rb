@@ -16,6 +16,8 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+$: << File.dirname(__FILE__)
+
 require 'rexml/document'
 
 CONF = {
@@ -27,7 +29,7 @@ COMMANDS = {
   :brctl    => "/usr/sbin/brctl",
   :virsh    => "virsh -c qemu:///system",
   :xm       => "sudo /usr/sbin/xm",
-  :ovs_vsctl => "sudo /usr/local/bin/ovs-vsctl",
+  :ovs_vsctl=> "sudo /usr/local/bin/ovs-vsctl",
   :lsmod    => "/bin/lsmod"
 }
 
@@ -64,42 +66,9 @@ class Nics < Array
     end
 end
 
-class Nic < Hash
-    def initialize(hypervisor)
-        @hypervisor = hypervisor
-    end
-
-    def get_tap(vm)
-        case vm.hypervisor
-        when "kvm"
-            get_tap_kvm(vm)
-        when "xen"
-            get_tap_xen(vm)
-        end
-    end
-
-    def get_tap_kvm(vm)
-        dumpxml = vm.vm_info[:dumpxml]
-        dumpxml_root = REXML::Document.new(dumpxml).root
-
-        xpath = "devices/interface[@type='bridge']/"
-        xpath << "mac[@address='#{self[:mac]}']/../target"
-        tap = dumpxml_root.elements[xpath]
-
-        if tap
-            self[:tap] = tap.attributes['dev']
-        end
-        self
-    end
-
-    #TODO:
-    #def get_tap_xen(nic)
-    #end
-end
-
 
 class OpenNebulaVLAN
-    attr_reader :vm_info, :hypervisor
+    attr_reader :vm_info, :hypervisor, :nics
 
     def initialize(vm_tpl, hypervisor=nil)
         @vm_root = REXML::Document.new(vm_tpl).root
@@ -114,11 +83,14 @@ class OpenNebulaVLAN
 
         case hypervisor
         when "kvm"
-            @vm_info[:dumpxml] = `#{COMMANDS[:virsh]} dumpxml #{@deploy_id}`
+            require 'KVMVLAN'
+            @nic_class = NicKVM
         when "xen"
-            @vm_info[:domid]    =`#{CONF[:xm]} domid #{VM_NAME}`.strip
-            @vm_info[:networks] =`#{CONF[:xm]} network-list #{vm_id}`
+            require 'XenVLAN'
+            @nic_class = NicXen
         end
+
+        @vm_info = get_info
 
         @nics = get_nics
         @filtered_nics = @nics
@@ -156,7 +128,7 @@ class OpenNebulaVLAN
     def get_nics
         nics = Nics.new
         @vm_root.elements.each("TEMPLATE/NIC") do |nic_element|
-            nic = Nic.new(@hypervisor)
+            nic =  @nic_class.new(@hypervisor)
             nic_element.elements.each('*') do |nic_attribute|
                 key = nic_attribute.xpath.split('/')[-1].downcase.to_sym
                 nic[key] = nic_attribute.text
@@ -199,9 +171,7 @@ class OpenvSwitchVLAN < OpenNebulaVLAN
             cmd =   "#{COMMANDS[:ovs_vsctl]} set Port #{nic[:tap]} "
             cmd <<  "tap=#{nic[:network_id].to_i + CONF[:start_vlan]}"
 
-            #TODO: execute command
-            puts cmd
-            #system(cmd)
+            system(cmd)
         end
     end
 end
@@ -212,24 +182,60 @@ class EbtablesVLAN < OpenNebulaVLAN
     end
 
     def ebtables(rule)
-        system "#{CONF[:ebtables]} -A #{rule}"
+        system("#{COMMANDS[:ebtables]} -A #{rule}")
     end
 
     def activate
         process do |nic|
             tap = nic[:tap]
-            iface_mac = nic[:mac]
-         
-            mac     = iface_mac.split(':')
-            mac[-1] = '00'
+            if tap
+                iface_mac = nic[:mac]
 
-            net_mac = mac.join(':')
-         
-            in_rule="FORWARD -s ! #{net_mac}/ff:ff:ff:ff:ff:00 -o #{tap} -j DROP"
-            out_rule="FORWARD -s ! #{iface_mac} -i #{tap} -j DROP"
-         
-            ebtables(in_rule)
-            ebtables(out_rule)
+                mac     = iface_mac.split(':')
+                mac[-1] = '00'
+
+                net_mac = mac.join(':')
+
+                in_rule="FORWARD -s ! #{net_mac}/ff:ff:ff:ff:ff:00 " <<
+                        "-o #{tap} -j DROP"
+                out_rule="FORWARD -s ! #{iface_mac} -i #{tap} -j DROP"
+
+                ebtables(in_rule)
+                ebtables(out_rule)
+            end
         end
+    end
+
+    def deactivate
+        process do |nic|
+            mac = nic[:mac]
+            # remove 0-padding
+            mac = mac.split(":").collect{|e| e.hex.to_s(16)}.join(":")
+
+            tap = ""
+            rules.each do |rule|
+                if m = rule.match(/#{mac} -i (\w+)/)
+                    tap = m[1]
+                    break
+                end
+            end
+            remove_rules(tap)
+        end
+    end
+
+    def rules
+        `#{COMMANDS[:ebtables]} -L FORWARD`.split("\n")[3..-1]
+    end
+
+    def remove_rules(tap)
+        rules.each do |rule|
+            if rule.match(tap)
+                remove_rule(rule)
+            end
+        end
+    end
+
+    def remove_rule(rule)
+        system("#{COMMANDS[:ebtables]} -D FORWARD #{rule}")
     end
 end
