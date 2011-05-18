@@ -5,7 +5,7 @@ module OpenNebulaVLANKVM
         
     def get_info
         vminfo = Hash.new
-        dumpxml = `#{COMMANDS[:virsh]} dumpxml #{@deploy_id} 2>/dev/null`
+        vminfo[:dumpxml] = `#{COMMANDS[:virsh]} dumpxml #{@deploy_id}`
         vminfo.each_key{|k| vminfo[k] = nil if vminfo[k].to_s.strip.empty?}
         vminfo
     end

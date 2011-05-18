@@ -39,6 +39,8 @@ class Nics < Array
     #  args example:
     #       {:mac => "02:00:C0:A8:01:01", :bridge => "br0"}
     #       :mac,  "02:00:C0:A8:01:01"
+    #  key values may also be an array:
+    #       {:mac => "02:00:C0:A8:01:01", :bridge => ["br0","br1"]}
     def get(*args)
         if args.length == 2
             dict = Hash.new
@@ -53,7 +55,7 @@ class Nics < Array
         self.each do |e|
             e_filter = Hash.new
             dict.each_key{|k| e_filter[k] = e[k]}
-            if e_filter == dict
+            if compare(e_filter,dict)
                 matching << e
             end
         end
@@ -63,6 +65,21 @@ class Nics < Array
         else
             matching
         end
+    end
+
+    def compare(hash1, hash2)
+        #hash1 has a single value per key
+        #hash2 may contain an array of values
+        hash1.each do |k,v|
+            return false if !hash2[k]
+            v2 = hash2[k]
+            if hash2[k].kind_of?(Array)
+                return false if !v2.include? v
+            else
+                return false if v != v2
+            end
+        end
+        true
     end
 end
 
@@ -146,6 +163,7 @@ class OpenNebulaVLAN
     def get_interfaces
         bridges    = Hash.new
         brctl_exit =`#{COMMANDS[:brctl]} show`
+        
         cur_bridge = ""
 
         brctl_exit.split("\n")[1..-1].each do |l|
