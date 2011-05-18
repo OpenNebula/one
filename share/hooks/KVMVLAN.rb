@@ -1,8 +1,12 @@
-class OpenNebulaVLAN
+module OpenNebulaVLANKVM
+    def new_nic(hypervisor)
+        NicKVM.new(hypervisor)
+    end
+        
     def get_info
         vminfo = Hash.new
         dumpxml = `#{COMMANDS[:virsh]} dumpxml #{@deploy_id} 2>/dev/null`
-        vminfo[:dumpxml] = dumpxml.strip.empty? ? nil : dumpxml
+        vminfo.each_key{|k| vminfo[k] = nil if vminfo[k].to_s.strip.empty?}
         vminfo
     end
 end

@@ -84,10 +84,14 @@ class OpenNebulaVLAN
         case hypervisor
         when "kvm"
             require 'KVMVLAN'
-            @nic_class = NicKVM
+            class <<self
+                include OpenNebulaVLANKVM
+            end
         when "xen"
             require 'XenVLAN'
-            @nic_class = NicXen
+            class <<self
+                include OpenNebulaVLANXen
+            end
         end
 
         @vm_info = get_info
@@ -128,7 +132,7 @@ class OpenNebulaVLAN
     def get_nics
         nics = Nics.new
         @vm_root.elements.each("TEMPLATE/NIC") do |nic_element|
-            nic =  @nic_class.new(@hypervisor)
+            nic =  new_nic(@hypervisor)
             nic_element.elements.each('*') do |nic_attribute|
                 key = nic_attribute.xpath.split('/')[-1].downcase.to_sym
                 nic[key] = nic_attribute.text
