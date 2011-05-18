@@ -34,4 +34,4 @@ mv $ONE_SHARE/$dir $ONE_SHARE/noVNC
 mkdir -p $ONE_PUBLIC_SUNSTONE/vendor/noVNC
 mv $ONE_SHARE/noVNC/include/ $ONE_PUBLIC_SUNSTONE/vendor/noVNC/
 
-sed -i "s%^\(NOVNC_PATH=\)%\1$ONE_SHARE/noVNC%" $SUNSTONE_CONF
+sed -i "s%^\(NOVNC_PATH=\).*$%\1$ONE_SHARE/noVNC%" $SUNSTONE_CONF
