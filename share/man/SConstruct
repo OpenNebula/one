@@ -16,6 +16,29 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-import os
+Import('env')
 
-os.system("gzip *.1 &>/dev/null")
+gzip_bld = Builder(action = 'gzip -c $SOURCE > $TARGET',
+                   suffix = '.1.gz',
+                   src_suffix = '.1')
+
+env.Append(BUILDERS = {'Man' : gzip_bld})
+
+env.Man('econe-describe-images')
+env.Man('econe-describe-instances')
+env.Man('econe-register')
+env.Man('econe-run-instances')
+env.Man('econe-terminate-instances')
+env.Man('econe-upload')
+env.Man('occi-compute')
+env.Man('occi-network')
+env.Man('occi-storage')
+env.Man('oneauth')
+env.Man('onecluster')
+env.Man('onedb')
+env.Man('onehost')
+env.Man('oneimage')
+env.Man('onetemplate')
+env.Man('oneuser')
+env.Man('onevm')
+env.Man('onevnet')
