@@ -19,9 +19,9 @@
 echo "MAD started" >> mad.log
 
 
-while read COMMAND ARG1 ARG2 ARG3
+while read COMMAND ARG1 ARG2 ARG3 ARG4
 do
-    echo "$COMMAND $ARG1 $ARG2 $ARG3" >> mad.log
+    echo "$COMMAND $ARG1 $ARG2 $ARG3 $ARG4" >> mad.log
     case $COMMAND in
         "INIT")
             echo "INIT SUCCESS"
@@ -31,9 +31,13 @@ do
             exit 0
             ;;
         "AUTHORIZE")
-            echo "AUTHORIZE FAILURE $ARG1 $ARG3"
+            echo "AUTHORIZE FAILURE $ARG1 $ARG3 $ARG4"
             ;;
         "AUTHENTICATE")
+            if [ "$ARG3" = "timeout" ] ; then
+                sleep 4
+            fi
+
             echo "AUTHENTICATE SUCCESS $ARG1"
             ;;
         *)
