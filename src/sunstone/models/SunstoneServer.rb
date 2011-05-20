@@ -262,6 +262,62 @@ class SunstoneServer
         return [200, nil]
     end
 
+    ############################################################################
+    #
+    ############################################################################
+
+    def get_log(resource,id,config,request)
+        log_file_prefix = case resource
+                   when "vm","VM"
+                       config[:host_log_file]
+                   when "host","HOST"
+                       config[:vm_log_file]
+                   end
+
+        log_file = "#{log_file_prefix}_#{id}.csv"
+
+        request_json = parse_json(request,"monitor")
+        history_length = request_json[:history_length]
+        element = request_json[:element]
+
+        first_line = `head -1 #{log_file}`
+
+        if $?.exitstatus != 0
+        then
+            error = Error.new("Cannot open log file")
+            return [500, error.to_json]
+        end
+
+        fields = first_line.split(',')
+
+        poll_time_pos = fields.index("time")
+        resource_pos = fields.index(element)
+        id_pos = fields.index("id")
+
+
+        graph = []
+        tail = `tail -#{history_length} #{log_file}`
+
+        tail.each_line do | line |
+            line_arr = line.delete('"').split(',')
+            if (line_arr[id_pos].to_i == id.to_i)
+            then
+                graph << [ line_arr[poll_time_pos], line_arr[resource_pos] ]
+            end
+        end
+
+        return graph.to_json
+    end
+
+    ############################################################################
+    #
+    ############################################################################
+
+    ############################################################################
+    #
+    ############################################################################
+
+
 
     private
 

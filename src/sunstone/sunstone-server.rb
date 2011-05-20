@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
@@ -156,6 +157,20 @@ get '/vm/:id/log' do
 end
 
 ##############################################################################
+# Logs
+##############################################################################
+
+get '/:resource/monitor' do
+
+
+end
+
+get '/:resource/:id/monitor' do
+    get_log(params[:resource],params[:id],settings.config,request.body.read)
+end
+
+
+##############################################################################
 # GET Pool information
 ##############################################################################
 get '/:pool' do
@@ -239,4 +254,3 @@ end
 post '/:resource/:id/action' do
     @SunstoneServer.perform_action(params[:resource], params[:id], request.body.read)
 end
-
