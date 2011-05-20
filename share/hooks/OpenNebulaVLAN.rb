@@ -83,20 +83,34 @@ class Nics < Array
     end
 end
 
+class VM
+    def initialize(vm_root)
+        @vm_root = vm_root
+    end
+
+    def [](element)
+        if @vm_root
+            val = @vm_root.elements[element]
+                if val.text
+                    return val.text
+                end
+        end
+        nil
+    end
+end
 
 class OpenNebulaVLAN
     attr_reader :vm_info, :hypervisor, :nics
 
     def initialize(vm_tpl, hypervisor=nil)
         @vm_root = REXML::Document.new(vm_tpl).root
+        @vm      = VM.new(@vm_root)
         @vm_info = Hash.new
 
         if !hypervisor
             hypervisor = detect_hypervisor
         end
         @hypervisor = hypervisor
-
-        @deploy_id = @vm_root.elements['DEPLOY_ID'].text
 
         case hypervisor
         when "kvm"
