@@ -1,0 +1,22 @@
+#!/usr/bin/env ruby
+
+
+$: << File.dirname(__FILE__)
+
+require 'base64'
+require 'OpenNebulaVLAN'
+
+action      = ARGV[0]
+template    = ARGV[1]
+
+#vm_xml =  Base64::decode64(ARGV[0])
+vm_xml = `onevm show -x #{template}`
+
+fw = OpenNebulaFirewall.new(vm_xml)
+
+case action
+when "on"
+    fw.activate
+when "off"
+    fw.deactivate
+end

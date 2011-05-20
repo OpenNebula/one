@@ -26,6 +26,7 @@ CONF = {
 
 COMMANDS = {
   :ebtables => "sudo /sbin/ebtables",
+  :iptables => "sudo /usr/sbin/iptables",
   :brctl    => "/usr/sbin/brctl",
   :virsh    => "virsh -c qemu:///system",
   :xm       => "sudo /usr/sbin/xm",
@@ -273,5 +274,121 @@ class EbtablesVLAN < OpenNebulaVLAN
 
     def remove_rule(rule)
         system("#{COMMANDS[:ebtables]} -D FORWARD #{rule}")
+    end
+end
+
+class OpenNebulaFirewall < OpenNebulaVLAN
+    def initialize(vm, hypervisor = nil)
+        super(vm,hypervisor)
+    end
+    def activate
+        vm_id =  @vm['ID']
+        process do |nic|
+            #:white_ports_tcp => iptables_range
+            #:white_ports_udp => iptables_range
+            #:black_ports_tcp => iptables_range
+            #:black_ports_udp => iptables_range
+            #:icmp            => 'DROP' or 'NO'
+            
+            nic_rules = Array.new
+            
+            chain   = "one-#{vm_id}-#{nic[:network_id]}"
+            tap     = nic[:tap]
+            
+            if tap
+                #TCP
+                if range = nic[:white_ports_tcp]
+                    nic_rules << filter_ports(chain, :tcp, range, :accept)
+                    nic_rules << filter_protocol(chain, :tcp, :drop)
+                elsif range = nic[:black_ports_tcp]
+                    nic_rules << filter_ports(chain, :tcp, range, :drop)
+                end
+
+                #UDP
+                if range = nic[:white_ports_udp]
+                    nic_rules << filter_ports(chain, :ucp, range, :accept)
+                    nic_rules << filter_protocol(chain, :ucp, :drop)
+                elsif range = nic[:black_ports_udp]
+                    nic_rules << filter_ports(chain, :ucp, range, :drop)
+                end
+
+                #ICMP
+                if nic[:icmp]
+                    if %w(no drop).include? nic[:icmp].downcase
+                        nic_rules << filter_protocol(chain, :icmp, :drop)
+                    end
+                end
+
+                process_chain(chain, tap, nic_rules)
+            end
+        end
+    end
+
+    def deactivate
+        vm_id =  @vm['ID']
+        process do |nic|
+            chain   = "one-#{vm_id}-#{nic[:network_id]}"
+            iptables_out = `#{COMMANDS[:iptables]} -n -v --line-numbers -L FORWARD`
+            if m = iptables_out.match(/.*#{chain}.*/)
+                rule_num = m[0].split(/\s+/)[0]
+                purge_chain(chain, rule_num)
+            end
+        end
+    end
+
+    def purge_chain(chain, rule_num)
+        rules = Array.new
+        rules << rule("-D FORWARD #{rule_num}")
+        rules << rule("-F #{chain}")
+        rules << rule("-X #{chain}")
+        run_rules rules
+    end
+
+    def process_chain(chain, tap, nic_rules)
+        rules = Array.new
+        if !nic_rules.empty?
+            # new chain
+            rules << new_chain(chain)
+            # move tap traffic to chain
+            rules << tap_to_chain(tap, chain)
+
+            rules << nic_rules
+        end
+        run_rules rules
+    end
+
+    def run_rules(rules)
+        rules.flatten.each do |rule|
+            system(rule)
+            puts(rule)
+        end
+    end
+
+    def range?(range)
+        range.match(/^(?:(?:\d+|\d+:\d+),)*(?:\d+|\d+:\d+)$/)
+    end
+
+    def filter_protocol(chain, protocol, policy)
+        policy   = policy.to_s.upcase
+        rule "-A #{chain} -p #{protocol} -j #{policy}"
+    end
+
+    def filter_ports(chain, protocol, range, policy)
+        policy   = policy.to_s.upcase
+        if range? range
+           rule "-A #{chain} -p #{protocol} -m multiport --dports #{range} -j #{policy}"
+        end
+    end
+
+    def tap_to_chain(tap, chain)
+        rule "-A FORWARD -m physdev --physdev-in #{tap} -j #{chain}"
+    end
+
+    def new_chain(chain)
+        rule "-N #{chain}"
+    end
+
+    def rule(rule)
+        "#{COMMANDS[:iptables]} #{rule}"
     end
 end
