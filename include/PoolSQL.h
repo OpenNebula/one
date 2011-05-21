@@ -164,18 +164,28 @@ protected:
     int dump(ostringstream& oss, const string& elem_name,
              const char * table, const string& where);
 
-    /**
-     *  Last object ID assigned to an object. It must be initialized by the
-     *  target pool.
-     */
-    int     lastOID;
+    /* ---------------------------------------------------------------------- */
+    /* Interface to access the lastOID assigned by the pool                   */
+    /* ---------------------------------------------------------------------- */
 
     /**
-     *  Returns the value of the last identifier assigned by the pool
+     *  Gets the value of the last identifier assigned by the pool
+     *   @return the lastOID of the pool
      */
     int get_lastOID()
     {
         return lastOID;
+    };
+
+    /**
+     *  Sets the lastOID of the pool and updates the control database
+     *    @param _lastOID for the pool
+     */
+    void set_update_lastOID(int _lastOID)
+    {
+        lastOID = _lastOID;
+
+        update_lastOID();
     };
 
     /**
@@ -185,25 +195,31 @@ protected:
 
 private:
 
-    pthread_mutex_t             mutex;
+    pthread_mutex_t mutex;
 
     /**
      *  Max size for the pool, to control the memory footprint of the pool. This
      *  number MUST be greater than the max. number of objects that are
      *  accessed simultaneously.
      */
-    static const unsigned int   MAX_POOL_SIZE;
+    static const unsigned int MAX_POOL_SIZE;
+
+    /**
+     *  Last object ID assigned to an object. It must be initialized by the
+     *  target pool.
+     */
+    int lastOID;
 
     /**
      *  Tablename for this pool
      */
-    string  table;
+    string table;
 
     /**
      *  The pool is implemented with a Map of SQL object pointers, using the
      *  OID as key.
      */
-    map<int,PoolObjectSQL *>    pool;
+    map<int,PoolObjectSQL *> pool;
 
     /**
      *  This is a name index for the pool map. The key is the name of the object
@@ -221,7 +237,7 @@ private:
      *  OID queue to implement a FIFO-like replacement policy for the pool
      *  cache.
      */
-    queue<int>                  oid_queue;
+    queue<int> oid_queue;
 
     /**
      *  Function to lock the pool

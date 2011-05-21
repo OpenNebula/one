@@ -140,12 +140,16 @@ int PoolSQL::allocate(
     return rc;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void PoolSQL::update_lastOID()
 {
     // db->escape_str is not used for 'table' since its name can't be set in
     // any way by the user, it is hardcoded.
 
     ostringstream oss;
+
     oss << "REPLACE INTO pool_control (tablename, last_oid) VALUES ("
         << "'" <<   table       << "',"
         <<          lastOID     << ")";
