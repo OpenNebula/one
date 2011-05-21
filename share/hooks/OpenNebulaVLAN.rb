@@ -294,10 +294,11 @@ class OpenNebulaFirewall < OpenNebulaVLAN
             
             chain   = "one-#{vm_id}-#{nic[:network_id]}"
             tap     = nic[:tap]
-            
+
             if tap
                 #TCP
                 if range = nic[:white_ports_tcp]
+                    nic_rules << filter_established(chain, :tcp, :accept)
                     nic_rules << filter_ports(chain, :tcp, range, :accept)
                     nic_rules << filter_protocol(chain, :tcp, :drop)
                 elsif range = nic[:black_ports_tcp]
@@ -306,15 +307,17 @@ class OpenNebulaFirewall < OpenNebulaVLAN
 
                 #UDP
                 if range = nic[:white_ports_udp]
-                    nic_rules << filter_ports(chain, :ucp, range, :accept)
-                    nic_rules << filter_protocol(chain, :ucp, :drop)
+                    nic_rules << filter_established(chain, :udp, :accept)
+                    nic_rules << filter_ports(chain, :udp, range, :accept)
+                    nic_rules << filter_protocol(chain, :udp, :drop)
                 elsif range = nic[:black_ports_udp]
-                    nic_rules << filter_ports(chain, :ucp, range, :drop)
+                    nic_rules << filter_ports(chain, :udp, range, :drop)
                 end
 
                 #ICMP
                 if nic[:icmp]
                     if %w(no drop).include? nic[:icmp].downcase
+                        nic_rules << filter_established(chain, :icmp, :accept)
                         nic_rules << filter_protocol(chain, :icmp, :drop)
                     end
                 end
@@ -357,10 +360,14 @@ class OpenNebulaFirewall < OpenNebulaVLAN
         run_rules rules
     end
 
+    def filter_established(chain, protocol, policy)
+        policy   = policy.to_s.upcase
+        rule "-A #{chain} -p #{protocol} -m state --state ESTABLISHED -j #{policy}"
+    end
+
     def run_rules(rules)
         rules.flatten.each do |rule|
             system(rule)
-            puts(rule)
         end
     end
 
@@ -381,7 +388,7 @@ class OpenNebulaFirewall < OpenNebulaVLAN
     end
 
     def tap_to_chain(tap, chain)
-        rule "-A FORWARD -m physdev --physdev-in #{tap} -j #{chain}"
+        rule "-A FORWARD -m physdev --physdev-out #{tap} -j #{chain}"
     end
 
     def new_chain(chain)
