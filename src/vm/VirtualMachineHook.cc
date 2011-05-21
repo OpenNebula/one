@@ -21,11 +21,36 @@
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
 
+static void parse_vm_arguments(VirtualMachine *vm, string& parsed)
+{
+    size_t  found;
+
+    found = parsed.find("$VMID");
+
+    if ( found !=string::npos )
+    {
+        ostringstream oss;
+        oss << vm->get_oid();
+
+        parsed.replace(found,5,oss.str());
+    }
+
+    found = parsed.find("$TEMPLATE");
+
+    if ( found != string::npos )
+    {
+        string templ;
+        parsed.replace(found,9,vm->to_xml64(templ));
+    }
+}
+
+// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+
 void VirtualMachineAllocateHook::do_hook(void *arg)
 {
     VirtualMachine * vm;
-    int              rc;
-    string           parsed_args;
+    string           parsed_args = args;
 
     vm = static_cast<VirtualMachine *>(arg);
 
@@ -34,18 +59,15 @@ void VirtualMachineAllocateHook::do_hook(void *arg)
         return;
     }
 
-    rc = vm->parse_template_attribute(args, parsed_args);
+    parse_vm_arguments(vm, parsed_args);
 
-    if ( rc == 0)
+    Nebula& ne                    = Nebula::instance();
+    HookManager * hm              = ne.get_hm();
+    const HookManagerDriver * hmd = hm->get();
+
+    if ( hmd != 0 )
     {
-        Nebula& ne                    = Nebula::instance();
-        HookManager * hm              = ne.get_hm();
-        const HookManagerDriver * hmd = hm->get();
-
-        if ( hmd != 0 )
-        {
-            hmd->execute(vm->get_oid(),name,cmd,parsed_args);
-        }
+        hmd->execute(vm->get_oid(),name,cmd,parsed_args);
     }
 }
 
@@ -143,29 +165,28 @@ void VirtualMachineStateHook::do_hook(void *arg)
 
     if ( cur_lcm == lcm && cur_vm == this->vm )
     {
-        string  parsed_args;
+        string  parsed_args = args;
 
-        if ( vm->parse_template_attribute(args, parsed_args) == 0)
+        parse_vm_arguments(vm,parsed_args);
+
+        Nebula& ne        = Nebula::instance();
+        HookManager * hm  = ne.get_hm();
+
+        const HookManagerDriver * hmd = hm->get();
+
+        if ( hmd != 0 )
         {
-            Nebula& ne        = Nebula::instance();
-            HookManager * hm  = ne.get_hm();
-
-            const HookManagerDriver * hmd = hm->get();
-
-            if ( hmd != 0 )
+            if ( ! remote )
             {
-                if ( ! remote )
-                {
-                    hmd->execute(vm->get_oid(),name,cmd,parsed_args);
-                }
-                else if ( vm->hasHistory() )
-                {
-                    hmd->execute(vm->get_oid(),
-                         name,
-                         vm->get_hostname(),
-                         cmd,
-                         parsed_args);
-                }
+                hmd->execute(vm->get_oid(),name,cmd,parsed_args);
+            }
+            else if ( vm->hasHistory() )
+            {
+                hmd->execute(vm->get_oid(),
+                     name,
+                     vm->get_hostname(),
+                     cmd,
+                     parsed_args);
             }
         }
     }

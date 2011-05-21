@@ -16,14 +16,9 @@
 
 #include "AuthManager.h"
 #include "NebulaLog.h"
+#include "SSLTools.h"
 
 #include "Nebula.h"
-
-#include <openssl/sha.h>
-#include <openssl/hmac.h>
-#include <openssl/evp.h>
-#include <openssl/bio.h>
-#include <openssl/buffer.h>
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -31,40 +26,6 @@
 time_t AuthManager::_time_out;
 
 const char * AuthManager::auth_driver_name = "auth_exe";
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-string * AuthRequest::base64_encode(const string& in)
-{
-    BIO *     bio_mem;
-    BIO *     bio_64;
-
-    char *    encoded_c;
-    long int  size;
-
-    bio_64  = BIO_new(BIO_f_base64());
-    bio_mem = BIO_new(BIO_s_mem());
-
-    BIO_push(bio_64, bio_mem);
-
-    BIO_set_flags(bio_64,BIO_FLAGS_BASE64_NO_NL);
-
-    BIO_write(bio_64, in.c_str(), in.length());
-
-    if (BIO_flush(bio_64) != 1)
-    {
-        return 0;
-    }
-
-    size = BIO_get_mem_data(bio_mem,&encoded_c);
-
-    string * encoded = new string(encoded_c,size);
-
-    BIO_free_all(bio_64);
-
-    return encoded;
-}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -92,7 +53,7 @@ void AuthRequest::add_auth(Object        ob,
 
     if (op == CREATE || op == INSTANTIATE) //encode the ob_id, it is a template
     {
-        string * encoded_id = base64_encode(ob_id);
+        string * encoded_id = SSLTools::base64_encode(ob_id);
 
         if (encoded_id != 0)
         {
@@ -400,18 +361,24 @@ void AuthManager::timer_action()
 
     lock();
 
-    for (it=auth_requests.begin();it!=auth_requests.end();it++)
+    it = auth_requests.begin();
+
+    while ( it !=auth_requests.end())
     {
         if (the_time > it->second->time_out)
         {
             AuthRequest * ar = it->second;
-            auth_requests.erase(it);
+            auth_requests.erase(it++);
 
             ar->result  = false;
             ar->timeout = true;
             ar->message = "Auth request timeout";
 
             ar->notify();
+        }
+        else
+        {
+            ++it;
         }
     }
 

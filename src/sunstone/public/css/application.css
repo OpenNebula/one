@@ -372,10 +372,13 @@ tr.even:hover{
 
 
 .info_table td{
-	border-bottom: 1px solid #CCCCCC;
-	color: #353735;
-	padding: 6px 8px;
-	}
+    border-bottom: 1px solid #CCCCCC;
+    color: #353735;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    padding-left: 8px;
+    padding-right: 8px;
+    }
 
 
 .info_table td.key_td{

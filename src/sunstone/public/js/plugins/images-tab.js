@@ -56,7 +56,7 @@ var create_image_tmpl =
 					</div>\
 					<div class="img_param">\
 						<label for="img_desc">Description:</label>\
-						<input type="text" name="img_desc" id="img_desc" />\
+						<textarea name="img_desc" id="img_desc" style="height:4em"></textarea>\
 						<div class="tip">Human readable description of the image for other users.</div>\
 					</div>\
 			</fieldset>\

@@ -22,23 +22,14 @@ if [ -z "$ONE_LOCATION" ]; then
     SUNSTONE_SERVER=/usr/lib/one/sunstone/config.ru
     SUNSTONE_LOCK_FILE=/var/lock/one/.sunstone.lock
     SUNSTONE_LOG=/var/log/one/sunstone.log
+    SUNSTONE_CONF=/etc/one/sunstone-server.conf
 else
     SUNSTONE_PID=$ONE_LOCATION/var/sunstone.pid
     SUNSTONE_SERVER=$ONE_LOCATION/lib/sunstone/config.ru
     SUNSTONE_LOCK_FILE=$ONE_LOCATION/var/.sunstone.lock
     SUNSTONE_LOG=$ONE_LOCATION/var/sunstone.log
+    SUNSTONE_CONF=$ONE_LOCATION/etc/sunstone-server.conf
 fi
-
-PORT="4567"
-HOST="127.0.0.1"
-
-usage() {
- echo
- echo "Usage: sunstone-server [-H host] [-p port]"
- echo
- echo "-H: Host for the Sunstone server, default value: localhost"
- echo "-p: Port for incoming connections, default value: 4567"
-}
 
 setup()
 {
@@ -48,7 +39,8 @@ setup()
       SUNSTONEPID=`cat $SUNSTONE_PID`
       ps $SUNSTONEPID &> /dev/null
       if [ $? -eq 0 ]; then
-        echo "Sunstone Server is still running (PID:$SUNSTONEPID). Please try 'sunstone-server stop' first."
+        echo -n "Sunstone Server is still running (PID:$SUNSTONEPID). Please "
+        echo "try 'sunstone-server stop' first."
         exit 1
       fi
     fi
@@ -65,14 +57,21 @@ start()
     exit 1
   fi
 
+  source $SUNSTONE_CONF
+
+  lsof -i:$PORT  &> /dev/null
+  if [ $? -eq 0 ]; then
+    echo "The port $PORT is being used. Please specify a different one."
+    exit 1
+  fi
+  
   # Start the sunstone daemon
   touch $SUNSTONE_LOCK_FILE
-  rackup $SUNSTONE_SERVER -s thin -p $PORT -o $HOST -P $SUNSTONE_PID &> $SUNSTONE_LOG &
+  rackup $SUNSTONE_SERVER -s thin -p $PORT -o $HOST \
+                  -P $SUNSTONE_PID &> $SUNSTONE_LOG &
 
-  LASTRC=$?
-
-  if [ $LASTRC -ne 0 ]; then
-    echo "Error executing $SUNSTONE_SERVER"
+  if [ $? -ne 0 ]; then
+    echo "Error executing $SUNSTONE_SERVER, please check the log $SUNSTONE_LOG"
     exit 1
   fi
 
@@ -80,11 +79,11 @@ start()
   ps $LASTPID &> /dev/null
 
   if [ $? -ne 0 ]; then
-    echo "Error executing $SUNSTONE_SERVER."
+    echo "Error executing $SUNSTONE_SERVER, please check the log $SUNSTONE_LOG"
     exit 1
   fi
 
-  echo "sunstone-server started"
+  echo "sunstone-server listening on $HOST:$PORT"
 }
 
 #
@@ -106,19 +105,8 @@ stop()
   echo "sunstone-server stopped"
 }
 
-while getopts "p:H:" OPTION
-do
-  case $OPTION in
-    p) PORT=$OPTARG;;
-    H) HOST=$OPTARG;;
-    *) usage; exit 3;;
-  esac
-done
-
-shift $((OPTIND-1))
-
 case "$1" in
   start) setup; start;;
   stop)  stop;;
-  *)     usage; exit 3;;
+  *)     echo "Usage: sunstone-server {start|stop}" >&2; exit 3;;
 esac

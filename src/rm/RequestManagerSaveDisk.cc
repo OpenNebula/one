@@ -91,6 +91,7 @@ void RequestManager::VirtualMachineSaveDisk::execute(
 
     oss << "NAME= " << img_name << endl;
     oss << "PUBLIC = NO " << endl;
+    oss << "SOURCE = - " << endl;
 
     img_template = new ImageTemplate;
 

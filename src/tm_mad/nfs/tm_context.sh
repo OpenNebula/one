@@ -48,7 +48,7 @@ exec_and_log "mkdir -p $ISO_DIR"
 for f in $SRC; do
     case $f in
     http://*)
-        exec_and_log "$WGET -O $ISO_DIR $f" \
+        exec_and_log "$WGET -P $ISO_DIR $f" \
             "Error downloading $f"
         ;;
 

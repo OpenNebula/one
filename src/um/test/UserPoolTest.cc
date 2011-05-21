@@ -20,6 +20,7 @@
 
 #include "UserPool.h"
 #include "PoolTest.h"
+#include "SSLTools.h"
 
 using namespace std;
 
@@ -119,7 +120,7 @@ public:
         string st   = "top_secret_string";
         string sha1 = "773260f433f7fd6f89c1f1bfc32e080fc0748478";
 
-        CPPUNIT_ASSERT( sha1 == User::sha1_digest(st) );
+        CPPUNIT_ASSERT( sha1 == SSLTools::sha1_digest(st) );
     }
 
     void split_secret()
@@ -151,7 +152,7 @@ public:
 
         CPPUNIT_ASSERT( user->get_oid()      == 0 );
         CPPUNIT_ASSERT( user->get_name() == "one_user_test" );
-        CPPUNIT_ASSERT( user->get_password() == User::sha1_digest("password") );
+        CPPUNIT_ASSERT( user->get_password() == SSLTools::sha1_digest("password") );
     }
 
     void authenticate()

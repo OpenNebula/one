@@ -22,6 +22,7 @@
 #include "NebulaLog.h"
 #include "Nebula.h"
 #include "AuthManager.h"
+#include "SSLTools.h"
 
 #include <fstream>
 #include <sys/types.h>
@@ -85,7 +86,7 @@ UserPool::UserPool(SqlDB * db):PoolSQL(db,User::table)
             if (User::split_secret(one_token,one_name,one_pass) == 0)
             {
                 string error_str;
-                string sha1_pass = User::sha1_digest(one_pass);
+                string sha1_pass = SSLTools::sha1_digest(one_pass);
 
                 allocate(&one_uid, one_name, sha1_pass, true,
                          GroupPool::ONEADMIN_ID, error_str);

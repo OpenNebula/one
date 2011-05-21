@@ -16,20 +16,40 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+ONE_LOCATION = ENV["ONE_LOCATION"]
+
+if !ONE_LOCATION
+    LOG_LOCATION = "/var/log/one"
+    VAR_LOCATION = "/var/lib/one"
+    RUBY_LIB_LOCATION = "/usr/lib/one/ruby"
+    CONFIGURATION_FILE = "/etc/one/sunstone-server.conf"
+else
+    VAR_LOCATION = ONE_LOCATION+"/var"
+    LOG_LOCATION = ONE_LOCATION+"/var"
+    RUBY_LIB_LOCATION = ONE_LOCATION+"/lib/ruby"
+    CONFIGURATION_FILE = ONE_LOCATION+"/etc/sunstone-server.conf"
+end
+
+$: << RUBY_LIB_LOCATION
+$: << File.dirname(__FILE__)+'/models'
+
 ##############################################################################
 # Required libraries
 ##############################################################################
 require 'rubygems'
 require 'sinatra'
 
-require 'models/SunstoneServer'
+require 'cloud/Configuration'
+require 'SunstoneServer'
 
+set :config, Configuration.new(CONFIGURATION_FILE)
 
 ##############################################################################
 # Sinatra Configuration
 ##############################################################################
 use Rack::Session::Pool
-
+set :host, settings.config[:host]
+set :port, settings.config[:port]
 
 ##############################################################################
 # Helpers
@@ -161,6 +181,56 @@ end
 ##############################################################################
 post '/:pool' do
     @SunstoneServer.create_resource(params[:pool], request.body.read)
+end
+
+##############################################################################
+# Stop the VNC Session of a target VM
+##############################################################################
+post '/vm/:id/stopvnc' do
+    vm_id = params[:id]
+    vnc_hash = session['vnc']
+
+    if !vnc_hash || !vnc_hash[vm_id]
+        msg = "It seems there is no VNC proxy running for this machine"
+        return [403, OpenNebula::Error.new(msg).to_json]
+    end
+
+    rc = @SunstoneServer.stopvnc(vm_id, vnc_hash[vm_id][:pipe])
+    if rc[0] == 200
+        session['vnc'].delete(vm_id)
+    end
+
+    rc
+end
+
+##############################################################################
+# Start a VNC Session for a target VM
+##############################################################################
+post '/vm/:id/startvnc' do
+    vm_id = params[:id]
+
+    vnc_hash = session['vnc']
+
+    if !vnc_hash
+        session['vnc']= {}
+    elsif vnc_hash[vm_id]
+        #return existing information
+        info = vnc_hash[vm_id].clone
+        info.delete(:pipe)
+
+        return [200, info.to_json]
+    end
+
+    rc = @SunstoneServer.startvnc(vm_id, settings.config)
+    if rc[0] == 200
+        info = rc[1]
+        session['vnc'][vm_id] = info.clone
+        info.delete(:pipe)
+
+        [200, info.to_json]
+    else
+        rc
+    end
 end
 
 ##############################################################################
