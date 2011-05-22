@@ -88,8 +88,8 @@ UserPool::UserPool(SqlDB * db):PoolSQL(db,User::table)
                 string error_str;
                 string sha1_pass = SSLTools::sha1_digest(one_pass);
 
-                allocate(&one_uid, one_name, sha1_pass, true,
-                         GroupPool::ONEADMIN_ID, error_str);
+                allocate(&one_uid,GroupPool::ONEADMIN_ID,one_name,sha1_pass,
+                         true, error_str);
             }
             else
             {
@@ -116,10 +116,10 @@ UserPool::UserPool(SqlDB * db):PoolSQL(db,User::table)
 
 int UserPool::allocate (
     int *   oid,
+    int     gid,
     string  username,
     string  password,
     bool    enabled,
-    int     gid,
     string& error_str)
 {
     User *        user;
@@ -138,7 +138,7 @@ int UserPool::allocate (
     }
 
     // Build a new User object
-    user = new User(-1, username, password, enabled, gid);
+    user = new User(-1, gid, username, password, enabled);
 
     // Insert the Object in the pool
     *oid = PoolSQL::allocate(user, error_str);
@@ -244,8 +244,8 @@ int UserPool::authenticate(string& session)
 
                 if ( !is.fail() )
                 {
-                    allocate(&user_id,mad_name,mad_pass,true,
-                             GroupPool::USERS_ID,error_str);
+                    allocate(&user_id,GroupPool::USERS_ID,mad_name,mad_pass,
+                             true,error_str);
                 }
 
                 if ( user_id == -1 )

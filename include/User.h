@@ -151,13 +151,11 @@ protected:
     // Constructor
     // *************************************************************************
 
-    User(int     id,
-         string _username,
-         string _password,
-         bool   _enabled,
-         int    _gid);
+    User(int id, int _gid, const string& _username, const string& _password, bool _enabled):
+        PoolObjectSQL(id,_username,-1,_gid,table), password(_password), enabled(_enabled)
+        {};
 
-    virtual ~User();
+    virtual ~User(){};
 
     // *************************************************************************
     // DataBase implementation

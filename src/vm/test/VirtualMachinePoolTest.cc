@@ -386,13 +386,13 @@ public:
         string result = oss.str();
         fix_stimes(result);
 
-//*
+/*
         if( result != xml_history_dump )
         {
             cout << endl << result << endl << "========"
                  << endl << xml_history_dump << endl << "--------";
         }
-//*/
+*/
 
         CPPUNIT_ASSERT( result == xml_history_dump );
     }

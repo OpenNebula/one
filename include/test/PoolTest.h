@@ -84,24 +84,16 @@ protected:
     string fix_time(string& xml, string elem_name)
     {
         string start = "<"  + elem_name + ">";
-        string end   = "</" + elem_name + ">";
-
         string replacement = "0000000000";
-        unsigned int pos = 0;
-        unsigned int end_pos = 0;
+        size_t pos = 0;
 
-        unsigned int length;
-
-        pos = xml.find(start, pos+1);
-
-        while( pos != xml.npos )
+        while( (pos = xml.find(start, pos)) != string::npos )
         {
-            end_pos = xml.find(end, pos);
-            length = end_pos - pos - start.size();
-
-            xml.replace( pos+start.size(), length, replacement, 0, length);
-
-            pos = xml.find(start, pos+2);
+            if ( xml[pos+start.size()] != '0' )
+            {
+                xml.replace( pos+start.size(), replacement.size(), replacement);
+            }
+            pos++;
         }
 
         return xml;

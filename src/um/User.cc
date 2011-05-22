@@ -25,16 +25,6 @@
 #include "User.h"
 
 /* ************************************************************************** */
-/* User :: Constructor/Destructor                                             */
-/* ************************************************************************** */
-
-User::User(int id, string name, string pass, bool _enabled, int _gid):
-        PoolObjectSQL(id,name,-1,_gid,table), password(pass), enabled(_enabled)
-        {};
-
-User::~User(){};
-
-/* ************************************************************************** */
 /* User :: Database Access Functions                                          */
 /* ************************************************************************** */
 
@@ -144,11 +134,11 @@ string& User::to_xml(string& xml) const
 
     oss <<
     "<USER>"
-         "<ID>"           << oid            <<"</ID>"        <<
-         "<NAME>"         << name           <<"</NAME>"      <<
-         "<GID>"          << gid            <<"</GID>"       <<
-         "<PASSWORD>"     << password       <<"</PASSWORD>"  <<
-         "<ENABLED>"      << enabled_int    <<"</ENABLED>"   <<
+         "<ID>"       << oid         << "</ID>"       <<
+         "<GID>"      << gid         << "</GID>"      <<
+         "<NAME>"     << name        << "</NAME>"     <<
+         "<PASSWORD>" << password    << "</PASSWORD>" <<
+         "<ENABLED>"  << enabled_int << "</ENABLED>"  <<
     "</USER>";
 
     xml = oss.str();
@@ -168,8 +158,8 @@ int User::from_xml(const string& xml)
     update_from_str(xml);
 
     rc += xpath(oid,         "/USER/ID",       -1);
-    rc += xpath(name,        "/USER/NAME",     "not_found");
     rc += xpath(gid,         "/USER/GID",      -1);
+    rc += xpath(name,        "/USER/NAME",     "not_found");
     rc += xpath(password,    "/USER/PASSWORD", "not_found");
     rc += xpath(int_enabled, "/USER/ENABLED",  0);
 

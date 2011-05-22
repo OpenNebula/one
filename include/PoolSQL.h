@@ -188,11 +188,6 @@ protected:
         update_lastOID();
     };
 
-    /**
-     *  Inserts the last oid into the pool_control table
-     */
-    void update_lastOID();
-
 private:
 
     pthread_mutex_t mutex;
@@ -278,6 +273,11 @@ private:
 
         return key.str();
     };
+
+    /**
+     *  Inserts the last oid into the pool_control table
+     */
+    void update_lastOID();
 
     /* ---------------------------------------------------------------------- */
     /* ---------------------------------------------------------------------- */

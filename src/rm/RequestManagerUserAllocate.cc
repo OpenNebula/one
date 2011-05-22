@@ -76,8 +76,12 @@ void RequestManager::UserAllocate::execute(
     }
 
     // Now let's add the user
-    rc = UserAllocate::upool->allocate(&uid,username,password,true,GroupPool::USERS_ID,error_str);
-
+    rc = UserAllocate::upool->allocate(&uid,
+                                       GroupPool::USERS_ID,
+                                       username,
+                                       password,
+                                       true,
+                                       error_str);
     if ( rc == -1 )
     {
         goto error_allocate;

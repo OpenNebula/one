@@ -82,9 +82,9 @@ private:
     // Constructor
     // *************************************************************************
 
-    Cluster(int id, const string& name);
+    Cluster(int id, const string& name):PoolObjectSQL(id,name,-1,-1,table){};
 
-    virtual ~Cluster();
+    virtual ~Cluster(){};
 
     // *************************************************************************
     // DataBase implementation (Private)
