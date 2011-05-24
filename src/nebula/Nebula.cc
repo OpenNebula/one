@@ -450,17 +450,7 @@ void Nebula::start()
 
         nebula_configuration->get("PORT", rm_port);
 
-        rm = new RequestManager(
-            vmpool,
-            hpool,
-            vnpool,
-            upool,
-            ipool,
-            cpool,
-            tpool,
-            gpool,
-            rm_port,
-            log_location + "one_xmlrpc.log");
+        rm = new RequestManager(rm_port, log_location + "one_xmlrpc.log");
     }
     catch (bad_alloc&)
     {

@@ -213,7 +213,7 @@ void RequestManager::do_action(
         
 void RequestManager::register_xml_methods()
 {
-    xmlrpc_c::methodPtr vm_allocate(new 
+/*    xmlrpc_c::methodPtr vm_allocate(new 
         RequestManager::VirtualMachineAllocate(vmpool,vnpool,ipool,tpool,upool));
         
     xmlrpc_c::methodPtr vm_deploy(new 
@@ -377,9 +377,9 @@ void RequestManager::register_xml_methods()
 
     xmlrpc_c::methodPtr imagepool_info(new    
         RequestManager::ImagePoolInfo(ipool, upool));
-
+*/
     /* VM related methods  */    
-        
+/*        
     RequestManagerRegistry.addMethod("one.vm.allocate", vm_allocate);
     RequestManagerRegistry.addMethod("one.vm.deploy", vm_deploy);
     RequestManagerRegistry.addMethod("one.vm.action", vm_action);
@@ -389,9 +389,9 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vm.chown", vm_chown);
 
     RequestManagerRegistry.addMethod("one.vmpool.info", vm_pool_info);
-
+*/
     /* VM Template related methods*/
-
+/*
     RequestManagerRegistry.addMethod("one.template.allocate",template_allocate);
     RequestManagerRegistry.addMethod("one.template.delete", template_delete);
     RequestManagerRegistry.addMethod("one.template.info", template_info);
@@ -401,18 +401,18 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.template.chown", template_chown);
 
     RequestManagerRegistry.addMethod("one.templatepool.info",template_pool_info);
-
+*/
     /* Host related methods*/
-     
+/*     
     RequestManagerRegistry.addMethod("one.host.allocate", host_allocate);   
     RequestManagerRegistry.addMethod("one.host.info", host_info);
     RequestManagerRegistry.addMethod("one.host.delete", host_delete);
     RequestManagerRegistry.addMethod("one.host.enable", host_enable);
     
     RequestManagerRegistry.addMethod("one.hostpool.info", hostpool_info); 
-
+*/
     /* Cluster related methods */
-
+/*
     RequestManagerRegistry.addMethod("one.cluster.allocate", cluster_allocate);
     RequestManagerRegistry.addMethod("one.cluster.info", cluster_info);
     RequestManagerRegistry.addMethod("one.cluster.delete", cluster_delete);
@@ -420,17 +420,17 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.cluster.remove", cluster_remove);
 
     RequestManagerRegistry.addMethod("one.clusterpool.info", clusterpool_info);
-
+*/
     /* Group related methods */
-
+/*
     RequestManagerRegistry.addMethod("one.group.allocate",  group_allocate);
     RequestManagerRegistry.addMethod("one.group.info",      group_info);
     RequestManagerRegistry.addMethod("one.group.delete",    group_delete);
 
     RequestManagerRegistry.addMethod("one.grouppool.info",  grouppool_info);
-
+*/
     /* Network related methods*/
-
+/*
     RequestManagerRegistry.addMethod("one.vn.allocate", vn_allocate);   
     RequestManagerRegistry.addMethod("one.vn.info", vn_info); 
     RequestManagerRegistry.addMethod("one.vn.publish", vn_publish);
@@ -440,10 +440,10 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vn.chown", vn_chown);
 
     RequestManagerRegistry.addMethod("one.vnpool.info", vnpool_info); 
-    
+*/    
     
     /* User related methods*/
-        
+/*        
     RequestManagerRegistry.addMethod("one.user.allocate", user_allocate);
     RequestManagerRegistry.addMethod("one.user.delete", user_delete);
     RequestManagerRegistry.addMethod("one.user.info", user_info);
@@ -451,9 +451,9 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.user.chown", user_chown);
 
     RequestManagerRegistry.addMethod("one.userpool.info", userpool_info);
-    
+*/    
     /* Image related methods*/
-    
+/*    
     RequestManagerRegistry.addMethod("one.image.allocate", image_allocate);
     RequestManagerRegistry.addMethod("one.image.delete", image_delete);
     RequestManagerRegistry.addMethod("one.image.info", image_info);
@@ -465,7 +465,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.image.chown", image_chown);
 
     RequestManagerRegistry.addMethod("one.imagepool.info", imagepool_info);
-    
+  */  
 };
 
 /* -------------------------------------------------------------------------- */

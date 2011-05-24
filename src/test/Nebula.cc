@@ -379,8 +379,7 @@ void Nebula::start()
     {
         try
         {
-            rm = tester->create_rm(vmpool,hpool,vnpool,upool,ipool,cpool,tpool,
-                                   gpool,log_location + "one_xmlrpc.log");
+            rm = tester->create_rm(log_location + "one_xmlrpc.log");
         }
         catch (bad_alloc&)
         {

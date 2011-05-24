@@ -130,16 +130,7 @@ public:
     virtual DispatchManager* create_dm(VirtualMachinePool* vmpool,
                                        HostPool*           hpool);
 
-    virtual RequestManager* create_rm(
-                    VirtualMachinePool *    vmpool,
-                    HostPool *              hpool,
-                    VirtualNetworkPool *    vnpool,
-                    UserPool           *    upool,
-                    ImagePool          *    ipool,
-                    ClusterPool        *    cpool,
-                    VMTemplatePool     *    tpool,
-                    GroupPool          *    gpool,
-                    string                  log_file);
+    virtual RequestManager* create_rm(string log_file);
 
     virtual HookManager* create_hm(VirtualMachinePool * vmpool);
 

@@ -113,29 +113,11 @@ DispatchManager* NebulaTest::create_dm(VirtualMachinePool* vmpool,
     return new DispatchManager(vmpool, hpool);
 }
 
-RequestManager* NebulaTest::create_rm(
-                VirtualMachinePool *    vmpool,
-                HostPool *              hpool,
-                VirtualNetworkPool *    vnpool,
-                UserPool           *    upool,
-                ImagePool          *    ipool,
-                ClusterPool        *    cpool,
-                VMTemplatePool     *    tpool,
-                GroupPool          *    gpool,
-                string                  log_file)
+RequestManager* NebulaTest::create_rm(string log_file)
 {
     int rm_port = 2633;
 
-    return new RequestManager(vmpool,
-                              hpool,
-                              vnpool,
-                              upool,
-                              ipool,
-                              cpool,
-                              tpool,
-                              gpool,
-                              rm_port,
-                              log_file);
+    return new RequestManager(rm_port, log_file);
 }
 
 HookManager* NebulaTest::create_hm(VirtualMachinePool * vmpool)
