@@ -24,7 +24,10 @@
 
 using namespace std;
 
-
+/**
+ *  The Request Class represents the basic abstraction for the OpenNebula
+ *  XML-RPC API. This interface must be implemented by any XML-RPC API call
+ */
 class Request: public xmlrpc_c::method
 {
 public:
@@ -37,6 +40,16 @@ public:
     virtual void execute(
         xmlrpc_c::paramList const& _paramList,
         xmlrpc_c::value *   const  _retval);
+
+    /**
+     *  Error codes for the XML-RPC API
+     */
+    enum ErrorCode {
+        AUTHENTICATION = 0x0100,
+        AUTHORIZATION  = 0x0200,
+        GET          = 0x0400,
+        ACTION       = 0x0800
+    };
 
 protected:
 
@@ -82,7 +95,7 @@ protected:
      *    @param ec error code for this call
      *    @param val string representation of the error
      */
-    void failure_response(RequestManager::ErrorCode ec, const string& val);
+    void failure_response(ErrorCode ec, const string& val);
 
     /**
      *  Logs authorization errors

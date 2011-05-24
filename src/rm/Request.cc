@@ -38,8 +38,7 @@ void Request::execute(
 
     if ( upool->authenticate(session, uid, gid) == false )
     {
-        failure_response(RequestManager::AUTHENTICATION,
-                         authenticate_error());
+        failure_response(AUTHENTICATION, authenticate_error());
     }
     else
     {
@@ -50,8 +49,7 @@ void Request::execute(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void Request::failure_response(RequestManager::ErrorCode ec, 
-                               const string& str_val)
+void Request::failure_response(ErrorCode ec, const string& str_val)
 {    
     vector<xmlrpc_c::value> arrayData;
 
