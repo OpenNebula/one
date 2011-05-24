@@ -88,6 +88,13 @@ public:
         am.trigger(ACTION_FINALIZE,0);
     };
 
+    enum ErrorCode {
+        AUTHENTICATION = 0x0100,
+        AUTHORIZATION  = 0x0200,
+        GET          = 0x0400,
+        ACTION       = 0x0800
+    };
+
 private:
 
     //--------------------------------------------------------------------------

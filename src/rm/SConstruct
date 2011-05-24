@@ -22,6 +22,7 @@ lib_name='nebula_rm'
 
 #Sources to generate the library
 source_files=[
+    'Request.cc',
     'RequestManager.cc',
     'RequestManagerAction.cc',
     'RequestManagerAllocate.cc',
