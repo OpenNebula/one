@@ -19,7 +19,7 @@
 
 #include "Request.h"
 #include "Nebula.h"
-//#include "AuthManager.h"
+#include "AuthManager.h"
 
 using namespace std;
 
@@ -50,7 +50,8 @@ protected:
     
     /* -------------------------------------------------------------------- */
 
-    PoolSQL *pool;
+    PoolSQL *           pool;
+    AuthRequest::Object auth_object;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -63,8 +64,9 @@ public:
         RequestManagerPoolInfoFilter("VirtualMachinePoolInfo",
                                      "Returns the virtual machine instances pool")
     {    
-        Nebula& nd = Nebula::instance();
-        pool       = nd.get_vmpool();
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vmpool();
+        auth_object = AuthRequest::VM;
     };
 
     ~VirtualMachinePoolInfo(){};
@@ -80,8 +82,9 @@ public:
         RequestManagerPoolInfoFilter("TemplatePoolInfo",
                                      "Returns the virtual machine template pool")
     {    
-        Nebula& nd = Nebula::instance();
-        pool       = nd.get_tpool();
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_tpool();
+        auth_object = AuthRequest::TEMPLATE;
     };
 
     ~TemplatePoolInfo(){};
@@ -102,8 +105,9 @@ public:
         RequestManagerPoolInfoFilter("VirtualNetworkPoolInfo",
                                      "Returns the virtual network pool")
     {    
-        Nebula& nd = Nebula::instance();
-        pool       = nd.get_vnpool();
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vnpool();
+        auth_object = AuthRequest::NET;
     };
 
     ~VirtualNetworkPoolInfo(){};
@@ -119,8 +123,9 @@ public:
         RequestManagerPoolInfoFilter("ImagePoolInfo",
                                      "Returns the image pool")
     {    
-        Nebula& nd = Nebula::instance();
-        pool       = nd.get_ipool();
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_ipool();
+        auth_object = AuthRequest::IMAGE;
     };
 
     ~ImagePoolInfo(){};

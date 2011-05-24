@@ -92,6 +92,10 @@ void AuthRequest::add_auth(Object        ob,
             oss << "INFO:" ;
             break;
 
+        case INFO_POOL:
+            oss << "INFO_POOL:" ;
+            break;
+
         case INSTANTIATE:
             oss << "INSTANTIATE:" ;
             break;
@@ -148,6 +152,13 @@ void AuthRequest::add_auth(Object        ob,
                 
             case INFO: // This is for completeness, as the only INFO existing 
                        // is for UserPool, and just oneadmin can see it
+                break;
+
+            case INFO_POOL:
+                if ( ob != USER )
+                {
+                    auth = true;
+                }
                 break;
         }
     }

@@ -66,6 +66,23 @@ void RequestManagerPoolInfoFilter::request_execute(
             break;
     }
 
+    //Authorize the operation
+    if ( uid != 0 && (filter_flag == ALL || filter_flag >= 0) ) // uid == 0 means oneadmin
+    {
+        AuthRequest ar(uid);
+
+        ar.add_auth(auth_object,
+                    -1,
+                    AuthRequest::INFO_POOL,
+                    0,
+                    false);
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            goto error_authorize;
+        }
+    }
+
     // Call the template pool dump
     rc = pool->dump(oss,where_string.str());
 
@@ -80,6 +97,12 @@ void RequestManagerPoolInfoFilter::request_execute(
 
 error_filter:
     failure_response(XML_RPC_API, "Incorrect filter_flag, must be >= -3.");
+    return;
+
+//TODO Get the object name from the AuthRequest Class
+error_authorize:
+    failure_response(AUTHORIZATION,
+                     authorization_error("INFO","USER",uid,-1));
     return;
 
 error_dump: //TBD Improve Error messages for DUMP

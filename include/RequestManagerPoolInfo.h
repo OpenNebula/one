@@ -19,6 +19,7 @@
 
 #include "Request.h"
 #include "Nebula.h"
+#include "AuthManager.h"
 
 using namespace std;
 
@@ -43,7 +44,8 @@ protected:
     
     /* -------------------------------------------------------------------- */
 
-    PoolSQL *pool;
+    PoolSQL *           pool;
+    AuthRequest::Object auth_object;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -56,8 +58,9 @@ public:
         RequestManagerPoolInfo("HostPoolInfo",
                                "Returns the host pool")
     {    
-        Nebula& nd = Nebula::instance();
-        pool       = nd.get_hpool();
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_hpool();
+        auth_object = AuthRequest::HOST;
     };
 
     ~HostPoolInfo(){};
@@ -75,6 +78,7 @@ public:
     {    
         Nebula& nd = Nebula::instance();
         pool       = nd.get_cpool();
+        auth_object = AuthRequest::CLUSTER;
     };
 
     ~ClusterPoolInfo(){};
@@ -97,6 +101,7 @@ public:
     {    
         Nebula& nd = Nebula::instance();
         pool       = nd.get_gpool();
+        auth_object = AuthRequest::GROUP;
     };
 
     ~GroupPoolInfo(){};
@@ -112,8 +117,9 @@ public:
         RequestManagerPoolInfo("UserPoolInfo",
                                "Returns the user pool")
     {    
-        Nebula& nd = Nebula::instance();
-        pool       = nd.get_upool();
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_upool();
+        auth_object = AuthRequest::USER;
     };
 
     ~UserPoolInfo(){};

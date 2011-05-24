@@ -281,6 +281,7 @@ public:
         USE,        /** Authorization to use an object      */
         MANAGE,     /** Authorization to manage an object   */
         INFO,       /** Authorization to view an object     */
+        INFO_POOL,  /** Authorization to view all objects in the pool */
         INSTANTIATE /** Authorization to instantiate a VM from a TEMPLATE   */
     };
 
