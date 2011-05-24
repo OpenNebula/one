@@ -105,12 +105,22 @@ public:
         User::bootstrap(_db);
     };
 
+    //TODO REMOVE THIS, HERE TO FIX COMPILATION
     /**
      * Returns whether there is a user with given username/password or not
      *   @param session, colon separated username and password string
      *   @return -1 if authn failed, uid of the user in other case
      */
-    int authenticate(string& session);
+    int authenticate(string& session){return 0;}
+
+    /**
+     * Returns whether there is a user with given username/password or not
+     *   @param session, colon separated username and password string
+     *   @param uid of the user if authN succeeded -1 otherwise
+     *   @param gid of the user if authN succeeded -1 otherwise
+     *   @return false if authn failed, true otherwise
+     */
+    bool authenticate(const string& session, int& uid, int& gid);
 
     /**
      * Returns whether there is a user with given username/password or not

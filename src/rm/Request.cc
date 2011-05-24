@@ -36,7 +36,7 @@ void Request::execute(
 
     NebulaLog::log("ReM",Log::DEBUG, method_name + " method invoked");
 
-if (true)   // if ( upool->authenticate(uid, gid) == false )
+    if ( upool->authenticate(session, uid, gid) == false )
     {
         failure_response(RequestManager::AUTHENTICATION,
                          authenticate_error());
