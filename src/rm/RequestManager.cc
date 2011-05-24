@@ -18,6 +18,9 @@
 #include "NebulaLog.h"
 #include <cerrno>
 
+#include "RequestManagerPoolInfoFilter.h"
+#include "RequestManagerPoolInfo.h"
+
 #include <sys/signal.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -213,6 +216,20 @@ void RequestManager::do_action(
         
 void RequestManager::register_xml_methods()
 {
+    // PoolInfo Methods 
+
+    xmlrpc_c::methodPtr hostpool_info(new HostPoolInfo());
+    xmlrpc_c::methodPtr clusterpool_info(new ClusterPoolInfo());
+    xmlrpc_c::methodPtr grouppool_info(new GroupPoolInfo());
+    xmlrpc_c::methodPtr userpool_info(new UserPoolInfo());
+
+    // PoolInfo Methods with Filtering
+
+    xmlrpc_c::methodPtr vm_pool_info(new VirtualMachinePoolInfo());
+    xmlrpc_c::methodPtr template_pool_info(new TemplatePoolInfo());
+    xmlrpc_c::methodPtr vnpool_info(new VirtualNetworkPoolInfo());
+    xmlrpc_c::methodPtr imagepool_info(new ImagePoolInfo());
+
 /*    xmlrpc_c::methodPtr vm_allocate(new 
         RequestManager::VirtualMachineAllocate(vmpool,vnpool,ipool,tpool,upool));
         
@@ -233,9 +250,6 @@ void RequestManager::register_xml_methods()
 
     xmlrpc_c::methodPtr vm_chown(new
         RequestManager::GenericChown(this,VM));
-
-    xmlrpc_c::methodPtr vm_pool_info(new
-        RequestManager::VirtualMachinePoolInfo(vmpool,upool));
 
     xmlrpc_c::methodPtr template_allocate(new
         RequestManager::TemplateAllocate(tpool,upool));
@@ -258,17 +272,11 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr template_chown(new
         RequestManager::GenericChown(this,TEMPLATE));
 
-    xmlrpc_c::methodPtr template_pool_info(new
-        RequestManager::TemplatePoolInfo(tpool,upool));
-
     xmlrpc_c::methodPtr host_allocate(new 
         RequestManager::HostAllocate(hpool,upool));
         
     xmlrpc_c::methodPtr host_info(new 
         RequestManager::HostInfo(hpool, upool));
-
-    xmlrpc_c::methodPtr hostpool_info(new 
-        RequestManager::HostPoolInfo(hpool,upool));
         
     xmlrpc_c::methodPtr host_delete(new 
         RequestManager::HostDelete(hpool,upool));
@@ -291,9 +299,6 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr cluster_remove(new 
         RequestManager::ClusterRemove(hpool,upool,cpool));
 
-    xmlrpc_c::methodPtr clusterpool_info(new 
-        RequestManager::ClusterPoolInfo(upool,cpool));
-
     xmlrpc_c::methodPtr group_allocate(new 
         RequestManager::GroupAllocate(upool,gpool));
 
@@ -303,17 +308,11 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr group_delete(new 
         RequestManager::GroupDelete(upool,gpool));
 
-    xmlrpc_c::methodPtr grouppool_info(new 
-        RequestManager::GroupPoolInfo(upool,gpool));
-
     xmlrpc_c::methodPtr vn_allocate(new 
         RequestManager::VirtualNetworkAllocate(vnpool,upool));
         
     xmlrpc_c::methodPtr vn_info(new 
         RequestManager::VirtualNetworkInfo(vnpool,upool));
-        
-    xmlrpc_c::methodPtr vnpool_info(new 
-        RequestManager::VirtualNetworkPoolInfo(vnpool,upool));
         
     xmlrpc_c::methodPtr vn_publish(new    
         RequestManager::VirtualNetworkPublish(vnpool, upool));
@@ -344,9 +343,6 @@ void RequestManager::register_xml_methods()
 
     xmlrpc_c::methodPtr user_chown(new
         RequestManager::GenericChown(this,USER));
-
-    xmlrpc_c::methodPtr userpool_info(new    
-        RequestManager::UserPoolInfo(upool));
         
     xmlrpc_c::methodPtr image_allocate(new    
         RequestManager::ImageAllocate(ipool, upool));
@@ -374,9 +370,6 @@ void RequestManager::register_xml_methods()
 
     xmlrpc_c::methodPtr image_chown(new
         RequestManager::GenericChown(this,IMAGE));
-
-    xmlrpc_c::methodPtr imagepool_info(new    
-        RequestManager::ImagePoolInfo(ipool, upool));
 */
     /* VM related methods  */    
 /*        
@@ -387,9 +380,9 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vm.info", vm_info);
     RequestManagerRegistry.addMethod("one.vm.savedisk", vm_savedisk);
     RequestManagerRegistry.addMethod("one.vm.chown", vm_chown);
-
-    RequestManagerRegistry.addMethod("one.vmpool.info", vm_pool_info);
 */
+    RequestManagerRegistry.addMethod("one.vmpool.info", vm_pool_info);
+
     /* VM Template related methods*/
 /*
     RequestManagerRegistry.addMethod("one.template.allocate",template_allocate);
@@ -399,18 +392,18 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.template.rmattr", template_rm_attribute);
     RequestManagerRegistry.addMethod("one.template.publish", template_publish);
     RequestManagerRegistry.addMethod("one.template.chown", template_chown);
-
-    RequestManagerRegistry.addMethod("one.templatepool.info",template_pool_info);
 */
+    RequestManagerRegistry.addMethod("one.templatepool.info",template_pool_info);
+
     /* Host related methods*/
 /*     
     RequestManagerRegistry.addMethod("one.host.allocate", host_allocate);   
     RequestManagerRegistry.addMethod("one.host.info", host_info);
     RequestManagerRegistry.addMethod("one.host.delete", host_delete);
     RequestManagerRegistry.addMethod("one.host.enable", host_enable);
-    
+*/    
     RequestManagerRegistry.addMethod("one.hostpool.info", hostpool_info); 
-*/
+
     /* Cluster related methods */
 /*
     RequestManagerRegistry.addMethod("one.cluster.allocate", cluster_allocate);
@@ -418,17 +411,17 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.cluster.delete", cluster_delete);
     RequestManagerRegistry.addMethod("one.cluster.add", cluster_add);
     RequestManagerRegistry.addMethod("one.cluster.remove", cluster_remove);
-
-    RequestManagerRegistry.addMethod("one.clusterpool.info", clusterpool_info);
 */
+    RequestManagerRegistry.addMethod("one.clusterpool.info", clusterpool_info);
+
     /* Group related methods */
 /*
     RequestManagerRegistry.addMethod("one.group.allocate",  group_allocate);
     RequestManagerRegistry.addMethod("one.group.info",      group_info);
     RequestManagerRegistry.addMethod("one.group.delete",    group_delete);
-
-    RequestManagerRegistry.addMethod("one.grouppool.info",  grouppool_info);
 */
+    RequestManagerRegistry.addMethod("one.grouppool.info",  grouppool_info);
+
     /* Network related methods*/
 /*
     RequestManagerRegistry.addMethod("one.vn.allocate", vn_allocate);   
@@ -438,9 +431,9 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vn.addleases", vn_addleases);
     RequestManagerRegistry.addMethod("one.vn.rmleases", vn_rmleases);
     RequestManagerRegistry.addMethod("one.vn.chown", vn_chown);
-
+*/
     RequestManagerRegistry.addMethod("one.vnpool.info", vnpool_info); 
-*/    
+    
     
     /* User related methods*/
 /*        
@@ -449,9 +442,9 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.user.info", user_info);
     RequestManagerRegistry.addMethod("one.user.passwd", user_change_password);
     RequestManagerRegistry.addMethod("one.user.chown", user_chown);
-
+*/
     RequestManagerRegistry.addMethod("one.userpool.info", userpool_info);
-*/    
+    
     /* Image related methods*/
 /*    
     RequestManagerRegistry.addMethod("one.image.allocate", image_allocate);
@@ -464,8 +457,8 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.image.enable", image_enable);    
     RequestManagerRegistry.addMethod("one.image.chown", image_chown);
 
+*/  
     RequestManagerRegistry.addMethod("one.imagepool.info", imagepool_info);
-  */  
 };
 
 /* -------------------------------------------------------------------------- */

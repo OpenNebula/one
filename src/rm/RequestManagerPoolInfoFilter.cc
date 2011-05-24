@@ -14,23 +14,60 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#include "RequestManagerPoolInfo.h"
+#include "RequestManagerPoolInfoFilter.h"
 
 using namespace std;
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-void RequestManagerPoolInfo::request_execute(
+const int RequestManagerPoolInfoFilter::ALL = -2;
+
+const int RequestManagerPoolInfoFilter::MINE = -3;      
+
+const int RequestManagerPoolInfoFilter::MINE_GROUP = -1; 
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+void RequestManagerPoolInfoFilter::request_execute(
     int uid, 
     int gid,
     xmlrpc_c::paramList const& paramList)
 {
-    ostringstream oss;
+    int filter_flag = xmlrpc_c::value_int(paramList.getInt(1));
+
+    ostringstream oss, where_string;
+
     int rc;
  
+    switch(filter_flag)
+    {
+        case MINE:
+            where_string << "UID=" << uid;
+            break;
+
+        case ALL:
+            break;
+
+        case MINE_GROUP:
+            where_string << "UID=" << uid << " OR GID=" << gid;
+            break;
+
+        default:
+            if ( filter_flag >= 0 )
+            {
+                where_string << "UID=" << filter_flag;
+            }
+            else
+            {
+                goto error_filter;
+            }
+            break;
+    }
+
     // Call the template pool dump
-    rc = pool->dump(oss,"");
+    rc = pool->dump(oss,where_string.str());
 
     if ( rc != 0 )
     {
@@ -39,6 +76,10 @@ void RequestManagerPoolInfo::request_execute(
 
     success_response(oss.str());
 
+    return;
+
+error_filter:
+    failure_response(XML_RPC_API, "Incorrect filter_flag, must be >= -3.");
     return;
 
 error_dump: //TBD Improve Error messages for DUMP

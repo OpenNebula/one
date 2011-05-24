@@ -73,6 +73,8 @@ void Request::success_response(int id)
 
     arrayData.push_back(xmlrpc_c::value_boolean(true));
     arrayData.push_back(xmlrpc_c::value_int(id));
+    arrayData.push_back(xmlrpc_c::value_int(SUCCESS));
+
 
     xmlrpc_c::value_array arrayresult(arrayData);
 
@@ -87,6 +89,7 @@ void Request::success_response(const string& val)
 
     arrayData.push_back(xmlrpc_c::value_boolean(true));
     arrayData.push_back(xmlrpc_c::value_string(val));
+    arrayData.push_back(xmlrpc_c::value_int(SUCCESS));
 
     xmlrpc_c::value_array arrayresult(arrayData);
 

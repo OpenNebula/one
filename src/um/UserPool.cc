@@ -262,7 +262,6 @@ bool UserPool::authenticate(const string& session, int& user_id, int& group_id)
                              mad_pass,
                              true,
                              error_str);
-
                 }
 
                 if ( user_id == -1 )

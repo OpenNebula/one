@@ -45,10 +45,13 @@ public:
      *  Error codes for the XML-RPC API
      */
     enum ErrorCode {
+        SUCCESS        = 0x0000,
         AUTHENTICATION = 0x0100,
         AUTHORIZATION  = 0x0200,
-        GET          = 0x0400,
-        ACTION       = 0x0800
+        NO_EXISTS      = 0x0400,
+        ACTION         = 0x0800,
+        XML_RPC_API    = 0x1000,
+        INTERNAL       = 0x2000,
     };
 
 protected:
