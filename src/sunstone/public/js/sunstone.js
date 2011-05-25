@@ -187,6 +187,8 @@ var Sunstone = {
         // * "create" calls to opennebula.js
         // * "single" element calls to opennebula.js
         // * "list" (get the pool of elements) calls to opennebula.js
+        // * "monitor_global" (returns monitoring information from a pool of elements
+        // * "monitor_single" (returns monitoring information from 1 element to create graphs)
         // * "multiple" - actions to be run on a given list of elements
         //      (with maybe an extra parameter).
         // * The default actions. Simple call the the pre-defined "call"
@@ -202,6 +204,13 @@ var Sunstone = {
                 break;
             case "list":
                 call({success: callback, error:err});
+                break;
+            case "monitor_global":
+                call({success: callback, error:err, data: {monitor: extra_param}});
+                break;
+            case "monitor":
+            case "monitor_single":
+                call({success: callback, error:err, data: {id:data_arg, monitor: extra_param}});
                 break;
             case "multiple":
                 //run on the list of nodes that come on the data

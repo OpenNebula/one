@@ -478,10 +478,36 @@ function escapeDoubleQuotes(string){
     return string.replace(/"/g,'\\"');
 }
 
+function generateMonitoringDivs(labels, id_prefix){
+    str = '<pre>'+spinner+'</pre>';
+    var width = ($(window).width()-129)*40/100;
+    $.each(labels,function(){
+        str+='<div class="monitoring_info" id="'+id_prefix+this+'" style="width:'+width+'px; height:150px; margin: 20px 15px; display: inline-block;"></div>';
+    });
+
+    return str;
+}
+
+function plot_graph(data,context,id,label){
+
+    var serie = {
+        label : label,
+        data : data
+    };
+
+    var options = {
+        legend : { show : true },
+        xaxis : { mode: "time", timeformat: "%h:%M" },
+        yaxis : { labelWidth: 30 }
+    }
+
+    $.plot($('#'+id, context),[serie],options);
+}
+
 //functions that used as true and false conditions for testing mainly
 function True(){
     return true;
 }
 function False(){
     return false;
-}    
+}

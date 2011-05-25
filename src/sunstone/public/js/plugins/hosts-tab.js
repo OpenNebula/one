@@ -16,6 +16,8 @@
 
 /*Host tab plugin*/
 
+var HOST_HISTORY_LENGTH = 40;
+
 var hosts_tab_content = 
 '<form id="form_hosts" action="javascript:alert(\'js errors?!\')">\
   <div class="action_blocks">\
@@ -198,7 +200,29 @@ var host_actions = {
                     OpenNebula.Cluster.list({success: updateClustersView, error: onError});
                     }
             },
-                        
+
+    "Host.monitor" : {
+        type: "monitor",
+        call : OpenNebula.Host.monitor,
+        callback: function(req,response) {
+            var info = req.request.data[0];
+            var label = info.monitor.monitor_res;
+
+            //remove spinner
+            $('#host_monitoring_tab .loading_img').parent().remove();
+
+            plot_graph(response,'#host_monitoring_tab',
+                 'host_monitor_'+label,label);
+        },
+        error: onError
+    },
+
+    "Host.monitor_all" : {
+        type: "monitor_global",
+        call: OpenNebula.Host.monitor_all,
+        error: onError
+    },
+
             "Cluster.create" : {
                 type: "create",
                 call : OpenNebula.Cluster.create,
@@ -208,7 +232,7 @@ var host_actions = {
                 error : onError,
                 notify: true
             },
-            
+
             "Cluster.create_dialog" : {
                 type: "custom",
                 call: popUpCreateClusterDialog
@@ -326,6 +350,10 @@ var host_info_panel = {
     
     "host_template_tab" : {
         title: "Host template",
+        content: ""
+    },
+    "host_monitoring_tab": {
+        title: "Monitoring information",
         content: ""
     }
 };
@@ -533,7 +561,7 @@ function updateHostInfo(request,host){
 				<td class="value_td">'+host_info.HOST_SHARE.USED_CPU+'</td>\
 			</tr>\
 			<tr>\
-				<td class="key_td">Used CPU(allocated)</td>\
+				<td class="key_td">Used CPU (allocated)</td>\
 				<td class="value_td">'+host_info.HOST_SHARE.CPU_USAGE+'</td>\
 			</tr>\
 			<tr>\
@@ -552,11 +580,22 @@ function updateHostInfo(request,host){
 		prettyPrintJSON(host_info.TEMPLATE)+
 		'</table>'
     }
-    
+
+    var monitor_tab = {
+        title: "Monitoring information",
+        content : generateMonitoringDivs(["cpu_usage","mem_usage"],"host_monitor_")
+    }
+
     //Sunstone.updateInfoPanelTab(info_panel_name,tab_name, new tab object);
     Sunstone.updateInfoPanelTab("host_info_panel","host_info_tab",info_tab);
     Sunstone.updateInfoPanelTab("host_info_panel","host_template_tab",template_tab);
+    Sunstone.updateInfoPanelTab("host_info_panel","host_monitoring_tab",monitor_tab);
+
     Sunstone.popUpInfoPanel("host_info_panel");
+    //pop up panel while we retrieve the graphs
+    Sunstone.runAction("Host.monitor",host_info.ID,{history_length: HOST_HISTORY_LENGTH, monitor_res: "cpu_usage"});
+    Sunstone.runAction("Host.monitor",host_info.ID,{history_length: HOST_HISTORY_LENGTH, monitor_res: "mem_usage"});
+
 
 }
 

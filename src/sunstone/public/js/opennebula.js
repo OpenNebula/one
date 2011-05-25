@@ -471,6 +471,39 @@ var OpenNebula = {
                     }
                 }
             });
+        },
+
+        "monitor" : function(params){
+            var callback = params.success;
+            var callback_error = params.error;
+            var id = params.data.id;
+            var resource = OpenNebula.Host.resource;
+            var data = params.data;
+
+            var method = "monitor";
+            var action = OpenNebula.Helper.action(method);
+            var request = OpenNebula.Helper.request(resource,method, data);
+
+            $.ajax({
+                url: "host/"+id+"/monitor",
+                type: "GET",
+                data: data['monitor'],
+                dataType: "json",
+                success: function(response)
+                {
+                    if (callback)
+                    {
+                        callback(request,response);
+                    }
+                },
+                error: function(response)
+                {
+                    if (callback_error)
+                    {
+                        callback_error(request, OpenNebula.Error(response));
+                    }
+                }
+            });
         }
     },
 
@@ -1303,8 +1336,41 @@ var OpenNebula = {
                     }
                 }
             });
+        },
+
+        "monitor" : function(params){
+            var callback = params.success;
+            var callback_error = params.error;
+            var id = params.data.id;
+            var resource = OpenNebula.VM.resource;
+            var data = params.data;
+
+            var method = "monitor";
+            var action = OpenNebula.Helper.action(method);
+            var request = OpenNebula.Helper.request(resource,method, data);
+
+            $.ajax({
+                url: "vm/"+id+"/monitor",
+                type: "GET",
+                data: data['monitor'],
+                dataType: "json",
+                success: function(response)
+                {
+                    if (callback)
+                    {
+                        callback(request,response);
+                    }
+                },
+                error: function(response)
+                {
+                    if (callback_error)
+                    {
+                        callback_error(request, OpenNebula.Error(response));
+                    }
+                }
+            });
         }
-        
+
     },
 
     "Cluster": {
