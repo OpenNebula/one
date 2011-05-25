@@ -94,6 +94,7 @@ public:
      */
     int drop(User * user)
     {
+        user->delete_from_groups();
         return PoolSQL::drop(user);
     };
 

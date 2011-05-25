@@ -35,17 +35,6 @@ public:
     ~ClusterPool(){};
 
     /**
-     *  Removes the host from the given cluster setting the default one.
-     *    @param host The host to assign
-     *
-     *    @return 0 on success
-     */
-    int set_default_cluster(Host * host)
-    {
-        return host->set_cluster(ClusterPool::DEFAULT_CLUSTER_ID);
-    };
-
-    /**
      *  Cluster name for the default cluster
      */
     static const string DEFAULT_CLUSTER_NAME;

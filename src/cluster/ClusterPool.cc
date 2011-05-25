@@ -104,12 +104,8 @@ int ClusterPool::drop(Cluster * cluster)
 {
     int         rc;
 
-    Host*                   host;
     vector<int>             hids;
     vector<int>::iterator   hid_it;
-
-    Nebula&     nd = Nebula::instance();
-    HostPool *  hpool = nd.get_hpool();
 
     int         cluster_id = cluster->get_oid();
 
@@ -125,29 +121,10 @@ int ClusterPool::drop(Cluster * cluster)
         return -1;
     }
 
-    rc = cluster->drop(db);
-
     // Move the hosts assigned to the deleted cluster to the default one
-    if( rc == 0 )
-    {
-        hpool->search(hids, where.str());
+    cluster->set_default_cluster();
 
-        for ( hid_it=hids.begin() ; hid_it < hids.end(); hid_it++ )
-        {
-            host = hpool->get(*hid_it, true);
-
-            if ( host == 0 )
-            {
-                continue;
-            }
-
-            set_default_cluster(host);
-
-            hpool->update(host);
-
-            host->unlock();
-        }
-    }
+    rc = cluster->drop(db);
 
     return rc;
 }

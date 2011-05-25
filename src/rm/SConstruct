@@ -74,6 +74,7 @@ source_files=[
     'RequestManagerTemplatePublish.cc',
     'RequestManagerTemplatePoolInfo.cc',
     'RequestManagerChown.cc',
+    'RequestManagerAddDelGroup.cc',
 ]
 
 # Build library

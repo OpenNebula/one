@@ -21,7 +21,7 @@
 #include <sstream>
 
 #include "Cluster.h"
-
+#include "Nebula.h"
 
 const char * Cluster::table = "cluster_pool";
 
@@ -36,7 +36,9 @@ const char * Cluster::db_bootstrap = "CREATE TABLE IF NOT EXISTS cluster_pool ("
 /* ************************************************************************ */
 
 Cluster::Cluster(int id, const string& name)
-    :PoolObjectSQL(id,name,-1,-1,table){};
+    :PoolObjectSQL(id,name,-1,-1,table),
+    ObjectCollection("HOSTS")
+{};
 
 Cluster::~Cluster(){};
 
@@ -150,11 +152,15 @@ ostream& operator<<(ostream& os, Cluster& cluster)
 string& Cluster::to_xml(string& xml) const
 {
     ostringstream   oss;
+    string          collection_xml;
+
+    ObjectCollection::to_xml(collection_xml);
 
     oss <<
     "<CLUSTER>"  <<
         "<ID>"   << oid  << "</ID>"   <<
         "<NAME>" << name << "</NAME>" <<
+        collection_xml <<
     "</CLUSTER>";
 
     xml = oss.str();
@@ -168,6 +174,7 @@ string& Cluster::to_xml(string& xml) const
 int Cluster::from_xml(const string& xml)
 {
     int rc = 0;
+    vector<xmlNodePtr> content;
 
     // Initialize the internal XML object
     update_from_str(xml);
@@ -176,10 +183,69 @@ int Cluster::from_xml(const string& xml)
     rc += xpath(oid, "/CLUSTER/ID",   -1);
     rc += xpath(name,"/CLUSTER/NAME", "not_found");
 
+
+    // Get associated classes
+    ObjectXML::get_nodes("/CLUSTER/HOSTS", content);
+
+    if( content.size() < 1 )
+    {
+        return -1;
+    }
+
+    // Set of IDs
+    rc += ObjectCollection::from_xml_node(content[0]);
+
     if (rc != 0)
     {
         return -1;
     }
 
     return 0;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int Cluster::set_default_cluster()
+{
+    int rc = 0;
+
+    Nebula&     nd      = Nebula::instance();
+    HostPool * hpool    = nd.get_hpool();
+    Host *     host;
+
+    // Get a copy of the set, because the original will be modified deleting
+    // elements from it.
+    set<int>            host_set;
+    set<int>::iterator  it;
+
+    host_set = get_collection_copy();
+
+    if( hpool == 0 )
+    {
+        return -1;
+    }
+
+    for ( it = host_set.begin(); it != host_set.end(); it++ )
+    {
+        host = hpool->get( *it, true );
+
+        if( host == 0 )
+        {
+            rc = -1;
+            continue;
+        }
+
+        rc += host->set_gid(ClusterPool::DEFAULT_CLUSTER_ID);
+
+        // TODO: this add_to_cluster method locks Cluster objects, which
+        // may lead to deadlocks. Maybe this movement to the default cluster
+        // should be made in the RM
+        rc += host->add_to_cluster();
+
+        hpool->update(host);
+        host->unlock();
+    }
+
+    return rc;
 }

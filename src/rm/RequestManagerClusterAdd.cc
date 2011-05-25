@@ -28,7 +28,7 @@ void RequestManager::ClusterAdd::execute(
 {
     string  session;
 
-    int     hid;
+    int     hid, host_gid;
     int     clid;
     int     rc;
     
@@ -88,8 +88,17 @@ void RequestManager::ClusterAdd::execute(
         goto error_host_get;
     }
 
+    // Get current host cluster
+    host_gid = host->get_gid();
+
     // Set cluster
-    rc = host->set_cluster(cluster->get_oid());
+    rc = host->set_gid(cluster->get_oid());
+
+    // Add host ID to cluster
+    if( rc == 0 )
+    {
+        static_cast<ObjectCollection*>(cluster)->add_collection_id(host);
+    }
 
     if ( rc != 0 )
     {
@@ -98,10 +107,25 @@ void RequestManager::ClusterAdd::execute(
 
     // Update the DB
     ClusterAdd::hpool->update(host);
+    ClusterAdd::cpool->update(cluster);
+
+    cluster->unlock();
+
+    // TODO: This lock-unlock order may cause deadlocks
+
+    // Now get the old cluster, and remove the Host Id from it
+    cluster = ClusterAdd::cpool->get(host_gid, true);
+
+    if( cluster != 0 )
+    {
+        cluster->del_collection_id(host);
+        ClusterAdd::cpool->update(cluster);
+
+        cluster->unlock();
+    }
 
     host->unlock();
 
-    cluster->unlock();
 
     // All nice, return success to the client
     arrayData.push_back(xmlrpc_c::value_boolean(true)); // SUCCESS

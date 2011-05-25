@@ -232,7 +232,7 @@ void RequestManager::register_xml_methods()
         RequestManager::VirtualMachineInfo(vmpool,upool));
 
     xmlrpc_c::methodPtr vm_chown(new
-        RequestManager::GenericChown(this,VM));
+        RequestManager::GenericChown(this,AuthRequest::VM));
 
     xmlrpc_c::methodPtr vm_pool_info(new
         RequestManager::VirtualMachinePoolInfo(vmpool,upool));
@@ -256,7 +256,7 @@ void RequestManager::register_xml_methods()
         RequestManager::TemplatePublish(tpool, upool));
 
     xmlrpc_c::methodPtr template_chown(new
-        RequestManager::GenericChown(this,TEMPLATE));
+        RequestManager::GenericChown(this,AuthRequest::TEMPLATE));
 
     xmlrpc_c::methodPtr template_pool_info(new
         RequestManager::TemplatePoolInfo(tpool,upool));
@@ -303,6 +303,9 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr group_delete(new 
         RequestManager::GroupDelete(upool,gpool));
 
+    xmlrpc_c::methodPtr group_chown(new
+        RequestManager::GenericChown(this,AuthRequest::GROUP));
+
     xmlrpc_c::methodPtr grouppool_info(new 
         RequestManager::GroupPoolInfo(upool,gpool));
 
@@ -328,10 +331,10 @@ void RequestManager::register_xml_methods()
         RequestManager::VirtualNetworkRemoveLeases(vnpool, upool));
 
     xmlrpc_c::methodPtr vn_chown(new
-        RequestManager::GenericChown(this,NET));
+        RequestManager::GenericChown(this,AuthRequest::NET));
 
     xmlrpc_c::methodPtr user_allocate(new    
-        RequestManager::UserAllocate(upool));
+        RequestManager::UserAllocate(upool,this));
 
     xmlrpc_c::methodPtr user_delete(new    
         RequestManager::UserDelete(upool));
@@ -343,7 +346,18 @@ void RequestManager::register_xml_methods()
         RequestManager::UserChangePassword(upool));
 
     xmlrpc_c::methodPtr user_chown(new
-        RequestManager::GenericChown(this,USER));
+        RequestManager::GenericChown(this,AuthRequest::USER));
+
+    xmlrpc_c::methodPtr user_addgroup(new
+        RequestManager::GenericAddDelGroup(this,
+                AuthRequest::USER,
+                AuthRequest::GROUP));
+
+    xmlrpc_c::methodPtr user_delgroup(new
+        RequestManager::GenericAddDelGroup(this,
+                AuthRequest::USER,
+                AuthRequest::GROUP,
+                false));
 
     xmlrpc_c::methodPtr userpool_info(new    
         RequestManager::UserPoolInfo(upool));
@@ -373,7 +387,7 @@ void RequestManager::register_xml_methods()
         RequestManager::ImageEnable(ipool, upool));
 
     xmlrpc_c::methodPtr image_chown(new
-        RequestManager::GenericChown(this,IMAGE));
+        RequestManager::GenericChown(this,AuthRequest::IMAGE));
 
     xmlrpc_c::methodPtr imagepool_info(new    
         RequestManager::ImagePoolInfo(ipool, upool));
@@ -426,6 +440,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.group.allocate",  group_allocate);
     RequestManagerRegistry.addMethod("one.group.info",      group_info);
     RequestManagerRegistry.addMethod("one.group.delete",    group_delete);
+    RequestManagerRegistry.addMethod("one.group.chown",     group_chown);
 
     RequestManagerRegistry.addMethod("one.grouppool.info",  grouppool_info);
 
@@ -449,6 +464,8 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.user.info", user_info);
     RequestManagerRegistry.addMethod("one.user.passwd", user_change_password);
     RequestManagerRegistry.addMethod("one.user.chown", user_chown);
+    RequestManagerRegistry.addMethod("one.user.addgroup", user_addgroup);
+    RequestManagerRegistry.addMethod("one.user.delgroup", user_delgroup);
 
     RequestManagerRegistry.addMethod("one.userpool.info", userpool_info);
     

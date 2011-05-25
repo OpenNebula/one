@@ -69,10 +69,13 @@ public:
         return uid;
     };
 
-    // TODO: Check if uid == -1?
-    // What happens with user, is the user his owner, or uid = -1?
-    int set_uid(int _uid)
+    virtual int set_uid(int _uid)
     {
+        if( uid == -1 )
+        {
+            return -1;
+        }
+
         uid = _uid;
         return 0;
     }
@@ -82,7 +85,7 @@ public:
         return gid;
     };
 
-    int set_gid(int _gid)
+    virtual int set_gid(int _gid)
     {
         if( gid == -1 )
         {

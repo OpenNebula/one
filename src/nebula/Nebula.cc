@@ -276,6 +276,8 @@ void Nebula::start()
 
         vnpool = new VirtualNetworkPool(db,mac_prefix,size);
 
+        gpool = new GroupPool(db);
+
         upool  = new UserPool(db);
 
         nebula_configuration->get("DEFAULT_IMAGE_TYPE", default_image_type);
@@ -287,8 +289,6 @@ void Nebula::start()
                                default_device_prefix);
 
         cpool = new ClusterPool(db);
-
-        gpool = new GroupPool(db);
 
         tpool = new VMTemplatePool(db);
     }

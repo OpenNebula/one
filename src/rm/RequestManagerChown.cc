@@ -19,8 +19,6 @@
 #include "NebulaLog.h"
 #include "Nebula.h"
 
-#include "AuthManager.h"
-
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -30,11 +28,13 @@ void RequestManager::GenericChown::execute(
 {
     string              session;
 
-    int                 uid, obj_owner;
+    int                 uid, obj_owner, group_owner;
     int                 oid, ownid, gid;
     int                 rc;
 
-    PoolObjectSQL *     obj;
+    PoolObjectSQL *     obj     = 0;
+    User *              user    = 0;
+    Group *             group   = 0;
 
     vector<xmlrpc_c::value> arrayData;
     xmlrpc_c::value_array * arrayresult;
@@ -56,8 +56,6 @@ void RequestManager::GenericChown::execute(
     ownid        = xmlrpc_c::value_int    (paramList.getInt(2));
     gid          = xmlrpc_c::value_int    (paramList.getInt(3));
 
-    // TODO: check destination owner and/or group exist
-
     // First, we need to authenticate the user
     uid = rm->upool->authenticate(session);
 
@@ -77,27 +75,69 @@ void RequestManager::GenericChown::execute(
     obj_owner = obj->get_uid();
 
     obj->unlock();
+    obj = 0;
 
-    //Authorize the operation
-    if ( uid != 0 ) // uid == 0 means oneadmin
+    // Get destination group
+    if( gid > -1 )
     {
-        goto error_authorize;
+        group = rm->gpool->get(gid, true);
+        if( group == 0 )
+        {
+            goto error_group_get;
+        }
+
+        group_owner = group->get_uid();
+
+        group->unlock();
+        group = 0;
     }
 
-    // TODO use auth manager
-/*
+
     if ( uid != 0 ) // uid == 0 means oneadmin
     {
         AuthRequest ar(uid);
 
-//      ar.add_auth(..);
+        ar.add_auth(ob,                         // Object
+                    oid,                        // Object id
+                    AuthRequest::MANAGE,        // Action
+                    obj_owner,                  // Owner
+                    false);                     // Public
+
+        if( ownid > -1 )
+        {
+            ar.add_auth(AuthRequest::USER,      // Object
+                        ownid,                  // Object id
+                        AuthRequest::MANAGE,    // Action
+                        ownid,                  // Owner
+                        false);                 // Public
+        }
+
+        if( gid > -1 )
+        {
+            ar.add_auth(AuthRequest::GROUP,     // Object
+                        gid,                    // Object id
+                        AuthRequest::MANAGE,    // Action
+                        group_owner,            // Owner
+                        false);                 // Public
+        }
 
         if (UserPool::authorize(ar) == -1)
         {
             goto error_authorize;
         }
     }
-*/
+
+    // Check destination user exists
+    if( ownid > -1 )
+    {
+        user = rm->upool->get(ownid, true);
+        if( user == 0 )
+        {
+            goto error_user_get;
+        }
+
+        user->unlock();
+    }
 
     // Get the object locked again
     obj = pool->get(oid,true);
@@ -149,15 +189,27 @@ error_get:
     goto error_common;
 
 error_authorize:
-    // TODO: delete development comment
-    oss << authorization_error(method_name, "MANAGE", obj_name, uid, oid) <<
-    " Development functionality, only oneamdin can perform chown.";
+    // TODO: get real error from UserPool::authorize
+    oss.str(authorization_error(method_name, "MANAGE", obj_name, uid, oid));
+    goto error_common;
+
+error_user_get:
+    oss.str(get_error(method_name,
+                      rm->get_object_name(AuthRequest::USER),
+                      ownid));
+
+    goto error_common;
+
+error_group_get:
+    oss.str(get_error(method_name,
+                      rm->get_object_name(AuthRequest::GROUP),
+                      gid));
+
     goto error_common;
 
 error_set_uid:
     oss.str(action_error(method_name, "SET_UID", obj_name, oid, rc));
 
-    obj->unlock();
     goto error_common;
 
 error_set_gid:
@@ -168,10 +220,24 @@ error_set_gid:
         obj->set_uid(obj_owner);
     }
 
-    obj->unlock();
     goto error_common;
 
 error_common:
+    if( obj != 0 )
+    {
+        obj->unlock();
+    }
+
+    if( group != 0 )
+    {
+        group->unlock();
+    }
+
+    if( user != 0 )
+    {
+        user->unlock();
+    }
+
     arrayData.push_back(xmlrpc_c::value_boolean(false));  // FAILURE
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
 

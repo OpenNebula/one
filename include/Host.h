@@ -171,17 +171,6 @@ public:
         return last_monitored;
     };
 
-    /**
-     *  Sets the cluster for this host
-     *    @param cluster_id Cluster's oid
-     *    @return 0 on success
-     */
-    int set_cluster(int cluster_id)
-    {
-        gid = cluster_id;
-        return 0;
-    };
-
     // ------------------------------------------------------------------------
     // Share functions
     // ------------------------------------------------------------------------
@@ -293,6 +282,12 @@ public:
         return host_share.test(cpu,mem,disk);
     }
 
+    /**
+     *  Adds the Host oid to the Cluster (gid), should be called after
+     *  the constructor.
+     */
+    int add_to_cluster();
+
 private:
 
     // -------------------------------------------------------------------------
@@ -343,13 +338,24 @@ private:
     // *************************************************************************
 
     Host(int           id=-1,
-         int           cluster_id=-1,
+         int           cluster_id=0,
          const string& hostname="",
          const string& im_mad_name="",
          const string& vmm_mad_name="",
          const string& tm_mad_name="");
 
     virtual ~Host();
+
+    /**
+     *  Deletes the Host oid from the cluster it belongs to. Must be called
+     *  before the Host is dropped.
+     */
+    int delete_from_cluster();
+
+    /**
+     *  Helper, adds or deletes this Host ID from its Cluster
+     */
+    int add_del_to_cluster(bool add);
 
     // *************************************************************************
     // DataBase implementation (Private)

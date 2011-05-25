@@ -124,6 +124,8 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+// TODO: add error string
+
 int GroupPool::drop(Group * group)
 {
     int         rc;
@@ -133,6 +135,15 @@ int GroupPool::drop(Group * group)
     {
         NebulaLog::log("GROUP",Log::ERROR,
                        "Groups with ID less than 100 cannot be deleted.");
+
+        return -1;
+    }
+
+    if( group->get_collection_size() > 0 )
+    {
+        ostringstream oss;
+        oss << "Group " << group->get_oid() << " is not empty.";
+        NebulaLog::log("GROUP",Log::ERROR, oss.str());
 
         return -1;
     }

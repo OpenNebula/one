@@ -25,16 +25,109 @@
 #include <iomanip>
 
 #include "User.h"
+#include "Nebula.h"
+#include "Group.h"
 
 /* ************************************************************************** */
 /* User :: Constructor/Destructor                                             */
 /* ************************************************************************** */
 
 User::User(int id, string name, string pass, bool _enabled, int _gid):
-        PoolObjectSQL(id,name,-1,_gid,table), password(pass), enabled(_enabled)
-        {};
+        PoolObjectSQL(id,name,-1,_gid,table), ObjectCollection("GROUPS"),
+        password(pass), enabled(_enabled)
+            {};
 
 User::~User(){};
+
+/* ************************************************************************** */
+/* User :: Group Set Management                                               */
+/* ************************************************************************** */
+
+int User::add_to_group()
+{
+    // Add this User's ID to the Main Group
+    int rc = 0;
+    Nebula& nd = Nebula::instance();
+    GroupPool * gpool = nd.get_gpool();
+
+    if( gpool == 0 )
+    {
+        return -1;
+    }
+
+    Group * group = gpool->get( get_gid(), true );
+
+    if( group == 0 )
+    {
+        return -1;
+    }
+
+    rc = group->add_collection_id(this);
+
+    if( rc == 0 )
+    {
+        gpool->update(group);
+    }
+    group->unlock();
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int User::set_gid(int _gid)
+{
+    gid = _gid;
+
+    // The primary group is also kept in the Group Ids set.
+    // This method may return -1, because the Group could be a secondary group
+    // and be already in the set.
+    add_to_group();
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int User::delete_from_groups()
+{
+    int rc = 0;
+
+    Nebula&     nd      = Nebula::instance();
+    GroupPool * gpool   = nd.get_gpool();
+    Group *     group;
+
+    // Get a copy of the set, because the original will be modified deleting
+    // elements from it.
+    set<int>            group_set;
+    set<int>::iterator  it;
+
+    group_set = get_collection_copy();
+
+    if( gpool == 0 )
+    {
+        return -1;
+    }
+
+    for ( it = group_set.begin(); it != group_set.end(); it++ )
+    {
+        group = gpool->get( *it, true );
+
+        if( group == 0 )
+        {
+            rc = -1;
+            continue;
+        }
+
+        rc += group->del_collection_id(this);
+        gpool->update(group);
+        group->unlock();
+    }
+
+    return rc;
+}
 
 /* ************************************************************************** */
 /* User :: Database Access Functions                                          */
@@ -141,8 +234,11 @@ ostream& operator<<(ostream& os, User& user)
 string& User::to_xml(string& xml) const
 {
     ostringstream   oss;
+    string          collection_xml;
 
     int  enabled_int = enabled?1:0;
+
+    ObjectCollection::to_xml(collection_xml);
 
     oss <<
     "<USER>"
@@ -151,6 +247,7 @@ string& User::to_xml(string& xml) const
          "<GID>"          << gid            <<"</GID>"       <<
          "<PASSWORD>"     << password       <<"</PASSWORD>"  <<
          "<ENABLED>"      << enabled_int    <<"</ENABLED>"   <<
+         collection_xml   <<
     "</USER>";
 
     xml = oss.str();
@@ -165,6 +262,7 @@ int User::from_xml(const string& xml)
 {
     int rc = 0;
     int int_enabled;
+    vector<xmlNodePtr> content;
 
     // Initialize the internal XML object
     update_from_str(xml);
@@ -176,6 +274,18 @@ int User::from_xml(const string& xml)
     rc += xpath(int_enabled, "/USER/ENABLED",  0);
 
     enabled = int_enabled;
+
+    // Get associated classes
+    ObjectXML::get_nodes("/USER/GROUPS", content);
+
+    if( content.size() < 1 )
+    {
+        return -1;
+    }
+
+    // Set of IDs
+    rc += ObjectCollection::from_xml_node(content[0]);
+
 
     if (rc != 0)
     {

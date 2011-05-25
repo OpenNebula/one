@@ -257,7 +257,7 @@ class Migrator < MigratorBase
         ########################################################################
 
         @db.run "CREATE TABLE db_versioning (oid INTEGER PRIMARY KEY, version INTEGER, timestamp INTEGER, comment VARCHAR(256));"
-        @db.run "CREATE TABLE template_pool (oid INTEGER PRIMARY KEY, name VARCHAR(256), body TEXT, uid INTEGER, public INTEGER);"
+        @db.run "CREATE TABLE template_pool (oid INTEGER PRIMARY KEY, name VARCHAR(256), body TEXT, uid INTEGER, gid INTEGER, public INTEGER);"
 
         # The group pool has two default ones
         @db.run "CREATE TABLE group_pool (oid INTEGER PRIMARY KEY, name VARCHAR(256), body TEXT, uid INTEGER, UNIQUE(name));"

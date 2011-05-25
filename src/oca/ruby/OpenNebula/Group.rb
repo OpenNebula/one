@@ -25,6 +25,7 @@ module OpenNebula
             :info       => "group.info",
             :allocate   => "group.allocate",
             :delete     => "group.delete",
+            :chown      => "group.chown"
         }
 
         # Creates a Group description with just its identifier
@@ -72,6 +73,13 @@ module OpenNebula
         # Deletes the Group
         def delete()
             super(GROUP_METHODS[:delete])
+        end
+
+        # Changes the owner/group
+        # uid:: _Integer_ the new owner id. Set to -1 to leave the current one
+        # [return] nil in case of success or an Error object
+        def chown(uid)
+            super(GROUP_METHODS[:chown], uid, -1)
         end
 
         # ---------------------------------------------------------------------

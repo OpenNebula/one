@@ -27,6 +27,8 @@
 #include "VMTemplatePool.h"
 #include "GroupPool.h"
 
+#include "AuthManager.h"
+
 #include <xmlrpc-c/base.hpp>
 #include <xmlrpc-c/registry.hpp>
 #include <xmlrpc-c/server_abyss.hpp>
@@ -228,6 +230,12 @@ private:
         return oss.str();
     }
 
+    static string authorization_error (const string& method,
+                const string &action,AuthRequest::Object ob,int uid,int id)
+    {
+        return authorization_error(method,action,get_object_name(ob),uid,id);
+    }
+
     /**
      *  Logs authenticate errors
      *    @param method name of the RM method where the error arose
@@ -271,6 +279,11 @@ private:
        return oss.str();
     }
 
+    static string get_error (const string& method,AuthRequest::Object ob,int id)
+    {
+        return get_error(method,get_object_name(ob),id);
+    }
+
     /**
      *  Logs action errors
      *    @param method name of the RM method where the error arose
@@ -312,71 +325,156 @@ private:
         return oss.str();
     }
 
-
-    // ----------------------------------------------------------------------
-    // ----------------------------------------------------------------------
-    //                          Constants
-    // ----------------------------------------------------------------------
-    // ----------------------------------------------------------------------
-
-    // TODO: enum of Objects is maintained in AuthManager.h, could be moved
-    // to Nebula.h
-    enum Object
+    static string action_error (const string& method,const string &action,
+                                AuthRequest::Object ob,int id,int rc)
     {
-        VM,
-        HOST,
-        NET,
-        IMAGE,
-        USER,
-        CLUSTER,
-        TEMPLATE,
-        GROUP
-    };
+        return action_error(method, action, get_object_name(ob), id, rc);
+    }
 
-    PoolSQL * get_pool(Object ob)
+    // ----------------------------------------------------------------------
+    // ----------------------------------------------------------------------
+    //                          Constants and Helpers
+    // ----------------------------------------------------------------------
+    // ----------------------------------------------------------------------
+
+    PoolSQL * get_pool(AuthRequest::Object ob)
     {
         switch (ob)
         {
-            case VM:       return static_cast<PoolSQL*>(vmpool);
-            case HOST:     return static_cast<PoolSQL*>(hpool);
-            case NET:      return static_cast<PoolSQL*>(vnpool);
-            case IMAGE:    return static_cast<PoolSQL*>(ipool);
-            case USER:     return static_cast<PoolSQL*>(upool);
-            case CLUSTER:  return static_cast<PoolSQL*>(cpool);
-            case TEMPLATE: return static_cast<PoolSQL*>(tpool);
-            case GROUP:    return static_cast<PoolSQL*>(gpool);
+            case AuthRequest::VM:       return static_cast<PoolSQL*>(vmpool);
+            case AuthRequest::HOST:     return static_cast<PoolSQL*>(hpool);
+            case AuthRequest::NET:      return static_cast<PoolSQL*>(vnpool);
+            case AuthRequest::IMAGE:    return static_cast<PoolSQL*>(ipool);
+            case AuthRequest::USER:     return static_cast<PoolSQL*>(upool);
+            case AuthRequest::CLUSTER:  return static_cast<PoolSQL*>(cpool);
+            case AuthRequest::TEMPLATE: return static_cast<PoolSQL*>(tpool);
+            case AuthRequest::GROUP:    return static_cast<PoolSQL*>(gpool);
         }
     };
 
-    string get_method_prefix(Object ob)
+    static string get_method_prefix(AuthRequest::Object ob)
     {
         switch (ob)
         {
-            case VM:       return "VirtualMachine";
-            case HOST:     return "Host";
-            case NET:      return "VirtualNetwork";
-            case IMAGE:    return "Image";
-            case USER:     return "User";
-            case CLUSTER:  return "Cluster";
-            case TEMPLATE: return "Template";
-            case GROUP:    return "Group";
+            case AuthRequest::VM:       return "VirtualMachine";
+            case AuthRequest::HOST:     return "Host";
+            case AuthRequest::NET:      return "VirtualNetwork";
+            case AuthRequest::IMAGE:    return "Image";
+            case AuthRequest::USER:     return "User";
+            case AuthRequest::CLUSTER:  return "Cluster";
+            case AuthRequest::TEMPLATE: return "Template";
+            case AuthRequest::GROUP:    return "Group";
         }
     };
 
-    string get_object_name(Object ob)
+    static string get_object_name(AuthRequest::Object ob)
     {
         switch (ob)
         {
-            case VM:       return "VM";
-            case HOST:     return "HOST";
-            case NET:      return "NET";
-            case IMAGE:    return "IMAGE";
-            case USER:     return "USER";
-            case CLUSTER:  return "CLUSTER";
-            case TEMPLATE: return "TEMPLATE";
-            case GROUP:    return "GROUP";
+            case AuthRequest::VM:       return "VM";
+            case AuthRequest::HOST:     return "HOST";
+            case AuthRequest::NET:      return "NET";
+            case AuthRequest::IMAGE:    return "IMAGE";
+            case AuthRequest::USER:     return "USER";
+            case AuthRequest::CLUSTER:  return "CLUSTER";
+            case AuthRequest::TEMPLATE: return "TEMPLATE";
+            case AuthRequest::GROUP:    return "GROUP";
         }
     };
+
+    int add_object_group(
+        AuthRequest::Object object_type,
+        AuthRequest::Object group_type,
+        int                 object_id,
+        int                 group_id,
+        ostringstream&      oss,
+        bool                add=true)
+    {
+        int rc = 0;
+
+        PoolSQL *   object_pool = get_pool(object_type);
+        PoolSQL *   group_pool  = get_pool(group_type);
+        string      method_name = get_method_prefix(object_type) + "Add";
+
+        PoolObjectSQL *     object = 0;
+        PoolObjectSQL *     group  = 0;
+
+        ObjectCollection *  group_collection  = 0;
+
+
+        // Get group locked
+        group = group_pool->get(group_id,true);
+
+        if ( group == 0 )
+        {
+            goto error_get_group;
+        }
+
+        // Get object locked
+        object = object_pool->get(object_id,true);
+
+        if ( object == 0 )
+        {
+            goto error_get_object;
+        }
+
+        // Add/Delete object to the group
+        group_collection = dynamic_cast<ObjectCollection*>(group);
+
+        if( group_collection == 0 )
+        {
+            goto error_group_add_del;
+        }
+
+        if(add)
+        {
+            rc = group_collection->add_collection_id(object);
+        }
+        else
+        {
+            rc = group_collection->del_collection_id(object);
+        }
+
+        if( rc != 0 )
+        {
+            goto error_group_add_del;
+        }
+
+        // Update the DB
+        group_pool->update(group);
+
+        object_pool->update(object);
+
+        object->unlock();
+        group->unlock();
+
+        return 0;
+
+    error_get_object:
+        oss.str(get_error(method_name, object_type, object_id));
+        goto error_common;
+
+    error_get_group:
+        oss.str(get_error(method_name, group_type, group_id));
+        goto error_common;
+
+    error_group_add_del:
+        oss.str(action_error(method_name, "MANAGE", group_type, group_id, rc));
+        goto error_common;
+
+    error_common:
+        if( object != 0 )
+        {
+            object->unlock();
+        }
+
+        if( group != 0 )
+        {
+            group->unlock();
+        }
+
+        return -1;
+    }
 
     // ----------------------------------------------------------------------
     // ----------------------------------------------------------------------
@@ -388,11 +486,19 @@ private:
     /*                     Generic Helpers                                    */
     /* ---------------------------------------------------------------------- */
 
+    /**
+     *  This method takes three arguments: oid, uid and gid. It changes the
+     *  owner and/or group id of a PoolSQLObject.
+     *  If the arguments (owner or gid) are -1, the value is not updated.
+     *
+     *  PoolSQLObjects created with an uid or gid of -1 won't update their
+     *  values.
+     */
     class GenericChown: public xmlrpc_c::method
     {
     public:
-        GenericChown(RequestManager  *  _rm,
-                     Object             _ob):
+        GenericChown(RequestManager  *   _rm,
+                     AuthRequest::Object _ob):
                         rm(_rm),
                         ob(_ob)
         {
@@ -408,7 +514,43 @@ private:
 
     private:
         RequestManager *    rm;
-        Object              ob;
+        AuthRequest::Object ob;
+    };
+
+    /**
+     *  This method takes two arguments: object_id and group_id.
+     *  It adds/removes the object_id to the group and, if the object has a
+     *  collection of IDs (e.g. User objects), the group_id is added/removed
+     *  to the object's set as well.
+     */
+    class GenericAddDelGroup: public xmlrpc_c::method
+    {
+    public:
+        GenericAddDelGroup(
+                RequestManager  *   _rm,
+                AuthRequest::Object _object_type,
+                AuthRequest::Object _group_type,
+                bool                _add = true):
+                        rm(_rm),
+                        object_type(_object_type),
+                        group_type(_group_type),
+                        add(_add)
+        {
+            _signature="A:sii";
+            _help="Adds the element to the group";
+        };
+
+        ~GenericAddDelGroup(){};
+
+        void execute(
+            xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP);
+
+    private:
+        RequestManager *    rm;
+        AuthRequest::Object object_type;
+        AuthRequest::Object group_type;
+        bool                add;
     };
 
     /* ---------------------------------------------------------------------- */
@@ -1385,7 +1527,10 @@ private:
     class UserAllocate: public xmlrpc_c::method
     {
     public:
-        UserAllocate(UserPool * _upool):upool(_upool)
+        UserAllocate(UserPool *         _upool,
+                     RequestManager *   _rm)
+                 :upool(_upool),
+                 rm(_rm)
         {
             _signature="A:sss";
             _help="Creates a new user";
@@ -1398,7 +1543,8 @@ private:
             xmlrpc_c::value *   const  retvalP);
 
     private:
-        UserPool * upool;
+        UserPool *          upool;
+        RequestManager *    rm;
     };
 
     /* ---------------------------------------------------------------------- */
