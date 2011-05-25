@@ -14,17 +14,15 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#include "RequestManagerInfo.h"
+#include "RequestManagerDelete.h"
 
 using namespace std;
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-void RequestManagerInfo::request_execute(xmlrpc_c::paramList const& paramList)
+void RequestManagerDelete::request_execute(xmlrpc_c::paramList const& paramList)
 {
-    ostringstream oss;
-
     int             oid = xmlrpc_c::value_int(paramList.getInt(1));
     PoolObjectSQL * object;
 
@@ -41,11 +39,17 @@ void RequestManagerInfo::request_execute(xmlrpc_c::paramList const& paramList)
         return;
     }    
 
-    oss << *object;
+    int rc = pool->drop(object);
 
     object->unlock();
 
-    success_response(oss.str());
+    if ( rc != 0 )
+    {
+        failure_response(INTERNAL,"Internal Error");
+        return;
+    }
+
+    success_response(oid);
 
     return;
 }

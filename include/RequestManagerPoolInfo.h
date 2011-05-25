@@ -32,20 +32,16 @@ class RequestManagerPoolInfo: public Request
 protected:
     RequestManagerPoolInfo(const string& method_name,
                            const string& help)
-        :Request(method_name,"A:s",help){};
+        :Request(method_name,"A:s",help)
+    {
+        auth_op = AuthRequest::INFO_POOL;
+    };
 
     ~RequestManagerPoolInfo(){};
 
     /* -------------------------------------------------------------------- */
 
-    void request_execute(int uid, 
-                         int gid,
-                         xmlrpc_c::paramList const& _paramList);
-    
-    /* -------------------------------------------------------------------- */
-
-    PoolSQL *           pool;
-    AuthRequest::Object auth_object;
+    void request_execute(xmlrpc_c::paramList const& _paramList);
 };
 
 /* ------------------------------------------------------------------------- */

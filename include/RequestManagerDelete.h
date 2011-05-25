@@ -14,8 +14,8 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#ifndef REQUEST_MANAGER_POOL_INFO_FILTER_H_
-#define REQUEST_MANAGER_POOL_INFO_FILTER_H_
+#ifndef REQUEST_MANAGER_DELETE_H_
+#define REQUEST_MANAGER_DELETE_H_
 
 #include "Request.h"
 #include "Nebula.h"
@@ -27,102 +27,145 @@ using namespace std;
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class RequestManagerPoolInfoFilter: public Request
+class RequestManagerDelete: public Request
 {
 protected:
-    RequestManagerPoolInfoFilter(const string& method_name,
-                                 const string& help)
+    RequestManagerDelete(const string& method_name,
+                         const string& help)
         :Request(method_name,"A:si",help)
     {
-        auth_op = AuthRequest::INFO_POOL;
-    };
+        auth_op = AuthRequest::DELETE;
+    }
 
-    ~RequestManagerPoolInfoFilter(){};
-
-    /* -------------------------------------------------------------------- */
-
-    static const int ALL;        /**< Secify all objects in the pool (-2)   */
-    static const int MINE;       /**< Secify user's objects in the pool (-3)*/
-    static const int MINE_GROUP; /**< Secify users + group objects (-1)     */
+    ~RequestManagerDelete(){};
 
     /* -------------------------------------------------------------------- */
 
     void request_execute(xmlrpc_c::paramList const& _paramList);
 };
 
+
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class VirtualMachinePoolInfo : public RequestManagerPoolInfoFilter
+class TemplateDelete : public RequestManagerDelete, public TemplateRequest
 {
 public:
-    VirtualMachinePoolInfo():
-        RequestManagerPoolInfoFilter("VirtualMachinePoolInfo",
-                                     "Returns the virtual machine instances pool")
-    {    
-        Nebula& nd  = Nebula::instance();
-        pool        = nd.get_vmpool();
-        auth_object = AuthRequest::VM;
-    };
-
-    ~VirtualMachinePoolInfo(){};
-};
-
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
-
-class TemplatePoolInfo : public RequestManagerPoolInfoFilter
-{
-public:
-    TemplatePoolInfo():
-        RequestManagerPoolInfoFilter("TemplatePoolInfo",
-                                     "Returns the virtual machine template pool")
+    TemplateDelete():
+        RequestManagerDelete("TemplateDelete",
+                             "Deletes a virtual machine template")
     {    
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_tpool();
         auth_object = AuthRequest::TEMPLATE;
     };
 
-    ~TemplatePoolInfo(){};
+    ~TemplateDelete(){};
 };
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-
-class VirtualNetworkPoolInfo: public RequestManagerPoolInfoFilter
+class VirtualNetworkDelete: public RequestManagerDelete, public VirtualNetworkRequest
 {
 public:
-    VirtualNetworkPoolInfo():
-        RequestManagerPoolInfoFilter("VirtualNetworkPoolInfo",
-                                     "Returns the virtual network pool")
+    VirtualNetworkDelete():
+        RequestManagerDelete("VirtualNetworkDelete",
+                             "Deletes a virtual network")
     {    
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vnpool();
         auth_object = AuthRequest::NET;
     };
 
-    ~VirtualNetworkPoolInfo(){};
+    ~VirtualNetworkDelete(){};
 };
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class ImagePoolInfo: public RequestManagerPoolInfoFilter
+class ImageDelete: public RequestManagerDelete, public ImageRequest
 {
 public:
-    ImagePoolInfo():
-        RequestManagerPoolInfoFilter("ImagePoolInfo",
-                                     "Returns the image pool")
+    ImageDelete():
+        RequestManagerDelete("ImageDelete", "Deletes an image")
     {    
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_ipool();
         auth_object = AuthRequest::IMAGE;
     };
 
-    ~ImagePoolInfo(){};
+    ~ImageDelete(){};
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class HostDelete : public RequestManagerDelete
+{
+public:
+    HostDelete():
+        RequestManagerDelete("HostDelete", "Deletes a host")
+    {    
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_hpool();
+        auth_object = AuthRequest::HOST;
+    };
+
+    ~HostDelete(){};
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class ClusterDelete : public RequestManagerDelete
+{
+public:
+    ClusterDelete():
+        RequestManagerDelete("ClusterDelete", "Deletes a cluster")
+    {    
+        Nebula& nd = Nebula::instance();
+        pool       = nd.get_cpool();
+        auth_object = AuthRequest::CLUSTER;
+    };
+
+    ~ClusterDelete(){};
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+
+class GroupDelete: public RequestManagerDelete
+{
+public:
+    GroupDelete():
+        RequestManagerDelete("GroupDelete", "Deletes a group")
+    {    
+        Nebula& nd = Nebula::instance();
+        pool       = nd.get_gpool();
+        auth_object = AuthRequest::GROUP;
+    };
+
+    ~GroupDelete(){};
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class UserDelete: public RequestManagerDelete
+{
+public:
+    UserDelete():
+        RequestManagerDelete("UserDelete", "Deletes a user")
+    {    
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_upool();
+        auth_object = AuthRequest::USER;
+    };
+
+    ~UserDelete(){};
+};
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

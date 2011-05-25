@@ -27,6 +27,8 @@ source_files=[
     'RequestManagerInfo.cc',
     'RequestManagerPoolInfo.cc',
     'RequestManagerPoolInfoFilter.cc',
+    'RequestManagerDelete.cc',
+
 #    'RequestManagerAction.cc',
 #    'RequestManagerAllocate.cc',
 #    'RequestManagerDeploy.cc',

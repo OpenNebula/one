@@ -19,7 +19,6 @@
 
 #include "Request.h"
 #include "Nebula.h"
-#include "AuthManager.h"
 
 using namespace std;
 
@@ -32,22 +31,16 @@ class RequestManagerInfo: public Request
 protected:
     RequestManagerInfo(const string& method_name,
                        const string& help)
-        :Request(method_name,"A:si",help){};
+        :Request(method_name,"A:si",help)
+    {
+        auth_op = AuthRequest::INFO;
+    };
 
     ~RequestManagerInfo(){};
 
     /* -------------------------------------------------------------------- */
 
-    void request_execute(int uid, 
-                         int gid,
-                         xmlrpc_c::paramList const& _paramList);
-
-    virtual bool isPublic(PoolObjectSQL *obj){ return false; };
-    
-    /* -------------------------------------------------------------------- */
-
-    PoolSQL *           pool;
-    AuthRequest::Object auth_object;
+    void request_execute(xmlrpc_c::paramList const& _paramList);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -71,7 +64,7 @@ public:
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class TemplateInfo : public RequestManagerInfo
+class TemplateInfo : public RequestManagerInfo, public TemplateRequest
 {
 public:
     TemplateInfo():
@@ -84,22 +77,13 @@ public:
     };
 
     ~TemplateInfo(){};
-
-    bool isPublic(PoolObjectSQL *obj)
-    { 
-        VMTemplate * cobj;
-
-        cobj = static_cast<VMTemplate *>(obj);
-
-        return cobj->isPublic();
-    };
 };
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
 
-class VirtualNetworkInfo: public RequestManagerInfo
+class VirtualNetworkInfo: public RequestManagerInfo, public VirtualNetworkRequest
 {
 public:
     VirtualNetworkInfo():
@@ -113,20 +97,12 @@ public:
 
     ~VirtualNetworkInfo(){};
 
-    bool isPublic(PoolObjectSQL *obj)
-    { 
-        VirtualNetwork * cobj;
-
-        cobj = static_cast<VirtualNetwork *>(obj);
-
-        return cobj->isPublic();
-    };
 };
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class ImageInfo: public RequestManagerInfo
+class ImageInfo: public RequestManagerInfo, public ImageRequest
 {
 public:
     ImageInfo():
@@ -140,14 +116,6 @@ public:
 
     ~ImageInfo(){};
 
-    bool isPublic(PoolObjectSQL *obj)
-    { 
-        Image * cobj;
-
-        cobj = static_cast<Image *>(obj);
-
-        return cobj->isPublic();
-    };
 };
 
 /* ------------------------------------------------------------------------- */

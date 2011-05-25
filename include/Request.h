@@ -21,6 +21,7 @@
 #include <xmlrpc-c/registry.hpp>
 
 #include "RequestManager.h"
+#include "AuthManager.h"
 
 using namespace std;
 
@@ -56,9 +57,24 @@ public:
 
 protected:
 
+    /* ------------------- Attributes of the Request ---------------------- */
+
+    int                 uid;  /** id of the user performing the request */
+    
+    int                 gid; /** id of the user performing the request */
+
+    PoolSQL *           pool; /** id of the user performing the request */
+
+    AuthRequest::Object    auth_object; /** Auth object for the request */
+
+    AuthRequest::Operation auth_op; /** Auth operation for the request */
+
+
+    /* -------------------- Constructors ---------------------------------- */
+
     Request(const string& mn, 
             const string& signature, 
-            const string& help): method_name(mn), retval(0)
+            const string& help): uid(-1),gid(-1),pool(0),method_name(mn),retval(0)
     {
         _signature = signature;
         _help      = help;
@@ -66,7 +82,22 @@ protected:
 
     virtual ~Request(){};
 
+    /* ----------- Wrapper functions for the PoolObjectSQL class ---------- */
+
+    virtual bool isPublic(PoolObjectSQL *obj){ return false; };
     
+    /* -------------------------------------------------------------------- */
+    /* -------------------------------------------------------------------- */
+
+    /**
+     *  Performs a basic autorization for this request using the uid/gid
+     *  from the request. The function gets the object from the pool to get 
+     *  the public attribute and its owner. The authorization is based on 
+     *  object and type of operation for the request.
+     *    @param oid of the object.
+     */
+    bool basic_authorization(int oid);
+            
     /**
      *  Actual Execution method for the request. Must be implemented by the
      *  XML-RPC requests
@@ -74,9 +105,7 @@ protected:
      *    @param gid of the user making the request
      *    @param _paramlist of the XML-RPC call (complete list)
      */
-    virtual void request_execute(int uid, 
-                                 int gid,
-                                 xmlrpc_c::paramList const& _paramList) = 0;
+    virtual void request_execute(xmlrpc_c::paramList const& _paramList) = 0;
 
     /**
      *  Builds an XML-RPC response updating retval. After calling this function
@@ -155,6 +184,59 @@ private:
      *  Return value of the request from libxmlrpc-c
      */
     xmlrpc_c::value * retval;
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+/**
+ *  TemplateRequest Class implements specific function to handle Templates
+ */
+class TemplateRequest
+{
+    bool isPublic(PoolObjectSQL *obj)
+    { 
+        VMTemplate * cobj;
+
+        cobj = static_cast<VMTemplate *>(obj);
+
+        return cobj->isPublic();
+    };
+};
+
+/* -------------------------------------------------------------------------- */
+
+/**
+ *  VirtualNetworkRequest Class implements specific function to handle VirtualNetworks
+ */
+class VirtualNetworkRequest
+{
+    bool isPublic(PoolObjectSQL *obj)
+    { 
+        VirtualNetwork * cobj;
+
+        cobj = static_cast<VirtualNetwork *>(obj);
+
+        return cobj->isPublic();
+    };
+};
+
+/* -------------------------------------------------------------------------- */
+
+/**
+ *  ImageRequest Class implements specific function to handle Images
+ */
+class ImageRequest
+{
+    bool isPublic(PoolObjectSQL *obj)
+    { 
+        Image * cobj;
+
+        cobj = static_cast<Image *>(obj);
+
+        return cobj->isPublic();
+    };
 };
 
 #endif //REQUEST_H_

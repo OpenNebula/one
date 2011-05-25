@@ -30,10 +30,7 @@ const int RequestManagerPoolInfoFilter::MINE_GROUP = -1;
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-void RequestManagerPoolInfoFilter::request_execute(
-    int uid, 
-    int gid,
-    xmlrpc_c::paramList const& paramList)
+void RequestManagerPoolInfoFilter::request_execute(xmlrpc_c::paramList const& paramList)
 {
     int filter_flag = xmlrpc_c::value_int(paramList.getInt(1));
 

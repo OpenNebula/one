@@ -21,10 +21,7 @@ using namespace std;
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-void RequestManagerPoolInfo::request_execute(
-    int uid, 
-    int gid,
-    xmlrpc_c::paramList const& paramList)
+void RequestManagerPoolInfo::request_execute(xmlrpc_c::paramList const& paramList)
 {
     ostringstream oss;
     int rc;

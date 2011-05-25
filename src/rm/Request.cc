@@ -25,9 +25,6 @@ void Request::execute(
         xmlrpc_c::paramList const& _paramList,
         xmlrpc_c::value *   const  _retval)
 {
-    int uid;
-    int gid;
-
     retval  = _retval;
     session = xmlrpc_c::value_string (_paramList.getString(0));
 
@@ -42,9 +39,50 @@ void Request::execute(
     }
     else
     {
-        request_execute(uid, gid, _paramList);    
+        request_execute(_paramList);    
     }
 };
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool Request::basic_authorization(int oid)
+{
+    PoolObjectSQL * object;
+
+    bool pub;
+    int  ouid;
+
+    object = pool->get(oid,true);
+
+    if ( object == 0 )
+    {
+        failure_response(NO_EXISTS, get_error("USER",oid)); //TODO
+        return false;
+    }
+
+    ouid = object->get_uid();
+    pub  = isPublic(object);
+
+    object->unlock();
+
+    if ( uid != 0 ) // uid == 0 means oneadmin
+    {
+        AuthRequest ar(uid);
+
+        ar.add_auth(auth_object, oid, auth_op, ouid, pub);
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            failure_response(AUTHORIZATION, //TODO
+                 authorization_error("INFO","USER",oid,-1));
+
+            return false;
+        }
+    }
+
+    return true;
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
