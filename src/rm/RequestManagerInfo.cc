@@ -86,6 +86,5 @@ error_get: //TBD Improve Error messages for DUMP
 error_authorize:
     failure_response(NO_EXISTS, get_error("USER",oid));
     return;
-
 }
 
