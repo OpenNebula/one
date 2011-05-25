@@ -32,6 +32,7 @@ SED=/bin/sed
 SSH=/usr/bin/ssh
 SUDO=/usr/bin/sudo
 WGET=/usr/bin/wget
+READLINK=/bin/readlink
 
 # Used for log messages
 SCRIPT_NAME=`basename $0`

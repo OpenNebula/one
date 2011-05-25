@@ -95,7 +95,9 @@ var OpenNebula = {
                     return ["INIT",
                             "READY",
                             "USED",
-                            "DISABLED"][value];
+                            "DISABLED",
+                            "LOCKED",
+                            "ERROR"][value];
                     break;
                 default:
                     return;
@@ -1242,7 +1244,67 @@ var OpenNebula = {
                     }
                 }
             });
+        },
+        
+        "startvnc" : function(params){
+            var callback = params.success;
+            var callback_error = params.error;
+            var id = params.data.id;
+            var resource = OpenNebula.VM.resource;
+
+            var method = "startvnc";
+            var action = OpenNebula.Helper.action(method);
+            var request = OpenNebula.Helper.request(resource,method, id);
+            $.ajax({
+                url: "vm/"+id+"/startvnc",
+                type: "POST",
+                dataType: "json",
+                success: function(response)
+                {
+                    if (callback)
+                    {
+                        callback(request,response);
+                    }
+                },
+                error: function(response)
+                {
+                    if (callback_error)
+                    {
+                        callback_error(request, OpenNebula.Error(response));
+                    }
+                }
+            });
+        },
+        
+        "stopvnc" : function(params){
+            var callback = params.success;
+            var callback_error = params.error;
+            var id = params.data.id;
+            var resource = OpenNebula.VM.resource;
+
+            var method = "stopvnc";
+            var action = OpenNebula.Helper.action(method);
+            var request = OpenNebula.Helper.request(resource,method, id);
+            $.ajax({
+                url: "vm/"+id+"/stopvnc",
+                type: "POST",
+                success: function()
+                {
+                    if (callback)
+                    {
+                        callback(request);
+                    }
+                },
+                error: function(response)
+                {
+                    if (callback_error)
+                    {
+                        callback_error(request, OpenNebula.Error(response));
+                    }
+                }
+            });
         }
+        
     },
 
     "Cluster": {

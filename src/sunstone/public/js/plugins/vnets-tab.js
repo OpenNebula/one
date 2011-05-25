@@ -381,7 +381,7 @@ function updateVNetworkInfo(request,vn){
 			<thead>\
 				<tr><th colspan="2">Leases information</th></tr>\
 			</thead>'+
-			prettyPrintJSON(vn_info.LEASES)+
+			prettyPrintJSON(vn_info.LEASES.LEASE)+
 		'</table>';
     }
     

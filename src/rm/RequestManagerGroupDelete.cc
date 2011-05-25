@@ -91,6 +91,7 @@ void RequestManager::GroupDelete::execute(
         goto error_get;
     }
 
+    //TODO: Check for users in the group
     rc = GroupDelete::gpool->drop(group);
 
     group->unlock();

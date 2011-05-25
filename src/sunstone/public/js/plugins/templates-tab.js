@@ -147,6 +147,34 @@ var create_template_tmpl = '<div id="template_create_tabs">\
 			  </div>\
 \
 \
+            <!-- FEATURES SECTION pae,acpi-->\
+              <div class="vm_section" id="features">\
+                <div class="show_hide" id="add_features_cb">\
+                    <h3>Features <a id="add_features" class="icon_left" href="#"><span class="ui-icon ui-icon-plus" /></a></h3>\
+                </div>\
+                <fieldset><legend>Features</legend>\
+                <div class="vm_param kvm_opt xen_opt vmware_opt">\
+                    <label for="PAE">PAE:</label>\
+                    <select id="PAE" name="PAE">\
+                        <option value="">Default</option>\
+                        <option value="yes">Enable</option>\
+                        <option value="no">Disable</option>\
+                    </select>\
+                    <div class="tip">Physical address extension mode allows 32-bit guests to address more than 4 GB of memory</div>\
+                </div>\
+                <div class="vm_param kvm_opt xen_opt vmware_opt">\
+                    <label for="ACPI">ACPI:</label>\
+                    <select id="ACPI" name="ACPI">\
+                        <option value="">Default</option>\
+                        <option value="yes">Enable</option>\
+                        <option value="no">Disable</option>\
+                    </select>\
+                    <div class="tip">Useful for power management, for example, normally required for graceful shutdown to work</div>\
+                </div>\
+                </fieldset>\
+              </div>\
+\
+\
 			  <!--disks section using image or declaring\
 			  image, image ID, bus, target, driver\
 			  type, source, size, format, clone, save,\
@@ -267,7 +295,7 @@ var create_template_tmpl = '<div id="template_create_tabs">\
 				  </select>\
 				  <div class="tip">Name of the network to attach this device</div>\
 			    </div>\
-			    <div class="vm_param kvm_opt xen_opt niccfg">\
+			    <div class="vm_param kvm_opt xen_opt niccfg network">\
 				  <label for="IP">IP:</label>\
 				  <input type="text" id="IP" name="ip" />\
 				  <div class="tip">Request an specific IP from the Network</div>\
@@ -649,6 +677,21 @@ var template_actions = {
         elements: function() { return getSelectedNodes(dataTable_templates); },
         error: onError,
         notify: true
+     },
+
+     "Template.instantiate" : {
+         type: "custom",
+         call: function(){
+             nodes = getSelectedNodes(dataTable_templates);
+             $.each(nodes,function(){
+                Sunstone.runAction("VM.create",
+                    {vm : {
+                        template_id: this
+                        }
+                    });
+            });
+         },
+         notify: false
      }
 }
 
@@ -663,6 +706,11 @@ var template_buttons = {
     "Template.create_dialog" : {
         type: "create_dialog",
         text: "+ New",
+        condition: True
+    },
+    "Template.instantiate" : {
+        type: "action",
+        text: "Instantiate",
         condition: True
     },
     "Template.addattr_dialog" : {
@@ -875,9 +923,8 @@ function popUpTemplateRmattrDialog(){
 function updateTemplateInfo(request,template){
     var template_info = template.VMTEMPLATE;
     var info_tab = {
-        title: "Template information",
-        content:        
-        '<table id="info_template_table" class="info_table">\
+        title: "Information",
+        content: '<table id="info_template_table" class="info_table">\
 			<thead>\
 				<tr><th colspan="2">Template "'+template_info.NAME+'" information</th></tr>\
 			</thead>\
@@ -897,16 +944,20 @@ function updateTemplateInfo(request,template){
 				<td class="key_td">Public</td>\
 				<td class="value_td">'+(parseInt(template_info.PUBLIC) ? "yes" : "no")+'</td>\
 			</tr>\
-		</table>\
-        <table id="template_template_table" class="info_table">\
-		<thead><tr><th colspan="2">Template</th></tr></thead>'+
-		prettyPrintJSON(template_info.TEMPLATE)+
-		'</table>'
-    }
-    
-    
+		</table>'
+    };
+    var template_tab = {
+        title: "Template",
+        content: '<table id="template_template_table" class="info_table">\
+        <thead><tr><th colspan="2">Template</th></tr></thead>'+
+        prettyPrintJSON(template_info.TEMPLATE)+
+        '</table>'
+    };
+
+
     Sunstone.updateInfoPanelTab("template_info_panel","template_info_tab",info_tab);
-        
+    Sunstone.updateInfoPanelTab("template_info_panel","template_template_tab",template_tab);
+
     Sunstone.popUpInfoPanel("template_info_panel");
 
 }
@@ -1305,6 +1356,16 @@ function setupCreateTemplateDialog(){
 		});
 	};
 
+    // Sets up the features section
+    var features_setup = function(){
+        $('fieldset',section_features).hide();
+
+        $('#add_features',section_features).click(function(){
+            $('fieldset',section_features).toggle();
+            return false;
+        });
+    };
+
     // Sets up the disk section
 	var disks_setup = function(){
 
@@ -1695,6 +1756,7 @@ function setupCreateTemplateDialog(){
 	//Sections, used to stay within their scope
 	var section_capacity = $('#capacity');
 	var section_os_boot = $('#os_boot_opts');
+    var section_features = $('#features');
 	var section_disks = $('#disks');
 	var section_networks = $('#networks');
 	var section_inputs = $('#inputs');
@@ -1738,6 +1800,7 @@ function setupCreateTemplateDialog(){
     //initialise all sections
 	capacity_setup();
 	os_boot_setup();
+    features_setup();
 	disks_setup();
 	networks_setup();
 	inputs_setup();
@@ -1779,6 +1842,11 @@ function setupCreateTemplateDialog(){
 		};
         vm_json["OS"] = {};
 		addSectionJSON(vm_json["OS"],scope);
+
+        //Fetch pae and acpi options
+        scope = section_features;
+        vm_json["FEATURES"] = {};
+        addSectionJSON(vm_json["FEATURES"],scope);
 
 		//process disks -> fetch from box
 		scope = section_disks;

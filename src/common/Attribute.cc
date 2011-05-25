@@ -75,8 +75,20 @@ string * VectorAttribute::to_xml() const
 
 	for (it=attribute_value.begin();it!=attribute_value.end();it++)
 	{
-		oss << "<" << it->first << "><![CDATA[" << it->second
-			<< "]]></"<< it->first << ">";
+        if ( it->first.empty() )
+        {
+            continue;
+        }
+
+        if ( it->second.empty() )
+        {
+            oss << "<" << it->first << "/>";
+        }
+        else
+        {
+	    	oss << "<" << it->first << "><![CDATA[" << it->second
+			    << "]]></"<< it->first << ">";
+        }
 	}
 
 	oss << "</"<< name() << ">";
@@ -133,9 +145,16 @@ void VectorAttribute::unmarshall(const string& sattr, const char * _sep)
     	{
     		continue;
     	}
-
-        attribute_value.insert(make_pair(tmp.substr(0,mpos),
-                                         tmp.substr(mpos+1)));
+        
+        if ( mpos + 1 == tmp.size() )
+        {
+            attribute_value.insert(make_pair(tmp.substr(0,mpos),""));
+        }
+        else
+        {
+            attribute_value.insert(make_pair(tmp.substr(0,mpos),
+                                             tmp.substr(mpos+1)));
+        } 
     }
 }
 /* -------------------------------------------------------------------------- */

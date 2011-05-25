@@ -38,7 +38,7 @@ ID=$3
 
 # ------------ Generate a filename for the image ------------
 
-if [ $DST -eq "-" ] ; then 
+if [ "$DST" = "-" ] ; then 
     DST=`generate_image_path`
 fi
 
@@ -54,8 +54,11 @@ http://*)
 
 *)
     log "Moving local image $SRC to the image repository"
-    exec_and_log "mv -f $SRC $DST" \
-        "Could not move $SRC to $DST"
+    if [ \( -L $SRC \) -a \( "`$READLINK $SRC`" = "$DST" \) ] ; then
+       log "Not moving files to image repo, they are the same"
+    else
+       exec_and_log "mv -f $SRC $DST" "Could not move $SRC to $DST"
+    fi
     ;;
 esac
 

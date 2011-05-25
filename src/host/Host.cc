@@ -29,8 +29,8 @@
 /* ************************************************************************ */
 
 Host::Host(
-    int     id,
-    int     cluster_id,
+    int id,
+    int cluster_id,
     const string& _hostname,
     const string& _im_mad_name,
     const string& _vmm_mad_name,

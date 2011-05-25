@@ -74,6 +74,92 @@ extern "C"
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void get_image_attribute(VirtualMachine * vm,
+                         const string&    attr_name,
+                         const string&    img_name,
+                         const string&    img_value,
+                         string&          attr_value)
+{
+    Nebula& nd = Nebula::instance();
+
+    ImagePool * ipool = nd.get_ipool();
+    Image  *    img;
+    int         iid = -1;
+    string      iid_str;
+
+    int num;
+    vector<const Attribute *> attrs;
+    const VectorAttribute *   disk;
+
+    attr_value.clear();
+
+    if (img_name.empty() || img_name != "IMAGE_ID")
+    {
+        return;
+    }
+
+    // ----------------------------------------------
+    // Check that the image is in the template, so
+    // are sure that we can access the image template
+    // ----------------------------------------------
+    num = vm->get_template_attribute("DISK",attrs);
+
+    for (int i=0; i < num ;i++)
+    {
+        disk = dynamic_cast<const VectorAttribute *>(attrs[i]);
+
+        if ( disk == 0 )
+        {
+            continue;
+        }
+
+        iid_str = disk->vector_value("IMAGE_ID");
+
+        if ( iid_str == img_value )
+        {
+            istringstream iss(img_value);
+
+            iss >> iid;
+
+            if (iss.fail())
+            {
+                iid = -1;
+            }
+
+            break;
+        }
+    }
+
+    if (iid == -1)
+    {
+        return;
+    }
+
+    // ----------------------------------------------
+    // Get the attribute template from the image
+    // ----------------------------------------------
+    img = ipool->get(iid, true);
+
+    if ( img == 0 )
+    {
+        return;
+    }
+
+    if (attr_name == "TEMPLATE")
+    {
+        attr_value = img->to_xml64(attr_value);
+    }
+    else
+    {
+        img->get_template_attribute(attr_name.c_str(),attr_value);
+    }
+
+    img->unlock();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void get_network_attribute(VirtualMachine * vm,
                            const string&    attr_name,
                            const string&    net_name,
@@ -84,52 +170,112 @@ void get_network_attribute(VirtualMachine * vm,
 
     VirtualNetworkPool * vnpool = nd.get_vnpool();
     VirtualNetwork  *    vn;
+    int                  vnet_id = -1;
+    string               vnet_id_str;
 
-    string  network = "";
+    int num;
+    vector<const Attribute *> attrs;
+    const VectorAttribute *   net;
 
-    attr_value = "";
+    attr_value.clear();
 
-    if (net_name.empty())
-    {
-        vector<const Attribute *> nics;
-        const VectorAttribute *   nic;
-
-        if (vm->get_template_attribute("NIC",nics) == 0)
-        {
-            return;
-        }
-
-        nic = dynamic_cast<const VectorAttribute * >(nics[0]);
-
-        if ( nic == 0 )
-        {
-            return;
-        }
-
-        network = nic->vector_value("NETWORK");
-    }
-    else if (net_name == "NAME")
-    {
-        network = net_value;
-    }
-
-    if ( network.empty() )
+    if (net_name.empty() || net_name != "NETWORK_ID")
     {
         return;
     }
 
-    vn = vnpool->get(network, vm->get_uid(), true);
+    // ----------------------------------------------
+    // Check that the network is in the template, so
+    // are sure that we can access its template
+    // ----------------------------------------------
+    num = vm->get_template_attribute("NIC",attrs);
+
+    for (int i=0; i < num ;i++)
+    {
+        net = dynamic_cast<const VectorAttribute *>(attrs[i]);
+
+        if ( net == 0 )
+        {
+            continue;
+        }
+
+        vnet_id_str = net->vector_value("NETWORK_ID");
+
+        if ( vnet_id_str == net_value )
+        {
+            istringstream iss(net_value);
+
+            iss >> vnet_id;
+
+            if (iss.fail())
+            {
+                vnet_id = -1;
+            }
+
+            break;
+        }
+    }
+
+    if (vnet_id == -1)
+    {
+        return;
+    }
+
+    // ----------------------------------------------
+    // Get the attribute template from the image
+    // ----------------------------------------------
+    vn = vnpool->get(vnet_id, true);
 
     if ( vn == 0 )
     {
         return;
     }
 
-    vn->get_template_attribute(attr_name.c_str(),attr_value);
+    if (attr_name == "TEMPLATE")
+    {
+        attr_value = vn->to_xml64(attr_value);
+    }
+    else
+    {
+        vn->get_template_attribute(attr_name.c_str(),attr_value);
+    }
 
     vn->unlock();
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/*
+void get_user_attribute(VirtualMachine * vm,
+                        const string&    attr_name,
+                        string&          attr_value)
+{
+    Nebula& nd = Nebula::instance();
+
+    UserPool * upool = nd.get_upool();
+    User *     user;
+
+    attr_value.clear();
+
+    user = upool->get(vm->get_uid(), true);
+
+    if ( user == 0 )
+    {
+        return;
+    }
+
+    if (attr_name == "TEMPLATE")
+    {
+        attr_value = user->to_xml64(attr_value);
+    }
+    else
+    {
+        user->get_template_attribute(attr_name.c_str(),attr_value);
+    }
+
+    user->unlock();
+}
+*/
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -139,9 +285,23 @@ void insert_single(VirtualMachine * vm,
 {
     string value = "";
 
-    vm->get_template_attribute(name.c_str(),value);
+    if (name == "TEMPLATE")
+    {
+        vm->to_xml64(value);
+    }
+    else if (name == "UID")
+    {
+        parsed << vm->get_uid();
+    }
+    else 
+    {
+        vm->get_template_attribute(name.c_str(),value);
+    }
 
-    parsed << value;
+    if (!value.empty())
+    {
+        parsed << value;
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -160,7 +320,7 @@ void insert_vector(VirtualMachine * vm,
 
     int    num;
 
-    if ( name == "NETWORK")
+    if (name == "NETWORK")
     {
         string value;
 
@@ -173,35 +333,50 @@ void insert_vector(VirtualMachine * vm,
 
         return;
     }
-
-    if ( ( num = vm->get_template_attribute(name.c_str(),values) ) <= 0 )
+    else if (name == "IMAGE")
     {
+        string value;
+
+        get_image_attribute(vm,vname,vvar,vval,value);
+
+        if (!value.empty())
+        {
+            parsed << value;
+        }
+
         return;
-    }
-
-    if ( vvar.empty() )
-    {
-        vattr = dynamic_cast<const VectorAttribute *>(values[0]);
     }
     else
     {
-        const VectorAttribute * tmp = 0;
-
-        for (int i=0 ; i < num ; i++)
+        if ( ( num = vm->get_template_attribute(name.c_str(),values) ) <= 0 )
         {
-            tmp = dynamic_cast<const VectorAttribute *>(values[i]);
+            return;
+        }
 
-            if ( tmp && ( tmp->vector_value(vvar.c_str()) == vval ))
+        if ( vvar.empty() )
+        {
+            vattr = dynamic_cast<const VectorAttribute *>(values[0]);
+        }
+        else
+        {
+            const VectorAttribute * tmp = 0;
+
+            for (int i=0 ; i < num ; i++)
             {
-                vattr = tmp;
-                break;
+                tmp = dynamic_cast<const VectorAttribute *>(values[i]);
+
+                if ( tmp && ( tmp->vector_value(vvar.c_str()) == vval ))
+                {
+                    vattr = tmp;
+                    break;
+                }
             }
         }
-    }
 
-    if ( vattr != 0 )
-    {
-        parsed << vattr->vector_value(vname.c_str());
+        if ( vattr != 0 )
+        {
+            parsed << vattr->vector_value(vname.c_str());
+        }
     }
 }
 

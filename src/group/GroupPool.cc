@@ -20,61 +20,62 @@
 
 #include <stdexcept>
 
+/* -------------------------------------------------------------------------- */
+/* There are two default groups boostrapped by the core:                      */
+/*   - oneadmin can not be removed                                            */
+/*   - users to place regular users by default                                */
+/* The first 100 group IDs are reserved for system groups. Regular ones start */
+/* from ID 100                                                                */
+/* -------------------------------------------------------------------------- */
+
 const string GroupPool::ONEADMIN_NAME = "oneadmin";
 const int    GroupPool::ONEADMIN_ID   = 0;
 
 const string GroupPool::USERS_NAME    = "users";
 const int    GroupPool::USERS_ID      = 1;
 
-
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 GroupPool::GroupPool(SqlDB * db):PoolSQL(db, Group::table)
 {
-    // lastOID is set in PoolSQL::init_cb
-    if (get_lastOID() == -1)
+    ostringstream oss;
+    string        error_str;
+
+    if (get_lastOID() == -1) //lastOID is set in PoolSQL::init_cb
     {
         int         rc;
         Group *     group;
-        string      error_str;
 
-        // Build the default groups
+        // Build the default oneadmins & users group
         group = new Group(ONEADMIN_ID, 0, ONEADMIN_NAME);
 
-        // Insert the Object in the pool
         rc = PoolSQL::allocate(group, error_str);
 
-        if(rc < 0)
+        if( rc < 0 )
         {
-            ostringstream oss;
-
-            oss << "Error trying to create default group: " << error_str;
-            NebulaLog::log("GROUP",Log::ERROR,oss);
-
-            throw runtime_error(oss.str());
+            goto error_groups;
         }
 
         group = new Group(USERS_ID, 0, USERS_NAME);
 
-        // Insert the Object in the pool
         rc = PoolSQL::allocate(group, error_str);
 
         if(rc < 0)
         {
-            ostringstream oss;
-
-            oss << "Error trying to create default group: " << error_str;
-            NebulaLog::log("GROUP",Log::ERROR,oss);
-
-            throw runtime_error(oss.str());
+            goto error_groups;
         }
 
-        // First 100 group Ids are reserved for system groups.
-        // Regular ones start from ID 100
-        lastOID=99;
-        update_lastOID();
+        set_update_lastOID(99);
     }
+    
+    return;
+
+error_groups:
+    oss << "Error trying to create default group: " << error_str;
+    NebulaLog::log("GROUP",Log::ERROR,oss);
+
+    throw runtime_error(oss.str());
 }
 
 /* -------------------------------------------------------------------------- */
@@ -106,7 +107,6 @@ int GroupPool::allocate(int uid, string name, int * oid, string& error_str)
 
     return *oid;
 
-
 error_name:
     oss << "NAME cannot be empty.";
     goto error_common;
@@ -134,8 +134,7 @@ int GroupPool::drop(Group * group)
     if( group->get_oid() < 100 )
     {
         NebulaLog::log("GROUP",Log::ERROR,
-                       "Groups with ID less than 100 cannot be deleted.");
-
+                       "System Groups (ID < 100) cannot be deleted.");
         return -1;
     }
 

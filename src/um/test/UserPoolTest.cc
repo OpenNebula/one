@@ -20,6 +20,7 @@
 
 #include "UserPool.h"
 #include "PoolTest.h"
+#include "SSLTools.h"
 
 using namespace std;
 
@@ -30,25 +31,25 @@ const string usernames[] = { "A user", "B user", "C user", "D user", "E user" };
 const string passwords[] = { "A pass", "B pass", "C pass", "D pass", "E pass" };
 
 const string dump_result =
-    "<USER_POOL><USER><ID>0</ID><NAME>one_user_test</NAME><GID>0</GID>"
+    "<USER_POOL><USER><ID>0</ID><GID>0</GID><NAME>one_user_test</NAME>"
     "<PASSWORD>5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8</PASSWORD>"
-    "<ENABLED>1</ENABLED></USER><USER><ID>1</ID><NAME>a</NAME><GID>0</GID>"
+    "<ENABLED>1</ENABLED></USER><USER><ID>1</ID><GID>0</GID><NAME>a</NAME>"
     "<PASSWORD>p</PASSWORD><ENABLED>1</ENABLED></USER><USER>"
-    "<ID>2</ID><NAME>a name</NAME><GID>0</GID><PASSWORD>pass</PASSWORD>"
-    "<ENABLED>1</ENABLED></USER><USER><ID>3</ID><NAME>a_name</NAME><GID>0</GID>"
+    "<ID>2</ID><GID>0</GID><NAME>a name</NAME><PASSWORD>pass</PASSWORD>"
+    "<ENABLED>1</ENABLED></USER><USER><ID>3</ID><GID>0</GID><NAME>a_name</NAME>"
     "<PASSWORD>password</PASSWORD><ENABLED>1</ENABLED></USER><USER>"
-    "<ID>4</ID><NAME>another name</NAME><GID>0</GID><PASSWORD>secret</PASSWORD>"
-    "<ENABLED>1</ENABLED></USER><USER><ID>5</ID><NAME>user</NAME><GID>0</GID>"
+    "<ID>4</ID><GID>0</GID><NAME>another name</NAME><PASSWORD>secret</PASSWORD>"
+    "<ENABLED>1</ENABLED></USER><USER><ID>5</ID><GID>0</GID><NAME>user</NAME>"
     "<PASSWORD>1234</PASSWORD><ENABLED>1</ENABLED></USER>"
     "</USER_POOL>";
 
 const string dump_where_result =
-    "<USER_POOL><USER><ID>1</ID><NAME>a</NAME><GID>0</GID>"
+    "<USER_POOL><USER><ID>1</ID><GID>0</GID><NAME>a</NAME>"
     "<PASSWORD>p</PASSWORD><ENABLED>1</ENABLED></USER><USER>"
-    "<ID>2</ID><NAME>a name</NAME><GID>0</GID><PASSWORD>pass</PASSWORD>"
-    "<ENABLED>1</ENABLED></USER><USER><ID>3</ID><NAME>a_name</NAME><GID>0</GID>"
+    "<ID>2</ID><GID>0</GID><NAME>a name</NAME><PASSWORD>pass</PASSWORD>"
+    "<ENABLED>1</ENABLED></USER><USER><ID>3</ID><GID>0</GID><NAME>a_name</NAME>"
     "<PASSWORD>password</PASSWORD><ENABLED>1</ENABLED></USER><USER>"
-    "<ID>4</ID><NAME>another name</NAME><GID>0</GID><PASSWORD>secret</PASSWORD>"
+    "<ID>4</ID><GID>0</GID><NAME>another name</NAME><PASSWORD>secret</PASSWORD>"
     "<ENABLED>1</ENABLED></USER></USER_POOL>";
 
 class UserPoolTest : public PoolTest
@@ -92,8 +93,8 @@ protected:
         int oid;
         string err;
         
-        return ((UserPool*)pool)->allocate(&oid, usernames[index],
-                                           passwords[index], true, 0, err);
+        return ((UserPool*)pool)->allocate(&oid, 0, usernames[index],
+                                           passwords[index], true, err);
     };
 
     void check(int index, PoolObjectSQL* obj)
@@ -119,7 +120,7 @@ public:
         string st   = "top_secret_string";
         string sha1 = "773260f433f7fd6f89c1f1bfc32e080fc0748478";
 
-        CPPUNIT_ASSERT( sha1 == User::sha1_digest(st) );
+        CPPUNIT_ASSERT( sha1 == SSLTools::sha1_digest(st) );
     }
 
     void split_secret()
@@ -151,7 +152,7 @@ public:
 
         CPPUNIT_ASSERT( user->get_oid()      == 0 );
         CPPUNIT_ASSERT( user->get_name() == "one_user_test" );
-        CPPUNIT_ASSERT( user->get_password() == User::sha1_digest("password") );
+        CPPUNIT_ASSERT( user->get_password() == SSLTools::sha1_digest("password") );
     }
 
     void authenticate()
@@ -256,17 +257,17 @@ public:
         UserPool * up = static_cast<UserPool *>(pool);
 
         // Allocate a user.
-        rc = up->allocate(&oid, usernames[0], passwords[0], true, 0, err);
+        rc = up->allocate(&oid, 0,usernames[0], passwords[0], true, err);
         CPPUNIT_ASSERT( oid == 1 );
         CPPUNIT_ASSERT( oid == rc );
 
         // Try to allocate twice the same user, should fail
-        rc = up->allocate(&oid, usernames[0], passwords[0], true, 0, err);
+        rc = up->allocate(&oid, 0,usernames[0], passwords[0], true, err);
         CPPUNIT_ASSERT( rc  == -1 );
         CPPUNIT_ASSERT( oid == rc );
 
         // Try again, with different password
-        rc = up->allocate(&oid, usernames[0], passwords[1], true, 0, err);
+        rc = up->allocate(&oid, 0, usernames[0], passwords[1], true, err);
         CPPUNIT_ASSERT( rc  == -1 );
         CPPUNIT_ASSERT( oid == rc );
     }
@@ -281,19 +282,19 @@ public:
         
         for(int i=0; i<5; i++)
         {
-            ((UserPool*)pool)->allocate(&oid, d_names[i], d_pass[i], true, 0, err);
+            ((UserPool*)pool)->allocate(&oid, 0, d_names[i], d_pass[i], true, err);
         }
 
         ostringstream oss;
         ((UserPool*)pool)->dump(oss, "");
 
-/*
+
         if( oss.str() != dump_result )
         {
             cout << endl << oss.str() << endl << "========"
                  << endl << dump_result << endl << "--------";
         }
-//*/
+//
 
         CPPUNIT_ASSERT( oss.str() == dump_result );
     }
@@ -308,7 +309,7 @@ public:
 
         for(int i=0; i<5; i++)
         {
-            ((UserPool*)pool)->allocate(&oid, d_names[i], d_pass[i], true, 0, err);
+            ((UserPool*)pool)->allocate(&oid, 0, d_names[i], d_pass[i], true, err);
         }
 
         // Note: second parameter of dump is the WHERE constraint. The "order

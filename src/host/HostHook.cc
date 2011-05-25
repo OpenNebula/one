@@ -20,13 +20,36 @@
 
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
+static void parse_host_arguments(Host *host, string& parsed)
+{
+    size_t  found;
+
+    found = parsed.find("$HID");
+
+    if ( found !=string::npos )
+    {
+        ostringstream oss;
+        oss << host->get_oid();
+
+        parsed.replace(found,4,oss.str());
+    }
+
+    found = parsed.find("$TEMPLATE");
+
+    if ( found != string::npos )
+    {
+        string templ;
+        parsed.replace(found,9,host->to_xml64(templ));
+    }
+}
+// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 void HostAllocateHook::do_hook(void *arg)
 {
     Host *  host;
 
     string  parsed_args = args;
-    size_t  found;
 
     host = static_cast<Host *>(arg);
 
@@ -34,16 +57,8 @@ void HostAllocateHook::do_hook(void *arg)
     {
         return;
     }
-
-    found = args.find("$HID");
-
-    if ( found !=string::npos )
-    {
-        ostringstream oss;
-        oss << host->get_oid();
-
-        parsed_args.replace(found,4,oss.str());
-    }
+    
+    parse_host_arguments(host,parsed_args);
 
     Nebula& ne                    = Nebula::instance();
     HookManager * hm              = ne.get_hm();
@@ -156,17 +171,8 @@ void HostStateHook::do_hook(void *arg)
     if ( cur_state == this->state )
     {
         string  parsed_args = args;
-        size_t  found;
 
-        found = args.find("$HID");
-
-        if ( found !=string::npos )
-        {
-            ostringstream oss;
-            oss << host->get_oid();
-
-            parsed_args.replace(found,4,oss.str());
-        }
+        parse_host_arguments(host,parsed_args);
 
         Nebula& ne        = Nebula::instance();
         HookManager * hm  = ne.get_hm();

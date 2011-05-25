@@ -80,9 +80,11 @@ private:
     // Constructor
     // *************************************************************************
 
-    Group(int id, int uid, const string& name);
+    Group(int id, int uid, const string& name):
+        PoolObjectSQL(id,name,uid,-1,table),
+        ObjectCollection("USERS"){};
 
-    virtual ~Group();
+    virtual ~Group(){};
 
     // *************************************************************************
     // DataBase implementation (Private)
@@ -117,15 +119,29 @@ private:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int insert(SqlDB *db, string& error_str);
+    int insert(SqlDB *db, string& error_str)
+    {
+        int rc;
+
+        rc = insert_replace(db, false);
+
+        if ( rc != 0 )
+        {
+            error_str = "Error inserting Group in DB.";
+        }
+
+        return rc;
+    }
 
     /**
      *  Writes/updates the Group's data fields in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int update(SqlDB *db);
-
+    int update(SqlDB *db)
+    {
+        return insert_replace(db, true);
+    }
 
     // *************************************************************************
     // ID Set management

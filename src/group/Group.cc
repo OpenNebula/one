@@ -30,52 +30,9 @@ const char * Group::db_bootstrap = "CREATE TABLE IF NOT EXISTS group_pool ("
     "oid INTEGER PRIMARY KEY, name VARCHAR(256), body TEXT, uid INTEGER, "
     "UNIQUE(name))";
 
-
-/* ************************************************************************ */
-/* Group :: Constructor/Destructor                                          */
-/* ************************************************************************ */
-
-Group::Group(int id, int uid, const string& name):
-    PoolObjectSQL(id,name,uid,-1,table),
-    ObjectCollection("USERS"){};
-
-Group::~Group(){};
-
 /* ************************************************************************ */
 /* Group :: Database Access Functions                                       */
 /* ************************************************************************ */
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
-int Group::insert(SqlDB *db, string& error_str)
-{
-    int rc;
-
-    rc = insert_replace(db, false);
-
-    if ( rc != 0 )
-    {
-        error_str = "Error inserting Group in DB.";
-    }
-
-    return rc;
-}
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
-int Group::update(SqlDB *db)
-{
-    int    rc;
-
-    rc = insert_replace(db, true);
-
-    return rc;
-}
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
 
 int Group::insert_replace(SqlDB *db, bool replace)
 {
@@ -87,7 +44,7 @@ int Group::insert_replace(SqlDB *db, bool replace)
     char * sql_name;
     char * sql_xml;
 
-   // Update the Group
+    // Update the Group
 
     sql_name = db->escape_str(name.c_str());
 
@@ -103,7 +60,7 @@ int Group::insert_replace(SqlDB *db, bool replace)
         goto error_body;
     }
 
-    if(replace)
+    if ( replace )
     {
         oss << "REPLACE";
     }
@@ -133,9 +90,8 @@ error_name:
     return -1;
 }
 
-/* ************************************************************************ */
-/* Group :: Misc                                                            */
-/* ************************************************************************ */
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
 
 ostream& operator<<(ostream& os, Group& group)
 {
@@ -157,7 +113,7 @@ string& Group::to_xml(string& xml) const
     ObjectCollection::to_xml(collection_xml);
 
     oss <<
-    "<GROUP>"  <<
+    "<GROUP>"    <<
         "<ID>"   << oid  << "</ID>"   <<
         "<UID>"  << uid  << "</UID>"  <<
         "<NAME>" << name << "</NAME>" <<
@@ -264,3 +220,7 @@ int Group::add_del_collection_id(User* object, bool add)
 
     return rc;
 }
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+

@@ -20,24 +20,11 @@
 
 #include <iostream>
 #include <sstream>
-
-#include <openssl/evp.h>
 #include <iomanip>
 
 #include "User.h"
 #include "Nebula.h"
 #include "Group.h"
-
-/* ************************************************************************** */
-/* User :: Constructor/Destructor                                             */
-/* ************************************************************************** */
-
-User::User(int id, string name, string pass, bool _enabled, int _gid):
-        PoolObjectSQL(id,name,-1,_gid,table), ObjectCollection("GROUPS"),
-        password(pass), enabled(_enabled)
-            {};
-
-User::~User(){};
 
 /* ************************************************************************** */
 /* User :: Group Set Management                                               */
@@ -243,8 +230,8 @@ string& User::to_xml(string& xml) const
     oss <<
     "<USER>"
          "<ID>"           << oid            <<"</ID>"        <<
-         "<NAME>"         << name           <<"</NAME>"      <<
          "<GID>"          << gid            <<"</GID>"       <<
+         "<NAME>"         << name           <<"</NAME>"      <<
          "<PASSWORD>"     << password       <<"</PASSWORD>"  <<
          "<ENABLED>"      << enabled_int    <<"</ENABLED>"   <<
          collection_xml   <<
@@ -268,8 +255,8 @@ int User::from_xml(const string& xml)
     update_from_str(xml);
 
     rc += xpath(oid,         "/USER/ID",       -1);
-    rc += xpath(name,        "/USER/NAME",     "not_found");
     rc += xpath(gid,         "/USER/GID",      -1);
+    rc += xpath(name,        "/USER/NAME",     "not_found");
     rc += xpath(password,    "/USER/PASSWORD", "not_found");
     rc += xpath(int_enabled, "/USER/ENABLED",  0);
 
@@ -318,29 +305,3 @@ int User::split_secret(const string secret, string& user, string& pass)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-string User::sha1_digest(const string& pass)
-{
-    EVP_MD_CTX     mdctx;
-    unsigned char  md_value[EVP_MAX_MD_SIZE];
-    unsigned int   md_len;
-    ostringstream  oss;
-
-    EVP_MD_CTX_init(&mdctx);
-    EVP_DigestInit_ex(&mdctx, EVP_sha1(), NULL);
-
-    EVP_DigestUpdate(&mdctx, pass.c_str(), pass.length());
-
-    EVP_DigestFinal_ex(&mdctx,md_value,&md_len);
-    EVP_MD_CTX_cleanup(&mdctx);
-
-    for(unsigned int i = 0; i<md_len; i++)
-    {
-        oss << setfill('0') << setw(2) << hex << nouppercase
-            << (unsigned short) md_value[i];
-    }
-
-    return oss.str();
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */

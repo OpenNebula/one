@@ -96,13 +96,6 @@ public:
     static int split_secret(const string secret, string& user, string& pass);
 
     /**
-     *  "Encrypts" the password with SHA1 digest
-     *  @param password
-     *  @return sha1 encrypted password
-     */
-    static string sha1_digest(const string& pass);
-
-    /**
      *  Sets the User's gid and add the User's oid to that group
      */
     int set_gid(int _gid);
@@ -164,13 +157,13 @@ protected:
     // Constructor
     // *************************************************************************
 
-    User(int     id,
-         string _username,
-         string _password,
-         bool   _enabled,
-         int    _gid);
+    User(int id, int _gid, const string& _username, const string& _password, bool _enabled):
+        PoolObjectSQL(id,_username,-1,_gid,table),
+        ObjectCollection("GROUPS"),
+        password(_password), enabled(_enabled)
+        {};
 
-    virtual ~User();
+    virtual ~User(){};
 
     // *************************************************************************
     // Group IDs set Management

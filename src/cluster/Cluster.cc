@@ -30,18 +30,6 @@ const char * Cluster::db_names = "oid, name, body";
 const char * Cluster::db_bootstrap = "CREATE TABLE IF NOT EXISTS cluster_pool ("
     "oid INTEGER PRIMARY KEY, name VARCHAR(256), body TEXT, UNIQUE(name))";
 
-
-/* ************************************************************************ */
-/* Cluster :: Constructor/Destructor                                        */
-/* ************************************************************************ */
-
-Cluster::Cluster(int id, const string& name)
-    :PoolObjectSQL(id,name,-1,-1,table),
-    ObjectCollection("HOSTS")
-{};
-
-Cluster::~Cluster(){};
-
 /* ************************************************************************ */
 /* Cluster :: Database Access Functions                                     */
 /* ************************************************************************ */

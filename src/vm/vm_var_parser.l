@@ -39,6 +39,7 @@
 %option yylineno
 
 %x VAR
+%x VALUE
 %%
 
  /* ------------------------------------------------------------------------- */
@@ -51,18 +52,24 @@
 
 \$                             { BEGIN VAR;}
 
-<VAR>[[:blank:]]*=[[:blank:]]* { return EQUAL;}
+<VAR>[[:blank:]]*=[[:blank:]]* { BEGIN VALUE; return EQUAL; }
 <VAR>[[:blank:]]*,[[:blank:]]* { return COMMA;}
 <VAR>\[[[:blank:]]*            { return OBRACKET;}
 <VAR>[[:blank:]]*\]            { return CBRACKET;}
 
 <VAR>[[:alnum:]_]+             { lvalp->val_str =
-                                    mem_collector_strdup(mc,yytext);
+                                 mem_collector_strdup(mc,yytext);
                                  return VARIABLE;}
 
-<VAR>\"[^\"]*\"                { lvalp->val_str =
-                                    mem_collector_strdup(mc,yytext+1);
+<VALUE>\"[^\"]*\"              { lvalp->val_str =
+                                 mem_collector_strdup(mc,yytext+1);
                                  lvalp->val_str[yyleng-2] = '\0';
+                                 BEGIN(VAR);
+                                 return STRING;}
+
+<VALUE>[[:alnum:]]+            { lvalp->val_str =
+                                 mem_collector_strdup(mc,yytext);
+                                 BEGIN(VAR);
                                  return STRING;}
 
 <VAR>\$                        { lvalp->val_char = '\0';

@@ -17,6 +17,7 @@
 require 'OpenNebulaJSON/JSONUtils'
 
 module OpenNebulaJSON
+
     class VirtualMachineJSON < OpenNebula::VirtualMachine
         include JSONUtils
 

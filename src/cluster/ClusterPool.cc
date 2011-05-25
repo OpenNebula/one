@@ -110,10 +110,9 @@ int ClusterPool::drop(Cluster * cluster)
     int         cluster_id = cluster->get_oid();
 
     ostringstream where;
-    where << "cid = " << cluster_id;
 
     // Return error if cluster is 'default'
-    if( cluster->get_oid() == DEFAULT_CLUSTER_ID )
+    if( cluster_id == DEFAULT_CLUSTER_ID )
     {
         NebulaLog::log("CLUSTER",Log::WARNING,
                        "Default cluster cannot be deleted.");

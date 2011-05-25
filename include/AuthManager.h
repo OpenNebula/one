@@ -458,13 +458,6 @@ private:
      */
     void do_action(const string &name, void *args){};
 
-   /**
-    *  Base 64 encoding
-    *    @param in the string to encoded
-    *    @return a pointer to the encoded string (must be freed) or 0 in case of
-    *    error
-    */
-    static string * base64_encode(const string& in);
 
 };
 

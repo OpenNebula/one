@@ -30,14 +30,30 @@ public:
 
     ~GroupPool(){};
 
+    /* ---------------------------------------------------------------------- */
+    /* Constants r DB management                                              */
+    /* ---------------------------------------------------------------------- */
+
     /**
-     *  Names for the default groups
+     *  Default name for the oneadmin group
      */
     static const string ONEADMIN_NAME;
+
+    /**
+     *  Identifier for the oneadmin group
+     */
+    static const int ONEADMIN_ID;
+
+    /**
+     *  Default name for the users group
+     */
     static const string USERS_NAME;
 
-    static const int ONEADMIN_ID;
+    /**
+     *  Identifier for the user group
+     */
     static const int USERS_ID;
+
     /* ---------------------------------------------------------------------- */
     /* Methods for DB management                                              */
     /* ---------------------------------------------------------------------- */

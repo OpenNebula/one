@@ -39,7 +39,7 @@ class AuthManagerTest : public OneUnitTest
     CPPUNIT_TEST_SUITE (AuthManagerTest);
 
     CPPUNIT_TEST (load);
-    //CPPUNIT_TEST (timeout);
+    CPPUNIT_TEST (timeout);
     CPPUNIT_TEST (authenticate);
     CPPUNIT_TEST (authorize);
     CPPUNIT_TEST (self_authorize);
@@ -118,7 +118,7 @@ public:
 
         am->load_mads(0);
 
-        ar.add_authenticate("the_user","the_pass","the_secret");
+        ar.add_authenticate("timeout","the_pass","the_secret");
 
         am->trigger(AuthManager::AUTHENTICATE,&ar);
 
