@@ -223,7 +223,6 @@ class SunstoneServer
         # The VM host and its VNC port
         host = resource['HISTORY/HOSTNAME']
         vnc_port = resource['TEMPLATE/GRAPHICS/PORT']
-
         # The noVNC proxy_port
         proxy_port = config[:vnc_proxy_base_port].to_i + vnc_port.to_i
 
@@ -266,7 +265,7 @@ class SunstoneServer
     #
     ############################################################################
 
-    def get_log(resource,id,config,request)
+    def get_log(resource,id,config,monitor_res,history_length)
         log_file_prefix = case resource
                    when "vm","VM"
                        config[:host_log_file]
@@ -274,11 +273,11 @@ class SunstoneServer
                        config[:vm_log_file]
                    end
 
-        log_file = "#{log_file_prefix}_#{id}.csv"
+        if !log_file_prefix or log_file_prefix.empty?
+            log_file_prefix = "/srv/cloud/one-dummy/logs/"+resource
+        end
 
-        request_json = parse_json(request,"monitor")
-        history_length = request_json[:history_length]
-        element = request_json[:element]
+        log_file = "#{log_file_prefix}_#{id}.csv"
 
         first_line = `head -1 #{log_file}`
 
@@ -291,9 +290,8 @@ class SunstoneServer
         fields = first_line.split(',')
 
         poll_time_pos = fields.index("time")
-        resource_pos = fields.index(element)
+        resource_pos = fields.index(monitor_res)
         id_pos = fields.index("id")
-
 
         graph = []
         tail = `tail -#{history_length} #{log_file}`
@@ -302,7 +300,7 @@ class SunstoneServer
             line_arr = line.delete('"').split(',')
             if (line_arr[id_pos].to_i == id.to_i)
             then
-                graph << [ line_arr[poll_time_pos], line_arr[resource_pos] ]
+                graph << [ line_arr[poll_time_pos].to_i*1000, line_arr[resource_pos].to_i ]
             end
         end
 
