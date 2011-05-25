@@ -88,10 +88,6 @@ public:
     };
 
     ~TemplatePoolInfo(){};
-
-private:
-    VMTemplatePool * tpool;
-    UserPool *       upool;
 };
 
 /* ------------------------------------------------------------------------- */

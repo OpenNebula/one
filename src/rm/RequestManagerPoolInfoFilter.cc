@@ -67,19 +67,22 @@ void RequestManagerPoolInfoFilter::request_execute(
     }
 
     //Authorize the operation
-    if ( uid != 0 && (filter_flag == ALL || filter_flag >= 0) ) // uid == 0 means oneadmin
+    if ( uid != 0 ) // uid == 0 means oneadmin
     {
-        AuthRequest ar(uid);
-
-        ar.add_auth(auth_object,
-                    -1,
-                    AuthRequest::INFO_POOL,
-                    0,
-                    false);
-
-        if (UserPool::authorize(ar) == -1)
+        if (filter_flag == ALL || filter_flag >= 0) 
         {
-            goto error_authorize;
+            AuthRequest ar(uid);
+
+            ar.add_auth(auth_object,
+                        -1,
+                        AuthRequest::INFO_POOL,
+                        0,
+                        false);
+
+            if (UserPool::authorize(ar) == -1)
+            {
+                goto error_authorize;
+            }
         }
     }
 

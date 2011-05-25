@@ -14,87 +14,78 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#include "RequestManager.h"
-#include "NebulaLog.h"
+#include "RequestManagerInfo.h"
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
+using namespace std;
 
-void RequestManager::VirtualMachineInfo::execute(
-    xmlrpc_c::paramList const& paramList,
-    xmlrpc_c::value *   const  retval)
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+void RequestManagerInfo::request_execute(
+    int uid, 
+    int gid,
+    xmlrpc_c::paramList const& paramList)
 {
-    string  session;
+    ostringstream oss;
 
-    int              vid, rc;
-    VirtualMachine * vm;
+    int  oid = xmlrpc_c::value_int(paramList.getInt(1));
+    int  ouid;
+    bool pub;
 
-    ostringstream    oss;
-    
-    const string     method_name = "VirtualMachineInfo";
+    PoolObjectSQL * object;
 
-    /*   -- RPC specific vars --  */
-    vector<xmlrpc_c::value> arrayData;
-    xmlrpc_c::value_array * arrayresult;
+    object = pool->get(oid,true);
 
-    NebulaLog::log("ReM",Log::DEBUG,"VirtualMachineInfo method invoked");
+    if ( object == 0 )                             
+    {                                            
+        goto error_get;                     
+    }    
 
-    // Get the parameters
-    session      = xmlrpc_c::value_string(paramList.getString(0));
-    vid          = xmlrpc_c::value_int   (paramList.getInt(1));
+    ouid = object->get_uid();
+    pub  = isPublic(object);
 
-    // Check if it is a valid user
-    rc = VirtualMachineInfo::upool->authenticate(session);
+    object->unlock();
 
-    if ( rc == -1 )
+    //Authorize the operation
+    if ( uid != 0 ) // uid == 0 means oneadmin
     {
-        goto error_authenticate;
+        AuthRequest ar(uid);
+
+        ar.add_auth(auth_object,
+                    oid,
+                    AuthRequest::INFO,
+                    ouid,
+                    pub);
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            goto error_authorize;
+        }
     }
 
-    // Get the details of the virtual machine
-    vm = VirtualMachineInfo::vmpool->get(vid,true);
+    object = pool->get(oid,true);
 
-    if ( vm == 0 )
-    {
-        goto error_vm_get;
-    }
+    if ( object == 0 )                             
+    {                                            
+        goto error_get;                     
+    }    
 
-    oss << *vm;
+    oss << *object;
 
-    vm->unlock();
+    object->unlock();
 
-    // All nice, return the vm info to the client
-    arrayData.push_back(xmlrpc_c::value_boolean(true)); // SUCCESS
-    arrayData.push_back(xmlrpc_c::value_string(oss.str()));
-
-    // Copy arrayresult into retval mem space
-    arrayresult = new xmlrpc_c::value_array(arrayData);
-    *retval = *arrayresult;
-
-    delete arrayresult; // and get rid of the original
+    success_response(oss.str());
 
     return;
 
-error_authenticate:
-    oss.str(authenticate_error(method_name));  
-    goto error_common;
-
-error_vm_get:
-    oss.str(get_error(method_name, "VM", vid));
-    goto error_common;
-
-error_common:
-    arrayData.push_back(xmlrpc_c::value_boolean(false)); // FAILURE
-    arrayData.push_back(xmlrpc_c::value_string(oss.str()));
-
-    NebulaLog::log("ReM",Log::ERROR,oss);
-
-    xmlrpc_c::value_array arrayresult_error(arrayData);
-
-    *retval = arrayresult_error;
-
+error_get: //TBD Improve Error messages for DUMP
+    failure_response(INTERNAL,"Internal Error");
     return;
+
+//TODO Get the object name from the AuthRequest Class
+error_authorize:
+    failure_response(NO_EXISTS, get_error("USER",oid));
+    return;
+
 }
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */

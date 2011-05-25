@@ -24,6 +24,7 @@ lib_name='nebula_rm'
 source_files=[
     'Request.cc',
     'RequestManager.cc',
+    'RequestManagerInfo.cc',
     'RequestManagerPoolInfo.cc',
     'RequestManagerPoolInfoFilter.cc',
 #    'RequestManagerAction.cc',

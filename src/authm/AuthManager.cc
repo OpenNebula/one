@@ -150,12 +150,27 @@ void AuthRequest::add_auth(Object        ob,
                 auth = owner == uid;
                 break;
                 
-            case INFO: // This is for completeness, as the only INFO existing 
-                       // is for UserPool, and just oneadmin can see it
+            case INFO: 
+                if ( ob != USER ) // User info only for root or owner
+                {
+                    auth = true;
+                }
+                else 
+                {
+                    istringstream iss(ob_id);
+                    int ob_id_int;
+
+                    iss >> ob_id_int;
+
+                    if (ob_id_int == uid)
+                    {
+                        auth = true;
+                    }
+                }
                 break;
 
             case INFO_POOL:
-                if ( ob != USER )
+                if ( ob != USER ) // User pool only for root
                 {
                     auth = true;
                 }

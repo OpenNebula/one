@@ -82,15 +82,10 @@ public:
     };
 
     ~ClusterPoolInfo(){};
-
-private:
-    VMTemplatePool * tpool;
-    UserPool *       upool;
 };
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
-
 
 class GroupPoolInfo: public RequestManagerPoolInfo
 {
