@@ -29,6 +29,7 @@ public:
         need_vm_pool   = true;
         need_host_pool = true;    
         need_user_pool = true;
+        need_group_pool = true;
         need_vnet_pool = true;
         need_image_pool= true;
 

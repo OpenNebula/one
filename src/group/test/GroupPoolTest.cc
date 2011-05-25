@@ -28,12 +28,13 @@ const string names[] = {"First name", "Second name"};
 
 const string xmls[] =
 {
-    "<GROUP><ID>100</ID><UID>0</UID><NAME>First name</NAME></GROUP>",
-    "<GROUP><ID>101</ID><UID>1</UID><NAME>Second name</NAME></GROUP>"
+    "<GROUP><ID>100</ID><UID>0</UID><NAME>First name</NAME><USERS></USERS></GROUP>",
+    "<GROUP><ID>101</ID><UID>1</UID><NAME>Second name</NAME><USERS></USERS></GROUP>"
 };
 
 const string group_xml_dump =
-    "<GROUP_POOL><GROUP><ID>0</ID><UID>0</UID><NAME>oneadmin</NAME></GROUP><GROUP><ID>1</ID><UID>0</UID><NAME>users</NAME></GROUP><GROUP><ID>100</ID><UID>5</UID><NAME>group_a</NAME></GROUP><GROUP><ID>102</ID><UID>5</UID><NAME>group_c</NAME></GROUP><GROUP><ID>103</ID><UID>5</UID><NAME>group_d</NAME></GROUP></GROUP_POOL>";
+    "<GROUP_POOL><GROUP><ID>0</ID><UID>0</UID><NAME>oneadmin</NAME><USERS></USERS></GROUP><GROUP><ID>1</ID><UID>0</UID><NAME>users</NAME><USERS></USERS></GROUP><GROUP><ID>100</ID><UID>5</UID><NAME>group_a</NAME><USERS></USERS></GROUP><GROUP><ID>102</ID><UID>5</UID><NAME>group_c</NAME><USERS></USERS></GROUP><GROUP><ID>103</ID><UID>5</UID><NAME>group_d</NAME><USERS></USERS></GROUP></GROUP_POOL>";
+
 /* ************************************************************************* */
 /* ************************************************************************* */
 

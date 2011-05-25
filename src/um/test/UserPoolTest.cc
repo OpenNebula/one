@@ -31,26 +31,24 @@ const string usernames[] = { "A user", "B user", "C user", "D user", "E user" };
 const string passwords[] = { "A pass", "B pass", "C pass", "D pass", "E pass" };
 
 const string dump_result =
-    "<USER_POOL><USER><ID>0</ID><GID>0</GID><NAME>one_user_test</NAME>"
-    "<PASSWORD>5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8</PASSWORD>"
-    "<ENABLED>1</ENABLED></USER><USER><ID>1</ID><GID>0</GID><NAME>a</NAME>"
-    "<PASSWORD>p</PASSWORD><ENABLED>1</ENABLED></USER><USER>"
-    "<ID>2</ID><GID>0</GID><NAME>a name</NAME><PASSWORD>pass</PASSWORD>"
-    "<ENABLED>1</ENABLED></USER><USER><ID>3</ID><GID>0</GID><NAME>a_name</NAME>"
-    "<PASSWORD>password</PASSWORD><ENABLED>1</ENABLED></USER><USER>"
-    "<ID>4</ID><GID>0</GID><NAME>another name</NAME><PASSWORD>secret</PASSWORD>"
-    "<ENABLED>1</ENABLED></USER><USER><ID>5</ID><GID>0</GID><NAME>user</NAME>"
-    "<PASSWORD>1234</PASSWORD><ENABLED>1</ENABLED></USER>"
-    "</USER_POOL>";
+    "<USER_POOL><USER><ID>0</ID><GID>0</GID><NAME>one_user_test</NAME><PASSWORD>5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8</PASSWORD><ENABLED>1</ENABLED><GROUPS><ID>0</ID></GROUPS></USER><USER><ID>1</ID><GID>0</GID><NAME>a</NAME><PASSWORD>p</PASSWORD><ENABLED>1</ENABLED><GROUPS><ID>0</ID></GROUPS></USER><USER><ID>2</ID><GID>0</GID><NAME>a name</NAME><PASSWORD>pass</PASSWORD><ENABLED>1</ENABLED><GROUPS><ID>0</ID></GROUPS></USER><USER><ID>3</ID><GID>0</GID><NAME>a_name</NAME><PASSWORD>password</PASSWORD><ENABLED>1</ENABLED><GROUPS><ID>0</ID></GROUPS></USER><USER><ID>4</ID><GID>0</GID><NAME>another name</NAME><PASSWORD>secret</PASSWORD><ENABLED>1</ENABLED><GROUPS><ID>0</ID></GROUPS></USER><USER><ID>5</ID><GID>0</GID><NAME>user</NAME><PASSWORD>1234</PASSWORD><ENABLED>1</ENABLED><GROUPS><ID>0</ID></GROUPS></USER></USER_POOL>";
 
 const string dump_where_result =
-    "<USER_POOL><USER><ID>1</ID><GID>0</GID><NAME>a</NAME>"
-    "<PASSWORD>p</PASSWORD><ENABLED>1</ENABLED></USER><USER>"
-    "<ID>2</ID><GID>0</GID><NAME>a name</NAME><PASSWORD>pass</PASSWORD>"
-    "<ENABLED>1</ENABLED></USER><USER><ID>3</ID><GID>0</GID><NAME>a_name</NAME>"
-    "<PASSWORD>password</PASSWORD><ENABLED>1</ENABLED></USER><USER>"
-    "<ID>4</ID><GID>0</GID><NAME>another name</NAME><PASSWORD>secret</PASSWORD>"
-    "<ENABLED>1</ENABLED></USER></USER_POOL>";
+    "<USER_POOL><USER><ID>1</ID><GID>0</GID><NAME>a</NAME><PASSWORD>p</PASSWORD><ENABLED>1</ENABLED><GROUPS><ID>0</ID></GROUPS></USER><USER><ID>2</ID><GID>0</GID><NAME>a name</NAME><PASSWORD>pass</PASSWORD><ENABLED>1</ENABLED><GROUPS><ID>0</ID></GROUPS></USER><USER><ID>3</ID><GID>0</GID><NAME>a_name</NAME><PASSWORD>password</PASSWORD><ENABLED>1</ENABLED><GROUPS><ID>0</ID></GROUPS></USER><USER><ID>4</ID><GID>0</GID><NAME>another name</NAME><PASSWORD>secret</PASSWORD><ENABLED>1</ENABLED><GROUPS><ID>0</ID></GROUPS></USER></USER_POOL>";
+
+#include "NebulaTest.h"
+
+class NebulaTestUser: public NebulaTest
+{
+public:
+    NebulaTestUser():NebulaTest()
+    {
+        NebulaTest::the_tester = this;
+
+        need_group_pool = true;
+        need_user_pool  = true;
+    }
+};
 
 class UserPoolTest : public PoolTest
 {
@@ -78,14 +76,20 @@ class UserPoolTest : public PoolTest
 
 protected:
 
+    NebulaTestUser *    tester;
+    UserPool *          upool;
+    GroupPool *         gpool;
+
+
     void bootstrap(SqlDB* db)
     {
-        UserPool::bootstrap(db);
+        // setUp overwritten
     };
 
     PoolSQL* create_pool(SqlDB* db)
     {
-        return new UserPool(db);
+        // setUp overwritten
+        return upool;
     };
 
     int allocate(int index)
@@ -111,6 +115,28 @@ public:
     UserPoolTest(){xmlInitParser();};
 
     ~UserPoolTest(){xmlCleanupParser();};
+
+    void setUp()
+    {
+        create_db();
+
+        tester = new NebulaTestUser();
+
+        Nebula& neb = Nebula::instance();
+        neb.start();
+
+        upool   = neb.get_upool();
+        gpool   = neb.get_gpool();
+
+        pool    = upool;
+    };
+
+    void tearDown()
+    {
+        delete_db();
+
+        delete tester;
+    };
 
     /* ********************************************************************* */
     /* ********************************************************************* */
@@ -288,13 +314,13 @@ public:
         ostringstream oss;
         ((UserPool*)pool)->dump(oss, "");
 
-
+/*
         if( oss.str() != dump_result )
         {
             cout << endl << oss.str() << endl << "========"
                  << endl << dump_result << endl << "--------";
         }
-//
+//*/
 
         CPPUNIT_ASSERT( oss.str() == dump_result );
     }
