@@ -65,18 +65,19 @@ class VirtualMachineDriver < OpenNebulaDriver
     # -------------------------------------------------------------------------
     # Register default actions for the protocol
     # -------------------------------------------------------------------------
-    def initialize(concurrency=10, threaded=true, retries=0)
-        super(concurrency,threaded,retries)
+    def initialize(concurrency=10, threaded=true, retries=0,
+                directory='vmm', local_actions={})
+        super(concurrency, threaded, retries, directory, local_actions)
 
         @hosts   = Array.new
 
-        register_action(ACTION[:deploy].to_sym, method("deploy"))
-        register_action(ACTION[:shutdown].to_sym, method("shutdown"))
-        register_action(ACTION[:cancel].to_sym, method("cancel"))
-        register_action(ACTION[:save].to_sym, method("save"))
-        register_action(ACTION[:restore].to_sym, method("restore"))
-        register_action(ACTION[:migrate].to_sym, method("migrate"))
-        register_action(ACTION[:poll].to_sym, method("poll"))
+        register_action(ACTION[:deploy].to_sym,     method("deploy"))
+        register_action(ACTION[:shutdown].to_sym,   method("shutdown"))
+        register_action(ACTION[:cancel].to_sym,     method("cancel"))
+        register_action(ACTION[:save].to_sym,       method("save"))
+        register_action(ACTION[:restore].to_sym,    method("restore"))
+        register_action(ACTION[:migrate].to_sym,    method("migrate"))
+        register_action(ACTION[:poll].to_sym,       method("poll"))
     end
 
     # -------------------------------------------------------------------------
@@ -158,7 +159,7 @@ class VirtualMachineDriver < OpenNebulaDriver
 
 private
     # -------------------------------------------------------------------------
-    # Interface to handle the pending events from the ActionManager Interface 
+    # Interface to handle the pending events from the ActionManager Interface
     # -------------------------------------------------------------------------
     def delete_running_action(action_id)
         action=@action_running[action_id]

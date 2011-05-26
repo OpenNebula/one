@@ -35,31 +35,17 @@ $: << RUBY_LIB_LOCATION
 require "VirtualMachineDriver"
 require 'getoptlong'
 
-# ---------------------------------------------------------------------------- 
+# ----------------------------------------------------------------------------
 # The main class for the Sh driver
-# ---------------------------------------------------------------------------- 
+# ----------------------------------------------------------------------------
 class SshDriver < VirtualMachineDriver
-    # ------------------------------------------------------------------------ 
-    # SshDriver constructor                                                
-    # ------------------------------------------------------------------------ 
-    def initialize(hypervisor, threads, retries, localpoll)
-        super(threads,true,retries)
-        
-        @config = read_configuration
-        
+    # ------------------------------------------------------------------------
+    # SshDriver constructor
+    # ------------------------------------------------------------------------
+    def initialize(hypervisor, threads, retries, local_actions)
+        super(threads, true, retries, "vmm/#{hypervisor}", local_actions)
+
         @hypervisor  = hypervisor
-        @remote_dir  = @config['SCRIPTS_REMOTE_DIR']
-        @remote_path = "#{@config['SCRIPTS_REMOTE_DIR']}/vmm/#{@hypervisor}"
-        
-        if ONE_LOCATION == nil 
-            @actions_path = "/usr/lib/one"
-        else
-            @actions_path = "#{ENV['ONE_LOCATION']}/lib"
-        end
-
-        @actions_path << "/remotes/vmm/#{hypervisor}"
-
-        @local_poll  = localpoll
     end
 
     # ------------------------------------------------------------------------ #
@@ -78,46 +64,40 @@ class SshDriver < VirtualMachineDriver
         domain = tmp.read
         tmp.close()
 
-        remotes_action("#{@remote_path}/deploy #{remote_dfile}",
-                        id, host, :deploy, @remote_dir, domain)
+        if action_is_local?(:deploy)
+            dfile=local_dfile
+        else
+            dfile=remote_dfile
+        end
+
+        do_action("#{dfile} #{host}", id, host, :deploy, domain)
     end
 
     # ------------------------------------------------------------------------ #
     # Basic Domain Management Operations                                       #
     # ------------------------------------------------------------------------ #
     def shutdown(id, host, deploy_id, not_used)
-        remotes_action("#{@remote_path}/shutdown #{deploy_id}",
-                       id, host, :shutdown, @remote_dir)
+        do_action("#{deploy_id} #{host}", id, host, :shutdown)
     end
 
     def cancel(id, host, deploy_id, not_used)
-        remotes_action("#{@remote_path}/cancel #{deploy_id}",
-                       id, host, :cancel, @remote_dir)
+        do_action("#{deploy_id} #{host}", id, host, :cancel)
     end
 
     def save(id, host, deploy_id, file)
-        remotes_action("#{@remote_path}/save #{deploy_id} #{file}",
-                       id, host, :save, @remote_dir)
+        do_action("#{deploy_id} #{file} #{host}", id, host, :save)
     end
 
     def restore(id, host, deploy_id, file)
-        remotes_action("#{@remote_path}/restore #{file}",
-                       id, host, :restore, @remote_dir)
+        do_action("#{file} #{host}", id, host, :restore)
     end
 
     def migrate(id, host, deploy_id, dest_host)
-        remotes_action("#{@remote_path}/migrate #{deploy_id} #{dest_host}",
-                       id, host, :migrate, @remote_dir)
+        do_action("#{deploy_id} #{dest_host} #{host}", id, host, :migrate)
     end
 
     def poll(id, host, deploy_id, not_used)
-        if @local_poll != nil
-            local_action("#{@actions_path}/#{@local_poll} #{host} #{deploy_id}",
-                         id, :poll)
-        else
-            remotes_action("#{@remote_path}/poll #{deploy_id}",
-                           id, host, :poll, @remote_dir)
-        end 
+        do_action("#{deploy_id} #{host}", id, host, :poll)
     end
 end
 
@@ -127,13 +107,13 @@ end
 opts = GetoptLong.new(
     [ '--retries',    '-r', GetoptLong::OPTIONAL_ARGUMENT ],
     [ '--threads',    '-t', GetoptLong::OPTIONAL_ARGUMENT ],
-    [ '--localpoll',  '-p', GetoptLong::REQUIRED_ARGUMENT ]
+    [ '--local',      '-l', GetoptLong::REQUIRED_ARGUMENT ]
 )
 
-hypervisor = ''
-retries    = 0
-threads    = 15
-localpoll  = nil
+hypervisor      = ''
+retries         = 0
+threads         = 15
+local_actions   = {}
 
 begin
     opts.each do |opt, arg|
@@ -142,19 +122,19 @@ begin
                 retries   = arg.to_i
             when '--threads'
                 threads   = arg.to_i
-            when '--localpoll'
-                localpoll = arg
+            when '--local'
+                local_actions=OpenNebulaDriver.parse_actions_list(arg)
         end
     end
 rescue Exception => e
     exit(-1)
-end 
+end
 
-if ARGV.length >= 1 
+if ARGV.length >= 1
     hypervisor = ARGV.shift
 else
     exit(-1)
 end
 
-ssh_driver = SshDriver.new(hypervisor, threads, retries, localpoll)
+ssh_driver = SshDriver.new(hypervisor, threads, retries, local_actions)
 ssh_driver.start_driver

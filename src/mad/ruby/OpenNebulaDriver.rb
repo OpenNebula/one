@@ -30,17 +30,62 @@ require "CommandManager"
 # with the action name through the register_action func
 
 class OpenNebulaDriver < ActionManager
+    # This function parses a string with this form:
+    #
+    #   'deploy,shutdown,poll=poll_ganglia, cancel '
+    #
+    # and returns a hash:
+    #
+    #   {"POLL"=>"poll_ganglia", "DEPLOY"=>nil, "SHUTDOWN"=>nil,
+    #       "CANCEL"=>nil}
+    def self.parse_actions_list(str)
+        actions=Hash.new
+        str_splitted=str.split(/\s*,\s*/).map {|s| s.strip }
+
+        str_splitted.each do |a|
+            m=a.match(/([^=]+)(=(.*))?/)
+            next if !m
+
+            action=m[1].upcase
+
+            if m[2]
+                script=m[3]
+                script.strip! if script
+            else
+                script=nil
+            end
+
+            actions[action]=script
+        end
+
+        actions
+    end
 
     RESULT = {
         :success => "SUCCESS",
         :failure => "FAILURE"
     }
 
-    def initialize(concurrency=10, threaded=true, retries=0)
-        super(concurrency,threaded)
+    def initialize(concurrency=10, threaded=true, retries=0,
+                directory='subsystem', local_actions={})
+        super(concurrency, threaded)
 
         @retries = retries
         @send_mutex=Mutex.new
+        @local_actions=local_actions
+
+        # set default values
+        @config = read_configuration
+        @remote_scripts_base_path=@config['SCRIPTS_REMOTE_DIR']
+        if ONE_LOCATION == nil
+            @local_scripts_base_path = "/var/lib/one/remotes"
+        else
+            @local_scripts_base_path = "#{ENV['ONE_LOCATION']}/var/remotes"
+        end
+
+        # dummy paths
+        @remote_scripts_path=File.join(@remote_scripts_base_path, directory)
+        @local_scripts_path=File.join(@local_scripts_base_path, directory)
 
         register_action(:INIT, method("init"))
     end
@@ -53,6 +98,57 @@ class OpenNebulaDriver < ActionManager
             STDOUT.puts "#{action} #{result} #{id} #{info}"
             STDOUT.flush
         }
+    end
+
+    # -------------------------------------------------------------------------
+    # Calls remotes or local action checking the action name and @local_actions
+    # -------------------------------------------------------------------------
+    def do_action(parameters, id, host, aname, std_in=nil)
+        command=action_command_line(aname, parameters)
+
+        if @local_actions.include? aname.to_s.upcase
+            local_action(command, id, aname)
+        else
+            remotes_action(command, id, host, aname, @remote_scripts_path,
+                std_in)
+        end
+    end
+
+    # Given the action name and the parameter returns full path of the script
+    # and appends its parameters. It uses @local_actions hash to know if the
+    # actions is remote or local. If the local actions has defined an special
+    # script name this is used, otherwise the action name in downcase is
+    # used as the script name.
+    def action_command_line(action, parameters)
+        action_name=action.to_s.upcase
+        action_script=action.to_s.downcase
+
+        if @local_actions.include? action_name
+            if @local_actions[action_name]
+                action_script=@local_actions[action_name]
+            end
+            action_script_path=File.join(@local_scripts_path, action_script)
+        else
+            action_script_path=File.join(@remote_scripts_path, action_script)
+        end
+
+        action_script_path+" "+parameters
+    end
+
+    # True if the action is meant to be executed locally
+    def action_is_local?(action)
+        @local_actions.include? action.to_s.upcase
+    end
+
+    # Name of the script file for the given action
+    def action_script_name(action)
+        name=@local_actions[action.to_s.upcase]
+
+        if name
+            name
+        else
+            action.to_s.downcase
+        end
     end
 
     # -------------------------------------------------------------------------
