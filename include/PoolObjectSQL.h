@@ -40,7 +40,7 @@ public:
     PoolObjectSQL(int id, const string& _name, int _uid,
                   int _gid, const char *_table)
             :ObjectSQL(),ObjectXML(),oid(id),name(_name),uid(_uid),gid(_gid),
-             valid(true),obj_template(0),table(_table)
+             valid(true),public_obj(0),obj_template(0),table(_table)
     {
         pthread_mutex_init(&mutex,0);
     };
@@ -67,6 +67,15 @@ public:
     int get_uid()
     {
         return uid;
+    };
+
+    /**
+     *  Returns true if the image is public
+     *     @return true if the image is public
+     */
+    bool isPublic()
+    {
+        return (public_obj == 1);
     };
 
     // TODO: Check if uid == -1?
@@ -339,6 +348,11 @@ protected:
      *  The contents of this object are valid
      */
     bool    valid;
+
+    /**
+     *  Set if the object is public
+     */
+    int     public_obj;
 
     /**
      *  Template for this object, will be allocated if needed

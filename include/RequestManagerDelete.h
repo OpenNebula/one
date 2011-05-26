@@ -48,7 +48,7 @@ protected:
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class TemplateDelete : public RequestManagerDelete, public TemplateRequest
+class TemplateDelete : public RequestManagerDelete
 {
 public:
     TemplateDelete():
@@ -66,7 +66,7 @@ public:
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class VirtualNetworkDelete: public RequestManagerDelete, public VirtualNetworkRequest
+class VirtualNetworkDelete: public RequestManagerDelete
 {
 public:
     VirtualNetworkDelete():
@@ -84,7 +84,7 @@ public:
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class ImageDelete: public RequestManagerDelete, public ImageRequest
+class ImageDelete: public RequestManagerDelete
 {
 public:
     ImageDelete():

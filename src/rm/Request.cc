@@ -53,32 +53,42 @@ bool Request::basic_authorization(int oid)
     bool pub;
     int  ouid;
 
-    object = pool->get(oid,true);
-
-    if ( object == 0 )
+    if ( uid == 0 )
     {
-        failure_response(NO_EXISTS, get_error("USER",oid)); //TODO
-        return false;
+        return true;
     }
 
-    ouid = object->get_uid();
-    pub  = isPublic(object);
-
-    object->unlock();
-
-    if ( uid != 0 ) // uid == 0 means oneadmin
+    if ( oid == -1 )
     {
-        AuthRequest ar(uid);
+        ouid = 0;
+        pub  = false;
+    }
+    else
+    {
+        object = pool->get(oid,true);
 
-        ar.add_auth(auth_object, oid, auth_op, ouid, pub);
-
-        if (UserPool::authorize(ar) == -1)
+        if ( object == 0 )
         {
-            failure_response(AUTHORIZATION, //TODO
-                 authorization_error("INFO","USER",oid,-1));
-
+            failure_response(NO_EXISTS, get_error("USER",oid)); //TODO
             return false;
         }
+
+        ouid = object->get_uid();
+        pub  = object->isPublic();
+
+        object->unlock();
+    }
+
+   AuthRequest ar(uid);
+
+   ar.add_auth(auth_object, oid, auth_op, ouid, pub);
+
+   if (UserPool::authorize(ar) == -1)
+   {
+        failure_response(AUTHORIZATION, //TODO
+                 authorization_error("INFO","USER",oid,-1));
+
+        return false;
     }
 
     return true;

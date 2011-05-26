@@ -26,21 +26,9 @@ void RequestManagerPoolInfo::request_execute(xmlrpc_c::paramList const& paramLis
     ostringstream oss;
     int rc;
 
-    //Authorize the operation
-    if ( uid != 0 ) // uid == 0 means oneadmin
+    if ( basic_authorization(-1) == false )
     {
-        AuthRequest ar(uid);
-
-        ar.add_auth(auth_object,
-                    -1,
-                    AuthRequest::INFO_POOL,
-                    0,
-                    false);
-
-        if (UserPool::authorize(ar) == -1)
-        {
-            goto error_authorize;
-        }
+        return;
     }
 
     // Call the template pool dump
@@ -48,20 +36,12 @@ void RequestManagerPoolInfo::request_execute(xmlrpc_c::paramList const& paramLis
 
     if ( rc != 0 )
     {
-        goto error_dump;
+        failure_response(INTERNAL,"Internal Error");
+        return;
     }
 
     success_response(oss.str());
 
-    return;
-//TODO Get the object name from the AuthRequest Class
-error_authorize:
-    failure_response(AUTHORIZATION,
-                     authorization_error("INFO","USER",uid,-1));
-    return;
-
-error_dump: //TBD Improve Error messages for DUMP
-    failure_response(INTERNAL,"Internal Error");
     return;
 }
 

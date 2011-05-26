@@ -77,15 +77,6 @@ public:
     int from_xml(const string &xml_str);
 
     /**
-     *  Returns true if the image is public
-     *     @return true if the image is public
-     */
-    bool isPublic()
-    {
-        return (public_img == 1);
-    };
-
-    /**
      *  Returns true if the image is persistent
      *     @return true if the image is persistent
      */
@@ -203,13 +194,13 @@ public:
         {
             if (!isPersistent())
             {
-                public_img = 1;
+                public_obj = 1;
                 success    = true;
             }
         }
         else
         {
-            public_img = 0;
+            public_obj = 0;
             success    = true;
         }
 
@@ -275,11 +266,6 @@ private:
      *  Type of the Image
      */
     ImageType   type;
-
-    /**
-     *  Public scope of the Image
-     */
-    int         public_img;
 
     /**
      *  Persistency of the Image

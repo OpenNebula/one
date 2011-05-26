@@ -120,7 +120,7 @@ int Image::insert(SqlDB *db, string& error_str)
 
     TO_UPPER(public_attr);
 
-    public_img = (public_attr == "YES");
+    public_obj = (public_attr == "YES");
 
     // ------------ PERSISTENT --------------------
 
@@ -134,7 +134,7 @@ int Image::insert(SqlDB *db, string& error_str)
 
     // An image cannot be public and persistent simultaneously
 
-    if ( public_img && persistent_img )
+    if ( public_obj && persistent_img )
     {
         goto error_public_and_persistent;
     }
@@ -295,7 +295,7 @@ int Image::insert_replace(SqlDB *db, bool replace)
         << "'" <<   sql_xml         << "',"
         <<          uid             << ","
         <<          gid             << ","
-        <<          public_img      << ")";
+        <<          public_obj      << ")";
 
     rc = db->exec(oss);
 
@@ -338,7 +338,7 @@ string& Image::to_xml(string& xml) const
             "<GID>"            << gid             << "</GID>"         <<
             "<NAME>"           << name            << "</NAME>"        <<
             "<TYPE>"           << type            << "</TYPE>"        <<
-            "<PUBLIC>"         << public_img      << "</PUBLIC>"      <<
+            "<PUBLIC>"         << public_obj      << "</PUBLIC>"      <<
             "<PERSISTENT>"     << persistent_img  << "</PERSISTENT>"  <<
             "<REGTIME>"        << regtime         << "</REGTIME>"     <<
             "<SOURCE>"         << source          << "</SOURCE>"      <<
@@ -373,7 +373,7 @@ int Image::from_xml(const string& xml)
     rc += xpath(name, "/IMAGE/NAME", "not_found");
 
     rc += xpath(int_type, "/IMAGE/TYPE", 0);
-    rc += xpath(public_img, "/IMAGE/PUBLIC", 0);
+    rc += xpath(public_obj, "/IMAGE/PUBLIC", 0);
     rc += xpath(persistent_img, "/IMAGE/PERSISTENT", 0);
     rc += xpath(regtime, "/IMAGE/REGTIME", 0);
 

@@ -64,7 +64,7 @@ public:
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class TemplateInfo : public RequestManagerInfo, public TemplateRequest
+class TemplateInfo : public RequestManagerInfo
 {
 public:
     TemplateInfo():
@@ -83,7 +83,7 @@ public:
 /* ------------------------------------------------------------------------- */
 
 
-class VirtualNetworkInfo: public RequestManagerInfo, public VirtualNetworkRequest
+class VirtualNetworkInfo: public RequestManagerInfo
 {
 public:
     VirtualNetworkInfo():
@@ -102,7 +102,7 @@ public:
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class ImageInfo: public RequestManagerInfo, public ImageRequest
+class ImageInfo: public RequestManagerInfo
 {
 public:
     ImageInfo():

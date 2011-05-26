@@ -82,10 +82,6 @@ protected:
 
     virtual ~Request(){};
 
-    /* ----------- Wrapper functions for the PoolObjectSQL class ---------- */
-
-    virtual bool isPublic(PoolObjectSQL *obj){ return false; };
-    
     /* -------------------------------------------------------------------- */
     /* -------------------------------------------------------------------- */
 
@@ -189,55 +185,6 @@ private:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-
-/**
- *  TemplateRequest Class implements specific function to handle Templates
- */
-class TemplateRequest
-{
-    bool isPublic(PoolObjectSQL *obj)
-    { 
-        VMTemplate * cobj;
-
-        cobj = static_cast<VMTemplate *>(obj);
-
-        return cobj->isPublic();
-    };
-};
-
-/* -------------------------------------------------------------------------- */
-
-/**
- *  VirtualNetworkRequest Class implements specific function to handle VirtualNetworks
- */
-class VirtualNetworkRequest
-{
-    bool isPublic(PoolObjectSQL *obj)
-    { 
-        VirtualNetwork * cobj;
-
-        cobj = static_cast<VirtualNetwork *>(obj);
-
-        return cobj->isPublic();
-    };
-};
-
-/* -------------------------------------------------------------------------- */
-
-/**
- *  ImageRequest Class implements specific function to handle Images
- */
-class ImageRequest
-{
-    bool isPublic(PoolObjectSQL *obj)
-    { 
-        Image * cobj;
-
-        cobj = static_cast<Image *>(obj);
-
-        return cobj->isPublic();
-    };
-};
 
 #endif //REQUEST_H_
 

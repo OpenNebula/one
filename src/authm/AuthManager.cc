@@ -96,6 +96,10 @@ void AuthRequest::add_auth(Object        ob,
             oss << "INFO_POOL:" ;
             break;
 
+        case INFO_POOL_MINE:
+            oss << "INFO_POOL_MINE:" ;
+            break;
+
         case INSTANTIATE:
             oss << "INSTANTIATE:" ;
             break;
@@ -170,10 +174,14 @@ void AuthRequest::add_auth(Object        ob,
                 break;
 
             case INFO_POOL:
-                if ( ob != USER ) // User pool only for root
+                if ( ob != USER ) // User pool only for oneadmin
                 {
                     auth = true;
                 }
+                break;
+
+            case INFO_POOL_MINE:
+                auth = true;
                 break;
         }
     }

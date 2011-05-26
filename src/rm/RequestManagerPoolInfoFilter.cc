@@ -37,11 +37,18 @@ void RequestManagerPoolInfoFilter::request_execute(xmlrpc_c::paramList const& pa
     ostringstream oss, where_string;
 
     int rc;
+
+    if ( filter_flag < MINE )
+    {
+        failure_response(XML_RPC_API, "Incorrect filter_flag, must be >= -3.");
+        return;
+    }
  
     switch(filter_flag)
     {
         case MINE:
             where_string << "UID=" << uid;
+            auth_op = AuthRequest::INFO_POOL_MINE;
             break;
 
         case ALL:
@@ -49,38 +56,17 @@ void RequestManagerPoolInfoFilter::request_execute(xmlrpc_c::paramList const& pa
 
         case MINE_GROUP:
             where_string << "UID=" << uid << " OR GID=" << gid;
+            auth_op = AuthRequest::INFO_POOL_MINE;
             break;
 
         default:
-            if ( filter_flag >= 0 )
-            {
-                where_string << "UID=" << filter_flag;
-            }
-            else
-            {
-                goto error_filter;
-            }
+            where_string << "UID=" << filter_flag;
             break;
     }
 
-    //Authorize the operation
-    if ( uid != 0 ) // uid == 0 means oneadmin
+    if ( basic_authorization(-1) == false )
     {
-        if (filter_flag == ALL || filter_flag >= 0) 
-        {
-            AuthRequest ar(uid);
-
-            ar.add_auth(auth_object,
-                        -1,
-                        AuthRequest::INFO_POOL,
-                        0,
-                        false);
-
-            if (UserPool::authorize(ar) == -1)
-            {
-                goto error_authorize;
-            }
-        }
+        return;
     }
 
     // Call the template pool dump
@@ -88,26 +74,12 @@ void RequestManagerPoolInfoFilter::request_execute(xmlrpc_c::paramList const& pa
 
     if ( rc != 0 )
     {
-        goto error_dump;
+        failure_response(INTERNAL,"Internal Error");
+        return;
     }
 
     success_response(oss.str());
 
-    return;
-
-error_filter:
-    failure_response(XML_RPC_API, "Incorrect filter_flag, must be >= -3.");
-    return;
-
-//TODO Get the object name from the AuthRequest Class
-error_authorize:
-    failure_response(AUTHORIZATION,
-                     authorization_error("INFO","USER",uid,-1));
-    return;
-
-error_dump: //TBD Improve Error messages for DUMP
-    oss.str();
-    failure_response(INTERNAL,"Internal Error");
     return;
 }
 

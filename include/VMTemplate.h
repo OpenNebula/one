@@ -43,15 +43,6 @@ public:
     string& to_xml(string& xml) const;
 
     /**
-     *  Returns true if the object is public
-     *     @return true if the Virtual Network is public
-     */
-    bool isPublic()
-    {
-        return (public_template == 1);
-    };
-
-    /**
      *  Publish or unpublish an object
      *    @param pub true to publish the object
      *    @return 0 on success
@@ -60,11 +51,11 @@ public:
     {
         if (pub == true)
         {
-            public_template = 1;
+            public_obj = 1;
         }
         else
         {
-            public_template = 0;
+            public_obj = 0;
         }
 
         return true;
@@ -103,11 +94,6 @@ private:
     // -------------------------------------------------------------------------
     // VMTemplate Attributes
     // -------------------------------------------------------------------------
-
-    /**
-     *  Public scope of the VMTemplate
-     */
-    int         public_template;
 
     /**
      *  Registration time

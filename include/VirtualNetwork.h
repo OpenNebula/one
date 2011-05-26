@@ -59,15 +59,6 @@ public:
     // *************************************************************************
 
     /**
-     *  Returns true if the Virtual Network is public
-     *     @return true if the Virtual Network is public
-     */
-    bool isPublic()
-    {
-        return (public_vnet == 1);
-    };
-
-    /**
      *  Publish or unpublish a virtual network
      *    @param pub true to publish the image
      *    @return 0 on success
@@ -76,11 +67,11 @@ public:
     {
         if (pub == true)
         {
-            public_vnet = 1;
+            public_obj = 1;
         }
         else
         {
-            public_vnet = 0;
+            public_obj = 0;
         }
     }
 
@@ -203,11 +194,6 @@ private:
      * Holds the type of this network
      */
     NetworkType type;
-
-    /**
-     *  Public scope of this Virtual Network
-     */
-    int         public_vnet;
 
     /**
      *  Pointer to leases class, can be fixed or ranged.

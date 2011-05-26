@@ -260,7 +260,7 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
 
     transform (pub.begin(), pub.end(), pub.begin(), (int(*)(int))toupper);
 
-    public_vnet = (pub == "YES");
+    public_obj = (pub == "YES");
 
     obj_template->erase("PUBLIC");
 
@@ -424,7 +424,7 @@ int VirtualNetwork::insert_replace(SqlDB *db, bool replace)
         << "'" <<   sql_xml     << "',"
         <<          uid         << ","
         <<          gid         << ","
-        <<          public_vnet << ")";
+        <<          public_obj << ")";
 
     rc = db->exec(oss);
 
@@ -504,7 +504,7 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended) const
             "<NAME>"        << name         << "</NAME>"        <<
             "<TYPE>"        << type         << "</TYPE>"        <<
             "<BRIDGE>"      << bridge       << "</BRIDGE>"      <<
-            "<PUBLIC>"      << public_vnet  << "</PUBLIC>"      <<
+            "<PUBLIC>"      << public_obj  << "</PUBLIC>"      <<
             "<TOTAL_LEASES>"<< total_leases << "</TOTAL_LEASES>"<<
             obj_template->to_xml(template_xml);
 
@@ -540,7 +540,7 @@ int VirtualNetwork::from_xml(const string &xml_str)
     rc += xpath(name,       "/VNET/NAME",       "not_found");
     rc += xpath(int_type,   "/VNET/TYPE",       -1);
     rc += xpath(bridge,     "/VNET/BRIDGE",     "not_found");
-    rc += xpath(public_vnet,"/VNET/PUBLIC",     0);
+    rc += xpath(public_obj,"/VNET/PUBLIC",     0);
 
     type = static_cast<NetworkType>( int_type );
 
