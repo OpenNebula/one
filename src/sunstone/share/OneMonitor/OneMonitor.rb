@@ -35,7 +35,7 @@ class OneMonitor
     def snapshot(poolClass)
         #init global results
 
-        rc = monitor
+        rc = monitor #calling the extending class method
         rc = save if rc
         if rc
             @results = []
@@ -64,7 +64,11 @@ class OneMonitor
             end
             @results << hash
             add_to_global(hash)
+            @n_active += 1 if active(hash)
+            @n_error += 1 if error(hash)
+            @n_total += 1
         end
+
     end
 
     def reinit_global_results
@@ -72,6 +76,7 @@ class OneMonitor
         @monitoring_elems.each do | key,value |
             @global_results[key] = 0
         end
+        @n_active = @n_error = @n_total = 0
     end
 
     def add_to_global(hash)

@@ -1,7 +1,7 @@
 require 'OneMonitor'
 
 class HostMonitor < OneMonitor
-    #:time label is mandatory and must be first
+    #:time, :id labels
     HOST_MONITORING_ELEMS = {
         :time => "LAST_MON_TIME",
         :id => "ID",
@@ -32,5 +32,13 @@ class HostMonitor < OneMonitor
 
     def snapshot
         super HostPool
+    end
+
+    def active (host_hash)
+        host_hash[:state].to_i < 3
+    end
+
+    def error (host_hash)
+        host_hash[:state].to_i == 3
     end
 end

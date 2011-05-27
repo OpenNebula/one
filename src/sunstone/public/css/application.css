@@ -362,7 +362,7 @@ tr.even:hover{
 	vertical-align:top;
 	}
 
-.info_table th,h3 {
+.info_table > thead th,h3 {
 	border-bottom: 2px solid #353735;
 	color: #353735;
 	font-size: 14px;
@@ -371,7 +371,7 @@ tr.even:hover{
 }
 
 
-.info_table td{
+.info_table > tbody > tr > td{
     border-bottom: 1px solid #CCCCCC;
     color: #353735;
     padding-top: 6px;

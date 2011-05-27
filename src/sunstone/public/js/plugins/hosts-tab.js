@@ -17,6 +17,22 @@
 /*Host tab plugin*/
 
 var HOST_HISTORY_LENGTH = 40;
+var host_graphs = [
+    {
+        title : "CPU Monitoring information",
+        monitor_resources : "cpu_usage,used_cpu,max_cpu",
+        humanize_figures : false,
+        history_length : HOST_HISTORY_LENGTH
+    },
+    {
+        title: "Memory monitoring information",
+        monitor_resources : "mem_usage,used_mem,max_mem",
+        humanize_figures : true,
+        history_length : HOST_HISTORY_LENGTH
+    }
+]
+
+
 
 var hosts_tab_content = 
 '<form id="form_hosts" action="javascript:alert(\'js errors?!\')">\
@@ -205,14 +221,9 @@ var host_actions = {
         type: "monitor",
         call : OpenNebula.Host.monitor,
         callback: function(req,response) {
-            var info = req.request.data[0];
-            var label = info.monitor.monitor_res;
-
-            //remove spinner
-            $('#host_monitoring_tab .loading_img').parent().remove();
-
+            var info = req.request.data[0].monitor;
             plot_graph(response,'#host_monitoring_tab',
-                 'host_monitor_'+label,label);
+                       'host_monitor_',info);
         },
         error: onError
     },
@@ -583,7 +594,7 @@ function updateHostInfo(request,host){
 
     var monitor_tab = {
         title: "Monitoring information",
-        content : generateMonitoringDivs(["cpu_usage","mem_usage"],"host_monitor_")
+        content : generateMonitoringDivs(host_graphs,"host_monitor_")
     }
 
     //Sunstone.updateInfoPanelTab(info_panel_name,tab_name, new tab object);
@@ -593,8 +604,9 @@ function updateHostInfo(request,host){
 
     Sunstone.popUpInfoPanel("host_info_panel");
     //pop up panel while we retrieve the graphs
-    Sunstone.runAction("Host.monitor",host_info.ID,{history_length: HOST_HISTORY_LENGTH, monitor_res: "cpu_usage"});
-    Sunstone.runAction("Host.monitor",host_info.ID,{history_length: HOST_HISTORY_LENGTH, monitor_res: "mem_usage"});
+    for (var i=0; i<host_graphs.length; i++){
+        Sunstone.runAction("Host.monitor",host_info.ID,host_graphs[i]);
+    };
 
 
 }

@@ -7,6 +7,7 @@ class VMMonitor < OneMonitor
         :id => "ID",
         :name => "NAME",
         :lcm_state => "LCM_STATE",
+        :state => "STATE",
         :memory => "MEMORY",
         :cpu => "CPU",
         :net_tx => "NET_TX",
@@ -23,5 +24,13 @@ class VMMonitor < OneMonitor
 
     def snapshot
         super VirtualMachinePool
+    end
+
+    def active (vm_hash)
+        vm_hash[:state].to_i == 3
+    end
+
+    def error (vm_hash)
+        vm_hash[:state].to_i == 7
     end
 end

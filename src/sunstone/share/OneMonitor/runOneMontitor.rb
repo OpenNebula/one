@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-MONITOR_INTERVAL= ARGV[1]? ARGV[1].to_i : 60 #secs
+MONITOR_INTERVAL= ARGV[1]? ARGV[1].to_i : 10 #secs
 
 $: << File.dirname(__FILE__)
 

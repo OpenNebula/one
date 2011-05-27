@@ -16,11 +16,37 @@
 
 /*Virtual Machines tab plugin*/
 var INCLUDE_URI = "vendor/noVNC/include/";
+var VM_HISTORY_LENGTH = 40;
+
 function loadVNC(){
     var script = '<script src="vendor/noVNC/include/vnc.js"></script>';
     document.write(script);
 }
 loadVNC();
+
+var vm_graphs = [
+    { title : "CPU",
+      monitor_resources : "cpu",
+      humanize_figures : false,
+      history_length : VM_HISTORY_LENGTH
+    },
+    { title : "Memory",
+      monitor_resources : "memory",
+      humanize_figures : true,
+      history_length : VM_HISTORY_LENGTH
+    },
+    { title : "Network transmission",
+      monitor_resources : "net_tx",
+      humanize_figures : true,
+      history_length : VM_HISTORY_LENGTH
+    },
+    { title : "Network reception",
+      monitor_resources : "net_rx",
+      humanize_figures : true,
+      history_length : VM_HISTORY_LENGTH
+    },
+
+]
 
 var vms_tab_content = 
 '<form id="virtualMachine_list" action="javascript:alert(\'js error!\');">\
@@ -305,13 +331,7 @@ var vm_actions = {
                 colored_log += line + "\n";
             }
 
-            var log_tab = {
-                title: "VM log",
-                content: '<pre>'+colored_log+'</pre>'
-            }
-            Sunstone.updateInfoPanelTab("vm_info_panel","vm_log_tab",log_tab);
-            Sunstone.popUpInfoPanel("vm_info_panel",0);
-            
+            $('#vm_log_tab#').html('<pre>'+colored_log+'</pre>')
         },
         error: function(request,error_json){
             $("#vm_log pre").html('');
@@ -333,6 +353,17 @@ var vm_actions = {
         callback: null,
         error: onError,
         notify: true
+    },
+
+    "VM.monitor" : {
+        type: "monitor",
+        call : OpenNebula.VM.monitor,
+        callback: function(req,response) {
+            var info = req.request.data[0].monitor;
+            plot_graph(response,'#vm_monitoring_tab',
+                       'vm_monitor_',info);
+        },
+        error: onError
     }
 }
 
@@ -624,30 +655,36 @@ function updateVMInfo(request,vm){
 			</tr>\
 		</table>'
     }
-    
+
     var template_tab = {
         title: "VM Template",
         content: '<table id="vm_template_table" class="info_table">\
 		<thead><tr><th colspan="2">VM template</th></tr></thead>'+
 		prettyPrintJSON(vm_info.TEMPLATE)+
-		'</table>'        
+		'</table>'
     }
-    
+
     var log_tab = {
         title: "VM log",
-        content: '<pre>'+spinner+'</pre>'
+        content: '<div>'+spinner+'</div>'
     }
-        
-	Sunstone.updateInfoPanelTab("vm_info_panel","vm_info_tab",info_tab);
+
+    var monitoring_tab = {
+        title: "Monitoring information",
+        content: generateMonitoringDivs(vm_graphs,"vm_monitor_")
+    }
+
+    Sunstone.updateInfoPanelTab("vm_info_panel","vm_info_tab",info_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_template_tab",template_tab);
     Sunstone.updateInfoPanelTab("vm_info_panel","vm_log_tab",log_tab);
-    
-    
-    //Here it is special, as we will let the callback from the VM.log
-    //action popUp the info panel again when the info is received.
+    Sunstone.updateInfoPanelTab("vm_info_panel","vm_monitoring_tab",monitoring_tab);
+
+    //Pop up the info panel and asynchronously get vm_log and stats
     Sunstone.popUpInfoPanel("vm_info_panel");
     Sunstone.runAction("VM.log",vm_info.ID);
-
+    for (var i=0; i<vm_graphs.length; i++){
+        Sunstone.runAction("VM.monitor",vm_info.ID,vm_graphs[i]);
+    };
 }
 
 // Sets up the create-template dialog and all the processing associated to it,

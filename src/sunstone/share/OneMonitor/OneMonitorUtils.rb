@@ -39,11 +39,11 @@ module OneMonitorCSV
 
             if !File.size?(global_log_file)
             then
-                header = csv_header
+                header = csv_header+",active,error,total"
                 global_file.puts(header)
             end
 
-            csv = hash_to_csv(@global_results)
+            csv = hash_to_csv(@global_results)+%&,"#{@n_active}","#{@n_error}","#{@n_total}"&
             global_file.puts(csv)
             global_file.close
             return 0

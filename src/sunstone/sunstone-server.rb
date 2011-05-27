@@ -166,7 +166,7 @@ get '/:resource/monitor' do
 end
 
 get '/:resource/:id/monitor' do
-    @SunstoneServer.get_log(params[:resource],params[:id],settings.config,params['monitor_res'],params['history_length'])
+    @SunstoneServer.get_log(params[:resource],params[:id],settings.config,params['monitor_resources'],params['history_length'])
 end
 
 
