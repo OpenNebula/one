@@ -104,7 +104,7 @@ class OpenNebulaDriver < ActionManager
     def do_action(parameters, id, host, aname, std_in=nil)
         command=action_command_line(aname, parameters)
 
-        if @local_actions.include? aname.to_s.upcase
+        if action_is_local? aname
             local_action(command, id, aname)
         else
             remotes_action(command, id, host, aname, @remote_scripts_path,
@@ -118,19 +118,13 @@ class OpenNebulaDriver < ActionManager
     # script name this is used, otherwise the action name in downcase is
     # used as the script name.
     def action_command_line(action, parameters)
-        action_name=action.to_s.upcase
-        action_script=action.to_s.downcase
-
-        if @local_actions.include? action_name
-            if @local_actions[action_name]
-                action_script=@local_actions[action_name]
-            end
-            action_script_path=File.join(@local_scripts_path, action_script)
+        if action_is_local? action
+            script_path=@local_scripts_path
         else
-            action_script_path=File.join(@remote_scripts_path, action_script)
+            script_path=@remote_scripts_path
         end
 
-        action_script_path+" "+parameters
+        File.join(script_path, action_script_name(action))+" "+parameters
     end
 
     # True if the action is meant to be executed locally
@@ -151,7 +145,6 @@ class OpenNebulaDriver < ActionManager
 
     # Execute a command associated to an action and id in a remote host.
     def remotes_action(command, id, host, aname, remote_dir, std_in=nil)
-
         command_exe = RemotesCommand.run(command,
                                          host,
                                          remote_dir,
