@@ -33,14 +33,11 @@ $: << RUBY_LIB_LOCATION
 require 'OpenNebulaDriver'
 require 'getoptlong'
 
-#-------------------------------------------------------------------------------
+
 # The SSH Information Manager Driver
-#-------------------------------------------------------------------------------
 class InformationManagerDriverSSH < OpenNebulaDriver
 
-    #---------------------------------------------------------------------------
     # Init the driver
-    #---------------------------------------------------------------------------
     def initialize(hypervisor, threads, retries)
         super(threads, true, retries)
 
@@ -53,30 +50,26 @@ class InformationManagerDriverSSH < OpenNebulaDriver
         register_action(:MONITOR, method("action_monitor"))
     end
 
-    #---------------------------------------------------------------------------
     # Execute the run_probes in the remote host
-    #---------------------------------------------------------------------------
     def action_monitor(number, host, do_update)
         if do_update == "1"
             # Use SCP to sync:
             sync_cmd = "scp -r #{REMOTES_LOCATION}/. #{host}:#{@remote_dir}"
 
             # Use rsync to sync:
-            # sync_cmd = "rsync -Laz #{REMOTES_LOCATION} #{host}:#{@remote_dir}"
+            # sync_cmd = "rsync -Laz #{REMOTES_LOCATION}
+            #   #{host}:#{@remote_dir}"
             LocalCommand.run(sync_cmd, log_method(number))
         end
 
-        cmd_string = "#{@remote_dir}/im/run_probes #{@hypervisor} #{host}"      
+        cmd_string = "#{@remote_dir}/im/run_probes #{@hypervisor} #{host}"
 
         remotes_action(cmd_string, number, host, "MONITOR", @remote_dir)
     end
 end
 
-#-------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------
+
 # Information Manager main program
-#-------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------
 
 opts = GetoptLong.new(
     [ '--retries',    '-r', GetoptLong::OPTIONAL_ARGUMENT ],
@@ -98,9 +91,9 @@ begin
     end
 rescue Exception => e
     exit(-1)
-end 
+end
 
-if ARGV.length >= 1 
+if ARGV.length >= 1
     hypervisor = ARGV.shift
 end
 
