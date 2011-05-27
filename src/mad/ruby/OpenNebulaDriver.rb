@@ -100,15 +100,24 @@ class OpenNebulaDriver < ActionManager
     end
 
     # Calls remotes or local action checking the action name and
-    # @local_actions
-    def do_action(parameters, id, host, aname, std_in=nil)
-        command=action_command_line(aname, parameters)
+    # @local_actions. Optional arguments can be specified as a hash:
+    #
+    # * :stdin => text to be writen in to stdin
+    # * :script_name => default script name for the action, action name is
+    #       used by default
+    def do_action(parameters, id, host, aname, ops={})
+        options={
+            :stdin => nil,
+            :script_name => nil
+        }.merge(ops)
+
+        command=action_command_line(aname, parameters, options[:script_name])
 
         if action_is_local? aname
             local_action(command, id, aname)
         else
             remotes_action(command, id, host, aname, @remote_scripts_path,
-                std_in)
+                options[:stdin])
         end
     end
 
@@ -117,14 +126,15 @@ class OpenNebulaDriver < ActionManager
     # actions is remote or local. If the local actions has defined an special
     # script name this is used, otherwise the action name in downcase is
     # used as the script name.
-    def action_command_line(action, parameters)
+    def action_command_line(action, parameters, default_name=nil)
         if action_is_local? action
             script_path=@local_scripts_path
         else
             script_path=@remote_scripts_path
         end
 
-        File.join(script_path, action_script_name(action))+" "+parameters
+        File.join(script_path, action_script_name(action, default_name))+
+            " "+parameters
     end
 
     # True if the action is meant to be executed locally
@@ -133,13 +143,13 @@ class OpenNebulaDriver < ActionManager
     end
 
     # Name of the script file for the given action
-    def action_script_name(action)
+    def action_script_name(action, default_name=nil)
         name=@local_actions[action.to_s.upcase]
 
         if name
             name
         else
-            action.to_s.downcase
+            default_name || action.to_s.downcase
         end
     end
 

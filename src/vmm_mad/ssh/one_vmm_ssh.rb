@@ -64,7 +64,8 @@ class SshDriver < VirtualMachineDriver
             dfile=remote_dfile
         end
 
-        do_action("#{dfile} #{host}", id, host, :deploy, domain)
+        do_action("#{dfile} #{host}", id, host, :deploy,
+            :stdin => domain)
     end
 
     # Basic Domain Management Operations
