@@ -1,24 +1,23 @@
 #!/usr/bin/env ruby
 
-# -------------------------------------------------------------------------.- #
-# Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)              #
-#                                                                             #
-# Licensed under the Apache License, Version 2.0 (the "License"); you may     #
-# not use this file except in compliance with the License. You may obtain     #
-# a copy of the License at                                                    #
-#                                                                             #
-# http://www.apache.org/licenses/LICENSE-2.0                                  #
-#                                                                             #
-# Unless required by applicable law or agreed to in writing, software         #
-# distributed under the License is distributed on an "AS IS" BASIS,           #
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.    #
-# See the License for the specific language governing permissions and         #
-# limitations under the License.                                              #
-#---------------------------------------------------------------------------- #
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
 
-# ---------------------------------------------------------------------------- #
-# Set up the environment for the driver                                        #
-# ---------------------------------------------------------------------------- #
+
+# Set up the environment for the driver
 
 ONE_LOCATION = ENV["ONE_LOCATION"]
 
@@ -35,22 +34,17 @@ $: << RUBY_LIB_LOCATION
 require "VirtualMachineDriver"
 require 'getoptlong'
 
-# ----------------------------------------------------------------------------
 # The main class for the Sh driver
-# ----------------------------------------------------------------------------
 class SshDriver < VirtualMachineDriver
-    # ------------------------------------------------------------------------
+
     # SshDriver constructor
-    # ------------------------------------------------------------------------
     def initialize(hypervisor, threads, retries, local_actions)
         super(threads, true, retries, "vmm/#{hypervisor}", local_actions)
 
         @hypervisor  = hypervisor
     end
 
-    # ------------------------------------------------------------------------ #
-    # DEPLOY action, sends the deployment file to remote host                  #
-    # ------------------------------------------------------------------------ #
+    # DEPLOY action, sends the deployment file to remote host
     def deploy(id, host, remote_dfile, not_used)
         local_dfile = get_local_deployment_file(remote_dfile)
 
@@ -73,9 +67,8 @@ class SshDriver < VirtualMachineDriver
         do_action("#{dfile} #{host}", id, host, :deploy, domain)
     end
 
-    # ------------------------------------------------------------------------ #
-    # Basic Domain Management Operations                                       #
-    # ------------------------------------------------------------------------ #
+    # Basic Domain Management Operations
+
     def shutdown(id, host, deploy_id, not_used)
         do_action("#{deploy_id} #{host}", id, host, :shutdown)
     end
@@ -101,9 +94,7 @@ class SshDriver < VirtualMachineDriver
     end
 end
 
-# ---------------------------------------------------------------------------- #
 # SshDriver Main program
-# ---------------------------------------------------------------------------- #
 opts = GetoptLong.new(
     [ '--retries',    '-r', GetoptLong::OPTIONAL_ARGUMENT ],
     [ '--threads',    '-t', GetoptLong::OPTIONAL_ARGUMENT ],

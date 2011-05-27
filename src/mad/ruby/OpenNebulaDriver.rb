@@ -1,17 +1,18 @@
-# -------------------------------------------------------------------------- */
+# -------------------------------------------------------------------------- #
 # Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
-# Licensed under the Apache License, Version 2.0 (the "License"); you may    */
-# not use this file except in compliance with the License. You may obtain    */
-# a copy of the License at                                                   */
-#                                                                            */
-# http://www.apache.org/licenses/LICENSE-2.0                                 */
-#                                                                            */
-# Unless required by applicable law or agreed to in writing, software        */
-# distributed under the License is distributed on an "AS IS" BASIS,          */
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
-# See the License for the specific language governing permissions and        */
-# limitations under the License.                                             */
-# -------------------------------------------------------------------------- */
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
 
 require "ActionManager"
 require "CommandManager"
@@ -90,9 +91,7 @@ class OpenNebulaDriver < ActionManager
         register_action(:INIT, method("init"))
     end
 
-    # -------------------------------------------------------------------------
     # Sends a message to the OpenNebula core through stdout
-    # -------------------------------------------------------------------------
     def send_message(action="-", result=RESULT[:failure], id="-", info="-")
         @send_mutex.synchronize {
             STDOUT.puts "#{action} #{result} #{id} #{info}"
@@ -100,9 +99,8 @@ class OpenNebulaDriver < ActionManager
         }
     end
 
-    # -------------------------------------------------------------------------
-    # Calls remotes or local action checking the action name and @local_actions
-    # -------------------------------------------------------------------------
+    # Calls remotes or local action checking the action name and
+    # @local_actions
     def do_action(parameters, id, host, aname, std_in=nil)
         command=action_command_line(aname, parameters)
 
@@ -151,9 +149,7 @@ class OpenNebulaDriver < ActionManager
         end
     end
 
-    # -------------------------------------------------------------------------
     # Execute a command associated to an action and id in a remote host.
-    # -------------------------------------------------------------------------
     def remotes_action(command, id, host, aname, remote_dir, std_in=nil)
 
         command_exe = RemotesCommand.run(command,
@@ -175,9 +171,7 @@ class OpenNebulaDriver < ActionManager
         send_message(aname,result,id,info)
     end
 
-    # -------------------------------------------------------------------------
     # Execute a command associated to an action and id on localhost
-    # -------------------------------------------------------------------------
     def local_action(command, id, aname)
         command_exe = LocalCommand.run(command, log_method(id))
 
@@ -194,10 +188,8 @@ class OpenNebulaDriver < ActionManager
         send_message(aname,result,id,info)
     end
 
-    # -------------------------------------------------------------------------
     # Sends a log message to ONE. The +message+ can be multiline, it will
     # be automatically splitted by lines.
-    # -------------------------------------------------------------------------
     def log(number, message)
         in_error_message=false
         msg=message.strip
@@ -234,20 +226,16 @@ class OpenNebulaDriver < ActionManager
         }
     end
 
-    # -------------------------------------------------------------------------
     # Generates a proc with that calls log with a hardcoded number. It will
     # be used to add loging to command actions
-    # -------------------------------------------------------------------------
     def log_method(num)
         lambda {|message|
             log(num, message)
         }
     end
 
-    # -------------------------------------------------------------------------
     # Start the driver. Reads from STDIN and executes methods associated with
     # the messages
-    # -------------------------------------------------------------------------
     def start_driver
         loop_thread = Thread.new { loop }
         start_listener
@@ -288,10 +276,9 @@ private
     end
 end
 
-# -------------------------------------------------------------------------
-# -------------------------------------------------------------------------
-# -------------------------------------------------------------------------
-# -------------------------------------------------------------------------
+################################################################
+################################################################
+
 if __FILE__ == $0
 
     class SampleDriver < OpenNebulaDriver
