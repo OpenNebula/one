@@ -38,13 +38,10 @@ require 'getoptlong'
 class InformationManagerDriverSSH < OpenNebulaDriver
 
     # Init the driver
-    def initialize(hypervisor, threads, retries)
-        super(threads, true, retries)
-
-        @config = read_configuration
+    def initialize(hypervisor, threads, retries, local_actions)
+        super(threads, true, retries, 'im', local_actions)
 
         @hypervisor = hypervisor
-        @remote_dir = @config['SCRIPTS_REMOTE_DIR']
 
         # register actions
         register_action(:MONITOR, method("action_monitor"))
@@ -52,19 +49,20 @@ class InformationManagerDriverSSH < OpenNebulaDriver
 
     # Execute the run_probes in the remote host
     def action_monitor(number, host, do_update)
-        if do_update == "1"
-            # Use SCP to sync:
-            sync_cmd = "scp -r #{REMOTES_LOCATION}/. #{host}:#{@remote_dir}"
+        if !action_is_local?(:monitor)
+            if do_update == "1"
+                # Use SCP to sync:
+                sync_cmd = "scp -r #{@local_scripts_base_path}/. " \
+                    "#{host}:#{@remote_scripts_base_path}"
 
-            # Use rsync to sync:
-            # sync_cmd = "rsync -Laz #{REMOTES_LOCATION}
-            #   #{host}:#{@remote_dir}"
-            LocalCommand.run(sync_cmd, log_method(number))
+                # Use rsync to sync:
+                # sync_cmd = "rsync -Laz #{REMOTES_LOCATION}
+                #   #{host}:#{@remote_dir}"
+                LocalCommand.run(sync_cmd, log_method(number))
+            end
         end
-
-        cmd_string = "#{@remote_dir}/im/run_probes #{@hypervisor} #{host}"
-
-        remotes_action(cmd_string, number, host, "MONITOR", @remote_dir)
+        do_action("#{@hypervisor} #{host}", number, host, :monitor,
+            :script_name => 'run_probes')
     end
 end
 
@@ -73,12 +71,14 @@ end
 
 opts = GetoptLong.new(
     [ '--retries',    '-r', GetoptLong::OPTIONAL_ARGUMENT ],
-    [ '--threads',    '-t', GetoptLong::OPTIONAL_ARGUMENT ]
+    [ '--threads',    '-t', GetoptLong::OPTIONAL_ARGUMENT ],
+    [ '--local',      '-l', GetoptLong::REQUIRED_ARGUMENT ]
 )
 
-hypervisor = ''
-retries    = 0
-threads    = 15
+hypervisor      = ''
+retries         = 0
+threads         = 15
+local_actions   = {}
 
 begin
     opts.each do |opt, arg|
@@ -87,6 +87,8 @@ begin
                 retries = arg.to_i
             when '--threads'
                 threads = arg.to_i
+            when '--local'
+                local_actions=OpenNebulaDriver.parse_actions_list(arg)
         end
     end
 rescue Exception => e
@@ -97,5 +99,6 @@ if ARGV.length >= 1
     hypervisor = ARGV.shift
 end
 
-im = InformationManagerDriverSSH.new(hypervisor, threads, retries)
+im = InformationManagerDriverSSH.new(hypervisor, threads, retries,
+    local_actions)
 im.start_driver
