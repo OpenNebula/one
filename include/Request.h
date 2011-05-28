@@ -128,6 +128,14 @@ protected:
     void failure_response(ErrorCode ec, const string& val);
 
     /**
+     *  Gets a string representation for the Auth object in the
+     *  request.
+     *    @param ob object for the auth operation
+     *    @returns string equivalent of the object
+     */
+    static string object_name(AuthRequest::Object ob);
+
+    /**
      *  Logs authorization errors
      *    @param action authorization action
      *    @param object object that needs to be authorized

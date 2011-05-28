@@ -147,6 +147,34 @@ void Request::success_response(const string& val)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+string Request::object_name(AuthRequest::Object ob)
+{
+    switch (ob)
+    {
+        case AuthRequest::VM:
+            return "virtual machine";
+        case AuthRequest::HOST:
+            return "host";
+        case AuthRequest::NET:
+            return "virtual network";
+        case AuthRequest::IMAGE:
+            return "image";
+        case AuthRequest::USER:
+            return "user";
+        case AuthRequest::CLUSTER:
+            return "cluster";
+        case AuthRequest::TEMPLATE:
+            return "virtual machine template";
+        case AuthRequest::GROUP:
+            return "group";
+        default:
+            return "-";
+      }
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 string Request::authorization_error (const string &action,
                                      const string &object,
                                      int   uid,

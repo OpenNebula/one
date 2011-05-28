@@ -27,7 +27,7 @@ string RequestManagerAllocate::allocate_error (const string& error)
     ostringstream oss;
 
     oss << "[" << method_name << "]" << " Error allocating a new "
-        << AuthRequest::object_name(auth_object) << ".";
+        << object_name(auth_object) << ".";
 
     if (!error.empty())
     {
@@ -45,7 +45,7 @@ string RequestManagerAllocate::allocate_error (char *error)
     ostringstream oss;
 
     oss << "[" << method_name << "]" << " Error allocating a new "
-        << AuthRequest::object_name(auth_object) << ". Parse error";
+        << object_name(auth_object) << ". Parse error";
 
     if ( error != 0 )
     {
@@ -147,7 +147,7 @@ int VirtualNetworkAllocate::pool_allocate(xmlrpc_c::paramList const& _paramList,
                                           string& error_str)
 {
     VirtualNetworkPool * vpool = static_cast<VirtualNetworkPool *>(pool);
-    VirtualNetworkTemplate * vtmpl = static_cast<VirtualNetworkTemplate *>(tmpl);
+    VirtualNetworkTemplate * vtmpl=static_cast<VirtualNetworkTemplate *>(tmpl);
 
     return vpool->allocate(uid, gid, vtmpl, &id, error_str);
 }
@@ -175,7 +175,8 @@ int TemplateAllocate::pool_allocate(xmlrpc_c::paramList const& _paramList,
                                     string& error_str)
 {
     VMTemplatePool * tpool = static_cast<VMTemplatePool *>(pool);
-    VirtualMachineTemplate * ttmpl = static_cast<VirtualMachineTemplate *>(tmpl);
+
+    VirtualMachineTemplate * ttmpl=static_cast<VirtualMachineTemplate *>(tmpl);
 
     return tpool->allocate(uid, gid, ttmpl, &id, error_str);
 }
@@ -238,6 +239,7 @@ int GroupAllocate::pool_allocate(xmlrpc_c::paramList const& paramList,
                                  string& error_str)
 {
     string gname = xmlrpc_c::value_string(paramList.getString(1));
+
     GroupPool * gpool = static_cast<GroupPool *>(pool);
 
     return gpool->allocate(uid, gname, &id, error_str);
