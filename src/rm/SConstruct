@@ -29,6 +29,7 @@ source_files=[
     'RequestManagerPoolInfoFilter.cc',
     'RequestManagerDelete.cc',
     'RequestManagerPublish.cc',
+    'RequestManagerAllocate.cc',
 
 #    'RequestManagerAction.cc',
 #    'RequestManagerAllocate.cc',

@@ -61,13 +61,15 @@ protected:
 
     int                 uid;  /** id of the user performing the request */
     
-    int                 gid; /** id of the user performing the request */
+    int                 gid; /** id of the user performing the request  */
 
     PoolSQL *           pool; /** id of the user performing the request */
 
+    string              method_name; /** The name of the XML-RPC method */
+
     AuthRequest::Object    auth_object; /** Auth object for the request */
 
-    AuthRequest::Operation auth_op; /** Auth operation for the request */
+    AuthRequest::Operation auth_op; /** Auth operation for the request  */
 
 
     /* -------------------- Constructors ---------------------------------- */
@@ -165,12 +167,8 @@ protected:
                          const string &object,
                          int id,
                          int rc);
-private:
-    /**
-     *  The name of the XML-RPC method
-     */
-    string             method_name;
 
+private:
     /**
      *  Session token from the OpenNebula XML-RPC API
      */

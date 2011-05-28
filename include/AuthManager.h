@@ -301,6 +301,31 @@ public:
         GROUP
     };
 
+    static string object_name(Object ob)
+    {
+        switch (ob)
+        {
+            case VM:
+                return "virtual machine";
+            case HOST:
+                return "host";
+            case NET:
+                return "virtual network";
+            case IMAGE:
+                return "image";
+            case USER:
+                return "user";
+            case CLUSTER:
+                return "cluster";
+            case TEMPLATE:
+                return "virtual machine template";
+            case GROUP:
+                return "group";
+            default:
+                return "-";
+          }
+    };
+
     /**
      *  Sets the challenge to authenticate an user
      *  @param challenge a driver specific authentication challenge

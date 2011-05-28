@@ -206,9 +206,9 @@ string Request::get_error (const string &object,
 /* -------------------------------------------------------------------------- */
 
 string Request::action_error (const string &action,
-                                const string &object,
-                                int id,
-                                int rc)
+                              const string &object,
+                              int id,
+                              int rc)
 {
     ostringstream oss;
 
