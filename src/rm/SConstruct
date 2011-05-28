@@ -30,6 +30,7 @@ source_files=[
     'RequestManagerDelete.cc',
     'RequestManagerPublish.cc',
     'RequestManagerAllocate.cc',
+    'RequestManagerVirtualNetwork.cc',
 
 #    'RequestManagerAction.cc',
 #    'RequestManagerAllocate.cc',

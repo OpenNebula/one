@@ -44,8 +44,7 @@ string RequestManagerAllocate::allocate_error (char *error)
 {
     ostringstream oss;
 
-    oss << "[" << method_name << "]" << " Error allocating a new "
-        << object_name(auth_object) << ". Parse error";
+    oss << "Parse error";
 
     if ( error != 0 )
     {
@@ -57,7 +56,7 @@ string RequestManagerAllocate::allocate_error (char *error)
         oss << ".";
     }
 
-    return oss.str();
+    return allocate_error(oss.str());
 }
 
 /* -------------------------------------------------------------------------- */

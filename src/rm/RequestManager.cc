@@ -25,6 +25,8 @@
 #include "RequestManagerPublish.h"
 #include "RequestManagerAllocate.h"
 
+#include "RequestManagerVirtualNetwork.h"
+
 #include <sys/signal.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -220,6 +222,10 @@ void RequestManager::do_action(
         
 void RequestManager::register_xml_methods()
 {
+    // VirtualNetwork Methods
+    xmlrpc_c::methodPtr vn_addleases(new VirtualNetworkAddLeases());
+    xmlrpc_c::methodPtr vn_rmleases(new VirtualNetworkRemoveLeases());
+
     // Allocate Methods
     xmlrpc_c::methodPtr image_allocate(new ImageAllocate());
     xmlrpc_c::methodPtr vn_allocate(new VirtualNetworkAllocate());
@@ -321,11 +327,6 @@ void RequestManager::register_xml_methods()
         
 
 
-    xmlrpc_c::methodPtr vn_addleases(new
-        RequestManager::VirtualNetworkAddLeases(vnpool, upool));
-
-    xmlrpc_c::methodPtr vn_rmleases(new
-        RequestManager::VirtualNetworkRemoveLeases(vnpool, upool));
 
     xmlrpc_c::methodPtr vn_chown(new
         RequestManager::GenericChown(this,NET));
@@ -414,10 +415,10 @@ void RequestManager::register_xml_methods()
 
     /* Network related methods*/
 /*
-    RequestManagerRegistry.addMethod("one.vn.addleases", vn_addleases);
-    RequestManagerRegistry.addMethod("one.vn.rmleases", vn_rmleases);
     RequestManagerRegistry.addMethod("one.vn.chown", vn_chown);
 */
+    RequestManagerRegistry.addMethod("one.vn.addleases", vn_addleases);
+    RequestManagerRegistry.addMethod("one.vn.rmleases", vn_rmleases);
     RequestManagerRegistry.addMethod("one.vn.allocate", vn_allocate);   
     RequestManagerRegistry.addMethod("one.vn.publish", vn_publish);
     RequestManagerRegistry.addMethod("one.vn.delete", vn_delete);
