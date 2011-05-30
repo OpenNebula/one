@@ -109,11 +109,11 @@ module OpenNebula
 
             if NOKOGIRI
                 @xml.xpath(filter.to_s).each { |pelem|
-                    elements_array << pelem.text if !pelem.text
+                    elements_array << pelem.text if pelem.text
                  }
             else
                 @xml.elements.each(filter.to_s) { |pelem|
-                    elements_array << pelem.text if !pelem.text
+                    elements_array << pelem.text if pelem.text
                 }
             end
             
