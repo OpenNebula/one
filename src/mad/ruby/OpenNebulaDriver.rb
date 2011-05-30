@@ -111,7 +111,9 @@ class OpenNebulaDriver < ActionManager
             :script_name => nil
         }.merge(ops)
 
-        command=action_command_line(aname, parameters, options[:script_name])
+        params=parameters+" #{id} #{host}"
+
+        command=action_command_line(aname, params, options[:script_name])
 
         if action_is_local? aname
             local_action(command, id, aname)

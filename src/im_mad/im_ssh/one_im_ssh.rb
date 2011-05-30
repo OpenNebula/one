@@ -61,7 +61,7 @@ class InformationManagerDriverSSH < OpenNebulaDriver
                 LocalCommand.run(sync_cmd, log_method(number))
             end
         end
-        do_action("#{@hypervisor} #{host}", number, host, :monitor,
+        do_action("#{@hypervisor}", number, host, :monitor,
             :script_name => 'run_probes')
     end
 end
