@@ -35,7 +35,7 @@ require "VirtualMachineDriver"
 require 'getoptlong'
 
 # The main class for the Sh driver
-class SshDriver < VirtualMachineDriver
+class ExecDriver < VirtualMachineDriver
 
     # SshDriver constructor
     def initialize(hypervisor, options={})
@@ -132,9 +132,9 @@ else
     exit(-1)
 end
 
-ssh_driver = SshDriver.new(hypervisor,
+exec_driver = ExecDriver.new(hypervisor,
                 :concurrency => threads,
                 :retries => retries,
                 :local_actions => local_actions)
 
-ssh_driver.start_driver
+exec_driver.start_driver
