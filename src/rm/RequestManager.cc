@@ -24,6 +24,7 @@
 #include "RequestManagerDelete.h"
 #include "RequestManagerPublish.h"
 #include "RequestManagerAllocate.h"
+#include "RequestManagerUpdateTemplate.h"
 
 #include "RequestManagerVirtualNetwork.h"
 #include "RequestManagerVirtualMachine.h"
@@ -237,6 +238,11 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vn_addleases(new VirtualNetworkAddLeases());
     xmlrpc_c::methodPtr vn_rmleases(new VirtualNetworkRemoveLeases());
 
+    // Update Template Methods
+    xmlrpc_c::methodPtr image_update(new ImageUpdateTemplate());
+    xmlrpc_c::methodPtr template_update(new TemplateUpdateTemplate());
+    xmlrpc_c::methodPtr host_update(new HostUpdateTemplate());
+
     // Allocate Methods
     xmlrpc_c::methodPtr vm_allocate(new VirtualMachineAllocate());
     xmlrpc_c::methodPtr image_allocate(new ImageAllocate());
@@ -290,22 +296,12 @@ void RequestManager::register_xml_methods()
         RequestManager::GenericChown(this,VM));
 
 
-    xmlrpc_c::methodPtr template_update(new
-        RequestManager::TemplateUpdate(tpool, upool));
-
-    xmlrpc_c::methodPtr template_rm_attribute(new
-        RequestManager::TemplateRemoveAttribute(tpool, upool));
-
     xmlrpc_c::methodPtr template_chown(new
         RequestManager::GenericChown(this,TEMPLATE));
 
-        
-        
 
     xmlrpc_c::methodPtr host_enable(new 
         RequestManager::HostEnable(hpool,upool));
-
-
 
 
     xmlrpc_c::methodPtr cluster_add(new 
@@ -315,17 +311,8 @@ void RequestManager::register_xml_methods()
         RequestManager::ClusterRemove(hpool,upool,cpool));
 
 
-
-
-        
-        
-
-
-
     xmlrpc_c::methodPtr vn_chown(new
         RequestManager::GenericChown(this,NET));
-
-
 
 
     xmlrpc_c::methodPtr user_change_password(new
@@ -333,15 +320,6 @@ void RequestManager::register_xml_methods()
 
     xmlrpc_c::methodPtr user_chown(new
         RequestManager::GenericChown(this,USER));
-        
-        
-        
-        
-    xmlrpc_c::methodPtr image_update(new    
-        RequestManager::ImageUpdate(ipool, upool));
-    
-    xmlrpc_c::methodPtr image_rm_attribute(new    
-        RequestManager::ImageRemoveAttribute(ipool, upool));
         
     xmlrpc_c::methodPtr image_persistent(new    
         RequestManager::ImagePersistent(ipool, upool));
@@ -368,10 +346,10 @@ void RequestManager::register_xml_methods()
 
     /* VM Template related methods*/
 /*
-    RequestManagerRegistry.addMethod("one.template.update", template_update);
-    RequestManagerRegistry.addMethod("one.template.rmattr", template_rm_attribute);
     RequestManagerRegistry.addMethod("one.template.chown", template_chown);
 */
+
+    RequestManagerRegistry.addMethod("one.template.update", template_update);
     RequestManagerRegistry.addMethod("one.template.instantiate",template_instantiate);
     RequestManagerRegistry.addMethod("one.template.allocate",template_allocate);
     RequestManagerRegistry.addMethod("one.template.publish", template_publish);
@@ -384,6 +362,7 @@ void RequestManager::register_xml_methods()
 /*     
     RequestManagerRegistry.addMethod("one.host.enable", host_enable);
 */    
+    RequestManagerRegistry.addMethod("one.host.update", host_update);
     RequestManagerRegistry.addMethod("one.host.allocate", host_allocate);   
     RequestManagerRegistry.addMethod("one.host.delete", host_delete);
     RequestManagerRegistry.addMethod("one.host.info", host_info);
@@ -435,13 +414,12 @@ void RequestManager::register_xml_methods()
     
     /* Image related methods*/
 /*    
-    RequestManagerRegistry.addMethod("one.image.update", image_update);     
-    RequestManagerRegistry.addMethod("one.image.rmattr", image_rm_attribute);
     RequestManagerRegistry.addMethod("one.image.persistent", image_persistent);
     RequestManagerRegistry.addMethod("one.image.enable", image_enable);    
     RequestManagerRegistry.addMethod("one.image.chown", image_chown);
 
 */  
+    RequestManagerRegistry.addMethod("one.image.update", image_update);     
     RequestManagerRegistry.addMethod("one.image.allocate", image_allocate);
     RequestManagerRegistry.addMethod("one.image.publish", image_publish);
     RequestManagerRegistry.addMethod("one.image.delete", image_delete);

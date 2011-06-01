@@ -276,7 +276,8 @@ public:
     }
 
     /**
-     *  Replace template for this object
+     *  Replace template for this object. Object should be updated
+     *  after calling this method
      *    @param tmpl string representation of the template
      */
     int replace_template(const string& tmpl_str, string& error);
