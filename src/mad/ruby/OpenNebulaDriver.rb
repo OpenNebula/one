@@ -34,7 +34,7 @@ class OpenNebulaDriver < ActionManager
     attr_reader :local_scripts_base_path, :remote_scripts_base_path
     # @return [String] Path for scripts
     attr_reader :local_scripts_path, :remote_scripts_path
-    
+
     # This function parses a string with this form:
     #
     #   'deploy,shutdown,poll=poll_ganglia, cancel '
@@ -94,7 +94,7 @@ class OpenNebulaDriver < ActionManager
             :retries => 0,
             :local_actions => {}
         }.merge!(options)
-        
+
         super(@options[:concurrency], @options[:threaded])
 
         @retries = @options[:retries]
@@ -331,27 +331,27 @@ private
             end
         end
     end
-    
+
     def read_configuration
         one_config=nil
-        
+
         if ENV['ONE_LOCATION']
             one_config=ENV['ONE_LOCATION']+'/var/config'
         else
             one_config='/var/lib/one/config'
         end
-        
+
         config=Hash.new
         cfg=''
-        
+
         begin
             open(one_config) do |file|
                 cfg=file.read
             end
-            
+
             cfg.split(/\n/).each do |line|
                 m=line.match(/^([^=]+)=(.*)$/)
-                
+
                 if m
                     name=m[1].strip.upcase
                     value=m[2].strip
@@ -362,7 +362,7 @@ private
             STDERR.puts "Error reading config: #{e.inspect}"
             STDERR.flush
         end
-        
+
         config
     end
 end

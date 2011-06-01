@@ -71,7 +71,7 @@ class VirtualMachineDriver < OpenNebulaDriver
         @options={
             :threaded => true
         }.merge!(options)
-        
+
         super(directory, @options)
 
         @hosts   = Array.new
