@@ -27,8 +27,7 @@ require "CommandManager"
 #
 # A Driver inherits this class and only has to provide methods
 # for each action it wants to receive. The method must be associated
-# with the action name through the register_action func
-
+# with the action name through the register_action function
 class VirtualMachineDriver < OpenNebulaDriver
 
     # Virtual Machine Driver Protocol constants

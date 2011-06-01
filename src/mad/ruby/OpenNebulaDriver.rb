@@ -28,9 +28,13 @@ require "CommandManager"
 #
 # A Driver inherits this class and only has to provide methods
 # for each action it wants to receive. The method must be associated
-# with the action name through the register_action func
-
+# with the action name through the register_action function
 class OpenNebulaDriver < ActionManager
+    # @return [String] Base path for scripts
+    attr_reader :local_scripts_base_path, :remote_scripts_base_path
+    # @return [String] Path for scripts
+    attr_reader :local_scripts_path, :remote_scripts_path
+    
     # This function parses a string with this form:
     #
     #   'deploy,shutdown,poll=poll_ganglia, cancel '
@@ -38,7 +42,10 @@ class OpenNebulaDriver < ActionManager
     # and returns a hash:
     #
     #   {"POLL"=>"poll_ganglia", "DEPLOY"=>nil, "SHUTDOWN"=>nil,
-    #       "CANCEL"=>nil}
+    #     "CANCEL"=>nil}
+    #
+    # @param [String] str imput string to parse
+    # @return [Hash] parsed actions
     def self.parse_actions_list(str)
         actions=Hash.new
         str_splitted=str.split(/\s*,\s*/).map {|s| s.strip }
@@ -62,6 +69,7 @@ class OpenNebulaDriver < ActionManager
         actions
     end
 
+    # Action result strings for messages
     RESULT = {
         :success => "SUCCESS",
         :failure => "FAILURE"
@@ -118,11 +126,16 @@ class OpenNebulaDriver < ActionManager
     end
 
     # Calls remotes or local action checking the action name and
-    # @local_actions. Optional arguments can be specified as a hash:
+    # @local_actions. Optional arguments can be specified as a hash
     #
-    # * :stdin => text to be writen in to stdin
-    # * :script_name => default script name for the action, action name is
-    #       used by default
+    # @param [String] parameters arguments passed to the script
+    # @param [Number, String] id action identifier
+    # @param [String] host hostname where the action is going to be executed
+    # @param [String, Symbol] aname name of the action
+    # @param [Hash] ops extra options for the command
+    # @option ops [String] :stdin text to be writen to stdin
+    # @option ops [String] :script_name default script name for the action,
+    #   action name is used by defaults
     def do_action(parameters, id, host, aname, ops={})
         options={
             :stdin => nil,
@@ -146,6 +159,11 @@ class OpenNebulaDriver < ActionManager
     # actions is remote or local. If the local actions has defined an special
     # script name this is used, otherwise the action name in downcase is
     # used as the script name.
+    #
+    # @param [String, Symbol] action name of the action
+    # @param [String] parameters arguments for the script
+    # @param [String, nil] default_name alternative name for the script
+    # @return [String] command line needed to execute the action
     def action_command_line(action, parameters, default_name=nil)
         if action_is_local? action
             script_path=@local_scripts_path
@@ -158,11 +176,16 @@ class OpenNebulaDriver < ActionManager
     end
 
     # True if the action is meant to be executed locally
+    #
+    # @param [String, Symbol] action name of the action
     def action_is_local?(action)
         @local_actions.include? action.to_s.upcase
     end
 
     # Name of the script file for the given action
+    #
+    # @param [String, Symbol] action name of the action
+    # @param [String, nil] default_name alternative name for the script
     def action_script_name(action, default_name=nil)
         name=@local_actions[action.to_s.upcase]
 
@@ -174,6 +197,13 @@ class OpenNebulaDriver < ActionManager
     end
 
     # Execute a command associated to an action and id in a remote host.
+    #
+    # @param [String] command command line to execute the script
+    # @param [Number, String] id action identifier
+    # @param [String] host hostname where the action is going to be executed
+    # @param [String, Symbol] aname name of the action
+    # @param [String] remote_dir path where the remotes reside
+    # @param [String, nil] std_in input of the string from the STDIN
     def remotes_action(command, id, host, aname, remote_dir, std_in=nil)
         command_exe = RemotesCommand.run(command,
                                          host,
@@ -195,6 +225,10 @@ class OpenNebulaDriver < ActionManager
     end
 
     # Execute a command associated to an action and id on localhost
+    #
+    # @param [String] command command line to execute the script
+    # @param [Number, String] id action identifier
+    # @param [String, Symbol] aname name of the action
     def local_action(command, id, aname)
         command_exe = LocalCommand.run(command, log_method(id))
 
