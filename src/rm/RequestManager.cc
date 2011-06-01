@@ -27,6 +27,7 @@
 
 #include "RequestManagerVirtualNetwork.h"
 #include "RequestManagerVirtualMachine.h"
+#include "RequestManagerVMTemplate.h"
 
 #include <sys/signal.h>
 #include <sys/socket.h>
@@ -224,6 +225,9 @@ void RequestManager::do_action(
 void RequestManager::register_xml_methods()
 {
     // VirtualMachine Methods
+    xmlrpc_c::methodPtr template_instantiate(new VMTemplateInstantiate());
+
+    // VirtualMachine Methods
     xmlrpc_c::methodPtr vm_deploy(new VirtualMachineDeploy());
     xmlrpc_c::methodPtr vm_migrate(new VirtualMachineMigrate());
     xmlrpc_c::methodPtr vm_action(new VirtualMachineAction()); 
@@ -368,6 +372,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.template.rmattr", template_rm_attribute);
     RequestManagerRegistry.addMethod("one.template.chown", template_chown);
 */
+    RequestManagerRegistry.addMethod("one.template.instantiate",template_instantiate);
     RequestManagerRegistry.addMethod("one.template.allocate",template_allocate);
     RequestManagerRegistry.addMethod("one.template.publish", template_publish);
     RequestManagerRegistry.addMethod("one.template.delete", template_delete);

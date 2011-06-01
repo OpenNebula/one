@@ -32,6 +32,7 @@ source_files=[
     'RequestManagerAllocate.cc',
     'RequestManagerVirtualNetwork.cc',
     'RequestManagerVirtualMachine.cc',
+    'RequestManagerVMTemplate.cc',
 
 #    'RequestManagerAction.cc',
 #    'RequestManagerAllocate.cc',
