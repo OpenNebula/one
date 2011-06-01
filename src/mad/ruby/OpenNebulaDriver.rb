@@ -279,6 +279,40 @@ private
             end
         end
     end
+    
+    def read_configuration
+        one_config=nil
+        
+        if ENV['ONE_LOCATION']
+            one_config=ENV['ONE_LOCATION']+'/var/config'
+        else
+            one_config='/var/lib/one/config'
+        end
+        
+        config=Hash.new
+        cfg=''
+        
+        begin
+            open(one_config) do |file|
+                cfg=file.read
+            end
+            
+            cfg.split(/\n/).each do |line|
+                m=line.match(/^([^=]+)=(.*)$/)
+                
+                if m
+                    name=m[1].strip.upcase
+                    value=m[2].strip
+                    config[name]=value
+                end
+            end
+        rescue Exception => e
+            STDERR.puts "Error reading config: #{e.inspect}"
+            STDERR.flush
+        end
+        
+        config
+    end
 end
 
 ################################################################
