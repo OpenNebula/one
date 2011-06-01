@@ -69,7 +69,7 @@ bool Request::basic_authorization(int oid)
 
         if ( object == 0 )
         {
-            failure_response(NO_EXISTS, get_error("USER",oid)); //TODO
+            failure_response(NO_EXISTS, get_error(object_name(auth_object),oid)); 
             return false;
         }
 
@@ -86,7 +86,7 @@ bool Request::basic_authorization(int oid)
    if (UserPool::authorize(ar) == -1)
    {
         failure_response(AUTHORIZATION, //TODO
-                 authorization_error("INFO","USER",oid,-1));
+                 authorization_error("INFO",object_name(auth_object),oid,-1));
 
         return false;
     }

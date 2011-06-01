@@ -96,6 +96,36 @@ bool RequestManagerAllocate::allocate_authorization(Template * tmpl)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+bool VirtualMachineAllocate::allocate_authorization(Template * tmpl)
+{
+    if ( uid == 0 )
+    {
+        return true;
+    }
+
+    AuthRequest ar(uid);
+    string      t64;
+
+    VirtualMachineTemplate * ttmpl = static_cast<VirtualMachineTemplate *>(tmpl);
+
+    ar.add_auth(auth_object,tmpl->to_xml(t64),auth_op,uid,false);
+
+    VirtualMachine::set_auth_request(uid, ar, ttmpl);
+
+   if (UserPool::authorize(ar) == -1)
+   {
+        failure_response(AUTHORIZATION, //TODO
+                 authorization_error("INFO","USER",uid,-1));
+
+        return false;
+    }
+
+    return true;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void RequestManagerAllocate::request_execute(xmlrpc_c::paramList const& params)
 {
     Template * tmpl = 0;
@@ -136,6 +166,21 @@ void RequestManagerAllocate::request_execute(xmlrpc_c::paramList const& params)
     
     success_response(id);
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachineAllocate::pool_allocate(xmlrpc_c::paramList const& paramList, 
+                                          Template * tmpl,
+                                          int& id, 
+                                          string& error_str)
+{
+    VirtualMachineTemplate * ttmpl = static_cast<VirtualMachineTemplate *>(tmpl);
+    VirtualMachinePool * vmpool    = static_cast<VirtualMachinePool *>(pool);
+
+    return vmpool->allocate(uid, gid, ttmpl, &id, error_str, false);
+}
+
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

@@ -48,7 +48,7 @@ protected:
 
     void request_execute(xmlrpc_c::paramList const& _paramList);
 
-    bool allocate_authorization(Template * obj_template);
+    virtual bool allocate_authorization(Template * obj_template);
 
     string allocate_error (char *error);
 
@@ -65,6 +65,40 @@ protected:
 private:
 
     bool do_template;
+};
+
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualMachineAllocate: public RequestManagerAllocate
+{
+public:
+    VirtualMachineAllocate():
+        RequestManagerAllocate("VirtualMachineAllocate",
+                               "Allocates a new virtual machine",
+                               "A:ss",
+                               true)
+    {    
+        Nebula& nd = Nebula::instance();
+        pool       = nd.get_vmpool();
+        auth_object = AuthRequest::VM;
+    };
+
+    ~VirtualMachineAllocate(){};
+    /* --------------------------------------------------------------------- */
+
+    Template * get_object_template() 
+    { 
+        return new VirtualMachineTemplate; 
+    };
+
+    int pool_allocate(xmlrpc_c::paramList const& _paramList, 
+                      Template * tmpl,
+                      int& id, 
+                      string& error_str);
+
+    bool allocate_authorization(Template * obj_template);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -163,7 +197,6 @@ public:
                       string& error_str);
 };
 
-
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
@@ -246,7 +279,7 @@ class GroupAllocate: public RequestManagerAllocate
 {
 public:
     GroupAllocate():
-        RequestManagerAllocate("GroupInfo",
+        RequestManagerAllocate("GroupAllocate",
                                "Allocates a new group",
                                "A:ss",
                                false)
