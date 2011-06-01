@@ -33,6 +33,10 @@ class OpenNebulaDriver
     end
 end
 
+def fake_execution(stdout, stderr)
+    [StringIO.new(''), StringIO.new(stdout), StringIO.new(stderr)]
+end
+
 describe OpenNebulaDriver do
     before(:all) do
         @concurrecy=1
@@ -148,6 +152,76 @@ describe OpenNebulaDriver do
             :deploy,
             "/var/tmp/one/vmm/dummy",
             nil]
+    end
+
+    it 'should execute remote actions' do
+        result=[] # here will be the parameters to send_message
+        time=0 # this will count the executions of SSHCommand
+
+
+        driver=create_driver(*@create_params)
+
+        MonkeyPatcher.patch do
+            # patch send_message
+            patch_class(IO, :puts) do |*args|
+                result<<args[0]
+            end
+
+            patch_class(LocalCommand, :execute) do
+                fake_execution('command info', 'ExitCode: 0')
+            end
+
+            patch_class(SSHCommand, :execute) do
+                time+=1
+                case time
+                when 1 # Everything goes ok (Test 1)
+                    fake_execution('command info', 'ExitCode: 0')
+                when 2 # Command fails (Test 2)
+                    fake_execution('command info', 'ExitCode: 255')
+                when 3 # File is not there (Test 3)
+                    fake_execution('command info', 'ExitCode: 42')
+                when 4 # Command works after a good copy (Test 3)
+                    fake_execution('command info', 'ExitCode: 0')
+                else
+                    fake_execution('command info', 'ExitCode: 0')
+                end
+            end
+
+            # Time 1
+            driver.remotes_action('command', 0, 'localhost', :DEPLOY, '/')
+            #puts time
+
+            # Time 2
+            driver.remotes_action('command', 0, 'localhost', :DEPLOY, '/')
+            #puts time
+
+            # Time 3
+            driver.remotes_action('command', 0, 'localhost', :DEPLOY, '/')
+            #puts time
+
+        end
+
+        #pp result
+
+
+        result.should == [
+            # 1 - Everything ok
+            "LOG I 0 ExitCode: 0",
+            "DEPLOY SUCCESS 0 command info",
+            # 2 - Command fails
+            "LOG I 0 Command execution fail: 'if [ -x \"command\" ]; then command; else                              exit 42; fi'",
+            "LOG I 0 ExitCode: 255",
+            "DEPLOY FAILURE 0 -",
+            # 3 - File is not there, update files
+            "LOG I 0 Command execution fail: 'if [ -x \"command\" ]; then command; else                              exit 42; fi'",
+            "LOG I 0 ExitCode: 42",
+            "LOG I 0 Remote worker node files not found",
+            "LOG I 0 Updating remotes",
+            "LOG I 0 ExitCode: 0",
+            # 4 - Good command execution
+            "LOG I 0 ExitCode: 0",
+            "DEPLOY SUCCESS 0 command info"
+        ]
     end
 
 end
