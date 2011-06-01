@@ -360,18 +360,24 @@ void AuthManager::timer_action()
 
     lock();
 
-    for (it=auth_requests.begin();it!=auth_requests.end();it++)
+    it = auth_requests.begin();
+
+    while ( it !=auth_requests.end())
     {
         if (the_time > it->second->time_out)
         {
             AuthRequest * ar = it->second;
-            auth_requests.erase(it);
+            auth_requests.erase(it++);
 
             ar->result  = false;
             ar->timeout = true;
             ar->message = "Auth request timeout";
 
             ar->notify();
+        }
+        else
+        {
+            ++it;
         }
     }
 

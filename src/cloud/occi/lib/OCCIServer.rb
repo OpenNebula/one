@@ -123,7 +123,7 @@ class OCCIServer < CloudServer
         end 
         
         network_pool = VirtualNetworkPoolOCCI.new(
-                            one_client),
+                            one_client,
                             user_flag)
 
         # --- Prepare XML Response ---
