@@ -38,8 +38,12 @@ require 'getoptlong'
 class InformationManagerDriverSSH < OpenNebulaDriver
 
     # Init the driver
-    def initialize(hypervisor, threads, retries, local_actions)
-        super(threads, true, retries, 'im', local_actions)
+    def initialize(hypervisor, options)
+        @options={
+            :threaded => true
+        }.merge!(options)
+        
+        super('im', @options)
 
         @hypervisor = hypervisor
 

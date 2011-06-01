@@ -38,8 +38,12 @@ require 'getoptlong'
 class SshDriver < VirtualMachineDriver
 
     # SshDriver constructor
-    def initialize(hypervisor, threads, retries, local_actions)
-        super(threads, true, retries, "vmm/#{hypervisor}", local_actions)
+    def initialize(hypervisor, options={})
+        @options={
+            :threaded => true
+        }.merge!(options)
+        
+        super("vmm/#{hypervisor}", @options)
 
         @hypervisor  = hypervisor
     end
@@ -128,5 +132,9 @@ else
     exit(-1)
 end
 
-ssh_driver = SshDriver.new(hypervisor, threads, retries, local_actions)
+ssh_driver = SshDriver.new(hypervisor,
+                :concurrency => threads,
+                :retries => retries,
+                :local_actions => local_actions)
+
 ssh_driver.start_driver

@@ -67,18 +67,36 @@ class OpenNebulaDriver < ActionManager
         :failure => "FAILURE"
     }
 
-    def initialize(concurrency=10, threaded=true, retries=0,
-                directory='subsystem', local_actions={})
-        super(concurrency, threaded)
+    # Initialize OpenNebulaDriver object
+    #
+    # @param [String] directory path inside the remotes directory where the
+    #   scripts are located
+    # @param [Hash] options named options to change the object's behaviour
+    # @option options [Number] :concurrency (10) max number of threads
+    # @option options [Boolean] :threaded (true) enables or disables threads
+    # @option options [Number] :retries (0) number of retries to copy scripts
+    #   to the remote host
+    # @option options [Hash] :local_actions ({}) hash with the actions
+    #   executed locally and the name of the script if it differs from the
+    #   default one. This hash can be constructed using {parse_actions_list}
+    def initialize(directory, options={})
+        @options={
+            :concurrency => 10,
+            :threaded => true,
+            :retries => 0,
+            :local_actions => {}
+        }.merge!(options)
+        
+        super(@options[:concurrency], @options[:threaded])
 
-        @retries = retries
+        @retries = @options[:retries]
         @send_mutex=Mutex.new
-        @local_actions=local_actions
+        @local_actions=@options[:local_actions]
 
         # set default values
         @config = read_configuration
         @remote_scripts_base_path=@config['SCRIPTS_REMOTE_DIR']
-        if ONE_LOCATION == nil
+        if ENV['ONE_LOCATION'] == nil
             @local_scripts_base_path = "/var/lib/one/remotes"
         else
             @local_scripts_base_path = "#{ENV['ONE_LOCATION']}/var/remotes"

@@ -61,10 +61,19 @@ class VirtualMachineDriver < OpenNebulaDriver
 
     HOST_ARG = 1
 
-    # Register default actions for the protocol
-    def initialize(concurrency=10, threaded=true, retries=0,
-                directory='vmm', local_actions={})
-        super(concurrency, threaded, retries, directory, local_actions)
+    # Register default actions for the protocol.
+    #
+    # @param [String] directory path inside remotes path where the scripts
+    #   reside
+    # @param [Hash] options options for OpenNebula driver (check the available
+    #   options in {OpenNebulaDriver#initialize})
+    # @option options [Boolean] :threaded (true) enables or disables threads
+    def initialize(directory, options={})
+        @options={
+            :threaded => true
+        }.merge!(options)
+        
+        super(directory, @options)
 
         @hosts   = Array.new
 
@@ -201,7 +210,9 @@ if __FILE__ == $0
 
     class TemplateDriver < VirtualMachineDriver
         def initialize
-            super(15,true)
+            super('vmm/dummy',
+                :concurrency => 15,
+                :threaded => true)
         end
 
         def deploy(id, host, remote_dfile, not_used)
