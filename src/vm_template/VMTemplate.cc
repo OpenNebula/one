@@ -77,7 +77,11 @@ int VMTemplate::insert(SqlDB *db, string& error_str)
     // Check default attributes
     // ---------------------------------------------------------------------
 
-    // ------------ NAME --------------------
+    // ------------ NAME & TEMPLATE_ID --------------------
+    oss << oid;
+
+    replace_template_attribute("TEMPLATE_ID",oss.str()); 
+
     get_template_attribute("NAME", name);
 
     if ( name.empty() == true )
@@ -87,7 +91,9 @@ int VMTemplate::insert(SqlDB *db, string& error_str)
         name = oss.str();
     }
 
+
     // ------------ PUBLIC --------------------
+
     get_template_attribute("PUBLIC", public_attr);
 
     obj_template->erase("PUBLIC");
