@@ -23,6 +23,7 @@ env.Append(LIBPATH=[
 
 env.Prepend(LIBS=[
     'nebula_pool',
+    'nebula_template',
     'nebula_xml',
     'nebula_common',
     'nebula_log',

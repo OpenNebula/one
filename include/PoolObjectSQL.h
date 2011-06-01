@@ -279,11 +279,8 @@ public:
      *  Replace template for this object
      *    @param tmpl string representation of the template
      */
-//    int replace_template(const string& tmpl_str, string& error)
-//    {
-//        Template * new_template =         
+    int replace_template(const string& tmpl_str, string& error);
 
-//    } 
 protected:
 
     /**
