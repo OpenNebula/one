@@ -26,6 +26,7 @@
 #include "RequestManagerAllocate.h"
 
 #include "RequestManagerVirtualNetwork.h"
+#include "RequestManagerVirtualMachine.h"
 
 #include <sys/signal.h>
 #include <sys/socket.h>
@@ -222,6 +223,12 @@ void RequestManager::do_action(
         
 void RequestManager::register_xml_methods()
 {
+    // VirtualMachine Methods
+    xmlrpc_c::methodPtr vm_deploy(new VirtualMachineDeploy());
+    xmlrpc_c::methodPtr vm_migrate(new VirtualMachineMigrate());
+    xmlrpc_c::methodPtr vm_action(new VirtualMachineAction()); 
+    xmlrpc_c::methodPtr vm_savedisk(new VirtualMachineSaveDisk());
+
     // VirtualNetwork Methods
     xmlrpc_c::methodPtr vn_addleases(new VirtualNetworkAddLeases());
     xmlrpc_c::methodPtr vn_rmleases(new VirtualNetworkRemoveLeases());
@@ -275,23 +282,8 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr imagepool_info(new ImagePoolInfo());
 
 /*     
-    xmlrpc_c::methodPtr vm_deploy(new 
-        RequestManager::VirtualMachineDeploy(vmpool,hpool,upool));
-        
-    xmlrpc_c::methodPtr vm_migrate(new 
-        RequestManager::VirtualMachineMigrate(vmpool,hpool,upool));
-        
-    xmlrpc_c::methodPtr vm_action(new 
-        RequestManager::VirtualMachineAction(vmpool,upool));
-
-    xmlrpc_c::methodPtr vm_savedisk(new
-        RequestManager::VirtualMachineSaveDisk(vmpool,upool,ipool));
-
-
     xmlrpc_c::methodPtr vm_chown(new
         RequestManager::GenericChown(this,VM));
-
-
 
 
     xmlrpc_c::methodPtr template_update(new
@@ -299,7 +291,6 @@ void RequestManager::register_xml_methods()
 
     xmlrpc_c::methodPtr template_rm_attribute(new
         RequestManager::TemplateRemoveAttribute(tpool, upool));
-
 
     xmlrpc_c::methodPtr template_chown(new
         RequestManager::GenericChown(this,TEMPLATE));
@@ -348,7 +339,6 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr image_rm_attribute(new    
         RequestManager::ImageRemoveAttribute(ipool, upool));
         
-        
     xmlrpc_c::methodPtr image_persistent(new    
         RequestManager::ImagePersistent(ipool, upool));
         
@@ -360,12 +350,13 @@ void RequestManager::register_xml_methods()
 */
     /* VM related methods  */    
 /*        
+
+    RequestManagerRegistry.addMethod("one.vm.chown", vm_chown);
+*/
     RequestManagerRegistry.addMethod("one.vm.deploy", vm_deploy);
     RequestManagerRegistry.addMethod("one.vm.action", vm_action);
     RequestManagerRegistry.addMethod("one.vm.migrate", vm_migrate);
     RequestManagerRegistry.addMethod("one.vm.savedisk", vm_savedisk);
-    RequestManagerRegistry.addMethod("one.vm.chown", vm_chown);
-*/
     RequestManagerRegistry.addMethod("one.vm.allocate", vm_allocate);
     RequestManagerRegistry.addMethod("one.vm.info", vm_info);
 
