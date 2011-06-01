@@ -28,6 +28,8 @@
 
 using namespace std;
 
+class AuthRequest;
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -657,6 +659,19 @@ public:
      */
     int  save_disk(int disk_id, int img_id, string& error_str);
 
+    // ------------------------------------------------------------------------
+    // Authorization related functions
+    // ------------------------------------------------------------------------
+    /**
+     *  Sets an authorization request for a VirtualMachine template based on
+     *  the images and networks used
+     *    @param  uid for template owner
+     *    @param  ar the AuthRequest object
+     *    @param  tmpl the virtual machine template
+     */
+    static void set_auth_request(int uid, 
+                                 AuthRequest& ar, 
+                                 VirtualMachineTemplate *tmpl);
 private:
 
     // -------------------------------------------------------------------------

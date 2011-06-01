@@ -227,6 +227,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vn_rmleases(new VirtualNetworkRemoveLeases());
 
     // Allocate Methods
+    xmlrpc_c::methodPtr vm_allocate(new VirtualMachineAllocate());
     xmlrpc_c::methodPtr image_allocate(new ImageAllocate());
     xmlrpc_c::methodPtr vn_allocate(new VirtualNetworkAllocate());
     xmlrpc_c::methodPtr group_allocate(new GroupAllocate());
@@ -273,9 +274,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vnpool_info(new VirtualNetworkPoolInfo());
     xmlrpc_c::methodPtr imagepool_info(new ImagePoolInfo());
 
-/*    xmlrpc_c::methodPtr vm_allocate(new 
-        RequestManager::VirtualMachineAllocate(vmpool,vnpool,ipool,tpool,upool));
-        
+/*     
     xmlrpc_c::methodPtr vm_deploy(new 
         RequestManager::VirtualMachineDeploy(vmpool,hpool,upool));
         
@@ -361,13 +360,13 @@ void RequestManager::register_xml_methods()
 */
     /* VM related methods  */    
 /*        
-    RequestManagerRegistry.addMethod("one.vm.allocate", vm_allocate);
     RequestManagerRegistry.addMethod("one.vm.deploy", vm_deploy);
     RequestManagerRegistry.addMethod("one.vm.action", vm_action);
     RequestManagerRegistry.addMethod("one.vm.migrate", vm_migrate);
     RequestManagerRegistry.addMethod("one.vm.savedisk", vm_savedisk);
     RequestManagerRegistry.addMethod("one.vm.chown", vm_chown);
 */
+    RequestManagerRegistry.addMethod("one.vm.allocate", vm_allocate);
     RequestManagerRegistry.addMethod("one.vm.info", vm_info);
 
     RequestManagerRegistry.addMethod("one.vmpool.info", vm_pool_info);

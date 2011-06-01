@@ -134,7 +134,6 @@ public:
         const string&        name,
         vector<Attribute *>& values);
 
-
     /**
      *  Removes an attribute from the template, and frees the attributes.
      *    @param name of the attribute

@@ -25,6 +25,7 @@
 
 #include "VirtualMachine.h"
 #include "VirtualNetworkPool.h"
+#include "ImagePool.h"
 #include "NebulaLog.h"
 
 #include "Nebula.h"
@@ -987,6 +988,11 @@ int VirtualMachine::save_disk(int disk_id, int img_id, string& error_str)
                 goto error_saved;
             }
 
+            if(!((disk->vector_value("PERSISTENT")).empty()))
+            {
+                goto error_persistent;
+            }
+
             disk->replace("SAVE", "YES");
 
             oss << (img_id);
@@ -998,8 +1004,12 @@ int VirtualMachine::save_disk(int disk_id, int img_id, string& error_str)
 
     goto error_not_found;
 
+error_persistent:
+    oss << "Source image for DISK " << disk_id << " is persistent.";
+    goto error_common;
+
 error_saved:
-    oss << "The DISK " << disk_id << " is already suppossed to be saved.";
+    oss << "The DISK " << disk_id << " is already going to be saved.";
     goto error_common;
 
 error_not_found:
@@ -1010,6 +1020,54 @@ error_common:
     error_str = oss.str();
 
     return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachine::set_auth_request(int uid,
+                                      AuthRequest& ar,
+                                      VirtualMachineTemplate *tmpl) 
+{
+    int                   num;
+    vector<Attribute  * > vectors;
+    VectorAttribute *     vector;
+
+    Nebula& nd = Nebula::instance();
+
+    ImagePool *           ipool  = nd.get_ipool();
+    VirtualNetworkPool *  vnpool = nd.get_vnpool();
+
+    num = tmpl->get("DISK",vectors);
+
+    for(int i=0; i<num; i++)
+    {
+
+        vector = dynamic_cast<VectorAttribute * >(vectors[i]);
+
+        if ( vector == 0 )
+        {
+            continue;
+        }
+
+        ipool->authorize_disk(vector,uid,&ar);
+    }
+
+    vectors.clear();
+
+    num = tmpl->get("NIC",vectors);
+
+    for(int i=0; i<num; i++)
+    {
+        vector = dynamic_cast<VectorAttribute * >(vectors[i]);
+
+        if ( vector == 0 )
+        {
+            continue;
+        }
+
+        vnpool->authorize_nic(vector,uid,&ar);
+    }
 }
 
 /* -------------------------------------------------------------------------- */

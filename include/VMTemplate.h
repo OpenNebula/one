@@ -73,15 +73,6 @@ public:
     {
         return new VirtualMachineTemplate(
                 *(static_cast<VirtualMachineTemplate *>(obj_template)));
-
-        // TODO: Check if there is a more efficient way to do this copy.
-        /*string xml_str;
-        VirtualMachineTemplate * new_template = new VirtualMachineTemplate();
-
-        obj_template->to_xml(xml_str);
-        new_template->from_xml(xml_str);
-
-        return new_template;*/
     };
 
 private:

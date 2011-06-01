@@ -457,6 +457,7 @@ int Image::disk_attribute(  VectorAttribute * disk,
     {
         disk->replace("CLONE","NO");
         disk->replace("SAVE","YES");
+        disk->replace("PERSISTENT","YES");
     }
     else
     {
