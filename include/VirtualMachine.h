@@ -542,6 +542,14 @@ public:
      *    @return 0 on success.
      */
     int  parse_template_attribute(const string& attribute, string& parsed);
+    
+    /**
+     *  Factory method for virtual machine templates
+     */
+    Template * get_new_template()
+    {
+        return new VirtualMachineTemplate;
+    }
 
     // ------------------------------------------------------------------------
     // States

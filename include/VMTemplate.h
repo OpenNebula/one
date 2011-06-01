@@ -66,6 +66,14 @@ public:
     // ------------------------------------------------------------------------
 
     /**
+     *  Factory method for virtual machine templates
+     */
+    Template * get_new_template()
+    {
+        return new VirtualMachineTemplate;
+    }
+
+    /**
      *  Returns a copy of the VirtualMachineTemplate
      *    @return A copy of the VirtualMachineTemplate
      */

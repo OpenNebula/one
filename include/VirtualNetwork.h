@@ -20,6 +20,7 @@
 
 #include "PoolSQL.h"
 #include "Leases.h"
+#include "VirtualNetworkTemplate.h"
 
 #include <vector>
 #include <string>
@@ -32,7 +33,6 @@ using namespace std;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-class VirtualNetworkTemplate;
 
 /**
  *  The Virtual Network class. It represents a Virtual Network at manages its 
@@ -73,6 +73,14 @@ public:
         {
             public_obj = 0;
         }
+    }
+
+    /**
+     *  Factory method for virtual network templates
+     */
+    Template * get_new_template()
+    {
+        return new VirtualNetworkTemplate;
     }
 
     /**

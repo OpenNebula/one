@@ -265,6 +265,25 @@ public:
      */
     void set_template_error_message(const string& message);
 
+    /**
+     *  Factory method for templates, it should be implemented
+     *  by classes that uses templates
+     *    @return a new template
+     */
+    virtual Template * get_new_template()
+    {
+        return 0;
+    }
+
+    /**
+     *  Replace template for this object
+     *    @param tmpl string representation of the template
+     */
+//    int replace_template(const string& tmpl_str, string& error)
+//    {
+//        Template * new_template =         
+
+//    } 
 protected:
 
     /**

@@ -250,6 +250,14 @@ public:
      */
     int disk_attribute(VectorAttribute * disk, int* index, ImageType* img_type);
 
+    /**
+     *  Factory method for image templates
+     */
+    Template * get_new_template()
+    {
+        return new ImageTemplate;
+    }
+
 private:
 
     // -------------------------------------------------------------------------

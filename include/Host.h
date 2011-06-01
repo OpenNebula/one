@@ -293,6 +293,14 @@ public:
         return host_share.test(cpu,mem,disk);
     }
 
+    /**
+     *  Factory method for host templates
+     */
+    Template * get_new_template()
+    {
+        return new HostTemplate;
+    }
+
 private:
 
     // -------------------------------------------------------------------------
