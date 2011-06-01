@@ -206,7 +206,7 @@ class OpenvSwitchVLAN < OpenNebulaVLAN
     def activate
         process do |nic|
             cmd =   "#{COMMANDS[:ovs_vsctl]} set Port #{nic[:tap]} "
-            cmd <<  "tap=#{nic[:network_id].to_i + CONF[:start_vlan]}"
+            cmd <<  "tag=#{nic[:network_id].to_i + CONF[:start_vlan]}"
 
             system(cmd)
         end
