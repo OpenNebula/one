@@ -185,6 +185,18 @@ int HostPool::allocate (
 
     *oid = PoolSQL::allocate(host, error_str);
 
+    if( *oid != -1 )
+    {
+        // Add this Host's ID to its cluster
+
+        host = get(*oid, true);
+
+        host->add_to_cluster();
+
+        update( host );
+        host->unlock();
+    }
+
     return *oid;
 
 

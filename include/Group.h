@@ -18,13 +18,15 @@
 #define GROUP_H_
 
 #include "PoolSQL.h"
+#include "ObjectCollection.h"
+#include "User.h"
 
 using namespace std;
 
 /**
  *  The Group class.
  */
-class Group : public PoolObjectSQL
+class Group : public PoolObjectSQL, ObjectCollection
 {
 public:
     /**
@@ -47,6 +49,25 @@ public:
      */
     int from_xml(const string &xml_str);
 
+    /**
+     *  Adds this object's ID to the set. The object MUST be a User, locked.
+     *  The group's ID is added to the User's set.
+     *    @param object The new object
+     *
+     *    @return 0 on success, -1 if the ID was already in the set
+     */
+    int add_collection_id(PoolObjectSQL* object);
+
+    /**
+     *  Deletes this object's ID from the set. The object MUST be a User,
+     *  locked. The group's ID is deleted form the User's set.
+     *    @param object The object
+     *
+     *    @return 0 on success, -1 if the ID was not in the set
+     */
+    int del_collection_id(PoolObjectSQL* object);
+
+
 private:
 
     // -------------------------------------------------------------------------
@@ -60,7 +81,8 @@ private:
     // *************************************************************************
 
     Group(int id, int uid, const string& name):
-        PoolObjectSQL(id,name,uid,-1,table){};
+        PoolObjectSQL(id,name,uid,-1,table),
+        ObjectCollection("USERS"){};
 
     virtual ~Group(){};
 
@@ -120,6 +142,12 @@ private:
     {
         return insert_replace(db, true);
     }
+
+    // *************************************************************************
+    // ID Set management
+    // *************************************************************************
+
+    int add_del_collection_id(User* object, bool add);
 };
 
 #endif /*GROUP_H_*/

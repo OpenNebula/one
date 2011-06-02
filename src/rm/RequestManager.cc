@@ -293,11 +293,11 @@ void RequestManager::register_xml_methods()
 
 /*     
     xmlrpc_c::methodPtr vm_chown(new
-        RequestManager::GenericChown(this,VM));
+        RequestManager::GenericChown(this,AuthRequest::VM));
 
 
     xmlrpc_c::methodPtr template_chown(new
-        RequestManager::GenericChown(this,TEMPLATE));
+        RequestManager::GenericChown(this,AuthRequest::TEMPLATE));
 
 
     xmlrpc_c::methodPtr host_enable(new 
@@ -310,9 +310,8 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr cluster_remove(new 
         RequestManager::ClusterRemove(hpool,upool,cpool));
 
-
     xmlrpc_c::methodPtr vn_chown(new
-        RequestManager::GenericChown(this,NET));
+        RequestManager::GenericChown(this,AuthRequest::NET));
 
 
     xmlrpc_c::methodPtr user_change_password(new
@@ -381,6 +380,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.clusterpool.info", clusterpool_info);
 
     /* Group related methods */
+//    RequestManagerRegistry.addMethod("one.group.chown",     group_chown);
     RequestManagerRegistry.addMethod("one.group.allocate",  group_allocate);
     RequestManagerRegistry.addMethod("one.group.delete",    group_delete);
     RequestManagerRegistry.addMethod("one.group.info",      group_info);
@@ -405,6 +405,8 @@ void RequestManager::register_xml_methods()
 /*        
     RequestManagerRegistry.addMethod("one.user.passwd", user_change_password);
     RequestManagerRegistry.addMethod("one.user.chown", user_chown);
+    RequestManagerRegistry.addMethod("one.user.addgroup", user_addgroup);
+    RequestManagerRegistry.addMethod("one.user.delgroup", user_delgroup);
 */
     RequestManagerRegistry.addMethod("one.user.allocate", user_allocate);
     RequestManagerRegistry.addMethod("one.user.delete", user_delete);

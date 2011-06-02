@@ -18,6 +18,7 @@
 #define USER_H_
 
 #include "PoolSQL.h"
+#include "ObjectCollection.h"
 
 using namespace std;
 
@@ -27,7 +28,7 @@ using namespace std;
 /**
  *  The User class.
  */
-class User : public PoolObjectSQL
+class User : public PoolObjectSQL, public ObjectCollection
 {
 public:
 
@@ -94,6 +95,11 @@ public:
      **/
     static int split_secret(const string secret, string& user, string& pass);
 
+    /**
+     *  Sets the User's gid and add the User's oid to that group
+     */
+    int set_gid(int _gid);
+
 private:
     // -------------------------------------------------------------------------
     // Friends
@@ -152,10 +158,29 @@ protected:
     // *************************************************************************
 
     User(int id, int _gid, const string& _username, const string& _password, bool _enabled):
-        PoolObjectSQL(id,_username,-1,_gid,table), password(_password), enabled(_enabled)
+        PoolObjectSQL(id,_username,-1,_gid,table),
+        ObjectCollection("GROUPS"),
+        password(_password), enabled(_enabled)
         {};
 
     virtual ~User(){};
+
+    // *************************************************************************
+    // Group IDs set Management
+    // *************************************************************************
+
+    /**
+     *  Adds the User oid to the Main Group (gid), should be called after
+     *  the constructor.
+     */
+    int add_to_group();
+
+    /**
+     *  Deletes the User ID from all the groups it belongs to. Must be called
+     *  before the User is dropped.
+     */
+    int delete_from_groups();
+
 
     // *************************************************************************
     // DataBase implementation

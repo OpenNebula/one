@@ -209,6 +209,11 @@ void Nebula::start()
             vnpool = tester->create_vnpool(db,mac_prefix,size);
         }
 
+        if (tester->need_group_pool)
+        {
+            gpool  = tester->create_gpool(db);
+        }
+
         if (tester->need_user_pool)
         {
             upool  = tester->create_upool(db);
@@ -229,11 +234,6 @@ void Nebula::start()
         if (tester->need_template_pool)
         {
             tpool  = tester->create_tpool(db);
-        }
-
-        if (tester->need_group_pool)
-        {
-            gpool  = tester->create_gpool(db);
         }
     }
     catch (exception&)

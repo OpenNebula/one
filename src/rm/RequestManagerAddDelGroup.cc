@@ -17,54 +17,83 @@
 #include "RequestManager.h"
 #include "NebulaLog.h"
 
-#include "AuthManager.h"
-
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void RequestManager::ClusterRemove::execute(
+void RequestManager::GenericAddDelGroup::execute(
     xmlrpc_c::paramList const& paramList,
     xmlrpc_c::value *   const  retval)
 {
-    string  session;
+    string      session;
 
-    int     hid, host_gid;
-    int     clid;
-    int     rc;
-    
-    const string        method_name = "ClusterRemove";
+    int         object_id, object_owner;
+    int         group_id,  group_owner;
+    int         uid, rc;
 
-    Host *      host;
-    Cluster *   cluster;
+    PoolSQL *   object_pool = rm->get_pool(object_type);
+    PoolSQL *   group_pool  = rm->get_pool(group_type);
+    string      method_name = rm->get_method_prefix(object_type) + "Add";
 
-    ostringstream oss;
+    PoolObjectSQL *     object = 0;
+    PoolObjectSQL *     group  = 0;
+
+    ostringstream       oss;
 
     /*   -- RPC specific vars --  */
     vector<xmlrpc_c::value> arrayData;
     xmlrpc_c::value_array * arrayresult;
 
-    NebulaLog::log("ReM",Log::DEBUG,"ClusterRemove method invoked");
+    oss << method_name << " invoked";
+
+    NebulaLog::log("ReM",Log::DEBUG,oss);
+    oss.str("");
 
     // Get the parameters
-    session      = xmlrpc_c::value_string(paramList.getString(0));
-    hid          = xmlrpc_c::value_int   (paramList.getInt(1));
-    clid         = ClusterPool::DEFAULT_CLUSTER_ID;
+    session     = xmlrpc_c::value_string(paramList.getString(0));
+    object_id   = xmlrpc_c::value_int   (paramList.getInt(1));
+    group_id    = xmlrpc_c::value_int   (paramList.getInt(2));
 
-    //Authenticate the user
-    rc = ClusterRemove::upool->authenticate(session);
+    // Authenticate the user
+    uid = rm->upool->authenticate(session);
 
-    if ( rc == -1 )
+    if ( uid == -1 )
     {
         goto error_authenticate;
     }
 
-     //Authorize the operation
-    if ( rc != 0 ) // rc == 0 means oneadmin
+    // Get object owner
+    object = object_pool->get(object_id,true);
+
+    if ( object == 0 )
     {
-        AuthRequest ar(rc);
-        
-        ar.add_auth(AuthRequest::HOST,hid,AuthRequest::MANAGE,0,false);
-        ar.add_auth(AuthRequest::CLUSTER,clid,AuthRequest::USE,0,false);
+        goto error_get_object;
+    }
+
+    object_owner = object->get_uid();
+
+    object->unlock();
+    object = 0;
+
+    // Get group owner
+    group = group_pool->get(group_id,true);
+
+    if ( group == 0 )
+    {
+        goto error_get_group;
+    }
+
+    group_owner = group->get_uid();
+
+    group->unlock();
+    group = 0;
+
+    // Authorize the operation
+    if ( uid != 0 ) // rc == 0 means oneadmin
+    {
+        AuthRequest ar(uid);
+
+        ar.add_auth(object_type, object_id, AuthRequest::MANAGE, 0, false);
+        ar.add_auth(group_type,  group_id,  AuthRequest::MANAGE, 0, false);
 
         if (UserPool::authorize(ar) == -1)
         {
@@ -72,60 +101,14 @@ void RequestManager::ClusterRemove::execute(
         }
     }
 
-    // Check if cluster exists
-    cluster = ClusterRemove::cpool->get(clid,true);
+    // Add the object_id to the group and, if the object keeps a list of the
+    // groups it belongs to, the group_id to it.
+    rc = rm->add_object_group(object_type,group_type, object_id, group_id, oss);
 
-    if ( cluster == 0 )
+    if( rc != 0 )
     {
-        goto error_cluster_get;
+        goto error_add_object_group;
     }
-
-    // Check if host exists
-    host = ClusterRemove::hpool->get(hid,true);
-
-    if ( host == 0 )
-    {
-        goto error_host_get;
-    }
-
-    // Get current host cluster
-    host_gid = host->get_gid();
-
-    // Set cluster
-    rc = host->set_gid(cluster->get_oid());
-
-    // Add host ID to cluster
-    if( rc == 0 )
-    {
-        static_cast<ObjectCollection*>(cluster)->add_collection_id(host);
-    }
-
-    if ( rc != 0 )
-    {
-        goto error_cluster_add;
-    }
-
-    // Update the DB
-    ClusterRemove::hpool->update(host);
-    ClusterRemove::cpool->update(cluster);
-
-    cluster->unlock();
-
-    // TODO: This lock-unlock order may cause deadlocks
-
-    // Now get the old cluster, and remove the Host Id from it
-    cluster = ClusterRemove::cpool->get(host_gid, true);
-
-    if( cluster != 0 )
-    {
-        cluster->del_collection_id(host);
-        ClusterRemove::cpool->update(cluster);
-
-        cluster->unlock();
-    }
-
-    host->unlock();
-
 
     // All nice, return success to the client
     arrayData.push_back(xmlrpc_c::value_boolean(true)); // SUCCESS
@@ -142,28 +125,33 @@ error_authenticate:
     oss.str(authenticate_error(method_name));
     goto error_common;
 
+error_get_object:
+    oss.str(get_error(method_name, object_type, object_id));
+    goto error_common;
+
+error_get_group:
+    oss.str(get_error(method_name, group_type, group_id));
+    goto error_common;
+
 error_authorize:
-    oss.str(authorization_error(method_name, "USE", "CLUSTER", rc, clid));
+    // TODO: get real error from UserPool::authorize
+    oss.str(authorization_error(method_name, "MANAGE", object_type, uid, object_id));
     goto error_common;
 
-error_host_get:
-    cluster->unlock();
-    oss.str(get_error(method_name, "HOST", hid));
-    goto error_common;
-
-error_cluster_get:
-    oss.str(get_error(method_name, "CLUSTER", clid));
-    goto error_common;
-
-error_cluster_add:
-    host->unlock();
-    cluster->unlock();
-    oss.str(action_error(method_name, "USE", "CLUSTER", clid, rc));
-    goto error_common;
+error_add_object_group:
 
 error_common:
+    if( object != 0 )
+    {
+        object->unlock();
+    }
 
-    arrayData.push_back(xmlrpc_c::value_boolean(false)); // FAILURE
+    if( group != 0 )
+    {
+        group->unlock();
+    }
+
+    arrayData.push_back(xmlrpc_c::value_boolean(false));  // FAILURE
     arrayData.push_back(xmlrpc_c::value_string(oss.str()));
 
     NebulaLog::log("ReM",Log::ERROR,oss);

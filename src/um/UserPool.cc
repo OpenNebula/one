@@ -122,8 +122,9 @@ int UserPool::allocate (
     bool    enabled,
     string& error_str)
 {
-    User *        user;
-    ostringstream oss;
+    User *          user;
+    ostringstream   oss;
+    int             rc;
 
     if ( username.empty() )
     {
@@ -143,6 +144,23 @@ int UserPool::allocate (
     // Insert the Object in the pool
     *oid = PoolSQL::allocate(user, error_str);
 
+    if( *oid != -1 )
+    {
+        // Add this User's ID to his group
+
+        user = get(*oid, true);
+
+        rc = user->add_to_group();
+
+        if( rc != 0 )
+        {
+            goto error_group;
+        }
+
+        update( user );
+        user->unlock();
+    }
+
     return *oid;
 
 
@@ -152,6 +170,12 @@ error_name:
 
 error_duplicated:
     oss << "NAME is already taken by USER " << user->get_oid() << ".";
+    goto error_common;
+
+error_group:
+    oss << "Error trying to add USER to group " << gid << ".";
+    drop( user );
+    user->unlock();
 
 error_common:
     *oid = -1;

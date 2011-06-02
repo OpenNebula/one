@@ -19,36 +19,16 @@
 
 #include "PoolSQL.h"
 #include "Host.h"
+#include "ObjectCollection.h"
 
 using namespace std;
 
 /**
  *  The Cluster class.
  */
-class Cluster : public PoolObjectSQL
+class Cluster : public PoolObjectSQL, public ObjectCollection
 {
 public:
-    /**
-     * Adds the host to this cluster
-     *  @param host The host to add
-     *
-     *  @return 0 on success
-     */
-/*
-    int add_host(Host * host)
-    {
-        return host->set_cluster(name);
-    };
-*/
-
-    /**
-     * Removes the host from this cluster
-     *  @param host The host to add
-     *
-     *  @return 0 on success
-     */
-// May be needed in a future
-//    int remove_host(Host * host);
 
     /**
      *  Function to write a Cluster on an output stream
@@ -82,7 +62,9 @@ private:
     // Constructor
     // *************************************************************************
 
-    Cluster(int id, const string& name):PoolObjectSQL(id,name,-1,-1,table){};
+    Cluster(int id, const string& name):
+        PoolObjectSQL(id,name,-1,-1,table),
+        ObjectCollection("HOSTS"){};
 
     virtual ~Cluster(){};
 
@@ -127,6 +109,17 @@ private:
      *    @return 0 on success
      */
     int update(SqlDB *db);
+
+
+    // *************************************************************************
+    // Host IDs set
+    // *************************************************************************
+
+    /**
+     *  Moves all hosts in this cluster to the default one. Must be called
+     *  before the cluster is dropped.
+     */
+    int set_default_cluster();
 };
 
 #endif /*CLUSTER_H_*/
