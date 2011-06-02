@@ -59,17 +59,17 @@ protected:
 
     /* ------------------- Attributes of the Request ---------------------- */
 
-    int                 uid;  /** id of the user performing the request */
+    int                 uid;    /**< id of the user performing the request */
     
-    int                 gid; /** id of the user performing the request  */
+    int                 gid;            /**< id of the user's group */
 
-    PoolSQL *           pool; /** id of the user performing the request */
+    PoolSQL *           pool;           /**< Pool of objects */
 
-    string              method_name; /** The name of the XML-RPC method */
+    string              method_name;    /**< The name of the XML-RPC method */
 
-    AuthRequest::Object    auth_object; /** Auth object for the request */
+    AuthRequest::Object    auth_object; /**< Auth object for the request */
 
-    AuthRequest::Operation auth_op; /** Auth operation for the request  */
+    AuthRequest::Operation auth_op;     /**< Auth operation for the request  */
 
 
     /* -------------------- Constructors ---------------------------------- */
@@ -93,14 +93,14 @@ protected:
      *  the public attribute and its owner. The authorization is based on 
      *  object and type of operation for the request.
      *    @param oid of the object.
+     *
+     *    @return true if the user is authorized.
      */
     bool basic_authorization(int oid);
             
     /**
      *  Actual Execution method for the request. Must be implemented by the
      *  XML-RPC requests
-     *    @param uid of the user making the request
-     *    @param gid of the user making the request
      *    @param _paramlist of the XML-RPC call (complete list)
      */
     virtual void request_execute(xmlrpc_c::paramList const& _paramList) = 0;
@@ -131,7 +131,7 @@ protected:
      *  Gets a string representation for the Auth object in the
      *  request.
      *    @param ob object for the auth operation
-     *    @returns string equivalent of the object
+     *    @return string equivalent of the object
      */
     static string object_name(AuthRequest::Object ob);
 
@@ -141,7 +141,7 @@ protected:
      *    @param object object that needs to be authorized
      *    @param uid user that is authorized
      *    @param id id of the object, -1 for Pool
-     *    @returns string for logging
+     *    @return string for logging
      */
     string authorization_error (const string &action,
                                 const string &object,
@@ -149,7 +149,7 @@ protected:
                                 int   id);
     /**
      *  Logs authenticate errors
-     *    @returns string for logging
+     *    @return string for logging
      */
     string authenticate_error ();
 
@@ -157,7 +157,7 @@ protected:
      *  Logs get object errors
      *    @param object over which the get failed
      *    @param id of the object over which the get failed
-     *    @returns string for logging
+     *    @return string for logging
      */
     string get_error (const string &object,
                       int id);
@@ -169,7 +169,7 @@ protected:
      *    @param id id of the object, -1 for Pool, -2 for no-id objects
      *              (allocate error, parse error)
      *    @param rc returned error code (NULL to ignore)
-     *    @returns string for logging
+     *    @return string for logging
      */
     string action_error (const string &action,
                          const string &object,

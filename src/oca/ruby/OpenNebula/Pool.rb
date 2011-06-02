@@ -148,13 +148,12 @@ module OpenNebula
         # Calls to the corresponding update method to modify
         # the object's template
         # xml_method:: _String_ the name of the XML-RPC method
-        # name:: _String_ the name of the property to be modified
-        # value:: _String_ the new value of the property to be modified
+        # new_template:: _String_ the new template contents
         # [return] nil in case of success or an Error object
-        def update(xml_method, name, value)
+        def update(xml_method, new_template)
             return Error.new('ID not defined') if !@pe_id
 
-            rc = @client.call(xml_method,@pe_id, name, value)
+            rc = @client.call(xml_method,@pe_id, new_template)
             rc = nil if !OpenNebula.is_error?(rc)
 
             return rc

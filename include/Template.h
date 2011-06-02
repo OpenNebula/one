@@ -128,7 +128,7 @@ public:
      *  attributes MUST be freed by the calling funtion
      *    @param name of the attribute
      *    @param values a vector containing a pointer to the attributes
-     *    @returns the number of attributes removed
+     *    @return the number of attributes removed
      */
     virtual int remove(
         const string&        name,
@@ -137,14 +137,14 @@ public:
     /**
      *  Removes an attribute from the template, and frees the attributes.
      *    @param name of the attribute
-     *    @returns the number of attributes removed
+     *    @return the number of attributes removed
      */
     virtual int erase(const string& name);
 
     /**
      *  Gets all the attributes with the given name.
      *    @param name the attribute name.
-     *    @returns the number of elements in the vector
+     *    @return the number of elements in the vector
      */
     virtual int get(
         const string& name,
@@ -153,7 +153,7 @@ public:
     /**
      *  Gets all the attributes with the given name,  non-const version
      *    @param name the attribute name.
-     *    @returns the number of elements in the vector
+     *    @return the number of elements in the vector
      */
     virtual int get(
         const string& name,
@@ -175,7 +175,7 @@ public:
      *    @param value the attribute value, an int, 0 if the attribute is not
      *    defined or not Single
      *
-     *    @returns True if the Single attribute was found
+     *    @return True if the Single attribute was found
      */
     virtual bool get(
         string& name,

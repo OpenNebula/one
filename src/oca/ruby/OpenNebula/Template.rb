@@ -23,9 +23,9 @@ module OpenNebula
         # ---------------------------------------------------------------------
         TEMPLATE_METHODS = {
             :allocate    => "template.allocate",
+            :instantiate => "template.instantiate",
             :info        => "template.info",
             :update      => "template.update",
-            :rmattr      => "template.rmattr",
             :publish     => "template.publish",
             :delete      => "template.delete",
             :chown       => "template.chown"
@@ -78,20 +78,21 @@ module OpenNebula
             super(TEMPLATE_METHODS[:delete])
         end
 
-        # Modifies a template attribute
-        #
-        # +name+ Name of the attribute to be changed
-        #
-        # +value+ New value for the attribute
-        def update(name, value)
-            super(TEMPLATE_METHODS[:update], name, value)
+        # Creates a VM instance from a Template
+        def instantiate(name="")
+            return Error.new('ID not defined') if !@pe_id
+
+            rc = @client.call(TEMPLATE_METHODS[:instantiate], @pe_id, name)
+            rc = nil if !OpenNebula.is_error?(rc)
+
+            return rc
         end
 
-        # Deletes a template attribute
+        # Replaces the template contents
         #
-        # +name+ Name of the attribute to be deleted
-        def remove_attr(name)
-            do_rm_attr(name)
+        # +new_template+ New template contents
+        def update(new_template)
+            super(TEMPLATE_METHODS[:update], new_template)
         end
 
         # Publishes the Template, to be used by other users
@@ -128,15 +129,6 @@ module OpenNebula
             return Error.new('ID not defined') if !@pe_id
 
             rc = @client.call(TEMPLATE_METHODS[:publish], @pe_id, published)
-            rc = nil if !OpenNebula.is_error?(rc)
-
-            return rc
-        end
-
-        def do_rm_attr(name)
-            return Error.new('ID not defined') if !@pe_id
-
-            rc = @client.call(TEMPLATE_METHODS[:rmattr], @pe_id, name)
             rc = nil if !OpenNebula.is_error?(rc)
 
             return rc

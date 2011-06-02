@@ -186,25 +186,25 @@ public:
      *    @param pub true to publish the image
      *    @return 0 on success
      */
-    bool publish(bool pub)
+    int publish(bool pub)
     {
-        bool success = false;
+        int rc = -1;
 
         if (pub == true)
         {
             if (!isPersistent())
             {
-                public_obj = 1;
-                success    = true;
+                public_obj  = 1;
+                rc          = 0;
             }
         }
         else
         {
-            public_obj = 0;
-            success    = true;
+            public_obj  = 0;
+            rc          = 0;
         }
 
-        return success;
+        return rc;
     }
 
     /**

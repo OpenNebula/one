@@ -231,11 +231,8 @@ Commands:
 * addattr (Add a new image attribute)
     oneimage addattr <image_id> <attribute_name> <attribute_value>
     
-* update (Modifies an image attribute)
-    oneimage update <image_id> <attribute_name> <attribute_value>
-    
-* rmattr (Deletes an Image attribute)
-    oneimage rmattr <image_id> <attribute_name>
+* update (Lets the user edit and replace the image template)
+    oneimage update <image_id>
     
 * enable (Enabled an Image)
     oneimage enable <image_id>
@@ -358,29 +355,28 @@ when "register", "create", "add"
         puts "ID: " + image.id.to_s if ops[:verbose]
     end
 
-    
-when "update", "addattr"
-    check_parameters("update", 3)
+when "update"
+    check_parameters("update", 1)
     image_id=get_image_id(ARGV[0])
     
     image=OpenNebula::Image.new_with_id(image_id, get_one_client)
-    
-    result=image.update(ARGV[1],ARGV[2])
+    rc = image.info
     if is_successful?(result)
-        puts "Modified image" if ops[:verbose]
+        file = File.open('/tmp/template', "w")
+        file << image.template_str 
+        file.close
+
+        system "vim /tmp/template"
+        str = File.read('/tmp/test')
+
+        result = image.update( str )
+
+        if is_successful?(result)
+            puts "Modified image" if ops[:verbose]
+        end
+
     end
 
-when "rmattr"
-    check_parameters("rmattr", 2)
-    image_id=get_image_id(ARGV[0])
-
-    image=OpenNebula::Image.new_with_id(image_id, get_one_client)
-
-    result=image.remove_attr(ARGV[1])
-    if is_successful?(result)
-        puts "Removed image atrribute" if ops[:verbose]
-    end
-    
 when "enable"
     check_parameters("enable", 1)
     image_id=get_image_id(ARGV[0])

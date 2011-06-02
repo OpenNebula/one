@@ -453,18 +453,18 @@ public:
             i++;
         }
 
-        bool success;
+        int success;
 
         // temp 0 is not public.
         temp = tpool->get( 0, false );
         CPPUNIT_ASSERT( temp != 0 );
 
         success = temp->publish(false);
-        CPPUNIT_ASSERT( success == true );
+        CPPUNIT_ASSERT( success == 0 );
         CPPUNIT_ASSERT( temp->isPublic() == false );
 
         success = temp->publish(true);
-        CPPUNIT_ASSERT( success == true );
+        CPPUNIT_ASSERT( success == 0 );
         CPPUNIT_ASSERT( temp->isPublic() == true );
     }
 

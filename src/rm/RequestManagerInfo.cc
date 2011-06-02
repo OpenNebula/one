@@ -23,10 +23,9 @@ using namespace std;
 
 void RequestManagerInfo::request_execute(xmlrpc_c::paramList const& paramList)
 {
-    ostringstream oss;
-
     int             oid = xmlrpc_c::value_int(paramList.getInt(1));
     PoolObjectSQL * object;
+    string          str;
 
     if ( basic_authorization(oid) == false )
     {
@@ -41,11 +40,12 @@ void RequestManagerInfo::request_execute(xmlrpc_c::paramList const& paramList)
         return;
     }    
 
-    oss << *object;
+
+    object->to_xml(str);
 
     object->unlock();
 
-    success_response(oss.str());
+    success_response(str);
 
     return;
 }

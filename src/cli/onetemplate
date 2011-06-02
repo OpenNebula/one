@@ -180,14 +180,11 @@ Commands:
 
     file is a file name where the Template description is located
 
-* addattr (Add a new Template attribute)
-    onetemplate addattr <template_id> <attribute_name> <attribute_value>
+* instantiate (Creates a VM instance from a Template)
+    onetemplate instantiate <template_id>
 
-* update (Modifies a Template attribute)
-    onetemplate update <template_id> <attribute_name> <attribute_value>
-
-* rmattr (Deletes a Template attribute)
-    onetemplate rmattr <template_id> <attribute_name>
+* update (Lets the user edit and replace the Template contents)
+    onetemplate update <template_id>
 
 * publish (Publish a Template)
     onetemplate publish <template_id>
@@ -299,27 +296,19 @@ when "create", "register", "add"
         exit 0
     end
 
-when "update", "addattr"
-    check_parameters("update", 3)
+when "instantiate"
+    check_parameters("instantiate", 1)
     template_id = get_template_id(ARGV[0])
 
     template = OpenNebula::Template.new_with_id(template_id, get_one_client)
 
-    result = template.update(ARGV[1],ARGV[2])
+    result = template.instantiate
     if is_successful?(result)
-        puts "Modified template" if ops[:verbose]
+        puts "Template instantiated." if ops[:verbose]
     end
 
-when "rmattr"
-    check_parameters("rmattr", 2)
-    template_id = get_template_id(ARGV[0])
-
-    template = OpenNebula::Template.new_with_id(template_id, get_one_client)
-
-    result = template.remove_attr(ARGV[1])
-    if is_successful?(result)
-        puts "Removed template attribute" if ops[:verbose]
-    end
+when "update"
+    puts "TODO"
 
 when "publish"
     check_parameters("publish", 1)

@@ -47,7 +47,7 @@ public:
      *    @param pub true to publish the object
      *    @return 0 on success
      */
-    bool publish(bool pub)
+    int publish(bool pub)
     {
         if (pub == true)
         {
@@ -58,7 +58,7 @@ public:
             public_obj = 0;
         }
 
-        return true;
+        return 0;
     };
 
     // ------------------------------------------------------------------------
