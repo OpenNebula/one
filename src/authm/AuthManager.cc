@@ -102,6 +102,10 @@ void AuthRequest::add_auth(Object        ob,
         case INSTANTIATE:
             oss << "INSTANTIATE:" ;
             break;
+
+        case CHOWN:
+            oss << "CHOWN:" ;
+            break;
     }
 
     oss << owner << ":" << pub;
@@ -181,6 +185,8 @@ void AuthRequest::add_auth(Object        ob,
 
             case INFO_POOL_MINE:
                 auth = true;
+                break;
+            case CHOWN: //true only for oneadmin
                 break;
         }
     }

@@ -64,11 +64,6 @@ public:
         return name;
     };
 
-    int get_uid()
-    {
-        return uid;
-    };
-
     /**
      *  Returns true if the image is public
      *     @return true if the image is public
@@ -76,6 +71,11 @@ public:
     bool isPublic()
     {
         return (public_obj == 1);
+    };
+
+    int get_uid()
+    {
+        return uid;
     };
 
     void set_uid(int _uid)
