@@ -31,26 +31,17 @@ void HostEnable::request_execute(xmlrpc_c::paramList const& paramList)
 
     string error_str;
 
-    host = hpool->get(id,true);
-
-    if ( host == 0 )
+    if ( basic_authorization(id) == false )
     {
-        failure_response(NO_EXISTS, get_error(object_name(auth_object),id));
         return;
     }
 
-    if ( uid != 0 )
+    host = hpool->get(id,true);
+
+    if ( host  == 0 )
     {
-        AuthRequest ar(uid);
-
-        ar.add_auth(auth_object, id, auth_op, 0, false);
-
-        if (UserPool::authorize(ar) == -1)
-        {
-            failure_response(AUTHORIZATION, //TODO
-                     authorization_error("MANAGE",object_name(auth_object),id,-1));
-            return;
-        }
+        failure_response(NO_EXISTS, get_error(object_name(auth_object),id));
+        return;
     }
 
     if ( enable == true)
