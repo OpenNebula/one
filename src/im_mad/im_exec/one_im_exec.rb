@@ -35,14 +35,14 @@ require 'getoptlong'
 
 
 # The SSH Information Manager Driver
-class InformationManagerDriverSSH < OpenNebulaDriver
+class InformationManagerDriver < OpenNebulaDriver
 
     # Init the driver
     def initialize(hypervisor, options)
         @options={
             :threaded => true
         }.merge!(options)
-        
+
         super('im', @options)
 
         @hypervisor = hypervisor
@@ -103,6 +103,9 @@ if ARGV.length >= 1
     hypervisor = ARGV.shift
 end
 
-im = InformationManagerDriverSSH.new(hypervisor, threads, retries,
-    local_actions)
+im = InformationManagerDriver.new(hypervisor,
+    :threads => threads,
+    :retries => retries,
+    :local_actions => local_actions)
+
 im.start_driver
