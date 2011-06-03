@@ -250,7 +250,6 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr group_allocate(new GroupAllocate());
     xmlrpc_c::methodPtr template_allocate(new TemplateAllocate());
     xmlrpc_c::methodPtr host_allocate(new HostAllocate());
-    xmlrpc_c::methodPtr cluster_allocate(new ClusterAllocate());
     xmlrpc_c::methodPtr user_allocate(new  UserAllocate());
 
     // Publish Methods
@@ -261,7 +260,6 @@ void RequestManager::register_xml_methods()
     // Delete Methods
     xmlrpc_c::methodPtr host_delete(new HostDelete());
     xmlrpc_c::methodPtr template_delete(new TemplateDelete());
-    xmlrpc_c::methodPtr cluster_delete(new ClusterDelete());
     xmlrpc_c::methodPtr group_delete(new GroupDelete());
     xmlrpc_c::methodPtr vn_delete(new VirtualNetworkDelete());
     xmlrpc_c::methodPtr user_delete(new UserDelete());
@@ -271,7 +269,6 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vm_info(new VirtualMachineInfo());
     xmlrpc_c::methodPtr host_info(new HostInfo());
     xmlrpc_c::methodPtr template_info(new TemplateInfo());
-    xmlrpc_c::methodPtr cluster_info(new ClusterInfo());
     xmlrpc_c::methodPtr group_info(new GroupInfo());
     xmlrpc_c::methodPtr vn_info(new VirtualNetworkInfo());
     xmlrpc_c::methodPtr user_info(new UserInfo());
@@ -280,7 +277,6 @@ void RequestManager::register_xml_methods()
     // PoolInfo Methods 
 
     xmlrpc_c::methodPtr hostpool_info(new HostPoolInfo());
-    xmlrpc_c::methodPtr clusterpool_info(new ClusterPoolInfo());
     xmlrpc_c::methodPtr grouppool_info(new GroupPoolInfo());
     xmlrpc_c::methodPtr userpool_info(new UserPoolInfo());
 
@@ -302,13 +298,6 @@ void RequestManager::register_xml_methods()
 
     xmlrpc_c::methodPtr host_enable(new 
         RequestManager::HostEnable(hpool,upool));
-
-
-    xmlrpc_c::methodPtr cluster_add(new 
-        RequestManager::ClusterAdd(hpool,upool,cpool));
-
-    xmlrpc_c::methodPtr cluster_remove(new 
-        RequestManager::ClusterRemove(hpool,upool,cpool));
 
     xmlrpc_c::methodPtr vn_chown(new
         RequestManager::GenericChown(this,AuthRequest::NET));
@@ -367,17 +356,6 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.host.info", host_info);
 
     RequestManagerRegistry.addMethod("one.hostpool.info", hostpool_info); 
-
-    /* Cluster related methods */
-/*
-    RequestManagerRegistry.addMethod("one.cluster.add", cluster_add);
-    RequestManagerRegistry.addMethod("one.cluster.remove", cluster_remove);
-*/
-    RequestManagerRegistry.addMethod("one.cluster.allocate", cluster_allocate);
-    RequestManagerRegistry.addMethod("one.cluster.delete", cluster_delete);
-    RequestManagerRegistry.addMethod("one.cluster.info", cluster_info);
-
-    RequestManagerRegistry.addMethod("one.clusterpool.info", clusterpool_info);
 
     /* Group related methods */
 //    RequestManagerRegistry.addMethod("one.group.chown",     group_chown);

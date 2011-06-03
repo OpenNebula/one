@@ -139,24 +139,6 @@ public:
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class ClusterInfo : public RequestManagerInfo
-{
-public:
-    ClusterInfo():
-        RequestManagerInfo("ClusterInfo",
-                           "Returns cluster information")
-    {    
-        Nebula& nd = Nebula::instance();
-        pool       = nd.get_cpool();
-        auth_object = AuthRequest::CLUSTER;
-    };
-
-    ~ClusterInfo(){};
-};
-
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
-
 
 class GroupInfo: public RequestManagerInfo
 {

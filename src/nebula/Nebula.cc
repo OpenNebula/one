@@ -245,7 +245,6 @@ void Nebula::start()
             VirtualNetworkPool::bootstrap(db);
             UserPool::bootstrap(db);
             ImagePool::bootstrap(db);
-            ClusterPool::bootstrap(db);
             GroupPool::bootstrap(db);
             VMTemplatePool::bootstrap(db);
         }
@@ -287,8 +286,6 @@ void Nebula::start()
         ipool  = new ImagePool(db,
                                default_image_type,
                                default_device_prefix);
-
-        cpool = new ClusterPool(db);
 
         tpool = new VMTemplatePool(db);
     }

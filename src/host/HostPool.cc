@@ -23,7 +23,7 @@
 #include "HostPool.h"
 #include "HostHook.h"
 #include "NebulaLog.h"
-#include "ClusterPool.h"
+#include "GroupPool.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -175,7 +175,7 @@ int HostPool::allocate (
     // Build a new Host object
 
     host = new Host(-1,
-        ClusterPool::DEFAULT_CLUSTER_ID,
+        GroupPool::ONEADMIN_ID,
         hostname,
         im_mad_name,
         vmm_mad_name,
@@ -184,18 +184,6 @@ int HostPool::allocate (
     // Insert the Object in the pool
 
     *oid = PoolSQL::allocate(host, error_str);
-
-    if( *oid != -1 )
-    {
-        // Add this Host's ID to its cluster
-
-        host = get(*oid, true);
-
-        host->add_to_cluster();
-
-        update( host );
-        host->unlock();
-    }
 
     return *oid;
 

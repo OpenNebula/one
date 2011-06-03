@@ -161,8 +161,6 @@ string Request::object_name(AuthRequest::Object ob)
             return "image";
         case AuthRequest::USER:
             return "user";
-        case AuthRequest::CLUSTER:
-            return "cluster";
         case AuthRequest::TEMPLATE:
             return "virtual machine template";
         case AuthRequest::GROUP:

@@ -17,7 +17,6 @@
 Import('env')
 
 env.Prepend(LIBS=[
-    'nebula_cluster',
     'nebula_host',
     'nebula_pool',
     'nebula_template',
@@ -29,7 +28,6 @@ env.Prepend(LIBS=[
 ### TODO: delete not needed
     'nebula_core_test',
     'nebula_host',
-    'nebula_cluster',
     'nebula_xml',
     'nebula_vmm',
     'nebula_im',

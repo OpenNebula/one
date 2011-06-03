@@ -46,7 +46,6 @@ void AuthRequest::add_auth(Object        ob,
         case NET:      oss << "NET:" ; break;
         case IMAGE:    oss << "IMAGE:" ; break;
         case USER:     oss << "USER:" ; break;
-        case CLUSTER:  oss << "CLUSTER:" ; break;
         case TEMPLATE: oss << "TEMPLATE:" ; break;
         case GROUP:    oss << "GROUP:" ; break;
     }

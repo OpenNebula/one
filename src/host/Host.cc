@@ -30,12 +30,12 @@
 
 Host::Host(
     int id,
-    int cluster_id,
+    int gid,
     const string& _hostname,
     const string& _im_mad_name,
     const string& _vmm_mad_name,
     const string& _tm_mad_name):
-        PoolObjectSQL(id,_hostname,-1,cluster_id,table),
+        PoolObjectSQL(id,_hostname,-1,gid,table),
         state(INIT),
         im_mad_name(_im_mad_name),
         vmm_mad_name(_vmm_mad_name),
@@ -53,68 +53,17 @@ Host::~Host()
     }
 }
 
-/* ************************************************************************** */
-/* Host :: Cluster Management                                                 */
-/* ************************************************************************** */
-
-int Host::add_to_cluster()
-{
-    return add_del_to_cluster(true);
-}
-
-int Host::delete_from_cluster()
-{
-    return add_del_to_cluster(false);
-}
-
-int Host::add_del_to_cluster(bool add)
-{
-    // Add this Host's ID to the Cluster
-    int rc = 0;
-    Nebula& nd          = Nebula::instance();
-    ClusterPool * cpool = nd.get_cpool();
-
-    if( cpool == 0 )
-    {
-        return -1;
-    }
-
-    Cluster * cluster = cpool->get( get_gid(), true );
-
-    if( cluster == 0 )
-    {
-        return -1;
-    }
-
-    if( add )
-    {
-        rc = static_cast<ObjectCollection*>(cluster)->add_collection_id(this);
-    }
-    else
-    {
-        rc = static_cast<ObjectCollection*>(cluster)->del_collection_id(this);
-    }
-
-    if( rc == 0 )
-    {
-        cpool->update(cluster);
-    }
-    cluster->unlock();
-
-    return rc;
-}
-
 /* ************************************************************************ */
 /* Host :: Database Access Functions                                        */
 /* ************************************************************************ */
 
 const char * Host::table = "host_pool";
 
-const char * Host::db_names = "oid, name, body, state, last_mon_time, cid";
+const char * Host::db_names = "oid, name, body, state, last_mon_time, gid";
 
 const char * Host::db_bootstrap = "CREATE TABLE IF NOT EXISTS host_pool ("
     "oid INTEGER PRIMARY KEY, name VARCHAR(256), body TEXT, state INTEGER, "
-    "last_mon_time INTEGER, cid INTEGER, UNIQUE(name))";
+    "last_mon_time INTEGER, gid INTEGER, UNIQUE(name))";
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
@@ -240,18 +189,6 @@ int Host::update_info(string &parse_str)
 /* Host :: Misc                                                             */
 /* ************************************************************************ */
 
-ostream& operator<<(ostream& os, Host& host)
-{
-    string host_str;
-
-    os << host.to_xml(host_str);
-
-    return os;
-}
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
 string& Host::to_xml(string& xml) const
 {
     string template_xml;
@@ -261,13 +198,13 @@ string& Host::to_xml(string& xml) const
     oss <<
     "<HOST>"
        "<ID>"            << oid       	   << "</ID>"            <<
+       "<GID>"           << gid            << "</GID>"           <<
        "<NAME>"          << name 	       << "</NAME>"          <<
        "<STATE>"         << state          << "</STATE>"         <<
        "<IM_MAD>"        << im_mad_name    << "</IM_MAD>"        <<
        "<VM_MAD>"        << vmm_mad_name   << "</VM_MAD>"        <<
        "<TM_MAD>"        << tm_mad_name    << "</TM_MAD>"        <<
        "<LAST_MON_TIME>" << last_monitored << "</LAST_MON_TIME>" <<
-       "<CID>"           << gid            << "</CID>"       <<
        host_share.to_xml(share_xml)  <<
        obj_template->to_xml(template_xml) <<
     "</HOST>";
@@ -292,6 +229,7 @@ int Host::from_xml(const string& xml)
 
     // Get class base attributes
     rc += xpath(oid, "/HOST/ID", -1);
+    rc += xpath(gid, "/HOST/GID", 0);
     rc += xpath(name, "/HOST/NAME", "not_found");
     rc += xpath(int_state, "/HOST/STATE", 0);
 
@@ -300,7 +238,6 @@ int Host::from_xml(const string& xml)
     rc += xpath(tm_mad_name, "/HOST/TM_MAD", "not_found");
 
     rc += xpath(last_monitored, "/HOST/LAST_MON_TIME", 0);
-    rc += xpath(gid, "/HOST/CID", 0);
 
     state = static_cast<HostState>( int_state );
 

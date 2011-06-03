@@ -1142,17 +1142,6 @@ error_yy:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-ostream& operator<<(ostream& os, const VirtualMachine& vm)
-{
-    string vm_str;
-
-    os << vm.to_xml(vm_str);
-
-    return os;
-};
-
-/* -------------------------------------------------------------------------- */
-
 string& VirtualMachine::to_xml(string& xml) const
 {
 
@@ -1189,6 +1178,9 @@ string& VirtualMachine::to_xml(string& xml) const
 
     return xml;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 int VirtualMachine::from_xml(const string &xml_str)
 {

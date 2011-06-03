@@ -52,11 +52,6 @@ public:
         ERROR     = 5  /** < Error state the operation FAILED*/
     };
 
-    /**
-     *  Function to write an Image on an output stream
-     */
-     friend ostream& operator<<(ostream& os, Image& i);
-
     // *************************************************************************
     // Image Public Methods
     // *************************************************************************

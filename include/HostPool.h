@@ -173,7 +173,6 @@ public:
      */
     int drop(Host * host)
     {
-        host->delete_from_cluster();
         return host->drop(db);
     };
 private:

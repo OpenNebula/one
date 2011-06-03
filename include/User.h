@@ -33,11 +33,6 @@ class User : public PoolObjectSQL, public ObjectCollection
 public:
 
     /**
-     *  Function to write a User on an output stream
-     */
-    friend ostream& operator<<(ostream& os, User& u);
-
-    /**
      * Function to print the User object into a string in XML format
      *  @param xml the resulting XML string
      *  @return a reference to the generated string

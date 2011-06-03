@@ -296,7 +296,6 @@ public:
         NET,
         IMAGE,
         USER,
-        CLUSTER,
         TEMPLATE,
         GROUP
     };

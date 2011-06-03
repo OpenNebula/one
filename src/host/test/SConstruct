@@ -21,7 +21,6 @@ Import('env')
 env.Prepend(LIBS=[
     'nebula_core_test',
     'nebula_host',
-    'nebula_cluster',
     'nebula_xml',
     'nebula_vmm',
     'nebula_im',

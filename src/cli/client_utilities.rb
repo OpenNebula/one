@@ -313,10 +313,6 @@ def get_image_id(name)
     get_entity_id(name, OpenNebula::ImagePool)
 end
 
-def get_cluster_id(name)
-    get_entity_id(name, OpenNebula::ClusterPool)
-end
-
 def get_template_id(name)
     get_entity_id(name, OpenNebula::TemplatePool)
 end

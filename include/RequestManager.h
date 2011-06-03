@@ -23,7 +23,6 @@
 #include "UserPool.h"
 #include "VirtualNetworkPool.h"
 #include "ImagePool.h"
-#include "ClusterPool.h"
 #include "VMTemplatePool.h"
 #include "GroupPool.h"
 

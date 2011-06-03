@@ -262,21 +262,6 @@ int UserAllocate::pool_allocate(xmlrpc_c::paramList const& paramList,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int ClusterAllocate::pool_allocate(xmlrpc_c::paramList const& paramList, 
-                                   Template * tmpl,
-                                   int& id, 
-                                   string& error_str)
-{
-    string cname = xmlrpc_c::value_string(paramList.getString(1));
-
-    ClusterPool * cpool = static_cast<ClusterPool *>(pool);
-
-    return cpool->allocate(&id, cname, error_str);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 int GroupAllocate::pool_allocate(xmlrpc_c::paramList const& paramList, 
                                  Template * tmpl,
                                  int& id, 
