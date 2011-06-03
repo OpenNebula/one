@@ -28,7 +28,8 @@ env.Prepend(LIBS=[
     'nebula_log',
     'nebula_core',
     'nebula_sql',
-    'test_object'
+    'test_object',
+    'crypto'
 ])
 
 env.StaticLibrary('test_object', ['TestPoolSQL.cc', 'TestPoolSQL.h'])
