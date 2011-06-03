@@ -30,6 +30,8 @@
 #include "RequestManagerVirtualNetwork.h"
 #include "RequestManagerVirtualMachine.h"
 #include "RequestManagerVMTemplate.h"
+#include "RequestManagerHost.h"
+#include "RequestManagerImage.h"
 
 #include <sys/signal.h>
 #include <sys/socket.h>
@@ -231,7 +233,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr user_add_group(new UserAddGroup());
     xmlrpc_c::methodPtr user_del_group(new UserDelGroup());
 
-    // VirtualMachine Template Methods
+    // VMTemplate Methods
     xmlrpc_c::methodPtr template_instantiate(new VMTemplateInstantiate());
 
     // VirtualMachine Methods
@@ -293,31 +295,25 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vnpool_info(new VirtualNetworkPoolInfo());
     xmlrpc_c::methodPtr imagepool_info(new ImagePoolInfo());
 
+    // Host Methods
+    xmlrpc_c::methodPtr host_enable(new HostEnable());
+
+    // Image Methods
+    xmlrpc_c::methodPtr image_persistent(new ImagePersistent());
+    xmlrpc_c::methodPtr image_enable(new ImageEnable());
+
 /*     
     xmlrpc_c::methodPtr vm_chown(new
         RequestManager::GenericChown(this,AuthRequest::VM));
 
-
     xmlrpc_c::methodPtr template_chown(new
         RequestManager::GenericChown(this,AuthRequest::TEMPLATE));
-
-
-    xmlrpc_c::methodPtr host_enable(new 
-        RequestManager::HostEnable(hpool,upool));
 
     xmlrpc_c::methodPtr vn_chown(new
         RequestManager::GenericChown(this,AuthRequest::NET));
 
-
-
     xmlrpc_c::methodPtr user_chown(new
         RequestManager::GenericChown(this,USER));
-        
-    xmlrpc_c::methodPtr image_persistent(new    
-        RequestManager::ImagePersistent(ipool, upool));
-        
-    xmlrpc_c::methodPtr image_enable(new    
-        RequestManager::ImageEnable(ipool, upool));
 
     xmlrpc_c::methodPtr image_chown(new
         RequestManager::GenericChown(this,IMAGE));
@@ -351,9 +347,8 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.templatepool.info",template_pool_info);
 
     /* Host related methods*/
-/*     
+
     RequestManagerRegistry.addMethod("one.host.enable", host_enable);
-*/    
     RequestManagerRegistry.addMethod("one.host.update", host_update);
     RequestManagerRegistry.addMethod("one.host.allocate", host_allocate);   
     RequestManagerRegistry.addMethod("one.host.delete", host_delete);
@@ -397,11 +392,11 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.userpool.info", userpool_info);
     
     /* Image related methods*/
-/*    
-    RequestManagerRegistry.addMethod("one.image.persistent", image_persistent);
-    RequestManagerRegistry.addMethod("one.image.enable", image_enable);    
-    RequestManagerRegistry.addMethod("one.image.chown", image_chown);
 
+    RequestManagerRegistry.addMethod("one.image.persistent", image_persistent);
+    RequestManagerRegistry.addMethod("one.image.enable", image_enable);
+/*
+    RequestManagerRegistry.addMethod("one.image.chown", image_chown);
 */  
     RequestManagerRegistry.addMethod("one.image.update", image_update);     
     RequestManagerRegistry.addMethod("one.image.allocate", image_allocate);
