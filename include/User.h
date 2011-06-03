@@ -103,6 +103,28 @@ public:
         return get_collection_copy();
     };
 
+    // *************************************************************************
+    // Group IDs set Management
+    // *************************************************************************
+
+    /**
+     *  Adds the User oid to the Main Group (gid), should be called after
+     *  the constructor.
+     */
+    int add_group(int group_id)
+    {
+        return add_collection_id(group_id);
+    }
+
+    /**
+     *  Deletes the User ID from all the groups it belongs to. Must be called
+     *  before the User is dropped.
+     */
+    int del_group(int group_id)
+    {
+        return del_collection_id(group_id);
+    }
+
 private:
     // -------------------------------------------------------------------------
     // Friends
@@ -154,6 +176,7 @@ private:
      */
     int from_xml(const string &xml_str);
 
+
 protected:
 
     // *************************************************************************
@@ -167,23 +190,6 @@ protected:
         {};
 
     virtual ~User(){};
-
-    // *************************************************************************
-    // Group IDs set Management
-    // *************************************************************************
-
-    /**
-     *  Adds the User oid to the Main Group (gid), should be called after
-     *  the constructor.
-     */
-    int add_to_group();
-
-    /**
-     *  Deletes the User ID from all the groups it belongs to. Must be called
-     *  before the User is dropped.
-     */
-    int delete_from_groups();
-
 
     // *************************************************************************
     // DataBase implementation

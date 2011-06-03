@@ -240,7 +240,7 @@ int HostAllocate::pool_allocate(xmlrpc_c::paramList const& paramList,
 
     HostPool * hpool = static_cast<HostPool *>(pool);
 
-    return hpool->allocate(&id, host, im_mad, vmm_mad, tm_mad, error_str);
+    return hpool->allocate(&id,gid, host, im_mad, vmm_mad, tm_mad, error_str);
 }
 
 /* -------------------------------------------------------------------------- */

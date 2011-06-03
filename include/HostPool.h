@@ -48,6 +48,7 @@ public:
      */
     int allocate (
         int *  oid,
+        int    gid,
         const string& hostname,
         const string& im_mad_name,
         const string& vmm_mad_name,

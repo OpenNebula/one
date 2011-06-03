@@ -124,7 +124,6 @@ int UserPool::allocate (
 {
     User *          user;
     ostringstream   oss;
-    int             rc;
 
     if ( username.empty() )
     {
@@ -153,11 +152,6 @@ error_name:
 error_duplicated:
     oss << "NAME is already taken by USER " << user->get_oid() << ".";
     goto error_common;
-
-error_group:
-    oss << "Error trying to add USER to group " << gid << ".";
-    drop( user );
-    user->unlock();
 
 error_common:
     *oid = -1;

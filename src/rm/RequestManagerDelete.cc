@@ -40,7 +40,7 @@ void RequestManagerDelete::request_execute(xmlrpc_c::paramList const& paramList)
         return;
     }    
 
-    if ( auth_ob == AuthRequest::USER )
+    if ( auth_object == AuthRequest::USER )
     {
         User * user = static_cast<User *>(object);
         group_set   = user->get_groups();
@@ -56,7 +56,7 @@ void RequestManagerDelete::request_execute(xmlrpc_c::paramList const& paramList)
         return;
     }
 
-    if ( auth_ob == AuthRequest::USER )
+    if ( auth_object == AuthRequest::USER )
     {
         Nebula&     nd      = Nebula::instance();
         GroupPool * gpool   = nd.get_gpool();

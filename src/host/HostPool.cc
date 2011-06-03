@@ -135,7 +135,8 @@ HostPool::HostPool(SqlDB*                    db,
 /* -------------------------------------------------------------------------- */
 
 int HostPool::allocate (
-    int *  oid,
+    int * oid,
+    int   gid,
     const string& hostname,
     const string& im_mad_name,
     const string& vmm_mad_name,
@@ -174,28 +175,11 @@ int HostPool::allocate (
 
     // Build a new Host object
 
-    host = new Host(-1,
-        ClusterPool::DEFAULT_CLUSTER_ID,
-        hostname,
-        im_mad_name,
-        vmm_mad_name,
-        tm_mad_name);
+    host = new Host(-1, gid, hostname, im_mad_name, vmm_mad_name, tm_mad_name);
 
     // Insert the Object in the pool
 
     *oid = PoolSQL::allocate(host, error_str);
-
-    if( *oid != -1 )
-    {
-        // Add this Host's ID to its cluster
-
-        host = get(*oid, true);
-
-        host->add_to_cluster();
-
-        update( host );
-        host->unlock();
-    }
 
     return *oid;
 

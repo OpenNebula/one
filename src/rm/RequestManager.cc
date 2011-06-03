@@ -25,6 +25,7 @@
 #include "RequestManagerPublish.h"
 #include "RequestManagerAllocate.h"
 #include "RequestManagerUpdateTemplate.h"
+#include "RequestManagerUser.h"
 
 #include "RequestManagerVirtualNetwork.h"
 #include "RequestManagerVirtualMachine.h"
@@ -225,7 +226,12 @@ void RequestManager::do_action(
         
 void RequestManager::register_xml_methods()
 {
-    // VirtualMachine Methods
+    // User Methods
+    xmlrpc_c::methodPtr user_change_password(new UserChangePassword());
+    xmlrpc_c::methodPtr user_add_group(new UserAddGroup());
+    xmlrpc_c::methodPtr user_del_group(new UserDelGroup());
+
+    // VirtualMachine Template Methods
     xmlrpc_c::methodPtr template_instantiate(new VMTemplateInstantiate());
 
     // VirtualMachine Methods
@@ -314,8 +320,6 @@ void RequestManager::register_xml_methods()
         RequestManager::GenericChown(this,AuthRequest::NET));
 
 
-    xmlrpc_c::methodPtr user_change_password(new
-        RequestManager::UserChangePassword(upool));
 
     xmlrpc_c::methodPtr user_chown(new
         RequestManager::GenericChown(this,USER));
@@ -403,14 +407,14 @@ void RequestManager::register_xml_methods()
     
     /* User related methods*/
 /*        
-    RequestManagerRegistry.addMethod("one.user.passwd", user_change_password);
     RequestManagerRegistry.addMethod("one.user.chown", user_chown);
-    RequestManagerRegistry.addMethod("one.user.addgroup", user_addgroup);
-    RequestManagerRegistry.addMethod("one.user.delgroup", user_delgroup);
 */
     RequestManagerRegistry.addMethod("one.user.allocate", user_allocate);
     RequestManagerRegistry.addMethod("one.user.delete", user_delete);
     RequestManagerRegistry.addMethod("one.user.info", user_info);
+    RequestManagerRegistry.addMethod("one.user.addgroup", user_add_group);
+    RequestManagerRegistry.addMethod("one.user.delgroup", user_del_group);
+    RequestManagerRegistry.addMethod("one.user.passwd", user_change_password);
 
     RequestManagerRegistry.addMethod("one.userpool.info", userpool_info);
     
