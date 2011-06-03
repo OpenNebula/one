@@ -25,7 +25,6 @@
 #include "VirtualNetworkPool.h"
 #include "HostPool.h"
 #include "UserPool.h"
-#include "ClusterPool.h"
 #include "VMTemplatePool.h"
 
 #include "VirtualMachineManager.h"
@@ -44,8 +43,8 @@ protected:
 
     NebulaTest():mysql(false), need_host_pool(false), need_vm_pool(false),
                 need_vnet_pool(false), need_image_pool(false), 
-                need_user_pool(false), need_cluster_pool(false),
-                need_template_pool(false), need_group_pool(false),
+                need_user_pool(false), need_template_pool(false),
+                need_group_pool(false),
                 need_vmm(false),
                 need_im(false), need_tm(false),
                 need_lcm(false), need_dm(false),
@@ -65,7 +64,6 @@ public:
     bool need_vnet_pool;
     bool need_image_pool;
     bool need_user_pool;
-    bool need_cluster_pool;
     bool need_template_pool;
     bool need_group_pool;
 
@@ -101,8 +99,6 @@ public:
     virtual ImagePool* create_ipool( SqlDB* db,
                                     string default_image_type,
                                     string default_device_prefix);
-
-    virtual ClusterPool* create_cpool(SqlDB* db);
 
     virtual VMTemplatePool* create_tpool(SqlDB* db);
 

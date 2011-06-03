@@ -29,10 +29,6 @@ using namespace std;
 class Group : public PoolObjectSQL, ObjectCollection
 {
 public:
-    /**
-     *  Function to write a Group on an output stream
-     */
-     friend ostream& operator<<(ostream& os, Group& group);
 
     /**
      * Function to print the Group object into a string in XML format

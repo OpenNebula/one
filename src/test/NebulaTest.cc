@@ -47,11 +47,6 @@ ImagePool* NebulaTest::create_ipool( SqlDB* db,
     return new ImagePool(db,default_image_type,default_device_prefix);
 }
 
-ClusterPool* NebulaTest::create_cpool(SqlDB* db)
-{
-    return new ClusterPool(db);
-}
-
 VMTemplatePool* NebulaTest::create_tpool(SqlDB* db)
 {
     return new VMTemplatePool(db);

@@ -118,23 +118,6 @@ public:
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class ClusterDelete : public RequestManagerDelete
-{
-public:
-    ClusterDelete():
-        RequestManagerDelete("ClusterDelete", "Deletes a cluster")
-    {    
-        Nebula& nd = Nebula::instance();
-        pool       = nd.get_cpool();
-        auth_object = AuthRequest::CLUSTER;
-    };
-
-    ~ClusterDelete(){};
-};
-
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
-
 
 class GroupDelete: public RequestManagerDelete
 {

@@ -31,11 +31,6 @@ class VMTemplate : public PoolObjectSQL
 public:
 
     /**
-     *  Function to write a VMTemplate on an output stream
-     */
-    friend ostream& operator<<(ostream& os, VMTemplate& u);
-
-    /**
      * Function to print the VMTemplate object into a string in XML format
      *  @param xml the resulting XML string
      *  @return a reference to the generated string

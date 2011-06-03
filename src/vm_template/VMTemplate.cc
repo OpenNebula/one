@@ -181,18 +181,6 @@ error_name:
 /* VMTemplate :: Misc                                                       */
 /* ************************************************************************ */
 
-ostream& operator<<(ostream& os, VMTemplate& vmTemplate)
-{
-    string xml_str;
-
-    os << vmTemplate.to_xml(xml_str);
-
-    return os;
-}
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
 string& VMTemplate::to_xml(string& xml) const
 {
     ostringstream   oss;

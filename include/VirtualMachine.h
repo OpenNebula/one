@@ -117,11 +117,6 @@ public:
     };
 
     /**
-     *  Function to write a Virtual Machine in an output stream
-     */
-    friend ostream& operator<<(ostream& os, const VirtualMachine& vm);
-
-    /**
      * Function to print the VirtualMachine object into a string in
      * XML format
      *  @param xml the resulting XML string

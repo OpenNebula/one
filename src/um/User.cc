@@ -117,18 +117,6 @@ error_username:
 /* User :: Misc                                                               */
 /* ************************************************************************** */
 
-ostream& operator<<(ostream& os, User& user)
-{
-    string user_str;
-
-    os << user.to_xml(user_str);
-
-    return os;
-};
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 string& User::to_xml(string& xml) const
 {
     ostringstream   oss;

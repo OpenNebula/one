@@ -250,31 +250,6 @@ public:
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class ClusterAllocate : public RequestManagerAllocate
-{
-public:
-    ClusterAllocate():
-        RequestManagerAllocate("ClusterInfo",
-                               "Allocates a new cluster",
-                               "A:ss",
-                               false)
-    {    
-        Nebula& nd = Nebula::instance();
-        pool       = nd.get_cpool();
-        auth_object = AuthRequest::CLUSTER;
-    };
-
-    ~ClusterAllocate(){};
-
-    int pool_allocate(xmlrpc_c::paramList const& _paramList, 
-                      Template * tmpl,
-                      int& id, 
-                      string& error_str);
-};
-
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
-
 class GroupAllocate: public RequestManagerAllocate
 {
 public:

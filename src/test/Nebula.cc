@@ -77,11 +77,6 @@ void Nebula::start()
         delete ipool;
     }
 
-    if ( cpool != 0)
-    {
-        delete cpool;
-    }
-
     if ( tpool != 0)
     {
         delete tpool;
@@ -176,7 +171,6 @@ void Nebula::start()
         VirtualNetworkPool::bootstrap(db);
         UserPool::bootstrap(db);
         ImagePool::bootstrap(db);
-        ClusterPool::bootstrap(db);
         VMTemplatePool::bootstrap(db);
         GroupPool::bootstrap(db);
     }
@@ -224,11 +218,6 @@ void Nebula::start()
             ipool  = tester->create_ipool(db,
                                           default_image_type,
                                           default_device_prefix);
-        }
-
-        if (tester->need_cluster_pool)
-        {
-            cpool  = tester->create_cpool(db);
         }
 
         if (tester->need_template_pool)

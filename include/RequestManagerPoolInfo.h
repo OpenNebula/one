@@ -65,24 +65,6 @@ public:
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class ClusterPoolInfo : public RequestManagerPoolInfo
-{
-public:
-    ClusterPoolInfo():
-        RequestManagerPoolInfo("ClusterPoolInfo",
-                               "Returns the cluster pool")
-    {    
-        Nebula& nd = Nebula::instance();
-        pool       = nd.get_cpool();
-        auth_object = AuthRequest::CLUSTER;
-    };
-
-    ~ClusterPoolInfo(){};
-};
-
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
-
 class GroupPoolInfo: public RequestManagerPoolInfo
 {
 public:

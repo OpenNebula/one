@@ -314,18 +314,6 @@ error_name:
 /* Image :: Misc                                                             */
 /* ************************************************************************ */
 
-ostream& operator<<(ostream& os, Image& image)
-{
-    string image_str;
-
-    os << image.to_xml(image_str);
-
-    return os;
-}
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
 string& Image::to_xml(string& xml) const
 {
     string template_xml;

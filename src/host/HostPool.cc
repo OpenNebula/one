@@ -23,7 +23,7 @@
 #include "HostPool.h"
 #include "HostHook.h"
 #include "NebulaLog.h"
-#include "ClusterPool.h"
+#include "GroupPool.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
