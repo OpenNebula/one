@@ -19,6 +19,8 @@
 
 #include <set>
 
+#include "PoolObjectSQL.h"
+
 using namespace std;
 
 /**
@@ -29,8 +31,7 @@ class ObjectCollection
 public:
 
     ObjectCollection(const string& _collection_name)
-        :collection_name(_collection_name)
-    {};
+        :collection_name(_collection_name){};
 
     ~ObjectCollection(){};
 
@@ -73,37 +74,7 @@ protected:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int from_xml_node(const xmlNodePtr node)
-    {
-        ObjectXML   xml(node);
-        int         rc = 0;
-        int         id;
-
-        vector<string>              values;
-        vector<string>::iterator    it;
-        istringstream               iss;
-
-        string xpath_expr = "/" + collection_name + "/ID";
-
-        values = xml[xpath_expr.c_str()];
-
-        for ( it = values.begin() ; it < values.end(); it++ )
-        {
-            iss.str(*it);
-            iss >> dec >> id;
-
-            if ( iss.fail() )
-            {
-                rc = -1;
-            }
-            else
-            {
-                collection_set.insert(id);
-            }
-        }
-
-        return rc;
-    };
+    int from_xml_node(const xmlNodePtr node);
 
     /**
      * Function to print the Collection object into a string in
@@ -111,24 +82,7 @@ protected:
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml(string& xml) const
-    {
-        ostringstream       oss;
-        set<int>::iterator  it;
-
-        oss << "<" << collection_name << ">";
-
-        for ( it = collection_set.begin(); it != collection_set.end(); it++ )
-        {
-            oss << "<ID>" << *it << "</ID>";
-        }
-
-        oss << "</" << collection_name << ">";
-
-        xml = oss.str();
-
-        return xml;
-    };
+    string& to_xml(string& xml) const;
 
     /**
      *  Adds an ID to the set.
@@ -136,19 +90,7 @@ protected:
      *
      *    @return 0 on success, -1 if the ID was already in the set
      */
-    int add_collection_id(int id)
-    {
-        pair<set<int>::iterator,bool> ret;
-
-        ret = collection_set.insert(id);
-
-        if( !ret.second )
-        {
-            return -1;
-        }
-
-        return 0;
-    };
+    int add_collection_id(int id);
 
     /**
      *  Deletes an ID from the set.
@@ -156,15 +98,7 @@ protected:
      *
      *    @return 0 on success, -1 if the ID was not in the set
      */
-    int del_collection_id(int id)
-    {
-        if( collection_set.erase(id) != 1 )
-        {
-            return -1;
-        }
-
-        return 0;
-    };
+    int del_collection_id(int id);
 
     /**
      *  Returns a copy of the IDs set
