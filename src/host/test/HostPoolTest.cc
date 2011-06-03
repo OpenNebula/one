@@ -161,7 +161,7 @@ protected:
     {
         int    oid;
         string err;
-        return ((HostPool*)pool)->allocate(&oid, names[index], im_mad,
+        return ((HostPool*)pool)->allocate(&oid,0, names[index], im_mad,
                                            vmm_mad, tm_mad, err);
     };
 
@@ -242,16 +242,16 @@ public:
 
         // If we try to allocate two hosts with the same name and drivers,
         // should fail
-        rc = hp->allocate(&oid_0, names[0], im_mad, vmm_mad, tm_mad, err);
+        rc = hp->allocate(&oid_0,0, names[0], im_mad, vmm_mad, tm_mad, err);
         CPPUNIT_ASSERT( oid_0 == 0 );
         CPPUNIT_ASSERT( rc    == oid_0 );
 
-        rc = hp->allocate(&oid_1, names[0], im_mad, vmm_mad, tm_mad, err);
+        rc = hp->allocate(&oid_1,0,names[0], im_mad, vmm_mad, tm_mad, err);
         CPPUNIT_ASSERT( oid_1 == -1 );
         CPPUNIT_ASSERT( rc    == oid_1 );
 
         // the hostname can not be repeated if the drivers change
-        rc = hp->allocate(&oid_1, names[0], im_mad, vmm_mad, tm_mad_2, err);
+        rc = hp->allocate(&oid_1,0, names[0], im_mad, vmm_mad, tm_mad_2, err);
         CPPUNIT_ASSERT( oid_1 == -1 );
         CPPUNIT_ASSERT( rc    == oid_1 );
 
@@ -271,7 +271,7 @@ public:
 
         for(int i=0; i<5; i++)
         {
-            ((HostPool*)pool)->allocate(&oid, names[i],
+            ((HostPool*)pool)->allocate(&oid, 0, names[i],
                                         im_mad, vmm_mad, tm_mad, err);
         }
 
@@ -304,7 +304,7 @@ public:
 
         for(int i=0; i<5; i++)
         {
-            ((HostPool*)pool)->allocate(&oid, names[i],
+            ((HostPool*)pool)->allocate(&oid,0, names[i],
                                         im_mad, vmm_mad, tm_mad, err);
         }
 
@@ -346,7 +346,7 @@ public:
         {
             oss << "host" << i;
 
-            hp->allocate(&oid, oss.str().c_str(), im_mad, vmm_mad, tm_mad, err);
+            hp->allocate(&oid,0, oss.str().c_str(), im_mad, vmm_mad, tm_mad, err);
             CPPUNIT_ASSERT(oid == i);
 
             if (i >=8 )
@@ -404,7 +404,7 @@ public:
             {
                 oss << "host" << j;
 
-                hp->allocate(&oid, oss.str().c_str(),im_mad,vmm_mad,tm_mad,err);
+                hp->allocate(&oid,0, oss.str().c_str(),im_mad,vmm_mad,tm_mad,err);
             }
 
             the_time2 = time(0) - the_time;
@@ -433,7 +433,7 @@ public:
         for (i=10000,oss.str(""); i<30000 ; i++,oss.str(""))
         {
             oss << "host" << i;
-            hp->allocate(&oid,oss.str().c_str(),im_mad,vmm_mad,tm_mad,err);
+            hp->allocate(&oid,0,oss.str().c_str(),im_mad,vmm_mad,tm_mad,err);
 
             host = hp->get(oid, false);
 
