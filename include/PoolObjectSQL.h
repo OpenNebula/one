@@ -64,11 +64,6 @@ public:
         return name;
     };
 
-    int get_uid()
-    {
-        return uid;
-    };
-
     /**
      *  Returns true if the image is public
      *     @return true if the image is public
@@ -78,15 +73,14 @@ public:
         return (public_obj == 1);
     };
 
-    virtual int set_uid(int _uid)
+    int get_uid()
     {
-        if( uid == -1 )
-        {
-            return -1;
-        }
+        return uid;
+    };
 
+    void set_uid(int _uid)
+    {
         uid = _uid;
-        return 0;
     }
 
     int get_gid()
@@ -94,15 +88,9 @@ public:
         return gid;
     };
 
-    virtual int set_gid(int _gid)
+    void set_gid(int _gid)
     {
-        if( gid == -1 )
-        {
-            return -1;
-        }
-
         gid = _gid;
-        return 0;
     };
 
     /* --------------------------------------------------------------------- */

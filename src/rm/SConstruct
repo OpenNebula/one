@@ -37,6 +37,7 @@ source_files=[
     'RequestManagerUser.cc',
     'RequestManagerHost.cc',
     'RequestManagerImage.cc',
+    'RequestManagerChown.cc',
 
 #    'RequestManagerAction.cc',
 #    'RequestManagerAllocate.cc',

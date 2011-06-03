@@ -283,7 +283,8 @@ public:
         INFO,       /** Authorization to view an object     */
         INFO_POOL,  /** Authorization to view any object in the pool */
         INFO_POOL_MINE, /** Authorization to view user and/or group objects */ 
-        INSTANTIATE /** Authorization to instantiate a VM from a TEMPLATE   */
+        INSTANTIATE, /** Authorization to instantiate a VM from a TEMPLATE  */
+        CHOWN /** Authorization to change ownership of an object */
     };
 
     /**
