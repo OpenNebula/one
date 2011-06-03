@@ -247,13 +247,29 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
         goto error_name;
     }
 
+    // ------------ PHYDEV --------------------
+    
+    get_template_attribute("PHYDEV",phydev);
+
     // ------------ BRIDGE --------------------
 
     get_template_attribute("BRIDGE",bridge);
 
     if (bridge.empty())
     {
-        goto error_bridge;
+        if (phydev.empty())
+        {
+            goto error_bridge;
+        }
+        else
+        {
+            ostringstream oss;
+
+            oss << "onebr" << oid;
+ 
+            bridge = oss.str();
+            replace_template_attribute("BRIDGE",bridge);
+        }
     }
 
     // ------------ PUBLIC --------------------
@@ -504,8 +520,12 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended) const
             "<USERNAME>"    << user_name    << "</USERNAME>"    <<
             "<NAME>"        << name         << "</NAME>"        <<
             "<TYPE>"        << type         << "</TYPE>"        <<
-            "<BRIDGE>"      << bridge       << "</BRIDGE>"      <<
-            "<PUBLIC>"      << public_vnet  << "</PUBLIC>"      <<
+            "<BRIDGE>"      << bridge       << "</BRIDGE>";
+    if (!phydev.empty())
+    {
+        os << "<PHYDEV>" << phydev << "</PHYDEV>";
+    }
+    os  <<  "<PUBLIC>"      << public_vnet  << "</PUBLIC>"      <<
             "<TOTAL_LEASES>"<< total_leases << "</TOTAL_LEASES>"<<
             obj_template->to_xml(template_xml);
 
@@ -542,6 +562,8 @@ int VirtualNetwork::from_xml(const string &xml_str)
     rc += xpath(int_type,   "/VNET/TYPE",       -1);
     rc += xpath(bridge,     "/VNET/BRIDGE",     "not_found");
     rc += xpath(public_vnet,"/VNET/PUBLIC",     0);
+    
+    xpath(phydev, "/VNET/PHYDEV", "");
 
     type = static_cast<NetworkType>( int_type );
 
@@ -606,6 +628,11 @@ int VirtualNetwork::nic_attribute(VectorAttribute *nic, int vid)
     nic->replace("BRIDGE"    ,bridge);
     nic->replace("MAC"       ,mac);
     nic->replace("IP"        ,ip);
+
+    if (!phydev.empty())
+    {
+        nic->replace("PHYDEV", phydev);
+    }
 
     return 0;
 }
