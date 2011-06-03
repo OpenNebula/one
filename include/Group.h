@@ -50,23 +50,24 @@ public:
     int from_xml(const string &xml_str);
 
     /**
-     *  Adds this object's ID to the set. The object MUST be a User, locked.
-     *  The group's ID is added to the User's set.
-     *    @param object The new object
-     *
-     *    @return 0 on success, -1 if the ID was already in the set
+     *  Adds this user's ID to the set. 
+     *    @param id of the user to be added to the group
+     *    @return 0 on success
      */
-    int add_collection_id(PoolObjectSQL* object);
+    int add_user(int id)
+    {
+        return add_collection_id(id);
+    }
 
     /**
-     *  Deletes this object's ID from the set. The object MUST be a User,
-     *  locked. The group's ID is deleted form the User's set.
-     *    @param object The object
-     *
-     *    @return 0 on success, -1 if the ID was not in the set
+     *  Deletes this users's ID from the set.
+     *    @param id of the user to be deleted from the group
+     *    @return 0 on success
      */
-    int del_collection_id(PoolObjectSQL* object);
-
+    int del_user(int id)
+    {
+        return del_collection_id(id);
+    }
 
 private:
 
@@ -142,12 +143,6 @@ private:
     {
         return insert_replace(db, true);
     }
-
-    // *************************************************************************
-    // ID Set management
-    // *************************************************************************
-
-    int add_del_collection_id(User* object, bool add);
 };
 
 #endif /*GROUP_H_*/

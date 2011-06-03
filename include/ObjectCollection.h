@@ -28,7 +28,7 @@ using namespace std;
  */
 class ObjectCollection
 {
-public:
+protected:
 
     ObjectCollection(const string& _collection_name)
         :collection_name(_collection_name){};
@@ -36,26 +36,20 @@ public:
     ~ObjectCollection(){};
 
     /**
-     *  Adds this object's ID to the set.
-     *    @param object The new object
+     *  Adds an ID to the set.
+     *    @param id The new id
      *
      *    @return 0 on success, -1 if the ID was already in the set
      */
-    virtual int add_collection_id(PoolObjectSQL* object)
-    {
-        return add_collection_id(object->get_oid());
-    };
+    int add_collection_id(int id);
 
     /**
-     *  Deletes this object's ID from the set.
-     *    @param object The object
+     *  Deletes an ID from the set.
+     *    @param id The id
      *
      *    @return 0 on success, -1 if the ID was not in the set
      */
-    virtual int del_collection_id(PoolObjectSQL* object)
-    {
-        return del_collection_id(object->get_oid());
-    };
+    int del_collection_id(int id);
 
     /**
      *  Returns how many IDs are there in the set.
@@ -65,8 +59,6 @@ public:
     {
         return collection_set.size();
     };
-
-protected:
 
     /**
      *  Rebuilds the object from an xml node
@@ -84,21 +76,6 @@ protected:
      */
     string& to_xml(string& xml) const;
 
-    /**
-     *  Adds an ID to the set.
-     *    @param id The new id
-     *
-     *    @return 0 on success, -1 if the ID was already in the set
-     */
-    int add_collection_id(int id);
-
-    /**
-     *  Deletes an ID from the set.
-     *    @param id The id
-     *
-     *    @return 0 on success, -1 if the ID was not in the set
-     */
-    int del_collection_id(int id);
 
     /**
      *  Returns a copy of the IDs set

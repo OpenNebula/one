@@ -96,9 +96,12 @@ public:
     static int split_secret(const string secret, string& user, string& pass);
 
     /**
-     *  Sets the User's gid and add the User's oid to that group
+     *  Returns a copy of the groups for the user
      */
-    int set_gid(int _gid);
+    set<int> get_groups()
+    {
+        return get_collection_copy();
+    };
 
 private:
     // -------------------------------------------------------------------------

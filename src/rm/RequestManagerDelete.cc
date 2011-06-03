@@ -25,6 +25,7 @@ void RequestManagerDelete::request_execute(xmlrpc_c::paramList const& paramList)
 {
     int             oid = xmlrpc_c::value_int(paramList.getInt(1));
     PoolObjectSQL * object;
+    set<int>        group_set;
 
     if ( basic_authorization(oid) == false )
     {
@@ -39,6 +40,12 @@ void RequestManagerDelete::request_execute(xmlrpc_c::paramList const& paramList)
         return;
     }    
 
+    if ( auth_ob == AuthRequest::USER )
+    {
+        User * user = static_cast<User *>(object);
+        group_set   = user->get_groups();
+    }
+
     int rc = pool->drop(object);
 
     object->unlock();
@@ -47,6 +54,31 @@ void RequestManagerDelete::request_execute(xmlrpc_c::paramList const& paramList)
     {
         failure_response(INTERNAL,"Internal Error");
         return;
+    }
+
+    if ( auth_ob == AuthRequest::USER )
+    {
+        Nebula&     nd      = Nebula::instance();
+        GroupPool * gpool   = nd.get_gpool();
+
+        Group *     group;
+
+        set<int>::iterator  it;
+
+        for ( it = group_set.begin(); it != group_set.end(); it++ )
+        {
+            group = gpool->get(*it, true);
+
+            if( group == 0 )
+            {
+                continue;
+            }
+
+            group->del_user(oid);
+            gpool->update(group);
+
+            group->unlock();
+        }
     }
 
     success_response(oid);

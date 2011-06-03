@@ -160,67 +160,6 @@ int Group::from_xml(const string& xml)
     return 0;
 }
 
-/* ************************************************************************ */
-/* Group :: User ID Set                                                     */
-/* ************************************************************************ */
-
-int Group::add_collection_id(PoolObjectSQL* object)
-{
-    // TODO: make a dynamic cast and check if object is indeed a User ?
-    return add_del_collection_id( static_cast<User*>(object), true );
-}
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
-int Group::del_collection_id(PoolObjectSQL* object)
-{
-    // TODO: make a dynamic cast and check if object is indeed a User ?
-    return add_del_collection_id( static_cast<User*>(object), false );
-}
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
-int Group::add_del_collection_id(User* object, bool add)
-{
-    int rc = 0;
-    ObjectCollection * object_collection = 0;
-
-    // Get object id
-    int object_id = object->get_oid();
-
-    // Add/Remove object to the group
-    if(add)
-    {
-        rc = ObjectCollection::add_collection_id(object_id);
-    }
-    else
-    {
-        rc = ObjectCollection::del_collection_id(object_id);
-    }
-
-    if( rc != 0 )
-    {
-        return -1;
-    }
-
-    // Users can be in more than one group, it has to store the
-    // reverse relation
-    object_collection = static_cast<ObjectCollection*>(object);
-
-    if(add)
-    {
-        rc = object_collection->add_collection_id( this );
-    }
-    else
-    {
-        rc = object_collection->del_collection_id( this );
-    }
-
-    return rc;
-}
-
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 

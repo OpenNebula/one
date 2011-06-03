@@ -30,12 +30,12 @@
 
 Host::Host(
     int id,
-    int cluster_id,
+    int gid,
     const string& _hostname,
     const string& _im_mad_name,
     const string& _vmm_mad_name,
     const string& _tm_mad_name):
-        PoolObjectSQL(id,_hostname,-1,cluster_id,table),
+        PoolObjectSQL(id,_hostname,-1,gid,table),
         state(INIT),
         im_mad_name(_im_mad_name),
         vmm_mad_name(_vmm_mad_name),
@@ -51,57 +51,6 @@ Host::~Host()
     {
         delete obj_template;
     }
-}
-
-/* ************************************************************************** */
-/* Host :: Cluster Management                                                 */
-/* ************************************************************************** */
-
-int Host::add_to_cluster()
-{
-    return add_del_to_cluster(true);
-}
-
-int Host::delete_from_cluster()
-{
-    return add_del_to_cluster(false);
-}
-
-int Host::add_del_to_cluster(bool add)
-{
-    // Add this Host's ID to the Cluster
-    int rc = 0;
-    Nebula& nd          = Nebula::instance();
-    ClusterPool * cpool = nd.get_cpool();
-
-    if( cpool == 0 )
-    {
-        return -1;
-    }
-
-    Cluster * cluster = cpool->get( get_gid(), true );
-
-    if( cluster == 0 )
-    {
-        return -1;
-    }
-
-    if( add )
-    {
-        rc = static_cast<ObjectCollection*>(cluster)->add_collection_id(this);
-    }
-    else
-    {
-        rc = static_cast<ObjectCollection*>(cluster)->del_collection_id(this);
-    }
-
-    if( rc == 0 )
-    {
-        cpool->update(cluster);
-    }
-    cluster->unlock();
-
-    return rc;
 }
 
 /* ************************************************************************ */

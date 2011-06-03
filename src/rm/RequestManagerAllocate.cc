@@ -256,7 +256,29 @@ int UserAllocate::pool_allocate(xmlrpc_c::paramList const& paramList,
 
     UserPool * upool = static_cast<UserPool *>(pool);
 
-    return upool->allocate(&id,GroupPool::USERS_ID,uname,passwd,true,error_str);
+    int rc = upool->allocate(&id,GroupPool::USERS_ID,uname,passwd,true,error_str);
+
+    if ( rc < 0 )
+    {
+        return rc;
+    }
+
+    Nebula&     nd    = Nebula::instance();
+    GroupPool * gpool = nd.get_gpool();
+    Group *     group = gpool->get(gid, true);
+
+    if( group == 0 )
+    {
+        return -1;
+    }
+
+    group->add_user(id);
+
+    gpool->update(group);
+
+    group->unlock();
+
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */

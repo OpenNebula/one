@@ -128,8 +128,6 @@ error_common:
 
 int GroupPool::drop(Group * group)
 {
-    int         rc;
-
     // Return error if the group is a default one.
     if( group->get_oid() < 100 )
     {
@@ -147,7 +145,5 @@ int GroupPool::drop(Group * group)
         return -1;
     }
 
-    rc = group->drop(db);
-
-    return rc;
+    return group->drop(db);
 }
