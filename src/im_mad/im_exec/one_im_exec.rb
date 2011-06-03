@@ -104,7 +104,7 @@ if ARGV.length >= 1
 end
 
 im = InformationManagerDriver.new(hypervisor,
-    :threads => threads,
+    :concurrency => threads,
     :retries => retries,
     :local_actions => local_actions)
 
