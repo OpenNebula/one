@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
@@ -14,43 +16,26 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'OneMonitor'
+$: << File.dirname(__FILE__)
 
-class HostMonitor < OneMonitor
-    #:time, :id labels
-    HOST_MONITORING_ELEMS = {
-        :time => "LAST_MON_TIME",
-        :id => "ID",
-        :name => "NAME",
-        :state => "STATE",
-        :cluster => "CLUSTER",
-        :disk_usage => "HOST_SHARE/DISK_USAGE",
-        :cpu_usage => "HOST_SHARE/CPU_USAGE",
-        :mem_usage => "HOST_SHARE/MEM_USAGE",
-        :max_mem => "HOST_SHARE/MAX_MEM",
-        :max_disk => "HOST_SHARE/MAX_DISK",
-        :max_cpu => "HOST_SHARE/MAX_CPU",
-        :free_mem => "HOST_SHARE/FREE_MEM",
-        :free_disk => "HOST_SHARE/FREE_DISK",
-        :free_cpu => "HOST_SHARE/FREE_CPU",
-        :used_disk => "HOST_SHARE/USED_DISK",
-        :used_mem => "HOST_SHARE/USED_MEM",
-        :used_cpu => "HOST_SHARE/USED_CPU"
-    }
+require 'HostMonitor.rb'
+require 'VMMonitor.rb'
 
-    def initialize (log_file_folder,monitoring_elems=HOST_MONITORING_ELEMS)
-        super log_file_folder,monitoring_elems
-    end
+DEFAULT_INTERVAL= 600 #secs
+DEFAULT_HOST_LOG_FOLDER = "#{ENV['ONE_LOCATION']}/logs/host/"
+DEFAULT_VM_LOG_FOLDER = "#{ENV['ONE_LOCATION']}/logs/vm/"
 
-    def factory(client)
-        HostPool.new(client)
-    end
 
-    def active (host_hash)
-        host_hash[:state].to_i < 3
-    end
+#ARG0=interval, ARG1=hostfolder, ARG2=vmfolder
+MONITOR_INTERVAL= ARGV[0]? ARGV[0].to_i : DEFAULT_INTERVAL #secs
+HOST_LOG_FOLDER= ARGV[1]? ARGV[1]: DEFAULT_HOST_LOG_FOLDER
+VM_LOG_FOLDER=ARGV[2] ? ARGV[2] :  DEFAULT_VM_LOG_FOLDER
 
-    def error (host_hash)
-        host_hash[:state].to_i == 3
-    end
+hostm = HostMonitor.new(HOST_LOG_FOLDER)
+vmm = VMMonitor.new(VM_LOG_FOLDER)
+
+while true do
+    hostm.snapshot
+    vmm.snapshot
+    sleep MONITOR_INTERVAL
 end

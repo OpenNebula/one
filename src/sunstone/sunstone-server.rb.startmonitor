@@ -34,9 +34,12 @@ end
 HOST_LOG_FOLDER = LOG_LOCATION+"/OneMonitor/host"
 VM_LOG_FOLDER =  LOG_LOCATION+"/OneMonitor/vm"
 
+#TODO put share
+MONITOR_CMD = File.dirname(__FILE__)+'/share/OneMonitor/runOneMonitor.rb'
+MONITORING_INTERVAL = 10 #seconds
+
 $: << RUBY_LIB_LOCATION
 $: << File.dirname(__FILE__)+'/models'
-$: << File.dirname(__FILE__)+'/share/OneMonitor'
 
 ##############################################################################
 # Required libraries
@@ -96,6 +99,35 @@ helpers do
         return [204, ""]
     end
 
+    def start_monitor
+        if !session['monitor']
+            config = settings.config
+
+            begin
+                Dir.mkdir(HOST_LOG_FOLDER) if !File.directory?(HOST_LOG_FOLDER)
+                Dir.mkdir(VM_LOG_FOLDER) if !File.directory?(VM_LOG_FOLDER)
+            rescue
+            return [500,Error.new("Cannot create log folders")]
+            end
+
+            monitoring_interval = config[:monitoring_interval]
+            monitoring_interval = MONITORING_INTERVAL if !monitoring_interval
+
+            pipe = IO.popen("#{MONITOR_CMD} #{monitoring_interval} #{HOST_LOG_FOLDER} #{VM_LOG_FOLDER}")
+            session['monitor'] = pipe
+            puts "OneMonitor successfully started"
+            return [200,""]
+        end
+    end
+
+    def stop_monitor
+        pipe = session['monitor']
+        if pipe
+            Process.kill('KILL',pipe.pid)
+            pipe.close
+        end
+        return [200,""]
+    end
 end
 
 before do
@@ -165,12 +197,24 @@ end
 # Logs
 ##############################################################################
 
+post '/startmonitor' do
+    start_monitor
+end
+
 get '/:resource/monitor' do
-    @SunstoneServer.get_log(params)
+    @SunstoneServer.get_log(params[:resource],
+                            -1,
+                            settings.config,
+                            params['monitor_resources'],
+                            params['history_length'])
 end
 
 get '/:resource/:id/monitor' do
-    @SunstoneServer.get_log(params)
+    @SunstoneServer.get_log(params[:resource],
+                            params[:id],
+                            settings.config,
+                            params['monitor_resources'],
+                            params['history_length'])
 end
 
 

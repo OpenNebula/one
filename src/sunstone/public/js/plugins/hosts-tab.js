@@ -231,6 +231,10 @@ var host_actions = {
     "Host.monitor_all" : {
         type: "monitor_global",
         call: OpenNebula.Host.monitor_all,
+        callback: function(req,response) {
+            var info = req.request.data[0].monitor;
+            plot_global_graph(response,info);
+        },
         error: onError
     },
 

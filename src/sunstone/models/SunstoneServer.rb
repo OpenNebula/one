@@ -17,6 +17,8 @@
 require 'OpenNebulaJSON'
 include OpenNebulaJSON
 
+require 'OneMonitorClient'
+
 class SunstoneServer
     def initialize(username, password)
         # TBD one_client_user(name) from CloudServer
@@ -265,60 +267,22 @@ class SunstoneServer
     #
     ############################################################################
 
-    def get_log(resource,id,config,monitor_resources,history_length)
-        log_file_prefix = case resource
-                   when "vm","VM"
-                       config[:host_log_file]
-                   when "host","HOST"
-                       config[:vm_log_file]
-                   end
+    def get_log(params)
+        resource = params[:resource]
+        id = params[:id]
+        id = "global" unless id
+        columns = params['monitor_resources'].split(',')
+        history_length = params['history_length']
 
-        if !log_file_prefix or log_file_prefix.empty?
-            log_file_prefix = "/srv/cloud/one-dummy/logs/"+resource
-        end
+        log_file_folder = case resource
+                          when "vm","VM"
+                              VM_LOG_FOLDER
+                          when "host","HOST"
+                              HOST_LOG_FOLDER
+                          end
 
-        log_file = "#{log_file_prefix}_#{id}.csv"
-
-        first_line = `head -1 #{log_file}`.chomp
-
-        if $?.exitstatus != 0
-            error = Error.new("Cannot open log file")
-            return [500, error.to_json]
-        end
-
-        n_lines = `wc -l #{log_file} | cut -d' ' -f 1`.to_i
-        if n_lines <= history_length.to_i
-            history_length = n_lines-1
-        end
-
-        fields = first_line.split(',')
-        poll_time_pos = fields.index("time")
-        id_pos = fields.index("id")
-
-        if !id_pos or !poll_time_pos
-            error = Error.new("It seems poll_time or id information cannot be read from log file")
-            return [500, error.to_json]
-        end
-
-        series = [] #will hold several graphs
-        tail = `tail -#{history_length} #{log_file}`
-
-        monitor_resources.split(',').each do | resource |
-
-            graph = []
-            resource_pos = fields.index(resource)
-
-            tail.each_line do | line |
-                line_arr = line.delete('"').split(',')
-                if (line_arr[id_pos].to_i == id.to_i)
-                    graph << [ line_arr[poll_time_pos].to_i*1000, line_arr[resource_pos].to_i ]
-                end
-            end
-
-            series << graph
-        end
-
-        return series.to_json
+        monitor_client = OneMonitorClient.new(id,log_file_folder)
+        return monitor_client.get_data_for_id(id,columns,history_length).to_json
     end
 
     ############################################################################

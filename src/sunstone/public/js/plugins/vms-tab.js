@@ -44,9 +44,8 @@ var vm_graphs = [
       monitor_resources : "net_rx",
       humanize_figures : true,
       history_length : VM_HISTORY_LENGTH
-    },
-
-]
+    }
+];
 
 var vms_tab_content = 
 '<form id="virtualMachine_list" action="javascript:alert(\'js error!\');">\
@@ -364,7 +363,16 @@ var vm_actions = {
                        'vm_monitor_',info);
         },
         error: onError
-    }
+    },
+    "VM.monitor_all" : {
+        type: "monitor_global",
+        call: OpenNebula.VM.monitor_all,
+        callback: function(req,response) {
+            var info = req.request.data[0].monitor;
+            plot_global_graph(response,info);
+        },
+        error: onError
+    },
 }
 
 

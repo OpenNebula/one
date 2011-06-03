@@ -504,6 +504,37 @@ var OpenNebula = {
                     }
                 }
             });
+        },
+        "monitor_all" : function(params){
+            var callback = params.success;
+            var callback_error = params.error;
+            var resource = OpenNebula.Host.resource;
+            var data = params.data;
+
+            var method = "monitor";
+            var action = OpenNebula.Helper.action(method);
+            var request = OpenNebula.Helper.request(resource,method, data);
+
+            $.ajax({
+                url: "host/monitor",
+                type: "GET",
+                data: data['monitor'],
+                dataType: "json",
+                success: function(response)
+                {
+                    if (callback)
+                    {
+                        callback(request,response);
+                    }
+                },
+                error: function(response)
+                {
+                    if (callback_error)
+                    {
+                        callback_error(request, OpenNebula.Error(response));
+                    }
+                }
+            });
         }
     },
 
@@ -1351,6 +1382,37 @@ var OpenNebula = {
 
             $.ajax({
                 url: "vm/"+id+"/monitor",
+                type: "GET",
+                data: data['monitor'],
+                dataType: "json",
+                success: function(response)
+                {
+                    if (callback)
+                    {
+                        callback(request,response);
+                    }
+                },
+                error: function(response)
+                {
+                    if (callback_error)
+                    {
+                        callback_error(request, OpenNebula.Error(response));
+                    }
+                }
+            });
+        },
+        "monitor_all" : function(params){
+            var callback = params.success;
+            var callback_error = params.error;
+            var resource = OpenNebula.VM.resource;
+            var data = params.data;
+
+            var method = "monitor";
+            var action = OpenNebula.Helper.action(method);
+            var request = OpenNebula.Helper.request(resource,method, data);
+
+            $.ajax({
+                url: "vm/monitor",
                 type: "GET",
                 data: data['monitor'],
                 dataType: "json",
