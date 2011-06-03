@@ -78,15 +78,9 @@ public:
         return (public_obj == 1);
     };
 
-    virtual int set_uid(int _uid)
+    void set_uid(int _uid)
     {
-        if( uid == -1 )
-        {
-            return -1;
-        }
-
         uid = _uid;
-        return 0;
     }
 
     int get_gid()
@@ -94,15 +88,9 @@ public:
         return gid;
     };
 
-    virtual int set_gid(int _gid)
+    void set_gid(int _gid)
     {
-        if( gid == -1 )
-        {
-            return -1;
-        }
-
         gid = _gid;
-        return 0;
     };
 
     /* --------------------------------------------------------------------- */

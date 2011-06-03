@@ -35,6 +35,7 @@ source_files=[
     'RequestManagerVMTemplate.cc',
     'RequestManagerUpdateTemplate.cc',
     'RequestManagerUser.cc',
+    'RequestManagerChown.cc',
 
 #    'RequestManagerAction.cc',
 #    'RequestManagerAllocate.cc',
