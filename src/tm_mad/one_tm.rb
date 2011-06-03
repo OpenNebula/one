@@ -36,8 +36,12 @@ require 'TMScript'
 
 class TransferManager < OpenNebulaDriver
 
-    def initialize(plugin, num)
-        super(num, true)
+    def initialize(plugin, options={})
+        @options={
+            :threaded => true
+        }.merge!(options)
+        
+        super(num, @options)
         
         @plugin=plugin
         
@@ -80,7 +84,9 @@ tm_conf=ETC_LOCATION+tm_conf if tm_conf[0] != ?/
 
 plugin=TMPlugin.new(tm_conf)
 
-tm=TransferManager.new(plugin, 15)
+tm=TransferManager.new(plugin,
+    :concurrency => 15)
+
 tm.start_driver
 
 
