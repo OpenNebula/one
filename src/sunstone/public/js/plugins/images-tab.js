@@ -663,13 +663,16 @@ function setupCreateImageDialog(){
       //Insert HTML in place
     $('#create_image_dialog').html(create_image_tmpl);
 
+    var height = Math.floor($(window).height()*0.8); //set height to a percentage of the window
+
     //Prepare jquery dialog
     $('#create_image_dialog').dialog({
-		autoOpen: false,
-		modal:true,
-		width: 520
-	});
-    
+	autoOpen: false,
+	modal:true,
+	width: 520,
+        height: height
+    });
+
     $('#img_tabs').tabs();
     $('#create_image_dialog button').button();
     $('#img_type option').first().attr("selected","selected");

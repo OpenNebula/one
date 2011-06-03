@@ -803,6 +803,7 @@ function updateTemplateSelect(){
    
     //update static selectors:
     $('#create_vm_dialog #template_id').html(templates_select);
+    $('#speed_virt').html(templates_select);
 }
 
 // Callback to update an element in the dataTable
