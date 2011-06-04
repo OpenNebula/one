@@ -236,6 +236,7 @@ void ImageManagerDriver::protocol(
 
         if ( rc < 0 )
         {
+            image->unlock();
             NebulaLog::log("ImM",Log::ERROR,"Image could not be removed from DB");
         }
 
