@@ -64,9 +64,7 @@ bool RequestManagerVirtualMachine::vm_authorization(int oid, int hid, ImageTempl
 
     if (UserPool::authorize(ar) == -1)
     {
-        failure_response(AUTHORIZATION, //TODO
-                 authorization_error("INFO",object_name(auth_object),oid,-1));
-
+        failure_response(AUTHORIZATION, authorization_error(ar.message));
         return false;
     }
 

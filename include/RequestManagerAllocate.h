@@ -50,10 +50,6 @@ protected:
 
     virtual bool allocate_authorization(Template * obj_template);
 
-    string allocate_error (char *error);
-
-    string allocate_error (const string& error);
-
     /* -------------------------------------------------------------------- */
 
     virtual Template * get_object_template() { return 0; };

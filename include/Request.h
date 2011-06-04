@@ -137,16 +137,10 @@ protected:
 
     /**
      *  Logs authorization errors
-     *    @param action authorization action
-     *    @param object object that needs to be authorized
-     *    @param uid user that is authorized
-     *    @param id id of the object, -1 for Pool
+     *    @param message with the authorization error details
      *    @return string for logging
      */
-    string authorization_error (const string &action,
-                                const string &object,
-                                int   uid,
-                                int   id);
+    string authorization_error (const string &message);
     /**
      *  Logs authenticate errors
      *    @return string for logging
@@ -175,6 +169,19 @@ protected:
                          const string &object,
                          int id,
                          int rc);
+    /**
+     *  Logs allocate errors
+     *    @param message with the allocate error details
+     *    @return string for logging
+     */
+    string allocate_error (const string& error);
+
+    /**
+     *  Logs allocate errors
+     *    @param message with the allocate error details (parsing)
+     *    @return string for logging
+     */
+    string allocate_error (char *error);
 
 private:
     /**

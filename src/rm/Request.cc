@@ -85,8 +85,7 @@ bool Request::basic_authorization(int oid)
 
    if (UserPool::authorize(ar) == -1)
    {
-        failure_response(AUTHORIZATION, //TODO
-                 authorization_error("INFO",object_name(auth_object),oid,-1));
+        failure_response(AUTHORIZATION, authorization_error(ar.message));
 
         return false;
     }
@@ -173,24 +172,17 @@ string Request::object_name(AuthRequest::Object ob)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-string Request::authorization_error (const string &action,
-                                     const string &object,
-                                     int   uid,
-                                     int   id)
+string Request::authorization_error (const string &message)
 {
     ostringstream oss;
 
     oss << "[" << method_name << "]" << " User [" << uid << "] not authorized"
-        << " to perform " << action << " on " << object;
+        << " to perform action on " << object_name(auth_object) << ".";
 
 
-    if ( id != -1 )
+    if ( !message.empty() )
     {
-        oss << " [" << id << "].";
-    }
-    else
-    {
-        oss << " Pool";
+        oss << message ;
     }
 
     return oss.str();
@@ -259,4 +251,44 @@ string Request::action_error (const string &action,
     }
 
     return oss.str();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string Request::allocate_error (const string& error)
+{
+    ostringstream oss;
+
+    oss << "[" << method_name << "]" << " Error allocating a new "
+        << object_name(auth_object) << ".";
+
+    if (!error.empty())
+    {
+        oss << " " << error;
+    }
+
+    return oss.str();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string Request::allocate_error (char *error)
+{
+    ostringstream oss;
+
+    oss << "Parse error";
+
+    if ( error != 0 )
+    {
+        oss << ": " << error;
+        free(error);
+    }
+    else
+    {
+        oss << ".";
+    }
+
+    return allocate_error(oss.str());
 }

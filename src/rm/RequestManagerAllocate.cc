@@ -19,45 +19,6 @@
 
 #include "Nebula.h"
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-string RequestManagerAllocate::allocate_error (const string& error)
-{
-    ostringstream oss;
-
-    oss << "[" << method_name << "]" << " Error allocating a new "
-        << object_name(auth_object) << ".";
-
-    if (!error.empty())
-    {
-        oss << " " << error;
-    }
-
-    return oss.str();
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-string RequestManagerAllocate::allocate_error (char *error)
-{
-    ostringstream oss;
-
-    oss << "Parse error";
-
-    if ( error != 0 )
-    {
-        oss << ": " << error;
-        free(error);
-    }
-    else
-    {
-        oss << ".";
-    }
-
-    return allocate_error(oss.str());
-}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -84,9 +45,7 @@ bool RequestManagerAllocate::allocate_authorization(Template * tmpl)
 
    if (UserPool::authorize(ar) == -1)
    {
-        failure_response(AUTHORIZATION, //TODO
-                 authorization_error("INFO","USER",uid,-1));
-
+        failure_response(AUTHORIZATION, authorization_error(ar.message));
         return false;
     }
 
@@ -114,9 +73,7 @@ bool VirtualMachineAllocate::allocate_authorization(Template * tmpl)
 
    if (UserPool::authorize(ar) == -1)
    {
-        failure_response(AUTHORIZATION, //TODO
-                 authorization_error("INFO","USER",uid,-1));
-
+        failure_response(AUTHORIZATION, authorization_error(ar.message));
         return false;
     }
 

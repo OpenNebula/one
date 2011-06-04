@@ -62,8 +62,7 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
 
         if (UserPool::authorize(ar) == -1)
         {
-            failure_response(AUTHORIZATION, //TODO
-                     authorization_error("INFO",object_name(auth_object),id,-1));
+            failure_response(AUTHORIZATION, authorization_error(ar.message));
             delete tmpl;
             return;
         }
