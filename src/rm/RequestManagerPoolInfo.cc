@@ -36,7 +36,7 @@ void RequestManagerPoolInfo::request_execute(xmlrpc_c::paramList const& paramLis
 
     if ( rc != 0 )
     {
-        failure_response(INTERNAL,"Internal Error");
+        failure_response(INTERNAL,request_error("Internal Error",""));
         return;
     }
 

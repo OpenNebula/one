@@ -40,7 +40,7 @@ void RequestManagerPoolInfoFilter::request_execute(xmlrpc_c::paramList const& pa
 
     if ( filter_flag < MINE )
     {
-        failure_response(XML_RPC_API, "Incorrect filter_flag, must be >= -3.");
+        failure_response(XML_RPC_API, request_error("Incorrect filter_flag.",""));
         return;
     }
  
@@ -74,7 +74,7 @@ void RequestManagerPoolInfoFilter::request_execute(xmlrpc_c::paramList const& pa
 
     if ( rc != 0 )
     {
-        failure_response(INTERNAL,"Internal Error");
+        failure_response(INTERNAL,request_error("Internal Error",""));
         return;
     }
 

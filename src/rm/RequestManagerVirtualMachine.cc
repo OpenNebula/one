@@ -143,7 +143,8 @@ int RequestManagerVirtualMachine::add_history(VirtualMachine * vm,
 
     if ( rc != 0 )
     {
-        failure_response(INTERNAL, "Can not update virtual machine history");
+        failure_response(INTERNAL, 
+                request_error("Can not update virtual machine history",""));
         return -1;
     }
 
@@ -219,13 +220,16 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList)
             failure_response(NO_EXISTS,get_error(object_name(auth_object),id));
             break;
         case -2:
-             failure_response(ACTION, "Worng state to perform action");
+             failure_response(ACTION,
+                     request_error("Worng state to perform action",""));
              break;
         case -3:
-            failure_response(ACTION, "Virtual machine action not supported");
+            failure_response(ACTION, 
+                    request_error("Virtual machine action not supported",""));
             break;
         default:
-            failure_response(INTERNAL, "Internal error");
+            failure_response(INTERNAL,
+                    request_error("Internal error","Action result not defined"));
     }
 
     return;
@@ -265,7 +269,9 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList)
 
     if ( vm->get_state() != VirtualMachine::PENDING )
     {
-        failure_response(ACTION, "Worng state to perform action");
+        failure_response(ACTION, 
+                request_error("Worng state to perform action",""));
+
         vm->unlock();
         return;
     }
@@ -320,7 +326,9 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
        (vm->get_lcm_state() != VirtualMachine::RUNNING) ||
        (vm->hasPreviousHistory() && vm->get_previous_reason() == History::NONE))
     {
-        failure_response(ACTION, "Worng state to perform action");
+        failure_response(ACTION, 
+                request_error("Worng state to perform action",""));
+
         vm->unlock();
         return;
     }
@@ -390,7 +398,8 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
 
     if ( rc < 0 )
     {
-        failure_response(INTERNAL,"Allocate Image"); //allocate_error(error_str)); //TODO
+        failure_response(INTERNAL,
+                allocate_error(AuthRequest::IMAGE,error_str)); 
         return;
     }
  
@@ -403,12 +412,20 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
         if ( (img = ipool->get(iid,true)) != 0 )
         {
             ipool->drop(img);
+            img->unlock();
         }
 
         return;
     }
 
     rc = vm->save_disk(disk_id, iid, error_str);
+
+    if ( rc == 0 )
+    {
+        pool->update(vm);
+    };
+
+    vm->unlock();
 
     if ( rc == -1 )
     {
@@ -417,16 +434,14 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
         if ( (img = ipool->get(iid,true)) != 0 )
         {
             ipool->drop(img);
+            img->unlock();
         }
 
-        failure_response(INTERNAL,error_str); //TODO
-        
+        failure_response(INTERNAL, 
+                request_error("Can not save_as disk",error_str));
         return;
     }
 
-    pool->update(vm);
-
-    vm->unlock();
 
     success_response(id);
 }

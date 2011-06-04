@@ -48,7 +48,7 @@ void RequestManagerUpdateTemplate::request_execute(xmlrpc_c::paramList const& pa
 
     if ( rc != 0 )
     {
-        failure_response(INTERNAL, error_str); //TODO
+        failure_response(INTERNAL, request_error("Can not update template",error_str));
         object->unlock();
 
         return;

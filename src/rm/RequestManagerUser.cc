@@ -25,7 +25,7 @@ void RequestManagerUser::
     User * user;
     string error_str;
 
-    if ( basic_authorization(id) == false ) //TODO REALLY NEED TO ADD GROUP HERE?
+    if ( basic_authorization(id) == false )
     {
         return;
     }
@@ -40,7 +40,7 @@ void RequestManagerUser::
 
     if ( user_action(user,paramList,error_str) < 0 )
     {
-        failure_response(INTERNAL, error_str); //TODO
+        failure_response(INTERNAL, request_error(error_str,""));
     }
  
     success_response(id);
@@ -58,7 +58,7 @@ int UserChangePassword::user_action(User * user,
 
     user->set_password(new_pass);
 
-    (static_cast<UserPool *>(pool))->update(user);
+    pool->update(user);
 
     user->unlock();
 
@@ -87,7 +87,7 @@ int UserAddGroup::user_action(User * user,
         return rc;
     }
 
-    (static_cast<UserPool *>(pool))->update(user);
+    pool->update(user);
 
     user->unlock();
 
@@ -102,9 +102,11 @@ int UserAddGroup::user_action(User * user,
         if ( user != 0 )
         {
             user->del_group(group_id);
-        }
 
-        (static_cast<UserPool *>(pool))->update(user);
+            pool->update(user);
+
+            user->unlock();
+        }
 
         error_str = "Group does not exists";
         return -1;
@@ -141,7 +143,7 @@ int UserDelGroup::user_action(User * user,
         return rc;
     }
 
-    (static_cast<UserPool *>(pool))->update(user);
+    pool->update(user);
 
     user->unlock();
 

@@ -36,7 +36,7 @@ void RequestManagerPublish::request_execute(xmlrpc_c::paramList const& paramList
 
     if ( object == 0 )                             
     {                                            
-        failure_response(NO_EXISTS, get_error("USER",oid));
+        failure_response(NO_EXISTS, get_error(object_name(auth_object),oid));
         return;
     }    
 
@@ -44,9 +44,10 @@ void RequestManagerPublish::request_execute(xmlrpc_c::paramList const& paramList
     
     if ( rc != 0 )
     {
-        failure_response(ACTION,action_error("PUBLISH","USER",oid,0));
-        object->unlock();
+        failure_response(INTERNAL,
+                request_error("Can not publish/unpublish resource",""));
 
+        object->unlock();
         return;
     }
 

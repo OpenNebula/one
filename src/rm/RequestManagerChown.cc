@@ -44,7 +44,7 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList)
 
     if ( noid < 0 )
     {
-        failure_response(XML_RPC_API,"Wrong User ID"); //TODO
+        failure_response(XML_RPC_API,request_error("Wrong User ID",""));
         return;
     }
     else if ( upool->get(noid,false) == 0 )
@@ -56,7 +56,7 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList)
 
     if ( ngid < 0 )
     {
-        failure_response(XML_RPC_API,"Wrong Group ID");
+        failure_response(XML_RPC_API,request_error("Wrong Group ID",""));
         return;
     }
     else if ( gpool->get(ngid,false) == 0 )

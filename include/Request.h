@@ -153,28 +153,30 @@ protected:
      *    @param id of the object over which the get failed
      *    @return string for logging
      */
-    string get_error (const string &object,
-                      int id);
+    string get_error (const string &object, int id);
 
     /**
      *  Logs action errors
-     *    @param action that triggered the error
-     *    @param object over which the action was applied
-     *    @param id id of the object, -1 for Pool, -2 for no-id objects
-     *              (allocate error, parse error)
-     *    @param rc returned error code (NULL to ignore)
+     *    @param err_desc brief description of the error
+     *    @param err_detail additional error details from Managers & Pools
      *    @return string for logging
      */
-    string action_error (const string &action,
-                         const string &object,
-                         int id,
-                         int rc);
+    string request_error (const string &err_desc, const string &err_detail);
+
     /**
      *  Logs allocate errors
      *    @param message with the allocate error details
      *    @return string for logging
      */
     string allocate_error (const string& error);
+
+    /**
+     *  Logs allocate errors for a given resource
+     *    @param obj the resource
+     *    @param message with the allocate error details
+     *    @return string for logging
+     */
+    string allocate_error (AuthRequest::Object obj, const string& error);
 
     /**
      *  Logs allocate errors

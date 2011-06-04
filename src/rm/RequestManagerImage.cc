@@ -50,7 +50,7 @@ void ImageEnable::request_execute(xmlrpc_c::paramList const& paramList)
             err_msg = "Could not disable image";
         }
 
-        failure_response(INTERNAL, err_msg);//TODO
+        failure_response(INTERNAL, request_error(err_msg,""));
         return;
     }
 
@@ -83,7 +83,6 @@ void ImagePersistent::request_execute(xmlrpc_c::paramList const& paramList)
     }
 
     result = image->persistent(persistent_flag);
-    image->unlock();
 
     if ( !result )
     {
@@ -95,9 +94,16 @@ void ImagePersistent::request_execute(xmlrpc_c::paramList const& paramList)
         {
             err_msg = "Could not make image non-persistent";
         }
-        failure_response(INTERNAL, err_msg); //TODO
+
+        failure_response(INTERNAL,request_error(err_msg,""));
+
+        image->unlock();
         return;
     }
+
+    pool->update(image);
+
+    image->unlock();
 
     success_response(id);
 }

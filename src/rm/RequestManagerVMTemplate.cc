@@ -72,7 +72,7 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
 
     if ( rc < 0 )
     {
-        failure_response(INTERNAL, error_str); //TODO
+        failure_response(INTERNAL, allocate_error(AuthRequest::VM,error_str));
         return;
     }
     

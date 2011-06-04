@@ -36,7 +36,7 @@ void RequestManagerInfo::request_execute(xmlrpc_c::paramList const& paramList)
 
     if ( object == 0 )                             
     {                                            
-        failure_response(NO_EXISTS, get_error("USER",oid));
+        failure_response(NO_EXISTS, get_error(object_name(auth_object),oid));
         return;
     }    
 

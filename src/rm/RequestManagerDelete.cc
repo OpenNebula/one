@@ -36,7 +36,7 @@ void RequestManagerDelete::request_execute(xmlrpc_c::paramList const& paramList)
 
     if ( object == 0 )                             
     {                                            
-        failure_response(NO_EXISTS, get_error("USER",oid));
+        failure_response(NO_EXISTS, get_error(object_name(auth_object),oid));
         return;
     }    
 
@@ -52,7 +52,7 @@ void RequestManagerDelete::request_execute(xmlrpc_c::paramList const& paramList)
 
     if ( rc != 0 )
     {
-        failure_response(INTERNAL,"Internal Error");
+        failure_response(INTERNAL,request_error("Internal Error",""));
         return;
     }
 

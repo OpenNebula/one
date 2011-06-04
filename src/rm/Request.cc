@@ -223,31 +223,33 @@ string Request::get_error (const string &object,
 }
 /* -------------------------------------------------------------------------- */
 
-string Request::action_error (const string &action,
-                              const string &object,
-                              int id,
-                              int rc)
+string Request::request_error (const string &err_desc, const string &err_detail)
 {
     ostringstream oss;
 
-    oss << "[" << method_name << "]" << " Error trying to " << action << " "
-        << object;
+    oss << "[" << method_name << "]" << err_desc;
 
-    switch(id)
+    if (!err_detail.empty())
     {
-        case -2:
-            break;
-        case -1:
-            oss << "Pool.";
-            break;
-        default:
-            oss << " [" << id << "].";
-            break;
+        oss << err_detail;
     }
 
-    if ( rc != 0 )
+    return oss.str();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string Request::allocate_error (AuthRequest::Object obj, const string& error)
+{
+    ostringstream oss;
+
+    oss << "[" << method_name << "]" << " Error allocating a new "
+        << object_name(obj) << ".";
+
+    if (!error.empty())
     {
-        oss << " Returned error code [" << rc << "].";
+        oss << " " << error;
     }
 
     return oss.str();

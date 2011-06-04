@@ -19,24 +19,6 @@
 
 using namespace std;
 
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-string RequestManagerVirtualNetwork::leases_error (const string& error)
-{
-    ostringstream oss;
-
-    oss << "[" << method_name << "]" << " Error modifiying network leases.";
-
-    if (!error.empty())
-    {
-        oss << " " << error;
-    }
-
-    return oss.str();
-}
-
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -44,15 +26,15 @@ string RequestManagerVirtualNetwork::leases_error (char *error)
 {
     ostringstream oss;
 
-    oss << "Parse error";
+    oss << "Parse error.";
 
     if ( error != 0 )
     {
-        oss << ": " << error;
+        oss << " " << error;
         free(error);
     }
 
-    return leases_error(oss.str());
+    return request_error("Error modifiying network leases.",oss.str());
 }
 
 /* ------------------------------------------------------------------------- */
@@ -96,8 +78,14 @@ void RequestManagerVirtualNetwork::
 
     if ( rc < 0 )
     {
-        failure_response(INTERNAL, leases_error(error_str));
+        failure_response(INTERNAL, 
+                request_error("Error modifiying network leases.",error_str));
+        
+        vn->unlock();
+        return;
     }
+
+    pool->update(vn);
 
     vn->unlock();
  
