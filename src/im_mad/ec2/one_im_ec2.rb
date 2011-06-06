@@ -38,7 +38,9 @@ class EC2InformationManagerDriver < OpenNebulaDriver
     # EC2 cloud
     #---------------------------------------------------------------------------
     def initialize()
-        super(1,false)
+        super('im'
+            :concurrency => 1,
+            :threaded => false)
 
         register_action(:MONITOR, method("action_monitor"))
 
