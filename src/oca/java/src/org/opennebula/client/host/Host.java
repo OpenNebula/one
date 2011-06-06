@@ -227,14 +227,4 @@ public class Host extends PoolElement{
     {
         return state() != 4;
     }
-
-    /**
-     * Returns the name of the cluster this host is assigned to.
-     * 
-     * @return The name of the cluster this host is assigned to.
-     */
-    public String getCluster()
-    {
-        return xpath("CLUSTER");
-    }
 }

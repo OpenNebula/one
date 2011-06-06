@@ -32,6 +32,9 @@ public class User extends PoolElement{
     private static final String INFO            = METHOD_PREFIX + "info";
     private static final String DELETE          = METHOD_PREFIX + "delete";
     private static final String PASSWD          = METHOD_PREFIX + "passwd";
+    private static final String CHOWN           = METHOD_PREFIX + "chown";
+    private static final String ADDGROUP        = METHOD_PREFIX + "addgroup";
+    private static final String DELGROUP        = METHOD_PREFIX + "delgroup";
     
     /**
      * Creates a new User representation.
@@ -111,6 +114,45 @@ public class User extends PoolElement{
         return client.call(PASSWD, id, password);
     }
 
+    /**
+     * Changes the main group of the given user
+     * 
+     * @param client XML-RPC Client.
+     * @param id The user id (uid) of the target user we want to modify.
+     * @param gid The new group ID.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse chgrp(Client client, int id, int gid)
+    {
+        return client.call(CHOWN, id, -1, gid);
+    }
+
+    /**
+     * Adds this user to a secondary group
+     * 
+     * @param client XML-RPC Client.
+     * @param id The user id (uid) of the target user we want to modify.
+     * @param gid The new group ID.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse addgroup(Client client, int id, int gid)
+    {
+        return client.call(ADDGROUP, id, gid);
+    }
+
+    /**
+     * Removes this user from a secondary group
+     * 
+     * @param client XML-RPC Client.
+     * @param id The user id (uid) of the target user we want to modify.
+     * @param gid The new group ID.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse delgroup(Client client, int id, int gid)
+    {
+        return client.call(DELGROUP, id, gid);
+    }
+
     // =================================
     // Instanced object XML-RPC methods
     // =================================
@@ -150,6 +192,39 @@ public class User extends PoolElement{
         return passwd(client, id, password);
     }
 
+    /**
+     * Changes the main group of the given user
+     * 
+     * @param gid The new group ID.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse chgrp(int gid)
+    {
+        return chgrp(client, id, gid);
+    }
+
+    /**
+     * Adds this user to a secondary group
+     * 
+     * @param gid The new group ID.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse addgroup(int gid)
+    {
+        return addgroup(client, id, gid);
+    }
+
+    /**
+     * Removes this user from a secondary group
+     * 
+     * @param gid The new group ID.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse delgroup(int gid)
+    {
+        return delgroup(client, id, gid);
+    }
+
     // =================================
     // Helpers
     // =================================
@@ -163,5 +238,17 @@ public class User extends PoolElement{
     {
         String enabled = xpath("ENABLED");
         return enabled != null && enabled.equals("1");
+    }
+
+    /**
+     * Returns whether or not the user is part of the group
+     * 
+     * @param gid The group ID.
+     * @return whether or not the user is part of the group
+     */
+    public boolean isPartOf(int gid)
+    {
+        String res = xpath("GROUPS/ID[.="+gid+"]");
+        return res != null && res.equals(""+gid);
     }
 }

@@ -26,7 +26,9 @@ module OpenNebula
             :allocate => "user.allocate",
             :delete   => "user.delete",
             :passwd   => "user.passwd",
-            :chown    => "user.chown"
+            :chown    => "user.chown",
+            :addgroup => "user.addgroup",
+            :delgroup => "user.delgroup"
         }
 
         # Creates a User description with just its identifier
@@ -90,11 +92,35 @@ module OpenNebula
             return rc
         end
 
-        # Changes the owner/group
+        # Changes the main group
         # gid:: _Integer_ the new group id. Set to -1 to leave the current one
         # [return] nil in case of success or an Error object
         def chgrp(gid)
             chown(USER_METHODS[:chown], -1, gid)
+        end
+
+        # Adds a secondary group
+        # gid:: _Integer_ the new group id.
+        # [return] nil in case of success or an Error object
+        def addgroup(gid)
+            return Error.new('ID not defined') if !@pe_id
+
+            rc = @client.call(USER_METHODS[:addgroup], @pe_id, gid)
+            rc = nil if !OpenNebula.is_error?(rc)
+
+            return rc
+        end
+
+        # Deletes a secondary group. Fails if the group is the main one
+        # gid:: _Integer_ the group id.
+        # [return] nil in case of success or an Error object
+        def delgroup(gid)
+            return Error.new('ID not defined') if !@pe_id
+
+            rc = @client.call(USER_METHODS[:delgroup], @pe_id, gid)
+            rc = nil if !OpenNebula.is_error?(rc)
+
+            return rc
         end
 
         # ---------------------------------------------------------------------
@@ -107,5 +133,20 @@ module OpenNebula
             self['GID'].to_i
         end
 
+        # Returns whether or not the user is part of the group 'gid'
+        def is_part_of(gid)
+            return self["GROUPS/ID[.=#{gid}]"] != nil
+        end
+
+        # Returns an array with the numeric group ids
+        def group_ids
+            array = Array.new
+
+            self.each("GROUPS/ID") do |id|
+                array << id.text.to_i
+            end
+
+            return array
+        end
     end
 end

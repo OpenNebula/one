@@ -127,6 +127,12 @@ Commands:
 * chgrp (Changes the User group)
     oneuser chgrp <id> <group_id>
 
+* addgroup (Adds a secondary group)
+    oneuser addgroup <id> <group_id>
+
+* delgroup (Deletes a secondary group. Fails if the group is the main one)
+    oneuser delgroup <id> <group_id>
+
 Information Columns:
 
 * UID       User ID
@@ -279,6 +285,33 @@ when "chgrp"
     if is_successful?(result)
         puts "User group changed" if ops[:verbose]
     end
+
+when "addgroup"
+    check_parameters("addgroup", 2)
+
+    obj_id = get_user_id(ARGV[0])
+    new_gid  = ARGV[1].to_i
+
+    obj = OpenNebula::User.new_with_id(obj_id, get_one_client)
+
+    result = obj.addgroup( new_gid )
+    if is_successful?(result)
+        puts "User group added" if ops[:verbose]
+    end
+
+when "delgroup"
+    check_parameters("delgroup", 2)
+
+    obj_id = get_user_id(ARGV[0])
+    new_gid  = ARGV[1].to_i
+
+    obj = OpenNebula::User.new_with_id(obj_id, get_one_client)
+
+    result = obj.delgroup( new_gid )
+    if is_successful?(result)
+        puts "User group deleted" if ops[:verbose]
+    end
+
 
 when "list"
     if !ops[:xml]

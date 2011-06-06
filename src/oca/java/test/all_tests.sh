@@ -17,7 +17,6 @@ cp oned.conf $ONEDCONF_LOCATION
 export ONE_XMLRPC=http://localhost:2666/RPC2
 
 
-./test.sh ClusterTest
 ./test.sh HostTest
 ./test.sh ImageTest
 ./test.sh SessionTest
@@ -25,3 +24,4 @@ export ONE_XMLRPC=http://localhost:2666/RPC2
 ./test.sh VirtualMachineTest
 ./test.sh VirtualNetworkTest
 ./test.sh TemplateTest
+./test.sh GroupTest

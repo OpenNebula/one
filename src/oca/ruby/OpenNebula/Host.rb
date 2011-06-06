@@ -122,11 +122,10 @@ module OpenNebula
         end
 
         # Returns the cluster ID of the Host
-        # TODO
-#        def cluster_id
-#            self['CID']
-#        end
-#
+        def cluster_id
+            self['CID']
+        end
+
 
     private
         def set_enabled(enabled)

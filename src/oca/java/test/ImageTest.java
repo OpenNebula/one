@@ -203,13 +203,13 @@ public class ImageTest
         assertTrue( image.xpath("NAME").equals("test_img_"+cont) );
     }
 
-//    @Test
+    @Test
     public void delete()
     {
         res = image.delete();
         assertTrue( !res.isError() );
 
-        res = image.info();
-        assertTrue( res.isError() );
+//        res = image.info();
+//        assertTrue( res.isError() );
     }
 }

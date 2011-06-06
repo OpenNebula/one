@@ -22,7 +22,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opennebula.client.Client;
 import org.opennebula.client.OneResponse;
+import org.opennebula.client.group.Group;
 import org.opennebula.client.template.*;
+import org.opennebula.client.user.User;
 import org.opennebula.client.vm.VirtualMachine;
 
 
@@ -191,11 +193,48 @@ public class TemplateTest
     @Test
     public void allocateFromTemplate()
     {
-        template.info();
+        res = template.info();
         assertTrue( !res.isError() );
 
         res = VirtualMachine.allocateFromTemplate(client, template);
         assertTrue( !res.isError() );
         assertTrue( res.getMessage().equals("0") );
+    }
+
+    @Test
+    public void chown()
+    {
+        // Create a new User and Group
+        res = User.allocate(client, "template_test_user", "password");
+        assertTrue( !res.isError() );
+
+        int uid = Integer.parseInt(res.getMessage());
+
+        res = Group.allocate(client, "template_test_group");
+        assertTrue( !res.isError() );
+
+        int gid = Integer.parseInt(res.getMessage());
+
+        res = template.info();
+        assertTrue( !res.isError() );
+
+        assertTrue( template.uid() == 0 );
+        assertTrue( template.gid() == 0 );
+
+        res = template.chown(uid, gid);
+
+        res = template.info();
+        assertTrue( !res.isError() );
+
+        assertTrue( template.uid() == uid );
+        assertTrue( template.gid() == gid );
+
+        res = template.chgrp(0);
+
+        res = template.info();
+        assertTrue( !res.isError() );
+
+        assertTrue( template.uid() == uid );
+        assertTrue( template.gid() == 0 );
     }
 }

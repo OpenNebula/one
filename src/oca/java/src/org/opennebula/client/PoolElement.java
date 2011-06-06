@@ -135,6 +135,30 @@ public abstract class PoolElement {
     }
 
     /**
+     * Returns the owner User's ID, or -1 if the element doesn't have one.
+     * 
+     * @return the owner User's ID, or -1 if the element doesn't have one.
+     */
+    public int uid()
+    {
+        String uid = xpath("UID");
+
+        return uid != null ? Integer.parseInt( uid ) : -1;
+    }
+
+    /**
+     * Returns the element group's ID, or -1 if the element doesn't have one.
+     * 
+     * @return the element group's ID, or -1 if the element doesn't have one.
+     */
+    public int gid()
+    {
+        String gid = xpath("GID");
+
+        return gid != null ? Integer.parseInt( gid ) : -1;
+    }
+
+    /**
      * Evaluates an XPath expression and returns the result as a String.
      * If the internal xml representation is not built, returns null. The
      * subclass method info() must be called before.
