@@ -56,6 +56,12 @@ for f in $SRC; do
         ;;
 
     *)
+        if [ $SECURE_CONTEXT -eq 0 -o "$f" == "context.sh" ]; then
+            exec_and_log "cp -R $f $ISO_DIR"
+        else
+            log "not copying potentialy dangerous file $f"
+        fi
+
         exec_and_log "cp -R $f $ISO_DIR"
         ;;
     esac
