@@ -26,6 +26,7 @@ void RequestManagerDelete::request_execute(xmlrpc_c::paramList const& paramList)
     int             oid = xmlrpc_c::value_int(paramList.getInt(1));
     PoolObjectSQL * object;
     set<int>        group_set;
+    string          error_msg;
 
     if ( basic_authorization(oid) == false )
     {
@@ -46,13 +47,13 @@ void RequestManagerDelete::request_execute(xmlrpc_c::paramList const& paramList)
         group_set   = user->get_groups();
     }
 
-    int rc = pool->drop(object);
+    int rc = drop(object, error_msg);
 
     object->unlock();
 
     if ( rc != 0 )
     {
-        failure_response(INTERNAL,request_error("Internal Error",""));
+        failure_response(INTERNAL,request_error(error_msg, ""));
         return;
     }
 

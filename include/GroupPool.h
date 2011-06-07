@@ -111,10 +111,26 @@ public:
     /**
      *  Drops the Group from the data base. The object mutex SHOULD be
      *  locked.
-     *    @param group a pointer to the object
-     *    @return 0 on success.
+     * @param objsql a pointer to a Group object
+     * @return 0 on success.
      */
-    int drop(Group * group);
+    int drop(PoolObjectSQL * objsql)
+    {
+        string err;
+        return drop(objsql, err);
+    };
+
+    /**
+     *  Drops the Group from the data base. The object mutex SHOULD be
+     *  locked.
+     * @param objsql a pointer to a Group object
+     * @param error_msg Error reason, if any
+     * @return  0 on success,
+     *          -1 DB error,
+     *          -2 object is a system group (ID < 100)
+     *          -3 Group's User IDs set is not empty
+     */
+    int drop(PoolObjectSQL * objsql, string& error_msg);
 
     /**
      *  Bootstraps the database table(s) associated to the Group pool

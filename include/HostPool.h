@@ -166,16 +166,6 @@ public:
         return PoolSQL::search(oids, Host::table, where);
     };
 
-    /**
-     *  Drops the object's data in the data base. The object mutex SHOULD be
-     *  locked.
-     *    @param objsql a pointer to the object
-     *    @return 0 on success.
-     */
-    int drop(Host * host)
-    {
-        return host->drop(db);
-    };
 private:
 
     /**

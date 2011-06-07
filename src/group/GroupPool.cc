@@ -124,26 +124,36 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-// TODO: add error string
-
-int GroupPool::drop(Group * group)
+int GroupPool::drop(PoolObjectSQL * objsql, string& error_msg)
 {
+    Group * group = static_cast<Group*>(objsql);
+
+    int rc;
+
     // Return error if the group is a default one.
     if( group->get_oid() < 100 )
     {
-        NebulaLog::log("GROUP",Log::ERROR,
-                       "System Groups (ID < 100) cannot be deleted.");
-        return -1;
+        error_msg = "System Groups (ID < 100) cannot be deleted.";
+        NebulaLog::log("GROUP", Log::ERROR, error_msg);
+        return -2;
     }
 
     if( group->get_collection_size() > 0 )
     {
         ostringstream oss;
         oss << "Group " << group->get_oid() << " is not empty.";
-        NebulaLog::log("GROUP",Log::ERROR, oss.str());
+        error_msg = oss.str();
+        NebulaLog::log("GROUP", Log::ERROR, error_msg);
 
-        return -1;
+        return -3;
     }
 
-    return group->drop(db);
+    rc = group->drop(db);
+
+    if( rc != 0 )
+    {
+        rc = -1;
+    }
+
+    return rc;
 }

@@ -95,15 +95,6 @@ public:
         return image->update(db);
     };
 
-    /** Drops an image from the DB, the image mutex MUST BE locked
-     *    @param image pointer to Image
-     *    @return 0 on success
-     */
-    int drop(Image * image)
-    {
-        return PoolSQL::drop(image);
-    };
-
     /**
      *  Bootstraps the database table(s) associated to the Image pool
      */

@@ -89,14 +89,6 @@ public:
         return user->update(db);
     };
 
-    /** Drops a user from the DB, the user mutex MUST BE locked
-     *    @param user pointer to User
-     */
-    int drop(User * user)
-    {
-        return PoolSQL::drop(user);
-    };
-
     /**
      *  Bootstraps the database table(s) associated to the User pool
      */
