@@ -25,342 +25,90 @@ else
 end
 
 $: << RUBY_LIB_LOCATION
+$: << RUBY_LIB_LOCATION+"/cli"
 
+require 'command_parser'
+require 'one_helper/onevnet_helper'
 
-require 'OpenNebula'
-require 'client_utilities'
-require 'command_parse'
-
-
-ShowTableVN={
-    :id => {
-        :name => "ID",
-        :desc => "ONE identifier for virtual network",
-        :size => 4,
-        :proc => lambda {|d,e| d.id }
-    },
-    :name => {
-        :name => "NAME",
-        :desc => "name of the virtual network",
-        :size => 15,
-        :left => true,
-        :proc => lambda {|d,e| d.name }
-    },
-    :user => {
-        :name => "USER",
-        :desc => "Username of the virtual network owner",
-        :size => 8,
-        :left => true,
-        :proc => lambda {|d,e| d["USERNAME"] }
-    },
-    :type => {
-        :name => "TYPE",
-        :desc => "NType of virtual network",
-        :size => 6,
-        :proc => lambda {|d,e| 
-                          if(d["TYPE"] == "0")
-                              return "Ranged"
-                          else
-                              if (d["TYPE"] == "1")
-                                  return "Fixed"
-                              end
-                          end
-                      }
-    },
-    :size => {
-        :name => "SIZE",
-        :desc => "Number of hosts (free + used) in the virtual network",
-        :size => 6,
-        :proc => lambda {|d,e| d["SIZE"] }
-    },
-    :bridge => {
-        :name => "BRIDGE",
-        :desc => "Bridge associated to the virtual network",
-        :size => 6,
-        :proc => lambda {|d,e| d["BRIDGE"] }
-    },
-    :public => {
-        :name => "PUBLIC",
-        :desc => "Whether the Image is public or not",
-        :size => 1,
-        :proc => lambda {|d,e| if d["PUBLIC"].to_i == 1 then "Y" else "N" end}
-    },
-    :totalleases => {
-        :name => "#LEASES",
-        :desc => "Number of this virtual network's given leases",
-        :size => 7,
-        :proc => lambda {|d,e| d["TOTAL_LEASES"] }
-    },
-
-    :default => [:id, :user, :name, :type, :bridge, :public, :totalleases]
-}
-
-class VNShow
-    def initialize(filter_flag="-2")
-        @vnpool=OpenNebula::VirtualNetworkPool.new(get_one_client,
-            filter_flag.to_i)
-        @table=ShowTable.new(ShowTableVN)
+cmd=CommandParser::CmdParser.new(ARGV) do
+    usage "onevnet COMMAND [args..] [options..]"
+    
+    helper = OneVNetHelper.new
+    
+    ########################################################################
+    # Global Options
+    ########################################################################
+    set :option, CommandParser::OPTIONS
+    
+    ########################################################################
+    # Formatters for arguments
+    ########################################################################
+    oneid_desc='OpenNebula Virtual Network name or id'
+    set :format, :vnetid, oneid_desc do |arg| 
+        helper.to_id(arg) 
     end
     
-    def header_vn_small
-        scr_bold
-        scr_underline
-        print @table.header_str
-        scr_restore
-        puts ""
+    onelistid_desc='Comma-separated list of OpenNebula Virtual Network names or ids'
+    set :format, :vnetid_list, onelistid_desc do |arg| 
+        helper.list_to_id(arg) 
     end
     
-    def list_short(options=nil)
-        res=@vnpool.info
-        if options
-            @table.columns=options[:columns] if options[:columns]
-        end
-
-        if OpenNebula.is_error?(res)
-            result=res
-        else
-            result=res
-            header_vn_small
-            if options[:filter_flag]
-                 vns=@vnpool.select{|element|
-                         element["USERNAME"]==options[:filter_flag]
-                         }
-            else
-                 vns=@vnpool
-            end
-            puts @table.data_str(vns, options)
-            result
-        end
-    end
-end
-
-class OneVNParse < CommandParse
-    
-    COMMANDS_HELP=<<-EOT
-
-Description:
-
-This command enables the user to manage virtual networks in the OpenNebula
-server. It provides functionality to create, get information and delete a
-particular network or to list available and used IP's.
-
-
-Commands:
-
-* create (Creates a new virtual network)
-    onevnet create <template>
-    
-    template is a filename where the virtual network is described
-    
-* show (Gets info from a virtual network)
-    onevnet show <network_id>
-    
-* publish (Publish a virtual network)
-    onevnet publish <network_id>
-
-* unpublish (Unpublish a virtual network)
-    onevnet unpublish <network_id>
-    
-* delete (Removes a virtual network)
-    onevnet delete <network_id>
-
-* addleases (Adds a lease to the virtual network)
-    onevnet addleases <network_id> <IP> [<MAC>]
-
-* rmleases (Removes a lease fom the virtual network)
-    onevnet rmleases <network_id> <IP>
-
-* list (Lists virtual networks in the pool)
-    onevnet list <filter_flag>
-        where filter_flag can be
-            a, all  : all the known VNs
-            m, mine : the VNs belonging to the user in ONE_AUTH
-                        and all the Public VNs
-            uid     : VNs of the user identified by this uid
-            user    : VNs of the user identified by the username
-            
-
-Information columns:
-
-* NID       Network ID
-* NAME      Name of the virtual network
-* TYPE      Type of virtual network (0=ranged, 1=fixed)
-* BRIDGE    Bridge associated to the virtual network
-* LEASES    Number of leases used from this virtual network
-
+    filterflag_desc=<<-EOT
+a, all   --> all the known Virtual Networks
+m, mine  --> the Virtual Networks belonging to the user in ONE_AUTH
+g, group --> 'mine' plus the Virtual Networks belonging to the groups
+                the user is member of
+uid      --> Virtual Networks of the user identified by this uid
+user     --> Virtual Networks of the user identified by the username
 EOT
-
-    def text_commands
-        COMMANDS_HELP
-    end
-
-    def text_command_name
-        "onevnet"
-    end
-
-    def list_options
-        table=ShowTable.new(ShowTableVN)
-        table.print_help
-    end
-
-end
-
-onevn_opts=OneVNParse.new([:list, :xml])
-onevn_opts.parse(ARGV)
-ops=onevn_opts.options
-
-result=[false, "Unknown error"]
-
-command=ARGV.shift
-
-case command
-when "create"
-    check_parameters("create", 1)
-    vn=OpenNebula::VirtualNetwork.new(
-        OpenNebula::VirtualNetwork.build_xml, get_one_client)
-    template=File.read(ARGV[0])
-    result=vn.allocate(template)
-    if !OpenNebula.is_error?(result)
-        puts "ID: " + vn.id.to_s if ops[:verbose]
-        exit 0
+    set :format, :filterflag, filterflag_desc do |arg| 
+        helper.filterflag_to_i(arg) 
     end
     
-when "show"
-    check_parameters("show", 1)
-    args=expand_args(ARGV)
-
-    args.each do |param|
-        vn_id=get_vn_id(param)
-        vn=OpenNebula::VirtualNetwork.new_with_id(vn_id, get_one_client)
-        result=vn.info
-        if is_successful?(result)
-            if !ops[:xml]
-                str_h1="%-80s"
-                str="%-10s: %-20s"
-                print_header(str_h1,
-                    "VIRTUAL NETWORK #{vn.id.to_s} INFORMATION",true)
-        
-                puts str % ["ID: ",vn.id.to_s]
-                puts str % ["UID: ",vn["UID"]]
-                if vn['PUBLIC'].to_i == 1 
-                    public_str = "Y" 
-                else 
-                    public_str = "N" 
-                end
-                puts str % ["PUBLIC", public_str]
-                puts
-                print_header(str_h1,"VIRTUAL NETWORK TEMPLATE",false)
-        
-                puts vn.template_str(false)
-        
-                leases_str = vn.template_like_str('/VNET/LEASES', false)
-  
-                if !leases_str.empty?
-                    puts
-                    print_header(str_h1,"LEASES INFORMATION",false)
-                    puts leases_str
-                end
-            else
-                puts vn.to_xml(true)
-            end
-        end
+    ########################################################################
+    # Commands
+    ########################################################################
+    command :create, 'Create a new Virtual Network', :file do
+        helper.create_resource(args.shift, options)
     end
     
-when "publish"
-    check_parameters("publish", 1)
-    vn_id=get_vn_id(ARGV[0])
-
-    vn=OpenNebula::VirtualNetwork.new_with_id(vn_id, get_one_client)
-
-    result=vn.publish
-    if is_successful?(result)
-        puts "VirtualNetwork published" if ops[:verbose]
+    command :show, 'Gets info from a Virtual Network', :oneid, 
+            :options=>OpenNebulaHelper::XML do
+        helper.show_resource(args.shift,options)
     end
     
-when "unpublish"
-    check_parameters("unpublish", 1)
-    vn_id=get_vn_id(ARGV[0])
-
-    vn=OpenNebula::VirtualNetwork.new_with_id(vn_id, get_one_client)
-
-    result=vn.unpublish
-    if is_successful?(result)
-        puts "VirtualNetwork unpublished" if ops[:verbose]
+    command :list, 'Lists Virtual Networks in the pool', [:filterflag, nil], 
+            :options=>CLIHelper::OPTIONS<<OpenNebulaHelper::XML do
+        helper.list_pool(options)
     end
     
-when "delete"
-    check_parameters("delete", 1)
-    args=expand_args(ARGV)
-
-    args.each do |param|
-        vn_id=get_vn_id(param)
-        vn=OpenNebula::VirtualNetwork.new(
-            OpenNebula::VirtualNetwork.build_xml(vn_id), get_one_client)
-        result=vn.delete
-        if !OpenNebula.is_error?(result)
-            puts "Virtual Network deleted" if ops[:verbose]
-            break
+    command :publish, 'Publishes a Virtual Network', [:range,:vnetid_list] do
+        helper.perform_actions(args[0],nil,options,"published") do |vn|
+            vn.publish
         end
     end
 
-when "addleases"
-    check_parameters("addleases", 2)
-    vn_id = get_vn_id(ARGV[0])
-
-    vn = OpenNebula::VirtualNetwork.new_with_id(vn_id, get_one_client)
-
-    result = vn.addleases(ARGV[1], ARGV[2])
-    if is_successful?(result)
-        puts "Leases added" if ops[:verbose]
-    end
-
-when "rmleases"
-    check_parameters("rmleases", 2)
-    vn_id = get_vn_id(ARGV[0])
-
-    vn = OpenNebula::VirtualNetwork.new_with_id(vn_id, get_one_client)
-
-    result = vn.rmleases(ARGV[1])
-    if is_successful?(result)
-        puts "Leases removed" if ops[:verbose]
-    end
-
-when "list"
-    if ARGV[0]
-        case ARGV[0]
-        when "a", "all"
-            filter_flag="-2"
-        when "m", "mine"
-            filter_flag="-1"
-        else
-            if !ARGV[0].match(/^[0123456789]+$/)
-                filter_flag="-2"
-                ops[:filter_flag]=ARGV[0]
-            else
-                filter_flag=ARGV[0]
-            end
+    command :unpublish, 'Unpublishes a Virtual Network', [:range,:vnetid_list] do
+        helper.perform_actions(args[0],nil,options,"unpublished") do |vn|
+            vn.unpublish
         end
-    else
-        filter_flag="-2"
     end
 
-    if !ops[:xml]
-        vnlist=VNShow.new(filter_flag)
-        ops[:columns]=ops[:list] if ops[:list]
-        result=vnlist.list_short(ops)
-    else
-        vnpool=OpenNebula::VirtualNetworkPool.new(get_one_client,
-            filter_flag.to_i)
-        vnpool.info
-        puts vnpool.to_xml(true)
+    command :addleases, 'Adds a lease to the Virtual Network', :oneid, :text, [:text, nil] do
+        helper.perform_action(args.shift,args,options,"lease added") do |vn|
+            vn.addleases(args[0], args[1])
+        end
     end
-    
-else
-    onevn_opts.print_help
-    exit -1
-end
 
-if OpenNebula.is_error?(result)
-    puts "Error: " + result.message
-    exit -1
+    command :rmleases, 'Removes a lease from the Virtual Network', :oneid, :text do
+        helper.perform_action(args.shift,args,options,"lease removed") do |vn|
+            vn.rmleases(args[0])
+        end
+    end
+
+    command :delete, 'Removes a Virtual Network', [:range, :vnetid_list] do
+        helper.perform_actions(args[0],nil,options,"deleted") do |vn|
+            vn.delete
+        end
+    end
 end
