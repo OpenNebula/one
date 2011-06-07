@@ -121,11 +121,11 @@ module OpenNebula
             SHORT_HOST_STATES[state_str]
         end
 
-        # Returns the cluster ID of the Host
-        def cluster_id
-            self['CID']
+        # Returns the group identifier
+        # [return] _Integer_ the element's group ID
+        def gid
+            self['GID'].to_i
         end
-
 
     private
         def set_enabled(enabled)

@@ -99,13 +99,6 @@ module OpenNebula
             super(IMAGE_METHODS[:update], new_template)
         end
 
-        # Deletes an Image attribute
-        #
-        # +name+ Name of the attribute to be deleted
-        def remove_attr(name)
-            do_rm_attr(name)
-        end
-
         # Enables an Image
         def enable
             set_enabled(true)
@@ -217,15 +210,5 @@ module OpenNebula
 
             return rc
         end
-
-        def do_rm_attr(name)
-            return Error.new('ID not defined') if !@pe_id
-
-            rc = @client.call(IMAGE_METHODS[:rmattr], @pe_id, name)
-            rc = nil if !OpenNebula.is_error?(rc)
-
-            return rc
-        end
-
     end
 end

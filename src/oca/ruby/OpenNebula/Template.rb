@@ -79,11 +79,13 @@ module OpenNebula
         end
 
         # Creates a VM instance from a Template
+        #
+        # +name+ A string containing the name of the VM instance.
+        # [return] The new VM Instance ID, or an Error object
         def instantiate(name="")
             return Error.new('ID not defined') if !@pe_id
 
             rc = @client.call(TEMPLATE_METHODS[:instantiate], @pe_id, name)
-            rc = nil if !OpenNebula.is_error?(rc)
 
             return rc
         end
@@ -92,6 +94,8 @@ module OpenNebula
         #
         # +new_template+ New template contents
         def update(new_template)
+            return Error.new('ID not defined') if !@pe_id
+
             super(TEMPLATE_METHODS[:update], new_template)
         end
 
@@ -121,6 +125,10 @@ module OpenNebula
         # [return] _Integer_ the element's group ID
         def gid
             self['GID'].to_i
+        end
+
+        def owner_id
+            self['UID'].to_i
         end
 
     private
