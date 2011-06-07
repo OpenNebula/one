@@ -40,33 +40,33 @@ class TransferManager < OpenNebulaDriver
         @options={
             :threaded => true
         }.merge!(options)
-        
-        super(num, @options)
-        
+
+        super('', @options)
+
         @plugin=plugin
-        
+
         # register actions
         register_action(:TRANSFER, method("action_transfer"))
     end
-    
+
     def action_transfer(number, script_file)
         script_text=""
-        
+
         if File.exist?(script_file)
             open(script_file) {|f|
                 script_text=f.read
             }
-        
+
             script=TMScript.new(script_text, log_method(number))
             res=script.execute(@plugin)
-        
+
             if res[0]
                 send_message("TRANSFER", RESULT[:success], number)
             else
                 send_message("TRANSFER", RESULT[:failure], number, res[1])
             end
         else
-            send_message("TRANSFER", RESULT[:failure], number, 
+            send_message("TRANSFER", RESULT[:failure], number,
                 "Transfer file not found: #{script_file}")
         end
     end
