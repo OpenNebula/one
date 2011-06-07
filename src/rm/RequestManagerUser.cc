@@ -41,6 +41,7 @@ void RequestManagerUser::
     if ( user_action(user,paramList,error_str) < 0 )
     {
         failure_response(INTERNAL, request_error(error_str,""));
+        return;
     }
  
     success_response(id);
@@ -83,7 +84,7 @@ int UserAddGroup::user_action(User * user,
     {
         user->unlock();
 
-        error_str = "Can not add group to user";
+        error_str = "User is already in this group";
         return rc;
     }
 
@@ -93,7 +94,7 @@ int UserAddGroup::user_action(User * user,
 
     Nebula&     nd    = Nebula::instance();
     GroupPool * gpool = nd.get_gpool();
-    Group *     group = gpool->get(gid, true);
+    Group *     group = gpool->get(group_id, true);
 
     if( group == 0 )
     {
@@ -108,7 +109,7 @@ int UserAddGroup::user_action(User * user,
             user->unlock();
         }
 
-        error_str = "Group does not exists";
+        error_str = "Group does not exist";
         return -1;
     }
 
@@ -139,7 +140,18 @@ int UserDelGroup::user_action(User * user,
     {
         user->unlock();
 
-        error_str = "Can not remove group from user";
+        if ( rc == -1 )
+        {
+            error_str = "User is not part of this group";
+        }
+        else if ( rc == -2 )
+        {
+            error_str = "Can not remove main group from user";
+        }
+        else
+        {
+            error_str = "Can not remove group from user";
+        }
         return rc;
     }
 
@@ -149,7 +161,7 @@ int UserDelGroup::user_action(User * user,
 
     Nebula&     nd    = Nebula::instance();
     GroupPool * gpool = nd.get_gpool();
-    Group *     group = gpool->get(gid, true);
+    Group *     group = gpool->get(group_id, true);
 
     if( group == 0 )
     {

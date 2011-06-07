@@ -103,8 +103,10 @@ public:
     // *************************************************************************
 
     /**
-     *  Adds the User oid to the Main Group (gid), should be called after
-     *  the constructor.
+     *  Adds a group ID to the groups set.
+     *
+     *    @param id The new id
+     *    @return 0 on success, -1 if the ID was already in the set
      */
     int add_group(int group_id)
     {
@@ -112,11 +114,20 @@ public:
     }
 
     /**
-     *  Deletes the User ID from all the groups it belongs to. Must be called
-     *  before the User is dropped.
+     *  Deletes a group ID from the groups set.
+     *
+     *    @param id The id
+     *    @return   0 on success,
+     *              -1 if the ID was not in the set,
+     *              -2 if the group to delete is the main group
      */
     int del_group(int group_id)
     {
+        if( group_id == gid )
+        {
+            return -2;
+        }
+
         return del_collection_id(group_id);
     }
 
