@@ -16,6 +16,8 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+CONTEXT_FILE=$1
+
 while (( "$#" )); do
     if [ "$#" == "1" ]; then
         DST=$1
@@ -56,7 +58,7 @@ for f in $SRC; do
         ;;
 
     *)
-        if [ $SECURE_CONTEXT -eq 0 -o "$f" == "context.sh" ]; then
+        if [ $SECURE_CONTEXT -eq 0 -o "$f" == "$CONTEXT_FILE" ]; then
             exec_and_log "cp -R $f $ISO_DIR"
         else
             log "not copying potentialy dangerous file $f"
