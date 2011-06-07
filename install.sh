@@ -157,8 +157,7 @@ else
 fi
 
 SHARE_DIRS="$SHARE_LOCATION/examples \
-            $SHARE_LOCATION/examples/tm \
-            $SHARE_LOCATION/hooks"
+            $SHARE_LOCATION/examples/tm"
 
 ETC_DIRS="$ETC_LOCATION/im_kvm \
           $ETC_LOCATION/im_xen \
@@ -197,6 +196,8 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im/ganglia.d \
           $VAR_LOCATION/remotes/vmm/xen \
           $VAR_LOCATION/remotes/vmm/kvm \
+          $VAR_LOCATION/remotes/hooks \
+          $VAR_LOCATION/remotes/hooks/vnm \
           $VAR_LOCATION/remotes/image \
           $VAR_LOCATION/remotes/image/fs"
 
@@ -271,10 +272,12 @@ INSTALL_FILES=(
     DUMMY_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/dummy
     LVM_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/lvm
     IMAGE_DRIVER_FS_SCRIPTS:$VAR_LOCATION/remotes/image/fs
+    NETWORK_HOOK_SCRIPTS:$VAR_LOCATION/remotes/vnm
     EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples
     INSTALL_NOVNC_SHARE_FILE:$SHARE_LOCATION
     TM_EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples/tm
-    HOOK_SHARE_FILES:$SHARE_LOCATION/hooks
+    HOOK_FILES:$VAR_LOCATION/remotes/hooks
+    HOOK_NETWORK_FILES:$VAR_LOCATION/remotes/hooks/vnm
     COMMON_CLOUD_LIB_FILES:$LIB_LOCATION/ruby/cloud
     ECO_LIB_FILES:$LIB_LOCATION/ruby/cloud/econe
     ECO_LIB_VIEW_FILES:$LIB_LOCATION/ruby/cloud/econe/views
@@ -533,6 +536,7 @@ IMAGE_DRIVER_FS_SCRIPTS="src/image_mad/remotes/fs/cp \
                          src/image_mad/remotes/fs/fsrc \
                          src/image_mad/remotes/fs/rm"
 
+
 #-------------------------------------------------------------------------------
 # Migration scripts for onedb command, to be installed under $LIB_LOCATION
 #-------------------------------------------------------------------------------
@@ -622,14 +626,24 @@ TM_EXAMPLE_SHARE_FILES="share/examples/tm/tm_clone.sh \
                         share/examples/tm/tm_mv.sh"
 
 #-------------------------------------------------------------------------------
-# HOOK scripts, to be installed under $SHARE_LOCATION/hooks
+# HOOK scripts, to be installed under $VAR_LOCATION/remotes/hooks
 #-------------------------------------------------------------------------------
 
-HOOK_SHARE_FILES="share/hooks/ebtables-xen \
-                  share/hooks/ebtables-kvm \
-                  share/hooks/ebtables-flush \
-                  share/hooks/host_error.rb \
-                  share/hooks/image.rb"
+HOOK_FILES="share/hooks/host_error.rb \
+            share/hooks/image.rb"
+
+#-------------------------------------------------------------------------------
+# Network Hook scripts, to be installed under $VAR_LOCATION/remotes/hooks
+#-------------------------------------------------------------------------------
+
+HOOK_NETWORK_FILES="src/vnm_mad/OpenNebulaVLAN.rb \
+                    src/vnm_mad/KVMVLAN.rb \
+                    src/vnm_mad/ebtables-vlan \
+                    src/vnm_mad/firewall \
+                    src/vnm_mad/hm-vlan \
+                    src/vnm_mad/XenVLAN.rb \
+                    src/vnm_mad/openvswitch-vlan"
+
 
 INSTALL_NOVNC_SHARE_FILE="share/install_novnc.sh"
 

@@ -27,7 +27,9 @@ CONF = {
 COMMANDS = {
   :ebtables => "sudo /sbin/ebtables",
   :iptables => "sudo /usr/sbin/iptables",
-  :brctl    => "/usr/sbin/brctl",
+  :brctl    => "sudo /usr/sbin/brctl",
+  :ip       => "sudo /usr/sbin/ip",
+  :vconfig  => "sudo /usr/sbin/vconfig",
   :virsh    => "virsh -c qemu:///system",
   :xm       => "sudo /usr/sbin/xm",
   :ovs_vsctl=> "sudo /usr/local/bin/ovs-vsctl",
@@ -178,7 +180,7 @@ class OpenNebulaVLAN
     def get_interfaces
         bridges    = Hash.new
         brctl_exit =`#{COMMANDS[:brctl]} show`
-        
+
         cur_bridge = ""
 
         brctl_exit.split("\n")[1..-1].each do |l|
@@ -289,9 +291,9 @@ class OpenNebulaFirewall < OpenNebulaVLAN
             #:black_ports_tcp => iptables_range
             #:black_ports_udp => iptables_range
             #:icmp            => 'DROP' or 'NO'
-            
+
             nic_rules = Array.new
-            
+
             chain   = "one-#{vm_id}-#{nic[:network_id]}"
             tap     = nic[:tap]
 
@@ -397,5 +399,61 @@ class OpenNebulaFirewall < OpenNebulaVLAN
 
     def rule(rule)
         "#{COMMANDS[:iptables]} #{rule}"
+    end
+end
+
+class OpenNebulaHM < OpenNebulaVLAN
+    def initialize(vm, hypervisor = nil)
+        super(vm,hypervisor)
+        @bridges = get_interfaces
+    end
+
+    def activate
+        vm_id =  @vm['ID']
+        process do |nic|
+            bridge  = nic[:bridge]
+            dev     = nic[:phydev]
+            vlan    = CONF[:start_vlan] + nic[:network_id].to_i
+
+            create_bridge bridge if !bridge_exists? bridge
+            create_dev_vlan(dev, vlan) if !device_exists?(dev, vlan)
+            if !attached_bridge_dev?(bridge, dev, vlan)
+                attach_brigde_dev(bridge, dev, vlan)
+            end
+        end
+    end
+
+    def deactivate
+        vm_id =  @vm['ID']
+        process do |nic|
+        end
+    end
+
+    def bridge_exists?(bridge)
+        @bridges.keys.include? bridge
+    end
+
+    def create_bridge(bridge)
+        system("#{COMMANDS[:brctl]} addbr #{bridge}")
+    end
+
+    def device_exists?(dev, vlan=nil)
+        dev = "#{dev}.#{vlan}" if vlan
+        system("#{COMMANDS[:ip]} link show #{dev}")
+    end
+
+    def create_dev_vlan(dev, vlan)
+        system("#{COMMANDS[:vconfig]} add #{dev} #{vlan}")
+    end
+
+    def attached_bridge_dev?(bridge, dev, vlan=nil)
+        return false if !bridge_exists? bridge
+        dev = "#{dev}.#{vlan}" if vlan
+        @bridges[bridge].include? dev
+    end
+
+    def attach_brigde_dev(bridge, dev, vlan=nil)
+        dev = "#{dev}.#{vlan}" if vlan
+        system("#{COMMANDS[:brctl]} addif #{bridge} #{dev}")
     end
 end

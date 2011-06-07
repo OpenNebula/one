@@ -1,0 +1,12 @@
+#!/usr/bin/env ruby
+
+$: << File.dirname(__FILE__)
+
+require 'base64'
+require 'OpenNebulaVLAN'
+
+template    = ARGV[0]
+vm_xml      = Base64::decode64(template)
+
+hm = OpenNebulaHM.new(vm_xml)
+hm.activate
