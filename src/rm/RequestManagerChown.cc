@@ -35,6 +35,11 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList)
     GroupPool * gpool = nd.get_gpool();
     UserPool  * upool = nd.get_upool();
 
+    string      error_msg;
+    int         rc;
+
+    // TODO: maybe this authorization should include new user and new group
+    // tokens
     if ( basic_authorization(oid) == false )
     {
         return;
@@ -42,24 +47,14 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList)
 
     // ------------- Check new user and group id's ---------------------
 
-    if ( noid < 0 )
+    if ( noid > -1 && upool->get(noid,false) == 0 )
     {
-        failure_response(XML_RPC_API,request_error("Wrong User ID",""));
-        return;
-    }
-    else if ( upool->get(noid,false) == 0 )
-    {
-        failure_response(NO_EXISTS, 
+        failure_response(NO_EXISTS,
                 get_error(object_name(AuthRequest::USER),noid));
         return;
     }
 
-    if ( ngid < 0 )
-    {
-        failure_response(XML_RPC_API,request_error("Wrong Group ID",""));
-        return;
-    }
-    else if ( gpool->get(ngid,false) == 0 )
+    if ( ngid > -1 && gpool->get(ngid,false) == 0 )
     {
         failure_response(NO_EXISTS, 
                 get_error(object_name(AuthRequest::GROUP),ngid));
@@ -76,12 +71,20 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList)
         return;
     }    
 
-    object->set_uid(noid);
-    object->set_gid(ngid);
+    if ( noid > -1 )
+    {
+        rc = set_uid(noid, object, error_msg);
+    }
+    if ( rc == 0 && ngid > -1 )
+    {
+        rc = set_gid(ngid, object, error_msg);
+    }
 
-    pool->update(object);
-
-    object->unlock();
+    if ( rc != 0 )
+    {
+        failure_response(INTERNAL, request_error(error_msg,""));
+        return;
+    }
 
     success_response(oid);
 

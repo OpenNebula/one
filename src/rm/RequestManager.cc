@@ -309,6 +309,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vn_chown(new VirtualNetworkChown());
     xmlrpc_c::methodPtr image_chown(new ImageChown());
     xmlrpc_c::methodPtr host_chown(new HostChown());
+    xmlrpc_c::methodPtr user_chown(new UserChown());
 
     /* VM related methods  */    
     RequestManagerRegistry.addMethod("one.vm.deploy", vm_deploy);
@@ -363,14 +364,13 @@ void RequestManager::register_xml_methods()
     
     
     /* User related methods*/
-/*        
-*/
     RequestManagerRegistry.addMethod("one.user.allocate", user_allocate);
     RequestManagerRegistry.addMethod("one.user.delete", user_delete);
     RequestManagerRegistry.addMethod("one.user.info", user_info);
     RequestManagerRegistry.addMethod("one.user.addgroup", user_add_group);
     RequestManagerRegistry.addMethod("one.user.delgroup", user_del_group);
     RequestManagerRegistry.addMethod("one.user.passwd", user_change_password);
+    RequestManagerRegistry.addMethod("one.user.chown", user_chown);
 
     RequestManagerRegistry.addMethod("one.userpool.info", userpool_info);
     

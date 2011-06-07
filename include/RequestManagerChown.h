@@ -41,6 +41,46 @@ protected:
     /* -------------------------------------------------------------------- */
 
     void request_execute(xmlrpc_c::paramList const& _paramList);
+
+    /* -------------------------------------------------------------------- */
+
+    virtual int set_uid(int noid, PoolObjectSQL * object, string& error_msg)
+    {
+        int rc = object->set_uid(noid);
+        if ( rc < 0 )
+        {
+            ostringstream oss;
+            oss << object_name(auth_object) << " objects do not have owner";
+
+            error_msg = oss.str();
+        }
+
+        pool->update(object);
+
+        object->unlock();
+
+        return rc;
+    };
+
+    /* -------------------------------------------------------------------- */
+
+    virtual int set_gid(int ngid, PoolObjectSQL * object, string& error_msg)
+    {
+        int rc = object->set_gid(ngid);
+        if ( rc < 0 )
+        {
+            ostringstream oss;
+            oss << object_name(auth_object) << " objects do not have group";
+
+            error_msg = oss.str();
+        }
+
+        pool->update(object);
+
+        object->unlock();
+
+        return rc;
+    };
 };
 
 /* ------------------------------------------------------------------------- */
@@ -134,6 +174,61 @@ public:
     };
 
     ~HostChown(){};
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class UserChown : public RequestManagerChown
+{
+public:
+    UserChown():
+        RequestManagerChown("UserChown",
+                            "Changes ownership of a user")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_upool();
+        auth_object = AuthRequest::USER;
+    };
+
+    ~UserChown(){};
+
+    /* -------------------------------------------------------------------- */
+
+    int set_gid(int ngid, PoolObjectSQL * object, string& error_msg)
+    {
+        User * user = static_cast<User*>(object);
+        int oid = user->get_oid();
+
+        user->set_gid(ngid);
+
+        // Main group is also in the Group IDs set
+        // This call's return code is not checked, because this new main group
+        // could be already a secondary group
+        user->add_group(ngid);
+
+        pool->update(object);
+        object->unlock();
+
+        // Now add the User's ID to the Group
+        Nebula&     nd    = Nebula::instance();
+        GroupPool * gpool = nd.get_gpool();
+        Group *     group = gpool->get(ngid, true);
+
+        if( group == 0 )
+        {
+            get_error(object_name(AuthRequest::GROUP),ngid);
+            return -1;
+        }
+
+        group->add_user(oid);
+
+        gpool->update(group);
+
+        group->unlock();
+
+        return 0;
+    };
 };
 
 /* -------------------------------------------------------------------------- */
