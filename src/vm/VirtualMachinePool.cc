@@ -93,6 +93,16 @@ VirtualMachinePool::VirtualMachinePool(SqlDB *                   db,
 
             add_hook(hook);
         }
+        else if ( on == "PROLOG" )
+        {
+            VirtualMachineStateHook * hook;
+
+            hook = new VirtualMachineStateHook(name, cmd, arg, remote,
+                           VirtualMachine::PROLOG, VirtualMachine::ACTIVE);
+            add_hook(hook);
+
+            state_hook = true;
+        }
         else if ( on == "RUNNING" )
         {
             VirtualMachineStateHook * hook;
