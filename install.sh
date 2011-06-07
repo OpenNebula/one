@@ -415,6 +415,7 @@ MADS_LIB_FILES="src/mad/sh/madcommon.sh \
               src/vmm_mad/exec/one_vmm_exec.rb \
               src/vmm_mad/exec/one_vmm_exec \
               src/vmm_mad/exec/one_vmm_sh \
+              src/vmm_mad/exec/one_vmm_ssh \
               src/vmm_mad/ec2/one_vmm_ec2.rb \
               src/vmm_mad/ec2/one_vmm_ec2 \
               src/vmm_mad/dummy/one_vmm_dummy.rb \
