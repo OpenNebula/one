@@ -88,6 +88,7 @@ UserPool::UserPool(SqlDB * db):PoolSQL(db,User::table)
                 string error_str;
                 string sha1_pass = SSLTools::sha1_digest(one_pass);
 
+                // TODO: Add oneadmin to ONEADMIN Group
                 allocate(&one_uid,GroupPool::ONEADMIN_ID,one_name,sha1_pass,
                          true, error_str);
             }
@@ -256,6 +257,7 @@ bool UserPool::authenticate(const string& session, int& user_id, int& group_id)
 
                 if ( !is.fail() )
                 {
+                    // TODO: Add new user to USERS Group
                     allocate(&user_id,
                              GroupPool::USERS_ID,
                              mad_name,
