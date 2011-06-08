@@ -231,4 +231,13 @@ module OpenNebulaHelper
             gid
         end
     end
+    
+    def OpenNebulaHelper.time_to_str(time)
+        value=time.to_i
+        if value==0
+            value='-'
+        else
+            value=Time.at(value).strftime("%m/%d %H:%M:%S")
+        end
+    end
 end
