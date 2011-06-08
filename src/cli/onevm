@@ -25,879 +25,157 @@ else
 end
 
 $: << RUBY_LIB_LOCATION
+$: << RUBY_LIB_LOCATION+"/cli"
 
+require 'command_parser'
+require 'one_helper/onevm_helper'
 
-require 'OpenNebula'
-require 'client_utilities'
-require 'command_parse'
+cmd=CommandParser::CmdParser.new(ARGV) do
+    usage "onevm COMMAND [args..] [options..]"
 
+    helper = OneVMHelper.new
 
-ShowTableVM={
-    :id => {
-        :name => "ID",
-        :desc => "ONE identifier for the VM",
-        :size => 5,
-        :proc => lambda {|d,e| d.id }
-    },
-    :name => {
-        :name => "NAME",
-        :desc => "Name of the domain",
-        :size => 8,
-        :proc => lambda {|d,e|
-            d.name
-        }
-    },
-    :user=> {
-        :name => "USER",
-        :desc => "Name of the owner",
-        :size => 8,
-        :proc => lambda {|d,e|
-            d["USERNAME"]
-        }
-    },
-    :stat => {
-        :name => "STAT",
-        :desc => "Actual status of the VM",
-        :size => 4,
-        :proc => lambda {|d,e|
-            d.status
-        }
-    },
-    :cpu => {
-        :name => "CPU",
-        :desc => "CPU percentage used by the VM",
-        :size => 3,
-        :proc => lambda {|d,e|
-            d["CPU"]
-        }
-    },
-    :mem => {
-        :name => "MEM",
-        :desc => "Memory used by the VM",
-        :size => 7,
-        :kbytes => true,
-        :proc => lambda {|d,e| d["MEMORY"] }
-    },
-    :hostname => {
-        :name => "HOSTNAME",
-        :desc => "Machine where the VM is running",
-        :size => 15,
-        :proc => lambda {|d,e|
-            d["HISTORY/HOSTNAME"]
-        }
-    },
-    :time => {
-        :name => "TIME",
-        :desc => "Time since the VM was submitted",
-        :size => 11,
-        :proc => lambda {|d,e| str_running_time(d) }
-    },
+    ########################################################################
+    # Global Options
+    ########################################################################
+    set :option, CommandParser::OPTIONS
 
-    :default => [:id, :user, :name, :stat, :cpu, :mem, :hostname, :time]
-}
-
-ShowTableHistory={
-    :id => {
-        :name => "ID",
-        :desc => "ONE identifier for the VM",
-        :size => 4,
-        :proc => lambda {|d,e| d["ID"] }
-    },
-    :seq => {
-        :name => "SEQ",
-        :desc => "Sequence number",
-        :size => 3,
-        :proc => lambda {|d,e| d["SEQ"] }
-    },
-    :hostname => {
-        :name => "HOSTNAME",
-        :desc => "Name of the host where the VM was submited",
-        :size => 15,
-        :proc => lambda {|d,e| d["HOST_NAME"] }
-    },
-    :stime => {
-        :name => "STIME",
-        :desc => "Start time",
-        :size => 14,
-        :proc => lambda {|d,e|
-            t=Time.at(d["STIME"].to_i)
-            t.strftime("%m/%d %H:%M:%S")
-        }
-    },
-    :etime => {
-        :name => "ETIME",
-        :desc => "End time",
-        :size => 14,
-        :proc => lambda {|d,e|
-            if d["ETIME"].to_i==0
-                "--"
-            else
-                t=Time.at(d["ETIME"].to_i)
-                t.strftime("%m/%d %H:%M:%S")
-            end
-        }
-    },
-    :time => {
-        :name => "TIME",
-        :desc => "Total time",
-        :size => 11,
-        :proc => lambda {|d,e|
-            d["TIME"]
-        }
-    },
-    :reason => {
-        :name => "REASON",
-        :desc => "Reason for state change",
-        :size => "6",
-        :proc => lambda {|d,e|
-            OpenNebula::VirtualMachine.get_reason(d["REASON"])
-        }
-    },
-
-    :default => [:id, :seq, :hostname, :stime, :etime, :time, :reason]
-}
-
-class VmShow
-
-    def initialize(client, filter_flag="-2")
-        @vmpool=OpenNebula::VirtualMachinePool.new(client, filter_flag.to_i)
-        @table=ShowTable.new(ShowTableVM)
-        @table_history=ShowTable.new(ShowTableHistory)
+    ########################################################################
+    # Formatters for arguments
+    ########################################################################
+    oneid_desc='OpenNebula Virtual Machine name or id'
+    set :format, :vmid, oneid_desc do |arg|
+        helper.to_id(arg)
     end
 
-    def header_vm_small
-        scr_bold
-        scr_underline
-        print @table.header_str
-        scr_restore
-        puts ""
+    onelistid_desc='Comma-separated list of OpenNebula Virtual Machine names or ids'
+    set :format, :vmid_list, onelistid_desc do |arg|
+        helper.list_to_id(arg)
     end
 
-    def header_history_small
-        scr_bold
-        scr_underline
-        print @table_history.header_str
-        scr_restore
-        puts ""
-    end
-
-    def list_short(options=nil)
-        res=@vmpool.info()
-
-        if options
-            @table.columns=options[:columns] if options[:columns]
-        end
-
-        if OpenNebula.is_error?(res)
-            result=res
-            puts res.message
-            exit -1
-        else
-
-            if options[:filter_flag]
-                vms=@vmpool.select{|element|
-                    element['USERNAME']==options[:filter_flag]  }
-            else
-                vms=@vmpool
-            end
-
-            result=[true, ""]
-            header_vm_small
-
-            if options
-                puts @table.data_str(vms, options)
-            else
-                puts @table.data_str(vms)
-            end
-
-            result
-        end
-    end
-
-    def top(options=nil)
-        delay=1
-        delay=options[:delay] if options && options[:delay]
-
-        result=nil
-
-        begin
-            while true
-                scr_cls
-                scr_move(0,0)
-                result=list_short(options)
-                sleep delay
-            end
-        rescue Exception
-        end
-        result
-    end
-
-    def get_vm_history(vm)
-        {
-            'id'        => vm.id,
-            'seq'       => vm['HISTORY/SEQ'],
-            'host_name' => vm['HISTORY/HOSTNAME'],
-            'stime'     => vm['HISTORY/STIME'],
-            'etime'     => vm['HISTORY/ETIME'],
-            'time'      => str_running_time(vm),
-            'reason'    => vm['HISTORY/REASON']
-        }
-    end
-
-    def get_vms_history(vms)
-        vms.collect do |vmid|
-            vm=OpenNebula::VirtualMachine.new_with_id(vmid, get_one_client)
-            result=vm.info
-
-            if is_error?(result)
-                puts "Error: "+result.message
-                exit -1
-            end
-
-            get_vm_history(vm)
-        end
-    end
-
-    def list_vm_history(vm, options=nil)
-        #res=@vm.get_history(id)
-        if options
-            @table_history.columns=options[:columns] if options[:columns]
-        end
-
-        header_history_small
-
-        if options
-            puts @table_history.data_str([vm], options)
-        else
-            puts @table_history.data_str([vm])
-        end
-    end
-
-    def list_vm_history_array(ids, options=nil)
-        get_vms_history(ids).each {|vm|
-            puts "History for VM #{vm['ID']}"
-            puts
-            list_vm_history(vm, options)
-            puts
-        }
-    end
-
-    def list_vm_history_all(options=nil)
-        result=@vmpool.info
-
-        if is_error?(result)
-            puts "Error: "+result.message
-            exit -1
-        end
-
-        @vmpool.each {|vm|
-            puts "History for VM #{vm.id}"
-            puts
-            list_vm_history(get_vm_history(vm), options)
-            puts
-        }
-    end
-end
-
-
-##########################
-## COMMAND LINE PARSING ##
-##########################
-
-class OnevmParse < CommandParse
-
-    COMMANDS_HELP=<<-EOT
-
-Description:
-
-This command enables the user to manage virtual machines in OpenNebula.
-The user can allocate, deploy, migrate, suspend, resume and shutdown a virtual
-machine with the functionality present in onevm.
-
-
-Commands:
-
-* create (Submits a new virtual machine, adding it to the ONE VM pool)
-    onevm create [OPTION] {<template-file-path>, <template-id>, <template-name>}
-
-    <template-file-path> is a file name where the VM description is located.
-    <template-id> is the numeric ID of a registered template (using onetemplate)
-    <template-name> is the name of a registered template (using onetemplate)
-
-    OPTION: -n STRING, --name=STRING
-        Replaces the NAME attribute if the VM is being created from a registered
-        Template
-
-* deploy (Starts an existing VM in an specific host)
-    onevm deploy <vm_id> <host_id>
-
-    States: PENDING
-
-* shutdown (Shuts down an already deployed VM)
-    onevm shutdown <vm_id>
-
-    States: RUNNING
-
-* livemigrate (Migrates a running VM to another host without downtime)
-    onevm livemigrate <vm_id> <host_id>
-
-    States: RUNNING
-
-* migrate (Saves a running VM and starts it again in the specified host)
-    onevm migrate <vm_id> <host_id>
-
-    States: RUNNING
-
-* hold (Sets a VM to hold state, scheduler will not deploy it)
-    onevm hold <vm_id>
-
-    States: PENDING
-
-* release (Releases a VM from hold state, setting it to pending)
-    onevm release <vm_id>
-
-    States: HOLD
-
-* stop (Stops a running VM)
-    onevm stop <vm_id>
-
-    States: RUNNING
-
-* cancel (Cancels a running VM)
-    onevm cancel <vm_id>
-
-    States: RUNNING
-
-* suspend (Saves a running VM)
-    onevm suspend <vm_id>
-
-    States: RUNNING
-
-* resume (Resumes the execution of a saved VM)
-    onevm resume <vm_id>
-
-    States: STOPPED, SUSPENDED
-
-* saveas (Set the specified vms disk to be saved in a new image (image_name) 
-            when the vm shuts down)
-    onevm saveas <vm_id> <disk_id> <image_name>
-    
-         (Set a different type for the new Image)
-    onevm saveas <vm_id> <disk_id> <image_name> -t/--type <type>
-        
-* delete (Deletes a VM from the pool)
-    onevm delete <vm_id>
-
-    States: ANY
-
-* restart (Forces a re-deployment of a VM in UNKNOWN or BOOT state)
-    onevm restart <vm_id>
-
-    States: UNKNOWN, BOOT
-
-* resubmit (Resubmits a VM to PENDING state)
-    onevm resubmit <vm_id>
-
-    States: ANY, except SUSPENDED or DONE
-
-* list (Shows VMs in the pool)
-    onevm list <filter_flag>
-        where filter_flag can be
-            a, all   --> all the known VMs
-            m, mine  --> the VMs belonging to the user in ONE_AUTH
-            uid      --> VMs of the user identified by this uid
-            user     --> VMs of the user identified by the username
-
-* show (Gets information about a specific VM)
-    onevm show <vm_id>
-
-* top (Lists VMs continuously)
-    onevm top
-
-* history (Gets history from VMs)
-    onevm history [<vm_id> <vm_id> ...]
-
-    if no vm_id is provided it will list history for all known VMs
-
-
-Information Columns:
-
-* ID        ONE VM identifier
-* USER      Username of the VM owner
-* NAME      Name of the VM
-* STAT      Status of the VM
-* CPU       CPU percentage used by the VM
-* MEM       Memory used by the VM
-* HOSTNAME  Host where the VM is being or was run
-* TIME      Time since the submission of the VM (days hours:minutes:seconds)
-
-
-VM States:
-
-* pend	 pending
-* hold	 VM on hold (not runnable)
-* stop	 stopped
-* susp	 suspended
-* done	 finished
-* prol	 prolog
-* boot	 booting
-* runn	 running
-* migr	 migrating
-* save	 saving the VM to disk
-* epil	 epilog
-* shut	 shutting down
-* fail	 failed
-
+    filterflag_desc=<<-EOT
+a, all       all the known Virtual Machine
+m, mine      the Virtual Machine belonging to the user in ONE_AUTH
+g, group     'mine' plus the Virtual Machine belonging to the groups
+             the user is member of
+uid          Virtual Machine of the user identified by this uid
+user         Virtual Machine of the user identified by the username
 EOT
-
-    def text_commands
-        COMMANDS_HELP
+    set :format, :filterflag, filterflag_desc do |arg|
+        helper.filterflag_to_i(arg)
     end
 
-    def text_command_name
-        "onevm"
-    end
-
-    def list_options
-        table=ShowTable.new(ShowTableVM)
-        table.print_help
-    end
-
-    def special_options(opts, options)
-        opts.on("-t type", "--type type", String,
-                "Image type") do |o|
-            options[:type]=o
-        end
-        opts.on_tail("-n vm_name", "--name vm_name", String,
-                "Set VM name") do |o|
-            options[:vm_name] = o
+    ########################################################################
+    # Commands
+    ########################################################################
+    command :cancel, 'Cancel a Virtual Machine', [:range,:vmid_list] do
+        helper.perform_actions(args[0],options,"canceling") do |vm|
+            vm.cancel
         end
     end
+
+    command :create, 'Create a new Virtual Machine', :file do
+        helper.create_resource(args.shift, options)
+    end
+
+    command :delete, 'Removes a Virtual Machine', [:range, :vmid_list] do
+        helper.perform_actions(args[0],options,"deleted") do |vm|
+            vm.delete
+        end
+    end
+
+    # TBD hostid instead of text in the second argument
+    command :deploy, 'Deploy a Virtual Machine', [:range,:vmid_list], :text do
+        host_id = args[1]
+        verbose = "deploying in host #{host_id}"
+
+        helper.perform_actions(args[0],options,verbose) do |vm|
+            vm.deploy(host_id)
+        end
+    end
+
+    command :hold, 'Hold a Virtual Machine', [:range,:vmid_list] do
+        helper.perform_actions(args[0],options,"holding") do |vm|
+            vm.hold
+        end
+    end
+
+    command :list, 'Lists Virtual Machine in the pool', [:filterflag, nil],
+            :options=>CLIHelper::OPTIONS<<OpenNebulaHelper::XML do
+        helper.list_pool(options)
+    end
+
+    # TBD hostid instead of text in the second argument
+    command :livemigrate, 'Livemigrate a Virtual Machine', [:range,:vmid_list], :text do
+        host_id = args[1]
+        verbose = "live migrating to #{host_id}"
+
+        helper.perform_actions(args[0],options,verbose) do |vm|
+            vm.livemigrate(host_id)
+        end
+    end
+
+    # TBD hostid instead of text in the second argument
+    command :migrate, 'Migrate a Virtual Machine', [:range,:vmid_list], :text do
+        host_id = args[1]
+        verbose = "migrating to #{host_id}"
+
+        helper.perform_actions(args[0],options,verbose) do |vm|
+            vm.migrate(host_id)
+        end
+    end
+
+    command :release, 'Release a Virtual Machine', [:range,:vmid_list] do
+        helper.perform_actions(args[0],options,"releasing") do |vm|
+            vm.release
+        end
+    end
+
+    command :restart, 'Restart a Virtual Machine', [:range,:vmid_list] do
+        helper.perform_actions(args[0],options,"restarting") do |vm|
+            vm.restart
+        end
+    end
+
+    command :resubmit, 'Resubmit a Virtual Machine', [:range,:vmid_list] do
+        helper.perform_actions(args[0],options,"resubmiting") do |vm|
+            vm.restart
+        end
+    end
+
+    command :resume, 'Resume a Virtual Machine', [:range,:vmid_list] do
+        helper.perform_actions(args[0],options,"resuming") do |vm|
+            vm.resume
+        end
+    end
+
+    command :saveas, 'Save as a Virtual Machine', :vmid, :text do
+        disk_id    = args[1].to_i
+        image_name = args[2]
+        verbose = "disk #{disk_id} prepared to be saved in " <<
+                  "the image #{image_name}"
+
+        helper.perform_action(args[0],options,verbose) do |vm|
+            vm.save_as(disk_id, image_name)
+        end
+    end
+
+    command :show, 'Gets info from a Virtual Machine', :vmid,
+            :options=>OpenNebulaHelper::XML do
+        helper.show_resource(args[0],options)
+    end
+
+    command :stop, 'Stop a Virtual Machine', [:range,:vmid_list] do
+        helper.perform_actions(args[0],options,"stopping") do |vm|
+            vm.stop
+        end
+    end
+
+    command :suspend, 'Suspend a Virtual Machine', [:range,:vmid_list] do
+        helper.perform_actions(args[0],options,"suspending") do |vm|
+            vm.suspend
+        end
+    end
+
+    # TBD command :top
 end
-
-
-def get_user_flags
-    ops=Hash.new
-    if ARGV[0]
-        case ARGV[0]
-            when "a", "all"
-                ops[:filter_user]="-2"
-            when "m", "mine"
-                ops[:filter_user]="-1"
-            else
-                if !ARGV[0].match(/^[0123456789]+$/)
-                    ops[:filter_user]="-2"
-                    ops[:filter_flag]=ARGV[0]
-                else
-                    ops[:filter_user]=ARGV[0]
-                end
-        end
-     else
-        ops[:filter_user]="-2"
-     end
-
-     ops
-end
-
-onevm_opts=OnevmParse.new
-onevm_opts.parse(ARGV)
-ops=onevm_opts.options
-
-result=[false, "Unknown error"]
-
-command=ARGV.shift
-
-case command
-when "submit", "create"
-    check_parameters("create", 1)
-    vm=OpenNebula::VirtualMachine.new(
-        OpenNebula::VirtualMachine.build_xml, get_one_client)
-
-    template = ""
-    success = false
-
-    if( File.file?(ARGV[0]) )
-        # argument is a file path
-        begin
-            template = File.read(ARGV[0])
-            success = true
-        rescue
-            result = OpenNebula::Error.new("Can not read template: #{ARGV[0]}")
-        end
-    else
-        # argument could be a template ID or a template name
-        template_id = get_template_id(ARGV[0])
-
-        template = "TEMPLATE_ID = #{template_id}"
-        template << "\nNAME = #{ops[:vm_name]}" if ops[:vm_name]
-
-        success = true
-    end
-
-    if( success )
-        result = vm.allocate(template)
-    end
-
-    if is_successful?(result)
-        puts "ID: " + vm.id.to_s if ops[:verbose]
-        exit 0
-    end
-
-when "deploy"
-    check_parameters("deploy", 2)
-    host_id=get_host_id(ARGV[-1])
-    args=expand_args(ARGV[0..-2])
-
-    args.each do |param|
-        vm_id=get_vm_id(param)
-
-        vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
-
-        result=vm.deploy(host_id)
-        if is_successful?(result)
-            puts "Deploying VM" if ops[:verbose]
-        else
-            break
-        end
-    end
-
-when "shutdown"
-    check_parameters("shutdown", 1)
-    args=expand_args(ARGV)
-
-    args.each do |param|
-        vm_id=get_vm_id(param)
-
-        vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
-        result=vm.shutdown
-        if is_successful?(result)
-            puts "Shutting down VM" if ops[:verbose]
-        else
-            break
-        end
-    end
-
-when "livemigrate"
-    check_parameters("livemigrate", 2)
-    host_id=get_host_id(ARGV[-1])
-    args=expand_args(ARGV[0..-2])
-
-    args.each do |param|
-        vm_id=get_vm_id(param)
-
-        vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
-
-        result=vm.live_migrate(host_id)
-        if is_successful?(result)
-            puts "Migrating VM" if ops[:verbose]
-        else
-            break
-        end
-    end
-
-when "migrate"
-    check_parameters("migrate", 2)
-    host_id=get_host_id(ARGV[-1])
-    args=expand_args(ARGV[0..-2])
-
-    args.each do |param|
-        vm_id=get_vm_id(param)
-
-        vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
-
-        result=vm.migrate(host_id)
-        if is_successful?(result)
-            puts "Migrating VM" if ops[:verbose]
-        else
-            break
-        end
-    end
-
-when "hold"
-    check_parameters("hold", 1)
-    args=expand_args(ARGV)
-
-    args.each do |param|
-        vm_id=get_vm_id(param)
-
-        vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
-
-        result=vm.hold
-        if is_successful?(result)
-            puts "Setting VM to hold state" if ops[:verbose]
-        else
-            break
-        end
-    end
-
-when "release"
-    check_parameters("release", 1)
-    args=expand_args(ARGV)
-
-    args.each do |param|
-        vm_id=get_vm_id(param)
-
-        vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
-
-        result=vm.release
-        if is_successful?(result)
-            puts "Releasing VM" if ops[:verbose]
-        else
-            break
-        end
-    end
-
-when "stop"
-    check_parameters("stop", 1)
-    args=expand_args(ARGV)
-
-    args.each do |param|
-        vm_id=get_vm_id(param)
-
-        vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
-
-        result=vm.stop
-        if is_successful?(result)
-            puts "Stopping VM" if ops[:verbose]
-        else
-            break
-        end
-    end
-
-when "cancel"
-    check_parameters("cancel", 1)
-    args=expand_args(ARGV)
-
-    args.each do |param|
-        vm_id=get_vm_id(param)
-
-        vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
-
-        result=vm.cancel
-        if is_successful?(result)
-            puts "Cancelling VM" if ops[:verbose]
-        else
-            break
-        end
-    end
-
-when "suspend"
-    check_parameters("suspend", 1)
-    args=expand_args(ARGV)
-
-    args.each do |param|
-        vm_id=get_vm_id(param)
-
-        vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
-
-        result=vm.suspend
-        if is_successful?(result)
-            puts "Suspending VM" if ops[:verbose]
-        else
-            break
-        end
-    end
-
-when "resume"
-    check_parameters("resume", 1)
-    args=expand_args(ARGV)
-
-    args.each do |param|
-        vm_id=get_vm_id(param)
-
-        vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
-
-        result=vm.resume
-        if is_successful?(result)
-            puts "Resuming VM" if ops[:verbose]
-        else
-            break
-        end
-    end
-
-when "restart"
-    check_parameters("restart", 1)
-    args=expand_args(ARGV)
-
-    args.each do |param|
-        vm_id=get_vm_id(param)
-
-        vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
-
-        result=vm.restart
-        if is_successful?(result)
-            puts "Restarting VM" if ops[:verbose]
-        else
-            break
-        end
-    end
-
-when "resubmit"
-    check_parameters("resubmit", 1)
-    args=expand_args(ARGV)
-
-    args.each do |param|
-        vm_id=get_vm_id(param)
-
-        vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
-
-        result=vm.resubmit
-        if is_successful?(result)
-            puts "Resubmitting VM" if ops[:verbose]
-        else
-            break
-        end
-    end
-
-when "list"
-    ops.merge!(get_user_flags)
-    if !ops[:xml]
-        vmlist=VmShow.new(get_one_client, ops[:filter_user].to_i)
-
-        ops[:columns]=ops[:list] if ops[:list]
-        result=vmlist.list_short(ops)
-    else
-        vmpool=OpenNebula::VirtualMachinePool.new(get_one_client,
-            ops[:filter_user].to_i)
-        vmpool.info
-        puts vmpool.to_xml(true)
-    end
-
-when "top"
-    ops.merge!(get_user_flags)
-    vmlist=VmShow.new(get_one_client, ops[:filter_user].to_i)
-    ops[:columns]=ops[:list] if ops[:list]
-    result=vmlist.top(ops)
-
-
-when "history"
-    vmlist=VmShow.new(get_one_client)
-    ops[:columns]=ops[:list] if ops[:list]
-    if ARGV[0]
-        ids=ARGV.collect {|arg| get_vm_id(arg)}
-        ids=ids.flatten.compact
-        result=vmlist.list_vm_history_array(ids)
-    else
-        result=vmlist.list_vm_history_all(ops)
-    end
-
-when "delete"
-    check_parameters("delete", 1)
-    args=expand_args(ARGV)
-
-    args.each do |param|
-        vm_id=get_vm_id(param)
-
-        vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
-
-        result=vm.finalize
-        if is_successful?(result)
-            puts "VM correctly deleted"  if ops[:verbose]
-        else
-            break
-        end
-    end
-    
-when "saveas"
-    check_parameters("saveas", 3)
-    vm_id = get_vm_id(ARGV[0])
-    disk_id = ARGV[1]
-    image_name = ARGV[2]
-
-    # Get the Image ID for this disk
-    vm = OpenNebula::VirtualMachine.new(
-                OpenNebula::VirtualMachine.build_xml(vm_id),
-                get_one_client)
-                
-    result = vm.info
-    if !is_successful?(result)
-        puts result.message
-        exit -1
-    end
-
-    result = vm.save_as(disk_id.to_i, image_name)
-    if is_successful?(result)
-        puts "VM disk with ID #{disk_id} is prepared to be" << 
-             " saved"  if ops[:verbose]
-    end
-
-when "show"
-    check_parameters("get_info", 1)
-    args=expand_args(ARGV)
-
-    args.each do |param|
-
-        vm_id=get_vm_id(param)
-
-        vm=OpenNebula::VirtualMachine.new_with_id(vm_id, get_one_client)
-        result=vm.info
-        if is_successful?(result)
-            if !ops[:xml]
-                str="%-15s: %-20s"
-                str_h1="%-80s"
-
-                print_header(str_h1, "VIRTUAL MACHINE #{vm['ID']} INFORMATION",
-true)
-
-                puts str % ["ID", vm.id.to_s]
-                puts str % ["NAME", vm.name]
-                puts str % ["STATE", vm.state_str]
-                puts str % ["LCM_STATE", vm.lcm_state_str]
-
-                value=vm['STIME'].to_i
-                if value==0
-                    value='-'
-                else
-                    value=Time.at(value).strftime("%m/%d %H:%M:%S")
-                end
-                puts str % ["START TIME", value]
-
-                value=vm['ETIME'].to_i
-                if value==0
-                    value='-'
-                else
-                    value=Time.at(value).strftime("%m/%d %H:%M:%S")
-                end
-                puts str % ["END TIME", value]
-
-                value=vm['DEPLOY_ID']
-                puts str % ["DEPLOY ID:", value=="" ? "-" : value]
-
-                puts
-
-                print_header(str_h1,"VIRTUAL MACHINE MONITORING",false)
-
-                poll_attrs = {
-                    "USED MEMORY" => "MEMORY",
-                    "USED CPU" => "CPU",
-                    "NET_TX" => "NET_TX",
-                    "NET_RX" => "NET_RX"
-                }
-
-                poll_attrs.each do |k,v|
-                    puts str % [k,vm[v]]
-                end
-                
-                puts
-                
-                print_header(str_h1,"VIRTUAL MACHINE TEMPLATE",false)
-
-                puts vm.template_str
-            else
-                puts vm.to_xml(true)
-            end
-        end
-     end
-else
-    onevm_opts.print_help
-    exit -1
-end
-
-
-
-if OpenNebula.is_error?(result)
-    puts "Error: " + result.message
-    exit -1
-end
-
-
