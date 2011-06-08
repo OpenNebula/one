@@ -383,9 +383,9 @@ function getUserName(uid){
     var user = uid;
     if (typeof(dataTable_users) == "undefined") {
         return user;
-        } 
+    }
     var nodes = dataTable_users.fnGetData();
-    
+
     $.each(nodes,function(){
        if (uid == this[1]) {
            user = this[2];
@@ -394,6 +394,11 @@ function getUserName(uid){
     });
     return user;
 
+}
+
+//Todo
+function getGroupName(gid){
+    return gid;
 }
 
 
@@ -460,12 +465,15 @@ function makeSelectOptions(dataTable,
     $.each(nodes,function(){
         var id = this[id_col];
         var name = this[name_col];
-        var status = this[status_col];
+        var status;
+        if (status_col >= 0) {
+            status = this[status_col];
+        }
         var user = user_col > 0 ? this[user_col] : false;
         var isMine = user ? (username == user) || (uid == user) : true;
         
         
-        if ((status != status_bad) || isMine ){
+        if (status_col < 0 || (status != status_bad) || isMine ){
             select +='<option value="'+id+'">'+name+'</option>';
         }
     });

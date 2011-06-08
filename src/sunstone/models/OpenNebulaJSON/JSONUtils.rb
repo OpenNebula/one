@@ -15,6 +15,7 @@
 #--------------------------------------------------------------------------- #
 
 module OpenNebulaJSON
+
     require 'json'
 
     module JSONUtils

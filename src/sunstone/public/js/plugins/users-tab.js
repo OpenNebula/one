@@ -15,6 +15,9 @@
 /* -------------------------------------------------------------------------- */
 
 /*Users tab plugin*/
+var user_list_json = {};
+var dataTable_users;
+var users_select="";
 
 var users_tab_content = 
 '<form id="user_form" action="" action="javascript:alert(\'js error!\');">\
@@ -50,9 +53,6 @@ var create_user_tmpl =
 	</div>\
 </fieldset>\
 </form>';
-
-var user_list_json = {};
-var dataTable_users;
 
 var user_actions = {
     "User.create" : {
@@ -149,34 +149,41 @@ function userElementArray(user_json){
 }
 
 
+function updateUserSelect(){
+    users_select = makeSelectOptions(dataTable_users,1,2,-1,"",-1);
+}
+
 // Callback to refresh a single element from the dataTable
 function updateUserElement(request, user_json){
-	var id = user_json.USER.ID;
-	var element = userElementArray(user_json);
-	updateSingleElement(element,dataTable_users,'#user_'+id);
+    var id = user_json.USER.ID;
+    var element = userElementArray(user_json);
+    updateSingleElement(element,dataTable_users,'#user_'+id);
 }
 
 // Callback to delete a single element from the dataTable
 function deleteUserElement(req){
-	deleteElement(dataTable_users,'#user_'+req.request.data);
+    deleteElement(dataTable_users,'#user_'+req.request.data);
+    updateUserSelect();
 }
 
 // Callback to add a single user element
 function addUserElement(request,user_json){
 	var element = userElementArray(user_json);
 	addElement(element,dataTable_users);
+    updateUserSelect();
 }
 
 // Callback to update the list of users
 function updateUsersView(request,users_list){
-	user_list_json = users_list;
-	var user_list_array = [];
+    user_list_json = users_list;
+    var user_list_array = [];
 
-	$.each(user_list_json,function(){
-		user_list_array.push(userElementArray(this));
-	});
-	updateView(user_list_array,dataTable_users);
-	updateDashboard("users",user_list_json);
+    $.each(user_list_json,function(){
+	user_list_array.push(userElementArray(this));
+    });
+    updateView(user_list_array,dataTable_users);
+    updateDashboard("users",user_list_json);
+    updateUserSelect();
 }
 
 // Prepare the user creation dialog
@@ -218,16 +225,15 @@ function popUpCreateUserDialog(){
 // Prepare the autorefresh of the list
 function setUserAutorefresh(){
     setInterval(function(){
-		var checked = $('input:checked',dataTable_users.fnGetNodes());
+        var checked = $('input:checked',dataTable_users.fnGetNodes());
         var filter = $("#datatable_users_filter input").attr("value");
-		if (!checked.length && !filter.length){
+        if (!checked.length && !filter.length){
             Sunstone.runAction("User.autorefresh");
-		}
+        }
     },INTERVAL+someTime());
 }
 
 $(document).ready(function(){
-    
     //if we are not oneadmin, our tab will not even be in the DOM.
     if (uid==0) {
         dataTable_users = $("#datatable_users").dataTable({
@@ -236,21 +242,21 @@ $(document).ready(function(){
             "sPaginationType": "full_numbers",
             "bAutoWidth":false,
             "aoColumnDefs": [
-                                { "bSortable": false, "aTargets": ["check"] },
-                                { "sWidth": "60px", "aTargets": [0] },
-                                { "sWidth": "35px", "aTargets": [1] }
-                            ]
-        });    
+                { "bSortable": false, "aTargets": ["check"] },
+                { "sWidth": "60px", "aTargets": [0] },
+                { "sWidth": "35px", "aTargets": [1] }
+            ]
+        });
         dataTable_users.fnClearTable();
         addElement([
             spinner,
             '',''],dataTable_users);
-            
+
         Sunstone.runAction("User.list");
-    
+
         setupCreateUserDialog();
         setUserAutorefresh();
-        
+
         initCheckAllBoxes(dataTable_users);
         tableCheckboxesListener(dataTable_users);
     }

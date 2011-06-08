@@ -37,17 +37,22 @@ module OpenNebulaJSON
             end
 
             rc = case action_hash['perform']
-                when "passwd" then self.passwd(action_hash['params'])
-                else
-                    error_msg = "#{action_hash['perform']} action not " <<
-                                " available for this resource"
-                    OpenNebula::Error.new(error_msg)
-            end
+                 when "passwd" then self.passwd(action_hash['params'])
+                 when "chgrp"        then self.chgrp(action_hash['params'])
+                 else
+                     error_msg = "#{action_hash['perform']} action not " <<
+                         " available for this resource"
+                     OpenNebula::Error.new(error_msg)
+                 end
         end
 
         def passwd(params=Hash.new)
             password = Digest::SHA1.hexdigest(params['password'])
             super(password)
+        end
+
+        def chgrp(params=Hash.new)
+            super(params['group_id'])
         end
     end
 end

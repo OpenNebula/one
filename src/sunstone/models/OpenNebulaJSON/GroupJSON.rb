@@ -17,16 +17,16 @@
 require 'OpenNebulaJSON/JSONUtils'
 
 module OpenNebulaJSON
-    class ClusterJSON < OpenNebula::Cluster
+    class GroupJSON < OpenNebula::Group
         include JSONUtils
 
         def create(template_json)
-            cluster_hash = parse_json(template_json,'cluster')
-            if OpenNebula.is_error?(cluster_hash)
-                return cluster_hash
+            group_hash = parse_json(template_json,'group')
+            if OpenNebula.is_error?(group_hash)
+                return group_hash
             end
 
-            self.allocate(cluster_hash['name'])
+            self.allocate(group_hash['name'])
         end
 
         def perform_action(template_json)
@@ -36,21 +36,16 @@ module OpenNebulaJSON
             end
 
             rc = case action_hash['perform']
-                when "add_host"    then self.add_host(action_hash['params'])
-                when "remove_host" then self.remove_host(action_hash['params'])
-                else
-                    error_msg = "#{action_hash['perform']} action not " <<
-                                " available for this resource"
-                    OpenNebula::Error.new(error_msg)
-            end
+                 when "chown"    then self.chown(action_hash['params'])
+                 else
+                     error_msg = "#{action_hash['perform']} action not " <<
+                         " available for this resource"
+                     OpenNebula::Error.new(error_msg)
+                 end
         end
 
-        def add_host(params=Hash.new)
-            super(params['host_id'])
-        end
-
-        def remove_host(params=Hash.new)
-            super(params['host_id'])
+        def chown(params=Hash.new)
+            super(params['owner_id'].to_i,-1)
         end
     end
 end

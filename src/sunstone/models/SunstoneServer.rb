@@ -55,7 +55,7 @@ class SunstoneServer
     def get_pool(kind)
         user_flag = -2
         pool = case kind
-            when "cluster"  then ClusterPoolJSON.new(@client)
+            when "group"    then GroupPoolJSON.new(@client)
             when "host"     then HostPoolJSON.new(@client)
             when "image"    then ImagePoolJSON.new(@client, user_flag)
             when "template" then TemplatePoolJSON.new(@client, user_flag)
@@ -92,7 +92,7 @@ class SunstoneServer
     ############################################################################
     def create_resource(kind, template)
         resource = case kind
-            when "cluster"  then ClusterJSON.new(Cluster.build_xml, @client)
+            when "group"    then GroupJSON.new(Group.build_xml, @client)
             when "host"     then HostJSON.new(Host.build_xml, @client)
             when "image"    then ImageJSON.new(Image.build_xml, @client)
             when "template" then TemplateJSON.new(Template.build_xml, @client)
@@ -299,7 +299,7 @@ class SunstoneServer
 
     def retrieve_resource(kind, id)
         resource = case kind
-            when "cluster"  then ClusterJSON.new_with_id(id, @client)
+            when "group"    then GroupJSON.new_with_id(id, @client)
             when "host"     then HostJSON.new_with_id(id, @client)
             when "image"    then ImageJSON.new_with_id(id, @client)
             when "template" then TemplateJSON.new_with_id(id, @client)

@@ -134,34 +134,34 @@ var vnet_actions = {
         error: onError,
         notify: true
     },
-    
+
     "Network.create_dialog" : {
         type: "custom",
         call: popUpCreateVnetDialog
     },
-    
+
     "Network.list" : {
         type: "list",
         call: OpenNebula.Network.list,
         callback: updateVNetworksView,
         error: onError
     },
-    
+
     "Network.show" : {
         type: "single",
         call: OpenNebula.Network.show,
         callback: updateVNetworkElement,
         error: onError
     },
-    
+
     "Network.showinfo" : {
         type: "single",
         call: OpenNebula.Network.show,
         callback: updateVNetworkInfo,
         error: onError
-        
+
     },
-    
+
     "Network.refresh" : {
         type: "custom",
         call: function(){
@@ -169,14 +169,14 @@ var vnet_actions = {
             Sunstone.runAction("Network.list");
         }
     },
-    
+
     "Network.autorefresh" : {
         type: "custom",
         call: function() {
             OpenNebula.Network.list({timeout: true, success: updateVNetworksView, error: onError});
         }
     },
-    
+
     "Network.publish" : {
         type: "multiple",
         call: OpenNebula.Network.publish,
@@ -187,7 +187,7 @@ var vnet_actions = {
         error: onError,
         notify: true
     },
-            
+
     "Network.unpublish" : {
         type: "multiple",
         call: OpenNebula.Network.unpublish,
@@ -198,7 +198,7 @@ var vnet_actions = {
         error: onError,
         notify: true
     },
-            
+
     "Network.delete" : {
         type: "multiple",
         call: OpenNebula.Network.delete,
@@ -206,8 +206,29 @@ var vnet_actions = {
         elements: function() { return getSelectedNodes(dataTable_vNetworks); },
         error: onError,
         notify: true
+    },
+
+    "Network.chown" : {
+        type: "multiple",
+        call: OpenNebula.Network.chown,
+        callback:  function (req) {
+            Sunstone.runAction("Network.show",req.request.data[0]);
+        },
+        elements: function() { return getSelectedNodes(dataTable_vNetworks); },
+        error:onError,
+        notify: true
+    },
+
+    "Network.chgrp" : {
+        type: "multiple",
+        call: OpenNebula.Network.chown,
+        callback:  function (req) {
+            Sunstone.runAction("Network.show",req.request.data[0]);
+        },
+        elements: function() { return getSelectedNodes(dataTable_vNetworks); },
+        error:onError,
+        notify: true
     }
-    
 }
 
 
@@ -234,6 +255,22 @@ var vnet_buttons = {
     "Network.unpublish" : {
         type: "action",
         text: "Unpublish",
+        condition: True
+    },
+
+    "Network.chown" : {
+        type: "confirm_with_select",
+        text: "Change owner",
+        select: function() {return users_select;},
+        tip: "Select the new owner:",
+        condition: True
+    },
+
+    "Network.chgrp" : {
+        type: "confirm_with_select",
+        text: "Change group",
+        select: function() {return groups_select;},
+        tip: "Select the new group:",
         condition: True
     },
     
@@ -381,7 +418,7 @@ function updateVNetworkInfo(request,vn){
 			<thead>\
 				<tr><th colspan="2">Leases information</th></tr>\
 			</thead>'+
-			prettyPrintJSON(vn_info.LEASES.LEASE)+
+			prettyPrintJSON(vn_info.TEMPLATE.LEASES)+
 		'</table>';
     }
     
