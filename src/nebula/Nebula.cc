@@ -243,9 +243,9 @@ void Nebula::start()
             VirtualMachinePool::bootstrap(db);
             HostPool::bootstrap(db);
             VirtualNetworkPool::bootstrap(db);
+            GroupPool::bootstrap(db);
             UserPool::bootstrap(db);
             ImagePool::bootstrap(db);
-            GroupPool::bootstrap(db);
             VMTemplatePool::bootstrap(db);
         }
     }
