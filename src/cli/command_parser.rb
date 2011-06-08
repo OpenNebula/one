@@ -41,7 +41,6 @@ module CommandParser
             @commands = Hash.new
             @formats = Hash.new
             @script = nil
-            @usage = ""
 
             @args = args
             @options = Hash.new
@@ -57,6 +56,10 @@ module CommandParser
 
         def usage(str)
             @usage = "Usage: #{str}"
+        end
+
+        def version(str)
+            @version = str
         end
 
         def set(e, *args, &block)
@@ -145,13 +148,15 @@ module CommandParser
         end
 
         def help
-            puts @usage
+            puts @usage if @usage
             puts
             print_options
             puts
             print_commands
             puts
             print_formatters
+            puts
+            puts @version if @version
         end
 
         private

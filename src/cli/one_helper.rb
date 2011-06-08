@@ -20,6 +20,15 @@ require 'OpenNebula'
 include OpenNebula
 
 module OpenNebulaHelper
+    ONE_VERSION=<<-EOT
+OpenNebula 2.3.0
+Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may
+not use this file except in compliance with the License. You may obtain
+a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+EOT
+
     ########################################################################
     # Options
     ########################################################################
@@ -89,8 +98,7 @@ module OpenNebulaHelper
             if OpenNebula.is_error?(rc)
                 return -1, rc.message
             else
-                rname=Object.const_get(self.class.name)::RESOURCE
-                puts "#{rname} #{id}: #{verbose}" if options[:verbose]
+                puts "#{self.rname} #{id}: #{verbose}" if options[:verbose]
                 return 0
             end
         end

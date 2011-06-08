@@ -17,11 +17,13 @@
 require 'one_helper'
 
 class OneVNetHelper < OpenNebulaHelper::OneHelper
-    RESOURCE = "VNET"
-
     def create_resource(template_file, options)
         template=File.read(template_file)
         super(template, options)
+    end
+
+    def self.rname
+        "VNET"
     end
 
     private

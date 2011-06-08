@@ -17,11 +17,13 @@
 require 'one_helper'
 
 class OneVMHelper < OpenNebulaHelper::OneHelper
-    RESOURCE = "VM"
-
     def create_resource(template_file, options)
         template=File.read(template_file)
         super(template, options)
+    end
+
+    def self.rname
+        "VM"
     end
 
     private

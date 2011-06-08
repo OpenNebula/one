@@ -32,6 +32,7 @@ require 'one_helper/onevm_helper'
 
 cmd=CommandParser::CmdParser.new(ARGV) do
     usage "onevm COMMAND [args..] [options..]"
+    version OpenNebulaHelper::ONE_VERSION
 
     helper = OneVMHelper.new
 
