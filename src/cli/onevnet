@@ -44,25 +44,15 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     ########################################################################
     # Formatters for arguments
     ########################################################################
-    oneid_desc='OpenNebula Virtual Network name or id'
-    set :format, :vnetid, oneid_desc do |arg|
+    set :format, :vnetid, OneVNetHelper.oneid_desc do |arg|
         helper.to_id(arg)
     end
 
-    onelistid_desc='Comma-separated list of OpenNebula Virtual Network names or ids'
-    set :format, :vnetid_list, onelistid_desc do |arg|
+    set :format, :vnetid_list, OneVNetHelper.oneid_list_desc do |arg|
         helper.list_to_id(arg)
     end
 
-    filterflag_desc=<<-EOT
-a, all       all the known Virtual Networks
-m, mine      the Virtual Networks belonging to the user in ONE_AUTH
-g, group     'mine' plus the Virtual Networks belonging to the groups
-             the user is member of
-uid          Virtual Networks of the user identified by this uid
-user         Virtual Networks of the user identified by the username
-EOT
-    set :format, :filterflag, filterflag_desc do |arg|
+    set :format, :filterflag, OneVNetHelper.filter_flag_desc do |arg|
         helper.filterflag_to_i(arg)
     end
 

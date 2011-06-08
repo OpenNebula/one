@@ -39,10 +39,6 @@ EOT
         :description => "Show the resource in xml format"
     }
 
-    ########################################################################
-    # Formatters descriptions
-    ########################################################################
-
     class OneHelper
         def initialize
             @client = OpenNebula::Client.new
@@ -115,6 +111,28 @@ EOT
             end
 
             exit_code
+        end
+
+        ########################################################################
+        # Formatters descriptions
+        ########################################################################
+        def self.filter_flag_desc
+            desc=<<-EOT
+a, all       all the known #{self.rname}s
+m, mine      the #{self.rname} belonging to the user in ONE_AUTH
+g, group     'mine' plus the #{self.rname} belonging to the groups
+             the user is member of
+uid          #{self.rname} of the user identified by this uid
+user         #{self.rname} of the user identified by the username
+EOT
+        end
+
+        def self.oneid_list_desc
+            "Comma-separated list of OpenNebula #{self.rname} names or ids"
+        end
+
+        def self.oneid_desc
+            "OpenNebula #{self.rname} name or id"
         end
 
         ########################################################################

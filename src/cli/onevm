@@ -44,25 +44,15 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     ########################################################################
     # Formatters for arguments
     ########################################################################
-    oneid_desc='OpenNebula Virtual Machine name or id'
-    set :format, :vmid, oneid_desc do |arg|
+    set :format, :vmid, OneVMHelper.oneid_desc do |arg|
         helper.to_id(arg)
     end
 
-    onelistid_desc='Comma-separated list of OpenNebula Virtual Machine names or ids'
-    set :format, :vmid_list, onelistid_desc do |arg|
+    set :format, :vmid_list, OneVMHelper.oneid_list_desc do |arg|
         helper.list_to_id(arg)
     end
 
-    filterflag_desc=<<-EOT
-a, all       all the known Virtual Machine
-m, mine      the Virtual Machine belonging to the user in ONE_AUTH
-g, group     'mine' plus the Virtual Machine belonging to the groups
-             the user is member of
-uid          Virtual Machine of the user identified by this uid
-user         Virtual Machine of the user identified by the username
-EOT
-    set :format, :filterflag, filterflag_desc do |arg|
+    set :format, :filterflag, OneVMHelper.filter_flag_desc do |arg|
         helper.filterflag_to_i(arg)
     end
 
