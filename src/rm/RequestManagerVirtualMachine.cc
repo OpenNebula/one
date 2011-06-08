@@ -312,7 +312,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         return;
     }
 
-    if (get_host_information(hid,hostname,vmm_mad,tm_mad) == false)
+    if (get_host_information(hid,hostname,vmm_mad,tm_mad) != 0)
     {
         return;
     }
