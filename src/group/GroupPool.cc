@@ -152,6 +152,7 @@ int GroupPool::drop(PoolObjectSQL * objsql, string& error_msg)
 
     if( rc != 0 )
     {
+        error_msg = "SQL DB error";
         rc = -1;
     }
 

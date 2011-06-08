@@ -121,12 +121,20 @@ public:
      *  Drops the object's data in the data base. The object mutex SHOULD be
      *  locked.
      *    @param objsql a pointer to the object
-     *    @return 0 on success.
+     *    @param error_msg Error reason, if any
+     *    @return 0 on success, -1 DB error
      */
-    virtual int drop(
-        PoolObjectSQL * objsql)
+    virtual int drop(PoolObjectSQL * objsql, string& error_msg)
     {
-       return objsql->drop(db);
+        int rc = objsql->drop(db);
+
+        if ( rc != 0 )
+        {
+            error_msg = "SQL DB error";
+            return -1;
+        }
+
+        return 0;
     };
 
     /**

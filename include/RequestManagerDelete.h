@@ -42,13 +42,6 @@ protected:
     /* -------------------------------------------------------------------- */
 
     void request_execute(xmlrpc_c::paramList const& _paramList);
-
-    /* -------------------------------------------------------------------- */
-
-    virtual int drop(PoolObjectSQL * object, string& error_msg)
-    {
-        return pool->drop(object);
-    };
 };
 
 
@@ -138,13 +131,6 @@ public:
     };
 
     ~GroupDelete(){};
-
-    /* -------------------------------------------------------------------- */
-
-    int drop(PoolObjectSQL * object, string& error_msg)
-    {
-        return static_cast<GroupPool*>(pool)->drop(object, error_msg);
-    };
 };
 
 /* ------------------------------------------------------------------------- */

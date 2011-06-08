@@ -943,6 +943,7 @@ public:
         string bridge = "";
 
         vector<int>     results;
+        string          tmp_error;
 
         // Allocate a VNet
         oid = allocate(0);
@@ -952,7 +953,7 @@ public:
         CPPUNIT_ASSERT( vn != 0 );
 
         // Drop the VNet
-        pool->drop(vn);
+        pool->drop(vn, tmp_error);
 
         // Check that the leases were also dropped
         const char *    table   = "leases";

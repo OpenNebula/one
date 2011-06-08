@@ -47,7 +47,7 @@ void RequestManagerDelete::request_execute(xmlrpc_c::paramList const& paramList)
         group_set   = user->get_groups();
     }
 
-    int rc = drop(object, error_msg);
+    int rc = pool->drop(object, error_msg);
 
     object->unlock();
 

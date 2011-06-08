@@ -112,18 +112,6 @@ public:
      *  Drops the Group from the data base. The object mutex SHOULD be
      *  locked.
      * @param objsql a pointer to a Group object
-     * @return 0 on success.
-     */
-    int drop(PoolObjectSQL * objsql)
-    {
-        string err;
-        return drop(objsql, err);
-    };
-
-    /**
-     *  Drops the Group from the data base. The object mutex SHOULD be
-     *  locked.
-     * @param objsql a pointer to a Group object
      * @param error_msg Error reason, if any
      * @return  0 on success,
      *          -1 DB error,

@@ -211,6 +211,7 @@ public:
     void drop_and_get()
     {
         int oid_0, oid_1;
+        string error_str;
 
         // Allocate two objects
         oid_0 = allocate(0);
@@ -232,7 +233,7 @@ public:
         obj->lock();
 
         // Delete it
-        pool->drop(obj);
+        pool->drop(obj, error_str);
 
         if(obj != 0)
         {

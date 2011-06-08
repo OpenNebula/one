@@ -207,7 +207,7 @@ public:
         group = gpool->get(101, false);
         CPPUNIT_ASSERT( group != 0 );
 
-        rc = gpool->drop(group);
+        rc = gpool->drop(group, err);
         CPPUNIT_ASSERT( rc == 0 );
 
         // dump the pool
