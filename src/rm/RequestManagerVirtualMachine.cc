@@ -374,6 +374,7 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
     int           rc;
     ostringstream oss;
     string        error_str;
+    char *        error_char;
 
     // ------------------ Template for the new image ------------------
 
@@ -383,7 +384,7 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
 
     itemplate = new ImageTemplate;
 
-    itemplate->parse(oss.str(),0);
+    itemplate->parse(oss.str(), &error_char);
 
     // ------------------ Authorize the operation ------------------
 
@@ -423,7 +424,7 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
     if ( rc == 0 )
     {
         pool->update(vm);
-    };
+    }
 
     vm->unlock();
 
@@ -442,8 +443,8 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
         return;
     }
 
-
-    success_response(id);
+    // Return the new allocated Image ID
+    success_response(iid);
 }
 
 /* -------------------------------------------------------------------------- */

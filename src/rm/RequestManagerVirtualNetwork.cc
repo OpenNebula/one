@@ -34,7 +34,7 @@ string RequestManagerVirtualNetwork::leases_error (char *error)
         free(error);
     }
 
-    return request_error("Error modifiying network leases.",oss.str());
+    return request_error("Error modifiying network leases",oss.str());
 }
 
 /* ------------------------------------------------------------------------- */
@@ -79,7 +79,7 @@ void RequestManagerVirtualNetwork::
     if ( rc < 0 )
     {
         failure_response(INTERNAL, 
-                request_error("Error modifiying network leases.",error_str));
+                request_error("Error modifiying network leases",error_str));
         
         vn->unlock();
         return;

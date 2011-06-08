@@ -40,7 +40,7 @@ void RequestManagerPoolInfoFilter::request_execute(xmlrpc_c::paramList const& pa
 
     if ( filter_flag < MINE )
     {
-        failure_response(XML_RPC_API, request_error("Incorrect filter_flag.",""));
+        failure_response(XML_RPC_API, request_error("Incorrect filter_flag",""));
         return;
     }
  

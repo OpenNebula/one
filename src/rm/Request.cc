@@ -231,7 +231,7 @@ string Request::request_error (const string &err_desc, const string &err_detail)
 
     if (!err_detail.empty())
     {
-        oss << err_detail;
+        oss << ". " << err_detail;
     }
 
     return oss.str();
