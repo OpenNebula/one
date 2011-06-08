@@ -83,29 +83,6 @@ public:
 
         return new HostPool(db, host_hooks, hook_location);
     }
-
-    // -----------------------------------------------------------
-    // Managers
-    // -----------------------------------------------------------
-
-    HookManager* create_hm(VirtualMachinePool * vmpool)
-    {
-        map<string,string>          mad_value;
-        VectorAttribute *           mad;
-        vector<const Attribute *>   hm_mads;
-
-        ostringstream               oss;
-
-        // we need the full path (i.e, starting with '/')
-        // for the dummy executable
-        oss << getenv("PWD") << "/../../hm_mad/test/dummy";
-        mad_value.insert(make_pair("EXECUTABLE",oss.str()));
-
-        mad = new VectorAttribute("HM_MAD",mad_value);
-        hm_mads.push_back(mad);
-
-        return new HookManager(hm_mads,vmpool);
-    }
 };
 
 #endif /*NEBULA_TEST_H_*/

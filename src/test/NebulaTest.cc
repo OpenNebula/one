@@ -121,8 +121,12 @@ HookManager* NebulaTest::create_hm(VirtualMachinePool * vmpool)
     VectorAttribute *           mad;
 
     vector<const Attribute *>   hm_mads;
+    ostringstream               oss;
 
-    mad_value.insert(make_pair("executable","one_hm"));
+    // we need the full path (i.e, starting with '/')
+    // for the dummy executable
+    oss << getenv("PWD") << "/../../hm_mad/test/dummy";
+    mad_value.insert(make_pair("EXECUTABLE",oss.str()));
 
     mad = new VectorAttribute("HM_MAD",mad_value);
     hm_mads.push_back(mad);
@@ -141,10 +145,14 @@ ImageManager* NebulaTest::create_imagem(ImagePool * ipool)
     VectorAttribute *           mad;
 
     vector<const Attribute *>   im_mads;
+    ostringstream               oss;
 
-    mad_value.insert(make_pair("executable","one_image"));
+    // we need the full path (i.e, starting with '/')
+    // for the dummy executable
+    oss << getenv("PWD") << "/../../mad/test/dummy";
+    mad_value.insert(make_pair("EXECUTABLE",oss.str()));
 
-    mad = new VectorAttribute("HM_MAD",mad_value);
+    mad = new VectorAttribute("IMAGE_MAD",mad_value);
     im_mads.push_back(mad);
 
     return new ImageManager(ipool,im_mads);

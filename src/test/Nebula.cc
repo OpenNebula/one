@@ -122,6 +122,11 @@ void Nebula::start()
         delete hm;
     }
 
+    if ( imagem != 0 )
+    {
+        delete imagem;
+    }
+
     if ( authm != 0)
     {
         delete authm;
@@ -185,8 +190,8 @@ void Nebula::start()
     {
         string  mac_prefix = "00:00";
         int     size = 1;
-        string  default_image_type;
-        string  default_device_prefix;
+        string  default_image_type      = "OS";
+        string  default_device_prefix   = "hd";
 
         if (tester->need_vm_pool)
         {
@@ -433,7 +438,7 @@ void Nebula::start()
         }
     }
 
-    // ---- Auth Manager ----
+    // ---- Image Manager ----
     if (tester->need_imagem)
     {
         try
@@ -480,6 +485,11 @@ void Nebula::start()
     if( hm != 0 )
     {
         hm->load_mads(0);
+    }
+
+    if( imagem != 0 )
+    {
+        imagem->load_mads(0);
     }
 
     if( authm != 0 )

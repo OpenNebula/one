@@ -64,6 +64,24 @@ const string xml_dump_where =
 "<IMAGE_POOL><IMAGE><ID>0</ID><UID>0</UID><GID>1</GID><NAME>Image one</NAME><TYPE>0</TYPE><PUBLIC>0</PUBLIC><PERSISTENT>1</PERSISTENT><REGTIME>0000000000</REGTIME><SOURCE>-</SOURCE><STATE>4</STATE><RUNNING_VMS>0</RUNNING_VMS><TEMPLATE><DESCRIPTION><![CDATA[This is a very long description of an image, and to achieve the longness I will copy this over. This is a very long description of an image, and to achieve the longness I will copy this over. And over. This is a very long description of an image, and to achieve the longness I will copy this over. And over. This is a very long description of an image, and to achieve the longness I will copy this over. And over.This is a very long description of an image, and to achieve the longness I will copy this over.]]></DESCRIPTION><DEV_PREFIX><![CDATA[hd]]></DEV_PREFIX><NAME><![CDATA[Image one]]></NAME><PATH><![CDATA[/tmp/image_test]]></PATH></TEMPLATE></IMAGE><IMAGE><ID>1</ID><UID>1</UID><GID>1</GID><NAME>Second Image</NAME><TYPE>0</TYPE><PUBLIC>1</PUBLIC><PERSISTENT>0</PERSISTENT><REGTIME>0000000000</REGTIME><SOURCE>-</SOURCE><STATE>4</STATE><RUNNING_VMS>0</RUNNING_VMS><TEMPLATE><DESCRIPTION><![CDATA[This is a rather short description.]]></DESCRIPTION><DEV_PREFIX><![CDATA[hd]]></DEV_PREFIX><NAME><![CDATA[Second Image]]></NAME><PATH><![CDATA[/tmp/image_second_test]]></PATH></TEMPLATE></IMAGE></IMAGE_POOL>";
 
 
+/* ************************************************************************* */
+/* ************************************************************************* */
+
+#include "NebulaTest.h"
+
+class NebulaTestImage: public NebulaTest
+{
+public:
+    NebulaTestImage():NebulaTest()
+    {
+        NebulaTest::the_tester = this;
+
+        need_image_pool = true;
+        need_imagem     = true;
+    }
+};
+
+
 class ImagePoolFriend : public ImagePool
 {
 public:
@@ -135,16 +153,18 @@ class ImagePoolTest : public PoolTest
 
 protected:
 
+    NebulaTestImage * tester;
+    ImagePool *       ipool;
+
     void bootstrap(SqlDB* db)
     {
-        ImagePool::bootstrap(db);
+        // setUp overwritten
     };
 
     PoolSQL* create_pool(SqlDB* db)
     {
-        ImagePoolFriend * imp =
-                        new ImagePoolFriend(db, "OS", "hd");
-        return imp;
+        // setUp overwritten
+        return ipool;
     };
 
     int allocate(int index)
@@ -183,7 +203,26 @@ public:
 
     ~ImagePoolTest(){xmlCleanupParser();};
 
+    void setUp()
+    {
+        create_db();
 
+        tester = new NebulaTestImage();
+
+        Nebula& neb = Nebula::instance();
+        neb.start();
+
+        ipool   = neb.get_ipool();
+
+        pool    = ipool;
+    };
+
+    void tearDown()
+    {
+        delete_db();
+
+        delete tester;
+    };
     /* ********************************************************************* */
 
     void names_initialization()
