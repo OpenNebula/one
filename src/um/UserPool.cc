@@ -168,6 +168,8 @@ int UserPool::allocate (
 
     group->unlock();
 
+    return *oid;
+
 error_name:
     oss << "NAME cannot be empty.";
     goto error_common;
