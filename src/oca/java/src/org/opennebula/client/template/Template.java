@@ -32,9 +32,9 @@ public class Template extends PoolElement
     private static final String INFO     = METHOD_PREFIX + "info";
     private static final String DELETE   = METHOD_PREFIX + "delete";
     private static final String UPDATE   = METHOD_PREFIX + "update";
-    private static final String RMATTR   = METHOD_PREFIX + "rmattr";
     private static final String PUBLISH  = METHOD_PREFIX + "publish";
     private static final String CHOWN    = METHOD_PREFIX + "chown";
+    private static final String INSTANTIATE = METHOD_PREFIX + "instantiate";
 
     /**
      * Creates a new Template representation.
@@ -98,31 +98,16 @@ public class Template extends PoolElement
     }
 
     /**
-     * Modifies a template attribute.
+     * Replaces the template contents.
      *
      * @param client XML-RPC Client.
      * @param id The template id of the target template we want to modify.
-     * @param att_name The name of the attribute to update.
-     * @param att_val The new value for the attribute.
+     * @param new_template New template contents.
      * @return If successful the message contains the template id.
      */
-    public static OneResponse update(Client client, int id,
-                                     String att_name, String att_val)
+    public static OneResponse update(Client client, int id, String new_template)
     {
-        return client.call(UPDATE, id, att_name, att_val);
-    }
-
-    /**
-     * Removes a template attribute.
-     *
-     * @param client XML-RPC Client.
-     * @param id The template id of the target template we want to modify.
-     * @param att_name The name of the attribute to remove.
-     * @return If successful the message contains the template id.
-     */
-    public static OneResponse rmattr(Client client, int id, String att_name)
-    {
-        return client.call(RMATTR, id, att_name);
+        return client.call(UPDATE, id, new_template);
     }
 
     /**
@@ -150,6 +135,19 @@ public class Template extends PoolElement
     public static OneResponse chown(Client client, int id, int uid, int gid)
     {
         return client.call(CHOWN, id, uid, gid);
+    }
+
+    /**
+     * Creates a VM instance from a Template
+     * 
+     * @param client XML-RPC Client.
+     * @param id The template id of the target template.
+     * @param name A string containing the name of the VM instance, can be empty.
+     * @return If successful the message contains the VM Instance ID.
+     */
+    public static OneResponse instantiate(Client client, int id, String name)
+    {
+        return client.call(INSTANTIATE, id, name);
     }
 
     // =================================
@@ -180,26 +178,14 @@ public class Template extends PoolElement
     }
 
     /**
-     * Modifies a template attribute.
+     * Replaces the template contents.
      *
-     * @param att_name The name of the attribute to update.
-     * @param att_val The new value for the attribute.
+     * @param new_template New template contents.
      * @return If successful the message contains the template id.
      */
-    public OneResponse update(String att_name, String att_val)
+    public OneResponse update(String new_template)
     {
-        return update(client, id, att_name, att_val);
-    }
-
-    /**
-     * Removes a template attribute.
-     *
-     * @param att_name The name of the attribute to remove.
-     * @return If successful the message contains the template id.
-     */
-    public OneResponse rmattr(String att_name)
-    {
-        return rmattr(client, id, att_name);
+        return update(client, id, new_template);
     }
 
     /**
@@ -265,6 +251,27 @@ public class Template extends PoolElement
     public OneResponse chgrp(int gid)
     {
         return chown(-1, gid);
+    }
+
+    /**
+     * Creates a VM instance from a Template
+     * 
+     * @param name A string containing the name of the VM instance, can be empty.
+     * @return If successful the message contains the VM Instance ID.
+     */
+    public OneResponse instantiate(String name)
+    {
+        return instantiate(client, id, name);
+    }
+
+    /**
+     * Creates a VM instance from a Template
+     * 
+     * @return If successful the message contains the VM Instance ID.
+     */
+    public OneResponse instantiate()
+    {
+        return instantiate(client, id, "");
     }
 
     // =================================

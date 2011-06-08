@@ -32,7 +32,6 @@ public class Image extends PoolElement
     private static final String INFO     = METHOD_PREFIX + "info";
     private static final String DELETE   = METHOD_PREFIX + "delete";
     private static final String UPDATE   = METHOD_PREFIX + "update";
-    private static final String RMATTR   = METHOD_PREFIX + "rmattr";
     private static final String ENABLE   = METHOD_PREFIX + "enable";
     private static final String PUBLISH  = METHOD_PREFIX + "publish";
     private static final String CHOWN    = METHOD_PREFIX + "chown";
@@ -111,31 +110,16 @@ public class Image extends PoolElement
     }
 
     /**
-     * Modifies an image attribute.
+     * Replaces the template contents.
      * 
      * @param client XML-RPC Client.
      * @param id The image id of the target image we want to modify.
-     * @param att_name The name of the attribute to update.
-     * @param att_val The new value for the attribute.
+     * @param new_template New template contents
      * @return If successful the message contains the image id.
      */
-    public static OneResponse update(Client client, int id,
-                                     String att_name, String att_val)
+    public static OneResponse update(Client client, int id, String new_template)
     {
-        return client.call(UPDATE, id, att_name, att_val);
-    }
-
-    /**
-     * Removes an image attribute.
-     * 
-     * @param client XML-RPC Client.
-     * @param id The image id of the target image we want to modify.
-     * @param att_name The name of the attribute to remove.
-     * @return If successful the message contains the image id.
-     */
-    public static OneResponse rmattr(Client client, int id, String att_name)
-    {
-        return client.call(RMATTR, id, att_name);
+        return client.call(UPDATE, id, new_template);
     }
 
     /**
@@ -206,26 +190,14 @@ public class Image extends PoolElement
     }
 
     /**
-     * Modifies an image attribute.
+     * Replaces the template contents.
      * 
-     * @param att_name The name of the attribute to update.
-     * @param att_val The new value for the attribute.
+     * @param new_template New template contents
      * @return If successful the message contains the image id.
      */
-    public OneResponse update(String att_name, String att_val)
+    public OneResponse update(String new_template)
     {
-        return update(client, id, att_name, att_val); 
-    }
-
-    /**
-     * Removes an image attribute.
-     * 
-     * @param att_name The name of the attribute to remove.
-     * @return If successful the message contains the image id.
-     */
-    public OneResponse rmattr(String att_name)
-    {
-        return rmattr(client, id, att_name);
+        return update(client, id, new_template);
     }
 
     /**

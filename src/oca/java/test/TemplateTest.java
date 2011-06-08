@@ -43,7 +43,8 @@ public class TemplateTest
 
     private static String template_str =
         "NAME = \"" + name + "\"\n" +
-        "ATT1 = \"val1\"";
+        "ATT1 = \"VAL1\"\n" +
+        "ATT2 = \"VAL2\"";
 
     /**
      * @throws java.lang.Exception
@@ -121,33 +122,24 @@ public class TemplateTest
     @Test
     public void update()
     {
-        // Update an existing att.
-        res = template.update("ATT1", "new_val_1");
-        assertTrue( !res.isError() );
-
-        res = template.info();
-        assertTrue( !res.isError() );
-        assertTrue( template.xpath("TEMPLATE/ATT1").equals("new_val_1") );
-
-        // Create a new att.
-        res = template.update("ATT2", "new_val_2");
-        assertTrue( !res.isError() );
-
-        res = template.info();
-        assertTrue( !res.isError() );
-        assertTrue( template.xpath("TEMPLATE/ATT2").equals("new_val_2") );
-    }
-
-    @Test
-    public void rmattr()
-    {
-        res = template.rmattr("ATT1");
-        assertTrue( !res.isError() );
-
         res = template.info();
         assertTrue( !res.isError() );
 
-        assertTrue( template.xpath("ATT1").equals("") );
+        assertTrue( template.xpath("TEMPLATE/ATT1").equals( "VAL1" ) );
+        assertTrue( template.xpath("TEMPLATE/ATT2").equals( "VAL2" ) );
+
+        String new_template =   "ATT2 = NEW_VAL\n" +
+                                "ATT3 = VAL3";
+
+        res = template.update(new_template);
+        assertTrue( !res.isError() );
+
+
+        res = template.info();
+        assertTrue( !res.isError() );
+        assertTrue( template.xpath("TEMPLATE/ATT1").equals( "" ) );
+        assertTrue( template.xpath("TEMPLATE/ATT2").equals( "NEW_VAL" ) );
+        assertTrue( template.xpath("TEMPLATE/ATT3").equals( "VAL3" ) );
     }
 
     @Test
@@ -236,5 +228,20 @@ public class TemplateTest
 
         assertTrue( template.uid() == uid );
         assertTrue( template.gid() == 0 );
+    }
+
+    @Test
+    public void instantiate()
+    {
+        res = template.instantiate("new_vm_name");
+        assertTrue( !res.isError() );
+
+        int vm_id = Integer.parseInt(res.getMessage());
+        VirtualMachine vm = new VirtualMachine(vm_id, client);
+
+        res = vm.info();
+        assertTrue( !res.isError() );
+
+        assertTrue( vm.getName().equals( "new_vm_name" ) );
     }
 }

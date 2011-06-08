@@ -43,7 +43,8 @@ public class ImageTest
 
         return  "NAME = \"test_img_" + cont + "\"\n" +
                 "PATH = /etc/hosts\n" +
-                "ATT1 = \"val1\"";
+                "ATT1 = \"VAL1\"\n" +
+                "ATT2 = \"VAL2\"";
     }
 
     /**
@@ -122,34 +123,26 @@ public class ImageTest
     @Test
     public void update()
     {
-        // Update an existing att.
-        res = image.update("ATT1", "new_val_1");
+        res = image.info();
         assertTrue( !res.isError() );
+
+        assertTrue( image.xpath("TEMPLATE/ATT1").equals( "VAL1" ) );
+        assertTrue( image.xpath("TEMPLATE/ATT2").equals( "VAL2" ) );
+
+        String new_template =  "ATT2 = NEW_VAL\n" +
+                        "ATT3 = VAL3";
+
+        res = image.update(new_template);
+        assertTrue( !res.isError() );
+
 
         res = image.info();
         assertTrue( !res.isError() );
-        assertTrue( image.xpath("TEMPLATE/ATT1").equals("new_val_1") );
-
-        // Create a new att.
-        res = image.update("ATT2", "new_val_2");
-        assertTrue( !res.isError() );
-
-        res = image.info();
-        assertTrue( !res.isError() );
-        assertTrue( image.xpath("TEMPLATE/ATT2").equals("new_val_2") );
+        assertTrue( image.xpath("TEMPLATE/ATT1").equals( "" ) );
+        assertTrue( image.xpath("TEMPLATE/ATT2").equals( "NEW_VAL" ) );
+        assertTrue( image.xpath("TEMPLATE/ATT3").equals( "VAL3" ) );
     }
 
-    @Test
-    public void rmattr()
-    {
-        res = image.rmattr("ATT1");
-        assertTrue( !res.isError() );
-
-        res = image.info();
-        assertTrue( !res.isError() );
-
-        assertTrue( image.xpath("ATT1").equals("") );
-    }
 
 //  TODO
 //    @Test
