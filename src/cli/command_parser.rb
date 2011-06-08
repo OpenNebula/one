@@ -193,7 +193,7 @@ module CommandParser
                     if a.include?(nil)
                         "[#{a.compact.join("|")}]"
                     else
-                        a.join("|")
+                        "<#{a.join("|")}>"
                     end
                 }.join(' ')
                 printf cmd_format10, "arguments: #{args_str}"
@@ -289,13 +289,20 @@ module CommandParser
                     argument = nil
                     error_msg = nil
                     format.each { |f|
-                        rc = @formats[f][:proc].call(arg) if @formats[f]
-                        if rc[0]==0
-                            argument=rc[1]
-                            break
+                        if @formats[f]
+                            rc = @formats[f][:proc].call(arg)
+                            if rc[0]==0
+                                argument=rc[1]
+                                break
+                            else
+                                error_msg=rc[1]
+                                next
+                            end
                         else
-                            error_msg=rc[1]
-                            next
+                            puts "<#{f}> is not an aceptted format."
+                            puts "Change your command specification or add " <<
+                                 "a new formatter"
+                            exit -1
                         end
                     }
                     
