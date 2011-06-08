@@ -308,7 +308,6 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr template_chown(new TemplateChown());
     xmlrpc_c::methodPtr vn_chown(new VirtualNetworkChown());
     xmlrpc_c::methodPtr image_chown(new ImageChown());
-    xmlrpc_c::methodPtr host_chown(new HostChown());
     xmlrpc_c::methodPtr user_chown(new UserChown());
 
     /* VM related methods  */    
@@ -334,13 +333,11 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.templatepool.info",template_pool_info);
 
     /* Host related methods*/
-
     RequestManagerRegistry.addMethod("one.host.enable", host_enable);
     RequestManagerRegistry.addMethod("one.host.update", host_update);
     RequestManagerRegistry.addMethod("one.host.allocate", host_allocate);   
     RequestManagerRegistry.addMethod("one.host.delete", host_delete);
     RequestManagerRegistry.addMethod("one.host.info", host_info);
-    RequestManagerRegistry.addMethod("one.host.chown", host_chown);
 
     RequestManagerRegistry.addMethod("one.hostpool.info", hostpool_info); 
 

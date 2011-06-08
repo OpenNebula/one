@@ -78,41 +78,27 @@ public:
         return uid;
     };
 
-    /**
-     * Changes the object's owner id
-     * @param _uid New User ID
-     * @return 0 on success, -1 if the object does not have an owner
-     */
-    int set_uid(int _uid)
-    {
-        if( uid == -1 )
-        {
-            return -1;
-        }
-
-        uid = _uid;
-        return 0;
-    }
-
     int get_gid()
     {
         return gid;
     };
 
     /**
+     * Changes the object's owner id
+     * @param _uid New User ID
+     */
+    void set_uid(int _uid)
+    {
+        uid = _uid;
+    }
+
+    /**
      * Changes the object's group id
      * @param _gid New Group ID
-     * @return 0 on success, -1 if the object does not have a group
      */
-    int set_gid(int _gid)
+    void set_gid(int _gid)
     {
-        if( gid == -1 )
-        {
-            return -1;
-        }
-
         gid = _gid;
-        return 0;
     };
 
     /* --------------------------------------------------------------------- */
