@@ -18,14 +18,14 @@ require 'one_helper'
 
 class OneVMHelper < OpenNebulaHelper::OneHelper
     RESOURCE = "VM"
-    
+
     def create_resource(template_file, options)
         template=File.read(template_file)
         super(template, options)
     end
-    
+
     private
-    
+
     def factory(id=nil)
         if id
             OpenNebula::VirtualMachine.new_with_id(id, @client)
@@ -34,15 +34,15 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             OpenNebula::VirtualMachine.new(xml, @client)
         end
     end
-    
+
     def factory_pool(user_flag=-2)
         OpenNebula::VirtualMachinePool.new(@client, user_flag)
     end
-    
+
     def format_resource(vm)
         str_h1="%-80s"
         str="%-20s: %-20s"
-        
+
         CLIHelper.print_header(str_h1 % ["VIRTUAL MACHINE #{vm['ID']} INFORMATION"])
         puts str % ["ID", vm.id.to_s]
         puts str % ["NAME", vm.name]
@@ -67,7 +67,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         CLIHelper.print_header(str_h1 % ["VIRTUAL MACHINE TEMPLATE"],false)
         puts vm.template_str
     end
-    
+
     def format_pool(pool, options)
         st=CLIHelper::ShowTable.new(nil, @translation_hash) do
             column :ID, "ONE identifier for Virtual Machine", :size=>4 do |d,e|
@@ -81,34 +81,34 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             column :USER, "Username of the Virtual Machine owner", :left, :size=>8 do |d,e|
                 OpenNebulaHelper.uid_to_str(d["UID"],e)
             end
-            
+
             column :GROUP, "Group of the Virtual Machine", :left, :size=>8 do |d,e|
                 OpenNebulaHelper.gid_to_str(d["GID"],e)
             end
-            
+
             column :STAT, "Actual status", :size=>4 do |d,e|
                 d.status
             end
-            
+
             column :CPU, "CPU percentage used by the VM", :size=>3 do |d,e|
                 d["CPU"]
             end
-            
+
             column :MEM, "Memory used by the VM", :size=>7 do |d,e|
                 d["MEMORY"]
             end
-            
+
             column :HOSTNAME, "Host where the VM is running", :size=>15 do |d,e|
                 d["HISTORY/HOSTNAME"]
             end
-            
+
             column :TIME, "Time since the VM was submitted", :size=>11 do |d,e|
                 stime = Time.at(d["STIME"].to_i)
                 etime = d["ETIME"]=="0" ? Time.now : Time.at(d["ETIME"].to_i)
                 dtime = Time.at(etime-stime).getgm
                 "%02d %02d:%02d:%02d" % [dtime.yday-1, dtime.hour, dtime.min, dtime.sec]
             end
-            
+
             default :ID, :USER, :GROUP, :NAME, :STAT, :CPU, :MEM, :HOSTNAME, :TIME
         end
 

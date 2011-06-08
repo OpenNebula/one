@@ -32,33 +32,33 @@ module CommandParser
             :description => "Show this message"
         }
     ]
-    
+
     class CmdParser
         attr_reader :options, :args
-        
+
         def initialize(args=[], &block)
             @opts = Array.new
             @commands = Hash.new
             @formats = Hash.new
             @script = nil
             @usage = ""
-            
+
             @args = args
             @options = Hash.new
-            
+
             set :format, :file, "" do |arg| format_file(arg) ; end
             set :format, :range, "" do |arg| format_range(arg) ; end
             set :format, :text, ""  do |arg| format_text(arg) ; end
-            
+
             instance_eval(&block)
-            
+
             self.run
         end
-        
+
         def usage(str)
             @usage = "Usage: #{str}"
         end
-        
+
         def set(e, *args, &block)
             case e
             when :option
@@ -67,7 +67,7 @@ module CommandParser
                 add_format(args[0], args[1], block)
             end
         end
-        
+
         def command(name, desc, *args_format, &block)
             cmd = Hash.new
             cmd[:desc] = desc
@@ -103,10 +103,10 @@ module CommandParser
                     @script[:args_format] << [args]
                 end
             }
-            
+
             @script[:proc] = block
         end
-        
+
         def run
             comm_name=""
             if @script
@@ -117,24 +117,24 @@ module CommandParser
                     comm=@commands[comm_name]
                 end
             end
-            
+
             if comm.nil?
                 help
                 exit -1
             end
-            
+
             extra_options = comm[:options] if comm
             parse(extra_options)
             if comm
                 check_args!(comm_name, comm[:arity], comm[:args_format])
-                
+
                 begin
                     rc = comm[:proc].call
                 rescue Exception =>e
                     puts e.message
                     exit -1
                 end
-                
+
                 if rc.instance_of?(Array)
                     puts rc[1]
                     exit rc.first
@@ -143,7 +143,7 @@ module CommandParser
                 end
             end
         end
-        
+
         def help
             puts @usage
             puts
@@ -153,12 +153,12 @@ module CommandParser
             puts
             print_formatters
         end
-        
+
         private
-        
+
         def print_options
             puts "Options:"
-            
+
             shown_opts = Array.new
             opt_format = "#{' '*5}%-25s %s"
             @commands.each{ |key,value|
@@ -173,22 +173,22 @@ module CommandParser
                     end
                 }
             }
-            
+
             @opts.each{ |o|
                 printf opt_format, "#{o[:short]}, #{o[:large]}", o[:description]
                 puts
             }
         end
-        
+
         def print_commands
             puts "Commands:"
-            
+
             cmd_format5 =  "#{' '*5}%s"
             cmd_format10 =  "#{' '*10}%s"
             @commands.each{ |key,value|
                 printf cmd_format5, "* #{key}"
                 puts
-                
+
                 args_str=value[:args_format].collect{ |a|
                     if a.include?(nil)
                         "[#{a.compact.join("|")}]"
@@ -198,12 +198,12 @@ module CommandParser
                 }.join(' ')
                 printf cmd_format10, "arguments: #{args_str}"
                 puts
-                
+
                 value[:desc].split("\n").each { |l|
                     printf cmd_format10, l
                     puts
                 }
-                
+
                 unless value[:options].empty?
                     opts_str=value[:options].flatten.collect{|o|
                         o[:name]
@@ -214,23 +214,23 @@ module CommandParser
                 puts
             }
         end
-        
+
         def print_formatters
             puts "argument formats:"
-            
+
             cmd_format5 =  "#{' '*5}%s"
             cmd_format10 =  "#{' '*10}%s"
             @formats.each{ |key,value|
                 printf cmd_format5, "* #{key}"
                 puts
-                
+
                 value[:desc].split("\n").each { |l|
                     printf cmd_format10, l
                     puts
                 }
             }
         end
-        
+
         def add_option(option)
             if option.instance_of?(Array)
                 option.each { |o| @opts << o }
@@ -238,7 +238,7 @@ module CommandParser
                 @opts << option
             end
         end
-        
+
         def add_format(format, description, block)
             @formats[format] = {
                 :desc => description,
@@ -272,7 +272,7 @@ module CommandParser
                 exit -1
             end
         end
-        
+
         def check_args!(name, arity, args_format)
             if @args.length < arity
                 print "Command #{name} requires "
@@ -305,19 +305,19 @@ module CommandParser
                             exit -1
                         end
                     }
-                    
+
                     unless argument
                         puts error_msg if error_msg
                         puts "command #{name}: argument #{id} must be one of #{format.join(', ')}"
                         exit -1
                     end
-                    
+
                     id+=1
                     argument
                 }
             end
         end
-        
+
         ########################################################################
         # Formatters for arguments
         ########################################################################
@@ -328,9 +328,9 @@ module CommandParser
         def format_file(arg)
             File.exists?(arg) ? [0,arg] : [-1]
         end
-        
+
         REG_RANGE=/^(?:(?:\d+\.\.\d+|\d+),)*(?:\d+\.\.\d+|\d+)$/
-        
+
         def format_range(arg)
             arg_s = arg.gsub(" ","").to_s
             return [-1] unless arg_s.match(REG_RANGE)
@@ -345,7 +345,7 @@ module CommandParser
                     return [-1]
                 end
             }
-            
+
             return 0,ids.uniq
         end
     end

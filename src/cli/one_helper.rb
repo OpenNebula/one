@@ -20,14 +20,21 @@ require 'OpenNebula'
 include OpenNebula
 
 module OpenNebulaHelper
+    ########################################################################
+    # Options
+    ########################################################################
     XML={
         :name  => "xml",
         :short => "-x",
         :large => "--xml",
         :description => "Show the resource in xml format"
     }
-    
-    class OneHelper        
+
+    ########################################################################
+    # Formatters descriptions
+    ########################################################################
+
+    class OneHelper
         def initialize
             @client = OpenNebula::Client.new
             @translation_hash = nil
@@ -37,21 +44,21 @@ module OpenNebulaHelper
             resource = factory
 
             rc = resource.allocate(template)
-            if OpenNebula.is_error?(rc) 
-                return -1, rc.message 
+            if OpenNebula.is_error?(rc)
+                return -1, rc.message
             else
                 puts "ID: #{resource.id.to_s}" if options[:verbose]
                 return 0
             end
         end
-        
+
         def list_pool(options)
             user_flag = options[:filter_flag] ? options[:filter_flag] : -2
             pool = factory_pool(user_flag)
 
             rc = pool.info
             return -1, rc.message if OpenNebula.is_error?(rc)
-            
+
             if options[:xml]
                 return 0, pool.to_xml(true)
             else
@@ -60,11 +67,11 @@ module OpenNebulaHelper
                 return 0
             end
         end
-        
+
         def show_resource(id, options)
             resource = retrieve_resource(id)
             return -1, resource.message if OpenNebula.is_error?(resource)
-            
+
             if options[:xml]
                 return 0, resource.to_xml(true)
             else
@@ -73,8 +80,8 @@ module OpenNebulaHelper
                 return 0
             end
         end
-        
-        def perform_action(id, args, options, verbose, &block)
+
+        def perform_action(id, options, verbose, &block)
             resource = retrieve_resource(id)
             return -1, resource.message if OpenNebula.is_error?(resource)
 
@@ -83,15 +90,15 @@ module OpenNebulaHelper
                 return -1, rc.message
             else
                 rname=Object.const_get(self.class.name)::RESOURCE
-                puts "#{rname} #{id} #{verbose}" if options[:verbose]
+                puts "#{rname} #{id}: #{verbose}" if options[:verbose]
                 return 0
             end
         end
-        
-        def perform_actions(ids,args,options,verbose,&block)
+
+        def perform_actions(ids,options,verbose,&block)
             exit_code = 0
             ids.each do |id|
-                rc = perform_action(id,args,options,verbose,&block)
+                rc = perform_action(id,options,verbose,&block)
 
                 unless rc[0]==0
                     puts rc[1]
@@ -101,43 +108,43 @@ module OpenNebulaHelper
 
             exit_code
         end
-        
+
         ########################################################################
         # Formatters for arguments
         ########################################################################
         def to_id(name, pool=nil)
             return 0, name if name.match(/^[0123456789]+$/)
-            
+
             user_flag = -2
             pool = pool ? pool : factory_pool(user_flag)
-            
+
             rc = pool.info
             return -1, rc.message if OpenNebula.is_error?(rc)
-            
+
             objects=pool.select {|object| object.name==name }
-            
+
             if objects.length>0
                 if objects.length>1
-                    rname=Object.const_get(self.class.name)::RESOURCE
+                    rname = Object.const_get(self.class.name)::RESOURCE
                     return -1, "There are multiple #{rname}s with name #{name}."
                 else
-                    result=objects.first.id
+                    result = objects.first.id
                 end
             else
                 rname=Object.const_get(self.class.name)::RESOURCE
                 return -1,  "#{rname} named #{name} not found."
             end
-            
+
             return 0, result
         end
-        
+
         def list_to_id(names)
             user_flag = -2
             pool = factory_pool(user_flag)
-            
+
             rc = pool.info
             return -1, rc.message if OpenNebula.is_error?(rc)
-            
+
             result = names.split(',').collect { |name|
                 rc = to_id(name)
                 unless rc.first==0
@@ -145,10 +152,10 @@ module OpenNebulaHelper
                 end
                 rc[1]
             }
-            
+
             return 0, result
         end
-        
+
         def filterflag_to_i(str)
             filter_flag = case str
             when "a", "all" then "-2"
@@ -163,19 +170,19 @@ module OpenNebulaHelper
                     user.length > 0 ? user.first.first : "-2"
                 end
             end
-            
+
             return 0, filter_flag
         end
-        
+
         private
-        
+
         def retrieve_resource(id)
             resource = factory(id)
-    
+
             rc = resource.info
             OpenNebula.is_error?(rc) ? rc : resource
         end
-        
+
         def generate_translation_hash
             @translation_hash ||= {
                 :users => generate_user_translation,
@@ -183,19 +190,19 @@ module OpenNebulaHelper
             }
 
         end
-        
+
         def generate_user_translation
             user_pool = UserPool.new(@client)
             user_pool.info
-            
+
             hash = Hash.new
             user_pool.each { |user|
                 hash[user["ID"]]=user["NAME"]
             }
             hash
         end
-        
-        
+
+
         def generate_group_translation
             group_pool = GroupPool.new(@client)
             group_pool.info
@@ -207,15 +214,15 @@ module OpenNebulaHelper
             hash
         end
     end
-    
+
     def OpenNebulaHelper.public_to_str(str)
-        if str.to_i == 1 
-            public_str = "Y" 
-        else 
-            public_str = "N" 
+        if str.to_i == 1
+            public_str = "Y"
+        else
+            public_str = "N"
         end
     end
-    
+
     def OpenNebulaHelper.uid_to_str(uid, hash={})
         if hash[:users] && hash[:users][uid]
             hash[:users][uid]
@@ -223,7 +230,7 @@ module OpenNebulaHelper
             uid
         end
     end
-    
+
     def OpenNebulaHelper.gid_to_str(gid, hash={})
         if hash[:groups] && hash[:groups][gid]
             hash[:groups][gid]
@@ -231,7 +238,7 @@ module OpenNebulaHelper
             gid
         end
     end
-    
+
     def OpenNebulaHelper.time_to_str(time)
         value=time.to_i
         if value==0

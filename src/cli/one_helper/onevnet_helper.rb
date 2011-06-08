@@ -18,14 +18,14 @@ require 'one_helper'
 
 class OneVNetHelper < OpenNebulaHelper::OneHelper
     RESOURCE = "VNET"
-    
+
     def create_resource(template_file, options)
         template=File.read(template_file)
         super(template, options)
     end
-    
+
     private
-    
+
     def factory(id=nil)
         if id
             OpenNebula::VirtualNetwork.new_with_id(id, @client)
@@ -34,15 +34,15 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
             OpenNebula::VirtualNetwork.new(xml, @client)
         end
     end
-    
+
     def factory_pool(user_flag=-2)
         OpenNebula::VirtualNetworkPool.new(@client, user_flag)
     end
-    
+
     def format_resource(vn)
         str_h1="%-80s"
         CLIHelper.print_header(str_h1 % ["VIRTUAL NETWORK #{vn.id.to_s} INFORMATION"])
-            
+
         str="%-10s: %-20s"
         puts str % ["ID: ", vn.id.to_s]
         puts str % ["UID: ", vn["UID"]]
@@ -60,7 +60,7 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
             puts leases_str
         end
     end
-    
+
     def format_pool(pool, options)
         st=CLIHelper::ShowTable.new(nil, @translation_hash) do
             column :ID, "ONE identifier for Virtual Network", :size=>4 do |d,e|
@@ -74,37 +74,37 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
             column :USER, "Username of the Virtual Network owner", :left, :size=>8 do |d,e|
                 OpenNebulaHelper.uid_to_str(d["UID"],e)
             end
-            
+
             column :GROUP, "Group of the Virtual Network", :left, :size=>8 do |d,e|
                 OpenNebulaHelper.gid_to_str(d["GID"],e)
             end
-            
+
             column :TYPE, "Type of Virtual Network", :size=>6 do |d,e|
                 OneVNetHelper.type_to_str(d["TYPE"])
             end
-            
+
             column :SIZE, "Size of the Virtual Network", :size=>6 do |d,e|
                 d["SIZE"]
             end
-            
+
             column :BRIDGE, "Bridge associated to the Virtual Network", :size=>6 do |d,e|
                 d["BRIDGE"]
             end
-            
+
             column :PUBLIC, "Whether the Virtual Network is public or not", :size=>1 do |d,e|
                 OpenNebulaHelper.public_to_str(d['PUBLIC'])
             end
-            
+
             column :LEASES, "Number of this Virtual Network's given leases", :size=>7 do |d,e|
                 d["TOTAL_LEASES"]
             end
-            
+
             default :ID, :USER, :GROUP, :NAME, :TYPE, :BRIDGE, :PUBLIC, :LEASES
         end
 
         st.show(pool, options)
     end
-    
+
     # TBD move this method to VirtualNetwork.rb (OCA)
     def self.type_to_str(type)
         if type=="0"

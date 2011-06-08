@@ -32,56 +32,56 @@ require 'one_helper/onevnet_helper'
 
 cmd=CommandParser::CmdParser.new(ARGV) do
     usage "onevnet COMMAND [args..] [options..]"
-    
+
     helper = OneVNetHelper.new
-    
+
     ########################################################################
     # Global Options
     ########################################################################
     set :option, CommandParser::OPTIONS
-    
+
     ########################################################################
     # Formatters for arguments
     ########################################################################
     oneid_desc='OpenNebula Virtual Network name or id'
-    set :format, :vnetid, oneid_desc do |arg| 
-        helper.to_id(arg) 
+    set :format, :vnetid, oneid_desc do |arg|
+        helper.to_id(arg)
     end
-    
+
     onelistid_desc='Comma-separated list of OpenNebula Virtual Network names or ids'
-    set :format, :vnetid_list, onelistid_desc do |arg| 
-        helper.list_to_id(arg) 
+    set :format, :vnetid_list, onelistid_desc do |arg|
+        helper.list_to_id(arg)
     end
-    
+
     filterflag_desc=<<-EOT
-a, all   --> all the known Virtual Networks
-m, mine  --> the Virtual Networks belonging to the user in ONE_AUTH
-g, group --> 'mine' plus the Virtual Networks belonging to the groups
-                the user is member of
-uid      --> Virtual Networks of the user identified by this uid
-user     --> Virtual Networks of the user identified by the username
+a, all       all the known Virtual Networks
+m, mine      the Virtual Networks belonging to the user in ONE_AUTH
+g, group     'mine' plus the Virtual Networks belonging to the groups
+             the user is member of
+uid          Virtual Networks of the user identified by this uid
+user         Virtual Networks of the user identified by the username
 EOT
-    set :format, :filterflag, filterflag_desc do |arg| 
-        helper.filterflag_to_i(arg) 
+    set :format, :filterflag, filterflag_desc do |arg|
+        helper.filterflag_to_i(arg)
     end
-    
+
     ########################################################################
     # Commands
     ########################################################################
     command :create, 'Create a new Virtual Network', :file do
         helper.create_resource(args.shift, options)
     end
-    
-    command :show, 'Gets info from a Virtual Network', :oneid, 
+
+    command :show, 'Gets info from a Virtual Network', :oneid,
             :options=>OpenNebulaHelper::XML do
         helper.show_resource(args.shift,options)
     end
-    
-    command :list, 'Lists Virtual Networks in the pool', [:filterflag, nil], 
+
+    command :list, 'Lists Virtual Networks in the pool', [:filterflag, nil],
             :options=>CLIHelper::OPTIONS<<OpenNebulaHelper::XML do
         helper.list_pool(options)
     end
-    
+
     command :publish, 'Publishes a Virtual Network', [:range,:vnetid_list] do
         helper.perform_actions(args[0],nil,options,"published") do |vn|
             vn.publish

@@ -22,7 +22,7 @@ module CLIHelper
         :format => Array,
         :description => "Selects columns to display with list command"
     }
-    
+
     #ORDER = {
     #    :name  => "order",
     #    :short => "-o x,y,z",
@@ -45,7 +45,7 @@ module CLIHelper
     #    :large => "--header",
     #    :description => "Shows the header of the table"
     #}
-    
+
     DELAY = {
         :name  => "delay",
         :short => "-d x",
@@ -53,10 +53,10 @@ module CLIHelper
         :format => Integer,
         :description => "Sets the delay in seconds for top command"
     }
-    
+
     #OPTIONS = [LIST, ORDER, FILTER, HEADER, DELAY]
     OPTIONS = [LIST, DELAY]
-    
+
     # Sets bold font
     def CLIHelper.scr_bold
         print "\33[1m"
@@ -93,17 +93,17 @@ module CLIHelper
 
     class ShowTable
         include CLIHelper
-        
+
         def initialize(conf=nil, ext=nil, &block)
             # merge del conf con la table
             @columns = Hash.new
             @default_columns = Array.new
-            
+
             @ext = ext
-            
+
             instance_eval(&block)
         end
-        
+
         def column(name, desc, *conf, &block)
             column = Hash.new
             column[:desc] = desc
@@ -121,16 +121,16 @@ module CLIHelper
             @columns[name.to_sym] = column
             @default_columns<<name
         end
-        
+
         def default(*args)
             @default_columns=args
         end
-        
+
         def show(data, options={})
             update_columns(options)
             print_table(data, options)
         end
-        
+
         def top(data, options={})
             update_columns(options)
             delay=options[:delay] ? options[:delay] : 1
@@ -145,14 +145,14 @@ module CLIHelper
             rescue Exception
             end
         end
-        
+
         private
-        
+
         def print_table(data, options)
             CLIHelper.print_header(header_str)
             print_data(data, options)
         end
-        
+
         def print_data(data, options)
             ncolumns=@default_columns.length
             res_data=data_array(data, options)
@@ -160,17 +160,17 @@ module CLIHelper
                 (0..ncolumns-1).collect{ |i|
                     dat=l[i]
                     col=@default_columns[i]
-                    
+
                     if @columns[col] && @columns[col][:humanize]
                         dat = @columns[col][:humanize].call(dat)
                     end
-                    
+
                     format_str(col, dat)
                 }.join(' ')
             }.join("\n")
             puts
         end
-        
+
         def data_array(data, options)
             res_data=data.collect {|d|
                 @default_columns.collect {|c|
@@ -185,17 +185,17 @@ module CLIHelper
 
             res_data
         end
-        
+
         def format_str(field, data)
             minus=( @columns[field][:left] ? "-" : "" )
             size=@columns[field][:size]
             "%#{minus}#{size}.#{size}s" % [ data.to_s ]
         end
-        
+
         def update_columns(options)
             @default_columns = options[:list].collect{|o| o.to_sym} if options[:list]
         end
-        
+
         def header_str
             @default_columns.collect {|c|
                 if @columns[c]
@@ -205,9 +205,9 @@ module CLIHelper
                 end
             }.compact.join(' ')
         end
-        
+
         # TBD def filter_data!
-        
+
         # TBD def sort_data!
     end
 end
