@@ -193,7 +193,9 @@ protected:
         PoolObjectSQL(id,_username,-1,_gid,table),
         ObjectCollection("GROUPS"),
         password(_password), enabled(_enabled)
-        {};
+        {
+            add_collection_id(_gid); //Adds the primary group to the collection
+        };
 
     virtual ~User(){};
 

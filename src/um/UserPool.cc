@@ -88,7 +88,6 @@ UserPool::UserPool(SqlDB * db):PoolSQL(db,User::table)
                 string error_str;
                 string sha1_pass = SSLTools::sha1_digest(one_pass);
 
-                // TODO: Add oneadmin to ONEADMIN Group
                 allocate(&one_uid,GroupPool::ONEADMIN_ID,one_name,sha1_pass,
                          true, error_str);
             }
@@ -123,7 +122,12 @@ int UserPool::allocate (
     bool    enabled,
     string& error_str)
 {
-    User *          user;
+    Nebula&     nd    = Nebula::instance();
+
+    User *      user;
+    GroupPool * gpool;
+    Group *     group;
+
     ostringstream   oss;
 
     if ( username.empty() )
@@ -144,7 +148,25 @@ int UserPool::allocate (
     // Insert the Object in the pool
     *oid = PoolSQL::allocate(user, error_str);
 
-    return *oid;
+    if ( *oid < 0 )
+    { 
+        return *oid;
+    }
+
+    // Adds User to group
+    gpool = nd.get_gpool();
+    group = gpool->get(gid, true);
+
+    if( group == 0 )
+    {
+        return -1;
+    }
+
+    group->add_user(*oid);
+
+    gpool->update(group);
+
+    group->unlock();
 
 error_name:
     oss << "NAME cannot be empty.";
@@ -257,7 +279,6 @@ bool UserPool::authenticate(const string& session, int& user_id, int& group_id)
 
                 if ( !is.fail() )
                 {
-                    // TODO: Add new user to USERS Group
                     allocate(&user_id,
                              GroupPool::USERS_ID,
                              mad_name,

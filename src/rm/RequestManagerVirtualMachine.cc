@@ -413,6 +413,7 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
         if ( (img = ipool->get(iid,true)) != 0 )
         {
             string tmp_error;
+
             ipool->drop(img, tmp_error);
             img->unlock();
         }
@@ -436,6 +437,7 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
         if ( (img = ipool->get(iid,true)) != 0 )
         {
             string tmp_error;
+
             ipool->drop(img, tmp_error);
             img->unlock();
         }

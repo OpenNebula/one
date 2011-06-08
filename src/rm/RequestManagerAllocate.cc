@@ -212,42 +212,14 @@ int UserAllocate::pool_allocate(xmlrpc_c::paramList const& paramList,
     string passwd = xmlrpc_c::value_string(paramList.getString(2));
 
     UserPool * upool = static_cast<UserPool *>(pool);
-    User *     user;
+    int users_group = gid;
 
-    int rc = upool->allocate(&id,GroupPool::USERS_ID,uname,passwd,true,error_str);
-
-    if ( rc < 0 )
+    if ( gid == GroupPool::ONEADMIN_ID )
     {
-        return rc;
+        users_group = GroupPool::USERS_ID;
     }
 
-    user = static_cast<User *>(pool->get(id,true));
-
-    if( user == 0 )
-    {
-        return -1;
-    }
-
-    user->add_group(GroupPool::USERS_ID);
-    pool->update(user);
-    user->unlock();
-
-    Nebula&     nd    = Nebula::instance();
-    GroupPool * gpool = nd.get_gpool();
-    Group *     group = gpool->get(GroupPool::USERS_ID, true);
-
-    if( group == 0 )
-    {
-        return -1;
-    }
-
-    group->add_user(id);
-
-    gpool->update(group);
-
-    group->unlock();
-
-    return rc;
+    return upool->allocate(&id,users_group,uname,passwd,true,error_str);
 }
 
 /* -------------------------------------------------------------------------- */
