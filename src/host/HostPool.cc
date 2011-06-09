@@ -136,7 +136,6 @@ HostPool::HostPool(SqlDB*                    db,
 
 int HostPool::allocate (
     int * oid,
-    int   gid,
     const string& hostname,
     const string& im_mad_name,
     const string& vmm_mad_name,
@@ -175,7 +174,7 @@ int HostPool::allocate (
 
     // Build a new Host object
 
-    host = new Host(-1, gid, hostname, im_mad_name, vmm_mad_name, tm_mad_name);
+    host = new Host(-1, hostname, im_mad_name, vmm_mad_name, tm_mad_name);
 
     // Insert the Object in the pool
 

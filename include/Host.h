@@ -335,7 +335,6 @@ private:
     // *************************************************************************
 
     Host(int           id=-1,
-         int           gid=0,
          const string& hostname="",
          const string& im_mad_name="",
          const string& vmm_mad_name="",

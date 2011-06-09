@@ -30,12 +30,11 @@
 
 Host::Host(
     int id,
-    int gid,
     const string& _hostname,
     const string& _im_mad_name,
     const string& _vmm_mad_name,
     const string& _tm_mad_name):
-        PoolObjectSQL(id,_hostname,-1,gid,table),
+        PoolObjectSQL(id,_hostname,-1,-1,table),
         state(INIT),
         im_mad_name(_im_mad_name),
         vmm_mad_name(_vmm_mad_name),
@@ -59,11 +58,11 @@ Host::~Host()
 
 const char * Host::table = "host_pool";
 
-const char * Host::db_names = "oid, name, body, state, last_mon_time, gid";
+const char * Host::db_names = "oid, name, body, state, last_mon_time";
 
 const char * Host::db_bootstrap = "CREATE TABLE IF NOT EXISTS host_pool ("
     "oid INTEGER PRIMARY KEY, name VARCHAR(256), body TEXT, state INTEGER, "
-    "last_mon_time INTEGER, gid INTEGER, UNIQUE(name))";
+    "last_mon_time INTEGER, UNIQUE(name))";
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
@@ -139,8 +138,7 @@ int Host::insert_replace(SqlDB *db, bool replace)
         << "'" <<   sql_hostname        << "',"
         << "'" <<   sql_xml             << "',"
         <<          state               << ","
-        <<          last_monitored      << ","
-        <<          gid                 << ")";
+        <<          last_monitored      << ")";
 
     rc = db->exec(oss);
 
@@ -198,7 +196,6 @@ string& Host::to_xml(string& xml) const
     oss <<
     "<HOST>"
        "<ID>"            << oid       	   << "</ID>"            <<
-       "<GID>"           << gid            << "</GID>"           <<
        "<NAME>"          << name 	       << "</NAME>"          <<
        "<STATE>"         << state          << "</STATE>"         <<
        "<IM_MAD>"        << im_mad_name    << "</IM_MAD>"        <<
@@ -229,7 +226,6 @@ int Host::from_xml(const string& xml)
 
     // Get class base attributes
     rc += xpath(oid, "/HOST/ID", -1);
-    rc += xpath(gid, "/HOST/GID", 0);
     rc += xpath(name, "/HOST/NAME", "not_found");
     rc += xpath(int_state, "/HOST/STATE", 0);
 

@@ -78,11 +78,6 @@ module OpenNebula
         # Helpers to get information
         # ---------------------------------------------------------------------
 
-        # Returns the owner (numeric value)
-        def uid
-            self['UID'].to_i
-        end
-
         # Returns whether or not the user with id 'uid' is part of this group
         def contains(uid)
             return self["USERS/ID[.=#{uid}]"] != nil
