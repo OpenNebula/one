@@ -30,8 +30,9 @@ class RequestManagerChown : public Request
 {
 protected:
     RequestManagerChown(const string& method_name,
-                        const string& help)
-        :Request(method_name,"A:siii",help)
+                        const string& help,
+                        const string& params = "A:siii")
+        :Request(method_name,params,help)
     {
         auth_op = AuthRequest::CHOWN;
     };
@@ -126,7 +127,8 @@ class UserChown : public RequestManagerChown
 public:
     UserChown():
         RequestManagerChown("UserChown",
-                            "Changes ownership of a user")
+                            "Changes ownership of a user",
+                            "A:sii")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_upool();

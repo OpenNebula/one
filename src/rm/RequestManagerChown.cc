@@ -41,24 +41,14 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList)
 
     // ------------- Check new user and group id's ---------------------
 
-    if ( noid < 0 )
-    {
-        failure_response(XML_RPC_API,request_error("Wrong user ID",""));
-        return;
-    }
-    else if ( upool->get(noid,false) == 0 )
+    if ( noid > -1 && upool->get(noid,false) == 0 )
     {
         failure_response(NO_EXISTS,
                 get_error(object_name(AuthRequest::USER),noid));
         return;
     }
 
-    if ( ngid < 0 )
-    {
-        failure_response(XML_RPC_API,request_error("Wrong group ID",""));
-        return;
-    }
-    else if ( gpool->get(ngid,false) == 0 )
+    if ( ngid > -1 && gpool->get(ngid,false) == 0 )
     {
         failure_response(NO_EXISTS, 
                 get_error(object_name(AuthRequest::GROUP),ngid));
@@ -75,8 +65,15 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList)
         return;
     }    
 
-    object->set_uid(noid);
-    object->set_gid(ngid);
+    if ( noid != -1 )    
+    {
+        object->set_uid(noid);
+    }
+
+    if ( ngid != -1 )
+    {
+        object->set_gid(ngid);
+    }
 
     pool->update(object);
 
@@ -93,8 +90,7 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList)
 void UserChown::request_execute(xmlrpc_c::paramList const& paramList)
 {
     int oid  = xmlrpc_c::value_int(paramList.getInt(1));
-    //int noid = xmlrpc_c::value_int(paramList.getInt(2)); Not used for users
-    int ngid = xmlrpc_c::value_int(paramList.getInt(3));
+    int ngid = xmlrpc_c::value_int(paramList.getInt(2));
     int old_gid;
 
     string          str;
@@ -138,6 +134,7 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList)
 
     if ((old_gid = user->get_gid()) == ngid)
     {
+        success_response(oid);
         return;
     }
 
