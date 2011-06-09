@@ -198,13 +198,13 @@ public:
         CPPUNIT_ASSERT( oid == 0 );
 
         session = "one_user_test:wrong_password";
-        oid = user_pool->authenticate( session, oid, gid );
+        rc = user_pool->authenticate( session, oid, gid );
         CPPUNIT_ASSERT( rc == false );
         CPPUNIT_ASSERT( oid == -1 );
         CPPUNIT_ASSERT( gid == -1 );
 
         session = "unknown_user:5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8";
-        oid = user_pool->authenticate( session, oid, gid );
+        rc = user_pool->authenticate( session, oid, gid );
         CPPUNIT_ASSERT( rc == false );
         CPPUNIT_ASSERT( oid == -1 );
         CPPUNIT_ASSERT( gid == -1 );

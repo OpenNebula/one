@@ -145,6 +145,8 @@ int UserPool::allocate (
     // Build a new User object
     user = new User(-1, gid, username, password, enabled);
 
+    user->add_collection_id(gid); //Adds the primary group to the collection
+
     // Insert the Object in the pool
     *oid = PoolSQL::allocate(user, error_str);
 
