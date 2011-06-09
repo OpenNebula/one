@@ -45,6 +45,22 @@ EOT
         :description => "Show the resource in xml format"
     }
 
+    NUMERIC={
+        :name  => "numeric",
+        :short => "-n",
+        :large => "--numeric",
+        :description => "Do not translate user and group IDs"
+    }
+
+    KILOBYTES={
+        :name  => "kilobytes",
+        :short => "-k",
+        :large => "--kilobytes",
+        :description => "Show units in kilobytes"
+    }
+
+    OPTIONS = XML, NUMERIC, KILOBYTES
+
     class OneHelper
         def initialize
             @client = OpenNebula::Client.new
@@ -63,7 +79,7 @@ EOT
             end
         end
 
-        def list_pool(options)
+        def list_pool(options, top=false)
             user_flag = options[:filter_flag] ? options[:filter_flag] : -2
             pool = factory_pool(user_flag)
 
@@ -73,8 +89,7 @@ EOT
             if options[:xml]
                 return 0, pool.to_xml(true)
             else
-                generate_translation_hash
-                format_pool(pool, options)
+                format_pool(pool, options, top)
                 return 0
             end
         end
@@ -86,7 +101,6 @@ EOT
             if options[:xml]
                 return 0, resource.to_xml(true)
             else
-                generate_translation_hash
                 format_resource(resource)
                 return 0
             end
@@ -120,25 +134,14 @@ EOT
         end
 
         ########################################################################
-        # Formatters descriptions
+        # Id translation
         ########################################################################
-        def self.filter_flag_desc
-            desc=<<-EOT
-a, all       all the known #{self.rname}s
-m, mine      the #{self.rname} belonging to the user in ONE_AUTH
-g, group     'mine' plus the #{self.rname} belonging to the groups
-             the user is member of
-uid          #{self.rname} of the user identified by this uid
-user         #{self.rname} of the user identified by the username
-EOT
+        def uid_to_str(uid, options)
+            rid_to_str(:users, uid, options)
         end
 
-        def self.oneid_list_desc
-            "Comma-separated list of OpenNebula #{self.rname} names or ids"
-        end
-
-        def self.oneid_desc
-            "OpenNebula #{self.rname} name or id"
+        def gid_to_str(gid, options)
+            rid_to_str(:groups, gid, options)
         end
 
         ########################################################################
@@ -170,6 +173,10 @@ EOT
             return 0, result
         end
 
+        def self.to_id_desc
+            "OpenNebula #{self.rname} name or id"
+        end
+
         def list_to_id(names)
             user_flag = -2
             pool = factory_pool(user_flag)
@@ -188,6 +195,10 @@ EOT
             return 0, result
         end
 
+        def self.list_to_id_desc
+            "Comma-separated list of OpenNebula #{self.rname} names or ids"
+        end
+
         def filterflag_to_i(str)
             filter_flag = case str
             when "a", "all" then "-2"
@@ -197,13 +208,23 @@ EOT
                 if str.match(/^[0123456789]+$/)
                     str
                 else
-                    generate_translation_hash
-                    user = @translation_hash[:users].select { |k,v| v==str }
+                    user = translation_hash[:users].select { |k,v| v==str }
                     user.length > 0 ? user.first.first : "-2"
                 end
             end
 
             return 0, filter_flag
+        end
+
+        def self.filterflag_to_i_desc
+            desc=<<-EOT
+a, all       all the known #{self.rname}s
+m, mine      the #{self.rname} belonging to the user in ONE_AUTH
+g, group     'mine' plus the #{self.rname} belonging to the groups
+             the user is member of
+uid          #{self.rname} of the user identified by this uid
+user         #{self.rname} of the user identified by the username
+EOT
         end
 
         private
@@ -215,35 +236,32 @@ EOT
             OpenNebula.is_error?(rc) ? rc : resource
         end
 
-        def generate_translation_hash
+        def translation_hash
             @translation_hash ||= {
-                :users => generate_user_translation,
-                :groups => generate_group_translation
+                :users => generate_resource_translation(UserPool),
+                :groups => generate_resource_translation(GroupPool)
             }
-
         end
 
-        def generate_user_translation
-            user_pool = UserPool.new(@client)
-            user_pool.info
+        def generate_resource_translation(pool)
+            p = pool.new(@client)
+            p.info
 
             hash = Hash.new
-            user_pool.each { |user|
-                hash[user["ID"]]=user["NAME"]
-            }
+            p.each { |r| hash[r["ID"]]=r["NAME"] }
             hash
         end
 
-
-        def generate_group_translation
-            group_pool = GroupPool.new(@client)
-            group_pool.info
-
-            hash = Hash.new
-            group_pool.each { |group|
-                hash[group["ID"]]=group["NAME"]
-            }
-            hash
+        def rid_to_str(resource, id, options)
+            if options[:numeric]
+                id
+            else
+                if name = translation_hash[resource][id]
+                    name
+                else
+                    id
+                end
+            end
         end
     end
 
@@ -255,28 +273,32 @@ EOT
         end
     end
 
-    def OpenNebulaHelper.uid_to_str(uid, hash={})
-        if hash[:users] && hash[:users][uid]
-            hash[:users][uid]
-        else
-            uid
-        end
-    end
-
-    def OpenNebulaHelper.gid_to_str(gid, hash={})
-        if hash[:groups] && hash[:groups][gid]
-            hash[:groups][gid]
-        else
-            gid
-        end
-    end
-
     def OpenNebulaHelper.time_to_str(time)
         value=time.to_i
         if value==0
             value='-'
         else
             value=Time.at(value).strftime("%m/%d %H:%M:%S")
+        end
+    end
+
+    BinarySufix = ["K", "M", "G", "T" ]
+
+    def OpenNebulaHelper.unit_to_str(value, options)
+        if options[:kilobytes]
+            value
+        else
+            i=0
+
+            while value > 1024 && i < 3 do
+                value /= 1024.0
+                i+=1
+            end
+
+            value = (value * 10).round / 10.0
+
+            value = value.to_i if value - value.round == 0
+            st = value.to_s + BinarySufix[i]
         end
     end
 end

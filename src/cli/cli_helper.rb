@@ -92,7 +92,7 @@ module CLIHelper
     end
 
     class ShowTable
-        include CLIHelper
+        require 'yaml'
 
         def initialize(conf=nil, ext=nil, &block)
             # merge del conf con la table
@@ -142,12 +142,13 @@ module CLIHelper
 
             begin
                 while true
-                    scr_cls
-                    scr_move(0,0)
+                    CLIHelper.scr_cls
+                    CLIHelper.scr_move(0,0)
                     show(data, options)
                     sleep delay
                 end
-            rescue Exception
+            rescue Exception => e
+                puts e.message
             end
         end
 
@@ -179,7 +180,7 @@ module CLIHelper
         def data_array(data, options)
             res_data=data.collect {|d|
                 @default_columns.collect {|c|
-                    @columns[c][:proc].call(d,@ext).to_s if @columns[c]
+                    @columns[c][:proc].call(d).to_s if @columns[c]
                 }
             }
 

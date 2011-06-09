@@ -44,15 +44,15 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     ########################################################################
     # Formatters for arguments
     ########################################################################
-    set :format, :vnetid, OneVNetHelper.oneid_desc do |arg|
+    set :format, :vnetid, OneVNetHelper.to_id_desc do |arg|
         helper.to_id(arg)
     end
 
-    set :format, :vnetid_list, OneVNetHelper.oneid_list_desc do |arg|
+    set :format, :vnetid_list, OneVNetHelper.list_to_id_desc do |arg|
         helper.list_to_id(arg)
     end
 
-    set :format, :filterflag, OneVNetHelper.filter_flag_desc do |arg|
+    set :format, :filterflag, OneVNetHelper.filterflag_to_i_desc do |arg|
         helper.filterflag_to_i(arg)
     end
 
@@ -60,45 +60,45 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     # Commands
     ########################################################################
     command :create, 'Create a new Virtual Network', :file do
-        helper.create_resource(args.shift, options)
+        helper.create_resource(args[0], options)
     end
 
-    command :show, 'Gets info from a Virtual Network', :oneid,
+    command :show, 'Gets info from a Virtual Network', :vnetid,
             :options=>OpenNebulaHelper::XML do
-        helper.show_resource(args.shift,options)
+        helper.show_resource(args[0],options)
     end
 
     command :list, 'Lists Virtual Networks in the pool', [:filterflag, nil],
-            :options=>CLIHelper::OPTIONS<<OpenNebulaHelper::XML do
+            :options=>CLIHelper::OPTIONS+OpenNebulaHelper::OPTIONS do
         helper.list_pool(options)
     end
 
     command :publish, 'Publishes a Virtual Network', [:range,:vnetid_list] do
-        helper.perform_actions(args[0],nil,options,"published") do |vn|
+        helper.perform_actions(args[0],options,"published") do |vn|
             vn.publish
         end
     end
 
     command :unpublish, 'Unpublishes a Virtual Network', [:range,:vnetid_list] do
-        helper.perform_actions(args[0],nil,options,"unpublished") do |vn|
+        helper.perform_actions(args[0],options,"unpublished") do |vn|
             vn.unpublish
         end
     end
 
-    command :addleases, 'Adds a lease to the Virtual Network', :oneid, :text, [:text, nil] do
-        helper.perform_action(args.shift,args,options,"lease added") do |vn|
-            vn.addleases(args[0], args[1])
+    command :addleases, 'Adds a lease to the Virtual Network', :vnetid, :text, [:text, nil] do
+        helper.perform_action(args[0],options,"lease added") do |vn|
+            vn.addleases(args[1], args[2])
         end
     end
 
-    command :rmleases, 'Removes a lease from the Virtual Network', :oneid, :text do
-        helper.perform_action(args.shift,args,options,"lease removed") do |vn|
-            vn.rmleases(args[0])
+    command :rmleases, 'Removes a lease from the Virtual Network', :vnetid, :text do
+        helper.perform_action(args[0],options,"lease removed") do |vn|
+            vn.rmleases(args[1])
         end
     end
 
     command :delete, 'Removes a Virtual Network', [:range, :vnetid_list] do
-        helper.perform_actions(args[0],nil,options,"deleted") do |vn|
+        helper.perform_actions(args[0],options,"deleted") do |vn|
             vn.delete
         end
     end

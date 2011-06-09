@@ -44,15 +44,15 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     ########################################################################
     # Formatters for arguments
     ########################################################################
-    set :format, :vmid, OneVMHelper.oneid_desc do |arg|
+    set :format, :vmid, OneVMHelper.to_id_desc do |arg|
         helper.to_id(arg)
     end
 
-    set :format, :vmid_list, OneVMHelper.oneid_list_desc do |arg|
+    set :format, :vmid_list, OneVMHelper.list_to_id_desc do |arg|
         helper.list_to_id(arg)
     end
 
-    set :format, :filterflag, OneVMHelper.filter_flag_desc do |arg|
+    set :format, :filterflag, OneVMHelper.filterflag_to_i_desc do |arg|
         helper.filterflag_to_i(arg)
     end
 
@@ -92,7 +92,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     end
 
     command :list, 'Lists Virtual Machine in the pool', [:filterflag, nil],
-            :options=>CLIHelper::OPTIONS<<OpenNebulaHelper::XML do
+            :options=>CLIHelper::OPTIONS+OpenNebulaHelper::OPTIONS do
         helper.list_pool(options)
     end
 
@@ -168,5 +168,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
-    # TBD command :top
+    command :top, 'Tops Virtual Machine in the pool', [:filterflag, nil],
+            :options=>CLIHelper::OPTIONS+OpenNebulaHelper::OPTIONS do
+        helper.list_pool(options, true)
+    end
 end
