@@ -26,7 +26,7 @@ module OpenNebula
             :allocate => "user.allocate",
             :delete   => "user.delete",
             :passwd   => "user.passwd",
-            :chown    => "user.chown",
+            :chgrp    => "user.chgrp",
             :addgroup => "user.addgroup",
             :delgroup => "user.delgroup"
         }
@@ -96,7 +96,12 @@ module OpenNebula
         # gid:: _Integer_ the new group id. Set to -1 to leave the current one
         # [return] nil in case of success or an Error object
         def chgrp(gid)
-            chown(USER_METHODS[:chown], -1, gid)
+            return Error.new('ID not defined') if !@pe_id
+
+            rc = @client.call(USER_METHODS[:chgrp],@pe_id, gid)
+            rc = nil if !OpenNebula.is_error?(rc)
+
+            return rc
         end
 
         # Adds a secondary group

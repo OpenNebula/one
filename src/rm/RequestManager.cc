@@ -367,7 +367,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.user.addgroup", user_add_group);
     RequestManagerRegistry.addMethod("one.user.delgroup", user_del_group);
     RequestManagerRegistry.addMethod("one.user.passwd", user_change_password);
-    RequestManagerRegistry.addMethod("one.user.chown", user_chown);
+    RequestManagerRegistry.addMethod("one.user.chgrp", user_chown);
 
     RequestManagerRegistry.addMethod("one.userpool.info", userpool_info);
     

@@ -32,7 +32,7 @@ public class User extends PoolElement{
     private static final String INFO            = METHOD_PREFIX + "info";
     private static final String DELETE          = METHOD_PREFIX + "delete";
     private static final String PASSWD          = METHOD_PREFIX + "passwd";
-    private static final String CHOWN           = METHOD_PREFIX + "chown";
+    private static final String CHGRP           = METHOD_PREFIX + "chgrp";
     private static final String ADDGROUP        = METHOD_PREFIX + "addgroup";
     private static final String DELGROUP        = METHOD_PREFIX + "delgroup";
     
@@ -124,7 +124,7 @@ public class User extends PoolElement{
      */
     public static OneResponse chgrp(Client client, int id, int gid)
     {
-        return client.call(CHOWN, id, -1, gid);
+        return client.call(CHGRP, id, gid);
     }
 
     /**
