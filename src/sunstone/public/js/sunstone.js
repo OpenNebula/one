@@ -195,39 +195,43 @@ var Sunstone = {
         //      function with an extraparam if defined.
         switch (action_cfg.type){
 
-            case "create":
-            case "register":
-                call({data:data_arg, success: callback, error:err});
-                break;
-            case "single":
+        case "create":
+        case "register":
+            call({data:data_arg, success: callback, error:err});
+            break;
+        case "single":
+            if (extra_param){
+                call({data:{id:data_arg,extra_param:extra_param}, success: callback,error:err});
+            } else {
                 call({data:{id:data_arg}, success: callback,error:err});
-                break;
-            case "list":
-                call({success: callback, error:err});
-                break;
-            case "monitor_global":
-                call({timeout: true, success: callback, error:err, data: {monitor: data_arg}});
-                break;
-            case "monitor":
-            case "monitor_single":
-                call({timeout: true, success: callback, error:err, data: {id:data_arg, monitor: extra_param}});
-                break;
+            };
+            break;
+        case "list":
+            call({success: callback, error:err});
+            break;
+        case "monitor_global":
+            call({timeout: true, success: callback, error:err, data: {monitor: data_arg}});
+            break;
+        case "monitor":
+        case "monitor_single":
+            call({timeout: true, success: callback, error:err, data: {id:data_arg, monitor: extra_param}});
+            break;
             case "multiple":
-                //run on the list of nodes that come on the data
-                $.each(data_arg,function(){
-                    if (extra_param){
-                        call({data:{id:this,extra_param:extra_param}, success: callback, error: err});
-                    } else {
-                        call({data:{id:this}, success: callback, error:err});
-                    }
-                });
-                break;
+            //run on the list of nodes that come on the data
+            $.each(data_arg,function(){
+                if (extra_param){
+                    call({data:{id:this,extra_param:extra_param}, success: callback, error: err});
+                } else {
+                    call({data:{id:this}, success: callback, error:err});
+                }
+            });
+            break;
             default: 
-                //This action is complemente handled by the "call" function.
+            //This action is complemente handled by the "call" function.
                 //we pass any data if present.
-                if (data_arg && extra_param) {call(data_arg,extra_param);}
-                else if (data_arg) {call(data_arg);}
-                else {call();}
+            if (data_arg && extra_param) {call(data_arg,extra_param);}
+            else if (data_arg) {call(data_arg);}
+            else {call();}
         }
         //notify submission
         if (notify) {
@@ -290,6 +294,9 @@ $(document).ready(function(){
     
     //Prepare the standard confirmation dialogs
     setupConfirmDialogs();
+
+    //This dialog is shared to update templates
+    setupTemplateUpdateDialog();
     
     //Listen for .action_buttons
     //An action buttons runs a predefined action. If it has type 

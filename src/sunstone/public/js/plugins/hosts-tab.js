@@ -44,7 +44,6 @@ var hosts_tab_content =
       <th class="check"><input type="checkbox" class="check_all" value="">All</input></th>\
       <th>ID</th>\
       <th>Name</th>\
-      <th>Group</th>\
       <th>Running VMs</th>\
       <th>CPU Use</th>\
       <th>Memory use</th>\
@@ -318,7 +317,6 @@ function hostElementArray(host_json){
     return [ '<input type="checkbox" id="host_'+host.ID+'" name="selected_items" value="'+host.ID+'"/>',
 	     host.ID,
 	     host.NAME,
-	     getGroupName(host.GID),
 	     host.HOST_SHARE.RUNNING_VMS, //rvm
              pb_cpu,
 	     pb_mem,
@@ -385,79 +383,79 @@ function updateHostsView (request,host_list){
 //Updates the host info panel tab's content and pops it up
 function updateHostInfo(request,host){
     var host_info = host.HOST;
-    
+
     //Information tab
     var info_tab = {
         title : "Host information",
         content :
         '<table id="info_host_table" class="info_table">\
-			<thead>\
-				<tr><th colspan="2">Host information - '+host_info.NAME+'</th></tr>\
-			</thead>\
-			<tr>\
-				<td class="key_td">ID</td>\
-				<td class="value_td">'+host_info.ID+'</td>\
-			</tr>\
-			<tr>\
-				<td class="key_td">State</td>\
-				<td class="value_td">'+OpenNebula.Helper.resource_state("host",host_info.STATE)+'</td>\
-			</tr>\
-			<tr>\
-				<td class="key_td">Group</td>\
-				<td class="value_td">'+host_info.GID+'</td>\
-			</tr>\
-			<tr>\
-				<td class="key_td">IM MAD</td>\
-				<td class="value_td">'+host_info.IM_MAD+'</td>\
-			</tr>\
-			<tr>\
-				<td class="key_td">VM MAD</td>\
-				<td class="value_td">'+host_info.VM_MAD+'</td>\
-			</tr>\
-			<tr>\
-				<td class="key_td">TM MAD</td>\
-				<td class="value_td">'+host_info.TM_MAD+'</td>\
-			</tr>\
-		</table>\
-		<table id="host_shares_table" class="info_table">\
-			<thead>\
-				<tr><th colspan="2">Host shares</th></tr>\
-			</thead>\
-			<tr>\
-				<td class="key_td">Max Mem</td>\
-				<td class="value_td">'+humanize_size(host_info.HOST_SHARE.MAX_MEM)+'</td>\
-			</tr>\
-			<tr>\
-				<td class="key_td">Used Mem (real)</td>\
-				<td class="value_td">'+humanize_size(host_info.HOST_SHARE.USED_MEM)+'</td>\
-			</tr>\
-			<tr>\
-				<td class="key_td">Used Mem (allocated)</td>\
-				<td class="value_td">'+humanize_size(host_info.HOST_SHARE.MAX_USAGE)+'</td>\
-			</tr>\
-			<tr>\
-				<td class="key_td">Used CPU (real)</td>\
-				<td class="value_td">'+host_info.HOST_SHARE.USED_CPU+'</td>\
-			</tr>\
-			<tr>\
-				<td class="key_td">Used CPU (allocated)</td>\
-				<td class="value_td">'+host_info.HOST_SHARE.CPU_USAGE+'</td>\
-			</tr>\
-			<tr>\
-				<td class="key_td">Running VMs</td>\
-				<td class="value_td">'+host_info.HOST_SHARE.RUNNING_VMS+'</td>\
-			</tr>\
-		</table>'
+            <thead>\
+               <tr><th colspan="2">Host information - '+host_info.NAME+'</th></tr>\
+            </thead>\
+            <tbody>\
+            <tr>\
+                <td class="key_td">ID</td>\
+                <td class="value_td">'+host_info.ID+'</td>\
+            </tr>\
+            <tr>\
+                <td class="key_td">State</td>\
+                <td class="value_td">'+OpenNebula.Helper.resource_state("host",host_info.STATE)+'</td>\
+            </tr>\
+            <tr>\
+                <td class="key_td">IM MAD</td>\
+                <td class="value_td">'+host_info.IM_MAD+'</td>\
+            </tr>\
+            <tr>\
+                <td class="key_td">VM MAD</td>\
+                <td class="value_td">'+host_info.VM_MAD+'</td>\
+            </tr>\
+            <tr>\
+                <td class="key_td">TM MAD</td>\
+                <td class="value_td">'+host_info.TM_MAD+'</td>\
+            </tr>\
+            </tbody>\
+         </table>\
+         <table id="host_shares_table" class="info_table">\
+            <thead>\
+               <tr><th colspan="2">Host shares</th></tr>\
+            </thead>\
+            <tbody>\
+               <tr>\
+                  <td class="key_td">Max Mem</td>\
+                  <td class="value_td">'+humanize_size(host_info.HOST_SHARE.MAX_MEM)+'</td>\
+               </tr>\
+               <tr>\
+                  <td class="key_td">Used Mem (real)</td>\
+                  <td class="value_td">'+humanize_size(host_info.HOST_SHARE.USED_MEM)+'</td>\
+               </tr>\
+               <tr>\
+                  <td class="key_td">Used Mem (allocated)</td>\
+                  <td class="value_td">'+humanize_size(host_info.HOST_SHARE.MAX_USAGE)+'</td>\
+               </tr>\
+               <tr>\
+                  <td class="key_td">Used CPU (real)</td>\
+                  <td class="value_td">'+host_info.HOST_SHARE.USED_CPU+'</td>\
+               </tr>\
+               <tr>\
+                  <td class="key_td">Used CPU (allocated)</td>\
+                  <td class="value_td">'+host_info.HOST_SHARE.CPU_USAGE+'</td>\
+               </tr>\
+               <tr>\
+                  <td class="key_td">Running VMs</td>\
+                  <td class="value_td">'+host_info.HOST_SHARE.RUNNING_VMS+'</td>\
+               </tr>\
+            </tbody>\
+          </table>'
     }
-    
+
     //Template tab
     var template_tab = {
         title : "Host template",
-        content : 
-    	'<table id="host_template_table" class="info_table">\
-		<thead><tr><th colspan="2">Host template</th></tr></thead>'+
-		prettyPrintJSON(host_info.TEMPLATE)+
-		'</table>'
+        content :
+        '<table id="host_template_table" class="info_table">\
+                <thead><tr><th colspan="2">Host template</th></tr></thead>'+
+                prettyPrintJSON(host_info.TEMPLATE)+
+                '</table>'
     }
 
     var monitor_tab = {
@@ -551,7 +549,7 @@ $(document).ready(function(){
     dataTable_hosts.fnClearTable();
     addElement([
         spinner,
-        '','','','','','',''],dataTable_hosts);
+        '','','','','',''],dataTable_hosts);
     Sunstone.runAction("Host.list");
     
     setupCreateHostDialog();

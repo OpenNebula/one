@@ -59,7 +59,7 @@ module OpenNebulaJSON
         end
 
         def update(params=Hash.new)
-            super(params['name'], params['value'])
+            super(params['template_raw'])
         end
 
         def remove_attr(params=Hash.new)

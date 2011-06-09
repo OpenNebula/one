@@ -43,23 +43,18 @@ module OpenNebulaJSON
 
             rc = case action_hash['perform']
                  when "publish"       then self.publish
-                 when "rm_attr"       then self.remove_attr(action_hash['params'])
                  when "unpublish"     then self.unpublish
                  when "update"        then self.update(action_hash['params'])
-                 when "chown"        then self.chown(action_hash['params'])
+                 when "chown"         then self.chown(action_hash['params'])
                  else
                      error_msg = "#{action_hash['perform']} action not " <<
                          " available for this resource"
                      OpenNebula::Error.new(error_msg)
                  end
         end
-        
-        def update(params=Hash.new)
-            super(params['name'], params['value'])
-        end
 
-        def remove_attr(params=Hash.new)
-            super(params['name'])
+        def update(params=Hash.new)
+            super(params['template_raw'])
         end
 
         def chown(params=Hash.new)

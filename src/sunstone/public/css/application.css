@@ -235,19 +235,19 @@ div.tip span.man_icon {
 	display:inline-block!important;
 }
 
-span.tipspan {
-	position: fixed;
-	display:block;
-	padding:4px;
-	-webkit-border-radius: 3px;
-	-moz-border-radius: 3px;
-	border-radius: 3px;
-	border: 1px solid #353735;
-	margin-left:2px;
-	margin-right:5px;
-	background-color: white;
+span.tipspan,div.full_info {
+    position: fixed;
+    display:block;
+    padding:4px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    border: 1px solid #353735;
+    margin-left:2px;
+    margin-right:5px;
+    background-color: white;
     color: #353735;
-	font-size:10px;
+    font-size:10px;
 }
 .vm_section input {
 	float:none;

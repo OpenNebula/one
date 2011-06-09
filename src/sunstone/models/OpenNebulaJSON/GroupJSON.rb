@@ -45,7 +45,7 @@ module OpenNebulaJSON
         end
 
         def chown(params=Hash.new)
-            super(params['owner_id'].to_i,-1)
+            super(params['owner_id'].to_i)
         end
     end
 end

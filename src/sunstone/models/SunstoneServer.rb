@@ -90,6 +90,19 @@ class SunstoneServer
     ############################################################################
     #
     ############################################################################
+    def get_template(kind,id)
+        resource = retrieve_resource(kind,id)
+        if OpenNebula.is_error?(resource)
+            return [404, resource.to_json]
+        else
+            template_str = resource.template_str(true)
+            return [200, {:template => template_str}.to_json]
+        end
+    end
+
+    ############################################################################
+    #
+    ############################################################################
     def create_resource(kind, template)
         resource = case kind
             when "group"    then GroupJSON.new(Group.build_xml, @client)
