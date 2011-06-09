@@ -214,6 +214,7 @@ public class TemplateTest
         assertTrue( template.gid() == 0 );
 
         res = template.chown(uid, gid);
+        assertTrue( !res.isError() );
 
         res = template.info();
         assertTrue( !res.isError() );
