@@ -100,8 +100,13 @@ module CLIHelper
             @default_columns = Array.new
 
             @ext = ext
+            @conf = conf
 
             instance_eval(&block)
+        end
+
+        def helper
+            @ext
         end
 
         def column(name, desc, *conf, &block)
@@ -193,7 +198,16 @@ module CLIHelper
         end
 
         def update_columns(options)
+            config = YAML.load_file(@conf)
+
+            default = config.delete(:default)
+            @default_columns = default unless default.empty?
+
             @default_columns = options[:list].collect{|o| o.to_sym} if options[:list]
+
+            @columns.merge!(config) { |key, oldval, newval|
+                oldval.merge(newval)
+            }
         end
 
         def header_str

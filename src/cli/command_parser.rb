@@ -156,13 +156,16 @@ module CommandParser
             puts
             print_formatters
             puts
-            puts @version if @version
+            if @version
+                puts "== LICENSE"
+                puts @version
+            end
         end
 
         private
 
         def print_options
-            puts "Options:"
+            puts "== Options"
 
             shown_opts = Array.new
             opt_format = "#{' '*5}%-25s %s"
@@ -186,10 +189,10 @@ module CommandParser
         end
 
         def print_commands
-            puts "Commands:"
+            puts "== Commands"
 
-            cmd_format5 =  "#{' '*5}%s"
-            cmd_format10 =  "#{' '*10}%s"
+            cmd_format5 =  "#{' '*3}%s"
+            cmd_format10 =  "#{' '*6}%s"
             @commands.each{ |key,value|
                 printf cmd_format5, "* #{key}"
                 puts
@@ -221,10 +224,10 @@ module CommandParser
         end
 
         def print_formatters
-            puts "argument formats:"
+            puts "== Argument formats"
 
-            cmd_format5 =  "#{' '*5}%s"
-            cmd_format10 =  "#{' '*10}%s"
+            cmd_format5 =  "#{' '*3}%s"
+            cmd_format10 =  "#{' '*6}%s"
             @formats.each{ |key,value|
                 printf cmd_format5, "* #{key}"
                 puts

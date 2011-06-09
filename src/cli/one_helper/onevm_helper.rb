@@ -17,6 +17,8 @@
 require 'one_helper'
 
 class OneVMHelper < OpenNebulaHelper::OneHelper
+    TABLE_CONF_FILE="#{OpenNebulaHelper::TABLE_CONF_PATH}/onevm.yaml"
+
     def create_resource(template_file, options)
         template=File.read(template_file)
         super(template, options)

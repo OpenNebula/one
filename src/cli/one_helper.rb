@@ -29,6 +29,12 @@ not use this file except in compliance with the License. You may obtain
 a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
 EOT
 
+    if ONE_LOCATION
+        TABLE_CONF_PATH=ONE_LOCATION+"/etc/cli"
+    else
+        TABLE_CONF_PATH="/etc/one/cli"
+    end
+
     ########################################################################
     # Options
     ########################################################################
