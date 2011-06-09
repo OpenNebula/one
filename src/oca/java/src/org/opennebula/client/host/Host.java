@@ -32,6 +32,7 @@ public class Host extends PoolElement{
     private static final String INFO            = METHOD_PREFIX + "info";
     private static final String DELETE          = METHOD_PREFIX + "delete";
     private static final String ENABLE          = METHOD_PREFIX + "enable";
+    private static final String UPDATE          = METHOD_PREFIX + "update";
     
     private static final String[] HOST_STATES = 
         {"INIT", "MONITORING", "MONITORED", "ERROR", "DISABLED"};
@@ -122,7 +123,19 @@ public class Host extends PoolElement{
     {
         return client.call(ENABLE, id, enable);
     }
-    
+
+    /**
+     * Replaces the template contents.
+     * 
+     * @param client XML-RPC Client.
+     * @param id The image id of the target host we want to modify.
+     * @param new_template New template contents
+     * @return If successful the message contains the host id.
+     */
+    public static OneResponse update(Client client, int id, String new_template)
+    {
+        return client.call(UPDATE, id, new_template);
+    }
 
     // =================================
     // Instanced object XML-RPC methods
@@ -179,6 +192,17 @@ public class Host extends PoolElement{
     public OneResponse disable()
     {
         return enable(false);
+    }
+
+    /**
+     * Replaces the template contents.
+     * 
+     * @param new_template New template contents
+     * @return If successful the message contains the host id.
+     */
+    public OneResponse update(String new_template)
+    {
+        return update(client, id, new_template);
     }
 
     // =================================

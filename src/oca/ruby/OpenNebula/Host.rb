@@ -25,7 +25,8 @@ module OpenNebula
             :info     => "host.info",
             :allocate => "host.allocate",
             :delete   => "host.delete",
-            :enable   => "host.enable"
+            :enable   => "host.enable",
+            :update   => "host.update"
         }
 
         HOST_STATES=%w{INIT MONITORING MONITORED ERROR DISABLED}
@@ -100,6 +101,13 @@ module OpenNebula
         # Disables the Host
         def disable()
             set_enabled(false)
+        end
+
+        # Replaces the template contents
+        #
+        # +new_template+ New template contents
+        def update(new_template)
+            super(HOST_METHODS[:update], new_template)
         end
 
         #######################################################################
