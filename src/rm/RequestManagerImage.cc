@@ -64,7 +64,7 @@ void ImagePersistent::request_execute(xmlrpc_c::paramList const& paramList)
 {
     int     id              = xmlrpc_c::value_int(paramList.getInt(1));
     bool    persistent_flag = xmlrpc_c::value_boolean(paramList.getBoolean(2));
-    bool    result;
+    int     rc;
 
     Image * image;
     string  err_msg;
@@ -82,9 +82,9 @@ void ImagePersistent::request_execute(xmlrpc_c::paramList const& paramList)
         return;
     }
 
-    result = image->persistent(persistent_flag);
+    rc = image->persistent(persistent_flag);
 
-    if ( !result )
+    if ( rc != 0  )
     {
         if (persistent_flag == true)
         {

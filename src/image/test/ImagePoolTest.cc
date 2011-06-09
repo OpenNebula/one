@@ -779,18 +779,18 @@ public:
             i++;
         }
 
-        bool success;
+        int success;
 
         // img 0 is not public.
         img = imp->get( 0, false );
         CPPUNIT_ASSERT( img != 0 );
 
         success = img->publish(false);
-        CPPUNIT_ASSERT( success == true );
+        CPPUNIT_ASSERT( success == 0 );
         CPPUNIT_ASSERT( img->isPublic() == false );
 
         success = img->publish(true);
-        CPPUNIT_ASSERT( success == true );
+        CPPUNIT_ASSERT( success == 0 );
         CPPUNIT_ASSERT( img->isPublic() == true );
     }
 
@@ -800,7 +800,7 @@ public:
     void persistence()
     {
         int oid;
-        bool success;
+        int success;
         ImagePoolFriend * imp = static_cast<ImagePoolFriend *>(pool);
         Image *           img;
 
@@ -856,33 +856,33 @@ public:
 
         // make it persistent
         success = img->persistent(true);
-        CPPUNIT_ASSERT( success == true );
+        CPPUNIT_ASSERT( success == 0 );
         CPPUNIT_ASSERT( img->isPersistent() == true );
 
         // it isn't public, try to unpublish
         success = img->publish(false);
-        CPPUNIT_ASSERT( success == true );
+        CPPUNIT_ASSERT( success == 0 );
         CPPUNIT_ASSERT( img->isPublic() == false );
 
         // try to publish, should fail because it is persistent
         success = img->publish(true);
-        CPPUNIT_ASSERT( success == false );
+        CPPUNIT_ASSERT( success == -1 );
         CPPUNIT_ASSERT( img->isPublic() == false );
 
 
         // make it non-persistent
         success = img->persistent(false);
-        CPPUNIT_ASSERT( success == true );
+        CPPUNIT_ASSERT( success == 0 );
         CPPUNIT_ASSERT( img->isPersistent() == false );
 
         // it isn't public, try to unpublish
         success = img->publish(false);
-        CPPUNIT_ASSERT( success == true );
+        CPPUNIT_ASSERT( success == 0 );
         CPPUNIT_ASSERT( img->isPublic() == false );
 
         // try to publish, now it should be possible
         success = img->publish(true);
-        CPPUNIT_ASSERT( success == true );
+        CPPUNIT_ASSERT( success == 0 );
         CPPUNIT_ASSERT( img->isPublic() == true );
     }
 

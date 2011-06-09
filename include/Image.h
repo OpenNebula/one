@@ -207,25 +207,25 @@ public:
      *    @param persistent true to make an image persistent
      *    @return 0 on success
      */
-    bool persistent(bool persis)
+    int persistent(bool persis)
     {
-        bool success = false;
+        int rc = -1;
 
         if (persis == true)
         {
             if (!isPublic() && running_vms == 0)
             {
                 persistent_img = 1;
-                success        = true;
+                rc             = 0;
             }
         }
         else
         {
             persistent_img = 0;
-            success        = true;
+            rc             = 0;
         }
 
-        return success;
+        return rc;
     }
 
     /**
