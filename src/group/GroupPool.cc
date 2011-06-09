@@ -48,7 +48,7 @@ GroupPool::GroupPool(SqlDB * db):PoolSQL(db, Group::table)
         Group *     group;
 
         // Build the default oneadmins & users group
-        group = new Group(ONEADMIN_ID, 0, ONEADMIN_NAME);
+        group = new Group(ONEADMIN_ID, ONEADMIN_NAME);
 
         rc = PoolSQL::allocate(group, error_str);
 
@@ -57,7 +57,7 @@ GroupPool::GroupPool(SqlDB * db):PoolSQL(db, Group::table)
             goto error_groups;
         }
 
-        group = new Group(USERS_ID, 0, USERS_NAME);
+        group = new Group(USERS_ID, USERS_NAME);
 
         rc = PoolSQL::allocate(group, error_str);
 
@@ -81,7 +81,7 @@ error_groups:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int GroupPool::allocate(int uid, string name, int * oid, string& error_str)
+int GroupPool::allocate(string name, int * oid, string& error_str)
 {
     Group *         group;
     ostringstream   oss;
@@ -92,7 +92,7 @@ int GroupPool::allocate(int uid, string name, int * oid, string& error_str)
     }
 
     // Check for duplicates
-    group = get(name, uid, false);
+    group = get(name, false);
 
     if( group != 0 )
     {
@@ -100,7 +100,7 @@ int GroupPool::allocate(int uid, string name, int * oid, string& error_str)
     }
 
     // Build a new Group object
-    group = new Group(-1, uid, name);
+    group = new Group(-1, name);
 
     // Insert the Object in the pool
     *oid = PoolSQL::allocate(group, error_str);

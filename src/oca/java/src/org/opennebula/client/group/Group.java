@@ -31,7 +31,6 @@ public class Group extends PoolElement{
     private static final String ALLOCATE        = METHOD_PREFIX + "allocate";
     private static final String INFO            = METHOD_PREFIX + "info";
     private static final String DELETE          = METHOD_PREFIX + "delete";
-    private static final String CHOWN           = METHOD_PREFIX + "chown";
 
 
     /**
@@ -96,19 +95,6 @@ public class Group extends PoolElement{
         return client.call(DELETE, id);
     }
 
-    /**
-     * Changes the group's owner
-     *
-     * @param client XML-RPC Client.
-     * @param id The group id.
-     * @param uid The new owner user ID.
-     * @return If an error occurs the error message contains the reason.
-     */
-    public static OneResponse chown(Client client, int id, int uid)
-    {
-        return client.call(CHOWN, id, uid, -1);
-    }
-
     // =================================
     // Instanced object XML-RPC methods
     // =================================
@@ -124,17 +110,6 @@ public class Group extends PoolElement{
         OneResponse response = info(client, id);
         super.processInfo(response);
         return response;
-    }
-
-    /**
-     * Changes the group's owner
-     *
-     * @param uid The new owner user ID.
-     * @return If an error occurs the error message contains the reason.
-     */
-    public OneResponse chown(int uid)
-    {
-        return chown(client, id, uid);
     }
 
     /**

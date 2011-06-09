@@ -109,7 +109,6 @@ public class GroupTest
 
         assertTrue( group.id() >= 100 );
         assertTrue( group.getName().equals(group_name) );
-        assertTrue( group.uid() == 0 );
     }
 
     @Test
@@ -131,28 +130,6 @@ public class GroupTest
         }
 
         assertTrue( !found );
-    }
-
-    @Test
-    public void chown()
-    {
-        // Create a new user
-        res = User.allocate(client, "test_user", "password");
-        assertTrue( !res.isError() );
-
-        int uid = Integer.parseInt(res.getMessage());
-
-        res = group.info();
-        assertTrue( !res.isError() );
-        assertTrue( group.uid() == 0 );
-
-        res = group.chown(uid);
-        assertTrue( !res.isError() );
-
-        res = group.info();
-        assertTrue( !res.isError() );
-        assertTrue( group.uid() == uid );
-
     }
 
     @Test

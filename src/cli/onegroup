@@ -110,9 +110,6 @@ Commands:
 * delete (Removes a group)
     onegroup delete <id>
 
-* chown (Changes the Group owner)
-    onegroup chown <id> <owner_id>
-
 * list (Lists all the groups in the pool)
     onegroup list
 
@@ -165,19 +162,6 @@ when "delete"
             puts "Group deleted" if ops[:verbose]
             break
         end
-    end
-
-when "chown"
-    check_parameters("chown", 2)
-
-    obj_id = get_group_id(ARGV[0])
-    new_uid  = ARGV[1].to_i
-
-    obj = OpenNebula::Group.new_with_id(obj_id, get_one_client)
-
-    result = obj.chown( new_uid )
-    if is_successful?(result)
-        puts "Group owner changed" if ops[:verbose]
     end
 
 when "list"

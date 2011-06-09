@@ -77,8 +77,8 @@ private:
     // Constructor
     // *************************************************************************
 
-    Group(int id, int uid, const string& name):
-        PoolObjectSQL(id,name,uid,-1,table),
+    Group(int id, const string& name):
+        PoolObjectSQL(id,name,-1,-1,table),
         ObjectCollection("USERS"){};
 
     virtual ~Group(){};

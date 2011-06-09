@@ -234,6 +234,6 @@ int GroupAllocate::pool_allocate(xmlrpc_c::paramList const& paramList,
 
     GroupPool * gpool = static_cast<GroupPool *>(pool);
 
-    return gpool->allocate(uid, gname, &id, error_str);
+    return gpool->allocate(gname, &id, error_str);
 }
 

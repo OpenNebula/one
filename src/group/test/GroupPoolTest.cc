@@ -28,12 +28,12 @@ const string names[] = {"First name", "Second name"};
 
 const string xmls[] =
 {
-    "<GROUP><ID>100</ID><UID>0</UID><NAME>First name</NAME><USERS></USERS></GROUP>",
-    "<GROUP><ID>101</ID><UID>1</UID><NAME>Second name</NAME><USERS></USERS></GROUP>"
+    "<GROUP><ID>100</ID><NAME>First name</NAME><USERS></USERS></GROUP>",
+    "<GROUP><ID>101</ID><NAME>Second name</NAME><USERS></USERS></GROUP>"
 };
 
 const string group_xml_dump =
-    "<GROUP_POOL><GROUP><ID>0</ID><UID>0</UID><NAME>oneadmin</NAME><USERS></USERS></GROUP><GROUP><ID>1</ID><UID>0</UID><NAME>users</NAME><USERS></USERS></GROUP><GROUP><ID>100</ID><UID>5</UID><NAME>group_a</NAME><USERS></USERS></GROUP><GROUP><ID>102</ID><UID>5</UID><NAME>group_c</NAME><USERS></USERS></GROUP><GROUP><ID>103</ID><UID>5</UID><NAME>group_d</NAME><USERS></USERS></GROUP></GROUP_POOL>";
+    "<GROUP_POOL><GROUP><ID>0</ID><NAME>oneadmin</NAME><USERS></USERS></GROUP><GROUP><ID>1</ID><NAME>users</NAME><USERS></USERS></GROUP><GROUP><ID>100</ID><NAME>group_a</NAME><USERS></USERS></GROUP><GROUP><ID>102</ID><NAME>group_c</NAME><USERS></USERS></GROUP><GROUP><ID>103</ID><NAME>group_d</NAME><USERS></USERS></GROUP></GROUP_POOL>";
 
 /* ************************************************************************* */
 /* ************************************************************************* */
@@ -92,7 +92,7 @@ protected:
         int    oid;
         string err;
 
-        return gpool->allocate(uids[index], names[index], &oid, err);
+        return gpool->allocate(names[index], &oid, err);
     };
 
     void check(int index, PoolObjectSQL* obj)
@@ -165,18 +165,18 @@ public:
         GroupPool * gpool = static_cast<GroupPool*>(pool);
 
         // Allocate a group
-        rc = gpool->allocate(uids[0], names[0], &oid, err);
+        rc = gpool->allocate(names[0], &oid, err);
         CPPUNIT_ASSERT( oid == 100 );
         CPPUNIT_ASSERT( oid == rc );
 
         // Try to allocate twice the same group, should fail
-        rc = gpool->allocate(uids[0], names[0], &oid, err);
+        rc = gpool->allocate(names[0], &oid, err);
         CPPUNIT_ASSERT( rc  == -1 );
         CPPUNIT_ASSERT( oid == rc );
 
         // Try again, this time with different uid. Should fail, groups can't
         // repeat names
-        rc = gpool->allocate(uids[1], names[0], &oid, err);
+        rc = gpool->allocate(names[0], &oid, err);
         CPPUNIT_ASSERT( rc  == -1 );
         CPPUNIT_ASSERT( oid == rc );
     }
@@ -191,16 +191,16 @@ public:
         string          err;
 
         // Allocate some groups
-        rc = gpool->allocate(5, "group_a", &oid, err);
+        rc = gpool->allocate("group_a", &oid, err);
         CPPUNIT_ASSERT( rc == 100 );
 
-        rc = gpool->allocate(5, "group_b", &oid, err);
+        rc = gpool->allocate("group_b", &oid, err);
         CPPUNIT_ASSERT( rc == 101 );
 
-        rc = gpool->allocate(5, "group_c", &oid, err);
+        rc = gpool->allocate("group_c", &oid, err);
         CPPUNIT_ASSERT( rc == 102 );
 
-        rc = gpool->allocate(5, "group_d", &oid, err);
+        rc = gpool->allocate("group_d", &oid, err);
         CPPUNIT_ASSERT( rc == 103 );
 
         // Drop one of them
