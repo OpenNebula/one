@@ -30,7 +30,7 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList)
 
     Nebula&     nd    = Nebula::instance();
     GroupPool * gpool = nd.get_gpool();
-    UserPool  * upool = static_cast<UserPool *>(pool);
+    UserPool  * upool = nd.get_upool();
 
     PoolObjectSQL * object;
 
@@ -134,6 +134,7 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList)
 
     if ((old_gid = user->get_gid()) == ngid)
     {
+        user->unlock();
         success_response(oid);
         return;
     }
