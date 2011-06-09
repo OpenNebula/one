@@ -46,8 +46,8 @@ void AuthRequest::add_auth(Object        ob,
         case NET:      oss << "NET:" ; break;
         case IMAGE:    oss << "IMAGE:" ; break;
         case USER:     oss << "USER:" ; break;
-        case CLUSTER:  oss << "CLUSTER:" ; break;
         case TEMPLATE: oss << "TEMPLATE:" ; break;
+        case GROUP:    oss << "GROUP:" ; break;
     }
 
     if (op == CREATE || op == INSTANTIATE) //encode the ob_id, it is a template
@@ -91,8 +91,20 @@ void AuthRequest::add_auth(Object        ob,
             oss << "INFO:" ;
             break;
 
+        case INFO_POOL:
+            oss << "INFO_POOL:" ;
+            break;
+
+        case INFO_POOL_MINE:
+            oss << "INFO_POOL_MINE:" ;
+            break;
+
         case INSTANTIATE:
             oss << "INSTANTIATE:" ;
+            break;
+
+        case CHOWN:
+            oss << "CHOWN:" ;
             break;
     }
 
@@ -145,8 +157,36 @@ void AuthRequest::add_auth(Object        ob,
                 auth = owner == uid;
                 break;
                 
-            case INFO: // This is for completeness, as the only INFO existing 
-                       // is for UserPool, and just oneadmin can see it
+            case INFO: 
+                if ( ob != USER ) // User info only for root or owner
+                {
+                    auth = true;
+                }
+                else 
+                {
+                    istringstream iss(ob_id);
+                    int ob_id_int;
+
+                    iss >> ob_id_int;
+
+                    if (ob_id_int == uid)
+                    {
+                        auth = true;
+                    }
+                }
+                break;
+
+            case INFO_POOL:
+                if ( ob != USER ) // User pool only for oneadmin
+                {
+                    auth = true;
+                }
+                break;
+
+            case INFO_POOL_MINE:
+                auth = true;
+                break;
+            case CHOWN: //true only for oneadmin
                 break;
         }
     }

@@ -348,8 +348,8 @@ BIN_FILES="src/nebula/oned \
            src/cli/onevnet \
            src/cli/oneuser \
            src/cli/oneimage \
-           src/cli/onecluster \
            src/cli/onetemplate \
+           src/cli/onegroup \
            src/cli/onedb \
            share/scripts/one \
            src/authm_mad/oneauth"
@@ -393,10 +393,10 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/OpenNebula/Host.rb \
                            src/oca/ruby/OpenNebula/VirtualNetworkPool.rb \
                            src/oca/ruby/OpenNebula/Image.rb \
                            src/oca/ruby/OpenNebula/ImagePool.rb \
-                           src/oca/ruby/OpenNebula/Cluster.rb \
-                           src/oca/ruby/OpenNebula/ClusterPool.rb \
                            src/oca/ruby/OpenNebula/Template.rb \
                            src/oca/ruby/OpenNebula/TemplatePool.rb \
+                           src/oca/ruby/OpenNebula/Group.rb \
+                           src/oca/ruby/OpenNebula/GroupPool.rb \
                            src/oca/ruby/OpenNebula/XMLUtils.rb"
 
 
@@ -726,8 +726,8 @@ CLI_BIN_FILES="src/cli/onevm \
                src/cli/onevnet \
                src/cli/oneuser \
                src/cli/oneimage \
-               src/cli/onecluster \
-               src/cli/onetemplate"
+               src/cli/onetemplate \
+               src/cli/onegroup"
 
 #-----------------------------------------------------------------------------
 # Sunstone files
@@ -836,7 +836,6 @@ SUNSTONE_RUBY_LIB_FILES="src/mad/ruby/CommandManager.rb \
 #-----------------------------------------------------------------------------
 
 MAN_FILES="share/man/oneauth.1.gz \
-        share/man/onecluster.1.gz \
         share/man/onehost.1.gz \
         share/man/oneimage.1.gz \
         share/man/oneuser.1.gz \

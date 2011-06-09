@@ -52,11 +52,6 @@ public:
         ERROR     = 5  /** < Error state the operation FAILED*/
     };
 
-    /**
-     *  Function to write an Image on an output stream
-     */
-     friend ostream& operator<<(ostream& os, Image& i);
-
     // *************************************************************************
     // Image Public Methods
     // *************************************************************************
@@ -75,15 +70,6 @@ public:
      *    @return 0 on success, -1 otherwise
      */
     int from_xml(const string &xml_str);
-
-    /**
-     *  Returns true if the image is public
-     *     @return true if the image is public
-     */
-    bool isPublic()
-    {
-        return (public_img == 1);
-    };
 
     /**
      *  Returns true if the image is persistent
@@ -195,25 +181,25 @@ public:
      *    @param pub true to publish the image
      *    @return 0 on success
      */
-    bool publish(bool pub)
+    int publish(bool pub)
     {
-        bool success = false;
+        int rc = -1;
 
         if (pub == true)
         {
             if (!isPersistent())
             {
-                public_img = 1;
-                success    = true;
+                public_obj  = 1;
+                rc          = 0;
             }
         }
         else
         {
-            public_img = 0;
-            success    = true;
+            public_obj  = 0;
+            rc          = 0;
         }
 
-        return success;
+        return rc;
     }
 
     /**
@@ -221,25 +207,25 @@ public:
      *    @param persistent true to make an image persistent
      *    @return 0 on success
      */
-    bool persistent(bool persis)
+    int persistent(bool persis)
     {
-        bool success = false;
+        int rc = -1;
 
         if (persis == true)
         {
             if (!isPublic() && running_vms == 0)
             {
                 persistent_img = 1;
-                success        = true;
+                rc             = 0;
             }
         }
         else
         {
             persistent_img = 0;
-            success        = true;
+            rc             = 0;
         }
 
-        return success;
+        return rc;
     }
 
     /**
@@ -259,6 +245,14 @@ public:
      */
     int disk_attribute(VectorAttribute * disk, int* index, ImageType* img_type);
 
+    /**
+     *  Factory method for image templates
+     */
+    Template * get_new_template()
+    {
+        return new ImageTemplate;
+    }
+
 private:
 
     // -------------------------------------------------------------------------
@@ -272,19 +266,9 @@ private:
     // -------------------------------------------------------------------------
 
     /**
-     *  Image owner's name
-     */
-    string      user_name;
-
-    /**
      *  Type of the Image
      */
     ImageType   type;
-
-    /**
-     *  Public scope of the Image
-     */
-    int         public_img;
 
     /**
      *  Persistency of the Image
@@ -346,8 +330,8 @@ protected:
     // Constructor
     // *************************************************************************
 
-    Image(int            uid, 
-          const string&  user_name, 
+    Image(int            uid,
+          int            gid,
           ImageTemplate* img_template);
 
     virtual ~Image();

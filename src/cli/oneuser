@@ -39,6 +39,14 @@ ShowTableUP={
         :size => 4,
         :proc => lambda {|d,e| d.id }
     },
+    :gid=> {
+        :name => "GID",
+        :desc => "Id of the group",
+        :size => 4,
+        :proc => lambda {|d,e|
+            d.gid
+        }
+    },
     :user => {
         :name => "USER",
         :desc => "name of the user",
@@ -54,7 +62,7 @@ ShowTableUP={
         :proc => lambda {|d,e| d['PASSWORD'] }
     },
    
-    :default => [:id, :user, :password]
+    :default => [:id, :gid, :user, :password]
 }
 
 class UPShow
@@ -116,6 +124,14 @@ Commands:
 * passwd (Changes the given user's password)
     oneuser passwd <id> password
 
+* chgrp (Changes the User group)
+    oneuser chgrp <id> <group_id>
+
+* addgroup (Adds a secondary group)
+    oneuser addgroup <id> <group_id>
+
+* delgroup (Deletes a secondary group. Fails if the group is the main one)
+    oneuser delgroup <id> <group_id>
 
 Information Columns:
 
@@ -256,6 +272,46 @@ when "passwd"
     else
         puts
     end
+
+when "chgrp"
+    check_parameters("chgrp", 2)
+
+    obj_id = get_user_id(ARGV[0])
+    new_gid  = ARGV[1].to_i
+
+    obj = OpenNebula::User.new_with_id(obj_id, get_one_client)
+
+    result = obj.chgrp( new_gid )
+    if is_successful?(result)
+        puts "User group changed" if ops[:verbose]
+    end
+
+when "addgroup"
+    check_parameters("addgroup", 2)
+
+    obj_id = get_user_id(ARGV[0])
+    new_gid  = ARGV[1].to_i
+
+    obj = OpenNebula::User.new_with_id(obj_id, get_one_client)
+
+    result = obj.addgroup( new_gid )
+    if is_successful?(result)
+        puts "User group added" if ops[:verbose]
+    end
+
+when "delgroup"
+    check_parameters("delgroup", 2)
+
+    obj_id = get_user_id(ARGV[0])
+    new_gid  = ARGV[1].to_i
+
+    obj = OpenNebula::User.new_with_id(obj_id, get_one_client)
+
+    result = obj.delgroup( new_gid )
+    if is_successful?(result)
+        puts "User group deleted" if ops[:verbose]
+    end
+
 
 when "list"
     if !ops[:xml]

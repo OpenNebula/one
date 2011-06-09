@@ -19,6 +19,7 @@
 
 #include "PoolSQL.h"
 #include "User.h"
+#include "GroupPool.h"
 
 #include <time.h>
 #include <sstream>
@@ -49,7 +50,8 @@ public:
      */
     int allocate (
         int *   oid,
-        string  hostname,
+        int     gid,
+        string  username,
         string  password,
         bool    enabled,
         string& error_str);
@@ -87,14 +89,6 @@ public:
         return user->update(db);
     };
 
-    /** Drops a user from the DB, the user mutex MUST BE locked
-     *    @param user pointer to User
-     */
-    int drop(User * user)
-    {
-        return PoolSQL::drop(user);
-    };
-
     /**
      *  Bootstraps the database table(s) associated to the User pool
      */
@@ -106,9 +100,11 @@ public:
     /**
      * Returns whether there is a user with given username/password or not
      *   @param session, colon separated username and password string
-     *   @return -1 if authn failed, uid of the user in other case
+     *   @param uid of the user if authN succeeded -1 otherwise
+     *   @param gid of the user if authN succeeded -1 otherwise
+     *   @return false if authn failed, true otherwise
      */
-    int authenticate(string& session);
+    bool authenticate(const string& session, int& uid, int& gid);
 
     /**
      * Returns whether there is a user with given username/password or not
@@ -137,7 +133,7 @@ private:
      */
     PoolObjectSQL * create()
     {
-        return new User(-1,"","",true);
+        return new User(-1,-1,"","",true);
     };
 };
 

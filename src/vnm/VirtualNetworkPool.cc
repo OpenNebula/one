@@ -71,7 +71,7 @@ VirtualNetworkPool::VirtualNetworkPool(SqlDB * db,
 
 int VirtualNetworkPool::allocate (
     int            uid,
-    string         user_name,
+    int            gid,
     VirtualNetworkTemplate * vn_template,
     int *          oid,
     string&        error_str)
@@ -80,7 +80,7 @@ int VirtualNetworkPool::allocate (
     VirtualNetwork *    vn_aux;
     string              name;
 
-    vn = new VirtualNetwork(uid, user_name, vn_template);
+    vn = new VirtualNetwork(uid, gid, vn_template);
 
     // Check for duplicates
     vn->get_template_attribute("NAME", name);

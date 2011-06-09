@@ -29,7 +29,6 @@ using namespace std;
 /* ************************************************************************* */
 
 const int uids[] = {123, 261, 133, 78};
-const string user_names[] = {"A user","B user","C user","D user"};
 
 const string names[] = {"Net number one", "A virtual network","Net number two"};
 
@@ -72,18 +71,18 @@ const string templates[] =
 
 const string xmls[] =
 {
-    "<VNET><ID>0</ID><UID>123</UID><USERNAME>A user</USERNAME><NAME>Net number one</NAME><TYPE>1</TYPE><BRIDGE>br1</BRIDGE><PUBLIC>0</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE><BRIDGE><![CDATA[br1]]></BRIDGE><LEASES><IP><![CDATA[130.10.0.1]]></IP><MAC><![CDATA[50:20:20:20:20:20]]></MAC></LEASES><NAME><![CDATA[Net number one]]></NAME><TYPE><![CDATA[FIXED]]></TYPE></TEMPLATE><LEASES><LEASE><IP>130.10.0.1</IP><MAC>50:20:20:20:20:20</MAC><USED>0</USED><VID>-1</VID></LEASE></LEASES></VNET>",
+    "<VNET><ID>0</ID><UID>123</UID><GID>0</GID><NAME>Net number one</NAME><TYPE>1</TYPE><BRIDGE>br1</BRIDGE><PUBLIC>0</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE><BRIDGE><![CDATA[br1]]></BRIDGE><LEASES><IP><![CDATA[130.10.0.1]]></IP><MAC><![CDATA[50:20:20:20:20:20]]></MAC></LEASES><NAME><![CDATA[Net number one]]></NAME><TYPE><![CDATA[FIXED]]></TYPE></TEMPLATE><LEASES><LEASE><IP>130.10.0.1</IP><MAC>50:20:20:20:20:20</MAC><USED>0</USED><VID>-1</VID></LEASE></LEASES></VNET>",
 
-    "<VNET><ID>1</ID><UID>261</UID><USERNAME>B user</USERNAME><NAME>A virtual network</NAME><TYPE>0</TYPE><BRIDGE>br0</BRIDGE><PUBLIC>1</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE><BRIDGE><![CDATA[br0]]></BRIDGE><NAME><![CDATA[A virtual network]]></NAME><NETWORK_ADDRESS><![CDATA[192.168.0.0]]></NETWORK_ADDRESS><NETWORK_SIZE><![CDATA[C]]></NETWORK_SIZE><TYPE><![CDATA[RANGED]]></TYPE></TEMPLATE><LEASES></LEASES></VNET>",
+    "<VNET><ID>1</ID><UID>261</UID><GID>0</GID><NAME>A virtual network</NAME><TYPE>0</TYPE><BRIDGE>br0</BRIDGE><PUBLIC>1</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE><BRIDGE><![CDATA[br0]]></BRIDGE><NAME><![CDATA[A virtual network]]></NAME><NETWORK_ADDRESS><![CDATA[192.168.0.0]]></NETWORK_ADDRESS><NETWORK_SIZE><![CDATA[C]]></NETWORK_SIZE><TYPE><![CDATA[RANGED]]></TYPE></TEMPLATE><LEASES></LEASES></VNET>",
 
-    "<VNET><ID>0</ID><UID>133</UID><USERNAME>C user</USERNAME><NAME>Net number two</NAME><TYPE>1</TYPE><BRIDGE>br1</BRIDGE><PUBLIC>0</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE><BRIDGE><![CDATA[br1]]></BRIDGE><LEASES><IP><![CDATA[130.10.2.1]]></IP><MAC><![CDATA[50:20:20:20:20:20]]></MAC></LEASES><NAME><![CDATA[Net number two]]></NAME><TYPE><![CDATA[fixed]]></TYPE></TEMPLATE><LEASES><LEASE><IP>130.10.2.1</IP><MAC>50:20:20:20:20:20</MAC><USED>0</USED><VID>-1</VID></LEASE></LEASES></VNET>"
+    "<VNET><ID>0</ID><UID>133</UID><GID>0</GID><NAME>Net number two</NAME><TYPE>1</TYPE><BRIDGE>br1</BRIDGE><PUBLIC>0</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE><BRIDGE><![CDATA[br1]]></BRIDGE><LEASES><IP><![CDATA[130.10.2.1]]></IP><MAC><![CDATA[50:20:20:20:20:20]]></MAC></LEASES><NAME><![CDATA[Net number two]]></NAME><TYPE><![CDATA[fixed]]></TYPE></TEMPLATE><LEASES><LEASE><IP>130.10.2.1</IP><MAC>50:20:20:20:20:20</MAC><USED>0</USED><VID>-1</VID></LEASE></LEASES></VNET>"
 };
 
 const string xml_dump =
-    "<VNET_POOL><VNET><ID>0</ID><UID>1</UID><USERNAME>A user</USERNAME><NAME>Net number one</NAME><TYPE>1</TYPE><BRIDGE>br1</BRIDGE><PUBLIC>0</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE><BRIDGE><![CDATA[br1]]></BRIDGE><LEASES><IP><![CDATA[130.10.0.1]]></IP><MAC><![CDATA[50:20:20:20:20:20]]></MAC></LEASES><NAME><![CDATA[Net number one]]></NAME><TYPE><![CDATA[FIXED]]></TYPE></TEMPLATE></VNET><VNET><ID>1</ID><UID>2</UID><USERNAME>B user</USERNAME><NAME>A virtual network</NAME><TYPE>0</TYPE><BRIDGE>br0</BRIDGE><PUBLIC>1</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE><BRIDGE><![CDATA[br0]]></BRIDGE><NAME><![CDATA[A virtual network]]></NAME><NETWORK_ADDRESS><![CDATA[192.168.0.0]]></NETWORK_ADDRESS><NETWORK_SIZE><![CDATA[C]]></NETWORK_SIZE><TYPE><![CDATA[RANGED]]></TYPE></TEMPLATE></VNET></VNET_POOL>";
+    "<VNET_POOL><VNET><ID>0</ID><UID>1</UID><GID>0</GID><NAME>Net number one</NAME><TYPE>1</TYPE><BRIDGE>br1</BRIDGE><PUBLIC>0</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE><BRIDGE><![CDATA[br1]]></BRIDGE><LEASES><IP><![CDATA[130.10.0.1]]></IP><MAC><![CDATA[50:20:20:20:20:20]]></MAC></LEASES><NAME><![CDATA[Net number one]]></NAME><TYPE><![CDATA[FIXED]]></TYPE></TEMPLATE></VNET><VNET><ID>1</ID><UID>2</UID><GID>0</GID><NAME>A virtual network</NAME><TYPE>0</TYPE><BRIDGE>br0</BRIDGE><PUBLIC>1</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE><BRIDGE><![CDATA[br0]]></BRIDGE><NAME><![CDATA[A virtual network]]></NAME><NETWORK_ADDRESS><![CDATA[192.168.0.0]]></NETWORK_ADDRESS><NETWORK_SIZE><![CDATA[C]]></NETWORK_SIZE><TYPE><![CDATA[RANGED]]></TYPE></TEMPLATE></VNET></VNET_POOL>";
 
 const string xml_dump_where =
-    "<VNET_POOL><VNET><ID>1</ID><UID>2</UID><USERNAME>B user</USERNAME><NAME>A virtual network</NAME><TYPE>0</TYPE><BRIDGE>br0</BRIDGE><PUBLIC>1</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE><BRIDGE><![CDATA[br0]]></BRIDGE><NAME><![CDATA[A virtual network]]></NAME><NETWORK_ADDRESS><![CDATA[192.168.0.0]]></NETWORK_ADDRESS><NETWORK_SIZE><![CDATA[C]]></NETWORK_SIZE><TYPE><![CDATA[RANGED]]></TYPE></TEMPLATE></VNET></VNET_POOL>";
+    "<VNET_POOL><VNET><ID>1</ID><UID>2</UID><GID>0</GID><NAME>A virtual network</NAME><TYPE>0</TYPE><BRIDGE>br0</BRIDGE><PUBLIC>1</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE><BRIDGE><![CDATA[br0]]></BRIDGE><NAME><![CDATA[A virtual network]]></NAME><NETWORK_ADDRESS><![CDATA[192.168.0.0]]></NETWORK_ADDRESS><NETWORK_SIZE><![CDATA[C]]></NETWORK_SIZE><TYPE><![CDATA[RANGED]]></TYPE></TEMPLATE></VNET></VNET_POOL>";
 
 /* ************************************************************************* */
 /* ************************************************************************* */
@@ -100,8 +99,7 @@ public:
                 {};
 
 
-    int allocate(const int& uid, const std::string& user_name,
-                 const std::string& stemplate, int* oid)
+    int allocate(const int& uid, const std::string& stemplate, int* oid)
     {
         VirtualNetworkTemplate * vn_template;
         char *          error_msg = 0;
@@ -113,8 +111,7 @@ public:
 
         if( rc == 0 )
         {
-            return VirtualNetworkPool::allocate(uid, user_name,
-                                                vn_template, oid, err);
+            return VirtualNetworkPool::allocate(uid, 0, vn_template, oid, err);
         }
         else
         {
@@ -188,7 +185,7 @@ protected:
     {
         int oid;
         return ((VirtualNetworkPoolFriend*)pool)->allocate(
-                        uids[index],user_names[index],templates[index], &oid);
+                        uids[index],templates[index], &oid);
     };
 
     void check(int index, PoolObjectSQL* obj)
@@ -377,7 +374,7 @@ public:
 
         for (int i = 0 ; i < 7 ; i++)
         {
-            rc   = vnpool->allocate(uids[0], user_names[0], templ[i], &oid[i]);
+            rc   = vnpool->allocate(uids[0], templ[i], &oid[i]);
             CPPUNIT_ASSERT( rc >= 0 );
 
             vnet = vnpool->get(oid[i], false);
@@ -406,22 +403,22 @@ public:
         VirtualNetwork     * vnet;
 
         // Allocate a vnet
-        rc = vnpool->allocate(uids[0], user_names[0], templates[0], &oid_0);
+        rc = vnpool->allocate(uids[0], templates[0], &oid_0);
         CPPUNIT_ASSERT( rc == oid_0 );
         CPPUNIT_ASSERT( rc == 0 );
 
         // Allocate the same vnet twice, with the same user ID. Should fail
-        rc = vnpool->allocate(uids[0], user_names[0], templates[0], &oid_1);
+        rc = vnpool->allocate(uids[0], templates[0], &oid_1);
         CPPUNIT_ASSERT( rc ==  oid_1 );
         CPPUNIT_ASSERT( rc == -1 );
 
         // Same VNet, with different user ID. Should succeed
-        rc = vnpool->allocate(uids[1], user_names[1], templates[0], &oid_2);
+        rc = vnpool->allocate(uids[1], templates[0], &oid_2);
         CPPUNIT_ASSERT( rc ==  oid_2 );
         CPPUNIT_ASSERT( rc == 1 );
 
         // Insert a different template, with the same user ID
-        rc = vnpool->allocate(uids[1], user_names[1], templates[1], &oid_3);
+        rc = vnpool->allocate(uids[1], templates[1], &oid_3);
         CPPUNIT_ASSERT( rc == oid_3 );
         CPPUNIT_ASSERT( rc == 2 );
 
@@ -454,8 +451,8 @@ public:
         int oid, rc;
         ostringstream oss;
 
-        vnpool->allocate(1, user_names[0], templates[0], &oid);
-        vnpool->allocate(2, user_names[1], templates[1], &oid);
+        vnpool->allocate(1, templates[0], &oid);
+        vnpool->allocate(2, templates[1], &oid);
 
         rc = pool->dump(oss, "");
 
@@ -463,7 +460,7 @@ public:
 
         string result = oss.str();
 
-/*
+//*
         if( result != xml_dump )
         {
             cout << endl << result << endl << "========"
@@ -484,8 +481,8 @@ public:
         int oid, rc;
         ostringstream oss;
 
-        vnpool->allocate(1, user_names[0], templates[0], &oid);
-        vnpool->allocate(2, user_names[1], templates[1], &oid);
+        vnpool->allocate(1, templates[0], &oid);
+        vnpool->allocate(2, templates[1], &oid);
 
         string where = "name LIKE '%virtual%'";
         rc = pool->dump(oss, where);
@@ -494,7 +491,7 @@ public:
 
         string result = oss.str();
 
-/*
+//*
         if( result != xml_dump_where )
         {
             cout << endl << result << endl << "========"
@@ -606,7 +603,7 @@ public:
             "NETWORK_ADDRESS = 192.168.50.0\n";
 
 
-        vnpool->allocate(45, user_names[0], tmpl, &oid);
+        vnpool->allocate(45, tmpl, &oid);
         CPPUNIT_ASSERT( oid != -1 );
 
         vn = vnpool->get(oid, false);
@@ -830,11 +827,11 @@ public:
 
 
         // First VNet template
-        vnpool->allocate(13, user_names[0], tmpl_A, &oid_0);
+        vnpool->allocate(13, tmpl_A, &oid_0);
         CPPUNIT_ASSERT( oid_0 != -1 );
 
         // Second VNet
-        vnpool->allocate(45, user_names[0], tmpl_B, &oid_new);
+        vnpool->allocate(45, tmpl_B, &oid_new);
         CPPUNIT_ASSERT( oid_new != -1 );
 
         // Get this second VNet
@@ -946,6 +943,7 @@ public:
         string bridge = "";
 
         vector<int>     results;
+        string          tmp_error;
 
         // Allocate a VNet
         oid = allocate(0);
@@ -955,7 +953,7 @@ public:
         CPPUNIT_ASSERT( vn != 0 );
 
         // Drop the VNet
-        pool->drop(vn);
+        pool->drop(vn, tmp_error);
 
         // Check that the leases were also dropped
         const char *    table   = "leases";
@@ -1050,7 +1048,7 @@ public:
         while( templates[i] != "END" )
         {
 
-            vnp->allocate(0, user_names[0], templates[i], &oid);
+            vnp->allocate(0, templates[i], &oid);
 
             CPPUNIT_ASSERT( oid >= 0 );
 
@@ -1088,10 +1086,10 @@ public:
                             "BRIDGE = br2\n"
                             "LEASES = [IP=130.10.0.5, MAC=50:20:20:20:20:25]";
 
-        vnp->allocate(0, user_names[0], template_0, &oid_0);
+        vnp->allocate(0, template_0, &oid_0);
         CPPUNIT_ASSERT( oid_0 == 0 );
 
-        vnp->allocate(0, user_names[0], template_1, &oid_1);
+        vnp->allocate(0, template_1, &oid_1);
         CPPUNIT_ASSERT( oid_1 == 1 );
 
         // Disk using network 0

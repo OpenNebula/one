@@ -121,12 +121,6 @@ module OpenNebula
             SHORT_HOST_STATES[state_str]
         end
 
-        # Returns the cluster of the Host
-        def cluster
-            self['CLUSTER']
-        end
-
-
     private
         def set_enabled(enabled)
             return Error.new('ID not defined') if !@pe_id

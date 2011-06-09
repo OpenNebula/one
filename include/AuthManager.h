@@ -281,7 +281,10 @@ public:
         USE,        /** Authorization to use an object      */
         MANAGE,     /** Authorization to manage an object   */
         INFO,       /** Authorization to view an object     */
-        INSTANTIATE /** Authorization to instantiate a VM from a TEMPLATE   */
+        INFO_POOL,  /** Authorization to view any object in the pool */
+        INFO_POOL_MINE, /** Authorization to view user and/or group objects */ 
+        INSTANTIATE, /** Authorization to instantiate a VM from a TEMPLATE  */
+        CHOWN /** Authorization to change ownership of an object */
     };
 
     /**
@@ -294,8 +297,8 @@ public:
         NET,
         IMAGE,
         USER,
-        CLUSTER,
-        TEMPLATE
+        TEMPLATE,
+        GROUP
     };
 
     /**

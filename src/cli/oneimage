@@ -44,7 +44,23 @@ ShowTableImage={
         :desc => "Name of the owner",
         :size => 8,
         :proc => lambda {|d,e| 
-            d["USERNAME"]
+            "TODO"
+        }
+    },
+    :uid=> {
+        :name => "UID",
+        :desc => "Id of the owner",
+        :size => 4,
+        :proc => lambda {|d,e|
+            d["UID"]
+        }
+    },
+    :gid=> {
+        :name => "GID",
+        :desc => "Id of the group",
+        :size => 4,
+        :proc => lambda {|d,e|
+            d.gid
         }
     },
     :name => {
@@ -215,11 +231,8 @@ Commands:
 * addattr (Add a new image attribute)
     oneimage addattr <image_id> <attribute_name> <attribute_value>
     
-* update (Modifies an image attribute)
-    oneimage update <image_id> <attribute_name> <attribute_value>
-    
-* rmattr (Deletes an Image attribute)
-    oneimage rmattr <image_id> <attribute_name>
+* update (Lets the user edit and replace the image template)
+    oneimage update <image_id>
     
 * enable (Enabled an Image)
     oneimage enable <image_id>
@@ -238,14 +251,21 @@ Commands:
 
 * nonpersistent (Makes an Image non persistent)
     oneimage nonpersistent <image_id>
-    
+
+* chown (Changes the Image owner and group)
+    oneimage chown <image_id> <owner_id> [<group_id>]
+
+* chgrp (Changes the Image group)
+    oneimage chgrp <image_id> <group_id>
+
 * list (Shows Images in the pool)
     oneimage list <filter_flag>
     
     where filter_flag can be
         a, all   --> all the known Images
         m, mine  --> the Images belonging to the user in ONE_AUTH
-                        and all the  Public Images
+        g, group --> 'mine' plus the Images belonging to the groups
+                        the user is member of
         uid      --> Images of the user identified by this uid
         user     --> Images of the user identified by the username
         
@@ -282,6 +302,8 @@ def get_user_flags
             when "a", "all"
                 ops[:filter_user]="-2"
             when "m", "mine"
+                ops[:filter_user]="-3"
+            when "g", "group"
                 ops[:filter_user]="-1"
             else
                 if !ARGV[0].match(/^[0123456789]+$/)
@@ -333,29 +355,28 @@ when "register", "create", "add"
         puts "ID: " + image.id.to_s if ops[:verbose]
     end
 
-    
-when "update", "addattr"
-    check_parameters("update", 3)
+when "update"
+    check_parameters("update", 1)
     image_id=get_image_id(ARGV[0])
     
     image=OpenNebula::Image.new_with_id(image_id, get_one_client)
-    
-    result=image.update(ARGV[1],ARGV[2])
+    rc = image.info
     if is_successful?(result)
-        puts "Modified image" if ops[:verbose]
+        file = File.open('/tmp/template', "w")
+        file << image.template_str 
+        file.close
+
+        system "vim /tmp/template"
+        str = File.read('/tmp/test')
+
+        result = image.update( str )
+
+        if is_successful?(result)
+            puts "Modified image" if ops[:verbose]
+        end
+
     end
 
-when "rmattr"
-    check_parameters("rmattr", 2)
-    image_id=get_image_id(ARGV[0])
-
-    image=OpenNebula::Image.new_with_id(image_id, get_one_client)
-
-    result=image.remove_attr(ARGV[1])
-    if is_successful?(result)
-        puts "Removed image atrribute" if ops[:verbose]
-    end
-    
 when "enable"
     check_parameters("enable", 1)
     image_id=get_image_id(ARGV[0])
@@ -421,7 +442,35 @@ when "nonpersistent"
     if is_successful?(result)
         puts "Image made nonpersistent" if ops[:verbose]
     end
-    
+
+when "chown"
+    check_parameters("chown", 2)
+
+    image_id = get_image_id(ARGV[0])
+    new_uid  = ARGV[1].to_i
+    new_gid = ( ARGV.length > 2 ) ? ARGV[2].to_i : -1
+
+    image = OpenNebula::Image.new_with_id(image_id, get_one_client)
+
+    result = image.chown( new_uid, new_gid )
+    if is_successful?(result)
+        puts "Image user/group changed" if ops[:verbose]
+    end
+
+when "chgrp"
+    check_parameters("chgrp", 2)
+
+    image_id = get_image_id(ARGV[0])
+    new_uid  = -1
+    new_gid  = ARGV[1].to_i
+
+    image = OpenNebula::Image.new_with_id(image_id, get_one_client)
+
+    result = image.chown( new_uid, new_gid )
+    if is_successful?(result)
+        puts "Image group changed" if ops[:verbose]
+    end
+
 when "list"
     ops.merge!(get_user_flags)
     if !ops[:xml]

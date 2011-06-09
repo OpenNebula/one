@@ -22,6 +22,7 @@
 using namespace std;
 
 const int uids[] = {123, 261, 123};
+const int gids[] = {150, 164, 175};
 
 const string names[] = {"VM one", "Second VM", "VM 3"};
 
@@ -185,7 +186,7 @@ private:
 
         if( rc == 0 )
         {
-            return vmpool->allocate(uids[index], "username", vm_template, &oid,
+            return vmpool->allocate(uids[index], gids[index], vm_template, &oid,
                                                 err, false);
         }
         else

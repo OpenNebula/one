@@ -34,11 +34,10 @@
 /* Image :: Constructor/Destructor                                          */
 /* ************************************************************************ */
 
-Image::Image(int             _uid, 
-             const string&   _user_name, 
+Image::Image(int             _uid,
+             int             _gid,
              ImageTemplate * _image_template):
-        PoolObjectSQL(-1,"",_uid,table),
-        user_name(_user_name),
+        PoolObjectSQL(-1,"",_uid,_gid,table),
         type(OS),
         regtime(time(0)),
         source("-"),
@@ -69,11 +68,11 @@ Image::~Image()
 
 const char * Image::table = "image_pool";
 
-const char * Image::db_names = "oid, name, body, uid, public";
+const char * Image::db_names = "oid, name, body, uid, gid, public";
 
 const char * Image::db_bootstrap = "CREATE TABLE IF NOT EXISTS image_pool ("
     "oid INTEGER PRIMARY KEY, name VARCHAR(256), body TEXT, uid INTEGER, "
-    "public INTEGER, UNIQUE(name,uid) )";
+    "gid INTEGER, public INTEGER, UNIQUE(name,uid) )";
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
@@ -121,7 +120,7 @@ int Image::insert(SqlDB *db, string& error_str)
 
     TO_UPPER(public_attr);
 
-    public_img = (public_attr == "YES");
+    public_obj = (public_attr == "YES");
 
     // ------------ PERSISTENT --------------------
 
@@ -135,7 +134,7 @@ int Image::insert(SqlDB *db, string& error_str)
 
     // An image cannot be public and persistent simultaneously
 
-    if ( public_img && persistent_img )
+    if ( public_obj && persistent_img )
     {
         goto error_public_and_persistent;
     }
@@ -295,7 +294,8 @@ int Image::insert_replace(SqlDB *db, bool replace)
         << "'" <<   sql_name        << "',"
         << "'" <<   sql_xml         << "',"
         <<          uid             << ","
-        <<          public_img      << ")";
+        <<          gid             << ","
+        <<          public_obj      << ")";
 
     rc = db->exec(oss);
 
@@ -314,18 +314,6 @@ error_name:
 /* Image :: Misc                                                             */
 /* ************************************************************************ */
 
-ostream& operator<<(ostream& os, Image& image)
-{
-    string image_str;
-
-    os << image.to_xml(image_str);
-
-    return os;
-}
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
 string& Image::to_xml(string& xml) const
 {
     string template_xml;
@@ -335,10 +323,10 @@ string& Image::to_xml(string& xml) const
         "<IMAGE>" <<
             "<ID>"             << oid             << "</ID>"          <<
             "<UID>"            << uid             << "</UID>"         <<
-            "<USERNAME>"       << user_name       << "</USERNAME>"    <<
+            "<GID>"            << gid             << "</GID>"         <<
             "<NAME>"           << name            << "</NAME>"        <<
             "<TYPE>"           << type            << "</TYPE>"        <<
-            "<PUBLIC>"         << public_img      << "</PUBLIC>"      <<
+            "<PUBLIC>"         << public_obj      << "</PUBLIC>"      <<
             "<PERSISTENT>"     << persistent_img  << "</PERSISTENT>"  <<
             "<REGTIME>"        << regtime         << "</REGTIME>"     <<
             "<SOURCE>"         << source          << "</SOURCE>"      <<
@@ -369,11 +357,11 @@ int Image::from_xml(const string& xml)
     // Get class base attributes
     rc += xpath(oid, "/IMAGE/ID", -1);
     rc += xpath(uid, "/IMAGE/UID", -1);
-    rc += xpath(user_name, "/IMAGE/USERNAME", "not_found");
+    rc += xpath(gid, "/IMAGE/GID", -1);
     rc += xpath(name, "/IMAGE/NAME", "not_found");
 
     rc += xpath(int_type, "/IMAGE/TYPE", 0);
-    rc += xpath(public_img, "/IMAGE/PUBLIC", 0);
+    rc += xpath(public_obj, "/IMAGE/PUBLIC", 0);
     rc += xpath(persistent_img, "/IMAGE/PERSISTENT", 0);
     rc += xpath(regtime, "/IMAGE/REGTIME", 0);
 
@@ -457,6 +445,7 @@ int Image::disk_attribute(  VectorAttribute * disk,
     {
         disk->replace("CLONE","NO");
         disk->replace("SAVE","YES");
+        disk->replace("PERSISTENT","YES");
     }
     else
     {

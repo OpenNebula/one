@@ -46,12 +46,19 @@ ShowTableHost={
         :left => true,
         :proc => lambda {|d,e| d.name }
     },
+    # TODO
+    :cid => {
+        :name => "CID",
+        :desc => "Cluster ID",
+        :size => 4,
+        :proc => lambda {|d,e| d.cluster_id }
+    },
     :cluster => {
         :name => "CLUSTER",
         :desc => "Clustername",
         :size => 8,
         :left => true,
-        :proc => lambda {|d,e| d.cluster }
+        :proc => lambda { "TODO" }
     },
     :rvm => {
         :name => "RVM",
@@ -107,7 +114,7 @@ ShowTableHost={
     },
 
 
-    :default => [:id, :name, :cluster, :rvm, :tcpu, :fcpu, :acpu, :tmem, :fmem, :stat]
+    :default => [:id, :name, :rvm, :tcpu, :fcpu, :acpu, :tmem, :fmem, :stat]
 }
 
 class HostShow
@@ -285,7 +292,10 @@ when "show"
 
             puts str % ["ID", host.id.to_s]
             puts str % ["NAME", host.name]
-            puts str % ["CLUSTER", host['CLUSTER']]
+
+            # TODO
+            puts str % ["CLUSTER", "TODO"]
+#            puts str % ["CLUSTER", host['CLUSTER']]
             puts str % ["STATE", host.state_str]
             puts str % ["IM_MAD", host['IM_MAD']]
             puts str % ["VM_MAD", host['VM_MAD']]

@@ -56,7 +56,7 @@ ImagePool::ImagePool(SqlDB *       db,
 
 int ImagePool::allocate (
         int            uid,
-        string         user_name,
+        int            gid,
         ImageTemplate* img_template,
         int *          oid,
         string&        error_str)
@@ -66,7 +66,7 @@ int ImagePool::allocate (
     string          name;
     ostringstream   oss;
 
-    img = new Image(uid, user_name, img_template);
+    img = new Image(uid, gid, img_template);
 
     // Check name
     img->get_template_attribute("NAME", name);
@@ -85,9 +85,22 @@ int ImagePool::allocate (
     }
 
     // ---------------------------------------------------------------------
-    // Insert the Object in the pool
+    // Insert the Object in the pool & Register the image in the repository
     // ---------------------------------------------------------------------
     *oid = PoolSQL::allocate(img, error_str);
+    
+    if ( *oid != -1 )
+    {
+        Nebula&        nd     = Nebula::instance();
+        ImageManager * imagem = nd.get_imagem();
+
+        if ( imagem->register_image(*oid) == -1 )
+        {
+            error_str = "Failed to copy image to repository. "
+                        "Image left in ERROR state.";
+            return -1;
+        }
+    }
 
     return *oid;
 

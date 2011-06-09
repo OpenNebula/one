@@ -229,13 +229,15 @@ void ImageManagerDriver::protocol(
     else if ( action == "RM" )
     {
         int    rc;
+        string tmp_error;
 
         source = image->get_source();
             
-        rc = ipool->drop(image);
+        rc = ipool->drop(image, tmp_error);
 
         if ( rc < 0 )
         {
+            image->unlock();
             NebulaLog::log("ImM",Log::ERROR,"Image could not be removed from DB");
         }
 

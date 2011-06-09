@@ -23,11 +23,12 @@ module OpenNebula
         # ---------------------------------------------------------------------
         TEMPLATE_METHODS = {
             :allocate    => "template.allocate",
+            :instantiate => "template.instantiate",
             :info        => "template.info",
             :update      => "template.update",
-            :rmattr      => "template.rmattr",
             :publish     => "template.publish",
-            :delete      => "template.delete"
+            :delete      => "template.delete",
+            :chown       => "template.chown"
         }
 
         # Creates a Template description with just its identifier
@@ -77,20 +78,25 @@ module OpenNebula
             super(TEMPLATE_METHODS[:delete])
         end
 
-        # Modifies a template attribute
+        # Creates a VM instance from a Template
         #
-        # +name+ Name of the attribute to be changed
-        #
-        # +value+ New value for the attribute
-        def update(name, value)
-            super(TEMPLATE_METHODS[:update], name, value)
+        # +name+ A string containing the name of the VM instance.
+        # [return] The new VM Instance ID, or an Error object
+        def instantiate(name="")
+            return Error.new('ID not defined') if !@pe_id
+
+            rc = @client.call(TEMPLATE_METHODS[:instantiate], @pe_id, name)
+
+            return rc
         end
 
-        # Deletes a template attribute
+        # Replaces the template contents
         #
-        # +name+ Name of the attribute to be deleted
-        def remove_attr(name)
-            do_rm_attr(name)
+        # +new_template+ New template contents
+        def update(new_template)
+            return Error.new('ID not defined') if !@pe_id
+
+            super(TEMPLATE_METHODS[:update], new_template)
         end
 
         # Publishes the Template, to be used by other users
@@ -103,21 +109,34 @@ module OpenNebula
             set_publish(false)
         end
 
+        # Changes the owner/group
+        # uid:: _Integer_ the new owner id. Set to -1 to leave the current one
+        # gid:: _Integer_ the new group id. Set to -1 to leave the current one
+        # [return] nil in case of success or an Error object
+        def chown(uid, gid)
+            super(TEMPLATE_METHODS[:chown], uid, gid)
+        end
+
+        # ---------------------------------------------------------------------
+        # Helpers to get Template information
+        # ---------------------------------------------------------------------
+
+        # Returns the group identifier
+        # [return] _Integer_ the element's group ID
+        def gid
+            self['GID'].to_i
+        end
+
+        def owner_id
+            self['UID'].to_i
+        end
+
     private
 
         def set_publish(published)
             return Error.new('ID not defined') if !@pe_id
 
             rc = @client.call(TEMPLATE_METHODS[:publish], @pe_id, published)
-            rc = nil if !OpenNebula.is_error?(rc)
-
-            return rc
-        end
-
-        def do_rm_attr(name)
-            return Error.new('ID not defined') if !@pe_id
-
-            rc = @client.call(TEMPLATE_METHODS[:rmattr], @pe_id, name)
             rc = nil if !OpenNebula.is_error?(rc)
 
             return rc

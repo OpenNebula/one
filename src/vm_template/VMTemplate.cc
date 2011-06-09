@@ -25,10 +25,9 @@
 
 VMTemplate::VMTemplate(int id,
                        int _uid,
-                       string _user_name,
+                       int _gid,
                        VirtualMachineTemplate * _template_contents):
-        PoolObjectSQL(id,"",_uid,table),
-        user_name(_user_name),
+        PoolObjectSQL(id,"",_uid,_gid,table),
         regtime(time(0))
 {
     if (_template_contents != 0)
@@ -58,11 +57,11 @@ VMTemplate::~VMTemplate()
 
 const char * VMTemplate::table = "template_pool";
 
-const char * VMTemplate::db_names = "oid, name, body, uid, public";
+const char * VMTemplate::db_names = "oid, name, body, uid, gid, public";
 
 const char * VMTemplate::db_bootstrap =
     "CREATE TABLE IF NOT EXISTS template_pool (oid INTEGER PRIMARY KEY, "
-    "name VARCHAR(256), body TEXT, uid INTEGER, public INTEGER)";
+    "name VARCHAR(256), body TEXT, uid INTEGER, gid INTEGER, public INTEGER)";
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
@@ -78,7 +77,11 @@ int VMTemplate::insert(SqlDB *db, string& error_str)
     // Check default attributes
     // ---------------------------------------------------------------------
 
-    // ------------ NAME --------------------
+    // ------------ NAME & TEMPLATE_ID --------------------
+    oss << oid;
+
+    replace_template_attribute("TEMPLATE_ID",oss.str()); 
+
     get_template_attribute("NAME", name);
 
     if ( name.empty() == true )
@@ -88,14 +91,16 @@ int VMTemplate::insert(SqlDB *db, string& error_str)
         name = oss.str();
     }
 
+
     // ------------ PUBLIC --------------------
+
     get_template_attribute("PUBLIC", public_attr);
 
     obj_template->erase("PUBLIC");
 
     TO_UPPER(public_attr);
 
-    public_template = (public_attr == "YES");
+    public_obj = (public_attr == "YES");
 
     // ------------------------------------------------------------------------
     // Insert the Template
@@ -151,12 +156,13 @@ int VMTemplate::insert_replace(SqlDB *db, bool replace)
 
     // Construct the SQL statement to Insert or Replace
 
-    oss <<" INTO "<<table <<" ("<< db_names <<") VALUES ("
-        <<          oid                 << ","
-        << "'" <<   sql_name            << "',"
-        << "'" <<   sql_xml             << "',"
-        <<          uid                 << ","
-        <<          public_template     << ")";
+    oss <<" INTO " << table <<" ("<< db_names <<") VALUES ("
+        <<            oid        << ","
+        << "'"     << sql_name   << "',"
+        << "'"     << sql_xml    << "',"
+        <<            uid        << ","
+        <<            gid        << ","
+        <<            public_obj << ")";
 
     rc = db->exec(oss);
 
@@ -175,30 +181,18 @@ error_name:
 /* VMTemplate :: Misc                                                       */
 /* ************************************************************************ */
 
-ostream& operator<<(ostream& os, VMTemplate& vmTemplate)
-{
-    string xml_str;
-
-    os << vmTemplate.to_xml(xml_str);
-
-    return os;
-}
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
 string& VMTemplate::to_xml(string& xml) const
 {
     ostringstream   oss;
     string          template_xml;
 
     oss << "<VMTEMPLATE>"
-            << "<ID>"       << oid              << "</ID>"
-            << "<UID>"      << uid              << "</UID>"
-            << "<USERNAME>" << user_name        << "</USERNAME>"
-            << "<NAME>"     << name             << "</NAME>"
-            << "<PUBLIC>"   << public_template  << "</PUBLIC>"
-            << "<REGTIME>"  << regtime          << "</REGTIME>"
+            << "<ID>"       << oid        << "</ID>"
+            << "<UID>"      << uid        << "</UID>"
+            << "<GID>"      << gid        << "</GID>"
+            << "<NAME>"     << name       << "</NAME>"
+            << "<PUBLIC>"   << public_obj << "</PUBLIC>"
+            << "<REGTIME>"  << regtime    << "</REGTIME>"
             << obj_template->to_xml(template_xml)
         << "</VMTEMPLATE>";
 
@@ -219,12 +213,12 @@ int VMTemplate::from_xml(const string& xml)
     update_from_str(xml);
 
     // Get class base attributes
-    rc += xpath(oid,            "/VMTEMPLATE/ID",       -1);
-    rc += xpath(uid,            "/VMTEMPLATE/UID",      -1);
-    rc += xpath(user_name,      "/VMTEMPLATE/USERNAME", "not_found");
-    rc += xpath(name,           "/VMTEMPLATE/NAME",     "not_found");
-    rc += xpath(public_template,"/VMTEMPLATE/PUBLIC",   0);
-    rc += xpath(regtime,        "/VMTEMPLATE/REGTIME",  0);
+    rc += xpath(oid,        "/VMTEMPLATE/ID",      -1);
+    rc += xpath(uid,        "/VMTEMPLATE/UID",     -1);
+    rc += xpath(gid,        "/VMTEMPLATE/GID",     -1);
+    rc += xpath(name,       "/VMTEMPLATE/NAME",    "not_found");
+    rc += xpath(public_obj, "/VMTEMPLATE/PUBLIC",  0);
+    rc += xpath(regtime,    "/VMTEMPLATE/REGTIME", 0);
 
     // Get associated classes
     ObjectXML::get_nodes("/VMTEMPLATE/TEMPLATE", content);

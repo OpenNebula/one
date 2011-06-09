@@ -34,6 +34,7 @@ public class VirtualNetwork extends PoolElement{
     private static final String PUBLISH         = METHOD_PREFIX + "publish";
     private static final String ADDLEASES       = METHOD_PREFIX + "addleases";
     private static final String RMLEASES        = METHOD_PREFIX + "rmleases";
+    private static final String CHOWN           = METHOD_PREFIX + "chown";
 
 
     /**
@@ -138,6 +139,20 @@ public class VirtualNetwork extends PoolElement{
         return client.call(RMLEASES, id, template);
     }
 
+    /**
+     * Changes the owner/group
+     * 
+     * @param client XML-RPC Client.
+     * @param id The virtual network id (nid) of the target network.
+     * @param uid The new owner user ID. Set it to -1 to leave the current one.
+     * @param gid The new group ID. Set it to -1 to leave the current one.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse chown(Client client, int id, int uid, int gid)
+    {
+        return client.call(CHOWN, id, uid, gid);
+    }
+
     // =================================
     // Instanced object XML-RPC methods
     // =================================
@@ -240,6 +255,40 @@ public class VirtualNetwork extends PoolElement{
     {
         String lease_template = "LEASES = [ IP = " + ip + " ]";
         return rmLeases(client, id, lease_template);
+    }
+
+    /**
+     * Changes the owner/group
+     * 
+     * @param uid The new owner user ID. Set it to -1 to leave the current one.
+     * @param gid The new group ID. Set it to -1 to leave the current one.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse chown(int uid, int gid)
+    {
+        return chown(client, id, uid, gid);
+    }
+
+    /**
+     * Changes the owner
+     * 
+     * @param uid The new owner user ID.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse chown(int uid)
+    {
+        return chown(uid, -1);
+    }
+
+    /**
+     * Changes the group
+     * 
+     * @param gid The new group ID.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse chgrp(int gid)
+    {
+        return chown(-1, gid);
     }
 
     // =================================

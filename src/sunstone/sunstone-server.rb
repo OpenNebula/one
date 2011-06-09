@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
@@ -30,8 +31,12 @@ else
     CONFIGURATION_FILE = ONE_LOCATION+"/etc/sunstone-server.conf"
 end
 
+HOST_LOG_FOLDER = LOG_LOCATION+"/OneMonitor/host"
+VM_LOG_FOLDER =  LOG_LOCATION+"/OneMonitor/vm"
+
 $: << RUBY_LIB_LOCATION
 $: << File.dirname(__FILE__)+'/models'
+$: << File.dirname(__FILE__)+'/share/OneMonitor'
 
 ##############################################################################
 # Required libraries
@@ -90,6 +95,7 @@ helpers do
         session.clear
         return [204, ""]
     end
+
 end
 
 before do
@@ -154,6 +160,19 @@ end
 get '/vm/:id/log' do
     @SunstoneServer.get_vm_log(params[:id])
 end
+
+##############################################################################
+# Logs
+##############################################################################
+
+get '/:resource/monitor' do
+    @SunstoneServer.get_log(params)
+end
+
+get '/:resource/:id/monitor' do
+    @SunstoneServer.get_log(params)
+end
+
 
 ##############################################################################
 # GET Pool information
@@ -239,4 +258,3 @@ end
 post '/:resource/:id/action' do
     @SunstoneServer.perform_action(params[:resource], params[:id], request.body.read)
 end
-

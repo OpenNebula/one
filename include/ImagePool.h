@@ -47,15 +47,17 @@ public:
     /**
      *  Function to allocate a new Image object
      *    @param uid the user id of the image's owner
-     *    @param stemplate template associated with the image
+     *    @param gid the id of the group this object is assigned to
+     *    @param img_template template associated with the image
      *    @param oid the id assigned to the Image
+     *    @param error_str Returns the error reason, if any
      *    @return the oid assigned to the object,
      *                  -1 in case of failure
      *                  -2 in case of template parse failure
      */
     int allocate (
         int             uid,
-        string          user_name,
+        int             gid,
         ImageTemplate * img_template,
         int *           oid,
         string&         error_str);
@@ -91,15 +93,6 @@ public:
     int update(Image * image)
     {
         return image->update(db);
-    };
-
-    /** Drops an image from the DB, the image mutex MUST BE locked
-     *    @param image pointer to Image
-     *    @return 0 on success
-     */
-    int drop(Image * image)
-    {
-        return PoolSQL::drop(image);
     };
 
     /**
@@ -179,7 +172,7 @@ private:
      */
     PoolObjectSQL * create()
     {
-        return new Image(-1,"",0);
+        return new Image(-1,-1,0);
     };
 };
 

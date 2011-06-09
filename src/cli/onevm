@@ -39,6 +39,22 @@ ShowTableVM={
         :size => 5,
         :proc => lambda {|d,e| d.id }
     },
+    :uid=> {
+        :name => "UID",
+        :desc => "Id of the owner",
+        :size => 4,
+        :proc => lambda {|d,e|
+            d["UID"]
+        }
+    },
+    :gid=> {
+        :name => "GID",
+        :desc => "Id of the group",
+        :size => 4,
+        :proc => lambda {|d,e|
+            d.gid
+        }
+    },
     :name => {
         :name => "NAME",
         :desc => "Name of the domain",
@@ -52,7 +68,7 @@ ShowTableVM={
         :desc => "Name of the owner",
         :size => 8,
         :proc => lambda {|d,e|
-            d["USERNAME"]
+            "TODO"
         }
     },
     :stat => {
@@ -318,15 +334,9 @@ machine with the functionality present in onevm.
 Commands:
 
 * create (Submits a new virtual machine, adding it to the ONE VM pool)
-    onevm create [OPTION] {<template-file-path>, <template-id>, <template-name>}
+    onevm create [OPTION] <template-file-path>
 
     <template-file-path> is a file name where the VM description is located.
-    <template-id> is the numeric ID of a registered template (using onetemplate)
-    <template-name> is the name of a registered template (using onetemplate)
-
-    OPTION: -n STRING, --name=STRING
-        Replaces the NAME attribute if the VM is being created from a registered
-        Template
 
 * deploy (Starts an existing VM in an specific host)
     onevm deploy <vm_id> <host_id>
@@ -400,13 +410,22 @@ Commands:
 
     States: ANY, except SUSPENDED or DONE
 
+* chown (Changes the VM owner and group)
+    onevm chown <vm_id> <owner_id> [<group_id>]
+
+* chgrp (Changes the VM group)
+    onevm chgrp <vm_id> <group_id>
+
 * list (Shows VMs in the pool)
     onevm list <filter_flag>
-        where filter_flag can be
-            a, all   --> all the known VMs
-            m, mine  --> the VMs belonging to the user in ONE_AUTH
-            uid      --> VMs of the user identified by this uid
-            user     --> VMs of the user identified by the username
+
+    where filter_flag can be
+        a, all   --> all the known VMs
+        m, mine  --> the VMs belonging to the user in ONE_AUTH
+        g, group --> 'mine' plus the VMs belonging to the groups
+                        the user is member of
+        uid      --> VMs of the user identified by this uid
+        user     --> VMs of the user identified by the username
 
 * show (Gets information about a specific VM)
     onevm show <vm_id>
@@ -483,6 +502,8 @@ def get_user_flags
             when "a", "all"
                 ops[:filter_user]="-2"
             when "m", "mine"
+                ops[:filter_user]="-3"
+            when "g", "group"
                 ops[:filter_user]="-1"
             else
                 if !ARGV[0].match(/^[0123456789]+$/)
@@ -512,32 +533,12 @@ when "submit", "create"
     check_parameters("create", 1)
     vm=OpenNebula::VirtualMachine.new(
         OpenNebula::VirtualMachine.build_xml, get_one_client)
-
-    template = ""
-    success = false
-
-    if( File.file?(ARGV[0]) )
-        # argument is a file path
-        begin
-            template = File.read(ARGV[0])
-            success = true
-        rescue
-            result = OpenNebula::Error.new("Can not read template: #{ARGV[0]}")
-        end
-    else
-        # argument could be a template ID or a template name
-        template_id = get_template_id(ARGV[0])
-
-        template = "TEMPLATE_ID = #{template_id}"
-        template << "\nNAME = #{ops[:vm_name]}" if ops[:vm_name]
-
-        success = true
+    begin
+        template=File.read(ARGV[0])
+        result=vm.allocate(template)
+    rescue
+        result=OpenNebula::Error.new("Can not read template: #{ARGV[0]}")
     end
-
-    if( success )
-        result = vm.allocate(template)
-    end
-
     if is_successful?(result)
         puts "ID: " + vm.id.to_s if ops[:verbose]
         exit 0
@@ -747,6 +748,34 @@ when "resubmit"
         else
             break
         end
+    end
+
+when "chown"
+    check_parameters("chown", 2)
+
+    obj_id  = get_vm_id(ARGV[0])
+    new_uid = ARGV[1].to_i
+    new_gid = ( ARGV.length > 2 ) ? ARGV[2].to_i : -1
+
+    obj = OpenNebula::VirtualMachine.new_with_id(obj_id, get_one_client)
+
+    result = obj.chown( new_uid, new_gid )
+    if is_successful?(result)
+        puts "VM user/group changed" if ops[:verbose]
+    end
+
+when "chgrp"
+    check_parameters("chgrp", 2)
+
+    obj_id = get_vm_id(ARGV[0])
+    new_uid  = -1
+    new_gid  = ARGV[1].to_i
+
+    obj = OpenNebula::VirtualMachine.new_with_id(obj_id, get_one_client)
+
+    result = obj.chown( new_uid, new_gid )
+    if is_successful?(result)
+        puts "VM group changed" if ops[:verbose]
     end
 
 when "list"

@@ -23,16 +23,9 @@
 #include <iomanip>
 
 #include "User.h"
+#include "Nebula.h"
+#include "Group.h"
 
-/* ************************************************************************** */
-/* User :: Constructor/Destructor                                             */
-/* ************************************************************************** */
-
-User::User(int id, string name, string pass, bool _enabled):
-        PoolObjectSQL(id,name,-1,table), password(pass), enabled(_enabled)
-        {};
-
-User::~User(){};
 
 /* ************************************************************************** */
 /* User :: Database Access Functions                                          */
@@ -124,30 +117,23 @@ error_username:
 /* User :: Misc                                                               */
 /* ************************************************************************** */
 
-ostream& operator<<(ostream& os, User& user)
-{
-    string user_str;
-
-    os << user.to_xml(user_str);
-
-    return os;
-};
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 string& User::to_xml(string& xml) const
 {
     ostringstream   oss;
+    string          collection_xml;
 
     int  enabled_int = enabled?1:0;
+
+    ObjectCollection::to_xml(collection_xml);
 
     oss <<
     "<USER>"
          "<ID>"           << oid            <<"</ID>"        <<
+         "<GID>"          << gid            <<"</GID>"       <<
          "<NAME>"         << name           <<"</NAME>"      <<
          "<PASSWORD>"     << password       <<"</PASSWORD>"  <<
          "<ENABLED>"      << enabled_int    <<"</ENABLED>"   <<
+         collection_xml   <<
     "</USER>";
 
     xml = oss.str();
@@ -162,16 +148,30 @@ int User::from_xml(const string& xml)
 {
     int rc = 0;
     int int_enabled;
+    vector<xmlNodePtr> content;
 
     // Initialize the internal XML object
     update_from_str(xml);
 
     rc += xpath(oid,         "/USER/ID",       -1);
+    rc += xpath(gid,         "/USER/GID",      -1);
     rc += xpath(name,        "/USER/NAME",     "not_found");
     rc += xpath(password,    "/USER/PASSWORD", "not_found");
     rc += xpath(int_enabled, "/USER/ENABLED",  0);
 
     enabled = int_enabled;
+
+    // Get associated classes
+    ObjectXML::get_nodes("/USER/GROUPS", content);
+
+    if( content.size() < 1 )
+    {
+        return -1;
+    }
+
+    // Set of IDs
+    rc += ObjectCollection::from_xml_node(content[0]);
+
 
     if (rc != 0)
     {

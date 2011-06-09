@@ -30,7 +30,7 @@ class TestObjectSQL : public PoolObjectSQL
 {
 public:
     //OBJECT ATTRIBUTES
-    TestObjectSQL(int n=-1, string t="default"):PoolObjectSQL(-1,"",0,0),number(n),text(t){};
+    TestObjectSQL(int n=-1, string t="default"):PoolObjectSQL(-1,"",0,0,0),number(n),text(t){};
 
     ~TestObjectSQL(){};
 

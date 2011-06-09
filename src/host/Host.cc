@@ -22,25 +22,24 @@
 
 #include "Host.h"
 #include "NebulaLog.h"
+#include "Nebula.h"
 
 /* ************************************************************************ */
 /* Host :: Constructor/Destructor                                           */
 /* ************************************************************************ */
 
 Host::Host(
-    int     id,
+    int id,
     const string& _hostname,
     const string& _im_mad_name,
     const string& _vmm_mad_name,
-    const string& _tm_mad_name,
-    const string& _cluster):
-        PoolObjectSQL(id,_hostname,-1,table),
+    const string& _tm_mad_name):
+        PoolObjectSQL(id,_hostname,-1,-1,table),
         state(INIT),
         im_mad_name(_im_mad_name),
         vmm_mad_name(_vmm_mad_name),
         tm_mad_name(_tm_mad_name),
-        last_monitored(0),
-        cluster(_cluster)
+        last_monitored(0)
 {
     obj_template = new HostTemplate;        
 }
@@ -59,11 +58,11 @@ Host::~Host()
 
 const char * Host::table = "host_pool";
 
-const char * Host::db_names = "oid, name, body, state, last_mon_time, cluster";
+const char * Host::db_names = "oid, name, body, state, last_mon_time";
 
 const char * Host::db_bootstrap = "CREATE TABLE IF NOT EXISTS host_pool ("
     "oid INTEGER PRIMARY KEY, name VARCHAR(256), body TEXT, state INTEGER, "
-    "last_mon_time INTEGER, cluster VARCHAR(128), UNIQUE(name))";
+    "last_mon_time INTEGER, UNIQUE(name))";
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
@@ -105,7 +104,6 @@ int Host::insert_replace(SqlDB *db, bool replace)
     string xml_body;
 
     char * sql_hostname;
-    char * sql_cluster;
     char * sql_xml;
 
    // Update the Host
@@ -115,13 +113,6 @@ int Host::insert_replace(SqlDB *db, bool replace)
     if ( sql_hostname == 0 )
     {
         goto error_hostname;
-    }
-
-    sql_cluster = db->escape_str(cluster.c_str());
-
-    if ( sql_cluster == 0 )
-    {
-        goto error_cluster;
     }
 
     sql_xml = db->escape_str(to_xml(xml_body).c_str());
@@ -147,20 +138,16 @@ int Host::insert_replace(SqlDB *db, bool replace)
         << "'" <<   sql_hostname        << "',"
         << "'" <<   sql_xml             << "',"
         <<          state               << ","
-        <<          last_monitored      << ","
-        << "'" <<   sql_cluster         << "')";
+        <<          last_monitored      << ")";
 
     rc = db->exec(oss);
 
     db->free_str(sql_hostname);
-    db->free_str(sql_cluster);
     db->free_str(sql_xml);
 
     return rc;
 
 error_body:
-    db->free_str(sql_cluster);
-error_cluster:
     db->free_str(sql_hostname);
 error_hostname:
     return -1;
@@ -200,18 +187,6 @@ int Host::update_info(string &parse_str)
 /* Host :: Misc                                                             */
 /* ************************************************************************ */
 
-ostream& operator<<(ostream& os, Host& host)
-{
-    string host_str;
-
-    os << host.to_xml(host_str);
-
-    return os;
-}
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
 string& Host::to_xml(string& xml) const
 {
     string template_xml;
@@ -227,7 +202,6 @@ string& Host::to_xml(string& xml) const
        "<VM_MAD>"        << vmm_mad_name   << "</VM_MAD>"        <<
        "<TM_MAD>"        << tm_mad_name    << "</TM_MAD>"        <<
        "<LAST_MON_TIME>" << last_monitored << "</LAST_MON_TIME>" <<
-       "<CLUSTER>"       << cluster        << "</CLUSTER>"       <<
        host_share.to_xml(share_xml)  <<
        obj_template->to_xml(template_xml) <<
     "</HOST>";
@@ -260,7 +234,6 @@ int Host::from_xml(const string& xml)
     rc += xpath(tm_mad_name, "/HOST/TM_MAD", "not_found");
 
     rc += xpath(last_monitored, "/HOST/LAST_MON_TIME", 0);
-    rc += xpath(cluster, "/HOST/CLUSTER", "not_found");
 
     state = static_cast<HostState>( int_state );
 

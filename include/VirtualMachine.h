@@ -28,6 +28,8 @@
 
 using namespace std;
 
+class AuthRequest;
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -113,11 +115,6 @@ public:
             _log->log(module,type,message);
         }
     };
-
-    /**
-     *  Function to write a Virtual Machine in an output stream
-     */
-    friend ostream& operator<<(ostream& os, const VirtualMachine& vm);
 
     /**
      * Function to print the VirtualMachine object into a string in
@@ -540,6 +537,14 @@ public:
      *    @return 0 on success.
      */
     int  parse_template_attribute(const string& attribute, string& parsed);
+    
+    /**
+     *  Factory method for virtual machine templates
+     */
+    Template * get_new_template()
+    {
+        return new VirtualMachineTemplate;
+    }
 
     // ------------------------------------------------------------------------
     // States
@@ -657,6 +662,19 @@ public:
      */
     int  save_disk(int disk_id, int img_id, string& error_str);
 
+    // ------------------------------------------------------------------------
+    // Authorization related functions
+    // ------------------------------------------------------------------------
+    /**
+     *  Sets an authorization request for a VirtualMachine template based on
+     *  the images and networks used
+     *    @param  uid for template owner
+     *    @param  ar the AuthRequest object
+     *    @param  tmpl the virtual machine template
+     */
+    static void set_auth_request(int uid, 
+                                 AuthRequest& ar, 
+                                 VirtualMachineTemplate *tmpl);
 private:
 
     // -------------------------------------------------------------------------
@@ -667,14 +685,6 @@ private:
     // *************************************************************************
     // Virtual Machine Attributes
     // *************************************************************************
-
-    // -------------------------------------------------------------------------
-    // Identification variables
-    // -------------------------------------------------------------------------
-    /**
-     *  Owner's name
-     */
-    string      user_name;
 
     // -------------------------------------------------------------------------
     // VM Scheduling & Managing Information
@@ -855,8 +865,8 @@ protected:
     // Constructor
     //**************************************************************************
 
-    VirtualMachine(int id, int uid, string _user_name,
-                   VirtualMachineTemplate * _vm_template);
+    VirtualMachine(int id, int uid,
+                   int gid, VirtualMachineTemplate * _vm_template);
 
     virtual ~VirtualMachine();
 
