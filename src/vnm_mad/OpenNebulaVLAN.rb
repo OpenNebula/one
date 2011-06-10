@@ -413,12 +413,14 @@ class OpenNebulaHM < OpenNebulaVLAN
         process do |nic|
             bridge  = nic[:bridge]
             dev     = nic[:phydev]
-            vlan    = CONF[:start_vlan] + nic[:network_id].to_i
+            if dev
+                vlan    = CONF[:start_vlan] + nic[:network_id].to_i
 
-            create_bridge bridge if !bridge_exists? bridge
-            create_dev_vlan(dev, vlan) if !device_exists?(dev, vlan)
-            if !attached_bridge_dev?(bridge, dev, vlan)
-                attach_brigde_dev(bridge, dev, vlan)
+                create_bridge bridge if !bridge_exists? bridge
+                create_dev_vlan(dev, vlan) if !device_exists?(dev, vlan)
+                if !attached_bridge_dev?(bridge, dev, vlan)
+                    attach_brigde_dev(bridge, dev, vlan)
+                end
             end
         end
     end
