@@ -68,7 +68,7 @@ class OneTemplateHelper < OpenNebulaHelper::OneHelper
             end
 
             column :GROUP, "Group of the Template", :left, :size=>8 do |d|
-                helper.uid_to_str(d["GID"], options)
+                helper.gid_to_str(d["GID"], options)
             end
 
             column :REGTIME, "Registration time of the Template", :size=>20 do |d|

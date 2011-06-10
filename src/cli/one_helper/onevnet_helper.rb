@@ -75,7 +75,7 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
             end
 
             column :GROUP, "Group of the Virtual Network", :left, :size=>8 do |d|
-                helper.uid_to_str(d["GID"], options)
+                helper.gid_to_str(d["GID"], options)
             end
 
             column :TYPE, "Type of Virtual Network", :size=>6 do |d|

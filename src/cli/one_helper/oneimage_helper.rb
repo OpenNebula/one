@@ -73,7 +73,7 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
             end
 
             column :GROUP, "Group of the Virtual Machine", :left, :size=>8 do |d|
-                helper.uid_to_str(d["GID"], options)
+                helper.gid_to_str(d["GID"], options)
             end
 
             column :TYPE, "Type of the Image", :size=>4 do |d,e|
