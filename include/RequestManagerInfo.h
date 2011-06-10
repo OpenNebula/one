@@ -41,6 +41,13 @@ protected:
     /* -------------------------------------------------------------------- */
 
     void request_execute(xmlrpc_c::paramList const& _paramList);
+
+    /* -------------------------------------------------------------------- */
+
+    virtual void to_xml(PoolObjectSQL * object, string& str)
+    {
+        object->to_xml(str);
+    };
 };
 
 /* ------------------------------------------------------------------------- */
@@ -97,6 +104,13 @@ public:
 
     ~VirtualNetworkInfo(){};
 
+    /* -------------------------------------------------------------------- */
+
+    void to_xml(PoolObjectSQL * object, string& str)
+    {
+        VirtualNetwork * vn = static_cast<VirtualNetwork*>(object);
+        vn->to_xml_extended(str);
+    };
 };
 
 /* ------------------------------------------------------------------------- */

@@ -193,12 +193,9 @@ protected:
         CPPUNIT_ASSERT( obj != 0 );
 
         string xml_str;
-        ostringstream       oss;
 
-        ((VirtualNetwork*)obj)->to_xml(xml_str);
-        oss << * ((VirtualNetwork*)obj);
+        ((VirtualNetwork*)obj)->to_xml_extended(xml_str);
 
-        xml_str = oss.str();
 /*
         if( xml_str != xmls[index] )
         {
@@ -460,7 +457,7 @@ public:
 
         string result = oss.str();
 
-//*
+/*
         if( result != xml_dump )
         {
             cout << endl << result << endl << "========"
@@ -491,7 +488,7 @@ public:
 
         string result = oss.str();
 
-//*
+/*
         if( result != xml_dump_where )
         {
             cout << endl << result << endl << "========"
@@ -820,7 +817,7 @@ public:
         string mac    = "";
         string bridge = "";
 
-        ostringstream   oss;
+        string          xml_str;
         string          xpath;
 
         vector<int>     results;
@@ -854,20 +851,19 @@ public:
         // First VNet
         vn = vnpool->get(oid_0, false);
         CPPUNIT_ASSERT( vn != 0 );
-        oss << *vn;
+        vn->to_xml_extended(xml_str);
 
         // 0 Used leases
-        ObjectXML::xpath_value(xpath, oss.str().c_str(), "/VNET/TOTAL_LEASES" );
+        ObjectXML::xpath_value(xpath, xml_str.c_str(), "/VNET/TOTAL_LEASES" );
         CPPUNIT_ASSERT( xpath == "0" );
 
         // Second VNet
         vn = vnpool->get(oid_new, false);
         CPPUNIT_ASSERT( vn != 0 );
-        oss.str("");
-        oss << *vn;
+        vn->to_xml_extended(xml_str);
 
         // 1 Used leases
-        ObjectXML::xpath_value(xpath, oss.str().c_str(), "/VNET/TOTAL_LEASES" );
+        ObjectXML::xpath_value(xpath, xml_str.c_str(), "/VNET/TOTAL_LEASES" );
         CPPUNIT_ASSERT( xpath == "1" );
         // ---------------------------------------------------------------------
 
@@ -909,21 +905,19 @@ public:
         // First VNet
         vn = vnpool->get(oid_0, false);
         CPPUNIT_ASSERT( vn != 0 );
-        oss.str("");
-        oss << *vn;
+        vn->to_xml_extended(xml_str);
 
         // 0 Used leases
-        ObjectXML::xpath_value(xpath, oss.str().c_str(), "/VNET/TOTAL_LEASES" );
+        ObjectXML::xpath_value(xpath, xml_str.c_str(), "/VNET/TOTAL_LEASES" );
         CPPUNIT_ASSERT( xpath == "0" );
 
         // Second VNet
         vn = vnpool->get(oid_new, false);
         CPPUNIT_ASSERT( vn != 0 );
-        oss.str("");
-        oss << *vn;
+        vn->to_xml_extended(xml_str);
 
         // 1 Used leases
-        ObjectXML::xpath_value(xpath, oss.str().c_str(), "/VNET/TOTAL_LEASES" );
+        ObjectXML::xpath_value(xpath, xml_str.c_str(), "/VNET/TOTAL_LEASES" );
         CPPUNIT_ASSERT( xpath == "1" );
         // ---------------------------------------------------------------------
     }

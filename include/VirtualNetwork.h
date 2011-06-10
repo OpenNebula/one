@@ -152,17 +152,20 @@ public:
     };
 
     /**
-     *  Function to write a Virtual Network in an output stream
-     */
-    friend ostream& operator<<(ostream& os, VirtualNetwork& vn);
-
-    /**
      * Function to print the VirtualNetwork object into a string in
      * XML format
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
     string& to_xml(string& xml) const;
+
+    /**
+     * Function to print the VirtualNetwork object into a string in
+     * XML format. The extended XML includes the LEASES
+     *  @param xml the resulting XML string
+     *  @return a reference to the generated string
+     */
+    string& to_xml_extended(string& xml) const;
 
     /**
      * Modifies the given nic attribute adding the following attributes:

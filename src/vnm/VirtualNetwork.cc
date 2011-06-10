@@ -461,21 +461,17 @@ int VirtualNetwork::drop(SqlDB * db)
 /* Virtual Network :: Misc                                                    */
 /* ************************************************************************** */
 
-ostream& operator<<(ostream& os, VirtualNetwork& vn)
-{
-    string vnet_xml;
-
-    os << vn.to_xml_extended(vnet_xml,true);
-
-    return os;
-};
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 string& VirtualNetwork::to_xml(string& xml) const
 {
     return to_xml_extended(xml,false);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string& VirtualNetwork::to_xml_extended(string& xml) const
+{
+    return to_xml_extended(xml,true);
 }
 
 /* -------------------------------------------------------------------------- */

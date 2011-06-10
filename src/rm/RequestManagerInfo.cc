@@ -40,8 +40,7 @@ void RequestManagerInfo::request_execute(xmlrpc_c::paramList const& paramList)
         return;
     }    
 
-
-    object->to_xml(str);
+    to_xml(object, str);
 
     object->unlock();
 
