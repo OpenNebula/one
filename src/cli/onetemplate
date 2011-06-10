@@ -48,11 +48,11 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     ########################################################################
     # Formatters for arguments
     ########################################################################
-    set :format, :imageid, OneTemplateHelper.to_id_desc do |arg|
+    set :format, :templateid, OneTemplateHelper.to_id_desc do |arg|
         helper.to_id(arg)
     end
 
-    set :format, :imageid_list, OneTemplateHelper.list_to_id_desc do |arg|
+    set :format, :templateid_list, OneTemplateHelper.list_to_id_desc do |arg|
         helper.list_to_id(arg)
     end
 
@@ -63,6 +63,19 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     ########################################################################
     # Commands
     ########################################################################
+    command :chgrp, 'Changes the Template group',[:range, :templateid_list], :text do
+        helper.perform_actions(args[0],options,"User/Group changed") do |t|
+            t.chown(-1, args[1].to_i)
+        end
+    end
+
+    command :chown, 'Changes the Template owner and group', [:range, :templateid_list], :text, [:text,nil] do
+        gid = args[2].nil? ? -1 : args[2].to_id
+        helper.perform_actions(args[0],options,"Group changed") do |t|
+            t.chown(args[1].to_i, gid)
+        end
+    end
+
     command :create, 'Registers a Template', :file do
         helper.create_resource(options) do |t|
             template=File.read(args[0])
@@ -79,20 +92,20 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     end
 
     command :publish, 'Publishes a Template', [:range,:imageid_list] do
-        helper.perform_actions(args[0],options,"published") do |image|
-            image.publish
+        helper.perform_actions(args[0],options,"published") do |t|
+            t.publish
         end
     end
 
     command :unpublish, 'Unpublishes a Template', [:range,:imageid_list] do
-        helper.perform_actions(args[0],options,"unpublished") do |image|
-            image.unpublish
+        helper.perform_actions(args[0],options,"unpublished") do |t|
+            t.unpublish
         end
     end
 
     command :delete, 'Removes a Template', [:range, :imageid_list] do
-        helper.perform_actions(args[0],options,"deleted") do |image|
-            image.delete
+        helper.perform_actions(args[0],options,"deleted") do |t|
+            t.delete
         end
     end
     

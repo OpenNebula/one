@@ -83,6 +83,12 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     ########################################################################
     # Commands
     ########################################################################
+    command :chgrp, 'Changes the User group',[:range, :userid_list], :text do
+        helper.perform_actions(args[0],options,"User/Group changed") do |user|
+            user.chown(-1, args[1].to_i)
+        end
+    end
+
     command :create, 'Creates a new User', :text, :password, :options=>create_options do
         helper.create_resource(options) do |user|
             user.allocate(args[0], args[1])

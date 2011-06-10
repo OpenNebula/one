@@ -65,21 +65,21 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
-    command :delete, 'Removes a Virtual Network', [:range, :vnetid_list] do
-        helper.perform_actions(args[0],options,"deleted") do |vn|
-            vn.delete
+    command :delete, 'Removes a Virtual Network', [:range, :hostid_list] do
+        helper.perform_actions(args[0],options,"deleted") do |host|
+            host.delete
         end
     end
 
-    command :disable, 'Disbales Host', [:range,:vnetid_list] do
-        helper.perform_actions(args[0],options,"unpublished") do |vn|
-            vn.disable
+    command :disable, 'Disbales Host', [:range,:hostid_list] do
+        helper.perform_actions(args[0],options,"unpublished") do |host|
+            host.disable
         end
     end
 
-    command :enable, 'Enables Host', [:range,:vnetid_list] do
-        helper.perform_actions(args[0],options,"published") do |vn|
-            vn.enable
+    command :enable, 'Enables Host', [:range,:hostid_list] do
+        helper.perform_actions(args[0],options,"published") do |host|
+            host.enable
         end
     end
 

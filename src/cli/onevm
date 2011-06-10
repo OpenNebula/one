@@ -65,6 +65,19 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    command :chgrp, 'Changes the Virtual Machine group',[:range, :vmid_list], :text do
+        helper.perform_actions(args[0],options,"User/Group changed") do |vm|
+            vm.chown(-1, args[1].to_i)
+        end
+    end
+
+    command :chown, 'Changes the Virtual Machine owner and group', [:range, :vmid_list], :text, [:text,nil] do
+        gid = args[2].nil? ? -1 : args[2].to_id
+        helper.perform_actions(args[0],options,"Group changed") do |vm|
+            vm.chown(args[1].to_i, gid)
+        end
+    end
+
     command :create, 'Create a new Virtual Machine', :file do
         helper.create_resource(options) do |vm|
             template=File.read(args[0])
