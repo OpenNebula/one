@@ -91,6 +91,12 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         helper.list_pool(options)
     end
 
+    command :instantiate, 'Instantiates a Template', [:range,:templateid_list] do
+        helper.perform_actions(args[0],options,"instantiated") do |t|
+            t.instantiate
+        end
+    end
+
     command :publish, 'Publishes a Template', [:range,:imageid_list] do
         helper.perform_actions(args[0],options,"published") do |t|
             t.publish
