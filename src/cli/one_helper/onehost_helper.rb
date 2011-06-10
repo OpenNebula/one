@@ -1,0 +1,138 @@
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+require 'one_helper'
+
+class OneHostHelper < OpenNebulaHelper::OneHelper
+    TABLE_CONF_FILE="#{OpenNebulaHelper::TABLE_CONF_PATH}/onehost.yaml"
+
+    def create_resource(args, options)
+        resource = factory
+
+        rc = resource.allocate(args[0], args[1], args[2], args[3])
+        if OpenNebula.is_error?(rc)
+            return -1, rc.message
+        else
+            puts "ID: #{resource.id.to_s}" if options[:verbose]
+            return 0
+        end
+    end
+
+    def self.rname
+        "HOST"
+    end
+
+    private
+
+    def factory(id=nil)
+        if id
+            OpenNebula::Host.new_with_id(id, @client)
+        else
+            xml=OpenNebula::Host.build_xml
+            OpenNebula::Host.new(xml, @client)
+        end
+    end
+
+    def factory_pool(user_flag=-2)
+        #TBD OpenNebula::HostPool.new(@client, user_flag)
+        OpenNebula::HostPool.new(@client)
+    end
+
+    def format_resource(host)
+        str    = "%-22s: %-20s"
+        str_h1 = "%-80s"
+
+        CLIHelper.print_header(str_h1 % "HOST #{host.id.to_s} INFORMATION", true)
+
+        puts str % ["ID", host.id.to_s]
+        puts str % ["NAME", host.name]
+        puts str % ["STATE", host.state_str]
+        puts str % ["IM_MAD", host['IM_MAD']]
+        puts str % ["VM_MAD", host['VM_MAD']]
+        puts str % ["TM_MAD", host['TM_MAD']]
+        puts
+
+        CLIHelper.print_header(str_h1 % "HOST SHARES", false)
+
+        puts str % ["MAX MEM", host['HOST_SHARE/MAX_MEM']]
+        puts str % ["USED MEM (REAL)", host['HOST_SHARE/USED_MEM']]
+        puts str % ["USED MEM (ALLOCATED)", host['HOST_SHARE/MEM_USAGE']]
+        puts str % ["MAX CPU", host['HOST_SHARE/MAX_CPU']]
+        puts str % ["USED CPU (REAL)", host['HOST_SHARE/USED_CPU']]
+        puts str % ["USED CPU (ALLOCATED)", host['HOST_SHARE/CPU_USAGE']]
+        puts str % ["RUNNING VMS", host['HOST_SHARE/RUNNING_VMS']]
+        puts
+
+        CLIHelper.print_header(str_h1 % "MONITORING INFORMATION", false)
+
+        puts host.template_str
+    end
+
+    def format_pool(pool, options, top=false)
+        table=CLIHelper::ShowTable.new(TABLE_CONF_FILE, self) do
+            column :ID, "ONE identifier for Host", :size=>4 do |d|
+                d["ID"]
+            end
+
+            column :NAME, "Name of the Host", :left, :size=>15 do |d|
+                d["NAME"]
+            end
+
+            column :RVM, "Number of Virtual Machines running", :size=>6 do |d|
+                d["HOST_SHARE/RUNNING_VMS"]
+            end
+
+            column :TCPU, "Total CPU percentage", :size=>6 do |d|
+                d["HOST_SHARE/MAX_CPU"]
+            end
+
+            column :FCPU, "Free CPU percentage", :size=>6 do |d|
+                d["HOST_SHARE/MAX_CPU"].to_i-d["HOST_SHARE/USED_CPU"].to_i
+            end
+
+            column :ACPU, "Available cpu percentage (not reserved by VMs)", :size=>6 do |d|
+                max_cpu=d["HOST_SHARE/MAX_CPU"].to_i
+                max_cpu=100 if max_cpu==0
+                max_cpu-d["HOST_SHARE/CPU_USAGE"].to_i
+            end
+
+            column :TMEM, "Total Memory", :size=>6 do |d|
+                OpenNebulaHelper.unit_to_str(d["HOST_SHARE/MAX_MEM"].to_i,options)
+            end
+
+            column :FMEM, "Free Memory", :size=>6 do |d|
+                OpenNebulaHelper.unit_to_str(d["HOST_SHARE/FREE_MEM"].to_i,options)
+            end
+
+            column :AMEM, "Available Memory (not reserved by VMs)", :size=>6 do |d|
+                acpu=d["HOST_SHARE/MAX_MEM"].to_i-d["HOST_SHARE/MEM_USAGE"].to_i
+                OpenNebulaHelper.unit_to_str(acpu,options)
+            end
+            
+            column :STAT, "Host status", :size=>6 do |d|
+                d.short_state_str
+            end
+
+            default :ID, :NAME, :RVM, :TCPU, :FCPU, :ACPU, :TMEM, :FMEM, :AMEM, :STAT
+        end
+
+        if top
+            table.top(pool, options)
+        else
+            table.show(pool, options)
+        end
+    end
+end

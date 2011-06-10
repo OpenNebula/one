@@ -47,7 +47,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         str_h1="%-80s"
         str="%-20s: %-20s"
 
-        CLIHelper.print_header(str_h1 % ["VIRTUAL MACHINE #{vm['ID']} INFORMATION"])
+        CLIHelper.print_header(str_h1 % "VIRTUAL MACHINE #{vm['ID']} INFORMATION")
         puts str % ["ID", vm.id.to_s]
         puts str % ["NAME", vm.name]
         puts str % ["STATE", vm.state_str]
@@ -58,7 +58,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         puts str % ["DEPLOY ID:", value=="" ? "-" : value]
         puts
 
-        CLIHelper.print_header(str_h1 % ["VIRTUAL MACHINE MONITORING"],false)
+        CLIHelper.print_header(str_h1 % "VIRTUAL MACHINE MONITORING",false)
         poll_attrs = {
             "USED MEMORY" => "MEMORY",
             "USED CPU" => "CPU",
@@ -68,7 +68,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         poll_attrs.each { |k,v| puts str % [k,vm[v]] }
         puts
 
-        CLIHelper.print_header(str_h1 % ["VIRTUAL MACHINE TEMPLATE"],false)
+        CLIHelper.print_header(str_h1 % "VIRTUAL MACHINE TEMPLATE",false)
         puts vm.template_str
     end
 

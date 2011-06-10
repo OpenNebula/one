@@ -24,383 +24,84 @@ else
     RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
 end
 
-
 $: << RUBY_LIB_LOCATION
+$: << RUBY_LIB_LOCATION+"/cli"
 
+require 'command_parser'
+require 'one_helper/onehost_helper'
 
-require 'OpenNebula'
-require 'client_utilities'
-require 'command_parse'
+cmd=CommandParser::CmdParser.new(ARGV) do
+    usage "onehost COMMAND [args..] [options..]"
+    version OpenNebulaHelper::ONE_VERSION
 
-ShowTableHost={
-    :id => {
-        :name => "ID",
-        :desc => "ONE identifier for host",
-        :size => 4,
-        :proc => lambda {|d,e| d.id }
-    },
-    :name => {
-        :name => "NAME",
-        :desc => "Hostname",
-        :size => 17,
-        :left => true,
-        :proc => lambda {|d,e| d.name }
-    },
-    :cluster => {
-        :name => "CLUSTER",
-        :desc => "Clustername",
-        :size => 8,
-        :left => true,
-        :proc => lambda {|d,e| d.cluster }
-    },
-    :rvm => {
-        :name => "RVM",
-        :desc => "Number of virtual machines running",
-        :size => 3,
-        :proc => lambda {|d,e| d["HOST_SHARE/RUNNING_VMS"] }
-    },
-    :tcpu => {
-        :name => "TCPU",
-        :desc => "Total cpu percentage",
-        :size => 6,
-        :proc => lambda {|d,e| d["HOST_SHARE/MAX_CPU"] }
-    },
-    :fcpu => {
-        :name => "FCPU",
-        :desc => "Free cpu percentage",
-        :size => 6,
-        :proc => lambda {|d,e|
-            d["HOST_SHARE/MAX_CPU"].to_i-d["HOST_SHARE/USED_CPU"].to_i
-        }
-    },
-    :acpu => {
-        :name => "ACPU",
-        :desc => "Available cpu percentage (not reserved by VMs)",
-        :size => 6,
-        :proc => lambda {|d,e|
-            max_cpu=d["HOST_SHARE/MAX_CPU"].to_i
-            max_cpu=100 if max_cpu==0
-            max_cpu-d["HOST_SHARE/CPU_USAGE"].to_i
-        }
-    },
-    :tmem => {
-        :name => "TMEM",
-        :desc => "Total memory",
-        :size => 7,
-        :kbytes => true,
-        :proc => lambda {|d,e| d["HOST_SHARE/MAX_MEM"] }
-    },
-    :fmem => {
-        :name => "FMEM",
-        :desc => "Free memory",
-        :size => 7,
-        :kbytes => true,
-        :proc => lambda {|d,e| d["HOST_SHARE/FREE_MEM"] }
-    },
-    :stat => {
-        :name => "STAT",
-        :desc => "Host status",
-        :size => 4,
-        :proc => lambda {|d,e|
-            d.short_state_str()
-        }
-    },
+    helper = OneHostHelper.new
 
+    ########################################################################
+    # Global Options
+    ########################################################################
+    set :option, CommandParser::OPTIONS
 
-    :default => [:id, :name, :cluster, :rvm, :tcpu, :fcpu, :acpu, :tmem, :fmem, :stat]
-}
-
-class HostShow
-    def initialize(client)
-        @hostpool=OpenNebula::HostPool.new(client)
-        @table=ShowTable.new(ShowTableHost)
+    ########################################################################
+    # Formatters for arguments
+    ########################################################################
+    set :format, :hostid, OneHostHelper.to_id_desc do |arg|
+        helper.to_id(arg)
     end
 
-    def header_host_small
-        scr_bold
-        scr_underline
-        print @table.header_str
-        scr_restore
-        puts ""
+    set :format, :hostid_list, OneHostHelper.list_to_id_desc do |arg|
+        helper.list_to_id(arg)
     end
 
-    def list_short(options=nil)
-        res=@hostpool.info
-        if options
-            @table.columns=options[:columns] if options[:columns]
+    set :format, :filterflag, OneHostHelper.filterflag_to_i_desc do |arg|
+        helper.filterflag_to_i(arg)
+    end
+
+    ########################################################################
+    # Commands
+    ########################################################################
+    command :create, 'Create a new Virtual Network', :text, :text, :text, :text do
+        helper.create_resource(args, options)
+    end
+
+    command :delete, 'Removes a Virtual Network', [:range, :vnetid_list] do
+        helper.perform_actions(args[0],options,"deleted") do |vn|
+            vn.delete
         end
+    end
 
-        if OpenNebula.is_error?(res)
-            result=res
+    command :disable, 'Disbales Host', [:range,:vnetid_list] do
+        helper.perform_actions(args[0],options,"unpublished") do |vn|
+            vn.disable
+        end
+    end
+
+    command :enable, 'Enables Host', [:range,:vnetid_list] do
+        helper.perform_actions(args[0],options,"published") do |vn|
+            vn.enable
+        end
+    end
+
+    command :list, 'Lists Virtual Networks in the pool', [:filterflag, nil],
+            :options=>CLIHelper::OPTIONS+OpenNebulaHelper::OPTIONS do
+        helper.list_pool(options)
+    end
+
+    command :show, 'Gets info from a Host', :hostid,
+            :options=>OpenNebulaHelper::XML do
+        helper.show_resource(args[0],options)
+    end
+
+    command :sync, 'Synchronizes probes with remote hosts' do
+        if ONE_LOCATION
+            FileUtils.touch "#{ONE_LOCATION}/var/remotes"
         else
-            result=[true,""]
-            header_host_small
-            if options
-                puts @table.data_str(@hostpool, options)
-            else
-                puts @table.data_str(@hostpool)
-            end
-            result
+            FileUtils.touch "/var/lib/one/remotes"
         end
+        0
     end
 
-    def top(options=nil)
-        delay=1
-        delay=options[:delay] if options && options[:delay]
-
-        result=nil
-
-        begin
-            while true
-                scr_cls
-                scr_move(0,0)
-                result=list_short(options)
-                sleep delay
-            end
-        rescue Exception
-        end
-        result
+    command :top, 'Tops Hosts in the pool', [:filterflag, nil],
+            :options=>CLIHelper::OPTIONS+OpenNebulaHelper::OPTIONS do
+        helper.list_pool(options, true)
     end
 end
-
-class OnehostParse < CommandParse
-
-    COMMANDS_HELP=<<-EOT
-
-Description:
-
-This command enables the user to manage hosts in the Open Nebula server. It
-provides functionality to allocate, get information and delete a particular
-host or to list all the available hosts.
-
-
-Commands:
-
-* create (Adds a new machine to the pool)
-    onehost create <hostname> <im_mad> <vmm_mad> <tm_mad>
-
-* show (Gets info from a host)
-    onehost show <host_id>
-
-* delete (Removes a machine from the pool)
-    onehost delete <host_id>
-
-* list (Lists machines in the pool)
-    onehost list
-
-* enable (Enables host)
-    onehost enable <host_id>
-
-* disable (Disables host)
-    onehost disable <host_id>
-
-* top (Lists hosts continuously)
-    onehost top
-
-* sync (synchronizes probes with remote hosts)
-    onehost sync
-    
-
-Information Columns:
-
-* HID    Host ID
-* NAME   Host name
-* RVM    Number of running VMs
-* TCPU   Total CPU (percentage)
-* FCPU   Free CPU (percentage)
-* ACPU   Available CPU (not allocated by VMs)
-* TMEM   Total memory
-* FMEM   Free memory
-* STAT   Host status
-
-
-EOT
-
-    def text_commands
-        COMMANDS_HELP
-    end
-
-    def text_command_name
-        "onehost"
-    end
-
-    def list_options
-        table=ShowTable.new(ShowTableHost)
-        table.print_help
-    end
-
-end
-
-# Returns true if there are non DONE VM's in a host, false otherwise
-def vms_in_host?(host_id)
-
-    host = OpenNebula::Host.new_with_id(host_id,get_one_client)
-
-    rc = host.info
-
-    if OpenNebula::is_error?(rc)
-        puts rc.message
-        exit -1
-    end
-
-    host['HOST_SHARE/RUNNING_VMS'].to_i
-
-end
-
-
-onehost_opts=OnehostParse.new
-onehost_opts.parse(ARGV)
-ops=onehost_opts.options
-
-result=[false, "Unknown error"]
-
-command=ARGV.shift
-
-case command
-when "add", "create"
-    check_parameters("create", 4)
-    host=OpenNebula::Host.new(OpenNebula::Host.build_xml, get_one_client)
-    result=host.allocate(ARGV[0], ARGV[1], ARGV[2], ARGV[3])
-
-    if is_successful?(result)
-        puts "ID: " + host.id.to_s if ops[:verbose]
-        exit 0
-    end
-
-when "show"
-    check_parameters("show", 1)
-    #args=expand_args(ARGV)
-
-    host_id=get_host_id(ARGV[0])
-
-    host=OpenNebula::Host.new_with_id(host_id, get_one_client)
-
-    result=host.info
-    if is_successful?(result)
-        if !ops[:xml]
-            str    = "%-22s: %-20s"
-            str_h1 = "%-80s"
-
-            print_header(str_h1, "HOST #{host_id} INFORMATION", true)
-
-            puts str % ["ID", host.id.to_s]
-            puts str % ["NAME", host.name]
-            puts str % ["CLUSTER", host['CLUSTER']]
-            puts str % ["STATE", host.state_str]
-            puts str % ["IM_MAD", host['IM_MAD']]
-            puts str % ["VM_MAD", host['VM_MAD']]
-            puts str % ["TM_MAD", host['TM_MAD']]
-            puts
-
-            print_header(str_h1, "HOST SHARES", false)
-
-            puts str % ["MAX MEM", host['HOST_SHARE/MAX_MEM']]
-            puts str % ["USED MEM (REAL)", host['HOST_SHARE/USED_MEM']]
-            puts str % ["USED MEM (ALLOCATED)", host['HOST_SHARE/MEM_USAGE']]
-            puts str % ["MAX CPU", host['HOST_SHARE/MAX_CPU']]
-            puts str % ["USED CPU (REAL)", host['HOST_SHARE/USED_CPU']]
-            puts str % ["USED CPU (ALLOCATED)", host['HOST_SHARE/CPU_USAGE']]
-            puts str % ["RUNNING VMS", host['HOST_SHARE/RUNNING_VMS']]
-            puts
-
-            print_header(str_h1, "MONITORING INFORMATION", false)
-
-            puts host.template_str
-        else
-            puts host.to_xml(true)
-        end
-    end
-
-when "delete"
-    check_parameters("delete", 1)
-    args=expand_args(ARGV)
-
-    args.each do |param|
-        host_id=get_host_id(param)
-
-        host = OpenNebula::Host.new_with_id(host_id,get_one_client)
-
-        rc = host.info
-
-        if OpenNebula::is_error?(rc)
-            puts rc.message
-            exit -1
-        end
-
-        if host['HOST_SHARE/RUNNING_VMS'].to_i != 0
-            puts "Host still has associated VMs, aborting delete."
-        else
-            result=host.delete
-            if is_successful?(result)
-                puts "Host deleted" if ops[:verbose]
-                exit 0
-            end
-        end
-    end
-
-when "list"
-    if !ops[:xml]
-        hostlist=HostShow.new(get_one_client)
-        ops[:columns]=ops[:list] if ops[:list]
-        result=hostlist.list_short(ops)
-    else
-        hostpool=OpenNebula::HostPool.new(get_one_client)
-        hostpool.info
-        puts hostpool.to_xml(true)
-    end
-
-when "top"
-    hostlist=HostShow.new(get_one_client)
-    ops[:columns]=ops[:list] if ops[:list]
-    result=hostlist.top(ops)
-
-when "enable"
-    check_parameters("enable", 1)
-    args=expand_args(ARGV)
-
-    args.each do |param|
-        host_id=get_host_id(param)
-        host = OpenNebula::Host.new_with_id(host_id,get_one_client)
-        result=host.enable
-        if is_successful?(result)
-            puts "Host enabled" if ops[:verbose]
-        else
-            break
-        end
-    end
-
-when "disable"
-    check_parameters("disable", 1)
-    args=expand_args(ARGV)
-
-    args.each do |param|
-        host_id=get_host_id(param)
-        host = OpenNebula::Host.new_with_id(host_id,get_one_client)
-        result=host.disable
-        if is_successful?(result)
-            puts "Host disabled" if ops[:verbose]
-        else
-            break
-        end
-    end
-
-when "sync"
-    check_parameters("sync", 0)
-    if ONE_LOCATION
-        FileUtils.touch "#{ONE_LOCATION}/var/remotes"
-    else
-        FileUtils.touch "/var/lib/one/remotes"
-    end
-
-else
-    onehost_opts.print_help
-    exit -1
-end
-
-if is_error?(result)
-    puts "Error: " + result.message
-    exit -1
-end
-
-exit 0
-
