@@ -26,10 +26,10 @@ CONF = {
 
 COMMANDS = {
   :ebtables => "sudo /sbin/ebtables",
-  :iptables => "sudo /usr/sbin/iptables",
+  :iptables => "sudo /sbin/iptables",
   :brctl    => "sudo /usr/sbin/brctl",
-  :ip       => "sudo /usr/sbin/ip",
-  :vconfig  => "sudo /usr/sbin/vconfig",
+  :ip       => "sudo /sbin/ip",
+  :vconfig  => "sudo /sbin/vconfig",
   :virsh    => "virsh -c qemu:///system",
   :xm       => "sudo /usr/sbin/xm",
   :ovs_vsctl=> "sudo /usr/local/bin/ovs-vsctl",
