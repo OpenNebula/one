@@ -293,6 +293,20 @@ module CommandParser
             else
                 id=0
                 @args.collect!{|arg|
+                    unless format=args_format[id]
+                        args_str=args_format.collect{ |a|
+                            if a.include?(nil)
+                                "[#{a.compact.join("|")}]"
+                            else
+                                "<#{a.join("|")}>"
+                            end
+                        }.join(' ')
+
+                        puts "Wrong number of arguments"
+                        puts "The arguments should be: #{args_str}"
+                        exit -1
+                    end
+
                     format = args_format[id]
                     argument = nil
                     error_msg = nil
