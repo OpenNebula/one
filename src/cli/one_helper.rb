@@ -67,10 +67,10 @@ EOT
             @translation_hash = nil
         end
 
-        def create_resource(template, options)
+        def create_resource(options, &block)
             resource = factory
 
-            rc = resource.allocate(template)
+            rc = block.call(resource)
             if OpenNebula.is_error?(rc)
                 return -1, rc.message
             else
@@ -114,7 +114,7 @@ EOT
             if OpenNebula.is_error?(rc)
                 return -1, rc.message
             else
-                puts "#{self.rname} #{id}: #{verbose}" if options[:verbose]
+                puts "#{self.class.rname} #{id}: #{verbose}" if options[:verbose]
                 return 0
             end
         end

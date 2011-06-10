@@ -19,18 +19,6 @@ require 'one_helper'
 class OneHostHelper < OpenNebulaHelper::OneHelper
     TABLE_CONF_FILE="#{OpenNebulaHelper::TABLE_CONF_PATH}/onehost.yaml"
 
-    def create_resource(args, options)
-        resource = factory
-
-        rc = resource.allocate(args[0], args[1], args[2], args[3])
-        if OpenNebula.is_error?(rc)
-            return -1, rc.message
-        else
-            puts "ID: #{resource.id.to_s}" if options[:verbose]
-            return 0
-        end
-    end
-
     def self.rname
         "HOST"
     end

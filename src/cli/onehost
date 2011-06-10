@@ -60,7 +60,9 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     # Commands
     ########################################################################
     command :create, 'Create a new Virtual Network', :text, :text, :text, :text do
-        helper.create_resource(args, options)
+        helper.create_resource(options) do |host|
+            host.allocate(args[0], args[1], args[2], args[3])
+        end
     end
 
     command :delete, 'Removes a Virtual Network', [:range, :vnetid_list] do

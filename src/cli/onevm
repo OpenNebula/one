@@ -66,7 +66,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     end
 
     command :create, 'Create a new Virtual Machine', :file do
-        helper.create_resource(args.shift, options)
+        helper.create_resource(options) do |vm|
+            template=File.read(args[0])
+            vm.allocate(template)
+        end
     end
 
     command :delete, 'Removes a Virtual Machine', [:range, :vmid_list] do

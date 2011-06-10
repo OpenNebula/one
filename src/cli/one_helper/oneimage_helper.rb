@@ -19,11 +19,6 @@ require 'one_helper'
 class OneImageHelper < OpenNebulaHelper::OneHelper
     TABLE_CONF_FILE="#{OpenNebulaHelper::TABLE_CONF_PATH}/oneimage.yaml"
 
-    def create_resource(template_file, options)
-        template=File.read(template_file)
-        super(template, options)
-    end
-
     def self.rname
         "IMAGE"
     end

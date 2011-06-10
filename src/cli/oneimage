@@ -64,7 +64,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     # Commands
     ########################################################################
     command :create, 'Registers an Image', :file do
-        helper.create_resource(args[0], options)
+        helper.create_resource(options) do |image|
+            template=File.read(args[0])
+            image.allocate(template)
+        end
     end
 
     command :show, 'Gets info from an Image', :imageid, :options=>OpenNebulaHelper::XML do

@@ -60,7 +60,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     # Commands
     ########################################################################
     command :create, 'Create a new Virtual Network', :file do
-        helper.create_resource(args[0], options)
+        helper.create_resource(options) do |vn|
+            template=File.read(args[0])
+            vn.allocate(template)
+        end
     end
 
     command :show, 'Gets info from a Virtual Network', :vnetid,
