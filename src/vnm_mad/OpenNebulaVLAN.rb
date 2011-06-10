@@ -33,7 +33,7 @@ COMMANDS = {
   :virsh    => "virsh -c qemu:///system",
   :xm       => "sudo /usr/sbin/xm",
   :ovs_vsctl=> "sudo /usr/local/bin/ovs-vsctl",
-  :lsmod    => "/bin/lsmod"
+  :lsmod    => "/sbin/lsmod"
 }
 
 class Nics < Array
