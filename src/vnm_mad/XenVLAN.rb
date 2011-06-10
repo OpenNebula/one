@@ -17,7 +17,17 @@ class NicXen < Nic
         super(nil)
     end
     def get_tap(vm)
-        #TODO
+        networks = vm.vm_info[:networks].split("\n")[1..-1]
+        networks.each do |net|
+            n = net.split
+
+            iface_id  = n[0]
+            iface_mac = n[2]
+
+            if iface_mac == self[:mac]
+                self[:tap] = "vif#{vm_id}.#{iface_id}"
+            end
+        end
         self
     end
 end
