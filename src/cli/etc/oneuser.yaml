@@ -1,0 +1,24 @@
+--- 
+:ID: 
+  :desc: ONE identifier for the Template
+  :size: 4
+
+:NAME: 
+  :desc: Name of the Template
+  :size: 15
+  :left: true
+
+:GROUP: 
+  :desc: Group of the Template
+  :size: 8
+  :left: true
+
+:PASSWORD: 
+  :desc: Password of the User
+  :size: 50
+
+:default:
+- :ID
+- :GROUP
+- :NAME
+- :PASSWORD
