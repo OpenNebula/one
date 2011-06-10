@@ -4,7 +4,9 @@ $: << File.dirname(__FILE__)
 
 require 'base64'
 require 'OpenNebulaVLAN'
-vm_xml =  Base64::decode64(ARGV[0])
+
+template    = ARGV[0]
+vm_xml =  Base64::decode64(template)
 
 onevlan = OpenvSwitchVLAN.new(vm_xml)
 onevlan.activate
