@@ -89,7 +89,7 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
             end
 
             column :PERSISTENT, "Whether the Image is persistent or not", :size=>3 do |d|
-                OneImageHelper.persistent_to_str(d["PUBLIC"])
+                OneImageHelper.persistent_to_str(d["PERSISTENT"])
             end
 
             column :STAT, "State of the Image", :size=>4 do |d|
@@ -112,7 +112,7 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
     
     private
     
-    def self.persistent_to_str
-        image["PERSISTENT"].to_i==1 ? "Yes" : "No"
+    def self.persistent_to_str(str)
+        str.to_i==1 ? "Yes" : "No"
     end
 end
