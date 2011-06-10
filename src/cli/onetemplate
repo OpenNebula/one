@@ -25,387 +25,78 @@ else
 end
 
 $: << RUBY_LIB_LOCATION
+$: << RUBY_LIB_LOCATION+"/cli"
 
+require 'command_parser'
+require 'one_helper/onetemplate_helper'
 
-require 'OpenNebula'
-require 'CommandManager'
-require 'client_utilities'
-require 'command_parse'
+cmd=CommandParser::CmdParser.new(ARGV) do
+    usage "oneimage COMMAND [args..] [options..]"
+    version OpenNebulaHelper::ONE_VERSION
 
-ShowTableTemplate={
-    :id => {
-        :name => "ID",
-        :desc => "ONE identifier for the Template",
-        :size => 4,
-        :proc => lambda {|d,e| d.id }
-    },
-    :user=> {
-        :name => "USER",
-        :desc => "Name of the owner",
-        :size => 8,
-        :proc => lambda {|d,e|
-            d["USERNAME"]
-        }
-    },
-    :name => {
-        :name => "NAME",
-        :desc => "Name of the Template",
-        :size => 20,
-        :proc => lambda {|d,e|
-            d.name
-        }
-    },
-    :regtime => {
-        :name => "REGTIME",
-        :desc => "Registration time of the Template",
-        :size => 20,
-        :proc => lambda {|d,e|
-            str_register_time(d)
-        }
-    },
-    :public => {
-        :name => "PUBLIC",
-        :desc => "Whether the Template is public or not",
-        :size => 3,
-        :proc => lambda {|d,e|
-            if d["PUBLIC"].to_i == 1 then "Yes" else "No" end}
-    },
+    helper = OneTemplateHelper.new
 
-    :default => [:id, :user, :name, :regtime, :public]
-}
+    ########################################################################
+    # Global Options
+    ########################################################################
+    set :option, CommandParser::OPTIONS
+    
+    list_options = CLIHelper::OPTIONS
+    list_options << OpenNebulaHelper::XML
+    list_options << OpenNebulaHelper::NUMERIC
 
-
-
-class TemplateShow
-
-    def initialize(client, filter_flag="-2")
-        @templatepool=OpenNebula::TemplatePool.new(client, filter_flag.to_i)
-        @table=ShowTable.new(ShowTableTemplate)
+    ########################################################################
+    # Formatters for arguments
+    ########################################################################
+    set :format, :imageid, OneTemplateHelper.to_id_desc do |arg|
+        helper.to_id(arg)
     end
 
-    def header_template_small
-        scr_bold
-        scr_underline
-        print @table.header_str
-        scr_restore
-        puts ""
+    set :format, :imageid_list, OneTemplateHelper.list_to_id_desc do |arg|
+        helper.list_to_id(arg)
     end
 
-    def top(options=nil)
-        delay=1
-        delay=options[:delay] if options && options[:delay]
-
-        result=nil
-
-        begin
-            while true
-                scr_cls
-                scr_move(0,0)
-                result=list_short(options)
-                sleep delay
-            end
-        rescue Exception
-        end
-        result
+    set :format, :filterflag, OneTemplateHelper.filterflag_to_i_desc do |arg|
+        helper.filterflag_to_i(arg)
     end
 
-    def list_short(options=nil)
-        res=@templatepool.info()
-
-        if options
-            @table.columns=options[:columns] if options[:columns]
-        end
-
-        if OpenNebula.is_error?(res)
-            result=res
-            puts res.message
-            exit -1
-        else
-
-            if options[:filter_flag]
-                objs=@templatepool.select{|element|
-                    element['USERNAME']==options[:filter_flag]  }
-            else
-                objs=@templatepool
-            end
-
-            result=[true, ""]
-            header_template_small
-
-            if options
-                puts @table.data_str(objs, options)
-            else
-                puts @table.data_str(objs)
-            end
-
-            result
-        end
-    end
-end
-
-
-##########################
-## COMMAND LINE PARSING ##
-##########################
-
-class OneTemplateParse < CommandParse
-
-    COMMANDS_HELP=<<-EOT
-
-Description:
-
-This command enables the user to manage templates.
-
-
-Commands:
-
-* create (Registers a Template from a template file)
-    onetemplate create <file>
-
-    file is a file name where the Template description is located
-
-* addattr (Add a new Template attribute)
-    onetemplate addattr <template_id> <attribute_name> <attribute_value>
-
-* update (Modifies a Template attribute)
-    onetemplate update <template_id> <attribute_name> <attribute_value>
-
-* rmattr (Deletes a Template attribute)
-    onetemplate rmattr <template_id> <attribute_name>
-
-* publish (Publish a Template)
-    onetemplate publish <template_id>
-
-* unpublish (Unpublish an Template)
-    onetemplate unpublish <template_id>
-
-* list (Shows Templates in the pool)
-    onetemplate list <filter_flag>
-
-    where filter_flag can be
-        a, all   --> all the known Templates
-        m, mine  --> the Templates belonging to the user in ONE_AUTH
-                        and all the  Public Templates
-        uid      --> Templates of the user identified by this uid
-        user     --> Templates of the user identified by the username
-
-* top (Lists Templates continuously)
-    onetemplate top
-
-* show (Gets information about an specific Template)
-    onetemplate show <template_id>
-
-* delete (Deletes a Template)
-    onetemplate delete <template_id>
-
-EOT
-
-    def text_commands
-        COMMANDS_HELP
-    end
-
-    def text_command_name
-        "onetemplate"
-    end
-
-    def list_options
-        table=ShowTable.new(ShowTableTemplate)
-        table.print_help
-    end
-end
-
-
-def get_user_flags
-    ops=Hash.new
-    if ARGV[0]
-        case ARGV[0]
-            when "a", "all"
-                ops[:filter_user]="-2"
-            when "m", "mine"
-                ops[:filter_user]="-1"
-            else
-                if !ARGV[0].match(/^[0123456789]+$/)
-                    ops[:filter_user]="-2"
-                    ops[:filter_flag]=ARGV[0]
-                else
-                    ops[:filter_user]=ARGV[0]
-                end
-        end
-     else
-        ops[:filter_user]="-2"
-     end
-
-     ops
-end
-
-def get_template(template_path)
-    begin
-        template = File.read(ARGV[0])
-    rescue
-        result = OpenNebula::Error.new("Can not read template: #{ARGV[0]}")
-    end
-
-    if !is_successful?(result)
-        puts result.message
-        exit -1
-    end
-
-    return template
-end
-
-onetemplate_opts=OneTemplateParse.new
-onetemplate_opts.parse(ARGV)
-ops=onetemplate_opts.options
-
-result=[false, "Unknown error"]
-
-command=ARGV.shift
-
-case command
-when "create", "register", "add"
-    check_parameters("create", 1)
-    template_contents = get_template(ARGV[0])
-
-    template = OpenNebula::Template.new(OpenNebula::Template.build_xml, get_one_client)
-
-    result=template.allocate(template_contents)
-    if !OpenNebula.is_error?(result)
-        puts "ID: " + template.id.to_s if ops[:verbose]
-        exit 0
-    end
-
-when "update", "addattr"
-    check_parameters("update", 3)
-    template_id = get_template_id(ARGV[0])
-
-    template = OpenNebula::Template.new_with_id(template_id, get_one_client)
-
-    result = template.update(ARGV[1],ARGV[2])
-    if is_successful?(result)
-        puts "Modified template" if ops[:verbose]
-    end
-
-when "rmattr"
-    check_parameters("rmattr", 2)
-    template_id = get_template_id(ARGV[0])
-
-    template = OpenNebula::Template.new_with_id(template_id, get_one_client)
-
-    result = template.remove_attr(ARGV[1])
-    if is_successful?(result)
-        puts "Removed template attribute" if ops[:verbose]
-    end
-
-when "publish"
-    check_parameters("publish", 1)
-    template_id = get_template_id(ARGV[0])
-
-    template = OpenNebula::Template.new_with_id(template_id, get_one_client)
-
-    result = template.publish
-    if is_successful?(result)
-        puts "Template published" if ops[:verbose]
-    end
-
-when "unpublish"
-    check_parameters("unpublish", 1)
-    template_id = get_template_id(ARGV[0])
-
-    template = OpenNebula::Template.new_with_id(template_id, get_one_client)
-
-    result = template.unpublish
-    if is_successful?(result)
-        puts "Template unpublished" if ops[:verbose]
-    end
-
-when "list"
-    ops.merge!(get_user_flags)
-    if !ops[:xml]
-        templatelist = TemplateShow.new(get_one_client, ops[:filter_user].to_i)
-        ops[:columns] = ops[:list] if ops[:list]
-        result = templatelist.list_short(ops)
-    else
-        templatepool = OpenNebula::TemplatePool.new(get_one_client,
-            ops[:filter_user].to_i)
-        templatepool.info
-        puts templatepool.to_xml
-    end
-
-when "top"
-    ops.merge!(get_user_flags)
-    templatelist = TemplateShow.new(get_one_client, ops[:filter_user].to_i)
-    ops[:columns] = ops[:list] if ops[:list]
-    result = templatelist.top(ops)
-
-when "show"
-    check_parameters("get_info", 1)
-    args = expand_args(ARGV)
-
-    args.each do |param|
-        template_id = get_template_id(param)
-
-        template = OpenNebula::Template.new_with_id(template_id, get_one_client)
-        result = template.info
-
-        if is_successful?(result)
-            if !ops[:xml]
-                str="%-15s: %-20s"
-                str_h1="%-80s"
-
-                print_header(str_h1, "TEMPLATE #{template[:id]} INFORMATION", true)
-
-                puts str % ["ID", template.id.to_s]
-                puts str % ["NAME", template.name]
-
-                value = template['REGTIME'].to_i
-                if value==0
-                    value='-'
-                else
-                    value=Time.at(value).strftime("%m/%d %H:%M:%S")
-                end
-                puts str % ["REGISTER TIME", value]
-                if template['PUBLIC'].to_i == 1
-                    public_str = "Yes"
-                else
-                    public_str = "No"
-                end
-                puts str % ["PUBLIC", public_str]
-
-                puts
-
-                print_header(str_h1,"TEMPLATE CONTENTS",false)
-
-                puts template.template_str
-            else
-                puts template.to_xml
-            end
-        end
-     end
-
-when "delete"
-    check_parameters("delete", 1)
-    args = expand_args(ARGV)
-
-    args.each do |param|
-        template_id = get_template_id(param)
-        template = OpenNebula::Template.new(
-                        OpenNebula::Template.build_xml(template_id),
-                        get_one_client)
-
-        result = template.delete
-        if is_successful?(result)
-            puts "Template correctly deleted"  if ops[:verbose]
+    ########################################################################
+    # Commands
+    ########################################################################
+    command :create, 'Registers a Template', :file do
+        helper.create_resource(options) do |t|
+            template=File.read(args[0])
+            t.allocate(template)
         end
     end
 
-else
-    onetemplate_opts.print_help
-    exit -1
+    command :show, 'Gets info from a Template', :imageid, :options=>OpenNebulaHelper::XML do
+        helper.show_resource(args[0],options)
+    end
+
+    command :list, 'Lists Templates in the pool', [:filterflag, nil], :options=>list_options do
+        helper.list_pool(options)
+    end
+
+    command :publish, 'Publishes a Template', [:range,:imageid_list] do
+        helper.perform_actions(args[0],options,"published") do |image|
+            image.publish
+        end
+    end
+
+    command :unpublish, 'Unpublishes a Template', [:range,:imageid_list] do
+        helper.perform_actions(args[0],options,"unpublished") do |image|
+            image.unpublish
+        end
+    end
+
+    command :delete, 'Removes a Template', [:range, :imageid_list] do
+        helper.perform_actions(args[0],options,"deleted") do |image|
+            image.delete
+        end
+    end
+    
+    command :top, 'Tops Templatea in the pool', [:filterflag, nil], :options=>list_options do
+        helper.list_pool(options, true)
+    end
 end
-
-if OpenNebula.is_error?(result)
-    puts "Error: " + result.message
-    exit -1
-end
-
-
