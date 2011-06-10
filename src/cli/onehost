@@ -77,6 +77,13 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    command :update, 'Modifies a Host attribute', :hostid do
+        helper.perform_action(args[0],options,"modified") do |host|
+            str = OpenNebulaHelper.update_template(args[0], host)
+            host.update(str)
+        end
+    end
+
     command :enable, 'Enables Host', [:range,:hostid_list] do
         helper.perform_actions(args[0],options,"published") do |host|
             host.enable

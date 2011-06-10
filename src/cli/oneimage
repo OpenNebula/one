@@ -127,21 +127,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
-    command :update, 'Modifies an Image attribute', :imageid, :text, :text do
+    command :update, 'Modifies an Image attribute', :imageid do
         helper.perform_action(args[0],options,"modified") do |image|
-            image.update(args[1], args[2])
-        end
-    end
-
-    command :addattr, 'Add a new Image attribute', :imageid, :text, :text do
-        helper.perform_action(args[0],options,"att  ribute added") do |image|
-            image.update(args[1], args[2])
-        end
-    end
-
-    command :rmattr, 'Delete an Image attribute', :imageid, :text do
-        helper.perform_action(args[0],options,"attribute removed") do |image|
-            image.remove_attr(args[1])
+            str = OpenNebulaHelper.update_template(args[0], image)
+            image.update(str)
         end
     end
 

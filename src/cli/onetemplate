@@ -83,6 +83,13 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    command :update, 'Modifies a Template attribute', :templateid do
+        helper.perform_action(args[0],options,"modified") do |template|
+            str = OpenNebulaHelper.update_template(args[0], template)
+            template.update(str)
+        end
+    end
+
     command :show, 'Gets info from a Template', :imageid, :options=>OpenNebulaHelper::XML do
         helper.show_resource(args[0],options)
     end

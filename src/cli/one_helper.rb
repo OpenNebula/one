@@ -301,4 +301,21 @@ EOT
             st = value.to_s + BinarySufix[i]
         end
     end
+
+    def OpenNebulaHelper.update_template(id, resource)
+        require 'tempfile'
+
+        tmp  = Tempfile.new(id)
+        path = tmp.path
+
+        tmp << resource.template_str
+        tmp.flush
+
+        # TBD select editor
+        system("vim #{path}")
+        tmp.close
+
+        str = File.read(path)
+        str
+    end
 end
