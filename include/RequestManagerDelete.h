@@ -42,6 +42,18 @@ protected:
     /* -------------------------------------------------------------------- */
 
     void request_execute(xmlrpc_c::paramList const& _paramList);
+
+    /* -------------------------------------------------------------------- */
+
+    virtual int drop(int oid, PoolObjectSQL * object, string& error_msg)
+    {
+        int rc = pool->drop(object, error_msg);
+
+        object->unlock();
+
+        return rc;
+    };
+
 };
 
 
@@ -96,6 +108,11 @@ public:
     };
 
     ~ImageDelete(){};
+
+
+    /* -------------------------------------------------------------------- */
+
+    int drop(int oid, PoolObjectSQL * object, string& error_msg);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -148,6 +165,10 @@ public:
     };
 
     ~UserDelete(){};
+
+    /* -------------------------------------------------------------------- */
+
+    int drop(int oid, PoolObjectSQL * object, string& error_msg);
 };
 
 /* -------------------------------------------------------------------------- */

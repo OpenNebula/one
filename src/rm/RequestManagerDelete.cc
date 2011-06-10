@@ -25,7 +25,6 @@ void RequestManagerDelete::request_execute(xmlrpc_c::paramList const& paramList)
 {
     int             oid = xmlrpc_c::value_int(paramList.getInt(1));
     PoolObjectSQL * object;
-    set<int>        group_set;
     string          error_msg;
 
     if ( basic_authorization(oid) == false )
@@ -41,15 +40,7 @@ void RequestManagerDelete::request_execute(xmlrpc_c::paramList const& paramList)
         return;
     }    
 
-    if ( auth_object == AuthRequest::USER )
-    {
-        User * user = static_cast<User *>(object);
-        group_set   = user->get_groups();
-    }
-
-    int rc = pool->drop(object, error_msg);
-
-    object->unlock();
+    int rc = drop(oid, object, error_msg);
 
     if ( rc != 0 )
     {
@@ -58,7 +49,38 @@ void RequestManagerDelete::request_execute(xmlrpc_c::paramList const& paramList)
         return;
     }
 
-    if ( auth_object == AuthRequest::USER )
+    success_response(oid);
+
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+int ImageDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
+{
+    Nebula&         nd     = Nebula::instance();
+    ImageManager *  imagem = nd.get_imagem();
+
+    object->unlock();
+    int rc = imagem->delete_image(oid);
+
+    return rc;
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UserDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
+{
+    set<int>        group_set;
+
+    User * user = static_cast<User *>(object);
+    group_set   = user->get_groups();
+
+    int rc = pool->drop(object, error_msg);
+
+    object->unlock();
+
+    if ( rc == 0 )
     {
         Nebula&     nd      = Nebula::instance();
         GroupPool * gpool   = nd.get_gpool();
@@ -83,8 +105,5 @@ void RequestManagerDelete::request_execute(xmlrpc_c::paramList const& paramList)
         }
     }
 
-    success_response(oid);
-
-    return;
+    return rc;
 }
-
