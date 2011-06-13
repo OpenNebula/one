@@ -35,6 +35,8 @@ EOT
         TABLE_CONF_PATH="/etc/one/cli"
     end
 
+    EDITOR_PATH='/usr/bin/vi'
+
     ########################################################################
     # Options
     ########################################################################
@@ -311,8 +313,13 @@ EOT
         tmp << resource.template_str
         tmp.flush
 
-        # TBD select editor
-        system("vim #{path}")
+        editor_path = ENV["EDITOR"] ? ENV["EDITOR"] : EDITOR_PATH
+        system("#{editor_path} #{path}")
+        unless $?==0
+            puts "Editor not defined"
+            exit -1
+        end
+
         tmp.close
 
         str = File.read(path)
