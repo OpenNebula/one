@@ -30,6 +30,12 @@ module CommandParser
             :short => "-h",
             :large => "--help",
             :description => "Show this message"
+        },
+        VERSION={
+            :name => "version",
+            :short => "-V",
+            :large => "--version",
+            :description => "Show version and copyright information",
         }
     ]
 
@@ -264,7 +270,9 @@ module CommandParser
                             e[:proc].call
                         elsif e[:name]=="help"
                             help
-                            #puts opts
+                            exit
+                        elsif e[:name]=="version"
+                            puts @version
                             exit
                         else
                             @options[e[:name].to_sym]=o
