@@ -31,8 +31,14 @@ $: << RUBY_LIB_LOCATION
 require 'OpenNebulaDriver'
 
 class HookManagerDriver < OpenNebulaDriver
-    def initialize(num)
-        super(num, true, 0)
+    def initialize(options)
+        @options={
+            :concurrency => 15,
+            :threaded => true,
+            :retries => 0
+        }.merge!(options)
+
+        super('', @options)
 
         register_action(:EXECUTE, method("action_execute"))
     end
@@ -57,5 +63,5 @@ class HookManagerDriver < OpenNebulaDriver
     end
 end
 
-hm=HookManagerDriver.new(15)
+hm=HookManagerDriver.new(:concurrency => 15)
 hm.start_driver
