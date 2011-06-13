@@ -15,7 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 var HISTORY_LENGTH=40;
-var GRAPH_AUTOREFRESH_INTERVAL=10000; //10 secs
+var GRAPH_AUTOREFRESH_INTERVAL=100000; //100 secs
 
 var graph1 = {
     title : "graph1",
@@ -64,8 +64,8 @@ var dashboard_tab_content =
               <td class="value_td"><span id="total_hosts"></span><span id="active_hosts" class="green"></span></td>\
             </tr>\
             <tr>\
-              <td class="key_td">Clusters</td>\
-              <td class="value_td"><span id="total_clusters"></span></td>\
+              <td class="key_td">Groups</td>\
+              <td class="value_td"><span id="total_groups"></span></td>\
             </tr>\
             <tr>\
               <td class="key_td">VM Templates (total/public)</td>\
@@ -101,7 +101,7 @@ var dashboard_tab_content =
           <table style="width:100%;"><tr style="vertical-align:middle;"><td style="width:70%">\
           <label style="font-weight:bold;width:40px;height:7em;">New:</label>\
           <input type="radio" name="quickstart" value="Host.create_dialog">Host</input><br />\
-          <input type="radio" name="quickstart" value="Cluster.create_dialog">Cluster</input><br />\
+          <input type="radio" name="quickstart" value="Group.create_dialog">Group</input><br />\
           <input type="radio" name="quickstart" value="Template.create_dialog">VM Template</input><br />\
           <input type="radio" name="quickstart" value="VM.create_dialog">VM Instance</input><br />\
           <input type="radio" name="quickstart" value="Image.create_dialog">Image</input><br />\
@@ -184,22 +184,25 @@ function plot_global_graph(data,info){
     };
 
     var options = {
-        legend : { show : true,
-                   noColumns: labels_arr.length,
-                   container: $('#'+id+'_legend')},
-        xaxis : { mode: "time",
-                  timeformat: "%h:%M"
-                },
+        legend : {
+            show : true,
+            noColumns: labels_arr.length,
+            container: $('#'+id+'_legend')
+        },
+        xaxis : {
+            mode: "time",
+            timeformat: "%h:%M"
+        },
         yaxis : { labelWidth: 40 }
     }
 
     switch (id){
     case "graph3":
     case "graph5":
-        options["yaxis"]["tickFormatter"] = function(val,axis) { return humanize_size(val); }
+        options["yaxis"]["tickFormatter"] = function(val,axis) {
+            return humanize_size(val);
+        }
     }
-
-
 
     $.plot($('#'+id+'_graph'),series,options);
 }
@@ -273,9 +276,9 @@ function updateDashboard(what,json_info){
         $('#total_hosts',db).html(total_hosts+'&nbsp;/&nbsp;');
         $('#active_hosts',db).html(active_hosts);
         break;
-    case "clusters":
-        var total_clusters=json_info.length;
-        $('#total_clusters',db).html(total_clusters);
+    case "groups":
+        var total_groups=json_info.length;
+        $('#total_groups',db).html(total_groups);
         break;
     case "vms":
         var total_vms=json_info.length;
