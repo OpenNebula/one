@@ -31,14 +31,11 @@ $: << RUBY_LIB_LOCATION
 require 'OpenNebulaDriver'
 require 'CommandManager'
 
-#-------------------------------------------------------------------------------
+
 # The SSH Information Manager Driver
-#-------------------------------------------------------------------------------
 class DummyInformationManager < OpenNebulaDriver
 
-    #---------------------------------------------------------------------------
     # Init the driver
-    #---------------------------------------------------------------------------
     def initialize(num)
         super('',
             :concurrency => num,
@@ -49,9 +46,7 @@ class DummyInformationManager < OpenNebulaDriver
         register_action(:MONITOR, method("action_monitor"))
     end
 
-    #---------------------------------------------------------------------------
     # Execute the sensor array in the remote host
-    #---------------------------------------------------------------------------
     def action_monitor(number, host, not_used)
         results =  "HYPERVISOR=dummy,"
         results << "HOSTNAME=#{host},"
@@ -70,11 +65,9 @@ class DummyInformationManager < OpenNebulaDriver
     end
 end
 
-#-------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------
+
 # Information Manager main program
-#-------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------
+
 
 im = DummyInformationManager.new(15)
 im.start_driver

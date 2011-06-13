@@ -29,18 +29,15 @@ $: << RUBY_LIB_LOCATION
 require 'pp'
 require 'OpenNebulaDriver'
 
-#-------------------------------------------------------------------------------
 # The EC2 Information Manager Driver
-#-------------------------------------------------------------------------------
 class EC2InformationManagerDriver < OpenNebulaDriver
-    #---------------------------------------------------------------------------
     # Init the driver, and compute the predefined maximum capacity for this
     # EC2 cloud
-    #---------------------------------------------------------------------------
     def initialize()
         super('im'
             :concurrency => 1,
-            :threaded => false)
+            :threaded => false
+        )
 
         register_action(:MONITOR, method("action_monitor"))
 
@@ -60,22 +57,18 @@ class EC2InformationManagerDriver < OpenNebulaDriver
         totalmemory = smem + lmem + xlmem
         totalcpu    = scpu + lcpu + xlcpu
 
-        @info ="HYPERVISOR=ec2,TOTALMEMORY=#{totalmemory},TOTALCPU=#{totalcpu}," \
-               "CPUSPEED=1000,FREEMEMORY=#{totalmemory},FREECPU=#{totalcpu}"
+        @info="HYPERVISOR=ec2,TOTALMEMORY=#{totalmemory},"<<
+            "TOTALCPU=#{totalcpu},CPUSPEED=1000,FREEMEMORY=#{totalmemory},"<<
+            "FREECPU=#{totalcpu}"
     end
 
-    #---------------------------------------------------------------------------
     # The monitor action, just print the capacity info and hostname
-    #---------------------------------------------------------------------------
-    def action_monitor(num,host,not_used)
-       send_message("MONITOR",RESULT[:success],num,"HOSTNAME=#{host},#{@info}")
+    def action_monitor(num, host, not_used)
+        send_message("MONITOR", RESULT[:success], num,
+            "HOSTNAME=#{host},#{@info}")
     end
 end
 
-#-------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------
 # The EC2 Information Driver main program
-#-------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------
 im = EC2InformationManagerDriver.new
 im.start_driver
