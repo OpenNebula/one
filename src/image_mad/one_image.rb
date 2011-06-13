@@ -40,9 +40,7 @@ require 'getoptlong'
 # by interfacing with specific infrastructure storage solutions.
 class ImageDriver < OpenNebulaDriver
 
-    # -------------------------------------------------------------------------
     # Image Driver Protocol constants
-    # -------------------------------------------------------------------------
     ACTION = {
         :mv   => "MV",
         :cp   => "CP",
@@ -51,9 +49,7 @@ class ImageDriver < OpenNebulaDriver
         :log  => "LOG"
     }
 
-    # -------------------------------------------------------------------------
     # Register default actions for the protocol
-    # -------------------------------------------------------------------------
     def initialize(fs_type, concurrency=10, threaded=true)
         super(concurrency,threaded,0)
 
@@ -65,9 +61,7 @@ class ImageDriver < OpenNebulaDriver
         register_action(ACTION[:mkfs].to_sym, method("mkfs"))
     end
 
-    # -------------------------------------------------------------------------
     # Image Manager Protocol Actions (generic implementation
-    # -------------------------------------------------------------------------
     def mv(id, src, dst)
         local_action("#{@actions_path}/mv #{src} #{dst} #{id}",id,ACTION[:mv])
     end
@@ -85,9 +79,9 @@ class ImageDriver < OpenNebulaDriver
     end
 end
 
-# ---------------------------------------------------------------------------- #
+
 # ImageDriver Main program
-# ---------------------------------------------------------------------------- #
+
 opts = GetoptLong.new(
     [ '--threads',    '-t', GetoptLong::OPTIONAL_ARGUMENT ]
 )
