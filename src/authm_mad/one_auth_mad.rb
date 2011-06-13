@@ -40,7 +40,10 @@ require 'ssh_auth'
 
 class AuthorizationManager < OpenNebulaDriver
     def initialize
-        super(15, true)
+        super(
+            :concurrency => 15,
+            :threaded => true
+        )
         
         config_data=File.read(ETC_LOCATION+'/auth/auth.conf')
         STDERR.puts(config_data)
