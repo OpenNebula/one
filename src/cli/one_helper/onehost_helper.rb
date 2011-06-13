@@ -17,10 +17,12 @@
 require 'one_helper'
 
 class OneHostHelper < OpenNebulaHelper::OneHelper
-    TABLE_CONF_FILE="#{OpenNebulaHelper::TABLE_CONF_PATH}/onehost.yaml"
-
     def self.rname
         "HOST"
+    end
+
+    def self.conf_file
+        "onehost.yaml"
     end
 
     private

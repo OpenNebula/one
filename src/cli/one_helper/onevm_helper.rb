@@ -17,10 +17,12 @@
 require 'one_helper'
 
 class OneVMHelper < OpenNebulaHelper::OneHelper
-    TABLE_CONF_FILE="#{OpenNebulaHelper::TABLE_CONF_PATH}/onevm.yaml"
-
     def self.rname
         "VM"
+    end
+
+    def self.conf_file
+        "onevm.yaml"
     end
 
     private

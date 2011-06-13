@@ -17,10 +17,12 @@
 require 'one_helper'
 
 class OneImageHelper < OpenNebulaHelper::OneHelper
-    TABLE_CONF_FILE="#{OpenNebulaHelper::TABLE_CONF_PATH}/oneimage.yaml"
-
     def self.rname
         "IMAGE"
+    end
+
+    def self.conf_file
+        "oneimage.yaml"
     end
 
     private

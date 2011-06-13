@@ -17,10 +17,12 @@
 require 'one_helper'
 
 class OneTemplateHelper < OpenNebulaHelper::OneHelper
-    TABLE_CONF_FILE="#{OpenNebulaHelper::TABLE_CONF_PATH}/onetemplate.yaml"
-
     def self.rname
         "TEMPLATE"
+    end
+
+    def self.conf_file
+        "onetemplate.yaml"
     end
 
     private

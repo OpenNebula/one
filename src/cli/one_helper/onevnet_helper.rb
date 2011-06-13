@@ -17,10 +17,12 @@
 require 'one_helper'
 
 class OneVNetHelper < OpenNebulaHelper::OneHelper
-    TABLE_CONF_FILE="#{OpenNebulaHelper::TABLE_CONF_PATH}/onevnet.yaml"
-
     def self.rname
         "VNET"
+    end
+
+    def self.conf_file
+        "onevnet.yaml"
     end
 
     private

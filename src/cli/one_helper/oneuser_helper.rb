@@ -17,10 +17,12 @@
 require 'one_helper'
 
 class OneUserHelper < OpenNebulaHelper::OneHelper
-    TABLE_CONF_FILE="#{OpenNebulaHelper::TABLE_CONF_PATH}/oneuser.yaml"
-
     def self.rname
         "USER"
+    end
+
+    def self.conf_file
+        "oneuser.yaml"
     end
 
     def self.password_to_str_desc
