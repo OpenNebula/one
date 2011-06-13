@@ -86,6 +86,8 @@ done
 # Definition of locations
 #-------------------------------------------------------------------------------
 
+CONF_LOCATION="$HOME/.one"
+
 if [ -z "$ROOT" ] ; then
     BIN_LOCATION="/usr/bin"
     LIB_LOCATION="/usr/lib/one"
@@ -107,7 +109,8 @@ if [ -z "$ROOT" ] ; then
 
         CHOWN_DIRS=""
     elif [ "$SUNSTONE" = "yes" ]; then
-        MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $VAR_LOCATION $SUNSTONE_LOCATION"
+        MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $VAR_LOCATION \
+                   $SUNSTONE_LOCATION $ETC_LOCATION"
 
         DELETE_DIRS="$MAKE_DIRS"
 
@@ -136,11 +139,12 @@ else
     MAN_LOCATION="$ROOT/share/man/man1"
 
     if [ "$CLIENT" = "yes" ]; then
-        MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION"
+        MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $CONF_LOCATION"
 
         DELETE_DIRS="$MAKE_DIRS"
     elif [ "$SUNSTONE" = "yes" ]; then
-        MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $VAR_LOCATION $SUNSTONE_LOCATION"
+        MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $VAR_LOCATION \
+                   $SUNSTONE_LOCATION $ETC_LOCATION"
 
         DELETE_DIRS="$MAKE_DIRS"
     else
@@ -173,7 +177,8 @@ ETC_DIRS="$ETC_LOCATION/im_kvm \
           $ETC_LOCATION/hm \
           $ETC_LOCATION/auth \
           $ETC_LOCATION/ec2query_templates \
-          $ETC_LOCATION/occi_templates"
+          $ETC_LOCATION/occi_templates \
+          $ETC_LOCATION/cli"
 
 LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/ruby/OpenNebula \
@@ -188,7 +193,9 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/tm_commands/dummy \
           $LIB_LOCATION/tm_commands/lvm \
           $LIB_LOCATION/mads \
-          $LIB_LOCATION/sh"
+          $LIB_LOCATION/sh \
+          $LIB_LOCATION/ruby/cli \
+          $LIB_LOCATION/ruby/cli/one_helper"
 
 VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im \
@@ -227,12 +234,14 @@ LIB_OCCI_CLIENT_DIRS="$LIB_LOCATION/ruby \
 LIB_OCA_CLIENT_DIRS="$LIB_LOCATION/ruby \
                  $LIB_LOCATION/ruby/OpenNebula"
 
-LIB_CLI_DIRS="$LIB_LOCATION/ruby \
-              $LIB_LOCATION/ruby/OpenNebula"
+LIB_CLI_CLIENT_DIRS="$LIB_LOCATION/ruby/cli \
+                     $LIB_LOCATION/ruby/cli/one_helper"
+
+CONF_CLI_DIRS="$CONF_LOCATION/cli"
 
 if [ "$CLIENT" = "yes" ]; then
     MAKE_DIRS="$MAKE_DIRS $LIB_ECO_CLIENT_DIRS $LIB_OCCI_CLIENT_DIRS \
-               $LIB_CLI_DIRS"
+               $LIB_OCA_CLIENT_DIRS $LIB_CLI_CLIENT_DIRS $CONF_CLI_DIRS"
 elif [ "$SUNSTONE" = "yes" ]; then
     MAKE_DIRS="$MAKE_DIRS $SUNSTONE_DIRS $LIB_OCA_CLIENT_DIRS"
 else
@@ -282,6 +291,8 @@ INSTALL_FILES=(
     OCCI_LIB_FILES:$LIB_LOCATION/ruby/cloud/occi
     OCCI_BIN_FILES:$BIN_LOCATION
     MAN_FILES:$MAN_LOCATION
+    CLI_LIB_FILES:$LIB_LOCATION/ruby/cli
+    ONE_CLI_LIB_FILES:$LIB_LOCATION/ruby/cli/one_helper
 )
 
 INSTALL_CLIENT_FILES=(
@@ -292,18 +303,22 @@ INSTALL_CLIENT_FILES=(
     OCCI_LIB_CLIENT_FILES:$LIB_LOCATION/ruby/cloud/occi
     OCCI_BIN_CLIENT_FILES:$BIN_LOCATION
     CLI_BIN_FILES:$BIN_LOCATION
-    CLI_LIB_FILES:$LIB_LOCATION/ruby
+    CLI_LIB_FILES:$LIB_LOCATION/ruby/cli
+    ONE_CLI_LIB_FILES:$LIB_LOCATION/ruby/cli/one_helper
+    CLI_CONF_FILES:$CONF_LOCATION/cli
+    OCA_LIB_FILES:$LIB_LOCATION/ruby
     RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/OpenNebula
 )
 
 INSTALL_SUNSTONE_RUBY_FILES=(
-    SUNSTONE_RUBY_LIB_FILES:$LIB_LOCATION/ruby
     RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/OpenNebula
+    OCA_LIB_FILES:$LIB_LOCATION/ruby
 )
 
 INSTALL_SUNSTONE_FILES=(
     SUNSTONE_FILES:$SUNSTONE_LOCATION
     SUNSTONE_BIN_FILES:$BIN_LOCATION
+    SUNSTONE_ETC_FILES:$ETC_LOCATION
     SUNSTONE_MODELS_FILES:$SUNSTONE_LOCATION/models
     SUNSTONE_MODELS_JSON_FILES:$SUNSTONE_LOCATION/models/OpenNebulaJSON
     SUNSTONE_TEMPLATE_FILES:$SUNSTONE_LOCATION/templates
@@ -335,6 +350,7 @@ INSTALL_ETC_FILES=(
     OCCI_ETC_FILES:$ETC_LOCATION
     OCCI_ETC_TEMPLATE_FILES:$ETC_LOCATION/occi_templates
     SUNSTONE_ETC_FILES:$ETC_LOCATION
+    CLI_CONF_FILES:$ETC_LOCATION/cli
 )
 
 #-------------------------------------------------------------------------------
@@ -348,7 +364,7 @@ BIN_FILES="src/nebula/oned \
            src/cli/onevnet \
            src/cli/oneuser \
            src/cli/oneimage \
-           src/cli/onecluster \
+           src/cli/onegroup \
            src/cli/onetemplate \
            src/cli/onedb \
            share/scripts/one \
@@ -372,8 +388,6 @@ RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/mad/ruby/OpenNebulaDriver.rb \
                 src/mad/ruby/VirtualMachineDriver.rb \
                 src/mad/ruby/Ganglia.rb \
-                src/cli/client_utilities.rb \
-                src/cli/command_parse.rb \
                 src/oca/ruby/OpenNebula.rb \
                 src/tm_mad/TMScript.rb \
                 src/authm_mad/one_usage.rb \
@@ -381,24 +395,6 @@ RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/authm_mad/simple_auth.rb \
                 src/authm_mad/simple_permissions.rb \
                 src/authm_mad/ssh_auth.rb"
-
-RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/OpenNebula/Host.rb \
-                           src/oca/ruby/OpenNebula/HostPool.rb \
-                           src/oca/ruby/OpenNebula/Pool.rb \
-                           src/oca/ruby/OpenNebula/User.rb \
-                           src/oca/ruby/OpenNebula/UserPool.rb \
-                           src/oca/ruby/OpenNebula/VirtualMachine.rb \
-                           src/oca/ruby/OpenNebula/VirtualMachinePool.rb \
-                           src/oca/ruby/OpenNebula/VirtualNetwork.rb \
-                           src/oca/ruby/OpenNebula/VirtualNetworkPool.rb \
-                           src/oca/ruby/OpenNebula/Image.rb \
-                           src/oca/ruby/OpenNebula/ImagePool.rb \
-                           src/oca/ruby/OpenNebula/Cluster.rb \
-                           src/oca/ruby/OpenNebula/ClusterPool.rb \
-                           src/oca/ruby/OpenNebula/Template.rb \
-                           src/oca/ruby/OpenNebula/TemplatePool.rb \
-                           src/oca/ruby/OpenNebula/XMLUtils.rb"
-
 
 #-----------------------------------------------------------------------------
 # MAD Script library files, to be installed under $LIB_LOCATION/<script lang>
@@ -634,6 +630,28 @@ HOOK_SHARE_FILES="share/hooks/ebtables-xen \
 INSTALL_NOVNC_SHARE_FILE="share/install_novnc.sh"
 
 #-------------------------------------------------------------------------------
+# OCA Files
+#-------------------------------------------------------------------------------
+OCA_LIB_FILES="src/oca/ruby/OpenNebula.rb"
+
+RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/OpenNebula/Host.rb \
+                           src/oca/ruby/OpenNebula/HostPool.rb \
+                           src/oca/ruby/OpenNebula/Pool.rb \
+                           src/oca/ruby/OpenNebula/User.rb \
+                           src/oca/ruby/OpenNebula/UserPool.rb \
+                           src/oca/ruby/OpenNebula/VirtualMachine.rb \
+                           src/oca/ruby/OpenNebula/VirtualMachinePool.rb \
+                           src/oca/ruby/OpenNebula/VirtualNetwork.rb \
+                           src/oca/ruby/OpenNebula/VirtualNetworkPool.rb \
+                           src/oca/ruby/OpenNebula/Image.rb \
+                           src/oca/ruby/OpenNebula/ImagePool.rb \
+                           src/oca/ruby/OpenNebula/Cluster.rb \
+                           src/oca/ruby/OpenNebula/ClusterPool.rb \
+                           src/oca/ruby/OpenNebula/Template.rb \
+                           src/oca/ruby/OpenNebula/TemplatePool.rb \
+                           src/oca/ruby/OpenNebula/XMLUtils.rb"
+
+#-------------------------------------------------------------------------------
 # Common Cloud Files
 #-------------------------------------------------------------------------------
 
@@ -716,18 +734,33 @@ OCCI_ETC_TEMPLATE_FILES="src/cloud/occi/etc/templates/common.erb \
 # CLI files
 #-----------------------------------------------------------------------------
 
-CLI_LIB_FILES="src/mad/ruby/CommandManager.rb \
-               src/cli/client_utilities.rb \
-               src/cli/command_parse.rb \
-               src/oca/ruby/OpenNebula.rb"
+CLI_LIB_FILES="src/cli/cli_helper.rb \
+               src/cli/command_parser.rb \
+               src/cli/one_helper.rb"
+
+ONE_CLI_LIB_FILES="src/cli/one_helper/onegroup_helper.rb \
+                   src/cli/one_helper/onehost_helper.rb \
+                   src/cli/one_helper/oneimage_helper.rb \
+                   src/cli/one_helper/onetemplate_helper.rb \
+                   src/cli/one_helper/oneuser_helper.rb \
+                   src/cli/one_helper/onevm_helper.rb \
+                   src/cli/one_helper/onevnet_helper.rb"
 
 CLI_BIN_FILES="src/cli/onevm \
                src/cli/onehost \
                src/cli/onevnet \
                src/cli/oneuser \
                src/cli/oneimage \
-               src/cli/onecluster \
+               src/cli/onegroup \
                src/cli/onetemplate"
+
+CLI_CONF_FILES="src/cli/etc/onegroup.yaml \
+                src/cli/etc/onehost.yaml \
+                src/cli/etc/oneimage.yaml \
+                src/cli/etc/onetemplate.yaml \
+                src/cli/etc/oneuser.yaml \
+                src/cli/etc/onevm.yaml \
+                src/cli/etc/onevnet.yaml"
 
 #-----------------------------------------------------------------------------
 # Sunstone files
@@ -827,9 +860,6 @@ SUNSTONE_PUBLIC_IMAGES_FILES="src/sunstone/public/images/ajax-loader.gif \
                         src/sunstone/public/images/Refresh-icon.png \
                         src/sunstone/public/images/vnc_off.png \
                         src/sunstone/public/images/vnc_on.png"
-
-SUNSTONE_RUBY_LIB_FILES="src/mad/ruby/CommandManager.rb \
-                         src/oca/ruby/OpenNebula.rb"
 
 #-----------------------------------------------------------------------------
 # MAN files
