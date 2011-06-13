@@ -40,7 +40,10 @@ class DummyInformationManager < OpenNebulaDriver
     # Init the driver
     #---------------------------------------------------------------------------
     def initialize(num)
-        super(num, true)
+        super('',
+            :concurrency => num,
+            :threaded => true
+        )
 
         # register actions
         register_action(:MONITOR, method("action_monitor"))
