@@ -70,7 +70,8 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
     end
 
     def format_pool(pool, options, top=false)
-        table=CLIHelper::ShowTable.new(TABLE_CONF_FILE, self) do
+        config_file=self.class.table_conf
+        table=CLIHelper::ShowTable.new(config_file, self) do
             column :ID, "ONE identifier for Host", :size=>4 do |d|
                 d["ID"]
             end

@@ -17,10 +17,12 @@
 require 'one_helper'
 
 class OneGroupHelper < OpenNebulaHelper::OneHelper
-    TABLE_CONF_FILE="#{OpenNebulaHelper::TABLE_CONF_PATH}/onegroup.yaml"
-
     def self.rname
         "GROUP"
+    end
+
+    def self.conf_file
+        "onegroup.yaml"
     end
 
     private
@@ -40,7 +42,8 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
     end
 
     def format_pool(pool, options, top=false)
-        table=CLIHelper::ShowTable.new(TABLE_CONF_FILE, self) do
+        config_file=self.class.table_conf
+        table=CLIHelper::ShowTable.new(config_file, self) do
             column :ID, "ONE identifier for the Group", :size=>4 do |d|
                 d["ID"]
             end
