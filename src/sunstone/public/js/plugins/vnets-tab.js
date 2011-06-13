@@ -16,7 +16,7 @@
 
 /*Virtual networks tab plugin*/
 
-var vnets_tab_content = 
+var vnets_tab_content =
 '<form id="virtualNetworks_form" action="javascript:alert(\'js error!\');">\
   <div class="action_blocks">\
   </div>\
@@ -41,84 +41,84 @@ var vnets_tab_content =
 
 var create_vn_tmpl =
 '<div id="vn_tabs">\
-	<ul>\
-		<li><a href="#easy">Wizard</a></li>\
-		<li><a href="#manual">Advanced mode</a></li>\
-	</ul>\
-	<div id="easy">\
-		<form id="create_vn_form_easy" action="">\
-			<fieldset>\
-				<label for="name">Name:</label>\
-				<input type="text" name="name" id="name" /><br />\
-			</fieldset>\
-			<fieldset>\
-				<label for="bridge">Bridge:</label>\
-				<input type="text" name="bridge" id="bridge" /><br />\
-			</fieldset>\
-			<fieldset>\
-				<label style="height:2em;">Network type:</label>\
-				<input type="radio" name="fixed_ranged" id="fixed_check" value="fixed" checked="checked">Fixed network</input><br />\
-				<input type="radio" name="fixed_ranged" id="ranged_check" value="ranged">Ranged network</input><br />\
-			</fieldset>\
-			<div class="clear"></div>\
-			<div id="easy_tabs">\
-					<div id="fixed">\
-					<fieldset>\
-						<label for="leaseip">Lease IP:</label>\
-						<input type="text" name="leaseip" id="leaseip" /><br />\
-						<label for="leasemac">Lease MAC (opt):</label>\
-						<input type="text" name="leasemac" id="leasemac" />\
-						<div class="clear"></div>\
-						<button class="add_remove_button add_button" id="add_lease" value="add/lease">\
-						Add\
-						</button>\
-						<button class="add_remove_button" id="remove_lease" value="remove/lease">\
-						Remove selected\
-						</button>\
-						<label for="leases">Current leases:</label>\
-						<select id="leases" name="leases" size="10" style="width:150px" multiple>\
-						<!-- insert leases -->\
-						</select><br />\
-					</fieldset>\
-					</div>\
-					<div id="ranged">\
-					<fieldset>\
-						<label for="net_address">Network Address:</label>\
-						<input type="text" name="net_address" id="net_address" /><br />\
-						<label for="net_size">Network size:</label>\
-						<input type="text" name="net_size" id="net_size" />\
-					</fieldset>\
-					</div>\
-				</div>\
-			<div class="clear"></div>\
-			</fieldset>\
-			<fieldset>\
-			<div class="form_buttons">\
-					<button class="button" id="create_vn_submit_easy" value="vn/create">\
-					Create\
-					</button>\
-					<button class="button" type="reset" value="reset">Reset</button>\
-				</div>\
-			</fieldset>\
-		</form>\
-	</div>\
-	<div id="manual">\
-		<form id="create_vn_form_manual" action="">\
-		  <h3 style="margin-bottom:10px;">Write the Virtual Network template here</h3>\
-		  <fieldset style="border-top:none;">\
-		    <textarea id="template" rows="15" style="width:100%;"></textarea>\
-	     	<div class="clear"></div>\
-	     </fieldset>\
-	     <fieldset>\
-	     	<div class="form_buttons">\
-	    	<button class="button" id="create_vn_submit_manual" value="vn/create">\
-		    Create\
-		    </button>\
-		    <button class="button" type="reset" value="reset">Reset</button>\
-		    </div>\
-		  </fieldset>\
-		</form>\
-	</div>\
+        <ul>\
+          <li><a href="#easy">Wizard</a></li>\
+          <li><a href="#manual">Advanced mode</a></li>\
+        </ul>\
+        <div id="easy">\
+           <form id="create_vn_form_easy" action="">\
+              <fieldset>\
+                 <label for="name">Name:</label>\
+                 <input type="text" name="name" id="name" /><br />\
+              </fieldset>\
+              <fieldset>\
+                 <label for="bridge">Bridge:</label>\
+                 <input type="text" name="bridge" id="bridge" /><br />\
+              </fieldset>\
+              <fieldset>\
+                 <label style="height:2em;">Network type:</label>\
+                 <input type="radio" name="fixed_ranged" id="fixed_check" value="fixed" checked="checked">Fixed network</input><br />\
+                <input type="radio" name="fixed_ranged" id="ranged_check" value="ranged">Ranged network</input><br />\
+              </fieldset>\
+              <div class="clear"></div>\
+              <div id="easy_tabs">\
+                 <div id="fixed">\
+                 <fieldset>\
+                   <label for="leaseip">Lease IP:</label>\
+                   <input type="text" name="leaseip" id="leaseip" /><br />\
+                   <label for="leasemac">Lease MAC (opt):</label>\
+                   <input type="text" name="leasemac" id="leasemac" />\
+                   <div class="clear"></div>\
+                   <button class="add_remove_button add_button" id="add_lease" value="add/lease">\
+                     Add\
+                  </button>\
+                  <button class="add_remove_button" id="remove_lease" value="remove/lease">\
+                     Remove selected\
+                   </button>\
+                   <label for="leases">Current leases:</label>\
+                   <select id="leases" name="leases" size="10" style="width:150px" multiple>\
+                     <!-- insert leases -->\
+                   </select><br />\
+                 </fieldset>\
+              </div>\
+              <div id="ranged">\
+                 <fieldset>\
+                    <label for="net_address">Network Address:</label>\
+                    <input type="text" name="net_address" id="net_address" /><br />\
+                    <label for="net_size">Network size:</label>\
+                    <input type="text" name="net_size" id="net_size" />\
+                 </fieldset>\
+              </div>\
+            </div>\
+            <div class="clear"></div>\
+          </fieldset>\
+          <fieldset>\
+            <div class="form_buttons">\
+              <button class="button" id="create_vn_submit_easy" value="vn/create">\
+                 Create\
+              </button>\
+              <button class="button" type="reset" value="reset">Reset</button>\
+            </div>\
+          </fieldset>\
+        </form>\
+      </div>\
+      <div id="manual">\
+        <form id="create_vn_form_manual" action="">\
+           <h3 style="margin-bottom:10px;">Write the Virtual Network template here</h3>\
+             <fieldset style="border-top:none;">\
+               <textarea id="template" rows="15" style="width:100%;"></textarea>\
+               <div class="clear"></div>\
+             </fieldset>\
+             <fieldset>\
+                <div class="form_buttons">\
+                <button class="button" id="create_vn_submit_manual" value="vn/create">\
+                   Create\
+                </button>\
+                <button class="button" type="reset" value="reset">Reset</button>\
+              </div>\
+            </fieldset>\
+          </form>\
+        </div>\
 </div>';
 
 var vnetworks_select="";
@@ -240,19 +240,19 @@ var vnet_buttons = {
         img: "/images/Refresh-icon.png",
         condition: True
     },
-    
+
     "Network.create_dialog" : {
         type: "create_dialog",
         text: "+ New",
         condition: True
     },
-    
+
     "Network.publish" : {
         type: "action",
         text: "Publish",
         condition: True
     },
-    
+
     "Network.unpublish" : {
         type: "action",
         text: "Unpublish",
@@ -274,7 +274,7 @@ var vnet_buttons = {
         tip: "Select the new group:",
         condition: True
     },
-    
+
     "Network.delete" : {
         type: "action",
         text: "Delete",
@@ -315,131 +315,133 @@ function vNetworkElementArray(vn_json){
         total_leases = network.LEASES.LEASE.length ? network.LEASES.LEASE.length : "1";
     }
 
-    return ['<input type="checkbox" id="vnetwork_'+network.ID+'" name="selected_items" value="'+network.ID+'"/>',
-            network.ID,
-            getUserName(network.UID),
-            getGroupName(network.GID),
-            network.NAME,
-            parseInt(network.TYPE) ? "FIXED" : "RANGED",
-            network.BRIDGE,
-            parseInt(network.PUBLIC) ? "yes" : "no",
-            total_leases ];
+    return [
+        '<input type="checkbox" id="vnetwork_'+network.ID+'" name="selected_items" value="'+network.ID+'"/>',
+        network.ID,
+        getUserName(network.UID),
+        getGroupName(network.GID),
+        network.NAME,
+        parseInt(network.TYPE) ? "FIXED" : "RANGED",
+        network.BRIDGE,
+        parseInt(network.PUBLIC) ? "yes" : "no",
+        total_leases ];
 }
 
 
 //Adds a listener to show the extended info when clicking on a row
 function vNetworkInfoListener(){
 
-	$('#tbodyvnetworks tr').live("click", function(e){
-		if ($(e.target).is('input')) {return true;}
+    $('#tbodyvnetworks tr').live("click", function(e){
+        if ($(e.target).is('input')) {return true;}
         popDialogLoading();
-		var aData = dataTable_vNetworks.fnGetData(this);
-		var id = $(aData[0]).val();
-		Sunstone.runAction("Network.showinfo",id);
-		return false;
-	});
+        var aData = dataTable_vNetworks.fnGetData(this);
+        var id = $(aData[0]).val();
+        Sunstone.runAction("Network.showinfo",id);
+        return false;
+    });
 }
 
 //updates the vnet select different options
 function updateNetworkSelect(){
-    vnetworks_select= 
+    vnetworks_select=
         makeSelectOptions(dataTable_vNetworks,1,4,7,"no",2);
 
-	//update static selectors:
+    //update static selectors:
     //in the VM creation dialog
-	$('div.vm_section#networks select#NETWORK_ID').html(vnetworks_select);
+    $('div.vm_section#networks select#NETWORK_ID').html(vnetworks_select);
 }
 
 //Callback to update a vnet element after an action on it
 function updateVNetworkElement(request, vn_json){
-	id = vn_json.VNET.ID;
-	element = vNetworkElementArray(vn_json);
-	updateSingleElement(element,dataTable_vNetworks,'#vnetwork_'+id);
+    id = vn_json.VNET.ID;
+    element = vNetworkElementArray(vn_json);
+    updateSingleElement(element,dataTable_vNetworks,'#vnetwork_'+id);
     updateNetworkSelect();
 }
 
 //Callback to delete a vnet element from the table
 function deleteVNetworkElement(req){
-	deleteElement(dataTable_vNetworks,'#vnetwork_'+req.request.data);
+    deleteElement(dataTable_vNetworks,'#vnetwork_'+req.request.data);
     updateNetworkSelect();
 }
 
 //Callback to add a new element
 function addVNetworkElement(request,vn_json){
-	var element = vNetworkElementArray(vn_json);
-	addElement(element,dataTable_vNetworks);
+    var element = vNetworkElementArray(vn_json);
+    addElement(element,dataTable_vNetworks);
     updateNetworkSelect();
 }
 
 //updates the list of virtual networks
 function updateVNetworksView(request, network_list){
-	network_list_json = network_list;
-	var network_list_array = [];
+    network_list_json = network_list;
+    var network_list_array = [];
 
-	$.each(network_list,function(){
-		network_list_array.push(vNetworkElementArray(this));
-	});
+    $.each(network_list,function(){
+        network_list_array.push(vNetworkElementArray(this));
+    });
 
-	updateView(network_list_array,dataTable_vNetworks);
-	updateNetworkSelect();
+    updateView(network_list_array,dataTable_vNetworks);
+    updateNetworkSelect();
     //dependency with dashboard
-	updateDashboard("vnets",network_list_json);
+    updateDashboard("vnets",network_list_json);
 
 }
 
 //updates the information panel tabs and pops the panel up
 function updateVNetworkInfo(request,vn){
-	var vn_info = vn.VNET;
-    var info_tab_content = 
-    '<table id="info_vn_table" class="info_table">\
-			<thead>\
-				<tr><th colspan="2">Virtual Network '+vn_info.ID+' information</th></tr>\
-			</thead>\
-			<tr>\
-				<td class="key_td">ID</td>\
-				<td class="value_td">'+vn_info.ID+'</td>\
-			</tr>\
-			<tr>\
-				<td class="key_td">UID</td>\
-				<td class="value_td">'+vn_info.UID+'</td>\
-			</tr>\
-			<tr>\
-				<td class="key_td">Public</td>\
-				<td class="value_td">'+(parseInt(vn_info.PUBLIC) ? "yes" : "no" )+'</td>\
-			</tr>\
-		</table>';
-    
-    //if it is a fixed VNET we can add leases information  
+    var vn_info = vn.VNET;
+    var info_tab_content =
+        '<table id="info_vn_table" class="info_table">\
+            <thead>\
+               <tr><th colspan="2">Virtual Network '+vn_info.ID+' information</th></tr>\
+            </thead>\
+            <tr>\
+              <td class="key_td">ID</td>\
+              <td class="value_td">'+vn_info.ID+'</td>\
+            <tr>\
+            <tr>\
+              <td class="key_td">UID</td>\
+              <td class="value_td">'+vn_info.UID+'</td>\
+            </tr>\
+            <tr>\
+              <td class="key_td">Public</td>\
+              <td class="value_td">'+(parseInt(vn_info.PUBLIC) ? "yes" : "no" )+'</td>\
+            </tr>\
+        </table>';
+
+    //if it is a fixed VNET we can add leases information
     if (vn_info.TEMPLATE.TYPE == "FIXED"){
-		info_tab_content += '<table id="vn_leases_info_table" class="info_table">\
-			<thead>\
-				<tr><th colspan="2">Leases information</th></tr>\
-			</thead>'+
-			prettyPrintJSON(vn_info.TEMPLATE.LEASES)+
-		'</table>';
+        info_tab_content +=
+        '<table id="vn_leases_info_table" class="info_table">\
+            <thead>\
+               <tr><th colspan="2">Leases information</th></tr>\
+            </thead>'+
+            prettyPrintJSON(vn_info.TEMPLATE.LEASES)+
+        '</table>';
     }
-    
-    
-	var info_tab = {
+
+
+    var info_tab = {
         title: "Virtual Network information",
         content: info_tab_content
     }
-    
+
     var template_tab = {
         title: "Virtual Network template",
-        content: '<table id="vn_template_table" class="info_table">\
-		<thead><tr><th colspan="2">Virtual Network template</th></tr></thead>'+
-		prettyPrintJSON(vn_info.TEMPLATE)+
-		'</table>'
+        content:
+        '<table id="vn_template_table" class="info_table">\
+         <thead><tr><th colspan="2">Virtual Network template</th></tr></thead>'+
+            prettyPrintJSON(vn_info.TEMPLATE)+
+         '</table>'
     }
-    
+
     Sunstone.updateInfoPanelTab("vnet_info_panel","vnet_info_tab",info_tab);
     Sunstone.updateInfoPanelTab("vnet_info_panel","vnet_template_tab",template_tab);
-        
+
     Sunstone.popUpInfoPanel("vnet_info_panel");
 
 }
-
 
 //Prepares the vnet creation dialog
 function setupCreateVNetDialog() {
@@ -607,13 +609,10 @@ $(document).ready(function(){
         '','','','','','','',''],dataTable_vNetworks);
     Sunstone.runAction("Network.list");
 
-
     setupCreateVNetDialog();
     setVNetAutorefresh();
 
     initCheckAllBoxes(dataTable_vNetworks);
     tableCheckboxesListener(dataTable_vNetworks);
     vNetworkInfoListener();
-
-
 });

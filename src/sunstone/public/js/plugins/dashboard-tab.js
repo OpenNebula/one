@@ -184,22 +184,25 @@ function plot_global_graph(data,info){
     };
 
     var options = {
-        legend : { show : true,
-                   noColumns: labels_arr.length,
-                   container: $('#'+id+'_legend')},
-        xaxis : { mode: "time",
-                  timeformat: "%h:%M"
-                },
+        legend : {
+            show : true,
+            noColumns: labels_arr.length,
+            container: $('#'+id+'_legend')
+        },
+        xaxis : {
+            mode: "time",
+            timeformat: "%h:%M"
+        },
         yaxis : { labelWidth: 40 }
     }
 
     switch (id){
     case "graph3":
     case "graph5":
-        options["yaxis"]["tickFormatter"] = function(val,axis) { return humanize_size(val); }
+        options["yaxis"]["tickFormatter"] = function(val,axis) {
+            return humanize_size(val);
+        }
     }
-
-
 
     $.plot($('#'+id+'_graph'),series,options);
 }

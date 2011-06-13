@@ -19,7 +19,7 @@ var group_list_json = {};
 var dataTable_groups;
 
 
-var groups_tab_content = 
+var groups_tab_content =
 '<form id="group_form" action="" action="javascript:alert(\'js error!\');">\
   <div class="action_blocks">\
   </div>\
@@ -40,16 +40,16 @@ var groups_tab_content =
 var create_group_tmpl =
 '<form id="create_group_form" action="">\
   <fieldset style="border:none;">\
-	<div>\
-		<label for="name">Group name:</label>\
-		<input type="text" name="name" id="name" /><br />\
-	</div>\
+     <div>\
+        <label for="name">Group name:</label>\
+        <input type="text" name="name" id="name" /><br />\
+      </div>\
   </fieldset>\
   <fieldset>\
-	<div class="form_buttons">\
-		<button class="button" id="create_group_submit" value="Group.create">Create</button>\
-		<button class="button" type="reset" value="reset">Reset</button>\
-	</div>\
+      <div class="form_buttons">\
+        <button class="button" id="create_group_submit" value="Group.create">Create</button>\
+        <button class="button" type="reset" value="reset">Reset</button>\
+      </div>\
   </fieldset>\
 </form>';
 
@@ -67,7 +67,7 @@ var group_actions = {
         type: "custom",
         call: popUpCreateGroupDialog
     },
-    
+
     "Group.list" : {
         type: "list",
         call: OpenNebula.Group.list,
@@ -79,7 +79,7 @@ var group_actions = {
     //     type: "custom",
     //     call: updateGroupInfo
     // },
-    
+
     "Group.autorefresh" : {
         type: "custom",
         call: function () {
@@ -97,7 +97,7 @@ var group_actions = {
         error: onError,
         notify: false
     },
-    
+
     "Group.delete" : {
         type: "multiple",
         call : OpenNebula.Group.delete,
@@ -106,7 +106,7 @@ var group_actions = {
         elements: function() { return getSelectedNodes(dataTable_groups); },
         notify:true
     },
-    
+
     "Group.chown" : {
         type: "multiple",
         call : OpenNebula.Group.chown,
@@ -115,7 +115,7 @@ var group_actions = {
         error : onError,
         notify:true
     },
-    
+
 }
 
 var group_buttons = {
@@ -157,24 +157,25 @@ Sunstone.addMainTab('groups_tab',groups_tab);
 
 function groupElementArray(group_json){
     var group = group_json.GROUP;
-    return [ '<input type="checkbox" id="group_'+group.ID+'" name="selected_items" value="'+group.ID+'"/>',
-             group.ID,
-             getUserName(group.UID),
-             group.NAME ];
+    return [
+        '<input type="checkbox" id="group_'+group.ID+'" name="selected_items" value="'+group.ID+'"/>',
+        group.ID,
+        getUserName(group.UID),
+        group.NAME ];
 }
 
 function groupInfoListener(){
     $('#tbodygroups tr').live("click",function(e){
-	//do nothing if we are clicking a checkbox!
-	if ($(e.target).is('input')) {return true;}
-	var aData = dataTable_groups.fnGetData(this);
-	var id = $(aData[0]).val();
+        //do nothing if we are clicking a checkbox!
+        if ($(e.target).is('input')) {return true;}
+        var aData = dataTable_groups.fnGetData(this);
+        var id = $(aData[0]).val();
         Sunstone.runAction("Group.showinfo",id);
-	return false;
+        return false;
     });
 }
 
-function updateGroupSelect(){   
+function updateGroupSelect(){
     groups_select = makeSelectOptions(dataTable_groups,1,3,-1,"",-1);
 }
 
@@ -216,19 +217,19 @@ function setupCreateGroupDialog(){
     $('div#dialogs').append('<div title="Create group" id="create_group_dialog"></div>');
     $('#create_group_dialog').html(create_group_tmpl);
     $('#create_group_dialog').dialog({
-	autoOpen: false,
-	modal: true,
-	width: 400
+        autoOpen: false,
+        modal: true,
+        width: 400
     });
-    
+
     $('#create_group_dialog button').button();
-    
+
     $('#create_group_form').submit(function(){
-	var name=$('#name',this).val();
-	var group_json = { "group" : { "name" : name }};
+        var name=$('#name',this).val();
+        var group_json = { "group" : { "name" : name }};
         Sunstone.runAction("Group.create",group_json);
-	$('#create_group_dialog').dialog('close');
-	return false;
+        $('#create_group_dialog').dialog('close');
+        return false;
     });
 }
 
@@ -273,5 +274,3 @@ $(document).ready(function(){
     initCheckAllBoxes(dataTable_groups);
     tableCheckboxesListener(dataTable_groups);
 })
-
-

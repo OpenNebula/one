@@ -33,8 +33,7 @@ var host_graphs = [
 ]
 
 
-
-var hosts_tab_content = 
+var hosts_tab_content =
 '<form id="form_hosts" action="javascript:alert(\'js errors?!\')">\
   <div class="action_blocks">\
   </div>\
@@ -64,37 +63,37 @@ var create_host_tmpl =
   <h3>Drivers</h3>\
   <fieldset>\
     <div class="manager clear" id="vmm_mads">\
-	  <label>Virtualization Manager:</label>\
-	  <select id="vmm_mad" name="vmm">\
-	    <option value="vmm_kvm">KVM</option>\
-		<option value="vmm_xen">XEN</option>\
-		<option value="vmm_ec2">EC2</option>\
-		<option value="vmm_dummy">Dummy</option>\
-	  </select>\
+          <label>Virtualization Manager:</label>\
+          <select id="vmm_mad" name="vmm">\
+                <option value="vmm_kvm">KVM</option>\
+                <option value="vmm_xen">XEN</option>\
+                <option value="vmm_ec2">EC2</option>\
+                <option value="vmm_dummy">Dummy</option>\
+          </select>\
     </div>\
     <div class="manager clear" id="im_mads">\
       <label>Information Manager:</label>\
       <select id="im_mad" name="im">\
-	    <option value="im_kvm">KVM</option>\
-		<option value="im_xen">XEN</option>\
-		<option value="im_ec2">EC2</option>\
-		<option value="im_dummy">Dummy</option>\
-	  </select>\
+               <option value="im_kvm">KVM</option>\
+               <option value="im_xen">XEN</option>\
+               <option value="im_ec2">EC2</option>\
+               <option value="im_dummy">Dummy</option>\
+      </select>\
     </div>\
     <div class="manager clear" id="tm_mads">\
       <label>Transfer Manager:</label>\
        <select id="tm_mad" name="tm">\
-	    <option value="tm_nfs">NFS</option>\
-		<option value="tm_ssh">SSH</option>\
-		<option value="tm_dummy">Dummy</option>\
-	  </select>\
+         <option value="tm_nfs">NFS</option>\
+         <option value="tm_ssh">SSH</option>\
+         <option value="tm_dummy">Dummy</option>\
+       </select>\
     </div>\
     </fieldset>\
     <fieldset>\
     <div class="form_buttons">\
-		<div><button class="button" id="create_host_submit" value="OpenNebula.Host.create">Create</button>\
-		<button class="button" type="reset" value="reset">Reset</button></div>\
-	</div>\
+        <div><button class="button" id="create_host_submit" value="OpenNebula.Host.create">Create</button>\
+        <button class="button" type="reset" value="reset">Reset</button></div>\
+    </div>\
   </fieldset>\
 </form></div>';
 
@@ -104,7 +103,7 @@ var dataTable_hosts;
 
 //Setup actions
 var host_actions = {
-    
+
     "Host.create" : {
         type: "create",
         call : OpenNebula.Host.create,
@@ -245,7 +244,7 @@ var host_info_panel = {
         title: "Host information",
         content:""
     },
-    
+
     "host_template_tab" : {
         title: "Host template",
         content: ""
@@ -262,17 +261,16 @@ var hosts_tab = {
     content: hosts_tab_content,
     buttons: host_buttons,
     condition: True
-}            
+}
 
 Sunstone.addActions(host_actions);
 Sunstone.addMainTab('hosts_tab',hosts_tab);
 Sunstone.addInfoPanel("host_info_panel",host_info_panel);
 
 
-
 //Creates an array to be added to the dataTable from the JSON of a host.
 function hostElementArray(host_json){
-    
+
     var host = host_json.HOST;
 
     //Calculate some values
@@ -314,26 +312,27 @@ function hostElementArray(host_json){
 </div>';
 
 
-    return [ '<input type="checkbox" id="host_'+host.ID+'" name="selected_items" value="'+host.ID+'"/>',
-	     host.ID,
-	     host.NAME,
-	     host.HOST_SHARE.RUNNING_VMS, //rvm
-             pb_cpu,
-	     pb_mem,
-	     OpenNebula.Helper.resource_state("host_simple",host.STATE) ];
+    return [
+        '<input type="checkbox" id="host_'+host.ID+'" name="selected_items" value="'+host.ID+'"/>',
+        host.ID,
+        host.NAME,
+        host.HOST_SHARE.RUNNING_VMS, //rvm
+        pb_cpu,
+        pb_mem,
+        OpenNebula.Helper.resource_state("host_simple",host.STATE) ];
 }
 
 //Listen to clicks on the tds of the tables and shows the info dialogs.
 function hostInfoListener(){
     $('#tbodyhosts tr').live("click",function(e){
 
-	//do nothing if we are clicking a checkbox!
-	if ($(e.target).is('input')) {return true;}
+        //do nothing if we are clicking a checkbox!
+        if ($(e.target).is('input')) {return true;}
         popDialogLoading();
-	var aData = dataTable_hosts.fnGetData(this);
-	var id = $(aData[0]).val();
+        var aData = dataTable_hosts.fnGetData(this);
+        var id = $(aData[0]).val();
         Sunstone.runAction("Host.showinfo",id);
-	return false;
+        return false;
     });
 }
 
@@ -370,8 +369,8 @@ function updateHostsView (request,host_list){
     var host_list_array = [];
 
     $.each(host_list,function(){
-	//Grab table data from the host_list
-	host_list_array.push(hostElementArray(this));
+        //Grab table data from the host_list
+        host_list_array.push(hostElementArray(this));
     });
 
     updateView(host_list_array,dataTable_hosts);
@@ -482,30 +481,33 @@ function setupCreateHostDialog(){
     $('div#dialogs').append('<div title="Create host" id="create_host_dialog"></div>');
     $('div#create_host_dialog').html(create_host_tmpl);
     $('#create_host_dialog').dialog({
-		autoOpen: false,
-		modal: true,
-		width: 500
-	});
-    
+        autoOpen: false,
+        modal: true,
+        width: 500
+    });
+
     $('#create_host_dialog button').button();
-    
+
     //Handle the form submission
     $('#create_host_form').submit(function(){
         if (!($('#name',this).val().length)){
             notifyError("Host name missing!");
             return false;
         }
-	var host_json = { "host": { "name": $('#name',this).val(),
-				    "tm_mad": $('#tm_mad :selected',this).val(),
-				    "vm_mad": $('#vmm_mad :selected',this).val(),
-				    "im_mad": $('#im_mad :selected',this).val()}}
+        var host_json = {
+            "host": {
+                "name": $('#name',this).val(),
+                "tm_mad": $('#tm_mad :selected',this).val(),
+                "vm_mad": $('#vmm_mad :selected',this).val(),
+                "im_mad": $('#im_mad :selected',this).val()
+            }
+        }
 
-	//Create the OpenNebula.Host.
-	//If it's successfull we refresh the list.
+        //Create the OpenNebula.Host.
+        //If it's successfull we refresh the list.
         Sunstone.runAction("Host.create",host_json);
-	//OpenNebula.Host.create({data: host_json, success: addHostElement, error: onError});
-	$('#create_host_dialog').dialog('close');
-	return false;
+        $('#create_host_dialog').dialog('close');
+        return false;
     });
 }
 
@@ -527,35 +529,35 @@ function setHostAutorefresh() {
 }
 
 //This is executed after the sunstone.js ready() is run.
-//Here we can basicly init the host datatable, preload it 
+//Here we can basicly init the host datatable, preload it
 //and add specific listeners
 $(document).ready(function(){
 
     //prepare host datatable
     dataTable_hosts = $("#datatable_hosts").dataTable({
-      "bJQueryUI": true,
-      "bSortClasses": false,
-      "bAutoWidth":false,
-      "sPaginationType": "full_numbers",
-      "aoColumnDefs": [
-                        { "bSortable": false, "aTargets": ["check"] },
-                        { "sWidth": "60px", "aTargets": [0,4] },
-                        { "sWidth": "35px", "aTargets": [1] },
-                        { "sWidth": "200px", "aTargets": [5,6] }
-                       ]
+        "bJQueryUI": true,
+        "bSortClasses": false,
+        "bAutoWidth":false,
+        "sPaginationType": "full_numbers",
+        "aoColumnDefs": [
+            { "bSortable": false, "aTargets": ["check"] },
+            { "sWidth": "60px", "aTargets": [0,3] },
+            { "sWidth": "35px", "aTargets": [1] },
+            { "sWidth": "200px", "aTargets": [4,5] }
+        ]
     });
-    
+
     //preload it
     dataTable_hosts.fnClearTable();
     addElement([
         spinner,
         '','','','','',''],dataTable_hosts);
     Sunstone.runAction("Host.list");
-    
+
     setupCreateHostDialog();
-    
+
     setHostAutorefresh();
-    
+
     initCheckAllBoxes(dataTable_hosts);
     tableCheckboxesListener(dataTable_hosts);
     hostInfoListener();

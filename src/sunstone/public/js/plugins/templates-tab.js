@@ -649,12 +649,12 @@ var template_actions = {
          call: function(){
              nodes = getSelectedNodes(dataTable_templates);
              $.each(nodes,function(){
-                Sunstone.runAction("VM.create",
-                    {vm : {
-                        template_id: this
-                        }
-                    });
-            });
+                 Sunstone.runAction("VM.create",
+                                    {vm : {
+                                        template_id: this
+                                    }
+                                    });
+             });
          },
          notify: false
      },
@@ -836,6 +836,7 @@ function updateTemplatesView(request, templates_list){
 function popUpTemplateTemplateUpdateDialog(){
     $('#template_update_dialog #template_update_button').val("Template");
     $('#template_update_dialog #template_update_select').html(templates_select);
+    $('#template_update_dialog #template_update_textarea').val("");
     $('#template_update_dialog').dialog('open');
     return false;
 }
@@ -845,27 +846,28 @@ function updateTemplateInfo(request,template){
     var template_info = template.VMTEMPLATE;
     var info_tab = {
         title: "Information",
-        content: '<table id="info_template_table" class="info_table">\
-                        <thead>\
-                                <tr><th colspan="2">Template "'+template_info.NAME+'" information</th></tr>\
-                        </thead>\
-                        <tr>\
-                                <td class="key_td">ID</td>\
-                                <td class="value_td">'+template_info.ID+'</td>\
-                        </tr>\
-                        <tr>\
-                                <td class="key_td">Name</td>\
-                                <td class="value_td">'+template_info.NAME+'</td>\
-                        </tr>\
-                        <tr>\
-                                <td class="key_td">Register time</td>\
-                                <td class="value_td">'+pretty_time(template_info.REGTIME)+'</td>\
-                        </tr>\
-                        <tr>\
-                                <td class="key_td">Public</td>\
-                                <td class="value_td">'+(parseInt(template_info.PUBLIC) ? "yes" : "no")+'</td>\
-                        </tr>\
-                </table>'
+        content:
+        '<table id="info_template_table" class="info_table">\
+           <thead>\
+             <tr><th colspan="2">Template "'+template_info.NAME+'" information</th></tr>\
+           </thead>\
+           <tr>\
+             <td class="key_td">ID</td>\
+             <td class="value_td">'+template_info.ID+'</td>\
+           </tr>\
+           <tr>\
+             <td class="key_td">Name</td>\
+             <td class="value_td">'+template_info.NAME+'</td>\
+           </tr>\
+           <tr>\
+             <td class="key_td">Register time</td>\
+             <td class="value_td">'+pretty_time(template_info.REGTIME)+'</td>\
+           </tr>\
+           <tr>\
+             <td class="key_td">Public</td>\
+             <td class="value_td">'+(parseInt(template_info.PUBLIC) ? "yes" : "no")+'</td>\
+           </tr>\
+         </table>'
     };
     var template_tab = {
         title: "Template",
@@ -894,16 +896,16 @@ function setupCreateTemplateDialog(){
         // ui.panel   // element, that contains the selected/clicked tab contents
         // ui.index   // zero-based index of the selected (clicked) tab
         switch(ui.index){
-            case 0:
-                enable_kvm();
-                break;
-            case 1:
-                enable_xen();
-                break;
-            case 2:
-                enable_vmware();
-            case 3:
-                break;
+        case 0:
+            enable_kvm();
+            break;
+        case 1:
+            enable_xen();
+            break;
+        case 2:
+            enable_vmware();
+        case 3:
+            break;
         }
         //hide_disabled();
         //show_enabled();
@@ -935,17 +937,17 @@ function setupCreateTemplateDialog(){
 
     //Using kvm wizard. Updates mandatory tag, optional tags, disable
     //XEN-only (and others) items, enables KVM items
-        var enable_kvm = function(){
-                man_class="kvm";
-                opt_class="kvm_opt";
-                $(xen_items).attr("disabled","disabled");
+    var enable_kvm = function(){
+        man_class="kvm";
+        opt_class="kvm_opt";
+        $(xen_items).attr("disabled","disabled");
         $(vmware_items).attr("disabled","disabled");
-                $(kvm_items).removeAttr("disabled");
+        $(kvm_items).removeAttr("disabled");
         $('.vm_param .man_icon').css("display","none");
         $('.kvm .man_icon').css("display","inline-block");
 
 
-                //KVM particularities:
+        //KVM particularities:
         // * Add no_type option for disks
         // * Add driver default option for boot and select it - hide some fields
         // * Set the raw type to kvm
@@ -953,27 +955,27 @@ function setupCreateTemplateDialog(){
 
         var type_opts =
             '<option id="no_type" value="" selected="selected">None</option>\
-            <option value="disk">Disk</option>\
-                        <option value="floppy">Floppy</option>\
-                        <option value="cdrom">CD-ROM</option>\
-                        <option value="swap">Swap</option>\
-                        <option value="fs">FS</option>\
-                        <option value="block">Block</option>';
+             <option value="disk">Disk</option>\
+             <option value="floppy">Floppy</option>\
+             <option value="cdrom">CD-ROM</option>\
+             <option value="swap">Swap</option>\
+             <option value="fs">FS</option>\
+             <option value="block">Block</option>';
 
-                $('div#disks select#TYPE').html(type_opts);
+        $('div#disks select#TYPE').html(type_opts);
 
         var boot_opts =
-                    '<option value="hd">hd</option>\
-                                        <option value="fd">fd</option>\
-                                        <option value="cdrom">cdrom</option>\
-                                        <option value="network">network</option>';
+            '<option value="hd">hd</option>\
+            <option value="fd">fd</option>\
+            <option value="cdrom">cdrom</option>\
+            <option value="network">network</option>';
 
         $('div#os_boot_opts select#BOOT').html(boot_opts);
 
 
         $('div#kernel_bootloader',section_os_boot).show();
         $('select#boot_method option').removeAttr("selected");
-                $('select#boot_method option#no_boot').html("Driver default");
+        $('select#boot_method option#no_boot').html("Driver default");
         $('select#boot_method option').removeAttr("selected");
         $('.kernel, .bootloader', $('div#os_boot_opts')).hide();
 
@@ -985,27 +987,27 @@ function setupCreateTemplateDialog(){
         $('div#disks select#BUS').html(bus_opts);
 
 
-                $('input#TYPE', section_raw).val("kvm");
+        $('input#TYPE', section_raw).val("kvm");
 
-                $(section_inputs).show();
+        $(section_inputs).show();
         $(section_graphics).show();
 
 
-        };
+    };
 
     // Using XEN wizard. Update mandatory and optional classes, disable
     // KVM-only (and other) items, enable XEN fields...
-        var enable_xen = function(){
-                man_class="xen";
-                opt_class="xen_opt";
-                $(kvm_items).attr("disabled","disabled");
+    var enable_xen = function(){
+        man_class="xen";
+        opt_class="xen_opt";
+        $(kvm_items).attr("disabled","disabled");
         $(vmware_items).attr("disabled","disabled");
-                $(xen_items).removeAttr("disabled");
+        $(xen_items).removeAttr("disabled");
         $('.vm_param .man_icon').css("display","none");
         $('.xen .man_icon').css("display","inline-block");
 
 
-                // XEN particularities:
+        // XEN particularities:
         // * Remove no_type option from disks
         // * Remove driver default boot method
         // * Set the raw section to XEN
@@ -1013,20 +1015,20 @@ function setupCreateTemplateDialog(){
 
         var type_opts =
             '<option value="disk">Disk</option>\
-                        <option value="floppy">Floppy</option>\
-                        <option value="cdrom">CD-ROM</option>\
-                        <option value="swap">Swap</option>\
-                        <option value="fs">FS</option>\
-                        <option value="block">Block</option>';
+             <option value="floppy">Floppy</option>\
+             <option value="cdrom">CD-ROM</option>\
+             <option value="swap">Swap</option>\
+             <option value="fs">FS</option>\
+             <option value="block">Block</option>';
 
         $('div#disks select#TYPE').html(type_opts);
 
         $('div#os_boot_opts select#BOOT').empty();
 
         $('div#kernel_bootloader',section_os_boot).show();
-                $('select#boot_method option:selected').removeAttr("selected");
+        $('select#boot_method option:selected').removeAttr("selected");
         $('select#boot_method option#no_boot').html("Please choose");
-                $('.kernel, .bootloader', $('div#os_boot_opts')).hide();
+        $('.kernel, .bootloader', $('div#os_boot_opts')).hide();
 
         var bus_opts =
                 '<option value="ide">IDE</option>\
@@ -1034,39 +1036,37 @@ function setupCreateTemplateDialog(){
 
         $('div#disks select#BUS').html(bus_opts);
 
-                $('input#TYPE', section_raw).val("xen");
-                $(section_inputs).hide(); //not present for xen
+        $('input#TYPE', section_raw).val("xen");
+        $(section_inputs).hide(); //not present for xen
         $(section_graphics).show();
 
-
-
-        };
+    };
 
     var enable_vmware = function() {
         man_class="vmware";
-                opt_class="vmware_opt";
-                $(xen_items).attr("disabled","disabled");
+        opt_class="vmware_opt";
+        $(xen_items).attr("disabled","disabled");
         $(kvm_items).attr("disabled","disabled");
-                $(vmware_items).removeAttr("disabled");
+        $(vmware_items).removeAttr("disabled");
         $('.vm_param .man_icon').css("display","none");
         $('.vmware .man_icon').css("display","inline-block");
 
-                //VMWARE particularities
+        //VMWARE particularities
         // * Add no_type option for disks
         // * Set the raw type to kvm
         // * Hide the inputs and graphics section
         // * Hide boot method
         var type_opts =
             '<option value="file" selected="selected">File</option>\
-                        <option value="cdrom">CD-ROM</option>\
-                        <option value="block">Block</option>';
+             <option value="cdrom">CD-ROM</option>\
+             <option value="block">Block</option>';
 
         $('div#os_boot_opts select#BOOT').empty();
 
         $('div#disks select#BOOT').empty();
 
         $('select#boot_method option').removeAttr("selected");
-                $('select#boot_method option#no_boot').html("Driver default");
+        $('select#boot_method option#no_boot').html("Driver default");
         $('select#boot_method option').removeAttr("selected");
         $('.kernel, .bootloader', $('div#os_boot_opts')).hide();
 
@@ -1077,9 +1077,9 @@ function setupCreateTemplateDialog(){
         $('div#disks select#BUS').html(bus_opts);
 
 
-                $('input#TYPE', section_raw).val("vmware");
+        $('input#TYPE', section_raw).val("vmware");
 
-                $(section_inputs).hide();
+        $(section_inputs).hide();
         $(section_graphics).hide();
 
         $('div#kernel_bootloader',section_os_boot).hide();
@@ -1088,95 +1088,96 @@ function setupCreateTemplateDialog(){
 
     //This function checks that all mandatory items within a section
     //have some value. Returns true if so, false if not.
-        var mandatory_filter = function(context){
-                        var man_items = "."+man_class;
+    var mandatory_filter = function(context){
+        var man_items = "."+man_class;
 
-                        //find enabled mandatory items in this context
-                        man_items = $(man_items+' input:visible, '+man_items+' select:visible',context);
-                        var r = true;
+        //find enabled mandatory items in this context
+        man_items = $(man_items+' input:visible, '+man_items+' select:visible',context);
+        var r = true;
 
-            //we fail it the item is enabled and has no value
-                        $.each(man_items,function(){
-                                if ($(this).parents(".vm_param").attr("disabled") ||
-                                        !($(this).val().length)) {
-                                        r = false;
-                                        return false;
-                                };
-                        });
-                        return r;
+        //we fail it the item is enabled and has no value
+        $.each(man_items,function(){
+            if ($(this).parents(".vm_param").attr("disabled") ||
+                !($(this).val().length)) {
+                r = false;
+                return false;
+            };
+        });
+        return r;
 
-                };
+    };
 
     //Adds an option element to a multiple select box. Before doing so,
     //it checks that the desired filter is passed
-        var box_add_element = function(context,box_tag,filter){
-                        var value="";
-                        var params= $('.vm_param',context);
-                        var inputs= $('input:enabled',params);
-                        var selects = $('select:enabled',params);
-                        var fields = $.merge(inputs,selects);
+    var box_add_element = function(context,box_tag,filter){
+        var value="";
+        var params= $('.vm_param',context);
+        var inputs= $('input:enabled',params);
+        var selects = $('select:enabled',params);
+        var fields = $.merge(inputs,selects);
 
-                        //are fields passing the filter?
-                        var result = filter();
-                        if (!result) {
-                                notifyError("There are mandatory parameters missing in this section");
-                                return false;
-                        }
+        //are fields passing the filter?
+        var result = filter();
+        if (!result) {
+            notifyError("There are mandatory parameters missing in this section");
+            return false;
+        }
 
-                        value={};
+        value={};
 
-            //With each enabled field we form a JSON object
-            var id = null;
-                        $.each(fields,function(){
-                                if (!($(this).parents(".vm_param").attr("disabled")) &&
-                                        $(this).val().length){
-                    //Pick up parent's ID if we do not have one
-                                        id = $(this).attr('id').length ? $(this).attr('id') :  $(this).parent().attr('id');
-                                        value[id] = $(this).val();
-                                }
-                        });
-                        var value_string = JSON.stringify(value);
-                        var option= '<option value=\''+value_string+'\'>'+
-                                        stringJSON(value)+
-                                        '</option>';
-                        $('select'+box_tag,context).append(option);
-                        return false;
-        };
+        //With each enabled field we form a JSON object
+        var id = null;
+        $.each(fields,function(){
+            if (!($(this).parents(".vm_param").attr("disabled")) &&
+                $(this).val().length){
+                //Pick up parent's ID if we do not have one
+                id = $(this).attr('id').length ? $(this).attr('id') :  $(this).parent().attr('id');
+                value[id] = $(this).val();
+            }
+        });
+        var value_string = JSON.stringify(value);
+        var option=
+            '<option value=\''+value_string+'\'>'+
+            stringJSON(value)+
+            '</option>';
+        $('select'+box_tag,context).append(option);
+        return false;
+    };
 
     //Removes selected elements from a multiple select box
-        var box_remove_element = function(section_tag,box_tag){
-                        var context = $(section_tag);
-                        $('select'+box_tag+' :selected',context).remove();
-                        return false;
-        };
+    var box_remove_element = function(section_tag,box_tag){
+        var context = $(section_tag);
+        $('select'+box_tag+' :selected',context).remove();
+        return false;
+    };
 
     //Given the JSON of a VM template (or of a section of it), it crawls
     //the fields of certain section (context) and add their name and
     //values to the template JSON.
-        var addSectionJSON = function(template_json,context){
-                        var params= $('.vm_param',context);
-                        var inputs= $('input:enabled',params);
-                        var selects = $('select:enabled',params);
-                        var fields = $.merge(inputs,selects);
+    var addSectionJSON = function(template_json,context){
+        var params= $('.vm_param',context);
+        var inputs= $('input:enabled',params);
+        var selects = $('select:enabled',params);
+        var fields = $.merge(inputs,selects);
 
-                        fields.each(function(){
-                                if (!($(this).parents(".vm_param").attr("disabled"))){ //if ! disabled
-                                        if ($(this).val().length){ //if has a length
-                                                template_json[$(this).attr('id')]=$(this).val();
-                                        }
-                                }
-                        });
-        }
+        fields.each(function(){
+            if (!($(this).parents(".vm_param").attr("disabled"))){ //if ! disabled
+                if ($(this).val().length){ //if has a length
+                    template_json[$(this).attr('id')]=$(this).val();
+                }
+            }
+        });
+    }
 
     // Given an array (usually empty), a section (context) and a tag for
     // a multiple select in that section, it adds the contents of the
     // box as objects in the array.
     // TODO: Make it return a new array?
-        var addBoxJSON = function(array,context,box_tag){
-                $('select'+box_tag+' option',context).each(function(){
-                                array.push( JSON.parse($(this).val()) );
-                });
-        }
+    var addBoxJSON = function(array,context,box_tag){
+        $('select'+box_tag+' option',context).each(function(){
+            array.push( JSON.parse($(this).val()) );
+        });
+    }
 
     //Given an object, removes those elements which are empty
     //Used to clean up a template JSON before submitting
@@ -1211,41 +1212,40 @@ function setupCreateTemplateDialog(){
     }
 
     //Toggles the icon when a section is folded/unfolded
-        var iconToggle = function(){
-                $('.icon_right').toggle(
-                        function(e){
-                                $('span',e.currentTarget).removeClass("ui-icon-plusthick");
-                                $('span',e.currentTarget).addClass("ui-icon-minusthick");
-                        },function(e){
-                                $('span',e.currentTarget).removeClass("ui-icon-minusthick");
-                                $('span',e.currentTarget).addClass("ui-icon-plusthick");
-                        });
-        }
+    var iconToggle = function(){
+        $('.icon_right').toggle(
+            function(e){
+                $('span',e.currentTarget).removeClass("ui-icon-plusthick");
+                $('span',e.currentTarget).addClass("ui-icon-minusthick");
+            },function(e){
+                $('span',e.currentTarget).removeClass("ui-icon-minusthick");
+                $('span',e.currentTarget).addClass("ui-icon-plusthick");
+            });
+    }
 
     // Set ups the capacity section
-        var capacity_setup = function(){
+    var capacity_setup = function(){
         //Actually there is nothing to set up, but it used to be
         //possible to hide it like others
         /*
-                $('fieldset',section_capacity).hide();
-                $('#add_capacity',section_capacity).click(function(){
-                                $('fieldset',section_capacity).toggle();
-                                return false;
-                });
+          $('fieldset',section_capacity).hide();
+          $('#add_capacity',section_capacity).click(function(){
+          $('fieldset',section_capacity).toggle();
+          return false;
+          });
         */
 
-        }
+    }
 
     //Sets up the OS_BOOT section
-        var os_boot_setup = function(){
-                $('fieldset',section_os_boot).hide();
-                $('.bootloader, .kernel',section_os_boot).hide();
+    var os_boot_setup = function(){
+        $('fieldset',section_os_boot).hide();
+        $('.bootloader, .kernel',section_os_boot).hide();
 
-                $('#add_os_boot_opts',section_os_boot).click(function(){
-                        $('fieldset',section_os_boot).toggle();
+        $('#add_os_boot_opts',section_os_boot).click(function(){
+            $('fieldset',section_os_boot).toggle();
             return false;
-                });
-
+        });
 
         //Chrome workaround
         $('#boot_method').change(function(){
@@ -1254,28 +1254,28 @@ function setupCreateTemplateDialog(){
 
         //Depending on the boot method we enable/disable some options
         $('#boot_method',section_os_boot).click(function(){
-                        select = $(this).val();
-                        switch (select)
-                        {
-                                case "kernel":
-                                        $('.bootloader',section_os_boot).hide();
-                                        $('.bootloader',section_os_boot).attr("disabled","disabled");
-                                        $('.kernel',section_os_boot).show();
-                                        $('.kernel',section_os_boot).removeAttr("disabled");
-                                        break;
-                                case "bootloader":
-                                        $('.kernel',section_os_boot).hide();
-                                        $('.kernel',section_os_boot).attr("disabled","disabled");
-                                        $('.bootloader',section_os_boot).show();
-                                        $('.bootloader',section_os_boot).removeAttr("disabled");
-                                        break;
-                                default:
-                                        $('.kernel, .bootloader',section_os_boot).hide();
-                                        $('.kernel, .bootloader',section_os_boot).attr("disabled","disabled");
-                                        $('.kernel input, .bootloader input',section_os_boot).val("");
-                        };
-                });
-        };
+            select = $(this).val();
+            switch (select)
+            {
+            case "kernel":
+                $('.bootloader',section_os_boot).hide();
+                $('.bootloader',section_os_boot).attr("disabled","disabled");
+                $('.kernel',section_os_boot).show();
+                $('.kernel',section_os_boot).removeAttr("disabled");
+                break;
+            case "bootloader":
+                $('.kernel',section_os_boot).hide();
+                $('.kernel',section_os_boot).attr("disabled","disabled");
+                $('.bootloader',section_os_boot).show();
+                $('.bootloader',section_os_boot).removeAttr("disabled");
+                break;
+            default:
+                $('.kernel, .bootloader',section_os_boot).hide();
+                $('.kernel, .bootloader',section_os_boot).attr("disabled","disabled");
+                $('.kernel input, .bootloader input',section_os_boot).val("");
+            };
+        });
+    };
 
     // Sets up the features section
     var features_setup = function(){
@@ -1288,289 +1288,289 @@ function setupCreateTemplateDialog(){
     };
 
     // Sets up the disk section
-        var disks_setup = function(){
+    var disks_setup = function(){
 
-                $('fieldset',section_disks).hide();
-                $('.vm_param', section_disks).hide();
-                //$('#image_vs_disk',section_disks).show();
+        $('fieldset',section_disks).hide();
+        $('.vm_param', section_disks).hide();
+        //$('#image_vs_disk',section_disks).show();
 
-                $('#add_disks', section_disks).click(function(){
-                        $('fieldset',section_disks).toggle();
+        $('#add_disks', section_disks).click(function(){
+            $('fieldset',section_disks).toggle();
             return false;
-                });
+        });
 
         //Depending on adding a disk or a image we need to show/hide
         //different options and make then mandatory or not
-                $('#image_vs_disk input',section_disks).click(function(){
-                        //$('fieldset',section_disks).show();
+        $('#image_vs_disk input',section_disks).click(function(){
+            //$('fieldset',section_disks).show();
             $('.vm_param', section_disks).show();
-                        var select = $('#image_vs_disk :checked',section_disks).val();
-                        switch (select)
-                        {
-                                case "disk":
-                                        $('.add_image',section_disks).hide();
-                                        $('.add_image',section_disks).attr("disabled","disabled");
-                                        $('.add_disk',section_disks).show();
-                                        $('.add_disk',section_disks).removeAttr("disabled");
-                                        $('#TARGET',section_disks).parent().removeClass(opt_class);
-                                        $('#TARGET',section_disks).parent().addClass(man_class);
-                                        break;
-                                case "image":
-                                        $('.add_disk',section_disks).hide();
-                                        $('.add_disk',section_disks).attr("disabled","disabled");
-                                        $('.add_image',section_disks).show();
-                                        $('.add_image',section_disks).removeAttr("disabled");
-                                        $('#TARGET',section_disks).parent().removeClass(man_class);
-                                        $('#TARGET',section_disks).parent().addClass(opt_class);
-                                        break;
-                        }
-                        $('#SIZE',section_disks).parent().hide();
-                        $('#SIZE',section_disks).parent().attr("disabled","disabled");
-                        $('#FORMAT',section_disks).parent().hide();
-                        $('#SIZE',section_disks).parent().attr("disabled","disabled");
-                        $('#TYPE :selected',section_disks).removeAttr("selected");
+            var select = $('#image_vs_disk :checked',section_disks).val();
+            switch (select)
+            {
+            case "disk":
+                $('.add_image',section_disks).hide();
+                $('.add_image',section_disks).attr("disabled","disabled");
+                $('.add_disk',section_disks).show();
+                $('.add_disk',section_disks).removeAttr("disabled");
+                $('#TARGET',section_disks).parent().removeClass(opt_class);
+                $('#TARGET',section_disks).parent().addClass(man_class);
+                break;
+            case "image":
+                $('.add_disk',section_disks).hide();
+                $('.add_disk',section_disks).attr("disabled","disabled");
+                $('.add_image',section_disks).show();
+                $('.add_image',section_disks).removeAttr("disabled");
+                $('#TARGET',section_disks).parent().removeClass(man_class);
+                $('#TARGET',section_disks).parent().addClass(opt_class);
+                break;
+            }
+            $('#SIZE',section_disks).parent().hide();
+            $('#SIZE',section_disks).parent().attr("disabled","disabled");
+            $('#FORMAT',section_disks).parent().hide();
+            $('#SIZE',section_disks).parent().attr("disabled","disabled");
+            $('#TYPE :selected',section_disks).removeAttr("selected");
             //hide_disabled(section_disks);
-                });
+        });
 
         //Chrome workaround
         $('select#TYPE',section_disks).change(function(){
-           $(this).trigger('click');
+            $(this).trigger('click');
         });
 
         //Depending on the type of disk we need to show/hide
         //different options and make then mandatory or not
-                $('select#TYPE',section_disks).click(function(){
-                        var select = $(this).val();
-                        switch (select) {
-                                //size,format,target
-                                case "swap":
-                                        //size mandatory
-                                        $('#SIZE',section_disks).parent().show();
-                                        $('#SIZE',section_disks).parent().removeAttr("disabled");
-                                        $('#SIZE',section_disks).parent().removeClass(opt_class);
-                                        $('#SIZE',section_disks).parent().addClass(man_class);
+        $('select#TYPE',section_disks).click(function(){
+            var select = $(this).val();
+            switch (select) {
+                //size,format,target
+            case "swap":
+                //size mandatory
+                $('#SIZE',section_disks).parent().show();
+                $('#SIZE',section_disks).parent().removeAttr("disabled");
+                $('#SIZE',section_disks).parent().removeClass(opt_class);
+                $('#SIZE',section_disks).parent().addClass(man_class);
 
-                                        //target optional
-                                        $('#TARGET',section_disks).parent().removeClass(man_class);
-                                        $('#TARGET',section_disks).parent().addClass(opt_class);
+                //target optional
+                $('#TARGET',section_disks).parent().removeClass(man_class);
+                $('#TARGET',section_disks).parent().addClass(opt_class);
 
-                                        //format hidden
-                                        $('#FORMAT',section_disks).parent().hide();
-                                        $('#FORMAT',section_disks).parent().attr("disabled","disabled");
+                //format hidden
+                $('#FORMAT',section_disks).parent().hide();
+                $('#FORMAT',section_disks).parent().attr("disabled","disabled");
 
-                    //source hidden
-                    $('#SOURCE',section_disks).parent().hide();
-                    $('#SOURCE',section_disks).parent().
-                                        attr("disabled","disabled");
-                                        break;
-                                case "fs":
-                                        //size mandatory
-                                        $('#SIZE',section_disks).parent().show();
-                                        $('#SIZE',section_disks).parent().removeAttr("disabled");
-                                        $('#SIZE',section_disks).parent().removeClass(opt_class);
-                                        $('#SIZE',section_disks).parent().addClass(man_class);
+                //source hidden
+                $('#SOURCE',section_disks).parent().hide();
+                $('#SOURCE',section_disks).parent().
+                    attr("disabled","disabled");
+                break;
+            case "fs":
+                //size mandatory
+                $('#SIZE',section_disks).parent().show();
+                $('#SIZE',section_disks).parent().removeAttr("disabled");
+                $('#SIZE',section_disks).parent().removeClass(opt_class);
+                $('#SIZE',section_disks).parent().addClass(man_class);
 
-                                        //target mandatory
-                                        $('#TARGET',section_disks).parent().removeClass(opt_class);
-                                        $('#TARGET',section_disks).parent().addClass(man_class);
+                //target mandatory
+                $('#TARGET',section_disks).parent().removeClass(opt_class);
+                $('#TARGET',section_disks).parent().addClass(man_class);
 
-                                        //format mandatory
-                                        $('#FORMAT',section_disks).parent().show();
-                                        $('#FORMAT',section_disks).parent().removeAttr("disabled");
-                                        $('#FORMAT',section_disks).parent().removeClass(opt_class);
-                                        $('#FORMAT',section_disks).parent().addClass(man_class);
+                //format mandatory
+                $('#FORMAT',section_disks).parent().show();
+                $('#FORMAT',section_disks).parent().removeAttr("disabled");
+                $('#FORMAT',section_disks).parent().removeClass(opt_class);
+                $('#FORMAT',section_disks).parent().addClass(man_class);
 
-                    //source hidden
-                    $('#SOURCE',section_disks).parent().hide();
-                    $('#SOURCE',section_disks).parent().
-                                        attr("disabled","disabled");
-                                        break;
-                                case "block":
-                                        //size shown and optional
-                                        $('#SIZE',section_disks).parent().show();
-                                        $('#SIZE',section_disks).parent().removeAttr("disabled");
-                                        $('#SIZE',section_disks).parent().removeClass(man_class);
-                                        $('#SIZE',section_disks).parent().addClass(opt_class);
+                //source hidden
+                $('#SOURCE',section_disks).parent().hide();
+                $('#SOURCE',section_disks).parent().
+                    attr("disabled","disabled");
+                break;
+            case "block":
+                //size shown and optional
+                $('#SIZE',section_disks).parent().show();
+                $('#SIZE',section_disks).parent().removeAttr("disabled");
+                $('#SIZE',section_disks).parent().removeClass(man_class);
+                $('#SIZE',section_disks).parent().addClass(opt_class);
 
-                                        //target mandatory
-                                        $('#TARGET',section_disks).parent().removeClass(opt_class);
-                                        $('#TARGET',section_disks).parent().addClass(man_class);
+                //target mandatory
+                $('#TARGET',section_disks).parent().removeClass(opt_class);
+                $('#TARGET',section_disks).parent().addClass(man_class);
 
-                                        //format hidden
-                                        $('#FORMAT',section_disks).parent().hide();
-                                        $('#FORMAT',section_disks).parent().attr("disabled","disabled");
+                //format hidden
+                $('#FORMAT',section_disks).parent().hide();
+                $('#FORMAT',section_disks).parent().attr("disabled","disabled");
 
-                    //source hidden
-                    $('#SOURCE',section_disks).parent().hide();
-                    $('#SOURCE',section_disks).parent().
-                                        attr("disabled","disabled");
-                                        break;
-                                case "floppy":
-                                case "disk":
-                                case "cdrom":
-                default:
-                                        //size hidden
-                                        $('#SIZE',section_disks).parent().hide();
-                                        $('#SIZE',section_disks).parent().attr("disabled","disabled");
+                //source hidden
+                $('#SOURCE',section_disks).parent().hide();
+                $('#SOURCE',section_disks).parent().
+                    attr("disabled","disabled");
+                break;
+            case "floppy":
+            case "disk":
+            case "cdrom":
+            default:
+                //size hidden
+                $('#SIZE',section_disks).parent().hide();
+                $('#SIZE',section_disks).parent().attr("disabled","disabled");
 
-                                        //target mandatory
-                                        $('#TARGET',section_disks).parent().removeClass(opt_class);
-                                        $('#TARGET',section_disks).parent().addClass(man_class);
+                //target mandatory
+                $('#TARGET',section_disks).parent().removeClass(opt_class);
+                $('#TARGET',section_disks).parent().addClass(man_class);
 
-                                        //format optional
-                                    $('#FORMAT',section_disks).parent().hide();
-                                    $('#FORMAT',section_disks).parent().attr("disabled","disabled");
+                //format optional
+                $('#FORMAT',section_disks).parent().hide();
+                $('#FORMAT',section_disks).parent().attr("disabled","disabled");
 
-                    //source shown
-                    $('#SOURCE',section_disks).parent().show();
-                    $('#SOURCE',section_disks).parent().
-                                        removeAttr("disabled");
-                        }
+                //source shown
+                $('#SOURCE',section_disks).parent().show();
+                $('#SOURCE',section_disks).parent().
+                    removeAttr("disabled");
+            }
             //hide_disabled(section_disks);
-                });
+        });
 
         //Our filter for the disks section fields is the mandatory
         //filter for this section
-                var diskFilter = function(){
-                        return mandatory_filter(section_disks);
-                };
+        var diskFilter = function(){
+            return mandatory_filter(section_disks);
+        };
 
-                $('#add_disk_button',section_disks).click(function(){
-                        box_add_element(section_disks,'#disks_box',diskFilter);
-                        return false;
-                        });
-                $('#remove_disk_button',section_disks).click(function(){
-                        box_remove_element(section_disks,'#disks_box');
-                        return false;
-                        });
+        $('#add_disk_button',section_disks).click(function(){
+            box_add_element(section_disks,'#disks_box',diskFilter);
+            return false;
+        });
+        $('#remove_disk_button',section_disks).click(function(){
+            box_remove_element(section_disks,'#disks_box');
+            return false;
+        });
         };
 
     // Sets up the network section
-        var networks_setup = function(){
+    var networks_setup = function(){
 
-                $('.vm_param',section_networks).hide();
-                $('fieldset',section_networks).hide();
+        $('.vm_param',section_networks).hide();
+        $('fieldset',section_networks).hide();
 
-                $('#add_networks',section_networks).click(function(){
-                        $('fieldset',section_networks).toggle();
+        $('#add_networks',section_networks).click(function(){
+            $('fieldset',section_networks).toggle();
             return false;
-                });
+        });
 
         //Depending on adding predefined network or not we show/hide
         //some fields
-                $('#network_vs_niccfg input',section_networks).click(function(){
+        $('#network_vs_niccfg input',section_networks).click(function(){
 
-                        select = $('#network_vs_niccfg :checked',section_networks).val();
-                        switch (select) {
-                                case "network":
-                                        $('.niccfg',section_networks).hide();
-                                        $('.niccfg',section_networks).attr("disabled","disabled");
-                                        $('.network',section_networks).show();
-                                        $('.network',section_networks).removeAttr("disabled");
-                                        break;
-                                case "niccfg":
-                                        $('.network',section_networks).hide();
-                                        $('.network',section_networks).attr("disabled","disabled");
-                                        $('.niccfg',section_networks).show();
-                                        $('.niccfg',section_networks).removeAttr("disabled");
-                                        break;
-                        }
+            select = $('#network_vs_niccfg :checked',section_networks).val();
+            switch (select) {
+            case "network":
+                $('.niccfg',section_networks).hide();
+                $('.niccfg',section_networks).attr("disabled","disabled");
+                $('.network',section_networks).show();
+                $('.network',section_networks).removeAttr("disabled");
+                break;
+            case "niccfg":
+                $('.network',section_networks).hide();
+                $('.network',section_networks).attr("disabled","disabled");
+                $('.niccfg',section_networks).show();
+                $('.niccfg',section_networks).removeAttr("disabled");
+                break;
+            }
             //hide_disabled(section_networks);
-                });
+        });
 
-    //The filter to add a new network checks that we have selected a
-    //network, or that the ip or mac are set
-    //TODO: Improve this check
+        //The filter to add a new network checks that we have selected a
+        //network, or that the ip or mac are set
+        //TODO: Improve this check
         var nicFilter = function(){
             return mandatory_filter(section_networks);
         };
 
-                $('#add_nic_button',section_networks).click(function(){
-                        box_add_element(section_networks,'#nics_box',nicFilter);
-                        return false;
-                        });
-                $('#remove_nic_button',section_networks).click(function(){
-                        box_remove_element(section_networks,'#nics_box');
-                        return false;
-                        });
+        $('#add_nic_button',section_networks).click(function(){
+            box_add_element(section_networks,'#nics_box',nicFilter);
+            return false;
+        });
+        $('#remove_nic_button',section_networks).click(function(){
+            box_remove_element(section_networks,'#nics_box');
+            return false;
+        });
 
-        };
+    };
 
     //Sets up the input section - basicly enabling adding and removing from box
-        var inputs_setup = function() {
-                $('fieldset',section_inputs).hide();
+    var inputs_setup = function() {
+        $('fieldset',section_inputs).hide();
 
-                $('#add_inputs',section_inputs).click(function(){
-                                $('fieldset',section_inputs).toggle();
-                return false;
-                });
+        $('#add_inputs',section_inputs).click(function(){
+            $('fieldset',section_inputs).toggle();
+            return false;
+        });
 
-                $('#add_input_button',section_inputs).click(function(){
-                        //no filter
-                        box_add_element(section_inputs,'#inputs_box',True);
-                        return false;
-                        });
-                $('#remove_input_button',section_inputs).click(function(){
-                        box_remove_element(section_inputs,'#inputs_box');
-                        return false;
-                        });
-        };
+        $('#add_input_button',section_inputs).click(function(){
+            //no filter
+            box_add_element(section_inputs,'#inputs_box',True);
+            return false;
+        });
+        $('#remove_input_button',section_inputs).click(function(){
+            box_remove_element(section_inputs,'#inputs_box');
+            return false;
+        });
+    };
 
     //Set up the graphics section
-        var graphics_setup = function(){
-                $('fieldset',section_graphics).hide();
+    var graphics_setup = function(){
+        $('fieldset',section_graphics).hide();
         $('.vm_param',section_graphics).hide();
         $('select#TYPE',section_graphics).parent().show();
 
-                $('#add_graphics',section_graphics).click(function(){
-                        $('fieldset',section_graphics).toggle();
+        $('#add_graphics',section_graphics).click(function(){
+            $('fieldset',section_graphics).toggle();
             return false;
-                });
+        });
 
         //Chrome workaround
         $('select#TYPE',section_graphics).change(function(){
             $(this).trigger("click");
         });
-                $('select#TYPE',section_graphics).click(function(){
-                        g_type = $(this).val();
-                        switch (g_type) {
-                                case "vnc":
-                    $('#LISTEN',section_graphics).parent().show();
-                                        $('#PORT',section_graphics).parent().show();
-                                        $('#PASSWD',section_graphics).parent().show();
-                                        $('#KEYMAP',section_graphics).parent().show();
-                                        $('#PORT',section_graphics).parent().removeAttr("disabled");
-                                        $('#PASSWD',section_graphics).parent().removeAttr("disabled");
-                                        $('#KEYMAP',section_graphics).parent().removeAttr("disabled");
-                                        break;
-                                case "sdl":
-                    $('#LISTEN',section_graphics).parent().show();
-                                        $('#PORT',section_graphics).parent().hide();
-                                        $('#PASSWD',section_graphics).parent().hide();
-                                        $('#KEYMAP',section_graphics).parent().hide();
-                                        $('#PORT',section_graphics).parent().attr("disabled","disabled");
-                                        $('#PASSWD',section_graphics).parent().attr("disabled","disabled");
-                                        $('#KEYMAP',section_graphics).parent().attr("disabled","disabled");
-                                        break;
-                default:
-                    $('#LISTEN',section_graphics).parent().hide();
-                                        $('#PORT',section_graphics).parent().hide();
-                                        $('#PASSWD',section_graphics).parent().hide();
-                                        $('#KEYMAP',section_graphics).parent().hide();
+        $('select#TYPE',section_graphics).click(function(){
+            g_type = $(this).val();
+            switch (g_type) {
+            case "vnc":
+                $('#LISTEN',section_graphics).parent().show();
+                $('#PORT',section_graphics).parent().show();
+                $('#PASSWD',section_graphics).parent().show();
+                $('#KEYMAP',section_graphics).parent().show();
+                $('#PORT',section_graphics).parent().removeAttr("disabled");
+                $('#PASSWD',section_graphics).parent().removeAttr("disabled");
+                $('#KEYMAP',section_graphics).parent().removeAttr("disabled");
+                break;
+            case "sdl":
+                $('#LISTEN',section_graphics).parent().show();
+                $('#PORT',section_graphics).parent().hide();
+                $('#PASSWD',section_graphics).parent().hide();
+                $('#KEYMAP',section_graphics).parent().hide();
+                $('#PORT',section_graphics).parent().attr("disabled","disabled");
+                $('#PASSWD',section_graphics).parent().attr("disabled","disabled");
+                $('#KEYMAP',section_graphics).parent().attr("disabled","disabled");
+                break;
+            default:
+                $('#LISTEN',section_graphics).parent().hide();
+                $('#PORT',section_graphics).parent().hide();
+                $('#PASSWD',section_graphics).parent().hide();
+                $('#KEYMAP',section_graphics).parent().hide();
 
-                        }
-                });
+            }
+        });
 
-        }
+    }
 
     //Set up the context section - TODO: Apply improvements here...
-        var context_setup = function(){
-                $('fieldset',section_context).hide();
+    var context_setup = function(){
+        $('fieldset',section_context).hide();
 
-                $('#add_context',section_context).click(function(){
-                $('fieldset',section_context).toggle();
-                return false;
-                });
+        $('#add_context',section_context).click(function(){
+            $('fieldset',section_context).toggle();
+            return false;
+        });
 
         $('#add_context_button', section_context).click(function(){
             var name = $('#var_name',section_context).val();
@@ -1580,91 +1580,91 @@ function setupCreateTemplateDialog(){
                 return false;
             }
             option= '<option value=\''+value+'\' name=\''+name+'\'>'+
-            name+'='+value+
-            '</option>';
+                name+'='+value+
+                '</option>';
             $('select#context_box',section_context).append(option);
             return false;
         });
 
         $('#remove_context_button', section_context).click(function(){
-           box_remove_element(section_context,'#context_box');
-           return false;
+            box_remove_element(section_context,'#context_box');
+            return false;
         });
 
 
-        };
+    };
 
     // Set up the placement section
-        var placement_setup = function(){
-                $('fieldset',section_placement).hide();
+    var placement_setup = function(){
+        $('fieldset',section_placement).hide();
 
-                $('#add_placement',section_placement).click(function(){
-                                $('fieldset',section_placement).toggle();
-                return false;
-                });
+        $('#add_placement',section_placement).click(function(){
+            $('fieldset',section_placement).toggle();
+            return false;
+        });
 
-        };
+    };
 
     // Set up the raw section
-        var raw_setup = function(){
-                $('fieldset',section_raw).hide();
+    var raw_setup = function(){
+        $('fieldset',section_raw).hide();
 
-                $('#add_raw',section_raw).click(function(){
-                                $('fieldset',section_raw).toggle();
-                return false;
-                });
-        };
+        $('#add_raw',section_raw).click(function(){
+            $('fieldset',section_raw).toggle();
+            return false;
+        });
+    };
 
     //set up the custom variables section
     var custom_variables_setup = function(){
         $('fieldset',section_custom_var).hide();
 
         $('#add_custom_var',section_custom_var).click(function(){
-                $('fieldset',section_custom_var).toggle();
-                return false;
+            $('fieldset',section_custom_var).toggle();
+            return false;
         });
 
         $('#add_custom_var_button', section_custom_var).click(
-        function(){
-            var name = $('#custom_var_name',section_custom_var).val();
-            var value = $('#custom_var_value',section_custom_var).val();
-            if (!name.length || !value.length) {
-                notifyError("Custom variable name and value must be\
-                filled in");
+            function(){
+                var name = $('#custom_var_name',section_custom_var).val();
+                var value = $('#custom_var_value',section_custom_var).val();
+                if (!name.length || !value.length) {
+                    notifyError("Custom variable name and value must be\
+filled in");
+                    return false;
+                }
+                option= '<option value=\''+value+'\' name=\''+name+'\'>'+
+                    name+'='+value+
+                    '</option>';
+                $('select#custom_var_box',section_custom_var).append(option);
                 return false;
-            }
-            option= '<option value=\''+value+'\' name=\''+name+'\'>'+
-            name+'='+value+
-            '</option>';
-            $('select#custom_var_box',section_custom_var).append(option);
-            return false;
-        });
+            });
 
         $('#remove_custom_var_button', section_custom_var).click(
             function(){
                 box_remove_element(section_custom_var,'#custom_var_box');
                 return false;
-        });
+            });
     }
 
     //***CREATE VM DIALOG MAIN BODY***
 
     $('div#dialogs').append('<div title="Create VM Template" id="create_template_dialog"></div>');
-        //Insert HTML in place
-        $('#create_template_dialog').html(create_template_tmpl);
+    //Insert HTML in place
+    $('#create_template_dialog').html(create_template_tmpl);
     //Enable tabs
-        $('#template_create_tabs').tabs({
+    $('#template_create_tabs').tabs({
         select:vmTabChange
-        });
+    });
 
-        //Prepare jquery dialog
+    //Prepare jquery dialog
     var height = Math.floor($(window).height()*0.8); //set height to a percentage of the window
-        $('#create_template_dialog').dialog({
-                autoOpen: false,
-                modal: true,
-                width: 700,
+    $('#create_template_dialog').dialog({
+        autoOpen: false,
+        modal: true,
+        width: 700,
         height: height
-        });
+    });
 
     // Enhace buttons
     $('#create_template_dialog button').button();
@@ -1674,37 +1674,37 @@ function setupCreateTemplateDialog(){
     //Enable different icon for folded/unfolded categories
     iconToggle(); //toogle +/- buttons
 
-        //Sections, used to stay within their scope
-        var section_capacity = $('#capacity');
-        var section_os_boot = $('#os_boot_opts');
+    //Sections, used to stay within their scope
+    var section_capacity = $('#capacity');
+    var section_os_boot = $('#os_boot_opts');
     var section_features = $('#features');
-        var section_disks = $('#disks');
-        var section_networks = $('#networks');
-        var section_inputs = $('#inputs');
-        var section_graphics = $('#graphics');
-        var section_context = $('#context');
-        var section_placement = $('#placement');
-        var section_raw = $('#raw');
+    var section_disks = $('#disks');
+    var section_networks = $('#networks');
+    var section_inputs = $('#inputs');
+    var section_graphics = $('#graphics');
+    var section_context = $('#context');
+    var section_placement = $('#placement');
+    var section_raw = $('#raw');
     var section_custom_var = $('#custom_var');
 
-        //Different selector for items of kvm and xen (mandatory and optional)
-        var items = '.vm_param input,.vm_param select';
-        var kvm_man_items = '.kvm input,.kvm select';
-        var kvm_opt_items = '.kvm_opt input, .kvm_opt select';
-        var kvm_items = kvm_man_items +','+kvm_opt_items;
-        var xen_man_items = '.xen input,.xen select';
-        var xen_opt_items = '.xen_opt input, .xen_opt select';
-        var xen_items = xen_man_items +','+ xen_opt_items;
+    //Different selector for items of kvm and xen (mandatory and optional)
+    var items = '.vm_param input,.vm_param select';
+    var kvm_man_items = '.kvm input,.kvm select';
+    var kvm_opt_items = '.kvm_opt input, .kvm_opt select';
+    var kvm_items = kvm_man_items +','+kvm_opt_items;
+    var xen_man_items = '.xen input,.xen select';
+    var xen_opt_items = '.xen_opt input, .xen_opt select';
+    var xen_items = xen_man_items +','+ xen_opt_items;
     var vmware_man_items = '.vmware input,.vmware select';
-        var vmware_opt_items = '.vmware_opt input, .vmware_opt select';
-        var vmware_items = vmware_man_items +','+ vmware_opt_items;
+    var vmware_opt_items = '.vmware_opt input, .vmware_opt select';
+    var vmware_items = vmware_man_items +','+ vmware_opt_items;
 
-        //Starting template type, optional items class and mandatory items class
-        var templ_type = "kvm";
-        var opt_class=".kvm_opt";
-        var man_class=".kvm";
+    //Starting template type, optional items class and mandatory items class
+    var templ_type = "kvm";
+    var opt_class=".kvm_opt";
+    var man_class=".kvm";
 
-        enable_kvm(); //enable all kvm options
+    enable_kvm(); //enable all kvm options
 
     //Fold/unfold all sections button
     $('#fold_unfold_vm_params').toggle(
@@ -1719,75 +1719,75 @@ function setupCreateTemplateDialog(){
         });
 
     //initialise all sections
-        capacity_setup();
-        os_boot_setup();
+    capacity_setup();
+    os_boot_setup();
     features_setup();
-        disks_setup();
-        networks_setup();
-        inputs_setup();
-        graphics_setup();
-        context_setup();
-        placement_setup();
-        raw_setup();
+    disks_setup();
+    networks_setup();
+    inputs_setup();
+    graphics_setup();
+    context_setup();
+    placement_setup();
+    raw_setup();
     custom_variables_setup();
 
     //Process form
-        $('button#create_template_form_easy').click(function(){
-                //validate form
+    $('button#create_template_form_easy').click(function(){
+        //validate form
 
-                var vm_json = {};
+        var vm_json = {};
         var name,value,boot_method;
 
-                //process capacity options
-                var scope = section_capacity;
+        //process capacity options
+        var scope = section_capacity;
 
-                if (!mandatory_filter(scope)){
-                        notifyError("There are mandatory fields missing in the capacity section");
-                        return false;
-                };
-                addSectionJSON(vm_json,scope);
+        if (!mandatory_filter(scope)){
+            notifyError("There are mandatory fields missing in the capacity section");
+            return false;
+        };
+        addSectionJSON(vm_json,scope);
 
-                //process os_boot_opts
-                scope= section_os_boot;
-                switch (templ_type){
-                        case "xen":
-                boot_method = $('#boot_method option:selected',scope).val();
-                                if (!boot_method.length){
-                                        notifyError("Xen templates must specify a boot method");
-                                        return false;}
-                };
+        //process os_boot_opts
+        scope= section_os_boot;
+        switch (templ_type){
+        case "xen":
+            boot_method = $('#boot_method option:selected',scope).val();
+            if (!boot_method.length){
+                notifyError("Xen templates must specify a boot method");
+                return false;}
+        };
 
-                if (!mandatory_filter(scope)){
-                        notifyError("There are mandatory fields missing in the OS Boot options section");
-                        return false;
-                };
+        if (!mandatory_filter(scope)){
+            notifyError("There are mandatory fields missing in the OS Boot options section");
+            return false;
+        };
         vm_json["OS"] = {};
-                addSectionJSON(vm_json["OS"],scope);
+        addSectionJSON(vm_json["OS"],scope);
 
         //Fetch pae and acpi options
         scope = section_features;
         vm_json["FEATURES"] = {};
         addSectionJSON(vm_json["FEATURES"],scope);
 
-                //process disks -> fetch from box
-                scope = section_disks;
-                vm_json["DISK"] = [];
-                addBoxJSON(vm_json["DISK"],scope,'#disks_box');
+        //process disks -> fetch from box
+        scope = section_disks;
+        vm_json["DISK"] = [];
+        addBoxJSON(vm_json["DISK"],scope,'#disks_box');
 
-                //process nics -> fetch from box
-                scope = section_networks;
-                vm_json["NIC"] = [];
-                addBoxJSON(vm_json["NIC"],scope,'#nics_box');
+        //process nics -> fetch from box
+        scope = section_networks;
+        vm_json["NIC"] = [];
+        addBoxJSON(vm_json["NIC"],scope,'#nics_box');
 
-                //process inputs -> fetch from box
-                scope = section_inputs;
-                vm_json["INPUT"] = [];
-                addBoxJSON(vm_json["INPUT"],scope,'#inputs_box');
+        //process inputs -> fetch from box
+        scope = section_inputs;
+        vm_json["INPUT"] = [];
+        addBoxJSON(vm_json["INPUT"],scope,'#inputs_box');
 
-                //process graphics -> fetch fields with value
-                scope = section_graphics;
-                vm_json["GRAPHICS"] = {};
-                addSectionJSON(vm_json["GRAPHICS"],scope);
+        //process graphics -> fetch fields with value
+        scope = section_graphics;
+        vm_json["GRAPHICS"] = {};
+        addSectionJSON(vm_json["GRAPHICS"],scope);
 
         //context
         scope = section_context;
@@ -1808,10 +1808,10 @@ function setupCreateTemplateDialog(){
         $('input#RANK',scope).val(rank);
         addSectionJSON(vm_json,scope);
 
-                //raw -> if value set type to driver and fetch
-                scope = section_raw;
-                vm_json["RAW"] = {};
-                addSectionJSON(vm_json["RAW"],scope);
+        //raw -> if value set type to driver and fetch
+        scope = section_raw;
+        vm_json["RAW"] = {};
+        addSectionJSON(vm_json["RAW"],scope);
 
         //custom vars
         scope = section_custom_var;
@@ -1831,30 +1831,28 @@ function setupCreateTemplateDialog(){
         Sunstone.runAction("Template.create",vm_json);
 
         $('#create_template_dialog').dialog('close');
-                return false;
-        });
+        return false;
+    });
 
     //Handle manual forms
-        $('button#create_template_form_manual').click(function(){
-                var template = $('#textarea_vm_template').val();
+    $('button#create_template_form_manual').click(function(){
+        var template = $('#textarea_vm_template').val();
 
         //wrap it in the "vm" object
         template = {"vmtemplate": {"template_raw": template}};
 
         Sunstone.runAction("Template.create",template);
-                 $('#create_template_dialog').dialog('close');
-                return false;
-        });
+        $('#create_template_dialog').dialog('close');
+        return false;
+    });
 
     //Reset form - empty boxes
-        $('button#reset_vm_form').click(function(){
-                $('select#disks_box option',section_disks).remove();
-                $('select#nics_box option',section_networks).remove();
-                $('select#inputs_box option',section_inputs).remove();
-                return true;
-        });
-
-
+    $('button#reset_vm_form').click(function(){
+        $('select#disks_box option',section_disks).remove();
+        $('select#nics_box option',section_networks).remove();
+        $('select#inputs_box option',section_inputs).remove();
+        return true;
+    });
 
 }
 
@@ -1864,13 +1862,13 @@ function popUpCreateTemplateDialog(){
 
 // Set the autorefresh interval for the datatable
 function setTemplateAutorefresh() {
-     setInterval(function(){
-                var checked = $('input:checked',dataTable_templates.fnGetNodes());
+    setInterval(function(){
+        var checked = $('input:checked',dataTable_templates.fnGetNodes());
         var filter = $("#datatable_templates_filter input").attr("value");
-                if (!checked.length && !filter.length){
+        if (!checked.length && !filter.length){
             Sunstone.runAction("Template.autorefresh");
-                }
-        },INTERVAL+someTime());
+        }
+    },INTERVAL+someTime());
 }
 
 //The DOM is ready at this point

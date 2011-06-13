@@ -87,7 +87,11 @@ var user_actions = {
     "User.autorefresh" : {
         type: "custom",
         call: function(){
-            OpenNebula.User.list({timeout: true, success: updateUsersView, error: onError});
+            OpenNebula.User.list({
+                timeout: true,
+                success: updateUsersView,
+                error: onError
+            });
         },
         condition: function(){ uid == 0 },
         notify: false
@@ -197,8 +201,8 @@ function deleteUserElement(req){
 
 // Callback to add a single user element
 function addUserElement(request,user_json){
-        var element = userElementArray(user_json);
-        addElement(element,dataTable_users);
+    var element = userElementArray(user_json);
+    addElement(element,dataTable_users);
     updateUserSelect();
 }
 
@@ -217,34 +221,34 @@ function updateUsersView(request,users_list){
 
 // Prepare the user creation dialog
 function setupCreateUserDialog(){
-     $('div#dialogs').append('<div title="Create user" id="create_user_dialog"></div>');
-     $('#create_user_dialog').html(create_user_tmpl);
+    $('div#dialogs').append('<div title="Create user" id="create_user_dialog"></div>');
+    $('#create_user_dialog').html(create_user_tmpl);
 
-        //Prepare jquery dialog
-        $('#create_user_dialog').dialog({
-                autoOpen: false,
-                modal:true,
-                width: 400
-        });
+    //Prepare jquery dialog
+    $('#create_user_dialog').dialog({
+        autoOpen: false,
+        modal:true,
+        width: 400
+    });
 
     $('#create_user_dialog button').button();
 
     $('#create_user_form').submit(function(){
-                var user_name=$('#username',this).val();
-                var user_password=$('#pass',this).val();
+        var user_name=$('#username',this).val();
+        var user_password=$('#pass',this).val();
         if (!user_name.length && !user_password.length){
             notifyError("User name and password must be filled in");
             return false;
         }
 
-                var user_json = { "user" :
-                                                { "name" : user_name,
-                                                  "password" : user_password }
-                                          };
-                Sunstone.runAction("User.create",user_json);
-                $('#create_user_dialog').dialog('close');
-                return false;
-        });
+        var user_json = { "user" :
+                          { "name" : user_name,
+                            "password" : user_password }
+                        };
+        Sunstone.runAction("User.create",user_json);
+        $('#create_user_dialog').dialog('close');
+        return false;
+    });
 }
 
 function popUpCreateUserDialog(){

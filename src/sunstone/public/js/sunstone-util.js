@@ -496,11 +496,13 @@ function generateMonitoringDivs(graphs, id_prefix){
         id_suffix=label.replace(/,/g,'_');
         id = id_prefix+id_suffix;
         str+='<table class="info_table">\
-<thead><tr><th colspan="1">'+this.title+'</th></tr></thead>\
-<tr><td id="legend_'+id_suffix+'"></td></tr>\
-<tr><td style="border:0">\
-<div id="'+id+'" style="width:'+width+'px; height:150px;">'+spinner+'</div>\
-</td></tr></table>';
+                <thead><tr><th colspan="1">'+this.title+'</th></tr></thead>\
+                <tr><td id="legend_'+id_suffix+'"></td></tr>\
+                <tr><td style="border:0">\
+                <div id="'+id+'" style="width:'+width+'px; height:150px;">'+
+                  spinner+
+                '</div>\
+              </td></tr></table>';
     });
 
     return str;
@@ -508,7 +510,8 @@ function generateMonitoringDivs(graphs, id_prefix){
 
 function plot_graph(data,context,id_prefix,info){
     var labels = info.monitor_resources;
-    var humanize = info.humanize_figures ? humanize_size : function(val){return val};
+    var humanize = info.humanize_figures ?
+        humanize_size : function(val){ return val };
     var labels_arr = labels.split(',');
     var id_suffix = labels.replace(/,/g,'_');
     var series = [];
