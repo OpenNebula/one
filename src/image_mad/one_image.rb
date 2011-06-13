@@ -15,9 +15,9 @@
 # limitations under the License.                                             */
 # -------------------------------------------------------------------------- */
 
-# ---------------------------------------------------------------------------- 
-# Set up the environment for the driver                                        
-# ---------------------------------------------------------------------------- 
+# ----------------------------------------------------------------------------
+# Set up the environment for the driver
+# ----------------------------------------------------------------------------
 
 ONE_LOCATION = ENV["ONE_LOCATION"]
 
@@ -35,7 +35,7 @@ require "OpenNebulaDriver"
 require 'getoptlong'
 
 # This class provides basic messaging and logging functionality
-# to implement Image Repository Drivers. A image repository driver 
+# to implement Image Repository Drivers. A image repository driver
 # is a program (or a set of) that  specialize the OpenNebula behavior
 # by interfacing with specific infrastructure storage solutions.
 class ImageDriver < OpenNebulaDriver
@@ -50,8 +50,14 @@ class ImageDriver < OpenNebulaDriver
     }
 
     # Register default actions for the protocol
-    def initialize(fs_type, concurrency=10, threaded=true)
-        super(concurrency,threaded,0)
+    def initialize(fs_type, options={})
+        @options={
+            :concurrency => 10,
+            :threaded => true,
+            :retries => 0
+        }.merge!(options)
+
+        super('', @options)
 
         @actions_path = "#{VAR_LOCATION}/remotes/image/#{fs_type}"
 
@@ -98,13 +104,13 @@ begin
     end
 rescue Exception => e
     exit(-1)
-end 
+end
 
-if ARGV.length >= 1 
+if ARGV.length >= 1
     fs_type = ARGV.shift
 else
     exit(-1)
 end
 
-image_driver = ImageDriver.new(fs_type, threads)
+image_driver = ImageDriver.new(fs_type, :concurrency => threads)
 image_driver.start_driver
