@@ -743,8 +743,7 @@ SUNSTONE_ETC_FILES="src/sunstone/etc/sunstone-server.conf"
 SUNSTONE_MODELS_FILES="src/sunstone/models/OpenNebulaJSON.rb \
                        src/sunstone/models/SunstoneServer.rb"
 
-SUNSTONE_MODELS_JSON_FILES="src/sunstone/models/OpenNebulaJSON/ClusterJSON.rb \
-                    src/sunstone/models/OpenNebulaJSON/HostJSON.rb \
+SUNSTONE_MODELS_JSON_FILES="src/sunstone/models/OpenNebulaJSON/HostJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/ImageJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/JSONUtils.rb \
                     src/sunstone/models/OpenNebulaJSON/PoolJSON.rb \
