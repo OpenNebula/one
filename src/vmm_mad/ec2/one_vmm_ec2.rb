@@ -73,7 +73,10 @@ class EC2Driver < VirtualMachineDriver
             concurrency = EC2_JVM_CONCURRENCY.to_i
         end
 
-        super(concurrency,true)
+        super(
+            :concurrency => concurrency,
+            :threaded => true
+        )
 
         @defaults = Hash.new
 
