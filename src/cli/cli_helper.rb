@@ -166,11 +166,6 @@ module CLIHelper
                 (0..ncolumns-1).collect{ |i|
                     dat=l[i]
                     col=@default_columns[i]
-
-                    if @columns[col] && @columns[col][:humanize]
-                        dat = @columns[col][:humanize].call(dat)
-                    end
-
                     format_str(col, dat)
                 }.join(' ')
             }.join("\n")
@@ -193,22 +188,30 @@ module CLIHelper
         end
 
         def format_str(field, data)
-            minus=( @columns[field][:left] ? "-" : "" )
-            size=@columns[field][:size]
-            "%#{minus}#{size}.#{size}s" % [ data.to_s ]
+            if @columns[field]
+                minus=( @columns[field][:left] ? "-" : "" )
+                size=@columns[field][:size]
+                return "%#{minus}#{size}.#{size}s" % [ data.to_s ]
+            else
+                puts "Column not defined"
+                exit -1
+            end
         end
 
         def update_columns(options)
-            config = YAML.load_file(@conf)
+            begin
+                config = YAML.load_file(@conf)
 
-            default = config.delete(:default)
-            @default_columns = default unless default.empty?
+                default = config.delete(:default)
+                @default_columns = default unless default.empty?
+
+                @columns.merge!(config) { |key, oldval, newval|
+                    oldval.merge(newval)
+                }
+            rescue Exception => e
+            end
 
             @default_columns = options[:list].collect{|o| o.to_sym} if options[:list]
-
-            @columns.merge!(config) { |key, oldval, newval|
-                oldval.merge(newval)
-            }
         end
 
         def header_str
@@ -216,7 +219,8 @@ module CLIHelper
                 if @columns[c]
                     format_str(c, c.to_s)
                 else
-                    ""
+                    puts "Column not defined"
+                    exit -1
                 end
             }.compact.join(' ')
         end
