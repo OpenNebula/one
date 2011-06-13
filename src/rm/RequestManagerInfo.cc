@@ -14,87 +14,38 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#include "RequestManager.h"
-#include "NebulaLog.h"
+#include "RequestManagerInfo.h"
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
+using namespace std;
 
-void RequestManager::VirtualMachineInfo::execute(
-    xmlrpc_c::paramList const& paramList,
-    xmlrpc_c::value *   const  retval)
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+void RequestManagerInfo::request_execute(xmlrpc_c::paramList const& paramList)
 {
-    string  session;
+    int             oid = xmlrpc_c::value_int(paramList.getInt(1));
+    PoolObjectSQL * object;
+    string          str;
 
-    int              vid, rc;
-    VirtualMachine * vm;
-
-    ostringstream    oss;
-    
-    const string     method_name = "VirtualMachineInfo";
-
-    /*   -- RPC specific vars --  */
-    vector<xmlrpc_c::value> arrayData;
-    xmlrpc_c::value_array * arrayresult;
-
-    NebulaLog::log("ReM",Log::DEBUG,"VirtualMachineInfo method invoked");
-
-    // Get the parameters
-    session      = xmlrpc_c::value_string(paramList.getString(0));
-    vid          = xmlrpc_c::value_int   (paramList.getInt(1));
-
-    // Check if it is a valid user
-    rc = VirtualMachineInfo::upool->authenticate(session);
-
-    if ( rc == -1 )
+    if ( basic_authorization(oid) == false )
     {
-        goto error_authenticate;
+        return;
     }
 
-    // Get the details of the virtual machine
-    vm = VirtualMachineInfo::vmpool->get(vid,true);
+    object = pool->get(oid,true);
 
-    if ( vm == 0 )
-    {
-        goto error_vm_get;
-    }
+    if ( object == 0 )                             
+    {                                            
+        failure_response(NO_EXISTS, get_error(object_name(auth_object),oid));
+        return;
+    }    
 
-    oss << *vm;
+    to_xml(object, str);
 
-    vm->unlock();
+    object->unlock();
 
-    // All nice, return the vm info to the client
-    arrayData.push_back(xmlrpc_c::value_boolean(true)); // SUCCESS
-    arrayData.push_back(xmlrpc_c::value_string(oss.str()));
-
-    // Copy arrayresult into retval mem space
-    arrayresult = new xmlrpc_c::value_array(arrayData);
-    *retval = *arrayresult;
-
-    delete arrayresult; // and get rid of the original
-
-    return;
-
-error_authenticate:
-    oss.str(authenticate_error(method_name));  
-    goto error_common;
-
-error_vm_get:
-    oss.str(get_error(method_name, "VM", vid));
-    goto error_common;
-
-error_common:
-    arrayData.push_back(xmlrpc_c::value_boolean(false)); // FAILURE
-    arrayData.push_back(xmlrpc_c::value_string(oss.str()));
-
-    NebulaLog::log("ReM",Log::ERROR,oss);
-
-    xmlrpc_c::value_array arrayresult_error(arrayData);
-
-    *retval = arrayresult_error;
+    success_response(str);
 
     return;
 }
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */

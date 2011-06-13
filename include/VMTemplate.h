@@ -31,11 +31,6 @@ class VMTemplate : public PoolObjectSQL
 public:
 
     /**
-     *  Function to write a VMTemplate on an output stream
-     */
-    friend ostream& operator<<(ostream& os, VMTemplate& u);
-
-    /**
      * Function to print the VMTemplate object into a string in XML format
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
@@ -43,36 +38,35 @@ public:
     string& to_xml(string& xml) const;
 
     /**
-     *  Returns true if the object is public
-     *     @return true if the Virtual Network is public
-     */
-    bool isPublic()
-    {
-        return (public_template == 1);
-    };
-
-    /**
      *  Publish or unpublish an object
      *    @param pub true to publish the object
      *    @return 0 on success
      */
-    bool publish(bool pub)
+    int publish(bool pub)
     {
         if (pub == true)
         {
-            public_template = 1;
+            public_obj = 1;
         }
         else
         {
-            public_template = 0;
+            public_obj = 0;
         }
 
-        return true;
+        return 0;
     };
 
     // ------------------------------------------------------------------------
     // Template Contents
     // ------------------------------------------------------------------------
+
+    /**
+     *  Factory method for virtual machine templates
+     */
+    Template * get_new_template()
+    {
+        return new VirtualMachineTemplate;
+    }
 
     /**
      *  Returns a copy of the VirtualMachineTemplate
@@ -82,15 +76,6 @@ public:
     {
         return new VirtualMachineTemplate(
                 *(static_cast<VirtualMachineTemplate *>(obj_template)));
-
-        // TODO: Check if there is a more efficient way to do this copy.
-        /*string xml_str;
-        VirtualMachineTemplate * new_template = new VirtualMachineTemplate();
-
-        obj_template->to_xml(xml_str);
-        new_template->from_xml(xml_str);
-
-        return new_template;*/
     };
 
 private:
@@ -103,16 +88,6 @@ private:
     // -------------------------------------------------------------------------
     // VMTemplate Attributes
     // -------------------------------------------------------------------------
-
-    /**
-     *  Owner's name
-     */
-    string      user_name;
-
-    /**
-     *  Public scope of the VMTemplate
-     */
-    int         public_template;
 
     /**
      *  Registration time
@@ -154,8 +129,8 @@ protected:
     // *************************************************************************
     // Constructor
     // *************************************************************************
-    VMTemplate(int id, int uid, string _user_name,
-                   VirtualMachineTemplate * _template_contents);
+    VMTemplate(int id, int uid, int gid,
+               VirtualMachineTemplate * _template_contents);
 
     ~VMTemplate();
 

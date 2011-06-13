@@ -162,3 +162,40 @@ void PoolObjectSQL::set_template_error_message(const string& message)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int PoolObjectSQL::replace_template(const string& tmpl_str, string& error)
+{
+    Template * new_tmpl  = get_new_template();
+    char *     error_msg = 0;
+
+    if ( new_tmpl == 0 )
+    {
+        error = "Can not allocate a new template";
+        return -1;
+    }
+    
+    if ( new_tmpl->parse(tmpl_str, &error_msg) != 0 )
+    {
+        ostringstream oss;
+        
+        oss << "Parse error";
+         
+        if (error_msg != 0)
+        {
+            oss << ": " << error_msg;
+        }
+        
+        error = oss.str();
+
+        return -1;
+    }
+
+    delete obj_template;
+
+    obj_template = new_tmpl;
+
+    return 0;
+} 
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+

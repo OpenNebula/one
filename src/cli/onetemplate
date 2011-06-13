@@ -44,7 +44,23 @@ ShowTableTemplate={
         :desc => "Name of the owner",
         :size => 8,
         :proc => lambda {|d,e|
-            d["USERNAME"]
+            "TODO"
+        }
+    },
+    :uid=> {
+        :name => "UID",
+        :desc => "Id of the owner",
+        :size => 4,
+        :proc => lambda {|d,e|
+            d["UID"]
+        }
+    },
+    :gid=> {
+        :name => "GID",
+        :desc => "Id of the group",
+        :size => 4,
+        :proc => lambda {|d,e|
+            d.gid
         }
     },
     :name => {
@@ -164,14 +180,11 @@ Commands:
 
     file is a file name where the Template description is located
 
-* addattr (Add a new Template attribute)
-    onetemplate addattr <template_id> <attribute_name> <attribute_value>
+* instantiate (Creates a VM instance from a Template)
+    onetemplate instantiate <template_id>
 
-* update (Modifies a Template attribute)
-    onetemplate update <template_id> <attribute_name> <attribute_value>
-
-* rmattr (Deletes a Template attribute)
-    onetemplate rmattr <template_id> <attribute_name>
+* update (Lets the user edit and replace the Template contents)
+    onetemplate update <template_id>
 
 * publish (Publish a Template)
     onetemplate publish <template_id>
@@ -179,13 +192,20 @@ Commands:
 * unpublish (Unpublish an Template)
     onetemplate unpublish <template_id>
 
+* chown (Changes the Template owner and group)
+    onetemplate chown <template_id> <owner_id> [<group_id>]
+
+* chgrp (Changes the Template group)
+    onetemplate chgrp <template_id> <group_id>
+
 * list (Shows Templates in the pool)
     onetemplate list <filter_flag>
 
     where filter_flag can be
         a, all   --> all the known Templates
         m, mine  --> the Templates belonging to the user in ONE_AUTH
-                        and all the  Public Templates
+        g, group --> 'mine' plus the Templates belonging to the groups
+                        the user is member of
         uid      --> Templates of the user identified by this uid
         user     --> Templates of the user identified by the username
 
@@ -222,6 +242,8 @@ def get_user_flags
             when "a", "all"
                 ops[:filter_user]="-2"
             when "m", "mine"
+                ops[:filter_user]="-3"
+            when "g", "group"
                 ops[:filter_user]="-1"
             else
                 if !ARGV[0].match(/^[0123456789]+$/)
@@ -274,27 +296,19 @@ when "create", "register", "add"
         exit 0
     end
 
-when "update", "addattr"
-    check_parameters("update", 3)
+when "instantiate"
+    check_parameters("instantiate", 1)
     template_id = get_template_id(ARGV[0])
 
     template = OpenNebula::Template.new_with_id(template_id, get_one_client)
 
-    result = template.update(ARGV[1],ARGV[2])
+    result = template.instantiate
     if is_successful?(result)
-        puts "Modified template" if ops[:verbose]
+        puts "Template instantiated." if ops[:verbose]
     end
 
-when "rmattr"
-    check_parameters("rmattr", 2)
-    template_id = get_template_id(ARGV[0])
-
-    template = OpenNebula::Template.new_with_id(template_id, get_one_client)
-
-    result = template.remove_attr(ARGV[1])
-    if is_successful?(result)
-        puts "Removed template attribute" if ops[:verbose]
-    end
+when "update"
+    puts "TODO"
 
 when "publish"
     check_parameters("publish", 1)
@@ -316,6 +330,34 @@ when "unpublish"
     result = template.unpublish
     if is_successful?(result)
         puts "Template unpublished" if ops[:verbose]
+    end
+
+when "chown"
+    check_parameters("chown", 2)
+
+    obj_id = get_template_id(ARGV[0])
+    new_uid  = ARGV[1].to_i
+    new_gid = ( ARGV.length > 2 ) ? ARGV[2].to_i : -1
+
+    obj = OpenNebula::Template.new_with_id(obj_id, get_one_client)
+
+    result = obj.chown( new_uid, new_gid )
+    if is_successful?(result)
+        puts "Template user/group changed" if ops[:verbose]
+    end
+
+when "chgrp"
+    check_parameters("chgrp", 2)
+
+    obj_id = get_template_id(ARGV[0])
+    new_uid  = -1
+    new_gid  = ARGV[1].to_i
+
+    obj = OpenNebula::Template.new_with_id(obj_id, get_one_client)
+
+    result = obj.chown( new_uid, new_gid )
+    if is_successful?(result)
+        puts "Template group changed" if ops[:verbose]
     end
 
 when "list"

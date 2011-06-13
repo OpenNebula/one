@@ -44,11 +44,6 @@ public:
     };
 
     /**
-     *  Function to write a Host on an output stream
-     */
-     friend ostream& operator<<(ostream& os, Host& h);
-
-    /**
      * Function to print the Host object into a string in XML format
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
@@ -171,16 +166,6 @@ public:
         return last_monitored;
     };
 
-    /**
-     *  Sets the cluster for this host
-     *    @return time_t last monitored time
-     */
-    int set_cluster(const string& cluster_name)
-    {
-        cluster = cluster_name;
-        return 0;
-    };
-
     // ------------------------------------------------------------------------
     // Share functions
     // ------------------------------------------------------------------------
@@ -292,6 +277,14 @@ public:
         return host_share.test(cpu,mem,disk);
     }
 
+    /**
+     *  Factory method for host templates
+     */
+    Template * get_new_template()
+    {
+        return new HostTemplate;
+    }
+
 private:
 
     // -------------------------------------------------------------------------
@@ -329,11 +322,6 @@ private:
      */
     time_t      last_monitored;
 
-    /**
-     *  Name of the cluster this host belongs to.
-     */
-    string      cluster;
-
     // -------------------------------------------------------------------------
     //  Host Attributes
     // -------------------------------------------------------------------------
@@ -350,8 +338,7 @@ private:
          const string& hostname="",
          const string& im_mad_name="",
          const string& vmm_mad_name="",
-         const string& tm_mad_name="",
-         const string& cluster="");
+         const string& tm_mad_name="");
 
     virtual ~Host();
 

@@ -77,14 +77,14 @@ void Nebula::start()
         delete ipool;
     }
 
-    if ( cpool != 0)
-    {
-        delete cpool;
-    }
-
     if ( tpool != 0)
     {
         delete tpool;
+    }
+
+    if ( gpool != 0)
+    {
+        delete gpool;
     }
 
     if ( vmm != 0)
@@ -120,6 +120,11 @@ void Nebula::start()
     if ( hm != 0)
     {
         delete hm;
+    }
+
+    if ( imagem != 0 )
+    {
+        delete imagem;
     }
 
     if ( authm != 0)
@@ -165,12 +170,14 @@ void Nebula::start()
 
         NebulaLog::log("ONE",Log::INFO,"Bootstraping OpenNebula database.");
 
+        bootstrap();
         VirtualMachinePool::bootstrap(db);
         HostPool::bootstrap(db);
         VirtualNetworkPool::bootstrap(db);
         UserPool::bootstrap(db);
         ImagePool::bootstrap(db);
-        ClusterPool::bootstrap(db);
+        VMTemplatePool::bootstrap(db);
+        GroupPool::bootstrap(db);
     }
     catch (exception&)
     {
@@ -183,8 +190,8 @@ void Nebula::start()
     {
         string  mac_prefix = "00:00";
         int     size = 1;
-        string  default_image_type;
-        string  default_device_prefix;
+        string  default_image_type      = "OS";
+        string  default_device_prefix   = "hd";
 
         if (tester->need_vm_pool)
         {
@@ -201,6 +208,11 @@ void Nebula::start()
             vnpool = tester->create_vnpool(db,mac_prefix,size);
         }
 
+        if (tester->need_group_pool)
+        {
+            gpool  = tester->create_gpool(db);
+        }
+
         if (tester->need_user_pool)
         {
             upool  = tester->create_upool(db);
@@ -211,11 +223,6 @@ void Nebula::start()
             ipool  = tester->create_ipool(db,
                                           default_image_type,
                                           default_device_prefix);
-        }
-
-        if (tester->need_cluster_pool)
-        {
-            cpool  = tester->create_cpool(db);
         }
 
         if (tester->need_template_pool)
@@ -366,8 +373,7 @@ void Nebula::start()
     {
         try
         {
-            rm = tester->create_rm(vmpool,hpool,vnpool,upool,ipool,cpool,tpool,
-                                   log_location + "one_xmlrpc.log");
+            rm = tester->create_rm(log_location + "one_xmlrpc.log");
         }
         catch (bad_alloc&)
         {
@@ -432,7 +438,7 @@ void Nebula::start()
         }
     }
 
-    // ---- Auth Manager ----
+    // ---- Image Manager ----
     if (tester->need_imagem)
     {
         try
@@ -481,8 +487,25 @@ void Nebula::start()
         hm->load_mads(0);
     }
 
+    if( imagem != 0 )
+    {
+        imagem->load_mads(0);
+    }
+
     if( authm != 0 )
     {
         authm->load_mads(0);
     }
 };
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void Nebula::bootstrap()
+{
+    ostringstream   oss;
+
+    oss <<  "CREATE TABLE pool_control (tablename VARCHAR(32) PRIMARY KEY, "
+            "last_oid BIGINT UNSIGNED)";
+    db->exec(oss);
+}

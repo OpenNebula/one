@@ -37,9 +37,10 @@ class PoolObjectSQL : public ObjectSQL, public ObjectXML
 {
 public:
 
-    PoolObjectSQL(int id, const string& _name, int _uid,const char *_table)
-            :ObjectSQL(),ObjectXML(),oid(id),name(_name),uid(_uid),
-             valid(true),obj_template(0),table(_table)
+    PoolObjectSQL(int id, const string& _name, int _uid,
+                  int _gid, const char *_table)
+            :ObjectSQL(),ObjectXML(),oid(id),name(_name),uid(_uid),gid(_gid),
+             valid(true),public_obj(0),obj_template(0),table(_table)
     {
         pthread_mutex_init(&mutex,0);
     };
@@ -63,9 +64,41 @@ public:
         return name;
     };
 
+    /**
+     *  Returns true if the image is public
+     *     @return true if the image is public
+     */
+    bool isPublic()
+    {
+        return (public_obj == 1);
+    };
+
     int get_uid()
     {
         return uid;
+    };
+
+    int get_gid()
+    {
+        return gid;
+    };
+
+    /**
+     * Changes the object's owner id
+     * @param _uid New User ID
+     */
+    void set_uid(int _uid)
+    {
+        uid = _uid;
+    }
+
+    /**
+     * Changes the object's group id
+     * @param _gid New Group ID
+     */
+    void set_gid(int _gid)
+    {
+        gid = _gid;
     };
 
     /* --------------------------------------------------------------------- */
@@ -231,6 +264,23 @@ public:
      */
     void set_template_error_message(const string& message);
 
+    /**
+     *  Factory method for templates, it should be implemented
+     *  by classes that uses templates
+     *    @return a new template
+     */
+    virtual Template * get_new_template()
+    {
+        return 0;
+    }
+
+    /**
+     *  Replace template for this object. Object should be updated
+     *  after calling this method
+     *    @param tmpl string representation of the template
+     */
+    int replace_template(const string& tmpl_str, string& error);
+
 protected:
 
     /**
@@ -306,9 +356,19 @@ protected:
     int     uid;
 
     /**
+     *  Object's group, set it to -1 if group is not used
+     */
+    int     gid;
+
+    /**
      *  The contents of this object are valid
      */
     bool    valid;
+
+    /**
+     *  Set if the object is public
+     */
+    int     public_obj;
 
     /**
      *  Template for this object, will be allocated if needed

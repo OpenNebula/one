@@ -35,7 +35,7 @@ public:
      *  Allocates a new object, writting it in the pool database. No memory is
      *  allocated for the object.
      *    @param uid user id (the owner of the Template)
-     *    @param user_name Owner's user name
+     *    @param gid the id of the group this object is assigned to
      *    @param template_contents a VM Template object
      *    @param oid the id assigned to the Template
      *    @param error_str Returns the error reason, if any
@@ -43,7 +43,7 @@ public:
      *    @return the oid assigned to the object, -1 in case of failure
      */
     int allocate(int                      uid,
-                 string                   user_name,
+                 int                      gid,
                  VirtualMachineTemplate * template_contents,
                  int *                    oid,
                  string&                  error_str);
@@ -88,17 +88,6 @@ public:
     };
 
     /**
-     *  Drops the object's data in the data base. The object mutex SHOULD be
-     *  locked.
-     *    @param objsql a pointer to the object
-     *    @return 0 on success.
-     */
-    int drop(VMTemplate * vm_template)
-    {
-        return PoolSQL::drop(vm_template);
-    };
-
-    /**
      *  Dumps the pool in XML format. A filter can be also added to the
      *  query
      *  @param oss the output stream to dump the pool contents
@@ -139,7 +128,7 @@ private:
      */
     PoolObjectSQL * create()
     {
-        return new VMTemplate(-1,-1,"", 0);
+        return new VMTemplate(-1,-1,-1,0);
     };
 };
 

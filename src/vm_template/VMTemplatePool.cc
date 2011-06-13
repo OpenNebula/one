@@ -25,7 +25,7 @@
 
 int VMTemplatePool::allocate (
         int                      uid,
-        string                   user_name,
+        int                      gid,
         VirtualMachineTemplate * template_contents,
         int *                    oid,
         string&                  error_str)
@@ -38,7 +38,7 @@ int VMTemplatePool::allocate (
     // ------------------------------------------------------------------------
     // Build a new VMTemplate object
     // ------------------------------------------------------------------------
-    vm_template = new VMTemplate(-1, uid, user_name, template_contents);
+    vm_template = new VMTemplate(-1, uid, gid, template_contents);
 
     // Check name
     vm_template->get_template_attribute("NAME", name);

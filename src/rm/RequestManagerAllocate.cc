@@ -14,279 +14,226 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#include "RequestManager.h"
+#include "RequestManagerAllocate.h"
 #include "NebulaLog.h"
 
 #include "Nebula.h"
 
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void RequestManager::VirtualMachineAllocate::execute(
-    xmlrpc_c::paramList const& paramList,
-    xmlrpc_c::value *   const  retval)
+bool RequestManagerAllocate::allocate_authorization(Template * tmpl)
 {
-    string              session;
-    string              str_template;
-    string              error_str;
-    string              user_name;
-    string              template_id_str = "TEMPLATE_ID";;
-
-    const string        method_name = "VirtualMachineAllocate";
-
-    int                 vid, uid, tid;
-    int                 rc;
-
-    ostringstream       oss;
-
-    vector<xmlrpc_c::value> arrayData;
-    xmlrpc_c::value_array * arrayresult;
-
-    VirtualMachineTemplate * vm_template;
-    VirtualMachineTemplate * vm_template_aux;
-    User *                   user;
-    VMTemplate *             registered_template;
-    bool                     using_template_pool;
-    int                      template_owner;
-    bool                     template_public;
-
-    char *                   error_msg = 0;
-
-    int                   num;
-    vector<Attribute  * > vectors;
-    VectorAttribute *     vector;
-
-    NebulaLog::log("ReM",Log::DEBUG,"VirtualMachineAllocate invoked");
-
-    session      = xmlrpc_c::value_string(paramList.getString(0));
-    str_template = xmlrpc_c::value_string(paramList.getString(1));
-    str_template += "\n";
-
-    //--------------------------------------------------------------------------
-    //   Authenticate the user
-    //--------------------------------------------------------------------------
-    uid = VirtualMachineAllocate::upool->authenticate(session);
-
-    if (uid == -1)
+    if ( uid == 0 )
     {
-        goto error_authenticate;
+        return true;
     }
 
-    //--------------------------------------------------------------------------
-    //   Authorize this request
-    //--------------------------------------------------------------------------
-    vm_template = new VirtualMachineTemplate;
+    AuthRequest ar(uid);
 
-    rc = vm_template->parse(str_template,&error_msg);
-
-    if ( rc != 0 )
+    if ( tmpl == 0 )
+    { 
+        ar.add_auth(auth_object,-1,auth_op,uid,false);
+    }
+    else
     {
-        goto error_parse;
+        string t64;
+
+        ar.add_auth(auth_object,tmpl->to_xml(t64),auth_op,uid,false);
     }
 
-    //--------------------------------------------------------------------------
-    //   Look for a template id
-    //--------------------------------------------------------------------------
-    using_template_pool = vm_template->get(template_id_str, tid);
-
-    if( using_template_pool )
-    {
-        string name_str = "NAME";
-        string name_val;
-        ostringstream template_id_val;
-           
-        registered_template = VirtualMachineAllocate::tpool->get(tid, true);
-
-        if( registered_template == 0 )
-        {
-            goto error_template_get;
-        }
-
-        // Use the template contents
-        vm_template_aux = registered_template->clone_template();
-        template_owner  = registered_template->get_uid();
-        template_public = registered_template->isPublic();
-
-        registered_template->unlock();
-
-        // Set NAME & TEMPLATE_ID for the new template
-        vm_template->get(name_str,name_val);
-
-        if ( !name_val.empty() )
-        {
-            vm_template_aux->erase(name_str);
-            vm_template_aux->set(new SingleAttribute(name_str,name_val));
-        }
-
-        vm_template_aux->erase(template_id_str);
-
-        template_id_val << tid;
-
-        vm_template_aux->set(new 
-                SingleAttribute(template_id_str,template_id_val.str()));
-
-        delete vm_template;
-
-        vm_template = vm_template_aux;
+   if (UserPool::authorize(ar) == -1)
+   {
+        failure_response(AUTHORIZATION, authorization_error(ar.message));
+        return false;
     }
 
-    if ( uid != 0 )
-    {
-        AuthRequest ar(uid);
-        string      t64;
-
-        if( using_template_pool )
-        {
-            ar.add_auth(AuthRequest::TEMPLATE,
-                        tid,
-                        AuthRequest::USE,
-                        template_owner,
-                        template_public);
-        }
-
-        num = vm_template->get("DISK",vectors);
-
-        for(int i=0; i<num; i++)
-        {
-
-            vector = dynamic_cast<VectorAttribute * >(vectors[i]);
-
-            if ( vector == 0 )
-            {
-                continue;
-            }
-
-            VirtualMachineAllocate::ipool->authorize_disk(vector,uid,&ar);
-        }
-
-        vectors.clear();
-
-        num = vm_template->get("NIC",vectors);
-
-        for(int i=0; i<num; i++)
-        {
-            vector = dynamic_cast<VectorAttribute * >(vectors[i]);
-
-            if ( vector == 0 )
-            {
-                continue;
-            }
-
-            VirtualMachineAllocate::vnpool->authorize_nic(vector,uid,&ar);
-        }
-
-        if( using_template_pool )
-        {
-            ar.add_auth(AuthRequest::VM,
-                        vm_template->to_xml(t64),
-                        AuthRequest::INSTANTIATE,
-                        uid,
-                        false);
-        }
-        else
-        {
-            ar.add_auth(AuthRequest::VM,
-                        vm_template->to_xml(t64),
-                        AuthRequest::CREATE,
-                        uid,
-                        false);
-        }
-
-        if (UserPool::authorize(ar) == -1)
-        {
-            goto error_authorize;
-        }
-    }
-
-    //--------------------------------------------------------------------------
-    //   Get the User Name
-    //--------------------------------------------------------------------------
-
-    user = VirtualMachineAllocate::upool->get(uid,true);
-
-    if ( user == 0 )
-    {
-        goto error_user_get;
-    }
-
-    user_name = user->get_name();
-
-    user->unlock();
-
-    //--------------------------------------------------------------------------
-    //   Allocate the VirtualMAchine
-    //--------------------------------------------------------------------------
-    rc = VirtualMachineAllocate::vmpool->allocate(uid,
-                                                  user_name,
-                                                  vm_template,
-                                                  &vid,
-                                                  error_str,
-                                                  false);
-    if ( rc < 0 )
-    {
-        goto error_allocate;
-    }
-
-    arrayData.push_back(xmlrpc_c::value_boolean(true));
-    arrayData.push_back(xmlrpc_c::value_int(vid));
-
-    // Copy arrayresult into retval mem space
-    arrayresult = new xmlrpc_c::value_array(arrayData);
-    *retval = *arrayresult;
-
-    delete arrayresult; // and get rid of the original
-
-    return;
-
-error_template_get:
-    oss.str(get_error(method_name, "TEMPLATE", tid));
-
-    delete vm_template;
-    goto error_common;
-
-error_user_get:
-    oss.str(get_error(method_name, "USER", uid));
-
-    delete vm_template;
-    goto error_common;
-
-error_authenticate:
-    oss.str(authenticate_error(method_name));
-    goto error_common;
-
-error_authorize:
-    oss.str(authorization_error(method_name, "CREATE", "VM", uid, -1));
-    delete vm_template;
-    goto error_common;
-
-error_parse:
-    oss << action_error(method_name, "PARSE", "VM TEMPLATE",-2,rc);
-    if (error_msg != 0)
-    {
-        oss << ". Reason: " << error_msg;
-        free(error_msg);
-    }
-
-    delete vm_template;
-    goto error_common;
-
-error_allocate:
-    oss << action_error(method_name, "CREATE", "VM", -2, 0);
-    oss << " " << error_str;
-    goto error_common;
-
-error_common:
-    arrayData.push_back(xmlrpc_c::value_boolean(false));  // FAILURE
-    arrayData.push_back(xmlrpc_c::value_string(oss.str()));
-
-    NebulaLog::log("ReM",Log::ERROR,oss);
-
-    xmlrpc_c::value_array arrayresult_error(arrayData);
-
-    *retval = arrayresult_error;
-
-    return;
+    return true;
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+bool VirtualMachineAllocate::allocate_authorization(Template * tmpl)
+{
+    if ( uid == 0 )
+    {
+        return true;
+    }
+
+    AuthRequest ar(uid);
+    string      t64;
+
+    VirtualMachineTemplate * ttmpl = static_cast<VirtualMachineTemplate *>(tmpl);
+
+    ar.add_auth(auth_object,tmpl->to_xml(t64),auth_op,uid,false);
+
+    VirtualMachine::set_auth_request(uid, ar, ttmpl);
+
+   if (UserPool::authorize(ar) == -1)
+   {
+        failure_response(AUTHORIZATION, authorization_error(ar.message));
+        return false;
+    }
+
+    return true;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void RequestManagerAllocate::request_execute(xmlrpc_c::paramList const& params)
+{
+    Template * tmpl = 0;
+
+    string error_str;
+    int    rc, id;
+
+    if ( do_template == true )
+    {
+        char * error_msg = 0;
+        string str_tmpl  = xmlrpc_c::value_string(params.getString(1));
+
+        tmpl = get_object_template();
+
+        rc   = tmpl->parse(str_tmpl, &error_msg);
+
+        if ( rc != 0 )
+        {
+            failure_response(INTERNAL, allocate_error(error_msg));
+            delete tmpl;
+
+            return;
+        }
+    }
+
+    if ( allocate_authorization(tmpl) == false )
+    {
+        return;
+    }
+
+    rc = pool_allocate(params, tmpl, id, error_str);
+
+    if ( rc < 0 )
+    {
+        failure_response(INTERNAL, allocate_error(error_str));
+        return;
+    }
+    
+    success_response(id);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachineAllocate::pool_allocate(xmlrpc_c::paramList const& paramList, 
+                                          Template * tmpl,
+                                          int& id, 
+                                          string& error_str)
+{
+    VirtualMachineTemplate * ttmpl = static_cast<VirtualMachineTemplate *>(tmpl);
+    VirtualMachinePool * vmpool    = static_cast<VirtualMachinePool *>(pool);
+
+    return vmpool->allocate(uid, gid, ttmpl, &id, error_str, false);
+}
+
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualNetworkAllocate::pool_allocate(xmlrpc_c::paramList const& _paramList, 
+                                          Template * tmpl,
+                                          int& id, 
+                                          string& error_str)
+{
+    VirtualNetworkPool * vpool = static_cast<VirtualNetworkPool *>(pool);
+    VirtualNetworkTemplate * vtmpl=static_cast<VirtualNetworkTemplate *>(tmpl);
+
+    return vpool->allocate(uid, gid, vtmpl, &id, error_str);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int ImageAllocate::pool_allocate(xmlrpc_c::paramList const& _paramList, 
+                                 Template * tmpl,
+                                 int& id, 
+                                 string& error_str)
+{
+    ImagePool * ipool = static_cast<ImagePool *>(pool);
+    ImageTemplate * itmpl = static_cast<ImageTemplate *>(tmpl);
+
+    return ipool->allocate(uid, gid, itmpl, &id, error_str);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int TemplateAllocate::pool_allocate(xmlrpc_c::paramList const& _paramList, 
+                                    Template * tmpl,
+                                    int& id, 
+                                    string& error_str)
+{
+    VMTemplatePool * tpool = static_cast<VMTemplatePool *>(pool);
+
+    VirtualMachineTemplate * ttmpl=static_cast<VirtualMachineTemplate *>(tmpl);
+
+    return tpool->allocate(uid, gid, ttmpl, &id, error_str);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int HostAllocate::pool_allocate(xmlrpc_c::paramList const& paramList, 
+                                Template * tmpl,
+                                int& id, 
+                                string& error_str)
+{
+    string host    = xmlrpc_c::value_string(paramList.getString(1));
+    string im_mad  = xmlrpc_c::value_string(paramList.getString(2));
+    string vmm_mad = xmlrpc_c::value_string(paramList.getString(3));
+    string tm_mad  = xmlrpc_c::value_string(paramList.getString(4));
+
+    HostPool * hpool = static_cast<HostPool *>(pool);
+
+    return hpool->allocate(&id, host, im_mad, vmm_mad, tm_mad, error_str);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int UserAllocate::pool_allocate(xmlrpc_c::paramList const& paramList, 
+                                Template * tmpl,
+                                int& id, 
+                                string& error_str)
+{
+    string uname  = xmlrpc_c::value_string(paramList.getString(1));
+    string passwd = xmlrpc_c::value_string(paramList.getString(2));
+
+    UserPool * upool = static_cast<UserPool *>(pool);
+    int users_group = gid;
+
+    if ( gid == GroupPool::ONEADMIN_ID )
+    {
+        users_group = GroupPool::USERS_ID;
+    }
+
+    return upool->allocate(&id,users_group,uname,passwd,true,error_str);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int GroupAllocate::pool_allocate(xmlrpc_c::paramList const& paramList, 
+                                 Template * tmpl,
+                                 int& id, 
+                                 string& error_str)
+{
+    string gname = xmlrpc_c::value_string(paramList.getString(1));
+
+    GroupPool * gpool = static_cast<GroupPool *>(pool);
+
+    return gpool->allocate(gname, &id, error_str);
+}
+

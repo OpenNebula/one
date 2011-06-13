@@ -20,6 +20,7 @@
 
 #include "PoolSQL.h"
 #include "Leases.h"
+#include "VirtualNetworkTemplate.h"
 
 #include <vector>
 #include <string>
@@ -32,7 +33,6 @@ using namespace std;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-class VirtualNetworkTemplate;
 
 /**
  *  The Virtual Network class. It represents a Virtual Network at manages its 
@@ -59,15 +59,6 @@ public:
     // *************************************************************************
 
     /**
-     *  Returns true if the Virtual Network is public
-     *     @return true if the Virtual Network is public
-     */
-    bool isPublic()
-    {
-        return (public_vnet == 1);
-    };
-
-    /**
      *  Publish or unpublish a virtual network
      *    @param pub true to publish the image
      *    @return 0 on success
@@ -76,12 +67,20 @@ public:
     {
         if (pub == true)
         {
-            public_vnet = 1;
+            public_obj = 1;
         }
         else
         {
-            public_vnet = 0;
+            public_obj = 0;
         }
+    }
+
+    /**
+     *  Factory method for virtual network templates
+     */
+    Template * get_new_template()
+    {
+        return new VirtualNetworkTemplate;
     }
 
     /**
@@ -153,17 +152,20 @@ public:
     };
 
     /**
-     *  Function to write a Virtual Network in an output stream
-     */
-    friend ostream& operator<<(ostream& os, VirtualNetwork& vn);
-
-    /**
      * Function to print the VirtualNetwork object into a string in
      * XML format
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
     string& to_xml(string& xml) const;
+
+    /**
+     * Function to print the VirtualNetwork object into a string in
+     * XML format. The extended XML includes the LEASES
+     *  @param xml the resulting XML string
+     *  @return a reference to the generated string
+     */
+    string& to_xml_extended(string& xml) const;
 
     /**
      * Modifies the given nic attribute adding the following attributes:
@@ -188,14 +190,6 @@ private:
     // *************************************************************************
 
     // -------------------------------------------------------------------------
-    // Identification variables
-    // -------------------------------------------------------------------------
-    /**
-     *  Owner's name
-     */
-    string      user_name;
-
-    // -------------------------------------------------------------------------
     // Binded physical attributes
     // -------------------------------------------------------------------------
 
@@ -211,11 +205,6 @@ private:
      * Holds the type of this network
      */
     NetworkType type;
-
-    /**
-     *  Public scope of this Virtual Network
-     */
-    int         public_vnet;
 
     /**
      *  Pointer to leases class, can be fixed or ranged.
@@ -268,8 +257,8 @@ private:
     // Constructor
     //**************************************************************************
 
-    VirtualNetwork(int                      uid, 
-                   string                   _user_name,
+    VirtualNetwork(int                      uid,
+                   int                      gid,
                    VirtualNetworkTemplate * _vn_template = 0);
 
     ~VirtualNetwork();

@@ -55,17 +55,16 @@ table#dashboard_table tr {
     vertical-align: top;
 }
 
-table#dashboard_table td{
+table#dashboard_table > tbody > tr > td{
 	width:50%;
 }
 
 div.panel {
     background-color: #ffffff;
     padding:0;
-    width:80%;
     margin: 10px;
     border: 1px #ddd solid;
-    min-height: 110px;
+    min-height: 50px;
     -webkit-border-radius: 3px;
     -moz-border-radius: 3px;
     -moz-box-shadow: 5px 5px 5px #888;
@@ -77,6 +76,8 @@ div.panel h3 {
     border: 0;
     padding:5px 10px 5px 10px;
     margin: 0;
+    color: white;
+    font-weight: bold;
     background-color: #353735;
     -webkit-border-radius: 3px 3px 0 0;
     -moz-border-radius: 3px 3px 0 0;
@@ -105,7 +106,7 @@ div.panel_info table.info_table tr {
     border: 0;
     border-bottom: 1px dotted #ccc;
 }
-div.panel_info table.info_table td {
+div.panel_info table.info_table > tbody > tr > td {
     border: 0;
     width: 100%!important;
 }
@@ -114,11 +115,11 @@ div.panel_info table.info_table td.value_td {
     text-align: right;
 }
 
-.key_td_green {
+.green {
     color: green!important;
 }
 
-.key_td_red {
+.red {
     color: #B81515!important;
 }
 
@@ -362,7 +363,7 @@ tr.even:hover{
 	vertical-align:top;
 	}
 
-.info_table th,h3 {
+.info_table > thead th,h3 {
 	border-bottom: 2px solid #353735;
 	color: #353735;
 	font-size: 14px;
@@ -371,7 +372,7 @@ tr.even:hover{
 }
 
 
-.info_table td{
+.info_table > tbody > tr > td{
     border-bottom: 1px solid #CCCCCC;
     color: #353735;
     padding-top: 6px;
@@ -385,6 +386,12 @@ tr.even:hover{
 	width: 100%;
 	text-align:left;
 	font-weight:bold;
+}
+
+.info_table td.graph_td{
+    padding-top:0px!important;
+    padding-bottom:0px!important;
+    vertical-align:middle!important;
 }
 
 .info_table td.value_td{

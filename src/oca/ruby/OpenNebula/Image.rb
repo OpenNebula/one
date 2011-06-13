@@ -26,11 +26,11 @@ module OpenNebula
             :info        => "image.info",
             :allocate    => "image.allocate",
             :update      => "image.update",
-            :rmattr      => "image.rmattr",
             :enable      => "image.enable",
             :publish     => "image.publish",
             :persistent  => "image.persistent",
-            :delete      => "image.delete"
+            :delete      => "image.delete",
+            :chown       => "image.chown"
         }
 
         IMAGE_STATES=%w{INIT READY USED DISABLED LOCKED ERROR}
@@ -92,20 +92,11 @@ module OpenNebula
             super(IMAGE_METHODS[:allocate],description)
         end
 
-        # Modifies an image attribute
+        # Replaces the template contents
         #
-        # +name+ Name of the attribute to be changed
-        #
-        # +value+ New value for the attribute
-        def update(name, value)
-            super(IMAGE_METHODS[:update], name, value)
-        end
-
-        # Deletes an Image attribute
-        #
-        # +name+ Name of the attribute to be deleted
-        def remove_attr(name)
-            do_rm_attr(name)
+        # +new_template+ New template contents
+        def update(new_template)
+            super(IMAGE_METHODS[:update], new_template)
         end
 
         # Enables an Image
@@ -142,7 +133,14 @@ module OpenNebula
         def delete()
             super(IMAGE_METHODS[:delete])
         end
-    
+
+        # Changes the owner/group
+        # uid:: _Integer_ the new owner id. Set to -1 to leave the current one
+        # gid:: _Integer_ the new group id. Set to -1 to leave the current one
+        # [return] nil in case of success or an Error object
+        def chown(uid, gid)
+            super(IMAGE_METHODS[:chown], uid, gid)
+        end
 
         #######################################################################
         # Helpers to get Image information
@@ -178,6 +176,12 @@ module OpenNebula
             SHORT_IMAGE_TYPES[type_str]
         end
 
+        # Returns the group identifier
+        # [return] _Integer_ the element's group ID
+        def gid
+            self['GID'].to_i
+        end
+
     private
 
         def set_enabled(enabled)
@@ -206,15 +210,5 @@ module OpenNebula
 
             return rc
         end
-
-        def do_rm_attr(name)
-            return Error.new('ID not defined') if !@pe_id
-
-            rc = @client.call(IMAGE_METHODS[:rmattr], @pe_id, name)
-            rc = nil if !OpenNebula.is_error?(rc)
-
-            return rc
-        end
-
     end
 end

@@ -31,26 +31,24 @@ const string usernames[] = { "A user", "B user", "C user", "D user", "E user" };
 const string passwords[] = { "A pass", "B pass", "C pass", "D pass", "E pass" };
 
 const string dump_result =
-    "<USER_POOL><USER><ID>0</ID><NAME>one_user_test</NAME>"
-    "<PASSWORD>5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8</PASSWORD>"
-    "<ENABLED>1</ENABLED></USER><USER><ID>1</ID><NAME>a</NAME>"
-    "<PASSWORD>p</PASSWORD><ENABLED>1</ENABLED></USER><USER>"
-    "<ID>2</ID><NAME>a name</NAME><PASSWORD>pass</PASSWORD>"
-    "<ENABLED>1</ENABLED></USER><USER><ID>3</ID><NAME>a_name</NAME>"
-    "<PASSWORD>password</PASSWORD><ENABLED>1</ENABLED></USER><USER>"
-    "<ID>4</ID><NAME>another name</NAME><PASSWORD>secret</PASSWORD>"
-    "<ENABLED>1</ENABLED></USER><USER><ID>5</ID><NAME>user</NAME>"
-    "<PASSWORD>1234</PASSWORD><ENABLED>1</ENABLED></USER>"
-    "</USER_POOL>";
+    "<USER_POOL><USER><ID>0</ID><GID>0</GID><NAME>one_user_test</NAME><PASSWORD>5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8</PASSWORD><ENABLED>1</ENABLED><GROUPS><ID>0</ID></GROUPS></USER><USER><ID>1</ID><GID>0</GID><NAME>a</NAME><PASSWORD>p</PASSWORD><ENABLED>1</ENABLED><GROUPS><ID>0</ID></GROUPS></USER><USER><ID>2</ID><GID>0</GID><NAME>a name</NAME><PASSWORD>pass</PASSWORD><ENABLED>1</ENABLED><GROUPS><ID>0</ID></GROUPS></USER><USER><ID>3</ID><GID>0</GID><NAME>a_name</NAME><PASSWORD>password</PASSWORD><ENABLED>1</ENABLED><GROUPS><ID>0</ID></GROUPS></USER><USER><ID>4</ID><GID>0</GID><NAME>another name</NAME><PASSWORD>secret</PASSWORD><ENABLED>1</ENABLED><GROUPS><ID>0</ID></GROUPS></USER><USER><ID>5</ID><GID>0</GID><NAME>user</NAME><PASSWORD>1234</PASSWORD><ENABLED>1</ENABLED><GROUPS><ID>0</ID></GROUPS></USER></USER_POOL>";
 
 const string dump_where_result =
-    "<USER_POOL><USER><ID>1</ID><NAME>a</NAME>"
-    "<PASSWORD>p</PASSWORD><ENABLED>1</ENABLED></USER><USER>"
-    "<ID>2</ID><NAME>a name</NAME><PASSWORD>pass</PASSWORD>"
-    "<ENABLED>1</ENABLED></USER><USER><ID>3</ID><NAME>a_name</NAME>"
-    "<PASSWORD>password</PASSWORD><ENABLED>1</ENABLED></USER><USER>"
-    "<ID>4</ID><NAME>another name</NAME><PASSWORD>secret</PASSWORD>"
-    "<ENABLED>1</ENABLED></USER></USER_POOL>";
+    "<USER_POOL><USER><ID>1</ID><GID>0</GID><NAME>a</NAME><PASSWORD>p</PASSWORD><ENABLED>1</ENABLED><GROUPS><ID>0</ID></GROUPS></USER><USER><ID>2</ID><GID>0</GID><NAME>a name</NAME><PASSWORD>pass</PASSWORD><ENABLED>1</ENABLED><GROUPS><ID>0</ID></GROUPS></USER><USER><ID>3</ID><GID>0</GID><NAME>a_name</NAME><PASSWORD>password</PASSWORD><ENABLED>1</ENABLED><GROUPS><ID>0</ID></GROUPS></USER><USER><ID>4</ID><GID>0</GID><NAME>another name</NAME><PASSWORD>secret</PASSWORD><ENABLED>1</ENABLED><GROUPS><ID>0</ID></GROUPS></USER></USER_POOL>";
+
+#include "NebulaTest.h"
+
+class NebulaTestUser: public NebulaTest
+{
+public:
+    NebulaTestUser():NebulaTest()
+    {
+        NebulaTest::the_tester = this;
+
+        need_group_pool = true;
+        need_user_pool  = true;
+    }
+};
 
 class UserPoolTest : public PoolTest
 {
@@ -78,14 +76,20 @@ class UserPoolTest : public PoolTest
 
 protected:
 
+    NebulaTestUser *    tester;
+    UserPool *          upool;
+    GroupPool *         gpool;
+
+
     void bootstrap(SqlDB* db)
     {
-        UserPool::bootstrap(db);
+        // setUp overwritten
     };
 
     PoolSQL* create_pool(SqlDB* db)
     {
-        return new UserPool(db);
+        // setUp overwritten
+        return upool;
     };
 
     int allocate(int index)
@@ -93,7 +97,7 @@ protected:
         int oid;
         string err;
         
-        return ((UserPool*)pool)->allocate(&oid, usernames[index],
+        return ((UserPool*)pool)->allocate(&oid, 0, usernames[index],
                                            passwords[index], true, err);
     };
 
@@ -111,6 +115,28 @@ public:
     UserPoolTest(){xmlInitParser();};
 
     ~UserPoolTest(){xmlCleanupParser();};
+
+    void setUp()
+    {
+        create_db();
+
+        tester = new NebulaTestUser();
+
+        Nebula& neb = Nebula::instance();
+        neb.start();
+
+        upool   = neb.get_upool();
+        gpool   = neb.get_gpool();
+
+        pool    = upool;
+    };
+
+    void tearDown()
+    {
+        delete_db();
+
+        delete tester;
+    };
 
     /* ********************************************************************* */
     /* ********************************************************************* */
@@ -158,20 +184,30 @@ public:
     void authenticate()
     {
         UserPool* user_pool = (UserPool*) pool;
+        
+        bool rc;
+        int  oid, gid;
+
         // There is an initial user, created with the one_auth file:
         //      one_user_test:password
         string session="one_user_test:5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8";
 
-        int oid = user_pool->authenticate( session );
+        rc = user_pool->authenticate( session, oid, gid );
+        CPPUNIT_ASSERT( rc == true );
+        CPPUNIT_ASSERT( oid == 0 );
         CPPUNIT_ASSERT( oid == 0 );
 
         session = "one_user_test:wrong_password";
-        oid = user_pool->authenticate( session );
+        rc = user_pool->authenticate( session, oid, gid );
+        CPPUNIT_ASSERT( rc == false );
         CPPUNIT_ASSERT( oid == -1 );
+        CPPUNIT_ASSERT( gid == -1 );
 
         session = "unknown_user:5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8";
-        oid = user_pool->authenticate( session );
+        rc = user_pool->authenticate( session, oid, gid );
+        CPPUNIT_ASSERT( rc == false );
         CPPUNIT_ASSERT( oid == -1 );
+        CPPUNIT_ASSERT( gid == -1 );
     }
 
     void get_using_name()
@@ -257,17 +293,17 @@ public:
         UserPool * up = static_cast<UserPool *>(pool);
 
         // Allocate a user.
-        rc = up->allocate(&oid, usernames[0], passwords[0], true, err);
+        rc = up->allocate(&oid, 0,usernames[0], passwords[0], true, err);
         CPPUNIT_ASSERT( oid == 1 );
         CPPUNIT_ASSERT( oid == rc );
 
         // Try to allocate twice the same user, should fail
-        rc = up->allocate(&oid, usernames[0], passwords[0], true, err);
+        rc = up->allocate(&oid, 0,usernames[0], passwords[0], true, err);
         CPPUNIT_ASSERT( rc  == -1 );
         CPPUNIT_ASSERT( oid == rc );
 
         // Try again, with different password
-        rc = up->allocate(&oid, usernames[0], passwords[1], true, err);
+        rc = up->allocate(&oid, 0, usernames[0], passwords[1], true, err);
         CPPUNIT_ASSERT( rc  == -1 );
         CPPUNIT_ASSERT( oid == rc );
     }
@@ -282,7 +318,7 @@ public:
         
         for(int i=0; i<5; i++)
         {
-            ((UserPool*)pool)->allocate(&oid, d_names[i], d_pass[i], true, err);
+            ((UserPool*)pool)->allocate(&oid, 0, d_names[i], d_pass[i], true, err);
         }
 
         ostringstream oss;
@@ -309,7 +345,7 @@ public:
 
         for(int i=0; i<5; i++)
         {
-            ((UserPool*)pool)->allocate(&oid, d_names[i], d_pass[i], true, err);
+            ((UserPool*)pool)->allocate(&oid, 0, d_names[i], d_pass[i], true, err);
         }
 
         // Note: second parameter of dump is the WHERE constraint. The "order

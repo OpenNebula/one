@@ -17,6 +17,8 @@
 require 'OpenNebulaJSON'
 include OpenNebulaJSON
 
+require 'OneMonitorClient'
+
 class SunstoneServer
     def initialize(username, password)
         # TBD one_client_user(name) from CloudServer
@@ -223,7 +225,6 @@ class SunstoneServer
         # The VM host and its VNC port
         host = resource['HISTORY/HOSTNAME']
         vnc_port = resource['TEMPLATE/GRAPHICS/PORT']
-
         # The noVNC proxy_port
         proxy_port = config[:vnc_proxy_base_port].to_i + vnc_port.to_i
 
@@ -261,6 +262,37 @@ class SunstoneServer
 
         return [200, nil]
     end
+
+    ############################################################################
+    #
+    ############################################################################
+
+    def get_log(params)
+        resource = params[:resource]
+        id = params[:id]
+        id = "global" unless id
+        columns = params['monitor_resources'].split(',')
+        history_length = params['history_length']
+
+        log_file_folder = case resource
+                          when "vm","VM"
+                              VM_LOG_FOLDER
+                          when "host","HOST"
+                              HOST_LOG_FOLDER
+                          end
+
+        monitor_client = OneMonitorClient.new(id,log_file_folder)
+        return monitor_client.get_data_for_id(id,columns,history_length).to_json
+    end
+
+    ############################################################################
+    #
+    ############################################################################
+
+    ############################################################################
+    #
+    ############################################################################
+
 
 
     private

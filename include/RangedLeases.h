@@ -106,7 +106,7 @@ public:
 
 private:
     /**
-     *  The default MAC prefix for the OpenNebula cluster
+     *  The default MAC prefix for the Leases
      */
     unsigned int mac_prefix;
 

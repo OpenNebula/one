@@ -99,7 +99,7 @@ public class HostTest
     }
 
     @Test
-    public void update()
+    public void info()
     {
         res = host.info();
         assertTrue( !res.isError() );
@@ -152,6 +152,30 @@ public class HostTest
 
         assertTrue( !found );
     }
+
+    @Test
+    public void update()
+    {
+        res = host.info();
+        assertTrue( !res.isError() );
+
+        assertTrue( host.xpath("TEMPLATE/ATT1").equals( "" ) );
+        assertTrue( host.xpath("TEMPLATE/ATT2").equals( "" ) );
+
+        String new_template =  "ATT2 = NEW_VAL\n" +
+                        "ATT3 = VAL3";
+
+        res = host.update(new_template);
+        assertTrue( !res.isError() );
+
+
+        res = host.info();
+        assertTrue( !res.isError() );
+        assertTrue( host.xpath("TEMPLATE/ATT1").equals( "" ) );
+        assertTrue( host.xpath("TEMPLATE/ATT2").equals( "NEW_VAL" ) );
+        assertTrue( host.xpath("TEMPLATE/ATT3").equals( "VAL3" ) );
+    }
+
 /*
     @Test
     public void attributes()

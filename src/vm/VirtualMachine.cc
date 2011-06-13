@@ -25,6 +25,7 @@
 
 #include "VirtualMachine.h"
 #include "VirtualNetworkPool.h"
+#include "ImagePool.h"
 #include "NebulaLog.h"
 
 #include "Nebula.h"
@@ -38,10 +39,9 @@
 
 VirtualMachine::VirtualMachine(int id,
                                int _uid,
-                               string _user_name,
+                               int _gid,
                                VirtualMachineTemplate * _vm_template):
-        PoolObjectSQL(id,"",_uid,table),
-        user_name(_user_name),
+        PoolObjectSQL(id,"",_uid,_gid,table),
         last_poll(0),
         state(INIT),
         lcm_state(LCM_INIT),
@@ -96,11 +96,11 @@ VirtualMachine::~VirtualMachine()
 const char * VirtualMachine::table = "vm_pool";
 
 const char * VirtualMachine::db_names =
-    "oid, name, body, uid, last_poll, state, lcm_state";
+    "oid, name, body, uid, gid, last_poll, state, lcm_state";
 
 const char * VirtualMachine::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
         "vm_pool (oid INTEGER PRIMARY KEY, name TEXT, body TEXT, uid INTEGER, "
-        "last_poll INTEGER, state INTEGER, lcm_state INTEGER)";
+        "gid INTEGER, last_poll INTEGER, state INTEGER, lcm_state INTEGER)";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -516,6 +516,7 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace)
         << "'" <<   sql_name        << "',"
         << "'" <<   sql_xml         << "',"
         <<          uid             << ","
+        <<          gid             << ","
         <<          last_poll       << ","
         <<          state           << ","
         <<          lcm_state       << ")";
@@ -987,6 +988,11 @@ int VirtualMachine::save_disk(int disk_id, int img_id, string& error_str)
                 goto error_saved;
             }
 
+            if(!((disk->vector_value("PERSISTENT")).empty()))
+            {
+                goto error_persistent;
+            }
+
             disk->replace("SAVE", "YES");
 
             oss << (img_id);
@@ -998,8 +1004,12 @@ int VirtualMachine::save_disk(int disk_id, int img_id, string& error_str)
 
     goto error_not_found;
 
+error_persistent:
+    oss << "Source image for DISK " << disk_id << " is persistent.";
+    goto error_common;
+
 error_saved:
-    oss << "The DISK " << disk_id << " is already suppossed to be saved.";
+    oss << "The DISK " << disk_id << " is already going to be saved.";
     goto error_common;
 
 error_not_found:
@@ -1010,6 +1020,54 @@ error_common:
     error_str = oss.str();
 
     return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachine::set_auth_request(int uid,
+                                      AuthRequest& ar,
+                                      VirtualMachineTemplate *tmpl) 
+{
+    int                   num;
+    vector<Attribute  * > vectors;
+    VectorAttribute *     vector;
+
+    Nebula& nd = Nebula::instance();
+
+    ImagePool *           ipool  = nd.get_ipool();
+    VirtualNetworkPool *  vnpool = nd.get_vnpool();
+
+    num = tmpl->get("DISK",vectors);
+
+    for(int i=0; i<num; i++)
+    {
+
+        vector = dynamic_cast<VectorAttribute * >(vectors[i]);
+
+        if ( vector == 0 )
+        {
+            continue;
+        }
+
+        ipool->authorize_disk(vector,uid,&ar);
+    }
+
+    vectors.clear();
+
+    num = tmpl->get("NIC",vectors);
+
+    for(int i=0; i<num; i++)
+    {
+        vector = dynamic_cast<VectorAttribute * >(vectors[i]);
+
+        if ( vector == 0 )
+        {
+            continue;
+        }
+
+        vnpool->authorize_nic(vector,uid,&ar);
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1084,17 +1142,6 @@ error_yy:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-ostream& operator<<(ostream& os, const VirtualMachine& vm)
-{
-    string vm_str;
-
-    os << vm.to_xml(vm_str);
-
-    return os;
-};
-
-/* -------------------------------------------------------------------------- */
-
 string& VirtualMachine::to_xml(string& xml) const
 {
 
@@ -1106,7 +1153,7 @@ string& VirtualMachine::to_xml(string& xml) const
     oss << "<VM>"
         << "<ID>"        << oid       << "</ID>"
         << "<UID>"       << uid       << "</UID>"
-        << "<USERNAME>"  << user_name << "</USERNAME>"
+        << "<GID>"       << gid       << "</GID>"
         << "<NAME>"      << name      << "</NAME>"
         << "<LAST_POLL>" << last_poll << "</LAST_POLL>"
         << "<STATE>"     << state     << "</STATE>"
@@ -1132,6 +1179,9 @@ string& VirtualMachine::to_xml(string& xml) const
     return xml;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int VirtualMachine::from_xml(const string &xml_str)
 {
     vector<xmlNodePtr> content;
@@ -1146,7 +1196,7 @@ int VirtualMachine::from_xml(const string &xml_str)
     // Get class base attributes
     rc += xpath(oid,        "/VM/ID",       -1);
     rc += xpath(uid,        "/VM/UID",      -1);
-    rc += xpath(user_name,  "/VM/USERNAME", "not_found");
+    rc += xpath(gid,        "/VM/GID",      -1);
     rc += xpath(name,       "/VM/NAME",     "not_found");
 
     rc += xpath(last_poll,  "/VM/LAST_POLL",0);

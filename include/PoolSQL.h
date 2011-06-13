@@ -121,12 +121,20 @@ public:
      *  Drops the object's data in the data base. The object mutex SHOULD be
      *  locked.
      *    @param objsql a pointer to the object
-     *    @return 0 on success.
+     *    @param error_msg Error reason, if any
+     *    @return 0 on success, -1 DB error
      */
-    virtual int drop(
-        PoolObjectSQL * objsql)
+    virtual int drop(PoolObjectSQL * objsql, string& error_msg)
     {
-       return objsql->drop(db);
+        int rc = objsql->drop(db);
+
+        if ( rc != 0 )
+        {
+            error_msg = "SQL DB error";
+            return -1;
+        }
+
+        return 0;
     };
 
     /**
@@ -164,41 +172,57 @@ protected:
     int dump(ostringstream& oss, const string& elem_name,
              const char * table, const string& where);
 
+    /* ---------------------------------------------------------------------- */
+    /* Interface to access the lastOID assigned by the pool                   */
+    /* ---------------------------------------------------------------------- */
+
     /**
-     *  Returns the value of the last identifier assigned by the pool
+     *  Gets the value of the last identifier assigned by the pool
+     *   @return the lastOID of the pool
      */
     int get_lastOID()
     {
         return lastOID;
     };
 
+    /**
+     *  Sets the lastOID of the pool and updates the control database
+     *    @param _lastOID for the pool
+     */
+    void set_update_lastOID(int _lastOID)
+    {
+        lastOID = _lastOID;
+
+        update_lastOID();
+    };
+
 private:
 
-    pthread_mutex_t             mutex;
+    pthread_mutex_t mutex;
 
     /**
      *  Max size for the pool, to control the memory footprint of the pool. This
      *  number MUST be greater than the max. number of objects that are
      *  accessed simultaneously.
      */
-    static const unsigned int   MAX_POOL_SIZE;
+    static const unsigned int MAX_POOL_SIZE;
 
     /**
      *  Last object ID assigned to an object. It must be initialized by the
      *  target pool.
      */
-    int     lastOID;
+    int lastOID;
 
     /**
      *  Tablename for this pool
      */
-    string  table;
+    string table;
 
     /**
      *  The pool is implemented with a Map of SQL object pointers, using the
      *  OID as key.
      */
-    map<int,PoolObjectSQL *>    pool;
+    map<int,PoolObjectSQL *> pool;
 
     /**
      *  This is a name index for the pool map. The key is the name of the object
@@ -216,7 +240,7 @@ private:
      *  OID queue to implement a FIFO-like replacement policy for the pool
      *  cache.
      */
-    queue<int>                  oid_queue;
+    queue<int> oid_queue;
 
     /**
      *  Function to lock the pool

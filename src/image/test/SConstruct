@@ -17,20 +17,30 @@
 Import('env')
 
 env.Prepend(LIBS=[
-    'nebula_image',
+### TODO: delete not needed
+    'nebula_core_test',
+    'nebula_host',
+    'nebula_xml',
+    'nebula_vmm',
+    'nebula_im',
+    'nebula_rm',
+    'nebula_tm',
     'nebula_um',
-    'nebula_vm',
-    'nebula_hm',
-    'nebula_vnm',
-    'nebula_authm',
-    'nebula_template',
-    'nebula_pool',
     'nebula_mad',
+    'nebula_template',
+    'nebula_vm',
+    'nebula_vmtemplate',
+    'nebula_group',
+    'nebula_vnm',
+    'nebula_image',
+    'nebula_pool',
+    'nebula_hm',
+    'nebula_authm',
     'nebula_common',
-    'nebula_core',
+    'nebula_lcm',
+    'nebula_dm',
     'nebula_sql',
     'nebula_log',
-    'nebula_xml',
     'crypto'
 ])
 

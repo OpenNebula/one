@@ -354,7 +354,7 @@ int XenDriver::deployment_description(
 
         if( !model.empty() )
         {
-            file << "type=" << model;
+            file << "model=" << model;
             pre_char = ',';
         }
 

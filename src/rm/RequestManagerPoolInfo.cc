@@ -14,115 +14,34 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#include "RequestManager.h"
-#include "NebulaLog.h"
+#include "RequestManagerPoolInfo.h"
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
+using namespace std;
 
-void RequestManager::VirtualMachinePoolInfo::execute(
-    xmlrpc_c::paramList const& paramList,
-    xmlrpc_c::value *   const  retval)
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+void RequestManagerPoolInfo::request_execute(xmlrpc_c::paramList const& paramList)
 {
-    string              session;
-    string              username;
-    string              password;
+    ostringstream oss;
+    int rc;
 
-    int                 filter_flag;
-    int                 rc;
-    int                 state;
-
-    ostringstream       oss;
-    ostringstream       where_string;
-
-    /*   -- RPC specific vars --  */
-    vector<xmlrpc_c::value> arrayData;
-    xmlrpc_c::value_array * arrayresult;
-
-    const string     method_name = "VirtualMachinePoolInfo";
-
-    NebulaLog::log("ReM",Log::DEBUG,"VirtualMachinePoolInfo method invoked");
-
-    // For backwards compatibility, 2 or 3 arguments can be present.
-    switch (paramList.size())
+    if ( basic_authorization(-1) == false )
     {
-        case 2:
-            state       = -1;
-            break;
-        case 3:
-            state       = xmlrpc_c::value_int (paramList.getInt(2));
-            break;
-        default:
-            paramList.verifyEnd(3);
-            return;
+        return;
     }
 
-    // Get the parameters
-    session      = xmlrpc_c::value_string(paramList.getString(0));
-    filter_flag  = xmlrpc_c::value_int   (paramList.getInt(1));
-
-    // Check if it is a valid user
-    rc = VirtualMachinePoolInfo::upool->authenticate(session);
-
-    if ( rc == -1 )
-    {
-        goto error_authenticate;
-    }
-
-    /*  Filter flag meaning table
-     *    <=-2 :: ALL VMs
-     *     -1  :: User's VMs
-     *    >=0  :: UID User's VMs
-     */
-    if (filter_flag == -1)
-    {
-        where_string << "UID=" << rc;
-    }
-    else if (filter_flag>=0)
-    {
-        where_string << "UID=" << filter_flag;
-    }
-
-    rc = VirtualMachinePoolInfo::vmpool->dump(oss, state, where_string.str());
+    // Call the template pool dump
+    rc = pool->dump(oss,"");
 
     if ( rc != 0 )
     {
-        goto error_dump;
+        failure_response(INTERNAL,request_error("Internal Error",""));
+        return;
     }
 
-    // All nice, return the vm info to the client
-    arrayData.push_back(xmlrpc_c::value_boolean(true)); // SUCCESS
-
-    arrayData.push_back(xmlrpc_c::value_string(oss.str()));
-    arrayresult = new xmlrpc_c::value_array(arrayData);
-    // Copy arrayresult into retval mem space
-    *retval = *arrayresult;
-    // and get rid of the original
-    delete arrayresult;
-
-    return;
-
-error_authenticate:
-    oss.str(authenticate_error(method_name));  
-    goto error_common;
-
-error_dump:
-    oss.str(get_error(method_name, "VM", -1));
-    goto error_common;
-
-error_common:
-    arrayData.push_back(xmlrpc_c::value_boolean(false)); // FAILURE
-    arrayData.push_back(xmlrpc_c::value_string(oss.str()));
-
-    NebulaLog::log("ReM",Log::ERROR,oss);
-
-    xmlrpc_c::value_array arrayresult_error(arrayData);
-
-    *retval = arrayresult_error;
+    success_response(oss.str());
 
     return;
 }
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
 

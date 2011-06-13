@@ -18,6 +18,7 @@
 #define USER_H_
 
 #include "PoolSQL.h"
+#include "ObjectCollection.h"
 
 using namespace std;
 
@@ -27,14 +28,9 @@ using namespace std;
 /**
  *  The User class.
  */
-class User : public PoolObjectSQL
+class User : public PoolObjectSQL, public ObjectCollection
 {
 public:
-
-    /**
-     *  Function to write a User on an output stream
-     */
-    friend ostream& operator<<(ostream& os, User& u);
 
     /**
      * Function to print the User object into a string in XML format
@@ -94,6 +90,47 @@ public:
      **/
     static int split_secret(const string secret, string& user, string& pass);
 
+    /**
+     *  Returns a copy of the groups for the user
+     */
+    set<int> get_groups()
+    {
+        return get_collection_copy();
+    };
+
+    // *************************************************************************
+    // Group IDs set Management
+    // *************************************************************************
+
+    /**
+     *  Adds a group ID to the groups set.
+     *
+     *    @param id The new id
+     *    @return 0 on success, -1 if the ID was already in the set
+     */
+    int add_group(int group_id)
+    {
+        return add_collection_id(group_id);
+    }
+
+    /**
+     *  Deletes a group ID from the groups set.
+     *
+     *    @param id The id
+     *    @return   0 on success,
+     *              -1 if the ID was not in the set,
+     *              -2 if the group to delete is the main group
+     */
+    int del_group(int group_id)
+    {
+        if( group_id == gid )
+        {
+            return -2;
+        }
+
+        return del_collection_id(group_id);
+    }
+
 private:
     // -------------------------------------------------------------------------
     // Friends
@@ -145,18 +182,20 @@ private:
      */
     int from_xml(const string &xml_str);
 
+
 protected:
 
     // *************************************************************************
     // Constructor
     // *************************************************************************
 
-    User(int     id,
-         string _username,
-         string _password,
-         bool   _enabled);
+    User(int id, int _gid, const string& _username, const string& _password, bool _enabled):
+        PoolObjectSQL(id,_username,-1,_gid,table),
+        ObjectCollection("GROUPS"),
+        password(_password), enabled(_enabled)
+        { };
 
-    virtual ~User();
+    virtual ~User(){};
 
     // *************************************************************************
     // DataBase implementation

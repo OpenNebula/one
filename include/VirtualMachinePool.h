@@ -41,7 +41,7 @@ public:
     /**
      *  Function to allocate a new VM object
      *    @param uid user id (the owner of the VM)
-     *    @param user_name Owner's user name
+     *    @param gid the id of the group this object is assigned to
      *    @param vm_template a VM Template object describing the VM
      *    @param oid the id assigned to the VM (output)
      *    @param error_str Returns the error reason, if any
@@ -51,7 +51,7 @@ public:
      */
     int allocate (
         int                      uid,
-        string                   user_name,
+        int                      gid,
         VirtualMachineTemplate * vm_template,
         int *                    oid,
         string&                  error_str,
@@ -146,7 +146,6 @@ public:
      *  pool
      *  @param oss the output stream to dump the pool contents
      *  @param where filter for the objects, defaults to all
-     *  @param extended condition to include history and username data
      *  @param state include only VMs in this state. -1 means any state,
      *              except DONE
      *
@@ -161,7 +160,7 @@ private:
      */
     PoolObjectSQL * create()
     {
-        return new VirtualMachine(-1,-1,"", 0);
+        return new VirtualMachine(-1,-1,-1,0);
     };
 };
 

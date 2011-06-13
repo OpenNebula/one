@@ -68,6 +68,37 @@ protected:
     PoolTest():pool(0){};
     virtual ~PoolTest(){};
 
+    /**
+     *  Replaces all <REGTIME> elements, padding them with 0
+     */
+    string fix_regtimes(string& xml)
+    {
+        return fix_time(xml, "REGTIME");
+    }
+
+    string fix_stimes(string& xml)
+    {
+        return fix_time(xml, "STIME");
+    }
+
+    string fix_time(string& xml, string elem_name)
+    {
+        string start = "<"  + elem_name + ">";
+        string replacement = "0000000000";
+        size_t pos = 0;
+
+        while( (pos = xml.find(start, pos)) != string::npos )
+        {
+            if ( xml[pos+start.size()] != '0' )
+            {
+                xml.replace( pos+start.size(), replacement.size(), replacement);
+            }
+            pos++;
+        }
+
+        return xml;
+    }
+
 public:
 
     void setUp()
@@ -180,6 +211,7 @@ public:
     void drop_and_get()
     {
         int oid_0, oid_1;
+        string error_str;
 
         // Allocate two objects
         oid_0 = allocate(0);
@@ -201,7 +233,7 @@ public:
         obj->lock();
 
         // Delete it
-        pool->drop(obj);
+        pool->drop(obj, error_str);
 
         if(obj != 0)
         {

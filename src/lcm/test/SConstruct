@@ -21,7 +21,6 @@ Import('env')
 env.Prepend(LIBS=[
     'nebula_core_test',
     'nebula_host',
-    'nebula_cluster',
     'nebula_vmm',
     'nebula_im',
     'nebula_rm',
@@ -31,9 +30,9 @@ env.Prepend(LIBS=[
     'nebula_template',
     'nebula_vm',
     'nebula_vmtemplate',
+    'nebula_group',
     'nebula_vnm',
     'nebula_image',
-    'nebula_pool',
     'nebula_xml',
     'nebula_hm',
     'nebula_authm',
@@ -42,6 +41,7 @@ env.Prepend(LIBS=[
     'nebula_log',
     'nebula_lcm',
     'nebula_dm',
+    'nebula_pool',
     'crypto'
 ])
 

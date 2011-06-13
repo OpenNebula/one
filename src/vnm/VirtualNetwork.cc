@@ -24,17 +24,15 @@
 #include "FixedLeases.h"
 
 #include "AuthManager.h"
-#include "UserPool.h"
 
 /* ************************************************************************** */
 /* Virtual Network :: Constructor/Destructor                                  */
 /* ************************************************************************** */
 
-VirtualNetwork::VirtualNetwork(int uid,
-                               string _user_name,
+VirtualNetwork::VirtualNetwork(int _uid,
+                               int _gid,
                                VirtualNetworkTemplate *_vn_template):
-                PoolObjectSQL(-1,"",uid,table),
-                user_name(_user_name),
+                PoolObjectSQL(-1,"",_uid,_gid,table),
                 bridge(""),
                 type(UNINITIALIZED),
                 leases(0)
@@ -71,11 +69,11 @@ VirtualNetwork::~VirtualNetwork()
 
 const char * VirtualNetwork::table        = "network_pool";
 
-const char * VirtualNetwork::db_names     = "oid, name, body, uid, public";
+const char * VirtualNetwork::db_names     = "oid, name, body, uid, gid, public";
 
 const char * VirtualNetwork::db_bootstrap = "CREATE TABLE IF NOT EXISTS"
     " network_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128),"
-    " body TEXT, uid INTEGER, public INTEGER, UNIQUE(name,uid))";
+    " body TEXT, uid INTEGER, gid INTEGER, public INTEGER, UNIQUE(name,uid))";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -262,7 +260,7 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
 
     transform (pub.begin(), pub.end(), pub.begin(), (int(*)(int))toupper);
 
-    public_vnet = (pub == "YES");
+    public_obj = (pub == "YES");
 
     obj_template->erase("PUBLIC");
 
@@ -425,7 +423,8 @@ int VirtualNetwork::insert_replace(SqlDB *db, bool replace)
         << "'" <<   sql_name    << "',"
         << "'" <<   sql_xml     << "',"
         <<          uid         << ","
-        <<          public_vnet << ")";
+        <<          gid         << ","
+        <<          public_obj << ")";
 
     rc = db->exec(oss);
 
@@ -462,21 +461,17 @@ int VirtualNetwork::drop(SqlDB * db)
 /* Virtual Network :: Misc                                                    */
 /* ************************************************************************** */
 
-ostream& operator<<(ostream& os, VirtualNetwork& vn)
-{
-    string vnet_xml;
-
-    os << vn.to_xml_extended(vnet_xml,true);
-
-    return os;
-};
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 string& VirtualNetwork::to_xml(string& xml) const
 {
     return to_xml_extended(xml,false);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string& VirtualNetwork::to_xml_extended(string& xml) const
+{
+    return to_xml_extended(xml,true);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -501,11 +496,11 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended) const
         "<VNET>" <<
             "<ID>"          << oid          << "</ID>"          <<
             "<UID>"         << uid          << "</UID>"         <<
-            "<USERNAME>"    << user_name    << "</USERNAME>"    <<
+            "<GID>"         << gid          << "</GID>"         <<
             "<NAME>"        << name         << "</NAME>"        <<
             "<TYPE>"        << type         << "</TYPE>"        <<
             "<BRIDGE>"      << bridge       << "</BRIDGE>"      <<
-            "<PUBLIC>"      << public_vnet  << "</PUBLIC>"      <<
+            "<PUBLIC>"      << public_obj  << "</PUBLIC>"      <<
             "<TOTAL_LEASES>"<< total_leases << "</TOTAL_LEASES>"<<
             obj_template->to_xml(template_xml);
 
@@ -537,11 +532,11 @@ int VirtualNetwork::from_xml(const string &xml_str)
     // Get class base attributes
     rc += xpath(oid,        "/VNET/ID",         -1);
     rc += xpath(uid,        "/VNET/UID",        -1);
-    rc += xpath(user_name,  "/VNET/USERNAME",   "not_found");
+    rc += xpath(gid,        "/VNET/GID",        -1);
     rc += xpath(name,       "/VNET/NAME",       "not_found");
     rc += xpath(int_type,   "/VNET/TYPE",       -1);
     rc += xpath(bridge,     "/VNET/BRIDGE",     "not_found");
-    rc += xpath(public_vnet,"/VNET/PUBLIC",     0);
+    rc += xpath(public_obj,"/VNET/PUBLIC",     0);
 
     type = static_cast<NetworkType>( int_type );
 

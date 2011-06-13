@@ -22,7 +22,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opennebula.client.Client;
 import org.opennebula.client.OneResponse;
+import org.opennebula.client.group.Group;
 import org.opennebula.client.template.*;
+import org.opennebula.client.user.User;
 import org.opennebula.client.vm.VirtualMachine;
 
 
@@ -41,7 +43,8 @@ public class TemplateTest
 
     private static String template_str =
         "NAME = \"" + name + "\"\n" +
-        "ATT1 = \"val1\"";
+        "ATT1 = \"VAL1\"\n" +
+        "ATT2 = \"VAL2\"";
 
     /**
      * @throws java.lang.Exception
@@ -119,33 +122,24 @@ public class TemplateTest
     @Test
     public void update()
     {
-        // Update an existing att.
-        res = template.update("ATT1", "new_val_1");
-        assertTrue( !res.isError() );
-
-        res = template.info();
-        assertTrue( !res.isError() );
-        assertTrue( template.xpath("TEMPLATE/ATT1").equals("new_val_1") );
-
-        // Create a new att.
-        res = template.update("ATT2", "new_val_2");
-        assertTrue( !res.isError() );
-
-        res = template.info();
-        assertTrue( !res.isError() );
-        assertTrue( template.xpath("TEMPLATE/ATT2").equals("new_val_2") );
-    }
-
-    @Test
-    public void rmattr()
-    {
-        res = template.rmattr("ATT1");
-        assertTrue( !res.isError() );
-
         res = template.info();
         assertTrue( !res.isError() );
 
-        assertTrue( template.xpath("ATT1").equals("") );
+        assertTrue( template.xpath("TEMPLATE/ATT1").equals( "VAL1" ) );
+        assertTrue( template.xpath("TEMPLATE/ATT2").equals( "VAL2" ) );
+
+        String new_template =   "ATT2 = NEW_VAL\n" +
+                                "ATT3 = VAL3";
+
+        res = template.update(new_template);
+        assertTrue( !res.isError() );
+
+
+        res = template.info();
+        assertTrue( !res.isError() );
+        assertTrue( template.xpath("TEMPLATE/ATT1").equals( "" ) );
+        assertTrue( template.xpath("TEMPLATE/ATT2").equals( "NEW_VAL" ) );
+        assertTrue( template.xpath("TEMPLATE/ATT3").equals( "VAL3" ) );
     }
 
     @Test
@@ -191,11 +185,64 @@ public class TemplateTest
     @Test
     public void allocateFromTemplate()
     {
-        template.info();
+        res = template.info();
         assertTrue( !res.isError() );
 
         res = VirtualMachine.allocateFromTemplate(client, template);
         assertTrue( !res.isError() );
         assertTrue( res.getMessage().equals("0") );
+    }
+
+    @Test
+    public void chown()
+    {
+        // Create a new User and Group
+        res = User.allocate(client, "template_test_user", "password");
+        assertTrue( !res.isError() );
+
+        int uid = Integer.parseInt(res.getMessage());
+
+        res = Group.allocate(client, "template_test_group");
+        assertTrue( !res.isError() );
+
+        int gid = Integer.parseInt(res.getMessage());
+
+        res = template.info();
+        assertTrue( !res.isError() );
+
+        assertTrue( template.uid() == 0 );
+        assertTrue( template.gid() == 0 );
+
+        res = template.chown(uid, gid);
+        assertTrue( !res.isError() );
+
+        res = template.info();
+        assertTrue( !res.isError() );
+
+        assertTrue( template.uid() == uid );
+        assertTrue( template.gid() == gid );
+
+        res = template.chgrp(0);
+
+        res = template.info();
+        assertTrue( !res.isError() );
+
+        assertTrue( template.uid() == uid );
+        assertTrue( template.gid() == 0 );
+    }
+
+    @Test
+    public void instantiate()
+    {
+        res = template.instantiate("new_vm_name");
+        assertTrue( !res.isError() );
+
+        int vm_id = Integer.parseInt(res.getMessage());
+        VirtualMachine vm = new VirtualMachine(vm_id, client);
+
+        res = vm.info();
+        assertTrue( !res.isError() );
+
+        assertTrue( vm.getName().equals( "new_vm_name" ) );
     }
 }

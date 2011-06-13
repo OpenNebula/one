@@ -16,7 +16,7 @@
 
 
 /* Some useful functions for Sunstone default plugins */
-var INTERVAL=60000;
+var INTERVAL=60000; //milisecs
 
 function someTime(){
     return Math.floor(Math.random()*30000);
@@ -478,10 +478,68 @@ function escapeDoubleQuotes(string){
     return string.replace(/"/g,'\\"');
 }
 
+function generateMonitoringDivs(graphs, id_prefix){
+    var str = "";
+    //40% of the width of the screen minus 
+    //129px (left menu size)
+    var width = ($(window).width()-129)*45/100;
+    var id_suffix="";
+    var label="";
+
+    $.each(graphs,function(){
+        label = this.monitor_resources;
+        id_suffix=label.replace(/,/g,'_');
+        id = id_prefix+id_suffix;
+        str+='<table class="info_table">\
+<thead><tr><th colspan="1">'+this.title+'</th></tr></thead>\
+<tr><td id="legend_'+id_suffix+'"></td></tr>\
+<tr><td style="border:0">\
+<div id="'+id+'" style="width:'+width+'px; height:150px;">'+spinner+'</div>\
+</td></tr></table>';
+    });
+
+    return str;
+}
+
+function plot_graph(data,context,id_prefix,info){
+    var labels = info.monitor_resources;
+    var humanize = info.humanize_figures ? humanize_size : function(val){return val};
+    var labels_arr = labels.split(',');
+    var id_suffix = labels.replace(/,/g,'_');
+    var series = [];
+    var serie = null;
+
+    for (var i = 0; i< labels_arr.length; i++) {
+        serie = {
+            label: labels_arr[i],
+            data: data[i]
+        };
+        series.push(serie);
+    };
+
+    var options = {
+        legend : { show : true, 
+                   noColumns: labels_arr.length,
+                   container: $('#legend_'+id_suffix)
+                 },
+        xaxis : { mode: "time", 
+                  timeformat: "%h:%M"
+                },
+        yaxis : { labelWidth: 40,
+                  tickFormatter: function(val, axis) {
+                      return humanize(val);
+                  }
+                }
+    }
+
+    id = id_prefix + id_suffix;
+    $.plot($('#'+id, context),series,options);
+}
+
 //functions that used as true and false conditions for testing mainly
 function True(){
     return true;
 }
 function False(){
     return false;
-}    
+}
