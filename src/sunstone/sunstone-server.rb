@@ -43,6 +43,7 @@ $: << File.dirname(__FILE__)+'/share/OneMonitor'
 ##############################################################################
 require 'rubygems'
 require 'sinatra'
+require 'erb'
 
 require 'cloud/Configuration'
 require 'SunstoneServer'
@@ -96,6 +97,27 @@ helpers do
         return [204, ""]
     end
 
+    def user_plugins
+        plugins = Array.new
+        base_path = File.dirname(__FILE__)+'/public'
+        static_plugins = [ "/js/plugins/templates-tab.js",
+                           "/js/plugins/dashboard-tab.js",
+                           "/js/plugins/groups-tab.js",
+                           "/js/plugins/hosts-tab.js",
+                           "/js/plugins/vms-tab.js",
+                           "/js/plugins/images-tab.js",
+                           "/js/plugins/vnets-tab.js",
+                           "/js/plugins/users-tab.js" ]
+
+        Dir[base_path+'/js/plugins/*'].each do |p|
+            m = p.match(/^#{base_path}(.*\.js)$/)
+            if m and plugin = m[1]
+                plugins << plugin if !static_plugins.include? plugin
+            end
+        end
+
+        plugins
+    end
 end
 
 before do
@@ -132,7 +154,9 @@ get '/' do
                         :value=>"#{session[:user_id]}",
                         :expires=>time)
 
-    File.read(File.dirname(__FILE__)+'/templates/index.html')
+    #File.read(File.dirname(__FILE__)+'/templates/index.html'
+    @user_plugins = user_plugins
+    erb :index
 end
 
 get '/login' do

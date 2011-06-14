@@ -36,9 +36,15 @@
     <script type="text/javascript" src="/js/plugins/vnets-tab.js"></script>
     <script type="text/javascript" src="/js/plugins/images-tab.js"></script>
     <script type="text/javascript" src="/js/plugins/users-tab.js"></script>
-    
     <!--<script type="text/javascript" src="/js/plugins/dummy-plugin.js"></script>-->
     
+<% if !@user_plugins.empty? %>
+    <!--Base plugins-->
+<% @user_plugins.each do |plugin| %>
+    <script type="text/javascript" src="<%= plugin %>"></script>
+<% end %>
+<% end %>
+
 </head>
 <body>
 <div class="outer-center">
