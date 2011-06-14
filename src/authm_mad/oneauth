@@ -37,115 +37,76 @@ require 'rubygems'
 require 'sequel'
 require 'quota'
 require 'ssh_auth'
-require 'client_utilities'
-require 'command_parse'
 require 'yaml'
 
+require 'cli/command_parser'
+require 'cli/one_helper'
 
-COMMANDS_HELP=<<-EOT
-Usage:
-    oneauth <command> [<parameters>]
+cmd=CommandParser::CmdParser.new(ARGV) do
+    usage "oneauth COMMAND [args..]"
 
+    description "This command contains a set of utilities to " <<
+                "manage authorization module."
 
-Description:
+    set :option, CommandParser::OPTIONS
 
-This command contains a set of utilities to manage authorization module.
+    set :format, :userid, OpenNebulaHelper.name_to_id_desc("USER") do |arg|
+        OpenNebulaHelper.name_to_id(arg, "USER")
+    end
 
+    # Helpers
+    def get_database
+        config_data=File.read(ETC_LOCATION+'/auth/auth.conf')
+        config=YAML::load(config_data)
 
-Commands:
+        database_url=config[:database]
+        db=Sequel.connect(database_url)
+    end
 
-* quota set (sets quota for a user)
-    oneauth quota set <id> <cpu> <memory> <num_vms>
-    
-* login (generates authentication proxy)
-    oneauth login <username> [<expire time in seconds>]
-    
-* key (gets public key)
-    oneauth key
-    
-* help (prints help)
-    oneauth help
+    def add_quota(uid, cpu, memory, num_vms=nil)
+        db=get_database
+        quota=Quota.new(db, OpenNebula::Client.new)
+        quota.set(uid.to_i, cpu.to_f, memory.to_i, num_vms)
+    end
 
-EOT
+    # Commands
+    quotaset_desc = <<-EOT.unindent
+        Sets CPU, MEMORY and NUM_VMs quota for a given user
+    EOT
 
-def print_help
-    puts COMMANDS_HELP
-end
-
-def get_database
-    config_data=File.read(ETC_LOCATION+'/auth/auth.conf')
-    config=YAML::load(config_data)
-    
-    database_url=config[:database]
-    db=Sequel.connect(database_url)
-end
-
-def add_quota(uid, cpu, memory, num_vms=nil)
-    db=get_database
-    quota=Quota.new(db, OpenNebula::Client.new)
-    quota.set(uid.to_i, cpu.to_f, memory.to_i, num_vms)
-end
-
-
-result=[false, "Unknown error"]
-
-command=ARGV.shift
-
-case command
-when "quota"
-    check_parameters("quota", 1)
-    
-    case ARGV[0].downcase
-    when 'set'
-        check_parameters("quota set", 3)
+    command 'quota-set', quotaset_desc , :userid, :text, :text, :text do
         Dir.chdir VAR_LOCATION
-        
         begin
-            add_quota(*ARGV[1..4])
+            add_quota(*args[1..4])
         rescue Exception => e
-            puts "Error starting server: #{e}"
-            exit(-1)
+            exit_with_code -1, "Error starting server: #{e}"
         end
-    else
-        #default
+        exit_with_code 0
     end
-    
-    exit 0
-    
-when "login"
-    check_parameters("login", 1)
-    
-    user=ARGV[0]
-    time=ARGV[1]
-    
-    if time
-        time=time.to_i
-    else
-        time=3600
-    end
-    
-    ssh=SshAuth.new
-    ssh.login(user, time)
-    
-when "key"
-    ssh=SshAuth.new
-    puts ssh.extract_public_key
-    
-    exit 0
-    
-when "help"
-    print_help
-    exit 0
-    
-when "--version"
-    puts CommandParse::ONE_VERSION
-    
-else
-    print_help
-    exit -1
-end
 
-if OpenNebula.is_error?(result)
-    puts "Error: " + result.message
-    exit -1
+    login_desc = <<-EOT.unindent
+        Generates authentication proxy. The last argument specifies 
+        the expiration time in seconds
+    EOT
+
+    command 'login', login_desc, :userid, :text do
+        user=args[0]
+        time=args[1]
+        pp args
+        if time
+            time=time.to_i
+        else
+            time=3600
+        end
+
+        ssh=SshAuth.new
+        ssh.login(user, time)
+        exit_with_code 0
+    end
+
+    command 'key', 'Gets public key' do
+        ssh=SshAuth.new
+        puts ssh.extract_public_key
+        exit_with_code 0
+    end
 end
