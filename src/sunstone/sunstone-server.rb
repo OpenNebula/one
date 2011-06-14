@@ -98,21 +98,12 @@ helpers do
     end
 
     def user_plugins
-        plugins = Array.new
         base_path = File.dirname(__FILE__)+'/public'
-        static_plugins = [ "/js/plugins/templates-tab.js",
-                           "/js/plugins/dashboard-tab.js",
-                           "/js/plugins/groups-tab.js",
-                           "/js/plugins/hosts-tab.js",
-                           "/js/plugins/vms-tab.js",
-                           "/js/plugins/images-tab.js",
-                           "/js/plugins/vnets-tab.js",
-                           "/js/plugins/users-tab.js" ]
-
-        Dir[base_path+'/js/plugins/*'].each do |p|
+        plugins = Array.new
+        Dir[base_path+'/js/user-plugins/*'].each do |p|
             m = p.match(/^#{base_path}(.*\.js)$/)
             if m and plugin = m[1]
-                plugins << plugin if !static_plugins.include? plugin
+                plugins << plugin
             end
         end
 
