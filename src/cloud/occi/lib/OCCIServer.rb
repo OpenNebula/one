@@ -103,7 +103,14 @@ class OCCIServer < CloudServer
 
         # --- Prepare XML Response ---
         rc = vmpool.info
-        return rc, 404 if OpenNebula.is_error?(rc)
+
+        if OpenNebula.is_error?(rc)
+             if rc.message.match("Error getting")
+                return rc, 404
+             else
+                return rc, 500
+             end
+        end
 
         return to_occi_xml(vmpool, 200)
     end
@@ -128,7 +135,14 @@ class OCCIServer < CloudServer
 
         # --- Prepare XML Response ---
         rc = network_pool.info
-        return rc, 404 if OpenNebula.is_error?(rc)
+        
+        if OpenNebula.is_error?(rc)
+             if rc.message.match("Error getting")
+                return rc, 404
+             else
+                return rc, 500
+             end
+        end
 
         return to_occi_xml(network_pool, 200)
     end
@@ -152,7 +166,14 @@ class OCCIServer < CloudServer
 
         # --- Prepare XML Response ---
         rc = image_pool.info
-        return rc, 404 if OpenNebula.is_error?(rc)
+        
+        if OpenNebula.is_error?(rc)
+             if rc.message.match("Error getting")
+                return rc, 404
+             else
+                return rc, 500
+             end
+        end
 
         return to_occi_xml(image_pool, 200)
     end
@@ -213,7 +234,14 @@ class OCCIServer < CloudServer
 
         # --- Prepare XML Response ---
         rc = vm.info
-        return rc, 404 if OpenNebula::is_error?(rc)
+        
+        if OpenNebula.is_error?(rc)
+             if rc.message.match("Error getting")
+                return rc, 404
+             else
+                return rc, 500
+             end
+        end
 
         return to_occi_xml(vm, 200)
     end
@@ -374,7 +402,14 @@ class OCCIServer < CloudServer
 
         # --- Prepare XML Response ---
         rc = network.info
-        return rc, 404 if OpenNebula::is_error?(rc)
+        
+        if OpenNebula.is_error?(rc)
+             if rc.message.match("Error getting")
+                return rc, 404
+             else
+                return rc, 500
+             end
+        end
 
         return to_occi_xml(network, 200)
     end
@@ -496,7 +531,14 @@ class OCCIServer < CloudServer
                         one_client)
 
         rc = image.info
-        return rc, 404 if OpenNebula::is_error?(rc)
+        
+        if OpenNebula.is_error?(rc)
+             if rc.message.match("Error getting")
+                return rc, 404
+             else
+                return rc, 500
+             end
+        end
 
         # --- Prepare XML Response ---
         return to_occi_xml(image, 200)
