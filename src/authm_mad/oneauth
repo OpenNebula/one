@@ -74,7 +74,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Sets CPU, MEMORY and NUM_VMs quota for a given user
     EOT
 
-    command 'quota-set', quotaset_desc , :userid, :text, :text, :text do
+    command 'quota-set', quotaset_desc , :userid, :cpu, :memory, :num_vms do
         Dir.chdir VAR_LOCATION
         begin
             add_quota(*args[1..4])

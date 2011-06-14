@@ -160,7 +160,7 @@ module CommandParser
                 begin
                     rc = comm[:proc].call
                 rescue Exception =>e
-                    puts e.message
+                    #puts e.message
                     exit -1
                 end
 
@@ -340,20 +340,14 @@ module CommandParser
                     argument = nil
                     error_msg = nil
                     format.each { |f|
-                        if @formats[f]
-                            rc = @formats[f][:proc].call(arg)
-                            if rc[0]==0
-                                argument=rc[1]
-                                break
-                            else
-                                error_msg=rc[1]
-                                next
-                            end
+                        format_hash = @formats[f] ? @formats[f] : @formats[:text]
+                        rc = format_hash[:proc].call(arg)
+                        if rc[0]==0
+                            argument=rc[1]
+                            break
                         else
-                            puts "<#{f}> is not an aceptted format."
-                            puts "Change your command specification or add " <<
-                                 "a new formatter"
-                            exit -1
+                            error_msg=rc[1]
+                            next
                         end
                     }
 
