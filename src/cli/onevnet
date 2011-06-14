@@ -44,6 +44,14 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     ########################################################################
     # Formatters for arguments
     ########################################################################
+    set :format, :groupid, OpenNebulaHelper.name_to_id_desc("GROUP") do |arg|
+        OpenNebulaHelper.name_to_id(arg, "GROUP")
+    end
+
+    set :format, :userid, OpenNebulaHelper.name_to_id_desc("USER") do |arg|
+        OpenNebulaHelper.name_to_id(arg, "USER")
+    end
+
     set :format, :vnetid, OneVNetHelper.to_id_desc do |arg|
         helper.to_id(arg)
     end
@@ -66,13 +74,13 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
-    command :chgrp, 'Changes the Virtual Network group',[:range, :vnid_list], :text do
+    command :chgrp, 'Changes the Virtual Network group',[:range, :vnid_list], :groupid do
         helper.perform_actions(args[0],options,"User/Group changed") do |vn|
             vn.chown(-1, args[1].to_i)
         end
     end
 
-    command :chown, 'Changes the Virtual Network owner and group', [:range, :vnid_list], :text, [:text,nil] do
+    command :chown, 'Changes the Virtual Network owner and group', [:range, :vnid_list], :userid, [:groupid,nil] do
         gid = args[2].nil? ? -1 : args[2].to_id
         helper.perform_actions(args[0],options,"Group changed") do |vn|
             vn.chown(args[1].to_i, gid)

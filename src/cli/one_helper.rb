@@ -149,30 +149,14 @@ EOT
         ########################################################################
         # Formatters for arguments
         ########################################################################
-        def to_id(name, pool=nil)
+        def to_id(name)
             return 0, name if name.match(/^[0123456789]+$/)
 
             user_flag = -2
-            pool = pool ? pool : factory_pool(user_flag)
+            pool = factory_pool(user_flag)
+            poolname = self.class.rname
 
-            rc = pool.info
-            return -1, rc.message if OpenNebula.is_error?(rc)
-
-            objects=pool.select {|object| object.name==name }
-
-            if objects.length>0
-                if objects.length>1
-                    rname = Object.const_get(self.class.name)::RESOURCE
-                    return -1, "There are multiple #{rname}s with name #{name}."
-                else
-                    result = objects.first.id
-                end
-            else
-                rname=Object.const_get(self.class.name)::RESOURCE
-                return -1,  "#{rname} named #{name} not found."
-            end
-
-            return 0, result
+            id_to_name(name, pool, poolname)
         end
 
         def self.to_id_desc
@@ -241,6 +225,25 @@ EOT
 
         private
 
+        def self.id_to_name(name, pool, ename)
+            rc = pool.info
+            return -1, rc.message if OpenNebula.is_error?(rc)
+
+            objects=pool.select {|object| object.name==name }
+
+            if objects.length>0
+                if objects.length>1
+                    return -1, "There are multiple #{ename}s with name #{name}."
+                else
+                    result = objects.first.id
+                end
+            else
+                return -1,  "#{ename} named #{name} not found."
+            end
+
+            return 0, result
+        end
+
         def retrieve_resource(id)
             resource = factory(id)
 
@@ -277,6 +280,21 @@ EOT
         end
     end
 
+    def OpenNebulaHelper.name_to_id(name, poolname, user_flag=-2)
+        client = OpenNebula::Client.new
+        # TBD user_flag
+        pool = case poolname
+        when "HOST"  then  OpenNebula::HostPool.new(client)
+        when "GROUP" then OpenNebula::GroupPool.new(client)
+        when "USER"  then OpenNebula::UserPool.new(client)
+        end
+
+        OneHelper.id_to_name(name, pool, poolname)
+    end
+
+    def OpenNebulaHelper.name_to_id_desc(poolname)
+        "OpenNebula #{poolname} name or id"
+    end
     def OpenNebulaHelper.public_to_str(str)
         if str.to_i == 1
             public_str = "Y"

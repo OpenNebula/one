@@ -48,6 +48,14 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     ########################################################################
     # Formatters for arguments
     ########################################################################
+    set :format, :groupid, OpenNebulaHelper.name_to_id_desc("GROUP") do |arg|
+        OpenNebulaHelper.name_to_id(arg, "GROUP")
+    end
+
+    set :format, :userid, OpenNebulaHelper.name_to_id_desc("USER") do |arg|
+        OpenNebulaHelper.name_to_id(arg, "USER")
+    end
+
     set :format, :templateid, OneTemplateHelper.to_id_desc do |arg|
         helper.to_id(arg)
     end
@@ -63,13 +71,13 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     ########################################################################
     # Commands
     ########################################################################
-    command :chgrp, 'Changes the Template group',[:range, :templateid_list], :text do
+    command :chgrp, 'Changes the Template group',[:range, :templateid_list], :groupid do
         helper.perform_actions(args[0],options,"User/Group changed") do |t|
             t.chown(-1, args[1].to_i)
         end
     end
 
-    command :chown, 'Changes the Template owner and group', [:range, :templateid_list], :text, [:text,nil] do
+    command :chown, 'Changes the Template owner and group', [:range, :templateid_list], :userid, [:groupid,nil] do
         gid = args[2].nil? ? -1 : args[2].to_id
         helper.perform_actions(args[0],options,"Group changed") do |t|
             t.chown(args[1].to_i, gid)

@@ -64,6 +64,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     ########################################################################
     # Formatters for arguments
     ########################################################################
+    set :format, :groupid, OpenNebulaHelper.name_to_id_desc("GROUP") do |arg|
+        OpenNebulaHelper.name_to_id(arg, "GROUP")
+    end
+
     set :format, :userid, OneUserHelper.to_id_desc do |arg|
         helper.to_id(arg)
     end
@@ -83,7 +87,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     ########################################################################
     # Commands
     ########################################################################
-    command :chgrp, 'Changes the User group',[:range, :userid_list], :text do
+    command :chgrp, 'Changes the User group',[:range, :userid_list], :groupid do
         helper.perform_actions(args[0],options,"User/Group changed") do |user|
             user.chown(-1, args[1].to_i)
         end
