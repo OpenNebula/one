@@ -205,6 +205,7 @@ SUNSTONE_DIRS="$SUNSTONE_LOCATION/models \
                $SUNSTONE_LOCATION/public \
                $SUNSTONE_LOCATION/public/js \
                $SUNSTONE_LOCATION/public/js/plugins \
+               $SUNSTONE_LOCATION/public/js/user-plugins \
                $SUNSTONE_LOCATION/public/css \
                $SUNSTONE_LOCATION/public/vendor \
                $SUNSTONE_LOCATION/public/vendor/jQueryLayout \
@@ -213,7 +214,8 @@ SUNSTONE_DIRS="$SUNSTONE_LOCATION/models \
                $SUNSTONE_LOCATION/public/vendor/jQuery \
                $SUNSTONE_LOCATION/public/vendor/jGrowl \
                $SUNSTONE_LOCATION/public/images \
-               $SUNSTONE_LOCATION/templates"
+               $SUNSTONE_LOCATION/templates \
+               $SUNSTONE_LOCATION/views"
 
 LIB_ECO_CLIENT_DIRS="$LIB_LOCATION/ruby \
                  $LIB_LOCATION/ruby/OpenNebula \
@@ -307,6 +309,7 @@ INSTALL_SUNSTONE_FILES=(
     SUNSTONE_MODELS_FILES:$SUNSTONE_LOCATION/models
     SUNSTONE_MODELS_JSON_FILES:$SUNSTONE_LOCATION/models/OpenNebulaJSON
     SUNSTONE_TEMPLATE_FILES:$SUNSTONE_LOCATION/templates
+    SUNSTONE_VIEWS_FILES:$SUNSTONE_LOCATION/views
     SUNSTONE_PUBLIC_JS_FILES:$SUNSTONE_LOCATION/public/js
     SUNSTONE_PUBLIC_JS_PLUGINS_FILES:$SUNSTONE_LOCATION/public/js/plugins
     SUNSTONE_PUBLIC_CSS_FILES:$SUNSTONE_LOCATION/public/css
@@ -753,8 +756,9 @@ SUNSTONE_MODELS_JSON_FILES="src/sunstone/models/OpenNebulaJSON/ClusterJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/TemplateJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/VirtualNetworkJSON.rb"
 
-SUNSTONE_TEMPLATE_FILES="src/sunstone/templates/index.html \
-                         src/sunstone/templates/login.html"
+SUNSTONE_TEMPLATE_FILES="src/sunstone/templates/login.html"
+
+SUNSTONE_VIEWS_FILES="src/sunstone/views/index.erb"
 
 SUNSTONE_PUBLIC_JS_FILES="src/sunstone/public/js/layout.js \
                         src/sunstone/public/js/login.js \
