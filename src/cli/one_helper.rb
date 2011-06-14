@@ -156,7 +156,7 @@ EOT
             pool = factory_pool(user_flag)
             poolname = self.class.rname
 
-            id_to_name(name, pool, poolname)
+            self.class.id_to_name(name, pool, poolname)
         end
 
         def self.to_id_desc
@@ -223,8 +223,6 @@ EOT
             end
         end
 
-        private
-
         def self.id_to_name(name, pool, ename)
             rc = pool.info
             return -1, rc.message if OpenNebula.is_error?(rc)
@@ -243,6 +241,8 @@ EOT
 
             return 0, result
         end
+
+        private
 
         def retrieve_resource(id)
             resource = factory(id)
