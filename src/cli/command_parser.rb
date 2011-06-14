@@ -79,6 +79,10 @@ module CommandParser
             @version = str
         end
 
+        def description(str)
+            @description = str
+        end
+
         def set(e, *args, &block)
             case e
             when :option
@@ -86,6 +90,11 @@ module CommandParser
             when :format
                 add_format(args[0], args[1], block)
             end
+        end
+
+        def exit_with_code(code, output=nil)
+            puts output if output
+            exit code
         end
 
         def command(name, desc, *args_format, &block)
@@ -106,7 +115,7 @@ module CommandParser
                 end
             }
             cmd[:proc] = block
-            @commands[name] = cmd
+            @commands[name.to_sym] = cmd
         end
 
         def script(*args_format, &block)
@@ -167,6 +176,8 @@ module CommandParser
         def help
             puts @usage if @usage
             puts
+            puts @description if @description
+            puts
             print_options
             puts
             print_commands
@@ -209,10 +220,9 @@ module CommandParser
             puts "== Commands"
 
             cmd_format5 =  "#{' '*3}%s"
-            cmd_format10 =  "#{' '*6}%s"
+            cmd_format10 =  "#{' '*8}%s"
             @commands.each{ |key,value|
-                printf cmd_format5, "* #{key}"
-                puts
+                printf cmd_format5, "* #{key} "
 
                 args_str=value[:args_format].collect{ |a|
                     if a.include?(nil)
@@ -221,7 +231,7 @@ module CommandParser
                         "<#{a.join("|")}>"
                     end
                 }.join(' ')
-                printf cmd_format10, "arguments: #{args_str}"
+                printf "#{args_str}"
                 puts
 
                 value[:desc].split("\n").each { |l|
@@ -244,7 +254,7 @@ module CommandParser
             puts "== Argument formats"
 
             cmd_format5 =  "#{' '*3}%s"
-            cmd_format10 =  "#{' '*6}%s"
+            cmd_format10 =  "#{' '*8}%s"
             @formats.each{ |key,value|
                 printf cmd_format5, "* #{key}"
                 puts
