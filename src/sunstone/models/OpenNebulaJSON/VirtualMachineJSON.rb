@@ -49,25 +49,26 @@ module OpenNebulaJSON
             end
 
             rc = case action_hash['perform']
-                when "cancel"       then self.cancel
-                when "deploy"       then self.deploy(action_hash['params'])
-                when "finalize"     then self.finalize
-                when "hold"         then self.hold
-                when "livemigrate"  then self.live_migrate(action_hash['params'])
-                when "migrate"      then self.migrate(action_hash['params'])
-                when "resume"       then self.resume
-                when "release"      then self.release
-                when "stop"         then self.stop
-                when "suspend"      then self.suspend
-                when "restart"      then self.restart
-                when "saveas"       then self.save_as(action_hash['params'])
-                when "shutdown"     then self.shutdown
-                when "resubmit"     then self.resubmit
-                else
-                    error_msg = "#{action_hash['perform']} action not " <<
-                                " available for this resource"
-                    OpenNebula::Error.new(error_msg)
-            end
+                 when "cancel"       then self.cancel
+                 when "deploy"       then self.deploy(action_hash['params'])
+                 when "finalize"     then self.finalize
+                 when "hold"         then self.hold
+                 when "livemigrate"  then self.live_migrate(action_hash['params'])
+                 when "migrate"      then self.migrate(action_hash['params'])
+                 when "resume"       then self.resume
+                 when "release"      then self.release
+                 when "stop"         then self.stop
+                 when "suspend"      then self.suspend
+                 when "restart"      then self.restart
+                 when "saveas"       then self.save_as(action_hash['params'])
+                 when "shutdown"     then self.shutdown
+                 when "resubmit"     then self.resubmit
+                 when "chown"        then self.chown(action_hash['params'])
+                 else
+                     error_msg = "#{action_hash['perform']} action not " <<
+                         " available for this resource"
+                     OpenNebula::Error.new(error_msg)
+                 end
         end
 
         def delete
@@ -88,6 +89,10 @@ module OpenNebulaJSON
 
         def save_as(params=Hash.new)
             super(params['disk_id'].to_i, params['image_name'])
+        end
+
+        def chown(params=Hash.new)
+            super(params['owner_id'].to_i,params['group_id'].to_i)
         end
     end
 end

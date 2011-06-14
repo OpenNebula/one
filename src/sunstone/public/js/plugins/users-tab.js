@@ -15,8 +15,11 @@
 /* -------------------------------------------------------------------------- */
 
 /*Users tab plugin*/
+var user_list_json = {};
+var dataTable_users;
+var users_select="";
 
-var users_tab_content = 
+var users_tab_content =
 '<form id="user_form" action="" action="javascript:alert(\'js error!\');">\
   <div class="action_blocks">\
   </div>\
@@ -26,6 +29,7 @@ var users_tab_content =
       <th class="check"><input type="checkbox" class="check_all" value="">All</input></th>\
       <th>ID</th>\
       <th>Name</th>\
+      <th>Groups</th>\
     </tr>\
   </thead>\
   <tbody id="tbodyusers">\
@@ -36,23 +40,20 @@ var users_tab_content =
 var create_user_tmpl =
 '<form id="create_user_form" action="">\
   <fieldset>\
-	<div>\
-		<label for="username">Username:</label>\
-		<input type="text" name="username" id="username" /><br />\
-		<label for="pass">Password:</label>\
-		<input type="password" name="pass" id="pass" />\
-	</div>\
-	</fieldset>\
-	<fieldset>\
-	<div class="form_buttons">\
-		<button class="button" id="create_user_submit" value="user/create">Create</button>\
-		<button class="button" type="reset" value="reset">Reset</button>\
-	</div>\
+        <div>\
+                <label for="username">Username:</label>\
+                <input type="text" name="username" id="username" /><br />\
+                <label for="pass">Password:</label>\
+                <input type="password" name="pass" id="pass" />\
+        </div>\
+        </fieldset>\
+        <fieldset>\
+        <div class="form_buttons">\
+                <button class="button" id="create_user_submit" value="user/create">Create</button>\
+                <button class="button" type="reset" value="reset">Reset</button>\
+        </div>\
 </fieldset>\
 </form>';
-
-var user_list_json = {};
-var dataTable_users;
 
 var user_actions = {
     "User.create" : {
@@ -62,19 +63,19 @@ var user_actions = {
         error: onError,
         notify: true
     },
-    
+
     "User.create_dialog" : {
         type: "custom",
         call: popUpCreateUserDialog
     },
-    
+
     "User.list" : {
         type: "list",
         call: OpenNebula.User.list,
         callback: updateUsersView,
         error: onError
     },
-    
+
     "User.refresh" : {
         type: "custom",
         call: function () {
@@ -82,16 +83,20 @@ var user_actions = {
             Sunstone.runAction("User.list");
         },
     },
-    
+
     "User.autorefresh" : {
         type: "custom",
         call: function(){
-            OpenNebula.User.list({timeout: true, success: updateUsersView, error: onError});
+            OpenNebula.User.list({
+                timeout: true,
+                success: updateUsersView,
+                error: onError
+            });
         },
         condition: function(){ uid == 0 },
         notify: false
     },
-    
+
     "User.delete" : {
         type: "multiple",
         call: OpenNebula.User.delete,
@@ -134,81 +139,116 @@ Sunstone.addMainTab('users_tab',users_tab);
 // Returns an array with the values from the user_json ready to be
 // added to the dataTable
 function userElementArray(user_json){
-	var user = user_json.USER;
+    var user = user_json.USER;
     if (!user.NAME || user.NAME == {}){
         name = "";
     } else {
         name = user.NAME;
     }
-        
-	return [
-		'<input type="checkbox" id="user_'+user.ID+'" name="selected_items" value="'+user.ID+'"/>',
-		user.ID,
-		name
-		]
+
+    var i = 1;
+    var groups_str=getGroupName(user.GID)+", ";
+    var groups_full_str=getGroupName(user.GID)+", ";
+    var group_field;
+
+    if (user.GROUPS.ID){
+        $.each(user.GROUPS.ID,function() {
+            if (i<=5) {
+                groups_str+=getGroupName(this)+", ";
+            };
+            groups_full_str+=getGroupName(this)+", ";
+            i++;
+        });
+        if (i>0){
+            groups_str = groups_str.slice(0, -2);
+            groups_full_str = groups_str.slice(0, -2);
+        };
+        if (i>5){
+            groups_str+="...";
+            group_field = '<div class="shortened_info">'+groups_str+'</div><div class="full_info" style="display:none">'+groups_full_str+'</div>';
+        } else {
+            group_field=groups_str;
+        };
+    }
+
+
+
+    return [
+        '<input type="checkbox" id="user_'+user.ID+'" name="selected_items" value="'+user.ID+'"/>',
+        user.ID,
+        name,
+        group_field
+    ]
 }
 
 
+function updateUserSelect(){
+    users_select = makeSelectOptions(dataTable_users,1,2,-1,"",-1);
+}
+
 // Callback to refresh a single element from the dataTable
 function updateUserElement(request, user_json){
-	var id = user_json.USER.ID;
-	var element = userElementArray(user_json);
-	updateSingleElement(element,dataTable_users,'#user_'+id);
+    var id = user_json.USER.ID;
+    var element = userElementArray(user_json);
+    updateSingleElement(element,dataTable_users,'#user_'+id);
 }
 
 // Callback to delete a single element from the dataTable
 function deleteUserElement(req){
-	deleteElement(dataTable_users,'#user_'+req.request.data);
+    deleteElement(dataTable_users,'#user_'+req.request.data);
+    updateUserSelect();
 }
 
 // Callback to add a single user element
 function addUserElement(request,user_json){
-	var element = userElementArray(user_json);
-	addElement(element,dataTable_users);
+    var element = userElementArray(user_json);
+    addElement(element,dataTable_users);
+    updateUserSelect();
 }
 
 // Callback to update the list of users
 function updateUsersView(request,users_list){
-	user_list_json = users_list;
-	var user_list_array = [];
+    user_list_json = users_list;
+    var user_list_array = [];
 
-	$.each(user_list_json,function(){
-		user_list_array.push(userElementArray(this));
-	});
-	updateView(user_list_array,dataTable_users);
-	updateDashboard("users",user_list_json);
+    $.each(user_list_json,function(){
+        user_list_array.push(userElementArray(this));
+    });
+    updateView(user_list_array,dataTable_users);
+    updateDashboard("users",user_list_json);
+    updateUserSelect();
 }
 
 // Prepare the user creation dialog
 function setupCreateUserDialog(){
-     $('div#dialogs').append('<div title="Create user" id="create_user_dialog"></div>');
-     $('#create_user_dialog').html(create_user_tmpl);
+    $('div#dialogs').append('<div title="Create user" id="create_user_dialog"></div>');
+    $('#create_user_dialog').html(create_user_tmpl);
 
-	//Prepare jquery dialog
-	$('#create_user_dialog').dialog({
-		autoOpen: false,
-		modal:true,
-		width: 400
-	});
-    
+    //Prepare jquery dialog
+    $('#create_user_dialog').dialog({
+        autoOpen: false,
+        modal:true,
+        width: 400
+    });
+
     $('#create_user_dialog button').button();
-    
+
     $('#create_user_form').submit(function(){
-		var user_name=$('#username',this).val();
-		var user_password=$('#pass',this).val();
+        var user_name=$('#username',this).val();
+        var user_password=$('#pass',this).val();
         if (!user_name.length && !user_password.length){
             notifyError("User name and password must be filled in");
             return false;
         }
-        
-		var user_json = { "user" :
-						{ "name" : user_name,
-						  "password" : user_password }
-					  };
-		Sunstone.runAction("User.create",user_json);
-		$('#create_user_dialog').dialog('close');
-		return false;
-	});
+
+        var user_json = { "user" :
+                          { "name" : user_name,
+                            "password" : user_password }
+                        };
+        Sunstone.runAction("User.create",user_json);
+        $('#create_user_dialog').dialog('close');
+        return false;
+    });
 }
 
 function popUpCreateUserDialog(){
@@ -218,16 +258,15 @@ function popUpCreateUserDialog(){
 // Prepare the autorefresh of the list
 function setUserAutorefresh(){
     setInterval(function(){
-		var checked = $('input:checked',dataTable_users.fnGetNodes());
+        var checked = $('input:checked',dataTable_users.fnGetNodes());
         var filter = $("#datatable_users_filter input").attr("value");
-		if (!checked.length && !filter.length){
+        if (!checked.length && !filter.length){
             Sunstone.runAction("User.autorefresh");
-		}
+        }
     },INTERVAL+someTime());
 }
 
 $(document).ready(function(){
-    
     //if we are not oneadmin, our tab will not even be in the DOM.
     if (uid==0) {
         dataTable_users = $("#datatable_users").dataTable({
@@ -236,22 +275,23 @@ $(document).ready(function(){
             "sPaginationType": "full_numbers",
             "bAutoWidth":false,
             "aoColumnDefs": [
-                                { "bSortable": false, "aTargets": ["check"] },
-                                { "sWidth": "60px", "aTargets": [0] },
-                                { "sWidth": "35px", "aTargets": [1] }
-                            ]
-        });    
+                { "bSortable": false, "aTargets": ["check"] },
+                { "sWidth": "60px", "aTargets": [0] },
+                { "sWidth": "35px", "aTargets": [1] }
+            ]
+        });
         dataTable_users.fnClearTable();
         addElement([
             spinner,
-            '',''],dataTable_users);
-            
+            '','',''],dataTable_users);
+
         Sunstone.runAction("User.list");
-    
+
         setupCreateUserDialog();
         setUserAutorefresh();
-        
+
         initCheckAllBoxes(dataTable_users);
         tableCheckboxesListener(dataTable_users);
+        shortenedInfoFields('#datatable_users');
     }
 })

@@ -17,7 +17,7 @@
 require 'OpenNebula'
 include OpenNebula
 
-require 'OpenNebulaJSON/ClusterJSON'
+require 'OpenNebulaJSON/GroupJSON'
 require 'OpenNebulaJSON/HostJSON'
 require 'OpenNebulaJSON/ImageJSON'
 require 'OpenNebulaJSON/TemplateJSON'

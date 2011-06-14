@@ -184,6 +184,11 @@ end
 ##############################################################################
 # GET Resource information
 ##############################################################################
+
+get '/:resource/:id/template' do
+    @SunstoneServer.get_template(params[:resource], params[:id])
+end
+
 get '/:resource/:id' do
     @SunstoneServer.get_resource(params[:resource], params[:id])
 end
