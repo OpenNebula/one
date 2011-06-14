@@ -17,6 +17,17 @@
 require 'optparse'
 require 'pp'
 
+class String
+    def unindent(spaces=nil)
+        unless spaces
+            m = self.match(/^(\s*)/)
+            spaces = m[1].size
+        end
+
+        self.gsub!(/^ {#{spaces}}/, '')
+    end
+end
+
 module CommandParser
     OPTIONS = [
         VERBOSE={
