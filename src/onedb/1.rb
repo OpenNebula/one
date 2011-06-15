@@ -13,6 +13,8 @@
 # limitations under the License.                                             */
 # -------------------------------------------------------------------------- */
 
+require "rexml/document"
+
 class Migrator < MigratorBase
 
     def initialize(db, verbose)
@@ -71,9 +73,7 @@ class Migrator < MigratorBase
         @db.run "ALTER TABLE host_pool RENAME TO old_host_pool;"
 
         # Create new table
-        @db.run "CREATE TABLE host_pool (oid INTEGER PRIMARY KEY, name VARCHAR(256), body TEXT, state INTEGER, last_mon_time INTEGER, cid INTEGER, UNIQUE(name));"
-
-        cluster_host_ids = Hash.new
+        @db.run "CREATE TABLE host_pool (oid INTEGER PRIMARY KEY, name VARCHAR(256), body TEXT, state INTEGER, last_mon_time INTEGER, UNIQUE(name));"
 
         # Read each entry in the old table, and insert into new table
         @db.fetch("SELECT * FROM old_host_pool") do |row|
@@ -81,16 +81,6 @@ class Migrator < MigratorBase
             name            = row[:host_name]
             state           = row[:state]
             last_mon_time   = row[:last_mon_time]
-            cluster         = row[:cluster]
-
-            # OpenNebula 2.X stored the cluster name, we need the cluster ID
-            cluster_id = 0
-            @db.fetch("SELECT oid FROM cluster_pool WHERE cluster_name='#{cluster}'") do |cluster_row|
-                cluster_id = cluster_row[:oid]
-
-                cluster_host_ids[cluster_id] = "" if cluster_host_ids[cluster_id] == nil
-                cluster_host_ids[cluster_id] += "<ID>#{oid}</ID>"
-            end
 
             # There is one host share for each host
             host_share = ""
@@ -98,9 +88,18 @@ class Migrator < MigratorBase
                 host_share = "<HOST_SHARE><DISK_USAGE>#{share[:disk_usage]}</DISK_USAGE><MEM_USAGE>#{share[:mem_usage]}</MEM_USAGE><CPU_USAGE>#{share[:cpu_usage]}</CPU_USAGE><MAX_DISK>#{share[:max_disk]}</MAX_DISK><MAX_MEM>#{share[:max_mem]}</MAX_MEM><MAX_CPU>#{share[:max_cpu]}</MAX_CPU><FREE_DISK>#{share[:free_disk]}</FREE_DISK><FREE_MEM>#{share[:free_mem]}</FREE_MEM><FREE_CPU>#{share[:free_cpu]}</FREE_CPU><USED_DISK>#{share[:used_disk]}</USED_DISK><USED_MEM>#{share[:used_mem]}</USED_MEM><USED_CPU>#{share[:used_cpu]}</USED_CPU><RUNNING_VMS>#{share[:running_vms]}</RUNNING_VMS></HOST_SHARE>"
             end
 
-            body = "<HOST><ID>#{oid}</ID><NAME>#{name}</NAME><STATE>#{state}</STATE><IM_MAD>#{row[:im_mad]}</IM_MAD><VM_MAD>#{row[:vm_mad]}</VM_MAD><TM_MAD>#{row[:tm_mad]}</TM_MAD><LAST_MON_TIME>#{last_mon_time}</LAST_MON_TIME><CID>#{cluster_id}</CID>#{host_share}#{row[:template]}</HOST>"
+            # OpenNebula 2.X stored the cluster name, in 3.0 the cluster pool
+            # disappears. The cluster name is added to the Host template, this
+            # way the old VMs with REQUIREMENTS will keep working
 
-            @db.run "INSERT INTO host_pool VALUES(#{oid},'#{name}','#{body}', #{state}, #{last_mon_time}, #{cluster_id});"
+            template_doc = REXML::Document.new( row[:template] )
+            cluster_elem = template_doc.root.add_element("CLUSTER")
+            cluster_elem.add_text( "<![CDATA[#{row[:cluster]}]]>" )
+
+
+            body = "<HOST><ID>#{oid}</ID><NAME>#{name}</NAME><STATE>#{state}</STATE><IM_MAD>#{row[:im_mad]}</IM_MAD><VM_MAD>#{row[:vm_mad]}</VM_MAD><TM_MAD>#{row[:tm_mad]}</TM_MAD><LAST_MON_TIME>#{last_mon_time}</LAST_MON_TIME>#{host_share}#{ template_doc.to_s }</HOST>"
+
+            @db.run "INSERT INTO host_pool VALUES(#{oid},'#{name}','#{body}', #{state}, #{last_mon_time});"
         end
 
         # Delete old table
@@ -111,32 +110,8 @@ class Migrator < MigratorBase
         # Clusters
         ########################################################################
 
-        # 2.2 Schema
-        # CREATE TABLE cluster_pool (oid INTEGER PRIMARY KEY, cluster_name VARCHAR(128), UNIQUE(cluster_name) );
-
-        # Move table
-        @db.run "ALTER TABLE cluster_pool RENAME TO old_cluster_pool;"
-
-        # Create new table
-        @db.run "CREATE TABLE cluster_pool (oid INTEGER PRIMARY KEY, name VARCHAR(256), body TEXT, UNIQUE(name));"
-
-        # Read each entry in the old table, and insert into new table
-        @db.fetch("SELECT * FROM old_cluster_pool") do |row|
-            oid  = row[:oid]
-            name = row[:cluster_name]
-
-            hids = ""
-            if cluster_host_ids[oid] != nil
-                hids = cluster_host_ids[oid]
-            end
-
-            body = "<CLUSTER><ID>#{oid}</ID><NAME>#{name}</NAME><HOSTS>#{hids}</HOSTS></CLUSTER>"
-
-            @db.run "INSERT INTO cluster_pool VALUES(#{oid},'#{name}','#{body}');"
-        end
-
-        # Delete old table
-        @db.run "DROP TABLE old_cluster_pool"
+        # Clusters do not exist any more
+        @db.run "DROP TABLE cluster_pool"
 
         ########################################################################
         # Images
@@ -279,14 +254,14 @@ class Migrator < MigratorBase
         @db.run "CREATE TABLE template_pool (oid INTEGER PRIMARY KEY, name VARCHAR(256), body TEXT, uid INTEGER, gid INTEGER, public INTEGER);"
 
         # The group pool has two default ones
-        @db.run "CREATE TABLE group_pool (oid INTEGER PRIMARY KEY, name VARCHAR(256), body TEXT, uid INTEGER, UNIQUE(name));"
-        @db.run "INSERT INTO group_pool VALUES(0,'oneadmin','<GROUP><ID>0</ID><UID>0</UID><NAME>oneadmin</NAME><USERS><ID>0</ID></USERS></GROUP>',0);"
-        @db.run "INSERT INTO group_pool VALUES(1,'users','<GROUP><ID>1</ID><UID>0</UID><NAME>users</NAME><USERS>#{user_group_ids}</USERS></GROUP>',0);"
+        @db.run "CREATE TABLE group_pool (oid INTEGER PRIMARY KEY, name VARCHAR(256), body TEXT, UNIQUE(name));"
+        @db.run "INSERT INTO group_pool VALUES(0,'oneadmin','<GROUP><ID>0</ID><UID>0</UID><NAME>oneadmin</NAME><USERS><ID>0</ID></USERS></GROUP>');"
+        @db.run "INSERT INTO group_pool VALUES(1,'users','<GROUP><ID>1</ID><UID>0</UID><NAME>users</NAME><USERS>#{user_group_ids}</USERS></GROUP>');"
 
         # New pool_control table contains the last_oid used, must be rebuilt
         @db.run "CREATE TABLE pool_control (tablename VARCHAR(32) PRIMARY KEY, last_oid BIGINT UNSIGNED)"
 
-        for table in ["user_pool", "cluster_pool", "host_pool", "image_pool", "vm_pool", "network_pool"] do
+        for table in ["user_pool", "host_pool", "image_pool", "vm_pool", "network_pool"] do
             @db.fetch("SELECT MAX(oid) FROM #{table}") do |row|
                 if( row[:"MAX(oid)"] != nil )
                     @db.run "INSERT INTO pool_control (tablename, last_oid) VALUES ('#{table}', #{row[:"MAX(oid)"]});"
