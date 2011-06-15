@@ -164,8 +164,7 @@ ETC_DIRS="$ETC_LOCATION/im_kvm \
           $ETC_LOCATION/im_xen \
           $ETC_LOCATION/im_ec2 \
           $ETC_LOCATION/vmm_ec2 \
-          $ETC_LOCATION/vmm_ssh \
-          $ETC_LOCATION/vmm_sh \
+          $ETC_LOCATION/vmm_exec \
           $ETC_LOCATION/tm_nfs \
           $ETC_LOCATION/tm_ssh \
           $ETC_LOCATION/tm_dummy \
@@ -260,12 +259,12 @@ INSTALL_FILES=(
     IM_PROBES_KVM_FILES:$VAR_LOCATION/remotes/im/kvm.d
     IM_PROBES_XEN_FILES:$VAR_LOCATION/remotes/im/xen.d
     IM_PROBES_GANGLIA_FILES:$VAR_LOCATION/remotes/im/ganglia.d
-    VMM_SSH_KVM_SCRIPTS:$VAR_LOCATION/remotes/vmm/kvm
-    VMM_SSH_XEN_SCRIPTS:$VAR_LOCATION/remotes/vmm/xen
-    VMM_SSH_XEN_KVM_POLL:$VAR_LOCATION/remotes/vmm/kvm/poll
-    VMM_SSH_XEN_KVM_POLL:$VAR_LOCATION/remotes/vmm/xen/poll
-    VMM_SSH_GANGLIA_POLL:$VAR_LOCATION/remotes/vmm/kvm/poll_local
-    VMM_SSH_GANGLIA_POLL:$VAR_LOCATION/remotes/vmm/xen/poll_local
+    VMM_EXEC_KVM_SCRIPTS:$VAR_LOCATION/remotes/vmm/kvm
+    VMM_EXEC_XEN_SCRIPTS:$VAR_LOCATION/remotes/vmm/xen
+    VMM_EXEC_XEN_KVM_POLL:$VAR_LOCATION/remotes/vmm/kvm/poll
+    VMM_EXEC_XEN_KVM_POLL:$VAR_LOCATION/remotes/vmm/xen/poll
+    VMM_EXEC_GANGLIA_POLL:$VAR_LOCATION/remotes/vmm/kvm/poll_local
+    VMM_EXEC_GANGLIA_POLL:$VAR_LOCATION/remotes/vmm/xen/poll_local
     NFS_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/nfs
     SSH_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/ssh
     DUMMY_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/dummy
@@ -321,8 +320,7 @@ INSTALL_SUNSTONE_FILES=(
 INSTALL_ETC_FILES=(
     ETC_FILES:$ETC_LOCATION
     VMM_EC2_ETC_FILES:$ETC_LOCATION/vmm_ec2
-    VMM_SSH_ETC_FILES:$ETC_LOCATION/vmm_ssh
-    VMM_SH_ETC_FILES:$ETC_LOCATION/vmm_sh
+    VMM_EXEC_ETC_FILES:$ETC_LOCATION/vmm_exec
     IM_EC2_ETC_FILES:$ETC_LOCATION/im_ec2
     TM_NFS_ETC_FILES:$ETC_LOCATION/tm_nfs
     TM_SSH_ETC_FILES:$ETC_LOCATION/tm_ssh
@@ -414,18 +412,18 @@ MAD_RUBY_LIB_FILES="src/mad/ruby/scripts_common.rb"
 
 MADS_LIB_FILES="src/mad/sh/madcommon.sh \
               src/tm_mad/tm_common.sh \
-              src/vmm_mad/ssh/one_vmm_ssh.rb \
-              src/vmm_mad/ssh/one_vmm_ssh \
-              src/vmm_mad/sh/one_vmm_sh.rb \
-              src/vmm_mad/sh/one_vmm_sh \
+              src/vmm_mad/exec/one_vmm_exec.rb \
+              src/vmm_mad/exec/one_vmm_exec \
+              src/vmm_mad/exec/one_vmm_sh \
+              src/vmm_mad/exec/one_vmm_ssh \
               src/vmm_mad/ec2/one_vmm_ec2.rb \
               src/vmm_mad/ec2/one_vmm_ec2 \
               src/vmm_mad/dummy/one_vmm_dummy.rb \
               src/vmm_mad/dummy/one_vmm_dummy \
-              src/im_mad/im_ssh/one_im_ssh.rb \
-              src/im_mad/im_ssh/one_im_ssh \
-              src/im_mad/im_sh/one_im_sh.rb \
-              src/im_mad/im_sh/one_im_sh \
+              src/im_mad/im_exec/one_im_exec.rb \
+              src/im_mad/im_exec/one_im_exec \
+              src/im_mad/im_exec/one_im_ssh \
+              src/im_mad/im_exec/one_im_sh \
               src/im_mad/ec2/one_im_ec2.rb \
               src/im_mad/ec2/one_im_ec2 \
               src/im_mad/dummy/one_im_dummy.rb \
@@ -443,7 +441,7 @@ MADS_LIB_FILES="src/mad/sh/madcommon.sh \
 # VMM SH Driver KVM scripts, to be installed under $REMOTES_LOCATION/vmm/kvm
 #-------------------------------------------------------------------------------
 
-VMM_SSH_KVM_SCRIPTS="src/vmm_mad/remotes/kvm/cancel \
+VMM_EXEC_KVM_SCRIPTS="src/vmm_mad/remotes/kvm/cancel \
                     src/vmm_mad/remotes/kvm/deploy \
                     src/vmm_mad/remotes/kvm/kvmrc \
                     src/vmm_mad/remotes/kvm/migrate \
@@ -455,7 +453,7 @@ VMM_SSH_KVM_SCRIPTS="src/vmm_mad/remotes/kvm/cancel \
 # VMM SH Driver Xen scripts, to be installed under $REMOTES_LOCATION/vmm/xen
 #-------------------------------------------------------------------------------
 
-VMM_SSH_XEN_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
+VMM_EXEC_XEN_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
                     src/vmm_mad/remotes/xen/deploy \
                     src/vmm_mad/remotes/xen/xenrc \
                     src/vmm_mad/remotes/xen/migrate \
@@ -467,8 +465,8 @@ VMM_SSH_XEN_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
 # VMM SH Driver xen/kvm scripts, to be installed under $REMOTES_LOCATION/vmm/*
 #-----------------------------------------------------------------------------
 
-VMM_SSH_XEN_KVM_POLL="src/vmm_mad/remotes/poll_xen_kvm.rb"
-VMM_SSH_GANGLIA_POLL="src/vmm_mad/remotes/poll_ganglia.rb"
+VMM_EXEC_XEN_KVM_POLL="src/vmm_mad/remotes/poll_xen_kvm.rb"
+VMM_EXEC_GANGLIA_POLL="src/vmm_mad/remotes/poll_ganglia.rb"
 
 #-------------------------------------------------------------------------------
 # Information Manager Probes, to be installed under $LIB_LOCATION/remotes
@@ -548,18 +546,15 @@ ETC_FILES="share/etc/oned.conf \
 #-------------------------------------------------------------------------------
 # Virtualization drivers config. files, to be installed under $ETC_LOCATION
 #   - ec2, $ETC_LOCATION/vmm_ec2
-#   - sh, $ETC_LOCATION/vmm_sh
-#   - ssh, $ETC_LOCATION/vmm_ssh
+#   - ssh, $ETC_LOCATION/vmm_exec
 #-------------------------------------------------------------------------------
 
 VMM_EC2_ETC_FILES="src/vmm_mad/ec2/vmm_ec2rc \
                    src/vmm_mad/ec2/vmm_ec2.conf"
 
-VMM_SSH_ETC_FILES="src/vmm_mad/ssh/vmm_sshrc \
-                  src/vmm_mad/ssh/vmm_ssh_kvm.conf \
-                  src/vmm_mad/ssh/vmm_ssh_xen.conf"
-
-VMM_SH_ETC_FILES="src/vmm_mad/sh/vmm_shrc"
+VMM_EXEC_ETC_FILES="src/vmm_mad/exec/vmm_execrc \
+                  src/vmm_mad/exec/vmm_exec_kvm.conf \
+                  src/vmm_mad/exec/vmm_exec_xen.conf"
 
 #-------------------------------------------------------------------------------
 # Information drivers config. files, to be installed under $ETC_LOCATION

@@ -15,9 +15,7 @@
 # limitations under the License.                                               #
 # ---------------------------------------------------------------------------- #
 
-# ---------------------------------------------------------------------------- #
-# Set up the environment for the driver                                        #
-# ---------------------------------------------------------------------------- #
+# Set up the environment for the driver
 
 EC2_LOCATION = ENV["EC2_HOME"]
 
@@ -45,15 +43,10 @@ require "VirtualMachineDriver"
 require "CommandManager"
 require "rexml/document"
 
-# ---------------------------------------------------------------------------- #
-# The main class for the EC2 driver                                            #
-# ---------------------------------------------------------------------------- #
-
+# The main class for the EC2 driver
 class EC2Driver < VirtualMachineDriver
 
-    # ------------------------------------------------------------------------ #
-    # EC2 commands constants                                                   #
-    # ------------------------------------------------------------------------ #
+    # EC2 commands constants
     EC2 = {
         :run       => "#{EC2_LOCATION}/bin/ec2-run-instances",
         :terminate => "#{EC2_LOCATION}/bin/ec2-terminate-instances",
@@ -62,18 +55,19 @@ class EC2Driver < VirtualMachineDriver
         :authorize => "#{EC2_LOCATION}bin/ec2-authorize"
     }
 
-    # ------------------------------------------------------------------------ #
-    # EC2 constructor, loads defaults for the EC2Driver                        #
-    # ------------------------------------------------------------------------ #
+    # EC2 constructor, loads defaults for the EC2Driver
     def initialize(ec2_conf = nil)
-        
+
         if !EC2_JVM_CONCURRENCY
             concurrency = 5
         else
             concurrency = EC2_JVM_CONCURRENCY.to_i
         end
 
-        super(concurrency,true)
+        super(
+            :concurrency => concurrency,
+            :threaded => true
+        )
 
         @defaults = Hash.new
 
@@ -87,16 +81,14 @@ class EC2Driver < VirtualMachineDriver
             ec2 = xml.root.elements["EC2"]
 
             return if !ec2
-            
+
             @defaults["KEYPAIR"]         = ec2_value(ec2,"KEYPAIR")
             @defaults["AUTHORIZEDPORTS"] = ec2_value(ec2,"AUTHORIZEDPORTS")
             @defaults["INSTANCETYPE"]    = ec2_value(ec2,"INSTANCETYPE")
         end
     end
 
-    # ------------------------------------------------------------------------ #
-    # DEPLOY action, also sets ports and ip if needed                          #
-    # ------------------------------------------------------------------------ #
+    # DEPLOY action, also sets ports and ip if needed
     def deploy(id, host, remote_dfile, not_used)
 
         local_dfile = get_local_deployment_file(remote_dfile)
@@ -110,12 +102,12 @@ class EC2Driver < VirtualMachineDriver
         tmp = File.new(local_dfile)
         xml = REXML::Document.new tmp
         tmp.close()
-        
+
         ec2 = nil
 
         all_ec2_elements = xml.root.get_elements("EC2")
-    
-        # First, let's see if we have an EC2 site that matches 
+
+        # First, let's see if we have an EC2 site that matches
         # our desired host name
         all_ec2_elements.each { |element|
             cloud=element.elements["CLOUD"]
@@ -125,14 +117,15 @@ class EC2Driver < VirtualMachineDriver
         }
 
         if !ec2
-            # If we don't find the EC2 site, and ONE just 
+            # If we don't find the EC2 site, and ONE just
             # knows about one EC2 site, let's use that
             if all_ec2_elements.size == 1
                 ec2 = all_ec2_elements[0]
             else
                 send_message(ACTION[:deploy],RESULT[:failure],id,
-                    "Can not find EC2 element in deployment file #{local_dfile}" +
-                    " or couldn't find any EC2 site matching one of the template.")
+                    "Can not find EC2 element in deployment file "<<
+                    "#{local_dfile} or couldn't find any EC2 site matching "<<
+                    "one of the template.")
                 return
             end
         end
@@ -181,23 +174,17 @@ class EC2Driver < VirtualMachineDriver
         send_message(ACTION[:deploy],RESULT[:success],id,deploy_id)
     end
 
-    # ------------------------------------------------------------------------ #
-    # Shutdown a EC2 instance                                                  #
-    # ------------------------------------------------------------------------ #
+    # Shutdown a EC2 instance
     def shutdown(id, host, deploy_id, not_used)
         ec2_terminate(ACTION[:shutdown], id, deploy_id)
     end
 
-    # ------------------------------------------------------------------------ #
-    # Cancel a EC2 instance                                                    #
-    # ------------------------------------------------------------------------ #
+    # Cancel a EC2 instance
     def cancel(id, host, deploy_id, not_used)
         ec2_terminate(ACTION[:cancel], id, deploy_id)
     end
 
-    # ------------------------------------------------------------------------ #
-    # Get info (IP, and state) for a EC2 instance                              #
-    # ------------------------------------------------------------------------ #
+    # Get info (IP, and state) for a EC2 instance
     def poll(id, host, deploy_id, not_used)
 
         info =  "#{POLL_ATTRIBUTE[:usedmemory]}=0 " \
@@ -224,8 +211,8 @@ class EC2Driver < VirtualMachineDriver
                 when "pending"
                     info << " #{POLL_ATTRIBUTE[:state]}=#{VM_STATE[:active]}"
                 when "running"
-                    info << " #{POLL_ATTRIBUTE[:state]}=#{VM_STATE[:active]}" \
-                            " IP=#{monitor_data[1]}"
+                    info<<" #{POLL_ATTRIBUTE[:state]}=#{VM_STATE[:active]}"<<
+                        " IP=#{monitor_data[1]}"
                 when "shutting-down","terminated"
                     info << " #{POLL_ATTRIBUTE[:state]}=#{VM_STATE[:deleted]}"
             end
@@ -262,9 +249,7 @@ private
     end
 end
 
-# ---------------------------------------------------------------------------- #
 # EC2Driver Main program
-# ---------------------------------------------------------------------------- #
 
 ec2_conf = ARGV.last
 

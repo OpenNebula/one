@@ -49,8 +49,10 @@ GANGLIA_PORT=8649
 #GANGLIA_FILE='data.xml'
 
 
-host=ARGV[0]
-domain=ARGV[1]
+domain=ARGV[0]
+dom_id=ARGV[1]
+host=ARGV[2]
+
 
 # Gets monitoring data from ganglia or file
 begin

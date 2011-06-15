@@ -16,29 +16,10 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-#Setup driver variables
-DRIVER_NAME=`basename $0 | cut -d. -f1`
-
 if [ -z "${ONE_LOCATION}" ]; then
-    DRIVERRC=/etc/one/${DRIVER_NAME}/${DRIVER_NAME}rc
-    MADCOMMON=/usr/lib/one/mads/madcommon.sh
-    VAR_LOCATION=/var/lib/one
+    MAD_LOCATION=/usr/lib/one/mads
 else
-    DRIVERRC=$ONE_LOCATION/etc/${DRIVER_NAME}/${DRIVER_NAME}rc
-    MADCOMMON=$ONE_LOCATION/lib/mads/madcommon.sh
-    VAR_LOCATION=$ONE_LOCATION/var
+    MAD_LOCATION=$ONE_LOCATION/lib/mads
 fi
 
-. $MADCOMMON
-
-# Export the im_mad specific rc
-
-export_rc_vars $DRIVERRC
-
-# Go to var directory ONE_LOCATION/var or /var/lib/one
-cd $VAR_LOCATION
-
-LOG_FILE=$DRIVER_NAME
-
-# Execute the actual MAD
-execute_mad $*
+exec $MAD_LOCATION/one_im_exec $*

@@ -1,0 +1,20 @@
+DB=BACKEND=sqlite
+DEBUG_LEVEL=3
+DEFAULT_DEVICE_PREFIX=hd
+DEFAULT_IMAGE_TYPE=OS
+HM_MAD=EXECUTABLE=one_hm
+HOST_MONITORING_INTERVAL=600
+IMAGE_MAD=ARGUMENTS=fs -t 15,EXECUTABLE=one_image
+IMAGE_REPOSITORY_PATH=/Users/jfontan/tmp/borrar/git/one/install/var//images
+IM_MAD=ARGUMENTS=-r 0 -t 15 kvm,EXECUTABLE=one_im_ssh,NAME=im_kvm
+MAC_PREFIX=02:00
+MANAGER_TIMER=15
+NETWORK_SIZE=254
+PORT=2633
+SCRIPTS_REMOTE_DIR=/var/tmp/one
+TM_MAD=ARGUMENTS=tm_nfs/tm_nfs.conf,EXECUTABLE=one_tm,NAME=tm_nfs
+VM_DIR=/Users/jfontan/tmp/borrar/git/one/install/var/
+VM_MAD=ARGUMENTS=-t 15 -r 0 kvm,DEFAULT=vmm_ssh/vmm_ssh_kvm.conf,EXECUTABLE=one_vmm_ssh,NAME=vmm_kvm,TYPE=kvm
+VM_POLLING_INTERVAL=600
+VNC_BASE_PORT=5900
+

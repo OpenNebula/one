@@ -33,7 +33,10 @@ require "CommandManager"
 
 class DummyDriver < VirtualMachineDriver
     def initialize
-        super(15,true)
+        super('',
+            :concurrency => 15,
+            :threaded => true
+        )
     end
 
     def deploy(id, host, remote_dfile, not_used)

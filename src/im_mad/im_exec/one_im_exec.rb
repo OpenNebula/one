@@ -33,64 +33,79 @@ $: << RUBY_LIB_LOCATION
 require 'OpenNebulaDriver'
 require 'getoptlong'
 
-#-------------------------------------------------------------------------------
-# The Local Information Manager Driver
-#-------------------------------------------------------------------------------
-class InformationManagerDriverSH < OpenNebulaDriver
 
-    #---------------------------------------------------------------------------
+# The SSH Information Manager Driver
+class InformationManagerDriver < OpenNebulaDriver
+
     # Init the driver
-    #---------------------------------------------------------------------------
-    def initialize(hypervisor, num)
-        super(num, true, 0)
+    def initialize(hypervisor, options)
+        @options={
+            :threaded => true
+        }.merge!(options)
 
-        @config     = read_configuration
+        super('im', @options)
+
         @hypervisor = hypervisor
-
-        @cmd_path   = "#{REMOTES_LOCATION}/im"
 
         # register actions
         register_action(:MONITOR, method("action_monitor"))
     end
 
-    #---------------------------------------------------------------------------
     # Execute the run_probes in the remote host
-    #---------------------------------------------------------------------------
-    def action_monitor(number, host, unused)
-        cmd_string  = "#{@cmd_path}/run_probes #{@hypervisor} #{host}"
+    def action_monitor(number, host, do_update)
+        if !action_is_local?(:monitor)
+            if do_update == "1"
+                # Use SCP to sync:
+                sync_cmd = "scp -r #{@local_scripts_base_path}/. " \
+                    "#{host}:#{@remote_scripts_base_path}"
 
-        local_action(cmd_string, number, "MONITOR")
+                # Use rsync to sync:
+                # sync_cmd = "rsync -Laz #{REMOTES_LOCATION}
+                #   #{host}:#{@remote_dir}"
+                LocalCommand.run(sync_cmd, log_method(number))
+            end
+        end
+        do_action("#{@hypervisor}", number, host, :monitor,
+            :script_name => 'run_probes')
     end
-
 end
 
-#-------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------
-# IM Driver main program
-#-------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------
+
+# Information Manager main program
 
 opts = GetoptLong.new(
-    [ '--threads',    '-t', GetoptLong::OPTIONAL_ARGUMENT ]
+    [ '--retries',    '-r', GetoptLong::OPTIONAL_ARGUMENT ],
+    [ '--threads',    '-t', GetoptLong::OPTIONAL_ARGUMENT ],
+    [ '--local',      '-l', GetoptLong::NO_ARGUMENT ]
 )
 
-hypervisor = ''
-threads    = 15
+hypervisor      = ''
+retries         = 0
+threads         = 15
+local_actions   = {}
 
 begin
     opts.each do |opt, arg|
         case opt
+            when '--retries'
+                retries = arg.to_i
             when '--threads'
                 threads = arg.to_i
+            when '--local'
+                local_actions={ 'MONITOR' => nil }
         end
     end
 rescue Exception => e
     exit(-1)
-end 
+end
 
-if ARGV.length >= 1 
+if ARGV.length >= 1
     hypervisor = ARGV.shift
 end
 
-im = InformationManagerDriverSH.new(hypervisor,threads)
+im = InformationManagerDriver.new(hypervisor,
+    :concurrency => threads,
+    :retries => retries,
+    :local_actions => local_actions)
+
 im.start_driver
