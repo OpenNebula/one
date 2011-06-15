@@ -34,7 +34,7 @@ class EC2InformationManagerDriver < OpenNebulaDriver
     # Init the driver, and compute the predefined maximum capacity for this
     # EC2 cloud
     def initialize()
-        super('im'
+        super('',
             :concurrency => 1,
             :threaded => false
         )
