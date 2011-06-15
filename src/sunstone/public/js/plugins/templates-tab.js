@@ -503,16 +503,16 @@ var create_template_tmpl = '<div id="template_create_tabs">\
               </div>\
               </fieldset>\
               </div>\
-                          <!-- submit -->\
-                         <fieldset>\
-                          <div class="form_buttons">\
-                                <button class="button" id="create_template_form_easy" value="OpenNebula.Template.create">\
-                                Create\
-                                </button>\
-                                <button class="button" id="reset_template_form" type="reset" value="reset">Reset</button>\
-                          </div>\
-                        </fieldset>\
-                </form>\
+              <!-- submit -->\
+           <fieldset>\
+             <div class="form_buttons">\
+               <button class="button" id="create_template_form_easy" value="OpenNebula.Template.create">\
+                  Create\
+               </button>\
+               <button class="button" id="reset_template_form" type="reset" value="reset">Reset</button>\
+             </div>\
+           </fieldset>\
+        </form>\
         </div><!--easy mode -->\
         <div id="manual">\
                 <form>\
@@ -895,6 +895,34 @@ function setupCreateTemplateDialog(){
         // ui.tab     // anchor element of the selected (clicked) tab
         // ui.panel   // element, that contains the selected/clicked tab contents
         // ui.index   // zero-based index of the selected (clicked) tab
+
+        //disable all items
+        $(items).attr("disabled","disabled");
+        //hide all mandatory icons
+        $('.vm_param .man_icon').css("display","none");
+
+        //empty selects
+        $('div#os_boot_opts select#BOOT').empty();
+        $('div#disks select#TYPE').empty();
+        $('div#disks select#BUS').empty();
+
+        //hide options about boot method
+        $('div#kernel_bootloader',section_os_boot).show();
+        $('.kernel, .bootloader', $('div#os_boot_opts')).hide();
+        $('div#os_boot_opts select#BOOT').parent().hide();
+        //unselect boot method
+        $('select#boot_method option').removeAttr("selected");
+
+        //hide non common sections
+        $(section_inputs).hide();
+        $(section_graphics).hide();
+
+        //Repopulate images select
+        $('div.vm_section#disks select#IMAGE_ID').html(images_select);
+        //Repopulate network select
+        $('div.vm_section#networks select#NETWORK_ID').html(vnetworks_select);
+
+
         switch(ui.index){
         case 0:
             enable_kvm();
@@ -935,23 +963,20 @@ function setupCreateTemplateDialog(){
         //~ $enabled.parent('.vm_param').show();
     //~ }
 
-    //Using kvm wizard. Updates mandatory tag, optional tags, disable
-    //XEN-only (and others) items, enables KVM items
+    //Using kvm wizard.
     var enable_kvm = function(){
         man_class="kvm";
         opt_class="kvm_opt";
-        $(xen_items).attr("disabled","disabled");
-        $(vmware_items).attr("disabled","disabled");
         $(kvm_items).removeAttr("disabled");
-        $('.vm_param .man_icon').css("display","none");
         $('.kvm .man_icon').css("display","inline-block");
 
-
         //KVM particularities:
-        // * Add no_type option for disks
-        // * Add driver default option for boot and select it - hide some fields
+        // * Add custom disk types
+        // * Add custom boot options
+        // * Add custom bus options
+        // * Show boot options
         // * Set the raw type to kvm
-        // * Show the inputs section
+        // * Show the inputs and graphics section
 
         var type_opts =
             '<option id="no_type" value="" selected="selected">None</option>\
@@ -971,13 +996,8 @@ function setupCreateTemplateDialog(){
             <option value="network">network</option>';
 
         $('div#os_boot_opts select#BOOT').html(boot_opts);
-
-
-        $('div#kernel_bootloader',section_os_boot).show();
-        $('select#boot_method option').removeAttr("selected");
+        $('div#os_boot_opts select#BOOT').parent().show();
         $('select#boot_method option#no_boot').html("Driver default");
-        $('select#boot_method option').removeAttr("selected");
-        $('.kernel, .bootloader', $('div#os_boot_opts')).hide();
 
         var bus_opts =
                 '<option value="ide">IDE</option>\
@@ -986,32 +1006,25 @@ function setupCreateTemplateDialog(){
 
         $('div#disks select#BUS').html(bus_opts);
 
-
         $('input#TYPE', section_raw).val("kvm");
 
         $(section_inputs).show();
         $(section_graphics).show();
-
-
     };
 
-    // Using XEN wizard. Update mandatory and optional classes, disable
-    // KVM-only (and other) items, enable XEN fields...
+    // Using XEN wizard.
     var enable_xen = function(){
         man_class="xen";
         opt_class="xen_opt";
-        $(kvm_items).attr("disabled","disabled");
-        $(vmware_items).attr("disabled","disabled");
         $(xen_items).removeAttr("disabled");
-        $('.vm_param .man_icon').css("display","none");
         $('.xen .man_icon').css("display","inline-block");
 
-
         // XEN particularities:
-        // * Remove no_type option from disks
+        // * Add custom disk types
         // * Remove driver default boot method
+        // * Add custom bus types
         // * Set the raw section to XEN
-        // * Hide the inputs section
+        // * Show the graphics section
 
         var type_opts =
             '<option value="disk">Disk</option>\
@@ -1023,12 +1036,7 @@ function setupCreateTemplateDialog(){
 
         $('div#disks select#TYPE').html(type_opts);
 
-        $('div#os_boot_opts select#BOOT').empty();
-
-        $('div#kernel_bootloader',section_os_boot).show();
-        $('select#boot_method option:selected').removeAttr("selected");
         $('select#boot_method option#no_boot').html("Please choose");
-        $('.kernel, .bootloader', $('div#os_boot_opts')).hide();
 
         var bus_opts =
                 '<option value="ide">IDE</option>\
@@ -1037,38 +1045,30 @@ function setupCreateTemplateDialog(){
         $('div#disks select#BUS').html(bus_opts);
 
         $('input#TYPE', section_raw).val("xen");
-        $(section_inputs).hide(); //not present for xen
         $(section_graphics).show();
-
     };
 
+    //VMWare wizard
     var enable_vmware = function() {
         man_class="vmware";
         opt_class="vmware_opt";
-        $(xen_items).attr("disabled","disabled");
-        $(kvm_items).attr("disabled","disabled");
         $(vmware_items).removeAttr("disabled");
-        $('.vm_param .man_icon').css("display","none");
         $('.vmware .man_icon').css("display","inline-block");
 
         //VMWARE particularities
-        // * Add no_type option for disks
-        // * Set the raw type to kvm
-        // * Hide the inputs and graphics section
-        // * Hide boot method
+        // * Add custom disk types
+        // * Hide boot method field
+        // * Add custom bus types
+        // * Set the raw type to vmware
+
         var type_opts =
             '<option value="file" selected="selected">File</option>\
              <option value="cdrom">CD-ROM</option>\
              <option value="block">Block</option>';
 
-        $('div#os_boot_opts select#BOOT').empty();
+        $('div#disks select#TYPE').html(type_opts);
 
-        $('div#disks select#BOOT').empty();
-
-        $('select#boot_method option').removeAttr("selected");
-        $('select#boot_method option#no_boot').html("Driver default");
-        $('select#boot_method option').removeAttr("selected");
-        $('.kernel, .bootloader', $('div#os_boot_opts')).hide();
+        $('div#kernel_bootloader',section_os_boot).hide();
 
         var bus_opts =
                 '<option value="ide">IDE</option>\
@@ -1076,14 +1076,7 @@ function setupCreateTemplateDialog(){
 
         $('div#disks select#BUS').html(bus_opts);
 
-
         $('input#TYPE', section_raw).val("vmware");
-
-        $(section_inputs).hide();
-        $(section_graphics).hide();
-
-        $('div#kernel_bootloader',section_os_boot).hide();
-        $('.kernel, .bootloader', $('div#os_boot_opts')).hide();
     }
 
     //This function checks that all mandatory items within a section
@@ -1668,7 +1661,8 @@ filled in");
 
     // Enhace buttons
     $('#create_template_dialog button').button();
-    // Setup tips200
+
+    // Re-Setup tips
     setupTips($('#create_template_dialog'));
 
     //Enable different icon for folded/unfolded categories
@@ -1704,7 +1698,7 @@ filled in");
     var opt_class=".kvm_opt";
     var man_class=".kvm";
 
-    enable_kvm(); //enable all kvm options
+    vmTabChange(0,{index : 0}); //enable kvm
 
     //Fold/unfold all sections button
     $('#fold_unfold_vm_params').toggle(
@@ -1899,5 +1893,4 @@ $(document).ready(function(){
     initCheckAllBoxes(dataTable_templates);
     tableCheckboxesListener(dataTable_templates);
     templateInfoListener();
-
 })
