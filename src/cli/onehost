@@ -52,55 +52,68 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         helper.list_to_id(arg)
     end
 
-    set :format, :filterflag, OneHostHelper.filterflag_to_i_desc do |arg|
-        helper.filterflag_to_i(arg)
-    end
-
     ########################################################################
     # Commands
     ########################################################################
-    command :create, 'Create a new Virtual Network', :text, :text, :text, :text do
+
+    create_desc = <<-EOT.unindent
+        Creates a new Host
+    EOT
+
+    command :create, create_desc, :hostname, :im_mad, :vmm_mad, :tm_mad do
         helper.create_resource(options) do |host|
             host.allocate(args[0], args[1], args[2], args[3])
         end
     end
 
-    command :delete, 'Removes a Virtual Network', [:range, :hostid_list] do
+    delete_desc = <<-EOT.unindent
+        Deletes the given Host
+    EOT
+
+    command :delete, delete_desc, [:range, :hostid_list] do
         helper.perform_actions(args[0],options,"deleted") do |host|
             host.delete
         end
     end
 
-    command :disable, 'Disbales Host', [:range,:hostid_list] do
-        helper.perform_actions(args[0],options,"unpublished") do |host|
+    enable_desc = <<-EOT.unindent
+        Enables the given Host
+    EOT
+
+    command :enable, enable_desc, [:range,:hostid_list] do
+        helper.perform_actions(args[0],options,"enabled") do |host|
+            host.enable
+        end
+    end
+
+    disable_desc = <<-EOT.unindent
+        Disables the given Host
+    EOT
+
+    command :disable, disable_desc, [:range,:hostid_list] do
+        helper.perform_actions(args[0],options,"disabled") do |host|
             host.disable
         end
     end
 
-    command :update, 'Modifies a Host attribute', :hostid do
-        helper.perform_action(args[0],options,"modified") do |host|
+    update_desc = <<-EOT.unindent
+        Launches the system editor to modify and update the template contents
+    EOT
+
+    command :update, update_desc, :hostid do
+        helper.perform_action(args[0],options,"updated") do |host|
             str = OpenNebulaHelper.update_template(args[0], host)
             host.update(str)
         end
     end
 
-    command :enable, 'Enables Host', [:range,:hostid_list] do
-        helper.perform_actions(args[0],options,"published") do |host|
-            host.enable
-        end
-    end
+    sync_desc = <<-EOT.unindent
+        Synchronizes probes in /var/lib/one/remotes ($ONE_LOCATION/var/remotes
+        in self-contained installations) with Hosts.
+        The copy is performed the next time the Host is monitored
+    EOT
 
-    command :list, 'Lists Virtual Networks in the pool', [:filterflag, nil],
-            :options=>CLIHelper::OPTIONS+OpenNebulaHelper::OPTIONS do
-        helper.list_pool(options)
-    end
-
-    command :show, 'Gets info from a Host', :hostid,
-            :options=>OpenNebulaHelper::XML do
-        helper.show_resource(args[0],options)
-    end
-
-    command :sync, 'Synchronizes probes with remote hosts' do
+    command :sync, sync_desc do
         if ONE_LOCATION
             FileUtils.touch "#{ONE_LOCATION}/var/remotes"
         else
@@ -109,7 +122,29 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         0
     end
 
-    command :top, 'Tops Hosts in the pool', [:filterflag, nil],
+    list_desc = <<-EOT.unindent
+        Lists Hosts in the pool
+    EOT
+
+    command :list, list_desc,
+            :options=>CLIHelper::OPTIONS+OpenNebulaHelper::OPTIONS do
+        helper.list_pool(options)
+    end
+
+    show_desc = <<-EOT.unindent
+        Shows information for the given Host
+    EOT
+
+    command :show, show_desc, :hostid,
+            :options=>OpenNebulaHelper::XML do
+        helper.show_resource(args[0],options)
+    end
+
+    top_desc = <<-EOT.unindent
+        Lists Hosts continuously
+    EOT
+
+    command :top, top_desc,
             :options=>CLIHelper::OPTIONS+OpenNebulaHelper::OPTIONS do
         helper.list_pool(options, true)
     end
