@@ -76,7 +76,7 @@ end
 opts = GetoptLong.new(
     [ '--retries',    '-r', GetoptLong::OPTIONAL_ARGUMENT ],
     [ '--threads',    '-t', GetoptLong::OPTIONAL_ARGUMENT ],
-    [ '--local',      '-l', GetoptLong::REQUIRED_ARGUMENT ]
+    [ '--local',      '-l', GetoptLong::NO_ARGUMENT ]
 )
 
 hypervisor      = ''
@@ -92,7 +92,7 @@ begin
             when '--threads'
                 threads = arg.to_i
             when '--local'
-                local_actions=OpenNebulaDriver.parse_actions_list(arg)
+                local_actions={ 'MONITOR' => nil }
         end
     end
 rescue Exception => e
