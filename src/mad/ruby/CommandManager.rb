@@ -180,14 +180,14 @@ class RemotesCommand < SSHCommand
         cmd = self.new(cmd_string, host, logger, stdin)
         cmd.run
 
-        if cmd.code == MAGIC_RC
-            cmd.update_remotes(host, remote_dir, logger)
-
-            @command = command
-            cmd.run
-        end
-
         while cmd.code != 0 and retries != 0
+            if cmd.code == MAGIC_RC
+                cmd.update_remotes(host, remote_dir, logger)
+
+                @command = command
+                cmd.run
+            end
+
             sleep 1
             cmd.run
             retries = retries - 1
