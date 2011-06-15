@@ -149,13 +149,14 @@ var Sunstone = {
 
     //Runs a predefined action. Wraps the calls to opennebula.js and
     //can be use to run action depending on conditions and notify them
-    //if desired.
+    //if desired. Returns 1 if some problem has been detected: i.e
+    //the condition to run the action is not met, the action is not found
     "runAction" : function(action, data_arg, extra_param){
 
         var actions = SunstoneCfg["actions"];
         if (!actions[action]){
             notifyError("Action "+action+" not defined");
-            return;
+            return 1;
         }
 
         var action_cfg = actions[action];
@@ -169,19 +170,12 @@ var Sunstone = {
             if (notify) {
             notifyError("This action cannot be run");
             }
-            return;
+            return 1;
         }
 
         var call = action_cfg["call"];
         var callback = action_cfg["callback"];
         var err = action_cfg["error"];
-
-
-        //Time to close any confirmation dialogs, as the execution may have
-        //come from them.
-        $('div#confirm_with_select_dialog').dialog("close");
-        $('div#confirm_dialog').dialog("close");
-
 
         //We ease the use of:
         // * "create" calls to opennebula.js
@@ -261,7 +255,7 @@ var Sunstone = {
             notifySubmit(action,data_arg,extra_param);
         }
 
-
+        return 0;
     },
 
     //returns a button object from the desired tab
@@ -305,6 +299,7 @@ $(document).ready(function(){
     //"multiple" it runs that action on the elements of a datatable.
     $('.action_button').live("click",function(){
 
+        var error = 0;
         var table = null;
         var value = $(this).attr("value");
         var action = SunstoneCfg["actions"][value];
@@ -315,11 +310,18 @@ $(document).ready(function(){
         switch (action.type){
         case "multiple": //find the datatable
             var nodes = action.elements();
-            Sunstone.runAction(value,nodes);
+            error = Sunstone.runAction(value,nodes);
             break;
         default:
-            Sunstone.runAction(value);
+            error = Sunstone.runAction(value);
         }
+
+        if (!error){
+            //proceed to close confirm dialog in
+            //case it was open
+            $('div#confirm_dialog').dialog("close");
+        };
+
         return false;
     });
 
@@ -621,6 +623,7 @@ function setupConfirmDialogs(){
     //find out if we are running an action with a parametre on a datatable
     //items or if its just an action
     $('button#confirm_with_select_proceed').click(function(){
+        var error = 0;
         var value = $(this).val();
         var action = SunstoneCfg["actions"][value];
         var param = $('select#confirm_select').val();
@@ -628,12 +631,17 @@ function setupConfirmDialogs(){
         switch (action.type){
         case "multiple": //find the datatable
             var nodes = action.elements();
-            Sunstone.runAction(value,nodes,param);
+            error = Sunstone.runAction(value,nodes,param);
             break;
         default:
-            Sunstone.runAction(value,param);
+            error = Sunstone.runAction(value,param);
             break;
         }
+
+        if (!error){
+            $('div#confirm_with_select_dialog').dialog("close");
+        }
+
         return false;
     });
 }
