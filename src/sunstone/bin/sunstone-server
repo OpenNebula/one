@@ -23,7 +23,9 @@ if [ -z "$ONE_LOCATION" ]; then
     SUNSTONE_LOCK_FILE=/var/lock/one/.sunstone.lock
     SUNSTONE_LOG=/var/log/one/sunstone.log
     SUNSTONE_CONF=/etc/one/sunstone-server.conf
-    ONEMONITOR_CMD=/usr/lib/one/sunstone/share/OneMonitor/runOneMonitor.sh
+    ONEMONITOR_CMD=/usr/lib/one/sunstone/share/OneMonitor/runOneMonitor.rb
+    ONEMONITOR_PID=/var/run/one/onemonitor.pid
+    ONEMONITOR_LOG=/var/log/one/onemonitor.log
     HOST_LOG_FOLDER=/var/log/one/OneMonitor/host
     VM_LOG_FOLDER=/var/log/one/OneMonitor/vm
 else
@@ -32,7 +34,9 @@ else
     SUNSTONE_LOCK_FILE=$ONE_LOCATION/var/.sunstone.lock
     SUNSTONE_LOG=$ONE_LOCATION/var/sunstone.log
     SUNSTONE_CONF=$ONE_LOCATION/etc/sunstone-server.conf
-    ONEMONITOR_CMD=$ONE_LOCATION/lib/sunstone/share/OneMonitor/runOneMonitor.sh
+    ONEMONITOR_CMD=$ONE_LOCATION/lib/sunstone/share/OneMonitor/runOneMonitor.rb
+    ONEMONITOR_PID=$ONE_LOCATION/var/onemonitor.pid
+    ONEMONITOR_LOG=$ONE_LOCATION/var/onemonitor.log
     HOST_LOG_FOLDER=$ONE_LOCATION/var/OneMonitor/host
     VM_LOG_FOLDER=$ONE_LOCATION/var/OneMonitor/vm
 fi
@@ -75,7 +79,7 @@ start()
   touch $SUNSTONE_LOCK_FILE
   rackup $SUNSTONE_SERVER -s thin -p $PORT -o $HOST \
                   -P $SUNSTONE_PID &> $SUNSTONE_LOG &
-
+  LASTPID=$!
   if [ $? -ne 0 ]; then
     echo "Error executing $SUNSTONE_SERVER, please check the log $SUNSTONE_LOG"
     exit 1
@@ -104,10 +108,21 @@ start()
       [[ $? -ne 0 ]] && ( echo "Error creating vm log directory"; exit 1 )
   fi
 
-  $ONEMONITOR_CMD $MONITORING_INTERVAL $HOST_LOG_FOLDER $VM_LOG_FOLDER &>/dev/null &
+  if [ -z $MONITORING_INTERVAL ]
+  then
+      MONITORING_INTERVAL=600
+  fi
+
+  ruby $ONEMONITOR_CMD $MONITORING_INTERVAL $HOST_LOG_FOLDER $VM_LOG_FOLDER &> $ONEMONITOR_LOG &
+  LASTPID=$!
+
+  sleep 1
+  ps $LASTPID &> /dev/null
 
   [[ $? -ne 0 ]] && ( echo "Error launching monitoring daemon"; exit 1 )
 
+  echo -n $LASTPID > $ONEMONITOR_PID
+  echo "OneMonitor monitoring tool launched"
 }
 
 #
@@ -126,9 +141,11 @@ stop()
   # Remove pid files
   rm -f $SUNSTONE_LOCK_FILE &> /dev/null
 
-  killall $ONEMONITOR_CMD
-
   echo "sunstone-server stopped"
+
+  kill -KILL `cat $ONEMONITOR_PID` &> /dev/null
+
+  echo "OneMonitor tool stopped"
 }
 
 case "$1" in

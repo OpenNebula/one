@@ -44,10 +44,6 @@ class OneMonitor
         reinit_global_results
     end
 
-    def results
-        @results
-    end
-
     def snapshot
         #init global results
 
@@ -56,7 +52,7 @@ class OneMonitor
         if rc
             @results = []
             reinit_global_results
-            puts "New monitoring snapshots saved."
+            log_snapshot
         else
             puts "Error saving new snapshot."
         end
@@ -100,6 +96,7 @@ class OneMonitor
         @monitoring_elems.each do | key,value |
             @global_results[key] = 0
         end
+        @global_results[:time] = Time.new.to_i
         @n_active = @n_error = @n_total = 0
     end
 
@@ -107,8 +104,9 @@ class OneMonitor
         hash.each do | key,value |
             @global_results[key] += value.to_i
         end
-        time = hash[:time].to_i
-        @global_results[:time] = time
+        # time = hash[:time].to_i
+        puts Time.new.to_i
+        @global_results[:time] = Time.new.to_i
     end
 
 end

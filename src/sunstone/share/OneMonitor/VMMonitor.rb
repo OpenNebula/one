@@ -45,4 +45,10 @@ class VMMonitor < OneMonitor
     def error (vm_hash)
         vm_hash[:state].to_i == 7
     end
+
+    def log_snapshot
+        time = Time.new
+        puts "#{time.strftime("%Y-%m-%d %H:%M:%S")} - VMs have been monitored\n"
+        STDOUT.flush
+    end
 end

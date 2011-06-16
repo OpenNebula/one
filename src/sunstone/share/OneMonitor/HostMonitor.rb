@@ -53,4 +53,10 @@ class HostMonitor < OneMonitor
     def error (host_hash)
         host_hash[:state].to_i == 3
     end
+
+    def log_snapshot
+        time = Time.new
+        puts "#{time.strftime("%Y-%m-%d %H:%M:%S")} - Hosts have been monitored\n"
+        STDOUT.flush
+    end
 end
