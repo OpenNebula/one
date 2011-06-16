@@ -201,8 +201,7 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
         oss << "one-" << oid;
         name = oss.str();
 
-        attr = new SingleAttribute("NAME",name);
-        obj_template->set(attr);
+        replace_template_attribute("NAME", name);
     }
 
     this->name = name;
