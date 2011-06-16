@@ -211,6 +211,9 @@ SUNSTONE_DIRS="$SUNSTONE_LOCATION/models \
                $SUNSTONE_LOCATION/public/vendor/jQueryUI \
                $SUNSTONE_LOCATION/public/vendor/jQuery \
                $SUNSTONE_LOCATION/public/vendor/jGrowl \
+               $SUNSTONE_LOCATION/public/vendor/flot \
+               $SUNSTONE_LOCATION/share \
+               $SUNSTONE_LOCATION/share/OneMonitor \
                $SUNSTONE_LOCATION/public/images \
                $SUNSTONE_LOCATION/templates"
 
@@ -314,6 +317,8 @@ INSTALL_SUNSTONE_FILES=(
     SUNSTONE_PUBLIC_VENDOR_JQUERY:$SUNSTONE_LOCATION/public/vendor/jQuery
     SUNSTONE_PUBLIC_VENDOR_JQUERYUI:$SUNSTONE_LOCATION/public/vendor/jQueryUI
     SUNSTONE_PUBLIC_VENDOR_JQUERYLAYOUT:$SUNSTONE_LOCATION/public/vendor/jQueryLayout
+    SUNSTONE_PUBLIC_VENDOR_FLOT:$SUNSTONE_LOCATION/public/vendor/flot
+    SUNSTONE_SHARE_ONEMONITOR:$SUNSTONE_LOCATION/share/OneMonitor
     SUNSTONE_PUBLIC_IMAGES_FILES:$SUNSTONE_LOCATION/public/images
 )
 
@@ -760,6 +765,7 @@ SUNSTONE_PUBLIC_JS_FILES="src/sunstone/public/js/layout.js \
 SUNSTONE_PUBLIC_JS_PLUGINS_FILES="\
                             src/sunstone/public/js/plugins/dashboard-tab.js \
                             src/sunstone/public/js/plugins/hosts-tab.js \
+                            src/sunstone/public/js/plugins/groups-tab.js \
                             src/sunstone/public/js/plugins/images-tab.js \
                             src/sunstone/public/js/plugins/templates-tab.js \
                             src/sunstone/public/js/plugins/users-tab.js \
@@ -811,6 +817,22 @@ SUNSTONE_PUBLIC_VENDOR_JQUERYLAYOUT="\
             src/sunstone/public/vendor/jQueryLayout/layout-default-latest.css \
             src/sunstone/public/vendor/jQueryLayout/jquery.layout.min-1.2.0.js \
             src/sunstone/public/vendor/jQueryLayout/NOTICE"
+
+SUNSTONE_PUBLIC_VENDOR_FLOT="\
+src/sunstone/public/vendor/flot/jquery.flot.min.js \
+src/sunstone/public/vendor/flot/jquery.flot.navigate.min.js \
+src/sunstone/public/vendor/flot/LICENSE.txt \
+src/sunstone/public/vendor/flot/NOTICE \
+src/sunstone/public/vendor/flot/README.txt"
+
+SUNSTONE_SHARE_ONEMONITOR="\
+src/sunstone/share/OneMonitor/HostMonitor.rb \
+src/sunstone/share/OneMonitor/OneMonitorClient.rb \
+src/sunstone/share/OneMonitor/OneMonitorClientUtils.rb \
+src/sunstone/share/OneMonitor/OneMonitor.rb \
+src/sunstone/share/OneMonitor/OneMonitorUtils.rb \
+src/sunstone/share/OneMonitor/runOneMonitor.rb \
+src/sunstone/share/OneMonitor/VMMonitor.rb"
 
 SUNSTONE_PUBLIC_IMAGES_FILES="src/sunstone/public/images/ajax-loader.gif \
                         src/sunstone/public/images/login_over.png \
