@@ -32,6 +32,18 @@ void RequestManagerInfo::request_execute(xmlrpc_c::paramList const& paramList)
         return;
     }
 
+    if ( oid == -1 )
+    {
+        if ( auth_object == AuthRequest::USER )
+        {
+            oid = uid;
+        }
+        else if ( auth_object == AuthRequest::GROUP )
+        {
+            oid = gid;
+        }
+    }
+
     object = pool->get(oid,true);
 
     if ( object == 0 )                             
