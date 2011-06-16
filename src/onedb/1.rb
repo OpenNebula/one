@@ -94,8 +94,7 @@ class Migrator < MigratorBase
 
             template_doc = REXML::Document.new( row[:template] )
             cluster_elem = template_doc.root.add_element("CLUSTER")
-            cluster_elem.add_text( "<![CDATA[#{row[:cluster]}]]>" )
-
+            cluster_elem.text = REXML::CData.new( row[:cluster] )
 
             body = "<HOST><ID>#{oid}</ID><NAME>#{name}</NAME><STATE>#{state}</STATE><IM_MAD>#{row[:im_mad]}</IM_MAD><VM_MAD>#{row[:vm_mad]}</VM_MAD><TM_MAD>#{row[:tm_mad]}</TM_MAD><LAST_MON_TIME>#{last_mon_time}</LAST_MON_TIME>#{host_share}#{ template_doc.to_s }</HOST>"
 
