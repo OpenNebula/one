@@ -1,0 +1,206 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+ONE_LOCATION=ENV["ONE_LOCATION"]
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
+    ETC_LOCATION="/etc/one/"
+    VAR_LOCATION="/var/lib/one"
+else
+    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
+    ETC_LOCATION=ONE_LOCATION+"/etc/"
+    VAR_LOCATION="#{ONE_LOCATION}/var"
+end
+
+$: << RUBY_LIB_LOCATION
+$: << RUBY_LIB_LOCATION+'/onedb'
+
+require 'cli/command_parser'
+require 'onedb'
+
+FORCE={
+    :name => "force",
+    :short => "-f",
+    :large => "--force",
+    :description => "Forces the backup even if the DB exists"
+}
+
+###############################################################################
+# SQLite options
+###############################################################################
+SQLITE={
+    :name => "sqlite",
+    :short => "-s file",
+    :large => "--sqlite file",
+    :format => String,
+    :description => "SQLite DB file",
+    :proc => lambda { |o, options|
+        options[:backend] = :sqlite
+        options[:sqlite]  = o
+    }
+}
+
+###############################################################################
+# MySQL options
+###############################################################################
+SERVER={
+    :name => "server",
+    :short => "-S host",
+    :large => "--server host",
+    :format => String,
+    :description => "MySQL server hostname or IP. Defaults to localhost",
+    :proc => lambda { |o, options|
+        options[:backend] = :mysql
+        options[:server]  = o
+    }
+}
+
+PORT={
+    :name => "port",
+    :short => "-P port",
+    :large => "--port port",
+    :format => String,
+    :description => "MySQL server port. Defaults to 3306",
+    :proc => lambda { |o, options|
+        options[:backend] = :mysql
+        options[:port]  = o
+    }
+}
+
+USERNAME={
+    :name => "username",
+    :short => "-u user",
+    :large => "--username user",
+    :format => String,
+    :description => "MySQL username",
+    :proc => lambda { |o, options|
+        options[:backend] = :mysql
+        options[:username]  = o
+    }
+}
+
+PASSWORD={
+    :name => "password",
+    :short => "-p pass",
+    :large => "--password pass",
+    :format => String,
+    :description => "MySQL password. Leave unset to be prompted for it",
+    :proc => lambda { |o, options|
+        options[:backend] = :mysql
+        options[:password]  = o
+    }
+}
+
+DBNAME={
+    :name => "dbname",
+    :short => "-d dbname",
+    :large => "--dbname dbname",
+    :format => String,
+    :description => "MySQL DB name for OpenNebula",
+    :proc => lambda { |o, options|
+        options[:backend] = :mysql
+        options[:dbname]  = o
+    }
+}
+
+cmd=CommandParser::CmdParser.new(ARGV) do
+    description <<-EOT.unindent
+        DB Connection options:
+
+        By default, onedb reads the connection data from oned.conf
+        If any of these options is set, oned.conf is ignored (i.e. if you set 
+        MySQL's port onedb won't look for the rest of the options in oned.conf)
+
+        Description:
+
+        This command enables the user to manage the OpenNebula database. It 
+        provides information about the DB version, means to upgrade it to the 
+        latest version, and backup tools.
+    EOT
+
+    ###########################################################################
+    # Global options
+    ###########################################################################
+    set :option, CommandParser::OPTIONS
+    set :option, [SQLITE, SERVER, PORT, USERNAME, PASSWORD, DBNAME]
+
+    ###########################################################################
+    # Backup
+    ###########################################################################
+    backup_desc = <<-EOT.unindent
+        Dumps the DB to a file specified in the argument
+    EOT
+
+    command :backup, backup_desc, [:output_file, nil], :options=>FORCE do
+        helper = OneDB.new(options)
+        helper.backup(args[0], options)
+    end
+
+    ###########################################################################
+    # Version
+    ###########################################################################
+    version_desc = <<-EOT.unindent
+        Prints the current DB version. 
+        Use -v flag to see also OpenNebula version
+    EOT
+
+    command :version , version_desc do
+        helper = OneDB.new(options)
+        helper.version(options)
+    end
+
+    ###########################################################################
+    # History
+    ###########################################################################
+    history_desc = <<-EOT.unindent
+        Prints the upgrades history
+    EOT
+
+    command :history , history_desc do
+        helper = OneDB.new(options)
+        helper.history
+    end
+
+    ###########################################################################
+    # Restore
+    ###########################################################################
+    restore_desc = <<-EOT.unindent
+        Restores the DB from a backup file. Only restores backups generated
+        from the same backend (SQLite or MySQL)
+    EOT
+
+    command :restore , restore_desc, [:backup_file, nil], :options=>FORCE do
+        helper = OneDB.new(options)
+        helper.restore(args[0], options)
+    end
+
+    ###########################################################################
+    # Upgrade
+    ###########################################################################
+    upgrade_desc = <<-EOT.unindent
+        Upgrades the DB to the latest version
+        where <version> : DB version (e.g. 1, 3) to upgrade.
+                          By default the DB is upgraded to the latest version
+    EOT
+
+    command :upgrade , upgrade_desc, [:version, nil] do
+        helper = OneDB.new(options)
+        helper.upgrade(args[0], options)
+    end
+end

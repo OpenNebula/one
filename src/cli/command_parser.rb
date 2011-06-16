@@ -288,7 +288,7 @@ module CommandParser
                 merge.flatten.each do |e|
                     opts.on(e[:short],e[:large], e[:format],e[:description]) do |o|
                         if e[:proc]
-                            e[:proc].call
+                            e[:proc].call(o, @options)
                         elsif e[:name]=="help"
                             help
                             exit

@@ -13,16 +13,16 @@
 # limitations under the License.                                             */
 # -------------------------------------------------------------------------- */
 
-class Migrator < MigratorBase
+module Migrator
+    def db_version
+        1
+    end
 
-    def initialize(db, verbose)
-        super(db, verbose)
-        @db_version  = 1
-        @one_version = "OpenNebula 2.3.0"
+    def one_version
+        "OpenNebula 2.3.0"
     end
 
     def up
-
         ########################################################################
         # Users
         ########################################################################

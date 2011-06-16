@@ -263,7 +263,7 @@ INSTALL_FILES=(
     MAD_RUBY_LIB_FILES:$VAR_LOCATION/remotes
     MAD_SH_LIB_FILES:$LIB_LOCATION/sh
     MAD_SH_LIB_FILES:$VAR_LOCATION/remotes
-    ONEDB_MIGRATOR_FILES:$LIB_LOCATION/onedb
+    ONEDB_MIGRATOR_FILES:$LIB_LOCATION/ruby/onedb
     MADS_LIB_FILES:$LIB_LOCATION/mads
     IM_PROBES_FILES:$VAR_LOCATION/remotes/im
     IM_PROBES_KVM_FILES:$VAR_LOCATION/remotes/im/kvm.d
@@ -366,7 +366,7 @@ BIN_FILES="src/nebula/oned \
            src/cli/oneimage \
            src/cli/onegroup \
            src/cli/onetemplate \
-           src/cli/onedb \
+           src/onedb/onedb \
            share/scripts/one \
            src/authm_mad/oneauth"
 
@@ -532,7 +532,9 @@ IMAGE_DRIVER_FS_SCRIPTS="src/image_mad/remotes/fs/cp \
 #-------------------------------------------------------------------------------
 # Migration scripts for onedb command, to be installed under $LIB_LOCATION
 #-------------------------------------------------------------------------------
-ONEDB_MIGRATOR_FILES="src/onedb/1.rb"
+ONEDB_MIGRATOR_FILES="src/onedb/1.rb \
+                      src/onedb/onedb.rb \
+                      src/onedb/onedb_backend.rb"
 
 #-------------------------------------------------------------------------------
 # Configuration files for OpenNebula, to be installed under $ETC_LOCATION
