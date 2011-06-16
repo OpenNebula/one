@@ -27,8 +27,6 @@ for i in 0 1 2; do
     ) > $TMP_FILE
 
     onevnet create $TMP_FILE
-
-    rm $TMP_FILE
 done
 
 # 2 Ranged VNets
@@ -42,8 +40,6 @@ for i in 3 4; do
     ) > $TMP_FILE
 
     onevnet create $TMP_FILE
-
-    rm $TMP_FILE
 done
 
 # 5 Images
@@ -55,8 +51,6 @@ for i in 0 1 2 3 4; do
     ) > $TMP_FILE
 
     oneimage create $TMP_FILE
-
-    rm $TMP_FILE
 done
 
 # 5 Users
@@ -99,6 +93,8 @@ for i in 0 1 2 3 4; do
 
     onevm deploy $i $i
 done
+
+rm $TMP_FILE
 
 echo -n "Waiting until all VMs are running "
 
