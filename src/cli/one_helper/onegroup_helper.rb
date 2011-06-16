@@ -41,6 +41,21 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
         OpenNebula::GroupPool.new(@client)
     end
 
+    def format_resource(group)
+        str="%-15s: %-20s"
+        str_h1="%-80s"
+
+        CLIHelper.print_header(str_h1 % "GROUP #{group['ID']} INFORMATION")
+        puts str % ["ID",   group.id.to_s]
+        puts str % ["NAME", group.name]
+        puts
+
+        CLIHelper.print_header(str_h1 % "USERS",false)
+        group.user_ids.each do |uid|
+            puts str % ["ID",   uid]
+        end
+    end
+
     def format_pool(pool, options, top=false)
         config_file=self.class.table_conf
         table=CLIHelper::ShowTable.new(config_file, self) do
