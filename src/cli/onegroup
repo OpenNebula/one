@@ -93,8 +93,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :show, show_desc, :groupid, :options=>OpenNebulaHelper::XML do
-        puts "TODO"
-        -1
+        helper.show_resource(args[0],options)
     end
 
 end
