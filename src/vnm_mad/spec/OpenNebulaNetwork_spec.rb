@@ -1,11 +1,17 @@
 #!/usr/bin/env ruby
 
+$: << File.dirname(__FILE__) + '/..'
+
 require 'rubygems'
 require 'rspec'
 require 'SystemMock'
 require 'pp'
 
-require File.expand_path(File.dirname(__FILE__) + '/../OpenNebulaVLAN')
+require 'OpenNebulaNetwork'
+require 'Ebtables'
+require 'Firewall'
+require 'HostManaged'
+require 'OpenvSwitch'
 
 OUTPUT = Hash.new
 Dir[File.dirname(__FILE__) + "/output/**"].each do |f|
@@ -22,13 +28,12 @@ RSpec.configure do |config|
     end
 end
 
-
 describe 'networking' do
     it "get all nics in kvm" do
         $capture_commands = {
             /virsh.*dumpxml/ => OUTPUT[:virsh_dumpxml]
         }
-        onevlan = OpenNebulaVLAN.new(OUTPUT[:onevm_show],"kvm")
+        onevlan = OpenNebulaNetwork.new(OUTPUT[:onevm_show],"kvm")
         nics_expected = [{:bridge=>"br0",
                       :ip=>"172.16.0.100",
                       :mac=>"02:00:ac:10:00:64",

@@ -19,7 +19,8 @@
 $: << File.dirname(__FILE__)
 
 require 'base64'
-require 'OpenNebulaVLAN'
+require 'OpenNebulaNetwork'
+require 'OpenvSwitch'
 
 template    = ARGV[0]
 vm_xml =  Base64::decode64(template)

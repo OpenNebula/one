@@ -19,7 +19,8 @@
 $: << File.dirname(__FILE__)
 
 require 'base64'
-require 'OpenNebulaVLAN'
+require 'OpenNebulaNetwork'
+require 'Firewall'
 
 action      = ARGV[0]
 template    = ARGV[1]
