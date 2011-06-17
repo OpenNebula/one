@@ -1,0 +1,19 @@
+--- 
+:ID: 
+  :desc: ONE identifier for the Group
+  :size: 4
+
+:NAME: 
+  :desc: Name of the Group
+  :size: 15
+  :left: true
+
+:USER: 
+  :desc: Username of the Group owner
+  :size: 8
+  :left: true
+
+:default:
+- :ID
+- :USER
+- :NAME

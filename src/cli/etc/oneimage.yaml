@@ -1,0 +1,55 @@
+--- 
+:ID: 
+  :desc: ONE identifier for the Image
+  :size: 4
+
+:NAME: 
+  :desc: Name of the Image
+  :size: 15
+  :left: true
+
+:USER: 
+  :desc: Username of the Virtual Machine owner
+  :size: 8
+  :left: true
+
+:GROUP: 
+  :desc: Group of the Virtual Machine
+  :size: 8
+  :left: true
+
+:TYPE: 
+  :desc: Type of the Image
+  :size: 4
+
+:REGTIME: 
+  :desc: Registration time of the Image
+  :size: 20
+
+:PUBLIC: 
+  :desc: Whether the Image is public or not
+  :size: 3
+
+:PERSISTENT: 
+  :desc: Whether the Image is persistent or not
+  :size: 3
+
+:STAT: 
+  :desc: State of the Image
+  :size: 4
+
+:RVMS: 
+  :desc: Number of VMs currently running from this Image
+  :size: 5
+
+:default:
+- :ID
+- :USER
+- :GROUP
+- :NAME
+- :TYPE
+- :REGTIME
+- :PUBLIC
+- :PERSISTENT
+- :STAT
+- :RVMS

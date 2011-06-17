@@ -31,6 +31,13 @@ module OpenNebula
             :chown      => "vn.chown"
         }
 
+        NETWORK_TYPES=%w{RANGED FIXED}
+
+        SHORT_NETWORK_TYPES={
+            "RANGED" => "R",
+            "FIXED"  => "F"
+        }
+
         # Creates a VirtualNetwork description with just its identifier
         # this method should be used to create plain VirtualNetwork objects.
         # +id+ the id of the network
@@ -128,6 +135,21 @@ module OpenNebula
         # [return] _Integer_ the element's group ID
         def gid
             self['GID'].to_i
+        end
+
+        # Returns the type of the Virtual Network (numeric value)
+        def type
+            self['TYPE'].to_i
+        end
+
+        # Returns the type of the Virtual Network (string value)
+        def type_str
+            NETWORK_TYPES[type]
+        end
+
+        # Returns the state of the Virtual Network (string value)
+        def short_type_str
+            SHORT_NETWORK_TYPES[type_str]
         end
 
     private

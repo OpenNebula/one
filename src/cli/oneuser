@@ -25,311 +25,143 @@ else
 end
 
 $: << RUBY_LIB_LOCATION
+$: << RUBY_LIB_LOCATION+"/cli"
 
+require 'command_parser'
+require 'one_helper/oneuser_helper'
 
-require 'OpenNebula'
-require 'client_utilities'
-require 'command_parse'
+cmd=CommandParser::CmdParser.new(ARGV) do
+    usage "oneuser COMMAND [args..] [options..]"
+    version OpenNebulaHelper::ONE_VERSION
 
+    helper = OneUserHelper.new
 
-ShowTableUP={
-    :id => {
-        :name => "ID",
-        :desc => "ONE identifier for user",
-        :size => 4,
-        :proc => lambda {|d,e| d.id }
-    },
-    :gid=> {
-        :name => "GID",
-        :desc => "Id of the group",
-        :size => 4,
-        :proc => lambda {|d,e|
-            d.gid
-        }
-    },
-    :user => {
-        :name => "USER",
-        :desc => "name of the user",
-        :size => 15,
-        :left => true,
-        :proc => lambda {|d,e| d.name }
-    },
-    :password => {
-        :name => "PASSWORD",
-        :desc => "password of the user",
-        :size => 50,
-        :left => true,
-        :proc => lambda {|d,e| d['PASSWORD'] }
-    },
-   
-    :default => [:id, :gid, :user, :password]
-}
-
-class UPShow
-    def initialize
-        @userpool=OpenNebula::UserPool.new(get_one_client)
-        @table=ShowTable.new(ShowTableUP)
-    end
+    ########################################################################
+    # Global Options
+    ########################################################################
+    set :option, CommandParser::OPTIONS
     
-    def header_up_small
-        scr_bold
-        scr_underline
-        print @table.header_str
-        scr_restore
-        puts ""
-    end
+    list_options = CLIHelper::OPTIONS
+    list_options << OpenNebulaHelper::XML
+    list_options << OpenNebulaHelper::NUMERIC
     
-    def list_short(options=nil)
-        res=@userpool.info
-        if options
-            @table.columns=options[:columns] if options[:columns]
-        end
+    READ_FILE={
+        :name => "read_file",
+        :short => "-r",
+        :large => "--read-file",
+        :description => "Read password from file"
+    }
 
-        if OpenNebula.is_error?(res)
-            result=res
-        else
-            result=res
-            header_up_small
-            
-            puts @table.data_str(@userpool, options)
-            result
-        end
-    end
-end
-
-class OneUPParse < CommandParse
+    PLAIN={
+        :name => "plain",
+        :short => "-p",
+        :large => "--plain-password",
+        :description => "Store plain password"
+    }
     
-    COMMANDS_HELP=<<-EOT
+    create_options = [READ_FILE, PLAIN]
 
-Description:
-
-This command enables the OpenNebula administrator to manage users, adding,
-listing and deleting them.
-
-The create and passwd commands accept the [-r, --read-file] option. Use this
-option to store the contents of a file (without hashing it) as the password.
-
-
-Commands:
-
-* create (Creates a new user)
-    oneuser create username password
-    
-* delete (Removes a user)
-    oneuser delete <id>
-    
-* list (Lists all the users in the pool)
-    oneuser list
-
-* passwd (Changes the given user's password)
-    oneuser passwd <id> password
-
-* chgrp (Changes the User group)
-    oneuser chgrp <id> <group_id>
-
-* addgroup (Adds a secondary group)
-    oneuser addgroup <id> <group_id>
-
-* delgroup (Deletes a secondary group. Fails if the group is the main one)
-    oneuser delgroup <id> <group_id>
-
-Information Columns:
-
-* UID       User ID
-* NAME      Name of the user
-* PASSWORD  SHA1 encrypted password
-* ENABLE    Whether the user is enabled or not
-
-
-EOT
-
-    def text_commands
-        COMMANDS_HELP
+    ########################################################################
+    # Formatters for arguments
+    ########################################################################
+    set :format, :groupid, OpenNebulaHelper.name_to_id_desc("GROUP") do |arg|
+        OpenNebulaHelper.name_to_id(arg, "GROUP")
     end
 
-    def text_command_name
-        "oneuser"
+    set :format, :userid, OneUserHelper.to_id_desc do |arg|
+        helper.to_id(arg)
     end
 
-    def list_options
-        table=ShowTable.new(ShowTableUP)
-        table.print_help
+    set :format, :userid_list, OneUserHelper.list_to_id_desc do |arg|
+        helper.list_to_id(arg)
     end
-    
-    def special_options(opts, options)
-        opts.on_tail("-n", "--no-hash", "Store plain password "<<
-                "into the database") do |o|
-            options[:no_hash]=true
-        end
-        opts.on_tail("-r", "--read-file", "Read password from file") do |o|
-            options[:read_file]=true
-        end
+
+    set :format, :password, OneUserHelper.password_to_str_desc do |arg|
+        OneUserHelper.password_to_str(arg, options)
     end
-end
 
-oneup_opts=OneUPParse.new([:list, :xml])
-oneup_opts.parse(ARGV)
-ops=oneup_opts.options
+    ########################################################################
+    # Commands
+    ########################################################################
 
-result=[false, "Unknown error"]
+    create_desc = <<-EOT.unindent
+        Creates a new User
+    EOT
 
-command=ARGV.shift
-
-case command
-when "create"
-    check_parameters("create", 2)
-    user=OpenNebula::User.new(
-        OpenNebula::User.build_xml, get_one_client)
-
-    if ops[:read_file]
-        begin
-            password = File.read(ARGV[1]).split("\n").first
-        rescue
-            puts "Can not read file: #{ARGV[1]}"
-            exit -1
-        end
-    else
-        if ops[:no_hash]
-            password = ARGV[1].gsub(/\s/, '')
-        else
-            password = Digest::SHA1.hexdigest(ARGV[1])
+    command :create, create_desc, :username, :password, :options=>create_options do
+        helper.create_resource(options) do |user|
+            user.allocate(args[0], args[1])
         end
     end
 
-    result=user.allocate(ARGV[0], password)
-    if !OpenNebula.is_error?(result)
-        puts "ID: " + user.id.to_s if ops[:verbose]
-        exit 0
-    end
-    
-when "delete"
-    check_parameters("delete", 1)
-    args=expand_args(ARGV)
+    delete_desc = <<-EOT.unindent
+        Deletes the given User
+    EOT
 
-    args.each do |param|
-        user_id=get_user_id(param)
-
-        # Check if the user has defined VM's
-        vms=false
-        vmpool=OpenNebula::VirtualMachinePool.new(
-            get_one_client, user_id.to_i)
-        vmpool.info
-        vmpool.each{ vms=true ; break }
-
-        if vms
-            puts "The user #{param} still has VMs defined, "+
-                "aborting user delete."
-            exit -1 
-        end
-        
-        # Check if the user has defined VN's
-        vns=false
-        vnpool=OpenNebula::VirtualNetworkPool.new(
-            get_one_client, user_id.to_i)
-
-        vnpool.info
-        vnpool.each{ vns=true ; break }
-
-        if vns
-            puts "The user #{param} still has Virtual Networks defined, "+
-                "aborting user delete."
-            exit -1 
-        end
-
-        user=OpenNebula::User.new(
-            OpenNebula::User.build_xml(user_id), get_one_client)
-        result=user.delete
-        if !OpenNebula.is_error?(result)
-            puts "User deleted" if ops[:verbose]
+    command :delete, delete_desc, [:range, :userid_list] do
+        helper.perform_actions(args[0],options,"deleted") do |user|
+            user.delete
         end
     end
 
-when "passwd"
-    check_parameters("passwd", 2)
+    passwd_desc = <<-EOT.unindent
+        Changes the given User's password
+    EOT
 
-    user_id=get_user_id(ARGV[0])
-
-    user=OpenNebula::User.new_with_id(user_id, get_one_client)
-
-    if ops[:read_file]
-        begin
-            password = File.read(ARGV[1]).split("\n").first
-        rescue
-            puts "Can not read file: #{ARGV[1]}"
-            exit -1
-        end
-    else
-        if ops[:no_hash]
-            password = ARGV[1].gsub(/\s/, '')
-        else
-            password = Digest::SHA1.hexdigest(ARGV[1])
+    command :passwd, passwd_desc, :userid, :password do
+        helper.perform_action(args[0],options,"Password changed") do |user|
+            user.passwd(args[1])
         end
     end
-    result=user.passwd(password)
 
-    if !OpenNebula.is_error?(result)
-        puts "Password changed" if ops[:verbose]
-    else
-        puts
+    chgrp_desc = <<-EOT.unindent
+        Changes the User's main group
+    EOT
+
+    command :chgrp, chgrp_desc, [:range, :userid_list], :groupid do
+        helper.perform_actions(args[0],options,"Group changed") do |user|
+            user.chown(-1, args[1].to_i)
+        end
     end
 
-when "chgrp"
-    check_parameters("chgrp", 2)
+    addgroup_desc = <<-EOT.unindent
+        Adds the User to a secondary group
+    EOT
 
-    obj_id = get_user_id(ARGV[0])
-    new_gid  = ARGV[1].to_i
+    command :addgroup, addgroup_desc, [:range, :userid_list], :groupid do
+        gid = args[1]
 
-    obj = OpenNebula::User.new_with_id(obj_id, get_one_client)
-
-    result = obj.chgrp( new_gid )
-    if is_successful?(result)
-        puts "User group changed" if ops[:verbose]
+        helper.perform_actions(args[0],options,"group added") do |user|
+            user.addgroup( gid )
+        end
     end
 
-when "addgroup"
-    check_parameters("addgroup", 2)
+    delgroup_desc = <<-EOT.unindent
+        Removes the User from a secondary group
+    EOT
 
-    obj_id = get_user_id(ARGV[0])
-    new_gid  = ARGV[1].to_i
+    command :delgroup, delgroup_desc, [:range, :userid_list], :groupid do
+        gid = args[1]
 
-    obj = OpenNebula::User.new_with_id(obj_id, get_one_client)
-
-    result = obj.addgroup( new_gid )
-    if is_successful?(result)
-        puts "User group added" if ops[:verbose]
+        helper.perform_actions(args[0],options,"group deleted") do |user|
+            user.delgroup( gid )
+        end
     end
 
-when "delgroup"
-    check_parameters("delgroup", 2)
+    list_desc = <<-EOT.unindent
+        Lists Users in the pool
+    EOT
 
-    obj_id = get_user_id(ARGV[0])
-    new_gid  = ARGV[1].to_i
-
-    obj = OpenNebula::User.new_with_id(obj_id, get_one_client)
-
-    result = obj.delgroup( new_gid )
-    if is_successful?(result)
-        puts "User group deleted" if ops[:verbose]
+    command :list, list_desc, :options=>list_options do
+        helper.list_pool(options)
     end
 
+    show_desc = <<-EOT.unindent
+        Shows information for the given User
+    EOT
 
-when "list"
-    if !ops[:xml]
-        uplist=UPShow.new
-        ops[:columns]=ops[:list] if ops[:list]
-        result=uplist.list_short(ops)
-    else
-        userpool=OpenNebula::UserPool.new(get_one_client)
-        userpool.info
-        puts userpool.to_xml(true)
+    command :show, show_desc, :userid, :options=>OpenNebulaHelper::XML do
+        helper.show_resource(args[0],options)
     end
-    
-else
-    oneup_opts.print_help
-    exit -1
-end
 
-if OpenNebula.is_error?(result)
-    puts "Error: " + result.message
-    exit -1
 end

@@ -1,0 +1,53 @@
+--- 
+:ID: 
+  :desc: ONE identifier for Host
+  :size: 4
+
+:NAME: 
+  :desc: Name of the Host
+  :size: 15
+  :left: true
+
+:RVM: 
+  :desc: Number of Virtual Machines running
+  :size: 6
+
+:TCPU: 
+  :desc: Total CPU percentage
+  :size: 6
+
+:FCPU: 
+  :desc: Free CPU percentage
+  :size: 6
+
+:ACPU: 
+  :desc: Available cpu percentage (not reserved by VMs)
+  :size: 6
+
+:TMEM: 
+  :desc: Total Memory
+  :size: 6
+
+:FMEM: 
+  :desc: Free Memory
+  :size: 6
+
+:AMEM: 
+  :desc: Available Memory (not reserved by VMs)
+  :size: 6
+
+:STAT: 
+  :desc: Host status
+  :size: 6
+
+:default:
+- :ID
+- :NAME
+- :RVM
+- :TCPU
+- :FCPU
+- :ACPU
+- :TMEM
+- :FMEM
+- :AMEM
+- :STAT

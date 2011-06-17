@@ -1,0 +1,35 @@
+--- 
+:ID: 
+  :desc: ONE identifier for the Template
+  :size: 4
+
+:NAME: 
+  :desc: Name of the Template
+  :size: 15
+  :left: true
+
+:USER: 
+  :desc: Username of the Template owner
+  :size: 8
+  :left: true
+
+:GROUP: 
+  :desc: Group of the Template
+  :size: 8
+  :left: true
+
+:REGTIME: 
+  :desc: Registration time of the Template
+  :size: 20
+
+:PUBLIC: 
+  :desc: Whether the Template is public or not
+  :size: 3
+
+:default:
+- :ID
+- :USER
+- :GROUP
+- :NAME
+- :REGTIME
+- :PUBLIC
