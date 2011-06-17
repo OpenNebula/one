@@ -741,10 +741,12 @@ SUNSTONE_FILES="src/sunstone/config.ru \
 
 SUNSTONE_BIN_FILES="src/sunstone/bin/sunstone-server"
 
-SUNSTONE_ETC_FILES="src/sunstone/etc/sunstone-server.conf"
+SUNSTONE_ETC_FILES="src/sunstone/etc/sunstone-server.conf \
+                    src/sunstone/etc/sunstone-plugins.yaml"
 
 SUNSTONE_MODELS_FILES="src/sunstone/models/OpenNebulaJSON.rb \
-                       src/sunstone/models/SunstoneServer.rb"
+                       src/sunstone/models/SunstoneServer.rb \
+                       src/sunstone/models/SunstonePlugins.rb"
 
 SUNSTONE_MODELS_JSON_FILES="src/sunstone/models/OpenNebulaJSON/ClusterJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/HostJSON.rb \

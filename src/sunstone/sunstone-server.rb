@@ -15,7 +15,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
-#--------------------------------------------------------------------------- #
+#--------------------------------------------------------------------------- # 
 
 ONE_LOCATION = ENV["ONE_LOCATION"]
 
@@ -24,19 +24,21 @@ if !ONE_LOCATION
     VAR_LOCATION = "/var/lib/one"
     RUBY_LIB_LOCATION = "/usr/lib/one/ruby"
     CONFIGURATION_FILE = "/etc/one/sunstone-server.conf"
+    PLUGIN_CONFIGURATION_FILE = "/etc/sunstone-plugins.yaml"
 else
     VAR_LOCATION = ONE_LOCATION+"/var"
     LOG_LOCATION = ONE_LOCATION+"/var"
     RUBY_LIB_LOCATION = ONE_LOCATION+"/lib/ruby"
     CONFIGURATION_FILE = ONE_LOCATION+"/etc/sunstone-server.conf"
+    PLUGIN_CONFIGURATION_FILE = ONE_LOCATION+"/etc/sunstone-plugins.yaml"
 end
 
 HOST_LOG_FOLDER = LOG_LOCATION+"/OneMonitor/host"
 VM_LOG_FOLDER =  LOG_LOCATION+"/OneMonitor/vm"
 
 $: << RUBY_LIB_LOCATION
-$: << File.dirname(__FILE__)+'/models'
-$: << File.dirname(__FILE__)+'/share/OneMonitor'
+$: << SUNSTONE_ROOT_DIR+'/models'
+$: << SUNSTONE_ROOT_DIR+'/share/OneMonitor'
 
 ##############################################################################
 # Required libraries
@@ -47,6 +49,7 @@ require 'erb'
 
 require 'cloud/Configuration'
 require 'SunstoneServer'
+require 'SunstonePlugins'
 
 set :config, Configuration.new(CONFIGURATION_FILE)
 
@@ -96,19 +99,6 @@ helpers do
         session.clear
         return [204, ""]
     end
-
-    def user_plugins
-        base_path = File.dirname(__FILE__)+'/public'
-        plugins = Array.new
-        Dir[base_path+'/js/user-plugins/*'].each do |p|
-            m = p.match(/^#{base_path}(.*\.js)$/)
-            if m and plugin = m[1]
-                plugins << plugin
-            end
-        end
-
-        plugins
-    end
 end
 
 before do
@@ -145,13 +135,14 @@ get '/' do
                         :value=>"#{session[:user_id]}",
                         :expires=>time)
 
-    #File.read(File.dirname(__FILE__)+'/templates/index.html'
-    @user_plugins = user_plugins
+    p = SunstonePlugins.new
+    @plugins = p.authorized_plugins(session[:user])
+
     erb :index
 end
 
 get '/login' do
-    File.read(File.dirname(__FILE__)+'/templates/login.html')
+    File.read(SUNSTONE_ROOT_DIR+'/templates/login.html')
 end
 
 ##############################################################################
