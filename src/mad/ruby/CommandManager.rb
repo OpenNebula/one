@@ -160,15 +160,6 @@ private
 end
 
 class RemotesCommand < SSHCommand
-    ONE_LOCATION=ENV["ONE_LOCATION"]
-
-    if !ONE_LOCATION
-        REMOTES_LOCATION="/var/lib/one/remotes"
-    else
-        REMOTES_LOCATION=ONE_LOCATION+"/var/remotes/"
-    end
-
-    MAGIC_RC = 42
 
     # Creates a command and runs it
     def self.run(command, host, remote_dir, logger=nil, stdin=nil, retries=0)
@@ -182,9 +173,7 @@ class RemotesCommand < SSHCommand
 
         while cmd.code != 0 and retries != 0
             if cmd.code == MAGIC_RC
-                cmd.update_remotes(host, remote_dir, logger)
-
-                @command = command
+                update_remotes(host, remote_dir, logger)
                 cmd.run
             end
 
@@ -196,9 +185,24 @@ class RemotesCommand < SSHCommand
         cmd
     end
 
-    def update_remotes(host, remote_dir, logger=nil)
+private
+
+    ONE_LOCATION=ENV["ONE_LOCATION"]
+
+    if !ONE_LOCATION
+        REMOTES_LOCATION="/var/lib/one/remotes"
+    else
+        REMOTES_LOCATION=ONE_LOCATION+"/var/remotes/"
+    end
+
+    MAGIC_RC = 42
+
+    def self.update_remotes(host, remote_dir, logger=nil)
         log("Remote worker node files not found")
         log("Updating remotes")
+
+        #recreate remote dir structure
+        SSHCommand.run("mkdir -p #{remote_dir}",host,logger)
 
         # Use SCP to sync:
         sync_cmd = "scp -r #{REMOTES_LOCATION}/. #{host}:#{remote_dir}"
