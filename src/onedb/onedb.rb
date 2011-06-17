@@ -20,7 +20,7 @@ require 'onedb_backend'
 class OneDB
     def initialize(ops)
         if ops[:backend]==nil
-            @backend = from_onedconf
+            from_onedconf
         else
             if ops[:backend] == :sqlite 
                 @backend = BackEndSQLite.new(ops[:sqlite])
@@ -51,10 +51,11 @@ class OneDB
 
         if !ops[:force] && File.exists?(bck_file)
             puts "File #{bck_file} exists, backup aborted. Use -f to overwrite."
-            exit -1
+            return -1
         end
 
         @backend.backup(bck_file)
+        return 0
     end
 
     def restore(bck_file, ops)
@@ -62,12 +63,13 @@ class OneDB
 
         if !File.exists?(bck_file)
             puts "File #{bck_file} doesn't exist, backup restoration aborted."
-            exit -1
+            return -1
         end
         
         one_not_running
         
         @backend.restore(bck_file, ops[:force])
+        return 0
     end
 
     def version(ops)
@@ -82,6 +84,8 @@ class OneDB
         else
             puts version
         end
+
+        return 0
     end
 
     def history
@@ -107,7 +111,7 @@ class OneDB
             if ops[:backup]
                 bck_file = ops[:backup]
             else
-                bck_file = @backend.bck_file(VAR_LOCATION)
+                bck_file = @backend.bck_file
             end
 
             @backend.backup(bck_file)
@@ -141,6 +145,8 @@ class OneDB
         else
             puts "Database already uses version #{version}"
         end
+
+        return 0
     end
 
     private
@@ -150,7 +156,7 @@ class OneDB
 
         if config[:db] == nil
             puts "No DB defined."
-            exit -1
+            raise
         end
 
         if config[:db]["BACKEND"].upcase.include? "SQLITE"
@@ -167,14 +173,16 @@ class OneDB
         else
             puts "Could not load DB configuration from " <<
                  "#{ETC_LOCATION}/oned.conf"
-            exit -1
+            raise
         end
+
+        return 0
     end
 
     def one_not_running()
         if File.exists?(LOCK_FILE)
             puts "First stop OpenNebula. Lock file found: #{LOCK_FILE}"
-            exit -1
+            raise
         end
     end
 end

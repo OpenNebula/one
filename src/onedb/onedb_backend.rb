@@ -39,7 +39,7 @@ class OneDBBacKEnd
         if !db_exists?
             puts "Database schema does not look to be created by OpenNebula:"
             puts "table user_pool is missing or empty."
-            exit -1
+            raise
         end
 
         begin
@@ -48,7 +48,7 @@ class OneDBBacKEnd
         rescue
             puts "Database schema looks to be created by OpenNebula 1.X."
             puts "This tool only works with databases created by 2.X versions."
-            exit -1
+            raise
         end
 
         comment = "Could not read any previous db_versioning data, " <<
@@ -146,8 +146,8 @@ class OneDBBackEndMySQL < OneDBBacKEnd
         @db_name = @db_name[1..-2] if @db_name[0] == ?"
     end
 
-    def bck_file(var_location)
-        "#{var_location}/mysql_#{@server}_#{@db_name}.sql"
+    def bck_file
+        "#{VAR_LOCATION}/mysql_#{@server}_#{@db_name}.sql"
     end
 
     def backup(bck_file)
@@ -157,7 +157,7 @@ class OneDBBackEndMySQL < OneDBBacKEnd
         rc = system(cmd)
         if !rc
             puts "Unknown error running '#{cmd}'"
-            exit -1
+            raise
         end
 
         puts "MySQL dump stored in #{bck_file}"
@@ -171,7 +171,7 @@ class OneDBBackEndMySQL < OneDBBacKEnd
         if !force && db_exists?
             puts "MySQL database #{@db_name} at #{@server} exists," <<
                  " use -f to overwrite."
-            exit -1
+            raise
         end
 
         mysql_cmd = "mysql -u #{@user} -p#{@passwd} -h #{@server} -P #{@port} "
@@ -180,21 +180,21 @@ class OneDBBackEndMySQL < OneDBBacKEnd
         rc = system(drop_cmd)
         if !rc
             puts "Error dropping MySQL DB #{@db_name} at #{@server}."
-            exit -1
+            raise
         end
 
         create_cmd = mysql_cmd+"-e 'CREATE DATABASE IF NOT EXISTS #{@db_name};'"
         rc = system(create_cnd)
         if !rc
             puts "Error creating MySQL DB #{@db_name} at #{@server}."
-            exit -1
+            raise
         end
 
         restore_cmd = mysql_cmd + "#{@db_name} < #{bck_file}"
         rc = system(restore_cmd)
         if !rc
             puts "Error while restoring MySQL DB #{@db_name} at #{@server}."
-            exit -1
+            raise
         end
 
         puts "MySQL DB #{@db_name} at #{@server} restored."
@@ -213,14 +213,14 @@ class BackEndSQLite < OneDBBacKEnd
         @sqlite_file = file
     end
 
-    def bck_file(var_location)
-        "#{var_location}/one.db.bck"
+    def bck_file
+        "#{VAR_LOCATION}/one.db.bck"
     end
 
     def backup(bck_file)
         if !File.exists?(@sqlite_file)
             puts "File #{@sqlite_file} doesn't exist, backup aborted."
-            exit -1
+            raise
         end
 
         FileUtils.cp(@sqlite_file, "#{bck_file}")
@@ -231,7 +231,7 @@ class BackEndSQLite < OneDBBacKEnd
     def restore(bck_file, force=nil)
         if !force && File.exists?(@sqlite_file)
             puts "File #{@sqlite_file} exists, use -f to overwrite."
-            exit -1
+            raise
         end
 
         FileUtils.cp(bck_file, @sqlite_file)
@@ -243,7 +243,7 @@ class BackEndSQLite < OneDBBacKEnd
     def connect_db
         if !File.exists?(@sqlite_file)
             puts "File #{@sqlite_file} doesn't exist."
-            exit -1
+            raise
         end
 
         @db = Sequel.sqlite(@sqlite_file)

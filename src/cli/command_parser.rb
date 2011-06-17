@@ -160,7 +160,7 @@ module CommandParser
                 begin
                     rc = comm[:proc].call
                 rescue Exception =>e
-                    #puts e.message
+                    puts e.message
                     exit -1
                 end
 
