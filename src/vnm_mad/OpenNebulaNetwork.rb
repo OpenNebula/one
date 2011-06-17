@@ -19,7 +19,7 @@
 $: << File.dirname(__FILE__)
 
 require 'rexml/document'
-require 'Nic'
+require 'OpenNebulaNic'
 
 CONF = {
     :start_vlan => 2
