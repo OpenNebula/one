@@ -104,7 +104,7 @@ class OneDB
         
         migrator_version = version + 1
         result = nil
-        file = "#{LIB_LOCATION}/onedb/#{migrator_version}.rb"
+        file = "#{RUBY_LIB_LOCATION}/onedb/#{migrator_version}.rb"
 
         if File.exists?(file) && 
                 (max_version == nil || migrator_version <= max_version)
@@ -137,7 +137,7 @@ class OneDB
             puts "" if ops[:verbose]
 
             migrator_version += 1
-            file = "#{LIB_LOCATION}/onedb/#{migrator_version}.rb"
+            file = "#{RUBY_LIB_LOCATION}/onedb/#{migrator_version}.rb"
         end
         
         # Modify db_versioning table
