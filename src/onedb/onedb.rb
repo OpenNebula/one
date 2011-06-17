@@ -109,13 +109,7 @@ class OneDB
         if File.exists?(file) && 
                 (max_version == nil || migrator_version <= max_version)
             # At least one upgrade will be executed, make DB backup
-            if ops[:backup]
-                bck_file = ops[:backup]
-            else
-                bck_file = @backend.bck_file
-            end
-
-            @backend.backup(bck_file)
+            backup(ops[:backup], ops)
         end
 
         while File.exists?(file) &&

@@ -45,6 +45,14 @@ FORCE={
     :description => "Forces the backup even if the DB exists"
 }
 
+BACKUP={
+    :name => "backup",
+    :short => "-b file",
+    :large => "--backup file",
+    :description => "Use this file to store SQL dump",
+    :format => String
+}
+
 ###############################################################################
 # SQLite options
 ###############################################################################
@@ -203,7 +211,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                           By default the DB is upgraded to the latest version
     EOT
 
-    command :upgrade , upgrade_desc, [:version, nil] do
+    command :upgrade , upgrade_desc, [:version, nil], :options=>[FORCE,BACKUP] do
         helper = OneDB.new(options)
         helper.upgrade(args[0], options)
     end
