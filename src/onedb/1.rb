@@ -189,7 +189,15 @@ module Migrator
 
             body = "<VM><ID>#{oid}</ID><UID>#{uid}</UID><GID>#{gid}</GID><NAME>#{name}</NAME><LAST_POLL>#{last_poll}</LAST_POLL><STATE>#{state}</STATE><LCM_STATE>#{lcm_state}</LCM_STATE><STIME>#{row[:stime]}</STIME><ETIME>#{row[:etime]}</ETIME><DEPLOY_ID>#{row[:deploy_id]}</DEPLOY_ID><MEMORY>#{row[:memory]}</MEMORY><CPU>#{row[:cpu]}</CPU><NET_TX>#{row[:net_tx]}</NET_TX><NET_RX>#{row[:net_rx]}</NET_RX>#{row[:template]}#{history}</VM>"
 
-            @db.run "INSERT INTO vm_pool VALUES(#{oid},'#{name}','#{body}', #{uid}, #{gid}, #{last_poll}, #{state}, #{lcm_state});"
+            @db[:vm_pool].insert(
+                :oid => oid,
+                :name => name,
+                :body => body,
+                :uid => uid,
+                :gid => gid,
+                :last_poll => last_poll,
+                :state => state,
+                :lcm_state => lcm_state)
         end
 
 
