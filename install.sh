@@ -185,7 +185,7 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/ruby/cloud/econe \
           $LIB_LOCATION/ruby/cloud/econe/views \
           $LIB_LOCATION/ruby/cloud/occi \
-          $LIB_LOCATION/onedb \
+          $LIB_LOCATION/ruby/onedb \
           $LIB_LOCATION/tm_commands \
           $LIB_LOCATION/tm_commands/nfs \
           $LIB_LOCATION/tm_commands/ssh \
