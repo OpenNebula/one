@@ -21,18 +21,6 @@ $: << File.dirname(__FILE__)
 require 'rexml/document'
 require 'OpenNebulaNic'
 
-def log(msg)
-    require 'pp'
-    puts "\n"+"-"*80
-    if msg.instance_of? String
-        puts msg
-    else
-        pp msg
-    end
-    puts "-"*80
-    puts
-end
-
 CONF = {
     :start_vlan => 2
 }
