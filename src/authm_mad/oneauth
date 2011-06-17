@@ -29,7 +29,7 @@ else
 end
 
 $: << RUBY_LIB_LOCATION
-
+$: << RUBY_LIB_LOCATION+'/cli'
 
 require 'OpenNebula'
 
@@ -39,8 +39,8 @@ require 'quota'
 require 'ssh_auth'
 require 'yaml'
 
-require 'cli/command_parser'
-require 'cli/one_helper'
+require 'command_parser'
+require 'one_helper'
 
 cmd=CommandParser::CmdParser.new(ARGV) do
     usage "oneauth COMMAND [args..]"
