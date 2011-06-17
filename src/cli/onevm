@@ -188,7 +188,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         verbose = "live migrating to #{host_id}"
 
         helper.perform_actions(args[0],options,verbose) do |vm|
-            vm.livemigrate(host_id)
+            vm.live_migrate(host_id)
         end
     end
 
