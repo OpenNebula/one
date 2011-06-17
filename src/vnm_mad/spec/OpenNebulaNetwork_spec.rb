@@ -52,7 +52,23 @@ describe 'networking' do
                       :network=>"r2",
                       :network_id=>"2",
                       :tap=>"vnet2"}]
-        onevlan.nics.should == nics_expected
+        onevlan.vm.nics.should == nics_expected
+    end
+
+    it "filter nics in kvm" do
+        $capture_commands = {
+            /virsh.*dumpxml/ => OUTPUT[:virsh_dumpxml]
+        }
+        onevlan = OpenNebulaNetwork.new(OUTPUT[:onevm_show],"kvm")
+        onevlan.filter(:bridge => "br1")
+        nics_expected = [{:bridge=>"br1",
+                          :ip=>"10.1.1.1",
+                          :mac=>"02:00:0a:01:01:01",
+                          :network=>"r1",
+                          :network_id=>"1",
+                          :tap=>"vnet1"}]
+ 
+        onevlan.vm.filtered_nics.should == nics_expected
     end
 end
 
