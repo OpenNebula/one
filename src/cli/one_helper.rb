@@ -64,8 +64,8 @@ EOT
     OPTIONS = XML, NUMERIC, KILOBYTES
 
     class OneHelper
-        def initialize
-            @client = OpenNebula::Client.new
+        def initialize(secret=nil, endpoint=nil)
+            @client = OpenNebula::Client.new(secret,endpoint)
             @translation_hash = nil
         end
 
