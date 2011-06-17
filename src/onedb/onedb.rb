@@ -90,6 +90,7 @@ class OneDB
 
     def history
         @backend.history
+        return 0
     end
 
     def upgrade(max_version, ops)
