@@ -93,7 +93,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     command :delete, delete_desc, [:range, :vmid_list] do
         helper.perform_actions(args[0],options,"deleted") do |vm|
-            vm.delete
+            vm.finalize
         end
     end
 
