@@ -636,14 +636,16 @@ HOOK_FILES="share/hooks/host_error.rb \
 # Network Hook scripts, to be installed under $VAR_LOCATION/remotes/hooks
 #-------------------------------------------------------------------------------
 
-HOOK_NETWORK_FILES="src/vnm_mad/OpenNebulaVLAN.rb \
-                    src/vnm_mad/KVMVLAN.rb \
+HOOK_NETWORK_FILES="src/vnm_mad/hm-vlan \
                     src/vnm_mad/ebtables-vlan \
                     src/vnm_mad/firewall \
-                    src/vnm_mad/hm-vlan \
-                    src/vnm_mad/XenVLAN.rb \
-                    src/vnm_mad/openvswitch-vlan"
-
+                    src/vnm_mad/HostManaged.rb \
+                    src/vnm_mad/OpenNebulaNetwork.rb \
+                    src/vnm_mad/OpenNebulaNic.rb \
+                    src/vnm_mad/OpenvSwitch.rb \
+                    src/vnm_mad/openvswitch-vlan \
+                    src/vnm_mad/Firewall.rb \
+                    src/vnm_mad/Ebtables.rb"
 
 INSTALL_NOVNC_SHARE_FILE="share/install_novnc.sh"
 
