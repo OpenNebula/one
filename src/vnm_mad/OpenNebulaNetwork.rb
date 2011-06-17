@@ -21,6 +21,18 @@ $: << File.dirname(__FILE__)
 require 'rexml/document'
 require 'OpenNebulaNic'
 
+def log(msg)
+    require 'pp'
+    puts "\n"+"-"*80
+    if msg.instance_of? String
+        puts msg
+    else
+        pp msg
+    end
+    puts "-"*80
+    puts
+end
+
 CONF = {
     :start_vlan => 2
 }
@@ -38,8 +50,12 @@ COMMANDS = {
 }
 
 class VM
-    def initialize(vm_root)
+    attr_accessor :nics, :filtered_nics
+
+    def initialize(vm_root, hypervisor)
         @vm_root = vm_root
+        @hypervisor = hypervisor
+        get_nics
     end
 
     def [](element)
@@ -51,38 +67,47 @@ class VM
         end
         nil
     end
+
+    def get_nics
+        nics = Nics.new(@hypervisor)
+
+        @vm_root.elements.each("TEMPLATE/NIC") do |nic_element|
+            nic =  nics.new_nic
+            nic_element.elements.each('*') do |nic_attribute|
+                key = nic_attribute.xpath.split('/')[-1].downcase.to_sym
+                nic[key] = nic_attribute.text
+            end
+            nic.get_info(self)
+            nic.get_tap
+            nics << nic
+        end
+
+        @nics = nics
+        @filtered_nics = nics
+    end
 end
 
 class OpenNebulaNetwork
-    attr_reader :vm_info, :hypervisor, :nics
+    attr_reader :hypervisor, :vm
 
     def initialize(vm_tpl, hypervisor=nil)
-        @vm_root = REXML::Document.new(vm_tpl).root
-        @vm      = VM.new(@vm_root)
-        @vm_info = Hash.new
-
-        if !hypervisor
-            hypervisor = detect_hypervisor
-        end
-        @hypervisor = hypervisor
-
-        @nics = get_nics
-        @filtered_nics = @nics
+        hypervisor = detect_hypervisor if !hypervisor
+        @vm      = VM.new(REXML::Document.new(vm_tpl).root, hypervisor)
     end
 
     def filter(*filter)
-        @filtered_nics = @nics.get(*filter)
+        @vm.filtered_nics = @vm.nics.get(*filter)
         self
     end
 
     def unfilter
-        @filtered_nics = @nics
+        @vm.filtered_nics = @vm.nics
         self
     end
 
     def process(&block)
-        if @filtered_nics
-            @filtered_nics.each do |n|
+        if @vm.filtered_nics
+            @vm.filtered_nics.each do |n|
                 yield(n)
             end
         end
@@ -97,22 +122,6 @@ class OpenNebulaNetwork
         elsif lsmod.match(/kvm/)
             "kvm"
         end
-    end
-
-    def get_nics
-        nics = Nics.new(@hypervisor)
-
-        @vm_root.elements.each("TEMPLATE/NIC") do |nic_element|
-            nic =  nics.new_nic
-            nic_element.elements.each('*') do |nic_attribute|
-                key = nic_attribute.xpath.split('/')[-1].downcase.to_sym
-                nic[key] = nic_attribute.text
-            end
-            nic.get_info(@vm)
-            nic.get_tap
-            nics << nic
-        end
-        nics
     end
 
     def get_interfaces
