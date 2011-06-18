@@ -149,7 +149,7 @@ class OpenNebulaDriver < ActionManager
         if action_is_local? aname
             local_action(command, id, aname)
         else
-            remotes_action(command, id, host, aname, @remote_scripts_path,
+            remotes_action(command, id, host, aname, @remote_scripts_base_path,
                 options[:stdin])
         end
     end

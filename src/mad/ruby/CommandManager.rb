@@ -198,8 +198,10 @@ private
     MAGIC_RC = 42
 
     def self.update_remotes(host, remote_dir, logger=nil)
-        log("Remote worker node files not found")
-        log("Updating remotes")
+        if logger != nil
+            logger.call("Remote worker node files not found")
+            logger.call("Updating remotes")
+        end
 
         #recreate remote dir structure
         SSHCommand.run("mkdir -p #{remote_dir}",host,logger)
