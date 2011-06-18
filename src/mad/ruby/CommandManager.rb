@@ -174,7 +174,6 @@ class RemotesCommand < SSHCommand
         while cmd.code != 0 and retries != 0
             if cmd.code == MAGIC_RC
                 update_remotes(host, remote_dir, logger)
-                cmd.run
             end
 
             sleep 1
