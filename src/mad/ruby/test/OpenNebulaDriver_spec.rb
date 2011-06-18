@@ -1,4 +1,5 @@
 
+$: << '..'
 
 require 'OpenNebulaDriver'
 require 'test/MonkeyPatcher'
@@ -26,7 +27,7 @@ class OpenNebulaDriver
 
     def read_configuration
         old_one_location=ENV['ONE_LOCATION']
-        ENV['ONE_LOCATION']=File.join(ENV['PWD'], 'test', 'fixtures')
+        ENV['ONE_LOCATION']=File.join(ENV['PWD'], 'fixtures')
         result=read_configuration_old
         ENV['ONE_LOCATION']=old_one_location
         result
