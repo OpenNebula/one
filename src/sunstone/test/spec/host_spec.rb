@@ -71,7 +71,6 @@ describe 'Host tests NOKOGIRI' do
         json_response['HOST']['IM_MAD'].should eql(@host0_h['host']['im_mad'])
         json_response['HOST']['VM_MAD'].should eql(@host0_h['host']['vm_mad'])
         json_response['HOST']['TM_MAD'].should eql(@host0_h['host']['tm_mad'])
-        json_response['HOST']['CLUSTER'].should eql("default")
         json_response['HOST']['STATE'].should eql("0")
     end
 
@@ -120,7 +119,6 @@ describe 'Host tests NOKOGIRI' do
         json_response['HOST']['IM_MAD'].should eql(@host1_h['host']['im_mad'])
         json_response['HOST']['VM_MAD'].should eql(@host1_h['host']['vm_mad'])
         json_response['HOST']['TM_MAD'].should eql(@host1_h['host']['tm_mad'])
-        json_response['HOST']['CLUSTER'].should eql("default")
         json_response['HOST']['STATE'].should eql("0")
     end
 

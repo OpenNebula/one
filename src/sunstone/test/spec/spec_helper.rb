@@ -25,7 +25,7 @@ require 'rack/test'
 require 'json'
 
 # Load the Sinatra app
-require 'one-ui'
+require 'sunstone-server'
 
 # Make Rack::Test available to all spec contexts
 Spec::Runner.configure do |conf|

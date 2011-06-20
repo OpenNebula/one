@@ -186,55 +186,55 @@ describe 'Image tests' do
         json_response['IMAGE']['STATE'].should eql("1")
     end
 
-    ############################################################################
-    # Update / Remove attr
-    ############################################################################
-    it "should add a new attribute to Image 0" do
-        url = '/image/0/action'
-        post url, @action_update
-
-        last_response.status.should eql(204)
-    end
-
-    it "should get first Image information after adding a new attribute" do
-        url = '/image/0'
-        get url
-
-        last_response.status.should eql(200)
-
-        json_response = JSON.parse(last_response.body)
-        json_response['IMAGE']['TEMPLATE']['FOO'].should eql("mock")
-    end
-
-    it "should remove an attribute from Image 0" do
-        url = '/image/0/action'
-        post url, @action_removeattr
-
-        last_response.status.should eql(204)
-    end
-
-    it "should get Image 0 information after removing an attribute" do
-        url = '/image/0'
-        get url
-
-        last_response.status.should eql(200)
-
-        json_response = JSON.parse(last_response.body)
-        json_response['IMAGE']['TEMPLATE']['FOO'].should eql(nil)
-    end
-
-
-    it "should get Image 1 information" do
-        url = '/image/1'
-        get url
-
-        last_response.status.should eql(200)
-
-        json_response = JSON.parse(last_response.body)
-        json_response['IMAGE']['NAME'].should eql(@image1_h['image']['name'])
-        json_response['IMAGE']['TYPE'].should eql("1")
-        json_response['IMAGE']['TEMPLATE']['SIZE'].should eql(@image1_h['image']['size'])
-    end
+#    ############################################################################
+#    # Update / Remove attr
+#    ############################################################################
+#    it "should add a new attribute to Image 0" do
+#        url = '/image/0/action'
+#        post url, @action_update
+#
+#        last_response.status.should eql(204)
+#    end
+#
+#    it "should get first Image information after adding a new attribute" do
+#        url = '/image/0'
+#        get url
+#
+#        last_response.status.should eql(200)
+#
+#        json_response = JSON.parse(last_response.body)
+#        json_response['IMAGE']['TEMPLATE']['FOO'].should eql("mock")
+#    end
+#
+#    it "should remove an attribute from Image 0" do
+#        url = '/image/0/action'
+#        post url, @action_removeattr
+#
+#        last_response.status.should eql(204)
+#    end
+#
+#    it "should get Image 0 information after removing an attribute" do
+#        url = '/image/0'
+#        get url
+#
+#        last_response.status.should eql(200)
+#
+#        json_response = JSON.parse(last_response.body)
+#        json_response['IMAGE']['TEMPLATE']['FOO'].should eql(nil)
+#    end
+#
+#
+#    it "should get Image 1 information" do
+#        url = '/image/1'
+#        get url
+#
+#        last_response.status.should eql(200)
+#
+#        json_response = JSON.parse(last_response.body)
+#        json_response['IMAGE']['NAME'].should eql(@image1_h['image']['name'])
+#        json_response['IMAGE']['TYPE'].should eql("1")
+#        json_response['IMAGE']['TEMPLATE']['SIZE'].should eql(@image1_h['image']['size'])
+#    end
 
     ############################################################################
     # Pool
@@ -317,6 +317,7 @@ describe 'Image tests' do
 
     it "should try to get the deleted Image information and check the error" do
         url = '/image/1'
+	sleep 2
         get url
 
         last_response.status.should eql(404)
