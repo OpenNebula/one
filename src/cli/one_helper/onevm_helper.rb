@@ -25,6 +25,20 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         "onevm.yaml"
     end
 
+    def self.state_to_str(id, lcm_id)
+        id = id.to_i
+        state_str = VirtualMachine::VM_STATE[id]
+        short_state_str = VirtualMachine::SHORT_VM_STATES[state_str]
+
+        if short_state_str=="actv"
+            lcm_id = lcm_id.to_i
+            lcm_state_str = VirtualMachine::LCM_STATE[lcm_id]
+            return VirtualMachine::SHORT_LCM_STATES[lcm_state_str]
+        end
+
+        return short_state_str
+    end
+
     private
 
     def factory(id=nil)
@@ -89,7 +103,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             end
 
             column :STAT, "Actual status", :size=>4 do |d,e|
-                d.status
+                OneVMHelper.state_to_str(d["STATE"], d["LCM_STATE"])
             end
 
             column :CPU, "CPU percentage used by the VM", :size=>3 do |d|
@@ -101,7 +115,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             end
 
             column :HOSTNAME, "Host where the VM is running", :size=>15 do |d|
-                d["HISTORY/HOSTNAME"]
+                d["HISTORY"]["HOSTNAME"] if d["HISTORY"]
             end
 
             column :TIME, "Time since the VM was submitted", :size=>11 do |d|
