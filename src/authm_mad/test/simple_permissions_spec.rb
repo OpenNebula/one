@@ -14,6 +14,8 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+$: << '../'
+
 require 'spec_common'
 
 require 'client_mock'
@@ -64,7 +66,7 @@ end
 describe SimplePermissions do
     before(:all) do
         @db=Sequel.sqlite
-        mock_data=YAML::load(File.read('spec/oca_vms.yaml'))
+        mock_data=YAML::load(File.read('oca_vms.yaml'))
         client=ClientMock.new(mock_data)
         @perm=SimplePermissions.new(@db, client, YAML::load(CONF))
     end

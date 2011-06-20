@@ -14,6 +14,8 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+$: << '../'
+
 require 'spec_common'
 
 require 'client_mock'
@@ -21,7 +23,7 @@ require 'one_usage'
 
 describe "OneUsage" do
     before(:all) do
-        mock_data=YAML::load(File.read('spec/oca_vms.yaml'))
+        mock_data=YAML::load(File.read('oca_vms.yaml'))
         client=ClientMock.new(mock_data)
         @one_usage=OneUsage.new(client)
     end
