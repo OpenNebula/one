@@ -53,7 +53,7 @@ class InformationManagerDriver < OpenNebulaDriver
 
     # Execute the run_probes in the remote host
     def action_monitor(number, host, do_update)
-        if !action_is_local?(:monitor)
+        if !action_is_local?(:MONITOR)
             if do_update == "1"
                 # Use SCP to sync:
                 sync_cmd = "scp -r #{@local_scripts_base_path}/. " \
@@ -65,7 +65,7 @@ class InformationManagerDriver < OpenNebulaDriver
                 LocalCommand.run(sync_cmd, log_method(number))
             end
         end
-        do_action("#{@hypervisor}", number, host, :monitor,
+        do_action("#{@hypervisor}", number, host, :MONITOR,
             :script_name => 'run_probes')
     end
 end
