@@ -214,7 +214,7 @@ var host_buttons = {
     "Host.refresh" : {
         type: "image",
         text: "Refresh list",
-        img: "/images/Refresh-icon.png",
+        img: "images/Refresh-icon.png",
         condition: True
         },
     "Host.create_dialog" : {

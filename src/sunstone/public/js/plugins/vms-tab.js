@@ -402,7 +402,7 @@ var vm_buttons = {
     "VM.refresh" : {
         type: "image",
         text: "Refresh list",
-        img: "/images/Refresh-icon.png",
+        img: "images/Refresh-icon.png",
         condition: True
     },
 

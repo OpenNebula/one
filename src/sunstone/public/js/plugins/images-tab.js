@@ -338,7 +338,7 @@ var image_buttons = {
     "Image.refresh" : {
         type: "image",
         text: "Refresh list",
-        img: "/images/Refresh-icon.png",
+        img: "images/Refresh-icon.png",
         condition: True
     },
     "Image.create_dialog" : {

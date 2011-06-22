@@ -309,7 +309,7 @@ function onError(request,error_json) {
 
     //redirect to login if unauthenticated
     if (error_json.error.http_status=="401") {
-        window.location.href = "/login";
+        window.location.href = "login";
     };
 
     if (!message){

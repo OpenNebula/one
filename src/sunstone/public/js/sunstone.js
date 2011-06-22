@@ -17,7 +17,7 @@
 var cookie = {};
 var username = '';
 var uid = '';
-var spinner = '<img src="/images/ajax-loader.gif" alt="retrieving" class="loading_img" />';
+var spinner = '<img src="images/ajax-loader.gif" alt="retrieving" class="loading_img" />';
 
 
 //Sunstone configuration is formed by predifined "actions", main tabs
@@ -382,7 +382,7 @@ function setLogin(){
     $("#logout").click(function(){
         OpenNebula.Auth.logout({
             success:function(){
-                window.location.href = "/login";
+                window.location.href = "login";
             }
         });
         return false;

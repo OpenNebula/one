@@ -15,7 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 function auth_success(req, response){
-    window.location.href = "/";
+    window.location.href = ".";
 }
 
 function auth_error(req, error){

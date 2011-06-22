@@ -237,7 +237,7 @@ var vnet_buttons = {
     "Network.refresh" : {
         type: "image",
         text: "Refresh list",
-        img: "/images/Refresh-icon.png",
+        img: "images/Refresh-icon.png",
         condition: True
     },
 

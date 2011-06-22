@@ -685,7 +685,7 @@ var template_buttons = {
     "Template.refresh" : {
         type: "image",
         text: "Refresh list",
-        img: "/images/Refresh-icon.png",
+        img: "images/Refresh-icon.png",
         condition: True
     },
     "Template.create_dialog" : {

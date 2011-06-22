@@ -122,7 +122,8 @@ end
 # HTML Requests
 ##############################################################################
 get '/' do
-    redirect '/login' unless authorized?
+    return  File.read(File.dirname(__FILE__)+
+                      '/templates/login.html') unless authorized?
 
     time = Time.now + 60
     response.set_cookie("one-user",
