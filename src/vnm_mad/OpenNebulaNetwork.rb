@@ -79,8 +79,8 @@ class OpenNebulaNetwork
     attr_reader :hypervisor, :vm
 
     def initialize(vm_tpl, hypervisor=nil)
-        hypervisor = detect_hypervisor if !hypervisor
-        @vm      = VM.new(REXML::Document.new(vm_tpl).root, hypervisor)
+        @hypervisor = detect_hypervisor if !hypervisor
+        @vm      = VM.new(REXML::Document.new(vm_tpl).root, @hypervisor)
     end
 
     def filter(*filter)
