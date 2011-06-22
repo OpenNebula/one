@@ -73,7 +73,7 @@ while true ; do
         -r) UNINSTALL="yes"   ; shift ;;
         -l) LINK="yes" ; shift ;;
         -c) CLIENT="yes"; INSTALL_ETC="no" ; shift ;;
-        -s) SUNSTONE="yes"; INSTALL_ETC="no" ; shift ;;
+        -s) SUNSTONE="yes"; shift ;;
         -u) ONEADMIN_USER="$2" ; shift 2;;
         -g) ONEADMIN_GROUP="$2"; shift 2;;
         -d) ROOT="$2" ; shift 2 ;;
@@ -320,7 +320,6 @@ INSTALL_SUNSTONE_RUBY_FILES=(
 INSTALL_SUNSTONE_FILES=(
     SUNSTONE_FILES:$SUNSTONE_LOCATION
     SUNSTONE_BIN_FILES:$BIN_LOCATION
-    SUNSTONE_ETC_FILES:$ETC_LOCATION
     SUNSTONE_MODELS_FILES:$SUNSTONE_LOCATION/models
     SUNSTONE_MODELS_JSON_FILES:$SUNSTONE_LOCATION/models/OpenNebulaJSON
     SUNSTONE_TEMPLATE_FILES:$SUNSTONE_LOCATION/templates
@@ -335,6 +334,10 @@ INSTALL_SUNSTONE_FILES=(
     SUNSTONE_PUBLIC_VENDOR_FLOT:$SUNSTONE_LOCATION/public/vendor/flot
     SUNSTONE_SHARE_ONEMONITOR:$SUNSTONE_LOCATION/share/OneMonitor
     SUNSTONE_PUBLIC_IMAGES_FILES:$SUNSTONE_LOCATION/public/images
+)
+
+INSTALL_SUNSTONE_ETC_FILES=(
+    SUNSTONE_ETC_FILES:$ETC_LOCATION
 )
 
 INSTALL_ETC_FILES=(
@@ -352,7 +355,6 @@ INSTALL_ETC_FILES=(
     ECO_ETC_TEMPLATE_FILES:$ETC_LOCATION/ec2query_templates
     OCCI_ETC_FILES:$ETC_LOCATION
     OCCI_ETC_TEMPLATE_FILES:$ETC_LOCATION/occi_templates
-    SUNSTONE_ETC_FILES:$ETC_LOCATION
     CLI_CONF_FILES:$ETC_LOCATION/cli
 )
 
@@ -951,7 +953,14 @@ for i in ${INSTALL_SET[@]}; do
 done
 
 if [ "$INSTALL_ETC" = "yes" ] ; then
-    for i in ${INSTALL_ETC_FILES[@]}; do
+    if [ "$SUNSTONE" = "yes" ]; then
+        INSTALL_ETC_SET="${INSTALL_SUNSTONE_ETC_FILES[@]}"
+    else
+        INSTALL_ETC_SET="${INSTALL_ETC_FILES[@]} \
+                         ${INSTALL_SUNSTONE_ETC_FILES[@]}"
+    fi
+
+    for i in ${INSTALL_ETC_SET[@]}; do
         SRC=$`echo $i | cut -d: -f1`
         DST=`echo $i | cut -d: -f2`
 
