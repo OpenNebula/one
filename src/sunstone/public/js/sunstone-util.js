@@ -613,6 +613,14 @@ function setupTemplateUpdateDialog(){
     });
 }
 
+function popUpTemplateUpdateDialog(elem_str,select_items){
+    $('#template_update_dialog #template_update_button').val(elem_str);
+    $('#template_update_dialog #template_update_select').html(select_items);
+    $('#template_update_dialog #template_update_textarea').val("");
+    $('#template_update_dialog').dialog('open');
+    return false;
+}
+
 //functions that used as true and false conditions for testing mainly
 function True(){
     return true;
