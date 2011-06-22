@@ -88,7 +88,7 @@ protected:
     /* -------------------------------------------------------------------- */
 
     /**
-     *  Performs a basic autorization for this request using the uid/gid
+     *  Performs a basic authorization for this request using the uid/gid
      *  from the request. The function gets the object from the pool to get 
      *  the public attribute and its owner. The authorization is based on 
      *  object and type of operation for the request.

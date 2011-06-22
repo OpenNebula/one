@@ -23,7 +23,9 @@ lib_name='nebula_authm'
 # Sources to generate the library
 source_files=[
     'AuthManager.cc',
-    'AuthManagerDriver.cc'
+    'AuthManagerDriver.cc',
+    'AclManager.cc',
+    'AclRule.cc'
 ]
 
 # Build library

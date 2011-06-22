@@ -515,6 +515,9 @@ void Nebula::start()
         }
     }
 
+    // ---- ACL Manager ----
+    aclm = new AclManager();
+
     // ---- Image Manager ----
     try
     {

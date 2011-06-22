@@ -1,0 +1,102 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+ONE_LOCATION=ENV["ONE_LOCATION"]
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
+else
+    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
+end
+
+$: << RUBY_LIB_LOCATION
+$: << RUBY_LIB_LOCATION+"/cli"
+
+require 'command_parser'
+require 'one_helper'
+
+cmd = CommandParser::CmdParser.new(ARGV) do
+    usage "oneacl COMMAND [args..] [options..]"
+    version OpenNebulaHelper::ONE_VERSION
+
+    ########################################################################
+    # Global Options
+    ########################################################################
+    set :option, CommandParser::OPTIONS
+
+    ########################################################################
+    # Formatters for arguments
+    ########################################################################
+    # TODO
+
+    ########################################################################
+    # Commands
+    ########################################################################
+
+    addrule_desc = <<-EOT.unindent
+        Adds a new ACL rule
+    EOT
+
+    command :addrule, addrule_desc, :user, :resource, :rights do
+        acl = OpenNebula::Acl.new( OpenNebula::Client.new() )
+
+        rc = acl.addrule( args[0], args[1], args[2] )
+
+        if OpenNebula.is_error?(rc)
+            [-1, rc.message]
+        else
+            puts "Rule added" if options[:verbose]
+            0
+        end
+    end
+
+    delrule_desc = <<-EOT.unindent
+        Deletes an existing ACL rule
+    EOT
+
+    command :delrule, delrule_desc, :user, :resource, :rights do
+        acl = OpenNebula::Acl.new( OpenNebula::Client.new() )
+
+        rc = acl.delrule( args[0], args[1], args[2] )
+
+        if OpenNebula.is_error?(rc)
+            [-1, rc.message]
+        else
+            puts "Rule deleted" if options[:verbose]
+            0
+        end
+
+    end
+
+    list_desc = <<-EOT.unindent
+        Lists the ACL rule set
+    EOT
+
+    command :list, list_desc,:options=>OpenNebulaHelper::XML do
+        acl = OpenNebula::Acl.new( OpenNebula::Client.new() )
+
+        rc = acl.info()
+
+        if OpenNebula.is_error?(rc)
+            [-1, rc.message]
+        else
+            puts acl.to_xml
+            0
+        end
+    end
+end

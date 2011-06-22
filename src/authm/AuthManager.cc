@@ -39,16 +39,7 @@ void AuthRequest::add_auth(Object        ob,
     ostringstream oss;
     bool          auth;
 
-    switch (ob)
-    {
-        case VM:       oss << "VM:" ; break;
-        case HOST:     oss << "HOST:" ; break;
-        case NET:      oss << "NET:" ; break;
-        case IMAGE:    oss << "IMAGE:" ; break;
-        case USER:     oss << "USER:" ; break;
-        case TEMPLATE: oss << "TEMPLATE:" ; break;
-        case GROUP:    oss << "GROUP:" ; break;
-    }
+    oss << Object_to_str(ob) << ":";
 
     if (op == CREATE || op == INSTANTIATE) //encode the ob_id, it is a template
     {
@@ -69,44 +60,7 @@ void AuthRequest::add_auth(Object        ob,
         oss << ob_id << ":";
     }
 
-    switch (op)
-    {
-        case CREATE:
-            oss << "CREATE:" ;
-            break;
-
-        case DELETE:
-            oss << "DELETE:" ;
-            break;
-
-        case USE:
-            oss << "USE:" ;
-            break;
-
-        case MANAGE:
-            oss << "MANAGE:" ;
-            break;
-            
-        case INFO:
-            oss << "INFO:" ;
-            break;
-
-        case INFO_POOL:
-            oss << "INFO_POOL:" ;
-            break;
-
-        case INFO_POOL_MINE:
-            oss << "INFO_POOL_MINE:" ;
-            break;
-
-        case INSTANTIATE:
-            oss << "INSTANTIATE:" ;
-            break;
-
-        case CHOWN:
-            oss << "CHOWN:" ;
-            break;
-    }
+    oss << Operation_to_str(op) << ":";
 
     oss << owner << ":" << pub;
 
@@ -120,75 +74,20 @@ void AuthRequest::add_auth(Object        ob,
     }
     else
     {
-        auth = false;
+        // TODO, the set of object ids is needed
+        set<int> emtpy_set;
 
-        switch (op)
-        {
-            case CREATE:
-                if ( ob == VM || ob == NET || ob == IMAGE || ob == TEMPLATE )
-                {
-                    auth = true;
-                }
-                break;
+        int         ob_gid = 0;
 
-            case INSTANTIATE:
-                if ( ob == VM )
-                {
-                    auth = true;
-                }
-                break;
+        istringstream iss(ob_id);
+        int ob_id_int;
 
-            case DELETE:
-                auth = owner == uid;
-                break;
+        iss >> ob_id_int;
 
-            case USE:
-                if (ob == NET || ob == IMAGE || ob == TEMPLATE)
-                {
-                    auth = (owner == uid) || pub;
-                }
-                else if (ob == HOST)
-                {
-                    auth = true;
-                }
-                break;
+        Nebula&     nd   = Nebula::instance();
+        AclManager* aclm = nd.get_aclm();
 
-            case MANAGE:
-                auth = owner == uid;
-                break;
-                
-            case INFO: 
-                if ( ob != USER ) // User info only for root or owner
-                {
-                    auth = true;
-                }
-                else 
-                {
-                    istringstream iss(ob_id);
-                    int ob_id_int;
-
-                    iss >> ob_id_int;
-
-                    if (ob_id_int == uid)
-                    {
-                        auth = true;
-                    }
-                }
-                break;
-
-            case INFO_POOL:
-                if ( ob != USER ) // User pool only for oneadmin
-                {
-                    auth = true;
-                }
-                break;
-
-            case INFO_POOL_MINE:
-                auth = true;
-                break;
-            case CHOWN: //true only for oneadmin
-                break;
-        }
+        auth = aclm->authorize(uid, emtpy_set, ob, ob_id_int, ob_gid, op);
     }
 
     self_authorize = self_authorize && auth;

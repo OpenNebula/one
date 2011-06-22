@@ -371,6 +371,7 @@ BIN_FILES="src/nebula/oned \
            src/cli/oneimage \
            src/cli/onegroup \
            src/cli/onetemplate \
+           src/cli/oneacl \
            src/onedb/onedb \
            share/scripts/one \
            src/authm_mad/oneauth"
@@ -653,6 +654,7 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/OpenNebula/Host.rb \
                            src/oca/ruby/OpenNebula/TemplatePool.rb \
                            src/oca/ruby/OpenNebula/Group.rb \
                            src/oca/ruby/OpenNebula/GroupPool.rb \
+                           src/oca/ruby/OpenNebula/Acl.rb \
                            src/oca/ruby/OpenNebula/XMLUtils.rb"
 
 #-------------------------------------------------------------------------------
@@ -756,7 +758,8 @@ CLI_BIN_FILES="src/cli/onevm \
                src/cli/oneuser \
                src/cli/oneimage \
                src/cli/onetemplate \
-               src/cli/onegroup"
+               src/cli/onegroup \
+               src/cli/oneacl"
 
 CLI_CONF_FILES="src/cli/etc/onegroup.yaml \
                 src/cli/etc/onehost.yaml \

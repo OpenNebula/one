@@ -33,6 +33,7 @@
 #include "RequestManagerHost.h"
 #include "RequestManagerImage.h"
 #include "RequestManagerUser.h"
+#include "RequestManagerAcl.h"
 
 #include <sys/signal.h>
 #include <sys/socket.h>
@@ -310,6 +311,11 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr image_chown(new ImageChown());
     xmlrpc_c::methodPtr user_chown(new UserChown());
 
+    // ACL Methods
+    xmlrpc_c::methodPtr acl_addrule(new AclAddRule());
+    xmlrpc_c::methodPtr acl_delrule(new AclDelRule());
+    xmlrpc_c::methodPtr acl_info(new AclInfo());
+
     /* VM related methods  */    
     RequestManagerRegistry.addMethod("one.vm.deploy", vm_deploy);
     RequestManagerRegistry.addMethod("one.vm.action", vm_action);
@@ -383,6 +389,11 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.image.chown", image_chown);
 
     RequestManagerRegistry.addMethod("one.imagepool.info", imagepool_info);
+
+    /* ACL related methods */
+    RequestManagerRegistry.addMethod("one.acl.addrule", acl_addrule);
+    RequestManagerRegistry.addMethod("one.acl.delrule", acl_delrule);
+    RequestManagerRegistry.addMethod("one.acl.info",    acl_info);
 };
 
 /* -------------------------------------------------------------------------- */

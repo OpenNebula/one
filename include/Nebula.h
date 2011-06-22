@@ -36,6 +36,7 @@
 #include "RequestManager.h"
 #include "HookManager.h"
 #include "AuthManager.h"
+#include "AclManager.h"
 #include "ImageManager.h"
 
 #include "Callbackable.h"
@@ -132,6 +133,11 @@ public:
     ImageManager * get_imagem()
     {
         return imagem;
+    };
+
+    AclManager * get_aclm()
+    {
+        return aclm;
     };
 
     // --------------------------------------------------------------
@@ -249,7 +255,7 @@ private:
 
     Nebula():nebula_configuration(0),db(0),vmpool(0),hpool(0),vnpool(0),
         upool(0),ipool(0),gpool(0),tpool(0),lcm(0),vmm(0),im(0),tm(0),
-        dm(0),rm(0),hm(0),authm(0),imagem(0)
+        dm(0),rm(0),hm(0),authm(0),aclm(0),imagem(0)
     {
         const char * nl = getenv("ONE_LOCATION");
 
@@ -359,6 +365,11 @@ private:
             delete authm;
         }
 
+        if ( aclm != 0)
+        {
+            delete aclm;
+        }
+
         if ( imagem != 0)
         {
             delete imagem;
@@ -425,6 +436,7 @@ private:
     RequestManager *        rm;
     HookManager *           hm;
     AuthManager *           authm;
+    AclManager *            aclm;
     ImageManager *          imagem;
 
     // ---------------------------------------------------------------
