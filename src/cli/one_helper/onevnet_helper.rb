@@ -27,8 +27,8 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
 
     def self.type_to_str(id)
         id = id.to_i
-        type_str = VirtualNetwork::VNET_TYPES[id]
-        return VirtualNetwork::SHORT_VNET_TYPES[type_str]
+        type_str = VirtualNetwork::VN_TYPES[id]
+        return VirtualNetwork::SHORT_VN_TYPES[type_str]
     end
 
     private
