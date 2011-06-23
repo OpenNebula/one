@@ -25,6 +25,12 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
         "onevnet.yaml"
     end
 
+    def self.type_to_str(id)
+        id = id.to_i
+        type_str = VirtualNetwork::VN_TYPES[id]
+        return VirtualNetwork::SHORT_VN_TYPES[type_str]
+    end
+
     private
 
     def factory(id=nil)
@@ -82,7 +88,7 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
             end
 
             column :TYPE, "Type of Virtual Network", :size=>6 do |d|
-                d.type_str
+                OneVNetHelper.type_to_str(d["TYPE"])
             end
 
             column :SIZE, "Size of the Virtual Network", :size=>6 do |d|

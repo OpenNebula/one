@@ -91,7 +91,20 @@ EOT
             if options[:xml]
                 return 0, pool.to_xml(true)
             else
-                format_pool(pool, options, top)
+                phash = pool.to_hash
+                rname = self.class.rname
+
+                if phash["#{rname}_POOL"] && phash["#{rname}_POOL"]["#{rname}"]
+                    if phash["#{rname}_POOL"]["#{rname}"].instance_of?(Array)
+                        phash = phash["#{rname}_POOL"]["#{rname}"]
+                    else
+                        phash = [phash["#{rname}_POOL"]["#{rname}"]]
+                    end
+                else
+                    phash = Array.new
+                end
+
+                format_pool(phash, options, top)
                 return 0
             end
         end
@@ -138,11 +151,11 @@ EOT
         ########################################################################
         # Id translation
         ########################################################################
-        def uid_to_str(uid, options)
+        def uid_to_str(uid, options={})
             rid_to_str(:users, uid, options)
         end
 
-        def gid_to_str(gid, options)
+        def gid_to_str(gid, options={})
             rid_to_str(:groups, gid, options)
         end
 

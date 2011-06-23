@@ -2,6 +2,6 @@
   "image": {
     "name": "second_image",
     "type": "CDROM",
-    "size": "512"
+    "path": "/etc/hosts"
   }
 }

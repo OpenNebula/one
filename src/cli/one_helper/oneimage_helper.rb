@@ -25,6 +25,22 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         "oneimage.yaml"
     end
 
+    def self.persistent_to_str(str)
+        str.to_i==1 ? "Yes" : "No"
+    end
+
+    def self.state_to_str(id)
+        id = id.to_i
+        state_str = Image::IMAGE_STATES[id]
+        return Image::SHORT_IMAGE_STATES[state_str]
+    end
+
+    def self.type_to_str(id)
+        id = id.to_i
+        type_str = Image::IMAGE_TYPES[id]
+        return Image::SHORT_IMAGE_TYPES[type_str]
+    end
+
     private
 
     def factory(id=nil)
@@ -80,7 +96,7 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
             end
 
             column :TYPE, "Type of the Image", :size=>4 do |d,e|
-                d.short_type_str
+                OneImageHelper.type_to_str(d["TYPE"])
             end
 
             column :REGTIME, "Registration time of the Image", :size=>20 do |d|
@@ -96,7 +112,7 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
             end
 
             column :STAT, "State of the Image", :size=>4 do |d|
-                d.short_state_str
+                OneImageHelper.state_to_str(d["STATE"])
             end
 
             column :RVMS, "Number of VMs currently running from this Image", :size=>5 do |d|
@@ -111,11 +127,5 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         else
             table.show(pool, options)
         end
-    end
-    
-    private
-    
-    def self.persistent_to_str(str)
-        str.to_i==1 ? "Yes" : "No"
     end
 end
