@@ -44,7 +44,6 @@ void Nebula::start()
     int             signal;
     char            hn[80];
     string          scripts_remote_dir;
-    string          hook_location;
 
     if ( gethostname(hn,79) != 0 )
     {

@@ -522,7 +522,7 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended) const
         os << "<PHYDEV>" << phydev << "</PHYDEV>";
     }
 
-    os  <<  "<PUBLIC>"      << public_vnet  << "</PUBLIC>"      <<
+    os  <<  "<PUBLIC>"      << public_obj  << "</PUBLIC>"      <<
             "<TOTAL_LEASES>"<< total_leases << "</TOTAL_LEASES>"<<
             obj_template->to_xml(template_xml);
 
