@@ -261,7 +261,6 @@ private:
             etc_location     = "/etc/one/";
             log_location     = "/var/log/one/";
             var_location     = "/var/lib/one/";
-            hook_location    = "/usr/share/one/hooks/";
             remotes_location = "/var/lib/one/remotes/";
         }
         else
@@ -277,7 +276,6 @@ private:
             etc_location     = nebula_location + "etc/";
             log_location     = nebula_location + "var/";
             var_location     = nebula_location + "var/";
-            hook_location    = nebula_location + "share/hooks/";
             remotes_location = nebula_location + "var/remotes/";
         }
     };

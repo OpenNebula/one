@@ -198,6 +198,11 @@ private:
      */
     string  bridge;
 
+    /**
+     *  Name of the physical device the bridge should be attached to
+     */
+    string  phydev;
+    
     // -------------------------------------------------------------------------
     // Virtual Network Description
     // -------------------------------------------------------------------------

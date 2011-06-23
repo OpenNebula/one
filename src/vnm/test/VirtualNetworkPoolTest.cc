@@ -135,6 +135,7 @@ class VirtualNetworkPoolTest : public PoolTest
 
     ALL_POOLTEST_CPPUNIT_TESTS();
     CPPUNIT_TEST (allocate_rcs);
+    CPPUNIT_TEST (use_phydev);
     CPPUNIT_TEST (get_using_name);
     CPPUNIT_TEST (wrong_get_name);
     CPPUNIT_TEST (update);
@@ -243,6 +244,68 @@ public:
 
         rc = allocate(6);
         CPPUNIT_ASSERT( rc == -1 );
+    }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+    void use_phydev()
+    {
+        VirtualNetworkPoolFriend * vnpool =
+                                static_cast<VirtualNetworkPoolFriend*>(pool);
+        VirtualNetwork *vn;
+
+        int rc,oid;
+
+        ostringstream       oss;
+
+        string xml_str;
+        string phydev_templates[] = {
+            "NAME = \"BRIDGE and PHYDEV\"\n"
+            "TYPE = FIXED\n"
+            "BRIDGE = br0\n"
+            "PHYDEV = eth0\n"
+            "LEASES = [IP=130.10.0.1, MAC=50:20:20:20:20:20]\n",
+
+            "NAME = \"No BRIDGE only PHYDEV\"\n"
+            "TYPE = FIXED\n"
+            "PHYDEV = eth0\n"
+            "LEASES = [IP=130.10.0.1, MAC=50:20:20:20:20:20]\n",
+            };
+
+        string phydev_xml[] = {
+            "<VNET><ID>0</ID><UID>0</UID><USERNAME>oneadmin</USERNAME><NAME>BRIDGE and PHYDEV</NAME><TYPE>1</TYPE><BRIDGE>br0</BRIDGE><PHYDEV>eth0</PHYDEV><PUBLIC>0</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE><BRIDGE><![CDATA[br0]]></BRIDGE><LEASES><IP><![CDATA[130.10.0.1]]></IP><MAC><![CDATA[50:20:20:20:20:20]]></MAC></LEASES><NAME><![CDATA[BRIDGE and PHYDEV]]></NAME><PHYDEV><![CDATA[eth0]]></PHYDEV><TYPE><![CDATA[FIXED]]></TYPE></TEMPLATE><LEASES><LEASE><IP>130.10.0.1</IP><MAC>50:20:20:20:20:20</MAC><USED>0</USED><VID>-1</VID></LEASE></LEASES></VNET>",
+
+            "<VNET><ID>1</ID><UID>0</UID><USERNAME>oneadmin</USERNAME><NAME>No BRIDGE only PHYDEV</NAME><TYPE>1</TYPE><BRIDGE>onebr1</BRIDGE><PHYDEV>eth0</PHYDEV><PUBLIC>0</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES><TEMPLATE><BRIDGE><![CDATA[onebr1]]></BRIDGE><LEASES><IP><![CDATA[130.10.0.1]]></IP><MAC><![CDATA[50:20:20:20:20:20]]></MAC></LEASES><NAME><![CDATA[No BRIDGE only PHYDEV]]></NAME><PHYDEV><![CDATA[eth0]]></PHYDEV><TYPE><![CDATA[FIXED]]></TYPE></TEMPLATE><LEASES><LEASE><IP>130.10.0.1</IP><MAC>50:20:20:20:20:20</MAC><USED>0</USED><VID>-1</VID></LEASE></LEASES></VNET>"
+        };
+
+        // test vm with bridge and phydev
+        rc   = vnpool->allocate(0,"oneadmin",phydev_templates[0], &oid);
+        CPPUNIT_ASSERT( rc >= 0 );
+        vn = vnpool->get(rc, false);
+
+        CPPUNIT_ASSERT( vn != 0 );
+
+        ((VirtualNetwork*)vn)->to_xml(xml_str);
+        oss << * ((VirtualNetwork*)vn);
+        xml_str = oss.str();
+
+        CPPUNIT_ASSERT( xml_str == phydev_xml[0] );
+
+        // test vm with phydev only
+        oss.str("");
+
+        rc   = vnpool->allocate(0,"oneadmin",phydev_templates[1], &oid);
+        CPPUNIT_ASSERT( rc >= 0 );
+        vn = vnpool->get(rc, false);
+
+        CPPUNIT_ASSERT( vn != 0 );
+
+        ((VirtualNetwork*)vn)->to_xml(xml_str);
+        oss << * ((VirtualNetwork*)vn);
+        xml_str = oss.str();
+
+        CPPUNIT_ASSERT( xml_str == phydev_xml[1] );
     }
 
 /* -------------------------------------------------------------------------- */

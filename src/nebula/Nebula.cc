@@ -43,6 +43,8 @@ void Nebula::start()
     sigset_t        mask;
     int             signal;
     char            hn[80];
+    string          scripts_remote_dir;
+    string          hook_location;
 
     if ( gethostname(hn,79) != 0 )
     {
@@ -72,6 +74,9 @@ void Nebula::start()
         config_file << *nebula_configuration << endl;
         config_file.close();
     }
+
+    nebula_configuration->get("SCRIPTS_REMOTE_DIR", scripts_remote_dir);
+    hook_location = scripts_remote_dir + "/hooks/";
 
     // -----------------------------------------------------------
     // Log system
@@ -260,6 +265,7 @@ void Nebula::start()
         int     size;
         string  default_image_type;
         string  default_device_prefix;
+        string  scripts_remote_dir;
 
         vector<const Attribute *> vm_hooks;
         vector<const Attribute *> host_hooks;
