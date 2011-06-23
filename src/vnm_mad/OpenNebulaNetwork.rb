@@ -37,41 +37,60 @@ COMMANDS = {
   :lsmod    => "/sbin/lsmod"
 }
 
+#
+#
+#
 class VM
     attr_accessor :nics, :filtered_nics
 
     def initialize(vm_root, hypervisor)
-        @vm_root = vm_root
+        @vm_root    = vm_root
         @hypervisor = hypervisor
-        get_nics
+
+        nics = Nics.new(@hypervisor)
+
+        @vm_root.elements.each("TEMPLATE/NIC") do |nic_element|
+            nic =  nics.new_nic
+
+            nic_element.elements.each('*') do |nic_attribute|
+                key      = nic_attribute.xpath.split('/')[-1].downcase.to_sym
+                nic[key] = nic_attribute.text
+            end
+
+            nic.get_info(self)
+            nic.get_tap
+
+            nics << nic
+        end
+
+        @nics          = nics
+        @filtered_nics = nics
+    end
+
+    def filter(*filter)
+       @filtered_nics = @nics.get(*filter)
+    end
+
+    def unfilter
+       @filtered_nics = @nics
+    end
+
+    def each_nic(block)
+        if @filtered_nics != nil
+            @filtered_nics.each do |the_nic|
+                block.call(the_nic)
+            end
+        end
     end
 
     def [](element)
         if @vm_root
             val = @vm_root.elements[element]
-                if val.text
-                    return val.text
-                end
+            if val.text
+                return val.text
+            end
         end
         nil
-    end
-
-    def get_nics
-        nics = Nics.new(@hypervisor)
-
-        @vm_root.elements.each("TEMPLATE/NIC") do |nic_element|
-            nic =  nics.new_nic
-            nic_element.elements.each('*') do |nic_attribute|
-                key = nic_attribute.xpath.split('/')[-1].downcase.to_sym
-                nic[key] = nic_attribute.text
-            end
-            nic.get_info(self)
-            nic.get_tap
-            nics << nic
-        end
-
-        @nics = nics
-        @filtered_nics = nics
     end
 end
 
@@ -84,25 +103,22 @@ class OpenNebulaNetwork
         else
             @hypervisor = hypervisor
         end
-        @vm      = VM.new(REXML::Document.new(vm_tpl).root, @hypervisor)
+
+        @vm = VM.new(REXML::Document.new(vm_tpl).root, @hypervisor)
     end
 
     def filter(*filter)
-        @vm.filtered_nics = @vm.nics.get(*filter)
+        @vm.filter(*filter)
         self
     end
 
     def unfilter
-        @vm.filtered_nics = @vm.nics
+        @vm.unfilter
         self
     end
 
     def process(&block)
-        if @vm.filtered_nics
-            @vm.filtered_nics.each do |n|
-                yield(n)
-            end
-        end
+        @vm.each_nic(block)
     end
 
     def detect_hypervisor
@@ -138,9 +154,3 @@ class OpenNebulaNetwork
         bridges
     end
 end
-
-
-
-
-
-
