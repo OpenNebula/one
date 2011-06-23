@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
-$: << File.dirname(__FILE__) + '/..'
+$: << File.dirname(__FILE__) + '/..' \
+   << './'
 
 require 'rubygems'
 require 'rspec'
