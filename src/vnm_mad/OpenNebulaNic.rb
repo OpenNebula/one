@@ -14,6 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+# This class represents the NICS of a VM
 class Nics < Array
     def initialize(hypervisor)
         case hypervisor
@@ -77,14 +78,19 @@ class Nics < Array
     end
 end
 
+
+# A NIC using KVM. This class implements functions to get the physical interface 
+# that the NIC is using 
 class NicKVM < Hash
     def initialize
+        @vm_info = Hash.new
+
         super(nil)
     end
 
     def get_info(vm)
-        @vm_info = Hash.new
         deploy_id = vm['DEPLOY_ID']
+
         if deploy_id
             @vm_info[:dumpxml] = `#{COMMANDS[:virsh]} dumpxml #{deploy_id} 2>/dev/null`
             @vm_info.each_key{|k| @vm_info[k] = nil if @vm_info[k].to_s.strip.empty?}
@@ -93,6 +99,7 @@ class NicKVM < Hash
 
     def get_tap
         dumpxml = @vm_info[:dumpxml]
+
         if dumpxml
             dumpxml_root = REXML::Document.new(dumpxml).root
 
@@ -108,24 +115,31 @@ class NicKVM < Hash
     end
 end
 
+
+# A NIC using Xen. This class implements functions to get the physical interface 
+# that the NIC is using 
 class NicXen < Hash
     def initialize
+        @vm_info = Hash.new
+
         super(nil)
     end
 
     def get_info(vm)
-        @vm_info = Hash.new
         deploy_id = vm['DEPLOY_ID']
+
         if deploy_id
             @vm_info[:domid]    =`#{COMMANDS[:xm]} domid #{deploy_id}`.strip
             @vm_info[:networks] =`#{COMMANDS[:xm]} network-list #{deploy_id}`
             @vm_info.each_key{|k| @vm_info[k] = nil if @vm_info[k].to_s.strip.empty?}
         end
+
         @vm_info
     end
 
     def get_tap
         domid = @vm_info[:domid]
+
         if domid
             networks = @vm_info[:networks].split("\n")[1..-1]
             networks.each do |net|
