@@ -17,8 +17,6 @@
 #ifndef ACL_MANAGER_H_
 #define ACL_MANAGER_H_
 
-#include <set>
-
 #include "AuthManager.h"
 #include "AclRule.h"
 
@@ -29,53 +27,25 @@ class AclManager : public ObjectSQL
 public:
     AclManager(){};
 
+    ~AclManager();
+
     /* ---------------------------------------------------------------------- */
     /* Rule management                                                        */
     /* ---------------------------------------------------------------------- */
 
-    bool authorize(int uid, const set<int> &user_groups,
+    const bool authorize(int uid, const set<int> &user_groups,
             AuthRequest::Object obj_type, int obj_id, int obj_gid,
             AuthRequest::Operation op);
 
     /* ---------------------------------------------------------------------- */
 
-    int add_rule(long long user, long long resource, long long rights)
-    {
-        AclRule rule(user, resource, rights);
-        return add_rule(rule);
-    };
-
-    int add_rule(const AclRule &rule)
-    {
-        pair<set<AclRule>::iterator,bool> ret;
-
-        ret = acl_set.insert(rule);
-
-        if( !ret.second )
-        {
-            return -1;
-        }
-
-        return 0;
-    };
+    int add_rule(long long user, long long resource, long long rights,
+                string& error_str);
 
     /* ---------------------------------------------------------------------- */
 
-    int del_rule(long long user, long long resource, long long rights)
-    {
-        AclRule rule(user, resource, rights);
-        return del_rule(rule);
-    };
-
-    int del_rule(AclRule &rule)
-    {
-        if( acl_set.erase(rule) != 1 )
-        {
-            return -1;
-        }
-
-        return 0;
-    };
+    int del_rule(long long user, long long resource, long long rights,
+                string& error_str);
 
     /* ---------------------------------------------------------------------- */
     /* DB management                                                          */
@@ -130,7 +100,7 @@ public:
     int dump(ostringstream& oss);
 
 private:
-    set<AclRule> acl_set;
+    multimap<long long, AclRule*> acl_rules;
 };
 
 #endif /*ACL_MANAGER_H*/

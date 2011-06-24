@@ -107,14 +107,14 @@ void RequestManagerAcl::request_execute(xmlrpc_c::paramList const& paramList)
 
 int AclAddRule::perform_operation(string& error_msg)
 {
-    return aclm->add_rule(user, resource, rights);
+    return aclm->add_rule(user, resource, rights, error_msg);
 }
 
 /* ------------------------------------------------------------------------- */
 
 int AclDelRule::perform_operation(string& error_msg)
 {
-    return aclm->del_rule(user, resource, rights);
+    return aclm->del_rule(user, resource, rights, error_msg);
 }
 
 /* ------------------------------------------------------------------------- */

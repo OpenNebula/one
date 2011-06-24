@@ -107,7 +107,7 @@ string AclRule::to_str() const
 
     prefix = false;
 
-    for ( int i = 0; i < 10; i++ )
+    for ( int i = 0; i < 9; i++ )
     {
         if ( (rights & operations[i]) != 0 )
         {
