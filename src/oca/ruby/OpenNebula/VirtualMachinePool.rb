@@ -48,8 +48,25 @@ module OpenNebula
         #######################################################################
         
         # Retrieves all or part of the VirtualMachines in the pool.
-        def info()
-            super(VM_POOL_METHODS[:info],@user_id)
+        def info(*args)
+            case args.size
+                when 0
+                    info_filter(VM_POOL_METHODS[:info],@user_id,-1,-1)
+                when 3
+                    info_filter(VM_POOL_METHODS[:info],args[0],args[1],args[2])
+            end
+        end
+
+        def info_all()
+            return super(VM_POOL_METHODS[:info])
+        end
+
+        def info_mine()
+            return super(VM_POOL_METHODS[:info])
+        end
+
+        def info_group()
+            return super(VM_POOL_METHODS[:info])
         end
     end
 end

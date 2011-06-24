@@ -22,6 +22,10 @@ module OpenNebula
         include Enumerable
 
     protected
+        # Constants for info queries (include/RequestManagerPoolInfoFilter.h)
+        INFO_GROUP = -1
+        INFO_ALL   = -2
+        INFO_MINE  = -3
 
         #pool:: _String_ XML name of the root element
         #element:: _String_ XML name of the Pool elements
@@ -48,13 +52,36 @@ module OpenNebula
         #######################################################################
         # Common XML-RPC Methods for all the Pool Types
         #######################################################################
+        
+        #Gets the pool without any filter. Host, Group and User Pools
+        # xml_method:: _String_ the name of the XML-RPC method
+        def info(xml_method)
+            return xmlrpc_info(xml_method)
+        end
 
+        def info_all(xml_method)
+            return xmlrpc_info(xml_method,INFO_ALL,-1,-1)
+        end
+
+        def info_mine(xml_method)
+            return xmlrpc_info(xml_method,INFO_MINE,-1,-1)
+        end
+
+        def info_group(xml_method)
+            return xmlrpc_info(xml_method,INFO_GROUP,-1,-1)
+        end
+    
+        def info_filter(xml_method, who, start_id, end_id)
+            return xmlrpc_info(xml_method,who, start_id, end_id)
+        end
+
+    private
         # Calls to the corresponding info method to retreive the pool
         # representation in XML format
         # xml_method:: _String_ the name of the XML-RPC method
         # args:: _Array_ with additional arguments for the info call
         # [return] nil in case of success or an Error object
-        def info(xml_method,*args)
+        def xmlrpc_info(xml_method,*args)
             rc = @client.call(xml_method,*args)
 
             if !OpenNebula.is_error?(rc)
