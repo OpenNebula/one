@@ -16,8 +16,9 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# TBD Change path for intallation tree
-$: << File.dirname(__FILE__)
+SUNSTONE_ROOT_DIR = File.dirname(__FILE__)
+
+$: << SUNSTONE_ROOT_DIR
 
 require 'sunstone-server.rb'
 
