@@ -32,7 +32,7 @@ class RequestManagerPoolInfoFilter: public Request
 protected:
     RequestManagerPoolInfoFilter(const string& method_name,
                                  const string& help)
-        :Request(method_name,"A:si",help)
+        :Request(method_name,"A:siii",help)
     {
         auth_op = AuthRequest::INFO_POOL;
     };

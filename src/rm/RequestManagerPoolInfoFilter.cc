@@ -33,6 +33,8 @@ const int RequestManagerPoolInfoFilter::MINE_GROUP = -1;
 void RequestManagerPoolInfoFilter::request_execute(xmlrpc_c::paramList const& paramList)
 {
     int filter_flag = xmlrpc_c::value_int(paramList.getInt(1));
+    int start_id    = xmlrpc_c::value_int(paramList.getInt(2));
+    int end_id      = xmlrpc_c::value_int(paramList.getInt(3));
 
     ostringstream oss, where_string;
 
@@ -47,7 +49,7 @@ void RequestManagerPoolInfoFilter::request_execute(xmlrpc_c::paramList const& pa
     switch(filter_flag)
     {
         case MINE:
-            where_string << "UID=" << uid;
+            where_string << "uid = " << uid;
             auth_op = AuthRequest::INFO_POOL_MINE;
             break;
 
@@ -55,13 +57,27 @@ void RequestManagerPoolInfoFilter::request_execute(xmlrpc_c::paramList const& pa
             break;
 
         case MINE_GROUP:
-            where_string << "UID=" << uid << " OR GID=" << gid;
+            where_string << "( uid = " << uid << " OR gid= " << gid << " )";
             auth_op = AuthRequest::INFO_POOL_MINE;
             break;
 
         default:
-            where_string << "UID=" << filter_flag;
+            where_string << "uid = " << filter_flag;
             break;
+    }
+
+    if ( start_id != -1 )
+    {
+        where_string << "AND ( oid >= " << start_id;
+
+        if ( end_id != -1 )
+        {
+            where_string << " AND oid <= " << end_id << " )";
+        }
+        else
+        {
+            where_string << " )";
+        }
     }
 
     if ( basic_authorization(-1) == false )
