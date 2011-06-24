@@ -22,11 +22,6 @@ module OpenNebula
         include Enumerable
 
     protected
-        # Constants for info queries (include/RequestManagerPoolInfoFilter.h)
-        INFO_GROUP = -1
-        INFO_ALL   = -2
-        INFO_MINE  = -3
-
         #pool:: _String_ XML name of the root element
         #element:: _String_ XML name of the Pool elements
         #client::  _Client_ represents a XML-RPC connection
@@ -93,6 +88,10 @@ module OpenNebula
         end
 
     public
+        # Constants for info queries (include/RequestManagerPoolInfoFilter.h)
+        INFO_GROUP = -1
+        INFO_ALL   = -2
+        INFO_MINE  = -3
 
         # Iterates over every PoolElement in the Pool and calls the block with a
         # a PoolElement obtained calling the factory method

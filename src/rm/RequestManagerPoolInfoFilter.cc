@@ -68,7 +68,12 @@ void RequestManagerPoolInfoFilter::request_execute(xmlrpc_c::paramList const& pa
 
     if ( start_id != -1 )
     {
-        where_string << "AND ( oid >= " << start_id;
+        if (filter_flag != ALL)
+        {
+            where_string << " AND ";
+        }
+
+        where_string << "( oid >= " << start_id;
 
         if ( end_id != -1 )
         {
@@ -84,7 +89,8 @@ void RequestManagerPoolInfoFilter::request_execute(xmlrpc_c::paramList const& pa
     {
         return;
     }
-
+    
+    auth_object = AuthRequest::VM;
     // Call the template pool dump
     rc = pool->dump(oss,where_string.str());
 
