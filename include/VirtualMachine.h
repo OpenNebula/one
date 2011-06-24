@@ -125,6 +125,14 @@ public:
     string& to_xml(string& xml) const;
 
     /**
+     * Function to print the VirtualMachine object into a string in
+     * XML format, with extended information (full history records)
+     *  @param xml the resulting XML string
+     *  @return a reference to the generated string
+     */
+    string& to_xml_extended(string& xml) const;
+
+    /**
      *  Rebuilds the object from an xml formatted string
      *    @param xml_str The xml-formatted string
      *
@@ -752,6 +760,12 @@ private:
      */
     History *   previous_history;
 
+
+    /**
+     *  Complete set of history records for the VM
+     */
+    vector<History *> history_records;
+
     // -------------------------------------------------------------------------
     // Logging
     // -------------------------------------------------------------------------
@@ -858,6 +872,15 @@ private:
      *  defined
      */
     void parse_graphics();
+
+    /**
+     *  Function that renders the VM in XML format optinally including
+     *  extended information (all history records)
+     *  @param xml the resulting XML string
+     *  @param extended include additional info if true
+     *  @return a reference to the generated string
+     */
+    string& to_xml_extended(string& xml, bool extended) const;
 
 protected:
 
