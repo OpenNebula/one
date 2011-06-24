@@ -1,0 +1,4 @@
+bridge name     bridge id               STP enabled     interfaces
+bpriv           8000.00238bcea87c       no              eth0
+                                                        vnet0
+bpub            8000.00238bcea87d       no              eth1

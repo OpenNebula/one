@@ -132,3 +132,21 @@ describe 'firewall' do
         $collector[:system].should == fw_activate_rules
     end
 end
+
+describe 'host-managed' do
+    it "tag tun/tap devices with vlans in kvm" do
+        $capture_commands = {
+            /virsh.*dumpxml/ => OUTPUT[:virsh_dumpxml_phydev],
+            /brctl show/     => OUTPUT[:brctl_show]
+        }
+        hm = OpenNebulaHM.new(OUTPUT[:onevm_show_phydev_kvm],"kvm")
+        hm.activate
+
+        hm_activate_rules = ["sudo /usr/sbin/brctl addbr onebr6",
+                             "sudo /sbin/ip link show eth0.8",
+                             "sudo /sbin/vconfig add eth0 8",
+                             "sudo /sbin/ip set eth0.8 up",
+                             "sudo /usr/sbin/brctl addif onebr6 eth0.8"]
+        $collector[:system].should == hm_activate_rules
+    end
+end
