@@ -31,7 +31,10 @@ class OpenNebulaHM < OpenNebulaNetwork
 
                 create_bridge bridge if !bridge_exists? bridge
 
-                create_dev_vlan(dev, vlan) if !device_exists?(dev, vlan)
+                if !device_exists?(dev, vlan)
+                    create_dev_vlan(dev, vlan)
+                    ifup(dev, vlan)
+                end
 
                 if !attached_bridge_dev?(bridge, dev, vlan)
                     attach_brigde_dev(bridge, dev, vlan)
@@ -72,5 +75,10 @@ class OpenNebulaHM < OpenNebulaNetwork
     def attach_brigde_dev(bridge, dev, vlan=nil)
         dev = "#{dev}.#{vlan}" if vlan
         system("#{COMMANDS[:brctl]} addif #{bridge} #{dev}")
+    end
+
+    def ifup(dev, vlan=nil)
+        dev = "#{dev}.#{vlan}" if vlan
+        system("#{COMMANDS[:ip]} set #{dev} up")
     end
 end
