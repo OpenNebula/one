@@ -29,14 +29,14 @@
 
     <!-- Base Plugins -->
 <% @plugins["plugins"].each do |plugin| %>
-    <script type="text/javascript" src="/js/plugins/<%= plugin %>"></script>
+    <script type="text/javascript" src="js/plugins/<%= plugin %>"></script>
 <% end %>
     <!--<script type="text/javascript" src="js/plugins/dummy-plugin.js"></script>-->
     <!-- End Base Plugins -->
 
     <!-- User Plugins -->
 <% @plugins["user-plugins"].each do |plugin| %>
-    <script type="text/javascript" src="/js/user-plugins/<%= plugin %>"></script>
+    <script type="text/javascript" src="js/user-plugins/<%= plugin %>"></script>
 <% end %>
     <!-- End User Plugins -->
 
