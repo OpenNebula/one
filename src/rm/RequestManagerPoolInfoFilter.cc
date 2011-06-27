@@ -29,9 +29,9 @@ const int RequestManagerPoolInfoFilter::MINE_GROUP = -1;
 
 /* ------------------------------------------------------------------------- */
 
-const int VirtualMachinePoolInfo::ALL_VM = -2;
+const int VirtualMachinePoolInfo::ALL_VM   = -2;
 
-const int VirtualMachinePoolInfo::ACTIVE = -1;      
+const int VirtualMachinePoolInfo::NOT_DONE = -1;      
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
@@ -117,7 +117,7 @@ void RequestManagerPoolInfoFilter::request_execute(xmlrpc_c::paramList const& pa
             case VirtualMachinePoolInfo::ALL_VM:
                 break;
 
-            case VirtualMachinePoolInfo::ACTIVE:
+            case VirtualMachinePoolInfo::NOT_DONE:
                 state_filter << "state <> " << VirtualMachine::DONE;
                 break;
 

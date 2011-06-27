@@ -26,6 +26,10 @@ module OpenNebula
             :info => "vmpool.info"
         }
 
+        # Constants for info queries (include/RequestManagerPoolInfoFilter.h)
+        INFO_NOT_DONE = -1
+        INFO_ALL_VM   = -2
+
         #######################################################################
         # Class constructor & Pool Methods
         #######################################################################
@@ -48,25 +52,54 @@ module OpenNebula
         #######################################################################
         
         # Retrieves all or part of the VirtualMachines in the pool.
+        # No arguments, returns the not-in-done VMs for the user 
+        # [user_id, start_id, end_id]
+        # [user_id, start_id, end_id, state]
         def info(*args)
             case args.size
                 when 0
-                    info_filter(VM_POOL_METHODS[:info],@user_id,-1,-1)
+                    info_filter(VM_POOL_METHODS[:info],
+                                @user_id,
+                                -1,
+                                -1,
+                                INFO_NOT_DONE)
                 when 3
-                    info_filter(VM_POOL_METHODS[:info],args[0],args[1],args[2])
+                    info_filter(VM_POOL_METHODS[:info],
+                                args[0],
+                                args[1],
+                                args[2],
+                                INFO_NOT_DONE)
+                when 4
+                    info_filter(VM_POOL_METHODS[:info],
+                                args[0],
+                                args[1],
+                                args[2],
+                                args[3])
             end
         end
 
         def info_all()
-            return super(VM_POOL_METHODS[:info])
+            return info_filter(VM_POOL_METHODS[:info],
+                               INFO_ALL,
+                               -1,
+                               -1,
+                               INFO_NOT_DONE)
         end
 
         def info_mine()
-            return super(VM_POOL_METHODS[:info])
+            return info_filter(VM_POOL_METHODS[:info],
+                               INFO_MINE,
+                               -1,
+                               -1,
+                               INFO_NOT_DONE)
         end
 
         def info_group()
-            return super(VM_POOL_METHODS[:info])
+            return info_filter(VM_POOL_METHODS[:info],
+                               INFO_GROUP,
+                               -1,
+                               -1,
+                               INFO_NOT_DONE)
         end
     end
 end

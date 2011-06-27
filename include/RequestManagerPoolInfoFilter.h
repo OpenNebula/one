@@ -59,8 +59,8 @@ class VirtualMachinePoolInfo : public RequestManagerPoolInfoFilter
 public:
     /* -------------------------------------------------------------------- */
 
-    static const int ALL_VM;     /**< VMs in any state  (-2) */
-    static const int ACTIVE;     /**< VMs in any state expect DONE (-1)*/
+    static const int ALL_VM;   /**< VMs in any state  (-2) */
+    static const int NOT_DONE; /**< VMs in any state expect DONE (-1)*/
 
     /* -------------------------------------------------------------------- */
 
