@@ -75,6 +75,7 @@ main_env.Append(LIBPATH=[
     cwd+'/src/hm',
     cwd+'/src/um',
     cwd+'/src/authm',
+    cwd+'/src/acl',
     cwd+'/src/xml',
 ])
 
@@ -204,6 +205,7 @@ build_scripts=[
     'src/hm/SConstruct',
     'src/um/SConstruct',
     'src/authm/SConstruct',
+    'src/acl/SConstruct',
     'src/xml/SConstruct',
     'share/man/SConstruct'
 ]

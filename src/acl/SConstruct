@@ -1,4 +1,4 @@
-# SConstruct for src/host/test
+# SConstruct for src/authm
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
@@ -18,33 +18,13 @@
 
 Import('env')
 
-env.Prepend(LIBS=[
-    'nebula_core_test',
-    'nebula_host',
-    'nebula_xml',
-    'nebula_vmm',
-    'nebula_im',
-    'nebula_rm',
-    'nebula_tm',
-    'nebula_um',
-    'nebula_mad',
-    'nebula_template',
-    'nebula_vm',
-    'nebula_vmtemplate',
-    'nebula_group',
-    'nebula_vnm',
-    'nebula_image',
-    'nebula_pool',
-    'nebula_hm',
-    'nebula_authm',
-    'nebula_acl',
-    'nebula_common',
-    'nebula_lcm',
-    'nebula_dm',
-    'nebula_sql',
-    'nebula_log',
-    'crypto'
-])
+lib_name='nebula_acl'
 
-env.Program('test','HostPoolTest.cc')
-env.Program('test_hook','HostHookTest.cc')
+# Sources to generate the library
+source_files=[
+    'AclManager.cc',
+    'AclRule.cc'
+]
+
+# Build library
+env.StaticLibrary(lib_name, source_files)
