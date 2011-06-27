@@ -83,22 +83,24 @@ end
 # that the NIC is using 
 class NicKVM < Hash
     def initialize
-        @vm_info = Hash.new
-
         super(nil)
     end
 
     def get_info(vm)
         deploy_id = vm['DEPLOY_ID']
 
-        if deploy_id
-            @vm_info[:dumpxml] = `#{COMMANDS[:virsh]} dumpxml #{deploy_id} 2>/dev/null`
-            @vm_info.each_key{|k| @vm_info[k] = nil if @vm_info[k].to_s.strip.empty?}
+        if deploy_id and vm.vm_info[:dumpxml].nil?
+            vm.vm_info[:dumpxml] = `#{COMMANDS[:virsh]} dumpxml #{deploy_id} \
+                                    2>/dev/null`
+
+            vm.vm_info.each_key do |k|
+                vm.vm_info[k] = nil if vm.vm_info[k].to_s.strip.empty?
+            end
         end
     end
 
-    def get_tap
-        dumpxml = @vm_info[:dumpxml]
+    def get_tap(vm)
+        dumpxml = vm.vm_info[:dumpxml]
 
         if dumpxml
             dumpxml_root = REXML::Document.new(dumpxml).root
@@ -120,28 +122,27 @@ end
 # that the NIC is using 
 class NicXen < Hash
     def initialize
-        @vm_info = Hash.new
-
         super(nil)
     end
 
     def get_info(vm)
         deploy_id = vm['DEPLOY_ID']
 
-        if deploy_id
-            @vm_info[:domid]    =`#{COMMANDS[:xm]} domid #{deploy_id}`.strip
-            @vm_info[:networks] =`#{COMMANDS[:xm]} network-list #{deploy_id}`
-            @vm_info.each_key{|k| @vm_info[k] = nil if @vm_info[k].to_s.strip.empty?}
-        end
+        if deploy_id and (vm.vm_info[:domid].nil? or vm.vm_info[:networks].nil?)
+            vm.vm_info[:domid]    =`#{COMMANDS[:xm]} domid #{deploy_id}`.strip
+            vm.vm_info[:networks] =`#{COMMANDS[:xm]} network-list #{deploy_id}`
 
-        @vm_info
+            vm.vm_info.each_key do |k|
+                vm.vm_info[k] = nil if vm.vm_info[k].to_s.strip.empty?
+            end
+        end
     end
 
-    def get_tap
-        domid = @vm_info[:domid]
+    def get_tap(vm)
+        domid = vm.vm_info[:domid]
 
         if domid
-            networks = @vm_info[:networks].split("\n")[1..-1]
+            networks = vm.vm_info[:networks].split("\n")[1..-1]
             networks.each do |net|
                 n = net.split
 

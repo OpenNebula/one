@@ -41,11 +41,12 @@ COMMANDS = {
 #
 #
 class VM
-    attr_accessor :nics, :filtered_nics
+    attr_accessor :nics, :filtered_nics, :vm_info
 
     def initialize(vm_root, hypervisor)
         @vm_root    = vm_root
         @hypervisor = hypervisor
+        @vm_info    = Hash.new
 
         nics = Nics.new(@hypervisor)
 
@@ -58,7 +59,7 @@ class VM
             end
 
             nic.get_info(self)
-            nic.get_tap
+            nic.get_tap(self)
 
             nics << nic
         end
