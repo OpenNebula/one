@@ -246,8 +246,12 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
     }
 
     // ------------ PHYDEV --------------------
-    
+
     get_template_attribute("PHYDEV",phydev);
+
+    // ------------ VLAN_ID -------------------
+
+    get_template_attribute("VLAN_ID",vlan_id);
 
     // ------------ BRIDGE --------------------
 
@@ -522,6 +526,11 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended) const
         os << "<PHYDEV>" << phydev << "</PHYDEV>";
     }
 
+    if (!vlan_id.empty())
+    {
+        os << "<VLAN_ID>" << vlan_id << "</VLAN_ID>";
+    }
+
     os  <<  "<PUBLIC>"      << public_obj  << "</PUBLIC>"      <<
             "<TOTAL_LEASES>"<< total_leases << "</TOTAL_LEASES>"<<
             obj_template->to_xml(template_xml);
@@ -560,7 +569,8 @@ int VirtualNetwork::from_xml(const string &xml_str)
     rc += xpath(bridge,     "/VNET/BRIDGE",     "not_found");
     rc += xpath(public_obj, "/VNET/PUBLIC",     0);
     
-    xpath(phydev, "/VNET/PHYDEV", "");
+    xpath(phydev,  "/VNET/PHYDEV", "");
+    xpath(vlan_id, "/VNET/VLAN_ID", "");
 
     type = static_cast<NetworkType>( int_type );
 
@@ -629,6 +639,11 @@ int VirtualNetwork::nic_attribute(VectorAttribute *nic, int vid)
     if (!phydev.empty())
     {
         nic->replace("PHYDEV", phydev);
+    }
+
+    if (!vlan_id.empty())
+    {
+        nic->replace("VLAN_ID", vlan_id);
     }
 
     return 0;
