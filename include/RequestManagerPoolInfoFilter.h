@@ -31,8 +31,9 @@ class RequestManagerPoolInfoFilter: public Request
 {
 protected:
     RequestManagerPoolInfoFilter(const string& method_name,
-                                 const string& help)
-        :Request(method_name,"A:siii",help)
+                                 const string& help,
+                                 const string& signature)
+        :Request(method_name,signature,help)
     {
         auth_op = AuthRequest::INFO_POOL;
     };
@@ -56,9 +57,17 @@ protected:
 class VirtualMachinePoolInfo : public RequestManagerPoolInfoFilter
 {
 public:
+    /* -------------------------------------------------------------------- */
+
+    static const int ALL_VM;     /**< VMs in any state  (-2) */
+    static const int ACTIVE;     /**< VMs in any state expect DONE (-1)*/
+
+    /* -------------------------------------------------------------------- */
+
     VirtualMachinePoolInfo():
         RequestManagerPoolInfoFilter("VirtualMachinePoolInfo",
-                                     "Returns the virtual machine instances pool")
+                                     "Returns the virtual machine instances pool",
+                                     "A:siii")
     {    
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vmpool();
@@ -76,7 +85,8 @@ class TemplatePoolInfo : public RequestManagerPoolInfoFilter
 public:
     TemplatePoolInfo():
         RequestManagerPoolInfoFilter("TemplatePoolInfo",
-                                     "Returns the virtual machine template pool")
+                                     "Returns the virtual machine template pool",
+                                     "A:siii")
     {    
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_tpool();
@@ -89,13 +99,13 @@ public:
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-
 class VirtualNetworkPoolInfo: public RequestManagerPoolInfoFilter
 {
 public:
     VirtualNetworkPoolInfo():
         RequestManagerPoolInfoFilter("VirtualNetworkPoolInfo",
-                                     "Returns the virtual network pool")
+                                     "Returns the virtual network pool",
+                                     "A:siii")
     {    
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vnpool();
@@ -113,7 +123,8 @@ class ImagePoolInfo: public RequestManagerPoolInfoFilter
 public:
     ImagePoolInfo():
         RequestManagerPoolInfoFilter("ImagePoolInfo",
-                                     "Returns the image pool")
+                                     "Returns the image pool",
+                                     "A:siii")
     {    
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_ipool();
@@ -122,7 +133,6 @@ public:
 
     ~ImagePoolInfo(){};
 };
-
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
