@@ -27,7 +27,11 @@ class OpenNebulaHM < OpenNebulaNetwork
             dev     = nic[:phydev]
 
             if dev
-                vlan = CONF[:start_vlan] + nic[:network_id].to_i
+                if nic[:vlan_id]
+                    vlan = nic[:vlan_id]
+                else
+                    vlan = CONF[:start_vlan] + nic[:network_id].to_i
+                end
 
                 create_bridge bridge if !bridge_exists? bridge
 
