@@ -108,6 +108,21 @@ describe 'openvswitch' do
 
         $collector[:system].should == openvswitch_tags
     end
+
+    it "force VLAN_ID for Open vSwitch vlans in kvm" do
+        $capture_commands = {
+            /virsh.*dumpxml/ => OUTPUT[:virsh_dumpxml_vlan_id],
+            /brctl show/     => OUTPUT[:brctl_show]
+        }
+        onevlan = OpenvSwitchVLAN.new(OUTPUT[:onevm_show_vlan_id_kvm],"kvm")
+        onevlan.activate
+        
+        onevlan_rules = ["sudo /usr/local/bin/ovs-vsctl set Port vnet0 tag=6",
+                         "sudo /usr/local/bin/ovs-vsctl set Port vnet1 tag=50",
+                         "sudo /usr/local/bin/ovs-vsctl set Port vnet1 tag=51"]
+
+        $collector[:system].should == onevlan_rules
+    end
 end
 
 describe 'firewall' do
@@ -148,5 +163,27 @@ describe 'host-managed' do
                              "sudo /sbin/ip set eth0.8 up",
                              "sudo /usr/sbin/brctl addif onebr6 eth0.8"]
         $collector[:system].should == hm_activate_rules
+    end
+
+    it "force VLAN_ID for vlans in kvm" do
+        $capture_commands = {
+            /virsh.*dumpxml/ => OUTPUT[:virsh_dumpxml_vlan_id],
+            /brctl show/     => OUTPUT[:brctl_show]
+        }
+        hm = OpenNebulaHM.new(OUTPUT[:onevm_show_vlan_id_kvm],"kvm")
+        hm.activate
+
+        hm_vlan_id = ["sudo /usr/sbin/brctl addbr onebr10",
+                      "sudo /sbin/ip link show eth0.50",
+                      "sudo /sbin/vconfig add eth0 50",
+                      "sudo /sbin/ip set eth0.50 up",
+                      "sudo /usr/sbin/brctl addif onebr10 eth0.50",
+                      "sudo /usr/sbin/brctl addbr specialbr",
+                      "sudo /sbin/ip link show eth0.51",
+                      "sudo /sbin/vconfig add eth0 51",
+                      "sudo /sbin/ip set eth0.51 up",
+                      "sudo /usr/sbin/brctl addif specialbr eth0.51"]
+
+        $collector[:system].should == hm_vlan_id
     end
 end
