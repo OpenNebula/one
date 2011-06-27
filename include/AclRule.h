@@ -23,6 +23,10 @@
 
 using namespace std;
 
+/**
+ *  An ACL Rule is composed of three 64 bit numbers: user, resource and rights.
+ *  These attributes store a combination of IDs and flags
+ */
 class AclRule
 {
 public:
@@ -61,25 +65,59 @@ public:
         return user < other.user;
     };
 
+    /**
+     *  Returns a human readable string for this rule
+     *
+     *    @return a human readable string for this rule
+     */
     string to_str() const;
 
+
+    /**
+     *  Function to print the object into a string in XML format
+     *
+     *    @param xml the resulting XML string
+     *    @return a reference to the generated string
+     */
     string& to_xml(string& xml) const;
 
+    /**
+     *  Returns the 32 less significant bits of the user long long attribute
+     *
+     *    @return the user or group ID
+     */
     int user_id() const
     {
         return user;
     };
 
+    /**
+     *  Returns the 64 bit user attribute with the ID cleared (the 32 less
+     *  significant bits are set to 0)
+     *
+     *    @return the user flags
+     */
     long long user_code() const
     {
         return user & 0xFFFFFFFF00000000LL;
     };
 
+    /**
+     *  Returns the 32 less significant bits of the resource long long attribute
+     *
+     *    @return the resource ID
+     */
     int resource_id() const
     {
         return resource;
     };
 
+    /**
+     *  Returns the 64 bit resource attribute with the ID cleared (the 32 less
+     *  significant bits are set to 0)
+     *
+     *    @return the resource flags
+     */
     long long resource_code() const
     {
         return resource & 0xFFFFFFFF00000000LL;
@@ -90,17 +128,19 @@ private:
     friend class AclManager;
 
     /**
-     *
+     *  64 bit integer holding a user ID in the 32 less significant bits,
+     *  and a flag indicating the kind of ID in the other 32
      */
     long long user;
 
     /**
-     *
+     *  64 bit integer holding an object ID in the 32 less significant bits,
+     *  and flags indicanting the kind of ID and object in the other 32
      */
     long long resource;
 
     /**
-     *
+     *  64 bit integer containing the rights flags
      */
     long long rights;
 };

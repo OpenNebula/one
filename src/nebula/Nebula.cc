@@ -247,6 +247,7 @@ void Nebula::start()
             UserPool::bootstrap(db);
             ImagePool::bootstrap(db);
             VMTemplatePool::bootstrap(db);
+            AclManager::bootstrap(db);
         }
     }
     catch (exception&)
@@ -516,7 +517,21 @@ void Nebula::start()
     }
 
     // ---- ACL Manager ----
-    aclm = new AclManager();
+    try
+    {
+        aclm = new AclManager(db);
+    }
+    catch (bad_alloc&)
+    {
+        throw;
+    }
+
+    rc = aclm->start();
+
+    if ( rc != 0 )
+    {
+       throw runtime_error("Could not start the ACL Manager");
+    }
 
     // ---- Image Manager ----
     try

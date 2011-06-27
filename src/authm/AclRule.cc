@@ -16,7 +16,6 @@
 
 #include "AclRule.h"
 #include "AuthManager.h"
-#include "NebulaLog.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -133,14 +132,13 @@ string& AclRule::to_xml(string& xml) const
 
     oss <<
     "<RULE>"
-       "<USER>"     << hex << user      << "</USER>"        <<
-       "<RESOURCE>" << hex << resource  << "</RESOURCE>"    <<
-       "<RIGHTS>"   << hex << rights    << "</RIGHTS>"      <<
+        "<USER>"     << hex << user      << "</USER>"        <<
+        "<RESOURCE>" << hex << resource  << "</RESOURCE>"    <<
+        "<RIGHTS>"   << hex << rights    << "</RIGHTS>"      <<
 
-       // TODO: Element DEBUG contains a human friendly string
-       "<DEBUG>"    << to_str()         << "</DEBUG>"       <<
-
-       "</RULE>";
+        // TODO: Element DEBUG contains a human friendly string
+        "<DEBUG>"    << to_str()         << "</DEBUG>"       <<
+    "</RULE>";
 
     xml = oss.str();
 

@@ -20,6 +20,24 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+const char * AclManager::table = "acl";
+
+const char * AclManager::db_names = "user, resource, rights";
+
+const char * AclManager::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
+    "acl (user BIGINT, resource BIGINT, rights BIGINT)";
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int AclManager::start()
+{
+    return select();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 AclManager::~AclManager()
 {
     multimap<long long, AclRule *>::iterator  it;
@@ -105,7 +123,8 @@ int AclManager::add_rule(long long user, long long resource, long long rights,
 {
     AclRule * rule = new AclRule(user, resource, rights);
 
-    ostringstream oss;
+    ostringstream   oss;
+    int             rc;
 
     multimap<long long, AclRule *>::iterator        it;
     pair<multimap<long long, AclRule *>::iterator,
@@ -143,6 +162,14 @@ int AclManager::add_rule(long long user, long long resource, long long rights,
     }
 */
 
+    rc = insert(rule);
+
+    if ( rc != 0 )
+    {
+        error_str = "Error inserting rule in DB";
+        return -1;
+    }
+
     acl_rules.insert( make_pair(rule->user, rule) );
 
     return 0;
@@ -156,29 +183,26 @@ int AclManager::del_rule(long long user, long long resource, long long rights,
 {
     multimap<long long, AclRule *>::iterator        it;
     pair<multimap<long long, AclRule *>::iterator,
-         multimap<long long, AclRule *>::iterator>        index;
+         multimap<long long, AclRule *>::iterator>  index;
 
+    int rc;
     bool found = false;
 
     index = acl_rules.equal_range( user );
 
-    for ( it = index.first; (it != index.second && !found); it++)
+    it = index.first;
+    while ( !found && it != index.second )
     {
-        if ( it->second->resource == resource &&
-             it->second->rights == rights )
-        {
-            delete it->second;
-            acl_rules.erase( it );
+        found = ( it->second->resource == resource &&
+                  it->second->rights == rights );
 
-            found = true;
+        if ( !found )
+        {
+            it++;
         }
     }
 
-    if ( found )
-    {
-        return 0;
-    }
-    else
+    if ( !found )
     {
         AclRule rule(user, resource, rights);
 
@@ -188,6 +212,121 @@ int AclManager::del_rule(long long user, long long resource, long long rights,
 
         return -1;
     }
+
+    rc = drop( it->second );
+
+    if ( rc != 0 )
+    {
+        error_str = "SQL DB error";
+        return -1;
+    }
+
+    delete it->second;
+    acl_rules.erase( it );
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int AclManager::select_cb(void *nil, int num, char **values, char **names)
+{
+    if ( (num != 3)   ||
+         (!values[0]) ||
+         (!values[1]) ||
+         (!values[2]) )
+    {
+        return -1;
+    }
+
+    ostringstream oss;
+    istringstream iss;
+
+    long long rule_values[3];
+
+    for ( int i = 0; i < 3; i++ )
+    {
+        iss.str( values[i] );
+
+        iss >> rule_values[i];
+
+        if ( iss.fail() == true )
+        {
+            return -1;
+        }
+
+        iss.clear();
+    }
+
+    // TODO: Use add_rule() instead, to check possible errors, or assume
+    // that anything that was stored into the DB is trustworthy?
+    AclRule * rule = new AclRule(rule_values[0], rule_values[1], rule_values[2]);
+
+
+    oss << "Loading ACL Rule " << rule->to_str();
+    NebulaLog::log("ACL",Log::DEBUG,oss);
+
+    acl_rules.insert( make_pair(rule->user, rule) );
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int AclManager::select()
+{
+    ostringstream   oss;
+    int             rc;
+
+    oss << "SELECT " << db_names << " FROM " << table;
+
+    set_callback(static_cast<Callbackable::Callback>(&AclManager::select_cb));
+
+    rc = db->exec(oss,this);
+
+    unset_callback();
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int AclManager::insert(AclRule * rule)
+{
+    ostringstream   oss;
+    int             rc;
+
+    // Construct the SQL statement to Insert
+
+    oss <<  "INSERT INTO "  << table <<" ("<< db_names <<") VALUES ("
+        <<  rule->user      << ","
+        <<  rule->resource  << ","
+        <<  rule->rights    << ")";
+
+    rc = db->exec(oss);
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int AclManager::drop(AclRule * rule)
+{
+    ostringstream   oss;
+    int             rc;
+
+    oss << "DELETE FROM " << table << " WHERE "
+        << "user=" << rule->user << "AND"
+        << "resource=" << rule->resource << "AND"
+        << "rights=" << rule->rights;
+
+    rc = db->exec(oss);
+
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */
