@@ -62,7 +62,13 @@ class InformationManagerDriver < OpenNebulaDriver
                 # Use rsync to sync:
                 # sync_cmd = "rsync -Laz #{REMOTES_LOCATION}
                 #   #{host}:#{@remote_dir}"
-                LocalCommand.run(sync_cmd, log_method(number))
+                cmd=LocalCommand.run(sync_cmd, log_method(number))
+
+                if cmd.code!=0
+                    send_message('MONITOR', RESULT[:failure], number,
+                        'Could not update remotes')
+                    return
+                end
             end
         end
         do_action("#{@hypervisor}", number, host, :MONITOR,
