@@ -39,6 +39,8 @@ void AuthRequest::add_auth(Object        ob,
     ostringstream oss;
     bool          auth;
 
+    int ob_id_int = 0;
+
     oss << Object_to_str(ob) << ":";
 
     if (op == CREATE || op == INSTANTIATE) //encode the ob_id, it is a template
@@ -58,6 +60,9 @@ void AuthRequest::add_auth(Object        ob,
     else
     {
         oss << ob_id << ":";
+
+        istringstream iss(ob_id);
+        iss >> ob_id_int;
     }
 
     oss << Operation_to_str(op) << ":";
@@ -78,11 +83,6 @@ void AuthRequest::add_auth(Object        ob,
         set<int> emtpy_set;
 
         int         ob_gid = 0;
-
-        istringstream iss(ob_id);
-        int ob_id_int;
-
-        iss >> ob_id_int;
 
         Nebula&     nd   = Nebula::instance();
         AclManager* aclm = nd.get_aclm();
