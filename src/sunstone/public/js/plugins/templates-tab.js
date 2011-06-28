@@ -590,7 +590,9 @@ var template_actions = {
 
     "Template.update_dialog" : {
         type: "custom",
-        call: popUpTemplateTemplateUpdateDialog
+        call: function() {
+            popUpTemplateUpdateDialog("Template",templates_select);
+        }
     },
 
     "Template.update" : {
@@ -685,7 +687,7 @@ var template_buttons = {
     "Template.refresh" : {
         type: "image",
         text: "Refresh list",
-        img: "/images/Refresh-icon.png",
+        img: "images/Refresh-icon.png",
         condition: True
     },
     "Template.create_dialog" : {
@@ -830,15 +832,6 @@ function updateTemplatesView(request, templates_list){
     updateTemplateSelect();
     updateDashboard("templates",template_list_json);
 
-}
-
-// Popup a dialog to add/update an attribute
-function popUpTemplateTemplateUpdateDialog(){
-    $('#template_update_dialog #template_update_button').val("Template");
-    $('#template_update_dialog #template_update_select').html(templates_select);
-    $('#template_update_dialog #template_update_textarea').val("");
-    $('#template_update_dialog').dialog('open');
-    return false;
 }
 
 // Callback to update the information panel tabs and pop it up

@@ -148,7 +148,7 @@ void Nebula::start()
     etc_location     = nebula_location + "etc/";
     log_location     = nebula_location + "var/";
     var_location     = nebula_location + "var/";
-    hook_location    = nebula_location + "share/hooks/";
+    hook_location    = nebula_location + "hooks/";
     remotes_location = nebula_location + "var/remotes/";
 
     if ( nebula_configuration != 0)

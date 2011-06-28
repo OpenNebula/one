@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>OpenNebula Admin Console</title>
+    <meta http-equiv="content-type" content="text/html; charset=iso-8859-1">
+
+    <!-- Vendor Libraries -->
+    <link rel="stylesheet" type="text/css" href="vendor/dataTables/demo_table_jui.css" />
+    <link rel="stylesheet" type="text/css" href="vendor/jQueryUI/jquery-ui-1.8.7.custom.css" />
+    <link rel="stylesheet" type="text/css" href="vendor/jGrowl/jquery.jgrowl.css" />
+    <link rel="stylesheet" type="text/css" href="vendor/jQueryLayout/layout-default-latest.css" />
+    <link rel="stylesheet" href="vendor/noVNC/include/plain.css">
+
+    <script type="text/javascript" src="vendor/jQuery/jquery-1.4.4.min.js"></script>
+    <script type="text/javascript" src="vendor/jGrowl/jquery.jgrowl_minimized.js"></script>
+    <script type="text/javascript" src="vendor/jQueryUI/jquery-ui-1.8.7.custom.min.js"></script>
+    <script type="text/javascript" src="vendor/jQueryLayout/jquery.layout.min-1.2.0.js"></script>
+    <script type="text/javascript" src="vendor/dataTables/jquery.dataTables.min.js"></script>
+    <script language="javascript" type="text/javascript" src="vendor/flot/jquery.flot.min.js"></script>
+
+    <!-- End Vendor Libraries -->
+
+    <link rel="stylesheet" type="text/css" href="css/application.css" />
+    <link rel="stylesheet" type="text/css" href="css/layout.css" />
+    <script type="text/javascript" src="js/opennebula.js"></script>
+    <script type="text/javascript" src="js/layout.js"></script>
+    <script type="text/javascript" src="js/sunstone.js"></script>
+    <script type="text/javascript" src="js/sunstone-util.js"></script>
+
+    <!-- Base Plugins -->
+<% @plugins["plugins"].each do |plugin| %>
+    <script type="text/javascript" src="js/plugins/<%= plugin %>"></script>
+<% end %>
+    <!--<script type="text/javascript" src="js/plugins/dummy-plugin.js"></script>-->
+    <!-- End Base Plugins -->
+
+    <!-- User Plugins -->
+<% @plugins["user-plugins"].each do |plugin| %>
+    <script type="text/javascript" src="js/user-plugins/<%= plugin %>"></script>
+<% end %>
+    <!-- End User Plugins -->
+
+</head>
+<body>
+<div class="outer-center">
+    <div class="inner-center">
+    </div>
+    <div id="dialog" class="inner-south"></div>
+</div>
+
+<div id="menu" class="outer-west">
+    <ul id="navigation">
+    </ul>
+</div>
+
+<div id="header" class="ui-layout-north">
+    <div id="logo">
+        <img src="images/opennebula-sunstone-small.png"/>
+    </div>
+    <div id="login-info">
+        Welcome <span id="user"></span>&nbsp;|&nbsp;<a href="#" id="logout">Sign Out</a>
+    </div>
+    <div id="links">
+        <a href="http://opennebula.org/documentation:documentation" target="_blank">Documentation</a>&nbsp;|&nbsp;
+        <a href="http://opennebula.org/support:support" target="_blank">Support</a>&nbsp;|&nbsp;
+        <a href="http://opennebula.org/community:community" target="_blank">Community</a>
+    </div>
+</div>
+<div id="footer" class="ui-layout-south">
+    Copyright 2002-2011 &copy; OpenNebula Project Leads (<a href="http://opennebula.org" target="_blank">OpenNebula.org</a>). All Rights Reserved. OpenNebula 2.3.0
+</div>
+
+
+<div id="dialogs">
+
+</div>
+<div id="plots">
+
+</div>
+<div id="info_panels"></div>
+</body>
+</html>

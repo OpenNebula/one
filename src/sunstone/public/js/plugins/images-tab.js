@@ -222,7 +222,9 @@ var image_actions = {
 
     "Image.update_dialog" : {
         type: "custom",
-        call: popUpImageTemplateUpdateDialog
+        call: function() {
+            popUpTemplateUpdateDialog("Image",images_select);
+        }
     },
 
     "Image.update" : {
@@ -338,7 +340,7 @@ var image_buttons = {
     "Image.refresh" : {
         type: "image",
         text: "Refresh list",
-        img: "/images/Refresh-icon.png",
+        img: "images/Refresh-icon.png",
         condition: True
     },
     "Image.create_dialog" : {
@@ -509,15 +511,6 @@ function updateImagesView(request, images_list){
     updateDashboard("images",image_list_json);
 
 }
-
-function popUpImageTemplateUpdateDialog(){
-    $('#template_update_dialog #template_update_button').val("Image");
-    $('#template_update_dialog #template_update_select').html(images_select);
-    $('#template_update_dialog #template_update_textarea').val("");
-    $('#template_update_dialog').dialog('open');
-    return false;
-}
-
 
 // Callback to update the information panel tabs and pop it up
 function updateImageInfo(request,img){

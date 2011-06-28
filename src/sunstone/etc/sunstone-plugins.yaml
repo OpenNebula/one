@@ -1,0 +1,33 @@
+---
+- plugins/dashboard-tab.js:
+    :ALL: true
+    :user:
+    :group:
+- plugins/hosts-tab.js:
+    :ALL: true
+    :user:
+    :group:
+- plugins/groups-tab.js:
+    :ALL: true
+    :user:
+    :group:
+- plugins/templates-tab.js:
+    :ALL: true
+    :user:
+    :group:
+- plugins/vms-tab.js:
+    :ALL: true
+    :user:
+    :group:
+- plugins/vnets-tab.js:
+    :ALL: true
+    :user:
+    :group:
+- plugins/images-tab.js:
+    :ALL: true
+    :user:
+    :group:
+- plugins/users-tab.js:
+    :ALL: true
+    :user:
+    :group:

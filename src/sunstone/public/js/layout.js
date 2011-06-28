@@ -27,7 +27,7 @@ function popDialog(content){
 }
 
 function popDialogLoading(){
-    var loading = '<div style="margin-top:'+Math.round($("#dialog").height()/6)+'px; text-align: center; width: 100%"><img src="/images/pbar.gif" alt="loading..."/></div>';
+    var loading = '<div style="margin-top:'+Math.round($("#dialog").height()/6)+'px; text-align: center; width: 100%"><img src="images/pbar.gif" alt="loading..." /></div>';
     popDialog(loading);
 }
 

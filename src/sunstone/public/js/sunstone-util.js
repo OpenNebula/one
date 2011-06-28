@@ -309,7 +309,7 @@ function onError(request,error_json) {
 
     //redirect to login if unauthenticated
     if (error_json.error.http_status=="401") {
-        window.location.href = "/login";
+        window.location.href = "login";
     };
 
     if (!message){
@@ -611,6 +611,14 @@ function setupTemplateUpdateDialog(){
         $('#template_update_dialog').dialog('close');
         return false;
     });
+}
+
+function popUpTemplateUpdateDialog(elem_str,select_items){
+    $('#template_update_dialog #template_update_button').val(elem_str);
+    $('#template_update_dialog #template_update_select').html(select_items);
+    $('#template_update_dialog #template_update_textarea').val("");
+    $('#template_update_dialog').dialog('open');
+    return false;
 }
 
 //functions that used as true and false conditions for testing mainly

@@ -16,24 +16,25 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'HostMonitor.rb'
-require 'VMMonitor.rb'
+$: << File.dirname(__FILE__)
 
-DEFAULT_INTERVAL= 600 #secs
-DEFAULT_HOST_LOG_FOLDER = "#{ENV['ONE_LOCATION']}/logs/host/"
-DEFAULT_VM_LOG_FOLDER = "#{ENV['ONE_LOCATION']}/logs/vm/"
+require 'base64'
+require 'OpenNebulaNetwork'
+require 'Ebtables'
 
+action      = ARGV[0]
+template    = ARGV[1]
 
-#ARG0=interval, ARG1=hostfolder, ARG2=vmfolder
-MONITOR_INTERVAL= ARGV[0]? ARGV[0].to_i : DEFAULT_INTERVAL #secs
-HOST_LOG_FOLDER= ARGV[1]? ARGV[1]: DEFAULT_HOST_LOG_FOLDER
-VM_LOG_FOLDER=ARGV[2] ? ARGV[2] :  DEFAULT_VM_LOG_FOLDER
+# Uncomment to act only on the listed bridges.
+#FILTERED_BRIDGES = ['br0']
 
-hostm = HostMonitor.new(HOST_LOG_FOLDER)
-vmm = VMMonitor.new(VM_LOG_FOLDER)
+vm_xml =  Base64::decode64(template)
+onevlan = EbtablesVLAN.new(vm_xml)
 
-while true do
-    hostm.snapshot
-    vmm.snapshot
-    sleep MONITOR_INTERVAL
+case action
+when "on"
+    onevlan.filter(:bridge => FILTERED_BRIDGES) if defined? FILTERED_BRIDGES
+    onevlan.activate
+when "off"
+    onevlan.deactivate
 end

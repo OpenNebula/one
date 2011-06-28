@@ -207,6 +207,33 @@ var host_actions = {
             plot_global_graph(response,info);
         },
         error: onError
+    },
+
+    "Host.fetch_template" : {
+        type: "single",
+        call: OpenNebula.Host.fetch_template,
+        callback: function (request,response) {
+            $('#template_update_dialog #template_update_textarea').val(response.template);
+        },
+        error: onError,
+        notify: false
+    },
+
+    "Host.update_dialog" : {
+        type: "custom",
+        call: function() {
+            popUpTemplateUpdateDialog("Host",hosts_select);
+        }
+    },
+
+    "Host.update" : {
+        type: "single",
+        call: OpenNebula.Host.update,
+        callback: function() {
+            notifyMessage("Template updated correctly");
+        },
+        error: onError,
+        notify: false
     }
 };
 
@@ -214,13 +241,19 @@ var host_buttons = {
     "Host.refresh" : {
         type: "image",
         text: "Refresh list",
-        img: "/images/Refresh-icon.png",
+        img: "images/Refresh-icon.png",
         condition: True
         },
     "Host.create_dialog" : {
         type: "create_dialog",
         text: "+ New",
         condition :True
+    },
+    "Host.update_dialog" : {
+        type: "action",
+        text: "Update a template",
+        condition: True,
+        alwaysActive: true
     },
     "Host.enable" : {
         type: "action",

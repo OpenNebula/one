@@ -52,7 +52,7 @@ div#logo_sunstone {
     top: 80px;
     margin-left: auto;
     margin-right: auto;
-    background: url(/images/opennebula-sunstone-big.png) no-repeat center ;
+    background: url(../images/opennebula-sunstone-big.png) no-repeat center ;
 
     vertical-align: center;
 }
@@ -161,6 +161,3 @@ div#login input#login_btn:hover {
   margin-top: 35px;
   margin-left:0px;
 }
-
-
-

@@ -231,7 +231,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,"login");
 
             $.ajax({
-                url: "/login",
+                url: "login",
                 type: "POST",
                 data: {remember: remember},
                 beforeSend : function(req) {
@@ -265,7 +265,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,"logout");
 
             $.ajax({
-                url: "/logout",
+                url: "logout",
                 type: "POST",
                 success: function(response)
                 {
@@ -297,7 +297,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,"list");
 
             $.ajax({
-                url: "/config",
+                url: "config",
                 type: "GET",
                 dataType: "json",
                 success: function(response)
@@ -331,7 +331,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,"create", data);
 
             $.ajax({
-                url: "/host",
+                url: "host",
                 type: "POST",
                 dataType: "json",
                 data: JSON.stringify(data),
@@ -363,7 +363,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,"delete", id);
 
             $.ajax({
-                url: "/host/" + id,
+                url: "host/" + id,
                 type: "DELETE",
                 success: function()
                 {
@@ -392,7 +392,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,"list");
 
             $.ajax({
-                url: "/host",
+                url: "host",
                 type: "GET",
                 data: {timeout: timeout},
                 dataType: "json",
@@ -425,7 +425,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,"show", id);
 
             $.ajax({
-                url: "/host/" + id,
+                url: "host/" + id,
                 type: "GET",
                 dataType: "json",
                 success: function(response)
@@ -457,7 +457,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,method, id);
 
             $.ajax({
-                url: "/host/" + id + "/action",
+                url: "host/" + id + "/action",
                 type: "POST",
                 data: JSON.stringify(action),
                 success: function()
@@ -489,7 +489,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,method, id);
 
             $.ajax({
-                url: "/host/" + id + "/action",
+                url: "host/" + id + "/action",
                 type: "POST",
                 data: JSON.stringify(action),
                 success: function()
@@ -497,6 +497,72 @@ var OpenNebula = {
                     if (callback)
                     {
                         callback(request);
+                    }
+                },
+                error: function(response)
+                {
+                    if (callback_error)
+                    {
+                        callback_error(request, OpenNebula.Error(response));
+                    }
+                }
+            });
+        },
+
+        "fetch_template" : function(params)
+        {
+            var callback = params.success;
+            var callback_error = params.error;
+            var id = params.data.id;
+
+            var method = "fetch_template";
+            var resource = OpenNebula.Host.resource;
+            var request = OpenNebula.Helper.request(resource,method, id);
+
+            $.ajax({
+                url: "host/" + id + "/template",
+                type: "GET",
+                dataType:"json",
+                success: function(response)
+                {
+                    if (callback)
+                    {
+                        callback(request,response);
+                    }
+                },
+                error: function(response)
+                {
+                    if(callback_error)
+                    {
+                        callback_error(request, OpenNebula.Error(response));
+                    }
+                }
+            });
+        },
+
+        "update": function(params)
+        {
+            var callback = params.success;
+            var callback_error = params.error;
+            var id = params.data.id;
+            var template_raw = params.data.extra_param;
+            var template_obj = {"template_raw": template_raw}
+
+            var method = "update";
+            var action = OpenNebula.Helper.action(method, template_obj);
+
+            var resource = OpenNebula.Host.resource;
+            var request = OpenNebula.Helper.request(resource,method, [id, template_obj]);
+
+            $.ajax({
+                url: "host/" + id + "/action",
+                type: "POST",
+                data: JSON.stringify(action),
+                success: function(response)
+                {
+                    if (callback)
+                    {
+                        callback(request, response);
                     }
                 },
                 error: function(response)
@@ -587,7 +653,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,"create",data);
 
             $.ajax({
-                url: "/vnet",
+                url: "vnet",
                 type: "POST",
                 dataType: "json",
                 data: JSON.stringify(data),
@@ -618,7 +684,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,"delete", id);
 
             $.ajax({
-                url: "/vnet/" + id,
+                url: "vnet/" + id,
                 type: "DELETE",
                 success: function()
                 {
@@ -647,7 +713,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,"list");
 
             $.ajax({
-                url: "/vnet",
+                url: "vnet",
                 type: "GET",
                 dataType: "json",
                 data: {timeout: timeout},
@@ -679,7 +745,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,"show", id);
 
             $.ajax({
-                url: "/vnet/" + id,
+                url: "vnet/" + id,
                 type: "GET",
                 dataType: "json",
                 success: function(response)
@@ -711,7 +777,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,method, id);
 
             $.ajax({
-                url: "/vnet/" + id + "/action",
+                url: "vnet/" + id + "/action",
                 type: "POST",
                 data: JSON.stringify(action),
                 success: function()
@@ -743,7 +809,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,method, id);
 
             $.ajax({
-                url: "/vnet/" + id + "/action",
+                url: "vnet/" + id + "/action",
                 type: "POST",
                 data: JSON.stringify(action),
                 success: function()
@@ -785,7 +851,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,"create",data);
 
             $.ajax({
-                url: "/vm",
+                url: "vm",
                 type: "POST",
                 dataType: "json",
                 data: JSON.stringify(data),
@@ -816,7 +882,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,"delete", id);
 
             $.ajax({
-                url: "/vm/" + id,
+                url: "vm/" + id,
                 type: "DELETE",
                 success: function()
                 {
@@ -845,7 +911,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,"list");
 
             $.ajax({
-                url: "/vm",
+                url: "vm",
                 type: "GET",
                 dataType: "json",
                 data: {timeout: timeout},
@@ -877,7 +943,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,"log", id);
 
             $.ajax({
-                url: "/vm/" + id + "/log",
+                url: "vm/" + id + "/log",
                 type: "GET",
                 success: function(response)
                 {
@@ -906,7 +972,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,"show", id);
 
             $.ajax({
-                url: "/vm/" + id,
+                url: "vm/" + id,
                 type: "GET",
                 dataType: "json",
                 success: function(response)
@@ -939,7 +1005,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,method, [id, host]);
 
             $.ajax({
-                url: "/vm/" + id + "/action",
+                url: "vm/" + id + "/action",
                 type: "POST",
                 data: JSON.stringify(action),
                 success: function()
@@ -971,7 +1037,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,method, id);
 
             $.ajax({
-                url: "/vm/" + id + "/action",
+                url: "vm/" + id + "/action",
                 type: "POST",
                 data: JSON.stringify(action),
                 success: function()
@@ -1004,7 +1070,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,method, [id, host]);
 
             $.ajax({
-                url: "/vm/" + id + "/action",
+                url: "vm/" + id + "/action",
                 type: "POST",
                 data: JSON.stringify(action),
                 success: function()
@@ -1037,7 +1103,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,method, [id, host]);
 
             $.ajax({
-                url: "/vm/" + id + "/action",
+                url: "vm/" + id + "/action",
                 type: "POST",
                 data: JSON.stringify(action),
                 success: function()
@@ -1069,7 +1135,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,method, id);
 
             $.ajax({
-                url: "/vm/" + id + "/action",
+                url: "vm/" + id + "/action",
                 type: "POST",
                 data: JSON.stringify(action),
                 success: function()
@@ -1101,7 +1167,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,method, id);
 
             $.ajax({
-                url: "/vm/" + id + "/action",
+                url: "vm/" + id + "/action",
                 type: "POST",
                 data: JSON.stringify(action),
                 success: function()
@@ -1133,7 +1199,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,method, id);
 
             $.ajax({
-                url: "/vm/" + id + "/action",
+                url: "vm/" + id + "/action",
                 type: "POST",
                 data: JSON.stringify(action),
                 success: function()
@@ -1165,7 +1231,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,method, id);
 
             $.ajax({
-                url: "/vm/" + id + "/action",
+                url: "vm/" + id + "/action",
                 type: "POST",
                 data: JSON.stringify(action),
                 success: function()
@@ -1197,7 +1263,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,method, id);
 
             $.ajax({
-                url: "/vm/" + id + "/action",
+                url: "vm/" + id + "/action",
                 type: "POST",
                 data: JSON.stringify(action),
                 success: function()
@@ -1229,7 +1295,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,method, id);
 
             $.ajax({
-                url: "/vm/" + id + "/action",
+                url: "vm/" + id + "/action",
                 type: "POST",
                 data: JSON.stringify(action),
                 success: function()
@@ -1270,7 +1336,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,method, [id,disk_id, image_name, type]);
 
             $.ajax({
-                url: "/vm/" + id + "/action",
+                url: "vm/" + id + "/action",
                 type: "POST",
                 data: JSON.stringify(action),
                 success: function()
@@ -1302,7 +1368,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,method, id);
 
             $.ajax({
-                url: "/vm/" + id + "/action",
+                url: "vm/" + id + "/action",
                 type: "POST",
                 data: JSON.stringify(action),
                 success: function()
@@ -1334,7 +1400,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,method, id);
 
             $.ajax({
-                url: "/vm/" + id + "/action",
+                url: "vm/" + id + "/action",
                 type: "POST",
                 data: JSON.stringify(action),
                 success: function()
@@ -1499,7 +1565,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,"create", name);
 
             $.ajax({
-                url: "/group",
+                url: "group",
                 type: "POST",
                 dataType: "json",
                 data: JSON.stringify(data),
@@ -1530,7 +1596,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,"delete", id);
 
             $.ajax({
-                url: "/group/" + id,
+                url: "group/" + id,
                 type: "DELETE",
                 success: function()
                 {
@@ -1559,7 +1625,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,"list");
 
             $.ajax({
-                url: "/group",
+                url: "group",
                 type: "GET",
                 dataType: "json",
                 data: {timeout: timeout},
@@ -1600,7 +1666,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,"create",data);
 
             $.ajax({
-                url: "/user",
+                url: "user",
                 type: "POST",
                 dataType: "json",
                 data: JSON.stringify(data),
@@ -1631,7 +1697,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,"delete", id);
 
             $.ajax({
-                url: "/user/" + id,
+                url: "user/" + id,
                 type: "DELETE",
                 success: function()
                 {
@@ -1660,7 +1726,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,"list");
 
             $.ajax({
-                url: "/user",
+                url: "user",
                 type: "GET",
                 dataType: "json",
                 data: {timeout: timeout},
@@ -1698,7 +1764,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,method, passwd);
 
             $.ajax({
-                url: "/user/" + id + "/action",
+                url: "user/" + id + "/action",
                 type: "POST",
                 data: JSON.stringify(action),
                 success: function(response)
@@ -1763,7 +1829,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,"register",data);
 
             $.ajax({
-                url: "/image",
+                url: "image",
                 type: "POST",
                 dataType: "json",
                 data: JSON.stringify(data),
@@ -1794,7 +1860,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,method, id);
 
             $.ajax({
-                url: "/image/" + id + "/template",
+                url: "image/" + id + "/template",
                 type: "GET",
                 dataType:"json",
                 success: function(response)
@@ -1829,7 +1895,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,method, [id, template_obj]);
 
             $.ajax({
-                url: "/image/" + id + "/action",
+                url: "image/" + id + "/action",
                 type: "POST",
                 data: JSON.stringify(action),
                 success: function(response)
@@ -1858,7 +1924,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,"delete", id);
 
             $.ajax({
-                url: "/image/" + id,
+                url: "image/" + id,
                 type: "DELETE",
                 success: function()
                 {
@@ -1887,7 +1953,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,"list");
 
             $.ajax({
-                url: "/image",
+                url: "image",
                 type: "GET",
                 dataType: "json",
                 data: {timeout: timeout},
@@ -1919,7 +1985,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,"show", id);
 
             $.ajax({
-                url: "/image/" + id,
+                url: "image/" + id,
                 type: "GET",
                 dataType: "json",
                 success: function(response)
@@ -1951,7 +2017,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,method, id);
 
             $.ajax({
-                url: "/image/" + id + "/action",
+                url: "image/" + id + "/action",
                 type: "POST",
                 data: JSON.stringify(action),
                 success: function()
@@ -1983,7 +2049,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,method, id);
 
             $.ajax({
-                url: "/image/" + id + "/action",
+                url: "image/" + id + "/action",
                 type: "POST",
                 data: JSON.stringify(action),
                 success: function()
@@ -2015,7 +2081,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,method, id);
 
             $.ajax({
-                url: "/image/" + id + "/action",
+                url: "image/" + id + "/action",
                 type: "POST",
                 data: JSON.stringify(action),
                 success: function()
@@ -2047,7 +2113,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,method, id);
 
             $.ajax({
-                url: "/image/" + id + "/action",
+                url: "image/" + id + "/action",
                 type: "POST",
                 data: JSON.stringify(action),
                 success: function()
@@ -2080,7 +2146,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,method, id);
 
             $.ajax({
-                url: "/image/" + id + "/action",
+                url: "image/" + id + "/action",
                 type: "POST",
                 data: JSON.stringify(action),
                 success: function()
@@ -2113,7 +2179,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,method, id);
 
             $.ajax({
-                url: "/image/" + id + "/action",
+                url: "image/" + id + "/action",
                 type: "POST",
                 data: JSON.stringify(action),
                 success: function()
@@ -2155,7 +2221,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,"create",data);
 
             $.ajax({
-                url: "/template",
+                url: "template",
                 type: "POST",
                 dataType: "json",
                 data: JSON.stringify(data),
@@ -2187,7 +2253,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,method, id);
 
             $.ajax({
-                url: "/template/" + id + "/template",
+                url: "template/" + id + "/template",
                 type: "GET",
                 dataType:"json",
                 success: function(response)
@@ -2221,7 +2287,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,method, [id, template_obj]);
 
             $.ajax({
-                url: "/template/" + id + "/action",
+                url: "template/" + id + "/action",
                 type: "POST",
                 data: JSON.stringify(action),
                 success: function(response)
@@ -2253,7 +2319,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,method, id);
 
             $.ajax({
-                url: "/template/" + id + "/action",
+                url: "template/" + id + "/action",
                 type: "POST",
                 data: JSON.stringify(action),
                 success: function()
@@ -2284,7 +2350,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,method, id);
 
             $.ajax({
-                url: "/template/" + id + "/action",
+                url: "template/" + id + "/action",
                 type: "POST",
                 data: JSON.stringify(action),
                 success: function()
@@ -2313,7 +2379,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,"list");
 
             $.ajax({
-                url: "/template",
+                url: "template",
                 type: "GET",
                 dataType: "json",
                 data: {timeout: timeout},
@@ -2344,7 +2410,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,"show", id);
 
             $.ajax({
-                url: "/template/" + id,
+                url: "template/" + id,
                 type: "GET",
                 dataType: "json",
                 success: function(response)
@@ -2373,7 +2439,7 @@ var OpenNebula = {
             var request = OpenNebula.Helper.request(resource,"delete", id);
 
             $.ajax({
-                url: "/template/" + id,
+                url: "template/" + id,
                 type: "DELETE",
                 success: function()
                 {

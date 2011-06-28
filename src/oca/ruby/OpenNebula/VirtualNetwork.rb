@@ -31,9 +31,9 @@ module OpenNebula
             :chown      => "vn.chown"
         }
 
-        NETWORK_TYPES=%w{RANGED FIXED}
+        VN_TYPES=%w{RANGED FIXED}
 
-        SHORT_NETWORK_TYPES={
+        SHORT_VN_TYPES={
             "RANGED" => "R",
             "FIXED"  => "F"
         }
@@ -144,12 +144,12 @@ module OpenNebula
 
         # Returns the type of the Virtual Network (string value)
         def type_str
-            NETWORK_TYPES[type]
+            VN_TYPES[type]
         end
 
         # Returns the state of the Virtual Network (string value)
         def short_type_str
-            SHORT_NETWORK_TYPES[type_str]
+            SHORT_VN_TYPES[type_str]
         end
 
     private

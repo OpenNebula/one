@@ -198,6 +198,16 @@ private:
      */
     string  bridge;
 
+    /**
+     *  Name of the physical device the bridge should be attached to
+     */
+    string  phydev;
+    
+    /**
+     *  VLAN ID of the NIC
+     */
+    string  vlan_id;
+
     // -------------------------------------------------------------------------
     // Virtual Network Description
     // -------------------------------------------------------------------------

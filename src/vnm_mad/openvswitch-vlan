@@ -16,24 +16,14 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'HostMonitor.rb'
-require 'VMMonitor.rb'
+$: << File.dirname(__FILE__)
 
-DEFAULT_INTERVAL= 600 #secs
-DEFAULT_HOST_LOG_FOLDER = "#{ENV['ONE_LOCATION']}/logs/host/"
-DEFAULT_VM_LOG_FOLDER = "#{ENV['ONE_LOCATION']}/logs/vm/"
+require 'base64'
+require 'OpenNebulaNetwork'
+require 'OpenvSwitch'
 
+template    = ARGV[0]
+vm_xml =  Base64::decode64(template)
 
-#ARG0=interval, ARG1=hostfolder, ARG2=vmfolder
-MONITOR_INTERVAL= ARGV[0]? ARGV[0].to_i : DEFAULT_INTERVAL #secs
-HOST_LOG_FOLDER= ARGV[1]? ARGV[1]: DEFAULT_HOST_LOG_FOLDER
-VM_LOG_FOLDER=ARGV[2] ? ARGV[2] :  DEFAULT_VM_LOG_FOLDER
-
-hostm = HostMonitor.new(HOST_LOG_FOLDER)
-vmm = VMMonitor.new(VM_LOG_FOLDER)
-
-while true do
-    hostm.snapshot
-    vmm.snapshot
-    sleep MONITOR_INTERVAL
-end
+onevlan = OpenvSwitchVLAN.new(vm_xml)
+onevlan.activate

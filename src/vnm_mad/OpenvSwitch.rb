@@ -1,5 +1,3 @@
-#!/usr/bin/env ruby
-
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
@@ -16,24 +14,23 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'HostMonitor.rb'
-require 'VMMonitor.rb'
+class OpenvSwitchVLAN < OpenNebulaNetwork
+    def initialize(vm, hypervisor = nil)
+        super(vm,hypervisor)
+    end
 
-DEFAULT_INTERVAL= 600 #secs
-DEFAULT_HOST_LOG_FOLDER = "#{ENV['ONE_LOCATION']}/logs/host/"
-DEFAULT_VM_LOG_FOLDER = "#{ENV['ONE_LOCATION']}/logs/vm/"
+    def activate
+        process do |nic|
+            if nic[:vlan_id]
+                vlan = nic[:vlan_id]
+            else
+                vlan = CONF[:start_vlan] + nic[:network_id].to_i
+            end
 
+            cmd =  "#{COMMANDS[:ovs_vsctl]} set Port #{nic[:tap]} "
+            cmd << "tag=#{vlan}"
 
-#ARG0=interval, ARG1=hostfolder, ARG2=vmfolder
-MONITOR_INTERVAL= ARGV[0]? ARGV[0].to_i : DEFAULT_INTERVAL #secs
-HOST_LOG_FOLDER= ARGV[1]? ARGV[1]: DEFAULT_HOST_LOG_FOLDER
-VM_LOG_FOLDER=ARGV[2] ? ARGV[2] :  DEFAULT_VM_LOG_FOLDER
-
-hostm = HostMonitor.new(HOST_LOG_FOLDER)
-vmm = VMMonitor.new(VM_LOG_FOLDER)
-
-while true do
-    hostm.snapshot
-    vmm.snapshot
-    sleep MONITOR_INTERVAL
+            system(cmd)
+        end
+    end
 end

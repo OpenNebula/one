@@ -122,7 +122,7 @@ var group_buttons = {
     "Group.refresh" : {
         type: "image",
         text: "Refresh list",
-        img: "/images/Refresh-icon.png",
+        img: "images/Refresh-icon.png",
         condition: True
     },
     "Group.create_dialog" : {
