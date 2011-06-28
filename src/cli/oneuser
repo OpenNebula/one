@@ -120,7 +120,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     command :chgrp, chgrp_desc, [:range, :userid_list], :groupid do
         helper.perform_actions(args[0],options,"Group changed") do |user|
-            user.chown(-1, args[1].to_i)
+            user.chgrp(args[1].to_i)
         end
     end
 
