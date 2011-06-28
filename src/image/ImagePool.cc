@@ -252,6 +252,7 @@ void ImagePool::authorize_disk(VectorAttribute * disk,int uid, AuthRequest * ar)
 
     ar->add_auth(AuthRequest::IMAGE,
                  img->get_oid(),
+                 img->get_gid(),
                  AuthRequest::USE,
                  img->get_uid(),
                  img->isPublic());

@@ -361,6 +361,7 @@ public:
      */
     void add_auth(Object        ob,
                   const string& ob_id,
+                  int           ob_gid,
                   Operation     op,
                   int           owner,
                   bool          pub);
@@ -370,6 +371,7 @@ public:
      */
     void add_auth(Object        ob,
                   int           ob_id,
+                  int           ob_gid,
                   Operation     op,
                   int           owner,
                   bool          pub)
@@ -377,7 +379,7 @@ public:
         ostringstream oss;
         oss << ob_id;
 
-        add_auth(ob,oss.str(),op,owner,pub);
+        add_auth(ob,oss.str(),ob_gid,op,owner,pub);
     };
 
     /**

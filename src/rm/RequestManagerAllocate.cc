@@ -34,13 +34,13 @@ bool RequestManagerAllocate::allocate_authorization(Template * tmpl)
 
     if ( tmpl == 0 )
     { 
-        ar.add_auth(auth_object,-1,auth_op,uid,false);
+        ar.add_auth(auth_object,-1,-1,auth_op,uid,false);
     }
     else
     {
         string t64;
 
-        ar.add_auth(auth_object,tmpl->to_xml(t64),auth_op,uid,false);
+        ar.add_auth(auth_object,tmpl->to_xml(t64),-1,auth_op,uid,false);
     }
 
    if (UserPool::authorize(ar) == -1)
@@ -67,7 +67,7 @@ bool VirtualMachineAllocate::allocate_authorization(Template * tmpl)
 
     VirtualMachineTemplate * ttmpl = static_cast<VirtualMachineTemplate *>(tmpl);
 
-    ar.add_auth(auth_object,tmpl->to_xml(t64),auth_op,uid,false);
+    ar.add_auth(auth_object,tmpl->to_xml(t64),-1,auth_op,uid,false);
 
     VirtualMachine::set_auth_request(uid, ar, ttmpl);
 

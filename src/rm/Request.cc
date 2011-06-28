@@ -52,6 +52,7 @@ bool Request::basic_authorization(int oid)
 
     bool pub;
     int  ouid;
+    int  ogid;
 
     if ( uid == 0 )
     {
@@ -74,6 +75,7 @@ bool Request::basic_authorization(int oid)
         }
 
         ouid = object->get_uid();
+        ogid = object->get_gid();
         pub  = object->isPublic();
 
         object->unlock();
@@ -81,10 +83,10 @@ bool Request::basic_authorization(int oid)
 
    AuthRequest ar(uid);
 
-   ar.add_auth(auth_object, oid, auth_op, ouid, pub);
+    ar.add_auth(auth_object, oid, ogid, auth_op, ouid, pub);
 
-   if (UserPool::authorize(ar) == -1)
-   {
+    if (UserPool::authorize(ar) == -1)
+    {
         failure_response(AUTHORIZATION, authorization_error(ar.message));
 
         return false;
