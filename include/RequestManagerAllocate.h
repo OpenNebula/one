@@ -104,7 +104,7 @@ class VirtualNetworkAllocate: public RequestManagerAllocate
 {
 public:
     VirtualNetworkAllocate():
-        RequestManagerAllocate("VirtualNetworkInfo",
+        RequestManagerAllocate("VirtualNetworkAllocate",
                                "Allocates a new virtual network",
                                "A:ss",
                                true)
@@ -200,7 +200,7 @@ class HostAllocate : public RequestManagerAllocate
 {
 public:
     HostAllocate():
-        RequestManagerAllocate("HostInfo",
+        RequestManagerAllocate("HostAllocate",
                                "Allocates a new host",
                                "A:sssss",
                                false)
@@ -225,7 +225,7 @@ class UserAllocate: public RequestManagerAllocate
 {
 public:
     UserAllocate():
-        RequestManagerAllocate("UserInfo",
+        RequestManagerAllocate("UserAllocate",
                                "Returns user information",
                                "A:sss",
                                false)

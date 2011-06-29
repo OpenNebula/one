@@ -64,9 +64,10 @@ const bool AclManager::authorize(int uid, const set<int> &user_groups,
     bool auth = false;
 
     // Build masks for request
-    long long user_req          = AclRule::INDIVIDUAL_ID + uid;
+    long long user_req;
     long long resource_oid_req  = obj_type + AclRule::INDIVIDUAL_ID + obj_id;
     long long resource_gid_req  = obj_type + AclRule::GROUP_ID + obj_gid;
+    long long resource_all_req  = obj_type + AclRule::ALL_ID;
     long long rights_req        = op;
 
     long long individual_obj_type =
@@ -75,12 +76,82 @@ const bool AclManager::authorize(int uid, const set<int> &user_groups,
     long long group_obj_type =
             ( obj_type | AclRule::GROUP_ID | 0xFFFFFFFF );
 
-    AclRule request_rule(user_req, resource_oid_req, rights_req);
+
+
+    AclRule request_rule(AclRule::INDIVIDUAL_ID + uid, resource_oid_req, rights_req);
     oss << "Request " << request_rule.to_str();
     NebulaLog::log("ACL",Log::DEBUG,oss);
 
 
-    // TODO: This only works for individual uid
+    // Look for rules that apply to everyone
+
+    user_req = AclRule::ALL_ID;
+    auth = match_rules(user_req, resource_oid_req, resource_gid_req,
+            resource_all_req, rights_req, individual_obj_type, group_obj_type);
+
+    if ( auth == true )
+    {
+        return true;
+    }
+
+    // Look for rules that apply to the individual user id
+    user_req = AclRule::INDIVIDUAL_ID + uid;
+
+    auth = match_rules(user_req, resource_oid_req, resource_gid_req,
+            resource_all_req, rights_req, individual_obj_type, group_obj_type);
+
+    if ( auth == true )
+    {
+        return true;
+    }
+
+
+    // Look for rules that apply to each one of the user's groups
+
+    set<int>::iterator  g_it;
+
+    for (g_it = user_groups.begin(); g_it != user_groups.end(); g_it++)
+    {
+        user_req = AclRule::GROUP_ID + *g_it;
+
+        auth = match_rules(user_req, resource_oid_req, resource_gid_req,
+                resource_all_req, rights_req, individual_obj_type,
+                group_obj_type);
+
+        if ( auth == true )
+        {
+            return true;
+        }
+    }
+
+
+    oss.str("No more rules, permission not granted ");
+    NebulaLog::log("ACL",Log::DEBUG,oss);
+
+    return false;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool AclManager::match_rules(
+        long long user_req,
+        long long resource_oid_req,
+        long long resource_gid_req,
+        long long resource_all_req,
+        long long rights_req,
+        long long individual_obj_type,
+        long long group_obj_type)
+
+{
+    bool auth;
+    ostringstream oss;
+
+    multimap<long long, AclRule *>::iterator        it;
+
+    pair<multimap<long long, AclRule *>::iterator,
+         multimap<long long, AclRule *>::iterator>  index;
+
     index = acl_rules.equal_range( user_req );
 
     for ( it = index.first; it != index.second; it++)
@@ -90,15 +161,19 @@ const bool AclManager::authorize(int uid, const set<int> &user_groups,
         NebulaLog::log("ACL",Log::DEBUG,oss);
 
         auth =
-            (
-                // Rule's object type and individual object ID match
-                ( ( it->second->resource & individual_obj_type ) == resource_oid_req )
-                ||
-                // Or rule's object type and group object ID match
-                ( ( it->second->resource & group_obj_type ) == resource_gid_req )
-            )
-            &&
-            ( ( it->second->rights & rights_req ) == rights_req );
+          // Rule grants the requested rights
+          ( ( it->second->rights & rights_req ) == rights_req )
+          &&
+          (
+            // Rule grants permission for all objects of this type
+            ( it->second->resource == resource_all_req )
+            ||
+            // Or rule's object type and group object ID match
+            ( ( it->second->resource & group_obj_type ) == resource_gid_req )
+            ||
+            // Or rule's object type and individual object ID match
+            ( ( it->second->resource & individual_obj_type ) == resource_oid_req )
+          );
 
         if ( auth == true )
         {
@@ -108,9 +183,6 @@ const bool AclManager::authorize(int uid, const set<int> &user_groups,
             return true;
         }
     }
-
-    oss.str("No more rules, permission not granted ");
-    NebulaLog::log("ACL",Log::DEBUG,oss);
 
     return false;
 }

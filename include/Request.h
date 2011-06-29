@@ -60,8 +60,10 @@ protected:
     /* ------------------- Attributes of the Request ---------------------- */
 
     int                 uid;    /**< id of the user performing the request */
-    
+
     int                 gid;            /**< id of the user's group */
+
+    set<int>            group_ids;      /**< set of user's group ids */
 
     PoolSQL *           pool;           /**< Pool of objects */
 

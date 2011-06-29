@@ -190,7 +190,9 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool UserPool::authenticate(const string& session, int& user_id, int& group_id)
+//bool UserPool::authenticate(const string& session, int& user_id, int& group_id)
+bool UserPool::authenticate(const string& session, int& user_id, int& group_id,
+                            set<int>& group_ids)
 {
     map<string, int>::iterator index;
 
@@ -224,6 +226,8 @@ bool UserPool::authenticate(const string& session, int& user_id, int& group_id)
         uid    = user->oid;
         gid    = user->gid;
 
+        group_ids = user->get_groups();
+
         user->unlock();
     }
     else //External User
@@ -233,7 +237,7 @@ bool UserPool::authenticate(const string& session, int& user_id, int& group_id)
         gid    = -1;
     }
 
-    AuthRequest ar(uid);
+    AuthRequest ar(uid, group_ids);
 
     ar.add_authenticate(username,u_pass,secret);
 
@@ -302,6 +306,7 @@ bool UserPool::authenticate(const string& session, int& user_id, int& group_id)
                 }
                 else
                 {
+                    group_ids.insert( GroupPool::USERS_ID );
                     group_id = GroupPool::USERS_ID;
                     result   = true;
                 }

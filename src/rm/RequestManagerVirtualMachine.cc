@@ -45,7 +45,7 @@ bool RequestManagerVirtualMachine::vm_authorization(int oid, int hid, ImageTempl
 
     object->unlock();
 
-    AuthRequest ar(uid);
+    AuthRequest ar(uid, group_ids);
 
     ar.add_auth(auth_object, oid, ogid, auth_op, ouid, false);
 

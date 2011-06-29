@@ -80,13 +80,10 @@ void AuthRequest::add_auth(Object        ob,
     }
     else
     {
-        // TODO, the set of object ids is needed
-        set<int> emtpy_set;
-
         Nebula&     nd   = Nebula::instance();
         AclManager* aclm = nd.get_aclm();
 
-        auth = aclm->authorize(uid, emtpy_set, ob, ob_id_int, ob_gid, op);
+        auth = aclm->authorize(uid, gids, ob, ob_id_int, ob_gid, op);
     }
 
     self_authorize = self_authorize && auth;

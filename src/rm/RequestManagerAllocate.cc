@@ -30,7 +30,7 @@ bool RequestManagerAllocate::allocate_authorization(Template * tmpl)
         return true;
     }
 
-    AuthRequest ar(uid);
+    AuthRequest ar(uid, group_ids);
 
     if ( tmpl == 0 )
     { 
@@ -62,7 +62,8 @@ bool VirtualMachineAllocate::allocate_authorization(Template * tmpl)
         return true;
     }
 
-    AuthRequest ar(uid);
+    AuthRequest ar(uid, group_ids);
+
     string      t64;
 
     VirtualMachineTemplate * ttmpl = static_cast<VirtualMachineTemplate *>(tmpl);

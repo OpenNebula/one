@@ -46,37 +46,6 @@ void RequestManagerAcl::request_execute(xmlrpc_c::paramList const& paramList)
     iss >> hex >> rights;
 
 
-
-    // TODO, debug
-/*
-    int iu, id, it;
-
-    iss.clear();
-    iss.str( xmlrpc_c::value_string(paramList.getString(1)) );
-    iss >> iu;
-
-    iss.clear();
-    iss.str( xmlrpc_c::value_string(paramList.getString(2)) );
-    iss >> id;
-
-    iss.clear();
-    iss.str( xmlrpc_c::value_string(paramList.getString(3)) );
-    iss >> it;
-
-
-
-    ostringstream oss;
-    string u = xmlrpc_c::value_string(paramList.getString(1));
-    string d = xmlrpc_c::value_string(paramList.getString(2));
-    string t = xmlrpc_c::value_string(paramList.getString(3));
-
-    oss << "\n";
-    oss << "User :     " << u << ", " << iu << ", dec: " << dec  << user     << "\n";
-    oss << "Resource : " << d << ", " << id << ", dec: "  << dec << resource << "\n";
-    oss << "Rights :   " << t << ", " << it << ", dec: "  << dec << rights   << "\n";
-    NebulaLog::log("ACL-RM",Log::DEBUG,oss);
-*/
-
     Nebula& nd  = Nebula::instance();
     aclm        = nd.get_aclm();
 

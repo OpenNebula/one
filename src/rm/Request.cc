@@ -33,7 +33,7 @@ void Request::execute(
 
     NebulaLog::log("ReM",Log::DEBUG, method_name + " method invoked");
 
-    if ( upool->authenticate(session, uid, gid) == false )
+    if ( upool->authenticate(session, uid, gid, group_ids) == false )
     {
         failure_response(AUTHENTICATION, authenticate_error());
     }
@@ -81,7 +81,7 @@ bool Request::basic_authorization(int oid)
         object->unlock();
     }
 
-   AuthRequest ar(uid);
+    AuthRequest ar(uid, group_ids);
 
     ar.add_auth(auth_object, oid, ogid, auth_op, ouid, pub);
 

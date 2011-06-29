@@ -102,9 +102,12 @@ public:
      *   @param session, colon separated username and password string
      *   @param uid of the user if authN succeeded -1 otherwise
      *   @param gid of the user if authN succeeded -1 otherwise
+     *   @param group_ids the user groups if authN succeeded, is empty otherwise
      *   @return false if authn failed, true otherwise
      */
-    bool authenticate(const string& session, int& uid, int& gid);
+    bool authenticate(const string& session, int& uid, int& gid,
+                    set<int>& group_ids);
+
 
     /**
      * Returns whether there is a user with given username/password or not

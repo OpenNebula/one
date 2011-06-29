@@ -114,6 +114,29 @@ public:
 private:
     multimap<long long, AclRule*> acl_rules;
 
+    /**
+     *  Gets all rules that apply to the user_req and, if any of them grants
+     *  permission, returns true.
+     *
+     *    @param user_req user/group id and flags
+     *    @param resource_oid_req 64 bit request, ob. type and individual oid
+     *    @param resource_gid_req 64 bit request, ob. type and group id
+     *    @param resource_all_req 64 bit request, ob. type and all flag
+     *    @param rights_req Requested rights
+     *    @param individual_obj_type Mask with ob. type and individual flags
+     *    @param group_obj_type Mask with ob. type and gropu flags
+     *
+     *    @return true if any rule grants permission
+     */
+    bool match_rules(
+            long long user_req,
+            long long resource_oid_req,
+            long long resource_gid_req,
+            long long resource_all_req,
+            long long rights_req,
+            long long individual_obj_type,
+            long long group_obj_type);
+
     // ----------------------------------------
     // DataBase implementation variables
     // ----------------------------------------
