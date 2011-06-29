@@ -69,10 +69,10 @@ cmd = CommandParser::CmdParser.new(ARGV) do
         Deletes an existing ACL rule
     EOT
 
-    command :delrule, delrule_desc, :user, :resource, :rights do
+    command :delrule, delrule_desc, :id do
         acl = OpenNebula::Acl.new( OpenNebula::Client.new() )
 
-        rc = acl.delrule( args[0], args[1], args[2] )
+        rc = acl.delrule( args[0] )
 
         if OpenNebula.is_error?(rc)
             [-1, rc.message]

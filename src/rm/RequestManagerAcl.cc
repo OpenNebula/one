@@ -21,7 +21,7 @@ using namespace std;
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-void RequestManagerAcl::request_execute(xmlrpc_c::paramList const& paramList)
+void AclAddRule::request_execute(xmlrpc_c::paramList const& paramList)
 {
 /*
     xmlrpc-c version 1.07 can manage 64 bit numbers, but not all distros. ship
@@ -31,6 +31,10 @@ void RequestManagerAcl::request_execute(xmlrpc_c::paramList const& paramList)
     resource  = xmlrpc_c::value_i8(paramList.getI8(2));
     rights    = xmlrpc_c::value_i8(paramList.getI8(3));
 */
+
+    long long user;
+    long long resource;
+    long long rights;
 
     istringstream iss;
 
@@ -59,9 +63,43 @@ void RequestManagerAcl::request_execute(xmlrpc_c::paramList const& paramList)
         return;
     }
 
-    int rc = perform_operation(error_msg);
+    int rc = aclm->add_rule(user, resource, rights, error_msg);
 
-    if ( rc != 0 )
+
+    if ( rc < 0 )
+    {
+        failure_response(INTERNAL, request_error(error_msg, ""));
+        return;
+    }
+
+    success_response(rc);
+
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+void AclDelRule::request_execute(xmlrpc_c::paramList const& paramList)
+{
+    int oid = xmlrpc_c::value_int(paramList.getInt(1));
+
+    Nebula& nd  = Nebula::instance();
+    aclm        = nd.get_aclm();
+
+    string error_msg;
+
+    // TODO: Only oneadmin can manage ACL
+    if ( uid != 0 )
+    {
+        failure_response(AUTHORIZATION,
+                authorization_error("Only oneadmin can manage ACL rules"));
+        return;
+    }
+
+    int rc = aclm->del_rule(oid, error_msg);
+
+    if ( rc < 0 )
     {
         failure_response(INTERNAL, request_error(error_msg, ""));
         return;
@@ -70,20 +108,6 @@ void RequestManagerAcl::request_execute(xmlrpc_c::paramList const& paramList)
     success_response("");
 
     return;
-}
-
-/* ------------------------------------------------------------------------- */
-
-int AclAddRule::perform_operation(string& error_msg)
-{
-    return aclm->add_rule(user, resource, rights, error_msg);
-}
-
-/* ------------------------------------------------------------------------- */
-
-int AclDelRule::perform_operation(string& error_msg)
-{
-    return aclm->del_rule(user, resource, rights, error_msg);
 }
 
 /* ------------------------------------------------------------------------- */

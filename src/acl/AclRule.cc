@@ -276,12 +276,13 @@ string& AclRule::to_xml(string& xml) const
     ostringstream   oss;
 
     oss <<
-    "<RULE>"
+    "<ACL>"
+        "<ID>"       << oid              << "</ID>"          <<
         "<USER>"     << hex << user      << "</USER>"        <<
         "<RESOURCE>" << hex << resource  << "</RESOURCE>"    <<
         "<RIGHTS>"   << hex << rights    << "</RIGHTS>"      <<
         "<STRING>"   << str              << "</STRING>"      <<
-    "</RULE>";
+    "</ACL>";
 
     xml = oss.str();
 

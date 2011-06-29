@@ -81,11 +81,9 @@ module OpenNebula
 
         # Deletes an existing ACL rule.
         #
-        # +user+ A hex number, e.g. 0x100000001
-        # +resource+ A hex number, e.g. 0x2100000001
-        # +rights+ A hex number, e.g. 0x10
-        def delrule(user, resource, rights)
-            rc = @client.call( ACL_METHODS[:delrule], user, resource, rights )
+        # +id+ Rule id
+        def delrule(id)
+            rc = @client.call( ACL_METHODS[:delrule], id.to_i )
 
             rc = nil if !OpenNebula.is_error?(rc)
 

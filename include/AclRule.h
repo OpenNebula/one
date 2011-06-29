@@ -35,8 +35,8 @@ public:
     static const long long GROUP_ID;
     static const long long ALL_ID;
 
-    AclRule(long long _user, long long _resource, long long _rights):
-        user(_user), resource(_resource), rights(_rights)
+    AclRule(int _oid, long long _user, long long _resource, long long _rights):
+        oid(_oid), user(_user), resource(_resource), rights(_rights)
     {
         build_str();
     };
@@ -119,6 +119,11 @@ public:
 private:
 
     friend class AclManager;
+
+    /**
+     *  Rule unique identifier
+     */
+    int oid;
 
     /**
      *  64 bit integer holding a user ID in the 32 less significant bits,
