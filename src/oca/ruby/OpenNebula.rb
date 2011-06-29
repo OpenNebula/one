@@ -40,6 +40,7 @@ require 'OpenNebula/TemplatePool'
 require 'OpenNebula/Group'
 require 'OpenNebula/GroupPool'
 require 'OpenNebula/Acl'
+require 'OpenNebula/AclPool'
 
 module OpenNebula
 

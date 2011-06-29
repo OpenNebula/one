@@ -1,0 +1,25 @@
+--- 
+:USER:
+  :desc: To which resource owner the rule applies to
+  :size: 4
+  :right: true
+  
+:RESOURCE_VHNIUTG: 
+  :desc: Which resource the rule applies to
+  :size: 16
+
+:RID: 
+  :desc: Resource ID
+  :size: 4
+  :right: true
+
+:OPERATION_CDUMIPpTW: 
+  :desc: Operation to which the rule applies
+  :size: 19
+  :right: true
+
+:default: 
+- :USER 
+- :RESOURCE_VHNIUTG 
+- :RID 
+- :OPERATION_CDUMIPpTW

@@ -14,91 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'OpenNebula/Pool'
-
 module OpenNebula
-    class Acl < XMLElement
-
-        #######################################################################
-        # Constants and Class Methods
-        #######################################################################
-        ACL_METHODS = {
-            :info       => "acl.info",
-            :addrule    => "acl.addrule",
-            :delrule    => "acl.delrule"
-        }
-
-        #######################################################################
-        # Class constructor
-        #######################################################################
-        def initialize(client)
-            @client = client
-        end
-
-        #######################################################################
-        # XML-RPC Methods
-        #######################################################################
-
-        # Retrieves the ACL rule set
-        def info()
-            rc = @client.call( ACL_METHODS[:info] )
-
-            if !OpenNebula.is_error?(rc)
-                initialize_xml(rc, 'ACL')
-                rc = nil
-            end
-
-            return rc
-        end
-
-        # Adds a new ACL rule.
-        #
-        # +user+ A hex number, e.g. 0x100000001
-        # +resource+ A hex number, e.g. 0x2100000001
-        # +rights+ A hex number, e.g. 0x10
-        def addrule(user, resource, rights)
-            rc = @client.call( ACL_METHODS[:addrule], user, resource, rights )
-
-            rc = nil if !OpenNebula.is_error?(rc)
-
-            return rc
-        end
-        
-        # Adds a new ACL rule.
-        #
-        # +rule+ Rule class
-        def addrule(rule)
-            return rule.error if rule.is_error?
-                            
-            rc = @client.call( ACL_METHODS[:addrule], rule.user, 
-                                                      user.resources, 
-                                                      user.rights )
-
-            rc = nil if !OpenNebula.is_error?(rc)
-
-            return rc
-        end
-
-        # Deletes an existing ACL rule.
-        #
-        # +id+ Rule id
-        def delrule(id)
-            rc = @client.call( ACL_METHODS[:delrule], id.to_i )
-
-            rc = nil if !OpenNebula.is_error?(rc)
-
-            return rc
-        end
-
-        #######################################################################
-        # Helpers
-        #######################################################################
-
-    private
-
-    end
-
-
     # Abstract rules of the type USER RESOURCE RIGHTS
     # which are:
     #     USER      -> #<num>
@@ -123,7 +39,7 @@ module OpenNebula
     #                  INFO_POOL_MINE
     #                  INSTANTIATE
     #                  CHOWN
-    class Rule 
+    class Acl 
         
         USERS = {
             "UID"           => 4294967296,
@@ -156,14 +72,27 @@ module OpenNebula
         }
         
         
-        def initialize(rule_str=nil)
+        def initialize(rule_xml=nil)
             @content = {
                 :users      =>  0,
                 :resources  =>  0,
                 :rights     =>  0
             }
             
-            parse_rule(rule_str) if rule_str
+            parse_rule(rule_xml)
+        end
+        
+        def initialize(users,resources,rights, str)
+            str=str.split(" ")
+
+            @content = {
+                :users         =>  users,
+                :resources     =>  resources,
+                :rights        =>  rights,
+                :users_str     =>  str.size==3?str[0]:0,
+                :resources_str =>  str.size==3?str[1]:0,
+                :rights_str    =>  str.size==3?str[2]:0
+            }
         end
         
         def set_hex_rule(users,resources,rights)
@@ -184,6 +113,17 @@ module OpenNebula
             @content[:rights] = rights
         end 
         
+        def set_users(users)
+            @content[:users] = users.to_s(10)
+        end
+        
+        def set_resources(resources)
+            @content[:resources] = resources.to_s(10)
+        end
+        
+        def set_rights(rights)
+            @content[:rights] = rights.to_s(10)
+        end         
         def parse_rule(rule_str)
             begin
                 rule_str = rule_str.split(" ")
@@ -278,7 +218,10 @@ module OpenNebula
         def is_error?
             OpenNebula.is_error?(@content[:users]) || 
             OpenNebula.is_error?(@content[:resources]) || 
-            OpenNebula.is_error?(@content[:rights]) 
+            OpenNebula.is_error?(@content[:rights]) ||
+            @content[:users] == 0 ||
+            @content[:resources] == 0 ||
+            @content[:rights] == 0 
         end
         
         def error            
@@ -286,6 +229,6 @@ module OpenNebula
                 return part if OpenNebula.is_error?(part)
             }
         end
-        
+
     end
 end

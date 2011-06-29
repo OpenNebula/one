@@ -28,11 +28,13 @@ $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+"/cli"
 
 require 'command_parser'
-require 'one_helper'
+require 'one_helper/oneacl_helper'
 
 cmd = CommandParser::CmdParser.new(ARGV) do
     usage "oneacl COMMAND [args..] [options..]"
     version OpenNebulaHelper::ONE_VERSION
+    
+    helper = OneAclHelper.new
 
     ########################################################################
     # Global Options
@@ -53,7 +55,7 @@ cmd = CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :addrule, addrule_desc, :user, :resource, :rights do
-        acl = OpenNebula::Acl.new( OpenNebula::Client.new() )
+        acl = OpenNebula::AclPool.new( OpenNebula::Client.new() )
 
         rc = acl.addrule( args[0], args[1], args[2] )
 
@@ -88,15 +90,6 @@ cmd = CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :list, list_desc,:options=>OpenNebulaHelper::XML do
-        acl = OpenNebula::Acl.new( OpenNebula::Client.new() )
-
-        rc = acl.info()
-
-        if OpenNebula.is_error?(rc)
-            [-1, rc.message]
-        else
-            puts acl.to_xml
-            0
-        end
+        helper.list_pool(options)
     end
 end
