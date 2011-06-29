@@ -59,6 +59,14 @@ public:
     };
 
     /**
+     *  Returns whether or not the rule is malformed.
+     *
+     *    @param error_str Returns the error message, if any
+     *    @return true if the rule is wrong
+     */
+    bool malformed(string& error_str) const;
+
+    /**
      *  Function to print the object into a string in XML format
      *
      *    @param xml the resulting XML string

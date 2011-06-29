@@ -225,14 +225,15 @@ int AclManager::add_rule(long long user, long long resource, long long rights,
         return -1;
     }
 
-/*
-    if ( rule->malformed() )
+    if ( rule->malformed(error_str) )
     {
+        oss << "Rule " << rule->to_str() << " is malformed: " << error_str;
+        error_str = oss.str();
+
         delete rule;
-        NebulaLog::log("ACL", Log::INFO, "TODO");
         return -2;
     }
-*/
+
 
     rc = insert(rule);
 
