@@ -39,30 +39,11 @@ public:
         user(_user), resource(_resource), rights(_rights)
     {};
 
-    AclRule& operator=(AclRule const& o)
-    {
-        user = o.user;
-        resource = o.resource;
-        rights = o.rights;
-
-        return *this;
-    };
-
     bool operator ==(const AclRule& other) const
     {
         return (user == other.user &&
                 resource == other.resource &&
                 rights == other.rights);
-    };
-
-    bool operator!=(const AclRule& other) const
-    {
-        return !(*this == other);
-    };
-
-    bool operator <(const AclRule& other) const
-    {
-        return user < other.user;
     };
 
     /**
