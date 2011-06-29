@@ -37,7 +37,9 @@ public:
 
     AclRule(long long _user, long long _resource, long long _rights):
         user(_user), resource(_resource), rights(_rights)
-    {};
+    {
+        build_str();
+    };
 
     bool operator ==(const AclRule& other) const
     {
@@ -51,8 +53,10 @@ public:
      *
      *    @return a human readable string for this rule
      */
-    string to_str() const;
-
+    const string& to_str() const
+    {
+        return str;
+    };
 
     /**
      *  Function to print the object into a string in XML format
@@ -124,6 +128,13 @@ private:
      *  64 bit integer containing the rights flags
      */
     long long rights;
+
+    /**
+     *  Human readable representation
+     */
+    string str;
+
+    void build_str();
 };
 
 #endif /*ACL_RULE_H*/

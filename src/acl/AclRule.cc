@@ -27,11 +27,10 @@ const long long AclRule::ALL_ID         = 0x400000000LL;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-string AclRule::to_str() const
+void AclRule::build_str()
 {
     ostringstream oss;
 
-    oss << "USER:";
     if ( (user & GROUP_ID) != 0 )
     {
         oss << "@" << user_id();
@@ -45,7 +44,7 @@ string AclRule::to_str() const
         oss << "*";
     }
 
-    oss << " RESOURCE:";
+    oss << " ";
 
     AuthRequest::Object objects[] = {
             AuthRequest::VM,
@@ -89,7 +88,7 @@ string AclRule::to_str() const
         oss << "*";
     }
 
-    oss << " OPERATION:";
+    oss << " ";
 
 
     AuthRequest::Operation operations[] = {
@@ -120,7 +119,7 @@ string AclRule::to_str() const
         }
     }
 
-    return oss.str();
+    str = oss.str();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -135,9 +134,7 @@ string& AclRule::to_xml(string& xml) const
         "<USER>"     << hex << user      << "</USER>"        <<
         "<RESOURCE>" << hex << resource  << "</RESOURCE>"    <<
         "<RIGHTS>"   << hex << rights    << "</RIGHTS>"      <<
-
-        // TODO: Element DEBUG contains a human friendly string
-        "<DEBUG>"    << to_str()         << "</DEBUG>"       <<
+        "<STRING>"   << str              << "</STRING>"      <<
     "</RULE>";
 
     xml = oss.str();
