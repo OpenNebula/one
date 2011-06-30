@@ -18,9 +18,9 @@
 
 source $(dirname $0)/kvmrc
 
-src_host=$1
-deploy_id=$2
-dest_host=$3
+deploy_id=$1
+dest_host=$2
+src_host=$3
 
 virsh --connect $QEMU_PROTOCOL://$src_host/system \
 	migrate --live $deploy_id $QEMU_PROTOCOL://$dest_host/system
