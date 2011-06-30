@@ -163,6 +163,30 @@ bool AclRule::malformed(string& error_str) const
         oss << "wrong [resource] type";
     }
 
+    // Check rights
+
+    if ( rights == 0 )
+    {
+        if ( error )
+        {
+            oss << "; ";
+        }
+
+        error = true;
+        oss << "wrong [rights], it cannot be 0";
+    }
+
+    if ( rights > 0x1FFLL )
+    {
+        if ( error )
+        {
+            oss << "; ";
+        }
+
+        error = true;
+        oss << "wrong [rights], it cannot be bigger than 0x1FF";
+    }
+
     if ( error )
     {
         error_str = oss.str();

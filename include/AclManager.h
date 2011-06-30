@@ -112,6 +112,10 @@ public:
 
 private:
 
+    // ----------------------------------------
+    // ACL rules management
+    // ----------------------------------------
+
     /**
      *  ACL rules. Each rule is indexed by its 'user' long long attibute,
      *  several rules can apply to the same user
@@ -145,6 +149,28 @@ private:
             long long rights_req,
             long long individual_obj_type,
             long long group_obj_type);
+
+    // ----------------------------------------
+    // Mutex synchronization
+    // ----------------------------------------
+
+    pthread_mutex_t mutex;
+
+    /**
+     *  Function to lock the manager
+     */
+    void lock()
+    {
+        pthread_mutex_lock(&mutex);
+    };
+
+    /**
+     *  Function to unlock the manager
+     */
+    void unlock()
+    {
+        pthread_mutex_unlock(&mutex);
+    };
 
     // ----------------------------------------
     // DataBase implementation variables
