@@ -106,12 +106,6 @@ const bool AclManager::authorize(int uid, const set<int> &user_groups,
 
     bool auth = false;
 
-    // Only oneadmin, or someone in the oneadmin group can manage acl rules
-    if ( obj_type == AuthRequest::ACL )
-    {
-        return ( uid == 0 || user_groups.count( GroupPool::ONEADMIN_ID ) == 1 );
-    }
-
     // Build masks for request
     long long user_req;
     long long resource_oid_req  = obj_type + AclRule::INDIVIDUAL_ID + obj_id;

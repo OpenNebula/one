@@ -74,7 +74,7 @@ void AuthRequest::add_auth(Object        ob,
     // Authorize the request for self authorization
     // -------------------------------------------------------------------------
 
-    if ( uid == 0 )
+    if ( uid == 0 || gids.count( GroupPool::ONEADMIN_ID ) == 1 )
     {
         auth = true;
     }
