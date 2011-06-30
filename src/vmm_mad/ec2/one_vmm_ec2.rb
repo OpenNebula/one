@@ -64,7 +64,7 @@ class EC2Driver < VirtualMachineDriver
             concurrency = EC2_JVM_CONCURRENCY.to_i
         end
 
-        super(
+        super('',
             :concurrency => concurrency,
             :threaded => true
         )
