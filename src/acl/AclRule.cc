@@ -16,6 +16,7 @@
 
 #include "AclRule.h"
 #include "AuthManager.h"
+#include "ObjectXML.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -311,6 +312,31 @@ string& AclRule::to_xml(string& xml) const
     xml = oss.str();
 
     return xml;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int AclRule::from_xml(const string &xml_str)
+{
+    int rc = 0;
+
+    string tmp_error;
+
+    ObjectXML xml_obj(xml_str);
+
+    rc += xml_obj.xpath(oid     ,    "/ACL/ID"      ,      0);
+    rc += xml_obj.xpath(user    ,    "/ACL/USER"    ,      0);
+    rc += xml_obj.xpath(resource,    "/ACL/RESOURCE",      0);
+    rc += xml_obj.xpath(rights  ,    "/ACL/RIGHTS"  ,      0);
+    rc += xml_obj.xpath(str     ,    "/ACL/STRING"  ,      "");
+
+    if ( (rc != 0) || malformed(tmp_error) )
+    {
+        return -1;
+    }
+
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */

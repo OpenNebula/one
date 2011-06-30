@@ -75,6 +75,15 @@ public:
     string& to_xml(string& xml) const;
 
     /**
+     *  Rebuilds the rule from an xml formatted string
+     *
+     *    @param xml_str The xml-formatted string
+     *
+     *    @return 0 on success, -1 otherwise
+     */
+    int from_xml(const string &xml_str);
+
+    /**
      *  Returns the 32 less significant bits of the user long long attribute
      *
      *    @return the user or group ID
