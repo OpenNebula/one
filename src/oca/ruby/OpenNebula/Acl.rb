@@ -72,28 +72,16 @@ module OpenNebula
         }
         
         
-        def initialize(rule_xml=nil)
+        def initialize(rule_str=nil)
             @content = {
-                :users      =>  0,
-                :resources  =>  0,
-                :rights     =>  0
+                :users         =>  0,
+                :resources     =>  0,
+                :rights        =>  0
             }
             
-            parse_rule(rule_xml)
+            parse_rule(rule_str) if rule_str
         end
         
-        def initialize(users,resources,rights, str)
-            str=str.split(" ")
-
-            @content = {
-                :users         =>  users,
-                :resources     =>  resources,
-                :rights        =>  rights,
-                :users_str     =>  str.size==3?str[0]:0,
-                :resources_str =>  str.size==3?str[1]:0,
-                :rights_str    =>  str.size==3?str[2]:0
-            }
-        end
         
         def set_hex_rule(users,resources,rights)
             set_hex_users     users
@@ -114,21 +102,22 @@ module OpenNebula
         end 
         
         def set_users(users)
-            @content[:users] = users.to_s(10)
+            @content[:users] = users.to_i.to_s(10)
         end
         
         def set_resources(resources)
-            @content[:resources] = resources.to_s(10)
+            @content[:resources] = resources.to_i.to_s(10)
         end
         
         def set_rights(rights)
-            @content[:rights] = rights.to_s(10)
-        end         
+            @content[:rights] = rights.to_i.to_s(10)
+        end   
+              
         def parse_rule(rule_str)
             begin
                 rule_str = rule_str.split(" ")
                 parse_users(rule_str[0])
-                parse_resource(rule_str[1])
+                parse_resources(rule_str[1])
                 parse_rights(rule_str[2])
             rescue Exception  => e
                 @content[:users] = OpenNebula::Error.new(e.message)
@@ -153,15 +142,13 @@ module OpenNebula
                     return
                 end
 
-                resources[0].each{ |resource|
+                resources[0].split("+").each{ |resource|
                     next if !RESOURCES[resource.upcase]
-                
-                    @content[:resources] = @content[:resources] 
-                                           + RESOURCES[resource.upcase]
+                    @content[:resources] = @content[:resources] + RESOURCES[resource.upcase].to_i
                 }  
-            
+
                 @content[:resources] = @content[:resources] + 
-                                       calculate_user(resources[1])
+                                       calculate_users(resources[1]).to_i
             
                 @content[:resources] = @content[:resources].to_s(16) 
             rescue Exception  => e
@@ -179,7 +166,7 @@ module OpenNebula
                     @content[:rights] = @content[:rights] + RIGHTS[right.upcase]
                 }
             
-                @content[:rights] = @content[:rights].to_s(16) 
+                @content[:rights] = @content[:rights].to_i.to_s(16) 
             rescue Exception  => e
                 @content[:rights] = OpenNebula::Error.new(e.message)
             end     
@@ -187,20 +174,22 @@ module OpenNebula
         
         
         def calculate_users(users_str)
-            if users == "*"
+            if users_str == "*"
                 return USERS["ALL"]
             end  
             
-            value = 0     
+            value = 0   
             
-            case users[0..0]
+            case users_str[0..0]
                 when "#"
                     value = USERS["UID"]
                 when "@"
                     value = USERS["GID"]
             end
+        
+            users_value = users_str[1..-1].to_i + value
             
-            return value + users[1..-1].to_i    
+            return users_value.to_i.to_s(16)
         end
         
         def users

@@ -24,6 +24,43 @@ class OneAclHelper < OpenNebulaHelper::OneHelper
     def self.conf_file
         "oneacl.yaml"
     end
+    
+    def add_rule(options, arg0, arg1=nil, arg2=nil)
+        aclp = OpenNebula::AclPool.new( OpenNebula::Client.new() )
+
+        if arg2
+            rc = aclp.addrule( arg0, arg1, arg2 )
+        else
+            rc = aclp.addrule_with_str( arg0 )
+        end  
+        
+        if OpenNebula.is_error?(rc)
+            [-1, rc.message]
+        else
+            if !rc
+                puts "Rule added" if options[:verbose]
+                return 0
+            end
+            return [-1, rc[:users].message] if OpenNebula.is_error?(rc[:users])
+            return [-1, rc[:resources].message] if OpenNebula.is_error?(
+                                                                 rc[:resources])
+            return [-1, rc[:rights].message] if OpenNebula.is_error?(
+                                                                 rc[:rights])
+        end
+    end
+    
+    def delete_rule(id) 
+        acl = OpenNebula::AclPool.new( OpenNebula::Client.new() )
+
+        rc = acl.delrule( id )
+
+        if OpenNebula.is_error?(rc)
+            [-1, rc.message]
+        else
+            puts "Rule deleted" if options[:verbose]
+            0
+        end
+    end
 
     private
 
@@ -92,27 +129,33 @@ class OneAclHelper < OpenNebulaHelper::OneHelper
         config_file=self.class.table_conf
 
         table=CLIHelper::ShowTable.new(config_file, self) do
+            column :ID, "Rule Identifier", 
+                          :size=>5 do |d|            
+                d['ID']
+            end
+            
             column :USER, "To which resource owner the rule applies to", 
-                          :size=>4 do |d|            
+                          :size=>8 do |d|            
                 d['STRING'].split(" ")[0]
             end
             
-            column :RESOURCE_VHNIUTG, "Resource to which the rule applies" do |d|
+            column :RES_VHNIUTG, "Resource to which the rule applies" do |d|
                OneAclHelper::resource_mask d['STRING'].split(" ")[1] 
             end
             
-            column :RID, "Resource ID", :right, :size=>4 do |d|
+            column :RID, "Resource ID", :right, :size=>8 do |d|
                 d['STRING'].split(" ")[1].split("/")[1]
             end
                   
-            column :OPERATION_CDUMIPpTW, "Operation to which the rule applies" do |d|
+            column :OPE_CDUMIPpTW, "Operation to which the rule applies" do |d|
                 OneAclHelper::right_mask d['STRING'].split(" ")[2] 
             end
 
-            default :USER, :RESOURCE_VHNIUTG, :RID, :OPERATION_CDUMIPpTW
+            default :ID, :USER, :RESOURCE_VHNIUTG, :RID, :OPERATION_CDUMIPpTW
         end
 
         table.show(pool, options)
         
     end
+    
 end

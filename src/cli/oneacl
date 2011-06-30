@@ -54,17 +54,8 @@ cmd = CommandParser::CmdParser.new(ARGV) do
         Adds a new ACL rule
     EOT
 
-    command :addrule, addrule_desc, :user, :resource, :rights do
-        acl = OpenNebula::AclPool.new( OpenNebula::Client.new() )
-
-        rc = acl.addrule( args[0], args[1], args[2] )
-
-        if OpenNebula.is_error?(rc)
-            [-1, rc.message]
-        else
-            puts "Rule added" if options[:verbose]
-            0
-        end
+    command :addrule, addrule_desc, [:user,:rulestr], [:resource, nil], [:rights, nil] do
+        helper.add_rule(options, args[0], args[1], args[2] )
     end
 
     delrule_desc = <<-EOT.unindent
@@ -72,17 +63,7 @@ cmd = CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :delrule, delrule_desc, :id do
-        acl = OpenNebula::Acl.new( OpenNebula::Client.new() )
-
-        rc = acl.delrule( args[0] )
-
-        if OpenNebula.is_error?(rc)
-            [-1, rc.message]
-        else
-            puts "Rule deleted" if options[:verbose]
-            0
-        end
-
+        helper.delete_rule( args[0] )
     end
 
     list_desc = <<-EOT.unindent
@@ -90,6 +71,6 @@ cmd = CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :list, list_desc,:options=>OpenNebulaHelper::XML do
-        helper.list_pool(options)
+        helper.list_pool( options )
     end
 end

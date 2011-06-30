@@ -68,12 +68,14 @@ module OpenNebula
         
         # Adds a new ACL rule.
         #
-        # +rule+ Rule class
-        def addrule_with_class(rule)
+        # +rule+ Rule tring
+        def addrule_with_str(rule_str)
+            rule = Acl.new rule_str
+            
             return rule.error if rule.is_error?
                             
             rc = @client.call( ACL_POOL_METHODS[:addrule], 
-                               rule.user, 
+                               rule.users, 
                                rule.resources, 
                                rule.rights )
 
@@ -97,10 +99,6 @@ module OpenNebula
 
             return rc
         end
-
-        #######################################################################
-        # Helpers
-        #######################################################################
 
     private
 
