@@ -78,6 +78,15 @@ void AuthRequest::add_auth(Object        ob,
     {
         auth = true;
     }
+    else if (   pub && ( gids.count( ob_gid ) == 1 ) &&
+                (op == USE || op == INSTANTIATE || op == INFO ) &&
+                (ob == NET || ob == IMAGE || ob == TEMPLATE)
+            )
+    {
+        // Users are authorized to use or see information of NET, IMAGE, and
+        // TEMPLATE objects in their group
+        auth = true;
+    }
     else
     {
         Nebula&     nd   = Nebula::instance();
