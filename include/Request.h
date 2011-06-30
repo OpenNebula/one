@@ -59,9 +59,11 @@ protected:
 
     /* ------------------- Attributes of the Request ---------------------- */
 
-    int                 uid;    /**< id of the user performing the request */
-
+    int                 uid;            /**< id of the user */
     int                 gid;            /**< id of the user's group */
+
+    string              uname;          /**< name of the user */
+    string              gname;          /**< name of the user's group */
 
     set<int>            group_ids;      /**< set of user's group ids */
 
@@ -70,8 +72,7 @@ protected:
     string              method_name;    /**< The name of the XML-RPC method */
 
     AuthRequest::Object    auth_object; /**< Auth object for the request */
-
-    AuthRequest::Operation auth_op;     /**< Auth operation for the request  */
+    AuthRequest::Operation auth_op;     /**< Auth operation for the request */
 
 
     /* -------------------- Constructors ---------------------------------- */

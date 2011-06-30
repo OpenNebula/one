@@ -189,11 +189,16 @@ protected:
     // Constructor
     // *************************************************************************
 
-    User(int id, int _gid, const string& _username, const string& _password, bool _enabled):
-        PoolObjectSQL(id,_username,-1,_gid,table),
+    User(int           id, 
+         int           _gid, 
+         const string& _uname, 
+         const string& _gname,
+         const string& _password, 
+         bool          _enabled):
+        PoolObjectSQL(id,_uname,-1,_gid,"",_gname,table),
         ObjectCollection("GROUPS"),
-        password(_password), enabled(_enabled)
-        { };
+        password(_password),
+        enabled(_enabled){};
 
     virtual ~User(){};
 

@@ -129,7 +129,11 @@ protected:
     // *************************************************************************
     // Constructor
     // *************************************************************************
-    VMTemplate(int id, int uid, int gid,
+    VMTemplate(int id, 
+               int uid, 
+               int gid,
+               const string& uname,
+               const string& gname,
                VirtualMachineTemplate * _template_contents);
 
     ~VMTemplate();

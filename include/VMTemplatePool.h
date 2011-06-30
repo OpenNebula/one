@@ -44,6 +44,8 @@ public:
      */
     int allocate(int                      uid,
                  int                      gid,
+                 const string&            uname,
+                 const string&            gname,
                  VirtualMachineTemplate * template_contents,
                  int *                    oid,
                  string&                  error_str);
@@ -109,26 +111,13 @@ public:
     };
 
 private:
-    //--------------------------------------------------------------------------
-    // Configuration Attributes for Images
-    // -------------------------------------------------------------------------
-
-    // TODO
-
-    //--------------------------------------------------------------------------
-    // Pool Attributes
-    // -------------------------------------------------------------------------
-
-    // TODO
-
-
     /**
      *  Factory method to produce Image objects
      *    @return a pointer to the new Image
      */
     PoolObjectSQL * create()
     {
-        return new VMTemplate(-1,-1,-1,0);
+        return new VMTemplate(-1,-1,-1,"","",0);
     };
 };
 

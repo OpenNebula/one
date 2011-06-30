@@ -178,6 +178,8 @@ VirtualMachinePool::VirtualMachinePool(SqlDB *                   db,
 int VirtualMachinePool::allocate (
     int            uid,
     int            gid,
+    const string&  uname,
+    const string&  gname,
     VirtualMachineTemplate * vm_template,
     int *          oid,
     string&        error_str,
@@ -188,7 +190,7 @@ int VirtualMachinePool::allocate (
     // ------------------------------------------------------------------------
     // Build a new Virtual Machine object
     // ------------------------------------------------------------------------
-    vm = new VirtualMachine(-1, uid, gid, vm_template);
+    vm = new VirtualMachine(-1, uid, gid, uname, gname, vm_template);
 
     if (on_hold == true)
     {

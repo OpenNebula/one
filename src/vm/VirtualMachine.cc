@@ -37,11 +37,13 @@
 /* Virtual Machine :: Constructor/Destructor                                  */
 /* ************************************************************************** */
 
-VirtualMachine::VirtualMachine(int id,
-                               int _uid,
-                               int _gid,
+VirtualMachine::VirtualMachine(int           id,
+                               int           _uid,
+                               int           _gid,
+                               const string& _uname,
+                               const string& _gname,
                                VirtualMachineTemplate * _vm_template):
-        PoolObjectSQL(id,"",_uid,_gid,table),
+        PoolObjectSQL(id,"",_uid,_gid,_uname,_gname,table),
         last_poll(0),
         state(INIT),
         lcm_state(LCM_INIT),

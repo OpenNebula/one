@@ -51,8 +51,9 @@ public:
     int allocate (
         int *   oid,
         int     gid,
-        string  username,
-        string  password,
+        const string& uname,
+        const string& gname,
+        const string& password,
         bool    enabled,
         string& error_str);
 
@@ -102,13 +103,17 @@ public:
      *   @param session, colon separated username and password string
      *   @param uid of the user if authN succeeded -1 otherwise
      *   @param gid of the user if authN succeeded -1 otherwise
+     *   @param uname of the user if authN succeeded "" otherwise
+     *   @param gname of the group if authN succeeded "" otherwise
      *   @param group_ids the user groups if authN succeeded, is empty otherwise
      *   @return false if authn failed, true otherwise
      */
-    bool authenticate(const string& session, int& uid, int& gid,
-                    set<int>& group_ids);
-
-
+    bool authenticate(const string& session, 
+                      int&          uid, 
+                      int&          gid,
+                      string&       uname,
+                      string&       gname,
+                      set<int>&     group_ids);
     /**
      * Returns whether there is a user with given username/password or not
      *   @param ar, an Authorization Request
@@ -136,7 +141,7 @@ private:
      */
     PoolObjectSQL * create()
     {
-        return new User(-1,-1,"","",true);
+        return new User(-1,-1,"","","",true);
     };
 };
 

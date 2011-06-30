@@ -36,8 +36,10 @@
 
 Image::Image(int             _uid,
              int             _gid,
+             const string&   _uname,
+             const string&   _gname,
              ImageTemplate * _image_template):
-        PoolObjectSQL(-1,"",_uid,_gid,table),
+        PoolObjectSQL(-1,"",_uid,_gid,_uname,_gname,table),
         type(OS),
         regtime(time(0)),
         source("-"),
