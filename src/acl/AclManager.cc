@@ -253,11 +253,6 @@ int AclManager::add_rule(long long user, long long resource, long long rights,
     for ( it = index.first; (it != index.second && !found); it++)
     {
         found = *(it->second) == *rule;
-        if ( it->second->resource == resource &&
-             it->second->rights == rights )
-        {
-            found = true;
-        }
     }
 
     if ( found )
