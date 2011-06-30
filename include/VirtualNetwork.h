@@ -269,6 +269,8 @@ private:
 
     VirtualNetwork(int                      uid,
                    int                      gid,
+                   const string&            _uname,
+                   const string&            _gname,
                    VirtualNetworkTemplate * _vn_template = 0);
 
     ~VirtualNetwork();

@@ -33,7 +33,12 @@ void Request::execute(
 
     NebulaLog::log("ReM",Log::DEBUG, method_name + " method invoked");
 
-    if ( upool->authenticate(session, uid, gid, group_ids) == false )
+    if ( upool->authenticate(session, 
+                             uid, 
+                             gid, 
+                             uname, 
+                             gname, 
+                             group_ids) == false )
     {
         failure_response(AUTHENTICATION, authenticate_error());
     }
@@ -166,6 +171,8 @@ string Request::object_name(AuthRequest::Object ob)
             return "virtual machine template";
         case AuthRequest::GROUP:
             return "group";
+        case AuthRequest::ACL:
+            return "ACL";
         default:
             return "-";
       }

@@ -128,12 +128,13 @@ string& User::to_xml(string& xml) const
 
     oss <<
     "<USER>"
-         "<ID>"           << oid            <<"</ID>"        <<
-         "<GID>"          << gid            <<"</GID>"       <<
-         "<NAME>"         << name           <<"</NAME>"      <<
-         "<PASSWORD>"     << password       <<"</PASSWORD>"  <<
-         "<ENABLED>"      << enabled_int    <<"</ENABLED>"   <<
-         collection_xml   <<
+         "<ID>"          << oid         <<"</ID>"      <<
+         "<GID>"         << gid         <<"</GID>"     <<
+         "<GNAME>"       << gname       <<"</GNAME>"   <<
+         "<NAME>"        << name        <<"</NAME>"    <<
+         "<PASSWORD>"    << password    <<"</PASSWORD>"<<
+         "<ENABLED>"     << enabled_int <<"</ENABLED>" <<
+         collection_xml  <<
     "</USER>";
 
     xml = oss.str();
@@ -155,6 +156,7 @@ int User::from_xml(const string& xml)
 
     rc += xpath(oid,         "/USER/ID",       -1);
     rc += xpath(gid,         "/USER/GID",      -1);
+    rc += xpath(gname,       "/USER/GNAME",    "not_found");
     rc += xpath(name,        "/USER/NAME",     "not_found");
     rc += xpath(password,    "/USER/PASSWORD", "not_found");
     rc += xpath(int_enabled, "/USER/ENABLED",  0);

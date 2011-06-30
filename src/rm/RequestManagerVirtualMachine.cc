@@ -398,7 +398,7 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
 
     // ------------------ Create the image ------------------
 
-    rc = ipool->allocate(uid, gid, itemplate, &iid,error_str);
+    rc = ipool->allocate(uid, gid, uname, gname, itemplate, &iid,error_str);
 
     if ( rc < 0 )
     {

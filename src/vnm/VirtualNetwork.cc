@@ -29,10 +29,12 @@
 /* Virtual Network :: Constructor/Destructor                                  */
 /* ************************************************************************** */
 
-VirtualNetwork::VirtualNetwork(int _uid,
-                               int _gid,
-                               VirtualNetworkTemplate *_vn_template):
-                PoolObjectSQL(-1,"",_uid,_gid,table),
+VirtualNetwork::VirtualNetwork(int                      _uid,
+                               int                      _gid,
+                               const string&            _uname,
+                               const string&            _gname,
+                               VirtualNetworkTemplate * _vn_template):
+                PoolObjectSQL(-1,"",_uid,_gid,_uname,_gname,table),
                 bridge(""),
                 type(UNINITIALIZED),
                 leases(0)
@@ -514,12 +516,14 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended) const
 
     os <<
         "<VNET>" <<
-            "<ID>"          << oid          << "</ID>"          <<
-            "<UID>"         << uid          << "</UID>"         <<
-            "<GID>"         << gid          << "</GID>"         <<
-            "<NAME>"        << name         << "</NAME>"        <<
-            "<TYPE>"        << type         << "</TYPE>"        <<
-            "<BRIDGE>"      << bridge       << "</BRIDGE>";
+            "<ID>"     << oid    << "</ID>"    <<
+            "<UID>"    << uid    << "</UID>"   <<
+            "<GID>"    << gid    << "</GID>"   <<
+            "<UNAME>"  << uname  << "</UNAME>" << 
+            "<GNAME>"  << gname  << "</GNAME>" <<
+            "<NAME>"   << name   << "</NAME>"  <<
+            "<TYPE>"   << type   << "</TYPE>"  <<
+            "<BRIDGE>" << bridge << "</BRIDGE>";
 
     if (!phydev.empty())
     {
@@ -531,7 +535,7 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended) const
         os << "<VLAN_ID>" << vlan_id << "</VLAN_ID>";
     }
 
-    os  <<  "<PUBLIC>"      << public_obj  << "</PUBLIC>"      <<
+    os  <<  "<PUBLIC>"      << public_obj   << "</PUBLIC>"      <<
             "<TOTAL_LEASES>"<< total_leases << "</TOTAL_LEASES>"<<
             obj_template->to_xml(template_xml);
 
@@ -561,18 +565,20 @@ int VirtualNetwork::from_xml(const string &xml_str)
     update_from_str(xml_str);
 
     // Get class base attributes
-    rc += xpath(oid,        "/VNET/ID",         -1);
-    rc += xpath(uid,        "/VNET/UID",        -1);
-    rc += xpath(gid,        "/VNET/GID",        -1);
-    rc += xpath(name,       "/VNET/NAME",       "not_found");
-    rc += xpath(int_type,   "/VNET/TYPE",       -1);
-    rc += xpath(bridge,     "/VNET/BRIDGE",     "not_found");
-    rc += xpath(public_obj, "/VNET/PUBLIC",     0);
+    rc += xpath(oid,        "/VNET/ID",     -1);
+    rc += xpath(uid,        "/VNET/UID",    -1);
+    rc += xpath(gid,        "/VNET/GID",    -1);
+    rc += xpath(uname,      "/VNET/UNAME",  "not_found");
+    rc += xpath(gname,      "/VNET/GNAME",  "not_found");
+    rc += xpath(name,       "/VNET/NAME",   "not_found");
+    rc += xpath(int_type,   "/VNET/TYPE",   -1);
+    rc += xpath(bridge,     "/VNET/BRIDGE", "not_found");
+    rc += xpath(public_obj, "/VNET/PUBLIC", 0);
     
     xpath(phydev,  "/VNET/PHYDEV", "");
-    xpath(vlan_id, "/VNET/VLAN_ID", "");
+    xpath(vlan_id, "/VNET/VLAN_ID","");
 
-    type = static_cast<NetworkType>( int_type );
+    type = static_cast<NetworkType>(int_type);
 
     // Get associated classes
     ObjectXML::get_nodes("/VNET/TEMPLATE", content);

@@ -51,6 +51,8 @@ public:
     int allocate (
         int                         uid,
         int                         gid,
+        const string&               uname,
+        const string&               gname,
         VirtualNetworkTemplate *    vn_template,
         int *                       oid,
         string&                     error_str);
@@ -156,7 +158,7 @@ private:
      */
     PoolObjectSQL * create()
     {
-        return new VirtualNetwork(-1,-1, 0);
+        return new VirtualNetwork(-1,-1,"","",0);
     };
 };
 

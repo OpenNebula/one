@@ -18,6 +18,7 @@
 
 #include "AclManager.h"
 #include "NebulaLog.h"
+#include "GroupPool.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -104,6 +105,12 @@ const bool AclManager::authorize(int uid, const set<int> &user_groups,
          multimap<long long, AclRule *>::iterator>  index;
 
     bool auth = false;
+
+    // Only oneadmin, or someone in the oneadmin group can manage acl rules
+    if ( obj_type == AuthRequest::ACL )
+    {
+        return ( uid == 0 || user_groups.count( GroupPool::ONEADMIN_ID ) == 1 );
+    }
 
     // Build masks for request
     long long user_req;

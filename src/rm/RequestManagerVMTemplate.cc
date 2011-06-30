@@ -69,7 +69,7 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
         }
     }
 
-    rc = vmpool->allocate(uid, gid, tmpl, &vid, error_str, false);
+    rc = vmpool->allocate(uid, gid, uname, gname, tmpl, &vid, error_str, false);
 
     if ( rc < 0 )
     {

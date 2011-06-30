@@ -36,11 +36,25 @@ using namespace std;
 class PoolObjectSQL : public ObjectSQL, public ObjectXML
 {
 public:
-
-    PoolObjectSQL(int id, const string& _name, int _uid,
-                  int _gid, const char *_table)
-            :ObjectSQL(),ObjectXML(),oid(id),name(_name),uid(_uid),gid(_gid),
-             valid(true),public_obj(0),obj_template(0),table(_table)
+    PoolObjectSQL(int           id,
+                  const string& _name, 
+                  int           _uid,
+                  int           _gid, 
+                  const string& _uname, 
+                  const string& _gname,
+                  const char *  _table)
+            :ObjectSQL(),
+             ObjectXML(),
+             oid(id),
+             name(_name),
+             uid(_uid),
+             gid(_gid),
+             uname(_uname),
+             gname(_gname),
+             valid(true),
+             public_obj(0),
+             obj_template(0),
+             table(_table)
     {
         pthread_mutex_init(&mutex,0);
     };
@@ -84,21 +98,25 @@ public:
     };
 
     /**
-     * Changes the object's owner id
+     * Changes the object's owner
      * @param _uid New User ID
+     * @param _uname Name of the new user
      */
-    void set_uid(int _uid)
+    void set_user(int _uid, const string& _uname)
     {
-        uid = _uid;
+        uid   = _uid;
+        uname = _uname;
     }
 
     /**
      * Changes the object's group id
      * @param _gid New Group ID
+     * @param _gname Name of the new group
      */
-    void set_gid(int _gid)
+    void set_group(int _gid, const string& _gname)
     {
-        gid = _gid;
+        gid   = _gid;
+        gname = _gname;
     };
 
     /* --------------------------------------------------------------------- */
@@ -359,6 +377,16 @@ protected:
      *  Object's group, set it to -1 if group is not used
      */
     int     gid;
+
+    /**
+     *  Name of the object's owner, empty if owner is not used
+     */
+    string  uname;
+
+    /**
+     *  Name of the object's group,, empty if group is not used
+     */
+    string  gname;
 
     /**
      *  The contents of this object are valid

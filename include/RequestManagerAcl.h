@@ -35,6 +35,7 @@ protected:
         :Request(method_name,params,help)
     {
         auth_object = AuthRequest::ACL;
+        auth_op     = AuthRequest::MANAGE;
     };
 
     ~RequestManagerAcl(){};
@@ -58,9 +59,7 @@ public:
         RequestManagerAcl("AclAddRule",
                             "Adds a new ACL rule",
                             "A:ssss")
-    {
-        // TODO: auth_op ?
-    };
+    {};
 
     ~AclAddRule(){};
 
@@ -77,9 +76,7 @@ public:
         RequestManagerAcl("AclDelRule",
                             "Deletes an existing ACL rule",
                             "A:si")
-    {
-        // TODO: auth_op ?
-    };
+    {};
 
     ~AclDelRule(){};
 
@@ -96,9 +93,7 @@ public:
         RequestManagerAcl("AclInfo",
                             "Returns the ACL rule set",
                             "A:s")
-    {
-        // TODO: auth_op ?
-    };
+    {};
 
     ~AclInfo(){};
 

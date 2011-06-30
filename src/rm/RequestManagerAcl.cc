@@ -55,11 +55,8 @@ void AclAddRule::request_execute(xmlrpc_c::paramList const& paramList)
 
     string error_msg;
 
-    // TODO: Only oneadmin can manage ACL
-    if ( uid != 0 )
+    if ( basic_authorization(-1) == false )
     {
-        failure_response(AUTHORIZATION,
-                authorization_error("Only oneadmin can manage ACL rules"));
         return;
     }
 
@@ -89,11 +86,8 @@ void AclDelRule::request_execute(xmlrpc_c::paramList const& paramList)
 
     string error_msg;
 
-    // TODO: Only oneadmin can manage ACL
-    if ( uid != 0 )
+    if ( basic_authorization(-1) == false )
     {
-        failure_response(AUTHORIZATION,
-                authorization_error("Only oneadmin can manage ACL rules"));
         return;
     }
 
@@ -121,11 +115,8 @@ void AclInfo::request_execute(xmlrpc_c::paramList const& paramList)
     ostringstream oss;
     int rc;
 
-    // TODO: Only oneadmin can manage ACL
-    if ( uid != 0 )
+    if ( basic_authorization(-1) == false )
     {
-        failure_response(AUTHORIZATION,
-                authorization_error("Only oneadmin can manage ACL rules"));
         return;
     }
 

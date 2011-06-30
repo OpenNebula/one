@@ -36,8 +36,10 @@
 
 Image::Image(int             _uid,
              int             _gid,
+             const string&   _uname,
+             const string&   _gname,
              ImageTemplate * _image_template):
-        PoolObjectSQL(-1,"",_uid,_gid,table),
+        PoolObjectSQL(-1,"",_uid,_gid,_uname,_gname,table),
         type(OS),
         regtime(time(0)),
         source("-"),
@@ -324,6 +326,8 @@ string& Image::to_xml(string& xml) const
             "<ID>"             << oid             << "</ID>"          <<
             "<UID>"            << uid             << "</UID>"         <<
             "<GID>"            << gid             << "</GID>"         <<
+            "<UNAME>"          << uname           << "</UNAME>"       << 
+            "<GNAME>"          << gname           << "</GNAME>"       <<
             "<NAME>"           << name            << "</NAME>"        <<
             "<TYPE>"           << type            << "</TYPE>"        <<
             "<PUBLIC>"         << public_obj      << "</PUBLIC>"      <<
@@ -332,7 +336,7 @@ string& Image::to_xml(string& xml) const
             "<SOURCE>"         << source          << "</SOURCE>"      <<
             "<STATE>"          << state           << "</STATE>"       <<
             "<RUNNING_VMS>"    << running_vms     << "</RUNNING_VMS>" <<
-            obj_template->to_xml(template_xml)                      <<
+            obj_template->to_xml(template_xml)                        <<
         "</IMAGE>";
 
     xml = oss.str();
@@ -355,9 +359,13 @@ int Image::from_xml(const string& xml)
     update_from_str(xml);
 
     // Get class base attributes
-    rc += xpath(oid, "/IMAGE/ID", -1);
+    rc += xpath(oid, "/IMAGE/ID",  -1);
     rc += xpath(uid, "/IMAGE/UID", -1);
     rc += xpath(gid, "/IMAGE/GID", -1);
+
+    rc += xpath(uname, "/IMAGE/UNAME", "not_found");
+    rc += xpath(gname, "/IMAGE/GNAME", "not_found");
+
     rc += xpath(name, "/IMAGE/NAME", "not_found");
 
     rc += xpath(int_type, "/IMAGE/TYPE", 0);

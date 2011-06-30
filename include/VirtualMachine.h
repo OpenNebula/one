@@ -865,8 +865,12 @@ protected:
     // Constructor
     //**************************************************************************
 
-    VirtualMachine(int id, int uid,
-                   int gid, VirtualMachineTemplate * _vm_template);
+    VirtualMachine(int id, 
+                   int uid,
+                   int gid, 
+                   const string& uname,
+                   const string& gname,
+                   VirtualMachineTemplate * _vm_template);
 
     virtual ~VirtualMachine();
 

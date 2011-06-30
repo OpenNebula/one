@@ -52,6 +52,8 @@ public:
     int allocate (
         int                      uid,
         int                      gid,
+        const string&            uname,
+        const string&            gname,
         VirtualMachineTemplate * vm_template,
         int *                    oid,
         string&                  error_str,
@@ -160,7 +162,7 @@ private:
      */
     PoolObjectSQL * create()
     {
-        return new VirtualMachine(-1,-1,-1,0);
+        return new VirtualMachine(-1,-1,-1,"","",0);
     };
 };
 

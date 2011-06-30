@@ -37,11 +37,13 @@
 /* Virtual Machine :: Constructor/Destructor                                  */
 /* ************************************************************************** */
 
-VirtualMachine::VirtualMachine(int id,
-                               int _uid,
-                               int _gid,
+VirtualMachine::VirtualMachine(int           id,
+                               int           _uid,
+                               int           _gid,
+                               const string& _uname,
+                               const string& _gname,
                                VirtualMachineTemplate * _vm_template):
-        PoolObjectSQL(id,"",_uid,_gid,table),
+        PoolObjectSQL(id,"",_uid,_gid,_uname,_gname,table),
         last_poll(0),
         state(INIT),
         lcm_state(LCM_INIT),
@@ -1153,6 +1155,8 @@ string& VirtualMachine::to_xml(string& xml) const
         << "<ID>"        << oid       << "</ID>"
         << "<UID>"       << uid       << "</UID>"
         << "<GID>"       << gid       << "</GID>"
+        << "<UNAME>"     << uname     << "</UNAME>" 
+        << "<GNAME>"     << gname     << "</GNAME>" 
         << "<NAME>"      << name      << "</NAME>"
         << "<LAST_POLL>" << last_poll << "</LAST_POLL>"
         << "<STATE>"     << state     << "</STATE>"
@@ -1185,34 +1189,38 @@ int VirtualMachine::from_xml(const string &xml_str)
 {
     vector<xmlNodePtr> content;
 
-    int int_state;
-    int int_lcmstate;
+    int istate;
+    int ilcmstate;
     int rc = 0;
 
     // Initialize the internal XML object
     update_from_str(xml_str);
 
     // Get class base attributes
-    rc += xpath(oid,        "/VM/ID",       -1);
-    rc += xpath(uid,        "/VM/UID",      -1);
-    rc += xpath(gid,        "/VM/GID",      -1);
-    rc += xpath(name,       "/VM/NAME",     "not_found");
+    rc += xpath(oid,       "/VM/ID",    -1);
 
-    rc += xpath(last_poll,  "/VM/LAST_POLL",0);
-    rc += xpath(int_state,  "/VM/STATE",    0);
-    rc += xpath(int_lcmstate,"/VM/LCM_STATE", 0);
+    rc += xpath(uid,       "/VM/UID",   -1);
+    rc += xpath(gid,       "/VM/GID",   -1);
 
-    rc += xpath(stime,      "/VM/STIME",    0);
-    rc += xpath(etime,      "/VM/ETIME",    0);
-    rc += xpath(deploy_id,  "/VM/DEPLOY_ID","");
+    rc += xpath(uname,     "/VM/UNAME", "not_found");
+    rc += xpath(gname,     "/VM/GNAME", "not_found");
+    rc += xpath(name,      "/VM/NAME",  "not_found");
 
-    rc += xpath(memory,     "/VM/MEMORY",   0);
-    rc += xpath(cpu,        "/VM/CPU",      0);
-    rc += xpath(net_tx,     "/VM/NET_TX",   0);
-    rc += xpath(net_rx,     "/VM/NET_RX",   0);
+    rc += xpath(last_poll, "/VM/LAST_POLL", 0);
+    rc += xpath(istate,    "/VM/STATE",     0);
+    rc += xpath(ilcmstate, "/VM/LCM_STATE", 0);
 
-    state     = static_cast<VmState>( int_state );
-    lcm_state = static_cast<LcmState>( int_lcmstate );
+    rc += xpath(stime,     "/VM/STIME",    0);
+    rc += xpath(etime,     "/VM/ETIME",    0);
+    rc += xpath(deploy_id, "/VM/DEPLOY_ID","");
+
+    rc += xpath(memory,    "/VM/MEMORY",   0);
+    rc += xpath(cpu,       "/VM/CPU",      0);
+    rc += xpath(net_tx,    "/VM/NET_TX",   0);
+    rc += xpath(net_rx,    "/VM/NET_RX",   0);
+
+    state     = static_cast<VmState>(istate);
+    lcm_state = static_cast<LcmState>(ilcmstate);
 
     // Get associated classes
     ObjectXML::get_nodes("/VM/TEMPLATE", content);
