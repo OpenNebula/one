@@ -51,8 +51,7 @@ AclManager::AclManager(SqlDB * _db) :
 {
     ostringstream oss;
 
-    // TODO:
-    // pthread_mutex_init(&mutex, 0);
+    pthread_mutex_init(&mutex, 0);
 
     set_callback(static_cast<Callbackable::Callback> (&AclManager::init_cb));
 
@@ -63,7 +62,6 @@ AclManager::AclManager(SqlDB * _db) :
 
     unset_callback();
 }
-;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -80,10 +78,16 @@ AclManager::~AclManager()
 {
     multimap<long long, AclRule *>::iterator  it;
 
+    lock();
+
     for ( it = acl_rules.begin(); it != acl_rules.end(); it++ )
     {
         delete it->second;
     }
+
+    unlock();
+
+    pthread_mutex_destroy(&mutex);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -191,6 +195,8 @@ bool AclManager::match_rules(
     pair<multimap<long long, AclRule *>::iterator,
          multimap<long long, AclRule *>::iterator>  index;
 
+    lock();
+
     index = acl_rules.equal_range( user_req );
 
     for ( it = index.first; it != index.second; it++)
@@ -219,10 +225,12 @@ bool AclManager::match_rules(
             oss.str("Permission granted");
             NebulaLog::log("ACL",Log::DEBUG,oss);
 
+            unlock();
             return true;
         }
     }
 
+    unlock();
     return false;
 }
 
@@ -232,6 +240,8 @@ bool AclManager::match_rules(
 int AclManager::add_rule(long long user, long long resource, long long rights,
                         string& error_str)
 {
+    lock();
+
     if (lastOID == INT_MAX)
     {
         lastOID = -1;
@@ -278,6 +288,8 @@ int AclManager::add_rule(long long user, long long resource, long long rights,
 
     update_lastOID();
 
+    unlock();
+
     return lastOID;
 
 
@@ -305,6 +317,8 @@ error_common:
     delete rule;
     lastOID--;
 
+    unlock();
+
     return rc;
 }
 
@@ -323,6 +337,8 @@ int AclManager::del_rule(int oid, string& error_str)
     int         rc;
     bool        found = false;
 
+    lock();
+
     // Check the rule exists
     found = acl_rules_oids.count(oid) > 0;
 
@@ -332,6 +348,7 @@ int AclManager::del_rule(int oid, string& error_str)
         oss << "Rule " << oid << " does not exist";
         error_str = oss.str();
 
+        unlock();
         return -1;
     }
 
@@ -363,6 +380,7 @@ int AclManager::del_rule(int oid, string& error_str)
 
         NebulaLog::log("ACL",Log::ERROR,oss);
 
+        unlock();
         return -1;
     }
 
@@ -372,6 +390,8 @@ int AclManager::del_rule(int oid, string& error_str)
     if ( rc != 0 )
     {
         error_str = "SQL DB error";
+
+        unlock();
         return -1;
     }
 
@@ -380,6 +400,7 @@ int AclManager::del_rule(int oid, string& error_str)
     acl_rules.erase( it );
     acl_rules_oids.erase( oid );
 
+    unlock();
     return 0;
 }
 
