@@ -171,6 +171,8 @@ string Request::object_name(AuthRequest::Object ob)
             return "virtual machine template";
         case AuthRequest::GROUP:
             return "group";
+        case AuthRequest::ACL:
+            return "ACL";
         default:
             return "-";
       }
