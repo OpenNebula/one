@@ -35,6 +35,10 @@ public:
     static const long long GROUP_ID;
     static const long long ALL_ID;
 
+    // NONE_ID can never be used in a rule. It is useful to create masks that
+    // will never match any existing rule
+    static const long long NONE_ID;
+
     AclRule(int _oid, long long _user, long long _resource, long long _rights):
         oid(_oid), user(_user), resource(_resource), rights(_rights)
     {

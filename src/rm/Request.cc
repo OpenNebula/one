@@ -55,21 +55,16 @@ bool Request::basic_authorization(int oid)
 {
     PoolObjectSQL * object;
 
-    bool pub;
-    int  ouid;
-    int  ogid;
+    bool pub    = false;
+    int  ouid   = 0;
+    int  ogid   = -1;
 
     if ( uid == 0 )
     {
         return true;
     }
 
-    if ( oid == -1 )
-    {
-        ouid = 0;
-        pub  = false;
-    }
-    else
+    if ( oid >= 0 )
     {
         object = pool->get(oid,true);
 

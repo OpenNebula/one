@@ -25,6 +25,8 @@ const long long AclRule::INDIVIDUAL_ID  = 0x100000000LL;
 const long long AclRule::GROUP_ID       = 0x200000000LL;
 const long long AclRule::ALL_ID         = 0x400000000LL;
 
+const long long AclRule::NONE_ID        = 0x1000000000000000LL;
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -211,9 +213,13 @@ void AclRule::build_str()
     {
         oss << "#" << user_id();
     }
-    else
+    else if ( (user & ALL_ID) != 0 )
     {
         oss << "*";
+    }
+    else
+    {
+        oss << "??";
     }
 
     oss << " ";
@@ -254,10 +260,15 @@ void AclRule::build_str()
     {
         oss << "#" << resource_id();
     }
-    else
+    else if ( (resource & ALL_ID) != 0 )
     {
         oss << "*";
     }
+    else
+    {
+        oss << "??";
+    }
+
 
     oss << " ";
 

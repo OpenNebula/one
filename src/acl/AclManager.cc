@@ -108,8 +108,28 @@ const bool AclManager::authorize(int uid, const set<int> &user_groups,
 
     // Build masks for request
     long long user_req;
-    long long resource_oid_req  = obj_type + AclRule::INDIVIDUAL_ID + obj_id;
-    long long resource_gid_req  = obj_type + AclRule::GROUP_ID + obj_gid;
+    long long resource_oid_req;
+
+    if ( obj_id >= 0 )
+    {
+        resource_oid_req  = obj_type + AclRule::INDIVIDUAL_ID + obj_id;
+    }
+    else
+    {
+        resource_oid_req = AclRule::NONE_ID;
+    }
+
+    long long resource_gid_req;
+
+    if ( obj_gid >= 0 )
+    {
+        resource_gid_req  = obj_type + AclRule::GROUP_ID + obj_gid;
+    }
+    else
+    {
+        resource_gid_req = AclRule::NONE_ID;
+    }
+
     long long resource_all_req  = obj_type + AclRule::ALL_ID;
     long long rights_req        = op;
 
@@ -120,10 +140,26 @@ const bool AclManager::authorize(int uid, const set<int> &user_groups,
             ( obj_type | AclRule::GROUP_ID | 0xFFFFFFFF );
 
 
+    // Create a temporal rule, to log the request
 
-    AclRule request_rule(-1, AclRule::INDIVIDUAL_ID + uid, resource_oid_req,
+    long long log_resource;
+
+    if ( obj_id >= 0 )
+    {
+        log_resource = resource_oid_req;
+    }
+    else if ( obj_gid >= 0 )
+    {
+        log_resource = resource_gid_req;
+    }
+    else
+    {
+        log_resource = resource_all_req;
+    }
+
+    AclRule log_rule(-1, AclRule::INDIVIDUAL_ID + uid, log_resource,
                         rights_req);
-    oss << "Request " << request_rule.to_str();
+    oss << "Request " << log_rule.to_str();
     NebulaLog::log("ACL",Log::DEBUG,oss);
 
 
