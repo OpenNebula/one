@@ -192,6 +192,8 @@ string& VMTemplate::to_xml(string& xml) const
             << "<ID>"       << oid        << "</ID>"
             << "<UID>"      << uid        << "</UID>"
             << "<GID>"      << gid        << "</GID>"
+            << "<UNAME>"    << uname      << "</UNAME>" 
+            << "<GNAME>"    << gname      << "</GNAME>" 
             << "<NAME>"     << name       << "</NAME>"
             << "<PUBLIC>"   << public_obj << "</PUBLIC>"
             << "<REGTIME>"  << regtime    << "</REGTIME>"
@@ -218,6 +220,8 @@ int VMTemplate::from_xml(const string& xml)
     rc += xpath(oid,        "/VMTEMPLATE/ID",      -1);
     rc += xpath(uid,        "/VMTEMPLATE/UID",     -1);
     rc += xpath(gid,        "/VMTEMPLATE/GID",     -1);
+    rc += xpath(uname,      "/VMTEMPLATE/UNAME",   "not_found");
+    rc += xpath(gname,      "/VMTEMPLATE/GNAME",   "not_found");
     rc += xpath(name,       "/VMTEMPLATE/NAME",    "not_found");
     rc += xpath(public_obj, "/VMTEMPLATE/PUBLIC",  0);
     rc += xpath(regtime,    "/VMTEMPLATE/REGTIME", 0);

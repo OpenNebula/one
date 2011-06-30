@@ -98,21 +98,25 @@ public:
     };
 
     /**
-     * Changes the object's owner id
+     * Changes the object's owner
      * @param _uid New User ID
+     * @param _uname Name of the new user
      */
-    void set_uid(int _uid)
+    void set_user(int _uid, const string& _uname)
     {
-        uid = _uid;
+        uid   = _uid;
+        uname = _uname;
     }
 
     /**
      * Changes the object's group id
      * @param _gid New Group ID
+     * @param _gname Name of the new group
      */
-    void set_gid(int _gid)
+    void set_group(int _gid, const string& _gname)
     {
-        gid = _gid;
+        gid   = _gid;
+        gname = _gname;
     };
 
     /* --------------------------------------------------------------------- */
