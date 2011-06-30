@@ -674,6 +674,7 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/OpenNebula/Host.rb \
                            src/oca/ruby/OpenNebula/Group.rb \
                            src/oca/ruby/OpenNebula/GroupPool.rb \
                            src/oca/ruby/OpenNebula/Acl.rb \
+                           src/oca/ruby/OpenNebula/AclPool.rb \
                            src/oca/ruby/OpenNebula/XMLUtils.rb"
 
 #-------------------------------------------------------------------------------
@@ -769,7 +770,8 @@ ONE_CLI_LIB_FILES="src/cli/one_helper/onegroup_helper.rb \
                    src/cli/one_helper/onetemplate_helper.rb \
                    src/cli/one_helper/oneuser_helper.rb \
                    src/cli/one_helper/onevm_helper.rb \
-                   src/cli/one_helper/onevnet_helper.rb"
+                   src/cli/one_helper/onevnet_helper.rb \
+                   src/cli/one_helper/oneacl_helper.rb"
 
 CLI_BIN_FILES="src/cli/onevm \
                src/cli/onehost \
@@ -786,7 +788,8 @@ CLI_CONF_FILES="src/cli/etc/onegroup.yaml \
                 src/cli/etc/onetemplate.yaml \
                 src/cli/etc/oneuser.yaml \
                 src/cli/etc/onevm.yaml \
-                src/cli/etc/onevnet.yaml"
+                src/cli/etc/onevnet.yaml \
+                src/cli/etc/oneacl.yaml"
 
 #-----------------------------------------------------------------------------
 # Sunstone files
