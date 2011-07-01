@@ -139,21 +139,8 @@ public:
      */
     int dump(ostringstream& oss, const string& where)
     {
-        return dump(oss, -1, where);
+        return PoolSQL::dump(oss, "VM_POOL", VirtualMachine::table, where);
     }
-
-    /**
-     *  Dumps the VM pool in XML format. A filter can be also added to the query
-     *  Also the hostname where the VirtualMachine is running is added to the
-     *  pool
-     *  @param oss the output stream to dump the pool contents
-     *  @param where filter for the objects, defaults to all
-     *  @param state include only VMs in this state. -1 means any state,
-     *              except DONE
-     *
-     *  @return 0 on success
-     */
-    int dump(ostringstream& oss, int state, const string& where);
 
 private:
     /**
