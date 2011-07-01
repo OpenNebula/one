@@ -34,7 +34,7 @@ module OpenNebula
         def initialize(client)
             super('ACL_POOL','ACL',client)
         end
-        
+
         def factory(element_xml)
             acl=REXML::Document.new(element_xml).root
             OpenNebula::Acl.new(acl['USER'], acl['RESOURCE'], acl['RIGHTS'])
@@ -56,27 +56,27 @@ module OpenNebula
         # +resource+ A hex number, e.g. 0x2100000001
         # +rights+ A hex number, e.g. 0x10
         def addrule(user, resource, rights)
-            rc = @client.call( ACL_POOL_METHODS[:addrule], 
-                               user, 
-                               resource, 
+            rc = @client.call( ACL_POOL_METHODS[:addrule],
+                               user,
+                               resource,
                                rights )
 
             rc = nil if !OpenNebula.is_error?(rc)
 
             return rc
         end
-        
+
         # Adds a new ACL rule.
         #
         # +rule+ Rule tring
         def addrule_with_str(rule_str)
             rule = Acl.new rule_str
-            
+
             return rule.error if rule.is_error?
-                            
-            rc = @client.call( ACL_POOL_METHODS[:addrule], 
-                               rule.users, 
-                               rule.resources, 
+
+            rc = @client.call( ACL_POOL_METHODS[:addrule],
+                               rule.users,
+                               rule.resources,
                                rule.rights )
 
             rc = nil if !OpenNebula.is_error?(rc)
