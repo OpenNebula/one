@@ -81,9 +81,10 @@ EOT
             end
         end
 
-        def list_pool(options, top=false)
-            user_flag = options[:filter_flag] ? options[:filter_flag] : -2
-            pool = factory_pool(user_flag)
+        def list_pool(options, top=false, filter_flag=-2)
+            filter_flag ||= -2
+
+            pool = factory_pool(filter_flag)
 
             rc = pool.info
             return -1, rc.message if OpenNebula.is_error?(rc)
@@ -200,15 +201,15 @@ EOT
 
         def filterflag_to_i(str)
             filter_flag = case str
-            when "a", "all" then "-2"
-            when "m", "mine" then "-3"
-            when "g", "group" then "-1"
+            when "a", "all" then -2
+            when "m", "mine" then -3
+            when "g", "group" then -1
             else
                 if str.match(/^[0123456789]+$/)
-                    str
+                    str.to_i
                 else
                     user = translation_hash[:users].select { |k,v| v==str }
-                    user.length > 0 ? user.first.first : "-2"
+                    user.length > 0 ? user.first.first.to_i : -2
                 end
             end
 
