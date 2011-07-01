@@ -45,7 +45,6 @@ void RequestManagerPoolInfoFilter::request_execute(xmlrpc_c::paramList const& pa
     set<int>::iterator it;
 
     ostringstream oss;
-
     bool          empty = true;
     ostringstream where_string;
 
@@ -58,6 +57,8 @@ void RequestManagerPoolInfoFilter::request_execute(xmlrpc_c::paramList const& pa
     string id_str;
 
     int rc;
+
+    AuthRequest::Operation request_op;
 
     // ------------------------------------------ 
     //              User ID filter              
@@ -74,10 +75,11 @@ void RequestManagerPoolInfoFilter::request_execute(xmlrpc_c::paramList const& pa
         case MINE:
             uid_filter << "uid = " << uid;
 
-            auth_op = AuthRequest::INFO_POOL_MINE;
+            request_op = AuthRequest::INFO_POOL_MINE;
             break;
 
         case ALL:
+            request_op = AuthRequest::INFO_POOL;
             break;
 
         case MINE_GROUP:
@@ -89,11 +91,13 @@ void RequestManagerPoolInfoFilter::request_execute(xmlrpc_c::paramList const& pa
                 where_string << " OR gid = " << *it;
             }
 
-            auth_op = AuthRequest::INFO_POOL_MINE;
+            request_op = AuthRequest::INFO_POOL_MINE;
             break;
 
         default:
             uid_filter << "uid = " << filter_flag;
+
+            request_op = AuthRequest::INFO_POOL;
             break;
     }
 
@@ -180,7 +184,7 @@ void RequestManagerPoolInfoFilter::request_execute(xmlrpc_c::paramList const& pa
     //           Authorize & get the pool
     // ------------------------------------------ 
 
-    if ( basic_authorization(-1) == false )
+    if ( basic_authorization(-1, request_op) == false )
     {
         return;
     }
