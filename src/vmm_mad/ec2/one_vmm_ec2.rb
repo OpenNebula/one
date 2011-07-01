@@ -52,7 +52,7 @@ class EC2Driver < VirtualMachineDriver
         :terminate => "#{EC2_LOCATION}/bin/ec2-terminate-instances",
         :describe  => "#{EC2_LOCATION}/bin/ec2-describe-instances",
         :associate => "#{EC2_LOCATION}/bin/ec2-associate-address",
-        :authorize => "#{EC2_LOCATION}bin/ec2-authorize"
+        :authorize => "#{EC2_LOCATION}/bin/ec2-authorize"
     }
 
     # EC2 constructor, loads defaults for the EC2Driver
@@ -64,7 +64,7 @@ class EC2Driver < VirtualMachineDriver
             concurrency = EC2_JVM_CONCURRENCY.to_i
         end
 
-        super(
+        super('',
             :concurrency => concurrency,
             :threaded => true
         )

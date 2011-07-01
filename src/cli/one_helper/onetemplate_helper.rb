@@ -18,7 +18,7 @@ require 'one_helper'
 
 class OneTemplateHelper < OpenNebulaHelper::OneHelper
     def self.rname
-        "TEMPLATE"
+        "VMTEMPLATE"
     end
 
     def self.conf_file

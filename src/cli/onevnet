@@ -158,7 +158,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     command :list, list_desc, [:filterflag, nil],
             :options=>CLIHelper::OPTIONS+OpenNebulaHelper::OPTIONS do
-        helper.list_pool(options)
+        helper.list_pool(options, false, args[0])
     end
 
     show_desc = <<-EOT.unindent
