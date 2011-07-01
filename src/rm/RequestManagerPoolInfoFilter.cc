@@ -38,6 +38,8 @@ void RequestManagerPoolInfoFilter::request_execute(xmlrpc_c::paramList const& pa
 
     int rc;
 
+    AuthRequest::Operation request_op = AuthRequest::INFO_POOL;
+
     if ( filter_flag < MINE )
     {
         failure_response(XML_RPC_API, request_error("Incorrect filter_flag",""));
@@ -48,7 +50,7 @@ void RequestManagerPoolInfoFilter::request_execute(xmlrpc_c::paramList const& pa
     {
         case MINE:
             where_string << "UID=" << uid;
-            auth_op = AuthRequest::INFO_POOL_MINE;
+            request_op = AuthRequest::INFO_POOL_MINE;
             break;
 
         case ALL:
@@ -56,7 +58,7 @@ void RequestManagerPoolInfoFilter::request_execute(xmlrpc_c::paramList const& pa
 
         case MINE_GROUP:
             where_string << "UID=" << uid << " OR GID=" << gid;
-            auth_op = AuthRequest::INFO_POOL_MINE;
+            request_op = AuthRequest::INFO_POOL_MINE;
             break;
 
         default:
@@ -64,7 +66,7 @@ void RequestManagerPoolInfoFilter::request_execute(xmlrpc_c::paramList const& pa
             break;
     }
 
-    if ( basic_authorization(-1) == false )
+    if ( basic_authorization(-1, request_op) == false )
     {
         return;
     }

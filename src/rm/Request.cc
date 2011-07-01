@@ -51,7 +51,7 @@ void Request::execute(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool Request::basic_authorization(int oid)
+bool Request::basic_authorization(int oid, AuthRequest::Operation op)
 {
     PoolObjectSQL * object;
 
@@ -83,7 +83,7 @@ bool Request::basic_authorization(int oid)
 
     AuthRequest ar(uid, group_ids);
 
-    ar.add_auth(auth_object, oid, ogid, auth_op, ouid, pub);
+    ar.add_auth(auth_object, oid, ogid, op, ouid, pub);
 
     if (UserPool::authorize(ar) == -1)
     {

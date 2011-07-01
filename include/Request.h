@@ -95,11 +95,28 @@ protected:
      *  from the request. The function gets the object from the pool to get 
      *  the public attribute and its owner. The authorization is based on 
      *  object and type of operation for the request.
-     *    @param oid of the object.
+     *    @param oid of the object, can be -1 for objects to be created, or
+     *    pools.
      *
      *    @return true if the user is authorized.
      */
-    bool basic_authorization(int oid);
+    bool basic_authorization(int oid)
+    {
+        return basic_authorization(oid, auth_op);
+    };
+
+    /**
+     *  Performs a basic authorization for this request using the uid/gid
+     *  from the request. The function gets the object from the pool to get
+     *  the public attribute and its owner. The authorization is based on
+     *  object and type of operation for the request.
+     *    @param oid of the object, can be -1 for objects to be created, or
+     *    pools.
+     *    @param op operation of the request.
+     *
+     *    @return true if the user is authorized.
+     */
+    bool basic_authorization(int oid, AuthRequest::Operation op);
             
     /**
      *  Actual Execution method for the request. Must be implemented by the

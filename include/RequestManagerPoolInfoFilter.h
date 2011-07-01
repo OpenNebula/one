@@ -33,9 +33,7 @@ protected:
     RequestManagerPoolInfoFilter(const string& method_name,
                                  const string& help)
         :Request(method_name,"A:si",help)
-    {
-        auth_op = AuthRequest::INFO_POOL;
-    };
+    {};
 
     ~RequestManagerPoolInfoFilter(){};
 
