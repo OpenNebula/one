@@ -74,17 +74,26 @@ void AuthRequest::add_auth(Object        ob,
     // Authorize the request for self authorization
     // -------------------------------------------------------------------------
 
-    if ( uid == 0 || gids.count( GroupPool::ONEADMIN_ID ) == 1 )
+    // There are some default conditions that grant permission without
+    // consulting the ACL manager
+    if (
+        // User is oneadmin, or is in the oneadmin group
+        uid == 0 ||
+        gids.count( GroupPool::ONEADMIN_ID ) == 1 ||
+
+        // User is the owner of the object, for certain operations
+        (   owner == uid &&
+            ( op == DELETE || op == USE || op == MANAGE ||
+              op == INFO   || op == INSTANTIATE )
+        ) ||
+
+        // Object is public and user is in its group, for certain operations
+        (   pub && ( gids.count( ob_gid ) == 1 ) &&
+            (op == USE || op == INSTANTIATE || op == INFO ) &&
+            (ob == NET || ob == IMAGE || ob == TEMPLATE)
+        )
+    )
     {
-        auth = true;
-    }
-    else if (   pub && ( gids.count( ob_gid ) == 1 ) &&
-                (op == USE || op == INSTANTIATE || op == INFO ) &&
-                (ob == NET || ob == IMAGE || ob == TEMPLATE)
-            )
-    {
-        // Users are authorized to use or see information of NET, IMAGE, and
-        // TEMPLATE objects in their group
         auth = true;
     }
     else
