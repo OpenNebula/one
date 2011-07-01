@@ -41,9 +41,9 @@ protected:
 
     /* -------------------------------------------------------------------- */
 
-    static const int ALL;        /**< Secify all objects in the pool (-2)   */
-    static const int MINE;       /**< Secify user's objects in the pool (-3)*/
-    static const int MINE_GROUP; /**< Secify users + group objects (-1)     */
+    static const int ALL;        /**< Specify all objects in the pool (-2)   */
+    static const int MINE;       /**< Specify user's objects in the pool (-3)*/
+    static const int MINE_GROUP; /**< Specify users + group objects (-1)     */
 
     /* -------------------------------------------------------------------- */
 

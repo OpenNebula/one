@@ -65,6 +65,17 @@ bool AclRule::malformed(string& error_str) const
         oss << "[user] GROUP (@) and ALL (*) bits are exclusive";
     }
 
+    if ( (user & 0x700000000LL) == 0 )
+    {
+        if ( error )
+        {
+            oss << "; ";
+        }
+
+        error = true;
+        oss << "[user] is missing one of the INDIVIDUAL, GROUP or ALL bits";
+    }
+
     if ( user_id() < 0 )
     {
         if ( error )
@@ -120,6 +131,17 @@ bool AclRule::malformed(string& error_str) const
 
         error = true;
         oss << "[resource] GROUP (@) and ALL (*) bits are exclusive";
+    }
+
+    if ( (resource & 0x700000000LL) == 0 )
+    {
+        if ( error )
+        {
+            oss << "; ";
+        }
+
+        error = true;
+        oss << "[resource] is missing one of the INDIVIDUAL, GROUP or ALL bits";
     }
 
     if ( resource_id() < 0 )
