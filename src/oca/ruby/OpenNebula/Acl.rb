@@ -42,37 +42,36 @@ module OpenNebula
     class Acl
 
         USERS = {
-            "UID"           => 4294967296,
-            "GID"           => 8589934592,
-            "ALL"           => 17179869184
+            "UID"           => 0x100000000,
+            "GID"           => 0x200000000,
+            "ALL"           => 0x400000000
+        }
+        RESOURCES =
+        {
+            "VM"            => 0x1000000000,
+            "HOST"          => 0x2000000000,
+            "NET"           => 0x4000000000,
+            "IMAGE"         => 0x8000000000,
+            "USER"          => 0x10000000000,
+            "TEMPLATE"      => 0x20000000000,
+            "GROUP"         => 0x40000000000
         }
 
-
-        RESOURCES = {
-            "VM"            => 68719476736,
-            "HOST"          => 137438953472,
-            "NET"           => 274877906944,
-            "IMAGE"         => 549755813888,
-            "USER"          => 1099511627776,
-            "TEMPLATE"      => 2199023255552,
-            "GROUP"         => 4398046511104,
-            "ACL"           => 8796093022208
+        RIGHTS =
+        {
+            "CREATE"        => 0x1,  # Auth. to create an object
+            "DELETE"        => 0x2,  # Auth. to delete an object
+            "USE"           => 0x4,  # Auth. to use an object
+            "MANAGE"        => 0x8,  # Auth. to manage an object
+            "INFO"          => 0x10, # Auth. to view an object
+            "INFO_POOL"     => 0x20, # Auth. to view any object in the pool
+            "INFO_POOL_MINE"=> 0x40, # Auth. to view user and/or group objects
+            "INSTANTIATE"   => 0x80, # Auth. to instantiate a VM from a TEMPLATE
+            "CHOWN"         => 0x100 # Auth. to change ownership of an object
         }
-
-        RIGHTS =  {
-            "CREATE"        => 1,  # Auth. to create an object
-            "DELETE"        => 2,  # Auth. to delete an object
-            "USE"           => 4,  # Auth. to use an object
-            "MANAGE"        => 8,  # Auth. to manage an object
-            "INFO"          => 16, # Auth. to view an object
-            "INFO_POOL"     => 32, # Auth. to view any object in the pool
-            "INFO_POOL_MINE"=> 64, # Auth. to view user and/or group objects
-            "INSTANTIATE"   => 128,# Auth. to instantiate a VM from a TEMPLATE
-            "CHOWN"         => 256 # Auth. to change ownership of an object
-        }
-
 
         def initialize(rule_str=nil)
+            # Content stores numbers
             @content = {
                 :users         =>  0,
                 :resources     =>  0,
@@ -80,37 +79,6 @@ module OpenNebula
             }
 
             parse_rule(rule_str) if rule_str
-        end
-
-
-        def set_hex_rule(users,resources,rights)
-            set_hex_users     users
-            set_hex_resources resources
-            set_hex_rights    rights
-        end
-
-        def set_hex_users(users)
-            @content[:users] = users
-        end
-
-        def set_hex_resources(resources)
-            @content[:resources] = resources
-        end
-
-        def set_hex_rights(rights)
-            @content[:rights] = rights
-        end
-
-        def set_users(users)
-            @content[:users] = users.to_i.to_s(10)
-        end
-
-        def set_resources(resources)
-            @content[:resources] = resources.to_i.to_s(10)
-        end
-
-        def set_rights(rights)
-            @content[:rights] = rights.to_i.to_s(10)
         end
 
         def parse_rule(rule_str)
@@ -144,13 +112,11 @@ module OpenNebula
 
                 resources[0].split("+").each{ |resource|
                     next if !RESOURCES[resource.upcase]
-                    @content[:resources] = @content[:resources] + RESOURCES[resource.upcase].to_i
+                    @content[:resources] += RESOURCES[resource.upcase]
                 }
 
-                @content[:resources] = @content[:resources] +
-                                       calculate_users(resources[1]).to_i
+                @content[:resources] += calculate_users(resources[1])
 
-                @content[:resources] = @content[:resources].to_s(16)
             rescue Exception  => e
                 @content[:resources] = OpenNebula::Error.new(e.message)
             end
@@ -163,10 +129,9 @@ module OpenNebula
                 rights.each{ |right|
                     next if !RIGHTS[right.upcase]
 
-                    @content[:rights] = @content[:rights] + RIGHTS[right.upcase]
+                    @content[:rights] += RIGHTS[right.upcase]
                 }
 
-                @content[:rights] = @content[:rights].to_i.to_s(16)
             rescue Exception  => e
                 @content[:rights] = OpenNebula::Error.new(e.message)
             end
@@ -189,19 +154,19 @@ module OpenNebula
 
             users_value = users_str[1..-1].to_i + value
 
-            return users_value.to_i.to_s(16)
+            return users_value
         end
 
-        def users
-            @content[:users]
+        def users_hex_str
+            @content[:users].to_i.to_s(16)
         end
 
-        def resources
-            @content[:resources]
+        def resources_hex_str
+            @content[:resources].to_i.to_s(16)
         end
 
-        def rights
-            @content[:rights]
+        def rights_hex_str
+            @content[:rights].to_i.to_s(16)
         end
 
         def is_error?
