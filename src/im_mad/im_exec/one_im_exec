@@ -16,15 +16,6 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-#Parse command line arguments
-while getopts r: option $@
-do
-    case $option in
-    r)  export IM_REMOTE_DIR="$OPTARG";;
-    esac
-done
-shift $(($OPTIND - 1))
-
 #Setup driver variables
 DRIVER_NAME=`basename $0 | cut -d. -f1`
 
