@@ -250,29 +250,3 @@ int VirtualMachinePool::get_pending(
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-
-int VirtualMachinePool::dump(   ostringstream&  oss,
-                                int             state,
-                                const string&   where)
-{
-    ostringstream where_oss;
-
-    if ( state != -1 )
-    {
-        where_oss << VirtualMachine::table << ".state = " << state;
-    }
-    else
-    {
-        where_oss << VirtualMachine::table << ".state <> 6";
-    }
-
-    if ( !where.empty() )
-    {
-        where_oss << " AND " << where;
-    }
-
-    return PoolSQL::dump(oss, "VM_POOL", VirtualMachine::table,where_oss.str());
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
