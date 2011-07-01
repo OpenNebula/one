@@ -63,7 +63,7 @@ cmd = CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :delrule, delrule_desc, :id do
-        helper.delete_rule( args[0] )
+        helper.delete_rule( options, args[0] )
     end
 
     list_desc = <<-EOT.unindent

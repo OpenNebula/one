@@ -49,7 +49,7 @@ class OneAclHelper < OpenNebulaHelper::OneHelper
         end
     end
     
-    def delete_rule(id) 
+    def delete_rule(options, id)
         acl = OpenNebula::AclPool.new( OpenNebula::Client.new() )
 
         rc = acl.delrule( id )
@@ -151,7 +151,7 @@ class OneAclHelper < OpenNebulaHelper::OneHelper
                 OneAclHelper::right_mask d['STRING'].split(" ")[2] 
             end
 
-            default :ID, :USER, :RESOURCE_VHNIUTG, :RID, :OPERATION_CDUMIPpTW
+            default :ID, :USER, :RES_VHNIUTG, :RID, :OPE_CDUMIPpTW
         end
 
         table.show(pool, options)
