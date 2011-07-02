@@ -64,13 +64,15 @@ int VirtualMachinePoolXML::load_info(xmlrpc_c::value &result)
 {
     try
     {
-        client->call(client->get_endpoint(),           // serverUrl
-                     "one.vmpool.info",                // methodName
-                     "sii",                           // arguments format
-                     &result,                          // resultP
-                     client->get_oneauth().c_str(),    // auth string
-                     -2,                               // VM from all users
-                     1);                               // in pending state
+        client->call(client->get_endpoint(),        // serverUrl
+                     "one.vmpool.info",             // methodName
+                     "siiii",                       // arguments format
+                     &result,                       // resultP
+                     client->get_oneauth().c_str(), // auth string
+                     -2,                            // VM from all users
+                     -1,                            // start_id (none)
+                     -1,                            // end_id (none)
+                     1);                            // in pending state
         return 0;
     }
     catch (exception const& e)

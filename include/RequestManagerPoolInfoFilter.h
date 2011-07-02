@@ -67,7 +67,7 @@ public:
     VirtualMachinePoolInfo():
         RequestManagerPoolInfoFilter("VirtualMachinePoolInfo",
                                      "Returns the virtual machine instances pool",
-                                     "A:siii")
+                                     "A:siiii")
     {    
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vmpool();
