@@ -16,6 +16,8 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+$: << File.dirname(__FILE__)
+
 require 'HostMonitor.rb'
 require 'VMMonitor.rb'
 
