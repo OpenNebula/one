@@ -328,10 +328,11 @@ int ObjectXML::get_nodes (const char * xpath_expr, vector<xmlNodePtr>& content)
 
     for(int i = 0; i < size; ++i)
     {
-        cur = ns->nodeTab[i];
+        cur = xmlCopyNode(ns->nodeTab[i],1);
 
         if ( cur == 0 || cur->type != XML_ELEMENT_NODE )
         {
+            xmlFreeNode(cur);
             continue;
         }
 

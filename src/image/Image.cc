@@ -382,12 +382,15 @@ int Image::from_xml(const string& xml)
 
     // Get associated classes
     ObjectXML::get_nodes("/IMAGE/TEMPLATE", content);
-    if( content.size() < 1 )
+
+    if (content.empty())
     {
         return -1;
     }
 
     rc += obj_template->from_xml_node(content[0]);
+
+    ObjectXML::free_nodes(content);
 
     if (rc != 0)
     {

@@ -1251,7 +1251,7 @@ int VirtualMachine::from_xml(const string &xml_str)
     // Get associated classes
     ObjectXML::get_nodes("/VM/TEMPLATE", content);
 
-    if( content.size() < 1 )
+    if (content.empty())
     {
         return -1;
     }
@@ -1260,16 +1260,20 @@ int VirtualMachine::from_xml(const string &xml_str)
     rc += obj_template->from_xml_node(content[0]);
 
     // Last history entry
+    ObjectXML::free_nodes(content);
     content.clear();
+
     ObjectXML::get_nodes("/VM/HISTORY_RECORDS/HISTORY", content);
 
-    if( !content.empty() )
+    if (!content.empty())
     {
         history = new History(oid);
         rc += history->from_xml_node(content[0]);
 
         history_records.resize(history->seq + 1);
         history_records[history->seq] = history;
+
+        ObjectXML::free_nodes(content);
     }
 
     if (rc != 0)

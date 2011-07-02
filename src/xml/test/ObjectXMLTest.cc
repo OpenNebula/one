@@ -161,6 +161,7 @@ public:
             CPPUNIT_ASSERT(results.size() == 1);
             CPPUNIT_ASSERT(results[0] == "A_hostname");
 
+            obj.free_nodes(vms);
         }
         catch(runtime_error& re)
         {

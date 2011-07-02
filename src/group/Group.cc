@@ -129,13 +129,15 @@ int Group::from_xml(const string& xml)
     // Get associated classes
     ObjectXML::get_nodes("/GROUP/USERS", content);
 
-    if( content.size() < 1 )
+    if (content.empty())
     {
         return -1;
     }
 
     // Set of IDs
     rc += ObjectCollection::from_xml_node(content[0]);
+
+    ObjectXML::free_nodes(content);
 
     if (rc != 0)
     {

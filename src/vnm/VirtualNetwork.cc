@@ -583,13 +583,15 @@ int VirtualNetwork::from_xml(const string &xml_str)
     // Get associated classes
     ObjectXML::get_nodes("/VNET/TEMPLATE", content);
 
-    if( content.size() < 1 )
+    if (content.empty())
     {
         return -1;
     }
 
     // Virtual Network template
-    rc += obj_template->from_xml_node( content[0] );
+    rc += obj_template->from_xml_node(content[0]);
+
+    ObjectXML::free_nodes(content);
 
     if (rc != 0)
     {

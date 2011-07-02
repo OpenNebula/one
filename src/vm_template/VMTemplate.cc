@@ -229,13 +229,15 @@ int VMTemplate::from_xml(const string& xml)
     // Get associated classes
     ObjectXML::get_nodes("/VMTEMPLATE/TEMPLATE", content);
 
-    if( content.size() < 1 )
+    if (content.empty())
     {
         return -1;
     }
 
     // Template contents
     rc += obj_template->from_xml_node(content[0]);
+
+    ObjectXML::free_nodes(content);
 
     if (rc != 0)
     {
