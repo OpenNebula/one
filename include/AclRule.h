@@ -18,8 +18,7 @@
 #define ACL_RULE_H_
 
 #include <set>
-
-#include "ObjectSQL.h"
+#include <string>
 
 using namespace std;
 
@@ -31,15 +30,18 @@ class AclRule
 {
 public:
 
+    // ------------------------------------------------------------------------
     static const long long INDIVIDUAL_ID;
+    
     static const long long GROUP_ID;
+
     static const long long ALL_ID;
+    // ------------------------------------------------------------------------
 
-    // NONE_ID can never be used in a rule. It is useful to create masks that
-    // will never match any existing rule
-    static const long long NONE_ID;
-
-    AclRule(int _oid, long long _user, long long _resource, long long _rights):
+    AclRule(int       _oid, 
+            long long _user, 
+            long long _resource, 
+            long long _rights):
         oid(_oid), user(_user), resource(_resource), rights(_rights)
     {
         build_str();
@@ -47,9 +49,9 @@ public:
 
     bool operator ==(const AclRule& other) const
     {
-        return (user == other.user &&
+        return (user     == other.user &&
                 resource == other.resource &&
-                rights == other.rights);
+                rights   == other.rights);
     };
 
     /**
@@ -130,6 +132,9 @@ public:
     };
 
 private:
+    // NONE_ID can never be used in a rule. It is useful to create masks that
+    // will never match any existing rule
+    static const long long NONE_ID;
 
     friend class AclManager;
 
@@ -139,27 +144,43 @@ private:
     int oid;
 
     /**
-     *  64 bit integer holding a user ID in the 32 less significant bits,
-     *  and a flag indicating the kind of ID in the other 32
+     *  64 bit integer holding a user compound:      
+     * 
+     *           32 bits                 32 bits
+     *  +-----------------------+-----------------------+
+     *  | Type (user,group,all) | user/group ID         |
+     *  +-----------------------+-----------------------+
      */
     long long user;
 
     /**
-     *  64 bit integer holding an object ID in the 32 less significant bits,
-     *  and flags indicanting the kind of ID and object in the other 32
+     *  64 bit integer holding a resource compound
+     * 
+     *           32 bits                 32 bits
+     *  +-----------------------+-----------------------+
+     *  | Type (VM, Host...)    | resource ID           |
+     *  +-----------------------+-----------------------+
      */
     long long resource;
 
     /**
      *  64 bit integer containing the rights flags
+     *
+     *                      64 bits
+     *  +-----------------------------------------------+
+     *  | Actions (MANAGE, CREATE, USE, DELETE...       |
+     *  +-----------------------------------------------+
      */
     long long rights;
 
     /**
-     *  Human readable representation
+     *  Human readable representation of the rule
      */
     string str;
 
+    /**
+     *  Builds the human representation of the ACL
+     */
     void build_str();
 };
 

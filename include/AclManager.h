@@ -20,6 +20,8 @@
 #include "AuthManager.h"
 #include "AclRule.h"
 
+#include "SqlDB.h"
+
 using namespace std;
 
 /**
