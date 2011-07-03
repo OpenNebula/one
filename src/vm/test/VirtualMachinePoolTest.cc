@@ -105,7 +105,7 @@ public:
 
         if( rc == 0 )
         {
-            return VirtualMachinePool::allocate(uid, 1, vm_template,
+            return VirtualMachinePool::allocate(uid, 1, "the_user", "users",vm_template,
                                                 oid, err, on_hold);
         }
         else

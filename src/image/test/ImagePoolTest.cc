@@ -25,6 +25,10 @@ using namespace std;
 
 const int uids[] = {0,1,2};
 
+const char* unames[] = {"one","two","three"};
+const char* gnames[] = {"oneadmin","oneadmin","users"};
+
+
 const string names[] = {"Image one", "Second Image", "The third image"};
 
 const string templates[] =
@@ -106,7 +110,10 @@ public:
 
         if( rc == 0 )
         {
-            return ImagePool::allocate(uid, 1, img_template, oid, err);
+            string uname = unames[uid];
+            string gname = gnames[uid];
+
+            return ImagePool::allocate(uid, 1, uname, gname, img_template, oid, err);
         }
         else
         {

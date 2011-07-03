@@ -78,7 +78,7 @@ public:
 
         if( rc == 0 )
         {
-            return VMTemplatePool::allocate(uid, 0,template_contents, oid, err);
+            return VMTemplatePool::allocate(uid, 0,"the_user","oneadmin",template_contents, oid, err);
         }
         else
         {

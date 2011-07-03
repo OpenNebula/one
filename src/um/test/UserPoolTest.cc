@@ -97,7 +97,7 @@ protected:
         int oid;
         string err;
         
-        return ((UserPool*)pool)->allocate(&oid, 0, usernames[index],
+        return ((UserPool*)pool)->allocate(&oid, 0, usernames[index],"oneadmin",
                                            passwords[index], true, err);
     };
 
@@ -187,24 +187,28 @@ public:
         
         bool rc;
         int  oid, gid;
+        set<int> groups;
+        string uname, gname;
 
         // There is an initial user, created with the one_auth file:
         //      one_user_test:password
         string session="one_user_test:5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8";
 
-        rc = user_pool->authenticate( session, oid, gid );
+        rc = user_pool->authenticate( session, oid, gid, uname, gname, groups );
         CPPUNIT_ASSERT( rc == true );
         CPPUNIT_ASSERT( oid == 0 );
-        CPPUNIT_ASSERT( oid == 0 );
+        CPPUNIT_ASSERT( gid == 0 );
+        CPPUNIT_ASSERT( uname == "one_user_test" );
+        CPPUNIT_ASSERT( gname == "oneadmin" );
 
         session = "one_user_test:wrong_password";
-        rc = user_pool->authenticate( session, oid, gid );
+        rc = user_pool->authenticate( session, oid, gid , uname, gname, groups );
         CPPUNIT_ASSERT( rc == false );
         CPPUNIT_ASSERT( oid == -1 );
         CPPUNIT_ASSERT( gid == -1 );
 
         session = "unknown_user:5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8";
-        rc = user_pool->authenticate( session, oid, gid );
+        rc = user_pool->authenticate( session, oid, gid, uname, gname, groups );
         CPPUNIT_ASSERT( rc == false );
         CPPUNIT_ASSERT( oid == -1 );
         CPPUNIT_ASSERT( gid == -1 );
@@ -293,17 +297,17 @@ public:
         UserPool * up = static_cast<UserPool *>(pool);
 
         // Allocate a user.
-        rc = up->allocate(&oid, 0,usernames[0], passwords[0], true, err);
+        rc = up->allocate(&oid, 0,usernames[0], "oneadmin",passwords[0], true, err);
         CPPUNIT_ASSERT( oid == 1 );
         CPPUNIT_ASSERT( oid == rc );
 
         // Try to allocate twice the same user, should fail
-        rc = up->allocate(&oid, 0,usernames[0], passwords[0], true, err);
+        rc = up->allocate(&oid, 0,usernames[0], "oneadmin", passwords[0], true, err);
         CPPUNIT_ASSERT( rc  == -1 );
         CPPUNIT_ASSERT( oid == rc );
 
         // Try again, with different password
-        rc = up->allocate(&oid, 0, usernames[0], passwords[1], true, err);
+        rc = up->allocate(&oid, 0, usernames[0], "oneadmin", passwords[1], true, err);
         CPPUNIT_ASSERT( rc  == -1 );
         CPPUNIT_ASSERT( oid == rc );
     }
@@ -318,7 +322,7 @@ public:
         
         for(int i=0; i<5; i++)
         {
-            ((UserPool*)pool)->allocate(&oid, 0, d_names[i], d_pass[i], true, err);
+            ((UserPool*)pool)->allocate(&oid, 0, d_names[i], "oneadmin", d_pass[i], true, err);
         }
 
         ostringstream oss;
@@ -345,7 +349,7 @@ public:
 
         for(int i=0; i<5; i++)
         {
-            ((UserPool*)pool)->allocate(&oid, 0, d_names[i], d_pass[i], true, err);
+            ((UserPool*)pool)->allocate(&oid, 0, d_names[i], "oneadmin",d_pass[i], true, err);
         }
 
         // Note: second parameter of dump is the WHERE constraint. The "order
