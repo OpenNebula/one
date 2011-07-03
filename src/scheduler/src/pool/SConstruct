@@ -21,6 +21,8 @@ Import('sched_env')
 lib_name='scheduler_pool'
 
 source_files=[
+	'UserPoolXML.cc',
+	'UserXML.cc',
 	'HostPoolXML.cc',
 	'HostXML.cc',
 	'VirtualMachinePoolXML.cc',

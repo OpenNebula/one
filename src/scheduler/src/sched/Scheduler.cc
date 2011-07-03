@@ -121,6 +121,7 @@ void Scheduler::start()
 
     hpool  = new HostPoolXML(client);
     vmpool = new VirtualMachinePoolXML(client, machines_limit);
+    upool  = new UserPoolXML(client);
 
     // -----------------------------------------------------------
     // Load scheduler policies
@@ -222,6 +223,17 @@ int Scheduler::set_up_pools()
     //--------------------------------------------------------------------------
 
     rc = vmpool->set_up();
+
+    if ( rc != 0 )
+    {
+        return rc;
+    }
+
+    //--------------------------------------------------------------------------
+    //Cleans the cache and get the pending VMs
+    //--------------------------------------------------------------------------
+
+    rc = upool->set_up();
 
     if ( rc != 0 )
     {
