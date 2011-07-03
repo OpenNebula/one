@@ -36,6 +36,9 @@ protected:
     {
         auth_object = AuthRequest::ACL;
         auth_op     = AuthRequest::MANAGE;
+
+        Nebula& nd  = Nebula::instance();
+        aclm        = nd.get_aclm();
     };
 
     ~RequestManagerAcl(){};
@@ -57,8 +60,8 @@ class AclAddRule : public RequestManagerAcl
 public:
     AclAddRule():
         RequestManagerAcl("AclAddRule",
-                            "Adds a new ACL rule",
-                            "A:ssss")
+                          "Adds a new ACL rule",
+                          "A:ssss")
     {};
 
     ~AclAddRule(){};
@@ -74,8 +77,8 @@ class AclDelRule : public RequestManagerAcl
 public:
     AclDelRule():
         RequestManagerAcl("AclDelRule",
-                            "Deletes an existing ACL rule",
-                            "A:si")
+                          "Deletes an existing ACL rule",
+                          "A:si")
     {};
 
     ~AclDelRule(){};
@@ -91,8 +94,8 @@ class AclInfo: public RequestManagerAcl
 public:
     AclInfo():
         RequestManagerAcl("AclInfo",
-                            "Returns the ACL rule set",
-                            "A:s")
+                          "Returns the ACL rule set",
+                          "A:s")
     {};
 
     ~AclInfo(){};

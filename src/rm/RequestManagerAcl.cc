@@ -31,7 +31,6 @@ void AclAddRule::request_execute(xmlrpc_c::paramList const& paramList)
     resource  = xmlrpc_c::value_i8(paramList.getI8(2));
     rights    = xmlrpc_c::value_i8(paramList.getI8(3));
 */
-
     long long user;
     long long resource;
     long long rights;
@@ -49,10 +48,6 @@ void AclAddRule::request_execute(xmlrpc_c::paramList const& paramList)
     iss.str( xmlrpc_c::value_string(paramList.getString(3)) );
     iss >> hex >> rights;
 
-
-    Nebula& nd  = Nebula::instance();
-    aclm        = nd.get_aclm();
-
     string error_msg;
 
     if ( basic_authorization(-1) == false )
@@ -61,7 +56,6 @@ void AclAddRule::request_execute(xmlrpc_c::paramList const& paramList)
     }
 
     int rc = aclm->add_rule(user, resource, rights, error_msg);
-
 
     if ( rc < 0 )
     {
@@ -79,11 +73,7 @@ void AclAddRule::request_execute(xmlrpc_c::paramList const& paramList)
 
 void AclDelRule::request_execute(xmlrpc_c::paramList const& paramList)
 {
-    int oid = xmlrpc_c::value_int(paramList.getInt(1));
-
-    Nebula& nd  = Nebula::instance();
-    aclm        = nd.get_aclm();
-
+    int    oid = xmlrpc_c::value_int(paramList.getInt(1));
     string error_msg;
 
     if ( basic_authorization(-1) == false )
@@ -99,7 +89,7 @@ void AclDelRule::request_execute(xmlrpc_c::paramList const& paramList)
         return;
     }
 
-    success_response("");
+    success_response(oid);
 
     return;
 }
@@ -109,9 +99,6 @@ void AclDelRule::request_execute(xmlrpc_c::paramList const& paramList)
 
 void AclInfo::request_execute(xmlrpc_c::paramList const& paramList)
 {
-    Nebula& nd  = Nebula::instance();
-    aclm        = nd.get_aclm();
-
     ostringstream oss;
     int rc;
 
@@ -128,7 +115,7 @@ void AclInfo::request_execute(xmlrpc_c::paramList const& paramList)
         return;
     }
 
-    success_response( oss.str() );
+    success_response(oss.str());
 
     return;
 }
