@@ -21,9 +21,9 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-const long long AclRule::INDIVIDUAL_ID  = 0x100000000LL;
-const long long AclRule::GROUP_ID       = 0x200000000LL;
-const long long AclRule::ALL_ID         = 0x400000000LL;
+const long long AclRule::INDIVIDUAL_ID  = 0x0000000100000000LL;
+const long long AclRule::GROUP_ID       = 0x0000000200000000LL;
+const long long AclRule::ALL_ID         = 0x0000000400000000LL;
 
 const long long AclRule::NONE_ID        = 0x1000000000000000LL;
 

@@ -68,7 +68,7 @@ void AuthRequest::add_auth(Object        ob,
 
     oss << Operation_to_str(op) << ":";
 
-    oss << owner << ":" << pub;
+    oss << owner << ":";
 
     // -------------------------------------------------------------------------
     // Authorize the request for self authorization
@@ -103,6 +103,8 @@ void AuthRequest::add_auth(Object        ob,
 
         auth = aclm->authorize(uid, gids, ob, ob_id_int, ob_gid, op);
     }
+
+    oss << auth; // Store the ACL authorization result in the request
 
     self_authorize = self_authorize && auth;
 

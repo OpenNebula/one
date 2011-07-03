@@ -56,12 +56,12 @@ public:
      *    @param op The operation to be authorized
      *    @return true if the authorization is granted by any rule
      */
-    const bool authorize(int uid, const set<int> &user_groups,
-            AuthRequest::Object obj_type, int obj_id, int obj_gid,
-            AuthRequest::Operation op);
-
-    /* ---------------------------------------------------------------------- */
-
+    const bool authorize(int                    uid, 
+                         const set<int>&        user_groups,
+                         AuthRequest::Object    obj_type, 
+                         int                    obj_id, 
+                         int                    obj_gid,
+                         AuthRequest::Operation op);
     /**
      *  Adds a new rule to the ACL rule set
      *
@@ -75,11 +75,10 @@ public:
      *    -2 if the rule is malformed,
      *    -3 if the DB insert failed
      */
-    int add_rule(long long user, long long resource, long long rights,
-                string& error_str);
-
-    /* ---------------------------------------------------------------------- */
-
+    int add_rule(long long user, 
+                 long long resource, 
+                 long long rights,
+                 string&   error_str);
     /**
      *  Deletes a rule from the ACL rule set
      *
@@ -102,8 +101,6 @@ public:
 
         _db->exec(oss);
     };
-
-    /* ---------------------------------------------------------------------- */
 
     /**
      *  Dumps the rule set in XML format.

@@ -311,14 +311,14 @@ public:
      */
     enum Object
     {
-        VM         = 0x1000000000LL,
-        HOST       = 0x2000000000LL,
-        NET        = 0x4000000000LL,
-        IMAGE      = 0x8000000000LL,
-        USER       = 0x10000000000LL,
-        TEMPLATE   = 0x20000000000LL,
-        GROUP      = 0x40000000000LL,
-        ACL        = 0x80000000000LL
+        VM         = 0x0000001000000000LL,
+        HOST       = 0x0000002000000000LL,
+        NET        = 0x0000004000000000LL,
+        IMAGE      = 0x0000008000000000LL,
+        USER       = 0x0000010000000000LL,
+        TEMPLATE   = 0x0000020000000000LL,
+        GROUP      = 0x0000040000000000LL,
+        ACL        = 0x0000080000000000LL
     };
 
     static string Object_to_str(Object ob)
