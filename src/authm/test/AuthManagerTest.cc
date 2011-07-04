@@ -20,6 +20,8 @@
 #include <unistd.h>
 #include <pthread.h>
 
+#include "Nebula.h"
+#include "NebulaTest.h"
 #include "test/OneUnitTest.h"
 #include "AuthManager.h"
 #include "Template.h"
@@ -34,11 +36,45 @@ using namespace std;
 /* ************************************************************************* */
 /* ************************************************************************* */
 
+
+
+class NebulaTestAuth: public NebulaTest
+{
+public:
+    NebulaTestAuth():NebulaTest()
+    {
+        NebulaTest::the_tester = this;
+
+        need_authm = true;
+        need_aclm  = true;
+    };
+
+    AuthManager* create_authm(time_t timer_period)
+    {
+        ostringstream oss;
+        vector<const Attribute *> am_mads;
+        char *error = 0;
+
+        oss << "AUTH_MAD = [ executable=\"/" << getenv("PWD")
+            << "/dummy\"]" << endl;
+
+        Template * t = new Template();
+
+        t->parse(oss.str(),&error);
+
+        t->get("AUTH_MAD", am_mads);
+
+        return new AuthManager(1,3,am_mads);
+    };
+};
+
+/* ************************************************************************* */
+/* ************************************************************************* */
+
 class AuthManagerTest : public OneUnitTest
 {
     CPPUNIT_TEST_SUITE (AuthManagerTest);
 
-    CPPUNIT_TEST (load);
     CPPUNIT_TEST (timeout);
     CPPUNIT_TEST (authenticate);
     CPPUNIT_TEST (authorize);
@@ -48,75 +84,70 @@ class AuthManagerTest : public OneUnitTest
     CPPUNIT_TEST_SUITE_END ();
 
 
+private:
+    NebulaTestAuth * tester;
+
+    AuthManager * am;
+
 public:
-    AuthManagerTest(){};
+    AuthManagerTest()
+    {
+        xmlInitParser();
+    };
 
-    ~AuthManagerTest(){
-	/*OpenSSL internal tables are allocated when an application starts up.
-          Since such tables do not grow in size over time they are harmless. */
+    ~AuthManagerTest()
+    {
+        xmlCleanupParser();
 
- 	EVP_cleanup() ; 
-	CRYPTO_cleanup_all_ex_data();
+        // OpenSSL internal tables are allocated when an application starts up.
+        // Since such tables do not grow in size over time they are harmless.
+
+        EVP_cleanup();
+        CRYPTO_cleanup_all_ex_data();
     };
 
 
     /* ********************************************************************* */
     /* ********************************************************************* */
+
     void setUp()
     {
+        create_db();
 
-        ostringstream oss;
-        vector<const Attribute *> am_mads;
-        char *error = 0;
+        tester = new NebulaTestAuth();
 
-        MadManager::mad_manager_system_init();
+        Nebula& neb = Nebula::instance();
+        neb.start();
 
-        oss << "AUTH_MAD = [ executable=\"/" << getenv("PWD")
-            << "/dummy\"]" << endl;
-
-        t = new Template();
-
-        t->parse(oss.str(),&error);
-
-        t->get("AUTH_MAD", am_mads);
-
-        am = new AuthManager(1,3,am_mads);
+        am = neb.get_authm();
     };
 
     void tearDown()
     {
-        delete am;
-        delete t;
-    };
-
-    void load()
-    {
-        int rc;
-
-        rc = am->start();
-
-        CPPUNIT_ASSERT(rc==0);
-
-        am->load_mads(0);
+        // -----------------------------------------------------------
+        // Stop the managers & free resources
+        // -----------------------------------------------------------
 
         am->trigger(AuthManager::FINALIZE,0);
 
         pthread_join(am->get_thread_id(),0);
 
-        CPPUNIT_ASSERT(0==0);
-    }
+        //XML Library
+        xmlCleanupParser();
+
+        delete_db();
+
+        delete tester;
+    };
+
+    /* ********************************************************************* */
+    /* ********************************************************************* */
 
     //This test needs a driver that takes more than 3 secs to AUTHENTICATE
     void timeout()
     {
-        int         rc;
-        AuthRequest ar(2);
-
-        rc = am->start();
-
-        CPPUNIT_ASSERT(rc==0);
-
-        am->load_mads(0);
+        set<int>    empty_set;
+        AuthRequest ar(2, empty_set);
 
         ar.add_authenticate("timeout","the_pass","the_secret");
 
@@ -128,24 +159,12 @@ public:
         CPPUNIT_ASSERT(ar.timeout==true);
 
         am->discard_request(ar.id);
-
-        am->trigger(AuthManager::FINALIZE,0);
-
-        pthread_join(am->get_thread_id(),0);
-
-        CPPUNIT_ASSERT(0==0);
     }
 
     void authenticate()
     {
-        int         rc;
-        AuthRequest ar(2);
-
-        rc = am->start();
-
-        CPPUNIT_ASSERT(rc==0);
-
-        am->load_mads(0);
+        set<int>    empty_set;
+        AuthRequest ar(2, empty_set);
 
         ar.add_authenticate("the_user","the_pass","the_secret");
 
@@ -153,53 +172,45 @@ public:
         ar.wait();
 
         CPPUNIT_ASSERT(ar.result==true);
-
-        am->trigger(AuthManager::FINALIZE,0);
-
-        pthread_join(am->get_thread_id(),0);
-
-        CPPUNIT_ASSERT(0==0);
     }
 
 
     void authorize()
     {
-        int         rc;
-        AuthRequest ar(2);
+        set<int>    empty_set;
+        AuthRequest ar(2, empty_set);
 
-        rc = am->start();
+        //OBJECT:OBJECT_ID:ACTION:OWNER:PUBLIC:CORE_RESULT
 
-        CPPUNIT_ASSERT(rc==0);
-
-        am->load_mads(0);
-
-        //OBJECT:OBJECT_ID:ACTION:OWNER:PUBLIC
-
-        string astr="VM:VGhpcyBpcyBhIHRlbXBsYXRlCg==:CREATE:-1:0 "
-                    "IMAGE:2:USE:3:0 "
-                    "NET:4:DELETE:5:1 "
-                    "HOST:6:MANAGE:7:1";
+        string astr = "VM:VGhpcyBpcyBhIHRlbXBsYXRlCg==:CREATE:-1:0:0 "
+                      "IMAGE:2:USE:3:0:0 "
+                      "NET:4:DELETE:5:1:0 "
+                      "HOST:6:MANAGE:7:1:0";
 
         ar.add_auth(AuthRequest::VM,
                     "This is a template\n",
+                    0,
                     AuthRequest::CREATE,
                     -1,
                     false);
 
         ar.add_auth(AuthRequest::IMAGE,
                     2,
+                    0,
                     AuthRequest::USE,
                     3,
                     false);
 
         ar.add_auth(AuthRequest::NET,
                     4,
+                    0,
                     AuthRequest::DELETE,
                     5,
                     true);
 
         ar.add_auth(AuthRequest::HOST,
                     6,
+                    0,
                     AuthRequest::MANAGE,
                     7,
                     true);
@@ -207,59 +218,69 @@ public:
         am->trigger(AuthManager::AUTHORIZE,&ar);
         ar.wait();
 
+/*
+        if ( ar.result != false )
+        {
+            cout << endl << "ar.result: " << ar.result << endl;
+        }
+
+        if ( ar.message != astr )
+        {
+            cout << endl << "ar.message: " << ar.message;
+            cout << endl << "expected:   " << astr << endl;
+        }
+//*/
         CPPUNIT_ASSERT(ar.result==false);
         CPPUNIT_ASSERT(ar.message==astr);
-
-        am->trigger(AuthManager::FINALIZE,0);
-
-        pthread_join(am->get_thread_id(),0);
-
-        CPPUNIT_ASSERT(0==0);
     }
 
 
     void self_authorize()
     {
-        AuthRequest ar(2);
-        AuthRequest ar1(2);
-        AuthRequest ar2(3);
-        AuthRequest ar3(4);
-        AuthRequest ar4(2);
-        AuthRequest ar5(0);
-        AuthRequest ar6(0);
+        set<int> empty_set;
 
-        ar.add_auth(AuthRequest::VM,"dGhpcy",AuthRequest::CREATE,2,false);
-        ar.add_auth(AuthRequest::NET,2,AuthRequest::USE,2,false);
-        ar.add_auth(AuthRequest::IMAGE,3,AuthRequest::USE,4,true);
+        AuthRequest ar(2, empty_set);
+        AuthRequest ar1(2, empty_set);
+        AuthRequest ar2(3, empty_set);
+        AuthRequest ar3(4, empty_set);
+        AuthRequest ar4(2, empty_set);
+        AuthRequest ar5(0, empty_set);
+        AuthRequest ar6(0, empty_set);
+
+        ar.add_auth(AuthRequest::VM,"dGhpcy",0,AuthRequest::CREATE,2,false);
+        ar.add_auth(AuthRequest::NET,2,0,AuthRequest::USE,2,false);
+        ar.add_auth(AuthRequest::IMAGE,3,0,AuthRequest::USE,4,true);
 
         CPPUNIT_ASSERT(ar.plain_authorize() == true);
 
-        ar1.add_auth(AuthRequest::VM,"dGhpcy",AuthRequest::CREATE,2,false);
-        ar1.add_auth(AuthRequest::NET,2,AuthRequest::USE,2,false);
-        ar1.add_auth(AuthRequest::IMAGE,3,AuthRequest::USE,4,false);
+        ar1.add_auth(AuthRequest::VM,"dGhpcy",0,AuthRequest::CREATE,2,false);
+        ar1.add_auth(AuthRequest::NET,2,0,AuthRequest::USE,2,false);
+        ar1.add_auth(AuthRequest::IMAGE,3,0,AuthRequest::USE,4,false);
 
         CPPUNIT_ASSERT(ar1.plain_authorize() == false);
 
-        ar2.add_auth(AuthRequest::HOST,"dGhpcy",AuthRequest::CREATE,0,false);
+        ar2.add_auth(AuthRequest::HOST,"dGhpcy",0,AuthRequest::CREATE,0,false);
         CPPUNIT_ASSERT(ar2.plain_authorize() == false);
 
-        ar3.add_auth(AuthRequest::VM,5,AuthRequest::MANAGE,2,false);
+        ar3.add_auth(AuthRequest::VM,5,0,AuthRequest::MANAGE,2,false);
         CPPUNIT_ASSERT(ar3.plain_authorize() == false);
 
-        ar4.add_auth(AuthRequest::VM,4,AuthRequest::MANAGE,2,false);
+        ar4.add_auth(AuthRequest::VM,4,0,AuthRequest::MANAGE,2,false);
         CPPUNIT_ASSERT(ar4.plain_authorize() == true);
 
-        ar5.add_auth(AuthRequest::HOST,4,AuthRequest::MANAGE,0,false);
+        ar5.add_auth(AuthRequest::HOST,4,0,AuthRequest::MANAGE,0,false);
         CPPUNIT_ASSERT(ar5.plain_authorize() == true);
 
-        ar6.add_auth(AuthRequest::HOST,4,AuthRequest::CREATE,0,false);
+        ar6.add_auth(AuthRequest::HOST,4,0,AuthRequest::CREATE,0,false);
         CPPUNIT_ASSERT(ar6.plain_authorize() == true);
     }
 
     void self_authenticate()
     {
-        AuthRequest ar(2);
-        AuthRequest ar1(2);
+        set<int> empty_set;
+
+        AuthRequest ar(2, empty_set);
+        AuthRequest ar1(2,empty_set);
 
         ar.add_authenticate("the_user","the_pass","the_secret");
         CPPUNIT_ASSERT(ar.plain_authenticate() == false);
@@ -267,11 +288,6 @@ public:
         ar1.add_authenticate("the_user","the_pass","the_pass");
         CPPUNIT_ASSERT(ar1.plain_authenticate() == true);
     }
-
-private:
-    AuthManager * am;
-
-    Template *    t;
 };
 
 
