@@ -244,7 +244,7 @@ bool AclManager::match_rules(
         long long resource_gid_mask)
 
 {
-    bool auth;
+    bool auth = false;
     ostringstream oss;
 
     multimap<long long, AclRule *>::iterator        it;
@@ -288,7 +288,7 @@ bool AclManager::match_rules(
 
     unlock();
 
-    return false;
+    return auth;
 }
 
 /* -------------------------------------------------------------------------- */
