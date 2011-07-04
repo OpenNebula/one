@@ -95,12 +95,7 @@ public:
     /**
      *  Bootstraps the database table(s) associated to the ACL Manager
      */
-    static void bootstrap(SqlDB * _db)
-    {
-        ostringstream oss(db_bootstrap);
-
-        _db->exec(oss);
-    };
+    static void bootstrap(SqlDB * _db);
 
     /**
      *  Dumps the rule set in XML format.
@@ -220,7 +215,19 @@ private:
      *    @param rule to insert
      *    @return 0 on success
      */
-    int insert(AclRule * rule);
+    int insert(AclRule * rule)
+    {
+        return insert(rule, db);
+    };
+
+    /**
+     *  Inserts the ACL rule in the database.
+     *    @param rule to insert
+     *    @db db pointer
+     *
+     *    @return 0 on success
+     */
+    static int insert(AclRule * rule, SqlDB * db);
 
     /**
      *  Drops an ACL rule from the database

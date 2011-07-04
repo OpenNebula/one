@@ -464,6 +464,21 @@ int AclManager::del_rule(int oid, string& error_str)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void AclManager::bootstrap(SqlDB * _db)
+{
+    ostringstream oss(db_bootstrap);
+
+    _db->exec(oss);
+
+    // Add a default rule
+    // @1 VM+NET+IMAGE+TEMPLATE/* CREATE+INFO_POOL_MINE
+    AclRule default_rule(0, 0x200000001LL, 0x2d400000000LL, 0x41LL);
+    insert(&default_rule, _db);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void AclManager::update_lastOID()
 {
     // db->escape_str is not used for 'table' since its name can't be set in
@@ -549,7 +564,7 @@ int AclManager::select()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int AclManager::insert(AclRule * rule)
+int AclManager::insert(AclRule * rule, SqlDB * db)
 {
     ostringstream   oss;
     int             rc;
