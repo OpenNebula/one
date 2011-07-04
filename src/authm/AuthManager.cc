@@ -68,7 +68,7 @@ void AuthRequest::add_auth(Object        ob,
 
     oss << Operation_to_str(op) << ":";
 
-    oss << owner << ":";
+    oss << owner << ":" << pub << ":";
 
     // -------------------------------------------------------------------------
     // Authorize the request for self authorization
