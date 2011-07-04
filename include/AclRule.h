@@ -19,6 +19,7 @@
 
 #include <set>
 #include <string>
+#include <libxml/tree.h>
 
 using namespace std;
 
@@ -83,11 +84,10 @@ public:
     /**
      *  Rebuilds the rule from an xml formatted string
      *
-     *    @param xml_str The xml-formatted string
-     *
+     *    @param node xml node for the ACL rule
      *    @return 0 on success, -1 otherwise
      */
-    int from_xml(const string &xml_str);
+    int from_xml(xmlNodePtr node);
 
     /**
      *  Returns the 32 less significant bits of the user long long attribute

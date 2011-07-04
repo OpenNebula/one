@@ -350,27 +350,54 @@ string& AclRule::to_xml(string& xml) const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int AclRule::from_xml(const string &xml_str)
+int AclRule::from_xml(xmlNodePtr node)
 {
     int rc = 0;
 
-    string tmp_error;
-
-    ObjectXML xml_obj(xml_str);
-
-    rc += xml_obj.xpath(oid     ,    "/ACL/ID"      ,      0);
-    rc += xml_obj.xpath(user    ,    "/ACL/USER"    ,      0);
-    rc += xml_obj.xpath(resource,    "/ACL/RESOURCE",      0);
-    rc += xml_obj.xpath(rights  ,    "/ACL/RIGHTS"  ,      0);
-    rc += xml_obj.xpath(str     ,    "/ACL/STRING"  ,      "");
-
-    if ( (rc != 0) || malformed(tmp_error) )
+    for (xmlNodePtr acl = node->children ; acl != 0 ; acl = acl->next)
     {
-        return -1;
+        if ( acl->type != XML_ELEMENT_NODE )
+        {
+            rc = -1;
+            break;
+        }
+
+        xmlNodePtr elem = acl->children; 
+
+        if ( elem->type != XML_TEXT_NODE )
+        {
+            rc = -1;
+            break;
+        }
+
+        string        name = reinterpret_cast<const char*>(acl->name);
+        istringstream iss(reinterpret_cast<const char*>(elem->content));
+
+        if (name == "ID")
+        {
+            iss >> oid;
+        }
+        else if (name == "USER")
+        {
+            iss >> hex >> user;
+        }
+        else if (name == "RESOURCE")
+        {
+            iss >> hex >> resource;
+        }
+        else if (name == "RIGHTS")
+        {
+            iss >> hex >> rights;
+        }
+        else if (name == "STRING")
+        {
+            str = iss.str();
+        }
     }
 
-    return 0;
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
