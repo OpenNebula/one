@@ -268,7 +268,7 @@ bool AclManager::match_rules(
           &&
           (
             // Rule grants permission for all objects of this type
-            ( it->second->resource == resource_all_req )
+            ( ( it->second->resource & resource_all_req ) == resource_all_req )
             ||
             // Or rule's object type and group object ID match
             ( ( it->second->resource & resource_gid_mask ) == resource_gid_req )
