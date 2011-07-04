@@ -63,6 +63,12 @@ module OpenNebula
                                 -1,
                                 -1,
                                 INFO_NOT_DONE)
+                when 1
+                    info_filter(VM_POOL_METHODS[:info],
+                                args[0],
+                                -1,
+                                -1,
+                                INFO_NOT_DONE)
                 when 3
                     info_filter(VM_POOL_METHODS[:info],
                                 args[0],
@@ -100,6 +106,12 @@ module OpenNebula
                                -1,
                                -1,
                                INFO_NOT_DONE)
+        end
+        
+        private
+        
+        def info_filter(xml_method, who, start_id, end_id, state)
+            return xmlrpc_info(xml_method, who, start_id, end_id, state)
         end
     end
 end
