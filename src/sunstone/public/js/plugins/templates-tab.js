@@ -591,7 +591,7 @@ var template_actions = {
     "Template.update_dialog" : {
         type: "custom",
         call: function() {
-            popUpTemplateUpdateDialog("Template",templates_select);
+            popUpTemplateUpdateDialog("Template",templates_select,getSelectedNodes(dataTable_templates));
         }
     },
 
@@ -768,8 +768,8 @@ function templateElementArray(template_json){
     return [
         '<input type="checkbox" id="template_'+template.ID+'" name="selected_items" value="'+template.ID+'"/>',
         template.ID,
-        getUserName(template.UID),
-        getGroupName(template.GID),
+        template.UNAME,
+        template.GNAME,
         template.NAME,
         pretty_time(template.REGTIME),
         parseInt(template.PUBLIC) ? "yes" : "no"
@@ -851,6 +851,14 @@ function updateTemplateInfo(request,template){
            <tr>\
              <td class="key_td">Name</td>\
              <td class="value_td">'+template_info.NAME+'</td>\
+           </tr>\
+           <tr>\
+             <td class="key_td">Owner</td>\
+             <td class="value_td">'+template_info.UNAME+'</td>\
+           </tr>\
+           <tr>\
+             <td class="key_td">Group</td>\
+             <td class="value_td">'+template_info.GNAME+'</td>\
            </tr>\
            <tr>\
              <td class="key_td">Register time</td>\

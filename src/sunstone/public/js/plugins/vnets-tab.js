@@ -318,8 +318,8 @@ function vNetworkElementArray(vn_json){
     return [
         '<input type="checkbox" id="vnetwork_'+network.ID+'" name="selected_items" value="'+network.ID+'"/>',
         network.ID,
-        getUserName(network.UID),
-        getGroupName(network.GID),
+        network.UNAME,
+        network.GNAME,
         network.NAME,
         parseInt(network.TYPE) ? "FIXED" : "RANGED",
         network.BRIDGE,
@@ -401,8 +401,12 @@ function updateVNetworkInfo(request,vn){
               <td class="value_td">'+vn_info.ID+'</td>\
             <tr>\
             <tr>\
-              <td class="key_td">UID</td>\
-              <td class="value_td">'+vn_info.UID+'</td>\
+              <td class="key_td">Owner</td>\
+              <td class="value_td">'+vn_info.UNAME+'</td>\
+            </tr>\
+            <tr>\
+              <td class="key_td">Group</td>\
+              <td class="value_td">'+vn_info.GNAME+'</td>\
             </tr>\
             <tr>\
               <td class="key_td">Public</td>\

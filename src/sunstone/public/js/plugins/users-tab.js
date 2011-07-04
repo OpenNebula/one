@@ -97,6 +97,46 @@ var user_actions = {
         notify: false
     },
 
+    "User.chgrp" : {
+        type: "multiple",
+        call: OpenNebula.User.chgrp,
+        callback : function(req){
+            Sunstone.runAction("User.show",req.request.data[0]);
+        },
+        elements : function() {return getSelectedNodes(dataTable_users);},
+        error: onError,
+        notify: true
+    },
+
+    "User.addgroup" : {
+        type: "multiple",
+        call: OpenNebula.User.addgroup,
+        callback : function(req){
+            Sunstone.runAction("User.show",req.request.data[0]);
+        },
+        elements : function() {return getSelectedNodes(dataTable_users);},
+        error: onError,
+        notify: true
+    },
+
+    "User.delgroup" : {
+        type: "multiple",
+        call: OpenNebula.User.delgroup,
+        callback : function(req){
+            Sunstone.runAction("User.show",req.request.data[0]);
+        },
+        elements : function() {return getSelectedNodes(dataTable_users);},
+        error: onError,
+        notify: true
+    },
+
+    "User.show" : {
+        type: "single",
+        call: OpenNebula.User.show,
+        callback: updateUserElement,
+        error: onError
+    },
+
     "User.delete" : {
         type: "multiple",
         call: OpenNebula.User.delete,
@@ -117,6 +157,27 @@ var user_buttons = {
     "User.create_dialog" : {
         type: "create_dialog",
         text: "+ New",
+        condition: True
+    },
+    "User.chgrp" : {
+        type: "confirm_with_select",
+        text: "Change main group",
+        select: function(){ return groups_select; },
+        tip: "This will change the main group of the selected users. Select the new group:",
+        condition: True
+    },
+    "User.addgroup" : {
+        type: "confirm_with_select",
+        text: "Add to group",
+        select: function(){ return groups_select; },
+        tip: "Select the new group to add users:",
+        condition: True
+    },
+    "User.delgroup" : {
+        type: "confirm_with_select",
+        text: "Delete from group",
+        select: function(){ return groups_select; },
+        tip: "Select the group from which to delete users:",
         condition: True
     },
     "User.delete" : {
@@ -146,30 +207,38 @@ function userElementArray(user_json){
         name = user.NAME;
     }
 
-    var i = 1;
-    var groups_str=getGroupName(user.GID)+", ";
-    var groups_full_str=getGroupName(user.GID)+", ";
-    var group_field;
+    var groups_str="";
+    if (user.GROUPS.ID.constructor == Array){ //several groups
+        for (var i=0; i< user.GROUPS.ID.length; i++){
+            groups_str+=getGroupName(user.GROUPS.ID[i])+', ';
+        };
+        groups_str = groups_str.slice(0,-2);
+    } else { //one group
+        groups_str = getGroupName(user.GROUPS.ID);
+    };
 
-    if (user.GROUPS.ID){
-        $.each(user.GROUPS.ID,function() {
-            if (i<=5) {
-                groups_str+=getGroupName(this)+", ";
-            };
-            groups_full_str+=getGroupName(this)+", ";
-            i++;
-        });
-        if (i>0){
-            groups_str = groups_str.slice(0, -2);
-            groups_full_str = groups_str.slice(0, -2);
-        };
-        if (i>5){
-            groups_str+="...";
-            group_field = '<div class="shortened_info">'+groups_str+'</div><div class="full_info" style="display:none">'+groups_full_str+'</div>';
-        } else {
-            group_field=groups_str;
-        };
-    }
+    // var groups_full_str=getGroupName(user.GID)+", ";
+    // var group_field;
+
+    // if (user.GROUPS.ID){
+    //     $.each(user.GROUPS.ID,function() {
+    //         if (i<=5) {
+    //             groups_str+=getGroupName(this)+", ";
+    //         };
+    //         groups_full_str+=getGroupName(this)+", ";
+    //         i++;
+    //     });
+    //     if (i>0){
+    //         groups_str = groups_str.slice(0, -2);
+    //         groups_full_str = groups_str.slice(0, -2);
+    //     };
+    //     if (i>5){
+    //         groups_str+="...";
+    //         group_field = '<div class="shortened_info">'+groups_str+'</div><div class="full_info" style="display:none">'+groups_full_str+'</div>';
+    //     } else {
+    //         group_field=groups_str;
+    //     };
+    // }
 
 
 
@@ -177,7 +246,7 @@ function userElementArray(user_json){
         '<input type="checkbox" id="user_'+user.ID+'" name="selected_items" value="'+user.ID+'"/>',
         user.ID,
         name,
-        group_field
+        groups_str
     ]
 }
 
