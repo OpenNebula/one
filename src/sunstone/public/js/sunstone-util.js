@@ -375,11 +375,17 @@ function waitingNodes(dataTable){
 };
 
 function getUserName(uid){
-    return getName(uid,dataTable_users);
+    if (typeof(dataTable_users) != "undefined"){
+        return getName(uid,dataTable_users);
+    }
+    return uid;
 }
 
 function getGroupName(gid){
-    return getName(gid,dataTable_groups);
+    if (typeof(dataTable_groups) != "undefined"){
+        return getName(gid,dataTable_groups);
+    }
+    return gid;
 }
 
 function getName(id,dataTable){
@@ -598,9 +604,13 @@ function setupTemplateUpdateDialog(){
 
     $('#template_update_dialog #template_update_select').live("change",function(){
         var id = $(this).val();
-        var resource = $('#template_update_dialog #template_update_button').val();
-        $('#template_update_dialog #template_update_textarea').val("Loading...");
-        Sunstone.runAction(resource+".fetch_template",id);
+        if (id.length){
+            var resource = $('#template_update_dialog #template_update_button').val();
+            $('#template_update_dialog #template_update_textarea').val("Loading...");
+            Sunstone.runAction(resource+".fetch_template",id);
+        } else {
+            $('#template_update_dialog #template_update_textarea').val("");
+        }
     });
 
     $('#template_update_dialog #template_update_button').click(function(){
@@ -613,10 +623,26 @@ function setupTemplateUpdateDialog(){
     });
 }
 
-function popUpTemplateUpdateDialog(elem_str,select_items){
+function popUpTemplateUpdateDialog(elem_str,select_items,sel_elems){
     $('#template_update_dialog #template_update_button').val(elem_str);
     $('#template_update_dialog #template_update_select').html(select_items);
     $('#template_update_dialog #template_update_textarea').val("");
+
+    if (sel_elems.length >= 1){ //several items in the list are selected
+        //grep them
+        var new_select= sel_elems.length > 1? '<option value="">Please select</option>' : "";
+        $('option','<select>'+select_items+'</select>').each(function(){
+            if ($.inArray($(this).val(),sel_elems) >= 0){
+                new_select+='<option value="'+$(this).val()+'">'+$(this).text()+'</option>';
+            };
+        });
+        $('#template_update_dialog #template_update_select').html(new_select);
+        if (sel_elems.length == 1) {
+            $('#template_update_dialog #template_update_select option').attr("selected","selected");
+            $('#template_update_dialog #template_update_select').trigger("change");
+        }
+    };
+
     $('#template_update_dialog').dialog('open');
     return false;
 }

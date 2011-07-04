@@ -580,8 +580,8 @@ function vMachineElementArray(vm_json){
     return [
         '<input type="checkbox" id="vm_'+vm.ID+'" name="selected_items" value="'+vm.ID+'"/>',
         vm.ID,
-        getUserName(vm.UID),
-        getGroupName(vm.GID),
+        vm.UNAME,
+        vm.GNAME,
         vm.NAME,
         state,
         vm.CPU,
@@ -658,6 +658,14 @@ function updateVMInfo(request,vm){
               <tr>\
                  <td class="key_td">Name</td>\
                  <td class="value_td">'+vm_info.NAME+'</td>\
+              </tr>\
+              <tr>\
+                 <td class="key_td">Owner</td>\
+                 <td class="value_td">'+vm_info.UNAME+'</td>\
+              </tr>\
+              <tr>\
+                 <td class="key_td">Group</td>\
+                 <td class="value_td">'+vm_info.GNAME+'</td>\
               </tr>\
               <tr>\
                  <td class="key_td">State</td>\

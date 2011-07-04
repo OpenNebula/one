@@ -14,7 +14,7 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-var group_select="";
+var groups_select="";
 var group_list_json = {};
 var dataTable_groups;
 
@@ -28,8 +28,8 @@ var groups_tab_content =
     <tr>\
       <th class="check"><input type="checkbox" class="check_all" value="">All</input></th>\
       <th>ID</th>\
-      <th>Owner</th>\
       <th>Name</th>\
+      <th>Users</th>\
     </tr>\
   </thead>\
   <tbody id="tbodygroups">\
@@ -157,11 +157,23 @@ Sunstone.addMainTab('groups_tab',groups_tab);
 
 function groupElementArray(group_json){
     var group = group_json.GROUP;
+
+    var users_str="";
+    if (group.USERS.ID &&
+        group.USERS.ID.constructor == Array){
+        for (var i=0; i<group.USERS.ID.length; i++){
+            users_str+=getUserName(group.USERS.ID[i])+', ';
+        };
+        users_str=users_str.slice(0,-2);
+    } else if (group.USERS.ID) {
+        users_str=getUserName(group.USERS.ID);
+    };
+
     return [
         '<input type="checkbox" id="group_'+group.ID+'" name="selected_items" value="'+group.ID+'"/>',
         group.ID,
-        getUserName(group.UID),
-        group.NAME ];
+        group.NAME,
+        users_str ];
 }
 
 function groupInfoListener(){
@@ -176,7 +188,7 @@ function groupInfoListener(){
 }
 
 function updateGroupSelect(){
-    groups_select = makeSelectOptions(dataTable_groups,1,3,-1,"",-1);
+    groups_select = makeSelectOptions(dataTable_groups,1,2,-1,"",-1);
 }
 
 function updateGroupElement(request, group_json){

@@ -39,6 +39,8 @@ module OpenNebulaJSON
             rc = case action_hash['perform']
                  when "passwd" then self.passwd(action_hash['params'])
                  when "chgrp"        then self.chgrp(action_hash['params'])
+                 when "addgroup" then self.addgroup(action_hash['params'])
+                 when "delgroup" then self.delgroup(action_hash['params'])
                  else
                      error_msg = "#{action_hash['perform']} action not " <<
                          " available for this resource"
@@ -52,7 +54,16 @@ module OpenNebulaJSON
         end
 
         def chgrp(params=Hash.new)
-            super(params['group_id'])
+            super(params['group_id'].to_i)
         end
+
+        def addgroup(params=Hash.new)
+            super(params['group_id'].to_i)
+        end
+
+        def delgroup(params=Hash.new)
+            super(params['group_id'].to_i)
+        end
+
     end
 end
