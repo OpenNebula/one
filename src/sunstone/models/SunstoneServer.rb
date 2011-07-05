@@ -41,9 +41,13 @@ class SunstoneServer
             return [500, false]
         end
 
-        user_pass = user_pool["USER[NAME=\"#{user}\"]/PASSWORD"]
+        user_pass   =  user_pool["USER[NAME=\"#{user}\"]/PASSWORD"]
+        user_id     =  user_pool["USER[NAME=\"#{user}\"]/ID"]
+        user_gid    =  user_pool["USER[NAME=\"#{user}\"]/GID"]
+        user_gname  =  user_pool["USER[NAME=\"#{user}\"]/GNAME"]
+
         if user_pass == sha1_pass
-            return [204, user_pool["USER[NAME=\"#{user}\"]/ID"]]
+            return [204, [user_id, user_gid, user_gname]]
         else
             return [401, nil]
         end

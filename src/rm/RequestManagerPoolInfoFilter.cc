@@ -84,11 +84,11 @@ void RequestManagerPoolInfoFilter::request_execute(xmlrpc_c::paramList const& pa
 
         case MINE_GROUP:
 
-            uid_filter << "uid = " << uid << " OR gid = " << gid;
+            uid_filter << "uid = " << uid;
 
             for ( it = group_ids.begin() ; it != group_ids.end(); it++ )
             {
-                where_string << " OR gid = " << *it;
+                uid_filter << " OR gid = " << *it;
             }
 
             request_op = AuthRequest::INFO_POOL_MINE;

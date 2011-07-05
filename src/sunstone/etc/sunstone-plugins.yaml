@@ -1,16 +1,19 @@
 ---
 - plugins/dashboard-tab.js:
-    :ALL: true
+    :ALL: false
     :user:
     :group:
+        oneadmin: true
 - plugins/hosts-tab.js:
-    :ALL: true
+    :ALL: false
     :user:
     :group:
+        oneadmin: true
 - plugins/groups-tab.js:
-    :ALL: true
+    :ALL: false
     :user:
     :group:
+        oneadmin: true
 - plugins/templates-tab.js:
     :ALL: true
     :user:
@@ -28,6 +31,7 @@
     :user:
     :group:
 - plugins/users-tab.js:
-    :ALL: true
+    :ALL: false
     :user:
     :group:
+        oneadmin: true

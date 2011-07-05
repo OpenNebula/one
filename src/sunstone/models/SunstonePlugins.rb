@@ -69,19 +69,28 @@ class SunstonePlugins
         @installed_plugins.include? plugin
     end
 
-    def authorized_plugins(user,group=nil)
+    def authorized_plugins(user, group)
         auth_plugins = {"user-plugins"=>Array.new, "plugins"=>Array.new}
 
         @plugins_conf.each do |plugin_conf|
             plugin = plugin_conf.keys.first
-            perms = plugin_conf[plugin]
+            perms  = plugin_conf[plugin]
+
             if installed?(plugin)
                 p_path, p_name = plugin.split('/')
 
-                if perms[:user] and perms[:user][user]
-                    auth_plugins[p_path] << p_name
-                elsif perms[:group] and perms[:group][group]
-                    auth_plugins[p_path] << p_name
+                if perms[:user] and perms[:user].has_key? user
+                    if perms[:user][user]
+                        auth_plugins[p_path] << p_name
+                    else
+                        next
+                    end
+                elsif perms[:group] and perms[:group].has_key? group
+                    if perms[:group][group]
+                        auth_plugins[p_path] << p_name
+                    else
+                        next
+                    end
                 elsif perms[:ALL]
                     auth_plugins[p_path] << p_name
                 end
