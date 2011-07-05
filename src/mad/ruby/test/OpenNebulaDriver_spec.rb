@@ -151,7 +151,7 @@ describe OpenNebulaDriver do
             15,
             "localhost",
             :deploy,
-            "/var/tmp/one/vmm/dummy",
+            "/var/tmp/one",
             nil]
     end
 
@@ -204,7 +204,7 @@ describe OpenNebulaDriver do
 
         #pp result
 
-
+=begin
         result.should == [
             # 1 - Everything ok
             "LOG I 0 ExitCode: 0",
@@ -223,6 +223,21 @@ describe OpenNebulaDriver do
             "LOG I 0 ExitCode: 0",
             "DEPLOY SUCCESS 0 command info"
         ]
+=end
+        result.should == [
+            # 1 - Everything ok
+            "LOG I 0 ExitCode: 0",
+            "DEPLOY SUCCESS 0 command info",
+            # 2 - Command fails
+            "LOG I 0 Command execution fail: 'if [ -x \"command\" ]; then command; else                              exit 42; fi'",
+            "LOG I 0 ExitCode: 255",
+            "DEPLOY FAILURE 0 -",
+            # 3 - File is not there, update files
+            "LOG I 0 Command execution fail: 'if [ -x \"command\" ]; then command; else                              exit 42; fi'",
+            # 4 - Good command execution
+            "LOG I 0 ExitCode: 42",
+            "DEPLOY FAILURE 0 -"]
+
     end
 
     it 'should execute local actions' do
