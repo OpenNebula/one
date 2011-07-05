@@ -32,22 +32,18 @@ class AclManager : public Callbackable
 public:
     AclManager(SqlDB * _db);
 
-    ~AclManager();
+    AclManager():db(0),lastOID(0)
+    {
+       pthread_mutex_init(&mutex, 0);
+    };
+
+    virtual ~AclManager();
 
     /**
      *  Loads the ACL rule set from the DB
      *    @return 0 on success.
      */
     int start();
-
-    /**
-     *  Loads the ACL rule set from its XML representation
-     *  as obtained by a dump call
-     *
-     *    @param xml_str string with the XML document for the ACL 
-     *    @return 0 on success.
-     */
-    int start_xml(const string& xml_str);
 
     /* ---------------------------------------------------------------------- */
     /* Rule management                                                        */
@@ -84,10 +80,10 @@ public:
      *    -2 if the rule is malformed,
      *    -3 if the DB insert failed
      */
-    int add_rule(long long user, 
-                 long long resource, 
-                 long long rights,
-                 string&   error_str);
+    virtual int add_rule(long long user, 
+                         long long resource, 
+                         long long rights,
+                         string&   error_str);
     /**
      *  Deletes a rule from the ACL rule set
      *
@@ -95,7 +91,7 @@ public:
      *    @param error_str Returns the error reason, if any
      *    @return 0 on success
      */
-    int del_rule(int oid, string& error_str);
+    virtual int del_rule(int oid, string& error_str);
 
     /* ---------------------------------------------------------------------- */
     /* DB management                                                          */
@@ -116,9 +112,9 @@ public:
      *    @param oss The output stream to dump the rule set contents
      *    @return 0 on success
      */
-    int dump(ostringstream& oss);
+    virtual int dump(ostringstream& oss);
 
-private:
+protected:
 
     // ----------------------------------------
     // ACL rules management
@@ -134,6 +130,8 @@ private:
      *  Rules indexed by oid. Stores the same rules as acl_rules
      */
     map<int, AclRule *> acl_rules_oids;
+
+private:
 
     /**
      *  Gets all rules that apply to the user_req and, if any of them grants

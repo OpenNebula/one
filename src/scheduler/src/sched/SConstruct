@@ -32,6 +32,7 @@ sched_env.Prepend(LIBS=[
     'scheduler_pool',
     'nebula_log',
     'scheduler_client',
+    'nebula_acl',
     'nebula_xml',
     'nebula_common',
     'crypto',

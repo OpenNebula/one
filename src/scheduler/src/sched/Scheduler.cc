@@ -122,6 +122,7 @@ void Scheduler::start()
     hpool  = new HostPoolXML(client);
     vmpool = new VirtualMachinePoolXML(client, machines_limit);
     upool  = new UserPoolXML(client);
+    acls   = new AclXML(client);
 
     // -----------------------------------------------------------
     // Load scheduler policies
@@ -244,9 +245,12 @@ int Scheduler::set_up_pools()
     //Cleans the cache and get the ACLs
     //--------------------------------------------------------------------------
 
-    //TODO
-    //  1.- one.acl.list
-    //  2.- from_xml
+    rc = acls->set_up();
+
+    if ( rc != 0 )
+    {
+        return rc;
+    }
 
     //--------------------------------------------------------------------------
     //Get the matching hosts for each VM

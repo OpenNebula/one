@@ -131,6 +131,20 @@ public:
         return resource & 0xFFFFFFFF00000000LL;
     };
 
+    // ------------------------------------------------------------------------
+    // Functions needed by the Scheduler ACL engine
+    // ------------------------------------------------------------------------
+
+    long long get_user() const
+    {
+        return user;
+    }
+
+    long long get_oid() const
+    {
+        return oid;
+    }
+
 private:
     // NONE_ID can never be used in a rule. It is useful to create masks that
     // will never match any existing rule

@@ -72,34 +72,6 @@ int AclManager::start()
 }
 
 /* -------------------------------------------------------------------------- */
-
-int AclManager::start_xml(const string& xml_str)
-{
-    ObjectXML          acl_xml(xml_str);
-
-    vector<xmlNodePtr>           rules;
-    vector<xmlNodePtr>::iterator it;
-
-    acl_xml.get_nodes("/ACL_POOL/ACL",rules);
-
-    for (it = rules.begin(); it != rules.end() ; it++)
-    {
-        AclRule * rule = new AclRule(0,0,0,0);
-        int       rc   = rule->from_xml(*it);
-
-        if ( rc == 0 )
-        {
-            acl_rules.insert( make_pair(rule->user, rule) );
-            acl_rules_oids.insert( make_pair(rule->oid, rule) );
-        }
-    }
-
-    acl_xml.free_nodes(rules);
-
-    return 0;    
-}
-
-/* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 AclManager::~AclManager()
