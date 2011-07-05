@@ -294,7 +294,7 @@ EOT
     end
 
     def OpenNebulaHelper.name_to_id(name, poolname, user_flag=-2)
-        return 0, name if name.match(/^[0123456789]+$/)
+        return 0, name.to_i if name.match(/^[0123456789]+$/)
 
         client = OpenNebula::Client.new
         # TBD user_flag
