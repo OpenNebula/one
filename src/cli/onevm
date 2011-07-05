@@ -78,11 +78,22 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         See 'onetemplate create' and 'onetemplate instantiate'
     EOT
 
-    command :create, create_desc, :file do
-        helper.create_resource(options) do |vm|
-            template=File.read(args[0])
-            vm.allocate(template)
+    command :create, create_desc, :file,
+            :options=>[OneVMHelper::MULTIPLE]+OpenNebulaHelper::OPTIONS do
+        number = options[:multiple] || 1
+
+        exit_code=nil
+
+        number.times do
+            exit_code=helper.create_resource(options) do |vm|
+                template=File.read(args[0])
+                error=vm.allocate(template)
+            end
+
+            break if exit_code==-1
         end
+
+        exit_code
     end
 
     delete_desc = <<-EOT.unindent

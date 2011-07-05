@@ -17,6 +17,14 @@
 require 'one_helper'
 
 class OneVMHelper < OpenNebulaHelper::OneHelper
+    MULTIPLE={
+        :name  => "multiple",
+        :short => "-m x",
+        :large => "--multiple x",
+        :format => Integer,
+        :description => "Instance multiple VMs"
+    }
+
     def self.rname
         "VM"
     end
