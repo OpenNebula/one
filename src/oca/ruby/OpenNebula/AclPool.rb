@@ -56,14 +56,10 @@ module OpenNebula
         # +resource+    A string containing a hex number, e.g. 0x2100000001
         # +rights+      A string containing a hex number, e.g. 0x10
         def addrule(user, resource, rights)
-            rc = @client.call( ACL_POOL_METHODS[:addrule],
+             return @client.call( ACL_POOL_METHODS[:addrule],
                                user,
                                resource,
                                rights )
-
-            rc = nil if !OpenNebula.is_error?(rc)
-
-            return rc
         end
 
         # Adds a new ACL rule.

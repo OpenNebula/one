@@ -35,10 +35,10 @@ class OneAclHelper < OpenNebulaHelper::OneHelper
         end  
         
         if OpenNebula.is_error?(rc)
-            [-1, rc.message]
+            return [-1, rc.message]
         else
-            if !rc
-                puts "Rule added" if options[:verbose]
+            if rc.class == Fixnum
+                puts "Rule added with ID #{rc}" if options[:verbose]
                 return 0
             end
             return [-1, rc[:users].message] if OpenNebula.is_error?(rc[:users])

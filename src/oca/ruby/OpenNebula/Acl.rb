@@ -111,7 +111,9 @@ module OpenNebula
                 end
 
                 resources[0].split("+").each{ |resource|
-                    next if !RESOURCES[resource.upcase]
+                    if !RESOURCES[resource.upcase]
+                        raise "Resource #{resource} malformed." 
+                    end
                     @content[:resources] += RESOURCES[resource.upcase]
                 }
 
@@ -127,7 +129,7 @@ module OpenNebula
                 rights = rights.split("+")
 
                 rights.each{ |right|
-                    next if !RIGHTS[right.upcase]
+                    raise "Right #{right} malformed." if !RIGHTS[right.upcase]
 
                     @content[:rights] += RIGHTS[right.upcase]
                 }

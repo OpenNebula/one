@@ -23,6 +23,7 @@
 #include "VirtualMachinePoolXML.h"
 #include "SchedulerPolicy.h"
 #include "ActionManager.h"
+#include "AclXML.h"
 
 using namespace std;
 
@@ -50,6 +51,7 @@ protected:
         hpool(0),
         vmpool(0),
         upool(0),
+        acls(0),
         timer(_timer),
         url(_url),
         machines_limit(_machines_limit),
@@ -78,6 +80,11 @@ protected:
             delete upool;
         }
 
+        if ( acls != 0)
+        {
+            delete acls;
+        }
+
         if ( client != 0)
         {
             delete client;
@@ -91,6 +98,7 @@ protected:
     HostPoolXML *             hpool;
     VirtualMachinePoolXML *   vmpool;
     UserPoolXML *             upool;
+    AclXML *                  acls;
 
     // ---------------------------------------------------------------
     // Scheduler Policies

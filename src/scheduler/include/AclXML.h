@@ -14,50 +14,70 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
+#ifndef ACL_XML_H_
+#define ACL_XML_H_
 
-#ifndef USER_XML_H_
-#define USER_XML_H_
-
-#include "ObjectXML.h"
-#include <set>
+#include "AclManager.h"
+#include "Client.h"
 
 using namespace std;
 
-class UserXML : public ObjectXML
+/**
+ *  This class manages the ACL rules and the authorization engine
+ */
+class AclXML : public AclManager
 {
 public:
-    UserXML(const string &xml_doc):ObjectXML(xml_doc)
-    {
-        init_attributes();
-    };
+    AclXML(Client * _client):AclManager(), client(_client){};
 
-    UserXML(const xmlNodePtr node):ObjectXML(node)
-    {
-        init_attributes();
-    };
+    virtual ~AclXML(){};
 
-    int get_uid()
-    {
-        return oid;
-    };
-
-    int get_gid()
-    {
-        return gid;
-    };
-
-    const set<int>& get_groups()
-    {
-        return group_ids;
-    };
+    /**
+     *  Loads the ACL rule set from the DB
+     *    @return 0 on success.
+     */
+    int set_up();
 
 private:
-    int oid;
-    int gid;
+    /* ---------------------------------------------------------------------- */
+    /* Re-implement DB public functions not used in scheduler                */
+    /* ---------------------------------------------------------------------- */
+    int start()
+    {
+        return -1;
+    }
 
-    set<int> group_ids;
+    int add_rule(long long user, 
+                 long long resource, 
+                 long long rights,
+                 string&   error_str)
+    {
+        return -1;
+    };
 
-    void init_attributes();
+    int del_rule(int oid, string& error_str)
+    {
+        return -1;
+    };
+
+    int dump(ostringstream& oss)
+    {
+        return -1;
+    };
+
+    Client * client;
+
+    /**
+     *  Loads the ACL rule set from its XML representation:
+     *  as obtained by a dump call
+     *
+     *    @param xml_str string with the XML document for the ACL 
+     *    @return 0 on success.
+     */
+    int load_rules(const string& xml_str);
+
+    void flush_rules();
 };
 
-#endif /* USER_XML_H_ */
+#endif /*ACL_XML_H*/
+

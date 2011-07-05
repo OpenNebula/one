@@ -100,20 +100,6 @@ public:
      *    @param value to set
      *    @param xpath_expr of the xml element
      *    @param def default value if the element is not found
-     *    @param hex if true, the contents of the element are expected to be in
-     *    hexadecimal instead of decimal
-     *
-     *    @return -1 if default was set
-     */
-    long long xpath(long long& value, const char * xpath_expr,
-                    const long long& def, bool hex=true);
-
-    /**
-     *  Gets and sets a xpath attribute, if the attribute is not found a default
-     *  is used
-     *    @param value to set
-     *    @param xpath_expr of the xml element
-     *    @param def default value if the element is not found
      *
      *    @return -1 if default was set
      */

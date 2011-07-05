@@ -54,7 +54,7 @@ cmd = CommandParser::CmdParser.new(ARGV) do
         Adds a new ACL rule
     EOT
 
-    command :addrule, addrule_desc, [:user,:rulestr], [:resource, nil], [:rights, nil] do
+    command :create, addrule_desc, [:user,:rulestr], [:resource, nil], [:rights, nil] do
         helper.add_rule(options, args[0], args[1], args[2] )
     end
 
@@ -62,7 +62,7 @@ cmd = CommandParser::CmdParser.new(ARGV) do
         Deletes an existing ACL rule
     EOT
 
-    command :delrule, delrule_desc, :id do
+    command :delete, delrule_desc, :id do
         helper.delete_rule( options, args[0] )
     end
 

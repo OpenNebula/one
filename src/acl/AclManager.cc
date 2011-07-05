@@ -340,7 +340,6 @@ int AclManager::add_rule(long long user, long long resource, long long rights,
         goto error_malformed;
     }
 
-
     rc = insert(rule);
 
     if ( rc != 0 )

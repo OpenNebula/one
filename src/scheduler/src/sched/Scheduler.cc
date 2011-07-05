@@ -122,6 +122,7 @@ void Scheduler::start()
     hpool  = new HostPoolXML(client);
     vmpool = new VirtualMachinePoolXML(client, machines_limit);
     upool  = new UserPoolXML(client);
+    acls   = new AclXML(client);
 
     // -----------------------------------------------------------
     // Load scheduler policies
@@ -244,9 +245,12 @@ int Scheduler::set_up_pools()
     //Cleans the cache and get the ACLs
     //--------------------------------------------------------------------------
 
-    //TODO
-    //  1.- one.acl.list
-    //  2.- from_xml
+    rc = acls->set_up();
+
+    if ( rc != 0 )
+    {
+        return rc;
+    }
 
     //--------------------------------------------------------------------------
     //Get the matching hosts for each VM
@@ -326,11 +330,17 @@ void Scheduler::match()
             
             if ( matched == false )
             {
+                ostringstream oss;
+
+                oss << "Host " << host->get_hid() << 
+                    " filtered out. It does not fullfil REQUIREMENTS.";
+
+                NebulaLog::log("SCHED",Log::DEBUG,oss);
                 continue;
             }
             
             // -----------------------------------------------------------------
-            // Check host capacity
+            // Check if user is authorized
             // -----------------------------------------------------------------
 
             user    = upool->get(uid);
@@ -338,21 +348,35 @@ void Scheduler::match()
 
             if ( user != 0 )
             {
-               set<int> groups = user->get_groups(); 
-               //TODO Authorization test for this user on this host   
-               //  1.- user = uid
-               //  2.- gid
-               //  3.- groups
-               //  4.- DEPLOY on host->get_hid
+                const set<int> groups = user->get_groups(); 
+
+                if ( uid == 0 || user->get_gid() == 0 )
+                {
+                    matched = true;
+                }
+                else
+                {
+                    matched = acls->authorize(uid, 
+                                              groups,
+                                              AuthRequest::HOST, 
+                                              host->get_hid(), 
+                                              -1,
+                                              AuthRequest::USE); 
+                }
             }
             else
             {
-                //TODO Log debug info (user not authorized)?
                 continue;
             }
 
             if ( matched == false )
             {
+                ostringstream oss;
+
+                oss << "Host " << host->get_hid() << 
+                    " filtered out. User is not authorized to use it.";
+
+                NebulaLog::log("SCHED",Log::DEBUG,oss);
                 continue;
             }
             // -----------------------------------------------------------------
@@ -369,6 +393,16 @@ void Scheduler::match()
                 {
                 	vm->add_host(host->get_hid());
                 }
+            }
+            else
+            {
+                ostringstream oss;
+
+                oss << "Host " << host->get_hid() << 
+                    " filtered out. It does not have enough capacity.";
+
+                NebulaLog::log("SCHED",Log::DEBUG,oss);
+                
             }
         }
     }
