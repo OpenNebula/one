@@ -330,11 +330,17 @@ void Scheduler::match()
             
             if ( matched == false )
             {
+                ostringstream oss;
+
+                oss << "Host " << host->get_hid() << 
+                    " filtered out. It does not fullfil REQUIREMENTS.";
+
+                NebulaLog::log("SCHED",Log::DEBUG,oss);
                 continue;
             }
             
             // -----------------------------------------------------------------
-            // Check host capacity
+            // Check if user is authorized
             // -----------------------------------------------------------------
 
             user    = upool->get(uid);
@@ -342,21 +348,28 @@ void Scheduler::match()
 
             if ( user != 0 )
             {
-               set<int> groups = user->get_groups(); 
-               //TODO Authorization test for this user on this host   
-               //  1.- user = uid
-               //  2.- gid
-               //  3.- groups
-               //  4.- DEPLOY on host->get_hid
+                set<int> groups = user->get_groups(); 
+
+                matched = acls->authorize(uid, 
+                                          groups,
+                                          AuthRequest::HOST, 
+                                          host->get_hid(), 
+                                          -1,
+                                          AuthRequest::USE); 
             }
             else
             {
-                //TODO Log debug info (user not authorized)?
                 continue;
             }
 
             if ( matched == false )
             {
+                ostringstream oss;
+
+                oss << "Host " << host->get_hid() << 
+                    " filtered out. User is not authorized to use it.";
+
+                NebulaLog::log("SCHED",Log::DEBUG,oss);
                 continue;
             }
             // -----------------------------------------------------------------
@@ -373,6 +386,16 @@ void Scheduler::match()
                 {
                 	vm->add_host(host->get_hid());
                 }
+            }
+            else
+            {
+                ostringstream oss;
+
+                oss << "Host " << host->get_hid() << 
+                    " filtered out. It does not have enough capacity.";
+
+                NebulaLog::log("SCHED",Log::DEBUG,oss);
+                
             }
         }
     }
