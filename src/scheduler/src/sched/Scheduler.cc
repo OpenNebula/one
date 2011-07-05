@@ -350,12 +350,19 @@ void Scheduler::match()
             {
                 set<int> groups = user->get_groups(); 
 
-                matched = acls->authorize(uid, 
-                                          groups,
-                                          AuthRequest::HOST, 
-                                          host->get_hid(), 
-                                          -1,
-                                          AuthRequest::USE); 
+                if ( uid == 0 || user->get_gid() == 0 )
+                {
+                    matched = true;
+                }
+                else
+                {
+                    matched = acls->authorize(uid, 
+                                              groups,
+                                              AuthRequest::HOST, 
+                                              host->get_hid(), 
+                                              -1,
+                                              AuthRequest::USE); 
+                }
             }
             else
             {

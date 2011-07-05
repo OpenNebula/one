@@ -41,6 +41,11 @@ public:
         return oid;
     };
 
+    int get_gid()
+    {
+        return gid;
+    };
+
     set<int> get_groups()
     {
         return group_ids;
