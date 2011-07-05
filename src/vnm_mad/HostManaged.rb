@@ -83,6 +83,6 @@ class OpenNebulaHM < OpenNebulaNetwork
 
     def ifup(dev, vlan=nil)
         dev = "#{dev}.#{vlan}" if vlan
-        system("#{COMMANDS[:ip]} set #{dev} up")
+        system("#{COMMANDS[:ip]} link set #{dev} up")
     end
 end
