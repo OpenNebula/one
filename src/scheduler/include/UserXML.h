@@ -46,7 +46,7 @@ public:
         return gid;
     };
 
-    set<int> get_groups()
+    const set<int>& get_groups()
     {
         return group_ids;
     };

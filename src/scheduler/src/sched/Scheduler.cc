@@ -348,7 +348,7 @@ void Scheduler::match()
 
             if ( user != 0 )
             {
-                set<int> groups = user->get_groups(); 
+                const set<int> groups = user->get_groups(); 
 
                 if ( uid == 0 || user->get_gid() == 0 )
                 {
