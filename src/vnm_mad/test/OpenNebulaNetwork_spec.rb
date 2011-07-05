@@ -131,7 +131,8 @@ describe 'firewall' do
             /uname/ => OUTPUT[:xen_uname_a],
             /lsmod/ => OUTPUT[:xen_lsmod],
             /network-list/ => OUTPUT[:xm_network_list],
-            /domid/ => OUTPUT[:xm_domid]
+            /domid/ => OUTPUT[:xm_domid],
+            /iptables/ => nil
         }
         fw = OpenNebulaFirewall.new(OUTPUT[:onevm_show_xen])
         fw.activate
