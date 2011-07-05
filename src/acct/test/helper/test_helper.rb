@@ -15,8 +15,8 @@ require 'OpenNebula'
 $: << './helper'
 $: << '.'
 $: << '..'
-  
- 
+
+
 require 'examples/acct_client'
 require 'watch_client'
 require 'mock_client'
@@ -28,18 +28,18 @@ module OneWatch
     class Accounting
         def set_mock_timestamp(t)
             @mock_timestamp = t
-        end 
-        
+        end
+
         def generate_timestamp
             @mock_timestamp
         end
     end
-    
+
     class Monitoring
         def set_mock_timestamp(t)
             @mock_timestamp = t
-        end 
-        
+        end
+
         def generate_timestamp
             @mock_timestamp
         end
@@ -55,9 +55,9 @@ end
 def clean_db
     begin
         WatchHelper::Register.destroy
-        WatchHelper::Metric.destroy
-        WatchHelper::VmShare.destroy
-        WatchHelper::HostShare.destroy
+        WatchHelper::Delta.destroy
+        WatchHelper::VmSample.destroy
+        WatchHelper::HostSample.destroy
         WatchHelper::Vm.destroy
         WatchHelper::Host.destroy
     rescue Exception => e
