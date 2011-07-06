@@ -106,7 +106,7 @@ if CONF[:MONITORING_STEPS] > 0
     host_pool   ||= OpenNebula::HostPool.new(one_client)
 
     watcher.add(vm_monitoring,   CONF[:MONITORING_STEPS], vm_pool)
-    #watcher.add(host_monitoring, CONF[:MONITORING_STEPS], host_pool)
+    watcher.add(host_monitoring, CONF[:MONITORING_STEPS], host_pool)
 end
 
 step = 0

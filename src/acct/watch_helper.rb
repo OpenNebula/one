@@ -121,6 +121,7 @@ module WatchHelper
             foreign_key :host_id, :hosts
             Integer :last_poll
             Integer :timestamp
+            Integer :state
 
             HOST_SAMPLE.each { |key,value|
                 column key, value[:type]
@@ -286,9 +287,9 @@ module WatchHelper
         set_schema do
             Integer :id, :primary_key=>true
             String  :name
-            Integer :im_mad
-            Integer :vm_mad
-            Integer :tm_mad
+            String  :im_mad
+            String  :vm_mad
+            String  :tm_mad
         end
 
         create_table unless table_exists?
@@ -303,7 +304,7 @@ module WatchHelper
                 h.name   = host['NAME']
                 h.im_mad = host['IM_MAD']
                 h.vm_mad = host['VM_MAD']
-                h.tm_nad = host['TM_MAD']
+                h.tm_mad = host['TM_MAD']
             }
         end
 
