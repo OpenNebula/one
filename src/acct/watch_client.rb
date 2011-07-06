@@ -1,11 +1,15 @@
 module OneWatchClient
     require 'watch_helper'
-    require 'json'
 
     class WatchClient
         def vm_monitoring(id, opts=[])
             if resource = WatchHelper::Vm[id]
-                monitoring(resource, "VM", WatchHelper::VM_SAMPLE, opts)
+                resource_monitoring(
+                    resource,
+                    "VM",
+                    WatchHelper::VM_SAMPLE,
+                    opts
+                )
             else
                 return nil
             end
@@ -13,15 +17,89 @@ module OneWatchClient
 
         def host_monitoring(id, opts=[])
             if resource = WatchHelper::Host[id]
-                monitoring(resource, "HOST", WatchHelper::HOST_SAMPLE, opts)
+                resource_monitoring(
+                    resource,
+                    "HOST",
+                    WatchHelper::HOST_SAMPLE,
+                    opts
+                )
             else
                 return nil
             end
         end
 
+        def vm_total(opts=[])
+            total_monitoring(
+                WatchHelper::VmSample,
+                "VM",
+                WatchHelper::VM_SAMPLE,
+                opts
+            )
+        end
+
+        def host_total(opts=[])
+            total_monitoring(
+                WatchHelper::HostSample,
+                "HOST",
+                WatchHelper::HOST_SAMPLE,
+                opts
+            )
+        end
+
         private
 
-        def monitoring(rsql, kind, allowed_sample, monitoring_resources)
+        def total_monitoring(rsql, kind, allowed_samples, monitoring_resources)
+            hash = Hash.new
+            hash[:resource] = "#{kind.upcase}_POOL"
+
+            mon = Hash.new
+            monitoring_resources.each { |opt|
+                mon[opt] = case opt
+                when allowed_samples.include?(opt)
+                    sum_monitoring(rsql, kind, opt)
+                when "total", "active", "error"
+                    count_monitoring(rsql, opt)
+                end
+            }
+
+            hash[:monitoring] = mon
+
+            hash
+        end
+
+        def sum_monitoring(rsql, kind, mr)
+            a = Array.new
+
+            WatchHelper::DB.fetch(
+                "SELECT last_poll,sum(u#{mr}) AS sum_#{mr} FROM " <<
+                    "(SELECT last_poll, max(#{mr}) AS u#{mr} "    <<
+                    "FROM #{kind.downcase}_samples "              <<
+                    "GROUP BY #{kind.downcase}_id, last_poll) "   <<
+                "GROUP BY last_poll;"
+            ) do |row|
+                a << [row[:last_poll], row["sum_#{mr}"]]
+            end
+
+            a
+        end
+
+        def count_monitoring(rsql, opt)
+            resources = case opt
+            when "total" then  rsql
+            when "active" then rsql.active
+            when "error"  then rsql.error
+            else return nil
+            end
+
+            a = Array.new
+            resources.group_and_count(:timestamp).collect { |row|
+                a << [row[:timestamp], row[:count]]
+            }
+
+            a
+        end
+
+        def resource_monitoring(rsql, kind, allowed_sample, monitoring_resources)
             hash = Hash.new
             hash[:resource] = kind
             hash[:id] = rsql.id
@@ -43,7 +121,7 @@ module OneWatchClient
 
             hash[:monitoring] = mon
 
-            puts JSON.pretty_generate hash
+            hash
         end
     end
 end

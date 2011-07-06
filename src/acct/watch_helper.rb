@@ -112,6 +112,14 @@ module WatchHelper
 
             VmSample.create(hash)
         end
+
+        def self.active
+            self.filter(:state=>3)
+        end
+
+        def self.error
+            self.filter(:state=>7)
+        end
     end
 
     class HostSample < Sequel::Model
@@ -148,6 +156,14 @@ module WatchHelper
             }
 
             HostSample.create(hash)
+        end
+
+        def self.active
+            self.filter(:state<3)
+        end
+
+        def self.error
+            self.filter(:state=>3)
         end
     end
 
