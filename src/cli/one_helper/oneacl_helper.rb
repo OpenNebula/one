@@ -24,51 +24,23 @@ class OneAclHelper < OpenNebulaHelper::OneHelper
     def self.conf_file
         "oneacl.yaml"
     end
-    
-    def add_rule(options, arg0, arg1=nil, arg2=nil)
-        aclp = OpenNebula::AclPool.new( OpenNebula::Client.new() )
 
-        if arg2
-            rc = aclp.addrule( arg0, arg1, arg2 )
+private
+
+    def factory(id = nil)
+        if id
+            OpenNebula::Acl.new_with_id(id, @client)
         else
-            rc = aclp.addrule_with_str( arg0 )
-        end  
-        
-        if OpenNebula.is_error?(rc)
-            return [-1, rc.message]
-        else
-            if rc.class == Fixnum
-                puts "Rule added with ID #{rc}" if options[:verbose]
-                return 0
-            end
-            return [-1, rc[:users].message] if OpenNebula.is_error?(rc[:users])
-            return [-1, rc[:resources].message] if OpenNebula.is_error?(
-                                                                 rc[:resources])
-            return [-1, rc[:rights].message] if OpenNebula.is_error?(
-                                                                 rc[:rights])
+            xml = OpenNebula::Acl.build_xml
+            OpenNebula::Acl.new(xml, @client)
         end
     end
-    
-    def delete_rule(options, id)
-        acl = OpenNebula::AclPool.new( OpenNebula::Client.new() )
-
-        rc = acl.delrule( id )
-
-        if OpenNebula.is_error?(rc)
-            [-1, rc.message]
-        else
-            puts "Rule deleted" if options[:verbose]
-            0
-        end
-    end
-
-    private
 
     def factory_pool(filter)
         OpenNebula::AclPool.new(@client)
     end
-    
-        # TODO check that @content[:resources_str]  is valid
+
+    # TODO check that @content[:resources_str]  is valid
     def self.resource_mask(str)
         resource_type=str.split("/")[0]
   

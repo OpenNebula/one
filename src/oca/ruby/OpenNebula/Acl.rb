@@ -39,13 +39,14 @@ module OpenNebula
     #                  INFO_POOL_MINE
     #                  INSTANTIATE
     #                  CHOWN
-    class Acl
+    class Acl < PoolElement
 
         USERS = {
             "UID"           => 0x100000000,
             "GID"           => 0x200000000,
             "ALL"           => 0x400000000
         }
+
         RESOURCES =
         {
             "VM"            => 0x1000000000,
@@ -70,121 +71,180 @@ module OpenNebula
             "CHOWN"         => 0x100 # Auth. to change ownership of an object
         }
 
-        def initialize(rule_str=nil)
-            # Content stores numbers
-            @content = {
-                :users         =>  0,
-                :resources     =>  0,
-                :rights        =>  0
-            }
-
-            parse_rule(rule_str) if rule_str
+        # Constructor
+        #
+        # @param xml [String] must be an xml built with {#build_xml}
+        # @param client [Client] represents an XML-RPC connection
+        def initialize(xml, client)
+            super(xml,client)
         end
 
-        def parse_rule(rule_str)
-            begin
-                rule_str = rule_str.split(" ")
-                parse_users(rule_str[0])
-                parse_resources(rule_str[1])
-                parse_rights(rule_str[2])
-            rescue Exception  => e
-                @content[:users] = OpenNebula::Error.new(e.message)
+        # Creates an empty XML representation. It contains the id, if it is
+        # specified.
+        #
+        # @param pe_id [Integer] rule ID
+        # @param client [Client] represents an XML-RPC connection
+        #
+        # @return [String] an empty XML representation
+        def self.build_xml(pe_id=nil)
+            if pe_id
+                acl_xml = "<ACL><ID>#{pe_id}</ID></ACL>"
+            else
+                acl_xml = "<ACL></ACL>"
             end
+
+            XMLElement.build_xml(acl_xml,'ACL')
         end
 
-        def parse_users(users)
+        # Creates a new ACL rule.
+        #
+        # @param user [String]
+        #   A string containing a hex number, e.g. 0x100000001
+        # @param resource [String]
+        #   A string containing a hex number, e.g. 0x2100000001
+        # @param rights [String]
+        #   A string containing a hex number, e.g. 0x10
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def allocate(user, resource, rights)
+            return super( AclPool::ACL_POOL_METHODS[:addrule],
+                          user,
+                          resource,
+                          rights )
+        end
+
+        # Deletes the Acl rule
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def delete()
+            super(AclPool::ACL_POOL_METHODS[:delrule])
+        end
+
+        # Does nothing, individual ACL rules info can't be retrieved from
+        # OpenNebula
+        #
+        # @return [nil] nil
+        def info()
+            return nil
+        end
+
+        # Parses a rule string, e.g. "#5 HOST+VM/@12 INFO+CREATE+DELETE"
+        #
+        # @param rule_str [String] an ACL rule in string format
+        #
+        # @return [Array] an Array containing 3 strings (hex 64b numbers),
+        # or OpenNebula::Error objects
+        def self.parse_rule(rule_str)
+            ret = Array.new
+
+            rule_str = rule_str.split(" ")
+
+            if rule_str.length != 3
+                return [OpenNebula::Error.new(
+                    "String needs three components: User, Resource, Rights")]
+            end
+
+            ret << parse_users(rule_str[0])
+            ret << parse_resources(rule_str[1])
+            ret << parse_rights(rule_str[2])
+
+            return ret
+        end
+
+private
+
+        # Converts a string in the form [#<id>, @<id>, *] to a hex. number
+        #
+        # @param users [String] Users component string
+        #
+        # @return [String] A string containing a hex number
+        def self.parse_users(users)
            begin
-               @content[:users] = calculate_users(users)
+               return calculate_ids(users).to_i.to_s(16)
            rescue Exception  => e
-               @content[:resources] = OpenNebula::Error.new(e.message)
+               return OpenNebula::Error.new(e.message)
            end
         end
 
-        def parse_resources(resources)
+        # Converts a resources string to a hex. number
+        #
+        # @param resources [String] Resources component string
+        #
+        # @return [String] A string containing a hex number
+        def self.parse_resources(resources)
             begin
+                ret = 0
                 resources = resources.split("/")
 
                 if resources.size != 2
-                    @content[:resources] = OpenNebula::Error.new(
-                                "Resource #{resources} not well formed")
-                    return
+                    raise "Resource '#{resources}' malformed"
                 end
 
                 resources[0].split("+").each{ |resource|
                     if !RESOURCES[resource.upcase]
-                        raise "Resource #{resource} malformed." 
+                        raise "Resource '#{resource}' does not exist" 
                     end
-                    @content[:resources] += RESOURCES[resource.upcase]
+                    ret += RESOURCES[resource.upcase]
                 }
 
-                @content[:resources] += calculate_users(resources[1])
+                ret += calculate_ids(resources[1])
 
+                return ret.to_i.to_s(16)
             rescue Exception  => e
-                @content[:resources] = OpenNebula::Error.new(e.message)
+                return OpenNebula::Error.new(e.message)
             end
         end
 
-        def parse_rights(rights)
+        # Converts a rights string to a hex. number
+        #
+        # @param rights [String] Rights component string
+        #
+        # @return [String] A string containing a hex number
+        def self.parse_rights(rights)
             begin
+                ret = 0
                 rights = rights.split("+")
 
                 rights.each{ |right|
-                    raise "Right #{right} malformed." if !RIGHTS[right.upcase]
+                    raise "Right '#{right}' does not exist" if !RIGHTS[right.upcase]
 
-                    @content[:rights] += RIGHTS[right.upcase]
+                    ret += RIGHTS[right.upcase]
                 }
 
+                return ret.to_i.to_s(16)
             rescue Exception  => e
-                @content[:rights] = OpenNebula::Error.new(e.message)
+                return OpenNebula::Error.new(e.message)
             end
         end
 
-
-        def calculate_users(users_str)
-            if users_str == "*"
-                return USERS["ALL"]
-            end
+        # Calculates the numeric value for a String containing an individual
+        # (#<id>), group (@<id>) or all (*) ID component
+        #
+        # @param id_str [String] Rule Id string
+        #
+        # @return [Integer] the numeric value for the given id_str
+        def self.calculate_ids(id_str)
+            raise "ID string '#{id_str}' malformed" if 
+                !id_str.match(/^([\#@]\d+|\*)$/)
 
             value = 0
 
-            case users_str[0..0]
+            case id_str[0..0]
                 when "#"
                     value = USERS["UID"]
+                    users_value = id_str[1..-1].to_i + value
+
                 when "@"
                     value = USERS["GID"]
-            end
+                    users_value = id_str[1..-1].to_i + value
 
-            users_value = users_str[1..-1].to_i + value
+                when "*"
+                    value = USERS["ALL"]
+            end
 
             return users_value
         end
-
-        def users_hex_str
-            @content[:users].to_i.to_s(16)
-        end
-
-        def resources_hex_str
-            @content[:resources].to_i.to_s(16)
-        end
-
-        def rights_hex_str
-            @content[:rights].to_i.to_s(16)
-        end
-
-        def is_error?
-            OpenNebula.is_error?(@content[:users]) ||
-            OpenNebula.is_error?(@content[:resources]) ||
-            OpenNebula.is_error?(@content[:rights]) ||
-            @content[:users] == 0 ||
-            @content[:resources] == 0 ||
-            @content[:rights] == 0
-        end
-
-        def error
-            @content.each{ |part|
-                return part if OpenNebula.is_error?(part)
-            }
-        end
-
     end
 end

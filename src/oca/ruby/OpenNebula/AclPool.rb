@@ -49,45 +49,5 @@ module OpenNebula
         # Retrieves all the Acls in the pool.
             super(ACL_POOL_METHODS[:info])
         end
-
-        # Adds a new ACL rule.
-        #
-        # +user+        A string containing a hex number, e.g. 0x100000001
-        # +resource+    A string containing a hex number, e.g. 0x2100000001
-        # +rights+      A string containing a hex number, e.g. 0x10
-        def addrule(user, resource, rights)
-             return @client.call( ACL_POOL_METHODS[:addrule],
-                               user,
-                               resource,
-                               rights )
-        end
-
-        # Adds a new ACL rule.
-        #
-        # +rule+ Rule tring
-        def addrule_with_str(rule_str)
-            rule = Acl.new rule_str
-
-            return rule.error if rule.is_error?
-
-            return addrule( rule.users_hex_str,
-                            rule.resources_hex_str,
-                            rule.rights_hex_str )
-        end
-
-        # Deletes an existing ACL rule.
-        #
-        # +id+ An existing ACL rule ID
-        def delrule(id)
-            rc = @client.call( ACL_POOL_METHODS[:delrule], id.to_i )
-
-            rc = nil if !OpenNebula.is_error?(rc)
-
-            return rc
-        end
-
-    private
-
     end
-
 end
