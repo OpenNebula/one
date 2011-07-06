@@ -88,9 +88,9 @@ private
                 when "INFO_POOL_MINE"
                     mask[6] = "p"
                 when "INSTANTIATE"
-                    mask[8] = "T"
+                    mask[7] = "T"
                 when "CHOWN"
-                    mask[9] = "W"
+                    mask[8] = "W"
             end
         }
 
