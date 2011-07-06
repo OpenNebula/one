@@ -17,7 +17,7 @@
 require 'OpenNebulaJSON'
 include OpenNebulaJSON
 
-require 'OneMonitorClient'
+require 'acct/WatchClient'
 
 class SunstoneServer
     def initialize(username, password)
@@ -280,22 +280,28 @@ class SunstoneServer
     #
     ############################################################################
 
-    def get_log(params)
-        resource = params[:resource]
-        id = params[:id]
-        id = "global" unless id
+    def get_monitoring(id, resource, monitoring_resources)
+        watch_client = OneWatchClient::WatchClient.new
         columns = params['monitor_resources'].split(',')
-        history_length = params['history_length']
 
-        log_file_folder = case resource
-                          when "vm","VM"
-                              VM_LOG_FOLDER
-                          when "host","HOST"
-                              HOST_LOG_FOLDER
-                          end
+        rc = case resource
+            when "vm","VM"
+                if id
+                    watch_client.vm_monitoring(id, columns)
+                else
+                    watch_client.vm_total(columns)
+                end
+            when "host","HOST"
+                if id
+                    watch_client.host_monitoring(id, columns)
+                else
+                    watch_client.host_total(columns)
+                end
+            else
+                return [200, nil]
+            end
 
-        monitor_client = OneMonitorClient.new(id,log_file_folder)
-        return monitor_client.get_data_for_id(id,columns,history_length).to_json
+        return [200, rc.to_json]
     end
 
     ############################################################################
