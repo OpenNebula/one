@@ -1,5 +1,17 @@
 module WatchHelper
-    DB = Sequel.connect('sqlite:///tmp/test_one_acct.db')
+    require 'yaml'
+
+    ONE_LOCATION=ENV["ONE_LOCATION"]
+
+    if !ONE_LOCATION
+        ACCTD_CONF="/etc/one/acctd.conf"
+    else
+        ACCTD_CONF=ONE_LOCATION+"/etc/acctd.conf"
+    end
+
+    CONF = YAML.load_file(ACCTD_CONF)
+
+    DB = Sequel.connect(CONF[:DB])
 
     VM_SAMPLE = {
         :cpu => {
@@ -275,7 +287,7 @@ module WatchHelper
         private
 
         def control_regs(sample)
-            if self.samples.count > 4
+            if self.samples.count > CONF[:WINDOW_SIZE] - 1
                 self.samples.first.delete
             end
         end
@@ -316,7 +328,7 @@ module WatchHelper
         private
 
         def control_regs(sample)
-            if self.samples.count > 4
+            if self.samples.count > CONF[:WINDOW_SIZE] - 1
                 self.samples.first.delete
             end
         end
