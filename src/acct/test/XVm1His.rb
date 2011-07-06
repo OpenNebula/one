@@ -6,20 +6,20 @@ describe "X Vm 1 History" do
 
         @mock_client = MockClient.new
         @accounting  = OneWatch::Accounting.new(@mock_client)
-        
+
         @watch_client = AcctClient.new
-        
+
         @db = WatchHelper::DB
         check_lines(0,0)
     end
-    
+
     it "Running testing" do
         ts1 = 100
         @accounting.set_mock_timestamp(ts1)
-        
+
         @accounting.insert(create_vmpool_hash)
         check_lines(0,0)
-        
+
         ts2 = 200
         @accounting.set_mock_timestamp(ts2)
 
@@ -38,21 +38,21 @@ describe "X Vm 1 History" do
                 :reason => 0
             ]
         }
-        
+
         @mock_client.add_vm(1, values)
 
         @accounting.insert(create_vmpool_hash)
         check_lines(1,1)
-        
+
         history = values[:history].first
         sum = ts2 - history[:rstime]
-        
+
         warn "* T1 RSTIME T2"
         @watch_client.running_time(ts1, ts2).to_i.should eql(sum)
-        
+
         ts3 = 300
         @accounting.set_mock_timestamp(ts3)
-        
+
         values2 = {
             :uid => 2,
             :gid => 4,
@@ -68,18 +68,18 @@ describe "X Vm 1 History" do
                 :reason => 0
             ]
         }
-        
+
         @mock_client.add_vm(2, values2)
 
         @accounting.insert(create_vmpool_hash)
         check_lines(2,2)
-        
+
         history1 = values[:history].first
         sum1 = ts3 - history1[:rstime]
-        
+
         history2 = values2[:history].first
         sum2 = ts3 - history2[:rstime]
-        
+
         warn "* T1 RSTIME T2"
         @watch_client.running_time(ts1, ts3).to_i.should eql(sum1 + sum2)
         @watch_client.running_time(ts1, ts3, :vmid=>1).to_i.should eql(sum1)

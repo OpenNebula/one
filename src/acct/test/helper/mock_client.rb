@@ -6,12 +6,12 @@ class MockClient
     def initialize
         @vmpool      = File.read("./fixtures/empty_pool.xml")
         @done_vmpool = File.read("./fixtures/empty_pool.xml")
-        
+
         @vms = Hash.new
         @done_vms = Hash.new
     end
 
-    
+
     def call(action, *args)
         xmlrpc_action = "one."+action
 
@@ -33,7 +33,7 @@ class MockClient
                 end
         end
     end
-    
+
     def add_vm(id, values)
         if values[:state] == 6
             @done_vms[id] = values
@@ -41,7 +41,7 @@ class MockClient
             @vms[id] = values
         end
     end
-    
+
     def delete_vm(id)
         @vms.delete(id)
         @vms_done.delete(id)
