@@ -167,11 +167,18 @@ end
 ##############################################################################
 
 get '/:resource/monitor' do
-    @SunstoneServer.get_log(params)
+    @SunstoneServer.get_monitoring(
+        params[:id],
+        params[:resource],
+        params[:monitoring_resources]
+    )
 end
 
 get '/:resource/:id/monitor' do
-    @SunstoneServer.get_log(params)
+    @SunstoneServer.get_monitoring(
+        params[:resource],
+        params[:monitoring_resources]
+    )
 end
 
 
