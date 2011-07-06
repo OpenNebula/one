@@ -25,24 +25,18 @@ var graph1 = {
 
 var graph2 = {
     title : "graph2",
-    monitor_resources : "cpu_usage,used_cpu,max_cpu",
+    monitor_resources : "cpu",
     history_length : HISTORY_LENGTH
 };
 
 var graph3 = {
     title : "graph3",
-    monitor_resources : "mem_usage,used_mem,max_mem",
+    monitor_resources : "memory",
     history_length : HISTORY_LENGTH
 };
 
 var graph4 = {
     title : "graph4",
-    monitor_resources : "total,active,error",
-    history_length : HISTORY_LENGTH
-};
-
-var graph5 = {
-    title : "graph5",
     monitor_resources : "net_tx,net_rx",
     history_length : HISTORY_LENGTH
 };
@@ -60,14 +54,6 @@ var dashboard_tab_content =
 \
           <table class="info_table">\
             <tr>\
-              <td class="key_td">Hosts (total/active)</td>\
-              <td class="value_td"><span id="total_hosts"></span><span id="active_hosts" class="green"></span></td>\
-            </tr>\
-            <tr>\
-              <td class="key_td">Groups</td>\
-              <td class="value_td"><span id="total_groups"></span></td>\
-            </tr>\
-            <tr>\
               <td class="key_td">VM Templates (total/public)</td>\
               <td class="value_td"><span id="total_templates"></span><span id="public_templates"></span></td>\
             </tr>\
@@ -83,10 +69,6 @@ var dashboard_tab_content =
               <td class="key_td">Images (total/public)</td>\
               <td class="value_td"><span id="total_images"></span><span id="public_images"></span></td>\
             </tr>\
-            <tr>\
-              <td class="key_td">Users</td>\
-              <td class="value_td"><span id="total_users"></span></td>\
-            </tr>\
           </table>\
 \
         </div>\
@@ -100,13 +82,10 @@ var dashboard_tab_content =
         <form id="quickstart_form"><fieldset>\
           <table style="width:100%;"><tr style="vertical-align:middle;"><td style="width:70%">\
           <label style="font-weight:bold;width:40px;height:7em;">New:</label>\
-          <input type="radio" name="quickstart" value="Host.create_dialog">Host</input><br />\
-          <input type="radio" name="quickstart" value="Group.create_dialog">Group</input><br />\
           <input type="radio" name="quickstart" value="Template.create_dialog">VM Template</input><br />\
           <input type="radio" name="quickstart" value="VM.create_dialog">VM Instance</input><br />\
           <input type="radio" name="quickstart" value="Network.create_dialog">Virtual Network</input><br />\
           <input type="radio" name="quickstart" value="Image.create_dialog">Image</input><br />\
-          <input type="radio" name="quickstart" value="User.create_dialog">User</input><br />\
           </td></tr></table>\
       </div>\
     </td>\
@@ -133,21 +112,18 @@ var dashboard_tab_content =
         <h3>Historical monitoring information</h3>\
         <div class="panel_info">\
           <table class="info_table">\
-            <tr><td class="key_td graph_td">Total host count</td>\
+            <tr><td class="key_td graph_td">Total VM count</td>\
                 <td class="graph_td" id="graph1_legend"></td></tr>\
             <tr><td id="graph1" colspan="2">'+spinner+'</td></tr>\
-            <tr><td class="key_td graph_td">Hosts CPU</td>\
+            <tr><td class="key_td graph_td">Total VM CPU</td>\
                 <td class="graph_td" id="graph2_legend"></td></tr>\
             <tr><td id="graph2" colspan="2">'+spinner+'</td></tr>\
-            <tr><td class="key_td graph_td">Hosts memory</td>\
+            <tr><td class="key_td graph_td">Total VM Memory</td>\
                 <td class="graph_td" id="graph3_legend"></td></tr>\
             <tr><td id="graph3" colspan="2">'+spinner+'</td></tr>\
-            <tr><td class="key_td graph_td">Total VM count</td>\
+            <tr><td class="key_td graph_td">VM Network stats</td>\
                 <td class="graph_td" id="graph4_legend"></td></tr>\
             <tr><td id="graph4" colspan="2">'+spinner+'</td></tr>\
-            <tr><td class="key_td graph_td">VM Network stats</td>\
-                <td class="graph_td" id="graph5_legend"></td></tr>\
-            <tr><td id="graph5" colspan="2">'+spinner+'</td></tr>\
           </table>\
         </div>\
       </div>\
@@ -196,8 +172,7 @@ function plot_global_graph(data,info){
     }
 
     switch (id){
-    case "graph3":
-    case "graph5":
+    case "graph4":
         options["yaxis"]["tickFormatter"] = function(val,axis) {
             return humanize_size(val);
         }
@@ -216,16 +191,15 @@ function quickstart_setup(){
 function graph_autorefresh(){
     setInterval(function(){
         refresh_graphs();
-    },GRAPH_AUTOREFRESH_INTERVAL+someTime();
+    },GRAPH_AUTOREFRESH_INTERVAL+someTime());
 
 }
 
 function refresh_graphs(){
-    Sunstone.runAction("Host.monitor_all", graph1);
-    Sunstone.runAction("Host.monitor_all", graph2);
-    Sunstone.runAction("Host.monitor_all", graph3);
+    Sunstone.runAction("VM.monitor_all", graph1);
+    Sunstone.runAction("VM.monitor_all", graph2);
+    Sunstone.runAction("VM.monitor_all", graph3);
     Sunstone.runAction("VM.monitor_all", graph4);
-    Sunstone.runAction("VM.monitor_all", graph5);
 }
 
 $(document).ready(function(){
