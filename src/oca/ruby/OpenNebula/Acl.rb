@@ -241,7 +241,7 @@ private
                     users_value = id_str[1..-1].to_i + value
 
                 when "*"
-                    value = USERS["ALL"]
+                    users_value = USERS["ALL"]
             end
 
             return users_value
