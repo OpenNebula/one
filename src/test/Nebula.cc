@@ -132,6 +132,11 @@ void Nebula::start()
         delete authm;
     }
 
+    if ( aclm != 0)
+    {
+        delete aclm;
+    }
+
     if ( nebula_configuration != 0)
     {
         delete nebula_configuration;
@@ -178,6 +183,7 @@ void Nebula::start()
         ImagePool::bootstrap(db);
         VMTemplatePool::bootstrap(db);
         GroupPool::bootstrap(db);
+        AclManager::bootstrap(db);
     }
     catch (exception&)
     {
@@ -234,9 +240,6 @@ void Nebula::start()
     {
         throw;
     }
-
-    // Set pointer to null, to prevent its deletion on the destructor
-    db = 0;
 
     // -----------------------------------------------------------
     //Managers
@@ -368,30 +371,6 @@ void Nebula::start()
         }
     }
 
-    // ---- Request Manager ----
-    if (tester->need_rm)
-    {
-        try
-        {
-            rm = tester->create_rm(log_location + "one_xmlrpc.log");
-        }
-        catch (bad_alloc&)
-        {
-            NebulaLog::log("ONE", Log::ERROR, "Error starting RM");
-            throw;
-        }
-
-        if( rm != 0 )
-        {
-            rc = rm->start();
-        }
-
-        if ( rc != 0 )
-        {
-           throw runtime_error("Could not start the Request Manager");
-        }
-    }
-
     // ---- Hook Manager ----
     if (tester->need_hm)
     {
@@ -438,6 +417,26 @@ void Nebula::start()
         }
     }
 
+    // ---- ACL Manager ----
+    if (tester->need_aclm)
+    {
+        try
+        {
+            aclm = new AclManager(db);
+        }
+        catch (bad_alloc&)
+        {
+            throw;
+        }
+
+        rc = aclm->start();
+
+        if ( rc != 0 )
+        {
+           throw runtime_error("Could not start the ACL Manager");
+        }
+    }
+
     // ---- Image Manager ----
     if (tester->need_imagem)
     {
@@ -458,6 +457,30 @@ void Nebula::start()
             {
               throw runtime_error("Could not start the Image Manager");
             }
+        }
+    }
+
+    // ---- Request Manager ----
+    if (tester->need_rm)
+    {
+        try
+        {
+            rm = tester->create_rm(log_location + "one_xmlrpc.log");
+        }
+        catch (bad_alloc&)
+        {
+            NebulaLog::log("ONE", Log::ERROR, "Error starting RM");
+            throw;
+        }
+
+        if( rm != 0 )
+        {
+            rc = rm->start();
+        }
+
+        if ( rc != 0 )
+        {
+           throw runtime_error("Could not start the Request Manager");
         }
     }
 
@@ -496,6 +519,11 @@ void Nebula::start()
     {
         authm->load_mads(0);
     }
+
+    // -----------------------------------------------------------
+    // Set DB pointer to null, to prevent its deletion on the destructor
+    // -----------------------------------------------------------
+    db = 0;
 };
 
 /* -------------------------------------------------------------------------- */

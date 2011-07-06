@@ -25,6 +25,7 @@ bool RequestManagerVirtualMachine::vm_authorization(int oid, int hid, ImageTempl
     PoolObjectSQL * object;
 
     int  ouid;
+    int  ogid;
 
     if ( uid == 0 )
     {
@@ -40,16 +41,17 @@ bool RequestManagerVirtualMachine::vm_authorization(int oid, int hid, ImageTempl
     }
 
     ouid = object->get_uid();
+    ogid = object->get_gid();
 
     object->unlock();
 
-    AuthRequest ar(uid);
+    AuthRequest ar(uid, group_ids);
 
-    ar.add_auth(auth_object, oid, auth_op, ouid, false);
+    ar.add_auth(auth_object, oid, ogid, auth_op, ouid, false);
 
     if (hid != -1)
     {
-        ar.add_auth(AuthRequest::HOST,hid,AuthRequest::USE,0,false);
+        ar.add_auth(AuthRequest::HOST,hid,-1,AuthRequest::USE,0,false);
     }
     else if (tmpl != 0)
     {
@@ -57,6 +59,7 @@ bool RequestManagerVirtualMachine::vm_authorization(int oid, int hid, ImageTempl
 
         ar.add_auth(AuthRequest::IMAGE,
                     tmpl->to_xml(t64),
+                    -1,
                     AuthRequest::CREATE,
                     uid,
                     false);
@@ -395,7 +398,7 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
 
     // ------------------ Create the image ------------------
 
-    rc = ipool->allocate(uid, gid, itemplate, &iid,error_str);
+    rc = ipool->allocate(uid, gid, uname, gname, itemplate, &iid,error_str);
 
     if ( rc < 0 )
     {

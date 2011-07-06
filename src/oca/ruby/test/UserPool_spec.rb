@@ -1,4 +1,5 @@
-$: << '../'
+$: << '../' \
+   << './'
 
 require 'OpenNebula'
 require 'helpers/MockClient'

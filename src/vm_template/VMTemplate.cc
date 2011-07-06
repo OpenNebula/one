@@ -26,8 +26,10 @@
 VMTemplate::VMTemplate(int id,
                        int _uid,
                        int _gid,
+                       const string& _uname,
+                       const string& _gname,
                        VirtualMachineTemplate * _template_contents):
-        PoolObjectSQL(id,"",_uid,_gid,table),
+        PoolObjectSQL(id,"",_uid,_gid,_uname,_gname,table),
         regtime(time(0))
 {
     if (_template_contents != 0)
@@ -190,6 +192,8 @@ string& VMTemplate::to_xml(string& xml) const
             << "<ID>"       << oid        << "</ID>"
             << "<UID>"      << uid        << "</UID>"
             << "<GID>"      << gid        << "</GID>"
+            << "<UNAME>"    << uname      << "</UNAME>" 
+            << "<GNAME>"    << gname      << "</GNAME>" 
             << "<NAME>"     << name       << "</NAME>"
             << "<PUBLIC>"   << public_obj << "</PUBLIC>"
             << "<REGTIME>"  << regtime    << "</REGTIME>"
@@ -216,6 +220,8 @@ int VMTemplate::from_xml(const string& xml)
     rc += xpath(oid,        "/VMTEMPLATE/ID",      -1);
     rc += xpath(uid,        "/VMTEMPLATE/UID",     -1);
     rc += xpath(gid,        "/VMTEMPLATE/GID",     -1);
+    rc += xpath(uname,      "/VMTEMPLATE/UNAME",   "not_found");
+    rc += xpath(gname,      "/VMTEMPLATE/GNAME",   "not_found");
     rc += xpath(name,       "/VMTEMPLATE/NAME",    "not_found");
     rc += xpath(public_obj, "/VMTEMPLATE/PUBLIC",  0);
     rc += xpath(regtime,    "/VMTEMPLATE/REGTIME", 0);
@@ -223,13 +229,15 @@ int VMTemplate::from_xml(const string& xml)
     // Get associated classes
     ObjectXML::get_nodes("/VMTEMPLATE/TEMPLATE", content);
 
-    if( content.size() < 1 )
+    if (content.empty())
     {
         return -1;
     }
 
     // Template contents
     rc += obj_template->from_xml_node(content[0]);
+
+    ObjectXML::free_nodes(content);
 
     if (rc != 0)
     {

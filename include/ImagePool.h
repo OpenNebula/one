@@ -48,6 +48,8 @@ public:
      *  Function to allocate a new Image object
      *    @param uid the user id of the image's owner
      *    @param gid the id of the group this object is assigned to
+     *    @param uname name of the user
+     *    @param gname name of the group
      *    @param img_template template associated with the image
      *    @param oid the id assigned to the Image
      *    @param error_str Returns the error reason, if any
@@ -58,6 +60,8 @@ public:
     int allocate (
         int             uid,
         int             gid,
+        const string&   uname,
+        const string&   gname,
         ImageTemplate * img_template,
         int *           oid,
         string&         error_str);
@@ -172,7 +176,7 @@ private:
      */
     PoolObjectSQL * create()
     {
-        return new Image(-1,-1,0);
+        return new Image(-1,-1,"","",0);
     };
 };
 

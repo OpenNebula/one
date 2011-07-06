@@ -178,6 +178,8 @@ VirtualMachinePool::VirtualMachinePool(SqlDB *                   db,
 int VirtualMachinePool::allocate (
     int            uid,
     int            gid,
+    const string&  uname,
+    const string&  gname,
     VirtualMachineTemplate * vm_template,
     int *          oid,
     string&        error_str,
@@ -188,7 +190,7 @@ int VirtualMachinePool::allocate (
     // ------------------------------------------------------------------------
     // Build a new Virtual Machine object
     // ------------------------------------------------------------------------
-    vm = new VirtualMachine(-1, uid, gid, vm_template);
+    vm = new VirtualMachine(-1, uid, gid, uname, gname, vm_template);
 
     if (on_hold == true)
     {
@@ -245,32 +247,6 @@ int VirtualMachinePool::get_pending(
 
     return PoolSQL::search(oids,VirtualMachine::table,where);
 };
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int VirtualMachinePool::dump(   ostringstream&  oss,
-                                int             state,
-                                const string&   where)
-{
-    ostringstream where_oss;
-
-    if ( state != -1 )
-    {
-        where_oss << VirtualMachine::table << ".state = " << state;
-    }
-    else
-    {
-        where_oss << VirtualMachine::table << ".state <> 6";
-    }
-
-    if ( !where.empty() )
-    {
-        where_oss << " AND " << where;
-    }
-
-    return PoolSQL::dump(oss, "VM_POOL", VirtualMachine::table,where_oss.str());
-}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

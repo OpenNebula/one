@@ -125,6 +125,20 @@ public:
     int get_nodes(const char * xpath_expr, vector<xmlNodePtr>& content);
 
     /**
+     *  Frees a vector of XMLNodes, as returned by the get_nodes function
+     *    @param content the vector of xmlNodePtr
+     */
+    void free_nodes(vector<xmlNodePtr>& content)
+    {
+        vector<xmlNodePtr>::iterator it;
+
+        for (it = content.begin(); it < content.end(); it++)
+        {
+            xmlFreeNode(*it);
+        }
+    };
+
+    /**
      *   Updates the object representation with a new XML document. Previous
      *   XML resources are freed
      *   @param xml_doc the new xml document

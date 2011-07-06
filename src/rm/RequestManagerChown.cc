@@ -28,6 +28,9 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList)
     int noid = xmlrpc_c::value_int(paramList.getInt(2));
     int ngid = xmlrpc_c::value_int(paramList.getInt(3));
 
+    string nuname;
+    string ngname;
+
     Nebula&     nd    = Nebula::instance();
     GroupPool * gpool = nd.get_gpool();
     UserPool  * upool = nd.get_upool();
@@ -41,18 +44,36 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList)
 
     // ------------- Check new user and group id's ---------------------
 
-    if ( noid > -1 && upool->get(noid,false) == 0 )
+    if ( noid > -1  )
     {
-        failure_response(NO_EXISTS,
+        User * user;
+
+        if ((user = upool->get(noid,true)) == 0)
+        {
+            failure_response(NO_EXISTS,
                 get_error(object_name(AuthRequest::USER),noid));
-        return;
+            return;
+        }
+        
+        nuname = user->get_name();
+
+        user->unlock();
     }
 
-    if ( ngid > -1 && gpool->get(ngid,false) == 0 )
+    if ( ngid > -1  )
     {
-        failure_response(NO_EXISTS, 
+        Group * group;
+        
+        if ((group = gpool->get(ngid,true)) == 0)
+        {
+            failure_response(NO_EXISTS, 
                 get_error(object_name(AuthRequest::GROUP),ngid));
-        return;
+            return;
+        }
+
+        ngname = group->get_name();
+
+        group->unlock();
     }
 
     // ------------- Update the object ---------------------
@@ -67,12 +88,12 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList)
 
     if ( noid != -1 )    
     {
-        object->set_uid(noid);
+        object->set_user(noid,nuname);
     }
 
     if ( ngid != -1 )
     {
-        object->set_gid(ngid);
+        object->set_group(ngid,ngname);
     }
 
     pool->update(object);
@@ -93,7 +114,7 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList)
     int ngid = xmlrpc_c::value_int(paramList.getInt(2));
     int old_gid;
 
-    string          str;
+    string  ngname;
 
     Nebula&     nd    = Nebula::instance();
     GroupPool * gpool = nd.get_gpool();
@@ -114,12 +135,17 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList)
         failure_response(XML_RPC_API,request_error("Wrong group ID",""));
         return;
     }
-    else if ( gpool->get(ngid,false) == 0 )
+
+    if ( (group = gpool->get(ngid,true)) == 0 )
     {
         failure_response(NO_EXISTS, 
                 get_error(object_name(AuthRequest::GROUP),ngid));
         return;
     }
+
+    ngname = group->get_name();
+
+    group->unlock();
 
     // ------------- Change users primary group ---------------------
 
@@ -139,7 +165,7 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList)
         return;
     }
 
-    user->set_gid(ngid);
+    user->set_group(ngid,ngname);
     
     user->add_group(ngid);
     user->del_group(old_gid);
@@ -154,7 +180,8 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList)
 
     if( group == 0 )
     {
-        get_error(object_name(AuthRequest::GROUP),ngid); //TODO Rollback
+        failure_response(NO_EXISTS, 
+                get_error(object_name(AuthRequest::GROUP),ngid));//TODO Rollback
         return;
     }
 

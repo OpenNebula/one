@@ -18,6 +18,7 @@
 #define AUTH_MANAGER_H_
 
 #include <time.h>
+#include <set>
 
 #include "MadManager.h"
 #include "ActionManager.h"
@@ -259,10 +260,11 @@ private:
 class AuthRequest : public ActionListener
 {
 public:
-    AuthRequest(int _uid):
+    AuthRequest(int _uid, set<int> _gids):
         result(false),
         timeout(false),
         uid(_uid),
+        gids(_gids),
         time_out(0),
         self_authorize(true)
     {
@@ -276,15 +278,32 @@ public:
      */
     enum Operation
     {
-        CREATE,     /** Authorization to create an object   */
-        DELETE,     /** Authorization to delete an object   */
-        USE,        /** Authorization to use an object      */
-        MANAGE,     /** Authorization to manage an object   */
-        INFO,       /** Authorization to view an object     */
-        INFO_POOL,  /** Authorization to view any object in the pool */
-        INFO_POOL_MINE, /** Authorization to view user and/or group objects */ 
-        INSTANTIATE, /** Authorization to instantiate a VM from a TEMPLATE  */
-        CHOWN /** Authorization to change ownership of an object */
+        CREATE        = 0x1LL,  /**< Auth. to create an object                */
+        DELETE        = 0x2LL,  /**< Auth. to delete an object                */
+        USE           = 0x4LL,  /**< Auth. to use an object                   */
+        MANAGE        = 0x8LL,  /**< Auth. to manage an object                */
+        INFO          = 0x10LL, /**< Auth. to view an object                  */
+        INFO_POOL     = 0x20LL, /**< Auth. to view any object in the pool     */
+        INFO_POOL_MINE= 0x40LL, /**< Auth. to view user and/or group objects  */
+        INSTANTIATE   = 0x80LL, /**< Auth. to instantiate a VM from a TEMPLATE*/
+        CHOWN         = 0x100LL /**< Auth. to change ownership of an object   */
+    };
+
+    static string Operation_to_str(Operation op)
+    {
+        switch (op)
+        {
+            case CREATE:            return "CREATE";
+            case DELETE:            return "DELETE";
+            case USE:               return "USE";
+            case MANAGE:            return "MANAGE";
+            case INFO:              return "INFO";
+            case INFO_POOL:         return "INFO_POOL";
+            case INFO_POOL_MINE:    return "INFO_POOL_MINE";
+            case INSTANTIATE:       return "INSTANTIATE";
+            case CHOWN:             return "CHOWN";
+            default:                return "";
+        }
     };
 
     /**
@@ -292,13 +311,29 @@ public:
      */
     enum Object
     {
-        VM,
-        HOST,
-        NET,
-        IMAGE,
-        USER,
-        TEMPLATE,
-        GROUP
+        VM         = 0x0000001000000000LL,
+        HOST       = 0x0000002000000000LL,
+        NET        = 0x0000004000000000LL,
+        IMAGE      = 0x0000008000000000LL,
+        USER       = 0x0000010000000000LL,
+        TEMPLATE   = 0x0000020000000000LL,
+        GROUP      = 0x0000040000000000LL,
+        ACL        = 0x0000080000000000LL
+    };
+
+    static string Object_to_str(Object ob)
+    {
+        switch (ob)
+        {
+            case VM:       return "VM" ; break;
+            case HOST:     return "HOST" ; break;
+            case NET:      return "NET" ; break;
+            case IMAGE:    return "IMAGE" ; break;
+            case USER:     return "USER" ; break;
+            case TEMPLATE: return "TEMPLATE" ; break;
+            case GROUP:    return "GROUP" ; break;
+            default:       return "";
+        }
     };
 
     /**
@@ -328,6 +363,7 @@ public:
      */
     void add_auth(Object        ob,
                   const string& ob_id,
+                  int           ob_gid,
                   Operation     op,
                   int           owner,
                   bool          pub);
@@ -337,6 +373,7 @@ public:
      */
     void add_auth(Object        ob,
                   int           ob_id,
+                  int           ob_gid,
                   Operation     op,
                   int           owner,
                   bool          pub)
@@ -344,7 +381,7 @@ public:
         ostringstream oss;
         oss << ob_id;
 
-        add_auth(ob,oss.str(),op,owner,pub);
+        add_auth(ob,oss.str(),ob_gid,op,owner,pub);
     };
 
     /**
@@ -424,6 +461,11 @@ private:
      *  The user id for this request
      */
     int uid;
+
+    /**
+     *  The user groups ID set
+     */
+    set<int> gids;
 
     /**
      *  Timeout for this request

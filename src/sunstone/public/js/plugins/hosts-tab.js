@@ -222,7 +222,7 @@ var host_actions = {
     "Host.update_dialog" : {
         type: "custom",
         call: function() {
-            popUpTemplateUpdateDialog("Host",hosts_select);
+            popUpTemplateUpdateDialog("Host",hosts_select,getSelectedNodes(dataTable_hosts));
         }
     },
 

@@ -139,6 +139,11 @@ AuthManager* NebulaTest::create_authm(time_t timer_period)
     return 0;
 }
 
+AclManager* NebulaTest::create_aclm(SqlDB* db)
+{
+    return new AclManager(db);
+}
+
 ImageManager* NebulaTest::create_imagem(ImagePool * ipool)
 {
     map<string,string>          mad_value;

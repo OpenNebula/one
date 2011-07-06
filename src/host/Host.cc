@@ -34,7 +34,7 @@ Host::Host(
     const string& _im_mad_name,
     const string& _vmm_mad_name,
     const string& _tm_mad_name):
-        PoolObjectSQL(id,_hostname,-1,-1,table),
+        PoolObjectSQL(id,_hostname,-1,-1,"","",table),
         state(INIT),
         im_mad_name(_im_mad_name),
         vmm_mad_name(_vmm_mad_name),
@@ -240,23 +240,26 @@ int Host::from_xml(const string& xml)
     // Get associated classes
     ObjectXML::get_nodes("/HOST/HOST_SHARE", content);
 
-    if( content.size() < 1 )
+    if (content.empty())
     {
         return -1;
     }
 
     rc += host_share.from_xml_node( content[0] );
 
+    ObjectXML::free_nodes(content);
     content.clear();
     
     ObjectXML::get_nodes("/HOST/TEMPLATE", content);
 
-    if( content.size() < 1 )
+    if( content.empty())
     {
         return -1;
     }
 
     rc += obj_template->from_xml_node( content[0] );
+
+    ObjectXML::free_nodes(content);
 
     if (rc != 0)
     {

@@ -24,6 +24,9 @@ using namespace std;
 const int uids[] = {123, 261, 123};
 const int gids[] = {150, 164, 175};
 
+const char* unames[] = {"one", "two", "three"};
+const char* gnames[] = {"oneadmin", "oneadmin", "users"};
+
 const string names[] = {"VM one", "Second VM", "VM 3"};
 
 const string templates[] =
@@ -186,8 +189,17 @@ private:
 
         if( rc == 0 )
         {
-            return vmpool->allocate(uids[index], gids[index], vm_template, &oid,
-                                                err, false);
+            string uname = unames[index];
+            string gname = gnames[index];
+
+            return vmpool->allocate(uids[index], 
+                                    gids[index], 
+                                    uname,
+                                    gname,
+                                    vm_template, 
+                                    &oid,
+                                    err, 
+                                    false);
         }
         else
         {

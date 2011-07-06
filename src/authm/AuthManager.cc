@@ -32,6 +32,7 @@ const char * AuthManager::auth_driver_name = "auth_exe";
 
 void AuthRequest::add_auth(Object        ob,
                            const string& ob_id,
+                           int           ob_gid,
                            Operation     op,
                            int           owner,
                            bool          pub)
@@ -39,16 +40,9 @@ void AuthRequest::add_auth(Object        ob,
     ostringstream oss;
     bool          auth;
 
-    switch (ob)
-    {
-        case VM:       oss << "VM:" ; break;
-        case HOST:     oss << "HOST:" ; break;
-        case NET:      oss << "NET:" ; break;
-        case IMAGE:    oss << "IMAGE:" ; break;
-        case USER:     oss << "USER:" ; break;
-        case TEMPLATE: oss << "TEMPLATE:" ; break;
-        case GROUP:    oss << "GROUP:" ; break;
-    }
+    int ob_id_int = -1;
+
+    oss << Object_to_str(ob) << ":";
 
     if (op == CREATE || op == INSTANTIATE) //encode the ob_id, it is a template
     {
@@ -67,129 +61,50 @@ void AuthRequest::add_auth(Object        ob,
     else
     {
         oss << ob_id << ":";
+
+        istringstream iss(ob_id);
+        iss >> ob_id_int;
     }
 
-    switch (op)
-    {
-        case CREATE:
-            oss << "CREATE:" ;
-            break;
+    oss << Operation_to_str(op) << ":";
 
-        case DELETE:
-            oss << "DELETE:" ;
-            break;
-
-        case USE:
-            oss << "USE:" ;
-            break;
-
-        case MANAGE:
-            oss << "MANAGE:" ;
-            break;
-            
-        case INFO:
-            oss << "INFO:" ;
-            break;
-
-        case INFO_POOL:
-            oss << "INFO_POOL:" ;
-            break;
-
-        case INFO_POOL_MINE:
-            oss << "INFO_POOL_MINE:" ;
-            break;
-
-        case INSTANTIATE:
-            oss << "INSTANTIATE:" ;
-            break;
-
-        case CHOWN:
-            oss << "CHOWN:" ;
-            break;
-    }
-
-    oss << owner << ":" << pub;
+    oss << owner << ":" << pub << ":";
 
     // -------------------------------------------------------------------------
     // Authorize the request for self authorization
     // -------------------------------------------------------------------------
 
-    if ( uid == 0 )
+    // There are some default conditions that grant permission without
+    // consulting the ACL manager
+    if (
+        // User is oneadmin, or is in the oneadmin group
+        uid == 0 ||
+        gids.count( GroupPool::ONEADMIN_ID ) == 1 ||
+
+        // User is the owner of the object, for certain operations
+        (   owner == uid &&
+            ( op == DELETE || op == USE || op == MANAGE ||
+              op == INFO   || op == INSTANTIATE )
+        ) ||
+
+        // Object is public and user is in its group, for certain operations
+        (   pub && ( gids.count( ob_gid ) == 1 ) &&
+            (op == USE || op == INSTANTIATE || op == INFO ) &&
+            (ob == NET || ob == IMAGE || ob == TEMPLATE)
+        )
+    )
     {
         auth = true;
     }
     else
     {
-        auth = false;
+        Nebula&     nd   = Nebula::instance();
+        AclManager* aclm = nd.get_aclm();
 
-        switch (op)
-        {
-            case CREATE:
-                if ( ob == VM || ob == NET || ob == IMAGE || ob == TEMPLATE )
-                {
-                    auth = true;
-                }
-                break;
-
-            case INSTANTIATE:
-                if ( ob == VM )
-                {
-                    auth = true;
-                }
-                break;
-
-            case DELETE:
-                auth = owner == uid;
-                break;
-
-            case USE:
-                if (ob == NET || ob == IMAGE || ob == TEMPLATE)
-                {
-                    auth = (owner == uid) || pub;
-                }
-                else if (ob == HOST)
-                {
-                    auth = true;
-                }
-                break;
-
-            case MANAGE:
-                auth = owner == uid;
-                break;
-                
-            case INFO: 
-                if ( ob != USER ) // User info only for root or owner
-                {
-                    auth = true;
-                }
-                else 
-                {
-                    istringstream iss(ob_id);
-                    int ob_id_int;
-
-                    iss >> ob_id_int;
-
-                    if (ob_id_int == uid)
-                    {
-                        auth = true;
-                    }
-                }
-                break;
-
-            case INFO_POOL:
-                if ( ob != USER ) // User pool only for oneadmin
-                {
-                    auth = true;
-                }
-                break;
-
-            case INFO_POOL_MINE:
-                auth = true;
-                break;
-            case CHOWN: //true only for oneadmin
-                break;
-        }
+        auth = aclm->authorize(uid, gids, ob, ob_id_int, ob_gid, op);
     }
+
+    oss << auth; // Store the ACL authorization result in the request
 
     self_authorize = self_authorize && auth;
 

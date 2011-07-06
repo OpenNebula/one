@@ -37,11 +37,13 @@
 /* Virtual Machine :: Constructor/Destructor                                  */
 /* ************************************************************************** */
 
-VirtualMachine::VirtualMachine(int id,
-                               int _uid,
-                               int _gid,
+VirtualMachine::VirtualMachine(int           id,
+                               int           _uid,
+                               int           _gid,
+                               const string& _uname,
+                               const string& _gname,
                                VirtualMachineTemplate * _vm_template):
-        PoolObjectSQL(id,"",_uid,_gid,table),
+        PoolObjectSQL(id,"",_uid,_gid,_uname,_gname,table),
         last_poll(0),
         state(INIT),
         lcm_state(LCM_INIT),
@@ -68,14 +70,9 @@ VirtualMachine::VirtualMachine(int id,
 
 VirtualMachine::~VirtualMachine()
 {
-    if ( history != 0 )
+    for (unsigned int i=0 ; i < history_records.size() ; i++)
     {
-        delete history;
-    }
-
-    if ( previous_history != 0 )
-    {
-        delete previous_history;
+            delete history_records[i];
     }
 
     if ( _log != 0 )
@@ -126,17 +123,25 @@ int VirtualMachine::select(SqlDB * db)
     //Get History Records. Current history is built in from_xml() (if any).
     if( hasHistory() )
     {
-        last_seq = history->seq;
+        last_seq = history->seq - 1;
 
-        if ( last_seq > 0 )
+        for (int i = last_seq; i >= 0; i--)
         {
-            previous_history = new History(oid, last_seq - 1);
+            History * hp;
 
-            rc = previous_history->select(db);
+            hp = new History(oid, i);
+            rc = hp->select(db);
 
             if ( rc != 0)
             {
                 goto error_previous_history;
+            }
+
+            history_records[i] = hp;
+
+            if ( i == last_seq )
+            {
+                previous_history = hp;
             }
         }
     }
@@ -166,6 +171,7 @@ int VirtualMachine::select(SqlDB * db)
 error_previous_history:
     ose << "Can not get previous history record (seq:" << history->seq
         << ") for VM id: " << oid;
+
     log("ONE", Log::ERROR, ose);
     return -1;
 }
@@ -558,15 +564,12 @@ void VirtualMachine::add_history(
     {
         seq = history->seq + 1;
 
-        if (previous_history != 0)
-        {
-            delete previous_history;
-        }
-
         previous_history = history;
     }
 
     history = new History(oid,seq,hid,hostname,vm_dir,vmm_mad,tm_mad);
+
+    history_records.push_back(history);
 };
 
 /* -------------------------------------------------------------------------- */
@@ -582,21 +585,18 @@ void VirtualMachine::cp_history()
     }
 
     htmp = new History(oid,
-            history->seq + 1,
-            history->hid,
-            history->hostname,
-            history->vm_dir,
-            history->vmm_mad_name,
-            history->tm_mad_name);
+                       history->seq + 1,
+                       history->hid,
+                       history->hostname,
+                       history->vm_dir,
+                       history->vmm_mad_name,
+                       history->tm_mad_name);
 
-    if ( previous_history != 0 )
-    {
-        delete previous_history;
-    }
 
     previous_history = history;
+    history          = htmp;
 
-    history = htmp;
+    history_records.push_back(history);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -612,18 +612,17 @@ void VirtualMachine::cp_previous_history()
     }
 
     htmp = new History(oid,
-            history->seq + 1,
-            previous_history->hid,
-            previous_history->hostname,
-            previous_history->vm_dir,
-            previous_history->vmm_mad_name,
-            previous_history->tm_mad_name);
-
-    delete previous_history;
+                       history->seq + 1,
+                       previous_history->hid,
+                       previous_history->hostname,
+                       previous_history->vm_dir,
+                       previous_history->vmm_mad_name,
+                       previous_history->tm_mad_name);
 
     previous_history = history;
+    history          = htmp;
 
-    history = htmp;
+    history_records.push_back(history);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1137,11 +1136,26 @@ error_yy:
     pthread_mutex_unlock(&lex_mutex);
     return -1;
 }
-
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 string& VirtualMachine::to_xml(string& xml) const
+{
+    return to_xml_extended(xml,false);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string& VirtualMachine::to_xml_extended(string& xml) const
+{
+    return to_xml_extended(xml,true);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string& VirtualMachine::to_xml_extended(string& xml, bool extended) const
 {
 
     string template_xml;
@@ -1153,6 +1167,8 @@ string& VirtualMachine::to_xml(string& xml) const
         << "<ID>"        << oid       << "</ID>"
         << "<UID>"       << uid       << "</UID>"
         << "<GID>"       << gid       << "</GID>"
+        << "<UNAME>"     << uname     << "</UNAME>" 
+        << "<GNAME>"     << gname     << "</GNAME>" 
         << "<NAME>"      << name      << "</NAME>"
         << "<LAST_POLL>" << last_poll << "</LAST_POLL>"
         << "<STATE>"     << state     << "</STATE>"
@@ -1168,7 +1184,21 @@ string& VirtualMachine::to_xml(string& xml) const
 
     if ( hasHistory() )
     {
-        oss << history->to_xml(history_xml);
+        oss << "<HISTORY_RECORDS>";
+
+        if ( extended )
+        {
+            for (unsigned int i=0; i < history_records.size(); i++)
+            {
+                oss << history_records[i]->to_xml(history_xml);
+            }
+        }
+        else
+        {
+            oss << history->to_xml(history_xml);
+        }
+
+        oss << "</HISTORY_RECORDS>";
     }
 
     oss << "</VM>";
@@ -1185,39 +1215,43 @@ int VirtualMachine::from_xml(const string &xml_str)
 {
     vector<xmlNodePtr> content;
 
-    int int_state;
-    int int_lcmstate;
+    int istate;
+    int ilcmstate;
     int rc = 0;
 
     // Initialize the internal XML object
     update_from_str(xml_str);
 
     // Get class base attributes
-    rc += xpath(oid,        "/VM/ID",       -1);
-    rc += xpath(uid,        "/VM/UID",      -1);
-    rc += xpath(gid,        "/VM/GID",      -1);
-    rc += xpath(name,       "/VM/NAME",     "not_found");
+    rc += xpath(oid,       "/VM/ID",    -1);
 
-    rc += xpath(last_poll,  "/VM/LAST_POLL",0);
-    rc += xpath(int_state,  "/VM/STATE",    0);
-    rc += xpath(int_lcmstate,"/VM/LCM_STATE", 0);
+    rc += xpath(uid,       "/VM/UID",   -1);
+    rc += xpath(gid,       "/VM/GID",   -1);
 
-    rc += xpath(stime,      "/VM/STIME",    0);
-    rc += xpath(etime,      "/VM/ETIME",    0);
-    rc += xpath(deploy_id,  "/VM/DEPLOY_ID","");
+    rc += xpath(uname,     "/VM/UNAME", "not_found");
+    rc += xpath(gname,     "/VM/GNAME", "not_found");
+    rc += xpath(name,      "/VM/NAME",  "not_found");
 
-    rc += xpath(memory,     "/VM/MEMORY",   0);
-    rc += xpath(cpu,        "/VM/CPU",      0);
-    rc += xpath(net_tx,     "/VM/NET_TX",   0);
-    rc += xpath(net_rx,     "/VM/NET_RX",   0);
+    rc += xpath(last_poll, "/VM/LAST_POLL", 0);
+    rc += xpath(istate,    "/VM/STATE",     0);
+    rc += xpath(ilcmstate, "/VM/LCM_STATE", 0);
 
-    state     = static_cast<VmState>( int_state );
-    lcm_state = static_cast<LcmState>( int_lcmstate );
+    rc += xpath(stime,     "/VM/STIME",    0);
+    rc += xpath(etime,     "/VM/ETIME",    0);
+    rc += xpath(deploy_id, "/VM/DEPLOY_ID","");
+
+    rc += xpath(memory,    "/VM/MEMORY",   0);
+    rc += xpath(cpu,       "/VM/CPU",      0);
+    rc += xpath(net_tx,    "/VM/NET_TX",   0);
+    rc += xpath(net_rx,    "/VM/NET_RX",   0);
+
+    state     = static_cast<VmState>(istate);
+    lcm_state = static_cast<LcmState>(ilcmstate);
 
     // Get associated classes
     ObjectXML::get_nodes("/VM/TEMPLATE", content);
 
-    if( content.size() < 1 )
+    if (content.empty())
     {
         return -1;
     }
@@ -1226,13 +1260,20 @@ int VirtualMachine::from_xml(const string &xml_str)
     rc += obj_template->from_xml_node(content[0]);
 
     // Last history entry
+    ObjectXML::free_nodes(content);
     content.clear();
-    ObjectXML::get_nodes("/VM/HISTORY", content);
 
-    if( !content.empty() )
+    ObjectXML::get_nodes("/VM/HISTORY_RECORDS/HISTORY", content);
+
+    if (!content.empty())
     {
         history = new History(oid);
         rc += history->from_xml_node(content[0]);
+
+        history_records.resize(history->seq + 1);
+        history_records[history->seq] = history;
+
+        ObjectXML::free_nodes(content);
     }
 
     if (rc != 0)

@@ -46,10 +46,26 @@ module OpenNebula
         # ---------------------------------------------------------------------
         # XML-RPC Methods for the Template Object
         # ---------------------------------------------------------------------
+        # Retrieves all or part of the VirtualMachines in the pool.
+        def info(*args)
+            case args.size
+                when 0
+                    info_filter(TEMPLATE_POOL_METHODS[:info],@user_id,-1,-1)
+                when 3
+                    info_filter(TEMPLATE_POOL_METHODS[:info],args[0],args[1],args[2])
+            end
+        end
 
-        # Retrieves all the Templates in the pool.
-        def info()
-            super(TEMPLATE_POOL_METHODS[:info], @user_id)
+        def info_all()
+            return super(TEMPLATE_POOL_METHODS[:info])
+        end
+
+        def info_mine()
+            return super(TEMPLATE_POOL_METHODS[:info])
+        end
+
+        def info_group()
+            return super(TEMPLATE_POOL_METHODS[:info])
         end
     end
 end

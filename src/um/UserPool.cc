@@ -88,8 +88,13 @@ UserPool::UserPool(SqlDB * db):PoolSQL(db,User::table)
                 string error_str;
                 string sha1_pass = SSLTools::sha1_digest(one_pass);
 
-                allocate(&one_uid,GroupPool::ONEADMIN_ID,one_name,sha1_pass,
-                         true, error_str);
+                allocate(&one_uid,
+                         GroupPool::ONEADMIN_ID,
+                         one_name,
+                         GroupPool::ONEADMIN_NAME,
+                         sha1_pass,
+                         true, 
+                         error_str);
             }
             else
             {
@@ -117,8 +122,9 @@ UserPool::UserPool(SqlDB * db):PoolSQL(db,User::table)
 int UserPool::allocate (
     int *   oid,
     int     gid,
-    string  username,
-    string  password,
+    const   string&  uname,
+    const   string&  gname,
+    const   string&  password,
     bool    enabled,
     string& error_str)
 {
@@ -130,12 +136,12 @@ int UserPool::allocate (
 
     ostringstream   oss;
 
-    if ( username.empty() )
+    if ( uname.empty() )
     {
         goto error_name;
     }
 
-    user = get(username,false);
+    user = get(uname,false);
 
     if ( user !=0 )
     {
@@ -143,7 +149,7 @@ int UserPool::allocate (
     }
 
     // Build a new User object
-    user = new User(-1, gid, username, password, enabled);
+    user = new User(-1, gid, uname, gname, password, enabled);
 
     user->add_collection_id(gid); //Adds the primary group to the collection
 
@@ -190,13 +196,21 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool UserPool::authenticate(const string& session, int& user_id, int& group_id)
+bool UserPool::authenticate(const string& session, 
+                            int&          user_id, 
+                            int&          group_id,
+                            string&       uname,
+                            string&       gname,
+                            set<int>&     group_ids)
 {
     map<string, int>::iterator index;
 
     User * user = 0;
     string username;
     string secret, u_pass;
+
+    string tuname;
+    string tgname;
 
     int  uid, gid;
     int  rc;
@@ -207,6 +221,8 @@ bool UserPool::authenticate(const string& session, int& user_id, int& group_id)
 
     user_id  = -1;
     group_id = -1;
+    uname    = "";
+    gname    = "";
     result   = false;
 
     rc = User::split_secret(session,username,secret);
@@ -224,6 +240,11 @@ bool UserPool::authenticate(const string& session, int& user_id, int& group_id)
         uid    = user->oid;
         gid    = user->gid;
 
+        tuname  = user->name;
+        tgname  = user->gname;
+
+        group_ids = user->get_groups();
+
         user->unlock();
     }
     else //External User
@@ -233,7 +254,7 @@ bool UserPool::authenticate(const string& session, int& user_id, int& group_id)
         gid    = -1;
     }
 
-    AuthRequest ar(uid);
+    AuthRequest ar(uid, group_ids);
 
     ar.add_authenticate(username,u_pass,secret);
 
@@ -241,8 +262,12 @@ bool UserPool::authenticate(const string& session, int& user_id, int& group_id)
     {
         if (ar.plain_authenticate())
         {
-            user_id  = 0;
-            group_id = GroupPool::ONEADMIN_ID;
+            user_id  = uid;
+            group_id = gid;
+
+            uname = tuname;
+            gname = tgname;
+
             result   = true;
         }
     }
@@ -252,6 +277,10 @@ bool UserPool::authenticate(const string& session, int& user_id, int& group_id)
         {
             user_id  = uid;
             group_id = gid;
+
+            uname = tuname;
+            gname = tgname;
+
             result   = true;
         }
     }
@@ -266,6 +295,10 @@ bool UserPool::authenticate(const string& session, int& user_id, int& group_id)
             {
                 user_id  = uid;
                 group_id = gid;
+
+                uname = tuname;
+                gname = tgname;
+
                 result   = true;
             }
             else //External user, username & pass in driver message
@@ -286,6 +319,7 @@ bool UserPool::authenticate(const string& session, int& user_id, int& group_id)
                     allocate(&user_id,
                              GroupPool::USERS_ID,
                              mad_name,
+                             GroupPool::USERS_NAME,
                              mad_pass,
                              true,
                              error_str);
@@ -302,7 +336,12 @@ bool UserPool::authenticate(const string& session, int& user_id, int& group_id)
                 }
                 else
                 {
+                    group_ids.insert( GroupPool::USERS_ID );
                     group_id = GroupPool::USERS_ID;
+
+                    uname = mad_name;
+                    gname = GroupPool::USERS_NAME;
+
                     result   = true;
                 }
             }

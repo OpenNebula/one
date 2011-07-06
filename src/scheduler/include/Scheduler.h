@@ -18,10 +18,12 @@
 #define SCHEDULER_H_
 
 #include "Log.h"
+#include "UserPoolXML.h"
 #include "HostPoolXML.h"
 #include "VirtualMachinePoolXML.h"
 #include "SchedulerPolicy.h"
 #include "ActionManager.h"
+#include "AclXML.h"
 
 using namespace std;
 
@@ -48,6 +50,8 @@ protected:
               int _machines_limit, int _dispatch_limit, int _host_dispatch_limit):
         hpool(0),
         vmpool(0),
+        upool(0),
+        acls(0),
         timer(_timer),
         url(_url),
         machines_limit(_machines_limit),
@@ -71,6 +75,16 @@ protected:
             delete vmpool;
         }
 
+        if ( upool != 0)
+        {
+            delete upool;
+        }
+
+        if ( acls != 0)
+        {
+            delete acls;
+        }
+
         if ( client != 0)
         {
             delete client;
@@ -83,6 +97,8 @@ protected:
 
     HostPoolXML *             hpool;
     VirtualMachinePoolXML *   vmpool;
+    UserPoolXML *             upool;
+    AclXML *                  acls;
 
     // ---------------------------------------------------------------
     // Scheduler Policies

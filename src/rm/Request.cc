@@ -33,7 +33,12 @@ void Request::execute(
 
     NebulaLog::log("ReM",Log::DEBUG, method_name + " method invoked");
 
-    if ( upool->authenticate(session, uid, gid) == false )
+    if ( upool->authenticate(session, 
+                             uid, 
+                             gid, 
+                             uname, 
+                             gname, 
+                             group_ids) == false )
     {
         failure_response(AUTHENTICATION, authenticate_error());
     }
@@ -46,24 +51,20 @@ void Request::execute(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool Request::basic_authorization(int oid)
+bool Request::basic_authorization(int oid, AuthRequest::Operation op)
 {
     PoolObjectSQL * object;
 
-    bool pub;
-    int  ouid;
+    bool pub    = false;
+    int  ouid   = 0;
+    int  ogid   = -1;
 
     if ( uid == 0 )
     {
         return true;
     }
 
-    if ( oid == -1 )
-    {
-        ouid = 0;
-        pub  = false;
-    }
-    else
+    if ( oid >= 0 )
     {
         object = pool->get(oid,true);
 
@@ -74,17 +75,18 @@ bool Request::basic_authorization(int oid)
         }
 
         ouid = object->get_uid();
+        ogid = object->get_gid();
         pub  = object->isPublic();
 
         object->unlock();
     }
 
-   AuthRequest ar(uid);
+    AuthRequest ar(uid, group_ids);
 
-   ar.add_auth(auth_object, oid, auth_op, ouid, pub);
+    ar.add_auth(auth_object, oid, ogid, op, ouid, pub);
 
-   if (UserPool::authorize(ar) == -1)
-   {
+    if (UserPool::authorize(ar) == -1)
+    {
         failure_response(AUTHORIZATION, authorization_error(ar.message));
 
         return false;
@@ -164,6 +166,8 @@ string Request::object_name(AuthRequest::Object ob)
             return "virtual machine template";
         case AuthRequest::GROUP:
             return "group";
+        case AuthRequest::ACL:
+            return "ACL";
         default:
             return "-";
       }

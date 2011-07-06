@@ -15,7 +15,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
-#--------------------------------------------------------------------------- # 
+#--------------------------------------------------------------------------- #
 
 ONE_LOCATION = ENV["ONE_LOCATION"]
 
@@ -76,11 +76,13 @@ helpers do
 
             rc = SunstoneServer.authorize(user, sha1_pass)
             if rc[1]
-                session[:user]     = user
-                session[:user_id]  = rc[1]
-                session[:password] = sha1_pass
-                session[:ip]       = request.ip
-                session[:remember] = params[:remember]
+                session[:user]          = user
+                session[:user_id]       = rc[1][0]
+                session[:user_gid]      = rc[1][1]
+                session[:user_gname]    = rc[1][2]
+                session[:password]      = sha1_pass
+                session[:ip]            = request.ip
+                session[:remember]      = params[:remember]
 
                 if params[:remember]
                     env['rack.session.options'][:expire_after] = 30*60*60*24
@@ -137,7 +139,7 @@ get '/' do
                         :expires=>time)
 
     p = SunstonePlugins.new
-    @plugins = p.authorized_plugins(session[:user])
+    @plugins = p.authorized_plugins(session[:user], session[:user_gname])
 
     erb :index
 end

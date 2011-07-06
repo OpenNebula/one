@@ -53,7 +53,7 @@ public:
         flush();
 
         // -------------------------------------------------------------------------
-        // Load the ids (to get an updated list of hosts)
+        // Load the ids (to get an updated list of the pool)
         // -------------------------------------------------------------------------
 
         xmlrpc_c::value result;
@@ -96,6 +96,8 @@ public:
         {
             add_object(nodes[i]);
         }
+
+        free_nodes(nodes);
 
         return 0;
     };

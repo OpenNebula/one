@@ -49,9 +49,9 @@ protected:
         return get_nodes("/HOST_POOL/HOST[STATE<3]", content);
     };
 
-    virtual void add_object(xmlNodePtr node);
+    void add_object(xmlNodePtr node);
 
-    virtual int load_info(xmlrpc_c::value &result);
+    int load_info(xmlrpc_c::value &result);
 };
 
 #endif /* HOST_POOL_XML_H_ */

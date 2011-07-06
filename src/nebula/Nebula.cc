@@ -251,6 +251,7 @@ void Nebula::start()
             UserPool::bootstrap(db);
             ImagePool::bootstrap(db);
             VMTemplatePool::bootstrap(db);
+            AclManager::bootstrap(db);
         }
     }
     catch (exception&)
@@ -445,28 +446,6 @@ void Nebula::start()
        throw runtime_error("Could not start the Dispatch Manager");
     }
 
-    // ---- Request Manager ----
-    try
-    {
-        int             rm_port = 0;
-
-        nebula_configuration->get("PORT", rm_port);
-
-        rm = new RequestManager(rm_port, log_location + "one_xmlrpc.log");
-    }
-    catch (bad_alloc&)
-    {
-        NebulaLog::log("ONE", Log::ERROR, "Error starting RM");
-        throw;
-    }
-
-    rc = rm->start();
-
-    if ( rc != 0 )
-    {
-       throw runtime_error("Could not start the Request Manager");
-    }
-
     // ---- Hook Manager ----
     try
     {
@@ -520,6 +499,23 @@ void Nebula::start()
         }
     }
 
+    // ---- ACL Manager ----
+    try
+    {
+        aclm = new AclManager(db);
+    }
+    catch (bad_alloc&)
+    {
+        throw;
+    }
+
+    rc = aclm->start();
+
+    if ( rc != 0 )
+    {
+       throw runtime_error("Could not start the ACL Manager");
+    }
+
     // ---- Image Manager ----
     try
     {
@@ -539,6 +535,28 @@ void Nebula::start()
     if ( rc != 0 )
     {
        throw runtime_error("Could not start the Image Manager");
+    }
+
+    // ---- Request Manager ----
+    try
+    {
+        int             rm_port = 0;
+
+        nebula_configuration->get("PORT", rm_port);
+
+        rm = new RequestManager(rm_port, log_location + "one_xmlrpc.log");
+    }
+    catch (bad_alloc&)
+    {
+        NebulaLog::log("ONE", Log::ERROR, "Error starting RM");
+        throw;
+    }
+
+    rc = rm->start();
+
+    if ( rc != 0 )
+    {
+       throw runtime_error("Could not start the Request Manager");
     }
 
     // -----------------------------------------------------------

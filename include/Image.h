@@ -332,6 +332,8 @@ protected:
 
     Image(int            uid,
           int            gid,
+          const string&  uname,
+          const string&  gname,
           ImageTemplate* img_template);
 
     virtual ~Image();

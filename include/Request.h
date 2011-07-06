@@ -59,17 +59,20 @@ protected:
 
     /* ------------------- Attributes of the Request ---------------------- */
 
-    int                 uid;    /**< id of the user performing the request */
-    
+    int                 uid;            /**< id of the user */
     int                 gid;            /**< id of the user's group */
+
+    string              uname;          /**< name of the user */
+    string              gname;          /**< name of the user's group */
+
+    set<int>            group_ids;      /**< set of user's group ids */
 
     PoolSQL *           pool;           /**< Pool of objects */
 
     string              method_name;    /**< The name of the XML-RPC method */
 
     AuthRequest::Object    auth_object; /**< Auth object for the request */
-
-    AuthRequest::Operation auth_op;     /**< Auth operation for the request  */
+    AuthRequest::Operation auth_op;     /**< Auth operation for the request */
 
 
     /* -------------------- Constructors ---------------------------------- */
@@ -88,15 +91,32 @@ protected:
     /* -------------------------------------------------------------------- */
 
     /**
-     *  Performs a basic autorization for this request using the uid/gid
+     *  Performs a basic authorization for this request using the uid/gid
      *  from the request. The function gets the object from the pool to get 
      *  the public attribute and its owner. The authorization is based on 
      *  object and type of operation for the request.
-     *    @param oid of the object.
+     *    @param oid of the object, can be -1 for objects to be created, or
+     *    pools.
      *
      *    @return true if the user is authorized.
      */
-    bool basic_authorization(int oid);
+    bool basic_authorization(int oid)
+    {
+        return basic_authorization(oid, auth_op);
+    };
+
+    /**
+     *  Performs a basic authorization for this request using the uid/gid
+     *  from the request. The function gets the object from the pool to get
+     *  the public attribute and its owner. The authorization is based on
+     *  object and type of operation for the request.
+     *    @param oid of the object, can be -1 for objects to be created, or
+     *    pools.
+     *    @param op operation of the request.
+     *
+     *    @return true if the user is authorized.
+     */
+    bool basic_authorization(int oid, AuthRequest::Operation op);
             
     /**
      *  Actual Execution method for the request. Must be implemented by the

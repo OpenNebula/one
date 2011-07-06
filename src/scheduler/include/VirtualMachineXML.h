@@ -46,6 +46,11 @@ public:
         return oid;
     };
 
+    int get_uid() const
+    {
+        return uid;
+    };
+
     /**
      *  Adds a new share to the map of suitable shares to start this VM
      *    @param  hid of the selected host
@@ -137,6 +142,8 @@ protected:
      *
      */
     int     oid;
+
+    int     uid;
 
     int     memory;
     float   cpu;

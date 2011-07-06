@@ -66,6 +66,14 @@ public:
     };
 
     ~VirtualMachineInfo(){};
+
+    /* -------------------------------------------------------------------- */
+
+    void to_xml(PoolObjectSQL * object, string& str)
+    {
+        VirtualMachine * vm = static_cast<VirtualMachine *>(object);
+        vm->to_xml_extended(str);
+    };
 };
 
 /* ------------------------------------------------------------------------- */

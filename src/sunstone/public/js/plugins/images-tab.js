@@ -223,7 +223,7 @@ var image_actions = {
     "Image.update_dialog" : {
         type: "custom",
         call: function() {
-            popUpTemplateUpdateDialog("Image",images_select);
+            popUpTemplateUpdateDialog("Image",images_select,getSelectedNodes(dataTable_images));
         }
     },
 
@@ -442,8 +442,8 @@ function imageElementArray(image_json){
     return [
         '<input type="checkbox" id="image_'+image.ID+'" name="selected_items" value="'+image.ID+'"/>',
         image.ID,
-        getUserName(image.UID),
-        getGroupName(image.GID),
+        image.UNAME,
+        image.GNAME,
         image.NAME,
         OpenNebula.Helper.image_type(image.TYPE),
         pretty_time(image.REGTIME),
@@ -529,6 +529,14 @@ function updateImageInfo(request,img){
            <tr>\
               <td class="key_td">Name</td>\
               <td class="value_td">'+img_info.NAME+'</td>\
+           </tr>\
+           <tr>\
+              <td class="key_td">Owner</td>\
+              <td class="value_td">'+img_info.UNAME+'</td>\
+           </tr>\
+           <tr>\
+              <td class="key_td">Group</td>\
+              <td class="value_td">'+img_info.GNAME+'</td>\
            </tr>\
            <tr>\
              <td class="key_td">Type</td>\

@@ -36,6 +36,7 @@ env.Prepend(LIBS=[
     'nebula_pool',
     'nebula_hm',
     'nebula_authm',
+    'nebula_acl',
     'nebula_common',
     'nebula_lcm',
     'nebula_dm',

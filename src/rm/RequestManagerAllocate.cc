@@ -30,17 +30,17 @@ bool RequestManagerAllocate::allocate_authorization(Template * tmpl)
         return true;
     }
 
-    AuthRequest ar(uid);
+    AuthRequest ar(uid, group_ids);
 
     if ( tmpl == 0 )
     { 
-        ar.add_auth(auth_object,-1,auth_op,uid,false);
+        ar.add_auth(auth_object,-1,-1,auth_op,uid,false);
     }
     else
     {
         string t64;
 
-        ar.add_auth(auth_object,tmpl->to_xml(t64),auth_op,uid,false);
+        ar.add_auth(auth_object,tmpl->to_xml(t64),-1,auth_op,uid,false);
     }
 
    if (UserPool::authorize(ar) == -1)
@@ -62,12 +62,13 @@ bool VirtualMachineAllocate::allocate_authorization(Template * tmpl)
         return true;
     }
 
-    AuthRequest ar(uid);
+    AuthRequest ar(uid, group_ids);
+
     string      t64;
 
     VirtualMachineTemplate * ttmpl = static_cast<VirtualMachineTemplate *>(tmpl);
 
-    ar.add_auth(auth_object,tmpl->to_xml(t64),auth_op,uid,false);
+    ar.add_auth(auth_object,tmpl->to_xml(t64),-1,auth_op,uid,false);
 
     VirtualMachine::set_auth_request(uid, ar, ttmpl);
 
@@ -132,10 +133,10 @@ int VirtualMachineAllocate::pool_allocate(xmlrpc_c::paramList const& paramList,
                                           int& id, 
                                           string& error_str)
 {
-    VirtualMachineTemplate * ttmpl = static_cast<VirtualMachineTemplate *>(tmpl);
-    VirtualMachinePool * vmpool    = static_cast<VirtualMachinePool *>(pool);
+    VirtualMachineTemplate * ttmpl= static_cast<VirtualMachineTemplate *>(tmpl);
+    VirtualMachinePool * vmpool   = static_cast<VirtualMachinePool *>(pool);
 
-    return vmpool->allocate(uid, gid, ttmpl, &id, error_str, false);
+    return vmpool->allocate(uid, gid, uname, gname, ttmpl, &id,error_str,false);
 }
 
 
@@ -150,7 +151,7 @@ int VirtualNetworkAllocate::pool_allocate(xmlrpc_c::paramList const& _paramList,
     VirtualNetworkPool * vpool = static_cast<VirtualNetworkPool *>(pool);
     VirtualNetworkTemplate * vtmpl=static_cast<VirtualNetworkTemplate *>(tmpl);
 
-    return vpool->allocate(uid, gid, vtmpl, &id, error_str);
+    return vpool->allocate(uid, gid, uname, gname, vtmpl, &id, error_str);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -164,7 +165,7 @@ int ImageAllocate::pool_allocate(xmlrpc_c::paramList const& _paramList,
     ImagePool * ipool = static_cast<ImagePool *>(pool);
     ImageTemplate * itmpl = static_cast<ImageTemplate *>(tmpl);
 
-    return ipool->allocate(uid, gid, itmpl, &id, error_str);
+    return ipool->allocate(uid, gid, uname, gname, itmpl, &id, error_str);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -179,7 +180,7 @@ int TemplateAllocate::pool_allocate(xmlrpc_c::paramList const& _paramList,
 
     VirtualMachineTemplate * ttmpl=static_cast<VirtualMachineTemplate *>(tmpl);
 
-    return tpool->allocate(uid, gid, ttmpl, &id, error_str);
+    return tpool->allocate(uid, gid, uname, gname, ttmpl, &id, error_str);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -212,14 +213,17 @@ int UserAllocate::pool_allocate(xmlrpc_c::paramList const& paramList,
     string passwd = xmlrpc_c::value_string(paramList.getString(2));
 
     UserPool * upool = static_cast<UserPool *>(pool);
-    int users_group = gid;
+
+    int      ugid   = gid;
+    string   ugname = gname;
 
     if ( gid == GroupPool::ONEADMIN_ID )
     {
-        users_group = GroupPool::USERS_ID;
+        ugid   = GroupPool::USERS_ID;
+        ugname = GroupPool::USERS_NAME;
     }
 
-    return upool->allocate(&id,users_group,uname,passwd,true,error_str);
+    return upool->allocate(&id,ugid,uname,ugname,passwd,true,error_str);
 }
 
 /* -------------------------------------------------------------------------- */
