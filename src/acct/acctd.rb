@@ -60,16 +60,24 @@ class Watcher
         @monitors.each do |monitor|
             if monitor[:steps] > 0 and step % monitor[:steps] == 0
                 monitor[:pools].each do |pool|
+                    resource = monitor[:resource]
+
+                    log "#{resource.class}"
+
                     if pool_hash = @pool_cache[pool]
                     else
-                        pool.info
+                        rc = pool.info
+                        if OpenNebula.is_error?(rc)
+                            log "Error: " + rc.message
+                            log "Shutting down"
+                            exit 1
+                        end
+
                         pool_hash = pool.to_hash
                         @pool_cache[pool] = pool_hash
                     end
 
-                    resource = monitor[:resource]
                     resource.insert(pool_hash)
-                    log(resource)
                 end
             end
         end
