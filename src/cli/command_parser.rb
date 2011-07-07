@@ -72,7 +72,11 @@ module CommandParser
         end
 
         def usage(str)
-            @usage = "Usage: #{str}"
+            @usage=<<EOT
+## SYNOPSIS
+
+#{str}
+EOT
         end
 
         def version(str)
@@ -185,7 +189,7 @@ module CommandParser
             print_formatters
             puts
             if @version
-                puts "== LICENSE"
+                puts "## LICENSE"
                 puts @version
             end
         end
@@ -193,7 +197,7 @@ module CommandParser
         private
 
         def print_options
-            puts "== Options"
+            puts "## OPTIONS"
 
             shown_opts = Array.new
             opt_format = "#{' '*5}%-25s %s"
@@ -217,7 +221,7 @@ module CommandParser
         end
 
         def print_commands
-            puts "== Commands"
+            puts "## COMMANDS"
 
             cmd_format5 =  "#{' '*3}%s"
             cmd_format10 =  "#{' '*8}%s"
@@ -243,7 +247,7 @@ module CommandParser
                     opts_str=value[:options].flatten.collect{|o|
                         o[:name]
                     }.join(', ')
-                    printf cmd_format10, "options: #{opts_str}"
+                    printf cmd_format10, "valid options: #{opts_str}"
                     puts
                 end
                 puts
@@ -251,7 +255,7 @@ module CommandParser
         end
 
         def print_formatters
-            puts "== Argument formats"
+            puts "## ARGUMENT FORMATS"
 
             cmd_format5 =  "#{' '*3}%s"
             cmd_format10 =  "#{' '*8}%s"

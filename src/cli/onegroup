@@ -31,7 +31,7 @@ require 'command_parser'
 require 'one_helper/onegroup_helper'
 
 cmd=CommandParser::CmdParser.new(ARGV) do
-    usage "onegroup COMMAND [args..] [options..]"
+    usage "`onegroup` <command> [<args>] [<options>]"
     version OpenNebulaHelper::ONE_VERSION
 
     helper = OneGroupHelper.new
