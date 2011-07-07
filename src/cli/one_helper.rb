@@ -76,7 +76,7 @@ EOT
             if OpenNebula.is_error?(rc)
                 return -1, rc.message
             else
-                puts "ID: #{resource.id.to_s}" if options[:verbose]
+                puts "ID: #{resource.id.to_s}"
                 return 0
             end
         end
