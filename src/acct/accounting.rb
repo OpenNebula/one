@@ -67,8 +67,7 @@ module OneWatch
             if register && register.seq == history['SEQ'].to_i
                 register.update_from_history(history)
             else
-                reg = WatchHelper::Register.create_from_history(history)
-                vm.add_register(reg)
+                vm.add_register_from_resource(history)
             end
         end
 

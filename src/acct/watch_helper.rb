@@ -87,11 +87,29 @@ module WatchHelper
         }
     }
 
-    class VmSample < Sequel::Model
-        plugin :schema
+    def self.bootstrap
+        DB.create_table? :vms do
+            Integer :id, :primary_key=>true
+            String  :name
+            Integer :uid
+            Integer :gid
+            Integer :mem
+            Integer :cpu
+            Integer :vcpu
+            Integer :stime
+            Integer :etime
+        end
 
-        set_schema do
-            foreign_key :vm_id, :vms
+        DB.create_table? :hosts do
+            Integer :id, :primary_key=>true
+            String  :name
+            String  :im_mad
+            String  :vm_mad
+            String  :tm_mad
+        end
+
+        DB.create_table? :vm_samples do
+            foreign_key :vm_id, :vms, :key=>:id
             Integer :state
             Integer :lcm_state
             Integer :last_poll
@@ -104,41 +122,8 @@ module WatchHelper
             primary_key [:vm_id, :timestamp]
         end
 
-        create_table unless table_exists?
-
-        unrestrict_primary_key
-
-        many_to_one :vm
-
-        def self.create_from_vm(vm, timestamp)
-            hash = {
-                :timestamp  => timestamp,
-                :last_poll  => vm['LAST_POLL'],
-                :state      => vm['STATE'],
-                :lcm_state  => vm['LCM_STATE']
-            }
-
-            VM_SAMPLE.each { |key,value|
-                hash[key] = vm[value[:path]]
-            }
-
-            VmSample.create(hash)
-        end
-
-        def self.active
-            self.filter(:state=>3)
-        end
-
-        def self.error
-            self.filter(:state=>7)
-        end
-    end
-
-    class HostSample < Sequel::Model
-        plugin :schema
-
-        set_schema do
-            foreign_key :host_id, :hosts
+        DB.create_table? :host_samples do
+            foreign_key :host_id, :hosts, :key=>:id
             Integer :last_poll
             Integer :timestamp
             Integer :state
@@ -150,41 +135,8 @@ module WatchHelper
             primary_key [:host_id, :timestamp]
         end
 
-        create_table unless table_exists?
-
-        unrestrict_primary_key
-
-        many_to_one :host
-
-        def self.create_from_host(host, timestamp)
-            hash = {
-                :timestamp  => timestamp,
-                :last_poll  => host['LAST_MON_TIME'],
-                :state      => host['STATE'],
-            }
-
-            host_share = host['HOST_SHARE']
-            HOST_SAMPLE.each { |key,value|
-                hash[key] = host_share[value[:path]]
-            }
-
-            HostSample.create(hash)
-        end
-
-        def self.active
-            self.filter(:state<3)
-        end
-
-        def self.error
-            self.filter(:state=>3)
-        end
-    end
-
-    class Register < Sequel::Model
-        plugin :schema
-
-        set_schema do
-            foreign_key :vm_id, :vms
+        DB.create_table? :registers do
+            foreign_key :vm_id, :vms, :key=>:id
             Integer     :hid
             String      :hostname
             Integer     :seq
@@ -199,8 +151,48 @@ module WatchHelper
             primary_key [:vm_id, :seq]
         end
 
-        create_table unless table_exists?
+        DB.create_table? :deltas do
+            foreign_key :vm_id, :vms, :key=>:id
+            Integer     :timestamp
+            Integer     :ptimestamp
+            Integer     :net_rx
+            Integer     :net_tx
 
+            primary_key [:vm_id, :timestamp]
+        end
+    end
+
+    self.bootstrap
+
+    class VmSample < Sequel::Model
+        unrestrict_primary_key
+
+        many_to_one :vm
+
+        def self.active
+            self.filter(:state=>3)
+        end
+
+        def self.error
+            self.filter(:state=>7)
+        end
+    end
+
+    class HostSample < Sequel::Model
+        unrestrict_primary_key
+
+        many_to_one :host
+
+        def self.active
+            self.filter(:state<3)
+        end
+
+        def self.error
+            self.filter(:state=>3)
+        end
+    end
+
+    class Register < Sequel::Model
         unrestrict_primary_key
 
         many_to_one :vm
@@ -219,65 +211,20 @@ module WatchHelper
 
             self.save
         end
-
-        def self.create_from_history(history)
-            a = Register.create(
-                :seq      => history['SEQ'],
-                :hostname => history['HOSTNAME'],
-                :hid      => history['HID'],
-                :pstime   => history['PSTIME'],
-                :petime   => history['PETIME'],
-                :rstime   => history['RSTIME'],
-                :retime   => history['RETIME'],
-                :estime   => history['ESTIME'],
-                :eetime   => history['EETIME'],
-                :reason   => history['REASON']
-            )
-        end
     end
 
     class Delta < Sequel::Model
-        plugin :schema
-
-        set_schema do
-            foreign_key :vm_id, :vms
-            Integer     :timestamp
-            Integer     :ptimestamp
-            Integer     :net_rx
-            Integer     :net_tx
-
-            primary_key [:vm_id, :timestamp]
-        end
-
-        create_table unless table_exists?
-
         unrestrict_primary_key
 
         many_to_one :vm
     end
 
     class Vm < Sequel::Model
-        plugin :schema
-
-        set_schema do
-            Integer :id, :primary_key=>true
-            String  :name
-            Integer :uid
-            Integer :gid
-            Integer :mem
-            Integer :cpu
-            Integer :vcpu
-            Integer :stime
-            Integer :etime
-        end
-
-        create_table unless table_exists?
-
         unrestrict_primary_key
 
         # Accounting
         one_to_many :registers, :order=>:seq
-        one_to_many :deltas
+        one_to_many :deltas, :order=>:timestamp
 
         # Monitoring
         one_to_many :samples, :before_add=>:control_regs, :order=>:timestamp, :class=>VmSample
@@ -295,7 +242,38 @@ module WatchHelper
             }
         end
 
+        def add_register_from_resource(history)
+            self.add_register(
+                :seq      => history['SEQ'],
+                :hostname => history['HOSTNAME'],
+                :hid      => history['HID'],
+                :pstime   => history['PSTIME'],
+                :petime   => history['PETIME'],
+                :rstime   => history['RSTIME'],
+                :retime   => history['RETIME'],
+                :estime   => history['ESTIME'],
+                :eetime   => history['EETIME'],
+                :reason   => history['REASON']
+            )
+        end
+
         def add_sample_from_resource(vm, timestamp)
+            hash = {
+                :timestamp  => timestamp,
+                :last_poll  => vm['LAST_POLL'],
+                :state      => vm['STATE'],
+                :lcm_state  => vm['LCM_STATE']
+            }
+
+            VM_SAMPLE.each { |key,value|
+                hash[key] = vm[value[:path]]
+            }
+
+            self.add_sample(hash)
+        end
+
+        def add_delta_from_resource(vm, timestamp)
+            self.deltas
             vs = VmSample.create_from_vm(vm, timestamp)
             self.add_sample(vs)
         end
@@ -310,18 +288,6 @@ module WatchHelper
     end
 
     class Host < Sequel::Model
-        plugin :schema
-
-        set_schema do
-            Integer :id, :primary_key=>true
-            String  :name
-            String  :im_mad
-            String  :vm_mad
-            String  :tm_mad
-        end
-
-        create_table unless table_exists?
-
         unrestrict_primary_key
 
         # Monitoring
@@ -337,8 +303,18 @@ module WatchHelper
         end
 
         def add_sample_from_resource(host, timestamp)
-            hs = HostSample.create_from_host(host, timestamp)
-            self.add_sample(hs)
+            hash = {
+                :timestamp  => timestamp,
+                :last_poll  => host['LAST_MON_TIME'],
+                :state      => host['STATE'],
+            }
+
+            host_share = host['HOST_SHARE']
+            HOST_SAMPLE.each { |key,value|
+                hash[key] = host_share[value[:path]]
+            }
+
+            self.add_sample(hash)
         end
 
         private
