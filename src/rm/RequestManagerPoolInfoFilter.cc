@@ -129,7 +129,8 @@ void RequestManagerPoolInfoFilter::request_execute(
     {
         int state = xmlrpc_c::value_int(paramList.getInt(4));
 
-        if (( state < MINE ) || ( state > VirtualMachine::FAILED ))
+        if (( state < VirtualMachinePoolInfo::ALL_VM ) ||
+            ( state > VirtualMachine::FAILED ))
         {
             failure_response(XML_RPC_API, 
                              request_error("Incorrect filter_flag, state",""),
