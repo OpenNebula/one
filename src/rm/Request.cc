@@ -39,8 +39,7 @@ void Request::execute(
                              att.uid,
                              att.gid,
                              att.uname,
-                             att.gname,
-                             att.group_ids) == false )
+                             att.gname) == false )
     {
         failure_response(AUTHENTICATION, authenticate_error(), att);
     }
@@ -87,7 +86,7 @@ bool Request::basic_authorization(int oid,
         object->unlock();
     }
 
-    AuthRequest ar(att.uid, att.group_ids);
+    AuthRequest ar(att.uid, att.gid);
 
     ar.add_auth(auth_object, oid, ogid, op, ouid, pub);
 

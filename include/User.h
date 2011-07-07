@@ -18,7 +18,6 @@
 #define USER_H_
 
 #include "PoolSQL.h"
-#include "ObjectCollection.h"
 
 using namespace std;
 
@@ -28,7 +27,7 @@ using namespace std;
 /**
  *  The User class.
  */
-class User : public PoolObjectSQL, public ObjectCollection
+class User : public PoolObjectSQL
 {
 public:
 
@@ -89,47 +88,6 @@ public:
      *    @return 0 on success
      **/
     static int split_secret(const string secret, string& user, string& pass);
-
-    /**
-     *  Returns a copy of the groups for the user
-     */
-    set<int> get_groups()
-    {
-        return get_collection_copy();
-    };
-
-    // *************************************************************************
-    // Group IDs set Management
-    // *************************************************************************
-
-    /**
-     *  Adds a group ID to the groups set.
-     *
-     *    @param id The new id
-     *    @return 0 on success, -1 if the ID was already in the set
-     */
-    int add_group(int group_id)
-    {
-        return add_collection_id(group_id);
-    }
-
-    /**
-     *  Deletes a group ID from the groups set.
-     *
-     *    @param id The id
-     *    @return   0 on success,
-     *              -1 if the ID was not in the set,
-     *              -2 if the group to delete is the main group
-     */
-    int del_group(int group_id)
-    {
-        if( group_id == gid )
-        {
-            return -2;
-        }
-
-        return del_collection_id(group_id);
-    }
 
 private:
     // -------------------------------------------------------------------------
@@ -196,7 +154,6 @@ protected:
          const string& _password, 
          bool          _enabled):
         PoolObjectSQL(id,_uname,-1,_gid,"",_gname,table),
-        ObjectCollection("GROUPS"),
         password(_password),
         enabled(_enabled){};
 

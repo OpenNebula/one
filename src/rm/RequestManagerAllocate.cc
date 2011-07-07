@@ -31,7 +31,7 @@ bool RequestManagerAllocate::allocate_authorization(Template * tmpl,
         return true;
     }
 
-    AuthRequest ar(att.uid, att.group_ids);
+    AuthRequest ar(att.uid, att.gid);
 
     if ( tmpl == 0 )
     { 
@@ -67,7 +67,7 @@ bool VirtualMachineAllocate::allocate_authorization(Template * tmpl,
         return true;
     }
 
-    AuthRequest ar(att.uid, att.group_ids);
+    AuthRequest ar(att.uid, att.gid);
 
     string      t64;
 

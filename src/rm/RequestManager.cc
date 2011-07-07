@@ -232,8 +232,6 @@ void RequestManager::register_xml_methods()
 {
     // User Methods
     xmlrpc_c::methodPtr user_change_password(new UserChangePassword());
-    xmlrpc_c::methodPtr user_add_group(new UserAddGroup());
-    xmlrpc_c::methodPtr user_del_group(new UserDelGroup());
 
     // VMTemplate Methods
     xmlrpc_c::methodPtr template_instantiate(new VMTemplateInstantiate());
@@ -370,8 +368,6 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.user.allocate", user_allocate);
     RequestManagerRegistry.addMethod("one.user.delete", user_delete);
     RequestManagerRegistry.addMethod("one.user.info", user_info);
-    RequestManagerRegistry.addMethod("one.user.addgroup", user_add_group);
-    RequestManagerRegistry.addMethod("one.user.delgroup", user_del_group);
     RequestManagerRegistry.addMethod("one.user.passwd", user_change_password);
     RequestManagerRegistry.addMethod("one.user.chgrp", user_chown);
 
