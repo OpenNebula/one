@@ -72,41 +72,6 @@ public:
                     string&                    err);
 };
 
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
-
-class UserAddGroup : public RequestManagerUser
-{
-public:
-    UserAddGroup():
-        RequestManagerUser("UserAddGroup",
-                           "Adds a new group to the user",
-                           "A:sii"){};
-    ~UserAddGroup(){};
-
-    int user_action(User *                     user, 
-                    xmlrpc_c::paramList const& _paramList, 
-                    string&                    err);
-};
-
-
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
-
-class UserDelGroup : public RequestManagerUser
-{
-public:
-    UserDelGroup():
-        RequestManagerUser("UserDelGroup",
-                           "Deletes a new group to the user",
-                           "A:sii"){};
-    ~UserDelGroup(){};
-
-    int user_action(User *                     user, 
-                    xmlrpc_c::paramList const& _paramList, 
-                    string&                    err);
-};
-
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

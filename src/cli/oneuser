@@ -124,30 +124,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
-    addgroup_desc = <<-EOT.unindent
-        Adds the User to a secondary group
-    EOT
-
-    command :addgroup, addgroup_desc, [:range, :userid_list], :groupid do
-        gid = args[1]
-
-        helper.perform_actions(args[0],options,"group added") do |user|
-            user.addgroup( gid )
-        end
-    end
-
-    delgroup_desc = <<-EOT.unindent
-        Removes the User from a secondary group
-    EOT
-
-    command :delgroup, delgroup_desc, [:range, :userid_list], :groupid do
-        gid = args[1]
-
-        helper.perform_actions(args[0],options,"group deleted") do |user|
-            user.delgroup( gid )
-        end
-    end
-
     list_desc = <<-EOT.unindent
         Lists Users in the pool
     EOT

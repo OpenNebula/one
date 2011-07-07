@@ -22,8 +22,6 @@ lib_name='scheduler_pool'
 
 source_files=[
     'AclXML.cc',
-	'UserPoolXML.cc',
-	'UserXML.cc',
 	'HostPoolXML.cc',
 	'HostXML.cc',
 	'VirtualMachinePoolXML.cc',

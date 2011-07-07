@@ -51,6 +51,11 @@ public:
         return uid;
     };
 
+    int get_gid() const
+    {
+        return gid;
+    };
+
     /**
      *  Adds a new share to the map of suitable shares to start this VM
      *    @param  hid of the selected host
@@ -144,6 +149,7 @@ protected:
     int     oid;
 
     int     uid;
+    int     gid;
 
     int     memory;
     float   cpu;

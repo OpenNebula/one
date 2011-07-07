@@ -103,7 +103,7 @@ AclManager::~AclManager()
 
 const bool AclManager::authorize(
         int                    uid, 
-        const set<int>&        user_groups,
+        int                    gid,
         AuthRequest::Object    obj_type, 
         int                    obj_id, 
         int                    obj_gid,
@@ -213,24 +213,17 @@ const bool AclManager::authorize(
     // Look for rules that apply to each one of the user's groups
     // ----------------------------------------------------------
 
-    set<int>::iterator  g_it;
-
-    for (g_it = user_groups.begin(); g_it != user_groups.end(); g_it++)
+    user_req = AclRule::GROUP_ID | gid;
+    auth     = match_rules(user_req, 
+                           resource_oid_req, 
+                           resource_gid_req,
+                           resource_all_req, 
+                           rights_req, 
+                           resource_oid_mask,
+                           resource_gid_mask);
+    if ( auth == true )
     {
-        user_req = AclRule::GROUP_ID | *g_it;
-
-        auth     = match_rules(user_req, 
-                               resource_oid_req, 
-                               resource_gid_req,
-                               resource_all_req, 
-                               rights_req, 
-                               resource_oid_mask,
-                               resource_gid_mask);
-
-        if ( auth == true )
-        {
-            return true;
-        }
+        return true;
     }
 
     oss.str("No more rules, permission not granted ");

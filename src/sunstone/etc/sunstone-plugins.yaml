@@ -4,6 +4,11 @@
     :user:
     :group:
         oneadmin: true
+- plugins/dashboard-users-tab.js:
+    :ALL: true
+    :user:
+    :group:
+        oneadmin: false
 - plugins/hosts-tab.js:
     :ALL: false
     :user:

@@ -79,7 +79,7 @@ void AuthRequest::add_auth(Object        ob,
     if (
         // User is oneadmin, or is in the oneadmin group
         uid == 0 ||
-        gids.count( GroupPool::ONEADMIN_ID ) == 1 ||
+        gid == GroupPool::ONEADMIN_ID ||
 
         // User is the owner of the object, for certain operations
         (   owner == uid &&
@@ -88,7 +88,7 @@ void AuthRequest::add_auth(Object        ob,
         ) ||
 
         // Object is public and user is in its group, for certain operations
-        (   pub && ( gids.count( ob_gid ) == 1 ) &&
+        (   pub && ( gid == ob_gid ) &&
             (op == USE || op == INSTANTIATE || op == INFO ) &&
             (ob == NET || ob == IMAGE || ob == TEMPLATE)
         )
@@ -101,7 +101,7 @@ void AuthRequest::add_auth(Object        ob,
         Nebula&     nd   = Nebula::instance();
         AclManager* aclm = nd.get_aclm();
 
-        auth = aclm->authorize(uid, gids, ob, ob_id_int, ob_gid, op);
+        auth = aclm->authorize(uid, gid, ob, ob_id_int, ob_gid, op);
     }
 
     oss << auth; // Store the ACL authorization result in the request

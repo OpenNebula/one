@@ -51,7 +51,7 @@ bool RequestManagerVirtualMachine::vm_authorization(int oid,
 
     object->unlock();
 
-    AuthRequest ar(att.uid, att.group_ids);
+    AuthRequest ar(att.uid, att.gid);
 
     ar.add_auth(auth_object, oid, ogid, auth_op, ouid, false);
 

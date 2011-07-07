@@ -124,8 +124,6 @@ string& User::to_xml(string& xml) const
 
     int  enabled_int = enabled?1:0;
 
-    ObjectCollection::to_xml(collection_xml);
-
     oss <<
     "<USER>"
          "<ID>"          << oid         <<"</ID>"      <<
@@ -134,7 +132,6 @@ string& User::to_xml(string& xml) const
          "<NAME>"        << name        <<"</NAME>"    <<
          "<PASSWORD>"    << password    <<"</PASSWORD>"<<
          "<ENABLED>"     << enabled_int <<"</ENABLED>" <<
-         collection_xml  <<
     "</USER>";
 
     xml = oss.str();
@@ -162,19 +159,6 @@ int User::from_xml(const string& xml)
     rc += xpath(int_enabled, "/USER/ENABLED",  0);
 
     enabled = int_enabled;
-
-    // Get associated classes
-    ObjectXML::get_nodes("/USER/GROUPS", content);
-
-    if (content.empty())
-    {
-        return -1;
-    }
-
-    // Set of IDs
-    rc += ObjectCollection::from_xml_node(content[0]);
-
-    ObjectXML::free_nodes(content);
 
     if (rc != 0)
     {

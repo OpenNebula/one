@@ -88,12 +88,8 @@ void RequestManagerPoolInfoFilter::request_execute(
 
         case MINE_GROUP:
 
-            uid_filter << "uid = " << att.uid;
-
-            for ( it = att.group_ids.begin() ; it != att.group_ids.end(); it++ )
-            {
-                uid_filter << " OR gid = " << *it;
-            }
+            uid_filter << "uid = " << att.uid << " OR "
+                       << "gid = " << att.gid;
 
             request_op = AuthRequest::INFO_POOL_MINE;
             break;

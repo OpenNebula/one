@@ -71,6 +71,9 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         puts str % ["NAME", vm.name]
         puts str % ["STATE", vm.state_str]
         puts str % ["LCM_STATE", vm.lcm_state_str]
+        puts str % ["HOSTNAME",
+            vm['/VM/HISTORY_RECORDS/HISTORY[last()]/HOSTNAME']] if
+                %w{ACTIVE SUSPENDED}.include? vm.state_str
         puts str % ["START TIME", OpenNebulaHelper.time_to_str(vm['STIME'])]
         puts str % ["END TIME", OpenNebulaHelper.time_to_str(vm['ETIME'])]
         value=vm['DEPLOY_ID']
@@ -89,6 +92,13 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
 
         CLIHelper.print_header(str_h1 % "VIRTUAL MACHINE TEMPLATE",false)
         puts vm.template_str
+
+        if vm['/VM/HISTORY_RECORDS/HISTORY']
+            puts
+
+            CLIHelper.print_header(str_h1 % "VIRTUAL MACHINE HISTORY",false)
+            format_history(vm)
+        end
     end
 
     def format_pool(pool, options, top=false)
@@ -123,7 +133,9 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             end
 
             column :HOSTNAME, "Host where the VM is running", :size=>15 do |d|
-                d["HISTORY"]["HOSTNAME"] if d["HISTORY"]
+                if d['HISTORY_RECORDS'] && d['HISTORY_RECORDS']['HISTORY']
+                    d['HISTORY_RECORDS']['HISTORY']['HOSTNAME']
+                end
             end
 
             column :TIME, "Time since the VM was submitted", :size=>11 do |d|
@@ -141,5 +153,54 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         else
             table.show(pool, options)
         end
+    end
+
+    def format_history(vm)
+        table=CLIHelper::ShowTable.new(nil, self) do
+            column :SEQ, "Sequence number", :size=>4 do |d|
+                d["SEQ"]
+            end
+
+            column :HOSTNAME, "Host name", :size=>15 do |d|
+                d["HOSTNAME"]
+            end
+
+            column :REASON, "VM state change reason", :size=>6 do |d|
+                VirtualMachine.get_reason d["REASON"]
+            end
+
+            column :START, "Time when the state changed", :size=>15 do |d|
+                OpenNebulaHelper.time_to_str(d['STIME'])
+            end
+
+            column :TIME, "Total time in this state", :size=>11 do |d|
+                stime = Time.at(d["STIME"].to_i)
+                etime = d["ETIME"]=="0" ? Time.now : Time.at(d["ETIME"].to_i)
+                dtime = Time.at(etime-stime).getgm
+                "%02d %02d:%02d:%02d" % [dtime.yday-1, dtime.hour,
+                    dtime.min, dtime.sec]
+            end
+
+            column :PTIME, "Prolog time for this state", :size=>11 do |d|
+                stime = Time.at(d["PSTIME"].to_i)
+                if d["PSTIME"]=="0"
+                    etime=Time.at(0)
+                else
+                    etime = d["PETIME"]=="0" ? Time.now :
+                        Time.at(d["PETIME"].to_i)
+                end
+                dtime = Time.at(etime-stime).getgm
+                "%02d %02d:%02d:%02d" % [dtime.yday-1, dtime.hour,
+                    dtime.min, dtime.sec]
+            end
+
+            default :SEQ, :HOSTNAME, :REASON, :START, :TIME, :PTIME
+        end
+
+        vm_hash=vm.to_hash
+
+        history=vm_hash['VM']['HISTORY_RECORDS']['HISTORY']
+
+        table.show(history)
     end
 end

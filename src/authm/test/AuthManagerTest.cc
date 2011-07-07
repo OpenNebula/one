@@ -146,8 +146,7 @@ public:
     //This test needs a driver that takes more than 3 secs to AUTHENTICATE
     void timeout()
     {
-        set<int>    empty_set;
-        AuthRequest ar(2, empty_set);
+        AuthRequest ar(2, 2);
 
         ar.add_authenticate("timeout","the_pass","the_secret");
 
@@ -163,8 +162,7 @@ public:
 
     void authenticate()
     {
-        set<int>    empty_set;
-        AuthRequest ar(2, empty_set);
+        AuthRequest ar(2, 2);
 
         ar.add_authenticate("the_user","the_pass","the_secret");
 
@@ -177,8 +175,7 @@ public:
 
     void authorize()
     {
-        set<int>    empty_set;
-        AuthRequest ar(2, empty_set);
+        AuthRequest ar(2, 2);
 
         //OBJECT:OBJECT_ID:ACTION:OWNER:PUBLIC:CORE_RESULT
 
@@ -238,16 +235,14 @@ public:
     void self_authorize()
     {
         // Make all users belong to the USERS (1) group
-        set<int> gid_set;
-        gid_set.insert(1);
 
-        AuthRequest ar(2, gid_set);
-        AuthRequest ar1(2, gid_set);
-        AuthRequest ar2(3, gid_set);
-        AuthRequest ar3(4, gid_set);
-        AuthRequest ar4(2, gid_set);
-        AuthRequest ar5(0, gid_set);
-        AuthRequest ar6(0, gid_set);
+        AuthRequest ar(2,  1);
+        AuthRequest ar1(2, 1);
+        AuthRequest ar2(3, 1);
+        AuthRequest ar3(4, 1);
+        AuthRequest ar4(2, 1);
+        AuthRequest ar5(0, 1);
+        AuthRequest ar6(0, 1);
 
         ar.add_auth(AuthRequest::VM,"dGhpcy",-1,AuthRequest::CREATE,2,false);
         ar.add_auth(AuthRequest::NET,2,1,AuthRequest::USE,2,false);
@@ -279,10 +274,8 @@ public:
 
     void self_authenticate()
     {
-        set<int> empty_set;
-
-        AuthRequest ar(2, empty_set);
-        AuthRequest ar1(2,empty_set);
+        AuthRequest ar(2, 2);
+        AuthRequest ar1(2,2);
 
         ar.add_authenticate("the_user","the_pass","the_secret");
         CPPUNIT_ASSERT(ar.plain_authenticate() == false);
