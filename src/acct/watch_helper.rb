@@ -103,7 +103,7 @@ module WatchHelper
                 :timestamp  => timestamp,
                 :last_poll  => vm['LAST_POLL'],
                 :state      => vm['STATE'],
-                :lcm_state  => vm['LCM_STATE'],
+                :lcm_state  => vm['LCM_STATE']
             }
 
             VM_SAMPLE.each { |key,value|

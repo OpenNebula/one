@@ -54,11 +54,11 @@ module OneWatchClient
 
             mon = Hash.new
             monitoring_resources.each { |opt|
-                mon[opt] = case opt
-                when allowed_samples.include?(opt)
-                    sum_monitoring(rsql, kind, opt)
-                when "total", "active", "error"
-                    count_monitoring(rsql, opt)
+                opt = opt.to_sym
+                if allowed_samples.has_key?(opt)
+                    mon[opt] = sum_monitoring(rsql, kind, opt)
+                elsif [:total, :active, :error].include?(opt)
+                    mon[opt] = count_monitoring(rsql, opt)
                 end
             }
 
@@ -85,9 +85,9 @@ module OneWatchClient
 
         def count_monitoring(rsql, opt)
             resources = case opt
-            when "total" then  rsql
-            when "active" then rsql.active
-            when "error"  then rsql.error
+            when :total then  rsql
+            when :active then rsql.active
+            when :error  then rsql.error
             else return nil
             end
 
