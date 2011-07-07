@@ -49,9 +49,8 @@ class Watcher
                         }
     end
 
-    def log(resource,msg=nil)
-        msg ||= "watched"
-        STDERR.puts "#{Time.now} [#{resource.class}] #{msg}"
+    def log(msg)
+        STDERR.puts "#{Time.now} #{msg}"
     end
 
     def update(step)
