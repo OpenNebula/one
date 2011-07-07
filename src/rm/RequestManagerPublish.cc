@@ -21,13 +21,15 @@ using namespace std;
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-void RequestManagerPublish::request_execute(xmlrpc_c::paramList const& paramList)
+void RequestManagerPublish::request_execute(
+        xmlrpc_c::paramList const& paramList,
+        RequestAttributes& att)
 {
     int             oid   = xmlrpc_c::value_int(paramList.getInt(1));
     bool            pflag = xmlrpc_c::value_boolean(paramList.getBoolean(2));
     PoolObjectSQL * object;
 
-    if ( basic_authorization(oid) == false )
+    if ( basic_authorization(oid, att) == false )
     {
         return;
     }
@@ -36,7 +38,10 @@ void RequestManagerPublish::request_execute(xmlrpc_c::paramList const& paramList
 
     if ( object == 0 )                             
     {                                            
-        failure_response(NO_EXISTS, get_error(object_name(auth_object),oid));
+        failure_response(NO_EXISTS,
+                get_error(object_name(auth_object),oid),
+                att);
+
         return;
     }    
 
@@ -45,7 +50,8 @@ void RequestManagerPublish::request_execute(xmlrpc_c::paramList const& paramList
     if ( rc != 0 )
     {
         failure_response(INTERNAL,
-                request_error("Can not publish/unpublish resource",""));
+                request_error("Can not publish/unpublish resource",""),
+                att);
 
         object->unlock();
         return;
@@ -55,7 +61,7 @@ void RequestManagerPublish::request_execute(xmlrpc_c::paramList const& paramList
 
     object->unlock();
 
-    success_response(oid);
+    success_response(oid, att);
 
     return;
 }

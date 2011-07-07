@@ -44,7 +44,8 @@ protected:
 
     /* --------------------------------------------------------------------- */
 
-    virtual void request_execute(xmlrpc_c::paramList const& _paramList) = 0;
+    virtual void request_execute(xmlrpc_c::paramList const& _paramList,
+                                 RequestAttributes& att) = 0;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -58,7 +59,8 @@ public:
 
     ~ImageEnable(){};
 
-    void request_execute(xmlrpc_c::paramList const& _paramList);
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -73,7 +75,8 @@ public:
 
     ~ImagePersistent(){};
 
-    void request_execute(xmlrpc_c::paramList const& _paramList);
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributes& att);
 };
 
 /* -------------------------------------------------------------------------- */

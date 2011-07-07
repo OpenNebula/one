@@ -45,7 +45,8 @@ protected:
 
     /* -------------------------------------------------------------------- */
 
-    virtual void request_execute(xmlrpc_c::paramList const& _paramList) = 0;
+    virtual void request_execute(xmlrpc_c::paramList const& _paramList,
+                                 RequestAttributes& att) = 0;
 
     /* -------------------------------------------------------------------- */
 
@@ -66,7 +67,8 @@ public:
 
     ~AclAddRule(){};
 
-    void request_execute(xmlrpc_c::paramList const& _paramList);
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -83,7 +85,8 @@ public:
 
     ~AclDelRule(){};
 
-    void request_execute(xmlrpc_c::paramList const& _paramList);
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -100,7 +103,8 @@ public:
 
     ~AclInfo(){};
 
-    void request_execute(xmlrpc_c::paramList const& _paramList);
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributes& att);
 };
 
 /* -------------------------------------------------------------------------- */

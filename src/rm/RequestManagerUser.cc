@@ -19,13 +19,14 @@
 using namespace std;
 
 void RequestManagerUser::
-    request_execute(xmlrpc_c::paramList const& paramList)
+    request_execute(xmlrpc_c::paramList const& paramList,
+                    RequestAttributes& att)
 {
     int    id  = xmlrpc_c::value_int(paramList.getInt(1));
     User * user;
     string error_str;
 
-    if ( basic_authorization(id) == false )
+    if ( basic_authorization(id, att) == false )
     {
         return;
     }
@@ -34,17 +35,20 @@ void RequestManagerUser::
 
     if ( user == 0 )
     {
-        failure_response(NO_EXISTS, get_error(object_name(auth_object),id));
+        failure_response(NO_EXISTS,
+                get_error(object_name(auth_object),id),
+                att);
+
         return;
     }
 
     if ( user_action(user,paramList,error_str) < 0 )
     {
-        failure_response(INTERNAL, request_error(error_str,""));
+        failure_response(INTERNAL, request_error(error_str,""), att);
         return;
     }
  
-    success_response(id);
+    success_response(id, att);
 }
 
 /* -------------------------------------------------------------------------- */

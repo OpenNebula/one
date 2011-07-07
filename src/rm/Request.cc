@@ -25,33 +25,37 @@ void Request::execute(
         xmlrpc_c::paramList const& _paramList,
         xmlrpc_c::value *   const  _retval)
 {
-    retval  = _retval;
-    session = xmlrpc_c::value_string (_paramList.getString(0));
+    RequestAttributes att;
+
+    att.retval  = _retval;
+    att.session = xmlrpc_c::value_string (_paramList.getString(0));
 
     Nebula& nd = Nebula::instance();
     UserPool* upool = nd.get_upool();
 
     NebulaLog::log("ReM",Log::DEBUG, method_name + " method invoked");
 
-    if ( upool->authenticate(session, 
-                             uid, 
-                             gid, 
-                             uname, 
-                             gname, 
-                             group_ids) == false )
+    if ( upool->authenticate(att.session,
+                             att.uid,
+                             att.gid,
+                             att.uname,
+                             att.gname,
+                             att.group_ids) == false )
     {
-        failure_response(AUTHENTICATION, authenticate_error());
+        failure_response(AUTHENTICATION, authenticate_error(), att);
     }
     else
     {
-        request_execute(_paramList);    
+        request_execute(_paramList, att);
     }
 };
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool Request::basic_authorization(int oid, AuthRequest::Operation op)
+bool Request::basic_authorization(int oid,
+                                  AuthRequest::Operation op,
+                                  RequestAttributes& att)
 {
     PoolObjectSQL * object;
 
@@ -59,7 +63,7 @@ bool Request::basic_authorization(int oid, AuthRequest::Operation op)
     int  ouid   = 0;
     int  ogid   = -1;
 
-    if ( uid == 0 )
+    if ( att.uid == 0 )
     {
         return true;
     }
@@ -70,7 +74,9 @@ bool Request::basic_authorization(int oid, AuthRequest::Operation op)
 
         if ( object == 0 )
         {
-            failure_response(NO_EXISTS, get_error(object_name(auth_object),oid)); 
+            failure_response(NO_EXISTS,
+                             get_error(object_name(auth_object),oid),
+                             att);
             return false;
         }
 
@@ -81,13 +87,15 @@ bool Request::basic_authorization(int oid, AuthRequest::Operation op)
         object->unlock();
     }
 
-    AuthRequest ar(uid, group_ids);
+    AuthRequest ar(att.uid, att.group_ids);
 
     ar.add_auth(auth_object, oid, ogid, op, ouid, pub);
 
     if (UserPool::authorize(ar) == -1)
     {
-        failure_response(AUTHORIZATION, authorization_error(ar.message));
+        failure_response(AUTHORIZATION,
+                         authorization_error(ar.message, att),
+                         att);
 
         return false;
     }
@@ -98,7 +106,8 @@ bool Request::basic_authorization(int oid, AuthRequest::Operation op)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void Request::failure_response(ErrorCode ec, const string& str_val)
+void Request::failure_response(ErrorCode ec, const string& str_val,
+                               RequestAttributes& att)
 {    
     vector<xmlrpc_c::value> arrayData;
 
@@ -108,7 +117,7 @@ void Request::failure_response(ErrorCode ec, const string& str_val)
 
     xmlrpc_c::value_array arrayresult(arrayData);
 
-    *retval = arrayresult;
+    *(att.retval) = arrayresult;
 
     NebulaLog::log("ReM",Log::ERROR,str_val);
 }
@@ -116,7 +125,7 @@ void Request::failure_response(ErrorCode ec, const string& str_val)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void Request::success_response(int id)
+void Request::success_response(int id, RequestAttributes& att)
 {    
     vector<xmlrpc_c::value> arrayData;
 
@@ -127,12 +136,12 @@ void Request::success_response(int id)
 
     xmlrpc_c::value_array arrayresult(arrayData);
 
-    *retval = arrayresult;
+    *(att.retval) = arrayresult;
 }
 
 /* -------------------------------------------------------------------------- */
 
-void Request::success_response(const string& val)
+void Request::success_response(const string& val, RequestAttributes& att)
 {    
     vector<xmlrpc_c::value> arrayData;
 
@@ -142,7 +151,7 @@ void Request::success_response(const string& val)
 
     xmlrpc_c::value_array arrayresult(arrayData);
 
-    *retval = arrayresult;
+    *(att.retval) = arrayresult;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -176,11 +185,12 @@ string Request::object_name(AuthRequest::Object ob)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-string Request::authorization_error (const string &message)
+string Request::authorization_error (const string &message,
+                                     RequestAttributes& att)
 {
     ostringstream oss;
 
-    oss << "[" << method_name << "]" << " User [" << uid << "] not authorized"
+    oss << "[" << method_name << "]" << " User [" << att.uid << "] not authorized"
         << " to perform action on " << object_name(auth_object) << ".";
 
 
@@ -231,7 +241,7 @@ string Request::request_error (const string &err_desc, const string &err_detail)
 {
     ostringstream oss;
 
-    oss << "[" << method_name << "]" << err_desc;
+    oss << "[" << method_name << "] " << err_desc;
 
     if (!err_detail.empty())
     {

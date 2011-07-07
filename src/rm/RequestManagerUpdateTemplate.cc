@@ -21,7 +21,9 @@ using namespace std;
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-void RequestManagerUpdateTemplate::request_execute(xmlrpc_c::paramList const& paramList)
+void RequestManagerUpdateTemplate::request_execute(
+        xmlrpc_c::paramList const& paramList,
+        RequestAttributes& att)
 {
     int    rc;
     string error_str;
@@ -31,7 +33,7 @@ void RequestManagerUpdateTemplate::request_execute(xmlrpc_c::paramList const& pa
     
     PoolObjectSQL * object;
 
-    if ( basic_authorization(oid) == false )
+    if ( basic_authorization(oid, att) == false )
     {
         return;
     }
@@ -40,7 +42,10 @@ void RequestManagerUpdateTemplate::request_execute(xmlrpc_c::paramList const& pa
 
     if ( object == 0 )                             
     {                                            
-        failure_response(NO_EXISTS, get_error(object_name(auth_object),oid));
+        failure_response(NO_EXISTS,
+                get_error(object_name(auth_object),oid),
+                att);
+
         return;
     }
 
@@ -48,7 +53,9 @@ void RequestManagerUpdateTemplate::request_execute(xmlrpc_c::paramList const& pa
 
     if ( rc != 0 )
     {
-        failure_response(INTERNAL, request_error("Can not update template",error_str));
+        failure_response(INTERNAL,
+                request_error("Can not update template",error_str),
+                att);
         object->unlock();
 
         return;
@@ -58,7 +65,7 @@ void RequestManagerUpdateTemplate::request_execute(xmlrpc_c::paramList const& pa
 
     object->unlock();
 
-    success_response(oid);
+    success_response(oid, att);
 
     return;
 }

@@ -21,12 +21,14 @@ using namespace std;
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-void RequestManagerPoolInfo::request_execute(xmlrpc_c::paramList const& paramList)
+void RequestManagerPoolInfo::request_execute(
+        xmlrpc_c::paramList const& paramList,
+        RequestAttributes& att)
 {
     ostringstream oss;
     int rc;
 
-    if ( basic_authorization(-1) == false )
+    if ( basic_authorization(-1, att) == false )
     {
         return;
     }
@@ -36,11 +38,11 @@ void RequestManagerPoolInfo::request_execute(xmlrpc_c::paramList const& paramLis
 
     if ( rc != 0 )
     {
-        failure_response(INTERNAL,request_error("Internal Error",""));
+        failure_response(INTERNAL,request_error("Internal Error",""), att);
         return;
     }
 
-    success_response(oss.str());
+    success_response(oss.str(), att);
 
     return;
 }

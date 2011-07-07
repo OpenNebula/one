@@ -23,29 +23,33 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool RequestManagerAllocate::allocate_authorization(Template * tmpl)
+bool RequestManagerAllocate::allocate_authorization(Template * tmpl,
+                                                    RequestAttributes& att)
 {
-    if ( uid == 0 )
+    if ( att.uid == 0 )
     {
         return true;
     }
 
-    AuthRequest ar(uid, group_ids);
+    AuthRequest ar(att.uid, att.group_ids);
 
     if ( tmpl == 0 )
     { 
-        ar.add_auth(auth_object,-1,-1,auth_op,uid,false);
+        ar.add_auth(auth_object,-1,-1,auth_op,att.uid,false);
     }
     else
     {
         string t64;
 
-        ar.add_auth(auth_object,tmpl->to_xml(t64),-1,auth_op,uid,false);
+        ar.add_auth(auth_object,tmpl->to_xml(t64),-1,auth_op,att.uid,false);
     }
 
    if (UserPool::authorize(ar) == -1)
    {
-        failure_response(AUTHORIZATION, authorization_error(ar.message));
+        failure_response(AUTHORIZATION,
+                authorization_error(ar.message, att),
+                att);
+
         return false;
     }
 
@@ -55,26 +59,30 @@ bool RequestManagerAllocate::allocate_authorization(Template * tmpl)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool VirtualMachineAllocate::allocate_authorization(Template * tmpl)
+bool VirtualMachineAllocate::allocate_authorization(Template * tmpl,
+                                                    RequestAttributes& att)
 {
-    if ( uid == 0 )
+    if ( att.uid == 0 )
     {
         return true;
     }
 
-    AuthRequest ar(uid, group_ids);
+    AuthRequest ar(att.uid, att.group_ids);
 
     string      t64;
 
     VirtualMachineTemplate * ttmpl = static_cast<VirtualMachineTemplate *>(tmpl);
 
-    ar.add_auth(auth_object,tmpl->to_xml(t64),-1,auth_op,uid,false);
+    ar.add_auth(auth_object,tmpl->to_xml(t64),-1,auth_op,att.uid,false);
 
-    VirtualMachine::set_auth_request(uid, ar, ttmpl);
+    VirtualMachine::set_auth_request(att.uid, ar, ttmpl);
 
    if (UserPool::authorize(ar) == -1)
    {
-        failure_response(AUTHORIZATION, authorization_error(ar.message));
+        failure_response(AUTHORIZATION,
+                authorization_error(ar.message, att),
+                att);
+
         return false;
     }
 
@@ -84,7 +92,8 @@ bool VirtualMachineAllocate::allocate_authorization(Template * tmpl)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void RequestManagerAllocate::request_execute(xmlrpc_c::paramList const& params)
+void RequestManagerAllocate::request_execute(xmlrpc_c::paramList const& params,
+                                             RequestAttributes& att)
 {
     Template * tmpl = 0;
 
@@ -102,27 +111,27 @@ void RequestManagerAllocate::request_execute(xmlrpc_c::paramList const& params)
 
         if ( rc != 0 )
         {
-            failure_response(INTERNAL, allocate_error(error_msg));
+            failure_response(INTERNAL, allocate_error(error_msg), att);
             delete tmpl;
 
             return;
         }
     }
 
-    if ( allocate_authorization(tmpl) == false )
+    if ( allocate_authorization(tmpl, att) == false )
     {
         return;
     }
 
-    rc = pool_allocate(params, tmpl, id, error_str);
+    rc = pool_allocate(params, tmpl, id, error_str, att);
 
     if ( rc < 0 )
     {
-        failure_response(INTERNAL, allocate_error(error_str));
+        failure_response(INTERNAL, allocate_error(error_str), att);
         return;
     }
     
-    success_response(id);
+    success_response(id, att);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -131,12 +140,14 @@ void RequestManagerAllocate::request_execute(xmlrpc_c::paramList const& params)
 int VirtualMachineAllocate::pool_allocate(xmlrpc_c::paramList const& paramList, 
                                           Template * tmpl,
                                           int& id, 
-                                          string& error_str)
+                                          string& error_str,
+                                          RequestAttributes& att)
 {
     VirtualMachineTemplate * ttmpl= static_cast<VirtualMachineTemplate *>(tmpl);
     VirtualMachinePool * vmpool   = static_cast<VirtualMachinePool *>(pool);
 
-    return vmpool->allocate(uid, gid, uname, gname, ttmpl, &id,error_str,false);
+    return vmpool->allocate(att.uid, att.gid, att.uname, att.gname, ttmpl, &id,
+            error_str, false);
 }
 
 
@@ -146,12 +157,14 @@ int VirtualMachineAllocate::pool_allocate(xmlrpc_c::paramList const& paramList,
 int VirtualNetworkAllocate::pool_allocate(xmlrpc_c::paramList const& _paramList, 
                                           Template * tmpl,
                                           int& id, 
-                                          string& error_str)
+                                          string& error_str,
+                                          RequestAttributes& att)
 {
     VirtualNetworkPool * vpool = static_cast<VirtualNetworkPool *>(pool);
     VirtualNetworkTemplate * vtmpl=static_cast<VirtualNetworkTemplate *>(tmpl);
 
-    return vpool->allocate(uid, gid, uname, gname, vtmpl, &id, error_str);
+    return vpool->allocate(att.uid, att.gid, att.uname, att.gname, vtmpl, &id,
+            error_str);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -160,12 +173,14 @@ int VirtualNetworkAllocate::pool_allocate(xmlrpc_c::paramList const& _paramList,
 int ImageAllocate::pool_allocate(xmlrpc_c::paramList const& _paramList, 
                                  Template * tmpl,
                                  int& id, 
-                                 string& error_str)
+                                 string& error_str,
+                                 RequestAttributes& att)
 {
     ImagePool * ipool = static_cast<ImagePool *>(pool);
     ImageTemplate * itmpl = static_cast<ImageTemplate *>(tmpl);
 
-    return ipool->allocate(uid, gid, uname, gname, itmpl, &id, error_str);
+    return ipool->allocate(att.uid, att.gid, att.uname, att.gname, itmpl, &id,
+            error_str);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -174,13 +189,15 @@ int ImageAllocate::pool_allocate(xmlrpc_c::paramList const& _paramList,
 int TemplateAllocate::pool_allocate(xmlrpc_c::paramList const& _paramList, 
                                     Template * tmpl,
                                     int& id, 
-                                    string& error_str)
+                                    string& error_str,
+                                    RequestAttributes& att)
 {
     VMTemplatePool * tpool = static_cast<VMTemplatePool *>(pool);
 
     VirtualMachineTemplate * ttmpl=static_cast<VirtualMachineTemplate *>(tmpl);
 
-    return tpool->allocate(uid, gid, uname, gname, ttmpl, &id, error_str);
+    return tpool->allocate(att.uid, att.gid, att.uname, att.gname, ttmpl, &id,
+            error_str);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -189,7 +206,8 @@ int TemplateAllocate::pool_allocate(xmlrpc_c::paramList const& _paramList,
 int HostAllocate::pool_allocate(xmlrpc_c::paramList const& paramList, 
                                 Template * tmpl,
                                 int& id, 
-                                string& error_str)
+                                string& error_str,
+                                RequestAttributes& att)
 {
     string host    = xmlrpc_c::value_string(paramList.getString(1));
     string im_mad  = xmlrpc_c::value_string(paramList.getString(2));
@@ -207,17 +225,18 @@ int HostAllocate::pool_allocate(xmlrpc_c::paramList const& paramList,
 int UserAllocate::pool_allocate(xmlrpc_c::paramList const& paramList, 
                                 Template * tmpl,
                                 int& id, 
-                                string& error_str)
+                                string& error_str,
+                                RequestAttributes& att)
 {
     string uname  = xmlrpc_c::value_string(paramList.getString(1));
     string passwd = xmlrpc_c::value_string(paramList.getString(2));
 
     UserPool * upool = static_cast<UserPool *>(pool);
 
-    int      ugid   = gid;
-    string   ugname = gname;
+    int      ugid   = att.gid;
+    string   ugname = att.gname;
 
-    if ( gid == GroupPool::ONEADMIN_ID )
+    if ( att.gid == GroupPool::ONEADMIN_ID )
     {
         ugid   = GroupPool::USERS_ID;
         ugname = GroupPool::USERS_NAME;
@@ -232,7 +251,8 @@ int UserAllocate::pool_allocate(xmlrpc_c::paramList const& paramList,
 int GroupAllocate::pool_allocate(xmlrpc_c::paramList const& paramList, 
                                  Template * tmpl,
                                  int& id, 
-                                 string& error_str)
+                                 string& error_str,
+                                 RequestAttributes& att)
 {
     string gname = xmlrpc_c::value_string(paramList.getString(1));
 

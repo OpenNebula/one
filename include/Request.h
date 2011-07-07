@@ -59,27 +59,38 @@ protected:
 
     /* ------------------- Attributes of the Request ---------------------- */
 
-    int                 uid;            /**< id of the user */
-    int                 gid;            /**< id of the user's group */
+    struct RequestAttributes
+    {
+        int                 uid;            /**< id of the user */
+        int                 gid;            /**< id of the user's group */
 
-    string              uname;          /**< name of the user */
-    string              gname;          /**< name of the user's group */
+        string              uname;          /**< name of the user */
+        string              gname;          /**< name of the user's group */
 
-    set<int>            group_ids;      /**< set of user's group ids */
+        set<int>            group_ids;      /**< set of user's group ids */
+
+        /**
+         *  Session token from the OpenNebula XML-RPC API
+         */
+        string             session;
+
+        /**
+         *  Return value of the request from libxmlrpc-c
+         */
+        xmlrpc_c::value * retval;
+    };
 
     PoolSQL *           pool;           /**< Pool of objects */
-
     string              method_name;    /**< The name of the XML-RPC method */
 
     AuthRequest::Object    auth_object; /**< Auth object for the request */
     AuthRequest::Operation auth_op;     /**< Auth operation for the request */
 
-
     /* -------------------- Constructors ---------------------------------- */
 
     Request(const string& mn, 
             const string& signature, 
-            const string& help): uid(-1),gid(-1),pool(0),method_name(mn),retval(0)
+            const string& help): pool(0),method_name(mn)
     {
         _signature = signature;
         _help      = help;
@@ -97,12 +108,13 @@ protected:
      *  object and type of operation for the request.
      *    @param oid of the object, can be -1 for objects to be created, or
      *    pools.
+     *    @param att the specific request attributes
      *
      *    @return true if the user is authorized.
      */
-    bool basic_authorization(int oid)
+    bool basic_authorization(int oid, RequestAttributes& att)
     {
-        return basic_authorization(oid, auth_op);
+        return basic_authorization(oid, auth_op, att);
     };
 
     /**
@@ -113,39 +125,48 @@ protected:
      *    @param oid of the object, can be -1 for objects to be created, or
      *    pools.
      *    @param op operation of the request.
+     *    @param att the specific request attributes
      *
      *    @return true if the user is authorized.
      */
-    bool basic_authorization(int oid, AuthRequest::Operation op);
+    bool basic_authorization(int oid, AuthRequest::Operation op,
+                             RequestAttributes& att);
             
     /**
      *  Actual Execution method for the request. Must be implemented by the
      *  XML-RPC requests
      *    @param _paramlist of the XML-RPC call (complete list)
+     *    @param att the specific request attributes
      */
-    virtual void request_execute(xmlrpc_c::paramList const& _paramList) = 0;
+    virtual void request_execute(xmlrpc_c::paramList const& _paramList,
+                                 RequestAttributes& att) = 0;
 
     /**
      *  Builds an XML-RPC response updating retval. After calling this function
      *  the xml-rpc excute method should return
      *    @param val to be returned to the client
+     *    @param att the specific request attributes
      */
-    void success_response(int val);
+    void success_response(int val, RequestAttributes& att);
 
     /**
      *  Builds an XML-RPC response updating retval. After calling this function
      *  the xml-rpc excute method should return
      *    @param val string to be returned to the client
+     *    @param att the specific request attributes
      */
-    void success_response(const string& val);
+    void success_response(const string& val, RequestAttributes& att);
 
     /**
      *  Builds an XML-RPC response updating retval. After calling this function
      *  the xml-rpc excute method should return
      *    @param ec error code for this call
      *    @param val string representation of the error
+     *    @param att the specific request attributes
      */
-    void failure_response(ErrorCode ec, const string& val);
+    void failure_response(ErrorCode ec,
+                          const string& val,
+                          RequestAttributes& att);
 
     /**
      *  Gets a string representation for the Auth object in the
@@ -159,8 +180,10 @@ protected:
      *  Logs authorization errors
      *    @param message with the authorization error details
      *    @return string for logging
+     *    @param att the specific request attributes
      */
-    string authorization_error (const string &message);
+    string authorization_error (const string &message, RequestAttributes& att);
+
     /**
      *  Logs authenticate errors
      *    @return string for logging
@@ -204,17 +227,6 @@ protected:
      *    @return string for logging
      */
     string allocate_error (char *error);
-
-private:
-    /**
-     *  Session token from the OpenNebula XML-RPC API
-     */
-    string             session;
-
-    /**
-     *  Return value of the request from libxmlrpc-c
-     */
-    xmlrpc_c::value * retval;
 };
 
 /* -------------------------------------------------------------------------- */

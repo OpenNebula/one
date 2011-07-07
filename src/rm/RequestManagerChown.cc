@@ -22,7 +22,8 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList)
+void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
+                                          RequestAttributes& att)
 {
     int oid  = xmlrpc_c::value_int(paramList.getInt(1));
     int noid = xmlrpc_c::value_int(paramList.getInt(2));
@@ -31,13 +32,14 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList)
     string nuname;
     string ngname;
 
+    // TODO: Move these to constructor?
     Nebula&     nd    = Nebula::instance();
     GroupPool * gpool = nd.get_gpool();
     UserPool  * upool = nd.get_upool();
 
     PoolObjectSQL * object;
 
-    if ( basic_authorization(oid) == false )
+    if ( basic_authorization(oid, att) == false )
     {
         return;
     }
@@ -51,7 +53,8 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList)
         if ((user = upool->get(noid,true)) == 0)
         {
             failure_response(NO_EXISTS,
-                get_error(object_name(AuthRequest::USER),noid));
+                get_error(object_name(AuthRequest::USER),noid),
+                att);
             return;
         }
         
@@ -67,7 +70,8 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList)
         if ((group = gpool->get(ngid,true)) == 0)
         {
             failure_response(NO_EXISTS, 
-                get_error(object_name(AuthRequest::GROUP),ngid));
+                get_error(object_name(AuthRequest::GROUP),ngid),
+                att);
             return;
         }
 
@@ -82,7 +86,9 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList)
 
     if ( object == 0 )                             
     {                                            
-        failure_response(NO_EXISTS, get_error(object_name(auth_object),oid)); 
+        failure_response(NO_EXISTS,
+                get_error(object_name(auth_object),oid),
+                att);
         return;
     }    
 
@@ -100,7 +106,7 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList)
 
     object->unlock();
 
-    success_response(oid);
+    success_response(oid, att);
 
     return;
 }
@@ -108,7 +114,8 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void UserChown::request_execute(xmlrpc_c::paramList const& paramList)
+void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
+                                RequestAttributes& att)
 {
     int oid  = xmlrpc_c::value_int(paramList.getInt(1));
     int ngid = xmlrpc_c::value_int(paramList.getInt(2));
@@ -123,7 +130,7 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList)
     User *  user;
     Group * group;
 
-    if ( basic_authorization(oid) == false )
+    if ( basic_authorization(oid, att) == false )
     {
         return;
     }
@@ -132,14 +139,15 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList)
 
     if ( ngid < 0 )
     {
-        failure_response(XML_RPC_API,request_error("Wrong group ID",""));
+        failure_response(XML_RPC_API,request_error("Wrong group ID",""), att);
         return;
     }
 
     if ( (group = gpool->get(ngid,true)) == 0 )
     {
         failure_response(NO_EXISTS, 
-                get_error(object_name(AuthRequest::GROUP),ngid));
+                get_error(object_name(AuthRequest::GROUP),ngid),
+                att);
         return;
     }
 
@@ -154,14 +162,15 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList)
     if ( user == 0 )                             
     {                                            
         failure_response(NO_EXISTS,
-                get_error(object_name(AuthRequest::USER),oid)); 
+                get_error(object_name(AuthRequest::USER),oid),
+                att);
         return;
     }    
 
     if ((old_gid = user->get_gid()) == ngid)
     {
         user->unlock();
-        success_response(oid);
+        success_response(oid, att);
         return;
     }
 
@@ -181,7 +190,8 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList)
     if( group == 0 )
     {
         failure_response(NO_EXISTS, 
-                get_error(object_name(AuthRequest::GROUP),ngid));//TODO Rollback
+                get_error(object_name(AuthRequest::GROUP),ngid),
+                att);//TODO Rollback
         return;
     }
 
@@ -204,7 +214,7 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList)
         group->unlock();
     }
 
-    success_response(oid);
+    success_response(oid, att);
 
     return;
 }

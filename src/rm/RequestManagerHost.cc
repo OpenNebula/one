@@ -20,7 +20,8 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void HostEnable::request_execute(xmlrpc_c::paramList const& paramList)
+void HostEnable::request_execute(xmlrpc_c::paramList const& paramList,
+                                 RequestAttributes& att)
 {
     int     id      = xmlrpc_c::value_int(paramList.getInt(1));
     bool    enable  = xmlrpc_c::value_boolean(paramList.getBoolean(2));
@@ -31,7 +32,7 @@ void HostEnable::request_execute(xmlrpc_c::paramList const& paramList)
 
     string error_str;
 
-    if ( basic_authorization(id) == false )
+    if ( basic_authorization(id, att) == false )
     {
         return;
     }
@@ -40,7 +41,10 @@ void HostEnable::request_execute(xmlrpc_c::paramList const& paramList)
 
     if ( host  == 0 )
     {
-        failure_response(NO_EXISTS, get_error(object_name(auth_object),id));
+        failure_response(NO_EXISTS,
+                get_error(object_name(auth_object),id),
+                att);
+
         return;
     }
 
@@ -57,7 +61,7 @@ void HostEnable::request_execute(xmlrpc_c::paramList const& paramList)
 
     host->unlock();
 
-    success_response(id);
+    success_response(id, att);
 }
 
 /* -------------------------------------------------------------------------- */

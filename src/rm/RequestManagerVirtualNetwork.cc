@@ -34,14 +34,15 @@ string RequestManagerVirtualNetwork::leases_error (char *error)
         free(error);
     }
 
-    return request_error("Error modifiying network leases",oss.str());
+    return request_error("Error modifying network leases",oss.str());
 }
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
 void RequestManagerVirtualNetwork::
-    request_execute(xmlrpc_c::paramList const& paramList)
+    request_execute(xmlrpc_c::paramList const& paramList,
+                    RequestAttributes& att)
 {
     int    id       = xmlrpc_c::value_int    (paramList.getInt(1));
     string str_tmpl = xmlrpc_c::value_string (paramList.getString(2));
@@ -53,7 +54,7 @@ void RequestManagerVirtualNetwork::
     string error_str;
     int    rc;
 
-    if ( basic_authorization(id) == false )
+    if ( basic_authorization(id, att) == false )
     {
         return;
     }
@@ -62,7 +63,7 @@ void RequestManagerVirtualNetwork::
 
     if ( rc != 0 )
     {
-        failure_response(INTERNAL, leases_error(error_msg));
+        failure_response(INTERNAL, leases_error(error_msg), att);
         return;
     }
 
@@ -70,7 +71,7 @@ void RequestManagerVirtualNetwork::
 
     if ( vn == 0 )
     {
-        failure_response(NO_EXISTS, get_error(object_name(auth_object),id));
+        failure_response(NO_EXISTS, get_error(object_name(auth_object),id),att);
         return;
     }
 
@@ -79,7 +80,8 @@ void RequestManagerVirtualNetwork::
     if ( rc < 0 )
     {
         failure_response(INTERNAL, 
-                request_error("Error modifiying network leases",error_str));
+                request_error("Error modifiying network leases",error_str),
+                att);
         
         vn->unlock();
         return;
@@ -89,6 +91,6 @@ void RequestManagerVirtualNetwork::
 
     vn->unlock();
  
-    success_response(id);
+    success_response(id, att);
 }
 

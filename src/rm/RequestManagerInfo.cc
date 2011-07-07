@@ -21,13 +21,14 @@ using namespace std;
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-void RequestManagerInfo::request_execute(xmlrpc_c::paramList const& paramList)
+void RequestManagerInfo::request_execute(xmlrpc_c::paramList const& paramList,
+                                         RequestAttributes& att)
 {
     int             oid = xmlrpc_c::value_int(paramList.getInt(1));
     PoolObjectSQL * object;
     string          str;
 
-    if ( basic_authorization(oid) == false )
+    if ( basic_authorization(oid, att) == false )
     {
         return;
     }
@@ -36,11 +37,11 @@ void RequestManagerInfo::request_execute(xmlrpc_c::paramList const& paramList)
     {
         if ( auth_object == AuthRequest::USER )
         {
-            oid = uid;
+            oid = att.uid;
         }
         else if ( auth_object == AuthRequest::GROUP )
         {
-            oid = gid;
+            oid = att.gid;
         }
     }
 
@@ -48,7 +49,9 @@ void RequestManagerInfo::request_execute(xmlrpc_c::paramList const& paramList)
 
     if ( object == 0 )                             
     {                                            
-        failure_response(NO_EXISTS, get_error(object_name(auth_object),oid));
+        failure_response(NO_EXISTS,
+                get_error(object_name(auth_object),oid),
+                att);
         return;
     }    
 
@@ -56,7 +59,7 @@ void RequestManagerInfo::request_execute(xmlrpc_c::paramList const& paramList)
 
     object->unlock();
 
-    success_response(str);
+    success_response(str, att);
 
     return;
 }

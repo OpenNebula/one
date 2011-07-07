@@ -21,7 +21,8 @@ using namespace std;
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-void AclAddRule::request_execute(xmlrpc_c::paramList const& paramList)
+void AclAddRule::request_execute(xmlrpc_c::paramList const& paramList,
+                                 RequestAttributes& att)
 {
 /*
     xmlrpc-c version 1.07 can manage 64 bit numbers, but not all distros. ship
@@ -50,7 +51,7 @@ void AclAddRule::request_execute(xmlrpc_c::paramList const& paramList)
 
     string error_msg;
 
-    if ( basic_authorization(-1) == false )
+    if ( basic_authorization(-1, att) == false )
     {
         return;
     }
@@ -59,11 +60,11 @@ void AclAddRule::request_execute(xmlrpc_c::paramList const& paramList)
 
     if ( rc < 0 )
     {
-        failure_response(INTERNAL, request_error(error_msg, ""));
+        failure_response(INTERNAL, request_error(error_msg, ""), att);
         return;
     }
 
-    success_response(rc);
+    success_response(rc, att);
 
     return;
 }
@@ -71,12 +72,13 @@ void AclAddRule::request_execute(xmlrpc_c::paramList const& paramList)
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-void AclDelRule::request_execute(xmlrpc_c::paramList const& paramList)
+void AclDelRule::request_execute(xmlrpc_c::paramList const& paramList,
+                                 RequestAttributes& att)
 {
     int    oid = xmlrpc_c::value_int(paramList.getInt(1));
     string error_msg;
 
-    if ( basic_authorization(-1) == false )
+    if ( basic_authorization(-1, att) == false )
     {
         return;
     }
@@ -85,11 +87,11 @@ void AclDelRule::request_execute(xmlrpc_c::paramList const& paramList)
 
     if ( rc < 0 )
     {
-        failure_response(INTERNAL, request_error(error_msg, ""));
+        failure_response(INTERNAL, request_error(error_msg, ""), att);
         return;
     }
 
-    success_response(oid);
+    success_response(oid, att);
 
     return;
 }
@@ -97,12 +99,13 @@ void AclDelRule::request_execute(xmlrpc_c::paramList const& paramList)
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-void AclInfo::request_execute(xmlrpc_c::paramList const& paramList)
+void AclInfo::request_execute(xmlrpc_c::paramList const& paramList,
+                              RequestAttributes& att)
 {
     ostringstream oss;
     int rc;
 
-    if ( basic_authorization(-1) == false )
+    if ( basic_authorization(-1, att) == false )
     {
         return;
     }
@@ -111,11 +114,11 @@ void AclInfo::request_execute(xmlrpc_c::paramList const& paramList)
 
     if ( rc != 0 )
     {
-        failure_response(INTERNAL, request_error("Internal Error",""));
+        failure_response(INTERNAL, request_error("Internal Error",""), att);
         return;
     }
 
-    success_response(oss.str());
+    success_response(oss.str(), att);
 
     return;
 }

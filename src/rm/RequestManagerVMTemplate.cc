@@ -20,7 +20,8 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList)
+void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList,
+                                            RequestAttributes& att)
 {
     int    id   = xmlrpc_c::value_int(paramList.getInt(1));
     string name = xmlrpc_c::value_string(paramList.getString(2));
@@ -40,7 +41,10 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
 
     if ( rtmpl == 0 )
     {
-        failure_response(NO_EXISTS, get_error(object_name(auth_object),id)); 
+        failure_response(NO_EXISTS,
+                get_error(object_name(auth_object),id),
+                att);
+
         return;
     }
 
@@ -53,31 +57,38 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
     tmpl->erase("NAME");
     tmpl->set(new SingleAttribute("NAME",name));
 
-    if ( uid != 0 )
+    if ( att.uid != 0 )
     {
-        AuthRequest ar(uid, group_ids);
+        AuthRequest ar(att.uid, att.group_ids);
 
         ar.add_auth(auth_object, id, ogid, auth_op, ouid, false);
 
-        VirtualMachine::set_auth_request(uid, ar, tmpl);
+        VirtualMachine::set_auth_request(att.uid, ar, tmpl);
 
         if (UserPool::authorize(ar) == -1)
         {
-            failure_response(AUTHORIZATION, authorization_error(ar.message));
+            failure_response(AUTHORIZATION,
+                    authorization_error(ar.message, att),
+                    att);
+
             delete tmpl;
             return;
         }
     }
 
-    rc = vmpool->allocate(uid, gid, uname, gname, tmpl, &vid, error_str, false);
+    rc = vmpool->allocate(att.uid, att.gid, att.uname, att.gname, tmpl, &vid,
+            error_str, false);
 
     if ( rc < 0 )
     {
-        failure_response(INTERNAL, allocate_error(AuthRequest::VM,error_str));
+        failure_response(INTERNAL,
+                allocate_error(AuthRequest::VM,error_str),
+                att);
+
         return;
     }
     
-    success_response(vid);
+    success_response(vid, att);
 }
 
 /* -------------------------------------------------------------------------- */

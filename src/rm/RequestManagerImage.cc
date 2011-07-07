@@ -21,7 +21,8 @@ using namespace std;
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-void ImageEnable::request_execute(xmlrpc_c::paramList const& paramList)
+void ImageEnable::request_execute(xmlrpc_c::paramList const& paramList,
+                                  RequestAttributes& att)
 {
     int     id          = xmlrpc_c::value_int(paramList.getInt(1));
     bool    enable_flag = xmlrpc_c::value_boolean(paramList.getBoolean(2));
@@ -32,7 +33,7 @@ void ImageEnable::request_execute(xmlrpc_c::paramList const& paramList)
     Nebula&          nd     = Nebula::instance();
     ImageManager *   imagem = nd.get_imagem();
 
-    if ( basic_authorization(id) == false )
+    if ( basic_authorization(id, att) == false )
     {
         return;
     }
@@ -50,17 +51,18 @@ void ImageEnable::request_execute(xmlrpc_c::paramList const& paramList)
             err_msg = "Could not disable image";
         }
 
-        failure_response(INTERNAL, request_error(err_msg,""));
+        failure_response(INTERNAL, request_error(err_msg,""), att);
         return;
     }
 
-    success_response(id);
+    success_response(id, att);
 }
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-void ImagePersistent::request_execute(xmlrpc_c::paramList const& paramList)
+void ImagePersistent::request_execute(xmlrpc_c::paramList const& paramList,
+                                      RequestAttributes& att)
 {
     int     id              = xmlrpc_c::value_int(paramList.getInt(1));
     bool    persistent_flag = xmlrpc_c::value_boolean(paramList.getBoolean(2));
@@ -69,7 +71,7 @@ void ImagePersistent::request_execute(xmlrpc_c::paramList const& paramList)
     Image * image;
     string  err_msg;
 
-    if ( basic_authorization(id) == false )
+    if ( basic_authorization(id, att) == false )
     {
         return;
     }
@@ -78,7 +80,10 @@ void ImagePersistent::request_execute(xmlrpc_c::paramList const& paramList)
 
     if ( image == 0 )
     {
-        failure_response(NO_EXISTS, get_error(object_name(auth_object),id));
+        failure_response(NO_EXISTS,
+                get_error(object_name(auth_object),id),
+                att);
+
         return;
     }
 
@@ -95,7 +100,7 @@ void ImagePersistent::request_execute(xmlrpc_c::paramList const& paramList)
             err_msg = "Could not make image non-persistent";
         }
 
-        failure_response(INTERNAL,request_error(err_msg,""));
+        failure_response(INTERNAL,request_error(err_msg,""), att);
 
         image->unlock();
         return;
@@ -105,5 +110,5 @@ void ImagePersistent::request_execute(xmlrpc_c::paramList const& paramList)
 
     image->unlock();
 
-    success_response(id);
+    success_response(id, att);
 }

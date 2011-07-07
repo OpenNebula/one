@@ -46,9 +46,11 @@ protected:
 
     /* -------------------------------------------------------------------- */
 
-    void request_execute(xmlrpc_c::paramList const& _paramList);
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributes& att);
 
-    virtual bool allocate_authorization(Template * obj_template);
+    virtual bool allocate_authorization(Template * obj_template,
+                                        RequestAttributes& att);
 
     /* -------------------------------------------------------------------- */
 
@@ -57,7 +59,8 @@ protected:
     virtual int pool_allocate(xmlrpc_c::paramList const& _paramList, 
                               Template * tmpl,
                               int& id, 
-                              string& error_str) = 0;
+                              string& error_str,
+                              RequestAttributes& att) = 0;
 private:
 
     bool do_template;
@@ -92,9 +95,11 @@ public:
     int pool_allocate(xmlrpc_c::paramList const& _paramList, 
                       Template * tmpl,
                       int& id, 
-                      string& error_str);
+                      string& error_str,
+                      RequestAttributes& att);
 
-    bool allocate_authorization(Template * obj_template);
+    bool allocate_authorization(Template * obj_template,
+                                RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -126,7 +131,8 @@ public:
     int pool_allocate(xmlrpc_c::paramList const& _paramList, 
                       Template * tmpl,
                       int& id, 
-                      string& error_str);
+                      string& error_str,
+                      RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -158,7 +164,8 @@ public:
     int pool_allocate(xmlrpc_c::paramList const& _paramList, 
                       Template * tmpl,
                       int& id, 
-                      string& error_str);
+                      string& error_str,
+                      RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -190,7 +197,8 @@ public:
     int pool_allocate(xmlrpc_c::paramList const& _paramList, 
                       Template * tmpl,
                       int& id, 
-                      string& error_str);
+                      string& error_str,
+                      RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -215,7 +223,8 @@ public:
     int pool_allocate(xmlrpc_c::paramList const& _paramList, 
                       Template * tmpl,
                       int& id, 
-                      string& error_str);
+                      string& error_str,
+                      RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -240,7 +249,8 @@ public:
     int pool_allocate(xmlrpc_c::paramList const& _paramList, 
                       Template * tmpl,
                       int& id, 
-                      string& error_str);
+                      string& error_str,
+                      RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -265,7 +275,8 @@ public:
     int pool_allocate(xmlrpc_c::paramList const& _paramList, 
                       Template * tmpl,
                       int& id, 
-                      string& error_str);
+                      string& error_str,
+                      RequestAttributes& att);
 };
 
 /* -------------------------------------------------------------------------- */

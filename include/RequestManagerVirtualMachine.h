@@ -45,19 +45,23 @@ protected:
 
     /* -------------------------------------------------------------------- */
 
-    virtual void request_execute(xmlrpc_c::paramList const& _paramList) = 0;
+    virtual void request_execute(xmlrpc_c::paramList const& _paramList,
+            RequestAttributes& att) = 0;
 
-    bool vm_authorization(int id, int hid, ImageTemplate *tmpl);
+    bool vm_authorization(int id, int hid, ImageTemplate *tmpl,
+            RequestAttributes& att);
 
-    int get_host_information(int hid, string& name, string& vmm, string& tm);
+    int get_host_information(int hid, string& name, string& vmm, string& tm,
+            RequestAttributes& att);
 
     int add_history(VirtualMachine * vm,
                     int              hid,
                     const string&    hostname,
                     const string&    vmm_mad,
-                    const string&    tm_mad);
+                    const string&    tm_mad,
+                    RequestAttributes& att);
 
-    VirtualMachine * get_vm(int id);
+    VirtualMachine * get_vm(int id, RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -72,7 +76,8 @@ public:
                                      "A:ssi"){};
     ~VirtualMachineAction(){};
 
-    void request_execute(xmlrpc_c::paramList const& _paramList);
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+            RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -88,7 +93,8 @@ public:
 
     ~VirtualMachineDeploy(){};
 
-    void request_execute(xmlrpc_c::paramList const& _paramList);
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+            RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -104,7 +110,8 @@ public:
 
     ~VirtualMachineMigrate(){};
 
-    void request_execute(xmlrpc_c::paramList const& _paramList);
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+            RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -120,7 +127,8 @@ public:
 
     ~VirtualMachineSaveDisk(){};
 
-    void request_execute(xmlrpc_c::paramList const& _paramList);
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+            RequestAttributes& att);
 };
 
 /* -------------------------------------------------------------------------- */

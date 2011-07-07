@@ -20,14 +20,17 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool RequestManagerVirtualMachine::vm_authorization(int oid, int hid, ImageTemplate *tmpl)
+bool RequestManagerVirtualMachine::vm_authorization(int oid,
+                                                    int hid,
+                                                    ImageTemplate *tmpl,
+                                                    RequestAttributes& att)
 {
     PoolObjectSQL * object;
 
     int  ouid;
     int  ogid;
 
-    if ( uid == 0 )
+    if ( att.uid == 0 )
     {
         return true;
     }
@@ -36,7 +39,10 @@ bool RequestManagerVirtualMachine::vm_authorization(int oid, int hid, ImageTempl
 
     if ( object == 0 )
     {
-        failure_response(NO_EXISTS, get_error(object_name(auth_object),oid)); 
+        failure_response(NO_EXISTS,
+                get_error(object_name(auth_object),oid),
+                att);
+
         return false;
     }
 
@@ -45,7 +51,7 @@ bool RequestManagerVirtualMachine::vm_authorization(int oid, int hid, ImageTempl
 
     object->unlock();
 
-    AuthRequest ar(uid, group_ids);
+    AuthRequest ar(att.uid, att.group_ids);
 
     ar.add_auth(auth_object, oid, ogid, auth_op, ouid, false);
 
@@ -61,13 +67,16 @@ bool RequestManagerVirtualMachine::vm_authorization(int oid, int hid, ImageTempl
                     tmpl->to_xml(t64),
                     -1,
                     AuthRequest::CREATE,
-                    uid,
+                    att.uid,
                     false);
     }
 
     if (UserPool::authorize(ar) == -1)
     {
-        failure_response(AUTHORIZATION, authorization_error(ar.message));
+        failure_response(AUTHORIZATION,
+                authorization_error(ar.message, att),
+                att);
+
         return false;
     }
 
@@ -80,7 +89,8 @@ bool RequestManagerVirtualMachine::vm_authorization(int oid, int hid, ImageTempl
 int RequestManagerVirtualMachine::get_host_information(int hid, 
                                                 string& name, 
                                                 string& vmm, 
-                                                string& tm)
+                                                string& tm,
+                                                RequestAttributes& att)
 {
     Nebula&    nd    = Nebula::instance();
     HostPool * hpool = nd.get_hpool();
@@ -92,7 +102,9 @@ int RequestManagerVirtualMachine::get_host_information(int hid,
     if ( host == 0 )
     {
         failure_response(NO_EXISTS,
-                get_error(object_name(AuthRequest::HOST),hid)); 
+                get_error(object_name(AuthRequest::HOST),hid),
+                att);
+
         return -1;
     }
 
@@ -108,7 +120,8 @@ int RequestManagerVirtualMachine::get_host_information(int hid,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-VirtualMachine * RequestManagerVirtualMachine::get_vm(int id)
+VirtualMachine * RequestManagerVirtualMachine::get_vm(int id,
+                                                      RequestAttributes& att)
 {
     VirtualMachine * vm;
 
@@ -116,7 +129,7 @@ VirtualMachine * RequestManagerVirtualMachine::get_vm(int id)
 
     if ( vm == 0 )
     {
-        failure_response(NO_EXISTS,get_error(object_name(auth_object),id)); 
+        failure_response(NO_EXISTS,get_error(object_name(auth_object),id), att);
         return 0;
     }
 
@@ -129,7 +142,8 @@ int RequestManagerVirtualMachine::add_history(VirtualMachine * vm,
                                        int              hid,
                                        const string&    hostname,
                                        const string&    vmm_mad,
-                                       const string&    tm_mad)
+                                       const string&    tm_mad,
+                                       RequestAttributes& att)
 {
     Nebula& nd = Nebula::instance();
     string  vmdir;
@@ -147,7 +161,9 @@ int RequestManagerVirtualMachine::add_history(VirtualMachine * vm,
     if ( rc != 0 )
     {
         failure_response(INTERNAL, 
-                request_error("Can not update virtual machine history",""));
+                request_error("Can not update virtual machine history",""),
+                att);
+
         return -1;
     }
 
@@ -158,7 +174,8 @@ int RequestManagerVirtualMachine::add_history(VirtualMachine * vm,
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList)
+void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
+                                           RequestAttributes& att)
 {
     string action = xmlrpc_c::value_string(paramList.getString(1));
     int    id     = xmlrpc_c::value_int(paramList.getInt(2));
@@ -168,7 +185,7 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList)
     Nebula& nd = Nebula::instance();
     DispatchManager * dm = nd.get_dm();
 
-    if ( vm_authorization(id,-1,0) == false )
+    if ( vm_authorization(id,-1,0,att) == false )
     {
         return;
     }
@@ -217,22 +234,27 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList)
     switch (rc)
     { 
         case 0:
-            success_response(id);
+            success_response(id, att);
             break;
         case -1:
-            failure_response(NO_EXISTS,get_error(object_name(auth_object),id));
+            failure_response(NO_EXISTS,
+                    get_error(object_name(auth_object),id),
+                    att);
             break;
         case -2:
              failure_response(ACTION,
-                     request_error("Worng state to perform action",""));
+                     request_error("Worng state to perform action",""),
+                     att);
              break;
         case -3:
             failure_response(ACTION, 
-                    request_error("Virtual machine action not supported",""));
+                    request_error("Virtual machine action not supported",""),
+                    att);
             break;
         default:
             failure_response(INTERNAL,
-                    request_error("Internal error","Action result not defined"));
+                    request_error("Internal error","Action result not defined"),
+                    att);
     }
 
     return;
@@ -241,7 +263,8 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList)
+void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
+                                           RequestAttributes& att)
 {
     Nebula&             nd = Nebula::instance();
     DispatchManager *   dm = nd.get_dm();
@@ -255,17 +278,17 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList)
     int id  = xmlrpc_c::value_int(paramList.getInt(1));
     int hid = xmlrpc_c::value_int(paramList.getInt(2));
 
-    if ( vm_authorization(id,hid,0) == false )
+    if ( vm_authorization(id,hid,0,att) == false )
     {
         return;
     }
 
-    if (get_host_information(hid,hostname,vmm_mad,tm_mad) != 0)
+    if (get_host_information(hid,hostname,vmm_mad,tm_mad, att) != 0)
     {
         return;
     }
 
-    if ( (vm = get_vm(id)) == 0 )
+    if ( (vm = get_vm(id, att)) == 0 )
     {
         return;
     }
@@ -273,13 +296,14 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList)
     if ( vm->get_state() != VirtualMachine::PENDING )
     {
         failure_response(ACTION, 
-                request_error("Worng state to perform action",""));
+                request_error("Worng state to perform action",""),
+                att);
 
         vm->unlock();
         return;
     }
 
-    if ( add_history(vm,hid,hostname,vmm_mad,tm_mad) != 0)
+    if ( add_history(vm,hid,hostname,vmm_mad,tm_mad,att) != 0)
     {
         vm->unlock();
         return;
@@ -289,13 +313,14 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList)
 
     vm->unlock();
 
-    success_response(id);
+    success_response(id, att);
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList)
+void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList,
+                                            RequestAttributes& att)
 {
     Nebula&             nd = Nebula::instance();
     DispatchManager *   dm = nd.get_dm();
@@ -310,17 +335,17 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     int  hid  = xmlrpc_c::value_int(paramList.getInt(2));
     bool live = xmlrpc_c::value_boolean(paramList.getBoolean(3));
 
-    if ( vm_authorization(id,hid,0) == false )
+    if ( vm_authorization(id,hid,0,att) == false )
     {
         return;
     }
 
-    if (get_host_information(hid,hostname,vmm_mad,tm_mad) != 0)
+    if (get_host_information(hid,hostname,vmm_mad,tm_mad,att) != 0)
     {
         return;
     }
 
-    if ( (vm = get_vm(id)) == 0 )
+    if ( (vm = get_vm(id, att)) == 0 )
     {
         return;
     }
@@ -330,13 +355,14 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
        (vm->hasPreviousHistory() && vm->get_previous_reason() == History::NONE))
     {
         failure_response(ACTION, 
-                request_error("Worng state to perform action",""));
+                request_error("Worng state to perform action",""),
+                att);
 
         vm->unlock();
         return;
     }
 
-    if ( add_history(vm,hid,hostname,vmm_mad,tm_mad) != 0)
+    if ( add_history(vm,hid,hostname,vmm_mad,tm_mad,att) != 0)
     {
         vm->unlock();
         return;
@@ -353,13 +379,14 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
 
     vm->unlock();
 
-    success_response(id);
+    success_response(id, att);
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramList)
+void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramList,
+                                             RequestAttributes& att)
 {
     Nebula&     nd    = Nebula::instance();
     ImagePool * ipool = nd.get_ipool();
@@ -391,25 +418,26 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
 
     // ------------------ Authorize the operation ------------------
 
-    if ( vm_authorization(id,-1,itemplate) == false )
+    if ( vm_authorization(id,-1,itemplate,att) == false )
     {
         return;
     }
 
     // ------------------ Create the image ------------------
 
-    rc = ipool->allocate(uid, gid, uname, gname, itemplate, &iid,error_str);
+    rc = ipool->allocate(att.uid, att.gid, att.uname, att.gname, itemplate,
+            &iid, error_str);
 
-    if ( rc < 0 )
+    if (rc < 0)
     {
         failure_response(INTERNAL,
-                allocate_error(AuthRequest::IMAGE,error_str)); 
+                allocate_error(AuthRequest::IMAGE, error_str), att);
         return;
     }
  
     // ------------------ Store image id to save the disk ------------------
 
-    if ( (vm = get_vm(id)) == 0 )
+    if ( (vm = get_vm(id, att)) == 0 )
     {
         Image * img;
 
@@ -446,12 +474,13 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
         }
 
         failure_response(INTERNAL, 
-                request_error("Can not save_as disk",error_str));
+                request_error("Can not save_as disk",error_str),
+                att);
         return;
     }
 
     // Return the new allocated Image ID
-    success_response(iid);
+    success_response(iid, att);
 }
 
 /* -------------------------------------------------------------------------- */
