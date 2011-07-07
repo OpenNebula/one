@@ -71,6 +71,9 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         puts str % ["NAME", vm.name]
         puts str % ["STATE", vm.state_str]
         puts str % ["LCM_STATE", vm.lcm_state_str]
+        puts str % ["HOSTNAME",
+            vm['/VM/HISTORY_RECORDS/HISTORY[last()]/HOSTNAME']] if
+                %w{ACTIVE SUSPENDED}.include? vm.state_str
         puts str % ["START TIME", OpenNebulaHelper.time_to_str(vm['STIME'])]
         puts str % ["END TIME", OpenNebulaHelper.time_to_str(vm['ETIME'])]
         value=vm['DEPLOY_ID']
@@ -123,7 +126,9 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             end
 
             column :HOSTNAME, "Host where the VM is running", :size=>15 do |d|
-                d["HISTORY"]["HOSTNAME"] if d["HISTORY"]
+                if d['HISTORY_RECORDS'] && d['HISTORY_RECORDS']['HISTORY']
+                    d['HISTORY_RECORDS']['HISTORY']['HOSTNAME']
+                end
             end
 
             column :TIME, "Time since the VM was submitted", :size=>11 do |d|
