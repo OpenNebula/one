@@ -59,7 +59,7 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
 
     if ( att.uid != 0 )
     {
-        AuthRequest ar(att.uid, att.group_ids);
+        AuthRequest ar(att.uid, att.gid);
 
         ar.add_auth(auth_object, id, ogid, auth_op, ouid, false);
 

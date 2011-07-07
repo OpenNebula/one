@@ -151,8 +151,6 @@ int UserPool::allocate (
     // Build a new User object
     user = new User(-1, gid, uname, gname, password, enabled);
 
-    user->add_collection_id(gid); //Adds the primary group to the collection
-
     // Insert the Object in the pool
     *oid = PoolSQL::allocate(user, error_str);
 
@@ -200,8 +198,7 @@ bool UserPool::authenticate(const string& session,
                             int&          user_id, 
                             int&          group_id,
                             string&       uname,
-                            string&       gname,
-                            set<int>&     group_ids)
+                            string&       gname)
 {
     map<string, int>::iterator index;
 
@@ -243,8 +240,6 @@ bool UserPool::authenticate(const string& session,
         tuname  = user->name;
         tgname  = user->gname;
 
-        group_ids = user->get_groups();
-
         user->unlock();
     }
     else //External User
@@ -254,7 +249,7 @@ bool UserPool::authenticate(const string& session,
         gid    = -1;
     }
 
-    AuthRequest ar(uid, group_ids);
+    AuthRequest ar(uid, gid);
 
     ar.add_authenticate(username,u_pass,secret);
 
@@ -336,7 +331,6 @@ bool UserPool::authenticate(const string& session,
                 }
                 else
                 {
-                    group_ids.insert( GroupPool::USERS_ID );
                     group_id = GroupPool::USERS_ID;
 
                     uname = mad_name;

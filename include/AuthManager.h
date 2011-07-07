@@ -18,7 +18,6 @@
 #define AUTH_MANAGER_H_
 
 #include <time.h>
-#include <set>
 
 #include "MadManager.h"
 #include "ActionManager.h"
@@ -260,11 +259,11 @@ private:
 class AuthRequest : public ActionListener
 {
 public:
-    AuthRequest(int _uid, set<int> _gids):
+    AuthRequest(int _uid, int _gid):
         result(false),
         timeout(false),
         uid(_uid),
-        gids(_gids),
+        gid(_gid),
         time_out(0),
         self_authorize(true)
     {
@@ -463,9 +462,9 @@ private:
     int uid;
 
     /**
-     *  The user groups ID set
+     *  The user group ID
      */
-    set<int> gids;
+    int gid;
 
     /**
      *  Timeout for this request

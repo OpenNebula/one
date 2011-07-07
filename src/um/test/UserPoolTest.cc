@@ -31,10 +31,10 @@ const string usernames[] = { "A user", "B user", "C user", "D user", "E user" };
 const string passwords[] = { "A pass", "B pass", "C pass", "D pass", "E pass" };
 
 const string dump_result =
-    "<USER_POOL><USER><ID>0</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>one_user_test</NAME><PASSWORD>5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8</PASSWORD><ENABLED>1</ENABLED><GROUPS><ID>0</ID></GROUPS></USER><USER><ID>1</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>a</NAME><PASSWORD>p</PASSWORD><ENABLED>1</ENABLED><GROUPS><ID>0</ID></GROUPS></USER><USER><ID>2</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>a name</NAME><PASSWORD>pass</PASSWORD><ENABLED>1</ENABLED><GROUPS><ID>0</ID></GROUPS></USER><USER><ID>3</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>a_name</NAME><PASSWORD>password</PASSWORD><ENABLED>1</ENABLED><GROUPS><ID>0</ID></GROUPS></USER><USER><ID>4</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>another name</NAME><PASSWORD>secret</PASSWORD><ENABLED>1</ENABLED><GROUPS><ID>0</ID></GROUPS></USER><USER><ID>5</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>user</NAME><PASSWORD>1234</PASSWORD><ENABLED>1</ENABLED><GROUPS><ID>0</ID></GROUPS></USER></USER_POOL>";
+    "<USER_POOL><USER><ID>0</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>one_user_test</NAME><PASSWORD>5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8</PASSWORD><ENABLED>1</ENABLED></USER><USER><ID>1</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>a</NAME><PASSWORD>p</PASSWORD><ENABLED>1</ENABLED></USER><USER><ID>2</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>a name</NAME><PASSWORD>pass</PASSWORD><ENABLED>1</ENABLED></USER><USER><ID>3</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>a_name</NAME><PASSWORD>password</PASSWORD><ENABLED>1</ENABLED></USER><USER><ID>4</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>another name</NAME><PASSWORD>secret</PASSWORD><ENABLED>1</ENABLED></USER><USER><ID>5</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>user</NAME><PASSWORD>1234</PASSWORD><ENABLED>1</ENABLED></USER></USER_POOL>";
 
 const string dump_where_result =
-    "<USER_POOL><USER><ID>1</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>a</NAME><PASSWORD>p</PASSWORD><ENABLED>1</ENABLED><GROUPS><ID>0</ID></GROUPS></USER><USER><ID>2</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>a name</NAME><PASSWORD>pass</PASSWORD><ENABLED>1</ENABLED><GROUPS><ID>0</ID></GROUPS></USER><USER><ID>3</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>a_name</NAME><PASSWORD>password</PASSWORD><ENABLED>1</ENABLED><GROUPS><ID>0</ID></GROUPS></USER><USER><ID>4</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>another name</NAME><PASSWORD>secret</PASSWORD><ENABLED>1</ENABLED><GROUPS><ID>0</ID></GROUPS></USER></USER_POOL>";
+    "<USER_POOL><USER><ID>1</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>a</NAME><PASSWORD>p</PASSWORD><ENABLED>1</ENABLED></USER><USER><ID>2</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>a name</NAME><PASSWORD>pass</PASSWORD><ENABLED>1</ENABLED></USER><USER><ID>3</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>a_name</NAME><PASSWORD>password</PASSWORD><ENABLED>1</ENABLED></USER><USER><ID>4</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>another name</NAME><PASSWORD>secret</PASSWORD><ENABLED>1</ENABLED></USER></USER_POOL>";
 
 #include "NebulaTest.h"
 
@@ -187,14 +187,13 @@ public:
         
         bool rc;
         int  oid, gid;
-        set<int> groups;
         string uname, gname;
 
         // There is an initial user, created with the one_auth file:
         //      one_user_test:password
         string session="one_user_test:5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8";
 
-        rc = user_pool->authenticate( session, oid, gid, uname, gname, groups );
+        rc = user_pool->authenticate( session, oid, gid, uname, gname);
         CPPUNIT_ASSERT( rc == true );
         CPPUNIT_ASSERT( oid == 0 );
         CPPUNIT_ASSERT( gid == 0 );
@@ -202,13 +201,13 @@ public:
         CPPUNIT_ASSERT( gname == "oneadmin" );
 
         session = "one_user_test:wrong_password";
-        rc = user_pool->authenticate( session, oid, gid , uname, gname, groups );
+        rc = user_pool->authenticate( session, oid, gid , uname, gname);
         CPPUNIT_ASSERT( rc == false );
         CPPUNIT_ASSERT( oid == -1 );
         CPPUNIT_ASSERT( gid == -1 );
 
         session = "unknown_user:5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8";
-        rc = user_pool->authenticate( session, oid, gid, uname, gname, groups );
+        rc = user_pool->authenticate( session, oid, gid, uname, gname);
         CPPUNIT_ASSERT( rc == false );
         CPPUNIT_ASSERT( oid == -1 );
         CPPUNIT_ASSERT( gid == -1 );

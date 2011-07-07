@@ -54,7 +54,7 @@ public:
      *  authorizes the operation.
      *
      *    @param uid The user ID requesting to be authorized
-     *    @param user_groups Set of group IDs that the user is part of
+     *    @param gid Group ID of the user
      *    @param obj_type The object over which the operation will be performed
      *    @param obj_id The object ID
      *    @param obj_gid The object's group ID
@@ -62,7 +62,7 @@ public:
      *    @return true if the authorization is granted by any rule
      */
     const bool authorize(int                    uid, 
-                         const set<int>&        user_groups,
+                         int                    gid,
                          AuthRequest::Object    obj_type, 
                          int                    obj_id, 
                          int                    obj_gid,

@@ -57,28 +57,26 @@ public:
 
 protected:
 
-    /* ------------------- Attributes of the Request ---------------------- */
+    /* ---------------------------------------------------------------------*/
+    /*                     Attributes of the Request                        */
+    /* ---------------------------------------------------------------------*/
+
+    /* -------- Dynamic (specific for a request of the same method) -------- */
 
     struct RequestAttributes
     {
-        int                 uid;            /**< id of the user */
-        int                 gid;            /**< id of the user's group */
+        int uid;                  /**< id of the user */
+        int gid;                  /**< id of the user's group */
 
-        string              uname;          /**< name of the user */
-        string              gname;          /**< name of the user's group */
+        string uname;             /**< name of the user */
+        string gname;             /**< name of the user's group */
 
-        set<int>            group_ids;      /**< set of user's group ids */
+        string session;           /**< Session from ONE XML-RPC API */
 
-        /**
-         *  Session token from the OpenNebula XML-RPC API
-         */
-        string             session;
-
-        /**
-         *  Return value of the request from libxmlrpc-c
-         */
-        xmlrpc_c::value * retval;
+        xmlrpc_c::value * retval; /**< Return value from libxmlrpc-c */
     };
+
+    /* -------- Static (shared among request of the same method) -------- */
 
     PoolSQL *           pool;           /**< Pool of objects */
     string              method_name;    /**< The name of the XML-RPC method */

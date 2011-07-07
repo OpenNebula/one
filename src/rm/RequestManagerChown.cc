@@ -175,9 +175,6 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
     }
 
     user->set_group(ngid,ngname);
-    
-    user->add_group(ngid);
-    user->del_group(old_gid);
 
     upool->update(user);
     

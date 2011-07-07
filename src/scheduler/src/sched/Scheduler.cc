@@ -121,7 +121,7 @@ void Scheduler::start()
 
     hpool  = new HostPoolXML(client);
     vmpool = new VirtualMachinePoolXML(client, machines_limit);
-    upool  = new UserPoolXML(client);
+    
     acls   = new AclXML(client);
 
     // -----------------------------------------------------------
@@ -231,17 +231,6 @@ int Scheduler::set_up_pools()
     }
 
     //--------------------------------------------------------------------------
-    //Cleans the cache and get the users
-    //--------------------------------------------------------------------------
-
-    rc = upool->set_up();
-
-    if ( rc != 0 )
-    {
-        return rc;
-    }
-
-    //--------------------------------------------------------------------------
     //Cleans the cache and get the ACLs
     //--------------------------------------------------------------------------
 
@@ -267,20 +256,21 @@ int Scheduler::set_up_pools()
 void Scheduler::match()
 {
     VirtualMachineXML * vm;
-    int                 vm_memory;
-    int                 vm_cpu;
-    int                 vm_disk;
-    int                 uid;
-    string              reqs;
+
+    int vm_memory;
+    int vm_cpu;
+    int vm_disk;
+
+    int uid;
+    int gid;
+
+    string reqs;
 
     HostXML * host;
     int       host_memory;
     int       host_cpu;
     char *    error;
     bool      matched;
-
-    UserXML * user;
-    set<int>  gids;
 
     int       rc;
 
@@ -296,7 +286,9 @@ void Scheduler::match()
         vm = static_cast<VirtualMachineXML*>(vm_it->second);
 
         reqs = vm->get_requirements();
+
         uid  = vm->get_uid();
+        gid  = vm->get_gid();
 
         for (h_it=hosts.begin(), matched=false; h_it != hosts.end(); h_it++)
         {
@@ -343,30 +335,20 @@ void Scheduler::match()
             // Check if user is authorized
             // -----------------------------------------------------------------
 
-            user    = upool->get(uid);
             matched = false;
 
-            if ( user != 0 )
+            if ( uid == 0 || gid == 0 )
             {
-                const set<int> groups = user->get_groups(); 
-
-                if ( uid == 0 || user->get_gid() == 0 )
-                {
-                    matched = true;
-                }
-                else
-                {
-                    matched = acls->authorize(uid, 
-                                              groups,
-                                              AuthRequest::HOST, 
-                                              host->get_hid(), 
-                                              -1,
-                                              AuthRequest::USE); 
-                }
+                matched = true;
             }
             else
             {
-                continue;
+                matched = acls->authorize(uid, 
+                                          gid,
+                                          AuthRequest::HOST, 
+                                          host->get_hid(), 
+                                          -1,
+                                          AuthRequest::USE); 
             }
 
             if ( matched == false )

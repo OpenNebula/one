@@ -24,6 +24,7 @@ void VirtualMachineXML::init_attributes()
 
     oid = atoi(((*this)["/VM/ID"] )[0].c_str());
     uid = atoi(((*this)["/VM/UID"])[0].c_str());
+    gid = atoi(((*this)["/VM/GID"])[0].c_str());
 
     result = ((*this)["/VM/TEMPLATE/MEMORY"]);
     if (result.size() > 0)
