@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -82,7 +82,7 @@ public abstract class Pool{
                 new ByteArrayInputStream(info.getMessage().getBytes()));
             xml = doc.getDocumentElement();
 
-            poolElements = xml.getElementsByTagName(elementName); 
+            poolElements = xml.getElementsByTagName(elementName);
         }
         catch (ParserConfigurationException e) {}
         catch (SAXException e) {}
@@ -92,7 +92,7 @@ public abstract class Pool{
     /**
      * Returns the indexth element in the pool. If index is greater than or
      * equal to the number of elements in the pool, this returns null.
-     *  
+     *
      * @param index Index of the element.
      * @return The element at the indexth position in the pool, or
      * null if that is not a valid index.
@@ -103,11 +103,31 @@ public abstract class Pool{
 
         if (poolElements != null)
         {
-            Node node =poolElements.item(index);
+            Node node = poolElements.item(index);
 
             if (node != null)
             {
                 theElement = factory(node);
+            }
+        }
+
+        return theElement;
+    }
+
+    protected PoolElement getById(int id)
+    {
+        // TODO: Use xpath to find the element /<elementName>/ID
+
+        PoolElement theElement = null;
+        PoolElement tmpElement = null;
+
+        for( int i = 0; i < getLength(); i++ )
+        {
+            tmpElement = item(i);
+            if( tmpElement.id() == id )
+            {
+                theElement = tmpElement;
+                break;
             }
         }
 

@@ -50,7 +50,7 @@ public class GroupPool extends Pool implements Iterable<Group>{
     }
 
     /**
-     * Retrieves all the hosts in the pool.
+     * Retrieves all the groups in the pool.
      *
      * @param client XML-RPC Client.
      * @return If successful the message contains the string

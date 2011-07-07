@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,14 +16,14 @@
 package org.opennebula.client;
 
 /**
- * This class encapsulates OpenNebula's XML-RPC responses. Each response 
- * carries a boolean indicating if it is an error. It can also contain a 
- * success message, or an error message. 
+ * This class encapsulates OpenNebula's XML-RPC responses. Each response
+ * carries a boolean indicating if it is an error. It can also contain a
+ * success message, or an error message.
  */
 public class OneResponse{
     /**
      * Creates a new response.
-     * 
+     *
      * @param success Indicates if the call was successful, and if
      * the message is an error or an information string.
      * @param message String containing the response message, or
@@ -37,7 +37,7 @@ public class OneResponse{
 
     /**
      * Returns true if the call resulted in error.
-     * 
+     *
      * @return True if the call resulted in error.
      */
     public boolean isError()
@@ -48,7 +48,7 @@ public class OneResponse{
     /**
      * Returns a string containing the error message, or null
      * if the response isn't an error.
-     * 
+     *
      * @return A string containing the error message, or null
      * if the response isn't an error.
      */
@@ -61,7 +61,7 @@ public class OneResponse{
      * Returns a string containing the response information, or
      * null if the response was an error. Note that the success
      * message could be also null.
-     * 
+     *
      * @return A string containing the response information, or
      * null if the response was an error. Note that the success
      * message could be also null.
@@ -69,6 +69,26 @@ public class OneResponse{
     public String getMessage()
     {
         return success ? msg : null;
+    }
+
+    /**
+     * Parses the string returned by getMessage
+     *
+     * @return The parsed int, or Integer.MIN_VALUE in case of error
+     *
+     * @see #getMessage
+     */
+    public int getIntMessage()
+    {
+        int ret = Integer.MIN_VALUE;
+
+        try
+        {
+            ret = Integer.parseInt( getMessage() );
+        }
+        catch (NumberFormatException e) {}
+
+        return ret;
     }
 
     // ------------------------------------------------------------------------
