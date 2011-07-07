@@ -17,14 +17,27 @@
 #--------------------------------------------------------------------------- #
 
 if [ -z "$ONE_LOCATION" ]; then
+    ONE_PID=/var/run/one/oned.pid
+    LOCK_FILE=/var/lock/one/one
     ACCTD_CMD=/usr/lib/one/ruby/acct/acctd.rb
     ACCTD_LOG=/var/log/one/acctd.log
     ACCTD_PID_FILE=/var/run/one/acctd.pid
 else
+    ONE_PID=$ONE_LOCATION/var/oned.pid
+    LOCK_FILE=$ONE_LOCATION/var/.lock
     ACCTD_CMD=$ONE_LOCATION/lib/ruby/acct/acctd.rb
     ACCTD_LOG=$ONE_LOCATION/var/acctd.log
     ACCTD_PID_FILE=$ONE_LOCATION/var/acctd.pid
 fi
+
+function oned_running {
+    ONEPID=`cat $ONE_PID 2> /dev/null`
+    ps $ONEPID > /dev/null 2>&1
+    if [ ! -f "$LOCK_FILE" -o ! -f "$ONE_PID" -o $? -ne 0 ]; then
+        echo not running
+        exit 1
+    fi
+}
 
 function acctd_running {
     ACCTD_PID=`cat $ACCTD_PID_FILE 2>/dev/null`
@@ -35,7 +48,10 @@ COMMAND=$1
 
 case $COMMAND in
 start)
-    # check if running
+    # check if OpenNebula running
+    oned_running
+
+    # check if acct already running
     acctd_running
     if [ "$?" = "0" ]; then
         echo "acctd already running."
