@@ -17,7 +17,7 @@
 require 'OpenNebulaJSON'
 include OpenNebulaJSON
 
-require 'acct/WatchClient'
+require 'acct/watch_client'
 
 class SunstoneServer
     def initialize(username, password)
