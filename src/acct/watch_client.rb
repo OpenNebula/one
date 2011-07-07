@@ -1,5 +1,5 @@
 module OneWatchClient
-    require 'watch_helper'
+    require 'acct/watch_helper'
 
     class WatchClient
         def vm_monitoring(id, opts=[])

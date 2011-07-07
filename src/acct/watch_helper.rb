@@ -1,4 +1,5 @@
 module WatchHelper
+    require 'sequel'
     require 'yaml'
 
     ONE_LOCATION=ENV["ONE_LOCATION"]

@@ -32,7 +32,6 @@ $: << RUBY_LIB_LOCATION+"/acct"
 require 'yaml'
 
 require 'OpenNebula'
-require 'sequel'
 require 'watch_helper'
 
 CONF = YAML.load_file(ACCTD_CONF)
@@ -114,7 +113,6 @@ if CONF[:ACCOUNTING_STEPS] > 0
     vm_pool     ||= OpenNebula::VirtualMachinePool.new(one_client, -2)
     watcher.add(accounting, CONF[:ACCOUNTING_STEPS], vm_pool)
 end
-
 
 step = 0
 loop do
