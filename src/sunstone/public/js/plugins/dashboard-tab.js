@@ -216,7 +216,7 @@ function quickstart_setup(){
 function graph_autorefresh(){
     setInterval(function(){
         refresh_graphs();
-    },GRAPH_AUTOREFRESH_INTERVAL+someTime();
+    },GRAPH_AUTOREFRESH_INTERVAL+someTime());
 
 }
 
