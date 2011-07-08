@@ -51,7 +51,7 @@ describe "1 Vm X History" do
         @watch_client.running_time(ts1, ts2).to_i.should eql(sum)
 
         ts3 = 300
-        @accounting.set_mock_timestamp(ts2)
+        @accounting.set_mock_timestamp(ts3)
 
         values = {
             :uid => 2,

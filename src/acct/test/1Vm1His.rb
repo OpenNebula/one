@@ -75,7 +75,7 @@ describe "1 Vm 1 History" do
         @watch_client.running_time(ts1, ts2).to_i.should eql(0)
 
         ts3 = 300
-        @accounting.set_mock_timestamp(ts2)
+        @accounting.set_mock_timestamp(ts3)
 
         values = {
             :uid => 2,
@@ -181,7 +181,7 @@ describe "1 Vm 1 History" do
         @watch_client.prolog_time(ts1, ts2).to_i.should eql(5)
 
         ts3 = 300
-        @accounting.set_mock_timestamp(ts2)
+        @accounting.set_mock_timestamp(ts3)
 
         values = {
             :uid => 2,
@@ -287,7 +287,7 @@ describe "1 Vm 1 History" do
         @watch_client.prolog_time(ts1, ts2).to_i.should eql(5)
 
         ts3 = 300
-        @accounting.set_mock_timestamp(ts2)
+        @accounting.set_mock_timestamp(ts3)
 
         values = {
             :uid => 2,
