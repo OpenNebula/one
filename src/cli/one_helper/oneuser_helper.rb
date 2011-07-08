@@ -26,7 +26,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
     end
 
     def self.password_to_str_desc
-        "TBD"
+        "User password"
     end
 
     def self.password_to_str(arg, options)
