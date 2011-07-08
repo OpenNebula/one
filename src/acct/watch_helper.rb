@@ -338,7 +338,7 @@ module WatchHelper
             VmSample.multi_insert(@@samples_cache)
 
             Vm.each { |vm|
-                if vm.samples.count > @@vm_window_size -1
+                if vm.samples.count > @@vm_window_size
                     vm.samples.last.delete
                 end
             }
