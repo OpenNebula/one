@@ -160,6 +160,21 @@ EOT
             rid_to_str(:groups, gid, options)
         end
 
+        def user_name(resource, options={})
+            if options[:numeric]
+                resource['UID']
+            else
+                resource['UNAME']
+            end
+        end
+
+        def group_name(resource, options={})
+            if options[:numeric]
+                resource['GID']
+            else
+                resource['GNAME']
+            end
+        end
         ########################################################################
         # Formatters for arguments
         ########################################################################
