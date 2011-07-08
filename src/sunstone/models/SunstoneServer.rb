@@ -280,9 +280,9 @@ class SunstoneServer
     #
     ############################################################################
 
-    def get_monitoring(id, resource, monitoring_resources)
+    def get_monitoring(id, resource, monitor_resources)
         watch_client = OneWatchClient::WatchClient.new
-        columns = params['monitor_resources'].split(',')
+        columns = monitor_resources.split(',')
 
         rc = case resource
             when "vm","VM"
@@ -300,6 +300,11 @@ class SunstoneServer
             else
                 return [200, nil]
             end
+
+        if rc.nil?
+            error = Error.new("There is no monitoring information for #{resource} #{id}")
+            return [500, error.to_json]
+        end
 
         return [200, rc.to_json]
     end

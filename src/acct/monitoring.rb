@@ -11,6 +11,8 @@ module OneWatch
                     sql.add_sample_from_resource(elem, timestamp)
                 }
             end
+
+            sql_elem.flush
         end
 
         private
@@ -25,8 +27,12 @@ module OneWatch
             'VM'
         end
 
-        def sql_elem(elem)
-            WatchHelper::Vm.info(elem)
+        def sql_elem(elem=nil)
+            if elem
+                WatchHelper::Vm.info(elem)
+            else
+                WatchHelper::Vm
+            end
         end
     end
 
@@ -35,8 +41,12 @@ module OneWatch
             'HOST'
         end
 
-        def sql_elem(elem)
-            WatchHelper::Host.info(elem)
+        def sql_elem(elem=nil)
+            if elem
+                WatchHelper::Host.info(elem)
+            else
+                WatchHelper::Host
+            end
         end
     end
 end
