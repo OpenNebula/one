@@ -66,7 +66,8 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         str_h1="%-80s"
         str="%-20s: %-20s"
 
-        CLIHelper.print_header(str_h1 % "VIRTUAL MACHINE #{vm['ID']} INFORMATION")
+        CLIHelper.print_header(
+            str_h1 % "VIRTUAL MACHINE #{vm['ID']} INFORMATION")
         puts str % ["ID", vm.id.to_s]
         puts str % ["NAME", vm.name]
         puts str % ["STATE", vm.state_str]
@@ -108,7 +109,8 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 d["ID"]
             end
 
-            column :NAME, "Name of the Virtual Machine", :left, :size=>15 do |d|
+            column :NAME, "Name of the Virtual Machine", :left,
+                    :size=>15 do |d|
                 d["NAME"]
             end
 
@@ -144,10 +146,15 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 stime = Time.at(d["STIME"].to_i)
                 etime = d["ETIME"]=="0" ? Time.now : Time.at(d["ETIME"].to_i)
                 dtime = Time.at(etime-stime).getgm
-                "%02d %02d:%02d:%02d" % [dtime.yday-1, dtime.hour, dtime.min, dtime.sec]
+                "%02d %02d:%02d:%02d" % [
+                    dtime.yday-1,
+                    dtime.hour,
+                    dtime.min,
+                    dtime.sec]
             end
 
-            default :ID, :USER, :GROUP, :NAME, :STAT, :CPU, :MEM, :HOSTNAME, :TIME
+            default :ID, :USER, :GROUP, :NAME, :STAT, :CPU, :MEM, :HOSTNAME,
+                :TIME
         end
 
         if top

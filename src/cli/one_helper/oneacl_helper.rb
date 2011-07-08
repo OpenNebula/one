@@ -119,7 +119,8 @@ private
                 d['STRING'].split(" ")[1].split("/")[1]
             end
 
-            column :OPE_CDUMIPpTW, "Operation to which the rule applies" do |d|
+            column :OPE_CDUMIPpTW,
+                    "Operation to which the rule applies" do |d|
                 OneAclHelper::right_mask d['STRING'].split(" ")[2]
             end
 

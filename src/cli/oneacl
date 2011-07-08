@@ -56,7 +56,8 @@ cmd = CommandParser::CmdParser.new(ARGV) do
         Adds a new ACL rule
     EOT
 
-    command :create, addrule_desc, [:user,:rulestr], [:resource, nil], [:rights, nil] do
+    command :create, addrule_desc, [:user,:rulestr], [:resource, nil],
+            [:rights, nil] do
         case args.length
         when 1
             new_args=Acl.parse_rule(args[0])

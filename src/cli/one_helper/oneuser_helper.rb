@@ -43,7 +43,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
                 password = Digest::SHA1.hexdigest(arg)
             end
         end
-        
+
         return 0, password
     end
 

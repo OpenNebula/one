@@ -95,7 +95,8 @@ EOT
                 phash = pool.to_hash
                 rname = self.class.rname
 
-                if phash["#{rname}_POOL"] && phash["#{rname}_POOL"]["#{rname}"]
+                if phash["#{rname}_POOL"] &&
+                        phash["#{rname}_POOL"]["#{rname}"]
                     if phash["#{rname}_POOL"]["#{rname}"].instance_of?(Array)
                         phash = phash["#{rname}_POOL"]["#{rname}"]
                     else
@@ -130,7 +131,9 @@ EOT
             if OpenNebula.is_error?(rc)
                 return -1, rc.message
             else
-                puts "#{self.class.rname} #{id}: #{verbose}" if options[:verbose]
+                if options[:verbose]
+                    puts "#{self.class.rname} #{id}: #{verbose}"
+                end
                 return 0
             end
         end
@@ -260,12 +263,13 @@ EOT
 
             if objects.length>0
                 if objects.length>1
-                    return -1, "There are multiple #{ename}s with name #{name}."
+                    return -1,
+                        "There are multiple #{ename}s with name #{name}."
                 else
                     result = objects.first.id
                 end
             else
-                return -1,  "#{ename} named #{name} not found."
+                return -1, "#{ename} named #{name} not found."
             end
 
             return 0, result
@@ -326,6 +330,7 @@ EOT
     def OpenNebulaHelper.name_to_id_desc(poolname)
         "OpenNebula #{poolname} name or id"
     end
+
     def OpenNebulaHelper.public_to_str(str)
         if str.to_i == 1
             public_str = "Y"

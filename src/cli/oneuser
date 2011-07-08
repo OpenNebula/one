@@ -40,11 +40,11 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     # Global Options
     ########################################################################
     set :option, CommandParser::OPTIONS
-    
+
     list_options = CLIHelper::OPTIONS
     list_options << OpenNebulaHelper::XML
     list_options << OpenNebulaHelper::NUMERIC
-    
+
     READ_FILE={
         :name => "read_file",
         :short => "-r",
@@ -58,7 +58,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         :large => "--plain-password",
         :description => "Store plain password"
     }
-    
+
     create_options = [READ_FILE, PLAIN]
 
     ########################################################################
@@ -88,7 +88,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Creates a new User
     EOT
 
-    command :create, create_desc, :username, :password, :options=>create_options do
+    command :create, create_desc, :username, :password,
+            :options=>create_options do
         helper.create_resource(options) do |user|
             user.allocate(args[0], args[1])
         end
