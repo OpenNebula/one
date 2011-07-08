@@ -298,7 +298,8 @@ class SunstoneServer
                     watch_client.host_total(columns)
                 end
             else
-                return [200, nil]
+                 error = Error.new("Monitoring not supported for this resource: #{resource}")
+                return [200, error.to_json]
             end
 
         if rc.nil?

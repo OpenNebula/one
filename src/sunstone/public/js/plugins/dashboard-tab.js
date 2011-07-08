@@ -168,30 +168,33 @@ Sunstone.addMainTab('dashboard_tab',dashboard_tab);
 
 function plot_global_graph(data,info){
     var id = info.title;
-    var labels_arr = info.monitor_resources.split(',');
+    var monitoring = data.monitoring;
     var serie;
     var series = [];
     var width = ($(window).width()-129)*45/100;
+    var mon_count = 0;
 
     $('#'+id).html('<div id="'+id+'_graph" style="height:70px;width:'+width+'px"><div>');
 
-    for (var i = 0; i< labels_arr.length; i++) {
+    for (var label in monitoring) {
         serie = {
-            label: labels_arr[i],
-            data: data[i]
+            label: label,
+            data: monitoring[label]
         };
         series.push(serie);
+        mon_count++;
     };
 
     var options = {
         legend : {
             show : true,
-            noColumns: labels_arr.length,
+            noColumns: mon_count,
             container: $('#'+id+'_legend')
         },
         xaxis : {
-            mode: "time",
-            timeformat: "%h:%M"
+            tickFormatter: function(val,axis){
+                return pretty_time_axis(val);
+            },
         },
         yaxis : { labelWidth: 40 }
     }

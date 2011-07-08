@@ -46,6 +46,20 @@ function pretty_time(time_seconds)
     return hour + ":" + mins +":" + secs + "&nbsp;" + month + "/" + day + "/" + year;
 }
 
+function pretty_time_axis(time){
+    var d = new Date();
+    d.setTime(time*1000);
+
+    var secs = pad(d.getSeconds(),2);
+    var hour = pad(d.getHours(),2);
+    var mins = pad(d.getMinutes(),2);
+    var day = pad(d.getDate(),2);
+    var month = pad(d.getMonth()+1,2); //getMonths returns 0-11
+    var year = d.getFullYear();
+
+    return hour + ":" + mins + ":" + secs;// + "&nbsp;" + month + "/" + day;
+}
+
 //returns a human readable size in Kilo, Mega, Giga or Tera bytes
 function humanize_size(value) {
     if (typeof(value) === "undefined") {
@@ -512,27 +526,31 @@ function plot_graph(data,context,id_prefix,info){
     var labels = info.monitor_resources;
     var humanize = info.humanize_figures ?
         humanize_size : function(val){ return val };
-    var labels_arr = labels.split(',');
     var id_suffix = labels.replace(/,/g,'_');
+    var monitoring = data.monitoring
     var series = [];
-    var serie = null;
+    var serie;
+    var mon_count = 0;
 
-    for (var i = 0; i< labels_arr.length; i++) {
+    for (var label in monitoring) {
         serie = {
-            label: labels_arr[i],
-            data: data[i]
+            label: label,
+            data: monitoring[label]
         };
         series.push(serie);
+        mon_count++;
     };
 
     var options = {
         legend : { show : true,
-                   noColumns: labels_arr.length,
+                   noColumns: mon_count++,
                    container: $('#legend_'+id_suffix)
                  },
-        xaxis : { mode: "time",
-                  timeformat: "%h:%M"
-                },
+        xaxis : {
+            tickFormatter: function(val,axis){
+                return pretty_time_axis(val);
+            },
+        },
         yaxis : { labelWidth: 40,
                   tickFormatter: function(val, axis) {
                       return humanize(val);
