@@ -64,9 +64,11 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         puts str % ["ID", image.id.to_s]
         puts str % ["NAME", image.name]
         puts str % ["TYPE", image.type_str]            
-        puts str % ["REGISTER TIME", OpenNebulaHelper.time_to_str(image['REGTIME'])]
+        puts str % ["REGISTER TIME",
+            OpenNebulaHelper.time_to_str(image['REGTIME'])]
         puts str % ["PUBLIC", OpenNebulaHelper.public_to_str(image['PUBLIC'])]
-        puts str % ["PERSISTENT", OneImageHelper.persistent_to_str(image["PERSISTENT"])]
+        puts str % ["PERSISTENT",
+            OneImageHelper.persistent_to_str(image["PERSISTENT"])]
         puts str % ["SOURCE", image['SOURCE']]    
         puts str % ["STATE", image.short_state_str]
         puts str % ["RUNNING_VMS", image['RUNNING_VMS']]            
@@ -87,27 +89,32 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
                 d["NAME"]
             end
 
-            column :USER, "Username of the Virtual Machine owner", :left, :size=>8 do |d|
-                helper.uid_to_str(d["UID"], options)
+            column :USER, "Username of the Virtual Machine owner", :left,
+                    :size=>8 do |d|
+                helper.user_name(d, options)
             end
 
-            column :GROUP, "Group of the Virtual Machine", :left, :size=>8 do |d|
-                helper.gid_to_str(d["GID"], options)
+            column :GROUP, "Group of the Virtual Machine", :left,
+                    :size=>8 do |d|
+                helper.group_name(d, options)
             end
 
             column :TYPE, "Type of the Image", :size=>4 do |d,e|
                 OneImageHelper.type_to_str(d["TYPE"])
             end
 
-            column :REGTIME, "Registration time of the Image", :size=>20 do |d|
+            column :REGTIME, "Registration time of the Image",
+                    :size=>20 do |d|
                 OpenNebulaHelper.time_to_str(d["REGTIME"])
             end
 
-            column :PUBLIC, "Whether the Image is public or not", :size=>3 do |d|
+            column :PUBLIC, "Whether the Image is public or not",
+                    :size=>3 do |d|
                 OpenNebulaHelper.public_to_str(d["PUBLIC"])
             end
 
-            column :PERSISTENT, "Whether the Image is persistent or not", :size=>3 do |d|
+            column :PERSISTENT, "Whether the Image is persistent or not",
+                    :size=>3 do |d|
                 OneImageHelper.persistent_to_str(d["PERSISTENT"])
             end
 
@@ -115,11 +122,13 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
                 OneImageHelper.state_to_str(d["STATE"])
             end
 
-            column :RVMS, "Number of VMs currently running from this Image", :size=>5 do |d|
+            column :RVMS, "Number of VMs currently running from this Image",
+                    :size=>5 do |d|
                 d['RUNNING_VMS']
             end
 
-            default :ID, :USER, :GROUP, :NAME, :TYPE, :REGTIME, :PUBLIC, :PERSISTENT , :STAT, :RVMS
+            default :ID, :USER, :GROUP, :NAME, :TYPE, :REGTIME, :PUBLIC,
+                :PERSISTENT , :STAT, :RVMS
         end
 
         if top

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.opennebula.client.group;
+package org.opennebula.client.acl;
 
 import java.util.AbstractList;
 import java.util.Iterator;
@@ -26,19 +26,19 @@ import org.opennebula.client.PoolElement;
 import org.w3c.dom.Node;
 
 /**
- * This class represents an OpenNebula group pool.
+ * This class represents an OpenNebula ACL rule pool.
  * It also offers static XML-RPC call wrappers.
  */
-public class GroupPool extends Pool implements Iterable<Group>{
+public class AclPool extends Pool implements Iterable<Acl>{
 
-    private static final String ELEMENT_NAME = "GROUP";
-    private static final String INFO_METHOD  = "grouppool.info";
+    private static final String ELEMENT_NAME = "ACL";
+    private static final String INFO_METHOD  = "acl.info";
 
     /**
-     * Creates a new group pool
+     * Creates a new ACL rule pool
      * @param client XML-RPC Client.
      */
-    public GroupPool(Client client)
+    public AclPool(Client client)
     {
         super(ELEMENT_NAME, client);
     }
@@ -46,11 +46,11 @@ public class GroupPool extends Pool implements Iterable<Group>{
     @Override
     public PoolElement factory(Node node)
     {
-        return new Group(node, client);
+        return new Acl(node, client);
     }
 
     /**
-     * Retrieves all the groups in the pool.
+     * Retrieves all the hosts in the pool.
      *
      * @param client XML-RPC Client.
      * @return If successful the message contains the string
@@ -62,9 +62,9 @@ public class GroupPool extends Pool implements Iterable<Group>{
     }
 
     /**
-     * Loads the xml representation of the group pool.
+     * Loads the xml representation of the ACL rule pool.
      *
-     * @see GroupPool#info(Client)
+     * @see AclPool#info(Client)
      */
     public OneResponse info()
     {
@@ -73,21 +73,26 @@ public class GroupPool extends Pool implements Iterable<Group>{
         return response;
     }
 
-    public Iterator<Group> iterator()
+    public Iterator<Acl> iterator()
     {
-        AbstractList<Group> ab = new AbstractList<Group>()
+        AbstractList<Acl> ab = new AbstractList<Acl>()
         {
             public int size()
             {
                 return getLength();
             }
 
-            public Group get(int index)
+            public Acl get(int index)
             {
-                return (Group) item(index);
+                return (Acl) item(index);
             }
         };
 
         return ab.iterator();
+    }
+
+    public Acl getById(int id)
+    {
+        return (Acl) super.getById(id);
     }
 }

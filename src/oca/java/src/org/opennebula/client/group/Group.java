@@ -36,7 +36,7 @@ public class Group extends PoolElement{
     /**
      * Creates a new Group representation.
      *
-     * @param id The group id (hid) of the machine.
+     * @param id The group id.
      * @param client XML-RPC Client.
      */
     public Group(int id, Client client)

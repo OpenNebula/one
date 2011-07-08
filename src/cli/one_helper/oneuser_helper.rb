@@ -26,7 +26,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
     end
 
     def self.password_to_str_desc
-        "TBD"
+        "User password"
     end
 
     def self.password_to_str(arg, options)
@@ -43,7 +43,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
                 password = Digest::SHA1.hexdigest(arg)
             end
         end
-        
+
         return 0, password
     end
 

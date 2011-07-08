@@ -31,7 +31,7 @@ require 'command_parser'
 require 'one_helper/onetemplate_helper'
 
 cmd=CommandParser::CmdParser.new(ARGV) do
-    usage "onetemplate COMMAND [args..] [options..]"
+    usage "`onetemplate` <command> [<args>] [<options>]"
     version OpenNebulaHelper::ONE_VERSION
 
     helper = OneTemplateHelper.new
@@ -146,7 +146,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Changes the Template owner and group
     EOT
 
-    command :chown, chown_desc, [:range, :templateid_list], :userid, [:groupid,nil] do
+    command :chown, chown_desc, [:range, :templateid_list], :userid,
+            [:groupid,nil] do
         gid = args[2].nil? ? -1 : args[2].to_id
         helper.perform_actions(args[0],options,"Owner/Group changed") do |t|
             t.chown(args[1].to_i, gid)

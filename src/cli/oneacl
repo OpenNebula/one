@@ -31,7 +31,7 @@ require 'command_parser'
 require 'one_helper/oneacl_helper'
 
 cmd = CommandParser::CmdParser.new(ARGV) do
-    usage "oneacl COMMAND [args..] [options..]"
+    usage "`oneacl` <command> [<args>] [<options>]"
     version OpenNebulaHelper::ONE_VERSION
     
     helper = OneAclHelper.new
@@ -56,7 +56,8 @@ cmd = CommandParser::CmdParser.new(ARGV) do
         Adds a new ACL rule
     EOT
 
-    command :create, addrule_desc, [:user,:rulestr], [:resource, nil], [:rights, nil] do
+    command :create, addrule_desc, [:user,:rulestr], [:resource, nil],
+            [:rights, nil] do
         case args.length
         when 1
             new_args=Acl.parse_rule(args[0])

@@ -66,7 +66,8 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         str_h1="%-80s"
         str="%-20s: %-20s"
 
-        CLIHelper.print_header(str_h1 % "VIRTUAL MACHINE #{vm['ID']} INFORMATION")
+        CLIHelper.print_header(
+            str_h1 % "VIRTUAL MACHINE #{vm['ID']} INFORMATION")
         puts str % ["ID", vm.id.to_s]
         puts str % ["NAME", vm.name]
         puts str % ["STATE", vm.state_str]
@@ -104,20 +105,23 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
     def format_pool(pool, options, top=false)
         config_file=self.class.table_conf
         table=CLIHelper::ShowTable.new(config_file, self) do
-            column :ID, "ONE identifier for Virtual Machine", :size=>4 do |d|
+            column :ID, "ONE identifier for Virtual Machine", :size=>6 do |d|
                 d["ID"]
             end
 
-            column :NAME, "Name of the Virtual Machine", :left, :size=>15 do |d|
+            column :NAME, "Name of the Virtual Machine", :left,
+                    :size=>15 do |d|
                 d["NAME"]
             end
 
-            column :USER, "Username of the Virtual Machine owner", :left, :size=>8 do |d|
-                helper.uid_to_str(d["UID"], options)
+            column :USER, "Username of the Virtual Machine owner", :left,
+                    :size=>8 do |d|
+                helper.user_name(d, options)
             end
 
-            column :GROUP, "Group of the Virtual Machine", :left, :size=>8 do |d|
-                helper.gid_to_str(d["GID"], options)
+            column :GROUP, "Group of the Virtual Machine", :left,
+                    :size=>8 do |d|
+                helper.group_name(d, options)
             end
 
             column :STAT, "Actual status", :size=>4 do |d,e|
@@ -142,10 +146,15 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 stime = Time.at(d["STIME"].to_i)
                 etime = d["ETIME"]=="0" ? Time.now : Time.at(d["ETIME"].to_i)
                 dtime = Time.at(etime-stime).getgm
-                "%02d %02d:%02d:%02d" % [dtime.yday-1, dtime.hour, dtime.min, dtime.sec]
+                "%02d %02d:%02d:%02d" % [
+                    dtime.yday-1,
+                    dtime.hour,
+                    dtime.min,
+                    dtime.sec]
             end
 
-            default :ID, :USER, :GROUP, :NAME, :STAT, :CPU, :MEM, :HOSTNAME, :TIME
+            default :ID, :USER, :GROUP, :NAME, :STAT, :CPU, :MEM, :HOSTNAME,
+                :TIME
         end
 
         if top

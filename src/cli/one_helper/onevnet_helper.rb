@@ -48,7 +48,8 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
 
     def format_resource(vn)
         str_h1="%-80s"
-        CLIHelper.print_header(str_h1 % ["VIRTUAL NETWORK #{vn.id.to_s} INFORMATION"])
+        CLIHelper.print_header(str_h1 %
+            ["VIRTUAL NETWORK #{vn.id.to_s} INFORMATION"])
 
         str="%-10s: %-20s"
         puts str % ["ID: ", vn.id.to_s]
@@ -75,16 +76,19 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
                 d["ID"]
             end
 
-            column :NAME, "Name of the Virtual Network", :left, :size=>15 do |d|
+            column :NAME, "Name of the Virtual Network", :left,
+                    :size=>15 do |d|
                 d["NAME"]
             end
 
-            column :USER, "Username of the Virtual Network owner", :left, :size=>8 do |d|
-                helper.uid_to_str(d["UID"], options)
+            column :USER, "Username of the Virtual Network owner", :left,
+                    :size=>8 do |d|
+                helper.user_name(d, options)
             end
 
-            column :GROUP, "Group of the Virtual Network", :left, :size=>8 do |d|
-                helper.gid_to_str(d["GID"], options)
+            column :GROUP, "Group of the Virtual Network", :left,
+                    :size=>8 do |d|
+                helper.group_name(d, options)
             end
 
             column :TYPE, "Type of Virtual Network", :size=>6 do |d|
@@ -95,15 +99,18 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
                 d["SIZE"]
             end
 
-            column :BRIDGE, "Bridge associated to the Virtual Network", :size=>6 do |d|
+            column :BRIDGE, "Bridge associated to the Virtual Network",
+                    :size=>6 do |d|
                 d["BRIDGE"]
             end
 
-            column :PUBLIC, "Whether the Virtual Network is public or not", :size=>1 do |d|
+            column :PUBLIC, "Whether the Virtual Network is public or not",
+                    :size=>1 do |d|
                 OpenNebulaHelper.public_to_str(d['PUBLIC'])
             end
 
-            column :LEASES, "Number of this Virtual Network's given leases", :size=>7 do |d|
+            column :LEASES, "Number of this Virtual Network's given leases",
+                    :size=>7 do |d|
                 d["TOTAL_LEASES"]
             end
 
