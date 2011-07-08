@@ -725,6 +725,10 @@ int VirtualMachine::get_disk_images(string& error_str)
         {
             goto error_image;
         }
+        else if ( rc == -3)
+        {
+            goto error_name;
+        }
     }
 
     return 0;
@@ -743,6 +747,9 @@ error_max_db:
 
 error_image:
     error_str = "Could not get disk image for VM.";
+
+error_name:
+    error_str = "NAME is not supported for DISK. Use IMAGE_ID instead.";
 
 error_common:
     NebulaLog::log("ONE",Log::ERROR, error_str);

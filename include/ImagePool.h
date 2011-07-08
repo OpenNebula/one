@@ -78,17 +78,6 @@ public:
         return static_cast<Image *>(PoolSQL::get(oid,lock));
     };
 
-    /**
-     *  Function to get an Image from the pool using the image name
-     *    @param name of the image
-     *    @param lock locks the User mutex
-     *    @return a pointer to the Image, 0 if the image could not be loaded
-     */
-    Image * get(const string&  name, int uid, bool lock)
-    {
-        return static_cast<Image *>(PoolSQL::get(name,uid,lock));
-    }
-
     /** 
      *  Update a particular Image
      *    @param image pointer to Image
@@ -127,7 +116,10 @@ public:
      *                 automatically increased.
      *    @param img_type will be set to the used image's type
      *    @param uid of VM owner (to look for the image id within its images)
-     *    @return 0 on success, -1 error, -2 not using the pool
+     *    @return 0 on success, 
+     *            -1 error, 
+     *            -2 not using the pool, 
+     *            -3 deprecated NAME found
      */
     int disk_attribute(VectorAttribute *  disk,
                        int                disk_id,

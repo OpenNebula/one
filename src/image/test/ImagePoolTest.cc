@@ -139,8 +139,6 @@ class ImagePoolTest : public PoolTest
 
     CPPUNIT_TEST ( names_initialization );
     CPPUNIT_TEST ( update );
-    CPPUNIT_TEST ( get_using_name );
-    CPPUNIT_TEST ( wrong_get_name );
     CPPUNIT_TEST ( duplicates );
     CPPUNIT_TEST ( extra_attributes );
     CPPUNIT_TEST ( wrong_templates );
@@ -244,13 +242,13 @@ public:
         // allocated images.
         imp = new ImagePool(db,"OS", "hd");
 
-        img = imp->get(names[0], uids[0], false);
+        img = imp->get(0, false);
         CPPUNIT_ASSERT( img != 0 );
 
-        img = imp->get(names[1], uids[1], false);
+        img = imp->get(2, false);
         CPPUNIT_ASSERT( img == 0 );
 
-        img = imp->get(names[2], uids[2], false);
+        img = imp->get(1, false);
         CPPUNIT_ASSERT( img != 0 );
 
 
@@ -325,65 +323,6 @@ public:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-    void get_using_name()
-    {
-        int oid_0, oid_1;
-        ImagePool * imp = static_cast<ImagePool *>(pool);
-
-        // Allocate two objects
-        oid_0 = allocate(0);
-        oid_1 = allocate(1);
-
-        // ---------------------------------
-        // Get first object and check its integrity
-        obj = pool->get(oid_0, false);
-        CPPUNIT_ASSERT( obj != 0 );
-        check(0, obj);
-
-        // Get using its name
-        obj = imp->get(names[1], uids[1], true);
-        CPPUNIT_ASSERT( obj != 0 );
-        obj->unlock();
-
-        check(1, obj);
-
-
-        // ---------------------------------
-        // Clean the cache, forcing the pool to read the objects from the DB
-        pool->clean();
-
-        // Get first object and check its integrity
-        obj = imp->get(names[0], uids[0], false);
-        check(0, obj);
-
-        // Get using its name
-        obj = imp->get(oid_1, false);
-        check(1, obj);
-    };
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-    void wrong_get_name()
-    {
-        ImagePool * imp = static_cast<ImagePool *>(pool);
-
-        // The pool is empty
-        // Non existing name
-        obj = imp->get("Wrong name", 0, true);
-        CPPUNIT_ASSERT( obj == 0 );
-
-        // Allocate an object
-        allocate(0);
-
-        // Ask again for a non-existing name
-        obj = imp->get("Non existing name",uids[0], true);
-        CPPUNIT_ASSERT( obj == 0 );
-    }
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
     void duplicates()
     {
         int rc, oid;
@@ -394,15 +333,15 @@ public:
         CPPUNIT_ASSERT( oid == 0 );
         CPPUNIT_ASSERT( oid == rc );
 
-        // Try to allocate twice the same image, should fail
+        // Try to allocate twice the same image, should work
         rc = imp->allocate(uids[0], templates[0], &oid);
-        CPPUNIT_ASSERT( rc  == -1 );
-        CPPUNIT_ASSERT( oid == rc );
+        CPPUNIT_ASSERT( rc  == 1 );
+        CPPUNIT_ASSERT( oid == 1 );
 
         // Try again, this time with different uid. Should be allowed
         rc = imp->allocate(uids[1], templates[0], &oid);
         CPPUNIT_ASSERT( rc  >= 0 );
-        CPPUNIT_ASSERT( oid == rc );
+        CPPUNIT_ASSERT( oid == 2 );
     }
 
 /* -------------------------------------------------------------------------- */
