@@ -36,9 +36,9 @@ class MockClient
 
     def add_vm(id, values)
         if values[:state] == 6
-            @done_vms[id] = values
-        elsif
-            @vms[id] = values
+            @done_vms[id] = values.clone
+        else
+            @vms[id] = values.clone
         end
     end
 

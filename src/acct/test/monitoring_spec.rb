@@ -88,16 +88,15 @@ describe "1 Vm 1 10 steps" do
                 ]
             }
 
-            @mock_client.add_vm(1, values)
-            @mock_client.add_vm(2, values)
+            values[:state] = 7
+            @mock_client.add_vm(i+100, values)
+            values[:state] = 3
+            @mock_client.add_vm(i+10, values)
 
             @monitoring.insert(create_vmpool_hash)
-            #@db[:vms].count.should eql(1)
-            #@db[:vm_samples].count.should eql(1+i > 5 ? 5 : 1+i)
 
-            #pp @watch_client.vm_monitoring(1, ['cpu', 'net_tx'])
-            # "total"
-            pp @watch_client.vm_total('total')
+            @db[:vm_samples].count
+            total = @watch_client.vm_total([:total, :error, :active])
         }
     end
 end

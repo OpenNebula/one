@@ -324,7 +324,7 @@ module WatchHelper
             VmSample.multi_insert(@@samples_cache)
 
             Vm.each { |vm|
-                if vm.samples.count > CONF[:WINDOW_SIZE] -1
+                if vm.samples.count > CONF[:WINDOW_SIZE]
                     vm.samples.first.delete
                 end
             }
@@ -371,7 +371,7 @@ module WatchHelper
             HostSample.multi_insert(@@samples_cache)
 
             Host.all.each { |host|
-                if host.samples.count > CONF[:WINDOW_SIZE] -1
+                if host.samples.count > CONF[:WINDOW_SIZE]
                     host.samples.first.delete
                 end
             }
