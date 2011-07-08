@@ -77,7 +77,9 @@ module OneWatchClient
                     "GROUP BY #{kind.downcase}_id, last_poll) "   <<
                 "GROUP BY last_poll;"
             ) do |row|
-                a << [row[:last_poll], row["sum_#{mr}"]]
+                if row[:last_poll] && row[:last_poll] != 0
+                    a << [row[:last_poll], row["sum_#{mr}"].to_i]
+                end
             end
 
             a
@@ -109,13 +111,15 @@ module OneWatchClient
                 if allowed_sample.has_key?(mr.to_sym)
                     mon[mr] = Array.new
                 else
-                    opts.remove(opt)
+                    monitoring_resources.delete(mr)
                 end
             }
 
             rsql.samples_dataset.map { |sample|
                 monitoring_resources.each { |mr|
-                    mon[mr] << [sample.last_poll, sample.send(mr.to_sym)]
+                    if sample.last_poll && sample.last_poll != 0
+                        mon[mr] << [sample.last_poll, sample.send(mr.to_sym)]
+                    end
                 }
             }
 

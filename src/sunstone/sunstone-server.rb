@@ -168,16 +168,17 @@ end
 
 get '/:resource/monitor' do
     @SunstoneServer.get_monitoring(
-        params[:id],
+        nil,
         params[:resource],
-        params[:monitoring_resources]
+        params[:monitor_resources]
     )
 end
 
 get '/:resource/:id/monitor' do
     @SunstoneServer.get_monitoring(
+        params[:id],
         params[:resource],
-        params[:monitoring_resources]
+        params[:monitor_resources]
     )
 end
 

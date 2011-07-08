@@ -54,7 +54,7 @@ module WatchHelper
             :type => Integer,
             :path => 'MAX_MEM'
         },
-        :mem_cpu => {
+        :max_cpu => {
             :type => Integer,
             :path => 'MAX_CPU'
         },
@@ -194,7 +194,7 @@ module WatchHelper
         many_to_one :host
 
         def self.active
-            self.filter(:state<3)
+            self.filter('state < 3')
         end
 
         def self.error
@@ -237,10 +237,9 @@ module WatchHelper
         one_to_many :deltas, :order=>:timestamp
 
         # Monitoring
-        one_to_many :samples,
-                    :before_add=>:control_regs,
-                    :order=>:timestamp,
-                    :class=>VmSample
+        one_to_many :samples, :order=>:timestamp, :class=>VmSample 
+
+        @@samples_cache = []
 
         @@vm_window_size = WatchHelper::get_config(
             :VM_MONITORING,
@@ -287,13 +286,25 @@ module WatchHelper
                 hash[key] = vm[value[:path]]
             }
 
-            self.add_sample(hash)
+            @@samples_cache << hash
         end
 
         def add_delta_from_resource(vm, timestamp)
             self.deltas
             vs = VmSample.create_from_vm(vm, timestamp)
             self.add_sample(vs)
+        end
+
+        def self.flush
+            VmSample.multi_insert(@@samples_cache)
+
+            Vm.each { |vm|
+                if vm.samples.count > @@vm_window_size -1
+                    vm.samples.last.delete
+                end
+            }
+
+            @@samples_cache = []
         end
 
         private
@@ -309,15 +320,15 @@ module WatchHelper
         unrestrict_primary_key
 
         # Monitoring
-        one_to_many :samples,
-                    :before_add=>:control_regs,
-                    :order=>:timestamp,
-                    :class=>HostSample
+        one_to_many :samples, :order=>:timestamp, :class=>HostSample
+
+        @@samples_cache = []
 
         @@host_window_size = WatchHelper::get_config(
             :HOST_MONITORING,
             :WINDOW_SIZE
         )
+
 
         def self.info(host)
             Host.find_or_create(:id=>host['ID']) { |h|
@@ -328,8 +339,21 @@ module WatchHelper
             }
         end
 
+        def self.flush
+            HostSample.multi_insert(@@samples_cache)
+
+            Host.each { |host|
+                if host.samples.count > @@host_window_size -1
+                    host.samples.last.delete
+                end
+            }
+
+            @@samples_cache = []
+        end
+
         def add_sample_from_resource(host, timestamp)
             hash = {
+                :host_id    => host['ID'],
                 :timestamp  => timestamp,
                 :last_poll  => host['LAST_MON_TIME'],
                 :state      => host['STATE'],
@@ -340,7 +364,7 @@ module WatchHelper
                 hash[key] = host_share[value[:path]]
             }
 
-            self.add_sample(hash)
+            @@samples_cache << hash
         end
 
         private
