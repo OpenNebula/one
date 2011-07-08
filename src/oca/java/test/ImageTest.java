@@ -98,7 +98,8 @@ public class ImageTest
         image = new Image(imgid, client);
 
 
-        imagePool.info();
+        res = imagePool.info();
+        assertTrue( !res.isError() );
 
         boolean found = false;
         for(Image img : imagePool)

@@ -40,7 +40,7 @@ public class AclPool extends Pool implements Iterable<Acl>{
      */
     public AclPool(Client client)
     {
-        super(ELEMENT_NAME, client);
+        super(ELEMENT_NAME, client, INFO_METHOD);
     }
 
     @Override
@@ -58,7 +58,7 @@ public class AclPool extends Pool implements Iterable<Acl>{
      */
     public static OneResponse info(Client client)
     {
-        return client.call(INFO_METHOD);
+        return Pool.info(client, INFO_METHOD);
     }
 
     /**
@@ -68,9 +68,7 @@ public class AclPool extends Pool implements Iterable<Acl>{
      */
     public OneResponse info()
     {
-        OneResponse response = info(client);
-        super.processInfo(response);
-        return response;
+        return super.info();
     }
 
     public Iterator<Acl> iterator()
@@ -91,6 +89,13 @@ public class AclPool extends Pool implements Iterable<Acl>{
         return ab.iterator();
     }
 
+    /**
+     * Returns the ACl rule with the given Id from the pool. If it is not found,
+     * then returns null.
+     *
+     * @param id of the ACl rule to retrieve
+     * @return The ACl rule with the given Id, or null if it was not found.
+     */
     public Acl getById(int id)
     {
         return (Acl) super.getById(id);

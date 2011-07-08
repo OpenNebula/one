@@ -132,7 +132,8 @@ public class GroupTest
         assertTrue( !found );
     }
 
-    @Test
+//  Commented out, secondary groups do not exist any more
+//    @Test
     public void userGroupRelations()
     {
         Hashtable<String, User> users   = new Hashtable<String, User>();

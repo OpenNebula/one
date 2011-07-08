@@ -127,7 +127,8 @@ public class VirtualMachineTest
     @Test
     public void allocate()
     {
-        vmPool.info();
+        res = vmPool.info();
+        assertTrue( !res.isError() );
 
         boolean found = false;
         for(VirtualMachine vm : vmPool)
