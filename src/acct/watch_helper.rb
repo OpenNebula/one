@@ -98,6 +98,15 @@ module WatchHelper
         }
     }
 
+    def self.get_config(*params)
+        conf = CONF
+        while param = params.shift
+            conf = conf[param]
+            break if conf.nil?
+        end
+        conf
+    end
+
     def self.bootstrap
         DB.create_table? :vms do
             Integer :id, :primary_key=>true
@@ -245,6 +254,11 @@ module WatchHelper
         @@samples_cache = []
         @@deltas_cache  = []
 
+        @@vm_window_size = WatchHelper::get_config(
+            :VM_MONITORING,
+            :WINDOW_SIZE
+        )
+
         def self.info(vm)
             Vm.find_or_create(:id=>vm['ID']) { |v|
                 v.name  = vm['NAME']
@@ -324,13 +338,14 @@ module WatchHelper
             VmSample.multi_insert(@@samples_cache)
 
             Vm.each { |vm|
-                if vm.samples.count > CONF[:WINDOW_SIZE]
-                    vm.samples.first.delete
+                if vm.samples.count > @@vm_window_size -1
+                    vm.samples.last.delete
                 end
             }
 
             @@samples_cache = []
             @@deltas_cache = []
+        end
         end
     end
 
@@ -341,6 +356,12 @@ module WatchHelper
         one_to_many :samples, :order=>:timestamp, :class=>HostSample
 
         @@samples_cache = []
+
+        @@host_window_size = WatchHelper::get_config(
+            :HOST_MONITORING,
+            :WINDOW_SIZE
+        )
+
 
         def self.info(host)
             Host.find_or_create(:id=>host['ID']) { |h|
@@ -371,7 +392,7 @@ module WatchHelper
             HostSample.multi_insert(@@samples_cache)
 
             Host.all.each { |host|
-                if host.samples.count > CONF[:WINDOW_SIZE]
+                if host.samples.count > @@host_window_size
                     host.samples.first.delete
                 end
             }
