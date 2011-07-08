@@ -136,8 +136,10 @@ public class Acl extends PoolElement{
      * @param rule a rule string, e.g. "#5 HOST+VM/@12 INFO+CREATE+DELETE"
      * @return If successful the message contains the associated
      * id generated for this rule.
+     * @throws RuleParseException If the rule syntax is wrong.
      */
     public static OneResponse allocate(Client client, String rule)
+            throws RuleParseException
     {
         String[] components = parseRule(rule);
         return allocate(client, components[0], components[1], components[2]);
@@ -236,8 +238,9 @@ public class Acl extends PoolElement{
      *
      * @param rule an ACL rule in string format
      * @return an Array containing 3 Strings (hex 64b numbers)
+     * @throws RuleParseException If the rule syntax is wrong.
      */
-    public static String[] parseRule(String rule)
+    public static String[] parseRule(String rule) throws RuleParseException
     {
         String [] ret = new String[3];
 
@@ -245,8 +248,8 @@ public class Acl extends PoolElement{
 
         if( components.length != 3 )
         {
-            // TODO: throw "String needs three components: User, Resource, Rights"
-            return ret;
+            throw new RuleParseException(
+                    "String needs three components: User, Resource, Rights");
         }
 
         ret[0] = parseUsers(components[0]);
@@ -262,7 +265,7 @@ public class Acl extends PoolElement{
      * @param users Users component string
      * @return A string containing a hex number
      */
-    private static String parseUsers(String users)
+    private static String parseUsers(String users) throws RuleParseException
     {
         return Long.toHexString( calculateIds(users) );
     }
@@ -274,14 +277,14 @@ public class Acl extends PoolElement{
      * @return A string containing a hex number
      */
     private static String parseResources(String resources)
+            throws RuleParseException
     {
         long ret = 0;
         String[] resourcesComponents = resources.split("/");
 
         if( resourcesComponents.length != 2 )
         {
-            // TODO: throw "Resource '#{resources}' malformed"
-            return "";
+            throw new RuleParseException("Resource '"+resources+"' malformed");
         }
 
         for( String resource : resourcesComponents[0].split("\\+") )
@@ -290,7 +293,8 @@ public class Acl extends PoolElement{
 
             if( !RESOURCES.containsKey(resource) )
             {
-                // TODO: throw "Resource '#{resource}' does not exist"
+                throw new RuleParseException("Resource '" + resource
+                        + "' does not exist");
             }
 
             ret += RESOURCES.get(resource);
@@ -307,7 +311,7 @@ public class Acl extends PoolElement{
      * @param rights Rights component string
      * @return A string containing a hex number
      */
-    private static String parseRights(String rights)
+    private static String parseRights(String rights) throws RuleParseException
     {
         long ret = 0;
 
@@ -318,8 +322,8 @@ public class Acl extends PoolElement{
 
             if( !RIGHTS.containsKey(right) )
             {
-                // TODO throw "Right '#{right}' does not exist"
-                return "";
+                throw new RuleParseException("Right '" + right
+                        + "' does not exist");
             }
 
             ret += RIGHTS.get(right);
@@ -335,12 +339,11 @@ public class Acl extends PoolElement{
      * @param id Rule Id string
      * @return the numeric value for the given id_str
      */
-    private static long calculateIds(String id)
+    private static long calculateIds(String id) throws RuleParseException
     {
         if( !id.matches("^([#@]\\d+|\\*)$") )
         {
-            // TODO: throw "ID string '#{id_str}' malformed"
-            return 0;
+            throw new RuleParseException("ID string '" + id + "' malformed");
         }
 
         long value = USERS.get( "" + id.charAt(0) );

@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -80,7 +80,7 @@ public class AclTest
     {
         res = aclPool.info();
         assertTrue( !res.isError() );
-        
+
         assertEquals(1, aclPool.getLength());
     }
 
@@ -90,60 +90,67 @@ public class AclTest
         // Allocate rule "#1 VM+HOST/@1 INFO+CREATE"
         res = Acl.allocate(client, "0x100000001", "0x3200000001", "0x11");
         assertTrue( !res.isError() );
-        
+
         aclPool.info();
         acl = aclPool.getById( res.getIntMessage() );
-        
+
         assertNotNull(acl);
-        
+
         assertEquals(res.getIntMessage(),   acl.id());
         assertEquals(0x100000001L,          acl.user());
         assertEquals(0x3200000001L,         acl.resource());
         assertEquals(0x11L,                 acl.rights());
         assertEquals("#1 VM+HOST/@1 CREATE+INFO", acl.toString());
     }
-    
+
     @Test
     public void numericAllocate()
     {
         // Allocate rule "#1 VM+HOST/@1 INFO+CREATE"
         res = Acl.allocate(client, 0x100000001L, 214748364801L, 0x11L);
         assertTrue( !res.isError() );
-        
+
         aclPool.info();
         acl = aclPool.getById( res.getIntMessage() );
-        
+
         assertNotNull(acl);
-        
+
         assertEquals(res.getIntMessage(),   acl.id());
         assertEquals(0x100000001L,          acl.user());
         assertEquals(0x3200000001L,         acl.resource());
         assertEquals(0x11L,                 acl.rights());
         assertEquals("#1 VM+HOST/@1 CREATE+INFO", acl.toString());
     }
-    
+
     @Test
     public void ruleAllocate()
     {
-        res = Acl.allocate(client, "@507 IMAGE/#456 CREATE");
-        assertTrue( !res.isError() );
-        
-        aclPool.info();
-        acl = aclPool.getById( res.getIntMessage() );
-        
-        assertNotNull(acl);
+        try
+        {
+            res = Acl.allocate(client, "@507 IMAGE/#456 CREATE");
+            assertTrue( !res.isError() );
 
-        assertEquals(res.getIntMessage(),   acl.id());
-        assertEquals(0x2000001fbL,          acl.user());
-        assertEquals(0x81000001c8L,         acl.resource());
-        assertEquals(0x1L,                 acl.rights());
-        assertEquals("@507 IMAGE/#456 CREATE", acl.toString());
+            aclPool.info();
+            acl = aclPool.getById( res.getIntMessage() );
+
+            assertNotNull(acl);
+
+            assertEquals(res.getIntMessage(),   acl.id());
+            assertEquals(0x2000001fbL,          acl.user());
+            assertEquals(0x81000001c8L,         acl.resource());
+            assertEquals(0x1L,                 acl.rights());
+            assertEquals("@507 IMAGE/#456 CREATE", acl.toString());
+        }
+        catch (RuleParseException e)
+        {
+            assertTrue( false );
+        }
     }
-    
+
     @Test
     public void parseRules()
     {
-        String[] rules = { 
+        String[] rules = {
             "#3 TEMPLATE/#0 INFO",
             "#2 IMAGE/#0 INFO",
             "@107 IMAGE+TEMPLATE/@100 INFO",
@@ -158,7 +165,7 @@ public class AclTest
             0x400000000L,
             0x100000929L
         };
-        
+
         long[] resources = {
             0x20100000000L,
             0x8100000000L,
@@ -166,7 +173,7 @@ public class AclTest
             0x29200000064L,
             0x29400000000L
         };
-        
+
         long[] rights = {
             0x10L,
             0x10L,
@@ -177,37 +184,101 @@ public class AclTest
 
         for( int i = 0; i < rules.length; i++ )
         {
-            res = Acl.allocate(client, rules[i]);
-            assertTrue( !res.isError() );
-            
-            aclPool.info();
-            acl = aclPool.getById( res.getIntMessage() );
-            
-            assertNotNull(acl);
+            try
+            {
+                res = Acl.allocate(client, rules[i]);
+                assertTrue( !res.isError() );
 
-            assertEquals(res.getIntMessage(),   acl.id());
-            assertEquals(users[i],              acl.user());
-            assertEquals(resources[i],          acl.resource());
-            assertEquals(rights[i],             acl.rights());
+                aclPool.info();
+                acl = aclPool.getById( res.getIntMessage() );
+
+                assertNotNull(acl);
+
+                assertEquals(res.getIntMessage(),   acl.id());
+                assertEquals(users[i],              acl.user());
+                assertEquals(resources[i],          acl.resource());
+                assertEquals(rights[i],             acl.rights());
+            }
+            catch (RuleParseException e)
+            {
+                assertTrue(
+                        "Rule " + rules[i]
+                                + " has been wrongly reported as invalid; "
+                                + e.getMessage(),
+                        false);
+            }
         }
-
-        assertTrue( true );
     }
-    
+
     @Test
     public void delete()
     {
-        res = Acl.allocate(client, "#1 HOST/@2 INFO_POOL");
-        assertTrue( !res.isError() );
-        
-        aclPool.info();
-        assertTrue( aclPool.getLength() == 2 );
+        try
+        {
+            res = Acl.allocate(client, "#1 HOST/@2 INFO_POOL");
+            assertTrue( !res.isError() );
 
-        res = Acl.delete(client, res.getIntMessage());
-        assertTrue( !res.isError() );
-        
-        aclPool.info();
-        assertTrue( aclPool.getLength() == 1 );
+            aclPool.info();
+            assertTrue( aclPool.getLength() == 2 );
+
+            res = Acl.delete(client, res.getIntMessage());
+            assertTrue( !res.isError() );
+
+            aclPool.info();
+            assertTrue( aclPool.getLength() == 1 );
+        }
+        catch (RuleParseException e)
+        {
+            assertTrue(
+                    "Rule has been wrongly reported as invalid; "
+                            + e.getMessage(),
+                    false);
+        }
     }
 
+    @Test
+    public void wrongRules()
+    {
+        String[] rules = {
+                "#-3 TEMPLATE/#0 INFO",
+                "#+3 TEMPLATE/#0 INFO",
+                "@3+ TEMPLATE/#0 INFO",
+                "*3 TEMPLATE/#0 INFO",
+                "# TEMPLATE/#0 INFO",
+                "@@ TEMPLATE/#0 INFO",
+                "@#3 TEMPLATE/#0 INFO",
+                "#3 TEMPLATE+HOS/#0 INFO",
+                "#3 /#0 INFO",
+                "#3 TEMPLATE/# INFO",
+                "#3 TEMPLATE/#5 INFO CREATE",
+                "#3 TEMPLATE/#5",
+                "#3     ",
+                "",
+                "#2 IMAGE @10654 INFO",
+                "#2 IMAGE/ INFO",
+                "#2 IMAGE#0 INFO",
+                "#2 IMAGE/# INFO",
+                "#2 IMAGE/@- INFO",
+                "#2 IMAGE/#0/#0 INFO",
+                "#2 IMAGE/#0/INFO CREATE",
+                "#2 IMAGE/#0/INFO+CREATE",
+                "#2 IMAGE/#0 IFO",
+                "#2 IMAGE/#0 INFO+CREAT",
+            };
+
+            for( int i = 0; i < rules.length; i++ )
+            {
+                try
+                {
+                    res = Acl.allocate(client, rules[i]);
+
+                    assertTrue( "Rule " + rules[i] +
+                            " should have thrown an exception",
+                            false);
+                }
+                catch (RuleParseException e)
+                {
+                }
+            }
+    }
 }
