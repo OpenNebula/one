@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,6 +19,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.MessageDigest;
@@ -41,15 +42,14 @@ public class Client{
     //--------------------------------------------------------------------------
 
     /**
-     * Creates a new xml-rpc client with default options:
-     * the auth. file will be assumed to be at $ONE_AUTH, and
-     * the endpoint will be set to $ONE_XMLRPC.
-     * <br/>
+     * Creates a new xml-rpc client with default options: the auth. file will be
+     * assumed to be at $ONE_AUTH, and the endpoint will be set to $ONE_XMLRPC. <br/>
      * It is the equivalent of Client(null, null).
      *
-     * @throws Exception if one authorization file cannot be located.
+     * @throws ClientConfigurationException
+     *             if the default configuration options are invalid.
      */
-    public Client() throws Exception
+    public Client() throws ClientConfigurationException
     {
         setOneAuth(null);
         setOneEndPoint(null);
@@ -58,13 +58,16 @@ public class Client{
     /**
      * Creates a new xml-rpc client with specified options.
      *
-     * @param secret A string containing the ONE user:password tuple.
-     * Can be null
-     * @param endpoint Where the rpc server is listening, must be something
-     * like "http://localhost:2633/RPC2". Can be null
-     * @throws Exception if the authorization options are invalid
+     * @param secret
+     *            A string containing the ONE user:password tuple. Can be null
+     * @param endpoint
+     *            Where the rpc server is listening, must be something like
+     *            "http://localhost:2633/RPC2". Can be null
+     * @throws ClientConfigurationException
+     *             if the configuration options are invalid
      */
-    public Client(String secret, String endpoint) throws Exception
+    public Client(String secret, String endpoint)
+            throws ClientConfigurationException
     {
         setOneAuth(secret);
         setOneEndPoint(endpoint);
@@ -129,7 +132,7 @@ public class Client{
 
     private XmlRpcClient client;
 
-    private void setOneAuth(String secret) throws Exception
+    private void setOneAuth(String secret) throws ClientConfigurationException
     {
         String oneSecret = secret;
 
@@ -157,7 +160,8 @@ public class Client{
 
             if(token.length != 2 )
             {
-                throw new Exception("Wrong format for authorization string: "
+                throw new ClientConfigurationException(
+                    "Wrong format for authorization string: "
                     + oneSecret + "\nFormat expected is user:password");
             }
 
@@ -182,15 +186,26 @@ public class Client{
         }
         catch (FileNotFoundException e)
         {
-            throw new Exception("ONE_AUTH file not present");
+            // This comes first, since it is a special case of IOException
+            throw new ClientConfigurationException("ONE_AUTH file not present");
+        }
+        catch (IOException e)
+        {
+            // You could have the file but for some reason the program can not
+            // read it
+            throw new ClientConfigurationException("ONE_AUTH file unreadable");
         }
         catch (NoSuchAlgorithmException e)
         {
-            throw new Exception("Error initializing MessageDigest with SHA-1");
+            // A client application cannot recover if the SHA-1 digest
+            // algorithm cannot be initialized
+            throw new RuntimeException(
+                    "Error initializing MessageDigest with SHA-1", e);
         }
     }
 
-    private void setOneEndPoint(String endpoint) throws Exception
+    private void setOneEndPoint(String endpoint)
+            throws ClientConfigurationException
     {
         oneEndPoint = "http://localhost:2633/RPC2";
 
@@ -216,7 +231,8 @@ public class Client{
         }
         catch (MalformedURLException e)
         {
-            throw new Exception("The URL "+oneEndPoint+" is malformed.");
+            throw new ClientConfigurationException(
+                    "The URL "+oneEndPoint+" is malformed.");
         }
 
         client = new XmlRpcClient();
