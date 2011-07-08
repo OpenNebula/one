@@ -314,11 +314,11 @@ def get_cluster_id(name)
 end
 
 def str_running_time(data)
-    stime=Time.at(data["STIME"].to_i)
-    if data["ETIME"]=="0"
+    stime=Time.at(data["/VM/STIME"].to_i)
+    if data["/VM/ETIME"]=="0"
         etime=Time.now
     else
-        etime=Time.at(data["ETIME"].to_i)
+        etime=Time.at(data["/VM/ETIME"].to_i)
     end
     dtime=Time.at(etime-stime).getgm
 

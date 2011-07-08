@@ -859,7 +859,7 @@ true)
                 puts str % ["STATE", vm.state_str]
                 puts str % ["LCM_STATE", vm.lcm_state_str]
 
-                value=vm['STIME'].to_i
+                value=vm['/VM/STIME'].to_i
                 if value==0
                     value='-'
                 else
@@ -867,7 +867,7 @@ true)
                 end
                 puts str % ["START TIME", value]
 
-                value=vm['ETIME'].to_i
+                value=vm['/VM/ETIME'].to_i
                 if value==0
                     value='-'
                 else
