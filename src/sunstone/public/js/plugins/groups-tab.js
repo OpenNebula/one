@@ -107,14 +107,14 @@ var group_actions = {
         notify:true
     },
 
-    "Group.chown" : {
-        type: "multiple",
-        call : OpenNebula.Group.chown,
-        callback : updateGroupElement,
-        elements: function() { return getSelectedNodes(dataTable_groups); },
-        error : onError,
-        notify:true
-    },
+    // "Group.chown" : {
+    //     type: "multiple",
+    //     call : OpenNebula.Group.chown,
+    //     callback : updateGroupElement,
+    //     elements: function() { return getSelectedNodes(dataTable_groups); },
+    //     error : onError,
+    //     notify:true
+    // },
 
 }
 
@@ -130,13 +130,13 @@ var group_buttons = {
         text: "+ New Group",
         condition : True
     },
-    "Group.chown" : {
-        type: "confirm_with_select",
-        text: "Change group owner",
-        select: function(){return users_select},
-        tip: "Select the new group owner:",
-        condition : True
-    },
+    // "Group.chown" : {
+    //     type: "confirm_with_select",
+    //     text: "Change group owner",
+    //     select: function(){return users_select},
+    //     tip: "Select the new group owner:",
+    //     condition : True
+    // },
 
     "Group.delete" : {
         type: "action",

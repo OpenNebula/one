@@ -419,7 +419,7 @@ var vm_buttons = {
         text: "Change owner",
         select: function() {return users_select;},
         tip: "Select the new owner:",
-        condition: True
+        condition: function() { return gid == 0; }
     },
 
     "VM.chgrp" : {
@@ -427,7 +427,7 @@ var vm_buttons = {
         text: "Change group",
         select: function() {return groups_select;},
         tip: "Select the new group:",
-        condition: True
+        condition: function() { return gid == 0; }
     },
 
     "VM.shutdown" : {

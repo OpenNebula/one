@@ -374,9 +374,10 @@ function readCookie(){
 //sets the user info in the top bar and creates a listner in the
 //signout button
 function setLogin(){
-    //This two variables can be used anywhere
+    //This variables can be used anywhere
     username = cookie["one-user"];
     uid = cookie["one-user_id"];
+    gid = cookie["one-user_gid"];
 
     $("#user").html(username);
     $("#logout").click(function(){

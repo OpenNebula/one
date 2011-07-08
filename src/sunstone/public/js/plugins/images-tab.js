@@ -359,14 +359,14 @@ var image_buttons = {
         text: "Change owner",
         select: function() {return users_select;},
         tip: "Select the new owner:",
-        condition: True
+        condition: function() { return gid == 0; }
     },
     "Image.chgrp" : {
         type: "confirm_with_select",
         text: "Change group",
         select: function() {return groups_select;},
         tip: "Select the new group:",
-        condition: True
+        condition: function() { return gid == 0; }
     },
     "action_list" : {
         type: "select",

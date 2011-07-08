@@ -29,7 +29,7 @@ var users_tab_content =
       <th class="check"><input type="checkbox" class="check_all" value="">All</input></th>\
       <th>ID</th>\
       <th>Name</th>\
-      <th>Groups</th>\
+      <th>Group</th>\
     </tr>\
   </thead>\
   <tbody id="tbodyusers">\
@@ -93,7 +93,7 @@ var user_actions = {
                 error: onError
             });
         },
-        condition: function(){ uid == 0 },
+        condition: True,
         notify: false
     },
 
@@ -108,27 +108,27 @@ var user_actions = {
         notify: true
     },
 
-    "User.addgroup" : {
-        type: "multiple",
-        call: OpenNebula.User.addgroup,
-        callback : function(req){
-            Sunstone.runAction("User.show",req.request.data[0]);
-        },
-        elements : function() {return getSelectedNodes(dataTable_users);},
-        error: onError,
-        notify: true
-    },
+    // "User.addgroup" : {
+    //     type: "multiple",
+    //     call: OpenNebula.User.addgroup,
+    //     callback : function(req){
+    //         Sunstone.runAction("User.show",req.request.data[0]);
+    //     },
+    //     elements : function() {return getSelectedNodes(dataTable_users);},
+    //     error: onError,
+    //     notify: true
+    // },
 
-    "User.delgroup" : {
-        type: "multiple",
-        call: OpenNebula.User.delgroup,
-        callback : function(req){
-            Sunstone.runAction("User.show",req.request.data[0]);
-        },
-        elements : function() {return getSelectedNodes(dataTable_users);},
-        error: onError,
-        notify: true
-    },
+    // "User.delgroup" : {
+    //     type: "multiple",
+    //     call: OpenNebula.User.delgroup,
+    //     callback : function(req){
+    //         Sunstone.runAction("User.show",req.request.data[0]);
+    //     },
+    //     elements : function() {return getSelectedNodes(dataTable_users);},
+    //     error: onError,
+    //     notify: true
+    // },
 
     "User.show" : {
         type: "single",
@@ -161,25 +161,25 @@ var user_buttons = {
     },
     "User.chgrp" : {
         type: "confirm_with_select",
-        text: "Change main group",
+        text: "Change group",
         select: function(){ return groups_select; },
         tip: "This will change the main group of the selected users. Select the new group:",
         condition: True
     },
-    "User.addgroup" : {
-        type: "confirm_with_select",
-        text: "Add to group",
-        select: function(){ return groups_select; },
-        tip: "Select the new group to add users:",
-        condition: True
-    },
-    "User.delgroup" : {
-        type: "confirm_with_select",
-        text: "Delete from group",
-        select: function(){ return groups_select; },
-        tip: "Select the group from which to delete users:",
-        condition: True
-    },
+    // "User.addgroup" : {
+    //     type: "confirm_with_select",
+    //     text: "Add to group",
+    //     select: function(){ return groups_select; },
+    //     tip: "Select the new group to add users:",
+    //     condition: True
+    // },
+    // "User.delgroup" : {
+    //     type: "confirm_with_select",
+    //     text: "Delete from group",
+    //     select: function(){ return groups_select; },
+    //     tip: "Select the group from which to delete users:",
+    //     condition: True
+    // },
     "User.delete" : {
         type: "action",
         text: "Delete",
@@ -191,7 +191,7 @@ var users_tab = {
     title: "Users",
     content: users_tab_content,
     buttons: user_buttons,
-    condition: function(){ return uid == 0; }
+    condition: True
 }
 
 Sunstone.addActions(user_actions);
@@ -201,52 +201,12 @@ Sunstone.addMainTab('users_tab',users_tab);
 // added to the dataTable
 function userElementArray(user_json){
     var user = user_json.USER;
-    if (!user.NAME || user.NAME == {}){
-        name = "";
-    } else {
-        name = user.NAME;
-    }
-
-    var groups_str="";
-    if (user.GROUPS.ID.constructor == Array){ //several groups
-        for (var i=0; i< user.GROUPS.ID.length; i++){
-            groups_str+=getGroupName(user.GROUPS.ID[i])+', ';
-        };
-        groups_str = groups_str.slice(0,-2);
-    } else { //one group
-        groups_str = getGroupName(user.GROUPS.ID);
-    };
-
-    // var groups_full_str=getGroupName(user.GID)+", ";
-    // var group_field;
-
-    // if (user.GROUPS.ID){
-    //     $.each(user.GROUPS.ID,function() {
-    //         if (i<=5) {
-    //             groups_str+=getGroupName(this)+", ";
-    //         };
-    //         groups_full_str+=getGroupName(this)+", ";
-    //         i++;
-    //     });
-    //     if (i>0){
-    //         groups_str = groups_str.slice(0, -2);
-    //         groups_full_str = groups_str.slice(0, -2);
-    //     };
-    //     if (i>5){
-    //         groups_str+="...";
-    //         group_field = '<div class="shortened_info">'+groups_str+'</div><div class="full_info" style="display:none">'+groups_full_str+'</div>';
-    //     } else {
-    //         group_field=groups_str;
-    //     };
-    // }
-
-
 
     return [
         '<input type="checkbox" id="user_'+user.ID+'" name="selected_items" value="'+user.ID+'"/>',
         user.ID,
-        name,
-        groups_str
+        user.NAME,
+        user.GNAME
     ]
 }
 
@@ -305,7 +265,7 @@ function setupCreateUserDialog(){
     $('#create_user_form').submit(function(){
         var user_name=$('#username',this).val();
         var user_password=$('#pass',this).val();
-        if (!user_name.length && !user_password.length){
+        if (!user_name.length || !user_password.length){
             notifyError("User name and password must be filled in");
             return false;
         }
@@ -337,30 +297,29 @@ function setUserAutorefresh(){
 
 $(document).ready(function(){
     //if we are not oneadmin, our tab will not even be in the DOM.
-    if (uid==0) {
-        dataTable_users = $("#datatable_users").dataTable({
-            "bJQueryUI": true,
-            "bSortClasses": false,
-            "sPaginationType": "full_numbers",
-            "bAutoWidth":false,
-            "aoColumnDefs": [
-                { "bSortable": false, "aTargets": ["check"] },
-                { "sWidth": "60px", "aTargets": [0] },
-                { "sWidth": "35px", "aTargets": [1] }
-            ]
-        });
-        dataTable_users.fnClearTable();
-        addElement([
-            spinner,
-            '','',''],dataTable_users);
+    dataTable_users = $("#datatable_users").dataTable({
+        "bJQueryUI": true,
+        "bSortClasses": false,
+        "sPaginationType": "full_numbers",
+        "bAutoWidth":false,
+        "aoColumnDefs": [
+            { "bSortable": false, "aTargets": ["check"] },
+            { "sWidth": "60px", "aTargets": [0] },
+            { "sWidth": "35px", "aTargets": [1] }
+        ]
+    });
+    dataTable_users.fnClearTable();
+    addElement([
+        spinner,
+        '','',''],dataTable_users);
 
-        Sunstone.runAction("User.list");
+    Sunstone.runAction("User.list");
 
-        setupCreateUserDialog();
-        setUserAutorefresh();
+    setupCreateUserDialog();
+    setUserAutorefresh();
 
-        initCheckAllBoxes(dataTable_users);
-        tableCheckboxesListener(dataTable_users);
-        shortenedInfoFields('#datatable_users');
-    }
+    initCheckAllBoxes(dataTable_users);
+    tableCheckboxesListener(dataTable_users);
+    shortenedInfoFields('#datatable_users');
+
 })
