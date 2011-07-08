@@ -105,7 +105,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
     def format_pool(pool, options, top=false)
         config_file=self.class.table_conf
         table=CLIHelper::ShowTable.new(config_file, self) do
-            column :ID, "ONE identifier for Virtual Machine", :size=>4 do |d|
+            column :ID, "ONE identifier for Virtual Machine", :size=>6 do |d|
                 d["ID"]
             end
 

@@ -1,7 +1,7 @@
 --- 
 :ID: 
   :desc: ONE identifier for Virtual Machine
-  :size: 4
+  :size: 6
 
 :NAME: 
   :desc: Name of the Virtual Machine

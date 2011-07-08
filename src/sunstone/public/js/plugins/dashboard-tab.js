@@ -99,7 +99,7 @@ var dashboard_tab_content =
         <h3>Quickstart</h3>\
         <form id="quickstart_form"><fieldset>\
           <table style="width:100%;"><tr style="vertical-align:middle;"><td style="width:70%">\
-          <label style="font-weight:bold;width:40px;height:7em;">New:</label>\
+          <label style="font-weight:bold;width:40px;height:8em;">New:</label>\
           <input type="radio" name="quickstart" value="Host.create_dialog">Host</input><br />\
           <input type="radio" name="quickstart" value="Group.create_dialog">Group</input><br />\
           <input type="radio" name="quickstart" value="Template.create_dialog">VM Template</input><br />\

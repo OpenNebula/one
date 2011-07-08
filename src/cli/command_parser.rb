@@ -62,9 +62,17 @@ module CommandParser
             @args = args
             @options = Hash.new
 
-            set :format, :file, "" do |arg| format_file(arg) ; end
-            set :format, :range, "" do |arg| format_range(arg) ; end
-            set :format, :text, ""  do |arg| format_text(arg) ; end
+            set :format, :file, "Path to a file" do |arg|
+                format_file(arg)
+            end
+
+            set :format, :range, "List of id's in the form 1,8..15" do |arg|
+                format_range(arg)
+            end
+
+            set :format, :text, "String" do |arg|
+                format_text(arg)
+            end
 
             instance_eval(&block)
 

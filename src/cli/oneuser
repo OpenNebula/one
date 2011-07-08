@@ -55,7 +55,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     PLAIN={
         :name => "plain",
         :short => "-p",
-        :large => "--plain-password",
+        :large => "--plain",
         :description => "Store plain password"
     }
 

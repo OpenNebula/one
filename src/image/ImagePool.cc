@@ -64,7 +64,6 @@ int ImagePool::allocate (
         string&        error_str)
 {
     Image *         img;
-    Image *         img_aux;
     string          name;
     ostringstream   oss;
 
@@ -76,14 +75,6 @@ int ImagePool::allocate (
     if ( name.empty() )
     {
         goto error_name;
-    }
-
-    // Check for duplicates
-    img_aux = get(name,uid,false);
-
-    if( img_aux != 0 )
-    {
-        goto error_duplicated;
     }
 
     // ---------------------------------------------------------------------
@@ -108,12 +99,7 @@ int ImagePool::allocate (
 
 error_name:
     oss << "NAME cannot be empty.";
-    goto error_common;
 
-error_duplicated:
-    oss << "NAME is already taken by IMAGE " << img_aux->get_oid() << ".";
-
-error_common:
     delete img;
 
     *oid = -1;
@@ -140,41 +126,34 @@ int ImagePool::disk_attribute(VectorAttribute *  disk,
     Nebula&        nd     = Nebula::instance();
     ImageManager * imagem = nd.get_imagem();
 
+    istringstream   is;
+    int             image_id;
+
     source = disk->vector_value("IMAGE");
 
-    if (source.empty())
+    if (!source.empty())
     {
-        istringstream   is;
-        int             image_id;
+        return -3;
+    }
 
-        source = disk->vector_value("IMAGE_ID");
+    source = disk->vector_value("IMAGE_ID");
 
-        if (!source.empty())
+    if (!source.empty())
+    {
+        is.str(source);
+        is >> image_id;
+
+        if( !is.fail() )
         {
-            is.str(source);
-            is >> image_id;
+            img = imagem->acquire_image(image_id);
 
-            if( !is.fail() )
+            if (img == 0)
             {
-                img = imagem->acquire_image(image_id);
-
-                if (img == 0)
-                {
-                    return -1;
-                }
+                return -1;
             }
         }
     }
-    else
-    {
-        img = imagem->acquire_image(source,uid);
-
-        if (img == 0)
-        {
-            return -1;
-        }
-    }
-
+    
     if (img == 0)
     {
         string type = disk->vector_value("TYPE");
@@ -220,31 +199,22 @@ void ImagePool::authorize_disk(VectorAttribute * disk,int uid, AuthRequest * ar)
     string  source;
     Image * img = 0;
 
-    source = disk->vector_value("IMAGE");
+    istringstream   is;
+    int             image_id;
+
+    source = disk->vector_value("IMAGE_ID");
 
     if (source.empty())
     {
-        istringstream   is;
-        int             image_id;
-
-        source = disk->vector_value("IMAGE_ID");
-
-        if (source.empty())
-        {
-            return;
-        }
-
-        is.str(source);
-        is >> image_id;
-
-        if( !is.fail() )
-        {
-            img = get(image_id,true);
-        }
+        return;
     }
-    else
+
+    is.str(source);
+    is >> image_id;
+
+    if( !is.fail() )
     {
-        img = get(source,uid,true);
+        img = get(image_id,true);
     }
 
     if (img == 0)

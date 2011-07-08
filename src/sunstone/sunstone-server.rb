@@ -137,6 +137,9 @@ get '/' do
     response.set_cookie("one-user_id",
                         :value=>"#{session[:user_id]}",
                         :expires=>time)
+    response.set_cookie("one-user_gid",
+                        :value=>"#{session[:user_gid]}",
+                        :expires=>time)
 
     p = SunstonePlugins.new
     @plugins = p.authorized_plugins(session[:user], session[:user_gname])
@@ -187,7 +190,7 @@ end
 # GET Pool information
 ##############################################################################
 get '/:pool' do
-    @SunstoneServer.get_pool(params[:pool])
+    @SunstoneServer.get_pool(params[:pool],session[:user_gid])
 end
 
 ##############################################################################
