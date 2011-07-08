@@ -88,6 +88,15 @@ module WatchHelper
         }
     }
 
+    def self.get_config(*params)
+        conf = CONF
+        while param = params.shift
+            conf = conf[param]
+            break if conf.nil?
+        end
+        conf
+    end
+
     def self.bootstrap
         DB.create_table? :vms do
             Integer :id, :primary_key=>true
@@ -228,7 +237,15 @@ module WatchHelper
         one_to_many :deltas, :order=>:timestamp
 
         # Monitoring
-        one_to_many :samples, :before_add=>:control_regs, :order=>:timestamp, :class=>VmSample
+        one_to_many :samples,
+                    :before_add=>:control_regs,
+                    :order=>:timestamp,
+                    :class=>VmSample
+
+        @@vm_window_size = WatchHelper::get_config(
+            :VM_MONITORING,
+            :WINDOW_SIZE
+        )
 
         def self.info(vm)
             Vm.find_or_create(:id=>vm['ID']) { |v|
@@ -282,7 +299,7 @@ module WatchHelper
         private
 
         def control_regs(sample)
-            if self.samples.count > CONF[:WINDOW_SIZE] - 1
+            if self.samples.count >  @@vm_window_size - 1
                 self.samples.first.delete
             end
         end
@@ -292,7 +309,15 @@ module WatchHelper
         unrestrict_primary_key
 
         # Monitoring
-        one_to_many :samples, :before_add=>:control_regs, :order=>:timestamp, :class=>HostSample
+        one_to_many :samples,
+                    :before_add=>:control_regs,
+                    :order=>:timestamp,
+                    :class=>HostSample
+
+        @@host_window_size = WatchHelper::get_config(
+            :HOST_MONITORING,
+            :WINDOW_SIZE
+        )
 
         def self.info(host)
             Host.find_or_create(:id=>host['ID']) { |h|
@@ -321,7 +346,8 @@ module WatchHelper
         private
 
         def control_regs(sample)
-            if self.samples.count > CONF[:WINDOW_SIZE] - 1
+
+            if self.samples.count > @@host_window_size - 1
                 self.samples.first.delete
             end
         end

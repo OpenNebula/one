@@ -34,8 +34,6 @@ require 'yaml'
 require 'OpenNebula'
 require 'watch_helper'
 
-CONF = YAML.load_file(ACCTD_CONF)
-
 class Watcher
     def initialize
         @monitors = Array.new
@@ -91,39 +89,47 @@ vm_pool     = nil # common for accounting and monitoring
 host_pool   = nil
 
 # Initialize VM monitoring
-if CONF[:VM_MONITORING_STEPS] > 0
+if vm_steps = WatchHelper::get_config(:VM_MONITORING, :STEPS) and
+    vm_steps > 0
+
     require 'monitoring'
     vm_monitoring       = OneWatch::VmMonitoring.new
     vm_pool     ||= OpenNebula::VirtualMachinePool.new(one_client, -2)
-    watcher.add(vm_monitoring,   CONF[:VM_MONITORING_STEPS], vm_pool)
+    watcher.add(vm_monitoring,   vm_steps, vm_pool)
 end
 
 # Initialize Host monitoring
-if CONF[:HOST_MONITORING_STEPS] > 0
+if host_steps = WatchHelper::get_config(:HOST_MONITORING, :STEPS) and
+    host_steps > 0
+
     require 'monitoring'
     host_monitoring     = OneWatch::HostMonitoring.new
     host_pool   ||= OpenNebula::HostPool.new(one_client)
-    watcher.add(host_monitoring, CONF[:HOST_MONITORING_STEPS], host_pool)
+    watcher.add(host_monitoring, host_steps, host_pool)
 end
 
 # Initialize accounting
-if CONF[:ACCOUNTING_STEPS] > 0
+if accounting_steps = WatchHelper::get_config(:ACCOUNTING, :STEPS) and
+    accounting_steps > 0
+
     require 'accounting'
     accounting  = OneWatch::Accounting.new(one_client)
     vm_pool     ||= OpenNebula::VirtualMachinePool.new(one_client, -2)
-    watcher.add(accounting, CONF[:ACCOUNTING_STEPS], vm_pool)
+    watcher.add(accounting, accounting_steps, vm_pool)
 end
+
+step_time = WatchHelper::get_config(:STEP)
 
 step = 0
 loop do
     start_time  = Time.now
-    expected_end_time = start_time + CONF[:STEP]
+    expected_end_time = start_time + step_time
 
     step += 1
     watcher.update(step)
 
     end_time  = Time.now
-    sleep_time = start_time + CONF[:STEP] - end_time
+    sleep_time = start_time + step_time - end_time
 
     if sleep_time >= 1
         sleep sleep_time
