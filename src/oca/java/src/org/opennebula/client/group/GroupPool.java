@@ -40,7 +40,7 @@ public class GroupPool extends Pool implements Iterable<Group>{
      */
     public GroupPool(Client client)
     {
-        super(ELEMENT_NAME, client);
+        super(ELEMENT_NAME, client, INFO_METHOD);
     }
 
     @Override
@@ -58,7 +58,7 @@ public class GroupPool extends Pool implements Iterable<Group>{
      */
     public static OneResponse info(Client client)
     {
-        return client.call(INFO_METHOD);
+        return Pool.info(client, INFO_METHOD);
     }
 
     /**
@@ -68,9 +68,7 @@ public class GroupPool extends Pool implements Iterable<Group>{
      */
     public OneResponse info()
     {
-        OneResponse response = info(client);
-        super.processInfo(response);
-        return response;
+        return super.info();
     }
 
     public Iterator<Group> iterator()
@@ -89,5 +87,17 @@ public class GroupPool extends Pool implements Iterable<Group>{
         };
 
         return ab.iterator();
+    }
+
+    /**
+     * Returns the Group with the given Id from the pool. If it is not found,
+     * then returns null.
+     *
+     * @param id of the Group to retrieve
+     * @return The Image with the given Id, or null if it was not found.
+     */
+    public Group getById(int id)
+    {
+        return (Group) super.getById(id);
     }
 }

@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -40,7 +40,7 @@ public class UserPool extends Pool implements Iterable<User>{
      */
     public UserPool(Client client)
     {
-        super(ELEMENT_NAME, client);
+        super(ELEMENT_NAME, client, INFO_METHOD);
     }
 
     @Override
@@ -50,15 +50,23 @@ public class UserPool extends Pool implements Iterable<User>{
     }
 
     /**
+     * Retrieves all the users in the pool.
+     *
+     * @param client XML-RPC Client.
+     * @return If successful the message contains the string
+     * with the information returned by OpenNebula.
+     */
+    public static OneResponse info(Client client)
+    {
+        return Pool.info(client, INFO_METHOD);
+    }
+
+    /**
      * Loads the xml representation of the user pool.
      */
     public OneResponse info()
     {
-        OneResponse response = client.call(INFO_METHOD);
-
-        super.processInfo(response);
-
-        return response;
+        return super.info();
     }
 
     public Iterator<User> iterator()
@@ -77,5 +85,17 @@ public class UserPool extends Pool implements Iterable<User>{
         };
 
         return ab.iterator();
+    }
+
+    /**
+     * Returns the User with the given Id from the pool. If it is not found,
+     * then returns null.
+     *
+     * @param id of the User to retrieve
+     * @return The Image with the given Id, or null if it was not found.
+     */
+    public User getById(int id)
+    {
+        return (User) super.getById(id);
     }
 }

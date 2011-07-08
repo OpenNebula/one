@@ -37,7 +37,8 @@ public class TemplatePool extends Pool implements Iterable<Template>
 
     /**
      * Creates a new Template pool with the default filter flag value
-     * set to 0 (Templates belonging to user with UID 0)
+     * set to {@link Pool#MINE_GROUP} (Template belonging to the connected user,
+     * and the ones in his group)
      *
      * @param client XML-RPC Client.
      *
@@ -45,25 +46,27 @@ public class TemplatePool extends Pool implements Iterable<Template>
      */
     public TemplatePool(Client client)
     {
-        super(ELEMENT_NAME, client);
-        this.filter = 0;
+        super(ELEMENT_NAME, client, INFO_METHOD);
+        this.filter = MINE_GROUP;
     }
 
     /**
      * Creates a new Template pool.
      *
      * @param client XML-RPC Client.
-     * @param filter Filter flag used by default in the method
+     * @param filter Filter flag to use by default in the method
      * {@link TemplatePool#info()}. Possible values:
      * <ul>
-     * <li><= -2: All Templates</li>
-     * <li>-1: Connected user's Templates and public ones</li>
+     * <li>{@link Pool#ALL}: All Templates</li>
+     * <li>{@link Pool#MINE}: Connected user's Templates</li>
+     * <li>{@link Pool#MINE_GROUP}: Connected user's Templates, and the ones in
+     * his group</li>
      * <li>>= 0: UID User's Templates</li>
      * </ul>
      */
     public TemplatePool(Client client, int filter)
     {
-        super(ELEMENT_NAME, client);
+        super(ELEMENT_NAME, client, INFO_METHOD);
         this.filter = filter;
     }
 
@@ -77,14 +80,15 @@ public class TemplatePool extends Pool implements Iterable<Template>
     }
 
     /**
-     * Retrieves all or part of the templates in the pool.
+     * Retrieves all or part of the Templates in the pool.
      *
      * @param client XML-RPC Client.
-     * @param filter Filter flag used by default in the method
-     * {@link TemplatePool#info()}. Possible values:
+     * @param filter Filter flag to use. Possible values:
      * <ul>
-     * <li><= -2: All Templates</li>
-     * <li>-1: Connected user's Templates and public ones</li>
+     * <li>{@link Pool#ALL}: All Templates</li>
+     * <li>{@link Pool#MINE}: Connected user's Templates</li>
+     * <li>{@link Pool#MINE_GROUP}: Connected user's Templates, and the ones in
+     * his group</li>
      * <li>>= 0: UID User's Templates</li>
      * </ul>
      * @return If successful the message contains the string
@@ -92,7 +96,68 @@ public class TemplatePool extends Pool implements Iterable<Template>
      */
     public static OneResponse info(Client client, int filter)
     {
-        return client.call(INFO_METHOD, filter);
+        return Pool.info(client, INFO_METHOD, filter, -1, -1);
+    }
+
+    /**
+     * Retrieves all the Templates in the pool.
+     *
+     * @param client XML-RPC Client.
+     * @return If successful the message contains the string
+     * with the information returned by OpenNebula.
+     */
+    public static OneResponse infoAll(Client client)
+    {
+        return Pool.infoAll(client, INFO_METHOD);
+    }
+
+    /**
+     * Retrieves all the connected user's Templates.
+     *
+     * @param client XML-RPC Client.
+     * @return If successful the message contains the string
+     * with the information returned by OpenNebula.
+     */
+    public static OneResponse infoMine(Client client)
+    {
+        return Pool.infoMine(client, INFO_METHOD);
+    }
+
+    /**
+     * Retrieves all the connected user's Templates and the ones in
+     * his group.
+     *
+     * @param client XML-RPC Client.
+     * @return If successful the message contains the string
+     * with the information returned by OpenNebula.
+     */
+    public static OneResponse infoGroup(Client client)
+    {
+        return Pool.infoGroup(client, INFO_METHOD);
+    }
+
+    /**
+     * Retrieves all or part of the Templates in the pool. The Templates to retrieve
+     * can be also filtered by Id, specifying the first and last Id to include.
+     *
+     * @param client XML-RPC Client.
+     * @param filter Filter flag to use. Possible values:
+     * <ul>
+     * <li>{@link Pool#ALL}: All Templates</li>
+     * <li>{@link Pool#MINE}: Connected user's Templates</li>
+     * <li>{@link Pool#MINE_GROUP}: Connected user's Templates, and the ones in
+     * his group</li>
+     * <li>>= 0: UID User's Templates</li>
+     * </ul>
+     * @param startId Lowest Id to retrieve
+     * @param endId Biggest Id to retrieve
+     * @return If successful the message contains the string
+     * with the information returned by OpenNebula.
+     */
+    public static OneResponse info(Client client, int filter,
+            int startId, int endId)
+    {
+        return Pool.info(client, INFO_METHOD, filter, startId, endId);
     }
 
     /**
@@ -107,9 +172,63 @@ public class TemplatePool extends Pool implements Iterable<Template>
      */
     public OneResponse info()
     {
-        OneResponse response = info(client, filter);
-        super.processInfo(response);
-        return response;
+        return super.info(filter, -1, -1);
+    }
+
+    /**
+     * Loads the xml representation of all the Templates in the pool.
+     *
+     * @return If successful the message contains the string
+     * with the information returned by OpenNebula.
+     */
+    public OneResponse infoAll()
+    {
+        return super.infoAll();
+    }
+
+    /**
+     * Loads the xml representation of all the connected user's Templates.
+     *
+     * @return If successful the message contains the string
+     * with the information returned by OpenNebula.
+     */
+    public OneResponse infoMine()
+    {
+        return super.infoMine();
+    }
+
+    /**
+     * Loads the xml representation of all the connected user's Templates and
+     * the ones in his group.
+     *
+     * @return If successful the message contains the string
+     * with the information returned by OpenNebula.
+     */
+    public OneResponse infoGroup()
+    {
+        return super.infoGroup();
+    }
+
+    /**
+     * Retrieves all or part of the Templates in the pool. The Templates to retrieve
+     * can be also filtered by Id, specifying the first and last Id to include.
+     *
+     * @param filter Filter flag to use. Possible values:
+     * <ul>
+     * <li>{@link Pool#ALL}: All Templates</li>
+     * <li>{@link Pool#MINE}: Connected user's Templates</li>
+     * <li>{@link Pool#MINE_GROUP}: Connected user's Templates, and the ones in
+     * his group</li>
+     * <li>>= 0: UID User's Templates</li>
+     * </ul>
+     * @param startId Lowest Id to retrieve
+     * @param endId Biggest Id to retrieve
+     * @return If successful the message contains the string
+     * with the information returned by OpenNebula.
+     */
+    public OneResponse info(int filter, int startId, int endId)
+    {
+        return super.info(filter, startId, endId);
     }
 
     public Iterator<Template> iterator()
@@ -128,5 +247,17 @@ public class TemplatePool extends Pool implements Iterable<Template>
         };
 
         return ab.iterator();
+    }
+
+    /**
+     * Returns the Template with the given Id from the pool. If it is not found,
+     * then returns null.
+     *
+     * @param id of the ACl rule to retrieve
+     * @return The Template with the given Id, or null if it was not found.
+     */
+    public Template getById(int id)
+    {
+        return (Template) super.getById(id);
     }
 }
