@@ -78,31 +78,12 @@ int VirtualNetworkPool::allocate (
     int *          oid,
     string&        error_str)
 {
-    VirtualNetwork *    vn;
-    VirtualNetwork *    vn_aux;
-    string              name;
+    VirtualNetwork * vn;
+    string           name;
 
     vn = new VirtualNetwork(uid, gid, uname, gname, vn_template);
 
-    // Check for duplicates
-    vn->get_template_attribute("NAME", name);
-    vn_aux = get(name,uid,false);
-
-    if( vn_aux != 0 )
-    {
-        ostringstream oss;
-
-        oss << "NAME is already taken by NET " << vn_aux->get_oid() << ".";
-        error_str = oss.str();
-
-        *oid = -1;
-
-        delete vn;
-    }
-    else
-    {
-        *oid = PoolSQL::allocate(vn, error_str);
-    }
+    *oid = PoolSQL::allocate(vn, error_str);
 
     return *oid;
 }
@@ -115,31 +96,29 @@ int VirtualNetworkPool::nic_attribute(VectorAttribute * nic, int uid, int vid)
     string           network;
     VirtualNetwork * vnet = 0;
 
+    istringstream is;
+    int           network_id;
+
     network = nic->vector_value("NETWORK");
 
-    if (network.empty())
+    if (!network.empty())
     {
-        istringstream   is;
-        int             network_id;
-
-        network = nic->vector_value("NETWORK_ID");
-
-        if(network.empty())
-        {
-            return -2;
-        }
-
-        is.str(network);
-        is >> network_id;
-
-        if( !is.fail() )
-        {
-            vnet = get(network_id,true);
-        }
+        return -3;
     }
-    else
+
+    network = nic->vector_value("NETWORK_ID");
+
+    if(network.empty())
     {
-        vnet = get(network, uid, true);
+        return -2;
+    }
+
+    is.str(network);
+    is >> network_id;
+
+    if( !is.fail() )
+    {
+        vnet = get(network_id,true);
     }
 
     if (vnet == 0)
@@ -164,31 +143,22 @@ void VirtualNetworkPool::authorize_nic(VectorAttribute * nic,
     string           network;
     VirtualNetwork * vnet = 0;
 
-    network = nic->vector_value("NETWORK");
+    istringstream   is;
+    int             network_id;
 
-    if (network.empty())
+    network = nic->vector_value("NETWORK_ID");
+
+    if(network.empty())
     {
-        istringstream   is;
-        int             network_id;
-
-        network = nic->vector_value("NETWORK_ID");
-
-        if(network.empty())
-        {
-            return;
-        }
-
-        is.str(network);
-        is >> network_id;
-
-        if( !is.fail() )
-        {
-            vnet = get(network_id,true);
-        }
+        return;
     }
-    else
+
+    is.str(network);
+    is >> network_id;
+
+    if( !is.fail() )
     {
-        vnet = get(network, uid, true);
+        vnet = get(network_id,true);
     }
 
     if (vnet == 0)

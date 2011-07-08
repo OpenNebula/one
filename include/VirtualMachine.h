@@ -629,7 +629,7 @@ public:
      *  Get all network leases for this Virtual Machine
      *  @return 0 if success
      */
-    int get_network_leases();
+    int get_network_leases(string &error_str);
 
     /**
      *  Releases all network leases taken by this Virtual Machine

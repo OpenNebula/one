@@ -69,19 +69,6 @@ public:
         return static_cast<VirtualNetwork *>(PoolSQL::get(oid,lock));
     };
 
-    /**
-     *  Function to get a VN from the pool using the network name
-     *  If the object is not in memory it is loaded from the DB
-     *    @param name VN unique name
-     *    @param uid of the VN owner
-     *    @param lock locks the VN mutex
-     *    @return a pointer to the VN, 0 if the VN could not be loaded
-     */
-    VirtualNetwork * get(const string& name, int uid, bool lock)
-    {
-        return static_cast<VirtualNetwork *>(PoolSQL::get(name,uid,lock));
-    };
-
     //--------------------------------------------------------------------------
     // Virtual Network DB access functions
     //--------------------------------------------------------------------------
@@ -91,7 +78,10 @@ public:
      *  metadata
      *    @param nic the nic attribute to be generated
      *    @param vid of the VM requesting the lease
-     *    @return 0 on success, -1 error, -2 not using the pool
+     *    @return 0 on success, 
+     *            -1 error, 
+     *            -2 not using the pool,
+     *            -3 unsupported NETWORK attribute
      */
     int nic_attribute(VectorAttribute * nic, int uid, int vid);
 

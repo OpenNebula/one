@@ -216,7 +216,7 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     // Get network leases
     // ------------------------------------------------------------------------
 
-    rc = get_network_leases();
+    rc = get_network_leases(error_str);
 
     if ( rc != 0 )
     {
@@ -272,7 +272,6 @@ error_update:
     goto error_common;
 
 error_leases:
-    error_str = "Could not get network lease for VM.";
     NebulaLog::log("ONE",Log::ERROR, error_str);
     release_network_leases();
     return -1;
@@ -747,12 +746,12 @@ error_max_db:
 
 error_image:
     error_str = "Could not get disk image for VM.";
+    goto error_common;
 
 error_name:
-    error_str = "NAME is not supported for DISK. Use IMAGE_ID instead.";
+    error_str = "IMAGE is not supported for DISK. Use IMAGE_ID instead.";
 
 error_common:
-    NebulaLog::log("ONE",Log::ERROR, error_str);
     return -1;
 }
 
@@ -810,7 +809,7 @@ void VirtualMachine::release_disk_images()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::get_network_leases()
+int VirtualMachine::get_network_leases(string& estr)
 {
     int                   num_nics, rc;
     vector<Attribute  * > nics;
@@ -835,11 +834,25 @@ int VirtualMachine::get_network_leases()
 
         if (rc == -1)
         {
-            return -1;
+            goto error_vnet; 
+        }
+        else if ( rc == -3 )
+        {
+            goto error_name;
         }
     }
 
     return 0;
+
+error_vnet:
+    estr = "Could not get virtual network for VM.";
+    goto error_common;
+
+error_name:
+    estr = "NETWORK is not supported for NIC. Use NETWORK_ID instead.";
+
+error_common:
+    return -1;
 }
 
 /* -------------------------------------------------------------------------- */

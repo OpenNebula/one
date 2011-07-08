@@ -136,7 +136,6 @@ class VirtualNetworkPoolTest : public PoolTest
     ALL_POOLTEST_CPPUNIT_TESTS();
     CPPUNIT_TEST (allocate_rcs);
     CPPUNIT_TEST (use_phydev);
-    CPPUNIT_TEST (get_using_name);
     CPPUNIT_TEST (wrong_get_name);
     CPPUNIT_TEST (update);
     CPPUNIT_TEST (size);
@@ -305,51 +304,20 @@ public:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-    void get_using_name()
-    {
-        VirtualNetworkPool * vnpool = static_cast<VirtualNetworkPool *>(pool);
-        VirtualNetwork * vn;
-        int oid;
-
-        // Allocate two objects
-        oid = allocate(0);
-        CPPUNIT_ASSERT( oid >= 0 );
-
-        oid = allocate(1);
-        CPPUNIT_ASSERT( oid >= 0 );
-
-        // Get using its name
-        vn = vnpool->get(names[1],uids[1], true);
-        CPPUNIT_ASSERT(vn != 0);
-        vn->unlock();
-
-        check(1, vn);
-        vn->unlock();
-
-        vnpool->clean();
-
-        // Get using its name
-        vn = vnpool->get(names[1], uids[1], false);
-        check(1, vn);
-    };
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
     void wrong_get_name()
     {
         VirtualNetworkPool * vnpool = static_cast<VirtualNetworkPool *>(pool);
         VirtualNetwork * vn;
 
         // Empty Pool
-        vn = vnpool->get("Wrong name", 0, true);
+        vn = vnpool->get(23 , true);
         CPPUNIT_ASSERT( vn == 0 );
 
         // Allocate an object
         allocate(0);
 
         // Ask again for a non-existing name
-        vn = vnpool->get("Non existing name", uids[0], true);
+        vn = vnpool->get(23, true);
         CPPUNIT_ASSERT( vn == 0 );
     }
 
@@ -429,6 +397,7 @@ public:
         for (int i = 0 ; i < 7 ; i++)
         {
             rc   = vnpool->allocate(uids[0], templ[i], &oid[i]);
+
             CPPUNIT_ASSERT( rc >= 0 );
 
             vnet = vnpool->get(oid[i], false);
@@ -1145,7 +1114,19 @@ public:
 
         // Disk using network 0
         disk = new VectorAttribute("DISK");
-        disk->replace("NETWORK", "Net 0");
+        disk->replace("NETWORK", "A net");
+
+        int rc = ((VirtualNetworkPool*)vnp)->nic_attribute(disk, 0, 0);
+
+        CPPUNIT_ASSERT( rc == -3 );
+
+        delete disk;
+
+        // Disk using network 0
+        disk = new VectorAttribute("DISK");
+        disk->replace("NETWORK_ID", "0");
+
+        ((VirtualNetworkPool*)vnp)->nic_attribute(disk, 0, 0);
 
         ((VirtualNetworkPool*)vnp)->nic_attribute(disk, 0, 0);
 
