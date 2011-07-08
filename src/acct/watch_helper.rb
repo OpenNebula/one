@@ -346,7 +346,6 @@ module WatchHelper
             @@samples_cache = []
             @@deltas_cache = []
         end
-        end
     end
 
     class Host < Sequel::Model
