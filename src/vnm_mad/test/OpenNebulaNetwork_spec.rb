@@ -163,6 +163,7 @@ describe 'host-managed' do
         hm.activate
 
         hm_activate_rules = ["sudo /usr/sbin/brctl addbr onebr6",
+                             "sudo /sbin/ip link set onebr6 up",
                              "sudo /sbin/ip link show eth0.8",
                              "sudo /sbin/vconfig add eth0 8",
                              "sudo /sbin/ip link set eth0.8 up",
@@ -174,19 +175,21 @@ describe 'host-managed' do
         $capture_commands = {
             /virsh.*dumpxml/ => OUTPUT[:virsh_dumpxml_vlan_id],
             /brctl show/     => OUTPUT[:brctl_show],
-	    /brctl add/    => nil,
-	    /vconfig/        => nil,
-	    /ip link/        => nil
+            /brctl add/      => nil,
+            /vconfig/        => nil,
+            /ip link/        => nil
         }
         hm = OpenNebulaHM.new(OUTPUT[:onevm_show_vlan_id_kvm],"kvm")
         hm.activate
 
         hm_vlan_id = ["sudo /usr/sbin/brctl addbr onebr10",
+                      "sudo /sbin/ip link set onebr10 up",
                       "sudo /sbin/ip link show eth0.50",
                       "sudo /sbin/vconfig add eth0 50",
                       "sudo /sbin/ip link set eth0.50 up",
                       "sudo /usr/sbin/brctl addif onebr10 eth0.50",
                       "sudo /usr/sbin/brctl addbr specialbr",
+                      "sudo /sbin/ip link set specialbr up",
                       "sudo /sbin/ip link show eth0.51",
                       "sudo /sbin/vconfig add eth0 51",
                       "sudo /sbin/ip link set eth0.51 up",
