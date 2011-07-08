@@ -55,7 +55,7 @@ end
 def clean_db
     begin
         WatchHelper::Register.destroy
-        WatchHelper::Delta.destroy
+        WatchHelper::VmDelta.destroy
         WatchHelper::VmSample.destroy
         WatchHelper::HostSample.destroy
         WatchHelper::Vm.destroy

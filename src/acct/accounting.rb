@@ -104,6 +104,7 @@ module OneWatch
 
         def insert_vm(vm)
             vm_sql = WatchHelper::Vm.info(vm)
+            vm_sql.add_delta_from_resource(vm, @timestamp)
             update_history(vm, vm_sql)
         end
     end

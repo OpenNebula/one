@@ -13,6 +13,16 @@ module WatchHelper
     CONF = YAML.load_file(ACCTD_CONF)
 
     DB = Sequel.connect(CONF[:DB])
+    VM_DELTA = {
+        :net_rx => {
+            :type => Integer,
+            :path => 'NET_RX'
+        },
+        :net_tx => {
+            :type => Integer,
+            :path => 'NET_TX'
+        }
+    }
 
     VM_SAMPLE = {
         :cpu => {
@@ -152,12 +162,14 @@ module WatchHelper
             primary_key [:vm_id, :seq]
         end
 
-        DB.create_table? :deltas do
+        DB.create_table? :vm_deltas do
             foreign_key :vm_id, :vms, :key=>:id
             Integer     :timestamp
             Integer     :ptimestamp
-            Integer     :net_rx
-            Integer     :net_tx
+
+            VM_DELTA.each { |key,value|
+                column key, value[:type]
+            }
 
             primary_key [:vm_id, :timestamp]
         end
@@ -214,7 +226,7 @@ module WatchHelper
         end
     end
 
-    class Delta < Sequel::Model
+    class VmDelta < Sequel::Model
         unrestrict_primary_key
 
         many_to_one :vm
@@ -225,13 +237,14 @@ module WatchHelper
 
         # Accounting
         one_to_many :registers, :order=>:seq
-        one_to_many :deltas, :order=>:timestamp
+        one_to_many :deltas, :order=>:timestamp, :class=>VmDelta
 
         # Monitoring
-        one_to_many :samples, :before_add=>:control_regs, :order=>:timestamp, :class=>VmSample
         one_to_many :samples, :order=>:timestamp, :class=>VmSample
 
         @@samples_cache = []
+        @@deltas_cache  = []
+
         def self.info(vm)
             Vm.find_or_create(:id=>vm['ID']) { |v|
                 v.name  = vm['NAME']
@@ -262,6 +275,7 @@ module WatchHelper
 
         def add_sample_from_resource(vm, timestamp)
             hash = {
+                :vm_id      => vm['ID'],
                 :timestamp  => timestamp,
                 :last_poll  => vm['LAST_POLL'],
                 :state      => vm['STATE'],
@@ -276,27 +290,47 @@ module WatchHelper
         end
 
         def add_delta_from_resource(vm, timestamp)
-            self.deltas
-            vs = VmSample.create_from_vm(vm, timestamp)
-            self.add_sample(vs)
+            hash = Hash.new
+
+            hash[:vm_id]     = vm['ID']
+            hash[:timestamp] = timestamp
+
+            if last_delta = self.deltas.first
+                hash[:ptimestamp] = last_delta.send(:timestamp)
+
+                VM_DELTA.each { |key,value|
+                    old_value = last_delta.send("#{key}".to_sym)
+                    new_value = vm[value[:path]].to_i
+
+                    if old_value > new_value
+                        hash[key] = new_value
+                    else
+                        hash[key] = new_value - old_value
+                    end
+                }
+            else
+                hash[:ptimestamp] = 0
+
+                VM_DELTA.each { |key,value|
+                    hash[key] = vm[value[:path]]
+                }
+            end
+
+            @@deltas_cache << hash
+        end
+
         def self.flush
+            VmDelta.multi_insert(@@deltas_cache)
             VmSample.multi_insert(@@samples_cache)
 
             Vm.each { |vm|
                 if vm.samples.count > CONF[:WINDOW_SIZE] -1
-                    vm.samples.last.delete
+                    vm.samples.first.delete
                 end
             }
 
             @@samples_cache = []
-        end
-
-        private
-
-        def control_regs(sample)
-            if self.samples.count > CONF[:WINDOW_SIZE] - 1
-                self.samples.first.delete
-            end
+            @@deltas_cache = []
         end
     end
 
@@ -317,18 +351,6 @@ module WatchHelper
             }
         end
 
-        def self.flush
-            HostSample.multi_insert(@@samples_cache)
-
-            Host.each { |host|
-                if host.samples.count > CONF[:WINDOW_SIZE] -1
-                    host.samples.last.delete
-                end
-            }
-
-            @@samples_cache = []
-        end
-
         def add_sample_from_resource(host, timestamp)
             hash = {
                 :host_id    => host['ID'],
@@ -345,12 +367,16 @@ module WatchHelper
             @@samples_cache << hash
         end
 
-        private
+        def self.flush
+            HostSample.multi_insert(@@samples_cache)
 
-        def control_regs(sample)
-            if self.samples.count > CONF[:WINDOW_SIZE] - 1
-                self.samples.first.delete
-            end
+            Host.all.each { |host|
+                if host.samples.count > CONF[:WINDOW_SIZE] -1
+                    host.samples.first.delete
+                end
+            }
+
+            @@samples_cache = []
         end
     end
 end
