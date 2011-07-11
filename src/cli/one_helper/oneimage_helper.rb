@@ -63,15 +63,17 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         CLIHelper.print_header(str_h1 % "IMAGE #{image['ID']} INFORMATION")
         puts str % ["ID", image.id.to_s]
         puts str % ["NAME", image.name]
-        puts str % ["TYPE", image.type_str]            
+        puts str % ["USER", image['UNAME']]
+        puts str % ["GROUP", image['GNAME']]
+        puts str % ["TYPE", image.type_str]
         puts str % ["REGISTER TIME",
             OpenNebulaHelper.time_to_str(image['REGTIME'])]
         puts str % ["PUBLIC", OpenNebulaHelper.public_to_str(image['PUBLIC'])]
         puts str % ["PERSISTENT",
             OneImageHelper.persistent_to_str(image["PERSISTENT"])]
-        puts str % ["SOURCE", image['SOURCE']]    
+        puts str % ["SOURCE", image['SOURCE']]
         puts str % ["STATE", image.short_state_str]
-        puts str % ["RUNNING_VMS", image['RUNNING_VMS']]            
+        puts str % ["RUNNING_VMS", image['RUNNING_VMS']]
         puts
 
         CLIHelper.print_header(str_h1 % "IMAGE TEMPLATE",false)

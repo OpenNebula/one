@@ -48,6 +48,8 @@ class OneTemplateHelper < OpenNebulaHelper::OneHelper
             str_h1 % "TEMPLATE #{template['ID']} INFORMATION")
         puts str % ["ID", template.id.to_s]
         puts str % ["NAME", template.name]
+        puts str % ["USER", template['UNAME']]
+        puts str % ["GROUP", template['GNAME']]
         puts str % ["REGISTER TIME",
             OpenNebulaHelper.time_to_str(template['REGTIME'])]
         puts str % ["PUBLIC",

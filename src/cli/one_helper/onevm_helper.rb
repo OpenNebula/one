@@ -70,6 +70,8 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             str_h1 % "VIRTUAL MACHINE #{vm['ID']} INFORMATION")
         puts str % ["ID", vm.id.to_s]
         puts str % ["NAME", vm.name]
+        puts str % ["USER", vm['UNAME']]
+        puts str % ["GROUP", vm['GNAME']]
         puts str % ["STATE", vm.state_str]
         puts str % ["LCM_STATE", vm.lcm_state_str]
         puts str % ["HOSTNAME",
@@ -78,7 +80,8 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         puts str % ["START TIME", OpenNebulaHelper.time_to_str(vm['STIME'])]
         puts str % ["END TIME", OpenNebulaHelper.time_to_str(vm['ETIME'])]
         value=vm['DEPLOY_ID']
-        puts str % ["DEPLOY ID:", value=="" ? "-" : value]
+        puts str % ["DEPLOY ID", value=="" ? "-" : value]
+
         puts
 
         CLIHelper.print_header(str_h1 % "VIRTUAL MACHINE MONITORING",false)
