@@ -107,7 +107,7 @@ for obj in host vnet image vm user; do
 done
 
 for obj in host vnet image vm acl group user; do
-    one$obj list -x > results/xml_files/$obj-pool-upgraded.xml
+    one$obj list a -x > results/xml_files/$obj-pool-upgraded.xml
 done
 
 

@@ -133,7 +133,7 @@ rm $TMP_FILE
 
 echo -n "Waiting until all VMs are running "
 
-while [ $(onevm list | grep -c runn) -ne 4 ]; do
+while [ $(onevm list a | grep -c runn) -ne 4 ]; do
     echo -n "."
     sleep 0.5s
 done
@@ -183,7 +183,7 @@ sleep 3s
 mkdir -p results/xml_files
 
 for obj in host vnet image vm user; do
-    one$obj list -x > results/xml_files/$obj-pool.xml
+    one$obj list a -x > results/xml_files/$obj-pool.xml
 
     for i in 0 1 2 3 4; do
         one$obj show -x $i > results/xml_files/$obj-$i.xml
@@ -191,8 +191,8 @@ for obj in host vnet image vm user; do
 done
 
 if [ $TWO_SERIES == "no" ]; then
-    oneacl list -x > results/xml_files/acl-pool.xml
-    onegroup list -x > results/xml_files/group-pool.xml
+    oneacl list a -x > results/xml_files/acl-pool.xml
+    onegroup list a -x > results/xml_files/group-pool.xml
 fi
 
 # Clean one auth files
