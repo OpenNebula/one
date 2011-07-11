@@ -13,7 +13,7 @@
 			<% elsif im['STATE'] == '4'%>
 			<imageState>pending</imageState>
 			<% end %>
-			<imageOwnerId><%= erb_user_name %></imageOwnerId>
+			<imageOwnerId><%= im['UNAME'] %></imageOwnerId>
 			<% if im['PUBLIC'] == '0' %>
 			<isPublic>false</isPublic>
 			<% elsif im['PUBLIC'] == '1' %>
