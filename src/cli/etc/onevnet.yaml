@@ -32,7 +32,7 @@
 
 :PUBLIC: 
   :desc: Whether the Virtual Network is public or not
-  :size: 1
+  :size: 3
 
 :LEASES: 
   :desc: Number of this Virtual Networks given leases

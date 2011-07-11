@@ -5,7 +5,7 @@
 
 :NAME: 
   :desc: Name of the Image
-  :size: 12
+  :size: 16
   :left: true
 
 :USER: 
@@ -24,7 +24,7 @@
 
 :REGTIME: 
   :desc: Registration time of the Image
-  :size: 20
+  :size: 16
 
 :PUBLIC: 
   :desc: Whether the Image is public or not

@@ -33,7 +33,7 @@ List and describe running instances
 
 Usage:
     econe-describe-instances [OPTIONS]
-    
+
 Options:
 
     --help, -h
@@ -95,7 +95,7 @@ begin
     end
 rescue Exception => e
     exit -1
-end 
+end
 
 auth = "#{access}:#{secret}" if secret && access
 
@@ -116,11 +116,11 @@ end
 instances = rc['reservationSet']['item'][0]['instancesSet']['item']
 owner     = rc['reservationSet']['item'][0]['ownerId']
 
-fmt = "%-12s  %-13s  %-13s  %-13s %-15s %-10s"  
+fmt = "%-10s  %-11s  %-13s  %-11s %-15s %-10s"
 
 if headers
     puts fmt % ["Owner", "Id", "ImageId", "State", "IP", "Type"]
-    puts "------------------------------------------------------------------------------------------------------------" 
+    puts "-----------------------------------------------------------------------------------"
 end
 
 if instances

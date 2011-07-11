@@ -105,7 +105,7 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
             end
 
             column :PUBLIC, "Whether the Virtual Network is public or not",
-                    :size=>1 do |d|
+                    :size=>3 do |d|
                 OpenNebulaHelper.public_to_str(d['PUBLIC'])
             end
 
