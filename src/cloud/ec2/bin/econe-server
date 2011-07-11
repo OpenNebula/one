@@ -1,4 +1,4 @@
-#! /bin/sh 
+#! /bin/sh
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
@@ -16,11 +16,11 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-if [ -z "$ONE_LOCATION" ]; then 
+if [ -z "$ONE_LOCATION" ]; then
     ECONE_PID=/var/run/one/econe-server.pid
     ECONE_SERVER=/usr/lib/one/ruby/cloud/econe/econe-server.rb
     ECONE_LOCK_FILE=/var/lock/one/.econe.lock
-    ECONE_LOG=/var/log/one/econe-server.log   
+    ECONE_LOG=/var/log/one/econe-server.log
     ECONE_ETC=/etc/one/econe.conf
 else
     ECONE_PID=$ONE_LOCATION/var/econe-server.pid
@@ -28,21 +28,21 @@ else
     ECONE_LOCK_FILE=$ONE_LOCATION/var/.econe.lock
     ECONE_LOG=$ONE_LOCATION/var/econe-server.log
     ECONE_ETC=$ONE_LOCATION/etc/econe.conf
-fi 
+fi
 
 setup()
 {
     eval `grep ^IMAGE_DIR= $ECONE_ETC`
     export TMPDIR=$IMAGE_DIR/tmp
     mkdir -p $TMPDIR
-	
+
 	if [ -f $ECONE_LOCK_FILE ]; then
 		if [ -f  $ECONE_PID ]; then
 			ONEPID=`cat $ECONE_PID`
 			ps $ECONE_PID > /dev/null 2>&1
 			if [ $? -eq 0 ]; then
 				echo "econe-server is still running (PID:$ECONE_PID). Please try 'occi-server stop' first."
-				exit 1 
+				exit 1
 			fi
 		fi
 		echo "Stale .lock detected. Erasing it."
@@ -54,30 +54,32 @@ start()
 {
 	if [ ! -f "$ECONE_SERVER" ]; then
 		echo "Can not find $ECONE_SERVER."
-		exit 1		
+		exit 1
 	fi
-		
+
 	# Start the econe-server daemon
-	ruby $ECONE_SERVER > $ECONE_LOG 2>&1 & 
-	
+	ruby $ECONE_SERVER > $ECONE_LOG 2>&1 &
+
 	LASTRC=$?
 	LASTPID=$!
 
 	if [ $LASTRC -ne 0 ]; then
-		echo "Error executing $ECONE_SERVER"
-		exit 1			
+		echo "Error executing econe-server."
+		echo "Check $ECONE_LOG for more information"
+		exit 1
 	else
 		echo $LASTPID > $ECONE_PID
 	fi
-	
-	sleep 1
+
+	sleep 2
 	ps $LASTPID > /dev/null 2>&1
-	
+
 	if [ $? -ne 0 ]; then
-		echo "Error executing $ECONE_SERVER."
+		echo "Error executing econe-server."
+		echo "Check $ECONE_LOG for more information"
 		exit 1
 	fi
-	
+
 	echo "econe-server started"
 }
 
