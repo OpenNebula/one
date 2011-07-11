@@ -67,7 +67,7 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         puts str % ["PUBLIC",
             OpenNebulaHelper.boolean_to_str(image['PUBLIC'])]
         puts str % ["PERSISTENT",
-            OneImageHelper.boolean_to_str(image["PERSISTENT"])]
+            OpenNebulaHelper.boolean_to_str(image["PERSISTENT"])]
         puts str % ["SOURCE", image['SOURCE']]
         puts str % ["STATE", image.short_state_str]
         puts str % ["RUNNING_VMS", image['RUNNING_VMS']]
@@ -114,7 +114,7 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
 
             column :PERSISTENT, "Whether the Image is persistent or not",
                     :size=>3 do |d|
-                OneImageHelper.boolean_to_str(d["PERSISTENT"])
+                OpenNebulaHelper.boolean_to_str(d["PERSISTENT"])
             end
 
             column :STAT, "State of the Image", :size=>4 do |d|
