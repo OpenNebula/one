@@ -48,7 +48,8 @@ module EC2QueryClient
             elsif ENV["EC2_ACCESS_KEY"] and ENV["EC2_SECRET_KEY"]
                 ec2auth = [ENV["EC2_ACCESS_KEY"], ENV["EC2_SECRET_KEY"]]
             else
-                ec2auth=CloudClient::get_one_auth
+                ec2auth = CloudClient::get_one_auth
+                ec2auth[1] = Digest::SHA1.hexdigest(ec2auth[1])
             end
 
             if !ec2auth
@@ -56,7 +57,7 @@ module EC2QueryClient
             end
 
             @access_key_id     = ec2auth[0]
-            @access_key_secret = Digest::SHA1.hexdigest(ec2auth[1])
+            @access_key_secret = ec2auth[1]
 
             # Server location
 
