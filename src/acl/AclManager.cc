@@ -64,10 +64,20 @@ AclManager::AclManager(SqlDB * _db) : db(_db), lastOID(-1)
 
     if (lastOID == -1)
     {
-        // Add a default rule
-        // @1 VM+NET+IMAGE+TEMPLATE/* CREATE+INFO_POOL_MINE
+        // Add a default rules for the ACL engine
         string error_str;
-        add_rule(0x200000001LL, 0x2d400000000LL, 0x41LL, error_str);
+
+        // Users in group USERS can create and look at standard resources
+        // @1 VM+NET+IMAGE+TEMPLATE/* CREATE+INFO_POOL_MINE
+        add_rule(0x0000000200000001LL, 
+                 0x000002d400000000LL, 
+                 0x0000000000000041LL, error_str);
+
+        // Users in USERS can deploy VMs in any HOST
+        // @1 HOST/* USE
+        add_rule(0x0000000200000001LL, 
+                 0x0000002400000000LL, 
+                 0x0000000000000004LL, error_str);
     }
 }
 
