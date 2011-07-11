@@ -23,22 +23,12 @@ if [ -z "$ONE_LOCATION" ]; then
     SUNSTONE_LOCK_FILE=/var/lock/one/.sunstone.lock
     SUNSTONE_LOG=/var/log/one/sunstone.log
     SUNSTONE_CONF=/etc/one/sunstone-server.conf
-    ONEMONITOR_CMD=/usr/lib/one/sunstone/share/OneMonitor/runOneMonitor.rb
-    ONEMONITOR_PID=/var/run/one/onemonitor.pid
-    ONEMONITOR_LOG=/var/log/one/onemonitor.log
-    HOST_LOG_FOLDER=/var/log/one/OneMonitor/host
-    VM_LOG_FOLDER=/var/log/one/OneMonitor/vm
 else
     SUNSTONE_PID=$ONE_LOCATION/var/sunstone.pid
     SUNSTONE_SERVER=$ONE_LOCATION/lib/sunstone/config.ru
     SUNSTONE_LOCK_FILE=$ONE_LOCATION/var/.sunstone.lock
     SUNSTONE_LOG=$ONE_LOCATION/var/sunstone.log
     SUNSTONE_CONF=$ONE_LOCATION/etc/sunstone-server.conf
-    ONEMONITOR_CMD=$ONE_LOCATION/lib/sunstone/share/OneMonitor/runOneMonitor.rb
-    ONEMONITOR_PID=$ONE_LOCATION/var/onemonitor.pid
-    ONEMONITOR_LOG=$ONE_LOCATION/var/onemonitor.log
-    HOST_LOG_FOLDER=$ONE_LOCATION/var/OneMonitor/host
-    VM_LOG_FOLDER=$ONE_LOCATION/var/OneMonitor/vm
 fi
 
 setup()
@@ -94,35 +84,6 @@ start()
   fi
 
   echo "sunstone-server listening on $HOST:$PORT"
-
-  # Start the monitoring app
-  if [ ! -d $HOST_LOG_FOLDER ]
-  then
-      mkdir -p $HOST_LOG_FOLDER
-      [[ $? -ne 0 ]] && ( echo "Error creating host log directory"; exit 1 )
-  fi
-
-  if [ ! -d $VM_LOG_FOLDER ]
-  then
-      mkdir -p $VM_LOG_FOLDER
-      [[ $? -ne 0 ]] && ( echo "Error creating vm log directory"; exit 1 )
-  fi
-
-  if [ -z $MONITORING_INTERVAL ]
-  then
-      MONITORING_INTERVAL=600
-  fi
-
-  ruby $ONEMONITOR_CMD $MONITORING_INTERVAL $HOST_LOG_FOLDER $VM_LOG_FOLDER &> $ONEMONITOR_LOG &
-  LASTPID=$!
-
-  sleep 1
-  ps $LASTPID &> /dev/null
-
-  [[ $? -ne 0 ]] && ( echo "Error launching monitoring daemon"; exit 1 )
-
-  echo -n $LASTPID > $ONEMONITOR_PID
-  echo "OneMonitor monitoring tool launched"
 }
 
 #
@@ -142,10 +103,6 @@ stop()
   rm -f $SUNSTONE_LOCK_FILE &> /dev/null
 
   echo "sunstone-server stopped"
-
-  kill -KILL `cat $ONEMONITOR_PID` &> /dev/null
-
-  echo "OneMonitor tool stopped"
 }
 
 case "$1" in

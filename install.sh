@@ -222,8 +222,6 @@ SUNSTONE_DIRS="$SUNSTONE_LOCATION/models \
                $SUNSTONE_LOCATION/public/vendor/jQuery \
                $SUNSTONE_LOCATION/public/vendor/jGrowl \
                $SUNSTONE_LOCATION/public/vendor/flot \
-               $SUNSTONE_LOCATION/share \
-               $SUNSTONE_LOCATION/share/OneMonitor \
                $SUNSTONE_LOCATION/public/images \
                $SUNSTONE_LOCATION/templates \
                $SUNSTONE_LOCATION/views"
@@ -341,7 +339,6 @@ INSTALL_SUNSTONE_FILES=(
     SUNSTONE_PUBLIC_VENDOR_JQUERYUI:$SUNSTONE_LOCATION/public/vendor/jQueryUI
     SUNSTONE_PUBLIC_VENDOR_JQUERYLAYOUT:$SUNSTONE_LOCATION/public/vendor/jQueryLayout
     SUNSTONE_PUBLIC_VENDOR_FLOT:$SUNSTONE_LOCATION/public/vendor/flot
-    SUNSTONE_SHARE_ONEMONITOR:$SUNSTONE_LOCATION/share/OneMonitor
     SUNSTONE_PUBLIC_IMAGES_FILES:$SUNSTONE_LOCATION/public/images
 )
 
@@ -895,15 +892,6 @@ src/sunstone/public/vendor/flot/jquery.flot.navigate.min.js \
 src/sunstone/public/vendor/flot/LICENSE.txt \
 src/sunstone/public/vendor/flot/NOTICE \
 src/sunstone/public/vendor/flot/README.txt"
-
-SUNSTONE_SHARE_ONEMONITOR="\
-src/sunstone/share/OneMonitor/HostMonitor.rb \
-src/sunstone/share/OneMonitor/OneMonitorClient.rb \
-src/sunstone/share/OneMonitor/OneMonitorClientUtils.rb \
-src/sunstone/share/OneMonitor/OneMonitor.rb \
-src/sunstone/share/OneMonitor/OneMonitorUtils.rb \
-src/sunstone/share/OneMonitor/runOneMonitor.rb \
-src/sunstone/share/OneMonitor/VMMonitor.rb"
 
 SUNSTONE_PUBLIC_IMAGES_FILES="src/sunstone/public/images/ajax-loader.gif \
                         src/sunstone/public/images/login_over.png \
