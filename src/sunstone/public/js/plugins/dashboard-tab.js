@@ -19,30 +19,24 @@ var GRAPH_AUTOREFRESH_INTERVAL=60000; //60 secs
 
 var graph1 = {
     title : "graph1",
-    monitor_resources : "total,active,error",
+    monitor_resources : "cpu_usage,used_cpu,max_cpu",
     history_length : HISTORY_LENGTH
 };
 
 var graph2 = {
     title : "graph2",
-    monitor_resources : "cpu_usage,used_cpu,max_cpu",
+    monitor_resources : "mem_usage,used_mem,max_mem",
     history_length : HISTORY_LENGTH
 };
 
 var graph3 = {
     title : "graph3",
-    monitor_resources : "mem_usage,used_mem,max_mem",
+    monitor_resources : "total,active,error",
     history_length : HISTORY_LENGTH
 };
 
 var graph4 = {
     title : "graph4",
-    monitor_resources : "total,active,error",
-    history_length : HISTORY_LENGTH
-};
-
-var graph5 = {
-    title : "graph5",
     monitor_resources : "net_tx,net_rx",
     history_length : HISTORY_LENGTH
 };
@@ -111,18 +105,6 @@ var dashboard_tab_content =
       </div>\
     </td>\
   </tr>\
-  <tr>\
-    <td>\
-      <div class="panel">\
-        <h3>Sunstone documentation</h3>\
-        <ul style="list-style-type:none;">\
-          <li><a href="http://opennebula.org/documentation:rel3.0:sunstone" target="_blank">Sunstone installation and setup</a></li>\
-          <li>Sunstone plugin guide</li>\
-          <li>Sunstone plugin reference</li>\
-        </ul>\
-      </div>\
-    </td>\
-  </tr>\
 </table>\
 </td>\
 <td style="width:60%">\
@@ -133,21 +115,18 @@ var dashboard_tab_content =
         <h3>Historical monitoring information</h3>\
         <div class="panel_info">\
           <table class="info_table">\
-            <tr><td class="key_td graph_td">Total host count</td>\
+            <tr><td class="key_td graph_td">Hosts CPU</td>\
                 <td class="graph_td" id="graph1_legend"></td></tr>\
             <tr><td id="graph1" colspan="2">'+spinner+'</td></tr>\
-            <tr><td class="key_td graph_td">Hosts CPU</td>\
+            <tr><td class="key_td graph_td">Hosts memory</td>\
                 <td class="graph_td" id="graph2_legend"></td></tr>\
             <tr><td id="graph2" colspan="2">'+spinner+'</td></tr>\
-            <tr><td class="key_td graph_td">Hosts memory</td>\
+            <tr><td class="key_td graph_td">Total VM count</td>\
                 <td class="graph_td" id="graph3_legend"></td></tr>\
             <tr><td id="graph3" colspan="2">'+spinner+'</td></tr>\
-            <tr><td class="key_td graph_td">Total VM count</td>\
+            <tr><td class="key_td graph_td">VM Network stats</td>\
                 <td class="graph_td" id="graph4_legend"></td></tr>\
             <tr><td id="graph4" colspan="2">'+spinner+'</td></tr>\
-            <tr><td class="key_td graph_td">VM Network stats</td>\
-                <td class="graph_td" id="graph5_legend"></td></tr>\
-            <tr><td id="graph5" colspan="2">'+spinner+'</td></tr>\
           </table>\
         </div>\
       </div>\
@@ -170,10 +149,10 @@ function plot_global_graph(data,info){
     var monitoring = data.monitoring;
     var serie;
     var series = [];
-    var width = ($(window).width()-129)*45/100;
+    var width = ($(window).width()-129)*48/100;
     var mon_count = 0;
 
-    $('#'+id).html('<div id="'+id+'_graph" style="height:70px;width:'+width+'px"><div>');
+    $('#'+id).html('<div id="'+id+'_graph" style="height:70px;width:'+width+'px;margin-bottom:10px;"><div>');
 
     for (var label in monitoring) {
         serie = {
@@ -195,12 +174,12 @@ function plot_global_graph(data,info){
                 return pretty_time_axis(val);
             },
         },
-        yaxis : { labelWidth: 40 }
+        yaxis : { labelWidth: 20 }
     }
 
     switch (id){
-    case "graph3":
-    case "graph5":
+    case "graph2":
+    case "graph4":
         options["yaxis"]["tickFormatter"] = function(val,axis) {
             return humanize_size(val);
         }
@@ -226,9 +205,8 @@ function graph_autorefresh(){
 function refresh_graphs(){
     Sunstone.runAction("Host.monitor_all", graph1);
     Sunstone.runAction("Host.monitor_all", graph2);
-    Sunstone.runAction("Host.monitor_all", graph3);
+    Sunstone.runAction("VM.monitor_all", graph3);
     Sunstone.runAction("VM.monitor_all", graph4);
-    Sunstone.runAction("VM.monitor_all", graph5);
 }
 
 $(document).ready(function(){

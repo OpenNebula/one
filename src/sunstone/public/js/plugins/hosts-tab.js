@@ -196,7 +196,7 @@ var host_actions = {
             plot_graph(response,'#host_monitoring_tab',
                        'host_monitor_',info);
         },
-        error: onError
+        error: hostMonitorError
     },
 
     "Host.monitor_all" : {
@@ -484,7 +484,7 @@ function updateHostInfo(request,host){
     var template_tab = {
         title : "Host template",
         content :
-        '<table id="host_template_table" class="info_table">\
+        '<table id="host_template_table" class="info_table" style="width:80%">\
                 <thead><tr><th colspan="2">Host template</th></tr></thead>'+
                 prettyPrintJSON(host_info.TEMPLATE)+
                 '</table>'
@@ -560,6 +560,16 @@ function setHostAutorefresh() {
         }
     },INTERVAL+someTime());
 }
+
+function hostMonitorError(req,error_json){
+    var message = error_json.error.message;
+    var info = req.request.data[0].monitor;
+    var labels = info.monitor_resources;
+    var id_suffix = labels.replace(/,/g,'_');
+    var id = '#host_monitor_'+id_suffix;
+    $('#host_monitoring_tab '+id).html('<div style="padding-left:20px;">'+message+'</div>');
+}
+
 
 //This is executed after the sunstone.js ready() is run.
 //Here we can basicly init the host datatable, preload it

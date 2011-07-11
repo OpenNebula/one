@@ -363,7 +363,7 @@ var vm_actions = {
             plot_graph(response,'#vm_monitoring_tab',
                        'vm_monitor_',info);
         },
-        error: onError
+        error: vmMonitorError
     },
     "VM.monitor_all" : {
         type: "monitor_global",
@@ -716,7 +716,7 @@ function updateVMInfo(request,vm){
     var template_tab = {
         title: "VM Template",
         content:
-        '<table id="vm_template_table" class="info_table">\
+        '<table id="vm_template_table" class="info_table" style="width:80%">\
                <thead><tr><th colspan="2">VM template</th></tr></thead>'+
                 prettyPrintJSON(vm_info.TEMPLATE)+
             '</table>'
@@ -1051,6 +1051,15 @@ function vncIcon(vm){
     }
     return gr_icon;
 
+}
+
+function vmMonitorError(req,error_json){
+    var message = error_json.error.message;
+    var info = req.request.data[0].monitor;
+    var labels = info.monitor_resources;
+    var id_suffix = labels.replace(/,/g,'_');
+    var id = '#vm_monitor_'+id_suffix;
+    $('#vm_monitoring_tab '+id).html('<div style="padding-left:20px;">'+message+'</div>');
 }
 
 // At this point the DOM is ready and the sunstone.js ready() has been run.

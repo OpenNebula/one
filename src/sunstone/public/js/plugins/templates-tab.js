@@ -267,7 +267,7 @@ var create_template_tmpl = '<div id="template_create_tabs">\
                                         <button class="add_remove_button" id="remove_disk_button" value="remove_disk">Remove selected</button>\
                                         <div class="clear"></div>\
                                         <label style="" for="disks_box">Current disks:</label>\
-                                        <select id="disks_box" name="disks_box" style="width:150px;height:100px;" multiple>\
+                                        <select id="disks_box" name="disks_box" style="height:100px;" multiple>\
                                         </select>\
                                         <div class="clear"></div>\
                                         </div>\
@@ -331,7 +331,7 @@ var create_template_tmpl = '<div id="template_create_tabs">\
                                     <button class="add_remove_button" id="remove_nic_button" value="remove_nic">Remove selected</button>\
                                     <div class="clear"></div>\
                                         <label for="nics_box">Current NICs:</label>\
-                                        <select id="nics_box" name="nics_box" style="width:150px;height:100px;" multiple>\
+                                        <select id="nics_box" name="nics_box" style="height:100px;" multiple>\
                                         </select>\
                                          </div>\
                           </fieldset>\
@@ -366,7 +366,7 @@ var create_template_tmpl = '<div id="template_create_tabs">\
                                         <button class="add_remove_button" id="remove_input_button" value="remove_input" class="kvm_opt">Remove selected</button>\
                                         <div class="clear"></div>\
                                         <label for="inputs_box">Current inputs:</label>\
-                                        <select id="inputs_box" name="inputs_box" style="width:150px;height:100px;" multiple>\
+                                        <select id="inputs_box" name="inputs_box" style="height:100px;" multiple>\
                                         </select>\
                                         </div>\
                           </fieldset>\
@@ -433,7 +433,7 @@ var create_template_tmpl = '<div id="template_create_tabs">\
                     <button class="add_remove_button" id="remove_context_button" value="remove_input">Remove selected</button>\
                     <div class="clear"></div>\
                     <label for="context_box">Current variables:</label>\
-                    <select id="context_box" name="context_box" style="width:150px;height:100px;" multiple>\
+                    <select id="context_box" name="context_box" style="height:100px;" multiple>\
                     </select>\
               </div>\
               </fieldset>\
@@ -498,7 +498,7 @@ var create_template_tmpl = '<div id="template_create_tabs">\
                     <button class="add_remove_button" id="remove_custom_var_button" value="remove_custom_var">Remove selected</button>\
                     <div class="clear"></div>\
                     <label for="custom_var_box">Current variables:</label>\
-                    <select id="custom_var_box" name="custom_var_box" style="width:150px;height:100px;" multiple>\
+                    <select id="custom_var_box" name="custom_var_box" style="height:100px;" multiple>\
                     </select>\
               </div>\
               </fieldset>\
@@ -840,7 +840,7 @@ function updateTemplateInfo(request,template){
     var info_tab = {
         title: "Information",
         content:
-        '<table id="info_template_table" class="info_table">\
+        '<table id="info_template_table" class="info_table" style="width:80%">\
            <thead>\
              <tr><th colspan="2">Template "'+template_info.NAME+'" information</th></tr>\
            </thead>\
@@ -872,7 +872,7 @@ function updateTemplateInfo(request,template){
     };
     var template_tab = {
         title: "Template",
-        content: '<table id="template_template_table" class="info_table">\
+        content: '<table id="template_template_table" class="info_table" style="width:80%">\
         <thead><tr><th colspan="2">Template</th></tr></thead>'+
         prettyPrintJSON(template_info.TEMPLATE)+
         '</table>'
@@ -1656,7 +1656,7 @@ filled in");
     $('#create_template_dialog').dialog({
         autoOpen: false,
         modal: true,
-        width: 700,
+        width: 600,
         height: height
     });
 

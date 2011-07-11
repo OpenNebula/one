@@ -90,18 +90,6 @@ var dashboard_tab_content =
       </div>\
     </td>\
   </tr>\
-  <tr>\
-    <td>\
-      <div class="panel">\
-        <h3>Sunstone documentation</h3>\
-        <ul style="list-style-type:none;">\
-          <li><a href="http://opennebula.org/documentation:rel3.0:sunstone" target="_blank">Sunstone installation and setup</a></li>\
-          <li>Sunstone plugin guide</li>\
-          <li>Sunstone plugin reference</li>\
-        </ul>\
-      </div>\
-    </td>\
-  </tr>\
 </table>\
 </td>\
 <td style="width:60%">\
@@ -143,35 +131,39 @@ Sunstone.addMainTab('dashboard_tab',dashboard_tab);
 
 function plot_global_graph(data,info){
     var id = info.title;
-    var labels_arr = info.monitor_resources.split(',');
+    var monitoring = data.monitoring;
     var serie;
     var series = [];
-    var width = ($(window).width()-129)*45/100;
+    var width = ($(window).width()-129)*48/100;
+    var mon_count = 0;
 
-    $('#'+id).html('<div id="'+id+'_graph" style="height:70px;width:'+width+'px"><div>');
+    $('#'+id).html('<div id="'+id+'_graph" style="height:70px;width:'+width+'px;margin-bottom:10px;"><div>');
 
-    for (var i = 0; i< labels_arr.length; i++) {
+    for (var label in monitoring) {
         serie = {
-            label: labels_arr[i],
-            data: data[i]
+            label: label,
+            data: monitoring[label]
         };
         series.push(serie);
+        mon_count++;
     };
 
     var options = {
         legend : {
             show : true,
-            noColumns: labels_arr.length,
+            noColumns: mon_count,
             container: $('#'+id+'_legend')
         },
         xaxis : {
-            mode: "time",
-            timeformat: "%h:%M"
+            tickFormatter: function(val,axis){
+                return pretty_time_axis(val);
+            },
         },
         yaxis : { labelWidth: 40 }
     }
 
     switch (id){
+    case "graph3":
     case "graph4":
         options["yaxis"]["tickFormatter"] = function(val,axis) {
             return humanize_size(val);

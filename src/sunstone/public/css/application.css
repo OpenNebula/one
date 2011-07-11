@@ -170,7 +170,7 @@ fieldset div{
 
 fieldset input,
 fieldset textarea{
-	width:150px;
+	width:180px;
 	/*border-top:1px solid #555;
 	border-left:1px solid #555;
 	border-bottom:1px solid #ccc;
@@ -182,7 +182,7 @@ fieldset textarea{
 	}
 
 fieldset select{
-	width:154px;
+	width:184px;
 	/*border-top:1px solid #555;
 	border-left:1px solid #555;
 	border-bottom:1px solid #ccc;
@@ -211,10 +211,10 @@ legend{
 
 label{
     float: left;
-	width:150px;
-	padding:0 1em;
-	text-align:left;
-	}
+    width:120px;
+    padding:0 1em;
+    text-align:left;
+}
 
 
 div.tip {
@@ -293,7 +293,8 @@ textarea:focus{
 }
 
 .add_button {
-	margin-left:177px;
+	margin-left:148px;
+        width:74px;
 }
 
 .remove_button {
@@ -359,8 +360,9 @@ tr.even:hover{
 	margin: 20px;
 	text-align: left;
 	display: inline-block;
-	width:45%;
+	width:43%;
 	vertical-align:top;
+        overflow:hidden;
 	}
 
 .info_table > thead th,h3 {

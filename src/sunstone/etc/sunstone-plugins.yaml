@@ -14,16 +14,11 @@
     :user:
     :group:
         oneadmin: true
-- plugins/groups-tab.js:
-    :ALL: false
-    :user:
-    :group:
-        oneadmin: true
-- plugins/templates-tab.js:
+- plugins/vms-tab.js:
     :ALL: true
     :user:
     :group:
-- plugins/vms-tab.js:
+- plugins/templates-tab.js:
     :ALL: true
     :user:
     :group:
@@ -36,6 +31,11 @@
     :user:
     :group:
 - plugins/users-tab.js:
+    :ALL: false
+    :user:
+    :group:
+        oneadmin: true
+- plugins/groups-tab.js:
     :ALL: false
     :user:
     :group:

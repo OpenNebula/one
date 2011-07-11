@@ -76,7 +76,7 @@ var create_vn_tmpl =
                      Remove selected\
                    </button>\
                    <label for="leases">Current leases:</label>\
-                   <select id="leases" name="leases" size="10" style="width:150px" multiple>\
+                   <select id="leases" name="leases" style="height:10em;" multiple>\
                      <!-- insert leases -->\
                    </select><br />\
                  </fieldset>\
@@ -434,7 +434,7 @@ function updateVNetworkInfo(request,vn){
     var template_tab = {
         title: "Virtual Network template",
         content:
-        '<table id="vn_template_table" class="info_table">\
+        '<table id="vn_template_table" class="info_table" style="width:80%">\
          <thead><tr><th colspan="2">Virtual Network template</th></tr></thead>'+
             prettyPrintJSON(vn_info.TEMPLATE)+
          '</table>'

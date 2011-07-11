@@ -518,7 +518,7 @@ function updateImageInfo(request,img){
     var info_tab = {
         title: "Image information",
         content:
-        '<table id="info_img_table" class="info_table">\
+        '<table id="info_img_table" class="info_table" style="width:80%;">\
            <thead>\
             <tr><th colspan="2">Image "'+img_info.NAME+'" information</th></tr>\
            </thead>\
@@ -567,7 +567,7 @@ function updateImageInfo(request,img){
 
     var template_tab = {
         title: "Image template",
-        content: '<table id="img_template_table" class="info_table">\
+        content: '<table id="img_template_table" class="info_table" style="width:80%;">\
             <thead><tr><th colspan="2">Image template</th></tr></thead>'+
             prettyPrintJSON(img_info.TEMPLATE)+
             '</table>'
