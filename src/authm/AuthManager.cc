@@ -82,15 +82,20 @@ void AuthRequest::add_auth(Object        ob,
         gid == GroupPool::ONEADMIN_ID ||
 
         // User is the owner of the object, for certain operations
-        (   owner == uid &&
-            ( op == DELETE || op == USE || op == MANAGE ||
-              op == INFO   || op == INSTANTIATE )
+        ( owner == uid &&
+           ( op == DELETE || op == USE || op == MANAGE ||
+             op == INFO   || op == INSTANTIATE )
         ) ||
 
         // Object is public and user is in its group, for certain operations
-        (   pub && ( gid == ob_gid ) &&
-            (op == USE || op == INSTANTIATE || op == INFO ) &&
-            (ob == NET || ob == IMAGE || ob == TEMPLATE)
+        ( pub && ( gid == ob_gid ) &&
+           ( op == USE || op == INSTANTIATE || op == INFO ) &&
+           ( ob == NET || ob == IMAGE || ob == TEMPLATE)
+        ) ||
+
+        // User can show and MANAGE (change passwd) their own information
+        ( uid == ob_id_int && ob == USER &&
+           ( op == INFO || op == MANAGE )  
         )
     )
     {

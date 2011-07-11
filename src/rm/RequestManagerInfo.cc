@@ -28,11 +28,6 @@ void RequestManagerInfo::request_execute(xmlrpc_c::paramList const& paramList,
     PoolObjectSQL * object;
     string          str;
 
-    if ( basic_authorization(oid, att) == false )
-    {
-        return;
-    }
-
     if ( oid == -1 )
     {
         if ( auth_object == AuthRequest::USER )
@@ -43,6 +38,11 @@ void RequestManagerInfo::request_execute(xmlrpc_c::paramList const& paramList,
         {
             oid = att.gid;
         }
+    }
+
+    if ( basic_authorization(oid, att) == false )
+    {
+        return;
     }
 
     object = pool->get(oid,true);

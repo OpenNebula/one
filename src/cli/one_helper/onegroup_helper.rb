@@ -68,12 +68,7 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
                 d["NAME"]
             end
 
-            column :USER, "Username of the Group owner", :left,
-                    :size=>8 do |d|
-                helper.user_name(d, options)
-            end
-
-            default :ID, :USER, :NAME
+            default :ID, :NAME
         end
 
         if top

@@ -5,7 +5,7 @@ NAME   = eco-vm
 CPU    = 0.2
 MEMORY = 256
 
-#Put here specific OS configurations for the cloud hypervisors
+# Put here specific OS configurations for the cloud hypervisors
 #OS = [ kernel     = /vmlinuz,
 #       initrd     = /initrd.img,
 #       root       = sda1,
@@ -13,7 +13,8 @@ MEMORY = 256
 
 DISK = [ IMAGE_ID   = <%= erb_vm_info[:img_id] %> ]
 
-NIC=[NETWORK="Public EC2"]
+# Put here the ID of the VNET with the IPs for the EC2 VMs
+NIC=[NETWORK_ID=<EC2-VNET-ID>]
 
 IMAGE_ID = <%= erb_vm_info[:ec2_img_id] %>
 INSTANCE_TYPE = <%= erb_vm_info[:instance_type ]%>

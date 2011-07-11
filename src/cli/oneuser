@@ -137,8 +137,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Shows information for the given User
     EOT
 
-    command :show, show_desc, :userid, :options=>OpenNebulaHelper::XML do
-        helper.show_resource(args[0],options)
+    command :show, show_desc, [:userid, nil],
+            :options=>OpenNebulaHelper::XML do
+        user=args[0] || OpenNebula::User::SELF
+        helper.show_resource(user,options)
     end
 
 end

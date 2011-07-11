@@ -331,11 +331,11 @@ EOT
         "OpenNebula #{poolname} name or id"
     end
 
-    def OpenNebulaHelper.public_to_str(str)
+    def OpenNebulaHelper.boolean_to_str(str)
         if str.to_i == 1
-            public_str = "Y"
+            "Yes"
         else
-            public_str = "N"
+            "No"
         end
     end
 
