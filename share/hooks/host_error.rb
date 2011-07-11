@@ -1,4 +1,4 @@
-#!/usr/bin/env ruby 
+#!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
@@ -18,9 +18,9 @@
 
 ####################################################
 # Script to implement host failure tolerance
-#   It can be set to 
+#   It can be set to
 #           -r resubmit VMs running in the host
-#           -d delete VMs running in the host 
+#           -d delete VMs running in the host
 ####################################################
 
 ONE_LOCATION=ENV["ONE_LOCATION"]
@@ -64,16 +64,18 @@ host.info
 host_name = host.name
 
 # Loop through all vms
-vms = VirtualMachinePool.new(client, -2)
+vms = VirtualMachinePool.new(client)
 exit -1 if OpenNebula.is_error?(vms)
 
-vms.info
+vms.info_all
 
-vm_ids_array = vms.retrieve_elements("/VM_POOL/VM[STATE=3]/HISTORY[HOSTNAME=\"#{host_name}\"]/../ID")
+state = "STATE=3"
+state += " or STATE=5" if force == "y"
 
+vm_ids_array = vms.retrieve_elements("/VM_POOL/VM[#{state}]/HISTORY_RECORDS/HISTORY[HOSTNAME=\"#{host_name}\" and last()]/../../ID")
 
 if vm_ids_array
-    vm_ids_array.each do |vm_id| 
+    vm_ids_array.each do |vm_id|
         vm=OpenNebula::VirtualMachine.new_with_id(vm_id, client)
         vm.info
 
@@ -84,22 +86,4 @@ if vm_ids_array
         end
     end
 end
-
-if force == "y" 
-    vm_ids_array = vms.retrieve_elements("/VM_POOL/VM[STATE=5]/HISTORY[HOSTNAME=\"#{host_name}\"]/../ID")
-
-    if vm_ids_array
-        vm_ids_array.each do |vm_id| 
-            vm=OpenNebula::VirtualMachine.new_with_id(vm_id, client)
-            vm.info
-
-            if mode == "-r"
-                vm.resubmit
-            elsif mode == "-d"
-                vm.finalize
-            end
-        end
-    end
-end
-
 
