@@ -27,6 +27,7 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
     string name = xmlrpc_c::value_string(paramList.getString(2));
 
     int    rc, ouid, ogid, vid;
+    bool   pub;
 
     Nebula& nd = Nebula::instance();
     VirtualMachinePool* vmpool = nd.get_vmpool();
@@ -51,6 +52,7 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
     tmpl = rtmpl->clone_template();
     ouid = rtmpl->get_uid();
     ogid = rtmpl->get_gid();
+    pub  = rtmpl->isPublic();
     
     rtmpl->unlock();
 
@@ -61,7 +63,7 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
     {
         AuthRequest ar(att.uid, att.gid);
 
-        ar.add_auth(auth_object, id, ogid, auth_op, ouid, false);
+        ar.add_auth(auth_object, id, ogid, auth_op, ouid, pub);
 
         VirtualMachine::set_auth_request(att.uid, ar, tmpl);
 
