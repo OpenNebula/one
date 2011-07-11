@@ -1002,6 +1002,7 @@ function setupVNC(){
 
     $( "#vnc_dialog" ).bind( "dialogclose", function(event, ui) {
         var id = $("#vnc_dialog").attr("vm_id");
+        rfb.disconnect();
         Sunstone.runAction("VM.stopvnc",id);
     });
 
