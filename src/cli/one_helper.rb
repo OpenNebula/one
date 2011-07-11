@@ -81,8 +81,8 @@ EOT
             end
         end
 
-        def list_pool(options, top=false, filter_flag=-2)
-            filter_flag ||= -2
+        def list_pool(options, top=false, filter_flag=nil)
+            filter_flag ||= OpenNebula::Pool::INFO_GROUP
 
             pool = factory_pool(filter_flag)
 
