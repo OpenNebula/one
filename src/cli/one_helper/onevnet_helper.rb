@@ -55,7 +55,7 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
         puts str % ["ID", vn.id.to_s]
         puts str % ["USER", vn['UNAME']]
         puts str % ["GROUP", vn['GNAME']]
-        puts str % ["PUBLIC", OpenNebulaHelper.public_to_str(vn['PUBLIC'])]
+        puts str % ["PUBLIC", OpenNebulaHelper.boolean_to_str(vn['PUBLIC'])]
 
         puts
         CLIHelper.print_header(str_h1 % ["VIRTUAL NETWORK TEMPLATE"], false)
@@ -107,8 +107,8 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
             end
 
             column :PUBLIC, "Whether the Virtual Network is public or not",
-                    :size=>3 do |d|
-                OpenNebulaHelper.public_to_str(d['PUBLIC'])
+                    :size=>1 do |d|
+                OpenNebulaHelper.boolean_to_str(d['PUBLIC'])
             end
 
             column :LEASES, "Number of this Virtual Network's given leases",

@@ -70,16 +70,10 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         CLIHelper.print_header(str_h1 % "USER #{user['ID']} INFORMATION")
         puts str % ["ID",       user.id.to_s]
         puts str % ["NAME",     user.name]
-        puts str % ["MAIN_GROUP",    user.gid]
+        puts str % ["GROUP",    user.gid]
         puts str % ["PASSWORD", user['PASSWORD']]
-        puts str % ["ENABLED",  user['ENABLED']]
-        puts
-
-        CLIHelper.print_header(str_h1 % "GROUPS", false)
-        CLIHelper.print_header("%-15s %-20s" % ["ID","NAME"])
-        user.group_ids.each do |gid|
-            puts "%-15s %-20s" % [gid, self.gid_to_str(gid.to_s)]
-        end
+        puts str % ["ENABLED",
+            OpenNebulaHelper.boolean_to_str(user['ENABLED'])]
     end
 
     def format_pool(pool, options, top=false)

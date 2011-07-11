@@ -31,6 +31,8 @@ module OpenNebula
             :delgroup => "user.delgroup"
         }
 
+        SELF = -1
+
         # Creates a User description with just its identifier
         # this method should be used to create plain User objects.
         # +id+ the id of the user
@@ -60,7 +62,7 @@ module OpenNebula
         # ---------------------------------------------------------------------
         # XML-RPC Methods for the User Object
         # ---------------------------------------------------------------------
-        
+
         # Retrieves the information of the given User.
         def info()
             super(USER_METHODS[:info], 'USER')
