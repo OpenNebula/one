@@ -72,7 +72,8 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         puts str % ["NAME",     user.name]
         puts str % ["MAIN_GROUP",    user.gid]
         puts str % ["PASSWORD", user['PASSWORD']]
-        puts str % ["ENABLED",  user['ENABLED']]
+        puts str % ["ENABLED",
+            OpenNebulaHelper.boolean_to_str(user['ENABLED'])]
         puts
 
         CLIHelper.print_header(str_h1 % "GROUPS", false)

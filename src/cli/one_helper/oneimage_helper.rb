@@ -25,10 +25,6 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         "oneimage.yaml"
     end
 
-    def self.persistent_to_str(str)
-        str.to_i==1 ? "Yes" : "No"
-    end
-
     def self.state_to_str(id)
         id = id.to_i
         state_str = Image::IMAGE_STATES[id]
@@ -68,9 +64,10 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         puts str % ["TYPE", image.type_str]
         puts str % ["REGISTER TIME",
             OpenNebulaHelper.time_to_str(image['REGTIME'])]
-        puts str % ["PUBLIC", OpenNebulaHelper.public_to_str(image['PUBLIC'])]
+        puts str % ["PUBLIC",
+            OpenNebulaHelper.boolean_to_str(image['PUBLIC'])]
         puts str % ["PERSISTENT",
-            OneImageHelper.persistent_to_str(image["PERSISTENT"])]
+            OneImageHelper.boolean_to_str(image["PERSISTENT"])]
         puts str % ["SOURCE", image['SOURCE']]
         puts str % ["STATE", image.short_state_str]
         puts str % ["RUNNING_VMS", image['RUNNING_VMS']]
@@ -112,12 +109,12 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
 
             column :PUBLIC, "Whether the Image is public or not",
                     :size=>3 do |d|
-                OpenNebulaHelper.public_to_str(d["PUBLIC"])
+                OpenNebulaHelper.boolean_to_str(d["PUBLIC"])
             end
 
             column :PERSISTENT, "Whether the Image is persistent or not",
                     :size=>3 do |d|
-                OneImageHelper.persistent_to_str(d["PERSISTENT"])
+                OneImageHelper.boolean_to_str(d["PERSISTENT"])
             end
 
             column :STAT, "State of the Image", :size=>4 do |d|
