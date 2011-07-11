@@ -646,17 +646,22 @@ var template_actions = {
         notify: true
      },
 
-     "Template.instantiate" : {
+    "Template.instantiate" : {
+        type: "single",
+        call: OpenNebula.Template.instantiate,
+        callback: function(){},
+        error: onError,
+        notify: true
+    },
+
+     "Template.instantiate_vms" : {
          type: "custom",
          call: function(){
              nodes = getSelectedNodes(dataTable_templates);
              $.each(nodes,function(){
-                 Sunstone.runAction("VM.create",
-                                    {vm : {
-                                        template_id: this
-                                    }
-                                    });
+                 Sunstone.runAction("Template.instantiate",this,"");
              });
+             Sunstone.runAction("VM.refresh");
          },
          notify: false
      },
@@ -701,7 +706,7 @@ var template_buttons = {
         condition: True,
         alwaysActive: true
     },
-    "Template.instantiate" : {
+    "Template.instantiate_vms" : {
         type: "action",
         text: "Instantiate",
         condition: True

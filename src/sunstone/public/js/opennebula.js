@@ -2333,6 +2333,39 @@ var OpenNebula = {
             });
 
         },
+        "instantiate" : function(params) {
+            var callback = params.success;
+            var callback_error = params.error;
+            var id = params.data.id;
+            var vm_name = params.data.extra_param ? params.data.extra_param : "";
+            var vm_obj = { "vm_name" : vm_name }
+
+            var method = "instantiate";
+            var action = OpenNebula.Helper.action(method,vm_obj);
+            var resource = OpenNebula.Template.resource;
+            var request = OpenNebula.Helper.request(resource,method, [id,vm_obj]);
+
+            $.ajax({
+                url: "template/" + id + "/action",
+                type: "POST",
+                data: JSON.stringify(action),
+                success: function()
+                {
+                    if (callback)
+                    {
+                        callback(request);
+                    }
+                },
+                error: function(response)
+                {
+                    if(callback_error)
+                    {
+                        callback_error(request, OpenNebula.Error(response));
+                    }
+                }
+            });
+        },
+
         "fetch_template" : function(params)
         {
             var callback = params.success;

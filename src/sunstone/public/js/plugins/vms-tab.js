@@ -96,11 +96,13 @@ var rfb;
 
 var vm_actions = {
     "VM.create" : {
-        type: "create",
-        call: OpenNebula.VM.create,
+        type: "custom",
+        call: function(id,name) {
+            Sunstone.runAction("Template.instantiate",id,name);
+            Sunstone.runAction("VM.list");
+        },
         callback: addVMachineElement,
-        error: onError,
-        notify: true
+        error: onError
     },
 
     "VM.create_dialog" : {
@@ -765,9 +767,8 @@ function setupCreateVMDialog(){
     $('#create_vm_dialog #create_vm_proceed').click(function(){
         var vm_name = $('#create_vm_form #vm_name').val();
         var template_id = $('#create_vm_form #template_id').val();
-        var vm_json = { vm: { vm_name: vm_name, template_id : template_id }};
 
-        Sunstone.runAction("VM.create",vm_json);
+        Sunstone.runAction("VM.create",template_id,vm_name);
         $('#create_vm_dialog').dialog('close');
         return false;
     });
