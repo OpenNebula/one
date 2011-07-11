@@ -46,16 +46,21 @@ module Migrator
 
             if( oid == 0 )
                 gid = 0
+                groupname = "oneadmin"
             else
                 gid = 1
+                groupname = "users"
                 user_group_ids += "<ID>#{oid}</ID>"
             end
 
             name = row[:user_name]
 
-            body = "<USER><ID>#{oid}</ID><GID>#{gid}</GID><NAME>#{name}</NAME><PASSWORD>#{row[:password]}</PASSWORD><ENABLED>#{row[:enabled]}</ENABLED><GROUPS><ID>#{gid}</ID></GROUPS></USER>"
+            body = "<USER><ID>#{oid}</ID><GID>#{gid}</GID><GNAME>#{groupname}</GNAME><NAME>#{name}</NAME><PASSWORD>#{row[:password]}</PASSWORD><ENABLED>#{row[:enabled]}</ENABLED></USER>"
 
-            @db.run "INSERT INTO user_pool VALUES(#{oid},'#{name}','#{body}');"
+            @db[:user_pool].insert(
+                :oid        => oid,
+                :name       => name,
+                :body       => body)
         end
 
         # Delete old user_pool
@@ -98,7 +103,12 @@ module Migrator
 
             body = "<HOST><ID>#{oid}</ID><NAME>#{name}</NAME><STATE>#{state}</STATE><IM_MAD>#{row[:im_mad]}</IM_MAD><VM_MAD>#{row[:vm_mad]}</VM_MAD><TM_MAD>#{row[:tm_mad]}</TM_MAD><LAST_MON_TIME>#{last_mon_time}</LAST_MON_TIME>#{host_share}#{ template_doc.to_s }</HOST>"
 
-            @db.run "INSERT INTO host_pool VALUES(#{oid},'#{name}','#{body}', #{state}, #{last_mon_time});"
+            @db[:host_pool].insert(
+                :oid            => oid,
+                :name           => name,
+                :body           => body,
+                :state          => state,
+                :last_mon_time  => last_mon_time)
         end
 
         # Delete old table
@@ -131,13 +141,20 @@ module Migrator
             name   = row[:name]
             uid    = row[:uid]
             gid    = (uid == 0) ? 0 : 1
+            group  = (uid == 0) ? "oneadmin" : "users"
             public = row[:public]
 
             # In OpenNebula 2.0 Image States go from 0 to 3, in 3.0 go
             # from 0 to 5, but the meaning is the same for states 0 to 3
-            body = "<IMAGE><ID>#{oid}</ID><UID>#{row[:uid]}</UID><GID>#{gid}</GID><NAME>#{name}</NAME><TYPE>#{row[:type]}</TYPE><PUBLIC>#{public}</PUBLIC><PERSISTENT>#{row[:persistent]}</PERSISTENT><REGTIME>#{row[:regtime]}</REGTIME><SOURCE>#{row[:source]}</SOURCE><STATE>#{row[:state]}</STATE><RUNNING_VMS>#{row[:running_vms]}</RUNNING_VMS>#{row[:template]}</IMAGE>"
+            body = "<IMAGE><ID>#{oid}</ID><UID>#{row[:uid]}</UID><GID>#{gid}</GID><UNAME>#{get_username(row[:uid])}</UNAME><GNAME>#{group}</GNAME><NAME>#{name}</NAME><TYPE>#{row[:type]}</TYPE><PUBLIC>#{public}</PUBLIC><PERSISTENT>#{row[:persistent]}</PERSISTENT><REGTIME>#{row[:regtime]}</REGTIME><SOURCE>#{row[:source]}</SOURCE><STATE>#{row[:state]}</STATE><RUNNING_VMS>#{row[:running_vms]}</RUNNING_VMS>#{row[:template]}</IMAGE>"
 
-            @db.run "INSERT INTO image_pool VALUES(#{oid},'#{name}','#{body}', #{uid}, #{gid}, #{public});"
+            @db[:image_pool].insert(
+                :oid        => oid,
+                :name       => name,
+                :body       => body,
+                :uid        => uid,
+                :gid        => gid,
+                :public     => public)
         end
 
         # Delete old table
@@ -167,7 +184,10 @@ module Migrator
 
             body = "<HISTORY><SEQ>#{seq}</SEQ><HOSTNAME>#{row[:host_name]}</HOSTNAME><VM_DIR>#{row[:vm_dir]}</VM_DIR><HID>#{row[:hid]}</HID><STIME>#{row[:stime]}</STIME><ETIME>#{row[:etime]}</ETIME><VMMMAD>#{row[:vm_mad]}</VMMMAD><TMMAD>#{row[:tm_mad]}</TMMAD><PSTIME>#{row[:pstime]}</PSTIME><PETIME>#{row[:petime]}</PETIME><RSTIME>#{row[:rstime]}</RSTIME><RETIME>#{row[:retime]}</RETIME><ESTIME>#{row[:estime]}</ESTIME><EETIME>#{row[:eetime]}</EETIME><REASON>#{row[:reason]}</REASON></HISTORY>"
 
-            @db.run "INSERT INTO history VALUES(#{vid},'#{seq}','#{body}');"
+            @db[:history].insert(
+                :vid        => vid,
+                :seq        => seq,
+                :body       => body)
         end
 
 
@@ -177,6 +197,7 @@ module Migrator
             name      = row[:name]
             uid       = row[:uid]
             gid       = (uid == 0) ? 0 : 1
+            group     = (uid == 0) ? "oneadmin" : "users"
             last_poll = row[:last_poll]
             state     = row[:state]
             lcm_state = row[:lcm_state]
@@ -187,17 +208,21 @@ module Migrator
                 history = history_row[:body]
             end
 
-            body = "<VM><ID>#{oid}</ID><UID>#{uid}</UID><GID>#{gid}</GID><NAME>#{name}</NAME><LAST_POLL>#{last_poll}</LAST_POLL><STATE>#{state}</STATE><LCM_STATE>#{lcm_state}</LCM_STATE><STIME>#{row[:stime]}</STIME><ETIME>#{row[:etime]}</ETIME><DEPLOY_ID>#{row[:deploy_id]}</DEPLOY_ID><MEMORY>#{row[:memory]}</MEMORY><CPU>#{row[:cpu]}</CPU><NET_TX>#{row[:net_tx]}</NET_TX><NET_RX>#{row[:net_rx]}</NET_RX>#{row[:template]}#{history}</VM>"
+            if ( history != "" )
+                history = "<HISTORY_RECORDS>#{history}</HISTORY_RECORDS>"
+            end
+
+            body = "<VM><ID>#{oid}</ID><UID>#{uid}</UID><GID>#{gid}</GID><UNAME>#{get_username(uid)}</UNAME><GNAME>#{group}</GNAME><NAME>#{name}</NAME><LAST_POLL>#{last_poll}</LAST_POLL><STATE>#{state}</STATE><LCM_STATE>#{lcm_state}</LCM_STATE><STIME>#{row[:stime]}</STIME><ETIME>#{row[:etime]}</ETIME><DEPLOY_ID>#{row[:deploy_id]}</DEPLOY_ID><MEMORY>#{row[:memory]}</MEMORY><CPU>#{row[:cpu]}</CPU><NET_TX>#{row[:net_tx]}</NET_TX><NET_RX>#{row[:net_rx]}</NET_RX>#{row[:template]}#{history}</VM>"
 
             @db[:vm_pool].insert(
-                :oid => oid,
-                :name => name,
-                :body => body,
-                :uid => uid,
-                :gid => gid,
-                :last_poll => last_poll,
-                :state => state,
-                :lcm_state => lcm_state)
+                :oid        => oid,
+                :name       => name,
+                :body       => body,
+                :uid        => uid,
+                :gid        => gid,
+                :last_poll  => last_poll,
+                :state      => state,
+                :lcm_state  => lcm_state)
         end
 
 
@@ -228,14 +253,21 @@ module Migrator
             name   = row[:name]
             uid    = row[:uid]
             gid    = (uid == 0) ? 0 : 1
+            group  = (uid == 0) ? "oneadmin" : "users"
             public = row[:public]
 
             # <TOTAL_LEASES> is stored in the DB, but it is not used to rebuild
             # the VirtualNetwork object, and it is generated each time the
             # network is listed. So setting it to 0 is safe
-            body = "<VNET><ID>#{oid}</ID><UID>#{uid}</UID><GID>#{gid}</GID><NAME>#{name}</NAME><TYPE>#{row[:type]}</TYPE><BRIDGE>#{row[:bridge]}</BRIDGE><PUBLIC>#{public}</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES>#{row[:template]}</VNET>"
+            body = "<VNET><ID>#{oid}</ID><UID>#{uid}</UID><GID>#{gid}</GID><UNAME>#{get_username(uid)}</UNAME><GNAME>#{group}</GNAME><NAME>#{name}</NAME><TYPE>#{row[:type]}</TYPE><BRIDGE>#{row[:bridge]}</BRIDGE><PUBLIC>#{public}</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES>#{row[:template]}</VNET>"
 
-            @db.run "INSERT INTO network_pool VALUES(#{oid},'#{name}','#{body}', #{uid}, #{gid}, #{public});"
+            @db[:network_pool].insert(
+                :oid        => oid,
+                :name       => name,
+                :body       => body,
+                :uid        => uid,
+                :gid        => gid,
+                :public     => public)
         end
 
         # Read each entry in the old table, and insert into new table
@@ -245,7 +277,10 @@ module Migrator
 
             body = "<LEASE><IP>#{ip}</IP><MAC_PREFIX>#{row[:mac_prefix]}</MAC_PREFIX><MAC_SUFFIX>#{row[:mac_suffix]}</MAC_SUFFIX><USED>#{row[:used]}</USED><VID>#{row[:vid]}</VID></LEASE>"
 
-            @db.run "INSERT INTO leases VALUES(#{oid}, #{ip}, '#{body}');"
+            @db[:leases].insert(
+                :oid        => oid,
+                :ip         => ip,
+                :body       => body)
         end
 
         # Delete old tables
@@ -259,11 +294,12 @@ module Migrator
 
         @db.run "CREATE TABLE db_versioning (oid INTEGER PRIMARY KEY, version INTEGER, timestamp INTEGER, comment VARCHAR(256));"
         @db.run "CREATE TABLE template_pool (oid INTEGER PRIMARY KEY, name VARCHAR(256), body TEXT, uid INTEGER, gid INTEGER, public INTEGER);"
+        @db.run "CREATE TABLE acl (oid INT PRIMARY KEY, user BIGINT, resource BIGINT, rights BIGINT);"
 
         # The group pool has two default ones
         @db.run "CREATE TABLE group_pool (oid INTEGER PRIMARY KEY, name VARCHAR(256), body TEXT, UNIQUE(name));"
-        @db.run "INSERT INTO group_pool VALUES(0,'oneadmin','<GROUP><ID>0</ID><UID>0</UID><NAME>oneadmin</NAME><USERS><ID>0</ID></USERS></GROUP>');"
-        @db.run "INSERT INTO group_pool VALUES(1,'users','<GROUP><ID>1</ID><UID>0</UID><NAME>users</NAME><USERS>#{user_group_ids}</USERS></GROUP>');"
+        @db.run "INSERT INTO group_pool VALUES(0,'oneadmin','<GROUP><ID>0</ID><NAME>oneadmin</NAME><USERS><ID>0</ID></USERS></GROUP>');"
+        @db.run "INSERT INTO group_pool VALUES(1,'users','<GROUP><ID>1</ID><NAME>users</NAME><USERS>#{user_group_ids}</USERS></GROUP>');"
 
         # New pool_control table contains the last_oid used, must be rebuilt
         @db.run "CREATE TABLE pool_control (tablename VARCHAR(32) PRIMARY KEY, last_oid BIGINT UNSIGNED)"
@@ -281,5 +317,15 @@ module Migrator
         @db.run "INSERT INTO pool_control (tablename, last_oid) VALUES ('group_pool', 99);"
 
         return true
+    end
+
+    def get_username(uid)
+        username = ""
+
+        @db.fetch("SELECT name FROM user_pool WHERE oid=#{uid}") do |user|
+            username = user[:name]
+        end
+
+        return username
     end
 end

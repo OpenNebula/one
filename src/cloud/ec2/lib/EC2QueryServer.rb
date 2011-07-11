@@ -161,11 +161,10 @@ class EC2QueryServer < CloudServer
     end
 
     def describe_images(params, one_client)
-        user_flag=-1
+        user_flag = OpenNebula::Pool::INFO_GROUP
         impool = ImagePool.new(one_client, user_flag)
         impool.info
 
-        erb_user_name = params['AWSAccessKeyId']
         erb_version = params['Version']
 
         response = ERB.new(File.read(@config[:views]+"/describe_images.erb"))
@@ -221,7 +220,7 @@ class EC2QueryServer < CloudServer
     end
 
     def describe_instances(params, one_client)
-        user_flag=-1
+        user_flag = OpenNebula::Pool::INFO_MINE
         vmpool = VirtualMachinePool.new(one_client, user_flag)
         vmpool.info
 
