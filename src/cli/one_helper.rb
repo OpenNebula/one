@@ -219,15 +219,19 @@ EOT
 
         def filterflag_to_i(str)
             filter_flag = case str
-            when "a", "all" then -2
-            when "m", "mine" then -3
-            when "g", "group" then -1
+            when "a", "all" then OpenNebula::Pool::INFO_ALL
+            when "m", "mine" then OpenNebula::Pool::INFO_MINE
+            when "g", "group" then OpenNebula::Pool::INFO_GROUP
             else
                 if str.match(/^[0123456789]+$/)
                     str.to_i
                 else
                     user = translation_hash[:users].select { |k,v| v==str }
-                    user.length > 0 ? user.first.first.to_i : -2
+                    if user.length > 0
+                        user.first.first.to_i
+                    else
+                        OpenNebula::Pool::INFO_GROUP
+                    end
                 end
             end
 
