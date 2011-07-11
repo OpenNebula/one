@@ -208,7 +208,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
 
         vm_hash=vm.to_hash
 
-        history=vm_hash['VM']['HISTORY_RECORDS']['HISTORY']
+        history=[vm_hash['VM']['HISTORY_RECORDS']['HISTORY']].flatten
 
         table.show(history)
     end
