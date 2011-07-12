@@ -60,7 +60,28 @@ start)
 
     # acctd not running, safe to start
     $ACCTD_CMD &> $ACCTD_LOG &
-    echo $! > $ACCTD_PID_FILE
+    
+    LASTRC=$?
+    LASTPID=$!
+
+    if [ $LASTRC -ne 0 ]; then
+      echo "Error executing acctd."
+      echo "Check $ACCTD_LOG for more information"
+      exit 1
+    else
+      echo $LASTPID > $ACCTD_PID_FILE
+    fi
+
+    sleep 2
+    ps $LASTPID > /dev/null 2>&1
+
+    if [ $? -ne 0 ]; then
+      echo "Error executing acctd."
+      echo "Check $ACCTD_LOG for more information"
+      exit 1
+    fi
+
+    echo "acctd started"
     ;;
 stop)
     # check if running
@@ -74,6 +95,8 @@ stop)
     ACCTD_PID=`cat $ACCTD_PID_FILE 2>/dev/null`
     kill $ACCTD_PID &> /dev/null
     rm -f $ACCTD_PID_FILE &> /dev/null
+    
+    echo "acctd stop"
     ;;
 *)
     echo "Usage: acctd {start|stop}" >&2

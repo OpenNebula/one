@@ -912,7 +912,7 @@ SUNSTONE_PUBLIC_IMAGES_FILES="src/sunstone/public/images/ajax-loader.gif \
 # ACCT files
 #-----------------------------------------------------------------------------
 
-ACCT_BIN_FILES="src/acct/acctd"
+ACCT_BIN_FILES="src/acct/oneacctd"
 
 ACCT_LIB_FILES="src/acct/monitoring.rb \
                 src/acct/accounting.rb \
