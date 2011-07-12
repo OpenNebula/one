@@ -54,6 +54,22 @@ group :ozones_server_sqlite do
     gem 'dm-sqlite-adapter'
 end
 
+group :acct do
+    gem 'sequel'
+    gem 'sqlite3'
+    gem 'mysql'
+end
+
+group :acct_sqlite do
+    gem 'sequel'
+    gem 'sqlite3'
+end
+
+group :acct_mysql do
+    gem 'sequel'
+    gem 'mysql'
+end
+
 
 
 

@@ -192,8 +192,7 @@ module CLIHelper
                 size=@columns[field][:size]
                 return "%#{minus}#{size}.#{size}s" % [ data.to_s ]
             else
-                puts "Column not defined"
-                exit -1
+                exit -1, "Column not defined"
             end
         end
 

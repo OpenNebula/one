@@ -3,7 +3,7 @@
 PACKAGES=%w{optional sunstone quota cloud ozones_client ozones_server
     ozones_server_mysql ozones_server_sqlite}
 
-DEFAULT=%w{optional sunstone quota cloud ozones_server}
+DEFAULT=%w{optional sunstone quota cloud ozones_server acct}
 
 
 class String
@@ -19,6 +19,29 @@ def try_library(name, error_message)
         STDERR.puts error_message
         exit -1
     end
+end
+
+def install_warning(packages)
+    puts "Use -h for help"
+    puts
+    puts "About to install the gems for these components:"
+    puts "* "<<packages.join("\n* ")
+    puts
+    puts "Are you sure you want to continue? (YES/no)"
+    yes=STDIN.readline
+    
+    if yes.strip!="YES"
+        puts "Installation aborted"
+        exit(0)
+    end
+end
+
+def help
+    puts "Specify the package dependencies from this list:"
+    puts "* "<<PACKAGES.join("\n* ")
+    puts
+    puts "If no parameters are specified then this list will be used:"
+    puts DEFAULT.join(' ')
 end
 
 
@@ -46,6 +69,10 @@ try_library :bundler, <<-EOT.unindent
         [sudo] gem install bundler
 EOT
 
+if ARGV.include?('-h')
+    help
+    exit(0)
+end
 
 if ARGV.length>0
     packages=ARGV
@@ -58,8 +85,10 @@ no_packages<<'dummy'
 
 without="--without #{no_packages.join(' ')}"
 
-command_string = "bundle #{without}"
+command_string = "bundle install #{without}"
+
+install_warning(packages)
 
 puts command_string
 
-#system command_string
+system command_string
