@@ -6,13 +6,20 @@ module WatchHelper
 
     if !ONE_LOCATION
         ACCTD_CONF="/etc/one/acctd.conf"
+        ACCT_DB="/var/one/oneacct.db"
     else
         ACCTD_CONF=ONE_LOCATION+"/etc/acctd.conf"
+        ACCT_DB=ONE_LOCATION+"/var/oneacct.db"
     end
 
     CONF = YAML.load_file(ACCTD_CONF)
 
-    DB = Sequel.connect(CONF[:DB])
+    if CONF[:DB]
+        DB = Sequel.connect(CONF[:DB])
+    else
+        DB = Sequel.connect("sqlite//#{ACCT_DB}")
+    end
+
     VM_DELTA = {
         :net_rx => {
             :type => Integer,
