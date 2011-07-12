@@ -36,6 +36,8 @@ end
 HOST_LOG_FOLDER = LOG_LOCATION+"/OneMonitor/host"
 VM_LOG_FOLDER =  LOG_LOCATION+"/OneMonitor/vm"
 
+SUNSTONE_ROOT_DIR = File.dirname(__FILE__)
+
 $: << RUBY_LIB_LOCATION
 $: << SUNSTONE_ROOT_DIR+'/models'
 $: << SUNSTONE_ROOT_DIR+'/share/OneMonitor'

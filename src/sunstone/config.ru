@@ -16,9 +16,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-SUNSTONE_ROOT_DIR = File.dirname(__FILE__)
-
-$: << SUNSTONE_ROOT_DIR
+$: << File.dirname(__FILE__)
 
 require 'sunstone-server.rb'
 
