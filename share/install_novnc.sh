@@ -35,3 +35,6 @@ mkdir -p $ONE_PUBLIC_SUNSTONE/vendor/noVNC
 mv $ONE_SHARE/noVNC/include/ $ONE_PUBLIC_SUNSTONE/vendor/noVNC/
 
 sed -i "s%^\(NOVNC_PATH=\).*$%\1$ONE_SHARE/noVNC%" $SUNSTONE_CONF
+
+#Update file permissions
+chmod +x $ONE_SHARE/noVNC/utils/launch.sh
