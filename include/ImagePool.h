@@ -78,6 +78,20 @@ public:
         return static_cast<Image *>(PoolSQL::get(oid,lock));
     };
 
+    /**
+     *  Gets an object from the pool (if needed the object is loaded from the
+     *  database).
+     *   @param name of the object
+     *   @param uid id of owner
+     *   @param lock locks the object if true
+     *
+     *   @return a pointer to the object, 0 in case of failure
+     */
+    Image * get(const string& name, int uid, bool lock)
+    {
+        return static_cast<Image *>(PoolSQL::get(name,uid,lock));
+    };
+
     /** 
      *  Update a particular Image
      *    @param image pointer to Image

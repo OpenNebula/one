@@ -78,12 +78,49 @@ int VirtualNetworkPool::allocate (
     int *          oid,
     string&        error_str)
 {
-    VirtualNetwork * vn;
-    string           name;
+    VirtualNetwork *         vn;
+    VirtualNetwork *         vn_aux = 0;
+    string          name;
+    ostringstream   oss;
+
+    vn = new VirtualNetwork(uid, gid, uname, gname, vn_template);
+
+    // Check name
+    vn->get_template_attribute("NAME", name);
+
+    if ( name.empty() )
+    {
+        goto error_name;
+    }
+
+    // Check for duplicates
+    vn_aux = get(name,uid,false);
+
+    if( vn_aux != 0 )
+    {
+        goto error_duplicated;
+    }
 
     vn = new VirtualNetwork(uid, gid, uname, gname, vn_template);
 
     *oid = PoolSQL::allocate(vn, error_str);
+
+    return *oid;
+
+error_name:
+    oss << "NAME cannot be empty.";
+
+    goto error_common;
+
+error_duplicated:
+    oss << "NAME is already taken by NET "
+        << vn_aux->get_oid() << ".";
+
+error_common:
+    delete vn;
+
+    *oid = -1;
+    error_str = oss.str();
 
     return *oid;
 }
