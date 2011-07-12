@@ -333,15 +333,15 @@ public:
         CPPUNIT_ASSERT( oid == 0 );
         CPPUNIT_ASSERT( oid == rc );
 
-        // Try to allocate twice the same image, should work
+        // Try to allocate twice the same image, shouldn't work
         rc = imp->allocate(uids[0], templates[0], &oid);
-        CPPUNIT_ASSERT( rc  == 1 );
-        CPPUNIT_ASSERT( oid == 1 );
+        CPPUNIT_ASSERT( rc  == -1 );
+        CPPUNIT_ASSERT( oid == -1 );
 
         // Try again, this time with different uid. Should be allowed
         rc = imp->allocate(uids[1], templates[0], &oid);
         CPPUNIT_ASSERT( rc  >= 0 );
-        CPPUNIT_ASSERT( oid == 2 );
+        CPPUNIT_ASSERT( oid == 1 );
     }
 
 /* -------------------------------------------------------------------------- */
