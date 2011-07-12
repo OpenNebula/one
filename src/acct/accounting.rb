@@ -56,7 +56,7 @@ module OneWatch
             # Upate the active VMs
             @active_vms = new_active_vms.sort
 
-            WatchHelper::Vm.flush
+            WatchHelper::Vm.flush(@timestamp)
         end
 
         private

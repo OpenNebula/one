@@ -340,17 +340,20 @@ module WatchHelper
             @@deltas_cache << hash
         end
 
-        def self.flush
+        def self.flush(timestamp)
             DB.transaction do
                 VmDelta.multi_insert(@@deltas_cache)
                 VmSample.multi_insert(@@samples_cache)
             end
 
-            Vm.each { |vm|
-                if vm.samples.count > @@vm_window_size
-                    vm.samples.first.destroy
-                end
-            }
+            step = WatchHelper::get_config(:STEP)
+            ws   = WatchHelper::get_config(:VM_MONITORING,:WINDOW_SIZE)
+            vm_s = WatchHelper::get_config(:VM_MONITORING,:STEPS)
+
+            t = step*ws*vm_s
+            tl = timestamp - t
+
+            VmSample.filter('timestamp < ?', tl).destroy
 
             @@samples_cache = []
             @@deltas_cache = []
@@ -396,16 +399,19 @@ module WatchHelper
             @@samples_cache << hash
         end
 
-        def self.flush
+        def self.flush(timestamp)
             DB.transaction do
                 HostSample.multi_insert(@@samples_cache)
             end
 
-            Host.all.each { |host|
-                if host.samples.count > @@host_window_size
-                    host.samples.first.destroy
-                end
-            }
+            step = WatchHelper::get_config(:STEP)
+            ws   = WatchHelper::get_config(:HOST_MONITORING,:WINDOW_SIZE)
+            vm_s = WatchHelper::get_config(:HOST_MONITORING,:STEPS)
+
+            t = step*ws*vm_s
+            tl = timestamp - t
+
+            HostSample.filter('timestamp < ?', tl).destroy
 
             @@samples_cache = []
         end

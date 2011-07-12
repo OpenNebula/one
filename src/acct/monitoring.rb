@@ -12,7 +12,7 @@ module OneWatch
                 }
             end
 
-            sql_elem.flush
+            sql_elem.flush(timestamp)
         end
 
         private
