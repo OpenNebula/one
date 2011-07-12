@@ -29,6 +29,35 @@ group :cloud do
     gem 'thin', '1.2.7'
     gem 'uuid'
     gem 'curb'
-    gem 'sqlite3-ruby'
+end
+
+group :ozones_client do
+    gem 'json', '= 1.5.1'
+end
+
+group :ozones_server do
+    gem 'json', '= 1.5.1'
+    gem 'datamapper'
+    gem 'dm-sqlite-adapter'
+    gem 'dm-mysql-adapter'
+end
+
+group :ozones_server_mysql do
+    gem 'json', '= 1.5.1'
+    gem 'datamapper'
+    gem 'dm-mysql-adapter'
+end
+
+group :ozones_server_sqlite do
+    gem 'json', '= 1.5.1'
+    gem 'datamapper'
+    gem 'dm-sqlite-adapter'
+end
+
+
+
+
+group :dummy do
+    gem 'rake'
 end
 
