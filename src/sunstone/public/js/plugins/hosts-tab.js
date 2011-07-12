@@ -83,7 +83,7 @@ var create_host_tmpl =
     <div class="manager clear" id="tm_mads">\
       <label>Transfer Manager:</label>\
        <select id="tm_mad" name="tm">\
-         <option value="tm_nfs">NFS</option>\
+         <option value="tm_shared">SHARED</option>\
          <option value="tm_ssh">SSH</option>\
          <option value="tm_dummy">Dummy</option>\
        </select>\

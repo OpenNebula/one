@@ -12,7 +12,7 @@ MANAGER_TIMER=15
 NETWORK_SIZE=254
 PORT=2633
 SCRIPTS_REMOTE_DIR=/var/tmp/one
-TM_MAD=ARGUMENTS=tm_nfs/tm_nfs.conf,EXECUTABLE=one_tm,NAME=tm_nfs
+TM_MAD=ARGUMENTS=tm_shared/tm_shared.conf,EXECUTABLE=one_tm,NAME=tm_shared
 VM_DIR=/Users/jfontan/tmp/borrar/git/one/install/var/
 VM_MAD=ARGUMENTS=-t 15 -r 0 kvm,DEFAULT=vmm_ssh/vmm_ssh_kvm.conf,EXECUTABLE=one_vmm_ssh,NAME=vmm_kvm,TYPE=kvm
 VM_POLLING_INTERVAL=600
