@@ -1,9 +1,25 @@
 #!/usr/bin/env ruby
 
+require 'pp'
+
 PACKAGES=%w{optional sunstone quota cloud ozones_client ozones_server
     ozones_server_mysql ozones_server_sqlite}
 
 DEFAULT=%w{optional sunstone quota cloud ozones_server acct}
+
+GROUPS={
+    :optional => %w{nokogiri libxml-ruby},
+    :quota => %w{sqlite3 sequel},
+    :sunstone => %w{json rack sinatra thin},
+    :cloud => %w{amazon-ec2 rack sinatra thin uuid curb},
+    :ozones_client => %w{json},
+    :ozones_server => %w{json datamapper dm-sqlite-adapter dm-mysql-adapter},
+    :ozones_server_sqlite => %w{json datamapper dm-sqlite-adapter},
+    :ozones_server_mysql => %w{json datamapper dm-mysql-adapter},
+    :acct => %w{sequel sqlite3 mysql},
+    :acct_sqlite => %w{sequel sqlite3 mysql},
+    :acct_mysql => %w{sequel sqlite3 mysql}
+}
 
 
 class String
@@ -44,6 +60,12 @@ def help
     puts DEFAULT.join(' ')
 end
 
+def get_gems(packages)
+    packages.map do |package|
+        GROUPS[package.to_sym]
+    end.flatten.uniq
+end
+
 
 try_library :rubygems, <<-EOT.unindent
     rubygems required to use this tool
@@ -61,13 +83,6 @@ try_library :rubygems, <<-EOT.unindent
         * Follow the instructions from http://rubygems.org/pages/download
 EOT
 
-try_library :bundler, <<-EOT.unindent
-    bundler needed to install gems
-
-    execute this to install it:
-
-        [sudo] gem install bundler
-EOT
 
 if ARGV.include?('-h')
     help
@@ -80,12 +95,10 @@ else
     packages=DEFAULT
 end
 
-no_packages=PACKAGES-packages
-no_packages<<'dummy'
 
-without="--without #{no_packages.join(' ')}"
+packages_string=get_gems(packages).join(' ')
 
-command_string = "bundle install #{without}"
+command_string = "gem install --no-ri --no-rdoc #{packages_string}"
 
 install_warning(packages)
 

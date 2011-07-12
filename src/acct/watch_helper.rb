@@ -341,12 +341,14 @@ module WatchHelper
         end
 
         def self.flush
-            VmDelta.multi_insert(@@deltas_cache)
-            VmSample.multi_insert(@@samples_cache)
+            DB.transaction do
+                VmDelta.multi_insert(@@deltas_cache)
+                VmSample.multi_insert(@@samples_cache)
+            end
 
             Vm.each { |vm|
                 if vm.samples.count > @@vm_window_size
-                    vm.samples.last.delete
+                    vm.samples.first.destroy
                 end
             }
 
@@ -395,11 +397,13 @@ module WatchHelper
         end
 
         def self.flush
-            HostSample.multi_insert(@@samples_cache)
+            DB.transaction do
+                HostSample.multi_insert(@@samples_cache)
+            end
 
             Host.all.each { |host|
                 if host.samples.count > @@host_window_size
-                    host.samples.first.delete
+                    host.samples.first.destroy
                 end
             }
 

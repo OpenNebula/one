@@ -94,7 +94,7 @@ module OneWatchClient
             end
 
             a = Array.new
-            resources.group_and_count(:timestamp).collect { |row|
+            resources.group_and_count(:timestamp).all.each { |row|
                 a << [row[:timestamp], row[:count].to_i]
             }
 
