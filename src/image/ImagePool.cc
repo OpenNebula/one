@@ -64,6 +64,7 @@ int ImagePool::allocate (
         string&        error_str)
 {
     Image *         img;
+    Image *         img_aux = 0;
     string          name;
     ostringstream   oss;
 
@@ -75,6 +76,14 @@ int ImagePool::allocate (
     if ( name.empty() )
     {
         goto error_name;
+    }
+
+    // Check for duplicates
+    img_aux = get(name,uid,false);
+
+    if( img_aux != 0 )
+    {
+        goto error_duplicated;
     }
 
     // ---------------------------------------------------------------------
@@ -100,6 +109,13 @@ int ImagePool::allocate (
 error_name:
     oss << "NAME cannot be empty.";
 
+    goto error_common;
+
+error_duplicated:
+    oss << "NAME is already taken by IMAGE "
+        << img_aux->get_oid() << ".";
+
+error_common:
     delete img;
 
     *oid = -1;
