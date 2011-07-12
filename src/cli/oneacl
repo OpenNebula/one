@@ -60,25 +60,15 @@ cmd = CommandParser::CmdParser.new(ARGV) do
             [:rights, nil] do
         case args.length
         when 1
-            new_args=Acl.parse_rule(args[0])
+            new_args = Acl.parse_rule(args[0])
+
+            if OpenNebula.is_error?(new_args)
+                next -1, new_args.message
+            end
         when 3
             new_args=args
         else
             next -1, "Wrong number of arguments, must be 1 or 3"
-        end
-
-        errors=new_args.map do |arg|
-            if OpenNebula.is_error?(arg)
-                arg.message
-            else
-                nil
-            end
-        end
-
-        errors.compact!
-
-        if errors.length>0
-            next -1, errors.join(', ')
         end
 
         helper.create_resource(options) do |rule|

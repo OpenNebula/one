@@ -245,7 +245,7 @@ CONF_CLI_DIRS="$CONF_LOCATION/cli"
 
 if [ "$CLIENT" = "yes" ]; then
     MAKE_DIRS="$MAKE_DIRS $LIB_ECO_CLIENT_DIRS $LIB_OCCI_CLIENT_DIRS \
-               $LIB_OCA_CLIENT_DIRS $LIB_CLI_CLIENT_DIRS $CONF_CLI_DIRS"
+               $LIB_OCA_CLIENT_DIRS $LIB_CLI_CLIENT_DIRS $CONF_CLI_DIRS $ETC_LOCATION"
 elif [ "$SUNSTONE" = "yes" ]; then
     MAKE_DIRS="$MAKE_DIRS $SUNSTONE_DIRS $LIB_OCA_CLIENT_DIRS"
 else
@@ -313,6 +313,7 @@ INSTALL_CLIENT_FILES=(
     CLI_BIN_FILES:$BIN_LOCATION
     CLI_LIB_FILES:$LIB_LOCATION/ruby/cli
     ONE_CLI_LIB_FILES:$LIB_LOCATION/ruby/cli/one_helper
+    ETC_CLIENT_FILES:$ETC_LOCATION
     CLI_CONF_FILES:$CONF_LOCATION/cli
     OCA_LIB_FILES:$LIB_LOCATION/ruby
     RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/OpenNebula
@@ -556,7 +557,8 @@ ONEDB_MIGRATOR_FILES="src/onedb/2.0_to_2.9.80.rb \
 #-------------------------------------------------------------------------------
 
 ETC_FILES="share/etc/oned.conf \
-           share/etc/defaultrc"
+           share/etc/defaultrc \
+           src/cli/etc/group.default"
 
 #-------------------------------------------------------------------------------
 # Virtualization drivers config. files, to be installed under $ETC_LOCATION
@@ -792,6 +794,8 @@ CLI_CONF_FILES="src/cli/etc/onegroup.yaml \
                 src/cli/etc/onevm.yaml \
                 src/cli/etc/onevnet.yaml \
                 src/cli/etc/oneacl.yaml"
+
+ETC_CLIENT_FILES="src/cli/etc/group.default"
 
 #-----------------------------------------------------------------------------
 # Sunstone files

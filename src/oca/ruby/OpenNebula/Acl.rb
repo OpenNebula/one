@@ -142,13 +142,27 @@ module OpenNebula
             rule_str = rule_str.split(" ")
 
             if rule_str.length != 3
-                return [OpenNebula::Error.new(
-                    "String needs three components: User, Resource, Rights")]
+                return OpenNebula::Error.new(
+                    "String needs three components: User, Resource, Rights")
             end
 
             ret << parse_users(rule_str[0])
             ret << parse_resources(rule_str[1])
             ret << parse_rights(rule_str[2])
+
+            errors=ret.map do |arg|
+                if OpenNebula.is_error?(arg)
+                    arg.message
+                else
+                    nil
+                end
+            end
+
+            errors.compact!
+
+            if errors.length>0
+                return OpenNebula::Error.new(errors.join(', '))
+            end
 
             return ret
         end
@@ -184,7 +198,7 @@ private
 
                 resources[0].split("+").each{ |resource|
                     if !RESOURCES[resource.upcase]
-                        raise "Resource '#{resource}' does not exist" 
+                        raise "Resource '#{resource}' does not exist"
                     end
                     ret += RESOURCES[resource.upcase]
                 }
@@ -226,7 +240,7 @@ private
         #
         # @return [Integer] the numeric value for the given id_str
         def self.calculate_ids(id_str)
-            raise "ID string '#{id_str}' malformed" if 
+            raise "ID string '#{id_str}' malformed" if
                 !id_str.match(/^([\#@]\d+|\*)$/)
 
             value = 0
