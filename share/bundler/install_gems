@@ -3,7 +3,7 @@
 PACKAGES=%w{optional sunstone quota cloud ozones_client ozones_server
     ozones_server_mysql ozones_server_sqlite}
 
-DEFAULT=%w{optional sunstone quota cloud ozones_server}
+DEFAULT=%w{optional sunstone quota cloud ozones_server acct}
 
 
 class String
