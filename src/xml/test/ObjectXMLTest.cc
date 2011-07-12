@@ -434,7 +434,7 @@ const string ObjectXMLTest::host =
   "<STATE>2</STATE>"
   "<IM_MAD>im_kvm</IM_MAD>"
   "<VM_MAD>vmm_kvm</VM_MAD>"
-  "<TM_MAD>tm_nfs</TM_MAD>"
+  "<TM_MAD>tm_shared</TM_MAD>"
   "<LAST_MON_TIME>1273799044</LAST_MON_TIME>"
   "<CLUSTER>cluster A</CLUSTER>"
   "<HOST_SHARE>"
