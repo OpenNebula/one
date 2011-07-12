@@ -635,7 +635,7 @@ void Nebula::bootstrap()
 
     oss.str("");
     oss <<  "CREATE TABLE db_versioning (oid INTEGER PRIMARY KEY, "
-            "version INTEGER, timestamp INTEGER, comment VARCHAR(256))";
+            "version VARCHAR(256), timestamp INTEGER, comment VARCHAR(256))";
 
     db->exec(oss);
 
@@ -656,7 +656,7 @@ int Nebula::check_db_version()
     ostringstream   oss;
 
 
-    int loaded_db_version = 0;
+    string loaded_db_version = "";
 
     // Try to read latest version
     set_callback( static_cast<Callbackable::Callback>(&Nebula::select_cb),
@@ -670,7 +670,7 @@ int Nebula::check_db_version()
     oss.str("");
     unset_callback();
 
-    if( loaded_db_version == 0 )
+    if( loaded_db_version == "" )
     {
         // Table user_pool is present for all OpenNebula versions, and it
         // always contains at least the oneadmin user.
@@ -703,16 +703,13 @@ int Nebula::select_cb(void *_loaded_db_version, int num, char **values,
                       char **names)
 {
     istringstream   iss;
-    int *           loaded_db_version;
+    string *        loaded_db_version;
 
-    loaded_db_version = static_cast<int *>(_loaded_db_version);
-
-    *loaded_db_version = 0;
+    loaded_db_version = static_cast<string *>(_loaded_db_version);
 
     if ( (values[0]) && (num == 1) )
     {
-        iss.str(values[0]);
-        iss >> *loaded_db_version;
+        *loaded_db_version = values[0];
     }
 
     return 0;

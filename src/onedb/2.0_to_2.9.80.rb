@@ -17,11 +17,11 @@ require "rexml/document"
 
 module Migrator
     def db_version
-        1
+        "2.9.80"
     end
 
     def one_version
-        "OpenNebula 2.3.0"
+        "OpenNebula 2.9.80"
     end
 
     def up
@@ -292,7 +292,7 @@ module Migrator
         # New tables in DB version 1
         ########################################################################
 
-        @db.run "CREATE TABLE db_versioning (oid INTEGER PRIMARY KEY, version INTEGER, timestamp INTEGER, comment VARCHAR(256));"
+        @db.run "CREATE TABLE db_versioning (oid INTEGER PRIMARY KEY, version VARCHAR(256), timestamp INTEGER, comment VARCHAR(256));"
         @db.run "CREATE TABLE template_pool (oid INTEGER PRIMARY KEY, name VARCHAR(256), body TEXT, uid INTEGER, gid INTEGER, public INTEGER);"
         @db.run "CREATE TABLE acl (oid INT PRIMARY KEY, user BIGINT, resource BIGINT, rights BIGINT);"
 

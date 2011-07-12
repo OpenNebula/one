@@ -78,7 +78,7 @@ class OneDB
         if(ops[:verbose])
             puts "Version:   #{version}"
 
-            time = version == 0 ? Time.now : Time.at(timestamp)
+            time = version == "2.0" ? Time.now : Time.at(timestamp)
             puts "Timestamp: #{time.strftime("%m/%d %H:%M:%S")}"
             puts "Comment:   #{comment}"
         else
@@ -93,6 +93,8 @@ class OneDB
         return 0
     end
 
+    # max_version is ignored for now, as this is the first onedb release.
+    # May be used in next releases
     def upgrade(max_version, ops)
         version, timestamp, comment = @backend.read_db_version
         
@@ -101,19 +103,18 @@ class OneDB
             puts "#{version} : #{comment}"
             puts ""
         end
-        
-        migrator_version = version + 1
-        result = nil
-        file = "#{RUBY_LIB_LOCATION}/onedb/#{migrator_version}.rb"
 
-        if File.exists?(file) && 
-                (max_version == nil || migrator_version <= max_version)
+        ########################################################################
+        # For now, look for the only file we can migrate to, *_to_2.9.80.rb
+        ########################################################################
+
+        result = nil
+        file = "#{RUBY_LIB_LOCATION}/onedb/#{version}_to_2.9.80.rb"
+
+        if File.exists?(file)
             # At least one upgrade will be executed, make DB backup
             backup(ops[:backup], ops)
-        end
 
-        while File.exists?(file) &&
-                (max_version == nil || migrator_version <= max_version)
 
             puts "  > Running migrator #{file}" if ops[:verbose]
 
@@ -122,18 +123,15 @@ class OneDB
             result = @backend.up
 
             if !result
-                puts "Error while upgrading from #{migrator_version-1} to " <<
+                puts "Error while upgrading from #{version} to " <<
                      " #{@backend.db_version}"
                 return -1
             end
 
             puts "  > Done" if ops[:verbose]
             puts "" if ops[:verbose]
-
-            migrator_version += 1
-            file = "#{RUBY_LIB_LOCATION}/onedb/#{migrator_version}.rb"
         end
-        
+
         # Modify db_versioning table
         if result != nil
             @backend.update_db_version(version)
