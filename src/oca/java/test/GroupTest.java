@@ -133,7 +133,8 @@ public class GroupTest
     }
 
 //  Commented out, secondary groups do not exist any more
-//    @Test
+/*
+    @Test
     public void userGroupRelations()
     {
         Hashtable<String, User> users   = new Hashtable<String, User>();
@@ -221,5 +222,5 @@ public class GroupTest
         assertTrue(  groups.get("d").contains( users.get("c").id() ) );
         assertTrue(  groups.get("d").contains( users.get("d").id() ) );
     }
-
+*/
 }

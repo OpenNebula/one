@@ -26,9 +26,7 @@ module OpenNebula
             :allocate => "user.allocate",
             :delete   => "user.delete",
             :passwd   => "user.passwd",
-            :chgrp    => "user.chgrp",
-            :addgroup => "user.addgroup",
-            :delgroup => "user.delgroup"
+            :chgrp    => "user.chgrp"
         }
 
         SELF = -1
@@ -114,22 +112,6 @@ module OpenNebula
         # [return] _Integer_ the element's group ID
         def gid
             self['GID'].to_i
-        end
-
-        # Returns whether or not the user is part of the group 'gid'
-        def is_part_of(gid)
-            return self["GROUPS/ID[.=#{gid}]"] != nil
-        end
-
-        # Returns an array with the numeric group ids
-        def group_ids
-            array = Array.new
-
-            self.each("GROUPS/ID") do |id|
-                array << id.text.to_i
-            end
-
-            return array
         end
     end
 end

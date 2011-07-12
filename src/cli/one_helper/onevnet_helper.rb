@@ -51,11 +51,12 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
         CLIHelper.print_header(str_h1 %
             ["VIRTUAL NETWORK #{vn.id.to_s} INFORMATION"])
 
-        str="%-10s: %-20s"
+        str="%-15s: %-20s"
         puts str % ["ID", vn.id.to_s]
         puts str % ["USER", vn['UNAME']]
         puts str % ["GROUP", vn['GNAME']]
         puts str % ["PUBLIC", OpenNebulaHelper.boolean_to_str(vn['PUBLIC'])]
+        puts str % ["USED LEASES", vn['TOTAL_LEASES']]
 
         puts
         CLIHelper.print_header(str_h1 % ["VIRTUAL NETWORK TEMPLATE"], false)
