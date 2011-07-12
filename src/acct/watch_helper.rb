@@ -17,7 +17,7 @@ module WatchHelper
     if CONF[:DB]
         DB = Sequel.connect(CONF[:DB])
     else
-        DB = Sequel.connect("sqlite//#{ACCT_DB}")
+        DB = Sequel.connect("sqlite://#{ACCT_DB}")
     end
 
     VM_DELTA = {
