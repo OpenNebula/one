@@ -1,0 +1,65 @@
+#!/usr/bin/env ruby
+
+PACKAGES=%w{optional sunstone quota cloud ozones_client ozones_server
+    ozones_server_mysql ozones_server_sqlite}
+
+DEFAULT=%w{optional sunstone quota cloud ozones_server}
+
+
+class String
+    def unindent(spaces=4)
+        self.gsub!(/^ {#{spaces}}/, '')
+    end
+end
+
+def try_library(name, error_message)
+    begin
+        require name.to_s
+    rescue LoadError
+        STDERR.puts error_message
+        exit -1
+    end
+end
+
+
+try_library :rubygems, <<-EOT.unindent
+    rubygems required to use this tool
+
+    Use one of these methods:
+
+        * Debian/Ubuntu
+            apt-get install rubygems libopenssl-ruby
+
+        * RHEL/CENTOS
+            yum install rubygems
+
+        * Specific rubygems package for your distro
+
+        * Follow the instructions from http://rubygems.org/pages/download
+EOT
+
+try_library :bundler, <<-EOT.unindent
+    bundler needed to install gems
+
+    execute this to install it:
+
+        [sudo] gem install bundler
+EOT
+
+
+if ARGV.length>0
+    packages=ARGV
+else
+    packages=DEFAULT
+end
+
+no_packages=PACKAGES-packages
+no_packages<<'dummy'
+
+without="--without #{no_packages.join(' ')}"
+
+command_string = "bundle #{without}"
+
+puts command_string
+
+#system command_string
