@@ -83,13 +83,6 @@ try_library :rubygems, <<-EOT.unindent
         * Follow the instructions from http://rubygems.org/pages/download
 EOT
 
-try_library :bundler, <<-EOT.unindent
-    bundler needed to install gems
-
-    execute this to install it:
-
-        [sudo] gem install bundler
-EOT
 
 if ARGV.include?('-h')
     help
