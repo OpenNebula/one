@@ -362,7 +362,7 @@ tr.even:hover{
 	display: inline-block;
 	width:43%;
 	vertical-align:top;
-        overflow:hidden;
+        overflow:auto;
 	}
 
 .info_table > thead th,h3 {
@@ -383,9 +383,12 @@ tr.even:hover{
     padding-right: 8px;
     }
 
+/*.info_table > tbody, .info_table > thead, info_table > tbody > tr {
+    width: 100%;
+}*/
 
 .info_table td.key_td{
-	width: 100%;
+	min-width: 150px;
 	text-align:left;
 	font-weight:bold;
 }
@@ -398,6 +401,7 @@ tr.even:hover{
 
 .info_table td.value_td{
 	text-align:left;
+        width:100%;
 }
 
 #dialog > div > div {

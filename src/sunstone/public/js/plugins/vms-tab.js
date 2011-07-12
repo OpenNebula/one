@@ -333,7 +333,7 @@ var vm_actions = {
                 colored_log += line + "\n";
             }
 
-            $('#vm_log_tab#').html('<pre>'+colored_log+'</pre>')
+            $('#vm_log_tab').html('<pre>'+colored_log+'</pre>')
         },
         error: function(request,error_json){
             $("#vm_log pre").html('');
@@ -450,7 +450,7 @@ var vm_buttons = {
                     if (hosts_select){return hosts_select}
                     else {return ""}
                 },
-                condition: True
+                condition: function() { return gid == 0; }
             },
             "VM.migrate" : {
                 type: "confirm_with_select",
@@ -460,7 +460,7 @@ var vm_buttons = {
                     if (hosts_select){return hosts_select}
                     else {return ""}
                 },
-                condition: True
+                condition: function() { return gid == 0; }
 
             },
             "VM.livemigrate" : {
@@ -471,7 +471,7 @@ var vm_buttons = {
                     if (hosts_select){return hosts_select}
                     else {return ""}
                 },
-                condition: True
+                condition: function() { return gid == 0; }
             },
             "VM.hold" : {
                 type: "confirm",
