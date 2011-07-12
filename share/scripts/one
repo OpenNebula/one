@@ -22,6 +22,7 @@ if [ -z "$ONE_LOCATION" ]; then
     ONE_CONF=/etc/one/oned.conf
     ONE_DB=/var/lib/one/one.db
     ONE_LOG=/var/log/one/oned.log
+    ONE_CONFIG=/var/lib/one/config
 
     ONED=/usr/bin/oned
     ONE_SCHEDULER=/usr/bin/mm_sched
@@ -33,6 +34,7 @@ else
     ONE_CONF=$ONE_LOCATION/etc/oned.conf
     ONE_DB=$ONE_LOCATION/var/one.db
     ONE_LOG=$ONE_LOCATION/var/oned.log
+    ONE_CONFIG=$ONE_LOCATION/var/config
 
     ONED=$ONE_LOCATION/bin/oned
     ONE_SCHEDULER=$ONE_LOCATION/bin/mm_sched
@@ -45,11 +47,10 @@ fi
 #------------------------------------------------------------------------------
 setup()
 {
-    PORT=$(sed -n '/^[ \t]*PORT/s/^.*PORT\s*=\s*\([0-9]\+\)\s*.*$/\1/p' \
-            $ONE_CONF)
+    PORT=$(grep '^PORT=' $ONE_CONFIG | sed 's/PORT=//')
 
     if [ $? -ne 0 ]; then
-        echo "Can not find PORT in $ONE_CONF."
+        echo "Can not find PORT in $ONE_CONFIG."
         exit 1
     fi
 

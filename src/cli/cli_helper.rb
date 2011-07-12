@@ -95,7 +95,6 @@ module CLIHelper
         require 'yaml'
 
         def initialize(conf=nil, ext=nil, &block)
-            # merge del conf con la table
             @columns = Hash.new
             @default_columns = Array.new
 
@@ -204,6 +203,9 @@ module CLIHelper
 
                 default = config.delete(:default)
                 @default_columns = default unless default.empty?
+
+                # Filter show options with available columns
+                @default_columns &= @columns.keys
 
                 @columns.merge!(config) { |key, oldval, newval|
                     oldval.merge(newval)
