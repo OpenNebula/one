@@ -16,11 +16,11 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-if [ -z "$ONE_LOCATION" ]; then 
+if [ -z "$ONE_LOCATION" ]; then
     OCCI_PID=/var/run/one/occi-server.pid
     OCCI_SERVER=/usr/lib/one/ruby/cloud/occi/occi-server.rb
     OCCI_LOCK_FILE=/var/lock/one/.occi.lock
-    OCCI_LOG=/var/log/one/occi-server.log   
+    OCCI_LOG=/var/log/one/occi-server.log
     OCCI_ETC=/etc/one/occi-server.conf
 else
     OCCI_PID=$ONE_LOCATION/var/occi-server.pid
@@ -28,57 +28,59 @@ else
     OCCI_LOCK_FILE=$ONE_LOCATION/var/.occi.lock
     OCCI_LOG=$ONE_LOCATION/var/occi-server.log
     OCCI_ETC=$ONE_LOCATION/etc/occi-server.conf
-fi 
+fi
 
 setup()
 {
     eval `grep ^IMAGE_DIR= $OCCI_ETC `
     export TMPDIR=$IMAGE_DIR/tmp
     mkdir -p $TMPDIR
-	
-	if [ -f $OCCI_LOCK_FILE ]; then
-		if [ -f  $OCCI_PID ]; then
-			ONEPID=`cat $OCCI_PID`
-			ps $OCCI_PID > /dev/null 2>&1
-			if [ $? -eq 0 ]; then
-				echo "OCCI Server is still running (PID:$OCCI_PID). Please try 'occi-server stop' first."
-				exit 1 
-			fi
-		fi
-		echo "Stale .lock detected. Erasing it."
-		rm $LOCK_FILE
-	fi
+
+  if [ -f $OCCI_LOCK_FILE ]; then
+    if [ -f  $OCCI_PID ]; then
+      ONEPID=`cat $OCCI_PID`
+      ps $OCCI_PID > /dev/null 2>&1
+      if [ $? -eq 0 ]; then
+        echo "OCCI Server is still running (PID:$OCCI_PID). Please try 'occi-server stop' first."
+        exit 1
+      fi
+    fi
+    echo "Stale .lock detected. Erasing it."
+    rm $LOCK_FILE
+  fi
 }
 
 start()
 {
-	if [ ! -x "$OCCI_SERVER" ]; then
-		echo "Can not find $OCCI_SERVER."
-		exit 1		
-	fi
-		
-	# Start the occi-server daemon
-	ruby $OCCI_SERVER > $OCCI_LOG 2>&1 & 
-	
-	LASTRC=$?
-	LASTPID=$!
+  if [ ! -x "$OCCI_SERVER" ]; then
+    echo "Can not find $OCCI_SERVER."
+    exit 1
+  fi
 
-	if [ $LASTRC -ne 0 ]; then
-		echo "Error executing $OCCI_SERVER"
-		exit 1			
-	else
-		echo $LASTPID > $OCCI_PID
-	fi
-	
-	sleep 1
-	ps $LASTPID > /dev/null 2>&1
-	
-	if [ $? -ne 0 ]; then
-		echo "Error executing $OCCI_SERVER."
-		exit 1
-	fi
-	
-	echo "occi-server started"
+  # Start the occi-server daemon
+  ruby $OCCI_SERVER > $OCCI_LOG 2>&1 &
+
+  LASTRC=$?
+  LASTPID=$!
+
+  if [ $LASTRC -ne 0 ]; then
+		echo "Error executing occi-server."
+		echo "Check $OCCI_LOG for more information"
+    exit 1
+  else
+    echo $LASTPID > $OCCI_PID
+  fi
+
+  sleep 2
+  ps $LASTPID > /dev/null 2>&1
+
+  if [ $? -ne 0 ]; then
+		echo "Error executing occi-server."
+		echo "Check $OCCI_LOG for more information"
+    exit 1
+  fi
+
+  echo "occi-server started"
 }
 
 #
@@ -86,34 +88,34 @@ start()
 #
 stop()
 {
-	if [ ! -f $OCCI_PID ]; then
-		echo "Couldn't find occi-server process pid."
-		exit 1
-	fi
+  if [ ! -f $OCCI_PID ]; then
+    echo "Couldn't find occi-server process pid."
+    exit 1
+  fi
 
-	# Kill the occi-server daemon
+  # Kill the occi-server daemon
 
-	kill -INT `cat $OCCI_PID` > /dev/null 2>&1
+  kill -INT `cat $OCCI_PID` > /dev/null 2>&1
 
-	# Remove pid files
-	rm -f $OCCI_PID > /dev/null 2>&1
+  # Remove pid files
+  rm -f $OCCI_PID > /dev/null 2>&1
 
-	echo "occi-server stopped"
+  echo "occi-server stopped"
 }
 
 
 case "$1" in
   start)
-	setup
-	start
-	;;
+  setup
+  start
+  ;;
   stop)
-	stop
-	;;
+  stop
+  ;;
   *)
-	echo "Usage: occi-server {start|stop}" >&2
-	exit 3
-	;;
+  echo "Usage: occi-server {start|stop}" >&2
+  exit 3
+  ;;
 esac
 
 
