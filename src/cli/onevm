@@ -142,7 +142,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         States: ANY
     EOT
 
-    command :saveas, saveas_desc, :vmid, :img_name do
+    command :saveas, saveas_desc, :vmid, :diskid, :img_name do
         disk_id    = args[1].to_i
         image_name = args[2]
         verbose = "disk #{disk_id} prepared to be saved in " <<
