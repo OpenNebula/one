@@ -169,13 +169,7 @@ EOT
             if comm
                 check_args!(comm_name, comm[:arity], comm[:args_format])
 
-                begin
-                    rc = comm[:proc].call
-                rescue Exception =>e
-                    puts e.message
-                    exit -1
-                end
-
+                rc = comm[:proc].call
                 if rc.instance_of?(Array)
                     puts rc[1]
                     exit rc.first
