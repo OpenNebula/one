@@ -78,7 +78,7 @@ module OneWatchClient
                 "GROUP BY last_poll;"
             ) do |row|
                 if row[:last_poll] && row[:last_poll] != 0
-                    a << [row[:last_poll], row["sum_#{mr}"].to_i]
+                    a << [row[:last_poll], row["sum_#{mr}".to_sym].to_i]
                 end
             end
 
