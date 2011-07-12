@@ -21,7 +21,7 @@ class OneDBBacKEnd
     def read_db_version
         connect_db
 
-        version   = 0
+        version   = "2.0"
         timestamp = 0
         comment   = ""
 
@@ -32,7 +32,7 @@ class OneDBBacKEnd
             comment   = row[:comment]
         end
 
-        return [version.to_i, timestamp, comment]
+        return [version, timestamp, comment]
 
     rescue
         # If the DB doesn't have db_version table, it means it is empty or a 2.x
@@ -54,7 +54,7 @@ class OneDBBacKEnd
         comment = "Could not read any previous db_versioning data, " <<
                   "assuming it is an OpenNebula 2.0 or 2.2 DB."
 
-        return [0, 0, comment]
+        return [version, timestamp, comment]
     end
 
     def history

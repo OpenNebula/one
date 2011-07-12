@@ -231,10 +231,10 @@ public:
         return "OpenNebula 2.3.0";
     };
 
-    static int db_version()
+    static string db_version()
     {
-        return 1;
-    };
+        return "2.9.80";
+    }
 
     void start();
 
