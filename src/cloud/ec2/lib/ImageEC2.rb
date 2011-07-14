@@ -14,13 +14,13 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'uuid'
+require 'uuidtools'
 require 'OpenNebula'
 
 include OpenNebula
 
 class ImageEC2 < Image
-    
+
     ONE_IMAGE = %q{
         NAME = "ec2-<%= uuid %>"
         TYPE = OS
@@ -40,8 +40,8 @@ class ImageEC2 < Image
     end
 
     def to_one_template()
-        uuid = UUID.generate
-        
+        uuid = UUIDTools::UUID.random_create.to_s
+
         one = ERB.new(ONE_IMAGE)
         return one.result(binding)
     end
