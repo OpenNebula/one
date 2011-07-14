@@ -232,7 +232,7 @@ EOT
 
                 args_str=value[:args_format].collect{ |a|
                     if a.include?(nil)
-                        "[#{a.compact.join("|")}]"
+                        "[<#{a.compact.join("|")}>]"
                     else
                         "<#{a.join("|")}>"
                     end
