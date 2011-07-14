@@ -1,0 +1,146 @@
+{
+  "ZONE_POOL": {
+    "ZONE": [
+      {
+        "onepass": "onepassA",
+        "VMTEMPLATE_POOL": {
+          "VMTEMPLATE": {
+            "PUBLIC": "0",
+            "NAME": "template_Vendetta",
+            "USERNAME": "tutorial",
+            "TEMPLATE": {
+              "MEMORY": "1024",
+              "NAME": "template_Vendetta",
+              "OS": {
+                "ARCH": "i686",
+                "BOOT": "hd"
+              },
+              "RAW": {
+                "TYPE": "kvm"
+              }
+            },
+            "REGTIME": "1309188808",
+            "UID": "444",
+            "ID": "13"
+          }
+        },
+        "endpoint": "http://zonea.zoneadomain.za:2633/RPC2",
+        "vdcs": [
+          {
+            "zones_id": 1,
+            "hosts": null,
+            "acls": null,
+            "name": "vdca",
+            "id": 1,
+            "vdcadminname": "vdcadminB"
+          }
+        ],
+        "sunsendpoint": null,
+        "name": "zoneA",
+        "onename": "oneadminA",
+        "id": 1
+      },
+      {
+        "onepass": "onepassB",
+        "VMTEMPLATE_POOL": {
+          "VMTEMPLATE": [
+            {
+              "PUBLIC": "0",
+              "NAME": "test_contrail",
+              "USERNAME": "tutorial",
+              "TEMPLATE": {
+                "VCPU": "2",
+                "FEATURES": {
+                  "ACPI": "no"
+                },
+                "RANK": "NUME",
+                "MEMORY": "1024",
+                "NAME": "test_contrail",
+                "DISK": [
+                  {
+                    "BUS": "ide",
+                    "IMAGE_ID": "24"
+                  },
+                  {
+                    "BUS": "ide",
+                    "IMAGE_ID": "51"
+                  }
+                ],
+                "OS": {
+                  "ARCH": "i686",
+                  "BOOT": "hd"
+                },
+                "GRAPHICS": {
+                  "TYPE": "vnc"
+                },
+                "REQUIREMENTS": "CPU_MHZ > 1000 & INIFINIBAND=true",
+                "RAW": {
+                  "TYPE": "kvm"
+                },
+                "NIC": {
+                  "NETWORK_ID": "40"
+                },
+                "CPU": "2"
+              },
+              "REGTIME": "1309188535",
+              "UID": "444",
+              "ID": "11"
+            },
+            {
+              "PUBLIC": "0",
+              "NAME": "green_test",
+              "USERNAME": "tutorial",
+              "TEMPLATE": {
+                "RANK": "-NVMS",
+                "MEMORY": "2048",
+                "NAME": "green_test",
+                "DISK": {
+                  "BUS": "ide",
+                  "IMAGE_ID": "50"
+                },
+                "OS": {
+                  "ARCH": "i686",
+                  "BOOT": "hd"
+                },
+                "REQUIREMENTS": "CPU_MHZ > 1000 & INFINIBAND=true",
+                "RAW": {
+                  "TYPE": "kvm"
+                },
+                "NIC": {
+                  "NETWORK_ID": "44"
+                },
+                "CPU": "0.5"
+              },
+              "REGTIME": "1309188739",
+              "UID": "444",
+              "ID": "12"
+            }
+          ]
+        },
+        "endpoint": "http://zoneb.zoneadomain.za:2634/RPC2",
+        "vdcs": [
+          {
+            "zones_id": 2,
+            "hosts": "1",
+            "acls": null,
+            "name": "vdcb",
+            "id": 2,
+            "vdcadminname": "vdcadminB"
+          },
+          {
+            "zones_id": 2,
+            "hosts": "7,9,29",
+            "acls": null,
+            "name": "vdcc",
+            "id": 3,
+            "vdcadminname": "vdcadminB"
+          }
+        ],
+        "sunsendpoint": null,
+        "name": "zoneB",
+        "onename": "oneadminB",
+        "id": 2
+      }
+    ]
+  }
+}

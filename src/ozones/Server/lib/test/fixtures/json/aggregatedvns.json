@@ -1,0 +1,145 @@
+{
+  "ZONE_POOL": {
+    "ZONE": [
+      {
+        "onepass": "onepassA",
+        "endpoint": "http://zonea.zoneadomain.za:2633/RPC2",
+        "VNET_POOL": {
+          "VNET": [
+            {
+              "PUBLIC": "0",
+              "BRIDGE": "etho",
+              "NAME": "shiqilei",
+              "USERNAME": "shiql",
+              "TEMPLATE": {
+                "NAME": "shiqilei",
+                "BRIDGE": "etho",
+                "TYPE": "FIXED",
+                "LEASES": {
+                  "IP": "192.168.0.13"
+                }
+              },
+              "TOTAL_LEASES": "0",
+              "UID": "384",
+              "ID": "3",
+              "TYPE": "1"
+            },
+            {
+              "PUBLIC": "0",
+              "BRIDGE": "vbr0",
+              "NAME": "safa",
+              "USERNAME": "onetut02",
+              "TEMPLATE": {
+                "NAME": "safa",
+                "BRIDGE": "vbr0",
+                "NETWORK_ADDRESS": "192.168.108.0",
+                "TYPE": "RANGED",
+                "NETWORK_SIZE": "24"
+              },
+              "TOTAL_LEASES": "0",
+              "UID": "388",
+              "ID": "36",
+              "TYPE": "0"
+            },
+            {
+              "PUBLIC": "0",
+              "BRIDGE": "eth0",
+              "NAME": "Test",
+              "USERNAME": "tinova",
+              "TEMPLATE": {
+                "NAME": "Test",
+                "BRIDGE": "eth0",
+                "NETWORK_ADDRESS": "192.168.100.277",
+                "TYPE": "RANGED",
+                "NETWORK_SIZE": "2"
+              },
+              "TOTAL_LEASES": "0",
+              "UID": "28",
+              "ID": "37",
+              "TYPE": "0"
+            },
+            {
+              "PUBLIC": "0",
+              "BRIDGE": "vbr0",
+              "NAME": "new_test",
+              "USERNAME": "emira",
+              "TEMPLATE": {
+                "NAME": "new_test",
+                "BRIDGE": "vbr0",
+                "NETWORK_ADDRESS": "192.168.0.0",
+                "TYPE": "RANGED",
+                "NETWORK_SIZE": "C"
+              },
+              "TOTAL_LEASES": "0",
+              "UID": "375",
+              "ID": "38",
+              "TYPE": "0"
+            }
+          ]
+        },
+        "vdcs": [
+          {
+            "zones_id": 1,
+            "hosts": null,
+            "acls": null,
+            "name": "vdca",
+            "id": 1,
+            "vdcadminname": "vdcadminB"
+          }
+        ],
+        "sunsendpoint": null,
+        "name": "zoneA",
+        "onename": "oneadminA",
+        "id": 1
+      },
+      {
+        "onepass": "onepassB",
+        "endpoint": "http://zoneb.zoneadomain.za:2634/RPC2",
+        "VNET_POOL": {
+          "VNET": [
+            {
+              "BRIDGE": "vbr0",
+              "NAME": "Red LAN",
+              "USERNAME": "oneadmin",
+              "TOTAL_LEASES": "0",
+              "UID": "0",
+              "ID": "4",
+              "TYPE": "0"
+            },
+            {
+              "BRIDGE": "vbr0",
+              "NAME": "Public",
+              "USERNAME": "oneadmin",
+              "TOTAL_LEASES": "1",
+              "UID": "0",
+              "ID": "5",
+              "TYPE": "0"
+            }
+          ]
+        },
+        "vdcs": [
+          {
+            "zones_id": 2,
+            "hosts": "1",
+            "acls": null,
+            "name": "vdcb",
+            "id": 2,
+            "vdcadminname": "vdcadminB"
+          },
+          {
+            "zones_id": 2,
+            "hosts": "7,9,29",
+            "acls": null,
+            "name": "vdcc",
+            "id": 3,
+            "vdcadminname": "vdcadminB"
+          }
+        ],
+        "sunsendpoint": null,
+        "name": "zoneB",
+        "onename": "oneadminB",
+        "id": 2
+      }
+    ]
+  }
+}

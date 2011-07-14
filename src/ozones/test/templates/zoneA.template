@@ -1,0 +1,5 @@
+NAME=zoneA
+ONENAME=oneadminA
+ONEPASS=opennebulaA
+ENDPOINT=http://localhost:2636/RPC2
+SUNSENDPOINT=http://localhost:9869

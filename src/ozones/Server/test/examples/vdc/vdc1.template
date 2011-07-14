@@ -1,0 +1,5 @@
+NAME=testvdc1
+HOSTS=testhostvdc1n0
+ZONEID=1
+VDCADMINNAME=othername
+VDCADMINPASS=otherpass

@@ -1,0 +1,6 @@
+RewriteEngine On
+RewriteRule ^(.*)/vdca http://zonea.zoneadomain.za:2633/RPC2 [P]
+RewriteRule ^(.*)/vdcb http://zoneb.zoneadomain.za:2634/RPC2 [P]
+RewriteRule ^(.*)/sunstone_vdcb http://zoneb.zoneadomain.za:9869 [P]
+RewriteRule ^(.*)/vdcc http://zoneb.zoneadomain.za:2634/RPC2 [P]
+RewriteRule ^(.*)/sunstone_vdcc http://zoneb.zoneadomain.za:9869 [P]

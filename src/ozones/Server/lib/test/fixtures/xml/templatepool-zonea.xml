@@ -1,0 +1,21 @@
+<VMTEMPLATE_POOL>
+  <VMTEMPLATE>
+    <ID>13</ID>
+    <UID>444</UID>
+    <USERNAME>tutorial</USERNAME>
+    <NAME>template_Vendetta</NAME>
+    <PUBLIC>0</PUBLIC>
+    <REGTIME>1309188808</REGTIME>
+    <TEMPLATE>
+      <MEMORY><![CDATA[1024]]></MEMORY>
+      <NAME><![CDATA[template_Vendetta]]></NAME>
+      <OS>
+        <ARCH><![CDATA[i686]]></ARCH>
+        <BOOT><![CDATA[hd]]></BOOT>
+      </OS>
+      <RAW>
+        <TYPE><![CDATA[kvm]]></TYPE>
+      </RAW>
+    </TEMPLATE>
+  </VMTEMPLATE>
+</VMTEMPLATE_POOL>

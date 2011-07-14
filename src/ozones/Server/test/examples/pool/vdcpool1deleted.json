@@ -1,0 +1,12 @@
+{
+  "vdcpool": {
+    "vdc": [
+      {
+        "hosts": "testhostvdc0n0,testhostvdc0n1,testhostvdc0n2",
+        "zones_id": 1,
+        "name": "testvdc0",
+        "id": 1
+      }
+    ]
+  }
+}

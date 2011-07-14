@@ -1,0 +1,88 @@
+{
+  "ZONE_POOL": {
+    "ZONE": [
+      {
+        "onepass": "onepassA",
+        "endpoint": "http://zonea.zoneadomain.za:2633/RPC2",
+        "USER_POOL": {
+          "USER": [
+            {
+              "PASSWORD": "f13a1234833436f71ab846572d251c0d40391e72",
+              "NAME": "oneadmin",
+              "ENABLED": "1",
+              "ID": "0"
+            },
+            {
+              "PASSWORD": "d22a12348334v33f71ba846572d25250d40701e72",
+              "NAME": "dan",
+              "ENABLED": "0",
+              "ID": "1"
+            }
+          ]
+        },
+        "vdcs": [
+          {
+            "zones_id": 1,
+            "hosts": null,
+            "acls": null,
+            "name": "vdca",
+            "id": 1,
+            "vdcadminname": "vdcadminB"
+          }
+        ],
+        "sunsendpoint": null,
+        "name": "zoneA",
+        "onename": "oneadminA",
+        "id": 1
+      },
+      {
+        "onepass": "onepassB",
+        "endpoint": "http://zoneb.zoneadomain.za:2634/RPC2",
+        "USER_POOL": {
+          "USER": [
+            {
+              "PASSWORD": "915d6bc0fe82afe5996672f512024d30a8473d46",
+              "NAME": "munirmb",
+              "ENABLED": "1",
+              "ID": "423"
+            },
+            {
+              "PASSWORD": "7f615879c96b0b6bf9a7640e4e2ea73c02235410",
+              "NAME": "tian",
+              "ENABLED": "1",
+              "ID": "424"
+            },
+            {
+              "PASSWORD": "9e3048f16323292e251993c1ba8f0041d3ac8bc2",
+              "NAME": "andrea",
+              "ENABLED": "1",
+              "ID": "425"
+            }
+          ]
+        },
+        "vdcs": [
+          {
+            "zones_id": 2,
+            "hosts": "1",
+            "acls": null,
+            "name": "vdcb",
+            "id": 2,
+            "vdcadminname": "vdcadminB"
+          },
+          {
+            "zones_id": 2,
+            "hosts": "7,9,29",
+            "acls": null,
+            "name": "vdcc",
+            "id": 3,
+            "vdcadminname": "vdcadminB"
+          }
+        ],
+        "sunsendpoint": null,
+        "name": "zoneB",
+        "onename": "oneadminB",
+        "id": 2
+      }
+    ]
+  }
+}

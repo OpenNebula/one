@@ -1,0 +1,22 @@
+{
+  "zonepool": {
+    "zone": [
+      {
+        "onename": "oneadmin",
+        "onepass": "opennebula",
+        "endpoint": "http://localhost:2633/RPC2",
+        "numbervdcs": 2,
+        "name": "testzone0",
+        "id": 1
+      },
+      {
+        "onename": "testname",
+        "onepass": "testpass",
+        "endpoint": "http://remoteserver:2633/RPC2",
+        "numbervdcs": 0,
+        "name": "testzone1",
+        "id": 2
+      }
+    ]
+  }
+}

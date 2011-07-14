@@ -1,0 +1,208 @@
+{
+  "ZONE_POOL": {
+    "ZONE": [
+      {
+        "onepass": "onepassA",
+        "endpoint": "http://zonea.zoneadomain.za:2633/RPC2",
+        "vdcs": [
+          {
+            "zones_id": 1,
+            "hosts": null,
+            "acls": null,
+            "name": "vdca",
+            "id": 1,
+            "vdcadminname": "vdcadminB"
+          }
+        ],
+        "sunsendpoint": null,
+        "name": "zoneA",
+        "onename": "oneadminA",
+        "id": 1,
+        "VM_POOL": {
+          "VM": [
+            {
+              "NET_TX": "12345",
+              "MEMORY": "512",
+              "DEPLOY_ID": "dummy",
+              "HISTORY": {
+                "STIME": "1277375186",
+                "HID": "0",
+                "EETIME": "0",
+                "RETIME": "0",
+                "PETIME": "1277375186",
+                "RSTIME": "1277375186",
+                "REASON": "0",
+                "ESTIME": "0",
+                "PSTIME": "1277375186",
+                "ETIME": "0",
+                "SEQ": "0",
+                "HOSTNAME": "dummyhost"
+              },
+              "STIME": "1277375180",
+              "NAME": "zoneAVM6",
+              "USERNAME": "oneadmin",
+              "NET_RX": "0",
+              "UID": "0",
+              "ID": "6",
+              "CPU": "1",
+              "STATE": "3",
+              "ETIME": "0",
+              "LCM_STATE": "3",
+              "LAST_POLL": "1277910006"
+            },
+            {
+              "NET_TX": "12345",
+              "MEMORY": "1024",
+              "DEPLOY_ID": "dummy",
+              "HISTORY": {
+                "STIME": "1277377466",
+                "HID": "0",
+                "EETIME": "0",
+                "RETIME": "0",
+                "PETIME": "1277377466",
+                "RSTIME": "1277377466",
+                "REASON": "0",
+                "ESTIME": "0",
+                "PSTIME": "1277377466",
+                "ETIME": "0",
+                "SEQ": "0",
+                "HOSTNAME": "thost"
+              },
+              "STIME": "1277377464",
+              "NAME": "zoneAVM7",
+              "USERNAME": "oneadmin",
+              "NET_RX": "0",
+              "UID": "0",
+              "ID": "7",
+              "CPU": "2",
+              "STATE": "3",
+              "ETIME": "0",
+              "LCM_STATE": "3",
+              "LAST_POLL": "1277910006"
+            },
+            {
+              "NET_TX": "12345",
+              "MEMORY": "256",
+              "DEPLOY_ID": "thost",
+              "HISTORY": {
+                "STIME": "1277377556",
+                "HID": "0",
+                "EETIME": "0",
+                "RETIME": "0",
+                "PETIME": "1277377556",
+                "RSTIME": "1277377556",
+                "REASON": "0",
+                "ESTIME": "0",
+                "PSTIME": "1277377556",
+                "ETIME": "0",
+                "SEQ": "0",
+                "HOSTNAME": "thost"
+              },
+              "STIME": "1277377533",
+              "NAME": "zoneAVM8",
+              "USERNAME": "oneadmin",
+              "NET_RX": "0",
+              "UID": "0",
+              "ID": "8",
+              "CPU": "1",
+              "STATE": "4",
+              "ETIME": "0",
+              "LCM_STATE": "5",
+              "LAST_POLL": "1277910006"
+            }
+          ]
+        }
+      },
+      {
+        "onepass": "onepassB",
+        "endpoint": "http://zoneb.zoneadomain.za:2634/RPC2",
+        "vdcs": [
+          {
+            "zones_id": 2,
+            "hosts": "1",
+            "acls": null,
+            "name": "vdcb",
+            "id": 2,
+            "vdcadminname": "vdcadminB"
+          },
+          {
+            "zones_id": 2,
+            "hosts": "7,9,29",
+            "acls": null,
+            "name": "vdcc",
+            "id": 3,
+            "vdcadminname": "vdcadminB"
+          }
+        ],
+        "sunsendpoint": null,
+        "name": "zoneB",
+        "onename": "oneadminB",
+        "id": 2,
+        "VM_POOL": {
+          "VM": [
+            {
+              "NET_TX": "1235",
+              "MEMORY": "1024",
+              "DEPLOY_ID": "dummy",
+              "HISTORY": {
+                "STIME": "127737466",
+                "HID": "0",
+                "EETIME": "0",
+                "RETIME": "1",
+                "PETIME": "127737466",
+                "RSTIME": "127777466",
+                "REASON": "0",
+                "ESTIME": "0",
+                "PSTIME": "127777466",
+                "ETIME": "0",
+                "SEQ": "0",
+                "HOSTNAME": "thost"
+              },
+              "STIME": "1277377464",
+              "NAME": "vm-in",
+              "USERNAME": "zoneBvm3",
+              "NET_RX": "0",
+              "UID": "0",
+              "ID": "3",
+              "CPU": "2",
+              "STATE": "3",
+              "ETIME": "0",
+              "LCM_STATE": "3",
+              "LAST_POLL": "1277910006"
+            },
+            {
+              "NET_TX": "12345",
+              "MEMORY": "256",
+              "DEPLOY_ID": "thost",
+              "HISTORY": {
+                "STIME": "1277377556",
+                "HID": "0",
+                "EETIME": "0",
+                "RETIME": "0",
+                "PETIME": "1277377556",
+                "RSTIME": "1277377556",
+                "REASON": "0",
+                "ESTIME": "0",
+                "PSTIME": "1277377556",
+                "ETIME": "0",
+                "SEQ": "0",
+                "HOSTNAME": "thost"
+              },
+              "STIME": "1277377533",
+              "NAME": "zoneBvm7",
+              "USERNAME": "oneadmin",
+              "NET_RX": "0",
+              "UID": "0",
+              "ID": "7",
+              "CPU": "1",
+              "STATE": "4",
+              "ETIME": "0",
+              "LCM_STATE": "5",
+              "LAST_POLL": "1277910006"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

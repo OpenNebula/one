@@ -1,0 +1,3 @@
+NAME=testvdcnozone
+HOSTS=testhostvdcnozone,bogushost
+ZONEID=5

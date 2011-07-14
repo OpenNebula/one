@@ -1,0 +1,4 @@
+NAME=testzone1
+ENDPOINT=http://remoteserver:2633/RPC2
+ONENAME=testname
+ONEPASS=testpass

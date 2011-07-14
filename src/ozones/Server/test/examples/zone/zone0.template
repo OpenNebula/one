@@ -1,0 +1,4 @@
+NAME=testzone0
+ENDPOINT=http://localhost:2633/RPC2
+ONENAME=oneadmin
+ONEPASS=opennebula

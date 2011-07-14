@@ -1,0 +1,47 @@
+<IMAGE_POOL>
+  <IMAGE>
+    <ID>27</ID>
+    <UID>356</UID>
+    <USERNAME>gregorgrisza</USERNAME>
+    <NAME>gg_img</NAME>
+    <TYPE>0</TYPE>
+    <PUBLIC>0</PUBLIC>
+    <PERSISTENT>1</PERSISTENT>
+    <REGTIME>1305747637</REGTIME>
+    <SOURCE>-</SOURCE>
+    <STATE>5</STATE>
+    <RUNNING_VMS>0</RUNNING_VMS>
+    <TEMPLATE>
+      <BUS><![CDATA[IDE]]></BUS>
+      <DESCRIPTION><![CDATA[my first image]]></DESCRIPTION>
+      <DEV_PREFIX><![CDATA[gg_]]></DEV_PREFIX>
+      <NAME><![CDATA[gg_img]]></NAME>
+      <PATH><![CDATA[/gg]]></PATH>
+      <TYPE><![CDATA[OS]]></TYPE>
+    </TEMPLATE>
+  </IMAGE>
+  <IMAGE>
+    <ID>58</ID>
+    <UID>356</UID>
+    <USERNAME>gregorgrisza</USERNAME>
+    <NAME>gg_img2</NAME>
+    <TYPE>0</TYPE>
+    <PUBLIC>0</PUBLIC>
+    <PERSISTENT>0</PERSISTENT>
+    <REGTIME>1305747730</REGTIME>
+    <SOURCE>-</SOURCE>
+    <STATE>5</STATE>
+    <RUNNING_VMS>0</RUNNING_VMS>
+    <TEMPLATE>
+      <BUS><![CDATA[IDE]]></BUS>
+      <DEV_PREFIX><![CDATA[hd]]></DEV_PREFIX>
+      <ERROR>
+        <MESSAGE><![CDATA[Error copying image in the repository: Error copying /home/oneadmin to /usr/local/one/var/images/fd150bd16b6057008815f96c6c182a72]]></MESSAGE>
+        <TIMESTAMP><![CDATA[Wed May 18 21:42:10 2011]]></TIMESTAMP>
+      </ERROR>
+      <NAME><![CDATA[gg_img2]]></NAME>
+      <PATH><![CDATA[~]]></PATH>
+      <TYPE><![CDATA[OS]]></TYPE>
+    </TEMPLATE>
+  </IMAGE>
+</IMAGE_POOL>

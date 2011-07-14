@@ -1,0 +1,185 @@
+{
+  "ZONE_POOL": {
+    "ZONE": [
+      {
+        "onepass": "onepassA",
+        "IMAGE_POOL": {
+          "IMAGE": [
+            {
+              "PUBLIC": "0",
+              "NAME": "img_4_ww",
+              "USERNAME": "wwfalcon",
+              "PERSISTENT": "0",
+              "TEMPLATE": {
+                "BUS": "IDE",
+                "NAME": "img_4_ww",
+                "TYPE": "OS",
+                "PATH": "/",
+                "DEV_PREFIX": "hd"
+              },
+              "REGTIME": "1305856079",
+              "UID": "364",
+              "ID": "39",
+              "TYPE": "0",
+              "SOURCE": "-",
+              "STATE": "5",
+              "RUNNING_VMS": "0"
+            },
+            {
+              "PUBLIC": "1",
+              "NAME": "rui",
+              "USERNAME": "ruimendes",
+              "PERSISTENT": "0",
+              "TEMPLATE": {
+                "BUS": "IDE",
+                "NAME": "rui",
+                "TYPE": "OS",
+                "PATH": "asdasd",
+                "DEV_PREFIX": "hd",
+                "DESCRIPTION": "asda"
+              },
+              "REGTIME": "1306790136",
+              "UID": "379",
+              "ID": "41",
+              "TYPE": "0",
+              "SOURCE": "-",
+              "STATE": "5",
+              "RUNNING_VMS": "0"
+            },
+            {
+              "PUBLIC": "1",
+              "NAME": "tt",
+              "USERNAME": "shiql",
+              "PERSISTENT": "0",
+              "TEMPLATE": {
+                "BUS": "IDE",
+                "NAME": "tt",
+                "TYPE": "OS",
+                "PATH": "/var/lib/one/images",
+                "DEV_PREFIX": "ff",
+                "DESCRIPTION": "ee"
+              },
+              "REGTIME": "1307091583",
+              "UID": "384",
+              "ID": "42",
+              "TYPE": "0",
+              "SOURCE": "-",
+              "STATE": "5",
+              "RUNNING_VMS": "0"
+            },
+            {
+              "PUBLIC": "0",
+              "NAME": "emiratest",
+              "USERNAME": "emira",
+              "PERSISTENT": "1",
+              "TEMPLATE": {
+                "BUS": "IDE",
+                "NAME": "emiratest",
+                "TYPE": "OS",
+                "PATH": "   /usr/local/one/var//images/ebf227771d08516f88dae19ce02d5f8d58daee64",
+                "DEV_PREFIX": "hd"
+              },
+              "REGTIME": "1307486155",
+              "UID": "375",
+              "ID": "44",
+              "TYPE": "0",
+              "SOURCE": "/usr/local/one/var/images/27356a313af894946cffc875b416ef69",
+              "STATE": "1",
+              "RUNNING_VMS": "0"
+            }
+          ]
+        },
+        "endpoint": "http://zonea.zoneadomain.za:2633/RPC2",
+        "vdcs": [
+          {
+            "zones_id": 1,
+            "hosts": null,
+            "acls": null,
+            "name": "vdca",
+            "id": 1,
+            "vdcadminname": "vdcadminB"
+          }
+        ],
+        "sunsendpoint": null,
+        "name": "zoneA",
+        "onename": "oneadminA",
+        "id": 1
+      },
+      {
+        "onepass": "onepassB",
+        "IMAGE_POOL": {
+          "IMAGE": [
+            {
+              "PUBLIC": "0",
+              "NAME": "gg_img",
+              "USERNAME": "gregorgrisza",
+              "PERSISTENT": "1",
+              "TEMPLATE": {
+                "BUS": "IDE",
+                "NAME": "gg_img",
+                "TYPE": "OS",
+                "PATH": "/gg",
+                "DEV_PREFIX": "gg_",
+                "DESCRIPTION": "my first image"
+              },
+              "REGTIME": "1305747637",
+              "UID": "356",
+              "ID": "27",
+              "TYPE": "0",
+              "SOURCE": "-",
+              "STATE": "5",
+              "RUNNING_VMS": "0"
+            },
+            {
+              "PUBLIC": "0",
+              "NAME": "gg_img2",
+              "USERNAME": "gregorgrisza",
+              "PERSISTENT": "0",
+              "TEMPLATE": {
+                "BUS": "IDE",
+                "NAME": "gg_img2",
+                "TYPE": "OS",
+                "PATH": "~",
+                "DEV_PREFIX": "hd",
+                "ERROR": {
+                  "TIMESTAMP": "Wed May 18 21:42:10 2011",
+                  "MESSAGE": "Error copying image in the repository: Error copying /home/oneadmin to /usr/local/one/var/images/fd150bd16b6057008815f96c6c182a72"
+                }
+              },
+              "REGTIME": "1305747730",
+              "UID": "356",
+              "ID": "58",
+              "TYPE": "0",
+              "SOURCE": "-",
+              "STATE": "5",
+              "RUNNING_VMS": "0"
+            }
+          ]
+        },
+        "endpoint": "http://zoneb.zoneadomain.za:2634/RPC2",
+        "vdcs": [
+          {
+            "zones_id": 2,
+            "hosts": "1",
+            "acls": null,
+            "name": "vdcb",
+            "id": 2,
+            "vdcadminname": "vdcadminB"
+          },
+          {
+            "zones_id": 2,
+            "hosts": "7,9,29",
+            "acls": null,
+            "name": "vdcc",
+            "id": 3,
+            "vdcadminname": "vdcadminB"
+          }
+        ],
+        "sunsendpoint": null,
+        "name": "zoneB",
+        "onename": "oneadminB",
+        "id": 2
+      }
+    ]
+  }
+}

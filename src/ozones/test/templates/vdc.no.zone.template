@@ -1,0 +1,5 @@
+NAME=vdc
+VDCADMINNAME=vdcadminbogus
+VDCADMINPASS=vdcpassbogus
+ZONEID=18
+HOSTS=1

@@ -1,0 +1,5 @@
+NAME=zone
+ONENAME=boguscreds
+ONEPASS=boguspass
+ENDPOINT=http://nonexistinghost:2633/RPC2
+SUNSENDPOINT=http://localhost:9869

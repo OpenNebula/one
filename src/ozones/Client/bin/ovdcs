@@ -1,0 +1,49 @@
+#!/usr/bin/ruby
+
+ONE_LOCATION=ENV["ONE_LOCATION"]
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
+else
+    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
+end
+
+$: << RUBY_LIB_LOCATION
+$: << RUBY_LIB_LOCATION+"/cli"
+
+require 'command_parser'
+require 'ozones_helper/vdc_helper.rb'
+
+cmd=CommandParser::CmdParser.new(ARGV) do
+    usage "ovdcs COMMAND [args..] [options..]"	
+    version OpenNebulaHelper::ONE_VERSION
+    
+    ########################################################################
+    # Global Options
+    ######################################################################## 
+    set :option, CommandParser::OPTIONS
+    
+    begin
+        helper = VDCHelper.new "vdc"
+    rescue Exception => e  
+        warn e.message
+        exit -1
+    end
+    
+    command :create, 'Create a new VDC', :file do
+        helper.create_resource(args[0])
+    end
+    
+    command :show, 'Show information of a particular VDC', :text do
+        helper.show_resource(args[0],options)
+    end
+    
+    command :list, 'Lists VDCs in the pool', 
+            :options=>CLIHelper::OPTIONS+OpenNebulaHelper::OPTIONS do
+        helper.list_pool(options)
+    end
+
+    command :delete, 'Deletes a VDC', [:range, :zoneid] do
+        helper.delete_resource(args,options) 
+    end
+end
