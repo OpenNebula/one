@@ -1,13 +1,13 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ONEHOST" "1" "July 2011" "" "onehost(1) -- manages OpenNebula hosts"
+.TH "ONEGROUP" "1" "July 2011" "" "onegroup(1) -- manages OpenNebula groups"
 .
 .SH "NAME"
-\fBonehost\fR
+\fBonegroup\fR
 .
 .SH "SYNOPSIS"
-\fBonehost\fR \fIcommand\fR [\fIargs\fR] [\fIoptions\fR]
+\fBonegroup\fR \fIcommand\fR [\fIargs\fR] [\fIoptions\fR]
 .
 .SH "OPTIONS"
 .
@@ -17,7 +17,6 @@
  \-d, \-\-delay x             Sets the delay in seconds for top command
  \-x, \-\-xml                 Show the resource in xml format
  \-n, \-\-numeric             Do not translate user and group IDs
- \-k, \-\-kilobytes           Show units in kilobytes
  \-v, \-\-verbose             Verbose mode
  \-h, \-\-help                Show this message
  \-V, \-\-version             Show version and copyright information
@@ -27,101 +26,13 @@
 .SH "COMMANDS"
 .
 .IP "\(bu" 4
-enable \fIrange|hostid_list\fR
+create \fIname\fR
 .
 .IP "" 4
 .
 .nf
 
-Enables the given Host
-.
-.fi
-.
-.IP "" 0
-
-.
-.IP "\(bu" 4
-update \fIhostid\fR
-.
-.IP "" 4
-.
-.nf
-
-Launches the system editor to modify and update the template contents
-.
-.fi
-.
-.IP "" 0
-
-.
-.IP "\(bu" 4
-disable \fIrange|hostid_list\fR
-.
-.IP "" 4
-.
-.nf
-
-Disables the given Host
-.
-.fi
-.
-.IP "" 0
-
-.
-.IP "\(bu" 4
-top
-.
-.IP "" 4
-.
-.nf
-
-Lists Hosts continuously
-valid options: list, delay, xml, numeric, kilobytes
-.
-.fi
-.
-.IP "" 0
-
-.
-.IP "\(bu" 4
-create \fIhostname\fR \fIim_mad\fR \fIvmm_mad\fR \fItm_mad\fR
-.
-.IP "" 4
-.
-.nf
-
-Creates a new Host
-.
-.fi
-.
-.IP "" 0
-
-.
-.IP "\(bu" 4
-sync
-.
-.IP "" 4
-.
-.nf
-
-Synchronizes probes in /var/lib/one/remotes ($ONE_LOCATION/var/remotes
-in self\-contained installations) with Hosts\.
-The copy is performed the next time the Host is monitored
-.
-.fi
-.
-.IP "" 0
-
-.
-.IP "\(bu" 4
-show \fIhostid\fR
-.
-.IP "" 4
-.
-.nf
-
-Shows information for the given Host
-valid options: xml
+Creates a new Group
 .
 .fi
 .
@@ -135,8 +46,8 @@ list
 .
 .nf
 
-Lists Hosts in the pool
-valid options: list, delay, xml, numeric, kilobytes
+Lists Groups in the pool
+valid options: list, delay, xml, numeric
 .
 .fi
 .
@@ -144,13 +55,28 @@ valid options: list, delay, xml, numeric, kilobytes
 
 .
 .IP "\(bu" 4
-delete \fIrange|hostid_list\fR
+delete \fIrange|groupid_list\fR
 .
 .IP "" 4
 .
 .nf
 
-Deletes the given Host
+Deletes the given Group
+.
+.fi
+.
+.IP "" 0
+
+.
+.IP "\(bu" 4
+show \fIgroupid\fR
+.
+.IP "" 4
+.
+.nf
+
+Shows information for the given Group
+valid options: xml
 .
 .fi
 .
@@ -162,16 +88,16 @@ Deletes the given Host
 .SH "ARGUMENT FORMATS"
 .
 .IP "\(bu" 4
-hostid_list
-.
-.IP "\(bu" 4
-file
+groupid_list
 .
 .IP "\(bu" 4
 text
 .
 .IP "\(bu" 4
-hostid
+groupid
+.
+.IP "\(bu" 4
+file
 .
 .IP "\(bu" 4
 range
