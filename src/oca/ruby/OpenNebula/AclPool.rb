@@ -36,8 +36,7 @@ module OpenNebula
         end
 
         def factory(element_xml)
-            acl=REXML::Document.new(element_xml).root
-            OpenNebula::Acl.new(acl['USER'], acl['RESOURCE'], acl['RIGHTS'])
+            OpenNebula::Acl.new(element_xml, @client)
         end
 
         #######################################################################
