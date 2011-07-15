@@ -327,6 +327,7 @@ INSTALL_FILES=(
     NETWORK_HOOK_SCRIPTS:$VAR_LOCATION/remotes/vnm
     EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples
     INSTALL_NOVNC_SHARE_FILE:$SHARE_LOCATION
+    INSTALL_GEMS_SHARE_FILE:$SHARE_LOCATION
     TM_EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples/tm
     HOOK_FILES:$VAR_LOCATION/remotes/hooks
     HOOK_NETWORK_FILES:$VAR_LOCATION/remotes/hooks/vnm
@@ -727,6 +728,7 @@ HOOK_NETWORK_FILES="src/vnm_mad/hm-vlan \
                     src/vnm_mad/Ebtables.rb"
 
 INSTALL_NOVNC_SHARE_FILE="share/install_novnc.sh"
+INSTALL_GEMS_SHARE_FILE="share/install_gems/install_gems"
 
 #-------------------------------------------------------------------------------
 # OCA Files
