@@ -8,7 +8,7 @@ PACKAGES=%w{optional sunstone quota cloud ozones_client ozones_server
 DEFAULT=%w{optional sunstone quota cloud ozones_server acct}
 
 GROUPS={
-    :optional => %w{nokogiri libxml-ruby},
+    :optional => %w{nokogiri xmlparser},
     :quota => %w{sqlite3 sequel},
     :sunstone => %w{json rack sinatra thin},
     :cloud => %w{amazon-ec2 rack sinatra thin uuid curb},
