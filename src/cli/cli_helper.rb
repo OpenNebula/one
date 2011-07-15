@@ -132,7 +132,7 @@ module CLIHelper
 
         def show(data, options={})
             update_columns(options)
-            print_table(data, options)
+            print_table(data, options) 
         end
 
         def top(data, options={})
@@ -155,7 +155,7 @@ module CLIHelper
 
         def print_table(data, options)
             CLIHelper.print_header(header_str)
-            print_data(data, options)
+            data ? print_data(data, options) : puts
         end
 
         def print_data(data, options)
