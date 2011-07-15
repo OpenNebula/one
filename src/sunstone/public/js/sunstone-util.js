@@ -671,3 +671,6 @@ function True(){
 function False(){
     return false;
 }
+
+function Empty(){
+};

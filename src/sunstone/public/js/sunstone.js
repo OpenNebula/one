@@ -283,6 +283,7 @@ $(document).ready(function(){
 
     //Insert the tabs in the DOM and their buttons.
     insertTabs();
+    //hideSubTabs();
     insertButtons();
 
     //Enhace the look of select buttons
@@ -381,7 +382,10 @@ function setLogin(){
 
     $("#user").html(username);
     $("#logout").click(function(){
-        OpenNebula.Auth.logout({
+        //todo, this is ugly
+        var f_logout = typeof(OpenNebula)!="undefined"?
+            OpenNebula.Auth.logout : oZones.Auth.logout;
+        f_logout({
             success:function(){
                 window.location.href = "login";
             }
@@ -405,13 +409,33 @@ function insertTabs(){
 function insertTab(tab_name){
     var tab_info = SunstoneCfg["tabs"][tab_name];
     var condition = tab_info["condition"];
+    var tabClass = tab_info["tabClass"];
+    var parent = "";
+
+    if (!tabClass) {
+        tabClass="topTab";
+    } else if (tabClass=="subTab") {
+        parent = tab_info["parentTab"];
+    };
+
     //skip this tab if we do not meet the condition
     if (condition && !condition()) {return;}
     $("div.inner-center").append('<div id="'+tab_name+'" class="tab"></div>');
     $('div#'+tab_name).html(tab_info.content);
 
-    $('ul#navigation').append('<li id="li_'+tab_name+'"><a href="#'+tab_name+'">'+tab_info.title+'</a></li>');
+    $('ul#navigation').append('<li id="li_'+tab_name+'" class="'+tabClass+' '+parent+'"><a href="#'+tab_name+'">'+tab_info.title+'</a></li>');
 }
+
+function hideSubTabs(){
+    for (tab in SunstoneCfg["tabs"]){
+        var tab_info = SunstoneCfg["tabs"][tab];
+        var tabClass = tab_info["tabClass"];
+        if (tabClass=="subTab"){
+            $('#li_'+tab).hide();
+        };
+    };
+}
+
 
 
 //Inserts the buttons of all tabs.

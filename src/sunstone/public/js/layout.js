@@ -57,11 +57,19 @@ function showTab(tabname){
 $(document).ready(function () {
     $(".tab").hide();
 
-    $(".outer-west ul li a").live("click",function(){
+    $(".outer-west ul li.subTab a").live("click",function(){
         var tab = $(this).attr('href');
         showTab(tab);
         return false;
-    })
+    });
+
+    $(".outer-west ul li.topTab a").live("click",function(){
+        var tab = $(this).attr('href');
+        //toggle subtabs trick
+        $('li.'+tab.substr(1)).toggle();
+        showTab(tab);
+        return false;
+    });
 
     outerLayout = $('body').layout({
         applyDefaultStyles:       false
