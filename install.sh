@@ -1079,6 +1079,7 @@ ACCT_ETC_FILES="src/acct/etc/acctd.conf"
 #-----------------------------------------------------------------------------
 
 MAN_FILES="share/man/oneauth.1.gz \
+        share/man/oneacl.1.gz \
         share/man/onehost.1.gz \
         share/man/oneimage.1.gz \
         share/man/oneuser.1.gz \
