@@ -5,12 +5,15 @@ module WatchHelper
     ONE_LOCATION=ENV["ONE_LOCATION"]
 
     if !ONE_LOCATION
-        ACCTD_CONF="/etc/one/acctd.conf"
-        ACCT_DB="/var/one/oneacct.db"
+        VAR_LOCATION = "/var/lib/one"
+        ETC_LOCATION = "/etc/one"
     else
-        ACCTD_CONF=ONE_LOCATION+"/etc/acctd.conf"
-        ACCT_DB=ONE_LOCATION+"/var/oneacct.db"
+        VAR_LOCATION = ONE_LOCATION + "/var"
+        ETC_LOCATION = ONE_LOCATION + "/etc"
     end
+
+    ACCTD_CONF  = ETC_LOCATION + "/acctd.conf"
+    ACCT_DB     = VAR_LOCATION + "/oneacct.db"
 
     CONF = YAML.load_file(ACCTD_CONF)
 
