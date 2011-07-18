@@ -24,7 +24,7 @@ if !ONE_LOCATION
     VAR_LOCATION = "/var/lib/one"
     RUBY_LIB_LOCATION = "/usr/lib/one/ruby"
     CONFIGURATION_FILE = "/etc/one/sunstone-server.conf"
-    PLUGIN_CONFIGURATION_FILE = "/etc/sunstone-plugins.yaml"
+    PLUGIN_CONFIGURATION_FILE = "/etc/one/sunstone-plugins.yaml"
 else
     VAR_LOCATION = ONE_LOCATION+"/var"
     LOG_LOCATION = ONE_LOCATION+"/var"
