@@ -22,7 +22,7 @@ module OZonesHelper
                if id[-1..-1] == ","
                    id = id[0..id.size-2]
                end
-               [0, "#{kind.upcase} #{id} created successfully"]
+               [0, "ID: #{id}"]
             end
         end
         

@@ -267,7 +267,7 @@ class OzonesServer
         else
             pr.update # Rewrite proxy conf file
             return [200, OZones.str_to_json(
-                         "Resource #{kind} with id #{id} successfuly deleted")]
+                         "Resource #{kind} with id #{id} successfully deleted")]
         end
     end
 

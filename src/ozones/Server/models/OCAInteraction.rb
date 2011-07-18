@@ -15,7 +15,6 @@
 #--------------------------------------------------------------------------- #
 
 require 'OpenNebula'
-require 'one_helper/onegroup_helper'
 
 class OCAInteraction
     
