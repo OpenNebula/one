@@ -21,6 +21,42 @@ GROUPS={
     :acct_mysql => %w{sequel sqlite3 mysql}
 }
 
+DISTRIBUTIONS={
+    :debian => {
+        :id => ['Ubuntu', 'Debian'],
+        :dependencies => {
+            'sqlite3'   => 'libsqlite3-dev',
+            'mysql'     => 'libmysqlclient-dev',
+            'curb'      => 'libcurl4-openssl-dev',
+            'nokogiri'  => 'libexpat1-dev',
+            'xmlparser' => %w{libxml2-dev libxslt1-dev}
+        },
+        :install_command => 'apt-get install'
+    },
+    :redhat => {
+        :id => ['CentOS', /^RedHat/],
+        :dependencies => {
+            'sqlite3'   => 'sqlite-devel',
+            'mysql'     => 'mysql-devel',
+            'curb'      => 'curl-devel',
+            'nokogiri'  => 'expat-devel',
+            'xmlparser' => %w{libxml2-devel libxslt-devel}
+        },
+        :install_command => 'yum install'
+    },
+    :suse => {
+        :id => [/^SUSE/],
+        :dependencies => {
+            'sqlite3'   => 'sqlite3-devel' ,
+            'mysql'     => 'libmysqlclient-devel',
+            'curb'      => 'libcurl-devel',
+            'nokogiri'  => 'libexpat-devel',
+            'xmlparser' => %w{libxml2-devel libxslt-devel}
+        },
+        :install_command => 'zypper install'
+    }
+}
+
 
 class String
     def unindent(spaces=4)
@@ -38,18 +74,13 @@ def try_library(name, error_message)
 end
 
 def install_warning(packages)
-    puts "Use -h for help"
-    puts
+#    puts "Use -h for help"
+#    puts
     puts "About to install the gems for these components:"
     puts "* "<<packages.join("\n* ")
     puts
-    puts "Are you sure you want to continue? (YES/no)"
+    puts "Press enter to continue..."
     yes=STDIN.readline
-    
-    if yes.strip!="YES"
-        puts "Installation aborted"
-        exit(0)
-    end
 end
 
 def help
@@ -66,6 +97,72 @@ def get_gems(packages)
     end.flatten.uniq
 end
 
+def detect_distro
+    #lsb_info=`lsb_release -a`
+    lsb_info="Distributor ID: RedHat"
+    if $?!=0 && false
+        STDERR.puts("lsb_release command not found")
+        return nil
+    end
+
+    distribution_id=nil
+
+    lsb_info.scan(/^Distributor ID: (.*?)$/) do |m|
+        distribution_id=m.first.strip
+    end
+
+    return nil if !distribution_id
+
+    distro=nil
+
+    DISTRIBUTIONS.find do |dist, info|
+        info[:id].find do |dist_id|
+            dist_id===distribution_id
+        end
+    end
+end
+
+def get_dependencies(gems, dependencies)
+    deps=[]
+
+    gems.each do |gem_name|
+        deps<<dependencies[gem_name]
+    end
+
+    deps.flatten!
+    deps.compact!
+
+    deps
+end
+
+def install_dependencies(gems, distro)
+    if !distro
+        puts(<<-EOT.unindent(12))
+            Distribution not detected. Make sure you manually install the
+            dependencies described in Building from Source from the OpenNebula
+            documentation.
+
+            Press enter to continue...
+    EOT
+    else
+        puts "Distribution \"#{distro.first}\" detected."
+        deps=get_dependencies(gems, distro.last[:dependencies])
+
+        if deps.length==0
+            return
+        end
+
+        puts "About to install these dependencies:"
+        puts "* "<<deps.join("\n* ")
+        puts
+        puts "Press enter to continue..."
+        STDIN.readline
+
+        command=distro.last[:install_command]+" "<<deps.join(' ')
+        puts command
+        system command
+    end
+end
 
 try_library :rubygems, <<-EOT.unindent
     rubygems required to use this tool
@@ -83,7 +180,6 @@ try_library :rubygems, <<-EOT.unindent
         * Follow the instructions from http://rubygems.org/pages/download
 EOT
 
-
 if ARGV.include?('-h')
     help
     exit(0)
@@ -95,13 +191,21 @@ else
     packages=DEFAULT
 end
 
+gems_list=get_gems(packages)
 
-packages_string=get_gems(packages).join(' ')
+dist=detect_distro
+
+install_dependencies(gems_list, dist)
+
+packages_string=gems_list.join(' ')
+
 
 command_string = "gem install --no-ri --no-rdoc #{packages_string}"
 
 install_warning(packages)
 
 puts command_string
-
 system command_string
+
+
+
