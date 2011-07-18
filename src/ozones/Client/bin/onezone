@@ -85,7 +85,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         helper.list_pool(options)
     end
 
-    command :delete, 'Deletes a Zone', [:range, :zoneid] do
-        helper.delete_resource(args,options) 
+    command :delete, 'Deletes a Zone', :zoneid do
+        helper.delete_resource(args[0],options) 
     end
 end
