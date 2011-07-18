@@ -159,7 +159,8 @@ else
 
         DELETE_DIRS="$MAKE_DIRS"
     elif [ "$OZONES" = "yes" ]; then
-        MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $VAR_LOCATION $OZONES_LOCATION"
+        MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $VAR_LOCATION $OZONES_LOCATION \
+                   $ETC_LOCATION"
     
         DELETE_DIRS="$MAKE_DIRS"  
     else
