@@ -94,7 +94,7 @@ EOT
             
             body_str = ""
             
-            template.strip.each{|line|
+            template.strip.each_line{|line|
                 line.strip!
                 key,value = line.split("=")
                 body_str = body_str + key + "=" + URI.escape(value) + "&"
