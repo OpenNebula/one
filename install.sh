@@ -1059,8 +1059,8 @@ OZONES_LIB_CLIENT_CLI_HELPER_FILES="\
                 src/ozones/Client/lib/cli/ozones_helper/vdc_helper.rb \
                 src/ozones/Client/lib/cli/ozones_helper/zones_helper.rb"                
 
-OZONES_BIN_CLIENT_FILES="src/ozones/Client/bin/ovdcs \
-                         src/ozones/Client/bin/ozones"
+OZONES_BIN_CLIENT_FILES="src/ozones/Client/bin/ovdc \
+                         src/ozones/Client/bin/ozone"
                
 OZONES_RUBY_LIB_FILES="src/oca/ruby/OpenNebula.rb"
 
