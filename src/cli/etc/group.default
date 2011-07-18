@@ -1,4 +1,4 @@
 # This rule allows users in the new group to create common resources
-VM+NET+IMAGE+TEMPLATE/* CREATE
+VM+NET+IMAGE+TEMPLATE/* CREATE+INFO_POOL_MINE
 # This rule allows users in the group to deploy VMs in any host in the cloud
 HOST/* USE
