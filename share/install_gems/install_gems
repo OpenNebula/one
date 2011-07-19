@@ -7,51 +7,58 @@ PACKAGES=%w{optional sunstone quota cloud ozones_client ozones_server
 
 DEFAULT=%w{optional sunstone quota cloud ozones_server acct}
 
+SQLITE='sqlite3-ruby --version 1.2.0'
+
 GROUPS={
     :optional => %w{nokogiri xmlparser},
-    :quota => %w{sqlite3 sequel},
+    :quota => [SQLITE, 'sequel'],
     :sunstone => %w{json rack sinatra thin},
     :cloud => %w{amazon-ec2 rack sinatra thin uuid curb},
     :ozones_client => %w{json},
-    :ozones_server => %w{json datamapper dm-sqlite-adapter dm-mysql-adapter},
-    :ozones_server_sqlite => %w{json datamapper dm-sqlite-adapter},
-    :ozones_server_mysql => %w{json datamapper dm-mysql-adapter},
-    :acct => %w{sequel sqlite3 mysql},
-    :acct_sqlite => %w{sequel sqlite3 mysql},
-    :acct_mysql => %w{sequel sqlite3 mysql}
+    :ozones_server => %w{json datamapper dm-sqlite-adapter dm-mysql-adapter}+[
+        SQLITE, 'mysql'
+    ],
+    :ozones_server_sqlite => %w{json datamapper dm-sqlite-adapter}<<SQLITE,
+    :ozones_server_mysql => %w{json datamapper dm-mysql-adapter mysql},
+    :acct => ['sequel', SQLITE, 'mysql'],
+    :acct_sqlite => ['sequel', SQLITE],
+    :acct_mysql => ['sequel', 'mysql']
 }
 
 DISTRIBUTIONS={
     :debian => {
         :id => ['Ubuntu', 'Debian'],
         :dependencies => {
-            'sqlite3'   => 'libsqlite3-dev',
-            'mysql'     => 'libmysqlclient-dev',
-            'curb'      => 'libcurl4-openssl-dev',
-            'nokogiri'  => 'libexpat1-dev',
-            'xmlparser' => %w{libxml2-dev libxslt1-dev}
+            SQLITE      => ['gcc', 'libsqlite3-dev'],
+            'mysql'     => ['gcc', 'libmysqlclient-dev'],
+            'curb'      => ['gcc', 'libcurl4-openssl-dev'],
+            'nokogiri'  => ['gcc', 'libexpat1-dev'],
+            'xmlparser' => %w{gcc rake libxml2-dev libxslt1-dev},
+            'thin'      => ['g++']
         },
         :install_command => 'apt-get install'
     },
     :redhat => {
         :id => ['CentOS', /^RedHat/],
         :dependencies => {
-            'sqlite3'   => 'sqlite-devel',
-            'mysql'     => 'mysql-devel',
-            'curb'      => 'curl-devel',
-            'nokogiri'  => 'expat-devel',
-            'xmlparser' => %w{libxml2-devel libxslt-devel}
+            SQLITE      => ['gcc', 'sqlite-devel'],
+            'mysql'     => ['gcc', 'mysql-devel'],
+            'curb'      => ['gcc', 'curl-devel'],
+            'nokogiri'  => ['gcc', 'expat-devel'],
+            'xmlparser' => %w{gcc rubygem-rake libxml2-devel libxslt-devel},
+            'thin'      => ['gcc-c++']
         },
         :install_command => 'yum install'
     },
     :suse => {
         :id => [/^SUSE/],
         :dependencies => {
-            'sqlite3'   => 'sqlite3-devel' ,
-            'mysql'     => 'libmysqlclient-devel',
-            'curb'      => 'libcurl-devel',
-            'nokogiri'  => 'libexpat-devel',
-            'xmlparser' => %w{libxml2-devel libxslt-devel}
+            SQLITE      => ['gcc', 'sqlite3-devel'],
+            'mysql'     => ['gcc', 'libmysqlclient-devel'],
+            'curb'      => ['gcc', 'libcurl-devel'],
+            'nokogiri'  => ['gcc', 'libexpat-devel'],
+            'xmlparser' => %w{rubygem-rake gcc rubygem-rake libxml2-devel libxslt-devel},
+            'thin'      => ['rubygem-rake', 'gcc-c++']
         },
         :install_command => 'zypper install'
     }
@@ -67,9 +74,9 @@ end
 def try_library(name, error_message)
     begin
         require name.to_s
-    rescue LoadError
+    rescue LoadError, Exception
         STDERR.puts error_message
-        exit -1
+        exit(-1)
     end
 end
 
@@ -98,8 +105,7 @@ def get_gems(packages)
 end
 
 def detect_distro
-    #lsb_info=`lsb_release -a`
-    lsb_info="Distributor ID: RedHat"
+    lsb_info=`lsb_release -a`
     if $?!=0 && false
         STDERR.puts("lsb_release command not found")
         return nil
@@ -107,7 +113,7 @@ def detect_distro
 
     distribution_id=nil
 
-    lsb_info.scan(/^Distributor ID: (.*?)$/) do |m|
+    lsb_info.scan(/^Distributor ID:\s*(.*?)$/) do |m|
         distribution_id=m.first.strip
     end
 
@@ -131,6 +137,7 @@ def get_dependencies(gems, dependencies)
 
     deps.flatten!
     deps.compact!
+    deps.uniq!
 
     deps
 end
@@ -175,9 +182,26 @@ try_library :rubygems, <<-EOT.unindent
         * RHEL/CENTOS
             yum install rubygems
 
+        * SUSE
+            zypper install rubygems
+
         * Specific rubygems package for your distro
 
         * Follow the instructions from http://rubygems.org/pages/download
+EOT
+
+try_library :mkmf, <<-EOT.unindent
+    ruby development package is needed to install gems
+
+    Use one of these methods:
+
+        * Debian/Ubuntu
+            apt-get install ruby-dev
+
+        * RHEL/CENTOS
+            yum install ruby-devel
+
+        * Install the ruby development package for your distro
 EOT
 
 if ARGV.include?('-h')
@@ -200,12 +224,18 @@ install_dependencies(gems_list, dist)
 packages_string=gems_list.join(' ')
 
 
-command_string = "gem install --no-ri --no-rdoc #{packages_string}"
+command_string = "gem install --no-ri --no-rdoc"
 
 install_warning(packages)
 
-puts command_string
-system command_string
+gems_list.each do |gem|
+    cmd=command_string+" "<<gem
+    puts cmd
+    system cmd
 
-
+    if $?!=0
+        puts "Error installing #{gem}"
+        exit(-1)
+    end
+end
 

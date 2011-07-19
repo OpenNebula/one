@@ -1090,6 +1090,7 @@ MAN_FILES="share/man/oneauth.1.gz \
         share/man/onevm.1.gz \
         share/man/onevnet.1.gz \
         share/man/onetemplate.1.gz \
+        share/man/onegroup.1.gz \
         share/man/onedb.1.gz \
         share/man/econe-describe-images.1.gz \
         share/man/econe-describe-instances.1.gz \
