@@ -19,7 +19,11 @@
 #------------------------------------------------------------------------------
 # Configuration File for File-System based Image Repositories
 #------------------------------------------------------------------------------
-export IMAGE_REPOSITORY_PATH=$ONE_LOCATION/var/images
+if [ -z "${ONE_LOCATION}" ]; then
+    export IMAGE_REPOSITORY_PATH=/var/lib/one/images
+else
+    export IMAGE_REPOSITORY_PATH=$ONE_LOCATION/var/images
+fi
 
 #------------------------------------------------------------------------------
 # Function used to generate Image names, you should not need to override this
