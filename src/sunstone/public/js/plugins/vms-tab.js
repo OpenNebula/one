@@ -77,9 +77,11 @@ var create_vm_tmpl ='<form id="create_vm_form" action="">\
         <div>\
            <label for="vm_name">VM Name:</label>\
            <input type="text" name="vm_name" id="vm_name" /><br />\
-        <label for="template_id">Select template:</label>\
-            <select id="template_id">\
-        </select>\
+           <label for="template_id">Select template:</label>\
+           <select id="template_id">\
+           </select><br />\
+           <label for="vm_n_times">Deploy # VMs:</label>\
+           <input type="text" name="vm_n_times" id="vm_n_times" value="1">\
         </div>\
         </fieldset>\
         <fieldset>\
@@ -767,8 +769,21 @@ function setupCreateVMDialog(){
     $('#create_vm_dialog #create_vm_proceed').click(function(){
         var vm_name = $('#create_vm_form #vm_name').val();
         var template_id = $('#create_vm_form #template_id').val();
+        var n_times = $('#create_vm_form #vm_n_times').val();
+        var n_times_int=1;
+        if (n_times.length){
+            n_times_int=parseInt(n_times,10);
+        }
 
-        Sunstone.runAction("VM.create",template_id,vm_name);
+        if (n_times_int>1){
+            for (var i=0; i< n_times_int; i++){
+                Sunstone.runAction("Template.instantiate",template_id,vm_name+"_"+i);
+            };
+        } else {
+            Sunstone.runAction("Template.instantiate",template_id,vm_name);
+        };
+
+        Sunstone.runAction("VM.list");
         $('#create_vm_dialog').dialog('close');
         return false;
     });
