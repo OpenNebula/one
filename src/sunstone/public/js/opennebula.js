@@ -2589,5 +2589,95 @@ var OpenNebula = {
         "chgrp" : function(params){
             OpenNebula.Helper.chgrp(params,OpenNebula.Template.resource,"template");
         }
+    },
+
+    "Acl" : {
+        "resource" : "ACL",
+        "create" : function(params){
+            var callback = params.success;
+            var callback_error = params.error;
+            var data = params.data;
+            var resource = OpenNebula.Acl.resource;
+
+            var request = OpenNebula.Helper.request(resource,"create",data);
+
+            $.ajax({
+                url: "acl",
+                type: "POST",
+                dataType: "json",
+                data: JSON.stringify(data),
+                success: function(response)
+                {
+                    if (callback)
+                    {
+                        callback(request, response);
+                    }
+                },
+                error: function(response)
+                {
+                    if (callback_error)
+                    {
+                        callback_error(request, OpenNebula.Error(response));
+                    }
+                }
+            });
+        },
+        "list" : function(params){
+            var callback = params.success;
+            var callback_error = params.error;
+            var timeout = params.timeout || false;
+
+            var resource = OpenNebula.Acl.resource;
+            var request = OpenNebula.Helper.request(resource,"list");
+
+            $.ajax({
+                url: "acl",
+                type: "GET",
+                dataType: "json",
+                data: {timeout: timeout},
+                success: function(response)
+                {
+                    if (callback)
+                    {
+                        var acl_pool = OpenNebula.Helper.pool(resource,response);
+                        callback(request, acl_pool);
+                    }
+                },
+                error: function(response)
+                {
+                    if (callback_error)
+                    {
+                        callback_error(request, OpenNebula.Error(response));
+                    }
+                }
+            });
+        },
+        "delete" : function(params){
+            var callback = params.success;
+            var callback_error = params.error;
+            var id = params.data.id;
+            var resource = OpenNebula.Acl.resource;
+
+            var request = OpenNebula.Helper.request(resource,"delete", id);
+
+            $.ajax({
+                url: "acl/" + id,
+                type: "DELETE",
+                success: function()
+                {
+                    if (callback)
+                    {
+                        callback(request);
+                    }
+                },
+                error: function(response)
+                {
+                    if (callback_error)
+                    {
+                        callback_error(request, OpenNebula.Error(response));
+                    }
+                }
+            });
+        }
     }
 }

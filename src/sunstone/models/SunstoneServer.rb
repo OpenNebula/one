@@ -65,13 +65,14 @@ class SunstoneServer
             when "vm"       then VirtualMachinePoolJSON.new(@client)
             when "vnet"     then VirtualNetworkPoolJSON.new(@client)
             when "user"     then UserPoolJSON.new(@client)
+            when "acl"      then AclPoolJSON.new(@client)
             else
                 error = Error.new("Error: #{kind} resource not supported")
                 return [404, error.to_json]
         end
 
         rc = case kind
-             when "group","host","user" then pool.info
+             when "group","host","user","acl" then pool.info
              else
                  gid != "0" ? pool.info_group : pool.info_all
              end
@@ -120,6 +121,7 @@ class SunstoneServer
             when "vm"       then VirtualMachineJSON.new(VirtualMachine.build_xml,@client)
             when "vnet"     then VirtualNetworkJSON.new(VirtualNetwork.build_xml, @client)
             when "user"     then UserJSON.new(User.build_xml, @client)
+            when "acl"      then AclJSON.new(Acl.build_xml, @client)
             else
                 error = Error.new("Error: #{kind} resource not supported")
                 return [404, error.to_json]
@@ -339,6 +341,7 @@ class SunstoneServer
             when "vm"       then VirtualMachineJSON.new_with_id(id, @client)
             when "vnet"     then VirtualNetworkJSON.new_with_id(id, @client)
             when "user"     then UserJSON.new_with_id(id, @client)
+            when "acl"      then AclJSON.new_with_id(id, @client)
             else
                 error = Error.new("Error: #{kind} resource not supported")
                 return error

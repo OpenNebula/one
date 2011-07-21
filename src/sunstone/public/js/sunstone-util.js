@@ -477,7 +477,7 @@ function makeSelectOptions(dataTable,
                            status_bad,
                            user_col){
     var nodes = dataTable.fnGetData();
-    var select = "<option value=\"\">Please select</option>";
+    var select = '<option class="empty_value" value="">Please select</option>';
     var array;
     $.each(nodes,function(){
         var id = this[id_col];
