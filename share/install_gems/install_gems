@@ -15,11 +15,11 @@ GROUPS={
     :sunstone => %w{json rack sinatra thin},
     :cloud => %w{amazon-ec2 rack sinatra thin uuid curb},
     :ozones_client => %w{json},
-    :ozones_server => %w{json datamapper dm-sqlite-adapter dm-mysql-adapter}+[
+    :ozones_server => %w{json data_mapper dm-sqlite-adapter dm-mysql-adapter}+[
         SQLITE, 'mysql'
     ],
-    :ozones_server_sqlite => %w{json datamapper dm-sqlite-adapter}<<SQLITE,
-    :ozones_server_mysql => %w{json datamapper dm-mysql-adapter mysql},
+    :ozones_server_sqlite => %w{json data_mapper dm-sqlite-adapter}<<SQLITE,
+    :ozones_server_mysql => %w{json data_mapper dm-mysql-adapter mysql},
     :acct => ['sequel', SQLITE, 'mysql'],
     :acct_sqlite => ['sequel', SQLITE],
     :acct_mysql => ['sequel', 'mysql']
@@ -105,9 +105,17 @@ def get_gems(packages)
 end
 
 def detect_distro
-    lsb_info=`lsb_release -a`
-    if $?!=0 && false
-        STDERR.puts("lsb_release command not found")
+    begin
+        lsb_info=`lsb_release -a`
+    rescue
+    end
+
+    if $?.exitstatus!=0
+        STDERR.puts(<<-EOT.unindent(12))
+            lsb_release command not found. If you are using a RedHat based
+            distribution install redhat-lsb
+
+EOT
         return nil
     end
 

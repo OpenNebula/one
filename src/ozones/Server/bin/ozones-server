@@ -66,11 +66,14 @@ start()
     echo "The port $PORT is being used. Please specify a different one."
     exit 1
   fi
-  
+
   # Start the ozones daemon
   touch $OZONES_LOCK_FILE
   rackup $OZONES_SERVER -s thin -p $PORT -o $HOST \
                   -P $OZONES_PID &> $OZONES_LOG &
+
+  sleep 2
+  ps -p $(cat $OZONES_PID 2>/dev/null) > /dev/null 2>&1
 
   if [ $? -ne 0 ]; then
     echo "Error executing $OZONES_SERVER, please check the log $OZONES_LOG"

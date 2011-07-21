@@ -65,7 +65,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
     def format_resource(vm)
         str_h1="%-80s"
         str="%-20s: %-20s"
-
+        
         CLIHelper.print_header(
             str_h1 % "VIRTUAL MACHINE #{vm['ID']} INFORMATION")
         puts str % ["ID", vm.id.to_s]
@@ -77,8 +77,10 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         puts str % ["HOSTNAME",
             vm['/VM/HISTORY_RECORDS/HISTORY[last()]/HOSTNAME']] if
                 %w{ACTIVE SUSPENDED}.include? vm.state_str
-        puts str % ["START TIME", OpenNebulaHelper.time_to_str(vm['STIME'])]
-        puts str % ["END TIME", OpenNebulaHelper.time_to_str(vm['ETIME'])]
+        puts str % ["START TIME",
+            OpenNebulaHelper.time_to_str(vm['/VM/STIME'])]
+        puts str % ["END TIME",
+            OpenNebulaHelper.time_to_str(vm['/VM/ETIME'])]
         value=vm['DEPLOY_ID']
         puts str % ["DEPLOY ID", value=="" ? "-" : value]
 
