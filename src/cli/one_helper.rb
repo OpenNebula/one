@@ -375,7 +375,7 @@ EOT
     def OpenNebulaHelper.update_template(id, resource)
         require 'tempfile'
 
-        tmp  = Tempfile.new(id)
+        tmp  = Tempfile.new(id.to_s)
         path = tmp.path
 
         tmp << resource.template_str
