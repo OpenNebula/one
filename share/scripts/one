@@ -40,6 +40,8 @@ else
     LOCK_FILE=$ONE_LOCATION/var/.lock
 fi
 
+KILL_9_SECONDS=5
+
 #------------------------------------------------------------------------------
 # Function that checks for running daemons and gets PORT from conf
 #------------------------------------------------------------------------------
@@ -81,7 +83,19 @@ setup()
 stop()
 {
     if [ -f $ONE_PID ]; then
-        kill `cat $ONE_PID` > /dev/null 2>&1
+        PID=$(cat $ONE_PID)
+        kill $PID > /dev/null 2>&1
+
+        counter=0
+        while ps $PID > /dev/null 2>&1; do
+            let counter=counter+1
+            if [ $counter -gt $KILL_9_SECONDS ]; then
+                kill -9 $PID > /dev/null 2>&1
+                break
+            fi
+            sleep 1
+        done
+
         rm -f $ONE_PID > /dev/null 2>&1
     fi
 
