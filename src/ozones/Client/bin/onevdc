@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 
 ONE_LOCATION=ENV["ONE_LOCATION"]
 
