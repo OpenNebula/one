@@ -16,7 +16,7 @@ end
 GROUPS={
     :optional => %w{nokogiri xmlparser},
     :quota => [SQLITE, 'sequel'],
-    :sunstone => %w{json rack sinatra thin},
+    :sunstone => ['json', 'rack', 'sinatra', 'thin', 'sequel', SQLITE],
     :cloud => %w{amazon-ec2 rack sinatra thin uuid curb},
     :ozones_client => %w{json},
     :ozones_server => %w{json data_mapper dm-sqlite-adapter dm-mysql-adapter}+[
