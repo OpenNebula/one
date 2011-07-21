@@ -7,7 +7,11 @@ PACKAGES=%w{optional sunstone quota cloud ozones_client ozones_server
 
 DEFAULT=%w{optional sunstone quota cloud ozones_server acct}
 
-SQLITE='sqlite3-ruby --version 1.2.0'
+if defined?(RUBY_VERSION) && RUBY_VERSION>="1.8.7"
+    SQLITE='sqlite3'
+else
+    SQLITE='sqlite3-ruby --version 1.2.0'
+end
 
 GROUPS={
     :optional => %w{nokogiri xmlparser},
