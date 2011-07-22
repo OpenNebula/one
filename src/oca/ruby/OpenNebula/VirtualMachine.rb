@@ -213,14 +213,16 @@ module OpenNebula
         # Set the specified vm's disk to be saved in a new image
         # when the VirtualMachine shutdowns
         #
-        # +disk_id+ ID of the disk to be saved
+        # @param disk_id [Integer] ID of the disk to be saved
+        # @param image_name [String] Name for the new image where the
+        #   disk will be saved
         #
-        # +image_name+ Name for the new image where the disk will be saved
+        # @return [Integer, OpenNebula::Error] the new Image ID in case of
+        #   success, error otherwise
         def save_as(disk_id, image_name)
             return Error.new('ID not defined') if !@pe_id
 
             rc = @client.call(VM_METHODS[:savedisk], @pe_id, disk_id, image_name)
-            rc = nil if !OpenNebula.is_error?(rc)
 
             return rc
         end
