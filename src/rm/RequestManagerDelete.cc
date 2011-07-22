@@ -70,3 +70,32 @@ int ImageDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
     return rc;
 }
 
+/* ------------------------------------------------------------------------- */
+
+int UserDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
+{
+    User * user  = static_cast<User *>(object);
+    int group_id = user->get_gid();
+
+    int rc = pool->drop(object, error_msg);
+
+    object->unlock();
+
+    if ( rc == 0 )
+    {
+        Nebula&     nd      = Nebula::instance();
+        GroupPool * gpool   = nd.get_gpool();
+
+        Group *     group   = gpool->get(group_id, true);
+
+        if( group != 0 )
+        {
+            group->del_user(oid);
+            gpool->update(group);
+
+            group->unlock();
+        }
+    }
+
+    return rc;
+}
