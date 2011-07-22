@@ -151,13 +151,14 @@ function plot_global_graph(data,info){
     var series = [];
     var width = ($(window).width()-129)*48/100;
     var mon_count = 0;
+    var labels_array = info.monitor_resources.split(',');
 
     $('#'+id).html('<div id="'+id+'_graph" style="height:70px;width:'+width+'px;margin-bottom:10px;"><div>');
 
-    for (var label in monitoring) {
+    for (var i=0; i<labels_array.length; i++) {
         serie = {
-            label: label,
-            data: monitoring[label]
+            label: labels_array[i],
+            data: monitoring[labels_array[i]]
         };
         series.push(serie);
         mon_count++;

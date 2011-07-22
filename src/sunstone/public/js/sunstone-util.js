@@ -533,15 +533,16 @@ function plot_graph(data,context,id_prefix,info){
     var humanize = info.humanize_figures ?
         humanize_size : function(val){ return val };
     var id_suffix = labels.replace(/,/g,'_');
+    var labels_array = labels.split(',');
     var monitoring = data.monitoring
     var series = [];
     var serie;
     var mon_count = 0;
 
-    for (var label in monitoring) {
+    for (var i=0; i<labels_array.length; i++) {
         serie = {
-            label: label,
-            data: monitoring[label]
+            label: labels_array[i],
+            data: monitoring[labels_array[i]]
         };
         series.push(serie);
         mon_count++;
