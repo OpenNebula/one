@@ -1100,7 +1100,9 @@ MAN_FILES="share/man/oneauth.1.gz \
         share/man/econe-upload.1.gz \
         share/man/occi-compute.1.gz \
         share/man/occi-network.1.gz \
-        share/man/occi-storage.1.gz"
+        share/man/occi-storage.1.gz \
+        share/man/onezone.1.gz \
+        share/man/onevdc.1.gz"
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
