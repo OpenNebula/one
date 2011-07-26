@@ -87,17 +87,17 @@ void ImagePersistent::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    rc = image->persistent(persistent_flag);
+    rc = image->persistent(persistent_flag, err_msg);
 
     if ( rc != 0  )
     {
         if (persistent_flag == true)
         {
-            err_msg = "Could not make image persistent";
+            err_msg = "Could not make image persistent: " + err_msg + ".";
         }
         else
         {
-            err_msg = "Could not make image non-persistent";
+            err_msg = "Could not make image non-persistent: " + err_msg + ".";
         }
 
         failure_response(INTERNAL,request_error(err_msg,""), att);
