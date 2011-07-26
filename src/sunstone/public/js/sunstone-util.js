@@ -321,43 +321,40 @@ function onError(request,error_json) {
     var m;
     var message = error_json.error.message;
 
+    if ( typeof onError.disabled == 'undefined' ) {
+        onError.disabled=false;
+    }
+
     //redirect to login if unauthenticated
     if (error_json.error.http_status=="401") {
         window.location.href = "login";
+        onError.disabled=false;
+        return false;
     };
 
     if (!message){
-        notifyError("Cannot contact server: is Sunstone server running and reachable?");
+        if (!onError.disabled){
+            notifyError("Cannot contact server: is it running and reachable?");
+            onError.disabled=true;
+        }
         return false;
+    } else {
+        onError.disabled=false;
     }
 
     //Parse known errors:
-    var action_error = /^\[(\w+)\] Error trying to (\w+) (\w+) \[(\w+)\].*Reason: (.*)\.$/;
-    var action_error_noid = /^\[(\w+)\] Error trying to (\w+) (\w+) (.*)\.$/;
-    var get_error = /^\[(\w+)\] Error getting (\w+) \[(\w+)\]\.$/;
-    var auth_error = /^\[(\w+)\] User \[.\] not authorized to perform (\w+) on (\w+) \[?(\w+)\]?\.?$/;
+    var get_error = /^\[(\w+)\] Error getting ([\w ]+) \[(\d+)\]\.$/;
+    var auth_error = /^\[(\w+)\] User \[(\d+)\] not authorized to perform action on ([\w ]+).$/;
 
-    if (m = message.match(action_error)) {
+    if (m = message.match(get_error)) {
         method  = m[1];
-        action  = m[2];
-        object  = m[3];
-        id      = m[4];
-        reason  = m[5];
-    } else if (m = message.match(action_error_noid)) {
-        method  = m[1];
-        action  = m[2];
-        object  = m[3];
-        reason  = m[4];
-    } else if (m = message.match(get_error)) {
-        method  = m[1];
-        action  = "SHOW";
+        action  = "Show";
         object  = m[2];
         id      = m[3];
     } else if (m = message.match(auth_error)) {
         method = m[1];
-        action = m[2];
-        object = m[3];
-        id     = m[4];
+        object     = m[3];
+        reason = "Unauthorized";
     }
 
     if (m) {
