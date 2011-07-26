@@ -590,7 +590,7 @@ function vMachineElementArray(vm_json){
         state,
         vm.CPU,
         humanize_size(vm.MEMORY),
-        vm.HISTORY ? vm.HISTORY.HOSTNAME : "--",
+        vm.HISTORY_RECORDS ? vm.HISTORY_RECORDS.HISTORY.HOSTNAME : "--",
         str_start_time(vm),
         vncIcon(vm)
     ];
@@ -678,6 +678,10 @@ function updateVMInfo(request,vm){
               <tr>\
                  <td class="key_td">LCM State</td>\
                  <td class="value_td">'+OpenNebula.Helper.resource_state("vm_lcm",vm_info.LCM_STATE)+'</td>\
+              </tr>\
+              <tr>\
+                 <td class="key_td">Hostname</td>\
+              <td class="value_td">'+ (vm_info.HISTORY_RECORDS? vm_info.HISTORY_RECORDS.HISTORY.HOSTNAME : "--") +'</td>\
               </tr>\
               <tr>\
                  <td class="key_td">Start time</td>\
