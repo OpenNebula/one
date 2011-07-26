@@ -42,25 +42,25 @@ function updateVMsList(req,list,tag,zone_id,zone_name){
                 zone_id,
                 zone_name,
                 vm.ID,
-                vm.UID,
-                vm.GID,
+                vm.UNAME,
+                vm.GNAME,
                 vm.NAME,
                 state,
                 vm.CPU,
                 humanize_size(vm.MEMORY),
-                vm.HISTORY ? vm.HISTORY.HOSTNAME : "--",
+                vm.HISTORY_RECORDS ? vm.HISTORY_RECORDS.HISTORY.HOSTNAME : "--",
                 pretty_time(vm.STIME)
             ]);
         } else {
             vms_array.push([
                 vm.ID,
-                vm.UID,
-                vm.GID,
+                vm.UNAME,
+                vm.GNAME,
                 vm.NAME,
                 state,
                 vm.CPU,
                 humanize_size(vm.MEMORY),
-                vm.HISTORY ? vm.HISTORY.HOSTNAME : "--",
+                vm.HISTORY_RECORDS ? vm.HISTORY_RECORDS.HISTORY.HOSTNAME : "--",
                 pretty_time(vm.STIME)
             ]);
         };
@@ -88,8 +88,8 @@ function updateVNsList(req,list,tag,zone_id,zone_name){
                 zone_id,
                 zone_name,
                 network.ID,
-                network.UID,
-                network.GID,
+                network.UNAME,
+                network.GNAME,
                 network.NAME,
                 parseInt(network.TYPE) ? "FIXED" : "RANGED",
                 network.BRIDGE,
@@ -99,8 +99,8 @@ function updateVNsList(req,list,tag,zone_id,zone_name){
         } else {
              vn_array.push([
                 network.ID,
-                network.UID,
-                network.GID,
+                network.UNAME,
+                network.GNAME,
                 network.NAME,
                 parseInt(network.TYPE) ? "FIXED" : "RANGED",
                 network.BRIDGE,
@@ -124,8 +124,8 @@ function updateTemplatesList(req,list,tag,zone_id,zone_name){
                 zone_id,
                 zone_name,
                 template.ID,
-                template.UID,
-                template.GID,
+                template.UNAME,
+                template.GNAME,
                 template.NAME,
                 pretty_time(template.REGTIME),
                 parseInt(template.PUBLIC) ? "yes" : "no"
@@ -133,8 +133,8 @@ function updateTemplatesList(req,list,tag,zone_id,zone_name){
         } else {
             template_array.push([
                 template.ID,
-                template.UID,
-                template.GID,
+                template.UNAME,
+                template.GNAME,
                 template.NAME,
                 pretty_time(template.REGTIME),
                 parseInt(template.PUBLIC) ? "yes" : "no"
@@ -191,8 +191,8 @@ function updateImagesList(req,list,tag,zone_id,zone_name){
                 zone_id,
                 zone_name,
                 image.ID,
-                image.UID,
-                image.GID,
+                image.UNAME,
+                image.GNAME,
                 image.NAME,
                 oZones.Helper.image_type(image.TYPE),
                 pretty_time(image.REGTIME),
@@ -204,8 +204,8 @@ function updateImagesList(req,list,tag,zone_id,zone_name){
         } else {
             image_array.push([
                 image.ID,
-                image.UID,
-                image.GID,
+                image.UNAME,
+                image.GNAME,
                 image.NAME,
                 oZones.Helper.image_type(image.TYPE),
                 pretty_time(image.REGTIME),
