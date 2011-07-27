@@ -118,7 +118,7 @@ var create_template_tmpl = '<div id="template_create_tabs">\
                                   <input type="text" id="KERNEL" name="kernel" />\
                                   <div class="tip">Path to the OS kernel to boot the image</div>\
                                 </div>\
-                    <div class="vm_param kvm xen kernel">\
+                            <div class="vm_param kvm xen kernel">\
                                   <label for="INITRD">Initrd:</label>\
                                   <input type="text" id="INITRD" name="initrd"/>\
                                   <div class="tip">Path to the initrd image</div>\
@@ -290,7 +290,7 @@ var create_template_tmpl = '<div id="template_create_tabs">\
                                   <!--<div class="tip"></div>-->\
                             </div>\
                             <div class="clear"></div>\
-                                <div class="vm_param kvm xen vmware network">\
+                            <div class="vm_param kvm xen vmware network">\
                                   <label for="NETWORK">Network:</label>\
                                   <select type="text" id="NETWORK_ID" name="network_id">\
                                   </select>\
@@ -326,14 +326,61 @@ var create_template_tmpl = '<div id="template_create_tabs">\
                                   <input type="text" id="MODEL" name="model" />\
                                   <div class="tip">Hardware that will emulate this network interface. With Xen this is the type attribute of the vif.</div>\
                             </div>\
+                            <div class="firewall_select">\
+                                  <label for="black_white_tcp">Tcp firewall mode:</label>\
+                                  <select name="black_white_tcp" id="black_white_tcp">\
+                                       <option value="">Optional, please select</option>\
+                                       <option value="whitelist">Port whitelist</option>\
+                                       <option value="blacklist">Port blacklist</option>\
+                                  </select>\
+                            </div>\
+                            <div class="clear"></div>\
+                            <div class="vm_param kvm_opt xen_opt vmware_opt firewall">\
+                                  <label for="white_ports_tcp">Tcp white ports:</label>\
+                                  <input type="text" id="WHITE_PORTS_TCP" name="white_ports_tcp" />\
+                                  <div class="tip">Permits access to the VM only through the specified ports in the TCP protocol</div>\
+                            </div>\
+                            <div class="vm_param kvm_opt xen_opt vmware_opt firewall">\
+                                  <label for="black_ports_tcp">Tcp black ports:</label>\
+                                  <input type="text" id="BLACK_PORTS_TCP" name="black_ports_tcp" />\
+                                  <div class="tip">Disallow access to the VM through the specified ports in the TCP protocol</div>\
+                            </div>\
+                            <div class="firewall_select">\
+                                  <label for="black_white_udp">Udp firewall mode:</label>\
+                                  <select name="black_white_udp" id="black_white_udp">\
+                                       <option value="">Optional, please select</option>\
+                                       <option value="whitelist">Port whitelist</option>\
+                                       <option value="blacklist">Port blacklist</option>\
+                                  </select>\
+                            </div>\
+                            <div class="clear"></div>\
+                            <div class="vm_param kvm_opt xen_opt vmware_opt firewall">\
+                                  <label for="white_ports_udp">Udp white ports:</label>\
+                                  <input type="text" id="WHITE_PORTS_UDP" name="white_ports_udp" />\
+                                  <div class="tip">Permits access to the VM only through the specified ports in the UDP protocol</div>\
+                            </div>\
+                            <div class="vm_param kvm_opt xen_opt vmware_opt firewall">\
+                                  <label for="black_ports_udp">Udp black ports:</label>\
+                                  <input type="text" id="BLACK_PORTS_UDP" name="black_ports_udp" />\
+                                  <div class="tip">Disallow access to the VM through the specified ports in the UDP protocol</div>\
+                            </div>\
+                            <div class="vm_param kvm_opt xen_opt vmware_opt niccfg network">\
+                                  <label for="icmp">Icmp:</label>\
+                                  <select name="icmp" id="ICMP">\
+                                      <option value="" selected="selected">Accept (default)</option>\
+                                      <option value="drop">Drop</option>\
+                                  </select>\
+                                  <div class="tip">ICMP policy</div>\
+                            </div>\
+                            <div class="clear"></div>\
                             <div class="">\
                                 <button class="add_remove_button add_button" id="add_nic_button" value="add_nic">Add</button>\
-                                    <button class="add_remove_button" id="remove_nic_button" value="remove_nic">Remove selected</button>\
-                                    <div class="clear"></div>\
-                                        <label for="nics_box">Current NICs:</label>\
-                                        <select id="nics_box" name="nics_box" style="height:100px;" multiple>\
-                                        </select>\
-                                         </div>\
+                                <button class="add_remove_button" id="remove_nic_button" value="remove_nic">Remove selected</button>\
+                                <div class="clear"></div>\
+                                <label for="nics_box">Current NICs:</label>\
+                                <select id="nics_box" name="nics_box" style="height:100px;" multiple>\
+                                </select>\
+                            </div>\
                           </fieldset>\
                           </div>\
 \
@@ -1448,6 +1495,7 @@ function setupCreateTemplateDialog(){
     var networks_setup = function(){
 
         $('.vm_param',section_networks).hide();
+        $('.firewall_select').hide();
         $('fieldset',section_networks).hide();
 
         $('#add_networks',section_networks).click(function(){
@@ -1458,6 +1506,12 @@ function setupCreateTemplateDialog(){
         //Depending on adding predefined network or not we show/hide
         //some fields
         $('#network_vs_niccfg input',section_networks).click(function(){
+
+            //firewall
+            $('.firewall',section_networks).hide();
+            $('.firewall',section_networks).attr("disabled","disabled");
+            $('.firewall_select',section_networks).show();
+            $('.firewall_select select option',section_networks).removeAttr("selected");
 
             select = $('#network_vs_niccfg :checked',section_networks).val();
             switch (select) {
@@ -1475,6 +1529,50 @@ function setupCreateTemplateDialog(){
                 break;
             }
             //hide_disabled(section_networks);
+        });
+
+        $('#black_white_tcp',section_networks).live("change",function(){
+            switch ($(this).val()) {
+            case "whitelist":
+                $('#BLACK_PORTS_TCP',section_networks).parent().attr("disabled","disabled");
+                $('#BLACK_PORTS_TCP',section_networks).parent().hide();
+                $('#WHITE_PORTS_TCP',section_networks).parent().removeAttr("disabled");
+                $('#WHITE_PORTS_TCP',section_networks).parent().show();
+                break;
+            case "blacklist":
+                $('#WHITE_PORTS_TCP',section_networks).parent().attr("disabled","disabled");
+                $('#WHITE_PORTS_TCP',section_networks).parent().hide();
+                $('#BLACK_PORTS_TCP',section_networks).parent().removeAttr("disabled");
+                $('#BLACK_PORTS_TCP',section_networks).parent().show();
+                break;
+            default:
+                $('#WHITE_PORTS_TCP',section_networks).parent().attr("disabled","disabled");
+                $('#WHITE_PORTS_TCP',section_networks).parent().hide();
+                $('#BLACK_PORTS_TCP',section_networks).parent().attr("disabled","disabled");
+                $('#BLACK_PORTS_TCP',section_networks).parent().hide();
+            };
+        });
+
+        $('#black_white_udp',section_networks).live("change",function(){
+            switch ($(this).val()) {
+            case "whitelist":
+                $('#BLACK_PORTS_UDP',section_networks).parent().attr("disabled","disabled");
+                $('#BLACK_PORTS_UDP',section_networks).parent().hide();
+                $('#WHITE_PORTS_UDP',section_networks).parent().removeAttr("disabled");
+                $('#WHITE_PORTS_UDP',section_networks).parent().show();
+                break;
+            case "blacklist":
+                $('#WHITE_PORTS_UDP',section_networks).parent().attr("disabled","disabled");
+                $('#WHITE_PORTS_UDP',section_networks).parent().hide();
+                $('#BLACK_PORTS_UDP',section_networks).parent().removeAttr("disabled");
+                $('#BLACK_PORTS_UDP',section_networks).parent().show();
+                break;
+            default:
+                $('#WHITE_PORTS_UDP',section_networks).parent().attr("disabled","disabled");
+                $('#WHITE_PORTS_UDP',section_networks).parent().hide();
+                $('#BLACK_PORTS_UDP',section_networks).parent().attr("disabled","disabled");
+                $('#BLACK_PORTS_UDP',section_networks).parent().hide();
+            };
         });
 
         //The filter to add a new network checks that we have selected a
