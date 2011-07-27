@@ -34,6 +34,7 @@ class PoolTest : public OneUnitTest
     CPPUNIT_TEST (wrong_get);
     CPPUNIT_TEST (search);
     CPPUNIT_TEST (cache_test);
+    CPPUNIT_TEST (cache_name_test);
     CPPUNIT_TEST_SUITE_END ();
 
 private:
@@ -63,8 +64,8 @@ public:
 
     void tearDown()
     {
-        delete_db();
         delete pool;
+        delete_db();
     };
 
     /* ********************************************************************* */
@@ -194,6 +195,92 @@ public:
         {
             obj_lock = pool->get(i, false);
             obj_lock->unlock();
+        }
+    };
+
+
+    void cache_name_test()
+    {
+        TestObjectSQL *obj;
+        TestObjectSQL *obj_lock;
+
+        ostringstream oss;
+        string        err_str;
+
+        //pin object in the cache, it can't be removed -
+        //Should be set to MAX_POOL -1
+        for (int i=0 ; i < 14999 ; i++)
+        {
+            oss.str("");
+            oss << "obj_" << i;
+
+            create_allocate(i, oss.str());
+
+            obj_lock = pool->get(oss.str(), 0, true);
+            CPPUNIT_ASSERT(obj_lock != 0);
+        }
+
+        for (int i=14999 ; i < 15200 ; i++) //Works with just 1 cache line
+        {
+            oss.str("");
+            oss << "obj_" << i;
+
+            create_allocate(i, oss.str());
+        }
+
+        for (int i=14999; i < 15200 ; i++)
+        {
+            oss.str("");
+            oss << "obj_" << i;
+
+            obj = pool->get(oss.str(), 0, true);
+            CPPUNIT_ASSERT(obj != 0);
+
+            CPPUNIT_ASSERT(obj->number      == i);
+            CPPUNIT_ASSERT(obj->get_name()  == obj->text);
+            CPPUNIT_ASSERT(obj->get_name()  == oss.str());
+            obj->unlock();
+        }
+
+        // Delete some of the locked objects, and create new with the same name
+        for (int i=10 ; i < 21 ; i++)
+        {
+            oss.str("");
+            oss << "obj_" << i;
+
+            obj_lock = pool->get(oss.str(), 0, false);
+            CPPUNIT_ASSERT(obj_lock != 0);
+
+            pool->drop(obj_lock, err_str);
+            obj_lock->unlock();
+
+            create_allocate(i, oss.str());
+        }
+
+        // Try to get the new objects
+        for (int i=10 ; i < 21 ; i++)
+        {
+            oss.str("");
+            oss << "obj_" << i;
+
+            obj = pool->get(oss.str(), 0, true);
+
+            CPPUNIT_ASSERT(obj != 0);
+
+            CPPUNIT_ASSERT(obj->number      == i);
+            CPPUNIT_ASSERT(obj->get_oid()   >= 15200);
+            CPPUNIT_ASSERT(obj->get_name()  == oss.str());
+            obj->unlock();
+        }
+
+        for (int i=0 ; i < 14999 ; i++)
+        {
+            obj_lock = pool->get(i, false);
+
+            if ( obj_lock != 0 )
+            {
+                obj_lock->unlock();
+            }
         }
     };
 };

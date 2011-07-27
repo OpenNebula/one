@@ -30,7 +30,7 @@ class TestObjectSQL : public PoolObjectSQL
 {
 public:
     //OBJECT ATTRIBUTES
-    TestObjectSQL(int n=-1, string t="default"):PoolObjectSQL(-1,"",0,0,"","",0),number(n),text(t){};
+    TestObjectSQL(int n=-1, string t="default"):PoolObjectSQL(-1,t,0,0,"","",table),number(n),text(t){};
 
     ~TestObjectSQL(){};
 
@@ -41,22 +41,16 @@ public:
     // OBJECTSQL INTERFACE
     int unmarshall(void * nil, int num, char **names, char ** values);
 
-    int select(SqlDB *db);
-
     int insert(SqlDB *db, string& err);
 
     int update(SqlDB *db);
 
-    int drop(SqlDB *db);
+    int insert_replace(SqlDB *db, bool replace);
 
-    // DATABASE IMPLEMENTATION
-    enum ColNames
+    int drop(SqlDB *db)
     {
-        OID             = 0,
-        NUMBER          = 1,
-        TEXT            = 2,
-        LIMIT           = 3
-    };
+        return PoolObjectSQL::drop(db);
+    }
 
     static const char * db_names;
 
@@ -74,11 +68,47 @@ public:
 
     string& to_xml(string& xml) const
     {
+        ostringstream   oss;
+
+        oss << "<TEST>"
+            << "<ID>"        << oid       << "</ID>"
+            << "<UID>"       << uid       << "</UID>"
+            << "<GID>"       << gid       << "</GID>"
+            << "<UNAME>"     << uname     << "</UNAME>"
+            << "<GNAME>"     << gname     << "</GNAME>"
+            << "<NAME>"      << name      << "</NAME>"
+            << "<NUMBER>"    << number    << "</NUMBER>"
+            << "<TEXT>"      << text      << "</TEXT>"
+            << "</TEST>";
+
+        xml = oss.str();
+
         return xml;
     };
 
     int from_xml(const string &xml_str)
     {
+        int rc = 0;
+
+        // Initialize the internal XML object
+        update_from_str(xml_str);
+
+        // Get class base attributes
+        rc += xpath(oid,       "/TEST/ID",    -1);
+        rc += xpath(uid,       "/TEST/UID",   -1);
+        rc += xpath(gid,       "/TEST/GID",   -1);
+        rc += xpath(uname,     "/TEST/UNAME", "not_found");
+        rc += xpath(gname,     "/TEST/GNAME", "not_found");
+        rc += xpath(name,      "/TEST/NAME",  "not_found");
+
+        rc += xpath(number,    "/TEST/NUMBER", -1);
+        rc += xpath(text,      "/TEST/TEXT",  "not_found");
+
+        if ( rc != 0 )
+        {
+            return -1;
+        }
+
         return 0;
     };
 };
@@ -95,7 +125,15 @@ public:
         int     oid,
         bool    lock)
     {
-        return static_cast<TestObjectSQL *>(PoolSQL::get(oid,lock));;
+        return static_cast<TestObjectSQL *>(PoolSQL::get(oid,lock));
+    }
+
+    TestObjectSQL * get(
+        const string& name,
+        int ouid,
+        bool olock)
+    {
+        return static_cast<TestObjectSQL *>(PoolSQL::get(name, ouid, olock));
     }
 
     int dump(std::ostringstream&, const std::string&){return -1;};
