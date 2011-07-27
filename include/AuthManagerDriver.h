@@ -71,9 +71,11 @@ private:
      *    "AUTHORIZE  OPERATION_ID USER_ID REQUEST1 REQUEST2..."
      *    @param oid an id to identify the request.
      *    @param uid the user id.
-     *    @param requests space separated list of requests in the form OP:OBJ:ID
+     *    @param requests space separated list of requests in the form OP:OB:ID
+     *    @param acl is the authorization result using the ACL engine for
+     *           this request
      */
-    void authorize(int oid, int uid, const string& requests) const;
+    void authorize(int oid, int uid, const string& requests, bool acl) const;
 
     /**
      *  Sends an authorization request to the MAD:

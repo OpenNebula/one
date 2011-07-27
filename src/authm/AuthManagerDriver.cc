@@ -25,11 +25,14 @@
 /* Driver ASCII Protocol Implementation                                       */
 /* ************************************************************************** */
 
-void AuthManagerDriver::authorize(int oid, int uid, const string& reqs) const
+void AuthManagerDriver::authorize(int           oid, 
+                                  int           uid, 
+                                  const string& reqs, 
+                                  bool          acl) const
 {
     ostringstream os;
 
-    os << "AUTHORIZE " << oid << " " << uid << " " << reqs << endl;
+    os << "AUTHORIZE " << oid << " " << uid << " " << reqs << " " << acl <<endl;
 
     write(os);
 }
