@@ -504,4 +504,43 @@ class OCCIServer < CloudServer
 
         return to_occi_xml(user, 200)
     end
+    
+    ############################################################################
+    ############################################################################
+    #                      BonFIRE Specific
+    ############################################################################
+    ############################################################################
+    def get_computes_types
+        etc_location=ONE_LOCATION ? ONE_LOCATION+"/etc" : "/etc/one"
+        begin
+            xml_response = "<ALLOWED_COMPUTE_TYPES>\n"
+            
+            Dir[etc_location + "/occi_templates/**"].each{| filename |
+                next if File.basename(filename) == "common.erb"
+                xml_response += "\t<COMPUTE_TYPE>"
+                xml_response += "\t\t<NAME>#{File.basename(filename)[0..-5]}</NAME>"
+                file = File.open(filename, "r")
+                file.each_line{|line|
+                    next if line.match(/^#/)
+                    match=line.match(/^(.*)=(.*)/)
+                    next if !match 
+                    case match[1].strip
+                        when "NAME"
+                            xml_response += "\t\t<NAME>#{match[2].strip}</NAME>"                            
+                        when "CPU"
+                            xml_response += "\t\t<vCPU>#{match[2].strip}</vCPU>"
+                        when "MEMORY"
+                            xml_response += "\t\t<vMEM>#{match[2].strip}</vMEM>"  
+                    end                              
+                }
+                xml_response += "\t</COMPUTE_TYPE>"
+            }
+            
+            xml_response += "</ALLOWED_COMPUTE_TYPES>"
+
+            return xml_response, 200
+        rescue Exception  => e
+            return "Error getting the instance types. Reason: #{e.message}", 500
+        end        
+    end
 end
