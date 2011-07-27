@@ -28,87 +28,125 @@ end
 
 $: << RUBY_LIB_LOCATION
 
-require 'pp'
 
-require 'rubygems'
 require 'OpenNebulaDriver'
-require 'simple_auth'
-require 'simple_permissions'
-require 'yaml'
-require 'sequel'
-require 'ssh_auth'
+require 'getoptlong'
 
-class AuthorizationManager < OpenNebulaDriver
-    def initialize
+# This is a generic AuthZ/AuthN driver able to manage multiple authentication 
+# protocols (simultaneosly). It also supports the definition of custom 
+# authorization methods
+class AuthDriver < OpenNebulaDriver
+
+    # Auth Driver Protocol constants
+    ACTION = {
+        :authN => "AUTHENTICATE",
+        :authZ => "AUTHORIZE"
+    }
+
+    # Initialize an AuthDriver
+    #
+    # @param [String] the authorization method to be used, nil to use the 
+    #        built-in ACL engine
+    def initialize(authZ, nthreads)
         super(
-            :concurrency => 15,
-            :threaded => true
+            "auth",
+            :concurrency   => nthreads,
+            :threaded      => nthreads > 0,
+            :local_actions => {ACTION[:authN] => nil, ACTION[:authZ] => nil}
         )
+
+        register_action(ACTION[:authN].to_sym, method("authN"))
+        register_action(ACTION[:authZ].to_sym, method("authZ"))
+
+        if authZ != nil
+            @authZ_cmd = File.join(@local_scripts_path, authZ)
+            @authZ_cmd = File.join(@authZ_cmd, ACTION[:authZ].downcase)
+        else
+            @authZ_cmd = nil
+        end
+    end
+
+    # Authenticate a user based in a string of the form user:secret when using the 
+    # driver secret is protocol:token
+    # @param [String] the id for this request, used by OpenNebula core
+    #        to identify the request 
+    # @param [String] id of the user, "-1" if not in defined in OpenNebula
+    # @param [Strgin] user filed of the auth string
+    # @param [String] password of the user registered in OpenNebula "-" if none
+    # @param [String] secret filed of the auth string
+    def authN(request_id, user_id, user, password, secret)
+
+        secret_attr = secret.split(':')
+
+        if secret_attr.length == 1 
+            protocol = "plain"
+        else
+            protocol = secret_attr[0]
+            secret_attr.shift
+        end
+
+        #build path for the auth action
+        #/var/lib/one/remotes/auth/<protocol>/authenticate
+        authN_path = File.join(@local_scripts_path, protocol)
         
-        config_data=File.read(ETC_LOCATION+'/auth/auth.conf')
-        STDERR.puts(config_data)
-        @config=YAML::load(config_data)
+        command = File.join(authN_path,ACTION[:authN].downcase) 
+        command << ' ' << secret_attr.join(' ')
+
+        local_action(command, request_id, ACTION[:authN])
+    end
+    
+    # Authenticate a user based in a string of the form user:secret when using the 
+    # driver secret is protocol:token
+    # @param [String] the id for this request, used by OpenNebula core
+    #        to identify the request 
+    # @param [String] id of the user, "-1" if not in defined in OpenNebula
+    # @param [Array] of auth strings, last element is the ACL evaluation of 
+    #        the overall request (0 = denied, 1 = granted). Each request is in
+    #        the form:
+    #        OBJECT:<TEMPLATE_64|OBJECT_ID>:OPERATION:OWNER:PUBLIC:ACL_EVAL
+    def authZ(request_id, user_id, *requests)
         
-        STDERR.puts @config.inspect
-        
-        database_url=@config[:database]
-        @db=Sequel.connect(database_url)
-        
-        # Get authentication driver
-        begin
-            driver_prefix=@config[:authentication].capitalize
-            driver_name="#{driver_prefix}Auth"
-            driver=Kernel.const_get(driver_name.to_sym)
-            @authenticate=driver.new
+        requests.flatten!
+
+        if @authZ_cmd == nil
+            if requests[-1] == "1"
+                result = RESULT[:success]
+            else
+                result = RESULT[:failure]
+            end
+
+            send_message(ACTION[:authZ],result,request_id,"-")
+        else
+            command = @authZ_cmd
+            command << ' ' << requests.join(' ')
             
-            STDERR.puts "Using '#{driver_prefix}' driver for authentication"
-        rescue
-            STDERR.puts "Driver '#{driver_prefix}' not found, "<<
-                "using SimpleAuth instead"
-            @authenticate=SimpleAuth.new
-        end
-        
-        @permissions=SimplePermissions.new(@db, OpenNebula::Client.new,
-            @config)
-        
-        register_action(:AUTHENTICATE, method('action_authenticate'))
-        register_action(:AUTHORIZE, method('action_authorize'))
-    end
-    
-    def action_authenticate(request_id, user_id, user, password, token)
-        auth=@authenticate.auth(user_id, user, password, token)
-        if auth==true
-            send_message('AUTHENTICATE', RESULT[:success],
-                request_id, 'Successfully authenticated')
-        else
-            send_message('AUTHENTICATE', RESULT[:failure],
-                request_id, auth)
-        end
-    end
-    
-    def action_authorize(request_id, user_id, *tokens)
-        begin
-            auth=@permissions.auth(user_id, tokens.flatten)
-        rescue Exception => e
-            auth="Error: #{e}"
-        end
-        
-        if auth==true
-            send_message('AUTHORIZE', RESULT[:success],
-                request_id, 'success')
-        else
-            send_message('AUTHORIZE', RESULT[:failure],
-                request_id, auth)
+            local_action(command, request_id, ACTION[:authZ])
         end
     end
 end
 
+# Auth Driver Main program
+opts = GetoptLong.new(
+    [ '--threads',    '-t', GetoptLong::REQUIRED_ARGUMENT ],
+    [ '--authz',      '-z', GetoptLong::REQUIRED_ARGUMENT ]
+)
+
+threads = 15
+authz   = nil
+
 begin
-    am=AuthorizationManager.new
+    opts.each do |opt, arg|
+        case opt
+            when '--threads'
+                threads = arg.to_i
+            when '--authz'
+                authz   = arg
+        end
+    end
 rescue Exception => e
-    puts "Error: #{e}"
     exit(-1)
 end
 
-am.start_driver
+auth_driver = AuthDriver.new(authz, threads)
 
+auth_driver.start_driver

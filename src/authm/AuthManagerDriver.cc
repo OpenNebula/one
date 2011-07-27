@@ -38,10 +38,10 @@ void AuthManagerDriver::authorize(int           oid,
 }
 
 void AuthManagerDriver::authenticate(int           oid,
-                      int           uid,
-                      const string& username,
-                      const string& password,
-                      const string& session) const
+                                     int           uid,
+                                     const string& username,
+                                     const string& password,
+                                     const string& session) const
 {
     ostringstream os;
 
