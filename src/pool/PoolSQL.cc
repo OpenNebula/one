@@ -185,6 +185,11 @@ PoolObjectSQL * PoolSQL::get(
             if ( olock == true )
             {
                 objectsql->lock();
+
+                if ( objectsql->isValid() == false )
+                {
+                    objectsql = 0;
+                }
             }
         }
 
@@ -246,19 +251,17 @@ PoolObjectSQL * PoolSQL::get(const string& name, int ouid, bool olock)
 
     index = name_pool.find(key(name,ouid));
 
-    if ( index != name_pool.end() )
+    if ( index != name_pool.end() && index->second->isValid() == true )
     {
-        if ( index->second->isValid() == false )
-        {
-            objectsql = 0;
-        }
-        else
-        {
-            objectsql = index->second;
+        objectsql = index->second;
 
-            if ( olock == true )
+        if ( olock == true )
+        {
+            objectsql->lock();
+
+            if ( objectsql->isValid() == false )
             {
-                objectsql->lock();
+                objectsql = 0;
             }
         }
 
@@ -279,6 +282,19 @@ PoolObjectSQL * PoolSQL::get(const string& name, int ouid, bool olock)
             unlock();
 
             return 0;
+        }
+
+        if ( index != name_pool.end() && index->second->isValid() == false )
+        {
+            index->second->lock();
+
+            PoolObjectSQL * tmp_ptr  = index->second;
+            string          tmp_okey = key(tmp_ptr->name,tmp_ptr->uid);
+
+            pool.erase(tmp_ptr->oid);
+            name_pool.erase(tmp_okey);
+
+            delete tmp_ptr;
         }
 
         string okey = key(objectsql->name,objectsql->uid);
@@ -323,7 +339,7 @@ void PoolSQL::replace()
         if ( index == pool.end())
         {
             oid_queue.pop();
-            break;
+            continue;
         }
 
         rc = pthread_mutex_trylock(&(index->second->mutex));
