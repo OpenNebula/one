@@ -233,11 +233,11 @@ public:
         return 0;
 
     error_vms:
-        error_str = "Image cannot be in 'used' state";
+        error_str = "Image cannot be in 'used' state.";
         goto error_common;
 
     error_public:
-        error_str = "Image cannot be public and persistent";
+        error_str = "Image cannot be public and persistent.";
         goto error_common;
 
     error_common:
