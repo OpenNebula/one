@@ -77,7 +77,7 @@ class AuthDriver < OpenNebulaDriver
     # @param [String] secret filed of the auth string
     def authN(request_id, user_id, user, password, secret)
 
-        #OpenNebula.log_debug("#{request_id} #{user_id} #{password} #{secret}")
+        #OpenNebula.log_debug("authN: #{request_id} #{user_id} #{password} #{secret}")
 
         secret_attr = secret.split(':')
 
@@ -111,8 +111,8 @@ class AuthDriver < OpenNebulaDriver
         
         requests.flatten!
 
-        #OpenNebula.log_debug("#{request_id} #{user_id} #{requests}")
-
+        #OpenNebula.log_debug("authZ: #{request_id} #{user_id} #{requests}")
+        
         if @authZ_cmd == nil
             if requests[-1] == "1"
                 result = RESULT[:success]
