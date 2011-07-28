@@ -222,7 +222,9 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/hooks \
           $VAR_LOCATION/remotes/hooks/vnm \
           $VAR_LOCATION/remotes/image \
-          $VAR_LOCATION/remotes/image/fs"
+          $VAR_LOCATION/remotes/image/fs \
+          $VAR_LOCATION/remotes/auth \
+          $VAR_LOCATION/remotes/auth/ssh"
 
 SUNSTONE_DIRS="$SUNSTONE_LOCATION/models \
                $SUNSTONE_LOCATION/models/OpenNebulaJSON \
@@ -314,6 +316,7 @@ INSTALL_FILES=(
     IM_PROBES_KVM_FILES:$VAR_LOCATION/remotes/im/kvm.d
     IM_PROBES_XEN_FILES:$VAR_LOCATION/remotes/im/xen.d
     IM_PROBES_GANGLIA_FILES:$VAR_LOCATION/remotes/im/ganglia.d
+    AUTH_SSH_FILES:$VAR_LOCATION/remotes/auth/ssh
     VMM_EXEC_KVM_SCRIPTS:$VAR_LOCATION/remotes/vmm/kvm
     VMM_EXEC_XEN_SCRIPTS:$VAR_LOCATION/remotes/vmm/xen
     VMM_EXEC_XEN_KVM_POLL:$VAR_LOCATION/remotes/vmm/kvm/poll
@@ -478,11 +481,7 @@ RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/mad/ruby/Ganglia.rb \
                 src/oca/ruby/OpenNebula.rb \
                 src/tm_mad/TMScript.rb \
-                src/authm_mad/one_usage.rb \
-                src/authm_mad/quota.rb \
-                src/authm_mad/simple_auth.rb \
-                src/authm_mad/simple_permissions.rb \
-                src/authm_mad/ssh_auth.rb"
+                src/authm_mad/remotes/ssh/ssh_auth.rb"
 
 #-----------------------------------------------------------------------------
 # MAD Script library files, to be installed under $LIB_LOCATION/<script lang>
@@ -556,7 +555,7 @@ VMM_EXEC_XEN_KVM_POLL="src/vmm_mad/remotes/poll_xen_kvm.rb"
 VMM_EXEC_GANGLIA_POLL="src/vmm_mad/remotes/poll_ganglia.rb"
 
 #-------------------------------------------------------------------------------
-# Information Manager Probes, to be installed under $LIB_LOCATION/remotes
+# Information Manager Probes, to be installed under $REMOTES_LOCATION/im
 #-------------------------------------------------------------------------------
 
 IM_PROBES_FILES="src/im_mad/remotes/run_probes"
@@ -573,6 +572,10 @@ IM_PROBES_KVM_FILES="src/im_mad/remotes/kvm.d/kvm.rb \
 
 IM_PROBES_GANGLIA_FILES="src/im_mad/remotes/ganglia.d/ganglia_probe"
 
+#-------------------------------------------------------------------------------
+# Auth Manager drivers to be installed under $REMOTES_LOCATION/auth
+#-------------------------------------------------------------------------------
+AUTH_SSH_FILES="src/authm_mad/remotes/ssh/authenticate"
 
 #-------------------------------------------------------------------------------
 # Transfer Manager commands, to be installed under $LIB_LOCATION/tm_commands

@@ -253,6 +253,9 @@ bool UserPool::authenticate(const string& session,
 
     ar.add_authenticate(username,u_pass,secret);
 
+            NebulaLog::log("AuM********",Log::ERROR,username);
+            NebulaLog::log("AuM*********",Log::ERROR,u_pass);
+            NebulaLog::log("AuM**********",Log::ERROR,secret);
     if ( uid == 0 ) //oneadmin
     {
         if (ar.plain_authenticate())

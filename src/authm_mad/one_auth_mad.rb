@@ -29,6 +29,7 @@ end
 $: << RUBY_LIB_LOCATION
 
 
+require 'scripts_common'
 require 'OpenNebulaDriver'
 require 'getoptlong'
 
@@ -76,6 +77,8 @@ class AuthDriver < OpenNebulaDriver
     # @param [String] secret filed of the auth string
     def authN(request_id, user_id, user, password, secret)
 
+        #OpenNebula.log_debug("#{request_id} #{user_id} #{password} #{secret}")
+
         secret_attr = secret.split(':')
 
         if secret_attr.length == 1 
@@ -90,7 +93,7 @@ class AuthDriver < OpenNebulaDriver
         authN_path = File.join(@local_scripts_path, protocol)
         
         command = File.join(authN_path,ACTION[:authN].downcase) 
-        command << ' ' << secret_attr.join(' ')
+        command << ' ' << user << ' ' << password << ' ' << secret_attr.join(' ')
 
         local_action(command, request_id, ACTION[:authN])
     end
