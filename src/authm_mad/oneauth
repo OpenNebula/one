@@ -35,7 +35,6 @@ require 'OpenNebula'
 
 require 'rubygems'
 require 'sequel'
-require 'quota'
 require 'ssh_auth'
 require 'yaml'
 
@@ -89,7 +88,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         the expiration time in seconds
     EOT
 
-    command 'login', login_desc, :userid, :text do
+    command 'login', login_desc, :text, :text do
         user=args[0]
         time=args[1]
         pp args
@@ -106,7 +105,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     command 'key', 'Gets public key' do
         ssh=SshAuth.new
-        puts ssh.extract_public_key
+        puts ssh.public_key
         exit_with_code 0
     end
 end
