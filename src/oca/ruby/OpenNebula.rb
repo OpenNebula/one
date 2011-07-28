@@ -96,11 +96,11 @@ module OpenNebula
                 raise "ONE_AUTH file not present"
             end
 
-            tokens = one_secret.split(':')
+            tokens = one_secret.chomp!.split(':')
 
             if tokens.length > 2
                 @one_auth = one_secret
-            elsif secret_tokens == 2
+            elsif tokens.length == 2
                 @one_auth = "#{tokens[0]}:#{Digest::SHA1.hexdigest(tokens[1])}"
             else
                 raise "Authorization file malformed"
