@@ -111,6 +111,8 @@ class AuthDriver < OpenNebulaDriver
         
         requests.flatten!
 
+        #OpenNebula.log_debug("#{request_id} #{user_id} #{requests}")
+
         if @authZ_cmd == nil
             if requests[-1] == "1"
                 result = RESULT[:success]

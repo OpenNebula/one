@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
 #                                                                            #
@@ -14,22 +16,29 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# Password authentication module. This one just compares stored password
-# with the token sent by the client.
-class SimpleAuth
-    # Method called by authentication driver. It should awnser true if
-    # successful or a string with the error message if failure. All
-    # parameters are strings extracted from the authorization message.
-    #
-    # * user_id: OpenNebula user identifier
-    # * user: user name
-    # * password: password stored in OpenNebula dabatase
-    # * token: password sent by the client trying to connect
-    def auth(user_id, user, password, token)
-        auth=(password==token)
-        auth="Invalid credentials" if auth!=true or token=='-'
-        auth
-    end
+ONE_LOCATION=ENV["ONE_LOCATION"]
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
+    ETC_LOCATION="/etc/one/"
+else
+    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
+    ETC_LOCATION=ONE_LOCATION+"/etc/"
 end
 
+$: << RUBY_LIB_LOCATION
 
+require 'scripts_common'
+
+user   = ARGV[0]
+pass   = ARGV[1]
+secret = ARGV[2] 
+
+#OpenNebula.log_debug("Authenticating #{user}, with password #{pass} (#{secret})")
+
+if pass == secret
+    exit 0
+else
+    OpenNebula.error_message "Invalid credentials"
+    exit -1
+end
