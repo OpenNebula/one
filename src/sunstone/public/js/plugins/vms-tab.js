@@ -577,9 +577,19 @@ function str_start_time(vm){
 function vMachineElementArray(vm_json){
     var vm = vm_json.VM;
     var state = OpenNebula.Helper.resource_state("vm",vm.STATE);
+    var hostname = "--";
+
+    if (state == "ACTIVE" || state == "SUSPENDED"){
+        if (vm.HISTORY_RECORDS.HISTORY.constructor == Array){
+            hostname = vm.HISTORY_RECORDS.HISTORY[vm.HISTORY_RECORDS.HISTORY.length-1].HOSTNAME;
+        } else {
+            hostname = vm.HISTORY_RECORDS.HISTORY.HOSTNAME;
+        };
+    };
+
     if (state == "ACTIVE") {
         state = OpenNebula.Helper.resource_state("vm_lcm",vm.LCM_STATE);
-    }
+    };
 
     return [
         '<input type="checkbox" id="vm_'+vm.ID+'" name="selected_items" value="'+vm.ID+'"/>',
@@ -590,7 +600,7 @@ function vMachineElementArray(vm_json){
         state,
         vm.CPU,
         humanize_size(vm.MEMORY),
-        vm.HISTORY_RECORDS ? vm.HISTORY_RECORDS.HISTORY.HOSTNAME : "--",
+        hostname,
         str_start_time(vm),
         vncIcon(vm)
     ];
@@ -647,6 +657,16 @@ function updateVMachinesView(request, vmachine_list){
 // Refreshes the information panel for a VM
 function updateVMInfo(request,vm){
     var vm_info = vm.VM;
+    var vm_state = OpenNebula.Helper.resource_state("vm",vm_info.STATE);
+    var hostname = "--"
+    if (vm_state == "ACTIVE" || vm_state == "SUSPENDED") {
+        if (vm_info.HISTORY_RECORDS.HISTORY.constructor == Array){
+            hostname = vm_info.HISTORY_RECORDS.HISTORY[vm_info.HISTORY_RECORDS.HISTORY.length-1].HOSTNAME
+        } else {
+            hostname = vm_info.HISTORY_RECORDS.HISTORY.HOSTNAME;
+        };
+    };
+
     var info_tab = {
         title : "VM information",
         content:
@@ -673,7 +693,7 @@ function updateVMInfo(request,vm){
               </tr>\
               <tr>\
                  <td class="key_td">State</td>\
-                 <td class="value_td">'+OpenNebula.Helper.resource_state("vm",vm_info.STATE)+'</td>\
+                 <td class="value_td">'+vm_state+'</td>\
               </tr>\
               <tr>\
                  <td class="key_td">LCM State</td>\
@@ -681,7 +701,7 @@ function updateVMInfo(request,vm){
               </tr>\
               <tr>\
                  <td class="key_td">Hostname</td>\
-              <td class="value_td">'+ (vm_info.HISTORY_RECORDS? vm_info.HISTORY_RECORDS.HISTORY.HOSTNAME : "--") +'</td>\
+              <td class="value_td">'+ hostname +'</td>\
               </tr>\
               <tr>\
                  <td class="key_td">Start time</td>\
