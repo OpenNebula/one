@@ -246,15 +246,14 @@ class SunstoneServer
         end
 
         # The VM host and its VNC port
-        host = resource['HISTORY/HOSTNAME']
+        host = resource['/VM/HISTORY_RECORDS/HISTORY[last()]/HOSTNAME']
         vnc_port = resource['TEMPLATE/GRAPHICS/PORT']
         # The noVNC proxy_port
         proxy_port = config[:vnc_proxy_base_port].to_i + vnc_port.to_i
 
         begin
-            novnc_cmd = "#{config[:novnc_path]}/utils/launch.sh"
-            pipe = IO.popen("#{novnc_cmd} --listen #{proxy_port} \
-                                          --vnc #{host}:#{vnc_port}")
+            novnc_cmd = "#{config[:novnc_path]}/utils/wsproxy.py"
+            pipe = IO.popen("#{novnc_cmd} #{proxy_port} #{host}:#{vnc_port}")
         rescue Exception => e
             error = Error.new(e.message)
             return [500, error.to_json]
