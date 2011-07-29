@@ -33,6 +33,16 @@ function updateVMsList(req,list,tag,zone_id,zone_name){
     $.each(list,function(){
         var vm = this.VM;
         var state = oZones.Helper.resource_state("vm",vm.STATE);
+        var hostname = "--";
+
+        if (state == "ACTIVE" || state == "SUSPENDED"){
+            if (vm.HISTORY_RECORDS.HISTORY.constructor == Array){
+                hostname = vm.HISTORY_RECORDS.HISTORY[vm.HISTORY_RECORDS.HISTORY.length-1].HOSTNAME;
+            } else {
+                hostname = vm.HISTORY_RECORDS.HISTORY.HOSTNAME;
+            };
+        };
+
         if (state == "ACTIVE") {
             state = oZones.Helper.resource_state("vm_lcm",vm.LCM_STATE);
         }
@@ -48,7 +58,7 @@ function updateVMsList(req,list,tag,zone_id,zone_name){
                 state,
                 vm.CPU,
                 humanize_size(vm.MEMORY),
-                vm.HISTORY_RECORDS ? vm.HISTORY_RECORDS.HISTORY.HOSTNAME : "--",
+                hostname,
                 pretty_time(vm.STIME)
             ]);
         } else {
