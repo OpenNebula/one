@@ -89,7 +89,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
             end
 
             column :GROUP, "Group of the User", :left, :size=>8 do |d|
-                helper.gid_to_str(d["GID"], options)
+                helper.group_name(d, options)
             end
 
             column :PASSWORD, "Password of the User", :size=>50 do |d|

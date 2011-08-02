@@ -100,9 +100,9 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
         puts
 
         CLIHelper.print_header(str_h1 % "USERS", false)
-        CLIHelper.print_header("%-15s %-20s" % ["ID","NAME"])
+        CLIHelper.print_header("%-15s" % ["ID"])
         group.user_ids.each do |uid|
-            puts "%-15s %-20s" % [uid, self.uid_to_str(uid.to_s)]
+            puts "%-15s" % [uid]
         end
     end
 

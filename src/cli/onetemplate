@@ -48,12 +48,12 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     ########################################################################
     # Formatters for arguments
     ########################################################################
-    set :format, :groupid, OpenNebulaHelper.name_to_id_desc("GROUP") do |arg|
-        OpenNebulaHelper.name_to_id(arg, "GROUP")
+    set :format, :groupid, OpenNebulaHelper.rname_to_id_desc("GROUP") do |arg|
+        OpenNebulaHelper.rname_to_id(arg, "GROUP")
     end
 
-    set :format, :userid, OpenNebulaHelper.name_to_id_desc("USER") do |arg|
-        OpenNebulaHelper.name_to_id(arg, "USER")
+    set :format, :userid, OpenNebulaHelper.rname_to_id_desc("USER") do |arg|
+        OpenNebulaHelper.rname_to_id(arg, "USER")
     end
 
     set :format, :templateid, OneTemplateHelper.to_id_desc do |arg|
