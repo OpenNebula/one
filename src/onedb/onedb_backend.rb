@@ -117,11 +117,11 @@ end
 
 class BackEndMySQL < OneDBBacKEnd
     def initialize(opts={})
-        @server  = ops[:server]
-        @port    = ops[:port]
-        @user    = ops[:user]
-        @passwd  = ops[:passwd]
-        @db_name = ops[:db_name]
+        @server  = opts[:server]
+        @port    = opts[:port]
+        @user    = opts[:user]
+        @passwd  = opts[:passwd]
+        @db_name = opts[:db_name]
 
         # Check for errors:
         error   = false
