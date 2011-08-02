@@ -115,7 +115,7 @@ class OneDBBacKEnd
     end
 end
 
-class OneDBBackEndMySQL < OneDBBacKEnd
+class BackEndMySQL < OneDBBacKEnd
     def initialize(opts={})
         @server  = ops[:server]
         @port    = ops[:port]
