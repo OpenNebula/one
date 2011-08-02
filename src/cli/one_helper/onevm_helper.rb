@@ -107,9 +107,10 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         end
     end
 
-    def format_pool(pool, options, top=false)
-        config_file=self.class.table_conf
-        table=CLIHelper::ShowTable.new(config_file, self) do
+    def format_pool(options)
+        config_file = self.class.table_conf
+
+        table = CLIHelper::ShowTable.new(config_file, self) do
             column :ID, "ONE identifier for Virtual Machine", :size=>6 do |d|
                 d["ID"]
             end
@@ -162,11 +163,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 :TIME
         end
 
-        if top
-            table.top(pool, options)
-        else
-            table.show(pool, options)
-        end
+        table
     end
 
     def format_history(vm)

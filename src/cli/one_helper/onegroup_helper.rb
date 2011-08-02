@@ -106,9 +106,10 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
         end
     end
 
-    def format_pool(pool, options, top=false)
-        config_file=self.class.table_conf
-        table=CLIHelper::ShowTable.new(config_file, self) do
+    def format_pool(options)
+        config_file = self.class.table_conf
+
+        table = CLIHelper::ShowTable.new(config_file, self) do
             column :ID, "ONE identifier for the Group", :size=>4 do |d|
                 d["ID"]
             end
@@ -120,10 +121,6 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
             default :ID, :NAME
         end
 
-        if top
-            table.top(pool, options)
-        else
-            table.show(pool, options)
-        end
+        table
     end
 end

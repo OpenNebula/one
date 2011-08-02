@@ -92,21 +92,17 @@ EOT
             if options[:xml]
                 return 0, pool.to_xml(true)
             else
-                phash = pool.to_hash
-                rname = self.class.rname
+                table = format_pool(options)
 
-                if phash["#{rname}_POOL"] &&
-                        phash["#{rname}_POOL"]["#{rname}"]
-                    if phash["#{rname}_POOL"]["#{rname}"].instance_of?(Array)
-                        phash = phash["#{rname}_POOL"]["#{rname}"]
-                    else
-                        phash = [phash["#{rname}_POOL"]["#{rname}"]]
-                    end
+                if top
+                    table.top(options) {
+                        pool.info
+                        pool_to_array(pool)
+                    }
                 else
-                    phash = Array.new
+                    table.show(pool_to_array(pool), options)
                 end
 
-                format_pool(phash, options, top)
                 return 0
             end
         end
@@ -286,6 +282,24 @@ EOT
 
             rc = resource.info
             OpenNebula.is_error?(rc) ? rc : resource
+        end
+
+        def pool_to_array(pool)
+            phash = pool.to_hash
+            rname = self.class.rname
+
+            if phash["#{rname}_POOL"] &&
+                    phash["#{rname}_POOL"]["#{rname}"]
+                if phash["#{rname}_POOL"]["#{rname}"].instance_of?(Array)
+                    phash = phash["#{rname}_POOL"]["#{rname}"]
+                else
+                    phash = [phash["#{rname}_POOL"]["#{rname}"]]
+                end
+            else
+                phash = Array.new
+            end
+
+            phash
         end
 
         def translation_hash
