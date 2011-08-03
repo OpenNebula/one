@@ -40,10 +40,15 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     # Global Options
     ########################################################################
     set :option, CommandParser::OPTIONS
-    
+
     list_options = CLIHelper::OPTIONS
     list_options << OpenNebulaHelper::XML
     list_options << OpenNebulaHelper::NUMERIC
+
+    instantiate_options = [
+        OneTemplateHelper::VM_NAME,
+        OneTemplateHelper::MULTIPLE
+    ]
 
     ########################################################################
     # Formatters for arguments
@@ -98,16 +103,26 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         managed with the 'onevm' command
     EOT
 
-    command :instantiate, instantiate_desc, [:range,:templateid_list] do
-        helper.perform_actions(args[0],options,"instantiated") do |t|
-            res = t.instantiate
+    command :instantiate, instantiate_desc, :templateid,
+            :options=>instantiate_options do
+        exit_code=0
 
-            if !OpenNebula.is_error?(res)
-                puts "VM ID: #{res}"
+        number = options[:multiple] || 1
+        number.times do
+            exit_code=helper.perform_action(args[0],options,"instantiated") do |t|
+                res = t.instantiate(options[:vm_name])
+
+                if !OpenNebula.is_error?(res)
+                    puts "VM ID: #{res}"
+                end
+
+                res
             end
 
-            res
+            break if exit_code==-1
         end
+
+        exit_code
     end
 
     publish_desc = <<-EOT.unindent

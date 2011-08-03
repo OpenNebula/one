@@ -17,6 +17,22 @@
 require 'one_helper'
 
 class OneTemplateHelper < OpenNebulaHelper::OneHelper
+    VM_NAME={
+        :name  => "vm_name",
+        :short => "-n vm_name",
+        :large => "--name vm_name",
+        :format => String,
+        :description => "Name of the new Virtual Machine"
+    }
+
+    MULTIPLE={
+        :name  => "multiple",
+        :short => "-m x",
+        :large => "--multiple x",
+        :format => Integer,
+        :description => "Instance multiple VMs"
+    }
+
     def self.rname
         "VMTEMPLATE"
     end
