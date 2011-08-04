@@ -160,8 +160,12 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :backup, backup_desc, [:output_file, nil], :options=>FORCE do
-        helper = OneDB.new(options)
-        helper.backup(args[0], options)
+        begin
+            helper = OneDB.new(options)
+            helper.backup(args[0], options)
+        rescue Exception => e
+            [-1, e.message]
+        end
     end
 
     ###########################################################################
@@ -173,8 +177,12 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :version , version_desc do
-        helper = OneDB.new(options)
-        helper.version(options)
+        begin
+            helper = OneDB.new(options)
+            helper.version(options)
+        rescue Exception => e
+            [-1, e.message]
+        end
     end
 
     ###########################################################################
@@ -185,8 +193,12 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :history , history_desc do
-        helper = OneDB.new(options)
-        helper.history
+        begin
+            helper = OneDB.new(options)
+            helper.history
+        rescue Exception => e
+            [-1, e.message]
+        end
     end
 
     ###########################################################################
@@ -198,8 +210,12 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :restore , restore_desc, [:backup_file, nil], :options=>FORCE do
-        helper = OneDB.new(options)
-        helper.restore(args[0], options)
+        begin
+            helper = OneDB.new(options)
+            helper.restore(args[0], options)
+        rescue Exception => e
+            [-1, e.message]
+        end
     end
 
     ###########################################################################
@@ -212,7 +228,11 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :upgrade , upgrade_desc, [:version, nil], :options=>[FORCE,BACKUP] do
-        helper = OneDB.new(options)
-        helper.upgrade(args[0], options)
+        begin
+            helper = OneDB.new(options)
+            helper.upgrade(args[0], options)
+        rescue Exception => e
+            [-1, e.message]
+        end
     end
 end
