@@ -56,25 +56,31 @@ class SunstoneServer
     ############################################################################
     #
     ############################################################################
-    def get_pool(kind,gid)
+    def get_pool(kind,gid,filter)
+        if gid == "0"
+            user_flag = Pool::INFO_ALL
+        else
+            user_flag = case filter
+                when "MINE"  then Pool::INFO_MINE
+                when "GROUP" then Pool::INFO_GROUP
+                else Pool::INFO_GROUP
+            end
+        end
+
         pool = case kind
             when "group"    then GroupPoolJSON.new(@client)
             when "host"     then HostPoolJSON.new(@client)
-            when "image"    then ImagePoolJSON.new(@client)
-            when "template" then TemplatePoolJSON.new(@client)
-            when "vm"       then VirtualMachinePoolJSON.new(@client)
-            when "vnet"     then VirtualNetworkPoolJSON.new(@client)
+            when "image"    then ImagePoolJSON.new(@client, user_flag)
+            when "template" then TemplatePoolJSON.new(@client, user_flag)
+            when "vm"       then VirtualMachinePoolJSON.new(@client, user_flag)
+            when "vnet"     then VirtualNetworkPoolJSON.new(@client, user_flag)
             when "user"     then UserPoolJSON.new(@client)
             else
                 error = Error.new("Error: #{kind} resource not supported")
                 return [404, error.to_json]
         end
 
-        rc = case kind
-             when "group","host","user" then pool.info
-             else
-                 gid != "0" ? pool.info_group : pool.info_all
-             end
+        rc = pool.info
 
         if OpenNebula.is_error?(rc)
             return [500, rc.to_json]

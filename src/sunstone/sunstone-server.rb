@@ -183,16 +183,14 @@ get '/:resource/monitor' do
     @SunstoneServer.get_monitoring(
         nil,
         params[:resource],
-        params[:monitor_resources]
-    )
+        params[:monitor_resources])
 end
 
 get '/:resource/:id/monitor' do
     @SunstoneServer.get_monitoring(
         params[:id],
         params[:resource],
-        params[:monitor_resources]
-    )
+        params[:monitor_resources])
 end
 
 
@@ -200,7 +198,9 @@ end
 # GET Pool information
 ##############################################################################
 get '/:pool' do
-    @SunstoneServer.get_pool(params[:pool],session[:user_gid])
+    @SunstoneServer.get_pool(params[:pool],
+                             session[:user_gid],
+                             settings.config[:pool_filter])
 end
 
 ##############################################################################
@@ -283,5 +283,7 @@ end
 # Perform an action on a Resource
 ##############################################################################
 post '/:resource/:id/action' do
-    @SunstoneServer.perform_action(params[:resource], params[:id], request.body.read)
+    @SunstoneServer.perform_action(params[:resource],
+                                   params[:id],
+                                   request.body.read)
 end
