@@ -144,7 +144,10 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
 
             column :HOSTNAME, "Host where the VM is running", :size=>15 do |d|
                 if d['HISTORY_RECORDS'] && d['HISTORY_RECORDS']['HISTORY']
-                    d['HISTORY_RECORDS']['HISTORY']['HOSTNAME']
+                    state_str = VirtualMachine::VM_STATE[d['STATE'].to_i]
+                    if %w{ACTIVE SUSPENDED}.include? state_str
+                        d['HISTORY_RECORDS']['HISTORY']['HOSTNAME']
+                    end
                 end
             end
 
