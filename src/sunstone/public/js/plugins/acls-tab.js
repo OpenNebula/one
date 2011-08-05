@@ -16,6 +16,7 @@
 
 /*ACLs tab plugin*/
 var dataTable_acls;
+var $create_acl_dialog;
 
 var acls_tab_content =
 '<form id="acl_form" action="" action="javascript:alert(\'js error!\');">\
@@ -64,7 +65,7 @@ var create_acl_tmpl =
                 <label for="belonging_to">Group:</label>\
                 <select name="belonging_to" id="belonging_to"></select>\
                 <div class="clear"></div>\
-                <label style="height:10em;">Allowed operations:</label>\
+                <label style="height:11em;">Allowed operations:</label>\
                 <input type="checkbox" name="right_create" class="right_cb" value="CREATE">Create</input><br />\
                 <input type="checkbox" name="right_delete" class="right_cb" value="DELETE">Delete</input><br />\
                 <input type="checkbox" name="right_use" class="right_cb" value="USE">Use</input><br />\
@@ -73,6 +74,7 @@ var create_acl_tmpl =
                 <input type="checkbox" name="right_info_pool" class="right_cb" value="INFO_POOL">Get Pool of resources</input><br />\
                 <input type="checkbox" name="right_info_pool_mine" class="right_cb" value="INFO_POOL_MINE">Get Pool of my/group\'s resources</input><br />\
                 <input type="checkbox" name="right_chown" class="right_cb" value="CHOWN">Change owner</input><br />\
+                <input type="checkbox" name="right_deploy" class="right_cb" value="DEPLOY">Deploy</input><br />\
                 <div class="clear"></div>\
                 <label for="acl_preview">ACL String preview:</label>\
                 <input type="text" name="acl_preview" id="acl_preview" style="width:400px;"></input>\
@@ -114,7 +116,7 @@ var acl_actions = {
         call: function () {
             waitingNodes(dataTable_acls);
             Sunstone.runAction("Acl.list");
-        },
+        }
     },
 
     "Acl.autorefresh" : {
@@ -125,16 +127,14 @@ var acl_actions = {
                 success: updateAclsView,
                 error: onError
             });
-        },
-        condition: True,
-        notify: false
+        }
     },
 
     "Acl.delete" : {
         type: "multiple",
         call: OpenNebula.Acl.delete,
         callback: deleteAclElement,
-        elements: function() { return getSelectedNodes(dataTable_acls); },
+        elements: aclElements,
         error: onError,
         notify: true
     },
@@ -144,31 +144,38 @@ var acl_buttons = {
     "Acl.refresh" : {
         type: "image",
         text: "Refresh list",
-        img: "images/Refresh-icon.png",
-        condition: True
+        img: "images/Refresh-icon.png"
     },
     "Acl.create_dialog" : {
         type: "create_dialog",
-        text: "+ New",
-        condition: True
+        text: "+ New"
     },
     "Acl.delete" : {
         type: "action",
-        text: "Delete",
-        condition: True
+        text: "Delete"
     }
 }
 
 var acls_tab = {
     title: "ACLs",
     content: acls_tab_content,
-    buttons: acl_buttons,
-    condition: True
+    buttons: acl_buttons
 }
 
 Sunstone.addActions(acl_actions);
 Sunstone.addMainTab('acls_tab',acls_tab);
 
+//Returns selected elements on the acl datatable
+function aclElements(){
+    return getSelectedNodes(dataTable_acls);
+}
+
+//Receives a segment of an ACL and translates:
+// * -> All
+// @1 -> Group 1 (tries to translate "1" into group name)
+// #1 -> User 1 (tries to translate "1" into username)
+//Translation of usernames and groupnames depends on
+//group and user plugins tables.
 function parseUserAcl(user){
     var user_str="";
     if (user[0] == '*'){
@@ -186,6 +193,7 @@ function parseUserAcl(user){
     return user_str;
 }
 
+//Similar to above, but #1 means resource with "ID 1"
 function parseResourceAcl(user){
     var user_str="";
     if (user[0] == '*'){
@@ -203,7 +211,9 @@ function parseResourceAcl(user){
     return user_str;
 }
 
-//Parses the string, returns a legible array
+//Parses a full ACL string, and translates it into
+//a legible array
+//to be put in the datatable fields.
 function parseAclString(string) {
     var space_split = string.split(' ');
     var user = space_split[0];
@@ -258,7 +268,8 @@ function parseAclString(string) {
     return [user_str,resources_str,belonging_to,ops_str];
 }
 
-
+//forms the array of data to be inserted from
+//the raw json
 function aclElementArray(acl_json){
     var acl = acl_json.ACL;
     var acl_string = acl.STRING;
@@ -277,37 +288,41 @@ function aclElementArray(acl_json){
 
 
 // Callback to delete a single element from the dataTable
-function deleteAclElement(req){
-    deleteElement(dataTable_acls,'#acl_'+req.request.data);
+function deleteAclElement(request){
+    deleteElement(dataTable_acls,'#acl_'+request.request.data);
 }
 
+//update the datatable with new data
 function updateAclsView(request,list){
     var list_array = [];
-
     $.each(list,function(){
         list_array.push(aclElementArray(this));
     });
     updateView(list_array,dataTable_acls);
+    updateDashboard("acls",list);
 }
 
 function setupCreateAclDialog(){
-    $('div#dialogs').append('<div title="Create ACL" id="create_acl_dialog"></div>');
-    $('#create_acl_dialog').html(create_acl_tmpl);
-
+    dialogs_context.append('<div title="Create ACL" id="create_acl_dialog"></div>');
+    $create_acl_dialog = $('#create_acl_dialog',dialogs_context);
+    var dialog = $create_acl_dialog;
+    dialog.html(create_acl_tmpl);
+    var height = Math.floor($(window).height()*0.8); //set height to a percentage of the window
     //Prepare jquery dialog
-    $('#create_acl_dialog').dialog({
+    dialog.dialog({
         autoOpen: false,
         modal:true,
-        width: 600
+        width: 600,
+        height: height
     });
 
-    $('#create_acl_dialog #res_subgroup_all').attr("checked","checked");
-    $('#create_acl_dialog #res_id').attr("disabled","disabled");
-    $('#create_acl_dialog #belonging_to').attr("disabled","disabled");
+    $('#res_subgroup_all',dialog).attr("checked","checked");
+    $('#res_id',dialog).attr("disabled","disabled");
+    $('#belonging_to',dialog).attr("disabled","disabled");
 
-    $('#create_acl_dialog button').button();
+    $('button',dialog).button();
 
-    $('.res_subgroup').click(function(){
+    $('.res_subgroup',dialog).click(function(){
         var value = $(this).val();
         var context = $(this).parent();
         switch (value) {
@@ -326,8 +341,13 @@ function setupCreateAclDialog(){
         };
     });
 
-    $('input,select',$('#create_acl_form')).live("change",function(){
-        var context = $('#create_acl_form');
+    $('input#res_id',dialog).keyup(function(){
+        $(this).trigger("change");
+    });
+
+    //update the rule preview every time some field changes
+    $('input,select',dialog).change(function(){
+        var context = $('#create_acl_form',$create_acl_dialog);
         var user = $('#applies',context).val();
 
         if ($('#applies :selected',context).hasClass("user")){
@@ -343,7 +363,7 @@ function setupCreateAclDialog(){
         if (resources.length) { resources = resources.substring(0,resources.length-1) };
 
         var belonging="";
-        var mode = $('.res_subgroup:checked').val();
+        var mode = $('.res_subgroup:checked',context).val();
         switch (mode) {
         case "*":
             belonging="*";
@@ -368,7 +388,7 @@ function setupCreateAclDialog(){
 
     });
 
-    $('#create_acl_form').submit(function(){
+    $('#create_acl_form',dialog).submit(function(){
         var user = $('#applies',this).val();
         if (!user.length) {
             notifyError("Please specify to who this ACL applies");
@@ -409,11 +429,14 @@ function setupCreateAclDialog(){
 
         var acl_json = { "acl" : acl_string };
         Sunstone.runAction("Acl.create",acl_json);
-        $('#create_acl_dialog').dialog('close');
+        $create_acl_dialog.dialog('close');
         return false;
     });
 }
 
+// Before popping up the dialog, some prepartions are
+// required: we have to put the right options in the
+// selects.
 function popUpCreateAclDialog(){
     var users = $('<select>'+users_select+'</select>');
     $('.empty_value',users).remove();
@@ -425,19 +448,20 @@ function popUpCreateAclDialog(){
     $('option',groups).addClass("group");
     groups.prepend('<option value="">---Groups---</option>');
 
-
-    $('#create_acl_dialog #applies').html('<option value="*">All</option>'+
+    var dialog =  $create_acl_dialog;
+    $('#applies',dialog).html('<option value="*">All</option>'+
                                           users.html()+groups.html());
-    $('#create_acl_dialog #belonging_to').html(groups_select);
+    $('#belonging_to',dialog).html(groups_select);
 
-    $('#create_acl_dialog').dialog('open');
+    $('#applies',dialog).trigger("change");
+    dialog.dialog('open');
 }
 
 // Prepare the autorefresh of the list
 function setAclAutorefresh(){
     setInterval(function(){
         var checked = $('input:checked',dataTable_acls.fnGetNodes());
-        var filter = $("#datatable_acls_filter input").attr("value");
+        var filter = $("#datatable_acls_filter input",dataTable_acls.parents("#datatable_acls_wrapper")).attr("value");
         if (!checked.length && !filter.length){
             Sunstone.runAction("Acl.autorefresh");
         }
@@ -446,7 +470,7 @@ function setAclAutorefresh(){
 
 $(document).ready(function(){
     //if we are not oneadmin, our tab will not even be in the DOM.
-    dataTable_acls = $("#datatable_acls").dataTable({
+    dataTable_acls = $("#datatable_acls",main_tabs_context).dataTable({
         "bJQueryUI": true,
         "bSortClasses": false,
         "sPaginationType": "full_numbers",

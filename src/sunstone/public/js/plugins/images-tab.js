@@ -156,8 +156,8 @@ var create_image_tmpl =
 </div>';
 
 var images_select = "";
-var image_list_json = {};
 var dataTable_images;
+var $create_image_dialog;
 
 var image_actions = {
 
@@ -216,8 +216,7 @@ var image_actions = {
         callback: function (request,response) {
             $('#template_update_dialog #template_update_textarea').val(response.template);
         },
-        error: onError,
-        notify: false
+        error: onError
     },
 
     "Image.update_dialog" : {
@@ -233,8 +232,7 @@ var image_actions = {
         callback: function() {
             notifyMessage("Template updated correctly");
         },
-        error: onError,
-        notify: false
+        error: onError
     },
 
     "Image.enable" : {
@@ -243,7 +241,7 @@ var image_actions = {
         callback: function (req) {
             Sunstone.runAction("Image.show",req.request.data[0]);
         },
-        elements: function() { return getSelectedNodes(dataTable_images); },
+        elements: imageElements,
         error: onError,
         notify: true
     },
@@ -254,7 +252,7 @@ var image_actions = {
         callback: function (req) {
             Sunstone.runAction("Image.show",req.request.data[0]);
         },
-        elements: function() { return getSelectedNodes(dataTable_images); },
+        elements: imageElements,
         error: onError,
         notify: true
     },
@@ -265,7 +263,7 @@ var image_actions = {
         callback: function (req) {
             Sunstone.runAction("Image.show",req.request.data[0]);
         },
-        elements: function() { return getSelectedNodes(dataTable_images); },
+        elements: imageElements,
         error: onError,
         notify: true
     },
@@ -276,7 +274,7 @@ var image_actions = {
         callback: function (req) {
             Sunstone.runAction("Image.show",req.request.data[0]);
         },
-        elements: function() { return getSelectedNodes(dataTable_images); },
+        elements: imageElements,
         error: onError,
         notify: true
     },
@@ -287,7 +285,7 @@ var image_actions = {
         callback: function (req) {
             Sunstone.runAction("Image.show",req.request.data[0]);
         },
-        elements: function() { return getSelectedNodes(dataTable_images); },
+        elements: imageElements,
         error: onError,
         notify: true
     },
@@ -298,7 +296,7 @@ var image_actions = {
         callback: function (req) {
             Sunstone.runAction("Image.show",req.request.data[0]);
         },
-        elements: function() { return getSelectedNodes(dataTable_images); },
+        elements: imageElements,
         error: onError,
         notify: true
     },
@@ -307,7 +305,7 @@ var image_actions = {
         type: "multiple",
         call: OpenNebula.Image.delete,
         callback: deleteImageElement,
-        elements: function() { return getSelectedNodes(dataTable_images); },
+        elements: imageElements,
         error: onError,
         notify: true
     },
@@ -318,7 +316,7 @@ var image_actions = {
         callback:  function (req) {
             Sunstone.runAction("Image.show",req.request.data[0]);
         },
-        elements: function() { return getSelectedNodes(dataTable_images); },
+        elements: imageElements,
         error: onError,
         notify: true
     },
@@ -329,7 +327,7 @@ var image_actions = {
         callback: function (req) {
             Sunstone.runAction("Image.show",req.request.data[0]);
         },
-        elements: function() { return getSelectedNodes(dataTable_images); },
+        elements: imageElements,
         error: onError,
         notify: true
     }
@@ -340,74 +338,63 @@ var image_buttons = {
     "Image.refresh" : {
         type: "image",
         text: "Refresh list",
-        img: "images/Refresh-icon.png",
-        condition: True
+        img: "images/Refresh-icon.png"
     },
     "Image.create_dialog" : {
         type: "create_dialog",
-        text: "+ New",
-        condition: True
+        text: "+ New"
     },
     "Image.update_dialog" : {
         type: "action",
         text: "Update a template",
-        condition: True,
         alwaysActive: true
     },
     "Image.chown" : {
         type: "confirm_with_select",
         text: "Change owner",
-        select: function() {return users_select;},
+        select: users_sel,
         tip: "Select the new owner:",
-        condition: function() { return gid == 0; }
+        condition: mustBeAdmin
     },
     "Image.chgrp" : {
         type: "confirm_with_select",
         text: "Change group",
-        select: function() {return groups_select;},
+        select: groups_sel,
         tip: "Select the new group:",
-        condition: function() { return gid == 0; }
+        condition: mustBeAdmin
     },
     "action_list" : {
         type: "select",
-        condition: True,
         actions: {
             "Image.enable" : {
                 type: "action",
-                text: "Enable",
-                condition: True
+                text: "Enable"
             },
             "Image.disable" : {
                 type: "action",
-                text: "Disable",
-                condition: True
+                text: "Disable"
             },
             "Image.publish" : {
                 type: "action",
-                text: "Publish",
-                condition: True
+                text: "Publish"
             },
             "Image.unpublish" : {
                 type: "action",
-                text: "Unpublish",
-                condition: True
+                text: "Unpublish"
             },
             "Image.persistent" : {
                 type: "action",
-                text: "Make persistent",
-                condition: True
+                text: "Make persistent"
             },
             "Image.nonpersistent" : {
                 type: "action",
-                text: "Make non persistent",
-                condition: True
+                text: "Make non persistent"
             }
         }
     },
     "Image.delete" : {
         type: "action",
-        text: "Delete",
-        condition: True
+        text: "Delete"
     }
 }
 
@@ -427,13 +414,17 @@ var image_info_panel = {
 var images_tab = {
     title: "Images",
     content: images_tab_content,
-    buttons: image_buttons,
-    condition: True
+    buttons: image_buttons
 }
 
 Sunstone.addActions(image_actions);
 Sunstone.addMainTab('images_tab',images_tab);
 Sunstone.addInfoPanel('image_info_panel',image_info_panel);
+
+
+function imageElements() {
+    return getSelectedNodes(dataTable_images);
+}
 
 // Returns an array containing the values of the image_json and ready
 // to be inserted in the dataTable
@@ -456,8 +447,7 @@ function imageElementArray(image_json){
 
 // Set up the listener on the table TDs to show the info panel
 function imageInfoListener(){
-
-    $('#tbodyimages tr').live("click",function(e){
+    $('#tbodyimages tr',dataTable_images).live("click",function(e){
         if ($(e.target).is('input')) {return true;}
         popDialogLoading();
         var aData = dataTable_images.fnGetData(this);
@@ -470,11 +460,16 @@ function imageInfoListener(){
 //Updates the select input field with an option for each image
 function updateImageSelect(){
     images_select =
-        makeSelectOptions(dataTable_images,1,4,9,"DISABLED",2);
+        makeSelectOptions(dataTable_images,
+                          1,
+                          4,
+                          [9,9,9],
+                          ["DISABLED","LOCKED","ERROR"]
+                         );
 
     //update static selectors:
     //in the VM section
-    $('div.vm_section#disks select#IMAGE_ID').html(images_select);
+    $('div.vm_section#disks select#IMAGE_ID', $create_template_dialog).html(images_select);
 }
 
 // Callback to update an element in the dataTable
@@ -500,16 +495,15 @@ function addImageElement(request, image_json){
 
 // Callback to refresh the list of images
 function updateImagesView(request, images_list){
-    image_list_json = images_list;
     var image_list_array = [];
-    $.each(image_list_json,function(){
+
+    $.each(images_list,function(){
        image_list_array.push(imageElementArray(this));
     });
 
     updateView(image_list_array,dataTable_images);
     updateImageSelect();
-    updateDashboard("images",image_list_json);
-
+    updateDashboard("images",images_list);
 }
 
 // Callback to update the information panel tabs and pop it up
@@ -582,85 +576,82 @@ function updateImageInfo(request,img){
 
 // Prepare the image creation dialog
 function setupCreateImageDialog(){
-    $('div#dialogs').append('<div title="Create Image" id="create_image_dialog"></div>');
-
-    //Insert HTML in place
-    $('#create_image_dialog').html(create_image_tmpl);
+    dialogs_context.append('<div title="Create Image" id="create_image_dialog"></div>');
+    $create_image_dialog =  $('#create_image_dialog',dialogs_context);
+    var dialog = $create_image_dialog;
+    dialog.html(create_image_tmpl);
 
     var height = Math.floor($(window).height()*0.8); //set height to a percentage of the window
 
     //Prepare jquery dialog
-    $('#create_image_dialog').dialog({
+    dialog.dialog({
         autoOpen: false,
         modal:true,
         width: 520,
         height: height
     });
 
-    $('#img_tabs').tabs();
-    $('#create_image_dialog button').button();
-    $('#img_type option').first().attr("selected","selected");
-    $('#datablock_img').attr("disabled","disabled");
+    $('#img_tabs',dialog).tabs();
+    $('button',dialog).button();
+    $('#img_type option',dialog).first().attr("selected","selected");
+    $('#datablock_img',dialog).attr("disabled","disabled");
 
-    //Chrome workaround
-    $('select#img_type').change(function(){
-        $(this).trigger("click");
-    });
-
-    $('select#img_type').click(function(){
+    $('select#img_type',dialog).change(function(){
         var value = $(this).val();
+        var context = $create_image_dialog;
         switch (value){
         case "DATABLOCK":
-            $('#datablock_img').removeAttr("disabled");
+            $('#datablock_img',context).removeAttr("disabled");
             break;
         default:
-            $('#datablock_img').attr("disabled","disabled");
-            $('#path_img').attr("checked","checked");
-            $('#img_source,#img_fstype,#img_size').parent().hide();
-            $('#img_path').parent().show();
+            $('#datablock_img',context).attr("disabled","disabled");
+            $('#path_img',context).attr("checked","checked");
+            $('#img_source,#img_fstype,#img_size',context).parent().hide();
+            $('#img_path',context).parent().show();
         }
     });
 
-    $('#img_source,#img_fstype,#img_size').parent().hide();
-    $('#path_img').attr("checked","checked");
-    $('#img_path').parent().addClass("img_man");
+    $('#img_source,#img_fstype,#img_size',dialog).parent().hide();
+    $('#path_img',dialog).attr("checked","checked");
+    $('#img_path',dialog).parent().addClass("img_man");
 
-    $('#img_public').click(function(){
-        $('#img_persistent').removeAttr("checked");
+    $('#img_public',dialog).click(function(){
+        $('#img_persistent',$create_image_dialog).removeAttr("checked");
     });
 
-    $('#img_persistent').click(function(){
-        $('#img_public').removeAttr("checked");
+    $('#img_persistent',dialog).click(function(){
+        $('#img_public',$create_image_dialog).removeAttr("checked");
     });
 
 
 
     $('#src_path_select input').click(function(){
+        var context = $create_image_dialog;
         var value = $(this).val();
         switch (value){
         case "path":
-            $('#img_source,#img_fstype,#img_size').parent().hide();
-            $('#img_source,#img_fstype,#img_size').parent().removeClass("img_man");
-            $('#img_path').parent().show();
-            $('#img_path').parent().addClass("img_man");
+            $('#img_source,#img_fstype,#img_size',context).parent().hide();
+            $('#img_source,#img_fstype,#img_size',context).parent().removeClass("img_man");
+            $('#img_path',context).parent().show();
+            $('#img_path',context).parent().addClass("img_man");
             break;
         case "source":
-            $('#img_path,#img_fstype,#img_size').parent().hide();
-            $('#img_path,#img_fstype,#img_size').parent().removeClass("img_man");
-            $('#img_source').parent().show();
-            $('#img_source').parent().addClass("img_man");
+            $('#img_path,#img_fstype,#img_size',context).parent().hide();
+            $('#img_path,#img_fstype,#img_size',context).parent().removeClass("img_man");
+            $('#img_source',context).parent().show();
+            $('#img_source',context).parent().addClass("img_man");
             break;
         case "datablock":
-            $('#img_source,#img_path').parent().hide();
-            $('#img_source,#img_path').parent().removeClass("img_man");
-            $('#img_fstype,#img_size').parent().show();
-            $('#img_fstype,#img_size').parent().addClass("img_man");
+            $('#img_source,#img_path',context).parent().hide();
+            $('#img_source,#img_path',context).parent().removeClass("img_man");
+            $('#img_fstype,#img_size',context).parent().show();
+            $('#img_fstype,#img_size',context).parent().addClass("img_man");
             break;
         }
     });
 
 
-    $('#create_image_form_easy').submit(function(){
+    $('#create_image_form_easy',dialog).submit(function(){
         var exit = false;
         $('.img_man',this).each(function(){
             if (!$('input',this).val().length){
@@ -672,41 +663,41 @@ function setupCreateImageDialog(){
         if (exit) { return false; }
         var img_json = {};
 
-        var name = $('#img_name').val();
+        var name = $('#img_name',this).val();
         img_json["NAME"] = name;
 
-        var desc = $('#img_desc').val();
+        var desc = $('#img_desc',this).val();
         if (desc.length){
             img_json["DESCRIPTION"] = desc;
         }
 
-        var type = $('#img_type').val();
+        var type = $('#img_type',this).val();
         img_json["TYPE"]= type;
 
-        img_json["PUBLIC"] = $('#img_public:checked').length ? "YES" : "NO";
+        img_json["PUBLIC"] = $('#img_public:checked',this).length ? "YES" : "NO";
 
-        img_json["PERSISTENT"] = $('#img_persistent:checked').length ? "YES" : "NO";
+        img_json["PERSISTENT"] = $('#img_persistent:checked',this).length ? "YES" : "NO";
 
-        var dev_prefix = $('#img_dev_prefix').val();
+        var dev_prefix = $('#img_dev_prefix',this).val();
         if (dev_prefix.length){
             img_json["DEV_PREFIX"] = dev_prefix;
         }
 
-        var bus = $('#img_bus').val();
+        var bus = $('#img_bus',this).val();
         img_json["BUS"] = bus;
 
-        switch ($('#src_path_select input:checked').val()){
+        switch ($('#src_path_select input:checked',this).val()){
         case "path":
-            path = $('#img_path').val();
+            path = $('#img_path',this).val();
             img_json["PATH"] = path;
             break;
         case "source":
-            source = $('#img_source').val();
+            source = $('#img_source',this).val();
             img_json["SOURCE"] = source;
             break;
             case "datablock":
-            size = $('#img_size').val();
-            fstype = $('#img_fstype').val();
+            size = $('#img_size',this).val();
+            fstype = $('#img_fstype',this).val();
             img_json["SIZE"] = size;
             img_json["FSTYPE"] = fstype;
             break;
@@ -714,28 +705,28 @@ function setupCreateImageDialog(){
         var obj = { "image" : img_json };
         Sunstone.runAction("Image.register", obj);
 
-        $('#create_image_dialog').dialog('close');
+        $create_image_dialog.dialog('close');
         return false;
     });
 
-    $('#create_image_form_manual').submit(function(){
+    $('#create_image_form_manual',dialog).submit(function(){
         var template=$('#template',this).val();
         Sunstone.runAction("Image.register",template);
-        $('#create_image_dialog').dialog('close');
+        $create_image_dialog.dialog('close');
         return false;
     });
-
 }
 
 function popUpCreateImageDialog(){
-    $('#create_image_dialog').dialog('open');
+    $create_image_dialog.dialog('open');
 }
 
 // Set the autorefresh interval for the datatable
 function setImageAutorefresh() {
     setInterval(function(){
         var checked = $('input:checked',dataTable_images.fnGetNodes());
-        var filter = $("#datatable_images_filter input").attr("value");
+        var filter = $("#datatable_images_filter input",
+                       dataTable_images.parents("#datatable_images_wrapper")).attr("value");
         if (!checked.length && !filter.length){
             Sunstone.runAction("Image.autorefresh");
         }
@@ -745,7 +736,7 @@ function setImageAutorefresh() {
 //The DOM is ready at this point
 $(document).ready(function(){
 
-    dataTable_images = $("#datatable_images").dataTable({
+    dataTable_images = $("#datatable_images",main_tabs_context).dataTable({
         "bJQueryUI": true,
         "bSortClasses": false,
         "bAutoWidth":false,
@@ -765,7 +756,7 @@ $(document).ready(function(){
     Sunstone.runAction("Image.list");
 
     setupCreateImageDialog();
-    setupTips($('#create_image_dialog'));
+    setupTips($create_image_dialog);
     setImageAutorefresh();
 
     initCheckAllBoxes(dataTable_images);

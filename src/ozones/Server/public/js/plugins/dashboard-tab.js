@@ -177,8 +177,7 @@ var dashboard_tab_content =
 
 var dashboard_tab = {
     title: 'Dashboard',
-    content: dashboard_tab_content,
-    condition : True
+    content: dashboard_tab_content
 }
 
 Sunstone.addMainTab('dashboard_tab',dashboard_tab);

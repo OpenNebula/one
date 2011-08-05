@@ -581,8 +581,8 @@ var create_template_tmpl = '<div id="template_create_tabs">\
 </div>';
 
 var templates_select = "";
-var template_list_json = {};
 var dataTable_templates;
+var $create_template_dialog;
 
 var template_actions = {
 
@@ -648,8 +648,7 @@ var template_actions = {
         callback: function() {
             notifyMessage("Template updated correctly");
         },
-        error: onError,
-        notify: false
+        error: onError
     },
 
     "Template.fetch_template" : {
@@ -658,45 +657,39 @@ var template_actions = {
         callback: function (request,response) {
             $('#template_update_dialog #template_update_textarea').val(response.template);
         },
-        error: onError,
-        notify: false
+        error: onError
     },
 
     "Template.publish" : {
         type: "multiple",
         call: OpenNebula.Template.publish,
-        callback: function (req) {
-            Sunstone.runAction("Template.show",req.request.data[0]);
-        },
-        elements: function() { return getSelectedNodes(dataTable_templates); },
+        callback: templateShow,
+        elements: templateElements,
         error: onError,
         notify: true
      },
 
      "Template.unpublish" : {
-        type: "multiple",
-        call: OpenNebula.Template.unpublish,
-        callback: function (req) {
-            Sunstone.runAction("Template.show",req.request.data[0]);
-        },
-        elements: function() { return getSelectedNodes(dataTable_templates); },
-        error: onError,
-        notify: true
+         type: "multiple",
+         call: OpenNebula.Template.unpublish,
+         callback: templateShow,
+         elements: templateElements,
+         error: onError,
+         notify: true
      },
 
      "Template.delete" : {
-        type: "multiple",
-        call: OpenNebula.Template.delete,
-        callback: deleteTemplateElement,
-        elements: function() { return getSelectedNodes(dataTable_templates); },
-        error: onError,
-        notify: true
+         type: "multiple",
+         call: OpenNebula.Template.delete,
+         callback: deleteTemplateElement,
+         elements: templateElements,
+         error: onError,
+         notify: true
      },
 
     "Template.instantiate" : {
         type: "single",
         call: OpenNebula.Template.instantiate,
-        callback: function(){},
         error: onError,
         notify: true
     },
@@ -709,89 +702,75 @@ var template_actions = {
                  Sunstone.runAction("Template.instantiate",this,"");
              });
              Sunstone.runAction("VM.refresh");
-         },
-         notify: false
+         }
      },
     "Template.chown" : {
         type: "multiple",
         call: OpenNebula.Template.chown,
-        callback:  function (req) {
-            Sunstone.runAction("Template.show",req.request.data[0]);
-        },
-        elements: function() { return getSelectedNodes(dataTable_templates); },
+        callback: templateShow,
+        elements: templateElements,
         error:onError,
         notify: true
     },
     "Template.chgrp" : {
         type: "multiple",
         call: OpenNebula.Template.chgrp,
-        callback:  function (req) {
-            Sunstone.runAction("Template.show",req.request.data[0]);
-        },
-        elements: function() { return getSelectedNodes(dataTable_templates); },
+        callback:  templateShow,
+        elements: templateElements,
         error:onError,
         notify: true
     }
 }
 
-
 var template_buttons = {
     "Template.refresh" : {
         type: "image",
         text: "Refresh list",
-        img: "images/Refresh-icon.png",
-        condition: True
+        img: "images/Refresh-icon.png"
     },
     "Template.create_dialog" : {
         type: "create_dialog",
-        text: "+ New",
-        condition: True
+        text: "+ New"
     },
     "Template.update_dialog" : {
         type: "action",
         text: "Update a template",
-        condition: True,
         alwaysActive: true
     },
     "Template.instantiate_vms" : {
         type: "action",
-        text: "Instantiate",
-        condition: True
+        text: "Instantiate"
     },
     "Template.chown" : {
         type: "confirm_with_select",
         text: "Change owner",
-        select: function() {return users_select;},
+        select: users_sel,
         tip: "Select the new owner:",
-        condition: function(){return gid==0;}
+        condition: mustBeAdmin
     },
     "Template.chgrp" : {
         type: "confirm_with_select",
         text: "Change group",
-        select: function() {return groups_select;},
+        select: groups_sel,
         tip: "Select the new group:",
-        condition: function(){return gid==0;}
+        condition: mustBeAdmin
     },
     "action_list" : {
         type: "select",
-        condition: True,
         actions: {
             "Template.publish" : {
                 type: "action",
-                text: "Publish",
-                condition: True
+                text: "Publish"
             },
             "Template.unpublish" : {
                 type: "action",
-                text: "Unpublish",
-                condition: True
+                text: "Unpublish"
             },
         }
     },
     "Template.delete" : {
         type: "action",
-        text: "Delete",
-        condition: True
+        text: "Delete"
     }
 }
 
@@ -805,13 +784,22 @@ var template_info_panel = {
 var templates_tab = {
     title: "Templates",
     content: templates_tab_content,
-    buttons: template_buttons,
-    condition: True
+    buttons: template_buttons
 }
 
 Sunstone.addActions(template_actions);
 Sunstone.addMainTab('templates_tab',templates_tab);
 Sunstone.addInfoPanel('template_info_panel',template_info_panel);
+
+//Returns selected elements in the template table
+function templateElements(){
+    return getSelectedNodes(dataTable_templates);
+}
+
+//Runs a show action on the template with from a prev request
+function templateShow(req){
+    Sunstone.runAction("Template.show",req.request.data[0]);
+}
 
 // Returns an array containing the values of the template_json and ready
 // to be inserted in the dataTable
@@ -830,8 +818,7 @@ function templateElementArray(template_json){
 
 // Set up the listener on the table TDs to show the info panel
 function templateInfoListener(){
-
-    $('#tbodytemplates tr').live("click",function(e){
+    $('#tbodytemplates tr',dataTable_templates).live("click",function(e){
         if ($(e.target).is('input')) {return true;}
         popDialogLoading();
         var aData = dataTable_templates.fnGetData(this);
@@ -844,11 +831,15 @@ function templateInfoListener(){
 //Updates the select input field with an option for each template
 function updateTemplateSelect(){
     templates_select =
-        makeSelectOptions(dataTable_templates,1,4,7,"no",2);
+        makeSelectOptions(dataTable_templates,
+                          1,//id_col
+                          4,//name_col
+                          [7],//published_col
+                          ["no"]//bad status col
+                         );
 
     //update static selectors:
-    $('#create_vm_dialog #template_id').html(templates_select);
-    $('#speed_virt').html(templates_select);
+    $('#template_id', $create_vm_dialog).html(templates_select);
 }
 
 // Callback to update an element in the dataTable
@@ -874,15 +865,15 @@ function addTemplateElement(request, template_json){
 
 // Callback to refresh the list of templates
 function updateTemplatesView(request, templates_list){
-    template_list_json = templates_list;
     var template_list_array = [];
-    $.each(template_list_json,function(){
+
+    $.each(templates_list,function(){
        template_list_array.push(templateElementArray(this));
     });
 
     updateView(template_list_array,dataTable_templates);
     updateTemplateSelect();
-    updateDashboard("templates",template_list_json);
+    updateDashboard("templates",templates_list);
 
 }
 
@@ -935,7 +926,6 @@ function updateTemplateInfo(request,template){
     Sunstone.updateInfoPanelTab("template_info_panel","template_template_tab",template_tab);
 
     Sunstone.popUpInfoPanel("template_info_panel");
-
 }
 
 // Prepare the template creation dialog
@@ -950,30 +940,30 @@ function setupCreateTemplateDialog(){
         // ui.index   // zero-based index of the selected (clicked) tab
 
         //disable all items
-        $(items).attr("disabled","disabled");
+        $(items,dialog).attr("disabled","disabled");
         //hide all mandatory icons
-        $('.vm_param .man_icon').css("display","none");
+        $('.vm_param .man_icon',dialog).css("display","none");
 
         //empty selects
-        $('div#os_boot_opts select#BOOT').empty();
-        $('div#disks select#TYPE').empty();
-        $('div#disks select#BUS').empty();
+        $('select#BOOT',section_os_boot).empty();
+        $('select#TYPE',section_disks).empty();
+        $('select#BUS',section_disks).empty();
 
         //hide options about boot method
         $('div#kernel_bootloader',section_os_boot).show();
-        $('.kernel, .bootloader', $('div#os_boot_opts')).hide();
-        $('div#os_boot_opts select#BOOT').parent().hide();
+        $('.kernel, .bootloader', section_os_boot).hide();
+        $('select#BOOT',section_os_boot).parent().hide();
         //unselect boot method
-        $('select#boot_method option').removeAttr("selected");
+        $('select#boot_method option',section_os_boot).removeAttr("selected");
 
         //hide non common sections
         $(section_inputs).hide();
         $(section_graphics).hide();
 
         //Repopulate images select
-        $('div.vm_section#disks select#IMAGE_ID').html(images_select);
+        $('select#IMAGE_ID',section_disks).html(images_select);
         //Repopulate network select
-        $('div.vm_section#networks select#NETWORK_ID').html(vnetworks_select);
+        $('select#NETWORK_ID',section_networks).html(vnetworks_select);
 
 
         switch(ui.index){
@@ -1020,8 +1010,8 @@ function setupCreateTemplateDialog(){
     var enable_kvm = function(){
         man_class="kvm";
         opt_class="kvm_opt";
-        $(kvm_items).removeAttr("disabled");
-        $('.kvm .man_icon').css("display","inline-block");
+        $(kvm_items,dialog).removeAttr("disabled");
+        $('.kvm .man_icon',dialog).css("display","inline-block");
 
         //KVM particularities:
         // * Add custom disk types
@@ -1040,7 +1030,7 @@ function setupCreateTemplateDialog(){
              <option value="fs">FS</option>\
              <option value="block">Block</option>';
 
-        $('div#disks select#TYPE').html(type_opts);
+        $('select#TYPE',section_disks).html(type_opts);
 
         var boot_opts =
             '<option value="hd">hd</option>\
@@ -1048,16 +1038,16 @@ function setupCreateTemplateDialog(){
             <option value="cdrom">cdrom</option>\
             <option value="network">network</option>';
 
-        $('div#os_boot_opts select#BOOT').html(boot_opts);
-        $('div#os_boot_opts select#BOOT').parent().show();
-        $('select#boot_method option#no_boot').html("Driver default");
+        $('select#BOOT',section_os_boot).html(boot_opts);
+        $('select#BOOT',section_os_boot).parent().show();
+        $('select#boot_method option#no_boot',section_os_boot).html("Driver default");
 
         var bus_opts =
                 '<option value="ide">IDE</option>\
                 <option value="scsi">SCSI</option>\
                 <option value="virtio">Virtio</option>';
 
-        $('div#disks select#BUS').html(bus_opts);
+        $('select#BUS',section_disks).html(bus_opts);
 
         $('input#TYPE', section_raw).val("kvm");
 
@@ -1069,8 +1059,8 @@ function setupCreateTemplateDialog(){
     var enable_xen = function(){
         man_class="xen";
         opt_class="xen_opt";
-        $(xen_items).removeAttr("disabled");
-        $('.xen .man_icon').css("display","inline-block");
+        $(xen_items,dialog).removeAttr("disabled");
+        $('.xen .man_icon',dialog).css("display","inline-block");
 
         // XEN particularities:
         // * Add custom disk types
@@ -1087,15 +1077,15 @@ function setupCreateTemplateDialog(){
              <option value="fs">FS</option>\
              <option value="block">Block</option>';
 
-        $('div#disks select#TYPE').html(type_opts);
+        $('select#TYPE',section_disks).html(type_opts);
 
-        $('select#boot_method option#no_boot').html("Please choose");
+        $('select#boot_method option#no_boot',section_os_boot).html("Please choose");
 
         var bus_opts =
                 '<option value="ide">IDE</option>\
                 <option value="scsi">SCSI</option>';
 
-        $('div#disks select#BUS').html(bus_opts);
+        $('select#BUS',section_disks).html(bus_opts);
 
         $('input#TYPE', section_raw).val("xen");
         $(section_graphics).show();
@@ -1105,8 +1095,8 @@ function setupCreateTemplateDialog(){
     var enable_vmware = function() {
         man_class="vmware";
         opt_class="vmware_opt";
-        $(vmware_items).removeAttr("disabled");
-        $('.vmware .man_icon').css("display","inline-block");
+        $(vmware_items,dialog).removeAttr("disabled");
+        $('.vmware .man_icon',dialog).css("display","inline-block");
 
         //VMWARE particularities
         // * Add custom disk types
@@ -1119,7 +1109,7 @@ function setupCreateTemplateDialog(){
              <option value="cdrom">CD-ROM</option>\
              <option value="block">Block</option>';
 
-        $('div#disks select#TYPE').html(type_opts);
+        $('select#TYPE',section_disks).html(type_opts);
 
         $('div#kernel_bootloader',section_os_boot).hide();
 
@@ -1127,10 +1117,9 @@ function setupCreateTemplateDialog(){
                 '<option value="ide">IDE</option>\
                 <option value="scsi">SCSI</option>';
 
-        $('div#disks select#BUS').html(bus_opts);
-
+        $('select#BUS',section_disks).html(bus_opts);
         $('input#TYPE', section_raw).val("vmware");
-    }
+    };
 
     //This function checks that all mandatory items within a section
     //have some value. Returns true if so, false if not.
@@ -1143,14 +1132,14 @@ function setupCreateTemplateDialog(){
 
         //we fail it the item is enabled and has no value
         $.each(man_items,function(){
-            if ($(this).parents(".vm_param").attr("disabled") ||
-                !($(this).val().length)) {
+            var item = $(this);
+            if (item.parents(".vm_param").attr("disabled") ||
+                !(item.val().length)) {
                 r = false;
                 return false;
             };
         });
         return r;
-
     };
 
     //Adds an option element to a multiple select box. Before doing so,
@@ -1174,12 +1163,13 @@ function setupCreateTemplateDialog(){
         //With each enabled field we form a JSON object
         var id = null;
         $.each(fields,function(){
-            if (!($(this).parents(".vm_param").attr("disabled")) &&
-                $(this).val().length){
+            var field = $(this);
+            if (!(field.parents(".vm_param").attr("disabled")) &&
+                field.val().length){
                 //Pick up parent's ID if we do not have one
-                id = $(this).attr('id').length ? $(this).attr('id') :  $(this).parent().attr('id');
-                value[id] = $(this).val();
-            }
+                id = field.attr('id').length ? field.attr('id') : field.parent().attr('id');
+                value[id] = field.val();
+            };
         });
         var value_string = JSON.stringify(value);
         var option=
@@ -1192,7 +1182,7 @@ function setupCreateTemplateDialog(){
 
     //Removes selected elements from a multiple select box
     var box_remove_element = function(section_tag,box_tag){
-        var context = $(section_tag);
+        var context = $(section_tag,dialog);
         $('select'+box_tag+' :selected',context).remove();
         return false;
     };
@@ -1207,22 +1197,25 @@ function setupCreateTemplateDialog(){
         var fields = $.merge(inputs,selects);
 
         fields.each(function(){
-            if (!($(this).parents(".vm_param").attr("disabled"))){ //if ! disabled
-                if ($(this).val().length){ //if has a length
-                    template_json[$(this).attr('id')]=$(this).val();
-                }
-            }
+            var field=$(this);
+            if (!(field.parents(".vm_param").attr("disabled"))){ //if ! disabled
+                if (field.val().length){ //if has a length
+                    template_json[field.attr('id')]=field.val();
+                };
+            };
         });
-    }
+    };
 
-    // Given an array (usually empty), a section (context) and a tag for
-    // a multiple select in that section, it adds the contents of the
-    // box as objects in the array.
-    // TODO: Make it return a new array?
-    var addBoxJSON = function(array,context,box_tag){
+    // Given a section (context) and a tag for
+    // a multiple select in that section, it adds the
+    // JSON values to an array parsed as objects.
+    // Returns the array
+    var addBoxJSON = function(context,box_tag){
+        var array = [];
         $('select'+box_tag+' option',context).each(function(){
             array.push( JSON.parse($(this).val()) );
         });
+        return array;
     }
 
     //Given an object, removes those elements which are empty
@@ -1259,7 +1252,7 @@ function setupCreateTemplateDialog(){
 
     //Toggles the icon when a section is folded/unfolded
     var iconToggle = function(){
-        $('.icon_right').toggle(
+        $('.icon_right',dialog).toggle(
             function(e){
                 $('span',e.currentTarget).removeClass("ui-icon-plusthick");
                 $('span',e.currentTarget).addClass("ui-icon-minusthick");
@@ -1293,13 +1286,8 @@ function setupCreateTemplateDialog(){
             return false;
         });
 
-        //Chrome workaround
-        $('#boot_method').change(function(){
-            $(this).trigger("click");
-        });
-
         //Depending on the boot method we enable/disable some options
-        $('#boot_method',section_os_boot).click(function(){
+        $('#boot_method',section_os_boot).change(function(){
             select = $(this).val();
             switch (select)
             {
@@ -1378,14 +1366,9 @@ function setupCreateTemplateDialog(){
             //hide_disabled(section_disks);
         });
 
-        //Chrome workaround
-        $('select#TYPE',section_disks).change(function(){
-            $(this).trigger('click');
-        });
-
         //Depending on the type of disk we need to show/hide
         //different options and make then mandatory or not
-        $('select#TYPE',section_disks).click(function(){
+        $('select#TYPE',section_disks).change(function(){
             var select = $(this).val();
             switch (select) {
                 //size,format,target
@@ -1475,8 +1458,8 @@ function setupCreateTemplateDialog(){
             //hide_disabled(section_disks);
         });
 
-        //Our filter for the disks section fields is the mandatory
-        //filter for this section
+        //Our filter for the disks section fields is the standard
+        //mandatory filter applied for this section
         var diskFilter = function(){
             return mandatory_filter(section_disks);
         };
@@ -1495,7 +1478,7 @@ function setupCreateTemplateDialog(){
     var networks_setup = function(){
 
         $('.vm_param',section_networks).hide();
-        $('.firewall_select').hide();
+        $('.firewall_select',section_networks).hide();
         $('fieldset',section_networks).hide();
 
         $('#add_networks',section_networks).click(function(){
@@ -1531,7 +1514,7 @@ function setupCreateTemplateDialog(){
             //hide_disabled(section_networks);
         });
 
-        $('#black_white_tcp',section_networks).live("change",function(){
+        $('#black_white_tcp',section_networks).change(function(){
             switch ($(this).val()) {
             case "whitelist":
                 $('#BLACK_PORTS_TCP',section_networks).parent().attr("disabled","disabled");
@@ -1553,7 +1536,7 @@ function setupCreateTemplateDialog(){
             };
         });
 
-        $('#black_white_udp',section_networks).live("change",function(){
+        $('#black_white_udp',section_networks).change(function(){
             switch ($(this).val()) {
             case "whitelist":
                 $('#BLACK_PORTS_UDP',section_networks).parent().attr("disabled","disabled");
@@ -1604,7 +1587,7 @@ function setupCreateTemplateDialog(){
 
         $('#add_input_button',section_inputs).click(function(){
             //no filter
-            box_add_element(section_inputs,'#inputs_box',True);
+            box_add_element(section_inputs,'#inputs_box',function(){return true});
             return false;
         });
         $('#remove_input_button',section_inputs).click(function(){
@@ -1654,11 +1637,10 @@ function setupCreateTemplateDialog(){
                 $('#PORT',section_graphics).parent().hide();
                 $('#PASSWD',section_graphics).parent().hide();
                 $('#KEYMAP',section_graphics).parent().hide();
-
             }
         });
 
-    }
+    };
 
     //Set up the context section - TODO: Apply improvements here...
     var context_setup = function(){
@@ -1687,8 +1669,6 @@ function setupCreateTemplateDialog(){
             box_remove_element(section_context,'#context_box');
             return false;
         });
-
-
     };
 
     // Set up the placement section
@@ -1746,17 +1726,21 @@ filled in");
 
     //***CREATE VM DIALOG MAIN BODY***
 
-    $('div#dialogs').append('<div title="Create VM Template" id="create_template_dialog"></div>');
+    dialogs_context.append('<div title="Create VM Template" id="create_template_dialog"></div>');
+    $create_template_dialog = $('#create_template_dialog',dialogs_context)
+    var dialog = $create_template_dialog;
+
     //Insert HTML in place
-    $('#create_template_dialog').html(create_template_tmpl);
+    dialog.html(create_template_tmpl);
+
     //Enable tabs
-    $('#template_create_tabs').tabs({
+    $('#template_create_tabs',dialog).tabs({
         select:vmTabChange
     });
 
     //Prepare jquery dialog
     var height = Math.floor($(window).height()*0.8); //set height to a percentage of the window
-    $('#create_template_dialog').dialog({
+    dialog.dialog({
         autoOpen: false,
         modal: true,
         width: 600,
@@ -1764,26 +1748,26 @@ filled in");
     });
 
     // Enhace buttons
-    $('#create_template_dialog button').button();
+    $('button',dialog).button();
 
     // Re-Setup tips
-    setupTips($('#create_template_dialog'));
+    setupTips(dialog);
 
     //Enable different icon for folded/unfolded categories
     iconToggle(); //toogle +/- buttons
 
     //Sections, used to stay within their scope
-    var section_capacity = $('#capacity');
-    var section_os_boot = $('#os_boot_opts');
-    var section_features = $('#features');
-    var section_disks = $('#disks');
-    var section_networks = $('#networks');
-    var section_inputs = $('#inputs');
-    var section_graphics = $('#graphics');
-    var section_context = $('#context');
-    var section_placement = $('#placement');
-    var section_raw = $('#raw');
-    var section_custom_var = $('#custom_var');
+    var section_capacity = $('div#capacity',dialog);
+    var section_os_boot = $('div#os_boot_opts',dialog);
+    var section_features = $('div#features',dialog);
+    var section_disks = $('div#disks',dialog);
+    var section_networks = $('div#networks',dialog);
+    var section_inputs = $('div#inputs',dialog);
+    var section_graphics = $('div#graphics',dialog);
+    var section_context = $('div#context',dialog);
+    var section_placement = $('div#placement',dialog);
+    var section_raw = $('div#raw',dialog);
+    var section_custom_var = $('div#custom_var',dialog);
 
     //Different selector for items of kvm and xen (mandatory and optional)
     var items = '.vm_param input,.vm_param select';
@@ -1805,14 +1789,15 @@ filled in");
     vmTabChange(0,{index : 0}); //enable kvm
 
     //Fold/unfold all sections button
-    $('#fold_unfold_vm_params').toggle(
+    $('#fold_unfold_vm_params',dialog).toggle(
         function(){
-            $('.vm_section fieldset').show();
+            $('.vm_section fieldset',$create_template_dialog).show();
             return false;
         },
         function(){
-            $('.vm_section fieldset').hide();
-            $('.vm_section fieldset').first().show(); //Show capacity opts
+            $('.vm_section fieldset',$create_template_dialog).hide();
+            //Show capacity opts
+            $('.vm_section fieldset',$create_template_dialog).first().show();
             return false;
         });
 
@@ -1830,7 +1815,7 @@ filled in");
     custom_variables_setup();
 
     //Process form
-    $('button#create_template_form_easy').click(function(){
+    $('button#create_template_form_easy',dialog).click(function(){
         //validate form
 
         var vm_json = {};
@@ -1869,18 +1854,15 @@ filled in");
 
         //process disks -> fetch from box
         scope = section_disks;
-        vm_json["DISK"] = [];
-        addBoxJSON(vm_json["DISK"],scope,'#disks_box');
+        vm_json["DISK"] = addBoxJSON(scope,'#disks_box');
 
         //process nics -> fetch from box
         scope = section_networks;
-        vm_json["NIC"] = [];
-        addBoxJSON(vm_json["NIC"],scope,'#nics_box');
+        vm_json["NIC"] = addBoxJSON(scope,'#nics_box');
 
         //process inputs -> fetch from box
         scope = section_inputs;
-        vm_json["INPUT"] = [];
-        addBoxJSON(vm_json["INPUT"],scope,'#inputs_box');
+        vm_json["INPUT"] = addBoxJSON(scope,'#inputs_box');
 
         //process graphics -> fetch fields with value
         scope = section_graphics;
@@ -1928,41 +1910,42 @@ filled in");
 
         Sunstone.runAction("Template.create",vm_json);
 
-        $('#create_template_dialog').dialog('close');
+        $create_template_dialog.dialog('close');
         return false;
     });
 
     //Handle manual forms
-    $('button#create_template_form_manual').click(function(){
-        var template = $('#textarea_vm_template').val();
+    $('button#create_template_form_manual',$create_template_dialog).click(function(){
+        var template = $('textarea#textarea_vm_template',$create_template_dialog).val();
 
         //wrap it in the "vm" object
         template = {"vmtemplate": {"template_raw": template}};
 
         Sunstone.runAction("Template.create",template);
-        $('#create_template_dialog').dialog('close');
+        $create_template_dialog.dialog('close');
         return false;
     });
 
     //Reset form - empty boxes
-    $('button#reset_vm_form').click(function(){
+    $('button#reset_vm_form',dialog).click(function(){
         $('select#disks_box option',section_disks).remove();
         $('select#nics_box option',section_networks).remove();
         $('select#inputs_box option',section_inputs).remove();
+        $('select#custom_var_box option',section_custom_var).remove();
         return true;
     });
-
 }
 
 function popUpCreateTemplateDialog(){
-    $('#create_template_dialog').dialog('open');
+    $create_template_dialog.dialog('open');
 }
 
 // Set the autorefresh interval for the datatable
 function setTemplateAutorefresh() {
     setInterval(function(){
         var checked = $('input:checked',dataTable_templates.fnGetNodes());
-        var filter = $("#datatable_templates_filter input").attr("value");
+        var filter = $("#datatable_templates_filter input",
+                       dataTable_templates.parents('#datatable_templates_wrapper')).attr("value");
         if (!checked.length && !filter.length){
             Sunstone.runAction("Template.autorefresh");
         }
@@ -1972,7 +1955,7 @@ function setTemplateAutorefresh() {
 //The DOM is ready at this point
 $(document).ready(function(){
 
-    dataTable_templates = $("#datatable_templates").dataTable({
+    dataTable_templates = $("#datatable_templates",main_tabs_context).dataTable({
         "bJQueryUI": true,
         "bSortClasses": false,
         "bAutoWidth":false,

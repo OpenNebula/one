@@ -94,7 +94,6 @@ var vdc_actions = {
             waitingNodes(dataTable_vdcs);
             Sunstone.runAction("Zone.list");
         },
-        callback: Empty,
         error: onError
     },
 

@@ -94,6 +94,9 @@ var create_vm_tmpl ='<form id="create_vm_form" action="">\
 
 var vmachine_list_json = {};
 var dataTable_vMachines;
+var $create_vm_dialog;
+var $saveas_vm_dialog;
+var $vnc_dialog;
 var rfb;
 
 var vm_actions = {
@@ -151,10 +154,8 @@ var vm_actions = {
     "VM.deploy" : {
         type: "multiple",
         call: OpenNebula.VM.deploy,
-        callback: function (req) {
-            Sunstone.runAction("VM.show",req.request.data[0]);
-        },
-        elements: function() { return getSelectedNodes(dataTable_vMachines); },
+        callback: vmShow,
+        elements: vmElements,
         error: onError,
         notify: true
     },
@@ -162,9 +163,7 @@ var vm_actions = {
     "VM.migrate" : {
         type: "multiple",
         call: OpenNebula.VM.migrate,
-        callback: function (req) {
-            Sunstone.runAction("VM.show",req.request.data[0]);
-        },
+        callback: vmShow,
         elements: function() { return getSelectedNodes(dataTable_vMachines); },
         error: onError,
         notify: true
@@ -173,10 +172,8 @@ var vm_actions = {
     "VM.livemigrate" : {
         type: "multiple",
         call: OpenNebula.VM.livemigrate,
-        callback: function (req) {
-            Sunstone.runAction("VM.show",req.request.data[0]);
-        },
-        elements: function() { return getSelectedNodes(dataTable_vMachines); },
+        callback: vmShow,
+        elements: vmElements,
         error: onError,
         notify: true
     },
@@ -184,10 +181,8 @@ var vm_actions = {
     "VM.hold" : {
         type: "multiple",
         call: OpenNebula.VM.hold,
-        callback: function (req) {
-            Sunstone.runAction("VM.show",req.request.data[0]);
-        },
-        elements: function() { return getSelectedNodes(dataTable_vMachines); },
+        callback: vmShow,
+        elements: vmElements,
         error: onError,
         notify: true
     },
@@ -195,10 +190,8 @@ var vm_actions = {
     "VM.release" : {
         type: "multiple",
         call: OpenNebula.VM.release,
-        callback: function (req) {
-            Sunstone.runAction("VM.show",req.request.data[0]);
-        },
-        elements: function() { return getSelectedNodes(dataTable_vMachines); },
+        callback: vmShow,
+        elements: vmElements,
         error: onError,
         notify: true
     },
@@ -206,10 +199,8 @@ var vm_actions = {
     "VM.suspend" : {
         type: "multiple",
         call: OpenNebula.VM.suspend,
-        callback: function (req) {
-            Sunstone.runAction("VM.show",req.request.data[0]);
-        },
-        elements: function() { return getSelectedNodes(dataTable_vMachines); },
+        callback: vmShow,
+        elements: vmElements,
         error: onError,
         notify: true
     },
@@ -217,10 +208,8 @@ var vm_actions = {
     "VM.resume" : {
         type: "multiple",
         call: OpenNebula.VM.resume,
-        callback: function (req) {
-            Sunstone.runAction("VM.show",req.request.data[0]);
-        },
-        elements: function() { return getSelectedNodes(dataTable_vMachines); },
+        callback: vmShow,
+        elements: vmElements,
         error: onError,
         notify: true
     },
@@ -228,10 +217,8 @@ var vm_actions = {
     "VM.stop" : {
         type: "multiple",
         call: OpenNebula.VM.stop,
-        callback: function (req) {
-            Sunstone.runAction("VM.show",req.request.data[0]);
-        },
-        elements: function() { return getSelectedNodes(dataTable_vMachines); },
+        callback: vmShow,
+        elements: vmElements,
         error: onError,
         notify: true
     },
@@ -239,10 +226,8 @@ var vm_actions = {
     "VM.restart" : {
         type: "multiple",
         call: OpenNebula.VM.restart,
-        callback: function (req) {
-            Sunstone.runAction("VM.show",req.request.data[0]);
-        },
-        elements: function() { return getSelectedNodes(dataTable_vMachines); },
+        callback: vmShow,
+        elements: vmElements,
         error: onError,
         notify: true
     },
@@ -250,10 +235,8 @@ var vm_actions = {
     "VM.resubmit" : {
         type: "multiple",
         call: OpenNebula.VM.resubmit,
-        callback: function (req) {
-            Sunstone.runAction("VM.show",req.request.data[0]);
-        },
-        elements: function() { return getSelectedNodes(dataTable_vMachines); },
+        callback: vmShow,
+        elements: vmElements,
         error: onError,
         notify: true
     },
@@ -261,10 +244,9 @@ var vm_actions = {
     "VM.saveasmultiple" : {
         type: "custom",
         call: function(){
-            var elems = vm_actions["VM.saveasmultiple"].elements();
+            var elems = vmElements();
             popUpSaveasDialog(elems);
-        },
-        elements: function() { return getSelectedNodes(dataTable_vMachines); }
+        }
     },
 
     "VM.saveas" : {
@@ -272,10 +254,7 @@ var vm_actions = {
         call: function(obj) {
             OpenNebula.VM.saveas(
                 {data:obj,
-                 success: function (req) {
-                     Sunstone.runAction("VM.show",
-                                        req.request.data[0][0]);
-                 },
+                 success: vmShow,
                  error: onError });
         }
     },
@@ -284,17 +263,14 @@ var vm_actions = {
         type: "single",
         call: OpenNebula.VM.show,
         callback: saveasDisksCallback,
-        error: onError,
-        notify: false
+        error: onError
     },
 
     "VM.shutdown" : {
         type: "multiple",
         call: OpenNebula.VM.shutdown,
-        callback: function (req) {
-            Sunstone.runAction("VM.show",req.request.data[0]);
-        },
-        elements: function() { return getSelectedNodes(dataTable_vMachines); },
+        callback: vmShow,
+        elements: vmElements,
         error: onError,
         notify: true
     },
@@ -302,10 +278,8 @@ var vm_actions = {
     "VM.cancel" : {
         type: "multiple",
         call: OpenNebula.VM.cancel,
-        callback: function (req) {
-            Sunstone.runAction("VM.show",req.request.data[0]);
-        },
-        elements: function() { return getSelectedNodes(dataTable_vMachines); },
+        callback: vmShow,
+        elements: vmElements,
         error: onError,
         notify: true
     },
@@ -314,7 +288,7 @@ var vm_actions = {
         type: "multiple",
         call: OpenNebula.VM.delete,
         callback: deleteVMachineElement,
-        elements: function() { return getSelectedNodes(dataTable_vMachines); },
+        elements: vmElements,
         error: onError,
         notify: true
     },
@@ -354,7 +328,6 @@ var vm_actions = {
     "VM.stopvnc" : {
         type: "single",
         call: OpenNebula.VM.stopvnc,
-        callback: null,
         error: onError,
         notify: true
     },
@@ -381,20 +354,16 @@ var vm_actions = {
     "VM.chown" : {
         type: "multiple",
         call: OpenNebula.VM.chown,
-        callback: function (req) {
-            Sunstone.runAction("VM.show",req.request.data[0]);
-        },
-        elements: function() { return getSelectedNodes(dataTable_vMachines); },
+        callback: vmShow,
+        elements: vmElements,
         error: onError,
         notify: true
     },
     "VM.chgrp" : {
         type: "multiple",
         call: OpenNebula.VM.chgrp,
-        callback: function (req) {
-            Sunstone.runAction("VM.show",req.request.data[0]);
-        },
-        elements: function() { return getSelectedNodes(dataTable_vMachines); },
+        callback: vmShow,
+        elements: vmElements,
         error: onError,
         notify: true
     }
@@ -406,39 +375,35 @@ var vm_buttons = {
     "VM.refresh" : {
         type: "image",
         text: "Refresh list",
-        img: "images/Refresh-icon.png",
-        condition: True
+        img: "images/Refresh-icon.png"
     },
 
     "VM.create_dialog" : {
         type: "action",
         text: "+ New",
-        condition: True,
-        alwaysActive: true,
-
+        alwaysActive: true
     },
 
     "VM.chown" : {
         type: "confirm_with_select",
         text: "Change owner",
-        select: function() {return users_select;},
+        select: users_sel,
         tip: "Select the new owner:",
-        condition: function() { return gid == 0; }
+        condition: mustBeAdmin
     },
 
     "VM.chgrp" : {
         type: "confirm_with_select",
         text: "Change group",
-        select: function() {return groups_select;},
+        select: groups_sel,
         tip: "Select the new group:",
-        condition: function() { return gid == 0; }
+        condition: mustBeAdmin
     },
 
     "VM.shutdown" : {
         type: "confirm",
         text: "Shutdown",
-        tip: "This will initiate the shutdown process in the selected VMs",
-        condition: True
+        tip: "This will initiate the shutdown process in the selected VMs"
     },
 
     "action_list" : {
@@ -448,95 +413,75 @@ var vm_buttons = {
                 type: "confirm_with_select",
                 text: "Deploy",
                 tip: "This will deploy the selected VMs on the chosen host",
-                select: function(){
-                    if (hosts_select){return hosts_select}
-                    else {return ""}
-                },
-                condition: function() { return gid == 0; }
+                select: hosts_sel,
+                condition: mustBeAdmin
             },
             "VM.migrate" : {
                 type: "confirm_with_select",
                 text: "Migrate",
                 tip: "This will migrate the selected VMs to the chosen host",
-                select: function(){
-                    if (hosts_select){return hosts_select}
-                    else {return ""}
-                },
-                condition: function() { return gid == 0; }
+                select: hosts_sel,
+                condition: mustBeAdmin
 
             },
             "VM.livemigrate" : {
                 type: "confirm_with_select",
                 text: "Live migrate",
                 tip: "This will live-migrate the selected VMs to the chosen host",
-                select: function(){
-                    if (hosts_select){return hosts_select}
-                    else {return ""}
-                },
-                condition: function() { return gid == 0; }
+                select: hosts_sel,
+                condition: mustBeAdmin
             },
             "VM.hold" : {
                 type: "confirm",
                 text: "Hold",
-                tip: "This will hold selected pending VMs from being deployed",
-                condition: True
+                tip: "This will hold selected pending VMs from being deployed"
             },
             "VM.release" : {
                 type: "confirm",
                 text: "Release",
-                tip: "This will release held machines",
-                condition: True
+                tip: "This will release held machines"
             },
             "VM.suspend" : {
                 type: "confirm",
                 text: "Suspend",
-                tip: "This will suspend selected machines",
-                condition: True
+                tip: "This will suspend selected machines"
             },
             "VM.resume" : {
                 type: "confirm",
                 text: "Resume",
-                tip: "This will resume selected stopped or suspended VMs",
-                condition: True
+                tip: "This will resume selected stopped or suspended VMs"
             },
             "VM.stop" : {
                 type: "confirm",
                 text: "Stop",
-                tip: "This will stop selected VMs",
-                condition: True
+                tip: "This will stop selected VMs"
             },
             "VM.restart" : {
                 type: "confirm",
                 text: "Restart",
-                tip: "This will redeploy selected VMs (in UNKNOWN or BOOT state)",
-                condition: True
+                tip: "This will redeploy selected VMs (in UNKNOWN or BOOT state)"
             },
             "VM.resubmit" : {
                 type: "confirm",
                 text: "Resubmit",
-                tip: "This will resubmits VMs to PENDING state",
-                condition: True
+                tip: "This will resubmits VMs to PENDING state"
             },
             "VM.saveasmultiple" : {
                 type: "action",
-                text: "Save as",
-                condition: True
+                text: "Save as"
             },
             "VM.cancel" : {
                 type: "confirm",
                 text: "Cancel",
-                tip: "This will cancel selected VMs",
-                condition: True
+                tip: "This will cancel selected VMs"
             }
-        },
-        condition: True
+        }
     },
 
     "VM.delete" : {
         type: "confirm",
         text: "Delete",
-        tip: "This will delete the selected VMs from the database",
-        condition: True
+        tip: "This will delete the selected VMs from the database"
     }
 }
 
@@ -558,14 +503,21 @@ var vm_info_panel = {
 var vms_tab = {
     title: "Virtual Machines",
     content: vms_tab_content,
-    buttons: vm_buttons,
-    condition: True
+    buttons: vm_buttons
 }
 
 Sunstone.addActions(vm_actions);
 Sunstone.addMainTab('vms_tab',vms_tab);
 Sunstone.addInfoPanel('vm_info_panel',vm_info_panel);
 
+
+function vmElements() {
+    return getSelectedNodes(dataTable_vMachines);
+}
+
+function vmShow(req) {
+    Sunstone.runAction("VM.show",req.request.data[0]);
+}
 
 // Returns a human readable running time for a VM
 function str_start_time(vm){
@@ -610,7 +562,7 @@ function vMachineElementArray(vm_json){
 //Creates a listener for the TDs of the VM table
 function vMachineInfoListener(){
 
-    $('#tbodyvmachines tr').live("click", function(e){
+    $('#tbodyvmachines tr',dataTable_vMachines).live("click", function(e){
         if ($(e.target).is('input') || $(e.target).is('a img')) {return true;}
         popDialogLoading();
         var aData = dataTable_vMachines.fnGetData(this);
@@ -628,8 +580,8 @@ function updateVMachineElement(request, vm_json){
 }
 
 // Callback to delete a single element from the list
-function deleteVMachineElement(req){
-    deleteElement(dataTable_vMachines,'#vm_'+req.request.data);
+function deleteVMachineElement(request){
+    deleteElement(dataTable_vMachines,'#vm_'+request.request.data);
 }
 
 // Callback to add an element to the list
@@ -642,7 +594,6 @@ function addVMachineElement(request,vm_json){
 
 // Callback to refresh the list of Virtual Machines
 function updateVMachinesView(request, vmachine_list){
-    vmachine_list_json = vmachine_list;
     var vmachine_list_array = [];
 
     $.each(vmachine_list,function(){
@@ -650,7 +601,7 @@ function updateVMachinesView(request, vmachine_list){
     });
 
     updateView(vmachine_list_array,dataTable_vMachines);
-    updateDashboard("vms",vmachine_list_json);
+    updateDashboard("vms",vmachine_list);
 }
 
 
@@ -777,29 +728,40 @@ function updateVMInfo(request,vm){
 // which is a lot.
 function setupCreateVMDialog(){
 
-    $('div#dialogs').append('<div title="Create Virtual Machine" id="create_vm_dialog"></div>');
+    dialogs_context.append('<div title="Create Virtual Machine" id="create_vm_dialog"></div>');
     //Insert HTML in place
-    $('#create_vm_dialog').html(create_vm_tmpl);
+    $create_vm_dialog = $('#create_vm_dialog')
+    var dialog = $create_vm_dialog;
+    dialog.html(create_vm_tmpl);
 
     //Prepare jquery dialog
-    $('#create_vm_dialog').dialog({
+    dialog.dialog({
         autoOpen: false,
         modal: true,
         width: 400
     });
 
-    $('#create_vm_dialog button').button();
+    $('button',dialog).button();
 
-    $('#create_vm_dialog #create_vm_proceed').click(function(){
-        var vm_name = $('#create_vm_form #vm_name').val();
-        var template_id = $('#create_vm_form #template_id').val();
-        var n_times = $('#create_vm_form #vm_n_times').val();
+    $('#create_vm_form',dialog).submit(function(){
+        var vm_name = $('#vm_name',this).val();
+        var template_id = $('#template_id',this).val();
+        var n_times = $('#vm_n_times',this).val();
         var n_times_int=1;
+
+        if (!template_id.length){
+            notifyError("You have not selected a template");
+            return false;
+        }
+
         if (n_times.length){
             n_times_int=parseInt(n_times,10);
         }
 
         if (n_times_int>1){
+            if (!vm_name.length){
+                vm_name = $('#template_id option:selected',this).text();
+            }
             for (var i=0; i< n_times_int; i++){
                 Sunstone.runAction("Template.instantiate",template_id,vm_name+"_"+i);
             };
@@ -808,28 +770,26 @@ function setupCreateVMDialog(){
         };
 
         Sunstone.runAction("VM.list");
-        $('#create_vm_dialog').dialog('close');
+        $create_vm_dialog.dialog('close');
         return false;
-    });
-
-    $('#create_vm_dialog #create_vm_cancel').click(function(){
-
     });
 }
 
 // Open creation dialog
 function popUpCreateVMDialog(){
-    $('#create_vm_dialog').dialog('open');
+    $create_vm_dialog.dialog('open');
 }
 
 //Prepares a dialog to saveas a VM
 function setupSaveasDialog(){
     //Append to DOM
-    $('div#dialogs').append('<div id="saveas_vm_dialog" title="VM Save As"></div>');
+    dialogs_context.append('<div id="saveas_vm_dialog" title="VM Save As"></div>');
+    $saveas_vm_dialog = $('#saveas_vm_dialog',dialogs_context);
+    var dialog = $saveas_vm_dialog;
 
     //Put HTML in place
-    $('#saveas_vm_dialog').html('\
-        <form action="javascript:alert(\'js error!\');">\
+    dialog.html('\
+        <form id="saveas_vm_form" action="javascript:alert(\'js error!\');">\
             <div id="saveas_tabs">\
             </div>\
             <div class="form_buttons">\
@@ -839,7 +799,7 @@ function setupSaveasDialog(){
             </fieldset>\
        </form>');
 
-    $('#saveas_vm_dialog').dialog({
+    dialog.dialog({
         autoOpen:false,
         width:600,
         modal:true,
@@ -847,8 +807,8 @@ function setupSaveasDialog(){
         resizable:true,
     });
 
-    $('#saveas_vm_dialog #vm_saveas_proceed').click(function(){
-        var elems = $('#saveas_vm_dialog #saveas_tabs div.saveas_tab');
+    $('#saveas_vm_form',dialog).submit(function(){
+        var elems = $('#saveas_tabs div.saveas_tab',this);
         var args = [];
         $.each(elems,function(){
             var id = $('#vm_id',this).text();
@@ -875,25 +835,26 @@ function setupSaveasDialog(){
             notifySubmit("VM.saveas",args);
         }
 
-        $('#saveas_vm_dialog').dialog('close');
+        $saveas_vm_dialog.dialog('close');
         return false;
     });
 
-    $('#saveas_vm_dialog #vm_saveas_cancel').click(function(){
-        $('#saveas_vm_dialog').dialog('close');
+    $('#vm_saveas_cancel',dialog).click(function(){
+        $saveas_vm_dialog.dialog('close');
         return false;
     });
 
 }
 
 function popUpSaveasDialog(elems){
-    $('#saveas_vm_dialog #saveas_tabs').tabs('destroy');
-    $('#saveas_vm_dialog #saveas_tabs').empty();
-    $('#saveas_vm_dialog #saveas_tabs').html('<ul></ul>');
+    var dialog = $saveas_vm_dialog;
+    $('#saveas_tabs',dialog).tabs('destroy');
+    $('#saveas_tabs',dialog).empty();
+    $('#saveas_tabs',dialog).html('<ul></ul>');
 
     $.each(elems,function(){
         var li = '<li><a href="#saveas_tab_'+this+'">VM '+this+'</a></li>'
-        $('#saveas_vm_dialog #saveas_tabs ul').append(li);
+        $('#saveas_tabs ul',dialog).append(li);
         var tab = '<div class="saveas_tab" id="saveas_tab_'+this+'">\
         <div id="vm_id_text">Saveas for VM with ID <span id="vm_id">'+this+'</span></div>\
             <fieldset>\
@@ -923,12 +884,12 @@ function popUpSaveasDialog(elems){
             -->\
             </fieldset>\
         </div>';
-        $('#saveas_vm_dialog #saveas_tabs').append(tab);
+        $('#saveas_tabs',dialog).append(tab);
         Sunstone.runAction("VM.saveas_disks",this);
     });
-    $('#saveas_vm_dialog #saveas_tabs').tabs();
-    $('#saveas_vm_dialog button').button();
-    $('#saveas_vm_dialog').dialog('open');
+    $('#saveas_tabs',dialog).tabs();
+    $('button',dialog).button();
+    dialog.dialog('open');
 }
 
 function saveasDisksCallback(req,response){
@@ -956,7 +917,7 @@ function saveasDisksCallback(req,response){
         select+= gen_option(disks.DISK_ID,disks.IMAGE,disks.SOURCE);
     }
     //introduce options in the right tab
-    $('#saveas_tabs #saveas_tab_'+id+' #vm_disk_id').html(select);
+    $('#saveas_tabs #saveas_tab_'+id+' #vm_disk_id',$saveas_vm_dialog).html(select);
 
 }
 
@@ -964,10 +925,11 @@ function saveasDisksCallback(req,response){
 function setVMAutorefresh(){
      setInterval(function(){
          var checked = $('input:checked',dataTable_vMachines.fnGetNodes());
-         var filter = $("#datatable_vmachines_filter input").attr("value");
+         var filter = $("#datatable_vmachines_filter input",
+                        dataTable_vMachines.parents('#datatable_vmachines_wrapper')).attr("value");
          if (!checked.length && !filter.length){
              Sunstone.runAction("VM.autorefresh");
-                }
+         };
      },INTERVAL+someTime());
 }
 
@@ -1009,9 +971,11 @@ function updateVNCState(rfb, state, oldstate, msg) {
 function setupVNC(){
 
     //Append to DOM
-    $('div#dialogs').append('<div id="vnc_dialog" title="VNC connection"></div>');
+    dialogs_context.append('<div id="vnc_dialog" title="VNC connection"></div>');
+    $vnc_dialog = $('#vnc_dialog',dialogs_context);
+    var dialog = $vnc_dialog;
 
-    $('#vnc_dialog').html('\
+    dialog.html('\
       <div id="VNC_status_bar" class="VNC_status_bar" style="margin-top: 0px;">\
          <table border=0 width="100%"><tr>\
             <td><div id="VNC_status">Loading</div></td>\
@@ -1026,12 +990,7 @@ function setupVNC(){
         </canvas>\
 ');
 
-    $('#sendCtrlAltDelButton').click(function(){
-        rfb.sendCtrlAltDel();
-        return false;
-    });
-
-    $('#vnc_dialog').dialog({
+    dialog.dialog({
         autoOpen:false,
         width:700,
         modal:true,
@@ -1039,22 +998,26 @@ function setupVNC(){
         resizable:true,
     });
 
-    $( "#vnc_dialog" ).bind( "dialogclose", function(event, ui) {
-        var id = $("#vnc_dialog").attr("vm_id");
+    $('#sendCtrlAltDelButton',dialog).click(function(){
+        rfb.sendCtrlAltDel();
+        return false;
+    });
+
+    dialog.bind( "dialogclose", function(event, ui) {
+        var id = $vnc_dialog.attr("vm_id");
         rfb.disconnect();
         Sunstone.runAction("VM.stopvnc",id);
     });
 
-    $('.vnc').live("click",function(){
+    $('.vnc',main_tabs_context).live("click",function(){
         //Which VM is it?
         var id = $(this).attr("vm_id");
         //Set attribute to dialog
-        $('#vnc_dialog').attr("vm_id",id);
+        $vnc_dialog.attr("vm_id",id);
         //Request proxy server start
         Sunstone.runAction("VM.startvnc",id);
         return false;
     });
-
 }
 
 function vncCallback(request,response){
@@ -1074,7 +1037,7 @@ function vncCallback(request,response){
 
     setTimeout(function(){
         rfb.connect(vnc_host, vnc_port, vnc_pw);
-        $('#vnc_dialog').dialog('open');
+        $vnc_dialog.dialog('open');
     },4000);
 
 }
@@ -1091,7 +1054,6 @@ function vncIcon(vm){
         gr_icon = '<img src="images/vnc_off.png" alt="VNC Disabled" />';
     }
     return gr_icon;
-
 }
 
 function vmMonitorError(req,error_json){
@@ -1106,7 +1068,7 @@ function vmMonitorError(req,error_json){
 // At this point the DOM is ready and the sunstone.js ready() has been run.
 $(document).ready(function(){
 
-    dataTable_vMachines = $("#datatable_vmachines").dataTable({
+    dataTable_vMachines = $("#datatable_vmachines",main_tabs_context).dataTable({
         "bJQueryUI": true,
         "bSortClasses": false,
         "sPaginationType": "full_numbers",

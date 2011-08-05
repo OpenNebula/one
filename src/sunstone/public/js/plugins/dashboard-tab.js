@@ -14,6 +14,7 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
+/** HISTORY_LENGTH currently ignored on server, but it doesn't harm to have it**/
 var HISTORY_LENGTH=40;
 var GRAPH_AUTOREFRESH_INTERVAL=60000; //60 secs
 
@@ -81,6 +82,10 @@ var dashboard_tab_content =
               <td class="key_td">Users</td>\
               <td class="value_td"><span id="total_users"></span></td>\
             </tr>\
+            <tr>\
+              <td class="key_td">ACL Rules</td>\
+              <td class="value_td"><span id="total_acls"></span></td>\
+            </tr>\
           </table>\
 \
         </div>\
@@ -93,14 +98,15 @@ var dashboard_tab_content =
         <h3>Quickstart</h3>\
         <form id="quickstart_form"><fieldset>\
           <table style="width:100%;"><tr style="vertical-align:middle;"><td style="width:70%">\
-          <label style="font-weight:bold;width:40px;height:8em;">New:</label>\
+          <label style="font-weight:bold;width:40px;height:10em;">New:</label>\
           <input type="radio" name="quickstart" value="Host.create_dialog">Host</input><br />\
-          <input type="radio" name="quickstart" value="Group.create_dialog">Group</input><br />\
-          <input type="radio" name="quickstart" value="Template.create_dialog">VM Template</input><br />\
           <input type="radio" name="quickstart" value="VM.create_dialog">VM Instance</input><br />\
+          <input type="radio" name="quickstart" value="Template.create_dialog">VM Template</input><br />\
           <input type="radio" name="quickstart" value="Network.create_dialog">Virtual Network</input><br />\
           <input type="radio" name="quickstart" value="Image.create_dialog">Image</input><br />\
           <input type="radio" name="quickstart" value="User.create_dialog">User</input><br />\
+          <input type="radio" name="quickstart" value="Group.create_dialog">Group</input><br />\
+          <input type="radio" name="quickstart" value="Acl.create_dialog">Acl</input><br />\
           </td></tr></table>\
       </div>\
     </td>\
@@ -138,13 +144,13 @@ var dashboard_tab_content =
 
 var dashboard_tab = {
     title: 'Dashboard',
-    content: dashboard_tab_content,
-    condition : True
+    content: dashboard_tab_content
 }
 
 Sunstone.addMainTab('dashboard_tab',dashboard_tab);
 
 function plot_global_graph(data,info){
+    var context = $('#historical_table',main_tabs_context);
     var id = info.title;
     var monitoring = data.monitoring;
     var serie;
@@ -153,7 +159,7 @@ function plot_global_graph(data,info){
     var mon_count = 0;
     var labels_array = info.monitor_resources.split(',');
 
-    $('#'+id).html('<div id="'+id+'_graph" style="height:70px;width:'+width+'px;margin-bottom:10px;"><div>');
+    $('#'+id,context).html('<div id="'+id+'_graph" style="height:70px;width:'+width+'px;margin-bottom:10px;"><div>');
 
     for (var i=0; i<labels_array.length; i++) {
         serie = {
@@ -186,12 +192,12 @@ function plot_global_graph(data,info){
         }
     }
 
-    $.plot($('#'+id+'_graph'),series,options);
+    $.plot($('#'+id+'_graph',context),series,options);
 }
 
 function quickstart_setup(){
 
-    $('#quickstart_form input').click(function(){
+    $('#dashboard_table #quickstart_form input',main_tabs_context).click(function(){
         Sunstone.runAction($(this).val());
     });
 }
@@ -212,7 +218,7 @@ function refresh_graphs(){
 
 $(document).ready(function(){
     //Dashboard link listener
-    $("#dashboard_table h3 a").live("click", function (){
+    $("#dashboard_table h3 a",main_tabs_context).live("click", function (){
         var tab = $(this).attr('href');
         showTab(tab);
         return false;
@@ -229,12 +235,12 @@ $(document).ready(function(){
 
 //puts the dashboard values into "retrieving"
 function emptyDashboard(){
-    $("#dashboard_tab .value_td span").html(spinner);
+    $("#dashboard_tab .value_td span",main_tabs_context).html(spinner);
 }
 
 
 function updateDashboard(what,json_info){
-    var db = $('#dashboard_tab');
+    var db = $('#dashboard_tab',main_tabs_context);
     switch (what){
     case "hosts":
         var total_hosts=json_info.length;
@@ -301,6 +307,10 @@ function updateDashboard(what,json_info){
         });
         $('#total_templates',db).html(total_templates+'&nbsp;/&nbsp;');
         $('#public_templates',db).html(public_templates);
+        break;
+    case "acls":
+        var total_acls=json_info.length;
+        $('#total_acls',db).html(total_acls);
         break;
     }
 }

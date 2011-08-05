@@ -91,7 +91,6 @@ var zone_actions = {
             waitingNodes(dataTable_zones);
             Sunstone.runAction("Zone.list");
         },
-        callback: Empty,
         error: onError,
         notify: false
     },
