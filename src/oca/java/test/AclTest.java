@@ -155,7 +155,8 @@ public class AclTest
             "#2 IMAGE/#0 INFO",
             "@107 IMAGE+TEMPLATE/@100 INFO",
             "* VM+IMAGE+TEMPLATE/@100 CREATE+INFO+INFO_POOL",
-            "#2345 VM+IMAGE+TEMPLATE/* CREATE+INFO+INFO_POOL+INFO_POOL_MINE+INSTANTIATE"
+            "#2345 VM+IMAGE+TEMPLATE/* CREATE+INFO+INFO_POOL+INFO_POOL_MINE+INSTANTIATE",
+            "@7 HOST/@100 INFO+INFO_POOL+USE+DEPLOY",
         };
 
         long[] users = {
@@ -163,7 +164,8 @@ public class AclTest
             0x100000002L,
             0x20000006bL,
             0x400000000L,
-            0x100000929L
+            0x100000929L,
+            0x200000007L
         };
 
         long[] resources = {
@@ -171,7 +173,8 @@ public class AclTest
             0x8100000000L,
             0x28200000064L,
             0x29200000064L,
-            0x29400000000L
+            0x29400000000L,
+            0x2200000064L
         };
 
         long[] rights = {
@@ -179,7 +182,8 @@ public class AclTest
             0x10L,
             0x10L,
             0x31L,
-            0xf1L
+            0xf1L,
+            0x234L
         };
 
         for( int i = 0; i < rules.length; i++ )
