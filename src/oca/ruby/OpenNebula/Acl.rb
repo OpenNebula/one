@@ -39,6 +39,7 @@ module OpenNebula
     #                  INFO_POOL_MINE
     #                  INSTANTIATE
     #                  CHOWN
+    #                  DEPLOY
     class Acl < PoolElement
 
         USERS = {
@@ -68,7 +69,8 @@ module OpenNebula
             "INFO_POOL"     => 0x20, # Auth. to view any object in the pool
             "INFO_POOL_MINE"=> 0x40, # Auth. to view user and/or group objects
             "INSTANTIATE"   => 0x80, # Auth. to instantiate a VM from a TEMPLATE
-            "CHOWN"         => 0x100 # Auth. to change ownership of an object
+            "CHOWN"         => 0x100,# Auth. to change ownership of an object
+            "DEPLOY"        => 0x200 # Auth. to deploy a VM in a Host
         }
 
         # Constructor
