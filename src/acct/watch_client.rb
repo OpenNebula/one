@@ -6,7 +6,7 @@ module OneWatchClient
 
         def resource_monitoring(id, monitoring_resources=[], filter={})
             # Retrieve Sequel resource
-            rsql = pool[id]
+            rsql = filter_resource(id, filter)
             return nil if rsql.nil?
 
             # By default show all the available monitoring resources.
@@ -45,6 +45,7 @@ module OneWatchClient
         def total_monitoring(monitoring_resources=[], filter={})
             # Retrieve Sequel resource
             rsql = filter_pool(filter)
+            return nil if rsql.nil?
 
             # By default show all the available monitoring resources.
             # If a set of monitoring resources is specified
@@ -117,28 +118,11 @@ module OneWatchClient
 
             a
         end
-
-        protected
-
-        def filter_pool(filter)
-            if filter[:uid]
-                pool.filter(:uid=>filter[:uid])
-            elsif filter[:gid]
-                pool.filter(:gid=>filter[:gid])
-            else
-                pool
-            end
-        end
     end
 
     class HostWatchClient < WatchClient
         def pool
             WatchHelper::Host
-        end
-
-        def filter_pool(filter)
-            hosts = super(filter)
-            hosts.join(WatchHelper::HostSample, :host_id=>:id)
         end
 
         def allowed_samples
@@ -156,16 +140,36 @@ module OneWatchClient
         def error(pool)
             pool.filter(:state=>3)
         end
+
+        def filter_pool(filter)
+            if filter[:uid]
+                filter[:uid]==0 ? (hosts = pool) : (return nil)
+            elsif filter[:gid]
+                filter[:uid]==0 ? (hosts = pool) : (return nil)
+            else
+                hosts = pool
+            end
+
+            hosts.join(WatchHelper::HostSample, :host_id=>:id)
+        end
+
+        def filter_resource(id, filter)
+            rsql = pool[id]
+            return nil if rsql.nil?
+
+            if filter[:uid]
+                filter[:uid]==0 ? rsql : nil
+            elsif filter[:gid]
+                filter[:gid]==0 ? rsql : nil
+            else
+                rsql
+            end
+        end
     end
 
     class VmWatchClient < WatchClient
         def pool
             WatchHelper::Vm
-        end
-
-        def filter_pool(filter)
-            vms = super(filter)
-            vms.join(WatchHelper::VmSample, :vm_id=>:id)
         end
 
         def allowed_samples
@@ -182,6 +186,31 @@ module OneWatchClient
 
         def error(pool)
             pool.filter(:state=>7)
+        end
+
+        def filter_pool(filter)
+            if filter[:uid]
+                vms = pool.filter(:uid=>filter[:uid])
+            elsif filter[:gid]
+                vms = pool.filter(:gid=>filter[:gid])
+            else
+                vms = pool
+            end
+
+            vms.join(WatchHelper::VmSample, :vm_id=>:id)
+        end
+
+        def filter_resource(id, filter)
+            rsql = pool[id]
+            return nil if rsql.nil?
+
+            if filter[:uid]
+                filter[:uid]==rsql.uid ? rsql : nil
+            elsif filter[:gid]
+                filter[:gid]==rsql.gid ? rsql : nil
+            else
+                rsql
+            end
         end
     end
 end
