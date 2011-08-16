@@ -67,6 +67,35 @@ describe "VmWatchClient tests" do
         monitoring[:net_rx].first.should eql([90,400])
     end
 
+    it "should check all the monitoring resources are shown by default and filtered" do
+        mon = @watch_client.resource_monitoring(1, nil, :uid=>2)
+
+        mon[:id].should eql(1)
+        mon[:resource].should eql("VM")
+
+        monitoring = mon[:monitoring]
+
+        monitoring.keys.size.should eql(4)
+
+        monitoring[:cpu_usage].size.should eql(1)
+        monitoring[:cpu_usage].first.should eql([90,1])
+
+        monitoring[:mem_usage].size.should eql(1)
+        monitoring[:mem_usage].first.should eql([90,128])
+
+        monitoring[:net_tx].size.should eql(1)
+        monitoring[:net_tx].first.should eql([90,200])
+
+        monitoring[:net_rx].size.should eql(1)
+        monitoring[:net_rx].first.should eql([90,400])
+    end
+
+    it "should check no info for non exisiting user" do
+        mon = @watch_client.resource_monitoring(1, nil, :uid=>1)
+
+        mon.should eql(nil)
+    end
+
     it "should check only one monitoring resource is shown if specified" do
         mon = @watch_client.resource_monitoring(1, [:net_tx])
 
@@ -391,5 +420,27 @@ describe "VmWatchClient tests" do
 
         monitoring[:net_rx].size.should eql(1)
         monitoring[:net_rx].first.should eql([90,400*2])
+    end
+
+    it "should check no total info for non existing user" do
+        mon = @watch_client.total_monitoring(nil, :uid=>5)
+
+        mon[:resource].should eql("VM_POOL")
+
+        monitoring = mon[:monitoring]
+
+        monitoring[:total].size.should eql(0)
+
+        monitoring[:active].size.should eql(0)
+
+        monitoring[:error].size.should eql(0)
+
+        monitoring[:cpu_usage].size.should eql(0)
+
+        monitoring[:mem_usage].size.should eql(0)
+
+        monitoring[:net_tx].size.should eql(0)
+
+        monitoring[:net_rx].size.should eql(0)
     end
 end
