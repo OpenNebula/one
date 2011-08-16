@@ -179,14 +179,16 @@ get '/:resource/monitor' do
     @SunstoneServer.get_monitoring(
         nil,
         params[:resource],
-        params[:monitor_resources])
+        params[:monitor_resources],
+        session[:user_gid])
 end
 
 get '/:resource/:id/monitor' do
     @SunstoneServer.get_monitoring(
         params[:id],
         params[:resource],
-        params[:monitor_resources])
+        params[:monitor_resources],
+        session[:user_gid])
 end
 
 
@@ -195,8 +197,7 @@ end
 ##############################################################################
 get '/:pool' do
     @SunstoneServer.get_pool(params[:pool],
-                             session[:user_gid],
-                             settings.config[:pool_filter])
+                             session[:user_gid])
 end
 
 ##############################################################################
