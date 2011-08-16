@@ -199,8 +199,7 @@ end
 ##############################################################################
 get '/:pool' do
     @SunstoneServer.get_pool(params[:pool],
-                             session[:user_gid],
-                             settings.config[:pool_filter])
+                             session[:user_gid])
 end
 
 ##############################################################################
