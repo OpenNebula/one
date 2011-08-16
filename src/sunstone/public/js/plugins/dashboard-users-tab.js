@@ -25,13 +25,13 @@ var graph1 = {
 
 var graph2 = {
     title : "graph2",
-    monitor_resources : "cpu",
+    monitor_resources : "cpu_usage",
     history_length : HISTORY_LENGTH
 };
 
 var graph3 = {
     title : "graph3",
-    monitor_resources : "memory",
+    monitor_resources : "mem_usage",
     history_length : HISTORY_LENGTH
 };
 

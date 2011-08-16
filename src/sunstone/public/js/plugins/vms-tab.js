@@ -26,12 +26,12 @@ loadVNC();
 
 var vm_graphs = [
     { title : "CPU",
-      monitor_resources : "cpu",
+      monitor_resources : "cpu_usage",
       humanize_figures : false,
       history_length : VM_HISTORY_LENGTH
     },
     { title : "Memory",
-      monitor_resources : "memory",
+      monitor_resources : "mem_usage",
       humanize_figures : true,
       history_length : VM_HISTORY_LENGTH
     },
