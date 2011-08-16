@@ -20,6 +20,9 @@ include OpenNebulaJSON
 require 'acct/watch_client'
 
 class SunstoneServer
+    # FLAG that will filter the elements retrieved from the Pools
+    POOL_FILTER = Pool::INFO_GROUP
+
     def initialize(username, password)
         # TBD one_client_user(name) from CloudServer
         @client = Client.new("dummy:dummy")
@@ -56,15 +59,11 @@ class SunstoneServer
     ############################################################################
     #
     ############################################################################
-    def get_pool(kind,gid,filter)
+    def get_pool(kind,gid)
         if gid == "0"
             user_flag = Pool::INFO_ALL
         else
-            user_flag = case filter
-                when "MINE"  then Pool::INFO_MINE
-                when "GROUP" then Pool::INFO_GROUP
-                else Pool::INFO_GROUP
-            end
+            user_flag = POOL_FILTER
         end
 
         pool = case kind
