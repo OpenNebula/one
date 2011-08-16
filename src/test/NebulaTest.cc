@@ -71,6 +71,7 @@ VirtualMachineManager* NebulaTest::create_vmm(VirtualMachinePool* vmpool,
                                      hpool,
                                      timer_period,
                                      poll_period,
+                                     5,
                                      vmm_mads);
 }
 
@@ -90,6 +91,7 @@ InformationManager* NebulaTest::create_im(HostPool*   hpool,
     return new InformationManager(hpool,
                                   timer_period,
                                   monitor_period,
+                                  15,
                                   remotes_location,
                                   im_mads);
 }

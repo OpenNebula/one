@@ -33,12 +33,14 @@ VirtualMachineManager::VirtualMachineManager(
     HostPool *                      _hpool,
     time_t                          _timer_period,
     time_t                          _poll_period,
+    int                             _vm_limit,
     vector<const Attribute*>&       _mads):
         MadManager(_mads),
         vmpool(_vmpool),
         hpool(_hpool),
         timer_period(_timer_period),
-        poll_period(_poll_period)
+        poll_period(_poll_period),
+        vm_limit(_vm_limit)
 {
     am.addListener(this);
 };
@@ -821,10 +823,6 @@ void VirtualMachineManager::timer_action()
     time_t thetime = time(0);
 
     const VirtualMachineManagerDriver * vmd;
-
-    // -------------- Max. number of VMs to monitor. ---------------------
-    int vm_limit = 5;
-
 
     mark = mark + timer_period;
 
