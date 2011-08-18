@@ -389,7 +389,7 @@ EOT
         end
 
         def format_file(arg)
-            File.exists?(arg) ? [0,arg] : [-1]
+            File.file?(arg) ? [0,arg] : [-1]
         end
 
         REG_RANGE=/^(?:(?:\d+\.\.\d+|\d+),)*(?:\d+\.\.\d+|\d+)$/
