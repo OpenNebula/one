@@ -34,12 +34,14 @@ public:
         HostPool *                  _hpool,
         time_t                      _timer_period,
         time_t                      _monitor_period,
+        int                         _host_limit,
         const string&               _remotes_location,
         vector<const Attribute*>&   _mads)
             :MadManager(_mads),
             hpool(_hpool),
             timer_period(_timer_period),
             monitor_period(_monitor_period),
+            host_limit(_host_limit),
             remotes_location(_remotes_location)
     {
         am.addListener(this);
@@ -97,6 +99,11 @@ private:
      *  Host monitoring interval
      */
     time_t          monitor_period;
+
+    /**
+     *  Host monitoring limit
+     */
+    int             host_limit;
 
    /**
     *  Path for the remote action programs
