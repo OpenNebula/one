@@ -96,7 +96,7 @@ module OpenNebula
                 raise "ONE_AUTH file not present"
             end
 
-            tokens = one_secret.chomp!.split(':')
+            tokens = one_secret.chomp.split(':')
 
             if tokens.length > 2
                 @one_auth = one_secret
