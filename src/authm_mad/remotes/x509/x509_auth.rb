@@ -88,7 +88,7 @@ class X509Auth
     # Server side
     ###########################################################################
     # auth method for auth_mad
-    def authenticate(user, pass, token)        
+    def authenticate(pass, token)        
         begin
             plain = decrypt(token)
         
@@ -108,7 +108,7 @@ class X509Auth
  
 private
     ###########################################################################
-    #                       Methods to handle ssh keys
+    #                       Methods to encrpyt/decrypt keys
     ###########################################################################
     # Encrypts data with the private key of the user and returns
     # base 64 encoded output in a single line 
