@@ -36,6 +36,7 @@ require 'OpenNebula'
 require 'rubygems'
 require 'sequel'
 require 'ssh_auth'
+require 'x509_auth'
 require 'yaml'
 
 require 'command_parser'
@@ -100,6 +101,24 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
         ssh=SshAuth.new
         ssh.login(user, time)
+        exit_with_code 0
+    end
+
+    command 'loginx509', login_desc, :text, :text, :text, :text do
+        user = args[0]
+        cert = File.read(args[1])
+        key  = File.read(args[2])
+        time = args[3]
+
+        if time
+            time=time.to_i
+        else
+            time=3600
+        end
+
+        auth = X509Auth.new(:cert=>cert,:key=>key)
+        auth.login(user, time)
+
         exit_with_code 0
     end
 
