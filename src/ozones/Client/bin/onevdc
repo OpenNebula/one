@@ -15,7 +15,7 @@ require 'command_parser'
 require 'ozones_helper/vdc_helper.rb'
 
 cmd=CommandParser::CmdParser.new(ARGV) do
-    usage "`ovdcs` command [<args>] [<options>]"
+    usage "`onevdc` command [<args>] [<options>]"
     version OpenNebulaHelper::ONE_VERSION
     
     ########################################################################

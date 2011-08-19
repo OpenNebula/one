@@ -47,7 +47,9 @@ NebulaTemplate::NebulaTemplate(string& etc_location, string& var_location)
 # Daemon configuration attributes
 #-------------------------------------------------------------------------------
 #  HOST_MONITORING_INTERVAL
+#  HOST_PER_INTERVAL
 #  VM_POLLING_INTERVAL
+#  VM_PER_INTERVAL
 #  VM_DIR
 #  PORT
 #  DB
@@ -61,10 +63,22 @@ NebulaTemplate::NebulaTemplate(string& etc_location, string& var_location)
     attribute = new SingleAttribute("HOST_MONITORING_INTERVAL",value);
     conf_default.insert(make_pair(attribute->name(),attribute));
 
+    // HOST_PER_INTERVAL
+    value = "15";
+
+    attribute = new SingleAttribute("HOST_PER_INTERVAL",value);
+    conf_default.insert(make_pair(attribute->name(),attribute));
+
     // POLL_INTERVAL
     value = "600";
 
     attribute = new SingleAttribute("VM_POLLING_INTERVAL",value);
+    conf_default.insert(make_pair(attribute->name(),attribute));
+
+    // VM_PER_INTERVAL
+    value = "5";
+
+    attribute = new SingleAttribute("VM_PER_INTERVAL",value);
     conf_default.insert(make_pair(attribute->name(),attribute));
 
     //VM_DIR

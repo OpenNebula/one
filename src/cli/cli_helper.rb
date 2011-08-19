@@ -132,17 +132,19 @@ module CLIHelper
 
         def show(data, options={})
             update_columns(options)
-            print_table(data, options) 
+            print_table(data, options)
         end
 
-        def top(data, options={})
-            update_columns(options)
+        def top(options={}, &block)
             delay=options[:delay] ? options[:delay] : 1
 
             begin
                 while true
                     CLIHelper.scr_cls
                     CLIHelper.scr_move(0,0)
+
+                    data = block.call
+
                     show(data, options)
                     sleep delay
                 end

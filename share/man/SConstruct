@@ -43,3 +43,6 @@ env.Man('oneuser')
 env.Man('onevm')
 env.Man('onevnet')
 env.Man('onegroup')
+env.Man('onezone')
+env.Man('onevdc')
+

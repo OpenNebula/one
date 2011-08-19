@@ -50,8 +50,8 @@ class OneDB
         bck_file = @backend.bck_file if bck_file.nil?
 
         if !ops[:force] && File.exists?(bck_file)
-            puts "File #{bck_file} exists, backup aborted. Use -f to overwrite."
-            raise
+            raise "File #{bck_file} exists, backup aborted. Use -f " <<
+                  "to overwrite."
         end
 
         @backend.backup(bck_file)
@@ -62,8 +62,7 @@ class OneDB
         bck_file = @backend.bck_file if bck_file.nil?
 
         if !File.exists?(bck_file)
-            puts "File #{bck_file} doesn't exist, backup restoration aborted."
-            return -1
+            raise "File #{bck_file} doesn't exist, backup restoration aborted."
         end
         
         one_not_running
@@ -115,7 +114,6 @@ class OneDB
             # At least one upgrade will be executed, make DB backup
             backup(ops[:backup], ops)
 
-
             puts "  > Running migrator #{file}" if ops[:verbose]
 
             load(file)
@@ -123,9 +121,8 @@ class OneDB
             result = @backend.up
 
             if !result
-                puts "Error while upgrading from #{version} to " <<
-                     " #{@backend.db_version}"
-                return -1
+                raise "Error while upgrading from #{version} to " <<
+                      " #{@backend.db_version}"
             end
 
             puts "  > Done" if ops[:verbose]
@@ -148,8 +145,7 @@ class OneDB
         config = Configuration.new("#{ETC_LOCATION}/oned.conf")
 
         if config[:db] == nil
-            puts "No DB defined."
-            raise
+            raise "No DB defined."
         end
 
         if config[:db]["BACKEND"].upcase.include? "SQLITE"
@@ -164,9 +160,8 @@ class OneDB
                 :db_name => config[:db]["DB_NAME"]
             )
         else
-            puts "Could not load DB configuration from " <<
-                 "#{ETC_LOCATION}/oned.conf"
-            raise
+            raise "Could not load DB configuration from " <<
+                  "#{ETC_LOCATION}/oned.conf"
         end
 
         return 0
@@ -174,8 +169,7 @@ class OneDB
 
     def one_not_running()
         if File.exists?(LOCK_FILE)
-            puts "First stop OpenNebula. Lock file found: #{LOCK_FILE}"
-            raise
+            raise "First stop OpenNebula. Lock file found: #{LOCK_FILE}"
         end
     end
 end

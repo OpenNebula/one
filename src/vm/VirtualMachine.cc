@@ -982,6 +982,10 @@ int VirtualMachine::save_disk(int disk_id, int img_id, string& error_str)
     ostringstream oss;
     istringstream iss;
 
+    if ( state == DONE || state == FAILED )
+    {
+        goto error_state;
+    }
 
     num_disks  = obj_template->get("DISK",disks);
 
@@ -1022,6 +1026,10 @@ int VirtualMachine::save_disk(int disk_id, int img_id, string& error_str)
 
     goto error_not_found;
 
+error_state:
+    oss << "VM cannot be in DONE or FAILED state.";
+    goto error_common;
+
 error_persistent:
     oss << "Source image for DISK " << disk_id << " is persistent.";
     goto error_common;
@@ -1034,7 +1042,6 @@ error_not_found:
     oss << "The DISK " << disk_id << " does not exist for VM " << oid << ".";
 
 error_common:
-    NebulaLog::log("VM",Log::ERROR, oss);
     error_str = oss.str();
 
     return -1;

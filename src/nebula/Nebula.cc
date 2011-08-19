@@ -339,8 +339,11 @@ void Nebula::start()
     {
         time_t                    poll_period;
         vector<const Attribute *> vmm_mads;
+        int                       vm_limit;
 
         nebula_configuration->get("VM_POLLING_INTERVAL", poll_period);
+
+        nebula_configuration->get("VM_PER_INTERVAL", vm_limit);
 
         nebula_configuration->get("VM_MAD", vmm_mads);
 
@@ -349,6 +352,7 @@ void Nebula::start()
             hpool,
             timer_period,
             poll_period,
+            vm_limit,
             vmm_mads);
     }
     catch (bad_alloc&)
@@ -385,14 +389,18 @@ void Nebula::start()
     {
         vector<const Attribute *>   im_mads;
         time_t                      monitor_period;
+        int                         host_limit;
 
         nebula_configuration->get("HOST_MONITORING_INTERVAL", monitor_period);
+
+        nebula_configuration->get("HOST_PER_INTERVAL", host_limit);
 
         nebula_configuration->get("IM_MAD", im_mads);
 
         im = new InformationManager(hpool,
                                     timer_period,
                                     monitor_period,
+                                    host_limit,
                                     remotes_location,
                                     im_mads);
     }

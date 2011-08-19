@@ -54,7 +54,7 @@ start)
     # check if acct already running
     acctd_running
     if [ "$?" = "0" ]; then
-        echo "acctd already running."
+        echo "oneacctd already running."
         exit 1
     fi
 
@@ -65,7 +65,7 @@ start)
     LASTPID=$!
 
     if [ $LASTRC -ne 0 ]; then
-      echo "Error executing acctd."
+      echo "Error executing oneacctd."
       echo "Check $ACCTD_LOG for more information"
       exit 1
     else
@@ -76,18 +76,18 @@ start)
     ps $LASTPID > /dev/null 2>&1
 
     if [ $? -ne 0 ]; then
-      echo "Error executing acctd."
+      echo "Error executing oneacctd."
       echo "Check $ACCTD_LOG for more information"
       exit 1
     fi
 
-    echo "acctd started"
+    echo "oneacctd started"
     ;;
 stop)
     # check if running
     acctd_running
     if [ "$?" != "0" ]; then
-        echo "acctd not running."
+        echo "oneacctd not running."
         exit 1
     fi
 
@@ -96,10 +96,10 @@ stop)
     kill $ACCTD_PID &> /dev/null
     rm -f $ACCTD_PID_FILE &> /dev/null
     
-    echo "acctd stop"
+    echo "oneacctd stop"
     ;;
 *)
-    echo "Usage: acctd {start|stop}" >&2
+    echo "Usage: oneacctd {start|stop}" >&2
     exit 3
     ;;
 esac

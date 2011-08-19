@@ -20,6 +20,9 @@ include OpenNebulaJSON
 require 'acct/watch_client'
 
 class SunstoneServer
+    # FLAG that will filter the elements retrieved from the Pools
+    POOL_FILTER = Pool::INFO_GROUP
+
     def initialize(username, password)
         # TBD one_client_user(name) from CloudServer
         @client = Client.new("dummy:dummy")
@@ -57,13 +60,19 @@ class SunstoneServer
     #
     ############################################################################
     def get_pool(kind,gid)
+        if gid == "0"
+            user_flag = Pool::INFO_ALL
+        else
+            user_flag = POOL_FILTER
+        end
+
         pool = case kind
             when "group"    then GroupPoolJSON.new(@client)
             when "host"     then HostPoolJSON.new(@client)
-            when "image"    then ImagePoolJSON.new(@client)
-            when "template" then TemplatePoolJSON.new(@client)
-            when "vm"       then VirtualMachinePoolJSON.new(@client)
-            when "vnet"     then VirtualNetworkPoolJSON.new(@client)
+            when "image"    then ImagePoolJSON.new(@client, user_flag)
+            when "template" then TemplatePoolJSON.new(@client, user_flag)
+            when "vm"       then VirtualMachinePoolJSON.new(@client, user_flag)
+            when "vnet"     then VirtualNetworkPoolJSON.new(@client, user_flag)
             when "user"     then UserPoolJSON.new(@client)
             when "acl"      then AclPoolJSON.new(@client)
             else
@@ -71,11 +80,7 @@ class SunstoneServer
                 return [404, error.to_json]
         end
 
-        rc = case kind
-             when "group","host","user","acl" then pool.info
-             else
-                 gid != "0" ? pool.info_group : pool.info_all
-             end
+        rc = pool.info
 
         if OpenNebula.is_error?(rc)
             return [500, rc.to_json]

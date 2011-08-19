@@ -93,7 +93,7 @@ public:
         time_t                    _poll_period,        
         vector<const Attribute*>& _mads):
             VirtualMachineManager(  _vmpool, _hpool, _timer_period,
-                                    _poll_period, _mads){}
+                                    _poll_period, 5, _mads){}
 
     void trigger(Actions action, int _vid)
     {

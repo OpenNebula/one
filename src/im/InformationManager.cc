@@ -147,9 +147,6 @@ void InformationManager::timer_action()
     Host *          host;
     istringstream   iss;
 
-    // -------------- Max. number of hosts to monitor. ---------------------
-    int             host_limit = 15;
-
     mark = mark + timer_period;
 
     if ( mark >= 600 )

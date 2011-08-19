@@ -97,10 +97,10 @@ private
         mask
     end
 
-    def format_pool(pool, options, top=false)
-        config_file=self.class.table_conf
+    def format_pool(options)
+        config_file = self.class.table_conf
 
-        table=CLIHelper::ShowTable.new(config_file, self) do
+        table = CLIHelper::ShowTable.new(config_file, self) do
             column :ID, "Rule Identifier",
                           :size=>5 do |d|
                 d['ID']
@@ -127,8 +127,7 @@ private
             default :ID, :USER, :RES_VHNIUTG, :RID, :OPE_CDUMIPpTW
         end
 
-        table.show(pool, options)
-
+        table
     end
 
 end

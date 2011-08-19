@@ -76,9 +76,10 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
             OpenNebulaHelper.boolean_to_str(user['ENABLED'])]
     end
 
-    def format_pool(pool, options, top=false)
-        config_file=self.class.table_conf
-        table=CLIHelper::ShowTable.new(config_file, self) do
+    def format_pool(options)
+        config_file = self.class.table_conf
+
+        table = CLIHelper::ShowTable.new(config_file, self) do
             column :ID, "ONE identifier for the User", :size=>4 do |d|
                 d["ID"]
             end
@@ -88,7 +89,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
             end
 
             column :GROUP, "Group of the User", :left, :size=>8 do |d|
-                helper.gid_to_str(d["GID"], options)
+                helper.group_name(d, options)
             end
 
             column :PASSWORD, "Password of the User", :size=>50 do |d|
@@ -98,10 +99,6 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
             default :ID, :GROUP, :NAME, :PASSWORD
         end
 
-        if top
-            table.top(pool, options)
-        else
-            table.show(pool, options)
-        end
+        table
     end
 end

@@ -77,9 +77,10 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         puts image.template_str
     end
 
-    def format_pool(pool, options, top=false)
-        config_file=self.class.table_conf
-        table=CLIHelper::ShowTable.new(config_file, self) do
+    def format_pool(options)
+        config_file = self.class.table_conf
+
+        table = CLIHelper::ShowTable.new(config_file, self) do
             column :ID, "ONE identifier for the Image", :size=>4 do |d|
                 d["ID"]
             end
@@ -130,10 +131,6 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
                 :PERSISTENT , :STAT, :RVMS
         end
 
-        if top
-            table.top(pool, options)
-        else
-            table.show(pool, options)
-        end
+        table
     end
 end

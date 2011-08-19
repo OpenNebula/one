@@ -37,6 +37,7 @@ public:
         HostPool *                _hpool,
         time_t                    _timer_period,
         time_t                    _poll_period,        
+        int                       _vm_limit,        
         vector<const Attribute*>& _mads);
 
     ~VirtualMachineManager(){};
@@ -117,6 +118,11 @@ private:
      *  Virtual Machine polling interval
      */
     time_t                  poll_period;
+
+    /**
+     *  Virtual Machine polling limit
+     */
+    int                     vm_limit;
 
     /**
      *  Action engine for the Manager

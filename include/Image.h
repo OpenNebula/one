@@ -205,27 +205,44 @@ public:
     /**
      *  Set/Unset an image as persistent
      *    @param persistent true to make an image persistent
+     *    @param error_str Returns the error reason, if any
+     *
      *    @return 0 on success
      */
-    int persistent(bool persis)
+    int persistent(bool persis, string& error_str)
     {
-        int rc = -1;
+        if ( running_vms != 0 )
+        {
+            goto error_vms;
+        }
 
         if (persis == true)
         {
-            if (!isPublic() && running_vms == 0)
+            if ( isPublic() )
             {
-                persistent_img = 1;
-                rc             = 0;
+                goto error_public;
             }
+
+            persistent_img = 1;
         }
         else
         {
             persistent_img = 0;
-            rc             = 0;
         }
 
-        return rc;
+        return 0;
+
+    error_vms:
+        error_str = "Image cannot be in 'used' state.";
+        goto error_common;
+
+    error_public:
+        error_str = "Image cannot be public and persistent.";
+        goto error_common;
+
+    error_common:
+        return -1;
+
     }
 
     /**

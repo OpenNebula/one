@@ -240,18 +240,17 @@ int LibVirtDriver::deployment_description_vmware(
         {
             file << "/>" << endl;
         }
-        
-        file << "\t\t\t<driver name='";
 
         if ( !driver.empty() )
         {
-            file << driver << "'/>" << endl;
+            file << "\t\t\t<driver name='" << driver << "'/>" << endl;
         }
         else
         {
             if (!default_driver.empty())
             {
-                file << default_driver << "'/>" << endl;            
+                file << "\t\t\t<driver name='" << 
+                        default_driver << "'/>" << endl;            
             }
         }
 

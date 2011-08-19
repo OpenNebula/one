@@ -744,8 +744,9 @@ public:
 
     void persistence()
     {
-        int oid;
-        int success;
+        int     oid;
+        int     success;
+        string  error_msg;
         ImagePoolFriend * imp = static_cast<ImagePoolFriend *>(pool);
         Image *           img;
 
@@ -800,7 +801,7 @@ public:
         CPPUNIT_ASSERT( img != 0 );
 
         // make it persistent
-        success = img->persistent(true);
+        success = img->persistent(true, error_msg);
         CPPUNIT_ASSERT( success == 0 );
         CPPUNIT_ASSERT( img->isPersistent() == true );
 
@@ -816,7 +817,7 @@ public:
 
 
         // make it non-persistent
-        success = img->persistent(false);
+        success = img->persistent(false, error_msg);
         CPPUNIT_ASSERT( success == 0 );
         CPPUNIT_ASSERT( img->isPersistent() == false );
 
