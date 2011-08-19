@@ -27,15 +27,6 @@ class SshAuth
     attr_reader :public_key
                  
     def initialize(pub_key = nil)
-        # Init proxy file path and creates ~/.one directory if needed
-        proxy_dir=ENV['HOME']+'/.one'
-        
-        begin
-            FileUtils.mkdir_p(proxy_dir)
-        rescue Errno::EEXIST
-        end
-       
-        @proxy_path  = proxy_dir + '/one_ssh'
 
         # Init ssh keys using private key. public key is extracted in a 
         # format compatible with openssl. The public key does not contain
@@ -56,6 +47,17 @@ class SshAuth
     # By default it is valid for 1 hour but it can be changed to any number
     # of seconds with expire parameter (in seconds)
     def login(user, expire=3600)
+        # Init proxy file path and creates ~/.one directory if needed
+        proxy_dir=ENV['HOME']+'/.one'
+        
+        begin
+            FileUtils.mkdir_p(proxy_dir)
+        rescue Errno::EEXIST
+        end
+       
+        proxy_path  = proxy_dir + '/one_ssh'
+
+        # Generate security token
         time = Time.now.to_i + expire
 
         secret_plain   = "#{user}:#{time}"
@@ -63,7 +65,7 @@ class SshAuth
 
         proxy = "#{user}:ssh:#{secret_crypted}"
         
-        file = File.open(@proxy_path, "w")
+        file = File.open(proxy_path, "w")
 
         file.write(proxy)
 
