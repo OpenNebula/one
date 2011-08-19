@@ -64,7 +64,7 @@ class X509Auth
         #Create the x509 proxy
         time = Time.now.to_i+expire
         
-        text_to_sign = "#{@dn}:#{time}"
+        text_to_sign = "#{user}:#{@dn}:#{time}"
         signed_text  = encrypt(text_to_sign)
 
 	    token   = "#{signed_text}:#{@cert.to_pem}"	
@@ -88,13 +88,15 @@ class X509Auth
     # Server side
     ###########################################################################
     # auth method for auth_mad
-    def authenticate(pass, token)        
+    def authenticate(user, pass, token)        
         begin
             plain = decrypt(token)
         
-            subject, time_expire = plain.split(':')
-            
-            if ((subject != @dn) || (subject != pass))
+            _user, subject, time_expire = plain.split(':')
+
+            if (user != _user)
+                return "User name missmatch"
+            elsif ((subject != @dn) || (subject != pass))
                 return "Certificate subject missmatch"
             elsif Time.now.to_i >= time_expire.to_i
                 return "x509 proxy expired, login again to renew it"

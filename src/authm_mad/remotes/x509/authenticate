@@ -44,7 +44,7 @@ proxy, cert = dsecret.split(':')
 
 x509_auth   = X509Auth.new(:cert=>cert)
 
-rc = x509_auth.authenticate(pass,proxy)
+rc = x509_auth.authenticate(user, pass,proxy)
 
 if rc == true
     exit 0
