@@ -163,15 +163,15 @@ private
     end
 
     ###########################################################################
-    # Validates the the certificate chain
+    # Validates the certificate chain
     ###########################################################################
     def validate_chain
  	    now    = Time.now
-        failed = "Could not validate user credentials. "
+        failed = "Could not validate user credentials: "
 
         # Check start time and end time of proxy
         if @proxy_cert.not_before > now || @proxy_cert.not_after < now
-            raise failed +  "Certfacete not valid. Current time is " + 
+            raise failed +  "Certificate not valid. Current time is " + 
                   now.localtime.to_s + "."
         end
  
@@ -212,8 +212,6 @@ private
             end while ca_cert.subject.to_s != ca_cert.issuer.to_s
         rescue
             raise  
-        end
-
         end
     end
 end

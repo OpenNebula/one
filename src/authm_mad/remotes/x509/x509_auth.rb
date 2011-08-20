@@ -27,11 +27,14 @@ class X509Auth
     #
     # @param [Hash] default options for path
     # @option options [String] :cert public cert for the user
-    # @option options [String] :key private key for the user
+    # @option options [String] :key private key for the user. Needed
+    #                          to use login method
+    # @option options [String] :ca_dir directory of trusted CA's. Optional.
     def initialize(options={})
         @options={
-            :cert => nil,
-            :key  => nil 
+            :cert   => nil,
+            :key    => nil,
+            :ca_dir => nil
         }.merge!(options)
 
         @cert = OpenSSL::X509::Certificate.new(@options[:cert])
@@ -90,6 +93,8 @@ class X509Auth
     # auth method for auth_mad
     def authenticate(user, pass, token)        
         begin
+            validate
+
             plain = decrypt(token)
         
             _user, subject, time_expire = plain.split(':')
@@ -103,8 +108,8 @@ class X509Auth
             end
 
             return true
-        rescue
-            return "Can not decrypt security token" 
+        rescue => e
+            return e.message
         end
     end
  
@@ -123,4 +128,45 @@ private
     def decrypt(data)       
         @cert.public_key.public_decrypt(Base64::decode64(data))
     end      
-end      
+
+    ###########################################################################
+    # Validate the user certificate
+    ###########################################################################
+    def validate
+ 	    now    = Time.now
+        failed = "Could not validate user credentials: "
+
+        # Check start time and end time of certificate
+        if @cert.not_before > now || @cert.not_after < now
+            raise failed +  "Certificate not valid. Current time is " + 
+                  now.localtime.to_s + "."
+        end
+ 
+ 	    # Check the rest of the certificate chain if specified
+        if !@options[:ca_dir]
+            return
+        end
+
+        begin
+            signee = @cert
+            
+            begin
+                ca_hash = signee.issuer.hash.to_s(16)
+                ca_path = @options[:ca_dir] + '/' + ca_hash + '.0'
+
+                ca_cert = OpenSSL::X509::Certificate.new(File.read(ca_path))
+                
+                if !((signee.issuer.to_s == ca_cert.subject.to_s) && 
+                     (signee.verify(ca_cert.public_key)))
+                    raise  failed + signee.subject.to_s + " with issuer " + 
+                           signee.issuer.to_s + " was not verified by " + 
+                           ca.subject.to_s + "."
+                end
+
+                signee = ca_cert
+            end while ca_cert.subject.to_s != ca_cert.issuer.to_s
+        rescue
+            raise  
+        end
+    end
+end
