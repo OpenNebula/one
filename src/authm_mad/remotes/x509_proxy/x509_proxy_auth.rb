@@ -86,9 +86,7 @@ class X509ProxyAuth
     # Client side
     ###########################################################################
 
-    # Creates the login file for x509 authentication at ~/.one/one_x509.
-    # By default it is valid for 1 hour but it can be changed to any number
-    # of seconds with expire parameter (in seconds)
+    # Creates the login file for x509 authentication at ~/.one/one_x509_proxy.
     def login(user)
         # Init proxy file path and creates ~/.one directory if needed
         # Set instance variables
@@ -99,7 +97,7 @@ class X509ProxyAuth
         rescue Errno::EEXIST
         end
        
-        one_proxy_path  = proxy_dir + '/one_grid'
+        one_proxy_path  = proxy_dir + '/one_x509_proxy'
         
         #Generate token for authentication
         text_to_sign = "#{user}:#{@dn}"
