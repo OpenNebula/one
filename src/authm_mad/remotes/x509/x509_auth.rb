@@ -26,22 +26,25 @@ class X509Auth
     # Initialize x509Auth object
     #
     # @param [Hash] default options for path
-    # @option options [String] :cert public cert for the user
-    # @option options [String] :key private key for the user. Needed
-    #                          to use login method
-    # @option options [String] :ca_dir directory of trusted CA's. Optional.
+    # @option options [String] :certs_pem
+    #         cert chain array in colon-separated pem format
+    # @option options [String] :key_pem
+    #         key in pem format
+    # @option options [String] :cadir
+    #         directory of trusted CA's. Needed for auth method, not for login.
     def initialize(options={})
         @options={
-            :cert   => nil,
-            :key    => nil,
-            :ca_dir => nil
+            :certs_pem   => nil,
+            :key_pem    => nil,
+            :cadir => nil
         }.merge!(options)
 
-        @cert = OpenSSL::X509::Certificate.new(@options[:cert])
-        @dn   = @cert.subject.to_s
+        @cert_chain = certs_pem.collect do |cert_pem|
+            OpenSSL::X509::Certificate.new(cert_pem)
+        end
 
-        if @options[:key]
-            @key  = OpenSSL::PKey::RSA.new(@options[:key])
+        if key_pem
+            @key  = OpenSSL::PKey::RSA.new(key_pem)
         end            
     end
 
@@ -52,33 +55,35 @@ class X509Auth
     # Creates the login file for x509 authentication at ~/.one/one_x509.
     # By default it is valid for 1 hour but it can be changed to any number
     # of seconds with expire parameter (in seconds)
-    def login(user, expire=3600)
-        # Init proxy file path and creates ~/.one directory if needed
+    def login(user, expire=0)
+        # Inits login file path and creates ~/.one directory if needed
         # Set instance variables
-        proxy_dir=ENV['HOME']+'/.one'
+        login_dir=ENV['HOME']+'/.one'
         
         begin
-            FileUtils.mkdir_p(proxy_dir)
+            FileUtils.mkdir_p(login_dir)
         rescue Errno::EEXIST
         end
        
-        one_proxy_path = proxy_dir + '/one_x509'
+        one_login_path = login_dir + '/one_x509'
 
-        #Create the x509 proxy
-        time = Time.now.to_i+expire
+        if expire!=0
+            expires = Time.now.to_i+expire
+	else
+	    expires = @cert_chain[0].not_after.to_i
+	end
         
-        text_to_sign = "#{user}:#{@dn}:#{time}"
+        text_to_sign = "#{user}:#{expires}"
         signed_text  = encrypt(text_to_sign)
 
-	    token   = "#{signed_text}:#{@cert.to_pem}"	
-	    token64 = Base64::encode64(token).strip.delete!("\n")
+        certs_pem = @cert_chain.collect{|cert| cert.to_pem}.join(":")
+	token   = "#{signed_text}:#{certs_pem}"	
+	token64 = Base64::encode64(token).strip.delete!("\n")
 
-        proxy="#{user}:x509:#{token64}"
+        login_out="#{user}:x509:#{token64}"
 
         file = File.open(one_proxy_path, "w")
-
-        file.write(proxy)
-        
+        file.write(login_out)        
         file.close
  
         # Help string
@@ -126,7 +131,7 @@ private
 
     # Decrypts base 64 encoded data with pub_key (public key)
     def decrypt(data)       
-        @cert.public_key.public_decrypt(Base64::decode64(data))
+        @cert_chain[0].public_key.public_decrypt(Base64::decode64(data))
     end      
 
     ###########################################################################
