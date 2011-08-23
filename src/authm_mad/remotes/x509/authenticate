@@ -33,14 +33,14 @@ require 'scripts_common'
 
 user   = ARGV[0] # username as registered in OpenNebula
 pass   = ARGV[1] # DN registered for this user
-secret = ARGV[2] # Base64 string in the form proxy:usercert, usercert is pem
+secret = ARGV[2] # Base64 encoded text and certificate chain text:cert_0:cert_1:..., certs in pem format
 
 #OpenNebula.log_debug("Authenticating #{user}, with password #{pass} (#{secret})")
 
 #TODO Check errors in these operations
 
-dsecret     = Base64::decode64(secret)
-proxy, cert = dsecret.split(':')
+dsecret = Base64::decode64(secret)
+certs_pem = dsecret.split(':')
 
 x509_auth   = X509Auth.new(:cert=>cert)
 
