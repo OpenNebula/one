@@ -25,21 +25,38 @@ require 'fileutils'
 # by oneauth command
 class SshAuth
     attr_reader :public_key
-                 
-    def initialize(pub_key = nil)
 
-        # Init ssh keys using private key. public key is extracted in a 
-        # format compatible with openssl. The public key does not contain
-        # "---- BEGIN/END RSA PUBLIC KEY ----" and is in a single line
-        @private_key = File.read(ENV['HOME']+'/.ssh/id_rsa')
+    # Initialize SshAuth object
+    #
+    # @param [Hash] default options for path
+    # @option options [String] :public_key public key for the user
+    # @option options [String] :private_key key private key for the user.
+    def initialize(options={})
+        @private_key = nil
+        @public_key  = nil
 
-        if pub_key == nil
+        if options[:private_key]
+            begin
+                @private_key = File.read(options[:private_key])
+            rescue Exception => e
+                raise "Cannot read #{options[:private_key]}"
+            end
+        end
+
+        if options[:public_key]
+            @public_key = options[:public_key]
+        elsif @private_key != nil
+            # Init ssh keys using private key. public key is extracted in a
+            # format compatible with openssl. The public key does not contain
+            # "---- BEGIN/END RSA PUBLIC KEY ----" and is in a single line
             key = OpenSSL::PKey::RSA.new(@private_key)
 
             @public_key = key.public_key.to_pem.split("\n")
             @public_key = @public_key.reject {|l| l.match(/RSA PUBLIC KEY/) }.join('')
-        else
-            @public_key = pub_key
+        end
+
+        if @private_key.nil? && @public_key.nil?
+            raise "You have to define at least one of the keys"
         end
     end
 

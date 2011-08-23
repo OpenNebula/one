@@ -36,8 +36,12 @@ pass   = ARGV[1]
 secret = ARGV[2] 
 
 #OpenNebula.log_debug("Authenticating #{user}, with password #{pass} (#{secret})")
-
-ssh_auth = SshAuth.new(pass)
+begin
+    ssh_auth = SshAuth.new(:public_key=>pass)
+rescue Exception => e
+    OpenNebula.error_message e.message
+    exit -1
+end
 
 rc = ssh_auth.authenticate(user,secret)
 
