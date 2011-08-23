@@ -103,20 +103,57 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         ssh.login(user, time)
         exit_with_code 0
     end
+    
+    loginx509_desc = <<-EOT.unindent
+        Generates an X509-based authenication proxy based on a user certificate.
+        oneauth x509_login <username> [<lifetime in seconds>] [<cert or proxy path>] [<key path>]
+    EOT
 
-    command 'loginx509', login_desc, :text, :text, :text, :text do
+    command 'loginx509', loginx509_desc, :text, :text, :text, :text do
         user = args[0]
-        cert = File.read(args[1])
-        key  = File.read(args[2])
-        time = args[3]
-
-        if time
-            time=time.to_i
-        else
-            time=3600
+	time = Integer(args[1]) rescue false
+	certpath = args[2]
+        keypath  = args[3]
+        	
+	# Set default arguments
+	if !time
+            time=0
+	    certpath = args[1]
+            keypath  = args[2]         
         end
 
-        auth = X509Auth.new(:cert=>cert,:key=>key)
+        if !certpath
+            certpath=ENV["X509_PROXY_CERT"]
+        end
+	    
+	if !certpath
+            certpath='/tmp/x509up_u' + Process.uid.to_s
+        end
+	
+        if !keypath
+	    keypath=certpath
+	end
+	
+	if !keypath
+	    exit_with_code 1
+	end	
+	
+        # Read in the certificates
+        if @options[:certpath] && File.readable?(@options[:certpath])
+            certs_in = File.read(@options[:certpath])
+            certs_pem = certs_in.scan(/-+BEGIN CERTIFICATE-+\n([^-]*)\n-+END CERTIFICATE-+/)
+            certs_pem.flatten!                        
+        end
+	
+	# Read in the key
+        if @options[:keypath] && File.readable?(@options[:keypath])
+            key_in = File.read(@options[:keypath])
+	    rc = key_in.match(/-+BEGIN RSA PRIVATE KEY-+\n([^-]*)\n-+END RSA PRIVATE KEY-+/)
+	    key_pem  = rc[0]
+	end
+
+        # Invoke the login method
+        auth = X509Auth.new(:certs_pem=>certs_pem,:key_pem=>key_pem)
         auth.login(user, time)
 
         exit_with_code 0
