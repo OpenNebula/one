@@ -38,12 +38,31 @@ FSTYPE=$1
 SIZE=$2
 ID=$3
 
+# Specific options for different FS
+case "$FSTYPE" in
+    "ext2"|"ext3"|"ext4"|"ntfs") 
+        OPTS="-F"
+        ;;
+
+    "reiserfs") 
+        OPTS="-f -q"
+        ;;
+
+    "jfs") 
+        OPTS="-q"
+        ;;
+    *)
+        OPTS=""
+        ;;
+esac
+	
 DST=`generate_image_path`
 
 exec_and_log "$DD if=/dev/zero of=$DST bs=1 count=1 seek=${SIZE}M" \
     "Could not create image $DST"
-exec_and_log "$MKFS -t $FSTYPE -F $DST" \
+exec_and_log "$MKFS -t $FSTYPE $OPTS $DST" \
     "Unable to create filesystem $FSTYPE in $DST"
+
 exec_and_log "chmod 0660 $DST"
 
 echo "$DST"
