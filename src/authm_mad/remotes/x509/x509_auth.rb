@@ -100,21 +100,27 @@ class X509Auth
     # Server side
     ###########################################################################
     # auth method for auth_mad
-    def authenticate(user, pass, token)
-        begin
-            validate
-
-            plain = decrypt(token)
-
-            _user, subject, time_expire = plain.split(':')
+    def authenticate(user, pass, signed_text)
+        begin            
+	    # Decryption demonstrates that the user posessed the private key.
+            _user, expires = decrypt(signed_text).split(':')
 
             if (user != _user)
                 return "User name missmatch"
-            elsif ((subject != @dn) || (subject != pass))
-                return "Certificate subject missmatch"
-            elsif Time.now.to_i >= time_expire.to_i
+            elsif Time.now.to_i >= expires.to_i
                 return "x509 proxy expired, login again to renew it"
             end
+
+	    # Some DN in the chain must match a DN in the password	    
+	    dn_ok = @cert_chain.each do |cert|
+                break true if pass.split('|').include?(cert.subject.to_s.gsub(/\s/, ''))
+            end
+	    
+	    unless dn_ok==true
+	        return "Certificate subject missmatch"
+            end
+	    
+	    validate
 
             return true
         rescue => e
@@ -151,14 +157,20 @@ private
                   now.localtime.to_s + "."
         end
 
- 	    # Check the rest of the certificate chain if specified
-        if !@options[:ca_dir]
-            return
-        end
-
         begin
-            signee = @cert
+	    # Validate the proxy certifcates
+            signee = @cert_chain.delete_at(0)
+	    @cert_chain.each do |cert|
+                if !((signee.issuer.to_s == cert.subject.to_s) &&
+                     (signee.verify(cert.public_key)))
+                    raise  failed + signee.subject.to_s + " with issuer " +
+                           signee.issuer.to_s + " was not verified by " +
+                           cert.subject.to_s + "."
+                end	        
+                signee = cert
+            end
 
+            # Validate the End Entity certificate
             begin
                 ca_hash = signee.issuer.hash.to_s(16)
                 ca_path = @options[:ca_dir] + '/' + ca_hash + '.0'
@@ -169,7 +181,7 @@ private
                      (signee.verify(ca_cert.public_key)))
                     raise  failed + signee.subject.to_s + " with issuer " +
                            signee.issuer.to_s + " was not verified by " +
-                           ca.subject.to_s + "."
+                           ca_cert.subject.to_s + "."
                 end
 
                 signee = ca_cert
