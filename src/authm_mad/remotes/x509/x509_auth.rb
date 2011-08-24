@@ -152,7 +152,7 @@ private
         end
 
         begin
-	    # Validate the proxy certifcates
+	        # Validate the proxy certifcates
             signee = @cert_chain.delete_at(0)
 
 	        @cert_chain.each do |cert|
