@@ -173,7 +173,10 @@ EOT
         def to_id(name)
             return 0, name if name.match(/^[0123456789]+$/)
 
-            pool     = get_pool
+            rc = get_pool
+            return rc if rc.first != 0
+
+            pool     = rc[1]
             poolname = self.class.rname
 
             OneHelper.name_to_id(name, pool, poolname)
@@ -184,7 +187,10 @@ EOT
         end
 
         def list_to_id(names)
-            pool     = get_pool
+            rc = get_pool
+            return rc if rc.first != 0
+
+            pool     = rc[1]
             poolname = self.class.rname
 
             result = names.split(',').collect { |name|
@@ -194,7 +200,7 @@ EOT
                     rc = OneHelper.name_to_id(name, pool, poolname)
 
                     if rc.first==-1
-                        return -1, "OpenNebula #{self.rname} #{name} " <<
+                        return -1, "OpenNebula #{poolname} #{name} " <<
                                    "not found, use the ID instead"
                     end
 
@@ -305,12 +311,12 @@ EOT
 
                 rc = pool.info
                 if OpenNebula.is_error?(rc)
-                    return -1, "OpenNebula #{self.rname} name not found," <<
-                               " use the ID instead"
+                    return -1, "OpenNebula #{self.class.rname} name not " <<
+                               "found, use the ID instead"
                 end
             end
 
-            pool
+            return 0, pool
         end
     end
 
@@ -327,7 +333,7 @@ EOT
 
         rc = pool.info
         if OpenNebula.is_error?(rc)
-            return -1, "OpenNebula #{self.rname} name not found," <<
+            return -1, "OpenNebula #{poolname} name not found," <<
                        " use the ID instead"
         end
 
