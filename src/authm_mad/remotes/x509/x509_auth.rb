@@ -24,8 +24,6 @@ require 'fileutils'
 class X509Auth
     PROXY_PATH = ENV['HOME']+'/.one/one_x509'
 
-    attr_reader :dn
-
     # Initialize x509Auth object
     #
     # @param [Hash] default options for path
