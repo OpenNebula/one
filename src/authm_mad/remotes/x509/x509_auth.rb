@@ -30,13 +30,13 @@ class X509Auth
     #         cert chain array in colon-separated pem format
     # @option options [String] :key_pem
     #         key in pem format
-    # @option options [String] :cadir
+    # @option options [String] :ca_dir
     #         directory of trusted CA's. Needed for auth method, not for login.
     def initialize(options={})
         @options={
             :certs_pem   => nil,
             :key_pem    => nil,
-            :cadir => nil
+            :ca_dir => nil
         }.merge!(options)
 
         @cert_chain = certs_pem.collect do |cert_pem|
