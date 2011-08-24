@@ -59,7 +59,42 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         :description => "Store plain password"
     }
 
-    create_options = [READ_FILE, PLAIN]
+    SSH={
+        :name => "ssh",
+        :large => "--ssh",
+        :description => "SSH Auth system"
+    }
+
+    X509={
+        :name => "x509",
+        :large => "--x509",
+        :description => "x509 Auth system"
+    }
+
+    KEY={
+        :name => "key",
+        :short => "-k private_key",
+        :large => "--key private_key",
+        :format => String,
+        :description => "Path to the Private Key of the User"
+    }
+
+    CERT={
+        :name => "cert",
+        :large => "--cert s",
+        :format => String,
+        :description => "Path to the Certificate of the User"
+    }
+
+    TIME={
+        :name  => "time",
+        :large => "--time x",
+        :format => Integer,
+        :description => "Token duration in hours, (default 1)"
+    }
+
+    create_options = [READ_FILE, PLAIN, SSH, X509, KEY, CERT]
+    login_options  = [SSH, X509, KEY, CERT, TIME]
 
     ########################################################################
     # Formatters for arguments
@@ -86,13 +121,42 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     create_desc = <<-EOT.unindent
         Creates a new User
+        Examples:
+          oneuser create my_user my_password
+          oneuser create my_user /tmp/mypass -r
+          oneuser create my_user --ssh --key /tmp/id_rsa
+          oneuser create my_user --x509 --cert /tmp/my_cert.pem
     EOT
 
-    command :create, create_desc, :username, :password,
+    command :create, create_desc, :username, [:password, nil],
             :options=>create_options do
-        helper.create_resource(options) do |user|
-            user.allocate(args[0], args[1])
+        if args[1].nil?
+            rc = helper.password(options)
+            if rc.first == 0
+                pass = rc[1]
+            else
+                exit_with_code *rc
+            end
+        else
+            pass = args[1]
         end
+
+        helper.create_resource(options) do |user|
+            user.allocate(args[0], pass)
+        end
+    end
+
+    login_desc = <<-EOT.unindent
+        Creates the Login token for authentication
+        Examples:
+          oneuser login my_user --ssh --key /tmp/id_rsa --time 72000
+          oneuser login my_user --x509 --cert /tmp/my_cert.pem \
+                                --key /tmp/my_key.pk --time 72000
+    EOT
+
+    command :login, login_desc, :username, [:password, nil],
+            :options=>create_options do
+        helper.login(args[0], options)
     end
 
     delete_desc = <<-EOT.unindent

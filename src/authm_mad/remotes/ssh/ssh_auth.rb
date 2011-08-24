@@ -24,22 +24,41 @@ require 'fileutils'
 # as auth method is defined. It also holds some helper methods to be used
 # by oneauth command
 class SshAuth
+    PROXY_PATH = ENV['HOME']+'/.one/one_ssh'
+
     attr_reader :public_key
-                 
-    def initialize(pub_key = nil)
 
-        # Init ssh keys using private key. public key is extracted in a 
-        # format compatible with openssl. The public key does not contain
-        # "---- BEGIN/END RSA PUBLIC KEY ----" and is in a single line
-        @private_key = File.read(ENV['HOME']+'/.ssh/id_rsa')
+    # Initialize SshAuth object
+    #
+    # @param [Hash] default options for path
+    # @option options [String] :public_key public key for the user
+    # @option options [String] :private_key key private key for the user.
+    def initialize(options={})
+        @private_key = nil
+        @public_key  = nil
 
-        if pub_key == nil
+        if options[:private_key]
+            begin
+                @private_key = File.read(options[:private_key])
+            rescue Exception => e
+                raise "Cannot read #{options[:private_key]}"
+            end
+        end
+
+        if options[:public_key]
+            @public_key = options[:public_key]
+        elsif @private_key != nil
+            # Init ssh keys using private key. public key is extracted in a
+            # format compatible with openssl. The public key does not contain
+            # "---- BEGIN/END RSA PUBLIC KEY ----" and is in a single line
             key = OpenSSL::PKey::RSA.new(@private_key)
 
             @public_key = key.public_key.to_pem.split("\n")
             @public_key = @public_key.reject {|l| l.match(/RSA PUBLIC KEY/) }.join('')
-        else
-            @public_key = pub_key
+        end
+
+        if @private_key.nil? && @public_key.nil?
+            raise "You have to define at least one of the keys"
         end
     end
 
@@ -47,33 +66,28 @@ class SshAuth
     # By default it is valid for 1 hour but it can be changed to any number
     # of seconds with expire parameter (in seconds)
     def login(user, expire=3600)
+        expire ||= 3600
+
         # Init proxy file path and creates ~/.one directory if needed
-        proxy_dir=ENV['HOME']+'/.one'
-        
+        proxy_dir = File.dirname(PROXY_PATH)
+
         begin
             FileUtils.mkdir_p(proxy_dir)
         rescue Errno::EEXIST
         end
-       
-        proxy_path  = proxy_dir + '/one_ssh'
 
         # Generate security token
-        time = Time.now.to_i + expire
+        time = Time.now.to_i + expire.to_i
 
         secret_plain   = "#{user}:#{time}"
         secret_crypted = encrypt(secret_plain)
 
         proxy = "#{user}:ssh:#{secret_crypted}"
-        
-        file = File.open(proxy_path, "w")
 
+        file = File.open(PROXY_PATH, "w")
         file.write(proxy)
-
         file.close
-        
-        # Help string
-        puts "export ONE_AUTH=#{ENV['HOME']}/.one/one_ssh"
-        
+
         secret_crypted
     end
 
@@ -82,7 +96,7 @@ class SshAuth
         begin
             token_plain = decrypt(token)
             _user, time = token_plain.split(':')
-            
+
             if user == _user
                 if Time.now.to_i >= time.to_i
                     return "ssh proxy expired, login again to renew it"
@@ -97,12 +111,13 @@ class SshAuth
         end
     end
 
-private
+    private
+
     ###########################################################################
     #                       Methods to handle ssh keys
     ###########################################################################
     # Encrypts data with the private key of the user and returns
-    # base 64 encoded output in a single line 
+    # base 64 encoded output in a single line
     def encrypt(data)
         rsa=OpenSSL::PKey::RSA.new(@private_key)
         Base64::encode64(rsa.private_encrypt(data)).gsub!(/\n/, '').strip

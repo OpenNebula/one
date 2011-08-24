@@ -47,6 +47,67 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         return 0, password
     end
 
+    def password(options)
+        if options[:ssh]
+            require 'ssh_auth'
+
+            options[:key] ||= ENV['HOME']+'/.ssh/id_rsa'
+
+            begin
+                sshauth = SshAuth.new(:private_key=>options[:key])
+            rescue Exception => e
+                return -1, e.message
+            end
+
+            return 0, sshauth.public_key
+        elsif options[:x509]
+            require 'x509_auth'
+
+            options[:cert] ||= ENV['X509_USER_CERT']
+
+            begin
+                x509auth = X509Auth.new(:cert=>options[:cert])
+            rescue Exception => e
+                return -1, e.message
+            end
+
+            return 0, x509auth.dn
+        else
+            return -1, "You have to specify an Auth method or define a password"
+        end
+    end
+
+    def login(username, options)
+        if options[:ssh]
+            require 'ssh_auth'
+
+            options[:key]  ||= ENV['HOME']+'/.ssh/id_rsa'
+
+            begin
+                auth = SshAuth.new(:private_key=>options[:key])
+            rescue Exception => e
+                return -1, e.message
+            end
+        elsif options[:x509]
+            require 'x509_auth'
+
+            options[:cert] ||= ENV['X509_USER_CERT']
+            options[:key]  ||= ENV['X509_USER_KEY']
+
+            begin
+                auth = X509Auth.new(:cert=>options[:cert], :key=>options[:key])
+            rescue Exception => e
+                return -1, e.message
+            end
+        else
+            return -1, "You have to specify an Auth method"
+        end
+
+        auth.login(username, options[:time])
+
+        return 0, 'export ONE_AUTH=' << auth.class::PROXY_PATH
+    end
+
     private
 
     def factory(id=nil)
