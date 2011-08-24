@@ -22,7 +22,7 @@ require 'fileutils'
 # as auth method is defined. It also holds some helper methods to be used
 # by oneauth command
 class X509Auth
-    PROXY_PATH = ENV['HOME']+'/.one/one_x509'
+    LOGIN_PATH = ENV['HOME']+'/.one/one_x509'
 
     # Initialize x509Auth object
     #
@@ -35,9 +35,9 @@ class X509Auth
     #         directory of trusted CA's. Needed for auth method, not for login.
     def initialize(options={})
         @options={
-            :certs_pem   => nil,
-            :key_pem    => nil,
-            :ca_dir => nil
+            :certs_pem => nil,
+            :key_pem   => nil,
+            :ca_dir    => nil
         }.merge!(options)
 
         @cert_chain = certs_pem.collect do |cert_pem|
@@ -59,36 +59,32 @@ class X509Auth
     def login(user, expire=0)
         # Inits login file path and creates ~/.one directory if needed
         # Set instance variables
-        login_dir=ENV['HOME']+'/.one'
+        login_dir = File.dirname(LOGIN_PATH)
         
         begin
             FileUtils.mkdir_p(login_dir)
         rescue Errno::EEXIST
         end
-       
-        one_login_path = login_dir + '/one_x509'
 
         if expire!=0
             expires = Time.now.to_i+expire
-	else
-	    expires = @cert_chain[0].not_after.to_i
-	end
+	    else
+	        expires = @cert_chain[0].not_after.to_i
+	    end
         
         text_to_sign = "#{user}:#{expires}"
         signed_text  = encrypt(text_to_sign)
 
         certs_pem = @cert_chain.collect{|cert| cert.to_pem}.join(":")
-	token   = "#{signed_text}:#{certs_pem}"	
-	token64 = Base64::encode64(token).strip.delete!("\n")
 
-        login_out="#{user}:x509:#{token64}"
+	    token     = "#{signed_text}:#{certs_pem}"	
+	    token64   = Base64::encode64(token).strip.delete("\n")
 
-        file = File.open(one_proxy_path, "w")
+        login_out = "#{user}:x509:#{token64}"
+
+        file = File.open(LOGIN_PATH, "w")
         file.write(login_out)        
         file.close
- 
-        # Help string
-        puts "export ONE_AUTH=#{ENV['HOME']}/.one/one_x509"
         
         token64
     end
@@ -100,7 +96,7 @@ class X509Auth
     # auth method for auth_mad
     def authenticate(user, pass, signed_text)
         begin            
-	    # Decryption demonstrates that the user posessed the private key.
+	        # Decryption demonstrates that the user posessed the private key.
             _user, expires = decrypt(signed_text).split(':')
 
             if (user != _user)
@@ -109,16 +105,16 @@ class X509Auth
                 return "x509 proxy expired, login again to renew it"
             end
 
-	    # Some DN in the chain must match a DN in the password	    
-	    dn_ok = @cert_chain.each do |cert|
-                break true if pass.split('|').include?(cert.subject.to_s.gsub(/\s/, ''))
+	        # Some DN in the chain must match a DN in the password	    
+	        dn_ok = @cert_chain.each do |cert|
+                break true if pass.split('|').include?(cert.subject.to_s.delete("\s"))
             end
 	    
-	    unless dn_ok==true
-	        return "Certificate subject missmatch"
+	        unless dn_ok == true
+	            return "Certificate subject missmatch"
             end
 	    
-	    validate
+	        validate
 
             return true
         rescue => e
@@ -134,7 +130,7 @@ private
     # base 64 encoded output in a single line
     def encrypt(data)
         return nil if !@key
-        Base64::encode64(@key.private_encrypt(data)).delete!("\n").strip
+        Base64::encode64(@key.private_encrypt(data)).delete("\n").strip
     end
 
     # Decrypts base 64 encoded data with pub_key (public key)
@@ -158,7 +154,8 @@ private
         begin
 	    # Validate the proxy certifcates
             signee = @cert_chain.delete_at(0)
-	    @cert_chain.each do |cert|
+
+	        @cert_chain.each do |cert|
                 if !((signee.issuer.to_s == cert.subject.to_s) &&
                      (signee.verify(cert.public_key)))
                     raise  failed + signee.subject.to_s + " with issuer " +
