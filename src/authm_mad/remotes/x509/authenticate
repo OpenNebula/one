@@ -37,14 +37,20 @@ secret = ARGV[2] # Base64 encoded text and certificate chain text:cert_0:cert_1:
 
 #OpenNebula.log_debug("Authenticating #{user}, with password #{pass} (#{secret})")
 
-#TODO Check errors in these operations
+begin
+    dsecret = Base64::decode64(secret)
+    asecret = dsecret.split(':')
 
-dsecret = Base64::decode64(secret)
-certs_pem = dsecret.split(':')
+    token = asecret[0]
+    certs = asecret[1..-1]
 
-x509_auth   = X509Auth.new(:cert=>cert)
+    x509_auth = X509Auth.new(:certs_pem=>certs)
 
-rc = x509_auth.authenticate(user, pass,proxy)
+    rc = x509_auth.authenticate(user, pass, token)
+rescue => e
+    OpenNebula.error_message e.message
+    exit -1
+end
 
 if rc == true
     exit 0
