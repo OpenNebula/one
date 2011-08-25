@@ -125,6 +125,8 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         else
             return -1, "You have to specify an Auth method"
         end
+        
+        options[:time] ||= 3600
 
         auth.login(username, options[:time])
 
