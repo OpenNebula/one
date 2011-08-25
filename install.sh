@@ -466,8 +466,7 @@ BIN_FILES="src/nebula/oned \
            src/cli/onetemplate \
            src/cli/oneacl \
            src/onedb/onedb \
-           share/scripts/one \
-           src/authm_mad/oneauth"
+           share/scripts/one"
 
 #-------------------------------------------------------------------------------
 # C/C++ OpenNebula API Library & Development files
@@ -490,7 +489,7 @@ RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/oca/ruby/OpenNebula.rb \
                 src/tm_mad/TMScript.rb \
                 src/authm_mad/remotes/ssh/ssh_auth.rb \
-                src/authm_mad/remotes/server/server_auth.rb"
+                src/authm_mad/remotes/server/server_auth.rb \
                 src/authm_mad/remotes/x509/x509_auth.rb"
 
 #-----------------------------------------------------------------------------
@@ -707,8 +706,7 @@ HM_ETC_FILES="src/hm_mad/hmrc"
 # Hook Manager driver config. files, to be installed under $ETC_LOCATION/hm
 #-------------------------------------------------------------------------------
 
-AUTH_ETC_FILES="src/authm_mad/auth_mad \
-                src/authm_mad/auth.conf"
+AUTH_ETC_FILES="src/authm_mad/auth.conf"
 
 #-------------------------------------------------------------------------------
 # Sample files, to be installed under $SHARE_LOCATION/examples
