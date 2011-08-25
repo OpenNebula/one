@@ -171,7 +171,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :login, login_desc, :username, [:password, nil],
-            :options=>create_options do
+            :options=>login_options do
         helper.login(args[0], options)
     end
 

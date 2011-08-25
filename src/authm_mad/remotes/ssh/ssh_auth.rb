@@ -24,7 +24,7 @@ require 'fileutils'
 # as auth method is defined. It also holds some helper methods to be used
 # by oneauth command
 class SshAuth
-    PROXY_PATH = ENV['HOME']+'/.one/one_ssh'
+    LOGIN_PATH = ENV['HOME']+'/.one/one_ssh'
 
     attr_reader :public_key
 
@@ -69,7 +69,7 @@ class SshAuth
         expire ||= 3600
 
         # Init proxy file path and creates ~/.one directory if needed
-        proxy_dir = File.dirname(PROXY_PATH)
+        proxy_dir = File.dirname(LOGIN_PATH)
 
         begin
             FileUtils.mkdir_p(proxy_dir)
@@ -84,7 +84,7 @@ class SshAuth
 
         proxy = "#{user}:ssh:#{secret_crypted}"
 
-        file = File.open(PROXY_PATH, "w")
+        file = File.open(LOGIN_PATH, "w")
         file.write(proxy)
         file.close
 

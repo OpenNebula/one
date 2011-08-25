@@ -96,12 +96,10 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
             options[:key]  ||= ENV['X509_USER_KEY']
 
             begin
-                certs    = Array.new
-                certs[0] = File.read(options[:cert])
-                
-                key = File.read(options[:key])
+                certs = [File.read(options[:cert])]
+                key   = File.read(options[:key])
 
-                auth = X509Auth.new(:cert=>certs, :key=>key)
+                auth = X509Auth.new(:certs_pem=>certs, :key_pem=>key)
             rescue Exception => e
                 return -1, e.message
             end
@@ -130,7 +128,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
 
         auth.login(username, options[:time])
 
-        return 0, 'export ONE_AUTH=' << auth.class::PROXY_PATH
+        return 0, 'export ONE_AUTH=' << auth.class::LOGIN_PATH
     end
 
     private

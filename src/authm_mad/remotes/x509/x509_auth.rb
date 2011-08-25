@@ -45,7 +45,7 @@ class X509Auth
         end
 
         if @options[:key_pem]
-            @key  = OpenSSL::PKey::RSA.new(key_pem)
+            @key  = OpenSSL::PKey::RSA.new(@options[:key_pem])
         end            
     end
 
@@ -71,7 +71,7 @@ class X509Auth
     #   - user_name:time_expires:cert_chain is base64 encoded
     def login_token(user, expire)
         if expire != 0
-            expires = Time.now.to_i+expire
+            expires = Time.now.to_i + expire.to_i
 	    else
 	        expires = @cert_chain[0].not_after.to_i
 	    end
