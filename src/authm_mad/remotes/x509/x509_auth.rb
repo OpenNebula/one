@@ -93,11 +93,9 @@ class X509Auth
 	        # Decryption demonstrates that the user posessed the private key.
             _user, expires = decrypt(signed_text).split(':')
 
-            if (user != _user)
-                return "User name missmatch"
-            elsif Time.now.to_i >= expires.to_i
-                return "x509 proxy expired, login again to renew it"
-            end
+            return "User name missmatch" if user != _user
+
+            return "x509 proxy expired"  if Time.now.to_i >= expires.to_i
 
 	        # Some DN in the chain must match a DN in the password	    
 	        dn_ok = @cert_chain.each do |cert|
@@ -157,16 +155,18 @@ private
         failed = "Could not validate user credentials: "
 
         # Check start time and end time of certificate
-        if @cert.not_before > now || @cert.not_after < now
-            raise failed +  "Certificate not valid. Current time is " +
+        @cert_chain.each do |cert|		
+            if cert.not_before > now || cert.not_after < now
+                raise failed +  "Certificate not valid. Current time is " + 
                   now.localtime.to_s + "."
-        end
+            end
+        end 
 
         begin
 	        # Validate the proxy certifcates
-            signee = @cert_chain.delete_at(0)
+            signee = @cert_chain[0]
 
-	        @cert_chain.each do |cert|
+	        @cert_chain[1..-1].each do |cert|
                 if !((signee.issuer.to_s == cert.subject.to_s) &&
                      (signee.verify(cert.public_key)))
                     raise  failed + signee.subject.to_s + " with issuer " +
