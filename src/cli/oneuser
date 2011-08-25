@@ -87,6 +87,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     CERT={
         :name => "cert",
+        :short => "-c path_to_user_cert_pem",
         :large => "--cert path_to_user_cert_pem",
         :format => String,
         :description => "Path to the Certificate of the User"
@@ -143,7 +144,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     command :create, create_desc, :username, [:password, nil],
             :options=>create_options do
-        if args[1].nil?
+        if options[:ssh] or options[:x509]
             rc = helper.password(options)
             if rc.first == 0
                 pass = rc[1]

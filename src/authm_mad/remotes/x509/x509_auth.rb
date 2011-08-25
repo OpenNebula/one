@@ -40,11 +40,11 @@ class X509Auth
             :ca_dir    => nil
         }.merge!(options)
 
-        @cert_chain = certs_pem.collect do |cert_pem|
+        @cert_chain = @options[:certs_pem].collect do |cert_pem|
             OpenSSL::X509::Certificate.new(cert_pem)
         end
 
-        if key_pem
+        if @options[:key_pem]
             @key  = OpenSSL::PKey::RSA.new(key_pem)
         end            
     end
@@ -57,7 +57,12 @@ class X509Auth
     # By default it is valid as long as the certificate is valid. It can 
     # be change to any number of seconds with expire parameter (sec.)
     def login(user, expire=0)
-        write_login(login_token(user,expire)
+        write_login(login_token(user,expire))
+    end
+
+    # Returns the dn of the user certificate
+    def dn
+        @cert_chain[0].subject.to_s
     end
 
     # Generates a login token in the form:

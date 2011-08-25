@@ -66,7 +66,8 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
             options[:cert] ||= ENV['X509_USER_CERT']
 
             begin
-                x509auth = X509Auth.new(:cert=>options[:cert])
+                cert     = [File.read(options[:cert])]
+                x509auth = X509Auth.new(:certs_pem=>cert)
             rescue Exception => e
                 return -1, e.message
             end
