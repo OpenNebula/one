@@ -68,22 +68,35 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     X509={
         :name => "x509",
         :large => "--x509",
-        :description => "x509 Auth system"
+        :description => "x509 Auth system for x509 certificates"
+    }
+
+    X509_PROXY={
+        :name => "x509_proxy",
+        :large => "--x509_proxy",
+        :description => "x509 Auth system based on x509 proxy certificates"
     }
 
     KEY={
         :name => "key",
-        :short => "-k private_key",
-        :large => "--key private_key",
+        :short => "-k path_to_private_key_pem",
+        :large => "--key path_to_private_key_pem",
         :format => String,
         :description => "Path to the Private Key of the User"
     }
 
     CERT={
         :name => "cert",
-        :large => "--cert s",
+        :large => "--cert path_to_user_cert_pem",
         :format => String,
         :description => "Path to the Certificate of the User"
+    }
+
+    PROXY={
+        :name => "proxy",
+        :large => "--proxy path_to_user_proxy_pem",
+        :format => String,
+        :description => "Path to the user proxy certificate"
     }
 
     TIME={
@@ -94,7 +107,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     }
 
     create_options = [READ_FILE, PLAIN, SSH, X509, KEY, CERT]
-    login_options  = [SSH, X509, KEY, CERT, TIME]
+    login_options  = [SSH, X509, X509_PROXY, KEY, CERT, PROXY, TIME]
 
     ########################################################################
     # Formatters for arguments
@@ -152,6 +165,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
           oneuser login my_user --ssh --key /tmp/id_rsa --time 72000
           oneuser login my_user --x509 --cert /tmp/my_cert.pem \
                                 --key /tmp/my_key.pk --time 72000
+          oneuser login my_user --x509_proxy --proxy /tmp/my_cert.pem \
+                                --time 72000
     EOT
 
     command :login, login_desc, :username, [:password, nil],

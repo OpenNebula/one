@@ -95,8 +95,32 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
             options[:key]  ||= ENV['X509_USER_KEY']
 
             begin
-                auth = X509Auth.new(:cert=>options[:cert], :key=>options[:key])
+                certs    = Array.new
+                certs[0] = File.read(options[:cert])
+                
+                key = File.read(options[:key])
+
+                auth = X509Auth.new(:cert=>certs, :key=>key)
             rescue Exception => e
+                return -1, e.message
+            end
+        elsif options[:x509_proxy]
+            require 'x509_auth'
+
+            options[:proxy] ||= ENV['X509_PROXY_CERT']
+            
+            begin  
+                proxy = File.read(options[:proxy])
+
+                rc = proxy.scan(/-+BEGIN CERTIFICATE-+\n([^-]*)\n-+END CERTIFICATE-+/)
+                certs = rc.flatten!
+
+                rc = proxy.match(/-+BEGIN RSA PRIVATE KEY-+\n([^-]*)\n-+END RSA PRIVATE KEY-+/)
+
+                key  = rc[1]
+
+                auth = X509Auth.new(:cert=>certs, :key=>key)
+            rescue => e
                 return -1, e.message
             end
         else
