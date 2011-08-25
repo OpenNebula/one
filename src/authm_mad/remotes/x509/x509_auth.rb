@@ -177,6 +177,10 @@ private
             end
 
             # Validate the End Entity certificate
+	        if !@options[:ca_dir]
+                return
+            end
+
             begin
                 ca_hash = signee.issuer.hash.to_s(16)
                 ca_path = @options[:ca_dir] + '/' + ca_hash + '.0'
