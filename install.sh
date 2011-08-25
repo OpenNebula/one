@@ -227,6 +227,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/auth/plain \
           $VAR_LOCATION/remotes/auth/ssh \
           $VAR_LOCATION/remotes/auth/x509 \
+          $VAR_LOCATION/remotes/auth/server \
           $VAR_LOCATION/remotes/auth/dummy"
 
 SUNSTONE_DIRS="$SUNSTONE_LOCATION/models \
@@ -321,6 +322,7 @@ INSTALL_FILES=(
     IM_PROBES_GANGLIA_FILES:$VAR_LOCATION/remotes/im/ganglia.d
     AUTH_SSH_FILES:$VAR_LOCATION/remotes/auth/ssh
     AUTH_X509_FILES:$VAR_LOCATION/remotes/auth/x509
+    AUTH_SERVER_FILES:$VAR_LOCATION/remotes/auth/server
     AUTH_DUMMY_FILES:$VAR_LOCATION/remotes/auth/dummy
     AUTH_PLAIN_FILES:$VAR_LOCATION/remotes/auth/plain    
     VMM_EXEC_KVM_SCRIPTS:$VAR_LOCATION/remotes/vmm/kvm
@@ -488,6 +490,7 @@ RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/oca/ruby/OpenNebula.rb \
                 src/tm_mad/TMScript.rb \
                 src/authm_mad/remotes/ssh/ssh_auth.rb \
+                src/authm_mad/remotes/server/server_auth.rb"
                 src/authm_mad/remotes/x509/x509_auth.rb"
 
 #-----------------------------------------------------------------------------
@@ -582,6 +585,8 @@ IM_PROBES_GANGLIA_FILES="src/im_mad/remotes/ganglia.d/ganglia_probe"
 #-------------------------------------------------------------------------------
 # Auth Manager drivers to be installed under $REMOTES_LOCATION/auth
 #-------------------------------------------------------------------------------
+
+AUTH_SERVER_FILES="src/authm_mad/remotes/server/authenticate"
 
 AUTH_X509_FILES="src/authm_mad/remotes/x509/authenticate"
 
