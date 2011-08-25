@@ -54,19 +54,18 @@ class X509Auth
     ###########################################################################
 
     # Creates the login file for x509 authentication at ~/.one/one_x509.
-    # By default it is valid for 1 hour but it can be changed to any number
-    # of seconds with expire parameter (in seconds)
+    # By default it is valid as long as the certificate is valid. It can 
+    # be change to any number of seconds with expire parameter (sec.)
     def login(user, expire=0)
-        # Inits login file path and creates ~/.one directory if needed
-        # Set instance variables
-        login_dir = File.dirname(LOGIN_PATH)
-        
-        begin
-            FileUtils.mkdir_p(login_dir)
-        rescue Errno::EEXIST
-        end
+        write_login(login_token(user,expire)
+    end
 
-        if expire!=0
+    # Generates a login token in the form:
+    # user_name:x509:user_name:time_expires:cert_chain
+    #   - user_name:time_expires is encrypted with the user certificate
+    #   - user_name:time_expires:cert_chain is base64 encoded
+    def login_token(user, expire)
+        if expire != 0
             expires = Time.now.to_i+expire
 	    else
 	        expires = @cert_chain[0].not_after.to_i
@@ -81,15 +80,10 @@ class X509Auth
 	    token64   = Base64::encode64(token).strip.delete("\n")
 
         login_out = "#{user}:x509:#{token64}"
-
-        file = File.open(LOGIN_PATH, "w")
-        file.write(login_out)        
-        file.close
         
-        token64
+        login_out
     end
     
-
     ###########################################################################
     # Server side
     ###########################################################################
@@ -123,6 +117,23 @@ class X509Auth
     end
 
 private
+    # Writes a login_txt to the login file as defined in LOGIN_PATH 
+    # constant
+    def write_login(login_txt)
+        # Inits login file path and creates ~/.one directory if needed
+        # Set instance variables
+        login_dir = File.dirname(LOGIN_PATH)
+        
+        begin
+            FileUtils.mkdir_p(login_dir)
+        rescue Errno::EEXIST
+        end
+
+        file = File.open(LOGIN_PATH, "w")
+        file.write(login_txt)        
+        file.close
+    end
+
     ###########################################################################
     #                       Methods to encrpyt/decrypt keys
     ###########################################################################
