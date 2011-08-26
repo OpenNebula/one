@@ -301,7 +301,13 @@ EOT
                 merge = @opts
                 merge = @opts + extra_options if extra_options
                 merge.flatten.each do |e|
-                    opts.on(e[:short],e[:large], e[:format],e[:description]) do |o|
+                    args = []
+                    args << e[:short] if e[:short]
+                    args << e[:large]
+                    args << e[:format]
+                    args << e[:description]
+
+                    opts.on(*args) do |o|
                         if e[:proc]
                             e[:proc].call(o, @options)
                         elsif e[:name]=="help"
