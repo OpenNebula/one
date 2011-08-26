@@ -55,7 +55,7 @@ class X509Auth
 
     # Creates the login file for x509 authentication at ~/.one/one_x509.
     # By default it is valid as long as the certificate is valid. It can 
-    # be change to any number of seconds with expire parameter (sec.)
+    # be changed to any number of seconds with expire parameter (sec.)
     def login(user, expire=0)
         write_login(login_token(user,expire))
     end
@@ -95,23 +95,23 @@ class X509Auth
     # auth method for auth_mad
     def authenticate(user, pass, signed_text)
         begin            
-	        # Decryption demonstrates that the user posessed the private key.
+	    # Decryption demonstrates that the user posessed the private key.
             _user, expires = decrypt(signed_text).split(':')
 
             return "User name missmatch" if user != _user
 
             return "x509 proxy expired"  if Time.now.to_i >= expires.to_i
 
-	        # Some DN in the chain must match a DN in the password	    
-	        dn_ok = @cert_chain.each do |cert|
+	    # Some DN in the chain must match a DN in the password	    
+	    dn_ok = @cert_chain.each do |cert|
                 break true if pass.split('|').include?(cert.subject.to_s.delete("\s"))
             end
 	    
-	        unless dn_ok == true
-	            return "Certificate subject missmatch"
+	    unless dn_ok == true
+	        return "Certificate subject missmatch"
             end
 	    
-	        validate
+	    validate
 
             return true
         rescue => e
@@ -156,10 +156,10 @@ private
     # Validate the user certificate
     ###########################################################################
     def validate
- 	    now    = Time.now
+ 	now    = Time.now
         failed = "Could not validate user credentials: "
 
-        # Check start time and end time of certificate
+        # Check start time and end time of certificates
         @cert_chain.each do |cert|		
             if cert.not_before > now || cert.not_after < now
                 raise failed +  "Certificate not valid. Current time is " + 
@@ -168,10 +168,10 @@ private
         end 
 
         begin
-	        # Validate the proxy certifcates
+	    # Validate the proxy certifcates
             signee = @cert_chain[0]
 
-	        @cert_chain[1..-1].each do |cert|
+	    @cert_chain[1..-1].each do |cert|
                 if !((signee.issuer.to_s == cert.subject.to_s) &&
                      (signee.verify(cert.public_key)))
                     raise  failed + signee.subject.to_s + " with issuer " +
@@ -182,8 +182,8 @@ private
             end
 
             # Validate the End Entity certificate
-	        if !@options[:ca_dir]
-                return
+	    if !@options[:ca_dir]
+                raise failed + "No certifcate authority directory was specified."
             end
 
             begin
