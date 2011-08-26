@@ -703,10 +703,10 @@ TM_LVM_ETC_FILES="src/tm_mad/lvm/tm_lvm.conf \
 HM_ETC_FILES="src/hm_mad/hmrc"
 
 #-------------------------------------------------------------------------------
-# Hook Manager driver config. files, to be installed under $ETC_LOCATION/hm
+# Auth Manager drivers config. files, to be installed under $ETC_LOCATION/auth
 #-------------------------------------------------------------------------------
 
-AUTH_ETC_FILES="src/authm_mad/auth.conf"
+AUTH_ETC_FILES="src/authm_mad/remotes/server/server_auth.conf"
 
 #-------------------------------------------------------------------------------
 # Sample files, to be installed under $SHARE_LOCATION/examples
