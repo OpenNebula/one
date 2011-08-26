@@ -17,18 +17,7 @@
 require 'openssl'
 require 'base64'
 require 'fileutils'
-
-ONE_LOCATION=ENV["ONE_LOCATION"]
-
-if !ONE_LOCATION
-    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
-    ETC_LOCATION="/etc/one/"
-else
-    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
-    ETC_LOCATION=ONE_LOCATION+"/etc/"
-end
-
-$: << RUBY_LIB_LOCATION
+require 'yaml'
 
 require 'x509_auth'
 
@@ -65,10 +54,8 @@ class ServerAuth < X509Auth
         end
         
         begin
-            certs    = Array.new
-            certs[0] = File.read(@options[:host_cert])
-
-            key = File.read(@options[:host_key])
+            certs = [ File.read(@options[:one_cert]) ]
+            key   =   File.read(@options[:one_key])
 
             super(:certs_pem => certs, 
                   :key_pem   => key,

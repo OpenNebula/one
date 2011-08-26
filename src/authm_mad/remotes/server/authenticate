@@ -39,8 +39,9 @@ secret = ARGV[2] # Base64 encoded secret as obtained from login_token
 
 begin
     server_auth = ServerAuth.new
+    dsecret     = Base64::decode64(secret)
 
-    rc = server_auth.authenticate(user, pass, secret)
+    rc = server_auth.authenticate(user, pass, dsecret)
 rescue => e
     OpenNebula.error_message e.message
     exit -1
