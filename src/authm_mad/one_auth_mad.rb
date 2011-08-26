@@ -44,6 +44,7 @@ class AuthDriver < OpenNebulaDriver
         :authZ => "AUTHORIZE"
     }
 
+
     # Initialize an AuthDriver
     #
     # @param [String] the authorization method to be used, nil to use the 
@@ -76,7 +77,6 @@ class AuthDriver < OpenNebulaDriver
     # @param [String] password of the user registered in OpenNebula "-" if none
     # @param [String] secret filed of the auth string
     def authN(request_id, user_id, user, password, secret)
-
         #OpenNebula.log_debug("authN: #{request_id} #{user_id} #{password} #{secret}")
 
         secret_attr = secret.split(':')
@@ -122,8 +122,8 @@ class AuthDriver < OpenNebulaDriver
 
             send_message(ACTION[:authZ],result,request_id,"-")
         else
-            command = @authZ_cmd
-            command << ' ' << requests.join(' ')
+            command = @authZ_cmd.clone
+            command << ' ' << user_id << ' ' << requests.join(' ')
             
             local_action(command, request_id, ACTION[:authZ])
         end
