@@ -250,8 +250,6 @@ bool UserPool::authenticate(const string& session,
     }
 
     AuthRequest ar(uid, gid);
-    
-    NebulaLog::log("UserPool",Log::ERROR, "Authenticating " + username);
 
     ar.add_authenticate(username,u_pass,secret);
 
