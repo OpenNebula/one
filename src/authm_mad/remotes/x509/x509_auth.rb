@@ -182,8 +182,8 @@ private
             end
 
             # Validate the End Entity certificate
-	    if !@options[:ca_dir]
-                raise failed + "No certifcate authority directory was specified."
+	        if !@options[:ca_dir]
+                return
             end
 
             begin
