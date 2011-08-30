@@ -33,65 +33,78 @@ ONE_BIN=/usr/bin/one
 rc_reset
 
 case "$1" in
-    start)
-	echo -n "Starting ONE "
-	/sbin/startproc -u oneadmin $ONE_BIN start
-	rc_status -v
-	;;
-    stop)
-	echo -n "Shutting down ONE "
-	/sbin/startproc -u oneadmin $ONE_BIN stop
-	rc_status -v
-	;;
-    try-restart|condrestart)
-	if test "$1" = "condrestart"; then
-		echo "${attn} Use try-restart ${done}(LSB)${attn} rather than condrestart ${warn}(RH)${norm}"
-	fi
-	$0 status
-	if test $? = 0; then
-		$0 restart
-	else
-		rc_reset	# Not running is not a failure.
-	fi
-	# Remember status and be quiet
-	rc_status
-	;;
-    restart)
-	$0 stop
-	$0 start
+start)
+    ONE_AUTH_FILE=/var/lib/one/auth
+    if [ ! -f $ONE_AUTH_FILE ]; then
+        PASSWORD=$(cat /dev/urandom|tr -dc 'a-zA-Z0-9'|fold -w 10|head -n1)
+        su oneadmin -s /bin/sh -c "echo oneadmin:$PASSWORD > $ONE_AUTH_FILE"
+    fi
 
-	rc_status
-	;;
-    force-reload)
-	$0 try-restart
-	rc_status
-	;;
-    reload)
-	rc_failed 3
-	rc_status -v
-	;;
-    status)
-	echo -n "Checking for service ONE "
-	## Check status with checkproc(8), if process is running
-	## checkproc will return with exit status 0.
+    echo -n "Starting ONE "
+    ONE_AUTH=$ONE_AUTH_FILE /sbin/startproc -u oneadmin $ONE_BIN start
+    rc_status -v
+    ;;
 
-	# Return value is slightly different for the status command:
-	# 0 - service up and running
-	# 1 - service dead, but /var/run/  pid  file exists
-	# 2 - service dead, but /var/lock/ lock file exists
-	# 3 - service not running (unused)
-	# 4 - service status unknown :-(
-	# 5--199 reserved (5--99 LSB, 100--149 distro, 150--199 appl.)
-	
-	# NOTE: checkproc returns LSB compliant status values.
-	/sbin/checkproc $ONE_BIN
-	# NOTE: rc_status knows that we called this init script with
-	# "status" option and adapts its messages accordingly.
-	rc_status -v
-	;;
-    *)
-	echo "Usage: $0 {start|stop|status|try-restart|restart|force-reload|reload}"
-	exit 1
-	;;
+stop)
+    echo -n "Shutting down ONE "
+    /sbin/startproc -u oneadmin $ONE_BIN stop
+    rc_status -v
+    ;;
+
+try-restart|condrestart)
+    if test "$1" = "condrestart"; then
+        echo "${attn} Use try-restart ${done}(LSB)${attn} rather than condrestart ${warn}(RH)${norm}"
+    fi
+    $0 status
+    if test $? = 0; then
+        $0 restart
+    else
+        rc_reset    # Not running is not a failure.
+    fi
+    # Remember status and be quiet
+    rc_status
+    ;;
+
+restart)
+    $0 stop
+    $0 start
+
+    rc_status
+    ;;
+
+force-reload)
+    $0 try-restart
+    rc_status
+    ;;
+
+reload)
+    rc_failed 3
+    rc_status -v
+    ;;
+
+status)
+    echo -n "Checking for service ONE "
+    ## Check status with checkproc(8), if process is running
+    ## checkproc will return with exit status 0.
+
+    # Return value is slightly different for the status command:
+    # 0 - service up and running
+    # 1 - service dead, but /var/run/  pid  file exists
+    # 2 - service dead, but /var/lock/ lock file exists
+    # 3 - service not running (unused)
+    # 4 - service status unknown :-(
+    # 5--199 reserved (5--99 LSB, 100--149 distro, 150--199 appl.)
+
+    # NOTE: checkproc returns LSB compliant status values.
+    /sbin/checkproc $ONE_BIN
+    # NOTE: rc_status knows that we called this init script with
+    # "status" option and adapts its messages accordingly.
+    rc_status -v
+    ;;
+
+*)
+    echo "Usage: $0 {start|stop|status|try-restart|restart|force-reload|reload}"
+    exit 1
+    ;;
 esac
 rc_exit

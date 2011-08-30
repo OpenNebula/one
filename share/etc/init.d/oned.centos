@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-#	/etc/rc.d/init.d/oned
+#    /etc/rc.d/init.d/oned
 #
 # Starts the OpenNebula daemon
 #
@@ -26,58 +26,66 @@ ONE_BIN=/usr/bin/one
 RETVAL=0
 
 check() {
-	# Check that we're a privileged user
-	[ `id -u` = 0 ] || exit 4
-	
-	# Check if oned is executable
-	test -x $ONE_BIN || exit 5
+    # Check that we're a privileged user
+    [ `id -u` = 0 ] || exit 4
+
+    # Check if oned is executable
+    test -x $ONE_BIN || exit 5
 }
 
 start() {
 
-	check
-	
-	echo -n $"Starting OpenNebula daemon: "	
-	daemon --user oneadmin $ONE_BIN start
-	RETVAL=$?
-	echo
-	return $RETVAL
+    check
+
+    ONE_AUTH_FILE=/var/lib/one/auth
+    if [ ! -f $ONE_AUTH_FILE ]; then
+        PASSWORD=$(cat /dev/urandom|tr -dc 'a-zA-Z0-9'|fold -w 10|head -n1)
+        su oneadmin -s /bin/sh -c "echo oneadmin:$PASSWORD > $ONE_AUTH_FILE"
+    fi
+
+    echo -n $"Starting OpenNebula daemon: "
+
+
+    daemon --user oneadmin ONE_AUTH=$ONE_AUTH_FILE  $ONE_BIN start
+    RETVAL=$?
+    echo
+    return $RETVAL
 }
 
 stop() {
 
-	check
-	
-	echo -n $"Stopping OpenNebula daemon: "
-	su oneadmin -s /bin/sh -c "$ONE_BIN stop"
-	RETVAL=$?
-	echo
+    check
+
+    echo -n $"Stopping OpenNebula daemon: "
+    su oneadmin -s /bin/sh -c "$ONE_BIN stop"
+    RETVAL=$?
+    echo
     return $RETVAL
 }
 
 restart() {
-	stop
-	start
-}	
+    stop
+    start
+}
 
 
 case "$1" in
 start)
-	start
-	;;
+    start
+    ;;
 stop)
-	stop
-	;;
+    stop
+    ;;
 restart)
-	restart
-	;;
+    restart
+    ;;
 status)
-	status oned
-	RETVAL=$?
-	;;
+    status oned
+    RETVAL=$?
+    ;;
 *)
-	echo $"Usage: $0 {start|stop|status|restart}"
-	RETVAL=2
+    echo $"Usage: $0 {start|stop|status|restart}"
+    RETVAL=2
 esac
 
 exit $RETVAL
