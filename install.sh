@@ -706,7 +706,8 @@ HM_ETC_FILES="src/hm_mad/hmrc"
 # Auth Manager drivers config. files, to be installed under $ETC_LOCATION/auth
 #-------------------------------------------------------------------------------
 
-AUTH_ETC_FILES="src/authm_mad/remotes/server/server_auth.conf"
+AUTH_ETC_FILES="src/authm_mad/remotes/server/server_auth.conf \
+                src/authm_mad/remotes/x509/x509_auth.conf"
 
 #-------------------------------------------------------------------------------
 # Sample files, to be installed under $SHARE_LOCATION/examples

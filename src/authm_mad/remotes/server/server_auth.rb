@@ -17,7 +17,6 @@
 require 'openssl'
 require 'base64'
 require 'fileutils'
-require 'yaml'
 
 require 'x509_auth'
 
@@ -28,38 +27,27 @@ class ServerAuth < X509Auth
     ###########################################################################
     #Constants with paths to relevant files and defaults
     ###########################################################################
-    if !ENV["ONE_LOCATION"]
-        ETC_LOCATION      = "/etc/one"
-    else
-        ETC_LOCATION      = ONE_LOCATION + "/etc"
-    end
 
     SERVER_AUTH_CONF_PATH = ETC_LOCATION + "/auth/server_auth.conf"
 
-    DEFAULT_CERTS_PATH = {
+    SERVER_DEFAULTS = {
         :one_cert => ETC_LOCATION + "/auth/cert.pem",
-        :one_key  => ETC_LOCATION + "/auth/key.pem",
-        :ca_dir   => ETC_LOCATION + "/auth/certificates",
+        :one_key  => ETC_LOCATION + "/auth/key.pem"
     }
 
     ###########################################################################
 
     def initialize()
-        @options = DEFAULT_CERTS_PATH
+        @options = SERVER_DEFAULTS
+       
+        load_options(SERVER_AUTH_CONF_PATH)
 
-        if File.readable?(SERVER_AUTH_CONF_PATH)
-            config = File.read(SERVER_AUTH_CONF_PATH)
-             
-            @options.merge!(YAML::load(config))
-        end
-        
         begin
             certs = [ File.read(@options[:one_cert]) ]
             key   =   File.read(@options[:one_key])
 
             super(:certs_pem => certs, 
-                  :key_pem   => key,
-                  :ca_dir    => @options[:ca_dir])
+                  :key_pem   => key)
         rescue
             raise
         end  
@@ -75,7 +63,7 @@ class ServerAuth < X509Auth
         token_txt = "#{user}:#{user_pass}:#{expires}"
 
         token     = encrypt(token_txt)
-	token64   = Base64::encode64(token).strip.delete("\n")
+	    token64   = Base64::encode64(token).strip.delete("\n")
 
         login_out = "#{user}:server:#{token64}"
         
@@ -97,7 +85,7 @@ class ServerAuth < X509Auth
 
             # Check that the signed password matches one for the user.
             if !pass.split('|').include?(user_pass)
-	        return "User password missmatch"
+	            return "User password missmatch"
             end
 
             return true

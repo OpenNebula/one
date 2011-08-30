@@ -111,10 +111,10 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
             begin  
                 proxy = File.read(options[:proxy])
 
-                rc = proxy.scan(/-+BEGIN CERTIFICATE-+\n([^-]*)\n-+END CERTIFICATE-+/)
+                rc = proxy.scan(/(-+BEGIN CERTIFICATE-+\n[^-]*\n-+END CERTIFICATE-+)/)
                 certs = rc.flatten!
 
-                rc = proxy.match(/-+BEGIN RSA PRIVATE KEY-+\n([^-]*)\n-+END RSA PRIVATE KEY-+/)
+                rc = proxy.match(/(-+BEGIN RSA PRIVATE KEY-+\n[^-]*\n-+END RSA PRIVATE KEY-+)/)
 
                 key  = rc[1]
 

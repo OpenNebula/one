@@ -17,13 +17,30 @@
 require 'openssl'
 require 'base64'
 require 'fileutils'
+require 'yaml'
 
 # X509 authentication class. It can be used as a driver for auth_mad
 # as auth method is defined. It also holds some helper methods to be used
 # by oneauth command
 class X509Auth
+    ###########################################################################
+    #Constants with paths to relevant files and defaults
+    ###########################################################################
+    if !ENV["ONE_LOCATION"]
+        ETC_LOCATION      = "/etc/one"
+    else
+        ETC_LOCATION      = ONE_LOCATION + "/etc"
+    end
+
     LOGIN_PATH = ENV['HOME']+'/.one/one_x509'
 
+    X509_AUTH_CONF_PATH = ETC_LOCATION + "/auth/x509_auth.conf"
+
+    X509_DEFAULTS = {
+        :ca_dir   => ETC_LOCATION + "/auth/certificates"
+    }
+
+    ###########################################################################
     # Initialize x509Auth object
     #
     # @param [Hash] default options for path
@@ -37,8 +54,10 @@ class X509Auth
         @options={
             :certs_pem => nil,
             :key_pem   => nil,
-            :ca_dir    => nil
+            :ca_dir    => X509_DEFAULTS[:ca_dir]
         }.merge!(options)
+
+        load_options(X509_AUTH_CONF_PATH)
 
         @cert_chain = @options[:certs_pem].collect do |cert_pem|
             OpenSSL::X509::Certificate.new(cert_pem)
@@ -135,6 +154,15 @@ private
         file = File.open(LOGIN_PATH, "w")
         file.write(login_txt)        
         file.close
+    end
+
+    # Load class options form a configuration file (yaml syntax)
+    def load_options(conf_file)
+        if File.readable?(conf_file)
+            config = File.read(conf_file)
+             
+            @options.merge!(YAML::load(config))
+        end
     end
 
     ###########################################################################
