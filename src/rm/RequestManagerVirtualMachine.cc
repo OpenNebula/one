@@ -58,6 +58,7 @@ bool RequestManagerVirtualMachine::vm_authorization(int oid,
     if (hid != -1)
     {
         ar.add_auth(AuthRequest::HOST,hid,-1,AuthRequest::USE,0,false);
+        ar.add_auth(AuthRequest::HOST,hid,-1,AuthRequest::DEPLOY,0,false);
     }
     else if (tmpl != 0)
     {
