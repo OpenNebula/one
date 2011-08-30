@@ -253,20 +253,7 @@ bool UserPool::authenticate(const string& session,
 
     ar.add_authenticate(username,u_pass,secret);
 
-    if ( uid == 0 ) //oneadmin
-    {
-        if (ar.plain_authenticate())
-        {
-            user_id  = uid;
-            group_id = gid;
-
-            uname = tuname;
-            gname = tgname;
-
-            result   = true;
-        }
-    }
-    else if (authm == 0) //plain auth
+    if (authm == 0) //plain auth
     {
         if ( user != 0 && ar.plain_authenticate()) //no plain for external users
         {
