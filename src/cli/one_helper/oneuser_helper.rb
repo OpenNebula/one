@@ -118,7 +118,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
 
                 key  = rc[1]
 
-                auth = X509Auth.new(:cert=>certs, :key=>key)
+                auth = X509Auth.new(:certs_pem=>certs, :key_pem=>key)
             rescue => e
                 return -1, e.message
             end
