@@ -302,13 +302,6 @@ function vnShow(req){
 //returns an array with the VNET information fetched from the JSON object
 function vNetworkElementArray(vn_json){
     var network = vn_json.VNET;
-    var total_leases = "0";
-
-    if (network.TOTAL_LEASES){
-        total_leases = network.TOTAL_LEASES;
-    } else if (network.LEASES && network.LEASES.LEASE){
-        total_leases = network.LEASES.LEASE.length ? network.LEASES.LEASE.length : "1";
-    }
 
     return [
         '<input type="checkbox" id="vnetwork_'+network.ID+'" name="selected_items" value="'+network.ID+'"/>',
@@ -319,7 +312,7 @@ function vNetworkElementArray(vn_json){
         parseInt(network.TYPE) ? "FIXED" : "RANGED",
         network.BRIDGE,
         parseInt(network.PUBLIC) ? "yes" : "no",
-        total_leases ];
+        network.TOTAL_LEASES ];
 }
 
 
@@ -411,18 +404,14 @@ function updateVNetworkInfo(request,vn){
               <td class="key_td">Public</td>\
               <td class="value_td">'+(parseInt(vn_info.PUBLIC) ? "yes" : "no" )+'</td>\
             </tr>\
-        </table>';
-
-    //if it is a fixed VNET we can add leases information
-    if (vn_info.TEMPLATE.TYPE == "FIXED"){
-        info_tab_content +=
-        '<table id="vn_leases_info_table" class="info_table">\
+        </table>\
+       <table id="vn_leases_info_table" class="info_table">\
             <thead>\
                <tr><th colspan="2">Leases information</th></tr>\
             </thead>'+
-            prettyPrintJSON(vn_info.TEMPLATE.LEASES)+
-        '</table>';
-    }
+              printLeases(vn_info.LEASES)+
+        '</table>';;
+
 
 
     var info_tab = {
@@ -444,6 +433,21 @@ function updateVNetworkInfo(request,vn){
 
     Sunstone.popUpInfoPanel("vnet_info_panel");
 
+}
+
+function printLeases(leases){
+    if (!leases.LEASE) //empty
+    {
+        return "";
+    };
+
+    if (leases.LEASE.constructor == Array) //>1 lease
+    {
+        return prettyPrintJSON(leases.LEASE);
+    }
+    else {//1 lease
+        return prettyPrintJSON([leases.LEASE]);
+    };
 }
 
 //Prepares the vnet creation dialog
