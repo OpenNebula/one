@@ -15,7 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 /*Host tab plugin*/
-
+/* HOST_HISTORY_LENGTH is ignored by server */
 var HOST_HISTORY_LENGTH = 40;
 var host_graphs = [
     {
@@ -98,8 +98,8 @@ var create_host_tmpl =
 </form></div>';
 
 var hosts_select="";
-var host_list_json = {};
 var dataTable_hosts;
+var $create_host_dialog;
 
 //Setup actions
 var host_actions = {
@@ -121,8 +121,7 @@ var host_actions = {
         type: "list",
         call: OpenNebula.Host.list,
         callback: updateHostsView,
-        error: onError,
-        notify: false
+        error: onError
     },
 
     "Host.show" : {
@@ -145,9 +144,7 @@ var host_actions = {
             waitingNodes(dataTable_hosts);
             Sunstone.runAction("Host.list");
         },
-        callback: function(){},
-        error: onError,
-        notify:false
+        error: onError
     },
 
     "Host.autorefresh" : {
@@ -163,7 +160,7 @@ var host_actions = {
         callback : function (req) {
             Sunstone.runAction("Host.show",req.request.data[0]);
         },
-        elements: function() { return getSelectedNodes(dataTable_hosts); },
+        elements: hostElements,
         error : onError,
         notify: true
     },
@@ -174,7 +171,7 @@ var host_actions = {
         callback : function (req) {
             Sunstone.runAction("Host.show",req.request.data[0]);
         },
-        elements: function() { return getSelectedNodes(dataTable_hosts); },
+        elements: hostElements,
         error : onError,
         notify:true
     },
@@ -183,7 +180,7 @@ var host_actions = {
         type: "multiple",
         call : OpenNebula.Host.delete,
         callback : deleteHostElement,
-        elements: function() { return getSelectedNodes(dataTable_hosts); },
+        elements: hostElements,
         error : onError,
         notify:true
     },
@@ -215,8 +212,7 @@ var host_actions = {
         callback: function (request,response) {
             $('#template_update_dialog #template_update_textarea').val(response.template);
         },
-        error: onError,
-        notify: false
+        error: onError
     },
 
     "Host.update_dialog" : {
@@ -232,8 +228,7 @@ var host_actions = {
         callback: function() {
             notifyMessage("Template updated correctly");
         },
-        error: onError,
-        notify: false
+        error: onError
     }
 };
 
@@ -241,34 +236,28 @@ var host_buttons = {
     "Host.refresh" : {
         type: "image",
         text: "Refresh list",
-        img: "images/Refresh-icon.png",
-        condition: True
+        img: "images/Refresh-icon.png"
         },
     "Host.create_dialog" : {
         type: "create_dialog",
-        text: "+ New",
-        condition :True
+        text: "+ New"
     },
     "Host.update_dialog" : {
         type: "action",
         text: "Update a template",
-        condition: True,
         alwaysActive: true
     },
     "Host.enable" : {
         type: "action",
-        text: "Enable",
-        condition : True
+        text: "Enable"
     },
     "Host.disable" : {
         type: "action",
-        text: "Disable",
-        condition : True
+        text: "Disable"
     },
     "Host.delete" : {
         type: "action",
-        text: "Delete host",
-        condition : True
+        text: "Delete host"
     }
 };
 
@@ -292,14 +281,17 @@ var host_info_panel = {
 var hosts_tab = {
     title: 'Hosts',
     content: hosts_tab_content,
-    buttons: host_buttons,
-    condition: True
+    buttons: host_buttons
 }
 
 Sunstone.addActions(host_actions);
 Sunstone.addMainTab('hosts_tab',hosts_tab);
 Sunstone.addInfoPanel("host_info_panel",host_info_panel);
 
+
+function hostElements(){
+    return getSelectedNodes(dataTable_hosts);
+}
 
 //Creates an array to be added to the dataTable from the JSON of a host.
 function hostElementArray(host_json){
@@ -357,8 +349,7 @@ function hostElementArray(host_json){
 
 //Listen to clicks on the tds of the tables and shows the info dialogs.
 function hostInfoListener(){
-    $('#tbodyhosts tr').live("click",function(e){
-
+    $('#tbodyhosts tr',dataTable_hosts).live("click",function(e){
         //do nothing if we are clicking a checkbox!
         if ($(e.target).is('input')) {return true;}
         popDialogLoading();
@@ -371,7 +362,12 @@ function hostInfoListener(){
 
 //updates the host select by refreshing the options in it
 function updateHostSelect(){
-    hosts_select = makeSelectOptions(dataTable_hosts,1,2,7,"DISABLED",-1);
+    hosts_select = makeSelectOptions(dataTable_hosts,
+                                     1,//id_col
+                                     2,//name_col
+                                     [6,6],//status_cols
+                                     ["ERROR","OFF"]//bad_st
+                                    );
 }
 
 //callback for an action affecting a host element
@@ -398,7 +394,6 @@ function addHostElement(request,host_json){
 
 //callback to update the list of hosts.
 function updateHostsView (request,host_list){
-    host_list_json = host_list;
     var host_list_array = [];
 
     $.each(host_list,function(){
@@ -409,7 +404,7 @@ function updateHostsView (request,host_list){
     updateView(host_list_array,dataTable_hosts);
     updateHostSelect();
     //dependency with the dashboard plugin
-    updateDashboard("hosts",host_list_json);
+    updateDashboard("hosts",host_list);
 }
 
 //Updates the host info panel tab's content and pops it up
@@ -511,18 +506,21 @@ function updateHostInfo(request,host){
 
 //Prepares the host creation dialog
 function setupCreateHostDialog(){
-    $('div#dialogs').append('<div title="Create host" id="create_host_dialog"></div>');
-    $('div#create_host_dialog').html(create_host_tmpl);
-    $('#create_host_dialog').dialog({
+    dialogs_context.append('<div title="Create host" id="create_host_dialog"></div>');
+    $create_host_dialog = $('div#create_host_dialog');
+    var dialog = $create_host_dialog;
+
+    dialog.html(create_host_tmpl);
+    dialog.dialog({
         autoOpen: false,
         modal: true,
         width: 500
     });
 
-    $('#create_host_dialog button').button();
+    $('button',dialog).button();
 
     //Handle the form submission
-    $('#create_host_form').submit(function(){
+    $('#create_host_form',dialog).submit(function(){
         if (!($('#name',this).val().length)){
             notifyError("Host name missing!");
             return false;
@@ -539,14 +537,14 @@ function setupCreateHostDialog(){
         //Create the OpenNebula.Host.
         //If it's successfull we refresh the list.
         Sunstone.runAction("Host.create",host_json);
-        $('#create_host_dialog').dialog('close');
+        $create_host_dialog.dialog('close');
         return false;
     });
 }
 
 //Open creation dialogs
 function popUpCreateHostDialog(){
-    $('#create_host_dialog').dialog('open');
+    $create_host_dialog.dialog('open');
     return false;
 }
 
@@ -554,7 +552,7 @@ function popUpCreateHostDialog(){
 function setHostAutorefresh() {
     setInterval(function(){
         var checked = $('input:checked',dataTable_hosts.fnGetNodes());
-        var  filter = $("#datatable_hosts_filter input").attr("value");
+        var  filter = $("#datatable_hosts_filter input",dataTable_hosts.parents('#datatable_hosts_wrapper')).attr("value");
         if (!checked.length && !filter.length){
             Sunstone.runAction("Host.autorefresh");
         }
@@ -570,6 +568,9 @@ function hostMonitorError(req,error_json){
     $('#host_monitoring_tab '+id).html('<div style="padding-left:20px;">'+message+'</div>');
 }
 
+function hosts_sel() {
+    return hosts_select;
+}
 
 //This is executed after the sunstone.js ready() is run.
 //Here we can basicly init the host datatable, preload it
@@ -577,7 +578,7 @@ function hostMonitorError(req,error_json){
 $(document).ready(function(){
 
     //prepare host datatable
-    dataTable_hosts = $("#datatable_hosts").dataTable({
+    dataTable_hosts = $("#datatable_hosts",main_tabs_context).dataTable({
         "bJQueryUI": true,
         "bSortClasses": false,
         "bAutoWidth":false,

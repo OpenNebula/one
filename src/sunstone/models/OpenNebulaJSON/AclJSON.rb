@@ -14,27 +14,38 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'OpenNebula'
-include OpenNebula
-
-require 'OpenNebulaJSON/GroupJSON'
-require 'OpenNebulaJSON/HostJSON'
-require 'OpenNebulaJSON/ImageJSON'
-require 'OpenNebulaJSON/TemplateJSON'
 require 'OpenNebulaJSON/JSONUtils'
-require 'OpenNebulaJSON/PoolJSON'
-require 'OpenNebulaJSON/UserJSON'
-require 'OpenNebulaJSON/VirtualMachineJSON'
-require 'OpenNebulaJSON/VirtualNetworkJSON'
-require 'OpenNebulaJSON/AclJSON'
 
-module OpenNebula
-    class Error
-        def to_json
-            message = { :message => @message }
-            error_hash = { :error => message }
+module OpenNebulaJSON
+    class AclJSON < OpenNebula::Acl
+        include JSONUtils
 
-            return JSON.pretty_generate error_hash
+        def create(template_json)
+            acl_string = parse_json(template_json, 'acl')
+            acl_rule = Acl.parse_rule(acl_string)
+            if OpenNebula.is_error?(acl_rule)
+                return acl_rule
+            end
+            self.allocate(acl_rule[0],acl_rule[1],acl_rule[2])
+        end
+
+        def perform_action(template_json)
+            action_hash = parse_json(template_json, 'action')
+            if OpenNebula.is_error?(action_hash)
+                return action_hash
+            end
+
+            error_msg = "#{action_hash['perform']} action not " <<
+                " available for this resource"
+            OpenNebula::Error.new(error_msg)
+
+            # rc = case action_hash['perform']
+            #          #no actions!
+            #      else
+            #          error_msg = "#{action_hash['perform']} action not " <<
+            #              " available for this resource"
+            #          OpenNebula::Error.new(error_msg)
+            #      end
         end
     end
 end

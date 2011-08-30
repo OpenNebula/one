@@ -15,9 +15,8 @@
 /* -------------------------------------------------------------------------- */
 
 var groups_select="";
-var group_list_json = {};
 var dataTable_groups;
-
+var $create_group_dialog;
 
 var groups_tab_content =
 '<form id="group_form" action="" action="javascript:alert(\'js error!\');">\
@@ -93,9 +92,7 @@ var group_actions = {
             waitingNodes(dataTable_groups);
             Sunstone.runAction("Group.list");
         },
-        callback: function(){},
-        error: onError,
-        notify: false
+        error: onError
     },
 
     "Group.delete" : {
@@ -103,7 +100,7 @@ var group_actions = {
         call : OpenNebula.Group.delete,
         callback : deleteGroupElement,
         error : onError,
-        elements: function() { return getSelectedNodes(dataTable_groups); },
+        elements: groupElements,
         notify:true
     },
 
@@ -122,13 +119,11 @@ var group_buttons = {
     "Group.refresh" : {
         type: "image",
         text: "Refresh list",
-        img: "images/Refresh-icon.png",
-        condition: True
+        img: "images/Refresh-icon.png"
     },
     "Group.create_dialog" : {
         type: "create_dialog",
-        text: "+ New Group",
-        condition : True
+        text: "+ New Group"
     },
     // "Group.chown" : {
     //     type: "confirm_with_select",
@@ -140,20 +135,22 @@ var group_buttons = {
 
     "Group.delete" : {
         type: "action",
-        text: "Delete",
-        condition : True
+        text: "Delete"
     }
 };
 
 var groups_tab = {
     title: 'Groups',
     content: groups_tab_content,
-    buttons: group_buttons,
-    condition: True
+    buttons: group_buttons
 }
 
 Sunstone.addActions(group_actions);
 Sunstone.addMainTab('groups_tab',groups_tab);
+
+function groupElements(){
+    return getSelectedNodes(dataTable_groups);
+}
 
 function groupElementArray(group_json){
     var group = group_json.GROUP;
@@ -176,19 +173,24 @@ function groupElementArray(group_json){
         users_str ];
 }
 
-function groupInfoListener(){
-    $('#tbodygroups tr').live("click",function(e){
-        //do nothing if we are clicking a checkbox!
-        if ($(e.target).is('input')) {return true;}
-        var aData = dataTable_groups.fnGetData(this);
-        var id = $(aData[0]).val();
-        Sunstone.runAction("Group.showinfo",id);
-        return false;
-    });
-}
+// function groupInfoListener(){
+//     $('#groups_tab #tbodygroups tr',main_tabs_context).live("click",function(e){
+//         //do nothing if we are clicking a checkbox!
+//         if ($(e.target).is('input')) {return true;}
+//         var aData = dataTable_groups.fnGetData(this);
+//         var id = $(aData[0]).val();
+//         Sunstone.runAction("Group.showinfo",id);
+//         return false;
+//     });
+// }
 
 function updateGroupSelect(){
-    groups_select = makeSelectOptions(dataTable_groups,1,2,-1,"",-1);
+    groups_select = makeSelectOptions(dataTable_groups,
+                                      1,//id_col
+                                      2,//name_col
+                                      [],//status_cols
+                                      []//bad_status_cols
+                                     );
 }
 
 function updateGroupElement(request, group_json){
@@ -199,7 +201,7 @@ function updateGroupElement(request, group_json){
 }
 
 function deleteGroupElement(request){
-    deleteElement(dataTable_groups,'#group_'+req.request.data);
+    deleteElement(dataTable_groups,'#group_'+request.request.data);
     updateGroupSelect();
 }
 
@@ -226,27 +228,30 @@ function updateGroupsView(request, group_list){
 
 //Prepares the dialog to create
 function setupCreateGroupDialog(){
-    $('div#dialogs').append('<div title="Create group" id="create_group_dialog"></div>');
-    $('#create_group_dialog').html(create_group_tmpl);
-    $('#create_group_dialog').dialog({
+    dialogs_context.append('<div title="Create group" id="create_group_dialog"></div>');
+    $create_group_dialog = $('#create_group_dialog',dialogs_context);
+    var dialog = $create_group_dialog;
+
+    dialog.html(create_group_tmpl);
+    dialog.dialog({
         autoOpen: false,
         modal: true,
         width: 400
     });
 
-    $('#create_group_dialog button').button();
+    $('button',dialog).button();
 
-    $('#create_group_form').submit(function(){
+    $('#create_group_form',dialog).submit(function(){
         var name=$('#name',this).val();
         var group_json = { "group" : { "name" : name }};
         Sunstone.runAction("Group.create",group_json);
-        $('#create_group_dialog').dialog('close');
+        $create_group_dialog.dialog('close');
         return false;
     });
 }
 
 function popUpCreateGroupDialog(){
-    $('#create_group_dialog').dialog('open');
+    $create_group_dialog.dialog('open');
     return false;
 }
 
@@ -254,7 +259,7 @@ function popUpCreateGroupDialog(){
 function setGroupAutorefresh(){
     setInterval(function(){
         var checked = $('input:checked',dataTable_groups.fnGetNodes());
-        var  filter = $("#datatable_groups_filter input").attr("value");
+        var  filter = $("#datatable_groups_filter input",dataTable_groups.parents("#datatable_groups_wrapper")).attr("value");
         if (!checked.length && !filter.length){
             Sunstone.runAction("Group.autorefresh");
         }
@@ -262,7 +267,7 @@ function setGroupAutorefresh(){
 }
 
 $(document).ready(function(){
-    dataTable_groups = $("#datatable_groups").dataTable({
+    dataTable_groups = $("#datatable_groups",main_tabs_context).dataTable({
         "bJQueryUI": true,
         "bSortClasses": false,
         "sPaginationType": "full_numbers",
