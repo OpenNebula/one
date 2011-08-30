@@ -182,7 +182,7 @@ public:
         string astr = "VM:VGhpcyBpcyBhIHRlbXBsYXRlCg==:CREATE:-1:0:0 "
                       "IMAGE:2:USE:3:0:0 "
                       "NET:4:DELETE:5:1:0 "
-                      "HOST:6:MANAGE:7:1:0";
+                      "HOST:6:MANAGE:7:1:0 0";
 
         ar.add_auth(AuthRequest::VM,
                     "This is a template\n",
@@ -214,7 +214,6 @@ public:
 
         am->trigger(AuthManager::AUTHORIZE,&ar);
         ar.wait();
-
 /*
         if ( ar.result != false )
         {
@@ -229,6 +228,56 @@ public:
 //*/
         CPPUNIT_ASSERT(ar.result==false);
         CPPUNIT_ASSERT(ar.message==astr);
+
+        AuthRequest ar1(2, 2);
+
+        string astr1= "VM:VGhpcyBpcyBhIHRlbXBsYXRlCg==:CREATE:-1:0:0 0";
+
+        ar1.add_auth(AuthRequest::VM,
+                     "This is a template\n",
+                     0,
+                     AuthRequest::CREATE,
+                     -1,
+                     false);
+
+        am->trigger(AuthManager::AUTHORIZE,&ar1);
+        ar1.wait();
+ /*
+        if ( ar1.result != false )
+        {
+            cout << endl << "ar.result: " << ar1.result << endl;
+        }
+
+        if ( ar1.message != astr1 )
+        {
+            cout << endl << "ar.message: " << ar1.message;
+            cout << endl << "expected:   " << astr1 << endl;
+        }
+//*/
+        CPPUNIT_ASSERT(ar1.result==false);
+        CPPUNIT_ASSERT(ar1.message==astr1);
+
+        AuthRequest ar2(2, 2);
+
+        string astr2= "Empty authorization string";
+
+
+        am->trigger(AuthManager::AUTHORIZE,&ar2);
+        ar2.wait();
+/*
+        if ( ar1.result != false )
+        {
+            cout << endl << "ar.result: " << ar1.result << endl;
+        }
+
+        if ( ar1.message != astr1 )
+        {
+            cout << endl << "ar.message: " << ar1.message;
+            cout << endl << "expected:   " << astr1 << endl;
+        }
+//*/
+        CPPUNIT_ASSERT(ar2.result==false);
+        CPPUNIT_ASSERT(ar2.message==astr2);
     }
 
 

@@ -285,7 +285,8 @@ void AuthManager::authorize_action(AuthRequest * ar)
 
     if (authm_md == 0)
     {
-        goto error_driver;
+        ar->message = "Could not find Authorization driver";
+        goto error;
     }
 
     // ------------------------------------------------------------------------
@@ -300,15 +301,23 @@ void AuthManager::authorize_action(AuthRequest * ar)
 
     auths = ar->get_auths();
 
-    authm_md->authorize(ar->id, ar->uid, auths);
+    if ( auths.empty() )
+    {
+        ar->message = "Empty authorization string";
+        goto error;
+    }
+
+    authm_md->authorize(ar->id, ar->uid, auths, ar->self_authorize);
 
     return;
 
-error_driver:
-    ar->result  = false;
-    ar->message = "Could not find Authorization driver";
+error:
+    ar->result = false;
     ar->notify();
+
+    return;
 }
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

@@ -90,20 +90,22 @@ class OpenNebulaDriver < ActionManager
     def initialize(directory, options={})
         @options={
             :concurrency => 10,
-            :threaded => true,
-            :retries => 0,
+            :threaded    => true,
+            :retries     => 0,
             :local_actions => {}
         }.merge!(options)
 
         super(@options[:concurrency], @options[:threaded])
 
-        @retries = @options[:retries]
-        @send_mutex=Mutex.new
-        @local_actions=@options[:local_actions]
+        @retries       = @options[:retries]
+        @local_actions = @options[:local_actions]
+
+        @send_mutex    = Mutex.new
 
         # set default values
         @config = read_configuration
-        @remote_scripts_base_path=@config['SCRIPTS_REMOTE_DIR']
+        @remote_scripts_base_path = @config['SCRIPTS_REMOTE_DIR']
+
         if ENV['ONE_LOCATION'] == nil
             @local_scripts_base_path = "/var/lib/one/remotes"
         else
@@ -111,8 +113,8 @@ class OpenNebulaDriver < ActionManager
         end
 
         # dummy paths
-        @remote_scripts_path=File.join(@remote_scripts_base_path, directory)
-        @local_scripts_path=File.join(@local_scripts_base_path, directory)
+        @remote_scripts_path = File.join(@remote_scripts_base_path, directory)
+        @local_scripts_path  = File.join(@local_scripts_base_path, directory)
 
         register_action(:INIT, method("init"))
     end
