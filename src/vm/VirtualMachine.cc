@@ -905,6 +905,8 @@ void VirtualMachine::release_network_leases()
         }
 
         vn->release_lease(ip);
+        vnpool->update(vn);
+
         vn->unlock();
     }
 }

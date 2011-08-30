@@ -165,6 +165,11 @@ int VirtualNetworkPool::nic_attribute(VectorAttribute * nic, int uid, int vid)
 
     int rc = vnet->nic_attribute(nic,vid);
 
+    if ( rc == 0 )
+    {
+        update(vnet);
+    }
+
     vnet->unlock();
 
     return rc;
