@@ -18,7 +18,7 @@
   :size: 5
   :right: true
 
-:OPE_CDUMIPpTWd:
+:OPE_CDUMIPpTWY:
   :desc: Operation to which the rule applies
   :size: 14
   :right: true
@@ -28,4 +28,4 @@
 - :USER 
 - :RES_VHNIUTG 
 - :RID 
-- :OPE_CDUMIPpTWd
+- :OPE_CDUMIPpTWY

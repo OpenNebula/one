@@ -92,7 +92,7 @@ private
                 when "CHOWN"
                     mask[8] = "W"
                 when "DEPLOY"
-                    mask[9] = "d"
+                    mask[9] = "Y"
             end
         }
 
@@ -122,12 +122,12 @@ private
                 d['STRING'].split(" ")[1].split("/")[1]
             end
 
-            column :OPE_CDUMIPpTWd,
+            column :OPE_CDUMIPpTWY,
                     "Operation to which the rule applies", :size =>14 do |d|
                 OneAclHelper::right_mask d['STRING'].split(" ")[2]
             end
 
-            default :ID, :USER, :RES_VHNIUTG, :RID, :OPE_CDUMIPpTWd
+            default :ID, :USER, :RES_VHNIUTG, :RID, :OPE_CDUMIPpTWY
         end
 
         table
