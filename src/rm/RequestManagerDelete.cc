@@ -77,6 +77,14 @@ int UserDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
     User * user  = static_cast<User *>(object);
     int group_id = user->get_gid();
 
+    if (oid == 0)
+    {
+        error_msg = "oneadmin can not be deleted.";
+
+        object->unlock();
+        return -1;
+    }
+
     int rc = pool->drop(object, error_msg);
 
     object->unlock();
