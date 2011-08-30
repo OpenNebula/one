@@ -189,9 +189,21 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Changes the given User's password
     EOT
 
-    command :passwd, passwd_desc, :userid, :password do
+    command :passwd, passwd_desc, :userid, :password,
+            :options=>create_options do
+        if options[:ssh] or options[:x509]
+            rc = helper.password(options)
+            if rc.first == 0
+                pass = rc[1]
+            else
+                exit_with_code *rc
+            end
+        else
+            pass = args[1]
+        end
+
         helper.perform_action(args[0],options,"Password changed") do |user|
-            user.passwd(args[1])
+            user.passwd(pass)
         end
     end
 

@@ -75,7 +75,7 @@ class ServerAuth < X509Auth
         token_txt = "#{user}:#{user_pass}:#{expires}"
 
         token     = encrypt(token_txt)
-	    token64   = Base64::encode64(token).strip.delete("\n")
+	token64   = Base64::encode64(token).strip.delete("\n")
 
         login_out = "#{user}:server:#{token64}"
         
@@ -88,19 +88,17 @@ class ServerAuth < X509Auth
     # auth method for auth_mad
     def authenticate(user, pass, signed_text)
         begin            
-	        # Decryption demonstrates that the user posessed the private key.
+	    # Decryption demonstrates that the user posessed the private key.
             _user, user_pass, expires = decrypt(signed_text).split(':')
 
             return "User name missmatch" if user != _user
 
             return "login token expired" if Time.now.to_i >= expires.to_i
 
-            # Check an explicitly-specified DN such as for a host-signed login 
+            # Check that the signed password matches one for the user.
             if !pass.split('|').include?(user_pass)
-	            return "User password missmatch"
+	        return "User password missmatch"
             end
-
-	        validate
 
             return true
         rescue => e
