@@ -50,7 +50,7 @@ class VirtualMachineOCCI < VirtualMachine
                 <% end %>
             </NIC>
             <% end %>
-            <% if self['TEMPLATE/CONTEXT'] %>
+            <% if self.has_elements?('TEMPLATE/CONTEXT') %>
             <CONTEXT>
             <% self.each('TEMPLATE/CONTEXT/*') do |cont| %>
                 <% if cont.text %>

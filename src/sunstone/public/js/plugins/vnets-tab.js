@@ -122,8 +122,8 @@ var create_vn_tmpl =
 </div>';
 
 var vnetworks_select="";
-var network_list_json = {};
 var dataTable_vNetworks;
+var $create_vn_dialog;
 
 //Setup actions
 
@@ -181,10 +181,8 @@ var vnet_actions = {
     "Network.publish" : {
         type: "multiple",
         call: OpenNebula.Network.publish,
-        callback: function (req) {
-            Sunstone.runAction("Network.show",req.request.data[0]);
-        },
-        elements: function() { return getSelectedNodes(dataTable_vNetworks); },
+        callback: vnShow,
+        elements: vnElements,
         error: onError,
         notify: true
     },
@@ -192,10 +190,8 @@ var vnet_actions = {
     "Network.unpublish" : {
         type: "multiple",
         call: OpenNebula.Network.unpublish,
-        callback:  function (req) {
-            Sunstone.runAction("Network.show",req.request.data[0]);
-        },
-        elements: function() { return getSelectedNodes(dataTable_vNetworks); },
+        callback: vnShow,
+        elements: vnElements,
         error: onError,
         notify: true
     },
@@ -204,7 +200,7 @@ var vnet_actions = {
         type: "multiple",
         call: OpenNebula.Network.delete,
         callback: deleteVNetworkElement,
-        elements: function() { return getSelectedNodes(dataTable_vNetworks); },
+        elements: vnElements,
         error: onError,
         notify: true
     },
@@ -212,10 +208,8 @@ var vnet_actions = {
     "Network.chown" : {
         type: "multiple",
         call: OpenNebula.Network.chown,
-        callback:  function (req) {
-            Sunstone.runAction("Network.show",req.request.data[0]);
-        },
-        elements: function() { return getSelectedNodes(dataTable_vNetworks); },
+        callback: vnShow,
+        elements: vnElements,
         error:onError,
         notify: true
     },
@@ -223,10 +217,8 @@ var vnet_actions = {
     "Network.chgrp" : {
         type: "multiple",
         call: OpenNebula.Network.chgrp,
-        callback:  function (req) {
-            Sunstone.runAction("Network.show",req.request.data[0]);
-        },
-        elements: function() { return getSelectedNodes(dataTable_vNetworks); },
+        callback: vnShow,
+        elements: vnElements,
         error:onError,
         notify: true
     }
@@ -237,48 +229,43 @@ var vnet_buttons = {
     "Network.refresh" : {
         type: "image",
         text: "Refresh list",
-        img: "images/Refresh-icon.png",
-        condition: True
+        img: "images/Refresh-icon.png"
     },
 
     "Network.create_dialog" : {
         type: "create_dialog",
-        text: "+ New",
-        condition: True
+        text: "+ New"
     },
 
     "Network.publish" : {
         type: "action",
-        text: "Publish",
-        condition: True
+        text: "Publish"
     },
 
     "Network.unpublish" : {
         type: "action",
-        text: "Unpublish",
-        condition: True
+        text: "Unpublish"
     },
 
     "Network.chown" : {
         type: "confirm_with_select",
         text: "Change owner",
-        select: function() {return users_select;},
+        select: users_sel,
         tip: "Select the new owner:",
-        condition: function() { return gid == 0; }
+        condition: mustBeAdmin
     },
 
     "Network.chgrp" : {
         type: "confirm_with_select",
         text: "Change group",
-        select: function() {return groups_select;},
+        select: groups_sel,
         tip: "Select the new group:",
-        condition: function() { return gid == 0; }
+        condition: mustBeAdmin,
     },
 
     "Network.delete" : {
         type: "action",
-        text: "Delete",
-        condition: True
+        text: "Delete"
     }
 }
 
@@ -296,13 +283,21 @@ var vnet_info_panel = {
 var vnets_tab = {
     title: "Virtual Networks",
     content: vnets_tab_content,
-    buttons: vnet_buttons,
-    condition: True
+    buttons: vnet_buttons
 }
 
 Sunstone.addActions(vnet_actions);
 Sunstone.addMainTab('vnets_tab',vnets_tab);
 Sunstone.addInfoPanel('vnet_info_panel',vnet_info_panel);
+
+
+function vnElements(){
+    return getSelectedNodes(dataTable_vNetworks);
+}
+
+function vnShow(req){
+    Sunstone.runAction("Network.show",req.request.data[0]);
+}
 
 //returns an array with the VNET information fetched from the JSON object
 function vNetworkElementArray(vn_json){
@@ -331,7 +326,7 @@ function vNetworkElementArray(vn_json){
 //Adds a listener to show the extended info when clicking on a row
 function vNetworkInfoListener(){
 
-    $('#tbodyvnetworks tr').live("click", function(e){
+    $('#tbodyvnetworks tr',dataTable_vNetworks).live("click", function(e){
         if ($(e.target).is('input')) {return true;}
         popDialogLoading();
         var aData = dataTable_vNetworks.fnGetData(this);
@@ -344,11 +339,16 @@ function vNetworkInfoListener(){
 //updates the vnet select different options
 function updateNetworkSelect(){
     vnetworks_select=
-        makeSelectOptions(dataTable_vNetworks,1,4,7,"no",2);
+        makeSelectOptions(dataTable_vNetworks,
+                          1,
+                          4,
+                          [],
+                          []
+                         );
 
     //update static selectors:
     //in the VM creation dialog
-    $('div.vm_section#networks select#NETWORK_ID').html(vnetworks_select);
+    $('div.vm_section#networks select#NETWORK_ID',$create_template_dialog).html(vnetworks_select);
 }
 
 //Callback to update a vnet element after an action on it
@@ -374,7 +374,6 @@ function addVNetworkElement(request,vn_json){
 
 //updates the list of virtual networks
 function updateVNetworksView(request, network_list){
-    network_list_json = network_list;
     var network_list_array = [];
 
     $.each(network_list,function(){
@@ -384,7 +383,7 @@ function updateVNetworksView(request, network_list){
     updateView(network_list_array,dataTable_vNetworks);
     updateNetworkSelect();
     //dependency with dashboard
-    updateDashboard("vnets",network_list_json);
+    updateDashboard("vnets",network_list);
 
 }
 
@@ -449,11 +448,13 @@ function updateVNetworkInfo(request,vn){
 
 //Prepares the vnet creation dialog
 function setupCreateVNetDialog() {
-    $('div#dialogs').append('<div title="Create Virtual Network" id="create_vn_dialog"></div>');
-    $('#create_vn_dialog').html(create_vn_tmpl);
+    dialogs_context.append('<div title="Create Virtual Network" id="create_vn_dialog"></div>');
+    $create_vn_dialog = $('#create_vn_dialog',dialogs_context)
+    var dialog = $create_vn_dialog;
+    dialog.html(create_vn_tmpl);
 
     //Prepare the jquery-ui dialog. Set style options here.
-    $('#create_vn_dialog').dialog({
+    dialog.dialog({
         autoOpen: false,
         modal: true,
         width: 475,
@@ -461,22 +462,22 @@ function setupCreateVNetDialog() {
     });
 
     //Make the tabs look nice for the creation mode
-    $('#vn_tabs').tabs();
-    $('div#ranged').hide();
-    $('#fixed_check').click(function(){
-        $('div#fixed').show();
-        $('div#ranged').hide();
+    $('#vn_tabs',dialog).tabs();
+    $('div#ranged',dialog).hide();
+    $('#fixed_check',dialog).click(function(){
+        $('div#fixed',$create_vn_dialog).show();
+        $('div#ranged',$create_vn_dialog).hide();
     });
-    $('#ranged_check').click(function(){
-        $('div#fixed').hide();
-        $('div#ranged').show();
+    $('#ranged_check',dialog).click(function(){
+        $('div#fixed',$create_vn_dialog).hide();
+        $('div#ranged',$create_vn_dialog).show();
     });
-    $('#create_vn_dialog button').button();
+    $('button',dialog).button();
 
 
     //When we hit the add lease button...
-    $('#add_lease').click(function(){
-        var create_form = $('#create_vn_form_easy'); //this is our scope
+    $('#add_lease',dialog).click(function(){
+        var create_form = $('#create_vn_form_easy',$create_vn_dialog); //this is our scope
 
         //Fetch the interesting values
         var lease_ip = $('#leaseip',create_form).val();
@@ -500,17 +501,17 @@ function setupCreateVNetDialog() {
         };
 
         //We append the HTML into the select box.
-        $('select#leases').append(lease);
+        $('select#leases',$create_vn_dialog).append(lease);
         return false;
     });
 
-    $('#remove_lease').click(function(){
-        $('select#leases :selected').remove();
+    $('#remove_lease', dialog).click(function(){
+        $('select#leases :selected',$create_vn_dialog).remove();
         return false;
     });
 
     //Handle submission of the easy mode
-    $('#create_vn_form_easy').submit(function(){
+    $('#create_vn_form_easy',dialog).submit(function(){
         //Fetch values
         var name = $('#name',this).val();
         if (!name.length){
@@ -563,27 +564,28 @@ function setupCreateVNetDialog() {
         //Create the VNetwork.
 
         Sunstone.runAction("Network.create",network_json);
-        $('#create_vn_dialog').dialog('close');
+        $create_vn_dialog.dialog('close');
         return false;
     });
 
-    $('#create_vn_form_manual').submit(function(){
+    $('#create_vn_form_manual',dialog).submit(function(){
         var template=$('#template',this).val();
         var vnet_json = {vnet: {vnet_raw: template}};
         Sunstone.runAction("Network.create",vnet_json);
-        $('#create_vn_dialog').dialog('close');
+        $create_vn_dialog.dialog('close');
         return false;
     });
 }
 
 function popUpCreateVnetDialog() {
-    $('#create_vn_dialog').dialog('open');
+    $create_vn_dialog.dialog('open');
 }
 
 function setVNetAutorefresh() {
     setInterval(function(){
         var checked = $('input:checked',dataTable_vNetworks.fnGetNodes());
-        var filter = $("#datatable_vnetworks_filter input").attr("value");
+        var filter = $("#datatable_vnetworks_filter input",
+                       dataTable_vNetworks.parents("#datatable_vnetworks_wrapper")).attr("value");
         if (!checked.length && !filter.length){
             Sunstone.runAction("Network.autorefresh");
         }
@@ -594,7 +596,7 @@ function setVNetAutorefresh() {
 //has been executed at this point.
 $(document).ready(function(){
 
-    dataTable_vNetworks = $("#datatable_vnetworks").dataTable({
+    dataTable_vNetworks = $("#datatable_vnetworks",main_tabs_context).dataTable({
         "bJQueryUI": true,
         "bSortClasses": false,
         "bAutoWidth":false,

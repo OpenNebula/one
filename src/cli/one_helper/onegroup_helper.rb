@@ -100,15 +100,16 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
         puts
 
         CLIHelper.print_header(str_h1 % "USERS", false)
-        CLIHelper.print_header("%-15s %-20s" % ["ID","NAME"])
+        CLIHelper.print_header("%-15s" % ["ID"])
         group.user_ids.each do |uid|
-            puts "%-15s %-20s" % [uid, self.uid_to_str(uid.to_s)]
+            puts "%-15s" % [uid]
         end
     end
 
-    def format_pool(pool, options, top=false)
-        config_file=self.class.table_conf
-        table=CLIHelper::ShowTable.new(config_file, self) do
+    def format_pool(options)
+        config_file = self.class.table_conf
+
+        table = CLIHelper::ShowTable.new(config_file, self) do
             column :ID, "ONE identifier for the Group", :size=>4 do |d|
                 d["ID"]
             end
@@ -120,10 +121,6 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
             default :ID, :NAME
         end
 
-        if top
-            table.top(pool, options)
-        else
-            table.show(pool, options)
-        end
+        table
     end
 end

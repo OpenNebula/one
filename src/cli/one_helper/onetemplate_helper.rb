@@ -17,6 +17,22 @@
 require 'one_helper'
 
 class OneTemplateHelper < OpenNebulaHelper::OneHelper
+    VM_NAME={
+        :name  => "vm_name",
+        :short => "-n vm_name",
+        :large => "--name vm_name",
+        :format => String,
+        :description => "Name of the new Virtual Machine"
+    }
+
+    MULTIPLE={
+        :name  => "multiple",
+        :short => "-m x",
+        :large => "--multiple x",
+        :format => Integer,
+        :description => "Instance multiple VMs"
+    }
+
     def self.rname
         "VMTEMPLATE"
     end
@@ -60,9 +76,10 @@ class OneTemplateHelper < OpenNebulaHelper::OneHelper
         puts template.template_str
     end
 
-    def format_pool(pool, options, top=false)
-        config_file=self.class.table_conf
-        table=CLIHelper::ShowTable.new(config_file, self) do
+    def format_pool(options)
+        config_file = self.class.table_conf
+
+        table = CLIHelper::ShowTable.new(config_file, self) do
             column :ID, "ONE identifier for the Template", :size=>4 do |d|
                 d["ID"]
             end
@@ -93,10 +110,6 @@ class OneTemplateHelper < OpenNebulaHelper::OneHelper
             default :ID, :USER, :GROUP, :NAME, :REGTIME, :PUBLIC
         end
 
-        if top
-            table.top(pool, options)
-        else
-            table.show(pool, options)
-        end
+        table
     end
 end

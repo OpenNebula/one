@@ -186,7 +186,6 @@ var agg_actions = {
             waitingNodes(dataTable_agg_hosts);
             Sunstone.runAction("ZoneHosts.list");
         },
-        callback: Empty,
         error: onError,
         notify: false
     },
@@ -207,7 +206,6 @@ var agg_actions = {
             waitingNodes(dataTable_agg_vms);
             Sunstone.runAction("ZoneVMs.list");
         },
-        callback: Empty,
         error: onError,
         notify: false
     },
@@ -228,7 +226,6 @@ var agg_actions = {
             waitingNodes(dataTable_agg_vns);
             Sunstone.runAction("ZoneVNs.list");
         },
-        callback: Empty,
         error: onError,
         notify: false
     },
@@ -249,7 +246,6 @@ var agg_actions = {
             waitingNodes(dataTable_agg_images);
             Sunstone.runAction("ZoneImages.list");
         },
-        callback: Empty,
         error: onError,
         notify: false
     },
@@ -270,7 +266,6 @@ var agg_actions = {
             waitingNodes(dataTable_agg_users);
             Sunstone.runAction("ZoneUsers.list");
         },
-        callback: Empty,
         error: onError,
         notify: false
     },
@@ -291,7 +286,6 @@ var agg_actions = {
             waitingNodes(dataTable_agg_templates);
             Sunstone.runAction("ZoneTemplates.list");
         },
-        callback: Empty,
         error: onError,
         notify: false
     },

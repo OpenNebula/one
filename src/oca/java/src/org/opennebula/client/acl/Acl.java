@@ -78,6 +78,7 @@ public class Acl extends PoolElement{
         tmpRights.put("INFO_POOL_MINE", 0x40L);
         tmpRights.put("INSTANTIATE"   , 0x80L);
         tmpRights.put("CHOWN"         , 0x100L);
+        tmpRights.put("DEPLOY"        , 0x200L);
 
         RIGHTS = Collections.unmodifiableMap(tmpRights);
     }

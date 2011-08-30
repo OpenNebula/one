@@ -285,7 +285,8 @@ public:
         INFO_POOL     = 0x20LL, /**< Auth. to view any object in the pool     */
         INFO_POOL_MINE= 0x40LL, /**< Auth. to view user and/or group objects  */
         INSTANTIATE   = 0x80LL, /**< Auth. to instantiate a VM from a TEMPLATE*/
-        CHOWN         = 0x100LL /**< Auth. to change ownership of an object   */
+        CHOWN         = 0x100LL,/**< Auth. to change ownership of an object   */
+        DEPLOY        = 0x200LL /**< Auth. to deploy a VM in a Host           */
     };
 
     static string Operation_to_str(Operation op)
@@ -301,6 +302,7 @@ public:
             case INFO_POOL_MINE:    return "INFO_POOL_MINE";
             case INSTANTIATE:       return "INSTANTIATE";
             case CHOWN:             return "CHOWN";
+            case DEPLOY:            return "DEPLOY";
             default:                return "";
         }
     };

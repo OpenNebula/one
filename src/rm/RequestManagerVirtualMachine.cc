@@ -243,7 +243,7 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
             break;
         case -2:
              failure_response(ACTION,
-                     request_error("Worng state to perform action",""),
+                     request_error("Wrong state to perform action",""),
                      att);
              break;
         case -3:
@@ -296,7 +296,7 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     if ( vm->get_state() != VirtualMachine::PENDING )
     {
         failure_response(ACTION, 
-                request_error("Worng state to perform action",""),
+                request_error("Wrong state to perform action",""),
                 att);
 
         vm->unlock();
@@ -355,7 +355,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
        (vm->hasPreviousHistory() && vm->get_previous_reason() == History::NONE))
     {
         failure_response(ACTION, 
-                request_error("Worng state to perform action",""),
+                request_error("Wrong state to perform action",""),
                 att);
 
         vm->unlock();

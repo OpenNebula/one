@@ -92,21 +92,17 @@ EOT
             if options[:xml]
                 return 0, pool.to_xml(true)
             else
-                phash = pool.to_hash
-                rname = self.class.rname
+                table = format_pool(options)
 
-                if phash["#{rname}_POOL"] &&
-                        phash["#{rname}_POOL"]["#{rname}"]
-                    if phash["#{rname}_POOL"]["#{rname}"].instance_of?(Array)
-                        phash = phash["#{rname}_POOL"]["#{rname}"]
-                    else
-                        phash = [phash["#{rname}_POOL"]["#{rname}"]]
-                    end
+                if top
+                    table.top(options) {
+                        pool.info
+                        pool_to_array(pool)
+                    }
                 else
-                    phash = Array.new
+                    table.show(pool_to_array(pool), options)
                 end
 
-                format_pool(phash, options, top)
                 return 0
             end
         end
@@ -155,14 +151,6 @@ EOT
         ########################################################################
         # Id translation
         ########################################################################
-        def uid_to_str(uid, options={})
-            rid_to_str(:users, uid, options)
-        end
-
-        def gid_to_str(gid, options={})
-            rid_to_str(:groups, gid, options)
-        end
-
         def user_name(resource, options={})
             if options[:numeric]
                 resource['UID']
@@ -178,17 +166,20 @@ EOT
                 resource['GNAME']
             end
         end
+
         ########################################################################
         # Formatters for arguments
         ########################################################################
         def to_id(name)
             return 0, name if name.match(/^[0123456789]+$/)
 
-            user_flag = -2
-            pool = factory_pool(user_flag)
+            rc = get_pool
+            return rc if rc.first != 0
+
+            pool     = rc[1]
             poolname = self.class.rname
 
-            self.class.id_to_name(name, pool, poolname)
+            OneHelper.name_to_id(name, pool, poolname)
         end
 
         def self.to_id_desc
@@ -196,18 +187,25 @@ EOT
         end
 
         def list_to_id(names)
-            user_flag = -2
-            pool = factory_pool(user_flag)
+            rc = get_pool
+            return rc if rc.first != 0
 
-            rc = pool.info
-            return -1, rc.message if OpenNebula.is_error?(rc)
+            pool     = rc[1]
+            poolname = self.class.rname
 
             result = names.split(',').collect { |name|
-                rc = to_id(name)
-                unless rc.first==0
-                    return rc
+                if name.match(/^[0123456789]+$/)
+                    name
+                else
+                    rc = OneHelper.name_to_id(name, pool, poolname)
+
+                    if rc.first==-1
+                        return -1, "OpenNebula #{poolname} #{name} " <<
+                                   "not found, use the ID instead"
+                    end
+
+                    rc[1]
                 end
-                rc[1]
             }
 
             return 0, result
@@ -217,20 +215,36 @@ EOT
             "Comma-separated list of OpenNebula #{self.rname} names or ids"
         end
 
+        def self.name_to_id(name, pool, ename)
+            objects=pool.select {|object| object.name==name }
+
+            if objects.length>0
+                if objects.length>1
+                    return -1, "There are multiple #{ename}s with name #{name}."
+                else
+                    result = objects.first.id
+                end
+            else
+                return -1, "#{ename} named #{name} not found."
+            end
+
+            return 0, result
+        end
+
         def filterflag_to_i(str)
             filter_flag = case str
-            when "a", "all" then OpenNebula::Pool::INFO_ALL
-            when "m", "mine" then OpenNebula::Pool::INFO_MINE
+            when "a", "all"   then OpenNebula::Pool::INFO_ALL
+            when "m", "mine"  then OpenNebula::Pool::INFO_MINE
             when "g", "group" then OpenNebula::Pool::INFO_GROUP
             else
                 if str.match(/^[0123456789]+$/)
                     str.to_i
                 else
-                    user = translation_hash[:users].select { |k,v| v==str }
-                    if user.length > 0
-                        user.first.first.to_i
+                    rc = OpenNebulaHelper.rname_to_id(str, "USER")
+                    if rc.first==-1
+                        return rc
                     else
-                        OpenNebula::Pool::INFO_GROUP
+                        rc[1]
                     end
                 end
             end
@@ -259,26 +273,6 @@ EOT
             end
         end
 
-        def self.id_to_name(name, pool, ename)
-            rc = pool.info
-            return -1, rc.message if OpenNebula.is_error?(rc)
-
-            objects=pool.select {|object| object.name==name }
-
-            if objects.length>0
-                if objects.length>1
-                    return -1,
-                        "There are multiple #{ename}s with name #{name}."
-                else
-                    result = objects.first.id
-                end
-            else
-                return -1, "#{ename} named #{name} not found."
-            end
-
-            return 0, result
-        end
-
         private
 
         def retrieve_resource(id)
@@ -288,50 +282,65 @@ EOT
             OpenNebula.is_error?(rc) ? rc : resource
         end
 
-        def translation_hash
-            @translation_hash ||= {
-                :users => generate_resource_translation(UserPool),
-                :groups => generate_resource_translation(GroupPool)
-            }
-        end
+        def pool_to_array(pool)
+            phash = pool.to_hash
+            rname = self.class.rname
 
-        def generate_resource_translation(pool)
-            p = pool.new(@client)
-            p.info
-
-            hash = Hash.new
-            p.each { |r| hash[r["ID"]]=r["NAME"] }
-            hash
-        end
-
-        def rid_to_str(resource, id, options)
-            if options[:numeric]
-                id
-            else
-                if name = translation_hash[resource][id]
-                    name
+            if phash["#{rname}_POOL"] &&
+                    phash["#{rname}_POOL"]["#{rname}"]
+                if phash["#{rname}_POOL"]["#{rname}"].instance_of?(Array)
+                    phash = phash["#{rname}_POOL"]["#{rname}"]
                 else
-                    id
+                    phash = [phash["#{rname}_POOL"]["#{rname}"]]
+                end
+            else
+                phash = Array.new
+            end
+
+            phash
+        end
+
+        def get_pool
+            user_flag = OpenNebula::Pool::INFO_ALL
+            pool = factory_pool(user_flag)
+
+            rc = pool.info
+            if OpenNebula.is_error?(rc)
+                user_flag = OpenNebula::Pool::INFO_GROUP
+                pool = factory_pool(user_flag)
+
+                rc = pool.info
+                if OpenNebula.is_error?(rc)
+                    return -1, "OpenNebula #{self.class.rname} name not " <<
+                               "found, use the ID instead"
                 end
             end
+
+            return 0, pool
         end
     end
 
-    def OpenNebulaHelper.name_to_id(name, poolname, user_flag=-2)
+    def OpenNebulaHelper.rname_to_id(name, poolname)
         return 0, name.to_i if name.match(/^[0123456789]+$/)
 
         client = OpenNebula::Client.new
-        # TBD user_flag
+
         pool = case poolname
-        when "HOST"  then  OpenNebula::HostPool.new(client)
+        when "HOST"  then OpenNebula::HostPool.new(client)
         when "GROUP" then OpenNebula::GroupPool.new(client)
         when "USER"  then OpenNebula::UserPool.new(client)
         end
 
-        OneHelper.id_to_name(name, pool, poolname)
+        rc = pool.info
+        if OpenNebula.is_error?(rc)
+            return -1, "OpenNebula #{poolname} name not found," <<
+                       " use the ID instead"
+        end
+
+        OneHelper.name_to_id(name, pool, poolname)
     end
 
-    def OpenNebulaHelper.name_to_id_desc(poolname)
+    def OpenNebulaHelper.rname_to_id_desc(poolname)
         "OpenNebula #{poolname} name or id"
     end
 

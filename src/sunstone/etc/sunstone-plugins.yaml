@@ -40,3 +40,8 @@
     :user:
     :group:
         oneadmin: true
+- plugins/acls-tab.js:
+    :ALL: false
+    :user:
+    :group:
+        oneadmin: true

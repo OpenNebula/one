@@ -69,7 +69,7 @@ private
 
     # TODO check that @content[:resources_str]  is valid
     def self.right_mask(str)
-        mask = "---------"
+        mask = "----------"
 
         str.split("+").each{|type|
             case type
@@ -91,16 +91,18 @@ private
                     mask[7] = "T"
                 when "CHOWN"
                     mask[8] = "W"
+                when "DEPLOY"
+                    mask[9] = "Y"
             end
         }
 
         mask
     end
 
-    def format_pool(pool, options, top=false)
-        config_file=self.class.table_conf
+    def format_pool(options)
+        config_file = self.class.table_conf
 
-        table=CLIHelper::ShowTable.new(config_file, self) do
+        table = CLIHelper::ShowTable.new(config_file, self) do
             column :ID, "Rule Identifier",
                           :size=>5 do |d|
                 d['ID']
@@ -111,24 +113,24 @@ private
                 d['STRING'].split(" ")[0]
             end
 
-            column :RES_VHNIUTG, "Resource to which the rule applies" do |d|
+            column :RES_VHNIUTG, "Resource to which the rule applies",
+                            :size => 11 do |d|
                OneAclHelper::resource_mask d['STRING'].split(" ")[1]
             end
 
-            column :RID, "Resource ID", :right, :size=>8 do |d|
+            column :RID, "Resource ID", :right, :size=>5 do |d|
                 d['STRING'].split(" ")[1].split("/")[1]
             end
 
-            column :OPE_CDUMIPpTW,
-                    "Operation to which the rule applies" do |d|
+            column :OPE_CDUMIPpTWY,
+                    "Operation to which the rule applies", :size =>14 do |d|
                 OneAclHelper::right_mask d['STRING'].split(" ")[2]
             end
 
-            default :ID, :USER, :RES_VHNIUTG, :RID, :OPE_CDUMIPpTW
+            default :ID, :USER, :RES_VHNIUTG, :RID, :OPE_CDUMIPpTWY
         end
 
-        table.show(pool, options)
-
+        table
     end
 
 end

@@ -14,6 +14,7 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
+/** HISTORY_LENGTH currently ignored on server, but it doesn't harm to have it**/
 var HISTORY_LENGTH=40;
 var GRAPH_AUTOREFRESH_INTERVAL=60000; //60 secs
 
@@ -25,13 +26,13 @@ var graph1 = {
 
 var graph2 = {
     title : "graph2",
-    monitor_resources : "cpu",
+    monitor_resources : "cpu_usage",
     history_length : HISTORY_LENGTH
 };
 
 var graph3 = {
     title : "graph3",
-    monitor_resources : "memory",
+    monitor_resources : "mem_usage",
     history_length : HISTORY_LENGTH
 };
 
@@ -123,27 +124,29 @@ var dashboard_tab_content =
 
 var dashboard_tab = {
     title: 'Dashboard',
-    content: dashboard_tab_content,
-    condition : True
+    content: dashboard_tab_content
 }
 
 Sunstone.addMainTab('dashboard_tab',dashboard_tab);
 
 function plot_global_graph(data,info){
+    var context = $('#historical_table',main_tabs_context);
     var id = info.title;
     var monitoring = data.monitoring;
     var serie;
     var series = [];
     var width = ($(window).width()-129)*48/100;
     var mon_count = 0;
+    var labels_array = info.monitor_resources.split(',');
 
-    $('#'+id).html('<div id="'+id+'_graph" style="height:70px;width:'+width+'px;margin-bottom:10px;"><div>');
+    $('#'+id,context).html('<div id="'+id+'_graph" style="height:70px;width:'+width+'px;margin-bottom:10px;"><div>');
 
-    for (var label in monitoring) {
+    for (var i=0; i<labels_array.length; i++) {
         serie = {
-            label: label,
-            data: monitoring[label]
+            label: labels_array[i],
+            data: monitoring[labels_array[i]]
         };
+
         series.push(serie);
         mon_count++;
     };
@@ -170,12 +173,12 @@ function plot_global_graph(data,info){
         }
     }
 
-    $.plot($('#'+id+'_graph'),series,options);
+    $.plot($('#'+id+'_graph',context),series,options);
 }
 
 function quickstart_setup(){
 
-    $('#quickstart_form input').click(function(){
+    $('#dashboard_table #quickstart_form input',main_tabs_context).click(function(){
         Sunstone.runAction($(this).val());
     });
 }
@@ -196,7 +199,7 @@ function refresh_graphs(){
 
 $(document).ready(function(){
     //Dashboard link listener
-    $("#dashboard_table h3 a").live("click", function (){
+    $("#dashboard_table h3 a",main_tabs_context).live("click", function (){
         var tab = $(this).attr('href');
         showTab(tab);
         return false;
@@ -213,12 +216,12 @@ $(document).ready(function(){
 
 //puts the dashboard values into "retrieving"
 function emptyDashboard(){
-    $("#dashboard_tab .value_td span").html(spinner);
+    $("#dashboard_tab .value_td span",main_tabs_context).html(spinner);
 }
 
 
 function updateDashboard(what,json_info){
-    var db = $('#dashboard_tab');
+    var db = $('#dashboard_tab',main_tabs_context);
     switch (what){
     case "hosts":
         var total_hosts=json_info.length;
@@ -285,6 +288,10 @@ function updateDashboard(what,json_info){
         });
         $('#total_templates',db).html(total_templates+'&nbsp;/&nbsp;');
         $('#public_templates',db).html(public_templates);
+        break;
+    case "acls":
+        var total_acls=json_info.length;
+        $('#total_acls',db).html(total_acls);
         break;
     }
 }

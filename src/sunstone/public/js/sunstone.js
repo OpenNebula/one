@@ -17,7 +17,13 @@
 var cookie = {};
 var username = '';
 var uid = '';
+var gid = '';
 var spinner = '<img src="images/ajax-loader.gif" alt="retrieving" class="loading_img" />';
+
+var main_tabs_context;
+var dialogs_context;
+var plots_context;
+var info_panels_context;
 
 
 //Sunstone configuration is formed by predifined "actions", main tabs
@@ -67,7 +73,7 @@ var Sunstone = {
     "updateMainTabContent" : function(tab_id,content_arg,refresh){
         SunstoneCfg["tabs"][tab_id]["content"]=content_arg;
         if (refresh){ //if not present it won't be updated
-            $('div#'+tab_id).html(content_arg);
+            $('div#'+tab_id, main_tabs_context).html(content_arg);
         }
     },
 
@@ -75,7 +81,7 @@ var Sunstone = {
     "updateMainTabButtons" : function(tab_id,buttons_arg,refresh){
         SunstoneCfg["tabs"][tab_id]["buttons"]=buttons_arg;
         if (refresh){
-            $('div#'+tab_id+' .action_blocks').empty();
+            $('div#'+tab_id+' .action_blocks', main_tabs_context).empty();
             insertButtonsInTab(tab_id);
         }
     },
@@ -84,7 +90,7 @@ var Sunstone = {
     "removeMainTab" : function(tab_id,refresh) {
          delete SunstoneCfg["tabs"][tab_id];
          if (refresh) {
-             $('div#'+tab_id).remove();
+             $('div#'+tab_id, main_tabs_context).remove();
               $('ul#navigation li#li_'+tab_id).remove();
          }
     },
@@ -138,7 +144,7 @@ var Sunstone = {
         SunstoneCfg["info_panels"][panel_name][panel_tab_id] = panel_tab_obj;
         if (refresh){
             var tab_content = panel_tab_obj.content;
-            $('div#'+panel_name+' div#'+panel_tab_id).html(tab_content);
+            $('div#'+panel_name+' div#'+panel_tab_id,info_panel_context).html(tab_content);
         }
     },
 
@@ -278,6 +284,13 @@ var Sunstone = {
 //Plugins have done their pre-ready jobs when we execute this. That means
 //all startup configuration is in place regarding tabs, info panels etc.
 $(document).ready(function(){
+
+    //Contexts - make everything more efficient
+    main_tabs_context = $('div.inner-center');
+    dialogs_context = $('div#dialogs');
+    plots_context = $('div#plots');
+    info_panels_context = $('div#info_panels');
+
     readCookie();
     setLogin();
 
@@ -299,7 +312,6 @@ $(document).ready(function(){
     //An action buttons runs a predefined action. If it has type
     //"multiple" it runs that action on the elements of a datatable.
     $('.action_button').live("click",function(){
-
         var error = 0;
         var table = null;
         var value = $(this).attr("value");
@@ -329,14 +341,14 @@ $(document).ready(function(){
 
     //Listen .confirm_buttons. These buttons show a confirmation dialog
     //before running the action.
-    $('.confirm_button').live("click",function(){
+    $('.confirm_button',main_tabs_context).live("click",function(){
         popUpConfirmDialog(this);
         return false;
     });
 
     //Listen .confirm_buttons. These buttons show a confirmation dialog
     //with a select box before running the action.
-    $('.confirm_with_select_button').live("click",function(){
+    $('.confirm_with_select_button',main_tabs_context).live("click",function(){
         popUpConfirmWithSelectDialog(this);
         return false;
     });
@@ -351,7 +363,7 @@ $(document).ready(function(){
 
     //Close select lists when clicking somewhere else.
     $('*:not(.action_list,.list_button)').click(function(){
-       $('.action_list:visible').hide();
+        $('.action_blocks .action_list:visible',main_tabs_context).hide();
     });
 
     //Start with the dashboard (supposing we have one).
@@ -380,8 +392,8 @@ function setLogin(){
     uid = cookie["one-user_id"];
     gid = cookie["one-user_gid"];
 
-    $("#user").html(username);
-    $("#logout").click(function(){
+    $("div#header span#user").html(username);
+    $("div#header a#logout").click(function(){
         //todo, this is ugly
         var f_logout = typeof(OpenNebula)!="undefined"?
             OpenNebula.Auth.logout : oZones.Auth.logout;
@@ -420,10 +432,12 @@ function insertTab(tab_name){
 
     //skip this tab if we do not meet the condition
     if (condition && !condition()) {return;}
-    $("div.inner-center").append('<div id="'+tab_name+'" class="tab"></div>');
-    $('div#'+tab_name).html(tab_info.content);
 
-    $('ul#navigation').append('<li id="li_'+tab_name+'" class="'+tabClass+' '+parent+'"><a href="#'+tab_name+'">'+tab_info.title+'</a></li>');
+    main_tabs_context.append('<div id="'+tab_name+'" class="tab"></div>');
+
+    $('div#'+tab_name,main_tabs_context).html(tab_info.content);
+
+    $('div#menu ul#navigation').append('<li id="li_'+tab_name+'" class="'+tabClass+' '+parent+'"><a href="#'+tab_name+'">'+tab_info.title+'</a></li>');
 }
 
 function hideSubTabs(){
@@ -431,7 +445,7 @@ function hideSubTabs(){
         var tab_info = SunstoneCfg["tabs"][tab];
         var tabClass = tab_info["tabClass"];
         if (tabClass=="subTab"){
-            $('#li_'+tab).hide();
+            $('div#menu ul#navigation #li_'+tab).hide();
         };
     };
 }
@@ -440,7 +454,7 @@ function hideSubTabs(){
 
 //Inserts the buttons of all tabs.
 function insertButtons(){
-     for (tab in SunstoneCfg["tabs"]){
+    for (tab in SunstoneCfg["tabs"]){
         insertButtonsInTab(tab)
     }
 }
@@ -455,7 +469,9 @@ function insertButtonsInTab(tab_name){
 
     //Check if we have included an appropiate space our tab to
     //insert them (an .action_blocks div)
-    if ($('div#'+tab_name+' div.action_blocks').length){
+    var action_block = $('div#'+tab_name+' div.action_blocks',main_tabs_context)
+
+    if (action_block.length){
 
         //for every button defined for this tab...
         for (button_name in buttons){
@@ -501,10 +517,10 @@ function insertButtonsInTab(tab_name){
                 button_code = $(button_code).addClass("alwaysActive");
             }
 
-            $('div#'+tab_name+' .action_blocks').append(button_code);
+            action_block.append(button_code);
 
         }//for each button in tab
-        $('.top_button').button();
+        $('.top_button',action_block).button();
     }//if tab exists
 }
 
@@ -514,7 +530,7 @@ function insertButtonsInTab(tab_name){
 function initListButtons(){
 
     //for each multi_action select
-    $('.multi_action_slct').each(function(){
+    $('.multi_action_slct',main_tabs_context).each(function(){
         //prepare replacement buttons
         var buttonset = $('<div style="display:inline-block;" class="top_button"></div');
         var button1 = $('<button class="last_action_button action_button confirm_button confirm_with_select_button" value="">Previous action</button>').button();
@@ -551,7 +567,7 @@ function initListButtons(){
     //below the listeners for events on these buttons and list
 
     //enable run the last action button
-    $('.action_list li a').click(function(){
+    $('.action_list li a',main_tabs_context).click(function(){
         //enable run last action button
         var prev_action_button = $('.last_action_button',$(this).parents('.action_blocks'));
         prev_action_button.val($(this).val());
@@ -565,28 +581,26 @@ function initListButtons(){
         //return false;
     });
 
-        //Show the list of actions in place
-        $('.list_button').click(function(){
-            $('.action_list',$(this).parents('.action_blocks')).css({
-                "left": $(this).prev().position().left,
-                "top": $(this).prev().position().top+13,
-                "width": $(this).parent().outerWidth()-11
-            });
-            $('.action_list',$(this).parents('.action_blocks')).toggle("blind",100);
-            return false;
+    //Show the list of actions in place
+    $('.list_button',main_tabs_context).click(function(){
+        $('.action_list',$(this).parents('.action_blocks')).css({
+            "left": $(this).prev().position().left,
+            "top": $(this).prev().position().top+13,
+            "width": $(this).parent().outerWidth()-11
         });
+        //100ms animation time
+        $('.action_list',$(this).parents('.action_blocks')).toggle("blind",100);
+        return false;
+    });
 }
 
 //Prepares the standard confirm dialogs
 function setupConfirmDialogs(){
-
-    //add div to the main body if it isn't present.
-    if (!($('div#confirm_dialog').length)){
-        $('div#dialogs').append('<div id="confirm_dialog" title="Confirmation of action"></div>');
-    };
+    dialogs_context.append('<div id="confirm_dialog" title="Confirmation of action"></div>');
+    var dialog = $('div#confirm_dialog',dialogs_context);
 
     //add the HTML with the standard question and buttons.
-    $('div#confirm_dialog').html(
+        dialog.html(
         '<form action="javascript:alert(\'js error!\');">\
            <div id="confirm_tip">You have to confirm this action.</div>\
            <br />\
@@ -599,7 +613,7 @@ function setupConfirmDialogs(){
         </form>');
 
     //prepare the jquery dialog
-    $('div#confirm_dialog').dialog({
+    dialog.dialog({
         resizable:false,
         modal:true,
         width:300,
@@ -608,14 +622,12 @@ function setupConfirmDialogs(){
     });
 
     //enhace the button look
-    $('div#confirm_dialog button').button();
+    $('button',dialog).button();
 
-    //same for the confirm with select dialog.
-    if (!($('div#confirm_with_select_dialog').length)){
-        $('div#dialogs').append('<div id="confirm_with_select_dialog" title="Confirmation of action"></div>');
-    };
+    dialogs_context.append('<div id="confirm_with_select_dialog" title="Confirmation of action"></div>');
+    dialog = $('div#confirm_with_select_dialog',dialogs_context);
 
-    $('div#confirm_with_select_dialog').html(
+    dialog.html(
         '<form action="javascript:alert(\'js error!\');">\
            <div id="confirm_with_select_tip">You need to select something.</div>\
            <select style="margin: 10px 0;" id="confirm_select">\
@@ -627,7 +639,7 @@ function setupConfirmDialogs(){
          </form>');
 
     //prepare the jquery dialog
-    $('div#confirm_with_select_dialog').dialog({
+    dialog.dialog({
         resizable:false,
         modal:true,
         width:300,
@@ -635,23 +647,23 @@ function setupConfirmDialogs(){
         autoOpen:false
     });
 
-    $('div#confirm_with_select_dialog button').button();
+    $('button',dialog).button();
 
     //if a cancel button is pressed, we close the dialog.
-    $('button.confirm_cancel').click(function(){
-        $('div#confirm_with_select_dialog').dialog("close");
-        $('div#confirm_dialog').dialog("close");
+    $('button.confirm_cancel',dialog).click(function(){
+        $(this).parents('div:ui-dialog').dialog("close");
         return false;
     });
 
     //when we proceed with a "confirm with select" we need to
     //find out if we are running an action with a parametre on a datatable
     //items or if its just an action
-    $('button#confirm_with_select_proceed').click(function(){
+    $('button#confirm_with_select_proceed',dialog).click(function(){
+        var context = $(this).parents('div:ui-dialog');
         var error = 0;
         var value = $(this).val();
         var action = SunstoneCfg["actions"][value];
-        var param = $('select#confirm_select').val();
+        var param = $('select#confirm_select',context).val();
         if (!action) { notifyError("Action "+value+" not defined."); return false;};
         switch (action.type){
         case "multiple": //find the datatable
@@ -664,7 +676,7 @@ function setupConfirmDialogs(){
         }
 
         if (!error){
-            $('div#confirm_with_select_dialog').dialog("close");
+            context.dialog("close");
         }
 
         return false;
@@ -677,27 +689,29 @@ function setupConfirmDialogs(){
 //configuration. We do this by discovering the name of the parent tab
 //and with the value of the clicked element.
 function popUpConfirmDialog(target_elem){
+    var dialog = $('div#confirm_dialog');
     var value = $(target_elem).val();
     var tab_id = $(target_elem).parents('.tab').attr('id');
     var button = Sunstone.getButton(tab_id,value);
     var tip = button.tip;
-    $('button#confirm_proceed').val(value);
-    $('div#confirm_tip').text(tip);
-    $('div#confirm_dialog').dialog("open");
+    $('button#confirm_proceed',dialog).val(value);
+    $('div#confirm_tip',dialog).text(tip);
+    dialog.dialog("open");
 }
 
 //Same as previous. This time we need as well to access the updated
 //select list, which is done through the pointer of found in the
 //config of the button (a function returning the select options).
 function popUpConfirmWithSelectDialog(target_elem){
+    var dialog = $('div#confirm_with_select_dialog');
     var value = $(target_elem).val();
     var tab_id = $(target_elem).parents('.tab').attr('id');
     var button = Sunstone.getButton(tab_id,value);
     var tip = button.tip;
     var select_var = button.select();
-    $('select#confirm_select').html(select_var);
-    $('div#confirm_with_select_tip').text(tip);
+    $('select#confirm_select',dialog).html(select_var);
+    $('div#confirm_with_select_tip',dialog).text(tip);
 
-    $('button#confirm_with_select_proceed').val(value);
-    $('div#confirm_with_select_dialog').dialog("open");
+    $('button#confirm_with_select_proceed',dialog).val(value);
+    dialog.dialog("open");
 }

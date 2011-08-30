@@ -20,6 +20,9 @@ include OpenNebulaJSON
 require 'acct/watch_client'
 
 class SunstoneServer
+    # FLAG that will filter the elements retrieved from the Pools
+    POOL_FILTER = Pool::INFO_GROUP
+
     def initialize(username, password)
         # TBD one_client_user(name) from CloudServer
         @client = Client.new("dummy:dummy")
@@ -57,24 +60,27 @@ class SunstoneServer
     #
     ############################################################################
     def get_pool(kind,gid)
+        if gid == "0"
+            user_flag = Pool::INFO_ALL
+        else
+            user_flag = POOL_FILTER
+        end
+
         pool = case kind
             when "group"    then GroupPoolJSON.new(@client)
             when "host"     then HostPoolJSON.new(@client)
-            when "image"    then ImagePoolJSON.new(@client)
-            when "template" then TemplatePoolJSON.new(@client)
-            when "vm"       then VirtualMachinePoolJSON.new(@client)
-            when "vnet"     then VirtualNetworkPoolJSON.new(@client)
+            when "image"    then ImagePoolJSON.new(@client, user_flag)
+            when "template" then TemplatePoolJSON.new(@client, user_flag)
+            when "vm"       then VirtualMachinePoolJSON.new(@client, user_flag)
+            when "vnet"     then VirtualNetworkPoolJSON.new(@client, user_flag)
             when "user"     then UserPoolJSON.new(@client)
+            when "acl"      then AclPoolJSON.new(@client)
             else
                 error = Error.new("Error: #{kind} resource not supported")
                 return [404, error.to_json]
         end
 
-        rc = case kind
-             when "group","host","user" then pool.info
-             else
-                 gid != "0" ? pool.info_group : pool.info_all
-             end
+        rc = pool.info
 
         if OpenNebula.is_error?(rc)
             return [500, rc.to_json]
@@ -120,6 +126,7 @@ class SunstoneServer
             when "vm"       then VirtualMachineJSON.new(VirtualMachine.build_xml,@client)
             when "vnet"     then VirtualNetworkJSON.new(VirtualNetwork.build_xml, @client)
             when "user"     then UserJSON.new(User.build_xml, @client)
+            when "acl"      then AclJSON.new(Acl.build_xml, @client)
             else
                 error = Error.new("Error: #{kind} resource not supported")
                 return [404, error.to_json]
@@ -244,15 +251,14 @@ class SunstoneServer
         end
 
         # The VM host and its VNC port
-        host = resource['HISTORY/HOSTNAME']
+        host = resource['/VM/HISTORY_RECORDS/HISTORY[last()]/HOSTNAME']
         vnc_port = resource['TEMPLATE/GRAPHICS/PORT']
         # The noVNC proxy_port
         proxy_port = config[:vnc_proxy_base_port].to_i + vnc_port.to_i
 
         begin
-            novnc_cmd = "#{config[:novnc_path]}/utils/launch.sh"
-            pipe = IO.popen("#{novnc_cmd} --listen #{proxy_port} \
-                                          --vnc #{host}:#{vnc_port}")
+            novnc_cmd = "#{config[:novnc_path]}/utils/wsproxy.py"
+            pipe = IO.popen("#{novnc_cmd} #{proxy_port} #{host}:#{vnc_port}")
         rescue Exception => e
             error = Error.new(e.message)
             return [500, error.to_json]
@@ -288,27 +294,25 @@ class SunstoneServer
     #
     ############################################################################
 
-    def get_monitoring(id, resource, monitor_resources)
-        watch_client = OneWatchClient::WatchClient.new
-        columns = monitor_resources.split(',')
-
-        rc = case resource
+    def get_monitoring(id, resource, monitor_resources, gid)
+        watch_client = case resource
             when "vm","VM"
-                if id
-                    watch_client.vm_monitoring(id, columns)
-                else
-                    watch_client.vm_total(columns)
-                end
+                OneWatchClient::VmWatchClient.new
             when "host","HOST"
-                if id
-                    watch_client.host_monitoring(id, columns)
-                else
-                    watch_client.host_total(columns)
-                end
+                OneWatchClient::HostWatchClient.new
             else
-                 error = Error.new("Monitoring not supported for this resource: #{resource}")
+                error = Error.new("Monitoring not supported for this resource: #{resource}")
                 return [200, error.to_json]
             end
+
+        columns = monitor_resources.split(',')
+        columns.map!{|e| e.to_sym}
+
+        if id
+            rc = watch_client.resource_monitoring(id.to_i, columns)
+        else
+            rc = watch_client.total_monitoring(columns)
+        end
 
         if rc.nil?
             error = Error.new("There is no monitoring information for #{resource} #{id}")
@@ -339,6 +343,7 @@ class SunstoneServer
             when "vm"       then VirtualMachineJSON.new_with_id(id, @client)
             when "vnet"     then VirtualNetworkJSON.new_with_id(id, @client)
             when "user"     then UserJSON.new_with_id(id, @client)
+            when "acl"      then AclJSON.new_with_id(id, @client)
             else
                 error = Error.new("Error: #{kind} resource not supported")
                 return error

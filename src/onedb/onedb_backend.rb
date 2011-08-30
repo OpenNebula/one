@@ -37,18 +37,16 @@ class OneDBBacKEnd
     rescue
         # If the DB doesn't have db_version table, it means it is empty or a 2.x
         if !db_exists?
-            puts "Database schema does not look to be created by OpenNebula:"
-            puts "table user_pool is missing or empty."
-            raise
+            raise "Database schema does not look to be created by " <<
+                  "OpenNebula: table user_pool is missing or empty."
         end
 
         begin
             # Table image_pool is present only in 2.X DBs
             @db.fetch("SELECT * FROM image_pool") { |row| }
         rescue
-            puts "Database schema looks to be created by OpenNebula 1.X."
-            puts "This tool only works with databases created by 2.X versions."
-            raise
+            raise "Database schema looks to be created by OpenNebula 1.X." <<
+                  "This tool only works with databases created by 2.X versions."
         end
 
         comment = "Could not read any previous db_versioning data, " <<
@@ -73,8 +71,7 @@ class OneDBBacKEnd
                 puts ""
             end
         rescue Exception => e
-            puts "No version records found. Error message:"
-            puts e.message
+            raise "No version records found. Error message: " + e.message
         end
     end
 
@@ -115,13 +112,13 @@ class OneDBBacKEnd
     end
 end
 
-class OneDBBackEndMySQL < OneDBBacKEnd
+class BackEndMySQL < OneDBBacKEnd
     def initialize(opts={})
-        @server  = ops[:server]
-        @port    = ops[:port]
-        @user    = ops[:user]
-        @passwd  = ops[:passwd]
-        @db_name = ops[:db_name]
+        @server  = opts[:server]
+        @port    = opts[:port]
+        @user    = opts[:user]
+        @passwd  = opts[:passwd]
+        @db_name = opts[:db_name]
 
         # Check for errors:
         error   = false
@@ -130,8 +127,7 @@ class OneDBBackEndMySQL < OneDBBacKEnd
         (error = true; missing = "DBNAME")  if @db_name == nil
 
         if error
-            puts "MySQL option #{missing} is needed"
-            exit -1
+            raise "MySQL option #{missing} is needed"
         end
 
         # Check for defaults:
@@ -156,8 +152,7 @@ class OneDBBackEndMySQL < OneDBBacKEnd
 
         rc = system(cmd)
         if !rc
-            puts "Unknown error running '#{cmd}'"
-            raise
+            raise "Unknown error running '#{cmd}'"
         end
 
         puts "MySQL dump stored in #{bck_file}"
@@ -169,9 +164,8 @@ class OneDBBackEndMySQL < OneDBBacKEnd
         connect_db
 
         if !force && db_exists?
-            puts "MySQL database #{@db_name} at #{@server} exists," <<
-                 " use -f to overwrite."
-            raise
+            raise "MySQL database #{@db_name} at #{@server} exists," <<
+                  " use -f to overwrite."
         end
 
         mysql_cmd = "mysql -u #{@user} -p#{@passwd} -h #{@server} -P #{@port} "
@@ -179,22 +173,19 @@ class OneDBBackEndMySQL < OneDBBacKEnd
         drop_cmd = mysql_cmd + "-e 'DROP DATABASE IF EXISTS #{@db_name};'"
         rc = system(drop_cmd)
         if !rc
-            puts "Error dropping MySQL DB #{@db_name} at #{@server}."
-            raise
+            raise "Error dropping MySQL DB #{@db_name} at #{@server}."
         end
 
         create_cmd = mysql_cmd+"-e 'CREATE DATABASE IF NOT EXISTS #{@db_name};'"
         rc = system(create_cnd)
         if !rc
-            puts "Error creating MySQL DB #{@db_name} at #{@server}."
-            raise
+            raise "Error creating MySQL DB #{@db_name} at #{@server}."
         end
 
         restore_cmd = mysql_cmd + "#{@db_name} < #{bck_file}"
         rc = system(restore_cmd)
         if !rc
-            puts "Error while restoring MySQL DB #{@db_name} at #{@server}."
-            raise
+            raise "Error while restoring MySQL DB #{@db_name} at #{@server}."
         end
 
         puts "MySQL DB #{@db_name} at #{@server} restored."
@@ -204,13 +195,24 @@ class OneDBBackEndMySQL < OneDBBacKEnd
 
     def connect_db
         endpoint = "mysql://#{@user}:#{@passwd}@#{@server}:#{@port}/#{@db_name}"
-        @db = Sequel.connect(endpoint)
+
+        begin
+            @db = Sequel.connect(endpoint)
+        rescue Exception => e
+            raise "Error connecting to DB: " + e.message
+        end
     end
 end
 
 class BackEndSQLite < OneDBBacKEnd
+    require 'fileutils'
+
     def initialize(file)
         @sqlite_file = file
+
+        if !File.exists?(@sqlite_file)
+            raise "File #{@sqlite_file} doesn't exist"
+        end
     end
 
     def bck_file
@@ -218,20 +220,14 @@ class BackEndSQLite < OneDBBacKEnd
     end
 
     def backup(bck_file)
-        if !File.exists?(@sqlite_file)
-            puts "File #{@sqlite_file} doesn't exist, backup aborted."
-            raise
-        end
-
         FileUtils.cp(@sqlite_file, "#{bck_file}")
         puts "Sqlite database backup stored in #{bck_file}"
         puts "Use 'onedb restore' or copy the file back to restore the DB."
     end
 
     def restore(bck_file, force=nil)
-        if !force && File.exists?(@sqlite_file)
-            puts "File #{@sqlite_file} exists, use -f to overwrite."
-            raise
+        if !force
+            raise "File #{@sqlite_file} exists, use -f to overwrite."
         end
 
         FileUtils.cp(bck_file, @sqlite_file)
@@ -241,11 +237,10 @@ class BackEndSQLite < OneDBBacKEnd
     private
 
     def connect_db
-        if !File.exists?(@sqlite_file)
-            puts "File #{@sqlite_file} doesn't exist."
-            raise
+        begin
+            @db = Sequel.sqlite(@sqlite_file)
+        rescue Exception => e
+            raise "Error connecting to DB: " + e.message
         end
-
-        @db = Sequel.sqlite(@sqlite_file)
     end
 end

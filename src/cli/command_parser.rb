@@ -353,7 +353,11 @@ EOT
                         }.join(' ')
 
                         puts "Wrong number of arguments"
-                        puts "The arguments should be: #{args_str}"
+                        if args_str.empty?
+                            puts "No argument is required"
+                        else
+                            puts "The arguments should be: #{args_str}"
+                        end
                         exit -1
                     end
 
@@ -361,7 +365,15 @@ EOT
                     argument = nil
                     error_msg = nil
                     format.each { |f|
-                        format_hash = @formats[f] ? @formats[f] : @formats[:text]
+                        if @formats[f]
+                            format_hash = @formats[f]
+                        elsif f.nil?
+                            argument = nil
+                            break
+                        else
+                            format_hash = @formats[:text]
+                        end
+
                         rc = format_hash[:proc].call(arg)
                         if rc[0]==0
                             argument=rc[1]
@@ -392,7 +404,7 @@ EOT
         end
 
         def format_file(arg)
-            File.exists?(arg) ? [0,arg] : [-1]
+            File.file?(arg) ? [0,arg] : [-1]
         end
 
         REG_RANGE=/^(?:(?:\d+\.\.\d+|\d+),)*(?:\d+\.\.\d+|\d+)$/

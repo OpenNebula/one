@@ -15,9 +15,9 @@
 /* -------------------------------------------------------------------------- */
 
 /*Users tab plugin*/
-var user_list_json = {};
 var dataTable_users;
 var users_select="";
+var $create_user_dialog;
 
 var users_tab_content =
 '<form id="user_form" action="" action="javascript:alert(\'js error!\');">\
@@ -92,9 +92,7 @@ var user_actions = {
                 success: updateUsersView,
                 error: onError
             });
-        },
-        condition: True,
-        notify: false
+        }
     },
 
     "User.chgrp" : {
@@ -103,7 +101,7 @@ var user_actions = {
         callback : function(req){
             Sunstone.runAction("User.show",req.request.data[0]);
         },
-        elements : function() {return getSelectedNodes(dataTable_users);},
+        elements : userElements,
         error: onError,
         notify: true
     },
@@ -141,7 +139,7 @@ var user_actions = {
         type: "multiple",
         call: OpenNebula.User.delete,
         callback: deleteUserElement,
-        elements: function() { return getSelectedNodes(dataTable_users); },
+        elements: userElements,
         error: onError,
         notify: true
     },
@@ -151,20 +149,17 @@ var user_buttons = {
     "User.refresh" : {
         type: "image",
         text: "Refresh list",
-        img: "images/Refresh-icon.png",
-        condition: True
+        img: "images/Refresh-icon.png"
     },
     "User.create_dialog" : {
         type: "create_dialog",
-        text: "+ New",
-        condition: True
+        text: "+ New"
     },
     "User.chgrp" : {
         type: "confirm_with_select",
         text: "Change group",
-        select: function(){ return groups_select; },
-        tip: "This will change the main group of the selected users. Select the new group:",
-        condition: True
+        select: groups_sel,
+        tip: "This will change the main group of the selected users. Select the new group:"
     },
     // "User.addgroup" : {
     //     type: "confirm_with_select",
@@ -182,20 +177,22 @@ var user_buttons = {
     // },
     "User.delete" : {
         type: "action",
-        text: "Delete",
-        condition: True
+        text: "Delete"
     }
 }
 
 var users_tab = {
     title: "Users",
     content: users_tab_content,
-    buttons: user_buttons,
-    condition: True
+    buttons: user_buttons
 }
 
 Sunstone.addActions(user_actions);
 Sunstone.addMainTab('users_tab',users_tab);
+
+function userElements(){
+    return getSelectedNodes(dataTable_users);
+}
 
 // Returns an array with the values from the user_json ready to be
 // added to the dataTable
@@ -212,7 +209,12 @@ function userElementArray(user_json){
 
 
 function updateUserSelect(){
-    users_select = makeSelectOptions(dataTable_users,1,2,-1,"",-1);
+    users_select = makeSelectOptions(dataTable_users,
+                                     1,//id_col
+                                     2,//name_col
+                                     [],//status_cols
+                                     []//bad status values
+                                     );
 }
 
 // Callback to refresh a single element from the dataTable
@@ -237,32 +239,33 @@ function addUserElement(request,user_json){
 
 // Callback to update the list of users
 function updateUsersView(request,users_list){
-    user_list_json = users_list;
     var user_list_array = [];
 
-    $.each(user_list_json,function(){
+    $.each(users_list,function(){
         user_list_array.push(userElementArray(this));
     });
     updateView(user_list_array,dataTable_users);
-    updateDashboard("users",user_list_json);
+    updateDashboard("users",users_list);
     updateUserSelect();
 }
 
 // Prepare the user creation dialog
 function setupCreateUserDialog(){
-    $('div#dialogs').append('<div title="Create user" id="create_user_dialog"></div>');
-    $('#create_user_dialog').html(create_user_tmpl);
+    dialogs_context.append('<div title="Create user" id="create_user_dialog"></div>');
+    $create_user_dialog = $('#create_user_dialog',dialogs_context);
+    var dialog = $create_user_dialog;
+    dialog.html(create_user_tmpl);
 
     //Prepare jquery dialog
-    $('#create_user_dialog').dialog({
+    dialog.dialog({
         autoOpen: false,
         modal:true,
         width: 400
     });
 
-    $('#create_user_dialog button').button();
+    $('button',dialog).button();
 
-    $('#create_user_form').submit(function(){
+    $('#create_user_form',dialog).submit(function(){
         var user_name=$('#username',this).val();
         var user_password=$('#pass',this).val();
         if (!user_name.length || !user_password.length){
@@ -275,20 +278,21 @@ function setupCreateUserDialog(){
                             "password" : user_password }
                         };
         Sunstone.runAction("User.create",user_json);
-        $('#create_user_dialog').dialog('close');
+        $create_user_dialog.dialog('close');
         return false;
     });
 }
 
 function popUpCreateUserDialog(){
-    $('#create_user_dialog').dialog('open');
+    $create_user_dialog.dialog('open');
 }
 
 // Prepare the autorefresh of the list
 function setUserAutorefresh(){
     setInterval(function(){
         var checked = $('input:checked',dataTable_users.fnGetNodes());
-        var filter = $("#datatable_users_filter input").attr("value");
+        var filter = $("#datatable_users_filter input",
+                       dataTable_users.parents("#datatable_users_wrapper")).attr("value");
         if (!checked.length && !filter.length){
             Sunstone.runAction("User.autorefresh");
         }
@@ -297,7 +301,7 @@ function setUserAutorefresh(){
 
 $(document).ready(function(){
     //if we are not oneadmin, our tab will not even be in the DOM.
-    dataTable_users = $("#datatable_users").dataTable({
+    dataTable_users = $("#datatable_users",main_tabs_context).dataTable({
         "bJQueryUI": true,
         "bSortClasses": false,
         "sPaginationType": "full_numbers",
@@ -320,6 +324,6 @@ $(document).ready(function(){
 
     initCheckAllBoxes(dataTable_users);
     tableCheckboxesListener(dataTable_users);
-    shortenedInfoFields('#datatable_users');
+    //shortenedInfoFields('#datatable_users');
 
 })

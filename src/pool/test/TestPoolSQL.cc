@@ -27,123 +27,85 @@
 #include "TestPoolSQL.h"
 
 /* ************************************************************************** */
-/* Database Access Functions                                          */
+/* Database Access Functions                                                  */
 /* ************************************************************************** */
 
 const char * TestObjectSQL::table = "test_pool";
 
-const char * TestObjectSQL::db_names = "(oid,number,name)";
+const char * TestObjectSQL::db_names = "oid,name,body,uid,number";
 
 const char * TestObjectSQL::db_bootstrap = "CREATE TABLE test_pool ("
-        "oid INTEGER, number INTEGER, name TEXT, PRIMARY KEY(oid))";
-
-/* -------------------------------------------------------------------------- */
-
-int TestObjectSQL::unmarshall(void * nil, int num, char **values, char **names)
-{
-    if ((!values[OID]) ||
-        (!values[NUMBER]) ||
-        (!values[TEXT]) ||
-        (num != LIMIT ))
-    {
-        return -1;
-    }
-
-    oid      = atoi(values[OID]);
-    number   = atoi(values[NUMBER]);
-    text     = values[TEXT];
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-
-int TestObjectSQL::select(SqlDB *db)
-{
-    ostringstream   oss;
-    int             rc;
-    int             boid;
-
-    set_callback(
-        static_cast<Callbackable::Callback>(&TestObjectSQL::unmarshall),0);
-    oss << "SELECT * FROM " << table << " WHERE oid = " << oid;
-
-    boid = oid;
-    oid  = -1;
-
-    rc = db->exec(oss, this);
-
-    unset_callback();
-
-    if ((rc != 0) || (oid != boid ))
-    {
-        return -1;
-    }
-
-    return 0;
-}
+    "oid INTEGER PRIMARY KEY, name VARCHAR(256), body TEXT, uid INTEGER, "
+    "number INTEGER)";
 
 /* -------------------------------------------------------------------------- */
 
 int TestObjectSQL::insert(SqlDB *db, string& str)
 {
-    ostringstream   oss;
-
-    int    rc;
-    char * sql_text;
-
-    sql_text   = db->escape_str(text.c_str());
-
-    oss << "INSERT INTO " << table << " "<< db_names <<" VALUES ("
-        << oid << ","
-        << number << ","
-        << "'" << sql_text << "')";
-
-    rc = db->exec(oss);
-
-    db->free_str(sql_text);
-
-    return rc;
+    return insert_replace(db, false);
 }
 
 /* -------------------------------------------------------------------------- */
 
 int TestObjectSQL::update(SqlDB *db)
 {
-    ostringstream   oss;
-
-    int    rc;
-    char * sql_text;
-
-    sql_text   = db->escape_str(text.c_str());
-
-    oss << "REPLACE INTO " << table << " "<< db_names <<" VALUES ("
-        << oid << ","
-        << number << ","
-        << "'" << sql_text << "')";
-
-    rc = db->exec(oss);
-
-    db->free_str(sql_text);
-
-    return rc;
+    return insert_replace(db, true);
 }
 
 /* -------------------------------------------------------------------------- */
 
-int TestObjectSQL::drop(SqlDB * db)
+int TestObjectSQL::insert_replace(SqlDB *db, bool replace)
 {
-    ostringstream oss;
-    int rc;
+    ostringstream   oss;
 
-    oss << "DELETE FROM " << table << " WHERE oid=" << oid;
+    int    rc;
+    string xml_body;
+
+    char * sql_name;
+    char * sql_xml;
+
+    // Update the User
+
+    sql_name = db->escape_str(name.c_str());
+
+    if ( sql_name == 0 )
+    {
+        goto error_name;
+    }
+
+    sql_xml = db->escape_str(to_xml(xml_body).c_str());
+
+    if ( sql_xml == 0 )
+    {
+        goto error_body;
+    }
+
+    // Construct the SQL statement to Insert or Replace
+    if(replace)
+    {
+        oss << "REPLACE";
+    }
+    else
+    {
+        oss << "INSERT";
+    }
+
+    oss << " INTO " << table << " ("<< db_names <<") VALUES ("
+        <<          oid             << ","
+        << "'" <<   sql_name        << "',"
+        << "'" <<   sql_xml         << "',"
+        <<          uid             << ","
+        <<          number          << ")";
 
     rc = db->exec(oss);
 
-    if ( rc == 0 )
-    {
-        set_valid(false);
-    }
+    db->free_str(sql_name);
+    db->free_str(sql_xml);
 
     return rc;
+
+error_body:
+    db->free_str(sql_name);
+error_name:
+    return -1;
 }

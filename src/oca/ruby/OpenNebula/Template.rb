@@ -60,7 +60,7 @@ module OpenNebula
         # ---------------------------------------------------------------------
         # XML-RPC Methods for the Template Object
         # ---------------------------------------------------------------------
-        
+
         # Retrieves the information of the given Template.
         def info()
             super(TEMPLATE_METHODS[:info], 'VMTEMPLATE')
@@ -85,6 +85,7 @@ module OpenNebula
         def instantiate(name="")
             return Error.new('ID not defined') if !@pe_id
 
+            name ||= ""
             rc = @client.call(TEMPLATE_METHODS[:instantiate], @pe_id, name)
 
             return rc

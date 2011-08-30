@@ -82,98 +82,94 @@ function humanize_size(value) {
 }
 
 //Wrapper to add an element to a dataTable
-function addElement(element,data_table){
-    data_table.fnAddData(element);
+function addElement(element,dataTable){
+    dataTable.fnAddData(element);
 }
 
 //deletes an element with id 'tag' from a dataTable
-function deleteElement(data_table,tag){
-    var tr = $(tag).parents('tr')[0];
-    data_table.fnDeleteRow(tr);
-    $('input',data_table).trigger("change");
+function deleteElement(dataTable,tag){
+    var tr = $(tag,dataTable).parents('tr')[0];
+    dataTable.fnDeleteRow(tr);
+    recountCheckboxes(dataTable);
 }
 
-//Listens to the checkboxes of the datatable. This function is used
-//by standard sunstone plugins to enable/disable certain action buttons
-//according to the number of elements checked in the dataTables.
-//It also checks the "check-all" box when all elements are checked
-function tableCheckboxesListener(dataTable){
-
-    //Initialization - disable all buttons
-    var context = dataTable.parents('form');
+//Handle the activation of action buttons and the check_all box
+//when elements in a datatable are modified.
+function recountCheckboxes(dataTable){
+    var table = $('tbody',dataTable);
+    var context = table.parents('form');
+    var nodes = $('tr',table); //visible nodes
+    var total_length = nodes.length;
+    var checked_length = $('input:checked',nodes).length;
     var last_action_b = $('.last_action_button',context);
-    $('.top_button, .list_button',context).button("disable");
-    if (last_action_b.length && last_action_b.val().length){
+
+    if (checked_length) { //at least 1 element checked
+        //enable action buttons
+        $('.top_button, .list_button',context).button("enable");
+        //check if the last_action_button should be enabled
+        if (last_action_b.length && last_action_b.val().length){
+            last_action_b.button("enable");
+        };
+        //enable checkall box
+        if (total_length == checked_length){
+            $('.check_all',dataTable).attr("checked","checked");
+        };
+    } else { //no elements cheked
+        //disable action buttons, uncheck checkAll
+        $('.check_all',dataTable).removeAttr("checked");
+        $('.top_button, .list_button',context).button("disable");
         last_action_b.button("disable");
     };
+
+    //any case the create dialog buttons should always be enabled.
+    $('.create_dialog_button',context).button("enable");
+    $('.alwaysActive',context).button("enable");
+}
+
+//Init action buttons and checkboxes listeners
+function tableCheckboxesListener(dataTable){
+    //Initialization - disable all buttons
+    var context = dataTable.parents('form');
+
+    $('.last_action_button',context).button("disable");
+    $('.top_button, .list_button',context).button("disable");
+    //These are always enabled
     $('.create_dialog_button',context).button("enable");
     $('.alwaysActive',context).button("enable");
 
     //listen to changes in the visible inputs
     $('tbody input',dataTable).live("change",function(){
-        var table = $(this).parents('tbody');
-        var context = table.parents('form');
-        var nodes = $('tr',table);
-        var total_length = nodes.length;
-        var checked_length = $('input:checked',nodes).length;
-
-        var last_action_b = $('.last_action_button',context);
-
-
-        //if all elements are checked we check the check-all box
-        if (total_length == checked_length && total_length != 0){
-            $('.check_all',dataTable).attr("checked","checked");
-        } else {
-            $('.check_all',dataTable).removeAttr("checked");
-        }
-
-        //if some element is checked, we enable buttons, otherwise
-        //we disable them.
-        if (checked_length){
-            $('.top_button, .list_button',context).button("enable");
-            //check if the last_action_button should be enabled
-            if (last_action_b.length && last_action_b.val().length){
-                last_action_b.button("enable");
-            };
-        } else {
-            $('.top_button, .list_button',context).button("disable");
-            last_action_b.button("disable");
-        }
-
-        //any case the create dialog buttons should always be enabled.
-        $('.create_dialog_button',context).button("enable");
-        $('.alwaysActive',context).button("enable");
+        var datatable = $(this).parents('table');
+        recountCheckboxes(dataTable);
     });
-
 }
 
 // Updates a data_table, with a 2D array containing the new values
 // Does a partial redraw, so the filter and pagination are kept
-function updateView(item_list,data_table){
-    if (data_table!=null) {
-        data_table.fnClearTable();
-        data_table.fnAddData(item_list);
-        data_table.fnDraw(false);
+function updateView(item_list,dataTable){
+    if (dataTable) {
+        dataTable.fnClearTable();
+        dataTable.fnAddData(item_list);
+        dataTable.fnDraw(false);
     };
 }
 
 //replaces an element with id 'tag' in a dataTable with a new one
-function updateSingleElement(element,data_table,tag){
-    var nodes = data_table.fnGetNodes();
+function updateSingleElement(element,dataTable,tag){
+    var nodes = dataTable.fnGetNodes();
     var tr = $(tag,nodes).parents('tr')[0];
-    var position = data_table.fnGetPosition(tr);
-    data_table.fnUpdate(element,position,0,false);
-    $('input',data_table).trigger("change");
-
+    var position = dataTable.fnGetPosition(tr);
+    dataTable.fnUpdate(element,position,0,false);
+    recountCheckboxes(dataTable);
 }
 
 // Returns an string in the form key=value key=value ...
 // Does not explore objects in depth.
 function stringJSON(json){
-    var str = ""
+    var str = "";
     for (field in json) {
         str+= field + '=' + json[field] + ' ';
-    }
+    };
     return str;
 }
 
@@ -187,9 +183,10 @@ function notifySubmit(action, args, extra_param){
         msg += action_text;
     } else {
         msg += action_text + ": " + args;
-    }
-    if (extra_param != null)
+    };
+    if (extra_param) {
         msg += " >> " + extra_param;
+    };
 
     $.jGrowl(msg, {theme: "jGrowl-notify-submit"});
 }
@@ -197,19 +194,19 @@ function notifySubmit(action, args, extra_param){
 //Notification on error
 function notifyError(msg){
     msg = "<h1>Error</h1>" + msg;
-
     $.jGrowl(msg, {theme: "jGrowl-notify-error", sticky: true });
 }
 
+//Standard notification
 function notifyMessage(msg){
     msg = "<h1>Info</h1>" + msg;
-
     $.jGrowl(msg, {theme: "jGrowl-notify-submit"});
 }
 
-// Returns an HTML string with the json keys and values in the form
-// key: value<br />
-// It recursively explores objects
+// Returns an HTML string with the json keys and values
+// Attempts to css format output, giving different values to
+// margins etc. according to depth level etc.
+// See exapmle of use in plugins.
 function prettyPrintJSON(template_json,padding,weight, border_bottom,padding_top_bottom){
     var str = ""
     if (!template_json){ return "Not defined";}
@@ -287,26 +284,18 @@ function prettyPrintRowJSON(field,value,padding,weight, border_bottom,padding_to
 //Add a listener to the check-all box of a datatable, enabling it to
 //check and uncheck all the checkboxes of its elements.
 function initCheckAllBoxes(datatable){
-    //not showing nice in that position
-    //$('.check_all').button({ icons: {primary : "ui-icon-check" },
-    //							text : true});
 
     //small css hack
     $('.check_all',datatable).css({"border":"2px"});
-    $('.check_all',datatable).click(function(){
-        if ($(this).attr("checked")) {
-            $('tbody input:checkbox',
-              $(this).parents("table")).each(function(){
-                  $(this).attr("checked","checked");
-              });
-
-        } else {
-            $('tbody input:checkbox',
-              $(this).parents("table")).each(function(){
-                  $(this).removeAttr("checked");
-              });
-        }
-        $('tbody input:checkbox',$(this).parents("table")).trigger("change");
+    $('.check_all',datatable).change(function(){
+        var table = $(this).parents('table');
+        var checked = $(this).attr("checked");
+        if (checked) { //check all
+            $('tbody input:checkbox',table).attr("checked","checked");
+        } else { //uncheck all
+            $('tbody input:checkbox',table).removeAttr("checked");
+        };
+        recountCheckboxes(table);
     });
 }
 
@@ -321,44 +310,51 @@ function onError(request,error_json) {
     var m;
     var message = error_json.error.message;
 
+    if ( typeof onError.disabled == 'undefined' ) {
+        onError.disabled=false;
+    };
+
     //redirect to login if unauthenticated
     if (error_json.error.http_status=="401") {
         window.location.href = "login";
+        onError.disabled=false;
+        return false;
     };
 
+
     if (!message){
-        notifyError("Cannot contact server: is Sunstone server running and reachable?");
+        if (!onError.disabled){
+            notifyError("Cannot contact server: is it running and reachable?");
+            onError.disabled=true;
+        }
         return false;
-    }
+    };
+
+    if (message.match(/^Network is unreachable .+$/)){
+        if (!onError.disabled){
+            notifyError("Network is unreachable: is OpenNebula running?");
+            onError.disabled=true;
+        };
+        return false;
+    } else {
+        onError.disabled=false;
+    };
+
 
     //Parse known errors:
-    var action_error = /^\[(\w+)\] Error trying to (\w+) (\w+) \[(\w+)\].*Reason: (.*)\.$/;
-    var action_error_noid = /^\[(\w+)\] Error trying to (\w+) (\w+) (.*)\.$/;
-    var get_error = /^\[(\w+)\] Error getting (\w+) \[(\w+)\]\.$/;
-    var auth_error = /^\[(\w+)\] User \[.\] not authorized to perform (\w+) on (\w+) \[?(\w+)\]?\.?$/;
+    var get_error = /^\[(\w+)\] Error getting ([\w ]+) \[(\d+)\]\.$/;
+    var auth_error = /^\[(\w+)\] User \[(\d+)\] not authorized to perform action on ([\w ]+).$/;
 
-    if (m = message.match(action_error)) {
+    if (m = message.match(get_error)) {
         method  = m[1];
-        action  = m[2];
-        object  = m[3];
-        id      = m[4];
-        reason  = m[5];
-    } else if (m = message.match(action_error_noid)) {
-        method  = m[1];
-        action  = m[2];
-        object  = m[3];
-        reason  = m[4];
-    } else if (m = message.match(get_error)) {
-        method  = m[1];
-        action  = "SHOW";
+        action  = "Show";
         object  = m[2];
         id      = m[3];
     } else if (m = message.match(auth_error)) {
         method = m[1];
-        action = m[2];
-        object = m[3];
-        id     = m[4];
-    }
+        object     = m[3];
+        reason = "Unauthorized";
+    };
 
     if (m) {
         var rows;
@@ -373,7 +369,7 @@ function onError(request,error_json) {
                 message += "<tr><td class=\"key_error\">"+key+"</td><td>"+value+"</td></tr>";
         }
         message = "<table>" + message + "</table>";
-    }
+    };
 
     notifyError(message);
     return true;
@@ -385,8 +381,8 @@ function waitingNodes(dataTable){
     var nodes = dataTable.fnGetData();
     for (var i=0;i<nodes.length;i++){
         dataTable.fnUpdate(spinner,i,0);
-    }
-};
+    };
+}
 
 function getUserName(uid){
     if (typeof(dataTable_users) != "undefined"){
@@ -426,30 +422,32 @@ function setupTips(context){
     //For each tip in this context
     $('div.tip',context).each(function(){
         //store the text
-        var tip = $(this).html();
+        var obj = $(this);
+        var tip = obj.html();
         //replace the text with an icon and spans
-        $(this).html('<span class="ui-icon ui-icon-info info_icon"></span>');
-        $(this).append('<span class="tipspan"></span>');
+        obj.html('<span class="ui-icon ui-icon-info info_icon"></span>');
+        obj.append('<span class="tipspan"></span>');
 
-        $(this).append('<span class="ui-icon ui-icon-alert man_icon" />');
+        obj.append('<span class="ui-icon ui-icon-alert man_icon" />');
 
         //add the text to .tipspan
-        $('span.tipspan',this).html(tip);
+        $('span.tipspan',obj).html(tip);
         //make sure it is not floating in the wrong place
-        $(this).parent().append('<div class="clear"></div>');
+        obj.parent().append('<div class="clear"></div>');
         //hide the text
-        $('span.tipspan',this).hide();
+        $('span.tipspan',obj).hide();
 
         //When the mouse is hovering on the icon we fadein/out
         //the tip text
-        $('span.info_icon',this).hover(function(e){
+        $('span.info_icon',obj).hover(function(e){
+            var icon = $(this);
             var top, left;
             top = e.pageY - 15;// - $(this).parents('#create_vm_dialog').offset().top - 15;
             left = e.pageX + 15;// - $(this).parents('#create_vm_dialog').offset().left;
-            $(this).next().css(
+            icon.next().css(
                 {"top":top+"px",
                  "left":left+"px"});
-            $(this).next().fadeIn();
+            icon.next().fadeIn();
         },function(){
             $(this).next().fadeOut();
         });
@@ -459,41 +457,45 @@ function setupTips(context){
 //returns an array of ids of selected elements in a dataTable
 function getSelectedNodes(dataTable){
     var selected_nodes = [];
-    if (dataTable != null){
+    if (dataTable){
         //Which rows of the datatable are checked?
-        var nodes = $('input:checked',$('tbody',dataTable));
+        var nodes = $('tbody input:checked',dataTable);
         $.each(nodes,function(){
             selected_nodes.push($(this).val());
         });
-    }
+    };
     return selected_nodes;
 }
 
 //returns a HTML string with a select input code generated from
-//a dataTable
+//a dataTable. Allows filtering elements.
 function makeSelectOptions(dataTable,
                            id_col,name_col,
-                           status_col,
-                           status_bad,
-                           user_col){
+                           status_cols,
+                           bad_status_values){
     var nodes = dataTable.fnGetData();
-    var select = "<option value=\"\">Please select</option>";
+    var select = '<option class="empty_value" value="">Please select</option>';
     var array;
-    $.each(nodes,function(){
-        var id = this[id_col];
-        var name = this[name_col];
-        var status;
-        if (status_col >= 0) {
-            status = this[status_col];
-        }
-        var user = user_col > 0 ? this[user_col] : false;
-        var isMine = user ? (username == user) || (uid == user) : true;
-
-
-        if (status_col < 0 || (status != status_bad) || isMine ){
+    for (var j=0; j<nodes.length;j++){
+        var elem = nodes[j];
+        var id = elem[id_col];
+        var name = elem[name_col];
+        var status, bad_status;
+        var ok=true;
+        for (var i=0;i<status_cols.length;i++){
+            status = elem[status_cols[i]];
+            bad_status = bad_status_values[i];
+            //if the column has a bad value, we
+            //will skip this item
+            if (status == bad_status){
+                ok=false;
+                break;
+            };
+        };
+        if (ok){
             select +='<option value="'+id+'">'+name+'</option>';
-        }
-    });
+        };
+    };
     return select;
 }
 
@@ -503,13 +505,18 @@ function escapeDoubleQuotes(string){
     return string.replace(/"/g,'\\"');
 }
 
+//Generate the div elements in which the monitoring graphs
+//will be contained. They have some elements which ids are
+//determined by the graphs configuration, so when the time
+//of plotting comes, we can put the data in the right place.
 function generateMonitoringDivs(graphs, id_prefix){
     var str = "";
-    //40% of the width of the screen minus
+    //42% of the width of the screen minus
     //129px (left menu size)
     var width = ($(window).width()-129)*42/100;
     var id_suffix="";
     var label="";
+    var id="";
 
     $.each(graphs,function(){
         label = this.monitor_resources;
@@ -528,25 +535,35 @@ function generateMonitoringDivs(graphs, id_prefix){
     return str;
 }
 
+//Draws data for plotting. It will find the correct
+//div for doing it in the context with an id
+//formed by a prefix (i.e. "hosts") and a suffix
+//determined by the graph configuration: "info".
 function plot_graph(data,context,id_prefix,info){
     var labels = info.monitor_resources;
     var humanize = info.humanize_figures ?
         humanize_size : function(val){ return val };
     var id_suffix = labels.replace(/,/g,'_');
+    var labels_array = labels.split(',');
     var monitoring = data.monitoring
     var series = [];
     var serie;
     var mon_count = 0;
 
-    for (var label in monitoring) {
+    //make sure series are painted in the order of the
+    //labels array.
+    for (var i=0; i<labels_array.length; i++) {
         serie = {
-            label: label,
-            data: monitoring[label]
+            label: labels_array[i],
+            data: monitoring[labels_array[i]]
         };
         series.push(serie);
         mon_count++;
     };
 
+    //Set options for the plots:
+    // * Where the legend goes
+    // * Axis options: print time and sizes correctly
     var options = {
         legend : { show : true,
                    noColumns: mon_count++,
@@ -562,14 +579,16 @@ function plot_graph(data,context,id_prefix,info){
                       return humanize(val);
                   }
                 }
-    }
+    };
 
     id = id_prefix + id_suffix;
-    $.plot($('#'+id, context),series,options);
+    $.plot($('#'+id, context),series,options); //call to flot lib
 }
 
 //Enables showing full information on this type of fields on
 //mouse hover
+//Really nice for a user with many groups. Unused.
+/*
 function shortenedInfoFields(context){
     $('.shortened_info',context).live("mouseenter",function(e){
         var full_info = $(this).next();
@@ -583,15 +602,17 @@ function shortenedInfoFields(context){
     $('.shortened_info',context).live("mouseleave",function(e){
         $(this).next().fadeOut();
     });
-}
+}*/
 
+//Prepares the dialog used to update the template of an element.
 function setupTemplateUpdateDialog(){
 
     //Append to DOM
-    $('div#dialogs').append('<div id="template_update_dialog" title="Update template"></div>');
+    dialogs_context.append('<div id="template_update_dialog" title="Update template"></div>');
+    var dialog = $('#template_update_dialog',dialogs_context);
 
     //Put HTML in place
-    $('#template_update_dialog').html(
+    dialog.html(
         '<form action="javascript:alert(\'js error!\');">\
                <h3 style="margin-bottom:10px;">Update the template here:</h3>\
                   <fieldset style="border-top:none;">\
@@ -609,7 +630,8 @@ function setupTemplateUpdateDialog(){
                   </fieldset>\
         </form>');
 
-    $('#template_update_dialog').dialog({
+    //Convert into jQuery
+    dialog.dialog({
         autoOpen:false,
         width:700,
         modal:true,
@@ -617,33 +639,40 @@ function setupTemplateUpdateDialog(){
         resizable:false,
     });
 
-    $('#template_update_dialog button').button();
+    $('button',dialog).button();
 
-    $('#template_update_dialog #template_update_select').live("change",function(){
+    $('#template_update_select',dialog).change(function(){
         var id = $(this).val();
+        var dialog = $('#template_update_dialog');
         if (id.length){
-            var resource = $('#template_update_dialog #template_update_button').val();
-            $('#template_update_dialog #template_update_textarea').val("Loading...");
+            var resource = $('#template_update_button',dialog).val();
+            $('#template_update_textarea',dialog).val("Loading...");
             Sunstone.runAction(resource+".fetch_template",id);
         } else {
-            $('#template_update_dialog #template_update_textarea').val("");
-        }
+            $('#template_update_textarea',dialog).val("");
+        };
     });
 
-    $('#template_update_dialog #template_update_button').click(function(){
-        var new_template = $('#template_update_dialog #template_update_textarea').val();
-        var id = $('#template_update_dialog #template_update_select').val();
+    $('#template_update_button',dialog).click(function(){
+        var dialog = $('#template_update_dialog');
+        var new_template = $('#template_update_textarea',dialog).val();
+        var id = $('#template_update_select',dialog).val();
         var resource = $(this).val();
         Sunstone.runAction(resource+".update",id,new_template);
-        $('#template_update_dialog').dialog('close');
+        dialog.dialog('close');
         return false;
     });
 }
 
+//Pops up a dialog to update a template.
+//If 1 element is selected, then this the only one shown.
+//If no elements are selected, then all elements are included in the select box.
+//If several elements are selected, only those are included in the select box.
 function popUpTemplateUpdateDialog(elem_str,select_items,sel_elems){
-    $('#template_update_dialog #template_update_button').val(elem_str);
-    $('#template_update_dialog #template_update_select').html(select_items);
-    $('#template_update_dialog #template_update_textarea').val("");
+    var dialog =  $('#template_update_dialog');
+    $('#template_update_button',dialog).val(elem_str);
+    $('#template_update_select',dialog).html(select_items);
+    $('#template_update_textarea',dialog).val("");
 
     if (sel_elems.length >= 1){ //several items in the list are selected
         //grep them
@@ -653,24 +682,29 @@ function popUpTemplateUpdateDialog(elem_str,select_items,sel_elems){
                 new_select+='<option value="'+$(this).val()+'">'+$(this).text()+'</option>';
             };
         });
-        $('#template_update_dialog #template_update_select').html(new_select);
+        $('#template_update_select',dialog).html(new_select);
         if (sel_elems.length == 1) {
-            $('#template_update_dialog #template_update_select option').attr("selected","selected");
-            $('#template_update_dialog #template_update_select').trigger("change");
+            $('#template_update_select option',dialog).attr("selected","selected");
+            $('#template_update_select',dialog).trigger("change");
         }
     };
 
-    $('#template_update_dialog').dialog('open');
+    dialog.dialog('open');
     return false;
 }
 
-//functions that used as true and false conditions for testing mainly
-function True(){
-    return true;
-}
-function False(){
-    return false;
+function mustBeAdmin(){
+    return gid == 0;
 }
 
-function Empty(){
-};
+function users_sel(){
+    return users_select;
+}
+
+function groups_sel(){
+    return groups_select;
+}
+
+function hosts_sel(){
+    return hosts_select;
+}

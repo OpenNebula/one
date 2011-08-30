@@ -1,3 +1,19 @@
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)             #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
 module WatchHelper
     require 'sequel'
     require 'yaml'
@@ -35,11 +51,11 @@ module WatchHelper
     }
 
     VM_SAMPLE = {
-        :cpu => {
+        :cpu_usage => {
             :type => Integer,
             :path => 'CPU'
         },
-        :memory => {
+        :mem_usage => {
             :type => Integer,
             :path => 'MEMORY'
         },
@@ -200,28 +216,12 @@ module WatchHelper
         unrestrict_primary_key
 
         many_to_one :vm
-
-        def self.active
-            self.filter(:state=>3)
-        end
-
-        def self.error
-            self.filter(:state=>7)
-        end
     end
 
     class HostSample < Sequel::Model
         unrestrict_primary_key
 
         many_to_one :host
-
-        def self.active
-            self.filter('state < 3')
-        end
-
-        def self.error
-            self.filter(:state=>3)
-        end
     end
 
     class Register < Sequel::Model
@@ -274,9 +274,9 @@ module WatchHelper
                 v.name  = vm['NAME']
                 v.uid   = vm['UID'].to_i
                 v.gid   = vm['GID'].to_i
-                v.mem   = vm['MEMORY'].to_i
-                v.cpu   = vm['CPU'].to_i
-                v.vcpu  = vm['VCPU'].to_i
+                v.mem   = vm['TEMPLATE/MEMORY'].to_i
+                v.cpu   = vm['TEMPLATE/CPU'].to_i
+                v.vcpu  = vm['TEMPLATE/VCPU'].to_i
                 v.stime = vm['STIME'].to_i
                 v.etime = vm['ETIME'].to_i
             }

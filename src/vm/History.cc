@@ -308,6 +308,8 @@ int History::rebuild_attributes()
 
     reason = static_cast<MigrationReason>(int_reason);
 
+    non_persistent_data();
+
     if (rc != 0)
     {
         return -1;
