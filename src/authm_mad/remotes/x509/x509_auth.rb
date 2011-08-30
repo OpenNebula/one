@@ -29,7 +29,7 @@ class X509Auth
     if !ENV["ONE_LOCATION"]
         ETC_LOCATION      = "/etc/one"
     else
-        ETC_LOCATION      = ONE_LOCATION + "/etc"
+        ETC_LOCATION      = ENV["ONE_LOCATION"] + "/etc"
     end
 
     LOGIN_PATH = ENV['HOME']+'/.one/one_x509'
