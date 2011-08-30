@@ -89,7 +89,10 @@ public:
     VirtualMachineDeploy():
         RequestManagerVirtualMachine("VirtualMachineDeploy",
                                      "Deploys a virtual machine",
-                                     "A:sii"){};
+                                     "A:sii")
+    {
+         auth_op = AuthRequest::DEPLOY;
+    };
 
     ~VirtualMachineDeploy(){};
 
@@ -106,7 +109,10 @@ public:
     VirtualMachineMigrate():
         RequestManagerVirtualMachine("VirtualMachineDeploy",
                                      "Migrates a virtual machine",
-                                     "A:siib"){};
+                                     "A:siib")
+    {
+         auth_op = AuthRequest::DEPLOY;
+    };
 
     ~VirtualMachineMigrate(){};
 
