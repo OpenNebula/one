@@ -124,14 +124,14 @@ class Quota
     end
 
     def check_quotas(user_id, obj, template)
-        info  = @one_usage.get_info(obj, template)
+        info  = @one_usage.get_resources(obj, template)
         total = @one_usage.total(obj, user_id)
         quota = get(user_id)
 
         msg = ""
         info.each { |quota_name, quota_requested|
             spent = total[quota_name].to_i + quota_requested.to_i
-            if spent > quota[quota_name].to_i
+            if quota[quota_name] && spent > quota[quota_name].to_i
                 msg << " #{quota_name.to_s.upcase} quota exceeded "
                 msg << "(Quota: #{quota[quota_name].to_i}, "
                 msg << "Used: #{spent.to_i}, "

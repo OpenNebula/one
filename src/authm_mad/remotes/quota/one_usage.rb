@@ -23,55 +23,63 @@ class OneUsage
     VM_USAGE = {
         :cpu => {
             :proc_info  => lambda {|template| template['CPU']},
-            :proc_total => lambda {|resource| resource['TEMPLATE']['CPU']}
+            :xpath => 'TEMPLATE/CPU'
         },
         :memory => {
             :proc_info  => lambda {|template| template['MEMORY']},
-            :proc_total => lambda {|resource| resource['TEMPLATE']['MEMORY']}
+            :xpath => 'TEMPLATE/MEMORY'
         },
         :num_vms => {
             :proc_info  => lambda {|template| 1 },
-            :proc_total => lambda {|resource| 1 }
+            :xpath => 'ID',
+            :count => true
         }
     }
 
     IMAGE_USAGE = {
         :storage => {
             :proc_info  => lambda {|template| File.size(template['PATH']) },
-            :proc_total => lambda {|resource| File.size(resource['TEMPLATE']['SOURCE']) }
+            :proc_total => 'TEMPLATE/SIZE'
         }
     }
 
+    RESOURCES = ["VM", "IMAGE"]
+
     def initialize()
         @client = OpenNebula::Client.new
-
         @usage =  Hash.new
-
-        keys = VM_USAGE.keys + IMAGE_USAGE.keys
-        keys.each { |key|
-            @usage[key] = 0
-        }
-
     end
 
-
-    def total(resource, user_id)
-        pool_array = pool_to_array(resource, user_id)
-
+    def total(user_id, resource=nil, force=false)
         usage = Hash.new
-        pool_array.each { |elem|
-            OneUsage.const_get("#{resource}_USAGE".to_sym).each { |key, params|
-                usage[key] ||= 0
-                usage[key] += params[:proc_total].call(elem).to_i
+
+        if force
+            resources = [resource] if RESOURCES.include?(resource)
+
+            resources.each{ |res|
+                pool = get_pool(res, user_id)
+
+                base_xpath = "/#{res}_POOL/#{resource}"
+                OneUsage.const_get("#{res}_USAGE".to_sym).each { |key, params|
+                    usage[key] ||= 0
+                    pool.each_xpath("#{base_xpath}/#{params[:xpath]}") { |elem|
+                        usage[key] += params[:count] ? 1 : elem.to_i
+                    }
+                }
+
+                @usage[:user_id] ||= Hash.new
+                @usage[:user_id].merge!(usage)
             }
-        }
+        else
+            usage = get_usage(user_id)
+        end
 
         usage
     end
 
     # Retrieve the useful information of the template for the specified
     # kind of resource
-    def get_info(resource, xml_template)
+    def get_resources(resource, xml_template)
         template = OpenNebula::XMLElement.new
         template.initialize_xml(xml_template, 'TEMPLATE')
 
@@ -86,28 +94,31 @@ class OneUsage
 
     private
 
+    def get_usage(user_id)
+        usage = @usage[:user_id]
+
+        unless usage
+            usage = Hash.new
+
+            keys = VM_USAGE.keys + IMAGE_USAGE.keys
+            keys.each { |key|
+                usage[key] = 0
+            }
+
+            @usage[:user_id] = usage
+        end
+
+        usage
+    end
+
     # Returns a an Array than contains the elements of the resource Pool
-    def pool_to_array(resource, user_id)
+    def get_pool(resource, user_id)
         pool = case resource
         when "VM"    then OpenNebula::VirtualMachinePool.new(@client, user_id)
         when "IMAGE" then OpenNebula::ImagePool.new(@client, user_id)
         end
 
         rc = pool.info
-
-        phash = pool.to_hash
-
-        if phash["#{resource}_POOL"] &&
-                phash["#{resource}_POOL"]["#{resource}"]
-            if phash["#{resource}_POOL"]["#{resource}"].instance_of?(Array)
-                parray = phash["#{resource}_POOL"]["#{resource}"]
-            else
-                parray = [phash["#{resource}_POOL"]["#{resource}"]]
-            end
-        else
-            parray = Array.new
-        end
-
-        return parray
+        return pool
     end
 end

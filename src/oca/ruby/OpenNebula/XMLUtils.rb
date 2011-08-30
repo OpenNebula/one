@@ -101,11 +101,11 @@ module OpenNebula
                 element.text
             end
         end
-        
-        # Gets an array of text from elemenets extracted 
+
+        # Gets an array of text from elemenets extracted
         # using  the XPATH  expression passed as filter
         def retrieve_elements(filter)
-            elements_array = Array.new            
+            elements_array = Array.new
 
             if NOKOGIRI
                 @xml.xpath(filter.to_s).each { |pelem|
@@ -116,13 +116,13 @@ module OpenNebula
                     elements_array << pelem.text if pelem.text
                 }
             end
-            
-            if elements_array.size == 0 
+
+            if elements_array.size == 0
                 return nil
             else
                 return elements_array
             end
-            
+
         end
 
         # Gets an attribute from an elemenT
@@ -160,6 +160,18 @@ module OpenNebula
             else
                 @xml.elements.each(xpath_str) { |pelem|
                     block.call XMLElement.new(pelem)
+                }
+            end
+        end
+
+        def each_xpath(xpath_str,&block)
+            if NOKOGIRI
+                @xml.xpath(xpath_str).each { |pelem|
+                    block.call pelem.text
+                }
+            else
+                @xml.elements.each(xpath_str) { |pelem|
+                    block.call pelem.text
                 }
             end
         end
@@ -285,7 +297,7 @@ module OpenNebula
 
             hash
         end
-    
+
     private
         def attr_to_str(attr)
             attr.gsub!('"',"\\\"")
