@@ -171,7 +171,7 @@ private
 	    # Validate the proxy certifcates
             signee = @cert_chain[0]
 
-	    @cert_chain[1..-1].each do |cert|
+	        @cert_chain[1..-1].each do |cert|
                 if !((signee.issuer.to_s == cert.subject.to_s) &&
                      (signee.verify(cert.public_key)))
                     raise  failed + signee.subject.to_s + " with issuer " +
@@ -183,7 +183,7 @@ private
 
             # Validate the End Entity certificate
 	        if !@options[:ca_dir]
-                return
+                raise failed + "No certifcate authority directory was specified." 
             end
 
             begin
