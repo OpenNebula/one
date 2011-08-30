@@ -33,14 +33,10 @@ else
     PLUGIN_CONFIGURATION_FILE = ONE_LOCATION+"/etc/sunstone-plugins.yaml"
 end
 
-HOST_LOG_FOLDER = LOG_LOCATION+"/OneMonitor/host"
-VM_LOG_FOLDER =  LOG_LOCATION+"/OneMonitor/vm"
-
 SUNSTONE_ROOT_DIR = File.dirname(__FILE__)
 
 $: << RUBY_LIB_LOCATION
 $: << SUNSTONE_ROOT_DIR+'/models'
-$: << SUNSTONE_ROOT_DIR+'/share/OneMonitor'
 
 ##############################################################################
 # Required libraries
@@ -183,14 +179,16 @@ get '/:resource/monitor' do
     @SunstoneServer.get_monitoring(
         nil,
         params[:resource],
-        params[:monitor_resources])
+        params[:monitor_resources],
+        session[:user_gid])
 end
 
 get '/:resource/:id/monitor' do
     @SunstoneServer.get_monitoring(
         params[:id],
         params[:resource],
-        params[:monitor_resources])
+        params[:monitor_resources],
+        session[:user_gid])
 end
 
 

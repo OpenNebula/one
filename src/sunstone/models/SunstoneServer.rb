@@ -294,27 +294,25 @@ class SunstoneServer
     #
     ############################################################################
 
-    def get_monitoring(id, resource, monitor_resources)
-        watch_client = OneWatchClient::WatchClient.new
-        columns = monitor_resources.split(',')
-
-        rc = case resource
+    def get_monitoring(id, resource, monitor_resources, gid)
+        watch_client = case resource
             when "vm","VM"
-                if id
-                    watch_client.vm_monitoring(id, columns)
-                else
-                    watch_client.vm_total(columns)
-                end
+                OneWatchClient::VmWatchClient.new
             when "host","HOST"
-                if id
-                    watch_client.host_monitoring(id, columns)
-                else
-                    watch_client.host_total(columns)
-                end
+                OneWatchClient::HostWatchClient.new
             else
-                 error = Error.new("Monitoring not supported for this resource: #{resource}")
+                error = Error.new("Monitoring not supported for this resource: #{resource}")
                 return [200, error.to_json]
             end
+
+        columns = monitor_resources.split(',')
+        columns.map!{|e| e.to_sym}
+
+        if id
+            rc = watch_client.resource_monitoring(id.to_i, columns)
+        else
+            rc = watch_client.total_monitoring(columns)
+        end
 
         if rc.nil?
             error = Error.new("There is no monitoring information for #{resource} #{id}")
