@@ -16,16 +16,23 @@
 
 require 'sequel'
 require 'base64'
+require 'yaml'
 
 class Quota
     ###########################################################################
     # Constants with paths to relevant files and defaults
     ###########################################################################
-    if !ENV["ONE_LOCATION"]
+    ONE_LOCATION=ENV["ONE_LOCATION"]
+
+    if !ONE_LOCATION
         VAR_LOCATION = "/var/lib/one"
+        ETC_LOCATION = "/etc/one"
     else
-        VAR_LOCATION = ENV["ONE_LOCATION"] + "/var"
+        VAR_LOCATION = ONE_LOCATION + "/var"
+        ETC_LOCATION = ONE_LOCATION + "/etc"
     end
+
+    CONF_FILE = ETC_LOCATION + "/quota.conf"
 
     CONF = {
         :db => "sqlite://#{VAR_LOCATION}/onequota.db",
@@ -81,9 +88,11 @@ class Quota
     ###########################################################################
     # DB handling
     ###########################################################################
-    def initialize(conf={})
-        # TBD merge with the conf file
-        @conf=CONF
+    def initialize
+        conf = YAML.load_file(CONF_FILE)
+        @conf=CONF.merge(conf) {|key,h1,h2|
+            h1.merge(h2) if h1.instance_of?(Hash) && h2.instance_of?(Hash)
+        }
 
         @client = OpenNebula::Client.new
 
@@ -123,12 +132,7 @@ class Quota
     # Gets user limits
     def get(table, uid=nil)
         if uid
-        limit=@db[table].filter(:uid => uid).first
-            if limit
-                limit
-            else
-                @conf[:defaults].merge!(:uid => uid)
-            end
+            @db[table].filter(:uid => uid).first
         else
             @db[table].all
         end
@@ -151,7 +155,8 @@ class Quota
     end
 
     def get_quota(uid=nil)
-        get(QUOTA_TABLE, uid)
+        limit = get(QUOTA_TABLE, uid)
+        limit ? limit : @conf[:defaults].merge!(:uid => uid)
     end
 
     def delete_quota(uid)
@@ -181,7 +186,7 @@ class Quota
 
     def check_quotas(user_id, obj, template)
         info  = get_resources(obj, template)
-        total = get_usage(obj, user_id)
+        total = get_usage(user_id, obj, true)
         quota = get_quota(user_id)
 
         msg = ""
@@ -238,7 +243,7 @@ class Quota
             usage = get(USAGE_TABLE, user_id)
         end
 
-        usage
+        usage ? usage : Hash.new
     end
 
     # Retrieve the useful information of the template for the specified
