@@ -127,10 +127,19 @@ class Quota
             if limit
                 limit
             else
-                @conf[:defaults]
+                @conf[:defaults].merge!(:uid => uid)
             end
         else
             @db[table].all
+        end
+    end
+
+    # Delete user limits
+    def delete(table, uid)
+        quotas=@db[table].filter(:uid => uid)
+
+        if quotas.first
+            quotas.delete
         end
     end
 
@@ -143,6 +152,10 @@ class Quota
 
     def get_quota(uid=nil)
         get(QUOTA_TABLE, uid)
+    end
+
+    def delete_quota(uid)
+        delete(QUOTA_TABLE, uid)
     end
 
     ###########################################################################

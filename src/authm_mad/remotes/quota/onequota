@@ -131,6 +131,14 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     end
 
     ########################################################################
+    delete_desc = "Delete the defined quotas for the given user"
+
+    command :delete, delete_desc, :userid do
+        quota.delete_quota(args[0])
+        exit_with_code 0
+    end
+
+    ########################################################################
     show_desc = "Show the user's quota and usage. (usage/quota)"
     
     FORCE={
