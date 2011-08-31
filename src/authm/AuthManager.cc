@@ -96,7 +96,10 @@ void AuthRequest::add_auth(Object        ob,
         // User can show and MANAGE (change passwd) their own information
         ( uid == ob_id_int && ob == USER &&
            ( op == INFO || op == MANAGE )  
-        )
+        ) ||
+
+        // Users can show their group information
+        ( ob == GROUP && gid == ob_id_int && op == INFO )
     )
     {
         auth = true;

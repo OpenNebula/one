@@ -92,8 +92,9 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Shows information for the given Group
     EOT
 
-    command :show, show_desc, :groupid, :options=>OpenNebulaHelper::XML do
-        helper.show_resource(args[0],options)
+    command :show, show_desc,[:groupid, nil], :options=>OpenNebulaHelper::XML do
+        group = args[0] || OpenNebula::Group::SELF
+        helper.show_resource(group,options)
     end
 
 end

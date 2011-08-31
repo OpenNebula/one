@@ -27,6 +27,9 @@ module OpenNebula
             :delete     => "group.delete"
         }
 
+        # Flag for requesting connected user's group info
+        SELF = -1
+
         # Creates a Group description with just its identifier
         # this method should be used to create plain Group objects.
         # +id+ the id of the user
