@@ -222,7 +222,14 @@ var image_actions = {
     "Image.update_dialog" : {
         type: "custom",
         call: function() {
-            popUpTemplateUpdateDialog("Image",images_select,getSelectedNodes(dataTable_images));
+            popUpTemplateUpdateDialog("Image",
+                                      makeSelectOptions(dataTable_images,
+                                          1,//id_col
+                                          4,//name_col
+                                          [],
+                                          []
+                                      ),
+                                      getSelectedNodes(dataTable_images));
         }
     },
 

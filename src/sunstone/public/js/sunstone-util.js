@@ -643,8 +643,8 @@ function setupTemplateUpdateDialog(){
 
     $('#template_update_select',dialog).change(function(){
         var id = $(this).val();
-        var dialog = $('#template_update_dialog');
-        if (id.length){
+        if (id && id.length){
+            var dialog = $('#template_update_dialog');
             var resource = $('#template_update_button',dialog).val();
             $('#template_update_textarea',dialog).val("Loading...");
             Sunstone.runAction(resource+".fetch_template",id);
@@ -678,8 +678,9 @@ function popUpTemplateUpdateDialog(elem_str,select_items,sel_elems){
         //grep them
         var new_select= sel_elems.length > 1? '<option value="">Please select</option>' : "";
         $('option','<select>'+select_items+'</select>').each(function(){
-            if ($.inArray($(this).val(),sel_elems) >= 0){
-                new_select+='<option value="'+$(this).val()+'">'+$(this).text()+'</option>';
+            var val = $(this).val();
+            if ($.inArray(val,sel_elems) >= 0){
+                new_select+='<option value="'+val+'">'+$(this).text()+'</option>';
             };
         });
         $('#template_update_select',dialog).html(new_select);

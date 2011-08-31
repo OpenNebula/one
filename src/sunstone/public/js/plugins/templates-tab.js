@@ -638,7 +638,14 @@ var template_actions = {
     "Template.update_dialog" : {
         type: "custom",
         call: function() {
-            popUpTemplateUpdateDialog("Template",templates_select,getSelectedNodes(dataTable_templates));
+            popUpTemplateUpdateDialog("Template",
+                                      makeSelectOptions(dataTable_templates,
+                                                        1,//id_col
+                                                        4,//name_col
+                                                        [],
+                                                        []//bad status col
+                                                       ),
+                                      getSelectedNodes(dataTable_templates));
         }
     },
 
@@ -834,7 +841,7 @@ function updateTemplateSelect(){
         makeSelectOptions(dataTable_templates,
                           1,//id_col
                           4,//name_col
-                          [7],//published_col
+                          [7],//enabled_col
                           ["no"]//bad status col
                          );
 
