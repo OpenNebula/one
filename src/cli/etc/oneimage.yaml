@@ -5,7 +5,7 @@
 
 :NAME: 
   :desc: Name of the Image
-  :size: 16
+  :size: 12
   :left: true
 
 :USER: 
@@ -17,6 +17,10 @@
   :desc: Group of the Virtual Machine
   :size: 8
   :left: true
+
+:SIZE: 
+  :desc: Size of the Image
+  :size: 7
 
 :TYPE: 
   :desc: Type of the Image
@@ -47,6 +51,7 @@
 - :USER
 - :GROUP
 - :NAME
+- :SIZE
 - :TYPE
 - :REGTIME
 - :PUBLIC

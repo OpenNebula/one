@@ -91,6 +91,7 @@ void ImageManagerDriver::protocol(
     int           id;
     Image *       image;
     string        source;
+    unsigned int  size_mb;
 
     string        info;
 
@@ -130,6 +131,27 @@ void ImageManagerDriver::protocol(
     else
         return;
 
+    // Parse driver message for CP, MV and MKFS
+    // <CP|MV|MKFS> SUCESS IMAGE_ID SOURCE SIZE
+    if ( (result == "SUCCESS") && (action != "RM") )
+    {
+        if ( is.good() )
+        {
+            is >> source >> ws;
+        }
+
+        if ( is.good() )
+        {
+            is >> size_mb >> ws;
+        }
+
+        if ( is.fail() )
+        {
+            result = "FAILURE";
+        }
+    }
+   
+
     // Get the image from the pool 
     image = ipool->get(id,true);
 
@@ -143,19 +165,9 @@ void ImageManagerDriver::protocol(
     {
         if ( result == "SUCCESS" )
         {
-            string source;
-
-            if ( is.good() )
-            {
-                is >> source >> ws;
-            }
-            
-            if ( is.fail() )
-            {
-                goto error_cp;
-            }
-
             image->set_source(source);
+            image->set_size(size_mb);
+
             image->set_state(Image::READY);
 
             ipool->update(image);
@@ -173,22 +185,13 @@ void ImageManagerDriver::protocol(
         {
             if (image->get_source() == "-")
             {
-                string source;
-
-                if ( is.good() )
-                {
-                    is >> source >> ws;
-                }
-            
-                if ( is.fail() )
-                {
-                    goto error_mv;
-                }
-
                 image->set_source(source);
             }
 
+            image->set_size(size_mb);
+
             image->set_state(Image::READY);
+
             ipool->update(image);
 
             NebulaLog::log("ImM", Log::INFO, "Image saved and ready to use.");
@@ -202,19 +205,9 @@ void ImageManagerDriver::protocol(
     {
         if ( result == "SUCCESS" )
         {
-            string source;
-
-            if ( is.good() )
-            {
-                is >> source >> ws;
-            }
-        
-            if ( is.fail() )
-            {
-                goto error_mkfs;
-            }
-
             image->set_source(source);
+            image->set_size(size_mb);
+
             image->set_state(Image::READY);
 
             ipool->update(image);

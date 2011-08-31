@@ -65,4 +65,7 @@ exec_and_log "$MKFS -t $FSTYPE $OPTS $DST" \
 
 exec_and_log "chmod 0660 $DST"
 
-echo "$DST"
+# ---------------- Get the size of the image ------------
+SIZE=`fs_du $DST`
+
+echo "$DST $SIZE"

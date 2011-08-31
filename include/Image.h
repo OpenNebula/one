@@ -90,12 +90,19 @@ public:
     }
 
     /**
-     *  Returns the source path of the image
-     *     @return source of image
+     *  Sets the source path of the image
      */
     void set_source(const string& _source)
     {
         source = _source;
+    }
+
+    /**
+     *  Sets the size for the image
+     */
+    void set_size(unsigned int _size_mb)
+    {
+        size_mb = _size_mb;
     }
 
     /**
@@ -285,27 +292,32 @@ private:
     /**
      *  Type of the Image
      */
-    ImageType   type;
+    ImageType    type;
 
     /**
      *  Persistency of the Image
      */
-    int         persistent_img;
+    int          persistent_img;
 
     /**
      *  Registration time
      */
-    time_t      regtime;
+    time_t       regtime;
 
     /**
      *  Path to the image
      */
-    string      source;
+    string       source;
+
+    /**
+     *  Size of the image in MB
+     */
+    unsigned int size_mb;
 
      /**
       *  Image state
       */
-    ImageState  state;
+    ImageState   state;
 
     /**
      * Number of VMs using the image

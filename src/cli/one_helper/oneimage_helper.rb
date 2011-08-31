@@ -57,10 +57,10 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         str_h1="%-80s"
 
         CLIHelper.print_header(str_h1 % "IMAGE #{image['ID']} INFORMATION")
-        puts str % ["ID", image.id.to_s]
+        puts str % ["ID",   image.id.to_s]
         puts str % ["NAME", image.name]
         puts str % ["USER", image['UNAME']]
-        puts str % ["GROUP", image['GNAME']]
+        puts str % ["GROUP",image['GNAME']]
         puts str % ["TYPE", image.type_str]
         puts str % ["REGISTER TIME",
             OpenNebulaHelper.time_to_str(image['REGTIME'])]
@@ -68,7 +68,8 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
             OpenNebulaHelper.boolean_to_str(image['PUBLIC'])]
         puts str % ["PERSISTENT",
             OpenNebulaHelper.boolean_to_str(image["PERSISTENT"])]
-        puts str % ["SOURCE", image['SOURCE']]
+        puts str % ["SOURCE",image['SOURCE']]
+        puts str % ["SIZE",  image['SIZE']]
         puts str % ["STATE", image.short_state_str]
         puts str % ["RUNNING_VMS", image['RUNNING_VMS']]
         puts
@@ -85,7 +86,7 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
                 d["ID"]
             end
 
-            column :NAME, "Name of the Image", :left, :size=>15 do |d|
+            column :NAME, "Name of the Image", :left, :size=>12 do |d|
                 d["NAME"]
             end
 
@@ -127,7 +128,12 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
                 d['RUNNING_VMS']
             end
 
-            default :ID, :USER, :GROUP, :NAME, :TYPE, :REGTIME, :PUBLIC,
+            column :SIZE, "Size of the image",
+                    :size=>7 do |d|
+                OpenNebulaHelper.unit_to_str(d['SIZE'].to_i,options,"M")
+            end
+
+            default :ID, :USER, :GROUP, :NAME, :SIZE, :TYPE, :REGTIME, :PUBLIC,
                 :PERSISTENT , :STAT, :RVMS
         end
 

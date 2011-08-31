@@ -39,3 +39,16 @@ EOF
 
 echo "$IMAGE_REPOSITORY_PATH/`echo $CANONICAL_MD5 | cut -d ' ' -f1`"
 }
+
+function fs_du {
+
+SIZE=`$DU -m $1 2>/dev/null`
+
+if [ $? -ne 0 ]; then
+    SIZE=0
+else
+    SIZE=`echo $SIZE | cut -f1 -d' '`
+fi
+
+echo "$SIZE"
+}

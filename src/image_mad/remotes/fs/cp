@@ -52,6 +52,9 @@ http://*)
     ;;
 esac
 
+# ---------------- Get the size of the image & fix perms ------------
 exec_and_log "chmod 0660 $DST"
 
-echo "$DST"
+SIZE=`fs_du $DST`
+
+echo "$DST $SIZE"
