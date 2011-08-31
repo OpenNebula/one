@@ -201,7 +201,7 @@ var oZones = {
             var request  = oZones.Helper.request(resource,"login");
 
             $.ajax({
-                url: "/login",
+                url: "login",
                 type: "POST",
                 data: {remember: remember},
                 beforeSend : function(req) {
@@ -235,7 +235,7 @@ var oZones = {
             var request =oZones.Helper.request(resource,"logout");
 
             $.ajax({
-                url: "/logout",
+                url: "logout",
                 type: "POST",
                 success: function(response)
                 {
@@ -267,7 +267,7 @@ var oZones = {
             var request = oZones.Helper.request(resource,"list");
 
             $.ajax({
-                url: "/config",
+                url: "config",
                 type: "GET",
                 dataType: "json",
                 success: function(response)
