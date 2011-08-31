@@ -100,12 +100,16 @@ class Quota
     end
 
     # Gets user limits
-    def get(uid)
+    def get(uid=nil)
+        if uid
         limit=@table.filter(:uid => uid).first
-        if limit
-            limit
+            if limit
+                limit
+            else
+                @conf[:defaults]
+            end
         else
-            @conf[:defaults]
+            @table.all
         end
     end
 
