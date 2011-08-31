@@ -387,16 +387,25 @@ public:
 
     /**
      *  Gets the authorization requests in a single string
-     *  @return a space separated list of auth requests.
+     *  @return a space separated list of auth requests, or an empty string if
+     *          no auth requests were added
      */
     string get_auths()
     {
         ostringstream oss;
+        unsigned int  i;
 
-        for (unsigned int i=0; i<auths.size(); i++)
+        if ( auths.empty() )
+        {
+            return string();
+        }
+
+        for (i=0; i<auths.size()-1; i++)
         {
             oss << auths[i] << " ";
         }
+
+        oss << auths[i];
 
         return oss.str();
     };

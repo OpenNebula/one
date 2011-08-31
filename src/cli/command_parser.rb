@@ -166,6 +166,7 @@ EOT
 
             extra_options = comm[:options] if comm
             parse(extra_options)
+
             if comm
                 check_args!(comm_name, comm[:arity], comm[:args_format])
 
@@ -209,15 +210,23 @@ EOT
                         next
                     else
                         shown_opts << o[:name]
-                        short = o[:short].split(' ').first
-                        printf opt_format, "#{short}, #{o[:large]}", o[:description]
+
+                        str = ""
+                        str << o[:short].split(' ').first << ', ' if o[:short]
+                        str << o[:large]
+
+                        printf opt_format, str, o[:description]
                         puts
                     end
                 }
             }
 
             @opts.each{ |o|
-                printf opt_format, "#{o[:short]}, #{o[:large]}", o[:description]
+                str = ""
+                str << o[:short] if o[:short]
+                str << o[:large]
+
+                printf opt_format, str, o[:description]
                 puts
             }
         end
@@ -292,7 +301,13 @@ EOT
                 merge = @opts
                 merge = @opts + extra_options if extra_options
                 merge.flatten.each do |e|
-                    opts.on(e[:short],e[:large], e[:format],e[:description]) do |o|
+                    args = []
+                    args << e[:short] if e[:short]
+                    args << e[:large]
+                    args << e[:format]
+                    args << e[:description]
+
+                    opts.on(*args) do |o|
                         if e[:proc]
                             e[:proc].call(o, @options)
                         elsif e[:name]=="help"

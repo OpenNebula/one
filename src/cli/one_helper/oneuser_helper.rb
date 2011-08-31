@@ -47,6 +47,92 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         return 0, password
     end
 
+    def password(options)
+        if options[:ssh]
+            require 'ssh_auth'
+
+            options[:key] ||= ENV['HOME']+'/.ssh/id_rsa'
+
+            begin
+                sshauth = SshAuth.new(:private_key=>options[:key])
+            rescue Exception => e
+                return -1, e.message
+            end
+
+            return 0, sshauth.public_key
+        elsif options[:x509]
+            require 'x509_auth'
+
+            options[:cert] ||= ENV['X509_USER_CERT']
+
+            begin
+                cert     = [File.read(options[:cert])]
+                x509auth = X509Auth.new(:certs_pem=>cert)
+            rescue Exception => e
+                return -1, e.message
+            end
+
+            return 0, x509auth.dn
+        else
+            return -1, "You have to specify an Auth method or define a password"
+        end
+    end
+
+    def login(username, options)
+        if options[:ssh]
+            require 'ssh_auth'
+
+            options[:key]  ||= ENV['HOME']+'/.ssh/id_rsa'
+
+            begin
+                auth = SshAuth.new(:private_key=>options[:key])
+            rescue Exception => e
+                return -1, e.message
+            end
+        elsif options[:x509]
+            require 'x509_auth'
+
+            options[:cert] ||= ENV['X509_USER_CERT']
+            options[:key]  ||= ENV['X509_USER_KEY']
+
+            begin
+                certs = [File.read(options[:cert])]
+                key   = File.read(options[:key])
+
+                auth = X509Auth.new(:certs_pem=>certs, :key_pem=>key)
+            rescue Exception => e
+                return -1, e.message
+            end
+        elsif options[:x509_proxy]
+            require 'x509_auth'
+
+            options[:proxy] ||= ENV['X509_PROXY_CERT']
+            
+            begin  
+                proxy = File.read(options[:proxy])
+
+                rc = proxy.scan(/(-+BEGIN CERTIFICATE-+\n[^-]*\n-+END CERTIFICATE-+)/)
+                certs = rc.flatten!
+
+                rc = proxy.match(/(-+BEGIN RSA PRIVATE KEY-+\n[^-]*\n-+END RSA PRIVATE KEY-+)/)
+
+                key  = rc[1]
+
+                auth = X509Auth.new(:certs_pem=>certs, :key_pem=>key)
+            rescue => e
+                return -1, e.message
+            end
+        else
+            return -1, "You have to specify an Auth method"
+        end
+        
+        options[:time] ||= 3600
+
+        auth.login(username, options[:time])
+
+        return 0, 'export ONE_AUTH=' << auth.class::LOGIN_PATH
+    end
+
     private
 
     def factory(id=nil)

@@ -222,7 +222,13 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/hooks \
           $VAR_LOCATION/remotes/hooks/vnm \
           $VAR_LOCATION/remotes/image \
-          $VAR_LOCATION/remotes/image/fs"
+          $VAR_LOCATION/remotes/image/fs \
+          $VAR_LOCATION/remotes/auth \
+          $VAR_LOCATION/remotes/auth/plain \
+          $VAR_LOCATION/remotes/auth/ssh \
+          $VAR_LOCATION/remotes/auth/x509 \
+          $VAR_LOCATION/remotes/auth/server \
+          $VAR_LOCATION/remotes/auth/dummy"
 
 SUNSTONE_DIRS="$SUNSTONE_LOCATION/models \
                $SUNSTONE_LOCATION/models/OpenNebulaJSON \
@@ -314,6 +320,11 @@ INSTALL_FILES=(
     IM_PROBES_KVM_FILES:$VAR_LOCATION/remotes/im/kvm.d
     IM_PROBES_XEN_FILES:$VAR_LOCATION/remotes/im/xen.d
     IM_PROBES_GANGLIA_FILES:$VAR_LOCATION/remotes/im/ganglia.d
+    AUTH_SSH_FILES:$VAR_LOCATION/remotes/auth/ssh
+    AUTH_X509_FILES:$VAR_LOCATION/remotes/auth/x509
+    AUTH_SERVER_FILES:$VAR_LOCATION/remotes/auth/server
+    AUTH_DUMMY_FILES:$VAR_LOCATION/remotes/auth/dummy
+    AUTH_PLAIN_FILES:$VAR_LOCATION/remotes/auth/plain    
     VMM_EXEC_KVM_SCRIPTS:$VAR_LOCATION/remotes/vmm/kvm
     VMM_EXEC_XEN_SCRIPTS:$VAR_LOCATION/remotes/vmm/xen
     VMM_EXEC_XEN_KVM_POLL:$VAR_LOCATION/remotes/vmm/kvm/poll
@@ -455,8 +466,7 @@ BIN_FILES="src/nebula/oned \
            src/cli/onetemplate \
            src/cli/oneacl \
            src/onedb/onedb \
-           share/scripts/one \
-           src/authm_mad/oneauth"
+           share/scripts/one"
 
 #-------------------------------------------------------------------------------
 # C/C++ OpenNebula API Library & Development files
@@ -478,11 +488,9 @@ RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/mad/ruby/Ganglia.rb \
                 src/oca/ruby/OpenNebula.rb \
                 src/tm_mad/TMScript.rb \
-                src/authm_mad/one_usage.rb \
-                src/authm_mad/quota.rb \
-                src/authm_mad/simple_auth.rb \
-                src/authm_mad/simple_permissions.rb \
-                src/authm_mad/ssh_auth.rb"
+                src/authm_mad/remotes/ssh/ssh_auth.rb \
+                src/authm_mad/remotes/server/server_auth.rb \
+                src/authm_mad/remotes/x509/x509_auth.rb"
 
 #-----------------------------------------------------------------------------
 # MAD Script library files, to be installed under $LIB_LOCATION/<script lang>
@@ -556,7 +564,7 @@ VMM_EXEC_XEN_KVM_POLL="src/vmm_mad/remotes/poll_xen_kvm.rb"
 VMM_EXEC_GANGLIA_POLL="src/vmm_mad/remotes/poll_ganglia.rb"
 
 #-------------------------------------------------------------------------------
-# Information Manager Probes, to be installed under $LIB_LOCATION/remotes
+# Information Manager Probes, to be installed under $REMOTES_LOCATION/im
 #-------------------------------------------------------------------------------
 
 IM_PROBES_FILES="src/im_mad/remotes/run_probes"
@@ -573,6 +581,19 @@ IM_PROBES_KVM_FILES="src/im_mad/remotes/kvm.d/kvm.rb \
 
 IM_PROBES_GANGLIA_FILES="src/im_mad/remotes/ganglia.d/ganglia_probe"
 
+#-------------------------------------------------------------------------------
+# Auth Manager drivers to be installed under $REMOTES_LOCATION/auth
+#-------------------------------------------------------------------------------
+
+AUTH_SERVER_FILES="src/authm_mad/remotes/server/authenticate"
+
+AUTH_X509_FILES="src/authm_mad/remotes/x509/authenticate"
+
+AUTH_SSH_FILES="src/authm_mad/remotes/ssh/authenticate"
+
+AUTH_DUMMY_FILES="src/authm_mad/remotes/dummy/authenticate"
+
+AUTH_PLAIN_FILES="src/authm_mad/remotes/plain/authenticate"
 
 #-------------------------------------------------------------------------------
 # Transfer Manager commands, to be installed under $LIB_LOCATION/tm_commands
@@ -682,11 +703,11 @@ TM_LVM_ETC_FILES="src/tm_mad/lvm/tm_lvm.conf \
 HM_ETC_FILES="src/hm_mad/hmrc"
 
 #-------------------------------------------------------------------------------
-# Hook Manager driver config. files, to be installed under $ETC_LOCATION/hm
+# Auth Manager drivers config. files, to be installed under $ETC_LOCATION/auth
 #-------------------------------------------------------------------------------
 
-AUTH_ETC_FILES="src/authm_mad/auth_mad \
-                src/authm_mad/auth.conf"
+AUTH_ETC_FILES="src/authm_mad/remotes/server/server_auth.conf \
+                src/authm_mad/remotes/x509/x509_auth.conf"
 
 #-------------------------------------------------------------------------------
 # Sample files, to be installed under $SHARE_LOCATION/examples
