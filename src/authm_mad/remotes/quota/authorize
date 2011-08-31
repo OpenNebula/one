@@ -29,6 +29,7 @@ end
 $: << RUBY_LIB_LOCATION
 
 require 'scripts_common'
+require 'opennebula'
 require 'quota'
 
 user_id = ARGV.shift
@@ -49,7 +50,7 @@ quota = Quota.new
 #OpenNebula.log_debug("quotas: #{quota.get(1)}")
 
 ARGV.each {|request|
-    rc = quota.check_request(user_id, request)
+    rc = quota.authorize(user_id, request)
     
     if rc
         OpenNebula.error_message rc

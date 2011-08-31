@@ -14,22 +14,17 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'one_usage'
 require 'sequel'
 require 'base64'
 
-# Quota functionality for auth driver. Stores in database limits for each
-# user and using OneUsage is able to retrieve resource usage from
-# OpenNebula daemon and check if it is below limits
 class Quota
-    attr_accessor :defaults
     ###########################################################################
-    #Constants with paths to relevant files and defaults
+    # Constants with paths to relevant files and defaults
     ###########################################################################
     if !ENV["ONE_LOCATION"]
-        VAR_LOCATION      = "/var/lib/one"
+        VAR_LOCATION = "/var/lib/one"
     else
-        VAR_LOCATION      = ENV["ONE_LOCATION"] + "/var"
+        VAR_LOCATION = ENV["ONE_LOCATION"] + "/var"
     end
 
     CONF = {
@@ -41,9 +36,10 @@ class Quota
             :storage => nil
         }
     }
-    
-    TABLE_NAME = :quotas
 
+    ###########################################################################
+    # Schema for the USAGE and QUOTA tables
+    ###########################################################################
     DB_QUOTA_SCHEMA = {
         :cpu     => Float,
         :memory  => Integer,
@@ -51,30 +47,55 @@ class Quota
         :storage => Integer
     }
 
+    QUOTA_TABLE = :quotas
+    USAGE_TABLE = :usage
 
-    # 'db' is a Sequel database where to store user limits and client
-    # is OpenNebula::Client used to connect to OpenNebula daemon
-    def initialize(conf={})
-        # TBD merge with the conf file
-        @conf=CONF
+    ###########################################################################
+    # Usage params to calculate each quota
+    ###########################################################################
+    VM_USAGE = {
+        :cpu => {
+            :proc_info  => lambda {|template| template['CPU']},
+            :xpath => 'TEMPLATE/CPU'
+        },
+        :memory => {
+            :proc_info  => lambda {|template| template['MEMORY']},
+            :xpath => 'TEMPLATE/MEMORY'
+        },
+        :num_vms => {
+            :proc_info  => lambda {|template| 1 },
+            :xpath => 'ID',
+            :count => true
+        }
+    }
 
-        @defaults=@conf[:defaults]
+    IMAGE_USAGE = {
+        :storage => {
+            :proc_info  => lambda {|template| File.size(template['PATH']) },
+            :xpath => 'SIZE'
+        }
+    }
 
-        @db=Sequel.connect(@conf[:db])
-
-        create_table
-        @table=@db[TABLE_NAME]
-
-        @one_usage=OneUsage.new
-    end
+    RESOURCES = ["VM", "IMAGE"]
 
     ###########################################################################
     # DB handling
     ###########################################################################
+    def initialize(conf={})
+        # TBD merge with the conf file
+        @conf=CONF
+
+        @client = OpenNebula::Client.new
+
+        @db=Sequel.connect(@conf[:db])
+
+        create_table(QUOTA_TABLE)
+        create_table(USAGE_TABLE)
+    end
 
     # Creates database quota table if it does not exist
-    def create_table
-        @db.create_table?(TABLE_NAME) do
+    def create_table(table)
+        @db.create_table?(table) do
             Integer     :uid
 
             DB_QUOTA_SCHEMA.each { |key,value|
@@ -87,38 +108,47 @@ class Quota
     end
 
     # Adds new user limits
-    def set(uid, quota={})
+    def set(table, uid, quota={})
         data=quota.delete_if{|key,value| !DB_QUOTA_SCHEMA.keys.include?(key)}
 
-        quotas=@table.filter(:uid => uid)
+        quotas=@db[table].filter(:uid => uid)
 
         if quotas.first
             quotas.update(data)
         else
-            @table.insert(data.merge!(:uid => uid))
+            @db[table].insert(data.merge!(:uid => uid))
         end
     end
 
     # Gets user limits
-    def get(uid=nil)
+    def get(table, uid=nil)
         if uid
-        limit=@table.filter(:uid => uid).first
+        limit=@db[table].filter(:uid => uid).first
             if limit
                 limit
             else
                 @conf[:defaults]
             end
         else
-            @table.all
+            @db[table].all
         end
     end
 
+    ###########################################################################
+    # Quota Client
+    ###########################################################################
+    def set_quota(uid, quota={})
+        set(QUOTA_TABLE, uid, quota)
+    end
+
+    def get_quota(uid=nil)
+        get(QUOTA_TABLE, uid)
+    end
 
     ###########################################################################
     # Authorization
     ###########################################################################
-
-    def check_request(user_id, request)
+    def authorize(user_id, request)
         obj, template_or_id, op, owner, pub, acl_eval = request.split(':')
 
         if acl_eval == 0
@@ -137,9 +167,9 @@ class Quota
     end
 
     def check_quotas(user_id, obj, template)
-        info  = @one_usage.get_resources(obj, template)
-        total = @one_usage.total(obj, user_id)
-        quota = get(user_id)
+        info  = get_resources(obj, template)
+        total = get_usage(obj, user_id)
+        quota = get_quota(user_id)
 
         msg = ""
         info.each { |quota_name, quota_requested|
@@ -164,5 +194,63 @@ class Quota
                (obj == "IMAGE"    && op == "CREATE") ||
                (obj == "TEMPLATE" && op == "INSTANTIATE")
     end
-end
 
+    ###########################################################################
+    # Usage
+    ###########################################################################
+    def get_usage(user_id, resource=nil, force=false)
+        usage = Hash.new
+
+        if force
+            if RESOURCES.include?(resource)
+                resources = [resource]
+            else
+                resources = RESOURCES
+            end
+
+            resources.each{ |res|
+                pool = get_pool(res, user_id)
+
+                base_xpath = "/#{res}_POOL/#{resource}"
+                Quota.const_get("#{res}_USAGE".to_sym).each { |key, params|
+                    usage[key] ||= 0
+                    pool.each_xpath("#{base_xpath}/#{params[:xpath]}") { |elem|
+                        usage[key] += params[:count] ? 1 : elem.to_i
+                    }
+                }
+
+                set(USAGE_TABLE, user_id, usage)
+            }
+        else
+            usage = get(USAGE_TABLE, user_id)
+        end
+
+        usage
+    end
+
+    # Retrieve the useful information of the template for the specified
+    # kind of resource
+    def get_resources(resource, xml_template)
+        template = OpenNebula::XMLElement.new
+        template.initialize_xml(xml_template, 'TEMPLATE')
+
+        info = Hash.new
+
+        self.class.const_get("#{resource}_USAGE").each { |key, params|
+            info[key] = params[:proc_info].call(template).to_i
+        }
+
+        info
+    end
+
+    # Returns a an Array than contains the elements of the resource Pool
+    def get_pool(resource, user_id)
+        pool = case resource
+        when "VM"    then OpenNebula::VirtualMachinePool.new(@client, user_id)
+        when "IMAGE" then OpenNebula::ImagePool.new(@client, user_id)
+        end
+
+        rc = pool.info
+        return pool
+    end
+end
