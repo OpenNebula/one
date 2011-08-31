@@ -130,7 +130,7 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
 
             column :SIZE, "Size of the image",
                     :size=>7 do |d|
-                OpenNebulaHelper.unit_to_str(d['SIZE'].to_i,options)
+                OpenNebulaHelper.unit_to_str(d['SIZE'].to_i,options,"M")
             end
 
             default :ID, :USER, :GROUP, :NAME, :SIZE, :TYPE, :REGTIME, :PUBLIC,
