@@ -184,7 +184,7 @@ function notifySubmit(action, args, extra_param){
     } else {
         msg += action_text + ": " + args;
     };
-    if (extra_param) {
+    if (extra_param && extra_param.constructor != Object) {
         msg += " >> " + extra_param;
     };
 

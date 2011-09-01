@@ -124,6 +124,7 @@ var create_vn_tmpl =
 var vnetworks_select="";
 var dataTable_vNetworks;
 var $create_vn_dialog;
+var $lease_vn_dialog;
 
 //Setup actions
 
@@ -205,6 +206,42 @@ var vnet_actions = {
         notify: true
     },
 
+    "Network.addleases" : {
+        type: "single",
+        call: OpenNebula.Network.addleases,
+        callback: vnShow,
+        error: onError,
+        notify: true
+    },
+
+    "Network.rmleases" : {
+        type: "single",
+        call: OpenNebula.Network.rmleases,
+        callback: vnShow,
+        error: onError,
+        notify: true
+    },
+
+    "Network.modifyleases" : {
+        type: "custom",
+        call: function(action,obj){
+            nodes = getSelectedNodes(dataTable_vNetworks);
+            $.each(nodes,function(){
+                Sunstone.runAction(action,this,obj);
+            });
+        }
+    },
+
+    "Network.addleases_dialog" : {
+        type: "custom",
+        call: popUpAddLeaseDialog
+    },
+
+    "Network.rmleases_dialog" : {
+        type: "custom",
+        call: popUpRemoveLeaseDialog
+    },
+
     "Network.chown" : {
         type: "multiple",
         call: OpenNebula.Network.chown,
@@ -261,6 +298,20 @@ var vnet_buttons = {
         select: groups_sel,
         tip: "Select the new group:",
         condition: mustBeAdmin,
+    },
+
+    "action_list" : {
+        type: "select",
+        actions: {
+            "Network.addleases_dialog" : {
+                type: "action",
+                text: "Add lease"
+            },
+            "Network.rmleases_dialog" : {
+                type: "action",
+                text: "Remove lease"
+            }
+        }
     },
 
     "Network.delete" : {
@@ -585,6 +636,73 @@ function popUpCreateVnetDialog() {
     $create_vn_dialog.dialog('open');
 }
 
+function setupAddRemoveLeaseDialog() {
+    dialogs_context.append('<div title="Lease management" id="lease_vn_dialog"></div>');
+    $lease_vn_dialog = $('#lease_vn_dialog',dialogs_context)
+
+    var dialog = $lease_vn_dialog;
+
+    dialog.html(
+        '<form id="lease_vn_form" action="javascript:alert(\'js error!\');">\
+           <fieldset>\
+           <div>Please specify:</div>\
+           <label for="add_lease_ip">Lease IP:</label>\
+           <input type="text" name="add_lease_ip" id="add_lease_ip" /><br />\
+           <label id="add_lease_mac_label" for="add_lease_mac">Lease MAC:</label>\
+           <input type="text" name="add_lease_mac" id="add_lease_mac" />\
+           </select>\
+           </fieldset>\
+           <fieldset>\
+           <div class="form_buttons">\
+              <button id="lease_vn_proceed" class="" value="">OK</button>\
+              <button class="confirm_cancel" value="">Cancel</button>\
+           </div>\
+           </fieldset>\
+         </form>'
+    );
+
+    //Prepare the jquery-ui dialog. Set style options here.
+    dialog.dialog({
+        autoOpen: false,
+        modal: true,
+        width: 410,
+        height: 220
+    });
+
+    $('button',dialog).button();
+
+    $('#lease_vn_form',dialog).submit(function(){
+        var ip = $('#add_lease_ip',this).val();
+        var mac = $('#add_lease_mac',this).val();
+
+        var obj = {ip: ip, mac: mac};
+
+        if (!mac.length) { delete obj.mac; };
+
+        Sunstone.runAction("Network.modifyleases",
+                           $('#lease_vn_proceed',this).val(),
+                           obj);
+        $lease_vn_dialog.dialog('close');
+        return false;
+    });
+}
+
+function popUpAddLeaseDialog() {
+    $lease_vn_dialog.dialog("option","title","Add lease");
+    $('#add_lease_mac',$lease_vn_dialog).show();
+    $('#add_lease_mac_label',$lease_vn_dialog).show();
+    $('#lease_vn_proceed',$lease_vn_dialog).val("Network.addleases");
+    $lease_vn_dialog.dialog("open");
+}
+
+function popUpRemoveLeaseDialog() {
+    $lease_vn_dialog.dialog("option","title","Remove lease");
+    $('#add_lease_mac',$lease_vn_dialog).hide();
+    $('#add_lease_mac_label',$lease_vn_dialog).hide();
+    $('#lease_vn_proceed',$lease_vn_dialog).val("Network.rmleases");
+    $lease_vn_dialog.dialog("open");
+}
+
 function setVNetAutorefresh() {
     setInterval(function(){
         var checked = $('input:checked',dataTable_vNetworks.fnGetNodes());
@@ -620,6 +738,7 @@ $(document).ready(function(){
     Sunstone.runAction("Network.list");
 
     setupCreateVNetDialog();
+    setupAddRemoveLeaseDialog();
     setVNetAutorefresh();
 
     initCheckAllBoxes(dataTable_vNetworks);

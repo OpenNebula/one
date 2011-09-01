@@ -834,6 +834,70 @@ var OpenNebula = {
             });
         },
 
+        "addleases" : function(params){
+            var callback = params.success;
+            var callback_error = params.error;
+            var id = params.data.id;
+            var obj  = params.data.extra_param;
+
+            var method = "addleases";
+            var action = OpenNebula.Helper.action(method,obj);
+            var resource = OpenNebula.Network.resource;
+            var request = OpenNebula.Helper.request(resource,method, [id,obj]);
+
+            $.ajax({
+                url: "vnet/" + id + "/action",
+                type: "POST",
+                data: JSON.stringify(action),
+                success: function()
+                {
+                    if (callback)
+                    {
+                        callback(request);
+                    }
+                },
+                error: function(response)
+                {
+                    if(callback_error)
+                    {
+                        callback_error(request, OpenNebula.Error(response));
+                    }
+                }
+            });
+        },
+
+        "rmleases" : function(params){
+            var callback = params.success;
+            var callback_error = params.error;
+            var id = params.data.id;
+            var obj  = params.data.extra_param;
+
+            var method = "rmleases";
+            var action = OpenNebula.Helper.action(method,obj);
+            var resource = OpenNebula.Network.resource;
+            var request = OpenNebula.Helper.request(resource,method, [id,obj]);
+
+            $.ajax({
+                url: "vnet/" + id + "/action",
+                type: "POST",
+                data: JSON.stringify(action),
+                success: function()
+                {
+                    if (callback)
+                    {
+                        callback(request);
+                    }
+                },
+                error: function(response)
+                {
+                    if(callback_error)
+                    {
+                        callback_error(request, OpenNebula.Error(response));
+                    }
+                }
+            });
+        },
+
         "chown" : function(params){
             OpenNebula.Helper.chown(params,OpenNebula.Network.resource,"vnet");
         },

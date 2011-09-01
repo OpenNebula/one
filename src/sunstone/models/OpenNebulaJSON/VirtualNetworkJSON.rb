@@ -42,6 +42,8 @@ module OpenNebulaJSON
             end
 
             rc = case action_hash['perform']
+                 when "addleases" then self.addleases(action_hash['params'])
+                 when "rmleases" then self.rmleases(action_hash['params'])
                  when "publish"   then self.publish
                  when "unpublish" then self.unpublish
                  when "chown"     then self.chown(action_hash['params'])
@@ -50,6 +52,14 @@ module OpenNebulaJSON
                                 " available for this resource"
                      OpenNebula::Error.new(error_msg)
             end
+        end
+
+        def addleases(params=Hash.new)
+            super(params['ip'],params['mac'])
+        end
+
+        def rmleases(params=Hash.new)
+            super(params['ip'])
         end
 
         def chown(params=Hash.new)
