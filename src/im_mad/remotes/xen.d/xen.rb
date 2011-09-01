@@ -32,15 +32,24 @@ exit(-1) if $?!=0
 xm_text=`sudo #{XM_PATH} info`
 exit(-1) if $?!=0
 
-xentop_text.gsub!(/^xentop.*^xentop.*?$/m, "") # Strip first top output
+#xentop_text.gsub!(/^xentop.*^xentop.*?$/m, "") # Strip first top output
 xentop_text.gsub!("no limit", "no_limit")
 
-xentop_text=xentop_text.split("\n")
-xentop_text.reject! {|l| l.strip=="" } # Take out empty lines
+lines=xentop_text.split("\n")
+
+block_size=lines.length/2
+valid_lines=lines.last(block_size)
+first_domain = 4
+valid_lines.each_with_index{ |l,i|
+    if l.match 'NAME  STATE'
+        first_domain=i+1
+        break
+    end
+}
 
 domain_info_line=xentop_text[0]
 memory_info_line=xentop_text[1]
-domains_info=xentop_text[3..-1]
+domains_info=valid_lines[first_domain..-1]
 
 
 # Getting information from xm info
