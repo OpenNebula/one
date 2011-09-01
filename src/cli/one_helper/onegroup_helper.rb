@@ -16,12 +16,6 @@
 
 require 'one_helper'
 
-if ONE_LOCATION
-    GROUP_DEFAULT=ONE_LOCATION+"/etc/group.default"
-else
-    GROUP_DEFAULT="/etc/one/group.default"
-end
-
 class OneGroupHelper < OpenNebulaHelper::OneHelper
     def self.rname
         "GROUP"
@@ -41,35 +35,11 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
             puts "ID: #{group.id.to_s}"
         end
 
-        exit_code = 0
-
         puts "Creating default ACL rules from #{GROUP_DEFAULT}" if options[:verbose]
-        File.open(GROUP_DEFAULT).each_line{ |l|
-            next if l.match(/^#/)
 
-            rule = "@#{group.id} #{l}"
-            parse = OpenNebula::Acl.parse_rule(rule)
-            if OpenNebula.is_error?(parse)
-                puts "Error parsing rule #{rule}"
-                puts "Error message" << parse.message
-                exit_code = -1
-                next
-            end
+        exit_code , msg = group.create_acls
 
-            xml = OpenNebula::Acl.build_xml
-            acl = OpenNebula::Acl.new(xml, @client)
-            rc = acl.allocate(*parse)
-            if OpenNebula.is_error?(rc)
-                puts "Error creating rule #{rule}"
-                puts "Error message" << rc.message
-                exit_code = -1
-                next
-            else
-                msg = "ACL_ID: #{acl.id.to_s}"
-                msg << " RULE: #{rule.strip}" if options[:verbose]
-                puts msg
-            end
-        }
+        puts msg 
 
         exit_code
     end

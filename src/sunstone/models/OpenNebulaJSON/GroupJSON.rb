@@ -16,12 +16,6 @@
 
 require 'OpenNebulaJSON/JSONUtils'
 
-if ONE_LOCATION
-    GROUP_DEFAULT=ONE_LOCATION+"/etc/group.default"
-else
-    GROUP_DEFAULT="/etc/one/group.default"
-end
-
 module OpenNebulaJSON
     class GroupJSON < OpenNebula::Group
         include JSONUtils
@@ -34,30 +28,11 @@ module OpenNebulaJSON
 
             rc_alloc = self.allocate(group_hash['name'])
 
-            #if group allocation was successful
+            #create default ACL rules
             if !OpenNebula.is_error?(rc_alloc)
-                #create default ACL rules - inspired by cli's onegroup_helper.rb
+                rc_acl, msg = self.create_acls
 
-                File.open(GROUP_DEFAULT).each_line{ |l|
-                    next if l.match(/^#/)
-
-                    rule = "@#{self.id} #{l}"
-                    parse = OpenNebula::Acl.parse_rule(rule)
-                    if OpenNebula.is_error?(parse)
-                        puts "Error parsing rule #{rule}"
-                        puts "Error message" << parse.message
-                        next
-                    end
-
-                    xml = OpenNebula::Acl.build_xml
-                    acl = OpenNebula::Acl.new(xml, @client)
-                    rc = acl.allocate(*parse)
-                    if OpenNebula.is_error?(rc)
-                        puts "Error creating rule #{rule}"
-                        puts "Error message" << rc.message
-                        next
-                    end
-                }
+                puts msg if rc_acl == -1
             end
 
             return rc_alloc

@@ -30,6 +30,13 @@ module OpenNebula
         # Flag for requesting connected user's group info
         SELF = -1
 
+        #Default location for group ACL's
+        if ENV['ONE_LOCATION']
+            GROUP_DEFAULT = ENV['ONE_LOCATION'] + "/etc/group.default"
+        else
+            GROUP_DEFAULT = "/etc/one/group.default"
+        end
+
         # Creates a Group description with just its identifier
         # this method should be used to create plain Group objects.
         # +id+ the id of the user
@@ -54,6 +61,43 @@ module OpenNebula
             super(xml,client)
 
             @client = client
+        end
+        
+        # --------------------------------------------------------------------
+        # Group utils
+        # --------------------------------------------------------------------
+
+        # Creates ACLs for the group. The ACL rules are described in a file
+        def create_acls(filename = GROUP_DEFAULT)
+            if !File.readable?(filename)
+                return -1, "Can not read deafult ACL file for group"
+            end
+
+            msg = String.new
+            
+            File.open(filename).each_line{ |l|
+                next if l.match(/^#/)
+
+                rule  = "@#{@pe_id} #{l}"
+                parse = OpenNebula::Acl.parse_rule(rule)
+
+                if OpenNebula.is_error?(parse)
+                    return -1, "Error parsing rule #{rule}: #{parse.message}"
+                end
+
+                xml = OpenNebula::Acl.build_xml
+                acl = OpenNebula::Acl.new(xml, @client)
+
+                rc = acl.allocate(*parse)
+
+                if OpenNebula.is_error?(rc)
+                    return -1, "Error creating rule #{rule}: #{rc.message}"
+                else
+                    msg << "ACL_ID: #{acl.id}\n"
+                end
+            }
+
+            return 0, msg
         end
 
         # ---------------------------------------------------------------------
