@@ -29,7 +29,7 @@ module KVM
         :domifstat  => 'virsh --connect LIBVIRT_URI --readonly domifstat',
         'LIBVIRT_URI' => 'qemu:///system'
     }
-    
+
     def self.get_vm_info(vm_id)
         if !vm_id or vm_id.empty?
             STDERR.puts "VM id not specified"
@@ -71,7 +71,7 @@ module KVM
 
         values
     end
-    
+
     def self.get_all_vm_info
         names=get_vm_names
 
@@ -83,10 +83,10 @@ module KVM
 
             vms[vm]=info
         end
-        
+
         vms
     end
-    
+
 private
 
     def self.virsh(command)
@@ -99,7 +99,7 @@ private
         return nil if $?.exitstatus != 0
 
         lines=text.split(/\n/)
-        
+
         hash=Hash.new
 
         data=lines.map do |line|
@@ -181,7 +181,7 @@ module XEN
     CONF={
         'XM_POLL' => 'sudo /usr/sbin/xentop -bi2'
     }
-    
+
     def self.get_vm_info(vm_id)
         data = get_all_vm_info[vm_id]
 
@@ -191,40 +191,48 @@ module XEN
             return data
         end
     end
-    
+
     def self.get_all_vm_info
     begin
         text=`#{CONF['XM_POLL']}`
         lines=text.strip.split("\n")
         block_size=lines.length/2
         valid_lines=lines.last(block_size)
-        
-        domain_lines=valid_lines[4..-1]
-        
+
+        first_domain = 4
+        valid_lines.each_with_index{ |l,i|
+            if l.match 'NAME  STATE'
+                first_domain=i+1
+                break
+            end
+        }
+
+        domain_lines=valid_lines[first_domain..-1]
+
         domains=Hash.new
-        
+
         domain_lines.each do |dom|
             dom_data=dom.gsub('no limit', 'no-limit').strip.split
-            
+
             dom_hash=Hash.new
-            
+
             dom_hash[:name]=dom_data[0]
             dom_hash[:state]=get_state(dom_data[1])
             dom_hash[:usedcpu]=dom_data[3]
             dom_hash[:usedmemory]=dom_data[4]
             dom_hash[:nettx]=dom_data[10]
             dom_hash[:netrx]=dom_data[11]
-            
+
             domains[dom_hash[:name]]=dom_hash
         end
-        
+
         domains
     rescue
         STDERR.puts "Error executing #{CONF['XM_POLL']}"
         nil
     end
     end
-    
+
     def self.get_state(state)
         case state.gsub('-', '')[-1..-1]
         when *%w{r b s d}
@@ -263,7 +271,7 @@ def select_hypervisor
             hypervisor=XEN
         end
     end
-    
+
     hypervisor
 end
 
@@ -278,10 +286,10 @@ def load_vars(hypervisor)
     else
         return
     end
-    
+
 begin
     env=`. #{File.dirname($0)+"/#{file}"};env`
-    
+
     lines=env.split("\n")
     vars.each do |var|
         lines.each do |line|
@@ -345,4 +353,3 @@ if vm_id
 else
     print_all_vm_info(hypervisor)
 end
-
