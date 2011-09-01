@@ -221,6 +221,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/vmm/kvm \
           $VAR_LOCATION/remotes/hooks \
           $VAR_LOCATION/remotes/hooks/vnm \
+          $VAR_LOCATION/remotes/hooks/ft \
           $VAR_LOCATION/remotes/image \
           $VAR_LOCATION/remotes/image/fs \
           $VAR_LOCATION/remotes/auth \
@@ -341,7 +342,7 @@ INSTALL_FILES=(
     INSTALL_NOVNC_SHARE_FILE:$SHARE_LOCATION
     INSTALL_GEMS_SHARE_FILE:$SHARE_LOCATION
     TM_EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples/tm
-    HOOK_FILES:$VAR_LOCATION/remotes/hooks
+    HOOK_FT_FILES:$VAR_LOCATION/remotes/hooks/ft
     HOOK_NETWORK_FILES:$VAR_LOCATION/remotes/hooks/vnm
     COMMON_CLOUD_LIB_FILES:$LIB_LOCATION/ruby/cloud
     ECO_LIB_FILES:$LIB_LOCATION/ruby/cloud/econe
@@ -732,8 +733,7 @@ TM_EXAMPLE_SHARE_FILES="share/examples/tm/tm_clone.sh \
 # HOOK scripts, to be installed under $VAR_LOCATION/remotes/hooks
 #-------------------------------------------------------------------------------
 
-HOOK_FILES="share/hooks/host_error.rb \
-            share/hooks/image.rb"
+HOOK_FT_FILES="share/hooks/host_error.rb"
 
 #-------------------------------------------------------------------------------
 # Network Hook scripts, to be installed under $VAR_LOCATION/remotes/hooks
