@@ -190,13 +190,21 @@ class Quota
         quota = get_quota(user_id)
 
         msg = ""
-        info.each { |quota_name, quota_requested|
-            spent = total[quota_name].to_i + quota_requested.to_i
-            if quota[quota_name] && spent > quota[quota_name].to_i
-                msg << " #{quota_name.to_s.upcase} quota exceeded "
-                msg << "(Quota: #{quota[quota_name].to_i}, "
-                msg << "Used: #{spent.to_i}, "
-                msg << "Asked: #{quota_requested.to_i})."
+        info.each { |qname, quota_requested|
+            unless quota[qname]
+                next
+            end
+
+            used = send(DB_QUOTA_SCHEMA[qname].name.to_sym, total[qname])
+            request = send(DB_QUOTA_SCHEMA[qname].name.to_sym, quota_requested)
+            limit = send(DB_QUOTA_SCHEMA[qname].name.to_sym, quota[qname])
+            spent = used + request
+
+            if spent > limit
+                msg << " #{qname.to_s.upcase} quota exceeded "
+                msg << "(Quota: #{limit}, "
+                msg << "Used: #{used}, "
+                msg << "Asked: #{request})."
             end
         }
 
@@ -217,8 +225,6 @@ class Quota
     # Usage
     ###########################################################################
     def get_usage(user_id, resource=nil, force=false)
-        usage = Hash.new
-
         if force
             if RESOURCES.include?(resource)
                 resources = [resource]
@@ -226,24 +232,33 @@ class Quota
                 resources = RESOURCES
             end
 
+            usage = Hash.new
+
             resources.each{ |res|
                 pool = get_pool(res, user_id)
-
                 base_xpath = "/#{res}_POOL/#{resource}"
                 Quota.const_get("#{res}_USAGE".to_sym).each { |key, params|
-                    usage[key] ||= 0
                     pool.each_xpath("#{base_xpath}/#{params[:xpath]}") { |elem|
-                        usage[key] += params[:count] ? 1 : elem.to_i
+                        if elem
+                            usage[key] ||= 0
+                            if params[:count]
+                                usage[key] += 1
+                            else
+                                usage[key] += send(DB_QUOTA_SCHEMA[key].name.to_sym, elem)
+                            end
+                        end
                     }
                 }
 
-                set(USAGE_TABLE, user_id, usage)
+                set(USAGE_TABLE, user_id, usage) unless usage.empty?
+                usage.merge!(:uid => user_id)
             }
         else
             usage = get(USAGE_TABLE, user_id)
+            usage ||= {:uid => user_id}
         end
 
-        usage ? usage : Hash.new
+        usage
     end
 
     # Retrieve the useful information of the template for the specified
