@@ -104,7 +104,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         :name  => "time",
         :large => "--time x",
         :format => Integer,
-        :description => "Token duration in hours, (default 1)"
+        :description => "Token duration in seconds, defaults to 3600 (1 h)"
     }
 
     create_options = [READ_FILE, PLAIN, SSH, X509, KEY, CERT]
@@ -139,20 +139,21 @@ cmd=CommandParser::CmdParser.new(ARGV) do
           oneuser create my_user my_password
           oneuser create my_user /tmp/mypass -r
           oneuser create my_user --ssh --key /tmp/id_rsa
+          oneuser create my_user --ssh -r /tmp/public_key
           oneuser create my_user --x509 --cert /tmp/my_cert.pem
     EOT
 
     command :create, create_desc, :username, [:password, nil],
             :options=>create_options do
-        if options[:ssh] or options[:x509]
+        if args[1]
+            pass = args[1]
+        else
             rc = helper.password(options)
             if rc.first == 0
                 pass = rc[1]
             else
                 exit_with_code *rc
             end
-        else
-            pass = args[1]
         end
 
         helper.create_resource(options) do |user|
@@ -175,6 +176,27 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         helper.login(args[0], options)
     end
 
+    key_desc = <<-EOT.unindent
+        Shows a public key from a private SSH key. Use it as password
+        for the SSH authentication mechanism.
+    EOT
+
+    command :key, key_desc, :options=>[KEY] do
+        require 'ssh_auth'
+
+        options[:key] ||= ENV['HOME']+'/.ssh/id_rsa'
+
+        begin
+            sshauth = SshAuth.new(:private_key=>options[:key])
+        rescue Exception => e
+            exit_with_code -1, e.message
+        end
+
+        puts sshauth.public_key
+        exit_with_code 0
+    end
+
+
     delete_desc = <<-EOT.unindent
         Deletes the given User
     EOT
@@ -189,17 +211,17 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Changes the given User's password
     EOT
 
-    command :passwd, passwd_desc, :userid, :password,
+    command :passwd, passwd_desc, :userid, [:password, nil],
             :options=>create_options do
-        if options[:ssh] or options[:x509]
+        if args[1]
+            pass = args[1]
+        else
             rc = helper.password(options)
             if rc.first == 0
                 pass = rc[1]
             else
                 exit_with_code *rc
             end
-        else
-            pass = args[1]
         end
 
         helper.perform_action(args[0],options,"Password changed") do |user|
