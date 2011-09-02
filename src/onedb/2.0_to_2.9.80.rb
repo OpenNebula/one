@@ -256,10 +256,16 @@ module Migrator
             group  = (uid == 0) ? "oneadmin" : "users"
             public = row[:public]
 
+            total_leases = 0
+            @db.fetch("SELECT COUNT (ip) FROM old_leases WHERE (oid=#{oid} AND used=1)") do |r|
+                total_leases = r[:"COUNT (ip)"]
+            end
+
+
             # <TOTAL_LEASES> is stored in the DB, but it is not used to rebuild
             # the VirtualNetwork object, and it is generated each time the
             # network is listed. So setting it to 0 is safe
-            body = "<VNET><ID>#{oid}</ID><UID>#{uid}</UID><GID>#{gid}</GID><UNAME>#{get_username(uid)}</UNAME><GNAME>#{group}</GNAME><NAME>#{name}</NAME><TYPE>#{row[:type]}</TYPE><BRIDGE>#{row[:bridge]}</BRIDGE><PUBLIC>#{public}</PUBLIC><TOTAL_LEASES>0</TOTAL_LEASES>#{row[:template]}</VNET>"
+            body = "<VNET><ID>#{oid}</ID><UID>#{uid}</UID><GID>#{gid}</GID><UNAME>#{get_username(uid)}</UNAME><GNAME>#{group}</GNAME><NAME>#{name}</NAME><TYPE>#{row[:type]}</TYPE><BRIDGE>#{row[:bridge]}</BRIDGE><PUBLIC>#{public}</PUBLIC><TOTAL_LEASES>#{total_leases}</TOTAL_LEASES>#{row[:template]}</VNET>"
 
             @db[:network_pool].insert(
                 :oid        => oid,
