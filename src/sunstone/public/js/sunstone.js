@@ -388,22 +388,38 @@ function readCookie(){
 //signout button
 function setLogin(){
     //This variables can be used anywhere
-    username = cookie["one-user"];
-    uid = cookie["one-user_id"];
-    gid = cookie["one-user_gid"];
+    switch(whichUI()){
+    case "sunstone":
+        username = cookie["one-user"];
+        uid = cookie["one-user_id"];
+        gid = cookie["one-user_gid"];
+        break;
+    case "ozones":
+        username = cookie["ozones-user"];
+        break;
+    };
+
 
     $("div#header span#user").html(username);
+
     $("div#header a#logout").click(function(){
-        //todo, this is ugly
-        var f_logout = typeof(OpenNebula)!="undefined"?
-            OpenNebula.Auth.logout : oZones.Auth.logout;
-        f_logout({
-            success:function(){
-                window.location.href = "login";
-            }
-        });
+        redirect = function(){window.location.href = "login";};
+        switch(whichUI()){
+        case "sunstone":
+            OpenNebula.Auth.logout({success:redirect});
+            break;
+        case "ozones":
+            oZones.Auth.logout({success:redirect});
+            break;
+        }
         return false;
     });
+}
+
+//returns whether we are Sunstone, or oZones
+//not the most elegant way, but better in its own function
+function whichUI(){
+    return (typeof(OpenNebula)!="undefined"? "sunstone" : "ozones");
 }
 
 //Inserts all main tabs in the DOM

@@ -102,7 +102,7 @@ ADMIN_PASS = @auth.password
 ##############################################################################
 # Sinatra Configuration
 ##############################################################################
-use Rack::Session::Pool
+use Rack::Session::Pool, :key => 'ozones'
 set :host, config[:host]
 set :port, config[:port]
 set :show_exceptions, false
@@ -190,7 +190,7 @@ get '/' do
                       '/templates/login.html') unless authorized?
 
     time = Time.now + 60
-    response.set_cookie("one-user",
+    response.set_cookie("ozones-user",
                         :value=>"#{session[:user]}",
                         :expires=>time)
 

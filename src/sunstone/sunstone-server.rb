@@ -54,7 +54,7 @@ set :config, Configuration.new(CONFIGURATION_FILE)
 ##############################################################################
 # Sinatra Configuration
 ##############################################################################
-use Rack::Session::Pool
+use Rack::Session::Pool, :key => 'sunstone'
 set :host, settings.config[:host]
 set :port, settings.config[:port]
 

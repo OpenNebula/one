@@ -63,9 +63,5 @@ $(document).ready(function(){
         }
     });
 
-    $("#logout_btn").click(function () {
-        logout();
-    });
-
     $("input#username.box").get(0).focus();
 });
