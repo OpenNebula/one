@@ -1,3 +1,5 @@
+$: << '.'
+
 require 'helper/test_helper'
 
 describe "Quota testing" do
