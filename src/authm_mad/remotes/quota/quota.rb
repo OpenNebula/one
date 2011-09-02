@@ -32,7 +32,7 @@ class Quota
         ETC_LOCATION = ONE_LOCATION + "/etc"
     end
 
-    CONF_FILE = ETC_LOCATION + "/quota.conf"
+    CONF_FILE = ETC_LOCATION + "/auth/quota.conf"
 
     CONF = {
         :db => "sqlite://#{VAR_LOCATION}/onequota.db",
