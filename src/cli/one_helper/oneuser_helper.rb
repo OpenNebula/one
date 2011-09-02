@@ -37,7 +37,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
                 return -1, "Can not read file: #{arg}"
             end
         else
-            if options[:plain]
+            if options[:plain] || options[:ssh]
                 password = arg.gsub(/\s/, '')
             else
                 password = Digest::SHA1.hexdigest(arg)
@@ -49,9 +49,11 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
 
     def password(options)
         if options[:ssh]
-            require 'ssh_auth'
+            if !options[:key]
+                return -1, "You have to specify the --key option"
+            end
 
-            options[:key] ||= ENV['HOME']+'/.ssh/id_rsa'
+            require 'ssh_auth'
 
             begin
                 sshauth = SshAuth.new(:private_key=>options[:key])
@@ -61,9 +63,13 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
 
             return 0, sshauth.public_key
         elsif options[:x509]
-            require 'x509_auth'
-
             options[:cert] ||= ENV['X509_USER_CERT']
+
+            if !options[:cert]
+                return -1, "You have to specify the --cert option"
+            end
+
+            require 'x509_auth'
 
             begin
                 cert     = [File.read(options[:cert])]

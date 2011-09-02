@@ -139,20 +139,21 @@ cmd=CommandParser::CmdParser.new(ARGV) do
           oneuser create my_user my_password
           oneuser create my_user /tmp/mypass -r
           oneuser create my_user --ssh --key /tmp/id_rsa
+          oneuser create my_user --ssh -r /tmp/public_key
           oneuser create my_user --x509 --cert /tmp/my_cert.pem
     EOT
 
     command :create, create_desc, :username, [:password, nil],
             :options=>create_options do
-        if options[:ssh] or options[:x509]
+        if args[1]
+            pass = args[1]
+        else
             rc = helper.password(options)
             if rc.first == 0
                 pass = rc[1]
             else
                 exit_with_code *rc
             end
-        else
-            pass = args[1]
         end
 
         helper.create_resource(options) do |user|
@@ -174,6 +175,26 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             :options=>login_options do
         helper.login(args[0], options)
     end
+
+    key_desc = <<-EOT.unindent
+        Generates a public key from a private SSH key
+    EOT
+
+    command :key, key_desc, :options=>[KEY] do
+        require 'ssh_auth'
+
+        options[:key] ||= ENV['HOME']+'/.ssh/id_rsa'
+
+        begin
+            sshauth = SshAuth.new(:private_key=>options[:key])
+        rescue Exception => e
+            exit_with_code -1, e.message
+        end
+
+        puts sshauth.public_key
+        exit_with_code 0
+    end
+
 
     delete_desc = <<-EOT.unindent
         Deletes the given User
