@@ -98,14 +98,14 @@ module OneWatchClient
             max_per_vm =
                 rsql.
                 group(:id, :last_poll).
-                select(:last_poll, :MAX[mr.to_sym].as(:max_mr))
+                select{[:last_poll, max(mr.to_sym).as(:max_mr)]}
 
             # SUM the monitoring resource for each last_poll value
             last_poll_and_sum =
                 max_per_vm.
                 from_self.
                 group(:last_poll).
-                select(:last_poll, :SUM[:max_mr].as(:sum_mr))
+                select{[:last_poll, sum(:max_mr).as(:sum_mr)]}
 
             # Retrieve the information in an Array
             a = Array.new
@@ -113,7 +113,7 @@ module OneWatchClient
                 if row[:last_poll] && row[:last_poll] != 0
                     a << [row[:last_poll], row[:sum_mr].to_i]
                 end
-            end
+            end 
 
             a
         end

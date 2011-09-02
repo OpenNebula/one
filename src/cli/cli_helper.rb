@@ -127,6 +127,7 @@ module CLIHelper
         end
 
         def default(*args)
+            args.map!{|a| a.to_sym }
             @default_columns=args
         end
 
@@ -194,7 +195,7 @@ module CLIHelper
                 size=@columns[field][:size]
                 return "%#{minus}#{size}.#{size}s" % [ data.to_s ]
             else
-                exit -1, "Column not defined"
+                exit -1, "Column #{field} not defined."
             end
         end
 
@@ -222,7 +223,7 @@ module CLIHelper
                 if @columns[c]
                     format_str(c, c.to_s)
                 else
-                    puts "Column not defined"
+                    puts "Column #{c} not defined."
                     exit -1
                 end
             }.compact.join(' ')

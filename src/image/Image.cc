@@ -43,6 +43,7 @@ Image::Image(int             _uid,
         type(OS),
         regtime(time(0)),
         source("-"),
+        size_mb(0),
         state(INIT),
         running_vms(0)
 {
@@ -334,6 +335,7 @@ string& Image::to_xml(string& xml) const
             "<PERSISTENT>"     << persistent_img  << "</PERSISTENT>"  <<
             "<REGTIME>"        << regtime         << "</REGTIME>"     <<
             "<SOURCE>"         << source          << "</SOURCE>"      <<
+            "<SIZE>"           << size_mb         << "</SIZE>"        <<
             "<STATE>"          << state           << "</STATE>"       <<
             "<RUNNING_VMS>"    << running_vms     << "</RUNNING_VMS>" <<
             obj_template->to_xml(template_xml)                        <<
@@ -374,6 +376,7 @@ int Image::from_xml(const string& xml)
     rc += xpath(regtime, "/IMAGE/REGTIME", 0);
 
     rc += xpath(source, "/IMAGE/SOURCE", "not_found");
+    rc += xpath(size_mb, "/IMAGE/SIZE", 0);
     rc += xpath(int_state, "/IMAGE/STATE", 0);
     rc += xpath(running_vms, "/IMAGE/RUNNING_VMS", -1);
 

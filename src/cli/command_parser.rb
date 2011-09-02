@@ -223,7 +223,7 @@ EOT
 
             @opts.each{ |o|
                 str = ""
-                str << o[:short] if o[:short]
+                str << o[:short].split(' ').first << ', ' if o[:short]
                 str << o[:large]
 
                 printf opt_format, str, o[:description]

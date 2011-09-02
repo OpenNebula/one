@@ -363,11 +363,11 @@ EOT
 
     BinarySufix = ["K", "M", "G", "T" ]
 
-    def OpenNebulaHelper.unit_to_str(value, options)
+    def OpenNebulaHelper.unit_to_str(value, options, unit="K")
         if options[:kilobytes]
             value
         else
-            i=0
+            i=BinarySufix.index(unit).to_i
 
             while value > 1024 && i < 3 do
                 value /= 1024.0

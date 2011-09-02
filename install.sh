@@ -229,6 +229,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/auth/ssh \
           $VAR_LOCATION/remotes/auth/x509 \
           $VAR_LOCATION/remotes/auth/server \
+          $VAR_LOCATION/remotes/auth/quota \
           $VAR_LOCATION/remotes/auth/dummy"
 
 SUNSTONE_DIRS="$SUNSTONE_LOCATION/models \
@@ -326,6 +327,7 @@ INSTALL_FILES=(
     AUTH_SERVER_FILES:$VAR_LOCATION/remotes/auth/server
     AUTH_DUMMY_FILES:$VAR_LOCATION/remotes/auth/dummy
     AUTH_PLAIN_FILES:$VAR_LOCATION/remotes/auth/plain    
+    AUTH_QUOTA_FILES:$VAR_LOCATION/remotes/auth/quota    
     VMM_EXEC_KVM_SCRIPTS:$VAR_LOCATION/remotes/vmm/kvm
     VMM_EXEC_XEN_SCRIPTS:$VAR_LOCATION/remotes/vmm/xen
     VMM_EXEC_XEN_KVM_POLL:$VAR_LOCATION/remotes/vmm/kvm/poll
@@ -467,6 +469,7 @@ BIN_FILES="src/nebula/oned \
            src/cli/onetemplate \
            src/cli/oneacl \
            src/onedb/onedb \
+           src/authm_mad/remotes/quota/onequota \
            share/scripts/one"
 
 #-------------------------------------------------------------------------------
@@ -490,6 +493,7 @@ RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/oca/ruby/OpenNebula.rb \
                 src/tm_mad/TMScript.rb \
                 src/authm_mad/remotes/ssh/ssh_auth.rb \
+                src/authm_mad/remotes/quota/quota.rb \
                 src/authm_mad/remotes/server/server_auth.rb \
                 src/authm_mad/remotes/x509/x509_auth.rb"
 
@@ -595,6 +599,8 @@ AUTH_SSH_FILES="src/authm_mad/remotes/ssh/authenticate"
 AUTH_DUMMY_FILES="src/authm_mad/remotes/dummy/authenticate"
 
 AUTH_PLAIN_FILES="src/authm_mad/remotes/plain/authenticate"
+
+AUTH_QUOTA_FILES="src/authm_mad/remotes/quota/authorize"
 
 #-------------------------------------------------------------------------------
 # Transfer Manager commands, to be installed under $LIB_LOCATION/tm_commands
@@ -708,6 +714,7 @@ HM_ETC_FILES="src/hm_mad/hmrc"
 #-------------------------------------------------------------------------------
 
 AUTH_ETC_FILES="src/authm_mad/remotes/server/server_auth.conf \
+                src/authm_mad/remotes/quota/quota.conf \
                 src/authm_mad/remotes/x509/x509_auth.conf"
 
 #-------------------------------------------------------------------------------
