@@ -85,7 +85,7 @@ module OpenNebula
             XMLPARSER=false
         end
 
-        def initialize(secret=nil, endpoint=nil)
+        def initialize(secret=nil, endpoint=nil, hash=true)
             if secret
                 one_secret = secret
             elsif ENV["ONE_AUTH"] and !ENV["ONE_AUTH"].empty? and File.file?(ENV["ONE_AUTH"])
@@ -101,7 +101,12 @@ module OpenNebula
             if tokens.length > 2
                 @one_auth = one_secret
             elsif tokens.length == 2
-                @one_auth = "#{tokens[0]}:#{Digest::SHA1.hexdigest(tokens[1])}"
+                if hash
+                    pass = Digest::SHA1.hexdigest(tokens[1])
+                else
+                    pass = tokens[1]
+                end
+                @one_auth = "#{tokens[0]}:#{pass}"
             else
                 raise "Authorization file malformed"
             end

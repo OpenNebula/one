@@ -21,8 +21,9 @@ class OCAInteraction
     # Creates a VDC (user, group, hosts)
     def create_vdc_in_zone(zone,vdc,adminname, adminpass)
         # Create a new client to interact with the zone
-        client = OpenNebula::Client.new(zone.onename + ":plain:" + zone.onepass,
-                                        zone.endpoint)
+        client = OpenNebula::Client.new(zone.onename + ":" + zone.onepass,
+                                        zone.endpoint,
+                                        false)
         
         # Create a group in the zone with the VDC name
         group  = OpenNebula::Group.new(OpenNebula::Group.build_xml, client)
@@ -87,8 +88,9 @@ class OCAInteraction
         zone= OZones::Zones.get(vdc.zones_id)
 
         # Create a new client to interact with the zone
-        client = OpenNebula::Client.new(zone.onename + ":plain:" + zone.onepass,
-                                        zone.endpoint)
+        client = OpenNebula::Client.new(zone.onename + ":" + zone.onepass,
+                                        zone.endpoint,
+                                        false)
                             
         # Get the id of vdcadmin                             
         vdcgroupid = OpenNebulaHelper::OneHelper.id_to_name(vdc.name,      
@@ -126,8 +128,9 @@ class OCAInteraction
     # Creates a VDC (user, group, hosts)
     def check_oneadmin(oneadminname, oneadminpass, endpoint)
         # Create a new client to interact with the zone
-        client = OpenNebula::Client.new(oneadminname + ":plain:" + oneadminpass,
-                                        endpoint)
+        client = OpenNebula::Client.new(oneadminname + ":" + oneadminpass,
+                                        endpoint,
+                                        false)
 
         hostpool=OpenNebula::HostPool.new(client)
         result = hostpool.info
