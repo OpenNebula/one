@@ -96,23 +96,30 @@ class OneDB
     # May be used in next releases
     def upgrade(max_version, ops)
         version, timestamp, comment = @backend.read_db_version
-        
+
         if ops[:verbose]
             puts "Version read:"
             puts "#{version} : #{comment}"
             puts ""
         end
 
-        ########################################################################
-        # For now, look for the only file we can migrate to, *_to_2.9.80.rb
-        ########################################################################
+        matches = Dir.glob("#{RUBY_LIB_LOCATION}/onedb/#{version}_to_*.rb")
 
-        result = nil
-        file = "#{RUBY_LIB_LOCATION}/onedb/#{version}_to_2.9.80.rb"
-
-        if File.exists?(file)
+        if ( matches.size > 0 )
             # At least one upgrade will be executed, make DB backup
             backup(ops[:backup], ops)
+        end
+
+        result = nil
+        i = 0
+
+        while ( matches.size > 0 )
+            if ( matches.size > 1 )
+                raise "There are more than one file that match \
+                        \"#{RUBY_LIB_LOCATION}/onedb/#{version}_to_*.rb\""
+            end
+
+            file = matches[0]
 
             puts "  > Running migrator #{file}" if ops[:verbose]
 
@@ -127,6 +134,9 @@ class OneDB
 
             puts "  > Done" if ops[:verbose]
             puts "" if ops[:verbose]
+
+            matches = Dir.glob(
+                "#{RUBY_LIB_LOCATION}/onedb/#{@backend.db_version}_to_*.rb")
         end
 
         # Modify db_versioning table
