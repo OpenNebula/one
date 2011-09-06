@@ -34,8 +34,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     usage "`oneuser` <command> [<args>] [<options>]"
     version OpenNebulaHelper::ONE_VERSION
 
-    helper = OneUserHelper.new
-
     ########################################################################
     # Global Options
     ########################################################################
@@ -118,10 +116,12 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     end
 
     set :format, :userid, OneUserHelper.to_id_desc do |arg|
+        helper = OneUserHelper.new
         helper.to_id(arg)
     end
 
     set :format, :userid_list, OneUserHelper.list_to_id_desc do |arg|
+        helper = OneUserHelper.new
         helper.list_to_id(arg)
     end
 
@@ -145,6 +145,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     command :create, create_desc, :username, [:password, nil],
             :options=>create_options do
+        helper = OneUserHelper.new
+
         if args[1]
             pass = args[1]
         else
@@ -171,9 +173,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                                 --time 72000
     EOT
 
-    command :login, login_desc, :username, [:password, nil],
-            :options=>login_options do
-        helper.login(args[0], options)
+    command :login, login_desc, :username, :options=>login_options do
+        OneUserHelper.login(args[0], options)
     end
 
     key_desc = <<-EOT.unindent
@@ -202,6 +203,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :delete, delete_desc, [:range, :userid_list] do
+        helper = OneUserHelper.new
         helper.perform_actions(args[0],options,"deleted") do |user|
             user.delete
         end
@@ -213,6 +215,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     command :passwd, passwd_desc, :userid, [:password, nil],
             :options=>create_options do
+        helper = OneUserHelper.new
+
         if args[1]
             pass = args[1]
         else
@@ -234,6 +238,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :chgrp, chgrp_desc, [:range, :userid_list], :groupid do
+        helper = OneUserHelper.new
         helper.perform_actions(args[0],options,"Group changed") do |user|
             user.chgrp(args[1].to_i)
         end
@@ -244,6 +249,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :list, list_desc, :options=>list_options do
+        helper = OneUserHelper.new
         helper.list_pool(options)
     end
 
@@ -254,6 +260,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     command :show, show_desc, [:userid, nil],
             :options=>OpenNebulaHelper::XML do
         user=args[0] || OpenNebula::User::SELF
+        helper = OneUserHelper.new
         helper.show_resource(user,options)
     end
 

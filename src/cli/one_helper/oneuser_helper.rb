@@ -84,7 +84,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         end
     end
 
-    def login(username, options)
+    def self.login(username, options)
         if options[:ssh]
             require 'ssh_auth'
 
