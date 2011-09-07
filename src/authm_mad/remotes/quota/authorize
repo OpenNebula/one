@@ -35,7 +35,7 @@ require 'quota'
 user_id = ARGV.shift
 
 overall_evalutation = ARGV.pop
-exit -1 if overall_evalutation == 0
+exit -1 if overall_evalutation.to_i == 0
 
 quota = Quota.new
 

@@ -169,7 +169,7 @@ class Quota
     def authorize(user_id, request)
         obj, template_or_id, op, owner, pub, acl_eval = request.split(':')
 
-        if acl_eval == 0
+        if acl_eval.to_i == 0
             return "ACL evaluation denied"
         end
 
@@ -204,7 +204,7 @@ class Quota
                 msg << " #{qname.to_s.upcase} quota exceeded "
                 msg << "(Quota: #{limit}, "
                 msg << "Used: #{used}, "
-                msg << "Asked: #{request})."
+                msg << "Requested: #{request})"
             end
         }
 
