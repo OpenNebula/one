@@ -46,7 +46,7 @@ var dashboard_tab_content =
 '<table id="dashboard_table">\
 <tr>\
 <td style="width:40%">\
-<table id="information_table">\
+<table id="information_table" style="width:100%">\
   <tr>\
     <td>\
       <div class="panel">\

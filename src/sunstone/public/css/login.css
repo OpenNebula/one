@@ -52,8 +52,7 @@ div#logo_sunstone {
     top: 80px;
     margin-left: auto;
     margin-right: auto;
-    background: url(../images/opennebula-sunstone-big.png) no-repeat center ;
-
+    background: url(../images/opennebula-sunstone-big.png) no-repeat center;
     vertical-align: center;
 }
 
@@ -135,7 +134,7 @@ div#login input#login_btn:hover {
 .error_message {
   display: none;
   position: relative;
-  top: 150px;
+  top: 80px;
   font-family: Arial, Helvetica, sans-serif;
   color:red;
   font-size:1.6em;

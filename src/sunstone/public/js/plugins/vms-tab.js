@@ -1075,9 +1075,10 @@ $(document).ready(function(){
         "bAutoWidth":false,
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "60px", "aTargets": [0] },
-            { "sWidth": "35px", "aTargets": [1,9] },
-            { "sWidth": "100px", "aTargets": [2,3,4] }
+            { "sWidth": "60px", "aTargets": [0,6,7] },
+            { "sWidth": "35px", "aTargets": [1,10] },
+            { "sWidth": "150px", "aTargets": [5,9] },
+            { "sWidth": "100px", "aTargets": [2,3] }
         ]
     });
 

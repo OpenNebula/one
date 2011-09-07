@@ -32,7 +32,7 @@ var images_tab_content =
       <th>Registration time</th>\
       <th>Public</th>\
       <th>Persistent</th>\
-      <th>State</th>\
+      <th>Status</th>\
       <th>#VMS</th>\
     </tr>\
   </thead>\
@@ -750,9 +750,10 @@ $(document).ready(function(){
         "sPaginationType": "full_numbers",
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "60px", "aTargets": [0,3] },
-            { "sWidth": "35px", "aTargets": [1] },
-            { "sWidth": "100px", "aTargets": [2,3,4] }
+            { "sWidth": "60px", "aTargets": [0,2,3,5,7,8,9] },
+            { "sWidth": "35px", "aTargets": [1,10] },
+            { "sWidth": "100px", "aTargets": [9] },
+            { "sWidth": "150px", "aTargets": [6] }
         ]
     });
 
