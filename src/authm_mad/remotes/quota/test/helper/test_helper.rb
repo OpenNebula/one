@@ -13,7 +13,7 @@ $: << '.'
 $: << '..'
 
 require 'mock_client'
-require 'opennebula'
+require 'OpenNebula'
 require 'quota'
 
 class Quota
