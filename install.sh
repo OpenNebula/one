@@ -76,7 +76,7 @@ while true ; do
         -l) LINK="yes" ; shift ;;
         -c) CLIENT="yes"; INSTALL_ETC="no" ; shift ;;
         -s) SUNSTONE="yes"; shift ;;
-        -o) OZONES="yes"; INSTALL_ETC="no" ; shift ;;
+        -o) OZONES="yes"; shift ;;
         -u) ONEADMIN_USER="$2" ; shift 2;;
         -g) ONEADMIN_GROUP="$2"; shift 2;;
         -d) ROOT="$2" ; shift 2 ;;
@@ -107,7 +107,7 @@ if [ -z "$ROOT" ] ; then
     MAN_LOCATION="/usr/share/man/man1"
 
     if [ "$CLIENT" = "yes" ]; then
-        MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION"
+        MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION"
 
         DELETE_DIRS=""
 
@@ -120,7 +120,8 @@ if [ -z "$ROOT" ] ; then
 
         CHOWN_DIRS=""
     elif [ "$OZONES" = "yes" ]; then
-        MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $VAR_LOCATION $OZONES_LOCATION"
+        MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $VAR_LOCATION $OZONES_LOCATION \
+                    $ETC_LOCATION"
  
         DELETE_DIRS="$MAKE_DIRS"
  
@@ -150,7 +151,7 @@ else
     MAN_LOCATION="$ROOT/share/man/man1"
 
     if [ "$CLIENT" = "yes" ]; then
-        MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $CONF_LOCATION"
+        MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION"
 
         DELETE_DIRS="$MAKE_DIRS"
     elif [ "$SUNSTONE" = "yes" ]; then
@@ -286,7 +287,7 @@ LIB_OCA_CLIENT_DIRS="$LIB_LOCATION/ruby \
 LIB_CLI_CLIENT_DIRS="$LIB_LOCATION/ruby/cli \
                      $LIB_LOCATION/ruby/cli/one_helper"
 
-CONF_CLI_DIRS="$CONF_LOCATION/cli"
+CONF_CLI_DIRS="$ETC_LOCATION/cli"
 
 if [ "$CLIENT" = "yes" ]; then
     MAKE_DIRS="$MAKE_DIRS $LIB_ECO_CLIENT_DIRS $LIB_OCCI_CLIENT_DIRS \
@@ -374,7 +375,7 @@ INSTALL_CLIENT_FILES=(
     OZONES_BIN_CLIENT_FILES:$BIN_LOCATION
     OZONES_LIB_CLIENT_CLI_FILES:$LIB_LOCATION/ruby/cli
     OZONES_LIB_CLIENT_CLI_HELPER_FILES:$LIB_LOCATION/ruby/cli/ozones_helper
-    CLI_CONF_FILES:$CONF_LOCATION/cli
+    CLI_CONF_FILES:$ETC_LOCATION/cli
     OCA_LIB_FILES:$LIB_LOCATION/ruby
     RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/OpenNebula
 )
@@ -415,7 +416,6 @@ INSTALL_OZONES_RUBY_FILES=(
 INSTALL_OZONES_FILES=(
     OZONES_FILES:$OZONES_LOCATION
     OZONES_BIN_FILES:$BIN_LOCATION
-    OZONES_ETC_FILES:$ETC_LOCATION
     OZONES_MODELS_FILES:$OZONES_LOCATION/models
     OZONES_TEMPLATE_FILES:$OZONES_LOCATION/templates
     OZONES_LIB_FILES:$OZONES_LOCATION/lib
@@ -433,6 +433,10 @@ INSTALL_OZONES_FILES=(
     OZONES_BIN_CLIENT_FILES:$BIN_LOCATION
     OZONES_LIB_CLIENT_CLI_FILES:$LIB_LOCATION/ruby/cli
     OZONES_LIB_CLIENT_CLI_HELPER_FILES:$LIB_LOCATION/ruby/cli/ozones_helper
+)
+
+INSTALL_OZONES_ETC_FILES=(
+    OZONES_ETC_FILES:$ETC_LOCATION
 )
 
 INSTALL_ETC_FILES=(
@@ -1189,9 +1193,12 @@ done
 if [ "$INSTALL_ETC" = "yes" ] ; then
     if [ "$SUNSTONE" = "yes" ]; then
         INSTALL_ETC_SET="${INSTALL_SUNSTONE_ETC_FILES[@]}"
+    elif [ "$OZONES" = "yes" ]; then
+        INSTALL_ETC_SET="${INSTALL_OZONES_ETC_FILES[@]}"
     else
         INSTALL_ETC_SET="${INSTALL_ETC_FILES[@]} \
-                         ${INSTALL_SUNSTONE_ETC_FILES[@]}"
+                         ${INSTALL_SUNSTONE_ETC_FILES[@]} \
+                         ${INSTALL_OZONES_ETC_FILES[@]}"
     fi
 
     for i in ${INSTALL_ETC_SET[@]}; do
