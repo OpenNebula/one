@@ -135,7 +135,7 @@ div#login input#login_btn:hover {
 .error_message {
   display: none;
   position: relative;
-  top: 150px;
+  top: 80px;
   font-family: Arial, Helvetica, sans-serif;
   color:red;
   font-size:1.6em;

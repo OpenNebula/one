@@ -463,7 +463,8 @@ function updateZoneInfo(req,zone_json){
         "bAutoWidth":false,
         "aoColumnDefs": [
             { "sWidth": "35px", "aTargets": [0] },
-            { "sWidth": "100px", "aTargets": [1,2,3,4] }
+            { "sWidth": "60px", "aTargets": [5,6] },
+            { "sWidth": "100px", "aTargets": [1,2,4,8] }
         ]
     });
 
@@ -488,7 +489,7 @@ function updateZoneInfo(req,zone_json){
         "aoColumnDefs": [
             { "sWidth": "60px", "aTargets": [8] },
             { "sWidth": "35px", "aTargets": [0,6,7,9] },
-            { "sWidth": "100px", "aTargets": [1,2,3,5] }
+            { "sWidth": "100px", "aTargets": [1,2,4,5] }
         ]
     });
 
