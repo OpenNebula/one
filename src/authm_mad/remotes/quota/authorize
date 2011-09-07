@@ -29,7 +29,7 @@ end
 $: << RUBY_LIB_LOCATION
 
 require 'scripts_common'
-require 'opennebula'
+require 'OpenNebula'
 require 'quota'
 
 user_id = ARGV.shift
