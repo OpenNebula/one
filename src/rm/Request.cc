@@ -189,13 +189,16 @@ string Request::authorization_error (const string &message,
 {
     ostringstream oss;
 
-    oss << "[" << method_name << "]" << " User [" << att.uid << "] not authorized"
-        << " to perform action on " << object_name(auth_object) << ".";
+    oss << "[" << method_name << "]" << " User [" << att.uid << "] ";
 
-
-    if ( !message.empty() )
+    if ( message.empty() )
     {
-        oss << message ;
+        oss << "not authorized to perform action on "
+            << object_name(auth_object) << ".";
+    }
+    else
+    {
+        oss << ": " << message << ".";
     }
 
     return oss.str();
