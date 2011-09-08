@@ -18,6 +18,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     usage "`onevdc` command [<args>] [<options>]"
     version OpenNebulaHelper::ONE_VERSION
     
+    set :format, :vdcid, "VDC ID" do |arg|
+        arg.match(/^[0123456789]+$/) ? [0,arg] : [-1]
+    end
+
     ########################################################################
     # Global Options
     ######################################################################## 
@@ -34,7 +38,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         helper.create_resource(args[0])
     end
     
-    command :show, 'Show information of a particular VDC', :text do
+    command :show, 'Show information of a particular VDC', :vdcid do
         helper.show_resource(args[0],options)
     end
     

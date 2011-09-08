@@ -65,7 +65,13 @@ EOT
 
     class OneHelper
         def initialize(secret=nil, endpoint=nil, hash=true)
-            @client = OpenNebula::Client.new(secret,endpoint,hash)
+            begin
+                @client = OpenNebula::Client.new(secret,endpoint,hash)
+            rescue Exception => e
+                puts e.message
+                exit -1
+            end
+
             @translation_hash = nil
         end
 

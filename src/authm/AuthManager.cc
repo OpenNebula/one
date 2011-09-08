@@ -117,6 +117,28 @@ void AuthRequest::add_auth(Object        ob,
     self_authorize = self_authorize && auth;
 
     auths.push_back(oss.str());
+
+    if ( auth == false )
+    {
+        ostringstream oss;
+
+        oss << message;
+
+        if ( !message.empty() )
+        {
+            oss << "; ";
+        }
+
+        oss << "Not authorized to perform " << Operation_to_str(op)
+            << " " << Object_to_str(ob);
+
+        if ( ob_id_int != -1 )
+        {
+            oss << " [" << ob_id << "]";
+        }
+
+        message = oss.str();
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -417,7 +439,16 @@ void AuthManager::notify_request(int auth_id,bool result,const string& message)
     }
 
     ar->result = result;
-    ar->message= message;
+
+    if ( message != "-" )
+    {
+        if ( !ar->message.empty() )
+        {
+            ar->message.append("; ");
+        }
+
+        ar->message.append(message);
+    }
 
     ar->notify();
 }
