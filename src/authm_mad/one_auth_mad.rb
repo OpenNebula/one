@@ -109,7 +109,7 @@ class AuthDriver < OpenNebulaDriver
                 ACTION[:authN],
                 RESULT[:failure],
                 request_id,
-                "Authentication rotocol '#{protocol}' not available")
+                "Authentication protocol '#{protocol}' not available")
         end
 
         #build path for the auth action
