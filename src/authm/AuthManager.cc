@@ -442,16 +442,12 @@ void AuthManager::notify_request(int auth_id,bool result,const string& message)
 
     if ( message != "-" )
     {
-        ostringstream oss;
-
         if ( !ar->message.empty() )
         {
-            oss << ar->message << "; ";
+            ar->message.append("; ");
         }
 
-        oss << message;
-
-        ar->message = oss.str();
+        ar->message.append(message);
     }
 
     ar->notify();
