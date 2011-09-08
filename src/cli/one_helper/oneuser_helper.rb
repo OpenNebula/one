@@ -117,12 +117,11 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
             begin  
                 proxy = File.read(options[:proxy])
 
-                rc = proxy.scan(/(-+BEGIN CERTIFICATE-+\n[^-]*\n-+END CERTIFICATE-+)/)
-                certs = rc.flatten!
+                certs = proxy.scan(/(-+BEGIN CERTIFICATE-+\n[^-]*\n-+END CERTIFICATE-+)/)
+                certs.flatten!
 
                 rc = proxy.match(/(-+BEGIN RSA PRIVATE KEY-+\n[^-]*\n-+END RSA PRIVATE KEY-+)/)
-
-                key  = rc[1]
+                key= rc[1]
 
                 auth = X509Auth.new(:certs_pem=>certs, :key_pem=>key)
             rescue => e
