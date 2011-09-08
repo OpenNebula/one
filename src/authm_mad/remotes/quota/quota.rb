@@ -190,6 +190,7 @@ class Quota
         quota = get_quota(user_id)
 
         msg = ""
+        separator = ""
         info.each { |qname, quota_requested|
             unless quota[qname]
                 next
@@ -201,10 +202,13 @@ class Quota
             spent = used + request
 
             if spent > limit
+                msg << separator
                 msg << " #{qname.to_s.upcase} quota exceeded "
                 msg << "(Quota: #{limit}, "
                 msg << "Used: #{used}, "
                 msg << "Requested: #{request})"
+
+                separator = ";"
             end
         }
 
