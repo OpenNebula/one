@@ -49,7 +49,9 @@ class AuthDriver < OpenNebulaDriver
     #
     # @param [String] the authorization method to be used, nil to use the 
     #        built-in ACL engine
-    def initialize(authZ, nthreads)
+    # @param [Array] authentication modules enabled, nil will use any
+    #        any method existing in remotes directory
+    def initialize(authZ, authN, nthreads)
         super(
             "auth",
             :concurrency   => nthreads,
@@ -65,6 +67,20 @@ class AuthDriver < OpenNebulaDriver
             @authZ_cmd = File.join(@authZ_cmd, ACTION[:authZ].downcase)
         else
             @authZ_cmd = nil
+        end
+
+        if authN == nil
+            # get the directories from remotes dir that have an authenticate
+            # script
+            @authN_protocols=Dir[@local_scripts_path+"/*/authenticate"].map do |d|
+                d.split('/')[-2]
+            end
+        else
+            if authN.class==String
+                @authN_protocols=[authN]
+            else
+                @authN_protocols=authN
+            end
         end
     end
 
@@ -86,6 +102,14 @@ class AuthDriver < OpenNebulaDriver
         else
             protocol = secret_attr[0]
             secret_attr.shift
+        end
+
+        unless @authN_protocols.include?(protocol)
+            return send_message(
+                ACTION[:authN],
+                RESULT[:failure],
+                request_id,
+                "Authentication rotocol '#{protocol}' not available")
         end
 
         #build path for the auth action
@@ -133,11 +157,13 @@ end
 # Auth Driver Main program
 opts = GetoptLong.new(
     [ '--threads',    '-t', GetoptLong::REQUIRED_ARGUMENT ],
-    [ '--authz',      '-z', GetoptLong::REQUIRED_ARGUMENT ]
+    [ '--authz',      '-z', GetoptLong::REQUIRED_ARGUMENT ],
+    [ '--authn',      '-n', GetoptLong::REQUIRED_ARGUMENT ]
 )
 
 threads = 15
 authz   = nil
+authn   = nil
 
 begin
     opts.each do |opt, arg|
@@ -146,12 +172,14 @@ begin
                 threads = arg.to_i
             when '--authz'
                 authz   = arg
+            when '--authn'
+                authn   = arg.split(',').map {|a| a.strip }
         end
     end
 rescue Exception => e
     exit(-1)
 end
 
-auth_driver = AuthDriver.new(authz, threads)
+auth_driver = AuthDriver.new(authz, authn, threads)
 
 auth_driver.start_driver
