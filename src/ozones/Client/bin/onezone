@@ -17,15 +17,19 @@ require 'ozones_helper/zones_helper.rb'
 cmd=CommandParser::CmdParser.new(ARGV) do
     usage "`onezone` <command> [<args>] [<options>]"
     version OpenNebulaHelper::ONE_VERSION
-    
+
+    set :format, :zoneid, "Zone ID" do |arg|
+        arg.match(/^[0123456789]+$/) ? [0,arg] : [-1]
+    end
+
     ########################################################################
     # Global Options
-    ######################################################################## 
+    ########################################################################
     set :option, CommandParser::OPTIONS
-    
+
     begin
         helper = ZonesHelper.new "zone"
-    rescue Exception => e  
+    rescue Exception => e
         warn e.message
         exit -1
     end
@@ -33,8 +37,16 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     command :create, 'Create a new Zone', :file do
         helper.create_resource(args[0])
     end
-    
-    command :show, 'Show information of a particular Zone', :text, [:text, nil] do
+
+    show_desc = <<-EOT.unindent
+        Show information of a particular Zone
+        Available resources: host, vm, image, vn, template, user
+        Examples:
+          onezone show 4
+          onezone show 4 host
+    EOT
+
+    command :show, show_desc, :zoneid, [:resource, nil] do
         zone=helper.show_resource(args[0],options)[1]
 
         case args[1]
@@ -44,54 +56,54 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                                 zone['endpoint'],
                                 false)
 
-                aux_helper.list_pool(options)  
+                aux_helper.list_pool(options)
             when "vm"
                 aux_helper  = OneVMHelper.new(
                                 zone['onename'] + ":" + zone['onepass'],
                                 zone['endpoint'],
                                 false)
 
-                aux_helper.list_pool(options)  
+                aux_helper.list_pool(options)
             when "image"
                 aux_helper  = OneImageHelper.new(
                                 zone['onename'] + ":" + zone['onepass'],
                                 zone['endpoint'],
                                 false)
 
-                aux_helper.list_pool(options)  
+                aux_helper.list_pool(options)
             when "vn"
                 aux_helper  = OneVNetHelper.new(
                                 zone['onename'] + ":" + zone['onepass'],
                                 zone['endpoint'],
                                 false)
 
-                aux_helper.list_pool(options)    
-                
+                aux_helper.list_pool(options)
+
             when "template"
                 aux_helper  = OneTemplateHelper.new(
                                 zone['onename'] + ":" + zone['onepass'],
                                 zone['endpoint'],
                                 false)
 
-                aux_helper.list_pool(options)   
-                    
+                aux_helper.list_pool(options)
+
             when "user"
                 aux_helper  = OneUserHelper.new(
                                 zone['onename'] + ":" + zone['onepass'],
                                 zone['endpoint'],
                                 false)
 
-                aux_helper.list_pool(options)                                                                  
+                aux_helper.list_pool(options)
         end
         0
     end
-    
-    command :list, 'Lists Zones in the pool', 
+
+    command :list, 'Lists Zones in the pool',
                 :options=>CLIHelper::OPTIONS+OpenNebulaHelper::OPTIONS do
         helper.list_pool(options)
     end
 
     command :delete, 'Deletes a Zone', :zoneid do
-        helper.delete_resource(args[0],options) 
+        helper.delete_resource(args[0],options)
     end
 end
