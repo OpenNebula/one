@@ -65,7 +65,7 @@ var create_acl_tmpl =
                 <label for="belonging_to">Group:</label>\
                 <select name="belonging_to" id="belonging_to"></select>\
                 <div class="clear"></div>\
-                <label style="height:11em;">Allowed operations:</label>\
+                <label style="height:12em;">Allowed operations:</label>\
                 <input type="checkbox" name="right_create" class="right_cb" value="CREATE">Create</input><br />\
                 <input type="checkbox" name="right_delete" class="right_cb" value="DELETE">Delete</input><br />\
                 <input type="checkbox" name="right_use" class="right_cb" value="USE">Use</input><br />\
@@ -312,7 +312,7 @@ function setupCreateAclDialog(){
     dialog.dialog({
         autoOpen: false,
         modal:true,
-        width: 600,
+        width: 650,
         height: height
     });
 
