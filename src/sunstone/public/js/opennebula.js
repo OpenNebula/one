@@ -38,14 +38,7 @@ var OpenNebula = {
 
     "is_error": function(obj)
     {
-        if (obj.error)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        return obj.error ? true : false;
     },
 
     "Helper": {
