@@ -81,7 +81,7 @@ class X509Auth
 
     # Returns the dn of the user certificate
     def dn
-        @cert_chain[0].subject.to_s
+        @cert_chain[0].subject.to_s.delete("\s")
     end
 
     # Generates a login token in the form:
