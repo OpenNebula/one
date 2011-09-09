@@ -32,6 +32,11 @@ class User : public PoolObjectSQL
 public:
 
     /**
+     *  Characters that can not be in a password
+     */
+    static const string NO_PASSWD_CHARS;
+
+    /**
      * Function to print the User object into a string in XML format
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
@@ -73,11 +78,35 @@ public:
     };
 
     /**
-     *  Sets user password
+     *  Checks if a password is valid.
+     *    @param passwd to be checked
+     *    @return true if the password is valid
      */
-    void set_password(string _password)
+    static bool is_valid_password(const string& passwd)
     {
-        password = _password;
+        return passwd.find_first_of(NO_PASSWD_CHARS) == string::npos;
+    }
+
+    /**
+     *  Sets user password. It checks that the new password does not contain
+     *  forbidden chars.
+     *    @param _password the new pass
+     *    @returns -1 if the password is not valid
+     */
+    int set_password(const string& passwd)
+    {
+        int rc = 0;
+
+        if (is_valid_password(passwd))
+        { 
+            password = passwd;
+        }
+        else
+        {
+            rc = -1;
+        }
+
+        return rc;
     };
 
     /**
