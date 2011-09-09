@@ -191,6 +191,7 @@ ETC_DIRS="$ETC_LOCATION/im_kvm \
           $ETC_LOCATION/tm_lvm \
           $ETC_LOCATION/hm \
           $ETC_LOCATION/auth \
+          $ETC_LOCATION/auth/certificates \
           $ETC_LOCATION/ec2query_templates \
           $ETC_LOCATION/occi_templates \
           $ETC_LOCATION/cli"
