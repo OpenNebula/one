@@ -136,6 +136,11 @@ int UserPool::allocate (
 
     ostringstream   oss;
 
+    if (password.empty() || !User::is_valid_password(password))
+    {
+        goto error_pass;
+    }
+
     if ( uname.empty() )
     {
         goto error_name;
@@ -175,6 +180,10 @@ int UserPool::allocate (
     group->unlock();
 
     return *oid;
+
+error_pass:
+    oss << "Invalid password, it can not contain spaces.";
+    goto error_common;
 
 error_name:
     oss << "NAME cannot be empty.";
@@ -293,7 +302,12 @@ bool UserPool::authenticate(const string& session,
 
                 if ( is.good() )
                 {
-                    is >> mad_name >> ws >> mad_pass;
+                    is >> mad_name >> ws;
+                }
+
+                if ( !is.fail() )
+                {
+                    getline(is, mad_pass);
                 }
 
                 if ( !is.fail() )
@@ -314,7 +328,7 @@ bool UserPool::authenticate(const string& session,
                     oss << "Can't create user: " << error_str <<
                            ". Driver response: " << ar.message;
 
-                    ar.message = oss.str();
+                    NebulaLog::log("AuM",Log::ERROR,oss);
                 }
                 else
                 {
