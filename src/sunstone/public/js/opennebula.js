@@ -182,9 +182,12 @@ var OpenNebula = {
                 p_pool[0][type] = pool;
                 return(p_pool);
             }
-        },
+        }
+    },
 
-        //server requests methods
+    "Action": {
+
+        //server requests helper methods
 
         "create": function(params,resource){
             var callback = params.success;
@@ -280,7 +283,7 @@ var OpenNebula = {
             var action_obj = {"owner_id": id,
                               "group_id": "-1"};
 
-            OpenNebula.Helper.simple_action(params,
+            OpenNebula.Action.simple_action(params,
                                             resource,
                                             "chown",
                                             action_obj);
@@ -291,9 +294,9 @@ var OpenNebula = {
             var action_obj = {"owner_id": "-1",
                               "group_id": id};
 
-            OpenNebula.Helper.simple_action(params,
+            OpenNebula.Action.simple_action(params,
                                             resource,
-                                            "chgrp",
+                                            "chown",
                                             action_obj);
         },
 
@@ -439,38 +442,38 @@ var OpenNebula = {
         "resource": "HOST",
 
         "create": function(params){
-            OpenNebula.Helper.create(params,OpenNebula.Host.resource);
+            OpenNebula.Action.create(params,OpenNebula.Host.resource);
         },
         "delete": function(params){
-            OpenNebula.Helper.delete(params,OpenNebula.Host.resource);
+            OpenNebula.Action.delete(params,OpenNebula.Host.resource);
         },
         "list": function(params){
-            OpenNebula.Helper.list(params,OpenNebula.Host.resource);
+            OpenNebula.Action.list(params,OpenNebula.Host.resource);
         },
         "show": function(params){
-            OpenNebula.Helper.show(params,OpenNebula.Host.resource);
+            OpenNebula.Action.show(params,OpenNebula.Host.resource);
         },
         "update": function(params){
             var action_obj = {"template_raw" : params.data.extra_param };
-            OpenNebula.Helper.simple_action(params,
+            OpenNebula.Action.simple_action(params,
                                             OpenNebula.Host.resource,
                                             "update",
                                             action_obj);
         },
         "fetch_template" : function(params){
-            OpenNebula.Helper.show(params,OpenNebula.Host.resource,"template");
+            OpenNebula.Action.show(params,OpenNebula.Host.resource,"template");
         },
         "enable": function(params){
-            OpenNebula.Helper.simple_action(params,OpenNebula.Host.resource,"enable");
+            OpenNebula.Action.simple_action(params,OpenNebula.Host.resource,"enable");
         },
         "disable": function(params){
-            OpenNebula.Helper.simple_action(params,OpenNebula.Host.resource,"disable");
+            OpenNebula.Action.simple_action(params,OpenNebula.Host.resource,"disable");
         },
         "monitor" : function(params){
-            OpenNebula.Helper.monitor(params,OpenNebula.Host.resource,false);
+            OpenNebula.Action.monitor(params,OpenNebula.Host.resource,false);
         },
         "monitor_all" : function(params){
-            OpenNebula.Helper.monitor(params,OpenNebula.Host.resource,true);
+            OpenNebula.Action.monitor(params,OpenNebula.Host.resource,true);
         }
     },
 
@@ -478,39 +481,39 @@ var OpenNebula = {
         "resource": "VNET",
 
         "create": function(params){
-            OpenNebula.Helper.create(params,OpenNebula.Network.resource);
+            OpenNebula.Action.create(params,OpenNebula.Network.resource);
         },
         "delete": function(params){
-            OpenNebula.Helper.delete(params,OpenNebula.Network.resource);
+            OpenNebula.Action.delete(params,OpenNebula.Network.resource);
         },
         "list": function(params){
-            OpenNebula.Helper.list(params,OpenNebula.Network.resource);
+            OpenNebula.Action.list(params,OpenNebula.Network.resource);
         },
         "show": function(params){
-            OpenNebula.Helper.show(params,OpenNebula.Network.resource);
+            OpenNebula.Action.show(params,OpenNebula.Network.resource);
         },
         "chown" : function(params){
-            OpenNebula.Helper.chown(params,OpenNebula.Network.resource);
+            OpenNebula.Action.chown(params,OpenNebula.Network.resource);
         },
         "chgrp" : function(params){
-            OpenNebula.Helper.chgrp(params,OpenNebula.Network.resource);
+            OpenNebula.Action.chgrp(params,OpenNebula.Network.resource);
         },
         "publish": function(params){
-            OpenNebula.Helper.simple_action(params,OpenNebula.Network.resource,"publish");
+            OpenNebula.Action.simple_action(params,OpenNebula.Network.resource,"publish");
         },
         "unpublish": function(params){
-            OpenNebula.Helper.simple_action(params,OpenNebula.Network.resource,"unpublish");
+            OpenNebula.Action.simple_action(params,OpenNebula.Network.resource,"unpublish");
         },
         "addleases" : function(params){
             var action_obj = params.data.extra_param;
-            OpenNebula.Helper.simple_action(params,
+            OpenNebula.Action.simple_action(params,
                                             OpenNebula.Network.resource,
                                             "addleases",
                                             action_obj);
         },
         "rmleases" : function(params){
             var action_obj = params.data.extra_param;
-            OpenNebula.Helper.simple_action(params,
+            OpenNebula.Action.simple_action(params,
                                             OpenNebula.Network.resource,
                                             "rmleases",
                                             action_obj);
@@ -521,72 +524,72 @@ var OpenNebula = {
         "resource": "VM",
 
         "create": function(params){
-            OpenNebula.Helper.create(params,OpenNebula.VM.resource);
+            OpenNebula.Action.create(params,OpenNebula.VM.resource);
         },
         "delete": function(params){
-            OpenNebula.Helper.delete(params,OpenNebula.VM.resource);
+            OpenNebula.Action.delete(params,OpenNebula.VM.resource);
         },
         "list": function(params){
-            OpenNebula.Helper.list(params,OpenNebula.VM.resource);
+            OpenNebula.Action.list(params,OpenNebula.VM.resource);
         },
         "show": function(params){
-            OpenNebula.Helper.show(params,OpenNebula.VM.resource);
+            OpenNebula.Action.show(params,OpenNebula.VM.resource);
         },
         "chown" : function(params){
-            OpenNebula.Helper.chown(params,OpenNebula.VM.resource);
+            OpenNebula.Action.chown(params,OpenNebula.VM.resource);
         },
         "chgrp" : function(params){
-            OpenNebula.Helper.chgrp(params,OpenNebula.VM.resource);
+            OpenNebula.Action.chgrp(params,OpenNebula.VM.resource);
         },
         "shutdown": function(params){
-            OpenNebula.Helper.simple_action(params,OpenNebula.VM.resource,"shutdown");
+            OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,"shutdown");
         },
         "hold": function(params){
-            OpenNebula.Helper.simple_action(params,OpenNebula.VM.resource,"hold");
+            OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,"hold");
         },
         "release": function(params){
-            OpenNebula.Helper.simple_action(params,OpenNebula.VM.resource,"release");
+            OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,"release");
         },
         "stop": function(params){
-            OpenNebula.Helper.simple_action(params,OpenNebula.VM.resource,"stop");
+            OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,"stop");
         },
         "cancel": function(params){
-            OpenNebula.Helper.simple_action(params,OpenNebula.VM.resource,"cancel");
+            OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,"cancel");
         },
         "suspend": function(params){
-            OpenNebula.Helper.simple_action(params,OpenNebula.VM.resource,"suspend");
+            OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,"suspend");
         },
         "resume": function(params){
-            OpenNebula.Helper.simple_action(params,OpenNebula.VM.resource,"resume");
+            OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,"resume");
         },
         "restart": function(params){
-            OpenNebula.Helper.simple_action(params,OpenNebula.VM.resource,"restart");
+            OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,"restart");
         },
         "resubmit": function(params){
-            OpenNebula.Helper.simple_action(params,OpenNebula.VM.resource,"resubmit");
+            OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,"resubmit");
         },
 
         "log": function(params){
-            OpenNebula.Helper.show(params,OpenNebula.VM.resource,"log");
+            OpenNebula.Action.show(params,OpenNebula.VM.resource,"log");
         },
         "deploy": function(params){
             var action_obj = {"host_id": params.data.extra_param};
-            OpenNebula.Helper.simple_action(params,OpenNebula.VM.resource,
+            OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,
                                             "deploy",action_obj);
         },
         "livemigrate": function(params){
             var action_obj = {"host_id": params.data.extra_param};
-            OpenNebula.Helper.simple_action(params,OpenNebula.VM.resource,
+            OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,
                                             "livemigrate",action_obj);
         },
         "migrate": function(params){
             var action_obj = {"host_id": params.data.extra_param};
-            OpenNebula.Helper.simple_action(params,OpenNebula.VM.resource,
+            OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,
                                             "migrate",action_obj);
         },
         "saveas": function(params){
             var action_obj = params.data.extra_param;
-            OpenNebula.Helper.simple_action(params,OpenNebula.VM.resource,
+            OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,
                                             "saveas",action_obj);
         },
         "vnc" : function(params,startstop){
@@ -618,10 +621,10 @@ var OpenNebula = {
             OpenNebula.VM.vnc(params,"stopvnc");
         },
         "monitor" : function(params){
-            OpenNebula.Helper.monitor(params,OpenNebula.VM.resource,false);
+            OpenNebula.Action.monitor(params,OpenNebula.VM.resource,false);
         },
         "monitor_all" : function(params){
-            OpenNebula.Helper.monitor(params,OpenNebula.VM.resource,true);
+            OpenNebula.Action.monitor(params,OpenNebula.VM.resource,true);
         }
     },
 
@@ -629,13 +632,13 @@ var OpenNebula = {
         "resource": "GROUP",
 
         "create": function(params){
-            OpenNebula.Helper.create(params,OpenNebula.Group.resource);
+            OpenNebula.Action.create(params,OpenNebula.Group.resource);
         },
         "delete": function(params){
-            OpenNebula.Helper.delete(params,OpenNebula.Group.resource);
+            OpenNebula.Action.delete(params,OpenNebula.Group.resource);
         },
         "list": function(params){
-            OpenNebula.Helper.list(params,OpenNebula.Group.resource);
+            OpenNebula.Action.list(params,OpenNebula.Group.resource);
         }
     },
 
@@ -643,35 +646,35 @@ var OpenNebula = {
         "resource": "USER",
 
         "create": function(params){
-            OpenNebula.Helper.create(params,OpenNebula.User.resource);
+            OpenNebula.Action.create(params,OpenNebula.User.resource);
         },
         "delete": function(params){
-            OpenNebula.Helper.delete(params,OpenNebula.User.resource);
+            OpenNebula.Action.delete(params,OpenNebula.User.resource);
         },
         "list": function(params){
-            OpenNebula.Helper.list(params,OpenNebula.User.resource);
+            OpenNebula.Action.list(params,OpenNebula.User.resource);
         },
         "show" : function(params){
-            OpenNebula.Helper.show(params,OpenNebula.User.resource);
+            OpenNebula.Action.show(params,OpenNebula.User.resource);
         },
         "passwd": function(params){
             var action_obj = {"password": params.data.extra_param };
-            OpenNebula.Helper.simple_action(params,OpenNebula.User.resource,
+            OpenNebula.Action.simple_action(params,OpenNebula.User.resource,
                                             "passwd",action_obj);
         },
         "chgrp" : function(params){
             var action_obj = {"group_id": params.data.extra_param };
-            OpenNebula.Helper.simple_action(params,OpenNebula.User.resource,
+            OpenNebula.Action.simple_action(params,OpenNebula.User.resource,
                                             "chgrp",action_obj);
         }
         // "addgroup" : function(params){
         //     var action_obj = {"group_id": params.data.extra_param };
-        //     OpenNebula.Helper.simple_action(params,OpenNebula.User.resource,
+        //     OpenNebula.Action.simple_action(params,OpenNebula.User.resource,
         //                                     "addgroup",action_obj);
         // },
         // "delgroup" : function(params){
         //     var action_obj = {"group_id": params.data.extra_param };
-        //     OpenNebula.Helper.simple_action(params,OpenNebula.User.resource,
+        //     OpenNebula.Action.simple_action(params,OpenNebula.User.resource,
         //                                     "delgroup",action_obj);
         // }
     },
@@ -680,50 +683,50 @@ var OpenNebula = {
         "resource": "IMAGE",
 
         "create": function(params){
-            OpenNebula.Helper.create(params,OpenNebula.Image.resource);
+            OpenNebula.Action.create(params,OpenNebula.Image.resource);
         },
         "delete": function(params){
-            OpenNebula.Helper.delete(params,OpenNebula.Image.resource);
+            OpenNebula.Action.delete(params,OpenNebula.Image.resource);
         },
         "list": function(params){
-            OpenNebula.Helper.list(params,OpenNebula.Image.resource);
+            OpenNebula.Action.list(params,OpenNebula.Image.resource);
         },
         "show": function(params){
-            OpenNebula.Helper.show(params,OpenNebula.Image.resource);
+            OpenNebula.Action.show(params,OpenNebula.Image.resource);
         },
         "chown" : function(params){
-            OpenNebula.Helper.chown(params,OpenNebula.Image.resource);
+            OpenNebula.Action.chown(params,OpenNebula.Image.resource);
         },
         "chgrp" : function(params){
-            OpenNebula.Helper.chgrp(params,OpenNebula.Image.resource);
+            OpenNebula.Action.chgrp(params,OpenNebula.Image.resource);
         },
         "update": function(params){
             var action_obj = {"template_raw" : params.data.extra_param };
-            OpenNebula.Helper.simple_action(params,
+            OpenNebula.Action.simple_action(params,
                                             OpenNebula.Image.resource,
                                             "update",
                                             action_obj);
         },
         "fetch_template" : function(params){
-            OpenNebula.Helper.show(params,OpenNebula.Image.resource,"template");
+            OpenNebula.Action.show(params,OpenNebula.Image.resource,"template");
         },
         "enable": function(params){
-            OpenNebula.Helper.simple_action(params,OpenNebula.Image.resource,"enable");
+            OpenNebula.Action.simple_action(params,OpenNebula.Image.resource,"enable");
         },
         "disable": function(params){
-            OpenNebula.Helper.simple_action(params,OpenNebula.Image.resource,"disable");
+            OpenNebula.Action.simple_action(params,OpenNebula.Image.resource,"disable");
         },
         "publish": function(params){
-            OpenNebula.Helper.simple_action(params,OpenNebula.Image.resource,"publish");
+            OpenNebula.Action.simple_action(params,OpenNebula.Image.resource,"publish");
         },
         "unpublish": function(params){
-            OpenNebula.Helper.simple_action(params,OpenNebula.Image.resource,"unpublish");
+            OpenNebula.Action.simple_action(params,OpenNebula.Image.resource,"unpublish");
         },
         "persistent": function(params){
-            OpenNebula.Helper.simple_action(params,OpenNebula.Image.resource,"persistent");
+            OpenNebula.Action.simple_action(params,OpenNebula.Image.resource,"persistent");
         },
         "nonpersistent": function(params){
-            OpenNebula.Helper.simple_action(params,OpenNebula.Image.resource,"nonpersistent");
+            OpenNebula.Action.simple_action(params,OpenNebula.Image.resource,"nonpersistent");
         }
     },
 
@@ -731,44 +734,44 @@ var OpenNebula = {
         "resource" : "VMTEMPLATE",
 
         "create" : function(params){
-            OpenNebula.Helper.create(params,OpenNebula.Template.resource);
+            OpenNebula.Action.create(params,OpenNebula.Template.resource);
         },
         "delete" : function(params){
-            OpenNebula.Helper.delete(params,OpenNebula.Template.resource);
+            OpenNebula.Action.delete(params,OpenNebula.Template.resource);
         },
         "list" : function(params){
-            OpenNebula.Helper.list(params,OpenNebula.Template.resource);
+            OpenNebula.Action.list(params,OpenNebula.Template.resource);
         },
         "show" : function(params){
-            OpenNebula.Helper.show(params,OpenNebula.Template.resource);
+            OpenNebula.Action.show(params,OpenNebula.Template.resource);
         },
         "chown" : function(params){
-            OpenNebula.Helper.chown(params,OpenNebula.Template.resource);
+            OpenNebula.Action.chown(params,OpenNebula.Template.resource);
         },
         "chgrp" : function(params){
-            OpenNebula.Helper.chgrp(params,OpenNebula.Template.resource);
+            OpenNebula.Action.chgrp(params,OpenNebula.Template.resource);
         },
         "update" : function(params){
             var action_obj = {"template_raw" : params.data.extra_param };
-            OpenNebula.Helper.simple_action(params,
+            OpenNebula.Action.simple_action(params,
                                      OpenNebula.Template.resource,
                                      "update",
                                      action_obj);
         },
         "fetch_template" : function(params){
-            OpenNebula.Helper.show(params,OpenNebula.Template.resource,"template");
+            OpenNebula.Action.show(params,OpenNebula.Template.resource,"template");
         },
         "publish" : function(params){
-            OpenNebula.Helper.simple_action(params,OpenNebula.Template.resource,"publish");
+            OpenNebula.Action.simple_action(params,OpenNebula.Template.resource,"publish");
         },
         "unpublish" : function(params){
-            OpenNebula.Helper.simple_action(params,OpenNebula.Template.resource,"unpublish");
+            OpenNebula.Action.simple_action(params,OpenNebula.Template.resource,"unpublish");
         },
 
         "instantiate" : function(params) {
             var vm_name = params.data.extra_param ? params.data.extra_param : "";
             var action_obj = { "vm_name" : vm_name };
-            OpenNebula.Helper.simple_action(params,OpenNebula.Template.resource,
+            OpenNebula.Action.simple_action(params,OpenNebula.Template.resource,
                                             "instantiate",action_obj);
         }
     },
@@ -777,13 +780,13 @@ var OpenNebula = {
         "resource" : "ACL",
 
         "create" : function(params){
-            OpenNebula.Helper.create(params,OpenNebula.Acl.resource);
+            OpenNebula.Action.create(params,OpenNebula.Acl.resource);
         },
         "delete" : function(params){
-            OpenNebula.Helper.delete(params,OpenNebula.Acl.resource);
+            OpenNebula.Action.delete(params,OpenNebula.Acl.resource);
         },
         "list" : function(params){
-            OpenNebula.Helper.list(params,OpenNebula.Acl.resource);
+            OpenNebula.Action.list(params,OpenNebula.Acl.resource);
         }
     }
 }
