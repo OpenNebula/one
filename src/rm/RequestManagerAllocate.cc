@@ -242,13 +242,6 @@ int UserAllocate::pool_allocate(xmlrpc_c::paramList const& paramList,
         ugname = GroupPool::USERS_NAME;
     }
 
-    if (!User::is_valid_password(passwd))
-    {
-        error_str = "Invalid password, it can not contain spaces.";
-
-        return -1;
-    }
-
     return upool->allocate(&id,ugid,uname,ugname,passwd,true,error_str);
 }
 
