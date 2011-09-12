@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ONEACL" "1" "July 2011" "" "oneacl(1) -- manages OpenNebula ACLs"
+.TH "ONEACL" "1" "September 2011" "" "oneacl(1) -- manages OpenNebula ACLs"
 .
 .SH "NAME"
 \fBoneacl\fR
@@ -23,14 +23,13 @@
 .SH "COMMANDS"
 .
 .IP "\(bu" 4
-list
+create \fIuser|rulestr\fR [\fIresource\fR] [\fIrights\fR]
 .
 .IP "" 4
 .
 .nf
 
-Lists the ACL rule set
-valid options: xml
+Adds a new ACL rule
 .
 .fi
 .
@@ -52,13 +51,14 @@ Deletes an existing ACL rule
 
 .
 .IP "\(bu" 4
-create \fIuser|rulestr\fR [\fIresource\fR] [\fIrights\fR]
+list
 .
 .IP "" 4
 .
 .nf
 
-Adds a new ACL rule
+Lists the ACL rule set
+valid options: xml
 .
 .fi
 .
@@ -70,21 +70,65 @@ Adds a new ACL rule
 .SH "ARGUMENT FORMATS"
 .
 .IP "\(bu" 4
-text
+file
+.
+.IP "" 4
+.
+.nf
+
+Path to a file
+.
+.fi
+.
+.IP "" 0
+
 .
 .IP "\(bu" 4
 range
 .
+.IP "" 4
+.
+.nf
+
+List of id\'s in the form 1,8\.\.15
+.
+.fi
+.
+.IP "" 0
+
+.
 .IP "\(bu" 4
-file
+text
+.
+.IP "" 4
+.
+.nf
+
+String
+.
+.fi
+.
+.IP "" 0
+
 .
 .IP "\(bu" 4
 aclid_list
 .
+.IP "" 4
+.
+.nf
+
+Comma\-separated list of OpenNebula ACL names or ids
+.
+.fi
+.
+.IP "" 0
+
+.
 .IP "" 0
 .
 .SH "LICENSE"
-OpenNebula 2\.9\.80 Copyright 2002\-2011, OpenNebula Project Leads (OpenNebula\.org)
+OpenNebula 2\.9\.85 Copyright 2002\-2011, OpenNebula Project Leads (OpenNebula\.org)
 .
 .P
 Licensed under the Apache License, Version 2\.0 (the "License"); you may not use this file except in compliance with the License\. You may obtain a copy of the License at http://www\.apache\.org/licenses/LICENSE\-2\.0
