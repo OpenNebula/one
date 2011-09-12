@@ -139,14 +139,12 @@ class EC2QueryServer < CloudServer
 	            raise failed + "Could not create X509 certificate from " + cert_line
 	        end
 		# Password should be DN with whitespace removed.
-	        subjectname = cert.subject.to_s.delete("\s")
-		#STDERR.puts 'the cert is' + cert.subject.to_s		
+	        subjectname = cert.subject.to_s.delete("\s")		
                 begin
                     username = get_username(subjectname)
                 rescue
                     username = nil
                 end
-		#STDERR.puts "the username is " + username
                 break if username
 		chain_dn = (!chain_dn ? "" : chain_dn) + "\n" + subjectname
                 chain_index = !chain_index ? 0 : chain_index + 1
