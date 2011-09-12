@@ -1033,7 +1033,7 @@ OZONES_ETC_FILES="src/ozones/Server/etc/ozones-server.conf"
 OZONES_MODELS_FILES="src/ozones/Server/models/OzonesServer.rb \
                      src/ozones/Server/models/Auth.rb \
                      src/ozones/Server/models/OCAInteraction.rb \
-                     src/ozones/Server/models/JSONUtils.rb"
+                     src/sunstone/models/OpenNebulaJSON/JSONUtils.rb"
                      
 OZONES_TEMPLATE_FILES="src/ozones/Server/templates/index.html \
                        src/ozones/Server/templates/login.html"
