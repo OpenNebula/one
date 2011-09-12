@@ -134,7 +134,6 @@ class EC2QueryServer < CloudServer
                     cert_array.unshift('-----BEGIN CERTIFICATE-----')
 		    cert_array.push('-----END CERTIFICATE-----')
                     cert_pem = cert_array.join("\n") 
-		    #cert_pem = cert_line.scan(/(-+BEGIN CERTIFICATE-+\n[^-]*\n-+END CERTIFICATE-+)/)
 		    cert = OpenSSL::X509::Certificate.new(cert_pem)               
                 rescue
 	            raise failed + "Could not create X509 certificate from " + cert_line
