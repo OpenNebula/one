@@ -133,9 +133,9 @@ var zone_actions = {
         },
         error: onError
     },
-    "Zone.vn" : {
+    "Zone.vnet" : {
         type: "single",
-        call: oZones.Zone.vn,
+        call: oZones.Zone.vnet,
         callback: function(req, vn_json){
             updateVNsList(req,vn_json,'#datatable_zone_vnets');
         },
@@ -149,9 +149,9 @@ var zone_actions = {
         },
         error: onError
     },
-    "Zone.template" : {
+    "Zone.vmtemplate" : {
         type: "single",
-        call: oZones.Zone.template,
+        call: oZones.Zone.vmtemplate,
         callback: function(req,template_json){
             updateTemplatesList(req,template_json,'#datatable_zone_templates');
         },
@@ -519,9 +519,9 @@ function updateZoneInfo(req,zone_json){
 
     //Retrieve pools in the meantime
     Sunstone.runAction("Zone.host",zone.id);
-    Sunstone.runAction("Zone.template",zone.id);
+    Sunstone.runAction("Zone.vmtemplate",zone.id);
     Sunstone.runAction("Zone.vms",zone.id);
-    Sunstone.runAction("Zone.vn",zone.id);
+    Sunstone.runAction("Zone.vnet",zone.id);
     Sunstone.runAction("Zone.image",zone.id);
     Sunstone.runAction("Zone.user",zone.id);
 }

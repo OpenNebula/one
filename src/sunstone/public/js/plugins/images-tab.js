@@ -161,9 +161,9 @@ var $create_image_dialog;
 
 var image_actions = {
 
-    "Image.register" : {
+    "Image.create" : {
         type: "create",
-        call: OpenNebula.Image.register,
+        call: OpenNebula.Image.create,
         callback: addImageElement,
         error: onError,
         notify:true
@@ -710,7 +710,7 @@ function setupCreateImageDialog(){
             break;
         }
         var obj = { "image" : img_json };
-        Sunstone.runAction("Image.register", obj);
+        Sunstone.runAction("Image.create", obj);
 
         $create_image_dialog.dialog('close');
         return false;
@@ -718,7 +718,7 @@ function setupCreateImageDialog(){
 
     $('#create_image_form_manual',dialog).submit(function(){
         var template=$('#template',this).val();
-        Sunstone.runAction("Image.register",template);
+        Sunstone.runAction("Image.create",template);
         $create_image_dialog.dialog('close');
         return false;
     });
