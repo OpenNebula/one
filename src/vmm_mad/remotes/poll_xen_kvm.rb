@@ -138,17 +138,21 @@ private
         interfaces=get_interface_names(vmid)
 
         if interfaces && !interfaces.empty?
-            text=`#{virsh(:domifstat)} #{vmid} #{interfaces.join(' ')}`
-
             values={}
+            values[:netrx]=0
+            values[:nettx]=0
 
-            text.each_line do |line|
-                columns=line.split(/\s+/)
-                case columns[1]
-                when 'rx_bytes'
-                    values[:netrx]=columns[2]
-                when 'tx_bytes'
-                    values[:nettx]=columns[2]
+            interfaces.each do |interface|
+                text=`#{virsh(:domifstat)} #{vmid} #{interface}`
+
+                text.each_line do |line|
+                    columns=line.split(/\s+/)
+                    case columns[1]
+                    when 'rx_bytes'
+                        values[:netrx]+=columns[2].to_i
+                    when 'tx_bytes'
+                        values[:nettx]+=columns[2].to_i
+                    end
                 end
             end
 
