@@ -34,8 +34,8 @@ digraph OpenNebula {
 
 #   shutdown
     running     -> shutdown [label="shutdown"];
-    shutdown    -> epilog [label="shutdown", style="dashed"];
-    epilog      -> done [label="shutdown", style="dashed"];
+    shutdown    -> epilog [style="dashed"];
+    epilog      -> done [style="dashed"];
 
 #   livemigrate
     running     -> migrate [label="livemigrate"];
@@ -59,7 +59,6 @@ digraph OpenNebula {
 
 #   cancel
     running     -> shutdown [label="cancel"];
-    shutdown    -> done [label="cancel", style="dashed"];
 
 #   suspend
     running     -> save [label="suspend"];

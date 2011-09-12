@@ -598,12 +598,10 @@ void  LifeCycleManager::epilog_failure_action(int vid)
 
 void  LifeCycleManager::cancel_success_action(int vid)
 {
+    Nebula&             nd = Nebula::instance();
+    TransferManager *   tm = nd.get_tm();
     VirtualMachine *    vm;
     time_t              the_time = time(0);
-    int                 cpu,mem,disk;
-
-    Nebula&             nd = Nebula::instance();
-    DispatchManager *   dm = nd.get_dm();
 
     vm = vmpool->get(vid,true);
 
@@ -612,20 +610,27 @@ void  LifeCycleManager::cancel_success_action(int vid)
         return;
     }
 
-    vm->set_running_etime(the_time);
-    vm->set_etime(the_time);
+    //----------------------------------------------------
+    //                   EPILOG STATE
+    //----------------------------------------------------
+
+    vm->set_state(VirtualMachine::EPILOG);
+
+    vmpool->update(vm);
 
     vm->set_reason(History::CANCEL);
 
+    vm->set_epilog_stime(the_time);
+
+    vm->set_running_etime(the_time);
+
     vmpool->update_history(vm);
 
-    vm->get_requirements(cpu,mem,disk);
-
-    hpool->del_capacity(vm->get_hid(),cpu,mem,disk);
+    vm->log("LCM", Log::INFO, "New VM state is EPILOG");
 
     //----------------------------------------------------
 
-    dm->trigger(DispatchManager::DONE,vid);
+    tm->trigger(TransferManager::EPILOG,vid);
 
     vm->unlock();
 }
