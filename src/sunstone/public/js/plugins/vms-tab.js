@@ -250,13 +250,10 @@ var vm_actions = {
     },
 
     "VM.saveas" : {
-        type: "custom",
-        call: function(obj) {
-            OpenNebula.VM.saveas(
-                {data:obj,
-                 success: vmShow,
-                 error: onError });
-        }
+        type: "single",
+        call: OpenNebula.VM.saveas,
+        callback: vmShow,
+        error:onError
     },
 
     "VM.saveas_disks" : {
@@ -299,6 +296,7 @@ var vm_actions = {
         callback: function(req,res) {
             //after calling VM.log we process the answer
             //update the tab and pop it up again
+            res = res['vm_log'];
             var log_lines = res.split("\n");
             var colored_log = '';
             for (var i = 0; i < log_lines.length;i++){
@@ -822,13 +820,12 @@ function setupSaveasDialog(){
             }
             else {
                 var obj = {
-                    vm_id: id,
                     disk_id : disk_id,
                     image_name : image_name
                     //type: type
                 };
                 args.push(id);
-                Sunstone.runAction("VM.saveas",obj);
+                Sunstone.runAction("VM.saveas",id,obj);
             }
         });
         if (args.length > 0){
