@@ -40,7 +40,10 @@ DISTRIBUTIONS={
             'xmlparser' => ['gcc', 'libexpat1-dev'],
             'thin'      => ['g++']
         },
-        :install_command => 'apt-get install'
+        :install_command => 'apt-get install',
+        :gem_env    => {
+            'rake'      => '/usr/bin/rake'
+        }
     },
     :redhat => {
         :id => ['CentOS', /^RedHat/],
@@ -235,8 +238,15 @@ install_dependencies(gems_list, dist)
 
 packages_string=gems_list.join(' ')
 
+prefix=""
 
-command_string = "gem install --no-ri --no-rdoc"
+if dist.last[:gem_env]
+    prefix=dist.last[:gem_env].collect do |name, value|
+        "#{name}=\"#{value}\""
+    end.join(' ')+' '
+end
+
+command_string = "#{prefix}gem install --no-ri --no-rdoc"
 
 install_warning(packages)
 
