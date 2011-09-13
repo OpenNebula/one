@@ -220,14 +220,14 @@ public:
             cout << endl << "ar.result: " << ar.result << endl;
         }
 
-        if ( ar.message != astr )
+        if ( ar.message.find(astr) == ar.message.npos )
         {
             cout << endl << "ar.message: " << ar.message;
             cout << endl << "expected:   " << astr << endl;
         }
 //*/
         CPPUNIT_ASSERT(ar.result==false);
-        CPPUNIT_ASSERT(ar.message==astr);
+        CPPUNIT_ASSERT(ar.message.find(astr) != ar.message.npos);
 
         AuthRequest ar1(2, 2);
 
@@ -248,14 +248,14 @@ public:
             cout << endl << "ar.result: " << ar1.result << endl;
         }
 
-        if ( ar1.message != astr1 )
+        if ( ar1.message.find(astr1) == ar1.message.npos )
         {
             cout << endl << "ar.message: " << ar1.message;
             cout << endl << "expected:   " << astr1 << endl;
         }
 //*/
         CPPUNIT_ASSERT(ar1.result==false);
-        CPPUNIT_ASSERT(ar1.message==astr1);
+        CPPUNIT_ASSERT(ar1.message.find(astr1) != ar1.message.npos);
 
         AuthRequest ar2(2, 2);
 
