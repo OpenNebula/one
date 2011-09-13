@@ -36,8 +36,8 @@ DISTRIBUTIONS={
             SQLITE      => ['gcc', 'libsqlite3-dev'],
             'mysql'     => ['gcc', 'libmysqlclient-dev'],
             'curb'      => ['gcc', 'libcurl4-openssl-dev'],
-            'nokogiri'  => ['gcc', 'libexpat1-dev'],
-            'xmlparser' => %w{gcc rake libxml2-dev libxslt1-dev},
+            'nokogiri'  => %w{gcc rake libxml2-dev libxslt1-dev},
+            'xmlparser' => ['gcc', 'libexpat1-dev'],
             'thin'      => ['g++']
         },
         :install_command => 'apt-get install'
@@ -48,8 +48,8 @@ DISTRIBUTIONS={
             SQLITE      => ['gcc', 'sqlite-devel'],
             'mysql'     => ['gcc', 'mysql-devel'],
             'curb'      => ['gcc', 'curl-devel'],
-            'nokogiri'  => ['gcc', 'expat-devel'],
-            'xmlparser' => %w{gcc rubygem-rake libxml2-devel libxslt-devel},
+            'nokogiri'  => %w{gcc rubygem-rake libxml2-devel libxslt-devel},
+            'xmlparser' => ['gcc', 'expat-devel'],
             'thin'      => ['gcc-c++']
         },
         :install_command => 'yum install'
@@ -60,8 +60,8 @@ DISTRIBUTIONS={
             SQLITE      => ['gcc', 'sqlite3-devel'],
             'mysql'     => ['gcc', 'libmysqlclient-devel'],
             'curb'      => ['gcc', 'libcurl-devel'],
-            'nokogiri'  => ['gcc', 'libexpat-devel'],
-            'xmlparser' => %w{rubygem-rake gcc rubygem-rake libxml2-devel libxslt-devel},
+            'nokogiri'  => %w{rubygem-rake gcc rubygem-rake libxml2-devel libxslt-devel},
+            'xmlparser' => ['gcc', 'libexpat-devel'],
             'thin'      => ['rubygem-rake', 'gcc-c++']
         },
         :install_command => 'zypper install'
