@@ -136,12 +136,12 @@ int UserPool::allocate (
 
     ostringstream   oss;
 
-    if (password.empty() || !User::is_valid_password(password))
+    if ( !User::is_valid(password, error_str) )
     {
         goto error_pass;
     }
 
-    if ( uname.empty() )
+    if ( !User::is_valid(uname, error_str) )
     {
         goto error_name;
     }
@@ -182,11 +182,11 @@ int UserPool::allocate (
     return *oid;
 
 error_pass:
-    oss << "Invalid password, it can not contain spaces.";
+    oss << "Invalid password, " << error_str << ".";
     goto error_common;
 
 error_name:
-    oss << "NAME cannot be empty.";
+    oss << "Invalid NAME, " << error_str << ".";
     goto error_common;
 
 error_duplicated:

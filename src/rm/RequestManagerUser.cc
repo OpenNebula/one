@@ -61,15 +61,11 @@ int UserChangePassword::user_action(User * user,
 
     string new_pass = xmlrpc_c::value_string(paramList.getString(2));
 
-    int rc = user->set_password(new_pass);
+    int rc = user->set_password(new_pass, error_str);
 
     if ( rc == 0 )
     {
         pool->update(user);
-    }
-    else
-    {
-        error_str = "Invalid password, it can not contain spaces.";
     }
 
     user->unlock();
