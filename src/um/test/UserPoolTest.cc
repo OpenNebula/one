@@ -27,8 +27,8 @@ using namespace std;
 /* ************************************************************************* */
 /* ************************************************************************* */
 
-const string usernames[] = { "A user", "B user", "C user", "D user", "E user" };
-const string passwords[] = { "A pass", "B pass", "C pass", "D pass", "E pass" };
+const string usernames[] = { "A_user", "B_user", "C_user", "D_user", "E_user" };
+const string passwords[] = { "A_pass", "B_pass", "C_pass", "D_pass", "E_pass" };
 
 const string dump_result =
     "<USER_POOL><USER><ID>0</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>one_user_test</NAME><PASSWORD>5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8</PASSWORD><ENABLED>1</ENABLED></USER><USER><ID>1</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>a</NAME><PASSWORD>p</PASSWORD><ENABLED>1</ENABLED></USER><USER><ID>2</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>a name</NAME><PASSWORD>pass</PASSWORD><ENABLED>1</ENABLED></USER><USER><ID>3</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>a_name</NAME><PASSWORD>password</PASSWORD><ENABLED>1</ENABLED></USER><USER><ID>4</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>another name</NAME><PASSWORD>secret</PASSWORD><ENABLED>1</ENABLED></USER><USER><ID>5</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>user</NAME><PASSWORD>1234</PASSWORD><ENABLED>1</ENABLED></USER></USER_POOL>";
