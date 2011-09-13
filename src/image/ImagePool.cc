@@ -135,7 +135,7 @@ int ImagePool::disk_attribute(VectorAttribute *  disk,
 {
     string  source;
     Image * img = 0;
-    int     rc;
+    int     rc  = 0;
 
     ostringstream oss;
 
