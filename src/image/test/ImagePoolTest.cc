@@ -146,10 +146,7 @@ class ImagePoolTest : public PoolTest
     CPPUNIT_TEST ( bus_source_assignment );
     CPPUNIT_TEST ( public_attribute );
     CPPUNIT_TEST ( persistence );
-
-//      Requires ImageManger, and NebulaTest
-//    CPPUNIT_TEST ( imagepool_disk_attribute );
-
+    CPPUNIT_TEST ( imagepool_disk_attribute );
     CPPUNIT_TEST ( dump );
     CPPUNIT_TEST ( dump_where );
 
@@ -159,6 +156,7 @@ protected:
 
     NebulaTestImage * tester;
     ImagePool *       ipool;
+    ImageManager *    imagem;
 
     void bootstrap(SqlDB* db)
     {
@@ -217,12 +215,23 @@ public:
         neb.start();
 
         ipool   = neb.get_ipool();
+        imagem  = neb.get_imagem();
 
         pool    = ipool;
     };
 
     void tearDown()
     {
+        // -----------------------------------------------------------
+        // Stop the managers & free resources
+        // -----------------------------------------------------------
+
+        imagem->finalize();
+        pthread_join(imagem->get_thread_id(),0);
+
+        //XML Library
+        xmlCleanupParser();
+
         delete_db();
 
         delete tester;
@@ -614,7 +623,7 @@ public:
 
         // Disk using image 0
         disk = new VectorAttribute("DISK");
-        disk->replace("IMAGE", "Image 0");
+        disk->replace("IMAGE_ID", "0");
 
         ((ImagePool*)imp)->disk_attribute(disk, 0, &index, &img_type,0);
 
@@ -622,9 +631,6 @@ public:
         value = disk->vector_value("TARGET");
         CPPUNIT_ASSERT( value == "hda" );
 
-        value = "";
-        value = disk->vector_value("IMAGE_ID");
-        CPPUNIT_ASSERT( value == "0" );
 
         delete disk;
 
