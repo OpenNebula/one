@@ -413,7 +413,7 @@ module WatchHelper
         unrestrict_primary_key
 
         # Monitoring
-        one_to_many :samples, :order=>:timestamp, :class=>:HostSample
+        one_to_many :samples, :order=>:timestamp, :class=>"WatchHelper::HostSample"
 
         @@samples_cache = []
 
