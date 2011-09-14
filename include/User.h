@@ -32,6 +32,11 @@ class User : public PoolObjectSQL
 public:
 
     /**
+     *  Characters that can not be in a password
+     */
+    static const string INVALID_CHARS;
+
+    /**
      * Function to print the User object into a string in XML format
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
@@ -73,11 +78,56 @@ public:
     };
 
     /**
-     *  Sets user password
+     *  Checks if a name or password is valid, i.e. it is not empty and does not
+     *  contain invalid characters.
+     *    @param str Name or password to be checked
+     *    @param error_str Returns the error reason, if any
+     *    @return true if the string is valid
      */
-    void set_password(string _password)
+    static bool is_valid(const string& str, string& error_str)
     {
-        password = _password;
+        if ( str.empty() )
+        {
+            error_str = "cannot be empty";
+            return false;
+        }
+
+        size_t pos = str.find_first_of(INVALID_CHARS);
+
+        if ( pos != string::npos )
+        {
+            ostringstream oss;
+            oss << "character '" << str.at(pos) << "' is not allowed";
+
+            error_str = oss.str();
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     *  Sets user password. It checks that the new password does not contain
+     *  forbidden chars.
+     *    @param _password the new pass
+     *    @param error_str Returns the error reason, if any
+     *    @returns -1 if the password is not valid
+     */
+    int set_password(const string& passwd, string& error_str)
+    {
+        int rc = 0;
+
+        if (is_valid(passwd, error_str))
+        { 
+            password = passwd;
+        }
+        else
+        {
+            error_str = string("Invalid password: ").append(error_str);
+            rc = -1;
+        }
+
+        return rc;
     };
 
     /**

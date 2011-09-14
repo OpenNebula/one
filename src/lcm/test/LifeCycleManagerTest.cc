@@ -714,7 +714,7 @@ public:
 
         dm->cancel(vm->get_oid());
 
-        wait_assert(vm, VirtualMachine::DONE);
+        wait_assert(vm, VirtualMachine::ACTIVE, VirtualMachine::EPILOG );
     }
 
 /* -------------------------------------------------------------------------- */

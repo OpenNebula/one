@@ -67,14 +67,14 @@ class SunstoneServer
         end
 
         pool = case kind
-            when "group"    then GroupPoolJSON.new(@client)
-            when "host"     then HostPoolJSON.new(@client)
-            when "image"    then ImagePoolJSON.new(@client, user_flag)
-            when "template" then TemplatePoolJSON.new(@client, user_flag)
-            when "vm"       then VirtualMachinePoolJSON.new(@client, user_flag)
-            when "vnet"     then VirtualNetworkPoolJSON.new(@client, user_flag)
-            when "user"     then UserPoolJSON.new(@client)
-            when "acl"      then AclPoolJSON.new(@client)
+            when "group"      then GroupPoolJSON.new(@client)
+            when "host"       then HostPoolJSON.new(@client)
+            when "image"      then ImagePoolJSON.new(@client, user_flag)
+            when "vmtemplate" then TemplatePoolJSON.new(@client, user_flag)
+            when "vm"         then VirtualMachinePoolJSON.new(@client, user_flag)
+            when "vnet"       then VirtualNetworkPoolJSON.new(@client, user_flag)
+            when "user"       then UserPoolJSON.new(@client)
+            when "acl"        then AclPoolJSON.new(@client)
             else
                 error = Error.new("Error: #{kind} resource not supported")
                 return [404, error.to_json]
@@ -119,14 +119,14 @@ class SunstoneServer
     ############################################################################
     def create_resource(kind, template)
         resource = case kind
-            when "group"    then GroupJSON.new(Group.build_xml, @client)
-            when "host"     then HostJSON.new(Host.build_xml, @client)
-            when "image"    then ImageJSON.new(Image.build_xml, @client)
-            when "template" then TemplateJSON.new(Template.build_xml, @client)
-            when "vm"       then VirtualMachineJSON.new(VirtualMachine.build_xml,@client)
-            when "vnet"     then VirtualNetworkJSON.new(VirtualNetwork.build_xml, @client)
-            when "user"     then UserJSON.new(User.build_xml, @client)
-            when "acl"      then AclJSON.new(Acl.build_xml, @client)
+            when "group"      then GroupJSON.new(Group.build_xml, @client)
+            when "host"       then HostJSON.new(Host.build_xml, @client)
+            when "image"      then ImageJSON.new(Image.build_xml, @client)
+            when "vmtemplate" then TemplateJSON.new(Template.build_xml, @client)
+            when "vm"         then VirtualMachineJSON.new(VirtualMachine.build_xml,@client)
+            when "vnet"       then VirtualNetworkJSON.new(VirtualNetwork.build_xml, @client)
+            when "user"       then UserJSON.new(User.build_xml, @client)
+            when "acl"        then AclJSON.new(Acl.build_xml, @client)
             else
                 error = Error.new("Error: #{kind} resource not supported")
                 return [404, error.to_json]
@@ -226,7 +226,7 @@ class SunstoneServer
                 return [200, "Log for VM #{id} not available"]
             end
 
-            return [200, log]
+            return [200, {:vm_log => log}.to_json]
         end
     end
 
@@ -339,7 +339,7 @@ class SunstoneServer
             when "group"    then GroupJSON.new_with_id(id, @client)
             when "host"     then HostJSON.new_with_id(id, @client)
             when "image"    then ImageJSON.new_with_id(id, @client)
-            when "template" then TemplateJSON.new_with_id(id, @client)
+            when "vmtemplate" then TemplateJSON.new_with_id(id, @client)
             when "vm"       then VirtualMachineJSON.new_with_id(id, @client)
             when "vnet"     then VirtualNetworkJSON.new_with_id(id, @client)
             when "user"     then UserJSON.new_with_id(id, @client)

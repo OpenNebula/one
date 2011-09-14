@@ -23,7 +23,7 @@ digraph OpenNebula {
     subgraph { rank = same; prolog; prolog_resume; prolog_migrate;
     color="white" }
 
-    subgraph { rank = max; suspended; done; cancel; failure;
+    subgraph { rank = max; suspended; done; failure;
     stopped;color="white" }
 
 #   create
@@ -64,7 +64,7 @@ digraph OpenNebula {
 
 #   cancel
     running     -> cancel [label="cancel"];
-    cancel      -> done [style="dashed"];
+    cancel      -> epilog [style="dashed"];
 
 #   suspend
     running         -> save_suspend [label="suspend"];

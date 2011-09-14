@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ONEGROUP" "1" "July 2011" "" "onegroup(1) -- manages OpenNebula groups"
+.TH "ONEGROUP" "1" "September 2011" "" "onegroup(1) -- manages OpenNebula groups"
 .
 .SH "NAME"
 \fBonegroup\fR
@@ -40,6 +40,20 @@ Creates a new Group
 
 .
 .IP "\(bu" 4
+delete \fIrange|groupid_list\fR
+.
+.IP "" 4
+.
+.nf
+
+Deletes the given Group
+.
+.fi
+.
+.IP "" 0
+
+.
+.IP "\(bu" 4
 list
 .
 .IP "" 4
@@ -55,21 +69,7 @@ valid options: list, delay, xml, numeric
 
 .
 .IP "\(bu" 4
-delete \fIrange|groupid_list\fR
-.
-.IP "" 4
-.
-.nf
-
-Deletes the given Group
-.
-.fi
-.
-.IP "" 0
-
-.
-.IP "\(bu" 4
-show \fIgroupid\fR
+show [\fIgroupid\fR]
 .
 .IP "" 4
 .
@@ -88,24 +88,79 @@ valid options: xml
 .SH "ARGUMENT FORMATS"
 .
 .IP "\(bu" 4
-groupid_list
-.
-.IP "\(bu" 4
-text
-.
-.IP "\(bu" 4
-groupid
-.
-.IP "\(bu" 4
 file
+.
+.IP "" 4
+.
+.nf
+
+Path to a file
+.
+.fi
+.
+.IP "" 0
+
 .
 .IP "\(bu" 4
 range
 .
+.IP "" 4
+.
+.nf
+
+List of id\'s in the form 1,8\.\.15
+.
+.fi
+.
+.IP "" 0
+
+.
+.IP "\(bu" 4
+text
+.
+.IP "" 4
+.
+.nf
+
+String
+.
+.fi
+.
+.IP "" 0
+
+.
+.IP "\(bu" 4
+groupid
+.
+.IP "" 4
+.
+.nf
+
+OpenNebula GROUP name or id
+.
+.fi
+.
+.IP "" 0
+
+.
+.IP "\(bu" 4
+groupid_list
+.
+.IP "" 4
+.
+.nf
+
+Comma\-separated list of OpenNebula GROUP names or ids
+.
+.fi
+.
+.IP "" 0
+
+.
 .IP "" 0
 .
 .SH "LICENSE"
-OpenNebula 2\.9\.80 Copyright 2002\-2011, OpenNebula Project Leads (OpenNebula\.org)
+OpenNebula 2\.9\.85 Copyright 2002\-2011, OpenNebula Project Leads (OpenNebula\.org)
 .
 .P
 Licensed under the Apache License, Version 2\.0 (the "License"); you may not use this file except in compliance with the License\. You may obtain a copy of the License at http://www\.apache\.org/licenses/LICENSE\-2\.0
