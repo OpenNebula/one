@@ -97,18 +97,11 @@ module OneWatchClient
             # Get the MAX for each VM and last_poll value
             max_per_vm =
                 rsql.
-                group(:vm_id, :timestamp).
-                select{[:timestamp, max(mr.to_sym).as(:max_mr)]}
-
-            # SUM the monitoring resource for each last_poll value
-            last_poll_and_sum =
-                max_per_vm.
-                from_self.
                 group(:timestamp).
-                select{[:timestamp, sum(:max_mr).as(:sum_mr)]}
+                select{[:timestamp, sum(mr.to_sym).as(:sum_mr)]}
 
             # Add all the existing timestamps
-            with_ts = timestamps.left_join(last_poll_and_sum, :timestamp=>:id)
+            with_ts = timestamps.left_join(max_per_vm, :timestamp=>:id)
             with_ts.collect do |row|
                 [row[:id], row[:sum_mr].to_i]
             end
@@ -166,7 +159,7 @@ module OneWatchClient
                 hosts = pool
             end
 
-            WatchHelper::HostSample.join(vms.select(:id.as(:host_id)), [:host_id])
+            WatchHelper::HostSample.join(hosts.select(:id.as(:host_id)), [:host_id])
         end
 
         def filter_resource(id, filter)
