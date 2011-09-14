@@ -28,7 +28,7 @@ module OneWatch
                 }
             end
 
-            sql_elem.flush(timestamp)
+            sql_elem.flush
         end
 
         private
@@ -50,6 +50,11 @@ module OneWatch
                 WatchHelper::Vm
             end
         end
+
+        def generate_timestamp
+            ts = super
+            WatchHelper::VmTimestamp.find_or_create(:id=>ts)
+        end
     end
 
     class HostMonitoring < Monitoring
@@ -63,6 +68,11 @@ module OneWatch
             else
                 WatchHelper::Host
             end
+        end
+
+        def generate_timestamp
+            ts = super
+            WatchHelper::HostTimestamp.find_or_create(:id=>ts)
         end
     end
 end
