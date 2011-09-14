@@ -127,7 +127,11 @@ module OpenNebula
 
         # Returns whether or not the user with id 'uid' is part of this group
         def contains(uid)
-            return self["USERS/ID[.=#{uid}]"] != nil
+            # This doesn't work in ruby 1.8.5
+#            return self["USERS/ID[.=#{uid}]"] != nil
+
+            id_array = retrieve_elements('USERS/ID')
+            return id_array != nil && id_array.include?(uid.to_s)
         end
 
         # Returns an array with the numeric user ids
