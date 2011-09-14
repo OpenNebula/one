@@ -81,7 +81,7 @@ class X509Auth
 
     # Returns the dn of the user certificate
     def dn
-        @cert_chain[0].subject.to_s
+        @cert_chain[0].subject.to_s.delete("\s")
     end
 
     # Generates a login token in the form:
@@ -91,17 +91,17 @@ class X509Auth
     def login_token(user, expire)
         if expire != 0
             expires = Time.now.to_i + expire.to_i
-	    else
-	        expires = @cert_chain[0].not_after.to_i
-	    end
+        else
+            expires = @cert_chain[0].not_after.to_i
+        end
         
         text_to_sign = "#{user}:#{expires}"
         signed_text  = encrypt(text_to_sign)
 
         certs_pem = @cert_chain.collect{|cert| cert.to_pem}.join(":")
 
-	    token     = "#{signed_text}:#{certs_pem}"	
-	    token64   = Base64::encode64(token).strip.delete("\n")
+        token     = "#{signed_text}:#{certs_pem}"	
+        token64   = Base64::encode64(token).strip.delete("\n")
 
         login_out = "#{user}:x509:#{token64}"
         
@@ -114,23 +114,25 @@ class X509Auth
     # auth method for auth_mad
     def authenticate(user, pass, signed_text)
         begin            
-	    # Decryption demonstrates that the user posessed the private key.
+            # Decryption demonstrates that the user posessed the private key.
             _user, expires = decrypt(signed_text).split(':')
 
             return "User name missmatch" if user != _user
 
             return "x509 proxy expired"  if Time.now.to_i >= expires.to_i
 
-	    # Some DN in the chain must match a DN in the password	    
-	    dn_ok = @cert_chain.each do |cert|
-                break true if pass.split('|').include?(cert.subject.to_s.delete("\s"))
+            # Some DN in the chain must match a DN in the password	    
+            dn_ok = @cert_chain.each do |cert|
+                if pass.split('|').include?(cert.subject.to_s.delete("\s"))
+                    break true
+                end
             end
-	    
-	    unless dn_ok == true
-	        return "Certificate subject missmatch"
+    
+            unless dn_ok == true
+                return "Certificate subject missmatch"
             end
-	    
-	    validate
+    
+            validate
 
             return true
         rescue => e
@@ -159,9 +161,10 @@ private
     # Load class options form a configuration file (yaml syntax)
     def load_options(conf_file)
         if File.readable?(conf_file)
-            config = File.read(conf_file)
-             
-            @options.merge!(YAML::load(config))
+            conf_txt = File.read(conf_file)
+            conf_opt = YAML::load(conf_txt)
+
+            @options.merge!(conf_opt) if conf_opt != false
         end
     end
 
@@ -184,7 +187,7 @@ private
     # Validate the user certificate
     ###########################################################################
     def validate
- 	now    = Time.now
+        now    = Time.now
         failed = "Could not validate user credentials: "
 
         # Check start time and end time of certificates
@@ -196,10 +199,10 @@ private
         end 
 
         begin
-	    # Validate the proxy certifcates
+            # Validate the proxy certifcates
             signee = @cert_chain[0]
 
-	        @cert_chain[1..-1].each do |cert|
+            @cert_chain[1..-1].each do |cert|
                 if !((signee.issuer.to_s == cert.subject.to_s) &&
                      (signee.verify(cert.public_key)))
                     raise  failed + signee.subject.to_s + " with issuer " +
@@ -210,7 +213,7 @@ private
             end
 
             # Validate the End Entity certificate
-	        if !@options[:ca_dir]
+            if !@options[:ca_dir]
                 raise failed + "No certifcate authority directory was specified." 
             end
 

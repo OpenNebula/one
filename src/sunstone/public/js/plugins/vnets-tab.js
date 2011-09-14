@@ -30,7 +30,7 @@ var vnets_tab_content =
       <th>Name</th>\
       <th>Type</th>\
       <th>Bridge</th>\
-      <th>Public?</th>\
+      <th>Public</th>\
       <th>Total Leases</th>\
     </tr>\
   </thead>\

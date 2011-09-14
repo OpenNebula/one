@@ -511,9 +511,9 @@ function escapeDoubleQuotes(string){
 //of plotting comes, we can put the data in the right place.
 function generateMonitoringDivs(graphs, id_prefix){
     var str = "";
-    //42% of the width of the screen minus
+    //43% of the width of the screen minus
     //129px (left menu size)
-    var width = ($(window).width()-129)*42/100;
+    var width = ($(window).width()-129)*40/100;
     var id_suffix="";
     var label="";
     var id="";
@@ -614,7 +614,7 @@ function setupTemplateUpdateDialog(){
     //Put HTML in place
     dialog.html(
         '<form action="javascript:alert(\'js error!\');">\
-               <h3 style="margin-bottom:10px;">Update the template here:</h3>\
+               <h3 style="margin-bottom:10px;">Please, choose and modify the template you want to update:</h3>\
                   <fieldset style="border-top:none;">\
                         <label for="template_update_select">Select a template:</label>\
                         <select id="template_update_select" name="template_update_select"></select>\

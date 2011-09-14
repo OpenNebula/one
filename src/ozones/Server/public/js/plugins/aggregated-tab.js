@@ -555,7 +555,8 @@ $(document).ready(function(){
         "bAutoWidth":false,
         "aoColumnDefs": [
             { "sWidth": "35px", "aTargets": [0,2] },
-            { "sWidth": "100px", "aTargets": [1,3,4,5,10] }
+            { "sWidth": "60px", "aTargets": [7,8] },
+            { "sWidth": "100px", "aTargets": [1,3,4,6,10] }
         ]
     });
 
@@ -579,7 +580,7 @@ $(document).ready(function(){
         "aoColumnDefs": [
             { "sWidth": "60px", "aTargets": [10] },
             { "sWidth": "35px", "aTargets": [0,2,8,9,11] },
-            { "sWidth": "100px", "aTargets": [1,3,4,5,7] }
+            { "sWidth": "100px", "aTargets": [1,3,4,6,7] }
         ]
     });
 

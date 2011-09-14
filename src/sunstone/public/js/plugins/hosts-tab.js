@@ -594,6 +594,7 @@ $(document).ready(function(){
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0,3] },
             { "sWidth": "35px", "aTargets": [1] },
+            { "sWidth": "100px", "aTargets": [6] },
             { "sWidth": "200px", "aTargets": [4,5] }
         ]
     });

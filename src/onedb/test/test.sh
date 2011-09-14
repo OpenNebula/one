@@ -120,7 +120,7 @@ echo "XML output collected. A diff will be performed."
 mkdir results/diff_files
 
 diff <(grep -v -e "<LAST_MON_TIME>" -e "<CLUSTER>" -e "NAME>" results/xml_files/host-pool.xml) <(grep -v -e "<LAST_MON_TIME>" -e "<CLUSTER>" -e "NAME>" results/xml_files/host-pool-upgraded.xml) > results/diff_files/host-pool.diff
-diff <(grep -v -e "<REGTIME>" -e "<SOURCE>" results/xml_files/image-pool.xml) <(grep -v -e "<REGTIME>" -e "<SOURCE>" results/xml_files/image-pool-upgraded.xml) > results/diff_files/image-pool.diff
+diff <(grep -v -e "<REGTIME>" -e "<SOURCE>" -e "<SIZE>" results/xml_files/image-pool.xml) <(grep -v -e "<REGTIME>" -e "<SOURCE>" -e "<SIZE>" results/xml_files/image-pool-upgraded.xml) > results/diff_files/image-pool.diff
 diff <(grep -v -e "<LAST_POLL>" -e "TIME>" -e "<SOURCE>" -e "<TEMPLATE_ID>" -e "<VM_DIR>" results/xml_files/vm-pool.xml) <(grep -v -e "<LAST_POLL>" -e "TIME>" -e "<SOURCE>" -e "<TEMPLATE_ID>" -e "<VM_DIR>" results/xml_files/vm-pool-upgraded.xml) > results/diff_files/vm-pool.diff
 
 for obj in vnet acl group user; do
@@ -132,7 +132,7 @@ for i in 0 1 2 3 4; do
 
     diff <(cat results/xml_files/vnet-$i.xml) <(cat results/xml_files/vnet-$i-upgraded.xml) > results/diff_files/vnet-$i.diff
 
-    diff <(grep -v -e "<REGTIME>" -e "<SOURCE>" results/xml_files/image-$i.xml) <(grep -v -e "<REGTIME>" -e "<SOURCE>" results/xml_files/image-$i-upgraded.xml) > results/diff_files/image-$i.diff
+    diff <(grep -v -e "<REGTIME>" -e "<SOURCE>" -e "<SIZE>" results/xml_files/image-$i.xml) <(grep -v -e "<REGTIME>" -e "<SOURCE>" -e "<SIZE>" results/xml_files/image-$i-upgraded.xml) > results/diff_files/image-$i.diff
 
     diff <(grep -v -e "<LAST_POLL>" -e "TIME>" -e "<SOURCE>" -e "<TEMPLATE_ID>" -e "<VM_DIR>" -e "<NET_TX>" results/xml_files/vm-$i.xml) <(grep -v -e "<LAST_POLL>" -e "TIME>" -e "<SOURCE>" -e "<TEMPLATE_ID>" -e "<VM_DIR>" -e "<NET_TX>" results/xml_files/vm-$i-upgraded.xml) > results/diff_files/vm-$i.diff
 

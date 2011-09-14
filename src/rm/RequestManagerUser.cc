@@ -61,13 +61,16 @@ int UserChangePassword::user_action(User * user,
 
     string new_pass = xmlrpc_c::value_string(paramList.getString(2));
 
-    user->set_password(new_pass);
+    int rc = user->set_password(new_pass, error_str);
 
-    pool->update(user);
+    if ( rc == 0 )
+    {
+        pool->update(user);
+    }
 
     user->unlock();
 
-    return 0;
+    return rc;
 }
 
 /* ------------------------------------------------------------------------- */

@@ -139,9 +139,6 @@ var dashboard_tab_content =
       <div class="panel">\
         <h3>\
             <a href="#images_tab">Images</a>\
-            <div class="new-resource">\
-                <a class="action_button" href="#images_tab" value="Image.create_dialog">+</a>\
-            </div>\
         </h3>\
         <div class="panel_info">\
             <table class="info_table">\

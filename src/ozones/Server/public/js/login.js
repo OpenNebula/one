@@ -25,11 +25,11 @@ function auth_error(req, error){
     switch (status){
         case 401:
             $("#one_error").hide();
-            $("#auth_error").show();
+            $("#auth_error").fadeIn("slow");
             break;
         case 500:
             $("#auth_error").hide();
-            $("#one_error").show();
+            $("#one_error").fadeIn("slow");
             break;
     }
 }
@@ -47,25 +47,18 @@ function authenticate(){
                         });
 }
 
-function logout(){
-    oZones.Auth.logout();
-}
-
-
 $(document).ready(function(){
-    $("#login_btn").click(function () {
+    $("#login_form").submit(function (){
         authenticate();
+        return false;
     });
 
-    $("input").keydown(function (e){
-        if (e.keyCode == 13) {
-            authenticate();
-        }
-    });
+    //compact login elements according to screen height
+    if (screen.height <= 600){
+        $('div#logo_sunstone').css("top","15px");
+        $('div#login').css("top","10px");
+        $('.error_message').css("top","10px");
+    };
 
-    $("#logout_btn").click(function () {
-        logout();
-    });
-
-    $("input#username.box").get(0).focus();
+    $("input#username.box").focus();
 });

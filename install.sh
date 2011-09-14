@@ -191,6 +191,7 @@ ETC_DIRS="$ETC_LOCATION/im_kvm \
           $ETC_LOCATION/tm_lvm \
           $ETC_LOCATION/hm \
           $ETC_LOCATION/auth \
+          $ETC_LOCATION/auth/certificates \
           $ETC_LOCATION/ec2query_templates \
           $ETC_LOCATION/occi_templates \
           $ETC_LOCATION/cli"
@@ -1032,7 +1033,7 @@ OZONES_ETC_FILES="src/ozones/Server/etc/ozones-server.conf"
 OZONES_MODELS_FILES="src/ozones/Server/models/OzonesServer.rb \
                      src/ozones/Server/models/Auth.rb \
                      src/ozones/Server/models/OCAInteraction.rb \
-                     src/ozones/Server/models/JSONUtils.rb"
+                     src/sunstone/models/OpenNebulaJSON/JSONUtils.rb"
                      
 OZONES_TEMPLATE_FILES="src/ozones/Server/templates/index.html \
                        src/ozones/Server/templates/login.html"

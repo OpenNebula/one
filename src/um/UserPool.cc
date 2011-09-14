@@ -136,7 +136,12 @@ int UserPool::allocate (
 
     ostringstream   oss;
 
-    if ( uname.empty() )
+    if ( !User::is_valid(password, error_str) )
+    {
+        goto error_pass;
+    }
+
+    if ( !User::is_valid(uname, error_str) )
     {
         goto error_name;
     }
@@ -176,8 +181,12 @@ int UserPool::allocate (
 
     return *oid;
 
+error_pass:
+    oss << "Invalid password, " << error_str << ".";
+    goto error_common;
+
 error_name:
-    oss << "NAME cannot be empty.";
+    oss << "Invalid NAME, " << error_str << ".";
     goto error_common;
 
 error_duplicated:
@@ -293,7 +302,12 @@ bool UserPool::authenticate(const string& session,
 
                 if ( is.good() )
                 {
-                    is >> mad_name >> ws >> mad_pass;
+                    is >> mad_name >> ws;
+                }
+
+                if ( !is.fail() )
+                {
+                    getline(is, mad_pass);
                 }
 
                 if ( !is.fail() )
@@ -314,7 +328,7 @@ bool UserPool::authenticate(const string& session,
                     oss << "Can't create user: " << error_str <<
                            ". Driver response: " << ar.message;
 
-                    ar.message = oss.str();
+                    NebulaLog::log("AuM",Log::ERROR,oss);
                 }
                 else
                 {

@@ -32,7 +32,7 @@ var images_tab_content =
       <th>Registration time</th>\
       <th>Public</th>\
       <th>Persistent</th>\
-      <th>State</th>\
+      <th>Status</th>\
       <th>#VMS</th>\
     </tr>\
   </thead>\
@@ -161,9 +161,9 @@ var $create_image_dialog;
 
 var image_actions = {
 
-    "Image.register" : {
+    "Image.create" : {
         type: "create",
-        call: OpenNebula.Image.register,
+        call: OpenNebula.Image.create,
         callback: addImageElement,
         error: onError,
         notify:true
@@ -710,7 +710,7 @@ function setupCreateImageDialog(){
             break;
         }
         var obj = { "image" : img_json };
-        Sunstone.runAction("Image.register", obj);
+        Sunstone.runAction("Image.create", obj);
 
         $create_image_dialog.dialog('close');
         return false;
@@ -718,7 +718,7 @@ function setupCreateImageDialog(){
 
     $('#create_image_form_manual',dialog).submit(function(){
         var template=$('#template',this).val();
-        Sunstone.runAction("Image.register",template);
+        Sunstone.runAction("Image.create",template);
         $create_image_dialog.dialog('close');
         return false;
     });
@@ -750,9 +750,10 @@ $(document).ready(function(){
         "sPaginationType": "full_numbers",
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "60px", "aTargets": [0,3] },
-            { "sWidth": "35px", "aTargets": [1] },
-            { "sWidth": "100px", "aTargets": [2,3,4] }
+            { "sWidth": "60px", "aTargets": [0,2,3,5,7,8,9] },
+            { "sWidth": "35px", "aTargets": [1,10] },
+            { "sWidth": "100px", "aTargets": [9] },
+            { "sWidth": "150px", "aTargets": [6] }
         ]
     });
 

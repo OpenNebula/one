@@ -278,6 +278,8 @@ EOT
                     printf cmd_format10, l
                     puts
                 }
+
+                puts
             }
         end
 

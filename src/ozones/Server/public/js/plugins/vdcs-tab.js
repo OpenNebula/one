@@ -92,7 +92,7 @@ var vdc_actions = {
         type: "custom",
         call: function() {
             waitingNodes(dataTable_vdcs);
-            Sunstone.runAction("Zone.list");
+            Sunstone.runAction("VDC.list");
         },
         error: onError
     },

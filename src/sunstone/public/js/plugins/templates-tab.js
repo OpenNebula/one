@@ -1259,15 +1259,35 @@ function setupCreateTemplateDialog(){
 
     //Toggles the icon when a section is folded/unfolded
     var iconToggle = function(){
-        $('.icon_right',dialog).toggle(
-            function(e){
-                $('span',e.currentTarget).removeClass("ui-icon-plusthick");
-                $('span',e.currentTarget).addClass("ui-icon-minusthick");
-            },function(e){
-                $('span',e.currentTarget).removeClass("ui-icon-minusthick");
-                $('span',e.currentTarget).addClass("ui-icon-plusthick");
+        $('.icon_left',$create_template_dialog).click(function(e){
+            if ($('span',e.currentTarget).hasClass("ui-icon-plus")){
+                $('span',e.currentTarget).removeClass("ui-icon-plus");
+                $('span',e.currentTarget).addClass("ui-icon-minus");
+            } else {
+                $('span',e.currentTarget).removeClass("ui-icon-minus");
+                $('span',e.currentTarget).addClass("ui-icon-plus");
+            };
+        });
+    };
+
+    //Fold/unfold all sections button
+    var foldUnfoldToggle = function() {
+        $('#fold_unfold_vm_params',$create_template_dialog).toggle(
+            function(){
+                $('.vm_section fieldset',$create_template_dialog).show();
+                $('.icon_left span',$create_template_dialog).removeClass("ui-icon-plus");
+                $('.icon_left span',$create_template_dialog).addClass("ui-icon-minus");
+                return false;
+            },
+            function(){
+                $('.vm_section fieldset',$create_template_dialog).hide();
+                //Show capacity opts
+                $('.vm_section fieldset',$create_template_dialog).first().show();
+                $('.icon_left span',$create_template_dialog).removeClass("ui-icon-minus");
+                $('.icon_left span',$create_template_dialog).addClass("ui-icon-plus");
+                return false;
             });
-    }
+    };
 
     // Set ups the capacity section
     var capacity_setup = function(){
@@ -1795,18 +1815,7 @@ filled in");
 
     vmTabChange(0,{index : 0}); //enable kvm
 
-    //Fold/unfold all sections button
-    $('#fold_unfold_vm_params',dialog).toggle(
-        function(){
-            $('.vm_section fieldset',$create_template_dialog).show();
-            return false;
-        },
-        function(){
-            $('.vm_section fieldset',$create_template_dialog).hide();
-            //Show capacity opts
-            $('.vm_section fieldset',$create_template_dialog).first().show();
-            return false;
-        });
+    foldUnfoldToggle();
 
     //initialise all sections
     capacity_setup();
@@ -1969,9 +1978,10 @@ $(document).ready(function(){
         "sPaginationType": "full_numbers",
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "60px", "aTargets": [0] },
+            { "sWidth": "60px", "aTargets": [0,6] },
             { "sWidth": "35px", "aTargets": [1] },
-            { "sWidth": "100px", "aTargets": [2,3,4] }
+            { "sWidth": "150px", "aTargets": [5] },
+            { "sWidth": "100px", "aTargets": [2,3] }
         ]
     });
 

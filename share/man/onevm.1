@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ONEVM" "1" "July 2011" "" "onevm(1) -- manages OpenNebula virtual machines"
+.TH "ONEVM" "1" "September 2011" "" "onevm(1) -- manages OpenNebula virtual machines"
 .
 .SH "NAME"
 \fBonevm\fR
@@ -13,12 +13,12 @@
 .
 .nf
 
+ \-m, \-\-multiple x          Instance multiple VMs
  \-x, \-\-xml                 Show the resource in xml format
- \-l, \-\-list x,y,z          Selects columns to display with list command
- \-d, \-\-delay x             Sets the delay in seconds for top command
  \-n, \-\-numeric             Do not translate user and group IDs
  \-k, \-\-kilobytes           Show units in kilobytes
- \-m, \-\-multiple x          Instance multiple VMs
+ \-l, \-\-list x,y,z          Selects columns to display with list command
+ \-d, \-\-delay x             Sets the delay in seconds for top command
  \-v, \-\-verbose             Verbose mode
  \-h, \-\-help                Show this message
  \-V, \-\-version             Show version and copyright information
@@ -28,13 +28,16 @@
 .SH "COMMANDS"
 .
 .IP "\(bu" 4
-chgrp \fIrange|vmid_list\fR \fIgroupid\fR
+create \fIfile\fR
 .
 .IP "" 4
 .
 .nf
 
-Changes the VM group
+Creates a new VM from the given template file\. This command bypasses
+the Template pool, which is the preferred way to instantiate new VMs\.
+See \'onetemplate create\' and \'onetemplate instantiate\'
+valid options: multiple, xml, numeric, kilobytes
 .
 .fi
 .
@@ -42,15 +45,48 @@ Changes the VM group
 
 .
 .IP "\(bu" 4
-restart \fIrange|vmid_list\fR
+delete \fIrange|vmid_list\fR
 .
 .IP "" 4
 .
 .nf
 
-Forces a re\-deployment of the given VM, issuing a boot action\.
+Deletes the given VM
 
-States: UNKNOWN, BOOT
+States: ANY
+.
+.fi
+.
+.IP "" 0
+
+.
+.IP "\(bu" 4
+hold \fIrange|vmid_list\fR
+.
+.IP "" 4
+.
+.nf
+
+Sets the given VM on hold\. A VM on hold is not scheduled until it is
+released\. It can be, however, deployed manually; see \'onevm deploy\'
+
+States: PENDING
+.
+.fi
+.
+.IP "" 0
+
+.
+.IP "\(bu" 4
+release \fIrange|vmid_list\fR
+.
+.IP "" 4
+.
+.nf
+
+Releases a VM on hold\. See \'onevm hold\'
+
+States: HOLD
 .
 .fi
 .
@@ -77,14 +113,33 @@ States: ANY
 
 .
 .IP "\(bu" 4
-show \fIvmid\fR
+shutdown \fIrange|vmid_list\fR
 .
 .IP "" 4
 .
 .nf
 
-Shows information for the given VM
-valid options: xml
+Shuts down the given VM\.
+
+States: RUNNING
+.
+.fi
+.
+.IP "" 0
+
+.
+.IP "\(bu" 4
+deploy \fIrange|vmid_list\fR \fIhostid\fR
+.
+.IP "" 4
+.
+.nf
+
+Deploys the given VM in the specified Host\. This command forces the
+deployment, in a standard installation the Scheduler is in charge
+of this decision
+
+States: PENDING
 .
 .fi
 .
@@ -108,13 +163,82 @@ States: RUNNING
 
 .
 .IP "\(bu" 4
-shutdown \fIrange|vmid_list\fR
+migrate \fIrange|vmid_list\fR \fIhostid\fR
 .
 .IP "" 4
 .
 .nf
 
-Shuts down the given VM\.
+Saves the given running VM and starts it again in the specified Host
+
+States: RUNNING
+.
+.fi
+.
+.IP "" 0
+
+.
+.IP "\(bu" 4
+restart \fIrange|vmid_list\fR
+.
+.IP "" 4
+.
+.nf
+
+Forces a re\-deployment of the given VM, issuing a boot action\.
+
+States: UNKNOWN, BOOT
+.
+.fi
+.
+.IP "" 0
+
+.
+.IP "\(bu" 4
+resubmit \fIrange|vmid_list\fR
+.
+.IP "" 4
+.
+.nf
+
+Resubmits the VM to PENDING state\. This is intented for VMs stuck in a
+transient state\. To re\-deploy a fresh copy of the same VM, create a
+Template and instantiante it, see \'onetemplate instantiate\'
+
+States: ANY, except SUSPENDED or DONE
+.
+.fi
+.
+.IP "" 0
+
+.
+.IP "\(bu" 4
+cancel \fIrange|vmid_list\fR
+.
+.IP "" 4
+.
+.nf
+
+Cancels the given VM\. The process is checked by OpenNebula, so
+if the process fails the VM remains in running state\. If the action
+succeeds the VMDIR in the remote machine is not deleted
+
+States: RUNNING
+.
+.fi
+.
+.IP "" 0
+
+.
+.IP "\(bu" 4
+stop \fIrange|vmid_list\fR
+.
+.IP "" 4
+.
+.nf
+
+Stops a running VM\. The VM state is saved and transferred back to the
+front\-end along with the disk files
 
 States: RUNNING
 .
@@ -143,16 +267,15 @@ States: RUNNING
 
 .
 .IP "\(bu" 4
-hold \fIrange|vmid_list\fR
+resume \fIrange|vmid_list\fR
 .
 .IP "" 4
 .
 .nf
 
-Sets the given VM on hold\. A VM on hold is not scheduled until it is
-released\. It can be, however, deployed manually; see \'onevm deploy\'
+Resumes the execution of the a saved VM
 
-States: PENDING
+States: STOPPED, SUSPENDED
 .
 .fi
 .
@@ -160,17 +283,27 @@ States: PENDING
 
 .
 .IP "\(bu" 4
-resubmit \fIrange|vmid_list\fR
+chgrp \fIrange|vmid_list\fR \fIgroupid\fR
 .
 .IP "" 4
 .
 .nf
 
-Resubmits the VM to PENDING state\. This is intented for VMs stuck in a
-transient state\. To re\-deploy a fresh copy of the same VM, create a
-Template and instantiante it, see \'onetemplate instantiate\'
+Changes the VM group
+.
+.fi
+.
+.IP "" 0
 
-States: ANY, except SUSPENDED or DONE
+.
+.IP "\(bu" 4
+chown \fIrange|vmid_list\fR \fIuserid\fR [\fIgroupid\fR]
+.
+.IP "" 4
+.
+.nf
+
+Changes the Image owner and group
 .
 .fi
 .
@@ -193,147 +326,14 @@ valid options: list, delay, xml, numeric, kilobytes
 
 .
 .IP "\(bu" 4
-stop \fIrange|vmid_list\fR
+show \fIvmid\fR
 .
 .IP "" 4
 .
 .nf
 
-Stops a running VM\. The VM state is saved and transferred back to the
-front\-end along with the disk files
-
-States: RUNNING
-.
-.fi
-.
-.IP "" 0
-
-.
-.IP "\(bu" 4
-deploy \fIrange|vmid_list\fR \fIhostid\fR
-.
-.IP "" 4
-.
-.nf
-
-Deploys the given VM in the specified Host\. This command forces the
-deployment, in a standard installation the Scheduler is in charge
-of this decision
-
-States: PENDING
-.
-.fi
-.
-.IP "" 0
-
-.
-.IP "\(bu" 4
-delete \fIrange|vmid_list\fR
-.
-.IP "" 4
-.
-.nf
-
-Deletes the given VM
-
-States: ANY
-.
-.fi
-.
-.IP "" 0
-
-.
-.IP "\(bu" 4
-resume \fIrange|vmid_list\fR
-.
-.IP "" 4
-.
-.nf
-
-Resumes the execution of the a saved VM
-
-States: STOPPED, SUSPENDED
-.
-.fi
-.
-.IP "" 0
-
-.
-.IP "\(bu" 4
-migrate \fIrange|vmid_list\fR \fIhostid\fR
-.
-.IP "" 4
-.
-.nf
-
-Saves the given running VM and starts it again in the specified Host
-
-States: RUNNING
-.
-.fi
-.
-.IP "" 0
-
-.
-.IP "\(bu" 4
-release \fIrange|vmid_list\fR
-.
-.IP "" 4
-.
-.nf
-
-Releases a VM on hold\. See \'onevm hold\'
-
-States: HOLD
-.
-.fi
-.
-.IP "" 0
-
-.
-.IP "\(bu" 4
-chown \fIrange|vmid_list\fR \fIuserid\fR [\fIgroupid\fR]
-.
-.IP "" 4
-.
-.nf
-
-Changes the Image owner and group
-.
-.fi
-.
-.IP "" 0
-
-.
-.IP "\(bu" 4
-cancel \fIrange|vmid_list\fR
-.
-.IP "" 4
-.
-.nf
-
-Cancels the given VM\. The process is checked by OpenNebula, so
-if the process fails the VM remains in running state\. If the action
-succeeds the VMDIR in the remote machine is not deleted
-
-States: RUNNING
-.
-.fi
-.
-.IP "" 0
-
-.
-.IP "\(bu" 4
-create \fIfile\fR
-.
-.IP "" 4
-.
-.nf
-
-Creates a new VM from the given template file\. This command bypasses
-the Template pool, which is the preferred way to instantiate new VMs\.
-See \'onetemplate create\' and \'onetemplate instantiate\'
-valid options: multiple, xml, numeric, kilobytes
+Shows information for the given VM
+valid options: xml
 .
 .fi
 .
@@ -360,36 +360,140 @@ valid options: list, delay, xml, numeric, kilobytes
 .SH "ARGUMENT FORMATS"
 .
 .IP "\(bu" 4
-text
-.
-.IP "\(bu" 4
-vmid_list
-.
-.IP "\(bu" 4
-groupid
-.
-.IP "\(bu" 4
 file
 .
-.IP "\(bu" 4
-userid
+.IP "" 4
 .
-.IP "\(bu" 4
-hostid
+.nf
+
+Path to a file
 .
-.IP "\(bu" 4
-vmid
+.fi
+.
+.IP "" 0
+
 .
 .IP "\(bu" 4
 range
 .
+.IP "" 4
+.
+.nf
+
+List of id\'s in the form 1,8\.\.15
+.
+.fi
+.
+.IP "" 0
+
+.
+.IP "\(bu" 4
+text
+.
+.IP "" 4
+.
+.nf
+
+String
+.
+.fi
+.
+.IP "" 0
+
+.
+.IP "\(bu" 4
+hostid
+.
+.IP "" 4
+.
+.nf
+
+OpenNebula HOST name or id
+.
+.fi
+.
+.IP "" 0
+
+.
+.IP "\(bu" 4
+groupid
+.
+.IP "" 4
+.
+.nf
+
+OpenNebula GROUP name or id
+.
+.fi
+.
+.IP "" 0
+
+.
+.IP "\(bu" 4
+userid
+.
+.IP "" 4
+.
+.nf
+
+OpenNebula USER name or id
+.
+.fi
+.
+.IP "" 0
+
+.
+.IP "\(bu" 4
+vmid
+.
+.IP "" 4
+.
+.nf
+
+OpenNebula VM name or id
+.
+.fi
+.
+.IP "" 0
+
+.
+.IP "\(bu" 4
+vmid_list
+.
+.IP "" 4
+.
+.nf
+
+Comma\-separated list of OpenNebula VM names or ids
+.
+.fi
+.
+.IP "" 0
+
+.
 .IP "\(bu" 4
 filterflag
+.
+.IP "" 4
+.
+.nf
+
+a, all       all the known VMs
+m, mine      the VM belonging to the user in ONE_AUTH
+g, group     \'mine\' plus the VM belonging to the groups
+             the user is member of
+uid          VM of the user identified by this uid
+user         VM of the user identified by the username
+.
+.fi
+.
+.IP "" 0
+
 .
 .IP "" 0
 .
 .SH "LICENSE"
-OpenNebula 2\.9\.80 Copyright 2002\-2011, OpenNebula Project Leads (OpenNebula\.org)
+OpenNebula 2\.9\.85 Copyright 2002\-2011, OpenNebula Project Leads (OpenNebula\.org)
 .
 .P
 Licensed under the Apache License, Version 2\.0 (the "License"); you may not use this file except in compliance with the License\. You may obtain a copy of the License at http://www\.apache\.org/licenses/LICENSE\-2\.0
