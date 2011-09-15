@@ -220,7 +220,7 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
 
     if ( rc != 0 )
     {
-        goto error_leases;
+        goto error_leases_rollback;
     }
 
     // ------------------------------------------------------------------------
@@ -231,7 +231,9 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
 
     if ( rc != 0 )
     {
-        goto error_images;
+        // The get_disk_images method has an internal rollback for
+        // the acquired images, release_disk_images() would release all disks
+        goto error_leases_rollback;
     }
 
     // -------------------------------------------------------------------------
@@ -269,26 +271,24 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
 
 error_update:
     error_str = "Can not insert VM in the database.";
-    goto error_common;
-
-error_leases:
-    NebulaLog::log("ONE",Log::ERROR, error_str);
-    release_network_leases();
-    return -1;
-
-error_images:
-    goto error_common;
+    goto error_rollback;
 
 error_context:
-    goto error_common;
+    goto error_rollback;
 
 error_requirements:
-    goto error_common;
+    goto error_rollback;
+
+error_rollback:
+    release_disk_images();
+
+error_leases_rollback:
+    release_network_leases();
+    goto error_common;  // just to avoid compilation warnings
 
 error_common:
     NebulaLog::log("ONE",Log::ERROR, error_str);
-    release_network_leases();
-    release_disk_images();
+
     return -1;
 }
 
@@ -663,11 +663,13 @@ int VirtualMachine::get_disk_images(string& error_str)
     vector<Attribute  * > disks;
     ImagePool *           ipool;
     VectorAttribute *     disk;
+    vector<int>           acquired_images;
 
     int     n_os = 0; // Number of OS images
     int     n_cd = 0; // Number of CDROMS
     int     n_db = 0; // Number of DATABLOCKS
     string  type;
+    int     image_id;
 
     ostringstream    oss;
     Image::ImageType img_type;
@@ -686,10 +688,12 @@ int VirtualMachine::get_disk_images(string& error_str)
             continue;
         }
 
-        rc = ipool->disk_attribute(disk, i, &index, &img_type, uid);
+        rc = ipool->disk_attribute(disk, i, &index, &img_type, uid, image_id);
 
         if (rc == 0 )
         {
+            acquired_images.push_back(image_id);
+
             switch(img_type)
             {
                 case Image::OS:
@@ -728,6 +732,10 @@ int VirtualMachine::get_disk_images(string& error_str)
         {
             goto error_name;
         }
+        else if ( rc != -2 ) // The only known code left
+        {
+            goto error_unknown;
+        }
     }
 
     return 0;
@@ -750,8 +758,23 @@ error_image:
 
 error_name:
     error_str = "IMAGE is not supported for DISK. Use IMAGE_ID instead.";
+    goto error_common;
+
+error_unknown:
+    error_str = "Unknown error code.";
 
 error_common:
+    ImageManager *  imagem  = nd.get_imagem();
+
+    vector<int>::iterator it;
+
+    for ( it=acquired_images.begin() ; it < acquired_images.end(); it++ )
+    {
+        // Set disk_path and save_id to empty string, this way the image manager
+        // won't try to move any files
+        imagem->release_image(*it,"",-1,"");
+    }
+
     return -1;
 }
 
