@@ -104,7 +104,7 @@ public:
         iss.str(iid);
         iss >> image_id;
 
-        return release_image(image_id, disk_path, disk_num, saveid);
+        release_image(image_id, disk_path, disk_num, saveid);
     };
 
     /**
