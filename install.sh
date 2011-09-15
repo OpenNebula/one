@@ -332,10 +332,6 @@ INSTALL_FILES=(
     AUTH_QUOTA_FILES:$VAR_LOCATION/remotes/auth/quota    
     VMM_EXEC_KVM_SCRIPTS:$VAR_LOCATION/remotes/vmm/kvm
     VMM_EXEC_XEN_SCRIPTS:$VAR_LOCATION/remotes/vmm/xen
-    VMM_EXEC_XEN_KVM_POLL:$VAR_LOCATION/remotes/vmm/kvm/poll
-    VMM_EXEC_XEN_KVM_POLL:$VAR_LOCATION/remotes/vmm/xen/poll
-    VMM_EXEC_GANGLIA_POLL:$VAR_LOCATION/remotes/vmm/kvm/poll_local
-    VMM_EXEC_GANGLIA_POLL:$VAR_LOCATION/remotes/vmm/xen/poll_local
     SHARED_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/shared
     SSH_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/ssh
     DUMMY_TM_COMMANDS_LIB_FILES:$LIB_LOCATION/tm_commands/dummy
@@ -552,6 +548,8 @@ VMM_EXEC_KVM_SCRIPTS="src/vmm_mad/remotes/kvm/cancel \
                     src/vmm_mad/remotes/kvm/migrate_local \
                     src/vmm_mad/remotes/kvm/restore \
                     src/vmm_mad/remotes/kvm/save \
+                    src/vmm_mad/remotes/kvm/poll \
+                    src/vmm_mad/remotes/kvm/poll_local \
                     src/vmm_mad/remotes/kvm/shutdown"
 
 #-------------------------------------------------------------------------------
@@ -564,14 +562,9 @@ VMM_EXEC_XEN_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
                     src/vmm_mad/remotes/xen/migrate \
                     src/vmm_mad/remotes/xen/restore \
                     src/vmm_mad/remotes/xen/save \
+                    src/vmm_mad/remotes/xen/poll \
+                    src/vmm_mad/remotes/xen/poll_local \
                     src/vmm_mad/remotes/xen/shutdown"
-
-#-----------------------------------------------------------------------------
-# VMM SH Driver xen/kvm scripts, to be installed under $REMOTES_LOCATION/vmm/*
-#-----------------------------------------------------------------------------
-
-VMM_EXEC_XEN_KVM_POLL="src/vmm_mad/remotes/poll_xen_kvm.rb"
-VMM_EXEC_GANGLIA_POLL="src/vmm_mad/remotes/poll_ganglia.rb"
 
 #-------------------------------------------------------------------------------
 # Information Manager Probes, to be installed under $REMOTES_LOCATION/im
