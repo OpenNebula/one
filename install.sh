@@ -549,7 +549,7 @@ VMM_EXEC_KVM_SCRIPTS="src/vmm_mad/remotes/kvm/cancel \
                     src/vmm_mad/remotes/kvm/restore \
                     src/vmm_mad/remotes/kvm/save \
                     src/vmm_mad/remotes/kvm/poll \
-                    src/vmm_mad/remotes/kvm/poll_local \
+                    src/vmm_mad/remotes/kvm/poll_ganglia \
                     src/vmm_mad/remotes/kvm/shutdown"
 
 #-------------------------------------------------------------------------------
@@ -563,7 +563,7 @@ VMM_EXEC_XEN_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
                     src/vmm_mad/remotes/xen/restore \
                     src/vmm_mad/remotes/xen/save \
                     src/vmm_mad/remotes/xen/poll \
-                    src/vmm_mad/remotes/xen/poll_local \
+                    src/vmm_mad/remotes/xen/poll_ganglia \
                     src/vmm_mad/remotes/xen/shutdown"
 
 #-------------------------------------------------------------------------------
