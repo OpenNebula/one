@@ -563,7 +563,7 @@ class OCCIServer < CloudServer
         return rc, 404 if OpenNebula::is_error?(rc)
 
         # --- Delete the Image ---
-        rc = @img_repo.delete(image)
+        rc = image.delete
         return rc, 500 if OpenNebula::is_error?(rc)
 
         return "", 204
