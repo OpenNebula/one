@@ -382,11 +382,16 @@ int ImageManager::register_image(int iid)
         }
         else
         {
-            img->set_state(Image::READY);
-            ipool->update(img);
+            string source = img->get_source();
 
-            oss << "Using source " << img->get_source() 
-                << " from template for image " << img->get_name();
+            if (source != "-") //SAVE_AS IMAGE DO NOT ENABLE THE IMAGE
+            {
+                img->set_state(Image::READY);
+                ipool->update(img);
+
+                oss << "Using source " << img->get_source() 
+                    << " from template for image " << img->get_name();
+            }
         }
     }
     else //PATH -> COPY TO REPOSITORY AS SOURCE
