@@ -86,34 +86,85 @@ class EC2QueryServer < CloudServer
     # params:: of the request
     # [return] true if authenticated
     def authenticate(params,env)
-        password = get_user_password(params['AWSAccessKeyId'])
-        return nil if !password
+    
+        failed = 'Authentication failed. '
+	
+        # For https, the web service should be set to include the user cert in the environment.
+	cert_line = env['HTTP_SSL_CLIENT_CERT']
+	cert_line = nil if cert_line == '(null)' # For Apache mod_ssl
+	        	
+        if cert_line == nil
+	    # Use the secret key for authentication.
+				
+            password = get_user_password(params['AWSAccessKeyId'])
+            return nil if !password
 
-        signature = case params['SignatureVersion']
-            when "1" then signature_version_1(params.clone, password)
-            when "2" then signature_version_2(params,
-                              password,
-                              env,
-                              true,
-                              false)
-        end
-
-        if params['Signature']==signature
-            return one_client_user(params['AWSAccessKeyId'], password)
-        else
-            if params['SignatureVersion']=="2"
-                signature = signature_version_2(params,
+            signature = case params['SignatureVersion']
+                when "1" then signature_version_1(params.clone, password)
+                when "2" then signature_version_2(params,
                                   password,
                                   env,
-                                  false,
+                                  true,
                                   false)
-                if params['Signature']==signature
-                    return one_client_user(params['AWSAccessKeyId'], password)
+            end
+
+            if params['Signature']==signature
+                return one_client_user(params['AWSAccessKeyId'], password)
+            else
+                if params['SignatureVersion']=="2"
+                    signature = signature_version_2(params,
+                                      password,
+                                      env,
+                                      false,
+                                      false)
+                    if params['Signature']==signature
+                        return one_client_user(params['AWSAccessKeyId'], password)
+                    end
                 end
             end
-        end
 
-        return nil
+            return nil
+        else
+	    #  Use the https credentials for authentication
+	    require 'server_auth'	
+	    while cert_line
+	        begin
+                    cert_array=cert_line.scan(/([^\s]*)\s/)
+                    cert_array = cert_array[2..-3]
+                    cert_array.unshift('-----BEGIN CERTIFICATE-----')
+		    cert_array.push('-----END CERTIFICATE-----')
+                    cert_pem = cert_array.join("\n") 
+		    cert = OpenSSL::X509::Certificate.new(cert_pem)               
+                rescue
+	            raise failed + "Could not create X509 certificate from " + cert_line
+	        end
+		# Password should be DN with whitespace removed.
+	        subjectname = cert.subject.to_s.delete("\s")		
+                begin
+                    username = get_username(subjectname)
+                rescue
+                    username = nil
+                end
+                break if username
+		chain_dn = (!chain_dn ? "" : chain_dn) + "\n" + subjectname
+                chain_index = !chain_index ? 0 : chain_index + 1
+                cert_line = env["HTTP_SSL_CLIENT_CERT_CHAIN_#{chain_index}"]
+                cert_line = nil if cert_line == '(null)' # For Apache mod_ssl	    
+	    end
+
+            if !cert_line
+	        raise failed + "Username not found in certificate chain " + chain_dn
+	    end
+	    
+            auth = ServerAuth.new
+
+            login = auth.login_token(username, subjectname, 300)
+	    
+	    STDERR.puts login
+				
+	    return one_client_user("dummy", login)
+
+        end	
     end
 
 

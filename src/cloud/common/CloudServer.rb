@@ -88,7 +88,12 @@ class CloudServer
     # [return] an OpenNebula client session
     def one_client_user(name, password)
         client = Client.new("dummy:dummy")
-        client.one_auth = "#{name}:#{password}"
+	if name=="dummy"
+	#STDERR.puts "#{password}"
+            client.one_auth = "#{password}"	
+	else
+            client.one_auth = "#{name}:#{password}"
+	end
 
         return client
     end
@@ -101,7 +106,37 @@ class CloudServer
         return @user_pool["USER[NAME=\"#{name}\"]/PASSWORD"]
     end
 
-
+    # Gets the username associated with a password
+    # password:: _String_ the password
+    # [return] _Hash_ with the username
+    def get_username(password)
+        @user_pool.info
+	#STDERR.puts 'the password is ' + password
+	#STDERR.puts @user_pool["User[PASSWORD=\"#{password}\"]"]
+	username = @user_pool["User[PASSWORD=\"#{password}\"]/NAME"]
+	return username if (username != nil)
+	 
+	# Check if the DN is part of a |-separted multi-DN password
+	user_elts = Array.new
+	@user_pool.each {|e| user_elts << e['PASSWORD']}
+	multiple_users = user_elts.select {|e| e=~ /\|/ }
+	matched = nil
+	multiple_users.each do |e|
+	   e.to_s.split('|').each do |w|
+	       if (w == password)
+	           matched=e
+		   break
+	       end
+	   end
+	   break if matched
+	end
+	if matched
+	    password = matched.to_s
+	end
+	puts("The password is " + password)
+        return @user_pool["USER[PASSWORD=\"#{password}\"]/NAME"]
+    end
+    
     # Finds out if a port is available on ip
     # ip:: _String_ IP address where the port to check is
     # port:: _String_ port to find out whether is open

@@ -70,7 +70,13 @@ set :port, $econe_server.config[:port]
 ##############################################################################
 
 before do
-    @client = $econe_server.authenticate(params,env)
+    #STDERR.puts Time.now.strftime("%d/%b/%Y %H:%M:%S")
+    begin
+        @client = $econe_server.authenticate(params,env)
+    rescue  => e
+        #STDERR.puts Time.now.strftime("%d/%b/%Y %H:%M:%S") + ' Exception in authentication. ' + e.to_s
+        @client = nil
+    end
     
     if @client.nil?
         error 400, error_xml("AuthFailure", 0)
