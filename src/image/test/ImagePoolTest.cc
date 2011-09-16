@@ -589,7 +589,7 @@ public:
         Image *             img;
 
         VectorAttribute *   disk;
-        int                 oid_0, oid_1, index;
+        int                 oid_0, oid_1, index, img_id;
         string              value;
         Image::ImageType    img_type;
 
@@ -625,7 +625,7 @@ public:
         disk = new VectorAttribute("DISK");
         disk->replace("IMAGE_ID", "0");
 
-        ((ImagePool*)imp)->disk_attribute(disk, 0, &index, &img_type,0);
+        ((ImagePool*)imp)->disk_attribute(disk, 0, &index, &img_type,0, img_id);
 
         value = "";
         value = disk->vector_value("TARGET");
@@ -639,7 +639,7 @@ public:
         disk = new VectorAttribute("DISK");
         disk->replace("IMAGE_ID", "1");
 
-        ((ImagePool*)imp)->disk_attribute(disk, 0, &index, &img_type,0);
+        ((ImagePool*)imp)->disk_attribute(disk, 0, &index, &img_type,0, img_id);
 
         value = "";
         value = disk->vector_value("TARGET");
