@@ -53,7 +53,8 @@ module OpenNebula
     # the command fails
     def self.exec_and_log(command, message=nil)
         output=`#{command} 2>&1 1>/dev/null`
-        code=$?
+        code=$?.exitstatus
+
         if code!=0
             log_error "Command \"#{command}\" failed."
             log_error output
