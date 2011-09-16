@@ -257,8 +257,8 @@ module Migrator
             public = row[:public]
 
             total_leases = 0
-            @db.fetch("SELECT COUNT (ip) FROM old_leases WHERE (oid=#{oid} AND used=1)") do |r|
-                total_leases = r[:"COUNT (ip)"]
+            @db.fetch("SELECT COUNT(ip) FROM old_leases WHERE (oid=#{oid} AND used=1)") do |r|
+                total_leases = r[:"COUNT(ip)"]
             end
 
 

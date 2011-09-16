@@ -177,7 +177,7 @@ class BackEndMySQL < OneDBBacKEnd
         end
 
         create_cmd = mysql_cmd+"-e 'CREATE DATABASE IF NOT EXISTS #{@db_name};'"
-        rc = system(create_cnd)
+        rc = system(create_cmd)
         if !rc
             raise "Error creating MySQL DB #{@db_name} at #{@server}."
         end
