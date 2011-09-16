@@ -26,7 +26,7 @@ cp oned_mysql.conf $ONEDCONF_LOCATION
 
 
 echo "oneadmin:oneadmin" > oneadmin_auth
-export ONE_XMLRPC=http://localhost:2888/RPC2
+export ONE_XMLRPC=http://localhost:2889/RPC2
 export PATH=$ONE_LOCATION/bin:$PATH
 export ONE_AUTH="`pwd`/oneadmin_auth"
 
