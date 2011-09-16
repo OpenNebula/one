@@ -433,6 +433,11 @@ int Image::disk_attribute(  VectorAttribute * disk,
 
     get_template_attribute("DEV_PREFIX", prefix);
 
+    if (prefix.empty())//Removed from image template, get it again from defaults
+    {
+        prefix = ImagePool::default_dev_prefix();
+    }
+
    //---------------------------------------------------------------------------
    //                       BASE DISK ATTRIBUTES
    //---------------------------------------------------------------------------
