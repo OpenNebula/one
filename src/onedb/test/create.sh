@@ -182,17 +182,27 @@ sleep 3s
 
 mkdir -p results/xml_files
 
-for obj in host vnet image vm user; do
+for obj in vnet image vm; do
     one$obj list a -x > results/xml_files/$obj-pool.xml
+done
 
+for obj in host user; do
+    one$obj list -x > results/xml_files/$obj-pool.xml
+done
+
+for obj in host vnet image vm user; do
     for i in 0 1 2 3 4; do
         one$obj show -x $i > results/xml_files/$obj-$i.xml
     done
 done
 
 if [ $TWO_SERIES == "no" ]; then
-    oneacl list a -x > results/xml_files/acl-pool.xml
-    onegroup list a -x > results/xml_files/group-pool.xml
+    oneacl list -x > results/xml_files/acl-pool.xml
+    onegroup list -x > results/xml_files/group-pool.xml
+
+    for i in 0 1; do
+        onegroup show -x $i > results/xml_files/group-$i.xml
+    done
 fi
 
 # Clean one auth files

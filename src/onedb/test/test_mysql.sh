@@ -57,13 +57,28 @@ pkill -9 -P $PID oned
 echo "All resources created, now 2.2 DB will be upgraded."
 
 # dump current DB and schema
-onedb backup results/mysqldb.3.0
+onedb backup results/mysqldb.3.0 -v
+if [ $? -ne 0 ]; then
+    exit -1
+fi
+
 mysqldump -u oneadmin -poneadmin -h localhost -P 0 --no-data onedb_test > results/mysqldb.3.0.tmpschema
+if [ $? -ne 0 ]; then
+    exit -1
+fi
 
 # restore 2.2
-onedb restore -f 2.2/mysqldb.sql
+onedb restore -v -f 2.2/mysqldb.sql
+if [ $? -ne 0 ]; then
+    exit -1
+fi
+
 # upgrade
 onedb upgrade -v --backup results/mysqldb.backup
+if [ $? -ne 0 ]; then
+    exit -1
+fi
+
 # dump upgraded DB schema
 mysqldump -u oneadmin -poneadmin -h localhost -P 0 --no-data onedb_test > results/mysqldb.upgraded.tmpschema
 
@@ -104,10 +119,18 @@ for obj in host vnet image vm user; do
     done
 done
 
-for obj in host vnet image vm acl group user; do
+for i in 0 1; do
+    onegroup show -x $i > results/xml_files/group-$i-upgraded.xml
+done
+
+
+for obj in vnet image vm; do
     one$obj list a -x > results/xml_files/$obj-pool-upgraded.xml
 done
 
+for obj in host acl group user; do
+    one$obj list -x > results/xml_files/$obj-pool-upgraded.xml
+done
 
 pkill -P $PID oned
 sleep 2s;
@@ -117,11 +140,8 @@ echo "XML output collected. A diff will be performed."
 
 mkdir results/diff_files
 
-diff <(grep -v -e "<LAST_MON_TIME>" -e "<CLUSTER>" -e "NAME>" results/xml_files/host-pool.xml) <(grep -v -e "<LAST_MON_TIME>" -e "<CLUSTER>" -e "NAME>" results/xml_files/host-pool-upgraded.xml) > results/diff_files/host-pool.diff
-
-# TODO: fix
-# The image-pool.xml files are the same, but for some reason the Images are
-# returned in different order.
+# TODO: fix. The pool elements are returned in different order.
+#diff <(grep -v -e "<LAST_MON_TIME>" -e "<CLUSTER>" -e "NAME>" results/xml_files/host-pool.xml) <(grep -v -e "<LAST_MON_TIME>" -e "<CLUSTER>" -e "NAME>" results/xml_files/host-pool-upgraded.xml) > results/diff_files/host-pool.diff
 #diff <(grep -v -e "<REGTIME>" -e "<SOURCE>" -e "<SIZE>" results/xml_files/image-pool.xml) <(grep -v -e "<REGTIME>" -e "<SOURCE>" -e "<SIZE>" results/xml_files/image-pool-upgraded.xml) > results/diff_files/image-pool.diff
 
 diff <(grep -v -e "<LAST_POLL>" -e "TIME>" -e "<SOURCE>" -e "<TEMPLATE_ID>" -e "<VM_DIR>" results/xml_files/vm-pool.xml) <(grep -v -e "<LAST_POLL>" -e "TIME>" -e "<SOURCE>" -e "<TEMPLATE_ID>" -e "<VM_DIR>" results/xml_files/vm-pool-upgraded.xml) > results/diff_files/vm-pool.diff
@@ -142,6 +162,9 @@ for i in 0 1 2 3 4; do
     diff <(cat results/xml_files/user-$i.xml) <(cat results/xml_files/user-$i-upgraded.xml) > results/diff_files/user-$i.diff
 done
 
+for i in 0 1; do
+    diff <(cat results/xml_files/group-$i.xml) <(cat results/xml_files/group-$i-upgraded.xml) > results/diff_files/group-$i.diff
+done
 
 CODE=0
 
@@ -153,6 +176,14 @@ for obj in host vnet image vm user; do
             CODE=-1
         fi
     done
+done
+
+for i in 0 1; do
+    FILE=results/diff_files/group-$i.diff
+    if [[ -s $FILE ]] ; then
+        echo "Error: diff file $FILE is not empty."
+        CODE=-1
+    fi
 done
 
 for obj in host vnet image vm acl group user; do

@@ -63,6 +63,10 @@ cp 2.2/one.db results/one.db.upgraded
 
 onedb upgrade -v --sqlite results/one.db.upgraded --backup results/one.db.backup
 
+if [ $? -ne 0 ]; then
+    exit -1
+fi
+
 echo "Done. Upgraded DB and the one just created will be compared."
 
 # Dump both DB schemas
@@ -106,10 +110,18 @@ for obj in host vnet image vm user; do
     done
 done
 
-for obj in host vnet image vm acl group user; do
+for i in 0 1; do
+    onegroup show -x $i > results/xml_files/group-$i-upgraded.xml
+done
+
+
+for obj in vnet image vm; do
     one$obj list a -x > results/xml_files/$obj-pool-upgraded.xml
 done
 
+for obj in host acl group user; do
+    one$obj list -x > results/xml_files/$obj-pool-upgraded.xml
+done
 
 pkill -P $PID oned
 sleep 2s;
@@ -139,6 +151,9 @@ for i in 0 1 2 3 4; do
     diff <(cat results/xml_files/user-$i.xml) <(cat results/xml_files/user-$i-upgraded.xml) > results/diff_files/user-$i.diff
 done
 
+for i in 0 1; do
+    diff <(cat results/xml_files/group-$i.xml) <(cat results/xml_files/group-$i-upgraded.xml) > results/diff_files/group-$i.diff
+done
 
 CODE=0
 
@@ -150,6 +165,14 @@ for obj in host vnet image vm user; do
             CODE=-1
         fi
     done
+done
+
+for i in 0 1; do
+    FILE=results/diff_files/group-$i.diff
+    if [[ -s $FILE ]] ; then
+        echo "Error: diff file $FILE is not empty."
+        CODE=-1
+    fi
 done
 
 for obj in host vnet image vm acl group user; do
