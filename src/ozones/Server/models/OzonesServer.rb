@@ -19,8 +19,7 @@ require 'JSONUtils'
 
 
 class OzonesServer
-
-    include JSONUtils
+    include OpenNebulaJSON::JSONUtils
 
     def initialize
         @ocaInt = OCAInteraction.new
