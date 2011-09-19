@@ -141,14 +141,13 @@ void ImageManager::disk_to_image(const string& disk_path,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void ImageManager::release_image(const string& image_id,
+void ImageManager::release_image(int           iid,
                                  const string& disk_path, 
                                  int           disk_num, 
                                  const string& save_id)
 {
     int rvms;
 
-    int iid;
     int sid = -1;
 
     istringstream iss;
@@ -156,13 +155,8 @@ void ImageManager::release_image(const string& image_id,
 
     ostringstream disk_file;
 
-    iss.str(image_id);
-
-    iss >> iid;
-
     if ( save_id.empty() == false )
     {
-        iss.clear();
         iss.str(save_id);
 
         iss >> sid;
@@ -180,7 +174,7 @@ void ImageManager::release_image(const string& image_id,
         case Image::USED:
             rvms = img->dec_running();
 
-            if ( img->isPersistent() )
+            if ( img->isPersistent() && !disk_path.empty() )
             {
                 disk_file << disk_path << "/disk." << disk_num;
 
@@ -382,11 +376,16 @@ int ImageManager::register_image(int iid)
         }
         else
         {
-            img->set_state(Image::READY);
-            ipool->update(img);
+            string source = img->get_source();
 
-            oss << "Using source " << img->get_source() 
-                << " from template for image " << img->get_name();
+            if (source != "-") //SAVE_AS IMAGE DO NOT ENABLE THE IMAGE
+            {
+                img->set_state(Image::READY);
+                ipool->update(img);
+
+                oss << "Using source " << img->get_source() 
+                    << " from template for image " << img->get_name();
+            }
         }
     }
     else //PATH -> COPY TO REPOSITORY AS SOURCE

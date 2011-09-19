@@ -18,7 +18,6 @@ $: << '..'
 
 
 require 'examples/acct_client'
-require 'watch_client'
 require 'mock_client'
 
 require 'accounting'
@@ -58,6 +57,8 @@ def clean_db
         WatchHelper::VmDelta.destroy
         WatchHelper::VmSample.destroy
         WatchHelper::HostSample.destroy
+        WatchHelper::VmTimestamp.destroy
+        WatchHelper::HostTimestamp.destroy
         WatchHelper::Vm.destroy
         WatchHelper::Host.destroy
     rescue Exception => e

@@ -27,10 +27,10 @@ def print_info(name, value)
 end
 
 xentop_text=`sudo #{XENTOP_PATH} -bi2`
-exit(-1) if $?!=0
+exit(-1) if $?.exitstatus != 0
 
 xm_text=`sudo #{XM_PATH} info`
-exit(-1) if $?!=0
+exit(-1) if $?.exitstatus != 0
 
 #xentop_text.gsub!(/^xentop.*^xentop.*?$/m, "") # Strip first top output
 xentop_text.gsub!("no limit", "no_limit")

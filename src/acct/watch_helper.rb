@@ -140,7 +140,7 @@ module WatchHelper
             Integer :uid
             Integer :gid
             Integer :mem
-            Integer :cpu
+            Float   :cpu
             Integer :vcpu
             Integer :stime
             Integer :etime
@@ -154,12 +154,16 @@ module WatchHelper
             String  :tm_mad
         end
 
+        DB.create_table? :vm_timestamps do
+            Integer :id, :primary_key=>true
+        end
+
         DB.create_table? :vm_samples do
             foreign_key :vm_id, :vms, :key=>:id
+            foreign_key :timestamp, :vm_timestamps, :key=>:id
             Integer :state
             Integer :lcm_state
             Integer :last_poll
-            Integer :timestamp
 
             VM_SAMPLE.each { |key,value|
                 column key, value[:type]
@@ -168,10 +172,14 @@ module WatchHelper
             primary_key [:vm_id, :timestamp]
         end
 
+        DB.create_table? :host_timestamps do
+            Integer :id, :primary_key=>true
+        end
+
         DB.create_table? :host_samples do
             foreign_key :host_id, :hosts, :key=>:id
+            foreign_key :timestamp, :host_timestamps, :key=>:id
             Integer :last_poll
-            Integer :timestamp
             Integer :state
 
             HOST_SAMPLE.each { |key,value|
@@ -216,12 +224,62 @@ module WatchHelper
         unrestrict_primary_key
 
         many_to_one :vm
+        many_to_one :timestamp,
+                    :class=>"WatchHelper::VmTimestamp",
+                    :key=>:id
+    end
+
+    class VmTimestamp < Sequel::Model
+        unrestrict_primary_key
+
+        one_to_many :samples,
+                    :order=>:timestamp,
+                    :class=>"WatchHelper::VmSample",
+                    :key=>:timestamp
+
+        @@window_size = WatchHelper::get_config(
+            :VM_MONITORING,
+            :WINDOW_SIZE
+        )
+
+        def self.fix_size
+            if self.count > @@window_size
+                last_timestamp = self.all.first
+                last_timestamp.samples_dataset.destroy
+                last_timestamp.destroy
+            end
+        end
     end
 
     class HostSample < Sequel::Model
         unrestrict_primary_key
 
         many_to_one :host
+        many_to_one :timestamp,
+                    :class=>"WatchHelper::HostTimestamp",
+                    :key=>:id
+    end
+
+    class HostTimestamp < Sequel::Model
+        unrestrict_primary_key
+
+        one_to_many :samples,
+                    :order=>:timestamp,
+                    :class=>"WatchHelper::HostSample",
+                    :key=>:timestamp
+
+        @@window_size = WatchHelper::get_config(
+            :HOST_MONITORING,
+            :WINDOW_SIZE
+        )
+
+        def self.fix_size
+            if self.count > @@window_size
+                last_timestamp = self.all.first
+                last_timestamp.remove_all_samples
+                last_timestamp.destroy
+            end
+        end
     end
 
     class Register < Sequel::Model
@@ -256,18 +314,13 @@ module WatchHelper
 
         # Accounting
         one_to_many :registers, :order=>:seq
-        one_to_many :deltas, :order=>:timestamp, :class=>VmDelta
+        one_to_many :deltas, :order=>:timestamp, :class=>"WatchHelper::VmDelta"
 
         # Monitoring
-        one_to_many :samples, :order=>:timestamp, :class=>VmSample
+        one_to_many :samples, :order=>:timestamp, :class=>"WatchHelper::VmSample"
 
         @@samples_cache = []
         @@deltas_cache  = []
-
-        @@vm_window_size = WatchHelper::get_config(
-            :VM_MONITORING,
-            :WINDOW_SIZE
-        )
 
         def self.info(vm)
             Vm.find_or_create(:id=>vm['ID']) { |v|
@@ -275,7 +328,7 @@ module WatchHelper
                 v.uid   = vm['UID'].to_i
                 v.gid   = vm['GID'].to_i
                 v.mem   = vm['TEMPLATE/MEMORY'].to_i
-                v.cpu   = vm['TEMPLATE/CPU'].to_i
+                v.cpu   = vm['TEMPLATE/CPU'].to_f
                 v.vcpu  = vm['TEMPLATE/VCPU'].to_i
                 v.stime = vm['STIME'].to_i
                 v.etime = vm['ETIME'].to_i
@@ -300,7 +353,7 @@ module WatchHelper
         def add_sample_from_resource(vm, timestamp)
             hash = {
                 :vm_id      => vm['ID'],
-                :timestamp  => timestamp,
+                :timestamp  => timestamp.id,
                 :last_poll  => vm['LAST_POLL'],
                 :state      => vm['STATE'],
                 :lcm_state  => vm['LCM_STATE']
@@ -343,20 +396,13 @@ module WatchHelper
             @@deltas_cache << hash
         end
 
-        def self.flush(timestamp)
+        def self.flush
             DB.transaction do
                 VmDelta.multi_insert(@@deltas_cache)
                 VmSample.multi_insert(@@samples_cache)
+
+                VmTimestamp.fix_size
             end
-
-            step = WatchHelper::get_config(:STEP)
-            ws   = WatchHelper::get_config(:VM_MONITORING,:WINDOW_SIZE)
-            vm_s = WatchHelper::get_config(:VM_MONITORING,:STEPS)
-
-            t = step*ws*vm_s
-            tl = timestamp - t
-
-            VmSample.filter('timestamp < ?', tl).destroy
 
             @@samples_cache = []
             @@deltas_cache = []
@@ -367,15 +413,9 @@ module WatchHelper
         unrestrict_primary_key
 
         # Monitoring
-        one_to_many :samples, :order=>:timestamp, :class=>HostSample
+        one_to_many :samples, :order=>:timestamp, :class=>"WatchHelper::HostSample"
 
         @@samples_cache = []
-
-        @@host_window_size = WatchHelper::get_config(
-            :HOST_MONITORING,
-            :WINDOW_SIZE
-        )
-
 
         def self.info(host)
             Host.find_or_create(:id=>host['ID']) { |h|
@@ -389,7 +429,7 @@ module WatchHelper
         def add_sample_from_resource(host, timestamp)
             hash = {
                 :host_id    => host['ID'],
-                :timestamp  => timestamp,
+                :timestamp  => timestamp.id,
                 :last_poll  => host['LAST_MON_TIME'],
                 :state      => host['STATE'],
             }
@@ -402,19 +442,12 @@ module WatchHelper
             @@samples_cache << hash
         end
 
-        def self.flush(timestamp)
+        def self.flush
             DB.transaction do
                 HostSample.multi_insert(@@samples_cache)
+
+                HostTimestamp.fix_size
             end
-
-            step = WatchHelper::get_config(:STEP)
-            ws   = WatchHelper::get_config(:HOST_MONITORING,:WINDOW_SIZE)
-            vm_s = WatchHelper::get_config(:HOST_MONITORING,:STEPS)
-
-            t = step*ws*vm_s
-            tl = timestamp - t
-
-            HostSample.filter('timestamp < ?', tl).destroy
 
             @@samples_cache = []
         end

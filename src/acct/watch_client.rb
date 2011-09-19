@@ -97,25 +97,14 @@ module OneWatchClient
             # Get the MAX for each VM and last_poll value
             max_per_vm =
                 rsql.
-                group(:id, :last_poll).
-                select{[:last_poll, max(mr.to_sym).as(:max_mr)]}
+                group(:timestamp).
+                select{[:timestamp, sum(mr.to_sym).as(:sum_mr)]}
 
-            # SUM the monitoring resource for each last_poll value
-            last_poll_and_sum =
-                max_per_vm.
-                from_self.
-                group(:last_poll).
-                select{[:last_poll, sum(:max_mr).as(:sum_mr)]}
-
-            # Retrieve the information in an Array
-            a = Array.new
-            last_poll_and_sum.each do |row|
-                if row[:last_poll] && row[:last_poll] != 0
-                    a << [row[:last_poll], row[:sum_mr].to_i]
-                end
-            end 
-
-            a
+            # Add all the existing timestamps
+            with_ts = timestamps.left_join(max_per_vm, :timestamp=>:id)
+            with_ts.collect do |row|
+                [row[:id], row[:sum_mr].to_i]
+            end
         end
 
         def count_monitoring(rsql, opt)
@@ -126,13 +115,13 @@ module OneWatchClient
                 else return nil
             end
 
-            a = Array.new
+            count = resources.group_and_count(:timestamp)
 
-            resources.group_and_count(:timestamp).all.each { |row|
-                a << [row[:timestamp], row[:count].to_i]
-            }
-
-            a
+            # Add all the existing timestamps
+            with_ts = timestamps.left_join(count, :timestamp=>:id)
+            with_ts.collect do |row|
+                [row[:id], row[:count].to_i]
+            end
         end
     end
 
@@ -157,6 +146,10 @@ module OneWatchClient
             pool.filter(:state=>3)
         end
 
+        def timestamps
+            WatchHelper::HostTimestamp
+        end
+
         def filter_pool(filter)
             if filter[:uid]
                 filter[:uid]==0 ? (hosts = pool) : (return nil)
@@ -166,7 +159,7 @@ module OneWatchClient
                 hosts = pool
             end
 
-            hosts.join(WatchHelper::HostSample, :host_id=>:id)
+            WatchHelper::HostSample.join(hosts.select(:id.as(:host_id)), [:host_id])
         end
 
         def filter_resource(id, filter)
@@ -204,6 +197,10 @@ module OneWatchClient
             pool.filter(:state=>7)
         end
 
+        def timestamps
+            WatchHelper::VmTimestamp
+        end
+
         def filter_pool(filter)
             if filter[:uid]
                 vms = pool.filter(:uid=>filter[:uid])
@@ -213,7 +210,7 @@ module OneWatchClient
                 vms = pool
             end
 
-            vms.join(WatchHelper::VmSample, :vm_id=>:id)
+            WatchHelper::VmSample.join(vms.select(:id.as(:vm_id)), [:vm_id])
         end
 
         def filter_resource(id, filter)

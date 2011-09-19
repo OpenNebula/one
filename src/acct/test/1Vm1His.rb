@@ -1,3 +1,5 @@
+$: << '.'
+
 require 'helper/test_helper.rb'
 
 describe "1 Vm 1 History" do
