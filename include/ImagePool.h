@@ -130,6 +130,7 @@ public:
      *                 automatically increased.
      *    @param img_type will be set to the used image's type
      *    @param uid of VM owner (to look for the image id within its images)
+     *    @param image_id on success returns the acquired image id
      *    @return 0 on success, 
      *            -1 error, 
      *            -2 not using the pool, 
@@ -139,7 +140,8 @@ public:
                        int                disk_id,
                        int *              index,
                        Image::ImageType * img_type,
-                       int                uid);
+                       int                uid,
+                       int&               image_id);
     /**
      *  Generates an Authorization token for the DISK attribute
      *    @param disk the disk to be authorized

@@ -500,8 +500,7 @@ void  LifeCycleManager::delete_action(int vid)
     VirtualMachine::LcmState state = vm->get_lcm_state();
 
     if ((state == VirtualMachine::LCM_INIT) ||
-        (state == VirtualMachine::CLEANUP) ||
-        (state == VirtualMachine::FAILURE))
+        (state == VirtualMachine::CLEANUP))
     {
         vm->unlock();
         return;
@@ -535,8 +534,7 @@ void  LifeCycleManager::clean_action(int vid)
     VirtualMachine::LcmState state = vm->get_lcm_state();
 
     if ((state == VirtualMachine::LCM_INIT) ||
-        (state == VirtualMachine::CLEANUP) ||
-        (state == VirtualMachine::FAILURE))
+        (state == VirtualMachine::CLEANUP))
     {
         vm->unlock();
         return;
@@ -664,7 +662,11 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm)
             tm->trigger(TransferManager::EPILOG_DELETE,vid);
         break;
 
-        default: //FAILURE,LCM_INIT,CLEANUP
+        case VirtualMachine::FAILURE:
+            tm->trigger(TransferManager::EPILOG_DELETE,vid);
+        break;
+        
+        default: //LCM_INIT,CLEANUP
         break;
     }
 

@@ -565,6 +565,7 @@ int DispatchManager::finalize(
     switch (state)
     {
         case VirtualMachine::SUSPENDED:
+        case VirtualMachine::FAILED:
             tm->trigger(TransferManager::EPILOG_DELETE,vid);
 
         case VirtualMachine::INIT:
@@ -573,7 +574,6 @@ int DispatchManager::finalize(
         case VirtualMachine::STOPPED:
             vm->set_exit_time(time(0));
 
-        case VirtualMachine::FAILED:
             vm->set_state(VirtualMachine::LCM_INIT);
             vm->set_state(VirtualMachine::DONE);
             vmpool->update(vm);
@@ -608,6 +608,7 @@ int DispatchManager::resubmit(int vid)
 
     Nebula&             nd  = Nebula::instance();
     LifeCycleManager *  lcm = nd.get_lcm();
+    TransferManager *   tm  = nd.get_tm();
 
     vm = vmpool->get(vid,true);
 
@@ -628,9 +629,10 @@ int DispatchManager::resubmit(int vid)
         case VirtualMachine::PENDING:
         break;
 
+        case VirtualMachine::FAILED: //Cleanup VM host files
+            tm->trigger(TransferManager::EPILOG_DELETE,vid);
         case VirtualMachine::HOLD: // Move the VM to PENDING in any of these
         case VirtualMachine::STOPPED:
-        case VirtualMachine::FAILED:
             vm->set_state(VirtualMachine::LCM_INIT);
             vm->set_state(VirtualMachine::PENDING);
             vmpool->update(vm);

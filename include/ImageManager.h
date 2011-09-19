@@ -96,6 +96,27 @@ public:
     void release_image(const string& iid,
                        const string& disk_path, 
                        int           disk_num, 
+                       const string& saveid)
+    {
+        int           image_id;
+        istringstream iss;
+
+        iss.str(iid);
+        iss >> image_id;
+
+        release_image(image_id, disk_path, disk_num, saveid);
+    };
+
+    /**
+     *  Releases an image and triggers any needed operations in the repo
+     *    @param iid image id of the image to be released
+     *    @param disk_path base path for disk location
+     *    @param disk number for this image in the VM
+     *    @param saveid id of image to save the current image
+     */
+    void release_image(int           iid,
+                       const string& disk_path,
+                       int           disk_num,
                        const string& saveid);
 
     /**
