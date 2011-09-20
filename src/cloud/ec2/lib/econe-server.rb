@@ -42,19 +42,28 @@ require 'rubygems'
 require 'sinatra'
 
 require 'EC2QueryServer'
+require 'Configuration'
 
 include OpenNebula
 
 begin
-    $econe_server = EC2QueryServer.new(CONFIGURATION_FILE,
-        TEMPLATE_LOCATION, VIEWS_LOCATION)
+    config = Configuration.new(CONFIGURATION_FILE)
+    config.add_configuration_value("TEMPLATE_LOCATION", TEMPLATE_LOCATION)
+    config.add_configuration_value("VIEWS", VIEWS_LOCATION)
+
+    instance_types = CloudServer.get_instance_types(config)
+    config.add_configuration_value("INSTANCE_TYPES", instance_types)
+
+    CloudServer.print_configuration(config)
+
+    set :config, config
 rescue Exception => e
     puts "Error starting server: #{e}"
     exit(-1)
 end
 
-if CloudServer.is_port_open?($econe_server.config[:server], 
-                             $econe_server.config[:port])
+if CloudServer.is_port_open?(settings.config[:server],
+                             settings.config[:port])
     puts "Port busy, please shutdown the service or move econe server port."
     exit
 end
@@ -62,23 +71,18 @@ end
 ##############################################################################
 # Sinatra Configuration
 ##############################################################################
-set :host, $econe_server.config[:server]
-set :port, $econe_server.config[:port]
+set :host, settings.config[:server]
+set :port, settings.config[:port]
 
 ##############################################################################
 # Actions
 ##############################################################################
 
 before do
-    #STDERR.puts Time.now.strftime("%d/%b/%Y %H:%M:%S")
-    begin
-        @client = $econe_server.authenticate(params,env)
-    rescue  => e
-        #STDERR.puts Time.now.strftime("%d/%b/%Y %H:%M:%S") + ' Exception in authentication. ' + e.to_s
-        @client = nil
-    end
-    
-    if @client.nil?
+    @econe_server = EC2QueryServer.new(settings.config)
+    result = @econe_server.authenticate(request.env, params)
+    if result
+        # Add a log message
         error 400, error_xml("AuthFailure", 0)
     end
 end
@@ -86,7 +90,7 @@ end
 helpers do
     def error_xml(code,id)
         message = ''
-        
+
         case code
         when 'AuthFailure'
             message = 'User not authorized'
@@ -94,45 +98,44 @@ helpers do
             message = 'Specified AMI ID does not exist'
         when 'Unsupported'
             message = 'The instance type or feature is not supported in your requested Availability Zone.'
-        else 
+        else
             message = code
         end
-        
+
         xml = "<Response><Errors><Error><Code>"+
-                    code + 
-                    "</Code><Message>" + 
-                    message + 
-                    "</Message></Error></Errors><RequestID>" + 
-                    id.to_s + 
+                    code +
+                    "</Code><Message>" +
+                    message +
+                    "</Message></Error></Errors><RequestID>" +
+                    id.to_s +
                     "</RequestID></Response>"
-        
-        return xml                              
-    end 
+
+        return xml
+    end
 end
 
 post '/' do
-    do_http_request(params, @client)
+    do_http_request(params)
 end
 
 get '/' do
-    do_http_request(params, @client)
+    do_http_request(params)
 end
 
-def do_http_request(params, client)
-    
+def do_http_request(params)
     case params['Action']
         when 'UploadImage'
-            result,rc = $econe_server.upload_image(params, client)
+            result,rc = @econe_server.upload_image(params)
         when 'RegisterImage'
-            result,rc = $econe_server.register_image(params, client)
+            result,rc = @econe_server.register_image(params)
         when 'DescribeImages'
-            result,rc = $econe_server.describe_images(params, client)
+            result,rc = @econe_server.describe_images(params)
         when 'RunInstances'
-            result,rc = $econe_server.run_instances(params, client)
+            result,rc = @econe_server.run_instances(params)
         when 'DescribeInstances'
-            result,rc = $econe_server.describe_instances(params, client)
+            result,rc = @econe_server.describe_instances(params)
         when 'TerminateInstances'
-            result,rc = $econe_server.terminate_instances(params, client)
+            result,rc = @econe_server.terminate_instances(params)
     end
 
     if OpenNebula::is_error?(result)
@@ -141,5 +144,5 @@ def do_http_request(params, client)
 
     headers['Content-Type'] = 'application/xml'
 
-    result    
+    result
 end
