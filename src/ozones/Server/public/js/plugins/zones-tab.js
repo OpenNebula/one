@@ -41,7 +41,7 @@ var create_zone_tmpl =
         <input type="text" name="name" id="name" /><br />\
         <label for="endpoint">End point:</label>\
         <input type="text" name="endpoint" id="endpoint" /><br />\
-        <label for="onename">ONE auth:</label>\
+        <label for="onename">Oneadmin user:</label>\
         <input type="text" name="onename" id="onename" /><br />\
         <label for="onepass">Password:</label>\
         <input type="password" name="onepass" id="onepass" />\
