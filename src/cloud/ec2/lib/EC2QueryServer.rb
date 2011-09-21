@@ -137,10 +137,10 @@ class EC2QueryServer < CloudServer
         # Get the instance type and path
         if params['InstanceType'] != nil
             instance_type_name = params['InstanceType']
-            instance_type      = @config[:instance_types][instance_type_name]
+            instance_type      = @config[:instance_types][instance_type_name.to_sym]
 
             if instance_type != nil
-                path = @config[:template_location] + "/#{instance_type['TEMPLATE']}"
+                path = @config[:template_location] + "/#{instance_type[:template]}"
             end
         end
 
