@@ -46,16 +46,24 @@ require 'rubygems'
 require 'sinatra'
 require 'erb'
 
-require 'Configuration'
+require 'CloudAuth'
 require 'SunstoneServer'
 require 'SunstonePlugins'
 
-set :config, Configuration.new(CONFIGURATION_FILE)
+begin
+    conf = YAML.load_file(CONFIGURATION_FILE)
+rescue Exception => e
+    puts "Error parsing config file #{CONFIGURATION_FILE}: #{e.message}"
+    exit 1
+end
+
+conf[:hash_passwords] = true
 
 ##############################################################################
 # Sinatra Configuration
 ##############################################################################
 use Rack::Session::Pool, :key => 'sunstone'
+set :config, conf
 set :host, settings.config[:host]
 set :port, settings.config[:port]
 
@@ -82,7 +90,7 @@ helpers do
                 # Add a log message
                 return [500, ""]
             end
-            
+
             session[:user]       = user['NAME']
             session[:user_id]    = user['ID']
             session[:user_gid]   = user['GID']
