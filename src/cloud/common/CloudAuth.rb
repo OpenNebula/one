@@ -8,11 +8,11 @@ class CloudAuth
     attr_reader :client, :token
 
     def initialize(conf)
-        @xmlrpc = conf[:one_xmlrpc]
+        @conf = conf
 
-        if AUTH_MODULES.include?(conf[:auth])
-            require 'CloudAuth/' + AUTH_MODULES[conf[:auth]]
-            extend Kernel.const_get(AUTH_MODULES[conf[:auth]])
+        if AUTH_MODULES.include?(@conf[:auth])
+            require 'CloudAuth/' + AUTH_MODULES[@conf[:auth]]
+            extend Kernel.const_get(AUTH_MODULES[@conf[:auth]])
         else
             raise "Auth module not specified"
         end
@@ -21,7 +21,7 @@ class CloudAuth
     protected
 
     def get_password(username)
-        @oneadmin_client ||= OpenNebula::Client.new(nil, @xmlrpc)
+        @oneadmin_client ||= OpenNebula::Client.new(nil, @conf[:one_xmlrpc])
 
         if @user_pool.nil?
             @user_pool ||= OpenNebula::UserPool.new(@oneadmin_client)

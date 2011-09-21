@@ -80,22 +80,4 @@ class CloudServer
 
       return false
     end
-
-    def self.get_instance_types(config)
-        if config[:vm_type] == nil
-            raise "No VM_TYPE defined."
-        end
-
-        instance_types = Hash.new
-
-        if config[:vm_type].kind_of?(Array)
-            config[:vm_type].each {|type|
-                instance_types[type['NAME']]=type
-            }
-        else
-            instance_types[config[:vm_type]['NAME']]=config[:vm_type]
-        end
-
-        instance_types
-    end
 end
