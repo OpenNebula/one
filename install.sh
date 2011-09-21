@@ -202,6 +202,7 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/ruby/cloud/econe \
           $LIB_LOCATION/ruby/cloud/econe/views \
           $LIB_LOCATION/ruby/cloud/occi \
+          $LIB_LOCATION/ruby/cloud/CloudAuth \
           $LIB_LOCATION/ruby/onedb \
           $LIB_LOCATION/tm_commands \
           $LIB_LOCATION/tm_commands/nfs \
@@ -349,6 +350,7 @@ INSTALL_FILES=(
     HOOK_FT_FILES:$VAR_LOCATION/remotes/hooks/ft
     HOOK_NETWORK_FILES:$VAR_LOCATION/remotes/hooks/vnm
     COMMON_CLOUD_LIB_FILES:$LIB_LOCATION/ruby/cloud
+    CLOUD_AUTH_LIB_FILES:$LIB_LOCATION/ruby/cloud/CloudAuth
     ECO_LIB_FILES:$LIB_LOCATION/ruby/cloud/econe
     ECO_LIB_VIEW_FILES:$LIB_LOCATION/ruby/cloud/econe/views
     ECO_BIN_FILES:$BIN_LOCATION
@@ -796,9 +798,14 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/OpenNebula/Host.rb \
 
 COMMON_CLOUD_LIB_FILES="src/cloud/common/CloudServer.rb \
                         src/cloud/common/CloudClient.rb \
+                        src/cloud/common/CloudAuth.rb
                         src/cloud/common/Configuration.rb"
 
 COMMON_CLOUD_CLIENT_LIB_FILES="src/cloud/common/CloudClient.rb"
+
+CLOUD_AUTH_LIB_FILES="src/cloud/common/CloudAuth/BasicCloudAuth.rb \
+                      src/cloud/common/CloudAuth/EC2CloudAuth.rb \
+                      src/cloud/common/CloudAuth/X509CloudAuth.rb"
 
 #-------------------------------------------------------------------------------
 # EC2 Query for OpenNebula
