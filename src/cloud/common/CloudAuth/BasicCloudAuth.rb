@@ -5,6 +5,10 @@ module BasicCloudAuth
         if auth.provided? && auth.basic?
             username, password = auth.credentials
 
+            if @conf[:hash_passwords]
+                password =  Digest::SHA1.hexdigest(password)
+            end
+
             one_pass = get_password(username)
             if one_pass && one_pass == password
                 @token = "#{username}:#{password}"
