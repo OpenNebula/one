@@ -45,24 +45,27 @@ require 'rubygems'
 require 'sinatra'
 
 require 'OCCIServer'
-require 'Configuration'
 
 include OpenNebula
 
+##############################################################################
+# Parse Configuration file
+##############################################################################
 begin
-    config = Configuration.new(CONFIGURATION_FILE)
-    config.add_configuration_value("TEMPLATE_LOCATION", TEMPLATE_LOCATION)
-
-    instance_types = CloudServer.get_instance_types(config)
-    config.add_configuration_value("INSTANCE_TYPES", instance_types)
-
-    CloudServer.print_configuration(config)
-
-    set :config, config
+    conf = YAML.load_file(CONFIGURATION_FILE)
 rescue Exception => e
-    puts "Error starting server: #{e}"
-    exit(-1)
+    puts "Error parsing config file #{CONFIGURATION_FILE}: #{e.message}"
+    exit 1
 end
+
+conf[:template_location] = TEMPLATE_LOCATION
+
+CloudServer.print_configuration(conf)
+
+##############################################################################
+# Sinatra Configuration
+##############################################################################
+set :config, conf
 
 if CloudServer.is_port_open?(settings.config[:server],
                              settings.config[:port])
@@ -70,9 +73,6 @@ if CloudServer.is_port_open?(settings.config[:server],
     exit
 end
 
-##############################################################################
-# Sinatra Configuration
-##############################################################################
 set :host, settings.config[:server]
 set :port, settings.config[:port]
 

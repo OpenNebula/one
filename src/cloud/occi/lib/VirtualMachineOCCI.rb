@@ -77,8 +77,8 @@ class VirtualMachineOCCI < VirtualMachine
         if @vm_info != nil
             itype = @vm_info['INSTANCE_TYPE']
             
-            if itype != nil and types[itype] != nil
-                @template = base + "/#{types[itype]['TEMPLATE']}"
+            if itype != nil and types[itype.to_sym] != nil
+                @template = base + "/#{types[itype.to_sym][:template]}"
             end
         end
         
