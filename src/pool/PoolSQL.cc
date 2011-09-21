@@ -122,9 +122,8 @@ int PoolSQL::allocate(
     else
     {
         rc = lastOID;
+        do_hooks(objsql, Hook::ALLOCATE);
     }
-
-    do_hooks(objsql, Hook::ALLOCATE);
 
     objsql->unlock();
 
