@@ -69,8 +69,6 @@ module OZones
             #When more rules are added the class constant HOST_ACL_FIRST_ID
             #must be modified
             ###############################################################
-           
-            puts  get_host_acls_str(group_id)
 
             rule_str.concat(self.get_host_acls_str(group_id))
         end
@@ -84,7 +82,6 @@ module OZones
 
             # Grant permissions to use the vdc hosts
             host_list.split(',').each{|hostid|
-                puts hostid
                 rule_str << "@#{group_id} HOST/##{hostid} USE"
             }    
 

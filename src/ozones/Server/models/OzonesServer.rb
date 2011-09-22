@@ -372,11 +372,11 @@ class OzonesServer
         all_hosts = ""
         zone.vdcs.all.each{|vdc|
             if vdc.hosts != nil and !vdc.hosts.empty? and vdc.id != vdc_id
-                all_hosts << vdc.hosts
+                all_hosts << ',' << vdc.hosts
             end
         }
 
-        all_hosts = all_hosts.split(",")
+        all_hosts = all_hosts.split(',')
 
         host_list.split(",").each{|host|
             return false if all_hosts.include?(host)
