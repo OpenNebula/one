@@ -80,7 +80,13 @@ end
 
 before do
     @econe_server = EC2QueryServer.new(settings.config)
-    result = @econe_server.authenticate(request.env, params)
+
+    begin
+        result = @econe_server.authenticate(request.env, params)
+    rescue Exception => e
+        error 500, e.message
+    end
+
     if result
         # Add a log message
         error 400, error_xml("AuthFailure", 0)

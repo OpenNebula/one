@@ -78,7 +78,12 @@ helpers do
     def build_session
         cloud_auth = CloudAuth.new(settings.config)
 
-        result = cloud_auth.auth(request.env, params)
+        begin
+            result = cloud_auth.auth(request.env, params)
+        rescue Exception => e
+            error 500, e.message
+        end
+
         if result
             return [401, ""]
         else

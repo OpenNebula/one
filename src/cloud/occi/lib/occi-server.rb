@@ -82,7 +82,12 @@ set :port, settings.config[:port]
 
 before do
     @occi_server = OCCIServer.new(settings.config)
-    result = @occi_server.authenticate(request.env)
+    begin
+        result = @occi_server.authenticate(request.env)
+    rescue Exception => e
+        error 500, e.message
+    end
+
     if result
         error 401, result
     end
