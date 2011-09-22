@@ -124,6 +124,27 @@ class OCAInteraction
             return nil
         end                
     end
+    
+    def update_vdc_hosts(zone, host_list, acl_list)
+        # Create a new client to interact with the zone
+        client = OpenNebula::Client.new(zone.onename + ":" + zone.onepass,
+                                        zone.endpoint,
+                                        false)          
+        # Delete existing ACLs
+        delete_acls(acl_list, client)
+        
+        # Create new ACLs
+        acls_str = ""
+        host_list.split(",").each{|hostid|
+            rule_str = "@#{group.id} HOST/##{hostid} USE"        
+            acl    = OpenNebula::Acl.new(OpenNebula::Acl.build_xml,client)    
+            result = acl.allocate(*OpenNebula::Acl.parse_rule(rule_str))
+            return result  if OpenNebula.is_error?(result) 
+            acls_str += acl.id.to_s + ","
+        } 
+
+        return acls_str.chop
+    end
 
     # Creates a VDC (user, group, hosts)
     def check_oneadmin(oneadminname, oneadminpass, endpoint)
