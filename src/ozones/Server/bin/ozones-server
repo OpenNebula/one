@@ -27,7 +27,7 @@ else
     OZONES_PID=$ONE_LOCATION/var/ozones.pid
     OZONES_LOCATION=$ONE_LOCATION/lib/ozones
     OZONES_SERVER=$OZONES_LOCATION/config.ru
-    OZONES_LOCK_FILE=$ONE_LOCATION/var/.lock
+    OZONES_LOCK_FILE=$ONE_LOCATION/var/.ozones.lock
     OZONES_LOG=$ONE_LOCATION/var/ozones-server.log
     OZONES_CONF=$ONE_LOCATION/etc/ozones-server.conf
 fi

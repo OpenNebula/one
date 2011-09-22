@@ -778,7 +778,6 @@ void  LifeCycleManager::monitor_done_action(int vid)
 void  LifeCycleManager::failure_action(VirtualMachine * vm)
 {
     Nebula&             nd = Nebula::instance();
-    TransferManager *   tm = nd.get_tm();
     DispatchManager *   dm = nd.get_dm();
 
     time_t  the_time = time(0);
@@ -802,11 +801,9 @@ void  LifeCycleManager::failure_action(VirtualMachine * vm)
 
     hpool->del_capacity(vm->get_hid(),cpu,mem,disk);
 
-    //------------- Clean up remote files ----------------
+    //--- VM to FAILED. Remote host cleanup upon VM deletion ---
 
     dm->trigger(DispatchManager::FAILED,vm->get_oid());
-
-    tm->trigger(TransferManager::EPILOG_DELETE,vm->get_oid());
 }
 
 /* -------------------------------------------------------------------------- */

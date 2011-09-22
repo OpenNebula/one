@@ -449,8 +449,9 @@ private:
     void bootstrap();
 
     /**
-     *  Callback function to TODO
-     *    @param _loaded_db_version TODO
+     *  Callback function for the check_db_version method. Stores the read
+     *  version in loaded_db_version
+     *    @param _loaded_db_version returned columns
      *    @param num the number of columns read from the DB
      *    @param names the column names
      *    @param vaues the column values
@@ -459,9 +460,12 @@ private:
     int select_cb(void *_loaded_db_version, int num, char **values,
                   char **names);
 
-    /*
-     *  TODO
-     *    @return 0 ok, -1 version mismatch, -2 needs bootstrap
+    /**
+     * Reads the current DB version.
+     *
+     * @return  0 on success,
+     *          -1 if there is a version mismatch,
+     *          -2 if the DB needs a bootstrap
      */
     int check_db_version();
 };

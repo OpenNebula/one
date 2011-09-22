@@ -131,7 +131,8 @@ int ImagePool::disk_attribute(VectorAttribute *  disk,
                               int                disk_id,
                               int *              index,
                               Image::ImageType * img_type,
-                              int                uid)
+                              int                uid,
+                              int&               image_id)
 {
     string  source;
     Image * img = 0;
@@ -143,7 +144,6 @@ int ImagePool::disk_attribute(VectorAttribute *  disk,
     ImageManager * imagem = nd.get_imagem();
 
     istringstream   is;
-    int             image_id;
 
     source = disk->vector_value("IMAGE");
 

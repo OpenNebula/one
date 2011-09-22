@@ -165,7 +165,8 @@ def install_dependencies(gems, distro)
             documentation.
 
             Press enter to continue...
-    EOT
+        EOT
+        STDIN.readline
     else
         puts "Distribution \"#{distro.first}\" detected."
         deps=get_dependencies(gems, distro.last[:dependencies])
@@ -240,7 +241,7 @@ packages_string=gems_list.join(' ')
 
 prefix=""
 
-if dist.last[:gem_env]
+if dist && dist.last[:gem_env]
     prefix=dist.last[:gem_env].collect do |name, value|
         "#{name}=\"#{value}\""
     end.join(' ')+' '

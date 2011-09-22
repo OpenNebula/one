@@ -15,25 +15,26 @@
 #--------------------------------------------------------------------------- #
 
 # Paths for utilities
+export PATH=/bin:/sbin:/usr/bin:$PATH
 AWK=awk
-BASH=/bin/bash
+BASH=bash
 CUT=cut
-DATE=/bin/date
-DD=/bin/dd
-DU=/usr/bin/du
-LVCREATE=/sbin/lvcreate
-LVREMOVE=/sbin/lvremove
-LVS=/sbin/lvs
-MD5SUM=/usr/bin/md5sum
-MKFS=/sbin/mkfs
-MKISOFS=/usr/bin/mkisofs
-MKSWAP=/sbin/mkswap
-SCP=/usr/bin/scp
-SED=/bin/sed
-SSH=/usr/bin/ssh
-SUDO=/usr/bin/sudo
-WGET=/usr/bin/wget
-READLINK=/bin/readlink
+DATE=date
+DD=dd
+DU=du
+LVCREATE=lvcreate
+LVREMOVE=lvremove
+LVS=lvs
+MD5SUM=md5sum
+MKFS=mkfs
+MKISOFS=mkisofs
+MKSWAP=mkswap
+SCP=scp
+SED=sed
+SSH=ssh
+SUDO=sudo
+WGET=wget
+READLINK=readlink
 
 # Used for log messages
 SCRIPT_NAME=`basename $0`

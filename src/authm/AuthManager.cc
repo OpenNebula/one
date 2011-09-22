@@ -358,7 +358,7 @@ void AuthManager::timer_action()
 
     while ( it !=auth_requests.end())
     {
-        if (the_time > it->second->time_out)
+        if ((it->second->time_out != 0) && (the_time > it->second->time_out))
         {
             AuthRequest * ar = it->second;
             auth_requests.erase(it++);

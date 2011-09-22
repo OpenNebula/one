@@ -325,20 +325,7 @@ class OCCIServer < CloudServer
                 return OpenNebula::Error.new(error_msg), 400
             end
             
-            # Create a new Image to save the disk
-            template = "NAME=\"#{image_name}\"\n"
-            if image_type
-                template << "TYPE=\"#{image_type}\"\n"
-            else
-                template << "TYPE=\"OS\"\n"
-            end
-
-            image = Image.new(Image.build_xml, one_client)
-
-            rc = image.allocate(template)
-            return rc, 400 if OpenNebula.is_error?(rc)
-            
-            rc = vm.save_as(disk_id, image.id)
+            rc = vm.save_as(disk_id, image_name)
             if OpenNebula.is_error?(rc)
                 image.delete
                 return rc, 400
@@ -563,7 +550,7 @@ class OCCIServer < CloudServer
         return rc, 404 if OpenNebula::is_error?(rc)
 
         # --- Delete the Image ---
-        rc = @img_repo.delete(image)
+        rc = image.delete
         return rc, 500 if OpenNebula::is_error?(rc)
 
         return "", 204

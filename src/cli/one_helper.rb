@@ -398,7 +398,8 @@ EOT
 
         editor_path = ENV["EDITOR"] ? ENV["EDITOR"] : EDITOR_PATH
         system("#{editor_path} #{path}")
-        unless $?==0
+
+        unless $?.exitstatus == 0
             puts "Editor not defined"
             exit -1
         end
