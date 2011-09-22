@@ -92,7 +92,7 @@ class OCAInteraction
                                         zone.endpoint,
                                         false)
 
-        vdcgroupid = vdc_group_id(vdc.name, sclient)
+        vdcgroupid = vdc_group_id(vdc.name, client)
         if OpenNebula.is_error?(vdcgroupid)
             return vdcgroupid
         end
