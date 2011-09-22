@@ -21,7 +21,7 @@ module EC2CloudAuth
         end
 
         @token = "#{username}:#{one_pass}"
-        @client = Client.new(@token, @xmlrpc, false)
+        @client = Client.new(@token, @conf[:one_xmlrpc], false)
         return nil
     end
 

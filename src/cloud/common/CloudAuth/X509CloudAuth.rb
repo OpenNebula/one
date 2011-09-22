@@ -1,14 +1,20 @@
 module X509CloudAuth
-    # TBD Adapt to the new CloudAuth system
-    
     # Gets the username associated with a password
     # password:: _String_ the password
     # [return] _Hash_ with the username
     def get_username(password)
-        @user_pool.info
-        #STDERR.puts 'the password is ' + password
-        #STDERR.puts @user_pool["User[PASSWORD=\"#{password}\"]"]
-        username = @user_pool["User[PASSWORD=\"#{password}\"]/NAME"]
+        @oneadmin_client ||= OpenNebula::Client.new(nil, @conf[:one_xmlrpc])
+
+        if @user_pool.nil?
+            @user_pool ||= OpenNebula::UserPool.new(@oneadmin_client)
+
+            rc = @user_pool.info
+            if OpenNebula.is_error?(rc)
+                raise rc.message
+            end
+        end
+
+        username = @user_pool["USER[PASSWORD=\"#{password}\"]/NAME"]
         return username if (username != nil)
      
         # Check if the DN is part of a |-separted multi-DN password
@@ -28,7 +34,7 @@ module X509CloudAuth
         if matched
             password = matched.to_s
         end
-        puts("The password is " + password)
+
         return @user_pool["USER[PASSWORD=\"#{password}\"]/NAME"]
     end
 
@@ -43,7 +49,7 @@ module X509CloudAuth
         while cert_line
             begin
                 cert_array=cert_line.scan(/([^\s]*)\s/)
-                cert_array = cert_array[2..-3]
+                cert_array = cert_array[2..-2]
                 cert_array.unshift('-----BEGIN CERTIFICATE-----')
                 cert_array.push('-----END CERTIFICATE-----')
                 cert_pem = cert_array.join("\n")
@@ -72,16 +78,15 @@ module X509CloudAuth
             msg = ""
             msg << failed
             msg << "Username not found in certificate chain "
-            msg << chain_dn
+            msg << chain_dn if chain_dn
             raise msg
         end
 
         auth = ServerAuth.new
 
-        login = auth.login_token(username, subjectname, 300)
+        @token = auth.login_token(username, subjectname, 300)
+        @client = Client.new(@token, @conf[:one_xmlrpc], false)
 
-        STDERR.puts login
-
-        return one_client_user("dummy", login)
+        return nil
     end
 end

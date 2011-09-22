@@ -12,7 +12,7 @@ module BasicCloudAuth
             one_pass = get_password(username)
             if one_pass && one_pass == password
                 @token = "#{username}:#{password}"
-                @client = Client.new(@token, @xmlrpc, false)
+                @client = Client.new(@token, @conf[:one_xmlrpc], false)
                 return nil
             else
                 return "Authentication failure"
