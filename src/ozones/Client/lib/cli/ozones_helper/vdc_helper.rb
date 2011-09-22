@@ -34,6 +34,7 @@ class VDCHelper < OZonesHelper::OZHelper
     
         puts str % ["ID ",       vdc['id'].to_s]
         puts str % ["NAME ",     vdc['name'].to_s]
+        puts str % ["GROUP_ID ", vdc['group_id'].to_s]
         puts str % ["ZONEID ",   vdc['zones_id'].to_s]
         puts str % ["VDCADMIN ", vdc['vdcadminname'].to_s]        
         puts str % ["HOST IDs ", vdc['hosts'].to_s]        
