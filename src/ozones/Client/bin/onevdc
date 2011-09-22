@@ -50,4 +50,14 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     command :delete, 'Deletes a VDC', :vdcid do
         helper.delete_resource(args[0],options) 
     end
+
+    command :addhost, 'Adds the set of hosts to the VDC', 
+            :vdcid, :range do
+        helper.addhost(args[0], args[1], options)
+    end
+
+    command :delhost, 'Deletes the set of hosts to the VDC', 
+            :vdcid, :range do
+        helper.delhost(args[0], args[1], options)
+    end
 end
