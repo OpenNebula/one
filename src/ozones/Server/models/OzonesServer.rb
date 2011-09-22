@@ -136,12 +136,12 @@ class OzonesServer
 
         if body.size > 0
             result = parse_json(body,kind)
-            data = result if !OpenNebula.is_error?(result)
+            data   = result if !OpenNebula.is_error?(result)
         end
 
         resource = case kind
             when "vdc"  then
-                vdc_data=Hash.new
+                vdc_data = Hash.new
                 data.each{|key,value|
                     vdc_data[key.downcase.to_sym]=value if key!="pool"
                 }
@@ -275,8 +275,6 @@ class OzonesServer
                     vdc_id = value if key=="id"
                 }
 
-                   puts vdc_data
-
                 # Check parameters
                 if !vdc_data[:hosts] || !vdc_id 
                     return [400, OZones::Error.new(
@@ -302,7 +300,7 @@ class OzonesServer
                 
                 if (!defined? vdc_data[:force] or 
                     (defined? vdc_data[:force] and vdc_data[:force]!="yes")) and
-                    !host_uniqueness?(zone, vdc_data[:hosts]) 
+                    !host_uniqueness?(zone, vdc_data[:hosts], vdc_id.to_i) 
                     return [403, OZones::Error.new(
                                 "Error: Couldn't update resource #{kind}. " +
                               "Hosts are not unique, and no force option " + 
@@ -367,17 +365,23 @@ class OzonesServer
 
     ############################################################################
     # Helper functions
-    ##########################################################################
+    ############################################################################
     
     # Check if hosts are already include in any Vdc of the zone
-    def host_uniqueness?(zone, host_list)
+    def host_uniqueness?(zone, host_list, vdc_id = -1)
         all_hosts = ""
-        zone.vdcs.all.each{|vdc| all_hosts += vdc.hosts}
-        all_hosts = all_hosts.split(",").compact.reject{|host| host.empty?}
-        
+        zone.vdcs.all.each{|vdc|
+            if vdc.hosts != nil and !vdc.hosts.empty? and vdc.id != vdc_id
+                all_hosts << vdc.hosts
+            end
+        }
+
+        all_hosts = all_hosts.split(",")
+
         host_list.split(",").each{|host|
             return false if all_hosts.include?(host)
         }
+
         return true
     end
 
