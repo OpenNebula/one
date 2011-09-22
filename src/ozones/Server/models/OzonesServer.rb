@@ -193,8 +193,10 @@ class OzonesServer
                              "Error: Couldn't create #{kind}. Reason: " +
                              rc.message).to_json]
                     else
-                        vdc.acls = rc
+                        vdc.acls     = rc[0]
+                        vdc.group_id = rc[1]
                         vdc.save
+
                         pr.update # Rewrite proxy conf file
                         return [200, vdc.to_json]
                     end
@@ -262,6 +264,8 @@ class OzonesServer
             data = result if !OpenNebula.is_error?(result)
         end
 
+        puts data
+
         resource = case kind
             when "vdc"  then
                 vdc_data=Hash.new
@@ -270,6 +274,8 @@ class OzonesServer
                     vdc_data[key.downcase.to_sym]=value if key!="id"
                     vdc_id = value if key=="id"
                 }
+
+                   puts vdc_data
 
                 # Check parameters
                 if !vdc_data[:hosts] || !vdc_id 
@@ -287,10 +293,10 @@ class OzonesServer
                 end
                 
                 # Get the zone where the Vdc belongs
-                zone=OZones::Zones.get(vdc.zoneid)
+                zone=OZones::Zones.get(vdc.zones.id)
                 if !zone
                     error = OZones::Error.new("Error: Zone " +
-                          "#{vdc.zoneid} not found, cannot update Vdc.")
+                          "#{vdc.zones.id} not found, cannot update Vdc.")
                     return [404, error.to_json]
                 end
                 
@@ -303,11 +309,12 @@ class OzonesServer
                               " were given.").to_json]                   
                 end
                 
-                rc = @ocaInt.update_vdc_hosts(zone, vdc_data[:hosts], vdc.acls)
+                rc = @ocaInt.update_vdc_hosts(zone, vdc, vdc_data[:hosts])
                                               
                 if !OpenNebula.is_error?(rc)
                     vdc.hosts = vdc_data[:hosts]
-                    vdc.acls  = rc
+                    vdc.get_host_acls!(rc)
+
                     vdc.save
                     
                     if vdc.saved? 
@@ -365,7 +372,7 @@ class OzonesServer
     # Check if hosts are already include in any Vdc of the zone
     def host_uniqueness?(zone, host_list)
         all_hosts = ""
-        zone.vdcs.all.each{|vdc| all_hosts += vdcs.hosts}
+        zone.vdcs.all.each{|vdc| all_hosts += vdc.hosts}
         all_hosts = all_hosts.split(",").compact.reject{|host| host.empty?}
         
         host_list.split(",").each{|host|
