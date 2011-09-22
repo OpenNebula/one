@@ -39,7 +39,54 @@ class VDCHelper < OZonesHelper::OZHelper
     def delete_resource(id, options)
         super(@vdc_str,id, options)
     end
+
+    def addhost(id, host_array, options)
+        rc = @client.get_resource(@vdc_str, id)
     
+        if OZonesClient::is_error?(rc) 
+            return [-1, rc.message] 
+        else
+            vdc = OZonesClient::parse_json(rc.body, @vdc_str.upcase)
+        end
+
+        hosts = vdc['hosts'].split(',').collect!{|x| x.to_i}
+        host_array.concat(hosts).uniq!
+
+        new_host = host_array.join(',')
+        template = "ID=#{id}\nHOSTS=#{new_host}\n"
+       
+        rc = @client.put_resource(@vdc_str, id, template) 
+
+        if OZonesClient::is_error?(rc) 
+            return [-1, rc.message] 
+        end
+
+        [0, ""]
+    end
+    
+    def delhost(id, host_array, options)
+        rc = @client.get_resource(@vdc_str, id)
+    
+        if OZonesClient::is_error?(rc) 
+            return [-1, rc.message] 
+        else
+            vdc = OZonesClient::parse_json(rc.body, @vdc_str.upcase)
+        end
+
+        hosts = vdc['hosts'].split(',').collect!{|x| x.to_i}
+
+        new_host = (hosts - host_array).join(',')
+        template = "ID=#{id}\nHOSTS=#{new_host}\n"
+       
+        rc = @client.put_resource(@vdc_str, id, template) 
+
+        if OZonesClient::is_error?(rc) 
+            return [-1, rc.message] 
+        end
+
+        [0, ""]
+    end
+
     private
 
     def format_resource(vdc, options)
