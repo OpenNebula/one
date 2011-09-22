@@ -17,72 +17,72 @@
 require 'OpenNebula'
 
 class OCAInteraction
-    
+
     # Creates a VDC (user, group, hosts)
     def create_vdc_in_zone(zone,vdc,adminname, adminpass)
         # Create a new client to interact with the zone
         client = OpenNebula::Client.new(zone.onename + ":" + zone.onepass,
                                         zone.endpoint,
                                         false)
-        
+
         # Create a group in the zone with the VDC name
         group  = OpenNebula::Group.new(OpenNebula::Group.build_xml, client)
         result = group.allocate(vdc.name)
         return result if OpenNebula.is_error?(result)
-        
+
         # Create the VDC admin user in the Zone
         user=OpenNebula::User.new(OpenNebula::User.build_xml, client)
         result=user.allocate(adminname, adminpass)
-        return rollback(client, group, 
+        return rollback(client, group,
                         result, user) if OpenNebula.is_error?(result)
 
         # Change primary group of the admin user to the VDC group
         result = user.chgrp(group.id)
-        return rollback(client, group, 
+        return rollback(client, group,
                         result, user) if OpenNebula.is_error?(result)
 
         # Add ACLs
-        aclp = OpenNebula::AclPool.new client     
-             
+        aclp = OpenNebula::AclPool.new client
+
           # Grant permissions to the group
-          rule_str = "@#{group.id} VM+NET+IMAGE+TEMPLATE/* " + 
-            "CREATE+INFO_POOL_MINE"       
-          acl    = OpenNebula::Acl.new(OpenNebula::Acl.build_xml,client)            
+          rule_str = "@#{group.id} VM+NET+IMAGE+TEMPLATE/* " +
+            "CREATE+INFO_POOL_MINE"
+          acl    = OpenNebula::Acl.new(OpenNebula::Acl.build_xml,client)
           result = acl.allocate(*OpenNebula::Acl.parse_rule(rule_str))
-          return rollback(client, group, 
+          return rollback(client, group,
                           result, user) if OpenNebula.is_error?(result)
           acls_str = acl.id.to_s + ","
-          
+
           # Grant permissions to the vdc admin
-          rule_str = "##{user.id} USER/* CREATE"  
-          acl    = OpenNebula::Acl.new(OpenNebula::Acl.build_xml,client)    
+          rule_str = "##{user.id} USER/* CREATE"
+          acl    = OpenNebula::Acl.new(OpenNebula::Acl.build_xml,client)
           result = acl.allocate(*OpenNebula::Acl.parse_rule(rule_str))
-          return rollback(client, group, 
+          return rollback(client, group,
                           result,user,acls_str) if OpenNebula.is_error?(result)
           acls_str += acl.id.to_s + ","
-          
-          rule_str = "##{user.id} USER/@#{group.id} MANAGE+DELETE+INFO"        
-          acl    = OpenNebula::Acl.new(OpenNebula::Acl.build_xml,client)    
+
+          rule_str = "##{user.id} USER/@#{group.id} MANAGE+DELETE+INFO"
+          acl    = OpenNebula::Acl.new(OpenNebula::Acl.build_xml,client)
           result = acl.allocate(*OpenNebula::Acl.parse_rule(rule_str))
-          return rollback(client, group, 
+          return rollback(client, group,
                           result,user,acls_str) if OpenNebula.is_error?(result)
           acls_str += acl.id.to_s + ","
-          
+
           # Grant permissions to use the vdc hosts
 
           vdc.hosts.split(",").each{|hostid|
-              rule_str = "@#{group.id} HOST/##{hostid} USE"        
-              acl    = OpenNebula::Acl.new(OpenNebula::Acl.build_xml,client)    
+              rule_str = "@#{group.id} HOST/##{hostid} USE"
+              acl    = OpenNebula::Acl.new(OpenNebula::Acl.build_xml,client)
               result = acl.allocate(*OpenNebula::Acl.parse_rule(rule_str))
-              if OpenNebula.is_error?(result) 
+              if OpenNebula.is_error?(result)
                   return rollback(client, group, result, user, acls_str)
               end
               acls_str += acl.id.to_s + ","
-          } 
+          }
 
         return acls_str.chop
     end
-    
+
     def delete_vdc_in_zone(id)
         vdc = OZones::Vdc.get(id)
         zone= OZones::Zones.get(vdc.zones_id)
@@ -91,38 +91,38 @@ class OCAInteraction
         client = OpenNebula::Client.new(zone.onename + ":" + zone.onepass,
                                         zone.endpoint,
                                         false)
-                            
-        # Get the id of vdcadmin                             
-        vdcgroupid = OpenNebulaHelper::OneHelper.id_to_name(vdc.name,      
-                                  OpenNebula::GroupPool.new(client), 
-                                  "GROUP")[1].to_i
+
+        vdcgroupid = vdc_group_id(vdc.name, client)
+        if OpenNebula.is_error?(vdcgroupid)
+            return vdcgroupid
+        end
 
         # Delete the resources from the VDC
         delete_images(vdcgroupid, client)
         delete_templates(vdcgroupid, client)
         delete_vms(vdcgroupid, client)
-        delete_vns(vdcgroupid, client)     
-        
+        delete_vns(vdcgroupid, client)
+
         # Delete ACLs
-        delete_acls(vdc.acls, client)           
-                      
+        delete_acls(vdc.acls, client)
+
         # Delete users from a group
         up = OpenNebula::UserPool.new(client)
         up.info
-        up.each{|user| 
+        up.each{|user|
             if user['GID'].to_i == vdcgroupid
-                OpenNebula::User.new_with_id(user['ID'], client).delete 
+                OpenNebula::User.new_with_id(user['ID'], client).delete
             end
         }
-        
+
         # Delete the group
         rc = OpenNebula::Group.new_with_id(vdcgroupid, client).delete
 
         if OpenNebula.is_error?(rc)
-            return rc 
-        else 
+            return rc
+        else
             return nil
-        end                
+        end
     end
     
     def update_vdc_hosts(zone, host_list, acl_list)
@@ -169,7 +169,7 @@ class OCAInteraction
         acls_str.chop.split(",").each{|acl_id|
             OpenNebula::Acl.new_with_id(acl_id, client).delete
         }
-        
+
         return result
     end
 
@@ -177,51 +177,70 @@ class OCAInteraction
     def delete_images(groupid, client)
         ip = OpenNebula::ImagePool.new(client)
         ip.info
-        ip.each{|image| 
+        ip.each{|image|
             if image['GID'].to_i == groupid
-                OpenNebula::Image.new_with_id(image['ID'], client).delete 
+                OpenNebula::Image.new_with_id(image['ID'], client).delete
             end
         }
     end
-    
+
     # Deletes templates from a group
     def delete_templates(groupid, client)
         tp = OpenNebula::TemplatePool.new(client)
         tp.info
-        tp.each{|template| 
+        tp.each{|template|
             if template['GID'].to_i == groupid
-                OpenNebula::Image.new_with_id(template['ID'], client).delete 
+                OpenNebula::Image.new_with_id(template['ID'], client).delete
             end
         }
     end
-    
+
     # Deletes VMs from a group
     def delete_vms(groupid, client)
         vmp = OpenNebula::VirtualMachinePool.new(client)
         vmp.info
-        vmp.each{|vm| 
+        vmp.each{|vm|
             if vm['GID'].to_i == groupid
-                OpenNebula::VirtualMachine.new_with_id(vm['ID'], client).delete 
+                OpenNebula::VirtualMachine.new_with_id(vm['ID'], client).delete
             end
         }
     end
-    
+
     # Deletes VNs from a group
     def delete_vns(groupid, client)
         vnp = OpenNebula::VirtualNetworkPool.new(client)
         vnp.info
-        vnp.each{|vn| 
+        vnp.each{|vn|
             if vn['GID'].to_i == groupid
-                OpenNebula::VirtualNetwork.new_with_id(vn['ID'], client).delete 
+                OpenNebula::VirtualNetwork.new_with_id(vn['ID'], client).delete
             end
         }
     end
-    
+
     # Delete ACLs from a group
-    def delete_acls(acls_str, client)      
+    def delete_acls(acls_str, client)
         acls_str.split(",").each{|acl_id|
             OpenNebula::Acl.new_with_id(acl_id, client).delete
         }
     end
+
+    private
+
+    def vdc_group_id(name, client)
+        groups = OpenNebula::GroupPool.new(client)
+
+        rc = groups.info
+        if OpenNebula.is_error?(rc)
+            return rc
+        end
+
+        group_id = groups["GROUP[NAME=#{name}]/ID"]
+
+        if group_id
+            return group_id.to_i
+        else
+            return OpenNebula::Error.new("There is no GROUP called #{name}")
+        end
+    end
 end
-    
+

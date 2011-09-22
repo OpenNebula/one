@@ -48,7 +48,6 @@ require 'rubygems'
 require 'data_mapper'
 require 'digest/sha1'
 require 'OzonesServer'
-require 'one_helper'
 
 ##############################################################################
 # Read configuration
