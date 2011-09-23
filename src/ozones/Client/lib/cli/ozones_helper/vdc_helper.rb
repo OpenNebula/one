@@ -24,8 +24,21 @@ class VDCHelper < OZonesHelper::OZHelper
         super(user, pass, endpoint_str, timeout, debug_flag)
     end
 
-    def create_resource(template)
-      super(@vdc_str,template)
+    def create_resource(template, options)
+        tmpl_str = File.read(template)
+
+        if options[:force]
+            tmpl_str << "FORCE=YES\n"
+        end
+
+        rc = @client.post_resource_str(@vdc_str, tmpl_str)
+
+        if OZonesClient::is_error?(rc) 
+           [-1, rc.message] 
+        else
+            id = get_id(rc)
+            [0, "ID: #{id}"]
+        end
     end
 
     def list_pool(options)
@@ -42,7 +55,7 @@ class VDCHelper < OZonesHelper::OZHelper
 
     def addhost(id, host_array, options)
         rc = @client.get_resource(@vdc_str, id)
-    
+
         if OZonesClient::is_error?(rc) 
             return [-1, rc.message] 
         else
@@ -54,7 +67,11 @@ class VDCHelper < OZonesHelper::OZHelper
 
         new_host = host_array.join(',')
         template = "ID=#{id}\nHOSTS=#{new_host}\n"
-       
+
+        if options[:force]
+            template << "FORCE=YES\n"
+        end
+
         rc = @client.put_resource(@vdc_str, id, template) 
 
         if OZonesClient::is_error?(rc) 
@@ -77,7 +94,11 @@ class VDCHelper < OZonesHelper::OZHelper
 
         new_host = (hosts - host_array).join(',')
         template = "ID=#{id}\nHOSTS=#{new_host}\n"
-       
+
+        if options[:force]
+            template << "FORCE=YES\n"
+        end
+
         rc = @client.put_resource(@vdc_str, id, template) 
 
         if OZonesClient::is_error?(rc) 

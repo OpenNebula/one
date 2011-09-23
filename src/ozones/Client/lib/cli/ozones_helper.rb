@@ -34,11 +34,8 @@ module OZonesHelper
             if OZonesClient::is_error?(rc) 
                [-1, rc.message] 
             else
-               id=rc.body.match('\"id\":(.*)$')[1].strip
-               if id[-1..-1] == ","
-                   id = id[0..id.size-2]
-               end
-               [0, "ID: #{id}"]
+                id = get_id(rc)
+                [0, "ID: #{id}"]
             end
         end
         
@@ -74,6 +71,19 @@ module OZonesHelper
                [0, "#{message}"]
             end
         end
-             
+
+        ########################################################################
+        # Helpers
+        ########################################################################
+
+
+        def get_id(rc)
+            id = rc.body.match('\"id\":(.*)$')[1].strip
+            if id[-1..-1] == ","
+               id = id[0..id.size-2]
+            end
+
+            return id
+        end
     end
 end

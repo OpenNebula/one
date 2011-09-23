@@ -91,6 +91,10 @@ EOT
         ######################################################################
         def post_resource(kind, template)
             tmpl_str = File.read(template)
+            post_resource_str(kind, tmpl_str)
+        end
+
+        def post_resource_str(kind, tmpl_str)
             body_str = OZonesClient::to_body(tmpl_str)
              
             url = URI.parse("#{@endpoint}/#{kind}")
