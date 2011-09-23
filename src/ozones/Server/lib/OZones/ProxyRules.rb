@@ -30,7 +30,8 @@ module OZones
             end
             
             # Let's check for file permissions
-            if !File.writable?(File.dirname(@file_path))
+            if !File.writable?(@file_path) and 
+               !File.writable?(File.dirname(@file_path))
                 raise "#{@file_path} is not writable" 
             end
         end
