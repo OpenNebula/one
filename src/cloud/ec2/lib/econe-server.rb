@@ -84,7 +84,8 @@ before do
     begin
         result = @econe_server.authenticate(request.env, params)
     rescue Exception => e
-        error 500, e.message
+        # Add a log message
+        error 500, error_xml("AuthFailure", 0)
     end
 
     if result
