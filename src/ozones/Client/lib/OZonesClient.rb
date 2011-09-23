@@ -176,10 +176,7 @@ EOT
     end
     
     def self.is_http_error?(value)
-        value.class == Net::HTTPInternalServerError ||
-        value.class == Net::HTTPBadRequest ||
-        value.class == Net::HTTPNotFound ||
-        value.class == Net::HTTPUnauthorized
+        value.class != Net::HTTPOK
     end
     
     def self.parse_error(value, kind)
