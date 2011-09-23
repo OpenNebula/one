@@ -97,6 +97,13 @@ end
 ADMIN_NAME = @auth.name
 ADMIN_PASS = @auth.password
 
+begin
+    OZones::ProxyRules.new("apache",config[:htaccess])
+rescue Exception => e
+    warn e.message
+    exit -1  
+end
+
 
 ##############################################################################
 # Sinatra Configuration
