@@ -146,13 +146,16 @@ class OzonesServer
                     vdc_data[key.downcase.to_sym]=value if key!="pool"
                 }
 
-                # Check parameters
-                if !vdc_data[:vdcadminname] || !vdc_data[:vdcadminpass] ||
-                   !vdc_data[:zoneid] || !vdc_data[:name] || !vdc_data[:hosts]
-                    return [400, OZones::Error.new(
-                                "Error: Couldn't create resource #{kind}. " +
-                              "Not enough information on the template").to_json]
-                end
+                mandatory_params = [:vdcadminname, :vdcadminpass,
+                                    :zoneid, :name, :hosts]
+
+                mandatory_params.each { |param|
+                    if !vdc_data[param]
+                        return [400, OZones::Error.new(
+                            "Error: Couldn't create resource #{kind}. " +
+                            "Mandatory attribute '#{param}' is missing.").to_json]
+                    end
+                }
 
                 # Check if the referenced zone exists
                 zone=OZones::Zones.get(vdc_data[:zoneid])
@@ -161,22 +164,30 @@ class OzonesServer
                           "#{vdc_data[:zoneid]} not found, cannot create Vdc.")
                     return [404, error.to_json]
                 end
-                
-                if (!defined? vdc_data[:force] or 
-                    (defined? vdc_data[:force] and vdc_data[:force]!="yes")) and
-                    !host_uniqueness?(zone, vdc_data[:hosts]) 
+
+                if (!vdc_data[:force] or vdc_data[:force].upcase!="YES") and
+                    !host_uniqueness?(zone, vdc_data[:hosts])
                     return [403, OZones::Error.new(
                                 "Error: Couldn't create resource #{kind}. " +
-                              "Hosts are not unique, and no force option " + 
-                              " were given.").to_json]                   
+                              "Hosts are not unique, and no force option" +
+                              " was given.").to_json]
                 end
 
                 vdcadminname = vdc_data[:vdcadminname]
                 vdcadminpass = vdc_data[:vdcadminpass]
                 vdc_data.delete(:zoneid)
                 vdc_data.delete(:vdcadminpass)
+                vdc_data.delete(:force)
 
-                vdc = OZones::Vdc.create(vdc_data)
+                begin
+                    vdc = OZones::Vdc.create(vdc_data)
+                rescue Exception => e
+                    msg = e.message
+                    msg["accessible in OZones::Vdc"] = "supported."
+                    return [400, OZones::Error.new(
+                            "Error: Couldn't create resource #{kind}." +
+                            " #{msg}").to_json]
+                end
 
                 zone.vdcs << vdc
                 zone.save
@@ -212,13 +223,15 @@ class OzonesServer
                     zone_data[key.downcase.to_sym]=value if key!="pool"
                 }
 
-                # Check parameters
-                if !zone_data[:onename] || !zone_data[:onepass] ||
-                   !zone_data[:endpoint] || !zone_data[:name]
-                    return [400, OZones::Error.new(
-                              "Error: Couldn't create resource #{kind}. " +
-                              "Not enough information on the template").to_json]
-                end
+                mandatory_params = [:onename, :onepass, :endpoint, :name]
+
+                mandatory_params.each { |param|
+                    if !vdc_data[param]
+                        return [400, OZones::Error.new(
+                            "Error: Couldn't create resource #{kind}. " +
+                            "Mandatory attribute '#{param}' is missing.").to_json]
+                    end
+                }
 
                 # Digest and check credentials
                 zone_data[:onepass] =
@@ -298,13 +311,12 @@ class OzonesServer
                     return [404, error.to_json]
                 end
                 
-                if (!defined? vdc_data[:force] or 
-                    (defined? vdc_data[:force] and vdc_data[:force]!="yes")) and
+                if (!vdc_data[:force] or vdc_data[:force].upcase!="YES") and
                     !host_uniqueness?(zone, vdc_data[:hosts], vdc_id.to_i) 
                     return [403, OZones::Error.new(
                                 "Error: Couldn't update resource #{kind}. " +
-                              "Hosts are not unique, and no force option " + 
-                              " were given.").to_json]                   
+                              "Hosts are not unique, and no force option" +
+                              " was given.").to_json]
                 end
                 
                 rc = @ocaInt.update_vdc_hosts(zone, vdc, vdc_data[:hosts])
