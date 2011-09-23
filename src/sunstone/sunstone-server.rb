@@ -52,12 +52,11 @@ require 'SunstonePlugins'
 
 begin
     conf = YAML.load_file(CONFIGURATION_FILE)
+    conf[:hash_passwords] = true
 rescue Exception => e
     puts "Error parsing config file #{CONFIGURATION_FILE}: #{e.message}"
     exit 1
 end
-
-conf[:hash_passwords] = true
 
 ##############################################################################
 # Sinatra Configuration
@@ -144,9 +143,10 @@ end
 # HTML Requests
 ##############################################################################
 get '/' do
-    return  File.read(File.dirname(__FILE__)+
-                      '/templates/login.html') unless authorized?
-
+    if !authorized?
+        templ = settings.config[:auth]=="basic"? "login.html" : "login_x509.html"
+        return File.read(File.dirname(__FILE__)+'/templates/'+templ)
+    end
     time = Time.now + 60
     response.set_cookie("one-user",
                         :value=>"#{session[:user]}",
@@ -165,7 +165,10 @@ get '/' do
 end
 
 get '/login' do
-    File.read(SUNSTONE_ROOT_DIR+'/templates/login.html')
+    if !authorized?
+        templ = settings.confing[:auth]=="basic"? "login.html" : "login_x509.html"
+        return File.read(File.dirname(__FILE__)+'/templates/'+templ)
+    end
 end
 
 ##############################################################################
