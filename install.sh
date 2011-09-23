@@ -940,7 +940,8 @@ SUNSTONE_MODELS_JSON_FILES="src/sunstone/models/OpenNebulaJSON/HostJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/AclJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/VirtualNetworkJSON.rb"
 
-SUNSTONE_TEMPLATE_FILES="src/sunstone/templates/login.html"
+SUNSTONE_TEMPLATE_FILES="src/sunstone/templates/login.html \
+                         src/sunstone/templates/login_x509.html"
 
 SUNSTONE_VIEWS_FILES="src/sunstone/views/index.erb"
 
@@ -1021,6 +1022,7 @@ SUNSTONE_PUBLIC_IMAGES_FILES="src/sunstone/public/images/ajax-loader.gif \
                         src/sunstone/public/images/opennebula-sunstone-big.png \
                         src/sunstone/public/images/opennebula-sunstone-small.png \
                         src/sunstone/public/images/panel.png \
+                        src/sunstone/public/images/panel_short.png \
                         src/sunstone/public/images/pbar.gif \
                         src/sunstone/public/images/Refresh-icon.png \
                         src/sunstone/public/images/vnc_off.png \
