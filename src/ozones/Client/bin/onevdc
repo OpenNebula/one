@@ -26,7 +26,14 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     # Global Options
     ######################################################################## 
     set :option, CommandParser::OPTIONS
-    
+
+    FORCE={
+        :name => "force",
+        :short => "-f",
+        :large => "--force",
+        :description => "Force the usage of Hosts in more than one VDC"
+    }
+
     begin
         helper = VDCHelper.new "vdc"
     rescue Exception => e  
@@ -34,8 +41,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         exit -1
     end
     
-    command :create, 'Create a new VDC', :file do
-        helper.create_resource(args[0])
+    command :create, 'Create a new VDC', :file, :options=>[FORCE] do
+        helper.create_resource(args[0], options)
     end
     
     command :show, 'Show information of a particular VDC', :vdcid do
@@ -52,12 +59,12 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     end
 
     command :addhost, 'Adds the set of hosts to the VDC', 
-            :vdcid, :range do
+            :vdcid, :range, :options=>[FORCE] do
         helper.addhost(args[0], args[1], options)
     end
 
     command :delhost, 'Deletes the set of hosts from the VDC',
-            :vdcid, :range do
+            :vdcid, :range, :options=>[FORCE] do
         helper.delhost(args[0], args[1], options)
     end
 end
