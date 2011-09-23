@@ -45,6 +45,8 @@ var create_zone_tmpl =
         <input type="text" name="onename" id="onename" /><br />\
         <label for="onepass">Password:</label>\
         <input type="password" name="onepass" id="onepass" />\
+        <label for="sunsendpoint">Sunstone end point:</label>\
+        <input type="text" name="sunsendpoint" id="sunsendpoint" /><br />\
      </div>\
    </fieldset>\
    <fieldset>\
@@ -299,6 +301,10 @@ function updateZoneInfo(req,zone_json){
                 <td class="value_td">'+zone.endpoint+'</td>\
             </tr>\
             <tr>\
+                <td class="key_td">Sunstone endpoint</td>\
+                <td class="value_td">'+zone.sunsendpoint+'</td>\
+            </tr>\
+            <tr>\
                 <td class="key_td">#VDCs</td>\
                 <td class="value_td">'+zone.vdcs.length+'</td>\
             </tr>\
@@ -544,6 +550,7 @@ function setupCreateZoneDialog(){
         var endpoint = $('#endpoint',this).val();
         var onename = $('#onename',this).val();
         var onepass = $('#onepass',this).val();
+        var sunsendpoint = $('#sunsendpoint',this).val();
 
         if (!name.length || !endpoint.length ||
             !onename.length || !onepass.length){
@@ -556,7 +563,8 @@ function setupCreateZoneDialog(){
                 "name": name,
                 "endpoint": endpoint,
                 "onename": onename,
-                "onepass": onepass
+                "onepass": onepass,
+                "sunsendpoint" : sunsendpoint
             }
         };
 
