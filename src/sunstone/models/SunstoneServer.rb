@@ -23,37 +23,8 @@ class SunstoneServer
     # FLAG that will filter the elements retrieved from the Pools
     POOL_FILTER = Pool::INFO_GROUP
 
-    def initialize(username, password)
-        # TBD one_client_user(name) from CloudServer
-        @client = Client.new("dummy:dummy")
-        @client.one_auth = "#{username}:#{password}"
-    end
-
-    ############################################################################
-    #
-    ############################################################################
-    def self.authorize(user="", sha1_pass="")
-        if user.empty? || sha1_pass.empty?
-            return [401, false]
-        end
-
-        # TBD get_user_password(name) from CloudServer
-        user_pool = UserPool.new(Client.new)
-        rc = user_pool.info
-        if OpenNebula.is_error?(rc)
-            return [500, false]
-        end
-
-        user_pass   =  user_pool["USER[NAME=\"#{user}\"]/PASSWORD"]
-        user_id     =  user_pool["USER[NAME=\"#{user}\"]/ID"]
-        user_gid    =  user_pool["USER[NAME=\"#{user}\"]/GID"]
-        user_gname  =  user_pool["USER[NAME=\"#{user}\"]/GNAME"]
-
-        if user_pass == sha1_pass
-            return [204, [user_id, user_gid, user_gname]]
-        else
-            return [401, nil]
-        end
+    def initialize(token, xmlrpc)
+        @client = Client.new(token, xmlrpc, false)
     end
 
     ############################################################################
