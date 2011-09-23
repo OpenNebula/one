@@ -91,7 +91,11 @@ EOT
         ######################################################################
         def post_resource(kind, template)
             tmpl_str = File.read(template)
-            body_str = OzonesClient::to_body(tmpl_str)
+            post_resource_str(kind, tmpl_str)
+        end
+
+        def post_resource_str(kind, tmpl_str)
+            body_str = OZonesClient::to_body(tmpl_str)
              
             url = URI.parse("#{@endpoint}/#{kind}")
 
@@ -176,10 +180,7 @@ EOT
     end
     
     def self.is_http_error?(value)
-        value.class == Net::HTTPInternalServerError ||
-        value.class == Net::HTTPBadRequest ||
-        value.class == Net::HTTPNotFound ||
-        value.class == Net::HTTPUnauthorized
+        value.class != Net::HTTPOK
     end
     
     def self.parse_error(value, kind)

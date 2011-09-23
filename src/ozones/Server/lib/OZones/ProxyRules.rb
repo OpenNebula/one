@@ -23,10 +23,16 @@ module OZones
                 @file_path = file_path
             else 
                 if !ENV["ONE_LOCATION"]
-                    @file_path="/usr/lib/one/ozones/htaccess"
+                    @file_path="/var/lib/one/.htaccess"
                 else
-                    @file_path=ENV["ONE_LOCATION"]+"/lib/ozones/htaccess"    
+                    @file_path=ENV["ONE_LOCATION"]+"/var/.htaccess"    
                 end
+            end
+            
+            # Let's check for file permissions
+            if !File.writable?(@file_path) and 
+               !File.writable?(File.dirname(@file_path))
+                raise "#{@file_path} is not writable" 
             end
         end
         
