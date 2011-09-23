@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>OpenNebula Sunstone Login</title>
+    <link rel="stylesheet" type="text/css" href="css/login.css" />
+
+    <!-- Vendor Libraries -->
+    <script type="text/javascript" src="vendor/jQuery/jquery-1.4.4.min.js"></script>
+    <!-- End Vendor Libraries -->
+
+    <script type="text/javascript" src="js/opennebula.js"></script>
+    <script type="text/javascript" src="js/login.js"></script>
+
+</head>
+
+
+<body>
+<div id="header">
+    <div id="logo">
+        The OpenNebula Cloud Operations Center
+    </div>
+</div>
+
+<div id="wrapper">
+      <div id="logo_sunstone">
+      </div>
+
+      <div id="auth_error" class="error_message">
+          Invalid username or password
+      </div>
+      <div id="one_error" class="error_message">
+          OpenNebula is not running
+      </div>
+
+      <form id="login_form">
+        <div class="border" id="login" style='height:169px;background:url("../images/panel_short.png") no-repeat scroll center transparent'>
+            <div class="content">
+                <input style="float:left;" type="submit" id="login_btn" value="" />
+                <input type="checkbox" id="check_remember" />
+                <label id="label_remember" for="check_remember">Remember me</label>
+
+            </div>
+        </div>
+      </form>
+</div>
+</body>
+</html>
