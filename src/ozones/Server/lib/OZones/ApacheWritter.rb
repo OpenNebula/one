@@ -26,10 +26,10 @@ module OZones
                                               
             OZones::Zones.all.each{|zone|
                 zone.vdcs.all.each{|vdc|
-                    htaccess << "RewriteRule ^(.*)/#{vdc.name} " +
+                    htaccess << "RewriteRule ^#{vdc.name} " +
                                 "#{zone.endpoint} [P]\n"
                     if zone.sunsendpoint != nil
-                        htaccess << "RewriteRule ^(.*)/sunstone_#{vdc.name} " +
+                        htaccess << "RewriteRule ^sunstone_#{vdc.name} " +
                                     "#{zone.sunsendpoint} [P]\n" 
                     end
                 }
