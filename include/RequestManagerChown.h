@@ -35,9 +35,18 @@ protected:
         :Request(method_name,params,help)
     {
         auth_op = AuthRequest::CHOWN;
+
+        Nebula& nd = Nebula::instance();
+        gpool = nd.get_gpool();
+        upool = nd.get_upool();
     };
 
     ~RequestManagerChown(){};
+
+    /* -------------------------------------------------------------------- */
+
+    GroupPool * gpool;
+    UserPool  * upool;
 
     /* -------------------------------------------------------------------- */
 
