@@ -19,11 +19,6 @@ module OZones
     class ApacheWritter 
         def initialize(file_path) 
             @file_path = file_path
-            
-            File.open(@file_path, 'w') {|f| 
-                f.flock(File::LOCK_EX)
-                f.write(htaccess) 
-            }
         end
         
         def update
