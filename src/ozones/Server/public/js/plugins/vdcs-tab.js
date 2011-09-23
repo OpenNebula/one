@@ -25,6 +25,7 @@ var vdcs_tab_content =
       <th>ID</th>\
       <th>Name</th>\
       <th>Zone ID</th>\
+      <th>Hosts</th>\
     </tr>\
   </thead>\
   <tbody id="tbodyvdcs">\
@@ -44,7 +45,12 @@ var create_vdc_tmpl =
         <input type="password" name="vdcadminpass" id="vdcadminpass" />\
         <label for="zone">Zone:</label>\
         <select id="zoneid" name="zone">\
-        </select>\
+        </select><br />\
+        <div class="clear"></div>\
+        <label for="vdc_force_hosts">Host multiplacement:</label>\
+        <input type="checkbox" name="vdc_force_hosts" id="vdc_force_hosts" />\
+        <div class="tip">Allows hosts belonging to other VDCs to be re-added to this one. They will appear marked with * in the list.</div>\
+        <div class="clear"></div>\
         <label style="margin-left:205px;font-size:0.8em;color:#bbbbbb">Drag & Drop</label>\
         <label style="margin-left:195px;font-size:0.8em;color:#bbbbbb">Available / Selected</label>\
         <label>Hosts:</label>\
@@ -79,6 +85,19 @@ var vdc_actions = {
     "VDC.create_dialog" : {
         type: "custom",
         call: openCreateVDCDialog
+    },
+
+    "VDC.update" : {
+        type: "create",
+        call: oZones.VDC.update,
+        callback: updateVDCElement,
+        error: onError,
+        notify: true
+    },
+
+    "VDC.update_dialog" : {
+        type: "custom",
+        call: openUpdateVDCDialog
     },
 
     "VDC.list" : {
@@ -169,7 +188,8 @@ function vdcElementArray(vdc_json){
         '<input type="checkbox" id="vdc_'+vdc.id+'" name="selected_items" value="'+vdc.id+'"/>',
         vdc.id,
         vdc.name,
-        vdc.zones_id
+        vdc.zones_id,
+        vdc.hosts ? vdc.hosts : "none"
     ];
 }
 
@@ -230,6 +250,18 @@ function updateVDCInfo(req,vdc_json){
                 <td class="key_td">Hosts</td>\
                 <td class="value_td">'+(vdc.hosts? vdc.hosts : "none")+'</td>\
             </tr>\
+            <tr>\
+                <td class="key_td">Admin name</td>\
+                <td class="value_td">'+vdc.vdcadminname+'</td>\
+            </tr>\
+            <tr>\
+                <td class="key_td">Group ID</td>\
+                <td class="value_td">'+vdc.group_id+'</td>\
+            </tr>\
+            <tr>\
+                <td class="key_td">ACLs</td>\
+                <td class="value_td">'+vdc.acls+'</td>\
+            </tr>\
             </tbody>\
          </table>'
     };
@@ -239,11 +271,39 @@ function updateVDCInfo(req,vdc_json){
 }
 
 function fillHostList(req, host_list_json){
-    list = "";
+    var list = "";
+    var force = $('div#create_vdc_dialog #vdc_force_hosts:checked').length ?
+        true : false;
+    var zone_id = req.request.data[0];
+    var free;
+
     $.each(host_list_json,function(){
-        list+='<li host_id="'+this.HOST.ID+'">'+this.HOST.NAME+'</li>';
+        free = isHostFree(this.HOST.ID,zone_id);
+
+        if (force || free){
+            list+='<li host_id="'+this.HOST.ID+'">'+(free? this.HOST.NAME : this.HOST.NAME+'*')+'</li>';
+        }
     });
     $('div#create_vdc_dialog #vdc_available_hosts_list').html(list);
+}
+
+function isHostFree(id,zone_id){//strings
+    var data = dataTable_vdcs.fnGetData();
+    var result = true;
+    var hosts;
+    for (var i=0; i<data.length; i++){
+        //this vdc is not in the interesting zone:
+        if (data[i][3] != zone_id) continue;
+
+        //note it is an array of strings
+        hosts = data[i][4].split(',');
+
+        if ($.inArray(id,hosts) >= 0){
+            result = false;
+            break;
+        }
+    }
+    return result;
 }
 
 function setupCreateVDCDialog(){
@@ -266,6 +326,12 @@ function setupCreateVDCDialog(){
         containment: dialog
     });
 
+    $('input#vdc_force_hosts').change(function(){
+        select = $('select#zoneid');
+        if (select.val().length){
+            select.trigger("change");
+        }
+    });
 
     //load zone hosts
     $('select#zoneid').change(function(){
@@ -289,6 +355,7 @@ function setupCreateVDCDialog(){
         var vdcadminname = $('#vdcadminname',$(this)).val();
         var vdcadminpass = $('#vdcadminpass',$(this)).val();
         var zoneid = $('select#zoneid',$(this)).val();
+        var force = $('#vdc_force_hosts',$(this)).length ? "yes" : "please no";
         if (!name.length || !vdcadminname.length
             || !vdcadminpass.length || !zoneid.length){
             notifyError("Name, administrator credentials or zones are missing");
@@ -308,6 +375,7 @@ function setupCreateVDCDialog(){
                 "zoneid" : zoneid,
                 "vdcadminname" : vdcadminname,
                 "vdcadminpass" : vdcadminpass,
+                "force" : force
             }
         };
         if (hosts.length){
@@ -347,15 +415,17 @@ $(document).ready(function(){
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
             { "sWidth": "60px", "aTargets": [0] },
+            { "sWidth": "150px", "aTargets": [4] },
             { "sWidth": "35px", "aTargets": [1,3] }
         ]
     });
 
     dataTable_vdcs.fnClearTable();
-    addElement([spinner,'','',''],dataTable_vdcs);
+    addElement([spinner,'','','',''],dataTable_vdcs);
     Sunstone.runAction("VDC.list");
 
     setupCreateVDCDialog();
+    setupTips($('#create_vdc_dialog'));
     setVDCAutorefresh();
     initCheckAllBoxes(dataTable_vdcs);
     tableCheckboxesListener(dataTable_vdcs);
