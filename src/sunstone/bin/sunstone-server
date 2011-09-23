@@ -19,13 +19,13 @@
 
 if [ -z "$ONE_LOCATION" ]; then
     SUNSTONE_PID=/var/run/one/sunstone.pid
-    SUNSTONE_SERVER=/usr/lib/one/sunstone/config.ru
+    SUNSTONE_SERVER=/usr/lib/one/sunstone/sunstone-server.rb
     SUNSTONE_LOCK_FILE=/var/lock/one/.sunstone.lock
     SUNSTONE_LOG=/var/log/one/sunstone.log
     SUNSTONE_CONF=/etc/one/sunstone-server.conf
 else
     SUNSTONE_PID=$ONE_LOCATION/var/sunstone.pid
-    SUNSTONE_SERVER=$ONE_LOCATION/lib/sunstone/config.ru
+    SUNSTONE_SERVER=$ONE_LOCATION/lib/sunstone/sunstone-server.rb
     SUNSTONE_LOCK_FILE=$ONE_LOCATION/var/.sunstone.lock
     SUNSTONE_LOG=$ONE_LOCATION/var/sunstone.log
     SUNSTONE_CONF=$ONE_LOCATION/etc/sunstone-server.conf
@@ -56,23 +56,16 @@ start()
     echo "Can not find $SUNSTONE_SERVER."
     exit 1
   fi
-
-  source $SUNSTONE_CONF
-
-  lsof -i:$PORT  &> /dev/null
-  if [ $? -eq 0 ]; then
-    echo "The port $PORT is being used. Please specify a different one."
-    exit 1
-  fi
   
   # Start the sunstone daemon
   touch $SUNSTONE_LOCK_FILE
-  rackup $SUNSTONE_SERVER -s thin -p $PORT -o $HOST \
-                  -P $SUNSTONE_PID &> $SUNSTONE_LOG &
+  ruby $SUNSTONE_SERVER > $SUNSTONE_LOG 2>&1 &
   LASTPID=$!
   if [ $? -ne 0 ]; then
     echo "Error executing $SUNSTONE_SERVER, please check the log $SUNSTONE_LOG"
     exit 1
+  else
+    echo $LASTPID > $SUNSTONE_PID
   fi
 
   sleep 1
@@ -83,7 +76,7 @@ start()
     exit 1
   fi
 
-  echo "sunstone-server listening on $HOST:$PORT"
+  echo "sunstone-server started"
 }
 
 #

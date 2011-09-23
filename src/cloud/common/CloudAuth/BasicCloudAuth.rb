@@ -14,22 +14,27 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# OpenNebula sever contact information
-:one_xmlrpc: http://localhost:2633/RPC2
+module BasicCloudAuth
+    def auth(env, params={})
+        auth = Rack::Auth::Basic::Request.new(env)
 
-# Host and port where econe server will run
-:server: localhost
-:port: 4567
+        if auth.provided? && auth.basic?
+            username, password = auth.credentials
 
-# SSL proxy that serves the API (set if is being used)
-#:ssl_server: fqdm.of.the.server
+            if @conf[:hash_passwords]
+                password =  Digest::SHA1.hexdigest(password)
+            end
 
-# Authentication protocol for the econe server:
-#   ec2, default Acess key and Secret key scheme
-#   x509, for x509 certificates based authentication
-:auth: ec2
-
-# VM types allowed and its template file (inside templates directory)
-:instance_types:
-  :m1.small:
-    :template: m1.small.erb
+            one_pass = get_password(username)
+            if one_pass && one_pass == password
+                @token = "#{username}:#{password}"
+                @client = Client.new(@token, @conf[:one_xmlrpc], false)
+                return nil
+            else
+                return "Authentication failure"
+            end
+        else
+            return "Basic auth not provided"
+        end
+    end
+end

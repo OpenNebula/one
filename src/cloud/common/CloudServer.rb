@@ -14,9 +14,8 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'Configuration'
 require 'OpenNebula'
-require 'pp'
+require 'CloudAuth'
 
 ##############################################################################
 # This class represents a generic Cloud Server using the OpenNebula Cloud
@@ -28,79 +27,38 @@ class CloudServer
     # Public attributes
     ##########################################################################
     attr_reader :config
-    attr_reader :one_client
 
     # Initializes the Cloud server based on a config file
     # config_file:: _String_ for the server. MUST include the following
     # variables:
-    #   USER
-    #   PASSWORD
+    #   AUTH
     #   VM_TYPE
-    #   IMAGE_DIR
-    #   DATABASE
-    def initialize(config_file)
-
+    #   XMLRPC
+    def initialize(config)
         # --- Load the Cloud Server configuration file ---
+        @config = config
+        @cloud_auth = CloudAuth.new(@config)
+    end
 
-        @config = Configuration.new(config_file)
+    def authenticate(env, params={})
+        @cloud_auth.auth(env, params)
+    end
 
-        if @config[:vm_type] == nil
-            raise "No VM_TYPE defined."
-        end
-
-        @instance_types = Hash.new
-
-        if @config[:vm_type].kind_of?(Array)
-            @config[:vm_type].each {|type|
-                @instance_types[type['NAME']]=type
-            }
-        else
-            @instance_types[@config[:vm_type]['NAME']]=@config[:vm_type]
-        end
-
-        # --- Start an OpenNebula Session ---
-
-        @one_client = Client.new(nil,@config[:one_xmlrpc])
-        @user_pool  = UserPool.new(@one_client)
+    def client
+        @cloud_auth.client
     end
 
     #
     # Prints the configuration of the server
     #
-    def print_configuration
+    def self.print_configuration(config)
         puts "--------------------------------------"
         puts "         Server configuration         "
         puts "--------------------------------------"
-        pp @config
+        pp config
 
-        puts "--------------------------------------"
-        puts "      Registered Instance Types       "
-        puts "--------------------------------------"
-        pp @instance_types
+        STDOUT.flush
     end
-
-    ###########################################################################
-    # USER and OpenNebula Session Methods
-    ###########################################################################
-
-    # Generates an OpenNebula Session for the given user
-    # user:: _Hash_ the user information
-    # [return] an OpenNebula client session
-    def one_client_user(name, password)
-        client = Client.new("dummy:dummy")
-        client.one_auth = "#{name}:#{password}"
-
-        return client
-    end
-
-    # Gets the data associated with a user
-    # name:: _String_ the name of the user
-    # [return] _Hash_ with the user data
-    def get_user_password(name)
-        @user_pool.info
-        return @user_pool["USER[NAME=\"#{name}\"]/PASSWORD"]
-    end
-
 
     # Finds out if a port is available on ip
     # ip:: _String_ IP address where the port to check is
@@ -123,4 +81,3 @@ class CloudServer
       return false
     end
 end
-

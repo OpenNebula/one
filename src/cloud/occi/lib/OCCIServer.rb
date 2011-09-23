@@ -15,12 +15,9 @@
 #--------------------------------------------------------------------------- #
 
 # Common cloud libs
-require 'rubygems'
-require 'sinatra'
 require 'CloudServer'
 
 # OCA
-require 'OpenNebula'
 include OpenNebula
 
 # OCCI libs
@@ -43,29 +40,13 @@ class OCCIServer < CloudServer
     # Server initializer
     # config_file:: _String_ path of the config file
     # template:: _String_ path to the location of the templates
-    def initialize(config_file,template)
-        super(config_file)
+    def initialize(config)
+        super(config)
 
-        @config.add_configuration_value("TEMPLATE_LOCATION",template)
-
-        if @config[:ssl_server]
-            @base_url=@config[:ssl_server]
+        if config[:ssl_server]
+            @base_url=config[:ssl_server]
         else
-            @base_url="http://#{@config[:server]}:#{@config[:port]}"
-        end
-
-        print_configuration
-    end
-
-    # Retrieve a client with the user credentials
-    # requestenv:: _Hash_ Hash containing the environment of the request
-    # [return] _Client_ client with the user credentials
-    def get_client(requestenv)
-        auth =  Rack::Auth::Basic::Request.new(requestenv)
-        if auth
-            return one_client_user(auth.credentials[0], auth.credentials[1])
-        else
-            return nil
+            @base_url="http://#{config[:server]}:#{config[:port]}"
         end
     end
 
@@ -92,13 +73,8 @@ class OCCIServer < CloudServer
         # --- Get User's VMs ---
         user_flag = -1
         
-        one_client = get_client(request.env)
-        if !one_client
-            return "No authorization data present", 401
-        end 
-        
         vmpool = VirtualMachinePoolOCCI.new(
-                        one_client,
+                        self.client,
                         user_flag)
 
         # --- Prepare XML Response ---
@@ -124,13 +100,8 @@ class OCCIServer < CloudServer
         # --- Get User's VNETs ---
         user_flag = -1
         
-        one_client = get_client(request.env)
-        if !one_client
-            return "No authorization data present", 401
-        end 
-        
         network_pool = VirtualNetworkPoolOCCI.new(
-                            one_client,
+                            self.client,
                             user_flag)
 
         # --- Prepare XML Response ---
@@ -155,13 +126,8 @@ class OCCIServer < CloudServer
         # --- Get User's Images ---
         user_flag = -1
         
-        one_client = get_client(request.env)    
-        if !one_client
-            return "No authorization data present", 401
-        end 
-        
         image_pool = ImagePoolOCCI.new(
-                            one_client,
+                            self.client,
                             user_flag)
 
         # --- Prepare XML Response ---
@@ -193,16 +159,11 @@ class OCCIServer < CloudServer
     # [return] _String_,_Integer_ COMPUTE Representation or error, status code
     def post_compute(request)
         # --- Create the new Instance ---
-        one_client = get_client(request.env)    
-        if !one_client
-            return "No authorization data present", 401
-        end 
-        
         vm = VirtualMachineOCCI.new(
                     VirtualMachine.build_xml,
-                    one_client,
+                    self.client,
                     request.body.read,
-                    @instance_types,
+                    @config[:instance_types],
                     @config[:template_location])
 
         # --- Generate the template and Allocate the new Instance ---
@@ -223,14 +184,9 @@ class OCCIServer < CloudServer
     #                             status code
     def get_compute(request, params)
         # --- Get the VM ---
-        one_client = get_client(request.env)    
-        if !one_client
-            return "No authorization data present", 401
-        end 
-        
         vm = VirtualMachineOCCI.new(
                     VirtualMachine.build_xml(params[:id]),
-                    one_client)
+                    self.client)
 
         # --- Prepare XML Response ---
         rc = vm.info
@@ -253,14 +209,9 @@ class OCCIServer < CloudServer
     #                             status code
     def delete_compute(request, params)
         # --- Get the VM ---
-        one_client = get_client(request.env)    
-        if !one_client
-            return "No authorization data present", 401
-        end 
-        
         vm = VirtualMachineOCCI.new(
                     VirtualMachine.build_xml(params[:id]),
-                    one_client)
+                    self.client)
 
         rc = vm.info
         return rc, 404 if OpenNebula::is_error?(rc)
@@ -278,14 +229,9 @@ class OCCIServer < CloudServer
     #                             status code
     def put_compute(request, params)
         # --- Get the VM ---
-        one_client = get_client(request.env)    
-        if !one_client
-            return "No authorization data present", 401
-        end 
-        
         vm = VirtualMachineOCCI.new(
                     VirtualMachine.build_xml(params[:id]),
-                    one_client)
+                    self.client)
         
         rc = vm.info
         return rc, 400 if OpenNebula.is_error?(rc)
@@ -349,14 +295,9 @@ class OCCIServer < CloudServer
     # [return] _String_,_Integer_ Network Representation or error, status code
     def post_network(request)
         # --- Create the new Instance ---
-        one_client = get_client(request.env)    
-        if !one_client
-            return "No authorization data present", 401
-        end 
-        
         network = VirtualNetworkOCCI.new(
                         VirtualNetwork.build_xml,
-                        one_client,
+                        self.client,
                         request.body,
                         @config[:bridge])
 
@@ -377,15 +318,9 @@ class OCCIServer < CloudServer
     # [return] _String_,_Integer_ NETWORK occi representation or error,
     #                             status code
     def get_network(request, params)
-        # --- Get the VNET ---
-        one_client = get_client(request.env)    
-        if !one_client
-            return "No authorization data present", 401
-        end 
-        
         network = VirtualNetworkOCCI.new(
                         VirtualNetwork.build_xml(params[:id]),
-                        one_client)
+                        self.client)
 
         # --- Prepare XML Response ---
         rc = network.info
@@ -406,15 +341,9 @@ class OCCIServer < CloudServer
     # [return] _String_,_Integer_ Delete confirmation msg or error,
     #                             status code
     def delete_network(request, params)
-        # --- Get the VNET ---
-        one_client = get_client(request.env)    
-        if !one_client
-            return "No authorization data present", 401
-        end 
-        
         network = VirtualNetworkOCCI.new(
                         VirtualNetwork.build_xml(params[:id]),
-                        one_client)
+                        self.client)
 
         rc = network.info
         return rc, 404 if OpenNebula::is_error?(rc)
@@ -433,15 +362,10 @@ class OCCIServer < CloudServer
     def put_network(request, params)
         xmldoc    = XMLElement.build_xml(request.body, 'NETWORK')
         vnet_info = XMLElement.new(xmldoc) if xmldoc != nil
-        
-        one_client = get_client(request.env)    
-        if !one_client
-            return "No authorization data present", 401
-        end 
 
         vnet = VirtualNetworkOCCI.new(
                     VirtualNetwork.build_xml(params[:id]),
-                   one_client)
+                    self.client)
                     
         rc = vnet.info
         return rc, 400 if OpenNebula.is_error?(rc)
@@ -474,11 +398,6 @@ class OCCIServer < CloudServer
             error = OpenNebula::Error.new(error_msg)
             return error, 400
         end
-        
-        one_client = get_client(request.env)    
-        if !one_client
-            return "No authorization data present", 401
-        end 
 
         # --- Create and Add the new Image ---
         occixml = request.params['occixml']
@@ -486,7 +405,7 @@ class OCCIServer < CloudServer
 
         image = ImageOCCI.new(
                         Image.build_xml,
-                        one_client,
+                        self.client,
                         occixml,
                         request.params['file'])
 
@@ -508,14 +427,9 @@ class OCCIServer < CloudServer
     #                             status code
     def get_storage(request, params)
         # --- Get the Image ---
-        one_client = get_client(request.env)    
-        if !one_client
-            return "No authorization data present", 401
-        end 
-        
         image = ImageOCCI.new(
                         Image.build_xml(params[:id]),
-                        one_client)
+                        self.client)
 
         rc = image.info
         
@@ -537,14 +451,9 @@ class OCCIServer < CloudServer
     #                             status code
     def delete_storage(request, params)
         # --- Get the Image ---
-        one_client = get_client(request.env)    
-        if !one_client
-            return "No authorization data present", 401
-        end 
-        
         image = ImageOCCI.new(
                         Image.build_xml(params[:id]),
-                        one_client)
+                        self.client)
 
         rc = image.info
         return rc, 404 if OpenNebula::is_error?(rc)
@@ -563,15 +472,10 @@ class OCCIServer < CloudServer
     def put_storage(request, params)
         xmldoc     = XMLElement.build_xml(request.body, 'STORAGE')
         image_info = XMLElement.new(xmldoc) if xmldoc != nil
-        
-        one_client = get_client(request.env)    
-        if !one_client
-            return "No authorization data present", 401
-        end 
 
         image = ImageOCCI.new(
                     Image.build_xml(params[:id]),
-                    one_client)
+                    self.client)
                     
         rc = image.info
         return rc, 400 if OpenNebula.is_error?(rc)
