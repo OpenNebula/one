@@ -226,7 +226,7 @@ class OzonesServer
                 mandatory_params = [:onename, :onepass, :endpoint, :name]
 
                 mandatory_params.each { |param|
-                    if !vdc_data[param]
+                    if !zone_data[param]
                         return [400, OZones::Error.new(
                             "Error: Couldn't create resource #{kind}. " +
                             "Mandatory attribute '#{param}' is missing.").to_json]
