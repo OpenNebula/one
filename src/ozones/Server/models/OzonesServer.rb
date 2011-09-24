@@ -64,7 +64,7 @@ class OzonesServer
         case kind
             when "zone"
                 begin
-                    zone = OpenNebulaZone.new(id)
+                    zone = OZones::OpenNebulaZone.new(id)
                     rc   = zone.pool_to_json(aggkind)
                 rescue => e
                     return [404, OZones::Error.new(e.message).to_json]
@@ -179,7 +179,7 @@ class OzonesServer
                 end
 
             when "zone" then
-                zone = OZones::Zones.create(zone_data)
+                zone = OZones::Zones.create(data)
 
                 if OZones.is_error?(zone)
                     return [400, zone.to_json]
