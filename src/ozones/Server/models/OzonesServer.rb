@@ -26,107 +26,68 @@ class OzonesServer
     end
 
     ############################################################################
-    # Retrieve resources
+    # Get methods for the Zones and VDC interface
     ############################################################################
     def get_pool(kind)
+        rc = 200
+
         pool = case kind
-            when "vdc"      then OZones::Vdc
-            when "zone"     then OZones::Zones
+            when "vdc"  then
+                OZones::Vdc
+            when "zone" then 
+                OZones::Zones
             else
-                error = OZones::Error.new(
-                                        "Error: #{kind} resource not supported")
-                return [404, error.to_json]
+                rc = 400
+                OZones::Error.new("Error: #{kind} resource not supported")
         end
 
-        return [200, pool.to_json]
+        return [rc, pool.to_json]
     end
 
     # Gets an aggreageted pool for a zone or vdc
     # ie All the hosts in all the Zones
     def get_aggregated_pool(kind, aggkind)
-        aggpool = case kind
-            when "zone"     then
-                case aggkind
-                    when "host"                    then OZones::AggregatedHosts.new
-                    when "image"                   then OZones::AggregatedImages.new
-                    when "user"                    then OZones::AggregatedUsers.new
-                    when "vm"                      then OZones::AggregatedVirtualMachines.new
-                    when "vn","vnet"               then OZones::AggregatedVirtualNetworks.new
-                    when "template","vmtemplate"   then OZones::AggregatedTemplates.new
-                end
+        case kind
+            when "zone" then
+                OZones::OpenNebulaZone::all_pools_to_json(aggkind)
             else
-                error = OZones::Error.new(
-                  "Error: #{aggkind} aggregated pool for #{kind} not supported")
-                return [404, error.to_json]
-        end
+                error = OZones::Error.new("Error: Aggregated view not " \
+                            "supported for #{kind}")
 
-        return [200, aggpool.to_json]
+                [404, error.to_json]
+        end
     end
 
     # Gets an aggreageted pool for a zone or vdc in json
     # ie All the hosts in all the Zones
     def get_full_resource(kind, id, aggkind)
-        resource = retrieve_resource(kind, id)
-
-        if OZones.is_error?(resource)
-            return [404, resource.to_json]
+        case kind
+            when "zone"
+                begin
+                    zone = OpenNebulaZone.new(id)
+                    rc   = zone.pool_to_json(aggkind)
+                rescue => e
+                    return [404, OZones::Error.new(e.message).to_json]
+                end
+            else
+                error = OZones::Error.new("Error: #{kind} resource view " \
+                            "not supported")
+                rc = [ 404, error.to_json ]
         end
 
-        # TODO build the vdc retrieval
-
-        if kind == "zone"
-            client   = OpenNebula::Client.new(
-                             resource.onename + ":" + resource.onepass,
-                             resource.endpoint,
-                             false)
-
-            simple_pool = case aggkind
-                when "host"                     then OpenNebulaJSON::HostPoolJSON.new(client)
-                when "image"                    then OpenNebulaJSON::ImagePoolJSON.new(client)
-                when "user"                     then OpenNebulaJSON::UserPoolJSON.new(client)
-                when "vm"                       then OpenNebulaJSON::VirtualMachinePoolJSON.new(client)
-                when "vn","vnet"                then OpenNebulaJSON::VirtualNetworkPoolJSON.new(client)
-                when "template","vmtemplate"    then OpenNebulaJSON::TemplatePoolJSON.new(client)
-                else
-                    error = OZones::Error.new(
-                      "Error: #{aggkind} aggregated pool for #{kind} #{id} not supported")
-                    return [404, error.to_json]
-            end
-
-            simple_pool.info
-
-            return [200, simple_pool.to_json]
-        end
+        return rc
     end
 
     # Get a json representation resource with local (DB) info
     def get_resource(kind, id)
         resource = retrieve_resource(kind, id)
+
         if OZones.is_error?(resource)
             return [404, resource.to_json]
         else
             return [200, resource.to_json]
         end
     end
-
-    # Get hold of a object of a particular kind
-    def retrieve_resource(kind, id)
-        resource = case kind
-            when "vdc"  then OZones::Vdc.get(id)
-            when "zone" then OZones::Zones.get(id)
-            else
-                return OZones::Error.new(
-                                        "Error: #{kind} resource not supported")
-        end
-
-        if resource
-            return resource
-        else
-            return OZones::Error.new(
-                              "Error: Resource #{kind} with id #{id} not found")
-        end
-    end
-
 
     ############################################################################
     # Create resources
@@ -218,47 +179,14 @@ class OzonesServer
                 end
 
             when "zone" then
-                zone_data=Hash.new
-                data.each{|key,value|
-                    zone_data[key.downcase.to_sym]=value if key!="pool"
-                }
-
-                mandatory_params = [:onename, :onepass, :endpoint, :name]
-
-                mandatory_params.each { |param|
-                    if !zone_data[param]
-                        return [400, OZones::Error.new(
-                            "Error: Couldn't create resource #{kind}. " +
-                            "Mandatory attribute '#{param}' is missing.").to_json]
-                    end
-                }
-
-                # Digest and check credentials
-                zone_data[:onepass] =
-                                  Digest::SHA1.hexdigest(zone_data[:onepass])
-
-                rc = @ocaInt.check_oneadmin(zone_data[:onename],
-                                            zone_data[:onepass],
-                                            zone_data[:endpoint])
-
-                if OpenNebula.is_error?(rc)
-                    return [400, OZones::Error.new(
-                            "Error: Couldn't create resource #{kind}. Reason: "+
-                            rc.message).to_json]
-                end
-
-                # Create the zone
                 zone = OZones::Zones.create(zone_data)
-                rc = zone.save
 
-                if rc
-                    pr.update # Rewrite proxy conf file
-                    return [200, zone.to_json]
-                else
-                    return [400, OZones::Error.new(
-                    "Error: Couldn't create resource #{kind.upcase}." +
-                    " Maybe duplicated name?").to_json]
+                if OZones.is_error?(zone)
+                    return [400, zone.to_json]
                 end
+
+                pr.update
+                return [200, zone.to_json]
             else
                 error = OZones::Error.new(
                                  "Error: #{kind.upcase} resource not supported")
@@ -375,9 +303,7 @@ class OzonesServer
         end
     end
 
-    ############################################################################
-    # Helper functions
-    ############################################################################
+    private
     
     # Check if hosts are already include in any Vdc of the zone
     def host_uniqueness?(zone, host_list, vdc_id = -1)
@@ -397,5 +323,22 @@ class OzonesServer
         return true
     end
 
+    # Get hold of a object of a particular kind
+    def retrieve_resource(kind, id)
+        rc = case kind
+            when "vdc"  then 
+                OZones::Vdc.get(id)
+            when "zone" then 
+                OZones::Zones.get(id)
+            else
+                OZones::Error.new("Error: #{kind} resource not supported")
+        end
+
+        if rc
+            return rc
+        else
+            return OZones::Error.new("Error: #{kind} with id #{id} not found")
+        end
+    end
 
 end
