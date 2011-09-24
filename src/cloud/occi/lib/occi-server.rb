@@ -43,6 +43,7 @@ $: << RUBY_LIB_LOCATION+"/cloud" # For the Repository Manager
 ################################################
 require 'rubygems'
 require 'sinatra'
+require 'yaml'
 
 require 'OCCIServer'
 
