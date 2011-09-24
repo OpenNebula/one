@@ -45,6 +45,7 @@ $: << SUNSTONE_ROOT_DIR+'/models'
 require 'rubygems'
 require 'sinatra'
 require 'erb'
+require 'yaml'
 
 require 'CloudAuth'
 require 'SunstoneServer'

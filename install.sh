@@ -792,8 +792,7 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/OpenNebula/Host.rb \
 
 COMMON_CLOUD_LIB_FILES="src/cloud/common/CloudServer.rb \
                         src/cloud/common/CloudClient.rb \
-                        src/cloud/common/CloudAuth.rb
-                        src/cloud/common/Configuration.rb"
+                        src/cloud/common/CloudAuth.rb"
 
 COMMON_CLOUD_CLIENT_LIB_FILES="src/cloud/common/CloudClient.rb"
 
