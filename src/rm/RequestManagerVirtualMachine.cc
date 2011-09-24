@@ -408,7 +408,7 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
 
     // ------------------ Template for the new image ------------------
 
-    oss << "NAME= " << img_name << endl;
+    oss << "NAME= \"" << img_name << "\"" << endl;
     oss << "PUBLIC = NO " << endl;
     oss << "SOURCE = - " << endl;
 
