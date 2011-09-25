@@ -109,7 +109,7 @@ module OZones
     end 
     
     ###########################################################################
-    #  This class represents a Zone with able to interact with its supporting
+    #  This class represents a Zone able to interact with its supporting
     #  OpenNebula installation through OCA. Data persistence is provided by a
     #  Zones class  
     ##########################################################################
@@ -118,7 +118,7 @@ module OZones
             @zone = Zones.get(zoneid)
             
             if !@zone
-                raise "Error: Resource zone with id #{zoneid} not found"
+                raise "Error: Zone with id #{zoneid} not found"
             end
 
             @client = OpenNebula::Client.new(
