@@ -40,9 +40,9 @@ $: << RUBY_LIB_LOCATION+"/cloud/econe"
 ###############################################################################
 require 'rubygems'
 require 'sinatra'
+require 'yaml'
 
 require 'EC2QueryServer'
-require 'Configuration'
 
 include OpenNebula
 

@@ -45,6 +45,7 @@ $: << SUNSTONE_ROOT_DIR+'/models'
 require 'rubygems'
 require 'sinatra'
 require 'erb'
+require 'yaml'
 
 require 'CloudAuth'
 require 'SunstoneServer'
@@ -166,7 +167,7 @@ end
 
 get '/login' do
     if !authorized?
-        templ = settings.confing[:auth]=="basic"? "login.html" : "login_x509.html"
+        templ = settings.config[:auth]=="basic"? "login.html" : "login_x509.html"
         return File.read(File.dirname(__FILE__)+'/templates/'+templ)
     end
 end
