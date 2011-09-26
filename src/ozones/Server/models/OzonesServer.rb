@@ -189,8 +189,8 @@ class OzonesServer
 
         resource = case kind
             when "vdc"  then
-                vdc_data=Hash.new
-                vdc_id  = nil
+                vdc_data = Hash.new
+                vdc_id   = nil
                 data.each{|key,value|
                     vdc_data[key.downcase.to_sym]=value if key!="id"
                     vdc_id = value if key=="id"
@@ -204,19 +204,12 @@ class OzonesServer
                 end
 
                 # Check if the referenced Vdc exists
-                vdc=OZones::Vdc.get(vdc_id)
-                if !vdc
-                    error = OZones::Error.new("Error: Vdc " +
-                          "#{vdc_id} not found, cannot update Vdc.")
-                    return [404, error.to_json]
-                end
-                
-                # Get the zone where the Vdc belongs
-                zone=OZones::Zones.get(vdc.zones.id)
-                if !zone
-                    error = OZones::Error.new("Error: Zone " +
-                          "#{vdc.zones.id} not found, cannot update Vdc.")
-                    return [404, error.to_json]
+                begin
+                    vdc=OZones::OpenNebulaVdc.new(vdc_id, zone)
+                rescue
+                    return [404, OZones::Error.new("Error: Vdc " \ 
+                          "#{vdc_id} not found, cannot update Vdc.").to_json]
+
                 end
                 
                 if (!vdc_data[:force] or vdc_data[:force].upcase!="YES") and
@@ -227,25 +220,14 @@ class OzonesServer
                               " was given.").to_json]
                 end
                 
-                rc = @ocaInt.update_vdc_hosts(zone, vdc, vdc_data[:hosts])
+                rc = vdc.update(vdc_data[:hosts])
                                               
                 if !OpenNebula.is_error?(rc)
-                    vdc.hosts = vdc_data[:hosts]
-                    vdc.get_host_acls!(rc)
-
-                    vdc.save
-                    
-                    if vdc.saved? 
-                        return [200, vdc.to_json]
-                    else
-                        return [500, OZones::Error.new(
-                            "Error: Couldn't update resource #{kind}.").to_json]
-                    end
-
+                        return [200, rc]
                 else
                     return [500, OZones::Error.new(
-                    "Error: Couldn't update resource #{kind.upcase}." +
-                    " Failed to update ACLs").to_json]
+                    "Error: Couldn't update resource #{kind.upcase}." \
+                    " Reason: #{rc.message}").to_json]
                 end
             else
                 error = OZones::Error.new(
