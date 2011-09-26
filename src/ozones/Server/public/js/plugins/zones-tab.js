@@ -302,7 +302,7 @@ function updateZoneInfo(req,zone_json){
             </tr>\
             <tr>\
                 <td class="key_td">Sunstone endpoint</td>\
-                <td class="value_td">'+zone.sunsendpoint+'</td>\
+                <td class="value_td"><a href="'+zone.sunsendpoint+'" target="_blank">'+zone.sunsendpoint+'<span class="ui-icon ui-icon-extlink" style="display:inline-block;" /></a></td>\
             </tr>\
             <tr>\
                 <td class="key_td">#VDCs</td>\
@@ -597,7 +597,8 @@ $(document).ready(function(){
         "sPaginationType": "full_numbers",
         "aoColumnDefs": [
             { "bSortable": false, "aTargets": ["check"] },
-            { "sWidth": "60px", "aTargets": [0,2] },
+            { "sWidth": "60px", "aTargets": [0] },
+            { "sWidth": "300px", "aTargets": [3] },
             { "sWidth": "35px", "aTargets": [1] }
         ]
     });
