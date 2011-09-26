@@ -14,16 +14,11 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'OCAInteraction'
 require 'JSONUtils'
 
 
 class OzonesServer
     include OpenNebulaJSON::JSONUtils
-
-    def initialize
-        @ocaInt = OCAInteraction.new
-    end
 
     ############################################################################
     # Get methods for the Zones and VDC interface
