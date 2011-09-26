@@ -165,12 +165,13 @@ class OzonesServer
                     return [404, error.to_json]
                 end
 
-                if (!vdc_data[:force] or vdc_data[:force].upcase!="YES") and
+                if (!defined? vdc_data[:force] or
+                    (defined? vdc_data[:force] and vdc_data[:force]!="yes")) and
                     !host_uniqueness?(zone, vdc_data[:hosts])
                     return [403, OZones::Error.new(
                                 "Error: Couldn't create resource #{kind}. " +
-                              "Hosts are not unique, and no force option" +
-                              " was given.").to_json]
+                              "One or several hosts belong to a different VDC "+
+                              "and no force option was provided.").to_json]
                 end
 
                 vdcadminname = vdc_data[:vdcadminname]
@@ -265,7 +266,7 @@ class OzonesServer
                 return [404, error.to_json]
             end
     end
-    
+
     ############################################################################
     # Update resources
     ############################################################################
@@ -289,7 +290,7 @@ class OzonesServer
                 }
 
                 # Check parameters
-                if !vdc_data[:hosts] || !vdc_id 
+                if !vdc_data[:hosts] || !vdc_id
                     return [400, OZones::Error.new(
                                 "Error: Couldn't update resource #{kind}. " +
                               "Need ID and HOSTS to update.").to_json]
@@ -302,7 +303,7 @@ class OzonesServer
                           "#{vdc_id} not found, cannot update Vdc.")
                     return [404, error.to_json]
                 end
-                
+
                 # Get the zone where the Vdc belongs
                 zone=OZones::Zones.get(vdc.zones.id)
                 if !zone
@@ -312,22 +313,22 @@ class OzonesServer
                 end
                 
                 if (!vdc_data[:force] or vdc_data[:force].upcase!="YES") and
-                    !host_uniqueness?(zone, vdc_data[:hosts], vdc_id.to_i) 
+                    !host_uniqueness?(zone, vdc_data[:hosts], vdc_id.to_i)
                     return [403, OZones::Error.new(
                                 "Error: Couldn't update resource #{kind}. " +
-                              "Hosts are not unique, and no force option" +
-                              " was given.").to_json]
+                              "One or several hosts belong to a different VDC "+
+                              "and no force option was provided.").to_json]
                 end
-                
+
                 rc = @ocaInt.update_vdc_hosts(zone, vdc, vdc_data[:hosts])
-                                              
+
                 if !OpenNebula.is_error?(rc)
                     vdc.hosts = vdc_data[:hosts]
                     vdc.get_host_acls!(rc)
 
                     vdc.save
-                    
-                    if vdc.saved? 
+
+                    if vdc.saved?
                         return [200, vdc.to_json]
                     else
                         return [500, OZones::Error.new(
@@ -378,7 +379,7 @@ class OzonesServer
     ############################################################################
     # Helper functions
     ############################################################################
-    
+
     # Check if hosts are already include in any Vdc of the zone
     def host_uniqueness?(zone, host_list, vdc_id = -1)
         all_hosts = ""
