@@ -96,15 +96,17 @@ module OZones
             end
 
             # Create the zone
-            zone = super(zone_data)
-            rc   = zone.save
+            begin
+                zone = Zones.new 
+                zone.raise_on_save_failure = true
 
-            if rc
-                return zone
-            else
-                return OZones::Error.new("Error: Couldn't create zone. " \
-                            "Duplicated name?.")
+                zone.attributes = zone_data
+                zone.save
+            rescue => e
+                return OZones::Error.new(e.message)
             end
+
+            return zone
         end
     end 
     

@@ -96,7 +96,6 @@ module OZones
   
             vdcpass = Digest::SHA1.hexdigest(vdc_data.delete(:vdcadminpass))
             @vdc.attributes = vdc_data
-            puts vdc_data
 
             # Create a group in the zone with the VDC name
             group = OpenNebula::Group.new(OpenNebula::Group.build_xml, @client)
