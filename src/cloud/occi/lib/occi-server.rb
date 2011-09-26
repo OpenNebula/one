@@ -43,34 +43,56 @@ $: << RUBY_LIB_LOCATION+"/cloud" # For the Repository Manager
 ################################################
 require 'rubygems'
 require 'sinatra'
-require 'OCCIServer'
+require 'yaml'
 
-require 'OpenNebula'
+require 'OCCIServer'
 
 include OpenNebula
 
+##############################################################################
+# Parse Configuration file
+##############################################################################
 begin
-    $occi_server = OCCIServer.new(CONFIGURATION_FILE, TEMPLATE_LOCATION)
+    conf = YAML.load_file(CONFIGURATION_FILE)
 rescue Exception => e
-    puts "Error starting server: #{e}"
-    exit(-1)
+    puts "Error parsing config file #{CONFIGURATION_FILE}: #{e.message}"
+    exit 1
 end
 
-if CloudServer.is_port_open?($occi_server.config[:server], 
-                             $occi_server.config[:port])
-    puts "Port busy, please shutdown the service or move occi server port."
-    exit
-end
+conf[:template_location] = TEMPLATE_LOCATION
+
+CloudServer.print_configuration(conf)
 
 ##############################################################################
 # Sinatra Configuration
 ##############################################################################
-set :host, $occi_server.config[:server]
-set :port, $occi_server.config[:port]
+set :config, conf
+
+if CloudServer.is_port_open?(settings.config[:server],
+                             settings.config[:port])
+    puts "Port busy, please shutdown the service or move occi server port."
+    exit
+end
+
+set :host, settings.config[:server]
+set :port, settings.config[:port]
 
 ##############################################################################
 # Helpers
 ##############################################################################
+
+before do
+    @occi_server = OCCIServer.new(settings.config)
+    begin
+        result = @occi_server.authenticate(request.env)
+    rescue Exception => e
+        error 500, e.message
+    end
+
+    if result
+        error 401, result
+    end
+end
 
 # Response treatment
 helpers do
@@ -93,32 +115,32 @@ end
 ###################################################
 
 post '/compute' do
-   result,rc = $occi_server.post_compute(request)
+   result,rc = @occi_server.post_compute(request)
    treat_response(result,rc)
 end
 
 get '/compute' do
-    result,rc = $occi_server.get_computes(request)
+    result,rc = @occi_server.get_computes(request)
     treat_response(result,rc)
 end
 
 post '/network' do
-    result,rc = $occi_server.post_network(request)
+    result,rc = @occi_server.post_network(request)
     treat_response(result,rc)
 end
 
 get '/network' do
-    result,rc = $occi_server.get_networks(request)
+    result,rc = @occi_server.get_networks(request)
     treat_response(result,rc)
 end
 
 post '/storage' do
-    result,rc = $occi_server.post_storage(request)
+    result,rc = @occi_server.post_storage(request)
     treat_response(result,rc)
 end
 
 get '/storage' do
-    result,rc = $occi_server.get_storages(request)
+    result,rc = @occi_server.get_storages(request)
     treat_response(result,rc)
 end
 
@@ -127,46 +149,46 @@ end
 ###################################################
 
 get '/compute/:id' do
-    result,rc = $occi_server.get_compute(request, params)
+    result,rc = @occi_server.get_compute(request, params)
     treat_response(result,rc)
 end
 
 delete '/compute/:id' do
-    result,rc = $occi_server.delete_compute(request, params)
+    result,rc = @occi_server.delete_compute(request, params)
     treat_response(result,rc)
 end
 
 put '/compute/:id' do
-    result,rc = $occi_server.put_compute(request, params)
+    result,rc = @occi_server.put_compute(request, params)
     treat_response(result,rc)
 end
 
 get '/network/:id' do
-    result,rc = $occi_server.get_network(request, params)
+    result,rc = @occi_server.get_network(request, params)
     treat_response(result,rc)
 end
 
 delete '/network/:id' do
-    result,rc = $occi_server.delete_network(request, params)
+    result,rc = @occi_server.delete_network(request, params)
     treat_response(result,rc)
 end
 
 put '/network/:id' do
-    result,rc = $occi_server.put_network(request, params)
+    result,rc = @occi_server.put_network(request, params)
     treat_response(result,rc)
 end
 
 get '/storage/:id' do
-    result,rc = $occi_server.get_storage(request, params)
+    result,rc = @occi_server.get_storage(request, params)
     treat_response(result,rc)
 end
 
 delete '/storage/:id' do
-    result,rc = $occi_server.delete_storage(request, params)
+    result,rc = @occi_server.delete_storage(request, params)
     treat_response(result,rc)
 end
 
 put '/storage/:id' do
-    result,rc = $occi_server.put_storage(request, params)
+    result,rc = @occi_server.put_storage(request, params)
     treat_response(result,rc)
 end

@@ -90,19 +90,14 @@ EOT
         # :zonetemplate
         ######################################################################
         def post_resource(kind, template)
-            template=File.read(template)
-            
-            body_str = ""
-            
-            template.strip.each_line{|line|
-                line.strip!
-                key,value = line.split("=")
-                body_str = body_str + key + "=" + URI.escape(value) + "&"
-            }
+            tmpl_str = File.read(template)
+            post_resource_str(kind, tmpl_str)
+        end
 
-            body_str = body_str[0..-1]
-            
-            url = URI.parse(@endpoint+"/"+kind)
+        def post_resource_str(kind, tmpl_str)
+            body_str = OZonesClient::to_body(tmpl_str)
+             
+            url = URI.parse("#{@endpoint}/#{kind}")
 
             req = Net::HTTP::Post.new(url.path)
             req.body=body_str
@@ -116,9 +111,25 @@ EOT
             return  OZonesClient::parse_error(res, kind)
         end
 
+        def put_resource(kind, id, tmpl_str)
+            body_str = OZonesClient::to_body(tmpl_str)
+             
+            url = URI.parse("#{@endpoint}/#{kind}/#{id}")
+
+            req = Net::HTTP::Put.new(url.path)
+            req.body=body_str
+
+            req.basic_auth @ozonesauth[0], @ozonesauth[1]
+
+            res = OZonesClient::http_start(url, @timeout) do |http|
+                http.request(req)
+            end
+
+            return  OZonesClient::parse_error(res, kind)
+        end
         
         def get_resource(kind, id)
-            url = URI.parse(@endpoint+"/#{kind}/" + id.to_s)
+            url = URI.parse("#{@endpoint}/#{kind}/#{id}")
             req = Net::HTTP::Get.new(url.path)
             
             req.basic_auth @ozonesauth[0], @ozonesauth[1]
@@ -131,7 +142,7 @@ EOT
         end
         
         def delete_resource(kind, id)
-            url = URI.parse(@endpoint+"/#{kind}/" + id.to_s)
+            url = URI.parse("#{@endpoint}/#{kind}/#{id}")
             req = Net::HTTP::Delete.new(url.path)
  
             req.basic_auth @ozonesauth[0], @ozonesauth[1]
@@ -169,10 +180,7 @@ EOT
     end
     
     def self.is_http_error?(value)
-        value.class == Net::HTTPInternalServerError ||
-        value.class == Net::HTTPBadRequest ||
-        value.class == Net::HTTPNotFound ||
-        value.class == Net::HTTPUnauthorized
+        value.class != Net::HTTPOK
     end
     
     def self.parse_error(value, kind)
@@ -237,8 +245,20 @@ EOT
     end
     
     ##########################################################################
-    # JSON utils
+    # JSON & Template utils
     ##########################################################################
+   
+    def self.to_body(tmpl_str)
+        body_str = ""
+        
+        tmpl_str.strip.each_line{|line|
+            line.strip!
+            key,value = line.split("=")
+            body_str  = body_str + key + "=" + URI.escape(value) + "&"
+        }
+
+        body_str = body_str[0..-1]
+    end 
     
     def self.parse_json(json_str, root_element)
         begin

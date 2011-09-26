@@ -36,6 +36,7 @@ end
 SUNSTONE_ROOT_DIR = File.dirname(__FILE__)
 
 $: << RUBY_LIB_LOCATION
+$: << RUBY_LIB_LOCATION+'/cloud'
 $: << SUNSTONE_ROOT_DIR+'/models'
 
 ##############################################################################
@@ -44,17 +45,25 @@ $: << SUNSTONE_ROOT_DIR+'/models'
 require 'rubygems'
 require 'sinatra'
 require 'erb'
+require 'yaml'
 
-require 'cloud/Configuration'
+require 'CloudAuth'
 require 'SunstoneServer'
 require 'SunstonePlugins'
 
-set :config, Configuration.new(CONFIGURATION_FILE)
+begin
+    conf = YAML.load_file(CONFIGURATION_FILE)
+    conf[:hash_passwords] = true
+rescue Exception => e
+    puts "Error parsing config file #{CONFIGURATION_FILE}: #{e.message}"
+    exit 1
+end
 
 ##############################################################################
 # Sinatra Configuration
 ##############################################################################
 use Rack::Session::Pool, :key => 'sunstone'
+set :config, conf
 set :host, settings.config[:host]
 set :port, settings.config[:port]
 
@@ -67,32 +76,40 @@ helpers do
     end
 
     def build_session
-        auth = Rack::Auth::Basic::Request.new(request.env)
-        if auth.provided? && auth.basic? && auth.credentials
-            user = auth.credentials[0]
-            sha1_pass = Digest::SHA1.hexdigest(auth.credentials[1])
+        cloud_auth = CloudAuth.new(settings.config)
 
-            rc = SunstoneServer.authorize(user, sha1_pass)
-            if rc[1]
-                session[:user]          = user
-                session[:user_id]       = rc[1][0]
-                session[:user_gid]      = rc[1][1]
-                session[:user_gname]    = rc[1][2]
-                session[:password]      = sha1_pass
-                session[:ip]            = request.ip
-                session[:remember]      = params[:remember]
-
-                if params[:remember]
-                    env['rack.session.options'][:expire_after] = 30*60*60*24
-                end
-
-                return [204, ""]
-            else
-                return [rc.first, ""]
-            end
+        begin
+            result = cloud_auth.auth(request.env, params)
+        rescue Exception => e
+            error 500, e.message
         end
 
-        return [401, ""]
+        if result
+            return [401, ""]
+        else
+            user_id = OpenNebula::User::SELF
+            user    = OpenNebula::User.new_with_id(user_id, cloud_auth.client)
+
+            rc = user.info
+            if OpenNebula.is_error?(rc)
+                # Add a log message
+                return [500, ""]
+            end
+
+            session[:user]       = user['NAME']
+            session[:user_id]    = user['ID']
+            session[:user_gid]   = user['GID']
+            session[:user_gname] = user['GNAME']
+            session[:token]      = cloud_auth.token
+            session[:ip]         = request.ip
+            session[:remember]   = params[:remember]
+
+            if params[:remember]
+                env['rack.session.options'][:expire_after] = 30*60*60*24
+            end
+
+            return [204, ""]
+        end
     end
 
     def destroy_session
@@ -105,7 +122,9 @@ before do
     unless request.path=='/login' || request.path=='/'
         halt 401 unless authorized?
 
-        @SunstoneServer = SunstoneServer.new(session[:user], session[:password])
+        @SunstoneServer = SunstoneServer.new(
+                                session[:token],
+                                settings.config[:one_xmlrpc])
     end
 end
 
@@ -125,9 +144,10 @@ end
 # HTML Requests
 ##############################################################################
 get '/' do
-    return  File.read(File.dirname(__FILE__)+
-                      '/templates/login.html') unless authorized?
-
+    if !authorized?
+        templ = settings.config[:auth]=="basic"? "login.html" : "login_x509.html"
+        return File.read(File.dirname(__FILE__)+'/templates/'+templ)
+    end
     time = Time.now + 60
     response.set_cookie("one-user",
                         :value=>"#{session[:user]}",
@@ -146,7 +166,10 @@ get '/' do
 end
 
 get '/login' do
-    File.read(SUNSTONE_ROOT_DIR+'/templates/login.html')
+    if !authorized?
+        templ = settings.config[:auth]=="basic"? "login.html" : "login_x509.html"
+        return File.read(File.dirname(__FILE__)+'/templates/'+templ)
+    end
 end
 
 ##############################################################################

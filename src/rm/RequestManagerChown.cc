@@ -32,11 +32,6 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
     string nuname;
     string ngname;
 
-    // TODO: Move these to constructor?
-    Nebula&     nd    = Nebula::instance();
-    GroupPool * gpool = nd.get_gpool();
-    UserPool  * upool = nd.get_upool();
-
     PoolObjectSQL * object;
 
     if ( basic_authorization(oid, att) == false )
@@ -122,10 +117,6 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
     int old_gid;
 
     string  ngname;
-
-    Nebula&     nd    = Nebula::instance();
-    GroupPool * gpool = nd.get_gpool();
-    UserPool  * upool = static_cast<UserPool *>(pool);
 
     User *  user;
     Group * group;

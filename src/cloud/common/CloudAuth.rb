@@ -14,22 +14,40 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# OpenNebula administrator user
-USER     = oneadmin
-PASSWORD = oneadmin
+class CloudAuth
+    AUTH_MODULES = {
+        "basic" => 'BasicCloudAuth',
+        "ec2"   => 'EC2CloudAuth',
+        "x509"  => 'X509CloudAuth'
+    }
 
-# OpenNebula sever contact information
-ONE_XMLRPC=http://localhost:2633/RPC2
+    attr_reader :client, :token
 
-# Host and port where econe server will run
-SERVER = localhost
-PORT   = 4567
+    def initialize(conf)
+        @conf = conf
 
-# Configuration for the image repository
-DATABASE  = /images/var/econe.db
-IMAGE_DIR = /images/tmp
+        if AUTH_MODULES.include?(@conf[:auth])
+            require 'CloudAuth/' + AUTH_MODULES[@conf[:auth]]
+            extend Kernel.const_get(AUTH_MODULES[@conf[:auth]])
+        else
+            raise "Auth module not specified"
+        end
+    end
 
-#
-# VM types allowed and its template file (inside templates directory)
-#
-VM_TYPE=[NAME=m1.small, TEMPLATE=m1.small.erb]
+    protected
+
+    def get_password(username)
+        @oneadmin_client ||= OpenNebula::Client.new(nil, @conf[:one_xmlrpc])
+
+        if @user_pool.nil?
+            @user_pool ||= OpenNebula::UserPool.new(@oneadmin_client)
+
+            rc = @user_pool.info
+            if OpenNebula.is_error?(rc)
+                raise rc.message
+            end
+        end
+
+        return @user_pool["USER[NAME=\"#{username}\"]/PASSWORD"]
+    end
+end

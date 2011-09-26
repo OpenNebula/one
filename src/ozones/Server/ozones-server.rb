@@ -48,7 +48,6 @@ require 'rubygems'
 require 'data_mapper'
 require 'digest/sha1'
 require 'OzonesServer'
-require 'one_helper'
 
 ##############################################################################
 # Read configuration
@@ -97,6 +96,13 @@ end
 
 ADMIN_NAME = @auth.name
 ADMIN_PASS = @auth.password
+
+begin
+    OZones::ProxyRules.new("apache",config[:htaccess])
+rescue Exception => e
+    warn e.message
+    exit -1  
+end
 
 
 ##############################################################################
@@ -241,20 +247,26 @@ get '/:pool/:aggpool' do
     @OzonesServer.get_aggregated_pool(params[:pool], params[:aggpool])
 end
 
+##############################################################################
+# Create a new Resource
+##############################################################################
+post '/:pool' do
+    @OzonesServer.create_resource(params[:pool], params, request.body.read, @pr)
+end
 
+##############################################################################
+# Update Resource
+##############################################################################
+put '/:resource/:id' do
+    @OzonesServer.update_resource(params[:resource], params, 
+                                  request.body.read, @pr)
+end
 
 ##############################################################################
 # Delete Resource
 ##############################################################################
 delete '/:resource/:id' do
     @OzonesServer.delete_resource(params[:resource], params[:id], @pr)
-end
-
-##############################################################################
-# Create a new Resource
-##############################################################################
-post '/:pool' do
-    @OzonesServer.create_resource(params[:pool], params, request.body.read, @pr)
 end
 
 

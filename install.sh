@@ -202,6 +202,7 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/ruby/cloud/econe \
           $LIB_LOCATION/ruby/cloud/econe/views \
           $LIB_LOCATION/ruby/cloud/occi \
+          $LIB_LOCATION/ruby/cloud/CloudAuth \
           $LIB_LOCATION/ruby/onedb \
           $LIB_LOCATION/tm_commands \
           $LIB_LOCATION/tm_commands/shared \
@@ -345,6 +346,7 @@ INSTALL_FILES=(
     HOOK_FT_FILES:$VAR_LOCATION/remotes/hooks/ft
     HOOK_NETWORK_FILES:$VAR_LOCATION/remotes/hooks/vnm
     COMMON_CLOUD_LIB_FILES:$LIB_LOCATION/ruby/cloud
+    CLOUD_AUTH_LIB_FILES:$LIB_LOCATION/ruby/cloud/CloudAuth
     ECO_LIB_FILES:$LIB_LOCATION/ruby/cloud/econe
     ECO_LIB_VIEW_FILES:$LIB_LOCATION/ruby/cloud/econe/views
     ECO_BIN_FILES:$BIN_LOCATION
@@ -650,6 +652,7 @@ IMAGE_DRIVER_FS_SCRIPTS="src/image_mad/remotes/fs/cp \
 #-------------------------------------------------------------------------------
 ONEDB_MIGRATOR_FILES="src/onedb/2.0_to_2.9.80.rb \
                       src/onedb/2.9.80_to_2.9.85.rb \
+                      src/onedb/2.9.85_to_2.9.90.rb \
                       src/onedb/onedb.rb \
                       src/onedb/onedb_backend.rb"
 
@@ -789,9 +792,13 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/OpenNebula/Host.rb \
 
 COMMON_CLOUD_LIB_FILES="src/cloud/common/CloudServer.rb \
                         src/cloud/common/CloudClient.rb \
-                        src/cloud/common/Configuration.rb"
+                        src/cloud/common/CloudAuth.rb"
 
 COMMON_CLOUD_CLIENT_LIB_FILES="src/cloud/common/CloudClient.rb"
+
+CLOUD_AUTH_LIB_FILES="src/cloud/common/CloudAuth/BasicCloudAuth.rb \
+                      src/cloud/common/CloudAuth/EC2CloudAuth.rb \
+                      src/cloud/common/CloudAuth/X509CloudAuth.rb"
 
 #-------------------------------------------------------------------------------
 # EC2 Query for OpenNebula
@@ -926,7 +933,8 @@ SUNSTONE_MODELS_JSON_FILES="src/sunstone/models/OpenNebulaJSON/HostJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/AclJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/VirtualNetworkJSON.rb"
 
-SUNSTONE_TEMPLATE_FILES="src/sunstone/templates/login.html"
+SUNSTONE_TEMPLATE_FILES="src/sunstone/templates/login.html \
+                         src/sunstone/templates/login_x509.html"
 
 SUNSTONE_VIEWS_FILES="src/sunstone/views/index.erb"
 
@@ -1007,6 +1015,7 @@ SUNSTONE_PUBLIC_IMAGES_FILES="src/sunstone/public/images/ajax-loader.gif \
                         src/sunstone/public/images/opennebula-sunstone-big.png \
                         src/sunstone/public/images/opennebula-sunstone-small.png \
                         src/sunstone/public/images/panel.png \
+                        src/sunstone/public/images/panel_short.png \
                         src/sunstone/public/images/pbar.gif \
                         src/sunstone/public/images/Refresh-icon.png \
                         src/sunstone/public/images/vnc_off.png \
