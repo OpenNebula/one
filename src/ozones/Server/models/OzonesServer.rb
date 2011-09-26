@@ -311,9 +311,8 @@ class OzonesServer
                           "#{vdc.zones.id} not found, cannot update Vdc.")
                     return [404, error.to_json]
                 end
-
-                if (!defined? vdc_data[:force] or
-                    (defined? vdc_data[:force] and vdc_data[:force]!="yes")) and
+                
+                if (!vdc_data[:force] or vdc_data[:force].upcase!="YES") and
                     !host_uniqueness?(zone, vdc_data[:hosts], vdc_id.to_i)
                     return [403, OZones::Error.new(
                                 "Error: Couldn't update resource #{kind}. " +
