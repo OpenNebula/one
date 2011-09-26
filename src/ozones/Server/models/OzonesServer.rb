@@ -205,38 +205,41 @@ class OzonesServer
     ############################################################################
     # Delete resources
     ############################################################################
-    # Deletes a resource of a kind, and updates the Proxy Rules
-    def delete_resource(kind, id, pr)
-        case kind
-            when "vdc" then
-                begin
-                    vdc = OZones::OpenNebulaVdc.new(id)
-                    rc  = vdc.destroy
-                rescue => e
-                    return [404, OZones::Error.new("Error: Can not delete " \
-                        "vdc. Reason: #{e.message}").to_json]
-                end
-            when "zone" then
-                zone = OZones::Zones.get(id)
-
-                if zone
-                    rc = zone.destroy
-                else
-                    return [404, OZones::Error.new("Error: Can not delete " \
-                        "zone. Reason: zone #{id} not found").to_json]
-                end
-            else
-                return [404, OZones::Error.new("Error: #{kind} resource " \
-                        "not supported").to_json]
+    def delete_vdc(id, pr)
+        begin
+            vdc = OZones::OpenNebulaVdc.new(id)
+            rc  = vdc.destroy
+        rescue => e
+            return [404, OZones::Error.new("Error: Can not delete vdc. " \
+                "Reason: #{e.message}").to_json]
         end
 
         if !rc
-            return [500, OZones::Error.new(
-               "Error: Couldn't delete resource #{kind} with id #{id}").to_json]
+            return [500, OZones::Error.new("Error: Couldn't delete " \
+                "vdc #{id}").to_json]
         else
             pr.update # Rewrite proxy conf file
-            return [200, OZones.str_to_json(
-                         "Resource #{kind} with id #{id} successfully deleted")]
+            return [200, OZones.str_to_json("Vdc #{id} successfully deleted")]
+        end
+    end
+
+    def delete_zone(id, pr)
+
+        zone = OZones::Zones.get(id)
+
+        if zone
+            rc = zone.destroy
+        else
+            return [404, OZones::Error.new("Error: Can not delete " \
+                "zone. Reason: zone #{id} not found").to_json]
+        end
+
+        if !rc
+            return [500, OZones::Error.new("Error: Couldn't delete " \
+                "zone #{id}").to_json]
+        else
+            pr.update # Rewrite proxy conf file
+            return [200, OZones.str_to_json("Zone #{id} successfully deleted")]
         end
     end
 
