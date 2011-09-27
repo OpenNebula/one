@@ -117,7 +117,7 @@ class AuthDriver < OpenNebulaDriver
         authN_path = File.join(@local_scripts_path, protocol)
         
         command = File.join(authN_path,ACTION[:authN].downcase) 
-        command << ' ' << user << ' ' << password << ' ' << secret_attr.join(' ')
+        command << ' ' << user << ' ' << password << ' ' << secret_attr.join(':')
 
         local_action(command, request_id, ACTION[:authN])
     end
