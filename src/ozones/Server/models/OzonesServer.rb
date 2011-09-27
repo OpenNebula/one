@@ -278,8 +278,6 @@ class OzonesServer
             data = result if !OpenNebula.is_error?(result)
         end
 
-        puts data
-
         resource = case kind
             when "vdc"  then
                 vdc_data=Hash.new
