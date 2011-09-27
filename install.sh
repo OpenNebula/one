@@ -655,7 +655,8 @@ ONEDB_MIGRATOR_FILES="src/onedb/2.0_to_2.9.80.rb \
                       src/onedb/2.9.85_to_2.9.90.rb \
                       src/onedb/2.9.90_to_3.0.rb \
                       src/onedb/onedb.rb \
-                      src/onedb/onedb_backend.rb"
+                      src/onedb/onedb_backend.rb \
+                      src/onedb/Configuration.rb"
 
 #-------------------------------------------------------------------------------
 # Configuration files for OpenNebula, to be installed under $ETC_LOCATION
@@ -793,8 +794,7 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/OpenNebula/Host.rb \
 
 COMMON_CLOUD_LIB_FILES="src/cloud/common/CloudServer.rb \
                         src/cloud/common/CloudClient.rb \
-                        src/cloud/common/CloudAuth.rb \
-                        src/cloud/common/Configuration.rb"
+                        src/cloud/common/CloudAuth.rb"
 
 COMMON_CLOUD_CLIENT_LIB_FILES="src/cloud/common/CloudClient.rb"
 
