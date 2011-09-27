@@ -224,7 +224,6 @@ class OzonesServer
     end
 
     def delete_zone(id, pr)
-
         zone = OZones::Zones.get(id)
 
         if zone

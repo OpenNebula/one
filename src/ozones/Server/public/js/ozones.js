@@ -201,6 +201,28 @@ var oZones = {
             });
         },
 
+        "update": function(params,resource){
+            var callback = params.success;
+            var callback_error = params.error;
+            var id = params.data.id;
+            var data = params.data.extra_param;
+            var request = oZones.Helper.request(resource,"update", data);
+
+            $.ajax({
+                url: resource.toLowerCase()+'/'+id,
+                type: "PUT",
+                dataType: "json",
+                data: JSON.stringify(data),
+                success: function(response){
+                    return callback ? callback(request, response) : null;
+                },
+                error: function(response){
+                    return callback_error ?
+                        callback_error(request, oZones.Error(response)) : null;
+                }
+            });
+        },
+
         "delete": function(params,resource){
             var callback = params.success;
             var callback_error = params.error;
@@ -385,7 +407,7 @@ var oZones = {
                         callback(request, oZones.Helper.pool(subresource.toUpperCase(),response)) : null;
                 },
                 error: function(response){
-                    return callback_error ? calback_error(request,oZones.Error(response)) : null;
+                    return callback_error ? callback_error(request,oZones.Error(response)) : null;
                 }
             });
 
@@ -420,6 +442,9 @@ var oZones = {
 
         "create": function(params){
             oZones.Action.create(params,oZones.VDC.resource);
+        },
+        "update": function(params){
+            oZones.Action.update(params,oZones.VDC.resource);
         },
         "delete": function(params){
             oZones.Action.delete(params,oZones.VDC.resource);
