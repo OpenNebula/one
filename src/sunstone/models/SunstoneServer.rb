@@ -229,7 +229,9 @@ class SunstoneServer
 
         begin
             novnc_cmd = "#{config[:novnc_path]}/utils/wsproxy.py"
-            pipe = IO.popen("#{novnc_cmd} #{proxy_port} #{host}:#{vnc_port}")
+            novnc_exec = "#{novnc_cmd} #{proxy_port} #{host}:#{vnc_port}"
+            $stderr.puts("Starting vnc proxy: #{novnc_exec}")
+            pipe = IO.popen(novnc_exec)
         rescue Exception => e
             error = Error.new(e.message)
             return [500, error.to_json]

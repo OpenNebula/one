@@ -200,7 +200,7 @@ class OzonesServer
             return [500, OZones::Error.new("Error: Couldn't update vdc. " \
             " Reason: #{rc.message}").to_json]
         end
-    end
+   end
 
     ############################################################################
     # Delete resources

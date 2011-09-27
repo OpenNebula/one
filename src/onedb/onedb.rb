@@ -14,7 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'cloud/Configuration'
+require 'Configuration'
 require 'onedb_backend'
 
 class OneDB
