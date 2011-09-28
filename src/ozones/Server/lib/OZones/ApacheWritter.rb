@@ -29,8 +29,10 @@ module OZones
                     htaccess << "RewriteRule ^#{vdc.name} " +
                                 "#{zone.endpoint} [P]\n"
                     if zone.sunsendpoint != nil
+                        htaccess << "RewriteRule ^sunstone_#{vdc.name}/(.+) " +
+                                    "#{zone.sunsendpoint}/$1 [P]\n" 
                         htaccess << "RewriteRule ^sunstone_#{vdc.name} " +
-                                    "#{zone.sunsendpoint} [P]\n" 
+                                    "#{zone.sunsendpoint}/ [P]\n"                                    
                     end
                 }
             }

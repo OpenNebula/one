@@ -36,7 +36,7 @@ var dashboard_tab_content =
     </td>\
     <td>\
       <div class="panel">\
-        <h3><a href="#vdcs_tab">Virtual Data Center</a>\
+        <h3><a href="#vdcs_tab">Virtual Data Centers</a>\
             <div class="new-resource">\
                 <a class="action_button" href="#vdcs_tab" value="VDC.create_dialog">+</a>\
             </div>\
