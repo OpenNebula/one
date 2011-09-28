@@ -162,7 +162,7 @@ public class Client{
             {
                 oneAuth = oneSecret;
             }
-            else if ( token.lenght == 2 )
+            else if ( token.length == 2 )
             {
                 MessageDigest md = MessageDigest.getInstance("SHA-1");
                 byte[] digest    = md.digest(token[1].getBytes());
