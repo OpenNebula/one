@@ -96,7 +96,7 @@ private:
 
     int read_oneauth(string &secret);
 
-    int split_secret(const string secret, string& user, string& pass);
+    int split_secret(const string& secret);
 };
 
 #endif /*ONECLIENT_H_*/
