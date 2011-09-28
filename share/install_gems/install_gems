@@ -9,12 +9,16 @@ DEFAULT=%w{optional sunstone quota cloud ozones_server acct}
 
 if defined?(RUBY_VERSION) && RUBY_VERSION>="1.8.7"
     SQLITE='sqlite3'
+
+    # xmlparser gem is not compatible with ruby 1.9
+    OPTIONAL=%w{nokogiri}
 else
     SQLITE='sqlite3-ruby --version 1.2.0'
+    OPTIONAL=%w{nokogir xmlparser}
 end
 
 GROUPS={
-    :optional => %w{nokogiri xmlparser},
+    :optional => OPTIONAL,
     :quota => [SQLITE, 'sequel'],
     :sunstone => ['json', 'rack', 'sinatra', 'thin', 'sequel', SQLITE],
     :cloud => %w{amazon-ec2 rack sinatra thin uuid curb},
