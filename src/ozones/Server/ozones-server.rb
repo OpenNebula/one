@@ -226,7 +226,7 @@ get '/config' do
 end
 
 ##############################################################################
-# GETs information
+# GET information
 ##############################################################################
 get '/vdc' do
     @OzonesServer.get_vdcs
@@ -240,16 +240,16 @@ get '/zone' do
     @OzonesServer.get_zones
 end
 
-get '/zone/:pool' do
-    @OzonesServer.get_zones_pool(params[:pool])
+get %r{/zone/([\d]+)/([\w]+)} do
+    @OzonesServer.get_zone_pool(params[:captures][0], params[:captures][1])
 end
 
-get '/zone/:id' do
-    @OzonesServer.get_zone(params[:id])
+get %r{/zone/([\d]+)} do
+    @OzonesServer.get_zone(params[:captures].first)
 end
 
-get '/zone/:id/:pool' do
-    @OzonesServer.get_zone_pool(params[:id], params[:pool])
+get %r{/zone/([\w]+)} do
+    @OzonesServer.get_zones_pool(params[:captures].first)
 end
 
 ##############################################################################
@@ -257,18 +257,18 @@ end
 ##############################################################################
 
 post '/vdc' do
-    @OzonesServer.create_vdc(params,request.body.read, @pr)
+    @OzonesServer.create_vdc(request.body.read, @pr)
 end
 
 post '/zone' do
-    @OzonesServer.create_zone(params,request.body.read, @pr)
+    @OzonesServer.create_zone(request.body.read, @pr)
 end
 
 ##############################################################################
 # Update Resource
 ##############################################################################
 put '/vdc/:id' do
-    @OzonesServer.update_vdc(params, request.body.read, @pr)
+    @OzonesServer.update_vdc(params[:id], request.body.read)
 end
 
 ##############################################################################

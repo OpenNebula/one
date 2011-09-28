@@ -75,16 +75,19 @@ class OzonesServer
     ############################################################################
     # Create resources
     ############################################################################
-    def create_vdc (data, body,pr)
+    def create_vdc (body,pr)
         #Setup POST data
-        if body.size > 0
-            result = parse_json(body,"vdc")
-            data   = result if !OpenNebula.is_error?(result)
+        data = parse_json(body,"vdc")
+
+        if OpenNebula.is_error?(data)
+            return [400, OZones::Error.new("Error: Couldn't update vdc. " \
+                "Reason: #{data.message}.").to_json]
         end
 
         vdc_data = Hash.new
+
         data.each{|key,value|
-            vdc_data[key.downcase.to_sym] = value if key!="pool"
+            vdc_data[key.downcase.to_sym] = value
         }
        
         #Get the Zone that will host the VDC. And check resouces
@@ -125,7 +128,8 @@ class OzonesServer
         begin 
             zone.save
         rescue => e
-            #TODO Rollback VDC creation
+            vdc.clean_bootstrap
+
             return [400, OZones::Error.new("Error: Couldn't create " \
                 "vdc. Zone could not be saved: #{e.message}").to_json]
         end
@@ -134,11 +138,13 @@ class OzonesServer
         return [200, vdc.to_json]
     end
 
-    def create_zone(data, body, pr)
+    def create_zone(body, pr)
         #Setup POST data
-        if body.size > 0
-            result = parse_json(body,"zone")
-            data   = result if !OpenNebula.is_error?(result)
+        data = parse_json(body,"zone")
+
+        if OpenNebula.is_error?(data)
+            return [400, OZones::Error.new("Error: Couldn't update vdc. " \
+                "Reason: #{data.message}.").to_json]
         end
 
         zone = OZones::Zones.create(data)
@@ -154,39 +160,40 @@ class OzonesServer
     ############################################################################
     # Update resources
     ############################################################################
-    def update_vdc(data, body, pr)
+    def update_vdc(vdc_id, body)
         #Setup PUT data
-        if body.size > 0
-            result = parse_json(body,"vdc")
-            data   = result if !OpenNebula.is_error?(result)
+        data = parse_json(body,"vdc")
+
+        if OpenNebula.is_error?(data)
+            return [400, OZones::Error.new("Error: Couldn't update vdc. " \
+                "Reason: #{data.message}.").to_json]
         end
 
         vdc_data = Hash.new
-        vdc_id   = nil
+
         data.each{|key,value|
             vdc_data[key.downcase.to_sym]=value
         }
 
-        vdc_id = vdc_data.delete(:id)
         hosts  = vdc_data.delete(:hosts)
         force  = vdc_data.delete(:force)
 
         # Check parameters
-        if !hosts || !vdc_id 
+        if !hosts
             return [400, OZones::Error.new("Error: Couldn't update vdc. " \
-                "Missing ID or HOSTS.").to_json]
+                "Missing HOSTS.").to_json]
         end
 
         # Check if the referenced Vdc exists
         begin
-            vdc=OZones::OpenNebulaVdc.new(vdc_id, zone)
-        rescue
-            return [404, OZones::Error.new("Error: Couldn't update vdc. " \ 
-                "VDC #{vdc_id} not found.").to_json]
+            vdc  = OZones::OpenNebulaVdc.new(vdc_id)
+        rescue => e
+            return [404, OZones::Error.new("Error: Couldn't update vdc. " \
+                "#{e.message}").to_json]
         end
         
-        if (!force or force.upcase!="YES") and
-            !host_uniqueness?(zone, hosts, vdc_id.to_i) 
+        if (!force or force.upcase != "YES") and
+            !host_uniqueness?(vdc.zone, hosts, vdc_id.to_i) 
 
             return [403, OZones::Error.new("Error: Couldn't update vdc. " \
                 "Hosts are not unique, use force to override").to_json]

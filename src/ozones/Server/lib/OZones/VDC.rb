@@ -60,23 +60,31 @@ module OZones
         VDC_ATTRS = [:vdcadminname, :vdcadminpass, :name, :hosts]
 
         attr_reader :vdc
+        attr_reader :zone
 
         #Creates an OpenNebula VDC, using its ID, vdcid and the associated zone
         def initialize(vdcid, zone = nil)
+            
             if vdcid != -1 
                 @vdc = Vdc.get(vdcid)
                 
                 if !@vdc
-                    raise "Error: VDC with id #{vdcid} not found"
+                    raise "VDC with id #{vdcid} not found."
                 end
 
-                zone = OZones::Zones.get(@vdc.zones_id)
+                @zone = OZones::Zones.get(@vdc.zones_id)
+            else
+                @zone = zone
             end
 
             @client = OpenNebula::Client.new(
-                            "#{zone.onename}:#{zone.onepass}",
-                            zone.endpoint,
+                            "#{@zone.onename}:#{@zone.onepass}",
+                            @zone.endpoint,
                             false)
+        end
+
+        def to_json
+            @vdc.to_json
         end
 
         #######################################################################
@@ -148,30 +156,37 @@ module OZones
             }
 
             # Delete the group
-            rc = OpenNebula::Group.new_with_id(@vdc.group_id, @client).delete
+            OpenNebula::Group.new_with_id(@vdc.group_id, @client).delete
 
-            if OpenNebula.is_error?(rc)
-                return rc
-            else
-                return @vdc.destroy
-            end
+            return @vdc.destroy
+        end
+
+        #Cleans bootstrap operations in a zone
+        def clean_bootstrap
+            delete_acls
+
+            OpenNebula::User.new_with_id(@vdc.vdcadmin_id, @client).delete
+            OpenNebula::Group.new_with_id(@vdc.group_id, @client).delete
         end
 
         def update(host_list)
             # Delete existing host ACLs
             delete_host_acls
 
+            @vdc.acls =~ /((\d+,){#{HOST_ACL_FIRST_ID}}).*/
+            newacls   = $1.chop
+
             # Create new ACLs. TODO Rollback ACL creation
-            host_acls    = get_host_acls(host_list)
-            rc, acls_str = create_acls(host_acls)
+            if !host_list.empty?
+                host_acls    = get_host_acls(host_list)
+                rc, acls_str = create_acls(host_acls)
 
-            return rc if OpenNebula.is_error?(rc) 
+                return rc if OpenNebula.is_error?(rc) 
 
-            #Create the new acl string.
-            @vdc.acls =~ /((\d,){HOST_ACL_FIRST_ID}).*/
+                #Create the new acl string.
+                newacls << "," << acls_str
+            end
 
-            newacls = $1.chop
-            newacls << acls_str
 
             #Update the VDC Record
             begin

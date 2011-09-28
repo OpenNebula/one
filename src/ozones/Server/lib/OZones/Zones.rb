@@ -73,12 +73,12 @@ module OZones
             zone_data = Hash.new
 
             data.each{|key,value|
-                zone_data[key.downcase.to_sym] = value if key!="pool"
+                zone_data[key.downcase.to_sym] = value
             }
 
             ZONE_ATTRS.each { |param|
                 if !zone_data[param]
-                    return OZones::Error.new("Error: Couldn't create zone." \
+                    return OZones::Error.new("Error: Couldn't create zone. " \
                                 "Mandatory attribute '#{param}' is missing.")
                 end
             }
@@ -92,7 +92,7 @@ module OZones
 
             if OpenNebula.is_error?(rc)
                 return OZones::Error.new("Error: Couldn't create zone. "\
-                            "Reason: #{rc.message}.")
+                            "Reason: #{rc.message}")
             end
 
             # Create the zone
