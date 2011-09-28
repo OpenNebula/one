@@ -47,7 +47,7 @@ var create_vdc_tmpl =
         <select id="zoneid" name="zone">\
         </select><br />\
         <div class="clear"></div>\
-        <label for="vdc_force_hosts">Host multiplacement:</label>\
+        <label for="vdc_force_hosts">VDC host sharing:</label>\
         <input type="checkbox" name="vdc_force_hosts" id="vdc_force_hosts" />\
         <div class="tip">Allows hosts belonging to other VDCs to be re-added to this one. They will appear marked with * in the list.</div>\
         <div class="clear"></div>\
@@ -75,7 +75,7 @@ var update_vdc_tmpl =
         <select name="vdc_update_id" id="vdc_update_id">\
         </select>\
         <div class="clear"></div>\
-        <label for="vdc_update_force_hosts">Host multiplacement:</label>\
+        <label for="vdc_update_force_hosts">VDC host sharing:</label>\
         <input type="checkbox" name="vdc_update_force_hosts" id="vdc_update_force_hosts" />\
         <div class="tip">Allows hosts belonging to other VDCs to be re-added to this one. They will appear marked with * in the list.</div>\
         <div class="clear"></div>\
