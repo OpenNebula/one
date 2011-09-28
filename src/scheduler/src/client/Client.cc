@@ -38,9 +38,6 @@ const int Client::MESSAGE_SIZE = 51200;
 
 void Client::set_one_auth(string secret)
 {
-    string user = "";
-    string pass = "";
-
     int rc = 0;
 
     if( secret == "" )
@@ -50,18 +47,11 @@ void Client::set_one_auth(string secret)
 
     if ( rc == 0 )
     {
-        rc = split_secret(secret, user, pass);
+        rc = split_secret(secret);
 
-        if( rc == 0 )
+        if( rc != 0 )
         {
-            string sha1_pass = SSLTools::sha1_digest(pass);
-
-            one_auth = user + ":" + sha1_pass;
-        }
-        else
-        {
-            throw runtime_error("Wrong format for auth token, must "
-                                "be <username>:<passwd>");
+            throw runtime_error("Wrong format for auth token");
         }
     }
 }
@@ -132,23 +122,32 @@ int Client::read_oneauth(string &secret)
     return rc;
 }
 
-
-int Client::split_secret(const string secret, string& user, string& pass)
+int Client::split_secret(const string& secret)
 {
     size_t pos;
-    int    rc = -1;
 
-    pos=secret.find(":");
+    pos = secret.find(":");
 
-    if (pos != string::npos)
+    if ( pos == string::npos )
     {
-        user = secret.substr(0,pos);
-        pass = secret.substr(pos+1);
-
-        rc = 0;
+        return -1;
     }
 
-    return rc;
+    if ( secret.rfind(":") == pos )
+    {
+        string user = secret.substr(0,pos);
+        string pass = secret.substr(pos+1);
+
+        string sha1_pass = SSLTools::sha1_digest(pass);
+
+        one_auth = user + ":" + sha1_pass;
+    }
+    else
+    {
+        one_auth = secret;
+    }
+
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
