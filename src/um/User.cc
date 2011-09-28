@@ -27,7 +27,7 @@
 #include "Group.h"
 
 
-const string User::INVALID_CHARS = " \t\n\v\f\r";
+const string User::INVALID_CHARS = " :\t\n\v\f\r";
 
 /* ************************************************************************** */
 /* User :: Database Access Functions                                          */
