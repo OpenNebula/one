@@ -173,8 +173,11 @@ module OZones
             # Delete existing host ACLs
             delete_host_acls
 
-            @vdc.acls =~ /((\d+,){#{HOST_ACL_FIRST_ID}}).*/
-            newacls   = $1.chop
+            if @vdc.acls =~ /((\d+,){#{HOST_ACL_FIRST_ID}}).*/
+                newacls = $1.chop
+            else
+                newacls = @vdc.acls.clone
+            end
 
             # Create new ACLs. TODO Rollback ACL creation
             if !host_list.empty?
@@ -251,9 +254,13 @@ module OZones
         #######################################################################
         # Deletes ACLs for the hosts
         def delete_host_acls
-            @vdc.acls.split(',')[HOST_ACL_FIRST_ID..-1].each{|acl|
-                OpenNebula::Acl.new_with_id(acl.to_i, @client).delete
-            }
+            host_acls = @vdc.acls.split(',')[HOST_ACL_FIRST_ID..-1]
+
+            if host_acls
+                host_acls.each{|acl|
+                    OpenNebula::Acl.new_with_id(acl.to_i, @client).delete
+                }
+            end
         end
 
         # Delete ACLs 

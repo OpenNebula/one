@@ -256,6 +256,8 @@ class OzonesServer
     
     # Check if hosts are already include in any Vdc of the zone
     def host_uniqueness?(zone, host_list, vdc_id = -1)
+        return true if host_list.empty?
+        
         all_hosts = ""
         zone.vdcs.all.each{|vdc|
             if vdc.hosts != nil and !vdc.hosts.empty? and vdc.id != vdc_id
