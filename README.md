@@ -9,7 +9,7 @@ distributed data center infrastructures.
 
 Complete documentation can be found at
 
-  http://opennebula.org/documentation:rel2.4
+  http://opennebula.org/documentation:rel3.0
 
 ## INSTALLATION
 
@@ -35,6 +35,14 @@ Additionally, to build OpenNebula from source you need:
 * **bison** >= 2.3 (optional, only needed to rebuild the parsers)
 * **libxml2-dev**
 
+### RUBY LIBRARIES REQUIREMENTS
+
+A set of gem requirements are needed to make several components work. We
+include a handy script to install them and the requirements. It is located at
+`share/install_gems/install_gems` and you should use it to install the
+required gems. You have more information at:
+
+  http://opennebula.org/documentation:rel3.0:compile
 
 ### OPTIONAL PACKAGES
 
@@ -104,6 +112,8 @@ where **install_options** can be one or more of:
     -d      target installation directory. If defined, it will specified
             the path for the self-contained install. If not defined, the
             installation will be performed system wide
+    -c      only install client utilities: OpenNebula cli, occi and ec2
+            client files
     -r      remove Opennebula, only useful if -d was not specified,
             otherwise rm -rf $ONE_LOCATION would do the job
     -h      prints installer help
@@ -111,7 +121,8 @@ where **install_options** can be one or more of:
 
 ## CONFIGURATION
 
-Information on how to configure OpenNebula is located at http://opennebula.org/documentation:rel2.4
+Information on how to configure OpenNebula is located at
+http://opennebula.org/documentation:rel3.0:cg
 
 
 ## CONTACT

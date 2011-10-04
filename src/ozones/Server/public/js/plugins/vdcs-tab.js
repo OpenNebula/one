@@ -49,7 +49,7 @@ var create_vdc_tmpl =
         <div class="clear"></div>\
         <label for="vdc_force_hosts">VDC host sharing:</label>\
         <input type="checkbox" name="vdc_force_hosts" id="vdc_force_hosts" />\
-        <div class="tip">Allows hosts belonging to other VDCs to be re-added to this one. They will appear marked with * in the list.</div>\
+        <div class="tip">Allows hosts belonging to other VDCs to be re-added to this one. They will appear greyed-out in the lists.</div>\
         <div class="clear"></div>\
         <label style="margin-left:205px;font-size:0.8em;color:#bbbbbb">Drag & Drop</label>\
         <label style="margin-left:195px;font-size:0.8em;color:#bbbbbb">Available / Selected</label>\
@@ -77,7 +77,7 @@ var update_vdc_tmpl =
         <div class="clear"></div>\
         <label for="vdc_update_force_hosts">VDC host sharing:</label>\
         <input type="checkbox" name="vdc_update_force_hosts" id="vdc_update_force_hosts" />\
-        <div class="tip">Allows hosts belonging to other VDCs to be re-added to this one. They will appear marked with * in the list.</div>\
+        <div class="tip">Allows hosts belonging to other VDCs to be re-added to this one. They will appear greyed-out in the list.</div>\
         <div class="clear"></div>\
         <label style="margin-left:205px;font-size:0.8em;color:#bbbbbb">Drag & Drop</label>\
         <label style="margin-left:195px;font-size:0.8em;color:#bbbbbb">Available / Current</label>\
@@ -326,7 +326,7 @@ function fillHostList(req, host_list_json){
         free = isHostFree(this.HOST.ID,zone_id);
 
         if (force || free){
-            list+='<li host_id="'+this.HOST.ID+'">'+(free? this.HOST.NAME : this.HOST.NAME+'*')+'</li>';
+            list+='<li host_id="'+this.HOST.ID+'">'+(free? this.HOST.NAME : '<span style="color:Grey;">'+this.HOST.NAME+'</span>')+'</li>';
         }
     });
     $('div#create_vdc_dialog #vdc_available_hosts_list').html(list);
@@ -367,7 +367,7 @@ function fillUpdateHostList(req, host_list_json){
         free = isHostFree(this.HOST.ID,zone_id);
 
         if (force || free){
-            list+='<li host_id="'+this.HOST.ID+'">'+(free? this.HOST.NAME : this.HOST.NAME+'*')+'</li>';
+            list+='<li host_id="'+this.HOST.ID+'">'+(free? this.HOST.NAME : '<span style="color:Grey;">'+this.HOST.NAME+'</span>')+'</li>';
         }
     });
 
@@ -404,7 +404,7 @@ function setupCreateVDCDialog(){
     dialog.dialog({
         autoOpen: false,
         modal: true,
-        width: 500
+        width: 420
     });
 
     $('button',dialog).button();
@@ -495,7 +495,7 @@ function setupUpdateVDCDialog(){
     dialog.dialog({
         autoOpen: false,
         modal: true,
-        width: 500
+        width: 420
     });
 
     $('button',dialog).button();
