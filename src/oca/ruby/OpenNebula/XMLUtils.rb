@@ -14,6 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+
 module OpenNebula
 
     begin
@@ -30,11 +31,9 @@ module OpenNebula
         REXML_FORMATTERS=false
     end
 
-    ###########################################################################
     # The XMLElement class provides an abstraction of the underlying
     # XML parser engine. It provides XML-related methods for the Pool and
     # PoolElement classes
-    ###########################################################################
     class XMLElement
 
         # xml:: _opaque xml object_ an xml object as returned by build_xml
@@ -310,10 +309,8 @@ module OpenNebula
         end
     end
 
-    ###########################################################################
     # The XMLUtilsPool module provides an abstraction of the underlying
     # XML parser engine. It provides XML-related methods for the Pools
-    ###########################################################################
     class XMLPool < XMLElement
 
         def initialize(xml=nil)

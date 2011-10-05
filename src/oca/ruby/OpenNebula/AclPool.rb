@@ -14,6 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+
 require 'OpenNebula/Pool'
 
 module OpenNebula
@@ -22,15 +23,15 @@ module OpenNebula
         #######################################################################
         # Constants and Class Methods
         #######################################################################
+
+
         ACL_POOL_METHODS = {
             :info       => "acl.info",
             :addrule    => "acl.addrule",
             :delrule    => "acl.delrule"
         }
 
-        #######################################################################
         # Class constructor
-        #######################################################################
         def initialize(client)
             super('ACL_POOL','ACL',client)
         end

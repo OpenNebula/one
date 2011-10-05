@@ -14,6 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+
 begin # require 'rubygems'
     require 'rubygems'
 rescue Exception
@@ -44,12 +45,10 @@ require 'OpenNebula/AclPool'
 
 module OpenNebula
 
-    # -------------------------------------------------------------------------
     # The Error Class represents a generic error in the OpenNebula
     # library. It contains a readable representation of the error.
     # Any function in the OpenNebula module will return an Error
     # object in case of error.
-    # -------------------------------------------------------------------------
     class Error
         attr_reader :message
 
@@ -63,18 +62,14 @@ module OpenNebula
         end
     end
 
-    # -------------------------------------------------------------------------
     # Returns true if the object returned by a method of the OpenNebula
     # library is an Error
-    # -------------------------------------------------------------------------
     def self.is_error?(value)
         value.class==OpenNebula::Error
     end
 
-    # -------------------------------------------------------------------------
     # The client class, represents the connection with the core and handles the
     # xml-rpc calls.
-    # -------------------------------------------------------------------------
     class Client
         attr_accessor :one_auth
 

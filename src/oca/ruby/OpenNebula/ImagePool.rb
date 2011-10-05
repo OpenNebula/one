@@ -14,6 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+
 require 'OpenNebula/Pool'
 
 module OpenNebula
@@ -21,7 +22,8 @@ module OpenNebula
         #######################################################################
         # Constants and Class attribute accessors
         #######################################################################
-        
+
+
         IMAGE_POOL_METHODS = {
             :info => "imagepool.info"
         }
@@ -29,7 +31,7 @@ module OpenNebula
         #######################################################################
         # Class constructor & Pool Methods
         #######################################################################
-        
+
         # +client+ a Client object that represents a XML-RPC connection
         # +user_id+ is to refer to a Pool with Images from that user
         def initialize(client, user_id=-1)
