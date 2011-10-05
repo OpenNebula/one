@@ -34,7 +34,7 @@ function oned_running {
     ONEPID=`cat $ONE_PID 2> /dev/null`
     ps $ONEPID > /dev/null 2>&1
     if [ ! -f "$LOCK_FILE" -o ! -f "$ONE_PID" -o $? -ne 0 ]; then
-        echo not running
+        echo oned not running
         exit 1
     fi
 }
