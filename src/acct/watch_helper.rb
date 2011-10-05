@@ -276,7 +276,7 @@ module WatchHelper
         def self.fix_size
             if self.count > @@window_size
                 last_timestamp = self.all.first
-                last_timestamp.remove_all_samples
+                last_timestamp.samples_dataset.destroy
                 last_timestamp.destroy
             end
         end
