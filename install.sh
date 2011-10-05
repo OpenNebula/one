@@ -652,8 +652,11 @@ IMAGE_DRIVER_FS_SCRIPTS="src/image_mad/remotes/fs/cp \
 #-------------------------------------------------------------------------------
 ONEDB_MIGRATOR_FILES="src/onedb/2.0_to_2.9.80.rb \
                       src/onedb/2.9.80_to_2.9.85.rb \
+                      src/onedb/2.9.85_to_2.9.90.rb \
+                      src/onedb/2.9.90_to_3.0.rb \
                       src/onedb/onedb.rb \
-                      src/onedb/onedb_backend.rb"
+                      src/onedb/onedb_backend.rb \
+                      src/onedb/Configuration.rb"
 
 #-------------------------------------------------------------------------------
 # Configuration files for OpenNebula, to be installed under $ETC_LOCATION

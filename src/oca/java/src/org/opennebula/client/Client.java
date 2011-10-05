@@ -158,31 +158,38 @@ public class Client{
 
             String[] token = oneSecret.split(":");
 
-            if(token.length != 2 )
+            if ( token.length > 2 )
+            {
+                oneAuth = oneSecret;
+            }
+            else if ( token.length == 2 )
+            {
+                MessageDigest md = MessageDigest.getInstance("SHA-1");
+                byte[] digest    = md.digest(token[1].getBytes());
+
+                String hash = "";
+
+                for(byte aux : digest)
+                {
+                    int b = aux & 0xff;
+
+                    if (Integer.toHexString(b).length() == 1)
+                    {
+                        hash += "0";
+                    }
+
+                    hash += Integer.toHexString(b);
+                }
+
+                oneAuth = token[0] + ":" + hash;
+            }
+            else
             {
                 throw new ClientConfigurationException(
                     "Wrong format for authorization string: "
                     + oneSecret + "\nFormat expected is user:password");
             }
 
-            MessageDigest md = MessageDigest.getInstance("SHA-1");
-            byte[] digest    = md.digest(token[1].getBytes());
-
-            String hash = "";
-
-            for(byte aux : digest)
-            {
-                int b = aux & 0xff;
-
-                if (Integer.toHexString(b).length() == 1)
-                {
-                    hash += "0";
-                }
-
-                hash += Integer.toHexString(b);
-            }
-
-            oneAuth = token[0] + ":" + hash;
         }
         catch (FileNotFoundException e)
         {
