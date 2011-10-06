@@ -29,7 +29,7 @@ module OZonesHelper
         end
 
         def create_resource(kind, template)
-            rc = @client.post_resource(kind, template)
+            rc = @client.post_resource_file(kind, template)
                         
             if OZonesClient::is_error?(rc) 
                [-1, rc.message] 
