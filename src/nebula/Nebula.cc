@@ -105,9 +105,17 @@ void Nebula::start()
                                    log_fname.c_str(),
                                    ios_base::trunc);
 
-        NebulaLog::log("ONE",Log::INFO,"Init OpenNebula Log system");
+        os << "Starting " << version() << endl;
+        os << "----------------------------------------\n";
+        os << "     OpenNebula Configuration File      \n";
+        os << "----------------------------------------\n";
+        os << *nebula_configuration;
+        os << "----------------------------------------";
 
-        os << "Log Level: " << clevel << " [0=ERROR,1=WARNING,2=INFO,3=DEBUG]";
+        NebulaLog::log("ONE",Log::INFO,os);
+
+        os.str("");
+        os << "Log level:" << clevel << " [0=ERROR,1=WARNING,2=INFO,3=DEBUG]";
 
         NebulaLog::log("ONE",Log::INFO,os);
     }
@@ -115,18 +123,6 @@ void Nebula::start()
     {
         throw;
     }
-
-
-    NebulaLog::log("ONE",Log::INFO,"----------------------------------------");
-    NebulaLog::log("ONE",Log::INFO,"     OpenNebula Configuration File      ");
-    NebulaLog::log("ONE",Log::INFO,"----------------------------------------");
-
-    os.str("");
-    os << "\n----------------------------------\n";
-    os << *nebula_configuration;
-    os << "----------------------------------";
-
-    NebulaLog::log("ONE",Log::INFO,os);
 
     // -----------------------------------------------------------
     // Initialize the XML library
@@ -136,7 +132,6 @@ void Nebula::start()
     // -----------------------------------------------------------
     // Pools
     // -----------------------------------------------------------
-
     try
     {
         vector<const Attribute *> dbs;
