@@ -14,7 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'Configuration'
+require 'OpenNebula/Configuration'
 require 'onedb_backend'
 
 class OneDB
@@ -152,7 +152,7 @@ class OneDB
     private
 
     def from_onedconf()
-        config = Configuration.new("#{ETC_LOCATION}/oned.conf")
+        config = OpenNebula::Configuration.new_from_file("#{ETC_LOCATION}/oned.conf")
 
         if config[:db] == nil
             raise "No DB defined."

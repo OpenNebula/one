@@ -18,6 +18,7 @@ require 'rubygems'
 require 'uri'
 require 'net/https'
 require 'json'
+require 'OpenNebula/Configuration'
 
 module OZonesClient
     class Client
@@ -249,18 +250,10 @@ EOT
     ##########################################################################
    
     def self.to_body(kind, tmpl_str)
-        body_str =  "{\n"
-        body_str << "  \"#{kind}\": {"
-        
-        tmpl_str.strip.each_line{|line|
-            line.strip!
-            key,value = line.split("=")
-            body_str  << "\n    \"#{key}\": \"#{value}\","
-        }
-        body_str.chop!
+        tmpl = OpenNebula::Configuration.new(tmpl_str)
+        res  = { "#{kind}" => tmpl.conf }
 
-        body_str << "\n  }\n" 
-        body_str << "}\n" 
+        return JSON::generate(res)
     end 
     
     def self.parse_json(json_str, root_element)
