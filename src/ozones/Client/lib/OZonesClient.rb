@@ -95,7 +95,7 @@ EOT
         end
 
         def post_resource_str(kind, tmpl_str)
-            body_str = OZonesClient::to_body(tmpl_str)
+            body_str = OZonesClient::to_body(kind, tmpl_str)
              
             url = URI.parse("#{@endpoint}/#{kind}")
 
@@ -112,7 +112,7 @@ EOT
         end
 
         def put_resource(kind, id, tmpl_str)
-            body_str = OZonesClient::to_body(tmpl_str)
+            body_str = OZonesClient::to_body(kind, tmpl_str)
              
             url = URI.parse("#{@endpoint}/#{kind}/#{id}")
 
@@ -248,16 +248,19 @@ EOT
     # JSON & Template utils
     ##########################################################################
    
-    def self.to_body(tmpl_str)
-        body_str = ""
+    def self.to_body(kind, tmpl_str)
+        body_str =  "{\n"
+        body_str << "  \"#{kind}\": {"
         
         tmpl_str.strip.each_line{|line|
             line.strip!
             key,value = line.split("=")
-            body_str  = body_str + key + "=" + URI.escape(value) + "&"
+            body_str  << "\n    \"#{key}\": \"#{value}\","
         }
+        body_str.chop!
 
-        body_str = body_str[0..-1]
+        body_str << "\n  }\n" 
+        body_str << "}\n" 
     end 
     
     def self.parse_json(json_str, root_element)

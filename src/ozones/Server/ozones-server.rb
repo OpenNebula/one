@@ -226,48 +226,60 @@ get '/config' do
 end
 
 ##############################################################################
-# GET Pool information
+# GET information
 ##############################################################################
-get '/:pool' do
-    @OzonesServer.get_pool(params[:pool])
+get '/vdc' do
+    @OzonesServer.get_vdcs
+end
+
+get '/vdc/:id' do
+    @OzonesServer.get_vdc(params[:id])
+end
+
+get '/zone' do
+    @OzonesServer.get_zones
+end
+
+get %r{/zone/([\d]+)/([\w]+)} do
+    @OzonesServer.get_zone_pool(params[:captures][0], params[:captures][1])
+end
+
+get %r{/zone/([\d]+)} do
+    @OzonesServer.get_zone(params[:captures].first)
+end
+
+get %r{/zone/([\w]+)} do
+    @OzonesServer.get_zones_pool(params[:captures].first)
 end
 
 ##############################################################################
-# GET Resource information
+# POSTs information
 ##############################################################################
-get %r{/(zone|vdc)/(\d+)/(\w+)} do |kind, id, aggpool|
-    @OzonesServer.get_full_resource(kind,id,aggpool)
+
+post '/vdc' do
+    @OzonesServer.create_vdc(request.body.read, @pr)
 end
 
-get %r{/(zone|vdc)/(\d+)} do |kind, id|
-    @OzonesServer.get_resource(kind,id)
-end
-
-get '/:pool/:aggpool' do
-    @OzonesServer.get_aggregated_pool(params[:pool], params[:aggpool])
-end
-
-##############################################################################
-# Create a new Resource
-##############################################################################
-post '/:pool' do
-    @OzonesServer.create_resource(params[:pool], params, request.body.read, @pr)
+post '/zone' do
+    @OzonesServer.create_zone(request.body.read, @pr)
 end
 
 ##############################################################################
 # Update Resource
 ##############################################################################
-put '/:resource/:id' do
-    @OzonesServer.update_resource(params[:resource], params, 
-                                  request.body.read, @pr)
+put '/vdc/:id' do
+    @OzonesServer.update_vdc(params[:id], request.body.read)
 end
 
 ##############################################################################
 # Delete Resource
 ##############################################################################
-delete '/:resource/:id' do
-    @OzonesServer.delete_resource(params[:resource], params[:id], @pr)
+delete '/vdc/:id' do
+    @OzonesServer.delete_vdc(params[:id], @pr)
 end
 
+delete '/zone/:id' do
+    @OzonesServer.delete_zone(params[:id], @pr)
+end
 
 
