@@ -61,7 +61,7 @@ const char * Host::table = "host_pool";
 const char * Host::db_names = "oid, name, body, state, last_mon_time";
 
 const char * Host::db_bootstrap = "CREATE TABLE IF NOT EXISTS host_pool ("
-    "oid INTEGER PRIMARY KEY, name VARCHAR(256), body TEXT, state INTEGER, "
+    "oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, state INTEGER, "
     "last_mon_time INTEGER, UNIQUE(name))";
 
 /* ------------------------------------------------------------------------ */

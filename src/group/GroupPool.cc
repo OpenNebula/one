@@ -91,6 +91,11 @@ int GroupPool::allocate(string name, int * oid, string& error_str)
         goto error_name;
     }
 
+    if ( name.length() > 128 )
+    {
+        goto error_name_length;
+    }
+
     // Check for duplicates
     group = get(name, false);
 
@@ -109,6 +114,10 @@ int GroupPool::allocate(string name, int * oid, string& error_str)
 
 error_name:
     oss << "NAME cannot be empty.";
+    goto error_common;
+
+error_name_length:
+    oss << "NAME is too long; max length is 128 chars.";
     goto error_common;
 
 error_duplicated:

@@ -96,7 +96,7 @@ const char * VirtualMachine::db_names =
     "oid, name, body, uid, gid, last_poll, state, lcm_state";
 
 const char * VirtualMachine::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
-        "vm_pool (oid INTEGER PRIMARY KEY, name TEXT, body TEXT, uid INTEGER, "
+        "vm_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, "
         "gid INTEGER, last_poll INTEGER, state INTEGER, lcm_state INTEGER)";
 
 /* -------------------------------------------------------------------------- */
@@ -209,6 +209,10 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
 
         replace_template_attribute("NAME", name);
     }
+    else if ( name.length() > 128 )
+    {
+        goto error_name_length;
+    }
 
     this->name = name;
 
@@ -284,7 +288,11 @@ error_rollback:
 
 error_leases_rollback:
     release_network_leases();
-    goto error_common;  // just to avoid compilation warnings
+    goto error_common;
+
+error_name_length:
+    oss << "NAME is too long; max length is 128 chars.";
+    goto error_common;
 
 error_common:
     NebulaLog::log("ONE",Log::ERROR, error_str);

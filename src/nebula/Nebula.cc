@@ -238,7 +238,7 @@ void Nebula::start()
         {
             rc = 0;
 
-            NebulaLog::log("ONE",Log::INFO,"Bootstraping OpenNebula database.");
+            NebulaLog::log("ONE",Log::INFO,"Bootstrapping OpenNebula database.");
 
             rc += VirtualMachinePool::bootstrap(db);
             rc += HostPool::bootstrap(db);
