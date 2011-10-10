@@ -119,10 +119,11 @@ public:
 
     /**
      *  Bootstraps the database table(s) associated to the Group pool
+     *    @return 0 on success
      */
-    static void bootstrap(SqlDB * _db)
+    static int bootstrap(SqlDB * _db)
     {
-        Group::bootstrap(_db);
+        return Group::bootstrap(_db);
     };
 
     /**

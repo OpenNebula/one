@@ -104,10 +104,11 @@ public:
 
     /**
      *  Bootstraps the database table(s) associated to the pool
+     *    @return 0 on success
      */
-    static void bootstrap(SqlDB *_db)
+    static int bootstrap(SqlDB *_db)
     {
-        VMTemplate::bootstrap(_db);
+        return VMTemplate::bootstrap(_db);
     };
 
 private:

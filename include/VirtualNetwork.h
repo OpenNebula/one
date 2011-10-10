@@ -236,14 +236,19 @@ private:
 
     /**
      *  Bootstraps the database table(s) associated to the Virtual Network
+     *    @return 0 on success
      */
-    static void bootstrap(SqlDB * db)
+    static int bootstrap(SqlDB * db)
     {
+        int rc;
+
         ostringstream oss_vnet(VirtualNetwork::db_bootstrap);
         ostringstream oss_lease(Leases::db_bootstrap);
 
-        db->exec(oss_vnet);
-        db->exec(oss_lease);
+        rc =  db->exec(oss_vnet);
+        rc += db->exec(oss_lease);
+
+        return rc;
     };
 
     /**
