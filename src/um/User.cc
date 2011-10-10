@@ -122,7 +122,7 @@ error_username:
 string& User::to_xml(string& xml) const
 {
     ostringstream   oss;
-    string          collection_xml;
+    string          template_xml;
 
     int  enabled_int = enabled?1:0;
 
@@ -134,6 +134,7 @@ string& User::to_xml(string& xml) const
          "<NAME>"        << name        <<"</NAME>"    <<
          "<PASSWORD>"    << password    <<"</PASSWORD>"<<
          "<ENABLED>"     << enabled_int <<"</ENABLED>" <<
+        obj_template->to_xml(template_xml)             <<
     "</USER>";
 
     xml = oss.str();
@@ -161,6 +162,16 @@ int User::from_xml(const string& xml)
     rc += xpath(int_enabled, "/USER/ENABLED",  0);
 
     enabled = int_enabled;
+
+    // Get associated metadata for the user
+    ObjectXML::get_nodes("/USER/TEMPLATE", content);
+
+    if (!content.empty())
+    {
+        rc += obj_template->from_xml_node(content[0]);
+    }
+
+    ObjectXML::free_nodes(content);
 
     if (rc != 0)
     {

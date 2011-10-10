@@ -116,6 +116,24 @@ public:
     ~VirtualNetworkUpdateTemplate(){};
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class UserUpdateTemplate : public RequestManagerUpdateTemplate
+{
+public:
+    UserUpdateTemplate():
+        RequestManagerUpdateTemplate("UserUpdateTemplate",
+                                     "Updates a user template")
+    {    
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_upool();
+        auth_object = AuthRequest::USER;
+    };
+
+    ~UserUpdateTemplate(){};
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

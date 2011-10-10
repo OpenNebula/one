@@ -23,13 +23,13 @@ module OpenNebula
         # Constants and Class Methods
         #######################################################################
 
-
         USER_METHODS = {
             :info     => "user.info",
             :allocate => "user.allocate",
             :delete   => "user.delete",
             :passwd   => "user.passwd",
-            :chgrp    => "user.chgrp"
+            :chgrp    => "user.chgrp",
+            :update   => "user.update"
         }
 
         SELF = -1
@@ -74,6 +74,13 @@ module OpenNebula
         # +password+ Password for the new user
         def allocate(username, password)
             super(USER_METHODS[:allocate], username, password)
+        end
+
+        # Replaces the template contents
+        #
+        # +new_template+ New template contents
+        def update(new_template)
+            super(USER_METHODS[:update], new_template)
         end
 
         # Deletes the User

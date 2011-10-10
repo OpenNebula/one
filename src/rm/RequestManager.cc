@@ -251,6 +251,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr template_update(new TemplateUpdateTemplate());
     xmlrpc_c::methodPtr host_update(new HostUpdateTemplate());
     xmlrpc_c::methodPtr vn_update(new VirtualNetworkUpdateTemplate());
+    xmlrpc_c::methodPtr user_update(new UserUpdateTemplate());
 
     // Allocate Methods
     xmlrpc_c::methodPtr vm_allocate(new VirtualMachineAllocate());
@@ -363,9 +364,9 @@ void RequestManager::register_xml_methods()
 
     RequestManagerRegistry.addMethod("one.vnpool.info", vnpool_info); 
     
-    
     /* User related methods*/
     RequestManagerRegistry.addMethod("one.user.allocate", user_allocate);
+    RequestManagerRegistry.addMethod("one.user.update", user_update);
     RequestManagerRegistry.addMethod("one.user.delete", user_delete);
     RequestManagerRegistry.addMethod("one.user.info", user_info);
     RequestManagerRegistry.addMethod("one.user.passwd", user_change_password);

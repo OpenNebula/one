@@ -163,6 +163,19 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    update_desc = <<-EOT.unindent
+        Launches the system editor to modify and update the template contents
+    EOT
+
+    command :update, update_desc, :userid do
+        helper = OneUserHelper.new
+        
+        helper.perform_action(args[0],options,"modified") do |user|
+            str = OpenNebulaHelper.update_template(args[0], user)
+            user.update(str)
+        end
+    end
+
     login_desc = <<-EOT.unindent
         Creates the Login token for authentication
         Examples:

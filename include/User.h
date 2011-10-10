@@ -18,6 +18,7 @@
 #define USER_H_
 
 #include "PoolSQL.h"
+#include "UserTemplate.h"
 
 using namespace std;
 
@@ -139,6 +140,14 @@ public:
      **/
     static int split_secret(const string secret, string& user, string& pass);
 
+    /**
+     *  Factory method for image templates
+     */
+    Template * get_new_template()
+    {
+        return new UserTemplate;
+    }
+    
 private:
     // -------------------------------------------------------------------------
     // Friends
@@ -205,9 +214,18 @@ protected:
          bool          _enabled):
         PoolObjectSQL(id,_uname,-1,_gid,"",_gname,table),
         password(_password),
-        enabled(_enabled){};
+        enabled(_enabled)
+    {
+        obj_template = new UserTemplate;
+    };
 
-    virtual ~User(){};
+    virtual ~User()
+    {
+        if (obj_template != 0)
+        {
+            delete obj_template;
+        }
+    };
 
     // *************************************************************************
     // DataBase implementation
