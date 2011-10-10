@@ -250,6 +250,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr image_update(new ImageUpdateTemplate());
     xmlrpc_c::methodPtr template_update(new TemplateUpdateTemplate());
     xmlrpc_c::methodPtr host_update(new HostUpdateTemplate());
+    xmlrpc_c::methodPtr vn_update(new VirtualNetworkUpdateTemplate());
 
     // Allocate Methods
     xmlrpc_c::methodPtr vm_allocate(new VirtualMachineAllocate());
@@ -283,13 +284,11 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr image_info(new ImageInfo());
 
     // PoolInfo Methods 
-
     xmlrpc_c::methodPtr hostpool_info(new HostPoolInfo());
     xmlrpc_c::methodPtr grouppool_info(new GroupPoolInfo());
     xmlrpc_c::methodPtr userpool_info(new UserPoolInfo());
 
     // PoolInfo Methods with Filtering
-
     xmlrpc_c::methodPtr vm_pool_info(new VirtualMachinePoolInfo());
     xmlrpc_c::methodPtr template_pool_info(new TemplatePoolInfo());
     xmlrpc_c::methodPtr vnpool_info(new VirtualNetworkPoolInfo());
@@ -357,6 +356,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vn.rmleases", vn_rmleases);
     RequestManagerRegistry.addMethod("one.vn.allocate", vn_allocate);   
     RequestManagerRegistry.addMethod("one.vn.publish", vn_publish);
+    RequestManagerRegistry.addMethod("one.vn.update", vn_update);
     RequestManagerRegistry.addMethod("one.vn.delete", vn_delete);
     RequestManagerRegistry.addMethod("one.vn.info", vn_info); 
     RequestManagerRegistry.addMethod("one.vn.chown", vn_chown);
@@ -374,7 +374,6 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.userpool.info", userpool_info);
     
     /* Image related methods*/
-
     RequestManagerRegistry.addMethod("one.image.persistent", image_persistent);
     RequestManagerRegistry.addMethod("one.image.enable", image_enable);
     RequestManagerRegistry.addMethod("one.image.update", image_update);     
