@@ -167,6 +167,11 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         puts str % ["PASSWORD", user['PASSWORD']]
         puts str % ["ENABLED",
             OpenNebulaHelper.boolean_to_str(user['ENABLED'])]
+        
+        puts
+        
+        CLIHelper.print_header(str_h1 % "USER TEMPLATE",false)
+        puts user.template_str
     end
 
     def format_pool(options)
