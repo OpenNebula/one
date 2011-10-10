@@ -31,7 +31,8 @@ module OpenNebula
             :delete     => "vn.delete",
             :addleases  => "vn.addleases",
             :rmleases   => "vn.rmleases",
-            :chown      => "vn.chown"
+            :chown      => "vn.chown",
+            :update     => "vn.update"
         }
 
         VN_TYPES=%w{RANGED FIXED}
@@ -81,6 +82,13 @@ module OpenNebula
             super(VN_METHODS[:allocate],description)
         end
         
+        # Replaces the template contents
+        #
+        # +new_template+ New template contents
+        def update(new_template)
+            super(VN_METHODS[:update], new_template)
+        end
+
         # Publishes the VirtualNetwork, to be used by other users
         def publish
             set_publish(true)
