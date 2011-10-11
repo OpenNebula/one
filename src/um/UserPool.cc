@@ -88,13 +88,12 @@ UserPool::UserPool(SqlDB * db):PoolSQL(db,User::table)
             if (User::split_secret(one_token,one_name,one_pass) == 0)
             {
                 string error_str;
-                string sha1_pass = SSLTools::sha1_digest(one_pass);
 
                 allocate(&one_uid,
                          GroupPool::ONEADMIN_ID,
                          one_name,
                          GroupPool::ONEADMIN_NAME,
-                         sha1_pass,
+                         one_pass,
                          UserPool::CORE_AUTH,
                          true, 
                          error_str);
@@ -139,9 +138,11 @@ int UserPool::allocate (
     Group *     group;
 
     string auth_driver = auth;
+    string upass       = password;
 
     ostringstream   oss;
 
+    // Check username and password
     if ( !User::is_valid(password, error_str) )
     {
         goto error_pass;
@@ -152,6 +153,7 @@ int UserPool::allocate (
         goto error_name;
     }
 
+    // Check for duplicates
     user = get(uname,false);
 
     if ( user !=0 )
@@ -159,13 +161,19 @@ int UserPool::allocate (
         goto error_duplicated;
     }
 
+    // Set auth driver and hash password for CORE_AUTH
     if (auth_driver.empty())
     {
         auth_driver = UserPool::CORE_AUTH;
     }
 
+    if (auth_driver == UserPool::CORE_AUTH)
+    {
+        upass = SSLTools::sha1_digest(password);
+    }
+
     // Build a new User object
-    user = new User(-1, gid, uname, gname, password, auth_driver, enabled);
+    user = new User(-1, gid, uname, gname, upass, auth_driver, enabled);
 
     // Insert the Object in the pool
     *oid = PoolSQL::allocate(user, error_str);

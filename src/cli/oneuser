@@ -50,13 +50,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         :description => "Read password from file"
     }
 
-    PLAIN={
-        :name => "plain",
-        :short => "-p",
-        :large => "--plain",
-        :description => "Store plain password"
-    }
-
     SSH={
         :name => "ssh",
         :large => "--ssh",
@@ -113,7 +106,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         :description => "Authentication driver to be used with this user"
     }
 
-    create_options = [READ_FILE, PLAIN, SSH, X509, KEY, CERT, DRIVER]
+    create_options = [READ_FILE, SSH, X509, KEY, CERT, DRIVER]
     login_options  = [SSH, X509, X509_PROXY, KEY, CERT, PROXY, TIME]
 
     ########################################################################

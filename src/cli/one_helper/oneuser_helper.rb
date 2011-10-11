@@ -37,12 +37,10 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
                 return -1, "Can not read file: #{arg}"
             end
         else
-            if options[:plain] || options[:ssh] 
-                password = arg
-            elsif options[:x509]
+            if options[:x509]
                 password = arg.delete("\s")
             else
-                password = Digest::SHA1.hexdigest(arg)
+                password = arg
             end
         end
 

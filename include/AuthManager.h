@@ -21,6 +21,7 @@
 
 #include "MadManager.h"
 #include "ActionManager.h"
+#include "SSLTools.h"
 
 #include "AuthManagerDriver.h"
 
@@ -435,7 +436,9 @@ public:
 
     bool core_authenticate()
     {
-        return (password == session);
+        string sha1_session = SSLTools::sha1_digest(session);
+
+        return (password == sha1_session);
     }
 
     /**

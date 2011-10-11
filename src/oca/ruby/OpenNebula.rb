@@ -80,41 +80,28 @@ module OpenNebula
             XMLPARSER=false
         end
 
-        def initialize(secret=nil, endpoint=nil, hash=true)
+        def initialize(secret=nil, endpoint=nil)
             if secret
-                one_secret = secret
+                @one_auth = secret
             elsif ENV["ONE_AUTH"] and !ENV["ONE_AUTH"].empty? and File.file?(ENV["ONE_AUTH"])
-                one_secret=File.read(ENV["ONE_AUTH"])
+                @one_auth = File.read(ENV["ONE_AUTH"])
             elsif File.file?(ENV["HOME"]+"/.one/one_auth")
-                one_secret=File.read(ENV["HOME"]+"/.one/one_auth")
+                @one_auth = File.read(ENV["HOME"]+"/.one/one_auth")
             else
                 raise "ONE_AUTH file not present"
             end
 
-            tokens = one_secret.chomp.split(':')
-
-            if tokens.length > 2
-                @one_auth = one_secret
-            elsif tokens.length == 2
-                if hash
-                    pass = Digest::SHA1.hexdigest(tokens[1])
-                else
-                    pass = tokens[1]
-                end
-                @one_auth = "#{tokens[0]}:#{pass}"
-            else
-                raise "Authorization file malformed"
-            end
+            @one_auth.rstrip!
 
             if endpoint
-                @one_endpoint=endpoint
+                @one_endpoint = endpoint
             elsif ENV["ONE_XMLRPC"]
-                @one_endpoint=ENV["ONE_XMLRPC"]
+                @one_endpoint = ENV["ONE_XMLRPC"]
             else
-                @one_endpoint="http://localhost:2633/RPC2"
+                @one_endpoint = "http://localhost:2633/RPC2"
             end
 
-            @server=XMLRPC::Client.new2(@one_endpoint)
+            @server = XMLRPC::Client.new2(@one_endpoint)
         end
 
         def call(action, *args)

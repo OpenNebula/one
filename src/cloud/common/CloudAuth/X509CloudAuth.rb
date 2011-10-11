@@ -101,7 +101,7 @@ module X509CloudAuth
         auth = ServerAuth.new
 
         @token = auth.login_token(username, subjectname, 300)
-        @client = Client.new(@token, @conf[:one_xmlrpc], false)
+        @client = Client.new(@token, @conf[:one_xmlrpc])
 
         return nil
     end

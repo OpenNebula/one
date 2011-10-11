@@ -24,7 +24,7 @@ class SunstoneServer
     POOL_FILTER = Pool::INFO_GROUP
 
     def initialize(token, xmlrpc)
-        @client = Client.new(token, xmlrpc, false)
+        @client = Client.new(token, xmlrpc)
     end
 
     ############################################################################

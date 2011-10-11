@@ -36,8 +36,7 @@ module OZones
                 
                 client   = OpenNebula::Client.new(
                                       zone.onename + ":" + zone.onepass,
-                                      zone.endpoint,
-                                      false)
+                                      zone.endpoint)
                                                          
                 pool = factory(client)  
                 

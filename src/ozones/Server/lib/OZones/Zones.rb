@@ -125,8 +125,7 @@ module OZones
 
             @client = OpenNebula::Client.new(
                             "#{@zone.onename}:#{@zone.onepass}",
-                            @zone.endpoint,
-                            false)
+                            @zone.endpoint)
         end
         
         def pool_to_json(pool_kind)
@@ -180,7 +179,7 @@ module OZones
 
         def self.check_oneadmin(name, pass, endpoint)
             # Create a new client to interact with the zone
-            client   = OpenNebula::Client.new("#{name}:#{pass}",endpoint,false)
+            client   = OpenNebula::Client.new("#{name}:#{pass}",endpoint)
             hostpool = OpenNebula::HostPool.new(client)
 
             return hostpool.info
