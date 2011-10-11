@@ -198,6 +198,7 @@ ETC_DIRS="$ETC_LOCATION/im_kvm \
 
 LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/ruby/OpenNebula \
+          $LIB_LOCATION/ruby/zona \
           $LIB_LOCATION/ruby/cloud/ \
           $LIB_LOCATION/ruby/cloud/econe \
           $LIB_LOCATION/ruby/cloud/econe/views \
@@ -272,7 +273,8 @@ OZONES_DIRS="$OZONES_LOCATION/lib \
 OZONES_CLIENT_DIRS="$LIB_LOCATION/ruby \
                  $LIB_LOCATION/ruby/OpenNebula \
                  $LIB_LOCATION/ruby/cli \
-                 $LIB_LOCATION/ruby/cli/ozones_helper"
+                 $LIB_LOCATION/ruby/cli/ozones_helper \
+                 $LIB_LOCATION/ruby/zona"
 
 LIB_ECO_CLIENT_DIRS="$LIB_LOCATION/ruby \
                  $LIB_LOCATION/ruby/OpenNebula \
@@ -374,6 +376,8 @@ INSTALL_CLIENT_FILES=(
     OZONES_BIN_CLIENT_FILES:$BIN_LOCATION
     OZONES_LIB_CLIENT_CLI_FILES:$LIB_LOCATION/ruby/cli
     OZONES_LIB_CLIENT_CLI_HELPER_FILES:$LIB_LOCATION/ruby/cli/ozones_helper
+    OZONES_LIB_API_FILES:$LIB_LOCATION/ruby
+    OZONES_LIB_API_ZONA_FILES:$LIB_LOCATION/ruby/zona
     CLI_CONF_FILES:$ETC_LOCATION/cli
     OCA_LIB_FILES:$LIB_LOCATION/ruby
     RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/OpenNebula
@@ -432,6 +436,8 @@ INSTALL_OZONES_FILES=(
     OZONES_BIN_CLIENT_FILES:$BIN_LOCATION
     OZONES_LIB_CLIENT_CLI_FILES:$LIB_LOCATION/ruby/cli
     OZONES_LIB_CLIENT_CLI_HELPER_FILES:$LIB_LOCATION/ruby/cli/ozones_helper
+    OZONES_LIB_API_FILES:$LIB_LOCATION/ruby
+    OZONES_LIB_API_ZONA_FILES:$LIB_LOCATION/ruby/zona
 )
 
 INSTALL_OZONES_ETC_FILES=(
@@ -1055,6 +1061,16 @@ OZONES_LIB_ZONE_FILES="src/ozones/Server/lib/OZones/Zones.rb \
                 src/ozones/Server/lib/OZones/AggregatedImages.rb \
                 src/ozones/Server/lib/OZones/AggregatedTemplates.rb"
                 
+OZONES_LIB_API_FILES="src/ozones/Client/lib/api/zona.rb"
+
+OZONES_LIB_API_ZONA_FILES="src/ozones/Client/lib/api/zona/ZoneElement.rb \
+                src/ozones/Client/lib/api/zona/OZonesPool.rb \
+                src/ozones/Client/lib/api/zona/OZonesJSON.rb \
+                src/ozones/Client/lib/api/zona/VDCPool.rb \
+                src/ozones/Client/lib/api/zona/VDCElement.rb \
+                src/ozones/Client/lib/api/zona/OZonesElement.rb \
+                src/ozones/Client/lib/api/zona/ZonePool.rb"
+
 OZONES_PUBLIC_VENDOR_JQUERY=$SUNSTONE_PUBLIC_VENDOR_JQUERY
                         
 OZONES_PUBLIC_VENDOR_DATATABLES=$SUNSTONE_PUBLIC_VENDOR_DATATABLES
