@@ -64,7 +64,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     end
 
     command :delhost, 'Deletes the set of hosts from the VDC',
-            :vdcid, :range, :options=>[FORCE] do
+            :vdcid, :range do
         helper.delhost(args[0], args[1], options)
     end
 end

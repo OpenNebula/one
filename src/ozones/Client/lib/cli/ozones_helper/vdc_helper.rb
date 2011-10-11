@@ -72,7 +72,7 @@ class VDCHelper < OZonesHelper::OZHelper
             template << "FORCE=YES\n"
         end
 
-        rc = @client.put_resource(@vdc_str, id, template) 
+        rc = @client.put_resource_str(@vdc_str, id, template)
 
         if OZonesClient::is_error?(rc) 
             return [-1, rc.message] 
@@ -95,11 +95,7 @@ class VDCHelper < OZonesHelper::OZHelper
         new_host = (hosts - host_array).join(',')
         template = "ID=#{id}\nHOSTS=#{new_host}\n"
 
-        if options[:force]
-            template << "FORCE=YES\n"
-        end
-
-        rc = @client.put_resource(@vdc_str, id, template) 
+        rc = @client.put_resource_str(@vdc_str, id, template)
 
         if OZonesClient::is_error?(rc) 
             return [-1, rc.message] 

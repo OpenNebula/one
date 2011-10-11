@@ -90,18 +90,21 @@ EOT
         # Post a new Resource to the relevant OZones Pool
         # :zonetemplate
         ######################################################################
-        def post_resource(kind, template)
+        def post_resource_file(kind, template)
             tmpl_str = File.read(template)
             post_resource_str(kind, tmpl_str)
         end
 
         def post_resource_str(kind, tmpl_str)
-            body_str = OZonesClient::to_body(kind, tmpl_str)
-             
+            tmpl_json = OZonesClient::tobody(tmpl_str)
+            post_resource(kind, tmpl_json)
+        end
+
+        def post_resource(kind, tmpl_json)
             url = URI.parse("#{@endpoint}/#{kind}")
 
             req = Net::HTTP::Post.new(url.path)
-            req.body=body_str
+            req.body=tmpl_json
 
             req.basic_auth @ozonesauth[0], @ozonesauth[1]
 
@@ -112,13 +115,16 @@ EOT
             return  OZonesClient::parse_error(res, kind)
         end
 
-        def put_resource(kind, id, tmpl_str)
-            body_str = OZonesClient::to_body(kind, tmpl_str)
-             
+        def put_resource_str(kind, id, tmpl_str)
+            tmpl_json = OZonesClient::to_body(kind, tmpl_str)
+            put_resource(kind, id, tmpl_json)
+        end
+
+        def put_resource(kind, id, tmpl_json)
             url = URI.parse("#{@endpoint}/#{kind}/#{id}")
 
             req = Net::HTTP::Put.new(url.path)
-            req.body=body_str
+            req.body=tmpl_json
 
             req.basic_auth @ozonesauth[0], @ozonesauth[1]
 
