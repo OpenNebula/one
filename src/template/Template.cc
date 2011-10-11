@@ -275,15 +275,12 @@ int Template::get(
 /* -------------------------------------------------------------------------- */
 
 void Template::get(
-        string& name,
+        const string& name,
         string& value) const
 {
     vector<const Attribute *>   attrs;
     const SingleAttribute *     sattr;
     int                         rc;
-
-    transform (name.begin(),name.end(),name.begin(),(int(*)(int))toupper);
-
     rc = get(name,attrs);
 
     if  (rc == 0)
@@ -308,7 +305,7 @@ void Template::get(
 /* -------------------------------------------------------------------------- */
 
 bool Template::get(
-        string& name,
+        const string& name,
         int&    value) const
 {
     string sval;
