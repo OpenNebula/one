@@ -166,10 +166,12 @@ int User::from_xml(const string& xml)
     // Get associated metadata for the user
     ObjectXML::get_nodes("/USER/TEMPLATE", content);
 
-    if (!content.empty())
+    if (content.empty())
     {
-        rc += obj_template->from_xml_node(content[0]);
+        return -1;
     }
+
+    rc += obj_template->from_xml_node(content[0]);
 
     ObjectXML::free_nodes(content);
 
