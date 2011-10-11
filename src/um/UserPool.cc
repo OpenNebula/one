@@ -232,7 +232,7 @@ bool UserPool::authenticate(const string& session,
 
     User * user = 0;
     string username;
-    string secret, u_secret, u_pass;
+    string u_secret, u_pass;
     string auth_driver;
 
     string tuname;
@@ -289,7 +289,7 @@ bool UserPool::authenticate(const string& session,
     {
         if (user != 0) //no core auth for external users
         {
-            ar.add_authenticate(username,u_pass,u_secret);
+            ar.add_authenticate("",username,u_pass,u_secret);
 
             if (ar.core_authenticate()) 
             {
@@ -305,17 +305,8 @@ bool UserPool::authenticate(const string& session,
     }
     else if ( authm != 0 ) //use auth driver if it was loaded
     {
-        //Compose secret for the user driver
-        if (!auth_driver.empty())
-        {
-            secret =  auth_driver;
-            secret += ":";
-        }
-
-        secret += u_secret;
-
         //Initialize authentication request and call the driver
-        ar.add_authenticate(username,u_pass,secret);
+        ar.add_authenticate(auth_driver,username,u_pass,u_secret);
 
         authm->trigger(AuthManager::AUTHENTICATE,&ar);
         ar.wait();

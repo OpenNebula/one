@@ -342,13 +342,16 @@ public:
      *  Sets the challenge to authenticate an user
      *  @param challenge a driver specific authentication challenge
      */
-    void add_authenticate(const string &_username,
+    void add_authenticate(const string &_driver,
+                          const string &_username,
                           const string &_password,
                           const string &_session)
     {
         username = _username;
         password = _password;
         session  = _session;
+        
+        driver   = _driver;
     }
 
     /**
@@ -499,6 +502,11 @@ private:
      *  Authentication token as sent in the XML-RPC call (user:session)
      */
     string session;
+
+    /**
+     *  Authentication driver to be used with this request
+     */
+    string driver;
 
     /**
      *  A list of authorization requests

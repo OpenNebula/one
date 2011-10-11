@@ -39,6 +39,7 @@ void AuthManagerDriver::authorize(int           oid,
 
 void AuthManagerDriver::authenticate(int           oid,
                                      int           uid,
+                                     const string& driver,
                                      const string& username,
                                      const string& password,
                                      const string& session) const
@@ -47,6 +48,7 @@ void AuthManagerDriver::authenticate(int           oid,
 
     os << "AUTHENTICATE " << oid << " "
                           << uid << " "
+                          << driver << " "
                           << username << " "
                           << password << " "
                           << session  << endl;
