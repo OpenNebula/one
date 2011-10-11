@@ -98,7 +98,7 @@ protected:
         string err;
         
         return ((UserPool*)pool)->allocate(&oid, 0, usernames[index],"oneadmin",
-                                           passwords[index], true, err);
+                                           passwords[index], UserPool::CORE_AUTH, true, err);
     };
 
     void check(int index, PoolObjectSQL* obj)
@@ -296,17 +296,17 @@ public:
         UserPool * up = static_cast<UserPool *>(pool);
 
         // Allocate a user.
-        rc = up->allocate(&oid, 0,usernames[0], "oneadmin",passwords[0], true, err);
+        rc = up->allocate(&oid, 0,usernames[0], "oneadmin",passwords[0], UserPool::CORE_AUTH,true, err);
         CPPUNIT_ASSERT( oid == 1 );
         CPPUNIT_ASSERT( oid == rc );
 
         // Try to allocate twice the same user, should fail
-        rc = up->allocate(&oid, 0,usernames[0], "oneadmin", passwords[0], true, err);
+        rc = up->allocate(&oid, 0,usernames[0], "oneadmin", passwords[0],UserPool::CORE_AUTH,true, err);
         CPPUNIT_ASSERT( rc  == -1 );
         CPPUNIT_ASSERT( oid == rc );
 
         // Try again, with different password
-        rc = up->allocate(&oid, 0, usernames[0], "oneadmin", passwords[1], true, err);
+        rc = up->allocate(&oid, 0, usernames[0], "oneadmin", passwords[1],UserPool::CORE_AUTH,true, err);
         CPPUNIT_ASSERT( rc  == -1 );
         CPPUNIT_ASSERT( oid == rc );
     }
@@ -321,7 +321,7 @@ public:
         
         for(int i=0; i<5; i++)
         {
-            ((UserPool*)pool)->allocate(&oid, 0, d_names[i], "oneadmin", d_pass[i], true, err);
+            ((UserPool*)pool)->allocate(&oid, 0, d_names[i], "oneadmin", d_pass[i],UserPool::CORE_AUTH, true, err);
         }
 
         ostringstream oss;
@@ -348,7 +348,7 @@ public:
 
         for(int i=0; i<5; i++)
         {
-            ((UserPool*)pool)->allocate(&oid, 0, d_names[i], "oneadmin",d_pass[i], true, err);
+            ((UserPool*)pool)->allocate(&oid, 0, d_names[i], "oneadmin",d_pass[i], UserPool::CORE_AUTH,true, err);
         }
 
         // Note: second parameter of dump is the WHERE constraint. The "order

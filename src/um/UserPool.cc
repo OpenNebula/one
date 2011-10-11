@@ -29,6 +29,8 @@
 #include <pwd.h>
 #include <stdlib.h>
 
+const char * UserPool::CORE_AUTH = "core";
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -93,6 +95,7 @@ UserPool::UserPool(SqlDB * db):PoolSQL(db,User::table)
                          one_name,
                          GroupPool::ONEADMIN_NAME,
                          sha1_pass,
+                         UserPool::CORE_AUTH,
                          true, 
                          error_str);
             }
@@ -125,6 +128,7 @@ int UserPool::allocate (
     const   string&  uname,
     const   string&  gname,
     const   string&  password,
+    const   string&  auth,
     bool    enabled,
     string& error_str)
 {
@@ -133,6 +137,8 @@ int UserPool::allocate (
     User *      user;
     GroupPool * gpool;
     Group *     group;
+
+    string auth_driver = auth;
 
     ostringstream   oss;
 
@@ -153,8 +159,13 @@ int UserPool::allocate (
         goto error_duplicated;
     }
 
+    if (auth_driver.empty())
+    {
+        auth_driver = UserPool::CORE_AUTH;
+    }
+
     // Build a new User object
-    user = new User(-1, gid, uname, gname, password, enabled);
+    user = new User(-1, gid, uname, gname, password, auth_driver, enabled);
 
     // Insert the Object in the pool
     *oid = PoolSQL::allocate(user, error_str);
@@ -213,7 +224,8 @@ bool UserPool::authenticate(const string& session,
 
     User * user = 0;
     string username;
-    string secret, u_pass;
+    string secret, u_secret, u_pass;
+    string auth_driver;
 
     string tuname;
     string tgname;
@@ -231,12 +243,13 @@ bool UserPool::authenticate(const string& session,
     gname    = "";
     result   = false;
 
-    rc = User::split_secret(session,username,secret);
+    rc = User::split_secret(session,username,u_secret);
 
     if ( rc != 0 )
     {
         return -1;
     }
+
 
     user = get(username,true);
 
@@ -249,38 +262,57 @@ bool UserPool::authenticate(const string& session,
         tuname  = user->name;
         tgname  = user->gname;
 
+        auth_driver = user->auth_driver;
+
         user->unlock();
     }
     else //External User
     {
-        u_pass = "-";
+        u_pass      = "-";
+        auth_driver = "";
+
         uid    = -1;
         gid    = -1;
     }
 
     AuthRequest ar(uid, gid);
 
-    ar.add_authenticate(username,u_pass,secret);
-
-    if (authm == 0) //plain auth
+    if ( auth_driver == UserPool::CORE_AUTH )
     {
-        if ( user != 0 && ar.plain_authenticate()) //no plain for external users
+        if (user != 0) //no core auth for external users
         {
-            user_id  = uid;
-            group_id = gid;
+            ar.add_authenticate(username,u_pass,u_secret);
 
-            uname = tuname;
-            gname = tgname;
+            if (ar.core_authenticate()) 
+            {
+                user_id  = uid;
+                group_id = gid;
 
-            result   = true;
+                uname = tuname;
+                gname = tgname;
+
+                result   = true;
+            }
         }
     }
-    else //use the driver
+    else if ( authm != 0 ) //use auth driver if it was loaded
     {
+        //Compose secret for the user driver
+        if (!auth_driver.empty())
+        {
+            secret =  auth_driver;
+            secret += ":";
+        }
+
+        secret += u_secret;
+
+        //Initialize authentication request and call the driver
+        ar.add_authenticate(username,u_pass,secret);
+
         authm->trigger(AuthManager::AUTHENTICATE,&ar);
         ar.wait();
 
-        if (ar.result==true)
+        if (ar.result==true) //User was authenticated
         {
             if ( user != 0 ) //knwon user_id
             {
@@ -294,13 +326,20 @@ bool UserPool::authenticate(const string& session,
             }
             else //External user, username & pass in driver message
             {
+                string driver_name;
                 string mad_name;
                 string mad_pass;
+
                 string error_str;
 
                 istringstream is(ar.message);
 
                 if ( is.good() )
+                {
+                    is >> driver_name >> ws;
+                }
+
+                if ( !is.fail() )
                 {
                     is >> mad_name >> ws;
                 }
@@ -317,6 +356,7 @@ bool UserPool::authenticate(const string& session,
                              mad_name,
                              GroupPool::USERS_NAME,
                              mad_pass,
+                             driver_name,
                              true,
                              error_str);
                 }
@@ -349,6 +389,12 @@ bool UserPool::authenticate(const string& session,
             NebulaLog::log("AuM",Log::ERROR,oss);
         }
     }
+    else
+    {
+        NebulaLog::log("AuM",Log::ERROR,
+            "Auth Error: Authentication driver not enabled. "
+            "Check AUTH_MAD in oned.conf");
+    }
 
     return result;
 }
@@ -364,7 +410,7 @@ int UserPool::authorize(AuthRequest& ar)
 
     if (authm == 0)
     {
-        if (ar.plain_authorize())
+        if (ar.core_authorize())
         {
             rc = 0;
         }

@@ -128,13 +128,14 @@ string& User::to_xml(string& xml) const
 
     oss <<
     "<USER>"
-         "<ID>"          << oid         <<"</ID>"      <<
-         "<GID>"         << gid         <<"</GID>"     <<
-         "<GNAME>"       << gname       <<"</GNAME>"   <<
-         "<NAME>"        << name        <<"</NAME>"    <<
-         "<PASSWORD>"    << password    <<"</PASSWORD>"<<
-         "<ENABLED>"     << enabled_int <<"</ENABLED>" <<
-        obj_template->to_xml(template_xml)             <<
+         "<ID>"          << oid         <<"</ID>"         <<
+         "<GID>"         << gid         <<"</GID>"        <<
+         "<GNAME>"       << gname       <<"</GNAME>"      <<
+         "<NAME>"        << name        <<"</NAME>"       <<
+         "<PASSWORD>"    << password    <<"</PASSWORD>"   <<
+         "<AUTH_DRIVER>" << auth_driver <<"</AUTH_DRIVER>"<<
+         "<ENABLED>"     << enabled_int <<"</ENABLED>"    <<
+        obj_template->to_xml(template_xml)                <<
     "</USER>";
 
     xml = oss.str();
@@ -154,12 +155,13 @@ int User::from_xml(const string& xml)
     // Initialize the internal XML object
     update_from_str(xml);
 
-    rc += xpath(oid,         "/USER/ID",       -1);
-    rc += xpath(gid,         "/USER/GID",      -1);
-    rc += xpath(gname,       "/USER/GNAME",    "not_found");
-    rc += xpath(name,        "/USER/NAME",     "not_found");
-    rc += xpath(password,    "/USER/PASSWORD", "not_found");
-    rc += xpath(int_enabled, "/USER/ENABLED",  0);
+    rc += xpath(oid,        "/USER/ID",          -1);
+    rc += xpath(gid,        "/USER/GID",         -1);
+    rc += xpath(gname,      "/USER/GNAME",       "not_found");
+    rc += xpath(name,       "/USER/NAME",        "not_found");
+    rc += xpath(password,   "/USER/PASSWORD",    "not_found");
+    rc += xpath(auth_driver,"/USER/AUTH_DRIVER", UserPool::CORE_AUTH);
+    rc += xpath(int_enabled,"/USER/ENABLED",     0);
 
     enabled = int_enabled;
 

@@ -165,6 +165,11 @@ private:
     string      password;
 
     /**
+     *  Authentication driver for this user
+     */
+    string      auth_driver;
+
+    /**
      * Flag marking user enabled/disabled
      */
     bool        enabled;
@@ -210,10 +215,12 @@ protected:
          int           _gid, 
          const string& _uname, 
          const string& _gname,
-         const string& _password, 
+         const string& _password,
+         const string& _auth_driver,
          bool          _enabled):
         PoolObjectSQL(id,_uname,-1,_gid,"",_gname,table),
         password(_password),
+        auth_driver(_auth_driver),
         enabled(_enabled)
     {
         obj_template = new UserTemplate;

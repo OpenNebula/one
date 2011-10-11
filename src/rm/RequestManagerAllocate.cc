@@ -230,6 +230,7 @@ int UserAllocate::pool_allocate(xmlrpc_c::paramList const& paramList,
 {
     string uname  = xmlrpc_c::value_string(paramList.getString(1));
     string passwd = xmlrpc_c::value_string(paramList.getString(2));
+    string driver = xmlrpc_c::value_string(paramList.getString(3));
 
     UserPool * upool = static_cast<UserPool *>(pool);
 
@@ -242,7 +243,12 @@ int UserAllocate::pool_allocate(xmlrpc_c::paramList const& paramList,
         ugname = GroupPool::USERS_NAME;
     }
 
-    return upool->allocate(&id,ugid,uname,ugname,passwd,true,error_str);
+    if (driver.empty())
+    {
+        driver = UserPool::CORE_AUTH;    
+    }
+
+    return upool->allocate(&id,ugid,uname,ugname,passwd,driver,true,error_str);
 }
 
 /* -------------------------------------------------------------------------- */

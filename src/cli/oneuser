@@ -105,7 +105,15 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         :description => "Token duration in seconds, defaults to 3600 (1 h)"
     }
 
-    create_options = [READ_FILE, PLAIN, SSH, X509, KEY, CERT]
+    DRIVER={
+        :name   => "driver",
+        :short  => "-d driver_name",
+        :large  => "--driver driver_name",
+        :format => String,
+        :description => "Authentication driver to be used with this user"
+    }
+
+    create_options = [READ_FILE, PLAIN, SSH, X509, KEY, CERT, DRIVER]
     login_options  = [SSH, X509, X509_PROXY, KEY, CERT, PROXY, TIME]
 
     ########################################################################
@@ -159,7 +167,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
 
         helper.create_resource(options) do |user|
-            user.allocate(args[0], pass)
+            driver = options[:driver] || OpenNebula::User::CORE_AUTH
+            user.allocate(args[0], pass, driver)
         end
     end
 

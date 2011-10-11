@@ -54,6 +54,7 @@ public:
         const string& uname,
         const string& gname,
         const string& password,
+        const string& auth,
         bool    enabled,
         string& error_str);
 
@@ -133,6 +134,11 @@ public:
         return PoolSQL::dump(oss, "USER_POOL", User::table, where);
     };
 
+    /**
+     *  Name for the OpenNebula core authentication process 
+     */
+    static const char * CORE_AUTH;
+
 private:
     /**
      *  Factory method to produce User objects
@@ -140,7 +146,7 @@ private:
      */
     PoolObjectSQL * create()
     {
-        return new User(-1,-1,"","","",true);
+        return new User(-1,-1,"","","",UserPool::CORE_AUTH,true);
     };
 };
 

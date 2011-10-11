@@ -297,28 +297,28 @@ public:
         ar.add_auth(AuthRequest::NET,2,1,AuthRequest::USE,2,false);
         ar.add_auth(AuthRequest::IMAGE,3,1,AuthRequest::USE,4,true);
 
-        CPPUNIT_ASSERT(ar.plain_authorize() == true);
+        CPPUNIT_ASSERT(ar.core_authorize() == true);
 
         ar1.add_auth(AuthRequest::VM,"dGhpcy",-1,AuthRequest::CREATE,2,false);
         ar1.add_auth(AuthRequest::NET,2,1,AuthRequest::USE,2,false);
         ar1.add_auth(AuthRequest::IMAGE,3,1,AuthRequest::USE,4,false);
 
-        CPPUNIT_ASSERT(ar1.plain_authorize() == false);
+        CPPUNIT_ASSERT(ar1.core_authorize() == false);
 
         ar2.add_auth(AuthRequest::HOST,"dGhpcy",-1,AuthRequest::CREATE,0,false);
-        CPPUNIT_ASSERT(ar2.plain_authorize() == false);
+        CPPUNIT_ASSERT(ar2.core_authorize() == false);
 
         ar3.add_auth(AuthRequest::VM,5,1,AuthRequest::MANAGE,2,false);
-        CPPUNIT_ASSERT(ar3.plain_authorize() == false);
+        CPPUNIT_ASSERT(ar3.core_authorize() == false);
 
         ar4.add_auth(AuthRequest::VM,4,1,AuthRequest::MANAGE,2,false);
-        CPPUNIT_ASSERT(ar4.plain_authorize() == true);
+        CPPUNIT_ASSERT(ar4.core_authorize() == true);
 
         ar5.add_auth(AuthRequest::HOST,4,-1,AuthRequest::MANAGE,0,false);
-        CPPUNIT_ASSERT(ar5.plain_authorize() == true);
+        CPPUNIT_ASSERT(ar5.core_authorize() == true);
 
         ar6.add_auth(AuthRequest::HOST,4,-1,AuthRequest::CREATE,0,false);
-        CPPUNIT_ASSERT(ar6.plain_authorize() == true);
+        CPPUNIT_ASSERT(ar6.core_authorize() == true);
     }
 
     void self_authenticate()
@@ -327,10 +327,10 @@ public:
         AuthRequest ar1(2,2);
 
         ar.add_authenticate("the_user","the_pass","the_secret");
-        CPPUNIT_ASSERT(ar.plain_authenticate() == false);
+        CPPUNIT_ASSERT(ar.core_authenticate() == false);
 
         ar1.add_authenticate("the_user","the_pass","the_pass");
-        CPPUNIT_ASSERT(ar1.plain_authenticate() == true);
+        CPPUNIT_ASSERT(ar1.core_authenticate() == true);
     }
 };
 

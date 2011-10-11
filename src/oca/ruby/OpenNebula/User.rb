@@ -32,7 +32,10 @@ module OpenNebula
             :update   => "user.update"
         }
 
-        SELF = -1
+        SELF      = -1
+        
+        #Selects core authentication driver        
+        CORE_AUTH = "core"
 
         # Creates a User description with just its identifier
         # this method should be used to create plain User objects.
@@ -72,8 +75,8 @@ module OpenNebula
         # +username+ Name of the new user.
         #
         # +password+ Password for the new user
-        def allocate(username, password)
-            super(USER_METHODS[:allocate], username, password)
+        def allocate(username, password, driver=CORE_AUTH)
+            super(USER_METHODS[:allocate], username, password, driver)
         end
 
         # Replaces the template contents

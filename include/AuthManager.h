@@ -428,12 +428,12 @@ public:
         am.loop(0,0);
     };
 
-    bool plain_authorize()
+    bool core_authorize()
     {
         return ( uid == 0 || self_authorize );
     }
 
-    bool plain_authenticate()
+    bool core_authenticate()
     {
         return (password == session);
     }

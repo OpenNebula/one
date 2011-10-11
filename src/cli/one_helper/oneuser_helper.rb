@@ -161,10 +161,12 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         str_h1="%-80s"
 
         CLIHelper.print_header(str_h1 % "USER #{user['ID']} INFORMATION")
-        puts str % ["ID",       user.id.to_s]
-        puts str % ["NAME",     user.name]
-        puts str % ["GROUP",    user.gid]
-        puts str % ["PASSWORD", user['PASSWORD']]
+        puts str % ["ID",          user.id.to_s]
+        puts str % ["NAME",        user.name]
+        puts str % ["GROUP",       user.gid]
+        puts str % ["PASSWORD",    user['PASSWORD']]
+        puts str % ["AUTH_DRIVER", user['AUTH_DRIVER']]
+
         puts str % ["ENABLED",
             OpenNebulaHelper.boolean_to_str(user['ENABLED'])]
         
