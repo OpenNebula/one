@@ -217,7 +217,7 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
     //--------------------------------------------------------------------------
 
     // ------------ TYPE ----------------------
-    get_template_attribute("TYPE",s_type);
+    erase_template_attribute("TYPE",s_type);
 
     transform(s_type.begin(),s_type.end(),s_type.begin(),(int(*)(int))toupper);
 
@@ -240,7 +240,7 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
 
     // ------------ NAME ----------------------
 
-    get_template_attribute("NAME",name);
+    erase_template_attribute("NAME",name);
 
     if (name.empty())
     {
@@ -249,15 +249,15 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
 
     // ------------ PHYDEV --------------------
 
-    get_template_attribute("PHYDEV",phydev);
+    erase_template_attribute("PHYDEV",phydev);
 
     // ------------ VLAN_ID -------------------
 
-    get_template_attribute("VLAN_ID",vlan_id);
+    erase_template_attribute("VLAN_ID",vlan_id);
 
     // ------------ BRIDGE --------------------
 
-    get_template_attribute("BRIDGE",bridge);
+    erase_template_attribute("BRIDGE",bridge);
 
     if (bridge.empty())
     {
@@ -278,13 +278,11 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
 
     // ------------ PUBLIC --------------------
 
-    get_template_attribute("PUBLIC", pub);
+    erase_template_attribute("PUBLIC", pub);
 
     transform (pub.begin(), pub.end(), pub.begin(), (int(*)(int))toupper);
 
     public_obj = (pub == "YES");
-
-    obj_template->erase("PUBLIC");
 
     //--------------------------------------------------------------------------
     // Get the leases
@@ -296,14 +294,14 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
         int    size   = 0;
 
         // retrieve specific information from template
-        get_template_attribute("NETWORK_ADDRESS",naddr);
+        erase_template_attribute("NETWORK_ADDRESS",naddr);
 
         if (naddr.empty())
         {
             goto error_addr;
         }
 
-        get_template_attribute("NETWORK_SIZE",nclass);
+        erase_template_attribute("NETWORK_SIZE",nclass);
 
         if ( nclass == "B" || nclass == "b"  )
         {
@@ -322,14 +320,6 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
 
         if (size == 0)
         {
-            SingleAttribute * attribute;
-            ostringstream     oss;
-
-            oss << default_size;
-
-            attribute = new SingleAttribute("NETWORK_SIZE",oss.str());
-            obj_template->set(attribute);
-
             size = default_size;
         }
 
@@ -349,6 +339,8 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
                                  oid,
                                  mac_prefix,
                                  vector_leases);
+
+        remove_template_attribute("LEASES");
     }
 
     if (leases == 0)
