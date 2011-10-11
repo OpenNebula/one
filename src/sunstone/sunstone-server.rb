@@ -53,7 +53,6 @@ require 'SunstonePlugins'
 
 begin
     conf = YAML.load_file(CONFIGURATION_FILE)
-    conf[:hash_passwords] = false
 rescue Exception => e
     puts "Error parsing config file #{CONFIGURATION_FILE}: #{e.message}"
     exit 1
