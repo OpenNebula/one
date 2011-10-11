@@ -103,7 +103,7 @@ class X509Auth
         token     = "#{signed_text}:#{certs_pem}"	
         token64   = Base64::encode64(token).strip.delete("\n")
 
-        login_out = "#{user}:x509:#{token64}"
+        login_out = "#{user}:#{token64}"
         
         login_out
     end

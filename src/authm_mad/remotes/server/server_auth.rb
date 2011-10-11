@@ -65,7 +65,7 @@ class ServerAuth < X509Auth
         token     = encrypt(token_txt)
         token64   = Base64::encode64(token).strip.delete("\n")
 
-        login_out = "#{user}:server:#{token64}"
+        login_out = "#{user}:#{token64}"
         
         login_out
     end

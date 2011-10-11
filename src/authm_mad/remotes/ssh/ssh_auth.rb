@@ -82,7 +82,7 @@ class SshAuth
         secret_plain   = "#{user}:#{time}"
         secret_crypted = encrypt(secret_plain)
 
-        proxy = "#{user}:ssh:#{secret_crypted}"
+        proxy = "#{user}:#{secret_crypted}"
 
         file = File.open(LOGIN_PATH, "w")
         file.write(proxy)
