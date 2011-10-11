@@ -216,7 +216,7 @@ public:
      */
     int erase_template_attribute(
         const char * name,
-        string&      value) const
+        string&      value)
     {
         obj_template->get(name,value);
         return obj_template->erase(name);

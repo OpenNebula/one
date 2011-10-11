@@ -215,6 +215,11 @@ int Template::erase(const string& name)
 
     index = attributes.equal_range(name);
 
+    if (index.first == index.second )
+    {
+        return 0;
+    }
+
     for ( i = index.first,j=0 ; i != index.second ; i++,j++ )
     {
         Attribute * attr = i->second;
