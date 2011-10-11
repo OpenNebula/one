@@ -75,7 +75,7 @@ public:
      *  Returns true if the image is persistent
      *     @return true if the image is persistent
      */
-    bool isPersistent()
+    bool isPersistent() const
     {
         return (persistent_img == 1);
     };
@@ -84,9 +84,36 @@ public:
      *  Returns the source path of the image
      *     @return source of image
      */
-    const string& get_source()
+    const string& get_source() const
     {
         return source;
+    }
+
+    /**
+     *  Returns the original path of the image
+     *     @return path of image
+     */
+    const string& get_path() const
+    {
+        return path;
+    }
+
+    /**
+     *  Returns the fs_type for the image (defined for datablocks)
+     *     @return fs_type
+     */
+    const string& get_fstype() const
+    {
+        return fs_type;
+    }
+
+    /**
+     *  Returns the size of the image 
+     *     @return size in mb
+     */
+    int get_size() const
+    {
+        return size_mb;
     }
 
     /**
@@ -308,6 +335,16 @@ private:
      *  Path to the image
      */
     string       source;
+
+    /**
+     *  Original Path to the image (optional if source is given or datablock)
+     */
+    string       path;
+
+    /**
+     *  File system type for the image (mandatory for datablocks)
+     */
+    string       fs_type;
 
     /**
      *  Size of the image in MB
