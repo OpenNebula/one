@@ -77,10 +77,7 @@ module OpenNebula
             conf_file.scan(SINGLE_VARIABLE_REG) {|m|
                 key=m[0].strip.upcase
                 value=m[1].strip
-            
-                # hack to skip multiline VM_TYPE values
-                next if %w{NAME TEMPLATE}.include? key.upcase
-            
+                        
                 add_value(key, value)
             }
         
