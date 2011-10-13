@@ -114,8 +114,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         0
     end
 
-    command :list, 'Lists Zones in the pool',
-                :options=>CLIHelper::OPTIONS+OpenNebulaHelper::OPTIONS do
+    command :list, 'Lists Zones in the pool' do
         helper.list_pool(options)
     end
 

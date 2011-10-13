@@ -372,7 +372,6 @@ INSTALL_CLIENT_FILES=(
     CLI_LIB_FILES:$LIB_LOCATION/ruby/cli
     ONE_CLI_LIB_FILES:$LIB_LOCATION/ruby/cli/one_helper
     ETC_CLIENT_FILES:$ETC_LOCATION
-    OZONES_LIB_CLIENT_FILES:$LIB_LOCATION/ruby
     OZONES_BIN_CLIENT_FILES:$BIN_LOCATION
     OZONES_LIB_CLIENT_CLI_FILES:$LIB_LOCATION/ruby/cli
     OZONES_LIB_CLIENT_CLI_HELPER_FILES:$LIB_LOCATION/ruby/cli/ozones_helper
@@ -432,7 +431,6 @@ INSTALL_OZONES_FILES=(
     OZONES_PUBLIC_IMAGES_FILES:$OZONES_LOCATION/public/images
     OZONES_PUBLIC_CSS_FILES:$OZONES_LOCATION/public/css
     OZONES_PUBLIC_JS_PLUGINS_FILES:$OZONES_LOCATION/public/js/plugins
-    OZONES_LIB_CLIENT_FILES:$LIB_LOCATION/ruby
     OZONES_BIN_CLIENT_FILES:$BIN_LOCATION
     OZONES_LIB_CLIENT_CLI_FILES:$LIB_LOCATION/ruby/cli
     OZONES_LIB_CLIENT_CLI_HELPER_FILES:$LIB_LOCATION/ruby/cli/ozones_helper
@@ -1106,8 +1104,6 @@ OZONES_PUBLIC_JS_PLUGINS_FILES="src/ozones/Server/public/js/plugins/zones-tab.js
                                src/ozones/Server/public/js/plugins/aggregated-tab.js \
                                src/ozones/Server/public/js/plugins/dashboard-tab.js"
                 
-OZONES_LIB_CLIENT_FILES="src/ozones/Client/lib/OZonesClient.rb"
-                                
 OZONES_LIB_CLIENT_CLI_FILES="src/ozones/Client/lib/cli/ozones_helper.rb"                   
                 
 OZONES_LIB_CLIENT_CLI_HELPER_FILES="\

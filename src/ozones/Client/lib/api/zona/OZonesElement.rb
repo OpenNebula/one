@@ -17,7 +17,7 @@
 module Zona
 
     class OZonesElement < JSONElement
-        
+
         protected
 
         def initialize(hash, client)
@@ -30,16 +30,16 @@ module Zona
 
         def info(kind, root_element)
             return Error.new('ID not defined') if !@pe_id
-            
+
             rc = @client.get_resource(kind,@pe_id)
-            if !OZonesClient.is_error?(rc)
+            if !Zona.is_error?(rc)
                 initialize_json(rc.body,root_element)
 
                 rc = nil
-                
+
                 @pe_id = self["id"] ? self["id"].to_i : nil
                 @name = self["name"] ? self["name"] : nil
-                
+
             end
             rc
         end
@@ -50,8 +50,8 @@ module Zona
 
         def allocate(kind, tmpl_json)
             rc = @client.post_resource(kind, tmpl_json)
-            
-            if !OZonesClient.is_error?(rc)
+
+            if !Zona.is_error?(rc)
                 initialize_json(rc.body,kind.upcase)
                 @pe_id = self["id"].to_i
                 rc = nil
@@ -63,7 +63,7 @@ module Zona
             return Error.new('ID not defined') if !@pe_id
 
             rc = @client.delete_resource(kind,@pe_id)
-            return rc if OZonesClient.is_error?(rc)
+            return rc if Zona.is_error?(rc)
             nil
         end
 

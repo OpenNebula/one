@@ -19,33 +19,58 @@ module Zona
 
     require 'json'
 
+    class OZonesJSON
+
+        def self.build_json(json_str, root_element)
+            begin
+                parser = JSON.parser.new(json_str, {:symbolize_names => false})
+                hash = parser.parse
+
+                if hash.has_key?(root_element)
+                    return hash[root_element]
+                end
+
+                Error.new("Error parsing JSON:\ root element not present")
+
+            rescue => e
+                Error.new(e.message)
+            end
+        end
+
+        # Alias for compatibility
+        def self.parse_json(json_str, root_element)
+            OZonesJSON.build_json(json_str, root_element)
+        end
+
+
+        def self.to_json(hash_to_convert)
+            begin
+                JSON.pretty_generate(hash_to_convert)
+            rescue Exception => e
+                Error.new(e.message)
+            end
+        end
+
+    end
+
     class JSONElement
         def initialize(json_hash=nil)
             @json_hash=json_hash
         end
 
         def initialize_json(json_str, root_element)
-            rc = JSONElement.build_json(json_str,root_element)
+            rc = OZonesJSON.build_json(json_str,root_element)
             @json_hash = rc
 
-            if OZonesClient.is_error?(rc) || (rc.size == 0)
+            if Zona.is_error?(rc) || (rc.size == 0)
                 @json_hash=nil
             end
         end
-
-        def self.build_json(json_str, root_element)
-            begin
-                parser = JSON.parser.new(json_str, {:symbolize_names => false})
-                hash = parser.parse
-                hash[root_element]
-            rescue => e
-                OZonesClient::Error.new(e.message)
-            end
-        end
-
         def [](key)
             @json_hash[key]
         end
+
+
     end
 
     class JSONPool < JSONElement

@@ -26,13 +26,13 @@ module Zona
             else
                 json = '{"VDC":{}}'
             end
-            JSONElement.build_json(json,"VDC")
+            OZonesJSON.build_json(json,"VDC")
         end
 
         def initialize(hash, client)
             super(hash, client)
         end
-        
+
         def info
             super(VDC_KIND,"VDC")
         end
@@ -51,11 +51,11 @@ module Zona
 
         def addhosts(hosts_array,options={})
             return Error.new('VDC not info-ed') if !@json_hash
-            
+
             # array of hosts, integers
             hosts = self["hosts"].split(',').collect!{|x| x.to_i}
             hosts.concat(hosts_array).uniq!
-            
+
             new_hosts = hosts.join(',')
             template = {:id => @pe_id, :hosts => new_hosts}
             template[:force] = "yes" if options[:force]
@@ -63,7 +63,7 @@ module Zona
             template = {:vdc => template}
 
             rc = @client.put_resource(VDC_KIND,@pe_id,template.to_json)
-            return rc if OZonesClient.is_error?(rc)
+            return rc if Zona.is_error?(rc)
             nil
         end
 
@@ -76,7 +76,7 @@ module Zona
             template = {:vdc => {:id => @pe_id, :hosts => new_hosts}}
 
             rc = @client.put_resource(VDC_KIND,@pe_id,template.to_json)
-            return rc if OZonesClient.is_error?(rc)
+            return rc if Zona.is_error?(rc)
             nil
         end
 

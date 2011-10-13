@@ -19,7 +19,7 @@ module Zona
     class OZonesPool < JSONPool
 
         protected
-        
+
         def initialize(pool,element,client)
             super(nil)
 
@@ -29,13 +29,13 @@ module Zona
         end
 
         def factory(element_json)
-            Zona::OZonesPoolElement.new(element_json, @client)
+            OZonesPoolElement.new(element_json, @client)
         end
 
         def info(kind)
             rc = @client.get_pool(kind)
 
-            if !OZonesClient.is_error?(rc)
+            if !Zona.is_error?(rc)
                 initialize_json(rc.body,@pool_name)
                 rc=nil
             end
@@ -44,7 +44,7 @@ module Zona
         end
 
         public
-        
+
         def each(&block)
             each_element(block) if @json_hash
         end

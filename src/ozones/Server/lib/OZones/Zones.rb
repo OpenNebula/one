@@ -60,7 +60,7 @@ module OZones
             zone_attributes["ZONE"][:vdcs] = Array.new
 
             self.vdcs.all.each{|vdc|
-                zone_attributes["ZONE"][:vdcs]<<vdc.attributes
+                zone_attributes["ZONE"][:vdcs]<< vdc.attributes
             }
 
             return zone_attributes

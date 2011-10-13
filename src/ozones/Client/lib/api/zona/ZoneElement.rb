@@ -17,7 +17,7 @@
 module Zona
 
     class Zone < OZonesElement
-        
+
         ZONE_KIND = "zone"
 
         def self.build_json(pe_id=nil)
@@ -26,13 +26,13 @@ module Zona
             else
                 json = '{"ZONE":{}}'
             end
-            JSONElement.build_json(json,"ZONE")
+            OZonesJSON.build_json(json,"ZONE")
         end
 
         def initialize(hash, client)
             super(hash, client)
         end
-        
+
         def info
             super(ZONE_KIND,"ZONE")
         end

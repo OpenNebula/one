@@ -49,8 +49,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         helper.show_resource(args[0],options)
     end
     
-    command :list, 'Lists VDCs in the pool', 
-            :options=>CLIHelper::OPTIONS+OpenNebulaHelper::OPTIONS do
+    command :list, 'Lists VDCs in the pool' do
         helper.list_pool(options)
     end
 

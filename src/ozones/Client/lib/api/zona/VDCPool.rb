@@ -24,7 +24,7 @@ module Zona
         end
 
         def factory(element_json)
-            Zona::VDC.new(element_json,@client)
+            VDC.new(element_json,@client)
         end
 
         def info

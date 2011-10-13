@@ -17,7 +17,7 @@
 module Zona
 
     class ZonePool < OZonesPool
-        
+
         ZONE_POOL_KIND = "zone"
 
         def initialize(client)
@@ -25,7 +25,7 @@ module Zona
         end
 
         def factory(element_json)
-            Zona::Zone.new(element_json,@client)
+            Zone.new(element_json,@client)
         end
 
         def info
