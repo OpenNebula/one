@@ -29,12 +29,18 @@ using namespace std;
 
 const string usernames[] = { "A_user", "B_user", "C_user", "D_user", "E_user" };
 const string passwords[] = { "A_pass", "B_pass", "C_pass", "D_pass", "E_pass" };
+const string passwords_db[] = {
+"a5ef2d19f923e1daf3f81a44707d0689c41d5118",
+"d21f526a8032ed3e49e92f2abb134d0e113cffc7",
+"49830f2084a232a65a75fc484bf6de614a8e2156",
+"db3ee01bfda41592247491d69bf4208d4e79c102",
+"3ecc357d5f8aa63b737e6201f05dfca11646ffbb"};
 
 const string dump_result =
-    "<USER_POOL><USER><ID>0</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>one_user_test</NAME><PASSWORD>5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8</PASSWORD><ENABLED>1</ENABLED></USER><USER><ID>1</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>a</NAME><PASSWORD>p</PASSWORD><ENABLED>1</ENABLED></USER><USER><ID>2</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>a_name</NAME><PASSWORD>pass</PASSWORD><ENABLED>1</ENABLED></USER><USER><ID>3</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>a_name_2</NAME><PASSWORD>password</PASSWORD><ENABLED>1</ENABLED></USER><USER><ID>4</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>another_name</NAME><PASSWORD>secret</PASSWORD><ENABLED>1</ENABLED></USER><USER><ID>5</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>user</NAME><PASSWORD>1234</PASSWORD><ENABLED>1</ENABLED></USER></USER_POOL>";
+"<USER_POOL><USER><ID>0</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>one_user_test</NAME><PASSWORD>5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8</PASSWORD><AUTH_DRIVER>core</AUTH_DRIVER><ENABLED>1</ENABLED><TEMPLATE></TEMPLATE></USER><USER><ID>1</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>a</NAME><PASSWORD>516b9783fca517eecbd1d064da2d165310b19759</PASSWORD><AUTH_DRIVER>core</AUTH_DRIVER><ENABLED>1</ENABLED><TEMPLATE></TEMPLATE></USER><USER><ID>2</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>a_name</NAME><PASSWORD>9d4e1e23bd5b727046a9e3b4b7db57bd8d6ee684</PASSWORD><AUTH_DRIVER>core</AUTH_DRIVER><ENABLED>1</ENABLED><TEMPLATE></TEMPLATE></USER><USER><ID>3</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>a_name_2</NAME><PASSWORD>5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8</PASSWORD><AUTH_DRIVER>core</AUTH_DRIVER><ENABLED>1</ENABLED><TEMPLATE></TEMPLATE></USER><USER><ID>4</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>another_name</NAME><PASSWORD>e5e9fa1ba31ecd1ae84f75caaa474f3a663f05f4</PASSWORD><AUTH_DRIVER>core</AUTH_DRIVER><ENABLED>1</ENABLED><TEMPLATE></TEMPLATE></USER><USER><ID>5</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>user</NAME><PASSWORD>7110eda4d09e062aa5e4a390b0a572ac0d2c0220</PASSWORD><AUTH_DRIVER>core</AUTH_DRIVER><ENABLED>1</ENABLED><TEMPLATE></TEMPLATE></USER></USER_POOL>";
 
 const string dump_where_result =
-    "<USER_POOL><USER><ID>1</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>a</NAME><PASSWORD>p</PASSWORD><ENABLED>1</ENABLED></USER><USER><ID>2</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>a_name</NAME><PASSWORD>pass</PASSWORD><ENABLED>1</ENABLED></USER><USER><ID>3</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>a_name_2</NAME><PASSWORD>password</PASSWORD><ENABLED>1</ENABLED></USER><USER><ID>4</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>another_name</NAME><PASSWORD>secret</PASSWORD><ENABLED>1</ENABLED></USER></USER_POOL>";
+"<USER_POOL><USER><ID>1</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>a</NAME><PASSWORD>516b9783fca517eecbd1d064da2d165310b19759</PASSWORD><AUTH_DRIVER>core</AUTH_DRIVER><ENABLED>1</ENABLED><TEMPLATE></TEMPLATE></USER><USER><ID>2</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>a_name</NAME><PASSWORD>9d4e1e23bd5b727046a9e3b4b7db57bd8d6ee684</PASSWORD><AUTH_DRIVER>core</AUTH_DRIVER><ENABLED>1</ENABLED><TEMPLATE></TEMPLATE></USER><USER><ID>3</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>a_name_2</NAME><PASSWORD>5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8</PASSWORD><AUTH_DRIVER>core</AUTH_DRIVER><ENABLED>1</ENABLED><TEMPLATE></TEMPLATE></USER><USER><ID>4</ID><GID>0</GID><GNAME>oneadmin</GNAME><NAME>another_name</NAME><PASSWORD>e5e9fa1ba31ecd1ae84f75caaa474f3a663f05f4</PASSWORD><AUTH_DRIVER>core</AUTH_DRIVER><ENABLED>1</ENABLED><TEMPLATE></TEMPLATE></USER></USER_POOL>";
 
 #include "NebulaTest.h"
 
@@ -106,8 +112,9 @@ protected:
         CPPUNIT_ASSERT( obj != 0 );
 
         string name = ((User*)obj)->get_name();
+
         CPPUNIT_ASSERT( name == usernames[index] );
-        CPPUNIT_ASSERT( ((User*)obj)->get_password() == passwords[index] );
+        CPPUNIT_ASSERT( ((User*)obj)->get_password() == passwords_db[index] );
     };
 
 public:
@@ -191,7 +198,7 @@ public:
 
         // There is an initial user, created with the one_auth file:
         //      one_user_test:password
-        string session="one_user_test:5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8";
+        string session="one_user_test:password";
 
         rc = user_pool->authenticate( session, oid, gid, uname, gname);
         CPPUNIT_ASSERT( rc == true );
@@ -206,7 +213,7 @@ public:
         CPPUNIT_ASSERT( oid == -1 );
         CPPUNIT_ASSERT( gid == -1 );
 
-        session = "unknown_user:5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8";
+        session = "unknown_user:password";
         rc = user_pool->authenticate( session, oid, gid, uname, gname);
         CPPUNIT_ASSERT( rc == false );
         CPPUNIT_ASSERT( oid == -1 );
