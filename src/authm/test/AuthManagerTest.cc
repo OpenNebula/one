@@ -148,7 +148,7 @@ public:
     {
         AuthRequest ar(2, 2);
 
-        ar.add_authenticate("timeout","the_pass","the_secret");
+        ar.add_authenticate("test","timeout","the_pass","the_secret");
 
         am->trigger(AuthManager::AUTHENTICATE,&ar);
 
@@ -164,7 +164,7 @@ public:
     {
         AuthRequest ar(2, 2);
 
-        ar.add_authenticate("the_user","the_pass","the_secret");
+        ar.add_authenticate("test","the_user","the_pass","the_secret");
 
         am->trigger(AuthManager::AUTHENTICATE,&ar);
         ar.wait();
@@ -326,10 +326,10 @@ public:
         AuthRequest ar(2, 2);
         AuthRequest ar1(2,2);
 
-        ar.add_authenticate("the_user","the_pass","the_secret");
+        ar.add_authenticate("core","the_user","the_pass","the_secret");
         CPPUNIT_ASSERT(ar.core_authenticate() == false);
 
-        ar1.add_authenticate("the_user","the_pass","the_pass");
+        ar1.add_authenticate("core","the_user","e2e509d8358df1d5fa3bc825173f93904baa4906", "the_pass");
         CPPUNIT_ASSERT(ar1.core_authenticate() == true);
     }
 };
