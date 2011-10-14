@@ -80,10 +80,10 @@ describe "Quota testing" do
     it "should check default cache (force)" do
         usage1force = @quota.get_usage(@uid1, nil, true)
         usage1force[:uid].should eql(0)
-        usage1force[:num_vms].should eql(nil)
-        usage1force[:cpu].should eql(nil)
-        usage1force[:memory].should eql(nil)
-        usage1force[:storage].should eql(nil)
+        usage1force[:num_vms].should eql(0)
+        usage1force[:cpu].should eql(0)
+        usage1force[:memory].should eql(0)
+        usage1force[:storage].should eql(0)
     end
 
     it "should authorize the user because there is no quota defined" do
@@ -106,10 +106,10 @@ describe "Quota testing" do
     it "should check the usage cache is not updated" do
         usage1cache = @quota.get_usage(@uid1)
         usage1cache[:uid].should eql(0)
-        usage1cache[:num_vms].should eql(nil)
-        usage1cache[:cpu].should eql(nil)
-        usage1cache[:memory].should eql(nil)
-        usage1cache[:storage].should eql(nil)
+        usage1cache[:num_vms].should eql(0)
+        usage1cache[:cpu].should eql(0.0)
+        usage1cache[:memory].should eql(0)
+        usage1cache[:storage].should eql(0)
     end
 
     it "should check the cache (force)" do
@@ -118,7 +118,7 @@ describe "Quota testing" do
         usage1force[:num_vms].should eql(1)
         usage1force[:cpu].should eql(2.0)
         usage1force[:memory].should eql(128)
-        usage1force[:storage].should eql(nil)
+        usage1force[:storage].should eql(0)
     end
 
     it "should check the usage cache is updated and contains the last usage" do
@@ -127,7 +127,7 @@ describe "Quota testing" do
         usage1cache[:num_vms].should eql(1)
         usage1cache[:cpu].should eql(2.0)
         usage1cache[:memory].should eql(128)
-        usage1cache[:storage].should eql(nil)
+        usage1cache[:storage].should eql(0)
     end
 
     it "should add a new Image" do
@@ -146,7 +146,7 @@ describe "Quota testing" do
         usage1cache[:num_vms].should eql(1)
         usage1cache[:cpu].should eql(2.0)
         usage1cache[:memory].should eql(128)
-        usage1cache[:storage].should eql(nil)
+        usage1cache[:storage].should eql(0)
     end
 
     it "should check the cache (force)" do
@@ -252,7 +252,7 @@ describe "Quota testing" do
     end
 
     it "should not authorize the user because the vm quota is spent" do
-        err_msg = "CPU quota exceeded (Quota: 2.4, Used: 4.0, Asked: 2.0)."
+        err_msg = "CPU quota exceeded (Quota: 2.4, Used: 4.0, Requested: 2.0)"
         @quota.authorize(@uid1, @acl_vm_create).should eql(err_msg)
         @quota.authorize(@uid1, @acl_template_instantiate).should eql(err_msg)
 
@@ -320,7 +320,7 @@ describe "Quota testing" do
         @quota.authorize(@uid1, @acl_vm_create).should eql(false)
         @quota.authorize(@uid1, @acl_template_instantiate).should eql(false)
 
-        err_msg = "STORAGE quota exceeded (Quota: 0, Used: 2000, Asked: 1474)."
+        err_msg = "STORAGE quota exceeded (Quota: 0, Used: 2000, Requested: 271)"
         @quota.authorize(@uid1, @acl_image_create).should eql(err_msg)
     end
 

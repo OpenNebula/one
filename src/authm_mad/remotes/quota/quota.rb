@@ -154,6 +154,19 @@ class Quota
         set(QUOTA_TABLE, uid, quota)
     end
 
+    # Retrieves quota information for a given user
+    #
+    # @param [Integer, nil] uid the user id from which get the quota
+    #   information, if nil will retrieve the quotas for all users.
+    # @return [Hash] Hash containing the quota information and the user id
+    #
+    #    {
+    #        :uid     => 4,
+    #        :cpu     => 8,
+    #        :memory  => 8064,
+    #        :num_vms => 4,
+    #        :storage => 1240019
+    #    }
     def get_quota(uid=nil)
         limit = get(QUOTA_TABLE, uid)
         limit ? limit : @conf[:defaults].merge!(:uid => uid)
@@ -192,14 +205,16 @@ class Quota
         msg = ""
         separator = ""
         info.each { |qname, quota_requested|
-            unless quota[qname]
+            unless quota[qname] || quota[qname]==0
                 next
             end
 
-            used = send(DB_QUOTA_SCHEMA[qname].name.to_sym, total[qname])
-            request = send(DB_QUOTA_SCHEMA[qname].name.to_sym, quota_requested)
-            limit = send(DB_QUOTA_SCHEMA[qname].name.to_sym, quota[qname])
-            spent = used + request
+            type = DB_QUOTA_SCHEMA[qname].name.to_sym
+
+            used    = send(type, total[qname])
+            request = send(type, quota_requested)
+            limit   = send(type, quota[qname])
+            spent   = used + request
 
             if spent > limit
                 msg << separator
@@ -228,6 +243,22 @@ class Quota
     ###########################################################################
     # Usage
     ###########################################################################
+    # Retrieves usage information for a given user
+    #
+    # @param [Integer] uid the user id from which get the usage information.
+    # @param ["VM", "IMAGE"] resource kind of resource. If nil will return
+    #   the usage for all kinds of resources
+    # @param [true, false] force If true will force the usage calculation
+    #   instead of retrieving it from the cache
+    # @return [Hash] Hash containing the usage information and the user id
+    #
+    #    {
+    #        :uid     => 4,
+    #        :cpu     => 8,
+    #        :memory  => 8064,
+    #        :num_vms => 4,
+    #        :storage => 1240019
+    #    }
     def get_usage(user_id, resource=nil, force=false)
         if force
             if RESOURCES.include?(resource)

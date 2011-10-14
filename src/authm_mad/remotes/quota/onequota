@@ -99,7 +99,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         arg_list.map! {|a| a.to_i }
         [0, arg_list]
     end
-    
+
     set :format, :userid, OpenNebulaHelper.rname_to_id_desc("USER") do |arg|
         OpenNebulaHelper.rname_to_id(arg, "USER")
     end
@@ -131,6 +131,26 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     end
 
     ########################################################################
+    unset_desc = <<-EOT.unindent
+        Unset a quota for a given user.
+        Examples:
+          onequota unset 3 cpu
+          onequota unset 4 cpu,memory,storage
+    EOT
+
+    command :unset, unset_desc, :userid, :quota_list do
+        user_id, keys = args
+
+        values_hash = Hash.new
+        keys.each_with_index { |k,i|
+            values_hash[k.to_sym] = 0
+        }
+
+        quota.set_quota(user_id, values_hash)
+        exit_with_code 0
+    end
+
+    ########################################################################
     delete_desc = "Delete the defined quotas for the given user"
 
     command :delete, delete_desc, :userid do
@@ -140,7 +160,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     ########################################################################
     show_desc = "Show the user's quota and usage. (usage/quota)"
-    
+
     FORCE={
         :name  => "force",
         :short => "-f",
