@@ -194,8 +194,8 @@ void Nebula::start()
 
     try
     {
-        string  mac_prefix = "00:00";
-        int     size = 1;
+        string  mac_prefix = "00:02";
+        int     size = 126;
         string  default_image_type      = "OS";
         string  default_device_prefix   = "hd";
 

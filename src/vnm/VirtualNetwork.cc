@@ -294,14 +294,14 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
         int    size   = 0;
 
         // retrieve specific information from template
-        erase_template_attribute("NETWORK_ADDRESS",naddr);
+        get_template_attribute("NETWORK_ADDRESS",naddr);
 
         if (naddr.empty())
         {
             goto error_addr;
         }
 
-        erase_template_attribute("NETWORK_SIZE",nclass);
+        get_template_attribute("NETWORK_SIZE",nclass);
 
         if ( nclass == "B" || nclass == "b"  )
         {
