@@ -108,10 +108,11 @@ public:
 
     /**
      *  Bootstraps the database table(s) associated to the VirtualNetwork pool
+     *    @return 0 on success
      */
-    static void bootstrap(SqlDB * _db)
+    static int bootstrap(SqlDB * _db)
     {
-        VirtualNetwork::bootstrap(_db);
+        return VirtualNetwork::bootstrap(_db);
     };
 
     /**

@@ -63,7 +63,7 @@ const char * VMTemplate::db_names = "oid, name, body, uid, gid, public";
 
 const char * VMTemplate::db_bootstrap =
     "CREATE TABLE IF NOT EXISTS template_pool (oid INTEGER PRIMARY KEY, "
-    "name VARCHAR(256), body TEXT, uid INTEGER, gid INTEGER, public INTEGER)";
+    "name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, public INTEGER)";
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
@@ -91,6 +91,11 @@ int VMTemplate::insert(SqlDB *db, string& error_str)
         oss.str("");
         oss << "template-" << oid;
         name = oss.str();
+    }
+    else if ( name.length() > 128 )
+    {
+        error_str = "NAME is too long; max length is 128 chars.";
+        return -1;
     }
 
 

@@ -108,12 +108,13 @@ private:
 
     /**
      *  Bootstraps the database table(s) associated to the VMTemplate
+     *    @return 0 on success
      */
-    static void bootstrap(SqlDB * db)
+    static int bootstrap(SqlDB * db)
     {
         ostringstream oss(VMTemplate::db_bootstrap);
 
-        db->exec(oss);
+        return db->exec(oss);
     };
 
     /**

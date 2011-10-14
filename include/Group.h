@@ -103,12 +103,13 @@ private:
 
     /**
      *  Bootstraps the database table(s) associated to the Group
+     *    @return 0 on success
      */
-    static void bootstrap(SqlDB * db)
+    static int bootstrap(SqlDB * db)
     {
         ostringstream oss(Group::db_bootstrap);
 
-        db->exec(oss);
+        return db->exec(oss);
     };
 
     /**

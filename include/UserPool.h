@@ -92,10 +92,11 @@ public:
 
     /**
      *  Bootstraps the database table(s) associated to the User pool
+     *    @return 0 on success
      */
-    static void bootstrap(SqlDB * _db)
+    static int bootstrap(SqlDB * _db)
     {
-        User::bootstrap(_db);
+        return User::bootstrap(_db);
     };
 
     /**
