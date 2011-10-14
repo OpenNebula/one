@@ -150,6 +150,11 @@ int HostPool::allocate (
         goto error_name;
     }
 
+    if ( hostname.length() > 128 )
+    {
+        goto error_name_length;
+    }
+
     if ( im_mad_name.empty() )
     {
         goto error_im;
@@ -185,6 +190,10 @@ int HostPool::allocate (
 
 error_name:
     oss << "NAME cannot be empty.";
+    goto error_common;
+
+error_name_length:
+    oss << "NAME is too long; max length is 128 chars.";
     goto error_common;
 
 error_im:

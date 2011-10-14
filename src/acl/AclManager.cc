@@ -474,11 +474,11 @@ int AclManager::del_rule(int oid, string& error_str)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void AclManager::bootstrap(SqlDB * _db)
+int AclManager::bootstrap(SqlDB * _db)
 {
     ostringstream oss(db_bootstrap);
 
-    _db->exec(oss);
+    return _db->exec(oss);
 }
 
 /* -------------------------------------------------------------------------- */

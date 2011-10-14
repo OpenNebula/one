@@ -82,10 +82,11 @@ public:
 
     /**
      *  Bootstraps the database table(s) associated to the Host pool
+     *    @return 0 on success
      */
-    static void bootstrap(SqlDB *_db)
+    static int bootstrap(SqlDB *_db)
     {
-        Host::bootstrap(_db);
+        return Host::bootstrap(_db);
     };
 
     /**

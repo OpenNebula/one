@@ -76,7 +76,7 @@ const char * Image::table = "image_pool";
 const char * Image::db_names = "oid, name, body, uid, gid, public";
 
 const char * Image::db_bootstrap = "CREATE TABLE IF NOT EXISTS image_pool ("
-    "oid INTEGER PRIMARY KEY, name VARCHAR(256), body TEXT, uid INTEGER, "
+    "oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, "
     "gid INTEGER, public INTEGER, UNIQUE(name,uid) )";
 
 /* ------------------------------------------------------------------------ */
@@ -226,7 +226,7 @@ error_size_format:
     goto error_common;
 
 error_path_and_source:
-    error_str = "Template malformed, PATH and SOURCE are mutuallly exclusive.";
+    error_str = "Template malformed, PATH and SOURCE are mutually exclusive.";
     goto error_common;
 
 error_common:

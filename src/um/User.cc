@@ -38,7 +38,7 @@ const char * User::table = "user_pool";
 const char * User::db_names = "oid,name,body";
 
 const char * User::db_bootstrap = "CREATE TABLE IF NOT EXISTS user_pool ("
-    "oid INTEGER PRIMARY KEY, name VARCHAR(256), body TEXT, UNIQUE(name))";
+    "oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, UNIQUE(name))";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

@@ -99,8 +99,9 @@ public:
 
     /**
      *  Bootstraps the database table(s) associated to the ACL Manager
+     *    @return 0 on success
      */
-    static void bootstrap(SqlDB * _db);
+    static int bootstrap(SqlDB * _db);
 
     /**
      *  Dumps the rule set in XML format.

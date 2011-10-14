@@ -362,12 +362,13 @@ private:
 
     /**
      *  Bootstraps the database table(s) associated to the Host
+     *    @return 0 on success
      */
-    static void bootstrap(SqlDB * db)
+    static int bootstrap(SqlDB * db)
     {
         ostringstream oss_host(Host::db_bootstrap);
 
-        db->exec(oss_host);
+        return db->exec(oss_host);
     };
 
     /**

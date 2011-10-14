@@ -153,6 +153,12 @@ int UserPool::allocate (
         goto error_name;
     }
 
+    if ( uname.length() > 128 )
+    {
+        error_str = "max length is 128 chars";
+        goto error_name;
+    }
+
     // Check for duplicates
     user = get(uname,false);
 

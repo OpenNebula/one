@@ -236,17 +236,29 @@ void Nebula::start()
 
         if( rc == -2 )
         {
-            NebulaLog::log("ONE",Log::INFO,"Bootstraping OpenNebula database.");
+            rc = 0;
 
-            bootstrap();
-            VirtualMachinePool::bootstrap(db);
-            HostPool::bootstrap(db);
-            VirtualNetworkPool::bootstrap(db);
-            GroupPool::bootstrap(db);
-            UserPool::bootstrap(db);
-            ImagePool::bootstrap(db);
-            VMTemplatePool::bootstrap(db);
-            AclManager::bootstrap(db);
+            NebulaLog::log("ONE",Log::INFO,"Bootstrapping OpenNebula database.");
+
+            rc += VirtualMachinePool::bootstrap(db);
+            rc += HostPool::bootstrap(db);
+            rc += VirtualNetworkPool::bootstrap(db);
+            rc += GroupPool::bootstrap(db);
+            rc += UserPool::bootstrap(db);
+            rc += ImagePool::bootstrap(db);
+            rc += VMTemplatePool::bootstrap(db);
+            rc += AclManager::bootstrap(db);
+
+            // Create the versioning table only if bootstrap went well
+            if ( rc == 0 )
+            {
+                rc += bootstrap();
+            }
+
+            if ( rc != 0 )
+            {
+                throw runtime_error("Error bootstrapping database.");
+            }
         }
     }
     catch (exception&)
@@ -627,27 +639,30 @@ void Nebula::start()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void Nebula::bootstrap()
+int Nebula::bootstrap()
 {
+    int             rc;
     ostringstream   oss;
 
     oss <<  "CREATE TABLE pool_control (tablename VARCHAR(32) PRIMARY KEY, "
             "last_oid BIGINT UNSIGNED)";
 
-    db->exec(oss);
+    rc = db->exec(oss);
 
     oss.str("");
     oss <<  "CREATE TABLE db_versioning (oid INTEGER PRIMARY KEY, "
             "version VARCHAR(256), timestamp INTEGER, comment VARCHAR(256))";
 
-    db->exec(oss);
+    rc += db->exec(oss);
 
     oss.str("");
     oss << "INSERT INTO db_versioning (oid, version, timestamp, comment) "
         << "VALUES (0, '" << db_version() << "', " << time(0)
         << ", '" << version() << " daemon bootstrap')";
 
-    db->exec(oss);
+    rc += db->exec(oss);
+
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */
