@@ -32,7 +32,10 @@ module Migrator
         # Image pool table:
         # CREATE TABLE image_pool (oid INTEGER PRIMARY KEY, name VARCHAR(256), body TEXT, uid INTEGER, gid INTEGER, public INTEGER, UNIQUE(name,uid) );
 
-        @db.fetch("SELECT * FROM image_pool") do |row|
+        @db.run "ALTER TABLE image_pool RENAME TO old_image_pool;"
+        @db.run "CREATE TABLE image_pool (oid INTEGER PRIMARY KEY, name VARCHAR(256), body TEXT, uid INTEGER, gid INTEGER, public INTEGER, UNIQUE(name,uid) );"
+
+        @db.fetch("SELECT * FROM old_image_pool") do |row|
             doc = Document.new(row[:body])
 
             source = nil
@@ -48,9 +51,16 @@ module Migrator
             size_elem = doc.root.add_element("SIZE")
             size_elem.text = size
 
-            @db[:image_pool].filter(:oid => row[:oid]).update(
-                :body => doc.root.to_s)
+            @db[:image_pool].insert(
+                :oid        => row[:oid],
+                :name       => row[:name],
+                :body       => doc.root.to_s,
+                :uid        => row[:uid],
+                :gid        => row[:gid],
+                :public     => row[:public])
         end
+
+        @db.run "DROP TABLE old_image_pool;"
 
         return true
     end
