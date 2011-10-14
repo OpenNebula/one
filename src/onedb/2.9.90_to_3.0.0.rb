@@ -29,7 +29,11 @@ module Migrator
         # The tm_nfs driver has been renamed to tm_shared
         # CREATE TABLE host_pool (oid INTEGER PRIMARY KEY, name VARCHAR(256), body TEXT, state INTEGER, last_mon_time INTEGER, UNIQUE(name));
 
-        @db.fetch("SELECT * FROM host_pool") do |row|
+        @db.run "ALTER TABLE host_pool RENAME TO old_host_pool;"
+        @db.run "CREATE TABLE host_pool (oid INTEGER PRIMARY KEY, name VARCHAR(256), body TEXT, state INTEGER, last_mon_time INTEGER, UNIQUE(name));"
+        @db.run "INSERT INTO host_pool SELECT * FROM old_host_pool;"
+
+        @db.fetch("SELECT * FROM old_host_pool") do |row|
             doc = Document.new(row[:body])
 
             source = nil
@@ -42,6 +46,8 @@ module Migrator
                 end
             }
         end
+
+        @db.run "DROP TABLE old_host_pool;"
 
         return true
     end
