@@ -50,11 +50,22 @@ module OpenNebula
     # Any function in the OpenNebula module will return an Error
     # object in case of error.
     class Error
-        attr_reader :message
+        ESUCCESS        = 0x0000
+        EAUTHENTICATION = 0x0100
+        EAUTHORIZATION  = 0x0200
+        ENO_EXISTS      = 0x0400
+        EACTION         = 0x0800
+        EXML_RPC_API    = 0x1000
+        EINTERNAL       = 0x2000
+        ENOTDEFINED     = 0x1111
 
-        # +message+ a description of the error
-        def initialize(message=nil)
-            @message=message
+        attr_reader :message, :errno
+
+        # +message+ Description of the error
+        # +errno+   OpenNebula code error
+        def initialize(message=nil, errno=0x1111)
+            @message = message
+            @errno   = errno
         end
 
         def to_str()
@@ -127,7 +138,7 @@ module OpenNebula
                 response = @server.call_async("one."+action, @one_auth, *args)
 
                 if response[0] == false
-                    Error.new(response[1])
+                    Error.new(response[1], response[2])
                 else
                     response[1] #response[1..-1]
                 end
