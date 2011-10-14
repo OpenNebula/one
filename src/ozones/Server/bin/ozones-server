@@ -80,14 +80,6 @@ start()
     exit 1
   fi
 
-  sleep 1
-  ps $LASTPID &> /dev/null
-
-  if [ $? -ne 0 ]; then
-        echo "Error executing $OZONES_SERVER, please check the log $OZONES_LOG"
-    exit 1
-  fi
-
   echo "ozones-server listening on $HOST:$PORT"
 }
 
