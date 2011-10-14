@@ -49,6 +49,8 @@ module Migrator
     end
 
     def check_names(table, elem)
+        @db.run "CREATE TABLE migrator_tmp (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT);"
+
         @db.fetch("SELECT * FROM #{table}") do |row|
             if ( row[:name].length > 128 )
                 # Element name is bigger than 128 chars
@@ -58,14 +60,23 @@ module Migrator
 
                 doc.root.each_element("NAME") { |e|
                     e.text = new_name
-
-                    @db[table].filter(:oid => row[:oid]).update(
-                        :name => new_name,
-                        :body => doc.root.to_s)
                 }
+
+                @db[:migrator_tmp].insert(
+                    :oid        => row[:oid],
+                    :name       => new_name,
+                    :body       => doc.root.to_s)
 
                 puts "    > #{elem} ##{row[:oid]} had a name bigger than 128 chars and has been renamed to #{new_name[0..10]}..."
             end
         end
+
+        @db.fetch("SELECT * FROM migrator_tmp") do |row|
+            @db[table].filter(:oid => row[:oid]).update(
+                :name => row[:name],
+                :body => row[:body])
+        end
+
+        @db.run "DROP TABLE migrator_tmp"
     end
 end
