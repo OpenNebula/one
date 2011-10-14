@@ -242,9 +242,9 @@ class Quota
                 pool = get_pool(res, user_id)
                 base_xpath = "/#{res}_POOL/#{resource}"
                 Quota.const_get("#{res}_USAGE".to_sym).each { |key, params|
+                    usage[key] ||= 0
                     pool.each_xpath("#{base_xpath}/#{params[:xpath]}") { |elem|
                         if elem
-                            usage[key] ||= 0
                             if params[:count]
                                 usage[key] += 1
                             else
