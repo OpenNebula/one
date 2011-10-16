@@ -1059,15 +1059,15 @@ OZONES_LIB_ZONE_FILES="src/ozones/Server/lib/OZones/Zones.rb \
                 src/ozones/Server/lib/OZones/AggregatedImages.rb \
                 src/ozones/Server/lib/OZones/AggregatedTemplates.rb"
                 
-OZONES_LIB_API_FILES="src/ozones/Client/lib/api/zona.rb"
+OZONES_LIB_API_FILES="src/ozones/Client/lib/zona.rb"
 
-OZONES_LIB_API_ZONA_FILES="src/ozones/Client/lib/api/zona/ZoneElement.rb \
-                src/ozones/Client/lib/api/zona/OZonesPool.rb \
-                src/ozones/Client/lib/api/zona/OZonesJSON.rb \
-                src/ozones/Client/lib/api/zona/VDCPool.rb \
-                src/ozones/Client/lib/api/zona/VDCElement.rb \
-                src/ozones/Client/lib/api/zona/OZonesElement.rb \
-                src/ozones/Client/lib/api/zona/ZonePool.rb"
+OZONES_LIB_API_ZONA_FILES="src/ozones/Client/lib/zona/ZoneElement.rb \
+                src/ozones/Client/lib/zona/OZonesPool.rb \
+                src/ozones/Client/lib/zona/OZonesJSON.rb \
+                src/ozones/Client/lib/zona/VDCPool.rb \
+                src/ozones/Client/lib/zona/VDCElement.rb \
+                src/ozones/Client/lib/zona/OZonesElement.rb \
+                src/ozones/Client/lib/zona/ZonePool.rb"
 
 OZONES_PUBLIC_VENDOR_JQUERY=$SUNSTONE_PUBLIC_VENDOR_JQUERY
                         
