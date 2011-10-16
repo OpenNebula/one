@@ -122,10 +122,11 @@ public:
 
     /**
      *  Bootstraps the database table(s) associated to the VirtualMachine pool
+     *    @return 0 on success
      */
-    static void bootstrap(SqlDB * _db)
+    static int bootstrap(SqlDB * _db)
     {
-        VirtualMachine::bootstrap(_db);
+        return VirtualMachine::bootstrap(_db);
     };
 
     /**

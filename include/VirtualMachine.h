@@ -784,14 +784,19 @@ private:
 
     /**
      *  Bootstraps the database table(s) associated to the VirtualMachine
+     *    @return 0 on success
      */
-    static void bootstrap(SqlDB * db)
+    static int bootstrap(SqlDB * db)
     {
+        int rc;
+
         ostringstream oss_vm(VirtualMachine::db_bootstrap);
         ostringstream oss_hist(History::db_bootstrap);
 
-        db->exec(oss_vm);
-        db->exec(oss_hist);
+        rc =  db->exec(oss_vm);
+        rc += db->exec(oss_hist);
+
+        return rc;
     };
 
     /**

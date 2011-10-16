@@ -14,372 +14,250 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'OCAInteraction'
 require 'JSONUtils'
 
 
 class OzonesServer
     include OpenNebulaJSON::JSONUtils
 
-    def initialize
-        @ocaInt = OCAInteraction.new
-    end
-
     ############################################################################
-    # Retrieve resources
+    # Get methods for the Zones and VDC interface
     ############################################################################
-    def get_pool(kind)
-        pool = case kind
-            when "vdc"      then OZones::Vdc
-            when "zone"     then OZones::Zones
-            else
-                error = OZones::Error.new(
-                                        "Error: #{kind} resource not supported")
-                return [404, error.to_json]
-        end
-
-        return [200, pool.to_json]
+    # Gets all VDCs
+    def get_vdcs
+        return 200, OZones::Vdc.to_json
     end
 
-    # Gets an aggreageted pool for a zone or vdc
-    # ie All the hosts in all the Zones
-    def get_aggregated_pool(kind, aggkind)
-        aggpool = case kind
-            when "zone"     then
-                case aggkind
-                    when "host"                    then OZones::AggregatedHosts.new
-                    when "image"                   then OZones::AggregatedImages.new
-                    when "user"                    then OZones::AggregatedUsers.new
-                    when "vm"                      then OZones::AggregatedVirtualMachines.new
-                    when "vn","vnet"               then OZones::AggregatedVirtualNetworks.new
-                    when "template","vmtemplate"   then OZones::AggregatedTemplates.new
-                end
-            else
-                error = OZones::Error.new(
-                  "Error: #{aggkind} aggregated pool for #{kind} not supported")
-                return [404, error.to_json]
-        end
+    # Gets a VDC
+    def get_vdc(id)
+        vdc = OZones::Vdc.get(id)
 
-        return [200, aggpool.to_json]
-    end
-
-    # Gets an aggreageted pool for a zone or vdc in json
-    # ie All the hosts in all the Zones
-    def get_full_resource(kind, id, aggkind)
-        resource = retrieve_resource(kind, id)
-
-        if OZones.is_error?(resource)
-            return [404, resource.to_json]
-        end
-
-        # TODO build the vdc retrieval
-
-        if kind == "zone"
-            client   = OpenNebula::Client.new(
-                             resource.onename + ":" + resource.onepass,
-                             resource.endpoint,
-                             false)
-
-            simple_pool = case aggkind
-                when "host"                     then OpenNebulaJSON::HostPoolJSON.new(client)
-                when "image"                    then OpenNebulaJSON::ImagePoolJSON.new(client)
-                when "user"                     then OpenNebulaJSON::UserPoolJSON.new(client)
-                when "vm"                       then OpenNebulaJSON::VirtualMachinePoolJSON.new(client)
-                when "vn","vnet"                then OpenNebulaJSON::VirtualNetworkPoolJSON.new(client)
-                when "template","vmtemplate"    then OpenNebulaJSON::TemplatePoolJSON.new(client)
-                else
-                    error = OZones::Error.new(
-                      "Error: #{aggkind} aggregated pool for #{kind} #{id} not supported")
-                    return [404, error.to_json]
-            end
-
-            simple_pool.info
-
-            return [200, simple_pool.to_json]
-        end
-    end
-
-    # Get a json representation resource with local (DB) info
-    def get_resource(kind, id)
-        resource = retrieve_resource(kind, id)
-        if OZones.is_error?(resource)
-            return [404, resource.to_json]
+        if vdc
+            return [200, vdc.to_json]
         else
-            return [200, resource.to_json]
+            return [404, 
+                OZones::Error.new("Error:VDC with id #{id} not found").to_json]
         end
     end
+ 
+    #Gets all Zones
+    def get_zones
+        return 200, OZones::Zones.to_json
+    end
 
-    # Get hold of a object of a particular kind
-    def retrieve_resource(kind, id)
-        resource = case kind
-            when "vdc"  then OZones::Vdc.get(id)
-            when "zone" then OZones::Zones.get(id)
-            else
-                return OZones::Error.new(
-                                        "Error: #{kind} resource not supported")
-        end
+    #Gets a zone
+    def get_zone(id)
+        zone = OZones::Zones.get(id)
 
-        if resource
-            return resource
+        if zone
+            return [200, zone.to_json]
         else
-            return OZones::Error.new(
-                              "Error: Resource #{kind} with id #{id} not found")
+            return [404, 
+                OZones::Error.new("Error:Zone with id #{id} not found").to_json]
         end
     end
 
+    # Gets an aggreageted view of a pool for all zones
+    def get_zones_pool(pool)
+        OZones::OpenNebulaZone::all_pools_to_json(pool)
+    end
+
+    # Gets a pool view of a given zone
+    def get_zone_pool(id, pool)
+        begin
+            zone = OZones::OpenNebulaZone.new(id)
+            return zone.pool_to_json(pool)
+        rescue => e
+            return [404, OZones::Error.new(e.message).to_json]
+        end
+    end
 
     ############################################################################
     # Create resources
     ############################################################################
-    # Creates a resource of a kind, and updates the Proxy Rules
-    def create_resource(kind, data, body, pr)
+    def create_vdc (body,pr)
+        #Setup POST data
+        data = parse_json(body,"vdc")
 
-        if body.size > 0
-            result = parse_json(body,kind)
-            data   = result if !OpenNebula.is_error?(result)
+        if OpenNebula.is_error?(data)
+            return [400, OZones::Error.new("Error: Couldn't update vdc. " \
+                "Reason: #{data.message}.").to_json]
         end
 
-        resource = case kind
-            when "vdc"  then
-                vdc_data = Hash.new
-                data.each{|key,value|
-                    vdc_data[key.downcase.to_sym]=value if key!="pool"
-                }
+        vdc_data = Hash.new
 
-                mandatory_params = [:vdcadminname, :vdcadminpass,
-                                    :zoneid, :name, :hosts]
+        data.each{|key,value|
+            vdc_data[key.downcase.to_sym] = value
+        }
+       
+        #Get the Zone that will host the VDC. And check resouces
+        zoneid = vdc_data.delete(:zoneid)
+        force  = vdc_data.delete(:force)
 
-                mandatory_params.each { |param|
-                    if !vdc_data[param]
-                        return [400, OZones::Error.new(
-                            "Error: Couldn't create resource #{kind}. " +
-                            "Mandatory attribute '#{param}' is missing.").to_json]
-                    end
-                }
+        if !zoneid
+            return [400, OZones::Error.new("Error: Couldn't create vdc. " \
+                "Mandatory attribute zoneid missing.").to_json]
+        end
 
-                # Check if the referenced zone exists
-                zone=OZones::Zones.get(vdc_data[:zoneid])
-                if !zone
-                    error = OZones::Error.new("Error: Zone " +
-                          "#{vdc_data[:zoneid]} not found, cannot create Vdc.")
-                    return [404, error.to_json]
-                end
+        zone = OZones::Zones.get(zoneid)
+        if !zone
+            return [404, OZones::Error.new("Error: Couldn't create vdc. " \
+                "Zone #{zoneid} not found.").to_json]
+        end
 
-                if (!defined? vdc_data[:force] or
-                    (defined? vdc_data[:force] and vdc_data[:force]!="yes")) and
-                    !host_uniqueness?(zone, vdc_data[:hosts])
-                    return [403, OZones::Error.new(
-                                "Error: Couldn't create resource #{kind}. " +
-                              "One or several hosts belong to a different VDC "+
-                              "and no force option was provided.").to_json]
-                end
+        if (!force or force.upcase!="YES") and 
+            !host_uniqueness?(zone, vdc_data[:hosts])
 
-                vdcadminname = vdc_data[:vdcadminname]
-                vdcadminpass = vdc_data[:vdcadminpass]
-                vdc_data.delete(:zoneid)
-                vdc_data.delete(:vdcadminpass)
-                vdc_data.delete(:force)
+            return [403, OZones::Error.new("Error: Couldn't create vdc. " \
+                "Hosts are not unique, use force to override").to_json]
+        end
 
-                begin
-                    vdc = OZones::Vdc.create(vdc_data)
-                rescue Exception => e
-                    msg = e.message
-                    msg["accessible in OZones::Vdc"] = "supported."
-                    return [400, OZones::Error.new(
-                            "Error: Couldn't create resource #{kind}." +
-                            " #{msg}").to_json]
-                end
+        # Create de VDC
+        vdc = OZones::OpenNebulaVdc.new(-1,zone)
+        rc  = vdc.create(vdc_data)
 
-                zone.vdcs << vdc
-                zone.save
+        if OpenNebula.is_error?(rc)
+            return [400, OZones::Error.new("Error: Couldn't create vdc. " \
+                "Reason: #{rc.message}").to_json]
+        end
 
-                if zone.saved? and vdc.saved?
-                    vdcadminpass = Digest::SHA1.hexdigest(vdcadminpass)
-                    rc = @ocaInt.create_vdc_in_zone(zone,
-                                                    vdc,
-                                                    vdcadminname,
-                                                    vdcadminpass)
-                    if OpenNebula.is_error?(rc)
-                        vdc.destroy
-                        return [400, OZones::Error.new(
-                             "Error: Couldn't create #{kind}. Reason: " +
-                             rc.message).to_json]
-                    else
-                        vdc.acls     = rc[0]
-                        vdc.group_id = rc[1]
-                        vdc.save
+        #Update the zone and save the vdc
+        zone.raise_on_save_failure = true
+        zone.vdcs << vdc.vdc
 
-                        pr.update # Rewrite proxy conf file
-                        return [200, vdc.to_json]
-                    end
-                else
-                    return [400, OZones::Error.new(
-                            "Error: Couldn't create resource #{kind}." +
-                            " Maybe duplicated name?").to_json]
-                end
+        begin 
+            zone.save
+        rescue => e
+            vdc.clean_bootstrap
 
-            when "zone" then
-                zone_data=Hash.new
-                data.each{|key,value|
-                    zone_data[key.downcase.to_sym]=value if key!="pool"
-                }
+            return [400, OZones::Error.new("Error: Couldn't create " \
+                "vdc. Zone could not be saved: #{e.message}").to_json]
+        end
 
-                mandatory_params = [:onename, :onepass, :endpoint, :name]
+        pr.update # Rewrite proxy conf file
+        return [200, vdc.to_json]
+    end
 
-                mandatory_params.each { |param|
-                    if !zone_data[param]
-                        return [400, OZones::Error.new(
-                            "Error: Couldn't create resource #{kind}. " +
-                            "Mandatory attribute '#{param}' is missing.").to_json]
-                    end
-                }
+    def create_zone(body, pr)
+        #Setup POST data
+        data = parse_json(body,"zone")
 
-                # Digest and check credentials
-                zone_data[:onepass] =
-                                  Digest::SHA1.hexdigest(zone_data[:onepass])
+        if OpenNebula.is_error?(data)
+            return [400, OZones::Error.new("Error: Couldn't update vdc. " \
+                "Reason: #{data.message}.").to_json]
+        end
 
-                rc = @ocaInt.check_oneadmin(zone_data[:onename],
-                                            zone_data[:onepass],
-                                            zone_data[:endpoint])
+        zone = OZones::Zones.create(data)
 
-                if OpenNebula.is_error?(rc)
-                    return [400, OZones::Error.new(
-                            "Error: Couldn't create resource #{kind}. Reason: "+
-                            rc.message).to_json]
-                end
+        if OZones.is_error?(zone)
+            return [400, zone.to_json]
+        end
 
-                # Create the zone
-                zone = OZones::Zones.create(zone_data)
-                rc = zone.save
-
-                if rc
-                    pr.update # Rewrite proxy conf file
-                    return [200, zone.to_json]
-                else
-                    return [400, OZones::Error.new(
-                    "Error: Couldn't create resource #{kind.upcase}." +
-                    " Maybe duplicated name?").to_json]
-                end
-            else
-                error = OZones::Error.new(
-                                 "Error: #{kind.upcase} resource not supported")
-                return [404, error.to_json]
-            end
+        pr.update
+        return [200, zone.to_json]
     end
 
     ############################################################################
     # Update resources
     ############################################################################
-    # Updates a resource of a kind, and updates the Proxy Rules if needed
-    def update_resource(kind, data, body, pr)
+    def update_vdc(vdc_id, body)
+        #Setup PUT data
+        data = parse_json(body,"vdc")
 
-        if body.size > 0
-            result = parse_json(body,kind)
-            data = result if !OpenNebula.is_error?(result)
+        if OpenNebula.is_error?(data)
+            return [400, OZones::Error.new("Error: Couldn't update vdc. " \
+                "Reason: #{data.message}.").to_json]
         end
 
-        resource = case kind
-            when "vdc"  then
-                vdc_data=Hash.new
-                vdc_id  = nil
-                data.each{|key,value|
-                    vdc_data[key.downcase.to_sym]=value if key!="id"
-                    vdc_id = value if key=="id"
-                }
+        vdc_data = Hash.new
 
-                # Check parameters
-                if !vdc_data[:hosts] || !vdc_id
-                    return [400, OZones::Error.new(
-                                "Error: Couldn't update resource #{kind}. " +
-                              "Need ID and HOSTS to update.").to_json]
-                end
+        data.each{|key,value|
+            vdc_data[key.downcase.to_sym]=value
+        }
 
-                # Check if the referenced Vdc exists
-                vdc=OZones::Vdc.get(vdc_id)
-                if !vdc
-                    error = OZones::Error.new("Error: Vdc " +
-                          "#{vdc_id} not found, cannot update Vdc.")
-                    return [404, error.to_json]
-                end
+        hosts  = vdc_data.delete(:hosts)
+        force  = vdc_data.delete(:force)
 
-                # Get the zone where the Vdc belongs
-                zone=OZones::Zones.get(vdc.zones.id)
-                if !zone
-                    error = OZones::Error.new("Error: Zone " +
-                          "#{vdc.zones.id} not found, cannot update Vdc.")
-                    return [404, error.to_json]
-                end
-                
-                if (!vdc_data[:force] or vdc_data[:force].upcase!="YES") and
-                    !host_uniqueness?(zone, vdc_data[:hosts], vdc_id.to_i)
-                    return [403, OZones::Error.new(
-                                "Error: Couldn't update resource #{kind}. " +
-                              "One or several hosts belong to a different VDC "+
-                              "and no force option was provided.").to_json]
-                end
+        # Check parameters
+        if !hosts
+            return [400, OZones::Error.new("Error: Couldn't update vdc. " \
+                "Missing HOSTS.").to_json]
+        end
 
-                rc = @ocaInt.update_vdc_hosts(zone, vdc, vdc_data[:hosts])
+        # Check if the referenced Vdc exists
+        begin
+            vdc  = OZones::OpenNebulaVdc.new(vdc_id)
+        rescue => e
+            return [404, OZones::Error.new("Error: Couldn't update vdc. " \
+                "#{e.message}").to_json]
+        end
+        
+        if (!force or force.upcase != "YES") and
+            !host_uniqueness?(vdc.zone, hosts, vdc_id.to_i) 
 
-                if !OpenNebula.is_error?(rc)
-                    vdc.hosts = vdc_data[:hosts]
-                    vdc.get_host_acls!(rc)
-
-                    vdc.save
-
-                    if vdc.saved?
-                        return [200, vdc.to_json]
-                    else
-                        return [500, OZones::Error.new(
-                            "Error: Couldn't update resource #{kind}.").to_json]
-                    end
-
-                else
-                    return [500, OZones::Error.new(
-                    "Error: Couldn't update resource #{kind.upcase}." +
-                    " Failed to update ACLs").to_json]
-                end
-            else
-                error = OZones::Error.new(
-                         "Error: #{kind.upcase} resource update not supported")
-                return [404, error.to_json]
-            end
-    end
+            return [403, OZones::Error.new("Error: Couldn't update vdc. " \
+                "Hosts are not unique, use force to override").to_json]
+        end
+        
+        rc = vdc.update(hosts)
+                                      
+        if !OpenNebula.is_error?(rc)
+            return [200, rc]
+        else
+            return [500, OZones::Error.new("Error: Couldn't update vdc. " \
+            " Reason: #{rc.message}").to_json]
+        end
+   end
 
     ############################################################################
     # Delete resources
     ############################################################################
-    # Deletes a resource of a kind, and updates the Proxy Rules
-    def delete_resource(kind, id, pr)
-        resource = retrieve_resource(kind, id)
-        if OZones.is_error?(resource)
-            return [404, resource.to_json]
+    def delete_vdc(id, pr)
+        begin
+            vdc = OZones::OpenNebulaVdc.new(id)
+            rc  = vdc.destroy
+        rescue => e
+            return [404, OZones::Error.new("Error: Can not delete vdc. " \
+                "Reason: #{e.message}").to_json]
         end
 
-        if kind == "vdc"
-            rc = @ocaInt.delete_vdc_in_zone(id)
-            if OpenNebula.is_error?(rc)
-               return [500, OZones::Error.new(
-               "Error: Couldn't delete resources from VDC with id #{id}, " +
-               "aborting VDC deletion. Reason:" + rc.message).to_json]
-            end
-        end
-
-        if !resource.destroy
-            return [500, OZones::Error.new(
-               "Error: Couldn't delete resource #{kind} with id #{id}").to_json]
+        if !rc
+            return [500, OZones::Error.new("Error: Couldn't delete " \
+                "vdc #{id}").to_json]
         else
             pr.update # Rewrite proxy conf file
-            return [200, OZones.str_to_json(
-                         "Resource #{kind} with id #{id} successfully deleted")]
+            return [200, OZones.str_to_json("Vdc #{id} successfully deleted")]
+        end
+    end
+
+    def delete_zone(id, pr)
+        zone = OZones::Zones.get(id)
+
+        if zone
+            rc = zone.destroy
+        else
+            return [404, OZones::Error.new("Error: Can not delete " \
+                "zone. Reason: zone #{id} not found").to_json]
+        end
+
+        if !rc
+            return [500, OZones::Error.new("Error: Couldn't delete " \
+                "zone #{id}").to_json]
+        else
+            pr.update # Rewrite proxy conf file
+            return [200, OZones.str_to_json("Zone #{id} successfully deleted")]
         end
     end
 
     ############################################################################
-    # Helper functions
+    # Misc Helper Functions
     ############################################################################
-
+    private
+    
     # Check if hosts are already include in any Vdc of the zone
     def host_uniqueness?(zone, host_list, vdc_id = -1)
+        return true if host_list.empty?
+        
         all_hosts = ""
         zone.vdcs.all.each{|vdc|
             if vdc.hosts != nil and !vdc.hosts.empty? and vdc.id != vdc_id
@@ -395,6 +273,4 @@ class OzonesServer
 
         return true
     end
-
-
 end

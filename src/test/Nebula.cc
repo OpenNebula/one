@@ -529,11 +529,11 @@ void Nebula::start()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void Nebula::bootstrap()
+int Nebula::bootstrap()
 {
     ostringstream   oss;
 
     oss <<  "CREATE TABLE pool_control (tablename VARCHAR(32) PRIMARY KEY, "
             "last_oid BIGINT UNSIGNED)";
-    db->exec(oss);
+    return db->exec(oss);
 }

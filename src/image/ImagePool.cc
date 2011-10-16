@@ -78,6 +78,11 @@ int ImagePool::allocate (
         goto error_name;
     }
 
+    if ( name.length() > 128 )
+    {
+        goto error_name_length;
+    }
+
     // Check for duplicates
     img_aux = get(name,uid,false);
 
@@ -109,6 +114,10 @@ int ImagePool::allocate (
 error_name:
     oss << "NAME cannot be empty.";
 
+    goto error_common;
+
+error_name_length:
+    oss << "NAME is too long; max length is 128 chars.";
     goto error_common;
 
 error_duplicated:

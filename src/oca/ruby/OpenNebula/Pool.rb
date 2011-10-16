@@ -14,10 +14,11 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+
 module OpenNebula
+
     # The Pool class represents a generic OpenNebula Pool in XML format
     # and provides the basic functionality to handle the Pool elements
-    
     class Pool < XMLPool
         include Enumerable
 

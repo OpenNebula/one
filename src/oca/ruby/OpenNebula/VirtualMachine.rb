@@ -14,6 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+
 require 'OpenNebula/Pool'
 
 module OpenNebula
@@ -21,6 +22,8 @@ module OpenNebula
         #######################################################################
         # Constants and Class Methods
         #######################################################################
+
+
         VM_METHODS = {
             :info     => "vm.info",
             :allocate => "vm.allocate",
@@ -101,9 +104,7 @@ module OpenNebula
             reason_str
         end
 
-        #######################################################################
         # Class constructor
-        #######################################################################
         def initialize(xml, client)
             super(xml,client)
 

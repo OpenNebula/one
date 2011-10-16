@@ -445,8 +445,10 @@ private:
 
     /**
      *  Bootstraps the database control tables
+     *
+     *    @return 0 on success
      */
-    void bootstrap();
+    int bootstrap();
 
     /**
      *  Callback function for the check_db_version method. Stores the read

@@ -80,7 +80,10 @@ sort results/one.db.3.0.tmpschema > results/one.db.3.0.schema
 rm results/one.db.upgraded.tmpschema
 rm results/one.db.3.0.tmpschema
 
-
+# Small cheat: the 3.0 schema had some columns with type VARCHAR(256), now it
+# has changed to VARCHAR(128); but sqlite ignores the char limit
+sed -i "s/name VARCHAR(256)/name VARCHAR(128)/" results/one.db.upgraded.schema
+sed -i "s/name TEXT/name VARCHAR(128)/" results/one.db.upgraded.schema
 
 # Perform a diff
 FILE=results/schema.diff

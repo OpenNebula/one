@@ -14,7 +14,9 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+
 module OpenNebula
+
     # Abstract rules of the type USER RESOURCE RIGHTS
     # which are:
     #     USER      -> #<num>

@@ -18,6 +18,7 @@ require 'rubygems'
 require 'uri'
 require 'net/https'
 require 'json'
+require 'OpenNebula/Configuration'
 
 module OZonesClient
     class Client
@@ -95,7 +96,7 @@ EOT
         end
 
         def post_resource_str(kind, tmpl_str)
-            body_str = OZonesClient::to_body(tmpl_str)
+            body_str = OZonesClient::to_body(kind, tmpl_str)
              
             url = URI.parse("#{@endpoint}/#{kind}")
 
@@ -112,7 +113,7 @@ EOT
         end
 
         def put_resource(kind, id, tmpl_str)
-            body_str = OZonesClient::to_body(tmpl_str)
+            body_str = OZonesClient::to_body(kind, tmpl_str)
              
             url = URI.parse("#{@endpoint}/#{kind}/#{id}")
 
@@ -248,16 +249,11 @@ EOT
     # JSON & Template utils
     ##########################################################################
    
-    def self.to_body(tmpl_str)
-        body_str = ""
-        
-        tmpl_str.strip.each_line{|line|
-            line.strip!
-            key,value = line.split("=")
-            body_str  = body_str + key + "=" + URI.escape(value) + "&"
-        }
+    def self.to_body(kind, tmpl_str)
+        tmpl = OpenNebula::Configuration.new(tmpl_str)
+        res  = { "#{kind}" => tmpl.conf }
 
-        body_str = body_str[0..-1]
+        return JSON::generate(res)
     end 
     
     def self.parse_json(json_str, root_element)

@@ -14,6 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+
 require 'OpenNebula/Pool'
 
 module OpenNebula
@@ -21,7 +22,8 @@ module OpenNebula
         #######################################################################
         # Constants and Class attribute accessors
         #######################################################################
-        
+
+
         VN_POOL_METHODS = {
             :info => "vnpool.info"
         }

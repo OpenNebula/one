@@ -27,7 +27,7 @@ const char * Group::table = "group_pool";
 const char * Group::db_names = "oid, name, body";
 
 const char * Group::db_bootstrap = "CREATE TABLE IF NOT EXISTS group_pool ("
-    "oid INTEGER PRIMARY KEY, name VARCHAR(256), body TEXT, "
+    "oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, "
     "UNIQUE(name))";
 
 /* ************************************************************************ */

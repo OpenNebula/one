@@ -104,10 +104,11 @@ public:
 
     /**
      *  Bootstraps the database table(s) associated to the Image pool
+     *    @return 0 on success
      */
-    static void bootstrap(SqlDB *_db)
+    static int bootstrap(SqlDB *_db)
     {
-        Image::bootstrap(_db);
+        return Image::bootstrap(_db);
     };
 
     /**

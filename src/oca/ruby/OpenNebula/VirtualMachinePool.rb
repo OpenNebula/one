@@ -14,6 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+
 require 'OpenNebula/Pool'
 
 module OpenNebula
@@ -21,6 +22,7 @@ module OpenNebula
         #######################################################################
         # Constants and Class attribute accessors
         #######################################################################
+
 
         VM_POOL_METHODS = {
             :info => "vmpool.info"
@@ -33,7 +35,8 @@ module OpenNebula
         #######################################################################
         # Class constructor & Pool Methods
         #######################################################################
-        
+
+
         # +client+ a Client object that represents a XML-RPC connection
         # +user_id+ is to refer to a Pool with VirtualMachines from that user
         def initialize(client, user_id=0)
@@ -50,7 +53,7 @@ module OpenNebula
         #######################################################################
         # XML-RPC Methods for the Virtual Network Object
         #######################################################################
-        
+
         # Retrieves all or part of the VirtualMachines in the pool.
         # No arguments, returns the not-in-done VMs for the user 
         # [user_id, start_id, end_id]
@@ -107,9 +110,9 @@ module OpenNebula
                                -1,
                                INFO_NOT_DONE)
         end
-        
+
         private
-        
+
         def info_filter(xml_method, who, start_id, end_id, state)
             return xmlrpc_info(xml_method, who, start_id, end_id, state)
         end

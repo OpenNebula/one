@@ -14,6 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+
 require 'OpenNebula/Pool'
 
 module OpenNebula
@@ -22,6 +23,7 @@ module OpenNebula
         # Constants and Class attribute accessors
         #######################################################################
 
+
         HOST_POOL_METHODS = {
             :info => "hostpool.info"
         }
@@ -29,7 +31,8 @@ module OpenNebula
         #######################################################################
         # Class constructor & Pool Methods
         #######################################################################
-        
+
+
         # +client+ a Client object that represents a XML-RPC connection
         def initialize(client)
             super('HOST_POOL','HOST',client)

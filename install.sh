@@ -20,7 +20,7 @@
 # Install program for OpenNebula. It will install it relative to
 # $ONE_LOCATION if defined with the -d option, otherwise it'll be installed
 # under /. In this case you may specified the oneadmin user/group, so you do
-# not need run the OpenNebula daemon with root priviledges
+# not need run the OpenNebula daemon with root privileges
 #-------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------
@@ -300,7 +300,7 @@ elif [ "$SUNSTONE" = "yes" ]; then
 elif [ "$OZONES" = "yes" ]; then
     MAKE_DIRS="$MAKE_DIRS $OZONES_DIRS $OZONES_CLIENT_DIRS $LIB_OCA_CLIENT_DIRS"
 else
-     MAKE_DIRS="$MAKE_DIRS $SHARE_DIRS $ETC_DIRS $LIB_DIRS $VAR_DIRS \
+    MAKE_DIRS="$MAKE_DIRS $SHARE_DIRS $ETC_DIRS $LIB_DIRS $VAR_DIRS \
                 $OZONES_DIRS $OZONES_CLIENT_DIRS $SUNSTONE_DIRS"
 fi
 
@@ -654,9 +654,9 @@ ONEDB_MIGRATOR_FILES="src/onedb/2.0_to_2.9.80.rb \
                       src/onedb/2.9.80_to_2.9.85.rb \
                       src/onedb/2.9.85_to_2.9.90.rb \
                       src/onedb/2.9.90_to_3.0.rb \
+                      src/onedb/3.0_to_3.1.0.rb \
                       src/onedb/onedb.rb \
-                      src/onedb/onedb_backend.rb \
-                      src/onedb/Configuration.rb"
+                      src/onedb/onedb_backend.rb"
 
 #-------------------------------------------------------------------------------
 # Configuration files for OpenNebula, to be installed under $ETC_LOCATION
@@ -786,7 +786,8 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/OpenNebula/Host.rb \
                            src/oca/ruby/OpenNebula/GroupPool.rb \
                            src/oca/ruby/OpenNebula/Acl.rb \
                            src/oca/ruby/OpenNebula/AclPool.rb \
-                           src/oca/ruby/OpenNebula/XMLUtils.rb"
+                           src/oca/ruby/OpenNebula/XMLUtils.rb \
+                           src/oca/ruby/OpenNebula/Configuration.rb"
 
 #-------------------------------------------------------------------------------
 # Common Cloud Files
@@ -1036,7 +1037,6 @@ OZONES_ETC_FILES="src/ozones/Server/etc/ozones-server.conf"
 
 OZONES_MODELS_FILES="src/ozones/Server/models/OzonesServer.rb \
                      src/ozones/Server/models/Auth.rb \
-                     src/ozones/Server/models/OCAInteraction.rb \
                      src/sunstone/models/OpenNebulaJSON/JSONUtils.rb"
                      
 OZONES_TEMPLATE_FILES="src/ozones/Server/templates/index.html \

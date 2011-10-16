@@ -14,14 +14,17 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+
 require 'OpenNebula/Pool'
 require 'fileutils'
 
 module OpenNebula
     class Image < PoolElement
-        # ---------------------------------------------------------------------
+        #######################################################################
         # Constants and Class Methods
-        # ---------------------------------------------------------------------
+        #######################################################################
+
+
         IMAGE_METHODS = {
             :info        => "image.info",
             :allocate    => "image.allocate",
@@ -118,7 +121,7 @@ module OpenNebula
         def unpublish
             set_publish(false)
         end
-        
+
         # Makes the Image persistent
         def persistent
             set_persistent(true)

@@ -14,7 +14,7 @@ if defined?(RUBY_VERSION) && RUBY_VERSION>="1.8.7"
     OPTIONAL=%w{nokogiri}
 else
     SQLITE='sqlite3-ruby --version 1.2.0'
-    OPTIONAL=%w{nokogir xmlparser}
+    OPTIONAL=%w{nokogiri xmlparser}
 end
 
 GROUPS={

@@ -14,6 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+
 require 'OpenNebula/Pool'
 
 module OpenNebula
@@ -21,6 +22,8 @@ module OpenNebula
         #######################################################################
         # Constants and Class Methods
         #######################################################################
+
+
         HOST_METHODS = {
             :info     => "host.info",
             :allocate => "host.allocate",
@@ -56,9 +59,7 @@ module OpenNebula
             XMLElement.build_xml(host_xml, 'HOST')
         end
 
-        #######################################################################
         # Class constructor
-        #######################################################################
         def initialize(xml, client)
             super(xml,client)
 

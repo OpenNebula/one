@@ -14,13 +14,16 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+
 require 'OpenNebula/Pool'
 
 module OpenNebula
     class Template < PoolElement
-        # ---------------------------------------------------------------------
+        #######################################################################
         # Constants and Class Methods
-        # ---------------------------------------------------------------------
+        #######################################################################
+
+
         TEMPLATE_METHODS = {
             :allocate    => "template.allocate",
             :instantiate => "template.instantiate",
@@ -48,18 +51,16 @@ module OpenNebula
             XMLElement.build_xml(obj_xml,'VMTEMPLATE')
         end
 
-        # ---------------------------------------------------------------------
         # Class constructor
-        # ---------------------------------------------------------------------
         def initialize(xml, client)
             super(xml,client)
 
             @client = client
         end
 
-        # ---------------------------------------------------------------------
+        #######################################################################
         # XML-RPC Methods for the Template Object
-        # ---------------------------------------------------------------------
+        #######################################################################
 
         # Retrieves the information of the given Template.
         def info()
@@ -118,9 +119,9 @@ module OpenNebula
             super(TEMPLATE_METHODS[:chown], uid, gid)
         end
 
-        # ---------------------------------------------------------------------
+        #######################################################################
         # Helpers to get Template information
-        # ---------------------------------------------------------------------
+        #######################################################################
 
         # Returns the group identifier
         # [return] _Integer_ the element's group ID
