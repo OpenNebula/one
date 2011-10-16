@@ -14,23 +14,33 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+
 module Zona
 
+    # This class represents a set of Zones. It allows to list the defined
+    # Zones and iterate on them.
     class ZonePool < OZonesPool
 
+        # String describing the kind of this resource
         ZONE_POOL_KIND = "zone"
 
+        # Initializes a Zone Pool instance
+        # @param [Zona::Client] client OZones Client
         def initialize(client)
             super("ZONE_POOL", "ZONE", client)
         end
 
+        # Produces a new Zone element with the provided description
+        # @param [String] element_json JSON string of the element
+        # @return [String] Element's name or nil
         def factory(element_json)
             Zone.new(element_json,@client)
         end
 
+        # Retrieves the information for this pool
+        # @return [Zona:Error] nil or Error
         def info
             super(ZONE_POOL_KIND)
         end
     end
-
 end

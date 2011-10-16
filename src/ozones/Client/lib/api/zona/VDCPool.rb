@@ -14,19 +14,31 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+
 module Zona
 
+    # This class represents a set of VDCs. It allows to list the defined
+    # VDCs and iterate on them.
     class VDCPool < OZonesPool
+
+        # String describing the kind of this resource
         VDC_POOL_KIND="vdc"
 
+        # Initializes a VDC Pool instance
+        # @param [Zona::Client] client OZones Client
         def initialize(client)
             super("VDC_POOL", "VDC", client)
         end
 
+        # Produces a new VDC element with the provided description
+        # @param [String] element_json JSON string of the element
+        # @return [String] Element's name or nil
         def factory(element_json)
             VDC.new(element_json,@client)
         end
 
+        # Retrieves the information for this pool
+        # @return [Zona:Error] nil or Error
         def info
             super(VDC_POOL_KIND)
         end

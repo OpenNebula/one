@@ -14,12 +14,18 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+
 module Zona
 
+    # Standard pool abstraction. To be inherited.
     class OZonesPool < JSONPool
 
         protected
 
+        # Initializes a Pool instance
+        # @param [String] pool pool name tag
+        # @param [String] pool pool elements name tag
+        # @param [Zona::Client] client OZones Client
         def initialize(pool,element,client)
             super(nil)
 
@@ -28,10 +34,16 @@ module Zona
             @element_name = element.upcase
         end
 
+        # Produces a new Pool element with the provided description
+        # @param [String] element_json JSON string of the element
+        # @return [String] Element's name or nil
         def factory(element_json)
-            OZonesPoolElement.new(element_json, @client)
+            OZonesElement.new(element_json, @client)
         end
 
+        # Retrieves the Pool information
+        # @param [String] kind pool kind: vdc, zone...
+        # @return [Zona:Error] nil or Error
         def info(kind)
             rc = @client.get_pool(kind)
 
@@ -45,6 +57,8 @@ module Zona
 
         public
 
+        # Allows iteration on pools elements
+        # @param [Block] block a block to call for each iteration
         def each(&block)
             each_element(block) if @json_hash
         end

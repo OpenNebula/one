@@ -14,12 +14,18 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+
 module Zona
 
+    # Standard abstraction of an OZones element. To be inherited.
     class OZonesElement < JSONElement
 
         protected
 
+        # Initializes an OZones Element instance. Tries to set @pe_id and @name
+        # @param [Hash] hash element description
+        # @param [Zona::Client] client OZones client
+        # @return [String] Element's name or nil
         def initialize(hash, client)
             @client = client
             @json_hash = hash
@@ -28,6 +34,11 @@ module Zona
             @name = self["name"] ? self["name"] : nil
         end
 
+        # Retrieves details about an object and fills in
+        # the information hash
+        # @param [String] kind element kind: zone, vdc...
+        # @param [String] root_element root element of the JSON object description
+        # @return [Zona::Error] nil or Error
         def info(kind, root_element)
             return Error.new('ID not defined') if !@pe_id
 
@@ -44,10 +55,18 @@ module Zona
             rc
         end
 
+        # Allocates a new element from a hash description
+        # @param [String] kind element kind: zone, vdc...
+        # @param [Hash] tmpl_hash element template hash
+        # @return [Zona::Error] nil or Error
         def allocate_hash(kind, tmpl_hash)
             allocate(kind, tmpl_hash.to_json)
         end
 
+        # Allocates a new element from a JSON description
+        # @param [String] kind element kind: zone, vdc...
+        # @param [String] tmpl_json element JSON template
+        # @return [Zona::Error] nil or Error
         def allocate(kind, tmpl_json)
             rc = @client.post_resource(kind, tmpl_json)
 
@@ -59,6 +78,9 @@ module Zona
             rc
         end
 
+        # Deletes current element
+        # @param [String] kind element kind: zone, vdc...
+        # @return [Zona::Error] nil or Error
         def delete(kind)
             return Error.new('ID not defined') if !@pe_id
 
@@ -71,6 +93,10 @@ module Zona
 
         attr_reader :pe_id, :name
 
+        # Creates a new element with the custom ID
+        # @param [#to_i] id element ID
+        # @param [Zona::Client] client OZones Client for this element
+        # @return [OZonesElement] A new element object
         def self.new_with_id(id, client=nil)
             self.new(self.build_json(id),client)
         end

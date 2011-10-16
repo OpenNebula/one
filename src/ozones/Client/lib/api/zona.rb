@@ -14,6 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+
 require 'rubygems'
 require 'uri'
 require 'net/https'
@@ -30,10 +31,21 @@ require 'zona/ZoneElement'
 require 'zona/VDCPool'
 require 'zona/VDCElement'
 
+################################################################################
+# This module contains all the OZones API related classes and utilities.
+################################################################################
 module Zona
 
+    ############################################################################
+    # OZones Client provides functionality to send and retrieve information
+    # from the OZones server side. It is used by CLI and API to handle the
+    # http requests to the server and basic error control on the
+    # responses.
+    ############################################################################
     class Client
 
+        # Provides current version information.
+        # Should match server's oZones version.
         OZONES_VERSION = <<EOT
 oZones 1.0
 Copyright 2002-2011, OpenNebula Project Leads (OpenNebula.org)
@@ -43,9 +55,13 @@ not use this file except in compliance with the License. You may obtain
 a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
 EOT
 
-        ######################################################################
-        # Initialize client library
-        ######################################################################
+        # Initialize client instance
+        # @param [String] user oZones username
+        # @param [String] pass oZones password
+        # @param [String] endpoint Server endpoint
+        # @param [Integer] timeout client timout, defaults means no timeout
+        # @param [Boolean] debug_flag produce debug information
+        # @return [Client] Client instance
         def initialize(user=nil, pass=nil, endpoint_str=nil,
                        timeout=nil, debug_flag=true)
             @debug   = debug_flag
@@ -76,14 +92,9 @@ EOT
             end
         end
 
-        #####################################
-        # General Resource Request Methods #
-        ####################################
-
-        ######################################################################
-        # Retieves all elements on a pool
-        # :zonetemplate
-        ######################################################################
+        # Retrieves all elements of a kind (pool)
+        # @param [String] kind element kind
+        # @return [String, Zone::Error] Response string or Error
         def get_pool(kind)
             url = URI.parse(@endpoint+"/" + kind)
             req = Net::HTTP::Get.new(url.path)
@@ -97,20 +108,28 @@ EOT
             return Client.parse_error(res, kind)
         end
 
-        ######################################################################
-        # Post a new Resource to the relevant OZones Pool
-        # :zonetemplate
-        ######################################################################
+        # Creates a resource from an opennebula template file
+        # @param [String] kind resource kind: vdc,zone...
+        # @param [String] template path to template file
+        # @return [String, Zona::Error] Response string or Error
         def post_resource_file(kind, template)
             tmpl_str = File.read(template)
             post_resource_str(kind, tmpl_str)
         end
 
+        # Creates a resource from an OpenNebula template string
+        # @param [String] kind resource kind: vdc,zone...
+        # @param [String] tmpl_str OpenNebula template string
+        # @return [String, Zona::Error] Response string or Error
         def post_resource_str(kind, tmpl_str)
             tmpl_json = Zona.to_body(kind, tmpl_str)
             post_resource(kind, tmpl_json)
         end
 
+        # Creates a resource
+        # @param [String] kind resource kind: vdc, zone...
+        # @param [String] tmpl_json JSON template
+        # @return [String, Zona::Error] Response string or Error
         def post_resource(kind, tmpl_json)
             url = URI.parse("#{@endpoint}/#{kind}")
 
@@ -126,11 +145,19 @@ EOT
             return Client.parse_error(res, kind)
         end
 
+        # Modifies a resource from an OpenNebula template string
+        # @param [String] kind resource kind: vdc, zone...
+        # @param [String] tmpl_str OpenNebula template string
+        # @return [String, Zona::Error] Response string or Error
         def put_resource_str(kind, id, tmpl_str)
             tmpl_json = Client.to_body(kind, tmpl_str)
             put_resource(kind, id, tmpl_json)
         end
 
+        # Modifies a resource
+        # @param [String] kind resource kind: vdc, zone...
+        # @param [String] tmpl_json JSON template
+        # @return [String, Zona::Error] Response string or Error
         def put_resource(kind, id, tmpl_json)
             url = URI.parse("#{@endpoint}/#{kind}/#{id}")
 
@@ -146,6 +173,11 @@ EOT
             return Client.parse_error(res, kind)
         end
 
+
+        # Retrieves a resource
+        # @param [String] Kind resource kind: vdc, zone...
+        # @param [#to_i] id resource id
+        # @return [String, Zona::Error] Response string or Error
         def get_resource(kind, id)
             url = URI.parse("#{@endpoint}/#{kind}/#{id}")
             req = Net::HTTP::Get.new(url.path)
@@ -159,6 +191,10 @@ EOT
             return Client.parse_error(res, kind)
         end
 
+        # Deletes a resource
+        # @param [String] kind resource kind: vdc, zone...
+        # @param [#to_i] id resource id
+        # @return [String, Zona::Error] Response string or Error
         def delete_resource(kind, id)
             url = URI.parse("#{@endpoint}/#{kind}/#{id}")
             req = Net::HTTP::Delete.new(url.path)
@@ -173,10 +209,13 @@ EOT
         end
 
 
-        # #########################################################################
+
+        private
+
+
+
         # Starts an http connection and calls the block provided. SSL flag
         # is set if needed.
-        # #########################################################################
         def self.http_start(url, timeout, &block)
             http = Net::HTTP.new(url.host, url.port)
 
@@ -212,6 +251,10 @@ EOT
             end
         end
 
+        # Parses a response
+        # @param [String] value response string
+        # @param [String] kind resource kind
+        # @return [String, Zona::Error] Returns the value or Error if found
         def self.parse_error(value, kind)
             if Zona.is_error?(value)
                 return value
@@ -237,10 +280,11 @@ EOT
 
     end
 
-    # ############################################
-    # Template helpers
-    # ############################################
 
+    # Turns a OpenNebula template string into a JSON string
+    # @param [String] kind element kind
+    # @param [String] tmpl_str template
+    # @return [String, Zona::Error] JSON string or Error
     def self.to_body(kind, tmpl_str)
         tmpl = OpenNebula::Configuration.new(tmpl_str)
         res  = { "#{kind}" => tmpl.conf }
@@ -248,33 +292,29 @@ EOT
         return OZonesJSON.to_json(res)
     end
 
-    # #########################################################################
-    # Error handling functions
-    # #########################################################################
-
+    # @return [Boolean] Returns true if instance of {Zona::Error}
     def self.is_error?(value)
         value.class==Zona::Error
     end
 
+    # @return [Boolean] Returns true if HTTP return code is not OK
     def self.is_http_error?(value)
         value.class != Net::HTTPOK
     end
 
-    # #########################################################################
     # The Error Class represents a generic error in the Zona
     # library. It contains a readable representation of the error.
-    # #########################################################################
     class Error
         attr_reader :message
 
-        # +message+ a description of the error
+        # @param [String] A description of the error
         def initialize(message=nil)
             @message=message
         end
 
+        # @return [String] Error message description
         def to_s()
             @message
         end
     end
-
 end
