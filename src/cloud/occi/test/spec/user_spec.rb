@@ -31,7 +31,7 @@ describe 'OCCI User tests' do
 
         xml_body = last_response.body
 
-        user_collection = File.read(FIXTURES_PATH + '/user_collection.xml')
+        user_collection = File.read(FIXTURES_PATH + '/user/user_collection.xml')
 
         xml_body.strip.should eql(user_collection.strip)
     end
@@ -52,7 +52,7 @@ describe 'OCCI User tests' do
 
         xml_body = last_response.body
 
-        user = File.read(FIXTURES_PATH + '/user.xml')
+        user = File.read(FIXTURES_PATH + '/user/user.xml')
 
         xml_body.strip.should eql(user.strip)
     end

@@ -22,7 +22,6 @@ if [ -z $ONE_LOCATION ]; then
 fi
 
 VAR_LOCATION="$ONE_LOCATION/var"
-rm -rf $VAR_LOCATION/*
 
 if [ "$(ls -A $VAR_LOCATION)" ]; then
     echo "$VAR_LOCATION is not empty."
@@ -30,6 +29,8 @@ if [ "$(ls -A $VAR_LOCATION)" ]; then
 fi
 
 for j in `ls ./spec/*_spec.rb` ; do
+    find $VAR_LOCATION -mindepth 1 ! \( -path "$VAR_LOCATION/remotes*" -o -path "$VAR_LOCATION/images" \) -delete
+
     PID=$$
 
     oned -f &
@@ -45,6 +46,4 @@ for j in `ls ./spec/*_spec.rb` ; do
     if [ $CODE != 0 ] ; then
         exit 1
     fi
-
-    find $VAR_LOCATION -mindepth 1 -delete
 done

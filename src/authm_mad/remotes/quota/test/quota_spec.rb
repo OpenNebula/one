@@ -31,7 +31,7 @@ describe "Quota testing" do
         <TEMPLATE>
             <CPU>2</CPU>
             <MEMORY>128</MEMORY>
-        <TEMPLATE>
+        </TEMPLATE>
         EOT
 
         vm_base64 = Base64::encode64(vm_template)
@@ -41,7 +41,7 @@ describe "Quota testing" do
         image_template = <<-EOT
         <TEMPLATE>
             <PATH>/etc/hosts</PATH>
-        <TEMPLATE>
+        </TEMPLATE>
         EOT
 
         image_base64 = Base64::encode64(image_template)
@@ -52,7 +52,7 @@ describe "Quota testing" do
         <TEMPLATE>
             <CPU>2</CPU>
             <MEMORY>128</MEMORY>
-        <TEMPLATE>
+        </TEMPLATE>
         EOT
 
         temp_base64 = Base64::encode64(temp_template)

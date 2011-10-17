@@ -14,7 +14,9 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-FIXTURES_PATH = File.join(File.dirname(__FILE__),'../fixtures')
+FIXTURES_PATH  = File.join(File.dirname(__FILE__),'../fixtures')
+TEMPLATES_PATH = File.join(File.dirname(__FILE__),'../templates')
+
 $: << File.join(File.dirname(__FILE__), '..', '..', 'lib')
 
 # Load the testing libraries
