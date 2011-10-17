@@ -94,7 +94,7 @@ public class UserTest
     }
 
     @Test
-    public void update()
+    public void info()
     {
         res = user.info();
         assertTrue( res.getErrorMessage(), !res.isError() );
@@ -127,6 +127,22 @@ public class UserTest
         assertTrue( res.getErrorMessage(), !res.isError() );
 
         assertTrue( user.xpath("AUTH_DRIVER").equals("new_driver") );
+    }
+
+    @Test
+    public void update()
+    {
+        String new_template =  "ATT2 = NEW_VAL\n" +
+                "ATT3 = VAL3";
+
+        res = user.update(new_template);
+        assertTrue( !res.isError() );
+
+        res = user.info();
+        assertTrue( !res.isError() );
+        assertTrue( user.xpath("TEMPLATE/ATT1").equals( "" ) );
+        assertTrue( user.xpath("TEMPLATE/ATT2").equals( "NEW_VAL" ) );
+        assertTrue( user.xpath("TEMPLATE/ATT3").equals( "VAL3" ) );
     }
 
     @Test

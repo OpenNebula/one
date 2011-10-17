@@ -117,7 +117,7 @@ public class VirtualNetworkTest
     }
 
     @Test
-    public void update()
+    public void info()
     {
         res = vnet.info();
         assertTrue( !res.isError() );
@@ -207,5 +207,21 @@ public class VirtualNetworkTest
         assertTrue( res.isError() );
 
         fixed_vnet.delete();
+    }
+
+    @Test
+    public void update()
+    {
+        String new_template =  "ATT2 = NEW_VAL\n" +
+                "ATT3 = VAL3";
+
+        res = vnet.update(new_template);
+        assertTrue( !res.isError() );
+
+        res = vnet.info();
+        assertTrue( !res.isError() );
+        assertTrue( vnet.xpath("TEMPLATE/ATT1").equals( "" ) );
+        assertTrue( vnet.xpath("TEMPLATE/ATT2").equals( "NEW_VAL" ) );
+        assertTrue( vnet.xpath("TEMPLATE/ATT3").equals( "VAL3" ) );
     }
 }

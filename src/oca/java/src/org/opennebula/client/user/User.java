@@ -34,6 +34,7 @@ public class User extends PoolElement{
     private static final String PASSWD          = METHOD_PREFIX + "passwd";
     private static final String CHGRP           = METHOD_PREFIX + "chgrp";
     private static final String CHAUTH          = METHOD_PREFIX + "chauth";
+    private static final String UPDATE          = METHOD_PREFIX + "update";
     
     /**
      * Creates a new User representation.
@@ -157,6 +158,19 @@ public class User extends PoolElement{
         return client.call(CHAUTH, id, auth);
     }
 
+    /**
+     * Replaces the user template contents.
+     *
+     * @param client XML-RPC Client.
+     * @param id The user id of the target user we want to modify.
+     * @param new_template New template contents.
+     * @return If successful the message contains the user id.
+     */
+    public static OneResponse update(Client client, int id, String new_template)
+    {
+        return client.call(UPDATE, id, new_template);
+    }
+
     // =================================
     // Instanced object XML-RPC methods
     // =================================
@@ -216,6 +230,17 @@ public class User extends PoolElement{
     public OneResponse chauth(String auth)
     {
         return chauth(client, id, auth);
+    }
+
+    /**
+     * Replaces the user template contents.
+     *
+     * @param new_template New template contents.
+     * @return If successful the message contains the user id.
+     */
+    public OneResponse update(String new_template)
+    {
+        return update(client, id, new_template);
     }
 
     // =================================
