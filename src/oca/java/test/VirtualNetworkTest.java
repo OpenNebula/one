@@ -136,8 +136,6 @@ public class VirtualNetworkTest
 //        assertTrue( vnet.xpath("ID").equals("0") );
         assertTrue( vnet.xpath("NAME").equals(name) );
         assertTrue( vnet.xpath("BRIDGE").equals("vbr0") );
-        assertTrue( vnet.xpath("TEMPLATE/NETWORK_ADDRESS").equals("192.168.0.0") );
-        assertTrue( vnet.xpath("TEMPLATE/TYPE").equals("RANGED") );
     }
 
     @Test

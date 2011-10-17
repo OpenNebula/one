@@ -71,7 +71,25 @@ public class User extends PoolElement{
                                        String username,
                                        String password)
     {
-        return client.call(ALLOCATE, username, password);
+        return allocate(client, username, password, "");
+    }
+
+    /**
+     * Allocates a new user in OpenNebula.
+     *
+     * @param client XML-RPC Client.
+     * @param username Username for the new user.
+     * @param password Password for the new user
+     * @param auth Auth driver for the new user.
+     * @return If successful the message contains
+     * the associated id (int uid) generated for this user.
+     */
+    public static OneResponse allocate(Client client,
+                                       String username,
+                                       String password,
+                                       String auth)
+    {
+        return client.call(ALLOCATE, username, password, auth);
     }
 
     /** Retrieves the information of the given user.

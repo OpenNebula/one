@@ -63,8 +63,10 @@ public class UserTest
     {
         res = User.allocate(client, name, password);
 
-        int uid = res.isError() ? -1 : Integer.parseInt(res.getMessage()); 
-        user        = new User(uid, client);
+        assertTrue( res.getErrorMessage(), !res.isError() );
+
+        int uid = Integer.parseInt(res.getMessage());
+        user    = new User(uid, client);
     }
 
     /**
