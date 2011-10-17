@@ -29,7 +29,8 @@ module OpenNebula
             :delete   => "user.delete",
             :passwd   => "user.passwd",
             :chgrp    => "user.chgrp",
-            :update   => "user.update"
+            :update   => "user.update",
+            :chauth   => "user.chauth"
         }
 
         SELF      = -1
@@ -110,6 +111,20 @@ module OpenNebula
             return Error.new('ID not defined') if !@pe_id
 
             rc = @client.call(USER_METHODS[:chgrp],@pe_id, gid)
+            rc = nil if !OpenNebula.is_error?(rc)
+
+            return rc
+        end
+
+        # Changes the auth driver
+        #
+        # @param auth [String] the new auth driver
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def chauth(auth)
+            return Error.new('ID not defined') if !@pe_id
+
+            rc = @client.call(USER_METHODS[:chauth],@pe_id, auth)
             rc = nil if !OpenNebula.is_error?(rc)
 
             return rc

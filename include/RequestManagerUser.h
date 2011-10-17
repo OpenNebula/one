@@ -72,6 +72,23 @@ public:
                     string&                    err);
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class UserChangeAuth: public RequestManagerUser
+{
+public:
+    UserChangeAuth():
+        RequestManagerUser("UserChangeAuth",
+                           "Changes user's authentication driver",
+                           "A:sis"){};
+    ~UserChangeAuth(){};
+
+    int user_action(User *                     user,
+                    xmlrpc_c::paramList const& _paramList,
+                    string&                    err);
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

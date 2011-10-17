@@ -259,6 +259,17 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    chauth_desc = <<-EOT.unindent
+        Changes the User's auth driver
+    EOT
+
+    command :chauth, chauth_desc, [:range, :userid_list], :auth do
+        helper = OneUserHelper.new
+        helper.perform_actions(args[0],options,"Auth driver changed") do |user|
+            user.chauth(args[1])
+        end
+    end
+
     list_desc = <<-EOT.unindent
         Lists Users in the pool
     EOT

@@ -232,6 +232,7 @@ void RequestManager::register_xml_methods()
 {
     // User Methods
     xmlrpc_c::methodPtr user_change_password(new UserChangePassword());
+    xmlrpc_c::methodPtr user_change_auth(new UserChangeAuth());
 
     // VMTemplate Methods
     xmlrpc_c::methodPtr template_instantiate(new VMTemplateInstantiate());
@@ -371,6 +372,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.user.info", user_info);
     RequestManagerRegistry.addMethod("one.user.passwd", user_change_password);
     RequestManagerRegistry.addMethod("one.user.chgrp", user_chown);
+    RequestManagerRegistry.addMethod("one.user.chauth", user_change_auth);
 
     RequestManagerRegistry.addMethod("one.userpool.info", userpool_info);
     

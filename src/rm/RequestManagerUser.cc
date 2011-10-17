@@ -73,6 +73,27 @@ int UserChangePassword::user_action(User * user,
     return rc;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int UserChangeAuth::user_action(User * user,
+                                xmlrpc_c::paramList const& paramList,
+                                string& error_str)
+{
+    string new_auth = xmlrpc_c::value_string(paramList.getString(2));
+
+    int rc = user->set_auth_driver(new_auth, error_str);
+
+    if ( rc == 0 )
+    {
+        pool->update(user);
+    }
+
+    user->unlock();
+
+    return rc;
+}
+
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 

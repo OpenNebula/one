@@ -132,6 +132,20 @@ public:
     };
 
     /**
+     *  Sets the user auth driver.
+     *
+     *    @param _auth_driver the new auth. driver
+     *    @param error_str Returns the error reason, if any
+     *    @return 0 on success, -1 otherwise
+     */
+    int set_auth_driver(const string& _auth_driver, string& error_str)
+    {
+        auth_driver = _auth_driver;
+
+        return 0;
+    };
+
+    /**
      *  Splits an authentication token (<usr>:<pass>)
      *    @param secret, the authentication token
      *    @param username
