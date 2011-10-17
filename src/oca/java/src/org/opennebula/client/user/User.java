@@ -33,6 +33,7 @@ public class User extends PoolElement{
     private static final String DELETE          = METHOD_PREFIX + "delete";
     private static final String PASSWD          = METHOD_PREFIX + "passwd";
     private static final String CHGRP           = METHOD_PREFIX + "chgrp";
+    private static final String CHAUTH          = METHOD_PREFIX + "chauth";
     
     /**
      * Creates a new User representation.
@@ -143,6 +144,19 @@ public class User extends PoolElement{
         return client.call(CHGRP, id, gid);
     }
 
+    /**
+     * Changes the auth driver of the given user
+     * 
+     * @param client XML-RPC Client.
+     * @param id The user id (uid) of the target user we want to modify.
+     * @param auth The new auth driver.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse chauth(Client client, int id, String auth)
+    {
+        return client.call(CHAUTH, id, auth);
+    }
+
     // =================================
     // Instanced object XML-RPC methods
     // =================================
@@ -191,6 +205,17 @@ public class User extends PoolElement{
     public OneResponse chgrp(int gid)
     {
         return chgrp(client, id, gid);
+    }
+
+    /**
+     * Changes the auth driver of the given user
+     * 
+     * @param auth The new auth driver.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse chauth(String auth)
+    {
+        return chauth(client, id, auth);
     }
 
     // =================================

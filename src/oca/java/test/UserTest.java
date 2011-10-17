@@ -114,6 +114,22 @@ public class UserTest
     }
 
     @Test
+    public void chauth()
+    {
+        res = user.info();
+        assertTrue( res.getErrorMessage(), !res.isError() );
+
+        assertTrue( user.xpath("AUTH_DRIVER").equals("core") );
+
+        res = user.chauth("new_driver");
+
+        res = user.info();
+        assertTrue( res.getErrorMessage(), !res.isError() );
+
+        assertTrue( user.xpath("AUTH_DRIVER").equals("new_driver") );
+    }
+
+    @Test
     public void delete()
     {
         res = user.info();
