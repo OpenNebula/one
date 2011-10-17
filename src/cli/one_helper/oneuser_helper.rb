@@ -190,11 +190,15 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
                 helper.group_name(d, options)
             end
 
+            column :AUTH, "Auth driver of the User", :left, :size=>8 do |d|
+                d["AUTH_DRIVER"]
+            end
+
             column :PASSWORD, "Password of the User", :size=>50 do |d|
                 d['PASSWORD']
             end
 
-            default :ID, :GROUP, :NAME, :PASSWORD
+            default :ID, :GROUP, :NAME, :AUTH, :PASSWORD
         end
 
         table
