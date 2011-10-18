@@ -95,8 +95,6 @@ private:
     void set_one_endpoint(string endpoint);
 
     int read_oneauth(string &secret);
-
-    int split_secret(const string& secret);
 };
 
 #endif /*ONECLIENT_H_*/
