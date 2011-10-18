@@ -143,19 +143,13 @@ int UserPool::allocate (
     ostringstream   oss;
 
     // Check username and password
-    if ( !User::is_valid(password, error_str) )
+    if ( !User::pass_is_valid(password, error_str) )
     {
         goto error_pass;
     }
 
-    if ( !User::is_valid(uname, error_str) )
+    if ( !User::name_is_valid(uname, error_str) )
     {
-        goto error_name;
-    }
-
-    if ( uname.length() > 128 )
-    {
-        error_str = "max length is 128 chars";
         goto error_name;
     }
 
@@ -207,11 +201,11 @@ int UserPool::allocate (
     return *oid;
 
 error_pass:
-    oss << "Invalid password, " << error_str << ".";
+    oss << error_str << ".";
     goto error_common;
 
 error_name:
-    oss << "Invalid NAME, " << error_str << ".";
+    oss << error_str << ".";
     goto error_common;
 
 error_duplicated:

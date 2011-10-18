@@ -33,9 +33,14 @@ class User : public PoolObjectSQL
 public:
 
     /**
+     *  Characters that can not be in a name
+     */
+    static const string INVALID_NAME_CHARS;
+
+    /**
      *  Characters that can not be in a password
      */
-    static const string INVALID_CHARS;
+    static const string INVALID_PASS_CHARS;
 
     /**
      * Function to print the User object into a string in XML format
@@ -79,33 +84,22 @@ public:
     };
 
     /**
-     *  Checks if a name or password is valid, i.e. it is not empty and does not
+     *  Checks if a name is valid, i.e. it is not empty and does not
      *  contain invalid characters.
-     *    @param str Name or password to be checked
+     *    @param uname Name to be checked
      *    @param error_str Returns the error reason, if any
      *    @return true if the string is valid
      */
-    static bool is_valid(const string& str, string& error_str)
-    {
-        if ( str.empty() )
-        {
-            error_str = "cannot be empty";
-            return false;
-        }
+    static bool name_is_valid(const string& uname, string& error_str);
 
-        size_t pos = str.find_first_of(INVALID_CHARS);
-
-        if ( pos != string::npos )
-        {
-            ostringstream oss;
-            oss << "character '" << str.at(pos) << "' is not allowed";
-
-            error_str = oss.str();
-            return false;
-        }
-
-        return true;
-    }
+    /**
+     *  Checks if a password is valid, i.e. it is not empty and does not
+     *  contain invalid characters.
+     *    @param pass Password to be checked
+     *    @param error_str Returns the error reason, if any
+     *    @return true if the string is valid
+     */
+    static bool pass_is_valid(const string& pass, string& error_str);
 
     /**
      *  Sets user password. It checks that the new password does not contain
@@ -118,13 +112,12 @@ public:
     {
         int rc = 0;
 
-        if (is_valid(passwd, error_str))
+        if (pass_is_valid(passwd, error_str))
         { 
             password = passwd;
         }
         else
         {
-            error_str = string("Invalid password: ").append(error_str);
             rc = -1;
         }
 
