@@ -45,6 +45,62 @@ module Migrator
             end
         }
 
+        @db.run "ALTER TABLE image_pool RENAME TO old_image_pool;"
+        @db.run "CREATE TABLE image_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, uid INTEGER, gid INTEGER, public INTEGER, UNIQUE(name,uid) );"
+
+        @db.fetch("SELECT * FROM old_image_pool") do |row|
+            doc = Document.new(row[:body])
+
+            fstype = ""
+            doc.root.each_element("TEMPLATE/FSTYPE") { |e|
+                fstype = e.text
+            }
+
+            fstype_elem      = doc.root.add_element("FSTYPE")
+            fstype_elem.text = fstype
+
+            path = ""
+            doc.root.each_element("TEMPLATE/PATH") { |e|
+                path = e.text
+            }
+
+            path_elem       = doc.root.add_element("PATH")
+            path_elem.text  = path
+
+            @db[:image_pool].insert(
+                :oid        => row[:oid],
+                :name       => row[:name],
+                :body       => doc.root.to_s,
+                :uid        => row[:uid],
+                :gid        => row[:gid],
+                :public     => row[:public])
+        end
+
+        @db.run "DROP TABLE old_image_pool;"
+
+
+        @db.run "ALTER TABLE user_pool RENAME TO old_user_pool;"
+        @db.run "CREATE TABLE user_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body TEXT, UNIQUE(name));"
+
+        @db.fetch("SELECT * FROM old_user_pool") do |row|
+            doc = Document.new(row[:body])
+
+            # TODO: Try to guess if the password contains a DN and set the
+            # driver to 'x509', or assume ssh if the password is not hex
+            auth_elem      = doc.root.add_element("AUTH_DRIVER")
+            auth_elem.text = "core"
+
+            doc.root.add_element("TEMPLATE")
+
+            @db[:user_pool].insert(
+                :oid        => row[:oid],
+                :name       => row[:name],
+                :body       => doc.root.to_s)
+        end
+
+        @db.run "DROP TABLE old_user_pool;"
+
+
         return true
     end
 
