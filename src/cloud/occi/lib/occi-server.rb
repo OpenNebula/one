@@ -144,6 +144,11 @@ get '/storage' do
     treat_response(result,rc)
 end
 
+get '/user' do
+    result,rc = @occi_server.get_users(request)
+    treat_response(result,rc)
+end
+
 ###################################################
 # Entity Resources Methods
 ###################################################
@@ -190,5 +195,10 @@ end
 
 put '/storage/:id' do
     result,rc = @occi_server.put_storage(request, params)
+    treat_response(result,rc)
+end
+
+get '/user/:id' do
+    result,rc = @occi_server.get_user(request, params)
     treat_response(result,rc)
 end

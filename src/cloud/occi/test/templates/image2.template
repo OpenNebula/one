@@ -1,0 +1,3 @@
+NAME = second_image
+PATH = /etc/hosts
+TYPE = DATABLOCK

@@ -27,6 +27,8 @@ require 'VirtualNetworkOCCI'
 require 'VirtualNetworkPoolOCCI'
 require 'ImageOCCI'
 require 'ImagePoolOCCI'
+require 'UserOCCI'
+require 'UserPoolOCCI'
 
 require 'pp'
 
@@ -36,7 +38,6 @@ require 'pp'
 # OpenNebula Engine
 ##############################################################################
 class OCCIServer < CloudServer
-
     # Server initializer
     # config_file:: _String_ path of the config file
     # template:: _String_ path to the location of the templates
@@ -72,7 +73,7 @@ class OCCIServer < CloudServer
     def get_computes(request)
         # --- Get User's VMs ---
         user_flag = -1
-        
+
         vmpool = VirtualMachinePoolOCCI.new(
                         self.client,
                         user_flag)
@@ -99,14 +100,14 @@ class OCCIServer < CloudServer
     def get_networks(request)
         # --- Get User's VNETs ---
         user_flag = -1
-        
+
         network_pool = VirtualNetworkPoolOCCI.new(
                             self.client,
                             user_flag)
 
         # --- Prepare XML Response ---
         rc = network_pool.info
-        
+
         if OpenNebula.is_error?(rc)
              if rc.message.match("Error getting")
                 return rc, 404
@@ -125,14 +126,14 @@ class OCCIServer < CloudServer
     def get_storages(request)
         # --- Get User's Images ---
         user_flag = -1
-        
+
         image_pool = ImagePoolOCCI.new(
                             self.client,
                             user_flag)
 
         # --- Prepare XML Response ---
         rc = image_pool.info
-        
+
         if OpenNebula.is_error?(rc)
              if rc.message.match("Error getting")
                 return rc, 404
@@ -142,6 +143,24 @@ class OCCIServer < CloudServer
         end
 
         return to_occi_xml(image_pool, 200)
+    end
+
+    # Gets the pool representation of USERs
+    # request:: _Hash_ hash containing the data of the request
+    # [return] _String_,_Integer_ User pool representation or error,
+    #                             status code
+    def get_users(request)
+        # --- Get Users Pool ---
+        user_pool = UserPoolOCCI.new(self.client)
+
+        # --- Prepare XML Response ---
+        rc = user_pool.info
+
+        if OpenNebula.is_error?(rc)
+            return rc, CloudServer::HTTP_ERROR_CODE[rc.errno]
+        end
+
+        return to_occi_xml(user_pool, 200)
     end
 
     ############################################################################
@@ -190,7 +209,7 @@ class OCCIServer < CloudServer
 
         # --- Prepare XML Response ---
         rc = vm.info
-        
+
         if OpenNebula.is_error?(rc)
              if rc.message.match("Error getting")
                 return rc, 404
@@ -232,58 +251,20 @@ class OCCIServer < CloudServer
         vm = VirtualMachineOCCI.new(
                     VirtualMachine.build_xml(params[:id]),
                     self.client)
-        
-        rc = vm.info
-        return rc, 400 if OpenNebula.is_error?(rc)
-        
-        xmldoc  = XMLElement.build_xml(request.body, 'COMPUTE')
-        vm_info = XMLElement.new(xmldoc) if xmldoc != nil
-        
-        # Check the number of changes in the request
-        image_name = nil
-        image_type = nil
-        vm_info.each('DISK/SAVE_AS') { |disk|
-            if image_name
-                error_msg = "It is only allowed one save_as per request"
-                return OpenNebula::Error.new(error_msg), 400
-            end
-            image_name = disk.attr('.', 'name')
-            image_type = disk.attr('.', 'type')
-        }
-        state = vm_info['STATE']
-        
-        if image_name && state
-            error_msg = "It is not allowed to change the state and save_as" <<
-                        " a disk in the same request"
-            return OpenNebula::Error.new(error_msg), 400
-        elsif image_name
-            # Get the disk id
-            disk_id = vm_info.attr('DISK/SAVE_AS/..', 'id')
-            if disk_id.nil?
-                error_msg = "DISK id attribute not specified"
-                return OpenNebula::Error.new(error_msg), 400
-            end
 
-            disk_id = disk_id.to_i
-            if vm["TEMPLATE/DISK[DISK_ID=\"#{disk_id}\"]/SAVE_AS"]
-                error_msg = "The disk #{disk_id} is already" <<
-                            " suppossed to be saved"
-                return OpenNebula::Error.new(error_msg), 400
-            end
-            
-            rc = vm.save_as(disk_id, image_name)
-            if OpenNebula.is_error?(rc)
-                image.delete
-                return rc, 400
-            end 
-        elsif state
-            rc = vm.mk_action(state)
-            return rc, 400 if OpenNebula.is_error?(rc)
+        rc = vm.info
+        if OpenNebula.is_error?(rc)
+            return rc, CloudServer::HTTP_ERROR_CODE[rc.errno]
         end
 
-        # --- Prepare XML Response ---
-        vm.info
-        return to_occi_xml(vm, 202)
+        result, code = vm.update_from_xml(request.body)
+
+        if OpenNebula.is_error?(result)
+            return result, code
+        else
+            vm.info
+            return to_occi_xml(vm, code)
+        end
     end
 
     ############################################################################
@@ -324,7 +305,7 @@ class OCCIServer < CloudServer
 
         # --- Prepare XML Response ---
         rc = network.info
-        
+
         if OpenNebula.is_error?(rc)
              if rc.message.match("Error getting")
                 return rc, 404
@@ -354,7 +335,7 @@ class OCCIServer < CloudServer
 
         return "", 204
     end
-    
+
     # Updates a NETWORK resource
     # request:: _Hash_ hash containing the data of the request
     # [return] _String_,_Integer_ Update confirmation msg or error,
@@ -366,10 +347,10 @@ class OCCIServer < CloudServer
         vnet = VirtualNetworkOCCI.new(
                     VirtualNetwork.build_xml(params[:id]),
                     self.client)
-                    
+
         rc = vnet.info
         return rc, 400 if OpenNebula.is_error?(rc)
-        
+
         if vnet_info['PUBLIC'] == 'YES'
             rc = vnet.publish
             return rc, 400 if OpenNebula.is_error?(rc)
@@ -432,7 +413,7 @@ class OCCIServer < CloudServer
                         self.client)
 
         rc = image.info
-        
+
         if OpenNebula.is_error?(rc)
              if rc.message.match("Error getting")
                 return rc, 404
@@ -464,7 +445,7 @@ class OCCIServer < CloudServer
 
         return "", 204
     end
-    
+
     # Updates a STORAGE resource
     # request:: _Hash_ hash containing the data of the request
     # [return] _String_,_Integer_ Update confirmation msg or error,
@@ -476,10 +457,10 @@ class OCCIServer < CloudServer
         image = ImageOCCI.new(
                     Image.build_xml(params[:id]),
                     self.client)
-                    
+
         rc = image.info
         return rc, 400 if OpenNebula.is_error?(rc)
-        
+
         if image_info['PERSISTENT'] && image_info['PUBLIC']
             error_msg = "It is not allowed more than one change per request"
             return OpenNebula::Error.new(error_msg), 400
@@ -500,5 +481,25 @@ class OCCIServer < CloudServer
         # --- Prepare XML Response ---
         image.info
         return to_occi_xml(image, 202)
+    end
+
+    # Get the representation of a USER
+    # request:: _Hash_ hash containing the data of the request
+    # [return] _String_,_Integer_ USER representation or error,
+    #                             status code
+    def get_user(request, params)
+        # --- Get the USER ---
+        user = UserOCCI.new(
+                    User.build_xml(params[:id]),
+                    self.client)
+
+        # --- Prepare XML Response ---
+        rc = user.info
+
+        if OpenNebula.is_error?(rc)
+            return rc, CloudServer::HTTP_ERROR_CODE[rc.errno]
+        end
+
+        return to_occi_xml(user, 200)
     end
 end
