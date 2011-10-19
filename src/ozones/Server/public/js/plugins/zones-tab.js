@@ -228,10 +228,10 @@ function zoneElementArray(zone_json){
     var zone = zone_json.ZONE;
 
     return [
-        '<input type="checkbox" id="zone_'+zone.id+'" name="selected_items" value="'+zone.id+'"/>',
-        zone.id,
-        zone.name,
-        zone.endpoint
+        '<input type="checkbox" id="zone_'+zone.ID+'" name="selected_items" value="'+zone.ID+'"/>',
+        zone.ID,
+        zone.NAME,
+        zone.ENDPOINT
     ];
 }
 
@@ -281,32 +281,32 @@ function updateZoneInfo(req,zone_json){
         content :
         '<table id="info_zone_table" class="info_table">\
             <thead>\
-               <tr><th colspan="2">Zone information - '+zone.name+'</th></tr>\
+               <tr><th colspan="2">Zone information - '+zone.NAME+'</th></tr>\
             </thead>\
             <tbody>\
             <tr>\
                 <td class="key_td">ID</td>\
-                <td class="value_td">'+zone.id+'</td>\
+                <td class="value_td">'+zone.ID+'</td>\
             </tr>\
             <tr>\
                 <td class="key_td">Administrator</td>\
-                <td class="value_td">'+zone.onename+'</td>\
+                <td class="value_td">'+zone.ONENAME+'</td>\
             </tr>\
             <tr>\
                 <td class="key_td">Password</td>\
-                <td class="value_td">'+zone.onepass+'</td>\
+                <td class="value_td">'+zone.ONEPASS+'</td>\
             </tr>\
             <tr>\
                 <td class="key_td">Endpoint</td>\
-                <td class="value_td">'+zone.endpoint+'</td>\
+                <td class="value_td">'+zone.ENDPOINT+'</td>\
             </tr>\
             <tr>\
                 <td class="key_td">Sunstone endpoint</td>\
-                <td class="value_td"><a href="'+zone.sunsendpoint+'" target="_blank">'+zone.sunsendpoint+'<span class="ui-icon ui-icon-extlink" style="display:inline-block;" /></a></td>\
+<td class="value_td">'+ (zone.SUNSENDPOINT.length? '<a href="'+zone.SUNSENDPOINT+'" target="_blank">'+zone.SUNSENDPOINT+'<span class="ui-icon ui-icon-extlink" style="display:inline-block;" /></a>' : "") +'</td>\
             </tr>\
             <tr>\
                 <td class="key_td">#VDCs</td>\
-                <td class="value_td">'+zone.vdcs.length+'</td>\
+                <td class="value_td">'+zone.VDCS.length+'</td>\
             </tr>\
             </tbody>\
          </table>'
@@ -524,12 +524,12 @@ function updateZoneInfo(req,zone_json){
     /*End init dataTables*/
 
     //Retrieve pools in the meantime
-    Sunstone.runAction("Zone.host",zone.id);
-    Sunstone.runAction("Zone.vmtemplate",zone.id);
-    Sunstone.runAction("Zone.vms",zone.id);
-    Sunstone.runAction("Zone.vnet",zone.id);
-    Sunstone.runAction("Zone.image",zone.id);
-    Sunstone.runAction("Zone.user",zone.id);
+    Sunstone.runAction("Zone.host",zone.ID);
+    Sunstone.runAction("Zone.vmtemplate",zone.ID);
+    Sunstone.runAction("Zone.vms",zone.ID);
+    Sunstone.runAction("Zone.vnet",zone.ID);
+    Sunstone.runAction("Zone.image",zone.ID);
+    Sunstone.runAction("Zone.user",zone.ID);
 }
 
 
@@ -559,12 +559,12 @@ function setupCreateZoneDialog(){
         }
 
         var zone_json = {
-            "zone": {
-                "name": name,
-                "endpoint": endpoint,
-                "onename": onename,
-                "onepass": onepass,
-                "sunsendpoint" : sunsendpoint
+            "ZONE": {
+                "NAME": name,
+                "ENDPOINT": endpoint,
+                "ONENAME": onename,
+                "ONEPASS": onepass,
+                "SUNSENDPOINT" : sunsendpoint
             }
         };
 

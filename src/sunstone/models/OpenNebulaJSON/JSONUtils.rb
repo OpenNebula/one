@@ -41,6 +41,22 @@ module OpenNebulaJSON
             end
         end
 
+        def parse_json_sym(json_str, root_element)
+            begin
+                parser = JSON.parser.new(json_str, {:symbolize_names => true})
+                hash = parser.parse
+
+                if hash.has_key?(root_element)
+                    return hash[root_element]
+                end
+
+                Error.new("Error parsing JSON:\ root element not present")
+
+            rescue => e
+                Error.new(e.message)
+            end
+        end
+
         def template_to_str(attributes, indent=true)
              if indent
                  ind_enter="\n"

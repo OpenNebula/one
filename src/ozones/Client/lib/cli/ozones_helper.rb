@@ -78,7 +78,7 @@ module OZonesHelper
 
 
         def get_id(rc)
-            id = rc.body.match('\"id\":(.*)$')[1].strip
+            id = rc.body.match('\"ID\":(.*)$')[1].strip
             if id[-1..-1] == ","
                id = id[0..id.size-2]
             end

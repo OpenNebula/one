@@ -26,13 +26,13 @@ module OZones
                                               
             OZones::Zones.all.each{|zone|
                 zone.vdcs.all.each{|vdc|
-                    htaccess << "RewriteRule ^#{vdc.name} " +
-                                "#{zone.endpoint} [P]\n"
-                    if zone.sunsendpoint != nil
-                        htaccess << "RewriteRule ^sunstone_#{vdc.name}/(.+) " +
-                                    "#{zone.sunsendpoint}/$1 [P]\n" 
-                        htaccess << "RewriteRule ^sunstone_#{vdc.name} " +
-                                    "#{zone.sunsendpoint}/ [P]\n"                                    
+                    htaccess << "RewriteRule ^#{vdc.NAME} " +
+                                "#{zone.ENDPOINT} [P]\n"
+                    if zone.SUNSENDPOINT != nil
+                        htaccess << "RewriteRule ^sunstone_#{vdc.NAME}/(.+) " +
+                                    "#{zone.SUNSENDPOINT}/$1 [P]\n"
+                        htaccess << "RewriteRule ^sunstone_#{vdc.NAME} " +
+                                    "#{zone.SUNSENDPOINT}/ [P]\n"
                     end
                 }
             }

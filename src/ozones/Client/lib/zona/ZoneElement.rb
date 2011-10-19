@@ -29,7 +29,7 @@ module Zona
         # @return [Hash,Zona::Error] Hash description of the object, or Error
         def self.build_json(pe_id=nil)
             if pe_id
-                json = "{\"ZONE\":{\"id\":#{pe_id}}}"
+                json = "{\"ZONE\":{\"ID\":#{pe_id}}}"
             else
                 json = '{"ZONE":{}}'
             end

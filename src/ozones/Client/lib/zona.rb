@@ -260,7 +260,7 @@ EOT
                 return value
             else
                 if Zona.is_http_error?(value)
-                    str = "Operating with #{kind.upcase} failed with HTTP error"
+                    str = "Operating with #{kind} failed with HTTP error"
                     str = " " + str + "code: #{value.code}\n"
                     if value.body
                         # Try to extract error message
@@ -287,7 +287,7 @@ EOT
     # @return [String, Zona::Error] JSON string or Error
     def self.to_body(kind, tmpl_str)
         tmpl = OpenNebula::Configuration.new(tmpl_str)
-        res  = { "#{kind}" => tmpl.conf }
+        res  = { "#{kind.upcase}" => tmpl.conf }
 
         return OZonesJSON.to_json(res)
     end

@@ -77,22 +77,16 @@ class OzonesServer
     ############################################################################
     def create_vdc (body,pr)
         #Setup POST data
-        data = parse_json(body,"vdc")
+        vdc_data = parse_json_sym(body,:VDC)
 
-        if OpenNebula.is_error?(data)
+        if OpenNebula.is_error?(vdc_data)
             return [400, OZones::Error.new("Error: Couldn't update vdc. " \
                 "Reason: #{data.message}.").to_json]
         end
 
-        vdc_data = Hash.new
-
-        data.each{|key,value|
-            vdc_data[key.downcase.to_sym] = value
-        }
-       
         #Get the Zone that will host the VDC. And check resouces
-        zoneid = vdc_data.delete(:zoneid)
-        force  = vdc_data.delete(:force)
+        zoneid = vdc_data.delete(:ZONEID)
+        force  = vdc_data.delete(:FORCE)
 
         if !zoneid
             return [400, OZones::Error.new("Error: Couldn't create vdc. " \
@@ -106,7 +100,7 @@ class OzonesServer
         end
 
         if (!force or force.upcase!="YES") and 
-            !host_uniqueness?(zone, vdc_data[:hosts])
+            !host_uniqueness?(zone, vdc_data[:HOSTS])
 
             return [403, OZones::Error.new("Error: Couldn't create vdc. " \
                 "Hosts are not unique, use force to override").to_json]
@@ -140,7 +134,7 @@ class OzonesServer
 
     def create_zone(body, pr)
         #Setup POST data
-        data = parse_json(body,"zone")
+        data = parse_json_sym(body,:ZONE)
 
         if OpenNebula.is_error?(data)
             return [400, OZones::Error.new("Error: Couldn't update vdc. " \
@@ -162,21 +156,15 @@ class OzonesServer
     ############################################################################
     def update_vdc(vdc_id, body)
         #Setup PUT data
-        data = parse_json(body,"vdc")
+        vdc_data = parse_json_sym(body,:VDC)
 
-        if OpenNebula.is_error?(data)
+        if OpenNebula.is_error?(vdc_data)
             return [400, OZones::Error.new("Error: Couldn't update vdc. " \
                 "Reason: #{data.message}.").to_json]
         end
 
-        vdc_data = Hash.new
-
-        data.each{|key,value|
-            vdc_data[key.downcase.to_sym]=value
-        }
-
-        hosts  = vdc_data.delete(:hosts)
-        force  = vdc_data.delete(:force)
+        hosts  = vdc_data.delete(:HOSTS)
+        force  = vdc_data.delete(:FORCE)
 
         # Check parameters
         if !hosts
@@ -260,8 +248,8 @@ class OzonesServer
         
         all_hosts = ""
         zone.vdcs.all.each{|vdc|
-            if vdc.hosts != nil and !vdc.hosts.empty? and vdc.id != vdc_id
-                all_hosts << ',' << vdc.hosts
+            if vdc.HOSTS != nil and !vdc.HOSTS.empty? and vdc.id != vdc_id
+                all_hosts << ',' << vdc.HOSTS
             end
         }
 

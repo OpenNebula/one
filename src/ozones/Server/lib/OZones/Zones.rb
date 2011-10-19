@@ -24,19 +24,19 @@ module OZones
         #######################################################################
         # Data Model for the Zone
         #######################################################################
-        property :id,           Serial
-        property :name,         String, :required => true, :unique => true 
-        property :onename,      String, :required => true
-        property :onepass,      String, :required => true
-        property :endpoint,     String, :required => true
-        property :sunsendpoint, String
+        property :ID,           Serial
+        property :NAME,         String, :required => true, :unique => true
+        property :ONENAME,      String, :required => true
+        property :ONEPASS,      String, :required => true
+        property :ENDPOINT,     String, :required => true
+        property :SUNSENDPOINT, String
         
         has n,   :vdcs
         
         #######################################################################
         # Constants
         #######################################################################
-        ZONE_ATTRS = [:onename, :onepass, :endpoint, :name]
+        ZONE_ATTRS = [:ONENAME, :ONEPASS, :ENDPOINT, :NAME]
 
         #######################################################################
         # JSON Functions
@@ -48,7 +48,7 @@ module OZones
 
             self.all.each{|zone|
                   zonePoolHash["ZONE_POOL"]["ZONE"] <<  
-                     zone.attributes.merge({:numbervdcs => zone.vdcs.all.size})              
+                     zone.attributes.merge({:NUMBERVDCS => zone.vdcs.all.size})
             }
 
             return zonePoolHash
@@ -57,10 +57,10 @@ module OZones
         def to_hash
             zone_attributes = Hash.new
             zone_attributes["ZONE"] = attributes
-            zone_attributes["ZONE"][:vdcs] = Array.new
+            zone_attributes["ZONE"][:VDCS] = Array.new
 
             self.vdcs.all.each{|vdc|
-                zone_attributes["ZONE"][:vdcs]<< vdc.attributes
+                zone_attributes["ZONE"][:VDCS]<< vdc.attributes
             }
 
             return zone_attributes
@@ -69,12 +69,7 @@ module OZones
         #######################################################################
         # Zone Data Management
         #######################################################################
-        def self.create(data)
-            zone_data = Hash.new
-
-            data.each{|key,value|
-                zone_data[key.downcase.to_sym] = value
-            }
+        def self.create(zone_data)
 
             ZONE_ATTRS.each { |param|
                 if !zone_data[param]
@@ -84,16 +79,19 @@ module OZones
             }
 
             # Digest and check credentials
-            zone_data[:onepass] = Digest::SHA1.hexdigest(zone_data[:onepass])
+            zone_data[:ONEPASS] = Digest::SHA1.hexdigest(zone_data[:ONEPASS])
 
-            rc = OpenNebulaZone::check_oneadmin(zone_data[:onename],
-                                        zone_data[:onepass],
-                                        zone_data[:endpoint])
+            $stderr.puts zone_data
+
+            rc = OpenNebulaZone::check_oneadmin(zone_data[:ONENAME],
+                                        zone_data[:ONEPASS],
+                                        zone_data[:ENDPOINT])
 
             if OpenNebula.is_error?(rc)
                 return OZones::Error.new("Error: Couldn't create zone. "\
                             "Reason: #{rc.message}")
             end
+
 
             # Create the zone
             begin
@@ -124,8 +122,8 @@ module OZones
             end
 
             @client = OpenNebula::Client.new(
-                            "#{@zone.onename}:#{@zone.onepass}",
-                            @zone.endpoint,
+                            "#{@zone.ONENAME}:#{@zone.ONEPASS}",
+                            @zone.ENDPOINT,
                             false)
         end
         

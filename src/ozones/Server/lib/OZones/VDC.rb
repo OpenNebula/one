@@ -21,13 +21,13 @@ module OZones
         include OpenNebulaJSON::JSONUtils
         extend OpenNebulaJSON::JSONUtils
 
-        property :id,           Serial
-        property :name,         String, :required => true, :unique => true
-        property :group_id,     Integer
-        property :vdcadminname, String, :required => true
-        property :vdcadmin_id,  Integer
-        property :acls,         String
-        property :hosts,        String
+        property :ID,           Serial
+        property :NAME,         String, :required => true, :unique => true
+        property :GROUP_ID,     Integer
+        property :VDCADMINNAME, String, :required => true
+        property :VDCADMIN_ID,  Integer
+        property :ACLS,         String
+        property :HOSTS,        String
 
         belongs_to :zones
         
@@ -36,14 +36,27 @@ module OZones
             zonePoolHash["VDC_POOL"] = Hash.new
             zonePoolHash["VDC_POOL"]["VDC"] = Array.new unless self.all.empty?
             self.all.each{|vdc|
-                  zonePoolHash["VDC_POOL"]["VDC"] << vdc.attributes              
+                # Hack! zones_ID does not respect the
+                # "all capital letters" policy
+                attrs = vdc.attributes.clone
+                attrs[:ZONES_ID] = vdc.attributes[:zones_ID]
+                attrs.delete(:zones_ID)
+
+                zonePoolHash["VDC_POOL"]["VDC"] << attrs
             }
             return zonePoolHash
         end
         
         def to_hash
             vdc_attributes = Hash.new
-            vdc_attributes["VDC"] = attributes
+
+            # Hack! zones_ID does not respect the
+            # "all capital letters" policy
+            attrs = attributes.clone
+            attrs[:ZONES_ID] = attributes[:zones_ID]
+            attrs.delete(:zones_ID)
+
+            vdc_attributes["VDC"] = attrs
             return vdc_attributes
         end
     end
@@ -57,7 +70,7 @@ module OZones
         #######################################################################
         # Constants
         #######################################################################
-        VDC_ATTRS = [:vdcadminname, :vdcadminpass, :name, :hosts]
+        VDC_ATTRS = [:VDCADMINNAME, :VDCADMINPASS, :NAME, :HOSTS]
 
         attr_reader :vdc
         attr_reader :zone
@@ -72,14 +85,14 @@ module OZones
                     raise "VDC with id #{vdcid} not found."
                 end
 
-                @zone = OZones::Zones.get(@vdc.zones_id)
+                @zone = OZones::Zones.get(@vdc.zones_ID)
             else
                 @zone = zone
             end
 
             @client = OpenNebula::Client.new(
-                            "#{@zone.onename}:#{@zone.onepass}",
-                            @zone.endpoint,
+                            "#{@zone.ONENAME}:#{@zone.ONEPASS}",
+                            @zone.ENDPOINT,
                             false)
         end
 
@@ -102,24 +115,24 @@ module OZones
             #Create a vdc record
             @vdc = Vdc.new
   
-            vdcpass = Digest::SHA1.hexdigest(vdc_data.delete(:vdcadminpass))
+            vdcpass = Digest::SHA1.hexdigest(vdc_data.delete(:VDCADMINPASS))
             @vdc.attributes = vdc_data
 
             # Create a group in the zone with the VDC name
             group = OpenNebula::Group.new(OpenNebula::Group.build_xml, @client)
-            rc    = group.allocate(@vdc.name)
+            rc    = group.allocate(@vdc.NAME)
         
             return rc if OpenNebula.is_error?(rc)
 
-            @vdc.group_id = group.id
+            @vdc.GROUP_ID = group.id
 
             # Create the VDC admin user in the Zone
             user = OpenNebula::User.new(OpenNebula::User.build_xml, @client)
-            rc   = user.allocate(@vdc.vdcadminname, vdcpass)
+            rc   = user.allocate(@vdc.VDCADMINNAME, vdcpass)
 
             return rollback(group, nil, nil, rc) if OpenNebula.is_error?(rc)
 
-            @vdc.vdcadmin_id = user.id
+            @vdc.VDCADMIN_ID = user.id
 
             # Change primary group of the admin user to the VDC group
             rc = user.chgrp(group.id)
@@ -132,7 +145,7 @@ module OZones
             rc, acls_str = create_acls(rules)
             return rollback(group, user,acls_str,rc) if OpenNebula.is_error?(rc)
 
-            @vdc.acls = acls_str
+            @vdc.ACLS = acls_str
 
             return true
         end
@@ -150,13 +163,13 @@ module OZones
             up.info
 
             up.each{|user|
-                if user['GID'].to_i == @vdc.group_id
+                if user['GID'].to_i == @vdc.GROUP_ID
                     user.delete
                 end
             }
 
             # Delete the group
-            OpenNebula::Group.new_with_id(@vdc.group_id, @client).delete
+            OpenNebula::Group.new_with_id(@vdc.GROUP_ID, @client).delete
 
             return @vdc.destroy
         end
@@ -165,18 +178,18 @@ module OZones
         def clean_bootstrap
             delete_acls
 
-            OpenNebula::User.new_with_id(@vdc.vdcadmin_id, @client).delete
-            OpenNebula::Group.new_with_id(@vdc.group_id, @client).delete
+            OpenNebula::User.new_with_id(@vdc.VDCADMIN_ID, @client).delete
+            OpenNebula::Group.new_with_id(@vdc.GROUP_ID, @client).delete
         end
 
         def update(host_list)
             # Delete existing host ACLs
             delete_host_acls
 
-            if @vdc.acls =~ /((\d+,){#{HOST_ACL_FIRST_ID}}).*/
+            if @vdc.ACLS =~ /((\d+,){#{HOST_ACL_FIRST_ID}}).*/
                 newacls = $1.chop
             else
-                newacls = @vdc.acls.clone
+                newacls = @vdc.ACLS.clone
             end
 
             # Create new ACLs. TODO Rollback ACL creation
@@ -194,8 +207,8 @@ module OZones
             #Update the VDC Record
             begin
                 @vdc.raise_on_save_failure = true
-                @vdc.hosts = host_list
-                @vdc.acls  = newacls
+                @vdc.HOSTS = host_list
+                @vdc.ACLS  = newacls
 
                 @vdc.save
             rescue => e
@@ -218,12 +231,12 @@ module OZones
             rule_str = Array.new
 
             # Grant permissions to the group
-            rule_str << "@#{@vdc.group_id} VM+NET+IMAGE+TEMPLATE/* " \
+            rule_str << "@#{@vdc.GROUP_ID} VM+NET+IMAGE+TEMPLATE/* " \
                         "CREATE+INFO_POOL_MINE"
 
             # Grant permissions to the vdc admin
-            rule_str << "##{@vdc.vdcadmin_id} USER/* CREATE"
-            rule_str << "##{@vdc.vdcadmin_id} USER/@#{@vdc.group_id} " \
+            rule_str << "##{@vdc.VDCADMIN_ID} USER/* CREATE"
+            rule_str << "##{@vdc.VDCADMIN_ID} USER/@#{@vdc.GROUP_ID} " \
                         "MANAGE+DELETE+INFO"
 
             ###############################################################
@@ -238,12 +251,12 @@ module OZones
             rule_str = Array.new
 
             if host_list == nil
-                host_list = @vdc.hosts
+                host_list = @vdc.HOSTS
             end 
 
             # Grant permissions to use the vdc hosts
             host_list.split(',').each{|hostid|
-                rule_str << "@#{@vdc.group_id} HOST/##{hostid} USE"
+                rule_str << "@#{@vdc.GROUP_ID} HOST/##{hostid} USE"
             }    
 
             return rule_str
@@ -254,7 +267,7 @@ module OZones
         #######################################################################
         # Deletes ACLs for the hosts
         def delete_host_acls
-            host_acls = @vdc.acls.split(',')[HOST_ACL_FIRST_ID..-1]
+            host_acls = @vdc.ACLS.split(',')[HOST_ACL_FIRST_ID..-1]
 
             if host_acls
                 host_acls.each{|acl|
@@ -265,7 +278,7 @@ module OZones
 
         # Delete ACLs 
         def delete_acls
-            @vdc.acls.split(",").each{|acl|
+            @vdc.ACLS.split(",").each{|acl|
                 OpenNebula::Acl.new_with_id(acl.to_i, @client).delete
             }
         end
@@ -276,7 +289,7 @@ module OZones
             ip.info
 
             ip.each{|image|
-                image.delete if image['GID'].to_i == @vdc.group_id
+                image.delete if image['GID'].to_i == @vdc.GROUP_ID
             }
         end
 
@@ -286,7 +299,7 @@ module OZones
             tp.info
 
             tp.each{|template|
-                template.delete if template['GID'].to_i == @vdc.group_id
+                template.delete if template['GID'].to_i == @vdc.GROUP_ID
             }
         end
 
@@ -296,7 +309,7 @@ module OZones
             vmp.info
 
             vmp.each{|vm|
-                vm.delete if vm['GID'].to_i == @vdc.group_id
+                vm.delete if vm['GID'].to_i == @vdc.GROUP_ID
             }
         end
 
@@ -306,7 +319,7 @@ module OZones
             vnp.info
 
             vnp.each{|vn|
-                vnp.delete if vn['GID'].to_i == @vdc.group_id
+                vnp.delete if vn['GID'].to_i == @vdc.GROUP_ID
             }
         end
 

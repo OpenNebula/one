@@ -23,14 +23,15 @@ module Zona
     class VDC < OZonesElement
 
         # String describing the kind of this resource
+        # Should become part of the requests to server: get /vdc/...
         VDC_KIND = "vdc"
 
         # Builds minimal JSON description for a VDC
-        # @param [#to_i] pe_id VDC's ID
+        # @param [Integer] pe_id VDC's ID
         # @return [Hash,Zona::Error] Hash description of the object, or Error
         def self.build_json(pe_id=nil)
             if pe_id
-                json = "{\"VDC\":{\"id\":#{pe_id}}}"
+                json = "{\"VDC\":{\"ID\":#{pe_id}}}"
             else
                 json = '{"VDC":{}}'
             end
@@ -85,14 +86,14 @@ module Zona
             return Error.new('VDC not info-ed') if !@json_hash
 
             # array of hosts, integers
-            hosts = self["hosts"].split(',').collect!{|x| x.to_i}
+            hosts = self["HOSTS"].split(',').collect!{|x| x.to_i}
             hosts.concat(hosts_array).uniq!
 
             new_hosts = hosts.join(',')
-            template = {:id => @pe_id, :hosts => new_hosts}
-            template[:force] = "yes" if options[:force]
+            template = {:ID => @pe_id, :HOSTS => new_hosts}
+            template[:FORCE] = "YES" if options[:FORCE]
 
-            template = {:vdc => template}
+            template = {:VDC => template}
 
             rc = @client.put_resource(VDC_KIND,@pe_id,template.to_json)
             return rc if Zona.is_error?(rc)
@@ -106,10 +107,10 @@ module Zona
         def delhosts(hosts_array)
             return Error.new('VDC not info-ed') if !@json_hash
 
-            hosts = self["hosts"].split(',').collect!{|x| x.to_i}
+            hosts = self["HOSTS"].split(',').collect!{|x| x.to_i}
 
             new_hosts = (hosts - hosts_array).join(',')
-            template = {:vdc => {:id => @pe_id, :hosts => new_hosts}}
+            template = {:VDC => {:ID => @pe_id, :HOSTS => new_hosts}}
 
             rc = @client.put_resource(VDC_KIND,@pe_id,template.to_json)
             return rc if Zona.is_error?(rc)
