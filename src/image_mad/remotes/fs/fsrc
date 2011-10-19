@@ -41,15 +41,11 @@ echo "$IMAGE_REPOSITORY_PATH/`echo $CANONICAL_MD5 | cut -d ' ' -f1`"
 }
 
 function fs_du {
-    SIZE=""
-
     QEMU_IMG=`command -v qemu-img`
 
-    if [ "$?" = "0" ]; then
+    if [ $? = 0 ]; then
         SIZE=$($QEMU_IMG info $1|awk '/^virtual size:/{print substr($4,2)}')
-    fi
-
-    if [ -z "$SIZE" ]; then
+    else 
         SIZE=$(stat -c %s $1)
     fi
 
