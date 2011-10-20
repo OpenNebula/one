@@ -138,10 +138,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Creates a new User
         Examples:
           oneuser create my_user my_password
-          oneuser create my_user /tmp/mypass -r
-          oneuser create my_user --ssh --key /tmp/id_rsa
-          oneuser create my_user --ssh -r /tmp/public_key
-          oneuser create my_user --x509 --cert /tmp/my_cert.pem
+          oneuser create my_user -r /tmp/mypass 
+          oneuser create my_user --ssh --key /tmp/id_rsa -d ssh
+          oneuser create my_user --ssh -r /tmp/public_key -d ssh
+          oneuser create my_user --x509 --cert /tmp/my_cert.pem -d x509
     EOT
 
     command :create, create_desc, :username, [:password, nil],
