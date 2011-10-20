@@ -37,7 +37,7 @@ VirtualNetworkPool* NebulaTest::create_vnpool(SqlDB* db, string mac_prefix, int 
 
 UserPool* NebulaTest::create_upool(SqlDB* db)
 {
-    return new UserPool(db);
+    return new UserPool(db,300);
 }
 
 ImagePool* NebulaTest::create_ipool( SqlDB* db,
