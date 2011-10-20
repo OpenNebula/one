@@ -61,6 +61,11 @@ int UserChangePassword::user_action(User * user,
 
     string new_pass = xmlrpc_c::value_string(paramList.getString(2));
 
+    if (user->get_auth_driver() == UserPool::CORE_AUTH)
+    {
+        new_pass = SSLTools::sha1_digest(new_pass);
+    }
+
     int rc = user->set_password(new_pass, error_str);
 
     if ( rc == 0 )
@@ -84,6 +89,11 @@ int UserChangeAuth::user_action(User * user,
     string new_pass = xmlrpc_c::value_string(paramList.getString(3));
 
     int rc;
+
+    if (new_auth == UserPool::CORE_AUTH)
+    {
+        new_pass = SSLTools::sha1_digest(new_pass);
+    }
 
     // The password may be invalid, try to change it first
     rc = user->set_password(new_pass, error_str);

@@ -60,7 +60,7 @@ public:
 
     /**
      *  Returns user password
-     *     @return username User's hostname
+     *     @return the User's password
      */
     const string& get_password() const
     {
@@ -124,6 +124,15 @@ public:
         }
 
         return rc;
+    };
+
+    /**
+     *  Returns user password
+     *     @return the user's auth driver
+     */
+    const string& get_auth_driver() const
+    {
+        return auth_driver;
     };
 
     /**
