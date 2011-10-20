@@ -23,15 +23,15 @@ module Zona
         protected
 
         # Initializes a Pool instance
-        # @param [String] pool pool name tag
-        # @param [String] pool pool elements name tag
+        # @param [#to_sym] pool pool name tag
+        # @param [#to_sym] pool pool elements name tag
         # @param [Zona::Client] client OZones Client
         def initialize(pool,element,client)
             super(nil)
 
             @client = client
-            @pool_name = pool.upcase
-            @element_name = element.upcase
+            @pool_name = pool.to_sym
+            @element_name = element.to_sym
         end
 
         # Produces a new Pool element with the provided description

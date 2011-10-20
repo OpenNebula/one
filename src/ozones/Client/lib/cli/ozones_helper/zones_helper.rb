@@ -36,17 +36,17 @@ class ZonesHelper < OZonesHelper::OZHelper
         str_h1="%-61s"
         str="%-15s: %-20s"
         
-        CLIHelper.print_header(str_h1 % ["ZONE #{zone['NAME']} INFORMATION"])
+        CLIHelper.print_header(str_h1 % ["ZONE #{zone[:NAME]} INFORMATION"])
     
-        puts str % ["ID ",        zone['ID'].to_s]
-        puts str % ["NAME ",      zone['NAME'].to_s]
-        puts str % ["ZONE ADMIN ",zone['ONENAME'].to_s]
-        puts str % ["ZONE PASS ", zone['ONEPASS'].to_s]
-        puts str % ["ENDPOINT ",  zone['ENDPOINT'].to_s]
-        puts str % ["# VDCS ",    zone['VDCS'].size.to_s]
+        puts str % ["ID ",        zone[:ID].to_s]
+        puts str % ["NAME ",      zone[:NAME].to_s]
+        puts str % ["ZONE ADMIN ",zone[:ONENAME].to_s]
+        puts str % ["ZONE PASS ", zone[:ONEPASS].to_s]
+        puts str % ["ENDPOINT ",  zone[:ENDPOINT].to_s]
+        puts str % ["# VDCS ",    zone[:VDCS].size.to_s]
         puts
         
-        if zone['VDCS'].size == 0
+        if zone[:VDCS].size == 0
             return [0, zone]
         end
     
@@ -54,17 +54,17 @@ class ZonesHelper < OZonesHelper::OZHelper
      
          st=CLIHelper::ShowTable.new(nil) do
             column :ID, "Identifier for VDC", :size=>4 do |d,e|
-                d["ID"]
+                d[:ID]
             end
 
             column :NAME, "Name of the VDC", :right, :size=>15 do |d,e|
-                d["NAME"]
+                d[:NAME]
             end
         
             default :ID, :NAME
         end
 
-        st.show(zone["VDCS"], options)
+        st.show(zone[:VDCS], options)
         
         return [0, zone]
     end
@@ -72,20 +72,20 @@ class ZonesHelper < OZonesHelper::OZHelper
     def format_pool(pool, options)   
         st=CLIHelper::ShowTable.new(nil) do
             column :ID, "Identifier for Zone", :size=>4 do |d,e|
-                d["ID"]
+                d[:ID]
             end
 
             column :NAME, "Name of the Zone", :right, :size=>15 do |d,e|
-                d["NAME"]
+                d[:NAME]
             end
 
             column :ENDPOINT, "Endpoint of the Zone", :right, :size=>40 do |d,e|
-                d["ENDPOINT"]
+                d[:ENDPOINT]
             end
         
             default :ID, :NAME, :ENDPOINT
         end
-        st.show(pool[@zone_str.upcase], options)
+        st.show(pool[:ZONE], options)
         
         return 0
     end

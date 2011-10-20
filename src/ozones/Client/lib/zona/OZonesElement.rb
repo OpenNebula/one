@@ -30,8 +30,8 @@ module Zona
             @client = client
             @json_hash = hash
 
-            @pe_id = self["ID"] ? self["ID"].to_i : nil
-            @name = self["NAME"] ? self["NAME"] : nil
+            @pe_id = self[:ID] ? self[:ID].to_i : nil
+            @name = self[:NAME] ? self[:NAME] : nil
         end
 
         # Retrieves details about an object and fills in
@@ -48,8 +48,8 @@ module Zona
 
                 rc = nil
 
-                @pe_id = self["ID"] ? self["ID"].to_i : nil
-                @name = self["NAME"] ? self["NAME"] : nil
+                @pe_id = self[:ID] ? self[:ID].to_i : nil
+                @name = self[:NAME] ? self[:NAME] : nil
 
             end
             rc
@@ -72,7 +72,7 @@ module Zona
 
             if !Zona.is_error?(rc)
                 initialize_json(rc.body,kind.upcase)
-                @pe_id = self["ID"].to_i
+                @pe_id = self[:ID].to_i
                 rc = nil
             end
             rc

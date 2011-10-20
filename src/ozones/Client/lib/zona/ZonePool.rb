@@ -27,7 +27,7 @@ module Zona
         # Initializes a Zone Pool instance
         # @param [Zona::Client] client OZones Client
         def initialize(client)
-            super("ZONE_POOL", "ZONE", client)
+            super(:ZONE_POOL, :ZONE, client)
         end
 
         # Produces a new Zone element with the provided description

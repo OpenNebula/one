@@ -62,7 +62,7 @@ class VDCHelper < OZonesHelper::OZHelper
             vdc = Zona::OZonesJSON.parse_json(rc.body, @vdc_str.upcase)
         end
 
-        hosts = vdc['HOSTS'].split(',').collect!{|x| x.to_i}
+        hosts = vdc[:HOSTS].split(',').collect!{|x| x.to_i}
         host_array.concat(hosts).uniq!
 
         new_host = host_array.join(',')
@@ -90,7 +90,7 @@ class VDCHelper < OZonesHelper::OZHelper
             vdc = Zona::OZonesJSON.parse_json(rc.body, @vdc_str.upcase)
         end
 
-        hosts = vdc['HOSTS'].split(',').collect!{|x| x.to_i}
+        hosts = vdc[:HOSTS].split(',').collect!{|x| x.to_i}
 
         new_host = (hosts - host_array).join(',')
         template = "ID=#{id}\nHOSTS=#{new_host}\n"
@@ -112,12 +112,12 @@ class VDCHelper < OZonesHelper::OZHelper
         
         CLIHelper.print_header(str_h1 % ["VDC #{vdc['name']} INFORMATION"])
     
-        puts str % ["ID ",       vdc['ID'].to_s]
-        puts str % ["NAME ",     vdc['NAME'].to_s]
-        puts str % ["GROUP_ID ", vdc['GROUP_ID'].to_s]
-        puts str % ["ZONEID ",   vdc['ZONES_ID'].to_s]
-        puts str % ["VDCADMIN ", vdc['VDCADMINNAME'].to_s]
-        puts str % ["HOST IDs ", vdc['HOSTS'].to_s]
+        puts str % ["ID ",       vdc[:ID].to_s]
+        puts str % ["NAME ",     vdc[:NAME].to_s]
+        puts str % ["GROUP_ID ", vdc[:GROUP_ID].to_s]
+        puts str % ["ZONEID ",   vdc[:ZONES_ID].to_s]
+        puts str % ["VDCADMIN ", vdc[:VDCADMINNAME].to_s]
+        puts str % ["HOST IDs ", vdc[:HOSTS].to_s]
         puts
         
         return 0
@@ -126,21 +126,21 @@ class VDCHelper < OZonesHelper::OZHelper
     def format_pool(pool, options)    
         st=CLIHelper::ShowTable.new(nil) do
             column :ID, "Identifier for VDC", :size=>4 do |d,e|
-                d["ID"]
+                d[:ID]
             end
 
             column :NAME, "Name of the VDC", :right, :size=>15 do |d,e|
-                d["NAME"]
+                d[:NAME]
             end
 
             column :ZONEID, "Id of the Zone where it belongs", 
                              :right, :size=>40 do |d,e|
-                d["ZONES_ID"]
+                d[:ZONES_ID]
             end
         
             default :ID, :NAME, :ZONEID
         end      
-        st.show(pool[@vdc_str.upcase], options)
+        st.show(pool[:VDC], options)
         
         return 0
     end

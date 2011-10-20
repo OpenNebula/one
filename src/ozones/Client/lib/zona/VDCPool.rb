@@ -27,7 +27,7 @@ module Zona
         # Initializes a VDC Pool instance
         # @param [Zona::Client] client OZones Client
         def initialize(client)
-            super("VDC_POOL", "VDC", client)
+            super(:VDC_POOL, :VDC, client)
         end
 
         # Produces a new VDC element with the provided description

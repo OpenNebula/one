@@ -25,15 +25,17 @@ module Zona
 
         # Build an element description hash.
         # @param [String] json_str JSON description of the element
-        # @param [String] root_element root element of the JSON object
+        # @param [#to_sym] root_element root element of the JSON object
         # @return [Hash,Zona::Error] The parsed JSON hash, or Error
         def self.build_json(json_str, root_element)
             begin
-                parser = JSON.parser.new(json_str, {:symbolize_names => false})
+                parser = JSON.parser.new(json_str, {:symbolize_names => true})
                 hash = parser.parse
 
-                if hash.has_key?(root_element)
-                    return hash[root_element]
+                root_sym = root_element.to_sym
+
+                if hash.has_key?(root_sym)
+                    return hash[root_sym]
                 end
 
                 Error.new("Error parsing JSON:\ root element not present")
@@ -74,7 +76,7 @@ module Zona
 
         # Initializes an instance with a JSON description
         # @param [String] json_str JSON description
-        # @param [String] root_element root element in the element description
+        # @param [#to_sym] root_element root element in the element description
         def initialize_json(json_str, root_element)
             rc = OZonesJSON.build_json(json_str,root_element)
             @json_hash = rc
@@ -85,10 +87,10 @@ module Zona
         end
 
         # Accesses the value of a JSON element key
-        # @param [String] key
+        # @param [#to_sym] key
         # @return [String] Value
         def [](key)
-            @json_hash[key]
+            @json_hash[key.to_sym]
         end
 
 

@@ -33,7 +33,7 @@ module Zona
             else
                 json = '{"ZONE":{}}'
             end
-            OZonesJSON.build_json(json,"ZONE")
+            OZonesJSON.build_json(json,:ZONE)
         end
 
         # Initializes a Zone object instance
@@ -48,7 +48,7 @@ module Zona
         # the information hash
         # @return [Zona::Error] nil or Error
         def info
-            super(ZONE_KIND,"ZONE")
+            super(ZONE_KIND,:ZONE)
         end
 
         # Allocates a new element from a hash description

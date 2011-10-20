@@ -35,7 +35,7 @@ module Zona
             else
                 json = '{"VDC":{}}'
             end
-            OZonesJSON.build_json(json,"VDC")
+            OZonesJSON.build_json(json,:VDC)
         end
 
         # Initializes a VDC object instance
@@ -50,7 +50,7 @@ module Zona
         # the information hash
         # @return [Zona::Error] nil or Error
         def info
-            super(VDC_KIND,"VDC")
+            super(VDC_KIND,:VDC)
         end
 
         # Allocates a new element from a hash description
@@ -86,7 +86,7 @@ module Zona
             return Error.new('VDC not info-ed') if !@json_hash
 
             # array of hosts, integers
-            hosts = self["HOSTS"].split(',').collect!{|x| x.to_i}
+            hosts = self[:HOSTS].split(',').collect!{|x| x.to_i}
             hosts.concat(hosts_array).uniq!
 
             new_hosts = hosts.join(',')
@@ -107,7 +107,7 @@ module Zona
         def delhosts(hosts_array)
             return Error.new('VDC not info-ed') if !@json_hash
 
-            hosts = self["HOSTS"].split(',').collect!{|x| x.to_i}
+            hosts = self[:HOSTS].split(',').collect!{|x| x.to_i}
 
             new_hosts = (hosts - hosts_array).join(',')
             template = {:VDC => {:ID => @pe_id, :HOSTS => new_hosts}}
